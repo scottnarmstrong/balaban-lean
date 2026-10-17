@@ -2062,6 +2062,8 @@ public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedFinal
+public import Balaban.LargeField.R.RGasRepCoupled
+public import Balaban.LargeField.R.RGasRepDecor
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
@@ -2069,6 +2071,9 @@ public import Balaban.LargeField.R.RRemovedFinalRgComp
 public import Balaban.LargeField.R.RRemovedFinalWit
 public import Balaban.LargeField.R.KeptOutcomeGamma
 public import Balaban.LargeField.R.KeptOutcomeWindow
+public import Balaban.LargeField.R.KeptOutcomeGain23
+public import Balaban.LargeField.R.KeptOutcomeGainRipe
+public import Balaban.LargeField.R.KeptOutcomeGainIntegral
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
@@ -2222,7 +2227,11 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Fluctuation.LocalClassDensityIrrelCount
 public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppLen
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSpec
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
+public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
@@ -2318,3 +2327,14 @@ public import Balaban.LargeField.Regime.A0PrimeRadiusWeight
 public import Balaban.LargeField.Regime.A0PrimeRadiusStep
 public import Balaban.LargeField.Regime.A0PrimeRadiusObservable
 public import Balaban.LargeField.Regime.A0PrimeRadiusProduction
+public import Balaban.Correlations.C1StarFromStepCore
+public import Balaban.Correlations.C1StarFromStep
+public import Balaban.Correlations.C1StarFromStepRootC
+public import Balaban.Correlations.C1StarFromStepLimits
+public import Balaban.SmallField.IrrelTorusDefectGeom
+public import Balaban.SmallField.IrrelTorusDefectJet
+public import Balaban.SmallField.IrrelTorusDefectTail
+public import Balaban.LargeField.R.RRemovedFracMassArith
+public import Balaban.LargeField.R.RRemovedFracMassCore
+public import Balaban.LargeField.R.RRemovedFracMassReserve
+public import Balaban.LargeField.R.RRemovedWindowMass
