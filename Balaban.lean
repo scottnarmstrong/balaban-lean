@@ -2267,8 +2267,17 @@ public import Balaban.Polymer.TwoTorusGapStepObsFamily
 public import Balaban.Polymer.TwoTorusGapStepFinal
 public import Balaban.Polymer.TwoTorusGapTowerStep
 public import Balaban.Polymer.TwoTorusGapTowerChain
+public import Balaban.Polymer.TwoTorusGapDataSrc
 public import Balaban.Polymer.TwoTorusGapStepFull
 public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.Polymer.TwoTorusGapDataThr
+public import Balaban.Polymer.TwoTorusGapDataThrDet
+public import Balaban.Polymer.TwoTorusGapDataThrFull
+public import Balaban.Polymer.TwoTorusGapDataThrEnergy
+public import Balaban.Polymer.TwoTorusGapDataThrFinal
+public import Balaban.Polymer.TwoTorusGapDataThrStep
+public import Balaban.Polymer.TwoTorusGapDataTower
+public import Balaban.Polymer.TwoTorusGapDataTowerMem
