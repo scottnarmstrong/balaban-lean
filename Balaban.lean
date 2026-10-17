@@ -2149,6 +2149,7 @@ public import Balaban.LargeField.R.RRemovedHidCore
 public import Balaban.LargeField.R.RRemovedHidGu
 public import Balaban.LargeField.R.RRemovedHidRead
 public import Balaban.LargeField.R.RRemovedHidO
+public import Balaban.LargeField.R.WindowHidGlue
 public import Balaban.LargeField.R.RRemovedHidCoreGen
 public import Balaban.LargeField.R.RRemovedHidCoreThm
 public import Balaban.LargeField.R.RRemovedHidAux
@@ -2279,6 +2280,14 @@ public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.LargeField.R.WindowCompose
+public import Balaban.LargeField.R.WindowComposeQuot
+public import Balaban.LargeField.R.WindowComposeQuotGen
+public import Balaban.LargeField.R.WindowComposeChain
+public import Balaban.LargeField.R.WindowComposeGeom
+public import Balaban.LargeField.R.WindowComposeCongr
+public import Balaban.LargeField.R.WindowComposePt
+public import Balaban.LargeField.R.WindowComposeCore
 public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
