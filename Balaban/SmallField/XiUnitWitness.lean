@@ -322,6 +322,231 @@ theorem unitWitness_real {j : ℕ} {e : ℝ} {Ψ₀ : Torus d (N₀ * L ^ k) →
   · rw [← hfR]; exact congrArg Prod.fst e3
   · rw [← hmR]; exact congrArg Prod.snd e3
 
+/-- The weighted size of the change of the witness: `ℓ(x)² ν ||h₀| - 1| < e²`. -/
+theorem weight_bound {G : GeneratingSet d L N₀ k ϱ} {ν e : ℝ} {j : ℕ} (hΩ : G.Ω (j + 1) = ∅)
+    (hν : 0 ≤ ν) {h₀ : Fin N → ℝ}
+    (hnorm : ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h₀ i ^ 2 - 1| < (1 * e) ^ 2) (x : Torus d (N₀ * L ^ k)) :
+    ν * G.spacing x ^ 2 * |rn h₀ - 1| < e ^ 2 := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hsp : G.spacing x ≤ (L : ℝ) ^ j := by
+    unfold GeneratingSet.spacing
+    exact pow_le_pow_right₀ hL1 (layerIndex_le_of_Ω_empty G hΩ x)
+  have hsp0 : 0 ≤ G.spacing x := by unfold GeneratingSet.spacing; positivity
+  calc ν * G.spacing x ^ 2 * |rn h₀ - 1| ≤ ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h₀ i ^ 2 - 1| :=
+        mul_le_mul (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ hsp0 hsp 2) hν)
+          (abs_rn_sub_one_le h₀) (abs_nonneg _) (by positivity)
+    _ < e ^ 2 := by simpa using hnorm
+
+/-- A unit vector `v` is at distance at least `||h₀| - 1|` from `h₀`. -/
+theorem abs_rn_sub_one_le_vn {v : Fin N → ℂ} (hv : vn v = 1) (h₀ : Fin N → ℝ) :
+    |rn h₀ - 1| ≤ vn (fun i => v i - (h₀ i : ℂ)) := by
+  have h1 := vn_le_sub_add (fun i => (h₀ i : ℂ)) v
+  have h2 := vn_le_sub_add v (fun i => (h₀ i : ℂ))
+  have e : vn (fun i => (h₀ i : ℂ) - v i) = vn (fun i => v i - (h₀ i : ℂ)) := by
+    rw [← vn_neg]; congr 1; funext i; ring
+  rw [vn_ofReal] at h1 h2
+  rw [e, hv] at h1
+  rw [hv] at h2
+  rw [abs_le]
+  constructor <;> linarith
+
+/-- The mass clause for the unit witness: `|v - h₀'| ≤ 2 |v - h₀|` for a unit vector `v`. -/
+theorem vn_sub_unit_le {v : Fin N → ℂ} (hv : vn v = 1) {h₀ h₀' : Fin N → ℝ}
+    (hd : rn (fun i => h₀ i - h₀' i) = |rn h₀ - 1|) :
+    vn (fun i => v i - (h₀' i : ℂ)) ≤ 2 * vn (fun i => v i - (h₀ i : ℂ)) := by
+  have h1 := vn_add (fun i => v i - (h₀ i : ℂ)) (fun i => ((h₀ i - h₀' i : ℝ) : ℂ))
+  have e : ((fun i => v i - (h₀ i : ℂ)) + fun i => ((h₀ i - h₀' i : ℝ) : ℂ)) =
+      fun i => v i - (h₀' i : ℂ) := by
+    funext i; simp only [Pi.add_apply]; push_cast; ring
+  rw [e, vn_ofReal, hd] at h1
+  have := abs_rn_sub_one_le_vn hv h₀
+  linarith
+
 end Response
+
+section Mono
+
+variable {G : GeneratingSet d L N₀ k ϱ}
+
+/-- The inequalities of `Ξ^c` are monotone in the radius (`σ = 1`). -/
+theorem xiCBounds_mono {ν e e₂ : ℝ} {Dr Dc : BgData G N} {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    {φr φc : G.Ω 1 × Fin N → ℂ} {αr αc : G.Ω 1 → ℂ} (he : 0 < e) (hee : e ≤ e₂)
+    (hb : XiCBounds G ν 1 e Dr Dc Ψ'' h'' φr φc αr αc) :
+    XiCBounds G ν 1 e₂ Dr Dc Ψ'' h'' φr φc αr αc := by
+  have hp : ∀ x : Torus d (N₀ * L ^ k), 0 < G.spacing x := fun x => spacing_pos G
+  have he2 : 0 < e₂ := he.trans_le hee
+  refine ⟨fun x hx m => ?_, fun x hx => ?_, fun x => ?_, fun x => ?_, fun x hx => ?_,
+    fun z hz z' hz' hadj => ?_, fun x hx => ?_, fun x => ?_⟩
+  · obtain ⟨o1, o2⟩ := hb.grad x hx m
+    exact ⟨o1.trans_le (div_le_div_of_nonneg_right (by linarith) (hp x).le),
+      o2.trans_le (div_le_div_of_nonneg_right (by linarith) (hp x).le)⟩
+  · exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right (by linarith)
+      (by have := hp x; positivity))
+  · exact (hb.mult x).trans_le (by linarith)
+  · exact (hb.val x).trans_le hee
+  · exact (hb.close x hx).trans_le (by linarith)
+  · exact (hb.collarBond z hz z' hz' hadj).trans_le (by linarith)
+  · have o := hb.hAbs x hx
+    have e1 : (1 * e) ^ 2 / e = e := by field_simp
+    have e2 : (1 * e₂) ^ 2 / e₂ = e₂ := by field_simp
+    rw [e1] at o; rw [e2]; linarith
+  · exact (hb.hDot x).trans_le (pow_le_pow_left₀ (by linarith) (by linarith) 2)
+
+end Mono
+
+
+section Main
+
+variable {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+
+/-- **Re-realization at the unit real witness** (decision D2(b), blocker 6).  A member
+`(Ψ₀ + Ψ'', h₀ + h'')` of `Ξ^c_j(𝔹; 1, e)` at the mass `ν` (`Ω_{j+1} = ∅`, `N ≥ 1`) is re-realized
+as `(Ψ₀ + Ψ'', h₀' + h''')` with the unit real witness `h₀' = h₀ / |h₀|` and
+`h''' = h'' + (h₀ - h₀')`, which realizes the same complex datum `D`, and it lies in
+`Ξ^c_j(𝔹; 1, e')` with `e' = 2 e + 2 (N + 1) K₂ e²`, `K₂ = cK2 d L N`.  The factor `2` in `e'` is
+the mass clause `√ν ℓ |φ - h₀'| ≤ 2 √ν ℓ |φ - h₀| + …` and cannot be avoided in general (a field
+spread over the unit sphere and `h₀ = 0`); everything else changes by `O(K₂ e²)`. -/
+theorem xiC_unitWitness [NeZero N] {j : ℕ} {e : ℝ} {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ}
+    {h₀ : Fin N → ℝ} {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} (H : BgHyp d L k ϱ a ν)
+    (hΩ : G.Ω (j + 1) = ∅) (he : 0 < e) (hsm : (4 * d + 6) * ((2 * d + 1) * e) ≤ 1)
+    (hc1 : 2 * (xiC1 d * e) ≤ bgC1 d L N) (he1 : e ≤ deltaStar d L N)
+    (hK2 : e + cK2 d L N * e ^ 2 ≤ bgC0 d L N) (hX : XiC G a ν j 1 e Ψ₀ h₀ Ψ'' h'') :
+    ∃ (h₀' : Fin N → ℝ) (h''' : Torus d (N₀ * L ^ k) → Fin N → ℂ),
+      ∑ i, h₀' i ^ 2 = 1 ∧
+      XiC G a ν j 1 (2 * e + 2 * ((N : ℝ) + 1) * (cK2 d L N * e ^ 2)) Ψ₀ h₀' Ψ'' h''' ∧
+      ∀ D : BgData G N, RealizesC D Ψ₀ h₀ Ψ'' h'' → RealizesC D Ψ₀ h₀' Ψ'' h''' := by
+  obtain ⟨-, -, Dr, Dc, hXr, hC, hDcU, hb⟩ := hX
+  obtain ⟨h₀', hu, hd⟩ := exists_unit_near h₀
+  refine ⟨h₀', fun x i => h'' x i + ((h₀ i : ℂ) - (h₀' i : ℂ)), hu, ?_, ?_⟩
+  swap
+  · intro D hD
+    exact ⟨hD.1, fun x hx i => by rw [hD.2 x hx i]; ring⟩
+  have hd0 : 0 < d := by have := H.hd; omega
+  -- the new real datum
+  let Dc' := BgData.clip G Dr.Ψ (fun _ i => ((h₀' i : ℝ) : ℂ)) Dr.Ψ_layerConst
+    (fun _ _ _ _ _ _ _ => rfl)
+  let Dr' : BgData G N :=
+    { Dr with h := Dc'.h, h_layerConst := Dc'.h_layerConst, h_zero := Dc'.h_zero }
+  have hh' : ∀ x ∈ G.Ω 1, ∀ i, Dr'.h x i = (h₀' i : ℂ) := fun x hx i => by
+    simp [Dr', Dc', BgData.clip, hx]
+  obtain ⟨hDR', δφ, δα, hfe, hme, hsup, hsmall⟩ :=
+    unitWitness_real (Dr' := Dr') H hΩ he hsm hc1 he1 hK2 hXr rfl hh' hu hd
+  set V : ℝ := cK2 d L N * e ^ 2 with hVdef
+  have hV : 0 ≤ V := by have := cK2_pos d L N; positivity
+  have hN : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  have hNV : 0 ≤ (N : ℝ) * V := mul_nonneg hN hV
+  have he1' : e ≤ 1 := he1.trans (deltaStar_le_one (d := d) (L := L) (N := N))
+  set ef : ℝ := 2 * e + 2 * ((N : ℝ) + 1) * V with hef
+  have hef0 : 0 < ef := by rw [hef]; positivity
+  have hnormj := hXr.2.2.hnorm
+  obtain ⟨him, hunit⟩ := xi_unit H hXr
+  have hv1 : ∀ z : G.Ω 1, vn (fun i => bgField G a ν Dr (z, i)) = 1 := fun z =>
+    vn_eq_one_of_unit (fun i => him z i) (hunit z)
+  -- the real inequalities
+  have hR1 : XiBounds G ν j 1 ef Dr h₀ (bgField G a ν Dr + δφ) (bgMult G a ν Dr + δα) :=
+    xiBounds_massResponse (s := 0) le_rfl he hV H.mass (by simp) H.massLe
+      (by rw [hef]; nlinarith) (by rw [hef]; nlinarith) hXr.2.2 hsup hsmall
+  have hXB : XiBounds G ν j 1 ef Dr' h₀' (bgField G a ν Dr + δφ) (bgMult G a ν Dr + δα) := by
+    refine ⟨hR1.grad, hR1.lap, hR1.mult, hR1.close, hR1.collarBond, fun z => ?_, ?_⟩
+    · have o := hXr.2.2.mass z
+      have hz1 : Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) ≤ 1 :=
+        sqrt_mul_spacing_le_one H.mass H.massLe G _
+      have hA : 0 ≤ Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) := by
+        have := spacing_pos G (x := (z : Torus d (N₀ * L ^ k))); positivity
+      have e1 : (fun i => (bgField G a ν Dr + δφ) (z, i) - (h₀' i : ℂ)) =
+          (fun i => bgField G a ν Dr (z, i) - (h₀' i : ℂ)) + fun i => δφ (z, i) := by
+        funext i; simp only [Pi.add_apply]; ring
+      rw [e1]
+      have t1 := vn_add (fun i => bgField G a ν Dr (z, i) - (h₀' i : ℂ)) (fun i => δφ (z, i))
+      have t2 := vn_sub_unit_le (hv1 z) hd
+      have t3 : vn (fun i => δφ (z, i)) ≤ N * V := by
+        have := incr_val hV hsup (z : Torus d (N₀ * L ^ k))
+        simpa [svec_of_mem G δφ z] using this
+      calc Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) *
+            vn ((fun i => bgField G a ν Dr (z, i) - (h₀' i : ℂ)) + fun i => δφ (z, i))
+          ≤ Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) *
+            (2 * vn (fun i => bgField G a ν Dr (z, i) - (h₀ i : ℂ)) + N * V) :=
+            mul_le_mul_of_nonneg_left (by linarith) hA
+        _ = 2 * (Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) *
+              vn (fun i => bgField G a ν Dr (z, i) - (h₀ i : ℂ))) +
+            Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) * (N * V) := by ring
+        _ < 1 * ef := by
+            have : Real.sqrt ν * G.spacing (z : Torus d (N₀ * L ^ k)) * (N * V) ≤ N * V := by
+              nlinarith
+            rw [hef]; nlinarith
+    · rw [hu]
+      simp only [sub_self, abs_zero, mul_zero]
+      positivity
+  have hRe' : Realizes Dr' Ψ₀ h₀' := ⟨fun x hx i => hXr.1.1 x hx i, hh'⟩
+  have hXAt : XiAt G a ν j 1 ef Dr' Ψ₀ h₀' := by
+    refine ⟨hRe', hDR', ?_⟩
+    rw [hfe, hme]; exact hXB
+  -- the complex inequalities
+  have hm := xiCBounds_mono he (by linarith : e ≤ 2 * e) hb
+  have hrw : ∀ x : Torus d (N₀ * L ^ k), ν * G.spacing x ^ 2 * |rn h₀ - 1| < e ^ 2 :=
+    fun x => weight_bound hΩ H.mass hnormj x
+  have hcv : vn (fun i => (h₀ i : ℂ) - (h₀' i : ℂ)) = |rn h₀ - 1| := by
+    rw [← hd, ← vn_ofReal]; congr 1; funext i; push_cast; ring
+  have hb₁ : XiCBounds G ν 1 (2 * e) Dr Dc Ψ'' (fun x i => h'' x i + ((h₀ i : ℂ) - (h₀' i : ℂ)))
+      (bgField G a ν Dr) (bgFieldC G a ν (bgC0 d L N) Dc) (bgMult G a ν Dr)
+      (bgMultC G a ν (bgC0 d L N) Dc) := by
+    refine ⟨hm.grad, hm.lap, hm.mult, hm.val, hm.close, hm.collarBond, fun x hx => ?_,
+      fun x => ?_⟩
+    · have o := hb.hAbs x hx
+      have e1 : (1 * e) ^ 2 / e = e := by field_simp
+      have e2 : (1 * (2 * e)) ^ 2 / (2 * e) = 2 * e := by field_simp
+      rw [e1] at o; rw [e2]
+      have t := vn_add (h'' x) (fun i => (h₀ i : ℂ) - (h₀' i : ℂ))
+      have hA : 0 ≤ ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 := by have := H.mass; positivity
+      have hs : G.spacing x = (L : ℝ) ^ G.layerIndex x := rfl
+      have w := hrw x
+      rw [hs] at w
+      calc ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * vn (h'' x + fun i => (h₀ i : ℂ) - (h₀' i : ℂ))
+          ≤ ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+            (vn (h'' x) + vn (fun i => (h₀ i : ℂ) - (h₀' i : ℂ))) :=
+            mul_le_mul_of_nonneg_left t hA
+        _ = ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * vn (h'' x) +
+            ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |rn h₀ - 1| := by rw [hcv]; ring
+        _ < 2 * e := by nlinarith
+    · have o := hb.hDot x
+      have hA : 0 ≤ ν * ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 := by
+        have := H.mass; positivity
+      have hs : G.spacing (x : Torus d (N₀ * L ^ k)) =
+          (L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k)) := rfl
+      have w := hrw (x : Torus d (N₀ * L ^ k))
+      rw [hs] at w
+      have esum : (∑ i, bgField G a ν Dr (x, i) * (h'' x i + ((h₀ i : ℂ) - (h₀' i : ℂ)))) =
+          (∑ i, bgField G a ν Dr (x, i) * h'' x i) +
+            ∑ i, bgField G a ν Dr (x, i) * ((h₀ i : ℂ) - (h₀' i : ℂ)) := by
+        simp only [mul_add, Finset.sum_add_distrib]
+      rw [esum]
+      have t1 := norm_add_le (∑ i, bgField G a ν Dr (x, i) * h'' x i)
+        (∑ i, bgField G a ν Dr (x, i) * ((h₀ i : ℂ) - (h₀' i : ℂ)))
+      have t2 := norm_dot_le (fun i => bgField G a ν Dr (x, i))
+        (fun i => (h₀ i : ℂ) - (h₀' i : ℂ))
+      rw [hv1 x, hcv, one_mul] at t2
+      calc ν * ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 *
+            ‖(∑ i, bgField G a ν Dr (x, i) * h'' x i) +
+              ∑ i, bgField G a ν Dr (x, i) * ((h₀ i : ℂ) - (h₀' i : ℂ))‖
+          ≤ ν * ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 *
+            (‖∑ i, bgField G a ν Dr (x, i) * h'' x i‖ + |rn h₀ - 1|) :=
+            mul_le_mul_of_nonneg_left (t1.trans (add_le_add le_rfl t2)) hA
+        _ = ν * ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 *
+              ‖∑ i, bgField G a ν Dr (x, i) * h'' x i‖ +
+            ν * ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 * |rn h₀ - 1| := by ring
+        _ < (1 * (2 * e)) ^ 2 := by nlinarith
+  have hCB := xiCBounds_massResponse (s := 0) (μ := ν) (e := 2 * e) (e' := ef) (V := V)
+    (δc := 0) (δαc := 0) le_rfl (by linarith) hV H.mass (by simp)
+    (by rw [hef]; nlinarith) (by rw [hef]; nlinarith) (by rw [hef]; nlinarith)
+    (by rw [hef]; nlinarith [mul_nonneg he.le hV, mul_nonneg (mul_nonneg he.le hV) hN,
+      sq_nonneg (((N : ℝ) + 1) * V)])
+    hb₁ hsup (supBounds_zero hV) hsmall (small_zero hV)
+  simp only [add_zero] at hCB
+  refine ⟨one_pos, hef0, Dr', Dc, hXAt, ⟨hC.1, fun x hx i => by rw [hC.2 x hx i]; ring⟩,
+    hDcU, ?_⟩
+  rw [hfe, hme]
+  exact ⟨hCB.grad, hCB.lap, hCB.mult, hCB.val, hCB.close, hCB.collarBond, hCB.hAbs, hCB.hDot⟩
+
+end Main
 
 end Balaban.SmallField
