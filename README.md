@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 775,000 lines of Lean (about 610,000 without comments and blank
+As of October 2026, about 770,000 lines of Lean (about 610,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -45,8 +45,11 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
 - **Two tori (blocker 7).** The clause at the gap scales is proved given the step terms; the
   determinant term of the tower is tied to it, and the energy and observable terms are being tied.
 - **From one step to the next (the backbone).** The tower produces each step's setting but not yet
-  the next step's class. A design is written; the transport of the old terms to the next torus is
-  being proved first. Root-C's coefficient flow is formalized for the parts that do not depend on
+  the next step's class. The old terms are now transported to the next scale's torus, with their
+  generating sets and locality; their remaining clauses are in progress. The domain of the old
+  levels needs a decision: with the current scale's mass for every level, the domains are not
+  inherited across a step (an explicit example, `notes/phase1/astra/SFFAM.md` Part 3), and domains
+  frozen at each level's birth mass are proposed. Root-C's coefficient flow is formalized for the parts that do not depend on
   this (complex charts, the large-β contraction, coherent inputs along the flow).
 - **Blockers 2 and 3.** The change of background along the flow is formalized up to the physical
   kernels and waits on a ruling that changes two definitions. For old boundary terms across a long

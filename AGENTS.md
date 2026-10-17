@@ -57,6 +57,26 @@ provider, and nothing may import a root, until the root is sealed.
   `Q13-FACTOR.md`). Until then: write nothing specific to A's interface and nothing specific to
   the hybrid (in particular no split of `OpConsts.mu`); everything else proceeds.
 
+- **Rulings R2, R4, R5, R6 (2026-10-17, Scott: "go with your recs").** Plan B rulings that change or add
+  landed definitions, approved as recommended in `notes/phase1/PLAN-B.md`:
+  (R2) route R-YM′ for blocker 2 (`notes/phase1/Q13-YM.md` §5 leaves 1, 4, 5, 6; `notes/phase1/astra/RADIUS.md`;
+  W973 handoff item 3): three masses in `OpConsts` (action, background, cutoff) — this supersedes the clause
+  "no split of `OpConsts.mu`" of the Q13 ruling, whose points (1) (no mass in the sharp large-field
+  characteristic functions or in the reference of R below k₀) stand; the extended direction stencil
+  (`Characteristic/Reg.lean`, `Stencil.lean`, `chiY`); a direction clause in `ChiDomProp`/`ChiDomAt` for
+  k > k₀; a complex-source kernel interface (`KerBound`) and a holomorphic physical-action factor.
+  (R4) the representation of R's output as a gas, W968 proposal (`notes/phase1/LF4R-PLAN.md`, W968 lines):
+  heavy objects are the removed clusters; couplings decorated by the removed members they meet,
+  b_X(S) = ℬ(X,𝔸′∪S) − ℬ̂(X;𝔸′) + ℬ′_X(S); operator form over the internal variables with the reference
+  measures of (H-op); the pointwise bound (3.10″) replaces `hwin`/`hτ`; new definitions: complex R on
+  ℂ-densities, ρ(𝔸,σ) on the Def-7 carrier, ℬ′ of P7 (3.22)–(3.25), the (H-op) measures.
+  (R5) the clause `StepData.b_vac`: b_k = b⁰_k − (E_k|Z′∖Z_k∖Ω_{k+1}|_k + E″_k|Ω_{k+1}∖Ω″_{k+1}|_k +
+  E‴_k|Ω″_{k+1}∩Z_{k+1}|_k), with b⁰_k bounded by constants free of E (LF4R-PLAN, W968 vacuum).
+  (R6) the inherited levels of the small-field class live on domains frozen at their birth mass
+  (the W868 design), replacing the current-mass `completeXiDom` in the induction; the v2-to-I6 bridge
+  is re-proved for the new carrier (`notes/phase1/astra/SFFAM.md` Part 3).
+  Every new or changed definition lands with an independent audit against its source.
+
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
   finite volume on tori with bounds uniform in the volume, infinite volume only in the final
