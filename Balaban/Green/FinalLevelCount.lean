@@ -299,6 +299,61 @@ theorem exists_mem_level_set {C : Finset (MacIdx d N₀ M)}
     push_cast
     linarith
 
+
+/-- **The count** `|W n| ≤ Cw (n+1)^{d'}`, `Cw = |C| (8M+1)^d (L^{kS})^{d'} (2 L^{kS+1} + 2 d' L^{kS+1} + 3)^{d'}`:
+the region of `C` has at most `|C| (8M+1)^d` points of the macro torus, each unit point has at most
+`(L^{kS})^{d'}` sites, and an `ℓ¹` ball of radius `R` has at most `(2R+1)^{d'}` points; the bound does
+not depend on the torus size. -/
+theorem card_level_set_le (hM : 0 < M) (C : Finset (MacIdx d N₀ M))
+    (W : ℕ → Finset (CTorus d' L N₁ m₁ (kS + 1)))
+    (hWdef : ∀ n w, w ∈ W n ↔ ∃ x : CTorus d' L N₁ m₁ (kS + 1),
+      (∃ q ∈ macRegion d N₀ M C, (e q).1 = unitPt S.hG' x) ∧
+        Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) x w ≤
+          ((L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1 : ℕ) : ℝ)) (n : ℕ) :
+    ((W n).card : ℝ) ≤ ((C.card * (8 * M + 1) ^ d * (L ^ kS) ^ d' *
+      (2 * L ^ (kS + 1) + 2 * d' * L ^ (kS + 1) + 3) ^ d' : ℕ) : ℝ) * ((n : ℝ) + 1) ^ d' := by
+  classical
+  set R : Finset (CTorus d' L N₁ m₁ (kS + 1)) := univ.filter fun x =>
+    ∃ q ∈ macRegion d N₀ M C, (e q).1 = unitPt S.hG' x with hRdef
+  set A : Finset (UnitTorus d' L N₁ m₁ kS) :=
+    (C.biUnion (macBoxF d N₀ M)).image fun q => (e q).1.1 with hAdef
+  have hA : A.card ≤ C.card * (8 * M + 1) ^ d :=
+    card_image_le.trans (card_biUnion_macBoxF_le hM C)
+  have hRsub : R ⊆ A.biUnion fun u => univ.filter fun x : CTorus d' L N₁ m₁ (kS + 1) =>
+      unitBlock x = u := by
+    intro x hx
+    obtain ⟨q, hq, hqx⟩ := (mem_filter.1 hx).2
+    refine mem_biUnion.2 ⟨(e q).1.1, mem_image.2 ⟨q, mem_biUnion_macBoxF.2 hq, rfl⟩, ?_⟩
+    refine mem_filter.2 ⟨mem_univ _, ?_⟩
+    rw [hqx]; rfl
+  have hR : R.card ≤ C.card * (8 * M + 1) ^ d * (L ^ kS) ^ d' :=
+    (Finset.card_le_card hRsub).trans (card_biUnion_le_card_mul _ _ _ fun u _ => card_unitBlock_fiber_le u) |>.trans
+      (Nat.mul_le_mul_right _ hA)
+  have hWsub : W n ⊆ R.biUnion fun x => univ.filter fun w : CTorus d' L N₁ m₁ (kS + 1) =>
+      Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) x w ≤
+        ((L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1 : ℕ) : ℝ) := by
+    intro w hw
+    obtain ⟨x, hx, hxw⟩ := (hWdef n w).1 hw
+    exact mem_biUnion.2 ⟨x, mem_filter.2 ⟨mem_univ _, hx⟩, mem_filter.2 ⟨mem_univ _, hxw⟩⟩
+  have hball := fun x : CTorus d' L N₁ m₁ (kS + 1) => card_torus_ball_le x
+    (L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1)
+  have hcard : (W n).card ≤ R.card * (2 * (L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1) + 1) ^ d' :=
+    (Finset.card_le_card hWsub).trans (card_biUnion_le_card_mul _ _ _ fun x _ => hball x)
+  have hr : 2 * (L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1) + 1 ≤
+      (2 * L ^ (kS + 1) + 2 * d' * L ^ (kS + 1) + 3) * (n + 1) := by
+    generalize L ^ (kS + 1) = B
+    nlinarith [Nat.zero_le (d' * B * n), Nat.zero_le B, Nat.zero_le n]
+  have h1 : (W n).card ≤ (C.card * (8 * M + 1) ^ d * (L ^ kS) ^ d') *
+      ((2 * L ^ (kS + 1) + 2 * d' * L ^ (kS + 1) + 3) * (n + 1)) ^ d' :=
+    hcard.trans (Nat.mul_le_mul hR (Nat.pow_le_pow_left hr d'))
+  have h2 : ((W n).card : ℝ) ≤ (((C.card * (8 * M + 1) ^ d * (L ^ kS) ^ d') *
+      ((2 * L ^ (kS + 1) + 2 * d' * L ^ (kS + 1) + 3) * (n + 1)) ^ d' : ℕ) : ℝ) :=
+    Nat.cast_le.2 h1
+  refine h2.trans (le_of_eq ?_)
+  push_cast
+  rw [mul_pow]
+  ring
+
 end Step
 
 end Balaban.Green
