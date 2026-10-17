@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.LocalClassDensityValClass
 public import Balaban.Inhabited.E1CoeffFamily
 public import Balaban.Inhabited.E1LabelsBudget
+public import Balaban.Inhabited.OffFibreE1Activity
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -39,7 +40,11 @@ bounded, rooted), with `E1locJ C z = ∑ c`, `E1locH C z = ∑ c`, `E0locJ C z =
 `finsum_polysAt_eq_of_rootedSum` on the whole class domain: `densE0 (rootSite z) q = ∑_T e (q̄, 0) T`
 for every pair `q` of `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ t`, `q̄` the cut-off of `q`
 (`densE0_rootSite_eq_sum_of_root`).  For the zero class the inputs (M1), (M2) are the zero-source
-activity and no inherited marks (the landed `e0CoeffFamily_raw_fromTower`); for a class with
+activity and no inherited marks: `e0CoeffFamily_zeroClass_of_class_fromTower` discharges every
+hypothesis of `e0CoeffFamily_class_fromTower` for the zero class (the landed zero-source activity
+`zeroSourceActivity_common_fromTower`, its value at every chart datum
+`e1_common_activity_freeDatum_of_directTerms`, its locality `commonAct_zeroSourceAct_hA_rawY`, and the
+empty family of inherited marks), so the hypotheses are not contradictory.  For a class with
 non-zero inherited terms neither family is constructed.
 -/
 
@@ -343,5 +348,80 @@ theorem e0CoeffFamily_class_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
       T.dom_margin T.coer_margin T.δc_small hβS hp hlt.le (hE D hX) z]
     exact hval0 D hX
   · exact Jr.densE0_rootSite_eq_sum_of_root C z (fun θ T' => dz θ T' + c θ T') hval0 hε hq
+
+/-- For the zero class the inherited energy `ℰ_k` vanishes identically. -/
+theorem _root_.Balaban.Fluctuation.StepSetting.JointRep.EJ_zeroClass {d L N₁ m₁ k N : ℕ}
+    [NeZero L] [NeZero N₁] {ϱ eps pp : ℝ} {S : StepSetting d L N₁ m₁ k N ϱ}
+    (Jr : S.JointRep eps pp) (q : RawData d L (N₁ * L ^ m₁) (k + 1) N × S.EC) :
+    Jr.EJ (zeroClass d L N₁ m₁ k N ϱ) q = 0 := by
+  unfold StepSetting.JointRep.EJ
+  exact Finset.sum_eq_zero fun j _ => Edens_zero _ _ _ _
+
+open Classical in
+/-- **The hypotheses of `e0CoeffFamily_class_fromTower` are satisfiable: the zero class.**  With
+the zero-source activity of `zeroSourceActivity_common_fromTower` as the class activity (M1) and the
+empty family of inherited marks (M2), `e0CoeffFamily_class_fromTower` applies to the zero class:
+beyond a threshold, for one joint representative `Jr` and every root `z`, there is a family `e`
+analytic on `physV` with `E0locJ z = ∑_T e (rawOf D, 0) T` at every datum `D` of the chart. -/
+theorem e0CoeffFamily_zeroClass_of_class_fromTower {κmin : ℝ} (T : StepTower κmin)
+    (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+      ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁], 3 ∣ N₁ → 5 < N₁ →
+      ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+      ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      StepScaleData T k hk N₁ ν β p₁ → 0 < (T.step k hk N₁ ν β p₁).p₁ →
+      ∃ Jr : (T.step k hk N₁ ν β p₁).JointRep T.t (2 * p₁),
+      ∀ z : RootIdx 3 3 N₁ T.m₁ (k + 1),
+      ∃ e : physParam 2 (T.step k hk N₁ ν β p₁) → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁)
+          (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ,
+        (∀ T', AnalyticOnNhd ℂ (fun θ => e θ T')
+          (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
+            (T.step k hk N₁ ν β p₁).ν T.t)) ∧
+        ∀ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
+          XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a
+            (T.step k hk N₁ ν β p₁).ν (k + 1) 1 T.t D →
+          Jr.E0locJ (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z (rawOf D) =
+            ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+              (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
+  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower T hA p
+  obtain ⟨β₂, CE, CF, -, -, -, H2⟩ := zeroSourceActivity_common_fromTower T hHull hA p
+  refine ⟨max β₁ β₂, h31.trans (le_max_left _ _), ?_⟩
+  intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp0 hp₁ Dt hp
+  have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
+  obtain ⟨F₁, Sol, HC⟩ := H1 k hk N₁ h3N hN ν hν0 hν β ((le_max_left _ _).trans hβ) p₁ hp₁ Dt
+    (T.step k hk N₁ ν β p₁) rfl hp
+  obtain ⟨Jr, val, I, hF, hεU, hval, hεpos, -, -, hε, A, hAeq, -, -, hcom⟩ :=
+    H2 k hk N₁ h3N hN ν hν0 hν β ((le_max_right _ _).trans hβ) p₁ hp0 hp₁ 1 one_pos le_rfl Dt
+      (T.step k hk N₁ ν β p₁) rfl hp
+  obtain ⟨A₀, hA0eq, hAhol, hAdiff, hAcont, hsum, -, -, -, -⟩ :=
+    hcom (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T Dt)
+  refine ⟨Jr, fun z => ?_⟩
+  have hU2 : Metric.ball (0 : ℂ) corrU ⊆ Metric.ball (0 : ℂ) 2 :=
+    Metric.ball_subset_ball (by unfold corrU; norm_num)
+  have hW := fun D hX => e1_common_activity_freeDatum_of_directTerms T k hk N₁ h3N ν hν0 hν β
+    p₁ hp0 Dt (T.step k hk N₁ ν β p₁) rfl hp Jr val hval I hF hεU A hAeq A₀ hsum D hX
+  subst hA0eq
+  subst hAeq
+  have hAloc := fun T' => commonAct_zeroSourceAct_hA_rawY (T.step k hk N₁ ν β p₁) 1 _ hF hN1
+    hp0 zero_le_two hεU T.κ0_ent T.marks_K0_le (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁))
+    (e1Dom_isDj T Dt) (by norm_num) (mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU))
+    T.κ0_two one_pos T'
+  obtain ⟨c, e, -, hprop, hvals, -⟩ := HC Jr (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) z
+    {Y // Y ∈ I.𝒴} (thickLabels I.𝒴 I.dom) _ (2 * T.κdec - 1) T.marksKc' _ Empty
+    (fun j => j.elim) (fun _ j => j.elim) (fun j => j.elim)
+    (fun D _ s _ x _ j _ => StepSetting.analyticAt_Edens_zeroClass j _)
+    (fun y Φ _ => (hAhol y Φ).mono (Set.prod_mono (subset_refl _) hU2))
+    (fun y θ hθ u hu => (hAcont y θ hθ u (hU2 hu)).continuousOn)
+    (fun θ hθ y Φ => (hAdiff θ hθ y Φ).mono hU2) hAloc hW
+    (fun _ j => j.elim) (fun _ j => j.elim) (fun _ j => j.elim) (fun j => j.elim)
+    (fun j => j.elim) (fun _ _ j => j.elim) (fun _ _ _ _ _ _ _ _ j => j.elim)
+    (fun j => j.elim)
+    (fun D _ s _ => Filter.Eventually.of_forall fun x => by
+      have h0 : (fun w => Jr.EJ (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D, w)) =
+          fun _ => 0 := funext fun w => Jr.EJ_zeroClass _
+      rw [h0, fderiv_const_apply]
+      simp)
+    (fun j => j.elim) hεpos T.marks_hKc le_rfl T.marks_hκ (by unfold stepTheta at hε; exact hε)
+  exact ⟨e, fun T' => (hprop T').2.1, fun D hX => (hvals D hX).2.2.1⟩
 
 end Balaban.Inhabited
