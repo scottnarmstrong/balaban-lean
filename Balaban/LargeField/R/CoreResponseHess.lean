@@ -35,6 +35,8 @@ analytic function `bgFun` of the complex data (Theorem 7.2), and Lemma 4.1 appli
   `|H_{x i; z' j', z j}| ≤ (K_w C_F / r) min(e^{-γ_w d(x, W_z)}, e^{-γ_w d(x, W_{z'})})
   ≤ (K_w C_F / r) e^{-(γ_w/2) d(x, W_z)} e^{-(γ_w/2) d(x, W_{z'})}`,
   for `τ + 4r < c₁` and `K₁ (τ + 4r) ≤ min(δ_*, δ_w)`;
+* `deriv_deriv_bgField_eq`, `coreResponse_hess_symm`: `H` is `D²φ^C(ψ_k)(E_{z' j'}, E_{z j})` and is symmetric;
+* `coreResponse_sum_hess_blocks_le` (opposite index): `∑_{z, z' ∈ Z_f} |H_{x i; z' j', z j}| ≤ A₃`;
 * `coreResponse_sum_hess_le` (the third bound of (2.4)): for a set `Z_f` of top-layer blocks,
   `∑_{x ∈ Ω₁} ℓ(x)^{-d} ∑_{z' ∈ Z_f} |H_{x i; z' j', z j}| ≤ A₃` and the same with `L^{-kd}` in place of `ℓ(x)^{-d}`,
   `A₃ = (K_w C_F / r) (e^{(γ_w/2)(2d+1)} C(d, L, γ_w/2))²`, under the separation premise of the counting lemma at the
@@ -535,6 +537,124 @@ theorem coreResponse_sum_hess_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
   rw [Finset.mul_sum]
   exact Finset.sum_le_sum fun x _ => mul_le_mul_of_nonneg_right (inv_pow_le_siteWeight x)
     (Finset.sum_nonneg fun z' _ => norm_nonneg _)
+
+/-- **The real second derivative is the second Fréchet derivative of the analytic background**: for
+`ψ_k ∈ Ψ̃(𝔹; τ)` (`τ ≤ 1`, `τ ≤ c₁`), `∂_s ∂_t φ⁰(ψ_k + s e_{z' j'} + t e_{z j})(x, i)` at `0` is
+`D²φ^C(ψ_k)(E_{z' j'}, E_{z j})(x, i)`, `φ^C = (bgFun ·).1` the analytic background of Theorem 7.2. -/
+theorem deriv_deriv_bgField_eq {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ} (H : BgHyp d L k ϱ a 0) {τ : ℝ} (hτ : 0 < τ) (hτ1 : τ ≤ 1)
+    (hτc : τ ≤ bgC1 d L N) {ψ : BlockField d L (N₁ * L ^ m₁) k N} (ht : TubeOn G Set.univ τ ψ)
+    (z z' : Torus d (N₁ * L ^ m₁ * L ^ (k - k))) (j j' : Fin N) (x : G.Ω 1) (i : Fin N) :
+    deriv (fun s : ℝ => deriv (fun t : ℝ => bgField G a 0 (dataR G (ψ +
+        s • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+        t • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N))) (x, i)) 0) 0 =
+      fderiv ℂ (fderiv ℂ (fun Q : BlockFieldC d L (N₁ * L ^ m₁) k N => (bgFun G H (rawMapC G Q)).1 (x, i)))
+        (fun z'' i'' => (ψ z'' i'' : ℂ))
+        (Pi.single z' (Pi.single j' (1 : ℂ)) : BlockFieldC d L (N₁ * L ^ m₁) k N)
+        (Pi.single z (Pi.single j (1 : ℂ)) : BlockFieldC d L (N₁ * L ^ m₁) k N) := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hc10 := bgC1_le_bgC0 d L N hd0
+  set P : BlockFieldC d L (N₁ * L ^ m₁) k N := fun z'' i'' => (ψ z'' i'' : ℂ) with hP
+  set Φ : BlockFieldC d L (N₁ * L ^ m₁) k N → ℂ := fun Q => (bgFun G H (rawMapC G Q)).1 (x, i) with hΦ
+  have hPan : AnalyticAt ℂ Φ P := by
+    have hU := dataC_add_inUnionDomainC hd0 hτ hτ1 le_rfl zero_le_one (by linarith) ht
+      (0 : BlockFieldC d L (N₁ * L ^ m₁) k N) (fun z'' => by simp [vn])
+    have hB := bgFun_analytic G H (rawMapC G (P + 0)) ⟨_, hU, rfl⟩
+    have := analyticAt_apply (analyticAt_fst.comp (hB.comp (analyticAt_rawMapC G _))) (x, i)
+    simpa using this
+  have hreal : ∀ ψ'' : BlockField d L (N₁ * L ^ m₁) k N, TubeOn G Set.univ τ ψ'' →
+      bgField G a 0 (dataR G ψ'') (x, i) = Φ (fun z'' i'' => (ψ'' z'' i'' : ℂ)) := by
+    intro ψ'' ht''
+    have hC := inUnionDomainC_of_tube G hτ (hτc.trans hc10) hτc ht''
+    have hR := inUnionDomainR_of_tube G hτ hτc ht''
+    have e1 : rawMapC G (fun z'' i'' => (ψ'' z'' i'' : ℂ)) = ((dataR G ψ'').Ψ, (dataR G ψ'').h) := rfl
+    simp only [hΦ, e1, bgFun_eq G H _ hC, (theorem72_real H hR).1]
+  have hf : ∀ᶠ s : ℝ in 𝓝 (0 : ℝ), ∀ᶠ t : ℝ in 𝓝 (0 : ℝ),
+      bgField G a 0 (dataR G (ψ +
+          s • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+          t • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N))) (x, i) =
+        Φ (P + (s : ℂ) • (Pi.single z' (Pi.single j' (1 : ℂ)) : BlockFieldC d L (N₁ * L ^ m₁) k N) +
+          (t : ℂ) • (Pi.single z (Pi.single j (1 : ℂ)) : BlockFieldC d L (N₁ * L ^ m₁) k N)) := by
+    have hcont : Continuous fun p : ℝ × ℝ => ψ +
+        p.1 • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+        p.2 • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) := by fun_prop
+    have ht0 := hcont.tendsto' ((0 : ℝ), (0 : ℝ)) ψ (by simp)
+    have hev := ht0.eventually (eventually_tubeOn G ht)
+    rw [nhds_prod_eq] at hev
+    filter_upwards [hev.curry] with s hs
+    filter_upwards [hs] with t htube
+    rw [hreal _ htube, ofReal_add_smul_single ψ s t z z' j j']
+  exact deriv_deriv_real_eq hPan hf
+
+/-- **Symmetry of the second derivative**: `H_{x i; z' j', z j} = H_{x i; z j, z' j'}` (the two orders of the real
+mixed derivative of the massless background agree). -/
+theorem coreResponse_hess_symm {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ} (H : BgHyp d L k ϱ a 0) {τ : ℝ} (hτ : 0 < τ) (hτ1 : τ ≤ 1)
+    (hτc : τ ≤ bgC1 d L N) {ψ : BlockField d L (N₁ * L ^ m₁) k N} (ht : TubeOn G Set.univ τ ψ)
+    (z z' : Torus d (N₁ * L ^ m₁ * L ^ (k - k))) (j j' : Fin N) (x : G.Ω 1) (i : Fin N) :
+    deriv (fun s : ℝ => deriv (fun t : ℝ => bgField G a 0 (dataR G (ψ +
+        s • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+        t • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N))) (x, i)) 0) 0 =
+      deriv (fun s : ℝ => deriv (fun t : ℝ => bgField G a 0 (dataR G (ψ +
+        s • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+        t • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N))) (x, i)) 0) 0 := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  rw [deriv_deriv_bgField_eq H hτ hτ1 hτc ht z z' j j' x i, deriv_deriv_bgField_eq H hτ hτ1 hτc ht z' z j' j x i]
+  have hU := dataC_add_inUnionDomainC hd0 hτ hτ1 le_rfl zero_le_one (by linarith) ht
+    (0 : BlockFieldC d L (N₁ * L ^ m₁) k N) (fun z'' => by simp [vn])
+  have hB := bgFun_analytic G H (rawMapC G ((fun z'' i'' => (ψ z'' i'' : ℂ)) + 0)) ⟨_, hU, rfl⟩
+  have hPan : AnalyticAt ℂ (fun Q : BlockFieldC d L (N₁ * L ^ m₁) k N => (bgFun G H (rawMapC G Q)).1 (x, i))
+      (fun z'' i'' => (ψ z'' i'' : ℂ)) := by
+    have := analyticAt_apply (analyticAt_fst.comp (hB.comp (analyticAt_rawMapC G _))) (x, i)
+    simpa using this
+  exact fderiv_fderiv_symm_of_analyticAt hPan _ _
+
+/-- **(2.4), the opposite-index bound for the second derivative**: for `x ∈ Ω₁` and a set `Z_f` of top-layer blocks,
+`∑_{z ∈ Z_f} ∑_{z' ∈ Z_f} |H_{x i; z' j', z j}| ≤ (K_w C_F / r) (e^{(γ_w/2)(2d+1)} C(d, L, γ_w/2))²`. -/
+theorem coreResponse_sum_hess_blocks_le (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
+      ∀ {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a : ℕ → ℝ},
+        BgHyp d L k ϱ a 0 → Dec2.OpSetting G a 0 → 1 ≤ k →
+        2 * d * Real.log L ≤ gammaW d / 4 * (ϱ - 1) →
+        ∀ {τ r : ℝ}, 0 < τ → τ ≤ 1 → 0 < r → r ≤ 1 / 2 → τ + 4 * r < bgC1 d L N →
+        bgK1 d L N * (τ + 4 * r) ≤ min (deltaStar d L N) δw →
+        ∀ {ψ : BlockField d L (N₁ * L ^ m₁) k N}, TubeOn G Set.univ τ ψ →
+        ∀ (Zf : Finset (Torus d (N₁ * L ^ m₁ * L ^ (k - k)))), (∀ z' ∈ Zf, OverTop G ({z'} : Set _)) →
+        ∀ (j j' : Fin N) (x : G.Ω 1) (i : Fin N),
+        ∑ z ∈ Zf, ∑ z' ∈ Zf,
+            ‖deriv (fun s : ℝ => deriv (fun t : ℝ => bgField G a 0 (dataR G (ψ +
+              s • (Pi.single z' (Pi.single j' (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N) +
+              t • (Pi.single z (Pi.single j (1 : ℝ)) : BlockField d L (N₁ * L ^ m₁) k N))) (x, i)) 0) 0‖ ≤
+          Kw * cF d L / r * (Real.exp (gammaW d / 2 * (2 * d + 1)) * countConst d L (gammaW d / 2)) ^ 2 := by
+  obtain ⟨Kw, δw, hK, hδw, hH⟩ := coreResponse_hess_le (N := N) hd hL
+  refine ⟨Kw, δw, hK, hδw, ?_⟩
+  intro N₁ m₁ k _ ϱ G a H hOp hk hsep2 τ r hτ hτ1 hr hr2 hc hKs ψ ht Zf hZ j j' x i
+  obtain ⟨hϱ, -⟩ := opSetting_counting hOp
+  have hγ : 0 < gammaW d / 2 := by
+    unfold gammaW; have := agmonRate_pos (d := d) (by omega); positivity
+  have hcond : 2 * d * Real.log L ≤ gammaW d / 2 / 2 * (ϱ - 1) := by
+    have e : gammaW d / 2 / 2 = gammaW d / 4 := by ring
+    rw [e]; exact hsep2
+  set S := Real.exp (gammaW d / 2 * (2 * d + 1)) * countConst d L (gammaW d / 2) with hS
+  set c := Kw * cF d L / r with hcdef
+  have hc0 : 0 ≤ c := div_nonneg (mul_nonneg hK.le (cF_pos d L).le) hr.le
+  have hsum := sum_decay_shadow_fib_le (G := G) hk hϱ hγ hcond Zf hZ x
+  have hS0 : 0 ≤ S := mul_nonneg (Real.exp_pos _).le (tsum_nonneg fun m => by positivity)
+  calc _ ≤ ∑ z ∈ Zf, ∑ z' ∈ Zf, c *
+        (decay (gammaW d / 2) (siteSetDist G (shadow G (fib d L (N₁ * L ^ m₁) k k z)) x) *
+          decay (gammaW d / 2) (siteSetDist G (shadow G (fib d L (N₁ * L ^ m₁) k k z')) x)) := by
+        refine Finset.sum_le_sum fun z _ => Finset.sum_le_sum fun z' _ => ?_
+        exact (hH H hOp hτ hτ1 hr hr2 hc hKs ht z z' j j' x i).trans
+          (mul_le_mul_of_nonneg_left (min_decay_le_mul_decay_half _ _) hc0)
+    _ = c * ((∑ z ∈ Zf, decay (gammaW d / 2) (siteSetDist G (shadow G (fib d L (N₁ * L ^ m₁) k k z)) x)) *
+          ∑ z' ∈ Zf, decay (gammaW d / 2) (siteSetDist G (shadow G (fib d L (N₁ * L ^ m₁) k k z')) x)) := by
+        rw [Finset.sum_mul_sum, Finset.mul_sum]
+        refine Finset.sum_congr rfl fun z _ => ?_
+        rw [Finset.mul_sum]
+    _ ≤ c * (S * S) := by
+        refine mul_le_mul_of_nonneg_left (mul_le_mul hsum hsum
+          (Finset.sum_nonneg fun z' _ => decay_nonneg _ _) hS0) hc0
+    _ = c * S ^ 2 := by ring
 
 end Hess
 
