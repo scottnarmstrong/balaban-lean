@@ -93,3 +93,8 @@ on the variables of `T^pre`, and (3.7') is a theorem about (*) (Lemma III.8.7 (1
 ## Status (W880, 2026-10-17): leaf 4
 - `R/RRemovedShell.lean`: product-set, shell and ball bounds (<= 1, per-variable radii) on `outPartMeasure` / `subMeasure`; `chiDD_norm_lt`. `R/RRemovedShellTree.lean`: Fubini along a rooted forest of output variables, `outPartMeasure_chiTilde_le` (ball 3 delta_k per block from `ChiTildeProp`). `R/RRemovedShellVol.lean`: per-block arithmetic `tree_block_factor_le`, `zero_block_factor_le` (C_vol = log(v_N max{3,C6}^N A0^N)), `volume_zeroCutoff_le` (chi_{Z0} ball), `removed_cubeVol_le` (|Z|_k <= (M crit_k)^d).
 - Not tied: the change of variables psi'' = psi~ - psi^0 and the shell predicate for psi_{k1} on U~3 \ Z_{k1} (no landed predicate; leaf 5).
+
+## Status (W879, 2026-10-17): leaf 5
+- `R/RRemovedKernel.lean`: `remZeroSplit` (measure preserving), `remDecomp` (one-component `RDecomp`), `remDen`, `remNum`, `removedK`, `toRKernel`, `removedKernel` (carrier of `KerBound a k`, `b = b^pre`); `Rop_remDecomp_removed(Kernel)` (`chi_{Z''} R[rho] = r e^{-EZ} int K^rem f`), `removedK_eq_outcomeKernel`, `removedK_add_one_sub`, `removedKernel_support`, `removedKernel_vanish`. `R/RRemovedKernelPre.lean`: `removedKernel_preOp_chiDom`.
+- `R/RRemovedExponent.lean`: `removedFactor_le` ((2.58') bound from `cancellation_identity` and Lemma III.6.4 (a)-(c), carrying `A_den - A_Z`, 0 in the source), `cancelBracket_add_Cnat1_ge` (`beta_k{...} + C1 >= -1/2`, real domain), `removedFactor_le_of_identity`.
+- Not done: the faithful instance of `r` (§4.3 item 2), the translation `psi''` (a change of variables for leaf 6), the composition (III.1.4) for the localized quiet kernels.

@@ -32,13 +32,20 @@ variables `P.A`), with `t, s, z, w` the values of `χ̃_k, χ_S, χ⁰, χ''`, `
   (`measurePreserving_remZeroSplit`); `remZeroMerge` its inverse;
 * `remDecomp r`: the `RDecomp` of one component with reference density `r`;
 * `remDen`, `remNum`, `removedK`: the denominator, the integrated kernel, the removed kernel as a
-  function; `removedKernel`: the `LFKernel` on the carrier of `KerBound a k`;
-* basic properties: `removedKernel_K`, `removedKernel_b` (`g` enters only through `b = b^pre`),
-  `remNum_congr`, `remDen_congr` (`ψ_k↾Z₀` enters only through `u` and `c₀`),
-  `removedK_ne_zero`, `removedKernel_support` (support in the domain of the pre-operator);
-* characterization: `Rop_remDecomp_removed` (`χ_{Z''} · R[ρ] = ρ_{k,0} e^{-EZ} 𝕋^rem`, the
-  removed part of `R` applied to the pre-operator) and `removedK_eq_outcomeKernel` (the kernel is
-  `outcomeKernel` with the removed weight of the `R`-normalized pre-kernel).
+  function; `toRKernel`: the "to `R`" kernel `K^pre χ̃_k χ_S χ⁰ χ''`; `removedKernel`: the
+  `LFKernel` on the carrier of `KerBound a k`;
+* basic properties: `removedK_nonneg`, `measurable_removedK`, `removedKernel_K`, `removedKernel_b`
+  (`g` enters only through `b = b^pre`), `remNum_congr`, `remDen_congr` (`ψ_k↾Z₀` enters only
+  through `u` and `c₀`), `removedK_ne_zero`, `removedKernel_support` (support in the domain of the
+  pre-operator), `removedKernel_vanish`, `removedK_add_one_sub` (the split (3.20) with `ϰ₅`);
+* characterization: `Rop_remDecomp_removed`, `Rop_remDecomp_removedKernel`
+  (`χ_{Z''} · R[ρ] = ρ_{k,0} e^{-EZ} 𝕋^rem`, the removed part of `R` applied to the pre-operator)
+  and `removedK_eq_outcomeKernel` (the kernel is `outcomeKernel` with the removed weight of the
+  `R`-normalized pre-kernel).
+
+The support in `χ^dom` for the pre-operator of a region history is `removedKernel_preOp_chiDom`
+(`RRemovedKernelPre.lean`); the pointwise bound (2.58′) is `removedFactor_le`
+(`RRemovedExponent.lean`).
 -/
 
 @[expose] public section
