@@ -61,4 +61,37 @@ theorem tree_mean_eq_site_avg {X : Type*} [Fintype X] (lf : X → Fin B.nLeaf)
 
 end Mean
 
+
+section Comp
+
+open Balaban.LargeField.ActionConv
+
+variable {d L N₀ k k1 N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+open Classical in
+theorem compMeanT_re_eq_composedMean (G : GeneratingSet d L N₀ k ϱ) (B : BlockTree (L ^ d) k1 k)
+    (hm : 0 < L ^ d) (zz : ℕ → ℝ) (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ)
+    (z : Torus d (N₀ * L ^ (k - k))) (ψG : Fin B.nLeaf → EuclideanSpace ℝ (Fin N))
+    (lf : ↥(fib d L N₀ k k z) → Fin B.nLeaf)
+    (hcard : ∀ x, (Finset.univ.filter fun s : ↥(fib d L N₀ k k z) => lf s = x).card =
+      (L ^ d) ^ B.leafScale x)
+    (hscale : ∀ s : ↥(fib d L N₀ k k z), G.layerIndex s.1 = B.leafScale (lf s))
+    (hval : ∀ s : ↥(fib d L N₀ k k z), ∀ i, (Ψ s.1 i).re = ψG (lf s) i) (i : Fin N) :
+    (compMeanT G (varpi k zz) Ψ z i).re = (B.composedMean zz ψG) i := by
+  have h := congrFun (congrArg (fun v : EuclideanSpace ℝ (Fin N) => (v : Fin N → ℝ))
+    (tree_mean_eq_site_avg B lf hcard hm zz ψG)) i
+  simp only [PiLp.smul_apply, WithLp.ofLp_sum, WithLp.ofLp_smul, Finset.sum_apply, Pi.smul_apply,
+    smul_eq_mul] at h
+  rw [← h]
+  unfold compMeanT
+  have hV : (blockVol d L k : ℝ) = ((L ^ d : ℕ) : ℝ) ^ k := by
+    unfold blockVol; push_cast; rw [← pow_mul, ← pow_mul, mul_comm]
+  rw [hV, ← Finset.sum_coe_sort (fib d L N₀ k k z)]
+  rw [← Complex.ofReal_inv, Complex.re_ofReal_mul, Complex.re_sum]
+  congr 1
+  refine Finset.sum_congr rfl fun s _ => ?_
+  rw [Complex.re_ofReal_mul, hval s i, hscale s]
+
+end Comp
+
 end Balaban.LargeField
