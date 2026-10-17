@@ -19,7 +19,9 @@ on the canonical torus `can X` for the compact supports `X` of the quarter box.
   `B + 2 B e^{κ₂} + 2 B e^{κ₂ t₀}`.
 * `hFclose_of_split`, `resum_gapScale_torus_inherited`: for the step with inherited terms
   `T = Tnew + Tinh`, the closeness holds with the constant of the inherited terms, which is the torus
-  clause for them at the earlier scales (the induction hypothesis `hinh`).
+  clause for them at the earlier scales (the induction hypothesis `hinh`); `hinh_of_quarterBox`: when
+  the inherited terms are the resummed terms of the previous scale, which are equal on the common
+  quarter box (`resum_gapScale_torus`, fourth conclusion), `hinh` holds with `a = 0`.
 -/
 
 @[expose] public section
@@ -176,6 +178,29 @@ theorem resum_gapScale_torus_exact {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZ
     hcanK hWd hB le_rfl hκ hκ₂ hlam hκ' hsupp hloc han hbd
     (hFclose_of_exact P Q sz τ can D T Wd hexact)
   simpa only [zero_add] using h
+
+/-- **The inherited terms satisfy the exact torus clause of the earlier scales** (the form of the
+induction hypothesis that the step consumes).  The resummed terms of the previous scale are equal on
+the common quarter box of two tori (the fourth conclusion of `resum_gapScale_torus`, `Tn ℓ g X = Tn
+ℓ' g X` for `Q ℓ X`, `Q ℓ' X`).  If the inherited terms `Tinh` of the present step have this
+property (`hIH`), then they satisfy `hinh` of `hFclose_of_split` with the constant `a = 0` on the
+supports of the quarter box of `ℓ`, since such a support also lies in the quarter box of `can X`
+(`K ℓ ≤ K (can X)`). -/
+theorem hinh_of_quarterBox {ι G : Type*} (K : ι → ℕ) (P : ι → Finset (Finset (Fin d → ℤ)))
+    (Q : ι → Finset (Fin d → ℤ) → Prop) (sz : Finset (Fin d → ℤ) → ℕ)
+    (τ : ι → Finset (Fin d → ℤ) → ℕ) (can : Finset (Fin d → ℤ) → ι) (D : Set G)
+    (Tinh : ι → G → Finset (Fin d → ℤ) → ℂ) (Wd : ι → Finset (Fin d → ℤ) → Prop)
+    {lam κ₂ : ℝ} {t₀ : ℕ}
+    (hQ : ∀ ℓ X, Q ℓ X ↔ ∀ x ∈ X, ∀ μ, (x μ).natAbs ≤ K ℓ / 4)
+    (hcanK : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → K ℓ ≤ K (can X))
+    (hIH : ∀ ℓ ℓ' g X, Q ℓ X → Q ℓ' X → Tinh ℓ g X = Tinh ℓ' g X) :
+    ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ D,
+      ‖Tinh ℓ g X - Tinh (can X) g X‖ ≤
+        (0 : ℝ) * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
+  intro ℓ X hX hQX hW ht g hg
+  have hQ' : Q (can X) X := (hQ _ _).2 fun x hx μ =>
+    ((hQ ℓ X).1 hQX x hx μ).trans (Nat.div_le_div_right (hcanK ℓ X hX hQX))
+  rw [hIH ℓ (can X) g X hQX hQ', sub_self, norm_zero, zero_mul, zero_mul]
 
 end Close
 
