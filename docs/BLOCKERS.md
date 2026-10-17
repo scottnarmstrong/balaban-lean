@@ -22,7 +22,7 @@ The last section lists the problems that have been resolved since the project st
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral remains); author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route settled from P7 §4: large-field components as polymers with absolute bounds; being built) and the joins remain |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
 
@@ -202,7 +202,11 @@ only on d, L and N, while the field cutoff grows only like a power of log β, so
 keeps the field inside the analyticity domain (proved). For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
-block are proved; the decomposition into large-field block sets and the per-set activity are being built.
+block are proved, and so are the decomposition into large-field block sets and the activity of each set in
+the form the polymer gas takes. One point is open and is now a question to the author (item 18 addendum):
+on cells meeting a large-field set the decoupled covariance would move the field out of the analyticity
+domain, and we read P7 as expanding only on the complement, with the large set entering through a
+background that depends on it.
 
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
@@ -288,7 +292,10 @@ shrink with our choice of radii, so old terms keep the domain of the scale where
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
 so is the resulting inclusion when the real witness of the external field is a unit vector, as in our
-scheme (`notes/phase1/D2B.md`); it is being applied to the actual chart points.
+scheme (`notes/phase1/D2B.md`). The unit-vector condition has since been removed (any chart point can be
+re-realized at a unit witness, at the cost of doubling the radius), and the inclusion holds for the actual
+chart points under one numerical condition on the radii (the gap between successive class radii), which is
+being wired into the expansion of the old terms.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
