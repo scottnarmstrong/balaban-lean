@@ -2073,3 +2073,4 @@ public import Balaban.LargeField.R.RRemovedWindowKernel
 public import Balaban.LargeField.R.RRemovedWindowPoint
 public import Balaban.LargeField.R.RRemovedWindowVol
 public import Balaban.LargeField.R.RRemovedWindowCore
+public import Balaban.LargeField.R.RRemovedWindow

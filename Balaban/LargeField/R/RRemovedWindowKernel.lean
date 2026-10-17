@@ -119,6 +119,45 @@ theorem removedKernel_absW_le (hu1 : ∀ o, u o ≤ 1)
         gcongr
         exact ofReal_integral_le_lintegral_ofReal' hnn
 
+include htm hsm hzm hwm hc0m hrm in
+/-- The function `F` of `removedKernel_lintegral_le` is measurable. -/
+theorem measurable_removedWindowF (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
+    (par : OutPar N R a k)
+    (F : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) → ℝ≥0∞)
+    (hF : ∀ oz x w', F (oz, x, w') = ENNReal.ofReal
+      (c0 (mergeOut a k oz par) *
+        (toRKernel a k P.T.K t s z w (remZeroMerge a k Z0
+            (w', (remZeroSplit a k Z0 (mergeOut a k oz par)).2)) x hv *
+          Real.exp (P.T.b (remZeroMerge a k Z0
+            (w', (remZeroSplit a k Z0 (mergeOut a k oz par)).2)) x hv g).re) /
+        remDen a k Z0 r (mergeOut a k oz par))) :
+    Measurable F := by
+  classical
+  have ho : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
+      mergeOut a k p.1 par := (measurable_mergeOut a k par).comp measurable_fst
+  have hy : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
+      (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2 :=
+    measurable_snd.comp ((remZeroSplit a k Z0).measurable.comp ho)
+  have hm : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
+      remZeroMerge a k Z0 (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2) :=
+    (measurable_remZeroMerge a k Z0).comp ((measurable_snd.comp measurable_snd).prodMk hy)
+  have hmx : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
+      (remZeroMerge a k Z0 (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2), p.2.1) :=
+    hm.prodMk (measurable_fst.comp measurable_snd)
+  have hK := (measurable_toRKernel a k hv (P.T.measurable_K hv) htm hsm hzm hwm).comp hmx
+  have hB := (Real.measurable_exp.comp (Complex.measurable_re.comp
+    ((P.T.measurable_b hv g).comp hmx)))
+  have hD := (measurable_remDen a k Z0 hrm).comp ho
+  have hc := hc0m.comp ho
+  have : F = fun p => ENNReal.ofReal (c0 (mergeOut a k p.1 par) *
+      (toRKernel a k P.T.K t s z w (remZeroMerge a k Z0
+          (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2)) p.2.1 hv *
+        Real.exp (P.T.b (remZeroMerge a k Z0
+          (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2)) p.2.1 hv g).re) /
+      remDen a k Z0 r (mergeOut a k p.1 par)) := funext fun p => hF p.1 p.2.1 p.2.2
+  rw [this]
+  exact ENNReal.measurable_ofReal.comp ((hc.mul (hK.mul hB)).div hD)
+
 /-- **The integral (III.8.5) of the removed kernel unfolded** (step (1)): for the parameters `par`
 of the outputs on `V ∖ Z`, the integral of `K^rem e^{Re b}` over the outputs on `Z` and the
 internal variables is at most `e^{EZ}` times the integral over `(ψ_k↾Z, x, w)` of the function
@@ -143,31 +182,7 @@ theorem removedKernel_lintegral_le (hu1 : ∀ o, u o ≤ 1)
       ENNReal.ofReal (Real.exp EZ) * ∫⁻ p, F p ∂((outPartMeasure N (Vblk R a k) (ZBlk a k)).prod
         ((subMeasure N a k P.A).prod (outPartMeasure N (Vblk R a k) (· ∈ Z0)))) := by
   classical
-  have hFm : Measurable F := by
-    have ho : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
-        mergeOut a k p.1 par := (measurable_mergeOut a k par).comp measurable_fst
-    have hy : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
-        (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2 :=
-      measurable_snd.comp ((remZeroSplit a k Z0).measurable.comp ho)
-    have hm : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
-        remZeroMerge a k Z0 (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2) :=
-      (measurable_remZeroMerge a k Z0).comp ((measurable_snd.comp measurable_snd).prodMk hy)
-    have hmx : Measurable fun p : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) =>
-        (remZeroMerge a k Z0 (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2), p.2.1) :=
-      hm.prodMk (measurable_fst.comp measurable_snd)
-    have hK := (measurable_toRKernel a k hv (P.T.measurable_K hv) htm hsm hzm hwm).comp hmx
-    have hB := (Real.measurable_exp.comp (Complex.measurable_re.comp
-      ((P.T.measurable_b hv g).comp hmx)))
-    have hD := (measurable_remDen a k Z0 hrm).comp ho
-    have hc := hc0m.comp ho
-    have : F = fun p => ENNReal.ofReal (c0 (mergeOut a k p.1 par) *
-        (toRKernel a k P.T.K t s z w (remZeroMerge a k Z0
-            (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2)) p.2.1 hv *
-          Real.exp (P.T.b (remZeroMerge a k Z0
-            (p.2.2, (remZeroSplit a k Z0 (mergeOut a k p.1 par)).2)) p.2.1 hv g).re) /
-        remDen a k Z0 r (mergeOut a k p.1 par)) := funext fun p => hF p.1 p.2.1 p.2.2
-    rw [this]
-    exact ENNReal.measurable_ofReal.comp ((hc.mul (hK.mul hB)).div hD)
+  have hFm : Measurable F := measurable_removedWindowF a k Z0 P htm hsm hzm hwm hc0m hrm hv g par F hF
   have hne : ENNReal.ofReal (Real.exp EZ) ≠ ∞ := ENNReal.ofReal_ne_top
   calc ∫⁻ oz, ∫⁻ x, (removedKernel a k Z0 P t s z w u c0 r EZ ht hs hz hw hu hc0 hr htm hsm hzm
         hwm hum hc0m hrm).absW (mergeOut a k oz par) x hv g ∂(subMeasure N a k P.A)
