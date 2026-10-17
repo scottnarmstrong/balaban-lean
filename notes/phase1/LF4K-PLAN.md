@@ -42,3 +42,7 @@ Differs: ϰ₁–ϰ₃ do not divide by `∫ρ_{k,0}` (no (2.58′), no `remDen`
 5. `-- def/theorem keptDatum (k a ϰ) : KeptDatum N R a k` with `Ikeep ⊇ IsMsFluctVar` and the (S3) structure clauses; `-- theorem keptData_of_outcomes : KeptData k0 geo cs N κ lamHat` with `bound` from 3–4 and `gam_ge` from 1.
 6. `-- theorem lf4K (hκ-pin : D4Pin …) : ∀ ripe kept Z, KeptData.bound`, then `rg_ripe_of_kappaK` closes (b).
 Order of risk: 5 (new definitions: ask for approval), 4 (needs `hquot`), 2 (new integrals), 1, 3.
+
+Status W950: item 1 LANDED (`smallFactor_ge_setting`, `R/KeptOutcomeGamma.lean`); shared core `window_lintegral_le_exp` factored out of `removedKernel_kerBound_of_window` (`R/RRemovedWindow.lean`, with the gain `γ`).
+Item 3 for ϰ₁–ϰ₃ LANDED as `keptKernel_{one,two,three}_kerBound` (`R/KeptOutcomeWindow.lean`, kernel = `outcomeKernel`), with the window inputs `Θ, hid, hsupp, hbw, hfrac(Fr+γ), hcore, hvol` still NAMED (as in the removed lane).
+Item 2 open: `hid`/`hsupp`/`hfrac` for `F = K^pre·weight` with the `e^{-γ_i}` gain (`exists_window_hid` is specific to `remDen`/`hquot`; the kept instance needs its own Gaussian-chain instance and Lemma III.5.3 (a)–(c)).
