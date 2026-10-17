@@ -40,7 +40,7 @@ cutoff `χ_{Z₀}` has radius `C₆ β_k^{-1/2} p₀(β_k)` about the massless c
   `δφ_k` from `Z₀` (the core-to-action response, Q13-SHARED (2.4), open).  It cannot be dropped:
   `tildeE0Restricted_ge_of_sites_eq_empty` (a region without sites) gives `Ẽ₀^Z ≥ |Z₀| N log(2 C₆ p₀ / √N)`, not
   bounded uniformly in `p₀`.
-* `removedFactor_le_of_den_eq_AZ`, `removedFactor_le_restricted`: (2.58′) for the removed outcome with the restricted
+* `removedFactor_le_restricted`: (2.58′) for the removed outcome with the restricted
   denominator, without the term `A_den - A_Z` of `removedFactor_le`.
 -/
 
