@@ -2071,6 +2071,9 @@ public import Balaban.LargeField.R.RRemovedFinalRgComp
 public import Balaban.LargeField.R.RRemovedFinalWit
 public import Balaban.LargeField.R.KeptOutcomeGamma
 public import Balaban.LargeField.R.KeptOutcomeWindow
+public import Balaban.LargeField.R.KeptOutcomeGain23
+public import Balaban.LargeField.R.KeptOutcomeGainRipe
+public import Balaban.LargeField.R.KeptOutcomeGainIntegral
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
@@ -2219,6 +2222,12 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyGenLabelAct
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenCount
 public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
+public import Balaban.Fluctuation.LocalClassDensityFamilyRedLabelAct
+public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
+public import Balaban.Fluctuation.LocalClassDensityIrrelAux
+public import Balaban.Fluctuation.LocalClassDensityIrrelCount
+public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
+public import Balaban.Fluctuation.LocalClassDensityIrrelChain
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
@@ -2307,3 +2316,6 @@ public import Balaban.Polymer.TwoTorusGapDataThrFinal
 public import Balaban.Polymer.TwoTorusGapDataThrStep
 public import Balaban.Polymer.TwoTorusGapDataTower
 public import Balaban.Polymer.TwoTorusGapDataTowerMem
+public import Balaban.Fluctuation.VacuumFlow
+public import Balaban.Fluctuation.VacuumStep
+public import Balaban.Fluctuation.VacuumDet

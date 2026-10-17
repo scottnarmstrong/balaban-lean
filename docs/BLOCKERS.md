@@ -175,7 +175,11 @@ with the window's data indexed by the pieces of its steps (`notes/phase1/LF4R-PL
 components need the same step. Above the window, the gas bound is now derived from the window bound of each history (summed over histories,
 with the ripeness of removed components from the counter of the history), given two further inputs: the
 representation of the output of R as the gas with these removed weights, and the bound of the kept components. The other
-remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
+remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520). As literally
+read it is false: from a fixed initial constant the vacuum energy grows like L^{dk}. It holds exactly when the
+free initial constant is chosen so that the energy vanishes at the last scale; that constant cancels in the main
+theorem, so we use this normalization (proved: the flow, its increment, and the bound for this normalization; the
+determinant part of the per-step vacuum value is bounded). The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
