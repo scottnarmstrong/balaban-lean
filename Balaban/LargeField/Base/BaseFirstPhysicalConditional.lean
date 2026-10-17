@@ -175,7 +175,7 @@ theorem baseRho1_eq_sum_firstP_conditional_recordInterior
   rw [hpart]
   congr 1
   apply Finset.sum_congr rfl
-  intro P hP
+  intro P _
   have hdis := baseRetained_disintegrate S.d N S.L (n 1) ret
     (fun φ : CfgT S.d N S.L (n 1) => ((W P φ : ℝ) : ℂ) * F φ) (hInt P)
   exact hdis
