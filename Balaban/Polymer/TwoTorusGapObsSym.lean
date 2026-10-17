@@ -70,6 +70,24 @@ theorem blockMarkC_sym {Φ Φ' : ∀ c, (S.blockSplit m₀ hp).Ωb c}
     blockMarkC S m₀ hp (unitAct S.G' SS hU u) a Φ' = blockMarkC S m₀ hp u a Φ :=
   hatOf_sym S m₀ hp SS hU _ hΦ u a
 
+/-- **The block of the translated unit point is the translated block.** -/
+theorem cellOf_unitAct {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
+    (hσ : σ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L m₀ (k + 1))
+    (u : S.U) :
+    S.cellOf m₀ (unitAct S.G' SS hU u) = Balaban.Fluctuation.cubeMap σ (S.cellOf m₀ u) := by
+  obtain ⟨x, hxl, hx⟩ := (mem_unitPts S.G').1 u.2
+  have hu : u = unitPt S.hG' x := Subtype.ext hx.symm
+  subst hu
+  rw [unitPt_sym S.hG' SS hU, S.cellOf_unitPt, S.cellOf_unitPt]
+  apply Subtype.ext
+  have hdvd := cellSide_dvd (K := k + 1) (m₁ := m₁) hN (le_refl (k + 1))
+  have hb : (cubeOfSite m₀ x).1 = cbase (cellSide L m₀ m₁ (k + 1)) x := rfl
+  have hmem : σ x ∈ box (Balaban.Fluctuation.cubeMap σ (cubeOfSite m₀ x)).1
+      (cellSide L m₀ m₁ (k + 1)) := by
+    rw [box_cubeMap hN hσ]
+    exact ⟨x, by rw [hb]; exact mem_box_cbase (cellSide_pos m₀ m₁ (k + 1)) _, rfl⟩
+  exact cbase_eq_of_mem_box hdvd (Balaban.Fluctuation.cubeMap σ _).2.1 hmem
+
 end Sym
 
 end Balaban.Polymer.TwoTorusStep
