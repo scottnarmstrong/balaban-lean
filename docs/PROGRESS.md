@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit cf59c40c 2026-10-17.
+Computed at commit 96c8a953 2026-10-17.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 226 | 82,360 | 2,935 |
-| Green's functions and random walks | 124 | 43,115 | 1,888 |
+| Lattice, analysis, Gaussian and polymer tools | 227 | 82,497 | 2,937 |
+| Green's functions and random walks | 133 | 44,273 | 1,921 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
 | Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
-| Small-field class (P1, P4, P5) | 137 | 42,492 | 2,153 |
-| Fluctuation step and renormalization (P4-P6) | 538 | 186,294 | 5,711 |
-| Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 655 | 168,797 | 8,223 |
-| Observables and correlations (P8, P9) | 70 | 16,760 | 663 |
-| **Total** | **2412** | **753,954** | **30,089** |
+| Small-field class (P1, P4, P5) | 168 | 47,373 | 2,280 |
+| Fluctuation step and renormalization (P4-P6) | 560 | 191,377 | 5,805 |
+| Instantiated step at fixed parameters | 291 | 95,976 | 2,675 |
+| Large-field regions (P5-P7, E9-E10) | 692 | 172,966 | 8,325 |
+| Observables and correlations (P8, P9) | 75 | 17,302 | 681 |
+| **Total** | **2519** | **770,392** | **30,474** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -94,3 +94,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-17 (evening) | ~79% | ~51% | Blocker 4: the removed outcome of R built with P7's restricted reference density (generic R decomposition, factorization over components), the decay estimate (2.4) and the oscillation bound at every scale, the window integral assembled (geometry, ancestors, regrouping, Gaussian chain in progress). Blocker 5: the large-field part of the last integral by P7 §4 (tail blocks as polymers), the cut family on the class radius, N components, the domain inclusion, and volume-uniform coefficient bounds. Blocker 6: old terms keep their birth domain (mass response, unit witness, constants), the new level's clauses on the actual chart, the new density for complex external fields and its expansion value for a general class (conditional on the old terms' marks). Blocker 7: no floor needed below ℓ/20; translation covariance and recentring. |
 | 2026-10-17 (night) | ~80% | ~52% | Blocker 4: the window integral of the removed outcome composed from the regrouping of its variables (Gaussian and shell variables exposed), with the quiet steps' action kept, each step's action identified with the window's action, and the exact Gaussian integral over the window's intermediate variables; the match with P7 (2.58′) is in progress. Blocker 6: the marks of the old terms built label by label, so the new density's value for a class with inherited labels needs only their activities. Blocker 7: the determinant and observable terms transported between two tori (translation and recentring), and the determinant step terms equal on two tori for compact supports. |
 | 2026-10-17 (late night) | ~81% | ~53% | Blocker 4: the window integral's composition designed from P7 (the intermediate Gaussian variables integrated exactly, the steps' actions summed into the window action up to a bounded constant (2.15′), then the cancellation identity of (2.58′)); the window setup indexed by the pieces of the steps, each piece's chain from its local data, the pieces' regions on the window generating set; the gas bound from the window bound of each history, with ripeness from the counter; the kept outcomes planned and partly bounded. Blocker 6: the general class needs the irrelevant-part representation of the inherited terms (P1 Prop. 3.10); the activity theorems made generic in the label functional, with an amplitude bound and a count uniform in the scale. Blocker 7: the clause at the gap scales for every support in the quarter box given the inherited terms' closeness, the induction over scales, and the threshold that gives the determinant slack. |
+| 2026-10-17 (plan B) | ~82% | ~54% | Plan B: every blocker has a focused analysis or Lean round running. Blocker 5 and the no-step case: the singleton-gas reading of the large-field part refuted by an explicit example (KF0B B.7); the linked Mayer identity with separate activation and footprint proved; the gas bound for linked terms and their identification with P7 started. Blocker 6: the chain at an actual tower with all numerical conditions met; the anisotropic datum from the step chart; torus-defect symmetries, partition and counts. Blocker 7: the determinant term tied to the tower. Blocker 4: the actual piece chain normalized; the five window estimates need the physical setup. Base case: local pieces of the first component. Root-C: complex charts and the large-β contraction of the coefficient flow; no step at ν = 0 is needed. |

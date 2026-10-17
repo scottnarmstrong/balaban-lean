@@ -70,11 +70,21 @@ approved declaration.
 - Our reading is proved (no floor needed below the last scales; the induction over the gap scales).
   Remaining work is engineering: tie the abstract terms to the tower's step terms.
 
+## The step-to-step backbone (no author question; one ruling)
+- The old terms are transported to the next scale's torus (W985: `oldTorusEquiv`, `liftOldTerms`).
+- RULING R6 (Scott): the domain of the inherited levels. The landed `completeXiDom` uses the current
+  scale's mass for every old level, and its inclusion across one step fails at admissible constants
+  (`notes/phase1/astra/SFFAM.md` Part 3: a constant field with a small transverse source lies in the
+  new domain but not in the old one, since `XiCBounds.hAbs` is strict with no margin). Options:
+  (a) domains frozen at each level's birth mass (the W868 design; mass response already proved);
+  (b) a step-dependent radius margin, as P4 (4.19), p. 704. Recommended: (a). Until then the clause
+  transport on the pulled-back old domain proceeds (astra-sffam, W999).
+
 ## Minor confirmations (items 15, 19, 20, 22)
 - We already use our readings; they need no change.
 
 ## Order
-1. Rulings R2 and R3 from Scott (this note, text above).
+1. Rulings from Scott: R2 (blocker 2), R4 and R5 (blocker 4), R6 (backbone); R3 withdrawn.
 2. Astra: `astra-xidom`, `astra-radius`, `astra-kf0b` (running); then blocker 5 (L4), blocker 6 (torus
    defect), blocker 3 (if R3 is declined, route B).
 3. Opus: blocker 3 blast radius (if R3), blocker 1 base case design, the representation of R's output.

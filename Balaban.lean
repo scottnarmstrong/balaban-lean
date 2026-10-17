@@ -1248,6 +1248,8 @@ public import Balaban.Fluctuation.StepRegWitness
 public import Balaban.Fluctuation.StepRegWitnessGeneral
 public import Balaban.Fluctuation.StepRegDomain
 public import Balaban.Fluctuation.GeneralClassMatch
+public import Balaban.Fluctuation.OldTermsLiftGeom
+public import Balaban.Fluctuation.OldTermsLiftPoly
 public import Balaban.Fluctuation.GeneralClassPathAnalytic
 public import Balaban.Fluctuation.GeneralClassRegularC
 public import Balaban.Fluctuation.StepNormGauss
@@ -1555,6 +1557,8 @@ public import Balaban.Inhabited.StepScaleDataG
 public import Balaban.Inhabited.StepScaleDataGBridge
 public import Balaban.Inhabited.StepTowerGProducer
 public import Balaban.Inhabited.StepTowerGProducers
+public import Balaban.Inhabited.StepTowerSmall
+public import Balaban.Inhabited.StepTowerSmallBase
 public import Balaban.Inhabited.StepTowerThetaG
 public import Balaban.Inhabited.StepTowerRenG
 public import Balaban.Inhabited.StepTowerScale
