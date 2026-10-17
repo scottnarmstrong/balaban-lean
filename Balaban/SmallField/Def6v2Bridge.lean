@@ -162,6 +162,27 @@ theorem polyAniso_subset_xiDomM (H : BgHyp d L k ϱ a' μ) (hΩ : ∀ i, j < i �
 
 end Mass
 
+/-! ### The radius inclusion shared by field-domain instances -/
+
+/-- The anisotropic polydisc lies in the level-`j` chart at any fine mass satisfying the
+background hypotheses and `μ L^{2j} ≤ ν_j`. The generating-set and radius conditions are the
+only domain facts used by this part of the v2-to-I6 bridge. -/
+theorem polyAniso_subset_xiDom_of_radius [NeZero L] [NeZero N₁]
+    {P : Consts} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a' : ℕ → ℝ} {μ νj : ℝ} {j : ℕ}
+    (hBg : BgHyp d L k ϱ a' μ) (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k)
+    (hνj : 0 < νj) (hm : μ * ((L : ℝ) ^ j) ^ 2 ≤ νj) (i₀ : Fin N)
+    {r : ℝ} (hr : AnisoRadiusOK d L N P j r) {X' : Finset (Site d)}
+    {c : Cfg d N X'} (hc : c ∈ polyAniso i₀ νj r X') :
+    XiDom G a' μ j (P.eps d L j) (fieldOf j i₀ X' c) (hOf νj X' c) := by
+  obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hr
+  have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
+  have hrδ' : 4 * (N : ℝ) * r ≤ δ := by
+    have h1 : r ≤ r * (1 + N * rotB N) := by nlinarith
+    have hN0 : (0 : ℝ) ≤ 4 * N := by positivity
+    calc 4 * (N : ℝ) * r ≤ 4 * N * (r * (1 + N * rotB N)) := mul_le_mul_of_nonneg_left h1 hN0
+      _ ≤ δ := hrδ
+  exact polyAniso_subset_xiDomM hBg hΩ hjk hνj hm i₀ hδ0 hδc0 hδc1 hr0 hr1 hrδ' hε hc
+
 /-! ### The main instance of the field domain -/
 
 /-- **The main instance of the field domain of the second version** (Scheme A): on every torus
@@ -193,17 +214,10 @@ theorem polyAniso_subset_xiDom_sf (hT : SFTermClauses P
     (xiFieldDom (d := d) (N₁ := N₁) (m₁ := m₁) (ϱ := ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k)
       (P.eps d L)).dom j (Tm.gs j (Ypoly j X')) (fieldOf j i₀ X' c)
         (hOf (nuIdeal L k (Rg.ν k) j) X' c) := by
-  obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hr
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hνj : 0 < nuIdeal L k (Rg.ν k) j := by unfold nuIdeal; positivity
-  have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-  have hrδ' : 4 * (N : ℝ) * r ≤ δ := by
-    have h1 : r ≤ r * (1 + N * rotB N) := by nlinarith
-    have hN0 : (0 : ℝ) ≤ 4 * N := by positivity
-    calc 4 * (N : ℝ) * r ≤ 4 * N * (r * (1 + N * rotB N)) := mul_le_mul_of_nonneg_left h1 hN0
-      _ ≤ δ := hrδ
-  exact polyAniso_subset_xiDomM hBg (hT.gs_spec j hj1 hjk _ hX).2 hjk hνj
-    (Rg.sfBgMass_mul_sq hjk).le i₀ hδ0 hδc0 hδc1 hr0 hr1 hrδ' hε hc
+  exact polyAniso_subset_xiDom_of_radius hBg (hT.gs_spec j hj1 hjk _ hX).2 hjk hνj
+    (Rg.sfBgMass_mul_sq hjk).le i₀ hr hc
 
 end Complete
 
