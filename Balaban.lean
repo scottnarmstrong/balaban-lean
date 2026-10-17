@@ -2025,6 +2025,9 @@ public import Balaban.LargeField.R.RGasCoreHaloDj
 public import Balaban.LargeField.R.RGasCorePay
 public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RRemovedFactor
+public import Balaban.LargeField.R.RRemovedKernel
+public import Balaban.LargeField.R.RRemovedKernelPre
+public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
