@@ -270,6 +270,7 @@ public import Balaban.Green.KF0WalkSeries
 public import Balaban.Green.KF0WalkTruncation
 public import Balaban.Green.KF0WalkOrdinary
 public import Balaban.Green.KF0WalkTorus
+public import Balaban.Green.KF0CovarianceAtoms
 public import Balaban.Green.KF0HoleWalk
 public import Balaban.Green.KF0HoleWalkTorus
 public import Balaban.Green.KF0WalkHalo
@@ -909,6 +910,7 @@ public import Balaban.LargeField.Base.KF0BlockSplit
 public import Balaban.LargeField.Base.KF0MeanShell
 public import Balaban.LargeField.Base.KF0BoundarySquare
 public import Balaban.LargeField.Base.KF0SectorSum
+public import Balaban.LargeField.Base.KF0BadCharge
 public import Balaban.Fluctuation.RenormIdentity
 public import Balaban.Fluctuation.FarDecay
 public import Balaban.Fluctuation.Lemma25Xi
@@ -2372,6 +2374,21 @@ public import Balaban.SmallField.IrrelTorusXidomRotate
 public import Balaban.SmallField.IrrelTorusXidomLarge
 public import Balaban.SmallField.IrrelTorusXidomXiC
 public import Balaban.SmallField.IrrelTorusXidomWitness
+public import Balaban.SmallField.IrrelTorusXidomPatchGeom
+public import Balaban.SmallField.IrrelTorusXidomPatch
+public import Balaban.SmallField.IrrelTorusXidomLocal
+public import Balaban.SmallField.IrrelTorusXidomRealFrame
+public import Balaban.SmallField.IrrelTorusXidomFrameField
+public import Balaban.SmallField.IrrelTorusXidomSourceFrame
+public import Balaban.SmallField.IrrelTorusXidomSecondDiff
+public import Balaban.SmallField.IrrelTorusXidomSecondDiffData
+public import Balaban.SmallField.IrrelTorusXidomSmall
+public import Balaban.SmallField.IrrelTorusXidomSmallSource
+public import Balaban.SmallField.IrrelTorusXidomThreshold
+public import Balaban.SmallField.IrrelTorusXidomSplit
+public import Balaban.SmallField.IrrelTorusXidomBound
+public import Balaban.SmallField.IrrelTorusXidomThresholdScale
+public import Balaban.SmallField.IrrelTorusXidomBoundScale
 public import Balaban.LargeField.Regime.A0PrimeRadiusWeight
 public import Balaban.LargeField.Regime.A0PrimeRadiusStep
 public import Balaban.LargeField.Regime.A0PrimeRadiusObservable
