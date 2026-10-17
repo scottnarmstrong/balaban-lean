@@ -48,6 +48,29 @@ theorem p5_kernel_integral_of_physical_inputs
   exact (hker hv g hg par).trans <|
     ENNReal.ofReal_le_ofReal (Real.exp_le_exp.mpr (by linarith))
 
+/-- The conditional P5 integral estimate simultaneously for a family of actual kernels
+indexed by the complex source increment in the thin tube.  `hker` is precisely the
+missing physical (1.26) estimate for that family.  The landed `KerBound` still has a
+real `hv` argument, so this theorem supplies a uniform bound but no holomorphy claim. -/
+theorem p5_kernel_integral_on_source_tube_of_physical_inputs
+    {S : Setting} {n : ℕ → ℕ} [∀ j, NeZero (n j)] {R : ℕ → ℝ}
+    {M K N : ℕ} [NeZero M] [NeZero S.L]
+    (a : LocalHistory S n M K) (k : ℕ) {A : Set (InternalVars a k)}
+    (T : (Fin N → ℂ) → LFKernel (OutT N R a k) (SubCfg N a k A)
+      (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N))
+    {μ β c κ P2 H W ell : ℝ}
+    (hker : ∀ q : Fin N → ℂ,
+      (∑ i, ‖q i‖ ^ 2) ≤ c ^ 2 * μ / β → KerBound a k (T q) κ)
+    (hbudget : ell * P2 + H * W ≤ κ) :
+    ∀ q : Fin N → ℂ, (∑ i, ‖q i‖ ^ 2) ≤ c ^ 2 * μ / β →
+      ∀ (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ),
+        g ∈ l1Ball (GIdx S n M K N) → ∀ par : OutPar N R a k,
+          ∫⁻ oz, ∫⁻ x, (T q).absW (mergeOut a k oz par) x hv g
+            ∂(subMeasure N a k A) ∂(outPartMeasure N (Vblk R a k) (ZBlk a k)) ≤
+            ENNReal.ofReal (Real.exp (-(ell * P2) - H * W)) := by
+  intro q hq
+  exact p5_kernel_integral_of_physical_inputs a k (T q) (hker q hq) hbudget
+
 /-- P5 (1.27)--(1.31): a finite sum of physical operator integrals keeps the same
 `P2` and `H` when every decorated summand satisfies (1.30).  The function `F` is the
 nonnegative value of the actual kernel integral after its measure has been fixed;
