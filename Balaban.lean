@@ -2308,3 +2308,6 @@ public import Balaban.Polymer.TwoTorusGapDataTowerMem
 public import Balaban.Fluctuation.VacuumFlow
 public import Balaban.Fluctuation.VacuumStep
 public import Balaban.Fluctuation.VacuumDet
+public import Balaban.SmallField.IrrelTorusDefectGeom
+public import Balaban.SmallField.IrrelTorusDefectJet
+public import Balaban.SmallField.IrrelTorusDefectTail
