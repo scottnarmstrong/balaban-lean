@@ -200,6 +200,23 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
           S.a₁ S.ν T.BG T.BG₂ T.κ T.t T.t T.κdec p₁
           (S.blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
           (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ (z, b)) (Sol (z, b))) ∧
+        (∀ b, (∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp T.κ) →
+          InUnionDomainC S.G' (bgC0 d L N) (c7 d L N T.BG T.κ) S.ν D →
+          ∀ (φ : S.G'.Ω 1 × Fin N → ℂ) (α : S.G'.Ω 1 → ℂ),
+            IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N T.BG T.κ) s D φ α →
+            (F₁ (z, b)) (s, rawOf D) = (φ, α)) ∧
+        (∀ p : Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k ϱ) N, (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+          StrictDataM (stepG d L N₁ T.m₁ k ϱ) N false (2 * (K4 d L N T.BG T.κ * (xiC1 d * T.t))) T.t p.2 →
+            ((Sol (z, b)) p).1 = dphi (stepG d L N₁ T.m₁ k ϱ) (Dec2.decG (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1) p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) ((Sol (z, b)) p).2 ∧
+            Small (stepG d L N₁ T.m₁ k ϱ) ((Sol (z, b)) p).2 (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) ∧
+            Small (stepG d L N₁ T.m₁ k ϱ) ((Sol (z, b)) p).2 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            SupBounds (stepG d L N₁ T.m₁ k ϱ) ((Sol (z, b)) p).1 (cK2' d L N (famConst d L T.BG₂ T.κ) * T.t) ∧
+            (∀ δα' : (stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ, Small (stepG d L N₁ T.m₁ k ϱ) δα' (c6' d L N (famConst d L T.BG₂ T.κ) (gamma1 d / 8)) →
+              Dec2.DecFixed (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+                (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = ((Sol (z, b)) p).2))) ∧
         Nonempty (ParamMarkFamily (S.blockSplit 1 hp).μ
           (commonLabels Lab₀ (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega)
             (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm₀ D hϱ hS)) A₀
@@ -380,7 +397,7 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
   have hz1 := hβ'.1
   obtain ⟨Jr, hraw, hExplicit⟩ := hβ'.2.2.2.2.2.2.2.2
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, hα, fun z => ?_⟩
-  obtain ⟨hP, hfam, c, hc, hC, hcv⟩ := hz1 z
+  obtain ⟨hP, hsp, hfam, c, hc, hC, hcv⟩ := hz1 z
   subst hϱ
   obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
   have hLN : L ∣ N₁ := by rw [hm₀] at h3N; simpa using h3N
@@ -429,7 +446,7 @@ theorem e0CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
     intro C θ hθ
     refine ((hdz2 C).2.2.1 θ hθ).trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hc0)
     nlinarith [dExt_nonneg (m₀ := 1) (j := k + 1) (Ω := Set.univ) C]
-  refine ⟨hP, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
+  refine ⟨hP, hsp, hfam, c, hc, hC, hcv, dz, hdz1', ?_, ?_⟩
   · intro C
     obtain ⟨a1, a2, a3, a4⟩ := hdz2 C
     exact ⟨a1, a2, hdzB C, a4⟩
