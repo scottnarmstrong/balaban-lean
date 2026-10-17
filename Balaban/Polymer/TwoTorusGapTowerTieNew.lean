@@ -9,6 +9,7 @@ public import Balaban.Polymer.TwoTorusGapTowerTieObs
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapTowerTie
 public import Balaban.Inhabited.StepIdentityFibreFamiliesCore
+public import Balaban.Polymer.TwoTorusGapTowerCloseCore
 
 /-!
 # The new terms of the tower step on two tori (blocker 7)
@@ -28,6 +29,8 @@ family of tori `ℓ` with their scale data, the witnesses of
 * (`hdt`) the determinant term of the root `zr ℓ` at such a support is the same on `ℓ` and on
   `can X` (`hdt_of_detSum_thr36`, threshold `(K - 36) / 25`).
 
+The theorem is a projection of `towerGapTerms_twoTorus_fromTowerG_core` (the witnesses of the
+explicit core, chosen once per torus).
 So `hTo` (`To ℓ g X = mObs ℓ (xs ℓ) iy (θ ℓ g) (Ycub ℓ X)`) and `hTd` are theorems about the tower's
 new terms.  The remaining hypotheses are data of the tori and of the parameters: the geometry of
 the gap scale, the parameters `θ ℓ g` (in the chart with sources of the `q`-ball for `hob`; raw data
@@ -216,87 +219,16 @@ theorem towerNewTerms_twoTorus_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ}
                 (rawOf (Dat (can X) g)))),
           ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → ∀ g ∈ Dset,
             dz ℓ (zr ℓ) (θ ℓ g) (Ycub ℓ X) = dz (can X) (zr (can X)) (θ (can X) g) (Ycub (can X) X) := by
-  classical
   obtain ⟨β₀, CE, CF, h3, hCE, hCF, H⟩ :=
-    stepIdentity_zeroClass_fibre_fromTowerG_core T hm₀ hhull hA p hCR hs0 hs
+    towerGapTerms_twoTorus_fromTowerG_core.{_, _, _, 0} T hm₀ hhull hA p hCR hs0 hs
   refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
   intro k hk ι N₁ _ h3N h5 ν hν0 hν β hβ p₁ hp0 hp₁ q hq0 hq1 D
-  have HH := fun ℓ => H k hk (N₁ ℓ) (h3N ℓ) (h5 ℓ) ν hν0 hν β hβ p₁ hp₁ q hq0 hq1 (D ℓ)
-    (ϱ := rhoSepG d L T.m₁) rfl (T.step k hk (N₁ ℓ) ν β p₁) rfl hp0
-  choose F₁ Sol Lb hLb Lab₀ εH A₀ e0 Lbo hLbo Labo εHo hεHo Ao mObs hα hroot hamp hlab hsrcF
-    hsite hid using HH
-  choose hP hF c hc1 hc2 hcv dz hd1 hd2 he0 he2 hev hEdet using hroot
-  have hdz : ∀ ℓ z (D' : BgData (SA[ℓ]).G' N),
-      XiCData (SA[ℓ]).G' (SA[ℓ]).a (SA[ℓ]).ν (k + 1) 1 T.t D' →
-      ∀ (g : Fld d L (N₁ ℓ) T.m₁ (k + 1) N) C,
-        dz ℓ z (⟨rawOf D', rawOf_mem_rawSub _⟩, g) C =
-          ∑ zc ∈ ({z} : Finset (RootIdx d L (N₁ ℓ) T.m₁ (k + 1))),
-            ∑ y ∈ (Finset.univ.filter fun u : unitPts (SA[ℓ]).G' =>
-              unitBlock1 (u : UnitTorus d L (N₁ ℓ) T.m₁ k) = zc),
-              detActivityBg 1 (compWeight L 1) 1 ν (rho4 d L N T.BG T.κ) D' y C := by
-    intro ℓ z D' hD' g C
-    obtain ⟨E, hEt, hEd, -⟩ := hEdet ℓ z
-    rw [hEd D' hD' g C, hEt D' C]
-    exact sum_blockU_eq_rootFilter _ z _
-  refine ⟨e0, dz, c, mObs, hid, he0, hdz, ?_, ?_⟩
-  swap
-  · intro G K _ hK36 Dc hDc hside P Q can Wd hP hQ hcanK zr hzr Ycub hYs Dset Dat hDat θ hθD hsp hq
-      hraw
-    have hN : ∀ ℓ, L ^ 1 ∣ N₁ ℓ := fun ℓ => by have := h3N ℓ; rwa [hm₀] at this
-    refine hdt_of_detSum_thr36 (K := K) (Dc := Dc) T.hN hk ν β p₁ T.δ (by have := T.hd; omega)
-      (by have := T.hL; omega) le_rfl (by have := T.m₁_four; omega) hN (fun ℓ => (D ℓ).core)
-      (δc_nonneg_of_flCore T.hd T.t_pos (Classical.choice T.core) T.dom_margin) T.large_block
-      T.δc_small T.dom_margin T.coer_margin (fun _ => hatConn_lvTopG T.hL) hDat hK36 hDc hside
-      P Q can Wd hP hQ hcanK (fun ℓ => {zr ℓ}) Ycub hYs (fun ℓ X hX hQX => ?_)
-      (fun ℓ g X => dz ℓ (zr ℓ) (θ ℓ g) (Ycub ℓ X)) (fun ℓ g X _ hg => ?_)
-      (fun ℓ X g hX hQX hW hg zc hzc => by
-        obtain rfl := Finset.mem_singleton.1 hzc; exact hsp ℓ X g hX hQX hW hg)
-      (fun ℓ X g hX hQX hW hg zc hzc => by
-        obtain rfl := Finset.mem_singleton.1 hzc; exact hq ℓ X g hX hQX hW hg)
-      (fun ℓ X g hX hQX hW hg zc hzc => by
-        obtain rfl := Finset.mem_singleton.1 hzc; exact hraw ℓ X g hX hQX hW hg)
-    · rw [Finset.image_singleton, hzr ℓ X hX hQX]
-    · have hθe : θ ℓ g = (⟨rawOf (Dat ℓ g), rawOf_mem_rawSub _⟩, (θ ℓ g).2) :=
-        Prod.ext (Subtype.ext (hθD ℓ g hg)) rfl
-      rw [hθe]
-      exact hdz ℓ (zr ℓ) (Dat ℓ g) (hDat ℓ g hg) _ _
-  intro G K _ hK26 hside hKL P Q can Wd hP hQ hcanK Ycub hYs xs iy hxsb hsp hqS Dset θ hθV hraw
-    hsrc ℓ₀ X hX hQX hW g hg
-  choose 𝒴v ys hys h𝒴v F₂ Sol₂ hF₂ hSol₂ hAx using hlab
-  choose F₃ Sol₃ Ev₃ hF₃ hSol₃ hEv₃ hanEv₃ hAs using hsrcF
-  have hN : ∀ ℓ, L ^ 1 ∣ N₁ ℓ := fun ℓ => by have := h3N ℓ; rwa [hm₀] at this
-  have hcov1 : ∀ ℓ, LevelCoversG d L N (N₁ ℓ) T.m₁ k (rhoSepG d L T.m₁) (rhoSepG d L T.m₁)
-      (lvTopG d L (N₁ ℓ) T.m₁ k (rhoSepG d L T.m₁))
-      (lvLowG d L (N₁ ℓ) T.m₁ k (rhoSepG d L T.m₁)) 1 := fun ℓ => by
-    have h := (D ℓ).covers
-    rw [hm₀] at h
-    exact h
-  have hdj : ∀ ℓ, ∀ Y ∈ obsDomains (SA[ℓ]) (LocalCover.nbhdF 1 (xs ℓ)) 1 k
-      (LocalCover.fam 1 (xs ℓ)), IsDj 1 (k + 1) Y := fun ℓ =>
-    obsDomains_isDj (X₁f := LocalCover.nbhdF 1 (xs ℓ)) _ T.hd ((hcov1 ℓ).2 (xs ℓ, iy)).1
-      ((hcov1 ℓ).2 (xs ℓ, iy)).2.2.1
-  choose hR hR1 hRθ Ev hEvx ha hd hb hmk hfam using fun ℓ => hsite ℓ (xs ℓ) iy (hdj ℓ)
-  choose Fy Soly hFy hSoly hEvF using hEvx
-  have hbU : ∀ ℓ, (SA[ℓ]).betaU = β * (L : ℝ) ^ (k * (d - 2)) := fun ℓ =>
-    hatStepKG_betaU T.hN (by have := T.hd; omega) k T.m₁ (rhoSepG d L T.m₁) hk ν β p₁ T.δ
-  simp only [hbU] at hAx hEv₃ hEvF
-  have hrad := (D ℓ₀).fl_radius
-  rw [hbU ℓ₀] at hrad
-  have hcψ0 := (D ℓ₀).cψ_pos
-  have hq : p₁ / lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) ≤ 1 / 4 := by
-    rw [div_le_iff₀ hcψ0]
-    have : 0 < lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ * p₁ :=
-      mul_pos (D ℓ₀).r_pos hp0
-    nlinarith [(D ℓ₀).ray_margin]
-  exact hob_of_obsLabelFormulas (K := K) T.hN hk ν β p₁ T.δ (fun ℓ => (D ℓ).core) T.large_block
-    T.dom_margin T.coer_margin T.δc_small (by have := T.hd; omega) (by have := T.hL; omega) le_rfl
-    (by have := T.m₁_four; omega) hN hK26 hside hKL P Q can Wd hP hQ hcanK Ycub hYs xs iy hxsb hsp
-    hqS _ hcψ0 hq hrad hFy hSoly hEvF (fun ℓ Y _ => hd ℓ Y) hdj θ
-    (fun ℓ g hg => (hθV ℓ g hg).1.1) (fun _ => hp0) Labo ys hys Ao (fun _ => T.κ0_ent)
-    (fun ℓ => (hεHo ℓ).le) (fun _ => le_refl _) _ (hR ℓ₀) (ball (0 : ℂ) (3 / 2))
-    (fun ℓ g X => mObs ℓ (xs ℓ) iy (θ ℓ g) (Ycub ℓ X)) (fun ℓ g X _ _ => hmk ℓ (θ ℓ g) (Ycub ℓ X))
-    hraw (Nat.lt_of_lt_of_le two_pos T.hN) h𝒴v hF₂ hSol₂ hθV hAx hF₃ hSol₃ hEv₃ hanEv₃ hAs hsrc
-    ℓ₀ X hX hQX hW g hg
+  obtain ⟨e0, dz, c, mObs, _, -, hT, hF⟩ := H k hk ν hν0 hν β hβ p₁ hp0 hp₁ q hq0 hq1
+  obtain ⟨hob, hdt, -⟩ := hF N₁ h3N h5 D
+  exact ⟨fun ℓ => e0 (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ), fun ℓ => dz (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ),
+    fun ℓ => c (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ), fun ℓ => mObs (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ),
+    fun ℓ => (hT (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ)).1, fun ℓ => (hT (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ)).2.1,
+    fun ℓ => (hT (N₁ ℓ) (h3N ℓ) (h5 ℓ) (D ℓ)).2.2.1, hob, hdt⟩
 
 end ObsTower
 
