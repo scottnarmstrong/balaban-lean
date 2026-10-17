@@ -45,3 +45,5 @@ Status (W897): `Fluctuation/ClassOldBirthDelta.lean`: `delta3_le_of_close` (δ�
 
 Status (W899): `Fluctuation/ClassOldBirthFluct.lean`: `delta1_le_of_amp` (δ₁ = 2√N‖cc‖C c_ψ, ‖cc‖ ≤ β_k^{-1/2}, c_ψ = A₁(log β_k)^p, β_k ≥ M L^{(d-2)k}, α ≤ (d-2)(1/2-u): δ₁ ≤ c_δ ε_k iff-type size condition 2√N C A₁(p/u)^p ≤ c_δ α₀ M^{1/2-u}; uses (log x)^p ≤ (p/u)^p x^u).
 `classOldDec_expansion_cover_birth_consts_fluct`: consts_delta with hδ₁, hδ₁k replaced by these amplitude/size hypotheses; only constants remain.
+
+Status (W900): `Fluctuation/ClassOldBirthRun.lean`: `classOldDec_expansion_cover_birth_run` (a) `betaK_lower`, `betaRun_lower` (M = β₀, resp. β e^{-ε}); (b) amplitude cc = β_k^{-1/2}, cutoff `pLog A₁ p β_k`; (c) `mass_relation_of_nuSeq`, hξ in the `rg_flow_infty` form with c₈ = 4C_f/β (input about the actual flow); (d) `bgHyp_of_mass`, margin ν L^{2(k+1)}(1+r) ≤ 1 (r ≤ 1/16); (e) hW proved (`covSupConstC_pos`).
