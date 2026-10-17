@@ -725,6 +725,7 @@ public import Balaban.LargeField.Operators.QuietLocalIso
 public import Balaban.LargeField.Operators.QuietLocalRest
 public import Balaban.LargeField.Operators.QuietLocalInput
 public import Balaban.LargeField.Operators.StepData
+public import Balaban.LargeField.Operators.StepVacuumR5
 public import Balaban.LargeField.Operators.AncVars
 public import Balaban.LargeField.Operators.DomainGeom
 public import Balaban.LargeField.Operators.DomainIdentity
