@@ -285,6 +285,62 @@ theorem obsUnitVec_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {R 
     exact h (Prod.ext (unitPt_eq_of_rec_eq hn hn' (SA).hG' (SB).hG' SSA hUA SSB hUB hx hx₀ h1)
       h'.2)
 
+/-- The coefficients along the unit vectors of corresponding marks agree under the recentring map. -/
+theorem hatCoeff_obsUnitVec_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {R : ℕ}
+    (hn : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 2 * R + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {tA : CTorus d L N₁ m₁ (k + 1)} {tB : CTorus d L N₁' m₁ (k + 1)}
+    (SSA : LatSymm (SA).G' (SA).G' (Equiv.addRight tA)) (hUA : UnitBlockPres (Equiv.addRight tA))
+    (SSB : LatSymm (SB).G' (SB).G' (Equiv.addRight tB)) (hUB : UnitBlockPres (Equiv.addRight tB))
+    {Rw Rw' : Type*} {E : Rw × ((SA).U × Fin N → ℂ) → ℂ} {E' : Rw' × ((SB).U × Fin N → ℂ) → ℂ}
+    {r : Rw} {r' : Rw'} {cψ : ℝ} (hcψ : 0 < cψ)
+    (hE : ∀ (ψh : (SA).U × Fin N → ℂ) (ψh' : (SB).U × Fin N → ℂ), (∀ q, ‖ψh q‖ ≤ cψ) →
+      (∀ q, ‖ψh' q‖ ≤ cψ) →
+      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+        ∀ i, ψh' (unitPt (SB).hG' (bm (x + tA) - tB), i) = ψh (unitPt (SA).hG' x, i)) →
+      E' (r', ψh') = E (r, ψh))
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hx₀ : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x₀ + tA))
+    (a : Fin N) :
+    hatCoeff E' r' (obsUnitVec (SB) (unitPt (SB).hG' (bm (x₀ + tA) - tB), a)) =
+      hatCoeff E r (obsUnitVec (SA) (unitPt (SA).hG' x₀, a)) := by
+  refine hatCoeff_congr_of_eqOn hcψ fun ζ hζ => hE _ _ (smul_mem_ball (norm_obsUnitVec_le _ _) hζ)
+    (smul_mem_ball (norm_obsUnitVec_le _ _) hζ) fun x hx i => ?_
+  simp only [Pi.smul_apply, smul_eq_mul]
+  rw [obsUnitVec_rec hN2 hk νS β p₁ δ hn hn' SSA hUA SSB hUB hx₀ a hx i]
+
+/-- **The remainder marks under the recentring map.** -/
+theorem obsGrRawC_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m₀ R : ℕ}
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {tA : CTorus d L N₁ m₁ (k + 1)} {tB : CTorus d L N₁' m₁ (k + 1)}
+    {Ev : Set (CTorus d L N₁ m₁ (k + 1)) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × ((SA).U × Fin N → ℂ) → ℂ}
+    {Ev' : Set (CTorus d L N₁' m₁ (k + 1)) →
+      RawData d L (N₁' * L ^ m₁) (k + 1) N × ((SB).U × Fin N → ℂ) → ℂ}
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (Y : {Y // Y ∈ 𝒴}) (Y' : {Y' // Y' ∈ 𝒴'})
+    {r : RawData d L (N₁ * L ^ m₁) (k + 1) N} {r' : RawData d L (N₁' * L ^ m₁) (k + 1) N}
+    {cψ : ℝ} (hcψ : 0 < cψ) (hq : (SA).p₁ / cψ ≤ 1 / 4)
+    (hE : ∀ (ψh : (SA).U × Fin N → ℂ) (ψh' : (SB).U × Fin N → ℂ), (∀ q, ‖ψh q‖ ≤ cψ) →
+      (∀ q, ‖ψh' q‖ ≤ cψ) →
+      (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+        ∀ i, ψh' (unitPt (SB).hG' (bm (x + tA) - tB), i) = ψh (unitPt (SA).hG' x, i)) →
+      Ev' Y'.1 (r', ψh') = Ev Y.1 (r, ψh))
+    {Φ : ∀ c, ((SA).blockSplit m₀ hp).Ωb c} {Φ' : ∀ c, ((SB).blockSplit m₀ hp').Ωb c}
+    (hΦ : ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+      Φ' ((SB).cellOf m₀ (unitPt (SB).hG' (bm (x + tA) - tB)))
+        ⟨unitPt (SB).hG' (bm (x + tA) - tB), rfl⟩ =
+        Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) (u : ℂ) :
+    obsGrRawC (SB) m₀ hp' Ev' 𝒴' r' (some Y') u Φ' = obsGrRawC (SA) m₀ hp Ev 𝒴 r (some Y) u Φ := by
+  have h4 : 4 ≤ cψ / (SA).p₁ := four_le_of hcψ hp hq
+  have hhat := hatOf_rec hN2 hk νS β p₁ δ m₀ (SA).p₁ hp hp' hΦ
+  show remExt (fun ζ : ℂ => Ev' Y'.1 (r', ζ • (SB).hatOf m₀ (SB).p₁ hp' Φ')) u =
+    remExt (fun ζ : ℂ => Ev Y.1 (r, ζ • (SA).hatOf m₀ (SA).p₁ hp Φ)) u
+  refine remExt_congr_of_eqOn (ρ := cψ / (SA).p₁) (by linarith) (fun ζ hζ => ?_) u
+  refine hE _ _ (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ)
+    (smul_mem_ball_p hp' (norm_hatOf_p₁_le Φ') hζ) fun x hx i => ?_
+  simp only [Pi.smul_apply, smul_eq_mul]
+  exact congrArg (ζ * ·) (hhat x hx i)
+
 end RecentreMarks
 
 end Balaban.Polymer.TwoTorusStep
