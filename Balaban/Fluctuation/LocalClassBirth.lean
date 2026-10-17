@@ -147,6 +147,27 @@ section Reduction
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
+/-- **Core of the birth-mass inclusion**: as `xiDom_birth_of_massResponse`, with the response
+hypothesis `hresp` required only for the data that realize `D`. -/
+theorem xiDom_birth_core {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {A : ℕ → ℝ}
+    {ν μ C₀ e e₁ e' εj : ℝ} {j : ℕ} (hσ : 1 ≤ C₀) (hrad : C₀ ^ 2 * e ≤ e₁) (hee : e' ≤ εj)
+    {D : BgData G N}
+    (hresp : ∀ (Ψ₀ : Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
+      (Ψ'' h'' : Localization.CTorus d L N₁ m₁ k → Fin N → ℂ),
+      XiC G A ν j 1 e₁ Ψ₀ h₀ Ψ'' h'' → RealizesC D Ψ₀ h₀ Ψ'' h'' →
+      XiC G A μ j 1 e' Ψ₀ h₀ Ψ'' h'')
+    (hD : Localization.XiCData G A ν j C₀ e D) :
+    Def6.XiDom G A μ j εj D.Ψ D.h := by
+  obtain ⟨Ψ₀, h₀, Ψ'', h'', hxc, hR⟩ := hD
+  have hR' : RealizesC D Ψ₀ h₀ (fun x i => D.Ψ x i - Ψ₀ x i) (fun x i => D.h x i - h₀ i) :=
+    ⟨fun x hx i => by simp [hR.1 x hx i], fun x hx i => by simp [hR.2 x hx i]⟩
+  refine ⟨Ψ₀, h₀, fun x i => D.Ψ x i - Ψ₀ x i, fun x i => D.h x i - h₀ i,
+    fun x i => by ring, fun x i => by ring,
+    Def6v2.xiC_mono_eps zero_le_one hee
+      (hresp _ _ _ _ (xiC_rescale_of_agree hσ hrad (fun x hx i => ?_) (fun x hx i => ?_) hxc) hR')⟩
+  · rw [hR.1 x hx i]; ring
+  · rw [hR.2 x hx i]; ring
+
 /-- **The chart points of scale `C₀` lie in the birth-mass domain, given the level-`j` mass
 response** (decision D2(b)).  `hresp` is the missing estimate: the passage of `Ξ^c_j(·; 1, e)` from
 the step mass `ν` to the birth mass `μ` at the cost `e ↦ e'`.  Hypotheses `hσ`, `hrad`, `hε` are the
@@ -158,14 +179,8 @@ theorem xiDom_birth_of_massResponse {G : GeneratingSet d L (N₁ * L ^ m₁) k �
       (Ψ'' h'' : Localization.CTorus d L N₁ m₁ k → Fin N → ℂ),
       XiC G A ν j 1 e₁ Ψ₀ h₀ Ψ'' h'' → XiC G A μ j 1 e' Ψ₀ h₀ Ψ'' h'')
     {D : BgData G N} (hD : Localization.XiCData G A ν j C₀ e D) :
-    Def6.XiDom G A μ j εj D.Ψ D.h := by
-  obtain ⟨Ψ₀, h₀, Ψ'', h'', hxc, hR⟩ := hD
-  refine ⟨Ψ₀, h₀, fun x i => D.Ψ x i - Ψ₀ x i, fun x i => D.h x i - h₀ i,
-    fun x i => by ring, fun x i => by ring,
-    Def6v2.xiC_mono_eps zero_le_one hee
-      (hresp _ _ _ _ (xiC_rescale_of_agree hσ hrad (fun x hx i => ?_) (fun x hx i => ?_) hxc))⟩
-  · rw [hR.1 x hx i]; ring
-  · rw [hR.2 x hx i]; ring
+    Def6.XiDom G A μ j εj D.Ψ D.h :=
+  xiDom_birth_core hσ hrad hee (fun _ _ _ _ hx _ => hresp _ _ _ _ hx) hD
 
 end Reduction
 
