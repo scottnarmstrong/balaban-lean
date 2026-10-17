@@ -84,7 +84,7 @@ approved declaration.
 - We already use our readings; they need no change.
 
 ## Order
-1. Rulings from Scott: R2 (blocker 2), R4 and R5 (blocker 4), R6 (backbone); R3 withdrawn.
+1. Rulings R2, R4, R5, R6 APPROVED by Scott (2026-10-17, "go with your recs"; AGENTS.md); R3 withdrawn.
 2. Astra: `astra-xidom`, `astra-radius`, `astra-kf0b` (running); then blocker 5 (L4), blocker 6 (torus
    defect), blocker 3 (if R3 is declined, route B).
 3. Opus: blocker 3 blast radius (if R3), blocker 1 base case design, the representation of R's output.
