@@ -136,3 +136,5 @@ expansion (Polymer/*) accepts mixed small/large polymers with these activities.
      in `LargeField/Base/KF0CutoffSplit.lean` is the one-site-set version; reuse for the block version).
  T-4 `Green/FinalTailActivity.lean`: |int_{Z large, rest small} F(C(1) psi) d gamma| <= sup|F| * tail^{|Z|}, giving the per-Z activity (4.12) with e^{-H|Z|} := tail^{|Z|}.
  T-5 (orchestrator/author): bridge of (i) and (ii).
+**W889 status (T-2..T-4 proved).** `Green/FinalTailBlocks.lean` `pdGaussian_tail_blocks_le` (disjoint blocks of Z all large: measure <= prod_z |z| t); `Green/FinalTailSplit.lean` `integral_eq_sum_blocksSplit` (exact sum over Z of integrals over {Z large, rest small}, any measure); `Green/FinalTailActivity.lean` `norm_setIntegral_blocksSplit_le` (|int| <= B prod_z |z| t, no s on Z).
+Here t = 2^{N/2} e^{-rho^2/4}, so e^{-H_z} = |z| 2^{N/2} e^{-rho^2/4}, H_z = rho^2/4 - log|z| - (N/2) log 2; at rho = p_1 = A_1 (log beta)^p this is (A_1^2/4)(log beta)^{2p} - O(log|z|) per block (blocks of bounded volume: H = (A_1^2/4)(log beta)^{2p}(1 - o(1))).
