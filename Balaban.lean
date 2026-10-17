@@ -2024,6 +2024,7 @@ public import Balaban.LargeField.R.RGasCoreHaloDj
 public import Balaban.LargeField.R.RGasCorePay
 public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RRemovedFactor
+public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RGasCoreConn
 public import Balaban.LargeField.R.RRadiusMax
 public import Balaban.LargeField.R.RGasCoreTau
