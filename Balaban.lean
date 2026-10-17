@@ -2305,3 +2305,6 @@ public import Balaban.Polymer.TwoTorusGapDataThrFinal
 public import Balaban.Polymer.TwoTorusGapDataThrStep
 public import Balaban.Polymer.TwoTorusGapDataTower
 public import Balaban.Polymer.TwoTorusGapDataTowerMem
+public import Balaban.Fluctuation.VacuumFlow
+public import Balaban.Fluctuation.VacuumStep
+public import Balaban.Fluctuation.VacuumDet
