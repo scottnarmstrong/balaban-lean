@@ -2145,6 +2145,8 @@ public import Balaban.LargeField.R.RRemovedHidCoreThm
 public import Balaban.LargeField.R.RRemovedHidAux
 public import Balaban.LargeField.R.RRemovedHidMain
 public import Balaban.LargeField.R.RRemovedHidComp
+public import Balaban.LargeField.R.RRemovedHidBridge
+public import Balaban.LargeField.R.RRemovedHidBridgeStep
 public import Balaban.LargeField.R.RRemovedHidQuotAct
 public import Balaban.LargeField.R.RRemovedHidQuotStep
 public import Balaban.LargeField.R.RRemovedChainIntegral
