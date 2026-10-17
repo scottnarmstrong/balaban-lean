@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 78% of the Lean by volume, and about 49% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 700,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 690,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
