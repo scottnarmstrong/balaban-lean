@@ -314,7 +314,10 @@ used, since the crude chart inclusion fails at every level). What remains for th
 between the actual new density and the sum of these terms. The density is now defined for complex,
 non-constant external fields (it agrees with the earlier one on constant real fields, and is analytic on the
 class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
-is being proved at every datum, which is done for the zero class. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+is being proved at every datum. That is done for the zero class; for a general class the value at every datum is
+proved given the marks and activities of the old terms, and these are now being built from the old terms on the
+local generating sets (the replacement identity of the old terms on those sets holds as functions of the datum,
+proved). Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
@@ -384,8 +387,10 @@ a union of such blocks, so its support already contains an L-block, and the tran
 supports of radius below ℓ/20 without any floor (proved). The terms are covariant under translations by whole
 cells (from the lattice symmetries already proved), so a support of diameter D anywhere in the quarter box can be
 recentred, and the transport holds when 25D + 25 < min(ℓ, ℓ′) (proved, given the correspondence of
-coefficients near the origin, which is being supplied). Wide supports are to be bounded by the decay of the
-terms; the question is in item 24, second addendum.
+coefficients near the origin). Wide supports are bounded by the decay of the terms with an absolute rate, and the
+scales just below the last are now assembled into the two-torus resummation for every support in the quarter box,
+given the closeness of the step's functional between two tori at those scales (being derived from the
+transport of the step's ingredients); the question is in item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 
