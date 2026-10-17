@@ -33,13 +33,6 @@ open Finset Set MeasureTheory Metric Balaban Balaban.Multiscale Balaban.Backgrou
 
 namespace Balaban.Green
 
-theorem epsSeq_pos' (L : ℕ) [NeZero L] {α α₀ : ℝ} (hα₀ : 0 < α₀) (j : ℕ) :
-    0 < epsSeq L α α₀ j := by
-  unfold epsSeq
-  have := epsTail_pos j
-  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  positivity
-
 variable {d' : ℕ} {L : ℕ} [NeZero L] {N : ℕ}
 
 /-- **The variation of the term at the lifts, from the variation of the composed datum on the blocks
