@@ -2470,6 +2470,14 @@ public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
 public import Balaban.SmallField.IrrelTorusDefectPartition
 public import Balaban.SmallField.IrrelTorusDefectCount
+public import Balaban.SmallField.IrrelTorusDefectPairSmall
+public import Balaban.SmallField.IrrelTorusDefectRawLimit
+public import Balaban.SmallField.IrrelTorusDefectRawSymm
+public import Balaban.SmallField.IrrelTorusDefectRawMatrix
+public import Balaban.SmallField.IrrelTorusDefectSizeTransport
+public import Balaban.SmallField.IrrelTorusDefectCoordSmall
+public import Balaban.SmallField.IrrelTorusDefectChartPartition
+public import Balaban.SmallField.IrrelTorusDefectChartCount
 public import Balaban.LargeField.Base.BaseFirstChart
 public import Balaban.LargeField.Base.BaseFirstChartIntegral
 public import Balaban.LargeField.Base.BaseFirstCut
