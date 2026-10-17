@@ -424,4 +424,28 @@ theorem IsSFFamily2.sum_irrelTorus_eq_Edens {P : Consts} {Rg : Regime L} {β a :
     (bgHyp_of_class2 hF.admissible hF.coeff hd hL hϱ) hN hj1 hjk
     (eps_pos hF.admissible.α₀_pos j) hsmall i₀ i₁ Ψ h
 
+open Classical in
+/-- **P1 (3.127) over the labels of a step, for its class** (`StepClass`; the labels `𝒯E` of
+`classActivityFamily_sum_eq`): with `P.m₀ = C.m₀` and the term clauses of `C.Tm` on a field domain
+containing the block-constant fields near the reference field at every level `1 ≤ j ≤ k`,
+`Σ_{(j,y,X) ∈ 𝒯E} ℰ^{(j)}_{irrel}(y, X; ψ_j, h_j) = Σ_{j=1}^k ℰ^{(j)}(ψ_j, h_j)`. -/
+theorem _root_.Balaban.Fluctuation.StepClass.sum_classLabels_irrelTorus_eq_Edens {P : Consts}
+    {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ} (C : Balaban.Fluctuation.StepClass d L N₁ m₁ k N ϱ)
+    (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm) (hN : L ^ C.m₀ ∣ N₁) (i₀ i₁ : Fin N)
+    (hdom : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ,
+      (∀ i, j < i → G.Ω i = ∅) →
+      ∀ Ψ : Fld d L N₁ m₁ (k + 1) N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+      (∀ x x', jBlock d L (N₁ * L ^ m₁) (k + 1) j x = jBlock d L (N₁ * L ^ m₁) (k + 1) j x' →
+        Ψ x = Ψ x') →
+      Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
+    (ψ h : ℕ → Fld d L N₁ m₁ (k + 1) N) :
+    ∑ τ ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2),
+      irrelTorus C.m₀ C.Tm i₀ i₁ τ.1 τ.2.1 τ.2.2 (ψ τ.1) (h τ.1) =
+    ∑ j ∈ Finset.Icc 1 k, Edens C.m₀ C.Tm j (ψ j) (h j) := by
+  rw [← hm]
+  exact Balaban.SmallField.Def6v2.sum_classLabels_irrelTorus_eq_Edens hcl (by rw [hm]; exact hN) i₀
+    i₁ hdom ψ h
+
 end Balaban.SmallField.Def6v2

@@ -24,7 +24,8 @@ central large cube of `□`, and we assign the local expression to `ℰ_{irrel}(
 * `irrelTorus_congr`: it depends on `(Ψ, h)` only through `Ψ` on `X^⋆ = X ∪ st₊(y)` and `h` on
   `X` (`y ∈ X`), `st₊(y) = {y + L^j e_μ}` (FLUCTUATION (3.0), Lemma 3.2 (ii));
 * `irrelTorus_analyticOnNhd`: it is analytic on the domain of the term where
-  `Ψ(y)·Ψ(y) ∉ (-∞, 0]` (Lemma 3.2 (ii)).
+  `Ψ(y)·Ψ(y) ∉ (-∞, 0]` (Lemma 3.2 (ii));
+* `irrelTorus_rot`: it is invariant under the real orthogonal matrices (Lemma 3.2 (ii)).
 -/
 
 @[expose] public section
@@ -190,6 +191,23 @@ theorem irrelTorus_analyticOnNhd (hcl : SFTermClauses P Dom Tm) (m₀ : ℕ) (i�
           (analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun μ _ =>
             Finset.analyticAt_fun_sum _ fun μ' _ => (hg μ μ').mul analyticAt_const))
     · exact analyticAt_const
+
+/-- **`O(N)` invariance of the label functional** (FLUCTUATION.md Lemma 3.2 (ii); P1 (H.4)): for
+a real orthogonal `R` and data `(Ψ, h)`, `(RΨ, Rh)` in the domain of the term of `X ∈ 𝒟_j`,
+`ℰ_{irrel}(y, X; RΨ, Rh) = ℰ_{irrel}(y, X; Ψ, h)` (the tensors are taken at the fixed reference
+field; the subtracted local parts depend on the data through the invariant products only). -/
+theorem irrelTorus_rot (hcl : SFTermClauses P Dom Tm) (m₀ : ℕ) (i₀ i₁ : Fin N) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k) {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)}
+    (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X) {R : Matrix (Fin N) (Fin N) ℂ} (hR : IsRot R)
+    {Ψ h : Fld d L N₁ m₁ k N} (h1 : Dom.dom j (Tm.gs j X) Ψ h)
+    (h2 : Dom.dom j (Tm.gs j X) (rotField R Ψ) (rotField R h)) :
+    irrelTorus m₀ Tm i₀ i₁ j y X (rotField R Ψ) (rotField R h) =
+      irrelTorus m₀ Tm i₀ i₁ j y X Ψ h := by
+  have hd : ∀ v w : Spin N, dot (R.mulVec v) (R.mulVec w) = dot v w := dot_mulVec_rot hR.1
+  have hE := hcl.rotE j hj1 hjk y X hX hy R hR Ψ h h1 h2
+  simp only [irrelTorus]
+  rw [hE]
+  simp only [rotField, ← Matrix.mulVec_sub, hd]
 
 end API
 
