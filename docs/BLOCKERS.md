@@ -132,8 +132,12 @@ exponent p₂; the size term of (3.10) is not needed, since removed components a
 e^{−p₂} pays for their size. No part of the formalization yet produces (3.10) itself: it is the bound of the
 removed operator, which belongs to the large-field step (P7 (3.7)–(3.10)). A plan
 (`notes/phase1/LF4R-PLAN.md`) splits it into seven pieces. The first is proved: (3.10) follows from the
-window integral of the removed outcome, ripeness and the residual-loss arithmetic. The removed kernel
-itself, the volumes of the window variables and the window integral are not yet in Lean. The halos used as labels of
+window integral of the removed outcome, ripeness and the residual-loss arithmetic. The residual-loss
+arithmetic, the passage from kernel bounds to the gas, the volumes of the window variables and the removed
+kernel itself (tied to the R operation, with its pointwise exponent bound) are now proved. Two points
+remain before the window integral: the reference density must use the action restricted to the removed
+component, as P7 writes it (ours uses a larger region), and the objects of the step must be shown not to
+read the field inside the integrated region; both are in progress. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
 size of a removed halo is counted by its enclosing box, since removed components are boxes of bounded side.
@@ -268,10 +272,14 @@ complex rotations that turn the background direction into a fixed axis. These ro
 close to real ones (a counterexample is in Lean), but they need not be: any complex orthogonal matrix
 with bounded entries factors as a real rotation times a Cayley transform, and the Cayley path stays in
 the domain, so invariance along it follows from the real clause (proved). The theorems of the
-renormalization step are being restated on this, without the extra hypothesis. The centre-labelled terms are built, and old terms
+renormalization step still carry it as an explicit hypothesis; restating them on the Cayley path is
+planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and old terms
 keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
-needs only how the backgrounds respond to the small change of mass.
+needs only how the backgrounds respond to the small change of mass. That response is now proved at every
+level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
+so is the resulting inclusion when the real witness of the external field is a unit vector, as in our
+scheme (`notes/phase1/D2B.md`); it is being applied to the actual chart points.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
