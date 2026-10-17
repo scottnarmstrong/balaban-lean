@@ -65,4 +65,37 @@ theorem finalHoleBackground_analytic_of_retained_datum
   rw [hval D hC]
   rw [(theorem72_real H hU).1, (theorem72_real H hU).2]
 
+/-- An analytic selected-set datum in the P2 complex domain has an analytic representative
+of its variational background and multiplier. The required analytic map of the retained
+variables into raw data is displayed as `hRaw`; it is not supplied by a pointwise cutoff. -/
+theorem finalHoleBackground_analytic_comp
+    {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν : ℝ}
+    (H : BgHyp d L k ϱ a ν)
+    {P : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P]
+    (S : Set P) (D : P → BgData G N)
+    (hD : ∀ s ∈ S,
+      InUnionDomainC G (bgC0 d L N) (bgC1 d L N) ν (D s))
+    (hRaw : AnalyticOnNhd ℂ
+      (fun s : P => (((D s).Ψ, (D s).h) : RawData d L N₀ k N)) S) :
+    ∃ f : P → (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ),
+      AnalyticOnNhd ℂ f S ∧
+      ∀ s ∈ S,
+        f s = (bgFieldC G a ν (bgC0 d L N) (D s),
+          bgMultC G a ν (bgC0 d L N) (D s)) := by
+  obtain ⟨F, hF, hval⟩ := theorem72_analytic (G := G) H
+  refine ⟨F ∘ (fun s : P => (((D s).Ψ, (D s).h) : RawData d L N₀ k N)), ?_, ?_⟩
+  · intro s hs
+    have hFa : AnalyticAt ℂ F
+        (((D s).Ψ, (D s).h) : RawData d L N₀ k N) :=
+      hF _ ⟨D s, hD s hs, rfl⟩
+    have hRa : AnalyticAt ℂ
+        (fun q : P => (((D q).Ψ, (D q).h) : RawData d L N₀ k N)) s :=
+      hRaw s hs
+    exact AnalyticAt.comp
+      (f := fun q : P => (((D q).Ψ, (D q).h) : RawData d L N₀ k N))
+      (g := F) (x := s) hFa hRa
+  · intro s hs
+    exact hval (D s) (hD s hs)
+
 end Balaban.Green
