@@ -2288,6 +2288,8 @@ public import Balaban.LargeField.R.WindowComposeCongr
 public import Balaban.LargeField.R.WindowComposePt
 public import Balaban.LargeField.R.WindowComposeCore
 public import Balaban.LargeField.R.WindowCloseGeom
+public import Balaban.LargeField.R.WindowCloseAlg
+public import Balaban.LargeField.R.WindowCloseNode
 public import Balaban.Polymer.TwoTorusGapDataThr
 public import Balaban.Polymer.TwoTorusGapDataThrDet
 public import Balaban.Polymer.TwoTorusGapDataThrFull
