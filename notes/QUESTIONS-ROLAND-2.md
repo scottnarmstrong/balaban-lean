@@ -539,3 +539,17 @@ non-winding box? In the second case, which margin should the statement carry?
 For the terms T_j(x,X) of Root-F on a torus of side ℓ = q·M L^{k_f+1} with q small (4 ≤ q ≤ C L), the localized term for a polymer X near the origin is built from objects whose read region wraps around the torus, so two tori ℓ, ℓ' give different values. Do the papers (P4 (H.4), p. 677) intend exact independence of the torus for all non-winding X (the polymer does not wind, but the construction region does), or only agreement up to a term of size e^{-c M q} that is then collected into the winding polymers? If the latter, is the collection into polymers of the same scale j containing X (with the bound e^{-κ|X'|/s_j^d}) what the construction does? If exact, which fixed formula (infinite-volume operator, or a fixed box of side independent of ℓ) defines T_j for such X, and where does the difference go in the identity log Z(g)/Z(0) = ⟨g,h⟩ + Σ T? Finally, may the statement of Root-F carry min(ℓ,ℓ') ≥ 4·(C L + 1) M L^{k_f+1} as a standing condition in the clause?
 
 (Details: `notes/phase1/TORUSLAST.md`.)
+
+### Item 18, addendum (2026-10-17): the large-field part of the last integral
+
+At the last scale we follow P7 (4.9)–(4.14): the field cutoff of the last variable is expanded block by block, the
+blocks where it fails form sets Z, and these enter the final polymer expansion with absolute bounds (the Gaussian
+tail of the unit fields gives a factor of order e^{−p₁(β)²/4} per block), while the decoupling of the covariance is
+applied to the small-field part only. The point we cannot settle from the text is the coupling between the two.
+On cells that meet Z, the decoupled covariance C(s) applied to the field moves it out of the analyticity domain of
+the last interaction, because the field is large on Z. Is it right that in P7 §4 the s-expansion is applied on
+Z^c only, with the values of the field on Z entering the small-field terms only through a background that depends
+on Z (so that no function is evaluated at C(s)ψ with ψ large), and that the boundary terms B″ of (4.11) are the
+only coupling between Z and its complement?
+
+(Details: `notes/phase1/FINALPHYS3.md` §§6–7.)
