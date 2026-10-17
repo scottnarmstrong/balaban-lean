@@ -24,7 +24,7 @@ The last section lists the problems that have been resolved since the project st
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral is reduced to two named inputs, a uniform quotient bound and the quietness of the ancestors, and the vacuum energy bound); author confirmation asked (item 16 addendum) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is proved (marks and activities of the old terms built), up to a numerical condition on the class index being checked |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20 (proved), the rest of the quarter box in progress (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms (proved); the induction over scales in progress (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -410,8 +410,10 @@ given the closeness of the step's functional between two tori at those scales. F
 energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
 their own closeness, which the earlier scales provide. The step's energy terms are identified with these
 expansions at the cells of the support (proved), and the determinant and observable terms are transported the same
-way (translation covariance of one torus and recentring on two tori, proved); for the determinant terms the identification
-with the step's terms at the cells is proved, and for the observable terms it is in progress. The question is in
+way (translation covariance of one torus and recentring on two tori, proved); the identification with the step's terms at the cells is
+proved for both, so the clause at the scales just below the last holds for every support in the quarter box given
+only the closeness of the inherited terms (the induction over the earlier scales that provides it, and the matching
+of these terms with the tower's step terms, are in progress). The question is in
 item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
