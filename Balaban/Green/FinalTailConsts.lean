@@ -9,10 +9,13 @@ public import Balaban.Green.FinalTailBridge
 public import Balaban.Inhabited.DAPhysicalCutoff
 public import Balaban.LargeField.Analytic.Constants
 public import Balaban.LargeField.Counter.Params
+public import Balaban.LargeField.Characteristic.Functions
+public import Balaban.Green.FinalTailSplit
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Linarith
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Exp
+import Mathlib.MeasureTheory.Constructions.Pi
 
 /-!
 # The exponents of the tail activity (W892, blocker 5, leaf L2)
@@ -150,5 +153,127 @@ theorem not_tail_exponent_of_lt {A₁ A₂ H₀ c : ℝ} {p p₂ : ℕ} (hA₂ :
   have hcc : -|c| ≤ c := neg_abs_le c
   nlinarith [abs_nonneg H₀, abs_nonneg c, mul_le_mul_of_nonneg_left hP (abs_nonneg H₀),
     mul_le_mul_of_nonneg_left hP (abs_nonneg c)]
+
+/-! ### Leaf L3: the tail event is the failure of the P5 (2.42) field condition -/
+
+section ChiTail
+
+open MeasureTheory Balaban.Multiscale
+
+variable {d M1 N₁ L N k : ℕ} [NeZero L] [NeZero M1] [NeZero N₁]
+
+/-- `rn` of a coordinate vector is the Euclidean norm. -/
+theorem rn_eq_norm (v : EuclideanSpace ℝ (Fin N)) :
+    Balaban.Background.rn (fun i => v i) = ‖v‖ := by
+  rw [EuclideanSpace.norm_eq]
+  unfold Balaban.Background.rn
+  simp [Real.norm_eq_abs, sq_abs]
+
+/-- **L3 (1).**  For the field `ψ : ι → ℝ^N` of the last integral (`ι` the `k`-blocks of the
+level `k + 1` torus, `ψ' = ψ`), `ChiFluctProp` holds iff every site of every block of a family
+covering the `k`-blocks `jBlock x`, `x` in the cube neighbourhood, has `‖ψ‖ < p₁`. -/
+theorem chiFluctProp_iff_forall_blocks {β : Type*}
+    (c n : ℕ) (y0 : Torus d n) (p1 : ℝ)
+    (blk : β → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k))))
+    (hcover : ∀ y, (∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+        jBlock d L (M1 * N₁) (k + 1) k x = y) ↔ ∃ z, y ∈ blk z)
+    (ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N)) :
+    ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i) ↔
+      ∀ z, ∀ x ∈ blk z, ‖ψ x‖ < p1 := by
+  unfold ChiFluctProp
+  simp only [rn_eq_norm]
+  constructor
+  · intro h z y hy
+    obtain ⟨x, hx, rfl⟩ := (hcover y).2 ⟨z, hy⟩
+    exact h x hx
+  · intro h x hx
+    obtain ⟨z, hz⟩ := (hcover _).1 ⟨x, hx, rfl⟩
+    exact h z _ hz
+
+/-- **L3 (2).**  The failure of `ChiFluctProp` is the union over the blocks of the events
+"some site has `p₁ ≤ ‖ψ‖`" (the non-strict tail). -/
+theorem setOf_not_chiFluctProp {β : Type*}
+    (c n : ℕ) (y0 : Torus d n) (p1 : ℝ)
+    (blk : β → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k))))
+    (hcover : ∀ y, (∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+        jBlock d L (M1 * N₁) (k + 1) k x = y) ↔ ∃ z, y ∈ blk z) :
+    {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N) |
+        ¬ ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i)} =
+      ⋃ z, {ψ | ∃ x ∈ blk z, p1 ≤ ‖ψ x‖} := by
+  ext ψ
+  rw [Set.mem_ofPred_eq, chiFluctProp_iff_forall_blocks c n y0 p1 blk hcover]
+  simp
+
+/-- **L3 (3), measurability.**  `{ChiFluctProp}` is a measurable set of fields. -/
+theorem measurableSet_chiFluctProp (c n : ℕ) (y0 : Torus d n) (p1 : ℝ) :
+    MeasurableSet {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N) |
+        ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i)} := by
+  have : {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N) |
+        ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i)} =
+      ⋂ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+        {ψ | ‖ψ (jBlock d L (M1 * N₁) (k + 1) k x)‖ < p1} := by
+    ext ψ; simp [ChiFluctProp, rn_eq_norm]
+  rw [this]
+  exact Finset.measurableSet_biInter _ fun x _ =>
+    measurableSet_lt (measurable_norm.comp (measurable_pi_apply _)) measurable_const
+
+/-- **L3 (4).**  A field in a cell of the tail decomposition with at least one large block
+(`Z` nonempty, the blocks of `Z` strictly above `p₁`) fails `ChiFluctProp`. -/
+theorem not_chiFluctProp_of_mem_cell {β : Type*}
+    (c n : ℕ) (y0 : Torus d n) (p1 : ℝ)
+    (blk : β → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k))))
+    (hcover : ∀ y, (∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+        jBlock d L (M1 * N₁) (k + 1) k x = y) ↔ ∃ z, y ∈ blk z)
+    (Z : Finset β) (hZ : Z.Nonempty)
+    {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N)}
+    (hψ : ∀ z ∈ Z, ∃ x ∈ blk z, p1 < ‖ψ x‖) :
+    ¬ ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i) := by
+  rw [chiFluctProp_iff_forall_blocks c n y0 p1 blk hcover]
+  obtain ⟨z, hz⟩ := hZ
+  obtain ⟨x, hx, hlt⟩ := hψ z hz
+  intro h
+  exact absurd (h z x hx) (not_lt.2 hlt.le)
+
+/-- **L3 (5).**  A field that fails `ChiFluctProp` lies in a cell of the tail decomposition
+`{blocks of Z strictly above p₁, all other blocks at most p₁}` with `Z` nonempty, unless some
+site has `‖ψ‖ = p₁` exactly (a null set of the Gaussian, `pdGaussian_sphere_null`). -/
+theorem exists_cell_of_not_chiFluctProp {β : Type*} [Fintype β]
+    (c n : ℕ) (y0 : Torus d n) (p1 : ℝ)
+    (blk : β → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k))))
+    (hcover : ∀ y, (∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+        jBlock d L (M1 * N₁) (k + 1) k x = y) ↔ ∃ z, y ∈ blk z)
+    {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → EuclideanSpace ℝ (Fin N)}
+    (hψ : ¬ ChiFluctProp (M1 := M1) (N₁ := N₁) (L := L) c n y0 p1 (fun y i => ψ y i)) :
+    (∃ Z : Finset β, Z.Nonempty ∧ ((∀ z ∈ Z, ∃ x ∈ blk z, p1 < ‖ψ x‖) ∧
+        ∀ z ∉ Z, ∀ x ∈ blk z, ‖ψ x‖ ≤ p1)) ∨ ∃ z, ∃ x ∈ blk z, ‖ψ x‖ = p1 := by
+  classical
+  rw [chiFluctProp_iff_forall_blocks c n y0 p1 blk hcover] at hψ
+  push Not at hψ
+  obtain ⟨z₀, x₀, hx₀, hle⟩ := hψ
+  by_cases hex : ∃ z, ∃ x ∈ blk z, p1 < ‖ψ x‖
+  · left
+    obtain ⟨z₁, hz₁⟩ := hex
+    refine ⟨Finset.univ.filter fun z => ∃ x ∈ blk z, p1 < ‖ψ x‖, ⟨z₁, by simpa using hz₁⟩, ?_, ?_⟩
+    · intro z hz; simpa using hz
+    · intro z hz x hx
+      by_contra hcon
+      exact hz (by simpa using ⟨x, hx, not_le.1 hcon⟩)
+  · right
+    push Not at hex
+    exact ⟨z₀, x₀, hx₀, le_antisymm (hex z₀ x₀ hx₀) hle⟩
+
+/-- The set `{‖ψ x‖ = r}` is null for the standard Gaussian on fields (`r` arbitrary, `N ≥ 1`). -/
+theorem pdGaussian_sphere_null {ι : Type*} [Fintype ι] [NeZero N] (x : ι) (r : ℝ) :
+    pdGaussian ι (EuclideanSpace ℝ (Fin N)) {ψ | ‖ψ x‖ = r} = 0 := by
+  have h : pdVol ι (EuclideanSpace ℝ (Fin N))
+      (Function.eval x ⁻¹' Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) r) = 0 :=
+    Measure.pi_eval_preimage_null _ (Measure.addHaar_sphere _ _ _)
+  have h' : {ψ : ι → EuclideanSpace ℝ (Fin N) | ‖ψ x‖ = r} =
+      Function.eval x ⁻¹' Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) r := by
+    ext ψ; simp
+  rw [h']
+  exact withDensity_absolutelyContinuous _ _ h
+
+end ChiTail
 
 end Balaban.Green
