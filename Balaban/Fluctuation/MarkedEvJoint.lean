@@ -142,6 +142,204 @@ variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTo
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
 include hC
 
+/-- **Core of `marked_expansion_product_pair`, with an analyticity region.**  The functional `Φ` is
+asked analytic and bounded on a set `R` containing the points of `FlReal` at which the fan evaluates
+it (`hR`: the realizable triples whose last coordinate is a masked tangent), and local on
+`FlRealLC`; the hypotheses are those of `i5_functional_hat_marked_exposed_pair_of`.  The four
+clauses are those of `marked_expansion_product_pair`: the sum identity at the cut point, locality
+(`AgHatDir Y` on the data and equal marks), the bound, and the joint analyticity in
+`(Θ, ψ̂, um, tm)` at every point of `(Ξ^c × B̂) × W`,
+`W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`. -/
+theorem marked_expansion_product_pair_of (hk : 1 ≤ k) (hG : IsLevel Hm k)
+    (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ) (Zm : Finset (unitPts Gp))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {m₀ : ℕ} {j : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : CovSetup Gp m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L m₀ m₁ j) E₀ = treeLenCovOne m₀ j X)
+    {κdec κ₀ Eb : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hEb : 0 ≤ Eb)
+    {R : Set (((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦan : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2) R)
+    (hR : ∀ t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ∀ (a b : ℂ)
+      (s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+      (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) (D : BgData Gp N)
+      (ψh : unitPts Gp × Fin N → ℂ),
+      t.2.2.2 = markedHatPsiF a₁ ν hG' cc F₁ Zm a b
+        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh → t ∈ R)
+    (hΦbd : ∀ t ∈ R,
+      ‖Φ t.1 t.2.1 t.2.2‖ ≤ Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X))
+    (hconn : HatConn Gp) (hrow : RowInHat (coverOf Gp) Hm (compWeight L a₁) ν)
+    {Z Zα : Set (CTorus d L N₁ m₁ (k + 1))} (hZ : Z ⊆ ↑X₁f) (hBM : BlockMargin Gp X₁f Zα)
+    (hΦlocDir : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
+      ∀ t' ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁,
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Z → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i)) →
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Zα → t.1.2 y = t'.1.2 y) →
+      (∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Z → ∀ i, t.2.1 (y, i) = t'.2.1 (y, i)) →
+      agreeOn (thickSet Gp Z) t.2.2.1 t'.2.2.1 → (∀ y ∈ Z, t.2.2.2 y = t'.2.2.2 y) →
+      Φ t.1 t.2.1 t.2.2 = Φ t'.1 t'.2.1 t'.2.2)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSolprop : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2)) :
+    -- 1. sum identity at the cut point, product parameter
+    (∀ p ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁},
+        FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 p.1 1 =
+        ∑ Y ∈ polymerDomains (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+          Gp m₀ (X1 Gp m₀ j 𝒦X), evTerm
+            (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2) Y p.1) ∧
+      -- 2. locality: `AgHatDir` on the data, equal marks
+      (∀ Y, ∀ p ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁},
+        ∀ p' ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁},
+        AgHatDir hG' Y p.1 p'.1 → p.2 = p'.2 →
+          evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2) Y p.1 =
+          evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p'.2.1 p'.2.2) Y p'.1) ∧
+      -- 3. the bound, product parameter
+      (∀ Y, ∀ p ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁},
+        ‖evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2) Y p.1‖ ≤
+          Eb * Real.exp (-κ₀ * treeLenCovOne m₀ j X - 2 * κdec * treeLenCov Gp m₀ Y)) ∧
+      -- 4. joint analyticity in the data and the marks
+      (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ) =>
+          evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+            (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2) Y p.1)
+        ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
+  classical
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
+  set W : Set (ℂ × ℂ) :=
+    {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} with hWdef
+  have hSup : ∀ σ ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+        (fun _ => Real.exp κ), ∀ D : BgData Gp N,
+      XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ ψh ∈ {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}, ∀ w ∈ W,
+      markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
+        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) σ)
+        (rawOf D) ψh ∈ FlBall Hm δ₁ := by
+    intro σ hσ D hD ψh hψh w hw
+    have hs' : ∀ i, ‖σ i‖ < Real.exp κ := fun i => by simpa using hσ i
+    exact (markedHatPsiF_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hF₁
+      (norm_extParams_lt hE1 hs') hD hψh Zm hw).1
+  have hanaW := fanH_analytic_marked_of hC hk hG' cc
+    {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ} Zm W
+    hMX hdm hα hsm hF₁an hF₁ hSolan hSolprop hΦan
+    (fun t ht a b s D ψh h => hR t ht a b s F₁ D ψh h) hSup
+  have hbdW : ∀ w ∈ W, ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ},
+      ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+        (fun _ => Real.exp κ),
+      ‖FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm w.1 w.2 u s‖ ≤
+        Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X) := by
+    intro w hw
+    rintro ⟨u1, ψh⟩ ⟨⟨D, hD, rfl⟩, hψh⟩ s hs
+    have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
+    have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s P‖ < Real.exp κ :=
+      norm_extParams_lt hE1 hs'
+    have hψ := hSup s hs D hD ψh hψh w hw
+    obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmem⟩ := point_facts_core hC hF₁ hSolprop hsx
+      (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ
+    show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
+      (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+        flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
+          D.Ψ (markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
+            (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh))).1
+      (rawOf D, markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
+        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)‖ ≤ _
+    rw [hFeq, hSeq]
+    exact hΦbd _ (hR _ hmem _ _ _ F₁ D ψh rfl)
+  set cm : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℕ × CTorus d L N₁ m₁ (k + 1) :=
+    fun i => i.1.1 with hcdef
+  have hc : ∀ i, cm i ∈ cubeIdx Gp := fun i => i.1.2
+  have hcinj : Function.Injective cm := fun i i' h => Subtype.ext (Subtype.ext h)
+  have hdisj : ∀ i, Disjoint (Pset m₁ (cm i)) (X1 Gp m₀ j 𝒦X) := fun i => hX₁ ▸ i.2
+  have hsub : ∀ C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1)))),
+      compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C ⊆
+        Ysites Gp m₀ cm (X1 Gp m₀ j 𝒦X) C := by
+    intro C
+    have e1 : compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C =
+        compY cm (X1 Gp m₀ j 𝒦X) C := congrArg (fun S => compY cm S C) hX₁
+    rw [e1]; exact compY_subset_Ysites hcov.hU hcov.hN hc _ C
+  have hana : AnalyticOnNhd ℂ
+      (fun x : ((RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) ×
+        (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) =>
+        FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm x.1.2.1 x.1.2.2 x.1.1 x.2)
+      (((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W) ×ˢ
+        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+          (fun _ => Real.exp κ)) :=
+    analyticOnNhd_prod_right_comm hanaW
+  have hloc : LocalityAEOn (Real.exp κ)
+      ((XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W)
+      (fun i => Pset m₁ (cm i)) (compY cm (X1 Gp m₀ j 𝒦X))
+      (fun C p p' => AgHatDir hG' (compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) p.1 p'.1 ∧
+        p.2 = p'.2)
+      (fun p s => FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 p.1 s) := by
+    have e2 : compY cm (X1 Gp m₀ j 𝒦X) = compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) :=
+      congrArg (fun S => compY cm S) hX₁.symm
+    rw [e2]
+    rintro C ⟨u, w⟩ ⟨u', w'⟩ ⟨hu, hw⟩ ⟨hu', -⟩ s s' hs hs' hag ⟨hAg, hww⟩
+    obtain rfl : w = w' := hww
+    exact fanHL_local_marked hC hk hG hG' cc hcψ hMX hdm hα hsm Zm w.1 w.2 hw hcov hX₁ hconn hrow
+      hF₁ hSolprop hZ hBM hΦlocDir C u u' hu hu' s s' hs hs' hag hAg
+  obtain ⟨r1, r2, r3, r4⟩ := localization_expansion (c := cm) hcov hC.HBp.hd hC.HBp.hL hc hcinj
+    hdisj hopt hκ₀ hκdec hκ h1 hlog hEb
+    (S := (XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W)
+    (F := fun p s => FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 p.1 s)
+    (Ag := fun C p p' =>
+      AgHatDir hG' (compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) p.1 p'.1 ∧ p.2 = p'.2)
+    (AgY := fun Y p p' => AgHatDir hG' Y p.1 p'.1 ∧ p.2 = p'.2)
+    (fun C p _ => ⟨agHatDir_refl hG' _ p.1, rfl⟩)
+    (fun C p p' h => ⟨agHatDir_mono hG' (hsub C) h.1, h.2⟩) hana
+    (fun p hp s hs => hbdW p.2 hp.2 p.1 hp.1 s hs) hloc
+  exact ⟨r1, fun Y p hp p' hp' hA hw => r2 Y p hp p' hp' ⟨hA, hw⟩, r3, r4⟩
+
 /-- **The resummation with the marks in the parameter, for a given pair `(F₁, Sol)`.**  The landed
 `localization_expansion` applied to the product parameter `p = ((Θ, ψ̂), (um, tm))`, on the set
 `(Ξ^c × B̂) × W`, `W = {(u, t) | (‖u‖ + ‖t‖) · markedRad < δ₁}`, with the functional
@@ -245,96 +443,11 @@ theorem marked_expansion_product_pair (hk : 1 ≤ k) (hG : IsLevel Hm k)
             (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2) Y p.1)
         ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
-  classical
-  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
-  set W : Set (ℂ × ℂ) :=
-    {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} with hWdef
-  have hSup : ∀ σ ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
-        (fun _ => Real.exp κ), ∀ D : BgData Gp N,
-      XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
-      ∀ ψh ∈ {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}, ∀ w ∈ W,
-      markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
-        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) σ)
-        (rawOf D) ψh ∈ FlBall Hm δ₁ := by
-    intro σ hσ D hD ψh hψh w hw
-    have hs' : ∀ i, ‖σ i‖ < Real.exp κ := fun i => by simpa using hσ i
-    exact (markedHatPsiF_mem_flBallLC hC hk hG hG' cc hcψ hMX hdm hα hsm hF₁
-      (norm_extParams_lt hE1 hs') hD hψh Zm hw).1
-  have hanaW := fanH_analytic_marked hC hk hG' cc
-    {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ} Zm W
-    hMX hdm hα hsm hF₁an hF₁ hSolan hSolprop hΦan hSup
-  have hbdW : ∀ w ∈ W, ∀ u ∈ XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-        {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ},
-      ∀ s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
-        (fun _ => Real.exp κ),
-      ‖FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm w.1 w.2 u s‖ ≤
-        Eb * Real.exp (-(κdec - 1) * treeLenCovOne m₀ j X) := by
-    intro w hw
-    rintro ⟨u1, ψh⟩ ⟨⟨D, hD, rfl⟩, hψh⟩ s hs
-    have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
-    have hsx : ∀ P, ‖extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s P‖ < Real.exp κ :=
-      norm_extParams_lt hE1 hs'
-    have hψ := hSup s hs D hD ψh hψh w hw
-    obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmem⟩ := point_facts_core hC hF₁ hSolprop hsx
-      (extParams_hs1 (X₁f := X₁f) (Gp := Gp) s) hD hψ
-    show ‖Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
-      (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
-        flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
-          D.Ψ (markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
-            (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh))).1
-      (rawOf D, markedHatPsiF a₁ ν hG' cc F₁ Zm w.1 w.2
-        (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)‖ ≤ _
-    rw [hFeq, hSeq]
-    exact hΦbd _ hmem
-  set cm : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℕ × CTorus d L N₁ m₁ (k + 1) :=
-    fun i => i.1.1 with hcdef
-  have hc : ∀ i, cm i ∈ cubeIdx Gp := fun i => i.1.2
-  have hcinj : Function.Injective cm := fun i i' h => Subtype.ext (Subtype.ext h)
-  have hdisj : ∀ i, Disjoint (Pset m₁ (cm i)) (X1 Gp m₀ j 𝒦X) := fun i => hX₁ ▸ i.2
-  have hsub : ∀ C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1)))),
-      compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C ⊆
-        Ysites Gp m₀ cm (X1 Gp m₀ j 𝒦X) C := by
-    intro C
-    have e1 : compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C =
-        compY cm (X1 Gp m₀ j 𝒦X) C := congrArg (fun S => compY cm S C) hX₁
-    rw [e1]; exact compY_subset_Ysites hcov.hU hcov.hN hc _ C
-  have hana : AnalyticOnNhd ℂ
-      (fun x : ((RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) ×
-        (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) =>
-        FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm x.1.2.1 x.1.2.2 x.1.1 x.2)
-      (((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W) ×ˢ
-        polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
-          (fun _ => Real.exp κ)) :=
-    analyticOnNhd_prod_right_comm hanaW
-  have hloc : LocalityAEOn (Real.exp κ)
-      ((XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W)
-      (fun i => Pset m₁ (cm i)) (compY cm (X1 Gp m₀ j 𝒦X))
-      (fun C p p' => AgHatDir hG' (compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) p.1 p'.1 ∧
-        p.2 = p'.2)
-      (fun p s => FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 p.1 s) := by
-    have e2 : compY cm (X1 Gp m₀ j 𝒦X) = compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) :=
-      congrArg (fun S => compY cm S) hX₁.symm
-    rw [e2]
-    rintro C ⟨u, w⟩ ⟨u', w'⟩ ⟨hu, hw⟩ ⟨hu', -⟩ s s' hs hs' hag ⟨hAg, hww⟩
-    obtain rfl : w = w' := hww
-    exact fanHL_local_marked hC hk hG hG' cc hcψ hMX hdm hα hsm Zm w.1 w.2 hw hcov hX₁ hconn hrow
-      hF₁ hSolprop hZ hBM (fun t ht t' ht' => hΦlocDir t ht.1 t' ht'.1) C u u' hu hu' s s' hs hs'
-      hag hAg
-  obtain ⟨r1, r2, r3, r4⟩ := localization_expansion (c := cm) hcov hC.HBp.hd hC.HBp.hL hc hcinj
-    hdisj hopt hκ₀ hκdec hκ h1 hlog hEb
-    (S := (XiCRaw (N := N) Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ W)
-    (F := fun p s => FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 p.1 s)
-    (Ag := fun C p p' =>
-      AgHatDir hG' (compY cm (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) C) p.1 p'.1 ∧ p.2 = p'.2)
-    (AgY := fun Y p p' => AgHatDir hG' Y p.1 p'.1 ∧ p.2 = p'.2)
-    (fun C p _ => ⟨agHatDir_refl hG' _ p.1, rfl⟩)
-    (fun C p p' h => ⟨agHatDir_mono hG' (hsub C) h.1, h.2⟩) hana
-    (fun p hp s hs => hbdW p.2 hp.2 p.1 hp.1 s hs) hloc
-  exact ⟨r1, fun Y p hp p' hp' hA hw => r2 Y p hp p' hp' ⟨hA, hw⟩, r3, r4⟩
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) :=
+  marked_expansion_product_pair_of hC hk hG hG' cc hcψ Zm hMX hdm hα hsm hcov hX₁ hopt hκ₀ hκdec
+    hκ h1 hlog hEb (R := FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) hΦan
+    (fun _ ht _ _ _ _ _ _ _ => ht) hΦbd hconn hrow hZ hBM
+    (fun t ht t' ht' => hΦlocDir t ht.1 t' ht'.1) hF₁an hF₁ hSolan hSolprop
 
 end Product
 
