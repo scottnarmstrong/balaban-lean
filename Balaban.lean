@@ -2077,3 +2077,4 @@ public import Balaban.Green.FinalTailGas
 public import Balaban.Fluctuation.LocalClassDensityChart
 public import Balaban.Fluctuation.LocalClassDensityCentre
 public import Balaban.Fluctuation.LocalClassDensitySource
+public import Balaban.Fluctuation.LocalClassDensityLevel
