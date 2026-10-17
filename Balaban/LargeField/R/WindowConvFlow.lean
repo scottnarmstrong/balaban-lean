@@ -105,6 +105,28 @@ theorem flow_increment_abs_le_of_ident (cs : OpConsts) (d L : ℕ) [NeZero L]
   · rw [hinc.2, hcanon]
     exact hbound 1
 
+/-- The dimensionless mass recursion in a division-free form. -/
+theorem mass_increment_mul_eq_of_ident (cs : OpConsts) (ν : ℝ)
+    (δ : ℕ → ℝ) (ξ : ℕ → Fin 3 → ℝ)
+    (hμ : ∀ n, cs.muAct n = ν * δ n)
+    (hδ : ∀ n, δ n * (1 + ξ n 2) = δ (n + 1) * (1 + ξ n 1))
+    (n : ℕ) :
+    (cs.muAct (n + 1) - cs.muAct n) * (1 + ξ n 1) =
+      cs.muAct n * (ξ n 2 - ξ n 1) := by
+  rw [hμ n, hμ (n + 1)]
+  linear_combination -ν * hδ n
+
+/-- The same recursion as a relative mass increment when its RG denominator is nonzero. -/
+theorem mass_increment_eq_of_ident (cs : OpConsts) (ν : ℝ)
+    (δ : ℕ → ℝ) (ξ : ℕ → Fin 3 → ℝ)
+    (hμ : ∀ n, cs.muAct n = ν * δ n)
+    (hδ : ∀ n, δ n * (1 + ξ n 2) = δ (n + 1) * (1 + ξ n 1))
+    (n : ℕ) (hden : 1 + ξ n 1 ≠ 0) :
+    cs.muAct (n + 1) - cs.muAct n =
+      cs.muAct n * (ξ n 2 - ξ n 1) / (1 + ξ n 1) := by
+  apply (eq_div_iff hden).2
+  exact mass_increment_mul_eq_of_ident cs ν δ ξ hμ hδ n
+
 /-- The RG envelope gives the exact scale-coupling witness expected by the
 window theorem; its bounds must hold at every natural-number index. -/
 theorem window_hflow_of_ident (cs : OpConsts) (d L : ℕ) (β η : ℝ)

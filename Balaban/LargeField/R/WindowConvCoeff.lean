@@ -35,6 +35,22 @@ theorem ConvChain.coeff_from_start (C : ConvChain S j k G X br N)
     have hstep := C.coeff (m + 1) (by omega) hmk ℓ
     simpa only [Nat.add_sub_cancel] using (ih (by omega)).trans hstep
 
+/-- The layer weight changes by the same RG factor as the fine-unit coupling in
+the reverse direction. This is the adjacent-scale form of the chain invariant. -/
+theorem ConvChain.coeff_step_of_beta_step (C : ConvChain S j k G X br N)
+    {n : ℕ} (hn : j + 1 ≤ n) (hnk : n + 1 ≤ k) (ξ : ℝ)
+    (hβstep : C.β n = C.β (n + 1) * (1 + ξ)) (ℓ : ℕ) :
+    C.a (n + 1) ℓ = C.a n ℓ * (1 + ξ) := by
+  have hc := C.coeff (n + 1) (by omega) hnk ℓ
+  have hne := C.β_ne (n + 1) (by omega) hnk
+  simp only [Nat.add_sub_cancel] at hc
+  rw [hβstep] at hc
+  apply (mul_left_cancel₀ hne)
+  calc
+    C.β (n + 1) * C.a (n + 1) ℓ =
+        (C.β (n + 1) * (1 + ξ)) * C.a n ℓ := hc.symm
+    _ = C.β (n + 1) * (C.a n ℓ * (1 + ξ)) := by ring
+
 /-- The exact coefficient difference at the terminal scale against a common window weight.
 For a pieceChain, its initial coefficient is cs.aw and its coupling is betaCanon. -/
 theorem ConvChain.coeff_target_mismatch (C : ConvChain S j k G X br N)
