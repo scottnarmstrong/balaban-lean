@@ -21,6 +21,43 @@ real centre and its orthogonal component. It is used with the normalized compose
 
 namespace Balaban.SmallField
 
+/-- Normalizing a complex spin changes its real longitudinal coefficient only quadratically
+in the transverse displacement. -/
+theorem normalized_longitudinal_le
+    {q w z : ℂ} {ζ : ℝ} (hζ : 0 ≤ ζ)
+    (hsq : w ^ 2 = q ^ 2 + z ^ 2)
+    (hw : 3 / 4 ≤ ‖w‖) (hwq : 3 / 2 ≤ ‖w + q‖)
+    (hz : ‖z‖ ≤ 2 * ζ) :
+    ‖q / w - 1‖ ≤ 8 * ζ ^ 2 ∧ ‖z / w‖ ≤ 4 * ζ := by
+  have hw0 : w ≠ 0 := by
+    intro h
+    simp [h] at hw
+    linarith
+  have hwq0 : w + q ≠ 0 := by
+    intro h
+    simp [h] at hwq
+    linarith
+  have he : q / w - 1 = -(z ^ 2) / (w * (w + q)) := by
+    field_simp [hw0, hwq0]
+    linear_combination -hsq
+  have hzn : ‖z‖ ^ 2 ≤ 4 * ζ ^ 2 := by
+    nlinarith only [hz, hζ, norm_nonneg z, sq_nonneg (‖z‖ - 2 * ζ)]
+  have hden : 9 / 8 ≤ ‖w‖ * ‖w + q‖ := by
+    nlinarith only [hw, hwq, norm_nonneg w, norm_nonneg (w + q),
+      mul_nonneg (sub_nonneg.mpr hw) (sub_nonneg.mpr hwq)]
+  constructor
+  · rw [he, norm_div, norm_neg, norm_pow, norm_mul]
+    have hden0 : 0 < ‖w‖ * ‖w + q‖ := by linarith
+    apply (div_le_iff₀ hden0).2
+    calc
+      ‖z‖ ^ 2 ≤ 4 * ζ ^ 2 := hzn
+      _ ≤ (8 * ζ ^ 2) * (‖w‖ * ‖w + q‖) := by
+        nlinarith only [hden, sq_nonneg ζ, mul_nonneg (sq_nonneg ζ) (sub_nonneg.mpr hden)]
+  · rw [norm_div]
+    have hwpos : 0 < ‖w‖ := by linarith
+    apply (div_le_iff₀ hwpos).2
+    nlinarith only [hz, hw, hζ, mul_nonneg hζ (sub_nonneg.mpr hw)]
+
 /-- The longitudinal contraction is quadratic in the complex chart radius. -/
 theorem longitudinal_contraction_le
     {ν τ ζ : ℝ} {u v hL hP : ℂ}
