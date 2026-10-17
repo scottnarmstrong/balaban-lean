@@ -2317,3 +2317,7 @@ public import Balaban.Polymer.TwoTorusGapDataTowerMem
 public import Balaban.Fluctuation.VacuumFlow
 public import Balaban.Fluctuation.VacuumStep
 public import Balaban.Fluctuation.VacuumDet
+public import Balaban.LargeField.R.WindowConvFlow
+public import Balaban.LargeField.R.WindowConvCoeff
+public import Balaban.LargeField.R.WindowConvSource
+public import Balaban.LargeField.R.WindowConvUniform
