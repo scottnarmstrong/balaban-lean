@@ -2075,3 +2075,4 @@ public import Balaban.LargeField.R.CoreResponseOsc
 public import Balaban.SmallField.XiUnitWitness
 public import Balaban.Green.FinalTailGas
 public import Balaban.Fluctuation.LocalClassDensityChart
+public import Balaban.Fluctuation.LocalClassDensityCentre
