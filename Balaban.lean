@@ -2381,3 +2381,4 @@ public import Balaban.Inhabited.StepIdentityFibreObsCore
 public import Balaban.Inhabited.StepIdentityFibreFamiliesCore
 public import Balaban.Polymer.TwoTorusGapTowerTieMem
 public import Balaban.Polymer.TwoTorusGapTowerTieObs
+public import Balaban.Polymer.TwoTorusGapTowerTieObsTower
