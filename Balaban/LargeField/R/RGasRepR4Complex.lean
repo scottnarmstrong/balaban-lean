@@ -54,4 +54,14 @@ theorem RopC_zero (D : RDecomp ν) : RopC D (fun _ => 0) = fun _ => 0 := by
   funext ψ
   simp only [RopC_apply, integral_zero, zero_div, mul_zero]
 
+/-- On real densities, the complex operation agrees with the landed real `Rop`. -/
+theorem RopC_ofReal (D : RDecomp ν) (ρ : Ω → ℝ) (ψ : Ω) :
+    RopC D (fun x => (ρ x : ℂ)) ψ = (Rop D ρ ψ : ℂ) := by
+  simp only [RopC_apply, Rop, RopProd]
+  have hI : (∫ x, (ρ (D.e.symm (x, (D.e ψ).2)) : ℂ) ∂(Measure.pi D.μ)) =
+      ((∫ x, ρ (D.e.symm (x, (D.e ψ).2)) ∂(Measure.pi D.μ) : ℝ) : ℂ) := integral_ofReal
+  rw [hI]
+  push_cast
+  rfl
+
 end Balaban.LargeField
