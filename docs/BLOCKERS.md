@@ -155,8 +155,9 @@ characteristic function to the restricted reference density that is uniform in t
 quietness of each ancestor of the window. The composed bound is proved from these inputs. The quietness of the
 ancestors is how the window's starting scale is chosen; the quotient bound needs the integrand bound to keep the action
 of the quiet steps and their exact Gaussian composition, which P7 (2.58′) pairs with the restricted density (the bound
-of the steps that keeps the action is proved; the identification of each step's action with the action of the window,
-and the exact Gaussian composition, are in progress). The other
+of the steps that keeps the action, the identification of each step's action with the window's action, and the exact
+Gaussian integral over the window's intermediate variables are proved; matching the composed Gaussian with the one of
+P7 (2.58′) and the assembled bound are in progress). The other
 remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
