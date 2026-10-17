@@ -201,9 +201,7 @@ theorem gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor {m₀ m
   have h4 : ((zs z).card : ℝ) ≤
       (((2 * (2 * ⌊R (k - 1)⌋₊ + 4) + 1) ^ S.d * (2 * S.rho k + 10) ^ S.d : ℕ) : ℝ) := by
     exact_mod_cast h3
-  refine (hrem z).trans (Real.exp_le_exp.2 ?_)
-  have h5 : 0 ≤ H * ((cz z).1.card : ℝ) := mul_nonneg hH (Nat.cast_nonneg _)
-  nlinarith [mul_le_mul_of_nonneg_left h4 hh']
+  exact tau_bound_of_removed_factor hH (Nat.cast_nonneg _) hh' (hrem z) h4 hpay
 
 end Instance
 
