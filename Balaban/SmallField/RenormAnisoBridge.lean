@@ -356,7 +356,7 @@ theorem fp_mem_xiDomA (hsf : IsSF P β ν a Tm ρd Ek)
     (fun x i => fieldOf_sub_le_poly hc hr0.le x i) (fun _ _ h => fieldOf_block c h) hc
 
 /-- **Rotation invariance of the centred term on the anisotropic polydisc** (from (H.3) `rotE`):
-two configurations of the polydisc related by an `IsRot` matrix with entries bounded by `B` have
+two configurations of the polydisc related by an `IsCRot` matrix with entries bounded by `B` have
 the same term. -/
 theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
@@ -366,7 +366,7 @@ theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
     (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : 4 * N * (r * (1 + N * B)) ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
-    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
     (hu' : u' ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X') (hrot : rotCfgL M X' u = u') :
     Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u' = Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u := by
@@ -455,8 +455,8 @@ theorem Eaux_orthA (hsf : IsSF P β ν a Tm ρd Ek)
     have hPpoly : rotCfgL Pm X' u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X' :=
       rotCfgL_reflP_mem_polyAniso hp hu
     have h1 := Eaux_rotA hsf hBg hν hj1 hjk hX h0 i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0 hrδ hε
-      (isRot_reflP p) (fun i k => (reflP_norm_le p i k).trans hB) hu hPpoly rfl
-    have hMP : IsRot (M * Pm) := by
+      (isRot_reflP p).isCRot (fun i k => (reflP_norm_le p i k).trans hB) hu hPpoly rfl
+    have hMP : IsCRot (M * Pm) := by
       refine ⟨?_, Or.inr ?_⟩
       · rw [Matrix.transpose_mul, hPm, reflP_transpose, Matrix.mul_assoc,
           ← Matrix.mul_assoc M.transpose, hM, Matrix.one_mul, reflP_mul_self]

@@ -182,7 +182,7 @@ theorem fp_mem_xiDom (hsf : IsSF P β ν a Tm ρd Ek)
 
 
 /-- **Rotation invariance of the centred term** (from (H.3) `rotE`): two configurations in the
-ball of radius `ρ` around the reference point, related by a matrix `M` of `IsRot` type with entries
+ball of radius `ρ` around the reference point, related by a matrix `M` of `IsCRot` type with entries
 bounded by `B`, have the same term.  The domain lemma is used at the radius `ρ₂ ≥ ρ (1 + N B)`. -/
 theorem Eaux_rot (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
@@ -192,7 +192,7 @@ theorem Eaux_rot (hsf : IsSF P β ν a Tm ρd Ek)
     {δ ρ ρ₂ B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
     (hρ0 : 0 < ρ) (hB : 0 ≤ B) (hρ₂ : ρ * (1 + N * B) ≤ ρ₂) (hρ : (N : ℝ) * ρ₂ < δ ^ 2)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
-    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ)
     (hu' : u' ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ) (hrot : rotCfgL M X' u = u') :
     Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u' = Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u := by
@@ -276,7 +276,7 @@ theorem reflP_det (p : Fin N) : (reflP N p).det = -1 := by
 
 omit [NeZero L] [NeZero N₁] in
 theorem isRot_reflP (p : Fin N) : IsRot (reflP N p) := by
-  refine ⟨by rw [reflP_transpose, reflP_mul_self], Or.inl fun i j => ?_⟩
+  refine ⟨by rw [reflP_transpose, reflP_mul_self], fun i j => ?_⟩
   unfold reflP
   simp only [Matrix.diagonal_apply]
   split_ifs <;> simp
@@ -349,8 +349,8 @@ theorem Eaux_orth (hsf : IsSF P β ν a Tm ρd Ek)
       rw [e]
       exact (rotCfgL_reflP_norm_le p X' _).trans_lt hu
     have h1 := Eaux_rot hsf hBg hν hj1 hjk hX h0 i₀ hδ0 hδc0 hδc1 hρ0 hB0 hρ₂ hρ hε
-      (isRot_reflP p) (fun i k => (reflP_norm_le p i k).trans hB) hu hPball rfl
-    have hMP : IsRot (M * Pm) := by
+      (isRot_reflP p).isCRot (fun i k => (reflP_norm_le p i k).trans hB) hu hPball rfl
+    have hMP : IsCRot (M * Pm) := by
       refine ⟨?_, Or.inr ?_⟩
       · rw [Matrix.transpose_mul, hPm, reflP_transpose, Matrix.mul_assoc, ← Matrix.mul_assoc M.transpose,
           hM, Matrix.one_mul, reflP_mul_self]

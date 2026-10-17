@@ -45,7 +45,7 @@ theorem EauxC_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
     (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : 4 * N * (r * (1 + N * B)) ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
-    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
     (hu' : u' ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X') (hrot : rotCfgL M X' u = u') :
     EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u' = EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u := by
@@ -137,8 +137,8 @@ theorem EauxC_orthA (hsf : IsSF P β ν a Tm ρd Ek)
     have hPpoly : rotCfgL Pm X' u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X' :=
       rotCfgL_reflP_mem_polyAniso hp hu
     have h1 := EauxC_rotA hsf hBg hν hj1 hjk hX y hnw hy i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0 hrδ hε
-      (isRot_reflP p) (fun i k => (reflP_norm_le p i k).trans hB) hu hPpoly rfl
-    have hMP : IsRot (M * Pm) := by
+      (isRot_reflP p).isCRot (fun i k => (reflP_norm_le p i k).trans hB) hu hPpoly rfl
+    have hMP : IsCRot (M * Pm) := by
       refine ⟨?_, Or.inr ?_⟩
       · rw [Matrix.transpose_mul, hPm, reflP_transpose, Matrix.mul_assoc,
           ← Matrix.mul_assoc M.transpose, hM, Matrix.one_mul, reflP_mul_self]
