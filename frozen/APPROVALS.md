@@ -57,3 +57,12 @@ representations, deterministic bookkeeping on the a-priori sequence λ̂, (D5) a
 LF-4 existential. These are design rulings for reconstructed interfaces (roadmap §3.5); no
 declaration is frozen by them. The exact Lean statements of Def-7 and LF-4 will be submitted for
 approval separately when the reconstruction document Parts I–III are approved.
+
+## Plan B rulings R2, R4, R5, R6 (2026-10-17)
+
+Author (Scott Armstrong), 2026-10-17: "go with your recs and relaunch the astras." This approves, as
+recommended in `notes/phase1/PLAN-B.md`, rulings R2 (route R-YM′: three masses in `OpConsts`, extended
+direction stencil, direction clause in `ChiDomProp` for k > k₀, complex-source kernel interface), R4
+(R's output as a gas of removed clusters with decorated couplings, W968 proposal), R5 (`StepData.b_vac`)
+and R6 (birth-mass domains for the inherited levels). Text in `AGENTS.md` ("Author rulings"). No
+frozen declaration changes.

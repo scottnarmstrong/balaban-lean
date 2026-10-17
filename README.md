@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 755,000 lines of Lean (about 600,000 without comments and blank
+As of October 2026, about 770,000 lines of Lean (about 610,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -21,27 +21,44 @@ localization, the fluctuation integral and its expansion, the inductive class of
 is largely formalized, for general d, L and N. The remaining work is concentrated in seven blockers,
 described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
 
-- **The large-field gas (blocker 4).** The gas of removed large-field components is now bounded from
+- **The large-field gas (blocker 4).** The gas of removed large-field components is bounded from
   the bound of each removed outcome, summed over histories. That bound is being completed along
   P7: the intermediate Gaussian variables of the window are integrated exactly, the actions of
   its steps are summed into the action of the window up to a bounded constant (P7 (2.15′)), and
-  the cancellation identity of (2.58′) is applied. The bounds of the kept components (Theorem
-  III.8.9 (a)) need the same step; their plan is in `notes/phase1/LF4K-PLAN.md`.
-- **The general inductive class (blocker 6).** The value of the new density for a class with
-  inherited terms needs those terms through their irrelevant parts (P1 Prop. 3.10, as used in P4
-  p. 704), because the raw terms do not sum uniformly in the scale. The activity theorems are now
-  generic in the label functional, with a count uniform in the scale; the torus form of the
-  irrelevant parts is being built.
-- **Two tori (blocker 7).** At the scales just below the last, the torus clause holds on the whole
-  quarter box given the closeness of the inherited terms, with the induction over these scales;
-  what remains is to tie the abstract terms to the step terms of the flow.
-- **The last integral (blocker 5).** The small-field part is done up to data that the flow must
-  supply; the coupling across a large-field set is a question to the author.
-- **Blockers 1–3** (the base case of the large-field induction and the case with no renormalization
-  step, the change of background along the flow, old boundary terms across a long hole) have
-  designed routes, with one estimate or one source question open in each. We no longer wait for the
-  author's answers to these questions: where the papers are ambiguous we choose a reading and prove
-  what it needs ([`notes/phase1/PLAN-B.md`](notes/phase1/PLAN-B.md)).
+  the cancellation identity of (2.58′) is applied. The comparison of the steps' actions with the
+  window's needs five physical estimates for the actual history, not for an arbitrary
+  decomposition; the actual window setup is being built for them. The bounds of the kept
+  components (Theorem III.8.9 (a)) have their gains for the first and third outcomes.
+- **The last integral and the case with no renormalization step (blockers 5 and 1).** The
+  large-field part was first written as one factor per bad block times boundary terms. An
+  explicit example shows that this factorization fails for exact cut-off cells: a good block
+  between two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead
+  expands into linked terms, switched on by a possibly disconnected set of bad blocks and reading a
+  connected region. The linked Mayer identity is proved; the gas bound for such terms and their
+  identification with P7's operator are being built. The first large-field component of the base
+  case has its local pieces (chart, cut positivity, determinant factorization, record count,
+  reserve); its physical kernel is next.
+- **The general inductive class (blocker 6).** The inherited terms enter through their irrelevant
+  parts (P1 Prop. 3.10). The chain is proved with the per-label bounds as inputs, at an actual
+  tower whose numerical conditions are now satisfied; the per-label bounds (the anisotropic datum,
+  the patched field in the class domain, the torus defect at the centre's cube) are in progress.
+- **Two tori (blocker 7).** The clause at the gap scales is proved given the step terms; the
+  determinant term of the tower is tied to it, and the energy and observable terms are being tied.
+- **From one step to the next (the backbone).** The tower produces each step's setting but not yet
+  the next step's class. The old terms are now transported to the next scale's torus, with their
+  generating sets and locality; their remaining clauses are in progress. The domain of the old
+  levels needs a decision: with the current scale's mass for every level, the domains are not
+  inherited across a step (an explicit example, `notes/phase1/astra/SFFAM.md` Part 3), and domains
+  frozen at each level's birth mass are proposed. Root-C's coefficient flow is formalized for the parts that do not depend on
+  this (complex charts, the large-β contraction, coherent inputs along the flow).
+- **Blockers 2 and 3.** The change of background along the flow is formalized up to the physical
+  kernels and waits on a ruling that changes two definitions. For old boundary terms across a long
+  hole, the sufficient condition (an extra decay factor for clusters that couple two attachments
+  across a hole) is proved in exponent arithmetic, and its physical producer needs the same
+  linked construction as the last integral.
+
+We no longer wait for the author's answers to source questions: where the papers are ambiguous we
+choose a reading and prove what it needs ([`notes/phase1/PLAN-B.md`](notes/phase1/PLAN-B.md)).
 
 ## The mathematics
 
