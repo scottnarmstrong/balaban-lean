@@ -2091,3 +2091,4 @@ public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
 public import Balaban.LargeField.R.RRemovedWindowInst
 public import Balaban.Fluctuation.VacuumEnergy
+public import Balaban.Green.FinalInteractionClass
