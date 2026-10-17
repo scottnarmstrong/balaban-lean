@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenCount
 public import Balaban.Fluctuation.LocalClassDensityFamilyIdx
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Linarith
 
@@ -166,5 +167,31 @@ theorem classActivity_hnumH_of_uniform_gen {ι : Type*} [Fintype ι] {m₀ : ℕ
   exact key
 
 end NumB
+
+section NumSmall
+
+open Classical in
+/-- **The amplitude of the activity is small for large `β`.**  If the activity satisfies the
+bound of `classActivityFamily_amplitude_gen` at the radius `a = δ₁ / (2 markedRad)` (so that
+`r / a = 2 r markedRad / δ₁`), the sum of `hnumH` is at most `ε_C e^{-κ_H d_1(Y)}`, and
+`2 r √N ‖cc‖ C_sup c_ψ ≤ η δ₁` (for `‖cc‖ = β_k^{-1/2}` this holds for `β_k` large, uniformly in `k`
+and `Y`), then the activity at `‖u‖ ≤ r` is at most `η ε_C e^{-κ_H d_1(Y)}`. -/
+theorem amplitude_small_of_hnumH (d L N k : ℕ) (a₁ κ cψ : ℝ) (cc : ℂ) {δ₁ r η εC κH d1 Sg h : ℝ}
+    (hδ : 0 < δ₁) (hη0 : 0 ≤ η)
+    (hamp : h ≤ r / (δ₁ / (2 * markedRad d L N k a₁ κ cψ cc)) * Sg)
+    (hnum : Sg ≤ εC * Real.exp (-κH * d1))
+    (hSg : 0 ≤ Sg)
+    (hη : 2 * r * (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) ≤
+      η * δ₁) :
+    h ≤ η * (εC * Real.exp (-κH * d1)) := by
+  rw [div_markedRad_radius_eq d L N k a₁ κ cψ cc r hδ] at hamp
+  have hfac : 2 * r * (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) /
+      δ₁ ≤ η := by
+    rw [div_le_iff₀ hδ]; exact hη
+  calc h ≤ _ := hamp
+    _ ≤ η * Sg := mul_le_mul_of_nonneg_right hfac hSg
+    _ ≤ _ := mul_le_mul_of_nonneg_left hnum hη0
+
+end NumSmall
 
 end Balaban.Fluctuation
