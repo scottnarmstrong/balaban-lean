@@ -2217,6 +2217,10 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyGenLabelAct
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenCount
 public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
+public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
+public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
+public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
+public import Balaban.Fluctuation.LocalClassDensityFamilySetCast
 public import Balaban.Fluctuation.LocalClassDensityFamily
 public import Balaban.Fluctuation.LocalClassDensityFamilyRoot
 public import Balaban.Fluctuation.LocalClassDensityFamilyMarks
@@ -2280,6 +2284,11 @@ public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.SmallField.IrrelTorus
+public import Balaban.SmallField.IrrelTorusSum
+public import Balaban.SmallField.IrrelTorusBoundTube
+public import Balaban.SmallField.IrrelTorusBoundId
+public import Balaban.SmallField.IrrelTorusBound
 public import Balaban.LargeField.R.WindowCompose
 public import Balaban.LargeField.R.WindowComposeQuot
 public import Balaban.LargeField.R.WindowComposeQuotGen
