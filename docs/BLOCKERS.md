@@ -155,8 +155,9 @@ characteristic function to the restricted reference density that is uniform in t
 quietness of each ancestor of the window. The composed bound is proved from these inputs. The quietness of the
 ancestors is how the window's starting scale is chosen; the quotient bound needs the integrand bound to keep the action
 of the quiet steps and their exact Gaussian composition, which P7 (2.58′) pairs with the restricted density (the bound
-of the steps that keeps the action is proved; the identification of each step's action with the action of the window,
-and the exact Gaussian composition, are in progress). The other
+of the steps that keeps the action, the identification of each step's action with the window's action, and the exact
+Gaussian integral over the window's intermediate variables are proved; matching the composed Gaussian with the one of
+P7 (2.58′) and the assembled bound are in progress). The other
 remaining input is the bound |E_k| ≤ C(log β_k + 1) on the vacuum energy of the class (P7 p. 520), being derived. The locality holds for the
 characteristic functions and the domain; for the step's own exponent it is an input of the step data. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
@@ -401,8 +402,10 @@ coefficients near the origin). Wide supports are bounded by the decay of the ter
 scales just below the last are now assembled into the two-torus resummation for every support in the quarter box,
 given the closeness of the step's functional between two tori at those scales. For compact supports the step's
 energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
-their own closeness, which the earlier scales provide; the identification of the step's terms with these
-expansions and the same transport for the determinant and observable terms are in progress. The question is in
+their own closeness, which the earlier scales provide. The step's energy terms are identified with these
+expansions at the cells of the support (proved), and the determinant and observable terms are transported the same
+way (translation covariance of one torus and recentring on two tori, proved); their identification with the step's
+terms at the cells is in progress. The question is in
 item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.

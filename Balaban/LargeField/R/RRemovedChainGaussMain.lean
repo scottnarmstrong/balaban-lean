@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.R.RRemovedChainGaussInt
+public import Balaban.LargeField.R.RRemovedHidGaussEqNodes
 
 /-!
 # The integral of the unrolled Gaussian product over the free nodes (W923)
@@ -88,84 +88,13 @@ theorem lintegral_gauss_unrolled {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 �
     ∏ r ∈ Finset.univ.filter (fun r : {b : Σ s, BlockAt S n M K s // nd b} => pa r = r ∧ Fx r),
       ENNReal.ofReal ((c (r.1.1 - 1) * z r.1.1 ^ 2 / (2 * Real.pi)) ^ ((N : ℝ) / 2)) := by
   classical
+  obtain ⟨B, e, el, -, -, -, hE⟩ := lintegral_gauss_unrolled_eq hk1 hm Z nd hnd hnd0 pa hpa c z hc hz Fx hFx
+    u fldb fld ft hfldb hfldn hft
+  rw [hE]
   obtain ⟨g1, g2, g3, g4⟩ := gauss_forest_data (H := H) Z nd hnd hnd0 hm pa hpa
-  let ψΨ : ({i : {b : Σ s, BlockAt S n M K s // nd b} // ¬ Fx i} → EuclideanSpace ℝ (Fin N)) →
-      (Σ s, BlockAt S n M K s) → EuclideanSpace ℝ (Fin N) := fun Ψ b =>
-    if h : b.1 = m' + 1 then ft Ψ (h ▸ b.2) else fld Ψ b.1 b.2
-  have hψ : ∀ Ψ s (y : BlockAt S n M K s), s ≤ m' → ψΨ Ψ ⟨s, y⟩ = fld Ψ s y := by
-    intro Ψ s y hs
-    have h : ¬ s = m' + 1 := by omega
-    simp only [ψΨ, h, dite_false]
-  have hψt : ∀ Ψ y, ψΨ Ψ ⟨m' + 1, y⟩ = ft Ψ y := by
-    intro Ψ y
-    simp only [ψΨ, dite_true]
-  have hext : ∀ Ψ (i : {b : Σ s, BlockAt S n M K s // nd b}),
-      ψΨ Ψ i.1 = if h : Fx i then u i else Ψ ⟨i, h⟩ := by
-    intro Ψ i
-    obtain ⟨⟨s, y⟩, hi⟩ := i
-    have hr1 := g2 ⟨⟨s, y⟩, hi⟩
-    have hr2 := g3 ⟨⟨s, y⟩, hi⟩
-    simp only at hr1 hr2
-    by_cases hs : s = m' + 1
-    · subst hs
-      rw [hψt]
-      exact hft Ψ y hi
-    · obtain ⟨j, rfl⟩ : ∃ j, s = j + 1 := ⟨s - 1, by omega⟩
-      rw [hψ Ψ _ y (by omega)]
-      exact hfldn Ψ j y hi (by omega)
-  have hlf : ∀ Ψ (l : {q : (Σ s, BlockAt S n M K s) × {b : Σ s, BlockAt S n M K s // nd b} //
-      (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
-        Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1}),
-      fld Ψ l.1.1.1 l.1.1.2 = fldb l.1.1.1 l.1.1.2 := fun Ψ l => hfldb Ψ _ _ l.2.2
-  have heq : ∀ Ψ, ENNReal.ofReal
-      ((∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (m' + 1) =>
-            ∃ c' ∈ H.ancFin (m' + 1) (m' + 1) Z,
-              y ∈ gaussBlocks (H.localHistory M K (m' + 1) c') m'),
-          z (m' + 1) ^ N * gaussDens (c m')
-            (z (m' + 1) • ft Ψ y - ((S.L : ℝ) ^ S.d)⁻¹ •
-              ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K m' =>
-                blockMap S.L (M * n K * S.L ^ (K - (m' + 1))) y' = y), fld Ψ m' y')) *
-        ∏ j ∈ Finset.Ico k1 m',
-          ∏ y ∈ Finset.univ.filter (fun y : BlockAt S n M K (j + 1) =>
-              ∃ c' ∈ H.ancFin (j + 1) (m' + 1) Z,
-                y ∈ gaussBlocks (H.localHistory M K (j + 1) c') j),
-            z (j + 1) ^ N * gaussDens (c j)
-              (z (j + 1) • fld Ψ (j + 1) y - ((S.L : ℝ) ^ S.d)⁻¹ •
-                ∑ y' ∈ Finset.univ.filter (fun y' : BlockAt S n M K j =>
-                  blockMap S.L (M * n K * S.L ^ (K - (j + 1))) y' = y), fld Ψ j y')) =
-      ENNReal.ofReal (∏ i : {b : Σ s, BlockAt S n M K s // nd b},
-        z i.1.1 ^ Module.finrank ℝ (EuclideanSpace ℝ (Fin N)) *
-        gaussDens (c (i.1.1 - 1)) (z i.1.1 • ψΨ Ψ i.1 - ((S.L ^ S.d : ℕ) : ℝ)⁻¹ •
-          ((∑ j ∈ Finset.univ.filter (fun j : {b : Σ s, BlockAt S n M K s // nd b} =>
-              pa j ≠ j ∧ pa j = i), ψΨ Ψ j.1) +
-            ∑ l ∈ Finset.univ.filter (fun l : {q : (Σ s, BlockAt S n M K s) ×
-                {b : Σ s, BlockAt S n M K s // nd b} //
-              (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
-                Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1} => l.1.2 = i),
-              fldb l.1.1.1 l.1.1.2))) := by
-    intro Ψ
-    rw [gauss_prod_eq_nodes hk1 hm Z nd hnd hnd0 pa hpa c z (ψΨ Ψ) (fld Ψ) (ft Ψ) (hψ Ψ) (hψt Ψ)]
-    simp only [hlf Ψ]
-  calc _ = ∫⁻ Ψ : {i : {b : Σ s, BlockAt S n M K s // nd b} // ¬ Fx i} → EuclideanSpace ℝ (Fin N),
-        ENNReal.ofReal (∏ i : {b : Σ s, BlockAt S n M K s // nd b},
-          z i.1.1 ^ Module.finrank ℝ (EuclideanSpace ℝ (Fin N)) *
-          gaussDens (c (i.1.1 - 1)) (z i.1.1 • ψΨ Ψ i.1 - ((S.L ^ S.d : ℕ) : ℝ)⁻¹ •
-            ((∑ j ∈ Finset.univ.filter (fun j : {b : Σ s, BlockAt S n M K s // nd b} =>
-                pa j ≠ j ∧ pa j = i), ψΨ Ψ j.1) +
-              ∑ l ∈ Finset.univ.filter (fun l : {q : (Σ s, BlockAt S n M K s) ×
-                  {b : Σ s, BlockAt S n M K s // nd b} //
-                (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
-                  Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1} => l.1.2 = i),
-                fldb l.1.1.1 l.1.1.2)))
-        ∂(Measure.pi fun _ => (volume : Measure (EuclideanSpace ℝ (Fin N)))) :=
-        lintegral_congr heq
-    _ ≤ _ := lintegral_forest_nodes (m := S.L ^ S.d) (k1 := k1) (top := m' + 1) (N := N)
-        (fun i : {b : Σ s, BlockAt S n M K s // nd b} => i.1.1) pa
-        (fun l : {q : (Σ s, BlockAt S n M K s) × {b : Σ s, BlockAt S n M K s // nd b} //
-          (⟨q.1.1 + 1, blockMap S.L (M * n K * S.L ^ (K - (q.1.1 + 1))) q.1.2⟩ :
-            Σ s, BlockAt S n M K s) = q.2.1 ∧ ¬ nd q.1} => l.1.2)
-        g1 g2 g4 (by have := NeZero.pos S.L; positivity) g3 c z hc hz Fx hFx u
-        (fun l => fldb l.1.1.1 l.1.1.2) (fun Ψ i => ψΨ Ψ i.1) (fun Ψ i => hext Ψ i)
+  exact prod_forest_eq_le (m := S.L ^ S.d) (k1 := k1) (top := m' + 1) (N := N)
+    (fun i : {b : Σ s, BlockAt S n M K s // nd b} => i.1.1) pa (by have := NeZero.pos S.L; positivity)
+    g3 c z hc hz Fx B _
 
 end GaussMain
 
