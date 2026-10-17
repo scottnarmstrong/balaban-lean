@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.LocalClassDensityFamilyActTower
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Fluctuation.LocalClassDensityIrrelCount
+public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
 public import Balaban.SmallField.IrrelTorusSum
 
 /-!
@@ -241,11 +242,15 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
             else 0
           else 0)
         {εC : ℝ} (_ : 0 ≤ εC)
-        (_ : (mult : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
+        (_ : 0 < markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+        (_ : 2 * corrU * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
+        (_ : corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
+          ((mult : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
           (2 * K0 3 3 κ₀ * (CI * (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ +
             n₁ * KL * ((((3 : ℕ) : ℝ) ^ (n₁ - 1)) ^ 3)))) *
           Real.exp ((2 * T.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
-            ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3))) ≤ εC),
+            ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) ≤ εC),
       -- the old densities are analytic along the path
       (∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
         ∀ s ∈ Set.Icc (0 : ℝ) 1, ∀ x : S.E, ‖x‖ ≤ S.p₁ → ∀ j ∈ Finset.Icc 1 k,
@@ -287,7 +292,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   classical
-  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_gen T hHull hA p
+  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_red T hHull hA p
   refine ⟨β₀, hβ₀, ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
   obtain ⟨Jr, HG'⟩ := HG k hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
@@ -322,7 +327,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog hchart Bτ hBτ
     hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
     hFkan hFk hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴
-    H hH εC hεC0 hεC hE hεnum
+    H hH εC hεC0 hmr hsa hεC hE hεnum
   have hEan : ∀ τ : {τ // τ ∈ 𝒯E}, AnalyticOnNhd ℂ
       (fun r : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 =>
         irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2)
@@ -344,17 +349,30 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
     rw [h𝒴, Finset.mem_biUnion] at hY
     obtain ⟨τ, -, hYτ⟩ := hY
     exact isDj_of_polyDom S.hG' (hcov τ) (by norm_num) (hopt τ) hYτ
-  have hnumH := fun Y hY => (classActivity_hnumH_of_uniform_mult S hm1 hN (by norm_num) hκe hκH
+  have hcount := fun Y hY => classActivity_hnumH_of_uniform_mult S hm1 hN (by norm_num) hκe hκH
     hrate (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) (fun τ => τ.1.2.1) XL X₁f 𝒦X
     (fun τ => ⟨hj1 τ, hjk τ⟩) hXLpoly (fun τ => hXLsup τ (Or.inl (hy τ))) hal mult hmult hcov 𝒴C
-    hdj Bτ n₁ hCI hKL hE₀ hα₃ hEbI hEbL Y hY).trans
-    (mul_le_mul_of_nonneg_right hεC (Real.exp_pos _).le)
-  exact HG' C z 𝒯E hb₁ hbC (fun τ r => irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2)
-    Bτ hBτ hβS (fun τ => τ.1.1) XL hj1 hjk Gk Gj
+    hdj Bτ n₁ hCI hKL hE₀ hα₃ hEbI hEbL Y hY
+  have hδ₁ : 0 < δ₁ := lt_of_le_of_lt (by have := corrU_pos; positivity) hsa
+  have hf0 : 0 ≤ corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) :=
+    div_nonneg corrU_pos.le (div_nonneg hδ₁.le (mul_pos two_pos hmr).le)
+  have hnumR : ∀ Y ∈ 𝒴C, corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
+      (∑ τ : {τ // τ ∈ 𝒯E}, if Y ∈ polyDom S.G' (X₁f τ) C.m₀ τ.1.1 (𝒦X τ) then
+        2 * Bτ τ * Real.exp (-κ₀ * treeLenCovOne C.m₀ τ.1.1 (XL τ) -
+          2 * κdec * treeLenCov S.G' C.m₀ Y)
+      else 0) ≤ εC * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) Y) := fun Y hY =>
+    (mul_le_mul_of_nonneg_left (hcount Y hY) hf0).trans (by
+      rw [← mul_assoc, ← mul_assoc]
+      exact mul_le_mul_of_nonneg_right (by rw [mul_assoc]; exact hεC) (Real.exp_pos _).le)
+  exact HG' C z {τ // τ ∈ 𝒯E} hb₁ hbC
+    (fun τ r => irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2) Bτ hBτ hβS
+    (fun τ => τ.1.1) XL hj1 hjk Gk Gj
     (fun τ Ψ Ψ' h h' hag => irrelTorus_congr hcl C.m₀ i₀ i₁ τ.1.1 (hy τ)
       (fun x hx => (hag x (hXLsup τ hx)).1) (fun x hx => (hag x (hXLsup τ (Or.inl hx))).2))
     X₀ X₁f 𝒦X hBs hFs hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
     F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc
-    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hnumH hE hεnum
+    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hmr hsa hnumR hE hεnum
 
 end Balaban.Inhabited
