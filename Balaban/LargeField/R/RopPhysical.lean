@@ -60,9 +60,8 @@ noncomputable def famRhoPhysical (σ : Finset ι) (ν : ℝ) (h : Fin N → ℝ)
 densities `famRhoPhysical`. -/
 noncomputable def famDecompPhysical (σ : Finset ι) (ν : ℝ) (h : Fin N → ℝ) (β p0 : ℝ) :
     RDecomp (volume.restrict (famTubeSet N G b0 w X δ)) :=
-  { famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 with
-    r := fun c u y => famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0
-      c.1 y u }
+  famDecompOf N G b0 w X hXreg hsep δ σ
+    (fun c y u => famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1 y u)
 
 /-- **Independence (Lemma III.1.5, used in Lemma III.8.4)**: for `ψ_k` in the tube, `ρ^{ph}_{k,0}(Z)` read through the
 outside variables is the physical reference density of `ψ_k` itself. -/
@@ -131,25 +130,19 @@ theorem R_normalizationPhysical (σ : Finset ι) {ν : ℝ} (hν : 0 ≤ ν) (h 
       ∫ ψ, Rop (famDecompPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0) ρ ψ
           ∂(volume.restrict (famTubeSet N G b0 w X δ)) =
         ∫ ψ, ρ ψ ∂(volume.restrict (famTubeSet N G b0 w X δ)) := by
-  have hS := measurableSet_famOut_tube N G b0 w X hXreg hsep δ σ
-  refine R_normalization_ae (famDecompPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h
-    β p0) hρ ?_ ?_ ?_ ?_
+  refine R_normalization_famDecompOf N G b0 w X hXreg hsep δ σ _ ?_ ?_ ?_ hρ
   · intro c
     exact measurable_famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h hβ c.1
       (hp0 c.1 c.2) (hrad c.1 c.2)
-  · intro c u y
-    show 0 ≤ famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1 y u
+  · intro c y u
     unfold famRhoPhysical
     split_ifs
     · exact rhoZeroPhysical_nonneg (G c.1) a hd hk (b0 c.1) (w c.1) (hw1 c.1) (hwD c.1) hm (hXreg c.1) (hΩ c.1)
         (hdata c.1) H (hδ c.1) (hδc c.1) _ ν h β p0 u
     · exact le_rfl
-  · refine (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => ?_)
-    exact (famRhoPhysical_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hν h hh hβ hE
-      (hp0 c.1 c.2) (hrad c.1 c.2) (hy c.1)).1
-  · refine (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => ?_)
-    exact (famRhoPhysical_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hν h hh hβ hE
-      (hp0 c.1 c.2) (hrad c.1 c.2) (hy c.1)).2
+  · intro y hy c
+    exact famRhoPhysical_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hν h hh hβ hE
+      (hp0 c.1 c.2) (hrad c.1 c.2) (hy c.1)
 
 /-- **The operation `R` with the physical reference densities** (P7 (1.6)): at a field in the tube,
 `R[ρ](ψ_k) = ∏_Z ρ^{ph}_{k,0}(Z)(ψ_k↾Z₀) · (∫ dψ_k↾𝒵_{σ,0} ρ) / ∏_Z ∫ dψ_k↾Z₀ ρ^{ph}_{k,0}(Z)`. -/
@@ -168,14 +161,10 @@ theorem Rop_famDecompPhysical_apply (σ : Finset ι) (ν : ℝ) (h : Fin N → �
         (hδ c.1) (hδc c.1) (hψ c.1) ν h β p0 := fun c =>
     famRhoPhysical_eq_rhoZeroPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1
       (hψ c.1)
-  have key : Rop (famDecompPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0) ρ ψ =
-      (∏ c : σ, famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1
-        (famEquiv N b0 w X hXreg hsep σ ψ).2 (restrictSupp (zb b0 w c.1) ψ)) *
-        ((∫ x, ρ ((famEquiv N b0 w X hXreg hsep σ).symm (x, (famEquiv N b0 w X hXreg hsep σ ψ).2))
-            ∂(Measure.pi fun c : σ => (volume : Measure (SuppSpace (zb b0 w c.1) N)))) /
-          ∏ c : σ, ∫ u, famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1
-            (famEquiv N b0 w X hXreg hsep σ ψ).2 u) := rfl
-  rw [key]
+  have key := Rop_famDecompOf_apply N G b0 w X hXreg hsep δ σ
+    (fun c y u => famRhoPhysical N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ ν h β p0 c.1 y u)
+    ρ ψ
+  refine key.trans ?_
   simp only [hr]
 
 end Fam

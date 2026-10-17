@@ -205,10 +205,13 @@ theorem famEquiv_preimage (σ : Finset ι) :
   simp only [Set.mem_preimage, Set.mem_prod, Set.mem_univ, true_and, Set.mem_ofPred_eq, famTubeSet]
   exact forall_congr' fun c => (fam_tube_iff N G b0 w X hXreg hsep δ σ ψ c).symm
 
-/-- **The `RDecomp` of the concrete reference densities** (Definition III.8.3): the components `σ ⊆ ι` sent to `R`,
-the variables `ψ_k↾Z₀(c)`, the outside variables `ψ_k↾(⋃_{c∈σ} Z₀(c))ᶜ`, and the densities `famRho`; the field space
-is `Ψ̃ = ⋂_c Ψ̃(X_c ∖ Z₀(c); δ_c)` with Lebesgue measure. -/
-noncomputable def famDecomp (σ : Finset ι) (β p0 : ℝ) :
+/-- **The generic `RDecomp` of a family of reference densities** (Definition III.8.3): the components `σ ⊆ ι` sent to
+`R`, the variables `ψ_k↾Z₀(c)`, the outside variables `ψ_k↾(⋃_{c∈σ} Z₀(c))ᶜ`, and the reference densities
+`r c y u` (as functions of the outside data `y` and of `u = ψ_k↾Z₀(c)`); the field space is
+`Ψ̃ = ⋂_c Ψ̃(X_c ∖ Z₀(c); δ_c)` with Lebesgue measure.  The decompositions `famDecomp`, `famDecompPhysical` and
+`famDecompRestricted` are the instances with `famRho`, `famRhoPhysical` and the restricted family. -/
+noncomputable def famDecompOf (σ : Finset ι)
+    (r : ∀ c : σ, (ZeroOutIdx (fun c : σ => zb b0 w c.1) N → ℝ) → SuppSpace (zb b0 w c.1) N → ℝ) :
     RDecomp (volume.restrict (famTubeSet N G b0 w X δ)) where
   ι := σ
   W := fun c => SuppSpace (zb b0 w c.1) N
@@ -227,7 +230,43 @@ noncomputable def famDecomp (σ : Finset ι) (β p0 : ℝ) :
     unfold famEquiv at e1 ⊢
     rw [← e2, e1] at h
     exact h
-  r := fun c u y => famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1 y u
+  r := fun c u y => r c y u
+
+/-- **The `RDecomp` of the concrete reference densities** (Definition III.8.3): `famDecompOf` with the densities
+`famRho`. -/
+noncomputable def famDecomp (σ : Finset ι) (β p0 : ℝ) :
+    RDecomp (volume.restrict (famTubeSet N G b0 w X δ)) :=
+  famDecompOf N G b0 w X hXreg hsep δ σ
+    (fun c y u => famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1 y u)
+
+/-- **Lemma III.8.4 (normalization) for a generic family of reference densities**: if the densities are jointly
+measurable, nonnegative, and integrable with positive integral on every fibre over the tube, then `∫ R[ρ] = ∫ ρ`. -/
+theorem R_normalization_famDecompOf (σ : Finset ι)
+    (r : ∀ c : σ, (ZeroOutIdx (fun c : σ => zb b0 w c.1) N → ℝ) → SuppSpace (zb b0 w c.1) N → ℝ)
+    (hmeas : ∀ c : σ, Measurable (fun p : SuppSpace (zb b0 w c.1) N ×
+        (ZeroOutIdx (fun c : σ => zb b0 w c.1) N → ℝ) => r c p.2 p.1))
+    (hnn : ∀ c y u, 0 ≤ r c y u)
+    (hgood : ∀ y, (∀ c, FamTube N G b0 w X δ c (famOut N b0 w X hXreg hsep σ y)) →
+      ∀ c : σ, Integrable (r c y) volume ∧ 0 < ∫ u, r c y u)
+    {ρ : BlockField d L N₀ k N → ℝ} (hρ : Integrable ρ (volume.restrict (famTubeSet N G b0 w X δ))) :
+    Integrable (Rop (famDecompOf N G b0 w X hXreg hsep δ σ r) ρ)
+        (volume.restrict (famTubeSet N G b0 w X δ)) ∧
+      ∫ ψ, Rop (famDecompOf N G b0 w X hXreg hsep δ σ r) ρ ψ ∂(volume.restrict (famTubeSet N G b0 w X δ)) =
+        ∫ ψ, ρ ψ ∂(volume.restrict (famTubeSet N G b0 w X δ)) := by
+  have hS := measurableSet_famOut_tube N G b0 w X hXreg hsep δ σ
+  refine R_normalization_ae (famDecompOf N G b0 w X hXreg hsep δ σ r) hρ hmeas (fun c u y => hnn c y u) ?_ ?_
+  · exact (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => (hgood y hy c).1)
+  · exact (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => (hgood y hy c).2)
+
+/-- **The formula (1.6) for a generic family**: `R[ρ](ψ) = ∏_c r_c(ψ_k↾𝒵^c) (ψ_k↾Z₀(c)) · (∫ ρ) / ∏_c ∫ r_c`. -/
+theorem Rop_famDecompOf_apply (σ : Finset ι)
+    (r : ∀ c : σ, (ZeroOutIdx (fun c : σ => zb b0 w c.1) N → ℝ) → SuppSpace (zb b0 w c.1) N → ℝ)
+    (ρ : BlockField d L N₀ k N → ℝ) (ψ : BlockField d L N₀ k N) :
+    Rop (famDecompOf N G b0 w X hXreg hsep δ σ r) ρ ψ =
+      (∏ c : σ, r c (famEquiv N b0 w X hXreg hsep σ ψ).2 (restrictSupp (zb b0 w c.1) ψ)) *
+        ((∫ x, ρ ((famEquiv N b0 w X hXreg hsep σ).symm (x, (famEquiv N b0 w X hXreg hsep σ ψ).2))
+            ∂(Measure.pi fun c : σ => (volume : Measure (SuppSpace (zb b0 w c.1) N)))) /
+          ∏ c : σ, ∫ u, r c (famEquiv N b0 w X hXreg hsep σ ψ).2 u) := rfl
 
 
 local notation "Kc[" c "]" => psiZeroK N (G c) a hd hk (b0 c) (w c) (hw1 c) (hwD c) hm (hXreg c) (hΩ c) (hdata c) H
@@ -292,21 +331,15 @@ theorem R_normalization_of_measurable (σ : Finset ι) {β p0 : ℝ} (hβ : 0 < 
       ∫ ψ, Rop (famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0) ρ ψ
           ∂(volume.restrict (famTubeSet N G b0 w X δ)) =
         ∫ ψ, ρ ψ ∂(volume.restrict (famTubeSet N G b0 w X δ)) := by
-  have hS := measurableSet_famOut_tube N G b0 w X hXreg hsep δ σ
-  refine R_normalization_ae (famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0) hρ
-    hmeas ?_ ?_ ?_
-  · intro c u y
-    show 0 ≤ famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1 y u
+  refine R_normalization_famDecompOf N G b0 w X hXreg hsep δ σ _ hmeas ?_ ?_ hρ
+  · intro c y u
     unfold famRho
     split_ifs
     · unfold rhoZero; exact rhoZeroWith_nonneg _ _ _ _ _ _ _ _ _
     · exact le_rfl
-  · refine (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => ?_)
-    exact (famRho_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ (hp0 c.1 c.2)
-      (hrad c.1 c.2) (hy c.1)).1
-  · refine (ae_restrict_iff' hS).2 (Filter.Eventually.of_forall fun y hy c => ?_)
-    exact (famRho_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ (hp0 c.1 c.2)
-      (hrad c.1 c.2) (hy c.1)).2
+  · intro y hy c
+    exact famRho_good N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ hβ (hp0 c.1 c.2)
+      (hrad c.1 c.2) (hy c.1)
 
 
 /-- **Lemma III.8.4 for `ρ' = Σ_{(𝔸,σ)} R[ρ(𝔸,σ)]`**, the terms indexed by the subsets `σ_t ⊆ ι` of ripe components
@@ -360,14 +393,9 @@ theorem Rop_famDecomp_apply (σ : Finset ι) (β p0 : ℝ) (ρ : BlockField d L 
       rhoZero (G c.1) a hd hk (b0 c.1) (w c.1) (hw1 c.1) (hwD c.1) hm (hXreg c.1) (hΩ c.1) (hdata c.1) H
         (hδ c.1) (hδc c.1) (hψ c.1) β p0 := fun c =>
     famRho_eq_rhoZero N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1 (hψ c.1)
-  have key : Rop (famDecomp N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0) ρ ψ =
-      (∏ c : σ, famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1
-        (famEquiv N b0 w X hXreg hsep σ ψ).2 (restrictSupp (zb b0 w c.1) ψ)) *
-        ((∫ x, ρ ((famEquiv N b0 w X hXreg hsep σ).symm (x, (famEquiv N b0 w X hXreg hsep σ ψ).2))
-            ∂(Measure.pi fun c : σ => (volume : Measure (SuppSpace (zb b0 w c.1) N)))) /
-          ∏ c : σ, ∫ u, famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1
-            (famEquiv N b0 w X hXreg hsep σ ψ).2 u) := rfl
-  rw [key]
+  have key := Rop_famDecompOf_apply N G b0 w X hXreg hsep δ σ
+    (fun c y u => famRho N G a hd hk b0 w hw1 hwD hm X hXreg hsep hΩ hdata H δ hδ hδc σ β p0 c.1 y u) ρ ψ
+  refine key.trans ?_
   simp only [hr]
 
 include hsep in
