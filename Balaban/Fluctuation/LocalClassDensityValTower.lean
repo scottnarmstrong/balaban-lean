@@ -35,8 +35,12 @@ chart (any field) is assembled from:
 `e0CoeffFamily_class_fromTower`: from these, the coefficient family `c θ T` of `ℰ₁` (analytic,
 sharp-local, bounded, rooted) and `e = d_z + c` of `ℰ₀` (analytic, local on the thickening,
 bounded, rooted), with `E1locJ C z = ∑ c`, `E1locH C z = ∑ c`, `E0locJ C z = ∑ e`,
-`E0locH C z = ∑ e` at every chart datum (any field).  For the zero class the inputs (M1), (M2) are
-the zero-source activity and no inherited marks (`e0CoeffFamily_raw_fromTower`).
+`E0locH C z = ∑ e` at every chart datum (any field), and the input `hval` of
+`finsum_polysAt_eq_of_rootedSum` on the whole class domain: `densE0 (rootSite z) q = ∑_T e (q̄, 0) T`
+for every pair `q` of `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ t`, `q̄` the cut-off of `q`
+(`densE0_rootSite_eq_sum_of_root`).  For the zero class the inputs (M1), (M2) are the zero-source
+activity and no inherited marks (the landed `e0CoeffFamily_raw_fromTower`); for a class with
+non-zero inherited terms neither family is constructed.
 -/
 
 @[expose] public section
@@ -199,7 +203,7 @@ theorem e0CoeffFamily_class_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
                         (fun _ => Set.univ) (e1Dom S) (e1Dom_isDj_of_eq T Dt hS)).dl (y1 j))) *
                   Real.exp (-T.κ' * dExt T')) ∧
             (∀ θ, e θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')))) ∧
-        ∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
+        (∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
           Jr.E1locJ C z (rawOf D) = ∑ T', c ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
             (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' ∧
           (S.withDatumH D).E1locH C z = ∑ T', c ((⟨rawOf D, rawOf_mem_rawSub _⟩ :
@@ -207,7 +211,12 @@ theorem e0CoeffFamily_class_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
           Jr.E0locJ C z (rawOf D) = ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
             (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' ∧
           (S.withDatumH D).E0locH C z = ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ :
-            rawSub 2 S.G'), (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
+            rawSub 2 S.G'), (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T') ∧
+        ∀ ε : ℝ, ε ≤ T.t → ∀ q : Fld 3 3 N₁ T.m₁ (k + 1) 2 × Fld 3 3 N₁ T.m₁ (k + 1) 2,
+          XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
+          Jr.densE0 C (rootSite z) q = ∑ T',
+            (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
+              e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   obtain ⟨β₀, hβ₀, hR, -⟩ := exists_beta0_e1 T hA p 3
   refine ⟨β₀, (le_max_left _ _).trans hβ₀, ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ p₁ hp₁ Dt S hS hp
@@ -285,7 +294,25 @@ theorem e0CoeffFamily_class_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
       (Sum.elim (fun i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
         (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) (G₁ θ)) T'
   have hβS : 0 < (T.step k hk N₁ ν β p₁).β := hβpos
-  refine ⟨c, fun θ T' => dz θ T' + c θ T', fun θ T' => rfl, fun T' => ⟨?_, ?_⟩, fun D hX => ?_⟩
+  have hval0 : ∀ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
+      XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
+        (k + 1) 1 T.t D →
+      Jr.E0locJ C z (rawOf D) =
+        ∑ T', (dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' +
+          c ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T') := by
+    intro D hX
+    have hroot : Jr.rootTraceJ z (rawOf D) =
+        ∑ T', dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
+          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
+      unfold StepSetting.JointRep.rootTraceJ
+      rw [Jr.F₀_eq D hX, E.sum_eq D hX]
+      exact Finset.sum_congr rfl fun T' _ => (hdz1 D hX _ T').symm
+    unfold StepSetting.JointRep.E0locJ
+    rw [hroot, hval D hX, Finset.sum_add_distrib]
+  refine ⟨c, fun θ T' => dz θ T' + c θ T', fun θ T' => rfl, fun T' => ⟨?_, ?_⟩,
+    fun D hX => ?_, fun ε hε q hq => ?_⟩
   · obtain ⟨h1, h2, h3, h4⟩ := hcl T'
     exact ⟨h1, h2, h3, h4⟩
   · obtain ⟨h1, h2, h3, h4⟩ := hcl T'
@@ -311,22 +338,10 @@ theorem e0CoeffFamily_class_fromTower {κmin : ℝ} (T : StepTower κmin) {A₁ 
       rw [← Jr.E1locJ_datum C ((T.step k hk N₁ ν β p₁).withDatumH D) hX Dt.core T.large_block
         T.dom_margin T.coer_margin T.δc_small hβS hp hlt.le (hE D hX) z]
       exact hE1
-    have hroot : Jr.rootTraceJ z (rawOf D) =
-        ∑ T', dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
-      unfold StepSetting.JointRep.rootTraceJ
-      rw [Jr.F₀_eq D hX, E.sum_eq D hX]
-      exact Finset.sum_congr rfl fun T' _ => (hdz1 D hX _ T').symm
-    have hE0 : Jr.E0locJ C z (rawOf D) =
-        ∑ T', (dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' +
-          c ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T') := by
-      unfold StepSetting.JointRep.E0locJ
-      rw [hroot, hE1, Finset.sum_add_distrib]
-    refine ⟨hE1, hE1H, hE0, ?_⟩
+    refine ⟨hE1, hE1H, hval0 D hX, ?_⟩
     rw [← Jr.E0locJ_datum C ((T.step k hk N₁ ν β p₁).withDatumH D) hX Dt.core T.large_block
       T.dom_margin T.coer_margin T.δc_small hβS hp hlt.le (hE D hX) z]
-    exact hE0
+    exact hval0 D hX
+  · exact Jr.densE0_rootSite_eq_sum_of_root C z (fun θ T' => dz θ T' + c θ T') hval0 hε hq
 
 end Balaban.Inhabited

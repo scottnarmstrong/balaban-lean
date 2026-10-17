@@ -193,3 +193,51 @@ theorem classE1Family_of_marks {m₀ : ℕ} (hp : 0 < S.p₁) (hle : S.p₁ ≤ 
       cases i <;> rfl
 
 end Balaban.Fluctuation.StepSetting.JointRep
+
+namespace Balaban.Fluctuation.StepSetting.JointRep
+
+open Balaban Balaban.Background Balaban.Multiscale Balaban.Localization Balaban.SmallField
+  Balaban.SmallField.Def6 Balaban.Polymer
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ eps pp : ℝ}
+  {S : StepSetting d L N₁ m₁ k N ϱ} (Jr : S.JointRep eps pp) (C : StepClass d L N₁ m₁ k N ϱ)
+
+open Classical in
+/-- **The input `hval` at one root on the whole class domain**: if at the root `z` the
+representative `E0locJ z` is the sum of a cube-set family `e` at the raw datum of every datum of the
+chart (any field), then at every pair `q` of the class domain `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`, the
+density at the root site of `z` is the sum of the family at the cut-off of `q`.  (The landed
+`densE0_rootSite_eq_sum`, applied to the family equal to `e` at `z` and to the one-term family
+`E0locJ` at the other roots.) -/
+theorem densE0_rootSite_eq_sum_of_root {m₀ : ℕ} (z : RootIdx d L N₁ m₁ (k + 1))
+    (e : physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+        Set.univ) → ℂ)
+    (hval : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      Jr.E0locJ C z (rawOf D) = ∑ T, e ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), 0) T)
+    {ε : ℝ} (hε : ε ≤ eps) {q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N}
+    (hq : XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2) :
+    Jr.densE0 C (rootSite z) q = ∑ T,
+      (if h : clipRaw S.G' q ∈ rawSub N S.G' then e ((⟨clipRaw S.G' q, h⟩ : rawSub N S.G'), 0) T
+        else 0) := by
+  let e' : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+        Set.univ) → ℂ := fun z' θ T =>
+    if z' = z then e θ T else if T = ∅ then Jr.E0locJ C z' (θ.1 : RawData d L (N₁ * L ^ m₁)
+      (k + 1) N) else 0
+  have hval' : ∀ z' (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      Jr.E0locJ C z' (rawOf D) =
+        ∑ T, e' z' ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), 0) T := by
+    intro z' D hD
+    by_cases hz : z' = z
+    · subst hz
+      simp only [e', ite_true]
+      exact hval D hD
+    · simp only [e', hz, ite_false]
+      rw [Finset.sum_ite_eq' Finset.univ (∅ : Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+        (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ))]
+      simp only [Finset.mem_univ, ite_true]
+  have h := Jr.densE0_rootSite_eq_sum C e' hval' hε hq z
+  simpa only [e', ite_true] using h
+
+end Balaban.Fluctuation.StepSetting.JointRep
