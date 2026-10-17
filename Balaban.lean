@@ -1426,6 +1426,7 @@ public import Balaban.LargeField.R.RopPhysical
 public import Balaban.LargeField.R.RopRestricted
 public import Balaban.LargeField.R.RRemovedGeometry
 public import Balaban.LargeField.R.RRemovedMargin
+public import Balaban.LargeField.R.RRemovedCapEnergy
 public import Balaban.Fluctuation.StepActivityWitnessSplit
 public import Balaban.Fluctuation.StepActivityWitnessMin
 public import Balaban.Fluctuation.StepActivityWitnessNe
@@ -2086,8 +2087,11 @@ public import Balaban.LargeField.R.RRemovedWindowPoint
 public import Balaban.LargeField.R.RRemovedWindowVol
 public import Balaban.LargeField.R.RRemovedWindowCore
 public import Balaban.LargeField.R.RRemovedWindow
+public import Balaban.LargeField.R.RRemovedWindowAnc
+public import Balaban.LargeField.R.RRemovedWindowAncCore
 public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
 public import Balaban.LargeField.R.RRemovedWindowInst
 public import Balaban.Fluctuation.LocalClassDensityCompletion
+public import Balaban.Fluctuation.VacuumEnergy
