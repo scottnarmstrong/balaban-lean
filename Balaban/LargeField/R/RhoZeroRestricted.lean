@@ -599,4 +599,116 @@ theorem denominatorRestricted_bounds_of_osc {δ : ℝ} (hδ : 0 < δ)
 
 end Source
 
+section Removed
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] [NeZero N] {ϱ ϱ' : ℝ}
+  {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+
+/-- **The pointwise bound (2.58′) for the removed outcome with the restricted denominator** (Lemma III.8.7 step (2),
+removed bullet): `removedFactor_le` with `den = ∫ dψ_k↾Z₀ ρ^Z_{k,0}(Z)` (Definition III.8.1 with the action restricted
+to `Z`, `rhoZeroRestricted` on `G' = 𝔹_k(U_k)`, centre `ψ⁰_k`), whose action at `ψ⁰_k` is the action
+`β_k A*_k(Z; ψ⁰_k, φ⁰_k)` of (2.58′) (`denominatorRestricted_eq`, `re_actionRegionC_eq_actionZ`), so the term
+`A_den - A_Z` of `removedFactor_le` is `0`:
+`e^{-𝒢^♮ - 𝒜_win} const^♮ / const / ∫ρ^Z_{k,0} ≤ e^{(N/2) log β_k |Z₀| - Ẽ₀^Z + 1 + 3 + |C^♮_0| + C_{k₁,k}}`.
+Hypotheses: those of `removedFactor_le` without the denominator identity, the data of `rhoZeroRestricted` (the box
+`Z₀ = box b₀ w`, the outside field `ψ_out ∈ Ψ̃(X ∖ Z₀; δ)`, the parameter conditions of `denominator_eq` at
+`β_k = betaK d L k β₀`), and the identification `ψ⁰↾(layer k) = ψ⁰_k` of the multiscale field of (2.58′) with the
+centre of the density. -/
+theorem removedFactor_le_restricted {a₁ : ℝ} (hprec : Precedes G G')
+    (ψ0 : BlockV d L N₀ k → EuclideanSpace ℝ (Fin N)) (h : Fin N → ℝ) (Du : BgData G N)
+    {φu : G.Ω 1 × Fin N → ℂ} (D : Region G) (Zr Zk1 : Region G')
+    (Zb : Finset (Torus d (N₀ * L ^ (k - k)))) {β0 ν : ℝ} (ϖ : ℕ → ℝ)
+    (aN : Torus d (N₀ * L ^ (k - k)) → ℝ) (ψk : Torus d (N₀ * L ^ (k - k)) → Fin N → ℂ)
+    (hβ0 : 0 < β0) (hν : 0 ≤ ν) (ha₁ : 0 < a₁) (hL : 2 ≤ L) (ha : ∀ j, 0 ≤ compWeight L a₁ j)
+    (haN : ∀ z ∈ Zb, 0 < aN z)
+    (hZb : ∀ z ∈ Zb, ∀ x ∈ fib d L N₀ k k z, 1 ≤ G.layerIndex x ∧ G.layerIndex x < k)
+    (hDat : (windowData G G' hprec (compWeight L a₁) ψ0 h).IsReal) (hDu : Du.IsReal)
+    (hφu : ∀ p, (φu p).im = 0)
+    (hφ : ∀ p, (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h) p).im = 0)
+    (hid : gaussNat G ϖ Du.Ψ (betaK d L k β0) aN ψk Zb +
+          (β0 : ℂ) * actionRegionC D (compWeight L a₁) ν Du φu -
+          ((Real.log (constNat N (betaK d L k β0) aN Zb) : ℝ) : ℂ) =
+        (β0 : ℂ) * actionRegionC Zr (compWeight L a₁) ν (psiZeroData G' ψ0 h)
+            (phiZero G' (compWeight L a₁) ψ0 h) -
+          (β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h) (phiZero G' (compWeight L a₁) ψ0 h) +
+          ((betaK d L k β0 : ℝ) * ∑ z ∈ Zb, (1 / 2 : ℂ) * (aN z : ℂ) *
+              dotC (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z)
+                (kAvg (dataInc (windowData G G' hprec (compWeight L a₁) ψ0 h) Du) z) +
+            (β0 : ℂ) * (deltaActionC D (compWeight L a₁) ν
+                (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+                (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu
+                (hprec.restrictα (alphaZero G' (compWeight L a₁) ψ0 h)) +
+              nuTerm D ν (windowData G G' hprec (compWeight L a₁) ψ0 h)
+                (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu)) +
+          (β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+            (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu -
+          ((Real.log (constNat N (betaK d L k β0) (compWeightZ G a₁) Zb) : ℝ) : ℂ) +
+          Cnat a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk)
+    (hA0 : ‖(β0 : ℂ) * actionRegion0 Zk1 ν (psiZeroData G' ψ0 h)
+      (phiZero G' (compWeight L a₁) ψ0 h)‖ < 1 / 4)
+    (hb : ‖(1 / 2 : ℂ) * (β0 : ℂ) * D.sitePair (hprec.restrictα (alphaZero G' (compWeight L a₁) ψ0 h))
+        (svec G (φu - hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)))
+        (svec G (φu - hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)))‖ < 1 / 4)
+    (hst : ‖(β0 : ℂ) * stTerm D (windowData G G' hprec (compWeight L a₁) ψ0 h) Du
+        (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu‖ < 1 / 4)
+    (hnu : ‖(β0 : ℂ) * nuTerm D ν (windowData G G' hprec (compWeight L a₁) ψ0 h)
+        (hprec.restrictφ (phiZero G' (compWeight L a₁) ψ0 h)) φu‖ < 1 / 4)
+    {D0 : ℕ} (hd : 2 ≤ d) (hk : 1 ≤ k) (b0 : Torus d (N₀ * L ^ (k - k))) (w : Fin d → ℕ)
+    (hw1 : ∀ i, 1 ≤ w i) (hwD : ∀ i, w i ≤ D0) (hm : D0 + 2 ≤ N₀ * L ^ (k - k))
+    {X : Set (Torus d (N₀ * L ^ (k - k)))} (hXreg : box b0 w ∪ shellOut (box b0 w) ⊆ X)
+    (hΩ : OverTop G' (box b0 w ∪ shellOut (box b0 w)))
+    (hdata : ∀ x ∈ dataSites G', jBlock d L N₀ k k x ∈ X) (H : BgHyp d L k ϱ' (compWeight L a₁) 0)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hδc : δ ≤ psiZeroC11 N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H)
+    {ψout : BlockField d L N₀ k N} (hψout : TubeOn G' (X \ box b0 w) δ ψout) {p0 : ℝ}
+    (hp0 : 1 ≤ cSix d D0 (psiZeroK N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) * p0)
+    (hrad : psiZeroK N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H * δ +
+      5 * zeroRadius (cSix d D0 (psiZeroK N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H))
+        (betaK d L k β0) p0 ≤ etaDen d L N D0)
+    (hψ0 : ∀ z i, ψ0 ⟨k, z⟩ i =
+      psiZero N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψout z i)
+    (Ckk : ℝ) :
+    Real.exp (-(gaussNat G ϖ Du.Ψ (betaK d L k β0) aN ψk Zb).re -
+          (((β0 : ℂ) * actionRegionC D (compWeight L a₁) ν Du φu).re - Ckk)) *
+        constNat N (betaK d L k β0) aN Zb / constNat N (betaK d L k β0) (compWeightZ G a₁) Zb /
+        (∫ u, rhoZeroRestricted G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψout
+          Zr ν h β0 p0 u) ≤
+      Real.exp ((N : ℝ) / 2 * Real.log (betaK d L k β0) * ((boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card : ℝ) -
+        tildeE0Restricted G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψout Zr ν h β0 p0 +
+        1 + 3 + ‖Cnat0 a₁ hprec ψ0 h Du Zb β0 ϖ aN ψk‖ + Ckk) := by
+  set K := psiZeroK N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H with hKdef
+  set ψZ := psiZero N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψout with hψZ
+  have hdat : psiZeroData G' ψ0 h = dataRH G' ψZ h := psiZeroData_eq_dataRH ψ0 h ψZ hψ0
+  have hβk : 0 < betaK d L k β0 := by
+    unfold betaK
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  have hd0 : 0 < d := by omega
+  have hD1 : 1 ≤ D0 := (hw1 ⟨0, hd0⟩).trans (hwD _)
+  have hK : 0 < K := psiZeroK_pos N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H
+  have hρ : 0 < zeroRadius (cSix d D0 K) (betaK d L k β0) p0 :=
+    zeroRadius_pos (cSix_pos hd0 hD1 hK.le) hβk hp0
+  have hreal : ∀ p, (bgField G' (compWeight L a₁) 0 (dataRH G' ψZ h) p).im = 0 := by
+    rw [bgField_dataRH]
+    obtain ⟨hsol, -⟩ := psiZero_spec N G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψout
+    have ht0 : TubeOn G' Set.univ (K * δ) ψZ := tubeOn_univ_of_data G' hdata hsol.1
+    have hKδ : 0 < K * δ := mul_pos hK hδ
+    have hη1 : etaDen d L N D0 ≤ bgC1 d L N := min_le_left _ _
+    have hle : K * δ ≤ bgC1 d L N := by linarith
+    have hunit := (theorem71 H (inUnionDomainR_of_tube G' hKδ hle ht0)).2.1
+    exact fun p => (hunit p.1).1 p.2
+  have hAZ : ((β0 : ℂ) * actionRegionC Zr (compWeight L a₁) ν (psiZeroData G' ψ0 h)
+      (phiZero G' (compWeight L a₁) ψ0 h)).re = β0 * actionZ G' (compWeight L a₁) Zr ν h ψZ := by
+    unfold phiZero
+    rw [hdat]
+    exact re_actionRegionC_eq_actionZ Zr ν h ψZ hreal β0
+  obtain ⟨hden, -⟩ := denominatorRestricted_eq G' (compWeight L a₁) hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc
+    hψout Zr h ha hν hβ0 hp0 hrad
+  have key := removedFactor_le hprec ψ0 h Du D Zr Zk1 Zb ϖ aN ψk hβ0 hν ha₁ hL ha haN hZb hDat hDu hφu hφ hid
+    hA0 hb hst hnu ((boxFinset (L := L) (N₀ := N₀) (k := k) b0 w).card : ℝ) hden Ckk
+  rw [hAZ, sub_self, add_zero] at key
+  exact key
+
+end Removed
+
 end Balaban.LargeField
