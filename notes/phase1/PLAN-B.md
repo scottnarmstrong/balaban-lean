@@ -31,7 +31,11 @@ approved declaration.
 - The cause is proved (VMOD-44 §§8–9): P5 (2.3)–(2.4) open the new region with L-blocks at every
   offset, so the face of a new hole cuts the π′ cubes and the completion spills active cells along a
   long face; nothing in (H.7) pays for that length.
-- RULING R3 (recommended): open the new region with L-blocks at aligned corners. Then every hole is a
+- WITHDRAWN (astra-aligned, notes/phase1/astra/ALIGNED.md): R3 does not close blocker 3 — a fixed grid breaks the
+  Euclidean covariance required by P5 (H.5), (H.7), and a completed hole still has positive tree length between two
+  active attachments. Also, P5's π′_k allows blocks at every offset, so the long-face spill is narrower than VMOD-36
+  suggested. Round 2 studies what pays the length between two attachments.
+- (Former proposal) RULING R3: open the new region with L-blocks at aligned corners. Then every hole is a
   union of aligned boxes (`compl_isAlignedBoxUnion`, landed), the completion is spill-free and
   d(Y) ≤ d(X) (`HoleCompletionSize`, landed), and the length through a hole is never charged.
   Cost: the radii of the opening change by at most L cubes; the separation and ripeness lemmas of the
