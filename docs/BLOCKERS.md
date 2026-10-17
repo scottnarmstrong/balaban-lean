@@ -31,11 +31,17 @@ The last section lists the problems that have been resolved since the project st
 Several blockers carry questions to the author. We no longer wait for them: the two main theorems are
 statements about the model, so any construction that proves them is acceptable. Where the papers are
 ambiguous we choose a reading, record it, and prove what it needs; an answer, if it comes, becomes a
-check. Two of these choices change approved definitions and wait for a ruling: the extended direction
-tests of blocker 2, and opening new regions with aligned blocks, which removes the spill of blocker 3.
+check. Some of these choices change approved definitions and wait for a ruling (blocker 2's route; the representation of the
+large-field output as a gas and the vacuum clause of the step data in blocker 4). Opening new regions with aligned blocks
+was checked and does not close blocker 3: it breaks the Euclidean covariance of the coefficients, and a completed hole
+still has positive length between two active attachments.
 The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Three
 focused analyses are running: the shifted data in the anisotropic domain (blocker 6), the activity bound on
 the source radius β^{-1/2} (blocker 2), and the case with no renormalization step (blocker 1).
+
+A finding that concerns all blockers: the step tower produces the setting of each step but not yet the class of the
+next step (its terms, vacuum energy and family over tori). Many results above are proved for a given class; feeding the
+output of one step into the next is the backbone of the assembly of Root-F and is being designed.
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
