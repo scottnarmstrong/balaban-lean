@@ -2009,6 +2009,7 @@ public import Balaban.Polymer.TwoTorusResumRootF
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassAssembleM
 public import Balaban.Fluctuation.LocalClassLabels
+public import Balaban.Fluctuation.LocalClassBirth
 public import Balaban.Fluctuation.LocalClassInherit
 public import Balaban.Fluctuation.LocalClassCentre
 public import Balaban.Fluctuation.LocalClassAmplitude
@@ -2027,6 +2028,11 @@ public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RRemovedKernelPre
 public import Balaban.LargeField.R.RRemovedExponent
+public import Balaban.LargeField.R.RRemovedTau
+public import Balaban.LargeField.R.RRemovedLres
+public import Balaban.LargeField.R.RRemovedShell
+public import Balaban.LargeField.R.RRemovedShellTree
+public import Balaban.LargeField.R.RRemovedShellVol
 public import Balaban.LargeField.R.RGasCoreConn
 public import Balaban.LargeField.R.RRadiusMax
 public import Balaban.LargeField.R.RGasCoreTau
