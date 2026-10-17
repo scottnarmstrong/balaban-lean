@@ -2134,3 +2134,7 @@ public import Balaban.Green.FinalLiftDecayNear
 public import Balaban.Green.FinalLiftDecayPoly
 public import Balaban.Green.FinalLiftDecayCoef
 public import Balaban.Green.FinalLiftDecaySum
+public import Balaban.Fluctuation.LocalClassDensityValFamily
+public import Balaban.Fluctuation.LocalClassDensityValClass
+public import Balaban.Fluctuation.LocalClassDensityValTower
+public import Balaban.Fluctuation.LocalClassDensityValM
