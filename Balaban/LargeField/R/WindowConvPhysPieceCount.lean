@@ -107,4 +107,34 @@ theorem piece_upper_layerBlock_count_le (X : Region (locGen g Hl j Zc hZc hk))
   rw [hfactor]
   exact ⟨hmem.1, (locGen_Ω_top_iff g Hl j Zc hZc hk hxX).mp htop⟩
 
+
+open Classical in
+/-- The positive decomposition of a quiet piece has total count at most `M^d`
+times the P6 (2.31) mixed count, with at most `2d` wall slots per cell.  The
+bound with the decomposition's own count therefore dominates P6's count by the
+constant `M^d`, and no identification of cells with physical cubes is needed. -/
+theorem exists_piece_stepDecomp_total_le (hj : 1 ≤ j)
+    (X : Region (locGen g Hl j Zc hZc hk))
+    (hXs : X.sites = Xfine g Hl j Zc) :
+    ∃ Dc : StepDecomp X,
+      (∀ i, 0 < Dc.wt i) ∧ Dc.inc = 2 * S.d ∧
+      Dc.total ≤ (M ^ S.d : ℝ) *
+        (((Finset.univ.filter fun y : Torus S.d (n j) =>
+          y ∉ (Hl.step j).Z ∧
+          blockMap S.L (n (j + 1)) y ∈ Zc ∧
+          blockMap S.L (n (j + 1)) y ∉ (Hl.step j).Omega).card : ℝ) +
+        ((Finset.univ.filter fun y : Torus S.d (n (j + 1)) =>
+          y ∈ Zc ∧ y ∈ (Hl.step j).Omega).card : ℝ)) ∧
+      (∀ q, Dc.wall q ⊆ (Dc.cube (Dc.wallCube q)).crossing) := by
+  obtain ⟨Dc, hpos, hinc, hcount, hwall⟩ :=
+    exists_piece_stepDecomp_positive_blocks g Hl j Zc hZc hk hj X hXs
+  refine ⟨Dc, hpos, hinc, ?_, hwall⟩
+  rw [hcount]
+  have h1 := piece_lower_layerBlock_count_le g Hl j Zc hZc hk X hXs
+  have h2 := piece_upper_layerBlock_count_le g Hl j Zc hZc hk X hXs
+  have h1' := (Nat.cast_le (α := ℝ)).mpr h1
+  have h2' := (Nat.cast_le (α := ℝ)).mpr h2
+  push_cast at h1' h2'
+  linarith
+
 end Balaban.LargeField
