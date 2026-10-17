@@ -23,7 +23,10 @@ sites are at path distance at most `∑_i (b_i - a_i).val`.
 
 @[expose] public section
 
-open Finset Set MeasureTheory Metric Balaban Balaban.Multiscale Balaban.Localization
+open Finset Set MeasureTheory Metric Balaban Balaban.Multiscale Balaban.Background
+  Balaban.Localization Balaban.Analysis Balaban.SmallField Balaban.SmallField.Def6
+  Balaban.SmallField.Def6v2 Balaban.SmallField.GsSpec Balaban.Fluctuation Balaban.Inhabited
+  Balaban.LargeField Balaban.LargeField.ActionConv
 
 namespace Balaban.Green
 
@@ -171,5 +174,131 @@ theorem pathDist_le_dim_mul (G : GeneratingSet d L N₀ k ϱ) (hΩ : G.Ω 1 = Fi
   exact h2
 
 end Path
+
+section Step
+
+variable {d d' N₀ N N₁ m₁ kS L M : ℕ} [NeZero N₀] [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  (S : StepSetting d' L N₁ m₁ kS N ϱ) (e : L1Torus d N₀ ≃ S.U × Fin N)
+
+/-- Every unit point is the unit block of a site: the unit point of the site. -/
+theorem exists_unitPt_eq (u : S.U) : ∃ x : CTorus d' L N₁ m₁ (kS + 1), unitPt S.hG' x = u := by
+  obtain ⟨x, -, hx⟩ := (mem_unitPts S.G').1 u.2
+  exact ⟨x, Subtype.ext hx⟩
+
+omit [NeZero N₀] in
+/-- **The read sets at distance level `n`** (`hS` of `norm_coef_cutoff_class_le_lift`): the explicit
+set of `q` whose unit point is that of a site `x` lying in an `L^j`-block meeting `X`, or whose
+block-site `z` (a site of an `L^j`-block meeting `X`) is at path distance `< n` of a site of `Ω₁`
+equal or adjacent to `x`.  It satisfies the clause `hS`. -/
+theorem readSet_hS :
+    ∀ (n j : ℕ) (_y : CTorus d' L N₁ m₁ (kS + 1)) (X : Set (CTorus d' L N₁ m₁ (kS + 1))) (q : L1Torus d N₀)
+      (x : CTorus d' L N₁ m₁ (kS + 1)),
+      (e q).1 = unitPt S.hG' x →
+      ((∃ z ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j x =
+          jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z) ∨
+        ∃ z, (∃ z' ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z =
+            jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z') ∧
+          ∃ ω ∈ (stepG d' L N₁ m₁ kS ϱ).Ω 1, (ω = x ∨ Adj ω x) ∧
+            (stepG d' L N₁ m₁ kS ϱ).pathDist z ω < ENNReal.ofReal (n : ℝ)) →
+      q ∈ {q : L1Torus d N₀ | ∃ x : CTorus d' L N₁ m₁ (kS + 1), (e q).1 = unitPt S.hG' x ∧
+        ((∃ z ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j x =
+            jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z) ∨
+          ∃ z, (∃ z' ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z =
+              jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z') ∧
+            ∃ ω ∈ (stepG d' L N₁ m₁ kS ϱ).Ω 1, (ω = x ∨ Adj ω x) ∧
+              (stepG d' L N₁ m₁ kS ϱ).pathDist z ω < ENNReal.ofReal (n : ℝ))} :=
+  fun _ _ _ _ _ x hq hc => ⟨x, hq, hc⟩
+
+
+/-- **Reach** (`hreach`): every polymer reaches the region of `C` at the level `Nm`, the torus
+diameter bound `d' (N₁ L^{m₁} L^{kS+1}) + 1` (every two sites are at path distance at most
+`d' (N₁ L^{m₁} L^{kS+1})`). -/
+theorem exists_level_reach (hM : 0 < M) {C : Finset (MacIdx d N₀ M)} (hC : C.Nonempty)
+    (Sset : ℕ → ℕ → CTorus d' L N₁ m₁ (kS + 1) → Set (CTorus d' L N₁ m₁ (kS + 1)) →
+      Set (L1Torus d N₀))
+    (hS : ∀ (n j : ℕ) y X (q : L1Torus d N₀) (x : CTorus d' L N₁ m₁ (kS + 1)),
+      (e q).1 = unitPt S.hG' x →
+      ((∃ z ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j x =
+          jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z) ∨
+        ∃ z, (∃ z' ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z =
+            jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z') ∧
+          ∃ ω ∈ (stepG d' L N₁ m₁ kS ϱ).Ω 1, (ω = x ∨ Adj ω x) ∧
+            (stepG d' L N₁ m₁ kS ϱ).pathDist z ω < ENNReal.ofReal (n : ℝ)) →
+      q ∈ Sset n j y X)
+    (j : ℕ) (y : CTorus d' L N₁ m₁ (kS + 1)) (X : Set (CTorus d' L N₁ m₁ (kS + 1))) (hy : y ∈ X) :
+    ∃ n ≤ d' * ((N₁ * L ^ m₁) * L ^ (kS + 1)) + 1, ∃ q ∈ Sset n j y X,
+      q ∈ macRegion d N₀ M C := by
+  obtain ⟨p, hp⟩ := hC
+  obtain ⟨q, hq⟩ := macCore_nonempty (d := d) (m := N₀) (M := M) p
+  have hqR : q ∈ macRegion d N₀ M C :=
+    mem_macRegion.2 ⟨p, hp, macCore_subset_box p hM hq⟩
+  obtain ⟨x, hx⟩ := exists_unitPt_eq S (e q).1
+  refine ⟨d' * ((N₁ * L ^ m₁) * L ^ (kS + 1)) + 1, le_rfl, q, ?_, hqR⟩
+  refine hS _ j y X q x hx.symm (Or.inr ⟨y, ⟨y, hy, rfl⟩, x, S.hG.Ω_one ▸ mem_univ x, Or.inl rfl, ?_⟩)
+  refine (pathDist_le_dim_mul (stepG d' L N₁ m₁ kS ϱ) S.hG.Ω_one y x).trans_lt ?_
+  rw [ENNReal.ofReal_lt_ofReal_iff (by positivity)]
+  push_cast
+  linarith
+
+
+/-- **Sites at each level** (`hW`): a site `z'` of the polymer in an `L^j`-block meeting the read
+set is among the sites `w` with `d(x, w) ≤ L^{kS+1} n + d' L^{kS+1} + 1`, `x` a site whose unit
+point is that of a point of the region of `C` (torus-distance majorant of the path distance, by
+`pathDist_ge_torusDist_top`). -/
+theorem exists_mem_level_set {C : Finset (MacIdx d N₀ M)}
+    (Sset : ℕ → ℕ → CTorus d' L N₁ m₁ (kS + 1) → Set (CTorus d' L N₁ m₁ (kS + 1)) →
+      Set (L1Torus d N₀))
+    (hSsub : ∀ (n j : ℕ) y X (q : L1Torus d N₀), q ∈ Sset n j y X →
+      ∃ x : CTorus d' L N₁ m₁ (kS + 1), (e q).1 = unitPt S.hG' x ∧
+      ((∃ z ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j x =
+          jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z) ∨
+        ∃ z, (∃ z' ∈ X, jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z =
+            jBlock d' L (N₁ * L ^ m₁) (kS + 1) j z') ∧
+          ∃ ω ∈ (stepG d' L N₁ m₁ kS ϱ).Ω 1, (ω = x ∨ Adj ω x) ∧
+            (stepG d' L N₁ m₁ kS ϱ).pathDist z ω < ENNReal.ofReal (n : ℝ)))
+    (W : ℕ → Finset (CTorus d' L N₁ m₁ (kS + 1)))
+    (hWdef : ∀ n w, w ∈ W n ↔ ∃ x : CTorus d' L N₁ m₁ (kS + 1),
+      (∃ q ∈ macRegion d N₀ M C, (e q).1 = unitPt S.hG' x) ∧
+        Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) x w ≤
+          ((L ^ (kS + 1) * n + d' * L ^ (kS + 1) + 1 : ℕ) : ℝ))
+    (n j : ℕ) (hj : j ≤ kS + 1) (y : CTorus d' L N₁ m₁ (kS + 1))
+    (X : Set (CTorus d' L N₁ m₁ (kS + 1)))
+    (h : ∃ q ∈ Sset n j y X, q ∈ macRegion d N₀ M C) : ∃ w ∈ W n, w ∈ X := by
+  obtain ⟨q, hqS, hqR⟩ := h
+  obtain ⟨x, hx, hc⟩ := hSsub n j y X q hqS
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hB : (0 : ℝ) < (L : ℝ) ^ (kS + 1) := by positivity
+  have hblk : ∀ a b : CTorus d' L N₁ m₁ (kS + 1),
+      jBlock d' L (N₁ * L ^ m₁) (kS + 1) j a = jBlock d' L (N₁ * L ^ m₁) (kS + 1) j b →
+      Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) a b ≤ d' * (L : ℝ) ^ (kS + 1) := by
+    intro a b hb
+    have h1 := torusDist_le_of_blockMap_eq (d := d') (side_eq (N₀ := N₁ * L ^ m₁) (L := L)
+      (k := kS + 1) hj) (pow_pos (NeZero.pos L) j) hb
+    refine h1.trans ?_
+    push_cast
+    exact mul_le_mul_of_nonneg_left (pow_le_pow_right₀ hL1 hj) (Nat.cast_nonneg _)
+  have hxR : ∃ q ∈ macRegion d N₀ M C, (e q).1 = unitPt S.hG' x := ⟨q, hqR, hx⟩
+  rcases hc with ⟨z, hz, hb⟩ | ⟨z, ⟨z', hz', hb⟩, ω, hω, hωx, hlt⟩
+  · refine ⟨z, (hWdef n z).2 ⟨x, hxR, (hblk x z hb).trans ?_⟩, hz⟩
+    push_cast
+    have : (0 : ℝ) ≤ (L : ℝ) ^ (kS + 1) * n := by positivity
+    linarith
+  · refine ⟨z', (hWdef n z').2 ⟨x, hxR, ?_⟩, hz'⟩
+    have h1 : Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) x ω ≤ 1 := by
+      rcases hωx with rfl | hadj
+      · rw [Green.torusDist_self_eq_zero]; norm_num
+      · rw [Green.torusDist_comm_gen]; exact hadj.torusDist_le
+    have h2 : Green.torusDist d' ((N₁ * L ^ m₁) * L ^ (kS + 1)) ω z ≤ (L : ℝ) ^ (kS + 1) * n := by
+      have h3 := (LargeField.pathDist_ge_torusDist_top (stepG d' L N₁ m₁ kS ϱ) z ω).trans_lt hlt
+      have h4 := ((ENNReal.ofReal_lt_ofReal_iff' ).1 h3).1
+      rw [Green.torusDist_comm_gen, div_lt_iff₀ hB] at h4
+      linarith
+    have h5 := hblk z z' hb
+    have t1 := Green.torusDist_triangle_gen (d := d') (m := (N₁ * L ^ m₁) * L ^ (kS + 1)) x ω z
+    have t2 := Green.torusDist_triangle_gen (d := d') (m := (N₁ * L ^ m₁) * L ^ (kS + 1)) x z z'
+    push_cast
+    linarith
+
+end Step
 
 end Balaban.Green
