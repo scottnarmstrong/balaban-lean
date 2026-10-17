@@ -2156,3 +2156,4 @@ public import Balaban.Green.FinalConstsClose
 public import Balaban.Polymer.TwoTorusGapCloseSym
 public import Balaban.Polymer.TwoTorusGapCloseCoef
 public import Balaban.Polymer.TwoTorusGapClose
+public import Balaban.Polymer.TwoTorusGapCloseResum

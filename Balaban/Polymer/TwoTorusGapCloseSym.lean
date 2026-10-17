@@ -463,4 +463,64 @@ theorem X1_translate {t : CTorus d L N₁ m₁ K} (S : LatSymm G G (Equiv.addRig
 
 end Cover
 
+section RecentringInt
+
+variable {d : ℕ}
+
+/-- **The recentring vector at integer level.**  Under the hypotheses of `exists_recentring`, and if the points of `X₁ ∪ Y` have centred representatives of absolute value at most `q` with `2 q + 2 (D + (D + 1) / 4) < n`, the recentring vector `z` (a multiple of `a`) can be chosen so that the integer sums `x_μ + z_μ` of the centred representatives, and not only their residues modulo `n`, are at most `D + (D + 1) / 4` in absolute value.  The vector of `exists_recentring` is reduced modulo `n` by the integer `n m_μ` that brings the base point to its centred representative; for the other points the two integers differ by a multiple of `n` of size less than `n`. -/
+theorem exists_recentring_int {n a L D q : ℕ} [NeZero n] (hd : 0 < d) (ha : 0 < a) (hL : 2 ≤ L)
+    (han : a ∣ n) {X₁ Y : Set (Torus d n)} (hbox : ∃ b, box b (L * a) ⊆ X₁)
+    (hD : ∀ x ∈ X₁, ∀ y ∈ X₁ ∪ Y, ∀ μ, |(x μ - y μ).valMinAbs| ≤ D) (hn : 25 * D + 25 < n)
+    (hq : ∀ x ∈ X₁ ∪ Y, ∀ μ, |(x μ).valMinAbs| ≤ q) (hqn : 2 * q + 2 * (D + (D + 1) / 4) < n) :
+    ∃ z : Fin d → ℤ, (∀ μ, (a : ℤ) ∣ z μ) ∧
+      ∀ x ∈ X₁ ∪ Y, ∀ μ, |(x μ).valMinAbs + z μ| ≤ ((D + (D + 1) / 4 : ℕ) : ℤ) := by
+  obtain ⟨z0, hz0, hbx⟩ := exists_recentring hd ha hL hbox hD hn
+  obtain ⟨b, hb⟩ := hbox
+  have hbX : b ∈ X₁ := hb ⟨fun _ => 0, fun _ => Nat.mul_pos (by omega) ha, by funext μ; simp [natT]⟩
+  set r := D + (D + 1) / 4 with hr
+  have hw : ∀ x ∈ X₁ ∪ Y, ∀ μ, ∃ k : ℤ, (x μ).valMinAbs + z0 μ -
+      (x μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs = n * k := by
+    intro x hx μ
+    have h1 : (((x μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs : ℤ) : ZMod n) =
+        (((x μ).valMinAbs + z0 μ : ℤ) : ZMod n) := by
+      rw [ZMod.coe_valMinAbs]; push_cast; simp
+    obtain ⟨k, hk⟩ := (ZMod.intCast_eq_intCast_iff_dvd_sub _ _ n).1 h1
+    exact ⟨k, hk⟩
+  choose k0 hk0 using fun μ => hw b (Or.inl hbX) μ
+  refine ⟨fun μ => z0 μ - n * k0 μ, fun μ => ?_, fun x hx μ => ?_⟩
+  · exact dvd_sub (hz0 μ) (dvd_mul_of_dvd_left (Int.natCast_dvd_natCast.2 han) _)
+  · obtain ⟨kx, hkx⟩ := hw x hx μ
+    have hwx : |(x μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs| ≤ (r : ℤ) := hbx x hx μ
+    have hw0 : |(b μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs| ≤ (r : ℤ) := hbx b (Or.inl hbX) μ
+    have hqx := hq x hx μ
+    have hqb := hq b (Or.inl hbX) μ
+    have hk0μ := hk0 μ
+    show |(x μ).valMinAbs + (z0 μ - n * k0 μ)| ≤ _
+    generalize (x μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs = wx at hkx hwx ⊢
+    generalize (b μ + ((z0 μ : ℤ) : ZMod n)).valMinAbs = w0 at hk0μ hw0
+    have he : ((n : ℤ) ∣ ((x μ).valMinAbs - (b μ).valMinAbs) - (wx - w0)) :=
+      ⟨kx - k0 μ, by linear_combination hkx - hk0μ⟩
+    have habs : |((x μ).valMinAbs - (b μ).valMinAbs) - (wx - w0)| < n := by
+      rw [abs_le] at hwx hw0 hqx hqb
+      rw [abs_lt]
+      have : (2 * q + 2 * r : ℕ) < n := hqn
+      constructor <;> omega
+    have h0 := Int.eq_zero_of_abs_lt_dvd he habs
+    have h1 : (n : ℤ) * (kx - k0 μ) = 0 := by linear_combination -hkx + hk0μ + h0
+    have : (x μ).valMinAbs + (z0 μ - n * k0 μ) = wx := by linear_combination hkx + h1
+    rw [this]; exact hwx
+
+/-- If the integer sums of the centred representatives of `c` and of `z` are at most `r` in absolute value and `2 r + 1 < n`, then the translate `c + z` lies in the centred box of radius `r`. -/
+theorem inBox_add_intCast {n r : ℕ} [NeZero n] (hn : 2 * r + 1 < n) (c : Torus d n)
+    (z : Fin d → ℤ) (hc : ∀ μ, |(c μ).valMinAbs + z μ| ≤ r) :
+    InBox d r n (c + fun μ => ((z μ : ℤ) : ZMod n)) := by
+  intro μ
+  have h1 : (c + fun μ => ((z μ : ℤ) : ZMod n)) μ = (((c μ).valMinAbs + z μ : ℤ) : ZMod n) := by
+    simp
+  rw [h1, valMinAbs_intCast_of_abs_le hn (hc μ)]
+  exact hc μ
+
+end RecentringInt
+
+
 end Balaban.Polymer.TwoTorusStep
