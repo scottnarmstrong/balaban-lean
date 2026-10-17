@@ -46,6 +46,11 @@ approved declaration.
   proved. Remaining work is ours: the window bound (W964), the representation of R's output as this
   gas (design, Opus), the kept components (LF4K-PLAN.md), the vacuum energy (W965).
 
+- Vacuum energy (W965, LF4R-PLAN §7.5′): the bound |E_k| ≤ C′(λ_k + 1) asserted on P7 p. 520 is false for the
+  forward flow from a fixed E_0 and holds for the backward normalization (E_0 chosen so that E_K = 0).
+  Decision (orchestrator, no landed definition changes): use the backward normalization; the constant
+  cancels in log Z(g)/Z(0). To check: the large-field operators carry the same normalization (W968).
+
 ## Blocker 5: the last integral (item 18)
 - Adopt our reading as the construction: the decoupling expansion is applied on the complement of the
   large-field blocks Z only; the field on Z enters the small-field terms through a background that
