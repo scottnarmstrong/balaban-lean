@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.RGasCoreInputs
+public import Balaban.LargeField.R.RGasCoreBlockCore
 public import Balaban.LargeField.R.RHaloSep
 public import Balaban.LargeField.Geometry.DomainsModBridge
 public import Balaban.LargeField.History.OmegaPost
@@ -215,22 +216,8 @@ theorem RegionHistory.halo_reach (c : H.Comp k)
 include H in
 /-- **The halo of a removed component lies in `Ω_k^post`** (`k ≥ 1`). -/
 theorem RegionHistory.halo_subset_omegaPost (hk : 1 ≤ k) (c : H.Comp k) (hc : c.1 ∈ H.rem k) :
-    nbhd (2 * ⌊R (k - 1)⌋₊ + 4) (c.1 : Set (Torus S.d (n k))) ⊆ H.omegaPost k := by
-  intro x hx
-  by_contra hn
-  have hZ := H.omegaPost_compl_subset_Z k hn
-  rw [H.Z_eq] at hZ
-  obtain ⟨hzp, hnrem⟩ := hZ
-  obtain ⟨Y, hY, hxY⟩ := mem_comp_self (ω := S.omega k) (X := H.F.Zp k) (mem_finOf.2 hzp)
-  by_cases hcY : (⟨Y, hY⟩ : H.Comp k) = c
-  · apply hnrem
-    rw [Set.mem_iUnion₂]
-    refine ⟨c.1, hc, ?_⟩
-    have : Y = c.1 := congrArg Subtype.val hcY
-    rw [← this]; exact hxY
-  · have hd := H.halo_disjoint_comp hk (c := c) (c' := ⟨Y, hY⟩) (Ne.symm hcY)
-    rw [RegionHistory.halo_eq_nbhd] at hd
-    exact Set.disjoint_left.1 hd hx hxY
+    nbhd (2 * ⌊R (k - 1)⌋₊ + 4) (c.1 : Set (Torus S.d (n k))) ⊆ H.omegaPost k :=
+  H.nbhd_subset_omegaPost c hc (H.halo_radius_lt_omega hk)
 
 
 variable {M m₀ m₁ : ℕ}
@@ -254,17 +241,8 @@ theorem RegionHistory.siteConnected_sitesOf_halo (Fr : FineSizeFrame S n M K m�
     sitesOf zs = d7Pull Fr k (lab : Set (Torus S.d (n k))) ∧ SiteConnected (sitesOf zs) := by
   have hsub : (lab : Set (Torus S.d (n k))) ⊆ H.omegaPost k :=
     hlab ▸ H.halo_subset_omegaPost hk c hc
-  have heq : sitesOf zs = d7Pull Fr k (lab : Set (Torus S.d (n k))) := by
-    ext x
-    constructor
-    · intro hx
-      rw [hXZ]; exact Or.inl hx
-    · intro hx
-      have hx' := hx
-      rw [hXZ] at hx'
-      rcases hx' with h | ⟨z, -, -, hy⟩
-      · exact h
-      · exact absurd (d7Pull_mono Fr k hsub hx) hy.1
+  have heq : sitesOf zs = d7Pull Fr k (lab : Set (Torus S.d (n k))) :=
+    sitesOf_eq_d7Pull_of_Yhat Fr hsub hXZ
   refine ⟨heq, ?_⟩
   rw [heq, hlab]
   exact siteConnected_d7Pull Fr hnn hkK _ (H.halo_reach c hω)
@@ -355,9 +333,13 @@ theorem gas_activity_bound_physical_of_D7BdryPost_halo {m₀ m₁ : ℕ} {Fr : F
       (d7Pull Fr k (A.H.omegaPost k)))) :
     ‖gasK cy zs cr β τ X‖ ≤
       3 * c1 S.d S.L * Real.exp (-p') * Real.exp (-(κ' - 2) * dExt (d := S.d) X.1) :=
-  gas_activity_bound_physical_of_D7BdryPost hD hA hhB p labY hlabY hlabYv hp labZ hlabZ hDjZ hXY hXZ
-    (fun z => (A.H.siteConnected_sitesOf_halo Fr hnn hkK hk (cz z) (hcz z) hω (hlabZ' z)
-      (hXZ z)).2) hfac hκ' hκ'' hp' hκ hz hcr β hβ hτ hh X
+  by
+  -- the connectivity of the cores comes from `hDjZ` (`𝒟_k` contains only connected sets); the
+  -- hypothesis `hω` (connectivity of the halo) is not needed here
+  have _ := hω
+  exact gas_activity_bound_physical_of_D7BdryPost_labels hD hA hhB p labY hlabY hlabYv hp labZ hlabZ
+    hDjZ hXY hXZ (fun z => (hlabZ' z) ▸ A.H.halo_subset_omegaPost hk (cz z) (hcz z)) hfac hκ' hκ''
+    hp' hκ hz hcr β hβ hτ hh X
 
 end Instance
 
