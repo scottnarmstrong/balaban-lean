@@ -2074,6 +2074,11 @@ public import Balaban.LargeField.R.KeptOutcomeWindow
 public import Balaban.LargeField.R.KeptOutcomeGain23
 public import Balaban.LargeField.R.KeptOutcomeGainRipe
 public import Balaban.LargeField.R.KeptOutcomeGainIntegral
+public import Balaban.LargeField.R.KeptOutcomeOneHalfGauss
+public import Balaban.LargeField.R.KeptOutcomeOneGain
+public import Balaban.LargeField.R.KeptOutcomeOneNode
+public import Balaban.LargeField.R.KeptOutcomeThreeSupport
+public import Balaban.LargeField.R.KeptOutcomeThreeLocal
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
@@ -2332,6 +2337,10 @@ public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
 public import Balaban.Correlations.C1StarFromStepLimits
+public import Balaban.LargeField.R.WindowConvFlow
+public import Balaban.LargeField.R.WindowConvCoeff
+public import Balaban.LargeField.R.WindowConvSource
+public import Balaban.LargeField.R.WindowConvUniform
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.IrrelTorusDefectJet
 public import Balaban.SmallField.IrrelTorusDefectTail
