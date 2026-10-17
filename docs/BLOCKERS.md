@@ -355,8 +355,11 @@ floor on the torus size. This is part of item 24.
 Progress (October 17, `notes/phase1/TORUSLAST2.md` §6): at those scales only the aligned L-block cover of a
 polymer and its hull read L cells; every other ingredient needs a fixed number of cells. A nonzero term lives on
 a union of such blocks, so its support already contains an L-block, and the transport between two tori holds for
-supports of radius below ℓ/20 without any floor (proved). The rest of the quarter box is to be handled by
-translation covariance (being proved) and the decay of wide terms; the question is in item 24, second addendum.
+supports of radius below ℓ/20 without any floor (proved). The terms are covariant under translations by whole
+cells (from the lattice symmetries already proved), so a support of diameter D anywhere in the quarter box can be
+recentred, and the transport holds when 25D + 25 < min(ℓ, ℓ′) (proved, given the correspondence of
+coefficients near the origin, which is being supplied). Wide supports are to be bounded by the decay of the
+terms; the question is in item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
 

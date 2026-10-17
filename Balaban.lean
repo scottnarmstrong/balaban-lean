@@ -68,6 +68,9 @@ public import Balaban.Polymer.TwoTorusLift
 public import Balaban.Polymer.TwoTorusEv
 public import Balaban.Polymer.TwoTorusCoef
 public import Balaban.Polymer.TwoTorusGapScales
+public import Balaban.Polymer.TwoTorusTranslate
+public import Balaban.Polymer.TwoTorusRecentre
+public import Balaban.Polymer.TwoTorusWideBand
 public import Balaban.Polymer.TwoTorusE1Coef
 public import Balaban.Polymer.TwoTorusDirectTerms
 public import Balaban.Polymer.TwoTorusDirectTermsTower
