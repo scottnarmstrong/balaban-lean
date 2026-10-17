@@ -1691,6 +1691,7 @@ public import Balaban.Fluctuation.RenormC2Local
 public import Balaban.LargeField.R.D7ReserveArithmetic
 public import Balaban.LargeField.Regime.A0PrimeWeight
 public import Balaban.LargeField.Regime.A0PrimeReserve
+public import Balaban.LargeField.Regime.A0PrimeCollarOk
 public import Balaban.LargeField.Regime.A0PrimeSupport
 public import Balaban.Fluctuation.MarkedEvJoint
 public import Balaban.Fluctuation.MarkedVRawY
@@ -2017,6 +2018,7 @@ public import Balaban.LargeField.R.RGasCoreBlockCore
 public import Balaban.LargeField.R.RGasCoreBlockGeom
 public import Balaban.LargeField.R.RGasCoreHaloDj
 public import Balaban.LargeField.R.RGasCorePay
+public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RGasCoreConn
 public import Balaban.LargeField.R.RRadiusMax
 public import Balaban.LargeField.R.RGasCoreTau
