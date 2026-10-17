@@ -8,6 +8,7 @@ module
 public import Balaban.Polymer.TwoTorusObsSourceSite
 public import Balaban.Polymer.TwoTorusGapStepObsEv
 public import Balaban.Polymer.TwoTorusGapStepObsAct
+public import Balaban.Polymer.TwoTorusGapStepObsBlocks
 
 /-!
 # The source part of the activities of the observable under the recentring map
@@ -181,6 +182,124 @@ theorem dirTerm_siteEv_recentred
       hN hN' z hz xs xs' iy hxs hX₁R hYR hn20 hn20' hD hD' hraw (hb x₀ w hx₀ hw) (hb x₀' w' hx₀' hw')
       (fun x hx i => ?_) hrad
     simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, hhx x hx i, hhw x hx i]
+
+omit [NeZero N₁] [NeZero N₁'] in
+theorem srcRec_inv {R : ℕ} {m₀ : ℕ}
+    (hnF' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) :
+    ∀ y ∈ Y, bm' (bm (y + tA) - tB + tB) - tA = y := fun y hy => by
+  have hc1 : 1 ≤ 5 * (L * cellSide L m₀ m₁ (k + 1)) :=
+    Nat.succ_le_of_lt (Nat.mul_pos (by norm_num)
+      (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ (k + 1))))
+  have hsB : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  rw [sub_add_cancel, boxMap_boxMap hsB (hYR y hy)]; abel
+
+theorem srcRec_fwd     {m₀ R : ℕ} (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnF : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    (s : CTorus d L N₁ m₁ (k + 1) × Fin N)
+    (hs : Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ s.1) m₀ k (LocalCover.fam m₀ s.1)) :
+    (fun x => bm (x + tA) - tB) '' Y ∈ polyDom (GB) (LocalCover.nbhdF m₀ (bm (s.1 + tA) - tB))
+        m₀ k (LocalCover.fam m₀ (bm (s.1 + tA) - tB)) := by
+  have hX : ∀ x ∈ LocalCover.nbhd m₀ s.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) :=
+    fun x hx => hYR x (nbhd_subset_of_mem_polyDom hN s.1 hs hx)
+  exact (mem_polyDom_site_recentred_iff hGA hGB hN hN' tA tB htA htB hnF hnF' s.1 _
+    (sub_add_cancel _ _) hX hYR).2 hs
+
+theorem srcRec_back     {m₀ R : ℕ} (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnF : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    (s' : CTorus d L N₁' m₁ (k + 1))
+    (hs' : (fun x => bm (x + tA) - tB) '' Y ∈
+        polyDom (GB) (LocalCover.nbhdF m₀ s') m₀ k (LocalCover.fam m₀ s')) :
+    Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ (bm' (s' + tB) - tA)) m₀ k
+        (LocalCover.fam m₀ (bm' (s' + tB) - tA)) ∧
+      bm (bm' (s' + tB) - tA + tA) - tB = s' := by
+  have hc1 : 1 ≤ 5 * (L * cellSide L m₀ m₁ (k + 1)) :=
+    Nat.succ_le_of_lt (Nat.mul_pos (by norm_num)
+      (Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ (k + 1))))
+  have hsB : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hY'R : ∀ y' ∈ (fun x => bm (x + tA) - tB) '' Y,
+      InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) (y' + tB) := by
+    rintro _ ⟨y, hy, rfl⟩
+    rw [sub_add_cancel]
+    exact inBox_boxMap hsB (hYR y hy)
+  have hψφ := srcRec_inv hnF' tA tB hYR
+  have hYY : (fun x' => bm' (x' + tB) - tA) '' ((fun x => bm (x + tA) - tB) '' Y) = Y := by
+    rw [Set.image_image]
+    conv_rhs => rw [← Set.image_id Y]
+    exact Set.image_congr (fun y hy => hψφ y hy)
+  have hX : ∀ x ∈ LocalCover.nbhd m₀ s', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) (x + tB) :=
+    fun x hx => hY'R x (nbhd_subset_of_mem_polyDom hN' s' hs' hx)
+  refine ⟨?_, ?_⟩
+  · have h := (mem_polyDom_site_recentred_iff hGB hGA hN' hN tB tA htB htA hnF' hnF s'
+      (bm' (s' + tB) - tA) (sub_add_cancel _ _) hX hY'R).2 hs'
+    rwa [hYY] at h
+  · obtain ⟨y, hy, he⟩ := mem_of_mem_polyDom_site hN' s' hs'
+    have key : bm' (s' + tB) = y + tA := by
+      rw [← he]
+      show bm' (bm (y + tA) - tB + tB) = _
+      rw [sub_add_cancel, boxMap_boxMap hsB (hYR y hy)]
+    rw [key, sub_add_cancel]
+    exact he
+
+/-- **The sums over the source sites under the recentring map.**  For a set `Y` with `Y + tA` in the box
+of radius `R` and summands `a`, `b` of the sites of the two tori with `b (φ x, i) = a (x, i)` whenever
+`Y` is a domain of the expansion with the local cover of `x`, `φ x = bm (x + tA) - tB`, the sums over
+the sites whose local cover has `φ '' Y` (resp. `Y`) as a domain agree. -/
+theorem sourceSum_recentred     {m₀ R : ℕ} (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnF : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * cellSide L m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    (a : CTorus d L N₁ m₁ (k + 1) × Fin N → ℂ)
+    (b : CTorus d L N₁' m₁ (k + 1) × Fin N → ℂ)
+    (hab : ∀ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+      Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ s.1) m₀ k (LocalCover.fam m₀ s.1) →
+        b (bm (s.1 + tA) - tB, s.2) = a s) :
+    (∑ s' : CTorus d L N₁' m₁ (k + 1) × Fin N,
+      if (fun x => bm (x + tA) - tB) '' Y ∈
+          polyDom (GB) (LocalCover.nbhdF m₀ s'.1) m₀ k (LocalCover.fam m₀ s'.1)
+        then b s' else 0) =
+    ∑ s : CTorus d L N₁ m₁ (k + 1) × Fin N,
+      if Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ s.1) m₀ k (LocalCover.fam m₀ s.1)
+        then a s else 0 := by
+  have hψφ := srcRec_inv hnF' tA tB hYR
+  refine sum_ite_bij
+    (fun s : CTorus d L N₁ m₁ (k + 1) × Fin N =>
+      Y ∈ polyDom (GA) (LocalCover.nbhdF m₀ s.1) m₀ k (LocalCover.fam m₀ s.1))
+    (fun s' : CTorus d L N₁' m₁ (k + 1) × Fin N =>
+      (fun x => bm (x + tA) - tB) '' Y ∈
+        polyDom (GB) (LocalCover.nbhdF m₀ s'.1) m₀ k (LocalCover.fam m₀ s'.1)) a b
+    (fun s => (bm (s.1 + tA) - tB, s.2)) ?_ ?_ ?_
+  · intro s hs
+    exact ⟨srcRec_fwd hGA hGB hN hN' tA tB htA htB hnF hnF' hYR s hs, hab s hs⟩
+  · intro s₁ s₂ h₁ h₂ h
+    have e1 := hψφ _ (mem_of_mem_polyDom_site hN s₁.1 h₁)
+    have e2 := hψφ _ (mem_of_mem_polyDom_site hN s₂.1 h₂)
+    have e := congrArg (fun q => bm' (q.1 + tB) - tA) h
+    exact Prod.ext (by rw [← e1, ← e2]; exact e) (by simpa using congrArg Prod.snd h)
+  · intro s' hs'
+    obtain ⟨h1, h2⟩ := srcRec_back hGA hGB hN hN' tA tB htA htB hnF hnF' hYR s'.1 hs'
+    exact ⟨(bm' (s'.1 + tB) - tA, s'.2), h1, Prod.ext h2 rfl⟩
 
 end SrcRec
 
