@@ -121,4 +121,143 @@ theorem evTerm_translate_aligned {R : ℝ} (hR : 1 < R)
 
 end Cov
 
+
+/-- A function of the parameters analytic on a polydisc stays analytic after relabelling the
+parameters by a bijection. -/
+theorem analyticOnNhd_comp_relabel {ι ι' : Type*} [Fintype ι] [Fintype ι'] (κ : ι ≃ ι') {R : ℝ}
+    {f : (ι → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f (polydisc (0 : ι → ℂ) (fun _ => R))) :
+    AnalyticOnNhd ℂ (fun s : ι' → ℂ => f (s ∘ κ)) (polydisc (0 : ι' → ℂ) (fun _ => R)) := by
+  let ℓ : (ι' → ℂ) →L[ℂ] (ι → ℂ) := LinearMap.toContinuousLinearMap (LinearMap.funLeft ℂ ℂ κ)
+  have hℓ : ∀ s, ℓ s = s ∘ κ := fun s => rfl
+  have h := hf.comp (fun s _ => (ℓ.analyticAt s)) (s := polydisc (0 : ι' → ℂ) (fun _ => R))
+    (fun s hs i => by simpa [hℓ] using hs (κ i))
+  simpa [Function.comp_def, hℓ] using h
+
+section Cast
+
+variable {d : ℕ}
+
+/-- A multiple `z` of a divisor `a` of `n` has a representative in `ZMod n` divisible by `a`. -/
+theorem dvd_val_intCast {n a : ℕ} [NeZero n] (han : a ∣ n) {z : ℤ} (hz : (a : ℤ) ∣ z) :
+    a ∣ ((z : ZMod n)).val := by
+  have h1 : (((z : ZMod n)).val : ℤ) = z % (n : ℤ) := ZMod.val_intCast z
+  have h2 : (a : ℤ) ∣ (((z : ZMod n)).val : ℤ) := by
+    rw [h1, Int.emod_def]
+    exact dvd_sub hz (dvd_mul_of_dvd_left (Int.natCast_dvd_natCast.2 han) _)
+  exact Int.natCast_dvd_natCast.1 h2
+
+/-- **The transport map commutes with the translation by an integer vector near the origin.**
+If `c` and `c + z` lie in the centred box of radius `r` of the torus of side `m` (that is, the
+centred representatives of `c + z` are the sums `c_μ + z_μ`) and `2 r + 1 < m`, then
+`boxMap (c + z) = boxMap c + z`, the same integer vector `z` being added on the two tori.
+Only the torus of side `m` is constrained by `2 r + 1 < m`. -/
+theorem boxMap_add_intCast {m m' r : ℕ} [NeZero m] (hm : 2 * r + 1 < m) (c : Torus d m)
+    (z : Fin d → ℤ) (hc : ∀ μ, |(c μ).valMinAbs + z μ| ≤ r) :
+    boxMap m m' (c + fun μ => ((z μ : ℤ) : ZMod m)) =
+      boxMap m m' c + fun μ => ((z μ : ℤ) : ZMod m') := by
+  funext μ
+  have h1 : (c + fun μ => ((z μ : ℤ) : ZMod m)) μ = (((c μ).valMinAbs + z μ : ℤ) : ZMod m) := by
+    simp
+  show ((((c + fun μ => ((z μ : ℤ) : ZMod m)) μ).valMinAbs : ℤ) : ZMod m') = _
+  rw [h1]
+  rw [valMinAbs_intCast_of_abs_le hm (hc μ)]
+  simp [boxMap]
+
+end Cast
+
+
+section Recentre
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {ϱ : ℝ}
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "GA" => levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+set_option hygiene false in
+local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
+  (k + 1) le_rfl
+
+/-- **Recentring the transport of one step term** (item 24, part 2, general form).  Let `tA`, `tB`
+be translations of the two step tori by multiples of the cell side `a_{k+1}`, and let the cover
+`X₁` and the domain `Y` of the term lie, after the translation `x ↦ x + tA`, in the centred box of
+radius `R` with `20 R + 20` below both torus sides; `X₁` contains a box of side `L a_{k+1}`.
+The transport map recentred at `tA`, `tB` is `φ x = bm (x + tA) - tB` (equal to `bm x` where the
+translations do not wrap, `boxMap_add_intCast`).  If the recentred functions
+`F̃ = F ∘ κA` and `F̃' = F' ∘ κB` (the functions of the translated parameters) have corresponding
+coefficients (`hcoef`, the hypothesis of `evTerm_boxMap_of_width` at the translated sets), then the
+term of `φ '' Y` on the second torus equals the term of `Y` on the first. -/
+theorem evTerm_boxMap_recentred {U U' : Type*} {m₀ : ℕ} {R : ℕ} {ρ : ℝ} (hρ : 1 < ρ)
+    (hd : 0 < d) (hL : 2 ≤ L)
+    (hm₀ : 1 ≤ m₀) (hm₁ : 1 ≤ m₁) (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hn : 20 * R + 20 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 20 * R + 20 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hbox : ∃ b, box b (L * cellSide L m₀ m₁ (k + 1)) ⊆ X₁)
+    (hX : ∀ x ∈ X₁, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA))
+    {S' : Set (CTorus d L N₁' m₁ (k + 1))}
+    (hS' : S' = (fun x => bm (x + tA) - tB) '' X₁)
+    {F : U → (ParIdx (GA) X₁ → ℂ) → ℂ} {F' : U' → (ParIdx (GB) S' → ℂ) → ℂ} {u : U} {u' : U'}
+    (hF : AnalyticOnNhd ℂ (F u) (polydisc (0 : ParIdx (GA) X₁ → ℂ) (fun _ => ρ)))
+    (hF' : AnalyticOnNhd ℂ (F' u') (polydisc (0 : ParIdx (GB) S' → ℂ) (fun _ => ρ)))
+    {FA : U → (ParIdx (GA) ((Equiv.addRight tA) '' X₁) → ℂ) → ℂ}
+    {FB : U' → (ParIdx (GB) ((Equiv.addRight tB) '' S') → ℂ) → ℂ}
+    (hFA : FA = fun u s => F u (s ∘ parEquiv
+      (DecEquiv.CoverSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) tA
+        (fun μ => (pow_dvd_pow L (by omega)).trans (htA μ)))
+      (DecEquiv.PolymerSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) hN tA htA) rfl))
+    (hFB : FB = fun u s => F' u (s ∘ parEquiv
+      (DecEquiv.CoverSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) tB
+        (fun μ => (pow_dvd_pow L (by omega)).trans (htB μ)))
+      (DecEquiv.PolymerSymm.ofTranslate (isLevel_levelGS (by omega) le_rfl) hN' tB htB) rfl))
+    (hcoef : ∀ C ∈ connFams (fun i : ParIdx (GA) ((Equiv.addRight tA) '' X₁) => i.1.1) (GA) m₀
+        ((Equiv.addRight tA) '' X₁) ((Equiv.addRight tA) '' Y),
+      ∀ C' : Finset (ParIdx (GB) ((Equiv.addRight tB) '' S')),
+        (∀ i ∈ C, ∃ i' ∈ C', i'.1.1 = Prod.map id bm i.1.1) →
+        (∀ i' ∈ C', ∃ i ∈ C, i'.1.1 = Prod.map id bm i.1.1) →
+        coef (FB u') C' = coef (FA u) C) :
+    evTerm (fun i : ParIdx (GB) S' => i.1.1) (GB) m₀ S' F'
+        ((fun x => bm (x + tA) - tB) '' Y) u' =
+      evTerm (fun i : ParIdx (GA) X₁ => i.1.1) (GA) m₀ X₁ F Y u := by
+  have hGA : IsLevel (GA) (k + 1) := isLevel_levelGS (by omega) le_rfl
+  have hGB : IsLevel (GB) (k + 1) := isLevel_levelGS (by omega) le_rfl
+  have hSA := DecEquiv.LatSymm.ofTranslateLevel hGA tA (fun μ => (pow_dvd_pow L (by omega)).trans (htA μ))
+  have hSB := DecEquiv.LatSymm.ofTranslateLevel hGB tB (fun μ => (pow_dvd_pow L (by omega)).trans (htB μ))
+  -- the two translations
+  have hA := evTerm_translate_aligned (R := ρ) hρ hGA hN tA htA hSA (X₁' := (Equiv.addRight tA) '' X₁) X₁ Y rfl
+    (F := F) (F' := FA) (u := u) (u' := u) hF (by rw [hFA]; exact analyticOnNhd_comp_relabel _ hF)
+    (by intro s _; rw [hFA])
+  have hB := evTerm_translate_aligned (R := ρ) hρ hGB hN' tB htB hSB (X₁' := (Equiv.addRight tB) '' S') S'
+    ((fun x => bm (x + tA) - tB) '' Y) rfl
+    (F := F') (F' := FB) (u := u') (u' := u') hF' (by rw [hFB]; exact analyticOnNhd_comp_relabel _ hF')
+    (by intro s _; rw [hFB])
+  have hSt : (Equiv.addRight tB) '' S' = bm '' ((Equiv.addRight tA) '' X₁) := by
+    rw [hS', Set.image_image, Set.image_image]
+    exact Set.image_congr (fun x _ => by simp)
+  have hYt : (Equiv.addRight tB) '' ((fun x => bm (x + tA) - tB) '' Y) =
+      bm '' ((Equiv.addRight tA) '' Y) := by
+    rw [Set.image_image, Set.image_image]
+    exact Set.image_congr (fun x _ => by simp)
+  have hbox' : ∃ b, box b (L * cellSide L m₀ m₁ (k + 1)) ⊆ (Equiv.addRight tA) '' X₁ := by
+    obtain ⟨b, hb⟩ := hbox
+    refine ⟨b + tA, fun x hx => ?_⟩
+    refine ⟨x - tA, hb ?_, by simp⟩
+    exact (DecEquiv.mem_box_add_iff b tA (x - tA) _).1 (by simpa using hx)
+  have hmain := evTerm_boxMap_of_width (U := U) (U' := U') (m₀ := m₀) (R := R) (L := L) (N₁ := N₁)
+    (N₁' := N₁') (m₁ := m₁) (k := k) (ϱ := ϱ) hd hL hm₀ hm₁ hN hN' hn hn' hbox'
+    (X₁ := (Equiv.addRight tA) '' X₁)
+    (fun x hx => by obtain ⟨y, hy, rfl⟩ := hx; exact hX y hy)
+    (Y := (Equiv.addRight tA) '' Y) (fun x hx => by obtain ⟨y, hy, rfl⟩ := hx; exact hY y hy)
+    (S' := (Equiv.addRight tB) '' S') hSt (F := FA) (F' := FB) (u := u) (u' := u') hcoef
+  rw [← hB, hYt]
+  exact hmain.trans hA
+
+end Recentre
+
 end Balaban.Polymer.TwoTorusStep
