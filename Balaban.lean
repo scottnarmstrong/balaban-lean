@@ -2217,6 +2217,9 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyGenLabelAct
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
 public import Balaban.Fluctuation.LocalClassDensityFamilyGenCount
 public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
+public import Balaban.Fluctuation.LocalClassDensityIrrelAux
+public import Balaban.Fluctuation.LocalClassDensityIrrelCount
+public import Balaban.Fluctuation.LocalClassDensityIrrelChain
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
