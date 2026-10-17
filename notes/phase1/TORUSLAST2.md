@@ -168,3 +168,7 @@ W943: hmem (`mem_polyDom_site_recentred_iff`), hEvT (`siteEv_recentred`), hA (`v
 
 W951: `resum_gapScale_torus_step` (TwoTorusGapTowerStep.lean): T = Te+Td+To+Tinh (hsplit), the T-hypotheses derived from the new and inherited terms, hinh from the quarter-box equality hIH of Tinh (`hinh_of_quarterBox`, a = 0); `gapScale_chain` (TwoTorusGapTowerChain.lean) chains the scales, the resummed terms of a scale satisfying the next step's inherited hypotheses (`gapScale_bound_lower_rate`); `hKL_of_large`.
 Not done: no landed object defines the tower's T, so hTnew/hTd/hTo stay the specs; `hslack` of `hdt_of_detSum` needs K-26 mod 25 >= 9 (or a smaller wide threshold), and hrawO/hmemV/hAeq0/hAeqθ/hEv/hC come from tower exports per scale (not instantiated).
+
+W953: `hAeqθ` (`labelActSource_recentred`); threshold `(K-36)/25` makes `hslack` a consequence (`compact36_slack`, `hdt_of_detSum_thr36`) with wide supports `K ≤ 25|X|+10`, `61 ≤ K` (`resum_gapScale_torus_wide36`, core `resum_gapScale_torus_of_wideMargin`; rates unchanged, 25 only enters `margin_le_of_wide`); `_thr36` clones `threeTerms`, `energyDet`, `full`, `step` (`TwoTorusGapDataThr*.lean`).
+Tower producers: `hC` = `flCore_gapLevels`, `hraw`/`hrawO` = `rawBoxAgree_unitBg_recentred`, `hEv` is definitional; `hmemV` for the site cover of `xs` = `polyDom_recentred_of_vec`.
+Not done: `hmemV` for the exported `𝒴` (union of `polyDom` over all blocks and all sites): converse direction needs `nbhd s ⊆ box` from `nbhd (φ s) ⊆ φ '' Z`.

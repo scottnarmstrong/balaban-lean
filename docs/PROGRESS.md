@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 79% of the Lean by volume, and about 51% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 735,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 750,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit f79284f2 2026-10-17.
+Computed at commit ec576207 2026-10-17.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 203 | 76,238 | 2,878 |
+| Lattice, analysis, Gaussian and polymer tools | 226 | 82,360 | 2,935 |
 | Green's functions and random walks | 124 | 43,115 | 1,888 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
-| Localization expansions (P3, P6) | 243 | 77,309 | 3,610 |
+| Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
 | Small-field class (P1, P4, P5) | 137 | 42,492 | 2,153 |
-| Fluctuation step and renormalization (P4-P6) | 524 | 179,900 | 5,648 |
+| Fluctuation step and renormalization (P4-P6) | 537 | 186,076 | 5,704 |
 | Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 618 | 162,304 | 8,108 |
+| Large-field regions (P5-P7, E9-E10) | 646 | 166,517 | 8,205 |
 | Observables and correlations (P8, P9) | 70 | 16,760 | 663 |
-| **Total** | **2338** | **734,919** | **29,852** |
+| **Total** | **2402** | **751,456** | **30,064** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -93,3 +93,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-17 | ~78% | ~49% | Blocker 4: the halo labels lie in the domain class and the gas bound needs only the small factor of removed components (P7 (3.10)); the plan for (3.10) is in place, with the removed kernel tied to the R operation, its exponent bound, the residual loss, the window volumes and the locality of the step's objects proved. Blocker 6: rotation clauses real, complex rotations by Cayley paths; successor class with centre-labelled terms; old terms keep their birth domain, with the mass response of the domain proved. Blocker 2: constant check against P5 (1.30) done. Blocker 7: rate condition settled for large blocks. |
 | 2026-10-17 (evening) | ~79% | ~51% | Blocker 4: the removed outcome of R built with P7's restricted reference density (generic R decomposition, factorization over components), the decay estimate (2.4) and the oscillation bound at every scale, the window integral assembled (geometry, ancestors, regrouping, Gaussian chain in progress). Blocker 5: the large-field part of the last integral by P7 §4 (tail blocks as polymers), the cut family on the class radius, N components, the domain inclusion, and volume-uniform coefficient bounds. Blocker 6: old terms keep their birth domain (mass response, unit witness, constants), the new level's clauses on the actual chart, the new density for complex external fields and its expansion value for a general class (conditional on the old terms' marks). Blocker 7: no floor needed below ℓ/20; translation covariance and recentring. |
 | 2026-10-17 (night) | ~80% | ~52% | Blocker 4: the window integral of the removed outcome composed from the regrouping of its variables (Gaussian and shell variables exposed), with the quiet steps' action kept, each step's action identified with the window's action, and the exact Gaussian integral over the window's intermediate variables; the match with P7 (2.58′) is in progress. Blocker 6: the marks of the old terms built label by label, so the new density's value for a class with inherited labels needs only their activities. Blocker 7: the determinant and observable terms transported between two tori (translation and recentring), and the determinant step terms equal on two tori for compact supports. |
+| 2026-10-17 (late night) | ~81% | ~53% | Blocker 4: the window integral's composition designed from P7 (the intermediate Gaussian variables integrated exactly, the steps' actions summed into the window action up to a bounded constant (2.15′), then the cancellation identity of (2.58′)); the window setup indexed by the pieces of the steps, each piece's chain from its local data, the pieces' regions on the window generating set; the gas bound from the window bound of each history, with ripeness from the counter; the kept outcomes planned and partly bounded. Blocker 6: the general class needs the irrelevant-part representation of the inherited terms (P1 Prop. 3.10); the activity theorems made generic in the label functional, with an amplitude bound and a count uniform in the scale. Blocker 7: the clause at the gap scales for every support in the quarter box given the inherited terms' closeness, the induction over scales, and the threshold that gives the determinant slack. |
