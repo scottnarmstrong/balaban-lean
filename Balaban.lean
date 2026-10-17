@@ -2344,6 +2344,10 @@ public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
 public import Balaban.Correlations.C1StarFromStepLimits
+public import Balaban.LargeField.R.WindowConvFlow
+public import Balaban.LargeField.R.WindowConvCoeff
+public import Balaban.LargeField.R.WindowConvSource
+public import Balaban.LargeField.R.WindowConvUniform
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.IrrelTorusDefectJet
 public import Balaban.SmallField.IrrelTorusDefectTail
