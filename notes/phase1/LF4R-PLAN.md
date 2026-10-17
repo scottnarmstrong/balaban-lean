@@ -60,3 +60,28 @@ times e^{E_k|Z|} (absorbed in K for rem, as in III.8.7), against the factor F of
 5. `R/RRemovedKernel.lean`: Definition III.8.5: `Trem` as an `LFKernel` from the pre-kernel, `outcomeKernel` (rem weight), translation psi'' = psi~ - psi^0, division by the denominator; the pointwise exponent bound (2.58') with `Denominator`. Inputs: `GaussChange`, `DomainIdentity`, `RhoZeroPhysical`. Likely 2 files.
 6. `R/RRemovedWindow.lean`: (III.8.5) at gamma = 0 for `Trem`: steps (1)-(4): Fubini order, ball/tree volumes on Z^c_0 cap Z and Z_0 (leaf 4), (D5) for the core (`locOp_pkgBound_kappa`), the exponent sum with `c_1 >= C_W`; concl `KerBound a k Trem (kappa^pre - C_R lam^{2d+1})`.
 7. `R/RRemovedFinal.lean`: `lf4R_removed`: (3.10') for all ripe components, feeding `RGasCoreFinal` (replaces `hrem`).
+
+## 4. Design check for leaf 5: the removed kernel (W879, 2026-10-17)
+Source: P7 (3.6)-(3.10), pp. 518-520; LFR Def. III.8.5 (3.7'), Lemma III.8.7 (removed: `K^(3.7) chi_{Z''} e^{E_k|Z|}`, no `rho_{k,0}`), Thm III.8.9 (c).
+**4.1 The operations.** P7 obtains (3.7) from `rho(A,sigma)` by: the composition (2.8)/(III.1.4) (integrate `J` and `psi_k` on `Z_0` in the composed Gaussian), Lemma III.7.1 (drop the window characteristic functions outside `U`), the translation `psi'' = psi~ - psi^0_{k1,k}`, (2.58'), division by (3.5). All but the division are identities of integrands or measure-preserving changes of variables, so the operator of (3.7) is
+`K^(3.7)(psi_k, x) = chi_{Z_0} * [int dpsi_k|Z_0  K^pre chi~_k chi_S chi^0 chi''] / [int dpsi_k|Z_0  rho_{k,0}(Z)]`   (*)
+on the variables of `T^pre`, and (3.7') is a theorem about (*) (Lemma III.8.7 (1)-(2); leaf 6). The removed outcome is (*) times `chi_{Z''}`, applied AFTER `R`.
+| factor of (3.7) / (3.10) | Lean |
+|---|---|
+| `K^pre`, `b^pre`, variables `I(Z,a)` | LANDED `preOp ... (fun Y _ => locOp ...)` (`OpPkg`: `A`, `T`, `dom`, `vanish`) |
+| `chi~_k`, `chi_S`, `chi^0`, `chi''`; `chi_{Z''}` | LANDED `chiTilde`, `chiS`, `chiZero`, `chiDD`; `chiZDD` (sets as arguments, `SmallFactorChi`); `delta psi` for `chiDD` only at generating-set level (`deltaPsi`) |
+| weights | LANDED `ROutcome.weight _ _ _ _ toR = t s z w`, `Outcome.weight _ _ _ _ _ rem = t s z w u` |
+| integral over `psi_k` on `Z_0`; denominator (3.5) | NEW `remZeroSplit` (measure-preserving `OutT = OutZ0 x OutRest`), `remDen` |
+| `rho_{k,0}(Z)`, `chi_{Z_0}`, `psi^0_k`, `E~_0` | LANDED only at the `BlockField` level and only on the tube (`rhoZero`, `rhoZeroPhysical`, `chiZeroCut`, `psiZero`, `tildeE0`); action region differs (4.3.2) |
+| `e^{E_k|Z|_k}` | the real number `EZ` (`E_k` real: `IsSFFamily ... Ek`) |
+| translation `psi''`, composition (III.1.4), (2.58') | not part of the definition: changes of variables / identities used in leaf 6 (`cancellation_identity` landed) |
+**4.2 Decisions.** (a) Carrier: `LFKernel (OutT N R a k) (SubCfg N a k P.A) (R^N) (GIdx S n M K N)`, `P` the pre-operator package: outputs `psi_k` on `V_Z` (with `Z_0`), internal variables those of `T^pre` (`J` included; III.8.8 also writes K2 in the original variables). This is the type of `KerBound a k`, so `removed_kerBound_of_window` applies to it.
+(b) `removedKernel`: `K = e^{EZ} u(o) c0(o) [int_{Z_0} K^pre ROutcome.weight(t,s,z,w,toR)] / remDen r`, `b = b^pre`; `u = chi_{Z''}`, `c0 = chi_{Z_0}`, `r` the reference density, `EZ = E_k|Z|_k` (III.8.7's `K^{(rem)}`; `EZ = 0`: P7's `T'' chi_{Z''}`). Inputs other than `P` are arguments (convention of `SmallFactorChi`); no fallback branch (division by `0` is `Rop`'s own convention).
+(c) R decomposition: `remDecomp r : RDecomp (outMeasure ...)`, one component (`iota = Unit`), `W = psi_k|Z_0`, `Y = psi_k|(V_Z \ Z_0)`.
+(d) Characterization: `chi_{Z''}(o) Rop (remDecomp r) rho o = r(o) e^{-EZ} int K^rem f` for `rho = int K^pre w_toR f`, `f` not reading `psi_k|Z_0` (the removed part of `R` applied to the pre-operator), and `K^rem = outcomeKernel K^nor t s z w u rem` with `K^nor` the `R`-normalized pre-kernel.
+**4.3 Disagreements and flags.**
+1. `chi_{Z''}` reads `psi_k` on `Z_0` (`Z_0 in Z''_0`, `Zzero_cube_mem`), which `R` integrates. `outcomeKernel K^pre t s z w u rem` (Outcome.lean: "into the kernel `K^pre`"; §1 row 1) is NOT the removed outcome; it is `outcomeKernel` of the `R`-normalized kernel (`removedK_eq_outcomeKernel`). §1 row 1 holds for K1 only.
+2. Reference density: landed `rhoZero`/`rhoZeroPhysical` use `effAction` = the action on all of `Omega_1(G')`, `G' = B_k(U_k)`; P7 (1.5), Def. III.8.1: `A*_k(Z; psi_k, phi_k(B_k(U_k); psi~_k))` restricted to `Z` (Q13-SHARED item 5: OPEN). With the landed density the quotient (2.58')/(3.5) keeps `e^{beta (A(Omega_1(G')) - A*_k(Z))(psi^0, phi^0)}`. Hence `r` is an argument; a faithful instance needs the restricted-support density and Lemma III.8.2 for it.
+3. The landed `R` (`famDecomp`, `famDecompPhysical`, `R_normalization*`) lives on the global `BlockField` restricted to `famTubeSet` (`famRho = 0` off the tube); the operators live on `OutT` of a localized history. Not landed: the transport `OutT <-> BlockField`, the factorization of `R` over the components of `Z_sigma`. Here: the one-component `R` on `OutT`.
+4. Lemma III.1.5 / III.8.4 (i) for the localized pre-operator (`b^pre`, `chi~_k, chi_S, chi^0, chi''`, `chi^dom` do not read `psi_k|Z_0`) is not landed (only `quietRest_congr`, one quiet step); premises of the identity theorems.
+5. `chi''` needs `delta psi` as a `MultiField` of the history; the bridge from `deltaPsi` is not landed.
