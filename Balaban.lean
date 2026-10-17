@@ -2173,6 +2173,7 @@ public import Balaban.LargeField.R.RRemovedHidLeafWindow
 public import Balaban.LargeField.R.RRemovedHidDataZ
 public import Balaban.LargeField.R.RRemovedHidDataBg
 public import Balaban.LargeField.R.RRemovedHidDataInst
+public import Balaban.LargeField.R.WindowNodeCongr
 public import Balaban.LargeField.R.RRemovedHidQuotAct
 public import Balaban.LargeField.R.RRemovedHidQuotStep
 public import Balaban.LargeField.R.RRemovedChainIntegral
