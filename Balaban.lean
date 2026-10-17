@@ -2153,6 +2153,7 @@ public import Balaban.Fluctuation.LocalClassDensityValM
 public import Balaban.Fluctuation.LocalClassDensityMarks
 public import Balaban.Fluctuation.LocalClassDensityMarksH
 public import Balaban.Fluctuation.LocalClassDensityMarksLabel
+public import Balaban.Fluctuation.LocalClassDensityFamily
 public import Balaban.Green.FinalLevelCount
 public import Balaban.Green.FinalLevelCountBound
 public import Balaban.Green.FinalConstsClose
