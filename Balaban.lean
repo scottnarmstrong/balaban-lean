@@ -2454,3 +2454,9 @@ public import Balaban.LargeField.R.WindowConvPhysMass
 public import Balaban.LargeField.Base.BaseFirstLocalCode
 public import Balaban.LargeField.Base.BaseFirstReserve
 public import Balaban.LargeField.Base.BaseFirstPhysicalP
+public import Balaban.SmallField.IrrelTorusXidomCanonical
+public import Balaban.SmallField.IrrelTorusXidomCanonicalData
+public import Balaban.SmallField.IrrelTorusXidomStep
+public import Balaban.SmallField.IrrelTorusXidomPullbackData
+public import Balaban.SmallField.IrrelTorusXidomClassSplit
+public import Balaban.SmallField.IrrelTorusXidomClassRate
