@@ -2348,6 +2348,12 @@ public import Balaban.LargeField.R.WindowConvUniform
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.IrrelTorusDefectJet
 public import Balaban.SmallField.IrrelTorusDefectTail
+public import Balaban.SmallField.IrrelTorusDefectExpand
+public import Balaban.SmallField.IrrelTorusDefectInverse
+public import Balaban.SmallField.IrrelTorusDefectWholeJet
+public import Balaban.SmallField.IrrelTorusDefectSmallSum
+public import Balaban.SmallField.IrrelTorusDefectMatrix
+public import Balaban.SmallField.IrrelTorusDefectWholeSum
 public import Balaban.LargeField.R.RRemovedFracMassArith
 public import Balaban.LargeField.R.RRemovedFracMassCore
 public import Balaban.LargeField.R.RRemovedFracMassReserve
