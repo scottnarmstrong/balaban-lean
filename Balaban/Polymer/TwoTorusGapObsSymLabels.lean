@@ -72,6 +72,80 @@ theorem obsCubeLab_translate (hN : L ^ m₀ ∣ N₁) (t : CTorus d L N₁ m₁ 
       (Equiv.addRight t) '' box c.1 (L * cellSide L m₀ m₁ K) := by
   rw [cubeMap_translate_val hN t ht, image_box_translate]
 
+/-- The cube map of a paving symmetry is injective. -/
+theorem cubeMap_injective_sym (hN : L ^ m₀ ∣ N₁) {σ : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hσ : σ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K) :
+    Function.Injective (Balaban.Fluctuation.cubeMap (m₀ := m₀) σ) := fun a b h => by
+  rw [← cubeMap_inv hN hσ a, h, cubeMap_inv hN hσ b]
+
+/-- **The kernel under a paving symmetry.**  Let the domain families `𝒴`, `𝒴'` correspond under
+`Y ↦ σ '' Y` and let the coefficients agree on corresponding domains.  Then the kernels at the image
+of a set of cubes and at the set agree. -/
+theorem obsHker_sym (hN : L ^ m₀ ∣ N₁) {σ : Equiv.Perm (CTorus d L N₁ m₁ K)}
+    (hσ : σ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := K) (d := d) L m₀ K)
+    {𝒴 𝒴' : Finset (Set (CTorus d L N₁ m₁ K))}
+    (hmem : ∀ Y, σ '' Y ∈ 𝒴' ↔ Y ∈ 𝒴)
+    {c c' : Set (CTorus d L N₁ m₁ K) → ℂ} (hc : ∀ Y ∈ 𝒴, c' (σ '' Y) = c Y)
+    (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ)) :
+    obsHker 𝒴' c' m₀ (T₁.image (Balaban.Fluctuation.cubeMap σ)) = obsHker 𝒴 c m₀ T₁ := by
+  classical
+  unfold obsHker
+  have hinj := cubeMap_injective_sym hN hσ
+  have hiff : ∀ Y, obsRowLabel m₀ K (σ '' Y) = T₁.image (Balaban.Fluctuation.cubeMap σ) ↔
+      obsRowLabel m₀ K Y = T₁ := fun Y => by
+    rw [obsRowLabel_def, obsRowLabel_def, blocksOf_image_sym hN hσ]
+    exact (Finset.image_injective hinj).eq_iff
+  symm
+  refine Finset.sum_nbij' (fun Y => σ '' Y) (fun Y' => σ.symm '' Y') (fun Y hY => ?_)
+    (fun Y' hY' => ?_) (fun Y hY => ?_) (fun Y' hY' => ?_) (fun Y hY => ?_)
+  · rw [Finset.mem_filter] at hY ⊢
+    exact ⟨(hmem Y).2 hY.1, (hiff Y).2 hY.2⟩
+  · rw [Finset.mem_filter] at hY' ⊢
+    have h1 : σ '' (σ.symm '' Y') = Y' := by
+      rw [← Set.image_comp]; simp
+    have h2 : σ.symm '' Y' ∈ 𝒴 := (hmem _).1 (by rw [h1]; exact hY'.1)
+    refine ⟨h2, (hiff _).1 (by rw [h1]; exact hY'.2)⟩
+  · rw [← Set.image_comp]; simp
+  · rw [← Set.image_comp]; simp
+  · rw [Finset.mem_filter] at hY
+    exact (hc Y hY.1).symm
+
 end Labels
+
+section StepLabels
+
+open Balaban.Inhabited Balaban.Inhabited.LevelStep
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {m₀ : ℕ}
+
+/-- **The first-order labels of the marks `(u, a)` and `(unitAct u, a)` correspond**: the blocks of the
+second are the translates of the blocks of the first. -/
+theorem blocksOf_obsY1_sym (hN : L ^ m₀ ∣ N₁) (t : CTorus d L N₁ m₁ (k + 1))
+    (ht : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (t μ).val)
+    (SS : LatSymm S.G' S.G' (Equiv.addRight t)) (hU : UnitBlockPres (Equiv.addRight t))
+    {Lb₀ Lb₀' : Type}
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb₀)
+    (Lab₀' : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ Lb₀')
+    {𝒴 𝒴' : Finset (Set (CTorus d L N₁ m₁ (k + 1)))}
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
+    (i : ObsMarkIdx S) :
+    blocksOf m₀ (k + 1) Set.univ
+        ((obsLab Lab₀' hdj').ysite (obsY1 m₀ S Lb₀' 𝒴' (unitAct S.G' SS hU i.1, i.2))) =
+      (blocksOf m₀ (k + 1) Set.univ ((obsLab Lab₀ hdj).ysite (obsY1 m₀ S Lb₀ 𝒴 i))).image
+        (Balaban.Fluctuation.cubeMap (Equiv.addRight t)) := by
+  have hσ := genSymm_mem_pavingSymGroup (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) t ht)
+  show blocksOf m₀ (k + 1) Set.univ (obsCubeLab m₀ (S.cellOf m₀ (unitAct S.G' SS hU i.1))).1 =
+    (blocksOf m₀ (k + 1) Set.univ (obsCubeLab m₀ (S.cellOf m₀ i.1)).1).image _
+  rw [cellOf_unitAct S SS hU hN hσ]
+  show blocksOf m₀ (k + 1) Set.univ
+      (box (Balaban.Fluctuation.cubeMap (Equiv.addRight t) (S.cellOf m₀ i.1)).1
+        (L * cellSide L m₀ m₁ (k + 1))) = _
+  rw [obsCubeLab_translate hN t ht, blocksOf_image_sym hN hσ]
+  rfl
+
+end StepLabels
 
 end Balaban.Polymer.TwoTorusStep
