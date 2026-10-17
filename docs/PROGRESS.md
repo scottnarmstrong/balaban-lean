@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 77% of the Lean by volume, and about 48% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 660,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 680,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit fbd2253b 2026-10-14.
+Computed at commit 223be006 2026-10-16.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 160 | 63,450 | 2,606 |
-| Green's functions and random walks | 90 | 35,672 | 1,734 |
+| Lattice, analysis, Gaussian and polymer tools | 171 | 68,243 | 2,745 |
+| Green's functions and random walks | 94 | 37,434 | 1,771 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
-| Localization expansions (P3, P6) | 238 | 75,515 | 3,512 |
+| Localization expansions (P3, P6) | 243 | 77,309 | 3,610 |
 | Small-field class (P1, P4, P5) | 130 | 39,645 | 2,021 |
-| Fluctuation step and renormalization (P4-P6) | 466 | 154,297 | 5,245 |
+| Fluctuation step and renormalization (P4-P6) | 486 | 164,760 | 5,403 |
 | Instantiated step at fixed parameters | 289 | 95,508 | 2,666 |
-| Large-field regions (P5-P7, E9-E10) | 499 | 136,992 | 7,484 |
+| Large-field regions (P5-P7, E9-E10) | 516 | 142,035 | 7,656 |
 | Observables and correlations (P8, P9) | 70 | 16,758 | 663 |
-| **Total** | **2072** | **659,130** | **28,169** |
+| **Total** | **2129** | **682,985** | **28,773** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
