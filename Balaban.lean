@@ -1796,6 +1796,8 @@ public import Balaban.Green.FinalTaggedLocal
 public import Balaban.Green.FinalLocalityAE
 public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
+public import Balaban.Green.FinalRadiusCompare
+public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalConnectedSupport
 public import Balaban.Green.FinalCfinInverse
 public import Balaban.Green.FinalLogDet
@@ -2027,6 +2029,8 @@ public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RRemovedKernel
 public import Balaban.LargeField.R.RRemovedKernelPre
+public import Balaban.LargeField.R.RRemovedLocality
+public import Balaban.LargeField.R.RRemovedLocalityPre
 public import Balaban.LargeField.R.RRemovedExponent
 public import Balaban.LargeField.R.RRemovedTau
 public import Balaban.LargeField.R.RRemovedLres
@@ -2041,3 +2045,8 @@ public import Balaban.Polymer.TwoTorusFibreWeighted
 public import Balaban.Polymer.TwoTorusResumWired
 public import Balaban.Polymer.TwoTorusResumConst
 public import Balaban.LargeField.R.RhoZeroRestricted
+public import Balaban.SmallField.XiMassResponse
+public import Balaban.SmallField.XiMassResponseBounds
+public import Balaban.SmallField.XiMassResponseXi
+public import Balaban.Fluctuation.LocalClassBirthResponse
+public import Balaban.Fluctuation.LocalClassBirthChart

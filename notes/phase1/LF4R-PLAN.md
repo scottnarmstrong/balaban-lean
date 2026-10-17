@@ -99,6 +99,10 @@ on the variables of `T^pre`, and (3.7') is a theorem about (*) (Lemma III.8.7 (1
 - `R/RRemovedExponent.lean`: `removedFactor_le` ((2.58') bound from `cancellation_identity` and Lemma III.6.4 (a)-(c), carrying `A_den - A_Z`, 0 in the source), `cancelBracket_add_Cnat1_ge` (`beta_k{...} + C1 >= -1/2`, real domain), `removedFactor_le_of_identity`.
 - Not done: the faithful instance of `r` (§4.3 item 2), the translation `psi''` (a change of variables for leaf 6), the composition (III.1.4) for the localized quiet kernels.
 
+## Status (W884, 2026-10-17): blocker 4, locality premises
+- `R/RRemovedLocality.lean`, `RRemovedLocalityPre.lean`: `outField_eq_of_split_snd`, `chiTilde_congr`, `chiProd_congr_of_off`, `chiS_congr(_zzero)`, `chiZero_congr`, `chiDD_congr` (read sets); `zzero_subset_gaussBlocks` (Z0 blocks are Gaussian), `chiDomAt_congr_of_zero_gauss`, `preOp_dom_congr`, `removedKernel_vanish_preOp` (hdom done); `hind_of_chi` (hind from the four congruences); `preOp_b_congr`, `Rop_remDecomp_removedKernel_preOp` (hf, given `hb0`).
+- Not provable from landed data: `b_k` locality (`StepData` has no read-set clause for `b`: premise `hb0`); `chiZero` separation (`U` unrelated to `Z0` in landed geometry); `delta psi` as a function of `(o, x)` (not landed); `chi_{Z''}` reads `psi_k` on `Z0` by design.
+
 ## 5. Design check: the reference density with the action restricted to `Z` (W883, 2026-10-17)
 Source: P7 (1.5) p. 496, (2.34) p. 506, (3.1)-(3.5) pp. 517-518; LFR Def. III.8.1, Lemma III.8.2; Q13-SHARED §§2-5; Q13 ruling.
 **5.1 Source object.** `rho_{k,0}(Z) = chi_{Z_0} exp(-beta_k A*_k(Z; psi_k, phi_k(B_k(U_k); psi~_k)))`, `U_k = Z^≈`: the action on the region `Z` (half-bond weights on `st(Z)`), with its `nu`-term (LFR III.8.1, P5 p. 490), at the massless background of `B_k(U_k)`; variable `psi_k|Z_0`, `psi_k` fixed in `Psi~(X \ Z_0; delta)`; `chi_{Z_0} = 1[|psi_k - psi^0_k| < C_6 beta_k^{-1/2} p_0(beta_k) on Z_0]`, `C_6 = 3dD_0(K_6+1)`; centre `psi^0_k` = minimizer of the **full** massless action on `B_k(U_k)` (P7 (2.34)), massless (Q13).

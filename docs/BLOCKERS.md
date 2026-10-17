@@ -21,9 +21,9 @@ The last section lists the problems that have been resolved since the project st
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum) |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
-| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved; the removed kernel and that integral remain); author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the identification with the physical density, the large-field part and the joins remain |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); the chain is being restated on this |
+| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (its derivation from the window integral of the removed outcome is proved, and the removed kernel is defined; the window integral remains); author confirmation asked (item 16 addendum) |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the analyticity radius suffices for the field cutoff; the identification with the physical density, the large-field part (being designed) and the joins remain |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; the scales just below the last may need a floor on the torus size (item 24) |
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
@@ -132,8 +132,12 @@ exponent p₂; the size term of (3.10) is not needed, since removed components a
 e^{−p₂} pays for their size. No part of the formalization yet produces (3.10) itself: it is the bound of the
 removed operator, which belongs to the large-field step (P7 (3.7)–(3.10)). A plan
 (`notes/phase1/LF4R-PLAN.md`) splits it into seven pieces. The first is proved: (3.10) follows from the
-window integral of the removed outcome, ripeness and the residual-loss arithmetic. The removed kernel
-itself, the volumes of the window variables and the window integral are not yet in Lean. The halos used as labels of
+window integral of the removed outcome, ripeness and the residual-loss arithmetic. The residual-loss
+arithmetic, the passage from kernel bounds to the gas, the volumes of the window variables and the removed
+kernel itself (tied to the R operation, with its pointwise exponent bound) are now proved. Two points
+remain before the window integral: the reference density must use the action restricted to the removed
+component, as P7 writes it (ours uses a larger region), and the objects of the step must be shown not to
+read the field inside the integrated region; both are in progress. The halos used as labels of
 removed components lie in the domain class, because its blocks may sit at every cube offset (P5 (2.2)–(2.4))
 and the halos are wider than one block (proved). The numerical condition on p₂ holds for large β once the
 size of a removed halo is counted by its enclosing box, since removed components are boxes of bounded side.
@@ -188,8 +192,10 @@ point, and only the ratio det(U + E)/det(U) has to be localized. That ratio is n
 of local factors, each zero on disconnected supports and bounded uniformly in the volume, using the
 defect operator 1 − K(s), which is invertible on the whole parameter polydisc. The interaction, with its
 cutoff kept on the real field, is analytic on the same polydisc with local, bounded coefficients. What
-remains: a comparison of constants (the analyticity domain of the last-scale interaction against the
-radius the cut family needs), the large-field part, and the joins to the physical flow.
+remains: the large-field part (the region where the field cutoff fails) and the joins to the physical
+flow. The comparison of constants is done: the analyticity radius of the last-scale interaction depends
+only on d, L and N, while the field cutoff grows only like a power of log β, so for β large the cut family
+keeps the field inside the analyticity domain (proved).
 
 Details: `notes/phase1/FINALFAM.md`, `FINALCUT.md`, `FINALFAM2.md`,
 [`FINAL-COLUMNS.md`](../notes/phase1/FINAL-COLUMNS.md). Item 18.
@@ -268,10 +274,14 @@ complex rotations that turn the background direction into a fixed axis. These ro
 close to real ones (a counterexample is in Lean), but they need not be: any complex orthogonal matrix
 with bounded entries factors as a real rotation times a Cayley transform, and the Cayley path stays in
 the domain, so invariance along it follows from the real clause (proved). The theorems of the
-renormalization step are being restated on this, without the extra hypothesis. The centre-labelled terms are built, and old terms
+renormalization step still carry it as an explicit hypothesis; restating them on the Cayley path is
+planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and old terms
 keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
-needs only how the backgrounds respond to the small change of mass.
+needs only how the backgrounds respond to the small change of mass. That response is now proved at every
+level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
+so is the resulting inclusion when the real witness of the external field is a unit vector, as in our
+scheme (`notes/phase1/D2B.md`); it is being applied to the actual chart points.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
