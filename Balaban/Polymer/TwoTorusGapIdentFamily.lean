@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusGapIdentPair
+public import Balaban.Polymer.TwoTorusGapCloseResum
 
 /-!
 # The gap-scale torus clause for the block-energy terms (item 24, blocker 7)
@@ -267,6 +268,53 @@ theorem hnew_of_blockEnergy :
       rw [hside ℓ, hside (can X)]; exact Nat.mul_le_mul_left _ hKK
     rw [← boxMap_injective_of_le hn hyx]
     exact hy
+
+/-- **The torus clause at a gap scale for the block-energy terms** (item 24, part 3).  The terms of
+the step are `T = Tnew + Tinh`, the new terms being the block-energy terms `evDec` at the sites of
+the polymers of cells and the inherited terms `Tinh` of the earlier scales.  Everything about the
+new terms is proved (`hnew_of_blockEnergy`); the only input on the terms that is not a structural
+property of the step is the torus clause of the inherited terms (`hinh`: for the compact supports of
+the quarter box, `‖Tinh ℓ g X - Tinh (can X) g X‖ ≤ a e^{-lam τ} e^{-κ₂ |X|}`).  The conclusions are
+those of `resum_gapScale_torus`. -/
+theorem resum_gapScale_torus_blockEnergy (sz : Finset (Fin d → ℤ) → ℕ)
+    (τ : ι → Finset (Fin d → ℤ) → ℕ) (W : Submodule ℂ (G → ℂ))
+    (R : Finset (Fin d → ℤ) → Prop) (Ag : Finset (Fin d → ℤ) → G → G → Prop)
+    (T Tinh : ι → G → Finset (Fin d → ℤ) → ℂ)
+    {B a κr κ₂ κ' lam : ℝ} {t₀ : ℕ}
+    (hsz : ∀ X, sz X = X.card)
+    (hτ : ∀ ℓ X, τ ℓ X = K ℓ / 4 - X.sup (fun x => Finset.univ.sup fun μ => (x μ).natAbs))
+    (hR : ∀ ℓ X, X ∈ P ℓ → R X)
+    (hAg : ∀ X Z, X ⊆ Z → ∀ g g', Ag Z g g' → Ag X g g')
+    (hWd : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → Wd ℓ X → K ℓ ≤ 25 * X.card)
+    (hB : 0 ≤ B) (ha : 0 ≤ a) (hκ : 0 ≤ κr)
+    (hκ₂ : κr + Real.log 2 ≤ κ₂) (hlam : κ₂ ≤ lam) (hκ' : 7 * lam + κ₂ ≤ κ')
+    (hsupp : ∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, T ℓ g X = 0)
+    (hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X)
+    (han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W)
+    (hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖T ℓ g X‖ ≤ B * Real.exp (-κ' * (sz X : ℝ)))
+    (hsplit : ∀ ℓ g X, T ℓ g X = Tnew ℓ g X + Tinh ℓ g X)
+    (hinh : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ Dset,
+      ‖Tinh ℓ g X - Tinh (can X) g X‖ ≤
+        a * Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ))) :
+    ∃ Φ : ι → Finset (Fin d → ℤ) → Finset (Fin d → ℤ),
+    ∃ Tn : ι → G → Finset (Fin d → ℤ) → ℂ,
+      (∀ ℓ X, X ∈ P ℓ → Q ℓ X → X ⊆ Φ ℓ X) ∧
+      (∀ ℓ g X, Tn ℓ g X = if Q ℓ X then T (can X) g X else
+        T ℓ g X + ∑ X₀ ∈ ((P ℓ).filter (Q ℓ)).filter (fun X₀ => Φ ℓ X₀ = X),
+          (T ℓ g X₀ - T (can X₀) g X₀)) ∧
+      (∀ ℓ g, ∑ X ∈ P ℓ, Tn ℓ g X = ∑ X ∈ P ℓ, T ℓ g X) ∧
+      (∀ ℓ ℓ' g X, Q ℓ X → Q ℓ' X → Tn ℓ g X = Tn ℓ' g X) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g ∈ Dset, ‖Tn ℓ g X‖ ≤
+        (B + (a + 2 * B) * Real.exp κ₂ + 2 * B * Real.exp (κ₂ * (t₀ : ℝ))) *
+          Real.exp (-κr * (sz X : ℝ))) ∧
+      (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tn ℓ g X = 0) ∧
+      (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
+      (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) :=
+  resum_gapScale_torus_inherited K hd (fun ℓ => by have := hK26 ℓ; omega) P Q sz τ can Dset W R Ag T
+    Wd hP hQ hsz hτ hR hAg hcanK hWd hB ha hκ hκ₂ hlam hκ' hsupp hloc han hbd Tnew Tinh hsplit
+    (fun ℓ X hX hQX hW _ g hg => hnew_of_blockEnergy hC hk hG cc hcψ hMX hmar hαK hsm hF₁ hSol hd
+      hL hm₀ hm₁ hN hcov hX₁ h𝒦 hD hψh hum hZ hBM hK26 hside P Q can Wd hP hQ hcanK hcompact
+      hcoverX hx₀c hfamD Tnew hTnew ℓ X hX hQX hW g hg) hinh
 
 end Family
 
