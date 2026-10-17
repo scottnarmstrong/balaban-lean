@@ -401,8 +401,10 @@ coefficients near the origin). Wide supports are bounded by the decay of the ter
 scales just below the last are now assembled into the two-torus resummation for every support in the quarter box,
 given the closeness of the step's functional between two tori at those scales. For compact supports the step's
 energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
-their own closeness, which the earlier scales provide; the identification of the step's terms with these
-expansions and the same transport for the determinant and observable terms are in progress. The question is in
+their own closeness, which the earlier scales provide. The step's energy terms are identified with these
+expansions at the cells of the support (proved), and the determinant and observable terms are transported the same
+way (translation covariance of one torus and recentring on two tori, proved); their identification with the step's
+terms at the cells is in progress. The question is in
 item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
