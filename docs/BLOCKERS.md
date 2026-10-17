@@ -294,8 +294,11 @@ level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius la
 so is the resulting inclusion when the real witness of the external field is a unit vector, as in our
 scheme (`notes/phase1/D2B.md`). The unit-vector condition has since been removed (any chart point can be
 re-realized at a unit witness, at the cost of doubling the radius), and the inclusion holds for the actual
-chart points under one numerical condition on the radii (the gap between successive class radii), which is
-being wired into the expansion of the old terms.
+chart points under one numerical condition on the radii (the gap between successive class radii). That
+condition now follows from the constants (the class radii decrease geometrically, with ratio L^{−α} ≤
+1/(16 C₀⁴)), and the expansion of the old terms is stated on their birth domains, using only the clauses of
+each old term at its own level; what remains is to show that two auxiliary radii of the step are small
+multiples of the class radius.
 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
