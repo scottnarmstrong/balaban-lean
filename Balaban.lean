@@ -2424,5 +2424,8 @@ public import Balaban.LargeField.Base.BaseFirstCutRecord
 public import Balaban.LargeField.Base.BaseFirstCutFactor
 public import Balaban.LargeField.R.WindowConvPhysParams
 public import Balaban.LargeField.R.WindowConvPhysCount
+public import Balaban.LargeField.R.WindowConvPhysRead
+public import Balaban.LargeField.R.WindowConvPhysSwitch
+public import Balaban.LargeField.R.WindowConvPhysMass
 public import Balaban.LargeField.Base.BaseFirstLocalCode
 public import Balaban.LargeField.Base.BaseFirstReserve
