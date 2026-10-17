@@ -296,7 +296,7 @@ theorem classOldEnergy_rot_input {P : Consts} {Dom : FieldDom d L N₁ m₁ (k +
   obtain ⟨D, hD, rfl⟩ := hr
   have hrot : rotRaw (cmat Q) (rawOf D) ∈ XiCRaw (C.Tm.gs τ.1 τ.2.2) a ν τ.1 σ ε :=
     ⟨D.rot (cmat Q), xiCData_rot hQ hD, rfl⟩
-  have hR : IsRot (cmat Q) := ⟨(isRealOrth_ofReal hQ).1, Or.inl (isRealOrth_ofReal hQ).2⟩
+  have hR : IsRot (cmat Q) := ⟨(isRealOrth_ofReal hQ).1, (isRealOrth_ofReal hQ).2⟩
   congr 1
   exact hcl.rotE τ.1 h1 (h2.trans (Nat.le_succ k)) τ.2.1 τ.2.2 (hm ▸ hX) hy (cmat Q) hR _ _
     (hchart _ ⟨D, hD, rfl⟩) (hchart _ hrot)

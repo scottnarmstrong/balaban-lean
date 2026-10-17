@@ -241,6 +241,8 @@ I-6 does not use the density clause.) -/
 theorem isSF_of_termClauses [NeZero L] [NeZero N₁] {P : Consts} {β ν a : ℕ → ℝ}
     {Tm : Terms d L N₁ m₁ k N ϱ} {Ek : ℝ} (hp : P.p (β k) = 0)
     (hT : SFTermClauses P
+      (xiFieldDom (aIdeal L k (a k)) (Def6.bgMass L k (β k) (ν k)) (P.eps d L)) Tm)
+    (hC : CRotE P
       (xiFieldDom (aIdeal L k (a k)) (Def6.bgMass L k (β k) (ν k)) (P.eps d L)) Tm) :
     IsSF P β ν a Tm (fun _ _ _ => 0) Ek where
   density := by
@@ -254,7 +256,7 @@ theorem isSF_of_termClauses [NeZero L] [NeZero N₁] {P : Consts} {β ν a : ℕ
   gs_spec := hT.gs_spec
   analyticE := hT.analyticE
   analyticM := hT.analyticM
-  rotE := hT.rotE
+  rotE := hC
   pavingGS := hT.pavingGS
   eucE := hT.eucE
   eucEloc := hT.eucEloc
@@ -353,7 +355,8 @@ density.  The clauses `torusIndep` and `renorm` (H.5) are the same.
 Consequently every landed statement on the terms of `Def6.IsSFFamily`, in which the coefficient
 `β` enters only through `bgMass L k (β k) (ν k)`, holds for the second version at the complete
 mass. -/
-theorem IsSFFamily2.toLanded (h : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρ Ek) :
+theorem IsSFFamily2.toLanded (h : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρ Ek)
+    (hC : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁)) :
     ∃ β' ν' : ℕ → ℝ, ν' k = Rg.ν k ∧ Def6.bgMass L k (β' k) (ν' k) = Rg.sfBgMass k ∧
       IsSFFamily P.noChi β' ν' a Tm (fun _ _ _ _ _ => 0) Ek := by
   have hν := h.coeff.nu_pos
@@ -363,11 +366,13 @@ theorem IsSFFamily2.toLanded (h : IsSFFamily2 P Rg β a (completeXiDom P Rg a) T
   refine
     { admissible := h.admissible.noChi
       coeff := (coeffBounds_complete h.admissible h.coeff).noChi
-      torus := fun N₁ _ => isSF_of_termClauses (P := P.noChi) rfl ?_
+      torus := fun N₁ _ => isSF_of_termClauses (P := P.noChi) rfl ?_ ?_
       torusIndep := h.torusIndep
       renorm := fun j hj1 hjk => ?_ }
   · rw [hμ]
-    exact (h.torus N₁).terms.noChi
+    exact (h.torus _).terms.noChi
+  · rw [hμ]
+    exact hC _
   · rw [nuComplete_self]
     exact h.renorm j hj1 hjk
 

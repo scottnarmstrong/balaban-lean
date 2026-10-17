@@ -109,7 +109,7 @@ theorem isSF_zero (P : Consts) (β ν a : ℕ → ℝ) (hE₀ : P.E₀ = 0) (hc�
     intro j _ hjk y r _ Ψ h _ _
     rw [Eloc_zero, Eloc_zero]
   rotM := by
-    intro j _ _ x X _ _ R _ Ψ h g _ _
+    intro j _ _ x X _ _ R _ Ψ h g _ _ _ _
     simp [zeroTerms]
   eucM := by intros; rfl
   eucMloc := by

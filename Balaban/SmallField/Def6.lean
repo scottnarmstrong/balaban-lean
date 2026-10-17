@@ -174,7 +174,9 @@ is `bgMass` (P5 (1.9)).
 * `gs_spec`: `𝔹_j(X)` is a generating set of level `j` whose first domain contains `X`;
 * `analyticE`, `analyticM` (H.2), (H.4), (H.7) [P1 (H.2), (H.5), (H.9)]: analytic on
   `Ξ^c_j(𝔹_j(X); 1, ε_j)` (resp. times `{‖g‖₁ < 1}`) -- the ruling F-1;
-* `rotE`, `rotM` (H.3), (H.7) [P1 (H.4)]: `O(N)`, `SO(N, ℂ)` invariance (equivariance for `ℳ`),
+* `rotE`, `rotM` (H.3), (H.7) [P1 (H.4)]: `rotM` is equivariance of `ℳ` under real `O(N)` on sources
+  with `‖g‖₁ < 1`; `rotE` is invariance of `ℰ` under `O(N, ℝ)` and `SO(N, ℂ)` (`IsCRot`), the form
+  used by the frame bridges of I-6 (obtained from real rotations by continuation, `Def6RotContinuation`),
   termwise;
 * `eucE`, `eucM` (H.4-E) [P4 pp. 677-678 (H.4); P1 p. 117 (2.26)]: Euclidean covariance of the
   individual terms, **only** for the symmetries `pavingSymGroup` of the fixed `M`-paving
@@ -215,7 +217,7 @@ structure IsSF (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k 
       {p | XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         p.1 p.2.1 ∧ l1 p.2.2 < 1}
   rotE : ∀ j, 1 ≤ j → j ≤ k → ∀ y X, IsPolyDom P.m₀ j X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
-    IsRot R → ∀ Ψ h,
+    IsCRot R → ∀ Ψ h,
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (rotField R Ψ) (rotField R h) →
@@ -238,7 +240,7 @@ structure IsSF (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k 
         (bgMass L k (β k) (ν k)) j (P.eps d L j) (actField r Ψ) (actField r h) →
       Eloc P.m₀ Tm j (blockBase L j (r y)) (actField r Ψ) (actField r h) = Eloc P.m₀ Tm j y Ψ h
   rotM : ∀ j, 1 ≤ j → j ≤ k → ∀ x X, IsPolyDom P.m₀ j X → x ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
-    IsRot R → ∀ Ψ h g,
+    IsRot R → ∀ Ψ h g, l1 g < 1 → l1 (rotField R g) < 1 →
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (rotField R Ψ) (rotField R h) →
