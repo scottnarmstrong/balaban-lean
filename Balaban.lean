@@ -2238,6 +2238,7 @@ public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Fluctuation.LocalClassDensityIrrelBaseSet
+public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
 public import Balaban.Fluctuation.LocalClassDensityFamilySetPrec
