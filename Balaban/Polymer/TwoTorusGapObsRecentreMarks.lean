@@ -303,8 +303,10 @@ theorem hatCoeff_obsUnitVec_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ :
     (a : Fin N) :
     hatCoeff E' r' (obsUnitVec (SB) (unitPt (SB).hG' (bm (x₀ + tA) - tB), a)) =
       hatCoeff E r (obsUnitVec (SA) (unitPt (SA).hG' x₀, a)) := by
-  refine hatCoeff_congr_of_eqOn hcψ fun ζ hζ => hE _ _ (smul_mem_ball (norm_obsUnitVec_le _ _) hζ)
-    (smul_mem_ball (norm_obsUnitVec_le _ _) hζ) fun x hx i => ?_
+  refine hatCoeff_congr_of_corr (norm_obsUnitVec_le _ _) (norm_obsUnitVec_le _ _) hcψ
+    (fun ψh ψh' => ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+      ∀ i, ψh' (unitPt (SB).hG' (bm (x + tA) - tB), i) = ψh (unitPt (SA).hG' x, i))
+    (fun ζ hζ x hx i => ?_) hE
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [obsUnitVec_rec hN2 hk νS β p₁ δ hn hn' SSA hUA SSB hUB hx₀ a hx i]
 
@@ -331,13 +333,11 @@ theorem obsGrRawC_rec (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {m�
         ⟨unitPt (SB).hG' (bm (x + tA) - tB), rfl⟩ =
         Φ ((SA).cellOf m₀ (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) (u : ℂ) :
     obsGrRawC (SB) m₀ hp' Ev' 𝒴' r' (some Y') u Φ' = obsGrRawC (SA) m₀ hp Ev 𝒴 r (some Y) u Φ := by
-  have h4 : 4 ≤ cψ / (SA).p₁ := four_le_of hcψ hp hq
   have hhat := hatOf_rec hN2 hk νS β p₁ δ m₀ (SA).p₁ hp hp' hΦ
-  show remExt (fun ζ : ℂ => Ev' Y'.1 (r', ζ • (SB).hatOf m₀ (SB).p₁ hp' Φ')) u =
-    remExt (fun ζ : ℂ => Ev Y.1 (r, ζ • (SA).hatOf m₀ (SA).p₁ hp Φ)) u
-  refine remExt_congr_of_eqOn (ρ := cψ / (SA).p₁) (by linarith) (fun ζ hζ => ?_) u
-  refine hE _ _ (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ)
-    (smul_mem_ball_p hp' (norm_hatOf_p₁_le Φ') hζ) fun x hx i => ?_
+  refine obsGrRawC_congr hp hp' rfl Y Y' hcψ hq
+    (fun ψh ψh' => ∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA) →
+      ∀ i, ψh' (unitPt (SB).hG' (bm (x + tA) - tB), i) = ψh (unitPt (SA).hG' x, i))
+    (fun ζ hζ x hx i => ?_) hE u
   simp only [Pi.smul_apply, smul_eq_mul]
   exact congrArg (ζ * ·) (hhat x hx i)
 

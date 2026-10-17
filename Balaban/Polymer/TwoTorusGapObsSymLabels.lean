@@ -89,26 +89,17 @@ theorem obsHker_sym (hN : L ^ m₀ ∣ N₁) {σ : Equiv.Perm (CTorus d L N₁ m
     (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ)) :
     obsHker 𝒴' c' m₀ (T₁.image (Balaban.Fluctuation.cubeMap σ)) = obsHker 𝒴 c m₀ T₁ := by
   classical
-  unfold obsHker
   have hinj := cubeMap_injective_sym hN hσ
   have hiff : ∀ Y, obsRowLabel m₀ K (σ '' Y) = T₁.image (Balaban.Fluctuation.cubeMap σ) ↔
       obsRowLabel m₀ K Y = T₁ := fun Y => by
     rw [obsRowLabel_def, obsRowLabel_def, blocksOf_image_sym hN hσ]
     exact (Finset.image_injective hinj).eq_iff
-  symm
-  refine Finset.sum_nbij' (fun Y => σ '' Y) (fun Y' => σ.symm '' Y') (fun Y hY => ?_)
-    (fun Y' hY' => ?_) (fun Y hY => ?_) (fun Y' hY' => ?_) (fun Y hY => ?_)
-  · rw [Finset.mem_filter] at hY ⊢
-    exact ⟨(hmem Y).2 hY.1, (hiff Y).2 hY.2⟩
-  · rw [Finset.mem_filter] at hY' ⊢
-    have h1 : σ '' (σ.symm '' Y') = Y' := by
-      rw [← Set.image_comp]; simp
-    have h2 : σ.symm '' Y' ∈ 𝒴 := (hmem _).1 (by rw [h1]; exact hY'.1)
-    refine ⟨h2, (hiff _).1 (by rw [h1]; exact hY'.2)⟩
-  · rw [← Set.image_comp]; simp
-  · rw [← Set.image_comp]; simp
-  · rw [Finset.mem_filter] at hY
-    exact (hc Y hY.1).symm
+  refine obsHker_congr_bij (fun Y => σ '' Y) (fun Y' => σ.symm '' Y') c c' T₁
+    (T₁.image (Balaban.Fluctuation.cubeMap σ)) (fun Y hY hl => ⟨(hmem Y).2 hY, (hiff Y).2 hl⟩)
+    (fun Y' hY' hl => ?_) (fun Y hY hl => Equiv.symm_image_image _ _)
+    (fun Y' hY' hl => Equiv.image_symm_image _ _) (fun Y hY hl => hc Y hY)
+  have h1 : σ '' (σ.symm '' Y') = Y' := Equiv.image_symm_image _ _
+  exact ⟨(hmem _).1 (by rw [h1]; exact hY'), (hiff _).1 (by rw [h1]; exact hl)⟩
 
 end Labels
 

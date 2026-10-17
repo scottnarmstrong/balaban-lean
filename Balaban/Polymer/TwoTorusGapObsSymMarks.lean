@@ -52,8 +52,8 @@ theorem hatCoeff_obsUnitVec_sym {Rw Rw' : Type*} {E : Rw × (S.U × Fin N → �
       (∀ u i, ψh' (unitAct S.G' SS hU u, i) = ψh (u, i)) → E' (r', ψh') = E (r, ψh))
     (m : ObsMarkIdx S) :
     hatCoeff E' r' (obsUnitVec S (unitAct S.G' SS hU m.1, m.2)) = hatCoeff E r (obsUnitVec S m) := by
-  refine hatCoeff_congr_of_eqOn hcψ fun ζ hζ => hE _ _ (smul_mem_ball (norm_obsUnitVec_le _ _) hζ)
-    (smul_mem_ball (norm_obsUnitVec_le _ _) hζ) fun u i => ?_
+  refine hatCoeff_congr_of_corr (norm_obsUnitVec_le _ _) (norm_obsUnitVec_le _ _) hcψ
+    (fun ψh ψh' => ∀ u i, ψh' (unitAct S.G' SS hU u, i) = ψh (u, i)) (fun ζ hζ u i => ?_) hE
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [obsUnitVec_sym S SS hU m (u, i)]
 
@@ -73,12 +73,8 @@ theorem obsGrRawC_sym {Ev Ev' : Set (CTorus d L N₁ m₁ (k + 1)) →
     (hΦ : ∀ u : S.U, Φ' (S.cellOf m₀ (unitAct S.G' SS hU u)) ⟨unitAct S.G' SS hU u, rfl⟩ =
         Φ (S.cellOf m₀ u) ⟨u, rfl⟩) (u : ℂ) :
     obsGrRawC S m₀ hp Ev' 𝒴' r' (some Y') u Φ' = obsGrRawC S m₀ hp Ev 𝒴 r (some Y) u Φ := by
-  have h4 : 4 ≤ cψ / S.p₁ := four_le_of hcψ hp hq
-  show remExt (fun ζ : ℂ => Ev' Y'.1 (r', ζ • S.hatOf m₀ S.p₁ hp Φ')) u =
-    remExt (fun ζ : ℂ => Ev Y.1 (r, ζ • S.hatOf m₀ S.p₁ hp Φ)) u
-  refine remExt_congr_of_eqOn (ρ := cψ / S.p₁) (by linarith) (fun ζ hζ => ?_) u
-  refine hE _ _ (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ) hζ)
-    (smul_mem_ball_p hp (norm_hatOf_p₁_le Φ') hζ) fun v i => ?_
+  refine obsGrRawC_congr hp hp rfl Y Y' hcψ hq
+    (fun ψh ψh' => ∀ u i, ψh' (unitAct S.G' SS hU u, i) = ψh (u, i)) (fun ζ hζ v i => ?_) hE u
   simp only [Pi.smul_apply, smul_eq_mul]
   rw [hatOf_sym S m₀ hp SS hU _ hΦ v i]
 
