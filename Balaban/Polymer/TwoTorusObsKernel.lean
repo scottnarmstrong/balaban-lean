@@ -340,6 +340,66 @@ theorem cubeMap_injOn_box {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m�
   rw [cubeMap_val, cubeMap_val] at h1
   exact Subtype.ext (boxMap_inj (hm' := hm') (hS b₁ hb₁) (hS b₂ hb₂) h1)
 
+/-- **The kernels of two domain families that correspond under the box map** (the abstract form of
+`obsHker_twoTorus`): for domain families `𝒴`, `𝒴'` of disjoint domains with `bm '' Y ∈ 𝒴' ↔ Y ∈ 𝒴`
+for the sets `Y` of the box, coefficients agreeing on corresponding domains, and a set `T₁` of cubes
+of the box, the kernels agree at `cubeMap '' T₁` and at `T₁`. -/
+theorem obsHker_twoTorus_of_mem {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
+    (hmem : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) → (bm '' Y ∈ 𝒴' ↔ Y ∈ 𝒴))
+    (c : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ) (c' : Set (CTorus d L N₁' m₁ (k + 1)) → ℂ)
+    (hc : ∀ Y ∈ 𝒴,
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) → c' (bm '' Y) = c Y)
+    (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hT₁ : ∀ b ∈ T₁, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    obsHker 𝒴' c' m₀ (T₁.image (σc)) = obsHker 𝒴 c m₀ T₁ := by
+  classical
+  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T₁
+    (fun x hx => inBox_of_mem_sitesOf hT₁ hx)
+  unfold obsHker
+  refine sum_image_boxMap_of_inBox hm hm' _ _ c c' ?_ ?_ ?_ ?_
+  · intro Y hY
+    rw [Finset.mem_filter] at hY
+    exact inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2)
+  · intro Y' hY'
+    rw [Finset.mem_filter] at hY'
+    intro y hy
+    have hDj := hdj' Y' hY'.1
+    have hs := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
+    have hy' : y ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by rw [hs]; exact ⟨hy, trivial⟩
+    change y ∈ sitesOf (obsRowLabel m₀ (k + 1) Y') at hy'
+    rw [hY'.2, hsT] at hy'
+    obtain ⟨w, hw, rfl⟩ := hy'
+    exact inBox_boxMap hm' (inBox_of_mem_sitesOf hT₁ hw)
+  · intro Y hYR
+    rw [Finset.mem_filter, Finset.mem_filter,
+      hmem Y hYR]
+    refine and_congr_right fun _ => ?_
+    change blocksOf m₀ (k + 1) Set.univ (bm '' Y) = T₁.image (σc) ↔
+      blocksOf m₀ (k + 1) Set.univ Y = T₁
+    rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
+    refine ⟨fun h => ?_, fun h => by rw [h]⟩
+    have hS : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y ∪ T₁,
+        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) b.1 := by
+      intro b hb
+      rcases Finset.mem_union.1 hb with hb | hb
+      · exact hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ ha))
+      · exact hT₁ b hb b.1 (mem_box_self _ ha)
+    exact eq_of_image_eq_of_injOn (cubeMap_injOn_box hN hN' hm' hS) Finset.subset_union_left
+      Finset.subset_union_right h
+  · intro Y hY
+    rw [Finset.mem_filter] at hY
+    exact hc Y hY.1 (inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2))
+
 /-- **D3 (b): the kernel of the observable on two tori.**  For the local covers of a site `xs` of
 the box and of `bm xs`, coefficients `c`, `c'` of the domains with `c' (bm '' Y) = c Y` for the
 domains `Y` of the box, and a set `T₁` of cubes of the box: the kernels
@@ -366,47 +426,8 @@ theorem obsHker_twoTorus {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀
     obsHker (polyDom (GB) (LocalCover.nbhdF m₀ (bm xs)) m₀ k (LocalCover.fam m₀ (bm xs))) c' m₀
         (T₁.image (σc)) =
       obsHker (polyDom (GA) (LocalCover.nbhdF m₀ xs) m₀ k (LocalCover.fam m₀ xs)) c m₀ T₁ := by
-  classical
-  have ha := cellSide_pos (L := L) m₀ m₁ (k + 1)
-  have hcs : aK ≤ L * aK := cellSide_le_mul
-  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T₁
-    (fun x hx => inBox_of_mem_sitesOf hT₁ hx)
-  unfold obsHker
-  refine sum_image_boxMap_of_inBox hm hm' _ _ c c' ?_ ?_ ?_ ?_
-  · intro Y hY
-    rw [Finset.mem_filter] at hY
-    exact inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2)
-  · intro Y' hY'
-    rw [Finset.mem_filter] at hY'
-    intro y hy
-    have hDj := hdj' Y' hY'.1
-    have hs := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
-    have hy' : y ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by rw [hs]; exact ⟨hy, trivial⟩
-    change y ∈ sitesOf (obsRowLabel m₀ (k + 1) Y') at hy'
-    rw [hY'.2, hsT] at hy'
-    obtain ⟨w, hw, rfl⟩ := hy'
-    exact inBox_boxMap hm' (inBox_of_mem_sitesOf hT₁ hw)
-  · intro Y hYR
-    rw [Finset.mem_filter, Finset.mem_filter,
-      mem_polyDom_site_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' xs hX₁R hYR]
-    refine and_congr_right fun _ => ?_
-    change blocksOf m₀ (k + 1) Set.univ (bm '' Y) = T₁.image (σc) ↔
-      blocksOf m₀ (k + 1) Set.univ Y = T₁
-    rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
-    refine ⟨fun h => ?_, fun h => by rw [h]⟩
-    have hS : ∀ b ∈ blocksOf m₀ (k + 1) Set.univ Y ∪ T₁,
-        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) b.1 := by
-      intro b hb
-      rcases Finset.mem_union.1 hb with hb | hb
-      · exact hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ ha))
-      · exact hT₁ b hb b.1 (mem_box_self _ ha)
-    exact eq_of_image_eq_of_injOn (cubeMap_injOn_box hN hN' hm' hS) Finset.subset_union_left
-      Finset.subset_union_right h
-  · intro Y hY
-    rw [Finset.mem_filter] at hY
-    exact hc Y hY.1 (inBox_of_blocksOf_subset hN hT₁ (hdj Y hY.1) (le_of_eq hY.2))
+  exact obsHker_twoTorus_of_mem hN hN' hnF hnF' hdj hdj'
+    (fun Y hYR => mem_polyDom_site_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' xs hX₁R hYR) c c' hc T₁ hT₁
 
 set_option hygiene false in
 local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1))
