@@ -435,3 +435,182 @@ e^{(h+\kappa)|X(S,\xi)|}
 where $\|g\|_1\le1/2$ and the supremum covers $c/L^2\le\nu\le1$. The geometry and entropy assumptions `hzd`, `hG3`, `hcount`, and the per-heavy bound `hτ : |τ_z|\le e^{-p-h|z_s|}` at [GasBound.lean:445](/home/scott/Balaban/Balaban/Polymer/GasBound.lean:445) must then be verified for this refinement; the pointwise, bounded, measurable finite-support factors and exact `gasXiOp` identity are additional obligations if one invokes `gasOp_pe` instead. Equation (B.43) is a **missing target estimate**, not an established lemma. It would also have to carry source analyticity and exact nonwinding lift to yield the frozen $T_1$ through the radial derivative construction described after (B.12c).
 
 **Round-5 verdict and confidence.** A large freely chosen $s=ML$ makes long links and the selected-witness Peierls charge quantitatively manageable, and $\beta$ can be made large enough to control the pointwise good-sector perturbations. It does **not** make the covariance coupling of neighboring blocks exponentially small in $s/L$: (B.36)–(B.37) are a rigorous counterexample to that proposed per-block mechanism. Exact two-torus agreement and the complete hard-chart tree norm remain unproved; enlarging $s$ does not remove either issue. This is a precise obstruction to the suggested shortcut, **not** a counterexample to the frozen $k_f=0$ clause and not a proof that a more carefully centered high-field expansion is impossible. Confidence is high in (B.36)–(B.41) and in the distinction between covariance-atom control and full-activity control; (B.43) is explicitly conditional.
+
+## Round 6 (17 October 2026): the bare model as a last integral
+
+### The exact bare integral and the two cutoffs
+
+The proposed direction is mathematically sound: the ordinary small parameter is the nonlinear perturbation of a **massive Gaussian**, while a failed block gets a separate tail or field-energy charge. It requires two cutoffs. The fixed chart $|u|\le1/2$ removes the equator singularity; a shrinking physical fluctuation cutoff $|u|\le\rho_\beta/\sqrt\beta$, with $\rho_\beta=A_1(\log\beta)^p$, makes the perturbation small. P7 §4, printed pp. 529–533, (4.1)–(4.14), starts with a density already satisfying P5 H1–H5 and H7 and uses precisely a last-fluctuation cutoff and a heavy operator. It does not prove that the bare constrained-sphere density has those properties at $k=0$; compare [KF0-LAST §1–2](/home/scott/Balaban/notes/phase1/KF0-LAST.md:1) and [the P7 text, p. 529](/home/scott/Balaban-scratch/astra-l4/P7-pp529-534.txt).
+
+Here is the exact reference identity, with constants independent of the source. Set $m=N-1$, identify $h^\perp$ with $\mathbb R^m$, and let $v_x=\sqrt\beta\,u_x$, $t_x=(1-|v_x|^2/\beta)^{1/2}$ and $\Phi_x^\sigma=v_x/\sqrt\beta+\sigma_x t_xh$. For a nearest-neighbor bond set $E_\Lambda$ define
+
+$$K_\nu=-\Delta_\Lambda+\nu,\qquad
+W_\sigma(v)=\frac12\sum_{\{x,y\}\in E_\Lambda}(\sigma_xt_x-\sigma_yt_y)^2+
+\frac{\nu}{2}\sum_x(1-\sigma_xt_x)^2,\qquad
+J_x(v_x)=\mathbf1_{\{|v_x|<\sqrt\beta\}}(1-|v_x|^2/\beta)^{-1/2}.\tag{B.44}$$
+
+Let $\gamma_\nu$ be the centered $m$-component Gaussian with site covariance $K_\nu^{-1}$. Directly expanding $|\Phi_x^\sigma-\Phi_y^\sigma|^2$ and the identity $1-\sigma t=\frac12(1-t^2)+\frac12(1-\sigma t)^2$ give the **exact** normalized bare identity
+
+$$\frac{Z_\Lambda(g)}{Z_\Lambda(0)}
+=e^{\langle g,h\rangle}
+\frac{\mathbb E_{\gamma_\nu}\!\left[
+ \sum_{\sigma\in\{\pm1\}^\Lambda}\prod_xJ_x(v_x)
+ e^{-\beta W_\sigma(v)}
+ e^{\sum_x\langle g_x,\Phi_x^\sigma-h\rangle}\right]}
+{\mathbb E_{\gamma_\nu}\!\left[
+ \sum_{\sigma\in\{\pm1\}^\Lambda}\prod_xJ_x(v_x)e^{-\beta W_\sigma(v)}\right]}.\tag{B.45}$$
+
+The sphere-chart Jacobian and its source-independent normalizer are those of [LF-BASE-KF0.md, (F.1)–(F.4)](LF-BASE-KF0.md); the Gaussian change is also the content of the abstract [FinalGaussianReduction](/home/scott/Balaban/Balaban/Green/FinalGaussianReduction.lean:40) for a positive definite matrix. The complex-source formula follows by applying the finite-dimensional real Gaussian change to real and imaginary parts of the bounded spin-source integrand. No inherited effective $\mathcal F_k,\mathcal R^{(k)}$ appears in (B.45). This simplification does **not** remove the normal crossing bonds in $W_\sigma$, fresh bad sectors, or the vacuum normalization in its denominator. The landed [physical block-sector identity](/home/scott/Balaban/Balaban/LargeField/Base/KF0BlockSplit.lean:236) is another exact split of the same bare sphere integral; its physical tests have not been identified with P5 H1 or with the Gaussian-tail cells of (B.45).
+
+**Proposition B.6 (the proved good-box estimate).** Fix $c>0$, $\nu\in[c/L^2,1]$, and put $C_\nu=K_\nu^{-1/2}$. Its entries are nonnegative and the constant vector is an eigenvector, so its exact absolute row sum is
+
+$$\sup_x\sum_y|C_\nu(x,y)|
+=\nu^{-1/2}\le B_C(L,c):=\frac{L}{\sqrt c}.\tag{B.46}$$
+
+This is [LF-BASE-KF0.md, (F.5)](LF-BASE-KF0.md). The separately landed [kf0_sqrt_decay](/home/scott/Balaban/Balaban/Green/KF0Reference.lean:519) supplies the exponential entry bound needed for later locality; it is not needed for this row sum. Under the independent standard Gaussian representation $v=C_\nu\psi$, the product cutoff $\|\psi_x\|\le\rho_\beta$ at every site therefore gives $|v_x|\le p_\beta:=B_C\rho_\beta$. If $p_\beta^2/\beta\le1/4$, this lies inside the $|u|\le1/2$ chart. On the all-plus part of any fixed $s$-block $Q$, (B.29) yields
+
+$$|F_Q^+-1|
+\le\exp\!\left\{\frac{s^d}{\beta}
+ [p_\beta^2+(\nu/2+2d)p_\beta^4]\right\}-1,\qquad
+|e^{-\beta V_{QQ'}}-1|\le\frac{2s^{d-1}p_\beta^4}{\beta}
+\tag{B.47}$$
+
+for one crossing face. If $g$ is supported in $Q$ and $\|g\|_1\le1$, the source displacement obeys
+$|\sum_x\langle g_x,\Phi_x^+-h\rangle|
+\le\|g\|_1(p_\beta/\sqrt\beta+p_\beta^2/\beta)$ on this box. Thus, after $s,L,c,A_1,p$ are fixed, the **pointwise** good-block perturbation is $O_{d,L,N,s,c,A_1,p}((\log\beta)^{4p}/\beta)$, and the source displacement is $O((\log\beta)^p/\sqrt\beta)$. These are stronger than the suggested $O(\beta^{-1/2})$ for the non-source anharmonic terms. The estimates are local pointwise estimates; they do not sum the linked expansion or allow the global cutoff complement to be discarded. *Proof.* The Stieltjes representation
+$C_\nu=\pi^{-1}\int_0^\infty t^{-1/2}(K_\nu+tI)^{-1}\,dt$ has nonnegative entries because each resolvent has the nonnegative Neumann walk expansion. Also $K_\nu\mathbf1=\nu\mathbf1$, hence $C_\nu\mathbf1=\nu^{-1/2}\mathbf1$, proving (B.46). The triangle inequality gives $|C_\nu\psi(x)|\le B_C\rho_\beta$. Equation (B.29) bounds each Jacobian, on-site normal remainder and normal crossing bond. There are $s^d$ sites, at most $ds^d$ internal bonds and $s^{d-1}$ bonds in a face. Finally $1-t_x\le |v_x|^2/\beta$ and $|\Phi_x^+-h|\le p_\beta/\sqrt\beta+p_\beta^2/\beta$. $\square$
+
+The fixed chart by itself gives **no** perturbative bound tending to zero. At a site with $|u_x|=1/2$ one has $J_x=2/\sqrt3$, while its normal field remainder is
+$\frac{\beta\nu}{2}(1-\sqrt3/2)^2$. With all other plus spins equal to $h$, the complete good-chart factor at that configuration tends to zero as $\beta\to\infty$, so its difference from one tends to one. The chart avoids the $J^2$ divergence of (B.31) because $J_x\le2/\sqrt3$, but it cannot replace the $\rho_\beta/\sqrt\beta$ cutoff used for perturbative smallness. A global good-box probability tends to zero as the torus grows at fixed $\beta$; its complement needs a blockwise expansion.
+
+### What tail bounds transfer, and what fails before the heavy operator
+
+The **abstract** Gaussian tail step does transfer to the bare product variable $\psi$. Partition its site indices into disjoint $s$-blocks; each block has $s^d$ sites and $m=N-1$ tangent components per site. By [pdGaussian_tail_blocks_le](/home/scott/Balaban/Balaban/Green/FinalTailBlocks.lean:33), for any $k$ selected blocks,
+
+$$\gamma\{\text{each selected block contains }x:\|\psi_x\|>\rho_\beta\}
+\le\left[s^d\,2^{m/2}e^{-\rho_\beta^2/4}\right]^k.\tag{B.48}$$
+
+Set $q_\beta=\rho_\beta^2/4-d\log s-(m/2)\log2$. The landed [exact-cell split](/home/scott/Balaban/Balaban/Green/FinalTailSplit.lean:60) partitions any integrable Gaussian integral by its failed-block set, and [norm_setIntegral_blocksSplit_le_exp](/home/scott/Balaban/Balaban/Green/FinalTailBridge.lean:58) proves, **if** its integrand has a cell-uniform bound $|F_Z|\le e^b$, that its nonempty $k$-block cell has norm at most $e^{-P-Hk}$ whenever $q_\beta-H\ge0$ and $b+P\le q_\beta-H$. With $\rho_\beta=A_1(\log\beta)^p$, $P=A_2(\log\beta)^{p_2}$ and $H=H_0\log\beta$, this numerical comparison is eventually available if $p_2<2p$, or $p_2=2p$ with $A_2<A_1^2/4$; see [FinalTailConsts](/home/scott/Balaban/Balaban/Green/FinalTailConsts.lean:1). The dependence on the freely chosen $s=ML$ is exactly the $d\log s$ term. This proves the tail **measure** reserve and its conditional numerical conversion, not a physical heavy activity.
+
+There is a direct failure of the required uniform supremum for the natural all-sheet integrand in (B.45). Fix $\beta$ and a site $x$. Take a sequence with $v_x\to\sqrt\beta$ from below and all other $v_y=0$. Its all-plus term contains $J_x(v_x)\to\infty$, whereas $e^{-\beta W_+(v)}$ tends to a strictly positive finite number. Since $C_\nu$ is invertible, these vectors have whitened representatives $\psi=C_\nu^{-1}v$; for $\beta$ large enough relative to $\rho_\beta$, a subsequence lies in one fixed nonempty tail cell of the finite block partition. Thus no finite volume-independent $b$ supplies the literal cell-wise $hF$ of [FinalTailActivity](/home/scott/Balaban/Balaban/Green/FinalTailActivity.lean:38) or [final_tail_gas_bound](/home/scott/Balaban/Balaban/Green/FinalTailGas.lean:230) for that natural integrand. The fixed $|u|\le1/2$ chart removes this divergence on its own portion, but omits the opposite sheet and the rest of the sphere. The latter must be integrated in **physical spin variables** or by a different bounded component operator before invoking a Gaussian-tail sup theorem.
+
+There is nevertheless a real Peierls reserve for those physical failures. If a plus spin has $|u_x|\ge1/2$, then $1-h\cdot\phi_x\ge1-\sqrt3/2$; on the opposite hemisphere it is at least one. Because every real bond energy is nonnegative and normalized surface measure is a probability measure, for any fixed exterior spins and $k$ distinct selected bad sites the unnormalized conditional spin integral is at most
+
+$$e^{\|g\|_1}\exp[-\beta\nu(1-\sqrt3/2)k]
+\le e^{\|g\|_1}\exp[-\beta c(1-\sqrt3/2)k/L^2].\tag{B.49}$$
+
+The estimate is for bounded real-sector test factors, not the normalized heavy object. Gaussian conditional normalization and collars can cost $O(s^d\log\beta)$ per selected core, which is eventually paid by (B.49) for fixed $s$; the more detailed bare real bound and its exact limitations are in [KF0-P7 §2](/home/scott/Balaban/notes/phase1/KF0-P7.md:66). A failed fluctuation block with $|u|\ll1$ instead uses (B.48), not the fixed-radius field charge. Both kinds of failures must be included in one exact component and closure ledger.
+
+### Why the positive-scale final wrappers do not instantiate at zero
+
+| Landed item / P7 source | What transfers | Exact $k_f=0$ difference |
+| --- | --- | --- |
+| [FinalGaussianReduction](/home/scott/Balaban/Balaban/Green/FinalGaussianReduction.lean:40), [KF0Reference](/home/scott/Balaban/Balaban/Green/KF0Reference.lean:335) | Gaussian change, positive gap and resolvent/square-root decay for the bare $K_\nu$; (B.45)–(B.46). | Identifying the bare sphere density and its normalizer with P7's already prepared H1–H5/H7 density still requires a physical bridge. The bare reference acts on original sites and tangent components. |
+| [FinalMassGreen.finalOp](/home/scott/Balaban/Balaban/Green/FinalMassGreen.lean:81), [UnitLattice.unconstrainedUnitOperator](/home/scott/Balaban/Balaban/Green/UnitLattice.lean:464) | The generic Schur-complement algebra remains informative. | Setting its formal $k=0$ makes $L^k=1$, $Q=I$, hence $\mathrm{finalOp}=aI-a^2(K_\nu+aI)^{-1}=aK_\nu(K_\nu+aI)^{-1}$, **not** $K_\nu$. On the constant mode its eigenvalue is $a\nu/(a+\nu)$ rather than $\nu$. The discrepancy is structural, besides the landed hypothesis $1\le k$. |
+| [FinalCutFamily](/home/scott/Balaban/Balaban/Green/FinalCutFamily.lean:255), [FinalCfinInverse](/home/scott/Balaban/Balaban/Green/FinalCfinInverse.lean:202), [FinalInteractionCutoff](/home/scott/Balaban/Balaban/Green/FinalInteractionCutoff.lean:92), [FinalConstants.cutoffInteraction_final_phys_comp](/home/scott/Balaban/Balaban/Green/FinalConstants.lean:87), [FinalRadiusClass](/home/scott/Balaban/Balaban/Green/FinalRadiusClass.lean:98) | Generic cut-matrix algebra and the analytic parameter integral can be reused after new inputs. The physical-point value-radius inequality $B_C\beta^{-1/2}\rho_\beta<1/2$ follows eventually from (B.46). | These physical wrappers use $\mathrm{finalOp}$, its cut square root and $\mathrm{finalGap}$, and require $1\le k$; setting $k=0$ does not describe (B.45). A bare $K_\nu$ cut family needs a complex row bound $B_C(\kappa)$, coercivity, square root, analytic chart and exact nonwinding lift. The physical-point bound (B.46) does not prove the complex cut bound. |
+| [FinalTailSplit](/home/scott/Balaban/Balaban/Green/FinalTailSplit.lean:60), [FinalTailBlocks](/home/scott/Balaban/Balaban/Green/FinalTailBlocks.lean:33), [FinalTailBridge](/home/scott/Balaban/Balaban/Green/FinalTailBridge.lean:58) | The partition and (B.48) are directly available after whitening. The bridge gives the conditional $e^{-P-Hk}$ arithmetic. | The bare physical integrand lacks the required uniform tail-cell supremum and its failed physical spins are not just large independent Gaussian coordinates. |
+| [final_tail_gas_bound](/home/scott/Balaban/Balaban/Green/FinalTailGas.lean:230), [gas_activity_bound](/home/scott/Balaban/Balaban/Polymer/GasBound.lean:445) | Abstract connected-support counting and the gas activity estimate apply once scalar component weights and fixed boundary coefficients are supplied. | The former uses a product Gaussian indexed by final block-torus sites, at most one index per block, exact-cell heavy integrals, and assumes the light bound $hB$. The bare $\psi$ has $s^d$ site indices per $s$-block; use the generic block-tail theorem with block size $s^d$ and then the general gas theorem, or prove a reindexing. In either case the exact-cell integral is not yet a multiplicative component weight. The scalar gas identity and fixed $hB$ are missing. |
+| [KF0WalkTorus](/home/scott/Balaban/Balaban/Green/KF0WalkTorus.lean:194), [KF0KilledWalks](/home/scott/Balaban/Balaban/Green/KF0KilledWalks.lean:381), [KF0DetWalks](/home/scott/Balaban/Balaban/Green/KF0DetWalks.lean:276) | Bare torus walk agreement, Dirichlet-hole coercivity and determinant loops provide parts of the needed localization. | Full raw $K_\nu^{-1}$ remains torus dependent as (B.19) shows. These declarations do not turn the nonlinear heavy operator and boundary differences into exact, connected, support-weighted activities. The desired block side is $s=ML$ in original lattice units; the positive-scale final macroscale coordinates must be reidentified rather than inherited by substitution. |
+
+The operator mismatch in the second row follows immediately from the two cited definitions: for block factor one, the unit block average and pullback are identities and the fine Hamiltonian is $K_\nu+aI$. Since $K_\nu$ commutes with $K_\nu+aI$, subtraction gives the displayed rational function. Thus even removing the formal $1\le k$ premise would not make the landed final cut family the bare covariance cut family.
+
+P7 (4.1)–(4.10) is conditional on an **already constructed** large-field density; at $k=0$ the prior-scale corrections and earlier observable sums are empty, but the bare source term remains and the first large-field operator, source allocation and crossing-bond ledger are new. P7 (4.10) invokes P5 (1.31) for a bounded test function; (B.49) is a real starting reserve, not its analytic, localized component bound. P7 (4.11)–(4.14) further needs fixed boundary coefficients made from differences of full- and complement-lattice terms. There are no old inherited boundary terms at zero, but a fresh hole still changes the Gaussian mean, determinant and good-region interaction.
+
+The corrected [L4 Part 2, §§2.1–2.5](/home/scott/Balaban-scratch/astra-l4/L4.md:177) keeps the background driven by **bounded retained data**, integrates failed variables first, and states the missing fixed-coefficient/factorization identity explicitly in (2.2). The ordering matters already in a two-site quadratic toy problem: with one bad boundary tangent datum $u_z\in(0,1)$, a neighboring good variable has minimizer $u_x=u_z/(1+\nu)$ for the energy $\nu u_x^2/2+(u_x-u_z)^2/2$. For $\nu<1$, choosing $u_z>(1+\nu)/2$ puts this minimizer outside the strict $|u_x|<1/2$ chart. Feeding bad values into the good background is therefore invalid even though the bad spin itself is bounded. Integrating the bad variable first and retaining only bounded good data avoids this particular inference, but the resulting exterior-dependent component must be localized.
+
+There is also an exact algebraic reason why the final-tail **bound** is not a final-tail **identity**. In a two-block independent Gaussian test let one-block good and bad probabilities be $q$ and $p=1-q$, with no interactions. The empty-cell factor is $q^2$, and the correct normalized singleton component weight is $p/q$, giving $(1+p/q)^2$. The exact one-bad-block cell integral is $pq$, which is the activity type bounded by final_tail_gas_bound; multiplying two such integrals gives $p^2q^2$, not the two-bad-block integral $p^2$. This is the normalization/factorization gap proved in [L4 Part 2 §2.4](/home/scott/Balaban-scratch/astra-l4/L4.md:292). If an actual one-block bounded operator $A_Q$ existed, the corrected normalized weight $q_Q^{-1}\int_{E_Q}A_Q\,d\gamma_Q$ would obey $|\tau_Q|\le2e^b s^d2^{m/2}e^{-\rho_\beta^2/4}$ when the one-block tail probability is at most $1/2$. That conditional inequality is elementary; neither its one-block factorization nor the fixed, hole-independent boundary coefficients follow from the tail bound.
+
+**Precise remaining theorem.** For every $\nu\in(7/(8L^2),1]$ and fixed $s=ML$, construct from (B.45) an exact partition into good fluctuation blocks and physical bad components, with no inherited terms; integrate the bad variables into bounded, normalized component operators depending analytically on **retained** data; and prove a volume-uniform, support-weighted exterior-difference estimate for those operators and the good-region covariance, determinant and crossing factors. It must yield fixed connected boundary coefficients independent of the selected bad family, a genuine product of component weights, the numeric $hB$ and $h\tau$ of gas_activity_bound, and a torus-coherent nonwinding localization. Then the landed gas theorem and the radial source derivative give $T_1$; [rootF_kf0_partial_of_oneScaleInput](/home/scott/Balaban/Balaban/Correlations/KF0RootFPartial.lean:349) is the existing final bridge once that physical one-scale input is available. Equation (B.8) already gives nonvanishing and the principal analytic logarithm on the source ball, but not its local bound.
+
+**Round-6 conclusion and confidence.** (B.44)–(B.49) prove the bare Gaussian reference identity, the quantitative good-box perturbation and tail/field reserves, with no use of a $J^2$ moment. The positive-scale FinalTail numerical lemmas transfer conditionally, while their physical cut and gas wrappers do not instantiate at $k=0$: the reference operator is different, the natural heavy integrand fails their uniform tail-cell supremum, and exact-cell weights need not be component weights. The route remains plausible after a new bounded retained-data component theorem and weighted localization; those are the precise missing proofs. Confidence is high in these identities, inequalities and direct interface obstructions, and conditional on the unproved physical component theorem for completion of Root-F.
+
+## Round 7 (17 October 2026): testing the proposed general-scale component theorem
+
+Read-only source snapshot: /home/scott/Balaban HEAD bd0f5f6c991686930b4b4ea4afaed283438df7b7. The four FinalLarge files cited below have SHA256 prefixes e7460064 (Gas), 6c347c8a (Closing), 7b68ffb8 (Bounds), and 1880bad0 (Background); the P5 and P7 extracted texts have prefixes b4db3543 and 95cbfacd. No source file was edited.
+
+The new [FinalLargeGas](/home/scott/Balaban/Balaban/Green/FinalLargeGas.lean:59) and [FinalLargeClosing](/home/scott/Balaban/Balaban/Green/FinalLargeClosing.lean:30) state the exact scalar identity with two named premises, `hOperator` and `hBoundary`. They do not construct either premise. [FinalLargeBackground](/home/scott/Balaban/Balaban/Green/FinalLargeBackground.lean:23) proves a retained-background value bound and analytic cutoff integral *under supplied* fixed-point, covariance, chart and continuity estimates. [FinalLargeBounds](/home/scott/Balaban/Balaban/Green/FinalLargeBounds.lean:28) converts a *supplied* fixed boundary-size estimate to `hB`, and a *supplied* one-block operator identification and tail supremum to `hτ`. Thus the requested theorem would be a new physical theorem, rather than a specialization of the landed closure.
+
+There is a stronger issue with the proposed route when `cell Z` is the **exact cutoff cell integral**. Its asserted scalar singleton factorization with fixed *connected* charged supports is false for a uniformly bounded, arbitrarily small, nearest-neighbor perturbation of a product massive Gaussian. The following example has an exact block partition, a bounded analytic retained-data operator, a volume-uniform Gaussian tail charge, and torus-coherent local input. Its obstruction is algebraic and persists however small the perturbation is.
+
+**Theorem B.7 (exact-cell connected-boundary obstruction).** Let $V$ be a block torus with at least five blocks in one coordinate, and choose three consecutive blocks $a,b,c$ so that $a$ and $c$ are not adjacent. Give each block one independent standard real Gaussian $\psi_z$. Fix $\rho>0$ and $\epsilon>0$, and write $G=\{|t|\le\rho\}$, $H=\{|t|>\rho\}$, $q=\gamma(G)>0$, $p=\gamma(H)>0$, $f(t)=\tanh t$. Use the positive local density
+
+$$F_\epsilon(\psi)=\exp\{\epsilon f(\psi_a)f(\psi_b)+\epsilon f(\psi_b)f(\psi_c)\},\qquad e^{-2\epsilon}\le F_\epsilon\le e^{2\epsilon}.$$
+
+For every bad set $Z\subseteq V$, let $E_Z$ require $\psi_z\in H$ exactly for $z\in Z$ and $\psi_z\in G$ otherwise, and put $W(Z)=\int_{E_Z}F_\epsilon\,d\gamma^V$. Then $W(Z)>0$ and
+
+$$W(Z)\le e^{2\epsilon}p^{|Z|}q^{|V|-|Z|},\qquad
+p\le\sqrt2\,e^{-\rho^2/4}.\tag{B.50}$$
+
+Nevertheless **no** nonzero scalars $Q,\tau_z$, finite label family $Y$, nonempty connected supports $S_y\subseteq V$, and complex coefficients $g_y$ can satisfy, simultaneously for every $Z\subseteq V$,
+
+$$W(Z)=Q\Big(\prod_{z\in Z}\tau_z\Big)
+ \exp\Big(\sum_{y:S_y\cap Z\ne\varnothing}g_y\Big).\tag{B.51}$$
+
+This is the exact-cell reading of `hOperator` and `hBoundary` in `FinalLargeGas`; it fails even if the constants allowed in `hB` are arbitrarily large.
+
+*Proof.* The cutoff events partition the product sample space exactly, and the pointwise density bound gives (B.50). The scalar Gaussian tail bound is the one-coordinate case of [pdGaussian_tail_blocks_le](/home/scott/Balaban/Balaban/Green/FinalTailBlocks.lean:33).
+
+For $y\in\mathbb R$ define
+
+$$A(y)=\int_G e^{\epsilon y f(x)}\,d\gamma(x),\qquad
+B(y)=\int_H e^{\epsilon y f(x)}\,d\gamma(x).\tag{B.52}$$
+
+Write $w_U$ for the three-active-block integral with bad subset $U\subseteq\{a,b,c\}$; any fixed statuses of the other blocks multiply all four weights below by the same factor. With the middle block bad,
+
+$$w_b=\int_H A(f(t))^2\,d\gamma(t),\quad
+w_{ab}=w_{bc}=\int_H A(f(t))B(f(t))\,d\gamma(t),\quad
+w_{abc}=\int_H B(f(t))^2\,d\gamma(t),\tag{B.53}$$
+
+Strict Cauchy–Schwarz gives
+
+$$\Delta_{ac}:=\log\frac{w_bw_{abc}}{w_{ab}w_{bc}}>0.\tag{B.54}$$
+
+Here is the strictness check. The functions $A,B$ are positive and real analytic on the real $y$-axis. Put $\alpha_G=q^{-1}\int_G f(x)^2d\gamma(x)$ and $\alpha_H=p^{-1}\int_H f(x)^2d\gamma(x)$. Since $f(x)^2$ increases strictly with $|x|$, $\alpha_H>\alpha_G$. Symmetry gives $A'(0)=B'(0)=0$, and direct differentiation yields
+
+$$\left(\frac BA\right)''(0)=\epsilon^2\frac pq(\alpha_H-\alpha_G)>0.\tag{B.55}$$
+
+Thus $B/A$ cannot be constant on the open range $f((\rho,\infty))$; otherwise real analyticity would make it constant everywhere. Equality in Cauchy–Schwarz in (B.53) is therefore impossible. Equivalently, with probability measure $d\omega(t)=\mathbf1_H(t)A(f(t))^2d\gamma(t)/w_b$ and $r(t)=B(f(t))/A(f(t))$,
+
+$$\Delta_{ac}=\log\left(1+\frac{\operatorname{Var}_\omega(r)}{(\mathbb E_\omega r)^2}\right)>0.\tag{B.56}$$
+
+To compare with (B.51), take real logarithms of its absolute values and subtract the constant and singleton terms. For any function $D(Z)=\sum_{\varnothing\ne S\subseteq V}d_S\mathbf1_{S\cap Z\ne\varnothing}$, the coefficients are unique: setting $H_D(T)=D(V)-D(V\setminus T)$ gives $H_D(T)=\sum_{S\subseteq T}d_S$, and finite-set Möbius inversion recovers every $d_S$. In particular
+
+$$d_{\{a,c\}}=D(V\setminus\{a\})+D(V\setminus\{c\})
+-D(V\setminus\{a,c\})-D(V).\tag{B.57}$$
+
+Take $D(Z)=\log W(Z)-\log|Q|-\sum_{z\in Z}\log|\tau_z|$. The constant and singleton terms cancel in (B.57). All blocks outside $\{a,b,c\}$ have independent cutoff factors and cancel as well. Consequently (B.53)–(B.54) give
+
+$$d_{\{a,c\}}=\log\frac{w_{bc}w_{ab}}{w_bw_{abc}}=-\Delta_{ac}\ne0.\tag{B.58}$$
+
+But (B.51) would make $d_{\{a,c\}}=\sum_{y:S_y=\{a,c\}}\operatorname{Re}g_y=0$, since $\{a,c\}$ is disconnected. This contradiction proves the theorem. $\square$
+
+The same example tests the **retained-data** order directly. If $b$ is good and its value $t$ is retained, integrating the bad variable at $a$ gives the one-block operator $B(f(t))$, while integrating a good variable there gives $A(f(t))$. Their normalized ratio $R(y)=B(y)/A(y)$ is analytic and uniformly bounded on a complex retained-value disc: for $|y|\le R_0$ and $\epsilon R_0<\log2$,
+
+$$|A(y)|\ge q(2-e^{\epsilon R_0})>0,\qquad
+|R(y)|\le\frac pq\frac{e^{\epsilon R_0}}{2-e^{\epsilon R_0}}.\tag{B.59}$$
+
+Indeed $|e^{\epsilon yf(x)}-1|\le e^{\epsilon R_0}-1$ and $|f(x)|\le1$. A sufficiently narrow complex neighborhood of the retained interval $[-\rho,\rho]$ has $|\tanh t|\le R_0$; choosing $\epsilon R_0<\log2$ makes this an analytic bound in the retained variable itself. For real $|y|\le1$, the sharper simple bound is $0<R(y)\le(p/q)e^{2\epsilon}$. Thus integrating bad variables first really does produce bounded operators analytic in bounded retained data in this example. But integrating the retained good $t$ afterwards gives $w_\varnothing=\int_G A(f(t))^2d\gamma$, $w_a=w_c=\int_G AB\,d\gamma$, $w_{ac}=\int_G B^2d\gamma$ (all outside blocks contribute the same factor), so strict Cauchy–Schwarz gives $w_\varnothing w_{ac}>w_aw_c$. The middle good fluctuation mediates a genuine interaction between the two bad components. A scalar product of separately integrated operators has lost it; a linked term whose *footprint includes $b$* must restore it.
+
+The heavy charge can be as strong as the landed numeric premise despite this failure. If $\rho^2/4\ge\log(2\sqrt2)$, then $q\ge1/2$, and the real normalized one-block bound is
+
+$$R(f(t))\le 2\sqrt2\,\exp(2\epsilon-\rho^2/4).
+\tag{B.60}$$
+
+Taking $\epsilon=\beta^{-1/2}$ and $\rho=A_1(\log\beta)^p$, the explicit condition $\rho^2/4\ge P+H+2\epsilon+\log(2\sqrt2)$ makes (B.60) at most $e^{-P-H}$, the singleton `hτ` requested by [gas_activity_bound](/home/scott/Balaban/Balaban/Polymer/GasBound.lean:445). The failure of (B.51) holds for every finite $\beta$, however large. The density and its cutoff are defined by the same local formula on any two tori containing the three blocks in a common nonwinding quarter-box lift, so exact agreement of the **input** does not repair the scalar factorization.
+
+### Consequences for P5, P7 and the landed interface
+
+[P5 pp. 494–495, (1.26)–(1.31)](/home/scott/Balaban-scratch/astra-l4/P5-full.txt), supplies a bound for a **bounded test function** under an already constructed large-field operator; the passage from (1.26) to (1.31) is a sum over admissible multi-indices with its combinatorial factor. Its conclusion is an absolute bound, not an identity between different exact cutoff cells. The example even has the explicit uniform tail bound (B.50), so this distinction is substantive. [P7 §4, pp. 529–532, (4.1)–(4.14)](/home/scott/Balaban-scratch/astra-l4/P7-pp529-534.txt), starts with a prepared density satisfying P5 H1–H5 and H7, constructs a massive retained-data background in (4.3)–(4.6), obtains the heavy-operator estimate (4.10), and then performs a **Mayer expansion** after (4.11). P7 does not identify its $T'_{k+1}$ with the raw exact Gaussian cutoff-cell integral used in Theorem B.7. The three-block bridge in that theorem is precisely a term a linked expansion must keep.
+
+Accordingly, Theorem B.7 is **not** a counterexample to Balaban's $O(N)$ last integral, to Root-F, or to the conditional Lean theorems. It disproves the proposed general-scale deduction of `hOperator` and `hBoundary` from a block cutoff, bounded analytic retained operators, Gaussian tail smallness, local perturbations and torus-coherent input, when the `cell Z` are exact cutoff-cell integrals and `hBoundary` is required to use connected supports as in [FinalLargeClosing](/home/scott/Balaban/Balaban/Green/FinalLargeClosing.lean:71). It also shows why the conditional equation (2.2) in [L4 Part 2](/home/scott/Balaban/notes/phase1/astra/L4.md:177) must be established by a specific reorganization, rather than read off from the cutoff partition.
+
+For clarity, the exact numeric interface of the landed singleton closure is still conditional: fixed connected labels with multiplicity at most $m_Y$ must satisfy $|g_y|\le B_0e^{-\kappa''|S_y|}$, while genuine singleton weights must satisfy $|\tau_z|\le e^{-P-H}$. With $\kappa'\ge0$, it then asks for
+
+$$\kappa''-\kappa'\ge\log\!\bigl(m_Y(2d)^2\bigr)+3,\qquad
+H\ge B_0e^{B_0}+\kappa'+4,\tag{B.61}$$
+
+and gives $|\mathrm{gasK}(X)|\le3e^{-P}e^{-(\kappa'-2)|X|}$ by [final_large_integral_polymer_bound_of_connected_localization](/home/scott/Balaban/Balaban/Green/FinalLargeClosing.lean:74). Estimate (B.60) supplies the *one-block magnitude* half of this interface in the toy model. Theorem B.7 shows why no $B_0,\kappa''$ can supply its connected fixed-label half for the raw exact cells: the required identity already fails.
+
+The positive theorem would need a different intermediate object: retain the good variables while integrating the bad components; expand their interactions with the good region into connected linked footprints; then prove a volume-uniform exponential bound for each linked coefficient, including covariance, determinant and crossing terms, and its nonwinding two-torus lift. The activation set of a linked term (here $\{a,c\}$) may be disconnected even though its spatial footprint (here $\{a,b,c\}$) is connected. The landed `gasXi` uses the **same** support `cy y` for activation by intersection with $Z$ and for charged geometry, so this repair also needs either a proved regrouping into its fixed-coefficient form or a gas theorem with separate activation and footprint maps. For the bare $k=0$ density there is the additional equator/Jacobian problem of Round 6; for positive $k_f$, the full P5/P7 geometric labels and per-hole background estimates must be transported. None of [FinalLargeBackground](/home/scott/Balaban/Balaban/Green/FinalLargeBackground.lean:23), [FinalLargeBounds](/home/scott/Balaban/Balaban/Green/FinalLargeBounds.lean:28), or [FinalLargeClosing](/home/scott/Balaban/Balaban/Green/FinalLargeClosing.lean:30) supplies that linked construction or proves the two named physical premises.
+
+**Round-7 status and confidence.** Theorem B.7, (B.50)–(B.60), is a complete finite-volume obstruction to the requested *raw exact-cell singleton route*, with quantitative tail and retained-analytic bounds. It leaves a linked-component P7 route possible. I cannot honestly state the requested general-scale component theorem, `hOperator`, `hBoundary`, support-weighted exterior-difference bounds, or Root-F as proved from the cited sources and landed declarations. Confidence is high in the counterexample and in the interface reading; a completion claim for the physical model would require the new linked localization theorem just described.

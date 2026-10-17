@@ -2079,6 +2079,7 @@ public import Balaban.LargeField.R.KeptOutcomeOneGain
 public import Balaban.LargeField.R.KeptOutcomeOneNode
 public import Balaban.LargeField.R.KeptOutcomeThreeSupport
 public import Balaban.LargeField.R.KeptOutcomeThreeLocal
+public import Balaban.LargeField.R.KeptOutcomeThreeWeightLocal
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
@@ -2379,3 +2380,13 @@ public import Balaban.Flow.TriangularChart
 public import Balaban.Flow.MatrixInftyAnalytic
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
+public import Balaban.LargeField.Base.BaseFirstChart
+public import Balaban.LargeField.Base.BaseFirstChartIntegral
+public import Balaban.LargeField.Base.BaseFirstCut
+public import Balaban.LargeField.Base.BaseFirstCutPositive
+public import Balaban.LargeField.Base.BaseFirstActivity
+public import Balaban.LargeField.Base.BaseFirstMajorant
+public import Balaban.LargeField.Base.BaseFirstRecordCount
+public import Balaban.LargeField.Base.BaseFirstPartition
+public import Balaban.LargeField.Base.BaseFirstCutRecord
+public import Balaban.LargeField.Base.BaseFirstCutFactor
