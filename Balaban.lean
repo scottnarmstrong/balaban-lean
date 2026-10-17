@@ -1806,6 +1806,9 @@ public import Balaban.Green.FinalInteractionCutoff
 public import Balaban.Green.FinalConstants
 public import Balaban.Green.FinalRadiusCompare
 public import Balaban.Green.FinalRadiusClass
+public import Balaban.Green.FinalPolydiscClass
+public import Balaban.Green.FinalPolydiscLocal
+public import Balaban.Green.FinalLocalBound
 public import Balaban.Green.FinalTailBound
 public import Balaban.Green.FinalTailBlocks
 public import Balaban.Green.FinalTailSplit
@@ -2111,3 +2114,9 @@ public import Balaban.LargeField.R.RRemovedChainForest
 public import Balaban.LargeField.R.RRemovedChainGraded
 public import Balaban.LargeField.R.RRemovedChainLevel
 public import Balaban.LargeField.R.RRemovedChainSplit
+public import Balaban.Fluctuation.LocalClassDensityH
+public import Balaban.Fluctuation.LocalClassDensityHDef
+public import Balaban.Fluctuation.LocalClassDensityHRep
+public import Balaban.Fluctuation.LocalClassDensityHAnalytic
+public import Balaban.Fluctuation.LocalClassDensityHCont
+public import Balaban.Fluctuation.LocalClassDensityHZero
