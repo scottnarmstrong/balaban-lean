@@ -2375,3 +2375,6 @@ public import Balaban.LargeField.R.RRemovedFracMassArith
 public import Balaban.LargeField.R.RRemovedFracMassCore
 public import Balaban.LargeField.R.RRemovedFracMassReserve
 public import Balaban.LargeField.R.RRemovedWindowMass
+public import Balaban.SmallField.IrrelTorusDefectPointSymm
+public import Balaban.SmallField.IrrelTorusDefectPartition
+public import Balaban.SmallField.IrrelTorusDefectCount
