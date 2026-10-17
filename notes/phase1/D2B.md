@@ -1,0 +1,20 @@
+# D2(b): the step charts lie in the birth-mass domain (W881)
+
+Question. `ClassOldCover.hchart`: `XiCRaw(𝔹_j(X); a; ν_k; j; C₀; C₀²ε′+K₂δ₃+K₂δfl)` ⊆ `XiDom(𝔹_j(X); a; μ_j; j; ε_j)` (`xiFieldDom` at the birth mass `μ_j`, `a = aIdeal L k (compWeight L a₁ k)`, `k`-independent by `aIdeal_compWeight`).
+
+## 1. How the mass enters (refute-first: it enters through BOTH the backgrounds and the weights)
+- Backgrounds: `XiAt`/`XiC` (`SmallField/Xi.lean`) use `bgField G a ν Dr`, `bgMult`, `bgFieldC`, `bgMultC` (solutions of the system with `-Δ^D + Q*aQ + ν`; the datum `Dr, Dc` is the same, the solution changes with `ν`), and `InUnionDomainR/C … ν` (`ν L^{2K} ≤ 1`-type clause).
+- Weights: `XiBounds.mass` (`√ν ℓ |φ−h₀| < σε`), `XiBounds.hnorm` (`ν L^{2n} ||h₀|²−1| < (σε)²`), `XiCBounds.hAbs`, `hDot` (`ν ℓ² …`), the last also through `φr` (the real background at mass `ν`). `grad, lap, mult, val, close, collarBond` involve `ν` only through the background `φ`.
+- Hence the inclusion is NOT a monotonicity statement: the same raw datum has a different background at `μ_j` and at `ν_k`. The two real facts that survive: `μ_j` and `ν_k` are real and positive; XiDom is a plain definition (no `BgHyp`), but any proof that moves the mass needs `BgHyp` at `μ_j`, i.e. `μ_j L^{2K} ≤ 1` (`GreenSetting.withMass`, `massLe`). This is NOT implied by `ν_k L^{2K} ≤ 1` when `μ_j > ν_k`: a margin (`ν_k L^{2K}(1+c) ≤ 1`) is an additional input; it is not in `hchart`'s data.
+
+## 2. The exact inclusion, with constants
+Step 1 (landed, application): `xiC_rescale` (`GeneralClassMatch`): `Ξ^c_j(C₀, e) ⊆ Ξ^c_j(1, C₀² e)`, `e = C₀²ε′`-part of the radius; with the `Ψ'' := D.Ψ−Ψ₀` repackaging of `rayInDomain_dom_of_xiCData` (same mass `ν_k`).
+Step 2 (MISSING, mass response at level `j`): for `ν = ν_k`, `μ = μ_j = ν(1+t)`, `t = δ_j/δ_k − 1`: `XiC G a ν j 1 e Ψ₀ h₀ Ψ'' h'' → XiC G a μ j 1 (e(1+K_m|t|)) Ψ₀ h₀ Ψ'' h''`, `K_m` depending on `d,L,N` only (expected `≈ 8K₂ + 2`: `δ₁ = 8e|t|` in `exists_isRenSol`; the weights give factor `(1+|t|)`, the real part `Dr` moves by the same Prop. 5.1 estimate), under `μ L^{2K} ≤ 1`, `K₁(C₁e) + K₂ …` smallness as in `xiC_perturb`.
+Step 3 (landed): `xiC_mono_eps`: radius `e(1+K_m|t|) ≤ ε_j` suffices; `xiFieldDom_dom_of_eps_le` is the same at the level of `dom`.
+Room: DL-gap (FLUCTUATION §1.4) gives `C₀²(C₀²ε′+K₂δ₃) < ε_j` with the half-margin `C₀⁴ε_{k+1} < ε_k/2` and `C₀²K₂δ₃ < ε_k/2`; so `e ≤ ε_j/2·(1−)`-type room and Step 3 needs only `K_m|t| ≤ 1` (plus the `δfl` term, which belongs to the fluctuation variant and is `O(β^{-3/8}) ε_k`, OPEN with it). No Lean statement of (DL-gap) is landed (`ChainNum` has the pieces `small₂, th2, c1`; the inequality `C₀²·radius < ε_j` is not a field).
+
+## 3. Classification of the steps
+- scale `C₀ → 1`: landed (`xiC_rescale`, `xiC_scale`). Level-mono in `n` is landed (`xiC_level_mono`), so the level `j` vs the top level `k` costs nothing.
+- radius monotone: landed (`xiC_mono_eps`, `xiFieldDom_dom_of_eps_le`).
+- mass response for XiC at fixed level `j` and generating set `𝔹_j(X)`: NOT an application. `IsRenSol`/`exists_isRenSol` (`RenormExpLemma35`) are generic in `G` (BgHyp at `ν`) but are stated on `XiCOne` (level `n = K`), give only `(δφ, δα)` with `‖δφ‖_*,|δα|₂ ≤ 8K₂ e|ξ|`, and the identification `eq_bg` is for real `ξ`; converting `(δφ,δα)` to the 15 inequalities of `XiAt`+`XiCBounds` at mass `μ` (as `xiC_perturb` does for a perturbation of `Ψ''`) and to `InUnionDomainR/C` at `μ` is a new proof. Missing lemma (exact): `XiC` mass response above, with the real part `Dr` treated by the same estimate (real `ξ`, `h''=0`) and the complex part by `IsRenSol`.
+- cumulated factor: landed ingredients suffice (proved in `LocalClassBirth.lean`): `ν_k = ν L^{2k} δ_k` (`nuSeq_eq`); with `‖ξ_n‖ ≤ (c₈/4)q^{n+1}`, `c₈ = 4C/β` (`rg_flow_infty` hypothesis shape) the ratio `Π_{n=j}^{k−1}(1+ξ₃)/(1+ξ₂) = δ_k/δ_j` satisfies `|ratio−1| ≤ exp(3c₈q^{j+1}/(4(1−q)))−1 = O(β⁻¹ q^{j+1})`, even decaying in `j`. The hypothesis `‖ξ_n‖ ≤ (c₈/4)q^{n+1}` is the landed P4 (5.31) form (`Flow.RGInfty`, `RunningCoefficients`); it is an input about the actual flow, not proved here for the actual `ξ`.
