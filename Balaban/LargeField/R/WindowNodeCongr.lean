@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.Operators.CompBound
+public import Balaban.LargeField.Operators.QuietIndep
 public import Balaban.Fluctuation.Theorem42WireData
 import Balaban.LargeField.Region.Inclusions
 
@@ -28,7 +28,8 @@ of an ancestor of scale `j`) whose cube coarsens into `c` lies over `Ω^c_j`.
 * `node_cube_not_mem_locOmega`: the cube of a node lies outside `Ω_j` of the localization of `c`
   (Lemma I.3.9 (b): `Ω^c(loc) = Ω^c ∩ Lin`);
 * `mainActionLoc_congr_nodes`: the main action of the piece takes the same value at two
-  configurations of the new variables that agree off the nodes.
+  configurations of the new variables that agree off the nodes;
+* `mainActionLoc_congr_window`: the same together with `mainActionLoc_congr` for the outputs.
 -/
 
 @[expose] public section
@@ -349,6 +350,26 @@ theorem mainActionLoc_congr_nodes (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ
   rw [hD, hB]
   erw [hms]
   rfl
+
+/-- **The main action of a piece at two window configurations** (S1 with `mainActionLoc_congr`):
+it takes the same value at `(o, x)` and `(o', x')` when the outputs agree off the Gaussian blocks
+of the piece and the new variables agree off the nodes of the window. -/
+theorem mainActionLoc_congr_window (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
+    {Z : H.Comp (m' + 1)} (nd : (Σ s, BlockAt S n M K s) → Prop)
+    (hnd : ∀ j (y : BlockAt S n M K (j + 1)), nd ⟨j + 1, y⟩ ↔ (k1 ≤ j ∧ j ≤ m' ∧
+      ∃ c ∈ H.ancFin (j + 1) (m' + 1) Z, y ∈ gaussBlocks (H.localHistory M K (j + 1) c) j))
+    {j : ℕ} (hj1 : 1 ≤ j) (hjm : j ≤ m') (hk : j + 1 ≤ K) (c : H.Comp (j + 1))
+    (o o' : OutT N R (H.localHistory M K (j + 1) c) (j + 1))
+    (x x' : NewCfg N (H.localHistory M K (j + 1) c) j) (hv : EuclideanSpace ℝ (Fin N))
+    (hoo : ∀ y : Vblk R (H.localHistory M K (j + 1) c) (j + 1),
+      y.1 ∉ gaussBlocks (H.localHistory M K (j + 1) c) j → o y = o' y)
+    (hxx : ∀ q (y : BlockAt S n M K q), ¬ nd ⟨q, y⟩ → subVarField N x q y = subVarField N x' q y) :
+    mainActionLoc g (H.locRH (j + 1) c) j c.1 (locComp_mem H hk c) hk cs (locRH_rem (j + 1) c)
+        o x hv =
+      mainActionLoc g (H.locRH (j + 1) c) j c.1 (locComp_mem H hk c) hk cs (locRH_rem (j + 1) c)
+        o' x' hv :=
+  (mainActionLoc_congr g cs hk c o o' hoo x hv).trans
+    (mainActionLoc_congr_nodes g cs nd hnd hj1 hjm hk c o' x x' hv hxx)
 
 end Window
 
