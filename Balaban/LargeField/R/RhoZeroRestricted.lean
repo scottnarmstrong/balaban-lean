@@ -37,7 +37,9 @@ cutoff `χ_{Z₀}` has radius `C₆ β_k^{-1/2} p₀(β_k)` about the massless c
   `|β₀ (A_{Ω₁} - A_Z)(ψ) - β₀ (A_{Ω₁} - A_Z)(ψ⁰_k)| ≤ E` on the cutoff.  This bound is the ingredient of P7 (3.3)-(3.4)
   that is not landed: the first variation of `A*_k(Z)` at `ψ⁰_k` in the directions of `Z₀` is not `0` (only that of
   the action on `Ω₁` is, P7 (2.52)); it is the surface term on `st(Z)` and the `ν`-term, bounded in P7 by the decay of
-  `δφ_k` from `Z₀` (the core-to-action response, Q13-SHARED (2.4), open).
+  `δφ_k` from `Z₀` (the core-to-action response, Q13-SHARED (2.4), open).  It cannot be dropped:
+  `tildeE0Restricted_ge_of_sites_eq_empty` (a region without sites) gives `Ẽ₀^Z ≥ |Z₀| N log(2 C₆ p₀ / √N)`, not
+  bounded uniformly in `p₀`.
 * `removedFactor_le_of_den_eq_AZ`, `removedFactor_le_restricted`: (2.58′) for the removed outcome with the restricted
   denominator, without the term `A_den - A_Z` of `removedFactor_le`.
 -/
@@ -378,6 +380,30 @@ theorem cSix_pos {d D : ℕ} {K6 : ℝ} (hd : 0 < d) (hD : 1 ≤ D) (hK : 0 ≤ 
 
 end Cutoff
 
+section EmptyRegion
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ}
+
+theorem actionRegionR_of_sites_eq_empty (D : Region G) (hD : D.sites = ∅) (ν : ℝ) (Dat : BgData G N)
+    (φ : G.Ω 1 × Fin N → ℂ) : actionRegionR D a ν Dat φ = 0 := by
+  have hw : ∀ x μ, D.starWeight x μ = 0 := fun x μ => by simp [Region.starWeight, hD]
+  simp [actionRegionR, hD, hw]
+
+theorem gaussCube_subset_siteBall_sqrt [NeZero N] {Z : Type*} [Fintype Z] {r : ℝ} (hr : 0 < r) :
+    gaussCube (ι := Z × Fin N) (r / Real.sqrt N) ⊆ siteBall (Z := Z) (N := N) r := by
+  intro y hy z
+  have hN : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne N)
+  have hs2 : (r / Real.sqrt N) ^ 2 = r ^ 2 / N := by rw [div_pow, Real.sq_sqrt hN.le]
+  calc ∑ i, y (z, i) ^ 2 < ∑ _i : Fin N, (r / Real.sqrt N) ^ 2 := by
+        refine Finset.sum_lt_sum_of_nonempty Finset.univ_nonempty fun i _ => ?_
+        rw [← sq_abs]
+        exact pow_lt_pow_left₀ (hy (z, i)) (abs_nonneg _) (by norm_num)
+    _ = r ^ 2 := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, hs2]
+        field_simp
+
+end EmptyRegion
+
 section Source
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ)
@@ -596,6 +622,94 @@ theorem denominatorRestricted_bounds_of_osc {δ : ℝ} (hδ : 0 < δ)
     (tildeE0Restricted G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk Zr ν h β0 p0)
     (tildeE0 G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk (betaK d L k β0) p0)
   linarith
+
+include hd hk hw1 hwD hm hXreg hΩ hdata H in
+/-- **The bound of Lemma III.8.2 needs the geometry of `Z`**: for a region with no sites (`A_Z = 0`), the restricted
+density is the cutoff `χ_{Z₀}` alone and `Ẽ₀^Z ≥ |Z₀| N log(2 C₆ p₀ / √N)`, which is not bounded by a constant
+`C(N, d, D₀)` uniformly in `p₀` (the parameter conditions allow `p₀` up to a multiple of `β_k^{1/2}`), in contrast to
+`|Ẽ₀| ≤ C_Ẽ D₀^d` of the landed `denominator_eq`.  So the bound on `Ẽ₀^Z` uses the restricted action in the
+directions of `Z₀` (its quadratic growth and its first variation at `ψ⁰_k`), i.e. the oscillation hypothesis of
+`denominatorRestricted_bounds_of_osc`. -/
+theorem tildeE0Restricted_ge_of_sites_eq_empty {δ : ℝ} (hδ : 0 < δ)
+    (hδc : δ ≤ psiZeroC11 N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H) {ψk : BlockField d L N₀ k N}
+    (hψk : TubeOn G (X \ box b0 w) δ ψk) (Zr : Region G) (hZr : Zr.sites = ∅) (ν : ℝ) (h : Fin N → ℝ)
+    {β0 p0 : ℝ} (hβ0 : 0 < β0) (hp0 : 1 ≤ cSix d D Kz * p0) :
+    ((Zb).card * N : ℝ) * Real.log (2 * (cSix d D Kz * p0) / Real.sqrt N) ≤
+      tildeE0Restricted G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk Zr ν h β0 p0 := by
+  have hβk : 0 < betaK d L k β0 := by
+    unfold betaK
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  have hd0 : 0 < d := by omega
+  have hD1 : 1 ≤ D := (hw1 ⟨0, hd0⟩).trans (hwD _)
+  have hC6 : 0 < cSix d D Kz :=
+    cSix_pos hd0 hD1 (psiZeroK_pos N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H).le
+  have hρ := zeroRadius_pos hC6 hβk hp0
+  have hN : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne N)
+  set ρ := zeroRadius (cSix d D Kz) (betaK d L k β0) p0 with hρdef
+  set ψ0 := psiZero N G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk with hψ0
+  set u0 := restrictSupp Zb ψ0 with hu0
+  have hA0 : ∀ ψ : BlockField d L N₀ k N, actionZ G a Zr ν h ψ = 0 := fun ψ =>
+    actionRegionR_of_sites_eq_empty Zr hZr ν _ _
+  -- the integral is the volume of the site ball
+  have heq : rhoZeroRestricted G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk Zr ν h β0 p0 =
+      fun u => (siteBall (Z := ↥Zb) (N := N) ρ).indicator (fun _ => (1 : ℝ)) (u - u0) := by
+    funext u
+    rw [rhoZeroRestricted_eq_translate G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk Zr ν h hρ u]
+    simp only [hA0, mul_zero, Real.exp_zero]
+    rfl
+  have hI : ∫ u, rhoZeroRestricted G a hd hk b0 w hw1 hwD hm hXreg hΩ hdata H hδ hδc hψk Zr ν h β0 p0 u =
+      ∫ y, (siteBall (Z := ↥Zb) (N := N) ρ).indicator (fun _ => (1 : ℝ)) y := by
+    rw [heq]
+    exact integral_sub_right_eq_self (fun y => (siteBall (Z := ↥Zb) (N := N) ρ).indicator
+      (fun _ => (1 : ℝ)) y) u0
+  -- lower bound by the cube of side `2ρ/√N`
+  set s := ρ / Real.sqrt N with hs
+  have hspos : 0 < s := by positivity
+  have hmc : MeasurableSet (gaussCube (ι := ↥Zb × Fin N) s) := measurableSet_gaussCube s
+  have hball := siteBall_density_integrable_pos (Z := ↥Zb) (N := N) (A := fun _ => (0 : ℝ)) (β := β0) hρ
+    continuousOn_const (fun _ _ => by simp)
+  simp only [mul_zero, Real.exp_zero] at hball
+  have hcube : ∫ y, (gaussCube (ι := ↥Zb × Fin N) s).indicator (fun _ => (1 : ℝ)) y =
+      (2 * s) ^ ((Zb).card * N) := by
+    rw [integral_indicator_const _ hmc, Measure.real, volume_gaussCube hspos]
+    simp
+  have hvol : volume (gaussCube (ι := ↥Zb × Fin N) s) ≠ ⊤ := by
+    intro hh
+    have h1 := volume_gaussCube (ι := ↥Zb × Fin N) hspos
+    rw [hh, ENNReal.toReal_top] at h1
+    have h2 : 0 < (2 * s) ^ Fintype.card (↥Zb × Fin N) := by positivity
+    linarith
+  have hlow : (2 * s) ^ ((Zb).card * N) ≤
+      ∫ y, (siteBall (Z := ↥Zb) (N := N) ρ).indicator (fun _ => (1 : ℝ)) y := by
+    rw [← hcube]
+    refine integral_mono ((integrable_indicator_iff hmc).2 (integrableOn_const hvol)) hball.1 fun y => ?_
+    by_cases hy : y ∈ gaussCube (ι := ↥Zb × Fin N) s
+    · rw [Set.indicator_of_mem hy, Set.indicator_of_mem (gaussCube_subset_siteBall_sqrt hρ hy)]
+    · rw [Set.indicator_of_notMem hy]
+      exact Set.indicator_nonneg (fun _ _ => zero_le_one) y
+  -- the logarithm
+  have hpos : 0 < (2 * s) ^ ((Zb).card * N) := by positivity
+  have hlog := Real.log_le_log hpos hlow
+  rw [← hI, Real.log_pow] at hlog
+  have hρβ : ρ * Real.sqrt (betaK d L k β0) = cSix d D Kz * p0 := by
+    rw [hρdef]
+    unfold zeroRadius
+    rw [Real.sqrt_eq_rpow]
+    have e1 : betaK d L k β0 ^ (-(1 / 2 : ℝ)) * betaK d L k β0 ^ (1 / 2 : ℝ) = 1 := by
+      rw [← Real.rpow_add hβk]; norm_num
+    calc cSix d D Kz * betaK d L k β0 ^ (-(1 / 2 : ℝ)) * p0 * betaK d L k β0 ^ (1 / 2 : ℝ)
+        = cSix d D Kz * p0 * (betaK d L k β0 ^ (-(1 / 2 : ℝ)) * betaK d L k β0 ^ (1 / 2 : ℝ)) := by ring
+      _ = cSix d D Kz * p0 := by rw [e1, mul_one]
+  have hlog2 : Real.log (2 * (cSix d D Kz * p0) / Real.sqrt N) =
+      Real.log (2 * s) + Real.log (betaK d L k β0) / 2 := by
+    have e : 2 * (cSix d D Kz * p0) / Real.sqrt N = (2 * s) * Real.sqrt (betaK d L k β0) := by
+      rw [← hρβ, hs]; ring
+    rw [e, Real.log_mul (by positivity) (by positivity), Real.log_sqrt hβk.le]
+  unfold tildeE0Restricted
+  rw [hA0, mul_zero, add_zero, hlog2]
+  push_cast at hlog ⊢
+  linarith [hlog]
 
 end Source
 
