@@ -41,8 +41,9 @@ The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/P
 A finding that concerns all blockers: the step tower produces the setting of each step but not yet the class of the
 next step (its terms, vacuum energy and family over tori). Many results above are proved for a given class; feeding the
 output of one step into the next is the backbone of the assembly of Root-F. A proposal for the next class is written
-(`notes/phase1/astra/SFFAM.md`, Part 2); the transport of the old terms to the next torus and the check of the mass in the
-old levels' domains are being done first, since they need no new class.
+(`notes/phase1/astra/SFFAM.md`, Part 2); the transport of the old terms to the next torus is proved (W985). The domain of the old levels needs a ruling:
+with the current scale's mass for every level, the inclusion across a step fails at admissible constants
+(SFFAM.md Part 3); domains frozen at each level's birth mass are recommended (PLAN-B, R6).
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
