@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassAssembleE
 public import Balaban.Fluctuation.LocalClassLabels
+public import Balaban.Fluctuation.LocalClassAssembleM
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -825,6 +826,248 @@ theorem localClass_centre_Edens_eq {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
   unfold Edens
   exact Finset.sum_congr rfl fun z _ => localClass_centre_Eloc_eq hN HB Yp Tm cpl hcpl TE hTEan
     hTEloc AE hAE hE hchart Dz hDz hDzcov z hp
+
+/-! ### The source terms: the per-site identity and `eucMloc` for the full group
+
+The source terms of the new level are already labelled by sites (`localClass_termClausesM`); the
+counterexample of `WIDEGEN.md` NEXT (W851) item 4 does not apply to them, and only the per-site
+identity with the per-site density `𝒟_M(x)` (P4 (4.18): `ℳ^{(k+1)}(x)`) remains
+(LOCALCLASS-REVIEW §4 (iv)). -/
+
+open Classical in
+/-- **The per-site identity of the source terms**: for the averaged, completed source terms of
+`localClass_termClausesM`, at every pair `p` of the domain of `levelGS (k + 1)` and every source,
+`Mloc_{k+1}(x)(p, g) = 𝒟_M(x)(p, g)`, from the inclusion `hchart` of that domain in the class
+domains of the polymers, the localization expansion `hDM` of `𝒟_M` there and the covariance
+`hDMcov` of `𝒟_M` under the paving group. -/
+theorem localClass_site_Mloc_eq {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
+    {a : ℕ → ℝ} {ν : ℝ} {εseq : ℕ → ℝ}
+    (Yp : Set (CTorus d L N₁ m₁ (k + 1)) → Set (CTorus d L N₁ m₁ (k + 1)))
+    (Tm : Terms d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁)))
+    (cpl : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ Y p, cpl Y p = Classical.epsilon
+      (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+          (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) q.1 q.2 ∧
+        ∀ z ∈ Y,
+          q.1 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).1 z ∧
+          q.2 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).2 z))
+    (TM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hTMloc : ∀ x Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p'.1 p'.2 →
+      (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → ∀ g, TM x Y (p, g) = TM x Y (p', g))
+    (AM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hAM : ∀ x Y q, AM x Y q =
+      ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
+        ℂ))⁻¹ • ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+        TM (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) x)
+          (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          (cpl (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.2),
+            actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.2))
+    (hM : ∀ x Y Ψ h g, Tm.M (k + 1) x Y Ψ h g = AM x Y ((Ψ, h), g))
+    (hchart : ∀ Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) q.1 q.2)
+    (DM : CTorus d L N₁ m₁ (k + 1) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hDM : ∀ x (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) g,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      ∑ᶠ Y ∈ polysAt P.m₀ (k + 1) x, TM x Y (q, g) = DM x (q, g))
+    (hDMcov : ∀ r ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+      ∀ x (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) g,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        (actField r q.1) (actField r q.2) →
+      DM (r x) ((actField r q.1, actField r q.2), actField r g) = DM x (q, g))
+    (x : CTorus d L N₁ m₁ (k + 1)) {p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N}
+    (hp : (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+      (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+      p.1 p.2) (g : Fld d L N₁ m₁ (k + 1) N) :
+    Mloc P.m₀ Tm (k + 1) x p.1 p.2 g = DM x (p, g) := by
+  have hinv : ∀ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+      ((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹) ∈
+        pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1) :=
+    fun s => inv_mem s.2
+  have hfin : (polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) P.m₀ (k + 1) x).Finite :=
+    Set.toFinite _
+  have hterm : ∀ Y ∈ polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) P.m₀ (k + 1) x,
+      Tm.M (k + 1) x Y p.1 p.2 g =
+        ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀
+          (k + 1)) : ℂ))⁻¹ •
+        ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+          TM (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) x)
+            (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            ((actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.1,
+                actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.2),
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ g) := by
+    intro Y hY
+    rw [hM, hAM]
+    congr 1
+    refine Finset.sum_congr rfl fun s _ => ?_
+    have hY' : IsPolyDom P.m₀ (k + 1)
+        (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))
+          '' Y) := (isPolyDom_image_iff hN (hinv s) Y).2 hY.1
+    have hq := hchart _ hY' (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.1,
+      actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.2)
+      (xiFieldDom_levelGS_act (hinv s) hp)
+    obtain ⟨-, c2⟩ := fieldDom_completion_spec _ (k + 1) _ _ _ (hcpl _)
+      (fun q hq => xiDom_mem_layerSub hq)
+    exact hTMloc _ _ hY' _ _ (c2 _ hq).1 hq (c2 _ hq).2 _
+  have hinner : ∀ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+      ∑ Y ∈ hfin.toFinset,
+        TM (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) x)
+          (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          ((actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ p.2),
+            actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ g) = DM x (p, g) := by
+    intro s
+    set t : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)) := (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹
+      with ht
+    have hts : t ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1) :=
+      hinv s
+    have hti : t⁻¹ ∈ pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1) :=
+      inv_mem hts
+    have hq := xiFieldDom_levelGS_act hts hp
+    rw [← finsum_mem_eq_finite_toFinset_sum _ hfin]
+    rw [finsum_mem_eq_of_bijOn (t := polysAt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) P.m₀
+        (k + 1) (t x)) (g := fun Y' => TM (t x) Y' ((actField t p.1, actField t p.2), actField t g))
+      (fun Y => t '' Y) ⟨fun Y hY => ?_, fun Y _ Y' _ hYY => ?_, fun Y' hY' => ?_⟩
+      fun Y _ => rfl]
+    · rw [hDM _ _ _ hq]
+      exact hDMcov t hts x p g hp hq
+    · exact ⟨(isPolyDom_image_iff hN hts Y).2 hY.1, Set.mem_image_of_mem _ hY.2⟩
+    · exact Set.image_injective.2 t.injective hYY
+    · refine ⟨(⇑(t⁻¹)) '' Y', ⟨(isPolyDom_image_iff hN hti Y').2 hY'.1, ?_⟩, ?_⟩
+      · exact ⟨t x, hY'.2, by simp [Equiv.Perm.inv_def]⟩
+      · simp only
+        rw [Set.image_image]
+        simp [Equiv.Perm.inv_def]
+  have hc : (Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀
+      (k + 1)) : ℂ) ≠ 0 := by exact_mod_cast Fintype.card_ne_zero
+  unfold Mloc
+  rw [finsum_mem_congr rfl hterm, finsum_mem_eq_finite_toFinset_sum _ hfin, ← Finset.smul_sum,
+    Finset.sum_comm]
+  simp_rw [hinner]
+  rw [Finset.sum_const, Finset.card_univ, ← Nat.cast_smul_eq_nsmul ℂ, smul_smul,
+    inv_mul_cancel₀ hc, one_smul]
+
+open Classical in
+/-- **The clause `eucMloc` at `j = k + 1` for the full group `fullJSymGroup L (k + 1)`**, for the
+averaged, completed source terms of `localClass_termClausesM`: from the per-site identity
+`localClass_site_Mloc_eq` (inputs `hchart`, `hDM`) and the covariance of the per-site density `𝒟_M`
+under the full group (`hDMfull`, P4 (H.7):
+`ℳ^{(k+1)}(r x; r ψ, r h, r g) = ℳ^{(k+1)}(x; ψ, h, g)`). -/
+theorem localClass_eucMloc_site {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    [Fintype (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1))]
+    {a : ℕ → ℝ} {ν : ℝ} {εseq : ℕ → ℝ}
+    (Yp : Set (CTorus d L N₁ m₁ (k + 1)) → Set (CTorus d L N₁ m₁ (k + 1)))
+    (Tm : Terms d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁)))
+    (cpl : Set (CTorus d L N₁ m₁ (k + 1)) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N)
+    (hcpl : ∀ Y p, cpl Y p = Classical.epsilon
+      (fun q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N =>
+        (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+          (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) q.1 q.2 ∧
+        ∀ z ∈ Y,
+          q.1 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).1 z ∧
+          q.2 z = (Classical.choose (exists_layerProj (N := N)
+            (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) Y) p).2 z))
+    (TM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hTMloc : ∀ x Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p.1 p.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) p'.1 p'.2 →
+      (∀ z ∈ Y, p.1 z = p'.1 z ∧ p.2 z = p'.2 z) → ∀ g, TM x Y (p, g) = TM x Y (p', g))
+    (AM : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hAM : ∀ x Y q, AM x Y q =
+      ((Fintype.card (pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1)) :
+        ℂ))⁻¹ • ∑ s : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1),
+        TM (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) x)
+          (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+            Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+          (cpl (((s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ :
+              Equiv.Perm (CTorus d L N₁ m₁ (k + 1))) '' Y)
+            (actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.1,
+              actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.1.2),
+            actField (s : Equiv.Perm (CTorus d L N₁ m₁ (k + 1)))⁻¹ q.2))
+    (hM : ∀ x Y Ψ h g, Tm.M (k + 1) x Y Ψ h g = AM x Y ((Ψ, h), g))
+    (hchart : ∀ Y, IsPolyDom P.m₀ (k + 1) Y →
+      ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (localB (k + 1) (le_refl (k + 1)) (Yp Y) (le_refl (minSep L (L ^ m₁)))) q.1 q.2)
+    (DM : CTorus d L N₁ m₁ (k + 1) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ)
+    (hDM : ∀ x (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) g,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      ∑ᶠ Y ∈ polysAt P.m₀ (k + 1) x, TM x Y (q, g) = DM x (q, g))
+    (hDMfull : ∀ r ∈ fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1),
+      ∀ x (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) g,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        (actField r q.1) (actField r q.2) →
+      DM (r x) ((actField r q.1, actField r q.2), actField r g) = DM x (q, g)) :
+    ∀ hjk : k + 1 ≤ k + 1, ∀ x,
+      ∀ r ∈ fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1), ∀ Ψ h g,
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) hjk) Ψ h →
+      (xiFieldDom a ν εseq : FieldDom d L N₁ m₁ (k + 1) N (minSep L (L ^ m₁))).dom (k + 1)
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) (k + 1) hjk)
+        (actField r Ψ) (actField r h) →
+      Mloc P.m₀ Tm (k + 1) (r x) (actField r Ψ) (actField r h) (actField r g) =
+        Mloc P.m₀ Tm (k + 1) x Ψ h g := by
+  intro _ x r hr Ψ h g h1 h2
+  have hle : pavingSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L P.m₀ (k + 1) ≤
+      fullJSymGroup (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) :=
+    symGroupBy_le_of_dvd pow_dvd_cellSide (cellSide_pos (L := L) P.m₀ m₁ (k + 1))
+  have e1 := localClass_site_Mloc_eq hN Yp Tm cpl hcpl TM hTMloc AM hAM hM hchart DM hDM
+    (fun r hr' => hDMfull r (hle hr')) (r x) (p := (actField r Ψ, actField r h)) h2 (actField r g)
+  have e2 := localClass_site_Mloc_eq hN Yp Tm cpl hcpl TM hTMloc AM hAM hM hchart DM hDM
+    (fun r hr' => hDMfull r (hle hr')) x (p := (Ψ, h)) h1 g
+  simp only at e1 e2
+  rw [e1, e2]
+  exact hDMfull r hr x (Ψ, h) g h1 h2
 
 end CentreClass
 
