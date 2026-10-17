@@ -2152,6 +2152,7 @@ public import Balaban.LargeField.R.RRemovedHidGaussEqNodes
 public import Balaban.LargeField.R.RRemovedHidGaussEq
 public import Balaban.LargeField.R.RRemovedHidGaussEqConst
 public import Balaban.LargeField.R.RRemovedHidMean
+public import Balaban.LargeField.R.RRemovedHidLeaf
 public import Balaban.LargeField.R.RRemovedHidQuotAct
 public import Balaban.LargeField.R.RRemovedHidQuotStep
 public import Balaban.LargeField.R.RRemovedChainIntegral
