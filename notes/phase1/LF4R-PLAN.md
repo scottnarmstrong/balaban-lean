@@ -42,7 +42,7 @@ Scope: the removed outcome (3.10'); the kept outcomes (a), (b) of III.8.9 are on
 | Ripeness `G^pre >= 2 A2 lam^{p2} + 1` | LANDED | `Counter/Main.lean` `CounterConclusion.Gp_ripe` (from `PreH6`, `Ripe`, Active gives nu >= 1) |
 | (Rg) for kept components | LANDED | `Def7Basic.lean` `Rep.rg_ripe`; `Counter/Instantiation.lean` `toLF2Hyp` takes it as an argument |
 | Sum over histories, combinatorial factor | LANDED | `Budget/Summability.lean` `sum_inv_logC_le_one`, `Budget/Injective.lean` |
-| Exponent assembly (3.10') for one history from the window bound | LANDED (this W876) | `RRemovedFactor.lean` `removed_kerBound_of_window`, `KerBound.mono`, `CR_pow_le_A2_pow` |
+| Exponent assembly (3.10') for one history from the window bound | LANDED (this W876) | `RRemovedFactor.lean` `removed_kerBound_logC_of_window`, `KerBound.mono`, `CR_pow_le_A2_pow` |
 | Window bound (III.8.5) for rem | MISSING | leaf 6 |
 | From the kernel bound to `‖tau z‖`: tau z := sum_a int Trem_a e^{E|Z|} F dpsi, F = the remaining factor with sup|F| <= 1; `‖tau z‖ <= sum_a sup|F| int absW` | MISSING | leaf 3 |
 | Consumer | LANDED | `R/RGasCoreFinal.lean` `gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run`, hypothesis `hrem : forall z, ‖tau z‖ <= exp(-p2Run - H*(cz z).1.card)` |
@@ -53,10 +53,14 @@ times e^{E_k|Z|} (absorbed in K for rem, as in III.8.7), against the factor F of
 `‖tau z‖ <= sum_a e^{-A2 lam^{p2} - H_k|Z|_k - 1 - logC(a)} <= e^{-A2 lam^{p2} - H_k|Z|_k}` by leaf 1, `sum_inv_logC_le_one`, and `p2Run <= A2 lam^{p2}` (0.3).
 
 ## 3. Leaves in dependency order (each <= 300 lines)
-1. DONE `Balaban/LargeField/R/RRemovedFactor.lean`: `removed_kerBound_of_window` (hyps: `hG : Gp = P.budgetG S k kappa^pre logC c`, `0 <= logC`, `2 A2 lam^{p2}+1 <= Gp`, `C_R lam^{2d+1} <= A2 lam^{p2}`, `hwin : KerBound a k T (kappa^pre - C_R lam^{2d+1})`; concl `KerBound a k T (A2 lam^{p2} + HRun H0 beta k * cubeVol S c + 1)`), `CR_pow_le_A2_pow`.
+1. DONE `Balaban/LargeField/R/RRemovedFactor.lean`: `removed_kerBound_logC_of_window` (hyps: `hG : Gp = P.budgetG S k kappa^pre logC c`, `2 A2 lam^{p2}+1 <= Gp`, `C_R lam^{2d+1} <= A2 lam^{p2}`, `hwin : KerBound a k T (kappa^pre - C_R lam^{2d+1})`; concl `KerBound a k T (A2 lam^{p2} + HRun H0 beta k * cubeVol S c + 1 + logC)`), `CR_pow_le_A2_pow`.
 2. `R/RRemovedLres.lean`: (III.8.4) arithmetic. Statement: constants `C_vol, C_E~, C'_E, C_nat, D_0, C_6, A_0, v_N` and `Mcrit_k^d <= (M crit_k)^d`, `crit_k <= crit-bar(lam)`; conclusion `LHS(III.8.4) <= C_R lam^{2d+1}` for `lam >= x_0`, with an explicit `C_R`. Reuse `Typing.critBar`, `LamStar.lean` polynomial bounds. Also `C_R <= A2 lam^{p2-2d-1}` for large x (adds to `LamStar`).
 3. `R/RRemovedTau.lean`: `log b_k <= lamHat_k` under `RunningHyp`; `p2Run <= A2 lam^{p2}`; `H = HRun*M^d`, |Z|_k = card; `‖int T F‖ <= sup|F| * (int absW)` (toReal of the lintegral); output: `hrem` of the gas file from `KerBound`, `sum_inv_logC_le_one`.
 4. `R/RRemovedShell.lean`: volume of the window variables <= 1: psi'' ball (chi''), psi_{k1} on U~3 \ Z_{k1}, multiscale shells (Lambda17'); extends `QuietBound.shell_*`.
 5. `R/RRemovedKernel.lean`: Definition III.8.5: `Trem` as an `LFKernel` from the pre-kernel, `outcomeKernel` (rem weight), translation psi'' = psi~ - psi^0, division by the denominator; the pointwise exponent bound (2.58') with `Denominator`. Inputs: `GaussChange`, `DomainIdentity`, `RhoZeroPhysical`. Likely 2 files.
 6. `R/RRemovedWindow.lean`: (III.8.5) at gamma = 0 for `Trem`: steps (1)-(4): Fubini order, ball/tree volumes on Z^c_0 cap Z and Z_0 (leaf 4), (D5) for the core (`locOp_pkgBound_kappa`), the exponent sum with `c_1 >= C_W`; concl `KerBound a k Trem (kappa^pre - C_R lam^{2d+1})`.
 7. `R/RRemovedFinal.lean`: `lf4R_removed`: (3.10') for all ripe components, feeding `RGasCoreFinal` (replaces `hrem`).
+
+## Status (W878, 2026-10-17): leaves 2 and 3
+- Leaf 3 DONE `R/RRemovedTau.lean`: `log_b_le_lamHat`, `p2Run_le_A2_lamHat_pow`, `removed_kerBound_logC_of_window` (moved into `RRemovedFactor.lean`, replacing `removed_kerBound_of_window`, whose conclusion dropped `log C(a)`), `norm_integral_le_of_kerBound`, `norm_tau_le_of_removed_kernels`, and the composed `…_halo_of_removed_factor_run_of_kernel` (kernel hypotheses in place of `hrem`; units: gas `H = H_k M^d`, card = number of cubes `c`).
+- Leaf 2 DONE `R/RRemovedLres.lean`: (III.8.4) `lres_lhs_le` for any `C_R` at least an explicit constant (`Typing.CR` is not tied to Definition III.8.6, none added), `CR_le_A2_pow_of_large`, `CR_window_of_large` (`hCR` of leaf 1 for `λ ≥ max {1, C_R/A₂}`), `lres_at_scale`.

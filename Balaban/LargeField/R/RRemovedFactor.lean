@@ -29,7 +29,8 @@ the proof of Theorem III.8.9 (a)); it is the content of Lemma III.8.7, not prove
 * `CR_pow_le_A2_pow`: `C_R x^{2d+1} ≤ A₂ x^{p₂}` for `x ≥ 1` from `C_R ≤ A₂ x^{p₂ - 2d - 1}`.
   The landed condition (Λ10) (`LamConditions.l10`) does **not** give this: it bounds
   `C_R x^{2d+1}` by `A'₃ x^{p_R}` with `p_R > p₂ + 2d`.
-* `removed_kerBound_of_window`: the exponent assembly, for the removed operator `T`.
+* `removed_kerBound_logC_of_window`: the exponent assembly, for the removed operator `T`, with the
+  history weight `log C(𝔞)` kept in the exponent (needed for the sum over histories).
 -/
 
 @[expose] public section
@@ -51,20 +52,20 @@ theorem KerBound.mono {a : LocalHistory S n M K} {k : ℕ} {A : Set (InternalVar
   refine (h hv g hg par).trans (ENNReal.ofReal_le_ofReal ?_)
   exact Real.exp_le_exp.2 (by linarith)
 
-/-- **The removed operator, exponent assembly (P7 (3.10′))**.  Let `T` be the removed operator
-of a ripe component with `c` cubes, `G^pre = κ^pre - log C - H_k M^d c` its pre-`R` budget with
-`log C ≥ 0`, `G^pre ≥ 2 A₂ λ^{p₂} + 1` (ripeness, `CounterConclusion.Gp_ripe`), and
-`C_R λ^{2d+1} ≤ A₂ λ^{p₂}`.  If `T` satisfies the window bound (III.8.5) at `γ = 0` in the form
-`KerBound … (κ^pre - C_R λ^{2d+1})`, then it satisfies `KerBound … (A₂ λ^{p₂} + H_k M^d c + 1)`:
-the integral of `|T|` is at most `exp(-A₂ λ^{p₂} - H_k |Z|_k - 1)`. -/
-theorem removed_kerBound_of_window {a : LocalHistory S n M K} {k : ℕ} {A : Set (InternalVars a k)}
+/-- **The removed operator, exponent assembly (P7 (3.10′))**, with the history weight kept: the
+exponent is `A₂ λ^{p₂} + H_k M^d c + 1 + log C(𝔞)`.  Hypotheses: `G^pre = κ^pre - log C - H_k M^d c`,
+ripeness `G^pre ≥ 2 A₂ λ^{p₂} + 1`, `C_R λ^{2d+1} ≤ A₂ λ^{p₂}`, and the window bound (III.8.5)
+at `γ = 0` as `KerBound … (κ^pre - C_R λ^{2d+1})`. -/
+theorem removed_kerBound_logC_of_window {a : LocalHistory S n M K} {k : ℕ}
+    {A : Set (InternalVars a k)}
     {T : LFKernel (OutT N R a k) (SubCfg N a k A) (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N)}
     {P : BudgetConsts} {c : ℕ} {κpre logC Gp : ℝ}
-    (hG : Gp = P.budgetG S k κpre logC c) (hlogC : 0 ≤ logC)
+    (hG : Gp = P.budgetG S k κpre logC c)
     (hrip : 2 * S.A2 * S.lam k ^ S.p2 + 1 ≤ Gp)
     (hCR : S.CR * S.lam k ^ (2 * S.d + 1) ≤ S.A2 * S.lam k ^ S.p2)
     (hwin : KerBound a k T (κpre - S.CR * S.lam k ^ (2 * S.d + 1))) :
-    KerBound a k T (S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S c + 1) := by
+    KerBound a k T
+      (S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S c + 1 + logC) := by
   refine hwin.mono ?_
   have h : Gp = κpre - logC - HRun P.H0 P.beta k * BudgetConsts.cubeVol S c := hG
   linarith
