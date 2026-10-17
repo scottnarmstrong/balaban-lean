@@ -2114,6 +2114,7 @@ public import Balaban.LargeField.R.RRemovedChainForest
 public import Balaban.LargeField.R.RRemovedChainGraded
 public import Balaban.LargeField.R.RRemovedChainLevel
 public import Balaban.LargeField.R.RRemovedChainSplit
+public import Balaban.LargeField.R.RRemovedChainNodes
 public import Balaban.Fluctuation.LocalClassDensityH
 public import Balaban.Fluctuation.LocalClassDensityHDef
 public import Balaban.Fluctuation.LocalClassDensityHRep
