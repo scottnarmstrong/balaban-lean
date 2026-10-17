@@ -86,6 +86,38 @@ theorem animal_of_cellUnion {d n s m : ℕ} [NeZero n] [NeZero s] [NeZero m] (hn
     rw [h] at this
     simpa using this
 
+/-- **The Peierls families give polymers of cells.**  For a connected family `𝒞` of top-level
+cubes (`(c i).1 = K`) and a connected union of cells `X₁` of side `a = cellSide L m₀ m₁ K` with
+`n = a m`, the sites `Y[𝒞]` of the family are the union of the cells of a polymer
+(`IsAnimal`) of the block torus `Torus d m`. -/
+theorem ysites_animal {d L N₁ m₁ K m₀ m : ℕ} [NeZero N₁] [NeZero L] [NeZero m] {ϱ : ℝ}
+    [NeZero (Balaban.Localization.cellSide L m₀ m₁ K)]
+    {G : Balaban.Multiscale.GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {ι : Type*}
+    (c : ι → ℕ × Balaban.Localization.CTorus d L N₁ m₁ K)
+    (hU : Balaban.Localization.LayerUnion G m₀) (hN : L ^ m₀ ∣ N₁)
+    (hc : ∀ i, c i ∈ Balaban.Localization.cubeIdx G)
+    (X₁ : Set (Balaban.Localization.CTorus d L N₁ m₁ K)) (hne : X₁.Nonempty)
+    (hX₁ : Balaban.Localization.IsCellUnion (Balaban.Localization.cellSide L m₀ m₁ K) X₁)
+    {C : Finset ι} (hCK : ∀ i ∈ C, (c i).1 = K)
+    (hconn : Balaban.Localization.IsConnectedFamily
+      (fun i => Balaban.Localization.Pset m₁ (c i)) (Balaban.Localization.compY c X₁) C)
+    (hX : ∀ x ∈ X₁, ∀ y ∈ X₁, Relation.ReflTransGen
+      (fun a b => (Balaban.Localization.latGraph d ((N₁ * L ^ m₁) * L ^ K)).Adj a b ∧
+        a ∈ X₁ ∧ b ∈ X₁) x y)
+    (hm : (N₁ * L ^ m₁) * L ^ K = Balaban.Localization.cellSide L m₀ m₁ K * m) :
+    ∃ Yc : Finset (Balaban.Torus d m), IsAnimal (blockGraph d m) Yc ∧
+      ∀ x : Balaban.Localization.CTorus d L N₁ m₁ K,
+        x ∈ Balaban.Localization.Ysites G m₀ c X₁ C ↔
+          (fun μ => (((x μ).val / Balaban.Localization.cellSide L m₀ m₁ K : ℕ) : ZMod m)) ∈ Yc := by
+  refine animal_of_cellUnion hm _ ?_ ?_ ?_
+  · obtain ⟨x, hx⟩ := hne
+    exact ⟨x, Balaban.Localization.subset_Ysites (G := G) (m₀ := m₀) (c := c) X₁ C hx⟩
+  · intro x hx y hxy
+    exact Balaban.Localization.Ysites_isCellUnion hN hX₁ hCK x hx y (fun μ => (hxy μ).symm)
+  · intro x hx y hy
+    refine Relation.ReflTransGen.mono (fun a b hab => ⟨hab.2.1, hab.2.2, hab.1.2⟩) x y
+      (Balaban.Localization.Ysites_preconnected hU hN hc X₁ hconn hX x hx y hy)
+
 end Link
 
 section Wide
