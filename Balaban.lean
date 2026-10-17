@@ -2264,3 +2264,4 @@ public import Balaban.Polymer.TwoTorusGapTowerChain
 public import Balaban.Polymer.TwoTorusGapDataSrc
 public import Balaban.Polymer.TwoTorusGapStepFull
 public import Balaban.Polymer.TwoTorusGapDataThr
+public import Balaban.Polymer.TwoTorusGapDataThrDet
