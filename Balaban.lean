@@ -2186,6 +2186,7 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyActLabel
 public import Balaban.Fluctuation.LocalClassDensityFamilyAct
 public import Balaban.Fluctuation.LocalClassDensityFamilyActSum
 public import Balaban.Fluctuation.LocalClassDensityFamilyActM1
+public import Balaban.Fluctuation.LocalClassDensityFamilyActTower
 public import Balaban.Green.FinalLevelCount
 public import Balaban.Green.FinalLevelCountBound
 public import Balaban.Green.FinalConstsClose
