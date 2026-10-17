@@ -98,4 +98,54 @@ theorem hcount_of_flow (G : S.Good) (F : FlowSeq) (hS : F.Matches S)
 
 end Count
 
+section Comp
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {P : BudgetConsts} {M : ℕ} [NeZero M]
+
+/-- **`hrip` for a ripe component of the flow's region history**: the ripeness bound in the form of `lf4R_removed`
+(`κpre = H.kappaPre P j (H.kappa P κK j) c`, `log C(𝔞) = LocalHistory.logC` of the localized history). -/
+theorem hrip_of_flow (G : S.Good) (F : FlowSeq) (hS : F.Matches S)
+    (H : RegionHistory S n R F.k0 F.kf) (hadm : H.Admissible) (hkf : 1 ≤ F.kf)
+    (hΛ12 : ((F.d : ℝ) + 3) / 2 ≤ S.lam F.k0 * (1 - 1 / (2 * Real.log F.L)))
+    (hgen : F.beta F.k0 * F.nu F.k0 ≤ 1 → 2 * (F.L : ℝ) ^ 2 ≤ F.beta F.k0)
+    (B : BudgetSetup S P) (κK : ∀ k, H.Comp k → ℝ)
+    (hκ : ∀ j, j + 1 ≤ F.k0 → ∀ c : H.Comp (j + 1), c.1 ∉ H.rem (j + 1) →
+      S.Ripe (j + 1) (H.bk (j + 1) c) →
+        H.kappaPre P j (H.kappa P κK j) c - S.CR * S.lam (j + 1) ^ (2 * S.d + 1) +
+          S.A3' * S.lam (j + 1) ^ S.pR ≤ κK (j + 1) c)
+    {j : ℕ} (hk0 : j + 1 ≤ F.k0) (hkK : j + 1 ≤ F.kf) (c : H.Comp (j + 1))
+    (hripe : S.Ripe (j + 1) (H.bk (j + 1) c)) :
+    2 * S.A2 * S.lam (j + 1) ^ S.p2 + 1 ≤
+      P.budgetG S (j + 1) (H.kappaPre P j (H.kappa P κK j) c)
+        ((localHistory H M F.kf (j + 1) c).logC (j + 1)) c.1.card :=
+  hrip_of_counter H B G.ok hadm κK (rg_ripe_of_kappaK H P κK hκ) (rg_nonripe_zero H P κK)
+    (rg_frozen_zero H P κK) (hcount_of_flow G F hS H hadm hkf hΛ12 hgen B κK hκ) hk0 hkK c hripe
+
+end Comp
+
+section Comp2
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ} {P : BudgetConsts}
+  {M : ℕ} [NeZero M]
+
+/-- `hrip_of_flow` for a region history on arbitrary horizons `k0 = F.k0`, `K = F.kf`. -/
+theorem hrip_of_flow' (G : S.Good) (F : FlowSeq) (hS : F.Matches S) (hk0F : k0 = F.k0) (hKF : K = F.kf)
+    (H : RegionHistory S n R k0 K) (hadm : H.Admissible) (hkf : 1 ≤ F.kf)
+    (hΛ12 : ((F.d : ℝ) + 3) / 2 ≤ S.lam F.k0 * (1 - 1 / (2 * Real.log F.L)))
+    (hgen : F.beta F.k0 * F.nu F.k0 ≤ 1 → 2 * (F.L : ℝ) ^ 2 ≤ F.beta F.k0)
+    (B : BudgetSetup S P) (κK : ∀ k, H.Comp k → ℝ)
+    (hκ : ∀ j, j + 1 ≤ k0 → ∀ c : H.Comp (j + 1), c.1 ∉ H.rem (j + 1) →
+      S.Ripe (j + 1) (H.bk (j + 1) c) →
+        H.kappaPre P j (H.kappa P κK j) c - S.CR * S.lam (j + 1) ^ (2 * S.d + 1) +
+          S.A3' * S.lam (j + 1) ^ S.pR ≤ κK (j + 1) c)
+    {j : ℕ} (hk0 : j + 1 ≤ k0) (hkK : j + 1 ≤ K) (c : H.Comp (j + 1))
+    (hripe : S.Ripe (j + 1) (H.bk (j + 1) c)) :
+    2 * S.A2 * S.lam (j + 1) ^ S.p2 + 1 ≤
+      P.budgetG S (j + 1) (H.kappaPre P j (H.kappa P κK j) c)
+        ((localHistory H M K (j + 1) c).logC (j + 1)) c.1.card := by
+  subst hk0F hKF
+  exact hrip_of_flow G F hS H hadm hkf hΛ12 hgen B κK hκ hk0 hkK c hripe
+
+end Comp2
+
 end Balaban.LargeField

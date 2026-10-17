@@ -2065,6 +2065,7 @@ public import Balaban.LargeField.R.RRemovedFinal
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
+public import Balaban.LargeField.R.RRemovedFinalRgComp
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
