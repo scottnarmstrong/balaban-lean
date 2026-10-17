@@ -213,8 +213,10 @@ B(κ) β_{k_f}^{−1/2} p₁(β_{k_f}) < c ε_{k_f}, and it holds for β above a
 are the one-component case). The final field lies in every term's domain when the terms use whole-level
 charts (proved, by perturbing the critical datum), and also for the class's local generating sets, at the
 cost of a constant factor in the radius (proved). The coefficient bounds of the cut expansion are still
-stated with a bound on the whole interaction, which grows with the volume; the term-by-term version is in
-progress. For the large-field part, P7 §4 does not apply the cut
+stated with a bound on the whole interaction, which grows with the volume. The term-by-term version is
+proved: each local term's coefficients are bounded by its own size and vanish away from what it reads; the
+volume-uniform bound then needs a count of the polymers through a point and the decay of the background's
+dependence on distant data (in progress). For the large-field part, P7 §4 does not apply the cut
 family to the large-field components: they enter the final polymer expansion as polymers with absolute
 bounds, from the Gaussian tail of the unit fields (`notes/phase1/FINALPHYS3.md` §6). The tail bounds per
 block are proved, and so are the decomposition into large-field block sets, the activity of each set, and
@@ -305,8 +307,10 @@ renormalization step still carry it as an explicit hypothesis; restating them on
 planned (`notes/phase1/CROTE.md`). The centre-labelled terms are built, and their clauses at the new level are
 proved for the actual chart (the terms are completed in a slightly larger chart where only their locality is
 used, since the crude chart inclusion fails at every level). What remains for the new level is the identity
-between the actual new density and the sum of these terms: the density is so far defined only for a real
-constant external field, and the identity is landed only at one datum. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
+between the actual new density and the sum of these terms. The density is now defined for complex,
+non-constant external fields (it agrees with the earlier one on constant real fields, and is analytic on the
+class domain); the identity cannot be continued from constant fields (they are not a set of uniqueness), so it
+is being proved at every datum, which is done for the zero class. Old terms keep their domain through the fluctuation step. For the renormalized mass the domains cannot be shown to
 shrink with our choice of radii, so old terms keep the domain of the scale where they were created, which
 needs only how the backgrounds respond to the small change of mass. That response is now proved at every
 level (the domain at mass ν lies in the domain at mass ν(1+t) with a radius larger by a factor 1 + K|t|), and
