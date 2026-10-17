@@ -2038,3 +2038,4 @@ public import Balaban.Polymer.TwoTorusFibreWeighted
 public import Balaban.Polymer.TwoTorusResumWired
 public import Balaban.Polymer.TwoTorusResumConst
 public import Balaban.SmallField.XiMassResponse
+public import Balaban.SmallField.XiMassResponseBounds
