@@ -6,6 +6,7 @@ Authors: Scott Armstrong, GPT-6-Sol (astra)
 module
 
 public import Balaban.Green.KF0CovarianceAtoms
+import Balaban.Localization.CubeRegimes
 
 /-!
 # Local Gram factorization of the bare covariance atoms
@@ -99,5 +100,54 @@ theorem kf0CovAtom_noise_covariance {d m : ℕ} [NeZero m] (ν : ℝ) (n : ℕ) 
   apply Finset.sum_congr rfl
   intro μ _
   exact hgram μ
+
+/-- An oriented-edge noise at `y` reaches `x` through `n` adjacency steps exactly when
+one of the two edge endpoints has an `n`-step walk to `x`. -/
+theorem kf0Adj_pow_shift_apply {d m : ℕ} [NeZero m]
+    (n : ℕ) (μ : Fin d) (x y : Torus d m) :
+    (((kf0Adj d m ^ n) * shiftMatrix μ) :
+      Matrix (Torus d m) (Torus d m) ℝ) x y =
+      (kf0Adj d m ^ n) x (y - Pi.single μ 1) := by
+  rw [Matrix.mul_apply]
+  have he (z : Torus d m) : y = z + Pi.single μ 1 ↔ z = y - Pi.single μ 1 := by
+    constructor
+    · intro h; rw [h]; abel
+    · intro h; rw [h]; abel
+  simp [shiftMatrix, he, mul_ite]
+
+/-- The local edge loading is the sum of the two endpoint walk coefficients. -/
+theorem kf0Adj_pow_noise_edge_apply {d m : ℕ} [NeZero m]
+    (n : ℕ) (μ : Fin d) (x y : Torus d m) :
+    (((kf0Adj d m ^ n) *
+      ((1 : Matrix (Torus d m) (Torus d m) ℝ) + shiftMatrix μ)) :
+        Matrix (Torus d m) (Torus d m) ℝ) x y =
+      (kf0Adj d m ^ n) x y + (kf0Adj d m ^ n) x (y - Pi.single μ 1) := by
+  rw [Matrix.mul_add, Matrix.mul_one, Matrix.add_apply, kf0Adj_pow_shift_apply]
+
+/-- The edge noise at `y` can influence `x` only within `n + 1` unit steps. -/
+theorem kf0Adj_pow_noise_edge_range {d m : ℕ} [NeZero m]
+    (n : ℕ) (μ : Fin d) (x y : Torus d m)
+    (hfar : (n + 1 : ℝ) < torusDist d m x y) :
+    (((kf0Adj d m ^ n) *
+      ((1 : Matrix (Torus d m) (Torus d m) ℝ) + shiftMatrix μ)) :
+        Matrix (Torus d m) (Torus d m) ℝ) x y = 0 := by
+  rw [kf0Adj_pow_noise_edge_apply]
+  have h0 : (kf0Adj d m ^ n) x y = 0 := by
+    by_contra hne
+    have hd := kf0Adj_pow_dist hne
+    linarith
+  have hstep : torusDist d m (y - Pi.single μ 1) y ≤ 1 := by
+    have h := Balaban.Reflection.torusDist_sub_single_le y y μ
+    simpa [show torusDist d m y y = 0 from
+      dist_self (show L1Torus d m from y)] using h
+  have h1 : (kf0Adj d m ^ n) x (y - Pi.single μ 1) = 0 := by
+    by_contra hne
+    have hd := kf0Adj_pow_dist hne
+    have htri : torusDist d m x y ≤
+        torusDist d m x (y - Pi.single μ 1) +
+          torusDist d m (y - Pi.single μ 1) y :=
+      dist_triangle (show L1Torus d m from x) (y - Pi.single μ 1) y
+    linarith
+  simp [h0, h1]
 
 end Balaban.Green
