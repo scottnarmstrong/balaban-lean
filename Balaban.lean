@@ -2149,6 +2149,7 @@ public import Balaban.LargeField.R.RRemovedHidCore
 public import Balaban.LargeField.R.RRemovedHidGu
 public import Balaban.LargeField.R.RRemovedHidRead
 public import Balaban.LargeField.R.RRemovedHidO
+public import Balaban.LargeField.R.RRemovedHidCoreGen
 public import Balaban.LargeField.R.RRemovedHidCoreThm
 public import Balaban.LargeField.R.RRemovedHidAux
 public import Balaban.LargeField.R.RRemovedHidMain
@@ -2267,3 +2268,7 @@ public import Balaban.Polymer.TwoTorusGapStepFinal
 public import Balaban.Polymer.TwoTorusGapTowerStep
 public import Balaban.Polymer.TwoTorusGapTowerChain
 public import Balaban.Polymer.TwoTorusGapStepFull
+public import Balaban.LargeField.R.WindowRegionGeom
+public import Balaban.LargeField.R.WindowRegion
+public import Balaban.LargeField.R.WindowRegionUnion
+public import Balaban.LargeField.R.WindowRegionDecomp
