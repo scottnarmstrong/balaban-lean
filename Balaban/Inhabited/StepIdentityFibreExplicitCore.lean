@@ -19,7 +19,7 @@ import Mathlib.Tactic.NormNum
 `stepIdentity_zeroClass_fibre_fromTowerG_explicitCore` is
 `stepIdentity_zeroClass_fibre_fromTowerG_core` together with the explicit form of the direct-terms
 record `I0` on which the mark coefficient `c` of every root is built (from
-`e0CoeffFamily_value_fromTowerG_core`): the domains `I0.𝒴` are the polymer domains of the local
+`e0CoeffFamily_value_fromTowerG_core`; the label type is `Lb = {Y // Y ∈ I0.𝒴}`): the domains `I0.𝒴` are the polymer domains of the local
 covers of the blocks and of the sites, and at zero source the terms of `I0` are the potential part
 `-β ∑_z [Y ∈ polyDom_z] σ ∫₀¹ ω(t) ∂_w³ evTerm_z(Y)(Θ, σ t x₀) dt` for decoupled pairs per block.
 The theorem of `StepIdentityFibreFamiliesCore.lean` is its projection.
@@ -249,7 +249,7 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG_explicitCore {d L N : ℕ} [NeZe
                 (physVq S S.a₁ S.ν T.t 1))
               (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
                 (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)),
-              HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
+              Lb = {Y // Y ∈ I0.𝒴} ∧ HEq Lab₀ (thickLabels I0.𝒴 I0.dom) ∧
               HEq A₀ (commonAct (zeroSourceAct
                 (labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I0 hFd
                   (by rwa [hm₀] at h3N : L ^ 1 ∣ N₁) (by subst hS; exact hp) (by norm_num) hεU

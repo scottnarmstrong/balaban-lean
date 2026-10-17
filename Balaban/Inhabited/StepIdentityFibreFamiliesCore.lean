@@ -521,7 +521,7 @@ theorem stepIdentity_zeroClass_fibre_fromTowerG_core {d L N : ℕ} [NeZero L] {�
     hrest⟩ := H k hk N₁ h3N hN ν hνpos hν β hβ p₁ hp₁ q hq0 hq1 D hϱ S hS hp
   refine ⟨F₁, Sol, Lb, hLb, Lab₀, εH, A₀, e0, Lbo, hLbo, Labo, εHo, hεHo, Ao, mObs, hα,
     fun z => ?_, hrest⟩
-  obtain ⟨hP, hF, c, hc1, hc2, hcv, dz, hd1, hd2, he0, he2, hev, E, hE1, hE2, val, I0, hFd, hεU, hL,
+  obtain ⟨hP, hF, c, hc1, hc2, hcv, dz, hd1, hd2, he0, he2, hev, E, hE1, hE2, val, I0, hFd, hεU, -, hL,
     hA', -⟩ := hroot z
   exact ⟨hP, hF, c, hc1, hc2, hcv, dz, hd1, hd2, he0, he2, hev, E, hE1, hE2, val, I0, hFd, hεU, hL,
     hA'⟩
