@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.FinalLargeBounds
+public import Balaban.Green.FinalLargeEntropy
 
 /-!
 # The conditional last-integral singleton gas theorem
@@ -66,6 +67,50 @@ theorem final_large_integral_polymer_bound_of_fixed_localization
     exact boundary_card_bound_of_size_comparison cy g D hC hfac hrate hSize hMod y
   · exact hHeavy
   · exact hH
+
+/-- The connected-support and multiplicity premises supply the entropy condition via the
+landed `coupling_entropy_le_one`. This is the final conditional theorem with only the physical
+factorization, fixed localization, heavy tail, and modular boundary bound as analytic inputs. -/
+theorem final_large_integral_polymer_bound_of_connected_localization
+    {d m : ℕ} [NeZero m] (hd : 1 ≤ d) {Yt : Type*} [Fintype Yt]
+    (cy : Yt → Finset (Torus d m)) (g : Yt → ℂ) (τ : Torus d m → ℂ)
+    (cell : Finset (Torus d m) → ℂ) (Q : ℂ)
+    (boundary : Finset (Torus d m) → ℂ)
+    (hOperator : ∀ Z, cell Z = Q * (∏ z ∈ Z, τ z) * Complex.exp (boundary Z))
+    (hBoundary : ∀ Z, boundary Z =
+      ∑ y ∈ Finset.univ.filter (fun y => ¬ Disjoint (cy y) Z), g y)
+    (D : Finset (Torus d m) → ℝ) {C fac rate κ' P H mY : ℝ}
+    (hC : 0 < C) (hfac : 0 ≤ fac) (hrate : 0 ≤ rate)
+    (hSize : ∀ y, ((cy y).card : ℝ) ≤ C * (1 + D (cy y)))
+    (hMod : ∀ y, ‖g y‖ ≤ fac * Real.exp (-rate * D (cy y)))
+    (hκ' : 0 ≤ κ') (hP : 0 ≤ P)
+    (hcyne : ∀ y, (cy y).Nonempty)
+    (hcyconn : ∀ y, ((blockGraph d m).induce (cy y : Set (Torus d m))).Connected)
+    (hfib : ∀ T, ((Finset.univ.filter fun y => cy y = T).card : ℝ) ≤ mY)
+    (hmY : 1 ≤ mY)
+    (hκ : Real.log (mY * (((2 * d : ℕ) : ℝ)) ^ 2) + 3 ≤ rate / C - κ')
+    (hHeavy : ∀ z, ‖τ z‖ ≤ Real.exp (-P - H))
+    (hH : (fac * Real.exp rate) * Real.exp (fac * Real.exp rate) + κ' + 4 ≤ H) :
+    (∑ Z : Finset (Torus d m), cell Z) =
+      Q * Xi (shareBlock (Subtype.val : NePoly (Torus d m) → Finset (Torus d m)))
+        (gasK cy (fun z => {z}) (fun z => {z}) g τ) ∧
+    ∀ X : NePoly (Torus d m),
+      ‖gasK cy (fun z => {z}) (fun z => {z}) g τ X‖ ≤
+        3 * Real.exp (-P) * Real.exp (-(κ' - 2) * (X.1.card : ℝ)) := by
+  have hd' : (1 : ℝ) ≤ ((2 * d : ℕ) : ℝ) := by
+    have : 1 ≤ 2 * d := by omega
+    exact_mod_cast this
+  have hκκ : κ' ≤ rate / C := by
+    have hlog : 0 ≤ Real.log (mY * (((2 * d : ℕ) : ℝ)) ^ 2) :=
+      Real.log_nonneg (by nlinarith)
+    linarith
+  have hent : ∀ b : Torus d m,
+      ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y),
+        Real.exp (-(rate / C - κ') * ((cy y).card : ℝ)) ≤ 1 := by
+    intro b
+    exact final_large_entropy_of_connected hd cy hcyne hcyconn hfib hmY hκ b
+  exact final_large_integral_polymer_bound_of_fixed_localization cy g τ cell Q boundary
+    hOperator hBoundary D hC hfac hrate hSize hMod hκ' hκκ hP hent hHeavy hH
 
 
 end Balaban.Green

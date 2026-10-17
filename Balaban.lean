@@ -2327,6 +2327,7 @@ public import Balaban.Green.FinalLargeGas
 public import Balaban.Green.FinalLargeBounds
 public import Balaban.Green.FinalLargeBackground
 public import Balaban.Green.FinalLargeClosing
+public import Balaban.Green.FinalLargeEntropy
 public import Balaban.Correlations.C1StarFromStepCore
 public import Balaban.Correlations.C1StarFromStep
 public import Balaban.Correlations.C1StarFromStepRootC
