@@ -113,10 +113,17 @@ theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
       ScaledPsiC G ν (scaledC0 d * θ) (xiC1 d * ε₀) j
         (reR G G' a₁ φr Ψ0) h0
         (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') ∧
-      ∀ x ∈ G.Ω 1,
+      (∀ x ∈ G.Ω 1,
         ‖∑ i, ccv G G' a₁ φc Ψ0 Ψ'' x i * ccv G G' a₁ φc Ψ0 Ψ'' x i -
           ∑ i, crv G G' a₁ φr Ψ0 x i * crv G G' a₁ φr Ψ0 x i‖
-          ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10) := by
+          ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10)) ∧
+      (∀ x ∈ G.Ω 1,
+        ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+            dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
+            (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+              dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) -
+          ∑ i, (reR G G' a₁ φr Ψ0 x i : ℂ) * (reR G G' a₁ φr Ψ0 x i : ℂ)‖ <
+          (scaledC0 d * θ) ^ 2 * (xiC1 d * ε₀)) := by
   have hc1 := one_le_xiC1 d
   have hε₀ := hX.2.1
   have hd : (0 : ℝ) ≤ d := Nat.cast_nonneg d
@@ -162,8 +169,25 @@ theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
         exact hh.trans (by nlinarith)
       hbc := fieldBounds_congr hfc (fun x hx => by funext i; simp [psiC])
       hdiff := fun z => (hb.val z).le.trans (by nlinarith) }
-  refine ⟨φr, φc, scaledComposition HS, ?_⟩
-  intro x hx
-  exact Balaban.SmallField.HypS.comp_square_sharp HS hx
+  refine ⟨φr, φc, scaledComposition HS, ?_, ?_⟩
+  · intro x hx
+    exact Balaban.SmallField.HypS.comp_square_sharp HS hx
+  · intro x hx
+    have hcastr : ∀ i, crv G G' a₁ φr Ψ0 x i =
+        ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) := fun i =>
+      congrFun (HS.real_crv x).eq_ofReal i
+    have e0 : ∀ i, crv G G' a₁ φr Ψ0 x i +
+        dPsi G G' a₁ φr φc Ψ0 Ψ'' x i = ccv G G' a₁ φc Ψ0 Ψ'' x i :=
+      fun i => by simp [dPsi]
+    simp only [← hcastr, e0]
+    have hcoeff : 2 * (d : ℝ) + 10 < (scaledC0 d) ^ 2 := by
+      unfold scaledC0
+      nlinarith [sq_nonneg (d : ℝ)]
+    calc
+      _ ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10) :=
+        Balaban.SmallField.HypS.comp_square_sharp HS hx
+      _ < θ ^ 2 * (xiC1 d * ε₀) * (scaledC0 d) ^ 2 :=
+        mul_lt_mul_of_pos_left hcoeff (by positivity)
+      _ = (scaledC0 d * θ) ^ 2 * (xiC1 d * ε₀) := by ring
 
 end Balaban.SmallField

@@ -2312,3 +2312,4 @@ public import Balaban.SmallField.IrrelTorusXidomSquare
 public import Balaban.SmallField.IrrelTorusXidomLong
 public import Balaban.SmallField.IrrelTorusXidomDefect
 public import Balaban.SmallField.IrrelTorusXidomTail
+public import Balaban.SmallField.IrrelTorusXidomScaled
