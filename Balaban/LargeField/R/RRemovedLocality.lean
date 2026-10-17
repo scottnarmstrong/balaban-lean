@@ -162,4 +162,105 @@ theorem chiDD_congr {ϱ : ℝ} (B : GeneratingSet S.d S.L (M * n K) K ϱ)
 
 end Chi
 
+section Dom
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K} {k : ℕ}
+
+/-- The multiscale field of a configuration of any set `A` of internal variables does not read the
+output `ψ_{k+1}` on the Gaussian blocks (`subMultiscaleField_agree` for general `A`). -/
+theorem subMultiscaleField_agree_gauss (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+    {A : Set (InternalVars (H.localHistory M K (k + 1) Z') (k + 1))}
+    (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) A)
+    {o o' : OutT N R (H.localHistory M K (k + 1) Z') (k + 1)}
+    (hoo : ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
+      y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y) :
+    subMultiscaleField N (H.localHistory M K (k + 1) Z') (k + 1)
+        (Vblk R (H.localHistory M K (k + 1) Z') (k + 1)) x o =
+      subMultiscaleField N (H.localHistory M K (k + 1) Z') (k + 1)
+        (Vblk R (H.localHistory M K (k + 1) Z') (k + 1)) x o' := by
+  classical
+  funext j y
+  unfold subMultiscaleField
+  by_cases hj : j < k + 1
+  · simp only [hj, ↓reduceIte]
+  · by_cases hjk : j = k + 1
+    · subst hjk
+      simp only [lt_irrefl, ↓reduceIte, ↓reduceDIte]
+      by_cases hb : (k + 1 = 0 ∨ BlockSub (S := S) (n := n) (M := M) (K := K) (k + 1) y
+          (lhOmega (H.localHistory M K (k + 1) Z') (k + 1) (k + 1)))
+      · simp only [hb, ↓reduceIte]
+        refine outField_agree hK Z' o o' hoo y ?_
+        rcases hb with hb | hb
+        · omega
+        · obtain ⟨x0, hx0⟩ := exists_site_in_block (S := S) (n := n) (M := M) hK y
+          have hc := blockCube_eq_cubeMap H.F.hnn hK hx0
+          rcases hb x0 hx0 with h1 | h1
+          · left
+            have h2 : cubeMap n S.L M K (k + 1) x0 ∈ ((H.locRH (k + 1) Z').step k).Omega := h1.1
+            rwa [← hc] at h2
+          · right
+            rw [hc]
+            exact fun h => h1 ((mem_localHistory_Z_top (by omega) Z' x0).mpr h)
+      · simp only [hb, ↓reduceIte]
+    · simp only [hj, hjk, ↓reduceIte, ↓reduceDIte]
+
+/-- Outputs that agree off a set `Z₀` of Gaussian blocks agree on the non-Gaussian blocks. -/
+theorem hoo_of_split_snd (Z' : H.Comp (k + 1)) (Z0 : Set (BlockAt S n M K (k + 1)))
+    (hZ0 : Z0 ⊆ gaussBlocks (H.localHistory M K (k + 1) Z') k)
+    {o o' : OutT N R (H.localHistory M K (k + 1) Z') (k + 1)}
+    (h : (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o).2 =
+      (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o').2) :
+    ∀ y : Vblk R (H.localHistory M K (k + 1) Z') (k + 1),
+      y.1 ∉ gaussBlocks (H.localHistory M K (k + 1) Z') k → o y = o' y := by
+  intro y hy
+  have := congrFun h ⟨y.1, y.2, fun hz => hy (hZ0 hz)⟩
+  simpa [remZeroSplit_apply, restrictOutPart] using this
+
+
+variable (geo : Geo S n R M) (cs : OpConsts)
+
+/-- **`χ^dom_{k+1}(Z', 𝔞)` does not read `ψ_{k+1}` on `Z₀`** (Lemma III.1.5): the domain reads
+`ψ_{k+1}` only through the multiscale field, which does not read the Gaussian blocks
+`Ω^c_{k+1} ∩ Z'`; so it does not read a set `Z₀` of Gaussian blocks. -/
+theorem chiDomAt_congr_of_zero_gauss (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+    (Z0 : Set (BlockAt S n M K (k + 1)))
+    (hZ0 : Z0 ⊆ gaussBlocks (H.localHistory M K (k + 1) Z') k)
+    {A : Set (InternalVars (H.localHistory M K (k + 1) Z') (k + 1))}
+    {o o' : OutT N R (H.localHistory M K (k + 1) Z') (k + 1)}
+    (h : (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o).2 =
+      (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o').2)
+    (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) A) :
+    ChiDomAt geo cs H (k + 1) Z' o x ↔ ChiDomAt geo cs H (k + 1) Z' o' x := by
+  unfold ChiDomAt
+  rw [subMultiscaleField_agree_gauss hK Z' x (hoo_of_split_snd Z' Z0 hZ0 h)]
+
+variable {κs κ : ℕ → LocalHistory S n M K → ℝ} {lamHat : ℕ → ℝ}
+  (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ lamHat)
+  (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5)
+
+/-- **The domain of the pre-operator does not read `ψ_{k+1}` on `Z₀`** (the premise `hdom` of
+`removedKernel_vanish` for `P = preOp … (fun Y _ => locOp …)`), for a set `Z₀` of Gaussian blocks. -/
+theorem preOp_dom_congr (hK : k + 1 ≤ K) (Z' : H.Comp (k + 1))
+    (Z0 : Set (BlockAt S n M K (k + 1)))
+    (hZ0 : Z0 ⊆ gaussBlocks (H.localHistory M K (k + 1) Z') k)
+    (P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1))
+    (hP : P = preOp geo cs SD hH hK Z' (fun Y _ => locOp geo cs SD KD hH lab k (by omega) Y))
+    (o o' : OutT N R (H.localHistory M K (k + 1) Z') (k + 1))
+    (h : (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o).2 =
+      (remZeroSplit (H.localHistory M K (k + 1) Z') (k + 1) Z0 o').2)
+    (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A) :
+    P.dom o x ↔ P.dom o' x := by
+  subst hP
+  have e : ∀ oo : OutT N R (H.localHistory M K (k + 1) Z') (k + 1),
+      (preOp geo cs SD hH hK Z' (fun Y _ => locOp geo cs SD KD hH lab k (by omega) Y)).dom oo x ↔
+        ChiDomAt geo cs H (k + 1) Z' oo x := fun oo =>
+    preOp_dom_iff_chiDom geo cs SD hK Z' _
+      (fun Y _ o'' x'' => locOp_dom_iff geo cs SD KD k (by omega) Y _ rfl o'' x'') oo x
+  rw [e o, e o']
+  exact chiDomAt_congr_of_zero_gauss geo cs hK Z' Z0 hZ0 h x
+
+end Dom
+
+
 end Balaban.LargeField
