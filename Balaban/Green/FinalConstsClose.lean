@@ -183,4 +183,89 @@ theorem final_consts_of_large {c α α₀ ε₀ δw : ℝ} {K : ℕ} (hc : 0 < c
 
 end Consts
 
+section Composed
+
+variable {d N₀ M : ℕ} [NeZero N₀] {L k : ℕ} [NeZero L] {v a : ℝ} {d' N : ℕ}
+
+open Classical in
+/-- **The volume-uniform coefficient bound of the last integral with only the setting data and the
+thresholds as hypotheses.**  As `norm_coef_cutoff_class_le_levels`, with its thirteen numerical
+premises replaced by the thresholds of `final_consts_of_large` (`ε₀` small against `ε_K`, `c`
+small, `α₀` small, with `δw` the constant of the bound) and by `β₀` large
+(`(B A₁ (4p)^p / (c α₀))^4 < β₀` for the row constant `B`).  The block datum in the class chart
+(`hθ`) and `Dec2.OpSetting` are setting data. -/
+theorem norm_coef_cutoff_class_le_levels_of_large (hd3 : 3 ≤ d') (hL3 : 3 ≤ L) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
+      ∀ {c α α₀ : ℝ} {N₁ m₁ kS : ℕ} [NeZero N₁] {ϱ : ℝ}
+        (S : StepSetting d' L N₁ m₁ kS N ϱ) (e : L1Torus d N₀ ≃ S.U × Fin N)
+        {P : Consts} {Tm : Terms d' L N₁ m₁ (kS + 1) N ϱ}
+        (_ : SFTermClauses P
+          (xiFieldDom S.a S.ν (epsSeq L α α₀) : FieldDom d' L N₁ m₁ (kS + 1) N ϱ) Tm)
+        {K : ℕ} (_ : K ≤ kS) {hsep : ϱ ≤ minSep L (L ^ m₁)}
+        (_ : ∀ j (hjk : j ≤ kS + 1), 1 ≤ j → j ≤ K → ∀ X, IsPolyDom P.m₀ j X →
+          Tm.gs j X = localB j hjk X hsep)
+        (_ : BgHyp d' L (kS + 1) ϱ S.a S.ν) (_ : 0 < S.a₁) {ε₀ : ℝ}
+        (_ : XiCData S.G' S.a S.ν (kS + 1) 1 ε₀ S.D')
+        (_ : Dec2.OpSetting (stepG d' L N₁ m₁ kS ϱ) S.a S.ν)
+        (_ : 0 < N) (_ : 0 < c) (_ : 0 < α₀) (_ : 0 ≤ α)
+        (_ : 2 * ((2 * bgK1 d' L N + 2) * xiC1 d') * ε₀ ≤ epsSeq L α α₀ K)
+        (_ : 4 * ((2 * bgK1 d' L N + 2) * xiC1 d') * xiK2 d' L N * (N : ℝ) * c ≤ 1)
+        (_ : (N : ℝ) * c ≤ 1)
+        (_ : (4 * d' + 6) * ((2 * d' + 1) * (3 * α₀)) ≤ 1)
+        (_ : xiC1 d' * (3 * α₀) ≤ thm73C1 d' L N)
+        (_ : xiC1 d' * (3 * α₀) ≤ bgC0 d' L N)
+        (_ : (xiC1 d' + 5) * (3 * α₀) ≤ bgC1 d' L N)
+        (_ : 2 * (3 * α₀) ≤ deltaStar d' L N)
+        (_ : bgK1 d' L N * xiC1 d' * (3 * α₀) ≤ deltaStar d' L N)
+        (_ : (bgK1 d' L N * xiC1 d' + cK2 d' L N) * (3 * α₀) < bgC0 d' L N)
+        (_ : bgK1 d' L N * xiC1 d' * (3 * α₀) ≤ δw)
+        (_ : 2 * (3 * α₀) ≤ δw)
+        (_ : 0 < d) (_ : 1 ≤ k) (_ : 0 ≤ v) (_ : v ≤ 1) (_ : 1 / 2 ≤ a) (_ : a ≤ 2)
+        (_ : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (_ : 0 < M) {κ : ℝ} (_ : 1 ≤ κ)
+        (_ : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (_ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+        {A₁ β₀ : ℝ} {p : ℕ} {γ : Measure (L1Torus d N₀ → ℝ)}
+        (_ : γ {ψ : L1Torus d N₀ → ℝ | ∀ y, |ψ y| ≤ pLog A₁ p (betaK d' L K β₀)} < ⊤)
+        (_ : 1 ≤ p) (_ : 0 ≤ A₁) (_ : α ≤ ((d' : ℝ) - 2) * (1 / 4))
+        (_ : (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+          Real.sqrt (finalGap d L) * A₁ * (4 * (p : ℝ)) ^ p / (c * α₀)) ^ 4 < β₀) (_ : 1 < β₀)
+        (_ : 0 ≤ P.E₀) (_ : L ^ P.m₀ ∣ N₁) (_ : aEnt d' L + 2 ≤ P.κ)
+        (C : Finset (MacIdx d N₀ M)) (_ : C.Nonempty),
+        ‖coef (fun s : MacIdx d N₀ M → ℂ =>
+          ∫ ψ in {ψ : L1Torus d N₀ → ℝ | ∀ y, |ψ y| ≤ pLog A₁ p (betaK d' L K β₀)},
+            (fun w : L1Torus d N₀ → ℂ => ∑ j ∈ Finset.Icc 1 K,
+                Edens P.m₀ Tm j
+                  (composedPairAtC S.a S.ν (Nat.le_succ kS) j (S.dataUC (fun q => w (e.symm q)))).1
+                  (composedPairAtC S.a S.ν (Nat.le_succ kS) j (S.dataUC (fun q => w (e.symm q)))).2)
+              (fun x => (fun q => S.psi0C (e q)) x +
+                (((betaK d' L K β₀) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+                ∑ y, taggedCfin d L N₀ k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ) C‖ ≤
+          (γ {ψ : L1Torus d N₀ → ℝ | ∀ y, |ψ y| ≤ pLog A₁ p (betaK d' L K β₀)}).toReal *
+            Real.exp (-(κ - 1) * C.card) *
+           ((K : ℝ) * ((L : ℝ) ^ ((P.m₀ + m₁) * d') * c1 d' L * K0 d' L (P.κ - 1)) * P.E₀ *
+              (((C.card * (8 * M + 1) ^ d * (L ^ kS) ^ d' *
+                (2 * L ^ (kS + 1) + 2 * d' * L ^ (kS + 1) + 3) ^ d' : ℕ) : ℝ) *
+                (1 + 20 * (N : ℝ) * Real.exp (gammaW d' * (2 * d')) * (Kw * cF d' L) *
+                  ∑' m : ℕ, Real.exp (-(gammaW d' * m)) * ((m : ℝ) + 2) ^ d'))) := by
+  obtain ⟨Kw, δw, hK, hδw, H⟩ := norm_coef_cutoff_class_le_levels (d := d) (N₀ := N₀) (M := M)
+    (L := L) (k := k) (v := v) (a := a) (d' := d') (N := N) hd3 hL3
+  refine ⟨Kw, δw, hK, hδw, ?_⟩
+  intro c α α₀ N₁ m₁ kS _ ϱ S e P Tm hT K hKk hsep hgs HB ha₁ ε₀ hθ hOp hN hc hα₀ hα0 hεR hcs hNc
+    hA1 hA2 hA3 hA4 hA5 hA6 hA7 hA8 hA9 hd hk hv0 hv1 ha1 ha2 hmass hM κ hκ hMB hMκ A₁ β₀ p γ hγ
+    hp hA hα hβ hβ₁ hE₀ hNd hκP C hC
+  have hε₀ : 0 ≤ ε₀ := by
+    obtain ⟨_, _, _, _, ⟨_, h, _⟩, _⟩ := hθ
+    exact h.le
+  obtain ⟨hroom, hc0, hc1, hsmall, hth, hm1, hδ₂, hstar, hK1s, hsm, hKw, hδw'⟩ :=
+    final_consts_of_large (d' := d') (N := N) (L := L) (K := K) hc hα₀ hα0 hε₀ hεR hcs hNc hA1 hA2
+      hA3 hA4 hA5 hA6 hA7 hA8 hA9
+  have hBnn : 0 ≤ 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+      Real.sqrt (finalGap d L) := by
+    have := ballConst_nonneg (d := d) (r := pdEps d L / 2) (by have := pdEps_pos (L := L) hd; positivity)
+    positivity
+  have hsize := size_of_beta_large hBnn hA hc hα₀ hβ
+  exact H S e hT hKk hgs HB ha₁ hθ hOp hN hc hα₀ hα0 hroom hc0 hc1 hsmall hth hm1 hδ₂ hstar hK1s
+    hsm hKw hδw' hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hγ hp hA hα hβ₁ hsize hE₀ hNd hκP C hC
+
+end Composed
+
 end Balaban.Green
