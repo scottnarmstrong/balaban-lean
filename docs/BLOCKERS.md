@@ -18,13 +18,13 @@ The last section lists the problems that have been resolved since the project st
 
 | # | Issue | Where | Blocks | Status |
 |---|---|---|---|---|
-| 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains |
-| 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum) |
-| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum) |
+| 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains; local pieces of the first component proved (W981); the no-step case now goes through the linked gas of blocker 5 |
+| 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum); formalized up to the physical kernels (W973), the rest waits on ruling R2 |
+| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum); aligned openings do not close it; being proved: decay of the coupling across a hole |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum) |
-| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain |
+| 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain; the singleton-gas reading of the large-field part is refuted by an example, and the linked gas of P7 (4.11) is being built |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is reduced to the irrelevant-part representation of the inherited terms (P1 Prop. 3.10), whose torus identity is proved; their bound remains (one open analytic input, and the torus defect at the centre's cube) |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms, with the induction over the gap scales (proved in abstract form); tying it to the tower's step terms remains (item 24) |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms, with the induction over the gap scales (proved in abstract form); tying it to the tower's step terms remains (item 24): the determinant term is tied (W979), the energy and observable terms are in progress |
 
 ## Proceeding without the author's answers
 
@@ -35,13 +35,14 @@ check. Some of these choices change approved definitions and wait for a ruling (
 large-field output as a gas and the vacuum clause of the step data in blocker 4). Opening new regions with aligned blocks
 was checked and does not close blocker 3: it breaks the Euclidean covariance of the coefficients, and a completed hole
 still has positive length between two active attachments.
-The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Three
-focused analyses are running: the shifted data in the anisotropic domain (blocker 6), the activity bound on
-the source radius β^{-1/2} (blocker 2), and the case with no renormalization step (blocker 1).
+The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Focused analyses (astra sessions, one per open question) are running on every blocker; their notes are in
+[`notes/phase1/astra/`](../notes/phase1/astra/).
 
 A finding that concerns all blockers: the step tower produces the setting of each step but not yet the class of the
 next step (its terms, vacuum energy and family over tori). Many results above are proved for a given class; feeding the
-output of one step into the next is the backbone of the assembly of Root-F and is being designed.
+output of one step into the next is the backbone of the assembly of Root-F. A proposal for the next class is written
+(`notes/phase1/astra/SFFAM.md`, Part 2); the transport of the old terms to the next torus and the check of the mass in the
+old levels' domains are being done first, since they need no new class.
 
 ## 1. The base case of the large-field induction, and the case of no renormalization step
 
@@ -74,6 +75,13 @@ renormalization step does not occur in Yang–Mills. This is asked in the item 1
 
 Details: `notes/phase1/LF-BASE-KF0.md` (Part G), `notes/phase1/KF0-P7.md`. Item 17.
 
+Update (17 October, evening). The first large-field component of the base case now has its local pieces in Lean (W981):
+the chart identity of a selected record, positivity of the local cut operator, the determinant factorization across a
+cut, the exact first partition, and the count of records from an injective local code. The physical activity estimate
+(P5 (30)), the staged operator and the local code itself are the next round. For the case with no renormalization step,
+a general-scale component theorem was tried and refuted in the form we had proposed (see blocker 5, the example of
+`notes/phase1/astra/KF0B.md`, Theorem B.7); the case now goes through the same linked gas as the last integral.
+
 ## 2. Switching from ν-free to complete backgrounds
 
 Balaban's flow computes the background field without the external-field term while β_k ν_k ≤ 1,
@@ -96,6 +104,12 @@ A route along these lines (`notes/phase1/Q13-YM.md`): keep the large-field tests
 
 Details: `notes/phase1/Q13-DECISION.md`, `Q13-LATE.md`, `Q13-LATE2.md`. Item 13 and its addenda.
 
+Update (17 October, evening). Route R-YM′ is formalized up to the physical kernels (W973): the sharp tube for the raw
+mass weight (with an N = 2 example showing that the disc of radius β^{-1/2} is too large), the transport of the running
+radius with one failed test paid by the collar reserve, the cancellation of a common mass factor in log Z(g)/Z(0), and the
+P5 (1.31) kernel estimate under named kernel bounds. The rest needs the separate background and cutoff masses below k₀
+and a complex-source kernel interface, which change landed definitions (ruling R2).
+
 ## 3. Old boundary terms across a new long hole
 
 P6 p. 34 re-localizes the boundary terms inherited from earlier scales when a new large-field hole
@@ -117,6 +131,13 @@ label-and-pocket format, not recommended). The question is item 14 with its fift
 
 Details: `notes/phase1/VMOD-34.md` to `VMOD-42.md`, `LFROOT3.md`, `LFH7PRIME.md`, `LFH7PRIME2.md`.
 Item 14 (with its second to fifth addenda); `VMOD-43.md`, `VMOD-44.md`.
+
+Update (17 October, evening). The exact geometry of openings at every offset is settled, and a thick inherited seam
+gives a spill linear in its length (`notes/phase1/astra/ALIGNED.md`, round 2). The displayed estimates of P5–P7 do not
+pay a bridge between two attachments across a hole. Two closures remain: the coefficients split over active cores, or the
+coefficient of a cluster that couples two attachments across a hole carries an extra decay factor. The example of blocker
+5 (a good block between two bad ones couples them) suggests the first fails, so the second is being proved, from the decay
+of the massive covariance across the hole.
 
 ## 4. The gas of removed components and retained holes
 
@@ -279,6 +300,16 @@ second order, and the cross term of the linear part with the source-free exponen
 third-order bound on its odd part. What remains is to identify these pieces with the physical density
 of the last step, and the large-field part.
 
+Update (17 October, evening). The large-field part of the last integral was written as a singleton gas (W975), given
+two identifications: the large variables integrate into a factor per block, and the boundary terms localize into
+coefficients that do not depend on which blocks are bad. The second identification is false when read for exact cut-off
+cells: in an example with a small nearest-neighbour perturbation of a product Gaussian, the good block between two bad
+blocks couples them, and no choice of connected boundary terms reproduces the weights
+(`notes/phase1/astra/KF0B.md`, Theorem B.7, by strict Cauchy–Schwarz). This is not a counterexample to the papers: P7
+expands after (4.11) into linked terms, whose activating set may be disconnected while the set they read is connected.
+Being built now: the polymer gas with separate activating sets and footprints (W990), and the reorganization of the last
+integral into linked terms with their bounds (W984).
+
 ## 6. Local generating sets and analyticity on their domains
 
 After the localization expansion, each new term is indexed by a domain Y. P3 p. 78 replaces the
@@ -382,6 +413,13 @@ and a small margin in the mass condition, ν L^{2(k+1)}(1 + r) ≤ 1 instead of 
 Details: `notes/phase1/GENL.md`, `WIDEGEN.md`, `SHARPX0.md`, `LOCALENGINE.md`, `SF3TYPE.md`.
 Item 23.
 
+Update (17 October, evening). The anisotropic datum is produced from the step's chart witness (W969); what remains of
+the per-label bound is the patched field in the class domain, then P1 (3.107) at the pulled-back field (round 2 running).
+On the torus defect (W980): the expanded form of the filed sum, inclusion of small infinite shapes in the torus, equality
+of all reference jets at every centre, and the reindexing of the torus sum are proved; the full cancellation of the raw
+second-moment matrix and the tails remain (round 3 running). The base settings of the step are produced at the tower's
+constants (W982); two numerical conditions need a tower with smaller t, being proved (W989).
+
 ## 7. Reading of the torus-independence clause
 
 The main theorem says that the terms on two tori agree on supports A in the box |y_μ| < min(ℓ, ℓ')/4
@@ -449,6 +487,12 @@ object defines yet, and one direction of the domain correspondence for the tower
 item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
+
+Update (17 October, evening). The determinant term of the tower is identified with the specification used by the
+gap-scale clause (W979). The energy term needs the same recentred transport as the observable term, and the observable
+term's formula clauses must be kept by the theorems that produce them; both are being done (W988, with a proof-body
+refactor that leaves all statements unchanged). The wide threshold needs K ≥ 61, which fails at the top few gap scales of
+the smallest tori when L < 61; a separate argument for these finitely many scales is to be written.
 
 ## Large pieces of work that are not blockers
 

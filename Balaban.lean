@@ -2377,3 +2377,13 @@ public import Balaban.LargeField.R.RRemovedFracMassArith
 public import Balaban.LargeField.R.RRemovedFracMassCore
 public import Balaban.LargeField.R.RRemovedFracMassReserve
 public import Balaban.LargeField.R.RRemovedWindowMass
+public import Balaban.LargeField.Base.BaseFirstChart
+public import Balaban.LargeField.Base.BaseFirstChartIntegral
+public import Balaban.LargeField.Base.BaseFirstCut
+public import Balaban.LargeField.Base.BaseFirstCutPositive
+public import Balaban.LargeField.Base.BaseFirstActivity
+public import Balaban.LargeField.Base.BaseFirstMajorant
+public import Balaban.LargeField.Base.BaseFirstRecordCount
+public import Balaban.LargeField.Base.BaseFirstPartition
+public import Balaban.LargeField.Base.BaseFirstCutRecord
+public import Balaban.LargeField.Base.BaseFirstCutFactor
