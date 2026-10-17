@@ -159,4 +159,72 @@ theorem gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_box {m�
 
 end Instance
 
+section Arith
+
+open D7Reserve
+
+variable {S : Setting} {β ν a ε : ℝ} {b nn : ℕ → ℝ}
+
+/-- **The payment condition for large `log β_k`.**  Let `r = ⌊R_{k-1}⌋ ≤ R_base λ_k²`, `p' ≤ ½ p₂(β_k)`
+and `h' ≥ 0`.  If `log β_k ≥ X₀` (the threshold `x0` of `D7ReserveArithmetic` for the constant
+`2^d ((2c₀+18)^d + (2c₀R_base + 4R_base)^d)`), then
+`p' + h' (crit_k + 2(2r+4))^d ≤ p₂(β_k) = A₂ (log β_k)^{p₂}`.  Only `p₂ ≥ 2d + 1` is used,
+which the landed constraint `p₂ ≥ 2d + 3` gives. -/
+theorem halo_pay_le_p2Run (ok : S.Ok) (hlam : ∀ j, S.lam j = lamHat S.d S.L β a j)
+    (hrun : RunningHyp S.d S.L β ν a ε b nn) {k r : ℕ} (hr : (r : ℝ) ≤ S.Rb * S.lam k ^ 2)
+    {p' h' : ℝ} (hh' : 0 ≤ h') (hp' : p' ≤ 1 / 2 * p2Run S.A2 S.p2 b k)
+    (hk : x0 S.d h' (2 ^ S.d * ((2 * (S.c0 : ℝ) + 18) ^ S.d +
+      (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d)) S.A2 ≤ Real.log (b k)) :
+    p' + h' * (((S.crit k + 2 * (2 * r + 4)) ^ S.d : ℕ) : ℝ) ≤ p2Run S.A2 S.p2 b k := by
+  have hR := ok.Rb_pos
+  have hc0 : (0 : ℝ) ≤ S.c0 := Nat.cast_nonneg _
+  have hcrit := crit_le_critBar ok k
+  unfold Typing.critBar at hcrit
+  obtain ⟨hl0, hl1⟩ := lam_bounds ok hlam hrun k
+  set l := S.lam k with hl
+  have hA : (0 : ℝ) ≤ 2 * (S.c0 : ℝ) + 18 := by positivity
+  have hB : (0 : ℝ) ≤ (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) * l ^ 2 := by positivity
+  have hle : ((S.crit k + 2 * (2 * r + 4) : ℕ) : ℝ) ≤
+      (2 * (S.c0 : ℝ) + 18) + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) * l ^ 2 := by
+    push_cast
+    nlinarith
+  have h0 : (0 : ℝ) ≤ ((S.crit k + 2 * (2 * r + 4) : ℕ) : ℝ) := Nat.cast_nonneg _
+  have h1 := pow_le_pow_left₀ h0 hle S.d
+  have h2 := add_pow_le_two_pow_mul hA hB S.d
+  have h3 : ((2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) * l ^ 2) ^ S.d
+      = (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d * l ^ (2 * S.d) := by
+    rw [mul_pow, ← pow_mul]
+  rw [h3] at h2
+  have hAd : 0 ≤ (2 * (S.c0 : ℝ) + 18) ^ S.d := by positivity
+  have hBd : 0 ≤ (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d := by positivity
+  have hy : 0 ≤ l ^ (2 * S.d) := by rw [pow_mul]; positivity
+  have h4 : (2 * (S.c0 : ℝ) + 18) ^ S.d + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d * l ^ (2 * S.d)
+      ≤ ((2 * (S.c0 : ℝ) + 18) ^ S.d + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d)
+        * (1 + l ^ (2 * S.d)) := by nlinarith [mul_nonneg hAd hy]
+  have hCP : (0 : ℝ) ≤ 2 ^ S.d * ((2 * (S.c0 : ℝ) + 18) ^ S.d +
+      (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d) := by positivity
+  have hN : (((S.crit k + 2 * (2 * r + 4)) ^ S.d : ℕ) : ℝ) ≤
+      2 ^ S.d * ((2 * (S.c0 : ℝ) + 18) ^ S.d + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d) *
+        (1 + (Real.log (b k) + 3) ^ (2 * S.d)) := by
+    have h5 : l ^ (2 * S.d) ≤ (Real.log (b k) + 3) ^ (2 * S.d) := pow_le_pow_left₀ hl0 hl1 _
+    push_cast
+    calc ((S.crit k : ℝ) + 2 * (2 * r + 4)) ^ S.d
+        ≤ ((2 * (S.c0 : ℝ) + 18) + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) * l ^ 2) ^ S.d := by
+          push_cast at h1; exact h1
+      _ ≤ 2 ^ S.d * ((2 * (S.c0 : ℝ) + 18) ^ S.d +
+          (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d * l ^ (2 * S.d)) := h2
+      _ ≤ 2 ^ S.d * (((2 * (S.c0 : ℝ) + 18) ^ S.d + (2 * (S.c0 : ℝ) * S.Rb + 4 * S.Rb) ^ S.d)
+          * (1 + l ^ (2 * S.d))) := by gcongr
+      _ ≤ _ := by rw [← mul_assoc]; gcongr
+  have hdom := dominate_aux (d := S.d) (p2 := S.p2) hh' hCP ok.A2_pos
+    (by have := ok.p2_ge; omega) hk
+  calc p' + h' * (((S.crit k + 2 * (2 * r + 4)) ^ S.d : ℕ) : ℝ)
+      ≤ 1 / 2 * p2Run S.A2 S.p2 b k + 1 / 2 * (S.A2 * Real.log (b k) ^ S.p2) := by
+        refine add_le_add hp' (le_trans (mul_le_mul_of_nonneg_left hN hh') ?_)
+        rw [← mul_assoc, mul_comm h' _, mul_assoc] at *
+        exact hdom
+    _ = p2Run S.A2 S.p2 b k := by unfold p2Run; ring
+
+end Arith
+
 end Balaban.LargeField
