@@ -2317,3 +2317,6 @@ public import Balaban.Polymer.TwoTorusGapDataTowerMem
 public import Balaban.Fluctuation.VacuumFlow
 public import Balaban.Fluctuation.VacuumStep
 public import Balaban.Fluctuation.VacuumDet
+public import Balaban.Correlations.C1StarFromStepCore
+public import Balaban.Correlations.C1StarFromStep
+public import Balaban.Correlations.C1StarFromStepRootC
