@@ -689,4 +689,48 @@ theorem xiCRaw_dom_birth_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^ 
   rintro p ⟨D, hD, rfl⟩
   exact xiDom_birth_chart_unitfree H H' hΩ heps hδ₃ hδfl hμ ht hτr hr hDL hsmε hc1ε hKε hζε hD
 
+/-- If `μ = ν P` with `P` complex and `μ`, `ν` real, then `μ = ν (1 + t)` with `t` real and
+`|t| ≤ ‖P - 1‖`. -/
+theorem exists_real_defect {ν μ : ℝ} {P : ℂ} (hμ : (μ : ℂ) = ν * P) :
+    ∃ t : ℝ, μ = ν * (1 + t) ∧ |t| ≤ ‖P - 1‖ := by
+  by_cases hν : ν = 0
+  · have : μ = 0 := by
+      have h0 : (μ : ℂ) = 0 := by rw [hμ, hν]; simp
+      exact_mod_cast h0
+    exact ⟨0, by simp [this, hν], by simp⟩
+  · refine ⟨μ / ν - 1, by field_simp; ring, ?_⟩
+    have hν' : (ν : ℂ) ≠ 0 := by exact_mod_cast hν
+    have e : (((μ / ν - 1 : ℝ)) : ℂ) = P - 1 := by
+      push_cast
+      rw [hμ]; field_simp
+    rw [← e, Complex.norm_real, Real.norm_eq_abs]
+
+/-- **`xiCRaw_dom_birth_unitfree` with the birth mass given by the flow**: `μ = ν ∏_{n ∈ [j, K)}
+(1 + ξ₃^{(n)})/(1 + ξ₂^{(n)})` and `‖ξ_n‖ ≤ (c₈/4) q^{n+1}`; the mass defect is
+`τ = exp (3 (c₈/4) q^{j+1}/(1-q)) - 1`. -/
+theorem xiCRaw_dom_birth_flow_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {A : ℕ → ℝ} {ν μ eps δ₃ δfl r : ℝ} {εs : ℕ → ℝ} {j K : ℕ} {ξ : ℕ → Fin 3 → ℂ} {q c₈ : ℝ}
+    (H : BgHyp d L k ϱ A ν) (H' : BgHyp d L k ϱ A μ) (hΩ : G.Ω (j + 1) = ∅)
+    (heps : 0 < eps) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl)
+    (hq0 : 0 ≤ q) (hq1 : q < 1) (hc : 0 ≤ c₈) (hs : c₈ * q ≤ 1 - q)
+    (hξ : ∀ n, ‖ξ n‖ ≤ c₈ / 4 * q ^ (n + 1))
+    (hμ : (μ : ℂ) = ν * ∏ n ∈ Ico j K, ((1 + ξ n 2) / (1 + ξ n 1)))
+    (hτr : Real.exp (3 * (c₈ / 4 * (q ^ (j + 1) / (1 - q)))) - 1 < r) (hr : r ≤ 1 / 16)
+    (hDL : (2 * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) +
+        2 * ((N : ℝ) + 1) * (cK2 d L N * (scaledC0 d ^ 2 *
+          (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)) ^ 2)) *
+      (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) *
+        (Real.exp (3 * (c₈ / 4 * (q ^ (j + 1) / (1 - q)))) - 1)) ≤ εs j)
+    (hsmε : (4 * d + 6) * ((2 * d + 1) * εs j) ≤ 1) (hc1ε : 4 * (xiC1 d * εs j) ≤ bgC1 d L N)
+    (hKε : bgK1 d L N * (xiC1 d * εs j) + 3 * r ≤ deltaStar d L N)
+    (hζε : 8 * εs j * r ≤ deltaStar d L N) :
+    ∀ p ∈ Localization.XiCRaw G A ν j (scaledC0 d)
+        (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      (xiFieldDom A μ εs : FieldDom d L N₁ m₁ k N ϱ).dom j G p.1 p.2 := by
+  have hbd := norm_ratio_prod_sub_one_le_geom hq0 hq1 hc hs hξ j K
+  obtain ⟨t, ht, htb⟩ := exists_real_defect hμ
+  exact xiCRaw_dom_birth_unitfree H H' hΩ heps hδ₃ hδfl ht (htb.trans hbd) hτr hr hDL hsmε hc1ε
+    hKε hζε
+
 end Balaban.Fluctuation
