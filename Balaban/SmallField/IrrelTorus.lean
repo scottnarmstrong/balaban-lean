@@ -44,7 +44,8 @@ torus** (P1 Proposition 3.10, Corollary 3.11, (3.104), (3.126)–(3.127), pp. 14
 `Ψ = h = e_{i₀}`, the `j`-blocks `x ∈ X` (the `L^j`-aligned sites of `X`) and the tensors of the
 single term `ℰ(y, X)` at `P₀`:
 `a_X(x) = ∂ℰ(y,X)/∂ψ_{i₀}(x)`, `B_X(x,x') = ∂²ℰ(y,X)/∂ψ_{i₁}(x)∂ψ_{i₁}(x')`,
-`S_X^{μν} = Σ_{x,x'} B_X(x,x') (x-x')_μ (x-x')_ν` (differences of blocks in units of `L^j`),
+`S_X^{μν} = Σ_{x,x'} B_X(x,x') (x-x')_μ (x-x')_ν`, the blocks placed in `ℤ^d` relative to the
+centre `y` (`x ↦ unlift (x - y)`, the centred form of the term pulled back at `y`),
 `ℰ_{irrel}(y,X) = ℰ(y,X) - T_X - Φ_{y,X} - A_{y,X} + 1_{X = □(y)} Σ_{X' ∋ y} (T_{X'} + Φ_{y,X'})`,
 where
 * `T_X = f_X(P₀) + ∂_u f_X(P₀) (u - 1) + ∂_v f_X(P₀) (v - ν_j)`, `u = √(Ψ(y)·Ψ(y))`,
@@ -69,7 +70,7 @@ noncomputable def irrelTorus (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i�
   let g : Fin d → Fin d → ℂ := fun μ μ' =>
     dot (dΨ μ) (dΨ μ') - dot (Ψ y) (dΨ μ) * dot (Ψ y) (dΨ μ') / dot (Ψ y) (Ψ y)
   let lift : CTorus d L N₁ m₁ k → Fin d → ℂ := fun z μ =>
-    (((ZMod.valMinAbs (z μ) : ℝ) / (L : ℝ) ^ j : ℝ) : ℂ)
+    ((unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) μ : ℤ) : ℂ)
   let a : Set (CTorus d L N₁ m₁ k) → CTorus d L N₁ m₁ k → ℂ := fun Z x =>
     fderiv ℂ (fun Ψ' => Tm.E j y Z Ψ' e) e (blockDir L j x i₀)
   let TΦ : Set (CTorus d L N₁ m₁ k) → ℂ := fun Z =>
@@ -77,7 +78,7 @@ noncomputable def irrelTorus (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i�
       + (dot (Ψ y) (h y) / u - 1) * fderiv ℂ (fun h' => Tm.E j y Z e h') e e
       - (1 / 4 : ℂ) * ∑ μ, ∑ μ', g μ μ' * ∑ x ∈ blk Z, ∑ x' ∈ blk Z,
           D2 (fun Ψ' => Tm.E j y Z Ψ' e) e (blockDir L j x i₁) (blockDir L j x' i₁) *
-            (lift (x - x') μ * lift (x - x') μ')
+            ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ'))
   Tm.E j y X Ψ h - TΦ X
     - (1 / 2 : ℂ) * ∑ x ∈ blk X, a X x * (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y))
     + if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
