@@ -118,4 +118,170 @@ theorem composedPair_xiDom_of_xiCData (S : StepSetting d L N₁ m₁ k N ϱ)
 
 end Chart
 
+section Analytic
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+
+/-- **The composed pair of the datum of an old spin is analytic in the spin variable.**  If the
+coordinates `w ↦ ψ_w(q)` are analytic on an open set `s` and `dataUC ψ_w` lies in the union domain
+`𝒟` of Theorem 7.2 for `w ∈ s`, then `w ↦ (ψ_k^{(j)}, h)` of `dataUC ψ_w` is analytic on `s`, for
+every level `j` (for `j > k` it is the constant pair `(0, 0)`). -/
+theorem analyticOnNhd_composedPair (S : StepSetting d L N₁ m₁ k N ϱ)
+    (HB : BgHyp d L (k + 1) ϱ S.a S.ν) {s : Set E} (hs : IsOpen s) {ψ : E → S.EC}
+    (hψ : ∀ q, AnalyticOnNhd ℂ (fun w => ψ w q) s)
+    (hU : ∀ w ∈ s, InUnionDomainC (stepG d L N₁ m₁ k ϱ) (bgC0 d L N) (bgC1 d L N) S.ν
+      (S.dataUC (ψ w))) (j : ℕ) :
+    AnalyticOnNhd ℂ (fun w => composedPairAtC S.a S.ν (Nat.le_succ k) j (S.dataUC (ψ w))) s := by
+  by_cases hj : j ≤ k
+  · have hD : AnalyticOnNhd ℂ (fun w => ((S.dataUC (ψ w)).Ψ, (S.dataUC (ψ w)).h)) s := by
+      intro w hw
+      refine AnalyticAt.prod (analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => ?_)
+        (analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => ?_)
+      · have e : (fun w => (S.dataUC (ψ w)).Ψ x i) = fun w => ψ w (unitPt S.hG' x, i) :=
+          funext fun w => S.dataUC_Ψ _ x i
+        rw [e]; exact hψ _ w hw
+      · have e : (fun w => (S.dataUC (ψ w)).h x i) = fun _ => (S.h₀ i : ℂ) :=
+          funext fun w => S.dataUC_h _ x i
+        rw [e]; exact analyticAt_const
+    have hφ := bgFieldC_analyticOn_raw (G := stepG d L N₁ m₁ k ϱ) HB hs
+      (Dd := fun w => S.dataUC (ψ w)) hD hU
+    intro w hw
+    have e : (fun w => composedPairAtC S.a S.ν (Nat.le_succ k) j (S.dataUC (ψ w))) =
+        fun w => ((composedDataAtC S.a S.ν hj (Nat.le_succ k) (S.dataUC (ψ w))).Ψ,
+          (composedDataAtC S.a S.ν hj (Nat.le_succ k) (S.dataUC (ψ w))).h) := by
+      funext w'
+      simp only [composedPairAtC, hj, ↓reduceDIte]
+    rw [e]
+    refine AnalyticAt.prod (analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => ?_)
+      (analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => ?_)
+    · exact analyticAt_composeField (G := levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (k := k + 1) (ϱ := ϱ) j (hj.trans (Nat.le_succ k))) (G' := stepG d L N₁ m₁ k ϱ) S.a
+        (fun w => bgFieldC (stepG d L N₁ m₁ k ϱ) S.a S.ν (bgC0 d L N) (S.dataUC (ψ w)))
+        (fun w => (S.dataUC (ψ w)).Ψ)
+        (fun r => analyticAt_pi_iff.1 (hφ w hw) r)
+        (fun y j' => analyticAt_pi_iff.1 (analyticAt_pi_iff.1 (analyticAt_fst.comp (hD w hw)) y) j')
+        x i
+    · have e2 : (fun w => (composedDataAtC S.a S.ν hj (Nat.le_succ k) (S.dataUC (ψ w))).h x i) =
+          fun _ => if x ∈ (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+            (k := k + 1) (ϱ := ϱ) j (hj.trans (Nat.le_succ k))).Ω 1 then (S.h₀ i : ℂ) else 0 := by
+        funext w'
+        show (if x ∈ _ then (S.dataUC (ψ w')).h x i else 0) = _
+        rw [S.dataUC_h]
+      rw [e2]; exact analyticAt_const
+  · have e : (fun w => composedPairAtC S.a S.ν (Nat.le_succ k) j (S.dataUC (ψ w))) =
+        fun _ => ((0 : Fld d L N₁ m₁ (k + 1) N), (0 : Fld d L N₁ m₁ (k + 1) N)) := by
+      funext w'
+      simp only [composedPairAtC, hj, ↓reduceDIte]
+    rw [e]
+    exact fun _ _ => analyticAt_const
+
+end Analytic
+
+section Levels
+
+variable {d N₀ M : ℕ} [NeZero N₀] {L k : ℕ} [NeZero L] {v a : ℝ}
+
+section Single
+
+variable {d' N₁ m₁ kc N : ℕ} [NeZero N₁] {ϱ : ℝ}
+  {P : Consts} {Dom : FieldDom d' L N₁ m₁ kc N ϱ} {Tm : Terms d' L N₁ m₁ kc N ϱ}
+
+/-- **One density `ℰ^{(j)}` of the class is analytic on every set of data lying in the domains of
+its terms** (clause `analyticE`). -/
+theorem edens_analyticOnNhd_of_dom (hT : SFTermClauses P Dom Tm) {j : ℕ} (h1 : 1 ≤ j)
+    (hjk : j ≤ kc) {U : Set (Fld d' L N₁ m₁ kc N × Fld d' L N₁ m₁ kc N)}
+    (hU : ∀ r ∈ U, ∀ X, IsPolyDom P.m₀ j X → Dom.dom j (Tm.gs j X) r.1 r.2) :
+    AnalyticOnNhd ℂ (fun r : Fld d' L N₁ m₁ kc N × Fld d' L N₁ m₁ kc N =>
+      Edens P.m₀ Tm j r.1 r.2) U := by
+  intro r hr
+  unfold Edens
+  refine Finset.analyticAt_fun_sum _ fun y _ => ?_
+  unfold Eloc
+  refine analyticAt_finsum_polysAt_general (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc)
+    P.m₀ j y
+    (fun X (p : Fld d' L N₁ m₁ kc N × Fld d' L N₁ m₁ kc N) => Tm.E j y X p.1 p.2) fun X hX hy => ?_
+  exact hT.analyticE j h1 hjk y X hX hy r (hU r hr X hX)
+
+/-- **The bound of one density `ℰ^{(j)}` of the class** on data lying in the domains of its terms:
+`‖ℰ^{(j)}‖ ≤ ∑_y ∑_{X ∋ y} E₀ e^{-κ d_j(X)}` (clause `boundE`, `E₀ ≥ 0`). -/
+theorem norm_edens_le_of_dom (hT : SFTermClauses P Dom Tm) (hE₀ : 0 ≤ P.E₀) {j : ℕ} (h1 : 1 ≤ j)
+    (hjk : j ≤ kc) (Ψ h : Fld d' L N₁ m₁ kc N)
+    (hd : ∀ X, IsPolyDom P.m₀ j X → Dom.dom j (Tm.gs j X) Ψ h) :
+    ‖Edens P.m₀ Tm j Ψ h‖ ≤ ∑ y : CTorus d' L N₁ m₁ kc,
+      ∑ᶠ X ∈ polysAt (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc) P.m₀ j y,
+        P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X) := by
+  classical
+  unfold Edens
+  refine (norm_sum_le _ _).trans ?_
+  have hnn : ∀ y : CTorus d' L N₁ m₁ kc, 0 ≤
+      ∑ᶠ X ∈ polysAt (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc) P.m₀ j y,
+        P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X) := fun y => by
+    have hfin : (polysAt (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc) P.m₀ j y).Finite :=
+      Set.toFinite _
+    rw [finsum_mem_eq_finite_toFinset_sum _ hfin]
+    exact Finset.sum_nonneg fun X _ => mul_nonneg hE₀ (Real.exp_pos _).le
+  calc _ ≤ ∑ y ∈ (Finset.univ : Finset (CTorus d' L N₁ m₁ kc)).filter (Aligned (L ^ j)),
+        ∑ᶠ X ∈ polysAt (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc) P.m₀ j y,
+          P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X) :=
+        Finset.sum_le_sum fun y _ => norm_Eloc_le_of_dom hT h1 hjk y Ψ h hd
+    _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
+        fun y _ _ => hnn y
+
+end Single
+
+/-- **The last integral for the interaction of the class with level-dependent lifts**
+(conditional on the inclusion `hsub`).  The interaction is `F(w) = ∑_{j ≤ K} ℰ^{(j)}(Λ_j(w))`,
+where `Λ_j` is an analytic map from the polydisc of radius `R` around `φ₀` into the data of the
+class (for the composed data `ψ_k^{(j)}` of (H.2), `Λ_j` depends on `j`), landing in the domains of
+the terms of level `j` (`hsub`).  Then the cutoff integral of `F` is analytic on the polydisc of
+radius `e^κ`.  For a single lift `Λ_j = Λ` this is
+`cutoffInteraction_final_class_of_polydisc_subset`. -/
+theorem cutoffInteraction_final_class_of_polydisc_subset_levels
+    {d' : ℕ} {R : ℝ} {N₁ m₁ kc N : ℕ} [NeZero N₁] {ϱ : ℝ}
+    {P : Consts} {Dom : FieldDom d' L N₁ m₁ kc N ϱ} {Tm : Terms d' L N₁ m₁ kc N ϱ}
+    (hT : SFTermClauses P Dom Tm) {K : ℕ} (hK : K ≤ kc) (hE₀ : 0 ≤ P.E₀)
+    {φ₀ : L1Torus d N₀ → ℂ}
+    {Λ : ℕ → (L1Torus d N₀ → ℂ) → Fld d' L N₁ m₁ kc N × Fld d' L N₁ m₁ kc N}
+    (hΛ : ∀ j, 1 ≤ j → j ≤ K → AnalyticOnNhd ℂ (Λ j) (polydisc φ₀ (fun _ => R)))
+    (hsub : ∀ w ∈ polydisc φ₀ (fun _ => R), ∀ j, 1 ≤ j → j ≤ K →
+      ∀ X, IsPolyDom P.m₀ j X → Dom.dom j (Tm.gs j X) (Λ j w).1 (Λ j w).2)
+    (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 1 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {γ : Measure (L1Torus d N₀ → ℝ)} {ρ β : ℝ} (hρ : 0 ≤ ρ) (hβ : 0 < β)
+    (hγ : γ {ψ : L1Torus d N₀ → ℝ | ∀ y, |ψ y| ≤ ρ} < ⊤)
+    (hBR : (4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
+      Real.sqrt (finalGap d L)) * (β ^ (-(1 / 2 : ℝ)) * ρ) < R) :
+    AnalyticOnNhd ℂ (fun s : MacIdx d N₀ M → ℂ =>
+      ∫ ψ in {ψ : L1Torus d N₀ → ℝ | ∀ y, |ψ y| ≤ ρ},
+        (fun w : L1Torus d N₀ → ℂ => ∑ j ∈ Finset.Icc 1 K,
+            Edens P.m₀ Tm j (Λ j w).1 (Λ j w).2)
+          (fun x => φ₀ x + ((β ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+            ∑ y, taggedCfin d L N₀ k M v a s x y * ((ψ y : ℝ) : ℂ)) ∂γ)
+      (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) := by
+  have hFa : AnalyticOnNhd ℂ (fun w : L1Torus d N₀ → ℂ =>
+      ∑ j ∈ Finset.Icc 1 K, Edens P.m₀ Tm j (Λ j w).1 (Λ j w).2)
+      (polydisc φ₀ (fun _ => R)) := by
+    intro w hw
+    refine Finset.analyticAt_fun_sum _ fun j hj => ?_
+    have hj' := Finset.mem_Icc.1 hj
+    have h1 := edens_analyticOnNhd_of_dom hT hj'.1 (hj'.2.trans hK)
+      (U := Λ j '' polydisc φ₀ (fun _ => R))
+      (by rintro _ ⟨w', hw', rfl⟩ X hX; exact hsub w' hw' j hj'.1 hj'.2 X hX)
+      (Λ j w) ⟨w, hw, rfl⟩
+    exact h1.comp (hΛ j hj'.1 hj'.2 w hw)
+  refine (cutoffInteraction_final_phys (Rphys := R) hd hk hv0 hv1 ha1 ha2
+    hmass hM hκ hMB hMκ hρ hβ hγ hBR hFa (B' := ∑ j ∈ Finset.Icc 1 K, ∑ y : CTorus d' L N₁ m₁ kc,
+        ∑ᶠ X ∈ polysAt (d := d') (L := L) (N₁ := N₁) (m₁ := m₁) (k := kc) P.m₀ j y,
+          P.E₀ * Real.exp (-P.κ * sizeJ P.m₀ j X))
+    (fun w hw => ?_)).1
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun j hj => ?_)
+  have hj' := Finset.mem_Icc.1 hj
+  exact norm_edens_le_of_dom hT hE₀ hj'.1 (hj'.2.trans hK) _ _
+    (fun X hX => hsub w hw j hj'.1 hj'.2 X hX)
+
+end Levels
+
 end Balaban.Green
