@@ -94,4 +94,53 @@ theorem compMeanT_re_eq_composedMean (G : GeneratingSet d L N₀ k ϱ) (B : Bloc
 
 end Comp
 
+
+section Weight
+
+variable {d L N₀ k k1 : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+open Classical in
+/-- **`compWeightZ` is the block-tree weight** (`blockWeight`, `WindowIdeal.lean`): with the leaf correspondence
+`lf` of the sites of `fib z`, `a_z⁻¹ = V⁻¹ ∑_{s ∈ z} u_{k - n_s} = ∑_x w_x u_{k - n_x}`.  With
+`composedWeight_ideal` this gives `β_k a^♮_z = β_k a_z` for `z ≡ 1` and the ideal coefficients. -/
+theorem compWeightZ_eq_blockWeight (G : GeneratingSet d L N₀ k ϱ) (B : BlockTree (L ^ d) k1 k)
+    (hm : 0 < L ^ d) (a₁ : ℝ) (z : Blk d L N₀ k k)
+    (lf : ↥(fib d L N₀ k k z) → Fin B.nLeaf)
+    (hcard : ∀ x, (Finset.univ.filter fun s : ↥(fib d L N₀ k k z) => lf s = x).card =
+      (L ^ d) ^ B.leafScale x)
+    (hscale : ∀ s : ↥(fib d L N₀ k k z), G.layerIndex s.1 = B.leafScale (lf s)) :
+    compWeightZ G a₁ z = B.blockWeight L a₁ := by
+  unfold compWeightZ BlockTree.blockWeight
+  congr 1
+  have hV : (blockVol d L k : ℝ) = ((L ^ d : ℕ) : ℝ) ^ k := by
+    unfold blockVol; push_cast; rw [← pow_mul, ← pow_mul, mul_comm]
+  rw [hV, ← Finset.sum_coe_sort (fib d L N₀ k k z)]
+  have h1 : ∑ s : ↥(fib d L N₀ k k z), (compWeight L a₁ (k - G.layerIndex s.1))⁻¹ =
+      ∑ x : Fin B.nLeaf, (((L ^ d : ℕ) : ℝ) ^ B.leafScale x) *
+        (compWeight L a₁ (k - B.leafScale x))⁻¹ := by
+    rw [Finset.sum_congr rfl (fun s _ => by rw [hscale s]),
+      ← Finset.sum_fiberwise Finset.univ lf]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [Finset.sum_congr rfl (fun s hs => by rw [(Finset.mem_filter.mp hs).2]), Finset.sum_const,
+      hcard x]
+    simp
+  rw [h1, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  have hn := (B.leafScale_lt x).le
+  have hm' : ((L ^ d : ℕ) : ℝ) ≠ 0 := by exact_mod_cast hm.ne'
+  unfold blockFrac
+  have key : ((L ^ d : ℕ) : ℝ) ^ k = ((L ^ d : ℕ) : ℝ) ^ B.leafScale x *
+      ((L ^ d : ℕ) : ℝ) ^ (k - B.leafScale x) := by
+    rw [← pow_add]; congr 1; omega
+  rw [key]
+  field_simp
+
+end Weight
+
+theorem composedPrecision_eq_mul_composedWeight {m k1 k : ℕ} (B : BlockTree m k1 k) {βk : ℝ}
+    (hβ : βk ≠ 0) (c z : ℕ → ℝ) :
+    B.composedPrecision c z = βk * B.composedWeight βk c z := by
+  unfold BlockTree.composedWeight
+  field_simp
+
 end Balaban.LargeField
