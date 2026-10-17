@@ -2127,3 +2127,5 @@ public import Balaban.Fluctuation.LocalClassDensityValClass
 public import Balaban.Fluctuation.LocalClassDensityValTower
 public import Balaban.Fluctuation.LocalClassDensityValM
 public import Balaban.Fluctuation.LocalClassDensityMarks
+public import Balaban.Fluctuation.LocalClassDensityMarksH
+public import Balaban.Fluctuation.LocalClassDensityMarksLabel
