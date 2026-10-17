@@ -2072,6 +2072,11 @@ public import Balaban.LargeField.R.KeptOutcomeWindow
 public import Balaban.LargeField.R.KeptOutcomeGain23
 public import Balaban.LargeField.R.KeptOutcomeGainRipe
 public import Balaban.LargeField.R.KeptOutcomeGainIntegral
+public import Balaban.LargeField.R.KeptOutcomeOneHalfGauss
+public import Balaban.LargeField.R.KeptOutcomeOneGain
+public import Balaban.LargeField.R.KeptOutcomeOneNode
+public import Balaban.LargeField.R.KeptOutcomeThreeSupport
+public import Balaban.LargeField.R.KeptOutcomeThreeLocal
 public import Balaban.LargeField.R.RRemovedLres
 public import Balaban.LargeField.R.RRemovedShell
 public import Balaban.LargeField.R.RRemovedShellTree
