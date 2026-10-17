@@ -134,8 +134,8 @@ their analyticity and defining properties, for every mask `Zm`, the marked terms
 5. do not depend on the second mark when no site of `Y` has its unit point in the mask;
 6. are **analytic in `((Θ, ψ̂), (um, tm))`** at every point of `(Ξ^c × B̂) × W` (the core
    `marked_expansion_product_pair_of` with the region `FlRealLC`). -/
-theorem classOldMarkedLocal_joint_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {P : Consts}
-    {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+theorem classOldMarkedLocal_joint_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
     (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
     {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
     {y : CTorus d L N₁ m₁ (k + 1)} (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
@@ -288,5 +288,134 @@ theorem classOldMarkedLocal_joint_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ sc
     (markedTangDec_mem_flBallLC hC hk hG hG' cc hcψ Zm hMX hdm hα hsm hw hD hψh)).symm
 
 end LabelJoint
+
+section BlockMarks
+
+variable (S : StepSetting d L N₁ m₁ k N ϱ)
+  {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+  {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
+
+/-- **The block-level marks of one inherited label, for given maps and any block index `mb`.**  For
+a step `S` (`Gp = S.G'`), a label `τ = (j, y, X)` of the class `C` with the hypotheses of
+`classOldMarkedLocal_joint_of`, given maps `(F₁, Sol, Fk)`, a mask `Zm`, a block index `mb` and a
+clamp radius `0 < ρ ≤ c_ψ`, the block-level mark of the domain `Y`,
+`Φ ↦ ∂_t evDec … Eτ … Zm um t Y (Θ, S.hatOf mb ρ hp Φ)|_{t=0}`:
+
+1. depends only on the blocks inside any `mb`-cell union `Y′ ⊇ Y`;
+2. is continuous, hence measurable, in the block configuration;
+3. is bounded by `β⁻¹ E₀ e^{-κ₀ d(X) - 2 κ_dec d(Y)} / t₀` for every configuration
+   (`‖um‖ ≤ a`, `0 < t₀ ≤ b`, `(a + b) · markedRad < δ₁`);
+4. is analytic in `(e, u)` on `physV × {‖u‖ < a}` for every configuration (`b > 0`,
+   `(a + b) · markedRad < δ₁`): the shape of the field `holG` of `ParamMarkFamily`. -/
+theorem classOldMarkedLocal_blockMarks_of {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    (C : StepClass d L N₁ m₁ k N ϱ) (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm)
+    {β : ℝ} (hβ : 0 < β) (hE₀ : 0 ≤ P.E₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {y : CTorus d L N₁ m₁ (k + 1)} (hXp : IsPolyDom C.m₀ j X) (hy : y ∈ X)
+    (hB : BgSetting N S.G' Gk (C.Tm.gs j X) a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N S.G' Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hG : IsLevel Hm k) (cc : ℂ)
+    {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup S.G' C.m₀ j X 𝒦X)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' C.m₀ j 𝒦X)
+    (hconn : HatConn S.G') (hrow : RowInHat (coverOf S.G') Hm (compWeight L a₁) ν)
+    (hopt : ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X) ∧ MeetsOne C.m₀ j 𝒦X W₀ ∧
+        bondCost (scaleW L C.m₀ m₁ j) E₀ = treeLenCovOne C.m₀ j X)
+    {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
+    (hκ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ) (h1 : 1 ≤ (κ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ C.m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2)
+    (hκP : κdec - 1 ≤ P.κ)
+    (hchart : ∀ r ∈ XiCRaw (C.Tm.gs j X) (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      Dom.dom j (C.Tm.gs j X) r.1 r.2)
+    {F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData S.G' N,
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSolprop : ∀ p : Dec2.DecParams (coverOf S.G') × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf S.G') Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf S.G') Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
+      InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    (Zm : Finset (unitPts S.G')) (mb : ℕ) {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ)
+    (hp : 0 < S.p₁) :
+      (∀ (Y Y' : Set (CTorus d L N₁ m₁ (k + 1))), Y ⊆ Y' →
+        (∀ y ∈ Y', box (cbase (cellSide L mb m₁ (k + 1)) y) (cellSide L mb m₁ (k + 1)) ⊆ Y') →
+        ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        DepOn (blocksOf mb (k + 1) Set.univ Y')
+          (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+            deriv (fun t : ℂ => evDec X₁f C.m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (eTermFun S.G' Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+              (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t Y
+            (Θ, S.hatOf mb ρ hp Φ)) 0)) ∧
+      (∀ Y, ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        Continuous (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+          deriv (fun t : ℂ => evDec X₁f C.m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (eTermFun S.G' Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+              (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t Y
+            (Θ, S.hatOf mb ρ hp Φ)) 0) ∧
+        Measurable (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+          deriv (fun t : ℂ => evDec X₁f C.m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (eTermFun S.G' Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+              (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t Y
+            (Θ, S.hatOf mb ρ hp Φ)) 0)) ∧
+      (∀ Y, ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b →
+        0 < t₀ → t₀ ≤ b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ → ∀ um : ℂ, ‖um‖ ≤ a →
+        ∀ Φ : (∀ b, (S.blockSplit mb hp).Ωb b),
+        ‖deriv (fun t : ℂ => evDec X₁f C.m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (eTermFun S.G' Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+              (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm um t Y
+            (Θ, S.hatOf mb ρ hp Φ)) 0‖ ≤
+          (β⁻¹ * P.E₀) *
+            Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov S.G' C.m₀ Y) / t₀) ∧
+      (∀ Y, ∀ Φ : (∀ b, (S.blockSplit mb hp).Ωb b), ∀ a b : ℝ, 0 ≤ a → 0 < b →
+        (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParam N S × ℂ =>
+          deriv (fun t : ℂ => evDec X₁f C.m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol
+            (eTermFun S.G' Gk (C.Tm.gs j X) Hm (compWeight L a₁) Fk
+              (fun r => (β : ℂ)⁻¹ * C.Tm.E j y X r.1 r.2)) Zm p.2 t Y
+            ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf mb ρ hp Φ)) 0)
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
+  obtain ⟨-, e2, e3, e4, -, hJ⟩ := classOldMarkedLocal_joint_of hb₁ hbC C hm hcl hβ hE₀ hj1 hjk
+    hXp hy hB hF S.hk1 hG S.hG' cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1
+    hlog hκP hchart hF₁an hF₁ hSolan hSolprop hFkan hFk Zm
+  obtain ⟨-, hJ4, -⟩ := markedEv_physV_of_joint S (flCore_of hB hF) cc Zm
+    (B := fun Y => (β⁻¹ * P.E₀) *
+      Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov S.G' C.m₀ Y)) hJ e3
+  exact deriv_evDec_hatOf_fields S mb F₁ Sol (B := fun Y => (β⁻¹ * P.E₀) *
+      Real.exp (-κ₀ * treeLenCovOne C.m₀ j X - 2 * κdec * treeLenCov S.G' C.m₀ Y)) e2 e4 hJ hJ4
+    hρ hρc hp
+
+end BlockMarks
 
 end Balaban.Fluctuation
