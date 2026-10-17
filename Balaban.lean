@@ -2227,3 +2227,4 @@ public import Balaban.Polymer.TwoTorusGapStepObsEv
 public import Balaban.Polymer.TwoTorusGapStepObsV
 public import Balaban.Polymer.TwoTorusGapStepObsBlocks
 public import Balaban.Polymer.TwoTorusGapStepObsPart
+public import Balaban.Polymer.TwoTorusGapStepObsTilt
