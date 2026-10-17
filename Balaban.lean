@@ -2078,6 +2078,9 @@ public import Balaban.LargeField.R.CoreResponseHess
 public import Balaban.LargeField.R.CoreResponseOsc
 public import Balaban.SmallField.XiUnitWitness
 public import Balaban.Green.FinalTailGas
+public import Balaban.Fluctuation.LocalClassDensityChart
+public import Balaban.Fluctuation.LocalClassDensityCentre
+public import Balaban.Fluctuation.LocalClassDensityLevel
 public import Balaban.LargeField.R.RRemovedWindowGen
 public import Balaban.LargeField.R.RRemovedWindowKernel
 public import Balaban.LargeField.R.RRemovedWindowPoint
@@ -2090,5 +2093,6 @@ public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
 public import Balaban.LargeField.R.RRemovedWindowInst
+public import Balaban.Fluctuation.LocalClassDensityCompletion
 public import Balaban.Fluctuation.VacuumEnergy
 public import Balaban.Green.FinalInteractionClass
