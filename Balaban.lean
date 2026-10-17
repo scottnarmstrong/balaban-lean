@@ -2096,3 +2096,4 @@ public import Balaban.LargeField.R.RRemovedWindowInst
 public import Balaban.Fluctuation.LocalClassDensityCompletion
 public import Balaban.Fluctuation.VacuumEnergy
 public import Balaban.Green.FinalInteractionClass
+public import Balaban.Fluctuation.LocalClassDensityH
