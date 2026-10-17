@@ -139,3 +139,7 @@ W906 (blocker 4): `famDecompOf` (`RopConcrete.lean`) is the generic `R` decompos
 ## Status (W908, 2026-10-17): geometric premises from the history
 - `R/RRemovedGeometry.lean`: `hXV_ripeX` (hXV), `hsepV_removed` (hsepV; only `H.F.RH.le` via `radius_lt_omega`), `hZ0_removed` (hZ0, `Z0 c` = blocks whose cast is in `zb c`); `R/RRemovedMargin.lean`: `hZr_removed`, `hmargin_removed` (hmargin for any `Rm ≤ M⌊R_{k-1}⌋/L`, `Rm ≤ ϱ-1`; distance `L^{k-1}M(L(⌊R_{k-1}⌋+3)+⌊R_{k-2}⌋+1)` from `far_Zzero_Omega_top`).
 - Margin `≈ (M R_base/L) λ_{k-1}²` blocks beats `γ_w^{-1} log β_k + C` iff `M⌊R_base λ_{k-1}²⌋/L ≥ γ_w^{-1} log β_k + C` (λ_{k-1} large); the cap `ϱ-1` must also exceed it. Premises kept as typing data: `hbx` (box description of Z₀), `hZrsites` (Zr = fine sites of Z).
+
+## Status (W910, 2026-10-17): pointwise inputs of the window integral
+- `R/RRemovedFracArith.lean`, `RRemovedFracE.lean`, `RRemovedFracInst.lean`: (i) `removed_quotient_le_of_history` (quotient (2.58′) ≤ exp(F_z + C_Ẽ' D₀^d + C_♮ λ^{2d+1} + 4 + C_k), margin (2/γ_w) log β_k from `removed_margin_arith`; premises `log β_k ≤ λ_k`, λ_{k-1} large, cap `(2/γ_w) log β_k ≤ ϱ - 1` (not uniform in k for fixed `rhoSepG`), ν = 0). `R/RRemovedWindowInst.lean`: `window_bw_le` (ii), `window_hvol_of_groups` (iii), `removedKernel_kerBound_of_window_inst` (hnZ, hnT discharged).
+- Not discharged: `hEZ` (landed `E_le`: `E_k ≤ C_E λ^{2d+1}`, so `E_k |Z| ≲ λ^{2d+1}(M crit)^d`, one factor `λ^{2d}` more than `hEZ`), `hκ`, `Θ`, `hid`, `hsupp`, `hb`, `hcore`.
