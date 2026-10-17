@@ -39,4 +39,21 @@ theorem PieceWindowSetup.no_switch_after_k0
   have := W.sc_lt i
   omega
 
+/-- A nonempty region on a generating set whose top layer is `j + 1`
+cannot satisfy the lower-spacing premise of `massChange_region_bound_cubes`
+at a strictly later layer `q`.  For the switch `q₀ = k₀ + 1`, that theorem's
+scale parameter is `k₀`; thus it cannot be applied directly to pieces with
+`j + 1 < k₀` on their original `locGen`. -/
+theorem no_later_scale_spacing {ϱ : ℝ} {j q : ℕ}
+    (G : GeneratingSet d L N₀ (j + 1) ϱ) (hL : 1 < L) (hjq : j + 1 < q)
+    (X : Region G) (hX : X.sites.Nonempty) :
+    ¬ ∀ x ∈ X.sites, (L : ℝ) ^ q ≤ G.spacing x := by
+  intro hsp
+  obtain ⟨x, hx⟩ := hX
+  have hxG : x ∈ G.Ω 1 := X.sub_Ω hx
+  have hbound : G.spacing x ≤ (L : ℝ) ^ (j + 1) := spacing_le G hxG
+  have hLreal : (1 : ℝ) < L := by exact_mod_cast hL
+  have hpow : (L : ℝ) ^ (j + 1) < (L : ℝ) ^ q := pow_lt_pow_right₀ hLreal hjq
+  exact (not_le_of_gt hpow) ((hsp x hx).trans hbound)
+
 end Balaban.LargeField.ActionConv

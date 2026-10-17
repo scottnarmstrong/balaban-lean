@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.R.PieceChain
+public import Balaban.LargeField.R.WindowConvPhysSwitch
 
 /-!
 # The two local backgrounds at the physical mass switch
@@ -16,7 +17,7 @@ available.  The spacing, cube cover, field-to-`h` and common-collar inputs of
 
 namespace Balaban.LargeField
 
-open Balaban Balaban.Multiscale Balaban.Background RegionHistory
+open Balaban Balaban.Multiscale Balaban.Background RegionHistory Balaban.LargeField.ActionConv
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   {k0 M K N : ℕ} [NeZero M] [NeZero S.L]
@@ -61,5 +62,16 @@ theorem locData_switch_el_bounds (δ ε : ℝ)
   refine ⟨h0.2.1.1, hm.2.1.1, ?_, ?_, H0.green, Hm.mass⟩
   · exact h0.2.2 δ ε hδ hδε hε hδc (by simpa using sq_nonneg δ) hDC0
   · exact hm.2.2 δ ε hδ hδε hε hδc hsmall hDCm
+
+/-- For an older piece, `massChange_region_bound_cubes` cannot use its switch
+scale `k₀` on the original local generating set: every local spacing is at
+most `L^(j+1)`, whereas the theorem asks for spacing at least `L^k₀`.
+A comparison on a coarser common cover is required. -/
+theorem locGen_switch_spacing_impossible (hj : j + 1 < k0)
+    (X : Region (locGen g Hl j Zc hZc hk)) (hX : X.sites.Nonempty) :
+    ¬ ∀ y ∈ X.sites, (S.L : ℝ) ^ k0 ≤ (locGen g Hl j Zc hZc hk).spacing y := by
+  apply ActionConv.no_later_scale_spacing (locGen g Hl j Zc hZc hk) (by
+    have hL := Hl.F.ok.two_le_L
+    omega) hj X hX
 
 end Balaban.LargeField
