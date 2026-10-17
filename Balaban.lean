@@ -2070,3 +2070,6 @@ public import Balaban.SmallField.XiUnitWitness
 public import Balaban.Green.FinalTailGas
 public import Balaban.LargeField.R.RRemovedWindowGen
 public import Balaban.LargeField.R.RRemovedWindowKernel
+public import Balaban.LargeField.R.RRemovedWindowPoint
+public import Balaban.LargeField.R.RRemovedWindowVol
+public import Balaban.LargeField.R.RRemovedWindowCore
