@@ -138,7 +138,7 @@ end Balaban.Polymer
 
 namespace Balaban.Green
 
-open Balaban Balaban.Multiscale Balaban.LargeField MeasureTheory Balaban.Polymer
+open Balaban Balaban.Multiscale Balaban.LargeField Balaban.Inhabited MeasureTheory Balaban.Polymer
 
 section Blocks
 
@@ -210,6 +210,155 @@ theorem blockGraph_hcount (hd : 1 ≤ d) {zs : Zt → Finset (Torus d m)}
   convert (by simpa using h : _ ≤ (((2 * d : ℕ) : ℝ) ^ 2) ^ v)
 
 end Heavy
+
+section Main
+
+variable {d m : ℕ} [NeZero m] {W : Type*} [NormedAddCommGroup W] [InnerProductSpace ℝ W]
+  [FiniteDimensional ℝ W] [MeasurableSpace W] [BorelSpace W] [SecondCountableTopology W]
+  {Zt Yt : Type*} [Fintype Zt] [Fintype Yt]
+
+/-- **The gas bound for the large-field part of the last integral (leaf L5 (3)).**
+Blocks `blk z ⊆ Torus d m` with at most one site and pairwise disjoint (the family of
+`blk_hcover`, `blk_disjoint_card`); heavy objects `zs Z`, nonempty nearest-neighbour connected sets
+of blocks (`zs` injective); couplings `cy y` nonempty and connected, at most `mY` per support, with
+the decay `‖g y‖ ≤ B₀ e^{-κ'' |cy y|}` (`hB`, the coupling bound of leaf L4, kept as a
+hypothesis) and `κ'' - κ' ≥ log (mY (2d)²) + 3`.  The weight `τ Z` is the integral of `F Z` over
+the tail cell of `Z`, with `‖F Z‖ ≤ e^{b}` there.  For `p₂ < 2p` (or `p₂ = 2p`,
+`A₂ < A₁²/4`) and all large `β`, with `ρ = pLog A₁ p β`, `p(β) = A₂ (log β)^{p₂}`,
+`H = H₀ log β`, the activity of every polymer `X` of blocks of the gas satisfies
+`‖K(X)‖ ≤ 3 e^{-p(β)} e^{-(κ' - 2) |X|}`. -/
+theorem final_tail_gas_bound (hd : 1 ≤ d)
+    (blk : Torus d m → Finset (Torus d m))
+    (hblkd : ∀ z z', z ≠ z' → Disjoint (blk z) (blk z'))
+    (hblk1 : ∀ z, (blk z).card ≤ 1)
+    (zs : Zt → Finset (Torus d m)) (hzne : ∀ z, (zs z).Nonempty)
+    (hzconn : ∀ z, ((blockGraph d m).induce (zs z : Set (Torus d m))).Connected)
+    (hzinj : Function.Injective zs)
+    {A₁ A₂ H₀ b B0 κ' κ'' mY : ℝ} {p p₂ : ℕ}
+    (hA₁ : 0 < A₁) (hA₂ : 0 ≤ A₂) (hp : 1 ≤ p) (hb : 0 ≤ b)
+    (hexp : p₂ < 2 * p ∨ (p₂ = 2 * p ∧ A₂ < A₁ ^ 2 / 4)) (hH₀ : 0 < H₀)
+    (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hmY : 1 ≤ mY)
+    (hκ : Real.log (mY * (((2 * d : ℕ) : ℝ)) ^ 2) + 3 ≤ κ'' - κ') :
+    ∃ β₀ : ℝ, 1 < β₀ ∧ ∀ β : ℝ, β₀ ≤ β →
+      ∀ (cy : Yt → Finset (Torus d m)) (cr : Zt → Finset (Torus d m)) (g : Yt → ℂ) (F : Zt → (Torus d m → W) → ℂ)
+        (τ : Zt → ℂ),
+      (∀ z, cr z ⊆ zs z) → (∀ y, (cy y).Nonempty) →
+      (∀ y, ((blockGraph d m).induce (cy y : Set (Torus d m))).Connected) →
+      (∀ T, ((Finset.univ.filter fun y => cy y = T).card : ℝ) ≤ mY) →
+      (∀ y, ‖g y‖ ≤ B0 * Real.exp (-κ'' * ((cy y).card : ℝ))) →
+      (∀ z, ∀ ψ ∈ {ψ : Torus d m → W | (∀ z' ∈ zs z, ∃ x ∈ blk z', pLog A₁ p β < ‖ψ x‖) ∧
+        ∀ z' ∉ zs z, ∀ x ∈ blk z', ‖ψ x‖ ≤ pLog A₁ p β}, ‖F z ψ‖ ≤ Real.exp b) →
+      (∀ z, τ z = ∫ ψ in {ψ : Torus d m → W | (∀ z' ∈ zs z, ∃ x ∈ blk z', pLog A₁ p β < ‖ψ x‖) ∧
+        ∀ z' ∉ zs z, ∀ x ∈ blk z', ‖ψ x‖ ≤ pLog A₁ p β}, F z ψ ∂(pdGaussian (Torus d m) W)) →
+      ∀ X : NePoly (Torus d m),
+        ‖gasK cy zs cr g τ X‖ ≤
+          3 * 1 * Real.exp (-(A₂ * Real.log β ^ p₂)) * Real.exp (-(κ' - 2) * (X.1.card : ℝ)) := by
+  set K2 : ℝ := (((2 * d : ℕ) : ℝ) ^ 2) with hK2
+  have hd' : (1 : ℝ) ≤ ((2 * d : ℕ) : ℝ) := by
+    have : 1 ≤ 2 * d := by omega
+    exact_mod_cast this
+  have hK2one : (1 : ℝ) ≤ K2 := by rw [hK2]; nlinarith
+  have hκκ : κ' ≤ κ'' := by
+    have : 0 ≤ Real.log (mY * (((2 * d : ℕ) : ℝ)) ^ 2) :=
+      Real.log_nonneg (by nlinarith)
+    linarith
+  obtain ⟨β₁, hβ₁1, hβ₁⟩ := tail_exponent_hq_hbp (p₂ := p₂) hA₁ hA₂ hp hb hexp 1
+    (Module.finrank ℝ W) (H₀ := H₀)
+  set T : ℝ := B0 * Real.exp B0 * Real.exp (κ' * 0) * 1 + κ' * (1 + 0) + 1 + 3 + Real.log K2
+    with hT
+  refine ⟨max β₁ (Real.exp (T / H₀)), lt_of_lt_of_le hβ₁1 (le_max_left _ _), fun β hβ => ?_⟩
+  intro cy cr g F τ hcr hcyne hcyconn hfibY hB hF hτ X
+  have hββ₁ : β₁ ≤ β := (le_max_left _ _).trans hβ
+  have hβ1 : 1 < β := lt_of_lt_of_le hβ₁1 hββ₁
+  have hlogpos : 0 < Real.log β := Real.log_pos hβ1
+  have hlog : T / H₀ ≤ Real.log β :=
+    (Real.le_log_iff_exp_le (by linarith)).2 ((le_max_right _ _).trans hβ)
+  have hh : T ≤ H₀ * Real.log β := by
+    have := mul_le_mul_of_nonneg_left hlog hH₀.le
+    rwa [mul_div_cancel₀ _ hH₀.ne'] at this
+  obtain ⟨hq, hbp⟩ := hβ₁ β hββ₁
+  have hρ : 0 ≤ pLog A₁ p β := by unfold pLog; positivity
+  have hpgas : 0 ≤ A₂ * Real.log β ^ p₂ := by positivity
+  have hτb : ∀ z, ‖τ z‖ ≤ Real.exp (-(A₂ * Real.log β ^ p₂) - H₀ * Real.log β * (zs z).card) := by
+    intro z
+    rw [hτ z]
+    have := norm_setIntegral_blocksSplit_le_exp (W := W) blk (zs z)
+      (fun a _ a' _ hne => hblkd a a' hne) hρ (hF z) (m := 1) le_rfl
+      (fun z _ => by simpa using hblk1 z) (hzne z) (p := A₂ * Real.log β ^ p₂)
+      (h := H₀ * Real.log β) hq hbp
+    simpa [neg_add, sub_eq_add_neg] using this
+  refine Polymer.gas_activity_bound (d := fun X : Finset (Torus d m) => (X.card : ℝ))
+    (zs := zs) (cr := cr) (cy := cy) (β := g) (τ := τ) (c := 0) (c1 := 1) (c2 := 1)
+    (B0 := B0) (κ' := κ') (κ'' := κ'') (p := A₂ * Real.log β ^ p₂) (h := H₀ * Real.log β)
+    hB0 hκ' hκκ le_rfl zero_le_one hpgas (fun _ => Nat.cast_nonneg _) hzne hcr hB hτb
+    (fun z => (one_mul _).ge) ?_ (K0' := 1) (K0'' := K2) zero_le_one ?_ hK2one ?_ ?_ X ?_
+  · intro C _ _
+    simpa [Polymer.gasCs] using card_unionCs_le (V := Torus d m) (Polymer.gasCs cy zs) C
+  · intro b'
+    have := coupling_entropy_le_one (κ := κ'' - κ') (blockGraph d m) (Δ := 2 * d) (blockGraph_degree_le d m)
+      (by omega) hcyne hcyconn (fun T => by
+        refine le_of_eq_of_le ?_ (hfibY T)
+        congr 2
+        ext y; simp) hmY hκ b'
+    exact le_of_eq_of_le (Finset.sum_congr (by ext; simp) (fun _ _ => rfl)) this
+  · intro b' v
+    have := blockGraph_hcount hd hzconn hzinj b' v
+    convert this
+  · have := hh
+    rw [hT] at this
+    linarith
+  · simp
+
+end Main
+
+section Nbhd
+
+variable {d M1 N₁ L k : ℕ} [NeZero L] [NeZero M1] [NeZero N₁] {W : Type*} [NormedAddCommGroup W]
+  [InnerProductSpace ℝ W] [FiniteDimensional ℝ W] [MeasurableSpace W] [BorelSpace W]
+  [SecondCountableTopology W] {Zt Yt : Type*} [Fintype Zt] [Fintype Yt]
+
+/-- **The gas bound with the block family of the last step written out.**  `final_tail_gas_bound`
+for the family `blk z = {z}` if `z` is a `k`-block `jBlock x` of a site of `cubeNbhd`, `∅`
+otherwise (it satisfies `hcover` of `FinalTailConsts` by `blk_hcover`). -/
+theorem final_tail_gas_bound_nbhd (c n : ℕ) (y0 : Torus d n) (hd : 1 ≤ d)
+    (zs : Zt → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))) (hzne : ∀ z, (zs z).Nonempty)
+    (hzconn : ∀ z, ((blockGraph d (M1 * N₁ * L ^ (k + 1 - k))).induce (zs z : Set (Torus d (M1 * N₁ * L ^ (k + 1 - k))))).Connected)
+    (hzinj : Function.Injective zs)
+    {A₁ A₂ H₀ b B0 κ' κ'' mY : ℝ} {p p₂ : ℕ}
+    (hA₁ : 0 < A₁) (hA₂ : 0 ≤ A₂) (hp : 1 ≤ p) (hb : 0 ≤ b)
+    (hexp : p₂ < 2 * p ∨ (p₂ = 2 * p ∧ A₂ < A₁ ^ 2 / 4)) (hH₀ : 0 < H₀)
+    (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hmY : 1 ≤ mY)
+    (hκ : Real.log (mY * (((2 * d : ℕ) : ℝ)) ^ 2) + 3 ≤ κ'' - κ') :
+    ∃ β₀ : ℝ, 1 < β₀ ∧ ∀ β : ℝ, β₀ ≤ β →
+      ∀ (cy : Yt → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))) (cr : Zt → Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))) (g : Yt → ℂ) (F : Zt → (Torus d (M1 * N₁ * L ^ (k + 1 - k)) → W) → ℂ)
+        (τ : Zt → ℂ),
+      (∀ z, cr z ⊆ zs z) → (∀ y, (cy y).Nonempty) →
+      (∀ y, ((blockGraph d (M1 * N₁ * L ^ (k + 1 - k))).induce (cy y : Set (Torus d (M1 * N₁ * L ^ (k + 1 - k))))).Connected) →
+      (∀ T, ((Finset.univ.filter fun y => cy y = T).card : ℝ) ≤ mY) →
+      (∀ y, ‖g y‖ ≤ B0 * Real.exp (-κ'' * ((cy y).card : ℝ))) →
+      (∀ z, ∀ ψ ∈ {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → W | (∀ z' ∈ zs z, ∃ x ∈ ((fun z : Torus d (M1 * N₁ * L ^ (k + 1 - k)) =>
+      ({z} : Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))).filter
+        (fun y => ∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+          jBlock d L (M1 * N₁) (k + 1) k x = y))) z', pLog A₁ p β < ‖ψ x‖) ∧
+        ∀ z' ∉ zs z, ∀ x ∈ ((fun z : Torus d (M1 * N₁ * L ^ (k + 1 - k)) =>
+      ({z} : Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))).filter
+        (fun y => ∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+          jBlock d L (M1 * N₁) (k + 1) k x = y))) z', ‖ψ x‖ ≤ pLog A₁ p β}, ‖F z ψ‖ ≤ Real.exp b) →
+      (∀ z, τ z = ∫ ψ in {ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → W | (∀ z' ∈ zs z, ∃ x ∈ ((fun z : Torus d (M1 * N₁ * L ^ (k + 1 - k)) =>
+      ({z} : Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))).filter
+        (fun y => ∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+          jBlock d L (M1 * N₁) (k + 1) k x = y))) z', pLog A₁ p β < ‖ψ x‖) ∧
+        ∀ z' ∉ zs z, ∀ x ∈ ((fun z : Torus d (M1 * N₁ * L ^ (k + 1 - k)) =>
+      ({z} : Finset (Torus d (M1 * N₁ * L ^ (k + 1 - k)))).filter
+        (fun y => ∃ x ∈ cubeNbhd M1 N₁ L (k + 1) c n 0 y0,
+          jBlock d L (M1 * N₁) (k + 1) k x = y))) z', ‖ψ x‖ ≤ pLog A₁ p β}, F z ψ ∂(pdGaussian (Torus d (M1 * N₁ * L ^ (k + 1 - k))) W)) →
+      ∀ X : NePoly (Torus d (M1 * N₁ * L ^ (k + 1 - k))),
+        ‖gasK cy zs cr g τ X‖ ≤
+          3 * 1 * Real.exp (-(A₂ * Real.log β ^ p₂)) * Real.exp (-(κ' - 2) * (X.1.card : ℝ)) := by
+  obtain ⟨h1, h2⟩ := blk_disjoint_card (M1 := M1) (N₁ := N₁) (L := L) (k := k) c n y0
+  exact final_tail_gas_bound (m := M1 * N₁ * L ^ (k + 1 - k)) hd _ h1 h2 zs hzne hzconn hzinj hA₁ hA₂ hp hb hexp hH₀ hB0 hκ' hmY hκ
+
+end Nbhd
 
 end Balaban.Green
 
