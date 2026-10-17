@@ -50,8 +50,12 @@ attribute [instance] Geo.neM1 Geo.nec
 structure OpConsts where
   /-- the weights `a_n` of the multiscale actions -/
   aw : ℕ → ℝ
-  /-- the fine-unit mass `μ_j` of the backgrounds (zero for `j ≤ k₀`) -/
+  /-- the fine-unit mass of sharp cutoff tests and the massless early R reference;
+  existing `cs.mu` users retain this meaning -/
   mu : ℕ → ℝ
+  /-- the fine-unit mass of the complete action background; the default is the
+  pre-R2 background mass, while R-YM′ sets this to `muAct` -/
+  muBg : ℕ → ℝ := mu
   /-- the mass `ν_j L^{-2j}` of the main action (present for every scale) -/
   muAct : ℕ → ℝ
   /-- the dimensionless mass `ν_j` of the `h`-conditions -/

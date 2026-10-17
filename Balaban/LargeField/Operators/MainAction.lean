@@ -176,6 +176,31 @@ theorem mainActionLoc_nonneg (hb : 0 ≤ cs.beta (k + 1)) (ha : ∀ n, 0 ≤ cs.
   have h3 : 0 ≤ cs.beta (k + 1) / (S.L : ℝ) ^ ((k + 1 - 0) * (S.d - 2)) := by positivity
   positivity
 
+/-- The complete local background with the action background mass `muBg`.  The
+existing `locBg` continues to describe the cutoff background with mass `mu`. -/
+noncomputable def locBgComplete
+    (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
+    (x : NewCfg N (locHist Hl M K (k + 1) Zc) k)
+    (hv : EuclideanSpace ℝ (Fin N)) :
+    (locGen g Hl k Zc hZc hk).Ω 1 × Fin N → ℂ :=
+  locBg g Hl k Zc hZc hk {cs with mu := cs.muBg} o x hv
+
+/-- The real field of the complete local background. -/
+noncomputable def locPhiComplete
+    (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
+    (x : NewCfg N (locHist Hl M K (k + 1) Zc) k)
+    (hv : EuclideanSpace ℝ (Fin N)) :
+    Site S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) → EuclideanSpace ℝ (Fin N) :=
+  locPhi g Hl k Zc hZc hk {cs with mu := cs.muBg} o x hv
+
+/-- The physical local action evaluated at the complete background while the
+legacy cutoff action remains available for the sharp support. -/
+noncomputable def mainActionLocComplete
+    (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
+    (x : NewCfg N (locHist Hl M K (k + 1) Zc) k)
+    (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
+  mainActionLoc g Hl k Zc hZc hk {cs with mu := cs.muBg} hrem o x hv
+
 end Step
 
 end Balaban.LargeField
