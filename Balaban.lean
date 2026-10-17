@@ -2201,3 +2201,15 @@ public import Balaban.Polymer.TwoTorusGapIdentPair
 public import Balaban.Polymer.TwoTorusGapIdentFamily
 public import Balaban.Polymer.TwoTorusGapIdentDet
 public import Balaban.Polymer.TwoTorusGapIdentSite
+public import Balaban.Polymer.TwoTorusGapObsSym
+public import Balaban.Polymer.TwoTorusGapObsSymLabels
+public import Balaban.Polymer.TwoTorusGapObsSymMarks
+public import Balaban.Polymer.TwoTorusGapObsSymCoef
+public import Balaban.Polymer.TwoTorusGapObsSymTilt
+public import Balaban.Polymer.TwoTorusGapObsRecentre
+public import Balaban.Polymer.TwoTorusGapObsRecentreIdx
+public import Balaban.Polymer.TwoTorusGapObsRecentreMarks
+public import Balaban.Polymer.TwoTorusGapObsRecentreDom
+public import Balaban.Polymer.TwoTorusGapObsRecentreCoef
+public import Balaban.Polymer.TwoTorusGapObsRecentreDet
+public import Balaban.Polymer.TwoTorusGapObsFull
