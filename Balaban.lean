@@ -2156,3 +2156,6 @@ public import Balaban.Fluctuation.LocalClassDensityMarksLabel
 public import Balaban.Green.FinalLevelCount
 public import Balaban.Green.FinalLevelCountBound
 public import Balaban.Green.FinalConstsClose
+public import Balaban.Polymer.TwoTorusGapCloseSym
+public import Balaban.Polymer.TwoTorusGapClose
+public import Balaban.Polymer.TwoTorusGapCloseResum
