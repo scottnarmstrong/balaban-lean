@@ -2280,6 +2280,11 @@ public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.SmallField.IrrelTorus
+public import Balaban.SmallField.IrrelTorusSum
+public import Balaban.SmallField.IrrelTorusBoundTube
+public import Balaban.SmallField.IrrelTorusBoundId
+public import Balaban.SmallField.IrrelTorusBound
 public import Balaban.LargeField.R.WindowCompose
 public import Balaban.LargeField.R.WindowComposeQuot
 public import Balaban.LargeField.R.WindowComposeQuotGen
