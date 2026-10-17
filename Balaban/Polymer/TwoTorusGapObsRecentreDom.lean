@@ -55,4 +55,172 @@ theorem isDj_image_translate (hN : L ^ m₀ ∣ N₁) (t : CTorus d L N₁ m₁ 
 
 end Dom
 
+section DomRec
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L]
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "aK" => cellSide L m₀ m₁ (k + 1)
+set_option hygiene false in
+local notation "σc" => cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1)
+  hN hN' (le_refl (k + 1))
+set_option hygiene false in
+local notation "σAc" => Balaban.Fluctuation.cubeMap (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+  (K := k + 1) (m₀ := m₀) (Equiv.addRight tA)
+set_option hygiene false in
+local notation "σBi" => Balaban.Fluctuation.cubeMap (d := d) (L := L) (N₁ := N₁') (m₁ := m₁)
+  (K := k + 1) (m₀ := m₀) (Equiv.addRight tB)⁻¹
+set_option hygiene false in
+local notation "σBc" => Balaban.Fluctuation.cubeMap (d := d) (L := L) (N₁ := N₁') (m₁ := m₁)
+  (K := k + 1) (m₀ := m₀) (Equiv.addRight tB)
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- The recentring map is the composite of the translation, the box map and the inverse
+translation. -/
+theorem image_recentred (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) :
+    (fun x => bm (x + tA) - tB) '' Y =
+      (Equiv.addRight tB).symm '' (bm '' ((Equiv.addRight tA) '' Y)) := by
+  ext z
+  simp only [Set.mem_image, Equiv.coe_addRight, Equiv.coe_addRight, exists_exists_and_eq_and]
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    exact ⟨y, hy, by simp [sub_eq_add_neg]⟩
+  · rintro ⟨y, hy, rfl⟩
+    exact ⟨y, hy, by simp [sub_eq_add_neg]⟩
+
+/-- **The blocks of a recentred set** are the images of its blocks under the recentred cube map. -/
+theorem blocksOf_recentred {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnc : 2 * R + aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnc' : 2 * R + aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hY : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) :
+    blocksOf m₀ (k + 1) Set.univ ((fun x => bm (x + tA) - tB) '' Y) =
+      (blocksOf m₀ (k + 1) Set.univ Y).image (fun b => σBi (σc (σAc b))) := by
+  have hσA := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tA htA)
+  have hσB := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tB htB)
+  have hbox : ∀ x ∈ (Equiv.addRight tA) '' Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    rintro _ ⟨y, hy, rfl⟩
+    exact hY y hy
+  rw [image_recentred]
+  have h1 : (Equiv.addRight tB).symm = (Equiv.addRight tB)⁻¹ := rfl
+  rw [h1, blocksOf_image_sym hN' (inv_mem hσB), blocksOf_image_boxMap hN hN' hnc hnc' hbox,
+    blocksOf_image_sym hN hσA, Finset.image_image, Finset.image_image]
+  rfl
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- A set lies in the image family of `𝒴` under `Z ↦ e '' Z` iff its preimage lies in `𝒴`. -/
+theorem mem_image_image_iff {α : Type*} (e : Equiv.Perm α) (𝒴 : Finset (Set α)) (Y : Set α) :
+    Y ∈ 𝒴.image (fun Z => e '' Z) ↔ e.symm '' Y ∈ 𝒴 := by
+  classical
+  rw [Finset.mem_image]
+  constructor
+  · rintro ⟨Z, hZ, rfl⟩
+    rwa [Equiv.symm_image_image]
+  · intro h
+    exact ⟨_, h, Equiv.image_symm_image _ _⟩
+
+omit [NeZero N₁] [NeZero N₁'] [NeZero L] in
+/-- The coordinates of the preimage under the translation: if `y ∈ e.symm '' Y` with `e = + tA`
+then `y + tA ∈ Y`. -/
+theorem add_mem_of_mem_symm_image {tA : CTorus d L N₁ m₁ (k + 1)}
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} {y : CTorus d L N₁ m₁ (k + 1)}
+    (hy : y ∈ (Equiv.addRight tA).symm '' Y) : y + tA ∈ Y := by
+  obtain ⟨z, hz, rfl⟩ := hy
+  simpa using hz
+
+/-- **The kernels under the recentring map.**  Let the domain families `𝒴`, `𝒴'` of disjoint
+domains correspond under `φ x = bm (x + tA) - tB` on the domains whose translate lies in the box, the
+coefficients agree on corresponding domains, and `T₁` be a set of cubes whose translates lie in the
+box.  Then the kernels at the recentred cubes and at `T₁` agree. -/
+theorem obsHker_rec {m₀ R : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    (tA : CTorus d L N₁ m₁ (k + 1)) (tB : CTorus d L N₁' m₁ (k + 1))
+    (htA : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tA μ).val)
+    (htB : ∀ μ, L ^ ((k + 1) + m₀ + m₁) ∣ (tB μ).val)
+    (hnF : 2 * R + 5 * (L * aK) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnF' : 2 * R + 5 * (L * aK) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    {𝒴 : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
+    (hdj : ∀ Y ∈ 𝒴, IsDj m₀ (k + 1) Y) (hdj' : ∀ Y ∈ 𝒴', IsDj m₀ (k + 1) Y)
+    (hmem : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) →
+      ((fun x => bm (x + tA) - tB) '' Y ∈ 𝒴' ↔ Y ∈ 𝒴))
+    (c : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ) (c' : Set (CTorus d L N₁' m₁ (k + 1)) → ℂ)
+    (hc : ∀ Y ∈ 𝒴, (∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA)) →
+      c' ((fun x => bm (x + tA) - tB) '' Y) = c Y)
+    (T₁ : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hT₁ : ∀ b ∈ T₁, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (x + tA)) :
+    obsHker 𝒴' c' m₀ (T₁.image (fun b => σBi (σc (σAc b)))) = obsHker 𝒴 c m₀ T₁ := by
+  classical
+  have hσA := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tA htA)
+  have hσB := genSymm_mem_pavingSymGroup
+    (Balaban.Localization.DecEquiv.GenSymm.translate (n := k + 1) (m₀ := m₀) tB htB)
+  have hinjA := (Equiv.addRight tA).injective.image_injective
+  have hinjB := (Equiv.addRight tB).injective.image_injective
+  -- the translated families
+  set 𝒴At : Finset (Set (CTorus d L N₁ m₁ (k + 1))) := 𝒴.image (fun Y => (Equiv.addRight tA) '' Y)
+    with h𝒴At
+  set 𝒴Bt : Finset (Set (CTorus d L N₁' m₁ (k + 1))) :=
+    𝒴'.image (fun Y => (Equiv.addRight tB) '' Y) with h𝒴Bt
+  have stepA := obsHker_sym hN hσA (𝒴 := 𝒴) (𝒴' := 𝒴At)
+    (fun Y => by simp only [h𝒴At, Finset.mem_image]; exact ⟨fun ⟨Z, hZ, h⟩ => by
+      rwa [← hinjA h], fun h => ⟨Y, h, rfl⟩⟩)
+    (c := c) (c' := fun Y' => c ((Equiv.addRight tA).symm '' Y'))
+    (fun Y _ => by rw [Equiv.symm_image_image]) T₁
+  have stepB := obsHker_sym hN' hσB (𝒴 := 𝒴') (𝒴' := 𝒴Bt)
+    (fun Y => by simp only [h𝒴Bt, Finset.mem_image]; exact ⟨fun ⟨Z, hZ, h⟩ => by
+      rwa [← hinjB h], fun h => ⟨Y, h, rfl⟩⟩)
+    (c := c') (c' := fun Y' => c' ((Equiv.addRight tB).symm '' Y'))
+    (fun Y _ => by rw [Equiv.symm_image_image]) (T₁.image (fun b => σBi (σc (σAc b))))
+  have hcomp : (T₁.image (fun b => σBi (σc (σAc b)))).image σBc = (T₁.image σAc).image σc := by
+    rw [Finset.image_image, Finset.image_image]
+    exact Finset.image_congr (fun b _ => cubeMap_cubeMap_inv_sym hN' tB htB _)
+  have hT1 : ∀ b ∈ T₁.image σAc, ∀ x ∈ box b.1 aK, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro b hb x hx
+    obtain ⟨b0, hb0, rfl⟩ := Finset.mem_image.1 hb
+    rw [cubeMap_translate_val hN tA htA] at hx
+    have hx' : x - tA ∈ box b0.1 aK :=
+      (Balaban.Localization.DecEquiv.mem_box_add_iff _ tA (x - tA) _).1 (by simpa using hx)
+    simpa using hT₁ b0 hb0 (x - tA) hx'
+  have hdjA : ∀ Y ∈ 𝒴At, IsDj m₀ (k + 1) Y := by
+    intro Y hY
+    obtain ⟨Z, hZ, rfl⟩ := Finset.mem_image.1 hY
+    exact isDj_image_translate hN tA htA (hdj Z hZ)
+  have hdjB : ∀ Y ∈ 𝒴Bt, IsDj m₀ (k + 1) Y := by
+    intro Y hY
+    obtain ⟨Z, hZ, rfl⟩ := Finset.mem_image.1 hY
+    exact isDj_image_translate hN' tB htB (hdj' Z hZ)
+  have hsymA : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (Equiv.addRight tA) '' ((Equiv.addRight tA).symm '' Y) = Y := fun Y => by
+    rw [← Set.image_comp]; simp
+  have mid := obsHker_twoTorus_of_mem hN hN' hnF hnF' hdjA hdjB
+    (𝒴 := 𝒴At) (𝒴' := 𝒴Bt)
+    (fun Y hYR => by
+      have hbx : ∀ y ∈ (Equiv.addRight tA).symm '' Y,
+          InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA) := fun y hy =>
+        hYR _ (add_mem_of_mem_symm_image hy)
+      have h1 := hmem _ hbx
+      rw [image_recentred, hsymA] at h1
+      rw [h𝒴Bt, h𝒴At, mem_image_image_iff, mem_image_image_iff]
+      exact h1)
+    (fun Y' => c ((Equiv.addRight tA).symm '' Y')) (fun Y' => c' ((Equiv.addRight tB).symm '' Y'))
+    (fun Y hY hYR => by
+      have hY0 : (Equiv.addRight tA).symm '' Y ∈ 𝒴 := (mem_image_image_iff _ _ _).1 hY
+      have hbx : ∀ y ∈ (Equiv.addRight tA).symm '' Y,
+          InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) (y + tA) := fun y hy =>
+        hYR _ (add_mem_of_mem_symm_image hy)
+      have h1 := hc _ hY0 hbx
+      rw [image_recentred, hsymA] at h1
+      exact h1) (T₁.image σAc) hT1
+  rw [← stepB, hcomp, mid, stepA]
+
+end DomRec
+
 end Balaban.Polymer.TwoTorusStep
