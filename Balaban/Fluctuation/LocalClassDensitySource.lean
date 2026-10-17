@@ -14,9 +14,10 @@ import Mathlib.Tactic.Positivity
 
 The source terms of the new level (`localClass_termClausesM`, `localClass_site_Mloc_eq`,
 `localClass_eucMloc_site`) with the completion taken in the larger local chart
-`Ξ^c_{k+1}(𝔹_{k+1}(Y⁺); 1, εL_{k+1})`, `ε_{k+1} ≤ εL_{k+1}` (`LocalClassDensityChart.lean`).  The term
-`TM x Y` is analytic and bounded and equivariant under real rotations on the class chart (radius
-`ε`), and depends only on the restriction of the pair to `Y` on the larger chart (radius `εL`).
+`Ξ^c_{k+1}(𝔹_{k+1}(Y⁺); 1, εL_{k+1})`, `ε_{k+1} ≤ εL_{k+1}` (`LocalClassDensityChart.lean`).  The
+term `TM x Y` is analytic and bounded and equivariant under real rotations on the class chart
+(radius `ε`), and depends only on the restriction of the pair to `Y` on the larger chart (radius
+`εL`).
 
 * `mloc_eq_of_avg_terms`: the combinatorial core of the per-site identity;
 * `localClass_termClausesM_chart`: the slices at `j = k + 1` of `analyticM`, `rotM` (real

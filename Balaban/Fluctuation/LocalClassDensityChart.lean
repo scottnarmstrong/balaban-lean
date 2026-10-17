@@ -42,7 +42,8 @@ sequence (landed `not_localLoss_eps_succ_le`).
 is needed only to show that the completed term `TE ∘ cpl` takes the value `TE` at the pairs of the
 whole-level domain.  Completing in the **larger** local chart `Ξ^c_{k+1}(𝔹_{k+1}(Y⁺); 1, εL)`,
 `εL ≥ K_loc ε_{k+1}`, whose pairs contain the whole-level pairs (`levelGS_xiFieldDom_sub_localB`),
-this needs of `TE` only its **locality** on the larger chart, not its analyticity or its bound there.
+this needs of `TE` only its **locality** on the larger chart, not its analyticity or its bound
+there.
 Locality on a chart of radius `eps` requires only the numerical smallness of `eps` (the landed
 `localB_eTermHat_evTerm_local` takes the old-term functional as an arbitrary function), so (4.37)
 does not enter.  The analyticity, the bound and the rotation invariance stay at the class radius.
@@ -113,8 +114,8 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
 
 /-- **The whole-level domain of the new level lies in the larger local domain of every polymer**:
 for two radius sequences with `K_loc ε_{k+1} ≤ εL_{k+1}` and `C₁ ε_{k+1} ≤ c₀, c₁`, every pair of
-`Ξ^c_{k+1}(levelGS (k + 1); 1, ε_{k+1})` lies in `Ξ^c_{k+1}(localB (k + 1) X; 1, εL_{k+1})`, for every
-set `X` (in the class: `X = Y⁺`). -/
+`Ξ^c_{k+1}(levelGS (k + 1); 1, ε_{k+1})` lies in `Ξ^c_{k+1}(localB (k + 1) X; 1, εL_{k+1})`, for
+every set `X` (in the class: `X = Y⁺`). -/
 theorem levelGS_xiFieldDom_sub_localB {a : ℕ → ℝ} {ν : ℝ} {εseq εL : ℕ → ℝ}
     (HB : BgHyp d L (k + 1) (minSep L (L ^ m₁)) a ν)
     (hsmall : (4 * d + 6) * ((2 * d + 1) * εseq (k + 1)) ≤ 1)
@@ -136,7 +137,8 @@ section ClassSequence
 
 /-- **The class radius is at most `3 α₀`**: `ε_j = α₀ (1 + ∑_{m ≥ j} m^{-2}) L^{-jα} ≤ 3 α₀` for
 `α₀, α ≥ 0` (P4 (H.1)). -/
-theorem Consts.eps_le_three_mul {d L : ℕ} [NeZero L] (P : Consts) (hα₀ : 0 ≤ P.α₀)
+theorem _root_.Balaban.SmallField.Def6.Consts.eps_le_three_mul {d L : ℕ} [NeZero L] (P : Consts)
+    (hα₀ : 0 ≤ P.α₀)
     (hα : 0 ≤ P.alpha d) (j : ℕ) : P.eps d L j ≤ 3 * P.α₀ := by
   have h1 := epsSeq_le_tail_zero L (P.alpha d) P.α₀ hα₀ hα j
   have h2 := ActionConv.epsTail_lt_three 0
