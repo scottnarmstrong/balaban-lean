@@ -2355,6 +2355,7 @@ public import Balaban.Green.FinalLargeBackground
 public import Balaban.Green.FinalLargeClosing
 public import Balaban.Green.FinalLargeEntropy
 public import Balaban.Green.FinalLargeLinkedMayer
+public import Balaban.Green.FinalLargeActivation
 public import Balaban.Green.FinalLargeRestrictedCut
 public import Balaban.Green.FinalLargeRoom
 public import Balaban.Correlations.C1StarFromStepCore
