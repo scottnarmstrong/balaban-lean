@@ -2097,3 +2097,4 @@ public import Balaban.Fluctuation.LocalClassDensityCompletion
 public import Balaban.Fluctuation.VacuumEnergy
 public import Balaban.Green.FinalInteractionClass
 public import Balaban.Fluctuation.LocalClassDensityH
+public import Balaban.Fluctuation.LocalClassDensityHDef
