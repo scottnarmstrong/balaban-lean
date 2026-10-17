@@ -2382,6 +2382,10 @@ public import Balaban.LargeField.R.RRemovedFracMassArith
 public import Balaban.LargeField.R.RRemovedFracMassCore
 public import Balaban.LargeField.R.RRemovedFracMassReserve
 public import Balaban.LargeField.R.RRemovedWindowMass
+public import Balaban.Flow.TriangularChart
+public import Balaban.Flow.MatrixInftyAnalytic
+public import Balaban.Flow.PhysicalStepThreshold
+public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.LargeField.Base.BaseFirstChart
 public import Balaban.LargeField.Base.BaseFirstChartIntegral
 public import Balaban.LargeField.Base.BaseFirstCut
@@ -2392,3 +2396,5 @@ public import Balaban.LargeField.Base.BaseFirstRecordCount
 public import Balaban.LargeField.Base.BaseFirstPartition
 public import Balaban.LargeField.Base.BaseFirstCutRecord
 public import Balaban.LargeField.Base.BaseFirstCutFactor
+public import Balaban.LargeField.R.WindowConvPhysParams
+public import Balaban.LargeField.R.WindowConvPhysCount
