@@ -139,12 +139,13 @@ theorem fderiv_apply_eq_deriv_line {E : Type*} [NormedAddCommGroup E] [NormedSpa
     simpa using hf.hasFDerivAt
   exact ((hf'.comp_hasDerivAt (0 : ℂ) hl).deriv).symm
 
-/-- Two functions that agree along two lines through `c` near `t = 0` have equal derivatives in
-the directions of the lines. -/
-theorem fderiv_eq_of_eventually_line {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-    {f g : E → ℂ} {c v w : E} (hf : DifferentiableAt ℂ f c) (hg : DifferentiableAt ℂ g c)
-    (hfg : ∀ᶠ t in 𝓝 (0 : ℂ), f (c + t • v) = g (c + t • w)) :
-    fderiv ℂ f c v = fderiv ℂ g c w := by
+/-- Two functions that agree along two lines near `t = 0` have equal derivatives in the directions
+of the lines. -/
+theorem fderiv_eq_of_eventually_line {E E' : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup E'] [NormedSpace ℂ E'] {f : E → ℂ} {g : E' → ℂ} {c v : E} {c' w : E'}
+    (hf : DifferentiableAt ℂ f c) (hg : DifferentiableAt ℂ g c')
+    (hfg : ∀ᶠ t in 𝓝 (0 : ℂ), f (c + t • v) = g (c' + t • w)) :
+    fderiv ℂ f c v = fderiv ℂ g c' w := by
   rw [fderiv_apply_eq_deriv_line hf, fderiv_apply_eq_deriv_line hg]
   exact Filter.EventuallyEq.deriv_eq hfg
 

@@ -11,6 +11,8 @@ public import Balaban.SmallField.RenormClassTube
 public import Balaban.SmallField.Def6BridgeGeom
 public import Balaban.SmallField.Def6InfCov
 public import Balaban.SmallField.Def6InfExpand
+public import Balaban.SmallField.Def6v2Bridge
+public import Balaban.Fluctuation.LocalClassAssembly
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -25,7 +27,7 @@ of FLUCTUATION.md §3.2; the landed `Eaux`, `termLA` are the case `y = 0`).  Her
 its main instance `xiFieldDom a μ ε_j` (any background mass `μ` with `μ L^{2j} ≤ ν_j`):
 
 * `xiDom_hOf_poly`, `xiDom_shift_poly`: the configurations of the anisotropic polydisc around the
-  reference point give fields in `Ξ^c_j(𝔹_j(X); 1, ε_j)` (`xiDom_of_aniso`);
+  reference point give fields in `Ξ^c_j(𝔹_j(X); 1, ε_j)` (`xiDom_of_fieldM`);
 * `analyticAt_shiftTerm`, `shiftTerm_rotA`, `shiftTerm_orthA`: `F` is analytic on the polydisc and
   invariant under the complex orthogonal matrices relating two of its points (`CRotE`, through one
   real reflection for `det = -1`);
@@ -91,22 +93,6 @@ section Dom
 
 variable {j : ℕ}
 
-omit [NeZero L] in
-/-- The deviation of `b / ν` weighted by a mass `μ` with `μ L^{2j} ≤ ν` is at most the deviation of
-`b`. -/
-theorem mass_mul_norm_div_le {μ ν : ℝ} (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν)
-    (w t : ℂ) : μ * ((L : ℝ) ^ j) ^ 2 * ‖w / (ν : ℂ) - t‖ ≤ ‖w - (ν : ℂ) * t‖ := by
-  have e : w / (ν : ℂ) - t = (w - (ν : ℂ) * t) / (ν : ℂ) := by
-    have hνc : (ν : ℂ) ≠ 0 := by exact_mod_cast hν.ne'
-    field_simp
-  rw [e, norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hν]
-  calc μ * ((L : ℝ) ^ j) ^ 2 * (‖w - (ν : ℂ) * t‖ / ν) =
-        (μ * ((L : ℝ) ^ j) ^ 2 / ν) * ‖w - (ν : ℂ) * t‖ := by ring
-    _ ≤ 1 * ‖w - (ν : ℂ) * t‖ := by
-        gcongr
-        rw [div_le_one hν]; exact hμν
-    _ = _ := one_mul _
-
 /-- **The domain inclusion for a configuration of the polydisc**: a block-constant field within
 `ρ_s ≥ r` of `e_{i₀}` and the field `h = b/ν` of a configuration of the anisotropic polydisc of
 radius `r` lie in `Ξ^c_j(𝔹; 1, ε)` when `4 N ρ_s ≤ δ`. -/
@@ -123,12 +109,9 @@ theorem xiDom_hOf_poly {a : ℕ → ℝ} {μ ν : ℝ} (hBg : BgHyp d L k ϱ a �
   have hrδ : r < δ := by nlinarith
   have h1 : (N : ℝ) * r ≤ N * ρs := mul_le_mul_of_nonneg_left hrs (by positivity)
   have hNr : 0 ≤ (N : ℝ) * r := by positivity
-  refine xiDom_of_aniso (ρh := r) (ρl := r ^ 2) hBg hΩ hjk i₀ hδ0 hδc0 hδc1 (hr0.le.trans hrs)
-    hr0.le hρs (by linarith) (by nlinarith) hε Ψ (fun i => u (Sum.inr i) / (ν : ℂ)) hΨ hΨb
-    (fun i => (mass_mul_norm_div_le hν hμν _ _).trans (polyAniso_inr hu hr0 hr1 i).le) ?_
-  have := mass_mul_norm_div_le (L := L) hν hμν (u (Sum.inr i₀)) 1
-  rw [mul_one] at this
-  exact this.trans (polyAniso_inr_self hu).le
+  exact xiDom_of_fieldM (ρh := r) (ρl := r ^ 2) hBg hΩ hjk hν hμν i₀ hδ0 hδc0 hδc1
+    (hr0.le.trans hrs) hr0.le hρs (by linarith) (by nlinarith) hε Ψ (fun i => u (Sum.inr i)) hΨ hΨb
+    (fun i => (polyAniso_inr hu hr0 hr1 i).le) (polyAniso_inr_self hu).le
 
 /-- **The pulled-back fields of a configuration of the polydisc lie in the domain.** -/
 theorem xiDom_shift_poly {a : ℕ → ℝ} {μ ν : ℝ} (hBg : BgHyp d L k ϱ a μ)
@@ -338,12 +321,6 @@ end Term
 section Geom
 
 variable {j : ℕ}
-
-theorem cbase_eq_self_of_aligned {a : ℕ} {z : CTorus d L N₁ m₁ k} (hz : Aligned a z) :
-    cbase a z = z := by
-  rw [cbase_eq_sub]
-  have : (fun μ => (z μ).val % a) = (0 : Fin d → ℕ) := funext hz
-  rw [this, natT_zero, sub_zero]
 
 theorem aligned_ibase (hjk : j ≤ k) (z : Site d) :
     Aligned (L ^ j) (ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z) := by
