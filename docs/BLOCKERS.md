@@ -404,8 +404,8 @@ given the closeness of the step's functional between two tori at those scales. F
 energy terms agree exactly between two tori (proved, by recentring), and the inherited terms enter only through
 their own closeness, which the earlier scales provide. The step's energy terms are identified with these
 expansions at the cells of the support (proved), and the determinant and observable terms are transported the same
-way (translation covariance of one torus and recentring on two tori, proved); their identification with the step's
-terms at the cells is in progress. The question is in
+way (translation covariance of one torus and recentring on two tori, proved); for the determinant terms the identification
+with the step's terms at the cells is proved, and for the observable terms it is in progress. The question is in
 item 24, second addendum.
 
 Details: `notes/phase1/TORUSCOH2.md` T6. Item 24.
