@@ -2089,3 +2089,6 @@ public import Balaban.LargeField.R.RRemovedFracArith
 public import Balaban.LargeField.R.RRemovedFracE
 public import Balaban.LargeField.R.RRemovedFracInst
 public import Balaban.LargeField.R.RRemovedWindowInst
+public import Balaban.LargeField.R.RRemovedRegroupDisj
+public import Balaban.LargeField.R.RRemovedRegroupPi
+public import Balaban.LargeField.R.RRemovedRegroupCore
