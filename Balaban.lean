@@ -2123,6 +2123,8 @@ public import Balaban.LargeField.R.RRemovedChainIntegral
 public import Balaban.LargeField.R.RRemovedChainForestInt
 public import Balaban.LargeField.R.RRemovedChainForestMain
 public import Balaban.LargeField.R.RRemovedChainBound
+public import Balaban.LargeField.R.RRemovedChainGaussInt
+public import Balaban.LargeField.R.RRemovedChainGaussMain
 public import Balaban.Fluctuation.LocalClassDensityH
 public import Balaban.Fluctuation.LocalClassDensityHDef
 public import Balaban.Fluctuation.LocalClassDensityHRep
