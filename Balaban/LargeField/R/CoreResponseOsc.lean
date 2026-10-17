@@ -10,6 +10,7 @@ public import Balaban.LargeField.R.RhoZeroRestricted
 import Balaban.SmallField.FinalCutoff
 import Balaban.Fluctuation.CubeActionBound
 import Balaban.LargeField.R.DenominatorTube
+import Balaban.Fluctuation.Theorem42WireDist
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -33,6 +34,8 @@ of `Z₀`.
   `B = K_w C_F t`, `B' = B e^{2dγ_w}`, `S_γ = e^{γ(2d+1)} C(d, L, γ)`: the response `δφ` of the background decays
   from `Z₀` (Lemma 4.1), the action outside `Z_r` only sees `δφ` at distance `≥ R`, and the `ν`-term is summed with
   the counting lemma;
+* `margin_of_torusDist`: the margin `R = min((T - 1)/L^{k+1}, ϱ - 1)` from a torus distance `T` between the fine
+  sites of `Z₀` and the sites read outside `Z_r` (`pathDist_shadow_ge`);
 * `hosc_of_margin_of_weighted`: the oscillation hypothesis of `denominatorRestricted_bounds_of_osc` for the restricted density
   (`ψ = ψ⁰_k`, `ψ' = ψ_k(u)` on the cutoff ball, `t = C₆ β_k^{-1/2} p₀`, `τ = K₆ δ`);
 * `denominatorRestricted_bounds_of_margin_of_weighted`: Lemma III.8.2 for the restricted density, `|Ẽ₀^Z - Ẽ₀| ≤ E` and
@@ -864,5 +867,37 @@ theorem denominatorRestricted_bounds_of_margin_of_weighted {Kw δw : ℝ} (hWP :
       hν h hh1 hβ0 hp0 hrad hsmall hρs hZr hmargin)
 
 end Source
+
+section Margin
+
+variable {d L : ℕ} [NeZero L] {N₁ m₁ k : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+
+/-- **The geometric margin from the torus distance** (`pathDist_shadow_ge`): if every site of `Ω₁` read by the action
+outside `Z_r` is at torus distance at least `T` from the fine sites of `Z_f`, the margin hypothesis of
+`effAction_sub_actionZ_osc_le_of_weighted` holds with `R = min((T - 1)/L^{k+1}, ϱ - 1)`. -/
+theorem margin_of_torusDist (hϱ : 1 ≤ ϱ) (Zr : Region G) (Zf : Finset (Torus d (N₁ * L ^ m₁ * L ^ (k - k))))
+    {T : ℝ} (hfar : ∀ y ∈ G.Ω 1, (y ∉ Zr.sites ∨ ∃ μ : Fin d, y + Pi.single μ 1 ∉ Zr.sites ∨
+        y - Pi.single μ 1 ∉ Zr.sites) →
+      ∀ w ∈ Zf.biUnion (fib d L (N₁ * L ^ m₁) k k), T ≤ Green.torusDist d (N₁ * L ^ m₁ * L ^ k) y w) :
+    ∀ y ∈ G.Ω 1, (y ∉ Zr.sites ∨ ∃ μ : Fin d, y + Pi.single μ 1 ∉ Zr.sites ∨ y - Pi.single μ 1 ∉ Zr.sites) →
+      ENNReal.ofReal (min ((T - 1) / (L : ℝ) ^ (k + 1)) (ϱ - 1)) ≤
+        siteSetDist G (shadow G (Zf.biUnion (fib d L (N₁ * L ^ m₁) k k))) y := by
+  classical
+  intro y hy hOy
+  set R := (G.Ω 1).filter fun y' => y' ∉ Zr.sites ∨ ∃ μ : Fin d, y' + Pi.single μ 1 ∉ Zr.sites ∨
+    y' - Pi.single μ 1 ∉ Zr.sites with hRdef
+  have hyR : y ∈ R := Finset.mem_filter.2 ⟨hy, hOy⟩
+  have hRm : ∀ y' ∈ R, y' ∈ G.Ω 1 → G.layerIndex y' ≤ k := fun y' _ hy' => (G.layerIndex_spec hy').2.1
+  have hfar' : ∀ y' ∈ R, ∀ w ∈ Zf.biUnion (fib d L (N₁ * L ^ m₁) k k),
+      T ≤ Green.torusDist d (N₁ * L ^ m₁ * L ^ k) y' w := by
+    intro y' hy' w hw
+    obtain ⟨h1, h2⟩ := Finset.mem_filter.1 hy'
+    exact hfar y' h1 h2 w hw
+  have key := pathDist_shadow_ge G hϱ R hRm _ hfar' y hyR hy
+  unfold siteSetDist
+  refine le_iInf₂ fun w hw => key w ?_
+  simpa [shadow, shadowN] using hw
+
+end Margin
 
 end Balaban.LargeField
