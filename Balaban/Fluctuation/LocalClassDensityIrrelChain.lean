@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.LocalClassDensityFamilyActTower
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Fluctuation.LocalClassDensityIrrelCount
+public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
 public import Balaban.Fluctuation.LocalClassDensityFamilyRedTower
 public import Balaban.SmallField.IrrelTorusSum
 
@@ -19,15 +20,20 @@ public import Balaban.SmallField.IrrelTorusSum
 (`StepClass.sum_classLabels_irrelTorus_eq_Edens`) with the label functionals
 `ℰ^{(j)}_{irrel}(y, X)` (`irrelTorus`, P1 (3.126)-(3.127)).
 
-* locality: `irrelTorus_congr` on `X ∪ st₊(y)`, contained in the support polymer `X^⋆_τ` of the
-  label (named input `XL`, a polymer of `𝒟_j` with at most `mult` labels with the same support);
+* locality: `irrelTorus_congr` on `X ∪ st₊(y)`, contained in the support polymer
+  `X^⋆_τ = X ∪ □(y)` of the label (`□(y)` the `π'_j`-cube whose central cell contains `y`;
+  `stPlus_mem_cubeAt`, `isPolyDom_union`; at most `2^{3^3}` labels have the same support,
+  `fibre_card_le`);
 * the label sum is `ℰ_k` (`hEJ`, `StepClass.sum_classLabels_irrelTorus_eq_Edens`);
 * analyticity: `irrelTorus_analyticOnNhd` on the chart of the label generators of
   `settings_family_castLocalB` (the chart condition `hchart`: the chart lies in the term domain and
   `Ψ(y)·Ψ(y)` in the slit plane);
 * the per-label settings: `settings_family_castLocalB` from one base setting of the step;
-* `hnumH`: `classActivity_hnumH_of_uniform_mult` from the per-label bounds of the irrelevant parts
-  (the explicit premise `hEbI`, `hEbL`, `hEbd`, P1 (3.128)).
+* the amplitude: `classActivityFamily_labelAct_red` (Schwarz on the disc of radius
+  `a′ = δ₁ / (2 markedRad)`, through `e0CoeffFamily_class_fromTower_of_families_red`), with the
+  count `classActivity_hnumH_of_uniform_mult` from the per-label bounds of the irrelevant parts
+  (the explicit premise `hEbI`, `hEbL`, `hEbd`, P1 (3.128)): the condition on `ε_C` is
+  `(corrU / a′) · 2^{3^3} · (…) ≤ ε_C` with `a′ = δ₁ / (2 markedRad)`, `markedRad ∝ β_k^{-1/2}`.
 -/
 
 @[expose] public section
@@ -42,9 +48,8 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- **The coefficient family of the new energy density of a class with inherited labels, with the
-irrelevant parts as label functionals.**  See the module doc-string.  Named inputs: the support
-polymers `XL τ ⊇ X_τ ∪ st₊(y_τ)` with covering setups `(XL τ, 𝒦X τ)` and at most `mult` labels
-with the same support; the base settings `hB0`, `hF0` of the step; the numerical conditions
+irrelevant parts as label functionals.**  See the module doc-string.  Named inputs: the covering
+setups `(XL τ, 𝒦X τ)` of the support polymers `XL τ = X_τ ∪ □(y_τ)`; the base settings `hB0`, `hF0` of the step; the numerical conditions
 (block index `m₀ ≥ 7`, `r₀ ≤ 324`, the index `ϱ₁` below `minSep 3 3^{m₁+4}`, the index of the class
 below it); the chart conditions `hchart` of the label generators; the per-label bounds
 `hEbI`, `hEbL`, `hEbd` of the irrelevant parts (P1 (3.128)); the rate and amplitude conditions of
@@ -75,11 +80,8 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
             Ψ x = Ψ x') →
           Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
         (XL 𝒦X : {τ // τ ∈ 𝒯E} → Set (CTorus 3 3 N₁ T.m₁ (k + 1)))
-        (_ : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.2 ∪ Set.range (fun μ : Fin 3 => τ.1.2.1 +
-            (3 ^ τ.1.1) • (Pi.single μ 1 : CTorus 3 3 N₁ T.m₁ (k + 1))) ⊆ XL τ)
-        (_ : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 (XL τ))
-        (mult : ℕ) (_ : ∀ τ : {τ // τ ∈ 𝒯E}, (Finset.univ.filter fun τ' : {τ // τ ∈ 𝒯E} =>
-            τ'.1.1 = τ.1.1 ∧ τ'.1.2.1 = τ.1.2.1 ∧ XL τ' = XL τ).card ≤ mult)
+        (_ : ∀ τ : {τ // τ ∈ 𝒯E}, XL τ = τ.1.2.2 ∪ box (cbase (cellSide 3 C.m₀ T.m₁ τ.1.1) τ.1.2.1 -
+          natT fun _ => 3 / 2 * cellSide 3 C.m₀ T.m₁ τ.1.1) (3 * cellSide 3 C.m₀ T.m₁ τ.1.1))
         (_ : ∀ τ : {τ // τ ∈ 𝒯E}, CovSetup S.G' C.m₀ τ.1.1 (XL τ) (𝒦X τ))
         (_ : 3 ^ C.m₀ ∣ N₁) (_ : 7 ≤ C.m₀) (_ : r₀ ≤ 324)
         (_ : bgR0 3 3 + 1 + 6 * Real.log 3 / (agmonRate 3 / 16) ≤ 855 * (3 : ℝ) ^ T.m₁)
@@ -246,7 +248,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
         (_ : 2 * corrU * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
         (_ : corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
               ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
-          ((mult : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
+          (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
           (2 * K0 3 3 κ₀ * (CI * (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ +
             n₁ * KL * ((((3 : ℕ) : ℝ) ^ (n₁ - 1)) ^ 3)))) *
           Real.exp ((2 * T.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
@@ -298,7 +300,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
   obtain ⟨Jr, HG'⟩ := HG k hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀
-    i₀ i₁ hdom XL 𝒦X hXLsup hXLpoly mult hmult hcov hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
+    i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
     X₁f'' j₁ hB0 hF0
   have hmem : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ∈ Finset.Icc 1 k ∧ Aligned (3 ^ τ.1.1) τ.1.2.1 ∧
       IsPolyDom C.m₀ τ.1.1 τ.1.2.2 ∧ τ.1.2.1 ∈ τ.1.2.2 := by
@@ -315,6 +317,22 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
   have hXp : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 τ.1.2.2 := fun τ => (hmem τ).2.2.1
   have hy : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.1 ∈ τ.1.2.2 := fun τ => (hmem τ).2.2.2
   have hm1 : 1 ≤ C.m₀ := by omega
+  have hXLsup : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.2 ∪ Set.range (fun μ : Fin 3 => τ.1.2.1 +
+      (3 ^ τ.1.1) • (Pi.single μ 1 : CTorus 3 3 N₁ T.m₁ (k + 1))) ⊆ XL τ := fun τ x hx => by
+    rw [hXL τ]
+    rcases hx with hx | ⟨μ, rfl⟩
+    · exact Or.inl hx
+    · exact Or.inr (stPlus_mem_cubeAt (m₀ := C.m₀) (j := τ.1.1) (by norm_num) τ.1.2.1 μ)
+  have hXLpoly : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 (XL τ) := fun τ => by
+    rw [hXL τ]
+    exact isPolyDom_union (hXp τ) (isPolyDom_cubeAt hN ((hjk τ).trans (Nat.le_succ k)) τ.1.2.1)
+      (hy τ) (mem_cubeAt τ.1.2.1)
+  have hmult : ∀ τ : {τ // τ ∈ 𝒯E}, (Finset.univ.filter fun τ' : {τ // τ ∈ 𝒯E} =>
+      τ'.1.1 = τ.1.1 ∧ τ'.1.2.1 = τ.1.2.1 ∧ XL τ' = XL τ).card ≤ 2 ^ 3 ^ 3 := fun τ => by
+    simp only [hXL]
+    exact fibre_card_le hN (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1)
+      (fun τ => (hjk τ).trans (Nat.le_succ k)) (fun τ => τ.1.2.1) (fun τ => τ.1.2.2) hXp
+      (fun τ τ' h1 h2 h3 => Subtype.ext (Prod.ext h1 (Prod.ext h2 h3))) τ
   -- the per-label settings
   have h81 : 3 ^ 4 ∣ N₁ := (pow_dvd_pow 3 (by omega : 4 ≤ C.m₀)).trans hN
   obtain ⟨N₁', hN1', hc⟩ := exists_finer_torus T.m₁ h81
@@ -351,7 +369,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds {κmin : ℝ} (T : StepTowe
     exact isDj_of_polyDom S.hG' (hcov τ) (by norm_num) (hopt τ) hYτ
   have hcount := fun Y hY => classActivity_hnumH_of_uniform_mult S hm1 hN (by norm_num) hκe hκH
     hrate (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) (fun τ => τ.1.2.1) XL X₁f 𝒦X
-    (fun τ => ⟨hj1 τ, hjk τ⟩) hXLpoly (fun τ => hXLsup τ (Or.inl (hy τ))) hal mult hmult hcov 𝒴C
+    (fun τ => ⟨hj1 τ, hjk τ⟩) hXLpoly (fun τ => hXLsup τ (Or.inl (hy τ))) hal _ hmult hcov 𝒴C
     hdj Bτ n₁ hCI hKL hE₀ hα₃ hEbI hEbL Y hY
   have hδ₁ : 0 < δ₁ := lt_of_le_of_lt (by have := corrU_pos; positivity) hsa
   have hf0 : 0 ≤ corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
