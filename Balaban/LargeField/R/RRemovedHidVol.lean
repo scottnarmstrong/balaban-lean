@@ -21,7 +21,7 @@ with it.
 
 namespace Balaban.LargeField
 
-open MeasureTheory
+open MeasureTheory ENNReal
 
 section Vol
 
@@ -41,6 +41,41 @@ theorem pi_shell_le_one (hN : 2 ≤ N) {ι : Type} [Fintype ι] (b : ι → Bool
   rw [(measurePreserving_toEuc_false (N := N) _ (hb i)).measure_preimage
     (measurableSet_shellSet N (t i)).nullMeasurableSet]
   exact (volume_shellSet_le N hN (ht i) (ht1 i)).trans (ENNReal.ofReal_le_one.mpr (hct i))
+
+/-- The integral of the indicator of a set of measure at most `1` is at most `1`. -/
+theorem lintegral_ite_le_one {α : Type*} [MeasurableSpace α] (μ : Measure α) (P : α → Prop)
+    [DecidablePred P] (h : μ {a | P a} ≤ 1) : ∫⁻ a, (if P a then (1 : ℝ≥0∞) else 0) ∂μ ≤ 1 := by
+  have : (fun a => if P a then (1 : ℝ≥0∞) else 0) = Set.indicator {a | P a} 1 := by
+    funext a; simp [Set.indicator]
+  rw [this]
+  exact (lintegral_indicator_one_le _).trans h
+
+/-- **The product of the root densities is at most `e^{L_c}`**: each factor of the product over the
+elements of `{a // V a}` is at least `1`, and at least `ρ₀` on those elements satisfying `g`. -/
+theorem root_prod_le {α : Type} [Fintype α] (V g : α → Prop) [DecidablePred V] [DecidablePred g]
+    [Fintype {a // V a}] (f : {a // V a} → ℝ) (ρ0 : ℝ) (hf1 : ∀ i, 1 ≤ f i)
+    (hfg : ∀ i, g i.1 → ρ0 ≤ f i) :
+    ENNReal.ofReal ρ0 ^ (Finset.univ.filter fun a => V a ∧ g a).card ≤
+      ENNReal.ofReal (∏ i, f i) := by
+  have hcard : (Finset.univ.filter fun a => V a ∧ g a).card =
+      (Finset.univ.filter fun i : {a // V a} => g i.1).card := by
+    rw [← Finset.card_map (Function.Embedding.subtype V)]
+    congr 1
+    ext a
+    simp only [Finset.mem_map, Finset.mem_filter, Finset.mem_univ, true_and,
+      Function.Embedding.coe_subtype]
+    constructor
+    · rintro ⟨hV, hg'⟩
+      exact ⟨⟨a, hV⟩, hg', rfl⟩
+    · rintro ⟨i, hi, rfl⟩
+      exact ⟨i.2, hi⟩
+  rw [hcard, ← Finset.prod_const, ENNReal.ofReal_prod_of_nonneg
+    (fun i _ => (zero_le_one.trans (hf1 i)))]
+  refine (Finset.prod_le_prod fun i hi => ENNReal.ofReal_le_ofReal
+    (hfg i (Finset.mem_filter.mp hi).2)).trans ?_
+  refine Finset.prod_le_prod_of_subset_of_one_le (Finset.filter_subset _ _) fun i _ _ => ?_
+  rw [← ENNReal.ofReal_one]
+  exact ENNReal.ofReal_le_ofReal (hf1 i)
 
 end Vol
 

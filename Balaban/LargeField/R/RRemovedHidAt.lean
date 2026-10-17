@@ -36,6 +36,23 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ' lamHat)
   {hH : H.Admissible} {lab : ∀ k, H.Comp k → Fin 5}
 
+/-- If the integrand is non-zero at one value of the exponent it is non-zero at any other. -/
+theorem ofReal_ne_zero_swap {c0 T D e1 e2 : ℝ} (hc : 0 ≤ c0) (hT : 0 ≤ T) (hD : 0 ≤ D) (h2 : 0 < e2)
+    (h : ENNReal.ofReal (c0 * (T * e1) / D) ≠ 0) :
+    ENNReal.ofReal (c0 * (T * e2) / D) ≠ 0 := by
+  intro h0
+  apply h
+  rw [ENNReal.ofReal_eq_zero] at h0 ⊢
+  rcases hc.eq_or_lt with hc0 | hc0
+  · rw [← hc0]; simp
+  rcases hT.eq_or_lt with hT0 | hT0
+  · rw [← hT0]; simp
+  rcases hD.eq_or_lt with hD0 | hD0
+  · rw [← hD0]; simp
+  exfalso
+  have : 0 < c0 * (T * e2) / D := by positivity
+  linarith
+
 open Classical in
 theorem window_pt {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K)
     {Z : H.Comp (m' + 1)}
@@ -170,8 +187,8 @@ theorem window_pt {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (hm : m' + 1
       ro y = o' ⟨y.1, y.2.1⟩)
     (hsh : ∀ p : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A //
         p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal.toEuc (sh p) = VarVal.toEuc (x p.1))
-    (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N)) :
-    ((∀ i : {y : BlockAt S n M K (m' + 1) //
+    (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) :
+    (g ∈ l1Ball (GIdx S n M K N) → (∀ i : {y : BlockAt S n M K (m' + 1) //
         y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0},
         ‖oz ⟨i.1, i.2.1, hZ0 _ i.2.1 i.2.2⟩ - cen par i‖ < radZ) →
       (∃ ψ : BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N),
@@ -237,7 +254,7 @@ theorem window_pt {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (hm : m' + 1
     intro y hV hZ
     rw [ho]
     simp [mergeOut, hZ]
-  refine ⟨fun hBall hTree => ?_, fun hne => ?_⟩
+  refine ⟨fun hg hBall hTree => ?_, fun hne => ?_⟩
   · refine (window_pw_point geo cs SD KD hk1p hk1 hm hq hQuiet hz0 hc hδ hdL hβ haw hμ r hr TB hTB cst hcst
       bw0 hbw0 ρ hρ Z0 t s z w ht hs hz hw hc0 hrr o o' x hv g hg Qb _ _ ?_).1
     intro hT
@@ -273,10 +290,19 @@ theorem window_pt {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (hm : m' + 1
         rw [hsh p]
         exact hcov.2.2.2 o' x hT.1 hT.2
       simp [hall]
-  · obtain ⟨hTall', hc0', ht'⟩ := (window_pw_point geo cs SD KD hk1p hk1 hm hq hQuiet hz0 hc hδ hdL hβ haw
-      hμ r hr TB hTB cst hcst bw0 hbw0 ρ hρ Z0 t s z w ht hs hz hw hc0 hrr o o' x hv g hg
+  · have hg0 : (0 : GIdx S n M K N → ℂ) ∈ l1Ball (GIdx S n M K N) := by simp [l1Ball]
+    have hne0 : ENNReal.ofReal (c0 o * (toRKernel (H.localHistory M K (m' + 1) Z) (m' + 1)
+          (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K t s z w o' x hv *
+        Real.exp ((locOp geo cs SD KD hH lab (m' + 1) hm Z).T.b o' x hv 0).re) /
+        remDen (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 rr o) ≠ 0 :=
+      ofReal_ne_zero_swap (hc0 o) (toRKernel_nonneg _ _
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K_nonneg (fun o x => (ht o x).1)
+        (fun o x => (hs o x).1) (fun o x => (hz o x).1) (fun o x => (hw o x).1) o' x hv)
+        (remDen_nonneg _ _ Z0 hrr o) (Real.exp_pos _) hne
+    obtain ⟨hTall', hc0', ht'⟩ := (window_pw_point geo cs SD KD hk1p hk1 hm hq hQuiet hz0 hc hδ hdL hβ haw
+      hμ r hr TB hTB cst hcst bw0 hbw0 ρ hρ Z0 t s z w ht hs hz hw hc0 hrr o o' x hv 0 hg0
       (c0 o / remDen (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 rr o) 1 1
-      (fun _ => ⟨le_rfl, rfl, rfl⟩)).2 hne
+      (fun _ => ⟨le_rfl, rfl, rfl⟩)).2 hne0
     refine ⟨hc0s par oz (by rw [← ho]; exact hc0'), ?_, ?_⟩
     · have hχ : ChiTildeProp (H.localHistory M K (m' + 1) Z) (m' + 1) Zt δk (outField N o') := by
         by_contra hn
