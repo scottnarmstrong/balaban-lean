@@ -2708,3 +2708,4 @@ public import Balaban.Inhabited.StepTowerCollarStruct
 public import Balaban.Inhabited.StepTowerCollarStep
 public import Balaban.Inhabited.StepTowerCollarTower
 public import Balaban.Inhabited.StepTowerCollarScales
+public import Balaban.Inhabited.StepTowerCollarUniform
