@@ -4,6 +4,7 @@ public import Balaban.LargeField.Base.BaseMarkedFootprint
 public import Balaban.LargeField.Base.BaseMarked
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseS5
+public import Balaban.LargeField.Base.BaseCarrierData
 public import Balaban.LargeField.Base.Prop279Counter
 public import Balaban.Polymer.MarkedCubes
 import Mathlib.Tactic.Linarith
@@ -391,8 +392,8 @@ section Phys
 
 open MeasureTheory Balaban.Multiscale RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
+  {k0 : ℕ} {geo : Geo S n R 1} {cs : OpConsts}
 
 /-- The volume `|X|_1` of the new part `Z_1 ∖ Z_0` of a localized history, as in (S0). -/
 noncomputable def baseVol (S : Setting) {M K : ℕ} {n : ℕ → ℕ} [∀ k, NeZero (n k)]
@@ -404,63 +405,106 @@ noncomputable def baseVolConst (S : Setting) (N : ℕ) : ℝ :=
   (S.L : ℝ) ^ S.d * Real.log (2 ^ (N + 1) * N *
     (volume (Metric.ball (0 : EuclideanSpace ℝ (Fin N)) 1)).toReal)
 
+section S5Fn
+
+variable {M K : ℕ} [NeZero M]
+
+/-- The rotation form (S5) of a base kernel function `Kfn` (`BaseS5` with the kernel `T.K` replaced
+by `Kfn`; the form reads only the real kernel). -/
+def BaseS5Fn (ε : ℕ → ℝ) (vol : ℝ) (a : LocalHistory S n M K)
+    (Kfn : OutT N R a (0 + 1) → NewCfg N a 0 → EuclideanSpace ℝ (Fin N) → ℝ) : Prop :=
+  ∃ (ι : Type) (_ : Fintype ι) (A : ι → Set (OutT N R a (0 + 1) × NewCfg N a 0))
+    (aR : ι → OutT N R a (0 + 1) → NewCfg N a 0 → EuclideanSpace ℝ (Fin N) → ℝ)
+    (aC : ι → OutTC N R a (0 + 1) × NewCfgC N a 0 × EuclideanSpace ℂ (Fin N) → ℂ),
+    (∀ i, MeasurableSet (A i)) ∧
+    (∀ i (ρ : OrthN N) p, p ∈ A i → (rotOut ρ p.1, rotSub ρ p.2) ∈ A i) ∧
+    (∀ o x (hv : EuclideanSpace ℝ (Fin N)), ‖hv‖ = 1 →
+      Kfn o x hv = ∑ i, (A i).indicator (fun p => Real.exp (-(aR i p.1 p.2 hv))) (o, x)) ∧
+    (∀ i (ρ : OrthN N) o x hv, aR i (rotOut ρ o) (rotSub ρ x) (ρ hv) = aR i o x hv) ∧
+    (∀ i, AnalyticOnNhd ℂ (aC i) (S5Nbhd ε a (A i))) ∧
+    (∀ i o x hv, aC i (fun y => toCplx (o y), fun v => toCplx (VarVal.toEuc (x v)), toCplx hv) =
+      (aR i o x hv : ℂ)) ∧
+    (∀ i (q : OutTC N R a (0 + 1) × NewCfgC N a 0) (h h' : EuclideanSpace ℂ (Fin N)),
+      (q.1, q.2, h) ∈ S5Nbhd ε a (A i) → (q.1, q.2, h') ∈ S5Nbhd ε a (A i) →
+      ‖aC i (q.1, q.2, h') - aC i (q.1, q.2, h)‖ ≤ 3 * vol * ‖h' - h‖)
+
+/-- `BaseS5` of a large-field kernel is `BaseS5Fn` of its real kernel. -/
+theorem baseS5_iff_fn (ε : ℕ → ℝ) (vol : ℝ) (a : LocalHistory S n M K)
+    (T : LFKernel (OutT N R a (0 + 1)) (NewCfg N a 0) (EuclideanSpace ℝ (Fin N))
+      (GIdx S n M K N)) : BaseS5 ε vol a T ↔ BaseS5Fn ε vol a T.K := Iff.rfl
+
+end S5Fn
+
 /-- **Input (PHYS)** of BASE-KERNEL-4 Proposition 4.1 (BASE-KERNEL §§1-3, §5; LF-RECONSTRUCTION
-Definition II.7.6, Lemma II.7.7): the remainder `K̃^w_0` and the boundary exponent `b_0`, defined
-by the physical retained-factor and chart-integral formulas, as a `BaseSmallFieldInput` (the
+Definition II.7.6, Lemma II.7.7): the physical remainder `K̃^w_0` (the carrier `BaseSmallFieldInput`,
 fields (S0), (S1), (S4)), together with
 
-* `b0_reads`: `b_0` reads the output `ψ_1` only on `Ω_1 ∩ V`;
-* `b0_sf`: the source-strength bound `|b_0| ≤ C_{b,sf}(log β_0 + 1)|X|_1` (Lemma II.7.7 (b));
+* `Kphys_reads`: `b_0` reads the output `ψ_1` only on `Ω_1 ∩ V`, in the cross-multiplied form
+  `K̃^w_0(o, g) K̃^w_0(o', 0) = K̃^w_0(o', g) K̃^w_0(o, 0)` when `o = o'` on `Ω_1 ∩ V`;
+* `Kphys_sf`: the source-strength bound `|K̃^w_0(g)| ≤ K̃^w_0(0) e^{C_{b,sf}(log β_0 + 1)|X|_1}`
+  (Lemma II.7.7 (b), modulus form);
 * `Cb_ge` (4.1b): `C_b ≥ C_{b,sf} + max{0, L^d log(2^{N+1} N v_N)}`;
-* `s5`: in regime (A) the rotation form `BaseS5` of (S5), Lemma II.7.7 (e).
+* `s5`: in regime (A) the rotation form `BaseS5Fn` of (S5), Lemma II.7.7 (e), of the kernel `K_0`.
 
-The equality of `∑_{records} ∏ K_0` with the exact transform `ρ_1` of (II.7.1) is **not
-representable here**: the exact first transform is not yet formalized as an object of the
-large-field layer.  `zero_input_kernel_eq_zero` and `positive_transform_pos` show that the
-`BaseSmallFieldInput` fields alone do not imply it. -/
-structure Prop279Phys (K k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ) (regimeA : Prop)
-    (eps : ℕ → ℝ) (hz : 0 ≤ cs.z (0 + 1))
-    (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) where
-  inp : BaseSmallFieldInput K k0 geo cs N
+The equality of `∑_{records} ∏ K_0` with the exact transform `ρ_1` of (II.7.1) is **not** a field
+(`notes/phase1/BASECARRIER.md`, item T): the exact first transform is not yet formalized as an
+object of the large-field layer.  `zero_input_kernel_eq_zero` and `positive_transform_pos` show that
+the `BaseSmallFieldInput` fields alone do not imply it. -/
+structure Prop279Phys (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) (regimeA : Prop)
+    (eps : ℕ → ℝ) where
+  inp : BaseSmallFieldInput k0 geo cs N
   /-- the source-strength constant `C_{b,sf}` -/
   Csf : ℝ
-  b0_reads : ∀ (a : LocalHistory S n M K) (o o' : OutT N R a (0 + 1)) (x : NewCfg N a 0)
-    (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ),
-    (∀ y : Vblk R a (0 + 1),
-      BlockSub (S := S) (n := n) (M := M) (K := K) (0 + 1) y.1 (a.Omega 0) → o y = o' y) →
-    inp.b0 a o x hv g = inp.b0 a o' x hv g
-  b0_sf : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (Z' : H.Comp (0 + 1)) o x hv
-    (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖inp.b0 (H.localHistory M K (0 + 1) Z') o x hv g‖ ≤
-      Csf * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory M K (0 + 1) Z')
+  Kphys_reads : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
+    (φ : CfgT S.d N S.L (n 1)) (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
+    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o o' : OutT N R (H.localHistory 1 1 1 Z') 1)
+    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ y : Vblk R (H.localHistory 1 1 1 Z') (0 + 1),
+      BlockSub (S := S) (n := n) (M := 1) (K := 1) (0 + 1) y.1
+        ((H.localHistory 1 1 1 Z').Omega 0) → o y = o' y) →
+      inp.Kphys H hH Z' br hbr φ g w o x hv * inp.Kphys H hH Z' br hbr φ 0 w o' x hv =
+        inp.Kphys H hH Z' br hbr φ g w o' x hv * inp.Kphys H hH Z' br hbr φ 0 w o x hv
+  Kphys_sf : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
+    (φ : CfgT S.d N S.L (n 1)) (g : GIdx S n 1 1 N → ℂ)
+    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
+    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
+    ‖inp.Kphys H hH Z' br hbr φ (baseSource S n N g) w o x hv‖ ≤
+      (inp.Kphys H hH Z' br hbr φ 0 w o x hv).re *
+        Real.exp (Csf * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
   Cb_ge : Csf + max 0 (baseVolConst S N) ≤ cs.Cb
-  s5 : regimeA → ∀ a : LocalHistory S n M K,
-    BaseS5 eps (baseVol S a) a (baseKernel_of_input inp hz hc a)
+  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
+    BaseS5Fn eps (baseVol S (H.localHistory 1 1 1 Z')) (H.localHistory 1 1 1 Z')
+      (baseK0 inp H hH Z' br hbr φ)
 
-/-- **`Prop279Phys` is inhabited** (rule 10), for `C_b ≥ max{0, L^d log(2^{N+1}Nv_N)}`, `B_0 ≥ 0`,
-`β_0 ≥ 1`: by the zero input, hence degenerate (see the docstring of `Prop279Phys`; a
-non-degenerate member is the physical chart integral). -/
-theorem prop279Phys_nonempty (regimeA : Prop) (eps : ℕ → ℝ) (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0)
-    (hβ : 1 ≤ cs.beta 0) (hCb' : max 0 (baseVolConst S N) ≤ cs.Cb)
-    (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) :
-    Nonempty (Prop279Phys (K := K) k0 geo cs N regimeA eps hz hc) := by
-  have hlog : 0 ≤ Real.log (cs.beta 0) := Real.log_nonneg hβ
-  refine ⟨{ inp := zeroBaseSmallFieldInput (K := K) (k0 := k0) geo cs N hCb hB0 hβ
+/-- **`Prop279Phys` is inhabited** (rule 10), for `C_b ≥ max{0, L^d log(2^{N+1}Nv_N)}`: by the zero
+input, hence degenerate (see the docstring of `Prop279Phys`; a non-degenerate member is the physical
+conditional integral). -/
+theorem prop279Phys_nonempty (regimeA : Prop) (eps : ℕ → ℝ)
+    (hCb' : max 0 (baseVolConst S N) ≤ cs.Cb) :
+    Nonempty (Prop279Phys k0 geo cs N regimeA eps) := by
+  refine ⟨{ inp := zeroBaseSmallFieldInput geo cs N k0
             Csf := 0
-            b0_reads := fun _ _ _ _ _ _ _ => rfl
-            b0_sf := ?_
+            Kphys_reads := by
+              intros
+              show (0 : ℂ) * 0 = 0 * 0
+              simp
+            Kphys_sf := by
+              intros
+              show ‖(0 : ℂ)‖ ≤ (0 : ℂ).re * _
+              simp
             Cb_ge := by simpa using hCb'
             s5 := ?_ }⟩
-  · intro H hH Z' o x hv g hg hc'
-    show ‖(0 : ℂ)‖ ≤ _
-    simp
-  · intro _ a
-    refine ⟨Empty, inferInstance, fun i => i.elim, fun i => i.elim, fun i => i.elim,
-      fun i => i.elim, fun i => i.elim, ?_, fun i => i.elim, fun i => i.elim, fun i => i.elim,
-      fun i => i.elim⟩
-    intro o x hv _
-    rw [zero_input_kernel_eq_zero (K := K) (k0 := k0) geo cs hCb hB0 hβ hz hc a o x hv]
-    simp
+  intro _ H hH Z' br hbr φ
+  refine ⟨Empty, inferInstance, fun i => i.elim, fun i => i.elim, fun i => i.elim,
+    fun i => i.elim, fun i => i.elim, ?_, fun i => i.elim, fun i => i.elim, fun i => i.elim,
+    fun i => i.elim⟩
+  intro o x hv _
+  rw [zero_input_kernel_eq_zero (k0 := k0) geo cs H hH Z' br hbr φ o x hv]
+  simp
 
 end Phys
 
@@ -471,34 +515,35 @@ section Main
 
 open MeasureTheory Balaban.Multiscale RegionHistory Balaban.Localization Balaban.Fluctuation
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {K : ℕ}
+  [NeZero S.L] {N : ℕ} {k0 : ℕ} {geo : Geo S n R 1} {cs : OpConsts}
   {N₁ m₁ m₀ j : ℕ} [NeZero N₁] {Ω : Set (Balaban.Localization.CTorus S.d S.L N₁ m₁ K)}
 
 /-- **The input of the conditional Proposition II.7.9** (BASE-KERNEL-4 Proposition 4.1) for one base
 record `br` and one component `Zc`: the model-specific estimates (CT), (PE), (PHYS) that the
 landed Lean files do not supply.  `regimeA`/`regimeB` select the mass regime; `ν, δ₀, r, h` are the
-base constants and the physical field; `hz, hc` are the sign data of `baseKernel_of_input`; the
+base constants and the physical field; `hz, hc` are the sign data of `baseStepData_of_input`; the
 marked-cube data `marks` live on the cube torus `CTorus d L N₁ m₁ K`.  The remaining analytic
 inputs of Proposition 4.1 (LC, RG, WG) are not fields: they are the inputs of the three steps that
 are *not* in the conclusion (see `Prop279Conclusion`). -/
-structure Prop279Input (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
+structure Prop279Input (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ)
     (regimeA regimeB : Prop) (eps : ℕ → ℝ) (hz : 0 ≤ cs.z (0 + 1))
     (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (ν δ₀ r : ℝ) (h : Fin N → ℝ)
     {Rk : ℝ} (br : BaseRecord S.d S.L (n 1) Rk) (Zc : Set (Torus S.d (n 1)))
     (hN : S.L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω) (m : ℕ) where
   /-- (CT) the cutoff margins -/
-  cut : Prop279Cut n S.L M K regimeB ν δ₀ r h br Zc
+  cut : Prop279Cut n S.L 1 K regimeB ν δ₀ r h br Zc
   /-- (PE) the marked-cube data and the half-budget numerics -/
   marks : Prop279Marks (Ω := Ω) hN hj hΩ m
   /-- (PHYS) the physical remainder and boundary exponent -/
-  phys : Prop279Phys (K := K) k0 geo cs N regimeA eps hz hc
+  phys : Prop279Phys k0 geo cs N regimeA eps
 
 /-- **The conclusion of the conditional Proposition II.7.9** that is proved from the landed base
 step and the input:
 
-* `stepData`: the base step data (S0), (S1), (S4) at `k = 0`, with kernel `baseKernel_of_input`;
-* `b0_source`: the source-strength bound `|b_0| ≤ C_b(log β_0 + 1)|X|_1` of Lemma II.7.7 (b);
+* `stepData`: the base step data (S0), (S1), (S4) at `k = 0`, with kernels `baseK0`, `baseKC`;
+* `b0_source`: the source-strength bound `|K̃^w_0(g)| ≤ K̃^w_0(0) e^{C_b(log β_0 + 1)|X|_1}`, the
+  modulus form of Lemma II.7.7 (b);
 * `s5`: the rotation form (S5) in regime (A);
 * `cutoff`: the cutoff transfer (Lemma 2.2: old factor = factor with `𝒥₊` deleted, independent of
   the integrated spins);
@@ -506,22 +551,32 @@ step and the input:
   and its form with the finite modular size `d_Ω(sites Y)`.
 
 Not in the conclusion (BASE-KERNEL-4 rows 5-12 of §5, open): the one-step bound (S2) of Lemma II.7.8
-(the integrated witness bound, (Λ17′), (Λ27)), the I-7 solution `(β_1, ν_1, z_1, E_1)` with
-Def-6/D2-flat (RG), the boundary terms `ℬ^{(1)}` with (D7), and the equality with `ρ_1`. -/
+(the integrated witness bound, (Λ17′), (Λ27)), the I-7 solution (RG), the boundary terms with (D7),
+and the equality with `ρ_1`. -/
 structure Prop279Conclusion {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0 ≤ cs.z (0 + 1)}
     {hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)} {ν δ₀ r : ℝ} {h : Fin N → ℝ}
     {Rk : ℝ} {br : BaseRecord S.d S.L (n 1) Rk} {Zc : Set (Torus S.d (n 1))}
     {hN : S.L ^ m₀ ∣ N₁} {hj : j ≤ K} {hΩ : IsPiUnion m₀ j Ω} {m : ℕ}
     (I : Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ r h br Zc hN hj hΩ m) :
     Prop where
-  stepData : ∃ D : BaseStepData K k0 geo cs N,
-    ∀ a, D.ker a = baseKernel_of_input I.phys.inp hz hc a
-  b0_source : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (Z' : H.Comp (0 + 1)) o x hv
-    (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖I.phys.inp.b0 (H.localHistory M K (0 + 1) Z') o x hv g‖ ≤
-      cs.Cb * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory M K (0 + 1) Z')
-  s5 : regimeA → ∀ a : LocalHistory S n M K,
-    BaseS5 eps (baseVol S a) a (baseKernel_of_input I.phys.inp hz hc a)
+  stepData : ∃ D : BaseStepData k0 geo cs N,
+    ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+      (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
+      D.K H hH Z' br hbr φ = baseK0 I.phys.inp H hH Z' br hbr φ ∧
+        D.KC H hH Z' br hbr φ = baseKC I.phys.inp H hH Z' br hbr φ
+  b0_source : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
+    (φ : CfgT S.d N S.L (n 1)) (g : GIdx S n 1 1 N → ℂ)
+    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
+    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
+    ‖I.phys.inp.Kphys H hH Z' br hbr φ (baseSource S n N g) w o x hv‖ ≤
+      (I.phys.inp.Kphys H hH Z' br hbr φ 0 w o x hv).re *
+        Real.exp (cs.Cb * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
+  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
+    BaseS5Fn eps (baseVol S (H.localHistory 1 1 1 Z')) (H.localHistory 1 1 1 Z')
+      (baseK0 I.phys.inp H hH Z' br hbr φ)
   cutoff : I.cut.Deletes
   remainder : ∀ Y : Finset (CubeB (L := S.L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ j Ω), Y.Nonempty →
     ‖I.marks.Rm Y‖ ≤ 1 / 2 * (I.marks.β1 ^ (m + 1))⁻¹ *
@@ -541,16 +596,18 @@ theorem prop279_of_input {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0 �
     (I : Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ r h br Zc hN hj hΩ m)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hK : 1 ≤ K) (hν : 0 ≤ ν)
     (hβ : 1 ≤ cs.beta 0) : Prop279Conclusion I where
-  stepData := ⟨baseStepData_of_input I.phys.inp hz hc, fun a => rfl⟩
+  stepData := ⟨baseStepData_of_input I.phys.inp hz hc, fun H hH Z' br hbr φ => ⟨rfl, rfl⟩⟩
   b0_source := by
-    intro H hH Z' o x hv g hg hnew
-    refine (I.phys.b0_sf H hH Z' o x hv g hg hnew).trans ?_
+    intro H hH Z' br hbr φ g w o x hv hg hnew
+    refine (I.phys.Kphys_sf H hH Z' br hbr φ g w o x hv hg hnew).trans ?_
     have hlog : 0 ≤ Real.log (cs.beta 0) + 1 := by
       have := Real.log_nonneg hβ; linarith
-    have hvol : 0 ≤ baseVol S (H.localHistory M K (0 + 1) Z') := by
+    have hvol : 0 ≤ baseVol S (H.localHistory 1 1 1 Z') := by
       unfold baseVol volScale; positivity
     have hCsf : I.phys.Csf ≤ cs.Cb := by
       have := I.phys.Cb_ge; have := le_max_left 0 (baseVolConst S N); linarith
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_)
+      (I.phys.inp.Kphys_zero_sector H hH Z' br hbr φ w o x hv).2
     exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCsf hlog) hvol
   s5 := I.phys.s5
   cutoff := I.cut.deletes hnn hK hν
@@ -558,20 +615,19 @@ theorem prop279_of_input {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0 �
     fun hfin => by rw [← dExt_eq_toReal hfin]; exact I.marks.remainder_half Y hY⟩
 
 /-- **`Prop279Input` is inhabited** (rule 10), in every regime: for a unit field `h`, `δ₀ > 0`,
-`r = 0`, `C_b ≥ max{0, L^d log(2^{N+1}Nv_N)}`, `B_0 ≥ 0`, `β_0 ≥ 1`.  Degenerate in (PHYS) and in
+`r = 0`, `C_b ≥ max{0, L^d log(2^{N+1}Nv_N)}`.  Degenerate in (PHYS) and in
 the marks of (PE) (zero input, no marks); non-degenerate in (CT). -/
 theorem prop279Input_nonempty {regimeA regimeB : Prop} (eps : ℕ → ℝ)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (ν : ℝ) {δ₀ : ℝ} (hδ : 0 < δ₀) (h : Fin N → ℝ) (hh : ∑ i, h i ^ 2 = 1) {Rk : ℝ}
     (br : BaseRecord S.d S.L (n 1) Rk) (Zc : Set (Torus S.d (n 1)))
     (hN : S.L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω) (m : ℕ)
-    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) (hβ : 1 ≤ cs.beta 0)
     (hCb' : max 0 (baseVolConst S N) ≤ cs.Cb) :
     Nonempty (Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ 0 h br Zc hN hj hΩ m) := by
-  obtain ⟨c⟩ := prop279Cut_nonempty (nn := n) (L := S.L) (M := M) (K := K) regimeB ν hδ h hh br Zc
+  obtain ⟨c⟩ := prop279Cut_nonempty (nn := n) (L := S.L) (M := 1) (K := K) regimeB ν hδ h hh br Zc
   obtain ⟨mk⟩ := prop279Marks_nonempty (Ω := Ω) hN hj hΩ m
-  obtain ⟨ph⟩ := prop279Phys_nonempty (K := K) (k0 := k0) (geo := geo) (cs := cs) (N := N)
-    regimeA eps hCb hB0 hβ hCb' hz hc
+  obtain ⟨ph⟩ := prop279Phys_nonempty (k0 := k0) (geo := geo) (cs := cs) (N := N)
+    regimeA eps hCb'
   exact ⟨⟨c, mk, ph⟩⟩
 
 end Main

@@ -22,7 +22,7 @@ Lean counterexamples, so that the false deductions are not landed:
   transform (II.7.1) is the integral of a strictly positive integrand against a nonzero finite
   measure, hence strictly positive.  Inhabiting `BaseSmallFieldInput` proves nothing about the
   physical first step.
-* `b0_bound_strictly_weaker`: `BaseSmallFieldInput.b0_bound` (constant `C_b B_0`) does not imply the
+* `b0_bound_strictly_weaker`: the activity bound `BaseSmallFieldInput.Kphys_bound` (exponent constant `C_b B_0`) does not imply the
   source-strength bound of Lemma II.7.7 (b) (constant `C_b`).
 -/
 
@@ -183,50 +183,18 @@ open MeasureTheory Balaban.Multiscale RegionHistory
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ}
 
-/-- The zero `BaseSmallFieldInput`: remainder `K̃^w_0 ≡ 0` and boundary exponent `b_0 ≡ 0`
-(BASE-KERNEL-4 (3.1)). -/
-noncomputable def zeroBaseSmallFieldInput (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ)
-    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) (hβ : 1 ≤ cs.beta 0) :
-    BaseSmallFieldInput K k0 geo cs N := by
-  have hlog : 0 ≤ Real.log (cs.beta 0) := Real.log_nonneg hβ
-  exact
-    { Kt := fun _ _ _ _ _ => 0
-      b0 := fun _ _ _ _ _ => 0
-      Kt_nonneg := fun _ _ _ _ _ => le_rfl
-      Kt_meas := fun _ _ _ => measurable_const
-      Kt_outside := fun _ _ _ _ _ _ _ => rfl
-      Kt_dom := fun _ _ _ _ _ _ _ _ => rfl
-      Kt_rot := fun _ _ _ _ _ _ => rfl
-      euclid_K := by
-        intro σ a a' hI hk o o' x x' hv ho hx
-        classical
-        simp [baseSumOf]
-      b0_meas := fun _ _ _ => measurable_const
-      b0_analytic := fun a o x hv g _ =>
-        (analyticAt_const : AnalyticAt ℂ (fun _ : GIdx S n M K N → ℂ => (0 : ℂ)) g)
-      b0_real := by intros; simp
-      b0_supp := fun _ _ _ _ _ _ _ => rfl
-      b0_rot := fun _ _ _ _ _ _ => rfl
-      euclid_b := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
-      b0_bound := by
-        intro H hH Z' o x hv g hg hc
-        simp only [norm_zero]
-        have : 0 ≤ volScale S (0 + 1) {z | z ∈ (H.localHistory M K (0 + 1) Z').Z (0 + 1) ∧
-              z ∉ (H.localHistory M K (0 + 1) Z').Z 0} := by
-          unfold volScale; positivity
-        positivity }
-
 /-- **Counterexample 3.1, kernel side.**  The kernel of the zero input vanishes identically. -/
-theorem zero_input_kernel_eq_zero {k0 : ℕ} (geo : Geo S n R M) (cs : OpConsts)
-    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) (hβ : 1 ≤ cs.beta 0)
-    (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (a : LocalHistory S n M K) (o : OutT N R a (0 + 1)) (x : NewCfg N a 0)
+theorem zero_input_kernel_eq_zero {k0 : ℕ} (geo : Geo S n R 1) (cs : OpConsts)
+    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1))
+    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
-    (baseKernel_of_input (zeroBaseSmallFieldInput (K := K) (k0 := k0) geo cs N hCb hB0 hβ)
-      hz hc a).K o x hv = 0 := by
+    baseK0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' br hbr φ o x hv = 0 := by
   classical
-  show gaussProd N a 0 cs o x * baseSumOf cs a (fun _ _ _ _ => (0 : ℝ)) o x hv = 0
-  simp [baseSumOf]
+  have : ∀ w, baseKt0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' br hbr φ w o x hv = 0 :=
+    fun w => rfl
+  unfold baseK0 baseSumOf
+  simp only [this, mul_zero, Finset.sum_const_zero]
 
 /-- **Counterexample 3.1, physical side (3.2).**  The transform of a strictly positive integrand
 against a nonzero finite measure is strictly positive: `ρ_1(ψ) = ∫ t_0 e^{-β H} dσ > 0` because the
@@ -245,7 +213,7 @@ end ZeroInput
 
 /-! ### The weaker `b_0` bound -/
 
-/-- `BaseSmallFieldInput.b0_bound` has the constant `C_b B_0` where Lemma II.7.7 (b) needs
+/-- The activity bound `BaseSmallFieldInput.Kphys_bound` has the constant `C_b B_0` where Lemma II.7.7 (b) needs
 `C_b`: for `C_b > 0` and `B_0 > 1` the former is strictly larger, so it does not imply the latter. -/
 theorem b0_bound_strictly_weaker {Cb B0 β : ℝ} (hCb : 0 < Cb) (hB0 : 1 < B0) :
     Cb * Real.log β + Cb * B0 > Cb * (Real.log β + 1) := by
