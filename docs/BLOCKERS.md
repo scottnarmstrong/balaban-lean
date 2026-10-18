@@ -31,8 +31,12 @@ The last section lists the problems that have been resolved since the project st
 Several blockers carry questions to the author. We no longer wait for them: the two main theorems are
 statements about the model, so any construction that proves them is acceptable. Where the papers are
 ambiguous we choose a reading, record it, and prove what it needs; an answer, if it comes, becomes a
-check. Some of these choices change approved definitions and wait for a ruling (blocker 2's route; the representation of the
-large-field output as a gas and the vacuum clause of the step data in blocker 4). Opening new regions with aligned blocks
+check. Choices that change approved definitions are approved by the author first; all those asked so far are approved
+(recorded in `AGENTS.md`, "Author rulings"): blocker 2's route, the representation of the large-field output as a gas and
+the vacuum clause of the step data (blocker 4, with the vacuum region of P6 (3.2)), the birth-mass domains of the
+inherited levels, the physical carrier of the first large-field step (blocker 1), the computation of the new level's
+terms with local generating sets (blocker 6), and the repair of a complex-rotation hypothesis that the audit of the
+definitions found to be a hidden proof step. Opening new regions with aligned blocks
 was checked and does not close blocker 3: it breaks the Euclidean covariance of the coefficients, and a completed hole
 still has positive length between two active attachments.
 The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Earlier focused analyses of the
@@ -489,7 +493,7 @@ label by label (W1078, W1083). The renormalized field lies in the step's chart a
 counterterms apply there (W1079, W1080). The local charts cannot be reached from the step's chart: a local field can
 wind around a hole of the polymer, which no field on the whole torus can do (W1081). As in P3 (4.44)–(4.47), the new
 level's terms must be computed with the local generating set; the step's mark, determinant and activity objects are
-written for the step's own generating set, and generalizing them is ruling R8 (`notes/phase1/PLAN-B.md`). The
+written for the step's own generating set, and generalizing them is ruling R8, approved (`notes/phase1/PLAN-B.md`). The
 determinant and the zero-source activities on local sets, which need no ruling, are in progress (W1084).
 
 ## 7. Reading of the torus-independence clause
