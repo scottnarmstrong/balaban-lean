@@ -7,13 +7,15 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
 public import Balaban.Inhabited.StepTowerBeta0Red
+public import Balaban.Inhabited.StepTowerCollarCore
 
 /-!
 The class chain with the irrelevant-part bounds, at every tower radius
 
 `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree`: the statement of `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet` for all towers that agree with a reference tower `T₀`
 on `m₁, BG, BG₂, κ, δ` and every radius `t ≥ c 3^{-α(k+1)}` (`2 α < 1`), beyond one threshold
-`β₀`; the proof is that of `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet` with the lower threshold replaced by its `_agree` form.
+`β₀`; the instance of `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar` (the
+premise `r₀ ≤ 324` is not used).
 -/
 
 @[expose] public section
@@ -274,95 +276,14 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree {κmin : �
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-
-  classical
-  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_red_onSet_agree T₀ hHull hA p hcR hαR
+  obtain ⟨β₀, hβ₀, HC⟩ :=
+    e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar T₀ hHull hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
-  obtain ⟨Jr, HG'⟩ := HG T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
+  obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀
-    i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
-    X₁f'' j₁ hB0 hF0
-  have hmem : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ∈ Finset.Icc 1 k ∧ Aligned (3 ^ τ.1.1) τ.1.2.1 ∧
-      IsPolyDom C.m₀ τ.1.1 τ.1.2.2 ∧ τ.1.2.1 ∈ τ.1.2.2 := by
-    intro τ
-    have h : τ.1 ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus 3 3 N₁ T.m₁ (k + 1) ×
-        Set (CTorus 3 3 N₁ T.m₁ (k + 1))))).filter
-        (fun τ => Aligned (3 ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2) := by
-      rw [← h𝒯]; exact τ.2
-    rw [Finset.mem_filter, Finset.mem_product] at h
-    exact ⟨h.1.1, h.2⟩
-  have hj1 : ∀ τ : {τ // τ ∈ 𝒯E}, 1 ≤ τ.1.1 := fun τ => (Finset.mem_Icc.1 (hmem τ).1).1
-  have hjk : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ≤ k := fun τ => (Finset.mem_Icc.1 (hmem τ).1).2
-  have hal : ∀ τ : {τ // τ ∈ 𝒯E}, Aligned (3 ^ τ.1.1) τ.1.2.1 := fun τ => (hmem τ).2.1
-  have hXp : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 τ.1.2.2 := fun τ => (hmem τ).2.2.1
-  have hy : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.1 ∈ τ.1.2.2 := fun τ => (hmem τ).2.2.2
-  have hm1 : 1 ≤ C.m₀ := by omega
-  have hXLsup : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.2 ∪ Set.range (fun μ : Fin 3 => τ.1.2.1 +
-      (3 ^ τ.1.1) • (Pi.single μ 1 : CTorus 3 3 N₁ T.m₁ (k + 1))) ⊆ XL τ := fun τ x hx => by
-    rw [hXL τ]
-    rcases hx with hx | ⟨μ, rfl⟩
-    · exact Or.inl hx
-    · exact Or.inr (stPlus_mem_cubeAt (m₀ := C.m₀) (j := τ.1.1) (by norm_num) τ.1.2.1 μ)
-  have hXLpoly : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 (XL τ) := fun τ => by
-    rw [hXL τ]
-    exact isPolyDom_union (hXp τ) (isPolyDom_cubeAt hN ((hjk τ).trans (Nat.le_succ k)) τ.1.2.1)
-      (hy τ) (mem_cubeAt τ.1.2.1)
-  have hmult : ∀ τ : {τ // τ ∈ 𝒯E}, (Finset.univ.filter fun τ' : {τ // τ ∈ 𝒯E} =>
-      τ'.1.1 = τ.1.1 ∧ τ'.1.2.1 = τ.1.2.1 ∧ XL τ' = XL τ).card ≤ 2 ^ 3 ^ 3 := fun τ => by
-    simp only [hXL]
-    exact fibre_card_le hN (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1)
-      (fun τ => (hjk τ).trans (Nat.le_succ k)) (fun τ => τ.1.2.1) (fun τ => τ.1.2.2) hXp
-      (fun τ τ' h1 h2 h3 => Subtype.ext (Prod.ext h1 (Prod.ext h2 h3))) τ
-  intro Gk Gj X₀ X₁f hX₁ hBs hFs cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1
-    hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
-    hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴
-    H hH εC hεC0 hmr hsa hεC hE hεnum
-  have hEan : ∀ τ : {τ // τ ∈ 𝒯E}, AnalyticOnNhd ℂ
-      (fun r : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 =>
-        irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2)
-      (𝒮 τ) := fun τ =>
-    (irrelTorus_analyticOnNhd hcl C.m₀ i₀ i₁ (hj1 τ) ((hjk τ).trans (Nat.le_succ k))
-      (hm ▸ hXp τ) (hy τ)).mono fun r hr => hchart τ r hr
-  have hEJ : ∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D → ∀ w : S.EC,
-      Jr.EJ C (rawOf D, w) = ∑ τ : {τ // τ ∈ 𝒯E},
-        irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 (Jr.PJ τ.1.1 (rawOf D, w)).1
-          (Jr.PJ τ.1.1 (rawOf D, w)).2 := fun D _ w => by
-    unfold StepSetting.JointRep.EJ
-    rw [Finset.sum_coe_sort 𝒯E (fun τ => irrelTorus C.m₀ C.Tm i₀ i₁ τ.1 τ.2.1 τ.2.2
-      (Jr.PJ τ.1 (rawOf D, w)).1 (Jr.PJ τ.1 (rawOf D, w)).2), h𝒯,
-      StepClass.sum_classLabels_irrelTorus_eq_Edens C hm hcl hN i₀ i₁ hdom
-        (fun j => (Jr.PJ j (rawOf D, w)).1) (fun j => (Jr.PJ j (rawOf D, w)).2)]
-  have hdj : ∀ Y ∈ 𝒴C, IsDj C.m₀ (k + 1) Y := by
-    intro Y hY
-    rw [h𝒴, Finset.mem_biUnion] at hY
-    obtain ⟨τ, -, hYτ⟩ := hY
-    exact isDj_of_polyDom S.hG' (hcov τ) (by norm_num) (hopt τ) hYτ
-  have hcount := fun Y hY => classActivity_hnumH_of_uniform_mult S hm1 hN (by norm_num) hκe hκH
-    hrate (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) (fun τ => τ.1.2.1) XL X₁f 𝒦X
-    (fun τ => ⟨hj1 τ, hjk τ⟩) hXLpoly (fun τ => hXLsup τ (Or.inl (hy τ))) hal _ hmult hcov 𝒴C
-    hdj Bτ n₁ hCI hKL hE₀ hα₃ hEbI hEbL Y hY
-  have hδ₁ : 0 < δ₁ := lt_of_le_of_lt (by have := corrU_pos; positivity) hsa
-  have hf0 : 0 ≤ corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
-      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) :=
-    div_nonneg corrU_pos.le (div_nonneg hδ₁.le (mul_pos two_pos hmr).le)
-  have hnumR : ∀ Y ∈ 𝒴C, corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ
-      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
-      (∑ τ : {τ // τ ∈ 𝒯E}, if Y ∈ polyDom S.G' (X₁f τ) C.m₀ τ.1.1 (𝒦X τ) then
-        2 * Bτ τ * Real.exp (-κ₀ * treeLenCovOne C.m₀ τ.1.1 (XL τ) -
-          2 * κdec * treeLenCov S.G' C.m₀ Y)
-      else 0) ≤ εC * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) Y) := fun Y hY =>
-    (mul_le_mul_of_nonneg_left (hcount Y hY) hf0).trans (by
-      rw [← mul_assoc, ← mul_assoc]
-      exact mul_le_mul_of_nonneg_right (by rw [mul_assoc]; exact hεC) (Real.exp_pos _).le)
-  exact HG' C z {τ // τ ∈ 𝒯E} hb₁ hbC
-    (fun τ r => irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2) Bτ hBτ hβS
-    (fun τ => τ.1.1) XL hj1 hjk Gk Gj
-    (fun τ Ψ Ψ' h h' hag => irrelTorus_congr hcl C.m₀ i₀ i₁ τ.1.1 (hy τ)
-      (fun x hx => (hag x (hXLsup τ hx)).1) (fun x hx => (hag x (hXLsup τ (Or.inl hx))).2))
-    X₀ X₁f 𝒦X hBs hFs hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
-    F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc
-    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hmr hsa hnumR hE hεnum
+    i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 _
+  exact HC' C z 𝒯E h𝒯 hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7
 
 end Balaban.Inhabited
