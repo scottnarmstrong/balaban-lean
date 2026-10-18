@@ -50,7 +50,7 @@ asks, on every admissible torus:
   * the ties to Root-F (LFR D-IV.7, rows 1, 5, 10): `δ ≤ γ − α₁`, `κ_flow ≥ 3^{d+1}L^{2d+1}(κ+1)`,
     `c₉^{flow} ≤ (c₉/2)e^{−κ_flow}`.
 
-  The c₈ clause is dropped, since the stop now uses (I.2). This list is what the class fields require that I could identify
+  The rate clause `c₈ q ≤ (1 − q)/20` (`FlowRateAt`) is the last clause (W1116). This list is what the class fields require that I could identify
   (Coh, Geo, D7, D9, IsSFFamily2, StepData); a condition hidden deeper (e.g. in `OpConsts.aw`) is not excluded.
 * **D6.** `ObservableActivities` constrains only the increments. The conversion uses `p(g) − p(0)`.
 * **D3, D4, D7, F5, F6.** These are recorded below (items 4, 5, non-vacuity, coverage).
@@ -281,7 +281,7 @@ domain, so its proofs survive the change.
 3. **`FlowRateInput` (the coefficient step; LFR Thm IV.3.2 (d), prefix row 10).** `c₈ q ≤ (1 − q)/20` with `q = L^{−2γ}` for
    every `κ, c₉`. (H.6) at `k + 1` is part of the output of `SFStepInput`, and (I.2) at `k + 1` is proved from it. The landed
    `exists_rootParams_consts_all` (`c₈ = 1`, `L = 7`, `γ < 1/2`) violates it, since then `q > 1/7`. `flowRateInput_of_lower`
-   lowers `c₈`; the flow bound then costs `β ≥ c_ξ/c₈` (LF-7 (d)).
+   lowers `c₈`; the flow bound then costs `β ≥ c_ξ/c₈` (LF-7 (d)). (W1116) The rate is now the last clause of `PrefixInput` (`FlowRateAt`), `prefixInput_exists` produces it (`c₈ = (1 − q)/(20 q)`), and `flowRateInput_of_prefix` gives `FlowRateInput`.
 
 ## LastIntegralInput sub-inputs (W1108)
 

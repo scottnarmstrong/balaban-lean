@@ -195,6 +195,13 @@ theorem frozenStepInput_of_parts (hSF : FrozenSFStepInput d N T P6 C7 PB cs₀ M
     show νk' ≤ 9 / 10
     nlinarith⟩
 
+/-- **The frozen step from its sub-input and the prefix**: `frozenStepInput_of_parts`, the rate
+condition `FlowRateInput` being a clause of `PrefixInput`. -/
+theorem frozenStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+    (hSF : FrozenSFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    FrozenStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ :=
+  frozenStepInput_of_parts d N T P6 C7 PB cs₀ M1 c rH ϱ hSF (flowRateInput_of_prefix hA1)
+
 end Inputs
 
 /-!

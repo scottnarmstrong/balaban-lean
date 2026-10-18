@@ -642,7 +642,7 @@ theorem inheritedBoundInput_of_prefix (hPre : PrefixInput d δ T P6 C7 PB cs₀ 
   intro κ hκ c₉ hc₉
   refine ⟨0, fun β _ ν hν _ h hh kf hkf _ _ k hk1 hkkf ρ νk hM6 hkK R geo cs P F St vc hF _
     ℓ _ hℓ => ?_⟩
-  obtain ⟨hL3, -, -, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ⟩ :=
+  obtain ⟨hL3, -, -, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -⟩ :=
     hPre κ hκ c₉ hc₉
   have hd : 3 ≤ d := hTy.1.three_le_d
   have hsf := hF.sfFlat
