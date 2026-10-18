@@ -6,7 +6,9 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.Coherence
+public import Balaban.Background.ExistenceSetup
 public import Balaban.Frozen.Model.PartitionFunction
+public import Balaban.Flow.RunningCoefficients
 public import Balaban.Frozen.Geometry.IsPolymer
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Analysis.Analytic.Basic
@@ -63,7 +65,12 @@ large-field half is `LFCoherent` (`Spine/Coherence.lean`, LFR D-IV.9), a conjunc
 consumes it, and its output is the agreement conjunct of `ObservableActivities` (LFR Theorem IV.5.3
 item 7); A7 states the agreement directly. The rate, support and amplitude ties of A9, A10 are the
 bound and support conjuncts of `ObservableActivities` (LFR Theorem IV.5.3 items 2, 3, 5), with the
-class constants tied to Root-F's by `PrefixInput`. -/
+class constants tied to Root-F's by `PrefixInput`.
+
+`ObservableActivities` is the conjunction of its clauses on each admissible torus
+(`ActSupportAt`, `ActAnalyticAt`, `ActLocalAt`, `ActBoundAt`) and the two-torus agreement
+`ActAgree`; `FlatClassAt` is the existence of witnesses of its body `FlatRep`. The sub-spine of the
+last integral (`Spine/LastIntegral.lean`) states its sub-inputs with these pieces. -/
 
 @[expose] public section
 
@@ -86,6 +93,98 @@ scoped macro "𝒟[" d:term ", " N:term ", " T:term ", " β:term ", " a:term ", 
     (BlockAt 𝒮[$d, $T, $β, $a] (sides (Typing.L $T) $K nK) (Typing.M $T) $K $k →
       EuclideanSpace ℝ (Fin $N)) →
     (GIdx 𝒮[$d, $T, $β, $a] (sides (Typing.L $T) $K nK) (Typing.M $T) $K $N → ℂ) → ℂ)
+
+/-!
+### The clauses of the observable form, and the body of the frozen-regime class
+-/
+
+/-- **Support on one torus** (the first clause of `ObservableActivities`, top scale `J`): on `𝕋_ℓ`
+the increment of `p_j(X; ·)` vanishes unless `1 ≤ j ≤ J` and `X` is a scale-`j` polymer
+(`IsPolymer d ℓ (M L^j)`). -/
+def ActSupportAt (d N L M J ℓ : ℕ) [NeZero ℓ]
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g, p ℓ j X g = p ℓ j X 0
+
+/-- **Analyticity on one torus** (the second clause of `ObservableActivities`): on `𝕋_ℓ`,
+`p_j(X; ·)` is analytic on the unit `ℓ¹` ball. -/
+def ActAnalyticAt (d N ℓ : ℕ) [NeZero ℓ]
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ∀ j X, AnalyticOnNhd ℂ (p ℓ j X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}
+
+/-- **Locality on one torus** (the third clause of `ObservableActivities`): on `𝕋_ℓ`,
+`p_j(X; g)` depends on `g|_X` only. -/
+def ActLocalAt (d N ℓ : ℕ)
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ∀ j X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) → p ℓ j X g = p ℓ j X g'
+
+/-- **The bound on one torus** (the fourth clause of `ObservableActivities`, top scale `J`): on
+`𝕋_ℓ` and for `1 ≤ j ≤ J`, the increment is at most
+`(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}` on the unit `ℓ¹` ball. -/
+def ActBoundAt (d N L M : ℕ) (κ c₉ δ : ℝ) (J ℓ : ℕ) [NeZero ℓ]
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ∀ j ∈ Finset.Icc 1 J, ∀ X (g : Torus d ℓ → Fin N → ℂ), ∑ y, ∑ i, ‖g y i‖ < 1 →
+    ‖p ℓ j X g - p ℓ j X 0‖ ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+      * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)
+
+/-- **The two-torus agreement** (the last clause of `ObservableActivities`): the increments on two
+admissible tori (`M L^{kf+1} ∣ ℓ, ℓ'`) agree on the images of a finite set `A ⊂ ℤ^d` in the common
+quarter box `|y_μ| < min(ℓ, ℓ')/4`. -/
+def ActAgree (d N L M kf : ℕ)
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
+    ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
+      a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
+      p ℓ j (A.image fun y μ => (y μ : ZMod ℓ))
+          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) -
+          p ℓ j (A.image fun y μ => (y μ : ZMod ℓ)) 0 =
+        p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ'))
+          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) -
+          p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ')) 0
+
+/-- **The body of `FlatRep` with the scale of (I.2) and the last clause as parameters.** It is
+`FlatRep` with (I.2) asked up to a scale `r` (`RunningHypTo`) instead of `k`, and with the closing
+clause `νk ≤ 9/10` replaced by `X F.sf.ν`, a clause on the running masses of the representation.
+`FlatRep` is the case `r = k`, `X = (νk ≤ 9/10)`. The frozen step (`Spine/FrozenStep.lean`) states
+its small-field output with `r = k` at the scale `k + 1` and `X = (ν_k = the input mass)`. -/
+def FlatRepGen (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
+    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k r : ℕ)
+    (X : (ℕ → ℝ) → Prop)
+    [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
+    (R : ℕ → ℝ)
+    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
+    (cs : OpConsts) (P : BudgetConsts)
+    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
+    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
+    (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
+  (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
+    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
+    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
+    IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
+      kf hM6 hkK F ρ St vc ∧
+    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r ∧ LFCoherent F ∧ X F.sf.ν
+
+/-- **The body of `FlatClassAt` for given witnesses** `hM6, hkK, R, geo, cs, P, F, St, vc`: the
+representation `F` of `ρ` in `ℛ♭_k` (`IsRepFlat2`, horizon `k̂ = kf`) on the tori of the horizon
+`K = kf + 1`, with the outer constants of the prefix, `β_0 = β`, `ν_0 = ν`, `ν_k = νk`, (I.2) up to
+`k` (`RunningHypTo`), the large-field half of (D8) (`LFCoherent`) and the mass bound
+`ν_k ≤ 9/10`. The mass bound is the form in which the flow gives (D9♭): at the first frozen scale
+`ν_{k₀} ≤ e^{2ε}/β_{k₀}` (I.2), and `ν_{k+1} = ν_k L² (1+ξ₃)/(1+ξ₂) ≤ (7/8) e^{c_ξ/β}` for
+`k < k_f` (LFR Theorem IV.2.2 (D9♭); the base step gives the same for `ν₁`), which is at most
+`9/10` for `β ≥ β₀`. With (I.2) (`ν_j = ν L^{2j} δ_j`, `|log δ_j| ≤ 1/20`) it gives
+`ν_j L^{-2j} L^{2k} ≤ e^{1/10} · 9/10 ≤ 1` at every level `j ≤ k`, the standing mass hypothesis of
+the background theory at the stopping scale (`Spine/InheritedBound.lean`). -/
+def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
+    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
+    [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
+    (R : ℕ → ℝ)
+    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
+    (cs : OpConsts) (P : BudgetConsts)
+    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
+    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
+    (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
+  FlatRepGen d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ => νk ≤ 9 / 10) hM6 hkK R geo cs P F
+    St vc ρ νk
 
 /-- **The a priori horizon `k̂_f`** (LFR (I.1), D-IV.1): the least `k` with `ν L^{2k+2} ≥ 1`.
 Root-F's `kf` is `k̂_f`; the flow runs on the tori with `M L^{k̂_f + 1} ∣ ℓ`. -/
@@ -127,13 +226,7 @@ def FlatClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB :
     (cs : OpConsts) (P : BudgetConsts)
     (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
     (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d),
-    (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
-    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
-    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
-    IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-      kf hM6 hkK F ρ St vc ∧
-    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F
+    FlatRep d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k hM6 hkK R geo cs P F St vc ρ νk
 
 /-- **The normalization `∫ ρ_k dψ_k = c Z(g)`** (LFR Theorem IV.3.2 (c), P1 (1.11), P7 (1.7)): on
 every torus of the family (side `ℓ = M n_K L^K`) and every source of the unit `ℓ¹` ball, the
@@ -167,28 +260,33 @@ derivative on the half ball (`norm_kf0Deriv_le_two`). -/
 def ObservableActivities (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
     (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
   (∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    (∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g,
-      p ℓ j X g = p ℓ j X 0) ∧
-    (∀ j X, AnalyticOnNhd ℂ (p ℓ j X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
-    (∀ j X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) → p ℓ j X g = p ℓ j X g') ∧
-    (∀ j ∈ Finset.Icc 1 J, ∀ X (g : Torus d ℓ → Fin N → ℂ), ∑ y, ∑ i, ‖g y i‖ < 1 →
-      ‖p ℓ j X g - p ℓ j X 0‖ ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
-        * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d))) ∧
-  ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
-    ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
-      a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
-      p ℓ j (A.image fun y μ => (y μ : ZMod ℓ))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) -
-          p ℓ j (A.image fun y μ => (y μ : ZMod ℓ)) 0 =
-        p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ'))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) -
-          p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ')) 0
+    ActSupportAt d N L M J ℓ p ∧ ActAnalyticAt d N ℓ p ∧ ActLocalAt d N ℓ p ∧
+      ActBoundAt d N L M κ c₉ δ J ℓ p) ∧
+  ActAgree d N L M kf p
 
 section Inputs
 
 variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
   (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
   (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+
+/-- **The typing conditions of LF-2 that the transfer and the background theory read**, for one
+pair `κ, c₉`: the typing `T = Ty κ c₉` with dimension `d` is `Typing.Ok`;
+`θ₋ ≤ (d-2) log L ≤ θ₊` ((H-λ), first part); `c_H ≥ d(d-2) log L / 2` ((H-λ), the window of LFR
+Lemma IV.3.3 (c)); and for Lemma B: `H₀ > 0`, `c₁ ≥ 0`, `L ≤ M`, `c_v ≥ M^d (H₀ + c₁ + 3)`. -/
+def TypingClauses (d : ℕ) (Ty : ℝ → ℝ → Typing) (PB : ℝ → ℝ → BudgetConsts) (κ c₉ : ℝ) :
+    Prop :=
+  ({ Ty κ c₉ with d := d } : Typing).Ok ∧
+    ((Ty κ c₉).θm ≤ thetaOf d (Ty κ c₉).L ∧ thetaOf d (Ty κ c₉).L ≤ (Ty κ c₉).θp) ∧
+    (d : ℝ) * ((d : ℝ) - 2) / 2 * Real.log (Ty κ c₉).L ≤ (Ty κ c₉).cH ∧
+    0 < (PB κ c₉).H0 ∧ 0 ≤ (PB κ c₉).c1 ∧ (Ty κ c₉).L ≤ (Ty κ c₉).M ∧
+    ((Ty κ c₉).M : ℝ) ^ d * ((PB κ c₉).H0 + (PB κ c₉).c1 + 3) ≤ (Ty κ c₉).cv
+
+/-- **The coefficient step at one pair `κ, c₉` (LFR Theorem IV.3.2 (d); prefix row 10).** The
+Def-6 constants satisfy `c₈ q ≤ (1 - q)/20` with `q = L^{-2γ}`, i.e. `ε = c₈ q/(1 - q) ≤ 1/20`. -/
+def FlowRateAt (κ c₉ : ℝ) : Prop :=
+  (P6 κ c₉).c₈ * Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ ≤
+    1 / 20 * (1 - Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ)
 
 /-- **A1 (the prefix; LFR §I.1.4).** For every `κ, c₉ > 0` the constants of the prefix satisfy every
 condition that a member of the classes needs, so that a wrong choice cannot empty them:
@@ -201,8 +299,13 @@ condition that a member of the classes needs, so that a wrong choice cannot empt
   (H.7)), `B₀ > 0` (the strict bound (D7)), `C_b ≥ 0` (the bound (S0) of `b_k`);
 
 and the ties of the class constants to Root-F's (LFR D-IV.7, rows 1, 5, 10): `δ ≤ γ - α₁`,
-`κ_flow ≥ C_{d,L} (κ + 1)` with `C_{d,L} = 3^{d+1} L^{2d+1}`, and `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`.
--/
+`κ_flow ≥ C_{d,L} (κ + 1)` with `C_{d,L} = 3^{d+1} L^{2d+1}`, and `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`;
+
+and the constant conditions of the typing and of the background theory (`TypingClauses`: the typing
+is `Typing.Ok` in dimension `d`, the windows of (H-λ), the conditions of Lemma B on `H₀, c₁, M, c_v`;
+and `R₀(d, L) ≤ ϱ`, the separation of the generating sets, `bgR0`);
+
+and the coefficient rate (row 10, `c₈ ∈ (0, c₈′]`): `FlowRateAt`, `c₈ q ≤ (1 - q)/20`). -/
 def PrefixInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
     3 ≤ (T κ c₉).L ∧
@@ -214,7 +317,9 @@ def PrefixInput : Prop :=
     0 ≤ (cs₀ κ c₉).Cb ∧
     δ ≤ (P6 κ c₉).γ - (P6 κ c₉).α₁ ∧
     (3 : ℝ) ^ (d + 1) * ((T κ c₉).L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ (P6 κ c₉).κ ∧
-    (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ)
+    (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ) ∧
+    TypingClauses d T PB κ c₉ ∧ Background.bgR0 d (T κ c₉).L ≤ ϱ κ c₉ ∧
+    FlowRateAt T P6 κ c₉
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5 p.
 487).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
