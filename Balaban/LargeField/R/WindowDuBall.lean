@@ -168,6 +168,60 @@ theorem window_ball_data_eq (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
   rw [hex] at key
   exact key
 
+/-- **Equal layers on the ball** (wrapper of `piece_window_layers_switch`). -/
+theorem window_ball_layers (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) :
+    ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
+      ∀ q, 1 ≤ q → q ≤ jf i + 1 + 1 →
+        (x ∈ (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)).Ω q ↔ (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x ∈ ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).Ω q) :=
+  fun i x hx q hq1 hq2 => piece_window_layers_switch hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i)
+    (Xc i).sites (fun z hz => by rw [hXc i] at hz; exact hz) x hx q hq1 hq2
+
+section Piece
+
+variable {Hl : RegionHistory S n R k0 K} {j : ℕ} {Zc : Finset (Torus S.d (n (j + 1)))}
+  {hZc : Zc ∈ comps (S.omega (j + 1)) (Hl.F.Zp (j + 1))} {hk : j + 1 ≤ K}
+
+/-- The external field of the local datum is the unit vector `hv` on `Ω₁`. -/
+theorem locData_h_unit (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
+    (x : NewCfg N (locHist Hl M K (j + 1) Zc) j) (hv : EuclideanSpace ℝ (Fin N))
+    (hunit : ‖hv‖ = 1) (y : (locGen g Hl j Zc hZc hk).Ω 1) :
+    ∑ q, ‖(locData g Hl j Zc hZc hk o x hv).h y q‖ ^ 2 = 1 := by
+  have hh : (locData g Hl j Zc hZc hk o x hv).h y = fun q => ((hv q : ℝ) : ℂ) := by
+    unfold locData
+    rw [liftMixed_h _ _ _ _ _ _ y.2]
+  have h1 := EuclideanSpace.norm_sq_eq hv
+  rw [hunit] at h1
+  rw [hh]
+  simpa [Complex.norm_real] using h1.symm
+
+end Piece
+
 end Ball
+
+section Generic
+
+variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+/-- The mass term `ν ℓ(x)²` is at most `m` as soon as `ν L^{2k} ≤ m`. -/
+theorem mass_spacing_le {G : GeneratingSet d L N₀ K ϱ} {ν m : ℝ} (hν : 0 ≤ ν)
+    (hm : ν * ((L : ℝ) ^ K) ^ 2 ≤ m) (x : G.Ω 1) :
+    ν * G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 ≤ m := by
+  have h1 := spacing_le G x.2
+  have h0 := (spacing_pos G (x := (x : Torus d (N₀ * L ^ K)))).le
+  exact (mul_le_mul_of_nonneg_left (pow_le_pow_left₀ h0 h1 2) hν).trans hm
+
+/-- The radius `2 L^j M` of the ball around a piece is at least `1`. -/
+theorem one_le_ball_radius {M : ℕ} [NeZero M] (j : ℕ) : (1 : ℝ) ≤ 2 * ((L : ℝ) ^ j * M) := by
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hM : (1 : ℝ) ≤ M := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne M)
+  have hp : (1 : ℝ) ≤ (L : ℝ) ^ j := one_le_pow₀ hL
+  nlinarith only [hp, hM]
+
+end Generic
 
 end Balaban.LargeField

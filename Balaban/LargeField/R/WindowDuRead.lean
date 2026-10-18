@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.WindowDuSwitch
 public import Balaban.LargeField.R.CancelRemaining
+public import Balaban.LargeField.R.WindowConvPhysReadTransport
 
 /-!
 # What the restricted action reads (blocker 4)
@@ -138,5 +139,38 @@ theorem actionRegionC_congr_Ψ_zero (X : Region G) (a : ℕ → ℝ) {D D' : BgD
       simp only [fun i => (hbar x μ hx i).1, fun i => (hbar x μ hx i).2]
   rw [e1, e2]
   simp
+
+section Transport
+
+variable {N₀l kl N₀w kw : ℕ} [NeZero N₀l] [NeZero N₀w] {ϱl ϱw : ℝ}
+  {Gl : GeneratingSet d L N₀l kl ϱl} {Gw : GeneratingSet d L N₀w kw ϱw}
+
+/-- The field transported from `Gw` does not depend on the extension datum at the sites of `Ω₁(Gl)`
+that correspond to sites of `Ω₁(Gw)`. -/
+theorem transportField_congr_of_mem (e : Torus d (N₀w * L ^ kw) ≃ Torus d (N₀l * L ^ kl))
+    (Ψ₁ Ψ₂ : Torus d (N₀w * L ^ kw) → Fin N → ℂ) (φw : Gw.Ω 1 × Fin N → ℂ)
+    (y : Gl.Ω 1) (hy : e.symm (y : Torus d (N₀l * L ^ kl)) ∈ Gw.Ω 1) (i : Fin N) :
+    transportField (Gl := Gl) e Ψ₁ φw (y, i) = transportField (Gl := Gl) e Ψ₂ φw (y, i) := by
+  simp [transportField, barField, hy]
+
+end Transport
+
+/-- A site and its neighbours are within distance `1`. -/
+theorem torusDist_le_one_of_near {N₀ k : ℕ} [NeZero N₀] (x y : Torus d (N₀ * L ^ k))
+    (h : y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) :
+    Green.torusDist d (N₀ * L ^ k) x y ≤ 1 := by
+  rcases h with rfl | ⟨μ, rfl | rfl⟩
+  · rw [torusDist_self']; norm_num
+  · exact Adj.torusDist_le (adj_add_single _ μ)
+  · exact Adj.torusDist_le (adj_sub_single _ μ)
+
+/-- A site in or next to a region is within distance `r ≥ 1` of a site of the region. -/
+theorem Region.exists_dist_le_of_near (X : Region G) {y : Torus d (N₀ * L ^ K)}
+    (hy : y ∈ X.sites ∨ ∃ μ : Fin d, y + Pi.single μ 1 ∈ X.sites ∨ y - Pi.single μ 1 ∈ X.sites)
+    {r : ℝ} (hr : 1 ≤ r) : ∃ z ∈ X.sites, Green.torusDist d (N₀ * L ^ K) z y ≤ r := by
+  rcases hy with hy | ⟨μ, hy | hy⟩
+  · exact ⟨y, hy, by rw [torusDist_self']; linarith only [hr]⟩
+  · exact ⟨_, hy, (torusDist_le_one_of_near _ y (Or.inr ⟨μ, Or.inr (by simp)⟩)).trans hr⟩
+  · exact ⟨_, hy, (torusDist_le_one_of_near _ y (Or.inr ⟨μ, Or.inl (by simp)⟩)).trans hr⟩
 
 end Balaban.LargeField.ActionConv
