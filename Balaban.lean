@@ -1090,6 +1090,7 @@ public import Balaban.LargeField.R.CoeffResponse
 public import Balaban.LargeField.R.CoeffResponseHyp
 public import Balaban.LargeField.R.CoeffResponseAction
 public import Balaban.LargeField.R.CoeffResponseMismatch
+public import Balaban.LargeField.R.CoeffResponseHcoef
 public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
 public import Balaban.LargeField.R.MassChangeOneSite
