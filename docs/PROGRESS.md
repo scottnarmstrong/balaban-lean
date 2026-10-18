@@ -5,7 +5,7 @@
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 84% of the Lean by volume, and about 56% when weighted by difficulty and
+**Overall estimate: about 85% of the Lean by volume, and about 57% when weighted by difficulty and
 risk.**
 
 - **By volume.** About 800,000 lines are written (the [size table](#size-of-the-lean-by-area)
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit c3d1e78e 2026-10-18.
+Computed at commit 93b816e9 2026-10-18.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 251 | 88,961 | 3,032 |
-| Green's functions and random walks | 140 | 45,192 | 1,948 |
+| Lattice, analysis, Gaussian and polymer tools | 274 | 94,287 | 3,117 |
+| Green's functions and random walks | 143 | 45,434 | 1,959 |
 | Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
 | Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
-| Small-field class (P1, P4, P5) | 200 | 51,230 | 2,376 |
-| Fluctuation step and renormalization (P4-P6) | 587 | 194,859 | 5,988 |
-| Instantiated step at fixed parameters | 304 | 99,796 | 2,697 |
-| Large-field regions (P5-P7, E9-E10) | 739 | 183,029 | 8,473 |
+| Small-field class (P1, P4, P5) | 219 | 55,021 | 2,464 |
+| Fluctuation step and renormalization (P4-P6) | 590 | 198,664 | 6,013 |
+| Instantiated step at fixed parameters | 312 | 101,494 | 2,716 |
+| Large-field regions (P5-P7, E9-E10) | 775 | 189,099 | 8,616 |
 | Observables and correlations (P8, P9) | 75 | 17,302 | 681 |
-| **Total** | **2669** | **798,997** | **31,045** |
+| **Total** | **2761** | **819,929** | **31,416** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -96,3 +96,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-17 (late night) | ~81% | ~53% | Blocker 4: the window integral's composition designed from P7 (the intermediate Gaussian variables integrated exactly, the steps' actions summed into the window action up to a bounded constant (2.15′), then the cancellation identity of (2.58′)); the window setup indexed by the pieces of the steps, each piece's chain from its local data, the pieces' regions on the window generating set; the gas bound from the window bound of each history, with ripeness from the counter; the kept outcomes planned and partly bounded. Blocker 6: the general class needs the irrelevant-part representation of the inherited terms (P1 Prop. 3.10); the activity theorems made generic in the label functional, with an amplitude bound and a count uniform in the scale. Blocker 7: the clause at the gap scales for every support in the quarter box given the inherited terms' closeness, the induction over scales, and the threshold that gives the determinant slack. |
 | 2026-10-17 (plan B) | ~82% | ~54% | Plan B: every blocker has a focused analysis or Lean round running. Blocker 5 and the no-step case: the singleton-gas reading of the large-field part refuted by an explicit example (KF0B B.7); the linked Mayer identity with separate activation and footprint proved; the gas bound for linked terms and their identification with P7 started. Blocker 6: the chain at an actual tower with all numerical conditions met; the anisotropic datum from the step chart; torus-defect symmetries, partition and counts. Blocker 7: the determinant term tied to the tower. Blocker 4: the actual piece chain normalized; the five window estimates need the physical setup. Base case: local pieces of the first component. Root-C: complex charts and the large-β contraction of the coefficient flow; no step at ν = 0 is needed. |
 | 2026-10-18 | ~84% | ~56% | Astras retired; Claude workers only. Blocker 7: the gap-scale clause at the tower on one family of tori of every size, geometry proved. Blocker 4: the composed window bound; the read transport, the positive piece decomposition, the coefficient response. Blocker 6: the chain at an actual tower with numerical and structural premises discharged, the class-domain ball, the non-special per-label bound, the raw second-moment cancellation. Backbone: inheritance of the old levels on birth-mass domains with all class and family clauses (ruling R6); vacuum constants in the step data (ruling R5). Blocker 5: the linked gas and the aggregated coefficient bound. |
+| 2026-10-18 (later) | ~85% | ~57% | Blocker 4: the window conversion assembled for the actual pieces with every premise proved except the stability of the background under a change of generating set (P7 (2.14)), now in progress; R2 landed (three masses, extended direction tests, complex sources). Blocker 6: the chain needs the per-label bounds only at the step's composed data; the filed torus defect at every centre, also on birth-mass domains; towers with a scale-dependent step radius satisfy the radius room. Blocker 7: the clause on Root-F's exact box with the observable terms in Root-F's bound form; open: one family of terms for all tori. Backbone: old levels inherit on birth-mass domains (R6). |
