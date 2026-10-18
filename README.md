@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 800,000 lines of Lean (about 635,000 without comments and blank
+As of October 2026, about 820,000 lines of Lean (about 650,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -25,11 +25,11 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   the bound of each removed outcome, summed over histories. The composed window bound is now
   proved (the intermediate Gaussian variables integrated exactly, the steps' actions summed into
   the window's, the cancellation identity of P7 (2.58′)), from named P7 source estimates. For the
-  comparison of the steps' actions with the window's, the read transport is proved, each piece has
-  a positive decomposition of the right size, the response of the background to a change of
-  coefficient is proved, and the coefficient premise follows from read-energy budgets; the shared
-  regional source estimate and the pair estimate remain. R's output is being written as a gas of
-  removed clusters (ruling R4).
+  comparison of the steps' actions with the window's, every premise is now proved for the actual
+  pieces (read transport, coefficient, source and pair estimates, with constants uniform in the
+  scale) except one: the stability of the background under a change of generating set away from a
+  piece (P7 (2.14)), which is in progress. R's output is being written as a gas of removed clusters
+  (ruling R4).
 - **The last integral and the case with no renormalization step (blockers 5 and 1).** The
   large-field part cannot be one factor per bad block times boundary terms: a good block between
   two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead expands into
