@@ -45,6 +45,13 @@ theorem sum_half_pow_le_one (ι : Type*) [Fintype ι] :
         have : (0 : ℝ) ≤ ((1 : ℝ) / 2) ^ Fintype.card ι := by positivity
         linarith
 
+
+/-- Cancelling the radius of the activity bound: `ε = (c_U / a) Q` gives `ε a /(2 b c_U) = Q/(2 b)`. -/
+theorem eps_cancel {εC cU a Q bb : ℝ} (hcU : cU ≠ 0) (ha : a ≠ 0) (h : εC = cU / a * Q) :
+    εC * a / (2 * bb * cU) = Q / (2 * bb) := by
+  rw [h]
+  field_simp
+
 section Sum
 
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ : ℕ} {β : Type*} [Fintype β]
