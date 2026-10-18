@@ -229,19 +229,23 @@ theorem UnionOfTopBlocks.unionOfBlocks {Y' : Finset (CTorus d L N₁ m₁ (k + 1
     (hΩ : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ G.layer (k + 1))
     (h : UnionOfTopBlocks G Y') : UnionOfBlocks G Y' := fun y y' => h y y' (hΩ y)
 
-/-- **T3a. The components of `Yreg` are unions of `(k+1)`-blocks at the top layer.** Every union
+/-- **T3a, core**: a subset `Y'` of `Yreg s` such that the thickened cube of every active centre
+lies in `Y'` or misses it is a union of `(k+1)`-blocks at the top layer (no connectivity used).
+**T3a. The components of `Yreg` are unions of `(k+1)`-blocks at the top layer.** Every union
 `Y'` of nearest-neighbour components of `Yreg G s` satisfies `UnionOfTopBlocks G Y'`, under the
 standing geometric hypotheses (`DGSetting`: cube alignment, `4 L² ≤ L^m₁`, cover separation) and
 `HatConn`. Reason: a top-layer site lies only in thickened cubes of scale `q.1 ≥ k`
 (`layer_le_of_mem_hatBox`), which are unions of cells of side `L^(q.1+2)`, a multiple of the
 block side (`hatBox_sameCell_top`); a block is then inside one `hatI q`, which is connected, hence
 inside one component. -/
-theorem unionOfTopBlocks_of_isNnComp (S : DGSetting G a ν) (hconn : HatConn G)
+theorem unionOfTopBlocks_of_hatDich (S : DGSetting G a ν)
     {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
-    (hY : IsNnComp (Yreg G s) Y') : UnionOfTopBlocks G Y' := by
+    (hYs : Y' ⊆ Yreg G s)
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
+    UnionOfTopBlocks G Y' := by
   classical
   intro y y' hyl hbl hyY
-  have hyYreg := hY.1 hyY
+  have hyYreg := hYs hyY
   unfold Yreg at hyYreg
   rw [Finset.mem_filter, Finset.mem_biUnion] at hyYreg
   obtain ⟨⟨z, hzZ, hyz⟩, -⟩ := hyYreg
@@ -253,16 +257,21 @@ theorem unionOfTopBlocks_of_isNnComp (S : DGSetting G a ν) (hconn : HatConn G)
     unfold hatI; rw [Finset.mem_filter]; exact ⟨hyz, y.2⟩
   have hy'I : (y' : CTorus d L N₁ m₁ (k + 1)) ∈ hatI G z := by
     unfold hatI; rw [Finset.mem_filter]; exact ⟨hy'z, y'.2⟩
-  have hsub : hatI G z ⊆ Yreg G s := by
-    intro x hx
-    unfold hatI at hx
-    rw [Finset.mem_filter] at hx
-    unfold Yreg
-    rw [Finset.mem_filter, Finset.mem_biUnion]
-    exact ⟨⟨z, hzZ, hx.1⟩, hx.2⟩
-  rcases connIn_dichotomy (hconn z hz) hsub hY with h | h
+  rcases hdich z hz (Finset.mem_filter.1 hzZ).2 with h | h
   · exact h hy'I
   · exact absurd hyY (Finset.disjoint_left.1 h hyI)
+
+/-- **T3a. The components of `Yreg` are unions of `(k+1)`-blocks at the top layer.** Every union
+`Y'` of nearest-neighbour components of `Yreg G s` satisfies `UnionOfTopBlocks G Y'`, under the
+standing geometric hypotheses (`DGSetting`: cube alignment, `4 L² ≤ L^m₁`, cover separation) and
+`HatConn`. Reason: a top-layer site lies only in thickened cubes of scale `q.1 ≥ k`
+(`layer_le_of_mem_hatBox`), which are unions of cells of side `L^(q.1+2)`, a multiple of the
+block side (`hatBox_sameCell_top`); a block is then inside one `hatI q`, which is connected, hence
+inside one component. -/
+theorem unionOfTopBlocks_of_isNnComp (S : DGSetting G a ν) (hconn : HatConn G)
+    {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp (Yreg G s) Y') : UnionOfTopBlocks G Y' :=
+  unionOfTopBlocks_of_hatDich S hY.1 (hatDich_of_hatConn hconn hY)
 
 /-- The hypotheses of `unionOfTopBlocks_of_isNnComp` in the form of the full structure
 `UnionOfBlocks`, for a generating set whose domain `Ω₁` is the top layer. -/

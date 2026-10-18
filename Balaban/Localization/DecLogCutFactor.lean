@@ -171,14 +171,11 @@ theorem mem_hatI_of_near (S : XSetting G a aT ν) {z : ℕ × CTorus d L N₁ m�
   rw [Finset.mem_filter]
   exact ⟨box_subset_hatBox z hin, hy⟩
 
-/-- **Proviso (i) holds for the actual operator.** For a union `Y'` of nearest-neighbour
-components of `Yreg s`, the x-shifted Dirichlet operator has no matrix element from a site of the
-core of `s` across the boundary of `Y'`. Inputs: the cover geometry (`XSetting`, which carries
-`cover_sep`, `hM`, `hL`) and `HatConn` (the thickened cubes are nearest-neighbour connected inside
-`Ω₁`). No union-of-blocks hypothesis on `Y'` is needed: the sites joined by the averaging form to a
-core site lie in the same thickened cube. -/
-theorem hRespects_of_hatConn (S : XSetting G a aT ν) (hconn : HatConn G)
-    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y') :
+/-- **Proviso (i), core.** If the thickened cube of every active centre lies in `Y'` or misses it,
+the x-shifted Dirichlet operator has no matrix element from a site of the core of `s` across the
+boundary of `Y'` (the sites joined to a core site lie in the same thickened cube). -/
+theorem hRespects_of_hatDich (S : XSetting G a aT ν) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
     HRespects G a aT x ν α s Y' := by
   classical
   intro y y' hne hcore
@@ -202,18 +199,22 @@ theorem hRespects_of_hatConn (S : XSetting G a aT ν) (hconn : HatConn G)
     unfold hatI
     rw [Finset.mem_filter]
     exact ⟨box_subset_hatBox z (coreBox_subset_box hy'z), y'.2⟩
-  have hsub : hatI G z ⊆ Yreg G s := by
-    intro x hx
-    unfold hatI at hx
-    rw [Finset.mem_filter] at hx
-    unfold Yreg
-    rw [Finset.mem_filter, Finset.mem_biUnion]
-    exact ⟨⟨z, hzZ, hx.1⟩, hx.2⟩
-  rcases connIn_dichotomy (hconn z hz) hsub hY with h | h
+  rcases hdich z hz (Finset.mem_filter.1 hzZ).2 with h | h
   · exact ⟨fun _ => h hy'I, fun _ => h hyI⟩
   · constructor
     · intro hyY; exact absurd hyY (Finset.disjoint_left.1 h hyI)
     · intro hyY; exact absurd hyY (Finset.disjoint_left.1 h hy'I)
+
+/-- **Proviso (i) holds for the actual operator.** For a union `Y'` of nearest-neighbour
+components of `Yreg s`, the x-shifted Dirichlet operator has no matrix element from a site of the
+core of `s` across the boundary of `Y'`. Inputs: the cover geometry (`XSetting`, which carries
+`cover_sep`, `hM`, `hL`) and `HatConn` (the thickened cubes are nearest-neighbour connected inside
+`Ω₁`). No union-of-blocks hypothesis on `Y'` is needed: the sites joined by the averaging form to a
+core site lie in the same thickened cube. -/
+theorem hRespects_of_hatConn (S : XSetting G a aT ν) (hconn : HatConn G)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y') :
+    HRespects G a aT x ν α s Y' :=
+  hRespects_of_hatDich S (hatDich_of_hatConn hconn hY)
 
 end Respects
 
@@ -369,29 +370,27 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} 
 `Yreg s` (the geometric input of `dg5x_local`). -/
 theorem subI_or_disjI_of_comp (hconn : HatConn G) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hY : IsNnComp (Yreg G s) Y') {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx G)
-    (hs : sProd G s q ≠ 0) : SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' := by
-  classical
-  have hzZ : q ∈ Zs G s := Finset.mem_filter.2 ⟨hq, hs⟩
-  have hsub : hatI G q ⊆ Yreg G s := by
-    intro y hy
-    unfold hatI at hy
-    rw [Finset.mem_filter] at hy
-    unfold Yreg
-    rw [Finset.mem_filter, Finset.mem_biUnion]
-    exact ⟨⟨q, hzZ, hy.1⟩, hy.2⟩
-  rcases connIn_dichotomy (hconn q hq) hsub hY with h | h
-  · left
-    intro y hy
-    exact h (by
-      unfold hatI
-      rw [Finset.mem_filter]
-      exact ⟨box_subset_hatBox q hy, y.2⟩)
-  · right
-    intro y hy hyY
-    exact Finset.disjoint_left.1 h (by
-      unfold hatI
-      rw [Finset.mem_filter]
-      exact ⟨box_subset_hatBox q hy, y.2⟩) hyY
+    (hs : sProd G s q ≠ 0) : SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' :=
+  subI_or_disjI_of_hatDich (hatDich_of_hatConn hconn hY) hq hs
+
+/-- **Locality of `Gsx`, core**: the dichotomy of the active thickened cubes for `s` and `s'` in
+place of `HatConn` and the components. -/
+theorem Gsx_agree_of_hatDich (S : XSetting G a aT ν) (hx : 0 ≤ x) (hα : AdmPot G α)
+    (hα' : AdmPot G α') (hU : IsUnit (1 - Kcalx G a aT x ν α s))
+    (hU' : IsUnit (1 - Kcalx G a aT x ν α' s'))
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → sProd G s q = sProd G s' q)
+    (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+    {y y' : G.Ω 1} (hy : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') :
+    Gsx G a aT x ν α s y y' = Gsx G a aT x ν α' s' y y' := by
+  have h := Gsx_local S hx hα hα' hU hU' (Y := Y') (fun q hq hne => by
+      rcases hne with h | h
+      · exact subI_or_disjI_of_hatDich hdich hq h
+      · exact subI_or_disjI_of_hatDich hdich' hq h) hs hA
+    (f := Pi.single y' (1 : ℂ)) (f' := Pi.single y' (1 : ℂ)) (fun _ _ => rfl) y hy
+  rwa [mulVec_single_apply, mulVec_single_apply] at h
 
 /-- **Locality of `Gsx` in the cut parameters, the potential and the argument.** If `Y'` is a union
 of components of both `Yreg s` and `Yreg s'`, the factors `sProd` agree on the cubes inside `Y'`
@@ -404,13 +403,9 @@ theorem Gsx_agree (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (h
     (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → sProd G s q = sProd G s' q)
     (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
     {y y' : G.Ω 1} (hy : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') :
-    Gsx G a aT x ν α s y y' = Gsx G a aT x ν α' s' y y' := by
-  have h := Gsx_local S hx hα hα' hU hU' (Y := Y') (fun q hq hne => by
-      rcases hne with h | h
-      · exact subI_or_disjI_of_comp hconn hY hq h
-      · exact subI_or_disjI_of_comp hconn hY' hq h) hs hA
-    (f := Pi.single y' (1 : ℂ)) (f' := Pi.single y' (1 : ℂ)) (fun _ _ => rfl) y hy
-  rwa [mulVec_single_apply, mulVec_single_apply] at h
+    Gsx G a aT x ν α s y y' = Gsx G a aT x ν α' s' y y' :=
+  Gsx_agree_of_hatDich S hx hα hα' hU hU' (hatDich_of_hatConn hconn hY)
+    (hatDich_of_hatConn hconn hY') hs hA hy
 
 /-- The x-shifted Dirichlet operators of two potentials agree between sites where the potentials
 agree. -/
@@ -421,6 +416,58 @@ theorem xDirichlet_agree {y y' : G.Ω 1} (hyy : y = y' → α y = α' y) :
   by_cases h : y = y'
   · subst h; simp [hyy rfl]
   · simp [h]
+
+section AssemblyCore
+
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hα : AdmPot G α)
+  (hα' : AdmPot G α')
+  (hU : IsUnit (1 - Kcalx G a aT x ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x ν α' s'))
+  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+  (hdich' : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+  (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → sProd G s q = sProd G s' q)
+  (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+  (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y)
+
+include S hx hα hα' hU hU' hdich hdich' hs hA
+
+/-- The commutator term `K_x(φ₀) G` has the same matrix elements on `Y'` (core). -/
+theorem commK_Gsx_agree_of_hatDich (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) :
+    BAgree (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+      (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
+        liftOp N (Gsx G a aT x ν α s))
+      (commK (xDirichletOperator G a aT x ν α') (restrictField G φ') *
+        liftOp N (Gsx G a aT x ν α' s')) := by
+  intro y q hy hq
+  rw [Matrix.mul_apply, Matrix.mul_apply]
+  refine Finset.sum_congr rfl fun p _ => ?_
+  obtain ⟨p1, p2⟩ := p
+  by_cases hp : (p1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y'
+  · rw [commK_apply, commK_apply]
+    have e1 := Gsx_agree_of_hatDich S hx hα hα' hU hU' hdich hdich' hs hA (y' := q.1) hp
+    have e2 := xDirichlet_agree (a := a) (aT := aT) (x := x) (ν := ν) (α := α) (α' := α')
+      (y := y) (y' := p1) (fun _ => hA y hy)
+    have e3 : restrictField G φ y p2 = restrictField G φ' y p2 := by
+      show φ (y : CTorus d L N₁ m₁ (k + 1)) p2 = φ' (y : CTorus d L N₁ m₁ (k + 1)) p2
+      rw [hφ _ hy]
+    have e4 : restrictField G φ p1 p2 = restrictField G φ' p1 p2 := by
+      show φ (p1 : CTorus d L N₁ m₁ (k + 1)) p2 = φ' (p1 : CTorus d L N₁ m₁ (k + 1)) p2
+      rw [hφ _ hp]
+    simp only [liftOp, e1, e2, e3, e4]
+  · have h0 : ∀ (β : G.Ω 1 → ℂ) (r : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ),
+        (∀ q ∈ cubeIdx G, sProd G r q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') →
+        AdmPot G β → IsUnit (1 - Kcalx G a aT x ν β r) →
+        liftOp N (Gsx G a aT x ν β r) (p1, p2) q = 0 := by
+      intro β r hr hβ hUr
+      simp only [liftOp]
+      split_ifs
+      · by_contra hne
+        exact hp ((Gsx_BD_of_hatDich S hx hβ hUr hr p1 q.1 hne).2 hq)
+      · rfl
+    rw [h0 α s hdich hα hU, h0 α' s' hdich' hα' hU', mul_zero, mul_zero]
+
+end AssemblyCore
 
 section Assembly
 
@@ -442,39 +489,104 @@ theorem commK_Gsx_agree (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' �
       (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
         liftOp N (Gsx G a aT x ν α s))
       (commK (xDirichletOperator G a aT x ν α') (restrictField G φ') *
-        liftOp N (Gsx G a aT x ν α' s')) := by
-  intro y q hy hq
-  rw [Matrix.mul_apply, Matrix.mul_apply]
-  refine Finset.sum_congr rfl fun p _ => ?_
-  obtain ⟨p1, p2⟩ := p
-  by_cases hp : (p1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y'
-  · rw [commK_apply, commK_apply]
-    have e1 := Gsx_agree S hx hconn hα hα' hU hU' hY hY' hs hA (y' := q.1) hp
-    have e2 := xDirichlet_agree (a := a) (aT := aT) (x := x) (ν := ν) (α := α) (α' := α')
-      (y := y) (y' := p1) (fun _ => hA y hy)
-    have e3 : restrictField G φ y p2 = restrictField G φ' y p2 := by
-      show φ (y : CTorus d L N₁ m₁ (k + 1)) p2 = φ' (y : CTorus d L N₁ m₁ (k + 1)) p2
-      rw [hφ _ hy]
-    have e4 : restrictField G φ p1 p2 = restrictField G φ' p1 p2 := by
-      show φ (p1 : CTorus d L N₁ m₁ (k + 1)) p2 = φ' (p1 : CTorus d L N₁ m₁ (k + 1)) p2
-      rw [hφ _ hp]
-    simp only [liftOp, e1, e2, e3, e4]
-  · have h0 : ∀ (β : G.Ω 1 → ℂ) (r : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ),
-        IsNnComp (Yreg G r) Y' → AdmPot G β → IsUnit (1 - Kcalx G a aT x ν β r) →
-        liftOp N (Gsx G a aT x ν β r) (p1, p2) q = 0 := by
-      intro β r hr hβ hUr
-      simp only [liftOp]
-      split_ifs
-      · by_contra hne
-        exact hp ((Gsx_BD S hx hconn hβ hUr hr p1 q.1 hne).2 hq)
-      · rfl
-    rw [h0 α s hY hα hU, h0 α' s' hY' hα' hU', mul_zero, mul_zero]
+        liftOp N (Gsx G a aT x ν α' s')) :=
+  commK_Gsx_agree_of_hatDich S hx hα hα' hU hU' (hatDich_of_hatConn hconn hY)
+    (hatDich_of_hatConn hconn hY') hs hA hφ
 
 end Assembly
 
 section Main
 
 variable {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+
+/-- **Locality of the correction `decCov - covA`, core**: the dichotomy of the active thickened
+cubes for `s` and `s'` in place of `HatConn` and the components.  Otherwise as below.
+**Locality of the correction `decCov - covA`.** Two data `(s, α, φ)`, `(s', α', φ')` with the
+standing hypotheses; `Y'` a union of components of both `Yreg s` and `Yreg s'`; the cut factors
+`sProd` agree on the cubes inside `Y'`, the potentials and fields agree on `Y'`; `Q`, `P` respect
+the labels `cκ`. Then `decCov - covA` has the same matrix elements between labelled coarse sites
+for both data (and both are block diagonal). -/
+theorem CovStanding.decCov_sub_agree_of_hatDich
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (H' : CovStanding G a aT ν α' κ' s' δ' φ' Q P)
+    (hx : 0 ≤ x) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → sProd G s q = sProd G s' q)
+    (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+    (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
+    BAgree (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P))
+      (decCov G a aT x ν α' s' φ' Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
+  classical
+  have S := (H.fam x hx).st
+  have S' := (H'.fam x hx).st
+  have hα := (H.fam x hx).pot
+  have hα' := (H'.fam x hx).pot
+  have hU := (H.fam x hx).isUnit_one_sub
+  have hU' := (H'.fam x hx).isUnit_one_sub
+  have hH := hRespects_of_hatDich (x := x) (α := α) S hdich
+  have hH' := hRespects_of_hatDich (x := x) (α := α') S hdich'
+  have hM := H.decM_isUnit' hx
+  have hM' := H'.decM_isUnit' hx
+  set cY : G.Ω 1 → Prop := fun y => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' with hcY
+  set cYf : G.Ω 1 × Fin N → Prop := fun p => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y' with hcYf
+  -- block diagonality of the pieces, for both data
+  have hGB := liftOp_Gsx_BD_of_hatDich (N := N) S hx hα hU hdich
+  have hGB' := liftOp_Gsx_BD_of_hatDich (N := N) S' hx hα' hU' hdich'
+  have hFM := fieldMul_BD (N := N) cY (restrictField G φ)
+  have hFM' := fieldMul_BD (N := N) cY (restrictField G φ')
+  have hRB := commK_Gsx_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
+  have hRB' := commK_Gsx_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
+  have hMB := decM_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
+  have hMB' := decM_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
+  have hNB := decN_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
+  have hNB' := decN_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
+  have hMiB := hMB.inv hM
+  have hMiB' := hMB'.inv hM'
+  -- agreement of the pieces
+  have hGag : BAgree cY cY (Gsx G a aT x ν α s) (Gsx G a aT x ν α' s') :=
+    fun y y' hy _ => Gsx_agree_of_hatDich S hx hα hα' hU hU' hdich hdich' hs hA hy
+  have hLag : BAgree cYf cYf (liftOp N (Gsx G a aT x ν α s)) (liftOp N (Gsx G a aT x ν α' s')) :=
+    BAgree.liftOp hGag
+  have hFMag : BAgree cYf cY (fieldMul (restrictField G φ)) (fieldMul (restrictField G φ')) := by
+    intro p y hp hy
+    unfold fieldMul
+    by_cases h : p.1 = y
+    · simp only [h, ite_true]
+      show φ (y : CTorus d L N₁ m₁ (k + 1)) p.2 = φ' (y : CTorus d L N₁ m₁ (k + 1)) p.2
+      rw [hφ _ hy]
+    · simp [h]
+  have hRag := commK_Gsx_agree_of_hatDich (N := N) S hx hα hα' hU hU' hdich hdich' hs hA hφ
+  have hMag : BAgree cY cY (decM G a aT x ν α s φ) (decM G a aT x ν α' s' φ') := by
+    unfold decM constraintM
+    exact (BAgree.mul hFM.transpose hFM'.transpose hFMag.transpose hFMag).sub
+      (BAgree.mul hRB hRB' hRag hFMag)
+  have hNag : BAgree cY cYf (decN G a aT x ν α s φ) (decN G a aT x ν α' s' φ') := by
+    unfold decN constraintN
+    exact hFMag.transpose.sub hRag
+  have hMiag := BAgree.inv hMB hMB' hM hM' hMag
+  have hPiag : BAgree cYf cYf (decPi G a aT x ν α s φ) (decPi G a aT x ν α' s' φ') := by
+    unfold decPi
+    exact BAgree.mul ((hGB.mul hFM).mul hMiB) ((hGB'.mul hFM').mul hMiB')
+      (BAgree.mul (hGB.mul hFM) (hGB'.mul hFM') (BAgree.mul hGB hGB' hLag hFMag) hMiag) hNag
+  have hTB := hGB.sub (decPi_BD_of_hatDich S hx hα hU hdich hH hM)
+  have hTB' := hGB'.sub (decPi_BD_of_hatDich S' hx hα' hU' hdich' hH' hM')
+  have hTag := hLag.sub hPiag
+  have hPl : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1) (liftOp N P) :=
+    BD.liftOp hP
+  have hAB : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
+    unfold covA
+    exact ((BD.one _).sub hPl).smul _ |>.add (hPl.smul _)
+  have hQl : BD (fun p : κι × Fin N => cκ p.1) cYf (liftRect N Q) := BD.liftOp hQ
+  unfold decCov
+  rw [add_sub_cancel_left, add_sub_cancel_left]
+  refine BAgree.smul _ ?_
+  refine BAgree.mul (((hAB.mul hQl).mul hTB).mul hQl.transpose) (((hAB.mul hQl).mul hTB').mul hQl.transpose)
+    (BAgree.mul ((hAB.mul hQl).mul hTB) ((hAB.mul hQl).mul hTB')
+      (BAgree.mul (hAB.mul hQl) (hAB.mul hQl)
+        (BAgree.mul hAB hAB (BAgree.rfl' _) (BAgree.rfl' _)) hTag) (BAgree.rfl' _)) (BAgree.rfl' _)
 
 /-- **Locality of the correction `decCov - covA`.** Two data `(s, α, φ)`, `(s', α', φ')` with the
 standing hypotheses; `Y'` a union of components of both `Yreg s` and `Yreg s'`; the cut factors
@@ -492,76 +604,34 @@ theorem CovStanding.decCov_sub_agree
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
     BAgree (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
       (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P))
-      (decCov G a aT x ν α' s' φ' Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
-  classical
-  have S := (H.fam x hx).st
-  have S' := (H'.fam x hx).st
-  have hα := (H.fam x hx).pot
-  have hα' := (H'.fam x hx).pot
-  have hU := (H.fam x hx).isUnit_one_sub
-  have hU' := (H'.fam x hx).isUnit_one_sub
-  have hH := hRespects_of_hatConn (x := x) (α := α) S hconn hY
-  have hH' := hRespects_of_hatConn (x := x) (α := α') S hconn hY'
-  have hM := H.decM_isUnit' hx
-  have hM' := H'.decM_isUnit' hx
-  set cY : G.Ω 1 → Prop := fun y => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' with hcY
-  set cYf : G.Ω 1 × Fin N → Prop := fun p => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y' with hcYf
-  -- block diagonality of the pieces, for both data
-  have hGB := liftOp_Gsx_BD (N := N) S hx hconn hα hU hY
-  have hGB' := liftOp_Gsx_BD (N := N) S' hx hconn hα' hU' hY'
-  have hFM := fieldMul_BD (N := N) cY (restrictField G φ)
-  have hFM' := fieldMul_BD (N := N) cY (restrictField G φ')
-  have hRB := commK_Gsx_BD (N := N) (φ := φ) S hx hconn hα hU hY hH
-  have hRB' := commK_Gsx_BD (N := N) (φ := φ') S' hx hconn hα' hU' hY' hH'
-  have hMB := decM_BD (N := N) (φ := φ) S hx hconn hα hU hY hH
-  have hMB' := decM_BD (N := N) (φ := φ') S' hx hconn hα' hU' hY' hH'
-  have hNB := decN_BD (N := N) (φ := φ) S hx hconn hα hU hY hH
-  have hNB' := decN_BD (N := N) (φ := φ') S' hx hconn hα' hU' hY' hH'
-  have hMiB := hMB.inv hM
-  have hMiB' := hMB'.inv hM'
-  -- agreement of the pieces
-  have hGag : BAgree cY cY (Gsx G a aT x ν α s) (Gsx G a aT x ν α' s') :=
-    fun y y' hy _ => Gsx_agree S hx hconn hα hα' hU hU' hY hY' hs hA hy
-  have hLag : BAgree cYf cYf (liftOp N (Gsx G a aT x ν α s)) (liftOp N (Gsx G a aT x ν α' s')) :=
-    BAgree.liftOp hGag
-  have hFMag : BAgree cYf cY (fieldMul (restrictField G φ)) (fieldMul (restrictField G φ')) := by
-    intro p y hp hy
-    unfold fieldMul
-    by_cases h : p.1 = y
-    · simp only [h, ite_true]
-      show φ (y : CTorus d L N₁ m₁ (k + 1)) p.2 = φ' (y : CTorus d L N₁ m₁ (k + 1)) p.2
-      rw [hφ _ hy]
-    · simp [h]
-  have hRag := commK_Gsx_agree (N := N) S hx hconn hα hα' hU hU' hY hY' hs hA hφ
-  have hMag : BAgree cY cY (decM G a aT x ν α s φ) (decM G a aT x ν α' s' φ') := by
-    unfold decM constraintM
-    exact (BAgree.mul hFM.transpose hFM'.transpose hFMag.transpose hFMag).sub
-      (BAgree.mul hRB hRB' hRag hFMag)
-  have hNag : BAgree cY cYf (decN G a aT x ν α s φ) (decN G a aT x ν α' s' φ') := by
-    unfold decN constraintN
-    exact hFMag.transpose.sub hRag
-  have hMiag := BAgree.inv hMB hMB' hM hM' hMag
-  have hPiag : BAgree cYf cYf (decPi G a aT x ν α s φ) (decPi G a aT x ν α' s' φ') := by
-    unfold decPi
-    exact BAgree.mul ((hGB.mul hFM).mul hMiB) ((hGB'.mul hFM').mul hMiB')
-      (BAgree.mul (hGB.mul hFM) (hGB'.mul hFM') (BAgree.mul hGB hGB' hLag hFMag) hMiag) hNag
-  have hTB := hGB.sub (decPi_BD S hx hconn hα hU hY hH hM)
-  have hTB' := hGB'.sub (decPi_BD S' hx hconn hα' hU' hY' hH' hM')
-  have hTag := hLag.sub hPiag
-  have hPl : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1) (liftOp N P) :=
-    BD.liftOp hP
-  have hAB : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
-      (covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) := by
-    unfold covA
-    exact ((BD.one _).sub hPl).smul _ |>.add (hPl.smul _)
-  have hQl : BD (fun p : κι × Fin N => cκ p.1) cYf (liftRect N Q) := BD.liftOp hQ
-  unfold decCov
-  rw [add_sub_cancel_left, add_sub_cancel_left]
-  refine BAgree.smul _ ?_
-  refine BAgree.mul (((hAB.mul hQl).mul hTB).mul hQl.transpose) (((hAB.mul hQl).mul hTB').mul hQl.transpose)
-    (BAgree.mul ((hAB.mul hQl).mul hTB) ((hAB.mul hQl).mul hTB')
-      (BAgree.mul (hAB.mul hQl) (hAB.mul hQl)
-        (BAgree.mul hAB hAB (BAgree.rfl' _) (BAgree.rfl' _)) hTag) (BAgree.rfl' _)) (BAgree.rfl' _)
+      (decCov G a aT x ν α' s' φ' Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) :=
+  H.decCov_sub_agree_of_hatDich H' hx (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY')
+    hs hA hφ cκ hQ hP
+
+/-- **Locality of the decoupled logarithm, core** (dichotomy in place of `HatConn`).
+**Locality of the decoupled logarithm.** Under the hypotheses of `CovStanding.decCov_sub_agree`
+(for the cut parameters, potential and field), `decLog` has the same matrix elements between
+labelled coarse sites for the two data. The baseline blocks do not depend on them, and the
+`x`-integrands agree for every `x ≥ 0`. -/
+theorem CovStanding.decLog_agree_of_hatDich
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (H' : CovStanding G a aT ν α' κ' s' δ' φ' Q P)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G s' q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → sProd G s q = sProd G s' q)
+    (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+    (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
+    BAgree (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decLog G a aT ν α s φ Q P) (decLog G a aT ν α' s' φ' Q P) := by
+  unfold decLog
+  refine BAgree.sub (BAgree.rfl' _) ?_
+  intro p q hp hq
+  show ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ))) = ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ)))
+  refine integral_congr_ae ?_
+  filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
+  exact H.decCov_sub_agree_of_hatDich H' (Set.mem_Ioi.1 hx).le hdich hdich' hs hA hφ cκ hQ hP p q hp
+    hq
 
 /-- **Locality of the decoupled logarithm.** Under the hypotheses of `CovStanding.decCov_sub_agree`
 (for the cut parameters, potential and field), `decLog` has the same matrix elements between
@@ -577,34 +647,28 @@ theorem CovStanding.decLog_agree
     (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
     BAgree (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
-      (decLog G a aT ν α s φ Q P) (decLog G a aT ν α' s' φ' Q P) := by
-  unfold decLog
-  refine BAgree.sub (BAgree.rfl' _) ?_
-  intro p q hp hq
-  show ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ))) = ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ)))
-  refine integral_congr_ae ?_
-  filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
-  exact H.decCov_sub_agree H' (Set.mem_Ioi.1 hx).le hconn hY hY' hs hA hφ cκ hQ hP p q hp hq
+      (decLog G a aT ν α s φ Q P) (decLog G a aT ν α' s' φ' Q P) :=
+  H.decLog_agree_of_hatDich H' (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY') hs hA hφ
+    cκ hQ hP
 
 /-- Rows of a product vanish if the rows of the left factor do. -/
 theorem mul_apply_eq_zero_of_row {ι ι' ι'' : Type*} [Fintype ι'] {M : Matrix ι ι' ℂ}
     {N : Matrix ι' ι'' ℂ} {i : ι} (h : ∀ j, M i j = 0) (j : ι'') : (M * N) i j = 0 := by
   simp [Matrix.mul_apply, h]
 
-/-- **Outside the footprint the correction vanishes.** Take `Y' = Yreg s`, the union of all
+/-- **Outside the footprint the correction vanishes** (no connectivity hypothesis).
+**Outside the footprint the correction vanishes.** Take `Y' = Yreg s`, the union of all
 components. For a coarse site whose label is false (its block does not lie in `Yreg s`), the
 correction `decCov - covA` has no matrix elements in its row: `G_s` and `Π_s` have rows supported in
 the core. -/
-theorem CovStanding.decCov_sub_row_eq_zero {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
-    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (hconn : HatConn G)
-    (cκ : κι → Prop)
+theorem CovStanding.decCov_sub_row_eq_zero_core {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
     (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
     (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 := by
   classical
-  have hY : IsNnComp (Yreg G s) (Yreg G s) := ⟨subset_rfl, fun _ _ _ hy _ => hy⟩
   have hS := (H.fam x hx).st
-  have hH := hRespects_of_hatConn (x := x) (α := α) hS hconn hY
+  have hH := hRespects_of_hatDich (x := x) (α := α) hS (hatDich_Yreg (s := s))
   have hα := (H.fam x hx).pot
   have hU := (H.fam x hx).isUnit_one_sub
   have hM := H.decM_isUnit' hx
@@ -648,10 +712,25 @@ theorem CovStanding.decCov_sub_row_eq_zero {Q : Matrix κι (G.Ω 1) ℂ} {P : M
       rw [hT w hw y, mul_zero]
   exact mul_apply_eq_zero_of_row (fun r => mul_apply_eq_zero_of_row hrow r) q
 
-/-- **`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
+/-- **Outside the footprint the correction vanishes.** Take `Y' = Yreg s`, the union of all
+components. For a coarse site whose label is false (its block does not lie in `Yreg s`), the
+correction `decCov - covA` has no matrix elements in its row: `G_s` and `Π_s` have rows supported in
+the core. -/
+theorem CovStanding.decCov_sub_row_eq_zero {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (hconn : HatConn G)
+    (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
+    (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
+    (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 := by
+  -- `HatConn` is not needed (`decCov_sub_row_eq_zero_core`); it is discarded
+  have _ := hconn
+  exact H.decCov_sub_row_eq_zero_core hx cκ hQ hP hp q
+
+/-- **`decLog` outside the footprint is the baseline** (no connectivity hypothesis).
+**`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
 `Yreg s`) is false, the row of `decLog` equals that of the cut-independent baseline blocks. -/
-theorem CovStanding.decLog_row_eq_baseline {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
-    (H : CovStanding G a aT ν α κ s δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
+theorem CovStanding.decLog_row_eq_baseline_core {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
     (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
     decLog G a aT ν α s φ Q P p q =
@@ -665,8 +744,21 @@ theorem CovStanding.decLog_row_eq_baseline {Q : Matrix κι (G.Ω 1) ℂ} {P : M
     show ∫ x, _ ∂(volume.restrict (Ioi (0 : ℝ))) = 0
     refine integral_eq_zero_of_ae ?_
     filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
-    exact H.decCov_sub_row_eq_zero (Set.mem_Ioi.1 hx).le hconn cκ hQ hP hp q
+    exact H.decCov_sub_row_eq_zero_core (Set.mem_Ioi.1 hx).le cκ hQ hP hp q
   rw [this, sub_zero]
+
+/-- **`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
+`Yreg s`) is false, the row of `decLog` equals that of the cut-independent baseline blocks. -/
+theorem CovStanding.decLog_row_eq_baseline {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
+    (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
+    decLog G a aT ν α s φ Q P p q =
+      (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
+        ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) p q := by
+  -- `HatConn` is not needed (`decLog_row_eq_baseline_core`); it is discarded
+  have _ := hconn
+  exact H.decLog_row_eq_baseline_core cκ hQ hP hp q
 
 
 end Main
@@ -700,6 +792,21 @@ theorem decLog_BD_of_integrand (cκ : κι → Prop) (Q : Matrix κι (G.Ω 1) �
   unfold decLog
   exact (baseline_BD cκ P hP _ _).sub (intMat_BD _ _ hint)
 
+/-- **`decLog` is block diagonal, core** (dichotomy of the active thickened cubes in place of
+`HatConn` and the components).
+**`decLog` is block diagonal for a union `Y'` of nearest-neighbour components of `Yreg s`**,
+under the two named provisos: `HRespects` for every `x > 0` and the label compatibility of `Q`, `P`
+(`hQ`, `hP`). The standing hypotheses are `CovStanding` and `HatConn`. -/
+theorem CovStanding.decLog_BD_of_respects_of_hatDich {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
+    (H : CovStanding G a aT ν α κ s δ φ Q P) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hH : ∀ x : ℝ, 0 < x → HRespects G a aT x ν α s Y') (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
+    BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
+      (decLog G a aT ν α s φ Q P) :=
+  decLog_BD_of_integrand cκ Q P hP fun x hx =>
+    H.decCov_sub_BD_of_hatDich hx.le hdich (hH x hx) cκ hQ hP
+
 /-- **`decLog` is block diagonal for a union `Y'` of nearest-neighbour components of `Yreg s`**,
 under the two named provisos: `HRespects` for every `x > 0` and the label compatibility of `Q`, `P`
 (`hQ`, `hP`). The standing hypotheses are `CovStanding` and `HatConn`. -/
@@ -710,8 +817,23 @@ theorem CovStanding.decLog_BD_of_respects {Q : Matrix κι (G.Ω 1) ℂ} {P : Ma
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
     BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
       (decLog G a aT ν α s φ Q P) :=
-  decLog_BD_of_integrand cκ Q P hP fun x hx =>
-    H.decCov_sub_BD hx.le hconn hY (hH x hx) cκ hQ hP
+  H.decLog_BD_of_respects_of_hatDich (hatDich_of_hatConn hconn hY) hH cκ hQ hP
+
+/-- **`decLog` of the step is block diagonal, core** (dichotomy in place of `HatConn`).
+**`decLog` of the step is block diagonal** for the unit lattice. Hypotheses: `CovStanding` for
+`Q = unitQ G`, `P = unitP G` (all `x ≥ 0`), `HatConn`, `Y'` a union of nearest-neighbour
+components of `Yreg s`, and the named property `UnionOfBlocks G Y'` (when it holds: see the module
+doc). The proviso (i) is discharged by `hRespects_of_hatConn`. -/
+theorem CovStanding.decLog_BD_unit_of_unionOfBlocks_of_hatDich
+    (H : CovStanding G a aT ν α κ s δ φ (unitQ G) (unitP G))
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hYblk : UnionOfBlocks G Y') :
+    BD (fun p : unitPts G × Fin N => unitLabel G Y' p.1)
+      (fun p : unitPts G × Fin N => unitLabel G Y' p.1) (decLog G a aT ν α s φ (unitQ G) (unitP G)) :=
+  H.decLog_BD_of_respects_of_hatDich hdich
+    (fun x hx => hRespects_of_hatDich (H.fam x hx.le).st hdich) (unitLabel G Y')
+    (unitQ_label hYblk) (unitP_label hYblk)
 
 /-- **`decLog` of the step is block diagonal** for the unit lattice. Hypotheses: `CovStanding` for
 `Q = unitQ G`, `P = unitP G` (all `x ≥ 0`), `HatConn`, `Y'` a union of nearest-neighbour
@@ -723,9 +845,7 @@ theorem CovStanding.decLog_BD_unit_of_unionOfBlocks
     (hYblk : UnionOfBlocks G Y') :
     BD (fun p : unitPts G × Fin N => unitLabel G Y' p.1)
       (fun p : unitPts G × Fin N => unitLabel G Y' p.1) (decLog G a aT ν α s φ (unitQ G) (unitP G)) :=
-  H.decLog_BD_of_respects hconn hY
-    (fun x hx => hRespects_of_hatConn (H.fam x hx.le).st hconn hY) (unitLabel G Y')
-    (unitQ_label hYblk) (unitP_label hYblk)
+  H.decLog_BD_unit_of_unionOfBlocks_of_hatDich (hatDich_of_hatConn hconn hY) hYblk
 
 end Decoupled
 
