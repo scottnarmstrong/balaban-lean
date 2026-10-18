@@ -172,6 +172,74 @@ theorem hlift_lower {m' j k1 : ℕ} (hm : m' + 1 ≤ K) (hj : j < m') (hk1j : k1
     rw [cubeMap_castSite H.F.hnn hm]
     exact hcase_piece geo hm hj.le c hdc hK hy
 
+open Classical in
+/-- `hlift_top` for data `(ou0, xu0)` given through their defining equations. -/
+theorem hlift_top_of_eq {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)} (hnk : ¬ IsKept H (m' + 1) Z)
+    (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (ou0 : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (xu0 : NewCfg N (H.localHistory M K (m' + 1) Z) m')
+    (hou : ou0 = o)
+    (hxu : xu0 = newRestrict (H.localHistory M K (m' + 1) Z)
+      (newVars_sub_locOp_A geo cs SD KD hm hnk) x)
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hψ1 : ∀ b, ψ ⟨m' + 1, b⟩ = outField N o (torusCast (blk_eq_top H.F.hnn hm le_rfl) b))
+    (hψ0 : ∀ i (hi : i ≤ m') b, ψ ⟨i, b⟩ =
+      subVarField N x i (torusCast (blk_eq_top H.F.hnn hm (hi.trans (Nat.le_succ _))) b))
+    {y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hy : torusCast (piece_torus_eq geo H.F.hnn hm (le_refl m')) y ∈
+      dataSites (locGen geo (H.locRH (m' + 1) Z) m' Z.1 (locComp_mem H hm Z) hm)) :
+    (locData geo (H.locRH (m' + 1) Z) m' Z.1 (locComp_mem H hm Z) hm ou0 xu0 hv).Ψ
+        (torusCast (piece_torus_eq geo H.F.hnn hm (le_refl m')) y) =
+      fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
+        (if torusCast (piece_torus_eq geo H.F.hnn hm (le_refl m')) y ∈
+            fineK1 geo.M1 geo.c (n (m' + 1)) S.L m' ((H.locRH (m' + 1) Z).step m').Omega
+          then m' + 1 else m') y) q : ℝ) : ℂ) := by
+  subst hou hxu
+  exact hlift_top geo cs SD KD hm hnk ou0 x hv ψ hψ1 hψ0 hy
+
+open Classical in
+/-- `hlift_lower` for data `(ou0, xu0)` given through their defining equations. -/
+theorem hlift_lower_of_eq {m' j k1 : ℕ} (hm : m' + 1 ≤ K) (hj : j < m') (hk1j : k1 ≤ j)
+    {Z : H.Comp (m' + 1)} {P : H.Comp (j + 1 + 1)} {c : H.Comp (j + 1)} (hcP : c ∈ H.parts (j + 1) P)
+    (hdP : H.Desc (j + 1 + 1) (m' + 1) P Z) (hdc : H.Desc (j + 1) (m' + 1) c Z)
+    (hq : ∀ s, k1 < s → ∀ Y : H.Comp s, H.Desc s (m' + 1) Y Z → ¬ IsKept H s Y)
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
+    (ρPx : SubCfg N (H.localHistory M K (j + 1 + 1) P) (j + 1 + 1)
+      (locOp geo cs SD KD hH lab (j + 1 + 1) (hdP.le.trans hm) P).A)
+    (ρcx : SubCfg N (H.localHistory M K (j + 1) c) (j + 1)
+      (locOp geo cs SD KD hH lab (j + 1) (hdc.le.trans hm) c).A)
+    (hρP : ∀ p : ↥(locOp geo cs SD KD hH lab (j + 1 + 1) (hdP.le.trans hm) P).A, ρPx p =
+      x ⟨_, locOp_A_incl geo cs SD KD hm hdP
+        (fun t ht Y' h' => hq t (by omega) Y' h') p.1 p.2⟩)
+    (hρc : ∀ p : ↥(locOp geo cs SD KD hH lab (j + 1) (hdc.le.trans hm) c).A, ρcx p =
+      x ⟨_, locOp_A_incl geo cs SD KD hm hdc
+        (fun t ht Y' h' => hq t (by omega) Y' h') p.1 p.2⟩)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (ou0 : OutT N R (H.localHistory M K (j + 1) c) (j + 1))
+    (xu0 : NewCfg N (H.localHistory M K (j + 1) c) j)
+    (hou : ou0 = ancOut (N := N) (R := R) c P ρPx)
+    (hxu : xu0 = newRestrict (H.localHistory M K (j + 1) c)
+      (newVars_sub_locOp_A geo cs SD KD (hdc.le.trans hm) (hq (j + 1) (by omega) c hdc)) ρcx)
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hψ0 : ∀ i (hi : i ≤ m') b, ψ ⟨i, b⟩ =
+      subVarField N x i (torusCast (blk_eq_top H.F.hnn hm (hi.trans (Nat.le_succ _))) b))
+    {y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hy : torusCast (piece_torus_eq geo H.F.hnn hm hj.le) y ∈
+      dataSites (locGen geo (H.locRH (j + 1) c) j c.1 (locComp_mem H (hdc.le.trans hm) c)
+        (hdc.le.trans hm))) :
+    (locData geo (H.locRH (j + 1) c) j c.1 (locComp_mem H (hdc.le.trans hm) c) (hdc.le.trans hm)
+        ou0 xu0 hv).Ψ (torusCast (piece_torus_eq geo H.F.hnn hm hj.le) y) =
+      fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
+        (if torusCast (piece_torus_eq geo H.F.hnn hm hj.le) y ∈
+            fineK1 geo.M1 geo.c (n (j + 1)) S.L j ((H.locRH (j + 1) c).step j).Omega
+          then j + 1 else j) y) q : ℝ) : ℂ) := by
+  subst hou hxu
+  exact hlift_lower geo cs SD KD hm hj hk1j hcP hdP hdc hq x ρPx ρcx hρP hρc hv ψ hψ0 hy
+
 end Lift
 
 end Piece
