@@ -2781,3 +2781,4 @@ public import Balaban.LargeField.R.WindowDuBall
 public import Balaban.LargeField.R.WindowDuMassTerm
 public import Balaban.LargeField.R.WindowDuAssemble
 public import Balaban.LargeField.R.WindowDuAgree
+public import Balaban.LargeField.R.WindowDuPt
