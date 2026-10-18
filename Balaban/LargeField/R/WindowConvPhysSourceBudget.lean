@@ -53,4 +53,33 @@ theorem massRead_spacing_le {a : ℕ → ℝ} {ν ε : ℝ} (H : BgHyp d L K ϱ 
   have h := (XiCOneReal.factors H hε hsm hc1 hD).2.2.1 x hx
   rwa [vn_sq] at h
 
+/-- **The reads of the background at the scale `n`, charged with the mass of the scale `n - 1`**
+(P7CONV (38)): block and bond reads at most `4 ε²`, mass read `|ν₁| |s - h|² ≤ 12 ε² ℓ⁻²` for
+`ν₁ ≤ 3 ν₀`. -/
+theorem step_reads {a : ℕ → ℝ} {ν₀ ν₁ ε : ℝ} (H : BgHyp d L K ϱ a ν₀)
+    (hν1 : 0 < ν₁) (h13 : ν₁ ≤ 3 * ν₀) (hε : 0 < ε)
+    (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc1 : xiC1 d * ε ≤ bgC1 d L N)
+    {D : BgData G N} (hD : XiCOneReal G a ν₀ ε D) (X : Region G) :
+    (∀ x ∈ X.sites, ∑ j, ‖D.Ψ x j - blockAvg G (bgFieldC G a ν₀ (bgC0 d L N) D) x j‖ ^ 2 ≤
+      4 * ε ^ 2) ∧
+    (∀ x ∈ X.sites, ∀ μ : Fin d, G.spacing x ^ 2 * ∑ j,
+      ‖barField G D.Ψ (bgFieldC G a ν₀ (bgC0 d L N) D) (x + Pi.single μ 1) j -
+        barField G D.Ψ (bgFieldC G a ν₀ (bgC0 d L N) D) x j‖ ^ 2 ≤ 4 * ε ^ 2) ∧
+    (∀ x ∈ X.sites, ∀ μ : Fin d, G.spacing x ^ 2 * ∑ j,
+      ‖barField G D.Ψ (bgFieldC G a ν₀ (bgC0 d L N) D) (x - Pi.single μ 1) j -
+        barField G D.Ψ (bgFieldC G a ν₀ (bgC0 d L N) D) x j‖ ^ 2 ≤ 4 * ε ^ 2) ∧
+    (∀ x ∈ X.sites, |ν₁| * ∑ j, ‖svec G (bgFieldC G a ν₀ (bgC0 d L N) D) x j - D.h x j‖ ^ 2 ≤
+      12 * ε ^ 2 * ((G.spacing x) ^ 2)⁻¹) := by
+  refine ⟨fun x hx => blockRead_le H hε hsm hc1 hD (X.sub_Ω hx),
+    fun x hx μ => (bondRead_le H hε hsm hc1 hD (X.sub_Ω hx) μ).1,
+    fun x hx μ => (bondRead_le H hε hsm hc1 hD (X.sub_Ω hx) μ).2,
+    fun x hx => ?_⟩
+  · have h1 := massRead_spacing_le H hε hsm hc1 hD (X.sub_Ω hx)
+    have hsp : 0 < G.spacing x ^ 2 := by
+      have := spacing_pos G (x := x); positivity
+    rw [le_mul_inv_iff₀ hsp, abs_of_pos hν1]
+    have hS0 : 0 ≤ ∑ j, ‖svec G (bgFieldC G a ν₀ (bgC0 d L N) D) x j - D.h x j‖ ^ 2 :=
+      Finset.sum_nonneg fun j _ => by positivity
+    nlinarith [mul_le_mul_of_nonneg_right h13 (mul_nonneg hS0 hsp.le)]
+
 end Balaban.LargeField.ActionConv

@@ -94,4 +94,51 @@ theorem flow_pow_le {β η g1 gj P : ℝ} (hβ : 0 < β) (hg1 : g1 ≤ Real.exp 
         apply mul_le_mul_of_nonneg_left _ (Real.exp_pos _).le
         exact mul_le_mul_of_nonneg_left hgj (by positivity)
 
+/-- **The three cube budgets of a conversion step** on a decomposition into layer blocks of weight
+one: with `β₁ = β g₁`, `cb = β L^{(d-2)(j+1)} g_j`, `β g_j a(ℓ) = β g₁ a₁(ℓ)`, `|a(ℓ)| ≤ Ka` and
+`|ν₁| (L^ℓ)² ≤ cν²`. -/
+theorem cube_budgets (X : Region G) (Dc : StepDecomp X) (hd2 : 2 ≤ d) {j : ℕ}
+    (hwt1 : ∀ c, Dc.wt c = 1)
+    (hcells : ∀ c, ∃ x ∈ X.sites, (Dc.cube c).sites = G.blk (G.layerIndex x) x ∧
+      G.layerIndex x ≤ j + 1)
+    {a₁ aw : ℕ → ℝ} {β g1 gj η Ka cν ν1 cb : ℝ} (hβ : 0 < β) (hg1 : g1 ≤ Real.exp η)
+    (hg1p : 0 < g1) (hgj : Real.exp (-η) ≤ gj) (hgj0 : 0 < gj) (hKa : ∀ ℓ, |aw ℓ| ≤ Ka)
+    (hca : ∀ ℓ, β * gj * aw ℓ = β * g1 * a₁ ℓ)
+    (hν : ∀ x ∈ X.sites, |ν1| * ((L : ℝ) ^ G.layerIndex x) ^ 2 ≤ cν ^ 2)
+    (hcb : cb = β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj) :
+    (∀ c, (β * g1) * ∑ x ∈ (Dc.cube c).sites, ‖levelCoeff G a₁ x‖ ≤ (Ka * cb) * Dc.wt c) ∧
+    (∀ c, (β * g1) * ∑ x ∈ (Dc.cube c).sites, ((G.spacing x) ^ 2)⁻¹ ≤
+      (Real.exp (2 * η) * cb) * Dc.wt c) ∧
+    (∀ c, (β * g1) * ∑ _x ∈ (Dc.cube c).sites, |ν1| ≤
+      (Real.exp (2 * η) * cν ^ 2) * (cb * Dc.wt c)) := by
+  have hβ1 : 0 ≤ β * g1 := (mul_pos hβ hg1p).le
+  have hP0 : (0 : ℝ) ≤ (L : ℝ) ^ ((d - 2) * (j + 1)) := by positivity
+  refine ⟨fun c => ?_, fun c => ?_, fun c => ?_⟩
+  · obtain ⟨x, hx, hs, hl⟩ := hcells c
+    rw [hs, hwt1 c, mul_one]
+    have hB : (β * g1) * |a₁ (G.layerIndex x)| ≤ β * gj * Ka := by
+      have e := hca (G.layerIndex x)
+      have e2 : (β * g1) * |a₁ (G.layerIndex x)| = (β * gj) * |aw (G.layerIndex x)| := by
+        rw [← abs_of_pos (mul_pos hβ hg1p), ← abs_mul, ← e, abs_mul, abs_of_pos (mul_pos hβ hgj0)]
+      rw [e2]
+      exact mul_le_mul_of_nonneg_left (hKa _) (mul_pos hβ hgj0).le
+    have h1 := X.layerBlock_levelCoeff_le hd2 hx hl a₁ hβ1 hB
+    calc _ ≤ _ := h1
+      _ = _ := by rw [hcb]; ring
+  · obtain ⟨x, hx, hs, hl⟩ := hcells c
+    rw [hs, hwt1 c, mul_one]
+    have h1 := X.layerBlock_spacing_le hd2 hx hl hβ1
+    have h2 := flow_pow_le hβ hg1 hgj hP0
+    calc _ ≤ _ := h1
+      _ ≤ _ := h2
+      _ = _ := by rw [hcb]
+  · obtain ⟨x, hx, hs, hl⟩ := hcells c
+    rw [hs, hwt1 c, mul_one]
+    have h1 := X.layerBlock_mass_le hd2 hx hl hβ1 (hν x hx)
+    have h2 := flow_pow_le hβ hg1 hgj (by positivity : 0 ≤ cν ^ 2 * (L : ℝ) ^ ((d - 2) * (j + 1)))
+    calc _ ≤ _ := h1
+      _ = β * g1 * (cν ^ 2 * (L : ℝ) ^ ((d - 2) * (j + 1))) := by ring
+      _ ≤ _ := h2
+      _ = _ := by rw [hcb]; ring
+
 end Balaban.LargeField.ActionConv

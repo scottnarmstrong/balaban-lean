@@ -144,4 +144,57 @@ theorem jointResponse_piece (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
     hs0.1 hs1.1 hb0 hb1 H0.green hOp hδ0 hsmall (by linarith) hm2 hSB hS hphi).2
   exact ⟨this.val, this.fwd, this.bwd⟩
 
+/-- **The response of one conversion step in the scaled form** (P7 p. 500 (2.10)–(2.12)): with
+`m = 2 ρ e Ka` and `m_ν = 12 ρ cν`, the response of `φ¹ - φ⁰` is bounded with weight one by
+`ρ ε V₁` when `K_w (4 e Ka + 24 cν) ≤ V₁`. -/
+theorem jointResponse_step (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
+      ∀ {N₀ K : ℕ} [NeZero N₀] {ϱ : ℝ} {G : GeneratingSet d L N₀ K ϱ},
+        (∃ N₁ m₁ : ℕ, N₀ = N₁ * L ^ m₁) →
+        ∀ (a₀ a₁ : ℕ → ℝ) (ν₀ ν₁ ε ρ Ka cν e V1 : ℝ) (D : BgData G N),
+        BgHyp d L K ϱ a₀ ν₀ → BgHyp d L K ϱ a₁ ν₁ →
+        2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1) →
+        (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1 → 0 < ε → xiC1 d * ε ≤ bgC1 d L N →
+        XiCOneReal G a₀ ν₀ ε D → XiCOneReal G a₁ ν₁ ε D →
+        bgK1 d L N * (xiC1 d * ε) ≤ min (deltaStar d L N) δw →
+        0 ≤ ρ → ρ ≤ 1 / 2 → 0 ≤ Ka → 0 ≤ cν → 0 ≤ e → 0 < ν₁ →
+        (∀ x : G.Ω 1, |a₁ (G.layerIndex (x : Torus d (N₀ * L ^ K))) -
+          a₀ (G.layerIndex (x : Torus d (N₀ * L ^ K)))| ≤ 2 * ρ * (e * Ka)) →
+        (∀ x : G.Ω 1, G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * (ν₁ - ν₀) ^ 2 ≤
+          (12 * ρ * cν) ^ 2 * ν₁) →
+        ε * (4 * e * Ka + 24 * cν) ≤ min (deltaStar d L N) δw →
+        Kw * (4 * e * Ka + 24 * cν) ≤ V1 →
+        (∀ (x : G.Ω 1) (i : Fin N), 1 * ‖(bgFieldC G a₁ ν₁ (bgC0 d L N) D -
+            bgFieldC G a₀ ν₀ (bgC0 d L N) D) (x, i)‖ ≤ ρ * ε * V1) ∧
+        (∀ x ∈ G.Ω 1, ∀ (μ : Fin d) (i : Fin N), 1 * (G.spacing x *
+          ‖svec G (bgFieldC G a₁ ν₁ (bgC0 d L N) D - bgFieldC G a₀ ν₀ (bgC0 d L N) D)
+            (x + Pi.single μ 1) i -
+            svec G (bgFieldC G a₁ ν₁ (bgC0 d L N) D - bgFieldC G a₀ ν₀ (bgC0 d L N) D) x i‖) ≤
+          ρ * ε * V1) ∧
+        (∀ x ∈ G.Ω 1, ∀ (μ : Fin d) (i : Fin N), 1 * (G.spacing x *
+          ‖svec G (bgFieldC G a₁ ν₁ (bgC0 d L N) D - bgFieldC G a₀ ν₀ (bgC0 d L N) D)
+            (x - Pi.single μ 1) i -
+            svec G (bgFieldC G a₁ ν₁ (bgC0 d L N) D - bgFieldC G a₀ ν₀ (bgC0 d L N) D) x i‖) ≤
+          ρ * ε * V1) := by
+  obtain ⟨Kw, δw, hK, hδ, H⟩ := jointResponse_piece (d := d) (L := L) N hd hL
+  refine ⟨Kw, δw, hK, hδ, ?_⟩
+  intro N₀ K _ ϱ G hN a₀ a₁ ν₀ ν₁ ε ρ Ka cν e V1 D H0 H1 hsepO hsm hε hc1 D0 D1 hsmall hρ0 hρ1
+    hKa hcν he hν1 hm hmν hSB hV1
+  have hε0 : 0 ≤ ε := hε.le
+  have hX0 : 0 ≤ ε * (4 * e * Ka + 24 * cν) := by positivity
+  have hS : 2 * ε * (2 * ρ * (e * Ka) + 12 * ρ * cν) ≤ min (deltaStar d L N) δw := by
+    have : 2 * ε * (2 * ρ * (e * Ka) + 12 * ρ * cν) = ρ * (ε * (4 * e * Ka + 24 * cν)) := by ring
+    rw [this]
+    refine le_trans ?_ hSB
+    nlinarith
+  obtain ⟨r1, r2, r3⟩ := H hN a₀ a₁ ν₀ ν₁ ε (2 * ρ * (e * Ka)) (12 * ρ * cν) D H0 H1 hsepO hsm hε
+    hc1 D0 D1 hsmall (by positivity) (by positivity) hν1 hm hmν hS
+  have hV : Kw * (2 * ε * (2 * ρ * (e * Ka) + 12 * ρ * cν)) ≤ ρ * ε * V1 := by
+    have : Kw * (2 * ε * (2 * ρ * (e * Ka) + 12 * ρ * cν)) =
+        ρ * ε * (Kw * (4 * e * Ka + 24 * cν)) := by ring
+    rw [this]
+    exact mul_le_mul_of_nonneg_left hV1 (by positivity)
+  exact ⟨fun x i => (r1 x i).trans hV, fun x hx μ i => (r2 x hx μ i).trans hV,
+    fun x hx μ i => (r3 x hx μ i).trans hV⟩
+
 end Balaban.LargeField.ActionConv

@@ -121,4 +121,37 @@ theorem coeff_size_le {a₀ aw β gj gn η : ℝ} (hβ : 0 < β) (hgj : gj ≤ R
     _ ≤ Real.exp η * (Real.exp η * |aw|) := mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
     _ = _ := by rw [e3]; ring
 
+/-- The mass `ν δ_{n-1}` times a squared spacing is at most `cν²` when `ν sp Dδ ≤ cν²`. -/
+theorem mass_spacing_le {ν δ1 Dδ sp cν : ℝ} (hν : 0 < ν) (hδ : δ1 ≤ Dδ) (hsp : 0 ≤ sp)
+    (h : ν * sp * Dδ ≤ cν ^ 2) : ν * δ1 * sp ≤ cν ^ 2 := by
+  have h3 := mul_le_mul_of_nonneg_left hδ (mul_nonneg hν.le hsp)
+  calc ν * δ1 * sp = ν * sp * δ1 := by ring
+    _ ≤ ν * sp * Dδ := h3
+    _ ≤ cν ^ 2 := h
+
+/-- The change of a coefficient over one step, in terms of the size of the initial coefficient. -/
+theorem coeff_step_le {a₀ a₁ aw β₀ β₁ ρ β gj gn η Ka : ℝ} (hβ : 0 < β) (hβ₁ : 0 < β₁)
+    (hρ : 0 ≤ ρ) (hcoef : β₁ * a₁ = β₀ * a₀) (hb : |β₁ - β₀| ≤ 2 * ρ * β₁)
+    (hgj : gj ≤ Real.exp η) (hgn : Real.exp (-η) ≤ gn) (hgj0 : 0 < gj)
+    (h0 : β * gn * a₀ = β * gj * aw) (hKa : |aw| ≤ Ka) :
+    |a₁ - a₀| ≤ 2 * ρ * (Real.exp (2 * η) * Ka) := by
+  have h1 := coeff_step_change hβ₁ hcoef hb
+  have h2 := coeff_size_le hβ hgj hgn hgj0 h0
+  have h3 : Real.exp (2 * η) * |aw| ≤ Real.exp (2 * η) * Ka :=
+    mul_le_mul_of_nonneg_left hKa (Real.exp_pos _).le
+  calc |a₁ - a₀| ≤ 2 * ρ * |a₀| := h1
+    _ ≤ 2 * ρ * (Real.exp (2 * η) * Ka) :=
+        mul_le_mul_of_nonneg_left (h2.trans h3) (by positivity)
+
+/-- The squared mass change over one step against the spacing. -/
+theorem mass_step_sq_le {ν₀ ν₁ ρ cν sp : ℝ} (hν₁ : 0 < ν₁) (hsp : 0 ≤ sp)
+    (h1 : |ν₁ - ν₀| ≤ 12 * ρ * ν₁) (h3 : ν₁ * sp ≤ cν ^ 2) :
+    sp * (ν₁ - ν₀) ^ 2 ≤ (12 * ρ * cν) ^ 2 * ν₁ := by
+  have h2 : (ν₁ - ν₀) ^ 2 ≤ (12 * ρ * ν₁) ^ 2 := by
+    rw [← sq_abs]; exact pow_le_pow_left₀ (abs_nonneg _) h1 2
+  calc sp * (ν₁ - ν₀) ^ 2 ≤ sp * (12 * ρ * ν₁) ^ 2 := mul_le_mul_of_nonneg_left h2 hsp
+    _ = (144 * ρ ^ 2 * ν₁) * (ν₁ * sp) := by ring
+    _ ≤ (144 * ρ ^ 2 * ν₁) * cν ^ 2 := mul_le_mul_of_nonneg_left h3 (by positivity)
+    _ = _ := by ring
+
 end Balaban.LargeField.ActionConv
