@@ -128,11 +128,12 @@ supplies the massive member that 6 needs; inputs 2 and 7 contain the physical `Z
   `RunningHypTo` with `γ_j = δ_j = 1`, `wFam2_lfCoherent`: zero kernels and boundary terms);
 * `observableActivities_zero`.
 
-These configurations are not used by the inputs: `IsHorizon 3 ν 0` fails there. A used configuration needs `kf ≥ 1`, hence
-`K ≥ 2`. Zero step data then fail (`zeroStepData` needs `K ≤ 1`): an admissible history can have a quiet step `1 → 2`, whose
-kernel must be the quiet kernel (`StepData.quiet`). A witness at `K ≥ 2` needs `quietStepData` with a `QuietStepInput`, which no
-landed file provides. So non-vacuity at used configurations is open. **Ledger (rule 10):** exempt the seven inputs, whose
-non-emptiness is the open work. Exempt also `RepClassAt`/`FlatClassAt` at the used configurations (inhabited at `kf = 0` only).
+These configurations are not used: `IsHorizon 3 ν 0` fails there, and a used one has `kf ≥ 1`, `K ≥ 2`. Zero step data then fail
+(`zeroStepData` needs `K ≤ 1`): an admissible history can have a quiet step `1 → 2`, whose kernel must be the quiet kernel
+(`StepData.quiet`). A witness at `K ≥ 2` needs `quietStepData'` (with its side conditions `BgHyp`, `δ` bounds) from a
+`QuietStepInput'` on every torus `n_K`; the landed `quietStepInput'_nonempty_pos` (`K = 2`, `k₀ = 0`) gives only `n_K = 1`, since
+`quietRealized_iff_of_histImage` needs `n_j = 1` for `j ≥ K`. So non-vacuity at used configurations is open. **Ledger (rule 10):**
+exempt the seven inputs (their non-emptiness is the open work) and `RepClassAt`/`FlatClassAt` at used configurations (`kf ≥ 1`).
 
 **Plausibility.** The inputs follow LFR Thm IV.5.3 with the carriers above, and are true for the LFR prefix if the landed
 definitions mean their sources. Carrier defects (e.g. CRotE, repaired by W1091) carry into items 2–6.
