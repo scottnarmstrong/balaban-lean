@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Def7v2Form
 public import Balaban.LargeField.Def7v2Interface
+public import Balaban.SmallField.Def6v2Birth
 
 /-!
 # Def-7 v2, part 5: the class `IsRep2` -- DRAFT
@@ -54,11 +55,12 @@ section SF
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 
 /-- **The wide small-field field domain of a representation** (CLASS-RULINGS-2 item 4; W2-RESOLVE
-§4): `Ξ^c_j(𝔹; 1, ε_j)` with the kernel sequence `a_k` and the complete small-field background
-mass `sfBgMass` of the regime `(k₀, ν)`. -/
+§4; author ruling R6): level `j` lives on `Ξ^c_j(𝔹; 1, ε_j)` with the kernel sequence `a_k` and
+the background mass frozen at the birth scale of the level, `ν_j L^{-2j}` of the regime
+`(k₀, ν)` (`birthXiDom`). -/
 noncomputable def sfDom (P6 : Def6.Consts) (k0 : ℕ) (sf : SFData d L m₁ k N ϱ) :
     ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ :=
-  fun _ _ => xiFieldDom (aIdeal L k (sf.a k)) ((⟨k0, sf.ν⟩ : Regime L).sfBgMass k) (P6.eps d L)
+  birthXiDom P6 (⟨k0, sf.ν⟩ : Regime L) sf.a
 
 /-- **(D2) Small-field data, second version** (LFR (D2) [F-1]; CLASS-RULINGS-2 items 1, 2, 4):
 `𝔰` is a member of Def-6 v2 (`IsSFFamily2`) for the regime `(k₀, ν)` on the wide domain
