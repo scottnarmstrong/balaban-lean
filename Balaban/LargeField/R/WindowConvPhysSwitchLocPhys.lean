@@ -13,7 +13,7 @@ import Mathlib.Tactic.Positivity
 /-!
 # The physical window conversion with the window background (the switch discharged)
 
-`sum_mainActionLoc_eq_gen_of_flow_switchLoc` is `sum_mainActionLoc_eq_gen_of_flow_fieldClauses`
+`sum_mainActionLoc_eq_gen_of_flow_ballAgree` is `sum_mainActionLoc_eq_gen_of_flow_fieldClauses`
 with the free field `φw` of the conclusion replaced by the window background
 `bgFieldC (windowGenSet) ak ν_{m'+1} c₀ (physicalWindowData ψ)` and the premise `hswitch` removed:
 the comparison of the local reference backgrounds `bgFieldC (locGen) ak` of the pieces with the
@@ -23,7 +23,8 @@ local backgrounds (`blockRead_le`, `bondRead_le`, `massRead_le`) and the per-cub
 (`switch_cube_budgets`).  In its place the conclusion assumes, for each piece `i`, the geometric
 agreement on the ball `B(X_i, rad_i)` of the piece region: the layers `Ω_q` (`q ≤ j_i + 2`) of the
 local generating set and of the window generating set agree, the external fields agree and the
-data differ by at most `δ_d` (the agreement proved in `WindowConvPhysGenBall*`), together with
+data differ by at most `δ_d` (the agreement targeted by `WindowConvPhysGenBall*`, a premise here),
+together with
 the standing hypotheses of Theorem 5.2 for the window generating set at the weights `ak`, the real
 domains of the two data, the regime `rad_i ≥ (ϱ_B + 3d) L^{j_i+1} + 2` and the smallness
 `K₁ (δ_l + δ_win) + δ_d ≤ δ_s`.  The switch constant is
@@ -47,7 +48,12 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K}
 
 open Classical in
-theorem sum_mainActionLoc_eq_gen_of_flow_switchLoc (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
+/-- **The physical window conversion at the window background, conditional on the agreement of
+the local and window generating sets (layers, external field, data within `δ_d`) on balls around
+the piece regions** (P7 (2.14)–(2.16)): the conclusion of
+`sum_mainActionLoc_eq_gen_of_flow_fieldClauses` with `φw` the window background and no `hswitch`
+premise. -/
+theorem sum_mainActionLoc_eq_gen_of_flow_ballAgree (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
     {Z : H.Comp (m' + 1)} (hmK : m' + 1 ≤ K) (hd3 : 3 ≤ S.d) (hL3 : 3 ≤ S.L)
     (hL : 2 ≤ S.L) (hR : ∀ i, 1 ≤ i → i < m' + 1 → S.Rb ≤ R i)
     {ϱ : ℝ} (Wp : WindowPieces S.d S.L (M * n (m' + 1)) (m' + 1) ϱ)
