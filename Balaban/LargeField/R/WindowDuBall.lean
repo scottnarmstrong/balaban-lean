@@ -246,6 +246,31 @@ theorem window_card_sites_eq (hmK : m' + 1 ≤ K)
   Finset.card_equiv (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))) fun x => by
     rw [hXw i x, hXc i, torusCast_equivCast_apply]
 
+/-- A site of the local torus within `2 L^j M` of the region of the piece `(j, c)` is the image of a site
+of the window torus within `supDist ≤ 2 L^j M` of a site of the region (in the window torus). -/
+theorem ball_witness {j : ℕ} (hmK : m' + 1 ≤ K) (hj : j ≤ m')
+    {c : H.Comp (j + 1)}
+    {x z : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))}
+    (hz : z ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hzx : Green.torusDist S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)) z x ≤
+      2 * ((S.L : ℝ) ^ j * M)) :
+    ∃ z' : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)),
+      torusCast (piece_torus_eq g H.F.hnn hmK hj) z' ∈ Xfine g (H.locRH (j + 1) c) j c.1 ∧
+      supDist ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK hj))).symm x) z' ≤
+        2 * (S.L ^ j * M) := by
+  set hT := piece_torus_eq g H.F.hnn hmK hj with hhT
+  set e := Equiv.cast (congrArg (Torus S.d) hT) with he
+  have hez : torusCast hT (e.symm z) = z := by
+    rw [← torusCast_equivCast_apply]; exact e.apply_symm_apply z
+  refine ⟨e.symm z, by rw [hez]; exact hz, ?_⟩
+  have hd : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) (e.symm x) (e.symm z) ≤
+      2 * ((S.L : ℝ) ^ j * M) := by
+    rw [torusDist_equivCast_symm hT x z, Green.torusDist_comm_gen]; exact hzx
+  have := supDist_le_torusDist (e.symm x) (e.symm z)
+  have h2 : (supDist (e.symm x) (e.symm z) : ℝ) ≤ ((2 * (S.L ^ j * M) : ℕ) : ℝ) := by
+    push_cast; linarith
+  exact_mod_cast h2
+
 end Ball
 
 section Generic
