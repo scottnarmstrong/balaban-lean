@@ -2643,3 +2643,5 @@ public import Balaban.LargeField.R.WindowConvPhysGenBallWin
 public import Balaban.LargeField.R.WindowConvPhysGenBall
 public import Balaban.Polymer.TwoTorusGapTowerRootFBound
 public import Balaban.Polymer.TwoTorusGapTowerRootFSource
+public import Balaban.Polymer.TwoTorusGapTowerRootFObs
+public import Balaban.Polymer.TwoTorusGapTowerRootFBg
