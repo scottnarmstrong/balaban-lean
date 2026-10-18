@@ -27,7 +27,11 @@ decoupled background and fluctuation fields of the step.
   admissible ray `(x₀, w)` of the box `|ψ̂ q| ≤ c_ψ` (`HatRays`);
   (2) it is bounded there by `|σ| ∑_z [Y ∈ polyDom_z] M_ω 6 |E_sc e^{-2 κ d̃^{cov}(Y)}| / r³`, with
   `E_sc = energyBdScaled … k (K₂' δ₁) δ₁ ρ₄` the scale-uniform block-energy majorant: this is
-  the bound of the step's potential terms (`vpart_locInt_hat_dir_dm_scaled_ray`);
+  the bound of the step's potential terms (`vpart_locInt_hat_dir_dm_scaled_ray`); after the
+  resummation over the blocks (`sum_polyDom_rayBound_le`) it is at most
+  `|σ| (6 M_ω c₁ M^d |E_sc| / r³) e^{-(2κ - 1) d^{cov}(Y)}`, for `M_ω = 1/2` (the Taylor weight) the
+  potential amplitude `3 c₁ M^d |E_sc| / r³` of the step's direct terms (`prop33EpsEtaScaled`)
+  (P6 (4.28));
   (3) at a datum `D` of the step's chart and a datum `D'` of the local chart agreeing with `D` on
   the top layer of `𝔹`, the step's sum at `D` equals `Tl` at `D'`.
   Proof: for each block `z` with `Y ∈ polyDom_z` the block lies in `X₁ ⊆ Y` and hence in the top
@@ -51,6 +55,53 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {ν : ℝ}
+
+/-- **The resummation of the per-block bounds of a domain** (the counting step of the step's
+potential bound, `hat_vpart_bound_dm_dir_scaled_ray`, for a general weight bound `M_ω`).  For a
+level set `𝔹_{k+1}` and per-block cover data with the block `B_{k+1}(z)` inside `X₁(z)`, the number
+of blocks `z` whose label set contains `Y` is at most `c₁ M^d (1 + d̃^{cov}(Y))`
+(`card_blocks_filter_le`), so
+`∑_z [Y ∈ polyDom_z] M_ω 6 |E e^{-2κ d̃^{cov}(Y)}| / r³ ≤ (6 M_ω c₁ M^d |E| / r³) e^{-(2κ - 1) d^{cov}(Y)}`. -/
+theorem sum_polyDom_rayBound_le (hG' : IsLevel Gp (k + 1)) {m₀ : ℕ}
+    {j : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+    {X 𝒦X : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+    {X₁f : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hcov : ∀ z, CovSetup Gp m₀ (j z) (X z) (𝒦X z)) (hd : 3 ≤ d)
+    (hopt : ∀ z, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X z) ∧ MeetsOne m₀ (j z) (𝒦X z) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (j z)) E₀ = treeLenCovOne m₀ (j z) (X z))
+    (hzX : ∀ z, ∀ x ∈ blockSites d L N₁ m₁ (k + 1) k z, x ∈ X1 Gp m₀ (j z) (𝒦X z))
+    {Mω E κd r : ℝ} (hMω : 0 ≤ Mω) (hr : 0 < r) (Y : Set (CTorus d L N₁ m₁ (k + 1))) :
+    (∑ z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))),
+      if Y ∈ polyDom Gp (X₁f z) m₀ (j z) (𝒦X z) then
+        Mω * (6 * ‖E * Real.exp (-2 * κd * treeLenCov Gp m₀ Y)‖ / r ^ 3) else 0) ≤
+      (6 * Mω * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖E‖ / r ^ 3) *
+        Real.exp (-(2 * κd - 1) * treeLenCovOne m₀ (k + 1) Y) := by
+  classical
+  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+  have hCV : 0 ≤ 6 * Mω * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖E‖ / r ^ 3 := by positivity
+  by_cases hex : ∃ z₀, Y ∈ polyDom Gp (X₁f z₀) m₀ (j z₀) (𝒦X z₀)
+  · obtain ⟨z₀, hz₀⟩ := hex
+    have hMD := polyDom_isMultiDom (hcov z₀) hd (hopt z₀) hz₀
+    have hcard : ((Finset.univ.filter fun z => Y ∈ polyDom Gp (X₁f z) m₀ (j z)
+        (𝒦X z)).card : ℝ) ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) :=
+      card_blocks_filter_le hG' le_rfl (hcov z₀).hN hMD _ fun z hz x hx =>
+        subset_polyDom (Finset.mem_filter.1 hz).2 (hzX z x (Finset.mem_coe.1 hx))
+    have hv : 0 ≤ Mω * (6 * ‖E * Real.exp (-2 * κd * treeLenCov Gp m₀ Y)‖ / r ^ 3) := by
+      positivity
+    refine (sum_ite_card_le _ hv hcard).trans ?_
+    rw [norm_mul, Real.norm_of_nonneg (Real.exp_pos _).le,
+      ← treeLenCov_eq_treeLenCovOne hG' m₀ Y]
+    have key := one_add_mul_exp_le (treeLenCov Gp m₀ Y) κd
+    calc c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * (1 + treeLenCov Gp m₀ Y) *
+          (Mω * (6 * (‖E‖ * Real.exp (-2 * κd * treeLenCov Gp m₀ Y)) / r ^ 3))
+        = (6 * Mω * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖E‖ / r ^ 3) *
+          ((1 + treeLenCov Gp m₀ Y) * Real.exp (-2 * κd * treeLenCov Gp m₀ Y)) := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_left key hCV
+  · push Not at hex
+    rw [Finset.sum_eq_zero fun z _ => by simp [hex z]]
+    positivity
 
 /-- **The zero-source term of a domain recomputed on the local generating set of its collar (P6
 Lemma 4.1; P3 pp. 78-79).**  For level sets `𝔹_{k+1}`, `𝔹_k`, per-block decoupled maps `F₁ z`,
@@ -309,6 +360,12 @@ theorem zeroSourceTerm_localB_hat (hG' : IsLevel Gp (k + 1))
               (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
               Real.exp (-2 * κd * treeLenCov Gp m₀ Y)‖ / r ^ 3)
           else 0) ∧
+      (∀ xw ∈ HatRays (N := N) Gp cψ R₁ Rσ r,
+        ∀ Θ ∈ XiCRaw (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν (k + 1) 1 eps',
+        ∀ σ : ℂ, ‖σ‖ < Rσ → ‖Tl xw.1 xw.2 σ Θ‖ ≤ ‖σ‖ *
+          ((6 * Mω * c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d * ‖energyBdScaled d L N (compWeight L a₁) k
+            (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ)‖ / r ^ 3) *
+            Real.exp (-(2 * κd - 1) * treeLenCovOne m₀ (k + 1) Y))) ∧
       (∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
         ∀ D' : BgData (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) N,
         XiCData (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν (k + 1) 1 eps' D' →
@@ -354,7 +411,7 @@ theorem zeroSourceTerm_localB_hat (hG' : IsLevel Gp (k + 1))
     exact localB_collar_margin hk (le_refl (minSep L (L ^ m₁))) hYp (R := {x})
       (fun y hy => (Finset.mem_singleton.1 hy) ▸ hxY) x (Finset.mem_singleton_self x) x
       (by rw [supDist_self]; exact Nat.zero_le _)
-  refine ⟨_, fun _ _ _ _ => rfl, ?_, ?_, ?_⟩
+  refine ⟨_, fun _ _ _ _ => rfl, ?_, ?_, ?_, ?_⟩
   · intro xw hxw p hp
     refine Finset.analyticAt_fun_sum _ fun z _ => ?_
     by_cases hY : Y ∈ polyDom Gp (X₁f z) m₀ (j z) (𝒦X z)
@@ -369,6 +426,28 @@ theorem zeroSourceTerm_localB_hat (hG' : IsLevel Gp (k + 1))
       exact analyticAt_const
   · intro xw hxw Θ hΘ σ hσ
     refine (norm_sum_le _ _).trans ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun z _ => ?_
+    by_cases hY : Y ∈ polyDom Gp (X₁f z) m₀ (j z) (𝒦X z)
+    · simp only [hY, ↓reduceIte]
+      rw [hX₁ z]
+      have hT := evTerm_blockEnergy_localHat_bound_analytic hk1 hk Yp hN hM hagl hS HB' ha₁ ha₂
+        hκ hMc hMX hF₁'an hF₁' hBG₂ h1 hSol'an hSol' heps' hsmall' hc7' hphi' hδ₀e hmarD' hαD'
+        hsm cc hcψ0 hδ₁c (hcov z) HB'.hd HB'.hL (hopt z) hκ₀ hκd hκκ h1κ hlog le_rfl hEb0 z
+        (hzT z hY) (by rw [hΔ z]; simp)
+      refine ((rayTerm_dl3_analytic_bound (hT.2 Y) (hT.1 Y) hR₁ hω hMω hωb hr hxw).2 Θ hΘ σ
+        hσ).trans ?_
+      have e : -κ₀ * treeLenCovOne m₀ (j z) (X z) - 2 * κd * treeLenCov Gp m₀ Y =
+          -2 * κd * treeLenCov Gp m₀ Y := by rw [hΔ z]; ring
+      rw [e]
+      refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left ?_ hMω) (norm_nonneg _)
+      exact div_le_div_of_nonneg_right
+        (mul_le_mul_of_nonneg_left (Real.le_norm_self _) (by norm_num)) (by positivity)
+    · simp [hY]
+  · intro xw hxw Θ hΘ σ hσ
+    refine (norm_sum_le _ _).trans ?_
+    refine le_trans ?_ (mul_le_mul_of_nonneg_left (sum_polyDom_rayBound_le (X₁f := X₁f) hG' hcov
+      HB'.hd hopt hzX hMω hr Y) (norm_nonneg σ))
     rw [Finset.mul_sum]
     refine Finset.sum_le_sum fun z _ => ?_
     by_cases hY : Y ∈ polyDom Gp (X₁f z) m₀ (j z) (𝒦X z)
