@@ -179,13 +179,15 @@ theorem classOldMarkedLocal_rootedMarks_gen_onSet {b : ℝ} (hb₁ : 1 ≤ b) (h
   have hN1 : L ^ 1 ∣ N₁ := (pow_dvd_pow L hm1).trans hN
   refine ⟨fun hmeet => ?_, fun hmiss um hum u hu => ?_⟩
   · have hBdj := bridge_isDj hN1 z hYdj
-    obtain ⟨hdep, -, -, -⟩ := classOldMarkedLocal_blockMarks_gen_onSet (h𝒮 := h𝒮) S hb₁ hbC Eτ hBτ hβ hB hF hG cc
+    obtain ⟨hdep, -, -, -⟩ := classOldMarkedLocal_blockMarks_gen_onSet (h𝒮 := h𝒮)
+        S hb₁ hbC Eτ hBτ hβ hB hF hG cc
       hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd hF₁an hF₁ hSolan
       hSolprop hFkan hFk (S.blockU z) 1 hρ hρc hp
     exact ⟨hBdj, subset_bridge z Y, rootCube_mem_blocksOf_bridge hN1 hL z hYdj hmeet,
       treeLenCovOne_bridge_le hN1 z hYdj, fun Θ hΘ um hum =>
         hdep Y (bridge 1 z Y) (subset_bridge z Y) (cell_subset_of_isDj hN1 hBdj) Θ hΘ um hum⟩
-  · obtain ⟨-, -, -, -, e5, -⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮) hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
+  · obtain ⟨-, -, -, -, e5, -⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮)
+      hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
       S.hG' cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd hF₁an
       hF₁ hSolan hSolprop hFkan hFk (S.blockU z)
     have hnot : ∀ y ∈ Y, unitPt S.hG' y ∉ S.blockU z := by

@@ -266,7 +266,8 @@ theorem e0CoeffFamily_class_fromTower_of_families_red_onSet {κmin : ℝ} (T : S
     hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan
     hSolprop FkL hFkan hFk h𝒮 hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc hρpp hN hm1 hbb hab G₁
     hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC h𝒴dj
-    (classActivityFamily_labelAct_red_onSet (h𝒮 := h𝒮) S hb₁ hbC Eτ Bτ hBτ hβS jL XL Gk Gj X₀ X₁f 𝒦X hB hFl S.hG
+    (classActivityFamily_labelAct_red_onSet (h𝒮 := h𝒮)
+      S hb₁ hbC Eτ Bτ hBτ hβS jL XL Gk Gj X₀ X₁f 𝒦X hB hFl S.hG
       ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀
       hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hN hm1 le_rfl
       (S.blockU z) hρ hρc hp ha1 hbb.le hab 𝒴C h𝒴 h𝒴dj H (fun θ Y u Φ => by rw [hH]) hκ0' hmr

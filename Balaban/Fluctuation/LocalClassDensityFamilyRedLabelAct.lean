@@ -151,7 +151,8 @@ theorem classActivityFamily_labelAct_red_onSet {ι : Type*} [Fintype ι]
     rw [lt_div_iff₀ (by positivity)]; linarith
   have hab' : (δ₁ / (2 * markedRad d L N k a₁ κ cψ cc) + 0) * markedRad d L N k a₁ κ cψ cc < δ₁ :=
     markedRad_radius_admissible d L N k a₁ κ cψ cc hδ₁ hmr
-  obtain ⟨hmeas, hdep, hbd, hhol, hcont, hdiff, hloc⟩ := classActivityFamily_fields_gen_onSet (h𝒮 := h𝒮) S hb₁ hbC
+  obtain ⟨hmeas, hdep, hbd, hhol, hcont, hdiff, hloc⟩ := classActivityFamily_fields_gen_onSet (h𝒮 := h𝒮)
+      S hb₁ hbC
     Eτ Bτ hBτ hβ jL XL Gk Gj X₀ X₁f 𝒦X hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt
     hκ₀ hκdec hκ h1 hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ
     hρc hp ha1 hbb hab 𝒴C h𝒴 H hH
@@ -183,7 +184,8 @@ theorem classActivityFamily_labelAct_red_onSet {ι : Type*} [Fintype ι]
               ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Φ))
         else 0
       else 0, fun _ _ _ _ => rfl⟩
-  have hamp := classActivityFamily_amplitude_gen_onSet (h𝒮 := h𝒮) S hb₁ hbC Eτ Bτ hBτ hβ jL XL Gk Gj X₀ X₁f 𝒦X
+  have hamp := classActivityFamily_amplitude_gen_onSet (h𝒮 := h𝒮)
+      S hb₁ hbC Eτ Bτ hBτ hβ jL XL Gk Gj X₀ X₁f 𝒦X
     hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁
     hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ hρc hp (ha1.trans haa') le_rfl hab'
     𝒴C h𝒴 H' hH'

@@ -306,7 +306,8 @@ theorem e0CoeffFamily_class_fromTower_of_labels_gen_onSet {κmin : ℝ} (T : Ste
     h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ y1 hy1
     hE hAhol hAcont hAdiff hAloc hW hεpos hKc hκG hκH hε
   obtain ⟨F1, hF1, hmeas, hdep, hbd, hhol, hcont, hdiff, hloc, hroot, hid⟩ :=
-    Jr.classMarks_M2_of_family_gen_onSet (h𝒮 := h𝒮) C hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB
+    Jr.classMarks_M2_of_family_gen_onSet (h𝒮 := h𝒮)
+        C hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB
       hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁
       SolL hSolan hSolprop FkL hFkan hFk (fun τ => hSg τ ((hjk τ).trans (Nat.le_succ k))) hc7 hR
       hsmR hRs hsmall hnum hnum' hN hm1 le_rfl

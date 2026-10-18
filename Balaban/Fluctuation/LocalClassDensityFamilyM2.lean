@@ -208,14 +208,16 @@ theorem classMarks_M2_of_family_gen_onSet {ι : Type*} [Fintype ι]
   classical
   have ha : 0 ≤ a := (zero_lt_one.trans ha1).le
   -- the fields, the locality and the identity of the marks family
-  obtain ⟨hmeas, hdep, hbd, hhol, hcont, hdiff, hroot⟩ := classMarksFamily_fields_gen_onSet (h𝒮 := h𝒮) S hb₁ hbC Eτ
+  obtain ⟨hmeas, hdep, hbd, hhol, hcont, hdiff, hroot⟩ := classMarksFamily_fields_gen_onSet (h𝒮 := h𝒮)
+      S hb₁ hbC Eτ
     Bτ hBτ hβ jL XL Gk Gj X₀ X₁f 𝒦X hB hF S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm
     hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan
     hSolprop Fk hFkan hFk hN hm1 hd hL z hρ hρc hp ha hbb hab G₁ (fun θ q u Φ => by rw [hG₁])
   have hloc := classMarksFamily_local_gen S Eτ jL XL Gk Gj X₀ X₁f 𝒦X hB hF S.hG
     ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow F₁ hF₁ Sol
     hSolprop Fk z hρ hρc hp ha1 hbb hab G₁ (fun θ q u Φ => by rw [hG₁])
-  have hae := Jr.classMarksFamily_ae_fderiv_eq_sum_gen_onSet (h𝒮 := h𝒮) C hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj
+  have hae := Jr.classMarksFamily_ae_fderiv_eq_sum_gen_onSet (h𝒮 := h𝒮)
+      C hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj
     hlocE X₀ X₁f 𝒦X hB hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan
     hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum hnum' hN hm1
     hd hL z hρ hρc hρpp hp ha1 hbb hab G₁ hG₁ hEJ hρp hE

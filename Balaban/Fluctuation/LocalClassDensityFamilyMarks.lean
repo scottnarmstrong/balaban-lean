@@ -160,7 +160,8 @@ theorem classMarksFamily_fields_gen_onSet {ι : Type*} [Fintype ι]
   classical
   set CHr := XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps with hCHr
   -- the per-label block marks and rooted marks
-  have hBM := fun τ => classOldMarkedLocal_blockMarks_gen_onSet (h𝒮 := h𝒮 τ) S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ)
+  have hBM := fun τ => classOldMarkedLocal_blockMarks_gen_onSet (h𝒮 := h𝒮 τ)
+      S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ)
     (hF τ) hG cc hcψ hMX hdm hα hsm (hcov τ) (hX₁ τ) hconn hrow (hopt τ) hκ₀ hκdec hκ h1 hlog
     (hEan τ) (hEbd τ) (hF₁an τ) (hF₁ τ) (hSolan τ) (hSolprop τ) (hFkan τ) (hFk τ) (S.blockU z) 1
     hρ hρc hp
@@ -175,7 +176,8 @@ theorem classMarksFamily_fields_gen_onSet {ι : Type*} [Fintype ι]
     exact ⟨h1, h3⟩
   have hRT := fun (q : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
       (fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z}) =>
-    (classOldMarkedLocal_rootedMarks_gen_onSet (h𝒮 := h𝒮 q.1.1) S hb₁ hbC (Eτ q.1.1) (hBτ q.1.1) hβ (hB q.1.1)
+    (classOldMarkedLocal_rootedMarks_gen_onSet (h𝒮 := h𝒮 q.1.1)
+      S hb₁ hbC (Eτ q.1.1) (hBτ q.1.1) hβ (hB q.1.1)
       (hF q.1.1) hG cc hcψ hMX hdm hα hsm (hcov q.1.1) (hX₁ q.1.1) hconn hrow (hopt q.1.1) hκ₀
       hκdec hκ h1 hlog (hEan q.1.1) (hEbd q.1.1) (hF₁an q.1.1) (hF₁ q.1.1) (hSolan q.1.1)
       (hSolprop q.1.1) (hFkan q.1.1) (hFk q.1.1) hN hm1 hd hL z hρ hρc hp (hmemq q).1).1 (hmemq q).2
@@ -652,7 +654,8 @@ theorem classMarksFamily_sum_eq_deriv_gen_onSet {ι : Type*} [Fintype ι]
       by_contra hne
       exact hnot (mem_markedIdx.2 ⟨hY, ⟨rootSite z, trivial, rootSite_mem_fineBlock z⟩,
         Set.nonempty_iff_ne_empty.2 hne⟩)
-    have h0 := (classOldMarkedLocal_rootedMarks_gen_onSet (h𝒮 := h𝒮 τ) S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ) (hF τ)
+    have h0 := (classOldMarkedLocal_rootedMarks_gen_onSet (h𝒮 := h𝒮 τ)
+        S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ) (hF τ)
       S.hG ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm (hcov τ) (hX₁ τ) hconn hrow
       (hopt τ) hκ₀ hκdec hκ h1 hlog (hEan τ) (hEbd τ) (hF₁an τ) (hF₁ τ) (hSolan τ) (hSolprop τ)
       (hFkan τ) (hFk τ) hN hm1 hd hL z hρ hρc hp hY).2 hmiss
@@ -660,7 +663,8 @@ theorem classMarksFamily_sum_eq_deriv_gen_onSet {ι : Type*} [Fintype ι]
     show (S.β : ℂ) * _ = 0
     rw [h0, mul_zero]
   -- the mark identity of every label
-  have hid := fun τ => Jr.deriv_classLabel_PJ_eq_sum_marked_joint_gen_onSet (h𝒮 := h𝒮 τ) hb₁ hbC (Eτ τ) (hBτ τ)
+  have hid := fun τ => Jr.deriv_classLabel_PJ_eq_sum_marked_joint_gen_onSet (h𝒮 := h𝒮 τ)
+      hb₁ hbC (Eτ τ) (hBτ τ)
     (hj1 τ) (hjk τ) (hlocE τ) (hS τ) (hB τ) (hF τ) hc7 hR hsmR hRs hsmall hnum hnum' hcψ hMX hdm
     hα hsm (hcov τ) (hX₁ τ) hconn hrow (hopt τ) hκ₀ hκdec hκ h1 hlog (hEan τ) (hEbd τ) hβ
     (hF₁an τ)

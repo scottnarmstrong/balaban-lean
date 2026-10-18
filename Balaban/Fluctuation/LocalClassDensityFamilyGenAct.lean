@@ -139,7 +139,8 @@ theorem classOldMarkedLocal_blockActs_gen_onSet {b : ℝ} (hb₁ : 1 ≤ b) (hbC
           ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf mb ρ hp Φ))
         (physV S a₁ ν eps ×ˢ
           {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
-  obtain ⟨-, e2, e3, -, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮) hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
+  obtain ⟨-, e2, e3, -, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮)
+      hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
     S.hG' cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd hF₁an hF₁
     hSolan hSolprop hFkan hFk Zm
   exact evDec_hatOf_value_fields S mb F₁ Sol (B := fun Y => (β⁻¹ * Bτ) *
@@ -380,7 +381,8 @@ theorem classActivityFamily_fields_gen_onSet {ι : Type*} [Fintype ι]
   set CHr := XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps with hCHr
   have hN1 : L ^ 1 ∣ N₁ := (pow_dvd_pow L hm1).trans hN
   have ha0 : 0 < a := zero_lt_one.trans ha1
-  have hBA := fun τ => classOldMarkedLocal_blockActs_gen_onSet (h𝒮 := h𝒮 τ) S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ)
+  have hBA := fun τ => classOldMarkedLocal_blockActs_gen_onSet (h𝒮 := h𝒮 τ)
+      S hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ)
     (hF τ) hG cc hcψ hMX hdm hα hsm (hcov τ) (hX₁ τ) hconn hrow (hopt τ) hκ₀ hκdec hκ h1 hlog
     (hEan τ) (hEbd τ) (hF₁an τ) (hF₁ τ) (hSolan τ) (hSolprop τ) (hFkan τ) (hFk τ) Zm 1 hρ hρc hp
   have hW : ∀ τ (u : ℂ), ‖u‖ ≤ a →

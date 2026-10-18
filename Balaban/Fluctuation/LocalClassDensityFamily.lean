@@ -377,7 +377,8 @@ theorem classOldMarkedLocal_blockMarks_gen_onSet {b : ℝ} (hb₁ : 1 ≤ b) (hb
               (fun r => (β : ℂ)⁻¹ * Eτ r)) Zm p.2 t Y
             ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf mb ρ hp Φ)) 0)
           (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
-  obtain ⟨-, e2, e3, e4, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮) hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
+  obtain ⟨-, e2, e3, e4, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮)
+      hb₁ hbC Eτ hBτ hβ hB hF S.hk1 hG
     S.hG' cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd hF₁an hF₁ hSolan hSolprop hFkan hFk Zm
   obtain ⟨-, hJ4, -⟩ := markedEv_physV_of_joint S (flCore_of hB hF) cc Zm
     (B := fun Y => (β⁻¹ * Bτ) *
@@ -711,7 +712,8 @@ theorem deriv_classLabel_PJ_eq_sum_marked_joint_gen_onSet {b : ℝ} (hb₁ : 1 �
             S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))))) 0 := by
   refine Jr.deriv_classLabel_PJ_eq_sum_marked_of_gen Eτ hj1 hjk hlocE hS hB hF hc7 hR hsmR hRs
     hsmall hnum hnum' hcψ hMX hdm hα hsm hβ (𝒦X := 𝒦X) (fun z => ?_)
-  obtain ⟨e1, -, -, -, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮) hb₁ hbC Eτ hBτ hβ hB hF S.hk1 S.hG
+  obtain ⟨e1, -, -, -, -, hJ⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮)
+      hb₁ hbC Eτ hBτ hβ hB hF S.hk1 S.hG
     S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀
     hκdec hκ h1 hlog hEan hEbd hF₁an hF₁ hSolan hSolprop hFkan hFk (S.blockU z)
   refine ⟨fun um tm hw D hD ψh hψh => ?_, fun Y u hu w hw => ?_⟩

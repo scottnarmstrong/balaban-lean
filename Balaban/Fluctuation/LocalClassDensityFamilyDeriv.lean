@@ -159,7 +159,8 @@ theorem classMarksFamily_fderiv_eq_sum_gen_onSet {ι : Type*} [Fintype ι]
   classical
   intro D hD s hs x hx hE
   -- the sum identity of the marks
-  have hsum := Jr.classMarksFamily_sum_eq_deriv_gen_onSet (h𝒮 := h𝒮) hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj hlocE
+  have hsum := Jr.classMarksFamily_sum_eq_deriv_gen_onSet (h𝒮 := h𝒮)
+      hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj hlocE
     X₀ X₁f 𝒦X hB hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁
     hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum hnum' hN hm1 hd hL z
     hρ hρc hρpp hp ha1 hbb hab G₁ (fun θ q u Φ => by rw [hG₁]) D hD s hs x hx
@@ -202,7 +203,8 @@ theorem classMarksFamily_fderiv_eq_sum_gen_onSet {ι : Type*} [Fintype ι]
   show deriv (fun t : ℂ => Jr.EJ C (rawOf D, (s : ℂ) • yhat x + t •
     ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x)))) 0 = _
   rw [hfun, deriv_fun_sum fun τ _ => ?_]
-  exact (Jr.deriv_classLabel_PJ_eq_sum_marked_joint_gen_onSet (h𝒮 := h𝒮 τ) hb₁ hbC (Eτ τ) (hBτ τ) (hj1 τ) (hjk τ)
+  exact (Jr.deriv_classLabel_PJ_eq_sum_marked_joint_gen_onSet (h𝒮 := h𝒮 τ)
+      hb₁ hbC (Eτ τ) (hBτ τ) (hj1 τ) (hjk τ)
     (hlocE τ) (hS τ) (hB τ) (hF τ) hc7 hR hsmR hRs hsmall hnum hnum' hcψ hMX hdm hα hsm (hcov τ)
     (hX₁ τ) hconn hrow (hopt τ) hκ₀ hκdec hκ h1 hlog (hEan τ) (hEbd τ) hβ (hF₁an τ) (hF₁ τ)
     (hSolan τ) (hSolprop τ) (hFkan τ) (hFk τ) D hD z x hyx (s : ℂ) hspp (hsr τ)).2
@@ -608,7 +610,8 @@ theorem classMarksFamily_ae_fderiv_eq_sum_gen_onSet {ι : Type*} [Fintype ι]
           (0 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) q (s : ℂ) ((S.blockSplit 1 hp).restr x) := by
   intro D hD s hs
   filter_upwards [S.ae_norm_nuFl hp] with x hx
-  have key := Jr.classMarksFamily_fderiv_eq_sum_gen_onSet (h𝒮 := h𝒮) C hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj
+  have key := Jr.classMarksFamily_fderiv_eq_sum_gen_onSet (h𝒮 := h𝒮)
+      C hb₁ hbC Eτ Bτ hBτ hβ jL XL hj1 hjk Gk Gj
     hlocE X₀ X₁f 𝒦X hB hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan
     hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum hnum' hN hm1
     hd hL z hρ hρc hρpp hp ha1 hbb hab G₁ hG₁ hEJ

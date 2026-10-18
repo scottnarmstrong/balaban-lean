@@ -200,7 +200,8 @@ theorem classActivityFamily_sum_eq_gen_onSet {ι : Type*} [Fintype ι]
       (hB τ) (hF τ) hc7 hR hsmR hRs hsmall hnum hnum' hcψ hMX hdm hα hsm hβ hD z x hyx s' 0 hw hum
     rw [zero_smul, add_zero] at key
     rw [key]
-    obtain ⟨e1, -⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮 τ) hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ) (hF τ)
+    obtain ⟨e1, -⟩ := classOldMarkedLocal_joint_gen_onSet (h𝒮 := h𝒮 τ)
+        hb₁ hbC (Eτ τ) (hBτ τ) hβ (hB τ) (hF τ)
       S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm (hcov τ) (hX₁ τ)
       hconn hrow (hopt τ) hκ₀ hκdec hκ h1 hlog (hEan τ) (hEbd τ) (hF₁an τ) (hF₁ τ) (hSolan τ) (hSolprop τ) (hFkan τ) (hFk τ) (S.blockU z)
     rw [e1 s' 0 hum D hD (yhat x) hyx]
@@ -633,7 +634,8 @@ theorem classActivityFamily_ae_W1_eq_gen_onSet {ι : Type*} [Fintype ι]
             ((S.blockSplit 1 hp).restr x) := by
   intro D hD s hs
   filter_upwards [S.ae_norm_nuFl hp] with x hx
-  rw [Jr.W1_eq_zeroClass_add_EJ C, Jr.classActivityFamily_sum_eq_gen_onSet (h𝒮 := h𝒮) C hb₁ hbC Eτ Bτ hBτ hβ jL XL
+  rw [Jr.W1_eq_zeroClass_add_EJ C, Jr.classActivityFamily_sum_eq_gen_onSet (h𝒮 := h𝒮)
+      C hb₁ hbC Eτ Bτ hBτ hβ jL XL
     hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1
     hlog hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hS hc7 hR hsmR hRs hsmall hnum
     hnum' z hρ hρc hρpp hp ha1 hbb hab 𝒴C h𝒴 H hH hEJ D hD s hs x

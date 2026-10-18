@@ -173,7 +173,8 @@ theorem classActivityFamily_amplitude_gen_onSet {ι : Type*} [Fintype ι]
           2 * Bτ τ * Real.exp (-κ₀ * treeLenCovOne m₀ (jL τ) (XL τ) -
             2 * κdec * treeLenCov S.G' m₀ Y.1)
         else 0 := by
-  obtain ⟨-, -, hbd, -, -, hhol, -⟩ := classActivityFamily_fields_gen_onSet (h𝒮 := h𝒮) S hb₁ hbC Eτ Bτ hBτ hβ jL
+  obtain ⟨-, -, hbd, -, -, hhol, -⟩ := classActivityFamily_fields_gen_onSet (h𝒮 := h𝒮)
+      S hb₁ hbC Eτ Bτ hBτ hβ jL
     XL Gk Gj X₀ X₁f 𝒦X hB hF hG cc hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog
     hEan hEbd F₁ hF₁an hF₁ Sol hSolan hSolprop Fk hFkan hFk hN hm1 hd Zm hρ hρc hp ha1 hbb hab 𝒴C
     h𝒴 H hH
