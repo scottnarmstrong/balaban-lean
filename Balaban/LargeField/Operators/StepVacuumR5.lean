@@ -23,7 +23,7 @@ variable {S : Setting} {n : ℕ → ℕ} {M K : ℕ}
 
 /-- The three volumes occurring in the creating-step vacuum contribution. -/
 noncomputable def stepVacuumVolume (a : LocalHistory S n M K) (k : ℕ) : ℝ :=
-  volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k) +
+  volScale S k ((a.Z k)ᶜ \ a.Omega k) +
     volScale S k (a.Omega k \ a.OmegaDD k) +
       volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
 
@@ -52,7 +52,7 @@ theorem norm_stepVacuumTerm_ref_sub_le (a : LocalHistory S n M K) (k : ℕ)
     (hEpp : |Eref - Epp| ≤ D) (hEppp : |Eref - Eppp| ≤ D) :
     ‖(stepVacuumTerm a k (Eref - Ek) (Eref - Epp) (Eref - Eppp) : ℂ)‖ ≤
       D * stepVacuumVolume a k := by
-  let v1 := volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k)
+  let v1 := volScale S k ((a.Z k)ᶜ \ a.Omega k)
   let v2 := volScale S k (a.Omega k \ a.OmegaDD k)
   let v3 := volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
   have hv1 : 0 ≤ v1 := by unfold v1 volScale; positivity
@@ -86,9 +86,10 @@ theorem StepData.b_add_vac {R : ℕ → ℝ} {k0 N : ℕ} {geo : Geo S n R M}
   rw [SD.b_vac]
   ring
 
-/-- The exact normalized per-block bound.  Taking `D = C (log β_k + 1)` and using the
-geometric identity `stepVacuumVolume = |Z_{k+1} ∖ Z_k|_k` gives the source's
-`O(log β_k + 1)` estimate.  The three difference estimates are explicit premises. -/
+/-- The exact normalized per-block bound.  Taking `D = C (log β_k + 1)`, the vacuum part is
+`D * V` with `V = stepVacuumVolume` the volume of the three regions of P6 (3.2), which is the
+source's `O(log β_k + 1)` per-block estimate once `V` is compared with the removed volume
+(`stepVacuumVolume_eq_add_excess`).  The three difference estimates are explicit premises. -/
 theorem StepData.b_ref_bound {R : ℕ → ℝ} {k0 N : ℕ} {geo : Geo S n R M}
     {cs : OpConsts} {κs : ℕ → LocalHistory S n M K → ℝ}
     (SD : StepData k0 geo cs N κs) (H : RegionHistory S n R k0 K)

@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowCloseHbG
+public import Balaban.LargeField.R.WindowDuQuotPt
 
 /-!
 # The quotient bound at the data of a point (blocker 4, W1004)
@@ -424,39 +425,8 @@ theorem window_hbG_quot :
           ActionConv.constNat N (betaK S.d S.L (m' + 1) β0) aN Zb /
           ActionConv.constNat N (betaK S.d S.L (m' + 1) β0) (compWeightZ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) a₁) Zb /
           (∫ u, rhoZeroRestricted (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hTube
-            Zr 0 (0 : Fin N → ℝ) β0 p0 u) ≤ Real.exp ((N : ℝ) / 2 * Real.log (betaK S.d S.L (m' + 1) β0) * ((boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card : ℝ) + CEt * (D0 : ℝ) ^ S.d + Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + ((9 * Real.exp (2 * η) * Kconv / (1 - (S.L : ℝ) ^ (-(2 * γ))) + Kbg) * ∑ i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))), (decomp i).total)) := by
-  classical
-  have hfld' : fld = fun v s y => subVarField N (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y :=
-    funext fun v => funext fun s => funext fun y => hfld v s y
-  have hft' : ft = fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
-      ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
-        (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
-          (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y :=
-    funext fun v => funext fun y => hft v y
-  subst hfld' hft'
-  have hV2' : ∀ y, y ∈ V2 → P2 y → y ∉ Z0 := fun y h1 h2 => (hV2 y h1 h2).2.2
-  have hβG : 0 < betaK S.d S.L (m' + 1) β0 := by
-    unfold betaK
-    have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
-    positivity
-  have hnamed' := hnamed hv par wd cc ro sh a nd' w' _ _ (fun _ _ _ => rfl) (fun _ _ => rfl) hw hTBp D hDh hD0
-    (fun x hx hxl i => hR1 x hx hxl i) (fun x hx hxl i => hR2 x hx hxl i)
-  have hZbpos0 : ∀ z ∈ Zb, 0 < aN z := fun z hz => (mul_pos_iff_of_pos_left hβG).mp (hpos z hz)
-  have hha : ∀ j, 0 ≤ compWeight S.L a₁ j := compWeight_nonneg H.F.ok.two_le_L ha₁
-  have hL2 : 2 ≤ S.L := H.F.ok.two_le_L
-  obtain ⟨-, hQin⟩ := hnamed'
-  obtain ⟨hDat, hφ, hDuDom, hA0, hb, hst, hnu, hnat⟩ := hQin (fun (z : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1)))) (i : Fin N) =>
-        outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (0, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2))
-          (torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) z) i) hTube hψoutz ψ0 hψ0 Dpp Zp hZp hDpp Zb hZb ψk hψkD
-    aN haNf
-  have hbgR := fun p => bgField_im_of_inUnionDomainR Hbg0 hDuDom p
-  have hAmono := re_actionRegionC_mono Xwin Dpp hDppX hha le_rfl hDreal
-    hbgR hβ0.le
-  have hquot := window_quot_hist geo cs hm hMS G h18 h3 hW hk1def Z0 V2 P2 hV2' hZ0g hV2full hβ0 ha₁ hd hk b0 wb hw1 hwD hmD
-    hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs _ _ hTube
-    hψoutz ψ0 hψ0 D hDh hR2 Dpp Zp hZp hDpp Zb hZb ψk hψkD aN hZbpos0 hDat hφ hDuDom hA0 hb hst hnu hnat
-    ((9 * Real.exp (2 * η) * Kconv / (1 - (S.L : ℝ) ^ (-(2 * γ))) + Kbg) * ∑ i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))), (decomp i).total)
-  exact ⟨_, hAmono, hquot⟩
+            Zr 0 (0 : Fin N → ℝ) β0 p0 u) ≤ Real.exp ((N : ℝ) / 2 * Real.log (betaK S.d S.L (m' + 1) β0) * ((boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card : ℝ) + CEt * (D0 : ℝ) ^ S.d + Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + ((9 * Real.exp (2 * η) * Kconv / (1 - (S.L : ℝ) ^ (-(2 * γ))) + Kbg) * ∑ i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))), (decomp i).total)) :=
+  window_hbG_quot_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp (fun _ _ _ _ _ _ _ _ _ _ _ => 0) (fun _ _ _ _ _ _ _ _ _ _ _ _ => rfl) (window_hbG_namedC geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv) hQtotv hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp D ψk aN hDreal hpos hψkD hR1 hR2 hDh (fun x hx i => by simpa using hD0 x hx i) haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX
 
 end QuotPt
 
