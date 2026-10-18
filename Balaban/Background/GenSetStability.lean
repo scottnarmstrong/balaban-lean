@@ -74,10 +74,22 @@ theorem genSet_stability_main {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
     (hunitl : IsRealUnitField Gl φl) (hsw : IsEL Gw a ν Dw φw αw)
     (hbw : BgBounds Gw Dw φw αw (bgK1 d L N * δw'))
     (hr : (ϱB + 3 * d) * (L : ℝ) ^ kl + 2 ≤ r)
-    (y : Gl.Ω 1) (hy : (y : Torus d (N₁ * L ^ m₁ * L ^ kl)) ∈ X) (i : Fin N) :
-    ‖transportField (Gl := Gl) e Dw.Ψ φw (y, i) - φl (y, i)‖ ≤
+    (y : Gl.Ω 1) (hy : (y : Torus d (N₁ * L ^ m₁ * L ^ kl)) ∈ X) :
+    (∀ i, ‖transportField (Gl := Gl) e Dw.Ψ φw (y, i) - φl (y, i)‖ ≤
       Kw * (cF d L * (9 * (bgK1 d L N * (δl + δw') + δd) *
-        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))) + δd)) := by
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))) + δd))) ∧
+    (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₁ * L ^ m₁ * L ^ kl)) *
+      ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ φw p - φl p)
+          ((y : Torus d (N₁ * L ^ m₁ * L ^ kl)) + Pi.single μ 1) i -
+        svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ φw p - φl p) y i‖ ≤
+      Kw * (cF d L * (9 * (bgK1 d L N * (δl + δw') + δd) *
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))) + δd))) ∧
+    (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₁ * L ^ m₁ * L ^ kl)) *
+      ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ φw p - φl p)
+          ((y : Torus d (N₁ * L ^ m₁ * L ^ kl)) - Pi.single μ 1) i -
+        svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ φw p - φl p) y i‖ ≤
+      Kw * (cF d L * (9 * (bgK1 d L N * (δl + δw') + δd) *
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))) + δd))) := by
   have hd3 : 3 ≤ d := H.hd
   have hL2 : 2 ≤ L := by have := H.hL; omega
   have hK1 := bgK1_pos d L N
@@ -153,18 +165,24 @@ theorem genSet_stability_main {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
   -- the site `y`
   have hlk : Gl.layerIndex (y : CTorus d L N₁ m₁ kl) ≤ kl := layerIndex_le_top Gl _
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  have hyB : (y : CTorus d L N₁ m₁ kl) ∈ GB.Ω 1 := by
-    refine (restrictGen_layerIndex_eq hGB y.2 fun y' hy' => ⟨y, hy, ?_⟩).1
-    have h1 := torusDist_le_of_mem_blk Gl hlk hy'
-    have h2 : (L : ℝ) ^ Gl.layerIndex (y : CTorus d L N₁ m₁ kl) ≤ (L : ℝ) ^ kl :=
-      pow_le_pow_right₀ hL1 hlk
+  -- the sites within distance `1` of `X`: in `Ω^B_1` (if in `Ω^l_1`) with the same layer
+  have hdeep1 : ∀ z : CTorus d L N₁ m₁ kl, Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) y z ≤ 1 →
+      z ∈ Gl.Ω 1 → z ∈ GB.Ω 1 ∧ GB.layerIndex z = Gl.layerIndex z := by
+    intro z hyz hz1
+    refine restrictGen_layerIndex_eq hGB hz1 fun y' hy' => ⟨y, hy, ?_⟩
+    have hlz : Gl.layerIndex z ≤ kl := layerIndex_le_top Gl z
+    have h1 := torusDist_le_of_mem_blk Gl hlz hy'
+    have h0 := torusDist_triangle' (d := d) (L := L) (N₀ := N₁ * L ^ m₁) (k := kl) y z y'
+    have h2 : (L : ℝ) ^ Gl.layerIndex z ≤ (L : ℝ) ^ kl := pow_le_pow_right₀ hL1 hlz
     have h3 : 0 ≤ ϱB + 2 * d := by positivity
-    have h4 : (ϱB + 2 * d) * (L : ℝ) ^ Gl.layerIndex (y : CTorus d L N₁ m₁ kl) ≤
-        (ϱB + 2 * d) * (L : ℝ) ^ kl := mul_le_mul_of_nonneg_left h2 h3
+    have h4 : (ϱB + 2 * d) * (L : ℝ) ^ Gl.layerIndex z ≤ (ϱB + 2 * d) * (L : ℝ) ^ kl :=
+      mul_le_mul_of_nonneg_left h2 h3
     have h5 : 0 ≤ (d : ℝ) * (L : ℝ) ^ kl := by positivity
-    show _ ≤ r₀ - (ϱB + d) * (L : ℝ) ^ Gl.layerIndex (y : CTorus d L N₁ m₁ kl)
+    show _ ≤ r₀ - (ϱB + d) * (L : ℝ) ^ Gl.layerIndex z
     rw [hr₀def]
     nlinarith
+  have hyB : (y : CTorus d L N₁ m₁ kl) ∈ GB.Ω 1 :=
+    (hdeep1 y (by rw [torusDist_self']; norm_num) y.2).1
   have hLk : (0 : ℝ) < (L : ℝ) ^ kl := by positivity
   set D₀ : ℝ := (r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl with hD₀def
   have hD₀ : 0 ≤ D₀ := div_nonneg (by linarith) hLk.le
@@ -176,11 +194,40 @@ theorem genSet_stability_main {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
   have hφ₀ : ∀ (x : GB.Ω 1) i, barField Gl Dl.Ψ φl x i = hp.restrictφ φl (x, i) := fun x i => by
     simp [barField, Precedes.restrictφ, hp.mem_Ω1 x.2]
     rfl
-  have key := twoEL_near_far hW hS hOp hELB hELB' hhB hsmallB hφ₀ hP hδ₀w hmin.2 _ hδd hnear
-    hD₀ ⟨y, hyB⟩ hdist i
+  obtain ⟨kv, kf, kb⟩ := twoEL_near_far hW hS hOp hELB hELB' hhB hsmallB hφ₀ hP hδ₀w hmin.2 _
+    hδd hnear hD₀ ⟨y, hyB⟩ hdist
   have e1 : hp.incl ⟨(y : CTorus d L N₁ m₁ kl), hyB⟩ = y := Subtype.ext rfl
-  simp only [Precedes.restrictφ, e1] at key
-  exact key
+  have hsp : GB.spacing (y : CTorus d L N₁ m₁ kl) = Gl.spacing (y : CTorus d L N₁ m₁ kl) := by
+    unfold GeneratingSet.spacing
+    rw [(hdeep1 y (by rw [torusDist_self']; norm_num) y.2).2]
+  have hsv : ∀ z : CTorus d L N₁ m₁ kl, Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) y z ≤ 1 →
+      ∀ i, svec GB (hp.restrictφ (transportField (Gl := Gl) e Dw.Ψ φw) - hp.restrictφ φl) z i =
+        svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ φw p - φl p) z i := by
+    intro z hz i
+    by_cases hz1 : z ∈ Gl.Ω 1
+    · have hzB := (hdeep1 z hz hz1).1
+      rw [svec_of_mem GB _ ⟨z, hzB⟩ i, svec_of_mem Gl _ ⟨z, hz1⟩ i]
+      rfl
+    · have hzB : z ∉ GB.Ω 1 := fun h => hz1 (hp.mem_Ω1 h)
+      rw [svec_of_not_mem GB _ hzB i, svec_of_not_mem Gl _ hz1 i]
+  have hd0 : Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) y y ≤ 1 := by
+    rw [torusDist_self']; norm_num
+  have hdp : ∀ μ : Fin d, Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) y
+      ((y : CTorus d L N₁ m₁ kl) + Pi.single μ 1) ≤ 1 := fun μ =>
+    Adj.torusDist_le (adj_add_single _ μ)
+  have hdm : ∀ μ : Fin d, Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) y
+      ((y : CTorus d L N₁ m₁ kl) - Pi.single μ 1) ≤ 1 := fun μ =>
+    Adj.torusDist_le (adj_sub_single _ μ)
+  refine ⟨fun i => ?_, fun μ i => ?_, fun μ i => ?_⟩
+  · have := kv i
+    simp only [Pi.sub_apply, Precedes.restrictφ, e1] at this
+    exact this
+  · have := kf μ i
+    rw [hsp, hsv _ (hdp μ) i, hsv _ hd0 i] at this
+    exact this
+  · have := kb μ i
+    rw [hsp, hsv _ (hdm μ) i, hsv _ hd0 i] at this
+    exact this
 
 end Core
 
@@ -236,8 +283,8 @@ theorem genSet_stability_core {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
       have h2 := (bgC1_facts d L N hd0 hδw).2.2.2
       have h3 := bgC0_le_c6 d L N
       linarith
-    have hm := genSet_stability_main hW Gl Gw e H hϱB0 hsepB hϱB hk he hblk X r hag hδl0.le
-      hδw0.le hδd hΨ hh hsmall hc6 hsl.1 hbl hunitl hsw.1 hbw hr y hy i
+    have hm := (genSet_stability_main hW Gl Gw e H hϱB0 hsepB hϱB hk he hblk X r hag hδl0.le
+      hδw0.le hδd hΨ hh hsmall hc6 hsl.1 hbl hunitl hsw.1 hbw hr y hy).1 i
     have hE1 : E ≤ 1 := by
       rw [hE, Real.exp_le_one_iff, neg_nonpos]
       exact mul_nonneg hγ (div_nonneg (by linarith) hLk.le)
@@ -319,6 +366,143 @@ theorem genSet_stability (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
     δl δw δd hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh hsm y hy i
   exact genSet_stability_core hW hKw.le (N₁ := N₀l) (m₁ := 0) (by simp) Gl Gw e H Hw hϱB0 hsepB
     hϱB hk he hblk X r hr0 hag hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh (by linarith) y hy i
+
+/-- The bound of the main case in the form `K (δ_d + (δ_l + δ_w) E)`, `E ≤ 1`. -/
+theorem stab_bound_le {Kw c K₁ δl δw δd E : ℝ} (hKw : 0 ≤ Kw) (hc : 0 ≤ c) (hK₁ : 0 ≤ K₁)
+    (hδ : 0 ≤ δl + δw) (hδd : 0 ≤ δd) (hE0 : 0 ≤ E) (hE1 : E ≤ 1) :
+    Kw * (c * (9 * (K₁ * (δl + δw) + δd) * E + δd)) ≤
+      Kw * c * 10 * (K₁ + 1) * (δd + (δl + δw) * E) := by
+  have hin : 9 * (K₁ * (δl + δw) + δd) * E + δd ≤ 10 * (K₁ + 1) * (δd + (δl + δw) * E) := by
+    have a1 : δd * E ≤ δd := mul_le_of_le_one_right hδd hE1
+    have a2 : 0 ≤ (δl + δw) * E := mul_nonneg hδ hE0
+    have a3 : 0 ≤ K₁ * δd := mul_nonneg hK₁ hδd
+    nlinarith
+  calc Kw * (c * (9 * (K₁ * (δl + δw) + δd) * E + δd))
+      = (Kw * c) * (9 * (K₁ * (δl + δw) + δd) * E + δd) := by ring
+    _ ≤ (Kw * c) * (10 * (K₁ + 1) * (δd + (δl + δw) * E)) :=
+        mul_le_mul_of_nonneg_left hin (mul_nonneg hKw hc)
+    _ = _ := by ring
+
+/-- **Stability with the difference quotients** (main regime `r ≥ (ϱ_B + 3d) L^{k_l} + 2`), with
+the constants of the weighted Proposition 5.1: for `y ∈ X ∩ Ω^l_1` the difference
+`w = φ_w ∘ e⁻¹ - φ_l` satisfies `|w(y)|, ℓ(y) |∂w(y)| ≤ K (δ_d + (δ_l + δ_w) e^{-γ_w D₀})`. -/
+theorem genSet_stability_grad_core {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw) (hKw : 0 ≤ Kw)
+    {N₀l kl N₀w kw N₁ m₁ : ℕ} [NeZero N₀l] [NeZero N₀w] [NeZero N₁] (hN : N₀l = N₁ * L ^ m₁)
+    {ϱl ϱw ϱB : ℝ} (Gl : GeneratingSet d L N₀l kl ϱl) (Gw : GeneratingSet d L N₀w kw ϱw)
+    (e : Torus d (N₀w * L ^ kw) ≃ Torus d (N₀l * L ^ kl)) {a : ℕ → ℝ} {ν : ℝ}
+    (H : BgHyp d L kl ϱl a ν) (Hw : BgHyp d L kw ϱw a ν) (hϱB0 : bgR0 d L ≤ ϱB)
+    (hsepB : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱB - 1)) (hϱB : ϱB ≤ ϱl) (hk : kl ≤ kw)
+    (he : ∀ x μ, e (x + Pi.single μ 1) = e x + Pi.single μ 1)
+    (hblk : ∀ n, n ≤ kl → ∀ x y, jBlock d L N₀l kl n x = jBlock d L N₀l kl n y ↔
+      jBlock d L N₀w kw n (e.symm x) = jBlock d L N₀w kw n (e.symm y))
+    (X : Finset (Torus d (N₀l * L ^ kl))) (r : ℝ) (hr : (ϱB + 3 * d) * (L : ℝ) ^ kl + 2 ≤ r)
+    (hag : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+      ∀ n, 1 ≤ n → n ≤ kl + 1 → (x ∈ Gl.Ω n ↔ e.symm x ∈ Gw.Ω n))
+    {Dl : BgData Gl N} {Dw : BgData Gw N} {δl δw' δd : ℝ}
+    (hδl0 : 0 < δl) (hδl : δl ≤ bgC1 d L N) (hDl : InDomainR Gl ν δl Dl)
+    (hδw0 : 0 < δw') (hδw : δw' ≤ bgC1 d L N) (hDw : InDomainR Gw ν δw' Dw) (hδd : 0 ≤ δd)
+    (hΨ : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+      vn (fun i => Dl.Ψ x i - Dw.Ψ (e.symm x) i) ≤ δd)
+    (hh : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) → Dl.h x = Dw.h (e.symm x))
+    (hsmall : 9 * (bgK1 d L N * (δl + δw') + δd) ≤ min (deltaStar d L N) δw)
+    (y : Gl.Ω 1) (hy : (y : Torus d (N₀l * L ^ kl)) ∈ X) :
+    (∀ i, ‖transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) (y, i) -
+        bgFieldC Gl a ν (bgC0 d L N) Dl (y, i)‖ ≤
+      Kw * cF d L * 10 * (bgK1 d L N + 1) * (δd + (δl + δw') *
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) ∧
+    (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₀l * L ^ kl)) *
+      ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+            bgFieldC Gl a ν (bgC0 d L N) Dl p) ((y : Torus d (N₀l * L ^ kl)) + Pi.single μ 1) i -
+        svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+            bgFieldC Gl a ν (bgC0 d L N) Dl p) y i‖ ≤
+      Kw * cF d L * 10 * (bgK1 d L N + 1) * (δd + (δl + δw') *
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) ∧
+    (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₀l * L ^ kl)) *
+      ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+            bgFieldC Gl a ν (bgC0 d L N) Dl p) ((y : Torus d (N₀l * L ^ kl)) - Pi.single μ 1) i -
+        svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+            bgFieldC Gl a ν (bgC0 d L N) Dl p) y i‖ ≤
+      Kw * cF d L * 10 * (bgK1 d L N + 1) * (δd + (δl + δw') *
+        Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) := by
+  subst hN
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hK1 := bgK1_pos d L N
+  have hcF := cF_pos d L
+  have hγ := gammaW_nonneg hd0
+  obtain ⟨φl, αl, hsl, hbl, hul, hunitl, -, -⟩ := bg_real H hδl0 hδl hDl
+  obtain ⟨φw, αw, hsw, hbw, huw, -, -, -⟩ := bg_real Hw hδw0 hδw hDw
+  rw [(bgFieldC_eq hsl hul).1, (bgFieldC_eq hsw huw).1]
+  have hLk : (0 : ℝ) < (L : ℝ) ^ kl := by
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  have hc6 : bgK1 d L N * δl + bgK1 d L N * δw' ≤ c6 d L N := by
+    have h1 := (bgC1_facts d L N hd0 hδl).2.2.2
+    have h2 := (bgC1_facts d L N hd0 hδw).2.2.2
+    have h3 := bgC0_le_c6 d L N
+    linarith
+  obtain ⟨hv, hf, hb⟩ := genSet_stability_main hW Gl Gw e H hϱB0 hsepB hϱB hk he hblk X r hag
+    hδl0.le hδw0.le hδd hΨ hh hsmall hc6 hsl.1 hbl hunitl hsw.1 hbw hr y hy
+  have hE1 : Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))) ≤ 1 := by
+    rw [Real.exp_le_one_iff, neg_nonpos]
+    exact mul_nonneg hγ (div_nonneg (by linarith) hLk.le)
+  have hB := stab_bound_le hKw hcF.le hK1.le (by positivity) hδd (Real.exp_pos _).le hE1
+    (K₁ := bgK1 d L N) (δl := δl) (δw := δw') (δd := δd)
+  exact ⟨fun i => (hv i).trans hB, fun μ i => (hf μ i).trans hB, fun μ i => (hb μ i).trans hB⟩
+
+/-- **Stability with the difference quotients**, constants depending on `(d, L, N)` only (main
+regime `r ≥ (ϱ_B + 3d) L^{k_l} + 2`): `|w(y)|, ℓ(y) |∂w(y)| ≤ K (δ_d + (δ_l + δ_w) e^{-γ_w D₀})` for
+`w = φ_w ∘ e⁻¹ - φ_l`, `y ∈ X ∩ Ω^l_1`, under the hypotheses of `genSet_stability`. -/
+theorem genSet_stability_grad (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ K δs : ℝ, 0 < K ∧ 0 < δs ∧
+      ∀ {N₀l kl N₀w kw : ℕ} [NeZero N₀l] [NeZero N₀w] {ϱl ϱw ϱB : ℝ}
+        (Gl : GeneratingSet d L N₀l kl ϱl) (Gw : GeneratingSet d L N₀w kw ϱw)
+        (e : Torus d (N₀w * L ^ kw) ≃ Torus d (N₀l * L ^ kl)) {a : ℕ → ℝ} {ν : ℝ},
+        BgHyp d L kl ϱl a ν → BgHyp d L kw ϱw a ν → bgR0 d L ≤ ϱB →
+        2 * d * Real.log L ≤ agmonRate d / 16 * (ϱB - 1) → ϱB ≤ ϱl → kl ≤ kw →
+        (∀ x μ, e (x + Pi.single μ 1) = e x + Pi.single μ 1) →
+        (∀ n, n ≤ kl → ∀ x y, jBlock d L N₀l kl n x = jBlock d L N₀l kl n y ↔
+          jBlock d L N₀w kw n (e.symm x) = jBlock d L N₀w kw n (e.symm y)) →
+        ∀ (X : Finset (Torus d (N₀l * L ^ kl))) (r : ℝ), (ϱB + 3 * d) * (L : ℝ) ^ kl + 2 ≤ r →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          ∀ n, 1 ≤ n → n ≤ kl + 1 → (x ∈ Gl.Ω n ↔ e.symm x ∈ Gw.Ω n)) →
+        ∀ {Dl : BgData Gl N} {Dw : BgData Gw N} {δl δw δd : ℝ},
+        0 < δl → δl ≤ bgC1 d L N → InDomainR Gl ν δl Dl →
+        0 < δw → δw ≤ bgC1 d L N → InDomainR Gw ν δw Dw → 0 ≤ δd →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          vn (fun i => Dl.Ψ x i - Dw.Ψ (e.symm x) i) ≤ δd) →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          Dl.h x = Dw.h (e.symm x)) →
+        bgK1 d L N * (δl + δw) + δd ≤ δs →
+        ∀ (y : Gl.Ω 1), (y : Torus d (N₀l * L ^ kl)) ∈ X →
+          (∀ i, ‖transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) (y, i) -
+              bgFieldC Gl a ν (bgC0 d L N) Dl (y, i)‖ ≤
+            K * (δd + (δl + δw) *
+              Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) ∧
+          (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₀l * L ^ kl)) *
+            ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+                  bgFieldC Gl a ν (bgC0 d L N) Dl p) ((y : Torus d (N₀l * L ^ kl)) + Pi.single μ 1) i -
+              svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+                  bgFieldC Gl a ν (bgC0 d L N) Dl p) y i‖ ≤
+            K * (δd + (δl + δw) *
+              Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) ∧
+          (∀ (μ : Fin d) (i : Fin N), Gl.spacing (y : Torus d (N₀l * L ^ kl)) *
+            ‖svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+                  bgFieldC Gl a ν (bgC0 d L N) Dl p) ((y : Torus d (N₀l * L ^ kl)) - Pi.single μ 1) i -
+              svec Gl (fun p => transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) p -
+                  bgFieldC Gl a ν (bgC0 d L N) Dl p) y i‖ ≤
+            K * (δd + (δl + δw) *
+              Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl))))) := by
+  obtain ⟨Kw, δw0, hKw, hδw0, hW⟩ := weightedProp51S_exists N hd hL
+  have hK1 := bgK1_pos d L N
+  have hd0 : 0 < d := by omega
+  have hs0 := deltaStar_pos d L N hd0
+  have hcF := cF_pos d L
+  refine ⟨Kw * cF d L * 10 * (bgK1 d L N + 1), min (deltaStar d L N) δw0 / 9, by positivity,
+    by positivity, ?_⟩
+  intro N₀l kl N₀w kw _ _ ϱl ϱw ϱB Gl Gw e a ν H Hw hϱB0 hsepB hϱB hk he hblk X r hr hag Dl Dw
+    δl δw δd hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh hsm y hy
+  exact genSet_stability_grad_core hW hKw.le (N₁ := N₀l) (m₁ := 0) (by simp) Gl Gw e H Hw hϱB0
+    hsepB hϱB hk he hblk X r hr hag hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh (by linarith) y hy
 
 end Final
 

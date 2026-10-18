@@ -42,7 +42,8 @@ variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 on `G` for the data `D`, `D'` (same `h̃`, mass `ν`), `|α' - α|₂ ≤ c₆`, the hypotheses of Proposition
 5.1 hold at the base point `φ₀ = φ` with the data change `δΨ = D'.Ψ - D.Ψ` and sizes
 `δ₀, δ₁ ≤ δ_w`, and `|δΨ| ≤ δ_d` at the sites of `Ω₁ ∖ Far` and at their collar neighbours.  Then at
-a site `y` with `d(y, Far) ≥ D₀`: `|φ'(y) - φ(y)| ≤ K_w C_F (δ₁ e^{-γ_w D₀} + δ_d)`. -/
+a site `y` with `d(y, Far) ≥ D₀`: `|φ'(y) - φ(y)|, ℓ(y) |∂(φ' - φ)(y)| ≤ K_w C_F (δ₁ e^{-γ_w D₀} + δ_d)`
+(both difference directions). -/
 theorem twoEL_near_far {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
     {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
     (hS : GreenSetting G a ν) (hOp : Dec2.OpSetting G a ν) {D D' : BgData G N}
@@ -58,8 +59,16 @@ theorem twoEL_near_far {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
       vn (fun i => D'.Ψ x i - D.Ψ x i) ≤ δd ∧
       ∀ y ∈ collar G, Adj (x : CTorus d L N₁ m₁ K) y → vn (fun i => D'.Ψ y i - D.Ψ y i) ≤ δd)
     {D₀ : ℝ} (hD₀ : 0 ≤ D₀) (y : G.Ω 1)
-    (hy : ENNReal.ofReal D₀ ≤ siteSetDist G Far y) (i : Fin N) :
-    ‖φ' (y, i) - φ (y, i)‖ ≤ Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd)) := by
+    (hy : ENNReal.ofReal D₀ ≤ siteSetDist G Far y) :
+    (∀ i, ‖(φ' - φ) (y, i)‖ ≤ Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd))) ∧
+    (∀ (μ : Fin d) (i : Fin N), G.spacing (y : CTorus d L N₁ m₁ K) *
+      ‖svec G (φ' - φ) ((y : CTorus d L N₁ m₁ K) + Pi.single μ 1) i -
+        svec G (φ' - φ) (y : CTorus d L N₁ m₁ K) i‖ ≤
+      Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd))) ∧
+    (∀ (μ : Fin d) (i : Fin N), G.spacing (y : CTorus d L N₁ m₁ K) *
+      ‖svec G (φ' - φ) ((y : CTorus d L N₁ m₁ K) - Pi.single μ 1) i -
+        svec G (φ' - φ) (y : CTorus d L N₁ m₁ K) i‖ ≤
+      Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd))) := by
   classical
   have hd3 : 3 ≤ d := hS.hd
   have hγ : 0 ≤ gammaW d := gammaW_nonneg (by omega)
@@ -132,26 +141,27 @@ theorem twoEL_near_far {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
             nlinarith
   obtain ⟨-, hSup⟩ := hW G a ν α φ₀ δΨ (fun _ => 0) δ₀ δ₁ hP hOp hg hδ₀ hδ₁ w hw C hC0 hfs
     (φ' - φ) (α' - α) hper0 hsmall
-  have hv := hSup.val y i
   have hDy : Dc y = ENNReal.ofReal D₀ := min_eq_right hy
   have hwy : w y = Real.exp (gammaW d * D₀) := by
     rw [hwx, hDy, ENNReal.toReal_ofReal hD₀]
-  rw [hwy] at hv
-  have e1 : (φ' - φ) (y, i) = φ' (y, i) - φ (y, i) := rfl
-  rw [e1] at hv
   have hinv : Real.exp (-(gammaW d * D₀)) * Real.exp (gammaW d * D₀) = 1 := by
     rw [← Real.exp_add]; simp
   have hE' := Real.exp_pos (-(gammaW d * D₀))
-  calc ‖φ' (y, i) - φ (y, i)‖
-      = Real.exp (-(gammaW d * D₀)) * (Real.exp (gammaW d * D₀) * ‖φ' (y, i) - φ (y, i)‖) := by
-        rw [← mul_assoc, hinv, one_mul]
-    _ ≤ Real.exp (-(gammaW d * D₀)) * (Kw * C) := mul_le_mul_of_nonneg_left hv hE'.le
-    _ = Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd)) := by
-        rw [hC]
-        have : Real.exp (-(gammaW d * D₀)) * (Kw * (cF d L * (δ₁ +
-            Real.exp (gammaW d * D₀) * δd))) = Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) +
-            (Real.exp (-(gammaW d * D₀)) * Real.exp (gammaW d * D₀)) * δd)) := by ring
-        rw [this, hinv, one_mul]
+  have hconv : ∀ v : ℝ, w y * v ≤ Kw * C →
+      v ≤ Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd)) := by
+    intro v hv
+    rw [hwy] at hv
+    calc v = Real.exp (-(gammaW d * D₀)) * (Real.exp (gammaW d * D₀) * v) := by
+          rw [← mul_assoc, hinv, one_mul]
+      _ ≤ Real.exp (-(gammaW d * D₀)) * (Kw * C) := mul_le_mul_of_nonneg_left hv hE'.le
+      _ = Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) + δd)) := by
+          rw [hC]
+          have : Real.exp (-(gammaW d * D₀)) * (Kw * (cF d L * (δ₁ +
+              Real.exp (gammaW d * D₀) * δd))) = Kw * (cF d L * (δ₁ * Real.exp (-(gammaW d * D₀)) +
+              (Real.exp (-(gammaW d * D₀)) * Real.exp (gammaW d * D₀)) * δd)) := by ring
+          rw [this, hinv, one_mul]
+  exact ⟨fun i => hconv _ (hSup.val y i), fun μ i => hconv _ (hSup.fwd y y.2 μ i),
+    fun μ i => hconv _ (hSup.bwd y y.2 μ i)⟩
 
 end Core
 
