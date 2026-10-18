@@ -261,6 +261,12 @@ zero elsewhere (on the core and on the unbounded region), so it fails the domain
 around the pieces on which the stability theorem compares the data reach beyond the pieces. No factor of the window
 integrand constrains the field off the pieces (W1059, W1060, W1072); how P7 chooses it is being worked out (W1074).
 
+Update (18 October, night). P7's own design settles it (P7 p. 501 (2.14), P6 p. 7 (2.16)): every piece background and
+the window background are evaluated at the same configuration, so the data agree wherever the generating sets agree,
+and the window's domain follows from the pieces' domains with no loss (W1074). The window conversion now has no ball
+premise and no premise on the window's domain. Two links remain: that the window point's field restricts to each
+piece's data, and the connection with the reference datum used by the cancellation chain.
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The

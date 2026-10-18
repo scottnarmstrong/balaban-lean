@@ -28,9 +28,11 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   comparison of the steps' actions with the window's, every premise is now proved for the actual
   pieces (read transport, coefficient, source and pair estimates, with constants uniform in the
   scale), and so are the stability of the background under a change of generating set (P7 (2.14))
-  and the background hypotheses of the window. One design point remains: the window's field is fixed
-  only on the pieces, and no factor of the integrand constrains it elsewhere; how P7 chooses it is
-  being worked out. R's output is being written as a gas of removed clusters (ruling R4).
+  and the background hypotheses of the window. Following P7, the pieces and the window are evaluated
+  at one configuration, which gives the window's domain from the pieces' domains; what remains is
+  that the window point's field restricts to the pieces' data, and the link with the reference
+  datum of the cancellation chain. R's output is being written as a gas of removed clusters
+  (ruling R4).
 - **The last integral and the case with no renormalization step (blockers 5 and 1).** The
   large-field part cannot be one factor per bad block times boundary terms: a good block between
   two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead expands into
