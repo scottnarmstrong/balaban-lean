@@ -164,13 +164,14 @@ coherent (audit D1). So `LFCoherent` is a conjunct of the outputs of `SFStepInpu
 in their hypotheses. Splitting it into "old data inherited" plus "new data coherent" needs a core of `LFCoherent`; that means
 editing `Spine/Coherence.lean`, which this task may not do.
 
-**A landed definition must change (ruling R6, approved 2026-10-17, not yet applied to Def-7):** `Balaban.LargeField.Def7v2.sfDom`
+**A landed definition changed (ruling R6, approved 2026-10-17; applied to Def-7 by W1107, `sfDom` is `birthXiDom` on main):** `Balaban.LargeField.Def7v2.sfDom`
 (`Def7v2Class.lean:59`). It is read by `D2SF2.sfClass` and `SFFlat2.torus`, hence by `IsRep2`, `IsRepPre2` and `IsRepFlat2`.
 At every level `j` it is the current-mass domain `xiFieldDom (aIdeal L k (a k)) (sfBgMass k) (P6.eps)`, equal to `completeXiDom`.
 The output of `SFStepInput` must give the inherited levels `j ≤ k` the clauses of `IsSFFamily2` at `k + 1`. That needs
 `Ξ^c_j(a_{k+1}, μ_{k+1}, ε_j) ⊆ Ξ^c_j(a_k, μ_k, ε_j)`, which is false at admissible constants (`astra/SFFAM.md` §3.2). R6
-replaces it by the birth-mass family `birthXiDom P6 ⟨k₀, sf.ν⟩ sf.a` (`Def6v2Birth.lean:31`). Until then `SFStepInput` (and
-`ClassStepInput`, `FrozenStepInput`) have no source argument for the inherited levels. `Spine/ClassStep.lean` does not read the
+replaced it by the birth-mass family `birthXiDom P6 ⟨k₀, sf.ν⟩ sf.a` (`Def6v2Birth.lean:31`), which is `sfDom` now. The inherited
+terms of `F.sf` lie in the birth domain of the output only if the output keeps `β_j, ν_j, a_j` for `j ≤ k` (the birth domains read them),
+so the outputs of the step inputs tie them (`FrozenSFStepInput`, W1121; `SFStepInput`, W1115). `Spine/ClassStep.lean` does not read the
 domain, so its proofs survive the change.
 
 1. **`SFStepInput` (LF-3; LFR Thm IV.1.1 (a)–(e), (h); P5 Thm 1, P6 Thm 1; P4 Thm 1 for the small-field data).** For
@@ -442,9 +443,10 @@ no frozen analogue of `RInput`: the step is LF-5's small-field half, then the co
 1. **`FrozenSFStepInput` (LF-5; LFR Thm IV.2.2 (a)–(f); P5/P6 Thm 4 repaired; P4 Thm 1, FLUCTUATION Thm 5.3, Lemma 2.9 for the
    switch at `k = k₀`).** For `max(k₀,1) ≤ k < k̂_f`, `ρ ∈ FlatClassAt k`, `ν_k L² ≤ 7/8`: `ρ'` in `FlatPreAt (k+1) k X`,
    i.e. `IsRepFlat2` at `k + 1`, `β_0 = β`, `ν_0 = ν`, (I.2) up to `k` only, `LFCoherent`, running mass at the scale `k`
-   equal to `ν_k` (`X = (ν_k^{new} = ν_k)`), and `IntegralStep ρ ρ'`. The flow relation (H.6) at `k + 1` is `IsRepFlat2.sfData.coeff`.
+   equal to `ν_k`, and, for `j ≤ k`, `β'_j = β_j`, `ν'_j = ν_j`, `a'_j = a_j` for the representation `F` of the input (W1121; the clause `X` of
+   `FlatRepGen` reads `β, ν, a`; the input is stated through the witnesses of `FlatRep`), and `IntegralStep ρ ρ'`. The flow relation (H.6) at `k + 1` is `IsRepFlat2.sfData.coeff`.
    Open: all of it (same status as `SFStepInput`: the small-field step on complete backgrounds; (H6♭) at `K = k̂_f + 1` needs
-   LF-2 (ii) truncated at `k + 1`; the R6 birth-mass domains, see the ClassStepInput section).
+   LF-2 (ii) truncated at `k + 1`; the R6 birth-mass domains, applied on main, see the ClassStepInput section).
 2. **`FlowRateInput`** (reused from `Spine/ClassStep.lean`): `c₈ q ≤ (1 - q)/20`.
 
 Proved inside:
@@ -453,8 +455,8 @@ Proved inside:
 * the mass bound (D9♭) `ν_{k+1} ≤ 9/10`: `nu_succ_le_of_coeffBounds`. `ν_{k+1} = ν_k L² (1+ξ₃)/(1+ξ₂)` (`Flow.nuSeq`), `|ξ^{(k)}| ≤
   (c₈/4) q^{k+1} ≤ 1/80` from `c₈ q ≤ (1-q)/20`, so `ν_{k+1} ≤ (81/79) ν_k L² ≤ (81/79)(7/8) < 9/10`. `ν_k > 0` from `D9Flat`.
 
-Refactor of a landed definition body: `FlatRep` (`Spine/RootFInputs.lean`) is now `FlatRepGen … k (fun _ => νk ≤ 9/10)`, where
-`FlatRepGen` has the scale `r` of (I.2) and the closing clause `X F.sf.ν` as parameters. `FlatRep` and `FlatClassAt` have the
+Refactor of a landed definition body: `FlatRep` (`Spine/RootFInputs.lean`) is now `FlatRepGen … k (fun _ _ _ => νk ≤ 9/10)`, where
+`FlatRepGen` has the scale `r` of (I.2) and the closing clause `X F.sf.β F.sf.ν F.sf.a` as parameters. `FlatRep` and `FlatClassAt` have the
 same statements (defeq), no dependent file changed.
 
 Rule 10: `flatPreAt_witness` (from `flatClassAt_witness` via `FlatClassAt.toFlatPreAt`); `FlowRateInput`: `flowRateInput_of_lower`.
@@ -628,13 +630,12 @@ with `L, M` existential; `KfZeroInput` is that input in absolute form at the pre
 **PROVED** (`Balaban/Spine/RStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
 theorem rInput_of_parts (hV : RVacuumInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hK : RKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hG : RGasInput d N T P6 C7 PB cs₀ M1 c rH ϱ) : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+    (hG : RKeptGasInput d N T P6 C7 PB cs₀ M1 c rH ϱ) : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ
 ```
-It follows LFR Thm III.10.8 and Lemma III.8.4 (P7 Thm 2, (1.3)–(1.7), (3.1)–(3.29)) with ruling R4. Threshold: the largest of the three.
+It follows LFR Thm III.10.8 and Lemma III.8.4 (P7 Thm 2, (1.3)–(1.7), (3.1)–(3.29)) with ruling R4. Threshold: the larger of the two (W1121 merged the kept and gas halves).
 `RInput` is stated unchanged; `RStep.lean` edits no existing file but `Balaban.lean`.
 
-**Why three sub-inputs, and why they are existential.** No landed operator constructs the output representation: `Balaban/LargeField/R/` has
+**Why two sub-inputs, and why they are existential.** No landed operator constructs the output representation: `Balaban/LargeField/R/` has
 the gas, the kernels and the normalizations for abstract carriers, and nothing ties them to `Rep.B`, `Rep.κK`, `Rep.KD`, `Rep.hist`.
 So each sub-input is "there are output data with these properties", over the input record. Statements "for all output data
 with P, Q holds" would be false: two boundary terms can give the same `ρ'` and only one satisfies (D7); the kept exponent `κK` is part of
@@ -642,7 +643,7 @@ the type of the kept data. The output data are therefore produced in stages, and
 earlier one's output under the earlier one's properties (`KeptOutput` includes its coherence).
 
 Carrier: `PreRec …` (new, `Spine/RStep.lean`): the witnesses of `PreClassAt` as fields (`preClassAt_iff : PreClassAt … ↔ Nonempty (PreRec …)`;
-the body is written a second time, as `preClassAt_witness_aux` does; dedupe by `PreClassAt := ∃ …, PreRec` needs an edit of `ClassStep.lean`).
+`PreClassAt` is `Nonempty PreRec` (W1118)).
 The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.sf Rpp` (`sf + ℛ''`, the other fields of `SFData` unchanged), large-field part
 `lf₁` with the boundary terms replaced by `B'`.
 
@@ -654,18 +655,20 @@ The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.s
    * **W1119 (not provable from `PreRec`).** Retying keeps `ker`, sets `vacE := sf.E j` etc., `b0 := b + vacTerm`; then `b0_bound` reads `‖b_k + (E V + δ″ v₂ + δ‴ v₃)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|`, but `PreRec` carries only `b_bound` for `b_k` and no bound on `E` (`SFData.E : ℕ → ℝ` is indexed by the Def-6 torus `N₁`, the constant `E_k` of the record's one scale `k`; `VacuumTie` reads `E j` at step `j`, so the tie as stated conflates torus index and scale). Needed: a scale-indexed flow `E_j` with `|E_j| ≤ C(log β_j+1)` in the pre-class, or `RVacuumInput` stated on the physical step data (SFStepInput).
    * Landed: `StepData.b_vac`, `stepVacuumTerm`, `stepVacuumVolume` (`stepVacuumVolume_eq_add_excess`), `StepData.VacuumTie`, `VacuumTie.b0_sub_shift`,
      `VacuumTie.removed_weight_shift`, `stepVacuum_removed_*`. Open: the bound of `b⁰_k` at the physical constants (P4 (2.1), (2.41), (2.63), (4.21)).
-1. **`RKeptInput` (kept half; LFR Lemma III.10.5, Def. III.10.6, Thm III.8.9 (a), (b); P7 (1.3)–(1.6)).** For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk`:
-   `∃ lf₁`, one `Rep` per torus with the step data of `rec.F`, histories complete at `(k, k+1)`, and `KeptOutput`: `D4Pin (k+1)`
+1. **`RKeptGasInput` (kept half and gas half in one existential; W1121 after the sub-spine audit, defect 1).** `KeptOutput` consists of inequalities
+   and does not determine the kept kernels, so a universal gas input over every kept datum is likely false and a separate kept input is
+   near trivial. For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk` with `VacuumTied rec`: `∃ lf₁ B' Rpp ρ'` with
+   (kept half) one `Rep` per torus with the step data of `rec.F`, histories complete at `(k, k+1)`, and `KeptOutput`: `D4Pin (k+1)`
    (the exponent `κ_k` of a kept component is `κ^pre_k`; OPEN-R-TOP-PIN), `D5Bound (k+1)` (the bound (1.26) of the kept operators `locOp`
    with exponent `κ_k − C_R λ_k^{2d+1} + γ(ϰ)`), `D6Budget` ((H6′) with the kept exponents; (Rg) of LF-2), and `LFCoherent` of the family with these data and
-   no boundary terms (so the step and kept clauses of (D8); the boundary clause is in `GasOutput`).
-   * Landed: `keptKernel_one_kerBound`, `keptKernel_two_kerBound`, `keptKernel_three_kerBound` (the kept outcomes `ϰ = 1, 2, 3`), `Rep.rg_ripe`,
+   no boundary terms; and (gas half, LFR Thm III.10.8 (b), (c), Lemma III.8.4; P7 (3.1)–(3.29); ruling R4) `GasOutput` for these `lf₁`.
+   * Landed (kept half): `keptKernel_one_kerBound`, `keptKernel_two_kerBound`, `keptKernel_three_kerBound` (the kept outcomes `ϰ = 1, 2, 3`), `Rep.rg_ripe`,
      `Counter` (`CounterConclusion.Gp_ripe`, `flow_counter`), `isComplete_succ_of_enum`, `exists_isComplete`, `pin_succ_of_pin` (`d4Pin_succ_iff`),
      `Rep.budgetPre_of_LF2`.
-   * Open: (e) the kept bounds `ϰ₄`, `ϰ₅` (`hquot`); OPEN-R-HISTORY-ENUM only as far as the new histories must agree with the old ones
-     below `k` (completeness is no longer open: any complete set at `(k, k+1)` exists); the budget (`budget`, strict `k < t*` of the post book);
+   * Open (kept half): (e) the kept bounds `ϰ₄`, `ϰ₅` (`hquot`); OPEN-R-HISTORY-ENUM only as far as the new histories must agree with the old ones
+     below `k`; the budget (`budget`, strict `k < t*` of the post book);
      `opBound` (`locOp` at `k` uses the kept data `keptOp` at ripe components, `preOpTop` does not).
-2. **`RGasInput` (gas half; LFR Thm III.10.8 (b), (c), Lemma III.8.4; P7 (3.1)–(3.29); ruling R4).** For a vacuum tied record and any `lf₁` as in 1:
+   Gas half:
    `∃ B' Rpp ρ'` with `GasOutput`: (i) `ℛ''` has `RTermsH4` with the allowance `1/2` at `m = m₀ + m₁` and `0` elsewhere (OPEN-R-RM-H4; P7 (3.28)–(3.29)),
    and `D8SF` (`sfWithRem`: coherent) — `D8SF.R_eq` of `ℛ''` comes from `LFCoherent` of the input (audit D1); (ii) `D1Form2` for `ρ'` on the family `repFamPost`
    (the gas gives the form: OPEN `form`); (iii) `D7Bdry2Post` (OPEN-R-D7-PHYSICAL; the gas activity bound `d7Post_bound_of_avoid_of_gas`
@@ -695,9 +698,9 @@ Proved inside `rInput_of_parts`: `coh_addRem`, `field_addRem`, `corr_addRem`, `c
   operator `removedKernel` with its reference density, ℬ′) are not part of the output record; they are (a)–(c), (f) of item 2. The vacuum constants (item 0) and the kept data (item 1) are
   separate. The vacuum tie is a property of the input (not of `R`) that `PreClassAt` does not carry; asking it as `RVacuumInput` avoids changing `PreClassAt`/`IsRepPre2`; if
   `SFStepInput` is stated to give it, `RVacuumInput` becomes a corollary. Window and small factor are proved to chain (`removed_kerBound_logC_of_window`, `lf4R_removed`) at the gas level.
-* Rule 10: the three sub-inputs need the exemption of the seven inputs (as `RInput`). `VacuumTied`, `KeptOutput` and `GasOutput` are not inhabited here; `preClassAt_witness` inhabits the hypothesis, and
+* Rule 10: the two sub-inputs need the exemption of the seven inputs (as `RInput`). `VacuumTied`, `KeptOutput` and `GasOutput` are not inhabited here; `preClassAt_witness` inhabits the hypothesis, and
   the landed post witness `Wit.wIsRep2` (`Inhabited/RFieldProjectionWitness.lean`) has the same small-field data (`rfl`).
-* Generality: general `d, N` and the constants of the prefix, as `RInput`; the existentials of the three sub-inputs are at fixed `κ, c₉, β, ν, h, kf, k, ρ, νk`.
+* Generality: general `d, N` and the constants of the prefix, as `RInput`; the existentials of the two sub-inputs are at fixed `κ, c₉, β, ν, h, kf, k, ρ, νk`.
 
 ## Non-vacuity (D4, F5) and rule 10
 
