@@ -2849,6 +2849,7 @@ public import Balaban.Spine.FrozenStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
+public import Balaban.Spine.KfZeroGood
 public import Balaban.Spine.InheritedBound
 public import Balaban.Spine.InheritedAgreeGeom
 public import Balaban.Spine.InheritedAgree

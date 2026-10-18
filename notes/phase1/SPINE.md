@@ -579,6 +579,7 @@ Proved inside:
   (`kf0BadSectorInput_of_two_lt`). `KF0GoodSectorInput` needs the exemption of the seven inputs.
 
 1. **`KF0GoodSectorInput` (A7-1, the all-good gas; LF-BASE-KF0 Part F.2, Thm F.1, (F.13); KF0.md "ordinary expansion").** There
+   * (W1117) `not_kf0GoodSectorInput_of_thr_nonpos` (`Spine/KfZeroGood.lean`): the input is false for a threshold `thr ≤ 0` (the sector is 0), so the provider must supply `thr > 0`; the clauses (a)–(e) below, with the landed `KF0AllGoodGas` items (i)–(v) of its T4, are not derivable from landed results.
    are `a, E` with `ObservableActivities … κ (c₉/2) δ 1 kf a` and, on every admissible torus and the unit ball,
    `Z_∅(g) = exp(E_ℓ + ⟨g,h⟩ + Σ_X a_ℓ(X; g))`.
    * Landed: `block_gas`, `block_gas_hypotheses_d3` (KF0AllGoodGas); `allPlus_gas`, `allPlus_gas_instance`, `blockActivity_abs_le`
