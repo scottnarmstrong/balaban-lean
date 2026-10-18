@@ -2848,3 +2848,5 @@ public import Balaban.Spine.TransferWitness
 public import Balaban.Spine.ClassStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.InheritedBound
+public import Balaban.Spine.InheritedAgreeGeom
+public import Balaban.Spine.InheritedAgree
