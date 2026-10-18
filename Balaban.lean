@@ -1713,6 +1713,8 @@ public import Balaban.Fluctuation.LocalSetActTerm
 public import Balaban.Fluctuation.LocalSetActRay
 public import Balaban.Fluctuation.LocalSetActRayTerm
 public import Balaban.Fluctuation.LocalSetActTermBound
+public import Balaban.Fluctuation.LocalSetActRayBound
+public import Balaban.Fluctuation.LocalSetActDomain
 public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
