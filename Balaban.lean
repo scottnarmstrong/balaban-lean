@@ -1105,6 +1105,7 @@ public import Balaban.LargeField.R.CoeffResponseRespPiece
 public import Balaban.LargeField.R.CoeffResponseResp
 public import Balaban.LargeField.R.CoeffResponseReads
 public import Balaban.LargeField.R.CoeffResponseReadsMain
+public import Balaban.LargeField.R.CoeffResponseBlock
 public import Balaban.LargeField.R.CoeffResponseBudgetDiff
 public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
