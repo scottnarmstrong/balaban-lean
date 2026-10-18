@@ -337,6 +337,8 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        * `c₉^{flow} e^{-κ_flow d_j(X)} ≤ (c₉/2) e^{-κ|X|/(ML^j)^d}`, from `G1_card` and `c₉^{flow} ≤ (c₉/2)e^{-κ_flow}`.
 
      Then A6-1 becomes a theorem with `PrefixInput` as a premise. ~300–500 lines.
+     W1111 (`Spine/InheritedBound.lean`): (a), (b), (c) proved; `inheritedBoundInput_of_massCap` needs `3 ≤ d`, `bgR0 d L ≤ ϱ` and `InheritedMassCap`
+     (the `BgHyp` mass cap `ν_j L^{2(k-j)} ≤ 1` at `k = k̂_f`, j < k: (I.2) and `ν_k ≤ 1` give only `e^{1/10}`; a bound `ν_k ≤ 9/10` in `D9Flat` would close it).
 2. **`InheritedAgreeInput` (A6-2, exact agreement of the inherited terms; LFR Thm IV.5.3 item 7 for `j ≤ k_f`; P4 (H.4); (D8)).**
    `ActAgree` of `inhObs F.sf P6.m₀ h`. It follows from `D8SF.M_eq`, a clause (`coherent`) of `IsRepFlat2`.
    * Landed:

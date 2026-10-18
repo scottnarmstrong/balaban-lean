@@ -538,4 +538,128 @@ theorem actBoundAt_inhObs {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k 
 end Core
 
 
+section Mass
+
+variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
+
+/-- **The standing hypotheses of the background theory at the birth mass of the level `j ≤ k`**
+for a member of (D2♭): the weights `a_n` are those of the ideal flow (`aIdeal_mem`), the
+mass `ν_j L^{-2j}` is nonnegative, and `ν_j L^{-2j} L^{2k} ≤ 1` (`hcap`). -/
+theorem bgHyp_birth {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf) (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) {j : ℕ}
+    (hν0 : 0 ≤ sf.ν j) (hcap : physMass L j (sf.ν j) * ((L : ℝ) ^ k) ^ 2 ≤ 1) :
+    BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)) where
+  hd := hd
+  hL := hL
+  hϱ := hϱ
+  weights := fun _ hj hjk => aIdeal_mem hL hsf.coeff.a_ge hsf.coeff.a_lt hj hjk
+  mass := by unfold physMass; positivity
+  massLe := hcap
+
+omit [NeZero L] in
+/-- **The mass cap below the horizon**: if `ν_j = ν L^{2j} δ_j` with `|log δ_j| ≤ 1/20`,
+`ν L^{2k+2} < 1` and `L ≥ 3`, then `ν_j L^{-2j} L^{2k} ≤ 1`. -/
+theorem physMass_cap_of_lt {j : ℕ} (hL : 3 ≤ L) {ν δj : ℝ} (hν : 0 < ν) (hδ0 : 0 < δj)
+    (hδ : |Real.log δj| ≤ 1 / 20) (hlt : ν * (L : ℝ) ^ (2 * k + 2) < 1) :
+    physMass L j (ν * (L : ℝ) ^ (2 * j) * δj) * ((L : ℝ) ^ k) ^ 2 ≤ 1 := by
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hLj : (0 : ℝ) < (L : ℝ) ^ j := by positivity
+  have hδ3 : δj ≤ 3 := by
+    have h1 : Real.log δj ≤ 1 / 20 := (abs_le.1 hδ).2
+    calc δj = Real.exp (Real.log δj) := (Real.exp_log hδ0).symm
+      _ ≤ Real.exp (1 / 20) := Real.exp_le_exp.2 h1
+      _ ≤ Real.exp 1 := Real.exp_le_exp.2 (by norm_num)
+      _ ≤ 3 := (Real.exp_one_lt_d9.le.trans (by norm_num))
+  have hpm : physMass L j (ν * (L : ℝ) ^ (2 * j) * δj) * ((L : ℝ) ^ k) ^ 2 =
+      ν * ((L : ℝ) ^ k) ^ 2 * δj := by
+    unfold physMass
+    rw [pow_mul]
+    field_simp
+    rw [← pow_mul, ← pow_mul, mul_comm]
+  rw [hpm]
+  have ha : ν * ((L : ℝ) ^ k) ^ 2 * (L : ℝ) ^ 2 < 1 := by
+    calc ν * ((L : ℝ) ^ k) ^ 2 * (L : ℝ) ^ 2 = ν * (L : ℝ) ^ (2 * k + 2) := by ring
+      _ < 1 := hlt
+  have hL9 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
+  have hpos : 0 < ν * ((L : ℝ) ^ k) ^ 2 := by positivity
+  nlinarith
+
+end Mass
+
+section Final
+
+variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
+  (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
+  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+
+/-- **The mass cap of the background theory at the horizon** (the one point of
+`InheritedBoundInput` not given by the class): for `k = k̂_f`, the standing hypothesis
+`ν_j L^{-2j} L^{2k} ≤ 1` of the background theory at the birth mass of every level `j ≤ k`.
+Below the horizon it follows from (I.2) (`physMass_cap_of_lt`); at `k = k̂_f` the class gives
+only `ν_k ≤ 1` (`D9Flat`), and (I.2) gives `ν_j ≤ e^{1/20} ν L^{2j}`, which is not enough when
+`ν L^{2k̂_f}` is close to `1`. -/
+def InheritedMassCap : Prop :=
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
+  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
+  ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
+  ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
+  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, kf]) (νk : ℝ) hM6 hkK R geo cs P F St vc,
+    FlatRep d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf kf hM6 hkK R geo cs P F St vc ρ νk →
+    7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2 →
+    ∀ j : ℕ, 1 ≤ j → j ≤ kf →
+      physMass (T κ c₉).L j (F.sf.ν j) * (((T κ c₉).L : ℝ) ^ kf) ^ 2 ≤ 1
+
+/-- **`InheritedBoundInput` from the prefix, the dimension and the separation, and the mass cap at
+the horizon.** For a member of `ℛ♭_k` at the stopping scale, the inherited observable activities
+vanish off the scale-`j` polymers of Root-F, are analytic on the unit `ℓ¹` ball, and obey Root-F's
+bound, on every admissible torus: the constant configuration lies in the term domain
+(`xiDom_const`, `inhObs_constDom`), the clauses (H.7) of the class give the bound
+(`inhObs_term_bound`), and the ties of `PrefixInput` convert it (`actBoundAt_inhObs`, through
+`G1_card`). Premises beyond `PrefixInput`: `3 ≤ d` and `ϱ ≥ R₀(d, L)` (typing data of the
+background theory) and the mass cap at `k = k̂_f` (`InheritedMassCap`). -/
+theorem inheritedBoundInput_of_massCap (hPre : PrefixInput d δ T P6 C7 cs₀ M1 c) (hd : 3 ≤ d)
+    (hϱ : ∀ κ c₉ : ℝ, 0 < κ → 0 < c₉ → bgR0 d (T κ c₉).L ≤ ϱ κ c₉)
+    (hcap : InheritedMassCap d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨β₀, hβ₀⟩ := hcap κ hκ c₉ hc₉
+  refine ⟨β₀, fun β hβ ν hν hν78 h hh kf hkf _ _ k hk1 hkkf ρ νk hM6 hkK R geo cs P F St vc hF hνk
+    ℓ _ hℓ => ?_⟩
+  obtain ⟨hL3, -, -, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f⟩ := hPre κ hκ c₉ hc₉
+  have hsf := hF.sfFlat
+  obtain ⟨-, -, -, -, -, -, -, -, -, -, -, -, hrun, -⟩ := id hF
+  obtain ⟨-, -, -, hν0', -, -, -, -, -, hnu⟩ := hrun
+  have hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d (T κ c₉).L k (ϱ κ c₉) (aIdeal (T κ c₉).L k (F.sf.a k)) (physMass (T κ c₉).L j (F.sf.ν j)) := by
+    intro j hj1 hjk
+    obtain ⟨δj, hδj0, hδj, hνj⟩ := hnu j hjk
+    have hνj0 : 0 ≤ F.sf.ν j := by rw [hνj]; positivity
+    refine bgHyp_birth hsf hd hL3 (hϱ κ c₉ hκ hc₉) hνj0 ?_
+    rcases hkkf.lt_or_eq with hlt | heq
+    · rw [hνj]
+      exact physMass_cap_of_lt hL3 hν0' hδj0 hδj (hkf.2 k hlt)
+    · subst heq
+      exact hβ₀ β hβ ν hν hν78 h hh k hkf ρ νk hM6 hkK R geo cs P F St vc hF hνk j hj1 hjk
+  obtain ⟨c', hc'⟩ := hℓ
+  obtain ⟨N₁, hℓN, hN₁⟩ : ∃ N₁ : ℕ, ℓ = N₁ * (T κ c₉).L ^ (C7 κ c₉).m₁ * (T κ c₉).L ^ k ∧
+      (T κ c₉).L ^ (P6 κ c₉).m₀ ∣ N₁ := by
+    refine ⟨(T κ c₉).L ^ ((P6 κ c₉).m₀ + kf + 1 - k) * c', ?_, ?_⟩
+    · have e : (T κ c₉).L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁) * (T κ c₉).L ^ (kf + 1) =
+          (T κ c₉).L ^ ((P6 κ c₉).m₀ + kf + 1 - k) * (T κ c₉).L ^ k * (T κ c₉).L ^ (C7 κ c₉).m₁ := by
+        rw [← pow_add, ← pow_add, ← pow_add]
+        congr 1
+        omega
+      rw [hc', hMpow, e]
+      ring
+    · exact Dvd.dvd.mul_right (pow_dvd_pow _ (by omega)) _
+  subst hℓN
+  have hne : N₁ * (T κ c₉).L ^ (C7 κ c₉).m₁ * (T κ c₉).L ^ k ≠ 0 := NeZero.ne _
+  have : NeZero N₁ := ⟨fun h0 => hne (by rw [h0]; simp)⟩
+  have hL1 : 1 ≤ (T κ c₉).L := le_trans (by norm_num) hL3
+  exact ⟨actSupportAt_inhObs hN₁ hMpow h, fun j X => inhObs_analytic hsf hBg h hh j X,
+    actBoundAt_inhObs hsf hBg hN₁ hMpow h hh hκ hc₉.le hc9pos.le hδγ hL1 hκf hc9f⟩
+
+end Final
+
 end Balaban.RootFSpine
