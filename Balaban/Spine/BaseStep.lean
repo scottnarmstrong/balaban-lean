@@ -213,6 +213,15 @@ theorem baseStepInput_of_parts (hP : BasePreStepInput d N T P6 C7 PB cs₀ M1 c 
     have hrun := hbody.2.2.2.2.2.2.2.2.2.2.2.2.1
     exact ⟨_, νk, hflat, integralIsZ_firstDensity hrun.hβ (zero_lt_one.trans hrun.ha1) hz₁⟩
 
+/-- **The base step from its sub-inputs and the prefix**: `baseStepInput_of_parts`, the rate
+condition `FlowRateInput` being a clause of `PrefixInput`. -/
+theorem baseStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+    (hP : BasePreStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hR : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hF : BaseFlatStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    BaseStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ :=
+  baseStepInput_of_parts d N T P6 C7 PB cs₀ M1 c rH ϱ hP hR (flowRateInput_of_prefix hA1) hF
+
 end Inputs
 
 end Balaban.RootFSpine
