@@ -201,6 +201,50 @@ theorem locData_h_unit (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
 
 end Piece
 
+/-- **The region of the window is the union of the regions of the pieces.** -/
+theorem window_sites_subset (hmK : m' + 1 ≤ K)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
+    (hcov : ∀ j (c : H.Comp (j + 1)), S.k1 (m' + 1) ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
+      ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩)
+    (hW : H.RipeWindow (m' + 1) Z)
+    (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXwin : ∀ x, x ∈ Xwin.sites ↔ ∃ j, ∃ hj : S.k1 (m' + 1) ≤ j ∧ j ≤ m', ∃ c : H.Comp (j + 1),
+      c ∈ H.ancFin (j + 1) (m' + 1) Z ∧
+        torusCast (piece_torus_eq g H.F.hnn hmK hj.2) x ∈ Xfine g (H.locRH (j + 1) c) j c.1) :
+    Xwin.sites ⊆ Finset.univ.biUnion fun i => (Xw i).sites := by
+  classical
+  have hQ : ∀ (x : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))) (s s' : Σ j, H.Comp (j + 1)),
+      s = s' → ((∃ hj : s.1 ≤ m', torusCast (piece_torus_eq g H.F.hnn hmK hj) x ∈
+        Xfine g (H.locRH (s.1 + 1) s.2) s.1 s.2.1) ↔
+      ∃ hj : s'.1 ≤ m', torusCast (piece_torus_eq g H.F.hnn hmK hj) x ∈
+        Xfine g (H.locRH (s'.1 + 1) s'.2) s'.1 s'.2.1) := by
+    intro x s s' h
+    subst h
+    exact Iff.rfl
+  intro x hx
+  obtain ⟨j, hj, c, hc, hx'⟩ := (hXwin x).1 hx
+  obtain ⟨i, hi⟩ := hcov j c hj.1 hj.2 hc
+  refine Finset.mem_biUnion.2 ⟨i, Finset.mem_univ _, (hXw i x).2 ?_⟩
+  exact ((hQ x _ _ hi.symm).1 ⟨hj.2, hx'⟩).2
+
+/-- The regions of a piece in the window and in the local generating set have the same number of sites. -/
+theorem window_card_sites_eq (hmK : m' + 1 ≤ K)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
+    (hjK : ∀ i, jf i + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) (i : ι) :
+    (Xw i).sites.card = (Xc i).sites.card :=
+  Finset.card_equiv (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))) fun x => by
+    rw [hXw i x, hXc i, torusCast_equivCast_apply]
+
 end Ball
 
 section Generic
