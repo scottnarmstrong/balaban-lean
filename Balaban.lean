@@ -2662,3 +2662,4 @@ public import Balaban.Inhabited.StepTowerBeta0Red
 public import Balaban.Inhabited.StepTowerBeta0IrrelCore
 public import Balaban.Inhabited.StepTowerBeta0IrrelX
 public import Balaban.Inhabited.StepTowerBeta0IrrelBase
+public import Balaban.Inhabited.StepTowerBeta0Struct
