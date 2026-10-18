@@ -2717,9 +2717,6 @@ public import Balaban.Inhabited.StepTowerNewLevelFibreRate
 public import Balaban.Inhabited.StepTowerNewLevelE0Close
 public import Balaban.Inhabited.StepTowerNewLevelE0Sum
 public import Balaban.Inhabited.StepTowerNewLevelE0Bound
-public import Balaban.Inhabited.StepTowerNewLevelE0Marks
-public import Balaban.Inhabited.StepTowerNewLevelE0LabelsAgree
-public import Balaban.Inhabited.StepTowerNewLevelE0FamiliesAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0Beta
 public import Balaban.Inhabited.StepTowerNewLevelE0Tower
 public import Balaban.Inhabited.StepTowerNewLevelE0BaseDecCollar
@@ -2729,7 +2726,6 @@ public import Balaban.Inhabited.StepTowerNewLevelE0CollarClass
 public import Balaban.Inhabited.StepTowerNewLevelE0CollarUniform
 public import Balaban.Inhabited.StepTowerNewLevelE0XCollar
 public import Balaban.Inhabited.StepTowerNewLevelE0CoreCollar
-public import Balaban.Inhabited.StepTowerNewLevelE0RedAgree
 public import Balaban.Inhabited.StepTowerHullPlusGeom
 public import Balaban.Inhabited.StepTowerHullPlusSize
 public import Balaban.Inhabited.StepTowerHullPlus

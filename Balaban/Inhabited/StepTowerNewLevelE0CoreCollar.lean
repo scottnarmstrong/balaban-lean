@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerCollarCore
-public import Balaban.Inhabited.StepTowerNewLevelE0RedAgree
+public import Balaban.Inhabited.StepTowerBeta0Red
 
 /-!
 # The class chain with a general collar (CoreCollar), the constant `B` explicit (`StepTowerNewLevelE0CoreCollar`)
