@@ -2679,3 +2679,4 @@ public import Balaban.Inhabited.StepTowerBeta0IrrelBase
 public import Balaban.Inhabited.StepTowerBeta0Struct
 public import Balaban.Inhabited.StepTowerBeta0Step
 public import Balaban.LargeField.R.WindowConvPhysSwitchLocBall
+public import Balaban.LargeField.R.WindowConvPhysBallRadius
