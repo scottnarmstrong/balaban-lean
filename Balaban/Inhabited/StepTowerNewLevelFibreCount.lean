@@ -85,43 +85,46 @@ theorem exists_mem_cubesIn_of_hull (hN : L ^ m₀ ∣ N₁) {Y : Set (CTorus d L
   exact subset_sitesOf_piHull hN _ (mem_sitesOf.2 ⟨β, hβ, hx⟩)
 
 open Classical in
-/-- **The entropy-weighted count of the cube sets with hull `Y`.**  For a polymer `Y` of index
-`m₀ ≥ 1`, a point `y ∈ Y` and `a_ent + 1 ≤ ρ`,
-`∑_{T′} [hull T′ = Y] e^{-ρ d_Ext T′} ≤ γ (1 + d_{m₀}(Y)) (K₀ + 1) e^{-(ρ - r)(d_{m₀}(Y)/α - 1)}`
-with `r = a_ent + 1`, `γ = (L^{m₀-1})^d c₁`, `α = 1 + L^{2d} c₁ · 4 d L`. -/
-theorem weighted_fibre_le (hN : L ^ m₀ ∣ N₁) (hM : 1 ≤ m₀)
+/-- **The entropy-weighted count of the cube sets with a given hull map.**  Let `h` assign to each
+set `T′` of cubes of index one a site set `h T′` that contains the cubes of `T′`, is nonempty only
+for nonempty `T′`, and has size `d_{m₀}(h T′) ≤ α (1 + d_Ext T′)` whenever it is a polymer of
+index `m₀`.  For a polymer `Y` of index `m₀ ≥ 1`, a point `y ∈ Y` and `a_ent + 1 ≤ ρ`,
+`∑_{T′} [h T′ = Y] e^{-ρ d_Ext T′} ≤ γ (1 + d_{m₀}(Y)) (K₀ + 1) e^{-(ρ - r)(d_{m₀}(Y)/α - 1)}`
+with `r = a_ent + 1`, `γ = (L^{m₀-1})^d c₁`. -/
+theorem weighted_fibre_le_of_hull (hN : L ^ m₀ ∣ N₁) (hM : 1 ≤ m₀)
+    (h : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ) → Set (CTorus d L N₁ m₁ K)) {α : ℝ} (hα1 : 1 ≤ α)
+    (hcont : ∀ T, ∀ β ∈ T, box β.1 (cellSide L 1 m₁ K) ⊆ h T)
+    (hne : ∀ T y, y ∈ h T → T.Nonempty)
+    (hsize : ∀ T, IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (h T) →
+      sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (h T) ≤ α * (1 + dExt T))
     {Y : Set (CTorus d L N₁ m₁ K)}
     (hY : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y) {y : CTorus d L N₁ m₁ K}
     (hy : y ∈ Y) {ρ : ℝ} (hρ : aEnt d L + 1 ≤ ρ) :
-    ∑ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-        (K := K) 1 K Set.univ))),
-      (if sitesOf (piHull m₀ (sitesOf T)) = Y then Real.exp (-ρ * dExt T) else 0) ≤
+    ∑ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ))),
+      (if h T = Y then Real.exp (-ρ * dExt T) else 0) ≤
       (((L ^ (m₀ - 1)) ^ d : ℕ) : ℝ) * c1 d L *
         (1 + sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y) * (K0 d L (aEnt d L + 1) + 1) *
       Real.exp (-(ρ - (aEnt d L + 1)) *
-        (sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y /
-          (1 + ((L ^ d * L ^ d : ℕ) : ℝ) * c1 d L * (4 * d * L)) - 1)) := by
+        (sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y / α - 1)) := by
   have hc1 := one_le_c1 d L
-  set α : ℝ := 1 + ((L ^ d * L ^ d : ℕ) : ℝ) * c1 d L * (4 * d * L) with hα
-  have hα1 : 1 ≤ α := by
-    have : (0 : ℝ) ≤ ((L ^ d * L ^ d : ℕ) : ℝ) * c1 d L * (4 * d * L) := by positivity
-    linarith
   have hαpos : 0 < α := by linarith
   set r : ℝ := aEnt d L + 1 with hr
   set s := sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y with hs
   set W : ℝ := Real.exp (-(ρ - r) * (s / α - 1)) with hW
   have hW0 : 0 ≤ W := (Real.exp_pos _).le
   have hpt : ∀ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ),
-      (if sitesOf (piHull m₀ (sitesOf T)) = Y then Real.exp (-ρ * dExt T) else 0) ≤
+      (if h T = Y then Real.exp (-ρ * dExt T) else 0) ≤
         ∑ β ∈ (Finset.univ.filter fun β : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ => box β.1 (cellSide L 1 m₁ K) ⊆ Y),
           (if β ∈ T then W * Real.exp (-r * dExt T) else 0) := by
     intro T
-    split_ifs with h
-    · obtain ⟨β, hβT, hβ⟩ := exists_mem_cubesIn_of_hull hN hy h
-      have hY' : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K
-          (sitesOf (piHull m₀ (sitesOf T))) := by rw [h]; exact hY
-      have h1 := sizeJ_piHull_le_dExt hN hM T hY'
-      rw [h] at h1
+    split_ifs with hTY
+    · obtain ⟨β, hβT⟩ := hne T y (by rw [hTY]; exact hy)
+      have hβ : β ∈ (Finset.univ.filter fun β : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 1 K Set.univ => box β.1 (cellSide L 1 m₁ K) ⊆ Y) :=
+        Finset.mem_filter.2 ⟨Finset.mem_univ _, hTY ▸ hcont T β hβT⟩
+      have hY' : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (h T) := by
+        rw [hTY]; exact hY
+      have h1 := hsize T hY'
+      rw [hTY] at h1
       have h2 : s / α - 1 ≤ dExt T := by
         rw [sub_le_iff_le_add, div_le_iff₀ hαpos]
         nlinarith
@@ -174,6 +177,33 @@ theorem weighted_fibre_le (hN : L ^ m₀ ∣ N₁) (hM : 1 ≤ m₀)
           have := K0_pos d L r
           positivity)
     _ = _ := by ring
+
+
+open Classical in
+/-- **The entropy-weighted count of the cube sets with hull `Y`.**  For a polymer `Y` of index
+`m₀ ≥ 1`, a point `y ∈ Y` and `a_ent + 1 ≤ ρ`,
+`∑_{T′} [hull T′ = Y] e^{-ρ d_Ext T′} ≤ γ (1 + d_{m₀}(Y)) (K₀ + 1) e^{-(ρ - r)(d_{m₀}(Y)/α - 1)}`
+with `r = a_ent + 1`, `γ = (L^{m₀-1})^d c₁`, `α = 1 + L^{2d} c₁ · 4 d L`. -/
+theorem weighted_fibre_le (hN : L ^ m₀ ∣ N₁) (hM : 1 ≤ m₀)
+    {Y : Set (CTorus d L N₁ m₁ K)}
+    (hY : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y) {y : CTorus d L N₁ m₁ K}
+    (hy : y ∈ Y) {ρ : ℝ} (hρ : aEnt d L + 1 ≤ ρ) :
+    ∑ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (K := K) 1 K Set.univ))),
+      (if sitesOf (piHull m₀ (sitesOf T)) = Y then Real.exp (-ρ * dExt T) else 0) ≤
+      (((L ^ (m₀ - 1)) ^ d : ℕ) : ℝ) * c1 d L *
+        (1 + sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y) * (K0 d L (aEnt d L + 1) + 1) *
+      Real.exp (-(ρ - (aEnt d L + 1)) *
+        (sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K Y /
+          (1 + ((L ^ d * L ^ d : ℕ) : ℝ) * c1 d L * (4 * d * L)) - 1)) := by
+  have hc1 := one_le_c1 d L
+  have hq : (0 : ℝ) ≤ ((L ^ d * L ^ d : ℕ) : ℝ) * c1 d L * (4 * d * L) := by positivity
+  refine weighted_fibre_le_of_hull hN hM (fun T => sitesOf (piHull m₀ (sitesOf T)))
+    (by linarith) (fun T β hβ => ?_) (fun T y hy => ?_) (fun T hT => ?_) hY hy hρ
+  · exact (fun x hx => subset_sitesOf_piHull hN _ (mem_sitesOf.2 ⟨β, hβ, hx⟩))
+  · obtain ⟨β, hβ, _⟩ := exists_mem_cubesIn_of_hull hN hy rfl
+    exact ⟨β, hβ⟩
+  · exact sizeJ_piHull_le_dExt hN hM T hT
 
 end Count
 

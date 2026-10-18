@@ -42,6 +42,49 @@ section Hull
 
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ : ℕ}
 
+/-- **Inside the hull, a base reaches every site of its box.**  For a base `b` of an aligned
+`π′` box meeting `S`, the box lies in the hull and `b` is joined to each of its sites by a
+nearest-neighbour path inside the hull. -/
+theorem reach_piBases_box (hN : L ^ m₀ ∣ N₁) {S : Set (CTorus d L N₁ m₁ K)}
+    {b : CTorus d L N₁ m₁ K} (hb : b ∈ piBases m₀ S)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ box b (L * cellSide L m₀ m₁ K)) :
+    Relation.ReflTransGen
+      (fun a b => a ∈ sitesOf (piHull m₀ S) ∧ b ∈ sitesOf (piHull m₀ S) ∧ Nbr a b) b x := by
+  have hβ : box b (L * cellSide L m₀ m₁ K) ⊆ sitesOf (piHull m₀ S) := by
+    rw [sitesOf_piHull hN]
+    exact Set.subset_iUnion₂ (s := fun b (_ : b ∈ piBases m₀ S) =>
+      box b (L * cellSide L m₀ m₁ K)) b hb
+  obtain ⟨w, hw, rfl⟩ := hx
+  have := reach_box b w (box b (L * cellSide L m₀ m₁ K))
+    (fun w' hw' => mem_box_add b (fun μ => lt_of_le_of_lt (hw' μ) (hw μ)))
+  exact Relation.ReflTransGen.mono (fun a c h => ⟨hβ h.2.1, hβ h.2.2, h.1.2⟩) _ _ this
+
+/-- **The `π′`-hull of a set connected through its hull is a polymer.**  If `S` is nonempty and
+any two of its sites are joined by a nearest-neighbour path inside `sitesOf (piHull m₀ S)`, the
+union of the aligned `π′_K`-boxes of index `m₀` meeting `S` is a polymer of `𝒟_K` of index `m₀`. -/
+theorem isPolyDom_sitesOf_piHull_of_reach (hN : L ^ m₀ ∣ N₁) {S : Set (CTorus d L N₁ m₁ K)}
+    (hne : S.Nonempty)
+    (hconn : ∀ x ∈ S, ∀ y ∈ S, Relation.ReflTransGen
+      (fun a b => a ∈ sitesOf (piHull m₀ S) ∧ b ∈ sitesOf (piHull m₀ S) ∧ Nbr a b) x y) :
+    IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (sitesOf (piHull m₀ S)) := by
+  set X := sitesOf (piHull m₀ S) with hX
+  have hSX : S ⊆ X := subset_sitesOf_piHull hN S
+  have hsymm : ∀ a b : CTorus d L N₁ m₁ K, (a ∈ X ∧ b ∈ X ∧ Nbr a b) →
+      (b ∈ X ∧ a ∈ X ∧ Nbr b a) :=
+    fun a b h => ⟨h.2.1, h.1, h.2.2.symm⟩
+  have hS : ∀ x ∈ X, ∃ s ∈ S,
+      Relation.ReflTransGen (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) x s := by
+    intro x hx
+    rw [hX, sitesOf_piHull hN] at hx
+    obtain ⟨b, hb, hxb⟩ := Set.mem_iUnion₂.1 hx
+    obtain ⟨s, hsb, hsS⟩ := hb.2
+    exact ⟨s, hsS, (rtg_symm hsymm (reach_piBases_box hN hb hxb)).trans
+      (reach_piBases_box hN hb hsb)⟩
+  refine ⟨hne.mono hSX, ⟨_, chosenOne_piHull hN S⟩, fun x hx y hy => ?_⟩
+  obtain ⟨s, hs, hxs⟩ := hS x hx
+  obtain ⟨s', hs', hys'⟩ := hS y hy
+  exact (hxs.trans (hconn s hs s' hs')).trans (rtg_symm hsymm hys')
+
 /-- **The `π′`-hull of a connected set is a polymer.**  If `S` is nonempty and nearest-neighbour
 connected inside itself, the union of the aligned `π′_K`-boxes of index `m₀` meeting `S` is a
 polymer of `𝒟_K` of index `m₀` (nonempty, a union of `π′_K`-cubes, connected). -/
@@ -49,36 +92,10 @@ theorem isPolyDom_sitesOf_piHull (hN : L ^ m₀ ∣ N₁) {S : Set (CTorus d L N
     (hne : S.Nonempty)
     (hconn : ∀ x ∈ S, ∀ y ∈ S,
       Relation.ReflTransGen (fun a b => a ∈ S ∧ b ∈ S ∧ Nbr a b) x y) :
-    IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (sitesOf (piHull m₀ S)) := by
-  set X := sitesOf (piHull m₀ S) with hX
-  have hSX : S ⊆ X := subset_sitesOf_piHull hN S
-  have hsymm : ∀ a b : CTorus d L N₁ m₁ K, (a ∈ X ∧ b ∈ X ∧ Nbr a b) →
-      (b ∈ X ∧ a ∈ X ∧ Nbr b a) :=
-    fun a b h => ⟨h.2.1, h.1, h.2.2.symm⟩
-  have hbox : ∀ b ∈ piBases m₀ S, ∀ x ∈ box b (L * cellSide L m₀ m₁ K),
-      Relation.ReflTransGen (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) b x := by
-    intro b hb x hx
-    have hβ : box b (L * cellSide L m₀ m₁ K) ⊆ X := by
-      rw [hX, sitesOf_piHull hN]
-      exact Set.subset_iUnion₂ (s := fun b (_ : b ∈ piBases m₀ S) =>
-        box b (L * cellSide L m₀ m₁ K)) b hb
-    obtain ⟨w, hw, rfl⟩ := hx
-    have := reach_box b w (box b (L * cellSide L m₀ m₁ K))
-      (fun w' hw' => mem_box_add b (fun μ => lt_of_le_of_lt (hw' μ) (hw μ)))
-    exact Relation.ReflTransGen.mono (fun a c h => ⟨hβ h.2.1, hβ h.2.2, h.1.2⟩) _ _ this
-  have hS : ∀ x ∈ X, ∃ s ∈ S,
-      Relation.ReflTransGen (fun a b => a ∈ X ∧ b ∈ X ∧ Nbr a b) x s := by
-    intro x hx
-    rw [hX, sitesOf_piHull hN] at hx
-    obtain ⟨b, hb, hxb⟩ := Set.mem_iUnion₂.1 hx
-    obtain ⟨s, hsb, hsS⟩ := hb.2
-    exact ⟨s, hsS, (rtg_symm hsymm (hbox b hb x hxb)).trans (hbox b hb s hsb)⟩
-  refine ⟨hne.mono hSX, ⟨_, chosenOne_piHull hN S⟩, fun x hx y hy => ?_⟩
-  obtain ⟨s, hs, hxs⟩ := hS x hx
-  obtain ⟨s', hs', hys'⟩ := hS y hy
-  refine (hxs.trans ?_).trans (rtg_symm hsymm hys')
-  exact Relation.ReflTransGen.mono (fun a b h => ⟨hSX h.1, hSX h.2.1, h.2.2⟩) _ _
-    (hconn s hs s' hs')
+    IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) m₀ K (sitesOf (piHull m₀ S)) :=
+  isPolyDom_sitesOf_piHull_of_reach hN hne fun x hx y hy =>
+    Relation.ReflTransGen.mono (fun _ _ h => ⟨subset_sitesOf_piHull hN S h.1,
+      subset_sitesOf_piHull hN S h.2.1, h.2.2⟩) _ _ (hconn x hx y hy)
 
 /-- **The `π′`-hull of index `m₀` of a polymer of any index `m₀′` and level `j` is a polymer of
 index `m₀`** (of `𝒟_K`). -/
