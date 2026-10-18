@@ -77,23 +77,6 @@ theorem Regime.sfBgMass_mul_sq [NeZero L] (Rg : Regime L) {j : ℕ} (hjk : j ≤
     Rg.sfBgMass k * ((L : ℝ) ^ j) ^ 2 = nuIdeal L k (Rg.ν k) j :=
   physMass_mul_sq_eq_nuIdeal hjk _
 
-/-- **The mass-weighted field deviation is at most the deviation of the source `b = ν_j h`**, for
-an arbitrary mass `0 ≤ μ` with `μ L^{2j} ≤ ν_j` (the landed `Def6.bgMass_mul_norm_div_le`, in which
-the mass is `bgMass`). -/
-theorem mass_mul_norm_div_le {μ νj : ℝ} {j : ℕ} (hνj : 0 < νj)
-    (hm : μ * ((L : ℝ) ^ j) ^ 2 ≤ νj) (w t : ℂ) :
-    μ * ((L : ℝ) ^ j) ^ 2 * ‖w / (νj : ℂ) - t‖ ≤ ‖w - (νj : ℂ) * t‖ := by
-  have e : w / (νj : ℂ) - t = (w - (νj : ℂ) * t) / (νj : ℂ) := by
-    have hνc : (νj : ℂ) ≠ 0 := by exact_mod_cast hνj.ne'
-    field_simp
-  rw [e, norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hνj]
-  calc μ * ((L : ℝ) ^ j) ^ 2 * (‖w - (νj : ℂ) * t‖ / νj)
-      = (μ * ((L : ℝ) ^ j) ^ 2 / νj) * ‖w - (νj : ℂ) * t‖ := by field_simp
-    _ ≤ 1 * ‖w - (νj : ℂ) * t‖ := by
-        refine mul_le_mul_of_nonneg_right ?_ (norm_nonneg _)
-        rw [div_le_one hνj]; exact hm
-    _ = _ := one_mul _
-
 /-- **At the complete mass the two deviations are equal**: `μ L^{2j} |b/ν_j - t| = |b - ν_j t|`
 when `μ L^{2j} = ν_j`.  The condition of the domain on the field is then exactly a condition on the
 source `b = ν_j h`, with no dependence on the size of the mass. -/
@@ -118,28 +101,6 @@ theorem bgMass_mul_norm_div_le_of_mass [NeZero L] {β ν : ℕ → ℝ} {j : ℕ
 
 variable [NeZero L] [NeZero N₁] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {a' : ℕ → ℝ}
   {μ νj : ℝ} {j : ℕ}
-
-/-- **The domain inclusion, anisotropic field form, for an arbitrary mass** (the landed
-`Def6.xiDom_of_fieldA` with `bgMass` replaced by a mass `μ` with `μ L^{2j} ≤ ν_j`): a torus field
-`Ψ`, constant on the `j`-blocks, within `ρ_s` of `e_{i₀}`, and `h = b / ν_j` with
-`|b - ν_j e_{i₀}| ≤ ρ_h` (componentwise) and `|b_{i₀} - ν_j| ≤ ρ_l` lie in `Ξ^c_j(𝔹; 1, ε)` at the
-mass `μ`.  The radii `ρ_s, ρ_h, ρ_l` are those of `xiDom_of_aniso`; they do not involve `μ`. -/
-theorem xiDom_of_fieldM (H : BgHyp d L k ϱ a' μ) (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k)
-    (hνj : 0 < νj) (hm : μ * ((L : ℝ) ^ j) ^ 2 ≤ νj) (i₀ : Fin N) {δ ρs ρh ρl ε : ℝ}
-    (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N) (hρs0 : 0 ≤ ρs)
-    (hρh0 : 0 ≤ ρh) (hρs : 4 * N * ρs ≤ δ) (hρh : 2 * N * ρh ≤ δ) (hρl : ρl < δ ^ 2)
-    (hε : (2 * bgK1 d L N + 2) * δ ≤ ε) (Ψ : Fld d L N₁ m₁ k N) (b : Fin N → ℂ)
-    (hΨ : ∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρs)
-    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
-    (hb : ∀ i, ‖b i - (νj : ℂ) * (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρh)
-    (hbl : ‖b i₀ - (νj : ℂ)‖ ≤ ρl) :
-    XiDom G a' μ j ε Ψ (fun _ i => b i / (νj : ℂ)) := by
-  refine xiDom_of_aniso H hΩ hjk i₀ hδ0 hδc0 hδc1 hρs0 hρh0 hρs hρh hρl hε Ψ
-    (fun i => b i / (νj : ℂ)) hΨ hΨb (fun i => ?_) ?_
-  · exact (mass_mul_norm_div_le hνj hm _ _).trans (hb i)
-  · have := mass_mul_norm_div_le (L := L) hνj hm (b i₀) 1
-    rw [mul_one] at this
-    exact this.trans hbl
 
 /-- **The anisotropic polydisc lies in `Ξ^c_j` at every mass** (the landed `Def6.fp_mem_xiDomA`
 for an arbitrary mass): the configurations of the polydisc `polyAniso i₀ ν_j r X'` around the

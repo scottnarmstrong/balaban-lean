@@ -711,4 +711,204 @@ theorem rotE_of_near_aniso_within
 
 end Main
 
+section Radii
+
+/-- **The constant of the anisotropic radius condition**: the polydisc of radius `r` is admissible
+when `r · aniK N B νb ≤ δ` (`B` the entry bound of the rotations, `νb` an upper bound of the mass
+`ν_j`). -/
+noncomputable def aniK (N : ℕ) (B νb : ℝ) : ℝ :=
+  4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11)
+
+/-- The elementary inequalities for the constant `K = 4 n s a² (4 m + 11)`. -/
+theorem aniK_facts {n s a m : ℝ} (hn : 1 ≤ n) (hs : 1 ≤ s) (ha : 1 ≤ a) (hm : 0 ≤ m) :
+    44 * n * a ≤ 4 * n * s * a ^ 2 * (4 * m + 11) ∧
+      4 * n * s * (11 + 10 * (a - 1)) ≤ 4 * n * s * a ^ 2 * (4 * m + 11) ∧
+      2 * n * s * (3 + 4 * a * (m + 2)) ≤ 4 * n * s * a ^ 2 * (4 * m + 11) ∧
+      2 * (1 + 2 * n * a * (1 + 2 * a * (m + 2))) ≤ 4 * n * s * a ^ 2 * (4 * m + 11) := by
+  have hn0 : 0 ≤ n := by linarith
+  have ha2 : a ≤ a ^ 2 := by nlinarith
+  have hsa2 : a ≤ s * a ^ 2 := by
+    calc a ≤ a ^ 2 := ha2
+      _ = 1 * a ^ 2 := by ring
+      _ ≤ s * a ^ 2 := by gcongr
+  have hc : 11 ≤ 4 * m + 11 := by linarith
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · calc 44 * n * a = 4 * n * 11 * a := by ring
+      _ ≤ 4 * n * 11 * (s * a ^ 2) := by gcongr
+      _ = 4 * n * s * a ^ 2 * 11 := by ring
+      _ ≤ 4 * n * s * a ^ 2 * (4 * m + 11) := by gcongr
+  · have h1 : (11 + 10 * (a - 1) : ℝ) ≤ a ^ 2 * (4 * m + 11) := by
+      nlinarith [mul_le_mul_of_nonneg_left hc (sq_nonneg a)]
+    calc 4 * n * s * (11 + 10 * (a - 1)) ≤ 4 * n * s * (a ^ 2 * (4 * m + 11)) :=
+          mul_le_mul_of_nonneg_left h1 (by positivity)
+      _ = 4 * n * s * a ^ 2 * (4 * m + 11) := by ring
+  · have h1 : (3 + 4 * a * (m + 2) : ℝ) ≤ 2 * (a ^ 2 * (4 * m + 11)) := by
+      have h3 : a * m ≤ a ^ 2 * m := mul_le_mul_of_nonneg_right ha2 hm
+      nlinarith
+    calc 2 * n * s * (3 + 4 * a * (m + 2)) ≤ 2 * n * s * (2 * (a ^ 2 * (4 * m + 11))) :=
+          mul_le_mul_of_nonneg_left h1 (by positivity)
+      _ = 4 * n * s * a ^ 2 * (4 * m + 11) := by ring
+  · have e1 : (1 : ℝ) ≤ n * a ^ 2 := by nlinarith
+    have e2 : n * a ≤ n * a ^ 2 := mul_le_mul_of_nonneg_left ha2 hn0
+    have e3 : 0 ≤ n * a ^ 2 * m := by positivity
+    have h1 : 2 * (1 + 2 * n * a * (1 + 2 * a * (m + 2))) ≤ 4 * n * (a ^ 2 * (4 * m + 11)) := by
+      nlinarith
+    calc 2 * (1 + 2 * n * a * (1 + 2 * a * (m + 2))) ≤ 4 * n * (a ^ 2 * (4 * m + 11)) := h1
+      _ = 4 * n * 1 * a ^ 2 * (4 * m + 11) := by ring
+      _ ≤ 4 * n * s * a ^ 2 * (4 * m + 11) := by gcongr
+
+/-- **The radii of the box of the two-stage path** (arithmetic).  For `0 < r ≤ 1`, `0 ≤ B`,
+`0 < ν ≤ ν̄`, `r · aniK N B ν̄ ≤ δ ≤ 1/16`, with `r' = re = r (1 + N B)`: the numbers
+`N re ≤ 1/4`, `r' ≤ 1/2`, and the box radii `ρs`, `ρb`, `ρl` satisfy `4 N ρs ≤ δ`, `2 N ρb ≤ δ`,
+`ρl < δ²`. -/
+theorem aniso_box_arith {N : ℕ} (i₀ : Fin N) {r B ν νb δ : ℝ} (hr0 : 0 < r) (hr1 : r ≤ 1)
+    (hB : 0 ≤ B) (hνb : ν ≤ νb) (hrδ : r * aniK N B νb ≤ δ) (hδ : δ ≤ 1 / 16) :
+    (N : ℝ) * (r * (1 + N * B)) ≤ 1 / 4 ∧ r * (1 + N * B) ≤ 1 / 2 ∧
+      4 * N * (Real.sqrt N * (r + (2 * (r * (1 + N * B)) + 8 * (r * (1 + N * B))))) ≤ δ ∧
+      2 * N * (Real.sqrt N * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r)))) ≤ δ ∧
+      r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (νb + 2))) < δ ^ 2 := by
+  have hn : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+  have hs : (1 : ℝ) ≤ Real.sqrt N := by
+    rw [show (1 : ℝ) = Real.sqrt 1 by simp]; exact Real.sqrt_le_sqrt hn
+  have ha : (1 : ℝ) ≤ 1 + N * B := by nlinarith
+  have hνa : 0 ≤ |νb| := abs_nonneg _
+  obtain ⟨k1, k3, k4, kl⟩ := aniK_facts hn hs ha hνa
+  have hKd : aniK N B νb = 4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) := rfl
+  rw [hKd] at hrδ
+  have hrK : r * (4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11)) ≤ 1 / 16 := hrδ.trans hδ
+  have hKpos : 0 < 4 * (N : ℝ) * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) := by positivity
+  have e1 : (N : ℝ) * (r * (1 + N * B)) ≤ 1 / 4 := by
+    have := mul_le_mul_of_nonneg_left k1 hr0.le
+    nlinarith
+  refine ⟨e1, ?_, ?_, ?_, ?_⟩
+  · have : r * (1 + N * B) ≤ N * (r * (1 + N * B)) := by nlinarith [mul_pos hr0 (by linarith : (0:ℝ) < 1 + N * B)]
+    linarith
+  · have := mul_le_mul_of_nonneg_left k3 hr0.le
+    have e : 4 * (N : ℝ) * (Real.sqrt N * (r + (2 * (r * (1 + N * B)) + 8 * (r * (1 + N * B))))) =
+        r * (4 * N * Real.sqrt N * (11 + 10 * ((1 + N * B) - 1))) := by ring
+    rw [e]; exact this.trans hrδ
+  · have hν2 : ν + r ^ 2 + r ≤ |νb| + 2 := by
+      have : ν ≤ |νb| := hνb.trans (le_abs_self _)
+      nlinarith
+    have e2 : 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r) ≤ 4 * (r * (1 + N * B)) * (|νb| + 2) :=
+      mul_le_mul_of_nonneg_left hν2 (by positivity)
+    have e3 : 2 * (N : ℝ) * (Real.sqrt N * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r)))) ≤
+        r * (2 * N * Real.sqrt N * (3 + 4 * (1 + N * B) * (|νb| + 2))) := by
+      have h0 : (0 : ℝ) ≤ 2 * N * Real.sqrt N := by positivity
+      calc 2 * (N : ℝ) * (Real.sqrt N * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r))))
+          = (2 * N * Real.sqrt N) * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r))) := by ring
+        _ ≤ (2 * N * Real.sqrt N) * (r + (2 * r + 4 * (r * (1 + N * B)) * (|νb| + 2))) :=
+            mul_le_mul_of_nonneg_left (by linarith) h0
+        _ = r * (2 * N * Real.sqrt N * (3 + 4 * (1 + N * B) * (|νb| + 2))) := by ring
+    exact e3.trans ((mul_le_mul_of_nonneg_left k4 hr0.le).trans hrδ)
+  · have hl1 : 1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (νb + 2)) ≤
+        1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (|νb| + 2)) := by
+      have : νb ≤ |νb| := le_abs_self _
+      gcongr
+    set Kc : ℝ := 4 * (N : ℝ) * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) with hKc
+    set X : ℝ := 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (|νb| + 2)) with hX
+    have hX0 : 0 ≤ X := by positivity
+    have hK2 : 2 ≤ Kc := by linarith
+    have hrK2 : (r * Kc) ^ 2 ≤ δ ^ 2 := by
+      have h0 : 0 ≤ r * Kc := by positivity
+      nlinarith
+    have hA : 1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (νb + 2)) ≤ Kc / 2 := by
+      have : 2 * (1 + X) ≤ Kc := kl
+      linarith
+    have h1 : r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (νb + 2))) ≤
+        r ^ 2 * (Kc / 2) := mul_le_mul_of_nonneg_left hA (by positivity)
+    have h3 : r ^ 2 * (Kc / 2) < (r * Kc) ^ 2 := by
+      have : 0 < r ^ 2 * Kc := by positivity
+      nlinarith
+    linarith
+
+end Radii
+
+section Term
+
+open Balaban.Multiscale
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
+
+/-- **Complex invariance of the energy terms on the anisotropic polydisc** (term-clause form):
+`rotE_of_near_aniso_within` for `F = ℰ(y, X)` and the domain `Dom`, with the block-constant fields
+with a constant `h` as the class `P'`.  The box membership `hbox` and the openness relative to the
+block-constant pairs `hopen` are the facts about the domain (`xiDom_eventually`). -/
+theorem SFTermClauses.rotE_of_near_aniso {P : Consts} {ϱ : ℝ}
+    {Dom : FieldDom d L N₁ m₁ k N ϱ} {Tm : Terms d L N₁ m₁ k N ϱ}
+    (hT : SFTermClauses P Dom Tm) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {y X}
+    (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1) (i₀ : Fin N) {ν : ℝ} (hν : 0 < ν)
+    {r r' rb rb' rl rl' re ρs ρb ρl : ℝ} (hr0 : 0 ≤ r) (hr'0 : 0 ≤ r') (hr' : r' ≤ 1 / 2)
+    (hrb0 : 0 ≤ rb) (hrl0' : 0 ≤ rl') (hrl' : rl' ≤ rb') (hre0 : 0 ≤ re)
+    (hNre : (N : ℝ) * re ≤ 1 / 4)
+    (hMe : ∀ i, ‖(M *ᵥ (Pi.single i₀ 1 : Fin N → ℂ)) i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ re)
+    (hρs : Real.sqrt N * (r + (2 * r' + 8 * re)) ≤ ρs)
+    (hρb : Real.sqrt N * (rb + (2 * rb' + 4 * re * (ν + rl' + rb'))) ≤ ρb)
+    (hρl : rl ≤ ρl)
+    (hρl' : rl' + 2 * (N * re * (rb' + 2 * re * ((ν + rl') + rb'))) ≤ ρl)
+    (hbox : ∀ Ψ' h' : Fld d L N₁ m₁ k N, Def6.IsBlockConstFld j Ψ' → (∀ x x', h' x = h' x') →
+      (∀ x i, ‖Ψ' x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρs) →
+      (∀ x i, ν * ‖h' x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρb) →
+      (∀ x, ν * ‖h' x i₀ - 1‖ ≤ ρl) → Dom.dom j (Tm.gs j X) Ψ' h')
+    (hopen : ∀ Ψ' h' : Fld d L N₁ m₁ k N, Def6.IsBlockConstFld j Ψ' → (∀ x x', h' x = h' x') →
+      Dom.dom j (Tm.gs j X) Ψ' h' →
+      {p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N | Dom.dom j (Tm.gs j X) p.1 p.2} ∈
+        𝓝[{p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N |
+          Def6.IsBlockConstFld j p.1 ∧ ∀ x x', p.2 x = p.2 x'}] (Ψ', h'))
+    {Ψ h : Fld d L N₁ m₁ k N} (hΨb : Def6.IsBlockConstFld j Ψ) (hh : ∀ x x', h x = h x')
+    (hΨ : ∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hΨM : ∀ x i, ‖M.mulVec (Ψ x) i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r')
+    (hb : ∀ x i, ν * ‖h x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ rb)
+    (hbl : ∀ x, ν * ‖h x i₀ - 1‖ ≤ rl)
+    (hbM : ∀ x i, ν * ‖M.mulVec (h x) i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ rb')
+    (hbMl : ∀ x, ν * ‖M.mulVec (h x) i₀ - 1‖ ≤ rl') :
+    Tm.E j y X (Def6.rotField M Ψ) (Def6.rotField M h) = Tm.E j y X Ψ h := by
+  have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+  have hs1 : (1 : ℝ) ≤ Real.sqrt N := by
+    rw [show (1 : ℝ) = Real.sqrt 1 by simp]; exact Real.sqrt_le_sqrt hN1
+  have hrb'0 : 0 ≤ rb' := hrl0'.trans hrl'
+  have hP0 : 0 ≤ ν + rl' + rb' := by linarith
+  have hr1 : r ≤ ρs := by
+    have := mul_le_mul_of_nonneg_right hs1 (by positivity : 0 ≤ r + (2 * r' + 8 * re))
+    linarith
+  have hr1' : r' ≤ ρs := by
+    have := mul_le_mul_of_nonneg_right hs1 (by positivity : 0 ≤ r + (2 * r' + 8 * re))
+    linarith
+  have hq : 0 ≤ 4 * re * (ν + rl' + rb') := by positivity
+  have hb1 : rb ≤ ρb := by
+    have := mul_le_mul_of_nonneg_right hs1 (by positivity : 0 ≤ rb + (2 * rb' + 4 * re * (ν + rl' + rb')))
+    linarith
+  have hb1' : rb' ≤ ρb := by
+    have := mul_le_mul_of_nonneg_right hs1 (by positivity : 0 ≤ rb + (2 * rb' + 4 * re * (ν + rl' + rb')))
+    linarith
+  have hl1' : rl' ≤ ρl := by
+    have : 0 ≤ 2 * ((N : ℝ) * re * (rb' + 2 * re * ((ν + rl') + rb'))) := by positivity
+    linarith
+  have hconst : ∀ (R : Matrix (Fin N) (Fin N) ℂ) (h' : Fld d L N₁ m₁ k N), (∀ x x', h' x = h' x') →
+      ∀ x x', Def6.rotField R h' x = Def6.rotField R h' x' := fun R h' hh' x x' => by
+    simp only [Def6.rotField]; rw [hh' x x']
+  have hblock : ∀ (R : Matrix (Fin N) (Fin N) ℂ) (Ψ' : Fld d L N₁ m₁ k N),
+      Def6.IsBlockConstFld j Ψ' → Def6.IsBlockConstFld j (Def6.rotField R Ψ') :=
+    fun R Ψ' hΨ' x x' hxx => by simp only [Def6.rotField]; rw [hΨ' x x' hxx]
+  have hboxP : ∀ Ψ' h' : Fld d L N₁ m₁ k N, Def6.IsBlockConstFld j Ψ' → (∀ x x', h' x = h' x') →
+      (∀ x i, ‖Ψ' x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρs) →
+      (∀ x i, ν * ‖h' x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρb) →
+      (∀ x, ν * ‖h' x i₀ - 1‖ ≤ ρl) → Dom.dom j (Tm.gs j X) Ψ' h' := hbox
+  refine rotE_of_near_aniso_within (fun Ψ h => Tm.E j y X Ψ h)
+    {p | Dom.dom j (Tm.gs j X) p.1 p.2} (hT.analyticE j hj1 hjk y X hX hy)
+    (fun Q hQ Ψ h h1 h2 => hT.rotE j hj1 hjk y X hX hy Q hQ Ψ h h1 h2) hM i₀ hν hr0 hr'0 hr'
+    hrb0 hrl0' hrl' hre0 hNre hMe hρs hρb hρl hρl'
+    (fun Ψ' h' => Def6.IsBlockConstFld j Ψ' ∧ ∀ x x', h' x = h' x')
+    (fun R Ψ' h' hP1 => ⟨hblock R Ψ' hP1.1, hconst R h' hP1.2⟩)
+    (fun Ψ' h' hP1 hs hb' hl' => hbox Ψ' h' hP1.1 hP1.2 hs hb' hl') ⟨hΨb, hh⟩ hh ?_ ?_ hΨ hΨM hb hbl
+    hbM hbMl
+  · exact hopen Ψ h hΨb hh (hbox Ψ h hΨb hh (fun x i => (hΨ x i).trans hr1)
+      (fun x i => (hb x i).trans hb1) (fun x => (hbl x).trans hρl))
+  · exact hopen (Def6.rotField M Ψ) (Def6.rotField M h) (hblock M Ψ hΨb) (hconst M h hh)
+      (hbox _ _ (hblock M Ψ hΨb) (hconst M h hh) (fun x i => (hΨM x i).trans hr1')
+        (fun x i => (hbM x i).trans hb1') (fun x => (hbMl x).trans hl1'))
+
+end Term
+
 end Balaban.SmallField.Def6v2

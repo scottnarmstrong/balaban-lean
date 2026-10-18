@@ -628,6 +628,8 @@ public import Balaban.SmallField.RenormAnisoLocal
 public import Balaban.SmallField.RenormAnisoCtx
 public import Balaban.SmallField.RenormAnisoIrrel
 public import Balaban.SmallField.RenormAnisoInhabited
+public import Balaban.SmallField.RenormAnisoDomain
+public import Balaban.SmallField.RenormAnisoRot
 public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
