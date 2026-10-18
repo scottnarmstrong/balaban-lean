@@ -554,6 +554,8 @@ public import Balaban.LargeField.Background.TwoTorusBgPieceFinal
 public import Balaban.LargeField.Background.TwoTorusCubeLift
 public import Balaban.LargeField.Background.TwoTorusReg
 public import Balaban.LargeField.Background.TwoTorusGenCube
+public import Balaban.LargeField.Background.TwoTorusGauss
+public import Balaban.LargeField.Background.TwoTorusVars
 public import Balaban.LargeField.Background.TwoTorusGenCubeInt
 public import Balaban.LargeField.Background.TwoTorusRegField
 public import Balaban.LargeField.Background.TwoTorusRegDomain

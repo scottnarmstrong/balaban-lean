@@ -206,9 +206,40 @@ theorem bsub_iff_int {ℓ q : ℕ} [NeZero ℓ] {A : Set (Torus d ℓ)} (hP : 0 
     rw [hx']
     exact h _ this.symm
 
+/-- Membership agrees at sites with the same representative near `c` (the third clause of
+`SetCorr`; unlike `SetCorr` it is closed under complements). -/
+def SetIff (c : Fin d → ℤ) {ℓ₁ ℓ₂ : ℕ} (A₁ : Set (Torus d ℓ₁)) (A₂ : Set (Torus d ℓ₂)) : Prop :=
+  ∀ x₁ x₂, liftNear c x₁ = liftNear c x₂ → (x₁ ∈ A₁ ↔ x₂ ∈ A₂)
+
+theorem SetCorr.setIff {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} (h : SetCorr c A₁ A₂) :
+    SetIff c A₁ A₂ := h.2.2
+
+theorem SetIff.compl {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} (h : SetIff c A₁ A₂) :
+    SetIff c A₁ᶜ A₂ᶜ := fun x₁ x₂ hx => by simp only [Set.mem_compl_iff]; rw [h x₁ x₂ hx]
+
+theorem SetIff.union {A₁ B₁ : Set (Torus d ℓ₁)} {A₂ B₂ : Set (Torus d ℓ₂)}
+    (h : SetIff c A₁ A₂) (h' : SetIff c B₁ B₂) : SetIff c (A₁ ∪ B₁) (A₂ ∪ B₂) :=
+  fun x₁ x₂ hx => by simp only [Set.mem_union]; rw [h x₁ x₂ hx, h' x₁ x₂ hx]
+
+theorem SetIff.inter {A₁ B₁ : Set (Torus d ℓ₁)} {A₂ B₂ : Set (Torus d ℓ₂)}
+    (h : SetIff c A₁ A₂) (h' : SetIff c B₁ B₂) : SetIff c (A₁ ∩ B₁) (A₂ ∩ B₂) :=
+  fun x₁ x₂ hx => by simp only [Set.mem_inter_iff]; rw [h x₁ x₂ hx, h' x₁ x₂ hx]
+
+theorem SetIff.diff {A₁ B₁ : Set (Torus d ℓ₁)} {A₂ B₂ : Set (Torus d ℓ₂)}
+    (h : SetIff c A₁ A₂) (h' : SetIff c B₁ B₂) : SetIff c (A₁ \ B₁) (A₂ \ B₂) :=
+  fun x₁ x₂ hx => by simp only [Set.mem_sdiff]; rw [h x₁ x₂ hx, h' x₁ x₂ hx]
+
+theorem SetCorr.inter_iff {A₁ B₁ : Set (Torus d ℓ₁)} {A₂ B₂ : Set (Torus d ℓ₂)}
+    (hA : SetCorr c A₁ A₂) (hB : SetIff c B₁ B₂) : SetCorr c (A₁ ∩ B₁) (A₂ ∩ B₂) :=
+  ⟨fun x hx => hA.1 x hx.1, fun x hx => hA.2.1 x hx.1, hA.setIff.inter hB⟩
+
+theorem SetCorr.sdiff_iff {A₁ B₁ : Set (Torus d ℓ₁)} {A₂ B₂ : Set (Torus d ℓ₂)}
+    (hA : SetCorr c A₁ A₂) (hB : SetIff c B₁ B₂) : SetCorr c (A₁ \ B₁) (A₂ \ B₂) :=
+  ⟨fun x hx => hA.1 x hx.1, fun x hx => hA.2.1 x hx.1, hA.setIff.diff hB⟩
+
 theorem bsub_corr_iff {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} [NeZero ℓ₁] [NeZero ℓ₂]
     (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂) (hq₁ : 4 ≤ q₁) (hq₂ : 4 ≤ q₂)
-    (hA : SetCorr c A₁ A₂) {w : Fin d → ℤ} (hw : InBox ℓ₁ ℓ₂ c w) :
+    (hA : SetIff c A₁ A₂) {w : Fin d → ℤ} (hw : InBox ℓ₁ ℓ₂ c w) :
     BSub P (zcast q₁ (bidx P w)) A₁ ↔ BSub P (zcast q₂ (bidx P w)) A₂ := by
   rw [bsub_iff_int hP hℓ₁ hq₁ (c := c) (fun μ => (hw μ).1),
     bsub_iff_int hP hℓ₂ hq₂ (c := c) (fun μ => (hw μ).2)]
@@ -226,7 +257,7 @@ theorem bsub_corr_iff {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)
   have hiff : ∀ v, bidx P v = bidx P w → (zcast ℓ₁ v ∈ A₁ ↔ zcast ℓ₂ v ∈ A₂) := by
     intro v hv
     have hvb := key v hv
-    exact hA.2.2 _ _ (by
+    exact hA _ _ (by
       rw [liftNear_zcast (fun μ => (hvb μ).1), liftNear_zcast (fun μ => (hvb μ).2)])
   constructor
   · intro h v hv; exact (hiff v hv).1 (h v hv)
@@ -255,7 +286,7 @@ theorem exists_ccorr_of_bsub {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d 
     conv_lhs => rw [← zcast_liftNear (c := c) x]
     exact blockMap_zcast hℓ₁ hP _
   exact ⟨zcast q₂ (bidx P (liftNear c x)), ⟨liftNear c x, hb, e, rfl⟩,
-    (bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hA hb).1 (e ▸ hy)⟩
+    (bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hA.setIff hb).1 (e ▸ hy)⟩
 
 theorem exists_ccorr_of_bsub' {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} [NeZero ℓ₁]
     [NeZero ℓ₂] [NeZero q₁] [NeZero q₂] (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂)
@@ -304,7 +335,7 @@ theorem cSetCorr_bsub {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d ℓ₂)
     exact ⟨z₁, hz⟩
   · obtain ⟨w, hw, rfl, rfl⟩ := hz
     simp only [Set.mem_ofPred_eq]
-    rw [bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hX hw, hE _ _ ⟨w, hw, rfl, rfl⟩]
+    rw [bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hX.setIff hw, hE _ _ ⟨w, hw, rfl, rfl⟩]
 
 theorem CSetCorr.symm {B₁ : Set (Torus d q₁)} {B₂ : Set (Torus d q₂)}
     (h : CSetCorr c ℓ₁ ℓ₂ P q₁ q₂ B₁ B₂) : CSetCorr c ℓ₂ ℓ₁ P q₂ q₁ B₂ B₁ :=
@@ -375,6 +406,14 @@ theorem ccorr_nbhd_iff {B₁ : Set (Torus d q₁)} {B₂ : Set (Torus d q₂)} [
     CIff c ℓ₁ ℓ₂ P q₁ q₂ (nbhd r B₁) (nbhd r B₂) := fun _ _ hz =>
   ⟨ccorr_nbhd_imp hℓ₁ r hr₁ hP hB hz,
     ccorr_nbhd_imp hℓ₂ r hr₂ hP hB.symm (ccorr_symm hz)⟩
+
+theorem cSetCorr_bsub_plain {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d ℓ₂)} [NeZero ℓ₁]
+    [NeZero ℓ₂] [NeZero q₁] [NeZero q₂] (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂)
+    (hq₁ : 4 ≤ q₁) (hq₂ : 4 ≤ q₂) (hX : SetCorr c X₁ X₂) :
+    CSetCorr c ℓ₁ ℓ₂ P q₁ q₂ {y | BSub P y X₁} {y | BSub P y X₂} := by
+  have := cSetCorr_bsub hP hℓ₁ hℓ₂ hq₁ hq₂ hX (E₁ := Set.univ) (E₂ := Set.univ)
+    (fun _ _ _ => Iff.rfl)
+  simpa using this
 
 /-! ### Equality of sums and products over corresponding index sets -/
 
