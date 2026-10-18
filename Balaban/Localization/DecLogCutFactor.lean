@@ -536,12 +536,12 @@ theorem CovStanding.decCov_sub_agree_of_hatDich
   have hGB' := liftOp_Gsx_BD_of_hatDich (N := N) S' hx hα' hU' hdich'
   have hFM := fieldMul_BD (N := N) cY (restrictField G φ)
   have hFM' := fieldMul_BD (N := N) cY (restrictField G φ')
-  have hRB := commK_Gsx_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
-  have hRB' := commK_Gsx_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
-  have hMB := decM_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
-  have hMB' := decM_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
-  have hNB := decN_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hdich hH
-  have hNB' := decN_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hdich' hH'
+  have hRB := commK_Gsx_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hH hdich
+  have hRB' := commK_Gsx_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hH' hdich'
+  have hMB := decM_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hH hdich
+  have hMB' := decM_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hH' hdich'
+  have hNB := decN_BD_of_hatDich (N := N) (φ := φ) S hx hα hU hH hdich
+  have hNB' := decN_BD_of_hatDich (N := N) (φ := φ') S' hx hα' hU' hH' hdich'
   have hMiB := hMB.inv hM
   have hMiB' := hMB'.inv hM'
   -- agreement of the pieces
@@ -570,8 +570,8 @@ theorem CovStanding.decCov_sub_agree_of_hatDich
     unfold decPi
     exact BAgree.mul ((hGB.mul hFM).mul hMiB) ((hGB'.mul hFM').mul hMiB')
       (BAgree.mul (hGB.mul hFM) (hGB'.mul hFM') (BAgree.mul hGB hGB' hLag hFMag) hMiag) hNag
-  have hTB := hGB.sub (decPi_BD_of_hatDich S hx hα hU hdich hH hM)
-  have hTB' := hGB'.sub (decPi_BD_of_hatDich S' hx hα' hU' hdich' hH' hM')
+  have hTB := hGB.sub (decPi_BD_of_hatDich S hx hα hU hH hdich hM)
+  have hTB' := hGB'.sub (decPi_BD_of_hatDich S' hx hα' hU' hH' hdich' hM')
   have hTag := hLag.sub hPiag
   have hPl : BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1) (liftOp N P) :=
     BD.liftOp hP

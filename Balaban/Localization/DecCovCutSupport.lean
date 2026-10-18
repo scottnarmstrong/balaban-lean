@@ -355,19 +355,21 @@ abbrev HRespects (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ �
     (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Core G s →
     ((y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' ↔ (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
 
-section BlocksCore
+section Blocks
 
-variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hα : AdmPot G α)
-  (hU : IsUnit (1 - Kcalx G a aT x ν α s)) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
-  (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (hα : AdmPot G α)
+  (hU : IsUnit (1 - Kcalx G a aT x ν α s))
+  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
   (hH : HRespects G a aT x ν α s Y')
-include S hx hα hU hdich hH
+include S hx hconn hα hU hY hH
 
 local notation "cY" => (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
 
+omit hconn hY in
 /-- The commutator term `K_x(φ₀) G` has no cross elements, under the dichotomy of the active
 thickened cubes and the proviso `HRespects`. -/
-theorem commK_Gsx_BD_of_hatDich :
+theorem commK_Gsx_BD_of_hatDich
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
@@ -386,36 +388,46 @@ theorem commK_Gsx_BD_of_hatDich :
     by_contra hc; exact hG (Gsx_apply_eq_zero_of_not_core p.1 q.1 hc)
   exact (hH y p.1 hHp hcore).trans (Gsx_BD_of_hatDich S hx hα hU hdich p.1 q.1 hG)
 
+omit hconn hY in
 /-- `decM` has no cross elements (core). -/
-theorem decM_BD_of_hatDich :
+theorem decM_BD_of_hatDich
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decM G a aT x ν α s φ) := by
   unfold decM constraintM
   exact ((fieldMul_BD cY _).transpose.mul (fieldMul_BD cY _)).sub
-    ((commK_Gsx_BD_of_hatDich S hx hα hU hdich hH).mul (fieldMul_BD cY _))
+    ((commK_Gsx_BD_of_hatDich S hx hα hU hH hdich).mul (fieldMul_BD cY _))
 
+omit hconn hY in
 /-- `decN` has no cross elements (core). -/
-theorem decN_BD_of_hatDich :
+theorem decN_BD_of_hatDich
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decN G a aT x ν α s φ) := by
   unfold decN constraintN
-  exact (fieldMul_BD cY _).transpose.sub (commK_Gsx_BD_of_hatDich S hx hα hU hdich hH)
+  exact (fieldMul_BD cY _).transpose.sub (commK_Gsx_BD_of_hatDich S hx hα hU hH hdich)
 
+omit hconn hY in
 /-- **T4 (b), core.** `decPi` has no matrix elements between `Y'` and its complement, if `decM`
 is invertible. -/
-theorem decPi_BD_of_hatDich (hM : IsUnit (decM G a aT x ν α s φ)) :
+theorem decPi_BD_of_hatDich
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hM : IsUnit (decM G a aT x ν α s φ)) :
     BD (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decPi G a aT x ν α s φ) := by
   unfold decPi
   exact (((liftOp_Gsx_BD_of_hatDich S hx hα hU hdich).mul (fieldMul_BD cY _)).mul
-    ((decM_BD_of_hatDich S hx hα hU hdich hH).inv hM)).mul (decN_BD_of_hatDich S hx hα hU hdich hH)
+    ((decM_BD_of_hatDich S hx hα hU hH hdich).inv hM)).mul (decN_BD_of_hatDich S hx hα hU hH hdich)
 
+omit hconn hY in
 /-- **T4, core.** `decCov - covA` has no cross elements, under the dichotomy of the active
 thickened cubes and the provisos. -/
-theorem decCov_sub_BD_of_hatDich (hM : IsUnit (decM G a aT x ν α s φ))
+theorem decCov_sub_BD_of_hatDich
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hM : IsUnit (decM G a aT x ν α s φ))
     (cκ : κι → Prop) (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
     BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
@@ -431,41 +443,29 @@ theorem decCov_sub_BD_of_hatDich (hM : IsUnit (decM G a aT x ν α s φ))
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y') (liftRect N Q) :=
     BD.liftOp hQ
   have hT := (liftOp_Gsx_BD_of_hatDich S hx hα hU hdich).sub
-    (decPi_BD_of_hatDich S hx hα hU hdich hH hM)
+    (decPi_BD_of_hatDich S hx hα hU hH hdich hM)
   unfold decCov
   rw [add_sub_cancel_left]
   exact (((hA.mul hQl).mul hT).mul hQl.transpose |>.mul hA).smul _
-
-end BlocksCore
-
-section Blocks
-
-variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (hα : AdmPot G α)
-  (hU : IsUnit (1 - Kcalx G a aT x ν α s))
-  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
-  (hH : HRespects G a aT x ν α s Y')
-include S hx hconn hα hU hY hH
-
-local notation "cY" => (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
 
 theorem commK_Gsx_BD :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
         liftOp N (Gsx G a aT x ν α s)) :=
-  commK_Gsx_BD_of_hatDich S hx hα hU (hatDich_of_hatConn hconn hY) hH
+  commK_Gsx_BD_of_hatDich S hx hα hU hH (hatDich_of_hatConn hconn hY)
 
 theorem decM_BD :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decM G a aT x ν α s φ) :=
-  decM_BD_of_hatDich S hx hα hU (hatDich_of_hatConn hconn hY) hH
+  decM_BD_of_hatDich S hx hα hU hH (hatDich_of_hatConn hconn hY)
 
 theorem decN_BD :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decN G a aT x ν α s φ) :=
-  decN_BD_of_hatDich S hx hα hU (hatDich_of_hatConn hconn hY) hH
+  decN_BD_of_hatDich S hx hα hU hH (hatDich_of_hatConn hconn hY)
 
 /-- **T4 (b).** `decPi` has no matrix elements between `Y'` and its complement, if `decM` is
 invertible (it is, under the standing hypotheses, by `decM_isUnit`). -/
@@ -473,7 +473,7 @@ theorem decPi_BD (hM : IsUnit (decM G a aT x ν α s φ)) :
     BD (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decPi G a aT x ν α s φ) :=
-  decPi_BD_of_hatDich S hx hα hU (hatDich_of_hatConn hconn hY) hH hM
+  decPi_BD_of_hatDich S hx hα hU hH (hatDich_of_hatConn hconn hY) hM
 
 /-- **T4.** The correction `liftOp Gsx - decPi` has no cross elements, so `decCov - covA` has none
 either, given the provisos (ii) on `Q` and `P` (labels `cκ` of the coarse index set). -/
@@ -483,7 +483,7 @@ theorem decCov_sub_BD (hM : IsUnit (decM G a aT x ν α s φ))
     BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
       (decCov G a aT x ν α s φ Q P -
         covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) :=
-  decCov_sub_BD_of_hatDich S hx hα hU (hatDich_of_hatConn hconn hY) hH hM cκ Q P hQ hP
+  decCov_sub_BD_of_hatDich S hx hα hU hH (hatDich_of_hatConn hconn hY) hM cκ Q P hQ hP
 
 end Blocks
 
@@ -504,7 +504,7 @@ theorem CovStanding.decCov_sub_BD_of_hatDich {Q : Matrix κι (G.Ω 1) ℂ} {P :
     BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
       (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) :=
   Balaban.Localization.decCov_sub_BD_of_hatDich (H.fam x hx).st hx (H.fam x hx).pot
-    (H.fam x hx).isUnit_one_sub hdich hH (H.decM_isUnit' hx) cκ Q P hQ hP
+    (H.fam x hx).isUnit_one_sub hH hdich (H.decM_isUnit' hx) cκ Q P hQ hP
 
 /-- **T4, under the standing hypotheses.** Everything but the two provisos (`HRespects` for the
 union `Y'` of components, and the splitting `cκ` of `Q`, `P`) follows from `CovStanding` and
