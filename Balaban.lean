@@ -2689,5 +2689,6 @@ public import Balaban.LargeField.R.WindowConvPhysSwitchLocBall
 public import Balaban.Inhabited.StepTowerNewLabelsHull
 public import Balaban.Inhabited.StepTowerNewLabels
 public import Balaban.Inhabited.StepTowerNewLabelsRadius
+public import Balaban.Inhabited.StepTowerNewLevelSumSize
 public import Balaban.LargeField.R.WindowConvPhysBallRadius
 public import Balaban.LargeField.Operators.StepVacuumVolume
