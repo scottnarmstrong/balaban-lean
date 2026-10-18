@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowOffPhysDom
+public import Balaban.LargeField.R.WindowDuRead
 
 /-!
 # The data of the pieces on the balls around their regions (blocker 4)
@@ -267,5 +268,51 @@ theorem one_le_ball_radius {M : ℕ} [NeZero M] (j : ℕ) : (1 : ℝ) ≤ 2 * ((
   nlinarith only [hp, hM]
 
 end Generic
+
+section Near
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L] {H : RegionHistory S n R k0 K} {m' : ℕ} {Z : H.Comp (m' + 1)}
+  {g : Geo S n R M} {ι : Type u} [Fintype ι]
+
+/-- A site in or next to the region of the window lies in the ball around the region of some piece. -/
+theorem window_near_ball (hmK : m' + 1 ≤ K)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
+    (hjK : ∀ i, jf i + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hsub : Xwin.sites ⊆ Finset.univ.biUnion fun i => (Xw i).sites)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1)))
+    (hy : y ∈ Xwin.sites ∨ ∃ μ : Fin S.d, y + Pi.single μ 1 ∈ Xwin.sites ∨
+      y - Pi.single μ 1 ∈ Xwin.sites) :
+    ∃ i, ∃ z ∈ (Xc i).sites, Green.torusDist S.d
+      (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z
+      ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))) y) ≤ 2 * ((S.L : ℝ) ^ jf i * M) := by
+  classical
+  obtain ⟨x, hx, hrel⟩ : ∃ x ∈ Xwin.sites,
+      (y = x ∨ ∃ μ : Fin S.d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) := by
+    rcases hy with hy | ⟨μ, hy | hy⟩
+    · exact ⟨y, hy, Or.inl rfl⟩
+    · exact ⟨_, hy, Or.inr ⟨μ, Or.inr (by simp)⟩⟩
+    · exact ⟨_, hy, Or.inr ⟨μ, Or.inl (by simp)⟩⟩
+  obtain ⟨i, -, hxi⟩ := Finset.mem_biUnion.1 (hsub hx)
+  refine ⟨i, (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))) x, ?_, ?_⟩
+  · rw [hXc i, torusCast_equivCast_apply]
+    exact (hXw i x).1 hxi
+  · refine (torusDist_le_one_of_near _ _ ?_).trans (one_le_ball_radius (L := S.L) (M := M) (jf i))
+    rcases hrel with rfl | ⟨μ, rfl | rfl⟩
+    · exact Or.inl rfl
+    · exact Or.inr ⟨μ, Or.inl (equivCast_add_single (piece_torus_eq g H.F.hnn hmK (hjf i).2) x μ)⟩
+    · refine Or.inr ⟨μ, Or.inr ?_⟩
+      have h1 := equivCast_add_single (piece_torus_eq g H.F.hnn hmK (hjf i).2) (x - Pi.single μ 1) μ
+      rw [sub_add_cancel] at h1
+      rw [eq_sub_iff_add_eq, ← h1]
+
+end Near
 
 end Balaban.LargeField

@@ -2779,3 +2779,4 @@ public import Balaban.LargeField.R.WindowDuPiece
 public import Balaban.LargeField.R.WindowDuConv
 public import Balaban.LargeField.R.WindowDuBall
 public import Balaban.LargeField.R.WindowDuMassTerm
+public import Balaban.LargeField.R.WindowDuAssemble
