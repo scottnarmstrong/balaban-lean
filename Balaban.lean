@@ -151,6 +151,7 @@ public import Balaban.Background.Equivariance
 public import Balaban.Background.EquivarianceDomain
 public import Balaban.Background.EquivarianceLat
 public import Balaban.Background.Def5Response
+public import Balaban.Background.BgFieldTwoTorusEquiv
 public import Balaban.Background.Holder
 public import Balaban.Background.NormalizeMixed
 public import Balaban.Background.BumpMixed
@@ -540,6 +541,16 @@ public import Balaban.LargeField.Background.StepGenSets
 public import Balaban.LargeField.Background.StepGenSetsFlow
 public import Balaban.LargeField.Background.Factorization
 public import Balaban.LargeField.Background.StepBackgrounds
+public import Balaban.LargeField.Background.TwoTorusLift
+public import Balaban.LargeField.Background.TwoTorusGenAgree
+public import Balaban.LargeField.Background.TwoTorusOps
+public import Balaban.LargeField.Background.TwoTorusPb
+public import Balaban.LargeField.Background.TwoTorusLocal
+public import Balaban.LargeField.Background.TwoTorusModel
+public import Balaban.LargeField.Background.TwoTorusBoundaryGen
+public import Balaban.LargeField.Background.TwoTorusBgPiece
+public import Balaban.LargeField.Background.TwoTorusSize
+public import Balaban.LargeField.Background.TwoTorusBgPieceFinal
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.SpinePad
 public import Balaban.LargeField.History.ImageHist
