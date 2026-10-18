@@ -423,3 +423,7 @@ W1067: `tower_entropy_rate`: at d = L = 3, ρ = T.κ′: (κ′-aEnt-1)/α > 1/5
 ## W1070 — blocker 6: `hDMfull` and the neighbourhood part of `hdom` (`Inhabited/StepTowerNewLevelSym{M,Dom}.lean`)
 **PROVED, exact `hDMfull` form (`densM0_fullJSymGroup`, premises of `densE0_fullJSymGroup`, `hdom` verbatim, no `hE`).** `M0H_sym` reuses the W1064 cores (`hatCovSqrt_sym`, `hatField_sym`, `nuFl_measurePreserving`, `phi_eventuallyEq_of_dom`); new: `McompAtC_sym`, `FcompAtC_sym` from `eucMloc`.
 **`hdom` reduced to the real path points (`hdom_of_pathMem`):** `XiC` has strict inequalities, `XiDom` is open in the layer-constant fields (`xiDom_eventually`), the composed pair is layer-constant and analytic in the shift (`analyticAt_PJ`); the membership at the path points (open `OldXiDomC`, class-radius inequalities) is not proved and stays the single open input.
+
+## W1071 — `hdom` from the room (`Inhabited/StepTowerNewLevelSymRoom{,Main}.lean`)
+- `pathMem_of_room`: the old composed pairs at the real path points lie in `Ξ_j(𝔹_j; ε'_j)` (`flDatumOne_stepG_liftC_H`, `hatLift_mem_flBallLC`, `triple_one_mem`, `eTerm_chain_of_one_le` at `b = 1`); `hdom_of_room`, `densE0_fullJSymGroup_of_room`, `densM0_fullJSymGroup_of_room` have `hdom` removed.
+- Premises in its place: `BgSetting` for `𝔹_j` at each old level, `FlSetting` for the fluctuation of `𝔹_k` (as in `classOldEndpoint_liftC`), the room `ε + K₂δ₃ + K₂δ_fl ≤ ε'_j`, `a' = S.a`, `μ' = S.ν`, and `√N β_U^{-1/2} covSup p₁' < δ₁`; no mass or `BgHyp` condition beyond these.
