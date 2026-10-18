@@ -212,6 +212,135 @@ theorem core_window_layers_iff (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) 
   · push Not at hq
     rw [minLayer_of_gt _ hq, minLayer_of_gt _ hq]
 
+/-- `2 ⌊R⌋ + 6 ≤ ⌊2 R⌋ + 6` margin bookkeeping: `2 ⌊R⌋ ≤ ⌊2 R⌋` for `R ≥ 0`. -/
+theorem two_floor_le_floor_two {r : ℝ} (hr : 0 ≤ r) : 2 * ⌊r⌋₊ ≤ ⌊2 * r⌋₊ := by
+  refine Nat.le_floor ?_
+  push_cast
+  have := Nat.floor_le hr
+  linarith
+
+/-- **A data site of the window in `Z_{k₁}` is in layer `k₁` of `𝔹_k`**: its `π_{k₁}`-cube is within
+`2 (⌊R_{k₁-1}⌋ + 1) + 2` of a cube off `Lin_{k₁}(Z)` (the core is the minimal generating set of
+`W = (Z_{k₁}ᶜ)^{≈2}`), hence in `Ω_{k₁}(𝔹_k)`, and `Z_{k₁}` meets no `Ω_{k₁+1}(𝔹_k)`. -/
+theorem core_full_layer (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hjk1 : j = S.k1 (m' + 1)) {y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hyK : y ∈ (windowOfHistory H Z g hkK hW).Zk1)
+    (hyd : y ∈ dataSites ((windowOfHistory H Z g hkK hW).windowGenSet
+      (windowOfHistory_hyp hkK hW))) :
+    y ∈ (windowOfHistory H Z g hkK hW).full.Ω j ∧
+      (windowOfHistory H Z g hkK hW).full.layerIndex y = j := by
+  classical
+  have hk1 : 1 ≤ j := hjk1 ▸ hW.k1_pos hkK
+  have hjm : j ≤ m' + 1 := hjk1 ▸ k1_le hW
+  have hL := H.F.ok.two_le_L
+  set W := windowOfHistory H Z g hkK hW with hWdef
+  have hcore1 : ∀ x, x ∈ W.Zk1 → x ∈ (W.windowGenSet (windowOfHistory_hyp hkK hW)).Ω 1 →
+      ∃ u, u ∉ H.lin j (m' + 1) Z ∧
+        supDist u (cubeMap n S.L M (m' + 1) j x) ≤ 2 * (⌊R (j - 1)⌋₊ + 1) + 1 := by
+    intro x hxK hx
+    have hxZ : x ∈ W.Z := windowOfHistory_hZ (g := g) hkK hW hxK
+    rw [WindowPieces.windowGenSet_Ω] at hx
+    simp only [Finset.mem_union, Finset.mem_inter, Finset.mem_sdiff, hxK, hxZ, not_true_eq_false,
+      and_false, or_false, and_true] at hx
+    have h := cubeMap_nbhd_of_mem_cast (g := g) hL (hnn_k H hkK) (k1_le hW) (min_le_right _ _)
+      (A := coreW H Z (S.k1 (m' + 1))) (x := x) hx
+    rw [← hjk1] at h
+    unfold coreW at h
+    rw [locRH_Z Z hjm (by omega), thick2_eq] at h
+    obtain ⟨w, hw, hxw⟩ := mem_nbhd.1 h
+    obtain ⟨u, hu, hwu⟩ := mem_nbhd.1 hw
+    refine ⟨u, fun h' => hu (Finset.mem_coe.2 h'), ?_⟩
+    have t := supDist_triangle (cubeMap n S.L M (m' + 1) j x) w u
+    rw [supDist_comm]
+    omega
+  -- a cube off `Lin_j(Z)` close to the cube of `y`
+  obtain ⟨u, hu, hd⟩ : ∃ u, u ∉ H.lin j (m' + 1) Z ∧
+      supDist u (cubeMap n S.L M (m' + 1) j y) ≤ 2 * (⌊R (j - 1)⌋₊ + 1) + 2 := by
+    rcases (mem_dataSites _).1 hyd with h1 | h1
+    · obtain ⟨u, hu, hd⟩ := hcore1 y hyK h1
+      exact ⟨u, hu, by omega⟩
+    · obtain ⟨-, x, hx, hadj⟩ := (mem_collar _).1 h1
+      have hxy : supDist x y ≤ 1 * (S.L ^ j * M) := by
+        have := Adj.supDist_le_one hadj
+        have : 1 ≤ S.L ^ j * M := Nat.one_le_iff_ne_zero.2 (by
+          have := NeZero.ne S.L; have := NeZero.ne M; positivity)
+        omega
+      have hc1 := cubeMap_supDist_le_of_ball H hkK hjm hxy
+      by_cases hxK : x ∈ W.Zk1
+      · obtain ⟨u, hu, hd⟩ := hcore1 x hxK hx
+        refine ⟨u, hu, ?_⟩
+        have t := supDist_triangle u (cubeMap n S.L M (m' + 1) j x) (cubeMap n S.L M (m' + 1) j y)
+        omega
+      · refine ⟨cubeMap n S.L M (m' + 1) j x, fun h' => hxK ?_, by omega⟩
+        rw [windowOfHistory_Zk1, mem_locFineFin, mem_locFine_iff_lin hkK (hjk1 ▸ hjm), ← hjk1]
+        exact Finset.mem_coe.2 h'
+  obtain ⟨i, rfl⟩ : ∃ i, j = i + 1 := ⟨j - 1, by omega⟩
+  have hyj : y ∈ W.full.Ω (i + 1) := by
+    have : NeZero S.M := ⟨by have := H.F.ok.one_le_M; omega⟩
+    by_contra hn
+    have hn' : cubeMap n S.L M (m' + 1) (i + 1) y ∉ ((H.locRH (m' + 1) Z).step i).Omega :=
+      fun h' => hn ((mem_locGen_succ (hL := H.F.ok.two_le_L) (hR := fun j _ _ => g.hRlow j)
+        (by omega)).2 h')
+    refine hu (Finset.mem_coe.1 (nbhd_Omega_compl_subset_lin H hkK Z (by omega) hn' ?_))
+    have h2 := two_floor_le_floor_two (H.F.RH.nonneg i)
+    simp only [Nat.add_sub_cancel] at hd
+    omega
+  refine ⟨hyj, W.full.layerIndex_eq (by omega) (by omega) (W.full.mem_layer.2 ⟨hyj, ?_⟩)⟩
+  have htop := windowOfHistory_hZk1top (g := g) hkK hW y hyK
+  rw [← hjk1] at htop
+  exact htop
+
+/-- **Near a site of the core**: a site within `2 L^{k₁} + 1` of a site of `Z_{k₁}` whose
+`π_{k₁+1}`-cube lies in `c` is again such a site or lies in the region `X_c` of the piece
+`(k₁, c)` (the neighbourhood of `Z_{k₁}` lies in `Z_{k₁+1}`, and the other components of
+`Lin_{k₁+1}(Z)` are far). -/
+theorem near_core (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m')
+    (hjk1 : j = S.k1 (m' + 1)) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z) {y y' : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hyK : y ∈ (windowOfHistory H Z g hkK hW).Zk1)
+    (hyc : cubeMap n S.L M (m' + 1) (j + 1) y ∈ c.1) (hd : supDist y y' ≤ 2 * S.L ^ j + 1) :
+    (y' ∈ (windowOfHistory H Z g hkK hW).Zk1 ∧ cubeMap n S.L M (m' + 1) (j + 1) y' ∈ c.1) ∨
+      torusCast (piece_torus_eq g H.F.hnn hkK hj) y' ∈ Xfine g (H.locRH (j + 1) c) j c.1 := by
+  classical
+  have hk1 : 1 ≤ j := hjk1 ▸ hW.k1_pos hkK
+  have hL := H.F.ok.two_le_L
+  have hM3 : 3 ≤ M := by have h1 := g.hM; have h2 := g.hc; have := NeZero.ne g.M1; rw [h1]; nlinarith [Nat.one_le_iff_ne_zero.2 this]
+  have hd0 : supDist y' y ≤ 1 * (S.L ^ j * M) := by
+    rw [supDist_comm]
+    have hp : 1 ≤ S.L ^ j := Nat.one_le_iff_ne_zero.2 (by have := NeZero.ne S.L; positivity)
+    nlinarith
+  have hc0 := cubeMap_supDist_le_of_ball H hkK (show j ≤ m' + 1 by omega) hd0
+  have hc1 := cubeMap_supDist_le_of_ball H hkK (show j + 1 ≤ m' + 1 by omega)
+    (supDist_ball_mono (Nat.le_succ j) hd0)
+  have hyK' : cubeMap n S.L M (m' + 1) j y ∈ ((H.locRH (m' + 1) Z).step j).Z := by
+    have := hyK
+    rw [windowOfHistory_Zk1, mem_locFineFin, ← hjk1] at this
+    exact this
+  -- `y'` is in `Z_{j+1}`
+  have hy'Ω : y' ∉ (H.locGen Z M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j)).Ω (j + 1) := by
+    intro h'
+    rw [mem_locGen_succ (by omega)] at h'
+    rw [← cubeMap_succ (hnn_k H hkK) (by omega)] at h'
+    have hfar := ((H.locRH (m' + 1) Z).step j).fine_far (Nat.pos_of_ne_zero (NeZero.ne S.L))
+      (hnn_k H hkK j (by omega)) h' hyK'
+    omega
+  have hy'1 := compl_Omega_subset (by omega) (by omega) hy'Ω
+  rw [mem_locFine_iff_lin hkK (by omega)] at hy'1
+  obtain ⟨c', hc', hy'c'⟩ := mem_lin.mp (Finset.mem_coe.1 hy'1)
+  have hcc : c' = c := by
+    by_contra hne
+    have := comp_sep hne hy'c' hyc
+    have hω := margin_lt_omega H hk1
+    have := supDist_comm (cubeMap n S.L M (m' + 1) (j + 1) y')
+      (cubeMap n S.L M (m' + 1) (j + 1) y)
+    omega
+  subst hcc
+  by_cases hy'K : y' ∈ (windowOfHistory H Z g hkK hW).Zk1
+  · exact Or.inl ⟨hy'K, hy'c'⟩
+  · refine Or.inr ((mem_Xfine_cast_iff g hkK hj c' hK y').2 ⟨hy'c', fun h' => hy'K ?_⟩)
+    rw [windowOfHistory_Zk1, mem_locFineFin, mem_locFine_iff_lin hkK (hjk1 ▸ by omega), ← hjk1]
+    exact Finset.mem_coe.2 (lin_anc_subset hc h')
+
 end Core
 
 end Balaban.LargeField
