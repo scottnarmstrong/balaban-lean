@@ -234,6 +234,63 @@ theorem eps_pos_of_admissible {P : Def6.Consts} (hP : P.Admissible d L) (j : ℕ
 
 end Bound
 
+section Arith
+
+/-- **The decay conversion**: if `|X| ≤ c₁ a^d (1 + s)`, `κ c₁ ≤ κ_flow`-type tie
+`c₁ (κ + 1) ≤ κ_f` and `c₉^{f} ≤ (c₉/2) e^{-κ_f}`, then
+`c₉^{f} e^{-κ_f s} ≤ (c₉/2) e^{-κ |X| / a^d}`. -/
+theorem decay_arith {κ κf c9 c9f s card ad c1 : ℝ} (hκ : 0 < κ) (had : 0 < ad) (hs : 0 ≤ s)
+    (hc1 : 0 ≤ c1) (hc90 : 0 ≤ c9) (hcard : card ≤ c1 * ad * (1 + s)) (hκf : c1 * (κ + 1) ≤ κf)
+    (hc9 : c9f ≤ c9 / 2 * Real.exp (-κf)) :
+    c9f * Real.exp (-κf * s) ≤ c9 / 2 * Real.exp (-κ * card / ad) := by
+  have h1 : κ * card / ad ≤ κf * (1 + s) := by
+    rw [div_le_iff₀ had]
+    have h2 : κ * card ≤ κ * (c1 * ad * (1 + s)) := mul_le_mul_of_nonneg_left hcard hκ.le
+    have h3 : c1 * κ * (1 + s) ≤ κf * (1 + s) :=
+      mul_le_mul_of_nonneg_right (by nlinarith) (by linarith)
+    calc κ * card ≤ κ * (c1 * ad * (1 + s)) := h2
+      _ = (c1 * κ * (1 + s)) * ad := by ring
+      _ ≤ (κf * (1 + s)) * ad := mul_le_mul_of_nonneg_right h3 had.le
+  have h4 : Real.exp (-κf * (1 + s)) ≤ Real.exp (-κ * card / ad) := by
+    apply Real.exp_le_exp.2
+    have : -κ * card / ad = -(κ * card / ad) := by ring
+    rw [this]; nlinarith
+  calc c9f * Real.exp (-κf * s) ≤ (c9 / 2 * Real.exp (-κf)) * Real.exp (-κf * s) :=
+        mul_le_mul_of_nonneg_right hc9 (Real.exp_pos _).le
+    _ = c9 / 2 * Real.exp (-κf * (1 + s)) := by
+        rw [mul_assoc, ← Real.exp_add]; congr 2; ring
+    _ ≤ c9 / 2 * Real.exp (-κ * card / ad) :=
+        mul_le_mul_of_nonneg_left h4 (by linarith)
+
+/-- The negative power of the scale: `(L^j)^{-e₁} ≤ L^{-j e₂}` for `e₂ ≤ e₁`, `L ≥ 1`. -/
+theorem inv_pow_rpow_le {L : ℝ} (hL : 1 ≤ L) (j : ℕ) {e1 e2 : ℝ} (h : e2 ≤ e1) :
+    ((L ^ j)⁻¹) ^ e1 ≤ L ^ (-((j : ℝ) * e2)) := by
+  have hL0 : 0 ≤ L := by linarith
+  rw [Real.inv_rpow (pow_nonneg hL0 j), ← Real.rpow_natCast, ← Real.rpow_mul hL0,
+    ← Real.rpow_neg hL0 ((j : ℝ) * e1)]
+  exact Real.rpow_le_rpow_of_exponent_le hL (by nlinarith [(Nat.cast_nonneg j : (0 : ℝ) ≤ j)])
+
+/-- The constant of (G1) is at most `3^{d+1} L^{2d+1}`. -/
+theorem c1_le_pow (d L : ℕ) (hL : 1 ≤ L) :
+    Fluctuation.c1 d L ≤ (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) := by
+  unfold Fluctuation.c1
+  have h1 : ((3 * (2 * L - 1) : ℕ) : ℝ) ≤ 3 * (L : ℝ) ^ 2 := by
+    obtain ⟨m, rfl⟩ : ∃ m, L = m + 1 := ⟨L - 1, by omega⟩
+    have : 2 * (m + 1) - 1 = 2 * m + 1 := by omega
+    rw [this]
+    push_cast
+    nlinarith [sq_nonneg (m : ℝ)]
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  calc ((3 * (2 * L - 1) : ℕ) : ℝ) ^ d ≤ (3 * (L : ℝ) ^ 2) ^ d :=
+        pow_le_pow_left₀ (by positivity) h1 d
+    _ = 3 ^ d * (L : ℝ) ^ (2 * d) := by rw [mul_pow, ← pow_mul]
+    _ ≤ 3 ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) := by
+        rw [pow_succ 3 d, pow_succ (L : ℝ) (2 * d)]
+        have : (0 : ℝ) ≤ 3 ^ d * (L : ℝ) ^ (2 * d) := by positivity
+        nlinarith [mul_le_mul_of_nonneg_left hL1 this]
+
+end Arith
+
 section Core
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
@@ -391,6 +448,94 @@ theorem inhObs_analytic {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
   · simp only [hc, ↓reduceIte]
     exact analyticOnNhd_const
 
+/-- **Support** of the inherited activities: they vanish off the scale-`j` polymers of Root-F. -/
+theorem actSupportAt_inhObs {P6 : Def6.Consts} {sf : SFData d L m₁ k N ϱ} {N₁ M : ℕ}
+    [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hM : M = L ^ (P6.m₀ + m₁))
+    (hv : EuclideanSpace ℝ (Fin N)) :
+    ActSupportAt d N L M k (N₁ * L ^ m₁ * L ^ k) (inhObs sf P6.m₀ hv) := by
+  classical
+  intro j X hnot g
+  rw [inhObs_zero, inhObs_eq_explicit]
+  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k))
+  · exact absurd ⟨Finset.mem_Icc.2 ⟨hc.1, hc.2.1⟩, by
+      rw [hM]; exact isPolymer_of_isPolyDom hN hc.2.1 hc.2.2⟩ hnot
+  · simp only [hc, ↓reduceIte]
+
+omit [NeZero L] in
+/-- A set of `𝒟_j` in the sense of the class is a set of `𝒟_j` in the sense of the size estimate
+(G1). -/
+theorem isDj_of_isPolyDom {N₁ m₀ j : ℕ} [NeZero N₁]
+    {X : Set (Localization.CTorus d L N₁ m₁ k)} (hX : Def6.IsPolyDom m₀ j X) :
+    Fluctuation.IsDj m₀ j X := by
+  obtain ⟨hne, ⟨𝒦, hK1, hK2⟩, hconn⟩ := hX
+  refine ⟨hne, fun z hz => ?_, hconn⟩
+  obtain ⟨b, hb, hzb⟩ := hK2 z hz
+  exact ⟨b, (hK1 b hb).1, hzb, (hK1 b hb).2⟩
+
+/-- **The bound clause of Root-F's form for the inherited activities** (the conversion of
+`c₉^{flow} L^{-j((d-2)/2+γ-α₁)} e^{-κ_flow d_j(X)}` to `(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}`
+through `|X| ≤ c₁ (M L^j)^d (1 + d_j(X))` (`G1_card`) and the ties `δ ≤ γ - α₁`,
+`κ_flow ≥ 3^{d+1} L^{2d+1} (κ+1)`, `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`). -/
+theorem actBoundAt_inhObs {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf)
+    (hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
+    {N₁ M : ℕ} [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hM : M = L ^ (P6.m₀ + m₁))
+    (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) {κ c₉ δ : ℝ} (hκ : 0 < κ) (hc₉ : 0 ≤ c₉)
+    (hc₉f : 0 ≤ P6.c₉) (hδ : δ ≤ P6.γ - P6.α₁) (hL : 1 ≤ L)
+    (hκf : (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ P6.κ)
+    (hc₉t : P6.c₉ ≤ c₉ / 2 * Real.exp (-P6.κ)) :
+    ActBoundAt d N L M κ c₉ δ k (N₁ * L ^ m₁ * L ^ k) (inhObs sf P6.m₀ hv) := by
+  classical
+  intro j hj X g hg
+  obtain ⟨hj1, hjk⟩ := Finset.mem_Icc.1 hj
+  rw [inhObs_zero, sub_zero]
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have hR : 0 ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ))) *
+      Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d) := by
+    have : 0 < (L : ℝ) := by linarith
+    positivity
+  by_cases hpoly : Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k))
+  · refine (inhObs_norm_le hsf hBg hv hunit hj1 hjk hpoly g hg).trans ?_
+    have hG := Fluctuation.G1_card (m₀ := P6.m₀) hN hjk (isDj_of_isPolyDom hpoly)
+    have hs : 0 ≤ sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k)) :=
+      treeLenCovOne_nonneg P6.m₀ j _
+    have hcs : ((cellSide L P6.m₀ m₁ j : ℕ) : ℝ) = (M : ℝ) * (L : ℝ) ^ j := by
+      unfold cellSide
+      rw [hM]
+      push_cast
+      rw [← pow_add]
+      congr 1
+      omega
+    have had : 0 < ((M : ℝ) * (L : ℝ) ^ j) ^ d := by
+      rw [← hcs]; have := cellSide_pos (L := L) P6.m₀ m₁ j; positivity
+    have hcard : ((X : Set (Localization.CTorus d L N₁ m₁ k)).ncard : ℝ) = X.card := by
+      rw [Set.ncard_coe_finset]
+    have hc1 : 0 ≤ Fluctuation.c1 d L := by unfold Fluctuation.c1; positivity
+    have hdec := decay_arith (κ := κ) (κf := P6.κ) (c9 := c₉) (c9f := P6.c₉)
+      (s := sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k)))
+      (card := (X.card : ℝ)) (ad := ((M : ℝ) * (L : ℝ) ^ j) ^ d) (c1 := Fluctuation.c1 d L)
+      hκ had hs hc1 hc₉ (by rw [← hcard, ← hcs]; exact hG)
+      (((mul_le_mul_of_nonneg_right (c1_le_pow d L hL) (by linarith)).trans hκf))
+      hc₉t
+    have hrp := inv_pow_rpow_le hL1 j (e1 := ((d : ℝ) - 2) / 2 + P6.γ - P6.α₁)
+      (e2 := ((d : ℝ) - 2) / 2 + δ) (by linarith)
+    calc P6.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
+          Real.exp (-P6.κ * sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k)))
+        = ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
+          (P6.c₉ * Real.exp (-P6.κ * sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k)))) := by
+          ring
+      _ ≤ (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ))) *
+          (c₉ / 2 * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)) :=
+          mul_le_mul hrp hdec (by positivity) (by positivity)
+      _ = _ := by ring
+  · rw [inhObs_eq_explicit]
+    simp only [hpoly, and_false, ↓reduceIte, norm_zero]
+    exact hR
+
 end Core
+
 
 end Balaban.RootFSpine
