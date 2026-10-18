@@ -18,7 +18,7 @@ Here it is free:
 
 * `FlNum.mono_fluct`: the numerics `FlNum` hold at every smaller fluctuation radius `δ₁'` and
   bound `δ_fl'` with `N (5 K₂' δ₁' + δ₁') ≤ δ_fl'` (the other conditions on `δ₁`, `δ_fl` are upper
-  bounds);
+  bounds); `FlNum.at_fluct`: the smallest bound `δ_fl' = N (5 K₂' δ₁' + δ₁')`;
 * `step_flSetting_base_dec`: the base `FlSetting` of the step at the fluctuation radius `δ₁` of
   `FlNum … T.t δ₃ δ₁ δfl`;
 * `e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_dec`: the base theorem at a fluctuation
@@ -70,6 +70,19 @@ theorem _root_.Balaban.Localization.FlNum.mono_fluct {d L N : ℕ} [NeZero L]
     sm_f := by nlinarith [h.sm_f, mul_le_mul_of_nonneg_left hfl hc2]
     small₃ := by nlinarith [h.small₃]
     th₃ := by nlinarith [h.th₃] }
+
+/-- **`FlNum` at a smaller fluctuation radius `δ₁'` with the smallest fluctuation bound**
+`δ_fl' = N (5 K₂' δ₁' + δ₁')`. -/
+theorem _root_.Balaban.Localization.FlNum.at_fluct {d L N : ℕ} [NeZero L]
+    {BG BG₂ κ eps δ₃ δ₁ δfl δ₁' : ℝ} (h : FlNum d L N BG BG₂ κ eps δ₃ δ₁ δfl)
+    (hfam : 0 ≤ famConst d L BG₂ κ) (hδ0 : 0 < δ₁') (hδ : δ₁' ≤ δ₁) :
+    FlNum d L N BG BG₂ κ eps δ₃ δ₁' (N * (5 * (cK2' d L N (famConst d L BG₂ κ) * δ₁') + δ₁')) := by
+  have hc' : 0 ≤ cK2' d L N (famConst d L BG₂ κ) := Balaban.Localization.cK2'_nonneg hfam
+  have hN : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  refine h.mono_fluct hδ0 hδ (by positivity) (le_trans ?_ h.flb) le_rfl
+  apply mul_le_mul_of_nonneg_left _ hN
+  have := mul_le_mul_of_nonneg_left hδ hc'
+  linarith
 
 section Base
 

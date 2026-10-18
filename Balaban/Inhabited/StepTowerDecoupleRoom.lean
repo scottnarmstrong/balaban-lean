@@ -38,6 +38,7 @@ of the landed chain (`r₀ ≤ 324` in `e0CoeffFamily_class_fromTower_of_irrelBo
 * `composedCloseBound_smul`: the bound is linear in the radius;
 * `exists_pow_close_le`: at `r₀ = 327` the ratio `K₂ N composedCloseBound(…, C_{Ξ1}, 327)` is below
   any `θ > 0` once `3^{m₁}` is large (FLUCTUATION §1.5 row 6);
+* `eps_succ_le_of_eps_one_le`: the cover `ε_{k+1} ≤ t` at every scale from `ε_1 ≤ t`;
 * `room_of_radii`: the room at every `j ≤ k` from `t ≤ ε_{k+1}` (with the cover: `t = ε_{k+1}`),
   `ε_{k+1} ≤ q ε_k`, `δ₃ ≤ Q t`, `δ_fl ≤ F δ₁`, `δ₁ ≤ η ε_k` and `q (1 + K₂ Q) + K₂ F η ≤ 1`.
 -/
@@ -187,6 +188,25 @@ theorem eps_lt_four_succ {P : Consts} (hα₀ : 0 < P.α₀) (hγ : 0 ≤ P.γ) 
   refine ⟨hpos, (show P.eps 3 3 k ≤ 2 * ((3 : ℕ) : ℝ) ^ P.alpha 3 * P.eps 3 3 (k + 1) from
     hgap).trans_lt ?_⟩
   nlinarith
+
+/-- **The cover at a fixed step radius**: `ε_1 ≤ t` gives `ε_{k+1} ≤ t` for every `k` (`α ≥ 0`);
+this is the radius premise `P.eps 3 3 (k + 1) ≤ eps` of `newLabels_castInputs` at `eps = t`. -/
+theorem eps_succ_le_of_eps_one_le {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 3) {t : ℝ}
+    (h1 : P.eps 3 3 1 ≤ t) (k : ℕ) : P.eps 3 3 (k + 1) ≤ t := by
+  induction k with
+  | zero => simpa using h1
+  | succ k ih =>
+    have hg := epsSeq_gapE 3 (P.alpha 3) P.α₀ hα₀ (k + 1)
+    have hq : ((3 : ℕ) : ℝ) ^ (-P.alpha 3) ≤ 1 :=
+      Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by linarith)
+    have e : (1 - (1 - ((3 : ℕ) : ℝ) ^ (-P.alpha 3))) = ((3 : ℕ) : ℝ) ^ (-P.alpha 3) := by ring
+    rw [e] at hg
+    have h0 : 0 ≤ P.eps 3 3 (k + 1) := by
+      have := epsTail_pos (k + 1)
+      unfold Consts.eps epsSeq
+      positivity
+    unfold Consts.eps at ih h0 ⊢
+    nlinarith
 
 /-- **Cover and room at the collar `324` bound `B_G`** (`d = L = 3`, `N = 2`, any fluctuation
 radius): `ε_{k+1} ≤ t` and `t + K₂ δ₃ + K₂ δ_fl ≤ ε_k`, with `ChainNum … 324 t δ₃` and
