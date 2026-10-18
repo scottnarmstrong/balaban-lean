@@ -2341,6 +2341,13 @@ public import Balaban.Fluctuation.LocalClassDensityIrrelStepRoom
 public import Balaban.Fluctuation.LocalClassDensityIrrelBaseSet
 public import Balaban.Fluctuation.LocalClassDensityLevelRhoXi
 public import Balaban.Fluctuation.LocalClassDensityLevelRho
+public import Balaban.Fluctuation.LocalClassDensityLevelCastGeom
+public import Balaban.Fluctuation.LocalClassDensityLevelCastSym
+public import Balaban.Fluctuation.LocalClassDensityLevelCastDom
+public import Balaban.Fluctuation.LocalClassDensityLevelCastTerms
+public import Balaban.Fluctuation.LocalClassDensityLevelCastAvg
+public import Balaban.Fluctuation.LocalClassDensityLevelCastAnalytic
+public import Balaban.Fluctuation.LocalClassDensityLevelCast
 public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
