@@ -2844,3 +2844,4 @@ public import Balaban.Spine.RootC
 public import Balaban.Spine.Witness
 public import Balaban.Spine.ClassStep
 public import Balaban.Spine.LastIntegral
+public import Balaban.Spine.InheritedBound
