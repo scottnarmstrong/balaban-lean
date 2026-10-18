@@ -64,7 +64,7 @@ approved declaration.
 ## Blocker 6: the general class (one ruling)
 - Done since: the per-label bounds at the composed data, the filed torus defect, the chain at towers
   for every scale with one β₀ (W1040–W1069).
-- RULING R8 (Scott): the new level's terms on local generating sets. P3 pp. 78–79, (4.44)–(4.47)
+- RULING R8 (Scott, APPROVED 2026-10-18 as option (a)): the new level's terms on local generating sets. P3 pp. 78–79, (4.44)–(4.47)
   computes each term of the new level with the local generating set 𝔹_{k+1}(Y); mapping a local-chart
   point to the step chart is impossible in general (W1081: a local field can wind around a hole of the
   polymer). The step's mark, determinant and activity objects (`decMarkG`, `decMarkCorr`,
@@ -97,3 +97,9 @@ approved declaration.
 2. Astra: `astra-xidom`, `astra-radius`, `astra-kf0b` (running); then blocker 5 (L4), blocker 6 (torus
    defect), blocker 3 (if R3 is declined, route B).
 3. Opus: blocker 3 blast radius (if R3), blocker 1 base case design, the representation of R's output.
+
+## Rulings of 2026-10-18 (approved: "go with your recs on R8 and the others")
+- R8: option (a), generic objects with an explicit background generating set (Blocker 6 above).
+- CRotE: repaired now as in `CROTE.md` §4 (real clause + Cayley path; every `hCR` removed).
+- R7: the base carrier `Kphys` of the W1009 handoff (Blocker 1); W1015 resumes on it.
+- R5′: the first vacuum region of `StepData.b_vac` is Z_k^c ∖ Ω_{k+1} (P6 (3.2)).
