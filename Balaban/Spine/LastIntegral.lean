@@ -87,6 +87,31 @@ def actAt (J : ℕ) (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus
     (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ :=
   fun ℓ j X g => if j = J then p ℓ j X g else 0
 
+/-- **The observable form at the single scale `J`**: `p` satisfies the clauses of
+`ObservableActivities` (top scale `J`) after its parts at the scales `j ≠ J` are replaced by zero
+(`actAt J p`). The clauses of support, analyticity, locality and bound then constrain `p` at the
+scale `J` only, and the two-torus agreement `ActAgree d N L M kf (actAt J p)` is the one agreement
+obligation (LFR Theorem IV.5.3 item 7) that remains. -/
+def ObservableActivitiesAt (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
+  ObservableActivities d N L M κ c₉ δ J kf (actAt J p)
+
+/-- The scale-`J` part of a sum is the sum of the scale-`J` parts. -/
+theorem actAt_actAdd (J : ℕ)
+    (p q : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) :
+    actAt J (actAdd p q) = actAdd (actAt J p) (actAt J q) := by
+  funext ℓ j X g
+  simp only [actAt, actAdd]
+  split_ifs <;> simp
+
+/-- Taking the scale-`J` part twice. -/
+theorem actAt_actAt (J : ℕ)
+    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) :
+    actAt J (actAt J p) = actAt J p := by
+  funext ℓ j X g
+  simp only [actAt]
+  split_ifs <;> rfl
+
 variable {L M J kf : ℕ}
   {p q : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ}
 
@@ -414,11 +439,11 @@ member `ρ` of `ℛ♭_k` at the stopping scale (`ν_k > 7/8 L⁻²`, so the var
 integral is massive), with a representation `F`: on every torus of the family and every source of
 the unit `ℓ¹` ball, the integral `Ξ^sf` of the small-field factor on the whole torus (`sfIntegral`)
 is `exp(E + ⟨g, h⟩ + ∑_{j=1}^{k} ∑_X q_j(X; g) + ∑_X a(X; g))`, where `q_j` are the inherited
-observable activities (`inhObs`; the terms `⟨g, ℳ^{(j)}(·; h, h, g)⟩` of `ℱ_{k+1,0}`, P7 (4.17)) and
-`a` are activities of the scale `k + 1` in Root-F's form (`ObservableActivities` with top scale
-`k + 1` and half the amplitude `c₉`): the term `ℳ^{(k+1)}_0` and the polymer terms `ℛ^{(k+1)}_n`
+observable activities (`inhObs`; the terms `⟨g, ℳ^{(j)}(·; h, h, g)⟩` of `ℱ_{k+1,0}`, P7 (4.17); they are created at the scales `j ≤ k` and not changed afterwards, LFR Definition IV.5.2 first item, so the pin `q = inhObs` is the source's) and
+`a` are activities of the scale `k + 1` in Root-F's form (`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top
+scale `k + 1` and half the amplitude `c₉`, at the scale `k + 1` only): the term `ℳ^{(k+1)}_0` and the polymer terms `ℛ^{(k+1)}_n`
 (P7 (4.9)), regrouped by the scale-`(k+1)` polymer `Ȳ` of their localization domain (LFR Definition
-IV.5.2). The agreement clause of `a` comes from (D8) of the class and the locality of the last
+IV.5.2). The agreement clause of `a` (`ActAgree` of `actAt (k + 1) a`, the one agreement obligation) comes from (D8) of the class and the locality of the last
 integral (LFR Theorem IV.5.3 item 7). -/
 def FinalSmallFieldInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
@@ -431,7 +456,7 @@ def FinalSmallFieldInput : Prop :=
       (rH κ c₉) (ϱ κ c₉) β ν h kf k hM6 hkK R geo cs P F St vc ρ νk →
     7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2 →
     ∃ (a : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) (E : ℕ → ℂ),
-      ObservableActivities d N (T κ c₉).L (T κ c₉).M κ (c₉ / 2) δ (k + 1) kf a ∧
+      ObservableActivitiesAt d N (T κ c₉).L (T κ c₉).M κ (c₉ / 2) δ (k + 1) kf a ∧
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ l1Ball _ →
@@ -448,8 +473,8 @@ and the linked gas; P7 (4.9)–(4.14), P5 (3.18); LFR Lemma IV.4.2 and the proof
 blocker 5, item 18).** For a member `ρ` of `ℛ♭_k` at the stopping scale, with a representation `F`:
 on every torus of the family and every source of the unit `ℓ¹` ball,
 `∫ ρ dψ_k = Ξ^sf exp(∑_X b(X; g))`, where `Ξ^sf` is the small-field part (`sfIntegral`) and `b`
-are activities of the scale `k + 1` in Root-F's form (`ObservableActivities` with top scale `k + 1`
-and half the amplitude `c₉`). In the source: the last integral of every history (P7 (4.1)–(4.9):
+are activities of the scale `k + 1` in Root-F's form (`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top
+scale `k + 1` and half the amplitude `c₉`, at the scale `k + 1` only). In the source: the last integral of every history (P7 (4.1)–(4.9):
 the operators `𝕋'_{k+1}(Z', 𝔸')` with no free variable), the completion of the small-field functions
 to the whole torus (P7 (4.11): the term with no large-field region is `Ξ^sf`), the gas of the heavy
 objects `Z'` with weights bounded by (IV.4.1) `e^{-p₂(β_{k₀})/2 - H^{fin}|Z'|}` and the couplings
@@ -466,7 +491,7 @@ def FinalLargeFieldInput : Prop :=
       (rH κ c₉) (ϱ κ c₉) β ν h kf k hM6 hkK R geo cs P F St vc ρ νk →
     7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2 →
     ∃ b : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ,
-      ObservableActivities d N (T κ c₉).L (T κ c₉).M κ (c₉ / 2) δ (k + 1) kf b ∧
+      ObservableActivitiesAt d N (T κ c₉).L (T κ c₉).M κ (c₉ / 2) δ (k + 1) kf b ∧
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ l1Ball _ →
@@ -501,9 +526,13 @@ theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB c
     h₃ β hβ₃ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
   obtain ⟨b, ⟨hB', hgB⟩, hidB⟩ :=
     h₄ β hβ₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
+  have e : actAt (k + 1) (actAdd a b) =
+      actAt (k + 1) (actAdd (actAt (k + 1) a) (actAt (k + 1) b)) := by
+    rw [actAt_actAdd, actAt_actAdd, actAt_actAt, actAt_actAt]
   refine ⟨actAdd (inhObs F.sf (P6 κ c₉).m₀ h) (actAt (k + 1) (actAdd a b)), E,
-    ⟨fun ℓ _ hℓ => ?_, hagr.add ((hgA.add hgB).actAt (k + 1))⟩, ?_⟩
-  · obtain ⟨hs, han, hbd⟩ := hinh ℓ hℓ
+    ⟨fun ℓ _ hℓ => ?_, by rw [e]; exact hagr.add ((hgA.add hgB).actAt (k + 1))⟩, ?_⟩
+  · rw [e]
+    obtain ⟨hs, han, hbd⟩ := hinh ℓ hℓ
     obtain ⟨hsA, haA, hlA, hbA⟩ := hA ℓ hℓ
     obtain ⟨hsB, haB, hlB, hbB⟩ := hB' ℓ hℓ
     have hbAB := hbA.add hbB
