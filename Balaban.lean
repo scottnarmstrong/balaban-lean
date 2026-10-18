@@ -2628,3 +2628,5 @@ public import Balaban.Background.GenSetStability
 public import Balaban.LargeField.R.WindowConvPhysSwitchLoc
 public import Balaban.LargeField.R.WindowConvPhysSwitchLocGen
 public import Balaban.LargeField.R.WindowConvPhysSwitchLocBudget
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocPiece
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocPhys
