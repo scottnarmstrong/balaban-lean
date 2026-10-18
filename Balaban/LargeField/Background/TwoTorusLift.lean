@@ -82,6 +82,15 @@ theorem liftNear_zcast (h : ∀ μ, 2 * |w μ - c μ| < (m : ℤ)) : liftNear c 
     · rcases abs_cases (w μ - c μ) with ⟨h7, _⟩ | ⟨h7, _⟩ <;> omega
   rw [h2]; ring
 
+theorem liftNear_abs_le (c : Fin d → ℤ) (x : Torus d m) (μ : Fin d) :
+    2 * |liftNear c x μ - c μ| ≤ (m : ℤ) := by
+  unfold liftNear
+  have h := ZMod.valMinAbs_mem_Ioc (x μ - (c μ : ZMod m))
+  rw [show c μ + ZMod.valMinAbs (x μ - (c μ : ZMod m)) - c μ = ZMod.valMinAbs (x μ - (c μ : ZMod m))
+    by ring]
+  obtain ⟨h1, h2⟩ := h
+  rcases abs_cases (ZMod.valMinAbs (x μ - (c μ : ZMod m))) with ⟨h3, _⟩ | ⟨h3, _⟩ <;> omega
+
 omit [NeZero m] in
 theorem zcast_liftNear (x : Torus d m) : zcast m (liftNear c x) = x := by
   funext μ
