@@ -64,3 +64,12 @@ the P5 (2.15)/(2.47) identity with `Ω''` integrals inside `K`. Needs `Kphys` me
 
 ## Recommendation
 Do NOT populate yet. Resolve D1 and D2 (carrier docstring + one field change, W1093 or the orchestrator), add D3 typing constants, then populate.
+
+## Resolution (W1101, branch w1101-carrierfix)
+- **D1 resolved**: `Kphys` has no raw-spin argument `φ`; its value is the source kernel `K̃^w_0 e^{b_0}` of P5 (2.47) reading `o`, `x`, `h`, `g` on `Z'` and the history (docstring and BASECARRIER.md). `Kphys_ext`, `baseRawSites`, `baseKt0_ext`, `baseRotCfg`, `RelCfg` removed. Item T concerns the later sum over raw spins.
+- **D2 resolved** by D1 (the sites `Z'∖Ω_1` are held by `x` only).
+- **D3 resolved**: `Kphys_bound` is the relative source-term form `|K̃^w(g)| ≤ K̃^w(0) e^{‖g|_{Z'}‖_1}` (`baseSourceNorm`); no typing constant is needed; `baseActivityExp` and `b0_bound_strictly_weaker` removed. The `(C_b log β + C_b)|Z'|_1` form follows where `|Z'|_1 ≥ 1`.
+- **D5 resolved**: `Kphys_supp`, `KC_supp` state `g` on `baseZsites H Z'` (the sites of `Z'`).
+- **D6 resolved**: `br`, `hbr` dropped everywhere (`H.baseRecord`).
+- **D4 open, recorded as an obligation for population** (does not follow from the fields).
+- D7, items T and the verdict table: unchanged.
