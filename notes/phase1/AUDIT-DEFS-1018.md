@@ -35,7 +35,7 @@ Round 3, so Round 4 is not committed), `astra/SFFAM.md` Parts 2-3, `astra/XIDOM.
 | `srcTube`, `KerBoundSrc` | WITH-NOTE (`<=` instead of `<`) |
 | `locDataC`, `locBgC`, `mainActionLocC` | FAITHFUL |
 | `kf0CovAtom` (W1005) | no definition exists; only theorems (the atom is written inline) |
-| `Def6v2.CRotE` | **DEFECT** (bundled hypothesis carrying an unproved step; may be unsatisfiable) |
+| `Def6v2.CRotE` | **DEFECT**, repaired by W1091 (deleted) |
 | `IsRot` (redefined), `IsCRot`, `rotM` clause change | WITH-NOTE |
 | `quietSharp` | WITH-NOTE (defined by dividing out the action) |
 | `removedK`, `removedKernel`, `toRKernel`, `remDecomp`, `remDen`, `remNum`, `remZeroSplit`, `remZeroMerge`, `OutZero`, `OutRest`, `remUnitEquiv` | WITH-NOTE (zero denominator gives 0) |
@@ -366,6 +366,8 @@ statements are not false, but they are vacuous if `CRotE` is false for the class
 Repair already planned: `CROTE.md` section 4 (and W875: `SFTermClauses.rotE_of_near`, `rotE_of_cay_path`,
 `exists_cay_path_near`) replaces the four call sites by the real clause plus a Cayley path for bounded-entry matrices
 and removes every `hCR`. Until it lands, the theorems above should not be cited as unconditional.
+
+Repaired by W1091 (2026-10-18): `CRotE` deleted, every `hCR`/`hC` removed; see `CROTE.md` (W1091 lines).
 
 ## Other findings to act on
 

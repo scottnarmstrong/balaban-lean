@@ -262,7 +262,7 @@ theorem nuIdeal_witness_pos (j : ℕ) : 0 < nuIdeal 3 k (witnessν k k) j := by
 theorem isOpen_l1_lt : IsOpen {g : Fld 3 3 N₁ m₁ k 2 | l1 g < 1} := by
   refine isOpen_lt ?_ continuous_const
   unfold l1
-  exact continuous_finsetSum _ fun x _ => continuous_vn.comp (continuous_apply x)
+  exact continuous_finsetSum _ fun x _ => Background.continuous_vn.comp (continuous_apply x)
 
 /-- **(CONT) is satisfiable**: the clause `ContAtZero` holds for the constant family of the zero
 terms of `isSFFamily_witness` (any `α₀ > 0`, so in particular the witness class `P`). -/

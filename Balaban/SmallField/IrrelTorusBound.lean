@@ -83,8 +83,8 @@ open Classical in
 `premisesTermAniso_centred`, whenever the configuration `pack S ψ_y b` lies in the anisotropic
 polydisc or outside the anisotropic tube. -/
 theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
@@ -109,7 +109,7 @@ theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
   have hmS : ∀ x ∈ Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X),
       unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y) ∈ S :=
     fun x hx => by rw [hSdef]; exact Finset.mem_image_of_mem _ hx
-  have hT := tubeHypA_shiftTerm hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
+  have hT := tubeHypA_shiftTerm hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hne hrad
   have hr0 := hrad.1
   have hr1 := hrad.2.1
   have hE := analyticAt_term_ref (y := y) hcl hBg hν hμν hj1 hjk hX hyX i₀ hrad
@@ -265,7 +265,7 @@ open Classical in
 /-- **The per-label bound of the irrelevant part, conditional on `DataHypAniso`** (P1 Corollary
 3.11, (3.128), p. 153; the open analytic input P-2 is the premise `DataHypAniso` at the data pulled
 back at `y`, with `σ = C₀ s`, `s = s_{jk} = L^{-(k-j)}`, `ε = ε_k`): for a torus of the class on
-its main instance `xiFieldDom a μ ε_j` (term clauses, `CRotE`, `BgHyp`, `μ L^{2j} ≤ ν_j`), a label
+its main instance `xiFieldDom a μ ε_j` (term clauses, `BgHyp`, `ν ≤ 1`, `μ L^{2j} ≤ ν_j`), a label
 `(j, y, X)` with `X ≠ □(y)`, `Ψ` constant on the `j`-blocks and the constant field `h`, and data
 whose pulled-back configuration lies in the anisotropic polydisc or outside the anisotropic tube,
 `|ℰ^{(j)}_{irrel}(y, X; Ψ, h)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`.  The
@@ -276,9 +276,9 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
     (hC₀ : 0 < C₀) :
     ∃ CI : ℝ, 0 ≤ CI ∧ ∀ (N₁ k : ℕ) [NeZero N₁] (ϱ : ℝ) (a : ℕ → ℝ) (μ : ℝ)
       (Tm : Terms d L N₁ m₁ k N ϱ),
-      SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm → CRotE P (xiFieldDom a μ (P.eps d L)) Tm →
+      SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm →
       BgHyp d L k ϱ a μ → L ^ P.m₀ ∣ N₁ →
-      ∀ (ν : ℝ) (j : ℕ), 0 < ν → μ * ((L : ℝ) ^ j) ^ 2 ≤ ν → 1 ≤ j → j ≤ k →
+      ∀ (ν : ℝ) (j : ℕ), 0 < ν → μ * ((L : ℝ) ^ j) ^ 2 ≤ ν → ν ≤ 1 → 1 ≤ j → j ≤ k →
       ∀ (r : ℝ), AnisoRadiusOK d L N P j r →
       ∀ (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)), Aligned (L ^ j) y →
       IsPolyDom P.m₀ j X → y ∈ X →
@@ -309,7 +309,7 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
   obtain ⟨CI, hCI0, hCI⟩ := termwise_irrelevant_aniso_scaled d N (diamA d L P.m₀ m₁) Λ Ksig P.α₁ γ
     C₀ KR (diamA_nonneg d L P.m₀ m₁) hΛ hKsig hP.α₁_pos hα1 hC₀
   refine ⟨CI, hCI0, ?_⟩
-  intro N₁ k _ ϱ a μ Tm hcl hcr hBg hN ν j hν hμν hj1 hjk r hrad y X hy hX hyX hXne S hSdef i₀ i₁
+  intro N₁ k _ ϱ a μ Tm hcl hBg hN ν j hν hμν hνb hj1 hjk r hrad y X hy hX hyX hXne S hSdef i₀ i₁
     hne Ψ hv hΨb s σ ε K₂ dat hpack hs hσs hR hε hεΛ hσ1 hτ hνσ hK
   have hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S :=
     fun z hz => by rw [hSdef]; exact mem_placeSet hN hjk hy hX hz
@@ -319,10 +319,10 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
     rw [hSdef] at hs
     obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hs
     exact ⟨x, (Finset.mem_filter.1 hx).2.2, (Finset.mem_filter.1 hx).2.1, rfl⟩
-  rw [irrelTorus_eq_Itw_centred hcl hcr hBg hν hμν hj1 hjk hN hy hX hyX hXne hSdef hne hrad hΨb hv
+  rw [irrelTorus_eq_Itw_centred hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX hXne hSdef hne hrad hΨb hv
     hpack]
   exact hCI _ i₀ i₁ ν r P.E₀ P.κ _ _
-    (premisesTermAniso_centred hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hS' hne hrad) _ _ s σ ε K₂
+    (premisesTermAniso_centred hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hS' hne hrad) _ _ s σ ε K₂
     dat S (Set.mem_singleton S) hs hσs hR hrad.1 hrad.2.1 hε hεΛ hσ1 hτ hν.le hνσ hP.E₀_nonneg hK
 
 end Balaban.SmallField.Def6v2

@@ -42,7 +42,6 @@ two unmatched tails are bounded by the Cauchy form and the polymer counts. The d
 through `DataHypAniso` in the conclusion shape of `xiC_dataHypAniso_of_levelGS`. -/
 theorem norm_filed_origin_le
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
     (Ψ : Fld d L N₁ m₁ k N) (hv : Fin N → ℂ)
@@ -100,11 +99,10 @@ theorem norm_filed_origin_le
   have hd : 0 < d := lt_of_lt_of_le (by norm_num) hn.hd
   have hcl : SFTermClauses P (xiFieldDom (aIdeal L k (a k)) (Rg.sfBgMass k) (P.eps d L))
       (Tm N₁) := (hF.torus N₁).terms
-  have hcr : CRotE P (xiFieldDom (aIdeal L k (a k)) (Rg.sfBgMass k) (P.eps d L)) (Tm N₁) :=
-    hCR N₁
   have hBg := bgHyp_of_class2 hF.admissible hF.coeff hn.hd hn.hL hn.hϱ
   have hν : 0 < nuIdeal L k (Rg.ν k) j := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
   have hμν := (Rg.sfBgMass_mul_sq hjk).le
+  have hνb := hF.coeff.nuIdeal_le_one hF.admissible j
   have hrad := hF.anisoRadiusOK hn.hsmall i₀
   have dat := hdat (Dom := Set.univ) ⟨trivial, trivial⟩ hsec
   have hy : Aligned (L ^ j) (0 : CTorus d L N₁ m₁ k) := fun μ => by simp
@@ -138,7 +136,7 @@ theorem norm_filed_origin_le
           4 * ((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ) - 4) / (4 * diamA d L P.m₀ m₁) - 1) / 2))) *
         ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
           K0 d L (P.κ - 2))) := by
-    obtain ⟨hsum, hzero⟩ := hF.tsum_filed_inf hCR hn hne ψ b
+    obtain ⟨hsum, hzero⟩ := hF.tsum_filed_inf hn hne ψ b
     have hCst0 : 0 ≤ (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 + (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
       have hΛ : 0 ≤ Λ := by
         have := hrad.1
@@ -167,7 +165,7 @@ theorem norm_filed_origin_le
         (fun X hX => sizeJ_ge_torus_threshold_of_not_infPoly hd hjk hN (hS X hX).1 (hS X hX).2)
         (fun X hX => ⟨0, (hS X hX).1.1⟩)
         (fun X hX => by
-          have h := norm_filed_fin_le hcl hcr hBg hν hμν hj1 hjk hN (hS X hX).1 hne hrad dat hσ
+          have h := norm_filed_fin_le hcl hBg hν hμν hνb hj1 hjk hN (hS X hX).1 hne hrad dat hσ
             hσ1 hε hεΛ hτ
           refine h.trans (le_of_eq ?_)
           ring)
@@ -191,7 +189,7 @@ theorem norm_filed_origin_le
           (hS X hX).2.1 (hS X hX).2.2)
         (fun X hX => ⟨0, (hS X hX).1⟩)
         (fun X hX => by
-          have h := hF.norm_filed_inf_le hCR hn hne (hS X hX).1 (hS X hX).2.1 dat hσ hσ1 hε hεΛ hτ
+          have h := hF.norm_filed_inf_le hn hne (hS X hX).1 (hS X hX).2.1 dat hσ hσ1 hε hεΛ hτ
           refine h.trans (le_of_eq ?_)
           ring)
         (infPoly_wt_count_subset hjk hn.hκ 0 _ (fun X hX => ⟨(hS X hX).1, (hS X hX).2.1⟩))
@@ -201,7 +199,7 @@ theorem norm_filed_origin_le
   rw [finsum_polysAt_zero_eq_sum hjk hN]
   refine le_of_eq_of_le (congrArg norm (Finset.sum_congr rfl fun X' hX' => ?_)) hsplit
   obtain ⟨h0, hnw, hpd⟩ := (Set.Finite.mem_toFinset _).1 hX'
-  exact (TPhi_eq_Ttw_add_Phitw (Tm := Tm N₁) (X := Ypoly j X') (S := X') (y := 0) hcl hcr hBg hν
-    hμν hj1 hjk hN hy hpd (zero_mem_Ypoly h0) (image_unlift_Ypoly hjk hnw).symm hne hrad Ψ hv).symm
+  exact (TPhi_eq_Ttw_add_Phitw (Tm := Tm N₁) (X := Ypoly j X') (S := X') (y := 0) hcl hBg hν
+    hμν hνb hj1 hjk hN hy hpd (zero_mem_Ypoly h0) (image_unlift_Ypoly hjk hnw).symm hne hrad Ψ hv).symm
 
 end Balaban.SmallField.Def6v2

@@ -50,7 +50,6 @@ open Classical in
 /-- **norm filed origin le birth**: norm_filed_origin_le on the birth domains (see the module doc-string). -/
 theorem norm_filed_origin_le_birth
     (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
     (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2)
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
@@ -104,15 +103,15 @@ theorem norm_filed_origin_le_birth
           4 * ((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ) - 4) / (4 * diamA d L P.m₀ m₁) - 1) / 2))) *
         ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
           K0 d L (P.κ - 2))) := by
-  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
-    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  obtain ⟨Rg', β', Tm', hν, hT, hF'⟩ :=
+    hF.exists_levelOnly (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
   have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
   have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
   have hdat' := @hdat
   rw [← hnu] at hdat'
   have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
     ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
-  have h := norm_filed_origin_le hF' hCR' hn' hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
+  have h := norm_filed_origin_le hF' hn' hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
   simp only [hE] at h
   exact h
 
@@ -120,7 +119,6 @@ open Classical in
 /-- **norm filed origin le power birth**: norm_filed_origin_le_power on the birth domains (see the module doc-string). -/
 theorem norm_filed_origin_le_power_birth
     (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
     (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2)
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
@@ -168,15 +166,15 @@ theorem norm_filed_origin_le_power_birth
                    ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ')))‖ ≤
       (2 * (24 * Real.exp 1 * (16 * (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 + (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 * (N * (N * 40 * Λ) ^ 2))) * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)) * (Real.exp ((4 * (((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ)) + 4) / (8 * (diamA d L P.m₀ m₁)) + 1 / 2) * ((((d : ℝ) + (1 - 2 * P.γ - P.α₁))) / (Real.exp 1 * (((L : ℝ) ^ (P.m₀ + m₁)) / (8 * (diamA d L P.m₀ m₁))))) ^ (((d : ℝ) + (1 - 2 * P.γ - P.α₁)))))) * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) := by
-  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
-    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  obtain ⟨Rg', β', Tm', hν, hT, hF'⟩ :=
+    hF.exists_levelOnly (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
   have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
   have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
   have hdat' := @hdat
   rw [← hnu] at hdat'
   have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
     ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
-  have h := norm_filed_origin_le_power hF' hCR' hn' hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
+  have h := norm_filed_origin_le_power hF' hn' hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
   simp only [hE] at h
   exact h
 
@@ -184,7 +182,6 @@ open Classical in
 /-- **norm filed le power birth**: norm_filed_le_power on the birth domains (see the module doc-string). -/
 theorem norm_filed_le_power_birth
     (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
     (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2)
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
@@ -233,15 +230,15 @@ theorem norm_filed_le_power_birth
                    ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ')))‖ ≤
       (2 * (24 * Real.exp 1 * (16 * (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 + (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 * (N * (N * 40 * Λ) ^ 2))) * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)) * (Real.exp ((4 * (((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ)) + 4) / (8 * (diamA d L P.m₀ m₁)) + 1 / 2) * ((((d : ℝ) + (1 - 2 * P.γ - P.α₁))) / (Real.exp 1 * (((L : ℝ) ^ (P.m₀ + m₁)) / (8 * (diamA d L P.m₀ m₁))))) ^ (((d : ℝ) + (1 - 2 * P.γ - P.α₁)))))) * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) := by
-  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
-    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  obtain ⟨Rg', β', Tm', hν, hT, hF'⟩ :=
+    hF.exists_levelOnly (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
   have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
   have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
   have hdat' := @hdat
   rw [← hnu] at hdat'
   have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
     ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
-  have h := norm_filed_le_power hF' hCR' hn' hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
+  have h := norm_filed_le_power hF' hn' hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
   simp only [hE] at h
   exact h
 
@@ -264,10 +261,9 @@ theorem liftInfA_levelOnly {P' : Consts} (hm : P'.m₀ = P.m₀)
 section Inf
 
 variable (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-  (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
   (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2)
   (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
-include hF hCR hcap hn hne
+include hF hcap hn hne
 
 open Classical in
 /-- **The sum over the infinite shapes of the filed term vanishes**, birth-mass domains
@@ -285,13 +281,13 @@ theorem IsSFFamily2.tsum_filed_inf_birth (ψ : Site d → Spin N) (b : Spin N) :
         (anisoRadius d L N P j)) i₀ (Rg.ν j) X.1 ψ b +
       Phitw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
         (anisoRadius d L N P j)) i₀ i₁ (Rg.ν j) X.1 ψ) = 0 := by
-  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
-    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  obtain ⟨Rg', β', Tm', hν, hT, hF'⟩ :=
+    hF.exists_levelOnly (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
   have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
   have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
   have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
     ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
-  have h := IsSFFamily2.tsum_filed_inf hF' hCR' hn' hne ψ b
+  have h := IsSFFamily2.tsum_filed_inf hF' hn' hne ψ b
   rw [hnu, liftInfA_levelOnly rfl hE] at h
   exact h
 
@@ -311,14 +307,14 @@ theorem IsSFFamily2.norm_filed_inf_le_birth {X' : Finset (Site d)} (h0 : (0 : Si
           (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 *
             (N * (N * 40 * Λ) ^ 2)) *
         (P.E₀ * Real.exp (-P.κ * dInf L m₁ k P.m₀ j X') * (1 + dInf L m₁ k P.m₀ j X') ^ 4) := by
-  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
-    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  obtain ⟨Rg', β', Tm', hν, hT, hF'⟩ :=
+    hF.exists_levelOnly (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
   have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
   have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
   have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
     ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
   rw [← hnu] at dat
-  have h := IsSFFamily2.norm_filed_inf_le hF' hCR' hn' hne h0 hX dat hσ hσ1 hε hεΛ hτ
+  have h := IsSFFamily2.norm_filed_inf_le hF' hn' hne h0 hX dat hσ hσ1 hε hεΛ hτ
   rw [hnu, liftInfA_levelOnly rfl hE] at h
   exact h
 

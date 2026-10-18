@@ -36,7 +36,7 @@ The class hypotheses used: the term clauses `SFTermClauses` (`analyticE`, `local
 `gs_spec`), `L^{m₀} ∣ N₁`, `1 ≤ j ≤ k`, and that the domain of the level `j` contains the
 block-constant fields near the reference field `e_{i₀}` with `h = e_{i₀}` (for `xiFieldDom`: the
 background hypotheses `BgHyp` and the smallness `(2K₁+2) δ ≤ ε_j`, `δ ≤ min (c₀, c₁)`, as in
-`xiDom_of_close`).  No renormalization condition, no `MomNum`, no `CRotE` and no membership of a
+`xiDom_of_close`).  No renormalization condition, no `MomNum` and no membership of a
 family `IsSFFamily2` is used: the identity is exact on every torus.
 -/
 
@@ -409,7 +409,7 @@ field domain `completeXiDom` (complete backgrounds), on every torus `N₁` with 
 every level `1 ≤ j ≤ k` with P1's smallness `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
 `Σ_{y ∈ Λ_j} Σ_{X ∋ y} ℰ^{(j)}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for all fields.  Only the term
 clauses of the torus and the background hypotheses (from `admissible`, `coeff`, `d, L ≥ 3`,
-`ϱ ≥ R₀`) are used: not `MomNum`, not `CRotE`, not the renormalization conditions. -/
+`ϱ ≥ R₀`) are used: not `MomNum`, not the renormalization conditions. -/
 theorem IsSFFamily2.sum_irrelTorus_eq_Edens {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
     {Ek : ℕ → ℝ} {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
     {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →

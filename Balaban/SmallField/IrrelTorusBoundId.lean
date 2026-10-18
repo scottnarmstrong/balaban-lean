@@ -267,7 +267,7 @@ theorem xiDom_ref (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
   obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hrad
   have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have h := xiDom_shift_poly (y := 0) (S := ∅) hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν i₀
-    (fun μ => by simp) hδ0 hδc0 hδc1 hr0 hr1 (by nlinarith) hε (refPt_mem_polyAniso hr0)
+    (fun μ => by simp) hδ0 hδc0 hδc1 hr0 hr1 (aniK_old i₀ hr0 hrδ).2 hε (refPt_mem_polyAniso hr0)
   have e1 : (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ (∅ : Finset (Site d))
       (refPt i₀ ν ∅) (z - 0)) = constFld (Pi.single i₀ 1) := funext fun z => shiftField_refPt ν 0 z
   rwa [e1, hOf_refPt hν.ne'] at h

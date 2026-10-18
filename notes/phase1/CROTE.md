@@ -58,3 +58,7 @@ domain is known). Each `hCR` is removed by replacing the four call sites:
    `hsf : IsSF ...` (only `gs_spec`, `analyticE`, `localE`, `rotE` are used; the density clause is not used by the bridges),
    then `isSF_of_termClauses` and every `hC/hCR` disappear; the landed `IsSF` versions become corollaries via
    `IsSF.termClauses`. `Def6v2RenormCompare` (`CRotE` of the landed class) stays valid.
+
+W1091 (2026-10-18): REPAIRED. The four call sites no longer use `CRotE` (deleted, with every `hCR`/`hC`): isotropic `Eaux_rot`, `EauxC_rot` by `E_rot_at` (polar path, `rotE_of_near_within`); anisotropic `Eaux_rotA`, `EauxC_rotA`, `shiftTerm_rotA` by `rotE_aniso_of_xiFieldDom` (`RenormAnisoRot.lean`), the two-stage Cayley path of `Def6RotFramesAniso.lean`.
+Why two stages: the polar path alone does not stay in the anisotropic domain (longitudinal radius `r²`); `T = cay(A)`, `A = (v eᵀ - e vᵀ)/(1 + e·v)`, `v = M e`, takes `e` to `v`, and `T⁻¹M` fixes `e`, so `cay e = e` and the longitudinal coordinate is exact.  Needs `ν_j ≤ 1` (from `Admissible.νbar_le`, `CoeffBounds.nu_le`): `aniK N B = 60 N √N (1 + N B)²`, `anisoRadius`/`liftRadius` shrunk by constants depending on `N` only.
+Changed statements: `IsSF.rotE` now for real `IsRot` (the source clause; `IsSF.termClauses` is trivial), radius conditions, `hνb : ν ≤ 1` threaded through the IrrelTorus chain (discharged by `CoeffBounds.nu_le_one` at the class level).

@@ -151,7 +151,7 @@ theorem LiftCtx.xiDom_const (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
   obtain ⟨δ, hδ0, hδ1, hδ2, hδ3, hδ4⟩ := ctx.radius
   have hN : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hρ0 := ctx.rho_pos
-  refine xiDom_of_close ctx.bg hΩ ctx.jk i₀ hδ0 hδ1 hδ2 hρ0 (by nlinarith) hδ3 Ψ
+  refine xiDom_of_close ctx.bg hΩ ctx.jk i₀ hδ0 hδ1 hδ2 hρ0 (nrho_lt_of_radius hρ0.le i₀ hδ4) hδ3 Ψ
     (Pi.single i₀ 1) hΨ hΨb ?_
   intro i
   rw [sub_self, norm_zero, mul_zero]

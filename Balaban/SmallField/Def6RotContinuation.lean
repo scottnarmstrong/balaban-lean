@@ -321,28 +321,7 @@ theorem rotM_eq_of_exp_path
   rw [rotField_mul, rotField_mul, rotField_mul] at hend ⊢
   rw [hreal Q hQ _ _ _ hp1 hend, h1, Matrix.mulVec_mulVec]
 
-/-- **The complex rotation invariance `CRotE` from the real clause `rotE` and a path.**  If the
-domain is open at its points and every pair `(Ψ, h)`, `(RΨ, Rh)` of the domain related by
-`R ∈ IsCRot` is joined by a path `exp(sA)(Ψ, h)`, `s ∈ [0, 1]`, in the domain with
-`R = Q exp(A)`, `Q` real orthogonal, `A ∈ 𝔰𝔬(N, ℂ)`, then the terms are invariant under `R`.
-(That every such pair of the domain `Ξ^c_j` is joined by a path is not proved.) -/
-theorem SFTermClauses.cRotE_of_path {P : Consts} {ϱ : ℝ} {Dom : FieldDom d L N₁ m₁ k N ϱ}
-    {Tm : Terms d L N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom Tm)
-    (hopen : ∀ j G Ψ h, Dom.dom j G Ψ h → {p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N |
-      Dom.dom j G p.1 p.2} ∈ 𝓝 (Ψ, h))
-    (hconn : ∀ j G Ψ h (R : Matrix (Fin N) (Fin N) ℂ), IsCRot R → Dom.dom j G Ψ h →
-      Dom.dom j G (Def6.rotField R Ψ) (Def6.rotField R h) →
-      ∃ Q A : Matrix (Fin N) (Fin N) ℂ, IsRot Q ∧ A.transpose = -A ∧
-        R = Q * NormedSpace.exp A ∧ ∀ s : ℝ, 0 ≤ s → s ≤ 1 →
-          Dom.dom j G (Def6.rotField (NormedSpace.exp ((s : ℂ) • A)) Ψ)
-            (Def6.rotField (NormedSpace.exp ((s : ℂ) • A)) h)) :
-    CRotE P Dom Tm := by
-  intro j hj1 hjk y X hX hy R hR Ψ h hd hdR
-  obtain ⟨Q, A, hQ, hA, rfl, hp⟩ := hconn j (Tm.gs j X) Ψ h R hR hd hdR
-  exact rotE_eq_of_exp_path (fun Ψ h => Tm.E j y X Ψ h) {p | Dom.dom j (Tm.gs j X) p.1 p.2}
-    (hT.analyticE j hj1 hjk y X hX hy)
-    (fun Q hQ Ψ h h1 h2 => hT.rotE j hj1 hjk y X hX hy Q hQ Ψ h h1 h2) hQ hA
-    (hopen j _ Ψ h hd) hp hdR
+
 
 end Path
 

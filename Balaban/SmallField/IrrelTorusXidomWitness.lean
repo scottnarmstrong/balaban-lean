@@ -22,7 +22,7 @@ open Balaban Balaban.Multiscale Balaban.SmallField Balaban.SmallField.Def6
 
 variable {d N : ℕ} {S : Finset (Site d)} {i₀ i₁ : Fin N} {ν r : ℝ}
 
-/-- Every tube witness can be chosen in the complex rotation class required by `CRotE`,
+/-- Every tube witness can be chosen in the complex rotation class of the rotation step,
 provided there is a transverse coordinate. -/
 theorem tubeAniso_witness_isCRot (hne : i₁ ≠ i₀) {c : Cfg d N S}
     (hc : c ∈ TubeAniso i₀ ν r S) :

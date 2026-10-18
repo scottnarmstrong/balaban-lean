@@ -441,6 +441,7 @@ public import Balaban.Localization.I5Glue
 public import Balaban.Localization.I5Close
 public import Balaban.Localization.I5Chain
 public import Balaban.Localization.XiCRawOpen
+public import Balaban.SmallField.XiDomOpen
 public import Balaban.Inhabited.XiCRawOpenWitness
 public import Balaban.Localization.I5Fan
 public import Balaban.Localization.I5Inhabited
@@ -627,6 +628,8 @@ public import Balaban.SmallField.RenormAnisoLocal
 public import Balaban.SmallField.RenormAnisoCtx
 public import Balaban.SmallField.RenormAnisoIrrel
 public import Balaban.SmallField.RenormAnisoInhabited
+public import Balaban.SmallField.RenormAnisoDomain
+public import Balaban.SmallField.RenormAnisoRot
 public import Balaban.SmallField.RenormAnisoBridge
 public import Balaban.SmallField.RenormAnisoBridgeInf
 public import Balaban.SmallField.Xi
@@ -649,6 +652,7 @@ public import Balaban.SmallField.XiPerturb
 public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
+public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6ContInhabited
 public import Balaban.SmallField.Def6Terms
@@ -701,6 +705,7 @@ public import Balaban.SmallField.Def6v2Renorm
 public import Balaban.SmallField.Def6RotContinuation
 public import Balaban.SmallField.Def6RotFramesPolar
 public import Balaban.SmallField.Def6RotFrames
+public import Balaban.SmallField.Def6RotFramesAniso
 public import Balaban.SmallField.Def6v2RenormCompare
 public import Balaban.LargeField.Operators.Variables
 public import Balaban.LargeField.Operators.Kernel

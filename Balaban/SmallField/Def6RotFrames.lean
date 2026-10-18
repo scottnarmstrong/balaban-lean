@@ -44,6 +44,45 @@ theorem analyticAt_rotField_of_entries {R : (ι → ℂ) → Matrix (Fin N) (Fin
   simp only [Def6.rotField, Matrix.mulVec, dotProduct]
   exact Finset.analyticAt_fun_sum _ fun l _ => (hR i l).mul analyticAt_const
 
+/-- **The identity theorem along a segment, with the neighbourhood relative to a set `S`.**  As
+`eq_of_rotation_family_local`, with `D ∈ 𝓝[S] (Ψ, h)` in place of `D ∈ 𝓝 (Ψ, h)`, where `S`
+contains every pair `(R w Ψ, R w h)`.  (The class domain is open only relative to the layer-constant
+pairs, so the neighbourhood of the start point is needed only within a set of such pairs.) -/
+theorem eq_of_rotation_family_within [DecidableEq ι]
+    (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+    (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
+    (hF : AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => F p.1 p.2) D)
+    (hreal : ∀ Q : Matrix (Fin N) (Fin N) ℂ, IsRot Q → ∀ Ψ h, (Ψ, h) ∈ D →
+      (rotField Q Ψ, rotField Q h) ∈ D → F (rotField Q Ψ) (rotField Q h) = F Ψ h)
+    (R : (ι → ℂ) → Matrix (Fin N) (Fin N) ℂ) (hR0 : R 0 = 1)
+    (S : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
+    {Ψ h : Fld d L N₁ m₁ k N} (hD : D ∈ 𝓝[S] (Ψ, h))
+    (hS : ∀ w, (rotField (R w) Ψ, rotField (R w) h) ∈ S) {w₁ : ι → ℂ}
+    (hRa : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, ∀ i j, AnalyticAt ℂ (fun w => R w i j) w)
+    (hRr : ∀ᶠ w in 𝓝 (0 : ι → ℂ), (∀ i, (w i).im = 0) → IsRot (R w))
+    (hpath : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, (rotField (R w) Ψ, rotField (R w) h) ∈ D) :
+    F (rotField (R w₁) Ψ) (rotField (R w₁) h) = F Ψ h := by
+  set q : (ι → ℂ) → Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N :=
+    fun w => (rotField (R w) Ψ, rotField (R w) h) with hq
+  have hqa : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, AnalyticAt ℂ q w := fun w hw =>
+    (analyticAt_rotField_of_entries (hRa w hw) Ψ).prod (analyticAt_rotField_of_entries (hRa w hw) h)
+  have h0 : (0 : ι → ℂ) ∈ segment ℝ (0 : ι → ℂ) w₁ := left_mem_segment ℝ _ _
+  have hq0 : q 0 = (Ψ, h) := by simp [hq, hR0, rotField_one]
+  have hS0 : (Ψ, h) ∈ S := by simpa [hq, hR0, rotField_one] using hS 0
+  have hev : ∀ᶠ w in 𝓝 (0 : ι → ℂ), q w ∈ D := by
+    have ht : Tendsto q (𝓝 (0 : ι → ℂ)) (𝓝[S] (Ψ, h)) := by
+      rw [← hq0]
+      exact tendsto_nhdsWithin_iff.2 ⟨(hqa 0 h0).continuousAt, Eventually.of_forall hS⟩
+    exact ht.eventually_mem hD
+  have key := eq_zero_of_real_on_segment
+    (g := fun w => F (q w).1 (q w).2 - F Ψ h) (w₁ := w₁)
+    (fun w hw => ((hF (q w) (hpath w hw)).comp (hqa w hw)).sub analyticAt_const) (by
+      filter_upwards [hev, hRr] with w hw hr hwr
+      have := hreal (R w) (hr hwr) Ψ h (mem_of_mem_nhdsWithin hS0 hD) hw
+      simpa [hq, sub_eq_zero] using this)
+  simpa [hq, sub_eq_zero] using key
+
+
 theorem eq_of_rotation_family_local [DecidableEq ι]
     (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
     (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
@@ -55,22 +94,9 @@ theorem eq_of_rotation_family_local [DecidableEq ι]
     (hRa : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, ∀ i j, AnalyticAt ℂ (fun w => R w i j) w)
     (hRr : ∀ᶠ w in 𝓝 (0 : ι → ℂ), (∀ i, (w i).im = 0) → IsRot (R w))
     (hpath : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, (rotField (R w) Ψ, rotField (R w) h) ∈ D) :
-    F (rotField (R w₁) Ψ) (rotField (R w₁) h) = F Ψ h := by
-  set q : (ι → ℂ) → Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N :=
-    fun w => (rotField (R w) Ψ, rotField (R w) h) with hq
-  have hqa : ∀ w ∈ segment ℝ (0 : ι → ℂ) w₁, AnalyticAt ℂ q w := fun w hw =>
-    (analyticAt_rotField_of_entries (hRa w hw) Ψ).prod (analyticAt_rotField_of_entries (hRa w hw) h)
-  have h0 : (0 : ι → ℂ) ∈ segment ℝ (0 : ι → ℂ) w₁ := left_mem_segment ℝ _ _
-  have hq0 : q 0 = (Ψ, h) := by simp [hq, hR0, rotField_one]
-  have hev : ∀ᶠ w in 𝓝 (0 : ι → ℂ), q w ∈ D :=
-    (hqa 0 h0).continuousAt.eventually_mem (hq0 ▸ hD)
-  have key := eq_zero_of_real_on_segment
-    (g := fun w => F (q w).1 (q w).2 - F Ψ h) (w₁ := w₁)
-    (fun w hw => ((hF (q w) (hpath w hw)).comp (hqa w hw)).sub analyticAt_const) (by
-      filter_upwards [hev, hRr] with w hw hr hwr
-      have := hreal (R w) (hr hwr) Ψ h (mem_of_mem_nhds hD) hw
-      simpa [hq, sub_eq_zero] using this)
-  simpa [hq, sub_eq_zero] using key
+    F (rotField (R w₁) Ψ) (rotField (R w₁) h) = F Ψ h :=
+  eq_of_rotation_family_within F D hF hreal R hR0 Set.univ (by rwa [nhdsWithin_univ])
+    (fun _ => Set.mem_univ _) hRa hRr hpath
 
 end Local
 
@@ -189,8 +215,9 @@ theorem rotCay_smul_soCoord {S : Matrix (Fin N) (Fin N) ℂ} (hS : S.transpose =
 
 /-- **Invariance along the Cayley path `R = Q · cay(S)`.**  As `rotE_eq_of_exp_path`, with the
 path `s ↦ cay(sS)`, `cay(sS) = (1 - sS)⁻¹ (1 + sS)`, in place of `exp(sA)`; `S` is complex
-antisymmetric with `1 - sS` invertible for `s ∈ [0, 1]`. -/
-theorem rotE_eq_of_cay_path (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+antisymmetric with `1 - sS` invertible for `s ∈ [0, 1]`.  The neighbourhood `hD` of the start point
+is relative to a set `Z` that contains all the rotated pairs. -/
+theorem rotE_eq_of_cay_path_within (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
     (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
     (hF : AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => F p.1 p.2) D)
     (hreal : ∀ Q : Matrix (Fin N) (Fin N) ℂ, IsRot Q → ∀ Ψ h, (Ψ, h) ∈ D →
@@ -198,7 +225,9 @@ theorem rotE_eq_of_cay_path (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N
       F (Def6.rotField Q Ψ) (Def6.rotField Q h) = F Ψ h)
     {Q S : Matrix (Fin N) (Fin N) ℂ} (hQ : IsRot Q) (hS : S.transpose = -S)
     (hunit : ∀ s : ℝ, 0 ≤ s → s ≤ 1 → IsUnit (1 - (s : ℂ) • S).det)
-    {Ψ h : Fld d L N₁ m₁ k N} (hD : D ∈ 𝓝 (Ψ, h))
+    (Z : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
+    {Ψ h : Fld d L N₁ m₁ k N} (hD : D ∈ 𝓝[Z] (Ψ, h))
+    (hZ : ∀ R : Matrix (Fin N) (Fin N) ℂ, (Def6.rotField R Ψ, Def6.rotField R h) ∈ Z)
     (hpath : ∀ s : ℝ, 0 ≤ s → s ≤ 1 →
       (Def6.rotField (RotFrames.cayMat S (s : ℂ)) Ψ,
         Def6.rotField (RotFrames.cayMat S (s : ℂ)) h) ∈ D)
@@ -210,7 +239,7 @@ theorem rotE_eq_of_cay_path (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N
       w = (s : ℂ) • soCoord S := fun w hw => by
     obtain ⟨s, h0, h1, rfl⟩ := mem_segment_zero hw
     exact ⟨s, h0, h1, by simp [Complex.coe_smul]⟩
-  have h1 := eq_of_rotation_family_local F D hF hreal rotCay rotCay_zero hD
+  have h1 := eq_of_rotation_family_within F D hF hreal rotCay rotCay_zero Z hD (fun w => hZ _)
     (w₁ := soCoord S)
     (fun w hw i j => by
       obtain ⟨s, h0, h1, rfl⟩ := hseg w hw
@@ -230,6 +259,28 @@ theorem rotE_eq_of_cay_path (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N
     simpa using hpath 1 zero_le_one le_rfl
   rw [rotField_mul, rotField_mul] at hend ⊢
   rw [hreal Q hQ _ _ hp1 hend, h1]
+
+
+/-- **Invariance along the Cayley path `R = Q · cay(S)`.**  As `rotE_eq_of_cay_path_within`, with the
+neighbourhood of the start point in the whole space. -/
+theorem rotE_eq_of_cay_path (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+    (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
+    (hF : AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => F p.1 p.2) D)
+    (hreal : ∀ Q : Matrix (Fin N) (Fin N) ℂ, IsRot Q → ∀ Ψ h, (Ψ, h) ∈ D →
+      (Def6.rotField Q Ψ, Def6.rotField Q h) ∈ D →
+      F (Def6.rotField Q Ψ) (Def6.rotField Q h) = F Ψ h)
+    {Q S : Matrix (Fin N) (Fin N) ℂ} (hQ : IsRot Q) (hS : S.transpose = -S)
+    (hunit : ∀ s : ℝ, 0 ≤ s → s ≤ 1 → IsUnit (1 - (s : ℂ) • S).det)
+    {Ψ h : Fld d L N₁ m₁ k N} (hD : D ∈ 𝓝 (Ψ, h))
+    (hpath : ∀ s : ℝ, 0 ≤ s → s ≤ 1 →
+      (Def6.rotField (RotFrames.cayMat S (s : ℂ)) Ψ,
+        Def6.rotField (RotFrames.cayMat S (s : ℂ)) h) ∈ D)
+    (hend : (Def6.rotField (Q * RotFrames.cayMat S 1) Ψ,
+      Def6.rotField (Q * RotFrames.cayMat S 1) h) ∈ D) :
+    F (Def6.rotField (Q * RotFrames.cayMat S 1) Ψ) (Def6.rotField (Q * RotFrames.cayMat S 1) h) =
+      F Ψ h :=
+  rotE_eq_of_cay_path_within F D hF hreal hQ hS hunit Set.univ (by rwa [nhdsWithin_univ])
+    (fun _ => Set.mem_univ _) hpath hend
 
 end CayPath
 
@@ -368,8 +419,10 @@ Let `D` contain every pair of the class `P` (closed under all matrices) with `|�
 `r₁h ≥ √N (rh + rh' + (1 + 2 N B) re)`.  Then `F (MΨ) (Mh) = F Ψ h`.
 
 No closeness of `M` to a real rotation is needed: the path of the polar decomposition
-(`exists_cay_path_near`) stays in the ball of radius `r₁` (and `r₁h`). -/
-theorem rotE_of_near (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+(`exists_cay_path_near`) stays in the ball of radius `r₁` (and `r₁h`).  The neighbourhood `D` of
+`(Ψ, h)` is relative to the pairs of the class `P` (the class domain is open only relative to the
+layer-constant pairs). -/
+theorem rotE_of_near_within (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
     (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
     (hF : AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => F p.1 p.2) D)
     (hreal : ∀ Q : Matrix (Fin N) (Fin N) ℂ, IsRot Q → ∀ Ψ h, (Ψ, h) ∈ D →
@@ -385,7 +438,8 @@ theorem rotE_of_near (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → �
     (hP : ∀ (R : Matrix (Fin N) (Fin N) ℂ) Ψ h, P Ψ h → P (Def6.rotField R Ψ) (Def6.rotField R h))
     (hDm : ∀ Ψ' h', P Ψ' h' → (∀ x i, ‖Ψ' x i - e i‖ ≤ r₁) → (∀ x i, ‖h' x i - e i‖ ≤ r₁h) →
       (Ψ', h') ∈ D)
-    {Ψ h : Fld d L N₁ m₁ k N} (hDn : D ∈ 𝓝 (Ψ, h)) (hPΨ : P Ψ h)
+    {Ψ h : Fld d L N₁ m₁ k N}
+    (hDn : D ∈ 𝓝[{p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N | P p.1 p.2}] (Ψ, h)) (hPΨ : P Ψ h)
     (hΨ : ∀ x i, ‖Ψ x i - e i‖ ≤ r) (hh : ∀ x i, ‖h x i - e i‖ ≤ rh)
     (hΨM : ∀ x i, ‖Def6.rotField M Ψ x i - e i‖ ≤ r')
     (hhM : ∀ x i, ‖Def6.rotField M h x i - e i‖ ≤ rh') :
@@ -442,8 +496,36 @@ theorem rotE_of_near (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → �
     rw [← hMQ]
     exact hDm _ _ (hP _ _ _ hPΨ) (fun y i => (hΨM y i).trans (hrr i).1)
       (fun y i => (hhM y i).trans (hrr i).2)
-  have := rotE_eq_of_cay_path F D hF hreal hQ hS hunit hDn hpath hend
+  have := rotE_eq_of_cay_path_within F D hF hreal hQ hS hunit
+    {p | P p.1 p.2} hDn (fun R => hP R Ψ h hPΨ) hpath hend
   rwa [← hMQ] at this
+
+
+/-- **Complex invariance for the frames of the renormalization chain**, with `D` a neighbourhood
+of `(Ψ, h)`; see `rotE_of_near_within`. -/
+theorem rotE_of_near (F : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → ℂ)
+    (D : Set (Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N))
+    (hF : AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => F p.1 p.2) D)
+    (hreal : ∀ Q : Matrix (Fin N) (Fin N) ℂ, IsRot Q → ∀ Ψ h, (Ψ, h) ∈ D →
+      (Def6.rotField Q Ψ, Def6.rotField Q h) ∈ D →
+      F (Def6.rotField Q Ψ) (Def6.rotField Q h) = F Ψ h)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1) {B : ℝ} (hB : 0 ≤ B)
+    (hMb : ∀ i j, ‖M i j‖ ≤ B) {e : Fin N → ℂ} (he : ∀ i, star (e i) = e i)
+    {r r' rh rh' re r₁ r₁h : ℝ} (hr : 0 ≤ r) (hr' : 0 ≤ r') (hrh : 0 ≤ rh) (hrh' : 0 ≤ rh')
+    (hre : 0 ≤ re) (hMe : ∀ i, ‖(M *ᵥ e) i - e i‖ ≤ re)
+    (hr₁ : Real.sqrt N * (r + r' + (1 + 2 * (N * B)) * re) ≤ r₁)
+    (hr₁h : Real.sqrt N * (rh + rh' + (1 + 2 * (N * B)) * re) ≤ r₁h)
+    (P : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → Prop)
+    (hP : ∀ (R : Matrix (Fin N) (Fin N) ℂ) Ψ h, P Ψ h → P (Def6.rotField R Ψ) (Def6.rotField R h))
+    (hDm : ∀ Ψ' h', P Ψ' h' → (∀ x i, ‖Ψ' x i - e i‖ ≤ r₁) → (∀ x i, ‖h' x i - e i‖ ≤ r₁h) →
+      (Ψ', h') ∈ D)
+    {Ψ h : Fld d L N₁ m₁ k N} (hDn : D ∈ 𝓝 (Ψ, h)) (hPΨ : P Ψ h)
+    (hΨ : ∀ x i, ‖Ψ x i - e i‖ ≤ r) (hh : ∀ x i, ‖h x i - e i‖ ≤ rh)
+    (hΨM : ∀ x i, ‖Def6.rotField M Ψ x i - e i‖ ≤ r')
+    (hhM : ∀ x i, ‖Def6.rotField M h x i - e i‖ ≤ rh') :
+    F (Def6.rotField M Ψ) (Def6.rotField M h) = F Ψ h :=
+  rotE_of_near_within F D hF hreal hM hB hMb he hr hr' hrh hrh' hre hMe hr₁ hr₁h P hP hDm
+    (mem_nhdsWithin_of_mem_nhds hDn) hPΨ hΨ hh hΨM hhM
 
 end NearField
 
@@ -454,13 +536,42 @@ open Matrix
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
-/-- **The restricted complex invariance `CRotE` at the matrices of the frame bridges.**  For a
+/-- **The restricted complex invariance at the matrices of the frame bridges.**  For a
 member of the term clauses (`SFTermClauses`, real `O(N)` invariance and analyticity on the domain)
 the energy terms are invariant under every complex orthogonal `M` with entries bounded by `B` that
 relates two pairs `(Ψ, h)`, `(MΨ, Mh)` lying close to a real constant `e` (the radii are those of
 `rotE_of_near`), provided the domain contains the pairs of the class `P'` (closed under all
 matrices: block-constant fields with a constant `h`) within the radii `r₁`, `r₁h` of `e`, and is a
 neighbourhood of `(Ψ, h)`. -/
+theorem SFTermClauses.rotE_of_near_within {P : Consts} {Dom : FieldDom d L N₁ m₁ k N ϱ}
+    {Tm : Terms d L N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom Tm)
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {y X}
+    (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1) {B : ℝ} (hB : 0 ≤ B)
+    (hMb : ∀ i j, ‖M i j‖ ≤ B) {e : Fin N → ℂ} (he : ∀ i, star (e i) = e i)
+    {r r' rh rh' re r₁ r₁h : ℝ} (hr : 0 ≤ r) (hr' : 0 ≤ r') (hrh : 0 ≤ rh) (hrh' : 0 ≤ rh')
+    (hre : 0 ≤ re) (hMe : ∀ i, ‖(M *ᵥ e) i - e i‖ ≤ re)
+    (hr₁ : Real.sqrt N * (r + r' + (1 + 2 * (N * B)) * re) ≤ r₁)
+    (hr₁h : Real.sqrt N * (rh + rh' + (1 + 2 * (N * B)) * re) ≤ r₁h)
+    (P' : Fld d L N₁ m₁ k N → Fld d L N₁ m₁ k N → Prop)
+    (hP : ∀ (R : Matrix (Fin N) (Fin N) ℂ) Ψ h, P' Ψ h →
+      P' (Def6.rotField R Ψ) (Def6.rotField R h))
+    (hDm : ∀ Ψ' h', P' Ψ' h' → (∀ x i, ‖Ψ' x i - e i‖ ≤ r₁) → (∀ x i, ‖h' x i - e i‖ ≤ r₁h) →
+      Dom.dom j (Tm.gs j X) Ψ' h')
+    {Ψ h : Fld d L N₁ m₁ k N}
+    (hDn : {p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N | Dom.dom j (Tm.gs j X) p.1 p.2} ∈
+      𝓝[{p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N | P' p.1 p.2}] (Ψ, h))
+    (hPΨ : P' Ψ h) (hΨ : ∀ x i, ‖Ψ x i - e i‖ ≤ r) (hh : ∀ x i, ‖h x i - e i‖ ≤ rh)
+    (hΨM : ∀ x i, ‖Def6.rotField M Ψ x i - e i‖ ≤ r')
+    (hhM : ∀ x i, ‖Def6.rotField M h x i - e i‖ ≤ rh') :
+    Tm.E j y X (Def6.rotField M Ψ) (Def6.rotField M h) = Tm.E j y X Ψ h :=
+  Balaban.SmallField.Def6v2.rotE_of_near_within (fun Ψ h => Tm.E j y X Ψ h)
+    {p | Dom.dom j (Tm.gs j X) p.1 p.2}
+    (hT.analyticE j hj1 hjk y X hX hy)
+    (fun Q hQ Ψ h h1 h2 => hT.rotE j hj1 hjk y X hX hy Q hQ Ψ h h1 h2) hM hB hMb he hr hr' hrh
+    hrh' hre hMe hr₁ hr₁h P' hP hDm hDn hPΨ hΨ hh hΨM hhM
+
+
 theorem SFTermClauses.rotE_of_near {P : Consts} {Dom : FieldDom d L N₁ m₁ k N ϱ}
     {Tm : Terms d L N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom Tm)
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {y X}
@@ -483,11 +594,8 @@ theorem SFTermClauses.rotE_of_near {P : Consts} {Dom : FieldDom d L N₁ m₁ k 
     (hΨM : ∀ x i, ‖Def6.rotField M Ψ x i - e i‖ ≤ r')
     (hhM : ∀ x i, ‖Def6.rotField M h x i - e i‖ ≤ rh') :
     Tm.E j y X (Def6.rotField M Ψ) (Def6.rotField M h) = Tm.E j y X Ψ h :=
-  Balaban.SmallField.Def6v2.rotE_of_near (fun Ψ h => Tm.E j y X Ψ h)
-    {p | Dom.dom j (Tm.gs j X) p.1 p.2}
-    (hT.analyticE j hj1 hjk y X hX hy)
-    (fun Q hQ Ψ h h1 h2 => hT.rotE j hj1 hjk y X hX hy Q hQ Ψ h h1 h2) hM hB hMb he hr hr' hrh
-    hrh' hre hMe hr₁ hr₁h P' hP hDm hDn hPΨ hΨ hh hΨM hhM
+  hT.rotE_of_near_within hj1 hjk hX hy hM hB hMb he hr hr' hrh hrh' hre hMe hr₁ hr₁h P' hP hDm
+    (mem_nhdsWithin_of_mem_nhds hDn) hPΨ hΨ hh hΨM hhM
 
 end Clauses
 

@@ -101,7 +101,6 @@ independent of the torus (`N₁`), of `k`, of `j` and of the datum. The datum en
 two points), with the second difference bound and the numerical conditions of the termwise bound. -/
 theorem norm_filed_origin_le_power
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
     (Ψ : Fld d L N₁ m₁ k N) (hv : Fin N → ℂ)
@@ -148,7 +147,7 @@ theorem norm_filed_origin_le_power
                    ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ')))‖ ≤
       (2 * (24 * Real.exp 1 * (16 * (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 + (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 * (N * (N * 40 * Λ) ^ 2))) * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)) * (Real.exp ((4 * (((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ)) + 4) / (8 * (diamA d L P.m₀ m₁)) + 1 / 2) * ((((d : ℝ) + (1 - 2 * P.γ - P.α₁))) / (Real.exp 1 * (((L : ℝ) ^ (P.m₀ + m₁)) / (8 * (diamA d L P.m₀ m₁))))) ^ (((d : ℝ) + (1 - 2 * P.γ - P.α₁)))))) * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) := by
-  have h := norm_filed_origin_le hF hCR hn hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat hsec
+  have h := norm_filed_origin_le hF hn hne hN Ψ hv hσ hσ1 hε hεΛ hτ hdat hsec
   refine h.trans ?_
   have hd : 0 < d := lt_of_lt_of_le (by norm_num) hn.hd
   have hA : 0 < (diamA d L P.m₀ m₁) := diamA_pos hd (NeZero.pos L) P.m₀ m₁

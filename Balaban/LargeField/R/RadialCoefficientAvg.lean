@@ -257,7 +257,7 @@ theorem v1Loc_axis_eq (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {i₀ : Fin N}
   filter_upwards [hev] with s hs
   have hd1 := xiDom_line ctx hX (i₀ := i₀) u hs
   have hd2 := xiDom_rot hQ hd1
-  have key := ctx.sf.rotE j ctx.j1 ctx.jk y X hX hy (cmat Q) (isRot_cmat hQ).isCRot _ _ hd1 hd2
+  have key := ctx.sf.rotE j ctx.j1 ctx.jk y X hX hy (cmat Q) (isRot_cmat hQ) _ _ hd1 hd2
   rw [rotField_add_smul, hre] at key
   exact key
 
@@ -560,7 +560,7 @@ theorem termLInfA_eventuallyEq_GE {X' : Finset (SmallField.Site d)}
     Metric.isOpen_ball.mem_nhds (Metric.mem_ball_self hρ)] with c hc1 hc2
   rw [termLInfA_eq hF.torusIndep hn.hj1 hn.hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hgood.1 hgood.2 c,
     termLA_eq (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hn.hd hn.hL hn.hϱ)
-      hF.coeff.nu_pos hn.hj1 hn.hjk (hF.anisoRadiusOK hn.hsmall i₀) hgood.2 h0 hne isOrth_one
+      hF.coeff.nu_pos (hF.coeff.nu_le_one hF.admissible) hn.hj1 hn.hjk (hF.anisoRadiusOK hn.hsmall i₀) hgood.2 h0 hne isOrth_one
       entryBd_one (by rwa [rotCfgL_one]), rotCfgL_one,
     GE_eq_EauxC hF hn hX h0 hc2 hgood]
   simp [EauxC, Eaux, blockPt_zero]

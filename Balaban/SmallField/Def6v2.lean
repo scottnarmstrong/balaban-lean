@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.SmallField.Def6v2Domain
-public import Balaban.SmallField.Def6Inhabited
+public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.GsSpecDef
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -158,19 +158,6 @@ theorem SFTermClauses.mono {P : Consts} {Dom Dom' : FieldDom d L N₁ m₁ k N �
   boundM := fun j hj1 hjk x X hX hx Ψ hh g h1 hg =>
     h.boundM j hj1 hjk x X hX hx Ψ hh g (hsub _ _ _ _ h1) hg
 
-/-- **The complex rotation invariance of the energy terms** (`Def6.IsSF.rotE` for `IsCRot`
-matrices, the form used by the frame bridges of I-6): `ℰ(RΨ, Rh) = ℰ(Ψ, h)` for `R` in `O(N, ℝ)` or
-`SO(N, ℂ)` whenever `(Ψ, h)` and `(RΨ, Rh)` lie in the domain.  The term clauses `SFTermClauses`
-state the invariance for real `R` only (P1 (H.4), P4 (H.3)); the complex case follows from them by
-analytic continuation along a path of rotations inside the domain
-(`Def6RotContinuation`).  The existence of such a path for the pairs
-`(Ψ, h)`, `(RΨ, Rh)` met by the frame bridges is not proved; this predicate carries it. -/
-def CRotE (P : Consts) (Dom : FieldDom d L N₁ m₁ k N ϱ) (Tm : Terms d L N₁ m₁ k N ϱ) : Prop :=
-  ∀ j, 1 ≤ j → j ≤ k → ∀ y X, IsPolyDom P.m₀ j X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
-    IsCRot R → ∀ Ψ h, Dom.dom j (Tm.gs j X) Ψ h →
-      Dom.dom j (Tm.gs j X) (rotField R Ψ) (rotField R h) →
-      Tm.E j y X (rotField R Ψ) (rotField R h) = Tm.E j y X Ψ h
-
 /-- **A member of the landed class satisfies the term clauses on the landed domain**
 `Ξ^c_j(𝔹_j(X); 1, ε_j)` with the running-test mass `Def6.bgMass`. -/
 theorem _root_.Balaban.SmallField.Def6.IsSF.termClauses {P : Consts} {β ν a : ℕ → ℝ}
@@ -181,7 +168,7 @@ theorem _root_.Balaban.SmallField.Def6.IsSF.termClauses {P : Consts} {β ν a : 
   gs_spec := h.gs_spec
   analyticE := h.analyticE
   analyticM := h.analyticM
-  rotE := fun j hj1 hjk y X hX hy R hR => h.rotE j hj1 hjk y X hX hy R hR.isCRot
+  rotE := h.rotE
   pavingGS := h.pavingGS
   eucE := h.eucE
   eucEloc := h.eucEloc

@@ -87,7 +87,7 @@ theorem const_pair_mem_xiDom (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) {X : Set (
   have hN : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hρ0 := ctx.rho_pos
   exact xiDom_of_close ctx.bg (ctx.sf.gs_spec j ctx.j1 ctx.jk X hX).2 ctx.jk i₀ hδ0 hδ1 hδ2 hρ0
-    (by nlinarith) hδ3 (constFld v) w (fun _ i => hv i) (fun _ _ _ => rfl) hw
+    (nrho_lt_of_radius ctx.rho_pos.le i₀ hδ4) hδ3 (constFld v) w (fun _ i => hv i) (fun _ _ _ => rfl) hw
 
 theorem analyticAt_constFld_line (v u : Fin N → ℂ) (t : ℂ) :
     AnalyticAt ℂ (fun s : ℂ => (constFld (v + s • u) : Fld d L N₁ m₁ k N)) t := by

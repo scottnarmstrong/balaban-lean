@@ -13,7 +13,7 @@ public import Balaban.SmallField.Def6v2Renorm
 
 The filed torus defect at the level `j` reads the terms `ℰ^{(j)}`, `ℳ^{(j)}` and the field domain at
 the level `j` only.  If `T'` has the terms of `T` at the level `j` and vanishing terms at every other
-level, the clauses `SFTermClauses`, `CRotE` and `TorusIndep` of `T'` on a field domain `Dom'` follow
+level, the clauses `SFTermClauses` and `TorusIndep` of `T'` on a field domain `Dom'` follow
 from those of `T` on a field domain `Dom` which agrees with `Dom'` at the level `j`.  This lets the
 terms of a level born at the mass `μ_j = ν_j L⁻²ʲ` be compared with the complete regime of the mass
 `μ_j` (author ruling R6).
@@ -175,19 +175,6 @@ theorem SFTermClauses.levelOnly (hT : SFTermClauses P Dom Tm)
       have hL : (0 : ℝ) < L := by exact_mod_cast NeZero.pos L
       exact mul_pos (mul_pos hP9 (Real.rpow_pos_of_pos (inv_pos.2 (pow_pos hL _)) _))
         (Real.exp_pos _)
-
-/-- **Complex rotation invariance of a level-only family.** -/
-theorem CRotE.levelOnly (hC : CRotE P Dom Tm)
-    (hDom : ∀ G Ψ h, Dom'.dom j G Ψ h ↔ Dom.dom j G Ψ h)
-    (hE : Tm'.E j = Tm.E j) (hgs : Tm'.gs = Tm.gs)
-    (hE0 : ∀ i, i ≠ j → ∀ y X Ψ h, Tm'.E i y X Ψ h = 0) : CRotE P Dom' Tm' := by
-  intro i hi1 hik y X hX hy R hR Ψ h h1 h2
-  by_cases hij : i = j
-  · subst hij
-    simp only [hE]
-    exact hC i hi1 hik y X hX hy R hR Ψ h (by simpa only [hgs] using (hDom _ _ _).1 h1)
-      (by simpa only [hgs] using (hDom _ _ _).1 h2)
-  · rw [hE0 i hij, hE0 i hij]
 
 theorem Edens_levelOnly_eq (hE : Tm'.E j = Tm.E j) (m₀ : ℕ) :
     Edens m₀ Tm' j = Edens m₀ Tm j := by

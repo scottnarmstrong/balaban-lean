@@ -55,7 +55,6 @@ origin. The class supplies `eucEloc`; the standard small-field numerical conditi
 the analytic neighbourhood in which its derivatives may be taken. -/
 theorem IsSFFamily2.D2_Eloc_translate
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     {j : ℕ} (hn : MomNum d L N k j ϱ P) (i₀ i₁ : Fin N)
     {y : CTorus d L N₁ m₁ k} (hy : Aligned (L ^ j) y)
     (x v : CTorus d L N₁ m₁ k) :
@@ -65,7 +64,7 @@ theorem IsSFFamily2.D2_Eloc_translate
       D2 (fun ψ : Fld d L N₁ m₁ k N => Eloc P.m₀ (Tm N₁) j 0 ψ
         (eFld d L N₁ m₁ k N i₀)) (eFld d L N₁ m₁ k N i₀)
         (blockDir L j (x - y) i₁) (blockDir L j (v - y) i₁) := by
-  obtain ⟨β', ν', -, -, hL⟩ := hF.toLanded hCR
+  obtain ⟨β', ν', -, -, hL⟩ := hF.toLanded
   have hn' := hn.noChi
   have hε := eps_pos (d := d) (L := L) hL.admissible.α₀_pos j
   have hρ0 := liftRadius_pos (d := d) (L := L) (N := N) hε i₀
@@ -78,12 +77,11 @@ moment at every integer centre. The off-diagonal and diagonal-equality identitie
 require spatial covariance of the raw pair moment before this trace can imply a zero matrix. -/
 theorem IsSFFamily2.raw_second_trace_zero
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     {j : ℕ} (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
     ∃ β' ν' : ℕ → ℝ, ν' k = Rg.ν k ∧
       ∀ y : Site d, ∑' X' : Finset (Site d),
         MomY P.noChi β' ν' a Tm j i₀ i₁ y X' = 0 := by
-  obtain ⟨β', ν', hν', -, hL⟩ := hF.toLanded hCR
+  obtain ⟨β', ν', hν', -, hL⟩ := hF.toLanded
   exact ⟨β', ν', hν', fun y => momY_tsum_zero hL hn.noChi hne y⟩
 
 end Balaban.SmallField.Def6v2
