@@ -2521,6 +2521,7 @@ public import Balaban.SmallField.IrrelTorusDefectFiledAll
 public import Balaban.SmallField.IrrelTorusDefectBirthNu
 public import Balaban.SmallField.IrrelTorusDefectBirthTerms
 public import Balaban.SmallField.IrrelTorusDefectBirthSurrogate
+public import Balaban.SmallField.IrrelTorusDefectBirth
 public import Balaban.SmallField.IrrelTorusDefectRawSymm
 public import Balaban.SmallField.IrrelTorusDefectRawMatrix
 public import Balaban.SmallField.IrrelTorusDefectSizeTransport
