@@ -6,9 +6,8 @@ taken at constants that the provider chooses as functions of `(κ, c₉)`: `δ`,
 `PB` (budget), `cs₀` (non-running operator constants), `M1, c` (geometry), `rH, ϱ`. There is no `sorry`, and the axioms are
 `propext, Classical.choice, Quot.sound`. In a scratch file, `type_of% (logPartition_multiscale d N hd hN)` is accepted for its
 conclusion. The match is definitional: the elaborated `NormedSpace ℂ` instance path differs, as it already does for the landed
-copy `Correlations.RootFStatement`. The provider closes Root-F by
-`exact rootF_of_spine d N hd hN δ hδ Ty P6 C7 PB cs₀ M1 c rH ϱ hA1 hA3 hA4 hA4t hA4f hA6 hA7`. Root-C is `rootC_of_spine`
-(`Spine/RootC.lean`, see the last section).
+copy `Correlations.RootFStatement`. The provider closes Root-F by `exact rootF_of_spine d N hd hN δ hδ Ty P6 C7 PB cs₀ M1 c
+rH ϱ hA1 hA3 hA4 hA4t hA4f hA6 hA7`. Root-C is `rootC_of_spine` (`Spine/RootC.lean`, see the last section).
 
 **Proved inside (these are not inputs):**
 * the order of the constants (A1): `δ`; `L = Ty.L` and `M = Ty.M`; one `β₀`, the maximum of the thresholds of the inputs and 2;
@@ -54,10 +53,9 @@ Each item below gives: the statement; the source; the landed theorems; the open 
    them yet. ~800 (the prefix as definitions plus its inequalities).
 2. **`BaseStepInput` (A3, LF-6).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` and `kf = k̂_f`, `ρ₁ = S⁽⁰⁾T⁽⁰⁾ρ₀` has a representation in
    `ℛ₁` (`k₀ ≥ 1`) or in `ℛ♭₁` (`k₀ = 0`), with `ν_0 = ν` and `∫ρ₁ = c Z(g)`. Source: LFR Thm II.7.10 (a), (b); P4 (2.42)–(2.54),
-   pp. 691–694; P5 p. 487. Landed (`LargeField/Base/`, general `d, L`):
-   * `baseFirst_partition_integral`, `baseFirstCut_integral_of_posDef`, `baseFirstRecord_localRestriction_weighted_count`;
-   * `baseCovX_bound`, `baseSectorDatum_inDomainR_c7`, `baseActivity_LabelAct(_parametrix)`;
-   * `partitionFunction_eq_sum_kf0Sector`.
+   pp. 691–694; P5 p. 487. Landed (`LargeField/Base/`, general `d, L`): `baseFirst_partition_integral`,
+   `baseFirstCut_integral_of_posDef`, `baseFirstRecord_localRestriction_weighted_count`, `baseCovX_bound`,
+   `baseSectorDatum_inDomainR_c7`, `baseActivity_LabelAct(_parametrix)`, `partitionFunction_eq_sum_kf0Sector`.
 
    Open: the carrier `BaseSmallFieldInput` (ruling R7: `Kphys` and its audit; `baseStepData_nonempty` is not OUT-1);
    BASEPLAN OUT-1 (a)–(d); blocker 1 (`P₁ ≠ ∅`) and blocker 2 (R1, R2); the output in `IsRep2` form (no theorem produces
@@ -87,9 +85,10 @@ Each item below gives: the statement; the source; the landed theorems; the open 
    ~10000.
 4. **`TransferInput` (A4, Lemma IV.2.1).** If `k₀ ≥ 1`, `ℛ_{k₀} ⊂ ℛ♭_{k₀}`, with the same `ρ` and `ν_{k₀}`. Source: LFR Lemma IV.2.1;
    P5 p. 490; LF-2 (iv). Landed: `IsRep2.toFlat`, with `D2SF2.toFlat2`, `D9Coeff.toFlat` and `Rep.budgetFlat_of_LF2`.
-   **Mismatch:** `IsRep2.toFlat` needs the horizon `K ≤ k₀ + 1` (the pin `D4Pin (k+1)` of LF-2's counter history), while the
-   spine's family has `K = k̂_f + 1`. Open: (H6′)⇒(H6♭) for `K > k₀ + 1`, plus `S.Good`, `BudgetSetup`, and (H-λ) (`hH1`, `hH2`, LFR
-   Lemma IV.3.3 (c)) from the prefix. ~400.
+   **Mismatch:** `IsRep2.toFlat` needs the horizon `K ≤ k₀ + 1` (the pin `D4Pin (k+1)` of LF-2's counter history), and
+   `Rep.budgetFlat_of_LF2` needs `K ≤ k̂`. The spine's family has `K = k̂_f + 1` and `k̂ = k̂_f` (LFR D-IV.1, §II.6.3 (H6♭)).
+   Open: (H6′)⇒(H6♭) for `K = k̂ + 1 > k₀ + 1`, plus `S.Good`, `BudgetSetup`, and (H-λ) (`hH1`, `hH2`, LFR Lemma IV.3.3 (c))
+   from the prefix. ~400.
 5. **`FrozenStepInput` (A4, LF-5).** For `max(k₀,1) ≤ k < k̂_f` and `ρ ∈ ℛ♭_k` with `ν_k ≤ 7/8 L⁻²`, `ρ' = S T ρ ∈ ℛ♭_{k+1}` with
    `∫ρ' = c∫ρ`. Source: LFR Thm IV.2.2 (P5/P6 Thm 4 repaired, P6 p. 21); the switch at `k₀` (FLUCTUATION Lemma 2.9, D-IV.5).
    Landed: the small-field pieces as in item 3, and `Rep.budgetFlat_of_LF2`. Open: the step theorem; blocker 2 (the switch); the
@@ -107,7 +106,6 @@ Each item below gives: the statement; the source; the landed theorems; the open 
    * A11: `towerGapScale_resum_fromTowerG`, `resum_lastScale_rootF_weighted_of_block_large`, `finalCoef_close_quarterBox_weighted`,
      `fibre_hcoef_of_quarterBox_weighted`, `e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`;
    * A8 at one gap scale: `towerGapScale_rootFClause`.
-
    Open:
    * blocker 5: the identification of `F` with the class energy terms (FINALPHYS3 §8); the real gap L4; the linked gas of P7 (4.11);
      the joins; the activity `det-ratio × J`;
@@ -126,8 +124,10 @@ Each item below gives: the statement; the source; the landed theorems; the open 
 Item 2 forces that: it asserts a member of `ℛ₁`/`ℛ♭₁` whose integral is `c Z(g) ≠ 0`. Items 3–5 then produce members at every
 later scale, and the stop lemma produces the massive member that item 6 needs. The existence statements (2, 7) cannot hold
 vacuously, because they contain the physical `Z(g)`. A direct check: exhibit members at the prefix constants. The landed witnesses
-`wIsRep2` and `wIsRepFlat2` (`Def7v2Inhabited*`, `d = L = 3`, `N = 2`, `K = k = 1`, zero terms) inhabit `IsRep2`/`IsRepFlat2` but
-not yet `RepClassAt`/`FlatClassAt` (constants and `ν_0 = ν` to be matched; ~150). Rule 10: the seven inputs are named obligations,
+`wIsRep2` and `wIsRepFlat2` (`Def7v2Inhabited*`, `d = L = 3`, `N = 2`, `K = k = 1`, zero terms, `ν_0 = ν`) inhabit
+`IsRep2`/`IsRepFlat2`. `RepClassAt` is inhabited (`repClassAt_witness`, `Spine/Witness.lean`: `wIsRep2` at `kf = 0`,
+`ν = 1/(27β)`), and so is `ObservableActivities` (`observableActivities_zero`). `wIsRepFlat2` has `k̂ = K = 1` and does not
+fit `FlatClassAt` (`K = k̂ + 1`); a witness with `k̂ = K - 1` is open. Rule 10: the seven inputs are named obligations,
 and their `Nonempty` is the open work itself, so an exemption must be recorded in the ledger.
 
 **Plausibility.** The inputs follow LFR's proof of Thm IV.5.3, read with the carriers above. They are true for the LFR prefix only if

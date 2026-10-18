@@ -66,8 +66,8 @@ open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.La
 /-- The a priori setting of the large-field class at the coupling `β`: the typing constants `T` with
 dimension `d` and the a priori sequence `λ̂_j = log(β a) + 1 + j θ` (LFR D-IV.2; `Coh.lam_eq`
 requires exactly this sequence, with `a` the kernel constant). -/
-scoped notation "𝒮[" d ", " T ", " β ", " a "]" =>
-  Setting.mk { T with d := d } (lamHat d (Typing.L T) β a)
+scoped macro "𝒮[" dd:term ", " T:term ", " β:term ", " a:term "]" : term =>
+  `(Setting.mk { $T with d := $dd } (lamHat $dd (Typing.L $T) $β $a))
 
 /-- The densities at scale `k` of the flow on the tori with `n_K` top cubes (side `ℓ = M n_K L^K`):
 `ρ(ψ_k; g)` on the field `ψ_k` of the `k`-blocks, with the source `g : 𝕋_ℓ × {1, …, N} → ℂ`. -/

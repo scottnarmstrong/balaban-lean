@@ -16,7 +16,7 @@ import Mathlib.Tactic.Positivity
 verbatim) from the named inputs of `Balaban/Spine/RootFInputs.lean` (A1, A3, A4 (three parts), A6,
 A7). Proved here (no other hypothesis):
 
-* A1 (choice of the constants in Root-F's order): `δ`, then `L = T.L`, `M = T.M` and one `β₀` (the
+* A1 (choice of the constants in Root-F's order): `δ`, then `L = Ty.L`, `M = Ty.M` and one `β₀` (the
   maximum of the thresholds of the inputs and `2`) for every `κ, c₉`, then `kf = k̂_f` from `ν`
   (`exists_isHorizon`, `IsHorizon.scale`); `k₀ ≤ k̂_f` (`kZero_le_of_isHorizon`);
 * A5 (the flow induction, LFR Theorem IV.3.2 (b), (c)): `ρ₁` from A3, the steps `k → k+1` of `ℛ_k`
