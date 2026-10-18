@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Def7v2Variants
 public import Balaban.LargeField.Def7Inhabited
 public import Balaban.SmallField.Def6v2Inhabited
+public import Balaban.SmallField.Def6v2Birth
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -67,8 +68,7 @@ noncomputable def wSF2 (ν : ℝ) (m₁ : ℕ) : SFData 3 3 m₁ 1 2 (bgR0 3 3) 
 theorem wIsSFFamily2 (ν : ℝ) (hν0 : 0 < ν) (hν : ν * 9 ≤ 7 / 72) (m₁ k0 : ℕ) :
     IsSFFamily2 (d := 3) (L := 3) (m₁ := m₁) (k := 1) (N := 2) (ϱ := bgR0 3 3)
       (witnessConsts 1) (⟨k0, wνs ν⟩ : Regime 3) wβs witnessa
-      (fun _ _ => xiFieldDom (aIdeal 3 1 (witnessa 1)) (physMass 3 1 (wνs ν 1))
-        ((witnessConsts 1).eps 3 3))
+      (birthXiDom (witnessConsts 1) (⟨k0, wνs ν⟩ : Regime 3) witnessa)
       (fun N₁ _ => wTm m₁ N₁)
       (fun N₁ _ => rho2 (witnessConsts 1) ⟨k0, wνs ν⟩ wβs witnessa (wTm m₁ N₁) 0)
       (fun _ => 0) where
