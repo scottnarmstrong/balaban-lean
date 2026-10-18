@@ -29,6 +29,22 @@ section HistLh
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {k : ℕ}
 
+omit [NeZero M] [NeZero S.L] in
+/-- `lhOmega` of the localized history, in terms of cubes. -/
+theorem lhOmega_iff_cubes (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl.rem j = ∅) {k : ℕ}
+    (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
+    (x : Torus S.d (M * n K * S.L ^ K)) (i : ℕ) :
+    x ∈ lhOmega (locHist Hl M K (k + 1) Zc) (k + 1) (i + 1) ↔
+      (cubeMap n S.L M K (k + 1) x ∉ Zc ∨ cubeMap n S.L M K (i + 1) x ∈ (Hl.step i).Omega) := by
+  unfold lhOmega
+  rw [locHist_Z_top Hl hrem Zc hZc]
+  simp only [Nat.add_sub_cancel, Set.mem_union, Set.mem_compl_iff]
+  show (cubeMap n S.L M K (i + 1) x ∈ (Hl.step i).Omega ∧
+      cubeMap n S.L M K (k + 1) x ∈ (Zc : Set (Torus S.d (n (k + 1))))) ∨
+    ¬ cubeMap n S.L M K (k + 1) x ∈ (Zc : Set (Torus S.d (n (k + 1)))) ↔ _
+  simp only [Finset.mem_coe]
+  tauto
+
 /-- **Near `Zc`, the layers of the generating set of the history are `lhOmega`** of the
 localized history. -/
 theorem histGen_Ω_iff_lhOmega (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl.rem j = ∅)
@@ -43,15 +59,7 @@ theorem histGen_Ω_iff_lhOmega (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl
     obtain ⟨z, hz, hd⟩ := mem_nbhd.1 hx
     exact ⟨z, Finset.mem_coe.1 hz, hd⟩
   rw [histGen_mem_near Hl hrem hk le_rfl hL hR Zc hZc hω hr x hx' i]
-  refine and_congr_right fun _ => ?_
-  unfold lhOmega
-  rw [locHist_Z_top Hl hrem Zc hZc]
-  simp only [Nat.add_sub_cancel, Set.mem_union, Set.mem_compl_iff]
-  show _ ↔ (cubeMap n S.L M K (i + 1) x ∈ (Hl.step i).Omega ∧
-      cubeMap n S.L M K (k + 1) x ∈ (Zc : Set (Torus S.d (n (k + 1))))) ∨
-    ¬ cubeMap n S.L M K (k + 1) x ∈ (Zc : Set (Torus S.d (n (k + 1))))
-  simp only [Finset.mem_coe]
-  tauto
+  exact and_congr_right fun _ => (lhOmega_iff_cubes Hl hrem Zc hZc x i).symm
 
 end HistLh
 

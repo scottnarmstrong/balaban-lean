@@ -29,6 +29,71 @@ section Loc
 variable {S : Setting} {n₁ n₂ : ℕ → ℕ} [∀ k, NeZero (n₁ k)] [∀ k, NeZero (n₂ k)] {R : ℕ → ℝ}
   {k0 K M N : ℕ} [NeZero M] [NeZero S.L] {k : ℕ}
 
+/-- The fine sets of the components correspond, on the level torus. -/
+theorem setCorr_levelZ {c M1 : ℕ} [NeZero c] [NeZero M1] (hM : M = c * M1)
+    (Hl₁ : RegionHistory S n₁ R k0 K) (Hl₂ : RegionHistory S n₂ R k0 K)
+    (hrem₁ : ∀ j, Hl₁.rem j = ∅) (hrem₂ : ∀ j, Hl₂.rem j = ∅) (hk : k + 1 ≤ K)
+    (Zc₁ : Finset (Torus S.d (n₁ (k + 1)))) (Zc₂ : Finset (Torus S.d (n₂ (k + 1))))
+    (hZc₁ : Zc₁ ∈ comps (S.omega (k + 1)) (Hl₁.F.Zp (k + 1)))
+    (hZc₂ : Zc₂ ∈ comps (S.omega (k + 1)) (Hl₂.F.Zp (k + 1))) {cc : Fin S.d → ℤ}
+    (hH : HistCorr cc (locHist Hl₁ M K (k + 1) Zc₁) (locHist Hl₂ M K (k + 1) Zc₂)) :
+    SetCorr cc
+      ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
+        Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1))))
+      ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
+        Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) := by
+  have e₁ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₁) hM Hl₁.F.hnn hk
+  have e₂ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₂) hM Hl₂.F.hnn hk
+  subst hM
+  rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂]
+  have := hH.Z_corr (k + 1)
+  rw [locHist_Z_top Hl₁ hrem₁ Zc₁ hZc₁, locHist_Z_top Hl₂ hrem₂ Zc₂ hZc₂] at this
+  exact setCorr_preimage_cast e₁ e₂ this
+
+/-- The fine sets of `Z_k ∩ Z'` correspond, on the level torus. -/
+theorem setCorr_levelK {c M1 : ℕ} [NeZero c] [NeZero M1] (hM : M = c * M1)
+    (Hl₁ : RegionHistory S n₁ R k0 K) (Hl₂ : RegionHistory S n₂ R k0 K) (hk : k + 1 ≤ K)
+    (Zc₁ : Finset (Torus S.d (n₁ (k + 1)))) (Zc₂ : Finset (Torus S.d (n₂ (k + 1))))
+    {cc : Fin S.d → ℤ}
+    (hH : HistCorr cc (locHist Hl₁ M K (k + 1) Zc₁) (locHist Hl₂ M K (k + 1) Zc₂)) :
+    SetCorr cc
+      (((fineK M1 c (n₁ (k + 1)) S.L k (n₁ k) (Hl₁.step k).Z : Finset _) :
+          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))) ∩
+        ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
+          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))))
+      (((fineK M1 c (n₂ (k + 1)) S.L k (n₂ k) (Hl₂.step k).Z : Finset _) :
+          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) ∩
+        ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
+          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1))))) := by
+  have e₁ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₁) hM Hl₁.F.hnn hk
+  have e₂ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₂) hM Hl₂.F.hnn hk
+  subst hM
+  rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂, coe_fineK_eq_preimage e₁,
+    coe_fineK_eq_preimage e₂, ← Set.preimage_inter, ← Set.preimage_inter]
+  exact setCorr_preimage_cast e₁ e₂ (hH.Z_corr k)
+
+/-- The fine sets of `Ω_{k+1} ∩ Z'` correspond, on the level torus. -/
+theorem setCorr_levelO {c M1 : ℕ} [NeZero c] [NeZero M1] (hM : M = c * M1)
+    (Hl₁ : RegionHistory S n₁ R k0 K) (Hl₂ : RegionHistory S n₂ R k0 K) (hk : k + 1 ≤ K)
+    (Zc₁ : Finset (Torus S.d (n₁ (k + 1)))) (Zc₂ : Finset (Torus S.d (n₂ (k + 1))))
+    {cc : Fin S.d → ℤ}
+    (hH : HistCorr cc (locHist Hl₁ M K (k + 1) Zc₁) (locHist Hl₂ M K (k + 1) Zc₂)) :
+    SetCorr cc
+      (((fineK1 M1 c (n₁ (k + 1)) S.L k (Hl₁.step k).Omega : Finset _) :
+          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))) ∩
+        ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
+          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))))
+      (((fineK1 M1 c (n₂ (k + 1)) S.L k (Hl₂.step k).Omega : Finset _) :
+          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) ∩
+        ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
+          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1))))) := by
+  have e₁ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₁) hM Hl₁.F.hnn hk
+  have e₂ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₂) hM Hl₂.F.hnn hk
+  subst hM
+  rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂, coe_fineK1_eq_preimage e₁,
+    coe_fineK1_eq_preimage e₂, ← Set.preimage_inter, ← Set.preimage_inter]
+  exact setCorr_preimage_cast e₁ e₂ (hH.Omega_corr k)
+
 /-- **The local generating sets and the data of the local backgrounds agree on the box.** -/
 theorem locGen_agree (g₁ : Geo S n₁ R M) (g₂ : Geo S n₂ R M) (h1 : g₂.M1 = g₁.M1)
     (h2 : g₂.c = g₁.c) (Hl₁ : RegionHistory S n₁ R k0 K) (Hl₂ : RegionHistory S n₂ R k0 K)
@@ -57,42 +122,9 @@ theorem locGen_agree (g₁ : Geo S n₁ R M) (g₂ : Geo S n₂ R M) (h1 : g₂.
   have hn₂ := Hl₂.F.hnn k (by omega)
   have e₁ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₁) hM Hl₁.F.hnn hk
   have e₂ := site_eq (c := c) (M1 := M1) (L := S.L) (q := k + 1) (n := n₂) hM Hl₂.F.hnn hk
-  have hZcc : SetCorr cc
-      ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
-        Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1))))
-      ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
-        Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) := by
-    subst hM
-    rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂]
-    have := hH.Z_corr (k + 1)
-    rw [locHist_Z_top Hl₁ hrem₁ Zc₁ hZc₁, locHist_Z_top Hl₂ hrem₂ Zc₂ hZc₂] at this
-    exact setCorr_preimage_cast e₁ e₂ this
-  have hKcc : SetCorr cc
-      (((fineK M1 c (n₁ (k + 1)) S.L k (n₁ k) (Hl₁.step k).Z : Finset _) :
-          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))) ∩
-        ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
-          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))))
-      (((fineK M1 c (n₂ (k + 1)) S.L k (n₂ k) (Hl₂.step k).Z : Finset _) :
-          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) ∩
-        ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
-          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1))))) := by
-    subst hM
-    rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂, coe_fineK_eq_preimage e₁,
-      coe_fineK_eq_preimage e₂, ← Set.preimage_inter, ← Set.preimage_inter]
-    exact setCorr_preimage_cast e₁ e₂ (hH.Z_corr k)
-  have hOcc : SetCorr cc
-      (((fineK1 M1 c (n₁ (k + 1)) S.L k (Hl₁.step k).Omega : Finset _) :
-          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))) ∩
-        ((fineK1 M1 c (n₁ (k + 1)) S.L k (Zc₁ : Set (Torus S.d (n₁ (k + 1)))) : Finset _) :
-          Set (Torus S.d (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)))))
-      (((fineK1 M1 c (n₂ (k + 1)) S.L k (Hl₂.step k).Omega : Finset _) :
-          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)))) ∩
-        ((fineK1 M1 c (n₂ (k + 1)) S.L k (Zc₂ : Set (Torus S.d (n₂ (k + 1)))) : Finset _) :
-          Set (Torus S.d (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1))))) := by
-    subst hM
-    rw [coe_fineK1_eq_preimage e₁, coe_fineK1_eq_preimage e₂, coe_fineK1_eq_preimage e₁,
-      coe_fineK1_eq_preimage e₂, ← Set.preimage_inter, ← Set.preimage_inter]
-    exact setCorr_preimage_cast e₁ e₂ (hH.Omega_corr k)
+  have hZcc := setCorr_levelZ hM Hl₁ Hl₂ hrem₁ hrem₂ hk Zc₁ Zc₂ hZc₁ hZc₂ hH
+  have hKcc := setCorr_levelK hM Hl₁ Hl₂ hk Zc₁ Zc₂ hH
+  have hOcc := setCorr_levelO hM Hl₁ Hl₂ hk Zc₁ Zc₂ hH
   have hV₁ : ∀ x ∈ (fineK1 M1 c (n₁ (k + 1)) S.L k
         (nbhd 1 (thick ⌊R k⌋₊ (Zc₁ : Set (Torus S.d (n₁ (k + 1)))))) : Finset _),
       InBox (M1 * (c * n₁ (k + 1)) * S.L ^ (k + 1)) (M1 * (c * n₂ (k + 1)) * S.L ^ (k + 1)) cc

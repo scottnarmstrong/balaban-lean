@@ -48,21 +48,8 @@ theorem block_site_margin {j : ℕ} (hj : j ≤ K) (hq : 4 ≤ M * n₁ K * S.L 
     (hs : Multiscale.jBlock S.d S.L (M * n₁ K) K j s = Multiscale.jBlock S.d S.L (M * n₁ K) K j x) :
     InBoxK 1 (M * n₁ K * S.L ^ K) ℓ' cc (liftNear cc s) ∧
       bidx (S.L ^ j) (liftNear cc s) = bidx (S.L ^ j) (liftNear cc x) := by
-  have hP : 0 < S.L ^ j := pow_pos (Nat.pos_of_ne_zero (NeZero.ne _)) j
-  have hx' : x = zcast (M * n₁ K * S.L ^ K) (liftNear cc x) := (zcast_liftNear x).symm
-  have hs' : s = zcast (M * n₁ K * S.L ^ K) (liftNear cc s) := (zcast_liftNear s).symm
-  rw [hx', hs', jBlock_zcast hj, jBlock_zcast hj] at hs
-  have hb : bidx (S.L ^ j) (liftNear cc s) = bidx (S.L ^ j) (liftNear cc x) :=
-    (bidx_eq_of_zcast hP (Multiscale.side_eq hj) hq
-      (fun μ => by have := (hx μ).1; omega) (fun μ => liftNear_abs_le cc s μ) hs.symm).symm
-  refine ⟨fun μ => ?_, hb⟩
-  have h1 := abs_ediv_eq_le (P := S.L ^ j) hP (a := liftNear cc s μ) (b := liftNear cc x μ)
-    (congrFun hb μ)
-  have h2 := hx μ
-  have h3 : |liftNear cc s μ - cc μ| ≤ |liftNear cc s μ - liftNear cc x μ| + |liftNear cc x μ - cc μ| := by
-    have := abs_sub_le (liftNear cc s μ) (liftNear cc x μ) (cc μ); exact this
-  push_cast at h1 h2 ⊢
-  constructor <;> nlinarith [h2.1, h2.2]
+  exact site_margin_of_block (pow_pos (Nat.pos_of_ne_zero (NeZero.ne _)) j)
+    (Multiscale.side_eq hj) hq hx hs
 
 /-- **Adjacency of the blocks of corresponding sites with margin.** -/
 theorem blockAdj_ptCorr {j j' : ℕ} (hj : j ≤ K) (hj' : j' ≤ K)

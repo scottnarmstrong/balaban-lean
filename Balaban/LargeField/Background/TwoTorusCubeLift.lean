@@ -155,6 +155,27 @@ theorem bidx_eq_of_zcast {ℓ P q : ℕ} (hP : 0 < P) (hℓ : ℓ = P * q) (hq :
   rw [h4] at h1 h2
   nlinarith
 
+/-- A site in the block of a site with margin `P + 1` has margin `1`, and the same block index
+vector. -/
+theorem site_margin_of_block {ℓ P q ℓ' : ℕ} [NeZero ℓ] {cc : Fin d → ℤ} (hP : 0 < P)
+    (hℓ : ℓ = P * q) (hq : 4 ≤ q) {x s : Torus d ℓ}
+    (hx : InBoxK (P + 1) ℓ ℓ' cc (liftNear cc x)) (hs : blockMap P q s = blockMap P q x) :
+    InBoxK 1 ℓ ℓ' cc (liftNear cc s) ∧ bidx P (liftNear cc s) = bidx P (liftNear cc x) := by
+  have hx' : x = zcast ℓ (liftNear cc x) := (zcast_liftNear x).symm
+  have hs' : s = zcast ℓ (liftNear cc s) := (zcast_liftNear s).symm
+  rw [hx', hs', blockMap_zcast hℓ hP, blockMap_zcast hℓ hP] at hs
+  have hb : bidx P (liftNear cc s) = bidx P (liftNear cc x) :=
+    (bidx_eq_of_zcast hP hℓ hq (fun μ => by have := (hx μ).1; omega)
+      (fun μ => liftNear_abs_le cc s μ) hs.symm).symm
+  refine ⟨fun μ => ?_, hb⟩
+  have h1 := abs_ediv_eq_le hP (a := liftNear cc s μ) (b := liftNear cc x μ) (congrFun hb μ)
+  have h2 := hx μ
+  have h3 : |liftNear cc s μ - cc μ| ≤ |liftNear cc s μ - liftNear cc x μ| +
+      |liftNear cc x μ - cc μ| := by
+    have := abs_sub_le (liftNear cc s μ) (liftNear cc x μ) (cc μ); exact this
+  push_cast at h1 h2 ⊢
+  constructor <;> nlinarith [h2.1, h2.2]
+
 end Block
 
 /-! ### Corresponding blocks and cubes -/
