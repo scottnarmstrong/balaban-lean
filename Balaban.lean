@@ -2545,3 +2545,4 @@ public import Balaban.SmallField.IrrelTorusXidomPullbackData
 public import Balaban.SmallField.IrrelTorusXidomClassSplit
 public import Balaban.SmallField.IrrelTorusXidomClassRate
 public import Balaban.LargeField.Base.BaseFirstPhysicalConditional
+public import Balaban.Green.FinalSelectedDomain
