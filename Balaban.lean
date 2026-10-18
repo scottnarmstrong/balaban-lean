@@ -1704,6 +1704,7 @@ public import Balaban.Fluctuation.LocalSetDetCross
 public import Balaban.Fluctuation.LocalSetDetCrossGeom
 public import Balaban.Fluctuation.LocalSetDetCrossCut
 public import Balaban.Fluctuation.LocalSetDetCrossTrace
+public import Balaban.Fluctuation.LocalSetDetCrossAct
 public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
