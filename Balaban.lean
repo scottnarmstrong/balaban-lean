@@ -2643,6 +2643,17 @@ public import Balaban.LargeField.Operators.QuietSrc
 public import Balaban.Inhabited.LateParentR3Witness
 public import Balaban.LargeField.R.WindowConvPhysAssemblyPhys
 public import Balaban.LargeField.R.WindowConvPhysFieldClauses
+public import Balaban.Background.GenSetStabilityRestrict
+public import Balaban.Background.GenSetStabilityCore
+public import Balaban.Background.GenSetStabilityTransfer
+public import Balaban.Background.GenSetStabilityData
+public import Balaban.Background.GenSetStabilityParts
+public import Balaban.Background.GenSetStability
+public import Balaban.LargeField.R.WindowConvPhysSwitchLoc
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocGen
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocBudget
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocPiece
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocPhys
 public import Balaban.LargeField.R.WindowConvPhysGenBallHist
 public import Balaban.LargeField.R.WindowConvPhysGenBallPiece
 public import Balaban.LargeField.R.WindowConvPhysGenBallWin
@@ -2651,3 +2662,4 @@ public import Balaban.Polymer.TwoTorusGapTowerRootFBound
 public import Balaban.Polymer.TwoTorusGapTowerRootFSource
 public import Balaban.Polymer.TwoTorusGapTowerRootFObs
 public import Balaban.Polymer.TwoTorusGapTowerRootFBg
+public import Balaban.LargeField.R.WindowConvPhysSwitchLocBall
