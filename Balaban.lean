@@ -2607,6 +2607,7 @@ public import Balaban.Polymer.TwoTorusGapTowerRootFBoxClause
 public import Balaban.Polymer.TwoTorusGapTowerRootFBox
 public import Balaban.Polymer.TwoTorusGapTowerRootFBoxUnitBg
 public import Balaban.Polymer.TwoTorusGapTowerRootFSuppCore
+public import Balaban.Polymer.TwoTorusGapTowerRootFSuppTower
 public import Balaban.Polymer.TwoTorusGapTowerDataUnitBg
 public import Balaban.SmallField.IrrelTorusXidomCanonical
 public import Balaban.SmallField.IrrelTorusXidomCanonicalData
