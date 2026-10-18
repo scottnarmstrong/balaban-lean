@@ -19,6 +19,8 @@ block it.
 The small-field part of one renormalization step (background fields, localization, the fluctuation
 integral and its expansion, the inductive class of effective actions) is largely formalized. What
 remains is concentrated in seven mathematical blockers and in joining the steps into the full flow.
+A fully proved Lean theorem (the *spine*) derives Root-F from seven named inputs, each a statement of
+the papers, so what is left is a finite list.
 [docs/BLOCKERS.md](docs/BLOCKERS.md) describes each blocker and where it stands, and
 [docs/PROGRESS.md](docs/PROGRESS.md) gives the estimated completion by section with a dated log.
 Where the papers are ambiguous we choose a reading and prove what it needs

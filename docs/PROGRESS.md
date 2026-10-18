@@ -17,6 +17,28 @@ risk.**
 - **How reliable.** Both figures are judgements made when results are merged, not measurements.
   They have moved by about ±10 points as new difficulties were found or resolved.
 
+## The spine: what remains, as a list
+
+Since 18 October 2026 the proof of Root-F is organized around a *spine*: a Lean theorem,
+`rootF_of_spine` (`Balaban/Spine/RootF.lean`), fully proved, that derives Root-F's exact statement
+(for every d ≥ 3 and N ≥ 2) from seven named inputs (`Balaban/Spine/RootFInputs.lean`). Each input is
+a statement of the papers; the flow from scale to scale, the stopping scale, the conversion to
+Root-F's terms, the logarithm and the transport between tori are proved inside the spine. Root-C
+follows from the same inputs and two small additions (`rootC_of_spine`). Remaining work is measured
+by the inputs still open; details, landed coverage and known mismatches are in
+[`notes/phase1/SPINE.md`](../notes/phase1/SPINE.md). The inputs are being audited against the
+papers and for non-vacuity; their statements may still be corrected.
+
+| Input | Content (source) | Status |
+|---|---|---|
+| `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | open |
+| `BaseStepInput` | the first renormalization step lands in the class of scale 1 (P4 (2.42)–(2.54), LF-6; blocker 1) | open |
+| `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | open |
+| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | open |
+| `FrozenStepInput` | one step above the switching scale (LF-5) | open |
+| `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | open |
+| `KfZeroInput` | the case with no renormalization step, ν > 7/8 L⁻² (LF-8 (b); blocker 1) | open |
+
 ## By part of the proof
 
 Each percentage estimates how much of the Lean needed for that part exists and is proved, without
