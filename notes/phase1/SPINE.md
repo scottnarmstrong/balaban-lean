@@ -89,6 +89,8 @@ asks, on every admissible torus:
 
    Watch (W1096): if the scheme-A step needs the SF→LF interface (`IsRep2WithInterface`) of its input, this input is stronger
    than that step; `D2SF2` asks every Def-6 torus `N₁ ≥ 1`. ~10000.
+   **Split (W1102):** `classStepInput_of_parts` (`Spine/ClassStep.lean`) from `SFStepInput`, `RInput`, `FlowRateInput`; see
+   "ClassStepInput sub-inputs" below.
 4. **`TransferInput` (A4, Lemma IV.2.1)**: `ℛ_{k₀} ⊂ ℛ♭_{k₀}`, same `ρ`, `ν_{k₀}`. Landed: `IsRep2.toFlat` (with `D2SF2.toFlat2`,
    `D9Coeff.toFlat`), valid only for torus horizons `K ≤ k₀ + 1`. Named sub-inputs (D3, F6):
    * (a) LF-2 (ii) for a representation with the counter history truncated at `top = k + 1`, independent of `K`. The landed
@@ -123,6 +125,152 @@ asks, on every admissible torus:
 7. **`KfZeroInput` (A7, LF-8 (b))**: `7/8 L⁻² < ν ≤ 1`, `Z(g) = exp(E_ℓ + ⟨g,h⟩ + Σ_X p_1)`, `ObservableActivities … 1`; LFR
    Prop. IV.4.3 / LF-BASE-KF0; no paper. Landed: shape of the hypothesis of `rootF_kf0_partial_of_oneScaleInput`; `KF0AllGoodGas`,
    `KF0AllPlusGas`, `Green/KF0CovarianceAtoms`. Open: reversed-spin sector (blocker 1), `CompleteHeavyLocality`. ~2500.
+
+## ClassStepInput sub-inputs (W1102)
+
+**PROVED** (`Balaban/Spine/ClassStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem classStepInput_of_parts (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hR : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ) (hQ : FlowRateInput T P6) :
+    ClassStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+```
+It follows LFR Thm IV.3.2: LF-3 at `k`, then (I.2) at `k + 1`, then LF-4 at the scale `k + 1 ≤ k₀`; the threshold is the larger one.
+New carrier: `PreClassAt … kf k r ρ νk`, the pre-`R` class `ℛ^pre_k`. It is `RepClassAt` with `IsRepPre2` in place of `IsRep2` and
+(I.2) up to the scale `r`. Proved inside:
+* the coefficient step `runningHypTo_succ_of_coeffBounds`: (H.6) at `k + 1` (`CoeffBounds`, the flow `ξ`), `β_0 = β`, `ν_0 = ν`,
+  (I.2) up to `k` and `c₈ q ≤ ε(1 − q)` give (I.2) up to `k + 1`; positivity uses `|ξ| ≤ 1/4` and `ν_{k+1} > 0`, the bounds use
+  `Flow.norm_gammaSeq_le`. `PreClassAt.succ` applies it to `IsRepPre2.sfData`;
+* the integral assembly `IntegralStep.trans_eq`.
+
+Rule 10: `preClassAt_witness` (`wIsRepPre2`; `d = L = 3`, `N = 2`, `kf = 0`, `k = 1`, `r ≤ 1`) and `flowRateInput_of_lower` (any
+admissible constants with `L ≥ 2`, after lowering `c₈`). `SFStepInput` and `RInput` need the exemption of the seven inputs: their
+truth is the open work.
+
+**Coherence is not a separate sub-input.** (D8) at `k + 1` (`LFCoherent`, D-IV.9) is a property of the representation that the
+step builds (LF-3 (h); proof of Thm III.10.8, (D8)). No landed operator says which representation that is. A statement "(D8) at
+`k + 1` from (D8) at `k`" over all members of `ℛ^pre_{k+1}` would be false: a family of densities on different tori need not be
+coherent (audit D1). So `LFCoherent` is a conjunct of the outputs of `SFStepInput` and `RInput`, and (D8) at the input scale is
+in their hypotheses. Splitting it into "old data inherited" plus "new data coherent" needs a core of `LFCoherent`; that means
+editing `Spine/Coherence.lean`, which this task may not do.
+
+**A landed definition must change (ruling R6, approved 2026-10-17, not yet applied to Def-7):** `Balaban.LargeField.Def7v2.sfDom`
+(`Def7v2Class.lean:59`). It is read by `D2SF2.sfClass` and `SFFlat2.torus`, hence by `IsRep2`, `IsRepPre2` and `IsRepFlat2`.
+At every level `j` it is the current-mass domain `xiFieldDom (aIdeal L k (a k)) (sfBgMass k) (P6.eps)`, equal to `completeXiDom`.
+The output of `SFStepInput` must give the inherited levels `j ≤ k` the clauses of `IsSFFamily2` at `k + 1`. That needs
+`Ξ^c_j(a_{k+1}, μ_{k+1}, ε_j) ⊆ Ξ^c_j(a_k, μ_k, ε_j)`, which is false at admissible constants (`astra/SFFAM.md` §3.2). R6
+replaces it by the birth-mass family `birthXiDom P6 ⟨k₀, sf.ν⟩ sf.a` (`Def6v2Birth.lean:31`). Until then `SFStepInput` (and
+`ClassStepInput`, `FrozenStepInput`) have no source argument for the inherited levels. `Spine/ClassStep.lean` does not read the
+domain, so its proofs survive the change.
+
+1. **`SFStepInput` (LF-3; LFR Thm IV.1.1 (a)–(e), (h); P5 Thm 1, P6 Thm 1; P4 Thm 1 for the small-field data).** For
+   `1 ≤ k < k₀`, `ρ ∈ RepClassAt k` (with (I.2) up to `k`, (D8)) gives `ρ' ∈ PreClassAt (k+1) k`: `IsRepPre2` at `k + 1`,
+   `β_0 = β`, `ν_0 = ν`, (I.2) up to `k`, `LFCoherent`, and `IntegralStep ρ ρ'`.
+   * Landed, small-field half. On one Def-6 torus, `d = L = 3`, `N = 2`, carrier `StepClass`/`SFTermClauses`, `StepTower`:
+     * the chain `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot` (`3 ∣ N₁`, `5 < N₁`, `3^{m₀} ∣ N₁`,
+       `m₀ ≥ 7`, `ν 3^{2(k+1)} ≤ 1`, one `β₀`, `t_k = λε_{k+1}`, collar 327). It gives the new-level coefficients `e` with
+       analyticity on `physV`, locality, bound, support, `Σ e = E0locJ = densE0` and per-label spin covariance;
+     * class activities and marks: `e0CoeffFamily_class_fromTower_of_irrelBounds_X`, `classE1_M1_of_family`,
+       `classMarks_M2_of_family`;
+     * old terms on birth domains: `classOldDec_expansion_cover_birth_run`;
+     * new level: `newLabels_stepChart_of_rootFamily_thick`, `localClass_newLevel_of_expansion_cast`,
+       `newLabels_castInputs_of_localFamily`, `tower_E0_closure_agree`, `newLabels_hsum_closure`, `not_newLevel_cover_and_room`;
+     * core family on two tori: `e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`;
+     * counterterms: `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at`.
+
+     General `d, L, N`:
+     * inherited levels (R6): `oldTorusEquiv`, `liftOldTerms`, `liftOldTermsFam`, `sfTermClauses_splice_birth`,
+       `torusIndep_splice`, `gsStrong_splice`, `renorm_splice_birth`, all on `birthXiDom`;
+     * local sets (W1084): `zeroSourceTerm_localB_hat`, `detActivityBg_cross`, `flCore_castG_localB`;
+     * the step `ξ^{(k)}`: `rg_step_infty`; the Gaussian identity behind `∫ T ρ = ∫ ρ`: `integral_blockSpin`.
+   * Landed, large-field half (general `Setting`):
+     * quiet steps: `quietKernel`, `quietStepData'`;
+     * the vacuum term (R5′): `stepVacuumTerm`, `stepVacuumVolume`;
+     * (H6′)^pre by LF-2 (i): `Rep.budgetPre_of_LF2`. Its `BudgetSetup.run` asks (I.2) at every scale (item 4 (c));
+     * a non-quiet kernel exists only at `k = 0` (R7 `Kphys`).
+   * Open:
+     * (a) R8: the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
+       with an explicit background generating set (not started). With them, (A1)–(A5) of `newLabels_castInputs_of_localFamily`:
+       the new level's terms on the local charts of `𝔹_{k+1}(Y⁺(T′))`.
+     * (b) The castG gap. W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
+       reads `castG hc (localB …)` on `(N₁′, m₁ + 4)`. Missing: castG versions of `LocalPairDepth`, `LocalPairLevelInner`,
+       `localHatLift_eq_hatPsiF_localB`, `localB_collar_margin`, `localB_tauExt_*`.
+     * (c) The inherited terms on two tori. For a general class the chain's `e` is not a core family (W1090). `D8SF.M_eq` at
+       `k + 1` and `hFclose` need two-torus agreement of the old-term pieces `AC`, `G₁`.
+     * (d) The chain's named premises:
+       * the per-label bounds `hEbd`/`Bτ` of `irrelTorus` at the composed step data (P1 (3.128)), with the decay
+         `CI E₀ 3^{-(k-j)(3+α₃)}`;
+       * `hchart` (the composed data lie in the term domain);
+       * the analyticity of the old densities along the path;
+       * the smallness `hεnum`.
+     * (e) The counterterm assembly `D_E = ℰ''₀(θ_ξ) + oldE + C₁ + C₂ −` vacuum (P4 (4.14)–(4.22)). Missing: `oldE` of a general
+       class, the physical `locC2`/`locDφ`, `renE0_fibre`. The observable terms `D_M`, `T_M` (P4 (4.18), Prop. 4.2) exist for the
+       zero class only.
+     * (f) Generality. The chain is at `StepTower`, but `StepTowerG d L N` is needed at the prefix's `L` (A1 picks `L = 7`).
+       It also needs `3 ∣ N₁`, `5 < N₁`, `3^{m₀} ∣ N₁`, while `D2SF2` asks every `N₁ ≥ 1`.
+     * (g) Large field:
+       * the non-quiet kernels P5 (2.47)·P6 (3.2) for `k ≥ 1` with local backgrounds, (S1)–(S5) (Lemmas IV.1.3, IV.1.4, IV.1.6);
+       * `ℬ^{(k+1)}` with `B_st` (Lemma IV.1.5; blocker 3 for old terms across a new hole);
+       * `D1PreForm2` for `ρ' = z^{N|T|}(Tρ)(z·)`, the operator bound `D5Bound`;
+       * `D6Pre` with (I.2) only up to `k + 1`, and `∫ ρ' = ∫ ρ` for the Def-7 densities;
+       * blocker 2 (R2 landed, leaf 5 open).
+     * (h) (D8) of the new step kernels and of `ℬ^{(k+1)}`. Even the quiet kernel has no cross-torus theorem for `bgLocPiece`
+       (W1103).
+     * (i) The SF→LF interface watch item (item 3).
+   * **The bridge, exactly (not landed; no theorem concludes `IsSFFamily2 … (k+1)` or `D2SF2 … (k+1)` except the witnesses).**
+     Proposed: `d2SF2_succ_of_chain`, the small-field half of `SFStepInput`. Let `(F, ρ)` be a member of `RepClassAt k`,
+     `1 ≤ k < k₀`. For every Def-6 torus `N₂ ≥ 1` of scale `k + 1`:
+     * let `C(N₂)` be the `StepClass` with `m₀ = P6.m₀`, terms `liftOldTerms (F.sf.Tm (L N₂))` (levels `≤ k`, along
+       `oldTorusEquiv`) and vacuum constant `F.sf.E (L N₂)`;
+     * let `S(N₂)` be the step setting of `F.sf` at scale `k` (`a₁ = a_k`, mass `sfBgMass k`, `β_k`, `p₁`, `δ_k`);
+     * let `ξ = ξ^{(k)}` be the solution of the conditions (H.5) at `k + 1` (`rg_step_infty`).
+
+     Define `sf' : SFData d L m₁ (k+1) N ϱ`:
+     * at `j ≤ k`, `β′, ν′, a′, z′, E′` equal those of `F.sf`;
+     * `β′_{k+1} = β_k L^{d−2}/(1+ξ₃)`, `ν′_{k+1} = ν_k L²(1+ξ₃)/(1+ξ₂)`, `a′_{k+1} = compWeight L a (k+1)`;
+     * `Tm′(N₂)` is the splice of `liftOldTerms (F.sf.Tm (L N₂))` (levels `≤ k`) with the new level `k + 1`. The new level is
+       the chain's labels on `C(N₂)`, recomputed on `𝔹_{k+1}(Y⁺(T′))` and regrouped on `𝒟^{(m₀)}_{k+1}`, plus `D_E` and the
+       observable terms `D_M`;
+     * `Rt′` holds the `ℛ^{(k+1)}_n` of P5 Props. 3.1–3.4.
+
+     Conclusion:
+     * `IsSFFamily2 P6 ⟨k₀, sf'.ν⟩ sf'.β sf'.a (sfDom P6 k₀ sf') sf'.Tm ρsf' sf'.E` at `k + 1`, with `sfDom` replaced by
+       `birthXiDom` per R6, and `ρsf'(N₂) = z^{N|T|}·T^{(k)} ρsf(L N₂)` (the density clause of `IsSF2`). This includes
+       `CoeffBounds` at `k + 1` with the same `c₈`;
+     * `RTermsH4` with `preFac`, `D8SF P6.m₀ sf'`, `D9Coeff P6 k₀ sf'`, and the `Coh` tables (`sf'.a j = compWeight L a j`).
+
+     Landed parts: the inherited half (`sfTermClauses_splice_birth`, `torusIndep_splice`, `gsStrong_splice`,
+     `renorm_splice_birth`), the new-level clauses from label inputs (`localClass_newLevel_of_expansion_cast`), and the label
+     inputs from (A1)–(A5) (`newLabels_castInputs_of_localFamily`). The large-field half of `SFStepInput` then assembles
+     `IsRepPre2 … (k+1)` around `sf'`.
+2. **`RInput` (LF-4; LFR Thm III.10.8, Lemma III.8.4; P7 Thm 2, (1.3)–(1.7); ruling R4).** For `1 ≤ k ≤ k₀`,
+   `ρ ∈ PreClassAt k k` (with (I.2) up to `k`, (D8)) gives `ρ' ∈ RepClassAt k` with the same `ν_k` and `∫ ρ' = ∫ ρ`. General
+   `Setting`.
+   * Landed:
+     * `lf4R_removed` (named `hrip`, `hCR0`, `hwin`, `hτ`; W968 refuted `hτ` as the form of R's output, replaced by (3.10″)),
+       `hrip_of_counter`, `hcount_of_flow`, `gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run_of_kernel`;
+     * the window: `removedKernel_kerBound_of_hid_action`, `removedKernel_kerBound_of_hid_action_cl` (`hnamedCU`),
+       `sum_mainActionLoc_eq_gen_of_flow_window_pt_Du`, `genSet_stability_core`;
+     * kept outcomes: `keptKernel_one_kerBound`, `keptKernel_two_kerBound`, `keptKernel_three_kerBound`;
+     * R4: `RopC`, `rhoSigma`, `Rop_integral_coupling`, `gasDecor_eq`, `gasR4Decor_eq`, `gasR4DecorOp_eq`,
+       `r4Fresh_aggregate_of_localization`, `r4HeavyActivity_bound`, `gasOp_pe_hole`;
+     * the normalization: `R_normalization_of_indep`, `R_normalization_sum_of_indep`, `R_normalizationPhysical`
+       (named integrability hypotheses);
+     * the class: `isRep2_of_isRepPre2_of_fields`, `isRep2_of_isRepPre2_of_enum_of_pin`, `sfData_of_remainder_added`,
+       `d7Post_bound_of_avoid_of_gas`, `isComplete_succ_of_enum`.
+   * Open:
+     * (a) `hnamedC.1` of the window chain: the conclusion of `sum_mainActionLoc_eq_gen_of_flow_window_pt_Du` under its ~60
+       numeric side conditions (P7 Step 1). Also the P7 Q-part of `hnamedC.2` at the physical collar (COLLAR-FIX 1.2).
+     * (b) (3.10″) for the actual removed operators, and (H-op): hole closure, the two PE inequalities, the product measure.
+     * (c) `ℬ′` (P7 (3.22)–(3.25)): the physical extension that `r4Fresh` needs.
+     * (d) The seven obligations of `isRep2_of_isRepPre2_of_fields`: OPEN-R-HISTORY-ENUM, OPEN-R-TOP-PIN, OPEN-R-D7-PHYSICAL,
+       `form`, `opBound`, `budget` (LF-2's R-step, (Rg) from LF-4R), OPEN-R-RM-H4. Its premise `F'.sf = F.sf` fails once
+       `ℛ''_m` is added, so the assembly must be restated for `sf' = sf + ℛ''`.
+     * (e) The kept bounds `ϰ₄`, `ϰ₅` (`hquot`), and the vacuum bound (W965 normalization).
+     * (f) (D8): `LFCoherent` of the output, and `D8SF.R_eq` of `ℛ''_m`, which comes from the input `LFCoherent` (audit D1).
+3. **`FlowRateInput` (the coefficient step; LFR Thm IV.3.2 (d), prefix row 10).** `c₈ q ≤ (1 − q)/20` with `q = L^{−2γ}` for
+   every `κ, c₉`. (H.6) at `k + 1` is part of the output of `SFStepInput`, and (I.2) at `k + 1` is proved from it. The landed
+   `exists_rootParams_consts_all` (`c₈ = 1`, `L = 7`, `γ < 1/2`) violates it, since then `q > 1/7`. `flowRateInput_of_lower`
+   lowers `c₈`; the flow bound then costs `β ≥ c_ξ/c₈` (LF-7 (d)).
 
 ## Non-vacuity (D4, F5) and rule 10
 

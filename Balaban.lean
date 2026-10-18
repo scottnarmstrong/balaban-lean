@@ -2831,3 +2831,4 @@ public import Balaban.Spine.Activities
 public import Balaban.Spine.RootF
 public import Balaban.Spine.RootC
 public import Balaban.Spine.Witness
+public import Balaban.Spine.ClassStep
