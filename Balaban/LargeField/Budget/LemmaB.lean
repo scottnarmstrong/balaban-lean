@@ -195,12 +195,12 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 closure included),
 `∑_Y G_k(Y) + g_k |𝒩_{k+1} ∩ Z'|_# - c_v λ_{k+1} |Z'|_# ≤ G^pre_{k+1}(Z')`,
 for arbitrary post-`R` exponents `κ_k` and factors `log C_k` of the old parts. -/
-theorem lemmaB_to {c : ℕ} (B : BudgetSetupTo S P c) (hKc : K ≤ c) (ok : S.Ok)
+theorem lemmaB_to {c : ℕ} (B : BudgetSetupTo S P c) (ok : S.Ok)
     (κ logC : ∀ k, H.Comp k → ℝ) :
-    ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+    ∀ k, k < K → k + 1 ≤ c → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.Gpost P κ logC k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.Gpre P κ logC (k + 1) Z' := by
-  intro k hk Z'
+  intro k hk hkc Z'
   have hcnt := H.card_oldCubes_add_outCubes hk Z'
   have hsum := H.sum_parts_card hk Z'
   have hu := ok.L_pow_pos
@@ -296,16 +296,16 @@ theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → 
     ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.Gpost P κ logC k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.Gpre P κ logC (k + 1) Z' :=
-  H.lemmaB_to (B.toTo K) le_rfl ok κ logC
+  fun k hk => H.lemmaB_to (B.toTo K) ok κ logC k hk hk
 
 /-- **Lemma B along the history, up to the scale `c`** (Definition II.5.11): the same for the
 recursive `kappa`, `logC` with kept data `κK` and kept decoration `δ`. -/
-theorem lemmaB_recursive_to {c : ℕ} (B : BudgetSetupTo S P c) (hKc : K ≤ c) (ok : S.Ok)
+theorem lemmaB_recursive_to {c : ℕ} (B : BudgetSetupTo S P c) (ok : S.Ok)
     (κK δ : ∀ k, H.Comp k → ℝ) :
-    ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+    ∀ k, k < K → k + 1 ≤ c → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.budgetPost P κK δ k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.budgetPre P κK δ (k + 1) Z' :=
-  H.lemmaB_to B hKc ok (H.kappa P κK) (H.logC δ)
+  H.lemmaB_to B ok (H.kappa P κK) (H.logC δ)
 
 /-- **Lemma B along the history** (Definition II.5.11): the same for the recursive `kappa`,
 `logC` with kept data `κK` and kept decoration `δ`. -/

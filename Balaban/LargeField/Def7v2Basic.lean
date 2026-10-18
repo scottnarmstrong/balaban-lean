@@ -115,7 +115,7 @@ noncomputable def IsRep2.lf2Hyp
 `IsRepFlat2_{k₀}` for the same representation, with no relation between `K` and `k₀`. -/
 theorem IsRep2.toFlat_of_all_horizons
     (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 hkK F ρ St vc)
-    (hk : k = k0) (G : S.Good) (B : BudgetSetup S P) {khat : ℕ} (hk0 : k0 ≤ khat)
+    (hk : k = k0) (G : S.Good) (B : BudgetSetupTo S P k) {khat : ℕ} (hk0 : k0 ≤ khat)
     (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) :
     IsRepFlat2 S R k0 K M N geo cs P P6 C7 β ν hv rH k khat hM6 hkK F ρ St vc where
   range := hk.ge
@@ -142,7 +142,7 @@ theorem IsRep2.toFlat (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 
     (hk : k = k0) (G : S.Good) (B : BudgetSetup S P) (_hK : K ≤ k + 1) {khat : ℕ} (hk0 : k0 ≤ khat)
     (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) :
     IsRepFlat2 S R k0 K M N geo cs P P6 C7 β ν hv rH k khat hM6 hkK F ρ St vc :=
-  h.toFlat_of_all_horizons hk G B hk0 hH1 hH2
+  h.toFlat_of_all_horizons hk G (B.toTo k) hk0 hH1 hH2
 
 end Class
 
