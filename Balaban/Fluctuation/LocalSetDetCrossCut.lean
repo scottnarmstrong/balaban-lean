@@ -53,6 +53,86 @@ omit [NeZero N₁] [NeZero L] in
 theorem pow_le_pow_add_m (hL : 1 ≤ L) : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
   Nat.pow_le_pow_right hL (by omega)
 
+/-! ### The cover hypotheses of the cross lemmas at the cut points -/
+
+section CutCover
+
+variable (hlev : IsLevel H (k + 1)) {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hR : ∀ x ∈ R, x ∈ H'.Ω (k + 1)) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+  {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')} (hII' : patches I = patches I')
+  (hdeep : ∀ P ∈ patches I, ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R)
+
+include hlev hR hM hII' hdeep in
+/-- An active centre of `H'` at `1_{I'}` is an active centre of `H` at `1_I`. -/
+theorem active_of_active_cutPt {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx H')
+    (hne : sProd H' (extS H' (cutPt I')) q ≠ 0) :
+    q ∈ cubeIdx H ∧ sProd H (extS H (cutPt I)) q ≠ 0 := by
+  have hz : q ∈ Zs H' (extS H' (cutPt I')) := Finset.mem_filter.2 ⟨hq, hne⟩
+  rw [← zs_cutPt_cross hlev hR hM hII' hdeep] at hz
+  exact Finset.mem_filter.1 hz
+
+include hlev in
+/-- The thickened cube of an active centre of the level set lies in `Yreg`. -/
+theorem hatBox_subset_yreg_of_active {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx H) (hne : sProd H s q ≠ 0)
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ hatBox q) : x ∈ Yreg H s := by
+  refine hatI_subset_Yreg_of_active hq hne ?_
+  unfold hatI
+  exact Finset.mem_filter.2 ⟨hx, (hlev x).1⟩
+
+open Classical in
+include hlev hR hM hII' hdeep in
+/-- **The inner active centres of `H` match those of `H'`** (hypothesis `hin` of the landed cross
+lemmas, for `T = Yreg H (1_I)`): same cut factor, same layers near the interaction cube, same
+partition of unity on it. -/
+theorem inner_cutPt_cross :
+    ∀ q ∈ Dec2.innerCentres (coverOf H) H (Yreg H (extS H (cutPt I))),
+      (coverOf H).sProd (extS H (cutPt I)) q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf H') H' (Yreg H (extS H (cutPt I))) ∧
+      (coverOf H').sProd (extS H' (cutPt I')) q = (coverOf H).sProd (extS H (cutPt I)) q ∧
+      (∀ x₀ ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x₀ ∨ ∃ μ : Fin d, y = x₀ + Pi.single μ 1 ∨ y = x₀ - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x₀ ∈ intBox q, (coverOf H).chi q x₀ = (coverOf H').chi q x₀) := by
+  intro q hq hne
+  have hqc : q ∈ cubeIdx H := (Finset.mem_filter.1 hq).1
+  have hd := hdeep q (mem_patches_of_mem_Zs_cutPt (Finset.mem_filter.2 ⟨hqc, hne⟩))
+  have hq1 := fst_eq_of_mem_cubeIdx_level hlev hqc
+  have hqc' : q ∈ cubeIdx H' :=
+    (mem_cubeIdx_iff_of_top hlev (hR _ (hd q.2 (by rw [supDist_self]; exact Nat.zero_le _)))).1 hqc
+  refine ⟨Finset.mem_filter.2 ⟨hqc', fun y hy =>
+      hatBox_subset_yreg_of_active hlev hqc hne (box_subset_hatBox q hy)⟩,
+    (sProd_cutPt_cross hlev hR hM hII' hqc hd).symm, ?_, fun x₀ hx₀ => ?_⟩
+  · intro x₀ hx₀ y hy n hn hnK
+    have h0 := supDist_le_of_mem_intBox_top hM hq1 hx₀
+    have hy1 : supDist y x₀ ≤ 1 := by
+      rcases hy with rfl | ⟨μ, rfl | rfl⟩
+      · rw [supDist_self]; exact Nat.zero_le _
+      · rw [supDist_comm]; exact supDist_add_single_le x₀ μ
+      · rw [supDist_comm]; exact supDist_sub_single_le x₀ μ
+    have hℓ1 : 1 ≤ L ^ (k + 1 + m₁) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+    have hyR : y ∈ R := mem_of_near_deep hd ((supDist_triangle y x₀ q.2).trans
+      (Nat.add_le_add hy1 h0)) (by omega)
+    exact layer_iff_of_mem_top hlev (hR _ hyR) hn hnK
+  · exact chi_eq_of_deep hlev hR hd (by
+      have := supDist_le_of_mem_intBox_top hM hq1 hx₀; omega) q
+
+open Classical in
+include hlev hR hM hII' hdeep in
+/-- **The inner active centres of `H'` are inner active centres of `H`** (hypothesis `hin'` of the
+landed cross lemmas, for `T = Yreg H (1_I)`). -/
+theorem inner'_cutPt_cross :
+    ∀ q ∈ Dec2.innerCentres (coverOf H') H' (Yreg H (extS H (cutPt I))),
+      (coverOf H').sProd (extS H' (cutPt I')) q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf H) H (Yreg H (extS H (cutPt I))) ∧
+      (coverOf H).sProd (extS H (cutPt I)) q ≠ 0 := by
+  intro q hq hne
+  obtain ⟨hqc, hne'⟩ := active_of_active_cutPt hlev hR hM hII' hdeep (Finset.mem_filter.1 hq).1 hne
+  exact ⟨Finset.mem_filter.2 ⟨hqc, fun y hy =>
+    hatBox_subset_yreg_of_active hlev hqc hne' (box_subset_hatBox q hy)⟩, hne'⟩
+
+end CutCover
+
 /-- **The decoupled backgrounds of the two generating sets agree at the cut points** on the region
 `T = Yreg H (1_I)` of the active centres (multiplier and field), for cut sets with the same cubes,
 all deep in `R ⊆ Ω_{k+1}(H')`, and two data of the charts agreeing on `R`. -/
@@ -103,21 +183,6 @@ theorem decBg_cutPt_cross (hlev : IsLevel H (k + 1))
   obtain ⟨φ', α', hI', h1', h2'⟩ := exists_isDecBg_of_flCore hC' hs' hD'
   obtain ⟨hδ0, hδ0', hδ1, hνε⟩ := xiC_numerics hC
   obtain ⟨hδ0'', hδ0''', hδ1', hνε'⟩ := xiC_numerics hC'
-  -- the active centres are deep
-  have hact_deep : ∀ q ∈ cubeIdx H, sProd H (extS H (cutPt I)) q ≠ 0 →
-      ∀ z, supDist z q.2 ≤ 8 * ℓ → z ∈ R := fun q hq hne =>
-    hdeep q (mem_patches_of_mem_Zs_cutPt (Finset.mem_filter.2 ⟨hq, hne⟩))
-  have hact' : ∀ q ∈ cubeIdx H', sProd H' (extS H' (cutPt I')) q ≠ 0 →
-      q ∈ cubeIdx H ∧ sProd H (extS H (cutPt I)) q ≠ 0 := by
-    intro q hq hne
-    have hz : q ∈ Zs H' (extS H' (cutPt I')) := Finset.mem_filter.2 ⟨hq, hne⟩
-    rw [← zs_cutPt_cross hlev hR hM hII' hdeep] at hz
-    exact Finset.mem_filter.1 hz
-  have hhatT : ∀ q ∈ cubeIdx H, sProd H (extS H (cutPt I)) q ≠ 0 → ∀ x ∈ hatBox q, x ∈ T := by
-    intro q hq hne x hx
-    refine hatI_subset_Yreg_of_active hq hne ?_
-    unfold hatI
-    exact Finset.mem_filter.2 ⟨hx, (hlev x).1⟩
   have key := Dec2.decBg_component_cross hS3 (Dec2.coverBase_self hC.Sp)
     (Dec2.coverBase_self hC'.Sp) hC.HBp hC'.HBp hC.hκ.le hM3 (fun P => (hs P).le)
     (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hδ0'' le_rfl hδ0''' hδ1' hνε'
@@ -127,35 +192,11 @@ theorem decBg_cutPt_cross (hlev : IsLevel H (k + 1))
     (fun q hq hne => by
       rw [hT']
       exact subI_or_disjI_of_hatDich hatDich_Yreg hq hne)
-    (fun q hq hne x _ hx => hhatT q hq hne x (box_subset_hatBox q hx))
+    (fun q hq hne x _ hx => hatBox_subset_yreg_of_active hlev hq hne (box_subset_hatBox q hx))
     (fun q hq hne x _ hx => by
-      obtain ⟨hqc, hne'⟩ := hact' q hq hne
-      exact hhatT q hqc hne' x (box_subset_hatBox q hx))
-    (fun q hq hne => by
-      have hqc : q ∈ cubeIdx H := (Finset.mem_filter.1 hq).1
-      have hd := hact_deep q hqc hne
-      have hq1 := fst_eq_of_mem_cubeIdx_level hlev hqc
-      have hqc' : q ∈ cubeIdx H' :=
-        (mem_cubeIdx_iff_of_top hlev (hR _ (hd q.2 (by rw [supDist_self]; exact Nat.zero_le _)))).1
-          hqc
-      refine ⟨Finset.mem_filter.2 ⟨hqc', fun y hy => hhatT q hqc hne y (box_subset_hatBox q hy)⟩,
-        (sProd_cutPt_cross hlev hR hM hII' hqc hd).symm, ?_, fun x₀ hx₀ => ?_⟩
-      · intro x₀ hx₀ y hy n hn hnK
-        have h0 := supDist_le_of_mem_intBox_top hM hq1 hx₀
-        have hy1 : supDist y x₀ ≤ 1 := by
-          rcases hy with rfl | ⟨μ, rfl | rfl⟩
-          · rw [supDist_self]; exact Nat.zero_le _
-          · rw [supDist_comm]; exact supDist_add_single_le x₀ μ
-          · rw [supDist_comm]; exact supDist_sub_single_le x₀ μ
-        have hyR : y ∈ R := mem_of_near_deep hd ((supDist_triangle y x₀ q.2).trans
-          (Nat.add_le_add hy1 h0)) (by omega)
-        exact layer_iff_of_mem_top hlev (hR _ hyR) hn hnK
-      · exact chi_eq_of_deep hlev hR hd (by
-          have := supDist_le_of_mem_intBox_top hM hq1 hx₀; omega) q)
-    (fun q hq hne => by
-      obtain ⟨hqc, hne'⟩ := hact' q (Finset.mem_filter.1 hq).1 hne
-      exact ⟨Finset.mem_filter.2 ⟨hqc, fun y hy => hhatT q hqc hne' y (box_subset_hatBox q hy)⟩,
-        hne'⟩)
+      obtain ⟨hqc, hne'⟩ := active_of_active_cutPt hlev hR hM hII' hdeep hq hne
+      exact hatBox_subset_yreg_of_active hlev hqc hne' (box_subset_hatBox q hx))
+    (inner_cutPt_cross hlev hR hM hII' hdeep) (inner'_cutPt_cross hlev hR hM hII' hdeep)
     (fun x hx _ y hy => by
       obtain ⟨P, hP, hxP⟩ := exists_patch_near_of_mem_yreg hlev hM hx
       refine ⟨(hlev y).1, Finset.mem_filter.2 ⟨Finset.mem_univ _, P, hP, ?_⟩⟩
