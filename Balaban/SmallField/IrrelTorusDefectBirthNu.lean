@@ -53,7 +53,7 @@ theorem flow_norm_le_quarter {P : Consts} (hP : P.Admissible d L) (hL : 2 ≤ L)
 omit [NeZero L] in
 /-- **The mass of every level of the running flow is positive**: `ν_j > 0` for `j ≤ k`, given
 `ν_k > 0`. -/
-theorem CoeffBounds.nu_pos_of_le {P : Consts} (hP : P.Admissible d L) (hL : 2 ≤ L)
+theorem _root_.Balaban.SmallField.Def6.CoeffBounds.nu_pos_of_le {P : Consts} (hP : P.Admissible d L) (hL : 2 ≤ L)
     {β ν a : ℕ → ℝ} (h : CoeffBounds d L k P β ν a) {j : ℕ} (hjk : j ≤ k) : 0 < ν j := by
   obtain ⟨ξ, β₀, ν₀, hξ, hs, hseq⟩ := h.flow
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
