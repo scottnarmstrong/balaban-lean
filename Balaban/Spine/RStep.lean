@@ -185,53 +185,13 @@ end Post
 ### The input record
 -/
 
-/-- **The data of a member of `ℛ^pre_k`** (the body of `PreClassAt`, with its witnesses as fields,
-so that the sub-inputs can speak about them): the representation `F`, the constants and the ties
-to the outer constants. `PreClassAt` is the existence of such a record (`preClassAt_iff`). -/
-structure PreRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
-    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
-    (kf k r : ℕ) [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) where
-  hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)
-  hkK : k ≤ kf + 1
-  R : ℕ → ℝ
-  geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M
-  cs : OpConsts
-  P : BudgetConsts
-  F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ
-  St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N
-  vc : CorrCoef d
-  geoTie : ∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c
-  tie_aKer : cs.aKer = cs₀.aKer
-  tie_Cpsi : cs.Cpsi = cs₀.Cpsi
-  tie_Cb : cs.Cb = cs₀.Cb
-  tie_aw : cs.aw = cs₀.aw
-  tie_c1 : P.c1 = PB.c1
-  tie_c2 : P.c2 = PB.c2
-  tie_H0 : P.H0 = PB.H0
-  pre : IsRepPre2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-    hM6 hkK F ρ St vc
-  β0 : F.sf.β 0 = β
-  ν0 : F.sf.ν 0 = ν
-  νk : F.sf.ν k = νk
-  run : RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r
-  coh : LFCoherent F
-
-/-- `PreClassAt` is the existence of a record. -/
+/-- `PreClassAt` is the existence of a record (`PreRec`, `Spine/ClassStep.lean`). -/
 theorem preClassAt_iff {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
     {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ}
     {h : EuclideanSpace ℝ (Fin N)} {kf k r : ℕ} [NeZero T.M] [NeZero T.L]
     {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ} :
     PreClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk ↔
-      Nonempty (PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) := by
-  constructor
-  · rintro ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-      hνk, hrun, hcoh⟩
-    exact ⟨⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-      hνk, hrun, hcoh⟩⟩
-  · rintro ⟨⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-      hνk, hrun, hcoh⟩⟩
-    exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-      hνk, hrun, hcoh⟩
+      Nonempty (PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) := Iff.rfl
 
 /-- **The vacuum constants of the step data are those of the flow** (R5, R5′; P6 (3.2), P5 (3.18)):
 for every torus, the constants `vacE`, `vacEpp`, `vacEppp` of the creating step of every localized
