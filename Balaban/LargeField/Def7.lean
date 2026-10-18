@@ -143,8 +143,10 @@ external field `h` and the masses enter are collected here, so that the change a
 background mass zero in the solver below `k₀`) is local to this structure, `hDomR`, `hSetB` and
 `sfActMass`:
 * `h_unit`: the physical field is a real unit vector (Root-F);
-* `mu_eq`: the solver mass of the backgrounds and characteristic functions is `μ_j = bgMass`
-  (`0` for `j ≤ k₀`, P5 (1.9));
+* `mu_eq`: the cutoff mass of the characteristic functions is `μ_j = bgMass` (`0` for `j ≤ k₀`,
+  P5 (1.9));
+* `muBg_eq`: the background mass of the backgrounds at which the actions are evaluated is the
+  physical `ν_j L^{-2j}` at every scale (ruling R2, route R-YM′: complete backgrounds);
 * `muAct_eq`: the mass of the main action of the large-field operators is the physical
   `ν_j L^{-2j}` at every scale (P5 p. 490, Definition II.5.4).
 The complex `h`-domains of the localized terms are `hDomR` (for `ℛ^{(k)}_n`; the terms of Def-6
@@ -154,6 +156,7 @@ structure FieldClauses (S : Setting) [NeZero S.L] (k0 k : ℕ) (cs : OpConsts) {
     (sf : SFData S.d S.L m₁ k N ϱ) (hv : EuclideanSpace ℝ (Fin N)) : Prop where
   h_unit : ‖hv‖ = 1
   mu_eq : ∀ j, j ≤ k → cs.mu j = bgMass k0 S.L sf.ν j
+  muBg_eq : ∀ j, j ≤ k → cs.muBg j = sf.ν j / (S.L : ℝ) ^ (2 * j)
   muAct_eq : ∀ j, j ≤ k → cs.muAct j = sf.ν j / (S.L : ℝ) ^ (2 * j)
 
 /-! ### The representation -/

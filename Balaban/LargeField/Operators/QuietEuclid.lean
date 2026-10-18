@@ -146,13 +146,18 @@ theorem quietProd4_euclid :
 open Classical in
 theorem quietIndicator_euclid :
     (if InUnionDomainR (locGen g Hl' k Zc' hZc' hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+        (locData g Hl' k Zc' hZc' hk o' x' hv) ∧
+      InUnionDomainR (locGen g Hl' k Zc' hZc' hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
         (locData g Hl' k Zc' hZc' hk o' x' hv) then (1 : ℝ) else 0) =
       (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+        (locData g Hl k Zc hZc hk o x hv) ∧
+      InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
         (locData g Hl k Zc hZc hk o x hv) then (1 : ℝ) else 0) := by
   classical
   refine if_congr ?_ rfl rfl
   rw [← locData_sym σ g hiso k hZc hZc' hk hZ hI ho hx hv]
-  exact (locGen_latSymm σ g hiso k hZc hZc' hk hZ).inUnionDomainR_sym_iff _
+  exact and_congr ((locGen_latSymm σ g hiso k hZc hZc' hk hZ).inUnionDomainR_sym_iff _)
+    ((locGen_latSymm σ g hiso k hZc hZc' hk hZ).inUnionDomainR_sym_iff _)
 
 section Rest
 

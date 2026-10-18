@@ -50,10 +50,10 @@ variable (cs : OpConsts)
 
 include hrem in
 theorem mainActionLoc_eq_re_actionRegionC (hk1 : 1 ≤ k)
-    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.mu (k + 1)))
+    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.muBg (k + 1)))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
-    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o xc hv))
     (D : Region (locGen g Hl k Zc hZc hk)) (hDs : D.sites = Xfine g Hl k Zc) :
     mainActionLoc g Hl k Zc hZc hk cs hrem o xc hv =
