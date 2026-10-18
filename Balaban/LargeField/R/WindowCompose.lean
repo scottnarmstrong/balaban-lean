@@ -154,12 +154,12 @@ theorem sum_mainActionLoc_eq_gen (g : Geo S n R M) (cs : OpConsts) {k1 m' : ℕ}
     (hv : EuclideanSpace ℝ (Fin N))
     (hβ : ∀ i m, jf i + 1 ≤ m → m ≤ m' + 1 → cs.beta m ≠ 0)
     (hμ : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → cs.muAct m ≠ 0)
-    (hB0 : ∀ i, BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1) cs.aw (cs.mu (jf i + 1)))
+    (hB0 : ∀ i, BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1) cs.aw (cs.muBg (jf i + 1)))
     (hBn : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1)
       (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (jf i + 1)) (jf i + 1) 0 /
         betaCanon S.d S.L (cs.beta m) m 0)) (br.elMass (cs.muAct m)))
     (hS : ∀ i, InUnionDomainR (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-        (locComp_mem H (hjK i) (cf i)) (hjK i)) (bgC1 S.d S.L N) (cs.mu (jf i + 1))
+        (locComp_mem H (hjK i) (cf i)) (hjK i)) (bgC1 S.d S.L N) (cs.muBg (jf i + 1))
         (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
           (hjK i) (ou i) (xu i) hv) ∧
       ∀ m, jf i + 2 ≤ m → m ≤ m' + 1 →

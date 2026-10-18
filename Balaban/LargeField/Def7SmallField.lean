@@ -38,11 +38,11 @@ missing, so the class contains representations with an arbitrary correction.  Se
 (`A_k` in `η`-units, `η = L^{-k}`).  Def-6's `IsSF.density` writes `-β_k · action` with the
 fine-unit Def-5 `action` (recorded in the handoff as a units discrepancy to be checked).
 
-**Masses (open point Q13).**  The background `φ_k` and the characteristic functions use the
-solver mass `cs.mu k` (`0` for `k ≤ k₀`, P5 (1.9)); the small-field action `A*_k` uses
-`sfActMass` (currently the same, as in Def-6's `IsSF`, where the `ν`-term is carried by `ℰ`).
-The pinned-field proposal of `notes/phase1/Q13-ANSWER-astra.md` would change `sfActMass` to the
-physical mass; this is the only place where it enters.
+**Masses (ruling R2).**  The background `φ_k` (and the composed fields `ψ^{(j)}_k`) use the
+background mass `cs.muBg k`; the characteristic functions use the cutoff mass `cs.mu k` (`0` for
+`k ≤ k₀`, P5 (1.9)); the small-field action `A*_k` uses `sfActMass` (the cutoff mass, as in
+Def-6's `IsSF`, where the `ν`-term is carried by `ℰ`; the second version `Def7v2` uses the physical
+mass `cs.muAct k`).  With the default `muBg = mu` this is the convention of P5-P7.
 -/
 
 @[expose] public section
@@ -88,6 +88,11 @@ by `ℰ`): the solver mass `cs.mu k`.  Open point Q13 (`notes/QUESTIONS-ROLAND-2
 `notes/phase1/Q13-ANSWER-astra.md`): the pinned-field repair keeps the physical mass in the
 action; it would replace this definition by `cs.muAct k`. -/
 def sfActMass (cs : OpConsts) (k : ℕ) : ℝ := cs.mu k
+
+/-- The radius `ρ_k = 2⌊R_{k-1}⌋ + 3` (in cubes of `𝕋_k`) of the direction test of the
+small-field cubes (ruling R2): the data sites of `𝔹_k(W_k)` lie within `ρ_k` cubes of `Y`
+(`dataSite_cube_mem_nbhd`). -/
+noncomputable def dirRadius (R : ℕ → ℝ) (k : ℕ) : ℕ := 2 * ⌊R (k - 1)⌋₊ + 3
 
 /-! ### The level generating set and the identifications of the tori -/
 
@@ -240,9 +245,10 @@ noncomputable abbrev genW : GeneratingSet S.d S.L (C.geo.M1 * (C.geo.c * n k)) k
   genSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (c := C.geo.c) (n := n k) (le_refl k)
     (W2 R Y)
 
-/-- **`φ_k = bg(𝔹_k(W_k); lift_k ψ_k)`** (Definition II.2.7 (iii); P5 (1.4)), mass `cs.mu k`. -/
+/-- **`φ_k = bg(𝔹_k(W_k); lift_k ψ_k)`** (Definition II.2.7 (iii); P5 (1.4)), with the
+background mass `cs.muBg k` (ruling R2). -/
 noncomputable def phiK : (C.genW Y).Ω 1 × Fin N → ℂ :=
-  bgSF C.weights (C.cs.mu k) (bgC0 S.d S.L N) (W2 R Y) (C.liftData ψk) (hC hv)
+  bgSF C.weights (C.cs.muBg k) (bgC0 S.d S.L N) (W2 R Y) (C.liftData ψk) (hC hv)
 
 /-- The real background `φ̄_k` on all sites of the level-`k` torus (extended by the data off
 `Ω_1`); real for real data on the domain of BG Theorem 7.1. -/
@@ -256,7 +262,7 @@ noncomputable def phiBar : BgT C.geo k → EuclideanSpace ℝ (Fin N) :=
 noncomputable def psiJ (j : ℕ) : Def6.Fld S.d S.L C.N₁ m₁ k N :=
   if hj : j ≤ k then
     sfPull C.geo C.hT (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (c := C.geo.c)
-      (n := n k) C.weights (C.cs.mu k) (bgC0 S.d S.L N) hj (W2 R Y) (C.liftData ψk) (hC hv))
+      (n := n k) C.weights (C.cs.muBg k) (bgC0 S.d S.L N) hj (W2 R Y) (C.liftData ψk) (hC hv))
   else 0
 
 /-- The level-`k` multiscale field of the single-scale action: `ψ_k` on the `k`-blocks. -/
@@ -337,10 +343,13 @@ noncomputable def Rres : ℂ :=
 
 /-- **`χ_k(Y) = ∏_{□ ⊂ Y} χ_k(□)`** (Definition II.3.2 item 1; P5 (1.18)-(1.19)): weights
 `a^{(k)}`, mass `cs.mu k` (the `h`-conditions are present only for a positive mass), tolerance
-`δ_k = cs.delta k`. -/
+`δ_k = cs.delta k`, with the direction test of the datum extended to `□^{∼ρ_k}`,
+`ρ_k = dirRadius R k` (`chiKLong`; ruling R2, route R-YM′ leaf 4), so that every datum site of
+the background on `𝔹_k(W_k)` is tested. -/
 noncomputable def chiY : ℝ :=
-  cubeProd (fun y0 => chiK (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (q := k) (N := N)
-      C.weights (C.cs.mu k) (C.cs.delta k) (fun i => hv i) C.geo.c (n k) y0)
+  cubeProd (fun y0 => chiKLong (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (q := k)
+      (N := N) C.weights (C.cs.mu k) (C.cs.delta k) (fun i => hv i) C.geo.c (n k)
+      (dirRadius R k) y0)
     (cubeFin Y) (blockCfgOf C.geo C.hnn le_rfl C.hkK ψk)
 
 /-- **The small-field factor of (D1)**: `χ_k(Y) exp(𝒜_k + ℱ_k + ℛ^{(k)})(Y; ψ_k, h, g)` on the

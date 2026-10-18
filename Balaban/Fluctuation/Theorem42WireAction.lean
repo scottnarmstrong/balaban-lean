@@ -57,18 +57,18 @@ theorem locData_isReal (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
 
 variable (cs : OpConsts)
 
-theorem locBg_im_zero (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.mu (k + 1)))
+theorem locBg_im_zero (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.muBg (k + 1)))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
-    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o xc hv)) (p) :
     (locBg g Hl k Zc hZc hk cs o xc hv p).im = 0 :=
   bgFieldC_im_zero H hD (locData_isReal g Hl k Zc hZc hk o xc hv) p
 
-theorem locBg_eq_toFieldC (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.mu (k + 1)))
+theorem locBg_eq_toFieldC (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.muBg (k + 1)))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
-    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o xc hv)) :
     locBg g Hl k Zc hZc hk cs o xc hv =
       toFieldC (locGen g Hl k Zc hZc hk) (locPhi g Hl k Zc hZc hk cs o xc hv) := by
@@ -90,10 +90,10 @@ include hrem in
 background, `φ̄` its real part extended by the data (`locPhi`), `ψ` the multiscale field of the
 configuration (`psiLevel`). -/
 theorem cubeActionStar_locGen_eq (hk1 : 1 ≤ k)
-    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.mu (k + 1)))
+    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.muBg (k + 1)))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
-    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o xc hv)) :
     cubeActionStar (locGen g Hl k Zc hZc hk) cs.aw (cs.muAct (k + 1)) (Xfine g Hl k Zc)
         (locData g Hl k Zc hZc hk o xc hv).Ψ (locData g Hl k Zc hZc hk o xc hv).h
@@ -138,10 +138,10 @@ include hrem in
 /-- **`mainActionLoc` is `β₀` times the star cube action** (Definition II.5.4 = FLUCTUATION §4.2
 Step 3's `β_{k+1} A*_{k+1}(X_{Z'})` at the local background). -/
 theorem mainActionLoc_eq_cubeActionStar (hk1 : 1 ≤ k)
-    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.mu (k + 1)))
+    (H : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) cs.aw (cs.muBg (k + 1)))
     (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (xc : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N))
-    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    (hD : InUnionDomainC (locGen g Hl k Zc hZc hk) (bgC0 S.d S.L N) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o xc hv)) :
     ((mainActionLoc g Hl k Zc hZc hk cs hrem o xc hv : ℝ) : ℂ) =
       (betaCanon S.d S.L (cs.beta (k + 1)) (k + 1) 0 : ℂ) *

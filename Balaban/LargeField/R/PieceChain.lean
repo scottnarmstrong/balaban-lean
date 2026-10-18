@@ -28,7 +28,7 @@ fine sites of `G^{Z'}_{j+1}`:
 * `ν_n = ν_n L^{-2n}` (`cs.muAct n`, the mass of the main action at scale `n`), and
   `e_n = (β_{n-1} ν_{n-1} - β_n ν_n)/ν_n` (the mass identity of P6 (2.31), field `mass`).
 
-The backgrounds: `φ_{j+1} = φ^loc_{j+1}` (`locBg`, mass `μ_{j+1}`), and for `n ≥ j + 2` the
+The backgrounds: `φ_{j+1} = φ^loc_{j+1}` (`locBg`, background mass `cs.muBg (j + 1)`), and for `n ≥ j + 2` the
 background of the same datum with the coefficients `(a_n, ν_n)` in the mass convention `br` of the
 Euler-Lagrange system (`bgFieldC`, `bgMultC`; P631 §1).  The parameter domain `Sdom` is a set of
 configurations `u` (read by `ou`, `xu`, `hvu`) whose datum lies in the real domains `𝒟_ℝ` of
@@ -68,12 +68,12 @@ noncomputable def pieceChain {U : Type*} (Sdom : Set U) (k : ℕ) (br : MassBran
     (xu : U → NewCfg N (locHist Hl M K (j + 1) Zc) j) (hvu : U → EuclideanSpace ℝ (Fin N))
     (hβ : ∀ m, j + 1 ≤ m → m ≤ k → cs.beta m ≠ 0)
     (hμ : ∀ m, j + 2 ≤ m → m ≤ k → cs.muAct m ≠ 0)
-    (hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.mu (j + 1)))
+    (hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.muBg (j + 1)))
     (hBn : ∀ m, j + 2 ≤ m → m ≤ k → BgHyp S.d S.L (j + 1) (minSep S.L g.M1)
       (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (j + 1)) (j + 1) 0 /
         betaCanon S.d S.L (cs.beta m) m 0)) (br.elMass (cs.muAct m)))
     (hS : ∀ u ∈ Sdom,
-      InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (j + 1))
+      InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (j + 1))
         (locData g Hl j Zc hZc hk (ou u) (xu u) (hvu u)) ∧
       ∀ m, j + 2 ≤ m → m ≤ k →
         InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (br.elMass (cs.muAct m))
@@ -131,12 +131,12 @@ theorem pieceChain_T (hrem : ∀ i, Hl.rem i = ∅) (hj1 : 1 ≤ j) {U : Type*} 
     (xu : U → NewCfg N (locHist Hl M K (j + 1) Zc) j) (hvu : U → EuclideanSpace ℝ (Fin N))
     (hβ : ∀ m, j + 1 ≤ m → m ≤ k → cs.beta m ≠ 0)
     (hμ : ∀ m, j + 2 ≤ m → m ≤ k → cs.muAct m ≠ 0)
-    (hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.mu (j + 1)))
+    (hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.muBg (j + 1)))
     (hBn : ∀ m, j + 2 ≤ m → m ≤ k → BgHyp S.d S.L (j + 1) (minSep S.L g.M1)
       (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (j + 1)) (j + 1) 0 /
         betaCanon S.d S.L (cs.beta m) m 0)) (br.elMass (cs.muAct m)))
     (hS : ∀ u ∈ Sdom,
-      InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (j + 1))
+      InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (j + 1))
         (locData g Hl j Zc hZc hk (ou u) (xu u) (hvu u)) ∧
       ∀ m, j + 2 ≤ m → m ≤ k →
         InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (br.elMass (cs.muAct m))

@@ -13,8 +13,9 @@ public import Balaban.LargeField.Def7Variants
 
 **Draft, pending Roland's answer to Q13.**  Decision in force (`orchestration/LEDGER.md`,
 "DECISION: scheme A"; `notes/phase1/W2-RESOLVE.md` §4, CLASS-RULINGS-2 items 1, 6): the large-field
-solver and the characteristic functions of Def-7 use `cs.mu` (zero for `k ≤ k₀`), the physical
-action mass is `cs.muAct`, and the small-field action `A*_k` of the form clause carries the
+characteristic functions of Def-7 use the cutoff mass `cs.mu` (zero for `k ≤ k₀`), the backgrounds
+use the background mass `cs.muBg` (ruling R2; the physical mass under `Def7.FieldClauses.muBg_eq`),
+the physical action mass is `cs.muAct`, and the small-field action `A*_k` of the form clause carries the
 physical mass `sfActMass2 = cs.muAct` (not the solver mass); the boundary correction of P5 (1.8) is
 the restricted antisymmetric sum `corrSum` with the coefficients `v^{(j)}_{1,2}`, not the
 unconstrained datum `SFData.corr`.
@@ -24,9 +25,7 @@ The new versions of the landed objects (the landed ones are untouched):
 * `EresJ2`, `EresK2`, `Ares2` (for `EresJ`, `EresK`, `Ares`): the second sum of `EresJ` is
   `corrSum` of the coefficient data `vc : CorrCoef`;
 * `sfFactor2` (for `sfFactor`): `χ_k(Y) exp(𝒜₂ + ℱ + ℛ)(Y)`, with the landed `chiY` (mass `cs.mu`),
-  `Fres` (the backgrounds are the LF backgrounds of mass `cs.mu`: the exact difference to the
-  complete backgrounds of the small-field class is the interface term of W2-RESOLVE (3.1), outside
-  this clause) and `Rres`;
+  `Fres` (the backgrounds are those of the background mass `cs.muBg`, ruling R2) and `Rres`;
 * `integrand2`, `postTerm2`, `PostConv2`, `D1Form2` (for `integrand`, `postTerm`, `PostConv`,
   `D1Form`), and `preTerm2`, `PreConv2`, `D1PreForm2` (for `IsRep^pre`);
 * `D1CorrLim`: the clauses of `D1Corr` that define the coefficient data `v^{(j)}_{1,2}` (source
@@ -97,7 +96,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- **The single-scale action with half star bonds, second version** (P5 (1.5); CLASS-RULINGS-2
 item 1; W2-RESOLVE §4): `A*_k(Y; ψ_k, φ_k)` with the physical mass `sfActMass2 = cs.muAct k` in
-the action; the background `φ̄_k` is still the one of the solver mass `cs.mu k`. -/
+the action; the background `φ̄_k` is the one of the background mass `cs.muBg k`. -/
 noncomputable def actStar2 : ℝ :=
   actionG (levelGen (ϱ := (1 : ℝ)) k) C.weights (sfActMass2 C.cs k) hv (C.bgSet Y)
       (C.psiLevelK ψk) (C.phiBar Y ψk hv) +

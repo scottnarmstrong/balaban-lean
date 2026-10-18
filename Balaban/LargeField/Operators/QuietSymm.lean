@@ -435,7 +435,7 @@ theorem locData_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k 
 
 theorem locBg_eq (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
-    locBg g Hl k Zc hZc hk cs o x hv = bgFieldC (locGen g Hl k Zc hZc hk) cs.aw (cs.mu (k + 1))
+    locBg g Hl k Zc hZc hk cs o x hv = bgFieldC (locGen g Hl k Zc hZc hk) cs.aw (cs.muBg (k + 1))
       (bgC0 S.d S.L N) (locData g Hl k Zc hZc hk o x hv) := rfl
 
 theorem locBg_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
@@ -443,7 +443,7 @@ theorem locBg_rot (ρ : OrthN N) (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 
     locBg g Hl k Zc hZc hk cs (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       rotFld (cmat (rotMat ρ)) (locBg g Hl k Zc hZc hk cs o x hv) := by
   rw [locBg_eq, locBg_eq, locData_rot]
-  exact (bgFieldC_rot cs.aw (cs.mu (k + 1)) (isRealOrth_ofReal (rotMat_transpose_mul ρ)).1
+  exact (bgFieldC_rot cs.aw (cs.muBg (k + 1)) (isRealOrth_ofReal (rotMat_transpose_mul ρ)).1
     (bgC0 S.d S.L N) _).1
 
 theorem re_cmat_mulVec (Q : Matrix (Fin N) (Fin N) ℝ) (v : Fin N → ℂ) (i : Fin N) :
@@ -509,7 +509,7 @@ theorem quietKernel_rot (hrem : ∀ j, Hl.rem j = ∅) (ρ : OrthN N)
   rw [gaussProd_rot, hh, hx, ho, ho']
   simp only [blockCfgOf_rot]
   rw [subMultiscaleField_rot, subFluctField_rot, chiNew_rot, mainActionLoc_rot, locData_rot,
-    inUnionDomainR_rot_iff (rotMat_transpose_mul ρ)]
+    inUnionDomainR_rot_iff (rotMat_transpose_mul ρ), inUnionDomainR_rot_iff (rotMat_transpose_mul ρ)]
   simp only [cubeProd, chiNext, chiK_rot, chiPrimeNew_rot, hQ]
 
 end MainAct

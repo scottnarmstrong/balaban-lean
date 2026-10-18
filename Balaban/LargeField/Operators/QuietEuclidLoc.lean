@@ -201,7 +201,7 @@ variable (cs : OpConsts)
 theorem locBg_sym :
     locBg g Hl' k Zc' hZc' hk cs o' x' hv =
       (locGen_latSymm σ g hiso k hZc hZc' hk hZ).fld (locBg g Hl k Zc hZc hk cs o x hv) := by
-  have h1 := ((locGen_latSymm σ g hiso k hZc hZc' hk hZ).bgFieldC_sym cs.aw (cs.mu (k + 1))
+  have h1 := ((locGen_latSymm σ g hiso k hZc hZc' hk hZ).bgFieldC_sym cs.aw (cs.muBg (k + 1))
     (bgC0 S.d S.L N) (locData g Hl k Zc hZc hk o x hv)).1
   rw [locData_sym σ g hiso k hZc hZc' hk hZ hI ho hx hv] at h1
   exact h1
