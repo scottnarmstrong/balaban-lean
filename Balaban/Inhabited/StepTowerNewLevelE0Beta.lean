@@ -32,12 +32,12 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 variable {d L N : ℕ} [NeZero L] {κmin : ℝ}
 
 omit [NeZero L] in
-private theorem scaleB_eq (k : ℕ) :
+private theorem scaleB_eq_ge (k : ℕ) :
     (L : ℝ) ^ (k * (d - 2)) = ((L : ℝ) ^ (d - 2)) ^ k := by
   rw [mul_comm, pow_mul]
 
 omit [NeZero L] in
-private theorem radiusB_eq (hL : 3 ≤ L) (hd : 3 ≤ d) (α : ℝ) (k : ℕ) :
+private theorem radiusB_eq_ge (hL : 3 ≤ L) (hd : 3 ≤ d) (α : ℝ) (k : ℕ) :
     (L : ℝ) ^ (-(α * ((k : ℝ) + 1))) =
       ((L : ℝ) ^ (d - 2)) ^ (-((α / ((d - 2 : ℕ) : ℝ)) * ((k : ℝ) + 1))) := by
   have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
@@ -49,10 +49,10 @@ private theorem radiusB_eq (hL : 3 ≤ L) (hd : 3 ≤ d) (α : ℝ) (k : ℕ) :
   field_simp
 
 omit [NeZero L] in
-private theorem baseB_gt (hL : 3 ≤ L) (hd : 3 ≤ d) : (1 : ℝ) < (L : ℝ) ^ (d - 2) :=
+private theorem baseB_gt_ge (hL : 3 ≤ L) (hd : 3 ≤ d) : (1 : ℝ) < (L : ℝ) ^ (d - 2) :=
   one_lt_pow₀ (by exact_mod_cast (by omega : 1 < L)) (by omega)
 
-private theorem rateB_lt (hd : 3 ≤ d) {α : ℝ} (hα : 2 * α < ((d - 2 : ℕ) : ℝ)) :
+private theorem rateB_lt_ge (hd : 3 ≤ d) {α : ℝ} (hα : 2 * α < ((d - 2 : ℕ) : ℝ)) :
     1 * (α / ((d - 2 : ℕ) : ℝ)) < 1 / 2 := by
   have hd0 : (0 : ℝ) < ((d - 2 : ℕ) : ℝ) := by
     have : 0 < d - 2 := by omega
@@ -71,7 +71,7 @@ theorem exists_beta0_corrRTge (hd : 3 ≤ d) (hL : 3 ≤ L) {A₁ : ℝ} (hA : 0
       R₀ ≤ corrRG T (k := k) (β * (L : ℝ) ^ (k * (d - 2))) p₁ := by
   obtain ⟨β₀, h3, H⟩ := exists_beta0_marginB_pLog (Λ := (L : ℝ) ^ (d - 2)) (a := 1) (s := 1 / 2)
     (α := α / ((d - 2 : ℕ) : ℝ)) (c := c) (C := 4 * R₀ * (Real.sqrt N * Cc))
-    (A₁ := A₁) p 1 (baseB_gt hL hd) hc zero_le_one (by norm_num) (rateB_lt hd hα)
+    (A₁ := A₁) p 1 (baseB_gt_ge hL hd) hc zero_le_one (by norm_num) (rateB_lt_ge hd hα)
     (by positivity) hA
   refine ⟨β₀, h3, fun T k hk β p₁ hβ hp hp₁ hCmax hct => ?_⟩
   have hβ0 : 0 < β := by linarith
@@ -79,9 +79,9 @@ theorem exists_beta0_corrRTge (hd : 3 ≤ d) (hL : 3 ≤ L) {A₁ : ℝ} (hA : 0
   have hb0 : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by positivity
   have hs : 0 < Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := Real.sqrt_pos.2 hb0
   have ht := T.t_pos
-  have hmar := H k β T.t p₁ hβ (by rw [← radiusB_eq hL hd α k]; exact hct) hp
-    (by rw [← scaleB_eq k]; exact hp₁)
-  rw [← scaleB_eq k, Real.rpow_one, ← Real.sqrt_eq_rpow, pow_one] at hmar
+  have hmar := H k β T.t p₁ hβ (by rw [← radiusB_eq_ge hL hd α k]; exact hct) hp
+    (by rw [← scaleB_eq_ge k]; exact hp₁)
+  rw [← scaleB_eq_ge k, Real.rpow_one, ← Real.sqrt_eq_rpow, pow_one] at hmar
   have hq := decMRG_pos T hk hb0 hp
   have hqle := decMRG_le T hk hb0 hp.le
   have hr2 : 0 ≤ Real.sqrt (N : ℝ) := Real.sqrt_nonneg _
