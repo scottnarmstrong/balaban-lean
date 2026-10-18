@@ -84,6 +84,12 @@ noncomputable def zeroStepData (hK : K ≤ 1) (hCb : cs.Cb = 0) (κs : ℕ → L
   rot_b := fun _ _ _ _ _ _ _ => rfl
   euclid_K := fun _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
   euclid_b := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+  vacE := fun _ _ => 0
+  vacEpp := fun _ _ => 0
+  vacEppp := fun _ _ => 0
+  b0 := fun _ _ _ _ _ _ => 0
+  b_vac := fun _ _ _ _ _ _ => by simp [zeroKer, stepVacuumTerm]
+  b0_bound := fun _ _ _ _ _ _ _ _ _ _ => by simp [hCb]
   b_bound := fun _ _ _ _ _ _ _ _ _ _ => by
     simp [zeroKer, hCb]
   quiet := fun H _ k hk Z' hq => by

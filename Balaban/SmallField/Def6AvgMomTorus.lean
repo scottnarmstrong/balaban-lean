@@ -241,19 +241,22 @@ theorem shN_finite [NeZero N₁] (y : Site d) :
   constructor <;> omega
 
 open Classical in
-/-- **The second-moment sum of the torus as a sum over the shapes through a centre `y`**
-(CLASS-RULINGS Q-B (1)): `momentSum = ∑_{X' ∋ y} ∑_{x, x' ∈ X'} B_{X'}(x, x') |x - x'|²` with the
-tensor `B_{X'} = tensB` of the centre-`y` class term `EauxC`. -/
-theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) (hN : L ^ P.m₀ ∣ N₁)
-    {i₀ i₁ : Fin N} (y : Site d)
-    (hyu : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j y) = y) :
-    momentSum P.m₀ Tm j i₀ i₁ =
+/-- Weighted Hessian expansion at a centre. The weight is arbitrary; the trace moment and
+individual tensor entries are instances of the same finite shape reindexing. -/
+theorem LiftCtx.weightedHessian_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
+    (hN : L ^ P.m₀ ∣ N₁) {i₀ i₁ : Fin N} (y : Site d)
+    (hyu : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j y) = y)
+    (w : CTorus d L N₁ m₁ k → CTorus d L N₁ m₁ k → ℂ) :
+    ∑ u ∈ (Finset.univ : Finset (CTorus d L N₁ m₁ k)).filter (Aligned (L ^ j)),
+      ∑ v ∈ (Finset.univ : Finset (CTorus d L N₁ m₁ k)).filter (Aligned (L ^ j)),
+        D2 (fun ψ : Fld d L N₁ m₁ k N => Eloc P.m₀ Tm j (blockPt j y) ψ
+          (eFld d L N₁ m₁ k N i₀)) (eFld d L N₁ m₁ k N i₀)
+          (blockDir L j u i₁) (blockDir L j v i₁) * w u v =
       ∑ᶠ X' ∈ {X' : Finset (Site d) | y ∈ X' ∧ NonWind L N₁ m₁ k j X' ∧
           IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X')},
         ∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
           (EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' *
-          (liftSq L j (ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z.1 -
-            ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z'.1) : ℂ) := by
+          w (ibase j z.1) (ibase j z'.1) := by
   have hjk := ctx.jk
   set Sset : Set (Finset (Site d)) := {X' : Finset (Site d) | y ∈ X' ∧ NonWind L N₁ m₁ k j X' ∧
           IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X')} with hSset
@@ -266,11 +269,6 @@ theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
     fun X' => Set.Finite.mem_toFinset _
   set Λ : Finset (CTorus d L N₁ m₁ k) :=
     (Finset.univ : Finset (CTorus d L N₁ m₁ k)).filter (Aligned (L ^ j)) with hΛ
-  have hbp : blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j y = ibase j y := by
-    funext μ; simp only [blockPt, ibase]; congr 1; ring
-  have hal : Aligned (L ^ j) (blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j y) := by
-    rw [hbp]; exact ibase_aligned hjk y
-  rw [ctx.momentSum_eq_centre i₀ i₁ hal]
   have hG : ∀ u v : CTorus d L N₁ m₁ k,
       D2 (fun ψ : Fld d L N₁ m₁ k N => Eloc P.m₀ Tm j (blockPt j y) ψ (eFld d L N₁ m₁ k N i₀))
         (eFld d L N₁ m₁ k N i₀) (blockDir L j u i₁) (blockDir L j v i₁) =
@@ -313,9 +311,9 @@ theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
     fun u v hv => ctx.HtermC_zero_right i₀ i₁ hpd hY0 u (hvan v hv)
   set Λ' := Λ.filter (fun u => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j u ∈ X') with hΛ'
   have e1 : ∀ u : CTorus d L N₁ m₁ k, ∑ v ∈ Λ, HtermC Tm j i₀ i₁ (blockPt j y)
-      (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * (liftSq L j (u - v) : ℂ) =
+      (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * w u v =
       ∑ v ∈ Λ', HtermC Tm j i₀ i₁ (blockPt j y)
-        (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * (liftSq L j (u - v) : ℂ) := by
+        (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * w u v := by
     intro u
     symm
     refine Finset.sum_filter_of_ne fun v _ hne' => ?_
@@ -323,15 +321,15 @@ theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
     exact hne' (by rw [hR u v hv, zero_mul])
   rw [Finset.sum_congr rfl (fun u _ => e1 u)]
   have e2 : ∑ u ∈ Λ, ∑ v ∈ Λ', HtermC Tm j i₀ i₁ (blockPt j y)
-      (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * (liftSq L j (u - v) : ℂ) =
+      (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * w u v =
       ∑ u ∈ Λ', ∑ v ∈ Λ', HtermC Tm j i₀ i₁ (blockPt j y)
-        (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * (liftSq L j (u - v) : ℂ) := by
+        (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X') u v * w u v := by
     symm
     refine Finset.sum_filter_of_ne fun u _ hne' => ?_
     by_contra hu
     exact hne' (Finset.sum_eq_zero fun v _ => by rw [hL u v hu, zero_mul])
   rw [e2]
-  rw [hΛ', sum_aligned_filter hjk hnw]
+  rw [hΛ', hΛ, sum_aligned_filter hjk hnw]
   refine Finset.sum_congr rfl fun z _ => ?_
   rw [sum_aligned_filter hjk hnw]
   refine Finset.sum_congr rfl fun z' _ => ?_
@@ -349,6 +347,28 @@ theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ)
     Subtype.ext hzu'
   rw [e3, e4] at this
   rw [this]
+
+open Classical in
+/-- **The second-moment sum of the torus as a sum over the shapes through a centre `y`**
+(CLASS-RULINGS Q-B (1)): `momentSum = ∑_{X' ∋ y} ∑_{x, x' ∈ X'} B_{X'}(x, x') |x - x'|²` with the
+tensor `B_{X'} = tensB` of the centre-`y` class term `EauxC`. -/
+theorem LiftCtx.momentSum_shapes_centre (ctx : LiftCtx P β ν a Tm ρd Ek j ρ) (hN : L ^ P.m₀ ∣ N₁)
+    {i₀ i₁ : Fin N} (y : Site d)
+    (hyu : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j y) = y) :
+    momentSum P.m₀ Tm j i₀ i₁ =
+      ∑ᶠ X' ∈ {X' : Finset (Site d) | y ∈ X' ∧ NonWind L N₁ m₁ k j X' ∧
+          IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X')},
+        ∑ z : ↥X', ∑ z' : ↥X', tensB i₀ i₁ (nuIdeal L k (ν k) j) X'
+          (EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X') z z' *
+          (liftSq L j (ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z.1 -
+            ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j z'.1) : ℂ) := by
+  have hbp : blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j y = ibase j y := by
+    funext μ; simp only [blockPt, ibase]; congr 1; ring
+  have hal : Aligned (L ^ j) (blockPt (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j y) := by
+    rw [hbp]; exact ibase_aligned ctx.jk y
+  rw [ctx.momentSum_eq_centre i₀ i₁ hal]
+  exact ctx.weightedHessian_shapes_centre hN y hyu
+    (fun u v => (liftSq L j (u - v) : ℂ))
 
 end Torus
 

@@ -106,6 +106,22 @@ structure QuietStepInput' (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : �
   b_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K)
     (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
     RelOut σ.toTorusSym o o' → RelSub hI hk x x' → RelG σ.toTorusSym g g' → b k a' o' x' hv g' = b k a o x hv g
+  vacE : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEpp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEppp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  b0 : ∀ (k : ℕ) (a : LocalHistory S n M K), OutT N R a (k + 1) → NewCfg N a k →
+    EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → ℂ
+  b_vac : ∀ k a o x hv g, QuietRealized R k0 k a →
+    b k a o x hv g = b0 k a o x hv g -
+      (stepVacuumTerm a k (vacE k a) (vacEpp k a) (vacEppp k a) : ℂ)
+  b0_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
+    1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
+    ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
+    ChiNewAt geo cs H k Z' o x →
+    ‖b0 k (H.localHistory M K (k + 1) Z') o x hv g‖ ≤
+      (cs.Cb * Real.log (cs.beta k) + cs.Cb * cs.B0) *
+        volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+          z ∉ (H.localHistory M K (k + 1) Z').Z k}
   b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
     1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
     ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
@@ -145,6 +161,12 @@ noncomputable def QuietStepInput'.toInput (inp : QuietStepInput' K k0 geo cs N) 
   b_supp := inp.b_supp
   b_rot := inp.b_rot
   b_euclid := inp.b_euclid
+  vacE := inp.vacE
+  vacEpp := inp.vacEpp
+  vacEppp := inp.vacEppp
+  b0 := inp.b0
+  b_vac := inp.b_vac
+  b0_bound := inp.b0_bound
   b_bound := inp.b_bound
 
 /-- **Inhabitation of `QuietStepInput'`** for histories with no quiet step (`K ≤ 1`: a quiet step
@@ -162,6 +184,12 @@ theorem quietStepInput'_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ
     b_rot := fun _ _ _ _ _ _ _ _ => rfl
     b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ hr => by
       obtain ⟨H, -, Z', h1, h2, -⟩ := hr; omega
+    vacE := fun _ _ => 0
+    vacEpp := fun _ _ => 0
+    vacEppp := fun _ _ => 0
+    b0 := fun _ _ _ _ _ _ => 0
+    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
+    b0_bound := fun _ _ _ hk h1 => by omega
     b_bound := fun _ _ _ hk h1 => by omega }⟩
 
 end Input
