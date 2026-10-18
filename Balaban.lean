@@ -2623,3 +2623,4 @@ public import Balaban.Background.GenSetStabilityRestrict
 public import Balaban.Background.GenSetStabilityCore
 public import Balaban.Background.GenSetStabilityTransfer
 public import Balaban.Background.GenSetStabilityData
+public import Balaban.Background.GenSetStability
