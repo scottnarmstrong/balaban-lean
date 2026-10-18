@@ -8,6 +8,7 @@ module
 public import Balaban.Polymer.TwoTorusGapIdentCells
 public import Balaban.Polymer.TwoTorusWideBand
 public import Balaban.Fluctuation.LevelLocalCover
+public import Balaban.Fluctuation.CubeSystem
 
 /-!
 # Cells of the root box and of the cover of a site (blocker 7)
@@ -27,6 +28,8 @@ The torus has `K` cells of side `a` per direction (`n = a K` sites); the cell of
   quarter box.
 * `natAbs_valMinAbs_intCast`, `card_ge_of_not_spread`: a polymer of the quarter box whose spread
   exceeds `S` has at least `S + 2` cells.
+* `exists_cubes_of_cells`: the cubes of the cells of a support exist (the hypothesis on `Ycub` of the
+  gap-scale clauses is satisfiable).
 -/
 
 @[expose] public section
@@ -293,5 +296,60 @@ theorem cellNbhd_geom {n a K L S Dc : ℕ} [NeZero n] [NeZero a] [NeZero K] (hn 
   · exact cell_box_le rfl hK XO hq (hmem x hx) μ
 
 end Geom
+
+section Cubes
+
+open Balaban.Fluctuation
+
+/-- A site of the cell of an aligned base `b` has the cell of `b`. -/
+theorem cell_eq_of_mem_box_aligned {d n a K : ℕ} [NeZero n] [NeZero a] [NeZero K] (hn : n = a * K)
+    {b : Balaban.Torus d n} (hb : Aligned a b) {x : Balaban.Torus d n} (hx : x ∈ box b a)
+    (μ : Fin d) :
+    ((((x μ).val / a : ℕ)) : ZMod K) = ((((b μ).val / a : ℕ)) : ZMod K) := by
+  subst hn
+  obtain ⟨j, hj, h⟩ := cell_of_mem_box (K := K) (L := 1) hb (by rwa [one_mul]) μ
+  obtain rfl : j = 0 := by omega
+  simpa using h
+
+/-- **The cubes of the cells of a support.**  On a torus with `K` cells of side
+`a = cellSide L m₀ m₁ j` per direction there is, for every set `X` of centred cell coordinates, a set
+of `π_j`-cubes whose sites are the sites of the cells of `X`. -/
+theorem exists_cubes_of_cells {d L N₁ m₁ Kc m₀ j K : ℕ} [NeZero N₁] [NeZero L] [NeZero K]
+    (hn : (N₁ * L ^ m₁) * L ^ Kc = cellSide L m₀ m₁ j * K) :
+    ∃ Ycub : Finset (Fin d → ℤ) →
+        Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := Kc) m₀ j Set.univ),
+      ∀ X, sitesOf (Ycub X) = {x : CTorus d L N₁ m₁ Kc |
+        (fun μ => (((((x μ).val / cellSide L m₀ m₁ j : ℕ)) : ZMod K)).valMinAbs) ∈
+          (↑X : Set (Fin d → ℤ))} := by
+  have ha := cellSide_pos (L := L) m₀ m₁ j
+  have : NeZero (cellSide L m₀ m₁ j) := ⟨ha.ne'⟩
+  refine ⟨fun X => Finset.univ.filter fun b =>
+    (fun μ => (((((b.1 μ).val / cellSide L m₀ m₁ j : ℕ)) : ZMod K)).valMinAbs) ∈ X, fun X => ?_⟩
+  ext x
+  rw [mem_sitesOf]
+  constructor
+  · rintro ⟨b, hb, hx⟩
+    have hb' := (Finset.mem_filter.1 hb).2
+    have hc : (fun μ => (((((x μ).val / cellSide L m₀ m₁ j : ℕ)) : ZMod K)).valMinAbs) =
+        (fun μ => (((((b.1 μ).val / cellSide L m₀ m₁ j : ℕ)) : ZMod K)).valMinAbs) :=
+      funext fun μ => by rw [cell_eq_of_mem_box_aligned hn b.2.1 hx μ]
+    show _ ∈ (↑X : Set (Fin d → ℤ))
+    rw [hc]
+    exact hb'
+  · intro hx
+    refine ⟨⟨cbase (cellSide L m₀ m₁ j) x, aligned_cbase x, Set.subset_univ _⟩, ?_,
+      mem_box_cbase ha x⟩
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩
+    have hc : (fun μ => (((((cbase (cellSide L m₀ m₁ j) x μ).val / cellSide L m₀ m₁ j : ℕ)) :
+        ZMod K)).valMinAbs) =
+        (fun μ => (((((x μ).val / cellSide L m₀ m₁ j : ℕ)) : ZMod K)).valMinAbs) :=
+      funext fun μ => by
+        have h := cbase_val_div (M := 1) ha x μ
+        rw [mul_one] at h
+        rw [h]
+    rw [hc]
+    exact hx
+
+end Cubes
 
 end Balaban.Polymer.TwoTorusStep
