@@ -35,9 +35,9 @@ of the landed chain (`r₀ ≤ 324` in `e0CoeffFamily_class_fromTower_of_irrelBo
 * `composedCloseBound_collar`, `composedCloseBound_antitone_collar`: the factor of a larger collar;
 * `ChainNum.of_collar`: `ChainNum` at the collar `r₀` gives `ChainNum` at every `r₀' ≥ r₀` with
   `δ₃' = N · composedCloseBound(…, C_{Ξ1} ε', r₀') ≤ δ₃`;
-* `composedCloseBound_smul`: the bound is linear in the radius;
 * `exists_pow_close_le`: at `r₀ = 327` the ratio `K₂ N composedCloseBound(…, C_{Ξ1}, 327)` is below
-  any `θ > 0` once `3^{m₁}` is large (FLUCTUATION §1.5 row 6);
+  any `θ > 0` once `3^{m₁}` is large (FLUCTUATION §1.5 row 6; the general-`L` form of the decay is
+  `c3_le_of_decay`, the linearity in the radius `Balaban.Fluctuation.composedCloseBound_smul`);
 * `eps_succ_le_of_eps_one_le`: the cover `ε_{k+1} ≤ t` at every scale from `ε_1 ≤ t`;
 * `room_of_radii`: the room at every `j ≤ k` from `t ≤ ε_{k+1}` (with the cover: `t = ε_{k+1}`),
   `ε_{k+1} ≤ q ε_k`, `δ₃ ≤ Q t`, `δ_fl ≤ F δ₁`, `δ₁ ≤ η ε_k` and `q (1 + K₂ Q) + K₂ F η ≤ 1`.
@@ -79,12 +79,6 @@ theorem composedCloseBound_antitone_collar {BG κ δ r₀ r₀' : ℝ} (hBG : 0 
     nlinarith [mul_nonneg hγ hx]
   calc _ ≤ composedCloseBound d L N m₁ BG κ δ r₀ * 1 := mul_le_mul_of_nonneg_left he h0
     _ = _ := mul_one _
-
-/-- **The closeness bound is linear in the radius.** -/
-theorem composedCloseBound_smul (BG κ c δ r₀ : ℝ) :
-    composedCloseBound d L N m₁ BG κ (c * δ) r₀ = c * composedCloseBound d L N m₁ BG κ δ r₀ := by
-  unfold composedCloseBound closeConst
-  ring
 
 /-- **`ChainNum` at a larger collar**, with the closeness bound of that collar as `δ₃`. -/
 theorem _root_.Balaban.Localization.ChainNum.of_collar {BG κ r₀ r₀' eps δ₃ : ℝ}
