@@ -527,4 +527,142 @@ theorem genSet_stability_main {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw)
 
 end Core
 
+section Final
+
+variable {d L N : ℕ} [NeZero L]
+
+/-- **Stability under a change of generating set, with the constants `K_w`, `δ_w` of the weighted
+Proposition 5.1** (`WeightedProp51S`); the torus of `Gl` has side `N₀ L^{k_l}`, `N₀ = N₁ L^{m₁}`. -/
+theorem genSet_stability_core {Kw δw : ℝ} (hW : WeightedProp51S d L N Kw δw) (hKw : 0 ≤ Kw)
+    {N₀l kl N₀w kw N₁ m₁ : ℕ} [NeZero N₀l] [NeZero N₀w] [NeZero N₁] (hN : N₀l = N₁ * L ^ m₁)
+    {ϱl ϱw ϱB : ℝ} (Gl : GeneratingSet d L N₀l kl ϱl) (Gw : GeneratingSet d L N₀w kw ϱw)
+    (e : Torus d (N₀w * L ^ kw) ≃ Torus d (N₀l * L ^ kl)) {a : ℕ → ℝ} {ν : ℝ}
+    (H : BgHyp d L kl ϱl a ν) (Hw : BgHyp d L kw ϱw a ν) (hϱB0 : bgR0 d L ≤ ϱB)
+    (hsepB : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱB - 1)) (hϱB : ϱB ≤ ϱl) (hk : kl ≤ kw)
+    (he : ∀ x μ, e (x + Pi.single μ 1) = e x + Pi.single μ 1)
+    (hblk : ∀ n, n ≤ kl → ∀ x y, jBlock d L N₀l kl n x = jBlock d L N₀l kl n y ↔
+      jBlock d L N₀w kw n (e.symm x) = jBlock d L N₀w kw n (e.symm y))
+    (X : Finset (Torus d (N₀l * L ^ kl))) (r : ℝ) (hr0 : 0 ≤ r)
+    (hag : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+      ∀ n, 1 ≤ n → n ≤ kl + 1 → (x ∈ Gl.Ω n ↔ e.symm x ∈ Gw.Ω n))
+    {Dl : BgData Gl N} {Dw : BgData Gw N} {δl δw' δd : ℝ}
+    (hδl0 : 0 < δl) (hδl : δl ≤ bgC1 d L N) (hDl : InDomainR Gl ν δl Dl)
+    (hδw0 : 0 < δw') (hδw : δw' ≤ bgC1 d L N) (hDw : InDomainR Gw ν δw' Dw) (hδd : 0 ≤ δd)
+    (hΨ : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+      vn (fun i => Dl.Ψ x i - Dw.Ψ (e.symm x) i) ≤ δd)
+    (hh : ∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) → Dl.h x = Dw.h (e.symm x))
+    (hsmall : 9 * (bgK1 d L N * (δl + δw') + δd) ≤ min (deltaStar d L N) δw)
+    (y : Gl.Ω 1) (hy : (y : Torus d (N₀l * L ^ kl)) ∈ X) (i : Fin N) :
+    ‖bgFieldC Gl a ν (bgC0 d L N) Dl (y, i) -
+        transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) (y, i)‖ ≤
+      max (Kw * cF d L * 10 * (bgK1 d L N + 1)) (bgK1 d L N + 1) *
+        (δd + (δl + δw') *
+          Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl)))) := by
+  subst hN
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hK1 := bgK1_pos d L N
+  have hcF := cF_pos d L
+  have hγ := gammaW_nonneg hd0
+  obtain ⟨φl, αl, hsl, hbl, hul, hunitl, -, -⟩ := bg_real H hδl0 hδl hDl
+  obtain ⟨φw, αw, hsw, hbw, huw, -, -, -⟩ := bg_real Hw hδw0 hδw hDw
+  rw [(bgFieldC_eq hsl hul).1, (bgFieldC_eq hsw huw).1, norm_sub_rev]
+  have hLk : (0 : ℝ) < (L : ℝ) ^ kl := by
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  set E : ℝ := Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl)))
+    with hE
+  have hE0 : 0 < E := Real.exp_pos _
+  have hδ0 : 0 ≤ δl + δw' := by positivity
+  by_cases hr : (ϱB + 3 * d) * (L : ℝ) ^ kl + 2 ≤ r
+  · have hc6 : bgK1 d L N * δl + bgK1 d L N * δw' ≤ c6 d L N := by
+      have h1 := (bgC1_facts d L N hd0 hδl).2.2.2
+      have h2 := (bgC1_facts d L N hd0 hδw).2.2.2
+      have h3 := bgC0_le_c6 d L N
+      linarith
+    have hm := genSet_stability_main hW Gl Gw e H hϱB0 hsepB hϱB hk he hblk X r hag hδl0.le
+      hδw0.le hδd hΨ hh hsmall hc6 hsl.1 hbl hunitl hsw.1 hbw hr y hy i
+    have hE1 : E ≤ 1 := by
+      rw [hE, Real.exp_le_one_iff, neg_nonpos]
+      exact mul_nonneg hγ (div_nonneg (by linarith) hLk.le)
+    have hP : 0 ≤ Kw * cF d L := mul_nonneg hKw hcF.le
+    have hin : 9 * (bgK1 d L N * (δl + δw') + δd) * E + δd ≤
+        10 * (bgK1 d L N + 1) * (δd + (δl + δw') * E) := by
+      have a1 : δd * E ≤ δd := mul_le_of_le_one_right hδd hE1
+      have a2 : 0 ≤ (δl + δw') * E := mul_nonneg hδ0 hE0.le
+      have a3 : 0 ≤ bgK1 d L N * δd := by positivity
+      nlinarith
+    calc ‖transportField (Gl := Gl) e Dw.Ψ φw (y, i) - φl (y, i)‖
+        ≤ Kw * (cF d L * (9 * (bgK1 d L N * (δl + δw') + δd) * E + δd)) := hm
+      _ = (Kw * cF d L) * (9 * (bgK1 d L N * (δl + δw') + δd) * E + δd) := by ring
+      _ ≤ (Kw * cF d L) * (10 * (bgK1 d L N + 1) * (δd + (δl + δw') * E)) :=
+          mul_le_mul_of_nonneg_left hin hP
+      _ = Kw * cF d L * 10 * (bgK1 d L N + 1) * (δd + (δl + δw') * E) := by ring
+      _ ≤ _ := mul_le_mul_of_nonneg_right (le_max_left _ _) (by positivity)
+  · have hyA : ∃ z ∈ X, Green.torusDist d (N₁ * L ^ m₁ * L ^ kl) z y ≤ r :=
+      ⟨y, hy, by rw [torusDist_self']; exact hr0⟩
+    have hy' := (hag y hyA 1 le_rfl (by omega)).1 y.2
+    have hcl := transport_close (e := e) hbl hbw y hy' (hΨ y hyA)
+    have h1 : ‖transportField (Gl := Gl) e Dw.Ψ φw (y, i) - φl (y, i)‖ ≤
+        bgK1 d L N * δw' + δd + bgK1 d L N * δl :=
+      (norm_le_vn (fun j => transportField (Gl := Gl) e Dw.Ψ φw (y, j) - φl (y, j)) i).trans hcl
+    have hE1 : 1 ≤ E := by
+      rw [hE, Real.one_le_exp_iff, neg_nonneg]
+      refine mul_nonpos_of_nonneg_of_nonpos hγ (div_nonpos_of_nonpos_of_nonneg (by linarith) hLk.le)
+    have hin : bgK1 d L N * δw' + δd + bgK1 d L N * δl ≤
+        (bgK1 d L N + 1) * (δd + (δl + δw') * E) := by
+      have a1 : δl + δw' ≤ (δl + δw') * E := le_mul_of_one_le_right hδ0 hE1
+      nlinarith
+    calc _ ≤ _ := h1
+      _ ≤ (bgK1 d L N + 1) * (δd + (δl + δw') * E) := hin
+      _ ≤ _ := mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity)
+
+/-- **Stability of the background under a change of generating set** (P7 (2.14); P2 §4,
+P3 Proposition 2.1 for the changed layers).  There are `K, δ_s > 0` depending only on `(d, L, N)`
+such that: for generating sets `Gl`, `Gw` with the hypotheses of Theorem 5.2 (`BgHyp`, same `a`,
+`ν`), `k_l ≤ k_w`, an identification `e` of the tori commuting with the lattice steps and with the
+`n`-blocks (`n ≤ k_l`), a separation `ϱ_B ≤ ϱ_l` admissible for Theorem 5.2 and for the weighted
+Green's function, a set `X` and a radius `r ≥ 0` such that on the ball `B(X, r)` the layers
+`Ω_n` (`1 ≤ n ≤ k_l + 1`) and `h̃` agree and the data `Ψ` differ by at most `δ_d`, real data in
+`𝒟_ℝ` with `K₁ (δ_l + δ_w) + δ_d ≤ δ_s`: for `y ∈ X ∩ Ω^l_1`,
+`|φ_l(y) - φ_w(e⁻¹ y)| ≤ K (δ_d + (δ_l + δ_w) e^{-γ_w (r - (ϱ_B + 3d) L^{k_l} - 2) / L^{k_l}})`,
+`φ_l = bgFieldC Gl`, `φ_w = bgFieldC Gw` (the right side is read through `transportField`). -/
+theorem genSet_stability (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ K δs : ℝ, 0 < K ∧ 0 < δs ∧
+      ∀ {N₀l kl N₀w kw : ℕ} [NeZero N₀l] [NeZero N₀w] {ϱl ϱw ϱB : ℝ}
+        (Gl : GeneratingSet d L N₀l kl ϱl) (Gw : GeneratingSet d L N₀w kw ϱw)
+        (e : Torus d (N₀w * L ^ kw) ≃ Torus d (N₀l * L ^ kl)) {a : ℕ → ℝ} {ν : ℝ},
+        BgHyp d L kl ϱl a ν → BgHyp d L kw ϱw a ν → bgR0 d L ≤ ϱB →
+        2 * d * Real.log L ≤ agmonRate d / 16 * (ϱB - 1) → ϱB ≤ ϱl → kl ≤ kw →
+        (∀ x μ, e (x + Pi.single μ 1) = e x + Pi.single μ 1) →
+        (∀ n, n ≤ kl → ∀ x y, jBlock d L N₀l kl n x = jBlock d L N₀l kl n y ↔
+          jBlock d L N₀w kw n (e.symm x) = jBlock d L N₀w kw n (e.symm y)) →
+        ∀ (X : Finset (Torus d (N₀l * L ^ kl))) (r : ℝ), 0 ≤ r →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          ∀ n, 1 ≤ n → n ≤ kl + 1 → (x ∈ Gl.Ω n ↔ e.symm x ∈ Gw.Ω n)) →
+        ∀ {Dl : BgData Gl N} {Dw : BgData Gw N} {δl δw δd : ℝ},
+        0 < δl → δl ≤ bgC1 d L N → InDomainR Gl ν δl Dl →
+        0 < δw → δw ≤ bgC1 d L N → InDomainR Gw ν δw Dw → 0 ≤ δd →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          vn (fun i => Dl.Ψ x i - Dw.Ψ (e.symm x) i) ≤ δd) →
+        (∀ x, (∃ z ∈ X, Green.torusDist d (N₀l * L ^ kl) z x ≤ r) →
+          Dl.h x = Dw.h (e.symm x)) →
+        bgK1 d L N * (δl + δw) + δd ≤ δs →
+        ∀ (y : Gl.Ω 1), (y : Torus d (N₀l * L ^ kl)) ∈ X → ∀ i : Fin N,
+          ‖bgFieldC Gl a ν (bgC0 d L N) Dl (y, i) -
+              transportField (Gl := Gl) e Dw.Ψ (bgFieldC Gw a ν (bgC0 d L N) Dw) (y, i)‖ ≤
+            K * (δd + (δl + δw) *
+              Real.exp (-(gammaW d * ((r - (ϱB + 3 * d) * (L : ℝ) ^ kl - 2) / (L : ℝ) ^ kl)))) := by
+  obtain ⟨Kw, δw0, hKw, hδw0, hW⟩ := weightedProp51S_exists N hd hL
+  have hK1 := bgK1_pos d L N
+  have hd0 : 0 < d := by omega
+  have hs0 := deltaStar_pos d L N hd0
+  refine ⟨max (Kw * cF d L * 10 * (bgK1 d L N + 1)) (bgK1 d L N + 1), min (deltaStar d L N) δw0 / 9,
+    lt_of_lt_of_le (by linarith) (le_max_right _ _), by positivity, ?_⟩
+  intro N₀l kl N₀w kw _ _ ϱl ϱw ϱB Gl Gw e a ν H Hw hϱB0 hsepB hϱB hk he hblk X r hr0 hag Dl Dw
+    δl δw δd hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh hsm y hy i
+  exact genSet_stability_core hW hKw.le (N₁ := N₀l) (m₁ := 0) (by simp) Gl Gw e H Hw hϱB0 hsepB
+    hϱB hk he hblk X r hr0 hag hδl0 hδl hDl hδw0 hδw hDw hδd hΨ hh (by linarith) y hy i
+
+end Final
+
 end Balaban.Background
