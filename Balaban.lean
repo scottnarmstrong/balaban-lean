@@ -2756,3 +2756,4 @@ public import Balaban.LargeField.R.WindowLiftDatum
 public import Balaban.LargeField.R.WindowLiftPiece
 public import Balaban.LargeField.R.WindowLiftSum
 public import Balaban.LargeField.R.WindowLiftConv
+public import Balaban.LargeField.R.WindowLiftSumEq
