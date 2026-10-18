@@ -29,7 +29,8 @@ theorems that will discharge them.  The list and the status of each input are in
 The inputs share the constants of the prefix of LFR §I.1.4, which depend on `κ, c₉` only and are
 fixed before `β₀`.  They are passed as functions of `(κ, c₉)` (the choice of the provider):
 `T` (the typing constants `d, L, M, R_base, θ_±, α, p₀, p₂, A₂, …`; Root-F's `L, M` are `T.L, T.M`),
-`P6` (the Def-6 constants `γ, α₁, κ, E₀, c₈, c₉, …`), `C7` (`m₁, A₀, A₁, B₀, B_st`), `PB` (`c₁, c₂, H₀`
+`P6` (the Def-6 constants `γ, α₁, κ, E₀, c₈, c₉, …`), `C7` (`m₁, A₀, A₁, B₀, B_st`), `PB`
+(`c₁, c₂, H₀`
 of the budget), `cs₀` (the non-running operator constants: the kernel constant `a`, `C_ψ`, `C_b`,
 the weights `a_n`), `M1, c` (the unit `M₁` of the generating sets and `M = c M₁`), `rH` (the radius
 of the pinned field ball) and `ϱ` (the separation of the generating sets).  The running constants
@@ -37,18 +38,18 @@ of the pinned field ball) and `ϱ` (the separation of the generating sets).  The
 representation of each density (`Coh` ties them to its small-field data) and are produced by the
 steps (LFR Theorem IV.3.2 (d)).  The a priori setting at `β` is
 `𝒮[d, T, β, a] = (T with d, λ̂_j = log(β a) + 1 + j θ)` (`lamHat`, D-IV.2); the regime index is the
-a priori `k₀ = kZero d L β ν` (D-IV.11) and the horizon is `k̂_f` (`IsHorizon`, D-IV.1): the flow runs
+a priori `k₀ = kZero d L β ν` (D-IV.11) and the horizon is `k̂_f` (`IsHorizon`, D-IV.1): the flow
+runs
 on the tori of side `ℓ = M n_K L^K`, `K = k̂_f + 1`, and Root-F's `kf` is `k̂_f`.
 
 ## The inputs (A-numbers of `notes/phase1/ROOTASM2.md`)
 
-* `PrefixInput` (A1): `2 ≤ L`, `1 ≤ M`.
+* `PrefixInput` (A1): `2 ≤ L`, `1 ≤ M`, and `c₈ q/(1 - q) ≤ 1/20` (LFR (I.2)).
 * `BaseStepInput` (A3, LF-6): the first step `ρ₀ ↦ ρ₁` lands in `ℛ₁` (or `ℛ♭₁` if `k₀ = 0`) with
   `∫ ρ₁ = c Z(g)`.
 * `ClassStepInput` (A4, LF-3 + LF-4): `ℛ_k → ℛ_{k+1}` for `1 ≤ k < k₀`, `∫ ρ_{k+1} = c ∫ ρ_k`.
 * `TransferInput` (A4, Lemma IV.2.1): `ℛ_{k₀} ⊂ ℛ♭_{k₀}`.
 * `FrozenStepInput` (A4, LF-5): `ℛ♭_k → ℛ♭_{k+1}` for `k₀ ≤ k < k_f`, `∫ ρ_{k+1} = c ∫ ρ_k`.
-* `StopInput` (A5, Lemma IV.5.1 (b)): the flow stops by the horizon: `ν_{k̂_f} > 7/8 L⁻²`.
 * `LastIntegralInput` (A6, LF-8 (a)): `∫ ρ_{k_f} = exp(E + ⟨g, h⟩ + ∑_j ∑_X p_j(X; g))` with
   scale-`j` activities `p_j` in the observable form of Root-F (`ObservableActivities`).
 * `KfZeroInput` (A7, LF-8 (b)): the same for `Z(g)` itself when `ν > 7/8 L⁻²`, at scale `1`.
@@ -75,8 +76,8 @@ scoped notation "𝒮[" d ", " T ", " β ", " a "]" =>
 /-- The densities at scale `k` of the flow on the tori with `n_K` top cubes (side
 `ℓ = M n_K L^K`): `ρ(ψ_k; g)` on the field `ψ_k` of the `k`-blocks, with the source
 `g : 𝕋_ℓ × {1, …, N} → ℂ`. -/
-scoped macro "𝒟[" d:term ", " N:term ", " T:term ", " β:term ", " a:term ", " K:term ", " k:term "]" :
-    term =>
+scoped macro "𝒟[" d:term ", " N:term ", " T:term ", " β:term ", " a:term ", "
+    K:term ", " k:term "]" : term =>
   `(∀ (nK : ℕ) [NeZero nK],
     (BlockAt 𝒮[$d, $T, $β, $a] (sides (Typing.L $T) $K nK) (Typing.M $T) $K $k →
       EuclideanSpace ℝ (Fin $N)) →
@@ -150,8 +151,10 @@ def IntegralStep (d N : ℕ) (T : Typing) (β a : ℝ) (K k : ℕ) [NeZero T.M] 
 items 2–5, 7; the device of P7 (4.15)–(4.17), ARCH (F3)), scales `1 ≤ j ≤ J`: on every admissible
 torus (`M L^{kf+1} ∣ ℓ`) the activity `p_j(X; g)` vanishes unless `X` is a scale-`j` polymer
 (`IsPolymer d ℓ (M L^j) X`), is analytic on the unit `ℓ¹` ball, depends on `g|_X` only, and is
-bounded there by `(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}`; and the activities of two admissible
-tori agree on the images of a finite set `A ⊂ ℤ^d` in the box `|y_μ| < min(ℓ, ℓ')/4` (P4 (H.4), (D8),
+bounded there by `(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}`; and the activities of two
+admissible
+tori agree on the images of a finite set `A ⊂ ℤ^d` in the box `|y_μ| < min(ℓ, ℓ')/4` (P4 (H.4),
+(D8),
 PE (f)).  The factor `1/2` pays the Cauchy estimate of the derivative on the half ball
 (`norm_kf0Deriv_le_two`). -/
 def ObservableActivities (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
@@ -177,14 +180,19 @@ variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ �
   (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
   (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
 
-/-- **A1 (the prefix; LFR §I.1.4 rows 3, 6).**  For every `κ, c₉ > 0` the scale factor and the cube
-side of the prefix satisfy Root-F's ranges `2 ≤ L` (row 3 asks `L ≥ 3`) and `1 ≤ M`
-(`M = L^{m₀} M₁`, row 6). -/
+/-- **A1 (the prefix; LFR §I.1.4 rows 3, 6, and (I.2)).**  For every `κ, c₉ > 0` the scale factor
+and the cube side of the prefix satisfy Root-F's ranges `2 ≤ L` (row 3 asks `L ≥ 3`) and `1 ≤ M`
+(`M = L^{m₀} M₁`, row 6), and the constant `c₈` of the coefficient bounds (H.6) is small:
+`ε = c₈ q/(1 - q) ≤ 1/20` with `q = L^{-2γ}` (LFR (I.2), Theorem IV.3.2 (d); the flow's
+`c₈ = c_ξ/β` is below any fixed value for `β ≥ β₀`). -/
 def PrefixInput : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → 2 ≤ (T κ c₉).L ∧ 1 ≤ (T κ c₉).M
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → 2 ≤ (T κ c₉).L ∧ 1 ≤ (T κ c₉).M ∧
+    20 * (P6 κ c₉).c₈ * Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ ≤
+      1 - Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5
-p. 487).**  For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
+p. 487).**  For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the
+horizon
 `kf = k̂_f`: the density `ρ₁ = S^{(0)} T^{(0)} ρ₀` of the first step has a representation in `ℛ₁`
 if `k₀ ≥ 1` (regime (A)) and in `ℛ♭₁` if `k₀ = 0` (regime (B)), with running mass `ν_0 = ν`, and
 `∫ ρ₁ dψ₁ = c Z(g)` on every torus of the family. -/
@@ -225,7 +233,8 @@ def ClassStepInput : Prop :=
         (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) ρ' νk' ∧
       IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
-/-- **A4 (the transfer at `k₀`; LFR Lemma IV.2.1, P5 p. 490, LF-2 (iv)).**  If `k₀ ≥ 1`, every member
+/-- **A4 (the transfer at `k₀`; LFR Lemma IV.2.1, P5 p. 490, LF-2 (iv)).**  If `k₀ ≥ 1`, every
+member
 of `ℛ_{k₀}` (with running mass `ν_{k₀}`) is a member of `ℛ♭_{k₀}` with the same density and the same
 running mass (the representation is re-read: (D2) to (D2♭), (D9) to (D9♭), (H6′) to (H6♭)). -/
 def TransferInput : Prop :=
@@ -258,27 +267,16 @@ def FrozenStepInput : Prop :=
         (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) ρ' νk' ∧
       IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
-/-- **A5 (the flow stops by the horizon; LFR Lemma IV.5.1 (b) and Lemma I.5.6 (a): `k_f ≤ k̂_f`;
-P4 §6, P7 p. 529).**  A member of `ℛ♭_{kf}` (`kf = k̂_f`) whose running masses start from the bare
-mass has `ν_{kf} > 7/8 L⁻²`: by (H.6) (`CoeffBounds.flow`) `ν_{kf} = ν L^{2 kf} δ_{kf}` with
-`|log δ_{kf}| ≤ c₈ q/(1 - q)`, and `ν L^{2 kf + 2} ≥ 1`. -/
-def StopInput : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
-  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
-  ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
-  ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, kf]) (νk : ℝ),
-    FlatClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf kf ρ νk →
-    7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2
-
 /-- **A6 (the last integral, LF-8 (a); LFR Theorem IV.4.1 (IV.4.2), P7 (4.9)–(4.17), pp. 529–533,
 P9 (4.4)–(4.7), p. 516; in the observable form of LFR Definition IV.5.2 and Theorem IV.5.3).**  For
 `1 ≤ k ≤ kf` and `ρ ∈ ℛ♭_k` at the stopping scale (`ν_k > 7/8 L⁻²`, so `k = k_f`):
-`∫ ρ dψ_k = exp(-E_{k+1,0} |T^{(k+1)}| + ⟨g, h⟩ + ∑_{j=1}^{k+1} ∑_X p_j(X; g))` on every torus of the
-family, where for `j ≤ k` the activity is `p_j(X; g) = ∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩` (the
+`∫ ρ dψ_k = exp(-E_{k+1,0} |T^{(k+1)}| + ⟨g, h⟩ + ∑_{j=1}^{k+1} ∑_X p_j(X; g))` on every torus of
+the
+family, where for `j ≤ k` the activity is `p_j(X; g) = ∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩`
+(the
 (H.7) terms of the class at the constant configuration) and for `j = k + 1` it collects
-`ℳ^{(k+1)}_0`, the polymer terms `ℛ^{(k+1)}_n` and `𝒫^{(k+1)}` regrouped by the scale-`(k+1)` polymer
+`ℳ^{(k+1)}_0`, the polymer terms `ℛ^{(k+1)}_n` and `𝒫^{(k+1)}` regrouped by the scale-`(k+1)`
+polymer
 `Ȳ` of their domain; the activities satisfy `ObservableActivities` with top scale `k + 1`. -/
 def LastIntegralInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →

@@ -13,16 +13,17 @@ import Mathlib.Tactic.Positivity
 # The Root-F spine
 
 `rootF_of_spine`: the statement of Root-F (`Balaban.logPartition_multiscale`, its body copied
-verbatim) from the named inputs of `Balaban/Spine/RootFInputs.lean` (A1, A3, A4 (three parts), A5,
-A6, A7).  Proved here (no other hypothesis):
+verbatim) from the named inputs of `Balaban/Spine/RootFInputs.lean` (A1, A3, A4 (three parts), A6,
+A7).  Proved here (no other hypothesis):
 
 * A1 (choice of the constants in Root-F's order): `δ`, then `L = T.L`, `M = T.M` and one `β₀` (the
   maximum of the thresholds of the inputs and `2`) for every `κ, c₉`, then `kf = k̂_f` from `ν`
   (`exists_isHorizon`, `IsHorizon.scale`); `k₀ ≤ k̂_f` (`kZero_le_of_isHorizon`);
 * A5 (the flow induction, LFR Theorem IV.3.2 (b), (c)): `ρ₁` from A3, the steps `k → k+1` of
   `ℛ_k` for `k < k₀` (`class_flow`), the transfer at `k₀`, the frozen steps of `ℛ♭_k` until the
-  running mass passes `7/8 L⁻²` (`frozen_flow`, which uses A5's stop at `k̂_f`), with the
-  normalization `∫ ρ_k = c Z(g)` carried along (`IntegralIsZ.step`);
+  running mass passes `7/8 L⁻²` (`frozen_flow`), with the normalization `∫ ρ_k = c Z(g)` carried
+  along (`IntegralIsZ.step`); the flow stops by the horizon `k̂_f` (`stop_of_flatClassAt`, from the
+  coefficient bounds (H.6) of the class and `c₈ q/(1 - q) ≤ 1/20`);
 * A8 (the logarithm and the conversion): the exponential identity of `Z(g)/Z(0)` from the last
   integral (`ratio_eq_exp`), its transport to every admissible torus (`sideOf_eq`), and the
   clauses of Root-F for `activityTerm` (`rootFClauses_of_activities`, `Spine/Activities.lean`);
@@ -176,7 +177,8 @@ end Normalization
 
 /-! ### The exponential identity of `Z(g)/Z(0)` and its transport -/
 
-/-- From `I(g) = C Z(g)` with `C > 0` and `I(g) = exp(E + ⟨g, h⟩ + ∑_{j=1}^{J} ∑_X q_j(X; g))` on the
+/-- From `I(g) = C Z(g)` with `C > 0` and `I(g) = exp(E + ⟨g, h⟩ + ∑_{j=1}^{J} ∑_X q_j(X; g))` on
+the
 unit `ℓ¹` ball, with `q_j = 0` for `j ∉ [1, J]` and `J ≤ kf + 1`:
 `Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (q_j(X; g) - q_j(X; 0)))`. -/
 theorem ratio_eq_exp {d N ℓ : ℕ} [NeZero ℓ] {Z I : (Torus d ℓ → Fin N → ℂ) → ℂ} {C : ℝ}
@@ -215,24 +217,87 @@ theorem sideOf_eq (M L kf q : ℕ) :
   simp only [sides, Nat.sub_self, pow_zero, mul_one]
   ring
 
+/-! ### The stop of the flow by the horizon (LFR Lemma IV.5.1 (b)) -/
+
+/-- **The flow stops by the horizon** (LFR Lemma IV.5.1 (b), Lemma I.5.6 (a): `k_f ≤ k̂_f`): a
+member
+of `ℛ♭_{k̂_f}` whose running masses start from the bare mass has `ν_{k̂_f} > 7/8 L⁻²`.  By (H.6)
+(`CoeffBounds.flow` of the clause (D2♭)) `ν_{k̂_f} = ν L^{2 k̂_f} δ_{k̂_f}` with
+`|δ_{k̂_f}^{-1}| ≤ exp(c₈ q/(1 - q)) ≤ exp(1/20) ≤ 20/19`, and `ν L^{2 k̂_f + 2} ≥ 1`. -/
+theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
+    {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ}
+    {h : EuclideanSpace ℝ (Fin N)} {kf : ℕ} [NeZero T.M] [NeZero T.L] (hL : 2 ≤ T.L)
+    (hν : 0 < ν) (hkf : IsHorizon T.L ν kf)
+    (hc₈ : 20 * P6.c₈ * Flow.rate (T.L : ℝ) P6.γ ≤ 1 - Flow.rate (T.L : ℝ) P6.γ)
+    {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, kf]} {νk : ℝ}
+    (hρ : FlatClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf kf ρ νk) :
+    7 / 8 < νk * (T.L : ℝ) ^ 2 := by
+  obtain ⟨_, _, _, _, _, _, F, _, _, _, _, _, _, _, _, _, _, hF, hν0, hνk⟩ := hρ
+  obtain ⟨ξ, _, ν₀, hξ, hs, hseq⟩ := hF.sfData.coeff.flow
+  have hadm := hF.sfData.admissible
+  have hpos : 0 < F.sf.ν kf := hF.coeff.nu_pos
+  set q : ℝ := Flow.rate (T.L : ℝ) P6.γ
+  have hL1 : (1 : ℝ) < T.L := by exact_mod_cast (by omega : 1 < T.L)
+  have hq0 : 0 < q := Flow.rate_pos (by linarith) _
+  have hq1 : q < 1 := Flow.rate_lt_one hL1 hadm.γ_pos
+  have hc0 : 0 ≤ P6.c₈ := hadm.c₈_pos.le
+  -- the running mass at scale `0` is `ν₀ = ν`
+  have h0 := (hseq 0 (Nat.zero_le _)).2
+  have hν₀ : (ν₀ : ℂ) = (ν : ℂ) := by
+    rw [← hν0]; simpa [Flow.nuSeq] using h0.symm
+  -- `ν_{kf} = ν L^{2 kf} δ_{kf}`
+  have hk := (hseq kf le_rfl).2
+  rw [Flow.nuSeq_eq, hν₀] at hk
+  have hbd := (Flow.norm_gammaSeq_le hq0.le hq1 hc0 hs hξ kf).2.2.2
+  have hsum : P6.c₈ * Flow.ratePartialSum q kf ≤ 1 / 20 := by
+    have h1 := Flow.ratePartialSum_le hq0.le hq1 kf
+    have h2 : P6.c₈ * Flow.ratePartialSum q kf ≤ P6.c₈ * (q / (1 - q)) :=
+      mul_le_mul_of_nonneg_left h1 hc0
+    have h3 : P6.c₈ * (q / (1 - q)) ≤ 1 / 20 := by
+      rw [mul_div_assoc', div_le_iff₀ (by linarith)]
+      linarith
+    linarith
+  have hexp : ‖(Flow.deltaSeq ξ kf)⁻¹‖ ≤ 20 / 19 :=
+    hbd.trans ((Real.exp_le_exp.2 hsum).trans (LargeField.StopIndex.exp_eps_le le_rfl))
+  set νK := F.sf.ν kf
+  set A : ℝ := ν * (T.L : ℝ) ^ (2 * kf) with hA
+  have hA0 : 0 < A := by positivity
+  have hδ : Flow.deltaSeq ξ kf = ((νK / A : ℝ) : ℂ) := by
+    have hA' : ((A : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hA0.ne'
+    have : ((νK : ℝ) : ℂ) = (A : ℂ) * Flow.deltaSeq ξ kf := by
+      rw [hk, hA]; push_cast; ring
+    rw [Complex.ofReal_div, this]
+    field_simp
+  have hinv : ‖(Flow.deltaSeq ξ kf)⁻¹‖ = A / νK := by
+    rw [hδ, ← Complex.ofReal_inv, Complex.norm_real, Real.norm_eq_abs, inv_div,
+      abs_of_pos (div_pos hA0 hpos)]
+  rw [hinv, div_le_iff₀ hpos] at hexp
+  have hH : 1 ≤ A * (T.L : ℝ) ^ 2 := by
+    rw [hA, mul_assoc, ← pow_add]
+    exact hkf.1
+  rw [← hνk]
+  have hL2 : (0 : ℝ) < (T.L : ℝ) ^ 2 := by positivity
+  nlinarith
+
 /-! ### The assembly -/
 
 /-- **The Root-F spine.**  Root-F (the body of `Balaban.logPartition_multiscale`, verbatim) from the
-named inputs of `Balaban/Spine/RootFInputs.lean` at the constants `δ, T, P6, C7, PB, cs₀, M1, c, rH, ϱ`
+named inputs of `Balaban/Spine/RootFInputs.lean` at the constants
+`δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ`
 of the prefix: A1 `PrefixInput`, A3 `BaseStepInput`, A4 `ClassStepInput`, `TransferInput`,
-`FrozenStepInput`, A5 `StopInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.  Root-F's `L, M` are
-`T.L, T.M`, its `kf` is the horizon `k̂_f`, and its terms are `activityTerm` of the activities of
+`FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.  Root-F's `L, M` are
+`Ty.L, Ty.M` (at `κ, c₉`), its `kf` is the horizon `k̂_f`, and its terms are `activityTerm` of the
+activities of
 the last integral (`ν ≤ 7/8 L⁻²`) or of A7 (`ν > 7/8 L⁻²`). -/
 theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ : 0 < δ)
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput Ty)
+    (hA1 : PrefixInput Ty P6)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4f : FrozenStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
-    (hA5 : StopInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA6 : LastIntegralInput d N δ Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA7 : KfZeroInput d N δ Ty) :
     ∃ δ : ℝ, 0 < δ ∧
@@ -266,36 +331,20 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
               (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) := by
   have : NeZero N := ⟨by omega⟩
   refine ⟨δ, hδ, fun κ hκ c₉ hc₉ => ?_⟩
-  obtain ⟨hL2, hM1⟩ := hA1 κ hκ c₉ hc₉
+  obtain ⟨hL2, hM1, hc₈⟩ := hA1 κ hκ c₉ hc₉
   have : NeZero (Ty κ c₉).L := ⟨by omega⟩
   have : NeZero (Ty κ c₉).M := ⟨by omega⟩
   obtain ⟨β₃, hβ₃⟩ := hA3 κ hκ c₉ hc₉
   obtain ⟨β₄, hβ₄⟩ := hA4 κ hκ c₉ hc₉
   obtain ⟨β₄t, hβ₄t⟩ := hA4t κ hκ c₉ hc₉
   obtain ⟨β₄f, hβ₄f⟩ := hA4f κ hκ c₉ hc₉
-  obtain ⟨β₅, hβ₅⟩ := hA5 κ hκ c₉ hc₉
   obtain ⟨β₆, hβ₆⟩ := hA6 κ hκ c₉ hc₉
   obtain ⟨β₇, hβ₇⟩ := hA7 κ hκ c₉ hc₉
   refine ⟨(Ty κ c₉).L, (Ty κ c₉).M, hL2, hM1,
-    max 2 (max β₃ (max β₄ (max β₄t (max β₄f (max β₅ (max β₆ β₇)))))), ?_⟩
+    max 2 (max β₃ (max β₄ (max β₄t (max β₄f (max β₆ β₇))))), ?_⟩
   intro β hβ ν hν0 hν1 h hh
-  have hβ2 : 2 ≤ β := le_trans (le_max_left _ _) hβ
-  have hβ₃' : β₃ ≤ β := le_trans (le_trans (le_max_left _ _) (le_max_right _ _)) hβ
-  have hβ₄' : β₄ ≤ β := le_trans (le_trans (le_trans (le_max_left _ _) (le_max_right _ _))
-    (le_max_right _ _)) hβ
-  have hβ₄t' : β₄t ≤ β := le_trans (le_trans (le_trans (le_trans (le_max_left _ _)
-    (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _)) hβ
-  have hβ₄f' : β₄f ≤ β := le_trans (le_trans (le_trans (le_trans (le_trans (le_max_left _ _)
-    (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _)) hβ
-  have hβ₅' : β₅ ≤ β := le_trans (le_trans (le_trans (le_trans (le_trans (le_trans
-    (le_max_left _ _) (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _))
-    (le_max_right _ _)) (le_max_right _ _)) hβ
-  have hβ₆' : β₆ ≤ β := le_trans (le_trans (le_trans (le_trans (le_trans (le_trans (le_trans
-    (le_max_left _ _) (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _))
-    (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _)) hβ
-  have hβ₇' : β₇ ≤ β := le_trans (le_trans (le_trans (le_trans (le_trans (le_trans (le_trans
-    (le_max_right _ _) (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _))
-    (le_max_right _ _)) (le_max_right _ _)) (le_max_right _ _)) hβ
+  simp only [max_le_iff] at hβ
+  obtain ⟨hβ2, hβ₃', hβ₄', hβ₄t', hβ₄f', hβ₆', hβ₇'⟩ := hβ
   obtain ⟨kf, hkf⟩ := exists_isHorizon hL2 hν0
   obtain ⟨hsc1, hsc2⟩ := hkf.scale hL2 hν0 hν1
   refine ⟨kf, hsc1, hsc2, ?_⟩
@@ -319,7 +368,6 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
     have hstepA := hβ₄ β hβ₄' ν hν0 hflow h hh kf hkf
     have htrans := hβ₄t β hβ₄t' ν hν0 hflow h hh kf hkf
     have hstepB := hβ₄f β hβ₄f' ν hν0 hflow h hh kf hkf
-    have hstop := hβ₅ β hβ₅' ν hν0 hflow h hh kf hkf
     have hlast := hβ₆ β hβ₆' ν hν0 hflow h hh kf hkf
     generalize kZero d (Ty κ c₉).L β ν = k₀ at hk₀kf hbase hstepA htrans hstepB
     -- the state of the frozen regime at the scale `max k₀ 1`
@@ -355,7 +403,7 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
       (fun k hk1 hk0 hk ρ νk hP hS => by
         obtain ⟨ρ', νk', hF', hS'⟩ := hstepB k hk1 hk0 hk ρ νk hP.1 (not_lt.1 hS)
         exact ⟨ρ', νk', hF', hP.2.step hS'⟩)
-      (fun ρ νk hP => hstop ρ νk hP.1)
+      (fun ρ νk hP => stop_of_flatClassAt hL2 hν0 hkf hc₈ hP.1)
       (fun k hk1 hk ρ νk hP hS => ?_)
       (max k₀ 1) (le_max_right _ _) (le_max_left _ _) (max_le hk₀kf hkf1) ρ₀ νk₀ ⟨hF₀, hZ₀⟩
     -- the last integral at the stopping scale `k`

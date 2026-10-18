@@ -17,7 +17,8 @@ The conversion step (F3) of the assembly of Root-F (LFR Theorem IV.5.3 items 3�
 family of scale-`j` activities `p_j(X; g)` satisfying `ObservableActivities` (support on scale-`j`
 polymers, analyticity and a bound on the unit `ℓ¹` ball, locality, two-torus agreement) and an
 exponential identity
-`Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (p_j(X; g) - p_j(X; 0)))` on every admissible torus give
+`Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (p_j(X; g) - p_j(X; 0)))` on every admissible torus
+give
 Root-F's clauses for the terms `T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` (`activityTerm`),
 by the device `f(X; g) - f(X; 0) = ∑_{x ∈ X} ⟨g(x), ∫₀¹ ∂_{g(x)} f(X; t g) dt⟩` and the Cauchy
 estimate on the half ball (`norm_kf0Deriv_le_two`).  This is the multi-scale form of
@@ -32,7 +33,8 @@ open Balaban Balaban.Correlations Set
 
 open Classical in
 /-- **The terms of Root-F from activities** (LFR Definition IV.5.2, the device of P7 (4.15)):
-`T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` when `1 ≤ j ≤ kf + 1`, `x ∈ X` and `X` is a scale-`j`
+`T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` when `1 ≤ j ≤ kf + 1`, `x ∈ X` and `X` is a
+scale-`j`
 polymer (`IsPolymer d ℓ (M L^j) X`); zero otherwise. -/
 noncomputable def activityTerm {d N : ℕ} (M L kf : ℕ)
     (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : RootFFamily d N :=
@@ -230,7 +232,8 @@ theorem rootFAgreement_activityTerm
     funext s
     rw [e1 s, e2 s]
     exact hagr ℓ ℓ' hℓ hℓ' j a A (fun y => ((t : ℂ) • g + s • unitSource a i) y) ha hbox
-  · rw [activityTerm_apply, activityTerm_apply, ite_eq_right_of_eq_false _ _ (eq_false fun h => hj h.1),
+  · rw [activityTerm_apply, activityTerm_apply,
+      ite_eq_right_of_eq_false _ _ (eq_false fun h => hj h.1),
       ite_eq_right_of_eq_false _ _ (eq_false fun h => hj h.1)]
 
 end Agreement
