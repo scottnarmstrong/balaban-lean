@@ -62,7 +62,7 @@ theorem cubeSide_eq_of_fine_eq (h : M1 * N₁ * L ^ q = M1 * N₁' * L ^ q') {n 
   exact Nat.eq_of_mul_eq_mul_left hpos h1
 
 /-- The `𝒞_n`-cube index is carried by the identification of the tori. -/
-theorem fineCubeIdx_torusCast (h : M1 * N₁ * L ^ q = M1 * N₁' * L ^ q') {n : ℕ} (hn : n ≤ q)
+theorem fineCubeIdx_torusCast_pres (h : M1 * N₁ * L ^ q = M1 * N₁' * L ^ q') {n : ℕ} (hn : n ≤ q)
     (hn' : n ≤ q') (x : Torus d (M1 * N₁ * L ^ q)) :
     fineCubeIdx M1 N₁' L q' n (torusCast h x) =
       torusCast (cubeSide_eq_of_fine_eq h hn hn') (fineCubeIdx M1 N₁ L q n x) := by
@@ -84,11 +84,11 @@ theorem minLayerAux_torusCast (h : M1 * N₁ * L ^ q = M1 * N₁' * L ^ q') {j :
     · intro hx y' hy'
       have e1 : torusCast h (torusCast h.symm y') = y' := torusCast_cast_symm h y'
       rw [← e1] at hy' ⊢
-      rw [fineCubeIdx_torusCast h hj hj', fineCubeIdx_torusCast h hj hj'] at hy'
+      rw [fineCubeIdx_torusCast_pres h hj hj', fineCubeIdx_torusCast_pres h hj hj'] at hy'
       exact (hX _).1 (hx _ (torusCast_injective _ hy'))
     · intro hx y hy
       refine (hX y).2 (hx _ ?_)
-      rw [fineCubeIdx_torusCast h hj hj', fineCubeIdx_torusCast h hj hj', hy]
+      rw [fineCubeIdx_torusCast_pres h hj hj', fineCubeIdx_torusCast_pres h hj hj', hy]
   | succ t ih =>
     intro x
     simp only [minLayerAux]
@@ -98,13 +98,13 @@ theorem minLayerAux_torusCast (h : M1 * N₁ * L ^ q = M1 * N₁' * L ^ q') {j :
     constructor
     · rintro ⟨y, hy, hd⟩
       refine ⟨torusCast h y, (ih y).1 hy, ?_⟩
-      rw [fineCubeIdx_torusCast h hn hn', fineCubeIdx_torusCast h hn hn', supDist_torusCast_eq]
+      rw [fineCubeIdx_torusCast_pres h hn hn', fineCubeIdx_torusCast_pres h hn hn', supDist_torusCast_eq]
       exact hd
     · rintro ⟨y', hy', hd⟩
       have e1 : torusCast h (torusCast h.symm y') = y' := torusCast_cast_symm h y'
       rw [← e1] at hy' hd
       refine ⟨_, (ih _).2 hy', ?_⟩
-      rw [fineCubeIdx_torusCast h hn hn', fineCubeIdx_torusCast h hn hn', supDist_torusCast_eq]
+      rw [fineCubeIdx_torusCast_pres h hn hn', fineCubeIdx_torusCast_pres h hn hn', supDist_torusCast_eq]
         at hd
       exact hd
 
