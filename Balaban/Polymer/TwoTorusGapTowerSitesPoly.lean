@@ -81,23 +81,23 @@ theorem eq_add_single_of_cast' {n : ℕ} {y y2 : Fin d → ℤ} {μ : Fin d}
     y = y2 + Pi.single μ 1 :=
   eq_add_single_of_cast h h2 he
 
-theorem isPolymer_fwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
-    (hA : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < (D * K : ℕ))
-    (h : IsPolymer d (D * K) D (A.image fun y μ => ((y μ : ℤ) : ZMod (D * K)))) :
+theorem isPolymer_fwd {n : ℕ} [NeZero n] (hn : n = D * K) (A : Finset (Fin d → ℤ))
+    (hA : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < n)
+    (h : IsPolymer d n D (A.image fun y μ => ((y μ : ℤ) : ZMod n))) :
     A.Nonempty ∧ (∀ y ∈ A, ∀ y' : Fin d → ℤ, (∀ μ, y μ / (D : ℤ) = y' μ / (D : ℤ)) → y' ∈ A) ∧
       ∀ y ∈ A, ∀ y' ∈ A, Relation.ReflTransGen
         (fun a b => a ∈ A ∧ b ∈ A ∧ ∃ μ : Fin d, b = a + Pi.single μ 1 ∨ a = b + Pi.single μ 1)
         y y' := by
   classical
-  have hD : 0 < D := Nat.pos_of_ne_zero (NeZero.ne D)
-  have hK : 0 < K := Nat.pos_of_ne_zero (NeZero.ne K)
+  have hD : 0 < D := Nat.pos_of_ne_zero (left_ne_zero_of_mul (hn ▸ NeZero.ne n))
+  have hK : 0 < K := Nat.pos_of_ne_zero (right_ne_zero_of_mul (hn ▸ NeZero.ne n))
   obtain ⟨hne, hsat, hconn⟩ := h
-  have hbox1 : ∀ y ∈ A, ∀ μ, 2 * |y μ| + 2 < (D * K : ℕ) := fun y hy μ => by
+  have hbox1 : ∀ y ∈ A, ∀ μ, 2 * |y μ| + 2 < n := fun y hy μ => by
     have := hA y hy μ; omega
-  have hbox2 : ∀ y ∈ A, ∀ μ, 2 * |y μ| < (D * K : ℕ) := fun y hy μ => by
+  have hbox2 : ∀ y ∈ A, ∀ μ, 2 * |y μ| < n := fun y hy μ => by
     have := hA y hy μ; omega
-  have hinj : ∀ y ∈ A, ∀ y'' ∈ A, (fun μ => ((y μ : ℤ) : ZMod (D * K))) =
-      (fun μ => ((y'' μ : ℤ) : ZMod (D * K))) → y = y'' := by
+  have hinj : ∀ y ∈ A, ∀ y'' ∈ A, (fun μ => ((y μ : ℤ) : ZMod n)) =
+      (fun μ => ((y'' μ : ℤ) : ZMod n)) → y = y'' := by
     intro y hy y'' hy'' he
     funext μ
     exact cast_inj (hbox2 y hy μ) (hbox2 y'' hy'' μ) (congrFun he μ)
@@ -106,11 +106,11 @@ theorem isPolymer_fwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
     obtain ⟨y, hy, -⟩ := Finset.mem_image.1 hx
     exact ⟨y, hy⟩
   · intro y hy y' hyy'
-    have hx : (fun μ => ((y μ : ℤ) : ZMod (D * K))) ∈
-        A.image fun y μ => ((y μ : ℤ) : ZMod (D * K)) := Finset.mem_image_of_mem _ hy
-    have := hsat _ hx (fun μ => ((y' μ : ℤ) : ZMod (D * K))) (fun μ => by
-      have e1 := val_div_cast_int hD hK (y μ)
-      have e2 := val_div_cast_int hD hK (y' μ)
+    have hx : (fun μ => ((y μ : ℤ) : ZMod n)) ∈
+        A.image fun y μ => ((y μ : ℤ) : ZMod n) := Finset.mem_image_of_mem _ hy
+    have := hsat _ hx (fun μ => ((y' μ : ℤ) : ZMod n)) (fun μ => by
+      have e1 := val_div_cast_int hn hD hK (y μ)
+      have e2 := val_div_cast_int hn hD hK (y' μ)
       rw [hyy' μ] at e1
       exact_mod_cast e1.trans e2.symm)
     obtain ⟨y'', hy'', he⟩ := Finset.mem_image.1 this
@@ -122,10 +122,10 @@ theorem isPolymer_fwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
     rwa [← this]
   · intro y0 hy0 y1 hy1
     have key : ∀ w, Relation.ReflTransGen (fun a b => a ∈ A.image (fun y μ =>
-        ((y μ : ℤ) : ZMod (D * K))) ∧ b ∈ A.image (fun y μ => ((y μ : ℤ) : ZMod (D * K))) ∧
+        ((y μ : ℤ) : ZMod n)) ∧ b ∈ A.image (fun y μ => ((y μ : ℤ) : ZMod n)) ∧
         ∃ μ : Fin d, b = a + Pi.single μ 1 ∨ a = b + Pi.single μ 1)
-        (fun μ => ((y0 μ : ℤ) : ZMod (D * K))) w →
-        ∃ y ∈ A, (fun μ => ((y μ : ℤ) : ZMod (D * K))) = w ∧ Relation.ReflTransGen
+        (fun μ => ((y0 μ : ℤ) : ZMod n)) w →
+        ∃ y ∈ A, (fun μ => ((y μ : ℤ) : ZMod n)) = w ∧ Relation.ReflTransGen
           (fun a b => a ∈ A ∧ b ∈ A ∧ ∃ μ : Fin d, b = a + Pi.single μ 1 ∨
             a = b + Pi.single μ 1) y0 y := by
       intro w hw
@@ -145,28 +145,27 @@ theorem isPolymer_fwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
     have : y = y1 := hinj y hy y1 hy1 he
     rwa [this] at hp
 
-theorem isPolymer_bwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
+theorem isPolymer_bwd {n : ℕ} [NeZero n] (hn : n = D * K) (A : Finset (Fin d → ℤ))
     (h : A.Nonempty ∧
       (∀ y ∈ A, ∀ y' : Fin d → ℤ, (∀ μ, y μ / (D : ℤ) = y' μ / (D : ℤ)) → y' ∈ A) ∧
       ∀ y ∈ A, ∀ y' ∈ A, Relation.ReflTransGen
         (fun a b => a ∈ A ∧ b ∈ A ∧ ∃ μ : Fin d, b = a + Pi.single μ 1 ∨ a = b + Pi.single μ 1)
         y y') :
-    IsPolymer d (D * K) D (A.image fun y μ => ((y μ : ℤ) : ZMod (D * K))) := by
+    IsPolymer d n D (A.image fun y μ => ((y μ : ℤ) : ZMod n)) := by
   classical
-  have hD : 0 < D := Nat.pos_of_ne_zero (NeZero.ne D)
+  have hD : 0 < D := Nat.pos_of_ne_zero (left_ne_zero_of_mul (hn ▸ NeZero.ne n))
   have hDz : (0 : ℤ) < D := by exact_mod_cast hD
   obtain ⟨hne, hsat, hconn⟩ := h
   refine ⟨hne.image _, ?_, ?_⟩
   · intro x hx z hz
     obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hx
-    let y' : Fin d → ℤ := fun μ => y μ - ((((y μ : ℤ) : ZMod (D * K)).val % D : ℕ) : ℤ) +
+    let y' : Fin d → ℤ := fun μ => y μ - ((((y μ : ℤ) : ZMod n).val % D : ℕ) : ℤ) +
       (((z μ).val % D : ℕ) : ℤ)
     have hy'1 : ∀ μ, y μ / (D : ℤ) = y' μ / (D : ℤ) := by
       intro μ
-      have e1 : ((((y μ : ℤ) : ZMod (D * K)).val % D : ℕ) : ℤ) = y μ % (D : ℤ) := by
+      have e1 : ((((y μ : ℤ) : ZMod n).val % D : ℕ) : ℤ) = y μ % (D : ℤ) := by
         rw [Int.natCast_mod, ZMod.val_intCast]
-        push_cast
-        exact Int.emod_emod_of_dvd _ (Dvd.intro _ rfl)
+        exact Int.emod_emod_of_dvd _ ⟨(K : ℤ), by rw [hn]; push_cast; rfl⟩
       have e2 : y' μ = (D : ℤ) * (y μ / (D : ℤ)) + (((z μ).val % D : ℕ) : ℤ) := by
         show y μ - _ + _ = _
         rw [e1]
@@ -179,28 +178,28 @@ theorem isPolymer_bwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
     have hy' := hsat y hy y' hy'1
     refine Finset.mem_image.2 ⟨y', hy', ?_⟩
     funext μ
-    have hq : (((z μ).val / D : ℕ) : ZMod (D * K)) =
-        ((((y μ : ℤ) : ZMod (D * K)).val / D : ℕ) : ZMod (D * K)) := by
+    have hq : (((z μ).val / D : ℕ) : ZMod n) =
+        ((((y μ : ℤ) : ZMod n).val / D : ℕ) : ZMod n) := by
       rw [hz μ]
-    have hzc : z μ = (D : ZMod (D * K)) * (((z μ).val / D : ℕ) : ZMod (D * K)) +
-        (((z μ).val % D : ℕ) : ZMod (D * K)) := by
+    have hzc : z μ = (D : ZMod n) * (((z μ).val / D : ℕ) : ZMod n) +
+        (((z μ).val % D : ℕ) : ZMod n) := by
       conv_lhs => rw [← ZMod.natCast_zmod_val (z μ), ← Nat.div_add_mod (z μ).val D]
       push_cast; ring
-    have hxc : ((y μ : ℤ) : ZMod (D * K)) = (D : ZMod (D * K)) *
-        ((((y μ : ℤ) : ZMod (D * K)).val / D : ℕ) : ZMod (D * K)) +
-        ((((y μ : ℤ) : ZMod (D * K)).val % D : ℕ) : ZMod (D * K)) := by
-      conv_lhs => rw [← ZMod.natCast_zmod_val ((y μ : ℤ) : ZMod (D * K)),
-        ← Nat.div_add_mod ((y μ : ℤ) : ZMod (D * K)).val D]
+    have hxc : ((y μ : ℤ) : ZMod n) = (D : ZMod n) *
+        ((((y μ : ℤ) : ZMod n).val / D : ℕ) : ZMod n) +
+        ((((y μ : ℤ) : ZMod n).val % D : ℕ) : ZMod n) := by
+      conv_lhs => rw [← ZMod.natCast_zmod_val ((y μ : ℤ) : ZMod n),
+        ← Nat.div_add_mod ((y μ : ℤ) : ZMod n).val D]
       push_cast; ring
-    show ((y' μ : ℤ) : ZMod (D * K)) = z μ
-    show (((y μ - ((((y μ : ℤ) : ZMod (D * K)).val % D : ℕ) : ℤ) +
-      (((z μ).val % D : ℕ) : ℤ) : ℤ)) : ZMod (D * K)) = z μ
+    show ((y' μ : ℤ) : ZMod n) = z μ
+    show (((y μ - ((((y μ : ℤ) : ZMod n).val % D : ℕ) : ℤ) +
+      (((z μ).val % D : ℕ) : ℤ) : ℤ)) : ZMod n) = z μ
     simp only [Int.cast_add, Int.cast_sub, Int.cast_natCast]
-    linear_combination (-1 : ZMod (D * K)) * hzc - (D : ZMod (D * K)) * hq + hxc
+    linear_combination (-1 : ZMod n) * hzc - (D : ZMod n) * hq + hxc
   · intro x hx x' hx'
     obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hx
     obtain ⟨y', hy', rfl⟩ := Finset.mem_image.1 hx'
-    refine Relation.ReflTransGen.lift (fun y μ => ((y μ : ℤ) : ZMod (D * K)))
+    refine Relation.ReflTransGen.lift (fun y μ => ((y μ : ℤ) : ZMod n))
       (r := fun a b => a ∈ A ∧ b ∈ A ∧ ∃ μ : Fin d, b = a + Pi.single μ 1 ∨
         a = b + Pi.single μ 1) ?_ y y' (hconn y hy y' hy')
     rintro a b ⟨ha, hb, μ, hμ | hμ⟩
@@ -209,15 +208,16 @@ theorem isPolymer_bwd [NeZero D] [NeZero K] (A : Finset (Fin d → ℤ))
     · refine ⟨Finset.mem_image_of_mem _ ha, Finset.mem_image_of_mem _ hb, μ, Or.inr ?_⟩
       rw [hμ]; exact cast_add_single b μ
 
-/-- The image in `ℤ/(D K)` of a finite set of fine sites in the shrunk quarter box is a polymer of
-blocks of side `D` iff the image in `ℤ/(D K')` is, for any two tori containing the box. -/
-theorem isPolymer_image_cast_iff_of_box {K' : ℕ} [NeZero D] [NeZero K] [NeZero K']
-    (A : Finset (Fin d → ℤ)) (hA : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < (D * K : ℕ))
-    (hA' : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < (D * K' : ℕ)) :
-    IsPolymer d (D * K) D (A.image fun y μ => ((y μ : ℤ) : ZMod (D * K))) ↔
-      IsPolymer d (D * K') D (A.image fun y μ => ((y μ : ℤ) : ZMod (D * K'))) :=
-  ⟨fun h => isPolymer_bwd A (isPolymer_fwd A hA h),
-    fun h => isPolymer_bwd A (isPolymer_fwd A hA' h)⟩
+/-- The image in `ℤ/n` of a finite set of fine sites in the shrunk quarter box is a polymer of
+blocks of side `D` iff the image in `ℤ/n'` is, for any two tori `n = D K`, `n' = D K'` containing the
+box. -/
+theorem isPolymer_image_cast_iff_of_box {n n' K' : ℕ} [NeZero n] [NeZero n'] (hn : n = D * K)
+    (hn' : n' = D * K') (A : Finset (Fin d → ℤ)) (hA : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < n)
+    (hA' : ∀ y ∈ A, ∀ μ, 4 * (|y μ| + D) < n') :
+    IsPolymer d n D (A.image fun y μ => ((y μ : ℤ) : ZMod n)) ↔
+      IsPolymer d n' D (A.image fun y μ => ((y μ : ℤ) : ZMod n')) :=
+  ⟨fun h => isPolymer_bwd hn' A (isPolymer_fwd hn A hA h),
+    fun h => isPolymer_bwd hn A (isPolymer_fwd hn' A hA' h)⟩
 
 end Poly
 

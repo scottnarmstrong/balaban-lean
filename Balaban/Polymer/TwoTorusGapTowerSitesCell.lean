@@ -30,8 +30,9 @@ section Cell
 variable {D K : ℕ}
 
 /-- The cell index of the image of `y ∈ ℤ` in `ℤ/(D K)`, as an integer: `(y / D) mod K`. -/
-theorem val_div_cast_int (hD : 0 < D) (hK : 0 < K) (y : ℤ) :
-    ((((y : ZMod (D * K)).val / D : ℕ) : ℕ) : ℤ) = (y / (D : ℤ)) % (K : ℤ) := by
+theorem val_div_cast_int {n : ℕ} (hn : n = D * K) (hD : 0 < D) (hK : 0 < K) (y : ℤ) :
+    ((((y : ZMod n).val / D : ℕ) : ℕ) : ℤ) = (y / (D : ℤ)) % (K : ℤ) := by
+  subst hn
   have : NeZero (D * K) := ⟨Nat.mul_ne_zero hD.ne' hK.ne'⟩
   have hDz : (0 : ℤ) < D := by exact_mod_cast hD
   have hKz : (0 : ℤ) < K := by exact_mod_cast hK
@@ -62,14 +63,14 @@ theorem val_div_cast_int (hD : 0 < D) (hK : 0 < K) (y : ℤ) :
 
 /-- The cell index of the image of `y` is the centred representative of the cell `y / D`, if that
 is small. -/
-theorem cell_valMinAbs {r : ℕ} (hD : 0 < D) (hK : 2 * r + 1 < K) {y : ℤ}
+theorem cell_valMinAbs {n r : ℕ} (hn : n = D * K) (hD : 0 < D) (hK : 2 * r + 1 < K) {y : ℤ}
     (h : |y / (D : ℤ)| ≤ r) :
-    ((((y : ZMod (D * K)).val / D : ℕ) : ZMod K)).valMinAbs = y / (D : ℤ) := by
+    ((((y : ZMod n).val / D : ℕ) : ZMod K)).valMinAbs = y / (D : ℤ) := by
   have hK0 : 0 < K := by omega
-  have h1 : ((((y : ZMod (D * K)).val / D : ℕ) : ZMod K)) = ((y / (D : ℤ) : ℤ) : ZMod K) := by
-    have := val_div_cast_int hD hK0 y
-    have h2 : ((((y : ZMod (D * K)).val / D : ℕ) : ZMod K)) =
-        ((((((y : ZMod (D * K)).val / D : ℕ) : ℕ) : ℤ)) : ZMod K) :=
+  have h1 : ((((y : ZMod n).val / D : ℕ) : ZMod K)) = ((y / (D : ℤ) : ℤ) : ZMod K) := by
+    have := val_div_cast_int hn hD hK0 y
+    have h2 : ((((y : ZMod n).val / D : ℕ) : ZMod K)) =
+        ((((((y : ZMod n).val / D : ℕ) : ℕ) : ℤ)) : ZMod K) :=
       (Int.cast_natCast _).symm
     rw [h2, this, ZMod.intCast_mod]
   rw [h1]
