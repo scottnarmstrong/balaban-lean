@@ -141,15 +141,19 @@ theorem rootTrace_eq_baseline_of_not_label_core {s : DecParams G}
 /-- The cut-independent baseline blocks of `decLog`, as a function of the parameters. -/
 theorem rootTrace_eq_baseline_of_not_label {s : DecParams G}
     {α : G.Ω 1 → ℂ} {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
-    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P) (_hconn : HatConn G) (cκ : κι → Prop)
+    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G (extS G s)) Q)
     (hP : BD cκ cκ P) (B : Finset κι) (hB : ∀ y ∈ B, ¬ cκ y) :
     rootTrace G a aT ν Q P B s φ α =
       -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
         (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
+          ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) (y, i) (y, i) := by
+  have key : ∀ y ∈ B, ∀ i : Fin N, decLog G a aT ν α (extS G s) φ Q P (y, i) (y, i) =
+      (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
           ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) (y, i) (y, i) :=
-  -- `HatConn` is not needed (`rootTrace_eq_baseline_of_not_label_core`)
-  rootTrace_eq_baseline_of_not_label_core H cκ hQ hP B hB
+    fun y hy i => H.decLog_row_eq_baseline hconn cκ hQ hP (p := (y, i)) (hB y hy) (y, i)
+  unfold rootTrace
+  rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
 
 
 section Cuts

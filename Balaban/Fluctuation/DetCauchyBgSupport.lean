@@ -759,8 +759,7 @@ theorem rootTraceBg_eq_of_comp
   rootTraceBg_eq_of_comp_of_hatDich hC hk hδc hcap hsm hmar hα hs hs' hD hD₂ hY.1
     (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY') hsP hdata B hB
 
-/-- **Without a labelled block the rooted trace is the baseline** (no connectivity hypothesis).
-**Without a labelled block the rooted trace is the baseline.**  For a datum `D` of the chart
+/-- **Without a labelled block the rooted trace is the baseline, without `HatConn`.**  For a datum `D` of the chart
 and `s` in the polydisc, if no block of `B` lies in `Yreg s` then the rooted trace of `B` at the
 decoupled background is the baseline `-(1/2) ∑_{y ∈ B} ∑_i (log a_k (1 - P) + log(a_k + a₁/L²) P)`
 (which involves neither `s` nor the datum). -/
@@ -793,7 +792,7 @@ theorem rootTraceBg_eq_baseline_of_not_label
     (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (_hconn : HatConn Gp)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
     {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, ¬ unitLabel Gp (Yreg Gp (extS Gp s)) y) :
@@ -801,9 +800,14 @@ theorem rootTraceBg_eq_baseline_of_not_label
       -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
         (((Real.log (compWeight L a₁ k) : ℝ) : ℂ) • (1 - liftOp N (unitP Gp)) +
           ((Real.log (compWeight L a₁ k + a₁ / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N (unitP Gp))
-            (y, i) (y, i) :=
-  -- `HatConn` is not needed (`rootTraceBg_eq_baseline_of_not_label_core`)
-  rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα hs hD B hB
+            (y, i) (y, i) := by
+  have H := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD hs
+  have hYr : IsNnComp (Yreg Gp (extS Gp s)) (Yreg Gp (extS Gp s)) :=
+    ⟨subset_rfl, fun _ _ y' hy' _ => hy'⟩
+  have hUT := unionOfTopBlocks_of_isNnComp hC.Sp hconn hYr
+  unfold rootTraceBg
+  exact rootTrace_eq_baseline_of_not_label H hconn (unitLabel Gp (Yreg Gp (extS Gp s)))
+    (unitQ_label_top hUT) (unitP_label_top hUT) B hB
 
 end TraceLocal
 
