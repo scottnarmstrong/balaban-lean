@@ -2830,3 +2830,6 @@ public import Balaban.Spine.Activities
 public import Balaban.Spine.RootF
 public import Balaban.Spine.RootC
 public import Balaban.Spine.Witness
+public import Balaban.Spine.TransferAnalysis
+public import Balaban.Spine.Transfer
+public import Balaban.Spine.TransferWitness
