@@ -7,6 +7,7 @@ module
 
 public import Balaban.SmallField.IrrelTorusDefectBirthSurrogate
 public import Balaban.SmallField.IrrelTorusDefectFiledAll
+public import Balaban.SmallField.IrrelTorusDefectMatch
 
 /-!
 # The filed torus defect bound on the birth-mass domains
@@ -20,7 +21,8 @@ aligned centre `y`, with `C_R E₀ L^{-(d+α₃)(k-j)}`, for the terms of the le
 of a member of the complete regime of the mass `μ_j`, to which `norm_filed_le_power` applies.  The
 extra premise `hcap` is the coefficient bound `ν'_k ≤ ν̄` of that regime, i.e. that the birth mass
 of the level is at most the cap `ν̄ L⁻²ᵏ` of the current scale.  The same holds for
-`norm_filed_origin_le_birth` and `norm_filed_origin_le_power_birth`.
+`norm_filed_origin_le_birth`, `norm_filed_origin_le_power_birth`, `IsSFFamily2.tsum_filed_inf_birth` and
+`IsSFFamily2.norm_filed_inf_le_birth`.
 -/
 
 @[expose] public section
@@ -242,5 +244,84 @@ theorem norm_filed_le_power_birth
   have h := norm_filed_le_power hF' hCR' hn' hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat' hsec
   simp only [hE] at h
   exact h
+
+theorem EauxInf_levelOnly_eq {Tm Tm' : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    (hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j) (m₀ : ℕ) (i₀ : Fin N) (νj : ℝ)
+    (X' : Finset (Fin d → ℤ)) (c : Cfg d N X') :
+    EauxInf (L := L) (m₁ := m₁) (k := k) Tm' m₀ j i₀ νj X' c = EauxInf Tm m₀ j i₀ νj X' c := by
+  simp only [EauxInf, Einf, Eseq_levelOnly_eq hE]
+
+theorem liftInfA_levelOnly {P' : Consts} (hm : P'.m₀ = P.m₀)
+    {Tm Tm' : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    (hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j) (i₀ : Fin N) (νj r : ℝ) :
+    liftInfA (L := L) (m₁ := m₁) (k := k) P' Tm' j i₀ νj r =
+      liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ νj r := by
+  have h : termLInfA Tm' P.m₀ j i₀ νj r = termLInfA Tm P.m₀ j i₀ νj r := by
+    funext X' c
+    simp only [termLInfA, EauxInf_levelOnly_eq hE]
+  simp only [liftInfA, hm, h]
+
+section Inf
+
+variable (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
+  (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
+  (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2)
+  (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
+include hF hCR hcap hn hne
+
+open Classical in
+/-- **The sum over the infinite shapes of the filed term vanishes**, birth-mass domains
+(`IsSFFamily2.tsum_filed_inf`). -/
+theorem IsSFFamily2.tsum_filed_inf_birth (ψ : Site d → Spin N) (b : Spin N) :
+    Summable (fun X : (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀
+        (Rg.ν j) (anisoRadius d L N P j)).polys =>
+      Ttw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ (Rg.ν j) X.1 ψ b +
+      Phitw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ i₁ (Rg.ν j) X.1 ψ) ∧
+    ∑' X : (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)).polys,
+      (Ttw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ (Rg.ν j) X.1 ψ b +
+      Phitw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ i₁ (Rg.ν j) X.1 ψ) = 0 := by
+  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
+    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
+  have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
+  have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
+    ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
+  have h := IsSFFamily2.tsum_filed_inf hF' hCR' hn' hne ψ b
+  rw [hnu, liftInfA_levelOnly rfl hE] at h
+  exact h
+
+/-- **The filed term of one infinite shape in the Cauchy form**, birth-mass domains
+(`IsSFFamily2.norm_filed_inf_le`). -/
+theorem IsSFFamily2.norm_filed_inf_le_birth {X' : Finset (Site d)} (h0 : (0 : Site d) ∈ X')
+    (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X')
+    {ψ : Site d → Spin N} {b : Spin N} {σ ε K₂ Λ : ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)}
+    (dat : DataHypAniso Dom (Rg.ν j) σ ε K₂ ψ b) (hσ : 0 < σ) (hσ1 : σ ≤ 1)
+    (hε : 0 < ε) (hεΛ : ε ≤ Λ * anisoRadius d L N P j) (hτ : σ ^ 2 * ε ≤ 1 / 4) :
+    ‖Ttw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ (Rg.ν j) X' ψ b +
+      Phitw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (Rg.ν j)
+        (anisoRadius d L N P j)) i₀ i₁ (Rg.ν j) X' ψ‖ ≤
+      (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 +
+          (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 *
+            (N * (N * 40 * Λ) ^ 2)) *
+        (P.E₀ * Real.exp (-P.κ * dInf L m₁ k P.m₀ j X') * (1 + dInf L m₁ k P.m₀ j X') ^ 4) := by
+  obtain ⟨Rg', β', Tm', hν, hT, hF', hCR'⟩ :=
+    hF.exists_levelOnly hCR (by have := hn.hL; omega) hn.hj1 hn.hjk hcap
+  have hE : ∀ (N₁ : ℕ) [NeZero N₁], (Tm' N₁).E j = (Tm N₁).E j := fun N₁ _ => (hT N₁).1
+  have hnu : nuIdeal L k (Rg'.ν k) j = Rg.ν j := by rw [hν]; exact nuIdeal_levelOnly j k _
+  have hn' : MomNum d L N k j ϱ { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } :=
+    ⟨hn.hd, hn.hL, hn.hϱ, hn.hκ, hn.hj1, hn.hjk, hn.hsmall⟩
+  rw [← hnu] at dat
+  have h := IsSFFamily2.norm_filed_inf_le hF' hCR' hn' hne h0 hX dat hσ hσ1 hε hεΛ hτ
+  rw [hnu, liftInfA_levelOnly rfl hE] at h
+  exact h
+
+end Inf
 
 end Balaban.SmallField.Def6v2
