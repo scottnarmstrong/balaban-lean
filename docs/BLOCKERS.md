@@ -247,6 +247,13 @@ background with the window's background, which solve the background equation on 
 the stability of the background under a change of generating set away from the piece (P7 (2.14), P2 Prop. 4.1, P3
 Prop. 2.1 for changed layers); this is being proved now.
 
+Update (18 October, night). The stability of the background under a change of generating set is proved (P7
+(2.14), W1048): on a ball where the layers agree and the data differ by at most δ_d, the two backgrounds differ by
+K(δ_d + an exponentially small term in the radius). With it the window conversion holds with the actual window
+background and no separate switch premise. What it still takes as input, on the balls around the pieces: a bound on
+the difference of the window's data and the pieces' local data, the background hypotheses and domain conditions of
+both, a radius condition (2M of order (ϱ_B + 3d)L, a choice of the constant M), and smallness.
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
