@@ -2736,6 +2736,8 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Tower
 public import Balaban.Inhabited.StepTowerNewLevelE0BaseDecCollar
 public import Balaban.Inhabited.StepTowerNewLevelE0StructDecCollar
 public import Balaban.Inhabited.StepTowerNewLevelE0StepDecCollar
+public import Balaban.Inhabited.StepTowerNewLevelE0CollarClass
+public import Balaban.Inhabited.StepTowerNewLevelE0CollarUniform
 public import Balaban.Inhabited.StepTowerNewLevelE0XCollar
 public import Balaban.Inhabited.StepTowerNewLevelE0CoreCollar
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelXAgree
