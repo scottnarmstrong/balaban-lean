@@ -2714,6 +2714,11 @@ public import Balaban.LargeField.Operators.StepVacuumVolume
 public import Balaban.Inhabited.StepTowerNewLevelFibreCount
 public import Balaban.Inhabited.StepTowerNewLevelFibreSum
 public import Balaban.Inhabited.StepTowerNewLevelFibreRate
+public import Balaban.Inhabited.StepTowerNewLevelE0Close
+public import Balaban.Inhabited.StepTowerNewLevelE0Sum
+public import Balaban.Inhabited.StepTowerNewLevelE0Bound
+public import Balaban.Inhabited.StepTowerNewLevelE0Beta
+public import Balaban.Inhabited.StepTowerNewLevelE0Tower
 public import Balaban.Inhabited.StepTowerHullPlusGeom
 public import Balaban.Inhabited.StepTowerHullPlusSize
 public import Balaban.Inhabited.StepTowerHullPlus
