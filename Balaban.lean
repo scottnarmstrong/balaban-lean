@@ -2692,3 +2692,4 @@ public import Balaban.Inhabited.StepTowerNewLabelsRadius
 public import Balaban.LargeField.R.WindowConvPhysBallRadius
 public import Balaban.Inhabited.StepTowerDecoupleRoom
 public import Balaban.Inhabited.StepTowerDecoupleBase
+public import Balaban.Inhabited.StepTowerDecoupleStruct
