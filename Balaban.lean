@@ -2570,3 +2570,4 @@ public import Balaban.SmallField.IrrelTorusXidomClassRate
 public import Balaban.LargeField.Base.BaseFirstPhysicalConditional
 public import Balaban.LargeField.R.WindowConvR2
 public import Balaban.Green.FinalSelectedDomain
+public import Balaban.LargeField.History.LateParentR3
