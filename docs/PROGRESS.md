@@ -28,18 +28,20 @@ follows from the same inputs and two small additions (`rootC_of_spine`). Remaini
 by the inputs still open; details, landed coverage and known mismatches are in
 [`notes/phase1/SPINE.md`](../notes/phase1/SPINE.md). Two independent audits
 ([`SPINE-AUDIT.md`](../notes/phase1/SPINE-AUDIT.md), [`SPINE-AUDIT-2.md`](../notes/phase1/SPINE-AUDIT-2.md))
-confirmed the proof of the spine, and found that four inputs as first stated ask more than the papers
-prove: the classes lacked the torus coherence of the large-field data and the tie of the running
-coupling to β, and the constant conditions were incomplete. The inputs are being corrected.
+confirmed the proof of the spine and found that four inputs, as first stated, asked more than the papers
+prove. The inputs are now corrected: the classes carry the torus coherence of the large-field data and the
+tie of the running coupling to β, and the constants carry every condition a class member needs. The
+classes are shown non-empty only at the smallest configuration so far; at the configurations the flow
+uses, this is open.
 
 | Input | Content (source) | Status |
 |---|---|---|
 | `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | open |
 | `BaseStepInput` | the first renormalization step lands in the class of scale 1 (P4 (2.42)–(2.54), LF-6; blocker 1) | open |
-| `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | open; statement being corrected after audit |
-| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | open; statement being corrected after audit |
-| `FrozenStepInput` | one step above the switching scale (LF-5) | open; statement being corrected after audit |
-| `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | open; statement being corrected after audit |
+| `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | open |
+| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | open |
+| `FrozenStepInput` | one step above the switching scale (LF-5) | open |
+| `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | open |
 | `KfZeroInput` | the case with no renormalization step, ν > 7/8 L⁻² (LF-8 (b); blocker 1) | open |
 
 ## By part of the proof
