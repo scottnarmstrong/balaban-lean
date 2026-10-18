@@ -205,8 +205,9 @@ Root-F's `kf` is `k̂_f`; the flow runs on the tori with `M L^{k̂_f + 1} ∣ �
 def IsHorizon (L : ℕ) (ν : ℝ) (kf : ℕ) : Prop :=
   1 ≤ ν * (L : ℝ) ^ (2 * kf + 2) ∧ ∀ k < kf, ν * (L : ℝ) ^ (2 * k + 2) < 1
 
-/-- **The class `ℛ_k` at the constants of the prefix** (LFR Definition II.6.2, second version
-`IsRep2`; regime `k ≤ k₀`): `ρ` has a representation `F` on the tori of the horizon `K = kf + 1` for
+/-- **The data of a member of the class `ℛ_k` at the constants of the prefix** (LFR Definition
+II.6.2, second version `IsRep2`; regime `k ≤ k₀`; the body of `RepClassAt`, with its witnesses as
+fields, so that the step inputs can speak about them): `ρ` has a representation `F` on the tori of the horizon `K = kf + 1` for
 the a priori setting `𝒮[d, T, β, a]`, the a priori regime index `kZero d L β ν`, the outer constants
 `P6, C7` and the outer parts `cs₀, PB, M1, c` of the operator, budget and geometric constants, whose
 running small-field coefficients start from the bare couplings (`β_0 = β`, `ν_0 = ν`) and satisfy
@@ -214,22 +215,42 @@ running small-field coefficients start from the bare couplings (`β_0 = β`, `ν
 torus coherent (`LFCoherent`, the large-field half of (D8), LFR D-IV.9; the small-field half is the
 clause `coherent` of `IsRep2`); `νk` is its running mass `ν_k` at scale `k`; it carries a vacuum
 flow `E_j`, `j ≤ k`, with `|E_j| ≤ C_b (log β_j + 1)` (`VacuumFlowTo`, rulings R5, R5′). -/
+structure RepRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
+    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
+    [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) where
+  hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)
+  hkK : k ≤ kf + 1
+  R : ℕ → ℝ
+  geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M
+  cs : OpConsts
+  P : BudgetConsts
+  F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ
+  St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N
+  vc : CorrCoef d
+  geoTie : ∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c
+  tie_aKer : cs.aKer = cs₀.aKer
+  tie_Cpsi : cs.Cpsi = cs₀.Cpsi
+  tie_Cb : cs.Cb = cs₀.Cb
+  tie_aw : cs.aw = cs₀.aw
+  tie_c1 : P.c1 = PB.c1
+  tie_c2 : P.c2 = PB.c2
+  tie_H0 : P.H0 = PB.H0
+  rep : IsRep2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
+    hM6 hkK F ρ St vc
+  β0 : F.sf.β 0 = β
+  ν0 : F.sf.ν 0 = ν
+  νk : F.sf.ν k = νk
+  run : RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k
+  coh : LFCoherent F
+  /-- the scale-indexed vacuum flow `E_j` (rulings R5, R5′) -/
+  Ev : ℕ → ℝ
+  vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k
+
+/-- **The class `ℛ_k` at the constants of the prefix**: the existence of a record `RepRec`. -/
 def RepClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
     [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
-  ∃ (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1) (R : ℕ → ℝ)
-    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
-    (cs : OpConsts) (P : BudgetConsts)
-    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
-    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d),
-    (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
-    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
-    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
-    IsRep2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-      hM6 hkK F ρ St vc ∧
-    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F ∧
-    ∃ Ev : ℕ → ℝ, VacuumFlowTo cs₀.Cb Ev F.sf.β k
+  Nonempty (RepRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k ρ νk)
 
 /-- **The frozen-regime class `ℛ♭_k` at the constants of the prefix** (LFR §II.6.3, second version
 `IsRepFlat2`; regime `k₀ ≤ k ≤ k_f`, horizon `k̂ = kf`), with the same conventions as `RepClassAt`.

@@ -25,8 +25,8 @@ the one of the quiet step data (`gaussProd`, `qCoarseK`), on the whole torus.
   class carriers `𝒟[d, N, T, β, a, K, k]`;
 * `integral_prod_gaussT_smul`: `z^{N|ι|} ∫ ∏_y t(z θ_y, w_y) dθ = 1` for every finite set of blocks;
 * `integral_stepKernel_mul`: Fubini against the normalized kernel;
-* `integralStep_stepDensity`: **`∫ ρ' = ∫ ρ`** (LFR Theorem IV.1.1 (a), P1 (1.11)) for every density
-  whose sections are integrable, with the constant `1`.
+* `integralStep_stepDensity`: **`∫ ρ' = e^{-s |T^{(k+1)}_1|} ∫ ρ`** (LFR Theorem IV.1.1 (a), P1 (1.11))
+  for every density whose sections are integrable; `s` is the vacuum normalization of the step.
 -/
 
 @[expose] public section
@@ -188,25 +188,35 @@ end Step
 
 section Density
 
-/-- **The density of one renormalization step** (LFR Theorem IV.1.1; P1 (1.11), P4 (4.1)):
-`ρ'(ψ_{k+1}) = z^{N|T^{(k+1)}|} (T^{(k)} ρ)(z ψ_{k+1})` on every torus of the family, where
-`(T^{(k)} ρ)(θ) = ∫ ∏_y t_k(θ(y), (Qψ_k)(y)) ρ(ψ_k) dψ_k` and `t_k` is the Gaussian of constant `c`. -/
+/-- **The density of one renormalization step** (LFR Theorem IV.1.1; P1 (1.11), P4 (4.1)), with the
+vacuum normalization of the step (P4 (2.63); rulings R5, R5′):
+`ρ'(ψ_{k+1}) = e^{-s |T^{(k+1)}_1|} z^{N|T^{(k+1)}|} (T^{(k)} ρ)(z ψ_{k+1})` on every torus of the
+family, where `(T^{(k)} ρ)(θ) = ∫ ∏_y t_k(θ(y), (Qψ_k)(y)) ρ(ψ_k) dψ_k`, `t_k` is the Gaussian of
+constant `c` and `|T^{(k+1)}_1| = (M n_K L^{K-k-1})^d` is the number of `(k+1)`-blocks. The constant `s` is the part of the
+vacuum energy of the step that is put into the normalization, so that the vacuum constants of the flow
+stay of order `log β_k` (the forward flow `E_{k+1} = L^d E_k + g_k` grows like `L^{dk}`,
+`Fluctuation/VacuumFlow.lean`); `s = 0` is LFR's `ρ' = S^{(k)} T^{(k)} ρ`. -/
 noncomputable def stepDensity (d N : ℕ) (T : Typing) (β a : ℝ) (K k : ℕ) [NeZero T.M] [NeZero T.L]
-    (c z : ℝ) (ρ : 𝒟[d, N, T, β, a, K, k]) : 𝒟[d, N, T, β, a, K, k + 1] :=
+    (c z s : ℝ) (ρ : 𝒟[d, N, T, β, a, K, k]) : 𝒟[d, N, T, β, a, K, k + 1] :=
   fun nK _ θ g =>
-    ((z ^ (N * Fintype.card (BlockAt 𝒮[d, T, β, a] (sides T.L K nK) T.M K (k + 1))) : ℝ) : ℂ) *
-      ∫ ψ, ((stepKernel k c z θ ψ : ℝ) : ℂ) * ρ nK ψ g
+    ((Real.exp (-(s * ((T.M * sides T.L K nK K * T.L ^ (K - (k + 1))) ^ d : ℕ))) : ℝ) : ℂ) *
+      (((z ^ (N * Fintype.card (BlockAt 𝒮[d, T, β, a] (sides T.L K nK) T.M K (k + 1))) : ℝ) : ℂ) *
+        ∫ ψ, ((stepKernel k c z θ ψ : ℝ) : ℂ) * ρ nK ψ g)
 
-/-- **`∫ ρ' = ∫ ρ`** (LFR Theorem IV.1.1 (a); P1 (1.11)): for `c, z > 0` and a density whose sections
-are integrable on the unit `ℓ¹` ball, one step preserves the integral, with the constant `1`. -/
+/-- **`∫ ρ' = e^{-s |T^{(k+1)}_1|} ∫ ρ`** (LFR Theorem IV.1.1 (a); P1 (1.11)): for `c, z > 0` and a
+density whose sections are integrable on the unit `ℓ¹` ball, one step multiplies the integral by the
+positive constant `e^{-s |T^{(k+1)}_1|}` of each torus, independent of the source `g`. -/
 theorem integralStep_stepDensity {d N : ℕ} {T : Typing} {β a : ℝ} {K k : ℕ} [NeZero T.M]
-    [NeZero T.L] {c z : ℝ} (hc : 0 < c) (hz : 0 < z) (ρ : 𝒟[d, N, T, β, a, K, k])
+    [NeZero T.L] {c z : ℝ} (s : ℝ) (hc : 0 < c) (hz : 0 < z) (ρ : 𝒟[d, N, T, β, a, K, k])
     (hint : ∀ (nK : ℕ) [NeZero nK]
       (g : GIdx 𝒮[d, T, β, a] (sides T.L K nK) T.M K N → ℂ), g ∈ l1Ball _ →
         Integrable (fun ψ => ρ nK ψ g)) :
-    IntegralStep d N T β a K k ρ (stepDensity d N T β a K k c z ρ) := by
-  refine ⟨fun _ => 1, fun _ => one_pos, fun nK _ g hg => ?_⟩
-  rw [Complex.ofReal_one, one_mul]
+    IntegralStep d N T β a K k ρ (stepDensity d N T β a K k c z s ρ) := by
+  refine ⟨fun nK => Real.exp (-(s * ((T.M * sides T.L K nK K * T.L ^ (K - (k + 1))) ^ d : ℕ))),
+    fun _ => Real.exp_pos _, fun nK _ g hg => ?_⟩
+  simp only [stepDensity]
+  rw [integral_const_mul]
+  congr 1
   exact integral_stepKernel_mul hc hz (stepAvg k) (continuous_stepAvg k) (hint nK g hg)
 
 end Density

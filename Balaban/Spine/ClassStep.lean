@@ -289,19 +289,24 @@ quiet kernels and the kernels of P5 (2.47)·P6 (3.2) as step data; the small-fie
 1 on `Z^c_{k+1}`, whose coefficient bounds (H.6) at `k + 1` contain the flow relation of P4 (5.28)
 for `β_{k+1}, ν_{k+1}`; boundary terms with rate `3κ/2` and the constant `B_st`; the budget
 (H6′)^pre), with running constants that start from `β, ν` and satisfy (I.2) at the scales `≤ k`,
-with torus coherent large-field data (LF-3 (h), D-IV.9), and with `∫ ρ' = c ∫ ρ` (LF-3 (a)). -/
+with torus coherent large-field data (LF-3 (h), D-IV.9), and with `∫ ρ' = c ∫ ρ` (LF-3 (a)). The
+successor extends the running data of the input (SUBSPINE-AUDIT defect 5; the birth domain `sfDom`
+reads `ν_j` at every level): at the scales `j ≤ k` its `β_j`, `ν_j`, `a_j`, `z_j` and its vacuum
+flow `E_j` (`RepRec.Ev`, rulings R5, R5′) are those of the input record. -/
 def SFStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
   ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
   ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
-    RepClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk →
-    ∃ (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k + 1]) (νk' : ℝ),
-      PreClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k ρ' νk' ∧
+  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ)
+    (rec : RepRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk),
+    ∃ (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k + 1]) (νk' : ℝ)
+      (rec' : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k ρ' νk'),
+      (∀ j, j ≤ k → rec'.F.sf.β j = rec.F.sf.β j ∧ rec'.F.sf.ν j = rec.F.sf.ν j ∧
+        rec'.F.sf.a j = rec.F.sf.a j ∧ rec'.F.sf.z j = rec.F.sf.z j ∧ rec'.Ev j = rec.Ev j) ∧
       IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
 /-- **A4-2, the large-field operation `R` (LF-4; LFR Theorem III.10.8, P7 Theorem 2 = P5 Theorem 2,
@@ -357,11 +362,12 @@ theorem classStepInput_of_parts (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH 
   obtain ⟨β₁, hβ₁⟩ := hSF κ hκ c₉ hc₉
   obtain ⟨β₂, hβ₂⟩ := hR κ hκ c₉ hc₉
   refine ⟨max β₁ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ => ?_⟩
-  obtain ⟨ρ', νk', hpre, hint⟩ :=
-    hβ₁ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk hρ
+  obtain ⟨rec⟩ := hρ
+  obtain ⟨ρ', νk', rec', -, hint⟩ :=
+    hβ₁ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
   obtain ⟨ρ'', hcl, hint'⟩ :=
     hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf (k + 1) (by omega) hk ρ' νk'
-      (hpre.succ (hQ κ hκ c₉ hc₉))
+      (PreClassAt.succ ⟨rec'⟩ (hQ κ hκ c₉ hc₉))
   exact ⟨ρ'', νk', hcl, hint.trans_eq hint'⟩
 
 /-- **The class step from its sub-inputs and the prefix**: `classStepInput_of_parts`, the rate
