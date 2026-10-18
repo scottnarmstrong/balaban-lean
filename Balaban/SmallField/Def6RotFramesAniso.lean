@@ -719,6 +719,11 @@ when `r · aniK N B νb ≤ δ` (`B` the entry bound of the rotations, `νb` an 
 noncomputable def aniK (N : ℕ) (B νb : ℝ) : ℝ :=
   4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11)
 
+theorem aniK_pos {N : ℕ} (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) (νb : ℝ) : 0 < aniK N B νb := by
+  have hn : (0 : ℝ) < N := by exact_mod_cast Fin.pos i₀
+  unfold aniK
+  positivity
+
 /-- The elementary inequalities for the constant `K = 4 n s a² (4 m + 11)`. -/
 theorem aniK_facts {n s a m : ℝ} (hn : 1 ≤ n) (hs : 1 ≤ s) (ha : 1 ≤ a) (hm : 0 ≤ m) :
     44 * n * a ≤ 4 * n * s * a ^ 2 * (4 * m + 11) ∧

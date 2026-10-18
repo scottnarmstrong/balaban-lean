@@ -177,7 +177,7 @@ theorem LiftCtx.xiDom_constw {N₁ : ℕ} [NeZero N₁] {Tm : Terms d L N₁ m�
   obtain ⟨δ, hδ0, hδ1, hδ2, hδ3, hδ4⟩ := ctx.radius
   have hN : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hρ0 := ctx.rho_pos
-  refine xiDom_of_close ctx.bg hΩ ctx.jk i₀ hδ0 hδ1 hδ2 hρ0 (by nlinarith) hδ3
+  refine xiDom_of_close ctx.bg hΩ ctx.jk i₀ hδ0 hδ1 hδ2 hρ0 (nrho_lt_of_radius hρ0.le i₀ hδ4) hδ3
     (constFld v) w (fun x i => hv i) (fun _ _ _ => rfl) (fun i => ?_)
   have hm := bgMass_mul_le_nuIdeal (L := L) (k := k) (βk := β k) ctx.nu_pos.le ctx.jk
   exact (mul_le_mul_of_nonneg_right hm (norm_nonneg _)).trans (hw i)

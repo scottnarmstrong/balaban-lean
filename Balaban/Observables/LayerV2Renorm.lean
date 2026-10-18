@@ -416,7 +416,7 @@ theorem M_const_diff_le_of_mass {ν : ℕ → ℝ} (hO : IsObs P Q β ν a Tm Ot
   have hN : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hρ0 := ctx.rho_pos
   exact M_const_diff_le_of_bounds ctx.bg (ctx.sf.gs_spec j ctx.j1 ctx.jk X hX).2 ctx.jk hρ0
-    ⟨δ, hδ0, hδ1, hδ2, hδ3, by nlinarith⟩ (Ot.M j x X)
+    ⟨δ, hδ0, hδ1, hδ2, hδ3, nrho_lt_of_radius hρ0.le i₀ hδ4⟩ (Ot.M j x X)
     (hO.analyticM j ctx.j1 ctx.jk x X hX hx)
     (fun Ψ h hd => hO.boundM j ctx.j1 ctx.jk x X hX hx Ψ h hd) i₀ v w v' w' hΔ hv hv' hw hw' hdv
     hdw

@@ -158,12 +158,8 @@ theorem sourceForm_eTerms {P : Consts} {cj : ℕ → ℝ} {ν : ℕ → ℝ}
   classical
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hnu : ∀ j, 0 < nuIdeal L k (ν k) j := fun j => by unfold nuIdeal; positivity
-  have hrpos : ∀ j, 0 < anisoRadius d L N P j := fun j => by
-    have hε := eps_pos (d := d) (L := L) hα j
-    have hK := bgK1_pos d L N
-    have hN : (0 : ℝ) < N := by exact_mod_cast Fin.pos i₀
-    unfold anisoRadius rotB
-    positivity
+  have hrpos : ∀ j, 0 < anisoRadius d L N P j := fun j =>
+    anisoRadius_pos (eps_pos (d := d) (L := L) hα j) i₀
   refine sourceForm_of_pos (eTerms_clauses hE₀ hκ hc0 hc hc9 hB) (fun j _ _ => hnu j) ?_ ?_
   · intro j hj1 hjk y X hX hy u
     have hfd : fderiv ℂ (fun b : Fin N → ℂ =>
@@ -243,7 +239,9 @@ theorem anisoRadius_le_eps {d L N : ℕ} [NeZero L] (P : Consts) (j : ℕ) (hN :
   unfold anisoRadius
   have hK := bgK1_pos d L N
   have hN' : (1 : ℝ) ≤ N := by exact_mod_cast hN
-  have h1 : 8 ≤ (2 * bgK1 d L N + 2) * (4 * N * (1 + N * rotB N)) := by
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+    four_le_aniK ⟨0, by omega⟩ (by unfold rotB; positivity) _
+  have h1 : 8 ≤ (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar := by
     have : 0 ≤ rotB N := by unfold rotB; positivity
     have h3 : 0 ≤ (N : ℝ) * rotB N := by positivity
     have h2 : 4 ≤ 4 * (N : ℝ) * (1 + N * rotB N) := by nlinarith
@@ -280,13 +278,10 @@ theorem sourceForm_eTerms_witness (m₁ k N₁ : ℕ) [NeZero N₁] (ϱ : ℝ) :
     have := anisoRadius_le_eps (d := 3) (L := 3) (eConsts (wideα₀ k)) k (N := 2) (by norm_num)
       (eps_pos (d := 3) (L := 3) (P := witnessConsts (wideα₀ k)) (wideα₀_pos k) k).le
     linarith
-  have hr0 : 0 ≤ anisoRadius 3 3 2 (eConsts (wideα₀ k)) k := by
-    unfold anisoRadius
-    have := bgK1_pos 3 3 2
-    have := eps_pos (d := 3) (L := 3) (P := witnessConsts (wideα₀ k)) (wideα₀_pos k) k
-    have h5 : (0 : ℝ) ≤ (eConsts (wideα₀ k)).eps 3 3 k := this.le
-    unfold rotB
-    positivity
+  have hr0 : 0 ≤ anisoRadius 3 3 2 (eConsts (wideα₀ k)) k :=
+    (anisoRadius_pos (d := 3) (L := 3) (N := 2) (P := eConsts (wideα₀ k)) (j := k)
+      (eps_pos (d := 3) (L := 3) (P := witnessConsts (wideα₀ k)) (wideα₀_pos k) k)
+      (0 : Fin 2)).le
   refine sourceForm_eTerms (eConsts_admissible (wideα₀_pos k)).α₀_pos zero_le_one
     (eConsts_admissible (wideα₀_pos k)).κ_pos.le (fun j => (witCj_pos j).le)
     (witness_cj_le (wideα₀ k)) (witness_c9_pos (wideα₀ k))

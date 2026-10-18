@@ -222,11 +222,10 @@ theorem IsSFFamily.termwise_irrelevant_avg_aniso (d L N m₁ : ℕ) [NeZero L] (
   have hα₁' : P.α₁ < 1 := by have := hP.α₁_lt; have := hP.γ_pos; linarith
   obtain ⟨C, hC0, hC⟩ := termwise_irrelevant_aniso d N (diamA d L P.m₀ m₁) Λ Ksig P.α₁
     (diamA_nonneg d L P.m₀ m₁) hΛ hKsig hα₁ hα₁'
-  set Kr : ℝ := (2 * bgK1 d L N + 2) * (4 * N * (1 + N * rotB N)) with hKr
+  set Kr : ℝ := (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar with hKr
   have hK1 := bgK1_pos d L N
   have hKr0 : 0 ≤ Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]; unfold Def6v2.aniK; positivity
   refine ⟨C * Kr ^ 2, by positivity, ?_⟩
   intro k ϱ β ν a Ek Tm ρd hF j hn i₀ i₁ hne ψ b σ ε K₂ dat X hX hε hεΛ hσ hσ1 hτ hνσ hK
   have hPA := hF.premisesTermAnisoAvg hn hne
@@ -240,8 +239,8 @@ theorem IsSFFamily.termwise_irrelevant_avg_aniso (d L N m₁ : ℕ) [NeZero L] (
   have hεj : 0 < P.eps d L j := eps_pos hF.admissible.α₀_pos j
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hKrpos : 0 < Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]
+    exact mul_pos (by positivity) (Def6v2.aniK_pos i₀ (by unfold rotB; positivity) _)
   have hq : ε / anisoRadius d L N P j = Kr * (ε / P.eps d L j) := by
     rw [anisoRadius_eq, ← hKr]; field_simp
   rw [hq] at h
@@ -276,11 +275,10 @@ theorem IsSFFamily.termwise_irrelevant_avg_aniso_scaled (d L N m₁ : ℕ) [NeZe
           Real.exp (-(P.κ - 1) * avgDist L m₁ k P j X) := by
   have hα₁ : 0 < P.α₁ := hP.α₁_pos
   have hα₁' : P.α₁ < 1 := by have := hP.α₁_lt; have := hP.γ_pos; linarith
-  set Kr : ℝ := (2 * bgK1 d L N + 2) * (4 * N * (1 + N * rotB N)) with hKr
+  set Kr : ℝ := (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar with hKr
   have hK1 := bgK1_pos d L N
   have hKr0 : 0 ≤ Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]; unfold Def6v2.aniK; positivity
   obtain ⟨CI, hCI0, hCI⟩ := termwise_irrelevant_aniso_all_scales d N (diamA d L P.m₀ m₁) Λ Ksig
     P.α₁ γ C₀ (Kr * KR) (diamA_nonneg d L P.m₀ m₁) hΛ hKsig hα₁ hα₁' hC₀ hα₃
   refine ⟨CI, hCI0, ?_⟩
@@ -294,8 +292,8 @@ theorem IsSFFamily.termwise_irrelevant_avg_aniso_scaled (d L N m₁ : ℕ) [NeZe
   have hεj : 0 < P.eps d L j := eps_pos hF.admissible.α₀_pos j
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hKrpos : 0 < Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]
+    exact mul_pos (by positivity) (Def6v2.aniK_pos i₀ (by unfold rotB; positivity) _)
   have hq : ε / anisoRadius d L N P j = Kr * (ε / P.eps d L j) := by
     rw [anisoRadius_eq, ← hKr]; field_simp
   have hR' : ε / anisoRadius d L N P j ≤ Kr * KR * s ^ (((d : ℝ) - 2) / 2 - γ) := by

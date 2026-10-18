@@ -101,7 +101,7 @@ theorem norm_filed_origin_le
       (Tm N₁) := (hF.torus N₁).terms
   have hBg := bgHyp_of_class2 hF.admissible hF.coeff hn.hd hn.hL hn.hϱ
   have hν : 0 < nuIdeal L k (Rg.ν k) j := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
-  have hμν := (Rg.sfBgMass_mul_sq hjk).le
+  have hμν hνb := (Rg.sfBgMass_mul_sq hjk).le
   have hrad := hF.anisoRadiusOK hn.hsmall i₀
   have dat := hdat (Dom := Set.univ) ⟨trivial, trivial⟩ hsec
   have hy : Aligned (L ^ j) (0 : CTorus d L N₁ m₁ k) := fun μ => by simp
@@ -164,7 +164,7 @@ theorem norm_filed_origin_le
         (fun X hX => sizeJ_ge_torus_threshold_of_not_infPoly hd hjk hN (hS X hX).1 (hS X hX).2)
         (fun X hX => ⟨0, (hS X hX).1.1⟩)
         (fun X hX => by
-          have h := norm_filed_fin_le hcl hBg hν hμν hj1 hjk hN (hS X hX).1 hne hrad dat hσ
+          have h := norm_filed_fin_le hcl hBg hν hμν hνb hj1 hjk hN (hS X hX).1 hne hrad dat hσ
             hσ1 hε hεΛ hτ
           refine h.trans (le_of_eq ?_)
           ring)
@@ -199,6 +199,6 @@ theorem norm_filed_origin_le
   refine le_of_eq_of_le (congrArg norm (Finset.sum_congr rfl fun X' hX' => ?_)) hsplit
   obtain ⟨h0, hnw, hpd⟩ := (Set.Finite.mem_toFinset _).1 hX'
   exact (TPhi_eq_Ttw_add_Phitw (Tm := Tm N₁) (X := Ypoly j X') (S := X') (y := 0) hcl hBg hν
-    hμν hj1 hjk hN hy hpd (zero_mem_Ypoly h0) (image_unlift_Ypoly hjk hnw).symm hne hrad Ψ hv).symm
+    hμν hνb hj1 hjk hN hy hpd (zero_mem_Ypoly h0) (image_unlift_Ypoly hjk hnw).symm hne hrad Ψ hv).symm
 
 end Balaban.SmallField.Def6v2

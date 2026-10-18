@@ -136,12 +136,7 @@ theorem polyAniso_subset_xiDom_of_radius [NeZero L] [NeZero N₁]
     {c : Cfg d N X'} (hc : c ∈ polyAniso i₀ νj r X') :
     XiDom G a' μ j (P.eps d L j) (fieldOf j i₀ X' c) (hOf νj X' c) := by
   obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hr
-  have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-  have hrδ' : 4 * (N : ℝ) * r ≤ δ := by
-    have h1 : r ≤ r * (1 + N * rotB N) := by nlinarith
-    have hN0 : (0 : ℝ) ≤ 4 * N := by positivity
-    calc 4 * (N : ℝ) * r ≤ 4 * N * (r * (1 + N * rotB N)) := mul_le_mul_of_nonneg_left h1 hN0
-      _ ≤ δ := hrδ
+  have hrδ' : 4 * (N : ℝ) * r ≤ δ := (aniK_old (P := P) i₀ hr0 hrδ).2
   exact polyAniso_subset_xiDomM hBg hΩ hjk hνj hm i₀ hδ0 hδc0 hδc1 hr0 hr1 hrδ' hε hc
 
 /-! ### The main instance of the field domain -/

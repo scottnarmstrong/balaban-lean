@@ -75,7 +75,7 @@ theorem trickFnA_shiftTerm_eq_of_scaled_source_small
   obtain ⟨hcentre, hcoords, hlongsrc⟩ :=
     Balaban.SmallField.ScaledPsiC.real_frame_bounds H hyG hyGj
       hν hτ hτ1 hντ hζ hζ1 hQ hQp hQe
-  apply trickFnA_shiftTerm_eq_of_dataHyp_small hcl hBg hν hμν hj1 hjk
+  apply trickFnA_shiftTerm_eq_of_dataHyp_small hcl hBg hν hμν hνb hj1 hjk
     hy hX hyX hS hS' hne hrad dat hσε
   · intro i
     rw [hψ0]

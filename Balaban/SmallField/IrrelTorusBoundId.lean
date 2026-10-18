@@ -260,25 +260,25 @@ theorem eventually_line_mem_polyAniso (hr0 : 0 < r) (v : Cfg d N S) :
 
 /-- **The reference field lies in the domain of the term.** -/
 theorem xiDom_ref (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j)
     (hjk : j ≤ k) (hX : IsPolyDom P.m₀ j X) (i₀ : Fin N) (hrad : AnisoRadiusOK d L N P j r) :
     XiDom (Tm.gs j X) a μ j (P.eps d L j) (constFld (Pi.single i₀ 1))
       (constFld (Pi.single i₀ 1)) := by
   obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hrad
   have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-  have h := xiDom_shift_poly (y := 0) (S := ∅) hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν i₀
+  have h := xiDom_shift_poly (y := 0) (S := ∅) hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν hνb i₀
     (fun μ => by simp) hδ0 hδc0 hδc1 hr0 hr1 (by nlinarith) hε (refPt_mem_polyAniso hr0)
   have e1 : (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ (∅ : Finset (Site d))
       (refPt i₀ ν ∅) (z - 0)) = constFld (Pi.single i₀ 1) := funext fun z => shiftField_refPt ν 0 z
   rwa [e1, hOf_refPt hν.ne'] at h
 
 theorem analyticAt_term_ref (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j)
     (hjk : j ≤ k) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (i₀ : Fin N)
     (hrad : AnisoRadiusOK d L N P j r) :
     AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => Tm.E j y X p.1 p.2)
       (constFld (Pi.single i₀ 1), constFld (Pi.single i₀ 1)) :=
-  hcl.analyticE j hj1 hjk y X hX hyX _ (xiDom_ref hcl hBg hν hμν hj1 hjk hX i₀ hrad)
+  hcl.analyticE j hj1 hjk y X hX hyX _ (xiDom_ref hcl hBg hν hμν hνb hj1 hjk hX i₀ hrad)
 
 variable (hT : TubeHypA i₀ ν r (fun c : Cfg d N S =>
     Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y))

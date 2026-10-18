@@ -54,11 +54,7 @@ theorem polyAniso_subset_xiDom_of_radius_allow
   have hΛ0 : 0 < Λ := by linarith
   have hNB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
-  have hrδ' : 4 * (N : ℝ) * r ≤ δ := by
-    have h1 : r ≤ r * (1 + N * rotB N) := by nlinarith
-    have hN0 : (0 : ℝ) ≤ 4 * N := by positivity
-    calc 4 * (N : ℝ) * r ≤ 4 * N * (r * (1 + N * rotB N)) := mul_le_mul_of_nonneg_left h1 hN0
-      _ ≤ δ := hrδ
+  have hrδ' : 4 * (N : ℝ) * r ≤ δ := (aniK_old (P := P) i₀ hr0 hrδ).2
   have hrδ2 : r < δ := by nlinarith
   have hr' : 0 < r / Λ := div_pos hr0 hΛ0
   have hr'r : r / Λ ≤ r := div_le_self hr0.le hΛ

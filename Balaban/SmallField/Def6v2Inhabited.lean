@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.SmallField.Def6v2Source
+public import Balaban.SmallField.Def6Inhabited
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -621,12 +622,7 @@ theorem sourceForm_pin_witness {P : Consts} {ν : ℕ → ℝ} {cj : ℕ → ℝ
         (constFld (Pi.single i₀ 1)) (constFld b)) = fun _ => (0 : ℂ) := rfl
     rw [e]
     simp
-  · have hr : 0 < anisoRadius d L N P j := by
-      have hε := eps_pos (d := d) (L := L) hα j
-      have hK := bgK1_pos d L N
-      have hN : (0 : ℝ) < N := by exact_mod_cast Fin.pos i₀
-      unfold anisoRadius rotB
-      positivity
+  · have hr : 0 < anisoRadius d L N P j := anisoRadius_pos (eps_pos (d := d) (L := L) hα j) i₀
     have e : srcPack (sourceOf ν (pinTerms d L N₁ m₁ k N ϱ P.κ cj)) j i₀ X' =
         fun _ => (0 : ℂ) := rfl
     rw [e]

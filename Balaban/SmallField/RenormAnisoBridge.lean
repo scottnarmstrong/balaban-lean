@@ -257,6 +257,18 @@ theorem aniK_old {P : Consts} (i₀ : Fin N) {r δ : ℝ} (hr0 : 0 < r)
     linarith
 
 omit [NeZero N₁] in
+theorem anisoRadius_pos {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : Fin N) :
+    0 < anisoRadius d L N P j := by
+  have hK := bgK1_pos d L N
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+    four_le_aniK i₀ (by unfold rotB; positivity) _
+  have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+  have hB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
+  have hQ0 : 0 < Def6v2.aniK N (rotB N) P.νbar := by nlinarith
+  unfold anisoRadius
+  positivity
+
+omit [NeZero N₁] in
 /-- The radius condition holds for `anisoRadius` as soon as `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`
 (P1's "`ε` sufficiently small"). -/
 theorem anisoRadius_spec {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : Fin N)

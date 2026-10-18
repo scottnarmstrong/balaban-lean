@@ -95,7 +95,7 @@ theorem IsSFFamily.termLInfA_tube_le {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {
   have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
   rw [termLInfA_eq hF.torusIndep hj1 hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hn.1 hn.2 c]
   exact termLA_bdd_tube (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hd hL hϱ)
-    hF.coeff.nu_pos hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0 hc
+    hF.coeff.nu_pos hF.coeff.nu_le hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0 hc
 
 /-- The bound of the term of `T∞` on the data domain. -/
 theorem IsSFFamily.termLInfA_dom_le {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {X' : Finset (Site d)}
@@ -107,7 +107,7 @@ theorem IsSFFamily.termLInfA_dom_le {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {X
   have : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
   rw [termLInfA_eq hF.torusIndep hj1 hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hn.1 hn.2 _]
   exact termLA_bdd_dom_at (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hd hL hϱ)
-    hF.coeff.nu_pos hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0
+    hF.coeff.nu_pos hF.coeff.nu_le hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0
     (hp X' h0 hX n hn)
 
 /-- Analyticity of the term of `T∞` on the anisotropic tube. -/
@@ -122,7 +122,7 @@ theorem IsSFFamily.termLInfA_analytic {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) 
     funext fun c => termLInfA_eq hF.torusIndep hj1 hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hn.1 hn.2 c
   rw [e]
   exact termLA_analytic (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hd hL hϱ)
-    hF.coeff.nu_pos hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0
+    hF.coeff.nu_pos hF.coeff.nu_le hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0
 
 /-- Rotation invariance of the term of `T∞` on the anisotropic tube. -/
 theorem IsSFFamily.termLInfA_rot_inv {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {X' : Finset (Site d)}
@@ -137,7 +137,7 @@ theorem IsSFFamily.termLInfA_rot_inv {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {
   rw [termLInfA_eq hF.torusIndep hj1 hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hn.1 hn.2,
     termLInfA_eq hF.torusIndep hj1 hjk i₀ _ _ h0 hX (torusSeq L P.m₀ n) hn.1 hn.2]
   exact termLA_rot_inv (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hd hL hϱ)
-    hF.coeff.nu_pos hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0 hc hR hRb hRc
+    hF.coeff.nu_pos hF.coeff.nu_le hj1 hjk (hF.anisoRadiusOK hsmall i₀) hne hn.2 h0 hc hR hRb hRc
 
 /-- **`IsSFFamily.premisesTermAnisoInf`**: a member of the class supplies the premises of the
 anisotropic termwise I-6 at each scale `1 ≤ j ≤ k` for the lifted family `liftInfA` of `T∞`:
@@ -193,7 +193,7 @@ end Premises
 
 theorem anisoRadius_eq (d L N : ℕ) [NeZero L] (P : Consts) (j : ℕ) :
     anisoRadius d L N P j =
-      P.eps d L j / ((2 * bgK1 d L N + 2) * (4 * N * (1 + N * rotB N))) := rfl
+      P.eps d L j / ((2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar) := rfl
 
 /-- **Lemma 3.2 (iii) for the class on the anisotropic domain** (P1 Lemma 3.8 / Proposition 3.10
 termwise, I6-ANISO (2.7)): for a member of the small-field class, at every scale `1 ≤ j ≤ k` with
@@ -275,11 +275,10 @@ theorem IsSFFamily.termwise_irrelevant_aniso_class_eps (d L N m₁ : ℕ) [NeZer
         C * P.E₀ * Real.exp (-(P.κ - 1) * dInf L m₁ k P.m₀ j X) *
           (σ ^ (3 - P.α₁) * (ε / P.eps d L j) ^ 2) := by
   obtain ⟨C, hC0, hC⟩ := IsSFFamily.termwise_irrelevant_aniso_class d L N m₁ P hP Λ Ksig hΛ hKsig
-  set Kr : ℝ := (2 * bgK1 d L N + 2) * (4 * N * (1 + N * rotB N)) with hKr
+  set Kr : ℝ := (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar with hKr
   have hK1 := bgK1_pos d L N
   have hKr0 : 0 ≤ Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]; unfold Def6v2.aniK; positivity
   refine ⟨C * Kr ^ 2, by positivity, ?_⟩
   intro k ϱ β ν a Ek Tm ρd hF hd hL hϱ hκ j hj1 hjk hsmall i₀ i₁ hne ψ b σ ε K₂ dat X h0 hX
     hε hεΛ hσ hσ1 hτ hνσ hK
@@ -288,8 +287,8 @@ theorem IsSFFamily.termwise_irrelevant_aniso_class_eps (d L N m₁ : ℕ) [NeZer
   have hεj : 0 < P.eps d L j := eps_pos hF.admissible.α₀_pos j
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hKrpos : 0 < Kr := by
-    have : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-    rw [hKr]; positivity
+    rw [hKr]
+    exact mul_pos (by positivity) (Def6v2.aniK_pos i₀ (by unfold rotB; positivity) _)
   have hq : ε / anisoRadius d L N P j = Kr * (ε / P.eps d L j) := by
     rw [anisoRadius_eq, ← hKr]; field_simp
   rw [hq] at h

@@ -34,7 +34,7 @@ locally within the spin radius and its field coordinates satisfy the source tube
 theorem trickFnA_shiftTerm_eq_of_local_bounds
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
@@ -74,7 +74,7 @@ theorem trickFnA_shiftTerm_eq_of_local_bounds
     nlinarith [mul_pos (sub_pos.mpr hδr) (by linarith : 0 < δ + r)]
   have hXi₂ : XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ₂
       (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S (rotCfgL R S c)) := by
-    exact xiDom_shift_poly hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν i₀ hy
+    exact xiDom_shift_poly hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν hνb i₀ hy
       hδ0 hδc0 hδc1 hr0 hr1 (by
         nlinarith [mul_nonneg (by positivity : 0 ≤ (4 : ℝ) * N)
           (sub_nonneg.mpr hρ)]) hε hRc
@@ -88,7 +88,7 @@ theorem trickFnA_shiftTerm_eq_of_local_bounds
     exact shiftField_block hjk hy (rotCfgL R S c) heq
   have hXi₁ : XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ₁
       (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c) := by
-    exact xiDom_of_fieldM hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν i₀
+    exact xiDom_of_fieldM hBg (hcl.gs_spec j hj1 hjk X hX).2 hjk hν hμν hνb i₀
       hδ0 hδc0 hδc1 hρs0 hr0.le hrδ hρh hρl hε Ψ₁
       (fun i => c (Sum.inr i)) hΨ₁ hΨ₁b hb hbl.le
   have hrotΨ : Ψ₂ = rotField R Ψ₁ := by
@@ -116,7 +116,7 @@ theorem trickFnA_shiftTerm_eq_of_local_bounds
         hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S (rotCfgL R S c) z := by
     intro z hz
     exact ⟨rfl, rfl⟩
-  exact trickFnA_shiftTerm_eq_of_full_chart_rot hcl hBg hν hμν hj1 hjk hy hX hyX
+  exact trickFnA_shiftTerm_eq_of_full_chart_rot hcl hBg hν hμν hνb hj1 hjk hy hX hyX
     hS hne ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ c R hR hRb hRc
     Ψ₁ (hOf ν S c) Ψ₂ (hOf ν S (rotCfgL R S c)) hXi₁ hXi₂ hrotΨ hroth hag₁ hag₂
 
