@@ -18,12 +18,14 @@ ambient set `𝔹_{k+1}` (cover data `(m₀, j, 𝒦_X)`), the parameters are tr
 `𝔹` (`τ ∘ extParams`), the hat variable `ψ̂` of the ambient unit lattice is restricted to the unit
 lattice of `𝔹`, and only the datum `Θ` of `𝔹` enters.
 
-* `evTerm_blockEnergy_localHat_bound_analytic`: the local term is analytic on the local chart
-  `Ξ^c(𝔹; 1, ε')` times the box `|ψ̂ q| ≤ c_ψ` and bounded there by
-  `Eb e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}` whenever the block-energy bound `energyBd` is at most
-  `Eb e^{-(κ - 1) d^{cov,1}_j(X)}`.  Proof: the integrand is analytic and bounded on the chart times
-  the box times the polydisc (`fanLocalHat_blockEnergy_analytic_cover`,
-  `fanLocalHat_blockEnergy_norm_le_cover` at `𝔹` with `localB_coverData`, the parameter map of
+* `evTerm_blockEnergy_localHat_bound_analytic`: for a block `B_{k+1}(z)` in the top layer of `𝔹`
+  (the blocks of the zero-source terms, at the scale `n = k`), the local term is analytic on the
+  local chart `Ξ^c(𝔹; 1, ε')` times the box `|ψ̂ q| ≤ c_ψ` and bounded there by
+  `Eb e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}` whenever the scale-uniform block-energy majorant
+  `energyBdScaled` (that of the step's potential terms) is at most `Eb e^{-(κ - 1) d^{cov,1}_j(X)}`.
+  Proof: the integrand is analytic and bounded on the chart times the box times the polydisc
+  (`fanLocalHat_blockEnergy_analytic_cover`, `fanLocalHat_blockEnergy_norm_le_cover_scaled` at `𝔹`
+  with `localB_coverData` and the layers `localB_layers_of_top`, the parameter map of
   `localB_tauExt_analyticAt`, `localB_tauExt_norm_lt`, composed with the restriction of `ψ̂`), and
   `evTerm_bound_analyticOnNhd_of_bd` (the Cauchy bound of the coefficients and the Peierls sum
   over the connected families of the expansion of `𝔹_{k+1}`; no locality is used).
@@ -45,10 +47,11 @@ variable {ν : ℝ}
 /-- **Analyticity and bound of the zero-source term recomputed on the local generating set (P6
 Lemma 4.1).**  For `𝔹 = localB (k + 1) … Y⁺`, `H⁻ = localB k … Ω_k(𝔹)`, analytic maps `F₁'`, `Sol'`
 with the specifications of the decoupled background and fluctuation fields of the local pairs, and
-cover data `(m₀, j, 𝒦_X)` of the ambient set `𝔹_{k+1}`, the term
-`∑_{𝒞 : Y[𝒞] = Y} coef(blockEnergyFun 𝔹 H⁻ … n z, 𝒞)` with the transported parameters and the local
-hat lift of the restriction of `ψ̂` is analytic on the chart `Ξ^c(𝔹; 1, ε')` times the box
-`|ψ̂ q| ≤ c_ψ` and bounded there by `Eb e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}`. -/
+cover data `(m₀, j, 𝒦_X)` of the ambient set `𝔹_{k+1}` and a block `B_{k+1}(z)` in the top layer
+`Ω_{k+1}(𝔹)`, the term `∑_{𝒞 : Y[𝒞] = Y} coef(blockEnergyFun 𝔹 H⁻ … k z, 𝒞)` with the transported
+parameters and the local hat lift of the restriction of `ψ̂` is analytic on the chart
+`Ξ^c(𝔹; 1, ε')` times the box `|ψ̂ q| ≤ c_ψ` and bounded there by
+`Eb e^{-κ₀ d^{cov,1}_j(X) - 2 κ d̃^{cov}(Y)}`, for `energyBdScaled ≤ Eb e^{-(κ - 1) d^{cov,1}_j(X)}`. -/
 theorem evTerm_blockEnergy_localHat_bound_analytic (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
     (Yp : Set (CTorus d L N₁ m₁ (k + 1))) (hN : 5 < N₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
     (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ m₁) - 1))
@@ -173,9 +176,11 @@ theorem evTerm_blockEnergy_localHat_bound_analytic (hk1 : 1 ≤ k) (hk : k + 1 �
     (hκ₁ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κd ≤ κ₁)
     (h1κ : 1 ≤ (κ₁ / 2 - 1) / 2)
     (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ₁ / 2 - 1) / 2)
-    (hκ₁κ : κ₁ ≤ κ) (hEb0 : 0 ≤ Eb) {n : ℕ} (hn1 : 1 ≤ n) (hn : n + 1 ≤ k + 1)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (n + 1))))
-    (hEb : energyBd d L N (compWeight L a₁) ν n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
+    (hκ₁κ : κ₁ ≤ κ) (hEb0 : 0 ≤ Eb)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hzT : ∀ x ∈ blockSites d L N₁ m₁ (k + 1) k z,
+      x ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1))
+    (hEb : energyBdScaled d L N (compWeight L a₁) k (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
         (rho4 d L N BG κ) ≤ Eb * Real.exp (-(κd - 1) * treeLenCovOne m₀ j X)) :
     (∀ Y, ∀ u ∈ XiCRaw (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) ν (k + 1) 1 eps' ×ˢ
         {ψ : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψ q‖ ≤ cψ},
@@ -185,7 +190,7 @@ theorem evTerm_blockEnergy_localHat_bound_analytic (hk1 : 1 ≤ k) (hk : k + 1 �
           (localB k (Nat.le_succ k)
             (↑((localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω k) :
               Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
-          (compWeight L a₁) ν n z
+          (compWeight L a₁) ν k z
           (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
               then Dec2.extS (coverOf Gp) (extParams Gp (X1 Gp m₀ j 𝒦X) w) P.1 else 0), u.1))
           (Sol' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
@@ -247,7 +252,7 @@ theorem evTerm_blockEnergy_localHat_bound_analytic (hk1 : 1 ≤ k) (hk : k + 1 �
           (localB k (Nat.le_succ k)
             (↑((localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω k) :
               Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
-          (compWeight L a₁) ν n z
+          (compWeight L a₁) ν k z
           (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
               then Dec2.extS (coverOf Gp) (extParams Gp (X1 Gp m₀ j 𝒦X) w) P.1 else 0), u.1))
           (Sol' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
@@ -324,10 +329,12 @@ theorem evTerm_blockEnergy_localHat_bound_analytic (hk1 : 1 ≤ k) (hk : k + 1 �
     (Cchi_nonneg d L) heps' hsmall' hc7' hphi' hmarD' hαD' hsm cc hcψ h1 hδ₁c hP hHl hF₁'an hF₁'
     (hSol'an.mono fun p hp => ⟨hp.1, strictDataM_mono_left hδ₀e hp.2⟩)
     (fun p hp hp2 => hSol' p hp (strictDataM_mono_left hδ₀e hp2)) (localB_tauExt_analyticAt hk Yp (X1 Gp m₀ j 𝒦X))
-    (localB_tauExt_norm_lt hk Yp (X1 Gp m₀ j 𝒦X) hκ) hσ1 n z
-  have hB := fanLocalHat_blockEnergy_norm_le_cover hk1 ha₁ ha₂ hS hcd.1 HB' hκ hMc hMX
+    (localB_tauExt_norm_lt hk Yp (X1 Gp m₀ j 𝒦X) hκ) hσ1 k z
+  have hB := fanLocalHat_blockEnergy_norm_le_cover_scaled hk1 ha₁ ha₂ hS hcd.1 HB' hκ hMc hMX
     (Cchi_nonneg d L) heps' hsmall' hc7' hphi' hmarD' hαD' hsm cc hcψ h1 hδ₁c hP hHl hF₁'
-    (fun p hp hp2 => hSol' p hp (strictDataM_mono_left hδ₀e hp2)) (localB_tauExt_norm_lt hk Yp (X1 Gp m₀ j 𝒦X) hκ) hσ1 hBG₂ hn1 hn z
+    (fun p hp hp2 => hSol' p hp (strictDataM_mono_left hδ₀e hp2))
+    (localB_tauExt_norm_lt hk Yp (X1 Gp m₀ j 𝒦X) hκ) hσ1 hBG₂ hk1 le_rfl z
+    (fun x hx => localB_layers_of_top hk1 hk Yp (hzT x hx))
   -- the restriction of the hat variable to the unit lattice of `𝔹`
   set rs : (unitPts Gp × Fin N → ℂ) →
       (unitPts (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) × Fin N → ℂ) :=

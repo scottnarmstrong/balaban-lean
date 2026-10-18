@@ -6,7 +6,8 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.LocalHatTerm
-public import Balaban.Fluctuation.InteractionVBlock
+public import Balaban.Fluctuation.InteractionVBlockScaled
+public import Balaban.Fluctuation.LocalFluctGen
 
 /-!
 # The block energy with the local hat variable: analyticity and bound on a generating set
@@ -23,7 +24,15 @@ with a cover base (no `IsLevel`, no `DGSetting`; the local generating set `local
   chart `Ξ^c(𝔹; 1, ε)` times the ball `|ψ̂| ≤ c_ψ` times the polydisc (`fanLocalHat_analytic_cover`
   with the block energy, which is analytic everywhere, `blockEnergyFun_analytic`);
 * `fanLocalHat_blockEnergy_norm_le_cover`: it is bounded there by the block-energy bound `energyBd`
-  (`fanLocalHat_norm_le_cover` with `blockEnergyFun_bound_of_num`).
+  (`fanLocalHat_norm_le_cover` with `blockEnergyFun_bound_of_num`);
+* `fanLocalHat_blockEnergy_norm_le_cover_scaled`: when the sites of the block lie in the layer `n`
+  of `H⁻` and the layer `n + 1` of `𝔹`, it is bounded by the scale-uniform majorant
+  `energyBdScaled` (`blockEnergyFun_bound_scaled_of_block`), the majorant of the step's potential
+  terms;
+* `localB_layers_of_top`: a site of the top layer `Ω_{k+1}` of `𝔹_{k+1}(Y) = localB (k + 1) … Y`
+  lies in the layer `k + 1` of `𝔹_{k+1}(Y)` and in the layer `k` of
+  `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`; so a block in the top layer of `𝔹_{k+1}(Y)` meets the
+  hypothesis of the scaled bound at `n = k`.
 -/
 
 @[expose] public section
@@ -31,7 +40,7 @@ with a cover base (no `IsLevel`, no `DGSetting`; the local generating set `local
 namespace Balaban.Localization
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Analysis
-  Balaban.Fluctuation Balaban.LargeField Finset Matrix
+  Balaban.Fluctuation Balaban.LargeField Balaban.SmallField.GsSpec Finset Matrix
 
 section FanHat
 
@@ -185,6 +194,122 @@ theorem fanLocalHat_blockEnergy_norm_le_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤
       blockEnergyFun_bound_of_num (by have := HBp.hd; omega) hS.fam.2.1 hBG₂ hδ₁0 HBp.mass
         HBp.weights hn1 hn z ht.1
 
+omit [Fintype ι] in
+/-- **The scale-uniform bound of the block energy with the local hat variable** (P6 Lemma 4.1 on
+`𝔹`, cover form).  When every site of the block `B_{n+1}(z)` lies in the layer `n` of `H⁻` and the
+layer `n + 1` of `𝔹`, the composite of `fanLocalHat_blockEnergy_analytic_cover` is bounded on the
+chart `Ξ^c(𝔹; 1, ε)` times the ball `|ψ̂| ≤ c_ψ` times the polydisc by the scale-uniform majorant
+`energyBdScaled … n (K₂' δ₁) δ₁ ρ₄` of the step's potential terms. -/
+theorem fanLocalHat_blockEnergy_norm_le_cover_scaled (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁)
+    (ha₂ : a₁ ≤ 2) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ BG₂ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hδ₁ : Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf Gp)}
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → σ w ⟨P, hP⟩ = 1)
+    (hBG₂ : 0 ≤ BG₂) {n : ℕ} (hn1 : 1 ≤ n) (hn : n + 1 ≤ k + 1)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (n + 1))))
+    (hblk : ∀ x ∈ blockSites d L N₁ m₁ (k + 1) n z, (x ∈ Hm.Ω 1 ∧ Hm.layerIndex x = n) ∧
+      (x ∈ Gp.Ω 1 ∧ Gp.layerIndex x = n + 1)) :
+    ∀ p ∈ (XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+        polydisc (0 : ι → ℂ) (fun _ => Real.exp κ),
+      ‖blockEnergyFun Gp Hm (compWeight L a₁) ν n z (F₁ (σ p.2, p.1.1))
+        (Sol (σ p.2, flEdat Gp Hm (F₁ (σ p.2, p.1.1)) p.1.1.1
+          (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ p.2, p.1.1)).2
+                (Dec2.extS (coverOf Gp) (σ p.2)) (barField Gp p.1.1.1 (F₁ (σ p.2, p.1.1)).1)
+                (unitQ Gp) (unitP Gp) *ᵥ p.1.2)) (⟨unitBlock x, h⟩, i)
+            else 0))).1
+        (p.1.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+            if h : unitBlock x ∈ unitPts Gp then
+              (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ p.2, p.1.1)).2
+                (Dec2.extS (coverOf Gp) (σ p.2)) (barField Gp p.1.1.1 (F₁ (σ p.2, p.1.1)).1)
+                (unitQ Gp) (unitP Gp) *ᵥ p.1.2)) (⟨unitBlock x, h⟩, i)
+            else 0)‖ ≤
+        energyBdScaled d L N (compWeight L a₁) n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
+          (rho4 d L N BG κ) :=
+  fanLocalHat_norm_le_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7 hphi hmarD hαD hsm
+    cc hcψ hδ₁0 hδ₁ hPmp hHm hF₁ hSol hσκ hσ1 fun _ ht =>
+      blockEnergyFun_bound_scaled_of_block HBp hS.fam.2.1 hBG₂ hδ₁0 hn1 hn z hblk ht.1
+
 end FanHat
+
+section Layers
+
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L]
+
+/-- **The layers at a site of the top layer of a local generating set.**  A site `x` of the top
+layer `Ω_{k+1}` of `𝔹_{k+1}(Y) = localB (k + 1) … Y` lies in `Ω₁` of `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`
+with layer index `k`, and in `Ω₁` of `𝔹_{k+1}(Y)` with layer index `k + 1` (`k ≥ 1`). -/
+theorem localB_layers_of_top (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)) :
+    (x ∈ (localB k (Nat.le_succ k)
+        (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+          Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω 1 ∧
+      (localB k (Nat.le_succ k)
+        (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+          Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).layerIndex x = k) ∧
+    (x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 ∧
+      (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).layerIndex x = k + 1) := by
+  have hxk : x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k :=
+    (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone hk1 (Nat.le_succ k)
+      (by omega) hx
+  have hxk' : x ∈ (localB k (Nat.le_succ k)
+      (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+        Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω k := by
+    rw [localB_drop_Ω hk (Nat.le_succ k) Y (le_refl (minSep L (L ^ m₁)))
+      (le_refl (minSep L (L ^ m₁))) (le_refl k)]
+    exact hxk
+  refine ⟨⟨(localB k (Nat.le_succ k)
+      (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
+        Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁)))).Ω_antitone le_rfl hk1
+      (by omega) hxk', ?_⟩, ⟨(localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone
+      le_rfl (by omega) (by omega) hx, ?_⟩⟩
+  · refine GeneratingSet.layerIndex_eq _ hk1 (Nat.le_succ k)
+      ((GeneratingSet.mem_layer _).2 ⟨hxk', ?_⟩)
+    rw [localB_Ω_of_gt (Nat.lt_succ_self k)]
+    exact Finset.notMem_empty _
+  · refine GeneratingSet.layerIndex_eq _ (by omega) le_rfl
+      ((GeneratingSet.mem_layer _).2 ⟨hx, ?_⟩)
+    rw [localB_Ω_of_gt (Nat.lt_succ_self (k + 1))]
+    exact Finset.notMem_empty _
+
+end Layers
 
 end Balaban.Localization
