@@ -419,3 +419,7 @@ W1067: `tower_entropy_rate`: at d = L = 3, ρ = T.κ′: (κ′-aEnt-1)/α > 1/5
 
 ## W1064 — blocker 6: `hDzfull` for `densE0` (`Inhabited/StepTowerNewLevelSym{Geom,Cov,Data,Int,Old,Phi,E,Main}.lean`)
 **PROVED, exact `hDzfull` form (`densE0_fullJSymGroup`; `hDzblock` is the landed `densE0_block`).** On the chart datum `densE0 = E0locH` is covariant under `fullJSymGroup (k+1)` (`E0locH_sym`): `bgFieldC`, `hatCovSqrt`/`decLog` as the principal sqrt/log of `𝒜` (`covOp_rm`: no cover needed), `interactionV_sym`, `ν_{p₁}`, `maskUC`, old `Edens` from `eucEloc` (`EcompAtC_sym`); one input remains, `hdom`: the old composed pairs along the interpolation path (and a neighbourhood) lie in the old level-set domain (`OldXiDomC`; the openness of `XiDom` is not landed); `hDMfull` is not touched.
+
+## W1070 — blocker 6: `hDMfull` and the neighbourhood part of `hdom` (`Inhabited/StepTowerNewLevelSym{M,Dom}.lean`)
+**PROVED, exact `hDMfull` form (`densM0_fullJSymGroup`, premises of `densE0_fullJSymGroup`, `hdom` verbatim, no `hE`).** `M0H_sym` reuses the W1064 cores (`hatCovSqrt_sym`, `hatField_sym`, `nuFl_measurePreserving`, `phi_eventuallyEq_of_dom`); new: `McompAtC_sym`, `FcompAtC_sym` from `eucMloc`.
+**`hdom` reduced to the real path points (`hdom_of_pathMem`):** `XiC` has strict inequalities, `XiDom` is open in the layer-constant fields (`xiDom_eventually`), the composed pair is layer-constant and analytic in the shift (`analyticAt_PJ`); the membership at the path points (open `OldXiDomC`, class-radius inequalities) is not proved and stays the single open input.
