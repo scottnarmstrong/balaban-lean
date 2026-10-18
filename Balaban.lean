@@ -1086,6 +1086,7 @@ public import Balaban.LargeField.R.AlignedI6Transport
 public import Balaban.LargeField.R.RegionalDataBridge
 public import Balaban.LargeField.R.MassResponse
 public import Balaban.LargeField.R.MassResponseHyp
+public import Balaban.LargeField.R.CoeffResponse
 public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
 public import Balaban.LargeField.R.MassChangeOneSite
