@@ -114,6 +114,21 @@ theorem integral_blockSplit_rot (e : Rn N ≃ₗᵢ[ℝ] Rn N)
       (fun _ => fluctMeasure1 N S.p₁) (fun _ => hee)
   exact integral_comp_of_pi_equiv (S.blockSplit m₀ hp).μ E hE (ae_mem_physCarrier S m₀ hp) h
 
+/-- **The sitewise isometry as a family of measure-preserving equivalences of the block
+variables.** -/
+theorem exists_blockSplit_equiv (e : Rn N ≃ₗᵢ[ℝ] Rn N) :
+    ∃ E : ∀ b, (S.blockSplit m₀ hp).Ωb b ≃ᵐ (S.blockSplit m₀ hp).Ωb b,
+      (∀ b, MeasurePreserving (E b) ((S.blockSplit m₀ hp).μ b) ((S.blockSplit m₀ hp).μ b)) ∧
+      ∀ (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b), (fun b => E b (Φ b)) = fun b u => e (Φ b u) := by
+  have := isProbabilityMeasure_fluctMeasure1 N hp
+  let ee : Rn N ≃ᵐ Rn N := e.toHomeomorph.toMeasurableEquiv
+  have hee : MeasurePreserving ee (fluctMeasure1 N S.p₁) (fluctMeasure1 N S.p₁) :=
+    ⟨ee.measurable, map_fluctMeasure1_isometry N S.p₁ e⟩
+  refine ⟨fun b => MeasurableEquiv.piCongrRight
+    (fun _ : {u : S.U // S.cellOf m₀ u = b} => ee), fun b => ?_, fun Φ => rfl⟩
+  exact measurePreserving_pi (fun _ : {u : S.U // S.cellOf m₀ u = b} => fluctMeasure1 N S.p₁)
+    (fun _ => fluctMeasure1 N S.p₁) (fun _ => hee)
+
 /-- The sitewise isometry preserves the carrier of the step measure. -/
 theorem rot_mem_physCarrier (e : Rn N ≃ₗᵢ[ℝ] Rn N) {Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b}
     (hΦ : Φ ∈ physCarrier S m₀ hp) :

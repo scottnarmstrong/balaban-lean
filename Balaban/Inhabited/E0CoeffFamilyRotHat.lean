@@ -43,6 +43,18 @@ theorem liftC_rotFld (hG' : IsLevel Gp (k + 1)) (R : Matrix (Fin N) (Fin N) ℂ)
   funext x i
   simp only [liftC_apply, rotFld, DecEquiv.rotSite, Matrix.mulVec, dotProduct]
 
+/-- The margin `decDomMargin < δc` forces `0 ≤ δc`. -/
+theorem delta_nonneg_of_margin (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc) : 0 ≤ δc := by
+  have hd0 : 0 < d := by have := hC.HBp.hd; omega
+  have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+    have hε := hC.eps_pos
+    have hc1 := one_le_xiC1 d
+    have hδ0 : 0 < xiC1 d * eps := by positivity
+    have : 0 < K4 d L N BG κ := K4_pos hC.hS.fam.2.1 hd0
+    unfold decDomMargin; positivity
+  linarith
+
 /-- **Covariance of the decoupled square root at the background**: `C^{1/2}(s)` at the rotated
 datum applied to the rotated hat variable is the rotation of `C^{1/2}(s) ψ̂`. -/
 theorem hatSqrtF_mulVec_rot (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
