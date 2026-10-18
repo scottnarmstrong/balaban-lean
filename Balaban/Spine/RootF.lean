@@ -190,7 +190,7 @@ the unit `ℓ¹` ball, with `q_j = 0` for `j ∉ [1, J]` and `J ≤ kf + 1`:
 theorem ratio_eq_exp {d N ℓ : ℕ} [NeZero ℓ] {Z I : (Torus d ℓ → Fin N → ℂ) → ℂ} {C : ℝ}
     (hC : 0 < C) {E : ℂ} {h : EuclideanSpace ℝ (Fin N)} {J kf : ℕ} (hJ : J ≤ kf + 1)
     {q : ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ}
-    (hq : ∀ j X g, j ∉ Finset.Icc 1 J → q j X g = 0)
+    (hq : ∀ j X g, j ∉ Finset.Icc 1 J → q j X g = q j X 0)
     (hI : ∀ g : Torus d ℓ → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < 1 → I g = (C : ℂ) * Z g)
     (hE : ∀ g : Torus d ℓ → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < 1 →
       I g = Complex.exp (E + ∑ x, ∑ i, g x i * (h i : ℂ)
@@ -206,13 +206,12 @@ theorem ratio_eq_exp {d N ℓ : ℕ} [NeZero ℓ] {Z I : (Torus d ℓ → Fin N 
     intro g' hg'
     rw [← hE g' hg', hI g' hg']
     field_simp
-  -- extend the sum over scales from `[1, J]` to `[1, kf + 1]`
-  have hext : ∀ g' : Torus d ℓ → Fin N → ℂ,
-      ∑ j ∈ Finset.Icc 1 J, ∑ X, q j X g' = ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ X, q j X g' := by
-    intro g'
-    refine Finset.sum_subset (Finset.Icc_subset_Icc le_rfl hJ) fun j _ hj => ?_
-    exact Finset.sum_eq_zero fun X _ => hq j X g' hj
-  rw [hZ g hg, hZ 0 h0, div_div_div_cancel_right₀ hC', ← Complex.exp_sub, hext, hext]
+  -- extend the sum of the increments over scales from `[1, J]` to `[1, kf + 1]`
+  have hext : ∑ j ∈ Finset.Icc 1 J, ∑ X, (q j X g - q j X 0) =
+      ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ X, (q j X g - q j X 0) :=
+    Finset.sum_subset (Finset.Icc_subset_Icc le_rfl hJ) fun j _ hj =>
+      Finset.sum_eq_zero fun X _ => by rw [hq j X g hj, sub_self]
+  rw [hZ g hg, hZ 0 h0, div_div_div_cancel_right₀ hC', ← Complex.exp_sub, ← hext]
   congr 1
   simp only [Pi.zero_apply, zero_mul, Finset.sum_const_zero, add_zero, Finset.sum_sub_distrib]
   ring
@@ -228,67 +227,47 @@ theorem sideOf_eq (M L kf q : ℕ) :
 -/
 
 /-- **The flow stops by the horizon** (LFR Lemma IV.5.1 (b), Lemma I.5.6 (a): `k_f ≤ k̂_f`): a
-member of `ℛ♭_{k̂_f}` whose running masses start from the bare mass has `ν_{k̂_f} > 7/8 L⁻²`. By
-(H.6) (`CoeffBounds.flow` of the clause (D2♭)) `ν_{k̂_f} = ν L^{2 k̂_f} δ_{k̂_f}` with
-`|δ_{k̂_f}^{-1}| ≤ exp(c₈ q/(1 - q)) ≤ exp(1/20) ≤ 20/19`, and `ν L^{2 k̂_f + 2} ≥ 1`. -/
+member of `ℛ♭_{k̂_f}` has `ν_{k̂_f} > 7/8 L⁻²`. By (I.2) up to the scale `k̂_f` (`RunningHypTo`, a
+clause of `FlatClassAt`) `ν_{k̂_f} = ν L^{2 k̂_f} δ` with `|log δ| ≤ 1/20`, so `δ ≥ 19/20`, and
+`ν L^{2 k̂_f + 2} ≥ 1`. -/
 theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
     {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ}
-    {h : EuclideanSpace ℝ (Fin N)} {kf : ℕ} [NeZero T.M] [NeZero T.L] (hL : 2 ≤ T.L)
-    (hν : 0 < ν) (hkf : IsHorizon T.L ν kf)
-    (hc₈ : 20 * P6.c₈ * Flow.rate (T.L : ℝ) P6.γ ≤ 1 - Flow.rate (T.L : ℝ) P6.γ)
-    {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, kf]} {νk : ℝ}
+    {h : EuclideanSpace ℝ (Fin N)} {kf : ℕ} [NeZero T.M] [NeZero T.L]
+    (hkf : IsHorizon T.L ν kf) {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, kf]} {νk : ℝ}
     (hρ : FlatClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf kf ρ νk) :
     7 / 8 < νk * (T.L : ℝ) ^ 2 := by
-  obtain ⟨_, _, _, _, _, _, F, _, _, _, _, _, _, _, _, _, _, hF, hν0, hνk⟩ := hρ
-  obtain ⟨ξ, _, ν₀, hξ, hs, hseq⟩ := hF.sfData.coeff.flow
-  have hadm := hF.sfData.admissible
-  have hpos : 0 < F.sf.ν kf := hF.coeff.nu_pos
-  set q : ℝ := Flow.rate (T.L : ℝ) P6.γ
-  have hL1 : (1 : ℝ) < T.L := by exact_mod_cast (by omega : 1 < T.L)
-  have hq0 : 0 < q := Flow.rate_pos (by linarith) _
-  have hq1 : q < 1 := Flow.rate_lt_one hL1 hadm.γ_pos
-  have hc0 : 0 ≤ P6.c₈ := hadm.c₈_pos.le
-  -- the running mass at scale `0` is `ν₀ = ν`
-  have h0 := (hseq 0 (Nat.zero_le _)).2
-  have hν₀ : (ν₀ : ℂ) = (ν : ℂ) := by
-    rw [← hν0]; simpa [Flow.nuSeq] using h0.symm
-  -- `ν_{kf} = ν L^{2 kf} δ_{kf}`
-  have hk := (hseq kf le_rfl).2
-  rw [Flow.nuSeq_eq, hν₀] at hk
-  have hbd := (Flow.norm_gammaSeq_le hq0.le hq1 hc0 hs hξ kf).2.2.2
-  have hsum : P6.c₈ * Flow.ratePartialSum q kf ≤ 1 / 20 := by
-    have h1 := Flow.ratePartialSum_le hq0.le hq1 kf
-    have h2 : P6.c₈ * Flow.ratePartialSum q kf ≤ P6.c₈ * (q / (1 - q)) :=
-      mul_le_mul_of_nonneg_left h1 hc0
-    have h3 : P6.c₈ * (q / (1 - q)) ≤ 1 / 20 := by
-      rw [mul_div_assoc', div_le_iff₀ (by linarith)]
+  obtain ⟨_, _, _, _, _, _, F, _, _, _, _, _, _, _, _, _, _, _, _, _, hνk, hrun, -⟩ := hρ
+  obtain ⟨-, -, -, -, -, -, -, -, -, hnu⟩ := hrun
+  obtain ⟨δ', hδ0, hδlog, hνeq⟩ := hnu kf le_rfl
+  have hδ : 19 / 20 ≤ δ' := by
+    have h1 : -(1 / 20 : ℝ) ≤ Real.log δ' := by
+      have := neg_abs_le (Real.log δ')
       linarith
-    linarith
-  have hexp : ‖(Flow.deltaSeq ξ kf)⁻¹‖ ≤ 20 / 19 :=
-    hbd.trans ((Real.exp_le_exp.2 hsum).trans (LargeField.StopIndex.exp_eps_le le_rfl))
-  set νK := F.sf.ν kf
-  set A : ℝ := ν * (T.L : ℝ) ^ (2 * kf) with hA
-  have hA0 : 0 < A := by positivity
-  have hδ : Flow.deltaSeq ξ kf = ((νK / A : ℝ) : ℂ) := by
-    have hA' : ((A : ℝ) : ℂ) ≠ 0 := by exact_mod_cast hA0.ne'
-    have : ((νK : ℝ) : ℂ) = (A : ℂ) * Flow.deltaSeq ξ kf := by
-      rw [hk, hA]; push_cast; ring
-    rw [Complex.ofReal_div, this]
-    field_simp
-  have hinv : ‖(Flow.deltaSeq ξ kf)⁻¹‖ = A / νK := by
-    rw [hδ, ← Complex.ofReal_inv, Complex.norm_real, Real.norm_eq_abs, inv_div,
-      abs_of_pos (div_pos hA0 hpos)]
-  rw [hinv, div_le_iff₀ hpos] at hexp
-  have hH : 1 ≤ A * (T.L : ℝ) ^ 2 := by
-    rw [hA, mul_assoc, ← pow_add]
+    have h2 := LargeField.StopIndex.exp_neg_eps_ge (ε := 1 / 20) le_rfl
+    calc (19 / 20 : ℝ) ≤ Real.exp (-(1 / 20)) := h2
+      _ ≤ Real.exp (Real.log δ') := Real.exp_le_exp.2 h1
+      _ = δ' := Real.exp_log hδ0
+  have hH : 1 ≤ ν * (T.L : ℝ) ^ (2 * kf) * (T.L : ℝ) ^ 2 := by
+    rw [mul_assoc, ← pow_add]
     exact hkf.1
-  rw [← hνk]
-  have hL2 : (0 : ℝ) < (T.L : ℝ) ^ 2 := by positivity
-  nlinarith
+  rw [← hνk, hνeq]
+  nlinarith [mul_nonneg (sub_nonneg.2 hH) (sub_nonneg.2 hδ)]
 
 /-!
 ### The assembly
 -/
+
+/-- The ranges `2 ≤ L` and `1 ≤ M` of Root-F from the prefix (`L ≥ 3`, `M = c M₁`, `c ≥ 14`,
+`M₁ ≥ 1`). -/
+theorem prefix_ranges {d : ℕ} {δ : ℝ} {Ty : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Consts}
+    {C7 : ℝ → ℝ → Consts7} {cs₀ : ℝ → ℝ → OpConsts} {M1 c : ℝ → ℝ → ℕ}
+    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c) {κ : ℝ} (hκ : 0 < κ) {c₉ : ℝ} (hc₉ : 0 < c₉) :
+    2 ≤ (Ty κ c₉).L ∧ 1 ≤ (Ty κ c₉).M := by
+  obtain ⟨hL3, -, -, -, hMc, hc14, hM11, -⟩ := hA1 κ hκ c₉ hc₉
+  refine ⟨by omega, ?_⟩
+  rw [hMc]
+  have := Nat.mul_le_mul hc14 hM11
+  omega
 
 /-- **The Root-F spine, for one pair `κ, c₉`.** From the named inputs of
 `Balaban/Spine/RootFInputs.lean` at the constants `δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the
@@ -301,7 +280,7 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput Ty P6)
+    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
@@ -314,7 +293,7 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
       1 / 2 ≤ ((Ty κ c₉).L : ℝ) ^ (kf + 1) * Real.sqrt ν ∧
       ∃ T : RootFFamily d N, RootFClauses d N (Ty κ c₉).L (Ty κ c₉).M β ν h kf κ c₉ δ T := by
   have : NeZero N := ⟨by omega⟩
-  obtain ⟨hL2, hM1, hc₈⟩ := hA1 κ hκ c₉ hc₉
+  obtain ⟨hL2, hM1⟩ := prefix_ranges hA1 hκ hc₉
   have : NeZero (Ty κ c₉).L := ⟨by omega⟩
   have : NeZero (Ty κ c₉).M := ⟨by omega⟩
   obtain ⟨β₃, hβ₃⟩ := hA3 κ hκ c₉ hc₉
@@ -340,7 +319,7 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
               + ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ X : Finset (Torus d ℓ),
                 (p ℓ j X g - p ℓ j X 0)) by
     obtain ⟨J, p, hobs, hexp⟩ := H
-    exact ⟨activityTerm (Ty κ c₉).M (Ty κ c₉).L kf p, rootFClauses_of_activities hc₉ hobs hexp⟩
+    exact ⟨_, rootFClauses_of_activities hc₉ hobs hexp⟩
   by_cases hflow : ν * ((Ty κ c₉).L : ℝ) ^ 2 ≤ 7 / 8
   · -- the flow (A3–A6)
     have hkf1 : 1 ≤ kf := hkf.one_le hflow
@@ -385,7 +364,7 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
       (fun k hk1 hk0 hk ρ νk hP hS => by
         obtain ⟨ρ', νk', hF', hS'⟩ := hstepB k hk1 hk0 hk ρ νk hP.1 (not_lt.1 hS)
         exact ⟨ρ', νk', hF', hP.2.step hS'⟩)
-      (fun ρ νk hP => stop_of_flatClassAt hL2 hν0 hkf hc₈ hP.1)
+      (fun ρ νk hP => stop_of_flatClassAt hkf hP.1)
       (fun k hk1 hk ρ νk hP hS => ?_)
       (max k₀ 1) (le_max_right _ _) (le_max_left _ _) (max_le hk₀kf hkf1) ρ₀ νk₀ ⟨hF₀, hZ₀⟩
     -- the last integral at the stopping scale `k`
@@ -441,7 +420,7 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput Ty P6)
+    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
@@ -478,7 +457,7 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
             T ℓ' j (fun μ => (a μ : ZMod ℓ')) (A.image fun y μ => (y μ : ZMod ℓ'))
               (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) := by
   refine ⟨δ, hδ, fun κ hκ c₉ hc₉ => ?_⟩
-  obtain ⟨hL2, hM1, -⟩ := hA1 κ hκ c₉ hc₉
+  obtain ⟨hL2, hM1⟩ := prefix_ranges hA1 hκ hc₉
   exact ⟨(Ty κ c₉).L, (Ty κ c₉).M, hL2, hM1, rootF_clauses_of_spine d N hd hN δ Ty P6 C7 PB cs₀
     M1 c rH ϱ hA1 hA3 hA4 hA4t hA4f hA6 hA7 κ hκ c₉ hc₉⟩
 
