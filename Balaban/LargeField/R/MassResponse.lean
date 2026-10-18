@@ -163,6 +163,23 @@ theorem massChange_sameData_response_of_weighted
     (φm - φ0) (αm - α0) (by rw [pertSource_zero]; exact massSource_perturbed a μ D h0 hm) hα
   exact hone
 
+/-- **From the weight-one field response to the consumer's `hresp`** (shared core of the mass and
+coefficient responses): `|φᵘ - φ|_∞ ≤ V` on `Ω₁` and the common datum give
+`|w̄(x)|₂ ≤ √N · V` everywhere. -/
+theorem vnorm_wExt_le_of_response {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (D : BgData G N)
+    {φ0 φm : G.Ω 1 × Fin N → ℂ} {V : ℝ} (hV : 0 ≤ V)
+    (hres : SupBoundsW G (fun _ => 1) (φm - φ0) V) (x : Torus d ((N₁ * L ^ m₁) * L ^ K)) :
+    vnorm (wExt D D φm φ0 x) ≤ Real.sqrt N * V := by
+  refine vn_le_sqrt_mul hV fun i => ?_
+  unfold wExt
+  by_cases hx : x ∈ G.Ω 1
+  · have := hres.val ⟨x, hx⟩ i
+    simp only [one_mul, Pi.sub_apply] at this
+    simp only [barField, hx, dite_true]
+    rwa [norm_sub_rev]
+  · simp only [barField, hx, dite_false, sub_self, norm_zero]
+    exact hV
+
 /-- **Note (1.5) in the consumer's form**: the hypothesis `hresp` of
 `massChange_wall_bound_of_bounds` with `Km = √N · Kw`. -/
 theorem massChange_sameData_hresp_of_weighted
@@ -182,17 +199,7 @@ theorem massChange_sameData_hresp_of_weighted
   have hres := (massChange_sameData_response_of_weighted hd hW a μ m Bh δ₀ δ₁ D h0 hm hP hO hδ₀
     hδ₁ hm0 hBh0 hμ hμℓ hB hα).2
   have hV : 0 ≤ Kw * (m * Bh) := by positivity
-  have key : vnorm (wExt D D φm φ0 x) ≤ Real.sqrt N * (Kw * (m * Bh)) := by
-    refine vn_le_sqrt_mul hV fun i => ?_
-    unfold wExt
-    by_cases hx : x ∈ G.Ω 1
-    · have := hres.val ⟨x, hx⟩ i
-      simp only [one_mul, Pi.sub_apply] at this
-      simp only [barField, hx, dite_true]
-      rwa [norm_sub_rev]
-    · simp only [barField, hx, dite_false, sub_self, norm_zero]
-      exact hV
-  calc _ ≤ _ := key
+  calc _ ≤ _ := vnorm_wExt_le_of_response D hV hres x
     _ = _ := by ring
 
 end Response
