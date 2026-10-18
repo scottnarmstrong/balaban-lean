@@ -2733,3 +2733,8 @@ public import Balaban.LargeField.R.WindowOffConv
 public import Balaban.LargeField.R.WindowOffSwitch
 public import Balaban.LargeField.R.WindowOffBall
 public import Balaban.LargeField.R.WindowOffPhys
+public import Balaban.LargeField.R.WindowOffDomain
+public import Balaban.LargeField.R.WindowOffMinLayer
+public import Balaban.LargeField.R.WindowOffZoneCore
+public import Balaban.LargeField.R.WindowOffZoneExt
+public import Balaban.LargeField.R.WindowOffDomainPhys

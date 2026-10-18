@@ -53,6 +53,30 @@ theorem adj_of_map_of_add_single {a b : ℕ} (e : Torus d (N₀w * L ^ kw) ≃ T
   · exact ⟨μ, Or.inl (e.injective (by rw [h, he]))⟩
   · exact ⟨μ, Or.inr (e.injective (by rw [h, he]))⟩
 
+/-- **Data sites from `Ω₁` near a site**: if `Ω₁` of two generating sets correspond at a site and
+at its neighbours (through a bijection commuting with the lattice steps), so do the data sites
+`Ω₁ ∪ C(Ω₁)`. -/
+theorem dataSites_iff_of_Ω_one {a b : ℕ} [NeZero a] {ϱa : ℝ} (Gw : GeneratingSet d L N₀w kw ϱw)
+    (Gl : GeneratingSet d L a b ϱa) (e : Torus d (N₀w * L ^ kw) ≃ Torus d (a * L ^ b))
+    (he : ∀ x (μ : Fin d), e (x + Pi.single μ 1) = e x + Pi.single μ 1)
+    {y : Torus d (N₀w * L ^ kw)}
+    (hΩ : ∀ y', (y' = y ∨ Adj y y') → (y' ∈ Gw.Ω 1 ↔ e y' ∈ Gl.Ω 1)) :
+    y ∈ dataSites Gw ↔ e y ∈ dataSites Gl := by
+  rw [mem_dataSites, mem_dataSites, mem_collar, mem_collar]
+  have h0 := hΩ y (Or.inl rfl)
+  constructor
+  · rintro (h1 | ⟨h1, x, hx, hxy⟩)
+    · exact Or.inl (h0.1 h1)
+    · refine Or.inr ⟨fun h2 => h1 (h0.2 h2), e x, (hΩ x (Or.inr hxy.symm)).1 hx,
+        adj_map_of_add_single e he hxy⟩
+  · rintro (h1 | ⟨h1, x', hx', hxy⟩)
+    · exact Or.inl (h0.2 h1)
+    · have hadj : Adj y (e.symm x') :=
+        adj_of_map_of_add_single e he (by rw [Equiv.apply_symm_apply]; exact hxy.symm)
+      refine Or.inr ⟨fun h2 => h1 (h0.1 h2), e.symm x', ?_, hadj.symm⟩
+      refine (hΩ _ (Or.inr hadj)).2 ?_
+      rw [Equiv.apply_symm_apply]; exact hx'
+
 /-- **The real domain from local agreement** (P7 (2.14)-(2.16), the space (1.32) [5] on
 `W_{k₁} ∩ U_k` from the spaces on `W_j ∩ U_{j+1}`). -/
 theorem inDomainR_of_zones (Gw : GeneratingSet d L N₀w kw ϱw) (Dw : BgData Gw N)
@@ -80,22 +104,8 @@ theorem inDomainR_of_zones (Gw : GeneratingSet d L N₀w kw ϱw) (Dw : BgData Gw
     fun i => (hP i).2.1
   have hdomh : ∀ i, ∀ x ∈ (Gl i).Ω 1, ∀ q, (Dl i).h x q = (hl i q : ℂ) := fun i => (hP i).2.2
   -- data sites on a zone
-  have hdata : ∀ i y, y ∈ A i → (y ∈ dataSites Gw ↔ e i y ∈ dataSites (Gl i)) := by
-    intro i y hy
-    rw [mem_dataSites, mem_dataSites, mem_collar, mem_collar]
-    have h0 := hΩ i y hy y (Or.inl rfl)
-    constructor
-    · rintro (h1 | ⟨h1, x, hx, hxy⟩)
-      · exact Or.inl (h0.1 h1)
-      · refine Or.inr ⟨fun h2 => h1 (h0.2 h2), e i x, (hΩ i y hy x (Or.inr hxy.symm)).1 hx,
-          adj_map_of_add_single (e i) (he i) hxy⟩
-    · rintro (h1 | ⟨h1, x', hx', hxy⟩)
-      · exact Or.inl (h0.2 h1)
-      · have hadj : Adj y ((e i).symm x') :=
-          adj_of_map_of_add_single (e i) (he i) (by rw [Equiv.apply_symm_apply]; exact hxy.symm)
-        refine Or.inr ⟨fun h2 => h1 (h0.1 h2), (e i).symm x', ?_, hadj.symm⟩
-        refine (hΩ i y hy _ (Or.inr hadj)).2 ?_
-        rw [Equiv.apply_symm_apply]; exact hx'
+  have hdata : ∀ i y, y ∈ A i → (y ∈ dataSites Gw ↔ e i y ∈ dataSites (Gl i)) :=
+    fun i y hy => dataSites_iff_of_Ω_one Gw (Gl i) (e i) (he i) (hΩ i y hy)
   -- the external field of each local datum is `h` where it has a data site
   have hhi : ∀ i y, y ∈ A i → y ∈ dataSites Gw → hl i = h := by
     intro i y hy hyd
