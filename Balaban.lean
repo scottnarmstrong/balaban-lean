@@ -556,6 +556,8 @@ public import Balaban.LargeField.Background.TwoTorusReg
 public import Balaban.LargeField.Background.TwoTorusGenCube
 public import Balaban.LargeField.Background.TwoTorusGauss
 public import Balaban.LargeField.Background.TwoTorusChiNew
+public import Balaban.LargeField.Background.TwoTorusChiNewFinal
+public import Balaban.LargeField.Background.TwoTorusChiNewParts
 public import Balaban.LargeField.Background.TwoTorusBlocks
 public import Balaban.LargeField.Background.TwoTorusPsiTilde
 public import Balaban.LargeField.Background.TwoTorusHistGen

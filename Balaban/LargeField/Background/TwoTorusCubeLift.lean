@@ -426,6 +426,15 @@ theorem ccorr_nbhd_iff {B₁ : Set (Torus d q₁)} {B₂ : Set (Torus d q₂)} [
   ⟨ccorr_nbhd_imp hℓ₁ r hr₁ hP hB hz,
     ccorr_nbhd_imp hℓ₂ r hr₂ hP hB.symm (ccorr_symm hz)⟩
 
+theorem ciff_singleton (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂) (hq₁ : 4 ≤ q₁)
+    (hq₂ : 4 ≤ q₂) {y₁ : Torus d q₁} {y₂ : Torus d q₂}
+    (hy : CCorr c ℓ₁ ℓ₂ P q₁ q₂ y₁ y₂) :
+    CIff c ℓ₁ ℓ₂ P q₁ q₂ {y₁} {y₂} := fun z₁ z₂ hz => by
+  simp only [Set.mem_singleton_iff]
+  constructor
+  · rintro rfl; exact CCorr.right_unique hP hℓ₁ hq₁ hz hy
+  · rintro rfl; exact CCorr.left_unique hP hℓ₂ hq₂ hz hy
+
 theorem cSetCorr_bsub_plain {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d ℓ₂)} [NeZero ℓ₁]
     [NeZero ℓ₂] [NeZero q₁] [NeZero q₂] (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂)
     (hq₁ : 4 ≤ q₁) (hq₂ : 4 ≤ q₂) (hX : SetCorr c X₁ X₂) :
