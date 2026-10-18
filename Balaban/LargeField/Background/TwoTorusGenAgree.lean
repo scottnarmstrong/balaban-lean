@@ -370,6 +370,30 @@ theorem GenAgree.source_eq (hA : GenAgree G₁ G₂ c) (hD : DataAgree G₁ G₂
   simp only [e1, e2, e3, e4]
   rw [hA.collar_term_eq hD hp i, hA.collar_term_eq hD hm i]
 
+/-- A generating set agrees with itself on a box that contains `Ω₁` with margin `2`. -/
+theorem genAgree_self (G : GeneratingSet d L N₁ k ϱ₁) (c : Fin d → ℤ)
+    (h : ∀ x ∈ G.Ω 1, InBoxK 2 (N₁ * L ^ k) (N₁ * L ^ k) c (liftNear c x)) : GenAgree G G c where
+  supp₁ := h
+  supp₂ := h
+  agree _ _ _ _ _ := Iff.rfl
+
+/-- `GenAgree` is inhabited: the generating set with empty layers agrees with itself. -/
+theorem genAgree_nonempty (c : Fin d → ℤ) :
+    ∃ G : GeneratingSet d L N₁ k ϱ₁, GenAgree G G c := by
+  let G : GeneratingSet d L N₁ k ϱ₁ :=
+    { Ω := fun _ => ∅
+      top := rfl
+      subset := fun _ _ _ => Finset.Subset.refl _
+      blockUnion := fun _ _ _ _ _ _ => by simp
+      separation := fun _ _ _ _ hx y hy => absurd hy (Finset.notMem_empty y) }
+  exact ⟨G, genAgree_self G c fun x hx => absurd hx (Finset.notMem_empty x)⟩
+
+/-- Data agree with themselves. -/
+theorem dataAgree_self {N : ℕ} {G : GeneratingSet d L N₁ k ϱ₁} {c : Fin d → ℤ}
+    (D : BgData G N) : DataAgree G G c D D where
+  psi _ _ _ _ := rfl
+  h _ _ _ _ := rfl
+
 /-- **The Def-5 background of two tori agrees on the box**: if the generating sets and the data
 agree on the box, then `bgFieldC` has the same value at corresponding sites of `Ω₁`. -/
 theorem GenAgree.bgFieldC_eq (hA : GenAgree G₁ G₂ c) (hD : DataAgree G₁ G₂ c D₁ D₂)
