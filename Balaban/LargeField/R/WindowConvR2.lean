@@ -23,6 +23,8 @@ local background is solved with the background mass `cs.muBg`, and route R-YM′
 * `pieceChain_a_first`: the first coefficient sequence is `cs.aw`;
 * `pieceChain_φ_first`: under the coherence (41) `cs.muBg (j+1) = br.elMass (cs.muAct (j+1))`,
   the first background of the chain is the background of the branch `br` at the first scale;
+* `pieceChain_φ`: then every background of the chain is the background of the branch at its own
+  coefficients, mass and datum (the typing premise of `PieceWindowSetup.exists_hsource_of_flow`);
 * `pieceChain_el_first`, `pieceChain_el`: the first background solves the Euler-Lagrange system of
   the branch too, so every background of the chain, `j + 1 ≤ n ≤ k`, solves the system of one
   branch (no switch);
@@ -104,6 +106,25 @@ theorem pieceChain_φ_first (hjk : j + 1 ≤ k)
   simp only [pieceChain, ↓reduceIte]
   rw [← hcoh]
   rfl
+
+/-- **Every background of the chain is the background of the branch** at its own coefficients,
+mass and datum, under the coherence (41) at the first scale (ruling R2).  For the complete branch
+this is the typing premise on the backgrounds of `PieceWindowSetup.exists_hsource_of_flow` at
+every scale, including the first. -/
+theorem pieceChain_φ (hcoh : cs.muBg (j + 1) = br.elMass (cs.muAct (j + 1)))
+    {nn : ℕ} (h1 : j + 1 ≤ nn) (h2 : nn ≤ k) (u : U) :
+    (pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu hβ hμ hB0 hBn hS).φ u nn =
+      bgFieldC (locGen g Hl j Zc hZc hk)
+        ((pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu hβ hμ hB0 hBn hS).a nn)
+        (br.elMass
+          ((pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu hβ hμ hB0 hBn hS).ν nn))
+        (bgC0 S.d S.L N)
+        ((pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu hβ hμ hB0 hBn hS).Dat u nn) := by
+  rcases Nat.eq_or_lt_of_le h1 with e | hlt
+  · subst e
+    exact pieceChain_φ_first h2 hcoh u
+  · have hne : nn ≠ j + 1 := by omega
+    simp only [pieceChain, hne, ↓reduceIte]
 
 /-- **The first background solves the Euler-Lagrange system of the branch** under the coherence
 (41), with the chain's multiplier. -/
