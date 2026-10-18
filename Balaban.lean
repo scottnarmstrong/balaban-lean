@@ -2649,3 +2649,4 @@ public import Balaban.Polymer.TwoTorusGapTowerRootFSource
 public import Balaban.Polymer.TwoTorusGapTowerRootFObs
 public import Balaban.Polymer.TwoTorusGapTowerRootFBg
 public import Balaban.Inhabited.StepTowerBeta0Core
+public import Balaban.Inhabited.StepTowerBeta0Scale
