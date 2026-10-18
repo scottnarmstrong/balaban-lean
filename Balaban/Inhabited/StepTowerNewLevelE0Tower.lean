@@ -16,7 +16,7 @@ public import Balaban.Inhabited.StepTowerScaleT
 hence on all rates) and every radius `t ≥ c 3^{-α(k+1)}`, `2 α < 1`: let `Γ ≥ 0`, `A₁ ≥ 0`, `Q₁ ≥ 0` and
 `E₀ = 2 Γ (A₁ + C_PE (K₀ + n₂ K₀))`, `n₂ = n_fibre e^{κ₀ c_Br}`.  Beyond one threshold `β₀` of `β`
 (uniform in the scale `k` and in `t`), every `B` with the explicit bound of the class chain
-(`e0CoeffFamily_class_exists_tower_struct_step_agree_explicitB`, the class amplitude `Q = Q₁ E₀`)
+(`e0CoeffFamily_class_exists_tower_struct_step_agree_phi`, the class amplitude `Q = Q₁ E₀`)
 satisfies `(A₁ + B) Γ ≤ E₀`, and the class amplitude satisfies the smallness premise of the chain.
 -/
 
@@ -90,7 +90,7 @@ theorem tower_E0_closure_agree {κmin : ℝ} (T₀ : StepTower κmin) {A₁ : �
     (by rw [hE₀]) (by simpa [mul_assoc] using hB) h1 h2
 
 /-- **The closure of `E₀` at the towers with the decoupled step radius `δ₁ ≤ T.t`** (the chain of
-`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB`): as `tower_E0_closure_agree`
+`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi`): as `tower_E0_closure_agree`
 with `R = δ₁/(4 decMR)`, the radius `c 3^{-α(k+1)} ≤ δ₁`. -/
 theorem tower_E0_closure_dec_agree {κmin : ℝ} (T₀ : StepTower κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
     {c α : ℝ} (hc : 0 < c) (hα : 2 * α < 1) {Γ A₁' Q₁ E₀ : ℝ} (hΓ : 0 ≤ Γ) (hA₁' : 0 ≤ A₁')

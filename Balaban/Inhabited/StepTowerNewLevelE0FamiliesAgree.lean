@@ -30,7 +30,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The sum of the label constants and the bridge constants, bounded by the explicit constant
-of `e0CoeffFamily_class_fromTower_of_families_core_onSet_explicitB`. -/
+of `e0CoeffFamily_class_fromTower_of_families_core_onSet_phi`. -/
 theorem explicitB_tail {κmin : ℝ} (T : StepTower κmin) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ} [NeZero N₁]
     (h3N : 3 ^ 1 ∣ N₁) {ν β p₁ : ℝ} (hβ : 0 < β) (hp₁ : 0 < p₁)
     (Dt : StepScaleData T k hk N₁ ν β p₁) (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
