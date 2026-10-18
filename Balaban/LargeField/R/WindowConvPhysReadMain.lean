@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowConvPhysReadData
+public import Balaban.LargeField.R.WindowOffRead
 
 /-!
 # The read transport `hread` for the pieces of a window
@@ -74,10 +75,6 @@ theorem exists_window_field_read_eq {k1 : ℕ} {Z : H.Comp (m' + 1)} (g : Geo S 
   have hfull : ∀ i x, x ∈ (Xw i).sites →
       W.full.layerIndex x = (W.windowGenSet hWh).layerIndex x := fun i x hx =>
     (windowGenSet_layerIndex_eq_full W hWh (hxZ i x hx)).symm
-  have hfullΩ : ∀ i x, x ∈ (Xw i).sites → x ∈ W.full.Ω 1 := fun i x hx => by
-    have h := (windowGenSet_mem_iff_full W hWh (hxZ i x hx) (Finset.mem_sdiff.1 (hxZ i x hx)).1 1).1
-      ((Xw i).sub_Ω hx)
-    exact h
   have hlay : ∀ i x, x ∈ (Xw i).sites →
       (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
         (hjK i)).layerIndex (torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x) =
@@ -131,20 +128,8 @@ theorem exists_window_field_read_eq {k1 : ℕ} {Z : H.Comp (m' + 1)} (g : Geo S 
       pieces_regions_disjoint g hmK jf cf hjf hcf hinj hne x ((hXw i x).1 hx) ((hXw i' x).1 hx'))
     (fun i x hx x' h => hcl i x hx x' h) (fun i x hx x' h => hconst i x hx x' h)
     (fun i x hx => hreal i x hx)
-  refine ⟨ψ, fun φw a ν i => ?_⟩
-  refine piece_actionRegionC_transport g hmK hL hR hk1p (hjf i).1 (hjf i).2 (hjK i) W hWh hWfull hWZ
-    hWZk1 (hcf i) (Xw i) (hXw i) (Xc i) (hXc i) _ _ ?_ ?_ φw a ν
-  · intro x hx
-    have hxd : x ∈ dataSites (W.windowGenSet hWh) :=
-      (mem_dataSites _).2 (Or.inl ((Xw i).sub_Ω hx))
-    funext q
-    rw [physicalWindowData_Ψ W hWh href ψ _ hxd q, inheritedField_eq_parentBlock, parentBlock_of_mem _ (hfullΩ i x hx)]
-    exact congrFun (hψ i x hx) q
-  · intro x hx
-    unfold locData
-    rw [liftMixed_h _ _ _ _ _ _ (hloc1 i x hx)]
-    funext q
-    rw [physicalWindowData_h W hWh href ψ _ ((Xw i).sub_Ω hx) q]
+  exact ⟨ψ, fun φw a ν i => window_field_read_eq_of_agree g hmK hL hR hk1p W hWh href hWfull hWZ
+    hWZk1 jf cf hjf hcf hjK Xw hXw Xc hXc ou xu hv ψ (fun i x hx => hψ i x hx) φw a ν i⟩
 
 /-- **`hread = 0`** (P7CONV §3.6, (57)): with `R_i = β A_i^loc` evaluated at the transported field,
 for any normalization `β` (in particular `β = betaCanon S.d S.L (cs.beta (m'+1)) (m'+1) 0` and

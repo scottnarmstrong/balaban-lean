@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.WindowConvPhysFieldClauses
 public import Balaban.LargeField.R.WindowConvPhysSwitchLocPiece
+public import Balaban.LargeField.R.WindowOffSwitch
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -216,44 +217,12 @@ theorem sum_mainActionLoc_eq_gen_of_flow_ballAgree (g : Geo S n R M) (cs : OpCon
       ‖C‖ ≤ (9 * Real.exp (2 * η) * (9 * Ksrc * Cξ * α₀ ^ 2 * Real.exp η) /
             (1 - (S.L : ℝ) ^ (-(2 * γ))) + (Kpair + Kcoef + Kswitch + 0)) *
           ∑ i, (decomp i).total := by
-  obtain ⟨ψ, h1, Kw, δw, hKw, hδw, hmain⟩ := sum_mainActionLoc_eq_gen_of_flow_fieldClauses g cs hmK
-    hd3 hL3 hL hR Wp hWh href hWfull hWZ hWZk1 jf cf hjf hcf hinj hcov hjK hk1p Xw hXw Xwin hXwin Xc
-    hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain hF hk'
-  obtain ⟨Ks, δs, hKs, hδs, hpiece⟩ := ActionConv.switch_piece_of_flow (L := S.L) N hd3 hL3
-  refine ⟨ψ, h1, Kw, δw, Ks, δs, hKw, hδw, hKs, hδs, ?_⟩
-  intro ak β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch gf δ ξ
-    p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20 p21 p22 p23 p24 p25 p26 p27 p28 p29 p30 p31 p32 p33 p34 p35 p36 p37 p38 p39 p40 p41 p42 p43 p44 p45 p46 p47 p48 p49 p50
-    ϱB δl δwin δd V rad
-    s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15 s16 s17 s18
-  refine hmain ak (bgFieldC (Wp.windowGenSet hWh) ak (cs.muAct (m' + 1)) (bgC0 S.d S.L N)
-      (physicalWindowData Wp hWh href ψ (fun q => hv q))) β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ
-    Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch gf δ ξ
-    p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20 p21 p22 p23 p24 p25 p26 p27 p28 p29 p30 p31 p32 p33 p34 p35 p36 p37 p38 p39 p40 p41 p42 p43 p44 p45 p46 p47 p48 p49 p50 (fun i => ?_)
-  -- the switch on the piece `i`
-  have hj1 : jf i + 1 ≤ m' + 1 := by have := (hjf i).2; omega
-  have hβ' : betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 = β * gf (m' + 1) :=
-    betaCanon_eq_of_flow cs S.d S.L β gf p8 (m' + 1)
-  have hεpos : 0 < epsSeq S.L α α₀ (jf i + 1) := by
-    have := one_le_epsTail (jf i + 1)
-    unfold epsSeq
-    have : 0 < epsTail (jf i + 1) := by linarith
-    positivity
-  have hνk : 0 < cs.muAct (m' + 1) := by rw [p9]; exact mul_pos p2 (p13 _)
-  have hdat : (chain i).Dat () (m' + 1) = (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
-        (hjK i) (ou i) (xu i) hv) := by
-    rw [hchain i]; rfl
-  have hXi := p35 i
-  rw [hdat] at hXi
-  have hE2 : ε₀ ^ 2 ≤ epsSeq S.L α α₀ (jf i + 1) ^ 2 :=
-    (pow_le_pow_left₀ p25.le p26 2).trans (ActionConv.epsSeq_sq_ge S.L p5 p3 hj1)
-  have hδk : |δ (m' + 1)| ≤ Dδ := by rw [abs_of_pos (p13 _)]; exact p14 _
-  have hAmax : β * (S.L : ℝ) ^ ((S.d - 2) * (jf i + 1)) * gf (jf i + 1) *
-      epsSeq S.L α α₀ (jf i + 1) ^ 2 ≤ Amax := by
-    rw [← p8 (jf i + 1)]; exact p18 i
-  exact hpiece _ (Wp.windowGenSet hWh) (piece_torus_eq g H.F.hnn hmK (hjf i).2) (p29 i) s1 s2 s3 s4
-    hj1 (Xc i) (decomp i) (hwt1 i) (hcells i) (rad i) (s5 i) (s6 i) s7 s8 (s9 i) s10 s11 s12 s13
-    (s14 i) (s15 i) s16 hβ' p1 (p12 _).2 (p12 _).1 (p12 _).1 (p9 _) hνk p24 hδk p25 hE2 p19 p40 p41
-    p42 hεpos (p31 i) (p32 i) hXi (p39 i) hAmax (s17 i) s18
+  obtain ⟨ψ, hψ⟩ := exists_window_field_read_eq g hmK hL hR hk1p Wp hWh href hWfull hWZ hWZk1
+    jf cf hjf hcf hinj hjK Xw hXw Xc hXc ou xu hv
+  exact ⟨ψ, fun φw a ν β' i => by rw [hψ φw a ν i, sub_self],
+    sum_mainActionLoc_eq_gen_of_flow_ballAgree_of_read g cs hmK hd3 hL3 Wp hWh href jf cf hjf hcf
+      hinj hcov hjK hk1p Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain
+      hchain hF hk' ψ hψ⟩
 
 end Phys
 
