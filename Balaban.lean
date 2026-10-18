@@ -2705,3 +2705,4 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Act
 public import Balaban.Inhabited.StepTowerNewLevelE0Red
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelCore
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelX
+public import Balaban.Inhabited.StepTowerNewLevelE0IrrelBase
