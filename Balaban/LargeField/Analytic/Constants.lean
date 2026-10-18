@@ -70,6 +70,35 @@ structure RunningHyp (d L : ℕ) (β ν a ε : ℝ) (betaRun nuRun : ℕ → ℝ
     betaRun k = β * (L : ℝ) ^ (k * (d - 2)) * γ
   nu_eq : ∀ k, ∃ δ : ℝ, 0 < δ ∧ |Real.log δ| ≤ ε ∧ nuRun k = ν * (L : ℝ) ^ (2 * k) * δ
 
+/-- **(I.2) up to the scale `c`** (the cutoff form of `RunningHyp`): `β_j = β L^{j(d-2)} γ_j` and
+`ν_j = ν L^{2j} δ_j` with `|log γ_j|, |log δ_j| ≤ ε ≤ 1/20` for `j ≤ c` only, and `a ∈ (1, 3/2)`.
+The statements of Lemma II.1.2 below are proved for this hypothesis; `RunningHyp` is the case
+where it holds at every cutoff (`RunningHyp.toTo`). -/
+structure RunningHypTo (d L : ℕ) (β ν a ε : ℝ) (betaRun nuRun : ℕ → ℝ) (c : ℕ) : Prop where
+  hd : 2 ≤ d
+  hL : 2 ≤ L
+  hβ : 0 < β
+  hν : 0 < ν
+  ha1 : 1 < a
+  ha2 : a < 3 / 2
+  hε0 : 0 ≤ ε
+  hε : ε ≤ 1 / 20
+  beta_eq : ∀ j ≤ c, ∃ γ : ℝ, 0 < γ ∧ |Real.log γ| ≤ ε ∧
+    betaRun j = β * (L : ℝ) ^ (j * (d - 2)) * γ
+  nu_eq : ∀ j ≤ c, ∃ δ : ℝ, 0 < δ ∧ |Real.log δ| ≤ ε ∧ nuRun j = ν * (L : ℝ) ^ (2 * j) * δ
+
+/-- (I.2) up to a scale holds up to every smaller scale. -/
+theorem RunningHypTo.mono {d L : ℕ} {β ν a ε : ℝ} {βs νs : ℕ → ℝ} {r r' : ℕ}
+    (h : RunningHypTo d L β ν a ε βs νs r) (hr : r' ≤ r) : RunningHypTo d L β ν a ε βs νs r' := by
+  obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, hγ, hδ⟩ := h
+  exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, fun j hj => hγ j (hj.trans hr),
+    fun j hj => hδ j (hj.trans hr)⟩
+
+/-- `RunningHyp` gives (I.2) up to every cutoff. -/
+theorem RunningHyp.toTo {d L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ} (h : RunningHyp d L β ν a ε b n)
+    (c : ℕ) : RunningHypTo d L β ν a ε b n c :=
+  ⟨h.hd, h.hL, h.hβ, h.hν, h.ha1, h.ha2, h.hε0, h.hε, fun j _ => h.beta_eq j, fun j _ => h.nu_eq j⟩
+
 /-! ### Definition II.1.1 -/
 
 /-- `λ_j = log (β_j a)` (running). -/
@@ -175,25 +204,25 @@ end KZero
 
 /-! ### Lemma II.1.2 -/
 
-namespace RunningHyp
+namespace RunningHypTo
 
-variable {d L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ}
+variable {d L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ} {c j : ℕ}
 
-theorem theta_nonneg (h : RunningHyp d L β ν a ε b n) : 0 ≤ thetaOf d L := by
+theorem theta_nonneg (h : RunningHypTo d L β ν a ε b n c) : 0 ≤ thetaOf d L := by
   unfold thetaOf
   have : (1 : ℝ) ≤ L := by exact_mod_cast (by have := h.hL; omega : 1 ≤ L)
   exact mul_nonneg (Nat.cast_nonneg _) (Real.log_nonneg this)
 
-theorem betaRun_pos (h : RunningHyp d L β ν a ε b n) (j : ℕ) : 0 < b j := by
-  obtain ⟨γ, hγ, -, he⟩ := h.beta_eq j
+theorem betaRun_pos (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) : 0 < b j := by
+  obtain ⟨γ, hγ, -, he⟩ := h.beta_eq j hj
   rw [he]
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by have := h.hL; omega : 0 < L)
   exact mul_pos (mul_pos h.hβ (pow_pos hLpos _)) hγ
 
 /-- `log β_j = log β + j (d-2) log L + log γ_j`; hence `λ_j = λ̂_j - 1 + log γ_j`. -/
-theorem runLam_eq (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+theorem runLam_eq (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
     ∃ γ : ℝ, |Real.log γ| ≤ ε ∧ runLam a b j = lamHat d L β a j - 1 + Real.log γ := by
-  obtain ⟨γ, hγ, hlog, he⟩ := h.beta_eq j
+  obtain ⟨γ, hγ, hlog, he⟩ := h.beta_eq j hj
   refine ⟨γ, hlog, ?_⟩
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by have := h.hL; omega : 0 < L)
   have ha : 0 < a := by linarith [h.ha1]
@@ -207,19 +236,116 @@ theorem runLam_eq (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
   rw [this]
   ring
 
-theorem runLam_le_hat (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+theorem runLam_le_hat (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
     runLam a b j ≤ lamHat d L β a j := by
-  obtain ⟨γ, hγ, he⟩ := h.runLam_eq j
+  obtain ⟨γ, hγ, he⟩ := h.runLam_eq hj
   have := (abs_le.1 hγ).2
   have := h.hε
   rw [he]; linarith
 
-theorem hat_le_runLam_add_two (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+theorem hat_le_runLam_add_two (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
     lamHat d L β a j ≤ runLam a b j + 2 := by
-  obtain ⟨γ, hγ, he⟩ := h.runLam_eq j
+  obtain ⟨γ, hγ, he⟩ := h.runLam_eq hj
   have := (abs_le.1 hγ).1
   have := h.hε
   rw [he]; linarith
+
+theorem log_a_lt (h : RunningHypTo d L β ν a ε b n c) : Real.log a < 1 / 2 := by
+  have := Real.log_le_sub_one_of_pos (show 0 < a by linarith [h.ha1])
+  linarith [h.ha2]
+
+theorem log_a_nonneg (h : RunningHypTo d L β ν a ε b n c) : 0 ≤ Real.log a :=
+  Real.log_nonneg h.ha1.le
+
+theorem log_betaRun (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
+    Real.log (b j) = runLam a b j - Real.log a := by
+  have ha : 0 < a := by linarith [h.ha1]
+  unfold runLam
+  rw [Real.log_mul (h.betaRun_pos hj).ne' ha.ne']; ring
+
+/-- Lemma II.1.2 (b): `λ̂_j - 3 ≤ log β_j`. -/
+theorem logBeta_ge (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
+    lamHat d L β a j - 3 ≤ Real.log (b j) := by
+  have := h.hat_le_runLam_add_two hj
+  have := h.log_a_lt
+  rw [h.log_betaRun hj]; linarith
+
+/-- Lemma II.1.2 (b): `log β_j ≤ λ̂_j`. -/
+theorem logBeta_le (h : RunningHypTo d L β ν a ε b n c) (hj : j ≤ c) :
+    Real.log (b j) ≤ lamHat d L β a j := by
+  have := h.runLam_le_hat hj
+  have := h.log_a_nonneg
+  rw [h.log_betaRun hj]; linarith
+
+/-- Lemma II.1.2 (e): `log β_{k+1} - log β_k ≤ (d-2) log L + 2ε` (for `k + 1 ≤ c`). -/
+theorem logBeta_succ_le (h : RunningHypTo d L β ν a ε b n c) {k : ℕ} (hk : k + 1 ≤ c) :
+    Real.log (b (k + 1)) - Real.log (b k) ≤ thetaOf d L + 2 * ε := by
+  obtain ⟨γ, hγ, he⟩ := h.runLam_eq (show k ≤ c by omega)
+  obtain ⟨γ', hγ', he'⟩ := h.runLam_eq hk
+  rw [h.log_betaRun hk, h.log_betaRun (show k ≤ c by omega), he, he']
+  have := (abs_le.1 hγ).1
+  have := (abs_le.1 hγ').2
+  unfold lamHat
+  push_cast
+  linarith
+
+/-- Lemma II.1.2 (d): under (Λ15), `A₃ (log β_k)^{2p₀} ≥ ½ A₃ λ̂_k^{2p₀}`. -/
+theorem gain_conv (h : RunningHypTo d L β ν a ε b n c) {A3 : ℝ} (hA : 0 ≤ A3) {p0 : ℕ}
+    (hp : 1 ≤ p0) {k : ℕ} (hkc : k ≤ c)
+    (hk : 3 / (1 - (2 : ℝ) ^ (-(1 / (2 * (p0 : ℝ))))) ≤ lamHat d L β a k) :
+    1 / 2 * A3 * lamHat d L β a k ^ (2 * p0) ≤ A3 * Real.log (b k) ^ (2 * p0) := by
+  set x := lamHat d L β a k with hx
+  have hp' : (0 : ℝ) < 2 * p0 := by positivity
+  set q : ℝ := (2 : ℝ) ^ (-(1 / (2 * (p0 : ℝ)))) with hq
+  have hq1 : q < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by
+    have : 0 < 1 / (2 * (p0 : ℝ)) := by positivity
+    linarith)
+  have hq0 : 0 < q := Real.rpow_pos_of_pos (by norm_num) _
+  have hqp : q ^ (2 * p0) = 1 / 2 := by
+    rw [hq, ← Real.rpow_natCast, ← Real.rpow_mul (by norm_num)]
+    have : -(1 / (2 * (p0 : ℝ))) * ((2 * p0 : ℕ) : ℝ) = -1 := by
+      push_cast; field_simp
+    rw [this, Real.rpow_neg_one]; norm_num
+  have hxpos : 3 ≤ x := by
+    have : 3 / (1 - q) ≥ 3 := by
+      rw [ge_iff_le, le_div_iff₀ (by linarith)]; nlinarith
+    linarith
+  have h1 : q ≤ 1 - 3 / x := by
+    have : 3 / x ≤ 1 - q := by
+      rw [div_le_iff₀ (by linarith)]
+      have := (div_le_iff₀ (by linarith : 0 < 1 - q)).1 hk
+      linarith
+    linarith
+  have h2 : q ^ (2 * p0) ≤ (1 - 3 / x) ^ (2 * p0) := pow_le_pow_left₀ hq0.le h1 _
+  have h3 : (x - 3) ^ (2 * p0) = x ^ (2 * p0) * (1 - 3 / x) ^ (2 * p0) := by
+    rw [← mul_pow]; congr 1; field_simp
+  have h4 : (x - 3) ^ (2 * p0) ≤ Real.log (b k) ^ (2 * p0) :=
+    pow_le_pow_left₀ (by linarith) (h.logBeta_ge hkc) _
+  have h5 : 1 / 2 * x ^ (2 * p0) ≤ (x - 3) ^ (2 * p0) := by
+    rw [h3]
+    have := mul_le_mul_of_nonneg_left h2 (pow_nonneg (by linarith : 0 ≤ x) (2 * p0))
+    rw [hqp] at this; linarith
+  nlinarith [mul_le_mul_of_nonneg_left (h5.trans h4) hA]
+
+end RunningHypTo
+
+namespace RunningHyp
+
+variable {d L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ}
+
+theorem theta_nonneg (h : RunningHyp d L β ν a ε b n) : 0 ≤ thetaOf d L := (h.toTo 0).theta_nonneg
+
+theorem betaRun_pos (h : RunningHyp d L β ν a ε b n) (j : ℕ) : 0 < b j := (h.toTo j).betaRun_pos le_rfl
+
+/-- `log β_j = log β + j (d-2) log L + log γ_j`; hence `λ_j = λ̂_j - 1 + log γ_j`. -/
+theorem runLam_eq (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+    ∃ γ : ℝ, |Real.log γ| ≤ ε ∧ runLam a b j = lamHat d L β a j - 1 + Real.log γ := (h.toTo j).runLam_eq le_rfl
+
+theorem runLam_le_hat (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+    runLam a b j ≤ lamHat d L β a j := (h.toTo j).runLam_le_hat le_rfl
+
+theorem hat_le_runLam_add_two (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
+    lamHat d L β a j ≤ runLam a b j + 2 := (h.toTo j).hat_le_runLam_add_two le_rfl
 
 theorem lamHat_mono (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
     lamHat d L β a 0 ≤ lamHat d L β a j := by
@@ -251,32 +377,20 @@ theorem runR_le_hat (h : RunningHyp d L β ν a ε b n) {Rb : ℝ} (hR : 0 ≤ R
   unfold runR hatR
   exact mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by linarith) h2 2) hR
 
-theorem log_a_lt (h : RunningHyp d L β ν a ε b n) : Real.log a < 1 / 2 := by
-  have := Real.log_le_sub_one_of_pos (show 0 < a by linarith [h.ha1])
-  linarith [h.ha2]
+theorem log_a_lt (h : RunningHyp d L β ν a ε b n) : Real.log a < 1 / 2 := (h.toTo 0).log_a_lt
 
-theorem log_a_nonneg (h : RunningHyp d L β ν a ε b n) : 0 ≤ Real.log a :=
-  Real.log_nonneg h.ha1.le
+theorem log_a_nonneg (h : RunningHyp d L β ν a ε b n) : 0 ≤ Real.log a := (h.toTo 0).log_a_nonneg
 
 theorem log_betaRun (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
-    Real.log (b j) = runLam a b j - Real.log a := by
-  have ha : 0 < a := by linarith [h.ha1]
-  unfold runLam
-  rw [Real.log_mul (h.betaRun_pos j).ne' ha.ne']; ring
+    Real.log (b j) = runLam a b j - Real.log a := (h.toTo j).log_betaRun le_rfl
 
 /-- Lemma II.1.2 (b): `λ̂_j - 3 ≤ log β_j`. -/
 theorem logBeta_ge (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
-    lamHat d L β a j - 3 ≤ Real.log (b j) := by
-  have := h.hat_le_runLam_add_two j
-  have := h.log_a_lt
-  rw [h.log_betaRun]; linarith
+    lamHat d L β a j - 3 ≤ Real.log (b j) := (h.toTo j).logBeta_ge le_rfl
 
 /-- Lemma II.1.2 (b): `log β_j ≤ λ̂_j`. -/
 theorem logBeta_le (h : RunningHyp d L β ν a ε b n) (j : ℕ) :
-    Real.log (b j) ≤ lamHat d L β a j := by
-  have := h.runLam_le_hat j
-  have := h.log_a_nonneg
-  rw [h.log_betaRun]; linarith
+    Real.log (b j) ≤ lamHat d L β a j := (h.toTo j).logBeta_le le_rfl
 
 /-- `p₂(β_j) ≤ A₂ λ̂_j^{p₂}` (so `τ_j = 2 A₂ λ̂_j^{p₂} ≥ 2 p₂(β_j)`). -/
 theorem p2Run_le (h : RunningHyp d L β ν a ε b n) {A2 : ℝ} (hA : 0 ≤ A2) (p2 : ℕ)
@@ -297,52 +411,12 @@ theorem HRun_le (h : RunningHyp d L β ν a ε b n) {H0 : ℝ} (hH : 0 ≤ H0) (
 
 /-- Lemma II.1.2 (e): `log β_{k+1} - log β_k ≤ (d-2) log L + 2ε`. -/
 theorem logBeta_succ_le (h : RunningHyp d L β ν a ε b n) (k : ℕ) :
-    Real.log (b (k + 1)) - Real.log (b k) ≤ thetaOf d L + 2 * ε := by
-  obtain ⟨γ, hγ, he⟩ := h.runLam_eq k
-  obtain ⟨γ', hγ', he'⟩ := h.runLam_eq (k + 1)
-  rw [h.log_betaRun, h.log_betaRun, he, he']
-  have := (abs_le.1 hγ).1
-  have := (abs_le.1 hγ').2
-  unfold lamHat
-  push_cast
-  linarith
+    Real.log (b (k + 1)) - Real.log (b k) ≤ thetaOf d L + 2 * ε := (h.toTo (k + 1)).logBeta_succ_le le_rfl
 
 /-- Lemma II.1.2 (d): under (Λ15), `A₃ (log β_k)^{2p₀} ≥ ½ A₃ λ̂_k^{2p₀}`. -/
 theorem gain_conv (h : RunningHyp d L β ν a ε b n) {A3 : ℝ} (hA : 0 ≤ A3) {p0 : ℕ} (hp : 1 ≤ p0)
     (k : ℕ) (hk : 3 / (1 - (2 : ℝ) ^ (-(1 / (2 * (p0 : ℝ))))) ≤ lamHat d L β a k) :
-    1 / 2 * A3 * lamHat d L β a k ^ (2 * p0) ≤ A3 * Real.log (b k) ^ (2 * p0) := by
-  set x := lamHat d L β a k with hx
-  have hp' : (0 : ℝ) < 2 * p0 := by positivity
-  set c : ℝ := (2 : ℝ) ^ (-(1 / (2 * (p0 : ℝ)))) with hc
-  have hc1 : c < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by
-    have : 0 < 1 / (2 * (p0 : ℝ)) := by positivity
-    linarith)
-  have hc0 : 0 < c := Real.rpow_pos_of_pos (by norm_num) _
-  have hcp : c ^ (2 * p0) = 1 / 2 := by
-    rw [hc, ← Real.rpow_natCast, ← Real.rpow_mul (by norm_num)]
-    have : -(1 / (2 * (p0 : ℝ))) * ((2 * p0 : ℕ) : ℝ) = -1 := by
-      push_cast; field_simp
-    rw [this, Real.rpow_neg_one]; norm_num
-  have hxpos : 3 ≤ x := by
-    have : 3 / (1 - c) ≥ 3 := by
-      rw [ge_iff_le, le_div_iff₀ (by linarith)]; nlinarith
-    linarith
-  have h1 : c ≤ 1 - 3 / x := by
-    have : 3 / x ≤ 1 - c := by
-      rw [div_le_iff₀ (by linarith)]
-      have := (div_le_iff₀ (by linarith : 0 < 1 - c)).1 hk
-      linarith
-    linarith
-  have h2 : c ^ (2 * p0) ≤ (1 - 3 / x) ^ (2 * p0) := pow_le_pow_left₀ hc0.le h1 _
-  have h3 : (x - 3) ^ (2 * p0) = x ^ (2 * p0) * (1 - 3 / x) ^ (2 * p0) := by
-    rw [← mul_pow]; congr 1; field_simp
-  have h4 : (x - 3) ^ (2 * p0) ≤ Real.log (b k) ^ (2 * p0) :=
-    pow_le_pow_left₀ (by linarith) (h.logBeta_ge k) _
-  have h5 : 1 / 2 * x ^ (2 * p0) ≤ (x - 3) ^ (2 * p0) := by
-    rw [h3]
-    have := mul_le_mul_of_nonneg_left h2 (pow_nonneg (by linarith : 0 ≤ x) (2 * p0))
-    rw [hcp] at this; linarith
-  nlinarith [mul_le_mul_of_nonneg_left (h5.trans h4) hA]
+    1 / 2 * A3 * lamHat d L β a k ^ (2 * p0) ≤ A3 * Real.log (b k) ^ (2 * p0) := (h.toTo k).gain_conv hA hp le_rfl hk
 
 end RunningHyp
 

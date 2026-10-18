@@ -23,7 +23,7 @@ Spine-local predicates used by the class predicates of `Balaban/Spine/RootFInput
   when their representatives agree and lie in the box of both tori (`PtCorr`, `SetCorr`, `BlkCorr`,
   `VarCorr`, `OutCorr`, `CfgCorr`, `GCorr`, `MultiCorr`, `HistCorr`). The small-field half of (D8)
   is the landed clause `D8SF` of `IsRep2`/`IsRepFlat2`.
-* `RunningHypTo`: the hypothesis (I.2) of LFR (A-IV.2) on the running coefficients
+* `RunningHypTo` (now `Balaban.LargeField.RunningHypTo`, `Analytic/Constants.lean`): the hypothesis (I.2) of LFR (A-IV.2) on the running coefficients
   (`β_j = β L^{j(d-2)} γ_j`, `ν_j = ν L^{2j} δ_j`, `|log γ_j|, |log δ_j| ≤ ε ≤ 1/20`,
   `a ∈ (1, 3/2)`) at the scales `j ≤ k` only. The landed `RunningHyp` asks it at every scale. -/
 
@@ -192,18 +192,5 @@ def LFCoherent (F : RepFam S R k0 K M N geo cs P k m₁ ϱ) : Prop :=
           (F.lf nK₂).B A₂ X₂ ψ₂ ψ'₂ h g₂ = (F.lf nK₁).B A₁ X₁ ψ₁ ψ'₁ h g₁
 
 end Coherent
-
-/-!
-### The running hypothesis (I.2) up to a scale
--/
-
-/-- **(I.2) up to the scale `k`** (LFR (A-IV.2), the landed `RunningHyp` truncated at `k`):
-`β_j = β L^{j(d-2)} γ_j` and `ν_j = ν L^{2j} δ_j` with `|log γ_j|, |log δ_j| ≤ ε ≤ 1/20` for
-`j ≤ k`, and the kernel constant `a ∈ (1, 3/2)`. -/
-def RunningHypTo (d L : ℕ) (β ν a ε : ℝ) (betaRun nuRun : ℕ → ℝ) (k : ℕ) : Prop :=
-  2 ≤ d ∧ 2 ≤ L ∧ 0 < β ∧ 0 < ν ∧ 1 < a ∧ a < 3 / 2 ∧ 0 ≤ ε ∧ ε ≤ 1 / 20 ∧
-    (∀ j ≤ k, ∃ γ : ℝ, 0 < γ ∧ |Real.log γ| ≤ ε ∧
-      betaRun j = β * (L : ℝ) ^ (j * (d - 2)) * γ) ∧
-    ∀ j ≤ k, ∃ δ : ℝ, 0 < δ ∧ |Real.log δ| ≤ ε ∧ nuRun j = ν * (L : ℝ) ^ (2 * j) * δ
 
 end Balaban.RootFSpine

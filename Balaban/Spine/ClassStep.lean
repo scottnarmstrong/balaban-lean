@@ -333,13 +333,6 @@ end Inputs
 ### Inhabitation (rule 10)
 -/
 
-/-- (I.2) up to a scale holds up to every smaller scale. -/
-theorem RunningHypTo.mono {d L : ℕ} {β ν a ε : ℝ} {βs νs : ℕ → ℝ} {r r' : ℕ}
-    (h : RunningHypTo d L β ν a ε βs νs r) (hr : r' ≤ r) : RunningHypTo d L β ν a ε βs νs r' := by
-  obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, hγ, hδ⟩ := h
-  exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, fun j hj => hγ j (hj.trans hr),
-    fun j hj => hδ j (hj.trans hr)⟩
-
 open Balaban.LargeField.Def7.Wit Balaban.LargeField.Def7v2.Wit in
 /-- The body of `PreClassAt` at the witness constants, for any setting equal to the witness setting
 `wS` and every `r ≤ 1`. -/

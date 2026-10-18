@@ -162,32 +162,6 @@ theorem setting_ok (β : ℝ) (hβ : 10 < β) : (setting β).Ok where
     show Real.log 2 ≤ Real.log (β * (5 / 4)) + 1 + ((0 : ℕ) : ℝ) * Real.log 2
     simp; linarith
 
-theorem LamStarConditions.mono {T : Typing} {x₀ x₁ : ℝ} (h : LamStarConditions T x₀)
-    (hx : x₀ ≤ x₁) : LamStarConditions T x₁ where
-  one_le := h.one_le.trans hx
-  l0_a := fun x hx' => h.l0_a x (hx.trans hx')
-  l0_b := fun x hx' => h.l0_b x (hx.trans hx')
-  l0_c := fun x hx' => h.l0_c x (hx.trans hx')
-  l0_d := fun x hx' => h.l0_d x (hx.trans hx')
-  l0_e := fun x hx' => h.l0_e x (hx.trans hx')
-  l1_a := fun x hx' => h.l1_a x (hx.trans hx')
-  l1_b := fun x hx' => h.l1_b x (hx.trans hx')
-  l2 := fun x hx' => h.l2 x (hx.trans hx')
-  l3 := fun x hx' => h.l3 x (hx.trans hx')
-  l4 := fun x hx' => h.l4 x (hx.trans hx')
-  l5_a := fun x hx' => h.l5_a x (hx.trans hx')
-  l5_b := fun x hx' => h.l5_b x (hx.trans hx')
-  l6 := fun x hx' => h.l6 x (hx.trans hx')
-  l7 := fun x hx' => h.l7 x (hx.trans hx')
-  l8_a := fun x hx' => h.l8_a x (hx.trans hx')
-  l8_b := fun x hx' => h.l8_b x (hx.trans hx')
-  l9 := fun x hx' => h.l9 x (hx.trans hx')
-  l10 := fun x hx' => h.l10 x (hx.trans hx')
-  l11_a := fun x hx' => h.l11_a x (hx.trans hx')
-  l11_b := fun x hx' => h.l11_b x (hx.trans hx')
-  l11_c := fun x hx' => h.l11_c x (hx.trans hx')
-  l11_d := fun x hx' => h.l11_d x (hx.trans hx')
-
 /-- The threshold `x₀` of `exists_lamStar` for the typing. -/
 noncomputable def lamStar : ℝ := (exists_lamStar typing typing_ok).choose
 
