@@ -2703,3 +2703,4 @@ public import Balaban.Inhabited.StepTowerNewLevelFibreRate
 public import Balaban.Inhabited.StepTowerCollarCore
 public import Balaban.Inhabited.StepTowerCollarX
 public import Balaban.Inhabited.StepTowerCollarBgSet
+public import Balaban.Inhabited.StepTowerCollarBase
