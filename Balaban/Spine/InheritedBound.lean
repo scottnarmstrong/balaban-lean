@@ -199,4 +199,198 @@ theorem xiDom_const {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
 
 end Domain
 
+section Bound
+
+variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
+
+/-- The Euclidean norm of a vector is at most the sum of the moduli of its entries. -/
+theorem vn_le_sum_norm (v : Fin N → ℂ) : vn v ≤ ∑ i, ‖v i‖ := by
+  have h := Finset.sum_sq_le_sq_sum_of_nonneg (s := Finset.univ) (f := fun i => ‖v i‖)
+    (fun _ _ => norm_nonneg _)
+  rw [← vn_sq] at h
+  exact abs_le_of_sq_le_sq' h (Finset.sum_nonneg fun _ _ => norm_nonneg _) |>.2
+
+/-- A unit vector of `EuclideanSpace ℝ (Fin N)` has squared coordinates summing to `1`. -/
+theorem sum_sq_eq_one_of_norm_eq_one (hv : EuclideanSpace ℝ (Fin N)) (h : ‖hv‖ = 1) :
+    ∑ i, (hv i) ^ 2 = 1 := by
+  have := EuclideanSpace.norm_eq hv
+  rw [h] at this
+  have h2 : ∑ i, ‖hv i‖ ^ 2 = 1 := by
+    have h3 := congrArg (· ^ 2) this
+    simp only [one_pow] at h3
+    rw [Real.sq_sqrt (Finset.sum_nonneg fun _ _ => sq_nonneg _)] at h3
+    exact h3.symm
+  simpa [Real.norm_eq_abs, sq_abs] using h2
+
+/-- The constants `ε_j` of the class are positive. -/
+theorem eps_pos_of_admissible {P : Def6.Consts} (hP : P.Admissible d L) (j : ℕ) :
+    0 < P.eps d L j := by
+  unfold Def6.Consts.eps epsSeq epsTail
+  have h1 : 0 ≤ ∑' m : ℕ, if j ≤ m then ((m : ℝ) ^ 2)⁻¹ else 0 :=
+    tsum_nonneg fun m => by split_ifs <;> positivity
+  have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have := hP.α₀_pos
+  positivity
+
+end Bound
+
+section Core
+
+variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
+
+/-- **The constant configuration is in the term domain**: the pair `(h, h)` of constant unit fields
+lies in the domain `sfDom` of the terms of a polymer `X ∈ 𝒟_j` (the domain is the birth-mass
+domain `birthXiDom`; the standing hypotheses `BgHyp` of the background theory at the birth mass of
+the level `j`). -/
+theorem inhObs_constDom {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf)
+    (hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
+    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Set (Localization.CTorus d L N₁ m₁ k)}
+    (hX : Def6.IsPolyDom P6.m₀ j X) :
+    (sfDom P6 k0 sf N₁).dom j ((sf.Tm N₁).gs j X) (Def6.constFld (hC hv))
+      (Def6.constFld (hC hv)) := by
+  obtain ⟨ρsf, hρ⟩ := hsf.torus
+  have hΩ := ((hρ N₁).terms.gs_spec j hj1 hjk X hX).2
+  have hε := eps_pos_of_admissible hsf.admissible j
+  exact xiDom_const (hBg j hj1 hjk) hΩ hjk hε (fun i => hv i)
+    (sum_sq_eq_one_of_norm_eq_one hv hunit)
+
+/-- **The bound (H.7) at the constant configuration**: for a polymer `X ∈ 𝒟_j`, `x ∈ X` and a
+source `g` with `‖g‖₁ < 1`, the term `ℳ^{(j)}(x, X; h, h, g)` of a member of (D2♭) is bounded by
+`c₉^{flow} L^{-j((d-2)/2+γ-α₁)} e^{-κ_flow d_j(X)}`. -/
+theorem inhObs_term_bound {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf)
+    (hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
+    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Set (Localization.CTorus d L N₁ m₁ k)}
+    (hX : Def6.IsPolyDom P6.m₀ j X) {x : Localization.CTorus d L N₁ m₁ k} (hx : x ∈ X)
+    {g : Fld d L N₁ m₁ k N} (hg : Def6.l1 g < 1) :
+    vn ((sf.Tm N₁).M j x X (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g) <
+      P6.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
+        Real.exp (-P6.κ * sizeJ P6.m₀ j X) := by
+  obtain ⟨ρsf, hρ⟩ := hsf.torus
+  exact (hρ N₁).terms.boundM j hj1 hjk x X hX hx _ _ g
+    (inhObs_constDom hsf hBg hv hunit hj1 hjk hX) hg
+
+/-- The `ℓ¹` norm `Def6.l1` of a source is at most the sum of the moduli of its entries. -/
+theorem l1_le_sum {N₁ : ℕ} [NeZero N₁] (g : Fld d L N₁ m₁ k N) :
+    Def6.l1 g ≤ ∑ y, ∑ i, ‖g y i‖ :=
+  Finset.sum_le_sum fun y _ => vn_le_sum_norm (g y)
+
+/-- **The inherited activities are bounded** on the unit `ℓ¹` ball by the bound (H.7) of the
+polymer. -/
+theorem inhObs_norm_le {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf)
+    (hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
+    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k))}
+    (hX : Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k)))
+    (g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ) (hg : ∑ y, ∑ i, ‖g y i‖ < 1) :
+    ‖inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X g‖ ≤
+      P6.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
+        Real.exp (-P6.κ * sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k))) := by
+  classical
+  set B := P6.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
+    Real.exp (-P6.κ * sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k))) with hB
+  have hl1 : Def6.l1 g < 1 := (l1_le_sum g).trans_lt hg
+  have hterm : ∀ x ∈ X, vn ((sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+      (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g) < B := fun x hx =>
+    inhObs_term_bound hsf hBg hv hunit hj1 hjk hX (Finset.mem_coe.2 hx) hl1
+  have hB0 : 0 ≤ B := by
+    obtain ⟨x, hx⟩ := hX.1
+    exact (vn_nonneg _).trans (hterm x (Finset.mem_coe.1 hx)).le
+  rw [inhObs_eq_explicit]
+  simp only [hj1, hjk, hX, and_self, ↓reduceIte]
+  calc ‖∑ x : Localization.CTorus d L N₁ m₁ k, if x ∈ X then
+        ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+          (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0‖
+      ≤ ∑ x : Localization.CTorus d L N₁ m₁ k, (∑ i, ‖g x i‖) * B := by
+        refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
+        by_cases hx : x ∈ X
+        · simp only [hx, ↓reduceIte]
+          refine (norm_sum_le _ _).trans ?_
+          rw [Finset.sum_mul]
+          refine Finset.sum_le_sum fun i _ => ?_
+          rw [norm_mul]
+          exact mul_le_mul_of_nonneg_left
+            ((norm_le_vn _ i).trans (hterm x hx).le) (norm_nonneg _)
+        · simp only [hx, ↓reduceIte, norm_zero]
+          exact mul_nonneg (Finset.sum_nonneg fun _ _ => norm_nonneg _) hB0
+    _ = (∑ x : Localization.CTorus d L N₁ m₁ k, ∑ i, ‖g x i‖) * B := by rw [Finset.sum_mul]
+    _ ≤ 1 * B := mul_le_mul_of_nonneg_right hg.le hB0
+    _ = B := one_mul B
+
+/-- The `i`-th coordinate is an analytic function on `ℂ^N`. -/
+theorem analyticAt_pi_coord (i : Fin N) (w : Fin N → ℂ) :
+    AnalyticAt ℂ (fun v : Fin N → ℂ => v i) w :=
+  (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) i).analyticAt w
+
+/-- The `i`-th coordinate of a source at a site is an analytic function of the source. -/
+theorem analyticOnNhd_coord {ℓ : ℕ} [NeZero ℓ] (x : Torus d ℓ) (i : Fin N) (s : Set (Torus d ℓ → Fin N → ℂ)) :
+    AnalyticOnNhd ℂ (fun g : Torus d ℓ → Fin N → ℂ => g x i) s := fun g _ =>
+  ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) i).comp
+    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Torus d ℓ => Fin N → ℂ) x)).analyticAt g
+
+/-- **The inherited activities are analytic** on the unit `ℓ¹` ball. -/
+theorem inhObs_analytic {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
+    (hsf : SFFlat2 P6 k0 sf)
+    (hBg : ∀ j, 1 ≤ j → j ≤ k →
+      BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
+    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) (j : ℕ)
+    (X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k))) :
+    AnalyticOnNhd ℂ (inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X)
+      {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
+  classical
+  have e : inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X = fun g =>
+      if 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
+          (X : Set (Localization.CTorus d L N₁ m₁ k)) then
+        ∑ x : Localization.CTorus d L N₁ m₁ k, if x ∈ X then
+          ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+            (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0
+      else 0 := funext fun g => inhObs_eq_explicit sf P6.m₀ hv j X g
+  rw [e]
+  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k))
+  · obtain ⟨hj1, hjk, hpoly⟩ := hc
+    simp only [hj1, hjk, hpoly, and_self, ↓reduceIte]
+    have key : ∀ x ∈ (Finset.univ : Finset (Localization.CTorus d L N₁ m₁ k)),
+        AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+          if x ∈ X then ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+            (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0)
+          {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
+      intro x _
+      by_cases hx : x ∈ X
+      · simp only [hx, ↓reduceIte]
+        have key2 : ∀ i ∈ (Finset.univ : Finset (Fin N)),
+            AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+              g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+                (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i)
+              {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
+          intro i _
+          refine (analyticOnNhd_coord x i _).mul ?_
+          obtain ⟨ρsf, hρ⟩ := hsf.torus
+          have hM := (hρ N₁).terms.analyticM j hj1 hjk x _ hpoly hx
+          have hΦ : AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+              ((Def6.constFld (hC hv) : Fld d L N₁ m₁ k N),
+                (Def6.constFld (hC hv) : Fld d L N₁ m₁ k N), g))
+              {g | ∑ y, ∑ i, ‖g y i‖ < 1} :=
+            analyticOnNhd_const.prod (analyticOnNhd_const.prod analyticOnNhd_id)
+          have hcomp := hM.comp hΦ (fun g hg => ⟨inhObs_constDom hsf hBg hv hunit hj1 hjk hpoly,
+            (l1_le_sum g).trans_lt hg⟩)
+          intro g hg
+          exact (analyticAt_pi_coord i _).comp (hcomp g hg)
+        exact Finset.analyticOnNhd_fun_sum _ key2
+      · simp only [hx, ↓reduceIte]
+        exact analyticOnNhd_const
+    exact Finset.analyticOnNhd_fun_sum _ key
+  · simp only [hc, ↓reduceIte]
+    exact analyticOnNhd_const
+
+end Core
+
 end Balaban.RootFSpine
