@@ -151,6 +151,7 @@ public import Balaban.Background.Equivariance
 public import Balaban.Background.EquivarianceDomain
 public import Balaban.Background.EquivarianceLat
 public import Balaban.Background.Def5Response
+public import Balaban.Background.BgFieldTwoTorusEquiv
 public import Balaban.Background.Holder
 public import Balaban.Background.NormalizeMixed
 public import Balaban.Background.BumpMixed
