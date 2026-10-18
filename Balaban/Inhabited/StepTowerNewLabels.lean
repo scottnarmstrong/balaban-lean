@@ -42,6 +42,11 @@ by their defining equations (`hTl`, `hEbE`), as the averages `AE` are fixed by `
 (true by definition at the tower) and `P.eps d L (k + 1) ≤ eps`.  The last condition fails for the
 towers of the landed interface (`StepTowerNewLabelsRadius.lean`, `not_newLevel_cover_and_room`).
 
+`newLabels_castInputs`: the three inputs `hTlblock`, `hDz`, `hDzblock` of
+`localClass_newLevel_of_expansion_cast` (W1057; the same forms as in `_rho`, on the tower's torus
+`(N₁, m₁)` at `levelGS (k + 1)`) for `𝒯E = Finset.univ`, `Dz = densE0 C`, weights `S.a`, mass `S.ν`,
+under the radius condition.
+
 Not here: the counterterms and the field-substitution terms of P4 (4.14)–(4.20) (`densE0` is the
 `ξ = 0` part of the density of P4 (4.22) before the vacuum subtraction); the labels on the local
 charts of `𝔹_{k+1}(Y⁺)` (the recomputed terms and the replacement identity); the per-centre sum
@@ -319,6 +324,51 @@ theorem newLabels_hDz_of_radius {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
   have hq' : XiDom S.G' S.a S.ν (k + 1) (P.eps d L (k + 1)) q.1 q.2 := by
     rw [hG]; exact hq
   exact newLabels_sum_eq_densE0 Jr C hN π hπ e hsupp hval Tl hTl hε y q hq'
+
+/-- **The inputs `hTlblock`, `hDz`, `hDzblock` of `localClass_newLevel_of_expansion_cast`** (and of
+`_rho`), in their exact forms on the torus `(N₁, m₁)` of the step, for the labels `Tl`
+(`𝒯E = Finset.univ`), the density `Dz = densE0 C`, weights `S.a` and mass `S.ν`, if the step's
+generating set is `levelGS (k + 1)` and `P.eps d L (k + 1) ≤ eps` (the radius condition, see
+`not_newLevel_cover_and_room`). -/
+theorem newLabels_castInputs {P : Consts} (hN : L ^ P.m₀ ∣ N₁)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (hsupp : ∀ z θ T, e z θ T ≠ 0 →
+      rootCube (m₀ := 1) z ∈ T ∧ IsPolyDom 1 (k + 1) (sitesOf T))
+    (hval : ∀ z (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      Jr.E0locJ C z (rawOf D) =
+        ∑ T, e z ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), 0) T)
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if sitesOf (piHull P.m₀ (sitesOf T)) = Y then
+        e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0)
+    (hG : S.G' = levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+    (hε : P.eps d L (k + 1) ≤ eps) :
+    (∀ τ ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (K := k + 1) 1 (k + 1) Set.univ))), ∀ z z' Y p,
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) z =
+        blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) z' →
+      Tl τ z Y p = Tl τ z' Y p) ∧
+    (∀ y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+      (xiFieldDom S.a S.ν (P.eps d L) :
+        FieldDom d L N₁ m₁ (k + 1) N (ϱ)).dom (k + 1)
+        (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) (k + 1) (le_refl (k + 1)))
+        q.1 q.2 →
+      ∑ᶠ Y ∈ polysAt P.m₀ (k + 1) y,
+        ∑ τ ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+          (K := k + 1) 1 (k + 1) Set.univ))), Tl τ y Y q = Jr.densE0 C y q) ∧
+    (∀ y y' q, blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y =
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y' →
+      Jr.densE0 C y q = Jr.densE0 C y' q) :=
+  ⟨newLabels_block π e Tl hTl,
+    newLabels_hDz_of_radius Jr C hN π hπ e hsupp hval Tl hTl hG hε,
+    fun _ _ q h => Jr.densE0_block C h q⟩
 
 end Labels
 
