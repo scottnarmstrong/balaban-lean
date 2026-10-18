@@ -156,6 +156,28 @@ theorem nbhd_add_subset {n : ℕ} [NeZero n] (X : Set (Torus d n)) (a b : ℕ) :
   obtain ⟨y', h1, h2⟩ := exists_split (x := y) (z := x) (a := b) (b := a) hx
   exact mem_nbhd.2 ⟨y', mem_nbhd.2 ⟨x, hxX, h2⟩, h1⟩
 
+/-- **A site of `Ω₁` is close to `Z'`**: its integer lift lies within `R` of a lift of a point of
+`Z'`, `R = 12 M₁ L^{k+1} + P₁ (⌊R_k⌋ + 1)`. -/
+theorem near_of_Ω1 (st : RegionStep d L n0 n1 Rprev Rk) (hc : 14 ≤ c) (hn : n0 = L * n1)
+    (hL : 2 ≤ L) (hρ : 3 * L ≤ ⌊Rprev⌋₊)
+    (hω : 2 * ⌊Rk⌋₊ + L + 11 ≤ ω) (hZ : st.Omegaᶜ ⊆ Zp) (hZ' : Z' ∈ comps ω (finOf Zp))
+    {w : Fin d → ℤ}
+    (hw : zcast (M1 * (c * n1) * L ^ (k + 1)) w ∈
+      (genBoundaryLocal M1 c n1 L k st hc hn hL hρ hω hZ hZ').Ω 1) :
+    ∃ z'' ∈ pbZ (M1 * (c * n1) * L ^ (k + 1))
+        ((fineK1 M1 c n1 L k (Z' : Set (Torus d n1)) : Finset _) :
+          Set (Torus d (M1 * (c * n1) * L ^ (k + 1)))),
+      ∀ μ, |z'' μ - w μ| ≤
+        ((12 * (L ^ (k + 1) * M1) + (L ^ (k + 1) * (c * M1)) * (⌊Rk⌋₊ + 1) : ℕ) : ℤ) := by
+  have hmem : w ∈ pbZ (M1 * (c * n1) * L ^ (k + 1))
+      (((genBoundaryLocal M1 c n1 L k st hc hn hL hρ hω hZ hZ').Ω 1 : Finset _) :
+        Set (Torus d (M1 * (c * n1) * L ^ (k + 1)))) := by
+    rw [mem_pbZ]; exact Finset.mem_coe.2 hw
+  rw [pbZ_genBoundaryLocal_Ω] at hmem
+  obtain ⟨z, hzU, hzd⟩ := bdLayZ_supp L M1 k hL (Nat.pos_of_ne_zero (NeZero.ne M1))
+    (Set.inter_subset_right) 1 hmem
+  exact near_of_supp (L := L) (M1 := M1) (k := k) hzU hzd
+
 /-- **The region `Ω₁` of the local boundary family lies in the box with margin `2`.** -/
 theorem supp_own (st : RegionStep d L n0 n1 Rprev Rk) (hc : 14 ≤ c) (hn : n0 = L * n1)
     (hL : 2 ≤ L) (hρ : 3 * L ≤ ⌊Rprev⌋₊)
@@ -177,15 +199,8 @@ theorem supp_own (st : RegionStep d L n0 n1 Rprev Rk) (hc : 14 ≤ c) (hn : n0 =
   have hP1pos : 0 < P1 := P1_pos
   obtain ⟨w₀, hw₀⟩ : ∃ w₀ : Fin d → ℤ, w₀ = liftNear cc x := ⟨_, rfl⟩
   have hxw : zcast (M1 * (c * n1) * L ^ (k + 1)) w₀ = x := by rw [hw₀]; exact zcast_liftNear x
-  have hmem : w₀ ∈ pbZ (M1 * (c * n1) * L ^ (k + 1))
-      (((genBoundaryLocal M1 c n1 L k st hc hn hL hρ hω hZ hZ').Ω 1 : Finset _) :
-        Set (Torus d (M1 * (c * n1) * L ^ (k + 1)))) := by
-    rw [mem_pbZ, hxw]; exact Finset.mem_coe.2 hx
-  rw [pbZ_genBoundaryLocal_Ω] at hmem
   have hL0 : 0 < L := by omega
-  obtain ⟨z, hzU, hzd⟩ := bdLayZ_supp L M1 k hL (Nat.pos_of_ne_zero (NeZero.ne M1))
-    (Set.inter_subset_right) 1 hmem
-  obtain ⟨z'', hz''Z, hz''d⟩ := near_of_supp (L := L) (M1 := M1) (k := k) hzU hzd
+  obtain ⟨z'', hz''Z, hz''d⟩ := near_of_Ω1 st hc hn hL hρ hω hZ hZ' (w := w₀) (by rw [hxw]; exact hx)
   -- the point `z''` lies in the box
   have hz''mem : zcast (M1 * (c * n1) * L ^ (k + 1)) z'' ∈ (fineK1 M1 c n1 L k (Z' : Set (Torus d n1)) : Set _) := hz''Z
   obtain ⟨z₀, hz₀def⟩ : ∃ z₀ : Fin d → ℤ, z₀ = liftNear cc (zcast (M1 * (c * n1) * L ^ (k + 1)) z'') := ⟨_, rfl⟩

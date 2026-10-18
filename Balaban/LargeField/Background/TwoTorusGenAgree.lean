@@ -281,6 +281,27 @@ theorem GenAgree.dataSites_iff (h : GenAgree G₁ G₂ c) {v : Fin d → ℤ}
     zcast (N₁ * L ^ k) v ∈ dataSites G₁ ↔ zcast (N₂ * L ^ k) v ∈ dataSites G₂ := by
   rw [mem_dataSites, mem_dataSites, h.collar_iff hv, h.agree 1 le_rfl (by omega) v hv.inBox]
 
+theorem GenAgree.inBoxK1_of_dataSites (h : GenAgree G₁ G₂ c) {x : Torus d (N₁ * L ^ k)}
+    (hx : x ∈ dataSites G₁) : InBoxK 1 (N₁ * L ^ k) (N₂ * L ^ k) c (liftNear c x) := by
+  rcases (mem_dataSites G₁).1 hx with hΩ | hcol
+  · exact (h.supp₁ x hΩ).mono (by omega)
+  · obtain ⟨-, z, hz, hadj⟩ := (mem_collar G₁).1 hcol
+    have hu := h.supp₁ z hz
+    have hzu : z = zcast (N₁ * L ^ k) (liftNear c z) := (zcast_liftNear z).symm
+    obtain ⟨μ, hμ | hμ⟩ := hadj
+    · have hxe : x = zcast (N₁ * L ^ k) (liftNear c z + Pi.single μ 1) := by
+        rw [zcast_add_single, ← hzu]; exact hμ
+      have hb : InBoxK 1 (N₁ * L ^ k) (N₂ * L ^ k) c (liftNear c z + Pi.single μ 1) :=
+        hu.add_single μ
+      rw [hxe, hb.inBox.liftNear_zcast₁]
+      exact hb
+    · have hxe : x = zcast (N₁ * L ^ k) (liftNear c z - Pi.single μ 1) := by
+        rw [zcast_sub_single, ← hzu, hμ]; abel
+      have hb : InBoxK 1 (N₁ * L ^ k) (N₂ * L ^ k) c (liftNear c z - Pi.single μ 1) :=
+        hu.sub_single μ
+      rw [hxe, hb.inBox.liftNear_zcast₁]
+      exact hb
+
 /-- The data of two backgrounds agree on the box: `Ψ` on the data sites and `h̃` on `Ω₁`. -/
 structure DataAgree {N : ℕ} (G₁ : GeneratingSet d L N₁ k ϱ₁) (G₂ : GeneratingSet d L N₂ k ϱ₂)
     (c : Fin d → ℤ) (D₁ : BgData G₁ N) (D₂ : BgData G₂ N) : Prop where

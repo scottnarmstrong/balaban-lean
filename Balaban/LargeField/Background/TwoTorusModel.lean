@@ -61,6 +61,17 @@ theorem mem_dilZ_of_floor {P : ℕ} (hP : 0 < P) {X : Set (Fin d → ℤ)} (hX :
     rw [Int.add_mul_ediv_left _ _ hP', Int.add_mul_ediv_left _ _ hP']
     ring
 
+theorem mem_dilZ_of_close {P : ℕ} (hP : 0 < P) {X : Set (Fin d → ℤ)} (hX : CubeConst P X) {j : ℕ}
+    {z'' w : Fin d → ℤ} (hz : z'' ∈ X) (hd : ∀ μ, |z'' μ - w μ| ≤ (P : ℤ) * j) :
+    w ∈ dilZ P j X := by
+  have hP' : (P : ℤ) ≠ 0 := by exact_mod_cast hP.ne'
+  refine ⟨fun μ => z'' μ / (P : ℤ) - w μ / (P : ℤ), fun μ => ?_, ?_⟩
+  · exact abs_ediv_sub_le_of_abs_le hP (hd μ)
+  · refine (hX _ _ (fun μ => ?_)).2 hz
+    simp only [Pi.add_apply, shiftZ]
+    rw [Int.add_mul_ediv_left _ _ hP']
+    ring
+
 theorem mem_dilZ_dilZ_iff {P a : ℕ} {X Y : Set (Fin d → ℤ)} {z : Fin d → ℤ}
     (h : ∀ s s' : Fin d → ℤ, (∀ μ, |s μ| ≤ a) → (∀ μ, |s' μ| ≤ a) →
       (z + shiftZ P s + shiftZ P s' ∈ X ↔ z + shiftZ P s + shiftZ P s' ∈ Y)) :
@@ -167,18 +178,11 @@ theorem mem_bdLayZ_iff_model {L M1 k P0 P1 ρ ρ' : ℕ} (hL : 2 ≤ L) (hM1 : 0
       obtain ⟨z'', hz''M, hz''d⟩ := hnear
       have hz''Z : z'' ∈ 𝒵 := (hAZ z'' hz''d).2 hz''M
       have hwnear : z ∈ dilZ P1 (ρ + 2) 𝒵 := by
-        refine ⟨fun μ => z'' μ / (P1 : ℤ) - z μ / (P1 : ℤ), fun μ => ?_, ?_⟩
-        · have h1 : |z'' μ - z μ| ≤ (P1 : ℤ) * (ρ + 2 : ℕ) := by
-            have := hz''d μ
-            push_cast at this ⊢
-            have h2 : (12 * (L ^ (k + 1) * M1) : ℤ) + 2 ≤ P1 := by exact_mod_cast hB
-            nlinarith
-          exact_mod_cast abs_ediv_sub_le_of_abs_le hP1pos h1
-        · refine (hc _ _ (fun μ => ?_)).2 hz''Z
-          simp only [Pi.add_apply, shiftZ]
-          have hP' : (P1 : ℤ) ≠ 0 := by exact_mod_cast hP1pos.ne'
-          rw [Int.add_mul_ediv_left _ _ hP']
-          ring
+        refine mem_dilZ_of_close hP1pos hc hz''Z (fun μ => ?_)
+        have := hz''d μ
+        push_cast at this ⊢
+        have h2 : (12 * (L ^ (k + 1) * M1) : ℤ) + 2 ≤ P1 := by exact_mod_cast hB
+        nlinarith
       have h1 : z ∈ 𝒵 ↔ z ∈ M𝒵 := hAZ z (fun μ => by rw [sub_self, abs_zero]; exact Nat.cast_nonneg _)
       have h2 : z ∈ 𝒪 ∩ 𝒵 ↔ z ∈ MℛΩ := hAO z (fun μ => by rw [sub_self, abs_zero]; exact Nat.cast_nonneg _)
       simp only [Set.mem_union, Set.mem_compl_iff]

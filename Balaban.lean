@@ -547,6 +547,8 @@ public import Balaban.LargeField.Background.TwoTorusOps
 public import Balaban.LargeField.Background.TwoTorusPb
 public import Balaban.LargeField.Background.TwoTorusLocal
 public import Balaban.LargeField.Background.TwoTorusModel
+public import Balaban.LargeField.Background.TwoTorusBoundaryGen
+public import Balaban.LargeField.Background.TwoTorusBgPiece
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.SpinePad
 public import Balaban.LargeField.History.ImageHist
