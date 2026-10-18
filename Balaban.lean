@@ -2738,3 +2738,4 @@ public import Balaban.LargeField.R.WindowOffMinLayer
 public import Balaban.LargeField.R.WindowOffZoneCore
 public import Balaban.LargeField.R.WindowOffZoneExt
 public import Balaban.LargeField.R.WindowOffDomainPhys
+public import Balaban.LargeField.R.WindowOffPhysDom
