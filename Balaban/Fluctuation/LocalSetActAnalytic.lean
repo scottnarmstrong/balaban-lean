@@ -44,7 +44,8 @@ variable {a₁ ν Kc Cx : ℝ} {ι : Type*} [Fintype ι]
 cover form).  The block energy of `B_{n+1}(z)` at the decoupled background of the cover of `𝔹`, the
 fluctuation field of `H⁻` and the local hat lift `ψ' = cc C^{1/2}(σ w) ψ̂`, for an analytic
 parameter map `σ` from the polydisc of radius `e^κ` equal to `1` on the cubes meeting `X₁`, is
-analytic in `((Θ, ψ̂), w)` on the chart `Ξ^c(𝔹; 1, ε)` times the ball `|ψ̂| ≤ c_ψ` times the polydisc. -/
+analytic in `((Θ, ψ̂), w)` on the chart `Ξ^c(𝔹; 1, ε)` times the ball `|ψ̂| ≤ c_ψ` times the
+polydisc. -/
 theorem fanLocalHat_blockEnergy_analytic_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
     {c BG : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
