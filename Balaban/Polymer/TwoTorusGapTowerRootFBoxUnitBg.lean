@@ -94,6 +94,12 @@ theorem towerGapScale_rootFSites_box_unitBg {d L N : ℕ} [NeZero L] {κmin : �
                     ∑ T', mObs n h3 h5' Dn y i
                       ((⟨rawOf D', rawOf_mem_rawSub _⟩ : rawSub N (ST[n]).G'), g) T')) ∧
           ∀ z θ C, e0 n h3 h5' Dn z θ C = dz n h3 h5' Dn z θ C + c n h3 h5' Dn z θ C) ∧
+        (∀ (n : ℕ) [NeZero n] (h3 : L ^ T.m₀ ∣ n) (h5' : 5 < n) (Dn : StepScaleDataG T k hk n ν β p₁)
+            (y : CTorus d L n T.m₁ (k + 1)) (i : Fin N),
+          ∀ θ ∈ physVq (ST[n]) (ST[n]).a₁ (ST[n]).ν T.t q,
+            ∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := n) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
+              Set.univ),
+              mObs n h3 h5' Dn y i θ T' ≠ 0 → IsPolyDom 1 (k + 1) (sitesOf T')) ∧
         ∀ {ι G : Type*} (N₁ : ι → ℕ) [∀ ℓ, NeZero (N₁ ℓ)] (h3N : ∀ ℓ, L ^ T.m₀ ∣ N₁ ℓ)
           (h5 : ∀ ℓ, 5 < N₁ ℓ) (D : ∀ ℓ, StepScaleDataG T k hk (N₁ ℓ) ν β p₁)
           (K : ι → ℕ) [∀ ℓ, NeZero (K ℓ)] (_ : ∀ ℓ, 2 ≤ K ℓ)
@@ -175,8 +181,8 @@ theorem towerGapScale_rootFSites_box_unitBg {d L N : ℕ} [NeZero L] {κmin : �
     towerGapScale_rootFSites_box T hm₀ hhull hA p hCR hs0 hs
   refine ⟨β₀, CE, CF, h3, hCE, hCF, ?_⟩
   intro k hk ν hν0 hν β hβ p₁ hp0 hp₁ q hq0 hq1
-  obtain ⟨e0, dz, c, mObs, B, hB, hT, hF⟩ := H k hk ν hν0 hν β hβ p₁ hp0 hp₁ q hq0 hq1
-  refine ⟨e0, dz, c, mObs, B, hB, hT, ?_⟩
+  obtain ⟨e0, dz, c, mObs, B, hB, hT, hS, hF⟩ := H k hk ν hν0 hν β hβ p₁ hp0 hp₁ q hq0 hq1
+  refine ⟨e0, dz, c, mObs, B, hB, hT, hS, ?_⟩
   intro ι G N₁ _ h3N h5 D K _ hK2 hside h4 P Q can τ hP hQ hτ hcanK Ycub hYs iy Dset θ hθV σ
     hθsrc hθD Ag hAg hAgθ W hWan κ κ₂ lam hκ hκ₂ hlam hrate
   have hN0 : 0 < N := lt_of_lt_of_le (by norm_num) T.hN
