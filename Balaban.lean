@@ -2621,3 +2621,4 @@ public import Balaban.LargeField.R.WindowConvPhysAssemblyPhys
 public import Balaban.LargeField.R.WindowConvPhysFieldClauses
 public import Balaban.Background.GenSetStabilityRestrict
 public import Balaban.Background.GenSetStabilityCore
+public import Balaban.Background.GenSetStabilityTransfer
