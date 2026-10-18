@@ -138,6 +138,44 @@ theorem locGen_agree (g₁ : Geo S n₁ R M) (g₂ : Geo S n₂ R M) (h1 : g₂.
     have := hout _ _ ((blkCorr_iff_ccorr hk).2 ⟨w, hwf, rfl, rfl⟩)
     rw [this]
 
+open Classical in
+/-- **The indicator of the real domains in the quiet kernel agrees on two tori.** -/
+theorem factor_domain (g₁ : Geo S n₁ R M) (g₂ : Geo S n₂ R M) (h1 : g₂.M1 = g₁.M1)
+    (h2 : g₂.c = g₁.c) (Hl₁ : RegionHistory S n₁ R k0 K) (Hl₂ : RegionHistory S n₂ R k0 K)
+    (hrem₁ : ∀ j, Hl₁.rem j = ∅) (hrem₂ : ∀ j, Hl₂.rem j = ∅) (hk : k + 1 ≤ K)
+    (Zc₁ : Finset (Torus S.d (n₁ (k + 1)))) (Zc₂ : Finset (Torus S.d (n₂ (k + 1))))
+    (hZc₁ : Zc₁ ∈ comps (S.omega (k + 1)) (Hl₁.F.Zp (k + 1)))
+    (hZc₂ : Zc₂ ∈ comps (S.omega (k + 1)) (Hl₂.F.Zp (k + 1))) {cc : Fin S.d → ℤ}
+    (hH : HistCorr cc (locHist Hl₁ M K (k + 1) Zc₁) (locHist Hl₂ M K (k + 1) Zc₂))
+    (hV : SetCorr cc (Vsites R (locHist Hl₁ M K (k + 1) Zc₁) (k + 1))
+      (Vsites R (locHist Hl₂ M K (k + 1) Zc₂) (k + 1)))
+    (cs : OpConsts) (hv : EuclideanSpace ℝ (Fin N))
+    {o₁ : OutT N R (locHist Hl₁ M K (k + 1) Zc₁) (k + 1)}
+    {o₂ : OutT N R (locHist Hl₂ M K (k + 1) Zc₂) (k + 1)}
+    {x₁ : NewCfg N (locHist Hl₁ M K (k + 1) Zc₁) k} {x₂ : NewCfg N (locHist Hl₂ M K (k + 1) Zc₂) k}
+    (hout : OutCorr cc (k + 1) o₁ o₂) (hcfg : CfgCorr cc x₁ x₂) :
+    (if InUnionDomainR (locGen g₁ Hl₁ k Zc₁ hZc₁ hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+        (locData g₁ Hl₁ k Zc₁ hZc₁ hk o₁ x₁ hv) ∧
+      InUnionDomainR (locGen g₁ Hl₁ k Zc₁ hZc₁ hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
+        (locData g₁ Hl₁ k Zc₁ hZc₁ hk o₁ x₁ hv) then (1 : ℝ) else 0) =
+    (if InUnionDomainR (locGen g₂ Hl₂ k Zc₂ hZc₂ hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+        (locData g₂ Hl₂ k Zc₂ hZc₂ hk o₂ x₂ hv) ∧
+      InUnionDomainR (locGen g₂ Hl₂ k Zc₂ hZc₂ hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
+        (locData g₂ Hl₂ k Zc₂ hZc₂ hk o₂ x₂ hv) then (1 : ℝ) else 0) := by
+  obtain ⟨hA, hD⟩ := locGen_agree g₁ g₂ h1 h2 Hl₁ Hl₂ hrem₁ hrem₂ hk Zc₁ Zc₂ hZc₁ hZc₂ hH hV hv
+    hout hcfg
+  have hN : ∀ {n : ℕ → ℕ} [∀ k, NeZero (n k)] (g : Geo S n R M), 2 ≤ g.M1 * (g.c * n (k + 1)) := by
+    intro n _ g
+    have h1 : 1 ≤ g.M1 := Nat.pos_of_ne_zero (NeZero.ne _)
+    have h2 : 1 ≤ n (k + 1) := Nat.pos_of_ne_zero (NeZero.ne _)
+    have := g.hc
+    have := Nat.mul_le_mul h1 (Nat.mul_le_mul this h2)
+    omega
+  have e1 := hA.inUnionDomainR_iff (hN g₁) (hN g₂) hD (c₁ := bgC1 S.d S.L N) (ν := cs.mu (k + 1))
+  have e2 := hA.inUnionDomainR_iff (hN g₁) (hN g₂) hD (c₁ := bgC1 S.d S.L N)
+    (ν := cs.muBg (k + 1))
+  exact if_congr (and_congr e1 e2) rfl rfl
+
 end Loc
 
 end Balaban.RootFSpine

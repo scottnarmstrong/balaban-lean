@@ -555,6 +555,10 @@ public import Balaban.LargeField.Background.TwoTorusCubeLift
 public import Balaban.LargeField.Background.TwoTorusReg
 public import Balaban.LargeField.Background.TwoTorusGenCube
 public import Balaban.LargeField.Background.TwoTorusGauss
+public import Balaban.LargeField.Background.TwoTorusChiNew
+public import Balaban.LargeField.Background.TwoTorusBlocks
+public import Balaban.LargeField.Background.TwoTorusPsiTilde
+public import Balaban.LargeField.Background.TwoTorusHistGen
 public import Balaban.LargeField.Background.TwoTorusLocBridge
 public import Balaban.LargeField.Background.TwoTorusLocData
 public import Balaban.LargeField.Background.TwoTorusCast

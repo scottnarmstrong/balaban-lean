@@ -133,24 +133,45 @@ theorem room_of_V {c M1 : ℕ} [NeZero c] [NeZero M1] (Hl : RegionHistory S n R 
   have h8 : 8 ≤ ⌊R k⌋₊ + 2 := by omega
   nlinarith
 
-/-- **The margin of the box at the sites of a component**: if `V` lies in the box and the
-component has `32` cubes per side, every point `w` of the box whose cube is in `Zc` has the
-margin `6 L^{k+1} M`. -/
-theorem zone_locHist (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl.rem j = ∅) {k : ℕ}
-    (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R k⌋₊) (Zc : Finset (Torus S.d (n (k + 1))))
+/-- **The sites near a component lie in the box**: a site whose `π_{k+1}`-cube is within
+`r ≤ ⌊R_k⌋ + 2` of `Zc` lies in `V`, hence in the box. -/
+theorem zone_inBox (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl.rem j = ∅) {k : ℕ}
+    (hk : k + 1 ≤ K) (Zc : Finset (Torus S.d (n (k + 1))))
     (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) {ℓ' : ℕ} {cc : Fin S.d → ℤ}
     (hV : ∀ x ∈ Vsites R (locHist Hl M K (k + 1) Zc) (k + 1),
-      InBox (M * n K * S.L ^ K) ℓ' cc (liftNear cc x)) (h32 : 32 ≤ n (k + 1))
-    {w : Fin S.d → ℤ} (hw : InBox (M * n K * S.L ^ K) ℓ' cc w)
-    (hcube : cubeMap n S.L M K (k + 1) (zcast (M * n K * S.L ^ K) w) ∈ Zc) :
-    InBoxK (6 * (S.L ^ (k + 1) * M)) (M * n K * S.L ^ K) ℓ' cc w := by
-  have hL := Hl.F.ok.two_le_L
+      InBox (M * n K * S.L ^ K) ℓ' cc (liftNear cc x))
+    {r : ℕ} (hr : r ≤ ⌊R k⌋₊ + 2) (x : Torus S.d (M * n K * S.L ^ K))
+    (hx : cubeMap n S.L M K (k + 1) x ∈ nbhd r (Zc : Set (Torus S.d (n (k + 1))))) :
+    InBox (M * n K * S.L ^ K) ℓ' cc (liftNear cc x) := by
+  apply hV
   have hZ := zcubes_locHist (M := M) Hl hrem hk Zc hZc
-  refine zone_inBoxK (P := S.L ^ (k + 1) * M) (n := n (k + 1)) (r := 8)
+  show cubeMap n S.L M K (k + 1) x ∈
+    nbhd 1 (thick ⌊R (k + 1 - 1)⌋₊ (Zcubes (locHist Hl M K (k + 1) Zc) (k + 1)))
+  rw [hZ]
+  unfold thick
+  rw [nbhd_nbhd]
+  simp only [Nat.add_sub_cancel]
+  exact nbhd_mono (by omega) (Set.Subset.refl _) hx
+
+/-- **The margin of the box near a component**: if `V` lies in the box and `Zc` has `4 m` cubes
+per side, every point `w` of the box whose cube is within `r` of `Zc` has the margin
+`m L^{k+1} M`, when `r + m ≤ ⌊R_k⌋ + 2`. -/
+theorem zone_margin (Hl : RegionHistory S n R k0 K) (hrem : ∀ j, Hl.rem j = ∅) {k : ℕ}
+    (hk : k + 1 ≤ K) (Zc : Finset (Torus S.d (n (k + 1))))
+    (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1))) {ℓ' : ℕ} {cc : Fin S.d → ℤ}
+    (hV : ∀ x ∈ Vsites R (locHist Hl M K (k + 1) Zc) (k + 1),
+      InBox (M * n K * S.L ^ K) ℓ' cc (liftNear cc x)) {r m : ℕ} (hr : r + m ≤ ⌊R k⌋₊ + 2)
+    (hm : 4 * m ≤ n (k + 1)) {w : Fin S.d → ℤ} (hw : InBox (M * n K * S.L ^ K) ℓ' cc w)
+    (hcube : cubeMap n S.L M K (k + 1) (zcast (M * n K * S.L ^ K) w) ∈
+      nbhd r (Zc : Set (Torus S.d (n (k + 1))))) :
+    InBoxK (m * (S.L ^ (k + 1) * M)) (M * n K * S.L ^ K) ℓ' cc w := by
+  refine zone_inBoxK (P := S.L ^ (k + 1) * M) (n := n (k + 1)) (r₀ := r) (m := m)
+    (r := ⌊R k⌋₊ + 2)
     (Nat.mul_pos (pow_pos (Nat.pos_of_ne_zero (NeZero.ne _)) _) (Nat.pos_of_ne_zero (NeZero.ne _)))
-    (Balaban.LargeField.fine_eq Hl.F.hnn hk) (by omega) hw (Zc : Set (Torus S.d (n (k + 1))))
-    (by omega) (Vsites R (locHist Hl M K (k + 1) Zc) (k + 1)) hV ?_ hcube
+    (Balaban.LargeField.fine_eq Hl.F.hnn hk) hm hw (Zc : Set (Torus S.d (n (k + 1)))) hr
+    (Vsites R (locHist Hl M K (k + 1) Zc) (k + 1)) hV ?_ hcube
   intro x hx
+  have hZ := zcubes_locHist (M := M) Hl hrem hk Zc hZc
   show cubeMap n S.L M K (k + 1) x ∈
     nbhd 1 (thick ⌊R (k + 1 - 1)⌋₊ (Zcubes (locHist Hl M K (k + 1) Zc) (k + 1)))
   rw [hZ]

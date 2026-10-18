@@ -92,12 +92,19 @@ end Pt
 
 section Block
 
+
 variable {d : ℕ}
 
 /-- The block index vector of an integer vector, for blocks of side `P`. -/
 def bidx (P : ℕ) (w : Fin d → ℤ) : Fin d → ℤ := fun μ => w μ / (P : ℤ)
 
 theorem bidx_apply (P : ℕ) (w : Fin d → ℤ) (μ : Fin d) : bidx P w μ = w μ / (P : ℤ) := rfl
+theorem bidx_add_shift' {d : ℕ} {P : ℕ} (hP : 0 < P) {w s : Fin d → ℤ} :
+    bidx P (w + fun μ => (P : ℤ) * s μ) = bidx P w + s := by
+  have hP' : (P : ℤ) ≠ 0 := by exact_mod_cast hP.ne'
+  funext μ
+  simp only [bidx, Pi.add_apply]
+  rw [Int.add_mul_ediv_left _ _ hP']
 
 theorem ediv_eq_of_close {P q a b : ℤ} (hP : 0 < P) (hq : 4 ≤ q)
     (h : 4 * |a - b| < 3 * (P * q)) (hdvd : q ∣ a / P - b / P) : a / P = b / P := by
@@ -330,12 +337,13 @@ theorem CIff.inter {B₁ B₁' : Set (Torus d q₁)} {B₂ B₂' : Set (Torus d 
     CIff c ℓ₁ ℓ₂ P q₁ q₂ (B₁ ∩ B₁') (B₂ ∩ B₂') := fun z₁ z₂ hz => by
   simp only [Set.mem_inter_iff]; rw [h z₁ z₂ hz, h' z₁ z₂ hz]
 
-/-- The set of blocks contained in a set `X` of sites, cut down by a condition invariant under
-correspondence, is a corresponding set of blocks. -/
+/-- The set of blocks contained in a set `X` of sites, cut down by a condition that agrees at
+corresponding blocks inside `X`, is a corresponding set of blocks. -/
 theorem cSetCorr_bsub {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d ℓ₂)} [NeZero ℓ₁] [NeZero ℓ₂]
     [NeZero q₁] [NeZero q₂] (hP : 0 < P) (hℓ₁ : ℓ₁ = P * q₁) (hℓ₂ : ℓ₂ = P * q₂)
     (hq₁ : 4 ≤ q₁) (hq₂ : 4 ≤ q₂) (hX : SetCorr c X₁ X₂) {E₁ : Set (Torus d q₁)}
-    {E₂ : Set (Torus d q₂)} (hE : CIff c ℓ₁ ℓ₂ P q₁ q₂ E₁ E₂) :
+    {E₂ : Set (Torus d q₂)}
+    (hE : ∀ y₁ y₂, CCorr c ℓ₁ ℓ₂ P q₁ q₂ y₁ y₂ → BSub P y₁ X₁ → (y₁ ∈ E₁ ↔ y₂ ∈ E₂)) :
     CSetCorr c ℓ₁ ℓ₂ P q₁ q₂ {y | BSub P y X₁ ∧ y ∈ E₁} {y | BSub P y X₂ ∧ y ∈ E₂} := by
   refine ⟨fun z₁ hz₁ => ?_, fun z₂ hz₂ => ?_, fun z₁ z₂ hz => ?_⟩
   · obtain ⟨z₂, hz, -⟩ := exists_ccorr_of_bsub hP hℓ₁ hℓ₂ hq₁ hq₂ hX hz₁.1
@@ -344,7 +352,9 @@ theorem cSetCorr_bsub {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d ℓ₂)
     exact ⟨z₁, hz⟩
   · obtain ⟨w, hw, rfl, rfl⟩ := hz
     simp only [Set.mem_ofPred_eq]
-    rw [bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hX.setIff hw, hE _ _ ⟨w, hw, rfl, rfl⟩]
+    have hb := bsub_corr_iff hP hℓ₁ hℓ₂ hq₁ hq₂ hX.setIff hw
+    rw [hb]
+    exact and_congr_right fun h2 => hE _ _ ⟨w, hw, rfl, rfl⟩ (hb.2 h2)
 
 theorem CSetCorr.symm {B₁ : Set (Torus d q₁)} {B₂ : Set (Torus d q₂)}
     (h : CSetCorr c ℓ₁ ℓ₂ P q₁ q₂ B₁ B₂) : CSetCorr c ℓ₂ ℓ₁ P q₂ q₁ B₂ B₁ :=
@@ -421,8 +431,34 @@ theorem cSetCorr_bsub_plain {X₁ : Set (Torus d ℓ₁)} {X₂ : Set (Torus d �
     (hq₁ : 4 ≤ q₁) (hq₂ : 4 ≤ q₂) (hX : SetCorr c X₁ X₂) :
     CSetCorr c ℓ₁ ℓ₂ P q₁ q₂ {y | BSub P y X₁} {y | BSub P y X₂} := by
   have := cSetCorr_bsub hP hℓ₁ hℓ₂ hq₁ hq₂ hX (E₁ := Set.univ) (E₂ := Set.univ)
-    (fun _ _ _ => Iff.rfl)
+    (fun _ _ _ _ => Iff.rfl)
   simpa using this
+
+/-- **Neighbourhoods of corresponding sets of cubes, at a cube of the box with margin.** -/
+theorem nbhd_iff_of_margin {q₁ q₂ r : ℕ} [NeZero q₁] [NeZero q₂] (hP : 0 < P)
+    {E₁ : Set (Torus d q₁)} {E₂ : Set (Torus d q₂)}
+    (hE : CIff c ℓ₁ ℓ₂ P q₁ q₂ E₁ E₂) {w : Fin d → ℤ} (hw : InBoxK (r * P) ℓ₁ ℓ₂ c w) :
+    zcast q₁ (bidx P w) ∈ nbhd r E₁ ↔ zcast q₂ (bidx P w) ∈ nbhd r E₂ := by
+  rw [mem_nbhd_zcast, mem_nbhd_zcast]
+  refine exists_congr fun s => and_congr_right fun hs => ?_
+  have hbox : InBox ℓ₁ ℓ₂ c (w + fun μ => (P : ℤ) * s μ) := by
+    intro μ
+    have h1 := hw μ
+    have h2 : |(w + fun μ => (P : ℤ) * s μ) μ - c μ| ≤ |w μ - c μ| + P * r := by
+      have e : (w + fun μ => (P : ℤ) * s μ) μ - c μ = (w μ - c μ) + P * s μ := by
+        simp only [Pi.add_apply]; ring
+      rw [e]
+      have a1 := abs_add_le (w μ - c μ) ((P : ℤ) * s μ)
+      have a2 : |(P : ℤ) * s μ| = P * |s μ| := by
+        rw [abs_mul, abs_of_nonneg (by positivity)]
+      have a3 : (P : ℤ) * |s μ| ≤ P * r :=
+        mul_le_mul_of_nonneg_left (hs μ) (by positivity)
+      linarith
+    push_cast at h1
+    constructor <;> nlinarith [h1.1, h1.2]
+  have hcc : CCorr c ℓ₁ ℓ₂ P q₁ q₂ (zcast q₁ (bidx P w + s)) (zcast q₂ (bidx P w + s)) :=
+    ⟨w + fun μ => (P : ℤ) * s μ, hbox, by rw [bidx_add_shift' hP], by rw [bidx_add_shift' hP]⟩
+  exact hE _ _ hcc
 
 /-! ### Equality of sums and products over corresponding index sets -/
 

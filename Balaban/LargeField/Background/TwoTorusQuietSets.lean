@@ -37,7 +37,8 @@ theorem cSetCorr_cubeSub (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
     (hq₂ : 4 ≤ n₂ j) {X₁ : Set (Torus S.d (M * n₁ K * S.L ^ K))}
     {X₂ : Set (Torus S.d (M * n₂ K * S.L ^ K))} (hX : SetCorr cc X₁ X₂) {E₁ : Set (Torus S.d (n₁ j))}
     {E₂ : Set (Torus S.d (n₂ j))}
-    (hE : CIff cc (M * n₁ K * S.L ^ K) (M * n₂ K * S.L ^ K) (S.L ^ j * M) (n₁ j) (n₂ j) E₁ E₂) :
+    (hE : ∀ y₁ y₂, CCorr cc (M * n₁ K * S.L ^ K) (M * n₂ K * S.L ^ K) (S.L ^ j * M) (n₁ j)
+      (n₂ j) y₁ y₂ → CubeSub (S := S) (n := n₁) M K j y₁ X₁ → (y₁ ∈ E₁ ↔ y₂ ∈ E₂)) :
     CSetCorr cc (M * n₁ K * S.L ^ K) (M * n₂ K * S.L ^ K) (S.L ^ j * M) (n₁ j) (n₂ j)
       {y | CubeSub (S := S) (n := n₁) M K j y X₁ ∧ y ∈ E₁}
       {y | CubeSub (S := S) (n := n₂) M K j y X₂ ∧ y ∈ E₂} :=
@@ -122,7 +123,7 @@ theorem cSetCorr_quietA1 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
   have h4₂ : 4 ≤ n₂ k := by rw [hn₂]; nlinarith
   have hE := (ciff_comap_coarse hnn₁ hnn₂ hk (ciff_omegaNb hnn₁ hnn₂ hk hH h₁ h₂)).compl
   exact cSetCorr_cubeSub hnn₁ hnn₂ (by omega) h4₁ h4₂
-    ((hH.Z_corr (k + 1)).sdiff_iff (hH.Z_corr k).setIff) hE
+    ((hH.Z_corr (k + 1)).sdiff_iff (hH.Z_corr k).setIff) (fun y₁ y₂ h _ => hE y₁ y₂ h)
 
 /-- The cubes of `quietA₂` correspond. -/
 theorem cSetCorr_quietA2 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
@@ -132,7 +133,7 @@ theorem cSetCorr_quietA2 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
       (n₂ (k + 1)) (quietA2 a₁ k) (quietA2 a₂ k) :=
   cSetCorr_cubeSub hnn₁ hnn₂ hk (by omega) (by omega)
     ((hH.Z_corr (k + 1)).sdiff_iff (hH.Omega_corr k).setIff)
-    (ciff_omegaNb hnn₁ hnn₂ hk hH h₁ h₂)
+    (fun y₁ y₂ h _ => ciff_omegaNb hnn₁ hnn₂ hk hH h₁ h₂ y₁ y₂ h)
 
 /-- The cubes of `quietA₃` correspond. -/
 theorem cSetCorr_quietA3 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
@@ -141,7 +142,7 @@ theorem cSetCorr_quietA3 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
     CSetCorr cc (M * n₁ K * S.L ^ K) (M * n₂ K * S.L ^ K) (S.L ^ (k + 1) * M) (n₁ (k + 1))
       (n₂ (k + 1)) (quietA3 a₁ k) (quietA3 a₂ k) :=
   cSetCorr_cubeSub hnn₁ hnn₂ hk (by omega) (by omega) (hH.Omega_corr k)
-    (ciff_omegaCNb hnn₁ hnn₂ hk hH h₁ h₂)
+    (fun y₁ y₂ h _ => ciff_omegaCNb hnn₁ hnn₂ hk hH h₁ h₂ y₁ y₂ h)
 
 /-- The cubes of `quietA₄` correspond. -/
 theorem cSetCorr_quietA4 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
@@ -150,7 +151,7 @@ theorem cSetCorr_quietA4 (hnn₁ : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1))
     CSetCorr cc (M * n₁ K * S.L ^ K) (M * n₂ K * S.L ^ K) (S.L ^ (k + 1) * M) (n₁ (k + 1))
       (n₂ (k + 1)) (quietA4 a₁ k) (quietA4 a₂ k) :=
   cSetCorr_cubeSub hnn₁ hnn₂ hk (by omega) (by omega) (hH.Z_corr (k + 1))
-    (ciff_omegaCNb hnn₁ hnn₂ hk hH h₁ h₂).compl
+    (fun y₁ y₂ h _ => (ciff_omegaCNb hnn₁ hnn₂ hk hH h₁ h₂).compl y₁ y₂ h)
 
 end Sets
 
