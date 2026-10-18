@@ -414,6 +414,164 @@ asks for some activities, so A6-3 is stronger than strictly needed. This is the 
 reading in LastIntegralInput's docstring. If the Lean class's `ℳ^{(j)}` at the constant configuration were not the source object
 (open item (a) of A6-1), A6-3 would have to change with it.
 
+## BaseStepInput sub-inputs (W1110)
+
+**PROVED** (`Balaban/Spine/BaseStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem baseStepInput_of_parts (hP : BasePreStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hR : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ) (hQ : FlowRateInput T P6)
+    (hF : BaseFlatStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    BaseStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+```
+It follows LFR Thm II.7.10. The density is the physical one, not an arbitrary member:
+`firstDensity d N T β a z₁ ν h kf : 𝒟[d, N, T, β, a, kf + 1, 1]` is the landed `baseRho1` (LFR (II.7.1),
+`ρ₁(ψ₁; g) = z₁^{N|T^{(1)}|} ∫ ∏_y t₀(z₁ψ₁(y), (Qφ)(y)) e^{−βH(φ)+⟨g,φ⟩} dσ(φ)`) read on the tori of the family. On the torus `n_K`
+the coarse torus is that of the `1`-blocks, side `M n_K L^{K−1}`; the fine source `g : 𝕋_ℓ × {1, …, N} → ℂ`, `ℓ = M n_K L^K`, is
+read through `L · M n_K L^{K−1} = ℓ` (`firstDensityAt`, `firstSide_eq`). The kernel constant is `a = cs₀.aKer`; the field
+renormalization `z₁ > 0` is existential in the sub-inputs. The threshold is the largest of the three thresholds.
+
+Proved inside:
+* `∫ρ₁ dψ₁ = Z(g)` with the constant `1` (LFR Thm II.7.10 (a)): `integral_firstDensityAt`, `integralIsZ_firstDensity`, from the
+  landed exact starting identity `basePhysicalDensity`; `IntegralIsZ.of_integral_eq` carries it to a density with the same
+  integrals;
+* regime (A): (I.2) at the scale `1` from (H.6) at `1` (`PreClassAt.succ`, W1102, with `FlowRateInput`), then `R` at the scale `1`
+  (`RInput` at `k = 1`). At the scale `1` no component is ripe (LFR Lemma II.7.2 (c)), so `R` keeps the density; `RInput` asserts
+  only a member of `ℛ_1` with the same integral, which the source gives;
+* `neZero_of_norm_eq_one` (`N ≥ 1` from the unit field, for `basePhysicalDensity`).
+
+The base step reuses two sub-inputs of the class step (`RInput`, `FlowRateInput`, at `k = 1`); its new sub-inputs are the first step
+proper in the two regimes of LFR §II.7.1. They need the exemption of the seven inputs (rule 10): their truth is the open work of
+blocker 1. General `d, N` and general constants.
+
+1. **`BasePreStepInput` (A3-1, regime (A), `k₀ ≥ 1`; LFR Def. II.7.6, Lemmas II.7.7, II.7.8, Prop. II.7.9, Thm II.7.10 (b)–(d);
+   P4 (2.42)–(2.54); P5 p. 487, (2.47) and P6 (3.2) at `k = 0`).** There are `z₁ > 0` and `ν₁` with
+   `PreClassAt … kf 1 0 (firstDensity … (cs₀ κ c₉).aKer z₁ ν h kf) ν₁`: `ρ₁ ∈ ℛ^pre_1` with (I.2) at the scale `0`, `β_0 = β`, `ν_0 = ν`
+   and `LFCoherent`. The pre-`R` form is the one in which Prop. II.7.9 states the output (boundary terms with `3κ/2`, `B_st`;
+   `ℛ^{(1)}_m ≤ ½β₁^{−m−1}`).
+   * Landed (general `d, L`, `LargeField/Base/`):
+     * exact identities: `basePhysicalDensity`, `baseFirst_partition_integral`, `baseRho1_eq_sum_firstP`,
+       `baseRho1_eq_sum_firstP_conditional_recordInterior`, `baseRetained_disintegrate`, `baseRecord_good_region`,
+       `baseChartIntegral_retained`;
+     * charts, cut operators and determinants of a record: `baseFirstRecord_inner_pos_of_goodCubes`,
+       `baseFirstRecord_chartIntegral_of_goodCubes`, `baseFirstCut_integral_of_posDef`, `baseFirstRecord_cut_posDef_of_goodCubes`,
+       `baseFirstRecord_cut_logDet_factorization_of_goodCubes`, `baseFirstCut_multiplier_bound`;
+     * the covariance `C^{(0)}`: `baseCovX_bound`, `baseCovX_analytic`, `baseCovX_sqrt`, `baseCovX_log`, `baseCovX_sub_decay`,
+       `baseCovX_exact`, `cutXOperator_zero_eq_cutOperator`, `baseOp_shift_mul_constrainedCov`, `baseConstrainedCov_analytic`,
+       `baseParametrix_analytic`, `baseDGSetting_exists`;
+     * the background: `baseBackground_analytic_localB`, `decBg_one_eq_bgField_of_inDomainR`, `baseSectorDatum_decBg_one`,
+       `baseSectorDatum_inDomainR_c7`; the activities of a chart: `baseActivity_LabelAct`;
+     * the first components (W981): `baseFirstRecord_weighted_count_of_injectiveCoding`,
+       `baseFirstRecord_localRestriction_weighted_count`, `baseFirst_operator_majorant_of_fiveShares`, `baseFirst_budget_ge_p2Run`;
+     * the cutoff transfer: `baseCutoffTransfer`, `baseFootprint_margin_of_cutoff_of_bondCross` (named `bondCross`);
+     * the R7 carrier `BaseSmallFieldInput` (defined and audited, inhabited only by the zero input), `baseKphys_eq_Kt0_mul_exp`,
+       `baseKC_eq_baseK0_mul_exp`, `baseStepData_of_input`.
+   * Open (sub-sub-inputs, in the order of the proof of Thm II.7.10):
+     * (a) the small-field part (Prop. II.7.9): the small-field data at the scale `1` on `Z^c_1` from the hemisphere charts around the
+       background, `C^{(0)}` and the chart Jacobian; in regime (A) the ν-free system (blocker 2); the first fluctuation integral's
+       localization and cluster expansion (I-8 at `k = 0`: the step's engine asks `a_k ∈ [1/2, 2]` (`XSetting`, `XCover`), while the
+       first step has `a_0 = 0`, and a lower generating set (`FlCore.hPmp`), which does not exist at `k = 0`, BASEPLAN W822, W856;
+       the covariance itself is landed through the mass shift of BASEX); (H.5), (H.6) at `1` with one `c₈`; `ℛ^{(1)}_m` (P5 Prop. 3.2
+       at `k = 0`); the boundary terms `ℬ^{(1)}`;
+     * (b) the base kernels: the R7 carrier populated with `K̃^w_0 e^{b_0}` (with the obligation D4 of BASECARRIER-AUDIT,
+       `Kphys^w(g) Kphys^{w'}(0) = Kphys^{w'}(g) Kphys^w(0)`), and the bound (II.7.5) with the gain `κ^{(0)}` (Lemma II.7.8; P5 (1.31)
+       for the first components, item 17), with the margin across `∂Ω″` (BASEPLAN T1, the premise `bondCross`);
+     * (c) the transform relation (BASECARRIER item T): `D1PreForm2 (F.ctx …) vc (F.lf nK) h (firstDensity …)`, the sum over histories
+       of the base kernels times the small-field factor. It needs the localized background, the chart reconstruction, the cutoff
+       transfer and the allocation of the action;
+     * (d) the frame of the carrier. Ruling R7 specialized it to `M = K = 1` (`Geo S n R 1`, `RegionHistory S n R k0 1`,
+       `H.localHistory 1 1 1 Z'`), while the class at the prefix's constants has `M = T.M = c M₁ ≥ 14` (`PrefixInput`) and
+       `K = k̂_f + 1 ≥ 2` (`ν L² ≤ 7/8` forces `k̂_f ≥ 1`). No landed map carries the carrier's data into the scale-`0` step data of
+       `RepFam … (kf + 1) T.M …`. The carrier must be restated at general `M, K`, or a transport proved, before it can populate
+       the class;
+     * (e) the budget (H6′)^pre at the scale `1`: `Rep.budgetPre_of_LF2` needs `K ≤ top`, and `top = 1` (`D4Pin 1`) at `K ≥ 2`. The
+       truncated counter history of `Rep.budgetFlat_of_LF2_trunc` (`Rep.lf2HypTrunc`) is the model; `BudgetSetup.run` asks (I.2) at
+       every scale (item 4 (c)); the base case of the recursion is LFR Lemma II.7.2 (e);
+     * (f) (D8) of the base data (Thm II.7.10 (d)): the two-torus agreement of `K₀`, `b₀` and `ℬ^{(1)}`, as for the quiet kernel
+       (W1103, W1104: `bgLocPiece_twoTorus`);
+     * (g) `β_0 = β`, `ν_0 = ν` (by construction of the running constants).
+2. **`BaseFlatStepInput` (A3-2, regime (B), `k₀ = 0`; the same sources with complete backgrounds and P4's system).** There are
+   `z₁ > 0` and `ν₁` with `FlatClassAt … kf 1 (firstDensity … (cs₀ κ c₉).aKer z₁ ν h kf) ν₁`.
+   * Landed: as for A3-1.
+   * Open: (a)–(d), (f), (g) of A3-1 with complete backgrounds from the start (the switch at `0 → 1` is vacuous) and P4's system; the
+     budget (H6♭) at the scale `1` at `K = k̂_f + 1` by `Rep.budgetFlat_of_LF2_trunc` (`k₀ = 0 ≤ 1 ≤ k̂_f`, `top = 2`), with its
+     premises `S.Good`, (H-λ) `hH1`, `hH2` and `BudgetSetup` (item 4 (c), (d)).
+   * (I.2) at the scale `1` is part of this sub-input, not proved from (H.6) as in regime (A): `FlatRep` fixes (I.2) up to its own
+     scale, and a variant with (I.2) up to `r` would copy it. A core `FlatRep … r` with `FlatRep` as its instance belongs to
+     `Spine/RootFInputs.lean`, outside this task.
+
+**Why the first step is not split further.** The expected pieces (the small-field step, the first large-field component bound,
+the assembly with (D8) and `β_0 = β`) are fields of one representation `F` of one density. Sub-inputs asserting the small-field half
+for some `𝔰` and the large-field half for some data cannot be combined unless both speak of the same `F`, and no landed operator
+constructs the representation of the first step (the R7 carrier is not in the class's frame, (d)). The clause `D2SF2.sfClass` has
+its small-field density `ρsf` existential, so only (D1) ties `𝔰` to `ρ₁`, and (D1) involves both halves. A statement "every
+representation of `ρ₁` satisfying (D1) has the small-field clauses" would be false, since the split of `ρ₁` into kernels and
+small-field factor is not unique. (D8) and `β_0 = β` are likewise properties of the constructed representation; over all
+representations of `ρ₁` they fail (audit D1: rescale the boundary terms on one torus). So (a)–(g) are sub-sub-inputs of A3-1 and
+A3-2. Each becomes a theorem once the first step's representation is defined at the class's `M, K`.
+
+## KfZeroInput sub-inputs (W1110)
+
+**PROVED** (`Balaban/Spine/KfZero.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem kfZeroInput_of_parts (hG : KF0GoodSectorInput d N δ T thr)
+    (hB : KF0BadSectorInput d N δ T thr) : KfZeroInput d N δ T
+```
+for every block threshold `thr : ℝ → ℝ → ℝ → ℝ → ℝ` (`r = thr κ c₉ β ν`; the notes take `r = δ_β = A log(βa)/√(βν)`). It follows
+route (A) of `KF0-INFL.md`, hard physical sectors. On an admissible torus (`M L^{kf+1} ∣ ℓ`) the blocks have side `s = M L` (the cubes
+of Root-F's scale-`1` polymers), `m = ℓ/(M L)` per side (`exists_blockCount`). A block is good if `|φ_x − h| < r` at all its sites.
+`Z_B(g) = kf0Sector (M L) m r β ν h B g` is the sector of the bad set `B`.
+
+Proved inside:
+* the sector identity `Z(g) = Σ_B Z_B(g)` (landed `partitionFunction_eq_sum_kf0Sector`, (K0.2));
+* the activities `p = a + b` (`actAdd`; the clause lemmas `ActSupportAt.add`, `ActAnalyticAt.add`, `ActLocalAt.add`, `ActBoundAt.add`,
+  `ActAgree.add` of `Spine/LastIntegral.lean`), with the amplitudes `c₉/4 + c₉/4`; `E` is the vacuum term of the all-good sector;
+* rule 10 for A7-2: for `r > 2` every block is good (`kf0Sector_eq_zero_of_two_lt`), so `KF0BadSectorInput` holds with `b = 0`
+  (`kf0BadSectorInput_of_two_lt`). `KF0GoodSectorInput` needs the exemption of the seven inputs.
+
+1. **`KF0GoodSectorInput` (A7-1, the all-good gas; LF-BASE-KF0 Part F.2, Thm F.1, (F.13); KF0.md "ordinary expansion").** There
+   are `a, E` with `ObservableActivities … κ (c₉/2) δ 1 kf a` and, on every admissible torus and the unit ball,
+   `Z_∅(g) = exp(E_ℓ + ⟨g,h⟩ + Σ_X a_ℓ(X; g))`.
+   * Landed: `block_gas`, `block_gas_hypotheses_d3` (KF0AllGoodGas); `allPlus_gas`, `allPlus_gas_instance`, `blockActivity_abs_le`
+     (KF0AllPlusGas); `f1_integrand_eq`, `f1_weighted_small` (KF0F1Assembly, Thm F.1); `kf0_cutoff_good_sites`,
+     `kwSqrt_cutoff_good_sites`, `integral_indicator_small_eq`; the walks `kf0Adj_pow_torus_eq`, `kf0CR_torus_eq`, `kf0_lemmaH1`,
+     `kf0CovAtom_torus_eq` (`Green/KF0*`).
+   * Open:
+     * (a) `allPlus_gas` is the Gaussian chart integral with the product cutoff `sup_y |ψ_y| ≤ p` (on which every site is good,
+       (F.6)). `Z_∅` has the physical threshold, which is not local in `ψ` (LF-BASE-KF0 E.4). The good sites with a large Gaussian
+       variable must be expanded inside the all-good sector, or `Z_∅` expanded in the spin variables;
+     * (b) the complex source: `allPlus_gas` has a real source `src`; the activities must be analytic on the `ℓ¹` ball;
+     * (c) the measurable walk terms with clipping (KF0AllGoodGas, T4 (i)–(ii));
+     * (d) the regrouping onto `IsPolymer d ℓ (M L)` and the exact two-torus agreement of the increments (walk lifts, PE (f));
+     * (e) the amplitude `c₉/4` (the rate (F.13)).
+2. **`KF0BadSectorInput` (A7-2, the bad sectors with the reversed spins as a linked gas; LF-BASE-KF0 Parts D, E, G; KF0-HEAVY,
+   KF0-LINK, KF0-ONECORE; `astra/KF0B.md`; P7 (4.11)–(4.14); blocker 1).** There is `b` with
+   `ObservableActivities … κ (c₉/2) δ 1 kf b` and `Σ_B Z_B(g) = Z_∅(g) exp(Σ_X b_ℓ(X; g))`.
+   * Landed: the sectors (`kf0Sector_iterated`, `energy_split`, `goodEnergy_expand`, `exp_neg_energy_le_peierls`, `kf0SectorLint_eq`,
+     `partitionFunction_eq_sum_kwNormRatio`, `kf0SectorLint_le_peierls`, `kf0SectorNorm_peierls_charge`,
+     `kf0SectorLint_le_charged_goodIntegral`, `kf0BadFactor_le_gas_charge`); the good chart and the shifted sector
+     (`lintegral_goodInner_gaussian`, `lintegral_goodInner_shifted`, `goodReducedConst_ge`); the collars (`mean_outside_collars`,
+     `collar_budget_uniform`); the hole walks (`kwTraceDiff_eq_inclExcl`, `kwRootedLoopCount_torus_eq`, `kwOp_inv_sub_trunc_hasSum`);
+     the gas theorems (`gasOp_pe`, `gasOp_pe_hole`, `gasLinked_activity_bound`).
+   * Open:
+     * (a) the heavy objects (`CompleteHeavyLocality`, KF0-HEAVY): bounded heavy functions of finite support on one common product
+       reference, with the support-weighted bound (K0.6);
+     * (b) the integrated linked hard-chart estimate (KF0-LINK §5, L38.11): the influence of a bad core on the exterior through
+       `C_G = K_G^{−1/2}` (KF0-ONECORE);
+     * (c) the reversed spins (KF0B): Theorem B.1, the independent-spin reference is not a small-bond expansion; Theorem B.7, the raw
+       exact cells are not a singleton gas, so the expansion must be linked (P7 (4.11));
+     * (d) the exponentiation with exact lifts and the regrouping onto scale-`1` polymers; the amplitude `c₉/4`.
+   * One sub-input, not two. The reversed-spin activity and its linked gas cannot be separated: the only statement between them would
+     be "`Σ_{B≠∅} Z_B/Z_∅` is the linked gas of the heavy weights", and no heavy weight is landed (`CompleteHeavyLocality` has no
+     producer). A split by hemisphere is definable but separates no open work: the bad cores of KF0-HEAVY have
+     `a_Q = max|φ_y − h| ∈ [δ_β, 2]` on both sheets, and the exterior influence of KF0-ONECORE is the same for both.
+
+**Strength.** A7-1 and A7-2 pin the decomposition to the physical sectors at the threshold `thr`; `KfZeroInput` asks only for some
+activities. For `r > 2`, A7-2 holds with `b = 0` and A7-1 is `KfZeroInput` at half the amplitude, so the split separates open work
+only for small thresholds (the provider's choice `δ_β → 0`). Given A7-1, A7-2 and `KfZeroInput` imply each other up to the
+amplitudes (`b = p − a`, the difference of the vacuum terms on `X = ∅`, for a threshold that does not depend on `c₉`), so A7-2 is
+plausible exactly when the whole case is. The landed `rootF_kf0_partial_of_oneScaleInput` takes the one-scale input in ratio form,
+with `L, M` existential; `KfZeroInput` is that input in absolute form at the prefix's `L, M` (SPINE-AUDIT).
+
 ## Non-vacuity (D4, F5) and rule 10
 
 Inputs 3–6 are `∀ ρ ∈ class`. Input 2 asserts a member with `∫ρ₁ = cZ(g) ≠ 0`, inputs 3–5 propagate it, and the stop lemma

@@ -85,7 +85,8 @@ in Root-F's form (`ObservableActivities` with top scale `1` and half the amplitu
 terms `E_ℓ` such that, on every admissible torus (`M L^{kf+1} ∣ ℓ`, `m = ℓ/(M L)` blocks of side
 `M L` per side) and every source of the unit `ℓ¹` ball, the all-good sector (every spin within the
 threshold `r = thr κ c₉ β ν` of `h`) is `Z_∅(g) = exp(E_ℓ + ⟨g, h⟩ + ∑_X a_ℓ(X; g))`. In the source:
-the chart around `h` on every site (all spins of the sector lie in the open upper hemisphere), the
+the chart around `h` on every site (for `r ≤ √2` all spins of the sector lie in the open upper
+hemisphere), the
 massive Gaussian with covariance `(-Δ + ν)^{-1}` (the mass `ν > 7/8 L⁻²` makes it decay at the
 scale of one block), the walk localization of the analytic site and bond functions (Theorem F.1),
 the product cutoff and the Mayer expansion on the blocks (`block_gas`); the exact two-torus
