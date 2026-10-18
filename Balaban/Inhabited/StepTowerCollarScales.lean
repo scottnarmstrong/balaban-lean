@@ -31,8 +31,8 @@ of `k`, so that `K₂ Q ≤ (1 - q) / (2 q)` (`exists_stepTower_collar`), and `�
 (`FlNum.scale`, `FlNum.mono_δ₃`, `FlNum.at_fluct`), and the room
 `t_k + K₂ δ₃ + K₂ δ_fl ≤ ε_j` for every `j ≤ k` (`room_of_radii`:
 `q (1 + K₂ Q) + K₂ F η ≤ q + (1 - q) / 2 + (1 - q) / 4 ≤ 1`); the cover `ε_{k+1} ≤ t_k` holds
-with equality.  `eps_antitone`, `eps_gap`, `eps_lower` give the hypotheses on `ε` for the class
-sequence `ε_j = P.eps 3 3 j` with `q = 3^{-α}`.
+with equality.  `classEps_antitone`, `classEps_gap`, `classEps_lower` give the hypotheses on `ε`
+for the class sequence `ε_j = P.eps 3 3 j` with `q = 3^{-α}`.
 -/
 
 @[expose] public section
@@ -131,7 +131,7 @@ theorem exists_stepTower_collar_scales (m₀ : ℕ) (κlo : ℝ) {q : ℝ} (hq0 
 /-! ### The class sequence -/
 
 /-- The class sequence `ε_j = P.eps 3 3 j` is antitone (`α ≥ 0`, `α₀ ≥ 0`). -/
-theorem eps_antitone {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 3) :
+theorem classEps_antitone {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 3) :
     Antitone (P.eps 3 3) := by
   refine antitone_nat_of_succ_le fun j => ?_
   have hg := epsSeq_gapE 3 (P.alpha 3) P.α₀ hα₀ j
@@ -147,7 +147,7 @@ theorem eps_antitone {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 
   nlinarith
 
 /-- The gap of the class sequence: `ε_{j+1} ≤ 3^{-α} ε_j`. -/
-theorem eps_gap {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+theorem classEps_gap {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
     P.eps 3 3 (j + 1) ≤ (3 : ℝ) ^ (-P.alpha 3) * P.eps 3 3 j := by
   have hg := epsSeq_gapE 3 (P.alpha 3) P.α₀ hα₀ j
   have e : (1 - (1 - ((3 : ℕ) : ℝ) ^ (-P.alpha 3))) = (3 : ℝ) ^ (-P.alpha 3) := by
@@ -156,7 +156,7 @@ theorem eps_gap {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
   exact hg
 
 /-- The lower bound of the class sequence: `α₀ 3^{-α j} ≤ ε_j`. -/
-theorem eps_lower {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+theorem classEps_lower {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
     P.α₀ * (3 : ℝ) ^ (-(P.alpha 3 * (j : ℝ))) ≤ P.eps 3 3 j := by
   have ht : 1 ≤ epsTail j := by
     unfold epsTail
