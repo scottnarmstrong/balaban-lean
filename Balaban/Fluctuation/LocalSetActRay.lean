@@ -11,18 +11,21 @@ public import Balaban.Fluctuation.InteractionDir3
 # The ray integral of the third derivative depends only on the term along the ray
 
 The potential part of the zero-source term of a domain is `σ ∫₀¹ ω(t) ∂_w³ Ev(Θ, σ t x₀) dt`
-(`rayTerm (dl3 Ev w) ω x₀ σ Θ`).  The third derivative at a point of the ray only reads `Ev` on a
-segment through that point in the direction `w`, when `Ev` is analytic there (`dirL3_eq`).  Hence two
-terms `Ev`, `Ev'` read at two data `Θ`, `Θ'` give the same ray integral as soon as they agree near
-the ray:
+(`rayTerm (dl3 Ev w) ω x₀ σ Θ`).  The directional derivative `lineD v f x` is the derivative of the
+line function `t ↦ f(x + t v)` at `0`, so the third derivative at a point only reads the term on a
+segment through that point in the direction `v = (0, w)`.  Hence two terms `Ev`, `Ev'` read at two
+data `Θ`, `Θ'` give the same ray integral as soon as they agree near the ray (no analyticity is
+needed):
 
-* `rayTerm_dl3_congr_of_line`: if at every point `σ t x₀`, `t ∈ [0, 1]`, both terms are analytic on
-  a segment `σ t x₀ + τ w`, `|τ| < r`, and agree there, the two ray integrals are equal;
+* `lineD_congr_line`, `dl3_congr_line`: if `f(x + τ v) = g(x' + τ v)` for `|τ| < r`, the iterated
+  directional derivatives agree on the same segments;
+* `rayTerm_dl3_congr_of_line`: if at every point `σ t x₀`, `t ∈ [0, 1]`, the two terms agree on a
+  segment `σ t x₀ + τ w`, `|τ| < r`, the two ray integrals are equal;
 * `exists_segment_of_norm_lt`: in a space of functions on a finite set, if `|σ| |x₀ q| < c` for
   every `q`, then for every `t ∈ [0, 1]` a segment `σ t x₀ + τ w`, `|τ| < r`, lies in the box
   `|ψ q| ≤ c`;
-* `rayTerm_dl3_congr_of_box`: the two together, for terms analytic on `{Θ} × box` and
-  `{Θ'} × box` that agree there.
+* `rayTerm_dl3_congr_of_box`: the two together, for terms that agree on `{Θ} × box` and
+  `{Θ'} × box`.
 -/
 
 @[expose] public section
@@ -31,34 +34,59 @@ namespace Balaban.Fluctuation
 
 open Balaban.Localization Set Filter Metric Topology
 
-section Ray
+section Line
+
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+
+/-- **The directional derivative reads the function only on the line.**  If `f(x + τ v)` and
+`g(x' + τ v)` agree for `|τ| < r`, so do `lineD v f (x + τ v)` and `lineD v g (x' + τ v)`. -/
+theorem lineD_congr_line {f g : E → ℂ} {x x' v : E} {r : ℝ}
+    (h : ∀ τ : ℂ, ‖τ‖ < r → f (x + τ • v) = g (x' + τ • v)) :
+    ∀ τ : ℂ, ‖τ‖ < r → lineD v f (x + τ • v) = lineD v g (x' + τ • v) := by
+  intro τ hτ
+  unfold lineD
+  refine Filter.EventuallyEq.deriv_eq ?_
+  have hopen : IsOpen {s : ℂ | ‖τ + s‖ < r} :=
+    isOpen_lt (continuous_const.add continuous_id).norm continuous_const
+  filter_upwards [hopen.mem_nhds (by simpa using hτ)] with s hs
+  have e1 : x + τ • v + s • v = x + (τ + s) • v := by rw [add_smul, add_assoc]
+  have e2 : x' + τ • v + s • v = x' + (τ + s) • v := by rw [add_smul, add_assoc]
+  rw [e1, e2]
+  exact h _ hs
 
 variable {Λ : Type*} [NormedAddCommGroup Λ] [NormedSpace ℂ Λ]
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
 
+/-- **The third derivative reads the term only on the segment.**  If `Ev(Θ, z + τ w)` and
+`Ev'(Θ', z + τ w)` agree for `|τ| < r` (`r > 0`), then `dl3 Ev w (Θ, z) = dl3 Ev' w (Θ', z)`. -/
+theorem dl3_congr_line {Ev Ev' : Λ × F → ℂ} {Θ Θ' : Λ} {z w : F} {r : ℝ} (hr : 0 < r)
+    (h : ∀ τ : ℂ, ‖τ‖ < r → Ev (Θ, z + τ • w) = Ev' (Θ', z + τ • w)) :
+    dl3 Ev w (Θ, z) = dl3 Ev' w (Θ', z) := by
+  have hline : ∀ (Θ₀ : Λ) (τ : ℂ), ((Θ₀, z) : Λ × F) + τ • ((0 : Λ), w) = (Θ₀, z + τ • w) := by
+    intro Θ₀ τ
+    ext <;> simp
+  have h0 : ∀ τ : ℂ, ‖τ‖ < r → Ev (((Θ, z) : Λ × F) + τ • ((0 : Λ), w)) =
+      Ev' (((Θ', z) : Λ × F) + τ • ((0 : Λ), w)) := fun τ hτ => by
+    rw [hline, hline]; exact h τ hτ
+  have h3 := lineD_congr_line (lineD_congr_line (lineD_congr_line h0)) 0 (by simpa using hr)
+  simpa [dl3] using h3
+
 /-- **The ray integral of the third derivative reads the term only along the ray.**  If at every
 point `σ t x₀` of the ray (`t ∈ [0, 1]`) there is a segment `σ t x₀ + τ w`, `|τ| < r`, on which `Ev`
-(at `Θ`) and `Ev'` (at `Θ'`) are analytic and agree, then
+(at `Θ`) and `Ev'` (at `Θ'`) agree, then
 `rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ'`. -/
 theorem rayTerm_dl3_congr_of_line {Ev Ev' : Λ × F → ℂ} (ω : ℂ → ℂ) {x₀ w : F} {σ : ℂ}
     {Θ Θ' : Λ}
     (h : ∀ t : ℝ, t ∈ uIcc (0 : ℝ) 1 → ∃ r : ℝ, 0 < r ∧ ∀ τ : ℂ, ‖τ‖ < r →
-      AnalyticAt ℂ Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w) ∧
-        AnalyticAt ℂ Ev' (Θ', (σ * (t : ℂ)) • x₀ + τ • w) ∧
-        Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w) = Ev' (Θ', (σ * (t : ℂ)) • x₀ + τ • w)) :
+      Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w) = Ev' (Θ', (σ * (t : ℂ)) • x₀ + τ • w)) :
     rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ' := by
   unfold rayTerm
   congr 1
   refine intervalIntegral.integral_congr fun t ht => ?_
   obtain ⟨r, hr, hτ⟩ := h t ht
-  rw [dl3_apply, dl3_apply, dirL3_eq hr (fun τ hτ' => (hτ τ hτ').1),
-    dirL3_eq hr (fun τ hτ' => (hτ τ hτ').2.1)]
-  congr 1
-  refine dirS3_congr ?_
-  filter_upwards [Metric.ball_mem_nhds (0 : ℂ) hr] with τ hτ'
-  exact (hτ τ (by simpa using hτ')).2.2
+  exact congrArg _ (dl3_congr_line hr hτ)
 
-end Ray
+end Line
 
 section Box
 
@@ -97,20 +125,16 @@ theorem exists_segment_of_norm_lt {x₀ w : Q → ℂ} {σ : ℂ} {c : ℝ}
 
 variable {Λ : Type*} [NormedAddCommGroup Λ] [NormedSpace ℂ Λ]
 
-/-- **The ray integrals agree for terms that agree on the box.**  Let `Ev` be analytic at the
-points `(Θ, ψ)` and `Ev'` at the points `(Θ', ψ)` with `|ψ q| ≤ c` for all `q`, and let them agree
-there.  If `|σ| |x₀ q| < c` for every `q`, then
+/-- **The ray integrals agree for terms that agree on the box.**  If `Ev(Θ, ψ) = Ev'(Θ', ψ)` for
+every `ψ` with `|ψ q| ≤ c` for all `q`, and `|σ| |x₀ q| < c` for every `q`, then
 `rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ'`. -/
 theorem rayTerm_dl3_congr_of_box {Ev Ev' : Λ × (Q → ℂ) → ℂ} (ω : ℂ → ℂ) {x₀ w : Q → ℂ} {σ : ℂ}
-    {Θ Θ' : Λ} {c : ℝ}
-    (hEv : ∀ ψ : Q → ℂ, (∀ q, ‖ψ q‖ ≤ c) → AnalyticAt ℂ Ev (Θ, ψ))
-    (hEv' : ∀ ψ : Q → ℂ, (∀ q, ‖ψ q‖ ≤ c) → AnalyticAt ℂ Ev' (Θ', ψ))
-    (heq : ∀ ψ : Q → ℂ, (∀ q, ‖ψ q‖ ≤ c) → Ev (Θ, ψ) = Ev' (Θ', ψ))
+    {Θ Θ' : Λ} {c : ℝ} (heq : ∀ ψ : Q → ℂ, (∀ q, ‖ψ q‖ ≤ c) → Ev (Θ, ψ) = Ev' (Θ', ψ))
     (hσx : ∀ q, ‖σ‖ * ‖x₀ q‖ < c) :
     rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ' := by
   obtain ⟨r, hr, hseg⟩ := exists_segment_of_norm_lt (w := w) hσx
-  exact rayTerm_dl3_congr_of_line ω fun t ht => ⟨r, hr, fun τ hτ =>
-    ⟨hEv _ (hseg t ht τ hτ), hEv' _ (hseg t ht τ hτ), heq _ (hseg t ht τ hτ)⟩⟩
+  exact rayTerm_dl3_congr_of_line ω fun t ht =>
+    ⟨r, hr, fun τ hτ => heq _ (hseg t ht τ hτ)⟩
 
 end Box
 
