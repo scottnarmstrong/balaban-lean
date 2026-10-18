@@ -191,6 +191,52 @@ theorem windowGenSet_Ω_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     exact ⟨fun _ => hfm, fun _ => Finset.mem_union_right _ (Finset.mem_inter.2 ⟨hbd,
       Finset.mem_sdiff.2 ⟨hUnb, hyZ⟩⟩)⟩
 
+/-- Above the layer `j + 1` the window has no site on the ball around a piece `(j, c)` with
+`j < m'`. -/
+theorem windowGenSet_Ω_not_mem_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j < m') (hk1j : S.k1 (m' + 1) ≤ j) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx1 : cubeMap n S.L M (m' + 1) (j + 1) x ∈ c.1) {t : ℕ} (ht : t ≤ ⌊R (j + 1)⌋₊)
+    (hxy : supDist y x ≤ t * (S.L ^ j * M)) {m : ℕ} (hm : j + 2 ≤ m) (hmk : m ≤ m' + 1) :
+    y ∉ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
+  classical
+  have hL := H.F.ok.two_le_L
+  have hk1pos := hW.k1_pos hkK
+  have hnn : ∀ q, q < m' + 1 → n q = S.L * n (q + 1) := fun q hq => H.F.hnn q (by omega)
+  have hfull : ∀ q, (windowOfHistory H Z g hkK hW).full.Ω q =
+      (H.locGen Z M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j)).Ω q :=
+    fun q => RegionHistory.windowOfHistory_full_Ω hkK hW q
+  have hyn : y ∉ (windowOfHistory H Z g hkK hW).full.Ω (j + 2) := by
+    rw [hfull, mem_locGen_succ (by omega)]
+    intro hy
+    have hxz : cubeMap n S.L M (m' + 1) (j + 1) x ∈ ((H.locRH (m' + 1) Z).step (j + 1)).Z := by
+      rw [locRH_Z Z (show j + 1 ≤ m' + 1 by omega) (by omega)]
+      exact Finset.mem_coe.2 (mem_lin.2 ⟨c, mem_ancFin.1 hc, hx1⟩)
+    have hOm : blockMap S.L (n (j + 1 + 1)) (cubeMap n S.L M (m' + 1) (j + 1) y) ∈
+        ((H.locRH (m' + 1) Z).step (j + 1)).Omega := by
+      rw [cubeMap_succ hnn (by omega) y]; exact hy
+    have hfar := ((H.locRH (m' + 1) Z).step (j + 1)).fine_far
+      (Nat.pos_of_ne_zero (NeZero.ne S.L)) (hnn (j + 1) (by omega)) hOm hxz
+    have hd := cubeMap_supDist_le_of_ball H hkK (show j + 1 ≤ m' + 1 by omega)
+      (supDist_ball_mono (show j ≤ j + 1 by omega) hxy)
+    have : 0 < S.L := Nat.pos_of_ne_zero (NeZero.ne S.L)
+    have h5 := Nat.le_mul_of_pos_left (⌊R (j + 1)⌋₊ + 4) this
+    omega
+  have hyZ : y ∈ (windowOfHistory H Z g hkK hW).Z := by
+    by_contra hyZ
+    exact hyn ((windowOfHistory H Z g hkK hW).full.Ω_antitone (by omega) (show j + 2 ≤ m' + 1 by omega)
+      (Nat.le_succ _) (windowOfHistory_hOmK hkK hW (by omega) y hyZ))
+  intro h
+  rw [WindowPieces.windowGenSet_Ω] at h
+  simp only [Finset.mem_union, Finset.mem_inter, Finset.mem_sdiff] at h
+  rcases h with (⟨h1, -⟩ | ⟨h1, -⟩) | ⟨-, -, h3⟩
+  · exact windowCore_not_mem_of_gt (H := H) (Z := Z) (g := g) (S.k1 (m' + 1)) (k1_le hW)
+      (m := m) (by omega) y h1
+  · exact hyn ((windowOfHistory H Z g hkK hW).full.Ω_antitone (by omega) (show j + 2 ≤ m by omega)
+      (by omega) h1)
+  · exact h3 hyZ
+
 end RegionHistory
 
 end Balaban.LargeField

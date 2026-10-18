@@ -98,6 +98,23 @@ theorem piece_window_layers_iff_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m'
       · refine Or.inr fun hc' => h2 (Finset.mem_coe.2 (mem_lin.2 ⟨c, mem_ancFin.1 hc, ?_⟩))
         exact Finset.mem_coe.1 hc'
 
+/-- **Layers above `j + 1`** (`j < m'`): neither the piece nor the window has a site of layer `m`,
+`j + 2 ≤ m ≤ m' + 1`, on the ball; with `piece_window_layers_iff_ball` the layers `n ≤ m' + 1`
+of the two generating sets agree on the ball. -/
+theorem piece_window_layers_empty_above_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j < m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj.le) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    {t : ℕ} (ht : t ≤ ⌊R (j + 1)⌋₊) (hxy : supDist y x ≤ t * (S.L ^ j * M)) {m : ℕ}
+    (hm : j + 2 ≤ m) (hmk : m ≤ m' + 1) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj.le) y ∉
+        (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ∧
+      y ∉ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m :=
+  ⟨locGen_Ω_not_mem_of_gt g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK hm,
+    windowGenSet_Ω_not_mem_ball hkK hW hj hk1j hc
+      ((mem_Xfine_cast_iff g hkK hj.le c hK x).1 hx).1 ht hxy hm hmk⟩
+
 /-- The radius `t = 2` is admissible for every piece. -/
 theorem piece_window_layers_iff_ball_two (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}

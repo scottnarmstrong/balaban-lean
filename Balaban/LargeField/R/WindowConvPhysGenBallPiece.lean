@@ -55,4 +55,13 @@ theorem locGen_Ω_of_near {y}
     exact Finset.mem_union_left _ (Finset.mem_sdiff.2 ⟨hWu.subset_minLayer hmk hW, by
       rw [mem_fineK1]; exact hOm⟩)
 
+/-- The local family has no layer above `k + 1`. -/
+theorem locGen_Ω_not_mem_of_gt {y} {m : ℕ} (hm : k + 2 ≤ m) :
+    y ∉ (locGen g Hl k Zc hZc hk).Ω m := by
+  unfold Balaban.LargeField.locGen genBoundaryLocal
+  rw [boundaryGenSet_Ω]
+  unfold boundaryLayer
+  rw [minLayer_of_gt _ (by omega : k < m), minLayer_of_gt _ (by omega : k + 1 < m)]
+  simp
+
 end Balaban.Fluctuation
