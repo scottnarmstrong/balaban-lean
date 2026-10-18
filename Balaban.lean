@@ -2529,6 +2529,12 @@ public import Balaban.SmallField.IrrelTorusDefectFiledPower
 public import Balaban.SmallField.IrrelTorusDefectDensity
 public import Balaban.SmallField.IrrelTorusDefectDensitySum
 public import Balaban.SmallField.IrrelTorusDefectFiledAll
+public import Balaban.SmallField.IrrelTorusDefectBirthNu
+public import Balaban.SmallField.IrrelTorusDefectBirthTerms
+public import Balaban.SmallField.IrrelTorusDefectBirthSurrogate
+public import Balaban.SmallField.IrrelTorusDefectBirth
+public import Balaban.SmallField.IrrelTorusDefectBirthCap
+public import Balaban.SmallField.IrrelTorusDefectBirthCapMain
 public import Balaban.SmallField.IrrelTorusDefectRawSymm
 public import Balaban.SmallField.IrrelTorusDefectRawMatrix
 public import Balaban.SmallField.IrrelTorusDefectSizeTransport
@@ -2592,5 +2598,11 @@ public import Balaban.SmallField.IrrelTorusXidomPullbackData
 public import Balaban.SmallField.IrrelTorusXidomClassSplit
 public import Balaban.SmallField.IrrelTorusXidomClassRate
 public import Balaban.LargeField.Base.BaseFirstPhysicalConditional
+public import Balaban.LargeField.R.WindowConvR2
 public import Balaban.Green.FinalSelectedDomain
 public import Balaban.LargeField.R.WindowConvPhysAssemblyParts
+public import Balaban.LargeField.History.LateParentR3
+public import Balaban.LargeField.Operators.KerBoundSrc
+public import Balaban.LargeField.Operators.MainActionC
+public import Balaban.LargeField.Operators.QuietSrc
+public import Balaban.Inhabited.LateParentR3Witness

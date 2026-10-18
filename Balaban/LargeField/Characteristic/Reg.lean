@@ -74,6 +74,28 @@ def FieldClose (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) (ν : ℝ)
     vn (fun i => φ (x, i) - D.h x i) < δ / Real.sqrt ν ∧
       ‖∑ i, D.h x i * D.h x i - 1‖ < δ ^ 2 / ν
 
+/-- **The direction test of the datum on a collar** (ruling R2, route R-YM′;
+`notes/phase1/Q13-YM.md` §3 and §5 leaf 4): if `ν > 0`, the datum `Ψ` is within `δ / √ν` of `h`
+at every site of `S`, and `|h · h - 1| < δ² / ν`.  Unlike `FieldClose`, which tests the background
+on `S ∩ Ω₁`, it tests the datum itself, so it reaches the sites of a collar outside `Ω₁`. -/
+def DataDirClose (Ψ : Torus d (N₀ * L ^ q) → Fin N → ℂ) (h : Fin N → ℂ) (ν : ℝ)
+    (S : Finset (Torus d (N₀ * L ^ q))) (δ : ℝ) : Prop :=
+  0 < ν → (∀ x ∈ S, vn (fun i => Ψ x i - h i) < δ / Real.sqrt ν) ∧
+    ‖∑ i, h i * h i - 1‖ < δ ^ 2 / ν
+
+/-- `DataDirClose` reads the datum only on `S`. -/
+theorem dataDirClose_congr {Ψ Ψ' : Torus d (N₀ * L ^ q) → Fin N → ℂ} {h : Fin N → ℂ} {ν δ : ℝ}
+    {S : Finset (Torus d (N₀ * L ^ q))} (hΨ : ∀ x ∈ S, Ψ x = Ψ' x) :
+    DataDirClose Ψ h ν S δ ↔ DataDirClose Ψ' h ν S δ := by
+  unfold DataDirClose
+  refine imp_congr_right fun _ => and_congr ?_ Iff.rfl
+  exact forall₂_congr fun x hx => by rw [hΨ x hx]
+
+/-- At mass `ν ≤ 0` the direction test is vacuous. -/
+theorem dataDirClose_of_nonpos {Ψ : Torus d (N₀ * L ^ q) → Fin N → ℂ} {h : Fin N → ℂ} {ν δ : ℝ}
+    {S : Finset (Torus d (N₀ * L ^ q))} (hν : ν ≤ 0) : DataDirClose Ψ h ν S δ :=
+  fun hν' => absurd hν' (not_lt.2 hν)
+
 variable (a : ℕ → ℝ) (μ : ℝ)
 
 /-- The inequalities of `Reg` (all but the domain conjunct), for the background of Def-5 with

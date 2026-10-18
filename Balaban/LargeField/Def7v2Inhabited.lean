@@ -196,6 +196,7 @@ theorem wCoh2 : Coh wS wR (kZero wS.d wS.L wβ ν) 27 (wCs ν (kZero wS.d wS.L w
 theorem wField2 : FieldClauses wS k0 1 (wCs ν k0) (wSF2 ν 3) whv where
   h_unit := whv_norm
   mu_eq := fun _ _ => rfl
+  muBg_eq := fun _ _ => rfl
   muAct_eq := fun _ _ => rfl
 
 theorem wForm2 (nK : ℕ) [NeZero nK] :

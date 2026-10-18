@@ -149,7 +149,10 @@ open Classical in
 and the external direction `h`.  The factors are, in the order of the source: the Gaussians of
 `T^{(k)}`; `χ_k(Z^c_k ∩ Z' ∩ (Ω^{∼3})^c)`; `χ'_{k+1}(Ω^{∼3} ∩ Ω^c ∩ Z')`;
 `χ'_{k+1}(Ω ∩ (Ω^c)^{∼3} ∩ Z')`; `χ_{k+1}(Ω^{∼-3} ∩ Z')`; `χ^new_k(Z')`; the indicator that the
-data of the local background lie in `𝒟_ℝ`; and `e^{-𝒜_{k+1}(Z';ψ)}`. -/
+data of the local background lie in `𝒟_ℝ`; and `e^{-𝒜_{k+1}(Z';ψ)}`.  The characteristic functions
+use the cutoff mass `cs.mu`.  The indicator asks the data in the real domain of the cutoff mass
+(the sharp condition of the source) and in that of the background mass `cs.muBg` (where the
+local background of the action is the solution of Theorem 7.1; ruling R2). -/
 noncomputable def quietKernel (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
   gaussProd N (locHist Hl M K (k + 1) Zc) k cs o x *
@@ -189,6 +192,8 @@ noncomputable def quietKernel (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o,
       subFluctField N (locHist Hl M K (k + 1) Zc) (k + 1) x) *
   (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+      (locData g Hl k Zc hZc hk o x hv) ∧
+    InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o x hv) then 1 else 0) *
   Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem o x hv)
 

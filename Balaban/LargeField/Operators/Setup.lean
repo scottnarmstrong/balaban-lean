@@ -46,12 +46,23 @@ structure Geo (S : Setting) (n : ℕ → ℕ) (R : ℕ → ℝ) (M : ℕ) where
 
 attribute [instance] Geo.neM1 Geo.nec
 
-/-- The running constants of the localized operators (all indexed by the scale). -/
+/-- The running constants of the localized operators (all indexed by the scale).
+
+There are three masses (ruling R2, route R-YM′ of `notes/phase1/Q13-YM.md` §5 leaf 1): the cutoff
+mass `mu` of the sharp characteristic functions and of the indicators of the real domains (zero
+for `j ≤ k₀`, P5 (1.18)-(1.19)), the background mass `muBg` of the backgrounds at which the actions
+are evaluated, and the mass `muAct` of the actions themselves.  The default of `muBg` is `mu`, the
+convention of P5-P7 (massless backgrounds below `k₀`); route R-YM′ takes `muBg = muAct`
+(`Def7.FieldClauses.muBg_eq`). -/
 structure OpConsts where
   /-- the weights `a_n` of the multiscale actions -/
   aw : ℕ → ℝ
-  /-- the fine-unit mass `μ_j` of the backgrounds (zero for `j ≤ k₀`) -/
+  /-- the cutoff mass: the fine-unit mass `μ_j` of the sharp characteristic functions and of the
+  indicators of the real domains (zero for `j ≤ k₀`) -/
   mu : ℕ → ℝ
+  /-- the background mass: the fine-unit mass of the backgrounds at which the actions are
+  evaluated (the local background `locBg` of the main action) -/
+  muBg : ℕ → ℝ := mu
   /-- the mass `ν_j L^{-2j}` of the main action (present for every scale) -/
   muAct : ℕ → ℝ
   /-- the dimensionless mass `ν_j` of the `h`-conditions -/

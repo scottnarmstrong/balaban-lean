@@ -259,16 +259,18 @@ theorem measurable_psiLevel :
 
 open Classical in
 theorem measurable_domainAction
-    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.mu q)) :
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.muBg q)) :
     Measurable fun p : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) ×
         NewCfg N (locHist Hl M K (k + 1) Zc) k =>
       (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+          (locData g Hl k Zc hZc hk p.1 p.2 hv) ∧
+        InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
           (locData g Hl k Zc hZc hk p.1 p.2 hv) then (1 : ℝ) else 0) *
         Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem p.1 p.2 hv) := by
   classical
   set G := locGen g Hl k Zc hZc hk with hG
   have hd : 0 < S.d := by
-    have := (hbg (k + 1)).hd; omega
+    have := (hbgB (k + 1)).hd; omega
   let hΩ : IsBlockUnion S.L (g.M1 * (g.c * n (k + 1))) (k + 1) (k + 1)
       (fineK1 g.M1 g.c (n (k + 1)) S.L k (Hl.step k).Omega) :=
     (isCubeUnion_fineK1 (Hl.step k).Omega).isBlockUnion (le_refl _)
@@ -280,10 +282,16 @@ theorem measurable_domainAction
       BlockCfg S.d (g.M1 * (g.c * n (k + 1))) S.L (k + 1) (k + 1) N) → BgData G N :=
     fun q => liftMixed G hΩ hGt q.1.toC q.2.toC (fun i => (hv i : ℂ))
   have RF := realFamily_liftMixed G hΩ hGt (fun i => hv i)
-  have hE : MeasurableSet {q | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D q)} :=
-    measurableSet_domR D hd RF.real RF.hconst RF.Ψc
-  obtain ⟨hcont, -⟩ := contOn_bg D (hbg (k + 1)) RF.Ψc RF.hc
-  have hphi := continuousOn_barPhi G D cs.aw (cs.mu (k + 1)) (bgC0 S.d S.L N) RF.Ψc hcont
+  have hE : MeasurableSet {q | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D q) ∧
+      InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D q)} :=
+    (measurableSet_domR D hd RF.real RF.hconst RF.Ψc).inter
+      (measurableSet_domR D hd RF.real RF.hconst RF.Ψc)
+  obtain ⟨hcont, -⟩ := contOn_bg D (hbgB (k + 1)) RF.Ψc RF.hc
+  have hcont' : ContinuousOn (fun q => bgFieldC G cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) (D q))
+      {q | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D q) ∧
+        InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D q)} :=
+    hcont.mono fun _ hq => hq.2
+  have hphi := continuousOn_barPhi G D cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) RF.Ψc hcont'
   let Φ : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) × NewCfg N (locHist Hl M K (k + 1) Zc) k →
       QY1 g N k × QMS g N k := fun p =>
     ((blockCfgOf g Hl.F.hnn (Nat.le_succ k) hk (subVarField N p.2 k),
@@ -298,13 +306,16 @@ theorem measurable_domainAction
     · exact measurable_blockCfgOf g Hl.F.hnn le_rfl hk (f := fun p : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) × NewCfg N (locHist Hl M K (k + 1) Zc) k => outField N p.1)
         fun y0 => (measurable_outField N _ y0).comp measurable_fst
   have hE' : MeasurableSet {r : QY1 g N k × QMS g N k |
-      InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1)} := hE.preimage measurable_fst
+      InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1) ∧
+        InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D r.1)} :=
+    hE.preimage measurable_fst
   have hf1 := continuousOn_expAction (histGenLevel g Hl k hk hrem) cs.aw (cs.muAct (k + 1)) hv
     (Xfine g Hl k Zc) (betaCanon S.d S.L (cs.beta (k + 1)) (k + 1) 0)
-    (E := {r : QY1 g N k × QMS g N k | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1)})
+    (E := {r : QY1 g N k × QMS g N k | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1) ∧
+      InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D r.1)})
     (ms := fun r => r.2) (φ := fun r => (fun (z : Site S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1)) =>
       (WithLp.toLp 2 fun i =>
-      (barField G (D r.1).Ψ (bgFieldC G cs.aw (cs.mu (k + 1)) (bgC0 S.d S.L N) (D r.1)) z i).re :
+      (barField G (D r.1).Ψ (bgFieldC G cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) (D r.1)) z i).re :
       EuclideanSpace ℝ (Fin N))))
     continuous_snd (hphi.comp continuous_fst.continuousOn (fun r hr => hr))
   have : OpensMeasurableSpace (QY1 g N k × QMS g N k) := Prod.opensMeasurableSpace
@@ -312,10 +323,12 @@ theorem measurable_domainAction
   have hcomp := hF.comp hΦ
   convert hcomp using 1
   funext p
-  rfl
+  refine congrArg₂ (· * ·) ?_ rfl
+  congr 1
 
 theorem quietKernel_measurable
-    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.mu q)) :
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.mu q))
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.muBg q)) :
     Measurable fun p : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) ×
         NewCfg N (locHist Hl M K (k + 1) Zc) k =>
       quietKernel g Hl k Zc hZc hk cs hrem p.1 p.2 hv := by
@@ -359,7 +372,7 @@ theorem quietKernel_measurable
         (Measurable.of_eval fun j => Measurable.of_eval fun y =>
           (measurable_subFluctField j y).comp measurable_snd)
     exact (measurable_chiNew _ _ _ _ _ _ _).comp hms
-  · exact measurable_domainAction g Hl k Zc hZc hk cs hrem hv hbg
+  · exact measurable_domainAction g Hl k Zc hZc hk cs hrem hv hbgB
 
 end Kernel
 

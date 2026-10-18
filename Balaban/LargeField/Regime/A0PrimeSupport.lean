@@ -150,6 +150,24 @@ theorem chiK_zero_mass_h_free {q : ℕ} (a : ℕ → ℝ) (δ : ℝ) (c n : ℕ)
     ⟨h, fun x hx i => by unfold cubeData; rw [liftSingle_h _ _ _ hx]⟩
     ⟨h', fun x hx i => by unfold cubeData; rw [liftSingle_h _ _ _ hx]⟩ _ _ _
 
+/-- `χ^ρ_q(□)` at mass zero does not depend on `h` (its direction test is vacuous). -/
+theorem chiKLong_zero_mass_h_free {q : ℕ} (a : ℕ → ℝ) (δ : ℝ) (c n ρ : ℕ) (y0 : Torus d n)
+    (h h' : Fin N → ℝ) :
+    chiKLong (M1 := M1) (N₁ := N₁) (L := L) (q := q) a 0 δ h c n ρ y0 =
+      chiKLong (M1 := M1) (N₁ := N₁) (L := L) (q := q) a 0 δ h' c n ρ y0 := by
+  funext ψ
+  unfold chiKLong
+  refine charFn_congr_apply ?_
+  unfold ChiKLongProp
+  refine and_congr ?_ ⟨fun _ => dataDirClose_of_nonpos (by simp),
+    fun _ => dataDirClose_of_nonpos (by simp)⟩
+  unfold ChiKProp
+  have hΨ : (cubeData (M1 := M1) (N₁ := N₁) (L := L) (q := q) h c n y0 ψ).Ψ =
+      (cubeData (M1 := M1) (N₁ := N₁) (L := L) (q := q) h' c n y0 ψ).Ψ := rfl
+  exact reg_zero_mass_h_free _ a hΨ
+    ⟨h, fun x hx i => by unfold cubeData; rw [liftSingle_h _ _ _ hx]⟩
+    ⟨h', fun x hx i => by unfold cubeData; rw [liftSingle_h _ _ _ hx]⟩ _ _ _
+
 /-- `χ'_{k+1}(□')` at mass zero and `νk = 0` does not depend on `h`. -/
 theorem chiPrimeNew_zero_mass_h_free {k : ℕ} (a : ℕ → ℝ) (δ : ℝ) {c n : ℕ}
     (hm : N₁ * L ^ (k + 1 - (k + 1)) = c * n) (y0 : Torus d n)
@@ -208,7 +226,8 @@ theorem chiY_zero_mass_h_free (hmu : C.cs.mu k = 0) (hv hv' : EuclideanSpace ℝ
   unfold chiY
   rw [hmu]
   refine Finset.prod_congr rfl fun y _ => ?_
-  exact congrFun (chiK_zero_mass_h_free (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L)
-    (q := k) C.weights (C.cs.delta k) C.geo.c (n k) y (fun i => hv i) (fun i => hv' i)) _
+  exact congrFun (chiKLong_zero_mass_h_free (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L)
+    (q := k) C.weights (C.cs.delta k) C.geo.c (n k) (dirRadius R k) y (fun i => hv i)
+    (fun i => hv' i)) _
 
 end Balaban.LargeField.Def7.SFCtx

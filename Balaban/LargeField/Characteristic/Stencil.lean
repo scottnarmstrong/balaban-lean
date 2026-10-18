@@ -188,6 +188,24 @@ theorem chiK_stencil {q : ℕ} (a : ℕ → ℝ) (μ δ : ℝ) (h : Fin N → �
     exact funext fun i => by simp only [BlockCfg.toC, this]
   exact charFn_congr (by simp only [ChiKProp, hD])
 
+/-- **The stencil of the extended cube test** (ruling R2): for `ρ ≥ 3`, `χ^ρ_q(□)` depends only
+on `ψ_q` on the blocks of the cubes of `□^{∼ρ}` (the cube test reads `□^{∼3}`, the direction test
+`□^{∼ρ}`). -/
+theorem chiKLong_stencil {q : ℕ} (a : ℕ → ℝ) (μ δ : ℝ) (h : Fin N → ℝ) (hL : 2 ≤ L)
+    (hc : 12 ≤ c) (hm : N₁ * L ^ (q - q) = c * n) {ρ : ℕ} (hρ : 3 ≤ ρ) (y0 : Torus d n)
+    {ψ ψ' : BlockCfg d (M1 * N₁) L q q N}
+    (hψ : ∀ x : Torus d (M1 * N₁ * L ^ q), blockMap (L ^ q * (c * M1)) n x ∈ nbhd ρ {y0} →
+      ψ (jBlock d L (M1 * N₁) q q x) = ψ' (jBlock d L (M1 * N₁) q q x)) :
+    chiKLong a μ δ h c n ρ y0 ψ = chiKLong a μ δ h c n ρ y0 ψ' := by
+  have hD : cubeData (M1 := M1) (N₁ := N₁) (L := L) (q := q) h c n y0 ψ =
+      cubeData h c n y0 ψ' := by
+    refine liftSingle_congr _ fun x hx => ?_
+    have := hψ x (nbhd_mono hρ subset_rfl (dataSites_genCube_near hL hc hm y0 hx))
+    exact funext fun i => by simp only [BlockCfg.toC, this]
+  refine charFn_congr (and_congr (by simp only [ChiKProp, hD]) (dataDirClose_congr fun x hx => ?_))
+  have := hψ x (mem_cubePre.1 hx)
+  exact funext fun i => by rw [this]
+
 /-- `χ_{k+1}(□')` depends only on `ψ_{k+1}` on the blocks of the cubes of `□'^{∼3}`. -/
 theorem chiNext_stencil {k : ℕ} (a : ℕ → ℝ) (μ δ : ℝ) (h : Fin N → ℝ) (hL : 2 ≤ L) (hc : 12 ≤ c)
     (hm : N₁ * L ^ (k + 1 - (k + 1)) = c * n) (y0 : Torus d n)

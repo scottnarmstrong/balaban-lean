@@ -52,6 +52,7 @@ theorem wM6 : (27 : ℕ) = wS.L ^ (wP6.m₀ + wC7.m₁) := by
 noncomputable def wCs (ν : ℝ) (k0 : ℕ) : OpConsts where
   aw := Def6.aIdeal 3 1 (5 / 4)
   mu := bgMass k0 wS.L (wνs ν)
+  muBg := fun j => wνs ν j / (wS.L : ℝ) ^ (2 * j)
   muAct := fun j => wνs ν j / (wS.L : ℝ) ^ (2 * j)
   nu := wνs ν
   delta := deltaRun 0 wS.p0 (5 / 4) wβs
@@ -149,6 +150,7 @@ theorem wCoh : Coh wS wR (kZero wS.d wS.L wβ ν) 27 (wCs ν (kZero wS.d wS.L w�
 theorem wField : FieldClauses wS k0 1 (wCs ν k0) (wSF ν 3) whv where
   h_unit := whv_norm
   mu_eq := fun _ _ => rfl
+  muBg_eq := fun _ _ => rfl
   muAct_eq := fun _ _ => rfl
 
 theorem wForm (nK : ℕ) [NeZero nK] :
