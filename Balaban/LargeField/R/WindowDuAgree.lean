@@ -91,6 +91,56 @@ theorem du_eq_physical_of_fields (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1
     unfold blockOf
     rw [hψ0 ℓ hℓ']
 
+/-- **The layer index of the window generating set is that of the parent on the ball** around the
+region of a piece (P7 (2.14)). -/
+theorem window_layer_eq_full_ball {j : ℕ} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z) {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hmK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hxy : supDist y x ≤ 2 * (S.L ^ j * M)) :
+    y ∈ (windowOfHistory H Z g hmK hW).full.Ω 1 ∧
+      y ∈ ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).Ω 1 ∧
+      ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex y =
+        (windowOfHistory H Z g hmK hW).full.layerIndex y := by
+  classical
+  have hk1pos := hW.k1_pos hmK
+  have hL := H.F.ok.two_le_L
+  have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
+  have hLr : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+  have hfl : ∀ q, 2 ≤ ⌊R q⌋₊ := fun q => by
+    refine Nat.le_floor ?_
+    have := g.hRlow q
+    push_cast; linarith
+  obtain ⟨hyj, hlay⟩ := full_layerIndex_ball hmK hW hj hk1j hK hc hx hxy
+  obtain ⟨hx1, hx2⟩ := (mem_Xfine_cast_iff g hmK hj c hK x).1 hx
+  set W := windowOfHistory H Z g hmK hW with hWdef
+  have hy1 : y ∈ W.full.Ω 1 := W.full.Ω_antitone le_rfl (by omega) (by omega) hyj
+  have hiff : ∀ q, 1 ≤ q → q ≤ j + 1 →
+      (y ∈ (W.windowGenSet (windowOfHistory_hyp hmK hW)).Ω q ↔ y ∈ W.full.Ω q) :=
+    fun q hq1 hq2 => windowGenSet_Ω_ball hmK hW hj hk1j hc hx1 hx2 (t := 2) (by omega)
+      (by have := hfl m'; omega) hxy hq1 hq2
+  have hyw1 : y ∈ (W.windowGenSet (windowOfHistory_hyp hmK hW)).Ω 1 :=
+    (hiff 1 le_rfl (by omega)).2 hy1
+  refine ⟨hy1, hyw1, ?_⟩
+  obtain ⟨hf1, hf2, hf3⟩ := W.full.layerIndex_spec hy1
+  rw [W.full.mem_layer] at hf3
+  have hnw : y ∉ (W.windowGenSet (windowOfHistory_hyp hmK hW)).Ω (j + 2) := by
+    rcases lt_or_eq_of_le hj with hjm | hjm
+    · exact windowGenSet_Ω_not_mem_ball hmK hW hjm hk1j hc hx1 (t := 2) (hfl (j + 1)) hxy
+        (m := j + 2) le_rfl (by omega)
+    · subst hjm
+      rw [(W.windowGenSet (windowOfHistory_hyp hmK hW)).top]
+      exact Finset.notMem_empty _
+  have hlj : W.full.layerIndex y ≤ j + 1 := by rw [hlay]; split_ifs <;> omega
+  refine (W.windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex_eq hf1 hf2 ?_
+  rw [(W.windowGenSet (windowOfHistory_hyp hmK hW)).mem_layer]
+  refine ⟨(hiff _ hf1 hlj).2 hf3.1, fun h => ?_⟩
+  by_cases hq : W.full.layerIndex y + 1 ≤ j + 1
+  · exact hf3.2 ((hiff _ (by omega) hq).1 h)
+  · have h2 : W.full.layerIndex y = j + 1 := by omega
+    rw [h2] at h
+    exact hnw h
+
 end Agree
 
 end Balaban.LargeField
