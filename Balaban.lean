@@ -2697,6 +2697,7 @@ public import Balaban.Inhabited.StepTowerNewLevelSymOld
 public import Balaban.Inhabited.StepTowerNewLevelSymPhi
 public import Balaban.Inhabited.StepTowerNewLevelSymE
 public import Balaban.Inhabited.StepTowerNewLevelSymMain
+public import Balaban.Inhabited.StepTowerNewLevelSymM
 public import Balaban.Inhabited.StepTowerNewLevelSumSize
 public import Balaban.Inhabited.StepTowerNewLevelSum
 public import Balaban.LargeField.R.WindowConvPhysBallRadius
