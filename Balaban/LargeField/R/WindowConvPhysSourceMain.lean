@@ -41,14 +41,15 @@ namespace Balaban.LargeField.ActionConv
 open Balaban.LargeField Balaban.Flow Balaban.Multiscale Balaban.Background Balaban.SmallField
   Balaban.Fluctuation Finset
 
-variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L]
-  {U : Type*} {S : Set U} {ι : Type*} [Fintype ι] {sc : ι → ℕ} {k1 k : ℕ}
+universe u₁
+
+variable {d L N : ℕ} [NeZero L]
 
 /-- **The cost of one conversion step of a chain, from the flow** (generic form). -/
-theorem ConvChain.cost_le_of_flow {ϱ : ℝ} {U : Type*} {S : Set U} {j k : ℕ}
-    {G : GeneratingSet d L N₀ K ϱ} {X : Region G} {br : MassBranch}
-    (C : ConvChain S j k G X br N) (Dc : StepDecomp X) (hd3 : 3 ≤ d) (hL3 : 3 ≤ L) :
-    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧ ∀
+theorem ConvChain.cost_le_of_flow (hd3 : 3 ≤ d) (hL3 : 3 ≤ L) :
+    ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧ ∀ {N₀ K : ℕ} [NeZero N₀] {ϱ : ℝ} {U : Type u₁} {S : Set U}
+    {j k : ℕ} {G : GeneratingSet d L N₀ K ϱ} {X : Region G} {br : MassBranch}
+    (C : ConvChain S j k G X br N) (Dc : StepDecomp X)
     (mcount : ℝ) (cs : OpConsts)
     (β ν η Ka cν Dδ ε V1 Ksrc : ℝ) (g δ : ℕ → ℝ) (ξ : ℕ → Fin 3 → ℝ) (u : U) (n : ℕ)
     (_ : mcount = Dc.total)
@@ -95,7 +96,7 @@ theorem ConvChain.cost_le_of_flow {ϱ : ℝ} {U : Type*} {S : Set U} {j k : ℕ}
     ‖C.cost u n‖ ≤ Ksrc * (cs.beta (j + 1) * ε ^ 2) * ‖ξ (n - 1)‖ * mcount := by
   obtain ⟨Kw, δw, hKw, hδw, Hresp⟩ := jointResponse_step (d := d) (L := L) N hd3 hL3
   refine ⟨Kw, δw, hKw, hδw, ?_⟩
-  intro mcount cs β ν η Ka cν Dδ ε V1 Ksrc g δ ξ u n hmc hn1 hn2 hu hβ hν hβcs hμcs hg hδ hgenv hδp hδb hξ
+  intro N₀ K _ ϱ U S j k G X br C Dc mcount cs β ν η Ka cν Dδ ε V1 Ksrc g δ ξ u n hmc hn1 hn2 hu hβ hν hβcs hμcs hg hδ hgenv hδp hδb hξ
     hchβ hchν hchA hchD hchφ hwt1 hcells hKa hcν0 hcν hN hBg hsepO hε hsm hc1 hXi hsmall hSB hV1 hK
   have hd2 : 2 ≤ d := by omega
   have hnj : j + 1 ≤ n := by omega
