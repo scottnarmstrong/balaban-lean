@@ -203,13 +203,12 @@ theorem baseStepInput_of_parts (hP : BasePreStepInput d N T P6 C7 PB cs₀ M1 c 
     have hrun := hbody.2.2.2.2.2.2.2.2.2.2.2.2.1
     obtain ⟨ρ', hcl, hint⟩ := h₂ β hβ₂ ν hν hνL h hh kf hkf 1 le_rfl hk0 _ νk
       (PreClassAt.succ (k := 0) hpre (hQ κ hκ c₉ hc₉))
-    exact ⟨ρ', νk, hcl, (integralIsZ_firstDensity hrun.2.2.1
-      (zero_lt_one.trans hrun.2.2.2.2.1) hz₁).of_integral_eq hint⟩
+    exact ⟨ρ', νk, hcl, (integralIsZ_firstDensity hrun.hβ (zero_lt_one.trans hrun.ha1)
+      hz₁).of_integral_eq hint⟩
   · obtain ⟨z₁, hz₁, νk, hflat⟩ := h₃ β hβ₃ ν hν hνL h hh kf hkf hk0
     obtain ⟨_, _, _, _, _, _, _, _, _, hbody⟩ := id hflat
     have hrun := hbody.2.2.2.2.2.2.2.2.2.2.2.2.1
-    exact ⟨_, νk, hflat, integralIsZ_firstDensity hrun.2.2.1
-      (zero_lt_one.trans hrun.2.2.2.2.1) hz₁⟩
+    exact ⟨_, νk, hflat, integralIsZ_firstDensity hrun.hβ (zero_lt_one.trans hrun.ha1) hz₁⟩
 
 end Inputs
 

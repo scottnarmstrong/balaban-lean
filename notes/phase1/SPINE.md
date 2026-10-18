@@ -490,9 +490,9 @@ blocker 1. General `d, N` and general constants.
        `K = k̂_f + 1 ≥ 2` (`ν L² ≤ 7/8` forces `k̂_f ≥ 1`). No landed map carries the carrier's data into the scale-`0` step data of
        `RepFam … (kf + 1) T.M …`. The carrier must be restated at general `M, K`, or a transport proved, before it can populate
        the class;
-     * (e) the budget (H6′)^pre at the scale `1`: `Rep.budgetPre_of_LF2` needs `K ≤ top`, and `top = 1` (`D4Pin 1`) at `K ≥ 2`. The
-       truncated counter history of `Rep.budgetFlat_of_LF2_trunc` (`Rep.lf2HypTrunc`) is the model; `BudgetSetup.run` asks (I.2) at
-       every scale (item 4 (c)); the base case of the recursion is LFR Lemma II.7.2 (e);
+     * (e) the budget (H6′)^pre at the scale `1`: `Rep.budgetPre_of_LF2` needs `K ≤ top` and a `BudgetSetup` at every scale, while
+       `top = 1` (`D4Pin 1`) and `K ≥ 2`. The truncated counter history of `Rep.budgetFlat_of_LF2_trunc` (`Rep.lf2HypTrunc` with
+       `BudgetSetupTo`, W1106) is the model; the base case of the recursion is LFR Lemma II.7.2 (e);
      * (f) (D8) of the base data (Thm II.7.10 (d)): the two-torus agreement of `K₀`, `b₀` and `ℬ^{(1)}`, as for the quiet kernel
        (W1103, W1104: `bgLocPiece_twoTorus`);
      * (g) `β_0 = β`, `ν_0 = ν` (by construction of the running constants).
@@ -500,8 +500,9 @@ blocker 1. General `d, N` and general constants.
    `z₁ > 0` and `ν₁` with `FlatClassAt … kf 1 (firstDensity … (cs₀ κ c₉).aKer z₁ ν h kf) ν₁`.
    * Landed: as for A3-1.
    * Open: (a)–(d), (f), (g) of A3-1 with complete backgrounds from the start (the switch at `0 → 1` is vacuous) and P4's system; the
-     budget (H6♭) at the scale `1` at `K = k̂_f + 1` by `Rep.budgetFlat_of_LF2_trunc` (`k₀ = 0 ≤ 1 ≤ k̂_f`, `top = 2`), with its
-     premises `S.Good`, (H-λ) `hH1`, `hH2` and `BudgetSetup` (item 4 (c), (d)).
+     budget (H6♭) at the scale `1` at `K = k̂_f + 1` by `Rep.budgetFlat_of_LF2_trunc` (`k₀ = 0 ≤ 1 ≤ k̂_f`, `top = 2`,
+     `BudgetSetupTo … 1`), with `S.Good` and (H-λ) `hH1`, `hH2` from the typing conditions of W1106 (`TransferTyping`;
+     `exists_good_lamHat`, `hLam_window`).
    * (I.2) at the scale `1` is part of this sub-input, not proved from (H.6) as in regime (A): `FlatRep` fixes (I.2) up to its own
      scale, and a variant with (I.2) up to `r` would copy it. A core `FlatRep … r` with `FlatRep` as its instance belongs to
      `Spine/RootFInputs.lean`, outside this task.
