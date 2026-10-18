@@ -106,7 +106,7 @@ theorem evDec_eTerm_rot {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
       D2raw Gk Gj (compWeight L a₁) Fk
         (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2) ∈ 𝒮)
     (hE : ∀ r ∈ 𝒮, rotRaw (cmat Q) r ∈ 𝒮 → E (rotRaw (cmat Q) r) = E r)
-    {ι : Type*} [DecidableEq ι] [Fintype ι] {m₀ : ℕ}
+    {m₀ : ℕ}
     (Zm : Finset (unitPts Gp)) (j' : ℕ) (𝒦X : Set (CTorus d L N₁ m₁ (k + 1)))
     {um tm : ℂ}
     (hδ : (‖um‖ + ‖tm‖) *

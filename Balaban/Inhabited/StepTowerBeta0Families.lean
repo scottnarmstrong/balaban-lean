@@ -10,6 +10,7 @@ public import Balaban.Inhabited.StepTowerBeta0Labels
 public import Balaban.Inhabited.StepTowerBeta0Fields
 public import Balaban.Inhabited.StepTowerNewLevelE0Bound
 public import Balaban.Inhabited.StepTowerNewLevelE0Sum
+public import Balaban.Inhabited.StepTowerRotFamilies
 
 /-!
 The class chain with the activity and mark families, at every tower radius
@@ -287,6 +288,14 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`, from that of the old terms `Eτ` on the sets `𝒮`
+        ((∀ τ, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ, rotRaw (cmat Q) r ∈ 𝒮 τ →
+            Eτ τ (rotRaw (cmat Q) r) = Eτ τ r) →
+          ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+            ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+            (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+              rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+            ∀ T', e θ' T' = e θ T') →
         (0 < markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) →
           (∀ Y ∈ 𝒴C, corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
           (∑ τ : ι, if Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
@@ -328,14 +337,14 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   classical
-  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad T₀ hA p hcR hαR
-  obtain ⟨β₂, -, H2⟩ := zeroSourceFamily_fields_fromTower_agree T₀ hHull hA p hcR hαR
+  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad_rot T₀ hA p hcR hαR
+  obtain ⟨β₂, -, H2⟩ := zeroSourceFamily_fields_fromTower_agree_rot T₀ hHull hA p hcR hαR
   refine ⟨max β₁ β₂, h31.trans (le_max_left _ _), fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
   obtain ⟨F₁, Sol, HC⟩ := H1 T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_left _ _).trans hβ) hct p₁ hp₁ Dt
     S hS hp
-  obtain ⟨Jr, Lb₀, _, Lab₀, A₀, hεpos, h0hol, h0cont, h0diff, h0loc, h0W⟩ :=
+  obtain ⟨Jr, Lb₀, _, Lab₀, A₀, hεpos, h0hol, h0cont, h0diff, h0loc, h0W, hA₀cov⟩ :=
     H2 T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_right _ _).trans hβ) hct p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk
@@ -404,7 +413,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
         Real.exp (-((2 * T.κdec - 1) - T.κ0) * treeLenCovOne 1 (k + 1) (bridge 1 z q.1.2)),
       fun q => rfl⟩
   have hpadF : ∀ q, 0 < padF q := fun q => by rw [hpadFdef q]; positivity
-  obtain ⟨F1, hF1eq, c, e, -, hprop, hvals, hval⟩ := HC (h𝒮 := h𝒮) Jr C z (Lb₀ ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
+  obtain ⟨F1, hF1eq, c, e, -, hprop, hvals, hval, hcovc⟩ := HC (h𝒮 := h𝒮) Jr C z (Lb₀ ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
       (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
       (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ))))
     (Lab₀.sum (commonLabels (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj) hN1
@@ -423,7 +432,88 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
     (fun q => Sum.inl (Sum.inr (Sum.inr ⟨z, ⟨bridge 1 z q.1.2, hbr q⟩⟩))) (fun _ => rfl) padF hpadF hE
     hM1hol hM1cont hM1diff hM1loc hM1W
     (lt_of_lt_of_le hεpos (le_max_left _ _)) hKc le_rfl T.marks_hκ hεnum
-  refine ⟨e, _, hΦ _ _ (fun hmr hnumR => ?_), fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
+  have hmr0 : 0 ≤ markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) := by
+    have ha₁S : 0 < S.a₁ := by rw [hS]; show (0 : ℝ) < 1; norm_num
+    have ha0 : 0 < compWeight 3 S.a₁ k := compWeight_pos (by norm_num) ha₁S hk
+    have hCs := covSupConstC_nonneg (d := 3) (L := 3) (N := 2) (by norm_num) le_rfl ha0 κ
+    unfold markedRad
+    positivity
+  have hδmr : ∀ um tm : ℂ, ‖um‖ < corrU → ‖tm‖ < bb →
+      (‖um‖ + ‖tm‖) * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ :=
+    fun um tm h1 h2 => lt_of_le_of_lt
+      (mul_le_mul_of_nonneg_right (by linarith [h1.le, h2.le]) hmr0) hab
+  have hcovE : (∀ τ, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ,
+      rotRaw (cmat Q) r ∈ 𝒮 τ → Eτ τ (rotRaw (cmat Q) r) = Eτ τ r) →
+      ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+        ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+        (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+          rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+        ∀ T', e θ' T' = e θ T' := by
+    intro hErot
+    -- the localized old terms are spin invariant
+    have hev : ∀ (τ : ι) (Y : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) (um tm : ℂ), ‖um‖ < corrU →
+        ‖tm‖ < bb → ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+        ∀ D : BgData S.G' 2, XiCData S.G' S.a S.ν (k + 1) 1 T.t D →
+        ∀ ψh : unitPts S.G' × Fin 2 → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
+        evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (F₁L τ) (SolL τ)
+          (eTermFun S.G' (Gk τ) (Gj τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁)
+            (FkL τ) (fun r => (S.β : ℂ)⁻¹ * Eτ τ r))
+          (S.blockU z) um tm Y (rotRaw (cmat Q) (rawOf D), rotFld (cmat Q) ψh) =
+        evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (F₁L τ) (SolL τ)
+          (eTermFun S.G' (Gk τ) (Gj τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁)
+            (FkL τ) (fun r => (S.β : ℂ)⁻¹ * Eτ τ r))
+          (S.blockU z) um tm Y (rawOf D, ψh) :=
+      fun τ Y um tm hum htm Q hQ D hD ψh hψh =>
+        evDec_eTerm_rot hb₁ hbC (hB τ) (hFl τ) hk S.hG S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) hcψ hMX hdm hα hsm (hF₁ τ) (hSolprop τ) hQ
+          (hFk τ) (h𝒮 τ)
+          (fun r hr hr' => congrArg (fun w => (S.β : ℂ)⁻¹ * w) (hErot τ Q hQ r hr hr'))
+          (S.blockU z) (jL τ) (𝒦X τ) (hδmr um tm hum htm) Y hD hψh
+    have hRG := rotG1_of_ev S hρ hρp hbb G₁
+      (fun (q : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+        (fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z}) u t x =>
+        evDec (X₁f q.1.1) m₀ (jL q.1.1) (𝒦X q.1.1) S.a₁ S.ν S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁L q.1.1) (SolL q.1.1)
+          (eTermFun S.G' (Gk q.1.1) (Gj q.1.1) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+            (compWeight 3 S.a₁) (FkL q.1.1) (fun r => (S.β : ℂ)⁻¹ * Eτ q.1.1 r))
+          (S.blockU z) u t q.1.2 x) hG₁
+      (fun q u t hu ht Q hQ D hD ψh hψh =>
+        hev q.1.1 q.1.2 u t hu ht Q hQ D hD ψh (fun p => (hψh p).trans hρc))
+    have h0b : ‖(0 : ℂ)‖ < bb := by rw [norm_zero]; exact hbb
+    have h0c : ‖(0 : ℂ)‖ < corrU := by rw [norm_zero]; unfold corrU; norm_num
+    have hRH := rotFam_of_term S hρ hρp H
+      (fun (Y : {Y // Y ∈ 𝒴C}) u x => ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
+        (S.β : ℂ) * (evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁L τ) (SolL τ)
+          (eTermFun S.G' (Gk τ) (Gj τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+            (compWeight 3 S.a₁) (FkL τ) (fun r => (S.β : ℂ)⁻¹ * Eτ τ r))
+          (S.blockU z) u 0 Y.1 x -
+          evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁L τ) (SolL τ)
+          (eTermFun S.G' (Gk τ) (Gj τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+            (compWeight 3 S.a₁) (FkL τ) (fun r => (S.β : ℂ)⁻¹ * Eτ τ r))
+          (S.blockU z) 0 0 Y.1 x)
+        else 0) hH
+      (fun Y u hu Q hQ D hD ψh hψh => Finset.sum_congr rfl fun τ _ => by
+        by_cases hY : Y.1 ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)
+        · rw [ite_eq_left hY, ite_eq_left hY,
+            hev τ Y.1 u 0 hu h0b Q hQ D hD ψh (fun p => (hψh p).trans hρc),
+            hev τ Y.1 0 0 h0c h0b Q hQ D hD ψh (fun p => (hψh p).trans hρc)]
+        · rw [ite_eq_right hY, ite_eq_right hY])
+    refine hcovc ?_ hRG
+    intro Q hQ θ hθ θ' hθ' hrot s hs y Φ hΦ
+    rcases y with (y | y) | y
+    · exact hA₀cov Q hQ θ hθ θ' hθ' hrot s hs y Φ hΦ
+    · rcases y with Y | y
+      · show ((AC θ' (s : ℂ)).H Y _) = (AC θ (s : ℂ)).H Y Φ
+        rw [show (AC θ' (s : ℂ)).H Y = H θ' Y (s : ℂ) from hAC θ' hθ' (s : ℂ) Y,
+          show (AC θ (s : ℂ)).H Y = H θ Y (s : ℂ) from hAC θ hθ (s : ℂ) Y]
+        exact hRH Q hQ θ hθ θ' hθ' hrot s hs Y Φ hΦ
+      · rfl
+    · rfl
+  refine ⟨e, _, hΦ _ _ hcovE (fun hmr hnumR => ?_), fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
     (hprop T').2.2.2.2⟩, fun D hX => ⟨(hvals D hX).2.2.1, (hvals D hX).2.2.2⟩, hval⟩
   refine explicitB_tail T hk (by simpa using h3N)
     (lt_of_lt_of_le (by norm_num) ((h31.trans (le_max_left _ _)).trans hβ)) hp0 Dt S hS z
@@ -673,7 +763,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree {κmin : ℝ}
     hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs
     hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hE hεnum
   obtain ⟨e, B, -, h⟩ := @Hφ' C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hE hεnum
-    (fun _ _ => True) (fun _ _ _ => trivial)
+    (fun _ _ => True) (fun _ _ _ _ => trivial)
   exact ⟨e, B, h⟩
 
 end Balaban.Inhabited
