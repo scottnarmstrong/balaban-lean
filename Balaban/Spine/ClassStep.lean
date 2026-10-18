@@ -63,6 +63,37 @@ open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.La
 ### The pre-`R` class at the constants of the prefix
 -/
 
+/-- **The data of a member of `ℛ^pre_k`** (the body of `PreClassAt`, with its witnesses as fields,
+so that the sub-inputs can speak about them): the representation `F`, the constants and the ties
+to the outer constants. `PreClassAt` is the existence of such a record. -/
+structure PreRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
+    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    (kf k r : ℕ) [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) where
+  hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)
+  hkK : k ≤ kf + 1
+  R : ℕ → ℝ
+  geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M
+  cs : OpConsts
+  P : BudgetConsts
+  F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ
+  St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N
+  vc : CorrCoef d
+  geoTie : ∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c
+  tie_aKer : cs.aKer = cs₀.aKer
+  tie_Cpsi : cs.Cpsi = cs₀.Cpsi
+  tie_Cb : cs.Cb = cs₀.Cb
+  tie_aw : cs.aw = cs₀.aw
+  tie_c1 : P.c1 = PB.c1
+  tie_c2 : P.c2 = PB.c2
+  tie_H0 : P.H0 = PB.H0
+  pre : IsRepPre2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
+    hM6 hkK F ρ St vc
+  β0 : F.sf.β 0 = β
+  ν0 : F.sf.ν 0 = ν
+  νk : F.sf.ν k = νk
+  run : RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r
+  coh : LFCoherent F
+
 /-- **The pre-`R` class `ℛ^pre_k` at the constants of the prefix** (LFR §II.6.3, first item,
 second version `IsRepPre2`: the class of the output of one step before the operation `R`), with the
 conventions of `RepClassAt`: `ρ` has a representation `F` on the tori of the horizon `K = kf + 1`
@@ -74,18 +105,7 @@ def PreClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : 
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
     (kf k r : ℕ) [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) :
     Prop :=
-  ∃ (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1) (R : ℕ → ℝ)
-    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
-    (cs : OpConsts) (P : BudgetConsts)
-    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
-    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d),
-    (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
-    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
-    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
-    IsRepPre2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-      hM6 hkK F ρ St vc ∧
-    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r ∧ LFCoherent F
+  Nonempty (PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk)
 
 /-!
 ### The coefficient step: (H.6) at `k + 1` gives (I.2) at `k + 1`
@@ -392,7 +412,14 @@ theorem preClassAt_witness (rH : ℝ) (r : ℕ) (hr : r ≤ 1) :
       @PreClassAt 3 2 typing wP6 wC7 (budgetConsts wβ) (wCs wν₀ (kZero 3 3 wβ wν₀)) 1 27 rH
         (Background.bgR0 3 3) wβ wν₀ whv 0 1 r ⟨by norm_num [typing, typing0]⟩
         ⟨by norm_num [typing, typing0]⟩ ρ νk :=
-  @preClassAt_witness_aux rH r hr _ spineSetting_eq_wS ⟨by norm_num [typing, typing0]⟩
+  by
+    have : NeZero typing.L := ⟨by norm_num [typing, typing0]⟩
+    have : NeZero typing.M := ⟨by norm_num [typing, typing0]⟩
+    obtain ⟨ρ, νk, hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
+      h11, h12, h13⟩ := @preClassAt_witness_aux rH r hr _ spineSetting_eq_wS
+        ⟨by norm_num [typing, typing0]⟩
+    exact ⟨ρ, νk, ⟨hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
+      h11, h12, h13.1, h13.2⟩⟩
 
 /-- **`FlowRateInput` costs only a smaller `c₈`**: for every family of admissible Def-6 constants
 on block sizes `L ≥ 2`, lowering `c₈` to `min(c₈, (1 - q)/(20 q))` keeps the constants admissible

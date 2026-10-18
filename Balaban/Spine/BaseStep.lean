@@ -202,8 +202,8 @@ theorem baseStepInput_of_parts (hP : BasePreStepInput d N T P6 C7 PB cs₀ M1 c 
   have := neZero_of_norm_eq_one hh
   refine ⟨fun hk0 => ?_, fun hk0 => ?_⟩
   · obtain ⟨z₁, hz₁, νk, hpre⟩ := h₁ β hβ₁ ν hν hνL h hh kf hkf hk0
-    obtain ⟨_, _, _, _, _, _, _, _, _, hbody⟩ := id hpre
-    have hrun := hbody.2.2.2.2.2.2.2.2.2.2.2.2.1
+    obtain ⟨recp⟩ := id hpre
+    have hrun := recp.run
     obtain ⟨ρ', hcl, hint⟩ := h₂ β hβ₂ ν hν hνL h hh kf hkf 1 le_rfl hk0 _ νk
       (PreClassAt.succ (k := 0) hpre (hQ κ hκ c₉ hc₉))
     exact ⟨ρ', νk, hcl, (integralIsZ_firstDensity hrun.hβ (zero_lt_one.trans hrun.ha1)
