@@ -1106,6 +1106,17 @@ public import Balaban.LargeField.R.CoeffResponseResp
 public import Balaban.LargeField.R.CoeffResponseReads
 public import Balaban.LargeField.R.CoeffResponseReadsMain
 public import Balaban.LargeField.R.CoeffResponseBlock
+public import Balaban.LargeField.R.WindowConvPhysSourceAlg
+public import Balaban.LargeField.R.WindowConvPhysSourceResp
+public import Balaban.LargeField.R.WindowConvPhysSourceStep
+public import Balaban.LargeField.R.WindowConvPhysSourceCube
+public import Balaban.LargeField.R.WindowConvPhysSourceFlow
+public import Balaban.LargeField.R.WindowConvPhysSourceBudget
+public import Balaban.LargeField.R.WindowConvPhysSourceCostGen
+public import Balaban.LargeField.R.WindowConvPhysSourceMain
+public import Balaban.LargeField.R.WindowConvPhysSourceFinal
+public import Balaban.LargeField.R.WindowConvPhysPairMain
+public import Balaban.LargeField.R.WindowConvPhysPairFinal
 public import Balaban.LargeField.R.CoeffResponseBudgetDiff
 public import Balaban.LargeField.R.MassChangeCrossing
 public import Balaban.LargeField.R.MassChangeRegion
