@@ -114,13 +114,13 @@ theorem nu_succ_le_of_coeffBounds {d L : ℕ} {P : Def6.Consts} {βs νs as : �
 ### The frozen class at `k + 1` before the coefficient step
 -/
 
-/-- **The frozen class `ℛ♭_k` with (I.2) up to a scale `r` and a clause `X` on the running masses**
+/-- **The frozen class `ℛ♭_k` with (I.2) up to a scale `r` and a clause `X` on the running couplings, masses and kernel constants**
 (`FlatRepGen`), at the constants of the prefix and with the conventions of `FlatClassAt`, which is
 the case `r = k`, `X = (νk ≤ 9/10)` (`flatPreAt_iff_flatClassAt` is not needed: the frozen step
 uses `FlatClassAt` as input and `FlatPreAt` as the output of its small-field half). -/
 def FlatPreAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k r : ℕ)
-    (X : (ℕ → ℝ) → Prop) [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k])
+    (X : (ℕ → ℝ) → (ℕ → ℝ) → (ℕ → ℝ) → Prop) [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k])
     (νk : ℝ) : Prop :=
   ∃ (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1) (R : ℕ → ℝ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
@@ -147,8 +147,9 @@ followed by every step record, with no hull and no `R`; the step data of P5 (2.4
 complete backgrounds of mass `μ_{k+1} = ν_{k+1} L^{-2(k+1)}`; the small-field data of P4 Theorem 1,
 whose coefficient bounds (H.6) at `k + 1` contain the flow relation of P4 (5.28); (D7) with
 `B_st ≤ B_0 - 1`; (H6♭) by LF-2 (ii)), torus coherent, with `β_0 = β`, `ν_0 = ν`, (I.2) up to `k`,
-the running mass at the scale `k` equal to that of `ρ` (the new small-field coefficients extend the
-old ones), and `∫ ρ' = c ∫ ρ`. (I.2) at `k + 1` and the mass bound `ν_{k+1} ≤ 9/10` are not part of
+the running mass at the scale `k` equal to that of `ρ` and the couplings `β_j`, masses `ν_j` and
+kernel constants `a_j` for `j ≤ k` those of the representation `F` of `ρ` (the new small-field
+coefficients extend the old ones; the birth domains of the inherited terms read them), and `∫ ρ' = c ∫ ρ`. (I.2) at `k + 1` and the mass bound `ν_{k+1} ≤ 9/10` are not part of
 the output: they follow from (H.6) at `k + 1` (`frozenStepInput_of_parts`). -/
 def FrozenSFStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
@@ -156,13 +157,15 @@ def FrozenSFStepInput : Prop :=
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
   ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
   ∀ k : ℕ, 1 ≤ k → kZero d (T κ c₉).L β ν ≤ k → k < kf →
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
-    FlatClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk →
+  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ) hM6 hkK R geo cs P F St vc,
+    FlatRep d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k hM6 hkK R geo cs P F St vc ρ νk →
     νk * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
     ∃ (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k + 1]) (νk' : ℝ),
       FlatPreAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k (fun νs => νs k = νk) ρ' νk' ∧
+        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k
+        (fun βs νs as => νs k = νk ∧
+          ∀ j ≤ k, βs j = F.sf.β j ∧ νs j = F.sf.ν j ∧ as j = F.sf.a j) ρ' νk' ∧
       IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
 /-- **The frozen step from its sub-inputs** (LFR Theorem IV.2.2 for `max(k₀, 1) ≤ k < k_f`): LF-5
@@ -175,13 +178,15 @@ theorem frozenStepInput_of_parts (hSF : FrozenSFStepInput d N T P6 C7 PB cs₀ M
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, hβ₁⟩ := hSF κ hκ c₉ hc₉
   refine ⟨β₁, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk0 hk ρ νk hρ hνk => ?_⟩
-  obtain ⟨ρ', νk', hpre, hint⟩ := hβ₁ β hβ ν hν hνL h hh kf hkf k hk1 hk0 hk ρ νk hρ hνk
+  obtain ⟨hM60, hkK0, R0, geo0, cs0, P0, F0, St0, vc0, hrep0'⟩ := hρ
+  obtain ⟨ρ', νk', hpre, hint⟩ :=
+    hβ₁ β hβ ν hν hνL h hh kf hkf k hk1 hk0 hk ρ νk hM60 hkK0 R0 geo0 cs0 P0 F0 St0 vc0 hrep0' hνk
   refine ⟨ρ', νk', ?_, hint⟩
-  obtain ⟨_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, hrep0, _, _, hνk0, _, _, _⟩ := hρ
-  have hνpos : 0 < νk := hνk0 ▸ hrep0.coeff.nu_pos
+  obtain ⟨_, _, _, _, _, _, _, _, hrepA, _, _, hνk0, _, _, _⟩ := hrep0'
+  have hνpos : 0 < νk := hνk0 ▸ hrepA.coeff.nu_pos
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hrep, hβ0, hν0,
     hνk', hrun, hcoh, hX⟩ := hpre
-  have hX' : F.sf.ν k = νk := hX
+  have hX' : F.sf.ν k = νk := hX.1
   have hC := hrep.sfData.coeff
   have hL : 2 ≤ (T κ c₉).L := hrun.hL
   have hrun' := runningHypTo_succ_of_coeffBounds_core (P := massOne (P6 κ c₉))
@@ -214,7 +219,7 @@ theorem FlatClassAt.toFlatPreAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 
     {h : EuclideanSpace ℝ (Fin N)} {kf k : ℕ} [NeZero T.M] [NeZero T.L]
     {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
     (hρ : FlatClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k ρ νk) :
-    FlatPreAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun νs => νs 0 = ν) ρ νk := by
+    FlatPreAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ νs _ => νs 0 = ν) ρ νk := by
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hrep, hβ0, hν0,
     hνk, hrun, hcoh, -⟩ := hρ
   exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hrep, hβ0, hν0,
@@ -226,7 +231,7 @@ open Balaban.LargeField.Def7.Wit Balaban.LargeField.Def7v2.Wit in
 theorem flatPreAt_witness (rH : ℝ) :
     ∃ (ρ : 𝒟[3, 2, typing, wβ, (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer, 0 + 1, 1]) (νk : ℝ),
       @FlatPreAt 3 2 typing wP6 wC7 (budgetConsts wβ) (wCs wν₀ (kZero 3 3 wβ wν₀)) 1 27 rH
-        (Background.bgR0 3 3) wβ wν₀ whv 0 1 1 (fun νs => νs 0 = wν₀)
+        (Background.bgR0 3 3) wβ wν₀ whv 0 1 1 (fun _ νs _ => νs 0 = wν₀)
         ⟨by norm_num [typing, typing0]⟩ ⟨by norm_num [typing, typing0]⟩ ρ νk := by
   obtain ⟨ρ, νk, hρ⟩ := flatClassAt_witness rH
   have : NeZero typing.M := ⟨by norm_num [typing, typing0]⟩
