@@ -18,8 +18,8 @@ same for the step's level set `H` and for a local generating set `H'` whose top 
 * `mixDiff_rootTraceBg_cross`: the mixed differences of the rooted trace with its background agree
   for cut sets with the same cubes, all deep in `R` (the cut points of the subsets correspond, with
   the same cubes and cardinalities; `rootTraceBg_cutPt_cross` at each of them);
-* `detActivityBg_cross`: the activities agree (the cut sets with hull `Y` correspond: their cubes lie
-  in the sites of `Y`, so they are cubes of both covers).
+* `detActivityBg_cross`: the activities agree (the cut sets with hull `Y` correspond: their cubes
+  lie in the sites of `Y`, so they are cubes of both covers).
 -/
 
 @[expose] public section

@@ -49,7 +49,8 @@ theorem layer_iff_of_mem_top (hlev : IsLevel H (k + 1)) {x : CTorus d L N₁ m�
     x ∈ H.layer n ↔ x ∈ H'.layer n :=
   layer_iff_of_level_of_top hlev H'.top hx hn hnK
 
-/-- A pair with base in the top domain of `H'` is a cube of `H` exactly when it is a cube of `H'`. -/
+/-- A pair with base in the top domain of `H'` is a cube of `H` exactly when it is a cube of
+`H'`. -/
 theorem mem_cubeIdx_iff_of_top (hlev : IsLevel H (k + 1)) {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
     (hq : q.2 ∈ H'.Ω (k + 1)) : q ∈ cubeIdx H ↔ q ∈ cubeIdx H' := by
   rw [mem_cubeIdx, mem_cubeIdx]
@@ -173,6 +174,100 @@ theorem hatI_eq_hatBox_of_deep {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q
     exact H'.Ω_antitone le_rfl (by omega) (by omega)
       (hR _ (hdeep _ (h.trans (Nat.mul_le_mul_right _ (by norm_num)))))
 
+/-! ### General parameters whose switched-on cubes are deep -/
+
+section GenParams
+
+variable {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+
+include hlev hR hM in
+/-- **The cut factor of a deep centre is the same for the two covers**, for parameters agreeing at
+the cubes with base in `R`. -/
+theorem sProd_cross_of_deep (hag : ∀ P ∈ cubeIdx H, P.2 ∈ R → s' P = s P)
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx H)
+    (hdeep : ∀ z, supDist z q.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R) :
+    sProd H s q = sProd H' s' q := by
+  have hQ := qset_eq_of_deep hlev hR hM hq hdeep
+  rw [← Dec2.sProd_self, ← Dec2.sProd_self]
+  unfold DecCover.sProd
+  rw [← hQ]
+  refine Finset.prod_congr rfl fun P hP => ?_
+  obtain ⟨hPc, y, hy, hbox⟩ := (DecCover.mem_Qset _).1 hP
+  have h1 := supDist_le_of_sameCell_cube ((mem_cubeIdx H).1 hPc).1.2 hy
+  have h2 := supDist_le_of_mem_hatBox_top hM (fst_eq_of_mem_cubeIdx_level hlev hq)
+    (mem_boxSet.2 hbox)
+  have h3 : supDist P.2 q.2 ≤ 8 * L ^ (k + 1 + m₁) := by
+    have := supDist_triangle P.2 y q.2
+    rw [supDist_comm P.2 y] at this
+    omega
+  exact (hag P hPc (hdeep _ h3)).symm
+
+/-- An active centre has its own cube switched on. -/
+theorem param_ne_zero_of_active {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    {r : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hq : q ∈ cubeIdx G) (hne : sProd G r q ≠ 0) : r q ≠ 0 :=
+  fun h0 => hne (Finset.prod_eq_zero (self_mem_Qset_zeroCuts hq) h0)
+
+include hlev hR hM in
+/-- **The active centres of the two covers coincide** when the switched-on cubes of both sides are
+deep and the parameters agree at the cubes with base in `R`. -/
+theorem zs_cross_of_deep
+    (hon : ∀ P ∈ cubeIdx H, s P ≠ 0 → ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R)
+    (hon' : ∀ P ∈ cubeIdx H', s' P ≠ 0 → ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R)
+    (hag : ∀ P ∈ cubeIdx H, P.2 ∈ R → s' P = s P) : Zs H s = Zs H' s' := by
+  classical
+  have h0 : ∀ q : ℕ × CTorus d L N₁ m₁ (k + 1), supDist q.2 q.2 ≤ 8 * L ^ (k + 1 + m₁) := by
+    intro q; rw [supDist_self]; exact Nat.zero_le _
+  ext q
+  constructor
+  · intro hq
+    obtain ⟨hqc, hne⟩ := Finset.mem_filter.1 hq
+    have hd := hon q hqc (param_ne_zero_of_active hqc hne)
+    refine Finset.mem_filter.2 ⟨(mem_cubeIdx_iff_of_top hlev (hR _ (hd _ (h0 q)))).1 hqc, ?_⟩
+    rw [← sProd_cross_of_deep hlev hR hM hag hqc hd]
+    exact hne
+  · intro hq
+    obtain ⟨hqc', hne⟩ := Finset.mem_filter.1 hq
+    have hd := hon' q hqc' (param_ne_zero_of_active hqc' hne)
+    have hqc : q ∈ cubeIdx H := (mem_cubeIdx_iff_of_top hlev (hR _ (hd _ (h0 q)))).2 hqc'
+    refine Finset.mem_filter.2 ⟨hqc, ?_⟩
+    rw [sProd_cross_of_deep hlev hR hM hag hqc hd]
+    exact hne
+
+include hlev hR hM in
+/-- **The regions `Yreg` of the two covers coincide** (hypotheses of `zs_cross_of_deep`). -/
+theorem yreg_cross_of_deep
+    (hon : ∀ P ∈ cubeIdx H, s P ≠ 0 → ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R)
+    (hon' : ∀ P ∈ cubeIdx H', s' P ≠ 0 → ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R)
+    (hag : ∀ P ∈ cubeIdx H, P.2 ∈ R → s' P = s P) : Yreg H s = Yreg H' s' := by
+  classical
+  unfold Yreg
+  rw [← zs_cross_of_deep hlev hR hM hon hon' hag]
+  ext x
+  simp only [Finset.mem_filter, Finset.mem_biUnion]
+  constructor
+  · rintro ⟨⟨q, hq, hx⟩, -⟩
+    refine ⟨⟨q, hq, hx⟩, ?_⟩
+    obtain ⟨hqc, hne⟩ := Finset.mem_filter.1 hq
+    rw [← (hatI_eq_hatBox_of_deep hlev hR hM hqc
+      (hon q hqc (param_ne_zero_of_active hqc hne))).2] at hx
+    exact (Finset.mem_filter.1 hx).2
+  · rintro ⟨⟨q, hq, hx⟩, -⟩
+    exact ⟨⟨q, hq, hx⟩, (hlev x).1⟩
+
+include hlev hM in
+/-- A site of `Yreg` lies within `4 M₁ L^{k+1}` of the base of an active centre. -/
+theorem exists_active_near_of_mem_yreg {s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ Yreg H s) :
+    ∃ q ∈ cubeIdx H, sProd H s q ≠ 0 ∧ supDist x q.2 ≤ 4 * L ^ (k + 1 + m₁) := by
+  classical
+  unfold Yreg at hx
+  obtain ⟨q, hq, hxq⟩ := Finset.mem_biUnion.1 (Finset.mem_filter.1 hx).1
+  obtain ⟨hqc, hne⟩ := Finset.mem_filter.1 hq
+  exact ⟨q, hqc, hne, supDist_le_of_mem_hatBox_top hM (fst_eq_of_mem_cubeIdx_level hlev hqc) hxq⟩
+
+end GenParams
+
 /-! ### The cut points -/
 
 /-- The cubes of a cut set are its patches. -/
@@ -183,6 +278,15 @@ theorem mem_patches_iff {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {I 
   constructor
   · intro h; exact ⟨hP, h⟩
   · rintro ⟨_, h⟩; exact h
+
+/-- A cube switched on at the extended cut point `1_I` is a cube of `I`. -/
+theorem mem_patches_of_extS_cutPt_ne_zero {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    {I : Finset (cubeIdx G)} {P : ℕ × CTorus d L N₁ m₁ (k + 1)} (hP : P ∈ cubeIdx G)
+    (hne : extS G (cutPt I) P ≠ 0) : P ∈ patches I := by
+  classical
+  refine (mem_patches_iff hP).1 ?_
+  by_contra hI
+  exact hne (by simp only [extS, hP, ↓reduceDIte, cutPt, hI, ite_false])
 
 /-- **The extended cut points agree** at a pair which is a cube of both covers or of neither, for
 cut sets with the same cubes. -/
@@ -205,21 +309,20 @@ theorem extS_cutPt_cross {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')}
   · have h' : P ∉ cubeIdx H' := fun h2 => h (hP.2 h2)
     simp only [h, h', ↓reduceDIte]
 
+include hlev hR in
+/-- The extended cut points agree at the cubes with base in `R`. -/
+theorem extS_cutPt_agree {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')}
+    (hII' : patches I = patches I') :
+    ∀ P ∈ cubeIdx H, P.2 ∈ R → extS H' (cutPt I') P = extS H (cutPt I) P :=
+  fun _ _ hPR => (extS_cutPt_cross hII' (mem_cubeIdx_iff_of_top hlev (hR _ hPR))).symm
+
 include hlev hR hM in
 /-- **The cut factor of a deep centre is the same at the two cut points.** -/
 theorem sProd_cutPt_cross {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')}
     (hII' : patches I = patches I') {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx H)
     (hdeep : ∀ z, supDist z q.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R) :
-    sProd H (extS H (cutPt I)) q = sProd H' (extS H' (cutPt I')) q := by
-  have hQ := qset_eq_of_deep hlev hR hM hq hdeep
-  rw [← Dec2.sProd_self, ← Dec2.sProd_self]
-  unfold DecCover.sProd
-  rw [← hQ]
-  refine Finset.prod_congr rfl fun P hP => ?_
-  refine extS_cutPt_cross hII' ?_
-  have hPc : P ∈ cubeIdx H := (DecCover.mem_Qset _).1 hP |>.1
-  have hPc' : P ∈ cubeIdx H' := (DecCover.mem_Qset _).1 (hQ ▸ hP) |>.1
-  exact iff_of_true hPc hPc'
+    sProd H (extS H (cutPt I)) q = sProd H' (extS H' (cutPt I')) q :=
+  sProd_cross_of_deep hlev hR hM (extS_cutPt_agree hlev hR hII') hq hdeep
 
 /-- An active centre at the cut point `1_I` is a cube of `I`. -/
 theorem mem_patches_of_mem_Zs_cutPt {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
@@ -233,44 +336,22 @@ include hlev hR hM in
 theorem zs_cutPt_cross {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')}
     (hII' : patches I = patches I')
     (hdeep : ∀ P ∈ patches I, ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R) :
-    Zs H (extS H (cutPt I)) = Zs H' (extS H' (cutPt I')) := by
-  classical
-  ext q
-  constructor
-  · intro hq
-    have hqI := mem_patches_of_mem_Zs_cutPt hq
-    have hqc : q ∈ cubeIdx H := (Finset.mem_filter.1 hq).1
-    have hzR : q.2 ∈ R := hdeep q hqI q.2 (by rw [supDist_self]; exact Nat.zero_le _)
-    refine Finset.mem_filter.2 ⟨(mem_cubeIdx_iff_of_top hlev (hR _ hzR)).1 hqc, ?_⟩
-    rw [← sProd_cutPt_cross hlev hR hM hII' hqc (hdeep q hqI)]
-    exact (Finset.mem_filter.1 hq).2
-  · intro hq
-    have hqI : q ∈ patches I := hII' ▸ mem_patches_of_mem_Zs_cutPt hq
-    obtain ⟨hqc, -⟩ := mem_patches.1 hqI
-    refine Finset.mem_filter.2 ⟨hqc, ?_⟩
-    rw [sProd_cutPt_cross hlev hR hM hII' hqc (hdeep q hqI)]
-    exact (Finset.mem_filter.1 hq).2
+    Zs H (extS H (cutPt I)) = Zs H' (extS H' (cutPt I')) :=
+  zs_cross_of_deep hlev hR hM
+    (fun P hP hne => hdeep P (mem_patches_of_extS_cutPt_ne_zero hP hne))
+    (fun P hP hne => hdeep P (hII' ▸ mem_patches_of_extS_cutPt_ne_zero hP hne))
+    (extS_cutPt_agree hlev hR hII')
 
 include hlev hR hM in
 /-- **The regions `Yreg` at the two cut points coincide.** -/
 theorem yreg_cutPt_cross {I : Finset (cubeIdx H)} {I' : Finset (cubeIdx H')}
     (hII' : patches I = patches I')
     (hdeep : ∀ P ∈ patches I, ∀ z, supDist z P.2 ≤ 8 * L ^ (k + 1 + m₁) → z ∈ R) :
-    Yreg H (extS H (cutPt I)) = Yreg H' (extS H' (cutPt I')) := by
-  classical
-  unfold Yreg
-  rw [← zs_cutPt_cross hlev hR hM hII' hdeep]
-  ext x
-  simp only [Finset.mem_filter, Finset.mem_biUnion]
-  constructor
-  · rintro ⟨⟨q, hq, hx⟩, -⟩
-    refine ⟨⟨q, hq, hx⟩, ?_⟩
-    have hqc : q ∈ cubeIdx H := (Finset.mem_filter.1 hq).1
-    have hqI := mem_patches_of_mem_Zs_cutPt hq
-    rw [← (hatI_eq_hatBox_of_deep hlev hR hM hqc (hdeep q hqI)).2] at hx
-    exact (Finset.mem_filter.1 hx).2
-  · rintro ⟨⟨q, hq, hx⟩, -⟩
-    exact ⟨⟨q, hq, hx⟩, (hlev x).1⟩
+    Yreg H (extS H (cutPt I)) = Yreg H' (extS H' (cutPt I')) :=
+  yreg_cross_of_deep hlev hR hM
+    (fun P hP hne => hdeep P (mem_patches_of_extS_cutPt_ne_zero hP hne))
+    (fun P hP hne => hdeep P (hII' ▸ mem_patches_of_extS_cutPt_ne_zero hP hne))
+    (extS_cutPt_agree hlev hR hII')
 
 include hlev hM in
 /-- **The region `Yreg` lies near the cubes of the cut set**: a site of `Yreg` at `1_I` is within
