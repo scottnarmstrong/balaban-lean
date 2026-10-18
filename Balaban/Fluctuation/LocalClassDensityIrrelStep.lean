@@ -20,12 +20,13 @@ decoupling parameters, fluctuation field `δφ(s)`, layer-constant fluctuation `
 at the datum `r = D2raw (Gk τ) (Gj τ) a (FkL τ) (d1Triple S.G' (Gk τ) stepG a t)` of
 `𝔹_j(X^⋆)`, the composition (6.2) into the level-`j` generating set of the label of the background
 of the composed datum of `𝔹_k(X^⋆)` (P1 Lemma 2.1: `ψ^{(j)}_k`).  P1 (3.128) is the bound "at
-`ψ = ψ^{(j)}_k`"; on the whole label chart `Ξ^c_j(Gj τ; bL, …)` of the landed theorem the
+`ψ = ψ^{(j)}_k`"; on the whole label chart `Ξ^c_j(Gj τ; b, …)` of the landed theorem the
 irrelevant parts have no factor `L^{-(d+α₃)(k-j)}` (WIDEGEN, W1040).
 
 The chain reads the label functionals only at these data (`classOldMarkedLocal_joint_gen_onSet`,
 through `eTermFun`), so the theorem is the instance of
-`e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet` at the sets of composed step data.
+`e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet` at the sets of composed step data; the
+composition constant `b` of the label chart no longer appears (it is taken `= 1`).
 -/
 
 @[expose] public section
@@ -62,7 +63,6 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_step {κmin : ℝ} (T : Ste
           (fun τ => Aligned (3 ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
         {P : Consts} {Dom : FieldDom 3 3 N₁ T.m₁ (k + 1) 2 (rhoSep T.m₁)} {ϱ₁ ϱ₀ ϱ₃ : ℝ}
         {cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl : ℝ}
-        {bL : ℝ} (_ : 1 ≤ bL) (_ : bL ≤ scaledC0 3)
         (_ : P.m₀ = C.m₀) (_ : SFTermClauses P Dom C.Tm)
         (_ : 0 < S.β) (_ : 0 ≤ P.E₀) (i₀ i₁ : Fin 2)
         (_ : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet 3 3 (N₁ * 3 ^ T.m₁) (k + 1)
@@ -295,11 +295,11 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_step {κmin : ℝ} (T : Ste
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
   obtain ⟨Jr, HC'⟩ := HC k hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
-  intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀
+  intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl hm hcl hβS hE₀
     i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HX⟩ := @HC' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL
-    Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁
-    hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+    Cx c₂ BG₂ δ₁ δfl 1 le_rfl (one_le_scaledC0 3) hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN
+    hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog Bτ hBτ
     CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
