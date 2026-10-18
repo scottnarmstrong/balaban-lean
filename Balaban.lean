@@ -2711,6 +2711,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Step
 public import Balaban.Inhabited.StepTowerNewLevelE0LabelsAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0FamiliesAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelBaseAgree
+public import Balaban.Inhabited.StepTowerNewLevelE0StructAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelXAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0IrrelCoreAgree
 public import Balaban.Inhabited.StepTowerNewLevelE0RedAgree
