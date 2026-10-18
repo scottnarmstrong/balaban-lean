@@ -240,6 +240,13 @@ the landed localization expansions; and the pointwise bound (3.10″) does not i
 gas theorem (a counterexample with m output points), so the gas activity is restated as an operator acting on the output
 field. The window bound is being finished (the step that timed out is being split).
 
+Update (18 October, later). The window conversion is assembled for the actual pieces: the read transport, the
+coefficient response with all its budgets (the constant is uniform in the scale), the source and pair estimates, and
+the first-scale mass identification (ruling R2) are proved. One premise remains: the comparison of a piece's local
+background with the window's background, which solve the background equation on different generating sets. It needs
+the stability of the background under a change of generating set away from the piece (P7 (2.14), P2 Prop. 4.1, P3
+Prop. 2.1 for changed layers); this is being proved now.
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
@@ -433,6 +440,13 @@ of all reference jets at every centre, and the reindexing of the torus sum are p
 second-moment matrix and the tails remain (round 3 running). The base settings of the step are produced at the tower's
 constants (W982); two numerical conditions need a tower with smaller t, being proved (W989).
 
+Update (18 October, later). The chain uses the per-label bounds only at the composed data of the step, never on
+the whole chart of a label; it is restated there (W1040), which matches the source (P1 (3.128), Lemma 2.1, P3 Prop.
+4.3). The filed torus defect is proved at every centre, also on birth-mass domains. The condition that the composed
+data stay in the domains of the inherited levels is real in the source and is paid there by taking the step radius
+t_k = ε_{k+1}; it fails only because the tower fixes t. A tower with a scale-dependent t is the next step; the same
+artefact explains the growth L^{2αk} found in blocker 4.
+
 ## 7. Reading of the torus-independence clause
 
 The main theorem says that the terms on two tori agree on supports A in the box |y_μ| < min(ℓ, ℓ')/4
@@ -517,6 +531,13 @@ supports, locality, analyticity, closeness bounds and the geometry of the recent
 resummation covering small and large tori together. The input still assumed is the agreement of the earlier
 scales' data on the recentred boxes (the induction over scales); for Root-F's clause, the sum over roots and
 sites, the identification with Root-F's source, and the inherited terms of earlier scales remain.
+
+Update (18 October, later). The clause holds in the literal form of Root-F (fine sites, the image of a finite set
+in the common quarter box) at the first gap scale, and conditionally on the earlier scales at later ones. Two design
+points remain: Root-F fixes its terms before the pair of tori, whereas the tower's resummation refers to a canonical
+torus of a finite family, so one family of terms valid for all tori must be built (for instance as a limit over tori
+on compact supports); and Root-F's terms depend on the source only on X, which needs the resummation of the
+observable part alone.
 
 ## Large pieces of work that are not blockers
 

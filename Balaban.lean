@@ -1622,6 +1622,7 @@ public import Balaban.Inhabited.StepTowerGProducers
 public import Balaban.Inhabited.StepTowerSmall
 public import Balaban.Inhabited.StepTowerSmallBase
 public import Balaban.Inhabited.StepTowerChainStruct
+public import Balaban.Inhabited.StepTowerChainStep
 public import Balaban.Inhabited.StepTowerChainStructAmp
 public import Balaban.Inhabited.StepTowerChainDomNbhd
 public import Balaban.Inhabited.StepTowerChainDomXi
@@ -2324,6 +2325,9 @@ public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSpec
 public import Balaban.Fluctuation.LocalClassDensityIrrelSuppSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelChain
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
+public import Balaban.Fluctuation.LocalClassDensityIrrelStepChart
+public import Balaban.Fluctuation.LocalClassDensityIrrelStep
+public import Balaban.Fluctuation.LocalClassDensityIrrelStepRoom
 public import Balaban.Fluctuation.LocalClassDensityIrrelBaseSet
 public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
