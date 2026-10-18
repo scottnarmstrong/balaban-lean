@@ -325,8 +325,9 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * `rootRate_of_sizeJ`, `rootRate_of_dExt` and `sitesOf_isPolymer` (`m₀ = 1`);
      * `prefixInput_exists`; the tower's analogue `mObs_rootF_of_obsBound`.
    * Open:
-     * (a) the constant configuration `(constFld h, constFld h)` lies in `sfDom`: `XiDom (Tm.gs j X) (aIdeal L k (a k)) (sfBgMass k) j ε_j`
-       needs `XiAt` of the constant real datum, `InUnionDomainC` and `XiCBounds` with zero complex parts;
+     * (a) the constant configuration `(constFld h, constFld h)` lies in `sfDom`. Since R6 (W1107) this is `birthXiDom`:
+       `XiDom (Tm.gs j X) (aIdeal L k (a k)) (physMass L j ν_j) j ε_j`. It needs `XiAt` of the constant real datum,
+       `InUnionDomainC` and `XiCBounds` with zero complex parts;
      * (b) `IsPolyDom m₀ j` ⇒ `IsPolymer d ℓ (M L^j)` for general `m₀`. The boxes of `ChosenOne` have side `L·M L^j` and are aligned
        at `cellSide = M L^j`, so this generalizes `sitesOf_isPolymer`;
      * (c) the arithmetic:
