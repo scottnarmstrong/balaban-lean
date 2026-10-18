@@ -31,17 +31,15 @@ namespace Balaban.LargeField
 
 open Balaban
 
-/-- The hypotheses of Lemma II.5.12 (data and conditions): the running coefficients `β_j`
-satisfy (I.2) with `ε ≤ 1/20`; `λ_j = λ̂_j`; (Λ15), (Λ16) hold at every `λ_j`; `L ≤ M`;
-`H₀, c₁ ≥ 0`; `c_v ≥ M^d (H₀ + c₁ + 3)`. -/
-structure BudgetSetup (S : Setting) (P : BudgetConsts) where
+/-- The data and numerical conditions of Lemma II.5.12 other than the running hypothesis (I.2):
+`λ_j = λ̂_j`, (Λ15), (Λ16) at every scale, `L ≤ M`, `H₀, c₁ ≥ 0`, `c_v ≥ M^d (H₀ + c₁ + 3)`. -/
+structure BudgetData (S : Setting) (P : BudgetConsts) where
   β : ℝ
   ν : ℝ
   a : ℝ
   ε : ℝ
   nuRun : ℕ → ℝ
   K : AnalyticConsts
-  run : RunningHyp S.d S.L β ν a ε P.beta nuRun
   lam_eq : ∀ j, S.lam j = lamHat S.d S.L β a j
   Kd : K.d = S.d
   KL : K.L = S.L
@@ -53,6 +51,24 @@ structure BudgetSetup (S : Setting) (P : BudgetConsts) where
   c1_nonneg : 0 ≤ P.c1
   L_le_M : S.L ≤ S.M
   cv_ge : (S.M : ℝ) ^ S.d * (P.H0 + P.c1 + 3) ≤ S.cv
+
+/-- **The hypotheses of Lemma II.5.12 with (I.2) up to the scale `c` only**: the data of
+`BudgetData` and the running coefficients `β_j` satisfy (I.2) for `j ≤ c`. Lemma B at the scales
+`k < c` is proved for this hypothesis; `BudgetSetup` is the case of every cutoff. -/
+structure BudgetSetupTo (S : Setting) (P : BudgetConsts) (c : ℕ) extends BudgetData S P where
+  run : RunningHypTo S.d S.L β ν a ε P.beta nuRun c
+
+/-- The hypotheses of Lemma II.5.12 (data and conditions): the running coefficients `β_j`
+satisfy (I.2) with `ε ≤ 1/20`; `λ_j = λ̂_j`; (Λ15), (Λ16) hold at every `λ_j`; `L ≤ M`;
+`H₀, c₁ ≥ 0`; `c_v ≥ M^d (H₀ + c₁ + 3)`. -/
+structure BudgetSetup (S : Setting) (P : BudgetConsts) extends BudgetData S P where
+  run : RunningHyp S.d S.L β ν a ε P.beta nuRun
+
+/-- A budget setup is a budget setup up to every cutoff. -/
+def BudgetSetup.toTo {S : Setting} {P : BudgetConsts} (B : BudgetSetup S P) (c : ℕ) :
+    BudgetSetupTo S P c where
+  toBudgetData := B.toBudgetData
+  run := B.run.toTo c
 
 theorem Setting.Ok.one_le_p0 {S : Setting} (ok : S.Ok) : 1 ≤ S.p0 := by
   have h1 := ok.p2_ge
@@ -67,29 +83,29 @@ theorem Setting.Ok.M_pow_pos {S : Setting} (ok : S.Ok) : (0 : ℝ) < (S.M : ℝ)
   have := ok.one_le_M
   positivity
 
-namespace BudgetSetup
+namespace BudgetSetupTo
 
-variable {S : Setting} {P : BudgetConsts} (B : BudgetSetup S P) (ok : S.Ok)
+variable {S : Setting} {P : BudgetConsts} {c : ℕ} (B : BudgetSetupTo S P c) (ok : S.Ok)
 
 include B ok
 
 /-- Lemma II.1.2 (d) with (Λ15): the gain `g_k ≤ A₃ (log β_k)^{2p₀}`. -/
-theorem gain_ge (k : ℕ) :
+theorem gain_ge {k : ℕ} (hk : k ≤ c) :
     S.g k ≤ S.A3 * Real.log (P.beta k) ^ (2 * S.p0) := by
   have h15 := (B.lam_cond k).lam15
   rw [B.Kp0, B.lam_eq] at h15
-  have := B.run.gain_conv ok.A3_pos.le ok.one_le_p0 k h15
+  have := B.run.gain_conv ok.A3_pos.le ok.one_le_p0 hk h15
   unfold Setting.g
   rw [B.lam_eq]
   exact this
 
 /-- Old volume: `H_k - L^{-d} H_{k+1} ≥ 1` (Lemma II.1.2 (b), (e) with (Λ16)). -/
-theorem old_volume (k : ℕ) :
+theorem old_volume {k : ℕ} (hk : k + 1 ≤ c) :
     1 ≤ HRun P.H0 P.beta k - ((S.L : ℝ) ^ S.d)⁻¹ * HRun P.H0 P.beta (k + 1) := by
   have h16 := (B.lam_cond k).lam16a
   rw [B.KH0, B.Kd, B.KL] at h16
-  have hb := B.run.logBeta_ge k
-  have hs := B.run.logBeta_succ_le k
+  have hb := B.run.logBeta_ge (j := k) (by omega)
+  have hs := B.run.logBeta_succ_le hk
   have hε := B.run.hε
   have hε0 := B.run.hε0
   have hu : 0 < ((S.L : ℝ) ^ S.d)⁻¹ := inv_pos.2 (ok.L_pow_pos)
@@ -108,19 +124,19 @@ theorem old_volume (k : ℕ) :
   nlinarith [this]
 
 /-- The new-volume charge: `(c₁ log β_k + c₂ + H_{k+1}) M^d + (5/4) L^d ≤ c_v λ_{k+1}`. -/
-theorem new_volume (k : ℕ) :
+theorem new_volume {k : ℕ} (hk : k + 1 ≤ c) :
     (P.c1 * Real.log (P.beta k) + P.c2 + HRun P.H0 P.beta (k + 1)) * (S.M : ℝ) ^ S.d +
       5 / 4 * (S.L : ℝ) ^ S.d ≤ S.cv * S.lam (k + 1) := by
   have h16 := (B.lam_cond (k + 1)).lam16b
   rw [B.Kc2] at h16
   have hlk : Real.log (P.beta k) ≤ S.lam (k + 1) := by
-    have h1 := B.run.logBeta_le k
+    have h1 := B.run.logBeta_le (j := k) (by omega)
     have hθ := B.run.theta_nonneg
     have h2 : lamHat S.d S.L B.β B.a k ≤ lamHat S.d S.L B.β B.a (k + 1) := by
       unfold lamHat; push_cast; nlinarith
     rw [B.lam_eq]; linarith
   have hlk1 : Real.log (P.beta (k + 1)) ≤ S.lam (k + 1) := by
-    rw [B.lam_eq]; exact B.run.logBeta_le (k + 1)
+    rw [B.lam_eq]; exact B.run.logBeta_le (j := k + 1) hk
   have hlam0 : 0 ≤ S.lam (k + 1) := by
     have := ok.one_le_lam (k + 1)
     linarith
@@ -143,6 +159,30 @@ theorem new_volume (k : ℕ) :
       5 / 4 * (S.L : ℝ) ^ S.d := by field_simp
   nlinarith [h4, h3, e]
 
+end BudgetSetupTo
+
+namespace BudgetSetup
+
+variable {S : Setting} {P : BudgetConsts} (B : BudgetSetup S P) (ok : S.Ok)
+
+include B ok
+
+/-- Lemma II.1.2 (d) with (Λ15): the gain `g_k ≤ A₃ (log β_k)^{2p₀}`. -/
+theorem gain_ge (k : ℕ) :
+    S.g k ≤ S.A3 * Real.log (P.beta k) ^ (2 * S.p0) :=
+  (B.toTo k).gain_ge ok le_rfl
+
+/-- Old volume: `H_k - L^{-d} H_{k+1} ≥ 1` (Lemma II.1.2 (b), (e) with (Λ16)). -/
+theorem old_volume (k : ℕ) :
+    1 ≤ HRun P.H0 P.beta k - ((S.L : ℝ) ^ S.d)⁻¹ * HRun P.H0 P.beta (k + 1) :=
+  (B.toTo (k + 1)).old_volume ok le_rfl
+
+/-- The new-volume charge: `(c₁ log β_k + c₂ + H_{k+1}) M^d + (5/4) L^d ≤ c_v λ_{k+1}`. -/
+theorem new_volume (k : ℕ) :
+    (P.c1 * Real.log (P.beta k) + P.c2 + HRun P.H0 P.beta (k + 1)) * (S.M : ℝ) ^ S.d +
+      5 / 4 * (S.L : ℝ) ^ S.d ≤ S.cv * S.lam (k + 1) :=
+  (B.toTo (k + 1)).new_volume ok le_rfl
+
 end BudgetSetup
 
 namespace RegionHistory
@@ -155,7 +195,8 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 closure included),
 `∑_Y G_k(Y) + g_k |𝒩_{k+1} ∩ Z'|_# - c_v λ_{k+1} |Z'|_# ≤ G^pre_{k+1}(Z')`,
 for arbitrary post-`R` exponents `κ_k` and factors `log C_k` of the old parts. -/
-theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → ℝ) :
+theorem lemmaB_to {c : ℕ} (B : BudgetSetupTo S P c) (hKc : K ≤ c) (ok : S.Ok)
+    (κ logC : ∀ k, H.Comp k → ℝ) :
     ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', H.Gpost P κ logC k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ H.Gpre P κ logC (k + 1) Z' := by
@@ -194,9 +235,9 @@ theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → 
   have hNnn : 0 ≤ N := Nat.cast_nonneg _
   have hznn : 0 ≤ z := Nat.cast_nonneg _
   rw [hG, hP]
-  have hgain := B.gain_ge ok k
-  have hvol := B.old_volume ok k
-  have hnew := B.new_volume ok k
+  have hgain := B.gain_ge ok (k := k) (by omega)
+  have hvol := B.old_volume ok (k := k) (by omega)
+  have hnew := B.new_volume ok (k := k) (by omega)
   have h1 : S.g k * N ≤ S.A3 * Real.log (P.beta k) ^ (2 * S.p0) * N :=
     mul_le_mul_of_nonneg_right hgain hNnn
   -- n₁ term
@@ -248,6 +289,23 @@ theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → 
     ring
   rw [e3]
   nlinarith [h1, h2, h3, e4, e5]
+
+/-- **Lemma II.5.12 (Lemma B)** under the full hypothesis (I.2): the case `c = K` of
+`lemmaB_to`. -/
+theorem lemmaB (B : BudgetSetup S P) (ok : S.Ok) (κ logC : ∀ k, H.Comp k → ℝ) :
+    ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+      ∑ c ∈ H.parts k Z', H.Gpost P κ logC k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
+        S.cv * S.lam (k + 1) * Z'.1.card ≤ H.Gpre P κ logC (k + 1) Z' :=
+  H.lemmaB_to (B.toTo K) le_rfl ok κ logC
+
+/-- **Lemma B along the history, up to the scale `c`** (Definition II.5.11): the same for the
+recursive `kappa`, `logC` with kept data `κK` and kept decoration `δ`. -/
+theorem lemmaB_recursive_to {c : ℕ} (B : BudgetSetupTo S P c) (hKc : K ≤ c) (ok : S.Ok)
+    (κK δ : ∀ k, H.Comp k → ℝ) :
+    ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+      ∑ c ∈ H.parts k Z', H.budgetPost P κK δ k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
+        S.cv * S.lam (k + 1) * Z'.1.card ≤ H.budgetPre P κK δ (k + 1) Z' :=
+  H.lemmaB_to B hKc ok (H.kappa P κK) (H.logC δ)
 
 /-- **Lemma B along the history** (Definition II.5.11): the same for the recursive `kappa`,
 `logC` with kept data `κK` and kept decoration `δ`. -/
