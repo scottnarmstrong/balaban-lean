@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowConvPhysParams
+public import Balaban.LargeField.R.WindowConvUniform
 public import Balaban.LargeField.Def7
 
 /-!
@@ -30,7 +31,8 @@ local background is solved with the background mass `cs.muBg`, and route R-YM′
 
 With the complete branch the mass-convention residual of the window conversion is therefore
 absent: the intermediate actions `Q` and `R` of `window_uniform_of_parts` can be taken equal,
-`Kswitch = 0`, and the massless-to-complete comparison of `P7CONV.md` §3.5 (55)-(56) is not used.
+`Kswitch = 0` (`PieceWindowSetup.window_uniform_of_parts_noSwitch`), and the massless-to-complete
+comparison of `P7CONV.md` §3.5 (55)-(56) is not used.
 -/
 
 @[expose] public section
@@ -141,5 +143,36 @@ theorem pieceChain_el (hcoh : cs.muBg (j + 1) = br.elMass (cs.muAct (j + 1)))
   · subst e
     exact pieceChain_el_first h2 hcoh hu
   · exact (pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu hβ hμ hB0 hBn hS).el nn hlt h2 u hu
+
+namespace ActionConv
+
+variable {d L N₀ K' N' : ℕ} [NeZero N₀] [NeZero L] {U' : Type*} {S' : Set U'} {ι : Type*}
+  [Fintype ι] {sc : ι → ℕ} {k1 k' : ℕ}
+
+/-- **The window comparison without a mass switch** (ruling R2): when every background of a piece
+solves the system of one branch (`pieceChain_el`), the intermediate action of the mass switch is
+the coefficient-adjusted action itself, and the switch premise `hswitch` of
+`window_uniform_of_parts` holds with `R = Q` and `Kswitch = 0`. -/
+theorem PieceWindowSetup.window_uniform_of_parts_noSwitch
+    (W : PieceWindowSetup d L N₀ K' N' S' ι sc k1 k')
+    (P Q : ι → U' → ℂ) (Kpair Kcoef Kread : ℝ)
+    (hpair : ∀ i, ∀ u ∈ S',
+      ‖(W.chain i).T u k' - P i u‖ ≤ Kpair * W.mcount i)
+    (hcoef : ∀ i, ∀ u ∈ S',
+      ‖P i u - Q i u‖ ≤ Kcoef * W.mcount i)
+    (hread : ∀ i, ∀ u ∈ S',
+      ‖Q i u - (W.βk : ℂ) *
+        actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)‖ ≤
+        Kread * W.mcount i) :
+    ∀ i, ∀ u ∈ S',
+      ‖(W.chain i).T u k' - (W.βk : ℂ) *
+        actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)‖ ≤
+          (Kpair + Kcoef + Kread) * W.mcount i := by
+  have h := W.window_uniform_of_parts P Q Q Kpair Kcoef 0 Kread hpair hcoef
+    (fun i u _ => by simp) hread
+  intro i u hu
+  simpa using h i u hu
+
+end ActionConv
 
 end Balaban.LargeField
