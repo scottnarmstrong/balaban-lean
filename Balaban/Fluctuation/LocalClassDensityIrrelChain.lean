@@ -51,8 +51,8 @@ open Classical in
 sets containing the composed step data.**  `e0CoeffFamily_class_fromTower_of_irrelBounds_core` with
 the chart condition and the per-label bounds `hEbd` stated on sets `𝒮 τ` of raw data that contain
 the composed step data `D2raw (Gk τ) (Gj τ) a (FkL τ) (d1Triple S.G' (Gk τ) stepG a t)` of the
-realizable triples `t` (`h𝒮`): the label functionals are read only there (`eTermFun`).  The landed
-theorem is the case `𝒮 τ = Ξ^c_j(Gj τ; bL, …)`. -/
+realizable triples `t` (`h𝒮`): the label functionals are read only there (`eTermFun`).  The
+landed theorem is the case `𝒮 τ = Ξ^c_j(Gj τ; bL, …)`. -/
 theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet {κmin : ℝ} (T : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧
