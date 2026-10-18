@@ -302,8 +302,9 @@ variable {d M1 c L k ω n1₁ n0₁ n1₂ n0₂ : ℕ} [NeZero L] [NeZero M1] [N
   [NeZero n1₁] [NeZero n0₂] [NeZero n1₂] {Rprev Rk : ℝ} {Zp₁ : Set (Torus d n1₁)}
   {Zp₂ : Set (Torus d n1₂)} {Z'₁ : Finset (Torus d n1₁)} {Z'₂ : Finset (Torus d n1₂)}
 
-/-- **The local boundary generating sets of two tori agree on a box.** -/
-theorem genAgree_genBoundaryLocal (st₁ : RegionStep d L n0₁ n1₁ Rprev Rk)
+/-- **The local boundary generating sets of two tori agree on a box**, given the room `size` of
+the box (which follows from the containment of `V` in the box, `genAgree_genBoundaryLocal`). -/
+theorem genAgree_genBoundaryLocal_of_size (st₁ : RegionStep d L n0₁ n1₁ Rprev Rk)
     (st₂ : RegionStep d L n0₂ n1₂ Rprev Rk) (hc : 14 ≤ c) (hn₁ : n0₁ = L * n1₁)
     (hn₂ : n0₂ = L * n1₂) (hL : 2 ≤ L) (hρ : 3 * L ≤ ⌊Rprev⌋₊) (hmono : ⌊Rprev⌋₊ ≤ ⌊Rk⌋₊)
     (hω : 2 * ⌊Rk⌋₊ + L + 11 ≤ ω) (hZ₁ : st₁.Omegaᶜ ⊆ Zp₁) (hZ₂ : st₂.Omegaᶜ ⊆ Zp₂)

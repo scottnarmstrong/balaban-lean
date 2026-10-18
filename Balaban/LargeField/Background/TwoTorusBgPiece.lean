@@ -176,12 +176,13 @@ variable {d M1 c L k ω n1₁ n0₁ n1₂ n0₂ : ℕ} [NeZero L] [NeZero M1] [N
   [NeZero n1₁] [NeZero n0₂] [NeZero n1₂] {Rprev Rk : ℝ} {Zp₁ : Set (Torus d n1₁)}
   {Zp₂ : Set (Torus d n1₂)} {Z'₁ : Finset (Torus d n1₁)} {Z'₂ : Finset (Torus d n1₂)}
 
-/-- **Two-torus transport of the local piece background** (Definition II.2.7 (iv)): the local
+/-- The two-torus transport of the local piece background with the room `size` of the box as a
+premise (removed in `bgLocPiece_twoTorus`). The local
 background `bgLocPiece` of two tori agrees at corresponding sites, when the fine sets of `Z'`,
 `Z_k ∩ Z'`, `Ω_{k+1} ∩ Z'` correspond, `V = (Z'^≈)^∼` lies in the box of both tori (with the room
 `size`), and the lifted data `ψ`, `ϑ` agree at the `k`-blocks, `(k+1)`-blocks of corresponding
 sites. -/
-theorem bgLocPiece_twoTorus {N : ℕ} (st₁ : RegionStep d L n0₁ n1₁ Rprev Rk)
+theorem bgLocPiece_twoTorus_of_size {N : ℕ} (st₁ : RegionStep d L n0₁ n1₁ Rprev Rk)
     (st₂ : RegionStep d L n0₂ n1₂ Rprev Rk) (hc : 14 ≤ c) (hn₁ : n0₁ = L * n1₁)
     (hn₂ : n0₂ = L * n1₂) (hL : 2 ≤ L) (hρ : 3 * L ≤ ⌊Rprev⌋₊) (hmono : ⌊Rprev⌋₊ ≤ ⌊Rk⌋₊)
     (hω : 2 * ⌊Rk⌋₊ + L + 11 ≤ ω) (hZ₁ : st₁.Omegaᶜ ⊆ Zp₁) (hZ₂ : st₂.Omegaᶜ ⊆ Zp₂)
@@ -235,7 +236,7 @@ theorem bgLocPiece_twoTorus {N : ℕ} (st₁ : RegionStep d L n0₁ n1₁ Rprev 
         (⟨zcast (M1 * (c * n1₂) * L ^ (k + 1)) w, hw₂⟩, i) =
       bgLocPiece st₁ hc hn₁ hL hρ hω hZ₁ a μ c₀ hZ'₁ ψ₁ ϑ₁ h
         (⟨zcast (M1 * (c * n1₁) * L ^ (k + 1)) w, hw₁⟩, i) := by
-  have hA := genAgree_genBoundaryLocal st₁ st₂ hc hn₁ hn₂ hL hρ hmono hω hZ₁ hZ₂ hZ'₁ hZ'₂ cc hZc
+  have hA := genAgree_genBoundaryLocal_of_size st₁ st₂ hc hn₁ hn₂ hL hρ hmono hω hZ₁ hZ₂ hZ'₁ hZ'₂ cc hZc
     hKc hOc hV₁ hV₂ hsize₁ hsize₂
   have hM1 : 0 < M1 := Nat.pos_of_ne_zero (NeZero.ne M1)
   have hN₁ : 2 ≤ M1 * (c * n1₁) := by
