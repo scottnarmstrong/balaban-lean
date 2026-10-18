@@ -2599,6 +2599,12 @@ public import Balaban.Polymer.TwoTorusGapTowerDataOrigin
 public import Balaban.Polymer.TwoTorusGapTowerDataCell
 public import Balaban.Polymer.TwoTorusGapTowerRootFClause
 public import Balaban.Polymer.TwoTorusGapTowerRootFUnitBg
+public import Balaban.Polymer.TwoTorusGapTowerSitesCell
+public import Balaban.Polymer.TwoTorusGapTowerSitesPoly
+public import Balaban.Polymer.TwoTorusGapTowerSitesAnimal
+public import Balaban.Polymer.TwoTorusGapTowerSitesClause
+public import Balaban.Polymer.TwoTorusGapTowerSitesUnitBg
+public import Balaban.Polymer.TwoTorusGapTowerSitesGeneral
 public import Balaban.Polymer.TwoTorusGapTowerDataUnitBg
 public import Balaban.SmallField.IrrelTorusXidomCanonical
 public import Balaban.SmallField.IrrelTorusXidomCanonicalData
@@ -2609,8 +2615,11 @@ public import Balaban.SmallField.IrrelTorusXidomClassRate
 public import Balaban.LargeField.Base.BaseFirstPhysicalConditional
 public import Balaban.LargeField.R.WindowConvR2
 public import Balaban.Green.FinalSelectedDomain
+public import Balaban.LargeField.R.WindowConvPhysAssemblyParts
 public import Balaban.LargeField.History.LateParentR3
 public import Balaban.LargeField.Operators.KerBoundSrc
 public import Balaban.LargeField.Operators.MainActionC
 public import Balaban.LargeField.Operators.QuietSrc
 public import Balaban.Inhabited.LateParentR3Witness
+public import Balaban.LargeField.R.WindowConvPhysAssemblyPhys
+public import Balaban.LargeField.R.WindowConvPhysFieldClauses
