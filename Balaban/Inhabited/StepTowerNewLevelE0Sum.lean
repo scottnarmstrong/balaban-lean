@@ -139,6 +139,47 @@ theorem markedIdx_sum_exp_bridge_le (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
         rw [this]; ring
 
 open Classical in
+/-- **The marks sum from the per-domain weights.**  If `A(b, Y) ≥ 0` and, for every domain `Y` of a
+contributing pair, the weights `A(b, Y)` of the `b` with `Y ∈ dom b` sum to at most
+`c e^{-κ_G d^cov(Y)}`, then `∑_{(b,Y)} A(b, Y) e^{(κ_G - κ₀) d^cov(bridge z Y)} ≤
+c n_fibre e^{κ_G c_Br} K₀`. -/
+theorem markedIdx_sum_exp_bridge_le_of_weights (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
+    (reads : β → Set (CTorus d L N₁ m₁ K)) (dom : β → Finset (Set (CTorus d L N₁ m₁ K)))
+    (hdom : ∀ b, ∀ Y ∈ dom b, IsDj m₀ K Y) (z : RootIdx d L N₁ m₁ K) {κ0 κG c : ℝ}
+    (hκ0 : aEnt d L + 1 ≤ κ0) (hκG : κ0 ≤ κG) (hc : 0 ≤ c)
+    (A : β → Set (CTorus d L N₁ m₁ K) → ℝ) (hA : ∀ b Y, 0 ≤ A b Y)
+    (hY : ∀ Y ∈ (markedIdx reads dom z).image Prod.snd,
+      ∑ b, (if Y ∈ dom b then A b Y else 0) ≤ c * Real.exp (-κG * treeLenCovOne m₀ K Y)) :
+    ∑ q ∈ markedIdx reads dom z, A q.1 q.2 *
+        Real.exp ((κG - κ0) * treeLenCovOne m₀ K (bridge m₀ z q.2)) ≤
+      c * ((nFibre d L : ℝ) * Real.exp (κG * cBr d L)) * K0 d L κ0 := by
+  refine markedIdx_sum_exp_bridge_le hN hL reads dom hdom z hκ0 hκG hc (fun q => A q.1 q.2)
+    (fun q => hA _ _) (fun Y hYm => ?_)
+  refine le_trans ?_ (hY Y hYm)
+  have hinj : Set.InjOn (Prod.fst : β × Set (CTorus d L N₁ m₁ K) → β)
+      ↑((markedIdx reads dom z).filter (fun q => q.2 = Y)) := fun q hq q' hq' h => by
+    exact Prod.ext h (((Finset.mem_filter.1 hq).2).trans ((Finset.mem_filter.1 hq').2).symm)
+  have h1 : ∑ q ∈ (markedIdx reads dom z).filter (fun q => q.2 = Y), A q.1 q.2 =
+      ∑ b ∈ ((markedIdx reads dom z).filter (fun q => q.2 = Y)).image Prod.fst, A b Y := by
+    rw [Finset.sum_image hinj]
+    refine Finset.sum_congr rfl fun q hq => ?_
+    rw [(Finset.mem_filter.1 hq).2]
+  rw [h1]
+  have h2 : ∑ b ∈ ((markedIdx reads dom z).filter (fun q => q.2 = Y)).image Prod.fst, A b Y =
+      ∑ b ∈ ((markedIdx reads dom z).filter (fun q => q.2 = Y)).image Prod.fst,
+        (if Y ∈ dom b then A b Y else 0) := by
+    refine Finset.sum_congr rfl fun b hb => ?_
+    obtain ⟨q, hq, rfl⟩ := Finset.mem_image.1 hb
+    obtain ⟨hq1, hq2⟩ := Finset.mem_filter.1 hq
+    have hmem : Y ∈ dom q.1 := by rw [← hq2]; exact (mem_markedIdx.1 hq1).1
+    simp [hmem]
+  rw [h2]
+  exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) fun b _ _ => by
+    split_ifs
+    · exact hA _ _
+    · exact le_rfl
+
+open Classical in
 /-- **The padding sum.**  For nonnegative weights `ϖ(b)`,
 `∑_{(b,Y)} ϖ(b) e^{-κ₀ d^cov(Y)} ≤ (∑_b ϖ(b)) n_fibre e^{κ₀ c_Br} K₀`. -/
 theorem markedIdx_sum_weight_le (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
