@@ -367,6 +367,10 @@ Repair already planned: `CROTE.md` section 4 (and W875: `SFTermClauses.rotE_of_n
 `exists_cay_path_near`) replaces the four call sites by the real clause plus a Cayley path for bounded-entry matrices
 and removes every `hCR`. Until it lands, the theorems above should not be cited as unconditional.
 
+W1091 (2026-10-18): NOT yet repaired. The isotropic call sites are proved from the term clauses without `CRotE`
+(`Def6BridgeLiftRot.lean`, additive); the anisotropic call sites (`Eaux_rotA`, `EauxC_rotA`) are blocked: the longitudinal
+radius `r²` of the anisotropic domain is not met by the polar path (`CROTE.md`, W1091 lines). Every `hCR` remains.
+
 ## Other findings to act on
 
 - `notes/phase1/astra/ALIGNED.md` in the repository stops at Round 3; Round 4 (the source of the `r4Fresh`

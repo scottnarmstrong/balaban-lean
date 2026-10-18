@@ -58,3 +58,7 @@ domain is known). Each `hCR` is removed by replacing the four call sites:
    `hsf : IsSF ...` (only `gs_spec`, `analyticE`, `localE`, `rotE` are used; the density clause is not used by the bridges),
    then `isSF_of_termClauses` and every `hC/hCR` disappear; the landed `IsSF` versions become corollaries via
    `IsSF.termClauses`. `Def6v2RenormCompare` (`CRotE` of the landed class) stays valid.
+
+W1091 (2026-10-18): isotropic call sites done additively in `Def6BridgeLiftRot.lean`: `E_rot_at`, `Eaux_rot_of_clauses`, `EauxC_rot_of_clauses` (term clauses, no `CRotE`), `liftRadiusRot`; `Def6RotFrames` gained `*_within` (neighbourhood relative to block-constant pairs, since `XiDom` is open only there). No landed statement changed.
+W1091 BLOCKED at `Eaux_rotA`/`EauxC_rotA`: §4 item 1 gives only sup radii for `h'`; `xiDom_of_aniso` needs the longitudinal `|b_{i0}-ν| < δ²` at every path point, and the invariant `Σ b_i²` yields only `O(r²(1+1/ν))`. Proposed fix (needs author approval: premise `ν_k ≤ ν̄` at the call site, radius depending on `ν̄`): two-stage path, `T = cay(A)` with `A = (v eᵀ - e vᵀ)/(1+e·v)`, `v = M e`, then the polar path of `T⁻¹M` (which fixes `e`, so `cay e = e` and the longitudinal coordinate is exact).
+
