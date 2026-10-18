@@ -2688,6 +2688,7 @@ public import Balaban.Inhabited.StepTowerBeta0Marks
 public import Balaban.Inhabited.StepTowerBeta0Amp
 public import Balaban.Inhabited.StepTowerBeta0Src
 public import Balaban.Inhabited.StepTowerBeta0Zero
+public import Balaban.Inhabited.StepTowerRotClass
 public import Balaban.Inhabited.StepTowerBeta0Class
 public import Balaban.Inhabited.StepTowerBeta0Labels
 public import Balaban.Inhabited.StepTowerBeta0Fields
