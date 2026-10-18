@@ -6,17 +6,18 @@ public import Balaban.LargeField.Operators.StepVacuumR5
 # The volume of the vacuum regions of the creating step (R5 follow-up)
 
 `stepVacuumVolume` is the total volume of the three regions
-`(Z_{k+1} ∖ Z_k) ∖ Ω_{k+1}`, `Ω_{k+1} ∖ Ω″_{k+1}`, `Ω″_{k+1} ∩ Z_{k+1}`.  These regions are
-pairwise disjoint, but they do not partition `Z_{k+1} ∖ Z_k`: the middle region is a neighbourhood
+`Z_k^c ∖ Ω_{k+1}`, `Ω_{k+1} ∖ Ω″_{k+1}`, `Ω″_{k+1} ∩ Z_{k+1}` (P6 (3.2)).  These regions are
+pairwise disjoint (for `Ω″_{k+1} ⊆ Ω_{k+1}`), but they do not partition `Z_{k+1} ∖ Z_k`: the first
+region also contains the part of `Z_k^c` outside `Z_{k+1}`, the middle region is a neighbourhood
 region that need not lie in `Z_{k+1}`, and the last region contains the part of `Ω″_{k+1}` lying
 in `Z_k`.  The exact identity (with `Ω″_{k+1} ⊆ Ω_{k+1}`) is
 
-`stepVacuumVolume = |Z_{k+1} ∖ Z_k|_k + |(Ω ∖ Ω″) ∖ (Z_{k+1} ∖ Z_k)|_k + |Ω″ ∩ Z_{k+1} ∩ Z_k|_k`.
+`stepVacuumVolume = |Z_{k+1} ∖ Z_k|_k + |(Z_k^c ∖ Ω) ∖ Z_{k+1}|_k
+  + |(Ω ∖ Ω″) ∖ (Z_{k+1} ∖ Z_k)|_k + |Ω″ ∩ Z_{k+1} ∩ Z_k|_k`.
 
 In particular the volume is at least the volume of `Z_{k+1} ∖ Z_k`, with equality exactly when
-the two excess sets are empty.  If `Z_{k+1} ⊆ Ω″_{k+1}` the volume is
-`|Z_{k+1}|_k + |Ω ∖ Ω″|_k`, which exceeds `|Z_{k+1} ∖ Z_k|_k` by the volume of the annulus and of
-`Z_{k+1} ∩ Z_k`.
+the three excess sets have volume zero.  If `Z_{k+1} ⊆ Ω″_{k+1}` the volume is
+`|Z_k^c ∖ Ω|_k + |Z_{k+1}|_k + |Ω ∖ Ω″|_k`.
 -/
 
 @[expose] public section
@@ -50,12 +51,12 @@ their union. -/
 theorem stepVacuumVolume_eq_union [NeZero (M * n K * S.L ^ K)] (a : LocalHistory S n M K) (k : ℕ)
     (hsub : a.OmegaDD k ⊆ a.Omega k) :
     stepVacuumVolume a k =
-      volScale S k (((a.Z (k + 1) \ a.Z k) \ a.Omega k) ∪ (a.Omega k \ a.OmegaDD k) ∪
+      volScale S k (((a.Z k)ᶜ \ a.Omega k) ∪ (a.Omega k \ a.OmegaDD k) ∪
         (a.OmegaDD k ∩ a.Z (k + 1))) := by
   unfold stepVacuumVolume
-  have h1 : Disjoint ((a.Z (k + 1) \ a.Z k) \ a.Omega k) (a.Omega k \ a.OmegaDD k) :=
+  have h1 : Disjoint ((a.Z k)ᶜ \ a.Omega k) (a.Omega k \ a.OmegaDD k) :=
     Set.disjoint_left.2 fun x hx hx' => hx.2 hx'.1
-  have h2 : Disjoint (((a.Z (k + 1) \ a.Z k) \ a.Omega k) ∪ (a.Omega k \ a.OmegaDD k))
+  have h2 : Disjoint (((a.Z k)ᶜ \ a.Omega k) ∪ (a.Omega k \ a.OmegaDD k))
       (a.OmegaDD k ∩ a.Z (k + 1)) :=
     Set.disjoint_left.2 fun x hx hx' => by
       rcases hx with hx | hx
@@ -65,13 +66,15 @@ theorem stepVacuumVolume_eq_union [NeZero (M * n K * S.L ^ K)] (a : LocalHistory
 
 /-- **Exact identity for the volume of the vacuum regions.**  For a localized history with
 `Ω″_{k+1} ⊆ Ω_{k+1}`, `stepVacuumVolume` is the volume of `Z_{k+1} ∖ Z_k` plus the volume of the
-part of the annulus `Ω ∖ Ω″` outside `Z_{k+1} ∖ Z_k` plus the volume of `Ω″ ∩ Z_{k+1} ∩ Z_k`. -/
+part of `Z_k^c ∖ Ω` outside `Z_{k+1}` plus the volume of the part of the annulus `Ω ∖ Ω″` outside
+`Z_{k+1} ∖ Z_k` plus the volume of `Ω″ ∩ Z_{k+1} ∩ Z_k`. -/
 theorem stepVacuumVolume_eq_add_excess [NeZero (M * n K * S.L ^ K)] (a : LocalHistory S n M K) (k : ℕ)
     (hsub : a.OmegaDD k ⊆ a.Omega k) :
     stepVacuumVolume a k =
       volScale S k (a.Z (k + 1) \ a.Z k) +
-        volScale S k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)) +
-          volScale S k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k) := by
+        volScale S k (((a.Z k)ᶜ \ a.Omega k) \ a.Z (k + 1)) +
+          volScale S k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)) +
+            volScale S k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k) := by
   classical
   set D := a.Z (k + 1) \ a.Z k with hD
   have hDsplit : D = (D \ a.Omega k) ∪ (D ∩ (a.Omega k \ a.OmegaDD k)) ∪
@@ -101,6 +104,20 @@ theorem stepVacuumVolume_eq_add_excess [NeZero (M * n K * S.L ^ K)] (a : LocalHi
         volScale S k ((a.OmegaDD k ∩ a.Z (k + 1)) \ a.Z k) := by
     conv_lhs => rw [hDsplit]
     rw [volScale_union_of_disjoint k hd2, volScale_union_of_disjoint k hd1]
+  have hA : volScale S k ((a.Z k)ᶜ \ a.Omega k) =
+      volScale S k (D \ a.Omega k) + volScale S k (((a.Z k)ᶜ \ a.Omega k) \ a.Z (k + 1)) := by
+    rw [← volScale_union_of_disjoint k
+      (Set.disjoint_left.2 fun x hx hx' => hx'.2 hx.1.1)]
+    congr 1
+    ext x
+    constructor
+    · intro hx
+      by_cases h : x ∈ a.Z (k + 1)
+      · exact Or.inl ⟨⟨h, hx.1⟩, hx.2⟩
+      · exact Or.inr ⟨hx, h⟩
+    · rintro (h | h)
+      · exact ⟨h.1.2, h.2⟩
+      · exact h.1
   have hB : volScale S k (a.Omega k \ a.OmegaDD k) =
       volScale S k (D ∩ (a.Omega k \ a.OmegaDD k)) +
         volScale S k ((a.Omega k \ a.OmegaDD k) \ D) := by
@@ -130,7 +147,7 @@ theorem stepVacuumVolume_eq_add_excess [NeZero (M * n K * S.L ^ K)] (a : LocalHi
       · exact h.1
       · exact h.1
   unfold stepVacuumVolume
-  rw [hV, hB, hC]
+  rw [hV, hA, hB, hC]
   ring
 
 /-- The volume of the vacuum regions is at least the removed volume `|Z_{k+1} ∖ Z_k|_k`. -/
@@ -138,39 +155,39 @@ theorem volScale_sdiff_le_stepVacuumVolume [NeZero (M * n K * S.L ^ K)] (a : Loc
     (hsub : a.OmegaDD k ⊆ a.Omega k) :
     volScale S k (a.Z (k + 1) \ a.Z k) ≤ stepVacuumVolume a k := by
   rw [stepVacuumVolume_eq_add_excess a k hsub]
-  linarith [volScale_nonneg (S := S) k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)),
+  linarith [volScale_nonneg (S := S) k (((a.Z k)ᶜ \ a.Omega k) \ a.Z (k + 1)),
+    volScale_nonneg (S := S) k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)),
     volScale_nonneg (S := S) k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k)]
 
-/-- The vacuum regions partition `Z_{k+1} ∖ Z_k` (volume equality) exactly when the two excess
-sets have volume zero. -/
+/-- The vacuum volume equals `|Z_{k+1} ∖ Z_k|_k` exactly when the three excess sets have volume
+zero. -/
 theorem stepVacuumVolume_eq_sdiff_iff [NeZero (M * n K * S.L ^ K)] (a : LocalHistory S n M K) (k : ℕ)
     (hsub : a.OmegaDD k ⊆ a.Omega k) :
     stepVacuumVolume a k = volScale S k (a.Z (k + 1) \ a.Z k) ↔
-      volScale S k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)) = 0 ∧
-        volScale S k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k) = 0 := by
+      volScale S k (((a.Z k)ᶜ \ a.Omega k) \ a.Z (k + 1)) = 0 ∧
+        volScale S k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k)) = 0 ∧
+          volScale S k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k) = 0 := by
   rw [stepVacuumVolume_eq_add_excess a k hsub]
+  have h0 := volScale_nonneg (S := S) k (((a.Z k)ᶜ \ a.Omega k) \ a.Z (k + 1))
   have h1 := volScale_nonneg (S := S) k ((a.Omega k \ a.OmegaDD k) \ (a.Z (k + 1) \ a.Z k))
   have h2 := volScale_nonneg (S := S) k (a.OmegaDD k ∩ a.Z (k + 1) ∩ a.Z k)
   constructor
   · intro h
-    constructor <;> linarith
-  · rintro ⟨h, h'⟩
-    rw [h, h']
+    refine ⟨?_, ?_, ?_⟩ <;> linarith
+  · rintro ⟨h, h', h''⟩
+    rw [h, h', h'']
     ring
 
 /-- If `Z_{k+1} ⊆ Ω″_{k+1}` (as in the geometry, `Z^{(0)}_{k+1}` lies in `Ω″_{k+1}`), the volume
-of the vacuum regions is `|Z_{k+1}|_k + |Ω ∖ Ω″|_k`: the first region is empty, and the volume
-differs from `|Z_{k+1} ∖ Z_k|_k`. -/
+of the vacuum regions is `|Z_k^c ∖ Ω|_k + |Z_{k+1}|_k + |Ω ∖ Ω″|_k`. -/
 theorem stepVacuumVolume_eq_of_Z_subset (a : LocalHistory S n M K) (k : ℕ)
-    (hsub : a.OmegaDD k ⊆ a.Omega k) (hZ : a.Z (k + 1) ⊆ a.OmegaDD k) :
+    (hZ : a.Z (k + 1) ⊆ a.OmegaDD k) :
     stepVacuumVolume a k =
-      volScale S k (a.Z (k + 1)) + volScale S k (a.Omega k \ a.OmegaDD k) := by
+      volScale S k ((a.Z k)ᶜ \ a.Omega k) + volScale S k (a.Z (k + 1)) +
+        volScale S k (a.Omega k \ a.OmegaDD k) := by
   unfold stepVacuumVolume
-  have h0 : (a.Z (k + 1) \ a.Z k) \ a.Omega k = ∅ :=
-    Set.eq_empty_of_forall_notMem fun x hx => hx.2 (hsub (hZ hx.1.1))
   have h3 : a.OmegaDD k ∩ a.Z (k + 1) = a.Z (k + 1) := Set.inter_eq_right.2 hZ
-  rw [h0, h3]
-  simp [volScale]
+  rw [h3]
   ring
 
 /-- For a localized history of a region history, the inclusion `Ω″_{k+1} ⊆ Ω_{k+1}` holds, so the
