@@ -541,6 +541,8 @@ public import Balaban.LargeField.Background.StepGenSets
 public import Balaban.LargeField.Background.StepGenSetsFlow
 public import Balaban.LargeField.Background.Factorization
 public import Balaban.LargeField.Background.StepBackgrounds
+public import Balaban.LargeField.Background.TwoTorusLift
+public import Balaban.LargeField.Background.TwoTorusGenAgree
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.SpinePad
 public import Balaban.LargeField.History.ImageHist
