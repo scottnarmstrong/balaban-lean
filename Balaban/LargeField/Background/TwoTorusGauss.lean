@@ -56,8 +56,8 @@ theorem qCoarseK_corr {A₁ : Set (InternalVars a₁ (k + 1))} {A₂ : Set (Inte
     {x₁ : SubCfg N a₁ (k + 1) A₁} {x₂ : SubCfg N a₂ (k + 1) A₂}
     (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc x₁ x₂)
     (hA : ∀ p₁ p₂, VarCorr cc p₁ p₂ → (p₁ ∈ A₁ ↔ p₂ ∈ A₂)) (hk : k + 1 ≤ K)
-    (hq₁ : ∀ j, j ≤ K → 4 ≤ M * n₁ K * S.L ^ (K - j))
-    (hq₂ : ∀ j, j ≤ K → 4 ≤ M * n₂ K * S.L ^ (K - j)) {y₁ : BlockAt S n₁ M K (k + 1)}
+    (hq₁ : ∀ j, j ≤ k + 1 → 4 ≤ M * n₁ K * S.L ^ (K - j))
+    (hq₂ : ∀ j, j ≤ k + 1 → 4 ≤ M * n₂ K * S.L ^ (K - j)) {y₁ : BlockAt S n₁ M K (k + 1)}
     {y₂ : BlockAt S n₂ M K (k + 1)} (hy : BlkCorr cc (k + 1) (k + 1) y₁ y₂)
     (hsub : BlockSub (S := S) (n := n₁) (M := M) (K := K) (k + 1) y₁
       (a₁.Z (k + 1) \ a₁.Omega k)) :
@@ -79,7 +79,7 @@ theorem qCoarseK_corr {A₁ : Set (InternalVars a₁ (k + 1))} {A₂ : Set (Inte
     intro y' y₂' hc hch
     have h1 := ccorr_coarsen hL hcs₁ hcs₂ hc
     rw [hch, ← pow_succ] at h1
-    exact (CCorr.right_unique (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (hq₁ (k + 1) hk) hyc h1).symm
+    exact (CCorr.right_unique (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (hq₁ (k + 1) le_rfl) hyc h1).symm
   unfold qCoarseK
   congr 1
   refine sum_of_rel _ _ (fun y₁' y₂' => BlkCorr cc k k y₁' y₂') (fun y' => subVarField N x₁ k y')
@@ -87,35 +87,35 @@ theorem qCoarseK_corr {A₁ : Set (InternalVars a₁ (k + 1))} {A₂ : Set (Inte
   · intro y' hy'
     have hch := (Finset.mem_filter.1 hy').2
     obtain ⟨y₂', hc, -⟩ := exists_ccorr_of_bsub hPk (Multiscale.side_eq hkK) (Multiscale.side_eq hkK)
-      (hq₁ k hkK) (hq₂ k hkK) hB (blockSub_children hk hsub hch)
+      (hq₁ k (by omega)) (hq₂ k (by omega)) hB (blockSub_children hk hsub hch)
     exact ⟨y₂', Finset.mem_filter.2 ⟨Finset.mem_univ _, hco hc hch⟩,
       (blkCorr_iff_ccorr hkK).2 hc⟩
   · intro y₂' hy₂'
     have hch₂ := (Finset.mem_filter.1 hy₂').2
     have hsub₂ : BlockSub (S := S) (n := n₂) (M := M) (K := K) (k + 1) y₂
         (a₂.Z (k + 1) \ a₂.Omega k) :=
-      (blockSub_corr (by omega) (hq₁ _ (by omega)) (hq₂ _ (by omega)) hB.setIff hy).1 hsub
+      (blockSub_corr (by omega) (hq₁ (k + 1) le_rfl) (hq₂ (k + 1) le_rfl) hB.setIff hy).1 hsub
     obtain ⟨y', hc, -⟩ := exists_ccorr_of_bsub' hPk (Multiscale.side_eq hkK) (Multiscale.side_eq hkK)
-      (hq₁ k hkK) (hq₂ k hkK) hB (blockSub_children hk hsub₂ hch₂)
+      (hq₁ k (by omega)) (hq₂ k (by omega)) hB (blockSub_children hk hsub₂ hch₂)
     refine ⟨y', Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩, (blkCorr_iff_ccorr hkK).2 hc⟩
     have h1 := ccorr_coarsen hL hcs₁ hcs₂ hc
     rw [hch₂, ← pow_succ] at h1
-    exact (CCorr.left_unique (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (hq₂ (k + 1) hk) hyc h1).symm
+    exact (CCorr.left_unique (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (hq₂ (k + 1) le_rfl) hyc h1).symm
   · intro a b b' h h'
-    exact CCorr.right_unique hPk (Multiscale.side_eq hkK) (hq₁ k hkK)
+    exact CCorr.right_unique hPk (Multiscale.side_eq hkK) (hq₁ k (by omega))
       ((blkCorr_iff_ccorr hkK).1 h) ((blkCorr_iff_ccorr hkK).1 h')
   · intro a a' b h h'
-    exact CCorr.left_unique hPk (Multiscale.side_eq hkK) (hq₂ k hkK)
+    exact CCorr.left_unique hPk (Multiscale.side_eq hkK) (hq₂ k (by omega))
       ((blkCorr_iff_ccorr hkK).1 h) ((blkCorr_iff_ccorr hkK).1 h')
   · intro y₁' y₂' _ _ h
-    exact subVarField_corr hH hcfg hA hkK (hq₁ k hkK) (hq₂ k hkK) h
+    exact subVarField_corr hH hcfg hA hkK (hq₁ k (by omega)) (hq₂ k (by omega)) h
 
 open Classical in
 /-- **The product of the Gaussian factors of the quiet kernel agrees on two tori.** -/
 theorem gaussProd_corr {x₁ : NewCfg N a₁ k} {x₂ : NewCfg N a₂ k}
     (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc x₁ x₂) (hk : k + 1 ≤ K)
-    (hq₁ : ∀ j, j ≤ K → 4 ≤ M * n₁ K * S.L ^ (K - j))
-    (hq₂ : ∀ j, j ≤ K → 4 ≤ M * n₂ K * S.L ^ (K - j)) (cs : OpConsts)
+    (hq₁ : ∀ j, j ≤ k + 1 → 4 ≤ M * n₁ K * S.L ^ (K - j))
+    (hq₂ : ∀ j, j ≤ k + 1 → 4 ≤ M * n₂ K * S.L ^ (K - j)) (cs : OpConsts)
     {V₁ : Set (BlockAt S n₁ M K (k + 1))} {V₂ : Set (BlockAt S n₂ M K (k + 1))}
     {o₁ : OutConfig N V₁} {o₂ : OutConfig N V₂} (hout : OutCorr cc (k + 1) o₁ o₂) :
     gaussProd N a₁ k cs o₁ x₁ = gaussProd N a₂ k cs o₂ x₂ := by
@@ -132,9 +132,9 @@ theorem gaussProd_corr {x₁ : NewCfg N a₁ k} {x₂ : NewCfg N a₂ k}
         gaussT N (cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (cs.z (k + 1) • outField N o₂ y)
           (qCoarseK N x₂ y))]
   refine prod_cset (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (Multiscale.side_eq hk)
-    (hq₁ (k + 1) hk) (hq₂ (k + 1) hk)
+    (hq₁ (k + 1) le_rfl) (hq₂ (k + 1) le_rfl)
     (cSetCorr_bsub_plain (pow_pos hL (k + 1)) (Multiscale.side_eq hk) (Multiscale.side_eq hk)
-      (hq₁ (k + 1) hk) (hq₂ (k + 1) hk) hB) _ _ ?_
+      (hq₁ (k + 1) le_rfl) (hq₂ (k + 1) le_rfl) hB) _ _ ?_
   intro y₁ y₂ hy₁ _ hc
   have hbc := (blkCorr_iff_ccorr (by omega)).2 hc
   rw [hout y₁ y₂ hbc, qCoarseK_corr hH hcfg (fun p₁ p₂ h => newVars_iff p₁ p₂ h) hk hq₁ hq₂ hbc hy₁]

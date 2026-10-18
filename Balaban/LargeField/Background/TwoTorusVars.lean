@@ -130,18 +130,17 @@ theorem subFluctVarField_corr (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc x�
 
 theorem subFluctField_corr (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc x₁ x₂)
     (hA : ∀ p₁ p₂, VarCorr cc p₁ p₂ → (p₁ ∈ A₁ ↔ p₂ ∈ A₂))
-    (hq₁ : ∀ j, j ≤ K → 4 ≤ M * n₁ K * S.L ^ (K - j))
-    (hq₂ : ∀ j, j ≤ K → 4 ≤ M * n₂ K * S.L ^ (K - j)) {y₁ : BlockAt S n₁ M K j}
-    {y₂ : BlockAt S n₂ M K j} (hj : j ≤ K) (h : BlkCorr cc j j y₁ y₂) :
+    (hj : j ≤ K) (hq₁ : 4 ≤ M * n₁ K * S.L ^ (K - j)) (hq₂ : 4 ≤ M * n₂ K * S.L ^ (K - j))
+    {y₁ : BlockAt S n₁ M K j} {y₂ : BlockAt S n₂ M K j} (h : BlkCorr cc j j y₁ y₂) :
     subFluctField N a₁ k x₁ j y₁ = subFluctField N a₂ k x₂ j y₂ :=
-  subFluctVarField_corr hH hcfg hA hj (hq₁ j hj) (hq₂ j hj) h
+  subFluctVarField_corr hH hcfg hA hj hq₁ hq₂ h
 
 open Classical in
 /-- **The multiscale field of corresponding configurations agrees at corresponding blocks.** -/
 theorem subMultiscaleField_corr (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc x₁ x₂)
     (hA : ∀ p₁ p₂, VarCorr cc p₁ p₂ → (p₁ ∈ A₁ ↔ p₂ ∈ A₂)) (hkK : k ≤ K)
-    (hq₁ : ∀ j, j ≤ K → 4 ≤ M * n₁ K * S.L ^ (K - j))
-    (hq₂ : ∀ j, j ≤ K → 4 ≤ M * n₂ K * S.L ^ (K - j)) {V₁ : Set (BlockAt S n₁ M K k)}
+    (hq₁ : ∀ j, j ≤ k → 4 ≤ M * n₁ K * S.L ^ (K - j))
+    (hq₂ : ∀ j, j ≤ k → 4 ≤ M * n₂ K * S.L ^ (K - j)) {V₁ : Set (BlockAt S n₁ M K k)}
     {V₂ : Set (BlockAt S n₂ M K k)} {o₁ : OutConfig N V₁} {o₂ : OutConfig N V₂}
     (hout : OutCorr cc k o₁ o₂) (j : ℕ) (y₁ : BlockAt S n₁ M K j) (y₂ : BlockAt S n₂ M K j)
     (h : BlkCorr cc j j y₁ y₂) :
@@ -149,18 +148,19 @@ theorem subMultiscaleField_corr (hH : HistCorr cc a₁ a₂) (hcfg : CfgCorr cc 
   unfold subMultiscaleField
   by_cases hjk : j < k
   · have hjK : j ≤ K := by omega
+    have hjk' : j ≤ k := by omega
     have hcond : (j = 0 ∨ BlockSub (S := S) (n := n₁) (M := M) (K := K) j y₁ (lhOmega a₁ k j)) ↔
         (j = 0 ∨ BlockSub (S := S) (n := n₂) (M := M) (K := K) j y₂ (lhOmega a₂ k j)) :=
-      or_congr_right (blockSub_corr hjK (hq₁ j hjK) (hq₂ j hjK) (hH.lhOmega_iff k j) h)
+      or_congr_right (blockSub_corr hjK (hq₁ j hjk') (hq₂ j hjk') (hH.lhOmega_iff k j) h)
     simp only [hjk, ↓reduceIte]
-    exact if_congr hcond (subVarField_corr hH hcfg hA hjK (hq₁ j hjK) (hq₂ j hjK) h) rfl
+    exact if_congr hcond (subVarField_corr hH hcfg hA hjK (hq₁ j hjk') (hq₂ j hjk') h) rfl
   · by_cases hjk' : j = k
     · subst hjk'
       have hjK : j ≤ K := hkK
       have hcond : (j = 0 ∨ BlockSub (S := S) (n := n₁) (M := M) (K := K) j y₁
             (lhOmega a₁ j j)) ↔
           (j = 0 ∨ BlockSub (S := S) (n := n₂) (M := M) (K := K) j y₂ (lhOmega a₂ j j)) :=
-        or_congr_right (blockSub_corr hjK (hq₁ j hjK) (hq₂ j hjK) (hH.lhOmega_iff j j) h)
+        or_congr_right (blockSub_corr hjK (hq₁ j le_rfl) (hq₂ j le_rfl) (hH.lhOmega_iff j j) h)
       simp only [hjk, ↓reduceIte, ↓reduceDIte]
       exact if_congr hcond (hout y₁ y₂ h) rfl
     · simp only [hjk, hjk', ↓reduceIte, ↓reduceDIte]

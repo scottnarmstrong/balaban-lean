@@ -59,6 +59,10 @@ theorem inBox_cast {m₁ m₂ m₁' m₂' : ℕ} (h₁ : m₁ = m₁') (h₂ : m
     InBox m₁ m₂ c w ↔ InBox m₁' m₂' c w := by
   subst h₁; subst h₂; exact Iff.rfl
 
+theorem inBoxK_cast {K m₁ m₂ m₁' m₂' : ℕ} (h₁ : m₁ = m₁') (h₂ : m₂ = m₂') {c w : Fin d → ℤ} :
+    InBoxK K m₁ m₂ c w ↔ InBoxK K m₁' m₂' c w := by
+  subst h₁; subst h₂; exact Iff.rfl
+
 end Cast
 
 /-! ### Corresponding points -/
@@ -213,6 +217,11 @@ def SetIff (c : Fin d → ℤ) {ℓ₁ ℓ₂ : ℕ} (A₁ : Set (Torus d ℓ₁
 
 theorem SetCorr.setIff {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} (h : SetCorr c A₁ A₂) :
     SetIff c A₁ A₂ := h.2.2
+
+theorem SetCorr.symm {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} (h : SetCorr c A₁ A₂) :
+    SetCorr c A₂ A₁ :=
+  ⟨fun x hx => (h.2.1 x hx).symm, fun x hx => (h.1 x hx).symm,
+    fun x₂ x₁ hx => (h.2.2 x₁ x₂ hx.symm).symm⟩
 
 theorem SetIff.compl {A₁ : Set (Torus d ℓ₁)} {A₂ : Set (Torus d ℓ₂)} (h : SetIff c A₁ A₂) :
     SetIff c A₁ᶜ A₂ᶜ := fun x₁ x₂ hx => by simp only [Set.mem_compl_iff]; rw [h x₁ x₂ hx]
@@ -530,6 +539,12 @@ theorem cubeCorr_iff_ccorr {c : Fin S.d → ℤ} (hnn₁ : ∀ i, i < K → n₁
     exact ⟨w, hw, e₁ w, e₂ w⟩
   · rintro ⟨w, hw, rfl, rfl⟩
     exact ⟨zcast _ w, zcast _ w, ptCorr_zcast hw, (e₁ w).symm.symm, (e₂ w).symm.symm⟩
+
+theorem cubeMap_zcast (hnn : ∀ i, i < K → n₁ i = S.L * n₁ (i + 1)) {j : ℕ} (hj : j ≤ K)
+    (w : Fin S.d → ℤ) :
+    cubeMap n₁ S.L M K j (zcast (M * n₁ K * S.L ^ K) w) = zcast (n₁ j) (bidx (S.L ^ j * M) w) :=
+  blockMap_zcast (Balaban.LargeField.fine_eq hnn hj)
+    (Nat.mul_pos (pow_pos (Nat.pos_of_ne_zero (NeZero.ne _)) _) (Nat.pos_of_ne_zero (NeZero.ne _))) w
 
 omit [∀ k, NeZero (n₁ k)] [NeZero M] [NeZero S.L] in
 theorem blockSub_iff_bsub (j : ℕ) (y : BlockAt S n₁ M K j)
