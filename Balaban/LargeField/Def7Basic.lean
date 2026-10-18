@@ -139,15 +139,14 @@ theorem Rep.gtrunc_of_lt {top : ℕ} (A : LabHist S n R k0 K) {j : ℕ} (c : A.H
     (h : j < top) : rep.Gtrunc top A j c = rep.Gpost A j c := by
   simp [Rep.Gtrunc, h]
 
-/-- **The abstract history of LF-2 of a history of a representation** (Lemma II.6.3 (d),
-§I.5.7): the region history with its bookkeeping, `G^pre` the pre-`R` budget of the
-representation, `G` its budget below `top`; (B) is Lemma B (`lemmaB_recursive`), (Rg) is
-`Rep.rg_ripe` and Definition II.5.11. -/
-noncomputable def Rep.lf2Hyp (B : BudgetSetup S P) (ok : S.Ok) {top : ℕ} (hpin : D4Pin top rep)
-    (hKtop : K ≤ top) (A : LabHist S n R k0 K) (hA : A ∈ rep.hist) : LF2Hyp S n k0 K :=
-  A.H.toLF2Hyp A.adm (rep.Gpre A) (rep.Gtrunc top A)
+/-- The abstract history of LF-2 of a history of a representation, truncated at `K' ≤ K` with
+`K' ≤ top` (the scales `j < K'` carry the data of the representation). -/
+noncomputable def Rep.lf2HypTrunc (B : BudgetSetup S P) (ok : S.Ok) {top K' : ℕ}
+    (hpin : D4Pin top rep) (hK : K' ≤ K) (hKtop : K' ≤ top) (A : LabHist S n R k0 K)
+    (hA : A ∈ rep.hist) : LF2Hyp S n k0 K' :=
+  A.H.toLF2HypTrunc hK A.adm (rep.Gpre A) (rep.Gtrunc top A)
     (fun j hj Z' => by
-      have hb := A.H.lemmaB_recursive B ok (rep.keptExp A) (rep.decor A) j hj Z'
+      have hb := A.H.lemmaB_recursive B ok (rep.keptExp A) (rep.decor A) j (by omega) Z'
       have he : ∑ c ∈ A.H.parts j Z', rep.Gtrunc top A j c =
           ∑ c ∈ A.H.parts j Z', rep.Gpost A j c :=
         Finset.sum_congr rfl fun c _ => rep.gtrunc_of_lt A c (by omega)
@@ -171,6 +170,14 @@ noncomputable def Rep.lf2Hyp (B : BudgetSetup S P) (ok : S.Ok) {top : ℕ} (hpin
       · rw [rep.gtrunc_of_lt A c ht]
         exact rep.gpost_eq_gpre A c hk
       · simp [Rep.Gtrunc, ht, hk])
+
+/-- **The abstract history of LF-2 of a history of a representation** (Lemma II.6.3 (d),
+§I.5.7): the region history with its bookkeeping, `G^pre` the pre-`R` budget of the
+representation, `G` its budget below `top`; (B) is Lemma B (`lemmaB_recursive`), (Rg) is
+`Rep.rg_ripe` and Definition II.5.11. -/
+noncomputable def Rep.lf2Hyp (B : BudgetSetup S P) (ok : S.Ok) {top : ℕ} (hpin : D4Pin top rep)
+    (hKtop : K ≤ top) (A : LabHist S n R k0 K) (hA : A ∈ rep.hist) : LF2Hyp S n k0 K :=
+  rep.lf2HypTrunc B ok hpin le_rfl hKtop A hA
 
 /-- **LF-2 (i) for a representation: (D6)** (§II.6.4: "(D6) for `rep'` is LF-2 (i)"): under the
 conditions `S.Good` of LF-2, the hypotheses of Lemma B, the pinned exponents (D4) and a horizon
@@ -196,20 +203,50 @@ theorem Rep.budgetPre_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
   exact (G.window_budget ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok) k hk1 hk0
     hkK).1 c
 
-/-- **LF-2 (ii) for a representation: (H6♭)** at `k₀ ≤ k ≤ K`, with the horizon conditions of
-LF-2 for `k̂_f = khat`. -/
-theorem Rep.budgetFlat_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
-    (hpin : D4Pin top rep) (hKtop : K ≤ top) {khat : ℕ} (hk0K : k0 ≤ K) (hKk : K ≤ khat)
+/-- **LF-2 (ii) for a representation, truncated counter history: (H6♭)** at `k₀ ≤ k ≤ K`,
+`k ≥ 1`, with no relation between `K` and `k̂`: only `k ≤ k̂` and `k < top` are used (the counter
+history is truncated at the scale `k`). -/
+theorem Rep.budgetFlat_of_LF2_trunc (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
+    (hpin : D4Pin top rep) {khat : ℕ}
     (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH)
-    (hk0k : k0 ≤ k) (hk1 : 1 ≤ k) (hkK : k ≤ K) (hkt : k < top) : D6Flat khat rep := by
+    (hk0k : k0 ≤ k) (hk1 : 1 ≤ k) (hkK : k ≤ K) (hkhat : k ≤ khat) (hkt : k < top) :
+    D6Flat khat rep := by
   intro A hA c
-  have h := G.frozen_budget ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok) hk0K hKk hH1
-    hH2 k hk0k hk1 hkK c.1 (fun h' => c.2 ((A.H.mem_remC k c.1).mp h'))
-  have hG : ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok).G k c.1 =
+  have h := G.frozen_budget ((rep.lf2HypTrunc B G.ok hpin hkK hkt.le A hA).toCounterHist G.ok)
+    hk0k hkhat hH1 hH2 k hk0k hk1 le_rfl c.1 (fun h' => c.2 ((A.H.mem_remC k c.1).mp h'))
+  have hG : ((rep.lf2HypTrunc B G.ok hpin hkK hkt.le A hA).toCounterHist G.ok).G k c.1 =
       rep.Gpost A k c.1 := rep.gtrunc_of_lt A c.1 hkt
   unfold CounterHist.H6flat at h
   rw [hG] at h
   exact h
+
+/-- **(H6′) at `k₀` implies (H6♭) at `k₀`**, for every torus horizon `K ≥ k₀`. -/
+theorem Rep.budgetFlat_of_budget_trunc (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
+    (hpin : D4Pin top rep) (hkK : k ≤ K) (hkt : k < top) (hk : k = k0) {khat : ℕ}
+    (hk0 : k0 ≤ khat) (hH1 : (khat : ℝ) - k0 < S.lam k0)
+    (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) (h : D6Budget rep) : D6Flat khat rep := by
+  subst hk
+  intro A hA c
+  have hG : ((rep.lf2HypTrunc B G.ok hpin hkK hkt.le A hA).toCounterHist G.ok).G k c.1 =
+      rep.Gpost A k c.1 := rep.gtrunc_of_lt A c.1 hkt
+  have hpost : ((rep.lf2HypTrunc B G.ok hpin hkK hkt.le A hA).toCounterHist G.ok).PostH6 k c.1 := by
+    obtain ⟨h1, h2⟩ := h A hA c
+    refine ⟨h1, ?_⟩
+    rw [hG]
+    exact h2
+  have h := G.transfer ((rep.lf2HypTrunc B G.ok hpin hkK hkt.le A hA).toCounterHist G.ok) hk0
+    hH1 hH2 c.1 hpost
+  unfold CounterHist.H6flat at h
+  rw [hG] at h
+  exact h
+
+/-- **LF-2 (ii) for a representation: (H6♭)** at `k₀ ≤ k ≤ K`, with the horizon conditions of
+LF-2 for `k̂_f = khat`. -/
+theorem Rep.budgetFlat_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
+    (hpin : D4Pin top rep) (_hKtop : K ≤ top) {khat : ℕ} (_hk0K : k0 ≤ K) (hKk : K ≤ khat)
+    (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH)
+    (hk0k : k0 ≤ k) (hk1 : 1 ≤ k) (hkK : k ≤ K) (hkt : k < top) : D6Flat khat rep :=
+  rep.budgetFlat_of_LF2_trunc G B hpin hH1 hH2 hk0k hk1 hkK (hkK.trans hKk) hkt
 
 /-- **Lemma II.6.3 (c), first inequality**: under (D6), `G_k(Z) ≥ τ_{t^*(Z)} ≥ τ_{k+1}`. -/
 theorem Rep.tau_le_Gpost (G : S.Good) (h : D6Budget rep) {A : LabHist S n R k0 K}

@@ -111,13 +111,11 @@ noncomputable def IsRep2.lf2Hyp
     (A : LabHist S (sides S.L K nK) R k0 K) (hA : A ∈ (F.lf nK).hist) : LF2Hyp S (sides S.L K nK) k0 K :=
   (F.lf nK).lf2Hyp B ok (h.pin nK) hKtop A hA
 
-/-- **Lemma IV.2.1 (transfer), second version: `IsRep2_{k₀}` implies `IsRepFlat2_{k₀}`** for the
-same representation, under the conditions of LF-2 and a horizon `K ≤ k₀ + 1`, with the a priori
-horizon `khat`.  Not sensitive to the second version: `form`, `corr`, `bdry` are the same
-clauses, (D2) ⇒ (D2♭) is `D2SF2.toFlat2`, (D9) ⇒ (D9♭) is `D9Coeff.toFlat`, (D6) ⇒ (H6♭) is
-`Rep.budgetFlat_of_budget`. -/
-theorem IsRep2.toFlat (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 hkK F ρ St vc)
-    (hk : k = k0) (G : S.Good) (B : BudgetSetup S P) (hK : K ≤ k + 1) {khat : ℕ} (hk0 : k0 ≤ khat)
+/-- **Lemma IV.2.1 (transfer), second version, every torus horizon `K`**: `IsRep2_{k₀}` implies
+`IsRepFlat2_{k₀}` for the same representation, with no relation between `K` and `k₀`. -/
+theorem IsRep2.toFlat_of_all_horizons
+    (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 hkK F ρ St vc)
+    (hk : k = k0) (G : S.Good) (B : BudgetSetup S P) {khat : ℕ} (hk0 : k0 ≤ khat)
     (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) :
     IsRepFlat2 S R k0 K M N geo cs P P6 C7 β ν hv rH k khat hM6 hkK F ρ St vc where
   range := hk.ge
@@ -129,11 +127,22 @@ theorem IsRep2.toFlat (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 
   sfData := h.sfData.toFlat2
   pin := h.pin
   opBound := h.opBound
-  budget := fun nK _ => (F.lf nK).budgetFlat_of_budget G B (h.pin nK) hK (Nat.lt_succ_self k) hk
-    hk0 hH1 hH2 (h.budget nK)
+  budget := fun nK _ => (F.lf nK).budgetFlat_of_budget_trunc G B (h.pin nK) hkK
+    (Nat.lt_succ_self k) hk hk0 hH1 hH2 (h.budget nK)
   bdry := h.bdry
   coherent := h.coherent
   coeff := h.coeff.toFlat (by obtain ⟨_, hF⟩ := h.sfData.sfClass; exact hF.admissible)
+
+/-- **Lemma IV.2.1 (transfer), second version: `IsRep2_{k₀}` implies `IsRepFlat2_{k₀}`** for the
+same representation, under the conditions of LF-2 and a horizon `K ≤ k₀ + 1`, with the a priori
+horizon `khat`.  Not sensitive to the second version: `form`, `corr`, `bdry` are the same
+clauses, (D2) ⇒ (D2♭) is `D2SF2.toFlat2`, (D9) ⇒ (D9♭) is `D9Coeff.toFlat`, (D6) ⇒ (H6♭) is
+`Rep.budgetFlat_of_budget`. -/
+theorem IsRep2.toFlat (h : IsRep2 S R k0 K M N geo cs P P6 C7 β ν hv rH k hM6 hkK F ρ St vc)
+    (hk : k = k0) (G : S.Good) (B : BudgetSetup S P) (_hK : K ≤ k + 1) {khat : ℕ} (hk0 : k0 ≤ khat)
+    (hH1 : (khat : ℝ) - k0 < S.lam k0) (hH2 : S.lam khat ≤ S.d / 2 * S.lam k0 + S.cH) :
+    IsRepFlat2 S R k0 K M N geo cs P P6 C7 β ν hv rH k khat hM6 hkK F ρ St vc :=
+  h.toFlat_of_all_horizons hk G B hk0 hH1 hH2
 
 end Class
 
