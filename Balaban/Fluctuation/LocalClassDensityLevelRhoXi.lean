@@ -8,6 +8,7 @@ module
 public import Balaban.Multiscale.WeakenSep
 public import Balaban.SmallField.Def6v2Domain
 public import Balaban.SmallField.LocalGeneratorSource
+public import Balaban.Fluctuation.LocalClassExtend
 
 /-!
 # The class domains do not see the separation index (`LocalClassDensityLevelRhoXi`)
@@ -117,5 +118,38 @@ theorem xiFieldDom_dom_weakenSep (G : GeneratingSet d L (N₁ * L ^ m₁) k (min
     (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N ϱ).dom j (G.weakenSep hsep) Ψ h ↔
       (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N (minSep L (L ^ m₁))).dom j G Ψ h :=
   xiDom_weakenSep G hsep a ν j (ε j) Ψ h
+
+/-- The layer projection of a weakened set is that of the set. -/
+theorem choose_layerProj_weakenSep (G : GeneratingSet d L (N₁ * L ^ m₁) k (minSep L (L ^ m₁)))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (Y : Set (CTorus d L N₁ m₁ k)) :
+    Classical.choose (exists_layerProj (N := N) (G.weakenSep hsep) Y) =
+      Classical.choose (exists_layerProj (N := N) G Y) := rfl
+
+/-- The field domain at separation `ϱ` on `localB … hsep` is the one at `minSep L (L ^ m₁)` on
+`localB`. -/
+theorem dom_localB_iff {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁ k))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (a : ℕ → ℝ) (ν : ℝ) (ε : ℕ → ℝ) (i : ℕ) (Ψ h : Fld d L N₁ m₁ k N) :
+    (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N ϱ).dom i (localB j hj X hsep) Ψ h ↔
+      (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N (minSep L (L ^ m₁))).dom i
+        (localB j hj X (le_refl _)) Ψ h := by
+  rw [localB_eq_weakenSep hj X hsep]
+  exact xiFieldDom_dom_weakenSep _ hsep a ν ε i Ψ h
+
+/-- The field domain at separation `ϱ` on `levelGS` is the one at `minSep L (L ^ m₁)` on
+`levelGS`. -/
+theorem dom_levelGS_iff {j : ℕ} (hj : j ≤ k)
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (a : ℕ → ℝ) (ν : ℝ) (ε : ℕ → ℝ) (i : ℕ) (Ψ h : Fld d L N₁ m₁ k N) :
+    (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N ϱ).dom i (levelGS (ϱ := ϱ) (N₁ := N₁) (m₁ := m₁) j hj) Ψ h ↔
+      (xiFieldDom a ν ε : FieldDom d L N₁ m₁ k N (minSep L (L ^ m₁))).dom i
+        (levelGS (ϱ := minSep L (L ^ m₁)) (N₁ := N₁) (m₁ := m₁) j hj) Ψ h := by
+  rw [levelGS_eq_weakenSep hj hsep]
+  exact xiFieldDom_dom_weakenSep _ hsep a ν ε i Ψ h
+/-- The layer projection of the local set at separation `ϱ` is that at `minSep L (L ^ m₁)`. -/
+theorem choose_layerProj_localB {j : ℕ} (hj : j ≤ k) (X Y : Set (CTorus d L N₁ m₁ k))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) :
+    Classical.choose (exists_layerProj (N := N) (localB j hj X hsep) Y) =
+      Classical.choose (exists_layerProj (N := N) (localB j hj X (le_refl _)) Y) := by
+  rw [localB_eq_weakenSep hj X hsep]
+  rfl
 
 end Balaban.Localization

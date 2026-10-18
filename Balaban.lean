@@ -2335,6 +2335,8 @@ public import Balaban.Fluctuation.LocalClassDensityIrrelStepChart
 public import Balaban.Fluctuation.LocalClassDensityIrrelStep
 public import Balaban.Fluctuation.LocalClassDensityIrrelStepRoom
 public import Balaban.Fluctuation.LocalClassDensityIrrelBaseSet
+public import Balaban.Fluctuation.LocalClassDensityLevelRhoXi
+public import Balaban.Fluctuation.LocalClassDensityLevelRho
 public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
