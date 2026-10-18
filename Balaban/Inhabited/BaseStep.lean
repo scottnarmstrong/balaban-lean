@@ -9,12 +9,12 @@ public import Balaban.LargeField.Base.BaseSmallField
 import Mathlib.Tactic.Linarith
 
 /-!
-# `BaseStepData` and `GaussStructure` are inhabited
+# `BaseStepData` and `GaussStructureFn` are inhabited
 
-The zero-remainder, zero-boundary `BaseSmallFieldInput` (`baseSmallFieldInput_nonempty`) gives
-`BaseStepData` through `baseStepData_of_input` and `GaussStructure` through
-`baseKernel_gaussStructure_of_input`; the kernel of this member is `∏ z^N t_0 · ∑_w F^w · 0 = 0`
-(degenerate, as `baseSmallFieldInput_nonempty` is), so these are inhabitation witnesses only.
+The zero-remainder `BaseSmallFieldInput` (`baseSmallFieldInput_nonempty`) gives `BaseStepData`
+through `baseStepData_of_input` and the Gaussian structure through `baseStepData_of_input`'s field
+`gauss1`; the kernel of this member is `∏ z^N t_0 · ∑_w F^w · 0 = 0` (degenerate, as
+`baseSmallFieldInput_nonempty` is), so these are inhabitation witnesses only.
 -/
 
 @[expose] public section
@@ -23,25 +23,25 @@ namespace Balaban.Inhabited
 
 open Balaban Balaban.LargeField Balaban.Multiscale Balaban.Background RegionHistory
 
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M] [NeZero S.L]
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L]
 
-/-- **`BaseStepData` is inhabited** for constants with `0 ≤ C_b`, `0 ≤ B_0`, `1 ≤ β_0`,
-`0 ≤ z_1` and `0 ≤ β_0 a_ker L^{d-2}`. -/
-theorem baseStepData_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ)
-    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) (hβ : 1 ≤ cs.beta 0)
+/-- **`BaseStepData` is inhabited** for `0 ≤ z_1` and `0 ≤ β_0 a_ker L^{d-2}`. -/
+theorem baseStepData_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) :
-    Nonempty (BaseStepData K k0 geo cs N) := by
-  obtain ⟨inp⟩ := baseSmallFieldInput_nonempty (K := K) geo cs N k0 hCb hB0 hβ
+    Nonempty (BaseStepData k0 geo cs N) := by
+  obtain ⟨inp⟩ := baseSmallFieldInput_nonempty geo cs N k0
   exact ⟨baseStepData_of_input inp hz hc⟩
 
-/-- **`GaussStructure` is inhabited** for every local history `a`. -/
-theorem gaussStructure_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ)
-    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) (hβ : 1 ≤ cs.beta 0)
+/-- **The Gaussian structure is inhabited** for every admissible history, component and raw spins. -/
+theorem gaussStructureFn_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (a : LocalHistory S n M K) :
-    ∃ (T : LFKernel (OutT N R a (0 + 1)) (NewCfg N a 0) (EuclideanSpace ℝ (Fin N))
-        (GIdx S n M K N)) (wit : GaussWit N R a 0), GaussStructure cs a 0 T wit := by
-  obtain ⟨inp⟩ := baseSmallFieldInput_nonempty (K := K) geo cs N k0 hCb hB0 hβ
-  exact ⟨_, _, baseKernel_gaussStructure_of_input inp hz hc a⟩
+    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
+    (φ : CfgT S.d N S.L (n 1)) :
+    ∃ (Kfn : OutT N R (H.localHistory 1 1 1 Z') 1 → NewCfg N (H.localHistory 1 1 1 Z') 0 →
+        EuclideanSpace ℝ (Fin N) → ℝ) (wit : GaussWit N R (H.localHistory 1 1 1 Z') 0),
+      GaussStructureFn cs (H.localHistory 1 1 1 Z') 0 Kfn wit := by
+  obtain ⟨inp⟩ := baseSmallFieldInput_nonempty geo cs N k0
+  exact ⟨_, _, (baseStepData_of_input inp hz hc).gauss1 H hH Z' br hbr φ⟩
 
 end Balaban.Inhabited
