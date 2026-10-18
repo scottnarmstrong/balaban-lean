@@ -103,3 +103,12 @@ approved declaration.
 - CRotE: repaired now as in `CROTE.md` §4 (real clause + Cayley path; every `hCR` removed).
 - R7: the base carrier `Kphys` of the W1009 handoff (Blocker 1); W1015 resumes on it.
 - R5′: the first vacuum region of `StepData.b_vac` is Z_k^c ∖ Ω_{k+1} (P6 (3.2)).
+
+## Ruling R7′ asked (2026-10-18)
+- R7 specialized the physical base carrier `BaseSmallFieldInput` to M = K = 1 (`Geo S n R 1`,
+  `RegionHistory S n R k0 1`, W1009 proposal). The spine's classes at the prefix constants have M = c·M₁
+  with c ≥ 14 and torus horizon K = k̂_f + 1 ≥ 2, and no landed map connects the M = K = 1 carrier to
+  them (W1110, `notes/phase1/SPINE.md`, BaseStepInput sub-inputs). Proposal: state the carrier at the
+  class's general M and K (the corrected `Kphys` of W1101 unchanged in content; only the geometry
+  parameters freed), so that `BasePreStepInput`/`BaseFlatStepInput` can be populated from it.
+  Recommended: yes.
