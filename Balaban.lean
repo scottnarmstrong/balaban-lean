@@ -2709,3 +2709,4 @@ public import Balaban.Inhabited.StepTowerNewLevelE0IrrelBase
 public import Balaban.Inhabited.StepTowerNewLevelE0Struct
 public import Balaban.Inhabited.StepTowerNewLevelE0Step
 public import Balaban.Inhabited.StepTowerNewLevelE0LabelsAgree
+public import Balaban.Inhabited.StepTowerNewLevelE0FamiliesAgree
