@@ -2773,3 +2773,4 @@ public import Balaban.LargeField.R.WindowLiftConv
 public import Balaban.LargeField.R.WindowLiftSumEq
 public import Balaban.LargeField.R.WindowDuCollar
 public import Balaban.LargeField.R.WindowDuMass
+public import Balaban.LargeField.R.WindowDuSwitch
