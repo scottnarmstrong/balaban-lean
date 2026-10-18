@@ -38,17 +38,19 @@ section Scaled
 variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
 
-/-- **The density bound in physical units** on a full level.  With `c_n = a_n / L^{2n}` the level
-term is `½ c_n N (δ+V)²`; a bond difference is at most `V / L^n`, the mass term is at most
-`L^{-2(n+1)} N V²`, the multiplier term at most `ρ L^{-2(n+1)} N V²`. -/
-theorem energyDensity_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK : n ≤ K) (ha : 0 ≤ a n)
-    (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
-    (hHm : IsLevel Hm n) (hGp : IsLevel Gp (n + 1))
+/-- **The density bound in physical units at a site in the levels `n` of `Hm` and `n + 1` of `Gp`**
+(core of `energyDensity_bound_scaled`): the bound of the density at `x` reads the two generating
+sets only at `x` (`x ∈ Ω₁` and its layer index for each), so it holds at every site lying in the
+layer `n` of `Hm` and the layer `n + 1` of `Gp`, without `IsLevel` (a local generating set qualifies
+at the sites of its top layer). -/
+theorem energyDensity_bound_scaled_of_layer {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK : n ≤ K)
+    (ha : 0 ≤ a n) (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
     {α : Gp.Ω 1 → ℂ} {δφ : Hm.Ω 1 × Fin N → ℂ} {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
     {V δ ρ : ℝ} (hV : 0 ≤ V) (hρ : 0 ≤ ρ)
     (hsup : SupBounds Hm δφ V)
     (hα : ∀ x : Gp.Ω 1, Gp.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖α x‖ ≤ ρ)
-    (hψ : ∀ x ∈ Hm.Ω 1, ∀ i, ‖ψ' x i‖ ≤ δ) (x : CTorus d L N₁ m₁ K) :
+    (hψ : ∀ x ∈ Hm.Ω 1, ∀ i, ‖ψ' x i‖ ≤ δ) (x : CTorus d L N₁ m₁ K) (hxΩ : x ∈ Hm.Ω 1)
+    (hlH : Hm.layerIndex x = n) (hxG : x ∈ Gp.Ω 1) (hlG : Gp.layerIndex x = n + 1) :
     ‖energyDensity Gp Hm a ν n α δφ ψ' x‖ ≤
       (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * (N * (δ + V) * (δ + V)) +
         (1 / 2) * (d * (N * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n)) +
@@ -59,9 +61,8 @@ theorem energyDensity_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK :
   have hLn1 : 0 < ((L : ℝ) ^ (n + 1)) ^ 2 := by positivity
   set cn : ℝ := (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) with hcn
   have hcn0 : 0 ≤ cn := by positivity
-  have hxΩ : x ∈ Hm.Ω 1 := (hHm x).1
-  have hspH : Hm.spacing x = (L : ℝ) ^ n := by unfold GeneratingSet.spacing; rw [(hHm x).2]
-  have hspG : Gp.spacing x = (L : ℝ) ^ (n + 1) := by unfold GeneratingSet.spacing; rw [(hGp x).2]
+  have hspH : Hm.spacing x = (L : ℝ) ^ n := by unfold GeneratingSet.spacing; rw [hlH]
+  have hspG : Gp.spacing x = (L : ℝ) ^ (n + 1) := by unfold GeneratingSet.spacing; rw [hlG]
   unfold energyDensity
   refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
   · simp only [hxΩ, ↓reduceIte]
@@ -78,7 +79,6 @@ theorem energyDensity_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK :
         V / (L : ℝ) ^ n := fun μ i => by
       rw [le_div_iff₀ hLn, mul_comm, ← hspH]; exact hsup.fwd x hxΩ μ i
     have hz : ‖zeroExt (Gp.Ω 1) α x‖ ≤ ρ / ((L : ℝ) ^ (n + 1)) ^ 2 := by
-      have hxG : x ∈ Gp.Ω 1 := (hGp x).1
       simp only [zeroExt, hxG, dite_true]
       have h1 := hα ⟨x, hxG⟩
       rw [le_div_iff₀ hLn1]
@@ -117,6 +117,24 @@ theorem energyDensity_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK :
         ((ν : ℂ) * ∑ i, svec Hm δφ x i * svec Hm δφ x i))
     linarith
 
+/-- **The density bound in physical units** on a full level.  With `c_n = a_n / L^{2n}` the level
+term is `½ c_n N (δ+V)²`; a bond difference is at most `V / L^n`, the mass term is at most
+`L^{-2(n+1)} N V²`, the multiplier term at most `ρ L^{-2(n+1)} N V²`. -/
+theorem energyDensity_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hnK : n ≤ K) (ha : 0 ≤ a n)
+    (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
+    (hHm : IsLevel Hm n) (hGp : IsLevel Gp (n + 1))
+    {α : Gp.Ω 1 → ℂ} {δφ : Hm.Ω 1 × Fin N → ℂ} {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {V δ ρ : ℝ} (hV : 0 ≤ V) (hρ : 0 ≤ ρ)
+    (hsup : SupBounds Hm δφ V)
+    (hα : ∀ x : Gp.Ω 1, Gp.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖α x‖ ≤ ρ)
+    (hψ : ∀ x ∈ Hm.Ω 1, ∀ i, ‖ψ' x i‖ ≤ δ) (x : CTorus d L N₁ m₁ K) :
+    ‖energyDensity Gp Hm a ν n α δφ ψ' x‖ ≤
+      (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * (N * (δ + V) * (δ + V)) +
+        (1 / 2) * (d * (N * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n)) +
+          ((1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2) * (N * V * V)) :=
+  energyDensity_bound_scaled_of_layer hnK ha hν hmass hV hρ hsup hα hψ x (hHm x).1 (hHm x).2
+    (hGp x).1 (hGp x).2
+
 variable (d L N) in
 /-- **The scale-uniform bound of the block energy**: the number of sites `(L^{n+1})^d` of the
 block times the bound of the density of `energyDensity_bound_scaled`. -/
@@ -138,20 +156,37 @@ theorem energyBdScaled_nonneg {a : ℕ → ℝ} {n : ℕ} (ha : 0 ≤ a n) {V δ
   have hL : (0 : ℝ) ≤ L := Nat.cast_nonneg _
   positivity
 
-/-- **The block energy is bounded in physical units** on a full level. -/
-theorem energyBlock_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hn : n + 1 ≤ K) (ha : 0 ≤ a n)
-    (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
-    (hHm : IsLevel Hm n) (hGp : IsLevel Gp (n + 1))
+/-- **The block energy is bounded in physical units when its block lies in the levels `n` of `Hm`
+and `n + 1` of `Gp`** (core of `energyBlock_bound_scaled`): only the sites of the block
+`B_{n+1}(z)` enter, through `energyDensity_bound_scaled_of_layer`. -/
+theorem energyBlock_bound_scaled_of_block {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hn : n + 1 ≤ K)
+    (ha : 0 ≤ a n) (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
     {α : Gp.Ω 1 → ℂ} {δφ : Hm.Ω 1 × Fin N → ℂ} {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
     {V δ ρ : ℝ} (hV : 0 ≤ V) (hρ : 0 ≤ ρ) (hsup : SupBounds Hm δφ V)
     (hα : ∀ x : Gp.Ω 1, Gp.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖α x‖ ≤ ρ)
     (hψ : ∀ x ∈ Hm.Ω 1, ∀ i, ‖ψ' x i‖ ≤ δ)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1)))) :
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
+    (hblk : ∀ x ∈ blockSites d L N₁ m₁ K n z, (x ∈ Hm.Ω 1 ∧ Hm.layerIndex x = n) ∧
+      (x ∈ Gp.Ω 1 ∧ Gp.layerIndex x = n + 1)) :
     ‖energyBlock Gp Hm a ν n α δφ ψ' z‖ ≤ energyBdScaled d L N a n V δ ρ := by
   classical
-  have hd := fun x => energyDensity_bound_scaled (Gp := Gp) (Hm := Hm) (by omega : n ≤ K) ha hν
-    hmass hHm hGp hV hρ hsup hα hψ x
-  have hB0 := (norm_nonneg _).trans (hd 0)
+  have hd := fun x (hx : x ∈ blockSites d L N₁ m₁ K n z) =>
+    energyDensity_bound_scaled_of_layer (Gp := Gp) (Hm := Hm) (by omega : n ≤ K) ha hν hmass hV
+      hρ hsup hα hψ x (hblk x hx).1.1 (hblk x hx).1.2 (hblk x hx).2.1 (hblk x hx).2.2
+  have hB0 : 0 ≤ (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * (N * (δ + V) * (δ + V)) +
+      (1 / 2) * (d * (N * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n)) +
+        ((1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2) * (N * V * V)) := by
+    have h1 : 0 ≤ (N : ℝ) * (δ + V) * (δ + V) := by
+      rw [mul_assoc]; exact mul_nonneg (Nat.cast_nonneg _) (mul_self_nonneg _)
+    have h2 : 0 ≤ (N : ℝ) * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n) := by
+      rw [mul_assoc]; exact mul_nonneg (Nat.cast_nonneg _) (mul_self_nonneg _)
+    have h3 : 0 ≤ (N : ℝ) * V * V := by
+      rw [mul_assoc]; exact mul_nonneg (Nat.cast_nonneg _) (mul_self_nonneg _)
+    have h4 : 0 ≤ a n / ((L : ℝ) ^ n) ^ 2 := div_nonneg ha (by positivity)
+    have h5 : 0 ≤ (1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2 := div_nonneg (by linarith) (by positivity)
+    exact add_nonneg (mul_nonneg (mul_nonneg (by norm_num) h4) h1)
+      (mul_nonneg (by norm_num) (add_nonneg (mul_nonneg (Nat.cast_nonneg _) h2)
+        (mul_nonneg h5 h3)))
   unfold energyBlock energyBdScaled
   calc _ ≤ ∑ x ∈ Finset.univ.filter (fun x : CTorus d L N₁ m₁ K =>
           jBlock d L (N₁ * L ^ m₁) K (n + 1) x = z),
@@ -161,10 +196,22 @@ theorem energyBlock_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hn : n 
         ((1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * (N * (δ + V) * (δ + V)) +
           (1 / 2) * (d * (N * (V / (L : ℝ) ^ n) * (V / (L : ℝ) ^ n)) +
             ((1 + ρ) / ((L : ℝ) ^ (n + 1)) ^ 2) * (N * V * V))) :=
-        Finset.sum_le_sum fun x _ => hd x
+        Finset.sum_le_sum fun x hx => hd x hx
     _ = (blockSites d L N₁ m₁ K n z).card * _ := by
         rw [Finset.sum_const, nsmul_eq_mul]; rfl
     _ ≤ _ := mul_le_mul_of_nonneg_right (card_blockSites_le Hm n hn z) hB0
+
+/-- **The block energy is bounded in physical units** on a full level. -/
+theorem energyBlock_bound_scaled {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} (hn : n + 1 ≤ K) (ha : 0 ≤ a n)
+    (hν : 0 ≤ ν) (hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1)
+    (hHm : IsLevel Hm n) (hGp : IsLevel Gp (n + 1))
+    {α : Gp.Ω 1 → ℂ} {δφ : Hm.Ω 1 × Fin N → ℂ} {ψ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {V δ ρ : ℝ} (hV : 0 ≤ V) (hρ : 0 ≤ ρ) (hsup : SupBounds Hm δφ V)
+    (hα : ∀ x : Gp.Ω 1, Gp.spacing (x : CTorus d L N₁ m₁ K) ^ 2 * ‖α x‖ ≤ ρ)
+    (hψ : ∀ x ∈ Hm.Ω 1, ∀ i, ‖ψ' x i‖ ≤ δ)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1)))) :
+    ‖energyBlock Gp Hm a ν n α δφ ψ' z‖ ≤ energyBdScaled d L N a n V δ ρ :=
+  energyBlock_bound_scaled_of_block hn ha hν hmass hV hρ hsup hα hψ z fun x _ => ⟨hHm x, hGp x⟩
 
 omit [NeZero L] in
 /-- **The factorization**: for `d ≥ 2`, `energyBdScaled = L^{n(d-2)} ·` (a constant that depends on
