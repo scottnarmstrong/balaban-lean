@@ -513,6 +513,9 @@ blocker 1. General `d, N` and general constants.
    * (I.2) at the scale `1` is part of this sub-input, not proved from (H.6) as in regime (A): `FlatRep` fixes (I.2) up to its own
      scale, and a variant with (I.2) up to `r` would copy it. A core `FlatRep … r` with `FlatRep` as its instance belongs to
      `Spine/RootFInputs.lean`, outside this task.
+   * The mass bound `ν₁ ≤ 9/10` of the frozen class (W1112, the last conjunct of `FlatRep`) is part of this sub-input, not assumed:
+     in the source `ν₁ = νL²δ₁` with `νL² ≤ 7/8` and `δ₁ = (1+ξ₃)/(1+ξ₂) ≤ e^{c_ξ/β}` (Thm II.7.10, (D9♭)), so
+     `ν₁ ≤ (7/8)e^{c_ξ/β} ≤ 9/10` for `β ≥ β₀`. Open with (a): the flow `ξ^{(0)}` of the first step and its bound.
 
 **Why the first step is not split further.** The expected pieces (the small-field step, the first large-field component bound,
 the assembly with (D8) and `β_0 = β`) are fields of one representation `F` of one density. Sub-inputs asserting the small-field half

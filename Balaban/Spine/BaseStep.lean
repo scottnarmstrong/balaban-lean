@@ -30,7 +30,8 @@ the physical one (LFR (II.7.1); P4 (2.42); P1 (1.11) at `λ = ∞`):
   `ν_0 = ν`; the torus coherence (D8) (Theorem II.7.10 (d): every datum is the same formula on
   `ℤ^d`).
 * `BaseFlatStepInput` (regime (B), `k₀ = 0`; the same sources, with complete backgrounds and
-  P4's renormalization system): for some `z₁ > 0`, `ρ₁` is a member of `ℛ♭_1` (`FlatClassAt`).
+  P4's renormalization system): for some `z₁ > 0`, `ρ₁` is a member of `ℛ♭_1` (`FlatClassAt`, with
+  its mass bound `ν₁ ≤ 9/10`).
 
 In regime (A) the output of the first step enters the class `ℛ_1` through the operation `R` at the
 scale `1` and the coefficient step, which are the sub-inputs `RInput` and `FlowRateInput` of the
@@ -167,7 +168,9 @@ II.7.7 and II.7.8, Proposition II.7.9, Theorem II.7.10 (b)–(d); P4 (2.42)–(2
 `1` from the start (the switch at the step `0 → 1` is vacuous) and P4's renormalization system,
 (D2♭), (D9♭), the budget (H6♭) at the scale `1` (LF-2 (ii) with `k₀ = 0`, the frozen base step
 (I.6) with the threshold `A₂ λ̂₀^{p₂} ≥ p₂(β)`), the boundary terms with rate `κ` and constant `B₀`,
-`β_0 = β`, `ν_0 = ν`, (I.2) at the scales `0, 1` and (D8). -/
+`β_0 = β`, `ν_0 = ν`, (I.2) at the scales `0, 1`, (D8), and the mass bound `ν₁ ≤ 9/10` of the frozen
+class (Theorem II.7.10, (D9♭): `ν₁ = ν L² δ₁` with `ν L² ≤ 7/8` and the flow factor
+`δ₁ = (1 + ξ₃)/(1 + ξ₂) ≤ e^{c/β}`, so `ν₁ ≤ (7/8) e^{c/β} ≤ 9/10` for `β ≥ β₀`). -/
 def BaseFlatStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
