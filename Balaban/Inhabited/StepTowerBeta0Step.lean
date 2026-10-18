@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.StepTowerChainStep
 public import Balaban.Inhabited.StepTowerBeta0Struct
 public import Balaban.Inhabited.StepTowerScaleTRoom
+public import Balaban.Inhabited.StepTowerCollarStep
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -17,8 +18,8 @@ import Mathlib.Tactic.Positivity
 `e0CoeffFamily_class_exists_tower_struct_step_agree`: the statement of
 `e0CoeffFamily_class_exists_tower_struct_step` for all towers `T` that agree with a reference
 tower `T₀` on `m₁, BG, BG₂, κ, δ` and every radius `t ≥ c 3^{-α(k+1)}` (`2 α < 1`), beyond one
-threshold `β₀`: the instance of `e0CoeffFamily_class_exists_tower_struct_onSet_agree` at the sets
-of composed step data.
+threshold `β₀`: the instance `r₀ = 324`, `δ₁ = T.t` of
+`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar`.
 -/
 
 @[expose] public section
@@ -159,34 +160,9 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_agree (m₀ : ℕ) {κmin :
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   obtain ⟨β₀, hβ₀, HC⟩ :=
-    e0CoeffFamily_class_exists_tower_struct_onSet_agree m₀ hlo T₀ hκ₀ hr₀ hA p hcR hαR
+    e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar m₀ hlo T₀ hκ₀ hr₀ hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκT hδ δ₃ δfl hnB hnF => ?_⟩
-  intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ S hS
-  obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκT hδ δ₃ δfl hnB hnF k hk N₁ h3N hN₁ ν hν0 hν β hβ hct
-    p₁ hp0 hp₁ S hS
-  refine ⟨Jr, ?_⟩
-  intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom 1 le_rfl
-    (one_le_scaledC0 3) hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hCm
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL
-  exact @HG
-    (fun τ => {r | ∃ Fk : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
-        ((Gk τ).Ω 1 × Fin 2 → ℂ) × ((Gk τ).Ω 1 → ℂ),
-      (∀ D : BgData (Gk τ) 2, InUnionDomainC (Gk τ) (bgC0 3 3 2) (bgC1 3 3 2) S.ν D →
-        Fk (rawOf D) = (bgFieldC (Gk τ) (compWeight 3 S.a₁) S.ν (bgC0 3 3 2) D,
-          bgMultC (Gk τ) (compWeight 3 S.a₁) S.ν (bgC0 3 3 2) D)) ∧
-      ∃ t ∈ FlRealLC S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν T.BG T.κ T.t (X₁f τ) T.BG₂
-        T.t, r = D2raw (Gk τ) (Gj τ) (compWeight 3 S.a₁) Fk
-          (d1Triple S.G' (Gk τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) t.1.1
-            t.2.1 t.2.2)})
-    (fun τ r hr => by
-      obtain ⟨Fk, hFk, t, ht, rfl⟩ := hr
-      exact hchart τ Fk hFk t ht _ rfl) Bτ hBτ
-    (fun τ r hr => by
-      obtain ⟨Fk, hFk, t, ht, rfl⟩ := hr
-      exact hEbd τ Fk hFk t ht _ rfl) CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL
-    (fun τ Fk hFk t ht => ⟨Fk, hFk, t, ht, rfl⟩)
+  exact HC T hm₁ hBG hBG₂ hκT hδ 324 δ₃ T.t δfl le_rfl (by norm_num) hnB hnF le_rfl
 
 open Classical in
 /-- **The class chain at the towers `T_k` of `exists_stepTower_room`, one `β₀` for every scale.** -/

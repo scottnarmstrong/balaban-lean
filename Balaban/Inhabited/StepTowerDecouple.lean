@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerDecoupleStruct
+public import Balaban.Inhabited.StepTowerCollarStep
 
 /-!
 # The class chain at a tower with the per-label premises at the composed step data, with the
@@ -20,8 +21,9 @@ W1063).  The tower `T` comes with `FlNum … T.t δ₃ T.t δfl₀`; for every `
 triples `t ∈ FlRealLC … T.t (X₁f τ) T.BG₂ δ₁`, the fluctuation settings `FlSetting … δ₁ δfl` and the
 smallness of the class constants against the marked radius at `δ₁`.  The step chart (`JointRep`,
 `physV`, `XiCData`, `XiDom`) keeps the step radius `T.t`, so the new level is covered when
-`ε_{k+1} ≤ T.t`.  The landed `e0CoeffFamily_class_exists_tower_struct_step` is the case
-`δ₁ = T.t`, `δ_fl = δfl₀`.
+`ε_{k+1} ≤ T.t`.  The proof is the instance `T₀ = T`, `c = δ₁`, `α = 0`, `r₀ = 324` of
+`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar`.  The landed
+`e0CoeffFamily_class_exists_tower_struct_step` is the case `δ₁ = T.t`, `δ_fl = δfl₀`.
 -/
 
 @[expose] public section
@@ -159,35 +161,14 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_decoupled (m₀ : ℕ) {A�
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  obtain ⟨κmin, hlo, T, δ₃, δfl₀, κdec, hnF₀, H⟩ :=
-    e0CoeffFamily_class_exists_tower_struct_onSet_dec m₀ hA p
+  obtain ⟨κmin, hlo, T, δ₃, δfl₀, κdec, hnB, hnF₀, hκ, hr⟩ :=
+    exists_stepTower_base_rate m₀ stepHullMin
   refine ⟨κmin, hlo, T, δ₃, δfl₀, κdec, hnF₀, fun δ₁ δfl hnF hδ₁T => ?_⟩
-  obtain ⟨β₀, hβ₀, HC⟩ := H δ₁ δfl hnF hδ₁T
+  obtain ⟨β₀, hβ₀, HC⟩ := e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar m₀ hlo T
+    hκ hr hA p (cR := δ₁) (αR := 0) hnF.δ₁_pos (by norm_num)
   refine ⟨β₀, hβ₀, ?_⟩
-  intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ S hS
-  obtain ⟨Jr, HC'⟩ := HC k hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ S hS
-  refine ⟨Jr, ?_⟩
-  intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom 1 le_rfl
-    (one_le_scaledC0 3) hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hCm
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL
-  exact @HG
-    (fun τ => {r | ∃ Fk : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
-        ((Gk τ).Ω 1 × Fin 2 → ℂ) × ((Gk τ).Ω 1 → ℂ),
-      (∀ D : BgData (Gk τ) 2, InUnionDomainC (Gk τ) (bgC0 3 3 2) (bgC1 3 3 2) S.ν D →
-        Fk (rawOf D) = (bgFieldC (Gk τ) (compWeight 3 S.a₁) S.ν (bgC0 3 3 2) D,
-          bgMultC (Gk τ) (compWeight 3 S.a₁) S.ν (bgC0 3 3 2) D)) ∧
-      ∃ t ∈ FlRealLC S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) S.a₁ S.ν T.BG T.κ T.t (X₁f τ) T.BG₂
-        δ₁, r = D2raw (Gk τ) (Gj τ) (compWeight 3 S.a₁) Fk
-          (d1Triple S.G' (Gk τ) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) t.1.1
-            t.2.1 t.2.2)})
-    (fun τ r hr => by
-      obtain ⟨Fk, hFk, t, ht, rfl⟩ := hr
-      exact hchart τ Fk hFk t ht _ rfl) Bτ hBτ
-    (fun τ r hr => by
-      obtain ⟨Fk, hFk, t, ht, rfl⟩ := hr
-      exact hEbd τ Fk hFk t ht _ rfl) CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL
-    (fun τ Fk hFk t ht => ⟨Fk, hFk, t, ht, rfl⟩)
+  intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ
+  exact HC T rfl rfl rfl rfl rfl 324 δ₃ δ₁ δfl le_rfl (by norm_num) hnB hnF hδ₁T k hk N₁ h3N hN₁
+    ν hν0 hν β hβ (by simp)
 
 end Balaban.Inhabited
