@@ -46,6 +46,16 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 noncomputable def volScale (S : Setting) {m : ℕ} (j : ℕ) (X : Set (Torus S.d m)) : ℝ :=
   (Set.ncard X : ℝ) / (S.L : ℝ) ^ (j * S.d)
 
+/-- The vacuum part of the creating-step boundary factor.  This is the three-region expression
+of P6 (3.2), P5 (3.18), and the large-field recursion (S0): the first region is outside
+`Ω_{k+1}`, the second lies in `Ω_{k+1} ∖ Ω''_{k+1}`, and the last lies in `Ω''_{k+1}`.
+The arguments are the constants of the *creating step* `k`, in scale-`k` units. -/
+noncomputable def stepVacuumTerm (a : LocalHistory S n M K) (k : ℕ)
+    (Ek Epp Eppp : ℝ) : ℝ :=
+  Ek * volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k) +
+    Epp * volScale S k (a.Omega k \ a.OmegaDD k) +
+      Eppp * volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
+
 /-- The new′ internal variables: those of scale `k` other than `ψ_k` on `Z_k ∩ Z'`. -/
 def newPrimeVars (a : LocalHistory S n M K) (k : ℕ) : Set (InternalVars a (k + 1)) :=
   {p | p.1.1.val = k ∧ (p.1.2.1 = VarKind.fluct ∨
@@ -170,6 +180,26 @@ structure StepData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ)
     (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv g g',
     RelOut σ.toTorusSym o o' → RelSub hI hk x x' → RelG σ.toTorusSym g g' →
       (ker k a').b o' x' hv g' = (ker k a).b o x hv g
+  /-- The vacuum constants of the creating step.  The physical producer must identify these
+  with `sf.E N₁`, `StepSetting.Epp`, and `StepSetting.Eppp` for that step. -/
+  vacE : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEpp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEppp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  /-- The remainder of the boundary factor after its three vacuum constants are removed. -/
+  b0 : ∀ (k : ℕ) (a : LocalHistory S n M K), OutT N R a (k + 1) → NewCfg N a k →
+    EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → ℂ
+  /-- R5, P6 (3.2), P5 (3.18): `b_k = b⁰_k −` the creating-step vacuum contribution. -/
+  b_vac : ∀ k a o x hv g,
+    (ker k a).b o x hv g = b0 k a o x hv g -
+      (stepVacuumTerm a k (vacE k a) (vacEpp k a) (vacEppp k a) : ℂ)
+  /-- The `b⁰_k` estimate has constants independent of the vacuum normalization. -/
+  b0_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ)
+    (Z' : H.Comp (k + 1)) o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
+    ChiNewAt geo cs H k Z' o x →
+    ‖b0 k (H.localHistory M K (k + 1) Z') o x hv g‖ ≤
+      (cs.Cb * Real.log (cs.beta k) + cs.Cb * cs.B0) *
+        volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+          z ∉ (H.localHistory M K (k + 1) Z').Z k}
   /-- (S0) the bound `|b_k| ≤ (C_b log β_k + C_b B_0) |Z^c_k ∩ Z'|_{k+1}` on the domain -/
   b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ)
     (Z' : H.Comp (k + 1)) o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →

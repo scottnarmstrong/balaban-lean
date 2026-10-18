@@ -7,6 +7,7 @@ module
 
 public import Balaban.SmallField.IrrelTorusDefectGeom
 public import Balaban.SmallField.Def6AvgGeom
+public import Balaban.SmallField.IrrelTorusDefectCoordSmall
 
 /-!
 # Infinite polymers below the torus side threshold
@@ -91,22 +92,8 @@ theorem liftPolys_of_infPoly_small {P : Consts} {j : ℕ} (hjk : j ≤ k)
         ((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ) + 1) <
       ((N₁ * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ)) :
     X' ∈ liftPolys (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j := by
-  apply liftPolys_of_infPoly_zsmall hjk hN h0 hX
-  intro z hz μ
-  have hdiam := infPoly_diam2 hjk hX hz h0
-  have hcoord : (|z μ| : ℤ) ≤ ∑ ν, |z ν - (0 : Site d) ν| := by
-    simpa using (Finset.single_le_sum (f := fun ν => |z ν|)
-      (fun ν _ => abs_nonneg _) (Finset.mem_univ μ))
-  have hcoord' : ((|z μ| : ℤ) : ℝ) ≤ diamA d L P.m₀ m₁ *
-      (1 + dInf L m₁ k P.m₀ j X') :=
-    (show ((|z μ| : ℤ) : ℝ) ≤ ((∑ ν, |z ν - (0 : Site d) ν| : ℤ) : ℝ) from by
-      exact_mod_cast hcoord).trans hdiam
-  have hq : (0 : ℝ) ≤ (L * L ^ (P.m₀ + m₁) : ℕ) := Nat.cast_nonneg _
-  have hz0 : (0 : ℝ) ≤ (|z μ| : ℤ) := by exact_mod_cast abs_nonneg (z μ)
-  have hreal : (2 : ℝ) * (((|z μ| : ℤ) : ℝ) +
-      ((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ) + 1) <
-      ((N₁ * L ^ m₁ * L ^ (k - j) : ℕ) : ℝ) := by linarith
-  exact_mod_cast hreal
+  exact liftPolys_of_infPoly_zsmall hjk hN h0 hX
+    (zsmall_of_infPoly_small hjk h0 hX hs)
 
 /-- The inverse inclusion at an arbitrary integer centre. The additional absolute-coordinate
 term records the position of that centre in the fixed torus chart. -/

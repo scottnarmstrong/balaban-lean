@@ -37,6 +37,36 @@ theorem barField_apply_mem (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) (x : 
     barField G D.Ψ φ x i = φ (x, i) := by
   simp [barField, x.2]
 
+/-- **`Prop51Hyp` for a source with zero data change** (shared core of the mass and coefficient
+responses): at coefficient `a` and mass `ν`, `φ⁰` solves (EL) on `D`, has the background bounds,
+`|φ⁰| ≤ 3/2` on `Ω₁`, and `f₁` satisfies `ℓ² |f₁| ≤ δ₁`. -/
+theorem prop51Hyp_of_zeroChange (a : ℕ → ℝ) (ν δ₀ δ₁ : ℝ) (D : BgData G N)
+    {φ0 : G.Ω 1 × Fin N → ℂ} {α0 : G.Ω 1 → ℂ} {f₁ : G.Ω 1 × Fin N → ℂ}
+    (hG : GreenSetting G a ν) (h0 : IsEL G a ν D φ0 α0) (hb : BgBounds G D φ0 α0 δ₀)
+    (hφ : ∀ x : G.Ω 1, vn (fun i => φ0 (x, i)) ≤ 3 / 2)
+    (hδ₀ : 0 ≤ δ₀) (hδ₁ : 0 ≤ δ₁) (hδ₀s : δ₀ ≤ deltaStar d L N) (hδ₁s : δ₁ ≤ deltaStar d L N)
+    (hf : ∀ (x : G.Ω 1) (i : Fin N),
+      G.spacing (x : Torus d (N₀ * L ^ K)) ^ 2 * ‖f₁ (x, i)‖ ≤ δ₁) :
+    Prop51Hyp G a ν α0 (barField G D.Ψ φ0) (0 : Torus d (N₀ * L ^ K) → Fin N → ℂ)
+      f₁ δ₀ δ₁ := by
+  have hg : ∀ x : G.Ω 1, gdef G (barField G D.Ψ φ0) x = 0 := by
+    intro x
+    have := h0.2 x
+    simp only [gdef, barField, x.2, dite_true]
+    rw [this]; ring
+  have hz : zeroExt (G.Ω 1) (gdef G (barField G D.Ψ φ0)) = 0 := by
+    funext y
+    have : gdef G (barField G D.Ψ φ0) = 0 := funext hg
+    simp [zeroExt, this]
+  refine ⟨hG, hδ₀, hδ₁, hδ₀s, hδ₁s, ⟨fun x hx μ' => hb.grad ⟨x, hx⟩ μ',
+    fun x hx => hb.lap ⟨x, hx⟩⟩, fun x hx => ?_, fun x => hb.alpha x, hf,
+    fun x _ => by simpa [vn_zero] using hδ₁, fun x => ?_, fun x => ?_⟩
+  · have e : barField G D.Ψ φ0 x = fun i => φ0 (⟨x, hx⟩, i) := by
+      funext i; exact barField_apply_mem D φ0 ⟨x, hx⟩ i
+    rw [e]; exact hφ ⟨x, hx⟩
+  · rw [hg x, norm_zero]; exact hδ₁
+  · rw [hz]; simp [negLap]; exact hδ₁
+
 /-- **`Prop51Hyp` for the mass source** (note (1.3)): at mass `0`, `δΨ = 0`,
 `f₁ = massSource`. -/
 theorem prop51Hyp_massSource (a : ℕ → ℝ) (μ m Bh δ₀ δ₁ : ℝ) (D : BgData G N)
@@ -48,25 +78,9 @@ theorem prop51Hyp_massSource (a : ℕ → ℝ) (μ m Bh δ₀ δ₁ : ℝ) (D : 
     (hδ₀ : 0 ≤ δ₀) (hδ₁ : 0 ≤ δ₁) (hδ₀s : δ₀ ≤ deltaStar d L N) (hδ₁s : δ₁ ≤ deltaStar d L N)
     (hmB : m * Bh ≤ δ₁) :
     Prop51Hyp G a 0 α0 (barField G D.Ψ φ0) (0 : Torus d (N₀ * L ^ K) → Fin N → ℂ)
-      (massSource μ D φm) δ₀ δ₁ := by
-  have hg : ∀ x : G.Ω 1, gdef G (barField G D.Ψ φ0) x = 0 := by
-    intro x
-    have := h0.2 x
-    simp only [gdef, barField, x.2, dite_true]
-    rw [this]; ring
-  have hz : zeroExt (G.Ω 1) (gdef G (barField G D.Ψ φ0)) = 0 := by
-    funext y
-    have : gdef G (barField G D.Ψ φ0) = 0 := funext hg
-    simp [zeroExt, this]
-  refine ⟨hG, hδ₀, hδ₁, hδ₀s, hδ₁s, ⟨fun x hx μ' => hb.grad ⟨x, hx⟩ μ',
-    fun x hx => hb.lap ⟨x, hx⟩⟩, fun x hx => ?_, fun x => hb.alpha x, fun x i => ?_,
-    fun x _ => by simpa [vn_zero] using hδ₁, fun x => ?_, fun x => ?_⟩
-  · have e : barField G D.Ψ φ0 x = fun i => φ0 (⟨x, hx⟩, i) := by
-      funext i; exact barField_apply_mem D φ0 ⟨x, hx⟩ i
-    rw [e]; exact hφ ⟨x, hx⟩
-  · exact (massSource_bound D φm hμ hμℓ hB x i).trans hmB
-  · rw [hg x, norm_zero]; exact hδ₁
-  · rw [hz]; simp [negLap]; exact hδ₁
+      (massSource μ D φm) δ₀ δ₁ :=
+  prop51Hyp_of_zeroChange a 0 δ₀ δ₁ D hG h0 hb hφ hδ₀ hδ₁ hδ₀s hδ₁s fun x i =>
+    (massSource_bound D φm hμ hμℓ hB x i).trans hmB
 
 /-- A real unit field `φ⁰` (`∑ ‖φ⁰(x,i)‖² = 1`) satisfies `|φ⁰| ≤ 3/2`. -/
 theorem vn_le_of_unit {φ0 : G.Ω 1 × Fin N → ℂ} (hφ : ∀ x : G.Ω 1, ∑ i, ‖φ0 (x, i)‖ ^ 2 = 1)

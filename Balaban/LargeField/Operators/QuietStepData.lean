@@ -101,6 +101,23 @@ structure QuietStepInput (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ
   b_euclid : ∀ (k : ℕ) (σ : LatTorusSym S n M K) (a a' : LocalHistory S n M K)
     (hI : HistImage σ.toTorusSym a a') (hk : k + 1 ≤ K) o o' x x' hv g g', QuietRealized R k0 k a →
     RelOut σ.toTorusSym o o' → RelSub hI hk x x' → RelG σ.toTorusSym g g' → b k a' o' x' hv g' = b k a o x hv g
+  /-- The creating-step constants and the vacuum-free remainder of a realized quiet step. -/
+  vacE : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEpp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  vacEppp : ∀ (_k : ℕ) (_a : LocalHistory S n M K), ℝ
+  b0 : ∀ (k : ℕ) (a : LocalHistory S n M K), OutT N R a (k + 1) → NewCfg N a k →
+    EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → ℂ
+  b_vac : ∀ k a o x hv g, QuietRealized R k0 k a →
+    b k a o x hv g = b0 k a o x hv g -
+      (stepVacuumTerm a k (vacE k a) (vacEpp k a) (vacEppp k a) : ℂ)
+  b0_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
+    1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
+    ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
+    ChiNewAt geo cs H k Z' o x →
+    ‖b0 k (H.localHistory M K (k + 1) Z') o x hv g‖ ≤
+      (cs.Cb * Real.log (cs.beta k) + cs.Cb * cs.B0) *
+        volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+          z ∉ (H.localHistory M K (k + 1) Z').Z k}
   b_bound : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (k : ℕ), k + 1 ≤ K →
     1 ≤ k → ∀ (Z' : H.Comp (k + 1)), IsQuiet (H.locRH (k + 1) Z') k Z'.1 →
     ∀ o x hv (g : GIdx S n M K N → ℂ), g ∈ l1Ball (GIdx S n M K N) →
@@ -360,6 +377,30 @@ noncomputable def quietStepData [NeZero N] (inp : QuietStepInput K k0 geo cs N)
       exact inp.b_euclid k σ a a' hI hk o o' x x' hv g g' hr ho hx hg
     · have hr' : ¬ QuietRealized R k0 k a' := fun h => hr (hiff.2 h)
       simp only [hr, hr', ↓reduceIte]
+  vacE k a := if QuietRealized R k0 k a then inp.vacE k a else 0
+  vacEpp k a := if QuietRealized R k0 k a then inp.vacEpp k a else 0
+  vacEppp k a := if QuietRealized R k0 k a then inp.vacEppp k a else 0
+  b0 k a o x hv g := if QuietRealized R k0 k a then inp.b0 k a o x hv g else 0
+  b_vac k a o x hv g := by
+    rw [quietKer_b]
+    by_cases hr : QuietRealized R k0 k a
+    · simp only [hr, ↓reduceIte]
+      exact inp.b_vac k a o x hv g hr
+    · simp only [hr, ↓reduceIte]
+      simp [stepVacuumTerm]
+  b0_bound H hH k Z' o x hv g hg hchi := by
+    by_cases hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z')
+    · obtain ⟨H1, hH1, Z1, hk1, hk, hq1, heq⟩ := hr
+      have hq := inp.quiet_local H1 H hH1 hH k Z1 Z' hk1 hk heq hq1
+      have hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z') :=
+        ⟨H, hH, Z', hk1, hk, hq, rfl⟩
+      simp only [hr, ↓reduceIte]
+      exact inp.b0_bound H hH k hk hk1 Z' hq o x hv g hg hchi
+    · simp only [hr, ↓reduceIte, norm_zero]
+      have hvol : 0 ≤ volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+          z ∉ (H.localHistory M K (k + 1) Z').Z k} := by
+        unfold volScale; positivity
+      exact mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) hvol
   b_bound H hH k Z' o x hv g hg hchi := by
     rw [quietKer_b]
     by_cases hr : QuietRealized R k0 k (H.localHistory M K (k + 1) Z')
@@ -490,6 +531,12 @@ theorem quietStepInput_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ)
     b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
     b_rot := fun _ _ _ _ _ _ _ _ => rfl
     b_euclid := fun _ _ _ _ _ hk => by omega
+    vacE := fun _ _ => 0
+    vacEpp := fun _ _ => 0
+    vacEppp := fun _ _ => 0
+    b0 := fun _ _ _ _ _ _ => 0
+    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
+    b0_bound := fun _ _ _ hk => by omega
     b_bound := fun _ _ _ hk => by omega }⟩
 
 end Inhabited
