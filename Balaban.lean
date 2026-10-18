@@ -2610,6 +2610,10 @@ public import Balaban.Inhabited.StepIdentityFibreExplicitCore
 public import Balaban.Inhabited.E0CoeffFamilyRotAct
 public import Balaban.Inhabited.E0CoeffFamilyRotCoef
 public import Balaban.Inhabited.E0CoeffFamilyRotActLab
+public import Balaban.Inhabited.E0CoeffFamilyRotHeq
+public import Balaban.Inhabited.E0CoeffFamilyRotTower
+public import Balaban.Inhabited.E0CoeffFamilyRotTowerMark
+public import Balaban.Inhabited.E0CoeffFamilyRotCore
 public import Balaban.Polymer.TwoTorusGapTowerEnergyGeom
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarkCorr
 public import Balaban.Polymer.TwoTorusGapTowerEnergyMarks

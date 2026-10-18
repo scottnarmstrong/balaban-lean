@@ -12,6 +12,8 @@ public import Balaban.Inhabited.E0CoeffFamilyRotCoef
 public import Balaban.Inhabited.E0CoeffFamilyRotMarkG
 public import Balaban.Fluctuation.DetRotation
 public import Balaban.Inhabited.E0CoeffFamilyRotHeq
+public import Balaban.Inhabited.E0CoeffFamilyRotTower
+public import Balaban.Inhabited.E0CoeffFamilyRotTowerMark
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NormNum
@@ -36,21 +38,6 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep
   Balaban.Inhabited.MarkBudgetAudit Matrix Metric Set MeasureTheory
-
-/-- **The marks of the radius `17/16` are admissible for the hat radius `p₁`.** -/
-theorem markRadius_of_ray {X cψ p₁ r t : ℝ} (hp : 0 ≤ p₁) (hr : 0 < r) (ht : 0 < t)
-    (hray : (2 * 2 + r) * p₁ < cψ) (hfl : X * cψ < t) {u : ℂ} (hu : ‖u‖ < (17 / 16 : ℝ)) :
-    (‖u‖ + ‖(0 : ℂ)‖) * (X * p₁) < t := by
-  simp only [norm_zero, add_zero]
-  rcases le_or_gt X 0 with hX | hX
-  · have : ‖u‖ * (X * p₁) ≤ 0 :=
-      mul_nonpos_of_nonneg_of_nonpos (norm_nonneg _) (mul_nonpos_of_nonpos_of_nonneg hX hp)
-    linarith
-  · have h1 : 4 * p₁ < cψ := by nlinarith
-    have h2 : X * p₁ * 4 ≤ X * cψ := by nlinarith
-    have h3 : ‖u‖ * (X * p₁) ≤ 17 / 16 * (X * p₁) :=
-      mul_le_mul_of_nonneg_right hu.le (by positivity)
-    nlinarith [mul_nonneg hX.le hp]
 
 section Main
 
@@ -350,40 +337,21 @@ theorem e0CoeffFamily_value_fromTowerG_core_rot {d L N : ℕ} [NeZero L] {κmin 
       refine (hAH θ' (s : ℂ) y (fun b u => e (Φ b u))).trans (Eq.trans ?_ (hAH θ (s : ℂ) y Φ).symm)
       refine commonAct_zeroSourceAct_H_rot (T.step k hk N₁ ν β p₁) 1 _ hFd _ _ _ _ _ _ _ _ _ _ _ _
         one_pos le_rfl hθ hθ' (s : ℂ) y Φ _ ?_
-      have key : ∀ (Φ' : ∀ b, ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).Ωb b),
-          (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ' =
-            rotFld (cmat Q) ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) →
-          ∀ (z' : {Y // Y ∈ I0.𝒴}) (u : ℂ), ‖u‖ < 2 →
-            I0.T z'.1 ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ',
-                (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ')
-              ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ',
-                (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ') u
-              ((θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), 0) =
-            I0.T z'.1 ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ,
-                (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ)
-              ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ,
-                (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) u
-              ((θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), 0) := by
-        intro Φ' hΦ' z' u hu
-        rw [hΦ', hT, hT]
-        congr 1
-        refine Finset.sum_congr rfl fun z'' _ => ?_
-        split_ifs with hz
-        · rw [hrawrot, hD₀θ]
-          refine rayTermHat_rot D.core hk (T.step k hk N₁ ν β p₁).hG
-            (T.step k hk N₁ ν β p₁).hG' _ D.cψ_pos.le T.large_block T.dom_margin T.coer_margin
-            T.δc_small D.fl_radius (hF₂ z'') (hSol₂ z'') hQ
-            (fun bg δφ u' => energyBlock_rot hQ' _ _ k bg.2 δφ u'.2 z'') _ hD₀ D.r_pos ?_
-          intro t ht τ hτ p'
-          have hψ : ∀ q, ‖((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) q‖ ≤ p₁ :=
-            (T.step k hk N₁ ν β p₁).hatOf_mem 1 hp hp Φ
-          sorry
-        · rfl
       intro z' hy hu
-      exact key _ (hatOf_rot (T.step k hk N₁ ν β p₁) 1 hp e he le_rfl hΦ) z' (s : ℂ) hu
+      have hψ : ∀ q, ‖((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) q‖ ≤ p₁ :=
+        (T.step k hk N₁ ν β p₁).hatOf_mem 1 hp hp Φ
+      have hh : (T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp (fun b u => e (Φ b u)) =
+          rotFld (cmat Q) ((T.step k hk N₁ ν β p₁).hatOf 1 p₁ hp Φ) :=
+        hatOf_rot (T.step k hk N₁ ν β p₁) 1 hp e he le_rfl hΦ
+      have hkey := directTerm_rot_tower T hk D hp _ rfl F₂ Sol₂ hF₂ hSol₂ I0.T hT hQ z'.1 hD₀ hψ hu
+      refine Eq.trans (congrArg (fun x => I0.T z'.1 (x, x) (x, x) (s : ℂ)
+        ((θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N), 0)) hh) ?_
+      rw [hrawrot, hD₀θ]
+      exact hkey
     · intro s hs i Φ hΦ
       rw [hEeq Φ]
-      sorry
+      exact e1MarkGParamG_rot_tower T hk D _ rfl hp (fun b => F₁ (z, b)) (fun b => (hsp b).1)
+        (fun b => Sol (z, b)) (fun b => (hsp b).2) hQ e he z θ θ' hθ.1 hrawrot i s hΦ
   rw [he0 θ' Cs, he0 θ Cs, hdzrot, hcrot]
 
 end Main
