@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityFamilyActTower
 public import Balaban.Inhabited.StepTowerBeta0Zero
+public import Balaban.Inhabited.StepTowerRotFields
 
 /-!
 The zero-source family of the class chain at every tower radius
@@ -67,33 +68,11 @@ theorem zeroSourceFamily_fields_fromTower_agree {κmin : ℝ} (T₀ : StepTower 
               ∑ y, (A₀ ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
                 (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) (s : ℂ)).H y
                 ((S.blockSplit 1 hp).restr x)) := by
-  classical
-  obtain ⟨β₂, h3, H2⟩ := zeroSourceActivity_common_fromTower_agree T₀ hHull hA p hcR hαR
-  refine ⟨β₂, h3, fun T hm₁ hBG hBG₂ hκ _ => ?_⟩
+  obtain ⟨β₂, h3, H⟩ := zeroSourceFamily_fields_fromTower_agree_rot T₀ hHull hA p hcR hαR
+  refine ⟨β₂, h3, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
-  have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨Jr, val, I, hF, hεU, hval, hεpos, -, -, A, hAeq, -, -, hcom⟩ :=
-    H2 T hm₁ hBG hBG₂ hκ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ 1 one_pos le_rfl Dt S hS hp
-  obtain ⟨A0, hA0eq, hAhol, hAdiff, hAcont, -, -, -, -, -⟩ :=
-    hcom (fun _ => Set.univ) (e1Dom S) (e1Dom_isDj_of_eq T Dt hS)
-  subst hA0eq
-  have hU2 : Metric.ball (0 : ℂ) corrU ⊆ Metric.ball (0 : ℂ) 2 :=
-    Metric.ball_subset_ball (by unfold corrU; norm_num)
-  have hεzs : 0 ≤ 2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / S.β))) :=
-    mul_nonneg (sq_nonneg 2) (mul_nonneg zero_le_two hεU)
-  exact ⟨Jr, {Y // Y ∈ I.𝒴}, inferInstance, thickLabels I.𝒴 I.dom, zeroSourceAct A 2 zero_le_two,
-    hεpos,
-    fun y Φ _ => (hAhol (Sum.inl y) Φ).mono (Set.prod_mono subset_rfl hU2),
-    fun y θ hθ u hu => (hAcont (Sum.inl y) θ hθ u (hU2 hu)).continuousOn,
-    fun θ hθ y Φ => (hAdiff θ hθ (Sum.inl y) Φ).mono hU2,
-    fun T' θ hθ θ' hθ' hres s hs y hsub => by
-      subst hAeq
-      exact commonAct_zeroSourceAct_hA_rawY S 1 _ hF hN1 hp0 zero_le_two hεU T.κ0_ent
-        T.marks_K0_le (fun _ => Set.univ) (e1Dom S) (e1Dom_isDj_of_eq T Dt hS) (by norm_num)
-        hεzs T.κ0_two one_pos T' θ hθ θ' hθ' hres s hs (Sum.inl y) hsub,
-    fun D hX => e1_common_activity_freeDatum_of_directTerms T k hk N₁ h3N ν hν0 hν β p₁ hp0 Dt
-      S hS hp Jr val hval I hF hεU A hAeq (zeroSourceAct A 2 zero_le_two)
-      (zeroSourceAct_total A 2 zero_le_two) D hX⟩
+  exact (H T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp).imp
+    fun _ => Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
+      ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1⟩
 
 end Balaban.Inhabited

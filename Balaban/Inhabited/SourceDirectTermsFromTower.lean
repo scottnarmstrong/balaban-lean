@@ -501,6 +501,122 @@ theorem sourceDirectTerms_scale_fromTowerG_ray_rho {d L N : ℕ} [NeZero L] {κm
       linarith, h.2.2.2.2.2.2.2⟩
 
 open Classical in
+/-- **The direct terms of the zero class at the shared tower `T` with the explicit direct terms.**  The
+statement of `sourceDirectTerms_scale_fromTower_ray_rho` with the clauses of
+`sourceDirectTerms_scale_fromTowerG_ray_rho` at `d = L = 3`, `N = 2`: the domains `𝒴` are the polymer
+domains of the local covers, and at zero source the terms `Tt` are the explicit ray terms of the
+block expansions for decoupled pairs `(F₁ z, Sol z)` with the defining properties. -/
+theorem sourceDirectTerms_scale_fromTower_ray_rho_core {κmin : ℝ} (T : StepTower κmin)
+    (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁)
+    (ν : ℝ) (hνpos : 0 < ν) (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) (β : ℝ) (ρ : ℝ) (hρ : 0 < ρ) (hβρ : max 1 ρ ≤ β)
+    (p₁ : ℝ) (q : ℝ) (hq0 : 0 < q) (hq : q ≤ ρ)
+    (D : StepScaleData T k hk N₁ ν β p₁)
+    (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
+    (hp : 0 < S.p₁) :
+    ∃ (val : ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ℂ → (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ)
+      (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+      (Tt : Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) →
+        ((S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) → ℂ →
+        (RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) → ℂ),
+      (∀ x w σ Θ, val x w σ Θ =
+        (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t)) taylorWeight x.1 w.1 σ Θ.1 +
+        (S.β : ℂ) * (∑ s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2, Θ.2 s.1 s.2 *
+          dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+            (onXi S.G' S.a₁ S.ν T.t
+              (fun D ψ' => svec (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+                (flFieldOne S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.BG₂ T.κ S.a₁ S.ν D ψ')
+                  s.1 s.2)))
+            (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1)) ∧
+      PhysicalSharpLocEta S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁) S.a₁
+        S.ν T.t (q / S.β) 𝒴 Tt ∧
+      DiagCont (fun ψ : S.U × Fin 2 → ℂ => (ψ, ψ))
+        (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁))
+        (physSΛEta S S.a₁ S.ν T.t (q / S.β)) 2 𝒴 Tt ∧
+      (∀ Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β),
+        ∃ I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+            (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+              (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) (2 * T.κdec - 1) Θ
+            (physSΛEta S S.a₁ S.ν T.t (q / S.β))
+            (physXW S (lvCpsi T.κ T.t (β * 3 ^ k)) 2 2 (lvR T.κ T.t (β * 3 ^ k) p₁)) val
+            (physAgΘ S) (AgFDirPair S),
+          I.𝒴 = 𝒴 ∧ I.T = Tt) ∧
+      (rawOf S.D', (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
+        physSΛEta S S.a₁ S.ν T.t (q / S.β) ∧
+      (∀ g : Fld 3 3 N₁ T.m₁ (k + 1) 2, ∑ x, ∑ i, ‖g x i‖ < q →
+        (rawOf S.D', fun y i => g y i / (S.β : ℂ)) ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β)) ∧
+      (∀ (Y : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))
+        (Θ : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 × (CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)),
+        Θ ∈ physSΛEta S S.a₁ S.ν T.t (q / S.β) → ∀ ψ : S.U × Fin 2 → ℂ,
+        (∀ p, ‖ψ p‖ ≤ 2 / 3 * p₁) →
+        DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
+          (Metric.ball (0 : ℂ) (3 / 2))) ∧
+      𝒴 = (Finset.univ.biUnion fun z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) =>
+          polyDom S.G' (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k z))) ∪
+        (Finset.univ.biUnion fun s : CTorus 3 3 N₁ T.m₁ (k + 1) × Fin 2 =>
+          polyDom S.G' (LocalCover.nbhdF 1 s.1) 1 k (LocalCover.fam 1 s.1)) ∧
+      ∃ (F₁ : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+            DecParams S.G' × RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 → (S.G'.Ω 1 × Fin 2 → ℂ) × (S.G'.Ω 1 → ℂ))
+          (Sol : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))) →
+            Dec2.DecParams (coverOf S.G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 → ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 × Fin 2 → ℂ) × ((stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ)),
+        (∀ (z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1)))) (s : DecParams S.G') (D : BgData S.G' 2), (∀ P, ‖s P‖ < Real.exp T.κ) →
+          InUnionDomainC S.G' (bgC0 3 3 2) (c7 3 3 2 T.BG T.κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin 2 → ℂ)
+            (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight 3 S.a₁) S.ν (rho4 3 3 2 T.BG T.κ) s D φ α →
+            F₁ z (s, rawOf D) = (φ, α)) ∧
+        (∀ (z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1)))) (p : Dec2.DecParams (coverOf S.G') × Edat (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2), (∀ P, ‖p.1 P‖ < Real.exp T.κ) →
+          StrictDataM (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) 2 false (2 * (K4 3 3 2 T.BG T.κ * (xiC1 3 * T.t))) T.t p.2 →
+            (Sol z p).1 = dphi (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Dec2.decG (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1) p.2.2.1 p.2.1
+              (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Dec2.DecFixed (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+              (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) (Sol z p).2 ∧
+            Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Sol z p).2 (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) ∧
+            Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Sol z p).2 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+            SupBounds (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (Sol z p).1 (cK2' 3 3 2 (famConst 3 3 T.BG₂ T.κ) * T.t) ∧
+            (∀ δα' : (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)).Ω 1 → ℂ, Small (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) δα' (c6' 3 3 2 (famConst 3 3 T.BG₂ T.κ) (gamma1 3 / 8)) →
+              Dec2.DecFixed (coverOf S.G') (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν p.1 false p.2.2.1 p.2.1
+                (pertSource (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol z p).2)) ∧
+        (∀ (Y : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))
+          (x w : (S.U × Fin 2 → ℂ) × (S.U × Fin 2 → ℂ)) (σ : ℂ)
+          (Θ : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2),
+          Tt Y x w σ (Θ, 0) = -(S.β : ℂ) *
+            ∑ z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1))), if Y ∈ polyDom S.G'
+                (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+                (LocalCover.fam 1 (LocalCover.blockSite k z)) then
+              rayTerm (dl3 (evTerm
+                (fun i : ParIdx S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) => i.1.1)
+                S.G' 1 (X1 S.G' 1 k (LocalCover.fam 1 (LocalCover.blockSite k z)))
+                (fun u s => blockEnergyFun S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 S.a₁) S.ν k z
+                  (F₁ z (extParams S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) s, u.1))
+                  (Sol z (extParams S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) s,
+                    flEdat S.G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (F₁ z (extParams S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) s, u.1))
+                      u.1.1 (hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                        (extParams S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) s) u.1 u.2))).1
+                  (u.1, hatPsiF S.G' S.a₁ S.ν S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ z)
+                    (extParams S.G' (↑(LocalCover.nbhdF 1 (LocalCover.blockSite k z)) : Set (CTorus 3 3 N₁ T.m₁ (k + 1))) s) u.1 u.2)) Y) w.1) taylorWeight x.1 σ Θ
+            else 0) := by
+  classical
+  subst hS
+  have hp' : 0 < (T.toG.step k hk N₁ ν β p₁).p₁ := hp
+  have G := sourceDirectTerms_scale_fromTowerG_ray_rho T.toG k hk N₁ (by simpa using h3N) hN ν
+    hνpos (by simpa using hν) β ρ hρ hβρ p₁ q hq0 hq (StepTower.scaleDataG_of_fixed T D)
+    (T.toG.step k hk N₁ ν β p₁) rfl hp'
+  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
+  unfold StepTowerG.step at G
+  revert G
+  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
+  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
+  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
+  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
+  subst hϱ' hb'
+  intro G
+  exact G.imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
+    ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1, h.2.2.2.2.2.2.1, h.2.2.2.2.2.2.2.1,
+      h.2.2.2.2.2.2.2.2.imp fun _ => Exists.imp fun _ h' => ⟨h'.1, h'.2.1, h'.2.2.1⟩⟩
+
+open Classical in
 /-- **The direct terms of the zero class at the shared tower `T`, on the source slice
 `η = q/β`.**  For `S = T.step k hk N₁ ν β p₁` and `D : StepScaleData T …`, the conclusion of
 `sourceDirectTerms_scale` at the constants `T.m₁, T.t, T.δ, T.BG, T.BG₂, T.κ, T.κ0, T.κdec`:
@@ -562,21 +678,7 @@ theorem sourceDirectTerms_scale_fromTower_ray_rho {κmin : ℝ} (T : StepTower �
         DifferentiableOn ℂ (fun ζ : ℂ => Tt Y (ζ • ψ, ζ • ψ) (ζ • ψ, ζ • ψ) 1 Θ)
           (Metric.ball (0 : ℂ) (3 / 2)) := by
   classical
-  subst hS
-  have hp' : 0 < (T.toG.step k hk N₁ ν β p₁).p₁ := hp
-  have G := sourceDirectTerms_scale_fromTowerG_ray_rho T.toG k hk N₁ (by simpa using h3N) hN ν
-    hνpos (by simpa using hν) β ρ hρ hβρ p₁ q hq0 hq (StepTower.scaleDataG_of_fixed T D)
-    (T.toG.step k hk N₁ ν β p₁) rfl hp'
-  have e : (((3 : ℕ) : ℝ)) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
-  unfold StepTowerG.step at G
-  revert G
-  generalize hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = b
-  generalize hϱ : rhoSepG 3 3 T.toG.m₁ = ϱ
-  have hϱ' : ϱ = rhoSep T.m₁ := hϱ.symm.trans (rhoSepG_three _)
-  have hb' : b = β * 3 ^ k := hb.symm.trans (by rw [e])
-  subst hϱ' hb'
-  intro G
-  exact G.imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
+  exact (sourceDirectTerms_scale_fromTower_ray_rho_core T k hk N₁ h3N hN ν hνpos hν β ρ hρ hβρ p₁ q hq0 hq D S hS hp).imp fun _ => Exists.imp fun _ => Exists.imp fun _ h =>
     ⟨h.1, h.2.1, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, h.2.2.2.2.2.1, h.2.2.2.2.2.2.1⟩
 
 open Classical in

@@ -6,8 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.LocalClassDensityValTower
-public import Balaban.Inhabited.StepTowerBeta0Amp
-public import Balaban.Inhabited.StepTowerBeta0Marks
+public import Balaban.Inhabited.StepTowerRotClass
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -186,131 +185,16 @@ theorem e0CoeffFamily_class_fromTower_agree {κmin : ℝ} (T₀ : StepTower κmi
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  obtain ⟨β₀, hβ₀, H1⟩ := exists_beta0_e1_agree T₀ hA p hcR hαR 3
-  refine ⟨β₀, (le_max_left _ _).trans hβ₀, fun T hm₁ hBG hBG₂ hκ _ => ?_⟩
+  obtain ⟨β₀, hβ₀, H⟩ := e0CoeffFamily_class_fromTower_agree_rot T₀ hA p hcR hαR
+  refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN ν hν0 hν β hβ hct p₁ hp₁ Dt S hS hp
-  subst hS
-  have hp0 : 0 < p₁ := hp
-  have hβ3 : 3 ≤ β := ((le_max_left _ _).trans hβ₀).trans hβ
-  have hβpos : 0 < β := by linarith
-  have hRU := (H1 T hm₁ hBG hBG₂ hκ).1 k hk β hβ hct p₁ hp0 hp₁
-  obtain ⟨F₁, Sol, hF⟩ := e1MarkParam_pairs_fromTower T Dt h3N hN hν0.le hν hβpos hp hRU
+  obtain ⟨F₁, Sol, H'⟩ := H T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN ν hν0 hν β hβ hct p₁ hp₁ Dt S hS hp
   refine ⟨F₁, Sol, ?_⟩
   intro Jr C z Lb _ Lab εH κH Kc A ι₁ _ y1 G₁ F1 hE hAhol hAcont hAdiff hAloc hW hG1meas
     hG1dep hG1bd hG1hol hG1cont hG1diff hG1loc hroot₁ hF₁ hF1 hεpos hKc hκG hκ hε
-  have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
-  obtain ⟨hP, hne, hmeas, hdb, hhol, hcont, hspec⟩ := hF z
-  obtain ⟨hdep0, hbd0⟩ := hdb Lb Lab
-  have hopen : IsOpen (physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-      (T.step k hk N₁ ν β p₁).ν T.t) :=
-    isOpen_physV _ _ _ _ (bgHyp_lv (k := k) T.m₁ hν0.le hν)
-  have hseg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ Metric.ball (0 : ℂ) corrU := by
-    intro s hs
-    rw [mem_ball_zero_iff]
-    refine norm_ofReal_lt_of_mem hs ?_
-    unfold corrU
-    norm_num
-  have hfam := paramMarkFamily_sum_elim ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
-    (A := A) (y0 := commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z)
-    (y1 := y1)
-    (G₀ := fun θ i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-      (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) (G₁ := G₁)
-    (F0 := fun _ => corrF0 T k β p₁) (F1 := F1) hopen Metric.isOpen_ball hseg
-    (isCompact_physCarrier _ 1 hp) (measurableSet_physCarrier _ 1 hp)
-    (ae_mem_physCarrier _ 1 hp) hAhol hAcont hmeas hbd0 (fun i Φ _ => hhol i Φ) hcont
-    hG1meas hG1bd hG1hol hG1cont
-  have hholG₀ : ∀ θ ∈ physV (T.step k hk N₁ ν β p₁) (T.step k hk N₁ ν β p₁).a₁
-      (T.step k hk N₁ ν β p₁).ν T.t, ∀ i Φ, DifferentiableOn ℂ
-      (fun u => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) (Metric.ball (0 : ℂ) corrU) := by
-    intro θ hθ i Φ u hu
-    have ha := (hhol i Φ (θ, u) ⟨hθ, hu⟩).differentiableAt
-    have hpr : DifferentiableAt ℂ (fun v : ℂ => (θ, v)) u :=
-      DifferentiableAt.prodMk (differentiableAt_const θ) differentiableAt_id
-    exact (ha.comp u hpr).differentiableWithinAt
-  have hlt : (T.step k hk N₁ ν β p₁).p₁ < 2 * p₁ := by
-    change p₁ < 2 * p₁
-    linarith
-  have hroot₀ : ∀ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-      (e1Dom (T.step k hk N₁ ν β p₁)) z},
-      rootCube (m₀ := 1) z ∈ blocksOf 1 (k + 1) Set.univ
-        ((commonLabels Lab hN1 (by norm_num) (fun _ => Set.univ)
-          (e1Dom (T.step k hk N₁ ν β p₁)) (e1Dom_isDj T Dt)).ysite
-          (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z i)) :=
-    fun i => (bridgeFamily_spec hN1 (by norm_num) (e1Dom_isDj T Dt) z i.2).2.1
-  obtain ⟨hcl, hval⟩ := StepSetting.JointRep.classE1Family_of_marks Jr C hp hlt.le
-    (commonLabels Lab hN1 (by norm_num) (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁))
-      (e1Dom_isDj T Dt)) hN1 hne
-    (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z) y1
-    (fun _ => corrF0 T k β p₁) F1 A
-    (fun θ i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-      (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) G₁ hfam hdep0 hG1dep hAdiff hholG₀ hG1diff
-    T.marks_hκ0 hKc hεpos (fun _ => corrF0_pos T hk hβpos hp0) hF1 T.marks_hκ' hκG hκ hε z
-    hroot₀ hroot₁ hAloc
-    (fun T' => e1Mark_hG_rawY_fromTower T Dt hN hν0.le hν hβpos hp hRU F₁ Sol z hspec Lab hN1 T')
-    hG1loc hE hW
-    (fun D hX s hs x hx => e1_param_marks_eq_raw_deriv T Dt _ rfl Jr hp hlt
-      (fun b => F₁ (z, b)) (fun b => Sol (z, b)) z hP D hX s hs x hx)
-    hF₁
-  obtain ⟨E, -⟩ := (detExpansionLocC_scale_fromTower T k hk N₁ h3N hN hν0.le hν β p₁).1 z
-  obtain ⟨dz, hdz1, hdz2⟩ := detParamFamily (N := 2) E (bgHyp_lv (k := k) T.m₁ hν0.le hν)
-  let c : physParam 2 (T.step k hk N₁ ν β p₁) → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁)
-      (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℂ := fun θ T' =>
-    gsumCoeff ((T.step k hk N₁ ν β p₁).blockSplit 1 hp).μ
-      (commonLabels Lab hN1 (by norm_num) (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁))
-        (e1Dom_isDj T Dt)) (A θ)
-      (Sum.elim (commonAnchor Lb (fun _ => Set.univ) (e1Dom (T.step k hk N₁ ν β p₁)) z) y1)
-      (Sum.elim (fun i u Φ => e1MarkGParam (T.step k hk N₁ ν β p₁) (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u Φ) (G₁ θ)) T'
-  have hβS : 0 < (T.step k hk N₁ ν β p₁).β := hβpos
-  have hval0 : ∀ D : BgData (T.step k hk N₁ ν β p₁).G' 2,
-      XiCData (T.step k hk N₁ ν β p₁).G' (T.step k hk N₁ ν β p₁).a (T.step k hk N₁ ν β p₁).ν
-        (k + 1) 1 T.t D →
-      Jr.E0locJ C z (rawOf D) =
-        ∑ T', (dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' +
-          c ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T') := by
-    intro D hX
-    have hroot : Jr.rootTraceJ z (rawOf D) =
-        ∑ T', dz ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
-      unfold StepSetting.JointRep.rootTraceJ
-      rw [Jr.F₀_eq D hX, E.sum_eq D hX]
-      exact Finset.sum_congr rfl fun T' _ => (hdz1 D hX _ T').symm
-    unfold StepSetting.JointRep.E0locJ
-    rw [hroot, hval D hX, Finset.sum_add_distrib]
-  refine ⟨c, fun θ T' => dz θ T' + c θ T', fun θ T' => rfl, fun T' => ⟨?_, ?_⟩,
-    fun D hX => ?_, fun ε hε q hq => ?_⟩
-  · obtain ⟨h1, h2, h3, h4⟩ := hcl T'
-    exact ⟨h1, h2, h3, h4⟩
-  · obtain ⟨h1, h2, h3, h4⟩ := hcl T'
-    refine ⟨(hdz2 T').1.add h1, fun θ hθ θ' hθ' h => ?_, fun θ hθ =>
-      (norm_add_le _ _).trans (add_le_add ((hdz2 T').2.2.1 θ hθ) (h3 θ hθ)), fun θ hθ => ?_⟩
-    · have hsub : sitesOf T' ⊆ thickSet (T.step k hk N₁ ν β p₁).G'
-          (Yhat Set.univ (sitesOf T')) :=
-        fun x hx => Or.inl (by rw [Yhat_univ]; exact hx)
-      have h' : physRestrict (N := 2) (sitesOf T') (physIncl 2 (T.step k hk N₁ ν β p₁) θ) =
-          physRestrict (sitesOf T') (physIncl 2 (T.step k hk N₁ ν β p₁) θ') :=
-        funext fun x => congrFun h ⟨x.1, hsub x.2⟩
-      exact congrArg₂ (· + ·) ((hdz2 T').2.1 θ hθ θ' hθ' h) (h2 θ hθ θ' hθ' h')
-    · by_cases h0 : dz θ T' = 0
-      · have hc0 : c θ T' ≠ 0 := by
-          intro h1'
-          exact hθ (show dz θ T' + c θ T' = 0 by rw [h0, h1', add_zero])
-        exact ⟨(h4 θ hc0).1, (h4 θ hc0).2.1⟩
-      · exact (hdz2 T').2.2.2 θ h0
-  · have hE1 := hval D hX
-    have hE1H : ((T.step k hk N₁ ν β p₁).withDatumH D).E1locH C z =
-        ∑ T', c ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 (T.step k hk N₁ ν β p₁).G'),
-          (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) T' := by
-      rw [← Jr.E1locJ_datum C ((T.step k hk N₁ ν β p₁).withDatumH D) hX Dt.core T.large_block
-        T.dom_margin T.coer_margin T.δc_small hβS hp hlt.le (hE D hX) z]
-      exact hE1
-    refine ⟨hE1, hE1H, hval0 D hX, ?_⟩
-    rw [← Jr.E0locJ_datum C ((T.step k hk N₁ ν β p₁).withDatumH D) hX Dt.core T.large_block
-      T.dom_margin T.coer_margin T.δc_small hβS hp hlt.le (hE D hX) z]
-    exact hval0 D hX
-  · exact Jr.densE0_rootSite_eq_sum_of_root C z (fun θ T' => dz θ T' + c θ T') hval0 hε hq
+  obtain ⟨c, e, h1, h2, h3, h4, -⟩ := H' Jr C z Lb Lab εH κH Kc A ι₁ y1 G₁ F1 hE hAhol hAcont
+    hAdiff hAloc hW hG1meas hG1dep hG1bd hG1hol hG1cont hG1diff hG1loc hroot₁ hF₁ hF1 hεpos hKc
+    hκG hκ hε
+  exact ⟨c, e, h1, h2, h3, h4⟩
 
 end Balaban.Inhabited

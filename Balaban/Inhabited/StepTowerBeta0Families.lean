@@ -10,6 +10,7 @@ public import Balaban.Inhabited.StepTowerBeta0Labels
 public import Balaban.Inhabited.StepTowerBeta0Fields
 public import Balaban.Inhabited.StepTowerNewLevelE0Bound
 public import Balaban.Inhabited.StepTowerNewLevelE0Sum
+public import Balaban.Inhabited.StepTowerRotFamilies
 
 /-!
 The class chain with the activity and mark families, at every tower radius
@@ -287,6 +288,14 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`, from that of the old terms `Eτ` on the sets `𝒮`
+        ((∀ τ, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ, rotRaw (cmat Q) r ∈ 𝒮 τ →
+            Eτ τ (rotRaw (cmat Q) r) = Eτ τ r) →
+          ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+            ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+            (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+              rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+            ∀ T', e θ' T' = e θ T') →
         (0 < markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) →
           (∀ Y ∈ 𝒴C, corrU / (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
           (∑ τ : ι, if Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
@@ -328,14 +337,14 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   classical
-  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad T₀ hA p hcR hαR
-  obtain ⟨β₂, -, H2⟩ := zeroSourceFamily_fields_fromTower_agree T₀ hHull hA p hcR hαR
+  obtain ⟨β₁, h31, H1⟩ := e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad_rot T₀ hA p hcR hαR
+  obtain ⟨β₂, -, H2⟩ := zeroSourceFamily_fields_fromTower_agree_rot T₀ hHull hA p hcR hαR
   refine ⟨max β₁ β₂, h31.trans (le_max_left _ _), fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   have hN1 : 3 ^ 1 ∣ N₁ := by simpa using h3N
   obtain ⟨F₁, Sol, HC⟩ := H1 T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_left _ _).trans hβ) hct p₁ hp₁ Dt
     S hS hp
-  obtain ⟨Jr, Lb₀, _, Lab₀, A₀, hεpos, h0hol, h0cont, h0diff, h0loc, h0W⟩ :=
+  obtain ⟨Jr, Lb₀, _, Lab₀, A₀, hεpos, h0hol, h0cont, h0diff, h0loc, h0W, hA₀cov⟩ :=
     H2 T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_right _ _).trans hβ) hct p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk
@@ -404,7 +413,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
         Real.exp (-((2 * T.κdec - 1) - T.κ0) * treeLenCovOne 1 (k + 1) (bridge 1 z q.1.2)),
       fun q => rfl⟩
   have hpadF : ∀ q, 0 < padF q := fun q => by rw [hpadFdef q]; positivity
-  obtain ⟨F1, hF1eq, c, e, -, hprop, hvals, hval⟩ := HC (h𝒮 := h𝒮) Jr C z (Lb₀ ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
+  obtain ⟨F1, hF1eq, c, e, -, hprop, hvals, hval, hcovc⟩ := HC (h𝒮 := h𝒮) Jr C z (Lb₀ ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
       (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
       (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ))))
     (Lab₀.sum (commonLabels (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj) hN1
@@ -423,7 +432,28 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : 
     (fun q => Sum.inl (Sum.inr (Sum.inr ⟨z, ⟨bridge 1 z q.1.2, hbr q⟩⟩))) (fun _ => rfl) padF hpadF hE
     hM1hol hM1cont hM1diff hM1loc hM1W
     (lt_of_lt_of_le hεpos (le_max_left _ _)) hKc le_rfl T.marks_hκ hεnum
-  refine ⟨e, _, hΦ _ _ (fun hmr hnumR => ?_), fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
+  have hcovE : (∀ τ, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ,
+      rotRaw (cmat Q) r ∈ 𝒮 τ → Eτ τ (rotRaw (cmat Q) r) = Eτ τ r) →
+      ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+        ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+        (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+          rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+        ∀ T', e θ' T' = e θ T' := by
+    intro hErot
+    obtain ⟨hRG, hRH⟩ := famRot_GH T hk S hS hp z ι hb₁ hbC Eτ jL Gk Gj X₀ X₁f 𝒦X hB hFl hcψ hMX
+      hdm hα hsm F₁L hF₁ SolL hSolprop FkL hFk h𝒮 hρ hρc hbb hab G₁ hG₁ hρp 𝒴C H hH hErot
+    refine hcovc ?_ hRG
+    intro Q hQ θ hθ θ' hθ' hrot s hs y Φ hΦ
+    rcases y with (y | y) | y
+    · exact hA₀cov Q hQ θ hθ θ' hθ' hrot s hs y Φ hΦ
+    · rcases y with Y | y
+      · show ((AC θ' (s : ℂ)).H Y _) = (AC θ (s : ℂ)).H Y Φ
+        rw [show (AC θ' (s : ℂ)).H Y = H θ' Y (s : ℂ) from hAC θ' hθ' (s : ℂ) Y,
+          show (AC θ (s : ℂ)).H Y = H θ Y (s : ℂ) from hAC θ hθ (s : ℂ) Y]
+        exact hRH Q hQ θ hθ θ' hθ' hrot s hs Y Φ hΦ
+      · rfl
+    · rfl
+  refine ⟨e, _, hΦ _ _ hcovE (fun hmr hnumR => ?_), fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
     (hprop T').2.2.2.2⟩, fun D hX => ⟨(hvals D hX).2.2.1, (hvals D hX).2.2.2⟩, hval⟩
   refine explicitB_tail T hk (by simpa using h3N)
     (lt_of_lt_of_le (by norm_num) ((h31.trans (le_max_left _ _)).trans hβ)) hp0 Dt S hS z
@@ -673,7 +703,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree {κmin : ℝ}
     hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs
     hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hE hεnum
   obtain ⟨e, B, -, h⟩ := @Hφ' C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hE hεnum
-    (fun _ _ => True) (fun _ _ _ => trivial)
+    (fun _ _ => True) (fun _ _ _ _ => trivial)
   exact ⟨e, B, h⟩
 
 end Balaban.Inhabited

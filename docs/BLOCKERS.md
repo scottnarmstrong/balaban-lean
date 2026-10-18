@@ -267,6 +267,12 @@ and the window's domain follows from the pieces' domains with no loss (W1074). T
 premise and no premise on the window's domain. Two links remain: that the window point's field restricts to each
 piece's data, and the connection with the reference datum used by the cancellation chain.
 
+The first is proved (W1082). The second exposed an error: the reference datum of the cancellation chain is zero on
+the collar of the window, so it is not in the real domain there (W1085), and the chain's hypothesis cannot hold when
+the collar is nonempty. The collar ruling (`notes/phase1/COLLAR-RULING.md`) already fixes the correct choice; the
+chain is being restated with that collar data, and the comparison of the two window actions then reduces to a change
+of mass and of external field (W1086).
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
@@ -476,6 +482,15 @@ the room condition, which is reduced to the chain's settings (W1071); the sum of
 class rate κ ≤ 1/5 at d = L = 3 (W1065, W1067). Remaining for the new level: its terms on the local chart of each
 polymer (W1073: the polymer must be the hull of the labels' read set, and the terms must be carried from the step's
 chart to the local chart; in progress), the closure of its energy constant, and the counterterms of P4 (4.14)–(4.22).
+
+Update (18 October, night). The closure of the energy constant is proved (W1068) on one chain that carries any
+property of the coefficients from the core to the final theorem; the coefficients are invariant under spin rotations
+label by label (W1078, W1083). The renormalized field lies in the step's chart at the towers, and the second-order
+counterterms apply there (W1079, W1080). The local charts cannot be reached from the step's chart: a local field can
+wind around a hole of the polymer, which no field on the whole torus can do (W1081). As in P3 (4.44)–(4.47), the new
+level's terms must be computed with the local generating set; the step's mark, determinant and activity objects are
+written for the step's own generating set, and generalizing them is ruling R8 (`notes/phase1/PLAN-B.md`). The
+determinant and the zero-source activities on local sets, which need no ruling, are in progress (W1084).
 
 ## 7. Reading of the torus-independence clause
 
