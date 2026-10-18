@@ -32,7 +32,7 @@ theorem shiftTerm_discrepancy_bound_of_threshold
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
     (hS' : ∀ s ∈ S, ∃ x ∈ X, Aligned (L ^ j) x ∧

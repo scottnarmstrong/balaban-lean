@@ -26,28 +26,24 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
 
 open Classical in
-/-- Two full class-chart extensions related by a complex rotation give equality of the
-class term and its anisotropic tube extension at the original local configuration. -/
+/-- The class term and its anisotropic tube extension agree at a configuration `c` of the tube
+whose datum is within the spin radius on the blocks of `X` and whose source satisfies the
+polydisc bounds (the complex rotation invariance along the two-stage Cayley path,
+`shiftTerm_rotA_bd`, relates `c` to the polydisc point `R c`). -/
 theorem trickFnA_shiftTerm_eq_of_full_chart_rot
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
     (c : Cfg d N S) (R : Matrix (Fin N) (Fin N) ℂ) (hR : IsCRot R)
     (hRb : EntryBd N R) (hRc : rotCfgL R S c ∈ polyAniso i₀ ν r S)
-    (Ψ₁ h₁ Ψ₂ h₂ : Fld d L N₁ m₁ k N)
-    (hXi₁ : XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ₁ h₁)
-    (hXi₂ : XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ₂ h₂)
-    (hrotΨ : Ψ₂ = rotField R Ψ₁) (hroth : h₂ = rotField R h₁)
-    (hag₁ : ∀ z ∈ X,
-      Ψ₁ z = fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y) ∧
-      h₁ z = hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c z)
-    (hag₂ : ∀ z ∈ X,
-      Ψ₂ z = fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
-        (rotCfgL R S c) (z - y) ∧
-      h₂ z = hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S (rotCfgL R S c) z) :
+    (hlocal : ∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S →
+      ∀ i, ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y) i -
+        (Pi.single i₀ 1 : Spin N) i‖ ≤ r)
+    (hb : ∀ i, ‖c (Sum.inr i) - (ν : ℂ) * (Pi.single i₀ 1 : Spin N) i‖ ≤ r)
+    (hbl : ‖c (Sum.inr i₀) - (ν : ℂ)‖ ≤ r ^ 2) :
     trickFnA i₀ ν r (fun c' : Cfg d N S =>
       Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c' (z - y))
         (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c')) c =
@@ -59,18 +55,13 @@ theorem trickFnA_shiftTerm_eq_of_full_chart_rot
   change trickFnA i₀ ν r F c = F c
   have hT := tubeHypA_shiftTerm hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hne hrad
   rw [hT.trickFnA_eq hR.1 hRb hRc]
-  have hterm₁ : F c = Tm.E j y X Ψ₁ h₁ := by
-    exact hcl.localE j y X _ Ψ₁ _ h₁
-      (fun z hz => ⟨(hag₁ z hz).1.symm, (hag₁ z hz).2.symm⟩)
-  have hterm₂ : F (rotCfgL R S c) = Tm.E j y X Ψ₂ h₂ := by
-    exact hcl.localE j y X _ Ψ₂ _ h₂
-      (fun z hz => ⟨(hag₂ z hz).1.symm, (hag₂ z hz).2.symm⟩)
-  have hXiRot : XiDom (Tm.gs j X) a μ j (P.eps d L j) (rotField R Ψ₁)
-      (rotField R h₁) := by rwa [← hrotΨ, ← hroth]
-  have he := j hj1 hjk y X hX hyX R hR Ψ₁ h₁ hXi₁ hXiRot
-  calc
-    F (rotCfgL R S c) = Tm.E j y X Ψ₂ h₂ := hterm₂
-    _ = Tm.E j y X Ψ₁ h₁ := by rw [hrotΨ, hroth]; exact he
-    _ = F c := hterm₁.symm
+  obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hrad
+  have hB0 : 0 ≤ rotB N := by unfold rotB; positivity
+  have h40 : ∀ i k, ‖R i k‖ ≤ rotB N := fun i k => by
+    have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+    exact (entryBd_bound hRb i k).trans (by unfold rotB; nlinarith)
+  exact shiftTerm_rotA_bd hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0 hrδ
+    hε hR.1 h40 hb hbl (fun i => (polyAniso_inr hRc hr0 hr1 i).le)
+    (polyAniso_inr_self hRc).le rfl hlocal (fun z _ i => fieldOf_sub_le_poly hRc hr0.le (z - y) i)
 
 end Balaban.SmallField.Def6v2

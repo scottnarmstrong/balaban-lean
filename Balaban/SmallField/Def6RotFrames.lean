@@ -536,7 +536,7 @@ open Matrix
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
-/-- **The restricted complex invariance `CRotE` at the matrices of the frame bridges.**  For a
+/-- **The restricted complex invariance at the matrices of the frame bridges.**  For a
 member of the term clauses (`SFTermClauses`, real `O(N)` invariance and analyticity on the domain)
 the energy terms are invariant under every complex orthogonal `M` with entries bounded by `B` that
 relates two pairs `(Ψ, h)`, `(MΨ, Mh)` lying close to a real constant `e` (the radii are those of

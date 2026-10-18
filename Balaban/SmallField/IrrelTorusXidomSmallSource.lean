@@ -25,7 +25,7 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 open Classical in
 /-- The source chart's real and complex field estimates discharge all local-coordinate
-hypotheses of the `CRotE` comparison in the real-centre frame. -/
+hypotheses of the complex rotation comparison in the real-centre frame. -/
 theorem trickFnA_shiftTerm_eq_of_scaled_source_small
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ)
@@ -41,7 +41,7 @@ theorem trickFnA_shiftTerm_eq_of_scaled_source_small
     (H : ScaledPsiC G νs τ ζ j p h z h')
     (hyG : y ∈ G.Ω 1) (hyGj : G.layerIndex y = j)
     (hν : 0 < νs * ((L : ℝ) ^ j) ^ 2)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ νs * ((L : ℝ) ^ j) ^ 2)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ νs * ((L : ℝ) ^ j) ^ 2) (hνb : νs * ((L : ℝ) ^ j) ^ 2 ≤ 1)
     (hτ : 0 < τ) (hτ1 : τ ≤ 1)
     (hντ : νs * ((L : ℝ) ^ j) ^ 2 ≤ τ ^ 2)
     (hζ : 0 < ζ) (hζ1 : ζ ≤ 1 / 200)

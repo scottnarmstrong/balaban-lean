@@ -124,7 +124,7 @@ theorem IsSFFamily2.exists_levelOnly_cap
     exact SFTermClauses.levelOnly ((hF.torus N₁).terms.noChi.of_c9_le_νbar hc9) (hdom N₁) (hE N₁)
       (hM N₁) (hgs N₁) (hE0 N₁) (hM0 N₁) hadm.E₀_nonneg (by positivity)
   refine ⟨Rg', betaComplete d L P (Rg.ν j * (L : ℝ) ^ (2 * (k - j))), Tm', hRgν,
-    fun N₁ _ => ⟨hE N₁, hM N₁, hgs N₁⟩, ?_, ?_⟩
+    fun N₁ _ => ⟨hE N₁, hM N₁, hgs N₁⟩, ?_⟩
   · refine
       { admissible := ?_
         coeff := ?_

@@ -133,14 +133,14 @@ theorem fp_mem_xiDomA (hsf : IsSF P β ν a Tm ρd Ek)
 /-- **Rotation invariance of the centred term on the anisotropic polydisc** (from the real clause
 `rotE` along the two-stage Cayley path, `Def6v2.rotE_aniso_of_xiFieldDom`): two configurations of
 the polydisc related by an `IsCRot` matrix with entries bounded by `B` have the same term.  The
-mass `ν_k ≤ ν̄` (`CoeffBounds.nu_le`) enters the radius condition `r · aniK N B ν̄ ≤ δ`. -/
+mass `ν_k ≤ ν̄` (`CoeffBounds.nu_le`) enters the radius condition `r · aniK N B ≤ δ`. -/
 theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
-    (hν : 0 < ν k) (hνb : ν k ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
+    (hν : 0 < ν k) (hνb : ν k ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (h0 : (0 : Site d) ∈ X') (i₀ : Fin N)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * Def6v2.aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * Def6v2.aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
@@ -148,7 +148,7 @@ theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u' = Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' u := by
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hνj : 0 < nuIdeal L k (ν k) j := by unfold nuIdeal; positivity
-  have hnb : nuIdeal L k (ν k) j ≤ P.νbar := (Def6v2.nuIdeal_le hν.le j).trans hνb
+  have hnb : nuIdeal L k (ν k) j ≤ 1 := (Def6v2.nuIdeal_le hν.le j).trans hνb
   have hfr : ∀ x : CTorus d L N₁ m₁ k,
       fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u' x =
         M.mulVec (fieldOf j i₀ X' u x) ∨
@@ -160,10 +160,13 @@ theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     · right
       funext i; simp [fieldOf, hx]
   have hr := Def6v2.E_rotA_cfg hsf.termClauses hBg hνj (bgMass_mul_le_nuIdeal hν.le hjk) hnb hj1
-    hjk hX (zero_mem_Ypoly h0) i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ hε hM.1 hMb hu hu'
+    hjk hX (zero_mem_Ypoly h0) i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ hε hM.1 hMb
+    (fun i => (polyAniso_inr hu hr0 hr1 i).le) (polyAniso_inr_self hu).le
+    (fun i => (polyAniso_inr hu' hr0 hr1 i).le) (polyAniso_inr_self hu').le
     hrot (fun c => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' c)
     (fun c x x' hxx => funext fun i => congrFun (fieldOf_block c hxx) i)
-    (fun c hc x i => fieldOf_sub_le_poly hc hr0.le x i) hfr 0 (by
+    (fun x i => fieldOf_sub_le_poly hu hr0.le x i) (fun x i => fieldOf_sub_le_poly hu' hr0.le x i)
+    hfr 0 (by
       rw [← hrot, fieldOf_rot M u (by rw [unlift_zero]; exact h0)]; rfl)
   unfold Eaux
   rw [← hr]
@@ -175,11 +178,11 @@ theorem Eaux_rotA (hsf : IsSF P β ν a Tm ρd Ek)
 complex orthogonal `M`, through one real reflection of a coordinate `p ≠ i₀`. -/
 theorem Eaux_orthA (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
-    (hν : 0 < ν k) (hνb : ν k ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
+    (hν : 0 < ν k) (hνb : ν k ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (h0 : (0 : Site d) ∈ X') {i₀ p : Fin N} (hp : p ≠ i₀)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * Def6v2.aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * Def6v2.aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsOrth M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
@@ -214,27 +217,27 @@ theorem Eaux_orthA (hsf : IsSF P β ν a Tm ρd Ek)
     rw [h2, h1]
 
 /-- The radius condition of the anisotropic bridge: `0 < r ≤ 1` and some `δ` with
-`0 < δ ≤ min (c₀, c₁)`, `(2 K₁ + 2) δ ≤ ε_j` and `r · aniK N (rotB N) ν̄ ≤ δ` (the constant of the
+`0 < δ ≤ min (c₀, c₁)`, `(2 K₁ + 2) δ ≤ ε_j` and `r · aniK N (rotB N) ≤ δ` (the constant of the
 two-stage path, `Def6v2.aniK`, which contains `4 N (1 + N · rotB N)`). -/
 def AnisoRadiusOK (d L N : ℕ) [NeZero L] (P : Consts) (j : ℕ) (r : ℝ) : Prop :=
   0 < r ∧ r ≤ 1 ∧ ∃ δ : ℝ, 0 < δ ∧ δ ≤ bgC0 d L N ∧ δ ≤ bgC1 d L N ∧
-    (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j ∧ r * Def6v2.aniK N (rotB N) P.νbar ≤ δ
+    (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j ∧ r * Def6v2.aniK N (rotB N) ≤ δ
 
 /-- **The radius of the anisotropic tube**:
-`r_j = ε_j / ((2 K₁ + 2) · aniK N (rotB N) ν̄)`, of order `ε_j`. -/
+`r_j = ε_j / ((2 K₁ + 2) · aniK N (rotB N))`, of order `ε_j`. -/
 noncomputable def anisoRadius (d L N : ℕ) [NeZero L] (P : Consts) (j : ℕ) : ℝ :=
-  P.eps d L j / ((2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar)
+  P.eps d L j / ((2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N))
 
 omit [NeZero N₁] in
 /-- `aniK` dominates `4 N (1 + N B)`: the old radius condition follows from the new one. -/
 theorem four_le_aniK (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) (νb : ℝ) :
-    4 * (N : ℝ) * (1 + N * B) ≤ Def6v2.aniK N B νb := by
+    4 * (N : ℝ) * (1 + N * B) ≤ Def6v2.aniKν N B νb := by
   have hn : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hs : (1 : ℝ) ≤ Real.sqrt N := by
     rw [show (1 : ℝ) = Real.sqrt 1 by simp]; exact Real.sqrt_le_sqrt hn
   have ha : (1 : ℝ) ≤ 1 + N * B := by nlinarith
   have hν : 0 ≤ |νb| := abs_nonneg _
-  unfold Def6v2.aniK
+  unfold Def6v2.aniKν
   have h1 : (1 + N * B) ≤ (1 + N * B) ^ 2 * (4 * |νb| + 11) := by nlinarith
   calc 4 * (N : ℝ) * (1 + N * B) ≤ 4 * N * ((1 + N * B) ^ 2 * (4 * |νb| + 11)) := by gcongr
     _ = 4 * N * 1 * ((1 + N * B) ^ 2 * (4 * |νb| + 11)) := by ring
@@ -243,10 +246,10 @@ theorem four_le_aniK (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) (νb : ℝ) :
 
 omit [NeZero N₁] in
 /-- The old forms of the radius condition follow from `r · aniK ≤ δ`. -/
-theorem aniK_old {P : Consts} (i₀ : Fin N) {r δ : ℝ} (hr0 : 0 < r)
-    (hrδ : r * Def6v2.aniK N (rotB N) P.νbar ≤ δ) :
+theorem aniK_old (i₀ : Fin N) {r δ : ℝ} (hr0 : 0 < r)
+    (hrδ : r * Def6v2.aniK N (rotB N) ≤ δ) :
     4 * (N : ℝ) * (r * (1 + N * rotB N)) ≤ δ ∧ 4 * (N : ℝ) * r ≤ δ := by
-  have h := four_le_aniK i₀ (B := rotB N) (by unfold rotB; positivity) P.νbar
+  have h := four_le_aniK i₀ (B := rotB N) (by unfold rotB; positivity) 1
   have h1 := mul_le_mul_of_nonneg_left h hr0.le
   have hN : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
   have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
@@ -260,11 +263,11 @@ omit [NeZero N₁] in
 theorem anisoRadius_pos {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : Fin N) :
     0 < anisoRadius d L N P j := by
   have hK := bgK1_pos d L N
-  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) :=
     four_le_aniK i₀ (by unfold rotB; positivity) _
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hB : (0 : ℝ) ≤ N * rotB N := by unfold rotB; positivity
-  have hQ0 : 0 < Def6v2.aniK N (rotB N) P.νbar := by nlinarith
+  have hQ0 : 0 < Def6v2.aniK N (rotB N) := by nlinarith
   unfold anisoRadius
   positivity
 
@@ -278,10 +281,10 @@ theorem anisoRadius_spec {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : 
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hK2 : 0 < 2 * bgK1 d L N + 2 := by positivity
   have hB : 0 ≤ (N : ℝ) * rotB N := by unfold rotB; positivity
-  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) :=
     four_le_aniK i₀ (by unfold rotB; positivity) _
-  have hQ1 : 1 ≤ Def6v2.aniK N (rotB N) P.νbar := by nlinarith
-  have hQ0 : 0 < Def6v2.aniK N (rotB N) P.νbar := by linarith
+  have hQ1 : 1 ≤ Def6v2.aniK N (rotB N) := by nlinarith
+  have hQ0 : 0 < Def6v2.aniK N (rotB N) := by linarith
   set δ := P.eps d L j / (2 * bgK1 d L N + 2) with hδ
   have hδ0 : 0 < δ := by positivity
   have hδc0 : δ ≤ bgC0 d L N := by
@@ -290,7 +293,7 @@ theorem anisoRadius_spec {P : Consts} {j : ℕ} (hε : 0 < P.eps d L j) (i₀ : 
   have hδc1 : δ ≤ bgC1 d L N := by
     rw [hδ, div_le_iff₀ hK2]
     exact hsmall.trans (mul_le_mul_of_nonneg_left (min_le_right _ _) hK2.le) |>.trans_eq (by ring)
-  have hr : anisoRadius d L N P j = δ / Def6v2.aniK N (rotB N) P.νbar := by
+  have hr : anisoRadius d L N P j = δ / Def6v2.aniK N (rotB N) := by
     unfold anisoRadius; rw [hδ, div_div]
   refine ⟨by rw [hr]; positivity, ?_, δ, hδ0, hδc0, hδc1, by rw [hδ, mul_div_cancel₀ _ hK2.ne'],
     ?_⟩
@@ -315,22 +318,22 @@ theorem exists_anisoRadiusOK (hd : 0 < d) {P : Consts} {j : ℕ} (hε : 0 < P.ep
     refine lt_min (lt_min h1 ?_) (lt_min ?_ ?_) <;> positivity
   have hN : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
   have hB : 0 ≤ (N : ℝ) * rotB N := by unfold rotB; positivity
-  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) :=
     four_le_aniK i₀ (by unfold rotB; positivity) _
-  have hQ0 : 0 < Def6v2.aniK N (rotB N) P.νbar := by nlinarith
+  have hQ0 : 0 < Def6v2.aniK N (rotB N) := by nlinarith
   set δ : ℝ := min (min (bgC0 d L N) (bgC1 d L N)) (P.eps d L j / (2 * bgK1 d L N + 2)) with hδ
   have hδ0 : 0 < δ := lt_min (lt_min hc0 hc1) (by positivity)
-  refine ⟨min 1 (δ / Def6v2.aniK N (rotB N) P.νbar), lt_min one_pos (by positivity),
+  refine ⟨min 1 (δ / Def6v2.aniK N (rotB N)), lt_min one_pos (by positivity),
     min_le_left _ _, δ, hδ0, (min_le_left _ _).trans (min_le_left _ _),
     (min_le_left _ _).trans (min_le_right _ _), ?_, ?_⟩
   · have := min_le_right (min (bgC0 d L N) (bgC1 d L N)) (P.eps d L j / (2 * bgK1 d L N + 2))
     rw [← hδ] at this
     rw [le_div_iff₀ hK2] at this
     linarith
-  · have h1 : min 1 (δ / Def6v2.aniK N (rotB N) P.νbar) ≤ δ / Def6v2.aniK N (rotB N) P.νbar :=
+  · have h1 : min 1 (δ / Def6v2.aniK N (rotB N)) ≤ δ / Def6v2.aniK N (rotB N) :=
       min_le_right _ _
-    calc min 1 (δ / Def6v2.aniK N (rotB N) P.νbar) * Def6v2.aniK N (rotB N) P.νbar
-        ≤ δ / Def6v2.aniK N (rotB N) P.νbar * Def6v2.aniK N (rotB N) P.νbar := by gcongr
+    calc min 1 (δ / Def6v2.aniK N (rotB N)) * Def6v2.aniK N (rotB N)
+        ≤ δ / Def6v2.aniK N (rotB N) * Def6v2.aniK N (rotB N) := by gcongr
       _ = δ := div_mul_cancel₀ _ hQ0.ne'
 
 open Classical in
@@ -348,7 +351,7 @@ section Lift
 
 variable (hsf : IsSF P β ν a Tm ρd Ek)
   (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
-  (hν : 0 < ν k) (hνb : ν k ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) {r : ℝ}
+  (hν : 0 < ν k) (hνb : ν k ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) {r : ℝ}
   (hrad : AnisoRadiusOK d L N P j r)
 include hsf hBg hν hνb hj1 hjk hrad
 
@@ -390,6 +393,7 @@ theorem termLA_eq {X' : Finset (Site d)}
     (by norm_num) ?_ h3 hRc
   unfold rotB; nlinarith
 
+omit hνb in
 theorem analyticAt_EauxA (i₀ : Fin N) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (h0 : (0 : Site d) ∈ X') {u₀ : Cfg d N X'}
@@ -422,7 +426,7 @@ theorem termLA_analytic {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {X' : Finset (
     isOpen_polyAniso.preimage hcont
   have hAn : AnalyticAt ℂ (fun c => Eaux Tm j i₀ (nuIdeal L k (ν k) j) X' (rotCfgL R₀ X' c)) c₀ :=
     AnalyticAt.comp (g := Eaux Tm j i₀ (nuIdeal L k (ν k) j) X')
-      (analyticAt_EauxA hsf hBg hν hνb hj1 hjk hrad i₀ hX h0 h3)
+      (analyticAt_EauxA hsf hBg hν hj1 hjk hrad i₀ hX h0 h3)
       ((LinearMap.toContinuousLinearMap (rotCfgL R₀ X')).analyticAt c₀)
   refine hAn.congr ?_
   filter_upwards [hopen.mem_nhds h3] with c hc

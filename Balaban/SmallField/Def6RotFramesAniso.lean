@@ -714,15 +714,23 @@ end Main
 section Radii
 
 /-- **The constant of the anisotropic radius condition**: the polydisc of radius `r` is admissible
-when `r · aniK N B νb ≤ δ` (`B` the entry bound of the rotations, `νb` an upper bound of the mass
+when `r · aniKν N B νb ≤ δ` (`B` the entry bound of the rotations, `νb` an upper bound of the mass
 `ν_j`). -/
-noncomputable def aniK (N : ℕ) (B νb : ℝ) : ℝ :=
+noncomputable def aniKν (N : ℕ) (B νb : ℝ) : ℝ :=
   4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11)
 
-theorem aniK_pos {N : ℕ} (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) (νb : ℝ) : 0 < aniK N B νb := by
+theorem aniKν_pos {N : ℕ} (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) (νb : ℝ) : 0 < aniKν N B νb := by
   have hn : (0 : ℝ) < N := by exact_mod_cast Fin.pos i₀
-  unfold aniK
+  unfold aniKν
   positivity
+
+/-- **The constant of the anisotropic radius condition**: the masses `ν_j ≤ ν_k ≤ ν̄ ≤ 1`
+(`Admissible.νbar_le`), so `ν̄` is replaced by `1`; it depends on `N` and the entry bound `B`
+only. -/
+noncomputable abbrev aniK (N : ℕ) (B : ℝ) : ℝ := aniKν N B 1
+
+theorem aniK_pos {N : ℕ} (i₀ : Fin N) {B : ℝ} (hB : 0 ≤ B) : 0 < aniK N B :=
+  aniKν_pos i₀ hB 1
 
 /-- The elementary inequalities for the constant `K = 4 n s a² (4 m + 11)`. -/
 theorem aniK_facts {n s a m : ℝ} (hn : 1 ≤ n) (hs : 1 ≤ s) (ha : 1 ≤ a) (hm : 0 ≤ m) :
@@ -767,7 +775,7 @@ theorem aniK_facts {n s a m : ℝ} (hn : 1 ≤ n) (hs : 1 ≤ s) (ha : 1 ≤ a) 
 `N re ≤ 1/4`, `r' ≤ 1/2`, and the box radii `ρs`, `ρb`, `ρl` satisfy `4 N ρs ≤ δ`, `2 N ρb ≤ δ`,
 `ρl < δ²`. -/
 theorem aniso_box_arith {N : ℕ} (i₀ : Fin N) {r B ν νb δ : ℝ} (hr0 : 0 < r) (hr1 : r ≤ 1)
-    (hB : 0 ≤ B) (hνb : ν ≤ νb) (hrδ : r * aniK N B νb ≤ δ) (hδ : δ ≤ 1 / 16) :
+    (hB : 0 ≤ B) (hνb : ν ≤ νb) (hrδ : r * aniKν N B νb ≤ δ) (hδ : δ ≤ 1 / 16) :
     (N : ℝ) * (r * (1 + N * B)) ≤ 1 / 4 ∧ r * (1 + N * B) ≤ 1 / 2 ∧
       4 * N * (Real.sqrt N * (r + (2 * (r * (1 + N * B)) + 8 * (r * (1 + N * B))))) ≤ δ ∧
       2 * N * (Real.sqrt N * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r)))) ≤ δ ∧
@@ -778,7 +786,7 @@ theorem aniso_box_arith {N : ℕ} (i₀ : Fin N) {r B ν νb δ : ℝ} (hr0 : 0 
   have ha : (1 : ℝ) ≤ 1 + N * B := by nlinarith
   have hνa : 0 ≤ |νb| := abs_nonneg _
   obtain ⟨k1, k3, k4, kl⟩ := aniK_facts hn hs ha hνa
-  have hKd : aniK N B νb = 4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) := rfl
+  have hKd : aniKν N B νb = 4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) := rfl
   rw [hKd] at hrδ
   have hrK : r * (4 * N * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11)) ≤ 1 / 16 := hrδ.trans hδ
   have hKpos : 0 < 4 * (N : ℝ) * Real.sqrt N * (1 + N * B) ^ 2 * (4 * |νb| + 11) := by positivity

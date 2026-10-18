@@ -31,7 +31,7 @@ theorem irrelTorus_bound_of_dataHyp_of_scale_ratio
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
-    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar)
+    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -

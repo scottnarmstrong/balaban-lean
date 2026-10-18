@@ -101,7 +101,8 @@ theorem norm_filed_origin_le
       (Tm N₁) := (hF.torus N₁).terms
   have hBg := bgHyp_of_class2 hF.admissible hF.coeff hn.hd hn.hL hn.hϱ
   have hν : 0 < nuIdeal L k (Rg.ν k) j := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
-  have hμν hνb := (Rg.sfBgMass_mul_sq hjk).le
+  have hμν := (Rg.sfBgMass_mul_sq hjk).le
+  have hνb := hF.coeff.nuIdeal_le_one hF.admissible j
   have hrad := hF.anisoRadiusOK hn.hsmall i₀
   have dat := hdat (Dom := Set.univ) ⟨trivial, trivial⟩ hsec
   have hy : Aligned (L ^ j) (0 : CTorus d L N₁ m₁ k) := fun μ => by simp

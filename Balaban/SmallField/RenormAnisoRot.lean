@@ -18,7 +18,7 @@ import Mathlib.Tactic.Positivity
 `μ L^{2j} ≤ ν_j`, `ν_j ≤ ν̄`), the term `ℰ(y, X)` takes the same value at two fields
 `(Ψ, h)`, `(MΨ, Mh)` of the anisotropic polydisc related by a complex orthogonal matrix `M` with
 entries `≤ B`, whenever `r · aniK N B ν̄ ≤ δ`.  It is the common engine of the frame bridges
-(`Eaux_rotA`, `EauxC_rotA`, `shiftTerm_rotA`): no hypothesis `CRotE`; the path is the two-stage
+(`Eaux_rotA`, `EauxC_rotA`, `shiftTerm_rotA`): no hypothesis on complex rotations; the path is the two-stage
 Cayley path of `Def6RotFramesAniso`.
 -/
 
@@ -33,10 +33,10 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 theorem rotE_aniso_of_xiFieldDom {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ k N ϱ}
     {j : ℕ} (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ)
-    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j)
+    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j)
     (hjk : j ≤ k) {y X} (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X) (i₀ : Fin N)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1)
     {Ψ h : Fld d L N₁ m₁ k N} (hΨb : IsBlockConstFld j Ψ) (hh : ∀ x x', h x = h x')
@@ -58,28 +58,27 @@ theorem rotE_aniso_of_xiFieldDom {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {T
     (rb' := r) (rl := r ^ 2) (rl' := r ^ 2) (re := r * (1 + N * B))
     (ρs := Real.sqrt N * (r + (2 * (r * (1 + N * B)) + 8 * (r * (1 + N * B)))))
     (ρb := Real.sqrt N * (r + (2 * r + 4 * (r * (1 + N * B)) * (ν + r ^ 2 + r))))
-    (ρl := r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (P.νbar + 2))))
+    (ρl := r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (1 + 2))))
     hr0.le hx0 e2 hr0.le (by positivity) hrr hx0 e1 hMe le_rfl le_rfl ?_ ?_ ?_ ?_ hΨb hh hΨ hΨM hb hbl
     hbM hbMl
   · -- rl ≤ ρl
-    have hK : (1 : ℝ) ≤ 1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (P.νbar + 2)) := by
-      have : 0 ≤ 2 * (N : ℝ) * (1 + N * B) * (1 + 2 * (1 + N * B) * (P.νbar + 2)) := by
-        have : 0 ≤ P.νbar := (hν.le.trans hνb)
+    have hK : (1 : ℝ) ≤ 1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (1 + 2)) := by
+      have : 0 ≤ 2 * (N : ℝ) * (1 + N * B) * (1 + 2 * (1 + N * B) * (1 + 2)) := by
         positivity
       linarith
     nlinarith [sq_nonneg r]
   · -- the first-stage longitudinal change
-    have hν2 : ν + r ^ 2 + r ≤ P.νbar + 2 := by nlinarith
+    have hν2 : ν + r ^ 2 + r ≤ 1 + 2 := by nlinarith
     have hN0 : (0 : ℝ) ≤ N := by positivity
-    have h0 : 0 ≤ P.νbar := hν.le.trans hνb
+    have h0 : (0 : ℝ) ≤ 1 := by norm_num
     calc r ^ 2 + 2 * (N * (r * (1 + N * B)) * (r + 2 * (r * (1 + N * B)) * ((ν + r ^ 2) + r)))
         = r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (ν + r ^ 2 + r))) := by ring
-      _ ≤ r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (P.νbar + 2))) := by
+      _ ≤ r ^ 2 * (1 + 2 * N * (1 + N * B) * (1 + 2 * (1 + N * B) * (1 + 2))) := by
           gcongr
   · -- box membership
     intro Ψ' h' hΨ'b hh' hs hb' hl'
     have hN0 : (0 : ℝ) ≤ N := by positivity
-    have hnu : 0 ≤ P.νbar := hν.le.trans hνb
+    have hnu : (0 : ℝ) ≤ 1 := by norm_num
     have hs0 : 0 ≤ Real.sqrt N := Real.sqrt_nonneg _
     have hρs0 : 0 ≤ Real.sqrt N * (r + (2 * (r * (1 + N * B)) + 8 * (r * (1 + N * B)))) := by
       positivity
@@ -119,6 +118,18 @@ theorem nuIdeal_le {νk : ℝ} (hν : 0 ≤ νk) (j : ℕ) : nuIdeal L k νk j �
   calc νk * (((L : ℝ) ^ (k - j))⁻¹) ^ 2 ≤ νk * 1 := mul_le_mul_of_nonneg_left h2 hν
     _ = νk := mul_one _
 
+theorem _root_.Balaban.SmallField.Def6.CoeffBounds.nu_le_one {P : Consts} {β ν a : ℕ → ℝ}
+    (hP : P.Admissible d L) (hc : CoeffBounds d L k P β ν a) : ν k ≤ 1 := by
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have h1 : ((L : ℝ) ^ 2)⁻¹ ≤ 1 := inv_le_one_of_one_le₀ (by nlinarith)
+  have := hP.νbar_le
+  linarith [hc.nu_le]
+
+theorem _root_.Balaban.SmallField.Def6.CoeffBounds.nuIdeal_le_one {P : Consts} {β ν a : ℕ → ℝ}
+    (hP : P.Admissible d L) (hc : CoeffBounds d L k P β ν a) (j : ℕ) : nuIdeal L k (ν k) j ≤ 1 :=
+  (Balaban.SmallField.Def6v2.nuIdeal_le hc.nu_pos.le j).trans (hc.nu_le_one hP)
+
+omit [NeZero L] [NeZero N₁] in
 theorem nu_mul_hOf_sub {ν : ℝ} (hν : 0 < ν) {S : Finset (Site d)} (c : Cfg d N S)
     (x : CTorus d L N₁ m₁ k) (i₀ i : Fin N) :
     ν * ‖hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c x i -
@@ -130,6 +141,7 @@ theorem nu_mul_hOf_sub {ν : ℝ} (hν : 0 < ν) {S : Finset (Site d)} (c : Cfg 
   simp only [hOf]
   field_simp
 
+omit [NeZero L] [NeZero N₁] in
 theorem nu_mul_hOf_long {ν : ℝ} (hν : 0 < ν) {S : Finset (Site d)} (c : Cfg d N S)
     (x : CTorus d L N₁ m₁ k) (i₀ : Fin N) :
     ν * ‖hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c x i₀ - 1‖ =
@@ -138,47 +150,51 @@ theorem nu_mul_hOf_long {ν : ℝ} (hν : 0 < ν) {S : Finset (Site d)} (c : Cfg
   simpa using this
 
 /-- **Complex invariance of the term on the anisotropic polydisc, for a family of fields**
-`Φ c` of the configurations `c` of the polymer `S`: block-constant fields within `r` of `e` on the
-polydisc, which, for the two related configurations, are on every site either rotated by `M` or
-equal to `e`, and rotated at one site `x₀` (which is how `|M e - e|` is controlled). -/
+`Φ c` of the configurations `c` of the polymer `S`: block-constant fields within `r` of `e` for the
+two related configurations `u`, `u' = M u` (whose sources satisfy the polydisc bounds, non-strict),
+which on every site are either rotated by `M` or equal to `e`, and rotated at one site `x₀` (which
+is how `|M e - e|` is controlled). -/
 theorem E_rotA_cfg {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ k N ϱ} {j : ℕ}
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ)
-    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j)
+    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j)
     (hjk : j ≤ k) {y X} (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X) (i₀ : Fin N)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1) (hMb : ∀ i k, ‖M i k‖ ≤ B)
-    {S : Finset (Site d)} {u u' : Cfg d N S} (hu : u ∈ polyAniso i₀ ν r S)
-    (hu' : u' ∈ polyAniso i₀ ν r S) (hrot : rotCfgL M S u = u')
+    {S : Finset (Site d)} {u u' : Cfg d N S}
+    (hb : ∀ i, ‖u (Sum.inr i) - (ν : ℂ) * (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hbl : ‖u (Sum.inr i₀) - (ν : ℂ)‖ ≤ r ^ 2)
+    (hb' : ∀ i, ‖u' (Sum.inr i) - (ν : ℂ) * (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hbl' : ‖u' (Sum.inr i₀) - (ν : ℂ)‖ ≤ r ^ 2) (hrot : rotCfgL M S u = u')
     (Φ : Cfg d N S → Fld d L N₁ m₁ k N) (hΦb : ∀ c, IsBlockConstFld j (Φ c))
-    (hΦ : ∀ c ∈ polyAniso i₀ ν r S, ∀ x i,
-      ‖Φ c x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hΦ : ∀ x i, ‖Φ u x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hΦ' : ∀ x i, ‖Φ u' x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
     (hΦrot : ∀ x, Φ u' x = M.mulVec (Φ u x) ∨ Φ u x = (Pi.single i₀ 1 : Fin N → ℂ))
     (x₀ : CTorus d L N₁ m₁ k) (hx₀ : Φ u' x₀ = M.mulVec (Φ u x₀)) :
     Tm.E j y X (rotField M (Φ u)) (rotField M (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u)) =
       Tm.E j y X (Φ u) (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u) := by
   have hMe := mulVec_single_sub_le (r := r) hB hMb i₀ (a := Φ u x₀) (a' := Φ u' x₀)
-    (fun i => hΦ u hu x₀ i) (fun i => hΦ u' hu' x₀ i) hx₀
+    (fun i => hΦ x₀ i) (fun i => hΦ' x₀ i) hx₀
   have hx : 0 ≤ (N : ℝ) * B := by positivity
   have hrr : r ≤ r * (1 + N * B) := by nlinarith
   have hhOf : hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u' =
       rotField M (hOf ν S u) := by rw [← hrot, hOf_rot]
   refine rotE_aniso_of_xiFieldDom hcl hBg hν hμν hνb hj1 hjk hX hy i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ
-    hε hM (hΦb u) (fun _ _ => rfl) hMe (fun x i => hΦ u hu x i) (fun x i => ?_)
+    hε hM (hΦb u) (fun _ _ => rfl) hMe (fun x i => hΦ x i) (fun x i => ?_)
     (fun x i => ?_) (fun x => ?_) (fun x i => ?_) (fun x => ?_)
   · rcases hΦrot x with h1 | h1
-    · rw [← h1]; exact (hΦ u' hu' x i).trans hrr
+    · rw [← h1]; exact (hΦ' x i).trans hrr
     · rw [h1]; exact hMe i
   · rw [nu_mul_hOf_sub hν]
-    exact (polyAniso_inr hu hr0 hr1 i).le
+    exact hb i
   · rw [nu_mul_hOf_long hν]
-    exact (polyAniso_inr_self hu).le
+    exact hbl
   · have e : M.mulVec (hOf ν S u x) = hOf ν S u' x := by rw [hhOf]; rfl
     rw [e, nu_mul_hOf_sub hν]
-    exact (polyAniso_inr hu' hr0 hr1 i).le
+    exact hb' i
   · have e : M.mulVec (hOf ν S u x) = hOf ν S u' x := by rw [hhOf]; rfl
     rw [e, nu_mul_hOf_long hν]
-    exact (polyAniso_inr_self hu').le
+    exact hbl'
 
 end Balaban.SmallField.Def6v2

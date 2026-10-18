@@ -50,7 +50,7 @@ theorem IsSFFamily.termLInfA_eq_EauxInf (hF : IsSFFamily P β ν a Tm ρd Ek) (h
       polyAniso i₀ (nuIdeal L k (ν k) j) (anisoRadius d L N P j) X' := by
     rwa [rotCfgL_one]
   rw [termLA_eq (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hd hL hϱ) hF.coeff.nu_pos
-    hj1 hjk (hF.anisoRadiusOK hsmall i₀) hn.2 h0 hne isOrth_one entryBd_one hrot, rotCfgL_one]
+    (hF.coeff.nu_le_one hF.admissible) hj1 hjk (hF.anisoRadiusOK hsmall i₀) hn.2 h0 hne isOrth_one entryBd_one hrot, rotCfgL_one]
 
 
 

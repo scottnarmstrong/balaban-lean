@@ -29,7 +29,7 @@ its main instance `xiFieldDom a μ ε_j` (any background mass `μ` with `μ L^{2
 * `xiDom_hOf_poly`, `xiDom_shift_poly`: the configurations of the anisotropic polydisc around the
   reference point give fields in `Ξ^c_j(𝔹_j(X); 1, ε_j)` (`xiDom_of_fieldM`);
 * `analyticAt_shiftTerm`, `shiftTerm_rotA`, `shiftTerm_orthA`: `F` is analytic on the polydisc and
-  invariant under the complex orthogonal matrices relating two of its points (`CRotE`, through one
+  invariant under the complex orthogonal matrices relating two of its points (the two-stage Cayley path, through one
   real reflection for `det = -1`);
 * `premisesTermAniso_centred`: the one-polymer family `{S}` with the extension of `F` to the tube
   (`trickFnA`) satisfies `PremisesTermAniso` (the geometric field from (G5)).
@@ -173,21 +173,31 @@ theorem shiftTerm_norm_le (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) T
   exact hcl.boundE j hj1 hjk y X hX hyX _ _ (xiDom_shift_poly hBg (hcl.gs_spec j hj1 hjk X hX).2
     hjk hν hμν i₀ hy hδ0 hδc0 hδc1 hr0 hr1 (aniK_old i₀ hr0 hrδ).2 hε hu)
 
-/-- **Rotation invariance of the pulled-back term on the polydisc**: two configurations of the
-polydisc related by an `IsCRot` matrix with entries bounded by `B` have the same term (from the real
-clause `rotE` along the two-stage Cayley path, `rotE_aniso_of_xiFieldDom`). -/
-theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+/-- **Rotation invariance of the pulled-back term, from the bounds of the polydisc** (non-strict):
+`c` and `M c` with the source bounds `|b_i - ν δ_{i i₀}| ≤ r`, `|b_{i₀} - ν| ≤ r²` and the spin
+bounds `|ψ - e| ≤ r` on the blocks of `X` (from the real clause `rotE` along the two-stage Cayley
+path, `rotE_aniso_of_xiFieldDom`). -/
+theorem shiftTerm_rotA_bd (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) (i₀ : Fin N)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
-    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
-    {u u' : Cfg d N S} (hu : u ∈ polyAniso i₀ ν r S) (hu' : u' ∈ polyAniso i₀ ν r S)
-    (hrot : rotCfgL M S u = u') :
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : M.transpose * M = 1) (hMb : ∀ i k, ‖M i k‖ ≤ B)
+    {u u' : Cfg d N S}
+    (hb : ∀ i, ‖u (Sum.inr i) - (ν : ℂ) * (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hbl : ‖u (Sum.inr i₀) - (ν : ℂ)‖ ≤ r ^ 2)
+    (hb' : ∀ i, ‖u' (Sum.inr i) - (ν : ℂ) * (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hbl' : ‖u' (Sum.inr i₀) - (ν : ℂ)‖ ≤ r ^ 2) (hrot : rotCfgL M S u = u')
+    (hlocal : ∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S → ∀ i,
+      ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u (z - y) i -
+        (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r)
+    (hlocal' : ∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S → ∀ i,
+      ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u' (z - y) i -
+        (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r) :
     Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u' (z - y))
         (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u') =
       Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u (z - y))
@@ -203,11 +213,19 @@ theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
       rw [← hrot, fieldOf_rot M u hz]; rfl
     · right
       funext i; simp [fieldOf, hz]
+  have hsp : ∀ (c : Cfg d N S), (∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S →
+      ∀ i, ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y) i -
+        (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r) → ∀ z i,
+      ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y) i -
+        (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ r := fun c hc z i => by
+    by_cases hz : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S
+    · exact hc z hz i
+    · simpa [fieldOf, hz] using hr0.le
   have hr := E_rotA_cfg hcl hBg hν hμν hνb hj1 hjk hX hyX i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ
-    hε hM.1 hMb hu hu' hrot
+    hε hM hMb hb hbl hb' hbl' hrot
     (fun c => fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c (z - y))
     (fun c z z' hzz => funext fun i => congrFun (shiftField_block hjk hy c hzz) i)
-    (fun c hc z i => fieldOf_sub_le_poly hc hr0.le (z - y) i) hfr y (by
+    (hsp u hlocal) (hsp u' hlocal') hfr y (by
       rw [← hrot, fieldOf_rot M u hy0]; rfl)
   rw [← hr]
   refine hcl.localE j y X _ _ _ _ (fun z hz => ⟨?_, ?_⟩)
@@ -215,15 +233,39 @@ theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     rw [← hrot, e]; rfl
   · rw [← hrot, hOf_rot]
 
+/-- **Rotation invariance of the pulled-back term on the polydisc**: two configurations of the
+polydisc related by an `IsCRot` matrix with entries bounded by `B` have the same term. -/
+theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hy : Aligned (L ^ j) y)
+    (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) (i₀ : Fin N)
+    {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * aniK N B ≤ δ)
+    (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
+    {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
+    {u u' : Cfg d N S} (hu : u ∈ polyAniso i₀ ν r S) (hu' : u' ∈ polyAniso i₀ ν r S)
+    (hrot : rotCfgL M S u = u') :
+    Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u' (z - y))
+        (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u') =
+      Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S u (z - y))
+        (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u) :=
+  shiftTerm_rotA_bd hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ hε
+    hM.1 hMb (fun i => (polyAniso_inr hu hr0 hr1 i).le) (polyAniso_inr_self hu).le
+    (fun i => (polyAniso_inr hu' hr0 hr1 i).le) (polyAniso_inr_self hu').le hrot
+    (fun z _ i => fieldOf_sub_le_poly hu hr0.le (z - y) i)
+    (fun z _ i => fieldOf_sub_le_poly hu' hr0.le (z - y) i)
+
 /-- **Rotation invariance for `O(N, ℂ)` on the polydisc**: as `shiftTerm_rotA` for any complex
 orthogonal `M`, through one real reflection of a coordinate `p ≠ i₀`. -/
 theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) {i₀ p : Fin N}
     (hp : p ≠ i₀) {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsOrth M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N S} (hu : u ∈ polyAniso i₀ ν r S) (hu' : u' ∈ polyAniso i₀ ν r S)
@@ -263,7 +305,7 @@ theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
 invariance under the complex orthogonal matrices of entries `≤ rotB N` relating its points. -/
 theorem tubeHypA_shiftTerm (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) {i₀ i₁ : Fin N}
     (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r) :
@@ -394,7 +436,7 @@ the anisotropic termwise I-6, on the data domain of the configurations whose fie
 into `Ξ^c_j(𝔹_j(X); 1, ε_j)`.  Here `S` places the blocks of `X` relative to `y` (`hS`, `hS'`). -/
 theorem premisesTermAniso_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
     (hS' : ∀ s ∈ S, ∃ x ∈ X, Aligned (L ^ j) x ∧

@@ -40,11 +40,11 @@ the real clause `rotE` along the two-stage Cayley path), as `Eaux_rotA` at an ar
 block. -/
 theorem EauxC_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
-    (hν : 0 < ν k) (hνb : ν k ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
+    (hν : 0 < ν k) (hνb : ν k ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (y : Site d) (hnw : NonWind L N₁ m₁ k j X') (hy : y ∈ X') (i₀ : Fin N)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * Def6v2.aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 0 ≤ B) (hrδ : r * Def6v2.aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
@@ -52,7 +52,7 @@ theorem EauxC_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u' = EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u := by
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   have hνj : 0 < nuIdeal L k (ν k) j := by unfold nuIdeal; positivity
-  have hnb : nuIdeal L k (ν k) j ≤ P.νbar := (Def6v2.nuIdeal_le hν.le j).trans hνb
+  have hnb : nuIdeal L k (ν k) j ≤ 1 := (Def6v2.nuIdeal_le hν.le j).trans hνb
   have hx₀ : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (blockPt j y) ∈ X' :=
     blockPt_mem_Ypoly hjk hnw hy
   have hfr : ∀ x : CTorus d L N₁ m₁ k,
@@ -66,10 +66,13 @@ theorem EauxC_rotA (hsf : IsSF P β ν a Tm ρd Ek)
     · right
       funext i; simp [fieldOf, hx]
   have hr := Def6v2.E_rotA_cfg hsf.termClauses hBg hνj (bgMass_mul_le_nuIdeal hν.le hjk) hnb hj1
-    hjk hX hx₀ i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ hε hM.1 hMb hu hu' hrot
-    (fun c => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' c)
+    hjk hX hx₀ i₀ hδ0 hδc0 hδc1 hr0 hr1 hB hrδ hε hM.1 hMb
+    (fun i => (polyAniso_inr hu hr0 hr1 i).le) (polyAniso_inr_self hu).le
+    (fun i => (polyAniso_inr hu' hr0 hr1 i).le) (polyAniso_inr_self hu').le
+    hrot (fun c => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' c)
     (fun c x x' hxx => funext fun i => congrFun (fieldOf_block c hxx) i)
-    (fun c hc x i => fieldOf_sub_le_poly hc hr0.le x i) hfr (blockPt j y) (by
+    (fun x i => fieldOf_sub_le_poly hu hr0.le x i) (fun x i => fieldOf_sub_le_poly hu' hr0.le x i)
+    hfr (blockPt j y) (by
       rw [← hrot, fieldOf_rot M u hx₀]; rfl)
   unfold EauxC
   rw [← hr]
@@ -81,11 +84,11 @@ theorem EauxC_rotA (hsf : IsSF P β ν a Tm ρd Ek)
 polydisc**, through one real reflection of a coordinate `p ≠ i₀`. -/
 theorem EauxC_orthA (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
-    (hν : 0 < ν k) (hνb : ν k ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
+    (hν : 0 < ν k) (hνb : ν k ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (y : Site d) (hnw : NonWind L N₁ m₁ k j X') (hy : y ∈ X') {i₀ p : Fin N} (hp : p ≠ i₀)
     {δ r B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * Def6v2.aniK N B P.νbar ≤ δ)
+    (hr0 : 0 < r) (hr1 : r ≤ 1) (hB : 1 ≤ B) (hrδ : r * Def6v2.aniK N B ≤ δ)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsOrth M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ polyAniso i₀ (nuIdeal L k (ν k) j) r X')
@@ -222,7 +225,7 @@ theorem GE_rotA (hne : i₁ ≠ i₀) {X' : Finset (Site d)}
   rw [GE_eq_EauxCA hF hn hX hy hu' hgood, GE_eq_EauxCA hF hn hX hy hu hgood]
   obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hF.anisoRadiusOK hn.hsmall i₀
   exact EauxC_orthA (hF.torus _) (bgHyp_of_class hF.admissible hF.coeff hn.hd hn.hL hn.hϱ)
-    hF.coeff.nu_pos hF.coeff.nu_le hn.hj1 hn.hjk hgood.2 y hgood.1 hy hne hδ0 hδc0 hδc1 hr0 hr1
+    hF.coeff.nu_pos (hF.coeff.nu_le_one hF.admissible) hn.hj1 hn.hjk hgood.2 y hgood.1 hy hne hδ0 hδc0 hδc1 hr0 hr1
     (one_le_rotB i₀) hrδ hε hM hMb hu hu' hrot
 
 theorem GE_norm_leA {X' : Finset (Site d)} (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X')

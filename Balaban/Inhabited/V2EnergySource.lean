@@ -239,9 +239,9 @@ theorem anisoRadius_le_eps {d L N : ℕ} [NeZero L] (P : Consts) (j : ℕ) (hN :
   unfold anisoRadius
   have hK := bgK1_pos d L N
   have hN' : (1 : ℝ) ≤ N := by exact_mod_cast hN
-  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) P.νbar :=
+  have hQ : 4 * (N : ℝ) * (1 + N * rotB N) ≤ Def6v2.aniK N (rotB N) :=
     four_le_aniK ⟨0, by omega⟩ (by unfold rotB; positivity) _
-  have h1 : 8 ≤ (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) P.νbar := by
+  have h1 : 8 ≤ (2 * bgK1 d L N + 2) * Def6v2.aniK N (rotB N) := by
     have : 0 ≤ rotB N := by unfold rotB; positivity
     have h3 : 0 ≤ (N : ℝ) * rotB N := by positivity
     have h2 : 4 ≤ 4 * (N : ℝ) * (1 + N * rotB N) := by nlinarith

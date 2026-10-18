@@ -84,7 +84,7 @@ open Classical in
 polydisc or outside the anisotropic tube. -/
 theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
-    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ P.νbar) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
@@ -112,7 +112,7 @@ theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
   have hT := tubeHypA_shiftTerm hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hne hrad
   have hr0 := hrad.1
   have hr1 := hrad.2.1
-  have hE := analyticAt_term_ref (y := y) hcl hBg hν hμν hνb hj1 hjk hX hyX i₀ hrad
+  have hE := analyticAt_term_ref (y := y) hcl hBg hν hμν hj1 hjk hX hyX i₀ hrad
   have hνc : (ν : ℂ) ≠ 0 := by exact_mod_cast hν.ne'
   set ψ : Site d → Spin N := fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s)
     with hψ
@@ -265,7 +265,7 @@ open Classical in
 /-- **The per-label bound of the irrelevant part, conditional on `DataHypAniso`** (P1 Corollary
 3.11, (3.128), p. 153; the open analytic input P-2 is the premise `DataHypAniso` at the data pulled
 back at `y`, with `σ = C₀ s`, `s = s_{jk} = L^{-(k-j)}`, `ε = ε_k`): for a torus of the class on
-its main instance `xiFieldDom a μ ε_j` (term clauses, `CRotE`, `BgHyp`, `μ L^{2j} ≤ ν_j`), a label
+its main instance `xiFieldDom a μ ε_j` (term clauses, `BgHyp`, `ν ≤ 1`, `μ L^{2j} ≤ ν_j`), a label
 `(j, y, X)` with `X ≠ □(y)`, `Ψ` constant on the `j`-blocks and the constant field `h`, and data
 whose pulled-back configuration lies in the anisotropic polydisc or outside the anisotropic tube,
 `|ℰ^{(j)}_{irrel}(y, X; Ψ, h)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`.  The
@@ -278,7 +278,7 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
       (Tm : Terms d L N₁ m₁ k N ϱ),
       SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm →
       BgHyp d L k ϱ a μ → L ^ P.m₀ ∣ N₁ →
-      ∀ (ν : ℝ) (j : ℕ), 0 < ν → μ * ((L : ℝ) ^ j) ^ 2 ≤ ν → ν ≤ P.νbar → 1 ≤ j → j ≤ k →
+      ∀ (ν : ℝ) (j : ℕ), 0 < ν → μ * ((L : ℝ) ^ j) ^ 2 ≤ ν → ν ≤ 1 → 1 ≤ j → j ≤ k →
       ∀ (r : ℝ), AnisoRadiusOK d L N P j r →
       ∀ (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)), Aligned (L ^ j) y →
       IsPolyDom P.m₀ j X → y ∈ X →
