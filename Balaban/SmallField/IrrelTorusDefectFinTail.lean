@@ -31,7 +31,7 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 lifted family, `T_X + Φ_X` of the pulled-back one-polymer family is bounded by
 `C E₀ (1 + d_j)^4 e^{-κ d_j}`, `d_j = sizeJ`. -/
 theorem norm_filed_fin_le (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     {X' : Finset (Site d)}
     (hX' : X' ∈ liftPolys (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P j)
@@ -74,7 +74,7 @@ theorem norm_filed_fin_le (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) T
       rw [unlift_ibase hjk (hnw s hs)]
       exact hs
     · simpa only [sub_zero] using unlift_ibase hjk (hnw s hs)
-  have hP := premisesTermAniso_centred hcl hcr hBg hν hμν hj1 hjk hy hpd hyX hS hS' hne hrad
+  have hP := premisesTermAniso_centred hcl hBg hν hμν hj1 hjk hy hpd hyX hS hS' hne hrad
   have hmem : X' ∈ ({X'} : Set (Finset (Site d))) := Set.mem_singleton X'
   have han := (hP.analytic X' hmem).mono polyAniso_subset_tubeAniso
   have hM := fun c hc => hP.bdd_tube X' hmem c (polyAniso_subset_tubeAniso hc)

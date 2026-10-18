@@ -130,9 +130,8 @@ variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ} {P : Consts} {Rg : Regime L}
 section Inf
 
 variable (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-  (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
   (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
-include hF hCR hn hne
+include hF hn hne
 
 open Classical in
 /-- **The sum over the infinite shapes of the filed term vanishes**, second version. -/
@@ -149,7 +148,7 @@ theorem IsSFFamily2.tsum_filed_inf (ψ : Site d → Spin N) (b : Spin N) :
         (anisoRadius d L N P j)) i₀ (nuIdeal L k (Rg.ν k) j) X.1 ψ b +
       Phitw (liftInfA (L := L) (m₁ := m₁) (k := k) P Tm j i₀ (nuIdeal L k (Rg.ν k) j)
         (anisoRadius d L N P j)) i₀ i₁ (nuIdeal L k (Rg.ν k) j) X.1 ψ) = 0 := by
-  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded hCR
+  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded
   rw [← hν]
   exact hF'.tsum_filed_inf hn.noChi hne ψ b
 
@@ -168,7 +167,7 @@ theorem IsSFFamily2.norm_filed_inf_le {X' : Finset (Site d)} (h0 : (0 : Site d) 
           (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 *
             (N * (N * 40 * Λ) ^ 2)) *
         (P.E₀ * Real.exp (-P.κ * dInf L m₁ k P.m₀ j X') * (1 + dInf L m₁ k P.m₀ j X') ^ 4) := by
-  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded hCR
+  obtain ⟨β', ν', hν, -, hF'⟩ := hF.toLanded
   rw [← hν] at dat ⊢
   exact hF'.norm_filed_inf_le hn.noChi hne h0 hX dat hσ hσ1 hε hεΛ hτ
 

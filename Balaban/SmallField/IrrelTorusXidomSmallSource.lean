@@ -28,7 +28,6 @@ open Classical in
 hypotheses of the `CRotE` comparison in the real-centre frame. -/
 theorem trickFnA_shiftTerm_eq_of_scaled_source_small
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
@@ -76,7 +75,7 @@ theorem trickFnA_shiftTerm_eq_of_scaled_source_small
   obtain ⟨hcentre, hcoords, hlongsrc⟩ :=
     Balaban.SmallField.ScaledPsiC.real_frame_bounds H hyG hyGj
       hν hτ hτ1 hντ hζ hζ1 hQ hQp hQe
-  apply trickFnA_shiftTerm_eq_of_dataHyp_small hcl hcr hBg hν hμν hj1 hjk
+  apply trickFnA_shiftTerm_eq_of_dataHyp_small hcl hBg hν hμν hj1 hjk
     hy hX hyX hS hS' hne hrad dat hσε
   · intro i
     rw [hψ0]

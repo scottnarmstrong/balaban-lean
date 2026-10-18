@@ -80,7 +80,6 @@ with the constants `ν̄` replaced by `e² ν̄`).  Only the condition `e² ν̄
 is needed. -/
 theorem IsSFFamily2.exists_levelOnly_cap
     (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
     (hL : 2 ≤ L) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hνbar : Real.exp 2 * P.νbar ≤ 7 / 8 * ((L : ℝ) ^ 2)⁻¹) :
     ∃ (Rg' : Regime L) (β' : ℕ → ℝ) (Tm' : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ),
@@ -89,9 +88,7 @@ theorem IsSFFamily2.exists_levelOnly_cap
         (Tm' N₁).gs = (Tm N₁).gs) ∧
       IsSFFamily2 { P with p := fun _ => 0, c₉ := |P.c₉| + 1, νbar := Real.exp 2 * P.νbar } Rg' β' a
         (completeXiDom { P with p := fun _ => 0, c₉ := |P.c₉| + 1, νbar := Real.exp 2 * P.νbar } Rg' a) Tm'
-        (fun _ _ _ _ _ => 0) Ek ∧
-      (∀ (N₁ : ℕ) [NeZero N₁], CRotE { P with p := fun _ => 0, c₉ := |P.c₉| + 1, νbar := Real.exp 2 * P.νbar }
-        (completeXiDom { P with p := fun _ => 0, c₉ := |P.c₉| + 1, νbar := Real.exp 2 * P.νbar } Rg' a N₁) (Tm' N₁)) := by
+        (fun _ _ _ _ _ => 0) Ek := by
   classical
   have hadm := hF.admissible
   have hν_j : 0 < Rg.ν j := hF.coeff.nu_pos_of_le hadm hL hjk
@@ -167,8 +164,6 @@ theorem IsSFFamily2.exists_levelOnly_cap
         exact RenormCond.levelOnly (hF.renorm i hi1 hik)
           (fun _ => nuIdeal_pos' hF.coeff.nu_pos i) hE
       · exact RenormCond.levelOnly_zero _ (fun N₁ _ => hE0 N₁ i hij)
-  · intro N₁ _
-    exact CRotE.levelOnly (hCR N₁) (hdom N₁) (hE N₁) (hgs N₁) (hE0 N₁)
 
 
 end Surrogate

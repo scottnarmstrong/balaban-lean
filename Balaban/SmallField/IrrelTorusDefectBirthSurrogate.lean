@@ -100,7 +100,6 @@ other level; the constants are those of `P` with the characteristic radius `0` a
 class `Rg'`. -/
 theorem IsSFFamily2.exists_levelOnly
     (hF : IsSFFamily2 P Rg β a (birthXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (birthXiDom P Rg a N₁) (Tm N₁))
     (hL : 2 ≤ L) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hcap : physMass L j (Rg.ν j) ≤ P.νbar * ((L : ℝ) ^ k)⁻¹ ^ 2) :
     ∃ (Rg' : Regime L) (β' : ℕ → ℝ) (Tm' : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ),
@@ -109,9 +108,7 @@ theorem IsSFFamily2.exists_levelOnly
         (Tm' N₁).gs = (Tm N₁).gs) ∧
       IsSFFamily2 { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } Rg' β' a
         (completeXiDom { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } Rg' a) Tm'
-        (fun _ _ _ _ _ => 0) Ek ∧
-      (∀ (N₁ : ℕ) [NeZero N₁], CRotE { P with p := fun _ => 0, c₉ := |P.c₉| + 1 }
-        (completeXiDom { P with p := fun _ => 0, c₉ := |P.c₉| + 1 } Rg' a N₁) (Tm' N₁)) := by
+        (fun _ _ _ _ _ => 0) Ek := by
   classical
   have hadm := hF.admissible
   have hν_j : 0 < Rg.ν j := hF.coeff.nu_pos_of_le hadm hL hjk
@@ -190,8 +187,6 @@ theorem IsSFFamily2.exists_levelOnly
         exact RenormCond.levelOnly (hF.renorm i hi1 hik)
           (fun _ => nuIdeal_pos' hF.coeff.nu_pos i) hE
       · exact RenormCond.levelOnly_zero _ (fun N₁ _ => hE0 N₁ i hij)
-  · intro N₁ _
-    exact CRotE.levelOnly (hCR N₁) (hdom N₁) (hE N₁) (hgs N₁) (hE0 N₁)
 
 end Surrogate
 

@@ -79,7 +79,6 @@ theorem referenceJet_eq_of_nonWind
 retains the longitudinal radius `r²` through `anisoWt`; replacing it by `r` would be false. -/
 theorem referenceJet_bound_of_nonWind
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     {j : ℕ} (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {X' : Finset (Site d)} (h0 : (0 : Site d) ∈ X')
     (hX : InfPoly (L := L) (m₁ := m₁) (k := k) P.m₀ j X')
@@ -101,7 +100,7 @@ theorem referenceJet_bound_of_nonWind
       4 * (P.E₀ * Real.exp (-P.κ * dInf L m₁ k P.m₀ j X')) /
         (anisoWt i₀ (anisoRadius d L N P j) X' p *
           anisoWt i₀ (anisoRadius d L N P j) X' q)) := by
-  have hp := hF.premisesTermAnisoInf hCR hn.hd hn.hL hn.hϱ hn.hj1 hn.hjk hn.hsmall hn.hκ hne
+  have hp := hF.premisesTermAnisoInf hn.hd hn.hL hn.hϱ hn.hj1 hn.hjk hn.hsmall hn.hκ hne
   have hXp : X' ∈ (liftInfA P Tm j i₀ (nuIdeal L k (Rg.ν k) j)
       (anisoRadius d L N P j)).polys := ⟨h0, hX⟩
   have hr : 0 < anisoRadius d L N P j := (hF.anisoRadiusOK hn.hsmall i₀).1

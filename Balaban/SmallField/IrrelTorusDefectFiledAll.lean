@@ -44,7 +44,6 @@ second difference bound `K₂` and the numerical conditions of the termwise boun
 depend on the aligned centre. -/
 theorem norm_filed_le_power
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hCR : ∀ (N₁ : ℕ) [NeZero N₁], CRotE P (completeXiDom P Rg a N₁) (Tm N₁))
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
     {y : CTorus d L N₁ m₁ k} (hy : Aligned (L ^ j) y)
@@ -93,7 +92,7 @@ theorem norm_filed_le_power
       (2 * (24 * Real.exp 1 * (16 * (1 + Λ * (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) + Λ ^ 2 + (c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (2 * diamA d L P.m₀ m₁) ^ 2 * (N * (N * 40 * Λ) ^ 2))) * ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) * K0 d L (P.κ - 2)) * (Real.exp ((4 * (((L * L ^ (P.m₀ + m₁) : ℕ) : ℝ)) + 4) / (8 * (diamA d L P.m₀ m₁)) + 1 / 2) * ((((d : ℝ) + (1 - 2 * P.γ - P.α₁))) / (Real.exp 1 * (((L : ℝ) ^ (P.m₀ + m₁)) / (8 * (diamA d L P.m₀ m₁))))) ^ (((d : ℝ) + (1 - 2 * P.γ - P.α₁)))))) * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) := by
   classical
-  obtain ⟨β', ν', hν, -, hL⟩ := hF.toLanded hCR
+  obtain ⟨β', ν', hν, -, hL⟩ := hF.toLanded
   have hn' := hn.noChi
   have hε' := eps_pos (d := d) (L := L) hL.admissible.α₀_pos j
   have hρ0 := liftRadius_pos (d := d) (L := L) (N := N) hε' i₀
@@ -108,7 +107,7 @@ theorem norm_filed_le_power
         dot (Ψ y) (Ψ y))
     (fun μ μ' s s' => (((s μ : ℤ) : ℂ) - ((s' μ : ℤ) : ℂ)) * (((s μ' : ℤ) : ℂ) - ((s' μ' : ℤ) : ℂ)))
   refine le_of_eq_of_le (congrArg norm key) ?_
-  have horig := norm_filed_origin_le_power (K₂ := K₂) hF hCR hn hne hN (fun x => Ψ (y + x)) hv hσ hσ1 hε hεΛ hτ
+  have horig := norm_filed_origin_le_power (K₂ := K₂) hF hn hne hN (fun x => Ψ (y + x)) hv hσ hσ1 hε hεΛ hτ
     ?_ ?_
   · simp only [add_zero, zero_add] at horig
     exact horig

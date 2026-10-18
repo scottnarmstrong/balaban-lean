@@ -176,7 +176,7 @@ theorem shiftTerm_norm_le (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) T
 /-- **Rotation invariance of the pulled-back term on the polydisc** (`CRotE`): two configurations
 of the polydisc related by an `IsCRot` matrix with entries bounded by `B` have the same term. -/
 theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) (i₀ : Fin N)
@@ -246,7 +246,7 @@ theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
         rw [e]; exact hMe i
     · simp only [rotField]
       rw [show Φ u z = Φ u z' from shiftField_block hjk hy u h]
-  have hr := hcr j hj1 hjk y X hX hyX M hM _ _ hXi hXirot
+  have hr := j hj1 hjk y X hX hyX M hM _ _ hXi hXirot
   rw [← hr]
   refine hcl.localE j y X _ _ _ _ (fun z hz => ⟨?_, ?_⟩)
   · have e := fieldOf_rot (j := j) (i₀ := i₀) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) M u (hS z hz)
@@ -256,7 +256,7 @@ theorem shiftTerm_rotA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
 /-- **Rotation invariance for `O(N, ℂ)` on the polydisc**: as `shiftTerm_rotA` for any complex
 orthogonal `M`, through one real reflection of a coordinate `p ≠ i₀`. -/
 theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) {i₀ p : Fin N}
@@ -272,11 +272,11 @@ theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
         (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S u) := by
   have hB0 : 0 ≤ B := by linarith
   rcases det_isOrth hM with hd | hd
-  · exact shiftTerm_rotA hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
+  · exact shiftTerm_rotA hcl hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
       hrδ hε ⟨hM, Or.inr hd⟩ hMb hu hu' hrot
   · set Pm := reflP N p with hPm
     have hPpoly : rotCfgL Pm S u ∈ polyAniso i₀ ν r S := rotCfgL_reflP_mem_polyAniso hp hu
-    have h1 := shiftTerm_rotA hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
+    have h1 := shiftTerm_rotA hcl hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
       hrδ hε (isRot_reflP p).isCRot (fun i k => (reflP_norm_le p i k).trans hB) hu hPpoly rfl
     have hMP : IsCRot (M * Pm) := by
       refine ⟨?_, Or.inr ?_⟩
@@ -291,7 +291,7 @@ theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
       by_cases h : k = p
       · simp [h]; exact hMb i p
       · simp [h]; exact hMb i k
-    have h2 := shiftTerm_rotA hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
+    have h2 := shiftTerm_rotA hcl hBg hν hμν hj1 hjk hy hX hyX hS i₀ hδ0 hδc0 hδc1 hr0 hr1 hB0
       hrδ hε hMP hMPb hPpoly hu' (by
         have hPP : Pm * Pm = 1 := by rw [hPm]; exact reflP_mul_self p
         rw [← rotCfgL_mul, Matrix.mul_assoc, hPP, Matrix.mul_one]; exact hrot)
@@ -300,7 +300,7 @@ theorem shiftTerm_orthA (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
 /-- **The tube hypotheses of the pulled-back term**: analyticity on the anisotropic polydisc and
 invariance under the complex orthogonal matrices of entries `≤ rotB N` relating its points. -/
 theorem tubeHypA_shiftTerm (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S) {i₀ i₁ : Fin N}
@@ -311,7 +311,7 @@ theorem tubeHypA_shiftTerm (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) 
   analytic := fun _ hc => analyticAt_shiftTerm hcl hBg hν hμν hj1 hjk hy hX hyX i₀ hrad hc
   rot := fun M hM hMb u u' hu hu' hrot => by
     obtain ⟨hr0, hr1, δ, hδ0, hδc0, hδc1, hε, hrδ⟩ := hrad
-    exact shiftTerm_orthA hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hδ0 hδc0 hδc1 hr0 hr1
+    exact shiftTerm_orthA hcl hBg hν hμν hj1 hjk hy hX hyX hS hne hδ0 hδc0 hδc1 hr0 hr1
       (one_le_rotB i₀) hrδ hε hM hMb hu hu' hrot
 
 end Term
@@ -431,7 +431,7 @@ with size `d_j(X)` and the extension to the tube of the pulled-back term satisfi
 the anisotropic termwise I-6, on the data domain of the configurations whose fields on `X` extend
 into `Ξ^c_j(𝔹_j(X); 1, ε_j)`.  Here `S` places the blocks of `X` relative to `y` (`hS`, `hS'`). -/
 theorem premisesTermAniso_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
@@ -449,7 +449,7 @@ theorem premisesTermAniso_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
             (pack S p.1 p.2) (z - y) ∧
           h' z = hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S (pack S p.1 p.2) z) ∧
         XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ' h'} := by
-  have hT := tubeHypA_shiftTerm hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
+  have hT := tubeHypA_shiftTerm hcl hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
   have hbd := fun (c : Cfg d N S) (hc : c ∈ polyAniso i₀ ν r S) =>
     shiftTerm_norm_le hcl hBg hν hμν hj1 hjk hy hX hyX i₀ hrad hc
   refine ⟨hne.symm, fun X' hX' => ?_, fun _ _ => treeLenCovOne_nonneg _ _ _,

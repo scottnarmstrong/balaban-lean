@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Localization.XiCRawOpen
+public import Balaban.SmallField.XiDomOpen
 public import Balaban.Fluctuation.ParamActivityPhysical
 public import Balaban.Fluctuation.ParamDatumFamily
 public import Balaban.Fluctuation.GeneralClassMatch
@@ -99,96 +100,6 @@ theorem physSΛ_eventually (S : StepSetting d L N₁ m₁ k N ϱ) (a₁ ν eps :
   exact e1.prod_mk e2
 
 end Physical
-
-section Dom
-
-variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
-
-open Classical in
-/-- Cutting a pair of fields off outside the data sites. -/
-noncomputable def clipRaw (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
-    (r : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) : RawData d L (N₁ * L ^ m₁) K N :=
-  (fun x i => if x ∈ dataSites G then r.1 x i else 0, fun x i => if x ∈ G.Ω 1 then r.2 x i else 0)
-
-theorem continuous_clipRaw (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
-    Continuous (clipRaw (N := N) G) := by
-  classical
-  refine Continuous.prodMk ?_ ?_
-  · refine continuous_pi fun x => continuous_pi fun i => ?_
-    by_cases hx : x ∈ dataSites G
-    · simp only [hx, ↓reduceIte]; fun_prop
-    · simp only [hx, ↓reduceIte]; fun_prop
-  · refine continuous_pi fun x => continuous_pi fun i => ?_
-    by_cases hx : x ∈ G.Ω 1
-    · simp only [hx, ↓reduceIte]; fun_prop
-    · simp only [hx, ↓reduceIte]; fun_prop
-
-/-- The fields that are constant on the blocks of every layer. -/
-def layerSub (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
-    Set (Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) :=
-  {r | IsLayerConstant G r.1 ∧ IsLayerConstant G r.2}
-
-theorem clipRaw_mem_rawSub (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
-    {r : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N} (hr : r ∈ layerSub G) :
-    clipRaw G r ∈ rawSub N G := by
-  classical
-  have : clipRaw G r = rawOf (BgData.clip G r.1 r.2 hr.1 hr.2) := by
-    refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-    · by_cases hx : x ∈ dataSites G <;> simp [clipRaw, rawOf, BgData.clip, hx]
-    · by_cases hx : x ∈ G.Ω 1 <;> simp [clipRaw, rawOf, BgData.clip, hx]
-  rw [this]; exact rawOf_mem_rawSub _
-
-/-- **The class domain `XiDom` is open relative to the layer-constant fields.**  (It is not open
-in the space of all fields: it is a cylinder over the subspace `layerSub`, since
-`Ψ = Ψ₀ + Ψ''` must be constant on blocks on the data sites.)  If `(Ψ, h) ∈ XiDom`, then every
-pair of layer-constant fields near `(Ψ, h)` lies in `XiDom` (same level, kernel sequence, mass and
-radius). -/
-theorem xiDom_eventually {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {n : ℕ}
-    {ε : ℝ} (H : BgHyp d L K ϱ a ν) {Ψ h : Fld d L N₁ m₁ K N} (hX : XiDom G a ν n ε Ψ h) :
-    ∀ᶠ r in 𝓝[layerSub G] ((Ψ, h) : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N),
-      XiDom G a ν n ε r.1 r.2 := by
-  classical
-  obtain ⟨Ψ₀, h₀, Ψ'', h'', e1, e2, hXC⟩ := hX
-  obtain ⟨hσ, hε, Dr, Dc, hXr, hC, hU, hb⟩ := hXC
-  have hc0 : clipRaw G ((Ψ, h) : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) = rawOf Dc := by
-    refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-    · by_cases hx : x ∈ dataSites G
-      · simp only [clipRaw, rawOf, hx, ↓reduceIte]
-        rw [hC.1 x hx i, e1 x i]
-      · simp only [clipRaw, rawOf, hx, ↓reduceIte]
-        rw [Dc.Ψ_zero x hx]; rfl
-    · by_cases hx : x ∈ G.Ω 1
-      · simp only [clipRaw, rawOf, hx, ↓reduceIte]
-        rw [hC.2 x hx i, e2 x i]
-      · simp only [clipRaw, rawOf, hx, ↓reduceIte]
-        rw [Dc.h_zero x hx]; rfl
-  have hXD : XiCData G a ν n 1 ε Dc := ⟨Ψ₀, h₀, Ψ'', h'', ⟨hσ, hε, Dr, Dc, hXr, hC, hU, hb⟩, hC⟩
-  have ev := xiCRaw_eventually H hXD
-  have hT : Filter.Tendsto (clipRaw (N := N) G) (𝓝[layerSub G] ((Ψ, h) : Fld d L N₁ m₁ K N ×
-      Fld d L N₁ m₁ K N)) (𝓝[(rawSub N G : Set _)] (rawOf Dc)) := by
-    rw [← hc0]
-    exact tendsto_nhdsWithin_iff.2 ⟨((continuous_clipRaw G).continuousAt.tendsto).mono_left
-      nhdsWithin_le_nhds, eventually_nhdsWithin_of_forall fun r hr => clipRaw_mem_rawSub G hr⟩
-  filter_upwards [hT.eventually ev] with r hr
-  obtain ⟨Dd, ⟨Ψ₁, h₁, Ψ₂, h₂, hXC₂, hR₂⟩, heq⟩ := hr
-  refine ⟨Ψ₁, h₁, fun x i => r.1 x i - Ψ₁ x i, fun x i => r.2 x i - (h₁ i : ℂ),
-    fun x i => by ring, fun x i => by ring, ?_⟩
-  refine xiC_rescale_of_agree (σ := 1) (ε := ε) (ε' := ε) le_rfl (by simp) (fun x hx i => ?_)
-    (fun x hx i => ?_) hXC₂
-  · have h1 := hR₂.1 x hx i
-    have h2 : Dd.Ψ x i = r.1 x i := by
-      have := congrFun (congrFun (congrArg Prod.fst heq) x) i
-      simpa [clipRaw, rawOf, hx] using this.symm
-    show r.1 x i - Ψ₁ x i = Ψ₂ x i
-    rw [← h2, h1]; ring
-  · have h1 := hR₂.2 x hx i
-    have h2 : Dd.h x i = r.2 x i := by
-      have := congrFun (congrFun (congrArg Prod.snd heq) x) i
-      simpa [clipRaw, rawOf, hx] using this.symm
-    show r.2 x i - (h₁ i : ℂ) = h₂ x i
-    rw [← h2, h1]; ring
-
-end Dom
 
 section Witness
 

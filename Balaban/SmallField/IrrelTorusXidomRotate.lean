@@ -30,7 +30,6 @@ open Classical in
 class term and its anisotropic tube extension at the original local configuration. -/
 theorem trickFnA_shiftTerm_eq_of_full_chart_rot
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
@@ -58,7 +57,7 @@ theorem trickFnA_shiftTerm_eq_of_full_chart_rot
     Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c' (z - y))
       (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c')
   change trickFnA i₀ ν r F c = F c
-  have hT := tubeHypA_shiftTerm hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
+  have hT := tubeHypA_shiftTerm hcl hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
   rw [hT.trickFnA_eq hR.1 hRb hRc]
   have hterm₁ : F c = Tm.E j y X Ψ₁ h₁ := by
     exact hcl.localE j y X _ Ψ₁ _ h₁
@@ -68,7 +67,7 @@ theorem trickFnA_shiftTerm_eq_of_full_chart_rot
       (fun z hz => ⟨(hag₂ z hz).1.symm, (hag₂ z hz).2.symm⟩)
   have hXiRot : XiDom (Tm.gs j X) a μ j (P.eps d L j) (rotField R Ψ₁)
       (rotField R h₁) := by rwa [← hrotΨ, ← hroth]
-  have he := hcr j hj1 hjk y X hX hyX R hR Ψ₁ h₁ hXi₁ hXiRot
+  have he := j hj1 hjk y X hX hyX R hR Ψ₁ h₁ hXi₁ hXiRot
   calc
     F (rotCfgL R S c) = Tm.E j y X Ψ₂ h₂ := hterm₂
     _ = Tm.E j y X Ψ₁ h₁ := by rw [hrotΨ, hroth]; exact he

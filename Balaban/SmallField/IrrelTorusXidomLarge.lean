@@ -31,7 +31,6 @@ open Classical in
 polymer decay when the diameter crosses the comparison threshold. -/
 theorem shiftTerm_discrepancy_bound_of_large
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
@@ -66,7 +65,7 @@ theorem shiftTerm_discrepancy_bound_of_large
   have hE₀ : 0 ≤ P.E₀ := by
     exact nonneg_of_mul_nonneg_right
       (by simpa only [M, mul_comm] using hM) (Real.exp_pos _)
-  have hT := tubeHypA_shiftTerm hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
+  have hT := tubeHypA_shiftTerm hcl hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
   have hExt : ‖trickFnA i₀ ν r F c‖ ≤ M := by
     by_cases hc : c ∈ TubeAniso i₀ ν r S
     · exact hT.trickFnA_bound

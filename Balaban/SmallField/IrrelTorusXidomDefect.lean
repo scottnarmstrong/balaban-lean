@@ -30,7 +30,7 @@ variable {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ 
 open Classical in
 /-- The exact discrepancy identity for a non-special label. -/
 theorem irrelTorus_eq_Itw_centred_add_discrepancy (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm) (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
@@ -57,7 +57,7 @@ theorem irrelTorus_eq_Itw_centred_add_discrepancy (hcl : SFTermClauses P (xiFiel
   have hmS : ∀ x ∈ Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X),
       unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y) ∈ S :=
     fun x hx => by rw [hSdef]; exact Finset.mem_image_of_mem _ hx
-  have hT := tubeHypA_shiftTerm hcl hcr hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
+  have hT := tubeHypA_shiftTerm hcl hBg hν hμν hj1 hjk hy hX hyX hS hne hrad
   have hr0 := hrad.1
   have hr1 := hrad.2.1
   have hE := analyticAt_term_ref (y := y) hcl hBg hν hμν hj1 hjk hX hyX i₀ hrad

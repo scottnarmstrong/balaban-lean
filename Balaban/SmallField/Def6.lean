@@ -175,9 +175,8 @@ is `bgMass` (P5 (1.9)).
 * `analyticE`, `analyticM` (H.2), (H.4), (H.7) [P1 (H.2), (H.5), (H.9)]: analytic on
   `Ξ^c_j(𝔹_j(X); 1, ε_j)` (resp. times `{‖g‖₁ < 1}`) -- the ruling F-1;
 * `rotE`, `rotM` (H.3), (H.7) [P1 (H.4)]: `rotM` is equivariance of `ℳ` under real `O(N)` on sources
-  with `‖g‖₁ < 1`; `rotE` is invariance of `ℰ` under `O(N, ℝ)` and `SO(N, ℂ)` (`IsCRot`), the form
-  used by the frame bridges of I-6 (obtained from real rotations by continuation, `Def6RotContinuation`),
-  termwise;
+  with `‖g‖₁ < 1`; `rotE` is invariance of `ℰ` under `O(N, ℝ)` (`IsRot`), termwise; the complex
+  invariance used by the frame bridges of I-6 is derived along Cayley paths (`Def6RotFrames`);
 * `eucE`, `eucM` (H.4-E) [P4 pp. 677-678 (H.4); P1 p. 117 (2.26)]: Euclidean covariance of the
   individual terms, **only** for the symmetries `pavingSymGroup` of the fixed `M`-paving
   (CLASS-RULINGS Q-A), with `pavingGS` (the generating sets are
@@ -217,7 +216,7 @@ structure IsSF (P : Consts) (β ν a : ℕ → ℝ) (Tm : Terms d L N₁ m₁ k 
       {p | XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         p.1 p.2.1 ∧ l1 p.2.2 < 1}
   rotE : ∀ j, 1 ≤ j → j ≤ k → ∀ y X, IsPolyDom P.m₀ j X → y ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
-    IsCRot R → ∀ Ψ h,
+    IsRot R → ∀ Ψ h,
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j) Ψ h →
       XiDom (Tm.gs j X) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j (P.eps d L j)
         (rotField R Ψ) (rotField R h) →

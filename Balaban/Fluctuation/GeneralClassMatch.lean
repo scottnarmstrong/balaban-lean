@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.StepRegDomain
 public import Balaban.SmallField.Def6v2Bridge
 public import Balaban.Localization.I5Chain
+public import Balaban.SmallField.XiDomOpen
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -191,127 +192,6 @@ theorem classRegular_of_isSF2 (hp₁ : 0 < S.p₁) (hlt : S.p₁ < pp) : S.Class
 
 end Consequences
 
-section Rescale
-
-variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
-
-/-- The numerical comparisons behind the rescaling `(σ, ε) ↦ (1, ε')`, `1 ≤ σ`, `σ² ε ≤ ε'`. -/
-theorem rescale_nums {σ ε ε' : ℝ} (hσ : 1 ≤ σ) (he : 0 < ε) (hle : σ ^ 2 * ε ≤ ε') :
-    σ * ε ≤ 1 * ε' ∧ σ ^ 2 * ε ≤ 1 ^ 2 * ε' ∧ (σ * ε) ^ 2 ≤ (1 * ε') ^ 2 ∧ ε ≤ ε' ∧
-      (σ * ε) ^ 2 / ε ≤ (1 * ε') ^ 2 / ε' := by
-  have hσ0 : 0 ≤ σ := by linarith
-  have h1 : σ * ε ≤ σ ^ 2 * ε := by
-    nlinarith [mul_nonneg (mul_nonneg hσ0 he.le) (sub_nonneg.2 hσ)]
-  have h2 : ε ≤ σ * ε := by nlinarith
-  have hp : 0 < ε' := lt_of_lt_of_le he (h2.trans (h1.trans hle))
-  have h3 : σ * ε ≤ ε' := h1.trans hle
-  refine ⟨by linarith, by linarith, ?_, by linarith, ?_⟩
-  · have := mul_self_le_mul_self (by positivity : 0 ≤ σ * ε) (by linarith : σ * ε ≤ 1 * ε')
-    nlinarith
-  · have e1 : (σ * ε) ^ 2 / ε = σ ^ 2 * ε := by field_simp
-    have e2 : (1 * ε') ^ 2 / ε' = ε' := by field_simp
-    rw [e1, e2]; exact hle
-
-/-- `Ξ_n(𝔹; σ, ε)` inequalities weaken to `(1, ε')` when `1 ≤ σ` and `σ² ε ≤ ε'`
-(`grad`, `collarBond`, `mass` carry `σ ε ≤ ε'`; `lap`, `mult`, `close` carry `σ² ε ≤ ε'`; `hnorm`
-carries `(σ ε)² ≤ ε'²`). -/
-theorem xiBounds_rescale {ν σ ε ε' : ℝ} {n : ℕ} {D : BgData G N} {h₀ : Fin N → ℝ}
-    {φ : G.Ω 1 × Fin N → ℂ} {α : G.Ω 1 → ℂ} (hσ : 1 ≤ σ) (he : 0 < ε) (hle : σ ^ 2 * ε ≤ ε')
-    (hb : XiBounds G ν n σ ε D h₀ φ α) : XiBounds G ν n 1 ε' D h₀ φ α := by
-  obtain ⟨n1, n2, n3, -, -⟩ := rescale_nums hσ he hle
-  refine ⟨fun x hx μ => ?_, fun x hx => ?_, fun x => ?_, fun x hx => ?_, fun z hz z' hz' hadj => ?_,
-    fun z => ?_, ?_⟩
-  · have hs := spacing_pos G (x := x)
-    exact ⟨(hb.grad x hx μ).1.trans_le (div_le_div_of_nonneg_right n1 hs.le),
-      (hb.grad x hx μ).2.trans_le (div_le_div_of_nonneg_right n1 hs.le)⟩
-  · have hs := spacing_pos G (x := x)
-    exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right n2 (by positivity))
-  · exact (hb.mult x).trans_le n2
-  · exact (hb.close x hx).trans_le n2
-  · exact (hb.collarBond z hz z' hz' hadj).trans_le n1
-  · exact (hb.mass z).trans_le n1
-  · exact hb.hnorm.trans_le n3
-
-/-- `Ξ^c_n(𝔹; σ, ε)` displacement inequalities weaken to `(1, ε')` when `1 ≤ σ`,
-`σ² ε ≤ ε'` (and `0 < ε`). -/
-theorem xiCBounds_rescale {ν σ ε ε' : ℝ} {Dr Dc : BgData G N}
-    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G.Ω 1 × Fin N → ℂ}
-    {αr αc : G.Ω 1 → ℂ} (hσ : 1 ≤ σ) (he : 0 < ε) (hle : σ ^ 2 * ε ≤ ε')
-    (hb : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) :
-    XiCBounds G ν 1 ε' Dr Dc Ψ'' h'' φr φc αr αc := by
-  obtain ⟨n1, n2, n3, n4, n5⟩ := rescale_nums hσ he hle
-  refine ⟨fun x hx μ => ?_, fun x hx => ?_, fun x => ?_, fun x => ?_, fun x hx => ?_,
-    fun z hz z' hz' hadj => ?_, fun x hx => ?_, fun x => ?_⟩
-  · have hs := spacing_pos G (x := x)
-    exact ⟨(hb.grad x hx μ).1.trans_le (div_le_div_of_nonneg_right n1 hs.le),
-      (hb.grad x hx μ).2.trans_le (div_le_div_of_nonneg_right n1 hs.le)⟩
-  · have hs := spacing_pos G (x := x)
-    exact (hb.lap x hx).trans_le (div_le_div_of_nonneg_right n2 (by positivity))
-  · exact (hb.mult x).trans_le n2
-  · exact (hb.val x).trans_le n4
-  · exact (hb.close x hx).trans_le n2
-  · exact (hb.collarBond z hz z' hz' hadj).trans_le n1
-  · exact (hb.hAbs x hx).trans_le n5
-  · exact (hb.hDot x).trans_le n3
-
-/-- The displacement inequalities depend on the displacements only through their values on
-`Ω₁ ∪ C(Ω₁)` (`Ψ''`) and on `Ω₁` (`h''`). -/
-theorem xiCBounds_congr {ν σ ε : ℝ} {Dr Dc : BgData G N}
-    {Ψ'' h'' Ψ''₂ h''₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G.Ω 1 × Fin N → ℂ}
-    {αr αc : G.Ω 1 → ℂ} (hΨ : ∀ x ∈ dataSites G, ∀ i, Ψ''₂ x i = Ψ'' x i)
-    (hh : ∀ x ∈ G.Ω 1, ∀ i, h''₂ x i = h'' x i)
-    (hb : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) :
-    XiCBounds G ν σ ε Dr Dc Ψ''₂ h''₂ φr φc αr αc where
-  grad := hb.grad
-  lap := hb.lap
-  mult := hb.mult
-  val := hb.val
-  close x hx := by
-    have e : (fun i => Ψ''₂ x i - blockAvg G (φc - φr) x i) =
-        fun i => Ψ'' x i - blockAvg G (φc - φr) x i := by
-      funext i; rw [hΨ x ((mem_dataSites G).2 (Or.inl hx)) i]
-    rw [e]; exact hb.close x hx
-  collarBond z hz z' hz' hadj := by
-    have e : (fun i => Ψ''₂ z i - Ψ''₂ z' i) = fun i => Ψ'' z i - Ψ'' z' i := by
-      funext i
-      rw [hΨ z ((mem_dataSites G).2 (Or.inr hz)) i, hΨ z' ((mem_dataSites G).2 (Or.inr hz')) i]
-    rw [e]; exact hb.collarBond z hz z' hz' hadj
-  hAbs x hx := by
-    have e : h''₂ x = h'' x := funext (hh x hx)
-    rw [e]; exact hb.hAbs x hx
-  hDot x := by
-    have e : ∀ i, h''₂ (x : Torus d (N₀ * L ^ k)) i = h'' (x : Torus d (N₀ * L ^ k)) i :=
-      hh _ x.2
-    simp only [e]; exact hb.hDot x
-
-/-- **Same-centre rescaling of `Ξ^c_n(𝔹; σ, ε)`** (exact statement): for `1 ≤ σ` and
-`σ² ε ≤ ε'`, a member of `Ξ^c_n(𝔹; σ, ε)` with centre `(Ψ₀, h₀)` and displacement `(Ψ'', h'')` is
-a member of `Ξ^c_n(𝔹; 1, ε')` with the same centre, and with any displacement `(Ψ''₂, h''₂)`
-agreeing with `(Ψ'', h'')` on `Ω₁ ∪ C(Ω₁)` (resp. `Ω₁`).  Direction of the monotonicity: every
-bound of `XiBounds`/`XiCBounds` is increasing in `ε` and in `σ`; `grad`, `collarBond`, `mass`
-scale as `σ ε`, `lap`, `mult`, `close`, `hAbs` as `σ² ε`, `val` as `ε`, `hDot`, `hnorm` as
-`(σ ε)²`; the real-part and union-domain conditions do not involve `(σ, ε)`. -/
-theorem xiC_rescale_of_agree {a : ℕ → ℝ} {ν σ ε ε' : ℝ} {n : ℕ}
-    {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
-    {Ψ'' h'' Ψ''₂ h''₂ : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hσ : 1 ≤ σ) (hle : σ ^ 2 * ε ≤ ε')
-    (hΨ : ∀ x ∈ dataSites G, ∀ i, Ψ''₂ x i = Ψ'' x i) (hh : ∀ x ∈ G.Ω 1, ∀ i, h''₂ x i = h'' x i)
-    (hX : XiC G a ν n σ ε Ψ₀ h₀ Ψ'' h'') : XiC G a ν n 1 ε' Ψ₀ h₀ Ψ''₂ h''₂ := by
-  obtain ⟨-, he, Dr, Dc, hXr, hR, hU, hb⟩ := hX
-  have hε' : ε ≤ ε' := (rescale_nums hσ he hle).2.2.2.1
-  refine ⟨one_pos, he.trans_le hε', Dr, Dc,
-    ⟨hXr.1, hXr.2.1, xiBounds_rescale hσ he hle hXr.2.2⟩,
-    ⟨fun x hx i => by rw [hR.1 x hx i, hΨ x hx i],
-      fun x hx i => by rw [hR.2 x hx i, hh x hx i]⟩, hU,
-    xiCBounds_congr hΨ hh (xiCBounds_rescale hσ he hle hb)⟩
-
-/-- **Same-centre rescaling of `Ξ^c_n(𝔹; σ, ε)`** with the same displacement. -/
-theorem xiC_rescale {a : ℕ → ℝ} {ν σ ε ε' : ℝ} {n : ℕ}
-    {Ψ₀ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
-    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} (hσ : 1 ≤ σ) (hle : σ ^ 2 * ε ≤ ε')
-    (hX : XiC G a ν n σ ε Ψ₀ h₀ Ψ'' h'') : XiC G a ν n 1 ε' Ψ₀ h₀ Ψ'' h'' :=
-  xiC_rescale_of_agree hσ hle (fun _ _ _ => rfl) (fun _ _ _ => rfl) hX
-
-end Rescale
 
 section RayDom
 

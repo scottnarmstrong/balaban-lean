@@ -28,7 +28,6 @@ open Classical in
 place the whole local datum inside the class chart needed by `CRotE`. -/
 theorem trickFnA_shiftTerm_eq_of_dataHyp_small
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
@@ -52,7 +51,7 @@ theorem trickFnA_shiftTerm_eq_of_dataHyp_small
         (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
           (pack S ψ b) (z - y))
         (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S (pack S ψ b)) := by
-  exact trickFnA_shiftTerm_eq_of_local_bounds hcl hcr hBg hν hμν hj1 hjk hy hX hyX
+  exact trickFnA_shiftTerm_eq_of_local_bounds hcl hBg hν hμν hj1 hjk hy hX hyX
     hS hne hrad (pack S ψ b) hc
     (local_spin_bound_of_dataHyp hjk hy hX hyX hS' dat hσε hcentre hsmall)
     (by intro i; simpa only [pack, Sum.elim_inr] using hb i)

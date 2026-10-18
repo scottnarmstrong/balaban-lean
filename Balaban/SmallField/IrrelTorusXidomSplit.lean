@@ -31,7 +31,6 @@ ones. The class-chart input is at the same mass as the term. -/
 theorem shiftTerm_discrepancy_bound_of_threshold
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
@@ -66,14 +65,14 @@ theorem shiftTerm_discrepancy_bound_of_threshold
         Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) := by
   have hE0 := hP.E₀_nonneg
   by_cases hlarge : 1 ≤ ρ * (1 + sizeJ P.m₀ j X)
-  · exact shiftTerm_discrepancy_bound_of_large hcl hcr hBg hν hμν hj1 hjk
+  · exact shiftTerm_discrepancy_bound_of_large hcl hBg hν hμν hj1 hjk
       hy hX hyX hS hne hrad (pack S ψ b) hchart hρ.le hlarge
   have hA : 0 ≤ diamA d L P.m₀ m₁ := diamA_nonneg d L P.m₀ m₁
   have hsmall : q + diamA d L P.m₀ m₁ *
       (1 + sizeJ P.m₀ j X) * (σ * ε) ≤ r :=
     path_fits_of_not_large hA hσε hρ hbase hlarge
   by_cases hc : pack S ψ b ∈ TubeAniso i₀ ν r S
-  · have he := trickFnA_shiftTerm_eq_of_dataHyp_small hcl hcr hBg hν hμν
+  · have he := trickFnA_shiftTerm_eq_of_dataHyp_small hcl hBg hν hμν
       hj1 hjk hy hX hyX hS hS' hne hrad dat hσε hcentre hsmall hb hbl hc
     rw [he]
     simp only [sub_self, norm_zero]

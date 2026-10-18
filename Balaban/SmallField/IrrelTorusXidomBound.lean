@@ -33,7 +33,6 @@ coordinate bounds are explicit quantitative hypotheses. -/
 theorem irrelTorus_bound_of_dataHyp_of_threshold
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
-    (hcr : CRotE P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
@@ -109,7 +108,7 @@ theorem irrelTorus_bound_of_dataHyp_of_threshold
       XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ' h' := dat.mem
   have hcenter' : ∀ i, ‖ψ 0 i - (Pi.single i₀ 1 : Spin N) i‖ ≤ q := by
     simpa only [hψ0] using hcentre
-  have hdisc := shiftTerm_discrepancy_bound_of_threshold hP hcl hcr hBg hν hμν
+  have hdisc := shiftTerm_discrepancy_bound_of_threshold hP hcl hBg hν hμν
     hj1 hjk hy hX hyX hS hS' hne hrad dat hσε hcenter' hb hbl hρ hbase hchart
   have hItw := hCI
     (⟨{S}, fun _ => sizeJ P.m₀ j X, fun S' c => trickFnA i₀ ν r (fun c' : Cfg d N S' =>
@@ -117,10 +116,10 @@ theorem irrelTorus_bound_of_dataHyp_of_threshold
         (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S' c' (z - y))
         (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S' c')) c⟩ : TermFamily d N)
     i₀ i₁ ν r P.E₀ P.κ _ _
-    (premisesTermAniso_centred hcl hcr hBg hν hμν hj1 hjk hy hX hyX
+    (premisesTermAniso_centred hcl hBg hν hμν hj1 hjk hy hX hyX
       hS hS' hne hrad) ψ b s σ ε K₂ dat S (Set.mem_singleton S)
     hs hσs hR hrad.1 hrad.2.1 hε hεΛ hσ1 hτ hν.le hνσ hP.E₀_nonneg hK
-  have hEq := irrelTorus_eq_Itw_centred_add_discrepancy hcl hcr hBg hν hμν
+  have hEq := irrelTorus_eq_Itw_centred_add_discrepancy hcl hBg hν hμν
     hj1 hjk hN hy hX hyX hXne hSdef hne hrad (Ψ := Ψ) hv
   have hF : Tm.E j y X
       (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S

@@ -45,82 +45,24 @@ variable {P : Consts} {β ν a : ℕ → ℝ} {Tm : Terms d L N₁ m₁ k N ϱ}
   {ρd : (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) → (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
   {Ek : ℝ} {j : ℕ}
 
-/-- **Rotation invariance of the centred term** (from (H.3) `rotE`): two configurations in the
-ball of radius `ρ` around the reference point, related by a matrix `M` of `IsCRot` type with entries
-bounded by `B`, have the same term.  The domain lemma is used at the radius `ρ₂ ≥ ρ (1 + N B)`. -/
+/-- **Rotation invariance of the centred term** (from the real clause `rotE` and the polar path,
+`E_rot_at`): two configurations in the ball of radius `ρ` around the reference point, related by a
+matrix `M` of `IsCRot` type with entries bounded by `B`, have the same term.  The domain lemma is
+used at the radius `ρ₂ ≥ 2 rotRad N B ρ`. -/
 theorem EauxC_rot (hsf : IsSF P β ν a Tm ρd Ek)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
     (hν : 0 < ν k) (hj1 : 1 ≤ j) (hjk : j ≤ k) {X' : Finset (Site d)}
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (y : Site d) (hnw : NonWind L N₁ m₁ k j X') (hy : y ∈ X') (i₀ : Fin N)
     {δ ρ ρ₂ B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hρ0 : 0 < ρ) (hB : 0 ≤ B) (hρ₂ : ρ * (1 + N * B) ≤ ρ₂) (hρ : (N : ℝ) * ρ₂ < δ ^ 2)
+    (hρ0 : 0 < ρ) (hB : 0 ≤ B) (hρ₂ : 2 * rotRad N B ρ ≤ ρ₂) (hρ : (N : ℝ) * ρ₂ < δ ^ 2)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsCRot M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ)
     (hu' : u' ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ) (hrot : rotCfgL M X' u = u') :
-    EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u' = EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u := by
-  set x₀ : CTorus d L N₁ m₁ k := blockPt j y with hx₀def
-  have hx₀ : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x₀ ∈ X' :=
-    blockPt_mem_Ypoly hjk hnw hy
-  have hNB : 0 ≤ (N : ℝ) * B := by positivity
-  have hρρ₂ : ρ ≤ ρ₂ := by nlinarith
-  have hρ₂0 : 0 < ρ₂ := lt_of_lt_of_le hρ0 hρρ₂
-  have ball_mono : ∀ {c : Cfg d N X'}, c ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ →
-      c ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ₂ := fun hc => ball_subset_ball hρρ₂ hc
-  have hXi := fp_mem_xiDom hsf hBg hν hj1 hjk hX i₀ hδ0 hδc0 hδc1 hρ₂0 hρ hε (ball_mono hu)
-  have h0u : fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u' x₀ = M.mulVec (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u x₀) := by
-    have := fieldOf_rot (j := j) (i₀ := i₀) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) M u
-      (x := x₀) hx₀
-    rw [← hrot, this]; rfl
-  have hMe : ∀ i, ‖(M.mulVec (Pi.single i₀ 1 : Fin N → ℂ)) i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤
-      ρ * (1 + N * B) := by
-    intro i
-    have h1 := fieldOf_sub_le (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (j := j) hu' hρ0.le x₀ i
-    have h2 := fun k' => fieldOf_sub_le (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (j := j) hu hρ0.le x₀ k'
-    have e1 : (M.mulVec (Pi.single i₀ 1 : Fin N → ℂ)) i - (Pi.single i₀ 1 : Fin N → ℂ) i =
-        (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u' x₀ i - (Pi.single i₀ 1 : Fin N → ℂ) i) -
-          ∑ k', M i k' * (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u x₀ k' - (Pi.single i₀ 1 : Fin N → ℂ) k') := by
-      rw [h0u]
-      simp only [Matrix.mulVec, dotProduct, mul_sub, Finset.sum_sub_distrib]
-      ring
-    rw [e1]
-    calc _ ≤ ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u' x₀ i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ +
-          ‖∑ k', M i k' * (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u x₀ k' - (Pi.single i₀ 1 : Fin N → ℂ) k')‖ :=
-          norm_sub_le _ _
-      _ ≤ ρ + ∑ _k' : Fin N, B * ρ := by
-          gcongr
-          refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun k' _ => ?_)
-          rw [norm_mul]
-          exact mul_le_mul (hMb i k') (h2 k') (norm_nonneg _) hB
-      _ = ρ * (1 + N * B) := by simp; ring
-  have hXirot : XiDom (Tm.gs j (Ypoly j X')) (aIdeal L k (a k)) (bgMass L k (β k) (ν k)) j
-      (P.eps d L j) (rotField M (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u)) (rotField M (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (nuIdeal L k (ν k) j) X' u)) := by
-    rw [← hOf_rot, hrot]
-    refine xiDom_of_field hsf hBg hν hj1 hjk hX i₀ hδ0 hδc0 hδc1 hρ₂0 hρ hε _ (fun i => u' (Sum.inr i))
-      (fun x i => ?_) (fun x x' h => ?_) (fun i => ?_)
-    · by_cases hx : unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x ∈ X'
-      · rw [← fieldOf_rot M u hx, hrot]
-        exact (fieldOf_sub_le hu' hρ0.le x i).trans hρρ₂
-      · have : fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u x = (Pi.single i₀ 1 : Fin N → ℂ) := by
-          funext i; simp [fieldOf, hx]
-        have e : rotField M (fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ X' u) x = M.mulVec (Pi.single i₀ 1 : Fin N → ℂ) := by
-          simp [rotField, this]
-        rw [e]; exact (hMe i).trans hρ₂
-    · simp only [rotField]
-      rw [fieldOf_block u h]
-    · have := (dist_le_pi_dist u' (refPt i₀ (nuIdeal L k (ν k) j) X') (Sum.inr i)).trans_lt
-        (mem_ball.1 hu')
-      rw [dist_eq_norm, refPt_inr] at this
-      exact this.trans_le hρρ₂
-  have hr := hsf.rotE j hj1 hjk x₀ (Ypoly j X') hX hx₀ M hM _ _ hXi hXirot
-  unfold EauxC
-  rw [← hr]
-  refine hsf.localE j x₀ (Ypoly j X') _ _ _ _ (fun x hx => ⟨?_, ?_⟩)
-  · rw [← hrot, fieldOf_rot M u hx]
-  · rw [← hrot, hOf_rot]
-
-
+    EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u' = EauxC Tm j i₀ (nuIdeal L k (ν k) j) y X' u :=
+  E_rot_at hsf hBg hν hj1 hjk hX (blockPt j y) (blockPt_mem_Ypoly hjk hnw hy) i₀ hδ0 hδc0 hδc1 hρ0
+    hB hρ₂ hρ hε hM hMb hu hu' hrot
 
 /-- **Rotation invariance for `O(N, ℂ)`**: as `Eaux_rot`, for any complex orthogonal `M`
 (determinant `±1`), using one real reflection `P` of a coordinate `p ≠ i₀`. -/
@@ -130,7 +72,7 @@ theorem EauxC_orth (hsf : IsSF P β ν a Tm ρd Ek)
     (hX : IsPolyDom P.m₀ j (Ypoly (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j X'))
     (y : Site d) (hnw : NonWind L N₁ m₁ k j X') (hy : y ∈ X') {i₀ p : Fin N} (hp : p ≠ i₀)
     {δ ρ ρ₂ B : ℝ} (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
-    (hρ0 : 0 < ρ) (hB : 1 ≤ B) (hρ₂ : ρ * (1 + N * B) ≤ ρ₂) (hρ : (N : ℝ) * ρ₂ < δ ^ 2)
+    (hρ0 : 0 < ρ) (hB : 1 ≤ B) (hρ₂ : 2 * rotRad N B ρ ≤ ρ₂) (hρ : (N : ℝ) * ρ₂ < δ ^ 2)
     (hε : (2 * bgK1 d L N + 2) * δ ≤ P.eps d L j)
     {M : Matrix (Fin N) (Fin N) ℂ} (hM : IsOrth M) (hMb : ∀ i k, ‖M i k‖ ≤ B)
     {u u' : Cfg d N X'} (hu : u ∈ ball (refPt i₀ (nuIdeal L k (ν k) j) X') ρ)
