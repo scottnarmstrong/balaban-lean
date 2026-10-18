@@ -7,6 +7,7 @@ module
 
 public import Balaban.Spine.RootFInputs
 public import Balaban.LargeField.Counter.LamBounds
+public import Balaban.Flow.RunningCoefficients
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Linarith
 
@@ -133,9 +134,16 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
   have h14 : 14 ≤ L ^ (1 + 3) := by
     calc 14 ≤ 3 ^ (1 + 3) := by norm_num
       _ ≤ L ^ (1 + 3) := Nat.pow_le_pow_left hL _
+  have hq0 : 0 < Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) :=
+    Flow.rate_pos (by linarith) _
+  have hq1 : Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) < 1 :=
+    Flow.rate_lt_one (by linarith) (by linarith)
+  have hc8 : 0 < (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) /
+      (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) := div_pos (by linarith) (by positivity)
   refine ⟨fun _ _ => prefixTyping d L,
     fun κ c₉ => ⟨(1 + 2 * δ) / 4, (1 - 2 * δ) / 4,
-      (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1), 0, 1,
+      (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1), 0,
+      (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) / (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)),
       c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1))), 1, 1,
       7 / 8 * ((L : ℝ) ^ 2)⁻¹, fun _ => 1, 1⟩,
     fun _ _ => ⟨3, 0, 0, 1, 0⟩, fun _ _ => ⟨0, 0, 2, fun _ => 1⟩,
@@ -145,12 +153,12 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
   intro κ hκ c₉ hc₉
   have hκf : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by positivity
   refine ⟨hL, by norm_num, by norm_num, ?_, (Nat.mul_one _).symm, h14, le_rfl, rfl, ?_, ?_, by norm_num,
-    le_rfl, ?_, ?_, ?_, ?_, le_rfl⟩
+    le_rfl, ?_, ?_, ?_, ?_, le_rfl, ?_⟩
   · have h1 : (8 : ℝ) / 9 ≤ 1 - ((L : ℝ) ^ 2)⁻¹ := by linarith
     have h2 : (64 : ℝ) / 81 ≤ (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2 := by nlinarith
     show (9 : ℝ) / 10 ≤ 5 / 4 * (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2
     nlinarith
-  · refine ⟨?_, ?_, ?_, ?_, by norm_num, hκf, mul_pos (by norm_num) hinv0, ?_, by norm_num, le_rfl⟩ <;>
+  · refine ⟨?_, ?_, ?_, ?_, by norm_num, hκf, mul_pos (by norm_num) hinv0, ?_, hc8, le_rfl⟩ <;>
       (try simp only [prefixTyping_L]) <;> linarith
   · show 0 < c₉ / 2 * Real.exp _
     positivity
@@ -170,3 +178,8 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
         _ ≤ L ^ (1 + 3) := Nat.pow_le_pow_right (by omega) (by omega)
     · show ((L ^ (1 + 3) : ℕ) : ℝ) ^ d * (2 + 0 + 3) ≤ ((L ^ (1 + 3) : ℕ) : ℝ) ^ d * 5
       norm_num
+  · show (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) / (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) *
+        Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
+      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))
+    refine le_of_eq ?_
+    field_simp

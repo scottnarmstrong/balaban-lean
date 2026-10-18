@@ -304,9 +304,13 @@ bound `ε = c₈ q/(1 - q) ≤ 1/20` that turns the flow bound `|ξ^{(j)}| ≤ (
 (I.2) (`runningHypTo_succ_of_coeffBounds`). The flow of P4 satisfies the flow bound with
 `c₈ = c_ξ/β`, so a fixed `c₈` costs only the threshold `β ≥ c_ξ/c₈`. -/
 def FlowRateInput : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
-    (P6 κ c₉).c₈ * Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ ≤
-      1 / 20 * (1 - Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ)
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → FlowRateAt T P6 κ c₉
+
+/-- **`FlowRateInput` from the prefix**: the rate condition is a clause of `PrefixInput`. -/
+theorem flowRateInput_of_prefix {d : ℕ} {δ : ℝ} {T : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Consts}
+    {C7 : ℝ → ℝ → Consts7} {PB : ℝ → ℝ → BudgetConsts} {cs₀ : ℝ → ℝ → OpConsts}
+    {M1 c : ℝ → ℝ → ℕ} {ϱ : ℝ → ℝ → ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) :
+    FlowRateInput T P6 := fun κ hκ c₉ hc₉ => (hA1 κ hκ c₉ hc₉).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
 
 /-- **The class step from its sub-inputs** (LFR Theorem IV.3.2 (a)–(d) for `1 ≤ k < k₀`): LF-3
 (`SFStepInput`) gives `ρ' ∈ ℛ^pre_{k+1}` with `∫ ρ' = c ∫ ρ`; the coefficient step
@@ -326,6 +330,14 @@ theorem classStepInput_of_parts (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH 
     hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf (k + 1) (by omega) hk ρ' νk'
       (hpre.succ (hQ κ hκ c₉ hc₉))
   exact ⟨ρ'', νk', hcl, hint.trans_eq hint'⟩
+
+/-- **The class step from its sub-inputs and the prefix**: `classStepInput_of_parts`, the rate
+condition `FlowRateInput` being a clause of `PrefixInput`. -/
+theorem classStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+    (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hR : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    ClassStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ :=
+  classStepInput_of_parts d N T P6 C7 PB cs₀ M1 c rH ϱ hSF hR (flowRateInput_of_prefix hA1)
 
 end Inputs
 

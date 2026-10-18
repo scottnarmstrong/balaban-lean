@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.Coherence
 public import Balaban.Background.ExistenceSetup
 public import Balaban.Frozen.Model.PartitionFunction
+public import Balaban.Flow.RunningCoefficients
 public import Balaban.Frozen.Geometry.IsPolymer
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Analysis.Analytic.Basic
@@ -263,6 +264,12 @@ def TypingClauses (d : ℕ) (Ty : ℝ → ℝ → Typing) (PB : ℝ → ℝ → 
     0 < (PB κ c₉).H0 ∧ 0 ≤ (PB κ c₉).c1 ∧ (Ty κ c₉).L ≤ (Ty κ c₉).M ∧
     ((Ty κ c₉).M : ℝ) ^ d * ((PB κ c₉).H0 + (PB κ c₉).c1 + 3) ≤ (Ty κ c₉).cv
 
+/-- **The coefficient step at one pair `κ, c₉` (LFR Theorem IV.3.2 (d); prefix row 10).** The
+Def-6 constants satisfy `c₈ q ≤ (1 - q)/20` with `q = L^{-2γ}`, i.e. `ε = c₈ q/(1 - q) ≤ 1/20`. -/
+def FlowRateAt (κ c₉ : ℝ) : Prop :=
+  (P6 κ c₉).c₈ * Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ ≤
+    1 / 20 * (1 - Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ)
+
 /-- **A1 (the prefix; LFR §I.1.4).** For every `κ, c₉ > 0` the constants of the prefix satisfy every
 condition that a member of the classes needs, so that a wrong choice cannot empty them:
 * row 3: `L ≥ 3` (Root-F's `2 ≤ L` follows);
@@ -278,7 +285,9 @@ and the ties of the class constants to Root-F's (LFR D-IV.7, rows 1, 5, 10): `δ
 
 and the constant conditions of the typing and of the background theory (`TypingClauses`: the typing
 is `Typing.Ok` in dimension `d`, the windows of (H-λ), the conditions of Lemma B on `H₀, c₁, M, c_v`;
-and `R₀(d, L) ≤ ϱ`, the separation of the generating sets, `bgR0`). -/
+and `R₀(d, L) ≤ ϱ`, the separation of the generating sets, `bgR0`);
+
+and the coefficient rate (row 10, `c₈ ∈ (0, c₈′]`): `FlowRateAt`, `c₈ q ≤ (1 - q)/20`). -/
 def PrefixInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
     3 ≤ (T κ c₉).L ∧
@@ -291,7 +300,8 @@ def PrefixInput : Prop :=
     δ ≤ (P6 κ c₉).γ - (P6 κ c₉).α₁ ∧
     (3 : ℝ) ^ (d + 1) * ((T κ c₉).L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ (P6 κ c₉).κ ∧
     (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ) ∧
-    TypingClauses d T PB κ c₉ ∧ Background.bgR0 d (T κ c₉).L ≤ ϱ κ c₉
+    TypingClauses d T PB κ c₉ ∧ Background.bgR0 d (T κ c₉).L ≤ ϱ κ c₉ ∧
+    FlowRateAt T P6 κ c₉
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5 p.
 487).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
