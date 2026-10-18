@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowCloseHidActionU
+public import Balaban.LargeField.R.WindowDuHidExists
 public import Balaban.LargeField.R.RRemovedHidMain
 
 /-!
@@ -510,56 +511,8 @@ theorem exists_window_hid_action :
               (((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod
                 (Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A //
                   p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin)).prod
-                (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)))) = 0) := by
-  classical
-  have hrfun : r = fun j => 3 * (S.d : ℝ) * S.L * cs.delta j := funext hr
-  subst hrfun
-  have hscale_nd : ∀ s (y : BlockAt S n M K s), nd ⟨s, y⟩ → k1 < s := by
-    intro s y h
-    cases s with
-    | zero => exact absurd h (hnd0 y)
-    | succ j => obtain ⟨h1, -, -⟩ := (hnd j y).mp h; omega
-  obtain ⟨hTo, hTi, hTm⟩ := canonT_spec geo cs SD KD hmk hm hq T hT
-  have hNj : ∀ p ∈ Nd, k1 < ((p.1.1.1 : Fin (m' + 1)) : ℕ) := fun p hp =>
-    hscale_nd _ _ ((hNd p).mp hp).2
-  have hTk : ∀ p ∈ T, ((p.1.1.1 : Fin (m' + 1)) : ℕ) = k1 := fun p hp => ((hT p).mp hp).1
-  have hNT : ∀ p ∈ Nd, p ∉ T := fun p hp hpT => by
-    have := hNj p hp; have := hTk p hpT; omega
-  have hG3z : ∀ y ∈ G3, ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y := fun y hy =>
-    gaussBlocks_zblk hm Z ((hG3 y).mp hy).1
-  have hG3' : ∀ y ∈ G3, y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧
-      ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) := fun y hy =>
-    ⟨ZBlk_mem_Vblk hm Z y (hG3z y hy), hG3z y hy, ((hG3 y).mp hy).2.1, ((hG3 y).mp hy).2.2⟩
-  obtain ⟨κc, Θ, hinj, hκ1, hκ2, hMP, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10⟩ :=
-    exists_regroup_shell geo cs SD KD hmk hm hq Z0 V2 P2 hZ0 hV2 T hTo hTi Nd hNj hNT G3 hG3'
-  have hparCx := exists_parC geo cs SD KD hmk hm hq T hTm κc hκ1
-  have hparC := hparCx.choose_spec
-  have hjSx := shell_of_tubes geo cs SD KD hk1 hm hq nd hnd
-    (fun j => 3 * (S.d : ℝ) * S.L * cs.delta j) TB hTB ρ hρ κc hκ1 hκ2
-  have hTnr : ∀ t ∈ T, t ∉ Set.range κc := by
-    rintro t ht ⟨⟨C, y | q⟩, hκ⟩
-    · refine hTo C y ((hκ1 C y) ▸ (κc ⟨C, Sum.inl y⟩).2) ?_
-      convert ht using 1
-      exact (Subtype.ext (hκ1 C y)).symm.trans hκ
-    · refine hTi C q ((hκ2 C q) ▸ (κc ⟨C, Sum.inr q⟩).2) ?_
-      convert ht using 1
-      exact (Subtype.ext (hκ2 C q)).symm.trans hκ
-  have hjT := fun (t : ↥T) => ((hjSx.choose_spec t.1).resolve_left (hTnr t.1 t.2)).resolve_left
-    (fun h => hNT t.1 ((hNd t.1).mpr h) t.2)
-  have hE3vol : ∀ par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1),
-      (Measure.pi fun t : ↥T => varMeasure N t.1.1.isSpin)
-        {w3 : ∀ t : ↥T, VarVal N t.1.1.isSpin |
-          ∀ t : ↥T, |‖VarVal.toEuc (w3 t)‖ ^ 2 - 1| < 3 * (S.d : ℝ) * S.L * cs.delta (hjSx.choose t.1)} ≤ 1 := by
-    intro par
-    refine pi_shell_le_one hN2 (fun t : ↥T => t.1.1.isSpin) (fun t => ?_)
-      (fun t => 3 * (S.d : ℝ) * S.L * cs.delta (hjSx.choose t.1))
-      (fun t => (hrad _ (hjT t).1 (hjT t).2.1).1) (fun t => (hrad _ (hjT t).1 (hjT t).2.1).2.1)
-      (fun t => (hrad _ (hjT t).1 (hjT t).2.1).2.2)
-    unfold InternalVars.isSpin
-    exact decide_eq_false (fun h => by have := hTk t.1 t.2; omega)
-  have hcore := window_hid_core_action_of_history_U geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq (fun j => 3 * (S.d : ℝ) * S.L * cs.delta j) TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc hjSx.choose hc0 hrr Zt δk cen radZ e cb hN2 Θ.symm (fun θ y => by have := e1 (Θ.symm θ) y; rw [Θ.apply_symm_apply] at this; exact this.symm) (fun θ y => by have := e2 (Θ.symm θ) y; rw [Θ.apply_symm_apply] at this; exact this.symm) (fun θ t => by have := e3 (Θ.symm θ) t; rw [Θ.apply_symm_apply] at this; exact this.symm) (fun θ C y => by have := e4 (Θ.symm θ) C y; rw [Θ.apply_symm_apply] at this; exact this) (fun θ C q => by have := e5 (Θ.symm θ) C q; rw [Θ.apply_symm_apply] at this; exact this) (fun θ y => by have := e7 (Θ.symm θ) y; rw [Θ.apply_symm_apply] at this; exact this.symm) (fun θ t => by have := e9 (Θ.symm θ) t; rw [Θ.apply_symm_apply] at this; exact this.symm) Qtot (fun θ t => by have := e8 (Θ.symm θ) t; rw [Θ.apply_symm_apply] at this; exact this.symm) (fun θ => by have := e10 (Θ.symm θ); rw [Θ.apply_symm_apply] at this; exact this.symm) hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet hz0 hc hdL hβ haw hμ hr hTB cst hcst bw0 hbw0 hjSx.choose_spec hTnr hNT t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 hrad hκ2 hparCx.choose hparC F hF hδd hnamedU
-  exact ⟨κc, Θ, hparCx.choose, fun _ => {w3 | ∀ t : ↥T, |‖VarVal.toEuc (w3 t)‖ ^ 2 - 1| <
-    3 * (S.d : ℝ) * S.L * cs.delta (hjSx.choose t.1)}, hMP, hE3vol, hcore.1, hcore.2⟩
+                (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)))) = 0) :=
+  exists_window_hid_action_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd hc0 hrr Zt δk cen radZ e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet hz0 hc hδd hdL hβ haw hμ hr hTB cst hcst bw0 hbw0 t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 hrad F hF hT (fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => 0) (fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl) (fun κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 => window_hbG_namedC geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp (hnamedU κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10) hQtotv)
 
 end Core
 
