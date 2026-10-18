@@ -260,8 +260,9 @@ theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Co
 /-- The ranges `2 ≤ L` and `1 ≤ M` of Root-F from the prefix (`L ≥ 3`, `M = c M₁`, `c ≥ 14`,
 `M₁ ≥ 1`). -/
 theorem prefix_ranges {d : ℕ} {δ : ℝ} {Ty : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Consts}
-    {C7 : ℝ → ℝ → Consts7} {cs₀ : ℝ → ℝ → OpConsts} {M1 c : ℝ → ℝ → ℕ}
-    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c) {κ : ℝ} (hκ : 0 < κ) {c₉ : ℝ} (hc₉ : 0 < c₉) :
+    {C7 : ℝ → ℝ → Consts7} {PB : ℝ → ℝ → BudgetConsts} {cs₀ : ℝ → ℝ → OpConsts}
+    {M1 c : ℝ → ℝ → ℕ} {ϱ : ℝ → ℝ → ℝ}
+    (hA1 : PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ) {κ : ℝ} (hκ : 0 < κ) {c₉ : ℝ} (hc₉ : 0 < c₉) :
     2 ≤ (Ty κ c₉).L ∧ 1 ≤ (Ty κ c₉).M := by
   obtain ⟨hL3, -, -, -, hMc, hc14, hM11, -⟩ := hA1 κ hκ c₉ hc₉
   refine ⟨by omega, ?_⟩
@@ -280,7 +281,7 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
+    (hA1 : PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
@@ -420,7 +421,7 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
+    (hA1 : PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)

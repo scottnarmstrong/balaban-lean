@@ -2844,7 +2844,6 @@ public import Balaban.Spine.RootC
 public import Balaban.Spine.Witness
 public import Balaban.Spine.TransferAnalysis
 public import Balaban.Spine.Transfer
-public import Balaban.Spine.TransferWitness
 public import Balaban.Spine.ClassStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.InheritedBound

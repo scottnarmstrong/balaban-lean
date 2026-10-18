@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.Coherence
+public import Balaban.Background.ExistenceSetup
 public import Balaban.Frozen.Model.PartitionFunction
 public import Balaban.Frozen.Geometry.IsPolymer
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -142,7 +143,13 @@ def ActAgree (d N L M kf : ℕ)
 /-- **The body of `FlatClassAt` for given witnesses** `hM6, hkK, R, geo, cs, P, F, St, vc`: the
 representation `F` of `ρ` in `ℛ♭_k` (`IsRepFlat2`, horizon `k̂ = kf`) on the tori of the horizon
 `K = kf + 1`, with the outer constants of the prefix, `β_0 = β`, `ν_0 = ν`, `ν_k = νk`, (I.2) up to
-`k` (`RunningHypTo`) and the large-field half of (D8) (`LFCoherent`). -/
+`k` (`RunningHypTo`), the large-field half of (D8) (`LFCoherent`) and the mass bound
+`ν_k ≤ 9/10`. The mass bound is the form in which the flow gives (D9♭): at the first frozen scale
+`ν_{k₀} ≤ e^{2ε}/β_{k₀}` (I.2), and `ν_{k+1} = ν_k L² (1+ξ₃)/(1+ξ₂) ≤ (7/8) e^{c_ξ/β}` for
+`k < k_f` (LFR Theorem IV.2.2 (D9♭); the base step gives the same for `ν₁`), which is at most
+`9/10` for `β ≥ β₀`. With (I.2) (`ν_j = ν L^{2j} δ_j`, `|log δ_j| ≤ 1/20`) it gives
+`ν_j L^{-2j} L^{2k} ≤ e^{1/10} · 9/10 ≤ 1` at every level `j ≤ k`, the standing mass hypothesis of
+the background theory at the stopping scale (`Spine/InheritedBound.lean`). -/
 def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
     [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
@@ -158,7 +165,7 @@ def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : Bud
     IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
       kf hM6 hkK F ρ St vc ∧
     F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F ∧ νk ≤ 9 / 10
 
 /-- **The a priori horizon `k̂_f`** (LFR (I.1), D-IV.1): the least `k` with `ν L^{2k+2} ≥ 1`.
 Root-F's `kf` is `k̂_f`; the flow runs on the tori with `M L^{k̂_f + 1} ∣ ℓ`. -/
@@ -244,6 +251,18 @@ variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ �
   (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
   (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
 
+/-- **The typing conditions of LF-2 that the transfer and the background theory read**, for one
+pair `κ, c₉`: the typing `T = Ty κ c₉` with dimension `d` is `Typing.Ok`;
+`θ₋ ≤ (d-2) log L ≤ θ₊` ((H-λ), first part); `c_H ≥ d(d-2) log L / 2` ((H-λ), the window of LFR
+Lemma IV.3.3 (c)); and for Lemma B: `H₀ > 0`, `c₁ ≥ 0`, `L ≤ M`, `c_v ≥ M^d (H₀ + c₁ + 3)`. -/
+def TypingClauses (d : ℕ) (Ty : ℝ → ℝ → Typing) (PB : ℝ → ℝ → BudgetConsts) (κ c₉ : ℝ) :
+    Prop :=
+  ({ Ty κ c₉ with d := d } : Typing).Ok ∧
+    ((Ty κ c₉).θm ≤ thetaOf d (Ty κ c₉).L ∧ thetaOf d (Ty κ c₉).L ≤ (Ty κ c₉).θp) ∧
+    (d : ℝ) * ((d : ℝ) - 2) / 2 * Real.log (Ty κ c₉).L ≤ (Ty κ c₉).cH ∧
+    0 < (PB κ c₉).H0 ∧ 0 ≤ (PB κ c₉).c1 ∧ (Ty κ c₉).L ≤ (Ty κ c₉).M ∧
+    ((Ty κ c₉).M : ℝ) ^ d * ((PB κ c₉).H0 + (PB κ c₉).c1 + 3) ≤ (Ty κ c₉).cv
+
 /-- **A1 (the prefix; LFR §I.1.4).** For every `κ, c₉ > 0` the constants of the prefix satisfy every
 condition that a member of the classes needs, so that a wrong choice cannot empty them:
 * row 3: `L ≥ 3` (Root-F's `2 ≤ L` follows);
@@ -255,8 +274,11 @@ condition that a member of the classes needs, so that a wrong choice cannot empt
   (H.7)), `B₀ > 0` (the strict bound (D7)), `C_b ≥ 0` (the bound (S0) of `b_k`);
 
 and the ties of the class constants to Root-F's (LFR D-IV.7, rows 1, 5, 10): `δ ≤ γ - α₁`,
-`κ_flow ≥ C_{d,L} (κ + 1)` with `C_{d,L} = 3^{d+1} L^{2d+1}`, and `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`.
--/
+`κ_flow ≥ C_{d,L} (κ + 1)` with `C_{d,L} = 3^{d+1} L^{2d+1}`, and `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`;
+
+and the constant conditions of the typing and of the background theory (`TypingClauses`: the typing
+is `Typing.Ok` in dimension `d`, the windows of (H-λ), the conditions of Lemma B on `H₀, c₁, M, c_v`;
+and `R₀(d, L) ≤ ϱ`, the separation of the generating sets, `bgR0`). -/
 def PrefixInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
     3 ≤ (T κ c₉).L ∧
@@ -268,7 +290,8 @@ def PrefixInput : Prop :=
     0 ≤ (cs₀ κ c₉).Cb ∧
     δ ≤ (P6 κ c₉).γ - (P6 κ c₉).α₁ ∧
     (3 : ℝ) ^ (d + 1) * ((T κ c₉).L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ (P6 κ c₉).κ ∧
-    (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ)
+    (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ) ∧
+    TypingClauses d T PB κ c₉ ∧ Background.bgR0 d (T κ c₉).L ≤ ϱ κ c₉
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5 p.
 487).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
