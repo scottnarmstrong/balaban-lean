@@ -2776,3 +2776,6 @@ public import Balaban.LargeField.R.WindowDuMass
 public import Balaban.LargeField.R.WindowDuSwitch
 public import Balaban.LargeField.R.WindowDuRead
 public import Balaban.LargeField.R.WindowDuPiece
+public import Balaban.LargeField.R.WindowDuConv
+public import Balaban.LargeField.R.WindowDuBall
+public import Balaban.LargeField.R.WindowDuMassTerm
