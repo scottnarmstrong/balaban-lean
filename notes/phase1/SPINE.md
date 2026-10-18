@@ -366,6 +366,7 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * (c) the reindexing of `Σ_{x∈X}` by `A`.
 
      ~400–700 lines.
+     W1113 (`Spine/InheritedAgreeGeom.lean`, `Spine/InheritedAgree.lean`): (a), (b), (c) proved; `inheritedAgreeInput` is unconditional (needs only `FlatRep`: `D8SF.M_eq`, `SFFlat2` locality, `Geo.hc` for `M ≥ 14`).
    * The exactness itself comes from the flow: (D8SF) at the stopping scale is produced by `ClassStepInput` and `FrozenStepInput`
      (item 3 (c) of `SFStepInput`: the inherited terms on two tori). W1089 (`e0CoeffFamily_value_fromTowerG_core_twoTorus`) is exact
      for the core family only. W1088 shows that closeness is not enough: the canonical-torus resummation
