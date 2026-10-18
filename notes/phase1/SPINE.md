@@ -272,6 +272,148 @@ domain, so its proofs survive the change.
    `exists_rootParams_consts_all` (`c₈ = 1`, `L = 7`, `γ < 1/2`) violates it, since then `q > 1/7`. `flowRateInput_of_lower`
    lowers `c₈`; the flow bound then costs `β ≥ c_ξ/c₈` (LF-7 (d)).
 
+## LastIntegralInput sub-inputs (W1108)
+
+**PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA : InheritedAgreeInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
+    LastIntegralInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ
+```
+It follows LFR Thm IV.4.1 with Def. IV.5.2 and Thm IV.5.3. For a member `ρ` of `ℛ♭_k` at the stopping scale with a
+representation `F`, the activities are `p = q + 1_{j=k+1}(a + b)`; `E` is the vacuum term of A6-3; the threshold is the largest of
+the four. The three families:
+* `q = inhObs F.sf P6.m₀ h` (a definition). For `1 ≤ j ≤ k` and `X ∈ 𝒟_j` (`IsPolyDom`),
+  `q_j(X; g) = Σ_{x∈X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩`, and `0` otherwise. These are the (H.7) terms of the class at the
+  constant configuration (LFR Def. IV.5.2, first item; P7 (4.17)).
+  They are read on the Def-6 torus `N₁ = ℓ/(L^{m₁}L^k)`, which is the torus `sfIdx` of `RepFam.ctx` (`sideDiv_eq_sfIdx`).
+* `a`: the scale-`(k+1)` activities of the small-field part. That part is `Ξ^sf = sfIntegral F hM6 hkK vc h nK g :=
+  ∫ sfFactor2 (F.ctx hM6 hkK nK) vc univ ψ h g dψ`, the integral of the small-field factor of (D1) on the whole torus, i.e. the term
+  of P7 (4.1) with no large-field region.
+* `b`: the scale-`(k+1)` activities of the large-field part `∫ρ/Ξ^sf`.
+
+Proved inside:
+* the locality of `q` in `g|_X`, from `localM` on every Def-6 torus (`inhObs_actLocal`, through `SFFlat2.torus`);
+* `inhObs_of_lt` (`q = 0` above `k`) and `inhObs_zero` (`q = 0` at `g = 0`);
+* the amplitude budget: `q` is at most `c₉/2` at `j ≤ k`, and `a`, `b` at most `c₉/4` each at `j = k + 1`
+  (`ActBoundAt.add`, `ActBoundAt.add_actAt_succ`);
+* the exponential identity (`sum_actAdd_actAt`).
+
+Pieces of `Spine/RootFInputs.lean` (one copy each; the two definitions built from them are definitionally the old ones):
+* `FlatRep … hM6 hkK R geo cs P F St vc ρ νk`, the body of `FlatClassAt` for given witnesses; `FlatClassAt` is now
+  `∃ hM6 hkK R geo cs P F St vc, FlatRep …`, so the sub-inputs can read `F`;
+* `ActSupportAt`, `ActAnalyticAt`, `ActLocalAt`, `ActBoundAt` (the clauses on one torus `𝕋_ℓ`) and `ActAgree`;
+  `ObservableActivities` is now `(∀ admissible ℓ, ActSupportAt ∧ ActAnalyticAt ∧ ActLocalAt ∧ ActBoundAt) ∧ ActAgree`.
+  The literal conjunction of five tori-quantified clauses would not be definitionally the old body (the `∀ ℓ` would be split),
+  so the four torus clauses are stated on one torus.
+The lemmas `.add`, `.mono`, `.actAt` of these clauses are in `Spine/LastIntegral.lean`. Rule 10: the clause predicates are inhabited
+by `observableActivities_zero` and `FlatRep` by `flatClassAt_witness` (the same unused configuration `kf = 0`). The four sub-inputs
+need the exemption of the seven inputs, as `SFStepInput` and `RInput` do (ledger, 2026-10-18). Their hypothesis is `FlatRep` at
+`K = k̂_f + 1`, whose non-vacuity at used configurations is item D4. All four are stated at general `d, N` and general constants.
+
+**A6-1 and A6-2 need no source input** beyond the class, its (D8) and the ties of `PrefixInput`: they are bounded proof tasks (sketches
+below). A6-3 and A6-4 are the last integral proper (blocker 5).
+
+1. **`InheritedBoundInput` (A6-1, the conversion of the observable terms; LFR Thm IV.5.3 items 2, 4, 5 for `j ≤ k_f`; P4 (H.7)).**
+   On every admissible torus, `ActSupportAt … k`, `ActAnalyticAt` and `ActBoundAt … c₉ … k` of `inhObs F.sf P6.m₀ h`.
+   * Landed (general `d, L, N, m₀, m₁`):
+     * the class clauses `SFTermClauses.boundM` and `.analyticM` (on `sfDom`, with `Def6.l1 g < 1`), on every Def-6 torus
+       (`IsSF2.terms`, `SFFlat2.torus`);
+     * `G1_card` (`|X| ≤ c1 d L · cellSide^d (1 + d_j(X))`, general `m₀`, `L^{m₀} ∣ N₁`);
+     * `rootRate_of_sizeJ`, `rootRate_of_dExt` and `sitesOf_isPolymer` (`m₀ = 1`);
+     * `prefixInput_exists`; the tower's analogue `mObs_rootF_of_obsBound`.
+   * Open:
+     * (a) the constant configuration `(constFld h, constFld h)` lies in `sfDom`. Since R6 (W1107) this is `birthXiDom`:
+       `XiDom (Tm.gs j X) (aIdeal L k (a k)) (physMass L j ν_j) j ε_j`. It needs `XiAt` of the constant real datum,
+       `InUnionDomainC` and `XiCBounds` with zero complex parts;
+     * (b) `IsPolyDom m₀ j` ⇒ `IsPolymer d ℓ (M L^j)` for general `m₀`. The boxes of `ChosenOne` have side `L·M L^j` and are aligned
+       at `cellSide = M L^j`, so this generalizes `sitesOf_isPolymer`;
+     * (c) the arithmetic:
+       * `|Σ_i g_i ℳ_i| ≤ (Σ_i |g_i|) vn ℳ`, and Root-F's ball lies in `{Def6.l1 < 1}`;
+       * `(L^j)^{-((d-2)/2+γ-α₁)} ≤ L^{-j((d-2)/2+δ)}` from `δ ≤ γ - α₁`;
+       * `c1 d L = (3(2L-1))^d ≤ 3^{d+1}L^{2d+1}`;
+       * `c₉^{flow} e^{-κ_flow d_j(X)} ≤ (c₉/2) e^{-κ|X|/(ML^j)^d}`, from `G1_card` and `c₉^{flow} ≤ (c₉/2)e^{-κ_flow}`.
+
+     Then A6-1 becomes a theorem with `PrefixInput` as a premise. ~300–500 lines.
+2. **`InheritedAgreeInput` (A6-2, exact agreement of the inherited terms; LFR Thm IV.5.3 item 7 for `j ≤ k_f`; P4 (H.4); (D8)).**
+   `ActAgree` of `inhObs F.sf P6.m₀ h`. It follows from `D8SF.M_eq`, a clause (`coherent`) of `IsRepFlat2`.
+   * Landed:
+     * `D8SF.M_eq`;
+     * the transport lemmas `Ypoly_eq_image`, `image_unlift_Ypoly`, `Ypoly_boxMap_of_small`, `fineLift_toTorus`, `toTorus_fineLift`,
+       `mem_Ypoly_iff`;
+     * here: `inhObs_zero` (the increment is the value) and `inhObs_local`.
+   * Open:
+     * (a) for `A` in the common quarter box, the preimage of the image of `A` is `Ypoly j X'` with `NonWind` on both Def-6 tori, and
+       `IsPolyDom` holds on one torus iff it holds on the other (the `ChosenOne` boxes and `Nbr` paths do not wind);
+     * (b) on the polymer, `pullFld j g = g ∘ valMinAbs` (the block-centred lift is the centred representative in the quarter box),
+       and `pullFld j (const h) = constFld h`;
+     * (c) the reindexing of `Σ_{x∈X}` by `A`.
+
+     ~400–700 lines.
+   * The exactness itself comes from the flow: (D8SF) at the stopping scale is produced by `ClassStepInput` and `FrozenStepInput`
+     (item 3 (c) of `SFStepInput`: the inherited terms on two tori). W1089 (`e0CoeffFamily_value_fromTowerG_core_twoTorus`) is exact
+     for the core family only. W1088 shows that closeness is not enough: the canonical-torus resummation
+     `towerGapScale_resum_fromTowerG`
+     needs bounded `K` (`K_bounded_of_can`). So the resummation of the gap scales into Root-F's polymer form belongs to the class
+     steps; at `j ≤ k` A6 needs none, since `inhObs` is already per polymer on every torus.
+3. **`FinalSmallFieldInput` (A6-3, the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) with `Z = ∅` and (4.15)–(4.17);
+   LFR Thm IV.4.1; blocker 5, small-field half).** There are `a, E` with `ObservableActivities … κ (c₉/2) δ (k+1) kf a` and, on every
+   torus of the family and the unit ball, `Ξ^sf = exp(E + ⟨g,h⟩ + Σ_{j≤k} Σ_X q_j + Σ_X a_{k+1})`.
+   * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
+     * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
+       `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;
+     * the class energy: `edensSum_analyticOnNhd_of_dom`, `norm_edensSum_le_of_dom`;
+     * the expansion: `abstract_expansion_taggedCfin_final`, `localityAE_taggedCfinU`;
+     * the datum: `finalSelectedDatum`, `finalSelectedDatum_inDomainR` (`k ≤ k₀` only);
+     * the odd part of the linear term: `Green/FinalCrossTerm`; the Hessian: `Green/FinalHessian`;
+     * amplitudes: `betaK_inv_sq_le`, `norm_kf0Deriv_le_two`;
+     * on two tori, closeness only: `finalCoef_close_quarterBox_weighted`, `fibre_hcoef_of_quarterBox_weighted`,
+       `resum_lastScale_rootF_weighted_of_block_large`; the limits `resum_lastScale_limit`, `rootF_hcoef_limit`.
+   * Open:
+     * (a) `sfIntegral` as the cut expansion. This needs:
+       * the massive final variational problem (P7 p. 530, (4.3)–(4.6)) and the Gaussian change of variables at the physical point;
+       * `det(U+E)/det(U)·J`;
+       * `F_{k_f} = Σ_{j≤k} Edens` (FINALPHYS3 §8);
+       * the block datum in the class chart with room (`hθ`);
+     * (b) the source part `⟨g, φ̄_k⟩ − ⟨g, h⟩` together with the change of `ℳ^{(j)}(ψ^{(j)})` against `ℳ^{(j)}(h)`, as scale-`(k+1)`
+       polymer terms (`ℳ^{(k+1)}_0`, the second-order remainder of the linear term; ROOTFFAM §3, row `⟨g, φ_k − h⟩`);
+     * (c) the regrouping `Y ↦ Ȳ` and cells to fine sites (ROOTFFAM target 4);
+     * (d) the exact two-torus agreement of `a`. It needs the complete localization of the last integral, with the winding remainder
+       on winding polymers (SPINE-AUDIT-2 (d)); the landed results give closeness;
+     * (e) the amplitude `c₉/4`: the `ℳ^{(k+1)}_0` part is `≤ (c₉/2)e^{−(κ+1)|X|_#}` by the ties, the rest is small in `β`.
+4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
+   LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
+   `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.
+   * Landed:
+     * the linked gas (W990): `gasLinked_activity_bound`, `gasLinked_coverage_activity_bound`, `gasLinked_singleton_eq`;
+     * the gas and the polymer expansion: `gas_eq`, `gas_activity_bound`, `pe_blockTorus`, `pe_PY_bound`, `pe_PY_analyticOnNhd`;
+     * the tail: `integral_eq_sum_blocksSplit`, `norm_setIntegral_blocksSplit_le`, `final_tail_gas_bound`, `final_tail_gas_bound_nbhd`;
+     * `Green/FinalLarge*`: `final_large_integral_eq_gasXi_of_factorization`, `linked_mayer_of_activated_local_terms`,
+       `coverage_aggregate_coefficient_bound`, `retained_box_interaction_analytic_of_room`, `finalCrossing_eq_linked_triggers`,
+       `no_single_linked_label_for_crossing`.
+   * Open:
+     * (a) the final-scale fluctuation representation: `𝕋'_{k+1}(Z', 𝔸')` (P7 (4.7)–(4.9), P5 (3.18)) is not defined in Lean
+       (W1027), so there is no statement `∫ρ = Σ_{Z'} 𝕋'(Z')[…]` and no heavy weight `τ`;
+     * (b) the completion (P7 (4.11)): the history of (D1) with no large-field region contributes `Ξ^sf`, and the other histories,
+       divided by `Ξ^sf`, form the gas;
+     * (c) the bounds:
+       * (IV.4.1) for the weights (Lemma IV.4.2: `H^fin`, the frozen threshold);
+       * the couplings `ℬ''`: L4, the cells meeting `Z` with the `Z`-dependent background (item 18 addendum);
+       * the hypotheses of the linked gas;
+     * (d) the end of the argument:
+       * the exponentiation into `𝒫^{(k+1)}` (PE-L) and the regrouping;
+       * the agreement (PE (f) with `LFCoherent` and `D8SF`);
+       * the amplitude ((Λ32)).
+   * The representation and the gas are one sub-input here (the brief expected two). Splitting them needs a landed `𝕋'_{k+1}`:
+     the only statement that would separate them is "`∫ρ / Ξ^sf` is the linked gas of the weights `𝕋'(Z')`".
+
+**Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
+asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
+reading in LastIntegralInput's docstring. If the Lean class's `ℳ^{(j)}` at the constant configuration were not the source object
+(open item (a) of A6-1), A6-3 would have to change with it.
+
 ## Non-vacuity (D4, F5) and rule 10
 
 Inputs 3–6 are `∀ ρ ∈ class`. Input 2 asserts a member with `∫ρ₁ = cZ(g) ≠ 0`, inputs 3–5 propagate it, and the stop lemma
