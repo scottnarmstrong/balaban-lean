@@ -21,9 +21,9 @@ The last section lists the problems that have been resolved since the project st
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains; local pieces of the first component proved (W981); the no-step case now goes through the linked gas of blocker 5 |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum); formalized up to the physical kernels (W973), the rest waits on ruling R2 |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum); aligned openings do not close it; being proved: decay of the coupling across a hole |
-| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum) |
+| 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum); the window conversion now rests on one design point, the window's field off the pieces |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain; the singleton-gas reading of the large-field part is refuted by an example, and the linked gas of P7 (4.11) is being built |
-| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); the assembly is being redone so that old terms keep their own level, as in the papers; rotations are real, and the complex rotations used by the renormalization step follow by continuation (proved); restating the chain on this is planned; old terms keep their birth domain, with the mass response proved; the new density's value for a class with inherited labels is reduced to the irrelevant-part representation of the inherited terms (P1 Prop. 3.10), whose torus identity is proved; their bound remains (one open analytic input, and the torus defect at the centre's cube) |
+| 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); old terms keep their birth domain (R6); the chain is proved at towers for every scale with one β₀ and the papers' collar, with the filed torus defect bounded at every centre; the new level's labels, the sum of their bounds and the covariance of its densities are proved; its terms on the local charts, the closure of its energy constant and the counterterms remain |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms, with the induction over the gap scales (proved in abstract form); proved at the tower on one family of tori of every size (W1021); the induction over scales and the sum over roots remain |
 
 ## Proceeding without the author's answers
@@ -254,6 +254,13 @@ background and no separate switch premise. What it still takes as input, on the 
 the difference of the window's data and the pieces' local data, the background hypotheses and domain conditions of
 both, a radius condition (2M of order (ϱ_B + 3d)L, a choice of the constant M), and smallness.
 
+Update (18 October, evening). The radius condition follows from a choice of M (W1059), and the background
+hypotheses of the window generating set are proved (W1072: its separation is 5LM₁, and the mass condition follows
+from the flow's constants). What remains is a design point. The window's field is fixed only on the pieces and is
+zero elsewhere (on the core and on the unbounded region), so it fails the domain conditions there, and the balls
+around the pieces on which the stability theorem compares the data reach beyond the pieces. No factor of the window
+integrand constrains the field off the pieces (W1059, W1060, W1072); how P7 chooses it is being worked out (W1074).
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
@@ -453,6 +460,16 @@ the whole chart of a label; it is restated there (W1040), which matches the sour
 data stay in the domains of the inherited levels is real in the source and is paid there by taking the step radius
 t_k = ε_{k+1}; it fails only because the tower fixes t. A tower with a scale-dependent t is the next step; the same
 artefact explains the growth L^{2αk} found in blocker 4.
+
+Update (18 October, evening). The fluctuation radius is now separate from the step radius (W1063). With the collar
+of the landed chain (r₀ = 324) the closeness of the composed data does not decay, and covering the class chart while
+keeping room for the inherited terms is impossible (proved). With the papers' wider collar and their radii
+(t_k = ε_{k+1}, δ₁ = min(t_k, ηε_k)) both hold: the chain is proved at towers for every scale with one β₀ (W1069).
+For the new level, the covariance of its densities under the full symmetry group is proved (W1064, W1070), given
+the room condition, which is reduced to the chain's settings (W1071); the sum of the labels' bounds holds for every
+class rate κ ≤ 1/5 at d = L = 3 (W1065, W1067). Remaining for the new level: its terms on the local chart of each
+polymer (W1073: the polymer must be the hull of the labels' read set, and the terms must be carried from the step's
+chart to the local chart; in progress), the closure of its energy constant, and the counterterms of P4 (4.14)–(4.22).
 
 ## 7. Reading of the torus-independence clause
 

@@ -7,13 +7,15 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Inhabited.StepTowerBeta0IrrelX
+public import Balaban.Inhabited.StepTowerCollarBase
 
 /-!
 The class chain at the base settings, at every tower radius
 
 `e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_agree`: the statement of `e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet` for all towers that agree with a reference tower `T₀`
 on `m₁, BG, BG₂, κ, δ` and every radius `t ≥ c 3^{-α(k+1)}` (`2 α < 1`), beyond one threshold
-`β₀`; the proof is that of `e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet` with the lower threshold replaced by its `_agree` form.
+`β₀`; the instance `r₀ = 324`, `δ₁ = T.t` of
+`e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_dec_agree_collar`.
 -/
 
 @[expose] public section
@@ -252,40 +254,15 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_agree {κmin : �
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  classical
-  obtain ⟨β₀, hβ₀, HC⟩ := e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree T₀ hHull hA p hcR hαR
+  obtain ⟨β₀, hβ₀, HC⟩ :=
+    e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_dec_agree_collar T₀ hHull hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom δ₃ δfl bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7
     hnumB hnumF
-  subst hS
-  have hB0 := step_bgSetting_base T Dt hnumB
-  have hF0 := step_flSetting_base T Dt hnumF
-  have hβS : 0 < (T.step k hk N₁ ν β p₁).β := by
-    show 0 < β
-    linarith
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom (rhoSep T.m₁)
-    (rhoSep T.m₁) (rhoSep T.m₁) T.c T.BG T.κ 324 δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ T.t δfl
-    bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 le_rfl
-    (rhoSep_numeric_of_four T.m₁_four) (bgR0_le_rhoSep _) (rhoSep_le_minSep_of_four T.m₁_four)
-    (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
-    (X₀' := dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) (X₁f' := Finset.univ)
-    (X₁f'' := Finset.univ) (j₁ := 1) hB0 hF0
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro cψ hcψ hconn hrow κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hrate
-    F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C
-    h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
-  have hκT3 : 3 ≤ T.κdec := by
-    have := T.κdec_lower
-    have := T.κ0_nonneg
-    linarith
-  obtain ⟨hκle, hlog⟩ := rate_consequences hm7 hκT3 (one_le_c1 3 3) hκ hrate
-  exact @HG cψ hcψ (by simpa using T.large_block) T.δc T.dom_margin T.coer_margin T.δc_small
-    hconn hrow κdec T.κ0 T.κ0_nonneg (by linarith [T.κdec_lower]) hκ T.κ_one hlog 𝒮 hchart Bτ hBτ
-    hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL T.κ0_ent (by linarith) hrate F₁L hF₁an hF₁ SolL
-    hSolan hSolprop FkL hFkan hFk h𝒮 T.c7_cap 2 le_rfl T.bg1_cap T.t_cap T.bg0_cap T.cK2_cap
-    T.cK2'_cap ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
+  exact @HC' C z 𝒯E h𝒯 P Dom 324 δ₃ T.t δfl bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN
+    hm7 le_rfl (by norm_num) hnumB hnumF le_rfl
 
 end Balaban.Inhabited

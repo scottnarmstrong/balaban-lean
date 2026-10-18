@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 85% of the Lean by volume, and about 57% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 820,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 836,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 0.8–1.0
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -48,21 +48,21 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 93b816e9 2026-10-18.
+Computed at commit 1845cce2 2026-10-18.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
 | Lattice, analysis, Gaussian and polymer tools | 274 | 94,287 | 3,117 |
 | Green's functions and random walks | 143 | 45,434 | 1,959 |
-| Background fields and generating sets (P2) | 111 | 39,282 | 2,096 |
+| Background fields and generating sets (P2) | 117 | 41,059 | 2,137 |
 | Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
 | Small-field class (P1, P4, P5) | 219 | 55,021 | 2,464 |
-| Fluctuation step and renormalization (P4-P6) | 590 | 198,664 | 6,013 |
-| Instantiated step at fixed parameters | 312 | 101,494 | 2,716 |
-| Large-field regions (P5-P7, E9-E10) | 775 | 189,099 | 8,616 |
+| Fluctuation step and renormalization (P4-P6) | 599 | 200,969 | 6,084 |
+| Instantiated step at fixed parameters | 366 | 112,726 | 2,892 |
+| Large-field regions (P5-P7, E9-E10) | 784 | 190,298 | 8,639 |
 | Observables and correlations (P8, P9) | 75 | 17,302 | 681 |
-| **Total** | **2761** | **819,929** | **31,416** |
+| **Total** | **2839** | **836,442** | **31,727** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -97,3 +97,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-17 (plan B) | ~82% | ~54% | Plan B: every blocker has a focused analysis or Lean round running. Blocker 5 and the no-step case: the singleton-gas reading of the large-field part refuted by an explicit example (KF0B B.7); the linked Mayer identity with separate activation and footprint proved; the gas bound for linked terms and their identification with P7 started. Blocker 6: the chain at an actual tower with all numerical conditions met; the anisotropic datum from the step chart; torus-defect symmetries, partition and counts. Blocker 7: the determinant term tied to the tower. Blocker 4: the actual piece chain normalized; the five window estimates need the physical setup. Base case: local pieces of the first component. Root-C: complex charts and the large-β contraction of the coefficient flow; no step at ν = 0 is needed. |
 | 2026-10-18 | ~84% | ~56% | Astras retired; Claude workers only. Blocker 7: the gap-scale clause at the tower on one family of tori of every size, geometry proved. Blocker 4: the composed window bound; the read transport, the positive piece decomposition, the coefficient response. Blocker 6: the chain at an actual tower with numerical and structural premises discharged, the class-domain ball, the non-special per-label bound, the raw second-moment cancellation. Backbone: inheritance of the old levels on birth-mass domains with all class and family clauses (ruling R6); vacuum constants in the step data (ruling R5). Blocker 5: the linked gas and the aggregated coefficient bound. |
 | 2026-10-18 (later) | ~85% | ~57% | Blocker 4: the window conversion assembled for the actual pieces with every premise proved except the stability of the background under a change of generating set (P7 (2.14)), now in progress; R2 landed (three masses, extended direction tests, complex sources). Blocker 6: the chain needs the per-label bounds only at the step's composed data; the filed torus defect at every centre, also on birth-mass domains; towers with a scale-dependent step radius satisfy the radius room. Blocker 7: the clause on Root-F's exact box with the observable terms in Root-F's bound form; open: one family of terms for all tori. Backbone: old levels inherit on birth-mass domains (R6). |
+| 2026-10-18 (evening) | ~86% | ~57% | Blocker 6: the chain at towers for every scale with one β₀ (step radius t_k = ε_{k+1}, a separate fluctuation radius, the papers' collar): the step's chart covers the next class's chart and the inherited terms keep room; at the narrower collar used before the two are proved incompatible. Backbone: the new level's labels, the sum of their bounds (class rates κ ≤ 1/5) and the covariance of its densities under the full symmetry group. Blocker 4: background stability under a change of generating set and the window's background hypotheses; the window's field off the pieces is the last design point. Audit of the approved definitions: faithful except CRotE (ruling asked). |
