@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerNewLevelE0Sum
+public import Balaban.Fluctuation.DARateNumerics
 
 /-!
 # The sum of the constants of the marks, uniformly in the torus (`StepTowerNewLevelE0Bound`)
@@ -110,6 +111,78 @@ theorem marksConst_sum_le (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
   · rw [Finset.sum_coe_sort (markedIdx reads dom z) (fun q => ϖ q.1 *
       Real.exp (-κ0 * treeLenCovOne m₀ K q.2))]
     exact markedIdx_sum_weight_le hN hL reads dom hdom z hκ0 ϖ hϖ
+
+open Classical in
+/-- **The constants of the marks, from the activity bound of the inherited labels.**  The weights
+`2 B_τ e^{E(τ, Y)}` of the labels `τ` with `Y ∈ dom τ`, times `c_U/a`, are at most
+`ε_C e^{-κ_G d^cov(Y)}` for every domain `Y` of a contributing pair (the hypothesis
+`hnumR` of the chain), and `F1 q = (‖β‖ β⁻¹ B_τ e^{E}/b + ϖ e^{…}) e^{κ_G d(q)}`: then
+`∑_q F1 q e^{-κ₀ d(q)} ≤ ε_C a/(2 b c_U) · n_fibre e^{κ_G c_Br} K₀ + n_fibre e^{κ₀ c_Br} K₀`. -/
+theorem marksConst_sum_le_of_hnumR {ι : Type*} [Fintype ι] (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
+    (dom : ι → Finset (Set (CTorus d L N₁ m₁ K)))
+    (hdom : ∀ τ, ∀ Y ∈ dom τ, IsDj m₀ K Y) (z : RootIdx d L N₁ m₁ K)
+    {κ0 κG εC aR cU sβ bb : ℝ} (hκ0 : aEnt d L + 1 ≤ κ0) (hκG : κ0 ≤ κG) (hεC : 0 ≤ εC)
+    (haR : 0 < aR) (hcU : 0 < cU) (hbb : 0 < bb) (hsβ : 0 < sβ)
+    (Bτ : ι → ℝ) (hBτ : ∀ τ, 0 ≤ Bτ τ) (E : ι → Set (CTorus d L N₁ m₁ K) → ℝ)
+    (hnum : ∀ Y ∈ (markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ K))) dom z).image
+        Prod.snd, cU / aR * (∑ τ, if Y ∈ dom τ then 2 * Bτ τ * Real.exp (E τ Y) else 0) ≤
+        εC * Real.exp (-κG * treeLenCovOne m₀ K Y))
+    (ϖ : ι → ℝ) (hϖ : ∀ b, 0 ≤ ϖ b) (hϖs : ∑ b, ϖ b ≤ 1)
+    (dlf : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ K))) dom z} → ℝ)
+    (hdl : ∀ q, dlf q = treeLenCovOne m₀ K (bridge m₀ z q.1.2))
+    (F1 : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ K))) dom z} → ℝ)
+    (hF1 : ∀ q, F1 q = (‖(sβ : ℂ)‖ * ((sβ⁻¹ * Bτ q.1.1) * Real.exp (E q.1.1 q.1.2) / bb) +
+      ϖ q.1.1 * Real.exp (-κ0 * treeLenCovOne m₀ K q.1.2) *
+        Real.exp (-(κG - κ0) * treeLenCovOne m₀ K (bridge m₀ z q.1.2))) *
+      Real.exp (κG * dlf q)) :
+    ∑ q, F1 q * Real.exp (-κ0 * dlf q) ≤
+      εC * aR / (2 * bb * cU) * ((nFibre d L : ℝ) * Real.exp (κG * cBr d L)) * K0 d L κ0 +
+        (nFibre d L : ℝ) * Real.exp (κ0 * cBr d L) * K0 d L κ0 := by
+  have hnorm : ‖(sβ : ℂ)‖ = sβ := by
+    rw [Complex.norm_real, Real.norm_of_nonneg hsβ.le]
+  have hc0 : 0 ≤ εC * aR / (2 * bb * cU) := by positivity
+  have hAeq : ∀ τ Y, ‖(sβ : ℂ)‖ * ((sβ⁻¹ * Bτ τ) * Real.exp (E τ Y) / bb) =
+      (1 / (2 * bb)) * (2 * Bτ τ * Real.exp (E τ Y)) := fun τ Y => by
+    rw [hnorm]
+    field_simp
+  have h1 := marksConst_sum_le hN hL (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ K))) dom hdom z
+    hκ0 hκG hc0 (fun τ Y => ‖(sβ : ℂ)‖ * ((sβ⁻¹ * Bτ τ) * Real.exp (E τ Y) / bb))
+    (fun τ Y => by
+      have := hBτ τ
+      positivity)
+    (fun Y hY => by
+      have e1 : ∑ b, (if Y ∈ dom b then ‖(sβ : ℂ)‖ * ((sβ⁻¹ * Bτ b) * Real.exp (E b Y) / bb)
+          else 0) = (1 / (2 * bb)) * ∑ b, (if Y ∈ dom b then 2 * Bτ b * Real.exp (E b Y)
+          else 0) := by
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun b _ => ?_
+        split_ifs
+        · exact hAeq b Y
+        · simp
+      rw [e1]
+      have h2 := hnum Y hY
+      have h3 : ∑ b, (if Y ∈ dom b then 2 * Bτ b * Real.exp (E b Y) else 0) ≤
+          εC * Real.exp (-κG * treeLenCovOne m₀ K Y) * (aR / cU) := by
+        have : cU / aR * ∑ b, (if Y ∈ dom b then 2 * Bτ b * Real.exp (E b Y) else 0) ≤
+            εC * Real.exp (-κG * treeLenCovOne m₀ K Y) := h2
+        rw [div_mul_eq_mul_div, div_le_iff₀ (by positivity)] at this
+        rw [mul_div_assoc'] 
+        rw [le_div_iff₀ hcU]
+        nlinarith [this]
+      calc (1 / (2 * bb)) * ∑ b, (if Y ∈ dom b then 2 * Bτ b * Real.exp (E b Y) else 0)
+          ≤ (1 / (2 * bb)) * (εC * Real.exp (-κG * treeLenCovOne m₀ K Y) * (aR / cU)) :=
+            mul_le_mul_of_nonneg_left h3 (by positivity)
+        _ = εC * aR / (2 * bb * cU) * Real.exp (-κG * treeLenCovOne m₀ K Y) := by
+            field_simp)
+    ϖ hϖ dlf hdl F1 hF1
+  refine h1.trans ?_
+  have hnn : 0 ≤ (nFibre d L : ℝ) * Real.exp (κ0 * cBr d L) * K0 d L κ0 := by
+    have := K0_pos d L κ0
+    positivity
+  have : (∑ b, ϖ b) * ((nFibre d L : ℝ) * Real.exp (κ0 * cBr d L) * K0 d L κ0) ≤
+      (nFibre d L : ℝ) * Real.exp (κ0 * cBr d L) * K0 d L κ0 := by
+    simpa using mul_le_mul_of_nonneg_right hϖs hnn
+  linarith
 
 end Sum
 
