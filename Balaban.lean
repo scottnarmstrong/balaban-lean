@@ -2495,6 +2495,7 @@ public import Balaban.SmallField.IrrelTorusDefectRawLimit
 public import Balaban.SmallField.IrrelTorusDefectCauchy
 public import Balaban.SmallField.IrrelTorusDefectFiledId
 public import Balaban.SmallField.IrrelTorusDefectCoeff
+public import Balaban.SmallField.IrrelTorusDefectInfSum
 public import Balaban.SmallField.IrrelTorusDefectRawSymm
 public import Balaban.SmallField.IrrelTorusDefectRawMatrix
 public import Balaban.SmallField.IrrelTorusDefectSizeTransport
