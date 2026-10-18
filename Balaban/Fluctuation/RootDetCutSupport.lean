@@ -69,6 +69,36 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT ν κ κ' δ δ' : ℝ}
 variable {κι : Type*} [Fintype κι] [DecidableEq κι] {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
 
+/-- **T5, core** (dichotomy of the active thickened cubes in place of `HatConn` and the components).
+**T5. The rooted trace depends only on the data near the component.** Two data
+`(s, α, φ)`, `(s', α', φ')` satisfy `CovStanding`; `Y'` is a union of nearest-neighbour components
+of `Yreg (extS s)` and of `Yreg (extS s')`; the parameters agree on the footprints `Qset q` of the
+cubes `q` of the cover that lie inside `Y'` (so the cut factors `sProd` agree there); the potentials
+and the fields agree on `Y'`; `Q`, `P` respect the labels `cκ`. Then the rooted trace over a set
+`B` of coarse sites with label `cκ` is the same for both data. -/
+theorem rootTrace_eq_of_comp_of_hatDich {s s' : DecParams G}
+    {α α' : G.Ω 1 → ℂ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P)
+    (H' : CovStanding G a aT ν α' κ' (extS G s') δ' φ' Q P)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G (extS G s) q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G (extS G s') q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hs : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' → ∀ R ∈ Qset G q, extS G s R = extS G s' R)
+    (hA : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → α y = α' y)
+    (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P)
+    (B : Finset κι) (hB : ∀ y ∈ B, cκ y) :
+    rootTrace G a aT ν Q P B s φ α = rootTrace G a aT ν Q P B s' φ' α' := by
+  have key : ∀ y ∈ B, ∀ i : Fin N, decLog G a aT ν α (extS G s) φ Q P (y, i) (y, i) =
+      decLog G a aT ν α' (extS G s') φ' Q P (y, i) (y, i) := fun y hy i =>
+    H.decLog_agree_of_hatDich H' hdich hdich'
+      (fun q hq hsub => Finset.prod_congr rfl (hs q hq hsub)) hA hφ cκ hQ hP (y, i) (y, i)
+      (hB y hy) (hB y hy)
+  unfold rootTrace
+  rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
+
 /-- **T5. The rooted trace depends only on the data near the component.** Two data
 `(s, α, φ)`, `(s', α', φ')` satisfy `CovStanding`; `Y'` is a union of nearest-neighbour components
 of `Yreg (extS s)` and of `Yreg (extS s')`; the parameters agree on the footprints `Qset q` of the
@@ -86,19 +116,15 @@ theorem rootTrace_eq_of_comp {s s' : DecParams G}
     (hφ : ∀ y : CTorus d L N₁ m₁ (k + 1), y ∈ Y' → φ y = φ' y) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P)
     (B : Finset κι) (hB : ∀ y ∈ B, cκ y) :
-    rootTrace G a aT ν Q P B s φ α = rootTrace G a aT ν Q P B s' φ' α' := by
-  have key : ∀ y ∈ B, ∀ i : Fin N, decLog G a aT ν α (extS G s) φ Q P (y, i) (y, i) =
-      decLog G a aT ν α' (extS G s') φ' Q P (y, i) (y, i) := fun y hy i =>
-    H.decLog_agree H' hconn hY hY'
-      (fun q hq hsub => Finset.prod_congr rfl (hs q hq hsub)) hA hφ cκ hQ hP (y, i) (y, i)
-      (hB y hy) (hB y hy)
-  unfold rootTrace
-  rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
+    rootTrace G a aT ν Q P B s φ α = rootTrace G a aT ν Q P B s' φ' α' :=
+  rootTrace_eq_of_comp_of_hatDich H H' (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY') hs
+    hA hφ cκ hQ hP B hB
 
-/-- The cut-independent baseline blocks of `decLog`, as a function of the parameters. -/
-theorem rootTrace_eq_baseline_of_not_label {s : DecParams G}
+/-- The cut-independent baseline blocks of `decLog`, as a function of the parameters (no
+connectivity hypothesis). -/
+theorem rootTrace_eq_baseline_of_not_label_core {s : DecParams G}
     {α : G.Ω 1 → ℂ} {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
-    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
+    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G (extS G s)) Q)
     (hP : BD cκ cκ P) (B : Finset κι) (hB : ∀ y ∈ B, ¬ cκ y) :
     rootTrace G a aT ν Q P B s φ α =
@@ -108,9 +134,22 @@ theorem rootTrace_eq_baseline_of_not_label {s : DecParams G}
   have key : ∀ y ∈ B, ∀ i : Fin N, decLog G a aT ν α (extS G s) φ Q P (y, i) (y, i) =
       (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
           ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) (y, i) (y, i) :=
-    fun y hy i => H.decLog_row_eq_baseline hconn cκ hQ hP (p := (y, i)) (hB y hy) (y, i)
+    fun y hy i => H.decLog_row_eq_baseline_core cκ hQ hP (p := (y, i)) (hB y hy) (y, i)
   unfold rootTrace
   rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
+
+/-- The cut-independent baseline blocks of `decLog`, as a function of the parameters. -/
+theorem rootTrace_eq_baseline_of_not_label {s : DecParams G}
+    {α : G.Ω 1 → ℂ} {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    (H : CovStanding G a aT ν α κ (extS G s) δ φ Q P) (_hconn : HatConn G) (cκ : κι → Prop)
+    (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G (extS G s)) Q)
+    (hP : BD cκ cκ P) (B : Finset κι) (hB : ∀ y ∈ B, ¬ cκ y) :
+    rootTrace G a aT ν Q P B s φ α =
+      -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
+        (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
+          ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) (y, i) (y, i) :=
+  -- `HatConn` is not needed (`rootTrace_eq_baseline_of_not_label_core`)
+  rootTrace_eq_baseline_of_not_label_core H cκ hQ hP B hB
 
 
 section Cuts

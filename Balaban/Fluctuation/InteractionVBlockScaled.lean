@@ -40,6 +40,44 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {Hm : GeneratingSet d L
 variable {a₁ ν c BG κ eps : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ K)} {j : ℕ}
 variable {Kc Cx c₂ BG₂ δ₁ : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ K)}
 
+/-- **The block energy is bounded in physical units on the realizable triples when its block lies
+in the levels `n` of `Hm` and `n + 1` of `Gp`** (core of `blockEnergyFun_bound_scaled`): the
+numerical facts `0 ≤ BG`, `0 ≤ BG₂`, `0 < δ₁`, the background hypotheses `HB` (dimension, weights,
+mass and its bound `BgHyp.massLe`) and the layers of the sites of the block replace `FlCore` and
+`IsLevel` (a local generating set and its fluctuation set qualify for a block in the top layer). -/
+theorem blockEnergyFun_bound_scaled_of_block {ϱb : ℝ} (HB : BgHyp d L K ϱb (compWeight L a₁) ν)
+    (hBG : 0 ≤ BG) (hBG₂ : 0 ≤ BG₂) (hδ₁ : 0 < δ₁) {n : ℕ} (hn1 : 1 ≤ n) (hn : n + 1 ≤ K)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (K - (n + 1))))
+    (hblk : ∀ x ∈ blockSites d L N₁ m₁ K n z, (x ∈ Hm.Ω 1 ∧ Hm.layerIndex x = n) ∧
+      (x ∈ Gp.Ω 1 ∧ Gp.layerIndex x = n + 1))
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ))}
+    (ht : t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖blockEnergyFun Gp Hm (compWeight L a₁) ν n z t.1 t.2.1 t.2.2‖ ≤
+      energyBdScaled d L N (compWeight L a₁) n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
+        (rho4 d L N BG κ) := by
+  obtain ⟨hα, hsup, hψ⟩ := flReal_facts ht
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hB0 : 0 ≤ famConst d L BG₂ κ := by
+    have := famConst_ge_one (L := L) hBG₂ κ hd0; linarith
+  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
+    mul_nonneg (cK2'_nonneg hB0) hδ₁.le
+  have hρ : 0 ≤ rho4 d L N BG κ := by
+    have hB1 : 0 ≤ famConst d L BG κ := by
+      have := famConst_ge_one (L := L) hBG κ hd0; linarith
+    unfold rho4
+    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
+  have ha : 0 ≤ compWeight L a₁ n :=
+    (HB.weights n hn1 (by omega)).1.trans' (by norm_num)
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by have := NeZero.ne L; omega : 1 ≤ L)
+  have hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1 := by
+    refine le_trans (mul_le_mul_of_nonneg_left ?_ HB.mass) HB.massLe
+    exact pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 hn) 2
+  exact energyBlock_bound_scaled_of_block hn ha HB.mass hmass hV hρ hsup hα
+    (fun x hx i => by
+      have hxd : x ∈ dataSites Hm := (mem_dataSites Hm).2 (Or.inl hx)
+      exact (norm_le_vn _ i).trans (hψ x hxd).le) z hblk
+
 /-- **The block energy is bounded in physical units on the realizable triples.**  The hypotheses
 are those of `blockEnergyFun_bound` and the structural `IsLevel` of the two generating sets; the
 weighted sup bounds hold on the whole of `FlReal` (complex decoupling parameters), by
@@ -52,29 +90,9 @@ theorem blockEnergyFun_bound_scaled (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc 
     (ht : t ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
     ‖blockEnergyFun Gp Hm (compWeight L a₁) ν n z t.1 t.2.1 t.2.2‖ ≤
       energyBdScaled d L N (compWeight L a₁) n (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁
-        (rho4 d L N BG κ) := by
-  obtain ⟨hα, hsup, hψ⟩ := flReal_facts ht
-  have hd0 : 0 < d := by have := hC.HBp.hd; omega
-  have hB0 : 0 ≤ famConst d L BG₂ κ := by
-    have := famConst_ge_one (L := L) hC.hS2.fam.2.1 κ hd0; linarith
-  have hV : 0 ≤ cK2' d L N (famConst d L BG₂ κ) * δ₁ :=
-    mul_nonneg (cK2'_nonneg hB0) hC.δ₁_pos.le
-  have hρ : 0 ≤ rho4 d L N BG κ := by
-    have hBG := hC.hS.fam.2.1
-    have hB1 : 0 ≤ famConst d L BG κ := by
-      have := famConst_ge_one (L := L) hBG κ hd0; linarith
-    unfold rho4
-    exact (c6'_pos hB1 (by have := gamma1_pos hd0; positivity)).le
-  have ha : 0 ≤ compWeight L a₁ n :=
-    (hC.HBp.weights n hn1 (by omega)).1.trans' (by norm_num)
-  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by have := NeZero.ne L; omega : 1 ≤ L)
-  have hmass : ν * ((L : ℝ) ^ (n + 1)) ^ 2 ≤ 1 := by
-    refine le_trans (mul_le_mul_of_nonneg_left ?_ hC.HBp.mass) hC.HBp.massLe
-    exact pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 hn) 2
-  exact energyBlock_bound_scaled hn ha hC.HBp.mass hmass hHm hGp hV hρ hsup hα
-    (fun x hx i => by
-      have hxd : x ∈ dataSites Hm := (mem_dataSites Hm).2 (Or.inl hx)
-      exact (norm_le_vn _ i).trans (hψ x hxd).le) z
+        (rho4 d L N BG κ) :=
+  blockEnergyFun_bound_scaled_of_block hC.HBp hC.hS.fam.2.1 hC.hS2.fam.2.1 hC.δ₁_pos hn1 hn z
+    (fun x _ => ⟨hHm x, hGp x⟩) ht
 
 /-- **The block energy expands over the domains `Y ⊃ X₁`** with the scale-uniform majorant
 (`vblock_expansion` with `energyBdScaled`). -/

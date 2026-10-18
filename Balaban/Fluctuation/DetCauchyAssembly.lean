@@ -227,6 +227,27 @@ theorem sum_cutActivity_eq (F : DecParams G → ℂ) (y : unitPts G) :
   exact (Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
     (fun J => hullOf m₀ (rootIdxOf y) (patches J)) (fun J => mixDiff J F)).symm
 
+/-- **Hull facts, core**: connectivity of the thickened cubes of the centres with footprint in `J`
+in place of `HatConn`.
+**The hull of a cut set with non-zero mixed difference** contains the root cube, is a polymer,
+and has size at most `2 d L |J|`. -/
+theorem hull_facts_of_cutSupport_of_conn (S : DGSetting G a ν) (hN : L ^ m₀ ∣ N₁)
+    {F : DecParams G → ℂ} {y : unitPts G}
+    (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
+      ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    {J : Finset (cubeIdx G)} (hconnJ : ∀ q, ActIn G J q → ConnIn (hatI G q))
+    (hne : mixDiff J F ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ hullOf m₀ (rootIdxOf y) (patches J) ∧
+      IsPolyDom m₀ (k + 1) (sitesOf (hullOf m₀ (rootIdxOf y) (patches J))) ∧
+      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card := by
+  have hRC := rootConnected_of_rootChain_of_conn (m₀ := m₀) S hconnJ (hsupp J hne)
+  have hL : 2 ≤ L := by have := S.hL; omega
+  refine ⟨rootCube_mem_hullOf _ _, isPolyDom_hullOf hN hL _ _ layer_le_of_mem_patches hRC, ?_⟩
+  have h1 := dExt_hullOf_le hN hL (rootIdxOf y) (patches J) layer_le_of_mem_patches hRC
+  have h2 : ((patches J).card : ℝ) ≤ J.card := by exact_mod_cast card_patches_le J
+  have h3 : (0 : ℝ) ≤ 2 * d * L := by positivity
+  nlinarith
+
 /-- **The hull of a cut set with non-zero mixed difference** contains the root cube, is a polymer,
 and has size at most `2 d L |J|`. -/
 theorem hull_facts_of_cutSupport (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
@@ -236,14 +257,28 @@ theorem hull_facts_of_cutSupport (S : DGSetting G a ν) (hconn : HatConn G) (hN 
     {J : Finset (cubeIdx G)} (hne : mixDiff J F ≠ 0) :
     rootCube (m₀ := m₀) (rootIdxOf y) ∈ hullOf m₀ (rootIdxOf y) (patches J) ∧
       IsPolyDom m₀ (k + 1) (sitesOf (hullOf m₀ (rootIdxOf y) (patches J))) ∧
-      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card := by
-  have hRC := rootConnected_of_rootChain (m₀ := m₀) S hconn (hsupp J hne)
-  have hL : 2 ≤ L := by have := S.hL; omega
-  refine ⟨rootCube_mem_hullOf _ _, isPolyDom_hullOf hN hL _ _ layer_le_of_mem_patches hRC, ?_⟩
-  have h1 := dExt_hullOf_le hN hL (rootIdxOf y) (patches J) layer_le_of_mem_patches hRC
-  have h2 : ((patches J).card : ℝ) ≤ J.card := by exact_mod_cast card_patches_le J
-  have h3 : (0 : ℝ) ≤ 2 * d * L := by positivity
-  nlinarith
+      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card :=
+  hull_facts_of_cutSupport_of_conn S hN hsupp (fun q hq => hconn q hq.1) hne
+
+open Classical in
+/-- **Support, core** (connectivity of the thickened cubes of the centres with footprint in the
+support cut sets in place of `HatConn`).  A non-zero activity is supported on a polymer containing
+the root cube. -/
+theorem cutActivity_ne_zero_imp_of_conn (S : DGSetting G a ν) (hN : L ^ m₀ ∣ N₁)
+    {F : DecParams G → ℂ} {y : unitPts G}
+    (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
+      ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    (hconnF : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 → ∀ q, ActIn G J q → ConnIn (hatI G q))
+    {Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (h : cutActivity m₀ F y Y ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) := by
+  unfold cutActivity at h
+  obtain ⟨J, hJ, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  have hY := (Finset.mem_filter.1 hJ).2
+  obtain ⟨h1, h2, -⟩ := hull_facts_of_cutSupport_of_conn (m₀ := m₀) S hN hsupp (hconnF J hne) hne
+  rw [hY] at h1 h2
+  exact ⟨h1, h2⟩
 
 open Classical in
 /-- **Support.**  A non-zero activity is supported on a polymer containing the root cube. -/
@@ -254,22 +289,20 @@ theorem cutActivity_ne_zero_imp (S : DGSetting G a ν) (hconn : HatConn G) (hN :
     {Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ)}
     (h : cutActivity m₀ F y Y ≠ 0) :
-    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) := by
-  unfold cutActivity at h
-  obtain ⟨J, hJ, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
-  have hY := (Finset.mem_filter.1 hJ).2
-  obtain ⟨h1, h2, -⟩ := hull_facts_of_cutSupport (m₀ := m₀) S hconn hN hsupp hne
-  rw [hY] at h1 h2
-  exact ⟨h1, h2⟩
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) :=
+  cutActivity_ne_zero_imp_of_conn S hN hsupp (fun _ _ q hq => hconn q hq.1) h
 
 open Classical in
-/-- **Exponential decay of the activity in the size of the polymer.**  If `‖Δ_J F‖ ≤ M t^{|J|}`,
+/-- **Exponential decay of the activity, core** (connectivity of the thickened cubes of the centres
+with footprint in the support cut sets in place of `HatConn`).
+**Exponential decay of the activity in the size of the polymer.**  If `‖Δ_J F‖ ≤ M t^{|J|}`,
 `t > 0` and `z = (detDeg d L + 1)² t < 1`, then
 `‖cutActivity F y Y‖ ≤ M / (1 - z) · exp((log z / (2 d L)) dExt Y)` (note `log z < 0`). -/
-theorem norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
+theorem norm_cutActivity_le_of_conn (S : DGSetting G a ν) (hN : L ^ m₀ ∣ N₁)
     {F : DecParams G → ℂ} {y : unitPts G}
     (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
       ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    (hconnF : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 → ∀ q, ActIn G J q → ConnIn (hatI G q))
     {M t : ℝ} (ht : 0 < t) (hbd : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ M * t ^ J.card)
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * t < 1)
     (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
@@ -314,7 +347,7 @@ theorem norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^
     intro J hJ
     obtain ⟨hJ1, hJ2⟩ := Finset.mem_filter.1 hJ
     have hne : mixDiff J F ≠ 0 := norm_ne_zero_iff.1 hJ2
-    obtain ⟨-, -, hd'⟩ := hull_facts_of_cutSupport (m₀ := m₀) S hconn hN hsupp hne
+    obtain ⟨-, -, hd'⟩ := hull_facts_of_cutSupport_of_conn (m₀ := m₀) S hN hsupp (hconnF J hne) hne
     rw [(Finset.mem_filter.1 hJ1).2] at hd'
     refine Finset.mem_filter.2 ⟨Finset.mem_powerset.2 (Finset.subset_univ _), ?_⟩
     rw [hn]
@@ -337,14 +370,33 @@ theorem norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^
     _ = _ := by ring
 
 open Classical in
-/-- **Summed form.**  If `‖Δ_J F‖ ≤ M t^{|J|}`, `κ'' ≥ 0` and
-`(detDeg d L + 1)² · t · e^{2 d L κ''} < 1`, the sum over all polymers of
-`‖cutActivity F y Y‖ · exp(κ'' dExt Y)` is at most
-`M / (1 - (detDeg d L + 1)² · t · e^{2 d L κ''})`. -/
-theorem sum_norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
+/-- **Exponential decay of the activity in the size of the polymer.**  If `‖Δ_J F‖ ≤ M t^{|J|}`,
+`t > 0` and `z = (detDeg d L + 1)² t < 1`, then
+`‖cutActivity F y Y‖ ≤ M / (1 - z) · exp((log z / (2 d L)) dExt Y)` (note `log z < 0`). -/
+theorem norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
     {F : DecParams G → ℂ} {y : unitPts G}
     (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
       ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    {M t : ℝ} (ht : 0 < t) (hbd : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ M * t ^ J.card)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * t < 1)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ‖cutActivity m₀ F y Y‖ ≤ M / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * t) *
+      Real.exp (Real.log (((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * t) / (2 * d * L) * dExt Y) :=
+  norm_cutActivity_le_of_conn S hN hsupp (fun _ _ q hq => hconn q hq.1) ht hbd hz Y
+
+open Classical in
+/-- **Summed form, core** (connectivity of the thickened cubes of the centres with footprint in the
+support cut sets in place of `HatConn`).
+**Summed form.**  If `‖Δ_J F‖ ≤ M t^{|J|}`, `κ'' ≥ 0` and
+`(detDeg d L + 1)² · t · e^{2 d L κ''} < 1`, the sum over all polymers of
+`‖cutActivity F y Y‖ · exp(κ'' dExt Y)` is at most
+`M / (1 - (detDeg d L + 1)² · t · e^{2 d L κ''})`. -/
+theorem sum_norm_cutActivity_le_of_conn (S : DGSetting G a ν) (hN : L ^ m₀ ∣ N₁)
+    {F : DecParams G → ℂ} {y : unitPts G}
+    (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
+      ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    (hconnF : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 → ∀ q, ActIn G J q → ConnIn (hatI G q))
     {M t : ℝ} (ht : 0 ≤ t) (hbd : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ M * t ^ J.card)
     {κ'' : ℝ} (hκ0 : 0 ≤ κ'')
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (t * Real.exp (κ'' * (2 * d * L))) < 1) :
@@ -375,7 +427,8 @@ theorem sum_norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN :
         refine Finset.sum_le_sum fun J hJ => ?_
         by_cases hne : mixDiff J F = 0
         · rw [hne]; simp
-        · obtain ⟨-, -, hd'⟩ := hull_facts_of_cutSupport (m₀ := m₀) S hconn hN hsupp hne
+        · obtain ⟨-, -, hd'⟩ :=
+            hull_facts_of_cutSupport_of_conn (m₀ := m₀) S hN hsupp (hconnF J hne) hne
           rw [(Finset.mem_filter.1 hJ).2] at hd'
           refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
           rw [hE, ← Real.exp_nat_mul]
@@ -415,6 +468,22 @@ theorem sum_norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN :
     _ = M * ∑ J ∈ R, t' ^ J.card := by rw [Finset.mul_sum]
     _ ≤ M * (1 / (1 - Δ ^ 2 * t')) := mul_le_mul_of_nonneg_left hfam hM0
     _ = _ := by rw [mul_one_div]
+
+open Classical in
+/-- **Summed form.**  If `‖Δ_J F‖ ≤ M t^{|J|}`, `κ'' ≥ 0` and
+`(detDeg d L + 1)² · t · e^{2 d L κ''} < 1`, the sum over all polymers of
+`‖cutActivity F y Y‖ · exp(κ'' dExt Y)` is at most
+`M / (1 - (detDeg d L + 1)² · t · e^{2 d L κ''})`. -/
+theorem sum_norm_cutActivity_le (S : DGSetting G a ν) (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
+    {F : DecParams G → ℂ} {y : unitPts G}
+    (hsupp : ∀ J : Finset (cubeIdx G), mixDiff J F ≠ 0 →
+      ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q)
+    {M t : ℝ} (ht : 0 ≤ t) (hbd : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ M * t ^ J.card)
+    {κ'' : ℝ} (hκ0 : 0 ≤ κ'')
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (t * Real.exp (κ'' * (2 * d * L))) < 1) :
+    ∑ Y, ‖cutActivity m₀ F y Y‖ * Real.exp (κ'' * dExt Y) ≤
+      M / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (t * Real.exp (κ'' * (2 * d * L)))) :=
+  sum_norm_cutActivity_le_of_conn S hN hsupp (fun _ _ q hq => hconn q hq.1) ht hbd hκ0 hz
 
 end Activity
 
