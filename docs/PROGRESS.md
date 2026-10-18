@@ -36,10 +36,10 @@ uses, this is open.
 
 | Input | Content (source) | Status |
 |---|---|---|
-| `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | open |
+| `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | satisfiable at every L ≥ 3 (proved); the final choice of constants must also meet the other inputs |
 | `BaseStepInput` | the first renormalization step lands in the class of scale 1 (P4 (2.42)–(2.54), LF-6; blocker 1) | open |
-| `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | open |
-| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | open |
+| `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | split by a proved sub-spine into the small-field step, the large-field operation R and a rate condition on the coefficients (the last holds after lowering one constant); the first two open |
+| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | open; its main ingredient (the frozen budget at every torus horizon) is proved; being closed |
 | `FrozenStepInput` | one step above the switching scale (LF-5) | open |
 | `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | open |
 | `KfZeroInput` | the case with no renormalization step, ν > 7/8 L⁻² (LF-8 (b); blocker 1) | open |

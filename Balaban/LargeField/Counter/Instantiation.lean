@@ -28,18 +28,19 @@ namespace RegionHistory
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
   (H : RegionHistory S n R k0 K)
 
-/-- **Instantiation of LF-2** (§I.5.7): the abstract history `LF2Hyp` of an admissible region
-history, with the numbers `G^pre_k(Z)`, `G_k(Z)` given and (B), (Rg) as hypotheses. -/
-noncomputable def toLF2Hyp (hadm : H.Admissible) (Gp G : ∀ k, H.Comp k → ℝ)
-    (budget : ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+/-- The abstract history of LF-2 of an admissible region history, truncated at the scale
+`K' ≤ K`. -/
+noncomputable def toLF2HypTrunc {K' : ℕ} (hK : K' ≤ K) (hadm : H.Admissible)
+    (Gp G : ∀ k, H.Comp k → ℝ)
+    (budget : ∀ k, k < K' → ∀ Z' : H.Comp (k + 1),
       ∑ c ∈ H.parts k Z', G k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
         S.cv * S.lam (k + 1) * Z'.1.card ≤ Gp (k + 1) Z')
     (rg_ripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → S.Ripe k (H.bk k c) →
       Gp k c - S.CR * S.lam k ^ (2 * S.d + 1) + S.A3' * S.lam k ^ S.pR ≤ G k c)
     (rg_nonripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → ¬ S.Ripe k (H.bk k c) →
       G k c = Gp k c)
-    (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k, G k c = Gp k c) : LF2Hyp S n k0 K where
-  n_succ := fun k hk => H.F.hnn k hk
+    (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k, G k c = Gp k c) : LF2Hyp S n k0 K' where
+  n_succ := fun k hk => H.F.hnn k (lt_of_lt_of_le hk hK)
   Zp := H.Zp
   Zp_zero := H.F.Zp_zero
   newCubes := H.newCubes
@@ -62,13 +63,26 @@ noncomputable def toLF2Hyp (hadm : H.Admissible) (Gp G : ∀ k, H.Comp k → ℝ
       exact ⟨fun h' => h ((H.mem_remC k c).mpr h'), e⟩
   Gp := Gp
   G := G
-  spine_contains := fun k _ hk c => H.spine_contains k hk c
-  seed_pos := fun k hk Z' => H.seed_pos hk Z'
-  book_rule := fun k hk Z' => H.book_rule hk Z'
+  spine_contains := fun k _ hk c => H.spine_contains k (hk.trans hK) c
+  seed_pos := fun k hk Z' => H.seed_pos (lt_of_lt_of_le hk hK) Z'
+  book_rule := fun k hk Z' => H.book_rule (lt_of_lt_of_le hk hK) Z'
   budget := budget
   rg_ripe := fun k hk1 hk2 c hc => rg_ripe k hk1 hk2 c (fun h => hc ((H.mem_remC k c).mpr h))
   rg_nonripe := fun k hk1 hk2 c hc => rg_nonripe k hk1 hk2 c (fun h => hc ((H.mem_remC k c).mpr h))
   rg_frozen := rg_frozen
+
+/-- **Instantiation of LF-2** (§I.5.7): the abstract history `LF2Hyp` of an admissible region
+history, with the numbers `G^pre_k(Z)`, `G_k(Z)` given and (B), (Rg) as hypotheses. -/
+noncomputable def toLF2Hyp (hadm : H.Admissible) (Gp G : ∀ k, H.Comp k → ℝ)
+    (budget : ∀ k, k < K → ∀ Z' : H.Comp (k + 1),
+      ∑ c ∈ H.parts k Z', G k c + S.g k * (Z'.1 ∩ H.newCubes (k + 1)).card -
+        S.cv * S.lam (k + 1) * Z'.1.card ≤ Gp (k + 1) Z')
+    (rg_ripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → S.Ripe k (H.bk k c) →
+      Gp k c - S.CR * S.lam k ^ (2 * S.d + 1) + S.A3' * S.lam k ^ S.pR ≤ G k c)
+    (rg_nonripe : ∀ k, 1 ≤ k → k ≤ k0 → ∀ c : H.Comp k, c.1 ∉ H.rem k → ¬ S.Ripe k (H.bk k c) →
+      G k c = Gp k c)
+    (rg_frozen : ∀ k, k0 < k → ∀ c : H.Comp k, G k c = Gp k c) : LF2Hyp S n k0 K :=
+  H.toLF2HypTrunc le_rfl hadm Gp G budget rg_ripe rg_nonripe rg_frozen
 
 /-- (H-T) implies the size condition `n_k ≥ 4ρ_k + 21` of Lemma I.2.10 (d). -/
 theorem _root_.Balaban.LargeField.Setting.Ok.four_rho_le {S : Setting} (ok : S.Ok) {k m : ℕ}
