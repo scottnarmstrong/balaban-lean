@@ -87,6 +87,13 @@ structure RunningHypTo (d L : ℕ) (β ν a ε : ℝ) (betaRun nuRun : ℕ → �
     betaRun j = β * (L : ℝ) ^ (j * (d - 2)) * γ
   nu_eq : ∀ j ≤ c, ∃ δ : ℝ, 0 < δ ∧ |Real.log δ| ≤ ε ∧ nuRun j = ν * (L : ℝ) ^ (2 * j) * δ
 
+/-- (I.2) up to a scale holds up to every smaller scale. -/
+theorem RunningHypTo.mono {d L : ℕ} {β ν a ε : ℝ} {βs νs : ℕ → ℝ} {r r' : ℕ}
+    (h : RunningHypTo d L β ν a ε βs νs r) (hr : r' ≤ r) : RunningHypTo d L β ν a ε βs νs r' := by
+  obtain ⟨h1, h2, h3, h4, h5, h6, h7, h8, hγ, hδ⟩ := h
+  exact ⟨h1, h2, h3, h4, h5, h6, h7, h8, fun j hj => hγ j (hj.trans hr),
+    fun j hj => hδ j (hj.trans hr)⟩
+
 /-- `RunningHyp` gives (I.2) up to every cutoff. -/
 theorem RunningHyp.toTo {d L : ℕ} {β ν a ε : ℝ} {b n : ℕ → ℝ} (h : RunningHyp d L β ν a ε b n)
     (c : ℕ) : RunningHypTo d L β ν a ε b n c :=
