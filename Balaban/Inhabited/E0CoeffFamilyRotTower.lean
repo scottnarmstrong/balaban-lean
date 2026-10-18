@@ -166,7 +166,7 @@ variable {d L N : ℕ} [NeZero L] {κmin : ℝ}
 
 /-- **Spin covariance of the ray terms of the block expansion at the general tower.** -/
 theorem rayTermHat_rot_tower (T : StepTowerG d L N κmin) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ}
-    [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (hp : 0 < p₁)
+    [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (_hp : 0 < p₁)
     (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁)) (hS : S = T.step k hk N₁ ν β p₁)
     {X₁f : Finset (CTorus d L N₁ T.m₁ (k + 1))} {m₀ : ℕ}
     {X₁ : Set (CTorus d L N₁ T.m₁ (k + 1))}
@@ -215,7 +215,6 @@ theorem rayTermHat_rot_tower (T : StepTowerG d L N κmin) {k : ℕ} (hk : 1 ≤ 
           (extParams S.G' (↑X₁f : Set (CTorus d L N₁ T.m₁ (k + 1))) s)
           u.1 u.2) s) Y) ψ) taylorWeight ψ u (rawOf D₀) := by
   subst hS
-  have _ := hp
   exact rayTermHat_rot_of_ray (T.step k hk N₁ ν β p₁) D.core hk (T.step k hk N₁ ν β p₁).hG
     T.large_block T.dom_margin T.coer_margin T.δc_small D.cψ_pos.le D.r_pos D.ray_margin
     D.fl_radius hF₁ hSol hQ z Y hD₀ hψ hu
@@ -225,7 +224,7 @@ whose values at zero source are the explicit ray terms of the block expansions (
 core), the value at the rotated datum and the rotated hat variable is the value at the datum and the
 hat variable. -/
 theorem directTerm_rot_tower (T : StepTowerG d L N κmin) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ}
-    [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (hp : 0 < p₁)
+    [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁) (_hp : 0 < p₁)
     (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
     (hS : S = T.step k hk N₁ ν β p₁)
     (F₂ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
@@ -271,7 +270,6 @@ theorem directTerm_rot_tower (T : StepTowerG d L N κmin) {k : ℕ} (hk : 1 ≤ 
         (rotRaw (cmat Q) (rawOf D₀), 0) =
       Tt Y (ψ, ψ) (ψ, ψ) u (rawOf D₀, 0) := by
   subst hS
-  have _ := hp
   exact directTerm_rot_of_ray (T.step k hk N₁ ν β p₁) D.core hk (T.step k hk N₁ ν β p₁).hG
     T.large_block T.dom_margin T.coer_margin T.δc_small D.cψ_pos.le D.r_pos D.ray_margin
     D.fl_radius F₂ Sol₂ hF₂ hSol₂ Tt hT hQ Y hD₀ hψ hu
