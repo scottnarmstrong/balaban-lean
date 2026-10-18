@@ -10,6 +10,7 @@ public import Balaban.LargeField.R.WindowConvR2
 public import Balaban.LargeField.R.WindowConvPhysAssemblyParts
 public import Balaban.LargeField.R.WindowConvPhysReadMain
 public import Balaban.LargeField.R.CoeffResponseCubeDecomp
+public import Balaban.LargeField.R.WindowOffConv
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -187,115 +188,12 @@ theorem sum_mainActionLoc_eq_gen_of_flow (g : Geo S n R M) (cs : OpConsts) {k1 m
       ‖C‖ ≤ (9 * Real.exp (2 * η) * (9 * Ksrc * Cξ * α₀ ^ 2 * Real.exp η) /
             (1 - (S.L : ℝ) ^ (-(2 * γ))) + (Kpair + Kcoef + Kswitch + 0)) *
           ∑ i, (decomp i).total := by
-  classical
-  obtain rfl : chain = fun i => pieceChain g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-      (locComp_mem H (hjK i) (cf i)) (hjK i) cs Set.univ (m' + 1) MassBranch.complete (Xc i)
-      (fun _ => ou i) (fun _ => xu i) (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i)
-      (fun _ _ => hS i) := funext hchain
-  obtain ⟨Kw, δw, hKw, hδw, H1⟩ := PieceWindowSetup.exists_window_conversion_of_flow.{0, u}
-    (d := S.d) (L := S.L) (N₀ := M * n (m' + 1)) (K := m' + 1) (N := N) (U := Unit)
-    (S := Set.univ) (ι := ι) (sc := jf) (k1 := k1) (k := m' + 1) hd3 hL3
-  obtain ⟨ψ, hψ⟩ := exists_window_field_hread_zero g hmK hL hR hk1p Wp hWh href hWfull hWZ hWZk1
+  obtain ⟨ψ, hψ⟩ := exists_window_field_read_eq g hmK hL hR hk1p Wp hWh href hWfull hWZ hWZk1
     jf cf hjf hcf hinj hjK Xw hXw Xc hXc ou xu hv
-  refine ⟨ψ, hψ, Kw, δw, hKw, hδw, ?_⟩
-  intro ak φw β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch
-    gf δ ξ hβp hνp hα₀ hCξ hα hγ hγα hβcs hμcs hg hδ hgenv hδp hδb hξ hρ hAq hAmax hKa hKaw hΔ
-    hcν0 hcν hreg hε₀ hε₀le hN H0 H1' hsepO hsm hc1 hXi D0 D1 hsmall hSB hmB hEmax hCb hCg hCm
-    hKwt hV1 hK hKpair hKcoef hKp0 hKc0 hKs0 hsw
-  have hQ : ∀ (x : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))) (s s' : Σ j, H.Comp (j + 1)),
-      s = s' → ((∃ hj : s.1 ≤ m', torusCast (piece_torus_eq g H.F.hnn hmK hj) x ∈
-        Xfine g (H.locRH (s.1 + 1) s.2) s.1 s.2.1) ↔
-      ∃ hj : s'.1 ≤ m', torusCast (piece_torus_eq g H.F.hnn hmK hj) x ∈
-        Xfine g (H.locRH (s'.1 + 1) s'.2) s'.1 s'.2.1) := by
-    intro x s s' h
-    subst h
-    exact Iff.rfl
-  have hsites : Xwin.sites = Finset.univ.biUnion fun i => (Xw i).sites := by
-    ext x
-    rw [hXwin, Finset.mem_biUnion]
-    constructor
-    · rintro ⟨j, hj, c, hc, hx⟩
-      obtain ⟨i, hi⟩ := hcov j c hj.1 hj.2 hc
-      refine ⟨i, Finset.mem_univ _, (hXw i x).mpr ?_⟩
-      have := (hQ x _ _ hi.symm).mp ⟨hj.2, hx⟩
-      exact this.2
-    · rintro ⟨i, -, hx⟩
-      exact ⟨jf i, hjf i, cf i, hcf i, (hXw i x).mp hx⟩
-  let W := pieceWindowSetupOfFamily g hmK Wp hWh jf cf hjf hcf hinj hjK Xw hXw
-    Xwin hsites Xc decomp ak (cs.muAct (m' + 1))
-    (betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0)
-    (physicalWindowData Wp hWh href ψ (fun q => hv q)) φw MassBranch.complete
-    (fun i => pieceChain g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-      (locComp_mem H (hjK i) (cf i)) (hjK i) cs Set.univ (m' + 1) MassBranch.complete (Xc i)
-      (fun _ => ou i) (fun _ => xu i) (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i)
-      (fun _ _ => hS i))
-  have hanT : ∀ (i : ι) (m : ℕ), jf i + 1 ≤ m → m ≤ m' + 1 →
-      AnalyticOnNhd ℂ (fun u => (W.chain i).T u m) Set.univ := by
-    intro i m _ _
-    have : (fun u => (W.chain i).T u m) = fun _ => (W.chain i).T () m :=
-      funext fun u => by rw [Subsingleton.elim u ()]
-    rw [this]; exact analyticOnNhd_const
-  have hanW : ∀ i, AnalyticOnNhd ℂ (fun u => (W.βk : ℂ) *
-      actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)) Set.univ := by
-    intro i
-    have : (fun u => (W.βk : ℂ) * actionRegionC (W.Xw i) W.ak W.νk (W.Datw u) (W.φw u)) =
-        fun _ => (W.βk : ℂ) * actionRegionC (W.Xw i) W.ak W.νk (W.Datw ()) (W.φw ()) :=
-      funext fun u => by rw [Subsingleton.elim u ()]
-    rw [this]; exact analyticOnNhd_const
-  have hA1 : ∀ i, (W.chain i).a (jf i + 1) = cs.aw := fun i => pieceChain_a_first (hβ := hβ i) (hμ := hμ i) (hB0 := hB0 i) (hBn := hBn i)
-    (hS := fun _ _ => hS i) (br := MassBranch.complete) (by have := (hjf i).2; omega)
-  have hjk : ∀ i, jf i + 1 ≤ m' + 1 := fun i => by have := (hjf i).2; omega
-  obtain ⟨C, hC, -, hCb⟩ := H1 W cs
-    (fun i _ => (betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 : ℂ) *
-      actionRegionC (Xc i) ak (cs.muAct (m' + 1))
-        (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-          (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv)
-        (transportField
-          (Gl := locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-            (locComp_mem H (hjK i) (cf i)) (hjK i))
-          (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2)))
-          (physicalWindowData Wp hWh href ψ (fun q => hv q)).Ψ φw))
-    β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch 0 gf δ ξ
-    hβp hνp hα₀ hCξ hα hγ hγα hβcs hμcs hg hδ hgenv hδp hδb hξ hρ hAq hAmax
-    (fun i m _ _ => rfl) (fun i m _ _ => rfl) hA1
-    (fun i u _ m _ _ => rfl)
-    (fun i u _ m h1 h2 => pieceChain_φ (hβ := hβ i) (hμ := hμ i) (hB0 := hB0 i) (hBn := hBn i)
-      (hS := fun _ _ => hS i) (br := MassBranch.complete) (hcoh i) h1 h2 u)
-    hwt1 hcells hjk hKa hKaw hΔ hcν0 hcν hreg hε₀ hε₀le hN
-    (fun i m h1 h2 => by
-      rcases Nat.eq_or_lt_of_le h1 with e | hlt
-      · subst e
-        have h := hB0 i
-        rw [hcoh i] at h
-        show BgHyp S.d S.L (W.Kc i) (W.ϱc i) ((W.chain i).a (jf i + 1))
-          ((W.chain i).ν (jf i + 1))
-        rw [hA1 i]
-        exact h
-      · exact hBn i m (by omega) h2)
-    H0 H1' (fun _ => hsepO) hsm hc1
-    (fun i u _ m h1 h2 => hXi i m h1 h2) (fun i u _ => D0 i) (fun i u _ => D1 i)
-    hsmall hSB hmB hEmax hCb hCg hCm hKwt hV1 hK hKpair hKcoef hKp0 hKc0 hKs0 le_rfl
-    (fun i u _ => hsw i)
-    (fun i u _ => by
-      have h0 := hψ φw ak (cs.muAct (m' + 1)) (betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0) i
-      exact (norm_eq_zero.2 h0).le.trans (by simp))
-    (fun i m _ _ => hanT i m (by omega) (by omega)) hanW
-  refine ⟨C (), ?_, ?_⟩
-  · have h1 := hC () (Set.mem_univ _)
-    have h2 := congrArg Complex.re h1
-    rw [Complex.add_re, Complex.re_sum] at h2
-    have h3 : ∀ i, ((W.chain i).T () (jf i + 1)).re = mainActionLoc g (H.locRH (jf i + 1) (cf i))
-        (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) cs (locRH_rem (jf i + 1) (cf i))
-        (ou i) (xu i) hv := by
-      intro i
-      have hj1 : 1 ≤ jf i := le_trans hk1p (hjf i).1
-      exact pieceChain_T g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-        (locComp_mem H (hjK i) (cf i)) (hjK i) cs (locRH_rem (jf i + 1) (cf i)) hj1 Set.univ
-        (m' + 1) MassBranch.complete (Xc i) (hXc i) (fun _ => ou i) (fun _ => xu i)
-        (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i) (fun _ _ => hS i) (hjk i) (Set.mem_univ ())
-    simp only [h3] at h2
-    exact (by simpa only [W, pieceWindowSetupOfFamily] using h2.symm.trans rfl : _) |> fun h => by linarith
-  · simpa only [W, pieceWindowSetupOfFamily] using hCb () (Set.mem_univ _)
+  exact ⟨ψ, fun φw a ν β' i => by rw [hψ φw a ν i, sub_self],
+    sum_mainActionLoc_eq_gen_of_flow_of_read g cs hmK hd3 hL3 Wp hWh href jf cf hjf hcf hinj hcov
+      hjK hk1p Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain
+      hcoh ψ hψ⟩
 
 end Phys
 
