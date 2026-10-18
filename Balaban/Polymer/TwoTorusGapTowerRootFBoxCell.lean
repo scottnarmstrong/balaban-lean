@@ -139,6 +139,23 @@ theorem recentre_arith_le {A K b Ds : ℕ} (hA : 0 < A) (hK : 61 ≤ K) (hb : 4 
   have h2 : 4 * (b * A) ≤ A * K := by nlinarith
   omega
 
+/-- Root-F's modulus makes the number of cells a multiple of `4`: if `4 L^{1+m₁} ∣ M`, the side
+`n` of a torus is divisible by `M L^{kf+1}` and `k ≤ kf`, then `n = aK K` with
+`aK = cellSide L 1 m₁ (k+1)` has `4 ∣ K`. -/
+theorem four_dvd_cells_of_rootF_modulus {L m₁ k kf M n K : ℕ} [NeZero L] (hk : k ≤ kf)
+    (hM : 4 * L ^ (1 + m₁) ∣ M) (hdv : M * L ^ (kf + 1) ∣ n)
+    (hn : n = cellSide L 1 m₁ (k + 1) * K) : 4 ∣ K := by
+  have hc : cellSide L 1 m₁ (k + 1) = L ^ (k + 1) * L ^ (1 + m₁) := by
+    unfold cellSide; rw [← pow_add]; congr 1; omega
+  have hD : 0 < cellSide L 1 m₁ (k + 1) := cellSide_pos _ _ _
+  refine four_dvd_of_dvd_modulus hD hn ?_ hdv
+  rw [hc]
+  have h1 : L ^ (k + 1) ∣ L ^ (kf + 1) := pow_dvd_pow L (by omega)
+  have h2 : 4 * L ^ (1 + m₁) ∣ M := hM
+  calc 4 * (L ^ (k + 1) * L ^ (1 + m₁)) = L ^ (k + 1) * (4 * L ^ (1 + m₁)) := by ring
+    _ ∣ L ^ (kf + 1) * M := mul_dvd_mul h1 h2
+    _ = M * L ^ (kf + 1) := by ring
+
 end Cell
 
 end Balaban.Polymer.TwoTorusStep
