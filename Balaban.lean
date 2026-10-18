@@ -552,6 +552,10 @@ public import Balaban.LargeField.Background.TwoTorusBgPiece
 public import Balaban.LargeField.Background.TwoTorusSize
 public import Balaban.LargeField.Background.TwoTorusBgPieceFinal
 public import Balaban.LargeField.Background.TwoTorusCubeLift
+public import Balaban.LargeField.Background.TwoTorusReg
+public import Balaban.LargeField.Background.TwoTorusRegField
+public import Balaban.LargeField.Background.TwoTorusRegDomain
+public import Balaban.LargeField.Background.TwoTorusRegSites
 public import Balaban.LargeField.History.SpineOps
 public import Balaban.LargeField.History.SpinePad
 public import Balaban.LargeField.History.ImageHist
