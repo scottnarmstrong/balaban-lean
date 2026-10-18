@@ -89,6 +89,11 @@ by `ℰ`): the solver mass `cs.mu k`.  Open point Q13 (`notes/QUESTIONS-ROLAND-2
 action; it would replace this definition by `cs.muAct k`. -/
 def sfActMass (cs : OpConsts) (k : ℕ) : ℝ := cs.mu k
 
+/-- The radius `ρ_k = 2⌊R_{k-1}⌋ + 3` (in cubes of `𝕋_k`) of the direction test of the
+small-field cubes (ruling R2): the data sites of `𝔹_k(W_k)` lie within `ρ_k` cubes of `Y`
+(`dataSite_cube_mem_nbhd`). -/
+noncomputable def dirRadius (R : ℕ → ℝ) (k : ℕ) : ℕ := 2 * ⌊R (k - 1)⌋₊ + 3
+
 /-! ### The level generating set and the identifications of the tori -/
 
 section Level
@@ -338,10 +343,13 @@ noncomputable def Rres : ℂ :=
 
 /-- **`χ_k(Y) = ∏_{□ ⊂ Y} χ_k(□)`** (Definition II.3.2 item 1; P5 (1.18)-(1.19)): weights
 `a^{(k)}`, mass `cs.mu k` (the `h`-conditions are present only for a positive mass), tolerance
-`δ_k = cs.delta k`. -/
+`δ_k = cs.delta k`, with the direction test of the datum extended to `□^{∼ρ_k}`,
+`ρ_k = dirRadius R k` (`chiKLong`; ruling R2, route R-YM′ leaf 4), so that every datum site of
+the background on `𝔹_k(W_k)` is tested. -/
 noncomputable def chiY : ℝ :=
-  cubeProd (fun y0 => chiK (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (q := k) (N := N)
-      C.weights (C.cs.mu k) (C.cs.delta k) (fun i => hv i) C.geo.c (n k) y0)
+  cubeProd (fun y0 => chiKLong (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (q := k)
+      (N := N) C.weights (C.cs.mu k) (C.cs.delta k) (fun i => hv i) C.geo.c (n k)
+      (dirRadius R k) y0)
     (cubeFin Y) (blockCfgOf C.geo C.hnn le_rfl C.hkK ψk)
 
 /-- **The small-field factor of (D1)**: `χ_k(Y) exp(𝒜_k + ℱ_k + ℛ^{(k)})(Y; ψ_k, h, g)` on the

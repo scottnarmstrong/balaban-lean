@@ -470,6 +470,23 @@ theorem chiK_const_eq_one {a : ℕ → ℝ} {μ δ : ℝ}
     chiK (M1 := M1) (N₁ := N₁) (L := L) (q := q) (N := N) a μ δ e c n y0 (fun _ i => e i) = 1 :=
   charFn_eq_one (reg_cubeData_const H hq hm hδ he y0)
 
+/-- **`χ^ρ_q(□) = 1` at the constant field**: the cube test holds and the datum is `e`
+everywhere, so the extended direction test holds for every radius `ρ`. -/
+theorem chiKLong_const_eq_one {a : ℕ → ℝ} {μ δ : ℝ}
+    (H : BgHyp d L q (minSep L M1) a μ) (hq : 1 ≤ q) (hm : N₁ * L ^ (q - q) = c * n)
+    (hδ : 0 < δ) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) (y0 : Torus d n) (ρ : ℕ) :
+    chiKLong (M1 := M1) (N₁ := N₁) (L := L) (q := q) (N := N) a μ δ e c n ρ y0
+      (fun _ i => e i) = 1 := by
+  refine charFn_eq_one ⟨reg_cubeData_const H hq hm hδ he y0, fun hν => ⟨fun x _ => ?_, ?_⟩⟩
+  · show vn (fun i => ((e i : ℝ) : ℂ) - ((e i : ℝ) : ℂ)) < δ / Real.sqrt (μ * ((L : ℝ) ^ q) ^ 2)
+    have hz : (fun i => ((e i : ℝ) : ℂ) - ((e i : ℝ) : ℂ)) = 0 := funext fun i => sub_self _
+    rw [hz, vn_zero]
+    positivity
+  · have he' : ∑ i, e i * e i = 1 := by simpa [sq] using he
+    have : ∑ i, ((e i : ℝ) : ℂ) * ((e i : ℝ) : ℂ) = 1 := by exact_mod_cast he'
+    rw [this, sub_self, norm_zero]
+    positivity
+
 end Cube
 
 section Small
@@ -489,7 +506,7 @@ theorem chiY_const_eq_one (C : SFCtx S nn R M KK N k m₁ ϱ') (Y : Set (Torus S
     (hδ : 0 < C.cs.delta k) : C.chiY Y (fun _ => hv) hv = 1 := by
   unfold SFCtx.chiY cubeProd
   refine Finset.prod_eq_one fun y0 _ => ?_
-  exact chiK_const_eq_one H hk (by simp) hδ hsum y0
+  exact chiKLong_const_eq_one H hk (by simp) hδ hsum y0 _
 
 end Small
 
