@@ -183,6 +183,7 @@ theorem radiiCs_scalar :
     (∀ k, 0 ≤ radiiCs.beta (k + 1)) ∧ (∀ n, 0 ≤ radiiCs.aw n) ∧
     (∀ k, 0 ≤ radiiCs.muAct (k + 1)) ∧
     (∀ q, BgHyp S0.d S0.L q (minSep S0.L radiiGeo.M1) radiiCs.aw (radiiCs.mu q)) ∧
+    (∀ q, BgHyp S0.d S0.L q (minSep S0.L radiiGeo.M1) radiiCs.aw (radiiCs.muBg q)) ∧
     2 ≤ 2 ∧ radiiCs.Cb ≤ 0 ∧ radiiCs.Cb * radiiCs.B0 ≤ 0 ∧
     (∀ k, 0 ≤ Real.log (radiiCs.beta k)) ∧
     (∀ k, 0 < radiiCs.beta k * radiiCs.aKer * (S0.L : ℝ) ^ (S0.d - 2)) ∧
@@ -195,7 +196,8 @@ theorem radiiCs_scalar :
   have hm := deltaR_mul
   have hdp := deltaR_pos
   refine ⟨fun k => by simp [radiiCs], fun k => ?_, fun k => (radiiCs_beta_pos _).le,
-    fun n => by simp [radiiCs], fun k => by simp [radiiCs], radiiCs_bgHyp, le_rfl, le_rfl,
+    fun n => by simp [radiiCs], fun k => by simp [radiiCs], radiiCs_bgHyp, radiiCs_bgHyp, le_rfl,
+    le_rfl,
     by simp [radiiCs], radiiCs_log, fun k => ?_, hd, fun k => ?_, fun k => ?_, le_rfl, le_rfl,
     fun k => by simp [radiiCs]⟩
   · have := radiiCs_beta_pos k

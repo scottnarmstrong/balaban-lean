@@ -35,12 +35,12 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   {hvu : U → EuclideanSpace ℝ (Fin N)}
   {hβ : ∀ m, j + 1 ≤ m → m ≤ k → cs.beta m ≠ 0}
   {hμ : ∀ m, j + 2 ≤ m → m ≤ k → cs.muAct m ≠ 0}
-  {hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.mu (j + 1))}
+  {hB0 : BgHyp S.d S.L (j + 1) (minSep S.L g.M1) cs.aw (cs.muBg (j + 1))}
   {hBn : ∀ m, j + 2 ≤ m → m ≤ k → BgHyp S.d S.L (j + 1) (minSep S.L g.M1)
     (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (j + 1)) (j + 1) 0 /
       betaCanon S.d S.L (cs.beta m) m 0)) (br.elMass (cs.muAct m))}
   {hS : ∀ u ∈ Sdom,
-    InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (j + 1))
+    InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (j + 1))
       (locData g Hl j Zc hZc hk (ou u) (xu u) (hvu u)) ∧
     ∀ m, j + 2 ≤ m → m ≤ k →
       InUnionDomainR (locGen g Hl j Zc hZc hk) (bgC1 S.d S.L N)
@@ -71,8 +71,10 @@ theorem pieceChain_terminal_parameters
       hβ hμ hB0 hBn hS).coeff_from_start hjk le_rfl ℓ
     simpa only [pieceChain, div_self hstart, mul_one] using hcoeff.symm
 
-/-- The initial and later backgrounds of a physical piece use different declared
-mass conventions. At the terminal scale the later branch is fixed by `br`. -/
+/-- The initial background of a physical piece is the local background (background mass
+`cs.muBg (j + 1)`); the later ones are those of the branch `br` at the action masses.  Under the
+coherence `cs.muBg (j + 1) = br.elMass (cs.muAct (j + 1))` (ruling R2) they are of one convention
+(`pieceChain_φ_first`). -/
 theorem pieceChain_backgrounds
     (C : ConvChain Sdom j k (locGen g Hl j Zc hZc hk) X br N)
     (hC : C = pieceChain g Hl j Zc hZc hk cs Sdom k br X ou xu hvu

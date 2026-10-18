@@ -204,6 +204,7 @@ noncomputable def quietStepData' [NeZero N] (inp : QuietStepInput' K k0 geo cs N
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
     (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.muBg q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -211,7 +212,7 @@ noncomputable def quietStepData' [NeZero N] (inp : QuietStepInput' K k0 geo cs N
     (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
     (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) :
     StepData k0 geo cs N (quietKappaStep (K := K) cs c1 c2) :=
-  quietStepData inp.toInput hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0
+  quietStepData inp.toInput hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0
 
 /-- **The bound (1.26) for the localized operators built from the quiet step data**, from the
 reduced input (`quiet_locOp_pkgBound`). -/
@@ -219,6 +220,7 @@ theorem quiet_locOp_pkgBound' [NeZero N] (inp : QuietStepInput' K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
     (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.muBg q))
     (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
@@ -230,14 +232,14 @@ theorem quiet_locOp_pkgBound' [NeZero N] (inp : QuietStepInput' K k0 geo cs N)
     (lab : ∀ k, H.Comp k → Fin 5) (hzpos : ∀ k, 0 < cs.z (k + 1)) (κK : ∀ k, H.Comp k → ℝ)
     (hkept : ∀ (k : ℕ) (hk : k ≤ K) (Z : H.Comp k), IsKept H k Z →
       PkgBound (H.localHistory M K k Z) k
-        (locOp geo cs (quietStepData' inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+        (locOp geo cs (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
           hCb hB0) KD hH lab k hk Z) (κK k Z)) :
     ∀ (k : ℕ) (hk : k ≤ K) (Z : H.Comp k),
       PkgBound (H.localHistory M K k Z) k
-        (locOp geo cs (quietStepData' inp hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+        (locOp geo cs (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
           hCb hB0) KD hH lab k hk Z)
         (lineageKappa H M (quietKappaStep (K := K) cs c1 c2) κK k Z) :=
-  quiet_locOp_pkgBound inp.toInput hz hc hβ haw hμ hbg hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0
+  quiet_locOp_pkgBound inp.toInput hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0
     KD hH lab hzpos κK hkept
 
 end Assemble

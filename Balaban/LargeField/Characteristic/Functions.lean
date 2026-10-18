@@ -95,6 +95,19 @@ tolerance `δ = δ_q`, the `h`-conditions being present only for `μ > 0`). -/
 noncomputable def chiK (y0 : Torus d n) : BlockCfg d (M1 * N₁) L q q N → ℝ :=
   charFn (ChiKProp a μ δ h c n y0)
 
+/-- **The cube test with the extended direction stencil** (ruling R2, route R-YM′;
+`notes/phase1/Q13-YM.md` §3, §5 leaf 4): the condition `χ_q(□) = 1` together with the direction
+test of the datum `ψ_q` on the whole neighbourhood `□^{∼ρ}` (P5 (1.19) with the direction test
+extended from `□^∼` to `□^{∼ρ}`; vacuous for the mass `μ = 0`). -/
+def ChiKLongProp (ρ : ℕ) (y0 : Torus d n) (ψ : BlockCfg d (M1 * N₁) L q q N) : Prop :=
+  ChiKProp a μ δ h c n y0 ψ ∧
+    DataDirClose (fun x i => (ψ (jBlock d L (M1 * N₁) q q x) i : ℂ)) (fun i => (h i : ℂ))
+      (μ * ((L : ℝ) ^ q) ^ 2) (cubeNbhd M1 N₁ L q c n ρ y0) δ
+
+/-- `χ^ρ_q(□)`: the characteristic function of `ChiKLongProp`. -/
+noncomputable def chiKLong (ρ : ℕ) (y0 : Torus d n) : BlockCfg d (M1 * N₁) L q q N → ℝ :=
+  charFn (ChiKLongProp a μ δ h c n ρ y0)
+
 /-- **Definition II.3.2 item 5** (P6 (2.1) = P5 (1.19) at `k + 1`): `χ_{k+1}(□')` for the cube
 `□' ∈ π_{k+1}` and `ψ_{k+1}`; this is `chiK` at the level `k + 1`
 (`𝔹_{k+1}(□'^{∼2}) = G_{k+1}(□')`). -/

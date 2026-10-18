@@ -18,6 +18,10 @@ the sites by the data), and `ψ` the multiscale field:
 ```
 with `A_G` the action of §II.4 (`actionG`; mass `ν_{k+1} L^{-2(k+1)}`, present for every `k`) and
 `st(X)` the bonds with exactly one end point in `X` (the boundary half-bonds of P5 (1.5)).
+
+The local background is solved with the background mass `cs.muBg (k + 1)` (ruling R2: the complete
+background `muBg = muAct` in route R-YM′; the default `muBg = mu` is the massless background of
+P5-P7 below `k₀`), not with the cutoff mass `cs.mu` of the characteristic functions.
 -/
 
 @[expose] public section
@@ -99,13 +103,14 @@ noncomputable def locLiftTheta (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1)
   blockCfgOf g Hl.F.hnn le_rfl hk (outField N o)
 
 /-- The local background `φ^loc_{k+1}` on the piece of `Z'` (Definition II.2.7 (iv)) at the
-configuration `(ψ_k, ψ_{k+1})` and the external direction `h`. -/
+configuration `(ψ_k, ψ_{k+1})` and the external direction `h`, with the background mass
+`cs.muBg (k + 1)`. -/
 noncomputable def locBg (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
     (x : NewCfg N (locHist Hl M K (k + 1) Zc) k) (hv : EuclideanSpace ℝ (Fin N)) :
     (locGen g Hl k Zc hZc hk).Ω 1 × Fin N → ℂ :=
   bgLocPiece (k := k) (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
     (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
-    (Omega_compl_subset_Zpre' k (Hl.step k) _ _) cs.aw (cs.mu (k + 1)) (bgC0 S.d S.L N) hZc
+    (Omega_compl_subset_Zpre' k (Hl.step k) _ _) cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) hZc
     (locLiftPsi g Hl k Zc hk x).toC (locLiftTheta g Hl k Zc hk o).toC (fun i => (hv i : ℂ))
 
 /-- The data `lift_{k,k+1}(ψ_k, ψ_{k+1})` of the local background. -/

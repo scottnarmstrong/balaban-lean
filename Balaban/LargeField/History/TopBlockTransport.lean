@@ -639,7 +639,25 @@ theorem chiKProp_of_chiY_ne_zero (Y : Set (Torus S.d (n (j + 1))))
       (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk) := by
   by_contra hP
   apply (Finset.prod_ne_zero_iff.1 h) y₀ hy₀
-  exact charFn_eq_zero hP
+  exact charFn_eq_zero fun hL => hP hL.1
+
+/-- **The extended direction test under `χ_{j+1}(Y) ≠ 0`** (ruling R2): for every cube `y₀` of
+`Y`, the datum `ψ_{j+1}` is within `δ_{j+1} / √ν` of `h` on the whole neighbourhood
+`y₀^{∼ρ}`, `ρ = dirRadius R (j + 1)`, when the dimensionless cube mass `ν = μ L^{2(j+1)}` is
+positive. -/
+theorem dataDirClose_of_chiY_ne_zero (Y : Set (Torus S.d (n (j + 1))))
+    (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (h : Cx.chiY Y ψk hv ≠ 0) {y₀ : Torus S.d (n (j + 1))} (hy₀ : y₀ ∈ cubeFin Y) :
+    DataDirClose
+      (fun x i => ((blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk)
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) x) i : ℂ))
+      (fun i => ((hv i : ℝ) : ℂ)) (Cx.cs.mu (j + 1) * ((S.L : ℝ) ^ (j + 1)) ^ 2)
+      (cubeNbhd Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1) Cx.geo.c (n (j + 1))
+        (dirRadius R (j + 1)) y₀)
+      (Cx.cs.delta (j + 1)) := by
+  by_contra hP
+  apply (Finset.prod_ne_zero_iff.1 h) y₀ hy₀
+  exact charFn_eq_zero fun hL => hP hL.2
 
 /-- **T4, `BlockClose` and `GradClose`.**  Under `χ_{j+1}(Y) ≠ 0`, for a cube `y₀` of `Y`, the
 data `Ψ = lift ψ_{j+1}` of the single cube `y₀` and the background `φ` of the generating set

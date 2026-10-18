@@ -147,6 +147,8 @@ noncomputable def quietRest (o : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1))
         (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) x o,
       subFluctField N (locHist Hl M K (k + 1) Zc) (k + 1) x) *
   (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+      (locData g Hl k Zc hZc hk o x hv) ∧
+    InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
       (locData g Hl k Zc hZc hk o x hv) then 1 else 0) *
   Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem o x hv)
 
