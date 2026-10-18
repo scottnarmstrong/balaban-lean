@@ -128,6 +128,17 @@ theorem castG_levelGS (j : ℕ) (hj : j ≤ K) :
   rw [mem_castG_Ω_equiv hc he]
   by_cases hi : i ≤ j <;> simp [levelGS, hi]
 
+theorem coe_castG_Ω_equiv (G' : GeneratingSet d L (N₁' * L ^ m₁') K ϱ) (i : ℕ) :
+    (((castG hc G').Ω i : Finset (CTorus d L N₁ m₁ K)) : Set (CTorus d L N₁ m₁ K)) =
+      e '' (((G'.Ω i : Finset (CTorus d L N₁' m₁' K))) : Set (CTorus d L N₁' m₁' K)) := by
+  ext x
+  rw [Finset.mem_coe, mem_castG_Ω_equiv hc he]
+  constructor
+  · intro h
+    exact ⟨e.symm x, h, by simp⟩
+  · rintro ⟨y, hy, rfl⟩
+    simpa using hy
+
 /-- The strong specification of a polymer is transported by the cast. -/
 theorem gsSpecStrong_castG {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ K)
     {X' : Set (CTorus d L N₁' m₁' K)} {G' : GeneratingSet d L (N₁' * L ^ m₁') K ϱ}

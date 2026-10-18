@@ -47,6 +47,16 @@ theorem actField_castEquiv (s : Equiv.Perm (CTorus d L N₁' m₁' K)) (Ψ : Fld
   change Ψ (e.symm ((e.permCongrHom s).symm x)) = Ψ (s.symm (e.symm x))
   rw [permCongrHom_symm_apply', Equiv.symm_apply_apply]
 
+/-- The `ℓ¹` norm is unchanged by the cast of fields. -/
+theorem l1_castEquiv (g : Fld d L N₁' m₁' K N) :
+    Def6.l1 (fun z => g (e.symm z)) = Def6.l1 g :=
+  Equiv.sum_comp e.symm (fun x => Multiscale.vn (g x))
+
+/-- The `ℓ¹` norm is unchanged by pulling a field back along the cast. -/
+theorem l1_castEquiv' (g : Fld d L N₁ m₁ K N) :
+    Def6.l1 (fun z => g (e z)) = Def6.l1 g :=
+  Equiv.sum_comp e (fun x => Multiscale.vn (g x))
+
 omit [NeZero L] [NeZero N₁] [NeZero N₁'] in
 /-- Rotations commute with the cast of fields. -/
 theorem rotField_castEquiv (R : Matrix (Fin N) (Fin N) ℂ) (Ψ : Fld d L N₁' m₁' K N) :
@@ -93,6 +103,31 @@ theorem avg_castEquiv {M : Type*} [AddCommGroup M] [Module ℂ M]
   rw [hcard]
   congr 1
   exact (Fintype.sum_equiv Φ _ _ (fun s => rfl)).symm
+
+omit [NeZero L] [NeZero N₁] [NeZero N₁'] in
+/-- The action of a conjugated permutation on pulled-back fields. -/
+theorem actField_castEquiv' (s : Equiv.Perm (CTorus d L N₁' m₁' K)) (Ψ : Fld d L N₁ m₁ K N) :
+    (fun x => (actField (e.permCongrHom s) Ψ) (e x)) = actField s (fun x => Ψ (e x)) := by
+  funext x
+  change Ψ ((e.permCongrHom s).symm (e x)) = Ψ (e (s.symm x))
+  rw [permCongrHom_symm_apply', Equiv.symm_apply_apply]
+
+omit [NeZero L] [NeZero N₁] [NeZero N₁'] in
+/-- The preimage of the image of a set under a conjugated permutation. -/
+theorem preimage_image_perm_castEquiv (s : Equiv.Perm (CTorus d L N₁' m₁' K))
+    (X : Set (CTorus d L N₁ m₁ K)) :
+    e ⁻¹' ((e.permCongrHom s) '' X) = s '' (e ⁻¹' X) := by
+  ext x
+  simp only [Equiv.image_eq_preimage_symm, Set.mem_preimage]
+  rw [permCongrHom_symm_apply', Equiv.symm_apply_apply]
+
+omit [NeZero L] [NeZero N₁] [NeZero N₁'] in
+/-- The image of an image under a conjugated permutation. -/
+theorem image_image_perm_castEquiv (s : Equiv.Perm (CTorus d L N₁' m₁' K))
+    (A : Set (CTorus d L N₁' m₁' K)) :
+    (e.permCongrHom s) '' (e '' A) = e '' (s '' A) := by
+  rw [Set.image_image, Set.image_image]
+  exact Set.image_congr fun x _ => permCongrHom_apply' s x
 
 end Avg
 

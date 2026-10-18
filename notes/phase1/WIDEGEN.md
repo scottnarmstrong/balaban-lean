@@ -384,3 +384,8 @@ Classes: (B) landed theorem; (C) per-label or physical estimate of another lane;
 | `TM, hTMan, hTMloc, hTMsrc, hTMbd, hTMrot, DM, hDM, hDMfull` | D | observable `D_M`, `T_M` of P4 (4.18), (H.7), p. 679, 704, Proposition 4.2 p. 706: a separate construction, not an `e0` coefficient |
 | `hBM` | A/D | strict `BM < c₉ L^{-(k+1)((d-2)/2+γ-α₁)}` after source and fluctuation bounds |
 The energy part of (2) is therefore not instantiated: the first premise is false at the tower and the labels `Tl` have no producer.
+
+## W1057 — blocker 6: the new level at the cast local sets (`Fluctuation/LocalClassDensityLevelCast*.lean`)
+
+`localClass_newLevel_of_expansion_cast`: the hypotheses and conclusions of `localClass_newLevel_of_expansion_rho` on the tower's torus `(N₁, m₁)`, with `Tm.gs (k+1) Y = castG hc (localB … (Yp Y) hsep)` read on the finer torus `(N₁', m₁')`, `N₁' L^m₁' = N₁ L^m₁`, `ϱ ≤ minSep L (L^m₁')`; proved by moving the terms to the finer torus along the cast of the tori (the block index shifts to `m₀' = m₀ + m₁ - m₁'`, so cell sides, polymers, sizes and the paving and full groups correspond) and applying `_rho` there.
+The finer torus carries `Yp'`, `cpl'` (the `hYp`, `hcpl` of `_rho` there) and the tower's `Yp`, `cpl` are their transports; `hm : m₁' ≤ P.m₀ + m₁` is the only added numerical premise.

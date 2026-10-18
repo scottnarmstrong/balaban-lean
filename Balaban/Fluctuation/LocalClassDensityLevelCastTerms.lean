@@ -62,7 +62,7 @@ theorem Eloc_castEquiv
       Eloc m₀ Tm j (e y) (fun x => Ψ (e.symm x)) (fun x => h (e.symm x)) := by
   unfold Eloc
   rw [finsum_polysAt_castEquiv hc hm he]
-  exact finsum_mem_congr rfl fun Y _ => (hE _ _ _ _ _).symm.symm
+  exact finsum_mem_congr rfl fun Y _ => hE _ _ _ _ _
 
 /-- The local observable sum of the cast terms. -/
 theorem Mloc_castEquiv
