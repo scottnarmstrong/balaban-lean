@@ -460,30 +460,33 @@ variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 
   (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
   (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
   (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
-  {D D₂ : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
-  (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
 
-include hC hk hδc hcap hsm hmar hα hconn hD hD₂
+include hC hk hδc hcap hsm hmar hα
 
 /-- **Locality in the datum at fixed cut parameters.**  For `s` in the polydisc and two data of the
 chart whose raw data agree on the sets `resDep x`, `x ∈ Yreg s`, the rooted traces (each at its own
 decoupled background) of every set `B` of blocks are equal. -/
-theorem rootTraceBg_eq_of_agree_on_Yreg {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+theorem rootTraceBg_eq_of_agree_on_Yreg (_hconn : HatConn Gp) {D D₂ : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
     (hdata : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg Gp (extS Gp s) →
       ∀ y ∈ resDep Gp (x : CTorus d L N₁ m₁ (k + 1)),
         D.Ψ y = D₂.Ψ y ∧ (y ∈ Gp.Ω 1 → D.h y = D₂.h y))
     (B : Finset (unitPts Gp)) :
     rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D s =
-      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D₂ s := by
-  -- `HatConn` is not needed (`rootTraceBg_eq_of_agree_on_Yreg_core`); it is discarded
-  have _ := hconn
-  exact rootTraceBg_eq_of_agree_on_Yreg_core hC hk hδc hcap hsm hmar hα hD hD₂ hs hdata B
+      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D₂ s :=
+  -- `HatConn` is not needed (`rootTraceBg_eq_of_agree_on_Yreg_core`)
+  rootTraceBg_eq_of_agree_on_Yreg_core hC hk hδc hcap hsm hmar hα hD hD₂ hs hdata B
 
 /-- **Locality of a mixed difference in the datum.**  If the raw data of two data of the chart
 agree on `resDep x` for every site `x ∈ Ω₁` of the parameter cubes of `J`, then `Δ_J` of the
 rooted trace with its background is the same for the two data. -/
-theorem mixDiff_rootTraceBg_eq_of_agree (J : Finset (cubeIdx Gp))
+theorem mixDiff_rootTraceBg_eq_of_agree (_hconn : HatConn Gp) {D D₂ : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+    (J : Finset (cubeIdx Gp))
     (hdata : ∀ P ∈ J, ∀ x : Gp.Ω 1,
       (x : CTorus d L N₁ m₁ (k + 1)) ∈ cubeP (P : ℕ × CTorus d L N₁ m₁ (k + 1)) →
       ∀ y ∈ resDep Gp (x : CTorus d L N₁ m₁ (k + 1)),
@@ -492,27 +495,28 @@ theorem mixDiff_rootTraceBg_eq_of_agree (J : Finset (cubeIdx Gp))
     mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp)
         B D) =
       mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp)
-        B D₂) := by
-  -- `HatConn` is not needed (`mixDiff_rootTraceBg_eq_of_agree_core`); it is discarded
-  have _ := hconn
-  exact mixDiff_rootTraceBg_eq_of_agree_core hC hk hδc hcap hsm hmar hα hD hD₂ J hdata B
+        B D₂) :=
+  -- `HatConn` is not needed (`mixDiff_rootTraceBg_eq_of_agree_core`)
+  mixDiff_rootTraceBg_eq_of_agree_core hC hk hδc hcap hsm hmar hα hD hD₂ J hdata B
 
 open Classical in
 /-- **Locality of the activity in the datum.**  If the raw data of two data `D`, `D₂` of the chart
 agree on the dependency sets `resDep x` of the sites `x ∈ Ω₁` of the polymer `Y`, then the
 activities of `Y` are equal.  (The patches of a cut set lie in its hull, and the rooted trace at
 the cut point `1_I`, `I ⊆ J`, reads the datum only through `resDep` of the patches of `I`.) -/
-theorem detActivityBg_eq_of_agree (hN : L ^ m₀ ∣ N₁) (y : unitPts Gp)
+theorem detActivityBg_eq_of_agree (_hconn : HatConn Gp) {D D₂ : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+    (hN : L ^ m₀ ∣ N₁) (y : unitPts Gp)
     (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ))
     (hdata : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ sitesOf Y →
       ∀ z ∈ resDep Gp (x : CTorus d L N₁ m₁ (k + 1)),
         D.Ψ z = D₂.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D₂.h z)) :
     detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y =
-      detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D₂ y Y := by
-  -- `HatConn` is not needed (`detActivityBg_eq_of_agree_core`); it is discarded
-  have _ := hconn
-  exact detActivityBg_eq_of_agree_core hC hk hδc hcap hsm hmar hα hD hD₂ hN y Y hdata
+      detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D₂ y Y :=
+  -- `HatConn` is not needed (`detActivityBg_eq_of_agree_core`)
+  detActivityBg_eq_of_agree_core hC hk hδc hcap hsm hmar hα hD hD₂ hN y Y hdata
 
 end DatumLocal
 

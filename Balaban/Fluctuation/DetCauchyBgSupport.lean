@@ -793,7 +793,7 @@ theorem rootTraceBg_eq_baseline_of_not_label
     (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (_hconn : HatConn Gp)
     {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, ¬ unitLabel Gp (Yreg Gp (extS Gp s)) y) :
@@ -801,10 +801,9 @@ theorem rootTraceBg_eq_baseline_of_not_label
       -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
         (((Real.log (compWeight L a₁ k) : ℝ) : ℂ) • (1 - liftOp N (unitP Gp)) +
           ((Real.log (compWeight L a₁ k + a₁ / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N (unitP Gp))
-            (y, i) (y, i) := by
-  -- `HatConn` is not needed (`rootTraceBg_eq_baseline_of_not_label_core`); it is discarded
-  have _ := hconn
-  exact rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα hs hD B hB
+            (y, i) (y, i) :=
+  -- `HatConn` is not needed (`rootTraceBg_eq_baseline_of_not_label_core`)
+  rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα hs hD B hB
 
 end TraceLocal
 

@@ -717,14 +717,13 @@ components. For a coarse site whose label is false (its block does not lie in `Y
 correction `decCov - covA` has no matrix elements in its row: `G_s` and `Π_s` have rows supported in
 the core. -/
 theorem CovStanding.decCov_sub_row_eq_zero {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
-    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (hconn : HatConn G)
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (hx : 0 ≤ x) (_hconn : HatConn G)
     (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
     (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
-    (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 := by
-  -- `HatConn` is not needed (`decCov_sub_row_eq_zero_core`); it is discarded
-  have _ := hconn
-  exact H.decCov_sub_row_eq_zero_core hx cκ hQ hP hp q
+    (decCov G a aT x ν α s φ Q P - covA (a k) (aT / (L : ℝ) ^ 2) x (liftOp N P)) p q = 0 :=
+  -- `HatConn` is not needed (`decCov_sub_row_eq_zero_core`)
+  H.decCov_sub_row_eq_zero_core hx cκ hQ hP hp q
 
 /-- **`decLog` outside the footprint is the baseline** (no connectivity hypothesis).
 **`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
@@ -750,15 +749,14 @@ theorem CovStanding.decLog_row_eq_baseline_core {Q : Matrix κι (G.Ω 1) ℂ} {
 /-- **`decLog` outside the footprint is the baseline.** For a coarse site whose label (relative to
 `Yreg s`) is false, the row of `decLog` equals that of the cut-independent baseline blocks. -/
 theorem CovStanding.decLog_row_eq_baseline {Q : Matrix κι (G.Ω 1) ℂ} {P : Matrix κι κι ℂ}
-    (H : CovStanding G a aT ν α κ s δ φ Q P) (hconn : HatConn G) (cκ : κι → Prop)
+    (H : CovStanding G a aT ν α κ s δ φ Q P) (_hconn : HatConn G) (cκ : κι → Prop)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Yreg G s) Q)
     (hP : BD cκ cκ P) {p : κι × Fin N} (hp : ¬ cκ p.1) (q : κι × Fin N) :
     decLog G a aT ν α s φ Q P p q =
       (((Real.log (a k) : ℝ) : ℂ) • (1 - liftOp N P) +
-        ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) p q := by
-  -- `HatConn` is not needed (`decLog_row_eq_baseline_core`); it is discarded
-  have _ := hconn
-  exact H.decLog_row_eq_baseline_core cκ hQ hP hp q
+        ((Real.log (a k + aT / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N P) p q :=
+  -- `HatConn` is not needed (`decLog_row_eq_baseline_core`)
+  H.decLog_row_eq_baseline_core cκ hQ hP hp q
 
 
 end Main
