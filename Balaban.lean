@@ -2752,3 +2752,5 @@ public import Balaban.LargeField.R.WindowOffDomainPhys
 public import Balaban.LargeField.R.WindowOffPhysDom
 public import Balaban.LargeField.R.WindowLiftRead
 public import Balaban.LargeField.R.WindowLiftGeom
+public import Balaban.LargeField.R.WindowLiftDatum
+public import Balaban.LargeField.R.WindowLiftPiece
