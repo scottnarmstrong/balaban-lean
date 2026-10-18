@@ -2692,5 +2692,7 @@ public import Balaban.Inhabited.StepTowerNewLabelsRadius
 public import Balaban.Inhabited.StepTowerNewLevelSymGeom
 public import Balaban.Inhabited.StepTowerNewLevelSymCov
 public import Balaban.Inhabited.StepTowerNewLevelSymData
+public import Balaban.Inhabited.StepTowerNewLevelSymInt
+public import Balaban.Inhabited.StepTowerNewLevelSymOld
 public import Balaban.LargeField.R.WindowConvPhysBallRadius
 public import Balaban.LargeField.Operators.StepVacuumVolume
