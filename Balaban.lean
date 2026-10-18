@@ -1699,6 +1699,7 @@ public import Balaban.Inhabited.ChiYWitness
 public import Balaban.Fluctuation.DetCauchyBgSupport
 public import Balaban.Fluctuation.DetCauchyAssembly
 public import Balaban.Fluctuation.DetCauchyBgActivity
+public import Balaban.Fluctuation.LocalSetDetConn
 public import Balaban.Inhabited.DetCauchyBgActivityWitness
 public import Balaban.Fluctuation.SizeModCellPath
 public import Balaban.Fluctuation.SizeModExtend
