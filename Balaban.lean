@@ -2749,6 +2749,7 @@ public import Balaban.Inhabited.StepTowerCollarClass
 public import Balaban.Inhabited.StepTowerRenThetaMargin
 public import Balaban.Inhabited.StepTowerRenThetaRoom
 public import Balaban.Inhabited.StepTowerRenThetaClass
+public import Balaban.Inhabited.StepTowerLocalChart
 public import Balaban.Inhabited.StepTowerRenCounterSmall
 public import Balaban.Inhabited.StepTowerRenCounterChart
 public import Balaban.Inhabited.StepTowerRenCounterLift
