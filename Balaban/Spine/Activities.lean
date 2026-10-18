@@ -16,14 +16,12 @@ public import Balaban.Inhabited.RootBoundsArith
 The conversion step (F3) of the assembly of Root-F (LFR Theorem IV.5.3 items 3–7; ARCH (F3)): a
 family of scale-`j` activities `p_j(X; g)` satisfying `ObservableActivities` (support on scale-`j`
 polymers, analyticity and a bound on the unit `ℓ¹` ball, locality, two-torus agreement) and an
-exponential identity
-`Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (p_j(X; g) - p_j(X; 0)))` on every admissible torus
-give
-Root-F's clauses for the terms `T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` (`activityTerm`),
-by the device `f(X; g) - f(X; 0) = ∑_{x ∈ X} ⟨g(x), ∫₀¹ ∂_{g(x)} f(X; t g) dt⟩` and the Cauchy
-estimate on the half ball (`norm_kf0Deriv_le_two`).  This is the multi-scale form of
-`Correlations/KF0RootFPartial.lean` (`kf0Term`), with the same proofs.
--/
+exponential identity `Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (p_j(X; g) - p_j(X; 0)))` on every
+admissible torus give Root-F's clauses for the terms
+`T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` (`activityTerm`), by the device
+`f(X; g) - f(X; 0) = ∑_{x ∈ X} ⟨g(x), ∫₀¹ ∂_{g(x)} f(X; t g) dt⟩` and the Cauchy estimate on the
+half ball (`norm_kf0Deriv_le_two`). This is the multi-scale form of
+`Correlations/KF0RootFPartial.lean` (`kf0Term`), with the same proofs. -/
 
 @[expose] public section
 
@@ -34,8 +32,7 @@ open Balaban Balaban.Correlations Set
 open Classical in
 /-- **The terms of Root-F from activities** (LFR Definition IV.5.2, the device of P7 (4.15)):
 `T_j(x, X; g)_i = ∫₀¹ ∂_{g_i(x)} p_j(X; t g) dt` when `1 ≤ j ≤ kf + 1`, `x ∈ X` and `X` is a
-scale-`j`
-polymer (`IsPolymer d ℓ (M L^j) X`); zero otherwise. -/
+scale-`j` polymer (`IsPolymer d ℓ (M L^j) X`); zero otherwise. -/
 noncomputable def activityTerm {d N : ℕ} (M L kf : ℕ)
     (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : RootFFamily d N :=
   fun ℓ j x X g =>
@@ -61,8 +58,8 @@ theorem activityTerm_apply (j : ℕ) (x : Torus d ℓ) (X : Finset (Torus d ℓ)
   · rename_i hne
     exact (hne inferInstance).elim
 
-/-- In the range `1 ≤ j ≤ kf + 1` the term is the Cauchy integral for every `x` and every finite
-`X` (it vanishes for `x ∉ X` by locality, and for non-polymers since the activity does). -/
+/-- In the range `1 ≤ j ≤ kf + 1` the term is the Cauchy integral for every `x` and every finite `X`
+(it vanishes for `x ∉ X` by locality, and for non-polymers since the activity does). -/
 theorem activityTerm_eq (j : ℕ) (hj : j ∈ Finset.Icc 1 (kf + 1))
     (hsupp : ∀ X : Finset (Torus d ℓ), ¬ IsPolymer d ℓ (M * L ^ j) X → ∀ g, p ℓ j X g = 0)
     (hloc : ∀ (X : Finset (Torus d ℓ)) (g g' : Torus d ℓ → Fin N → ℂ),
@@ -84,7 +81,9 @@ theorem activityTerm_eq (j : ℕ) (hj : j ∈ Finset.Icc 1 (kf + 1))
 
 end Terms
 
-/-! ### The clauses on one admissible torus -/
+/-!
+### The clauses on one admissible torus
+-/
 
 section Torus
 
@@ -92,8 +91,8 @@ variable {d N L M : ℕ} {β ν κ c₉ δ : ℝ} {h : EuclideanSpace ℝ (Fin N
   {p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ} {ℓ : ℕ} [NeZero ℓ]
 
 /-- **The five torus clauses of Root-F for `activityTerm`**, from the torus part of
-`ObservableActivities` (any top scale `J`) and the exponential identity of
-`Z(g)/Z(0)` on the unit `ℓ¹` ball. -/
+`ObservableActivities` (any top scale `J`) and the exponential identity of `Z(g)/Z(0)` on the unit
+`ℓ¹` ball. -/
 theorem rootFTorusClauses_activityTerm [NeZero N] (hc₉ : 0 < c₉)
     (hsupp : ∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g, p ℓ j X g = 0)
     (hana : ∀ j X, AnalyticOnNhd ℂ (p ℓ j X) {g | ∑ y, ∑ i, ‖g y i‖ < 1})
@@ -192,15 +191,17 @@ theorem rootFTorusClauses_activityTerm [NeZero N] (hc₉ : 0 < c₉)
 
 end Torus
 
-/-! ### Agreement across tori -/
+/-!
+### Agreement across tori
+-/
 
 section Agreement
 
 variable {d N L M : ℕ} {J kf : ℕ}
   {p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ}
 
-/-- **The agreement clause of Root-F for `activityTerm`**, from the support, locality and
-agreement of the activities on the admissible tori. -/
+/-- **The agreement clause of Root-F for `activityTerm`**, from the support, locality and agreement
+of the activities on the admissible tori. -/
 theorem rootFAgreement_activityTerm
     (hsupp : ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ → ∀ j X,
       ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g, p ℓ j X g = 0)
@@ -238,7 +239,9 @@ theorem rootFAgreement_activityTerm
 
 end Agreement
 
-/-! ### Root-F's clauses -/
+/-!
+### Root-F's clauses
+-/
 
 /-- **Root-F's clauses from observable activities** (LFR Theorem IV.5.3 items 2–7): activities with
 `ObservableActivities` (top scale `J`) and the exponential identity

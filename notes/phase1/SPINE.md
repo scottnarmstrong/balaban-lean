@@ -59,21 +59,17 @@ Each item below gives: the statement; the source; the landed theorems; the open 
    * `baseCovX_bound`, `baseSectorDatum_inDomainR_c7`, `baseActivity_LabelAct(_parametrix)`;
    * `partitionFunction_eq_sum_kf0Sector`.
 
-   Open:
-   * the carrier `BaseSmallFieldInput` (ruling R7: `Kphys` and its audit); `baseStepData_nonempty` is not OUT-1;
-   * BASEPLAN OUT-1 (a)–(d);
-   * blocker 1 (`P₁ ≠ ∅`) and blocker 2 (R1, R2);
-   * the output in `IsRep2` form: no theorem produces `IsRep2 … 1` or an integral identity.
-
-   ~5000.
+   Open: the carrier `BaseSmallFieldInput` (ruling R7: `Kphys` and its audit; `baseStepData_nonempty` is not OUT-1);
+   BASEPLAN OUT-1 (a)–(d); blocker 1 (`P₁ ≠ ∅`) and blocker 2 (R1, R2); the output in `IsRep2` form (no theorem produces
+   `IsRep2 … 1` or an integral identity). ~5000.
 3. **`ClassStepInput` (A4, LF-3 + LF-4).** For `1 ≤ k < k₀`, every `ρ ∈ ℛ_k` has `ρ' = R S T ρ ∈ ℛ_{k+1}` with `∫ρ' = c∫ρ`.
    Source: LFR Thm IV.1.1 (P5 Thm 1, P6 Thm 1, P5 p. 499), then Thm III.10.8 (P7 Thm 2, (1.3)–(1.7), pp. 497–529). LF-3 and LF-4 are
    one input: LF-4's hypothesis "rep produced by LF-3" has no Lean statement. For the same reason the small-field part (P4 Thm 1
    for `IsSFFamily2`, GENCLASS T3) is not split off: no landed operator relates the two small-field data.
 
    Landed, small-field part (`3,3,2`, over `StepClass`/`SFTermClauses`, not `IsSFFamily2`):
-   * `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot`, `e0CoeffFamily_class_fromTower_of_irrelBounds_X`;
-   * `classOldDec_expansion_cover_birth_run`, `newLabels_castInputs_of_localFamily`, `irrelTorus`, `norm_filed_le_power`.
+   `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot`, `e0CoeffFamily_class_fromTower_of_irrelBounds_X`,
+   `classOldDec_expansion_cover_birth_run`, `newLabels_castInputs_of_localFamily`, `irrelTorus`, `norm_filed_le_power`.
 
    Landed, large-field part (general `Setting`):
    * `lf4R_removed` (named inputs `hrip`, `hCR0`, `hwin`, `hτ`), `hrip_of_counter`, `hcount_of_flow`;

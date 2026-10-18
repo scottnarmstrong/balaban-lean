@@ -14,21 +14,20 @@ import Mathlib.Tactic.Positivity
 
 `rootF_of_spine`: the statement of Root-F (`Balaban.logPartition_multiscale`, its body copied
 verbatim) from the named inputs of `Balaban/Spine/RootFInputs.lean` (A1, A3, A4 (three parts), A6,
-A7).  Proved here (no other hypothesis):
+A7). Proved here (no other hypothesis):
 
 * A1 (choice of the constants in Root-F's order): `δ`, then `L = T.L`, `M = T.M` and one `β₀` (the
   maximum of the thresholds of the inputs and `2`) for every `κ, c₉`, then `kf = k̂_f` from `ν`
   (`exists_isHorizon`, `IsHorizon.scale`); `k₀ ≤ k̂_f` (`kZero_le_of_isHorizon`);
-* A5 (the flow induction, LFR Theorem IV.3.2 (b), (c)): `ρ₁` from A3, the steps `k → k+1` of
-  `ℛ_k` for `k < k₀` (`class_flow`), the transfer at `k₀`, the frozen steps of `ℛ♭_k` until the
-  running mass passes `7/8 L⁻²` (`frozen_flow`), with the normalization `∫ ρ_k = c Z(g)` carried
-  along (`IntegralIsZ.step`); the flow stops by the horizon `k̂_f` (`stop_of_flatClassAt`, from the
+* A5 (the flow induction, LFR Theorem IV.3.2 (b), (c)): `ρ₁` from A3, the steps `k → k+1` of `ℛ_k`
+  for `k < k₀` (`class_flow`), the transfer at `k₀`, the frozen steps of `ℛ♭_k` until the running
+  mass passes `7/8 L⁻²` (`frozen_flow`), with the normalization `∫ ρ_k = c Z(g)` carried along
+  (`IntegralIsZ.step`); the flow stops by the horizon `k̂_f` (`stop_of_flatClassAt`, from the
   coefficient bounds (H.6) of the class and `c₈ q/(1 - q) ≤ 1/20`);
 * A8 (the logarithm and the conversion): the exponential identity of `Z(g)/Z(0)` from the last
-  integral (`ratio_eq_exp`), its transport to every admissible torus (`sideOf_eq`), and the
-  clauses of Root-F for `activityTerm` (`rootFClauses_of_activities`, `Spine/Activities.lean`);
-* A12: the assembly, in the two regimes `ν ≤ 7/8 L⁻²` (the flow, A3–A6) and `ν > 7/8 L⁻²` (A7).
--/
+  integral (`ratio_eq_exp`), its transport to every admissible torus (`sideOf_eq`), and the clauses
+  of Root-F for `activityTerm` (`rootFClauses_of_activities`, `Spine/Activities.lean`);
+* A12: the assembly, in the two regimes `ν ≤ 7/8 L⁻²` (the flow, A3–A6) and `ν > 7/8 L⁻²` (A7). -/
 
 @[expose] public section
 
@@ -37,7 +36,9 @@ namespace Balaban.RootFSpine
 open MeasureTheory Balaban Balaban.Correlations Balaban.LargeField Balaban.LargeField.Def7
   Balaban.LargeField.Def7v2 Balaban.SmallField Balaban.SmallField.Def6v2
 
-/-! ### The horizon `k̂_f` and the regime index `k₀` -/
+/-!
+### The horizon `k̂_f` and the regime index `k₀`
+-/
 
 /-- The horizon exists: `k̂_f` is the least `k` with `ν L^{2k+2} ≥ 1`. -/
 theorem exists_isHorizon {L : ℕ} (hL : 2 ≤ L) {ν : ℝ} (hν : 0 < ν) : ∃ kf, IsHorizon L ν kf := by
@@ -51,8 +52,8 @@ theorem exists_isHorizon {L : ℕ} (hL : 2 ≤ L) {ν : ℝ} (hν : 0 < ν) : �
     nlinarith
   exact ⟨Nat.find hex, Nat.find_spec hex, fun k hk => not_le.1 (Nat.find_min hex hk)⟩
 
-/-- The horizon satisfies Root-F's scale clauses `L^{kf} √ν ≤ L` and `1/2 ≤ L^{kf+1} √ν` (LFR
-Lemma IV.5.1 (a)). -/
+/-- The horizon satisfies Root-F's scale clauses `L^{kf} √ν ≤ L` and `1/2 ≤ L^{kf+1} √ν` (LFR Lemma
+IV.5.1 (a)). -/
 theorem IsHorizon.scale {L : ℕ} (hL : 2 ≤ L) {ν : ℝ} (hν : 0 < ν) (hν1 : ν ≤ 1) {kf : ℕ}
     (h : IsHorizon L ν kf) :
     (L : ℝ) ^ kf * Real.sqrt ν ≤ L ∧ 1 / 2 ≤ (L : ℝ) ^ (kf + 1) * Real.sqrt ν := by
@@ -96,8 +97,8 @@ theorem IsHorizon.one_le {L : ℕ} {ν : ℝ} (hν : ν * (L : ℝ) ^ 2 ≤ 7 / 
   norm_num at h1
   linarith
 
-/-- The a priori regime index is at most the horizon (`k₀ < k_f ≤ k̂_f`, LFR Lemma IV.3.3 (b);
-here only `β > 1`, `d ≥ 2` are used): `β ν L^{k d} ≤ 1` and `k ≥ k̂_f + 1` would give
+/-- The a priori regime index is at most the horizon (`k₀ < k_f ≤ k̂_f`, LFR Lemma IV.3.3 (b); here
+only `β > 1`, `d ≥ 2` are used): `β ν L^{k d} ≤ 1` and `k ≥ k̂_f + 1` would give
 `ν L^{2 k̂_f + 2} < 1`. -/
 theorem kZero_le_of_isHorizon {d L : ℕ} (hd : 2 ≤ d) (hL : 2 ≤ L) {β ν : ℝ} (hβ : 1 < β)
     (hν : 0 < ν) {kf : ℕ} (h : IsHorizon L ν kf) : kZero d L β ν ≤ kf := by
@@ -112,7 +113,9 @@ theorem kZero_le_of_isHorizon {d L : ℕ} (hd : 2 ≤ d) (hL : 2 ≤ L) {β ν :
   have hνL : 1 ≤ ν * (L : ℝ) ^ (k * d) := le_trans h1 (mul_le_mul_of_nonneg_left hpow hν.le)
   nlinarith
 
-/-! ### The two inductions of the flow (LFR Theorem IV.3.2), in abstract form -/
+/-!
+### The two inductions of the flow (LFR Theorem IV.3.2), in abstract form
+-/
 
 /-- **The steps below `k₀`** (A5, first part): a state at scale `1` and steps `k → k + 1` for
 `1 ≤ k < k₀` give a state at every scale `1 ≤ k ≤ k₀`. -/
@@ -130,8 +133,8 @@ theorem class_flow {Dens : ℕ → Type*} {P : ∀ k, Dens k → ℝ → Prop} {
       exact hstep n hpos (by omega) ρ νk hP
 
 /-- **The frozen steps until the stop** (A5, second part): from a state at a scale
-`max(k₀, 1) ≤ k ≤ kf`, frozen steps while the running mass is below the threshold, the stop at
-`kf` and the last integral at the stopping scale give the conclusion. -/
+`max(k₀, 1) ≤ k ≤ kf`, frozen steps while the running mass is below the threshold, the stop at `kf`
+and the last integral at the stopping scale give the conclusion. -/
 theorem frozen_flow {Dens : ℕ → Type*} {P : ∀ k, Dens k → ℝ → Prop} {Stop : ℝ → Prop} {Q : Prop}
     {k₀ kf : ℕ}
     (hstep : ∀ k, 1 ≤ k → k₀ ≤ k → k < kf → ∀ ρ νk, P k ρ νk → ¬ Stop νk →
@@ -155,7 +158,9 @@ theorem frozen_flow {Dens : ℕ → Type*} {P : ∀ k, Dens k → ℝ → Prop} 
     · obtain ⟨ρ', νk', hP'⟩ := hstep k hk1 hk0 (by omega) ρ νk hP hS
       exact ih (k + 1) (by omega) (by omega) (by omega) (by omega) ρ' νk' hP'
 
-/-! ### The normalization along the flow -/
+/-!
+### The normalization along the flow
+-/
 
 section Normalization
 
@@ -175,11 +180,12 @@ theorem IntegralIsZ.step {ρ : 𝒟[d, N, T, β, a, K, k]} {ρ' : 𝒟[d, N, T, 
 
 end Normalization
 
-/-! ### The exponential identity of `Z(g)/Z(0)` and its transport -/
+/-!
+### The exponential identity of `Z(g)/Z(0)` and its transport
+-/
 
 /-- From `I(g) = C Z(g)` with `C > 0` and `I(g) = exp(E + ⟨g, h⟩ + ∑_{j=1}^{J} ∑_X q_j(X; g))` on
-the
-unit `ℓ¹` ball, with `q_j = 0` for `j ∉ [1, J]` and `J ≤ kf + 1`:
+the unit `ℓ¹` ball, with `q_j = 0` for `j ∉ [1, J]` and `J ≤ kf + 1`:
 `Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (q_j(X; g) - q_j(X; 0)))`. -/
 theorem ratio_eq_exp {d N ℓ : ℕ} [NeZero ℓ] {Z I : (Torus d ℓ → Fin N → ℂ) → ℂ} {C : ℝ}
     (hC : 0 < C) {E : ℂ} {h : EuclideanSpace ℝ (Fin N)} {J kf : ℕ} (hJ : J ≤ kf + 1)
@@ -217,12 +223,13 @@ theorem sideOf_eq (M L kf q : ℕ) :
   simp only [sides, Nat.sub_self, pow_zero, mul_one]
   ring
 
-/-! ### The stop of the flow by the horizon (LFR Lemma IV.5.1 (b)) -/
+/-!
+### The stop of the flow by the horizon (LFR Lemma IV.5.1 (b))
+-/
 
 /-- **The flow stops by the horizon** (LFR Lemma IV.5.1 (b), Lemma I.5.6 (a): `k_f ≤ k̂_f`): a
-member
-of `ℛ♭_{k̂_f}` whose running masses start from the bare mass has `ν_{k̂_f} > 7/8 L⁻²`.  By (H.6)
-(`CoeffBounds.flow` of the clause (D2♭)) `ν_{k̂_f} = ν L^{2 k̂_f} δ_{k̂_f}` with
+member of `ℛ♭_{k̂_f}` whose running masses start from the bare mass has `ν_{k̂_f} > 7/8 L⁻²`. By
+(H.6) (`CoeffBounds.flow` of the clause (D2♭)) `ν_{k̂_f} = ν L^{2 k̂_f} δ_{k̂_f}` with
 `|δ_{k̂_f}^{-1}| ≤ exp(c₈ q/(1 - q)) ≤ exp(1/20) ≤ 20/19`, and `ν L^{2 k̂_f + 2} ≥ 1`. -/
 theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
     {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ}
@@ -279,9 +286,11 @@ theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Co
   have hL2 : (0 : ℝ) < (T.L : ℝ) ^ 2 := by positivity
   nlinarith
 
-/-! ### The assembly -/
+/-!
+### The assembly
+-/
 
-/-- **The Root-F spine, for one pair `κ, c₉`.**  From the named inputs of
+/-- **The Root-F spine, for one pair `κ, c₉`.** From the named inputs of
 `Balaban/Spine/RootFInputs.lean` at the constants `δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the
 prefix (A1 `PrefixInput`, A3 `BaseStepInput`, A4 `ClassStepInput`, `TransferInput`,
 `FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`): there is `β₀` such that for every
@@ -421,13 +430,13 @@ theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : �
     rw [hZ ℓ hℓ g hg]
     simp
 
-/-- **The Root-F spine.**  Root-F (the body of `Balaban.logPartition_multiscale`, verbatim) from the
+/-- **The Root-F spine.** Root-F (the body of `Balaban.logPartition_multiscale`, verbatim) from the
 named inputs of `Balaban/Spine/RootFInputs.lean` at the constants
-`δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the prefix: A1 `PrefixInput`, A3 `BaseStepInput`,
-A4 `ClassStepInput`, `TransferInput`, `FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.
+`δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the prefix: A1 `PrefixInput`, A3 `BaseStepInput`, A4
+`ClassStepInput`, `TransferInput`, `FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.
 Root-F's `L, M` are `Ty.L, Ty.M` (at `κ, c₉`), its `kf` is the horizon `k̂_f`, and its terms are
-`activityTerm` of the activities of the last integral (`ν ≤ 7/8 L⁻²`) or of A7
-(`ν > 7/8 L⁻²`) (`rootF_clauses_of_spine`). -/
+`activityTerm` of the activities of the last integral (`ν ≤ 7/8 L⁻²`) or of A7 (`ν > 7/8 L⁻²`)
+(`rootF_clauses_of_spine`). -/
 theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ : 0 < δ)
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)

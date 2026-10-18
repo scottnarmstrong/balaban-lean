@@ -12,13 +12,12 @@ public import Balaban.Correlations.RootCFromFlow
 # Root-C from the spine
 
 The consumer `rootC_of_rootFAndC1Star` (`Correlations/RootCFromFlow.lean`) derives Root-C
-(`RootCStatement`, definitionally the type of the frozen `Balaban.lowTemperature_correlations`)
-from `RootFAndC1Star d N hN`: Root-F's clauses at `κ = κ_* = kappaStar d`, `c₉ = 1` with `L ≥ 3`,
-together with the interface `C1Star d N L M hN` for the same `L, M`.  Beyond the inputs of the
-Root-F spine, it needs exactly two more: `3 ≤ L` at `(κ_*, 1)` (LFR row 3) and an inhabitant of
-`C1Star` (the observable layer, LFR Theorem IV.5.4: OBS Theorems 3.1, 5.2, Proposition IV.4.4 and
-the continuity in `ν` of LF-7 (e)).
--/
+(`RootCStatement`, definitionally the type of the frozen `Balaban.lowTemperature_correlations`) from
+`RootFAndC1Star d N hN`: Root-F's clauses at `κ = κ_* = kappaStar d`, `c₉ = 1` with `L ≥ 3`,
+together with the interface `C1Star d N L M hN` for the same `L, M`. Beyond the inputs of the Root-F
+spine, it needs exactly two more: `3 ≤ L` at `(κ_*, 1)` (LFR row 3) and an inhabitant of `C1Star`
+(the observable layer, LFR Theorem IV.5.4: OBS Theorems 3.1, 5.2, Proposition IV.4.4 and the
+continuity in `ν` of LF-7 (e)). -/
 
 @[expose] public section
 
@@ -26,8 +25,8 @@ namespace Balaban.RootFSpine
 
 open Balaban Balaban.Correlations Balaban.LargeField Balaban.LargeField.Def7
 
-/-- **`RootFAndC1Star` from the spine**: the inputs of `rootF_of_spine`, `3 ≤ L` at `(κ_*, 1)`
-and the interface `C1Star` for `L, M` of the prefix at `(κ_*, 1)`. -/
+/-- **`RootFAndC1Star` from the spine**: the inputs of `rootF_of_spine`, `3 ≤ L` at `(κ_*, 1)` and
+the interface `C1Star` for `L, M` of the prefix at `(κ_*, 1)`. -/
 theorem rootFAndC1Star_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ : 0 < δ)
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → SmallField.Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
