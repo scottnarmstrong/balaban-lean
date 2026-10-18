@@ -456,29 +456,26 @@ structure Prop279Phys (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) (
   /-- the source-strength constant `C_{b,sf}` -/
   Csf : ℝ
   Kphys_reads : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
-    (φ : CfgT S.d N S.L (n 1)) (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
+    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o o' : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     (∀ y : Vblk R (H.localHistory 1 1 1 Z') (0 + 1),
       BlockSub (S := S) (n := n) (M := 1) (K := 1) (0 + 1) y.1
         ((H.localHistory 1 1 1 Z').Omega 0) → o y = o' y) →
-      inp.Kphys H hH Z' br hbr φ g w o x hv * inp.Kphys H hH Z' br hbr φ 0 w o' x hv =
-        inp.Kphys H hH Z' br hbr φ g w o' x hv * inp.Kphys H hH Z' br hbr φ 0 w o x hv
+      inp.Kphys H hH Z' g w o x hv * inp.Kphys H hH Z' 0 w o' x hv =
+        inp.Kphys H hH Z' g w o' x hv * inp.Kphys H hH Z' 0 w o x hv
   Kphys_sf : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
-    (φ : CfgT S.d N S.L (n 1)) (g : GIdx S n 1 1 N → ℂ)
+    (g : GIdx S n 1 1 N → ℂ)
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖inp.Kphys H hH Z' br hbr φ (baseSource S n N g) w o x hv‖ ≤
-      (inp.Kphys H hH Z' br hbr φ 0 w o x hv).re *
+    ‖inp.Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+      (inp.Kphys H hH Z' 0 w o x hv).re *
         Real.exp (Csf * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
   Cb_ge : Csf + max 0 (baseVolConst S N) ≤ cs.Cb
-  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
+  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),
     BaseS5Fn eps (baseVol S (H.localHistory 1 1 1 Z')) (H.localHistory 1 1 1 Z')
-      (baseK0 inp H hH Z' br hbr φ)
+      (baseK0 inp H hH Z')
 
 /-- **`Prop279Phys` is inhabited** (rule 10), for `C_b ≥ max{0, L^d log(2^{N+1}Nv_N)}`: by the zero
 input, hence degenerate (see the docstring of `Prop279Phys`; a non-degenerate member is the physical
@@ -498,12 +495,12 @@ theorem prop279Phys_nonempty (regimeA : Prop) (eps : ℕ → ℝ)
               simp
             Cb_ge := by simpa using hCb'
             s5 := ?_ }⟩
-  intro _ H hH Z' br hbr φ
+  intro _ H hH Z'
   refine ⟨Empty, inferInstance, fun i => i.elim, fun i => i.elim, fun i => i.elim,
     fun i => i.elim, fun i => i.elim, ?_, fun i => i.elim, fun i => i.elim, fun i => i.elim,
     fun i => i.elim⟩
   intro o x hv _
-  rw [zero_input_kernel_eq_zero (k0 := k0) geo cs H hH Z' br hbr φ o x hv]
+  rw [zero_input_kernel_eq_zero (k0 := k0) geo cs H hH Z' o x hv]
   simp
 
 end Phys
@@ -560,23 +557,20 @@ structure Prop279Conclusion {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0
     (I : Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ r h br Zc hN hj hΩ m) :
     Prop where
   stepData : ∃ D : BaseStepData k0 geo cs N,
-    ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-      (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
-      D.K H hH Z' br hbr φ = baseK0 I.phys.inp H hH Z' br hbr φ ∧
-        D.KC H hH Z' br hbr φ = baseKC I.phys.inp H hH Z' br hbr φ
+    ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),
+      D.K H hH Z' = baseK0 I.phys.inp H hH Z' ∧
+        D.KC H hH Z' = baseKC I.phys.inp H hH Z'
   b0_source : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
-    (φ : CfgT S.d N S.L (n 1)) (g : GIdx S n 1 1 N → ℂ)
+    (g : GIdx S n 1 1 N → ℂ)
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖I.phys.inp.Kphys H hH Z' br hbr φ (baseSource S n N g) w o x hv‖ ≤
-      (I.phys.inp.Kphys H hH Z' br hbr φ 0 w o x hv).re *
+    ‖I.phys.inp.Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+      (I.phys.inp.Kphys H hH Z' 0 w o x hv).re *
         Real.exp (cs.Cb * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
-  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1)),
+  s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),
     BaseS5Fn eps (baseVol S (H.localHistory 1 1 1 Z')) (H.localHistory 1 1 1 Z')
-      (baseK0 I.phys.inp H hH Z' br hbr φ)
+      (baseK0 I.phys.inp H hH Z')
   cutoff : I.cut.Deletes
   remainder : ∀ Y : Finset (CubeB (L := S.L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ j Ω), Y.Nonempty →
     ‖I.marks.Rm Y‖ ≤ 1 / 2 * (I.marks.β1 ^ (m + 1))⁻¹ *
@@ -596,10 +590,10 @@ theorem prop279_of_input {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0 �
     (I : Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ r h br Zc hN hj hΩ m)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hK : 1 ≤ K) (hν : 0 ≤ ν)
     (hβ : 1 ≤ cs.beta 0) : Prop279Conclusion I where
-  stepData := ⟨baseStepData_of_input I.phys.inp hz hc, fun H hH Z' br hbr φ => ⟨rfl, rfl⟩⟩
+  stepData := ⟨baseStepData_of_input I.phys.inp hz hc, fun H hH Z' => ⟨rfl, rfl⟩⟩
   b0_source := by
-    intro H hH Z' br hbr φ g w o x hv hg hnew
-    refine (I.phys.Kphys_sf H hH Z' br hbr φ g w o x hv hg hnew).trans ?_
+    intro H hH Z' g w o x hv hg hnew
+    refine (I.phys.Kphys_sf H hH Z' g w o x hv hg hnew).trans ?_
     have hlog : 0 ≤ Real.log (cs.beta 0) + 1 := by
       have := Real.log_nonneg hβ; linarith
     have hvol : 0 ≤ baseVol S (H.localHistory 1 1 1 Z') := by
@@ -607,7 +601,7 @@ theorem prop279_of_input {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0 �
     have hCsf : I.phys.Csf ≤ cs.Cb := by
       have := I.phys.Cb_ge; have := le_max_left 0 (baseVolConst S N); linarith
     refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_)
-      (I.phys.inp.Kphys_zero_sector H hH Z' br hbr φ w o x hv).2
+      (I.phys.inp.Kphys_zero_sector H hH Z' w o x hv).2
     exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCsf hlog) hvol
   s5 := I.phys.s5
   cutoff := I.cut.deletes hnn hK hν

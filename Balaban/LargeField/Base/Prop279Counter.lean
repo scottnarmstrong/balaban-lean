@@ -22,8 +22,6 @@ Lean counterexamples, so that the false deductions are not landed:
   transform (II.7.1) is the integral of a strictly positive integrand against a nonzero finite
   measure, hence strictly positive.  Inhabiting `BaseSmallFieldInput` proves nothing about the
   physical first step.
-* `b0_bound_strictly_weaker`: the activity bound `BaseSmallFieldInput.Kphys_bound` (exponent constant `C_b B_0`) does not imply the
-  source-strength bound of Lemma II.7.7 (b) (constant `C_b`).
 -/
 
 @[expose] public section
@@ -186,12 +184,11 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **Counterexample 3.1, kernel side.**  The kernel of the zero input vanishes identically. -/
 theorem zero_input_kernel_eq_zero {k0 : ℕ} (geo : Geo S n R 1) (cs : OpConsts)
     (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord) (φ : CfgT S.d N S.L (n 1))
     (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
-    baseK0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' br hbr φ o x hv = 0 := by
+    baseK0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' o x hv = 0 := by
   classical
-  have : ∀ w, baseKt0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' br hbr φ w o x hv = 0 :=
+  have : ∀ w, baseKt0 (zeroBaseSmallFieldInput geo cs N k0) H hH Z' w o x hv = 0 :=
     fun w => rfl
   unfold baseK0 baseSumOf
   simp only [this, mul_zero, Finset.sum_const_zero]
@@ -210,13 +207,5 @@ theorem positive_transform_pos {α β : Type*} [MeasurableSpace α] (μ : Measur
   exact pos_iff_ne_zero.mpr hμ
 
 end ZeroInput
-
-/-! ### The weaker `b_0` bound -/
-
-/-- The activity bound `BaseSmallFieldInput.Kphys_bound` has the constant `C_b B_0` where Lemma II.7.7 (b) needs
-`C_b`: for `C_b > 0` and `B_0 > 1` the former is strictly larger, so it does not imply the latter. -/
-theorem b0_bound_strictly_weaker {Cb B0 β : ℝ} (hCb : 0 < Cb) (hB0 : 1 < B0) :
-    Cb * Real.log β + Cb * B0 > Cb * (Real.log β + 1) := by
-  nlinarith
 
 end Balaban.LargeField
