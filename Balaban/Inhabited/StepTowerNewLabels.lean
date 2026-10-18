@@ -83,9 +83,15 @@ theorem clipRaw_physV_of_xiDom
   rw [hsub]
   exact StepSetting.JointRep.rawOf_zero_mem_physV hD
 
+section Hull
+
+-- the labels attached to a map `H` from cube sets to site sets (generic over the hull)
+variable (H : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+  Set.univ) → Set (CTorus d L N₁ m₁ (k + 1)))
+
 /-- **The labels depend on the centre only through its block** (the input `hTlblock`). -/
-theorem newLabels_block
-    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G') {m₀ : ℕ}
+theorem newLabels_block_hull
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
     (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
       Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
         ℂ)
@@ -93,7 +99,7 @@ theorem newLabels_block
         Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
       Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
     (hTl : ∀ T y Y q, Tl T y Y q =
-      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
       else 0) :
     ∀ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
         (K := k + 1) 1 (k + 1) Set.univ))), ∀ y y' Y q,
@@ -106,7 +112,9 @@ theorem newLabels_block
   rw [hTl, hTl, hb]
 
 /-- **A non-zero label lives on a polymer of index `m₀` containing its centre.** -/
-theorem newLabels_support {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
+theorem newLabels_support_hull {m₀ : ℕ} (hH : ∀ y T, rootCube (m₀ := 1) (blockIndex y) ∈ T →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) 1 (k + 1) (sitesOf T) →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) m₀ (k + 1) (H T) ∧ y ∈ H T)
     (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
     (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
       Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
@@ -117,7 +125,7 @@ theorem newLabels_support {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
         Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
       Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
     (hTl : ∀ T y Y q, Tl T y Y q =
-      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
       else 0) :
     ∀ T y Y q, Tl T y Y q ≠ 0 → IsPolyDom m₀ (k + 1) Y ∧ y ∈ Y := by
   intro T y Y q h
@@ -125,11 +133,11 @@ theorem newLabels_support {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
   split_ifs at h with hY
   · obtain ⟨hr, hp⟩ := hsupp _ _ _ h
     subst hY
-    exact rootHull_mem hN y hr hp
+    exact hH y _ hr hp
   · exact absurd rfl h
 
 /-- **The labels are analytic on the step chart** `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`. -/
-theorem newLabels_analytic {m₀ : ℕ}
+theorem newLabels_analytic_hull
     (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
     (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
     (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
@@ -140,11 +148,11 @@ theorem newLabels_analytic {m₀ : ℕ}
         Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
       Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
     (hTl : ∀ T y Y q, Tl T y Y q =
-      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
       else 0) {ε : ℝ} (hε : ε ≤ eps) :
     ∀ T y Y, AnalyticOnNhd ℂ (Tl T y Y) {q | XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2} := by
   intro T y Y q hq
-  by_cases hY : sitesOf (piHull m₀ (sitesOf T)) = Y
+  by_cases hY : H T = Y
   · have hfun : Tl T y Y = fun q => e (blockIndex y) (π (clipRaw S.G' q), 0) T := by
       funext q; simp only [hTl, hY, ↓reduceIte]
     rw [hfun]
@@ -161,6 +169,194 @@ theorem newLabels_analytic {m₀ : ℕ}
       funext q; simp only [hTl, hY, ↓reduceIte]
     rw [hfun]
     exact analyticAt_const
+
+/-- **The labels are bounded on the step chart** by the per-label bounds `EbE`. -/
+theorem newLabels_bound_hull
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (b : RootIdx d L N₁ m₁ (k + 1) →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℝ)
+    (hbd : ∀ z T, ∀ θ ∈ physV S S.a₁ S.ν eps, ‖e z θ T‖ ≤ b z T)
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0)
+    (EbE : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → ℝ)
+    (hEbE : ∀ T y Y, EbE T y Y =
+      if H T = Y then b (blockIndex y) T else 0)
+    {ε : ℝ} (hε : ε ≤ eps) :
+    ∀ T y Y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 → ‖Tl T y Y q‖ ≤ EbE T y Y := by
+  intro T y Y q hq
+  rw [hTl, hEbE]
+  split_ifs with hY
+  · obtain ⟨_, hπq, hθ⟩ := clipRaw_physV_of_xiDom π hπ hε hq
+    rw [hπq]
+    exact hbd _ _ _ hθ
+  · simp
+
+open Classical in
+/-- **The expansion identity of the labels on the step chart** (the form of `hDz`): at every pair
+`q` of `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`, and every site `y`, the sum over the polymers `Y ∋ y` of
+index `m₀` of the labels is the per-block density `densE0 C y q` of the step. -/
+theorem newLabels_sum_eq_densE0_hull {m₀ : ℕ} (hH : ∀ y T, rootCube (m₀ := 1) (blockIndex y) ∈ T →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) 1 (k + 1) (sitesOf T) →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) m₀ (k + 1) (H T) ∧ y ∈ H T)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (hsupp : ∀ z θ T, e z θ T ≠ 0 →
+      rootCube (m₀ := 1) z ∈ T ∧ IsPolyDom 1 (k + 1) (sitesOf T))
+    (hval : ∀ z (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      Jr.E0locJ C z (rawOf D) =
+        ∑ T, e z ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), 0) T)
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0)
+    {ε : ℝ} (hε : ε ≤ eps) :
+    ∀ y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
+      ∑ᶠ Y ∈ polysAt m₀ (k + 1) y, ∑ T ∈ Finset.univ, Tl T y Y q = Jr.densE0 C y q := by
+  intro y q hq
+  obtain ⟨hmem, hπq, -⟩ := clipRaw_physV_of_xiDom π hπ hε hq
+  have hinner : ∀ Y, ∑ T ∈ Finset.univ, Tl T y Y q =
+      ∑ T ∈ Finset.univ.filter (fun T => H T = Y),
+        e (blockIndex y) ((⟨clipRaw S.G' q, hmem⟩ : rawSub N S.G'), 0) T := by
+    intro Y
+    rw [Finset.sum_filter]
+    refine Finset.sum_congr rfl fun T _ => ?_
+    rw [hTl, hπq]
+  simp_rw [hinner]
+  rw [finsum_polysAt_regroup (m₀ := m₀) (fun T => H T)
+    (fun T => e (blockIndex y) ((⟨clipRaw S.G' q, hmem⟩ : rawSub N S.G'), 0) T) y
+    (fun T hT => by
+      obtain ⟨hr, hp⟩ := hsupp _ _ _ hT
+      exact hH y _ hr hp)]
+  have h1 := Jr.densE0_rootSite_eq_sum C e hval hε hq (blockIndex y)
+  simp only [hmem, dite_true] at h1
+  rw [← h1]
+  refine Jr.densE0_block C ?_ q
+  rw [blockBase_rootSite, rootSite_blockIndex]
+
+/-- **The energy labels of the new level on the step chart, from the class chain.**  For a
+coefficient family `e` with the clauses of the chain at every root (analytic and bounded on
+`physV`, rooted polymer support of index one, value `E0locJ C z` at every datum of the chart), the
+labels `Tl` and bounds `EbE` fixed by `hTl`, `hEbE` satisfy, on `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`:
+block dependence, polymer support of index `m₀`, analyticity, the per-label bound and the expansion
+identity of the density `densE0`. -/
+theorem newLabels_stepChart_of_rootFamily_hull {m₀ : ℕ} (hH : ∀ y T, rootCube (m₀ := 1) (blockIndex y) ∈ T →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) 1 (k + 1) (sitesOf T) →
+      IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) m₀ (k + 1) (H T) ∧ y ∈ H T)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (b : RootIdx d L N₁ m₁ (k + 1) →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℝ)
+    (hean : ∀ z T, AnalyticOnNhd ℂ (fun θ => e z θ T) (physV S S.a₁ S.ν eps))
+    (hbd : ∀ z T, ∀ θ ∈ physV S S.a₁ S.ν eps, ‖e z θ T‖ ≤ b z T)
+    (hsupp : ∀ z θ T, e z θ T ≠ 0 →
+      rootCube (m₀ := 1) z ∈ T ∧ IsPolyDom 1 (k + 1) (sitesOf T))
+    (hval : ∀ z (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 eps D →
+      Jr.E0locJ C z (rawOf D) =
+        ∑ T, e z ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'), 0) T)
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if H T = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0)
+    (EbE : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → ℝ)
+    (hEbE : ∀ T y Y, EbE T y Y =
+      if H T = Y then b (blockIndex y) T else 0) :
+    (∀ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (K := k + 1) 1 (k + 1) Set.univ))), ∀ y y' Y q,
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y =
+        blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y' →
+      Tl T y Y q = Tl T y' Y q) ∧
+    (∀ T y Y q, Tl T y Y q ≠ 0 → IsPolyDom m₀ (k + 1) Y ∧ y ∈ Y) ∧
+    (∀ ε, ε ≤ eps → ∀ T y Y,
+      AnalyticOnNhd ℂ (Tl T y Y) {q | XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2}) ∧
+    (∀ ε, ε ≤ eps → ∀ T y Y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 → ‖Tl T y Y q‖ ≤ EbE T y Y) ∧
+    (∀ ε, ε ≤ eps → ∀ y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
+      ∑ᶠ Y ∈ polysAt m₀ (k + 1) y, ∑ T ∈ Finset.univ, Tl T y Y q = Jr.densE0 C y q) :=
+  ⟨newLabels_block_hull H π e Tl hTl, newLabels_support_hull H hH π e hsupp Tl hTl,
+    fun _ hε => newLabels_analytic_hull H π hπ e hean Tl hTl hε,
+    fun _ hε => newLabels_bound_hull H π hπ e b hbd Tl hTl EbE hEbE hε,
+    fun _ hε => newLabels_sum_eq_densE0_hull Jr C H hH π hπ e hsupp hval Tl hTl hε⟩
+
+
+end Hull
+
+/-- **The labels depend on the centre only through its block** (the input `hTlblock`). -/
+theorem newLabels_block
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G') {m₀ : ℕ}
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0) :
+    ∀ T ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (K := k + 1) 1 (k + 1) Set.univ))), ∀ y y' Y q,
+      blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y =
+        blockBase (N₁ := N₁) (m₁ := m₁) (k := k + 1) (d := d) L (k + 1) y' →
+      Tl T y Y q = Tl T y' Y q :=
+  newLabels_block_hull (fun T => sitesOf (piHull m₀ (sitesOf T))) π e Tl hTl
+
+/-- **A non-zero label lives on a polymer of index `m₀` containing its centre.** -/
+theorem newLabels_support {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (hsupp : ∀ z θ T, e z θ T ≠ 0 →
+      rootCube (m₀ := 1) z ∈ T ∧ IsPolyDom 1 (k + 1) (sitesOf T))
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0) :
+    ∀ T y Y q, Tl T y Y q ≠ 0 → IsPolyDom m₀ (k + 1) Y ∧ y ∈ Y :=
+  newLabels_support_hull (fun T => sitesOf (piHull m₀ (sitesOf T))) (fun y _ hr hp => rootHull_mem hN y hr hp) π e hsupp Tl hTl
+
+/-- **The labels are analytic on the step chart** `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`. -/
+theorem newLabels_analytic {m₀ : ℕ}
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩)
+    (e : RootIdx d L N₁ m₁ (k + 1) → physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ)
+    (hean : ∀ z T, AnalyticOnNhd ℂ (fun θ => e z θ T) (physV S S.a₁ S.ν eps))
+    (Tl : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) →
+      Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ)
+    (hTl : ∀ T y Y q, Tl T y Y q =
+      if sitesOf (piHull m₀ (sitesOf T)) = Y then e (blockIndex y) (π (clipRaw S.G' q), 0) T
+      else 0) {ε : ℝ} (hε : ε ≤ eps) :
+    ∀ T y Y, AnalyticOnNhd ℂ (Tl T y Y) {q | XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2} :=
+  newLabels_analytic_hull (fun T => sitesOf (piHull m₀ (sitesOf T))) π hπ e hean Tl hTl hε
 
 /-- **The labels are bounded on the step chart** by the per-label bounds `EbE`. -/
 theorem newLabels_bound {m₀ : ℕ}
@@ -185,16 +381,9 @@ theorem newLabels_bound {m₀ : ℕ}
       if sitesOf (piHull m₀ (sitesOf T)) = Y then b (blockIndex y) T else 0)
     {ε : ℝ} (hε : ε ≤ eps) :
     ∀ T y Y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
-      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 → ‖Tl T y Y q‖ ≤ EbE T y Y := by
-  intro T y Y q hq
-  rw [hTl, hEbE]
-  split_ifs with hY
-  · obtain ⟨_, hπq, hθ⟩ := clipRaw_physV_of_xiDom π hπ hε hq
-    rw [hπq]
-    exact hbd _ _ _ hθ
-  · simp
+      XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 → ‖Tl T y Y q‖ ≤ EbE T y Y :=
+  newLabels_bound_hull (fun T => sitesOf (piHull m₀ (sitesOf T))) π hπ e b hbd Tl hTl EbE hEbE hε
 
-open Classical in
 /-- **The expansion identity of the labels on the step chart** (the form of `hDz`): at every pair
 `q` of `Ξ^c_{k+1}(𝔹; 1, ε)`, `ε ≤ eps`, and every site `y`, the sum over the polymers `Y ∋ y` of
 index `m₀` of the labels is the per-block density `densE0 C y q` of the step. -/
@@ -218,27 +407,8 @@ theorem newLabels_sum_eq_densE0 {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
     {ε : ℝ} (hε : ε ≤ eps) :
     ∀ y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
       XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
-      ∑ᶠ Y ∈ polysAt m₀ (k + 1) y, ∑ T ∈ Finset.univ, Tl T y Y q = Jr.densE0 C y q := by
-  intro y q hq
-  obtain ⟨hmem, hπq, -⟩ := clipRaw_physV_of_xiDom π hπ hε hq
-  have hinner : ∀ Y, ∑ T ∈ Finset.univ, Tl T y Y q =
-      ∑ T ∈ Finset.univ.filter (fun T => sitesOf (piHull m₀ (sitesOf T)) = Y),
-        e (blockIndex y) ((⟨clipRaw S.G' q, hmem⟩ : rawSub N S.G'), 0) T := by
-    intro Y
-    rw [Finset.sum_filter]
-    refine Finset.sum_congr rfl fun T _ => ?_
-    rw [hTl, hπq]
-  simp_rw [hinner]
-  rw [finsum_polysAt_regroup (m₀ := m₀) (fun T => sitesOf (piHull m₀ (sitesOf T)))
-    (fun T => e (blockIndex y) ((⟨clipRaw S.G' q, hmem⟩ : rawSub N S.G'), 0) T) y
-    (fun T hT => by
-      obtain ⟨hr, hp⟩ := hsupp _ _ _ hT
-      exact rootHull_mem hN y hr hp)]
-  have h1 := Jr.densE0_rootSite_eq_sum C e hval hε hq (blockIndex y)
-  simp only [hmem, dite_true] at h1
-  rw [← h1]
-  refine Jr.densE0_block C ?_ q
-  rw [blockBase_rootSite, rootSite_blockIndex]
+      ∑ᶠ Y ∈ polysAt m₀ (k + 1) y, ∑ T ∈ Finset.univ, Tl T y Y q = Jr.densE0 C y q :=
+  newLabels_sum_eq_densE0_hull Jr C (fun T => sitesOf (piHull m₀ (sitesOf T))) (fun y _ hr hp => rootHull_mem hN y hr hp) π hπ e hsupp hval Tl hTl hε
 
 /-- **The energy labels of the new level on the step chart, from the class chain.**  For a
 coefficient family `e` with the clauses of the chain at every root (analytic and bounded on
@@ -285,10 +455,8 @@ theorem newLabels_stepChart_of_rootFamily {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁)
     (∀ ε, ε ≤ eps → ∀ y (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
       XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
       ∑ᶠ Y ∈ polysAt m₀ (k + 1) y, ∑ T ∈ Finset.univ, Tl T y Y q = Jr.densE0 C y q) :=
-  ⟨newLabels_block π e Tl hTl, newLabels_support hN π e hsupp Tl hTl,
-    fun _ hε => newLabels_analytic π hπ e hean Tl hTl hε,
-    fun _ hε => newLabels_bound π hπ e b hbd Tl hTl EbE hEbE hε,
-    fun _ hε => newLabels_sum_eq_densE0 Jr C hN π hπ e hsupp hval Tl hTl hε⟩
+  newLabels_stepChart_of_rootFamily_hull Jr C (fun T => sitesOf (piHull m₀ (sitesOf T)))
+    (fun y _ hr hp => rootHull_mem hN y hr hp) π hπ e b hean hbd hsupp hval Tl hTl EbE hEbE
 
 /-- **The premise `hDz` of the new-level theorem, at the radius condition.**  If the generating
 set of the step is the whole-level set `levelGS (k + 1)` (true by definition for the tower's step)
