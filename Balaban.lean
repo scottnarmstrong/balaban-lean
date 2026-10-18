@@ -2345,6 +2345,7 @@ public import Balaban.Fluctuation.LocalClassDensityLevelCastGeom
 public import Balaban.Fluctuation.LocalClassDensityLevelCastSym
 public import Balaban.Fluctuation.LocalClassDensityLevelCastDom
 public import Balaban.Fluctuation.LocalClassDensityLevelCastTerms
+public import Balaban.Fluctuation.LocalClassDensityLevelCastAvg
 public import Balaban.Fluctuation.LocalClassDensityIrrelBase
 public import Balaban.Fluctuation.LocalClassDensityFamilySetShift
 public import Balaban.Fluctuation.LocalClassDensityFamilySetMargin
