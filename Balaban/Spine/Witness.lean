@@ -120,6 +120,14 @@ theorem wIsRepFlat2_khat_zero (rH : ℝ) :
   rw [hW]
   exact hb
 
+/-- The running mass of the witness at the scale `1`: `ν₁ = 9 ν₀ = 1/(3β) ≤ 9/10`. -/
+theorem wνs_one_le : wνs wν₀ 1 ≤ 9 / 10 := by
+  have h1 := wν₀_mul
+  have h2 : 10 < wβ := wβ_spec.1
+  have h3 : 0 < wν₀ := wν₀_pos
+  unfold wνs
+  nlinarith
+
 /-- The body of `FlatClassAt` at the witness constants, for any setting equal to `wS`. -/
 theorem flatClassAt_witness_aux (rH : ℝ) (S : Setting) (hS : S = wS) [NeZero S.L] :
     ∃ (ρ : ∀ (nK : ℕ) [NeZero nK], (BlockAt S (sides S.L 1 nK) 27 1 1 → EuclideanSpace ℝ (Fin 2)) →
@@ -137,13 +145,13 @@ theorem flatClassAt_witness_aux (rH : ℝ) (S : Setting) (hS : S = wS) [NeZero S
         ρ St vc ∧
       F.sf.β 0 = wβ ∧ F.sf.ν 0 = wν₀ ∧ F.sf.ν 1 = νk ∧
       RunningHypTo S.d S.L wβ wν₀ (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer (1 / 20) F.sf.β F.sf.ν 1 ∧
-      LFCoherent F := by
+      LFCoherent F ∧ νk ≤ 9 / 10 := by
   subst hS
   exact ⟨wRho2 wν₀ (kZero 3 3 wβ wν₀) (1 + 1), wνs wν₀ 1, wM6, le_rfl, wR, wGeoF,
     wCs wν₀ (kZero 3 3 wβ wν₀), budgetConsts wβ, wFam2 wν₀ (kZero 3 3 wβ wν₀) (1 + 1), wSt wν₀,
     wVc, fun _ _ => ⟨rfl, rfl⟩, rfl, rfl, rfl, rfl, rfl, rfl, rfl,
     wIsRepFlat2_khat_zero rH, by simp [wFam2, wSF2, wβs], by simp [wFam2, wSF2, wνs],
-    rfl, witness_runningHypTo, wFam2_lfCoherent _ _ _⟩
+    rfl, witness_runningHypTo, wFam2_lfCoherent _ _ _, wνs_one_le⟩
 
 /-- **`FlatClassAt` is inhabited**: the witness of `IsRepFlat2` at `ν = 1/(27β)`, horizon `kf = 0`,
 scale `k = 1`, with the outer constants of the witness. -/
