@@ -2518,6 +2518,8 @@ public import Balaban.SmallField.IrrelTorusDefectFiledPower
 public import Balaban.SmallField.IrrelTorusDefectDensity
 public import Balaban.SmallField.IrrelTorusDefectDensitySum
 public import Balaban.SmallField.IrrelTorusDefectFiledAll
+public import Balaban.SmallField.IrrelTorusDefectBirthNu
+public import Balaban.SmallField.IrrelTorusDefectBirthTerms
 public import Balaban.SmallField.IrrelTorusDefectRawSymm
 public import Balaban.SmallField.IrrelTorusDefectRawMatrix
 public import Balaban.SmallField.IrrelTorusDefectSizeTransport
