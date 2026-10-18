@@ -98,30 +98,19 @@ of `Yreg s` (general level `K`). -/
 theorem subI_or_disjI_of_isNnComp_Yreg (hconn : HatConn G) {s : ℕ × CTorus d L N₁ m₁ K → ℂ}
     {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G s) Y')
     {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) (hs : sProd G s q ≠ 0) :
-    SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' := by
-  classical
-  have hzZ : q ∈ Zs G s := Finset.mem_filter.2 ⟨hq, hs⟩
-  rcases connIn_dichotomy (hconn q hq) (hatI_subset_Yreg_of_mem_Zs hzZ) hY with h | h
-  · left
-    intro y hy
-    exact h (by
-      unfold hatI
-      rw [Finset.mem_filter]
-      exact ⟨box_subset_hatBox q hy, y.2⟩)
-  · right
-    intro y hy hyY
-    exact Finset.disjoint_left.1 h (by
-      unfold hatI
-      rw [Finset.mem_filter]
-      exact ⟨box_subset_hatBox q hy, y.2⟩) hyY
+    SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' :=
+  subI_or_disjI_of_hatDich (hatDich_of_hatConn hconn hY) hq hs
 
-/-- **A site read from a component and lying outside it is not a core site.**  Let `Y'` be a union
+/-- **Core of `not_mem_Core_of_row`**: the dichotomy of the active thickened cubes for `Y'` in
+place of `HatConn` and the components.
+**A site read from a component and lying outside it is not a core site.**  Let `Y'` be a union
 of nearest-neighbour components of `Yreg s`, `x ∈ Y'` and `y ∉ Y'` with `H_D(α) x y ≠ 0`.  Then
 `y ∉ Core s`: otherwise `y` is a core site of an active centre `z`, the row of `H_D` at `y` lies in
 the thickened cube `□̂_z`, which contains `x` and is connected, hence lies in `Y'`. -/
-theorem not_mem_Core_of_row (S : DGSetting G a ν) (hconn : HatConn G)
+theorem not_mem_Core_of_row_of_hatDich (S : DGSetting G a ν)
     {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {Y' : Finset (CTorus d L N₁ m₁ K)}
-    (hY : IsNnComp (Yreg G s) Y') (α : G.Ω 1 → ℂ) {x y : G.Ω 1}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (α : G.Ω 1 → ℂ) {x y : G.Ω 1}
     (hx : (x : CTorus d L N₁ m₁ K) ∈ Y') (hxy : dirichletOperator G a ν α x y ≠ 0)
     (hy : (y : CTorus d L N₁ m₁ K) ∉ Y') : (y : CTorus d L N₁ m₁ K) ∉ Core G s := by
   classical
@@ -144,9 +133,20 @@ theorem not_mem_Core_of_row (S : DGSetting G a ν) (hconn : HatConn G)
     unfold hatI
     rw [Finset.mem_filter]
     exact ⟨box_subset_hatBox z (coreBox_subset_box hyz), y.2⟩
-  rcases connIn_dichotomy (hconn z hz) (hatI_subset_Yreg_of_mem_Zs hzZ) hY with h | h
+  rcases hdich z hz (Finset.mem_filter.1 hzZ).2 with h | h
   · exact hy (h hyI)
   · exact Finset.disjoint_left.1 h hxI hx
+
+/-- **A site read from a component and lying outside it is not a core site.**  Let `Y'` be a union
+of nearest-neighbour components of `Yreg s`, `x ∈ Y'` and `y ∉ Y'` with `H_D(α) x y ≠ 0`.  Then
+`y ∉ Core s`: otherwise `y` is a core site of an active centre `z`, the row of `H_D` at `y` lies in
+the thickened cube `□̂_z`, which contains `x` and is connected, hence lies in `Y'`. -/
+theorem not_mem_Core_of_row (S : DGSetting G a ν) (hconn : HatConn G)
+    {s : ℕ × CTorus d L N₁ m₁ K → ℂ} {Y' : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp (Yreg G s) Y') (α : G.Ω 1 → ℂ) {x y : G.Ω 1}
+    (hx : (x : CTorus d L N₁ m₁ K) ∈ Y') (hxy : dirichletOperator G a ν α x y ≠ 0)
+    (hy : (y : CTorus d L N₁ m₁ K) ∉ Y') : (y : CTorus d L N₁ m₁ K) ∉ Core G s :=
+  not_mem_Core_of_row_of_hatDich S (hatDich_of_hatConn hconn hY) α hx hxy hy
 
 /-- The correction `δφ = G_s(α₀ + δα)(F_s - δα φ₀)` vanishes outside `Core s`. -/
 theorem dphi_eq_zero_of_not_mem_Core {s : DecParams G} {α₀ δα : G.Ω 1 → ℂ}
@@ -158,20 +158,25 @@ theorem dphi_eq_zero_of_not_mem_Core {s : DecParams G} {α₀ δα : G.Ω 1 → 
   by_contra hne
   exact hx (dg5_support (G := G) (a := a) (ν := ν) (α := α₀ + δα) (extS G s) _ x hne)
 
-/-- **One step of the comparison, for a component of `Yreg`.**  Let `Y'` be a union of
+/-- **One step of the comparison, core** (dichotomy of the active thickened cubes for `s` and
+`s'` in place of `HatConn` and the components).
+**One step of the comparison, for a component of `Yreg`.**  Let `Y'` be a union of
 nearest-neighbour components of both `Yreg s` and `Yreg s'`, with equal cut factors on the cubes
 inside `Y'`, and let the data agree on `Y'` (`α₀`, the source) and on the sites read by the rows at
 the sites of `Y'` (`φ₀`).  If the rescaled potentials `ξ`, `η` agree on `Y'` then `𝒩_s(ξ)` and
 `𝒩_{s'}(η)` agree on `Y'`. -/
-theorem local_step_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
-    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+theorem local_step_yreg_of_hatDich {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
     {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' : CTorus d L N₁ m₁ K → Fin N → ℂ}
     {Fs Fs' : G.Ω 1 × Fin N → ℂ} {δ₀ ρ : ℝ} (hα0 : Small G α₀ δ₀) (hα0' : Small G α₀' δ₀)
     (hρ : δ₀ + ρ ≤ gamma1 d / 8)
-    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
-    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    {Y' : Finset (CTorus d L N₁ m₁ K)}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G (extS G s) q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G (extS G s') q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
     (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
       sProd G (extS G s) q = sProd G (extS G s') q)
     (hDα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → α₀ x = α₀' x)
@@ -199,12 +204,12 @@ theorem local_step_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSett
     simp only [Pi.add_apply]
     rw [hDα y hy, show toAlpha G ξ y = toAlpha G η y by
       unfold toAlpha; rw [hξη y hy]]
-  have hdich : ∀ q ∈ cubeIdx G, (sProd G (extS G s) q ≠ 0 ∨ sProd G (extS G s') q ≠ 0) →
+  have hdichI : ∀ q ∈ cubeIdx G, (sProd G (extS G s) q ≠ 0 ∨ sProd G (extS G s') q ≠ 0) →
       SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' := by
     intro q hq hne
     rcases hne with h | h
-    · exact subI_or_disjI_of_isNnComp_Yreg hconn hY hq h
-    · exact subI_or_disjI_of_isNnComp_Yreg hconn hY' hq h
+    · exact subI_or_disjI_of_hatDich hdich hq h
+    · exact subI_or_disjI_of_hatDich hdich' hq h
   have hdphi : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y' → ∀ i : Fin N,
       dphi G (decG G a ν s) α₀ φ₀ Fs (toAlpha G ξ) (y, i) =
       dphi G (decG G a ν s') α₀' φ₀' Fs' (toAlpha G η) (y, i) := by
@@ -212,7 +217,7 @@ theorem local_step_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSett
     unfold dphi
     rw [liftOp_mulVec, liftOp_mulVec]
     refine Gs_local S (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
-      (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hdich hsP hAeq
+      (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hdichI hsP hAeq
       (f := fun b => Fsrc φ₀ Fs (toAlpha G ξ) (b, i))
       (f' := fun b => Fsrc φ₀' Fs' (toAlpha G η) (b, i)) ?_ y hy
     intro b hb
@@ -235,16 +240,45 @@ theorem local_step_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSett
     refine ⟨fun i => by rw [hDφ y hrow], fun i => ?_⟩
     by_cases hyY : (y : CTorus d L N₁ m₁ K) ∈ Y'
     · exact hdphi y hyY i
-    · rw [dphi_eq_zero_of_not_mem_Core y (not_mem_Core_of_row S hconn hY α₀ hxY hy hyY) i,
-        dphi_eq_zero_of_not_mem_Core y (not_mem_Core_of_row S hconn hY' α₀ hxY hy hyY) i]
+    · rw [dphi_eq_zero_of_not_mem_Core y (not_mem_Core_of_row_of_hatDich S hdich α₀ hxY hy hyY) i,
+        dphi_eq_zero_of_not_mem_Core y (not_mem_Core_of_row_of_hatDich S hdich' α₀ hxY hy hyY) i]
 
-/-- **Theorem I-4a (e) for components of `Yreg`.**  Let `Y'` be a union of nearest-neighbour
+/-- **One step of the comparison, for a component of `Yreg`.**  Let `Y'` be a union of
+nearest-neighbour components of both `Yreg s` and `Yreg s'`, with equal cut factors on the cubes
+inside `Y'`, and let the data agree on `Y'` (`α₀`, the source) and on the sites read by the rows at
+the sites of `Y'` (`φ₀`).  If the rescaled potentials `ξ`, `η` agree on `Y'` then `𝒩_s(ξ)` and
+`𝒩_{s'}(η)` agree on `Y'`. -/
+theorem local_step_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {Fs Fs' : G.Ω 1 × Fin N → ℂ} {δ₀ ρ : ℝ} (hα0 : Small G α₀ δ₀) (hα0' : Small G α₀' δ₀)
+    (hρ : δ₀ + ρ ≤ gamma1 d / 8)
+    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
+    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
+      sProd G (extS G s) q = sProd G (extS G s') q)
+    (hDα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → α₀ x = α₀' x)
+    (hDφ : ∀ y : G.Ω 1, RowSite G a ν α₀ Y' y → φ₀ y = φ₀' y)
+    (hDF : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → ∀ i : Fin N, Fs (x, i) = Fs' (x, i))
+    {ξ η : G.Ω 1 → ℂ} (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hη : ∀ x, ‖η x‖ ≤ ρ)
+    (hξη : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → ξ x = η x) :
+    ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' →
+      Smap G (decG G a ν s) (dirichletOperator G a ν α₀) ιU α₀ φ₀ Fs ξ x =
+      Smap G (decG G a ν s') (dirichletOperator G a ν α₀') ιU α₀' φ₀' Fs' η x :=
+  local_step_yreg_of_hatDich hF S hκ hM hs hs' hα0 hα0' hρ (hatDich_of_hatConn hconn hY)
+    (hatDich_of_hatConn hconn hY') hsP hDα hDφ hDF hξ hη hξη
+
+/-- **Theorem I-4a (e), core** (dichotomy of the active thickened cubes in place of `HatConn` and
+the components).
+**Theorem I-4a (e) for components of `Yreg`.**  Let `Y'` be a union of nearest-neighbour
 components of both `Yreg s` and `Yreg s'`, with equal cut factors `s_q = s'_q` on the cubes `q`
 with `□_q ⊆ Y'`, and two data sets agreeing on `Y'` (`α₀`, the source) and on the sites read by the
 rows at `Y'` (`φ₀`).  Then the solutions of the two decoupled systems satisfy `δα(s) = δα(s')` on
 all of `Y'` and `δφ(s) = δφ(s')` on `Y'`. -/
-theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
-    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+theorem i4a_local_yreg_of_hatDich {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
     {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
@@ -252,8 +286,11 @@ theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
     (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
     (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
-    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
-    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    {Y' : Finset (CTorus d L N₁ m₁ K)}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G (extS G s) q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G (extS G s') q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
     (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
       sProd G (extS G s) q = sProd G (extS G s') q)
     (hDα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → α₀ x = α₀' x)
@@ -313,8 +350,8 @@ theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     refine fixed_agree_of_step (T := fun x : G.Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ Y')
       (fun u v hu hv huv i hi => ?_) (fun n => ⟨(hit n).1, (hit n).2⟩)
       (fun n => ⟨(hit' n).1, (hit' n).2⟩) hC.ρ_nn
-    exact local_step_yreg hF S hconn hκ hM hs hs' H.alpha0 H'.alpha0 hpoly
-      hY hY' hsP hDα hDφ hDF hu hv huv i hi
+    exact local_step_yreg_of_hatDich hF S hκ hM hs hs' H.alpha0 H'.alpha0 hpoly
+      hdich hdich' hsP hDα hDφ hDF hu hv huv i hi
   have hδ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → δα x = δα' x := by
     intro x hx
     rw [← e1, ← e2]
@@ -323,16 +360,16 @@ theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
   refine ⟨hδ, fun y hy i => ?_⟩
   have hA : Small G (α₀ + δα) Γ := fun z => ((Small.add H.alpha0 hsm) z).trans hpoly
   have hA' : Small G (α₀' + δα') Γ := fun z => ((Small.add H'.alpha0 hsm') z).trans hpoly
-  have hdich : ∀ q ∈ cubeIdx G, (sProd G (extS G s) q ≠ 0 ∨ sProd G (extS G s') q ≠ 0) →
+  have hdichI : ∀ q ∈ cubeIdx G, (sProd G (extS G s) q ≠ 0 ∨ sProd G (extS G s') q ≠ 0) →
       SubI G (intBox q) Y' ∨ DisjI G (intBox q) Y' := by
     intro q hq hne
     rcases hne with h | h
-    · exact subI_or_disjI_of_isNnComp_Yreg hconn hY hq h
-    · exact subI_or_disjI_of_isNnComp_Yreg hconn hY' hq h
+    · exact subI_or_disjI_of_hatDich hdich hq h
+    · exact subI_or_disjI_of_hatDich hdich' hq h
   unfold dphi
   rw [liftOp_mulVec, liftOp_mulVec]
   refine Gs_local S (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
-    (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hdich hsP
+    (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hdichI hsP
     (fun z hz => ?_) (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) δα (b, i))
     (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') δα' (b, i)) (fun b hb => ?_) y hy
   · simp only [Pi.add_apply]
@@ -340,20 +377,59 @@ theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
   · simp only [Fsrc]
     rw [hDF b hb i, hDφ b (Or.inl hb), hδ b hb]
 
-/-- **Theorem I-4b (iv) for components of `Yreg`.**  Let `s`, `s'` be two parameter vectors, `Y'` a
+/-- **Theorem I-4a (e) for components of `Yreg`.**  Let `Y'` be a union of nearest-neighbour
+components of both `Yreg s` and `Yreg s'`, with equal cut factors `s_q = s'_q` on the cubes `q`
+with `□_q ⊆ Y'`, and two data sets agreeing on `Y'` (`α₀`, the source) and on the sites read by the
+rows at `Y'` (`φ₀`).  Then the solutions of the two decoupled systems satisfy `δα(s) = δα(s')` on
+all of `Y'` and `δφ(s) = δφ(s')` on `Y'`. -/
+theorem i4a_local_yreg {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
+    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
+      sProd G (extS G s) q = sProd G (extS G s') q)
+    (hDα : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → α₀ x = α₀' x)
+    (hDφ : ∀ y : G.Ω 1, RowSite G a ν α₀ Y' y → φ₀ y = φ₀' y)
+    (hDF : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → ∀ i : Fin N,
+      pertSource G a δΨ f₁ (x, i) = pertSource G a δΨ' f₁' (x, i))
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν s' ιU α₀' φ₀' (pertSource G a δΨ' f₁') δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → δα x = δα' x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y' → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') δα' (y, i)) :=
+  i4a_local_yreg_of_hatDich hF S hκ hM hs hs' H H' hδ₀ hδ₁ (hatDich_of_hatConn hconn hY)
+    (hatDich_of_hatConn hconn hY') hsP hDα hDφ hDF hfix hsm hfix' hsm'
+
+/-- **Theorem I-4b (iv), core** (dichotomy of the active thickened cubes in place of `HatConn` and
+the components).
+**Theorem I-4b (iv) for components of `Yreg`.**  Let `s`, `s'` be two parameter vectors, `Y'` a
 union of nearest-neighbour components of both `Yreg s` and `Yreg s'` with equal cut factors on the
 cubes `q` with `□_q ⊆ Y'`, and `D`, `D₂` two data of `Ψ̃^c(δ, ε)` whose raw data agree on the
 dependency sets `resDep x` of the sites `x` of `Y'`.  Then the decoupled background fields satisfy
 `α_k(s; D) = α_k(s'; D₂)` and `φ_k(s; D) = φ_k(s'; D₂)` at every site of `Y'`. -/
-theorem i4b_local_yreg {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
-    (hconn : HatConn G) (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+theorem i4b_local_yreg_of_hatDich {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
     (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
     {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
     (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
     (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
-    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
-    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    {Y' : Finset (CTorus d L N₁ m₁ K)}
+    (hdich : ∀ q ∈ cubeIdx G, sProd G (extS G s) q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+    (hdich' : ∀ q ∈ cubeIdx G, sProd G (extS G s') q ≠ 0 →
+      hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
     (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
       sProd G (extS G s) q = sProd G (extS G s') q)
     (hdata : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' →
@@ -391,7 +467,7 @@ theorem i4b_local_yreg {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
         (approxDep_subset_resDep (mem_resSites_self _) hz)
     · exact approxField_congr fun z hz => hdata x hx z
         (approxDep_subset_resDep (mem_resSites_of_entry_ne_zero hxy) hz)
-  obtain ⟨hα, hφ⟩ := i4a_local_yreg hS.fam S hconn hκ hM hs hs' Hd Hd₂ hle hle hY hY' hsP
+  obtain ⟨hα, hφ⟩ := i4a_local_yreg_of_hatDich hS.fam S hκ hM hs hs' Hd Hd₂ hle hle hdich hdich' hsP
     (fun _ _ => rfl) hphi (fun x hx i => by
       rw [pertSource_zeroΨ, pertSource_zeroΨ]
       exact residual_congr x i (hdata x hx)) hfix h.small hfix₂ h₂.small
@@ -401,6 +477,32 @@ theorem i4b_local_yreg {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
   rw [h.field, h₂.field]
   simp only
   rw [hphi y (Or.inl hy), e]
+
+/-- **Theorem I-4b (iv) for components of `Yreg`.**  Let `s`, `s'` be two parameter vectors, `Y'` a
+union of nearest-neighbour components of both `Yreg s` and `Yreg s'` with equal cut factors on the
+cubes `q` with `□_q ⊆ Y'`, and `D`, `D₂` two data of `Ψ̃^c(δ, ε)` whose raw data agree on the
+dependency sets `resDep x` of the sites `x` of `Y'`.  Then the decoupled background fields satisfy
+`α_k(s; D) = α_k(s'; D₂)` and `φ_k(s; D) = φ_k(s'; D₂)` at every site of `Y'`. -/
+theorem i4b_local_yreg {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
+    (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
+    {Y' : Finset (CTorus d L N₁ m₁ K)} (hY : IsNnComp (Yreg G (extS G s)) Y')
+    (hY' : IsNnComp (Yreg G (extS G s')) Y')
+    (hsP : ∀ q ∈ cubeIdx G, SubI G (intBox q) Y' →
+      sProd G (extS G s) q = sProd G (extS G s') q)
+    (hdata : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' →
+      ∀ y ∈ resDep G (x : CTorus d L N₁ m₁ K), D.Ψ y = D₂.Ψ y ∧ (y ∈ G.Ω 1 → D.h y = D₂.h y))
+    {φ φ₂ : G.Ω 1 × Fin N → ℂ} {α α₂ : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h₂ : IsDecBg G a ν (rho4 d L N BG κ) s' D₂ φ₂ α₂) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ Y' → α x = α₂ x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y' → ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) :=
+  i4b_local_yreg_of_hatDich hS S HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂
+    (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY') hsP hdata h h₂
 
 end YregLocal
 
@@ -420,6 +522,42 @@ theorem norm_cutPt_lt_exp (hκ : 0 < κ) (I : Finset (cubeIdx Gp)) (P : cubeIdx 
   split_ifs
   · simpa using Real.one_lt_exp_iff.2 hκ
   · simpa using Real.exp_pos κ
+
+/-- **The decoupled background of the chart on `Y'`, core** (dichotomy of the active thickened
+cubes for `s` and `s'` in place of `HatConn` and the components).
+**The decoupled background of the chart depends only on the component.**  Let `D`, `D₂` be data
+of the chart `Ξ^c(𝔹_{k+1}; 1, ε)`, `s`, `s'` parameters with `|s_P|, |s'_P| < e^κ`, and `Y'` a union
+of nearest-neighbour components of both `Yreg s` and `Yreg s'` such that the cut factors of the
+cubes `q` with `□_q ⊆ Y'` agree, and the raw data agree on `resDep x` for the sites `x` of `Y'`.
+Then `α_s(D) = α_{s'}(D₂)` and `φ_s(D) = φ_{s'}(D₂)` at every site of `Y'`. -/
+theorem decBg_eq_on_comp_of_hatDich
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D₂ : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hdich : ∀ q ∈ cubeIdx Gp, sProd Gp (extS Gp s) q ≠ 0 →
+      hatI Gp q ⊆ Y' ∨ Disjoint (hatI Gp q) Y')
+    (hdich' : ∀ q ∈ cubeIdx Gp, sProd Gp (extS Gp s') q ≠ 0 →
+      hatI Gp q ⊆ Y' ∨ Disjoint (hatI Gp q) Y')
+    (hsP : ∀ q ∈ cubeIdx Gp, SubI Gp (intBox q) Y' →
+      sProd Gp (extS Gp s) q = sProd Gp (extS Gp s') q)
+    (hdata : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y' →
+      ∀ y ∈ resDep Gp (x : CTorus d L N₁ m₁ (k + 1)),
+        D.Ψ y = D₂.Ψ y ∧ (y ∈ Gp.Ω 1 → D.h y = D₂.h y)) :
+    (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y' →
+      decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D x =
+        decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂ x) ∧
+    (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → ∀ i : Fin N,
+      decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D (x, i) =
+        decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂ (x, i)) := by
+  obtain ⟨φ, α, hI, h1, h2⟩ := exists_isDecBg_of_flCore hC hs hD
+  obtain ⟨φ₂, α₂, hI₂, h1₂, h2₂⟩ := exists_isDecBg_of_flCore hC hs' hD₂
+  obtain ⟨hδ0, hδ0', hδ1, hνε⟩ := xiC_numerics hC
+  rw [h1, h2, h1₂, h2₂]
+  exact i4b_local_yreg_of_hatDich hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM (fun P => (hs P).le)
+    (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε (xiCData_inDomainC hC.HBp hC.small1 hD)
+    (xiCData_inDomainC hC.HBp hC.small1 hD₂) hdich hdich' hsP hdata hI hI₂
 
 /-- **The decoupled background of the chart depends only on the component.**  Let `D`, `D₂` be data
 of the chart `Ξ^c(𝔹_{k+1}; 1, ε)`, `s`, `s'` parameters with `|s_P|, |s'_P| < e^κ`, and `Y'` a union
@@ -443,14 +581,9 @@ theorem decBg_eq_on_comp
         decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂ x) ∧
     (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y' → ∀ i : Fin N,
       decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D (x, i) =
-        decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂ (x, i)) := by
-  obtain ⟨φ, α, hI, h1, h2⟩ := exists_isDecBg_of_flCore hC hs hD
-  obtain ⟨φ₂, α₂, hI₂, h1₂, h2₂⟩ := exists_isDecBg_of_flCore hC hs' hD₂
-  obtain ⟨hδ0, hδ0', hδ1, hνε⟩ := xiC_numerics hC
-  rw [h1, h2, h1₂, h2₂]
-  exact i4b_local_yreg hC.hS hC.Sp hconn hC.HBp hC.hκ.le hC.hM (fun P => (hs P).le)
-    (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε (xiCData_inDomainC hC.HBp hC.small1 hD)
-    (xiCData_inDomainC hC.HBp hC.small1 hD₂) hY hY' hsP hdata hI hI₂
+        decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂ (x, i)) :=
+  decBg_eq_on_comp_of_hatDich hC hs hs' hD hD₂ (hatDich_of_hatConn hconn hY)
+    (hatDich_of_hatConn hconn hY') hsP hdata
 
 /-- **Agreement of the decoupled multiplier at two cut points on a common component.**  For a datum
 `D` of the chart and a union `Y'` of components of `Yreg` at both cut points `1_I`, `1_{I ∪ {p}}`
@@ -545,6 +678,60 @@ theorem covStanding_rootTraceBg
       decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D)) : DecData Gp N))
     (mem_decDom_rootTraceBg hC hs hD hmar hα)
 
+/-- **The rooted trace with its background on `Y'`, core**: `Y' ⊆ Yreg s` and the dichotomy of
+the active thickened cubes for `s` and `s'` in place of `HatConn` and the components.
+**The rooted trace with its background depends only on the component.**  Two data `D`, `D₂` of
+the chart and two parameter vectors `s`, `s'` in the polydisc; `Y'` a union of components of both
+`Yreg s` and `Yreg s'` with equal cut factors on the cubes inside `Y'`; the raw data agree on
+`resDep x` for the sites `x` of `Y'`.  Then the rooted traces (each at its own decoupled
+background) of a set `B` of unit blocks lying in `Y'` are equal. -/
+theorem rootTraceBg_eq_of_comp_of_hatDich
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D₂ : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD₂ : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D₂)
+    {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hYs : Y' ⊆ Yreg Gp (extS Gp s))
+    (hdich : ∀ q ∈ cubeIdx Gp, sProd Gp (extS Gp s) q ≠ 0 →
+      hatI Gp q ⊆ Y' ∨ Disjoint (hatI Gp q) Y')
+    (hdich' : ∀ q ∈ cubeIdx Gp, sProd Gp (extS Gp s') q ≠ 0 →
+      hatI Gp q ⊆ Y' ∨ Disjoint (hatI Gp q) Y')
+    (hsP : ∀ q ∈ cubeIdx Gp, SubI Gp (intBox q) Y' →
+      sProd Gp (extS Gp s) q = sProd Gp (extS Gp s') q)
+    (hdata : ∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y' →
+      ∀ y ∈ resDep Gp (x : CTorus d L N₁ m₁ (k + 1)),
+        D.Ψ y = D₂.Ψ y ∧ (y ∈ Gp.Ω 1 → D.h y = D₂.h y))
+    (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, unitLabel Gp Y' y) :
+    rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D s =
+      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D₂ s' := by
+  classical
+  have H := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD hs
+  have H' := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD₂ hs'
+  obtain ⟨hmult, hfield⟩ := decBg_eq_on_comp_of_hatDich hC hs hs' hD hD₂ hdich hdich' hsP hdata
+  have hUT := unionOfTopBlocks_of_hatDich hC.Sp hYs hdich
+  have hbar : ∀ z : CTorus d L N₁ m₁ (k + 1), z ∈ Y' →
+      barField Gp D.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D) z =
+        barField Gp D₂.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂) z := by
+    intro z hz
+    have hzΩ : z ∈ Gp.Ω 1 := (mem_Yreg_iff.1 (hYs hz)).1
+    funext i
+    simp only [barField, hzΩ, ↓reduceDIte]
+    exact hfield ⟨z, hzΩ⟩ hz i
+  have key : ∀ y ∈ B, ∀ i : Fin N,
+      decLog Gp (compWeight L a₁) a₁ ν (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D)
+        (extS Gp s) (barField Gp D.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D))
+        (unitQ Gp) (unitP Gp) (y, i) (y, i) =
+      decLog Gp (compWeight L a₁) a₁ ν (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂)
+        (extS Gp s') (barField Gp D₂.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂))
+        (unitQ Gp) (unitP Gp) (y, i) (y, i) := fun y hy i =>
+    H.decLog_agree_of_hatDich H' hdich hdich' hsP hmult hbar (unitLabel Gp Y')
+      (unitQ_label_top hUT) (unitP_label_top hUT) (y, i) (y, i) (hB y hy) (hB y hy)
+  unfold rootTraceBg rootTrace
+  rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
+
 /-- **The rooted trace with its background depends only on the component.**  Two data `D`, `D₂` of
 the chart and two parameter vectors `s`, `s'` in the polydisc; `Y'` a union of components of both
 `Yreg s` and `Yreg s'` with equal cut factors on the cubes inside `Y'`; the raw data agree on
@@ -568,31 +755,33 @@ theorem rootTraceBg_eq_of_comp
         D.Ψ y = D₂.Ψ y ∧ (y ∈ Gp.Ω 1 → D.h y = D₂.h y))
     (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, unitLabel Gp Y' y) :
     rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D s =
-      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D₂ s' := by
-  classical
+      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D₂ s' :=
+  rootTraceBg_eq_of_comp_of_hatDich hC hk hδc hcap hsm hmar hα hs hs' hD hD₂ hY.1
+    (hatDich_of_hatConn hconn hY) (hatDich_of_hatConn hconn hY') hsP hdata B hB
+
+/-- **Without a labelled block the rooted trace is the baseline, without `HatConn`.**  For a datum `D` of the chart
+and `s` in the polydisc, if no block of `B` lies in `Yreg s` then the rooted trace of `B` at the
+decoupled background is the baseline `-(1/2) ∑_{y ∈ B} ∑_i (log a_k (1 - P) + log(a_k + a₁/L²) P)`
+(which involves neither `s` nor the datum). -/
+theorem rootTraceBg_eq_baseline_of_not_label_core
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, ¬ unitLabel Gp (Yreg Gp (extS Gp s)) y) :
+    rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) B D s =
+      -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
+        (((Real.log (compWeight L a₁ k) : ℝ) : ℂ) • (1 - liftOp N (unitP Gp)) +
+          ((Real.log (compWeight L a₁ k + a₁ / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N (unitP Gp))
+            (y, i) (y, i) := by
   have H := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD hs
-  have H' := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD₂ hs'
-  obtain ⟨hmult, hfield⟩ := decBg_eq_on_comp hC hconn hs hs' hD hD₂ hY hY' hsP hdata
-  have hUT := unionOfTopBlocks_of_isNnComp hC.Sp hconn hY
-  have hbar : ∀ z : CTorus d L N₁ m₁ (k + 1), z ∈ Y' →
-      barField Gp D.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D) z =
-        barField Gp D₂.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂) z := by
-    intro z hz
-    have hzΩ : z ∈ Gp.Ω 1 := (mem_Yreg_iff.1 (hY.1 hz)).1
-    funext i
-    simp only [barField, hzΩ, ↓reduceDIte]
-    exact hfield ⟨z, hzΩ⟩ hz i
-  have key : ∀ y ∈ B, ∀ i : Fin N,
-      decLog Gp (compWeight L a₁) a₁ ν (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D)
-        (extS Gp s) (barField Gp D.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D))
-        (unitQ Gp) (unitP Gp) (y, i) (y, i) =
-      decLog Gp (compWeight L a₁) a₁ ν (decBgMult Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂)
-        (extS Gp s') (barField Gp D₂.Ψ (decBgField Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D₂))
-        (unitQ Gp) (unitP Gp) (y, i) (y, i) := fun y hy i =>
-    H.decLog_agree H' hconn hY hY' hsP hmult hbar (unitLabel Gp Y')
-      (unitQ_label_top hUT) (unitP_label_top hUT) (y, i) (y, i) (hB y hy) (hB y hy)
-  unfold rootTraceBg rootTrace
-  rw [Finset.sum_congr rfl fun y hy => Finset.sum_congr rfl (fun i _ => key y hy i)]
+  have hUT := unionOfTopBlocks_of_hatDich hC.Sp subset_rfl (hatDich_Yreg (s := extS Gp s))
+  unfold rootTraceBg
+  exact rootTrace_eq_baseline_of_not_label_core H (unitLabel Gp (Yreg Gp (extS Gp s)))
+    (unitQ_label_top hUT) (unitP_label_top hUT) B hB
 
 /-- **Without a labelled block the rooted trace is the baseline.**  For a datum `D` of the chart
 and `s` in the polydisc, if no block of `B` lies in `Yreg s` then the rooted trace of `B` at the
@@ -603,7 +792,7 @@ theorem rootTraceBg_eq_baseline_of_not_label
     (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (_hconn : HatConn Gp)
     {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (B : Finset (unitPts Gp)) (hB : ∀ y ∈ B, ¬ unitLabel Gp (Yreg Gp (extS Gp s)) y) :
@@ -611,14 +800,9 @@ theorem rootTraceBg_eq_baseline_of_not_label
       -(1 / 2 : ℂ) * ∑ y ∈ B, ∑ i : Fin N,
         (((Real.log (compWeight L a₁ k) : ℝ) : ℂ) • (1 - liftOp N (unitP Gp)) +
           ((Real.log (compWeight L a₁ k + a₁ / (L : ℝ) ^ 2) : ℝ) : ℂ) • liftOp N (unitP Gp))
-            (y, i) (y, i) := by
-  have H := covStanding_rootTraceBg hC hk hδc hcap hsm hmar hα hD hs
-  have hYr : IsNnComp (Yreg Gp (extS Gp s)) (Yreg Gp (extS Gp s)) :=
-    ⟨subset_rfl, fun _ _ y' hy' _ => hy'⟩
-  have hUT := unionOfTopBlocks_of_isNnComp hC.Sp hconn hYr
-  unfold rootTraceBg
-  exact rootTrace_eq_baseline_of_not_label H hconn (unitLabel Gp (Yreg Gp (extS Gp s)))
-    (unitQ_label_top hUT) (unitP_label_top hUT) B hB
+            (y, i) (y, i) :=
+  -- `HatConn` is not needed (`rootTraceBg_eq_baseline_of_not_label_core`)
+  rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα hs hD B hB
 
 end TraceLocal
 
@@ -652,21 +836,34 @@ theorem mixDiff_rootTraceBg_eq_sum (a : ℕ → ℝ) (aT ν ρ : ℝ) (B : Finse
   simp only [Finset.mul_sum]
   rw [Finset.sum_comm]
 
+section SupportCore
+
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
   (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
   (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
   (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
   {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
 
-include hC hk hδc hcap hsm hmar hα hconn hD
+/-- At a cut point `1_I` with `I ⊆ J`, every centre with non-zero cut factor has its footprint in
+`J`. -/
+theorem actIn_of_sProd_cutPt_ne_zero {J I : Finset (cubeIdx Gp)} (hIJ : I ⊆ J)
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ cubeIdx Gp)
+    (hs : sProd Gp (extS Gp (cutPt I)) q ≠ 0) : ActIn Gp J q := by
+  classical
+  have h := mem_Zs_cutPt_iff.1 (Finset.mem_filter.2 ⟨hq, hs⟩ : q ∈ Zs Gp (extS Gp (cutPt I)))
+  exact ⟨h.1, h.2.trans hIJ⟩
 
-/-- **Switching on a parameter cube not joined to the root does not change the rooted trace with
+include hC hk hδc hcap hsm hmar hα hD
+
+/-- **Core of `rootTraceBg_cut_insert_eq`**: connectivity of the thickened cubes of the centres
+with footprint in `J` in place of `HatConn`.
+**Switching on a parameter cube not joined to the root does not change the rooted trace with
 its background.**  Let `I ⊆ J`, `p ∈ J`, and suppose no centre with `p` in its footprint is joined
 to the unit block `y` by a chain in `J`.  Then the rooted traces of `{y}`, each at the decoupled
 background of its own cut point, agree at `1_{I ∪ {p}}` and `1_I`. -/
-theorem rootTraceBg_cut_insert_eq {J I : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
-    (hpJ : p ∈ J) (hIJ : I ⊆ J) (y : unitPts Gp)
+theorem rootTraceBg_cut_insert_eq_of_conn {J I : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
+    (hconnJ : ∀ q, ActIn Gp J q → ConnIn (hatI Gp q)) (hpJ : p ∈ J) (hIJ : I ⊆ J) (y : unitPts Gp)
     (hnc : ∀ q, RootChain Gp J y q → p ∉ QsetP Gp q) :
     rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) {y} D
         (cutPt (insert p I)) =
@@ -677,8 +874,12 @@ theorem rootTraceBg_cut_insert_eq {J I : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
     fun I' P => norm_cutPt_lt_exp hC.hκ I' P
   by_cases hatt : ∃ q0 ∈ Zs Gp (extS Gp (cutPt I)), HatAttached Gp y q0
   · obtain ⟨Y', hY, hY', hl, hsP⟩ := exists_root_comp hC.Sp hpJ hIJ y hnc hatt
-    exact (rootTraceBg_eq_of_comp hC hk hδc hcap hsm hmar hα hconn (hsI I) (hsI (insert p I))
-      hD hD hY hY' hsP (fun _ _ _ _ => ⟨rfl, fun _ => rfl⟩) {y}
+    have hIJ' : insert p I ⊆ J := Finset.insert_subset hpJ hIJ
+    exact (rootTraceBg_eq_of_comp_of_hatDich hC hk hδc hcap hsm hmar hα (hsI I)
+      (hsI (insert p I)) hD hD hY.1
+      (hatDich_of_isNnComp (fun q hq hs => hconnJ q (actIn_of_sProd_cutPt_ne_zero hIJ hq hs)) hY)
+      (hatDich_of_isNnComp (fun q hq hs => hconnJ q (actIn_of_sProd_cutPt_ne_zero hIJ' hq hs))
+        hY') hsP (fun _ _ _ _ => ⟨rfl, fun _ => rfl⟩) {y}
       (fun y' hy' => by rw [Finset.mem_singleton.1 hy']; exact hl)).symm
   · -- no active centre is attached to `y`, at either cut point: both are the baseline
     have hatt' : ¬ ∃ q0 ∈ Zs Gp (extS Gp (cutPt (insert p I))), HatAttached Gp y q0 := by
@@ -704,19 +905,75 @@ theorem rootTraceBg_cut_insert_eq {J I : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
       have hx₀Ω : x₀ ∈ Gp.Ω 1 := Gp.layer_subset (by omega) le_rfl hx₀l
       obtain ⟨-, z, hz, hxz⟩ := mem_Yreg_iff.1 (hlab ⟨x₀, hx₀Ω⟩ hx₀b)
       exact hna ⟨z, hz, ⟨x₀, hx₀Ω⟩, hx₀b, hxz⟩
-    rw [rootTraceBg_eq_baseline_of_not_label hC hk hδc hcap hsm hmar hα hconn
+    rw [rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα
         (hsI (insert p I)) hD {y} (hnl _ hatt'),
-      rootTraceBg_eq_baseline_of_not_label hC hk hδc hcap hsm hmar hα hconn
+      rootTraceBg_eq_baseline_of_not_label_core hC hk hδc hcap hsm hmar hα
         (hsI I) hD {y} (hnl _ hatt)]
+
+/-- **Vanishing for a block that is not joined to some `p ∈ J`** (cut-dependent background;
+connectivity of the thickened cubes of the centres with footprint in `J` only). -/
+theorem mixDiff_rootTraceBg_single_eq_zero_of_conn {J : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
+    (hconnJ : ∀ q, ActIn Gp J q → ConnIn (hatI Gp q)) (hpJ : p ∈ J) (y : unitPts Gp)
+    (hnc : ∀ q, RootChain Gp J y q → p ∉ QsetP Gp q) :
+    mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp)
+      {y} D) = 0 :=
+  mixDiff_eq_zero_of_insert_eq hpJ _ fun _ hI =>
+    rootTraceBg_cut_insert_eq_of_conn hC hk hδc hcap hsm hmar hα hD hconnJ hpJ
+      (hI.trans (Finset.erase_subset _ _)) y hnc
+
+/-- **Support theorem, core**: connectivity of the thickened cubes of the centres with footprint in
+`J` in place of `HatConn`.
+**Support of the mixed differences of the rooted trace with cut-dependent backgrounds.**  Let
+`D` be a datum of the chart `Ξ^c(𝔹_{k+1}; 1, ε)` and `F(s) = rootTraceBg B D s` the rooted trace of
+the set `B` of unit blocks at the decoupled background `(φ_s, α_s)` of `D`.  If `Δ_J F ≠ 0` then
+there is a block `y ∈ B` such that every parameter cube `p ∈ J` lies in the footprint of a centre
+`q` which is joined to `y` by a chain of centres with footprints in `J` and consecutive `HatAdj`
+thickened cubes, the last attached to `y` (`RootChain Gp J y q`). -/
+theorem exists_rootChain_of_mixDiff_rootTraceBg_ne_zero_of_conn (B : Finset (unitPts Gp))
+    {J : Finset (cubeIdx Gp)} (hconnJ : ∀ q, ActIn Gp J q → ConnIn (hatI Gp q))
+    (hne : mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp)
+      (unitP Gp) B D) ≠ 0) :
+    ∃ y ∈ B, ∀ p ∈ J, ∃ q, RootChain Gp J y q ∧ p ∈ QsetP Gp q := by
+  by_contra h
+  push Not at h
+  apply hne
+  rw [mixDiff_rootTraceBg_eq_sum]
+  refine Finset.sum_eq_zero fun y hy => ?_
+  obtain ⟨p, hpJ, hp⟩ := h y hy
+  exact mixDiff_rootTraceBg_single_eq_zero_of_conn hC hk hδc hcap hsm hmar hα hD hconnJ hpJ y hp
+
+end SupportCore
+
+variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+  (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+  (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+  (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+  (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2) (hconn : HatConn Gp)
+  {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+
+include hC hk hδc hcap hsm hmar hα hconn hD
+
+/-- **Switching on a parameter cube not joined to the root does not change the rooted trace with
+its background.**  Let `I ⊆ J`, `p ∈ J`, and suppose no centre with `p` in its footprint is joined
+to the unit block `y` by a chain in `J`.  Then the rooted traces of `{y}`, each at the decoupled
+background of its own cut point, agree at `1_{I ∪ {p}}` and `1_I`. -/
+theorem rootTraceBg_cut_insert_eq {J I : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
+    (hpJ : p ∈ J) (hIJ : I ⊆ J) (y : unitPts Gp)
+    (hnc : ∀ q, RootChain Gp J y q → p ∉ QsetP Gp q) :
+    rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) {y} D
+        (cutPt (insert p I)) =
+      rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp) {y} D
+        (cutPt I) :=
+  rootTraceBg_cut_insert_eq_of_conn hC hk hδc hcap hsm hmar hα hD (fun q hq => hconn q hq.1) hpJ
+    hIJ y hnc
 
 /-- **Vanishing for a block that is not joined to some `p ∈ J`** (cut-dependent background). -/
 theorem mixDiff_rootTraceBg_single_eq_zero {J : Finset (cubeIdx Gp)} {p : cubeIdx Gp}
     (hpJ : p ∈ J) (y : unitPts Gp) (hnc : ∀ q, RootChain Gp J y q → p ∉ QsetP Gp q) :
     mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp) (unitP Gp)
       {y} D) = 0 :=
-  mixDiff_eq_zero_of_insert_eq hpJ _ fun _ hI =>
-    rootTraceBg_cut_insert_eq hC hk hδc hcap hsm hmar hα hconn hD hpJ
-      (hI.trans (Finset.erase_subset _ _)) y hnc
+  mixDiff_rootTraceBg_single_eq_zero_of_conn hC hk hδc hcap hsm hmar hα hD
+    (fun q hq => hconn q hq.1) hpJ y hnc
 
 /-- **Support of the mixed differences of the rooted trace with cut-dependent backgrounds.**  Let
 `D` be a datum of the chart `Ξ^c(𝔹_{k+1}; 1, ε)` and `F(s) = rootTraceBg B D s` the rooted trace of
@@ -728,14 +985,9 @@ theorem exists_rootChain_of_mixDiff_rootTraceBg_ne_zero (B : Finset (unitPts Gp)
     {J : Finset (cubeIdx Gp)}
     (hne : mixDiff J (rootTraceBg Gp (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ Gp)
       (unitP Gp) B D) ≠ 0) :
-    ∃ y ∈ B, ∀ p ∈ J, ∃ q, RootChain Gp J y q ∧ p ∈ QsetP Gp q := by
-  by_contra h
-  push Not at h
-  apply hne
-  rw [mixDiff_rootTraceBg_eq_sum]
-  refine Finset.sum_eq_zero fun y hy => ?_
-  obtain ⟨p, hpJ, hp⟩ := h y hy
-  exact mixDiff_rootTraceBg_single_eq_zero hC hk hδc hcap hsm hmar hα hconn hD hpJ y hp
+    ∃ y ∈ B, ∀ p ∈ J, ∃ q, RootChain Gp J y q ∧ p ∈ QsetP Gp q :=
+  exists_rootChain_of_mixDiff_rootTraceBg_ne_zero_of_conn hC hk hδc hcap hsm hmar hα hD B
+    (fun q hq => hconn q hq.1) hne
 
 end Support
 

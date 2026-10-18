@@ -168,10 +168,13 @@ theorem rootStep_hat (hG : CubeAligned G m₁) {J : Finset (cubeIdx G)}
 
 variable {a : ℕ → ℝ} {ν : ℝ}
 
-/-- **The footprint of an active centre is Moore connected inside `J`.**  Any two parameter cubes of
+/-- **The footprint of an active centre with connected thickened cube is Moore connected inside
+`J`** (core of `rootStep_footprint`: connectivity of `□̂_q ∩ Ω₁` for this centre only).
+**The footprint of an active centre is Moore connected inside `J`.**  Any two parameter cubes of
 the footprint `𝒬(q) ⊆ J` are joined by a chain of Moore-touching patches of `J`. -/
-theorem rootStep_footprint (S : DGSetting G a ν) (hconn : HatConn G) {J : Finset (cubeIdx G)}
+theorem rootStep_footprint_of_conn (S : DGSetting G a ν) {J : Finset (cubeIdx G)}
     {z : RootIdx d L N₁ m₁ (k + 1)} {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : ActIn G J q)
+    (hqc : ConnIn (hatI G q))
     {P P' : cubeIdx G} (hP : P ∈ QsetP G q) (hP' : P' ∈ QsetP G q) :
     Relation.ReflTransGen (rootStep m₀ z (patches J)) (some P.1) (some P'.1) := by
   have site : ∀ R : cubeIdx G, R ∈ QsetP G q → ∃ y ∈ hatI G q, y ∈ cubeP R.1 := by
@@ -181,13 +184,23 @@ theorem rootStep_footprint (S : DGSetting G a ν) (hconn : HatConn G) {J : Finse
     exact ⟨y, mem_hatI_iff.2 ⟨mem_boxSet.2 hbox, cubeP_subset_Ω S R.2 hyc⟩, hyc⟩
   obtain ⟨y, hy, hyP⟩ := site P hP
   obtain ⟨y', hy', hyP'⟩ := site P' hP'
-  exact rootStep_hat S.aligned hq (hconn q hq.1 y hy y' hy') hy P.1 P.2 hyP P'.1 P'.2 hyP'
+  exact rootStep_hat S.aligned hq (hqc y hy y' hy') hy P.1 P.2 hyP P'.1 P'.2 hyP'
 
-/-- **T1. The bridge.**  If every parameter cube of `J` lies in the footprint of a centre joined to
+/-- **The footprint of an active centre is Moore connected inside `J`.**  Any two parameter cubes of
+the footprint `𝒬(q) ⊆ J` are joined by a chain of Moore-touching patches of `J`. -/
+theorem rootStep_footprint (S : DGSetting G a ν) (hconn : HatConn G) {J : Finset (cubeIdx G)}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : ActIn G J q)
+    {P P' : cubeIdx G} (hP : P ∈ QsetP G q) (hP' : P' ∈ QsetP G q) :
+    Relation.ReflTransGen (rootStep m₀ z (patches J)) (some P.1) (some P'.1) :=
+  rootStep_footprint_of_conn S hq (hconn q hq.1) hP hP'
+
+/-- **T1, core**: connectivity of the thickened cubes of the centres with footprint in `J` in place
+of `HatConn`.
+**T1. The bridge.**  If every parameter cube of `J` lies in the footprint of a centre joined to
 the block `y` by a `RootChain` (the conclusion of `exists_rootChain_of_mixDiff_ne_zero`), then the
 root cube of `y` and the patches of `J` are connected for Moore adjacency (`RootConnected`). -/
-theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
-    {J : Finset (cubeIdx G)} {y : unitPts G}
+theorem rootConnected_of_rootChain_of_conn (S : DGSetting G a ν) {J : Finset (cubeIdx G)}
+    (hconnJ : ∀ q, ActIn G J q → ConnIn (hatI G q)) {y : unitPts G}
     (hJ : ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q) :
     RootConnected m₀ (rootIdxOf y) (patches J) := by
   have main : ∀ q q0, Relation.ReflTransGen (CentreLink G J) q q0 → HatAttached G y q0 →
@@ -207,7 +220,8 @@ theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
         show (x : CTorus d L N₁ m₁ (k + 1)) ∈ rootSet m₀ (rootIdxOf y)
         rw [rootIdxOf_eq hxb]
         exact mem_rootSet_blockIndex _
-      exact (Relation.ReflTransGen.single hroot).trans (rootStep_footprint S hconn hq0 hwQ hP)
+      exact (Relation.ReflTransGen.single hroot).trans
+        (rootStep_footprint_of_conn S hq0 (hconnJ q0 hq0) hwQ hP)
     | head hstep hrest ih =>
       rename_i q1 q2
       intro P hP
@@ -220,7 +234,7 @@ theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
         mem_QsetP.2 (mem_Qset_of_mem_hat_cube hPx hxh hxP)
       have h2 : (⟨Px', hPx'⟩ : cubeIdx G) ∈ QsetP G q2 :=
         mem_QsetP.2 (mem_Qset_of_mem_hat_cube hPx' hxh' hxP')
-      refine ((ih _ h2).tail ?_).trans (rootStep_footprint S hconn hq1 h1 hP)
+      refine ((ih _ h2).tail ?_).trans (rootStep_footprint_of_conn S hq1 (hconnJ q1 hq1) h1 hP)
       exact ⟨jnode_of_actIn hq2 hPx' (mem_Qset_of_mem_hat_cube hPx' hxh' hxP'),
         jnode_of_actIn hq1 hPx (mem_Qset_of_mem_hat_cube hPx hxh hxP), x', mem_Pset_iff.2 hxP', x,
         mem_Pset_iff.2 hxP, near_of_eq_or_adj (hxx'.imp Eq.symm Adj.symm)⟩
@@ -228,6 +242,15 @@ theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
   obtain ⟨hPc, hPJ⟩ := mem_patches.1 hP
   obtain ⟨q, ⟨hqa, q0, hat, h0, hr⟩, hpq⟩ := hJ _ hPJ
   exact main q q0 hr hat h0 _ hpq
+
+/-- **T1. The bridge.**  If every parameter cube of `J` lies in the footprint of a centre joined to
+the block `y` by a `RootChain` (the conclusion of `exists_rootChain_of_mixDiff_ne_zero`), then the
+root cube of `y` and the patches of `J` are connected for Moore adjacency (`RootConnected`). -/
+theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
+    {J : Finset (cubeIdx G)} {y : unitPts G}
+    (hJ : ∀ p ∈ J, ∃ q, RootChain G J y q ∧ p ∈ QsetP G q) :
+    RootConnected m₀ (rootIdxOf y) (patches J) :=
+  rootConnected_of_rootChain_of_conn S (fun q hq => hconn q hq.1) hJ
 
 end Bridge
 
