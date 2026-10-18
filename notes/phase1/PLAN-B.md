@@ -61,10 +61,19 @@ approved declaration.
   depends on Z; the boundary terms B″ of P7 (4.11) are the only coupling. To prove: the boundary
   couplings across Z (FINALPHYS3.md §7, leaf L4). Queued for an astra session when one frees.
 
-## Blocker 6: the general class (no author question pending)
-- The open analytic input (the shifted data in the anisotropic domain, P1 Lemma 3.2, (3.107)):
-  astra session `astra-xidom` (running). Then the torus defect at the cube of each centre
-  (P1 (H.6), torus form), queued.
+## Blocker 6: the general class (one ruling)
+- Done since: the per-label bounds at the composed data, the filed torus defect, the chain at towers
+  for every scale with one β₀ (W1040–W1069).
+- RULING R8 (Scott): the new level's terms on local generating sets. P3 pp. 78–79, (4.44)–(4.47)
+  computes each term of the new level with the local generating set 𝔹_{k+1}(Y); mapping a local-chart
+  point to the step chart is impossible in general (W1081: a local field can wind around a hole of the
+  polymer). The step's mark, determinant and activity objects (`decMarkG`, `decMarkCorr`,
+  `decMarkCorrTerm`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`) are typed
+  by the step's whole-level set `S.G'`. Options: (a) generic versions with an explicit background
+  generating set, the current objects being the instance `S.G'` (definition change); (b) no new
+  definitions, refactor the cores to accept background maps glued from the local set (longer, more
+  awkward). Recommended: (a). Meanwhile the parts that need no ruling proceed (W1084: the determinant
+  on local sets without `HatConn`, P6 Lemma 4.1 on the local set).
 
 ## Blocker 7: two tori (item 24)
 - Our reading is proved (no floor needed below the last scales; the induction over the gap scales).
