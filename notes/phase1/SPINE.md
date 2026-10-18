@@ -285,8 +285,9 @@ theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB c
 It follows LFR Thm IV.4.1 with Def. IV.5.2 and Thm IV.5.3. For a member `ρ` of `ℛ♭_k` at the stopping scale with a
 representation `F`, the activities are `p = q + 1_{j=k+1}(a + b)`; `E` is the vacuum term of A6-3; the threshold is the largest of
 the four. The three families:
-* `q = inhObs F.sf P6.m₀ h` (a definition). For `1 ≤ j ≤ k` and `X ∈ 𝒟_j` (`IsPolyDom`), `q_j(X; g) = Σ_{x∈X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩`,
-  and `0` otherwise. These are the (H.7) terms of the class at the constant configuration (LFR Def. IV.5.2, first item; P7 (4.17)).
+* `q = inhObs F.sf P6.m₀ h` (a definition). For `1 ≤ j ≤ k` and `X ∈ 𝒟_j` (`IsPolyDom`),
+  `q_j(X; g) = Σ_{x∈X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩`, and `0` otherwise. These are the (H.7) terms of the class at the
+  constant configuration (LFR Def. IV.5.2, first item; P7 (4.17)).
   They are read on the Def-6 torus `N₁ = ℓ/(L^{m₁}L^k)`, which is the torus `sfIdx` of `RepFam.ctx` (`sideDiv_eq_sfIdx`).
 * `a`: the scale-`(k+1)` activities of the small-field part. That part is `Ξ^sf = sfIntegral F hM6 hkK vc h nK g :=
   ∫ sfFactor2 (F.ctx hM6 hkK nK) vc univ ψ h g dψ`, the integral of the small-field factor of (D1) on the whole torus, i.e. the term
@@ -297,27 +298,26 @@ Proved inside:
 * the locality of `q` in `g|_X`, from `localM` on every Def-6 torus (`inhObs_actLocal`, through `SFFlat2.torus`);
 * `inhObs_of_lt` (`q = 0` above `k`) and `inhObs_zero` (`q = 0` at `g = 0`);
 * the amplitude budget: `q` is at most `c₉/2` at `j ≤ k`, and `a`, `b` at most `c₉/4` each at `j = k + 1`
-  (`ActBound.add`, `ActBound.add_actAt_succ`);
+  (`ActBoundAt.add`, `ActBoundAt.add_actAt_succ`);
 * the exponential identity (`sum_actAdd_actAt`).
 
-Helpers:
-* `FlatRep … hM6 hkK R geo cs P F St vc ρ νk`, the body of `FlatClassAt` for given witnesses (`flatClassAt_iff_exists_flatRep`,
-  `Iff.rfl`), so that the sub-inputs can read `F`;
-* `ActSupport`, `ActAnalytic`, `ActLocal`, `ActBound`, `ActAgree`, the five conjuncts of `ObservableActivities`
-  (`observableActivities_iff`), with the lemmas `.add`, `.mono`, `.actAt`.
-
-`FlatRep` and the five clauses restate landed bodies; the restatements are checked by `Iff.rfl` and `observableActivities_iff`. If
-preferred, `RootFInputs.lean` can define `FlatClassAt := ∃ …, FlatRep …` and `ObservableActivities := ActSupport ∧ … ∧ ActAgree`
-(statements unchanged); this task could not edit that file. Rule 10: `flatRep_witness` (from `flatClassAt_witness`, the same
-unused configuration `kf = 0`) and `actClauses_zero`. The four sub-inputs need the exemption of the seven inputs, as `SFStepInput`
-and `RInput` do. Their hypothesis is `FlatRep` at `K = k̂_f + 1`, whose non-vacuity at used configurations is item D4. All four are
-stated at general `d, N` and general constants.
+Pieces of `Spine/RootFInputs.lean` (one copy each; the two definitions built from them are definitionally the old ones):
+* `FlatRep … hM6 hkK R geo cs P F St vc ρ νk`, the body of `FlatClassAt` for given witnesses; `FlatClassAt` is now
+  `∃ hM6 hkK R geo cs P F St vc, FlatRep …`, so the sub-inputs can read `F`;
+* `ActSupportAt`, `ActAnalyticAt`, `ActLocalAt`, `ActBoundAt` (the clauses on one torus `𝕋_ℓ`) and `ActAgree`;
+  `ObservableActivities` is now `(∀ admissible ℓ, ActSupportAt ∧ ActAnalyticAt ∧ ActLocalAt ∧ ActBoundAt) ∧ ActAgree`.
+  The literal conjunction of five tori-quantified clauses would not be definitionally the old body (the `∀ ℓ` would be split),
+  so the four torus clauses are stated on one torus.
+The lemmas `.add`, `.mono`, `.actAt` of these clauses are in `Spine/LastIntegral.lean`. Rule 10: the clause predicates are inhabited
+by `observableActivities_zero` and `FlatRep` by `flatClassAt_witness` (the same unused configuration `kf = 0`). The four sub-inputs
+need the exemption of the seven inputs, as `SFStepInput` and `RInput` do (ledger, 2026-10-18). Their hypothesis is `FlatRep` at
+`K = k̂_f + 1`, whose non-vacuity at used configurations is item D4. All four are stated at general `d, N` and general constants.
 
 **A6-1 and A6-2 need no source input** beyond the class, its (D8) and the ties of `PrefixInput`: they are bounded proof tasks (sketches
 below). A6-3 and A6-4 are the last integral proper (blocker 5).
 
 1. **`InheritedBoundInput` (A6-1, the conversion of the observable terms; LFR Thm IV.5.3 items 2, 4, 5 for `j ≤ k_f`; P4 (H.7)).**
-   `ActSupport k`, `ActAnalytic` and `ActBound c₉ k` of `inhObs F.sf P6.m₀ h`.
+   On every admissible torus, `ActSupportAt … k`, `ActAnalyticAt` and `ActBoundAt … c₉ … k` of `inhObs F.sf P6.m₀ h`.
    * Landed (general `d, L, N, m₀, m₁`):
      * the class clauses `SFTermClauses.boundM` and `.analyticM` (on `sfDom`, with `Def6.l1 g < 1`), on every Def-6 torus
        (`IsSF2.terms`, `SFFlat2.torus`);
@@ -354,7 +354,8 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      ~400–700 lines.
    * The exactness itself comes from the flow: (D8SF) at the stopping scale is produced by `ClassStepInput` and `FrozenStepInput`
      (item 3 (c) of `SFStepInput`: the inherited terms on two tori). W1089 (`e0CoeffFamily_value_fromTowerG_core_twoTorus`) is exact
-     for the core family only. W1088 shows that closeness is not enough: the canonical-torus resummation `towerGapScale_resum_fromTowerG`
+     for the core family only. W1088 shows that closeness is not enough: the canonical-torus resummation
+     `towerGapScale_resum_fromTowerG`
      needs bounded `K` (`K_bounded_of_can`). So the resummation of the gap scales into Root-F's polymer form belongs to the class
      steps; at `j ≤ k` A6 needs none, since `inhObs` is already per polymer on every torus.
 3. **`FinalSmallFieldInput` (A6-3, the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) with `Z = ∅` and (4.15)–(4.17);

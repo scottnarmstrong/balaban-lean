@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Spine.Witness
+public import Balaban.Spine.RootFInputs
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Ring
 
@@ -50,11 +50,12 @@ The sub-inputs:
 
 The clause of locality in `g` of the inherited activities is proved here from the clause `localM`
 of the class (`inhObs_actLocal`). The assembly (`lastIntegralInput_of_parts`) builds the activities
-`p = q + 1_{j = k+1} (a + b)`, proves the five clauses of `ObservableActivities` for them
-(`ActSupport`, `ActAnalytic`, `ActLocal`, `ActBound`, `ActAgree`, its conjuncts:
-`observableActivities_iff`) and the exponential identity. `FlatRep` is the body of `FlatClassAt`
-for given witnesses (`flatClassAt_iff_exists_flatRep`), so that the sub-inputs can read the
-representation `F`. The sub-inputs are spine-local; the list and the status of each are in
+`p = q + 1_{j = k+1} (a + b)`, proves the clauses of `ObservableActivities` for them (on each
+admissible torus `ActSupportAt`, `ActAnalyticAt`, `ActLocalAt`, `ActBoundAt`, and `ActAgree`; all in
+`Spine/RootFInputs.lean`) and the exponential identity. The sub-inputs read the representation `F`
+through `FlatRep`, the body of `FlatClassAt` (`Spine/RootFInputs.lean`). Rule 10: the clause
+predicates are inhabited by `observableActivities_zero`, `FlatRep` by `flatClassAt_witness`
+(`Spine/Witness.lean`). The sub-inputs are spine-local; the list and the status of each are in
 `notes/phase1/SPINE.md`, section "LastIntegralInput sub-inputs". -/
 
 @[expose] public section
@@ -65,73 +66,11 @@ open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.La
   Balaban.SmallField Balaban.SmallField.Def6v2
 
 /-!
-### The clauses of `ObservableActivities`, one by one
--/
-
-section Clauses
-
-/-- **Support** (the first clause of `ObservableActivities`, top scale `J`): on every admissible
-torus the increment of `p_j(X; ·)` vanishes unless `1 ≤ j ≤ J` and `X` is a scale-`j` polymer. -/
-def ActSupport (d N L M J kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
-  ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    ∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g, p ℓ j X g = p ℓ j X 0
-
-/-- **Analyticity** (the second clause of `ObservableActivities`): on every admissible torus
-`p_j(X; ·)` is analytic on the unit `ℓ¹` ball. -/
-def ActAnalytic (d N L M kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
-  ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    ∀ j X, AnalyticOnNhd ℂ (p ℓ j X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}
-
-/-- **Locality** (the third clause of `ObservableActivities`): on every admissible torus
-`p_j(X; g)` depends on `g|_X` only. -/
-def ActLocal (d N L M kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
-  ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    ∀ j X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) → p ℓ j X g = p ℓ j X g'
-
-/-- **The bound** (the fourth clause of `ObservableActivities`, top scale `J`): on every admissible
-torus and for `1 ≤ j ≤ J`, the increment is at most
-`(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}` on the unit `ℓ¹` ball. -/
-def ActBound (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
-  ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    ∀ j ∈ Finset.Icc 1 J, ∀ X (g : Torus d ℓ → Fin N → ℂ), ∑ y, ∑ i, ‖g y i‖ < 1 →
-      ‖p ℓ j X g - p ℓ j X 0‖ ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
-        * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)
-
-/-- **The two-torus agreement** (the last clause of `ObservableActivities`): the increments on two
-admissible tori agree on the images of a finite set `A ⊂ ℤ^d` in the common quarter box. -/
-def ActAgree (d N L M kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
-  ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
-    ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
-      a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
-      p ℓ j (A.image fun y μ => (y μ : ZMod ℓ))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) -
-          p ℓ j (A.image fun y μ => (y μ : ZMod ℓ)) 0 =
-        p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ'))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) -
-          p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ')) 0
-
-/-- `ObservableActivities` is the conjunction of its five clauses. -/
-theorem observableActivities_iff (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
-    (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) :
-    ObservableActivities d N L M κ c₉ δ J kf p ↔
-      ActSupport d N L M J kf p ∧ ActAnalytic d N L M kf p ∧ ActLocal d N L M kf p ∧
-        ActBound d N L M κ c₉ δ J kf p ∧ ActAgree d N L M kf p := by
-  constructor
-  · rintro ⟨h, hag⟩
-    exact ⟨fun ℓ _ hℓ => (h ℓ hℓ).1, fun ℓ _ hℓ => (h ℓ hℓ).2.1, fun ℓ _ hℓ => (h ℓ hℓ).2.2.1,
-      fun ℓ _ hℓ => (h ℓ hℓ).2.2.2, hag⟩
-  · rintro ⟨h1, h2, h3, h4, hag⟩
-    exact ⟨fun ℓ _ hℓ => ⟨h1 ℓ hℓ, h2 ℓ hℓ, h3 ℓ hℓ, h4 ℓ hℓ⟩, hag⟩
-
-end Clauses
-
-/-!
 ### Sums of activity families and their scale-`J` parts
+
+The clauses `ActSupportAt`, `ActAnalyticAt`, `ActLocalAt`, `ActBoundAt`, `ActAgree` of
+`ObservableActivities` (`Spine/RootFInputs.lean`) for sums of families and for the part of a family
+at one scale.
 -/
 
 section Combine
@@ -151,46 +90,47 @@ def actAt (J : ℕ) (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus
 variable {L M J kf : ℕ}
   {p q : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ}
 
-theorem ActSupport.add (hp : ActSupport d N L M J kf p) (hq : ActSupport d N L M J kf q) :
-    ActSupport d N L M J kf (actAdd p q) := fun ℓ _ hℓ j X hX g => by
-  simp only [actAdd]
-  rw [hp ℓ hℓ j X hX g, hq ℓ hℓ j X hX g]
+theorem ActSupportAt.add {ℓ : ℕ} [NeZero ℓ] (hp : ActSupportAt d N L M J ℓ p)
+    (hq : ActSupportAt d N L M J ℓ q) : ActSupportAt d N L M J ℓ (actAdd p q) :=
+  fun j X hX g => by
+    simp only [actAdd]
+    rw [hp j X hX g, hq j X hX g]
 
-theorem ActSupport.mono {J' : ℕ} (hp : ActSupport d N L M J kf p) (hJ : J ≤ J') :
-    ActSupport d N L M J' kf p := fun ℓ _ hℓ j X hX g =>
-  hp ℓ hℓ j X (fun h => hX ⟨Finset.Icc_subset_Icc le_rfl hJ h.1, h.2⟩) g
+theorem ActSupportAt.mono {ℓ J' : ℕ} [NeZero ℓ] (hp : ActSupportAt d N L M J ℓ p) (hJ : J ≤ J') :
+    ActSupportAt d N L M J' ℓ p := fun j X hX g =>
+  hp j X (fun h => hX ⟨Finset.Icc_subset_Icc le_rfl hJ h.1, h.2⟩) g
 
-theorem ActSupport.actAt (J' : ℕ) (hp : ActSupport d N L M J kf p) :
-    ActSupport d N L M J kf (actAt J' p) := fun ℓ _ hℓ j X hX g => by
+theorem ActSupportAt.actAt {ℓ : ℕ} [NeZero ℓ] (J' : ℕ) (hp : ActSupportAt d N L M J ℓ p) :
+    ActSupportAt d N L M J ℓ (actAt J' p) := fun j X hX g => by
   simp only [RootFSpine.actAt]
   split_ifs
-  · exact hp ℓ hℓ j X hX g
+  · exact hp j X hX g
   · rfl
 
-theorem ActAnalytic.add (hp : ActAnalytic d N L M kf p) (hq : ActAnalytic d N L M kf q) :
-    ActAnalytic d N L M kf (actAdd p q) := fun ℓ _ hℓ j X =>
-  (hp ℓ hℓ j X).add (hq ℓ hℓ j X)
+theorem ActAnalyticAt.add {ℓ : ℕ} [NeZero ℓ] (hp : ActAnalyticAt d N ℓ p)
+    (hq : ActAnalyticAt d N ℓ q) : ActAnalyticAt d N ℓ (actAdd p q) := fun j X =>
+  (hp j X).add (hq j X)
 
-theorem ActAnalytic.actAt (J' : ℕ) (hp : ActAnalytic d N L M kf p) :
-    ActAnalytic d N L M kf (actAt J' p) := fun ℓ _ hℓ j X => by
+theorem ActAnalyticAt.actAt {ℓ : ℕ} [NeZero ℓ] (J' : ℕ) (hp : ActAnalyticAt d N ℓ p) :
+    ActAnalyticAt d N ℓ (actAt J' p) := fun j X => by
   by_cases hj : j = J'
   · have e : RootFSpine.actAt J' p ℓ j X = p ℓ j X := funext fun g => ite_eq_left hj
     rw [e]
-    exact hp ℓ hℓ j X
+    exact hp j X
   · have e : RootFSpine.actAt J' p ℓ j X = fun _ => 0 := funext fun g => ite_eq_right hj
     rw [e]
     exact analyticOnNhd_const
 
-theorem ActLocal.add (hp : ActLocal d N L M kf p) (hq : ActLocal d N L M kf q) :
-    ActLocal d N L M kf (actAdd p q) := fun ℓ _ hℓ j X g g' hgg => by
+theorem ActLocalAt.add {ℓ : ℕ} (hp : ActLocalAt d N ℓ p) (hq : ActLocalAt d N ℓ q) :
+    ActLocalAt d N ℓ (actAdd p q) := fun j X g g' hgg => by
   simp only [actAdd]
-  rw [hp ℓ hℓ j X g g' hgg, hq ℓ hℓ j X g g' hgg]
+  rw [hp j X g g' hgg, hq j X g g' hgg]
 
-theorem ActLocal.actAt (J' : ℕ) (hp : ActLocal d N L M kf p) :
-    ActLocal d N L M kf (actAt J' p) := fun ℓ _ hℓ j X g g' hgg => by
+theorem ActLocalAt.actAt {ℓ : ℕ} (J' : ℕ) (hp : ActLocalAt d N ℓ p) :
+    ActLocalAt d N ℓ (actAt J' p) := fun j X g g' hgg => by
   simp only [RootFSpine.actAt]
   split_ifs
-  · exact hp ℓ hℓ j X g g' hgg
+  · exact hp j X g g' hgg
   · rfl
 
 theorem ActAgree.add (hp : ActAgree d N L M kf p) (hq : ActAgree d N L M kf q) :
@@ -207,41 +147,40 @@ theorem ActAgree.actAt (J' : ℕ) (hp : ActAgree d N L M kf p) :
   · exact hp ℓ ℓ' hℓ hℓ' j a A g ha hbox
   · simp
 
-theorem ActBound.add {κ c₁ c₂ δ : ℝ} (hp : ActBound d N L M κ c₁ δ J kf p)
-    (hq : ActBound d N L M κ c₂ δ J kf q) : ActBound d N L M κ (c₁ + c₂) δ J kf (actAdd p q) :=
-  fun ℓ _ hℓ j hj X g hg => by
-    have h1 := hp ℓ hℓ j hj X g hg
-    have h2 := hq ℓ hℓ j hj X g hg
-    have e : actAdd p q ℓ j X g - actAdd p q ℓ j X 0 =
-        (p ℓ j X g - p ℓ j X 0) + (q ℓ j X g - q ℓ j X 0) := by
-      simp only [actAdd]; ring
-    rw [e]
-    refine (norm_add_le _ _).trans ?_
-    calc _ ≤ c₁ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
-            * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d) +
-          c₂ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
-            * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d) := add_le_add h1 h2
-      _ = _ := by ring
+theorem ActBoundAt.add {κ c₁ c₂ δ : ℝ} {ℓ : ℕ} [NeZero ℓ] (hp : ActBoundAt d N L M κ c₁ δ J ℓ p)
+    (hq : ActBoundAt d N L M κ c₂ δ J ℓ q) :
+    ActBoundAt d N L M κ (c₁ + c₂) δ J ℓ (actAdd p q) := fun j hj X g hg => by
+  have h1 := hp j hj X g hg
+  have h2 := hq j hj X g hg
+  have e : actAdd p q ℓ j X g - actAdd p q ℓ j X 0 =
+      (p ℓ j X g - p ℓ j X 0) + (q ℓ j X g - q ℓ j X 0) := by
+    simp only [actAdd]; ring
+  rw [e]
+  refine (norm_add_le _ _).trans ?_
+  calc _ ≤ c₁ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+          * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d) +
+        c₂ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+          * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d) := add_le_add h1 h2
+    _ = _ := by ring
 
 /-- **The bounds of the two parts of the scale range** (top scale `k + 1`): a family `q` supported
 on the scales `≤ k` with the bound up to `k`, plus the scale-`(k+1)` part of a family `r` with the
 bound up to `k + 1`. -/
-theorem ActBound.add_actAt_succ {κ c₉ δ : ℝ} {k : ℕ} (hqs : ActSupport d N L M k kf q)
-    (hq : ActBound d N L M κ c₉ δ k kf q) (hr : ActBound d N L M κ c₉ δ (k + 1) kf p) :
-    ActBound d N L M κ c₉ δ (k + 1) kf (actAdd q (actAt (k + 1) p)) :=
-  fun ℓ _ hℓ j hj X g hg => by
-    simp only [actAdd, RootFSpine.actAt]
-    by_cases hjk : j = k + 1
-    · subst hjk
-      have hq0 : q ℓ (k + 1) X g = q ℓ (k + 1) X 0 :=
-        hqs ℓ hℓ (k + 1) X (fun h => by simp at h) g
-      rw [ite_eq_left rfl, ite_eq_left rfl, hq0, add_sub_add_left_eq_sub]
-      exact hr ℓ hℓ (k + 1) hj X g hg
-    · rw [ite_eq_right hjk, ite_eq_right hjk, add_zero, add_zero]
-      have hj' : j ∈ Finset.Icc 1 k := by
-        rw [Finset.mem_Icc] at hj ⊢
-        omega
-      exact hq ℓ hℓ j hj' X g hg
+theorem ActBoundAt.add_actAt_succ {κ c₉ δ : ℝ} {k ℓ : ℕ} [NeZero ℓ]
+    (hqs : ActSupportAt d N L M k ℓ q) (hq : ActBoundAt d N L M κ c₉ δ k ℓ q)
+    (hr : ActBoundAt d N L M κ c₉ δ (k + 1) ℓ p) :
+    ActBoundAt d N L M κ c₉ δ (k + 1) ℓ (actAdd q (actAt (k + 1) p)) := fun j hj X g hg => by
+  simp only [actAdd, RootFSpine.actAt]
+  by_cases hjk : j = k + 1
+  · subst hjk
+    have hq0 : q ℓ (k + 1) X g = q ℓ (k + 1) X 0 := hqs (k + 1) X (fun h => by simp at h) g
+    rw [ite_eq_left rfl, ite_eq_left rfl, hq0, add_sub_add_left_eq_sub]
+    exact hr (k + 1) hj X g hg
+  · rw [ite_eq_right hjk, ite_eq_right hjk, add_zero, add_zero]
+    have hj' : j ∈ Finset.Icc 1 k := by
+      rw [Finset.mem_Icc] at hj ⊢
+      omega
+    exact hq j hj' X g hg
 
 /-- The sum over the scales `1 ≤ j ≤ k + 1` of `q + 1_{j = k+1} (a + b)`, for `q` vanishing at
 the scale `k + 1`. -/
@@ -364,10 +303,10 @@ theorem inhObs_local (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanS
 /-- **The locality clause of the inherited activities** from (D2♭) of the class: the clause
 `localM` of (H.7) on every Def-6 torus (`SFFlat2.torus`). -/
 theorem inhObs_actLocal {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
-    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N)) (Lr Mr kf : ℕ) :
-    ActLocal d N Lr Mr kf (inhObs sf m₀ hv) := by
+    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N)) (ℓ : ℕ) :
+    ActLocalAt d N ℓ (inhObs sf m₀ hv) := by
   obtain ⟨_, hρsf⟩ := hsf.torus
-  exact fun ℓ _ _ j X g g' hgg =>
+  exact fun j X g g' hgg =>
     inhObs_local sf m₀ hv (fun N₁ _ => (hρsf N₁).terms.localM) X g g' hgg
 
 end Inherited
@@ -398,37 +337,6 @@ end SmallField
 /-!
 ### The class at given witnesses
 -/
-
-/-- **The body of `FlatClassAt` for given witnesses** `hM6, hkK, R, geo, cs, P, F, St, vc`: the
-representation `F` of `ρ` in `ℛ♭_k` with the outer constants of the prefix, `β_0 = β`, `ν_0 = ν`,
-`ν_k = νk`, (I.2) up to `k` and the large-field half of (D8). `FlatClassAt` is the existence of
-witnesses (`flatClassAt_iff_exists_flatRep`). -/
-def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
-    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
-    [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
-    (R : ℕ → ℝ)
-    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
-    (cs : OpConsts) (P : BudgetConsts)
-    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
-    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
-    (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
-  (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
-    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
-    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
-    IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-      kf hM6 hkK F ρ St vc ∧
-    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F
-
-/-- `FlatClassAt` is the existence of witnesses of `FlatRep`. -/
-theorem flatClassAt_iff_exists_flatRep {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
-    {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ}
-    {h : EuclideanSpace ℝ (Fin N)} {kf k : ℕ} [NeZero T.M] [NeZero T.L]
-    {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ} :
-    FlatClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k ρ νk ↔
-      ∃ hM6 hkK R geo cs P F St vc,
-        FlatRep d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k hM6 hkK R geo cs P F St vc ρ νk :=
-  Iff.rfl
 
 /-- The small-field data of a member of `FlatRep` satisfy (D2♭). -/
 theorem FlatRep.sfFlat {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
@@ -474,9 +382,10 @@ def InheritedBoundInput : Prop :=
     FlatRep d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
       (rH κ c₉) (ϱ κ c₉) β ν h kf k hM6 hkK R geo cs P F St vc ρ νk →
     7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2 →
-    ActSupport d N (T κ c₉).L (T κ c₉).M k kf (inhObs F.sf (P6 κ c₉).m₀ h) ∧
-      ActAnalytic d N (T κ c₉).L (T κ c₉).M kf (inhObs F.sf (P6 κ c₉).m₀ h) ∧
-      ActBound d N (T κ c₉).L (T κ c₉).M κ c₉ δ k kf (inhObs F.sf (P6 κ c₉).m₀ h)
+    ∀ (ℓ : ℕ) [NeZero ℓ], (T κ c₉).M * (T κ c₉).L ^ (kf + 1) ∣ ℓ →
+      ActSupportAt d N (T κ c₉).L (T κ c₉).M k ℓ (inhObs F.sf (P6 κ c₉).m₀ h) ∧
+        ActAnalyticAt d N ℓ (inhObs F.sf (P6 κ c₉).m₀ h) ∧
+        ActBoundAt d N (T κ c₉).L (T κ c₉).M κ c₉ δ k ℓ (inhObs F.sf (P6 κ c₉).m₀ h)
 
 /-- **A6-2, the exact two-torus agreement of the inherited observable terms (LFR Theorem IV.5.3
 item 7 for `j ≤ k_f`; P4 (H.4); (D8), D-IV.9).** For a member `ρ` of `ℛ♭_k` at the stopping scale,
@@ -585,25 +494,24 @@ theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB c
     fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ hstop => ?_⟩
   simp only [max_le_iff] at hβ
   obtain ⟨⟨hβ₁, hβ₂⟩, hβ₃, hβ₄⟩ := hβ
-  obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hrep⟩ := flatClassAt_iff_exists_flatRep.1 hρ
-  obtain ⟨hsupp, hana, hbd⟩ :=
-    h₁ β hβ₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
+  obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hrep⟩ := hρ
+  have hinh := h₁ β hβ₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
   have hagr := h₂ β hβ₂ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
-  obtain ⟨a, E, hobsA, hidA⟩ :=
+  obtain ⟨a, E, ⟨hA, hgA⟩, hidA⟩ :=
     h₃ β hβ₃ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
-  obtain ⟨b, hobsB, hidB⟩ :=
+  obtain ⟨b, ⟨hB', hgB⟩, hidB⟩ :=
     h₄ β hβ₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk hM6 hkK R geo cs P F St vc hrep hstop
-  have hloc := inhObs_actLocal hrep.sfFlat (P6 κ c₉).m₀ h (T κ c₉).L (T κ c₉).M kf
-  rw [observableActivities_iff] at hobsA hobsB
-  obtain ⟨hsA, haA, hlA, hbA, hgA⟩ := hobsA
-  obtain ⟨hsB, haB, hlB, hbB, hgB⟩ := hobsB
-  have hbAB := hbA.add hbB
-  rw [add_halves] at hbAB
-  refine ⟨actAdd (inhObs F.sf (P6 κ c₉).m₀ h) (actAt (k + 1) (actAdd a b)), E, ?_, ?_⟩
-  · rw [observableActivities_iff]
-    exact ⟨(hsupp.mono (Nat.le_succ k)).add ((hsA.add hsB).actAt (k + 1)),
-      hana.add ((haA.add haB).actAt (k + 1)), hloc.add ((hlA.add hlB).actAt (k + 1)),
-      ActBound.add_actAt_succ hsupp hbd hbAB, hagr.add ((hgA.add hgB).actAt (k + 1))⟩
+  refine ⟨actAdd (inhObs F.sf (P6 κ c₉).m₀ h) (actAt (k + 1) (actAdd a b)), E,
+    ⟨fun ℓ _ hℓ => ?_, hagr.add ((hgA.add hgB).actAt (k + 1))⟩, ?_⟩
+  · obtain ⟨hs, han, hbd⟩ := hinh ℓ hℓ
+    obtain ⟨hsA, haA, hlA, hbA⟩ := hA ℓ hℓ
+    obtain ⟨hsB, haB, hlB, hbB⟩ := hB' ℓ hℓ
+    have hbAB := hbA.add hbB
+    rw [add_halves] at hbAB
+    exact ⟨(hs.mono (Nat.le_succ k)).add ((hsA.add hsB).actAt (k + 1)),
+      han.add ((haA.add haB).actAt (k + 1)),
+      (inhObs_actLocal hrep.sfFlat (P6 κ c₉).m₀ h ℓ).add ((hlA.add hlB).actAt (k + 1)),
+      ActBoundAt.add_actAt_succ hs hbd hbAB⟩
   · intro nK _ g hg
     rw [hidB nK g hg, hidA nK g hg, ← Complex.exp_add,
       sum_actAdd_actAt _ _ _ _ fun X => inhObs_of_lt _ _ _ (Nat.lt_succ_self k) X _]
@@ -611,29 +519,5 @@ theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB c
     ring
 
 end Inputs
-
-/-!
-### Inhabitation (rule 10)
--/
-
-open Balaban.LargeField.Def7.Wit Balaban.LargeField.Def7v2.Wit in
-/-- **`FlatRep` is inhabited**: the witness of `FlatClassAt` (`flatClassAt_witness`: the landed
-witness of `IsRepFlat2` at `ν = 1/(27β)`, horizon `kf = 0`, scale `k = 1`). -/
-theorem flatRep_witness (rH : ℝ) :
-    ∃ (ρ : 𝒟[3, 2, typing, wβ, (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer, 0 + 1, 1]) (νk : ℝ),
-      ∃ hM6 hkK R geo cs P F St vc,
-        @FlatRep 3 2 typing wP6 wC7 (budgetConsts wβ) (wCs wν₀ (kZero 3 3 wβ wν₀)) 1 27 rH
-          (Background.bgR0 3 3) wβ wν₀ whv 0 1 ⟨by norm_num [typing, typing0]⟩
-          ⟨by norm_num [typing, typing0]⟩ hM6 hkK R geo cs P F St vc ρ νk :=
-  flatClassAt_witness rH
-
-/-- **The five clauses of `ObservableActivities` are inhabited**: zero activities satisfy all of
-them (`observableActivities_zero`). -/
-theorem actClauses_zero (d N L M : ℕ) (κ c₉ δ : ℝ) (hc₉ : 0 < c₉) (J kf : ℕ) :
-    ActSupport d N L M J kf (fun _ _ _ _ => 0) ∧ ActAnalytic d N L M kf (fun _ _ _ _ => 0) ∧
-      ActLocal d N L M kf (fun _ _ _ _ => 0) ∧
-      ActBound d N L M κ c₉ δ J kf (fun _ _ _ _ => 0) ∧ ActAgree d N L M kf (fun _ _ _ _ => 0) :=
-  (observableActivities_iff d N L M κ c₉ δ J kf _).1
-    (observableActivities_zero d N L M κ c₉ δ hc₉ J kf)
 
 end Balaban.RootFSpine
