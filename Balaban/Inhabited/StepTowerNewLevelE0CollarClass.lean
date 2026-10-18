@@ -11,7 +11,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0CollarUniform
 /-!
 # The class chain at the class radii, the constant `B` explicit (`StepTowerNewLevelE0CollarClass`)
 
-`e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_explicitB`: `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB` (`δ₁ = min Tk.t (η ε_k)`, `ε_j = P₀.eps 3 3 j`).
+`e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_phi`: `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi` (`δ₁ = min Tk.t (η ε_k)`, `ε_j = P₀.eps 3 3 j`).
 -/
 
 @[expose] public section
@@ -27,7 +27,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The class chain at the class radii, with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_explicitB (m₀ : ℕ) {A₁ : ℝ}
+theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_phi (m₀ : ℕ) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1 / 2) :
     ∃ (κmin : ℝ) (_ : stepHullMin ≤ κmin) (T₀ : StepTower κmin) (κdec Q F η : ℝ),
       4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T₀.κ ∧
@@ -136,9 +136,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_explicitB (
           1 / (8 * (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
             rootUnionK 3 3 1 Tk.m₁ Tk.κ0) ^ 3 * c1 3 3 *
             Real.exp (((2 * Tk.κdec - 1) - 2 * Tk.κ0) * cG 3 3 + c1 3 3 + Tk.κ' * cG 3 3))) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
           rootUnionK 3 3 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
           (corrF0 Tk k β p₁ * K0 3 3 Tk.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ 3 * P.E₀ *
@@ -147,7 +148,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_explicitB (
           Real.exp ((2 * Tk.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
             ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) / (2 * (min Tk.t (η * P₀.eps 3 3 k) / (4 * decMR Tk k (β * 3 ^ k) p₁))) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * Tk.κdec - 1) * cBr 3 3)) * K0 3 3 Tk.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (Tk.κ0 * cBr 3 3) * K0 3 3 Tk.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (Tk.κ0 * cBr 3 3) * K0 3 3 Tk.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν Tk.t) ∧
@@ -177,7 +181,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_explicitB (
   have hq1 : (3 : ℝ) ^ (-(1 / 2 - γ)) < 1 :=
     Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
   obtain ⟨κmin, hlo, T₀, κdec, Q, F, η, hκ₀, hrate₀, hQdef, hQθ, hFdef, hηdef, hQ, hF, hη, H⟩ :=
-    e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB m₀ hA p hq0 hq1
+    e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi m₀ hA p hq0 hq1
       (α := 1 / 2 - γ) (by linarith)
   refine ⟨κmin, hlo, T₀, κdec, Q, F, η, hκ₀, hrate₀, hQdef, hQθ, hFdef, hηdef, hQ, hF, hη,
     fun P₀ hγ hα₀ hε1 => ?_⟩

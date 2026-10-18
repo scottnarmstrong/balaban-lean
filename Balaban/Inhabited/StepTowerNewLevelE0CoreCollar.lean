@@ -11,7 +11,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0RedAgree
 /-!
 # The class chain with a general collar (CoreCollar), the constant `B` explicit (`StepTowerNewLevelE0CoreCollar`)
 
-`e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_explicitB`: `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar` with the constant `B` of the conclusion bounded by the explicit expression of `e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB`.
+`e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_phi`: `e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar` with the constant `B` of the conclusion bounded by the explicit expression of `e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi`.
 -/
 
 @[expose] public section
@@ -27,7 +27,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The class chain (CoreCollar), with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_explicitB {κmin : ℝ} (T₀ : StepTower κmin)
+theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_phi {κmin : ℝ} (T₀ : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {cR αR : ℝ} (hcR : 0 < cR) (hαR : 2 * αR < 1) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ∀ T : StepTower κmin, T.m₁ = T₀.m₁ → T.BG = T₀.BG → T.BG₂ = T₀.BG₂ →
       T.κ = T₀.κ → T.δ = T₀.δ →
@@ -246,14 +246,18 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_exp
         1 / (8 * (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) ^ 3 * c1 3 3 *
           Real.exp (((2 * T.κdec - 1) - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3)) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             εC * (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) / (2 * bb * corrU) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) * K0 3 3 T.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν T.t) ∧
@@ -280,7 +284,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_exp
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   classical
-  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_red_onSet_agree_explicitB T₀ hHull hA p hcR hαR
+  obtain ⟨β₀, hβ₀, HG⟩ := e0CoeffFamily_class_fromTower_of_families_red_onSet_agree_phi T₀ hHull hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   obtain ⟨Jr, HG'⟩ := HG T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp

@@ -11,7 +11,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0StructDecCollar
 /-!
 # The class chain at the composed step data, at a general collar, the constant `B` explicit (`StepTowerNewLevelE0StepDecCollar`)
 
-`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB`: `e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB`.
+`e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi`: `e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi`.
 -/
 
 @[expose] public section
@@ -27,7 +27,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The class chain at the composed step data, at a general collar, with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB (m₀ : ℕ) {κmin : ℝ}
+theorem e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi (m₀ : ℕ) {κmin : ℝ}
     (hlo : stepHullMin ≤ κmin) (T₀ : StepTower κmin) {κdec : ℝ}
     (hκ₀ : 4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T₀.κ)
     (hrate₀ : (2 * T₀.κdec - 1) * (((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
@@ -125,9 +125,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB 
           1 / (8 * (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
             rootUnionK 3 3 1 T.m₁ T.κ0) ^ 3 * c1 3 3 *
             Real.exp (((2 * T.κdec - 1) - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3))) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
@@ -136,7 +137,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB 
           Real.exp ((2 * T.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
             ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) / (2 * (δ₁ / (4 * decMR T k (β * 3 ^ k) p₁))) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) * K0 3 3 T.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν T.t) ∧
@@ -163,7 +167,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB 
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
   obtain ⟨β₀, hβ₀, HC⟩ :=
-    e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB m₀ hlo T₀ hκ₀ hrate₀ hA p hcR hαR
+    e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi m₀ hlo T₀ hκ₀ hrate₀ hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκT hδ r₀ δ₃ δ₁ δfl hr₁ hr₂ hnB hnF hδ₁T => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hcδ p₁ hp0 hp₁ S hS
   obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκT hδ r₀ δ₃ δ₁ δfl hr₁ hr₂ hnB hnF hδ₁T k hk N₁ h3N hN₁ ν

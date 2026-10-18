@@ -12,7 +12,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Bound
 /-!
 # The class chain at a tower with the structural premises discharged, at a general collar, the constant `B` explicit (`StepTowerNewLevelE0StructDecCollar`)
 
-`e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB`: `e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar` with the constant `B` of the conclusion bounded by `C_PE (corrF0 K₀ + Q/(2 R) n_fibre e^{κ_H c_Br} K₀ + n_fibre e^{κ₀ c_Br} K₀)`, `R = δ₁/(4 decMR)` the marked radius of the step radius `δ₁`, `Q` the class amplitude of the smallness hypothesis.
+`e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi`: `e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar` with the constant `B` of the conclusion bounded by `C_PE (corrF0 K₀ + Q/(2 R) n_fibre e^{κ_H c_Br} K₀ + n_fibre e^{κ₀ c_Br} K₀)`, `R = δ₁/(4 decMR)` the marked radius of the step radius `δ₁`, `Q` the class amplitude of the smallness hypothesis.
 -/
 
 @[expose] public section
@@ -28,7 +28,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The class chain at a tower with the structural premises discharged, at a general collar, with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB (m₀ : ℕ) {κmin : ℝ}
+theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi (m₀ : ℕ) {κmin : ℝ}
     (hlo : stepHullMin ≤ κmin) (T₀ : StepTower κmin) {κdec : ℝ}
     (hκ₀ : 4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T₀.κ)
     (hrate₀ : (2 * T₀.κdec - 1) * (((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
@@ -121,9 +121,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB
           1 / (8 * (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
             rootUnionK 3 3 1 T.m₁ T.κ0) ^ 3 * c1 3 3 *
             Real.exp (((2 * T.κdec - 1) - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3))) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
@@ -132,7 +133,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB
           Real.exp ((2 * T.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
             ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) / (2 * (δ₁ / (4 * decMR T k (β * 3 ^ k) p₁))) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) * K0 3 3 T.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν T.t) ∧
@@ -167,7 +171,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB
       rootUnionK 3 3 1 T₀.m₁ T₀.κ0) / 2) (by linarith) hcR hαR
   obtain ⟨βray, -, Hscale⟩ := StepTower.scale_agree T₀ hA p hcR hαR
   obtain ⟨βb, hβb, HC⟩ :=
-    e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_dec_agree_collar_explicitB T₀ hlo hA p hcR hαR
+    e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_dec_agree_collar_phi T₀ hlo hA p hcR hαR
   refine ⟨max (max (max βb βc) βa) βray,
     hβb.trans (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _)),
     fun T hm₁ hBG hBG₂ hκT hδ r₀ δ₃ δ₁ δfl hr₁ hr₂ hnB hnF hδ₁T => ?_⟩
@@ -193,7 +197,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB
   obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC
     hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₁ hr₂ hnB hnF hδ₁T
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum
+  intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum Φ hΦ
   have hC := Dt.core
   have hd0 : 0 < 3 := by norm_num
   have hβ0 : 0 < β := by linarith
@@ -252,21 +256,20 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_explicitB
   obtain ⟨εC, hεCdef⟩ := hεex
   have hεC0 : 0 ≤ εC := by
     rw [hεCdef]; exact epsC_nonneg hmr0 hδ₁0 hE₀ hCI hKL hα₃ T.marks_K0_pos
-  obtain ⟨e, B, hB, hrest⟩ := @HG p₁ hp0.le (StepTower.hatConn_step T hk) (StepTower.rowInHat_step T hk hN₁ hν0.le hν)
+  exact @HG p₁ hp0.le (StepTower.hatConn_step T hk) (StepTower.rowInHat_step T hk hN₁ hν0.le hν)
     κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL (by rw [hCm]; exact hr)
     (fun _ => F₁) (fun _ => hF₁an) (fun _ => hF₁) (fun _ => Sol) (fun _ => hSolan)
     (fun _ => hSolprop) FkL hFkan hFkeq (fun τ => h𝒮 τ (FkL τ) (hFkeq τ)) p₁ hp0 le_rfl
     (by linarith) (corrR T' k (β * 3 ^ k) p₁)
     hRpos hab _ (fun _ _ _ _ => rfl) le_rfl _ rfl _ (fun _ _ _ _ => rfl) εC hεC0 hmr0 hsa
-    hεCdef.ge hE (max_le hfirst (by rw [← hεCdef] at hεnum; exact hεnum))
-  refine ⟨e, B, ?_, hrest⟩
-  have hane : δ₁ / (2 * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
+    hεCdef.ge hE (max_le hfirst (by rw [← hεCdef] at hεnum; exact hεnum)) Φ (fun e B hB => hΦ e B (by
+      have hane : δ₁ / (2 * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
       ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ)) ≠ 0 := by positivity
-  rw [eps_cancel corrU_pos.ne' hane hεCdef] at hB
-  have hcr : corrR T' k (β * 3 ^ k) p₁ = δ₁ / (4 * decMR T k (β * 3 ^ k) p₁) := by
-    unfold corrR
-    rw [hT't, hdecEq]
-  rw [hcr] at hB
-  exact hB
+      rw [eps_cancel corrU_pos.ne' hane hεCdef] at hB
+      have hcr : corrR T' k (β * 3 ^ k) p₁ = δ₁ / (4 * decMR T k (β * 3 ^ k) p₁) := by
+        unfold corrR
+        rw [hT't, hdecEq]
+      rw [hcr] at hB
+      exact hB))
 
 end Balaban.Inhabited

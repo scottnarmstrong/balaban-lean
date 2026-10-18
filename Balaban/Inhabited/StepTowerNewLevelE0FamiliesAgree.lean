@@ -7,13 +7,14 @@ module
 
 public import Balaban.Inhabited.StepTowerBeta0Families
 public import Balaban.Inhabited.StepTowerNewLevelE0LabelsAgree
-public import Balaban.Inhabited.StepTowerNewLevelE0Act
+public import Balaban.Inhabited.StepTowerNewLevelE0Bound
+public import Balaban.Inhabited.StepTowerNewLevelE0Sum
 
 /-!
 # The class chain with the activity and mark families at every tower radius, the constant `B` explicit (`StepTowerNewLevelE0FamiliesAgree`)
 
-`e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB`: `e0CoeffFamily_class_fromTower_of_families_core_onSet_agree` with the hypotheses `0 < markedRad`, `hnumR` and the constant `B` bounded as in
-`e0CoeffFamily_class_fromTower_of_families_core_onSet_explicitB`.
+`e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi`: `e0CoeffFamily_class_fromTower_of_families_core_onSet_agree` with the hypotheses `0 < markedRad`, `hnumR` and the constant `B` bounded as in
+`e0CoeffFamily_class_fromTower_of_families_core_onSet_phi`.
 -/
 
 @[expose] public section
@@ -28,8 +29,64 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
   Balaban.SmallField.GsSpec Balaban.Analysis
 
 open Classical in
+/-- The sum of the label constants and the bridge constants, bounded by the explicit constant
+of `e0CoeffFamily_class_fromTower_of_families_core_onSet_explicitB`. -/
+theorem explicitB_tail {κmin : ℝ} (T : StepTower κmin) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ} [NeZero N₁]
+    (h3N : 3 ^ 1 ∣ N₁) {ν β p₁ : ℝ} (hβ : 0 < β) (hp₁ : 0 < p₁)
+    (Dt : StepScaleData T k hk N₁ ν β p₁) (S : StepSetting 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
+    (hS : S = T.step k hk N₁ ν β p₁) (z : RootIdx 3 3 N₁ T.m₁ (k + 1)) {ι : Type} [Fintype ι]
+    (dom : ι → Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+    (hdom : ∀ τ, ∀ Y ∈ dom τ, IsDj 1 (k + 1) Y) (𝒴 : Finset (Set (CTorus 3 3 N₁ T.m₁ (k + 1))))
+    (h𝒴 : ∀ τ, ∀ Y ∈ dom τ, Y ∈ 𝒴) {εC aR bb sβ : ℝ} (hεC : 0 ≤ εC) (haR : 0 < aR)
+    (hbb : 0 < bb) (hsβ : 0 < sβ) (Bτ : ι → ℝ) (hBτ : ∀ τ, 0 ≤ Bτ τ)
+    (E : ι → Set (CTorus 3 3 N₁ T.m₁ (k + 1)) → ℝ)
+    (hnum : ∀ Y ∈ 𝒴, corrU / aR * (∑ τ, if Y ∈ dom τ then 2 * Bτ τ * Real.exp (E τ Y) else 0) ≤
+        εC * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (dlf : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))) dom z} → ℝ)
+    (hdl : ∀ q, dlf q = treeLenCovOne 1 (k + 1) (bridge 1 z q.1.2))
+    (F1 : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁ (k + 1)))) dom z} → ℝ)
+    (hF1 : ∀ q, F1 q = (‖(sβ : ℂ)‖ * ((sβ⁻¹ * Bτ q.1.1) * Real.exp (E q.1.1 q.1.2) / bb) +
+      ((1 : ℝ) / 2) ^ ((Fintype.equivFin ι q.1.1 : ℕ) + 1) *
+        Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) q.1.2) *
+        Real.exp (-((2 * T.κdec - 1) - T.κ0) * treeLenCovOne 1 (k + 1) (bridge 1 z q.1.2))) *
+      Real.exp ((2 * T.κdec - 1) * dlf q)) :
+    CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+          rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
+        ((∑ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁
+            (k + 1)))) (e1Dom S) z}, corrF0 T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) i.1)) +
+          ∑ q, F1 q * Real.exp (-T.κ0 * dlf q)) ≤
+      CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+          rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
+          (corrF0 T k β p₁ * K0 3 3 T.κ0 +
+            εC * aR / (2 * bb * corrU) *
+              (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) * K0 3 3 T.κ0 +
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) := by
+  have hβ3 := hβ
+  have hS0 : ∑ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => (Set.univ : Set (CTorus 3 3 N₁ T.m₁
+      (k + 1)))) (e1Dom S) z}, corrF0 T k β p₁ * Real.exp (-T.κ0 * treeLenCovOne 1 (k + 1) i.1) ≤
+      corrF0 T k β p₁ * K0 3 3 T.κ0 :=
+    bridgeFamily_entropy h3N (by norm_num) (e1Dom_isDj_of_eq T Dt hS) z T.κ0_ent
+      (corrF0_pos T hk hβ hp₁).le
+  have hκGκ0 : T.κ0 ≤ 2 * T.κdec - 1 := by
+    have := T.marks_hκ
+    have := T.marks_hκ'
+    have := T.κ0_nonneg
+    have := one_le_c1 3 3
+    linarith
+  have hS1 := marksConst_sum_le_of_hnumR (m₀ := 1) h3N (by norm_num) dom hdom z T.κ0_ent hκGκ0
+    hεC haR corrU_pos hbb hsβ Bτ hBτ E
+    (fun Y hY => by
+      obtain ⟨q, hq, rfl⟩ := Finset.mem_image.1 hY
+      exact hnum _ (h𝒴 q.1 q.2 (mem_markedIdx.1 hq).1))
+    (fun τ => ((1 : ℝ) / 2) ^ ((Fintype.equivFin ι τ : ℕ) + 1)) (fun τ => by positivity)
+    (sum_half_pow_le_one ι) dlf hdl F1 hF1
+  refine mul_le_mul_of_nonneg_left ?_ (by unfold CPE; have := one_le_c1 3 3; positivity)
+  refine (add_le_add hS0 hS1).trans (le_of_eq ?_)
+  ring
+
+open Classical in
 /-- The agree version of the class chain with the activity and mark families, with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB {κmin : ℝ} (T₀ : StepTower κmin)
+theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_phi {κmin : ℝ} (T₀ : StepTower κmin)
     (hHull : stepHullMin ≤ κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {cR αR : ℝ} (hcR : 0 < cR) (hαR : 2 * αR < 1) :
     ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ∀ T : StepTower κmin, T.m₁ = T₀.m₁ → T.BG = T₀.BG → T.BG₂ = T₀.BG₂ →
       T.κ = T₀.κ → T.δ = T₀.δ →
@@ -231,14 +288,18 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB {κ
         1 / (8 * (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) ^ 3 * c1 3 3 *
           Real.exp (((2 * T.κdec - 1) - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3)) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             εC * (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) / (2 * bb * corrU) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * T.κdec - 1) * cBr 3 3)) * K0 3 3 T.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (T.κ0 * cBr 3 3) * K0 3 3 T.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν T.t) ∧
@@ -278,7 +339,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB {κ
   intro C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk
     Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec
     hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs
-    hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hmr hnumR hE hεnum
+    hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC h𝒴dj hAct hmr hnumR hE hεnum Φ hΦ
   have hκ0' : aEnt 3 3 + 1 ≤ T.κ0 := by linarith [T.κ0_two]
   have ha1 : (1 : ℝ) < corrU := by norm_num [corrU]
   have hε : 0 ≤ max (2 ^ 2 * (2 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ
@@ -360,7 +421,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_core_onSet_agree_explicitB {κ
     (fun q => Sum.inl (Sum.inr (Sum.inr ⟨z, ⟨bridge 1 z q.1.2, hbr q⟩⟩))) (fun _ => rfl) padF hpadF hE
     hM1hol hM1cont hM1diff hM1loc hM1W
     (lt_of_lt_of_le hεpos (le_max_left _ _)) hKc le_rfl T.marks_hκ hεnum
-  refine ⟨e, _, ?_, fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
+  refine ⟨e, _, hΦ _ _ ?_, fun T' => ⟨(hprop T').2.1, (hprop T').2.2.1, (hprop T').2.2.2.1,
     (hprop T').2.2.2.2⟩, fun D hX => ⟨(hvals D hX).2.2.1, (hvals D hX).2.2.2⟩, hval⟩
   refine explicitB_tail T hk (by simpa using h3N)
     (lt_of_lt_of_le (by norm_num) ((h31.trans (le_max_left _ _)).trans hβ)) hp0 Dt S hS z

@@ -11,7 +11,7 @@ public import Balaban.Inhabited.StepTowerNewLevelE0StepDecCollar
 /-!
 # The class chain at the collar towers, one threshold for every scale, the constant `B` explicit (`StepTowerNewLevelE0CollarUniform`)
 
-`e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB`: `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB` (at `Tk`, `δ₁ = min Tk.t (η ε_k)`).
+`e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi`: `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform` with the constant `B` of the conclusion bounded as in `e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi` (at `Tk`, `δ₁ = min Tk.t (η ε_k)`).
 -/
 
 @[expose] public section
@@ -27,7 +27,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The class chain at the collar towers (one threshold for every scale), with `B` bounded by an explicit constant. -/
-theorem e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB (m₀ : ℕ) {A₁ : ℝ}
+theorem e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi (m₀ : ℕ) {A₁ : ℝ}
     (hA : 0 < A₁) (p : ℕ) {q α : ℝ} (hq0 : 0 < q) (hq1 : q < 1) (hα : 2 * α < 1) :
     ∃ (κmin : ℝ) (_ : stepHullMin ≤ κmin) (T₀ : StepTower κmin) (κdec Q F η : ℝ),
       4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T₀.κ ∧
@@ -135,9 +135,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB (m
           1 / (8 * (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
             rootUnionK 3 3 1 Tk.m₁ Tk.κ0) ^ 3 * c1 3 3 *
             Real.exp (((2 * Tk.κdec - 1) - 2 * Tk.κ0) * cG 3 3 + c1 3 3 + Tk.κ' * cG 3 3))) →
-      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
-        B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
+      (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+      (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
           rootUnionK 3 3 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
           (corrF0 Tk k β p₁ * K0 3 3 Tk.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ 3 * P.E₀ *
@@ -146,7 +147,10 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB (m
           Real.exp ((2 * Tk.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
             ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) / (2 * (min Tk.t (η * ε k) / (4 * decMR Tk k (β * 3 ^ k) p₁))) *
               (((nFibre 3 3 : ℕ) : ℝ) * Real.exp ((2 * Tk.κdec - 1) * cBr 3 3)) * K0 3 3 Tk.κ0 +
-            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (Tk.κ0 * cBr 3 3) * K0 3 3 Tk.κ0) ∧
+            ((nFibre 3 3 : ℕ) : ℝ) * Real.exp (Tk.κ0 * cBr 3 3) * K0 3 3 Tk.κ0) → Φ e B) →
+      ∃ e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+        Φ e B ∧
         (∀ T' : Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
             Set.univ),
           AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν Tk.t) ∧
@@ -178,7 +182,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_explicitB (m
     fun c₁ hc₁ => ?_⟩
   have hcR : 0 < min 1 η * c₁ := mul_pos (lt_min one_pos hη) hc₁
   obtain ⟨β₀, hβ₀, H⟩ :=
-    e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_explicitB m₀ hlo T₀ hκ₀ hrate₀ hA p hcR hα
+    e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi m₀ hlo T₀ hκ₀ hrate₀ hA p hcR hα
   refine ⟨β₀, hβ₀, fun ε hε hpos hgap hlow h1 k hk => ?_⟩
   obtain ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hC, hFl, hroom⟩ :=
     Hsc ε hε hpos hgap h1 k
