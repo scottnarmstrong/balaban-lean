@@ -39,6 +39,50 @@ theorem closure_requirement {A₁ A₂ B₀ b₁ Γ E₀ : ℝ} (hΓ : 0 ≤ Γ)
     linarith
   linarith
 
+/-- **The numerical closure.**  Let `B ≤ C_PE (f₀ K₀ + Q₁ E₀/(2R) N₁ K₀ + N₂ K₀)` (the explicit
+constant of the class chain with `Q = Q₁ E₀` the class amplitude, `f₀ = corrF0 ≤ 1`, `R = corrR`),
+`E₀ = 2 Γ (A₁ + C_PE (K₀ + N₂ K₀))`.  If `R ≥ C_PE Q₁ N₁ K₀ Γ` and `U Q₁ E₀ ≤ 2 S R`, then
+`(A₁ + B) Γ ≤ E₀` (the requirement of `hsum`) and `(U/(2R)) Q₁ E₀ ≤ S` (the smallness premise of the
+chain, `S = 1/(8 K_c³ c₁ e^{…})`). -/
+theorem closure_numeric {A₁ B cpe f0 K0 Q₁ Nf₁ Nf₂ Γ R U S E₀ : ℝ} (hA₁ : 0 ≤ A₁) (hcpe : 0 ≤ cpe)
+    (hK0 : 0 ≤ K0) (hf0 : f0 ≤ 1) (_ : 0 ≤ f0) (_ : 0 ≤ Q₁) (_ : 0 ≤ Nf₁) (hN₂ : 0 ≤ Nf₂)
+    (hΓ : 0 ≤ Γ) (hR : 0 < R)
+    (hE₀ : E₀ = 2 * Γ * (A₁ + cpe * (K0 + Nf₂ * K0)))
+    (hB : B ≤ cpe * (f0 * K0 + Q₁ * E₀ / (2 * R) * Nf₁ * K0 + Nf₂ * K0))
+    (hR1 : cpe * Q₁ * Nf₁ * K0 * Γ ≤ R) (hR2 : U * (Q₁ * E₀) ≤ 2 * S * R) :
+    (A₁ + B) * Γ ≤ E₀ ∧ U / (2 * R) * (Q₁ * E₀) ≤ S := by
+  have hE0 : 0 ≤ E₀ := by
+    rw [hE₀]
+    positivity
+  refine ⟨?_, ?_⟩
+  · set b₁ : ℝ := cpe * Q₁ * Nf₁ * K0 / (2 * R) with hb₁
+    have hb1 : b₁ * Γ ≤ 1 / 2 := by
+      rw [hb₁, div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
+      nlinarith
+    have hB' : B ≤ cpe * (K0 + Nf₂ * K0) + b₁ * E₀ := by
+      refine hB.trans ?_
+      have e1 : cpe * (f0 * K0 + Q₁ * E₀ / (2 * R) * Nf₁ * K0 + Nf₂ * K0) =
+          cpe * (f0 * K0) + b₁ * E₀ + cpe * (Nf₂ * K0) := by
+        rw [hb₁]
+        field_simp
+      rw [e1]
+      have : cpe * (f0 * K0) ≤ cpe * K0 := by
+        have := mul_le_mul_of_nonneg_right hf0 hK0
+        nlinarith
+      nlinarith
+    have h1 : (A₁ + B) * Γ ≤ (A₁ + cpe * (K0 + Nf₂ * K0)) * Γ + b₁ * E₀ * Γ := by
+      have := mul_le_mul_of_nonneg_right (add_le_add_left hB' A₁) hΓ
+      nlinarith
+    have h2 : b₁ * E₀ * Γ ≤ E₀ / 2 := by
+      have := mul_le_mul_of_nonneg_left hb1 hE0
+      nlinarith
+    have h3 : (A₁ + cpe * (K0 + Nf₂ * K0)) * Γ = E₀ / 2 := by
+      rw [hE₀]
+      ring
+    linarith
+  · rw [div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
+    linarith
+
 open Classical in
 /-- **`hsum` of the new level with the closed constant.**  The statement of
 `newLabels_hsum_of_chain_bound'` with `A₂` bounded affinely by `E₀`: `A₂ ≤ B₀ + b₁ E₀`, `b₁ Γ ≤ 1/2`,
