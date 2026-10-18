@@ -2701,3 +2701,4 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Sum
 public import Balaban.Inhabited.StepTowerNewLevelE0Bound
 public import Balaban.Inhabited.StepTowerNewLevelE0Marks
 public import Balaban.Inhabited.StepTowerNewLevelE0Labels
+public import Balaban.Inhabited.StepTowerNewLevelE0Act

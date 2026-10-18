@@ -212,6 +212,14 @@ theorem markedIdx_sum_weight_le (hN : L ^ m₀ ∣ N₁) (hL : 2 ≤ L)
     obtain ⟨q, hq, rfl⟩ := Finset.mem_image.1 hY
     exact Finset.mem_image.2 ⟨q, (Finset.mem_filter.1 hq).1, rfl⟩)
 
+open Classical in
+/-- The bridge of the domain of a contributing pair belongs to the bridge family of the root. -/
+theorem bridge_mem_bridgeFamily_of_mem {reads : β → Set (CTorus d L N₁ m₁ K)}
+    {dom : β → Finset (Set (CTorus d L N₁ m₁ K))} {z : RootIdx d L N₁ m₁ K}
+    {q : β × Set (CTorus d L N₁ m₁ K)} (hq : q ∈ markedIdx reads dom z) :
+    bridge m₀ z q.2 ∈ bridgeFamily m₀ reads dom z :=
+  Finset.mem_image.2 ⟨q, hq, rfl⟩
+
 end Sum
 
 end Balaban.Fluctuation
