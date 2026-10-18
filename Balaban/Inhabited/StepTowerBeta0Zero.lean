@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.StepTowerBeta0Src
+public import Balaban.Inhabited.StepTowerRotZero
 public import Balaban.Inhabited.ZeroSourceActivityCommon
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -140,79 +141,10 @@ theorem zeroSourceActivity_common_fromTower_agree {κmin : ℝ} (T₀ : StepTowe
                 Nonempty (InterpMarks S.nuFl (S.blockSplit 1 hp)
                   (S.WoneC (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))) (fun _ _ => (0 : ℂ))))
   := by
-  classical
-  obtain ⟨β₁, M₁, M₂, hβ₁, hM₁, hM₂, hamp⟩ :=
-    StepTowerG.srcAmp_agree T₀.toG hA p hc (alpha_three_cast hα)
-  have hθ0 := (stepOutputPhysical T₀ hHull).theta_pos
-  obtain ⟨β₂, hβ₂, hinv⟩ := exists_beta0_inv_t_le (d := 3) (L := 3) (by norm_num) le_rfl
-    (M₁ := 2 * M₁) (M₂ := 2 * M₂) (η := (stepOutputPhysical T₀ hHull).theta) (c := c) (α := α)
-    (3 * p) (by positivity) (by positivity) hθ0 hc (alpha_three_cast hα)
-  refine ⟨max β₁ β₂, hβ₁.trans (le_max_left _ _), ?_⟩
-  intro T hm₁ hBG hBG₂ hκ k hk N₁ _ h3N hN ν hνpos hν β hβ hct p₁ hp0 hp₁ q hq0 hq D S hS hp
-  have hβ1 : β₁ ≤ β := (le_max_left _ _).trans hβ
-  have hβ2 : β₂ ≤ β := (le_max_right _ _).trans hβ
-  have hβ3 : 3 ≤ β := hβ₁.trans hβ1
-  obtain ⟨h0, hdec, h'⟩ := StepTower.agree_rates T₀ T
-  have hctG : c * ((3 : ℕ) : ℝ) ^ (-(α * ((k : ℝ) + 1))) ≤ T.t := by
-    rw [radius_three_cast]; exact hct
-  have hp₁G : p₁ ≤ pLog A₁ p (β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2))) := by
-    rw [scale_three_cast]; exact hp₁
-  have hρ : 0 < (1 : ℝ) := one_pos
-  have hβρ : max 1 (1 : ℝ) ≤ β := max_le (by linarith) (by linarith)
-  -- the amplitude
-  have hamp' := hamp T.toG rfl hm₁ hBG hBG₂ hκ k hk N₁ ν β hβ1 hctG p₁ hp0 hp₁G q hq0
-    (T.toG.step k hk N₁ ν β p₁) rfl
-  rw [scale_three_cast] at hamp'
-  obtain ⟨val, 𝒴, Tt, hval, -, hcont, hI, hmem0, -, -⟩ :=
-    sourceDirectTerms_scale_fromTower_ray_rho T k hk N₁ h3N hN ν hνpos hν β 1 hρ hβρ p₁ q hq0 hq
-      D S hS hp
-  obtain ⟨Jr, I, h𝒴, hT, hF, hεU, hεpos, H⟩ := activityFamilyAnalytic_of_witness_rho T k hk N₁
-    h3N ν hνpos hν β 1 hβρ p₁ hp0 q hq0 hq D S hS hp val 𝒴 Tt hval hcont hI hmem0
-  obtain ⟨A, hAeq, han, hcontA, -, -, hW1, hW2, hS1, -, -, -, -, -⟩ := H T.marks_K0_le
-  have hε4 : 4 * (S.β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-            (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (q / S.β)) ≤
-        M₁ / T.t * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
-          q * M₂ * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) := by
-    subst hS
-    exact hamp'.2
-  have hb3 : 0 < β * 3 ^ k := by positivity
-  have hθeq : (stepOutputPhysical T hHull).theta = (stepOutputPhysical T₀ hHull).theta := by
-    have e : ∀ U : StepTower κmin, (stepOutputPhysical U hHull).theta =
-        stepTheta 3 3 (2 * (K0 3 3 U.κ0 + 1) + max (2 * K0 3 3 U.κ0)
-          (rootUnionK 3 3 1 U.m₁ U.κ0)) (2 * U.κdec - 1) U.κ0 U.κ' := fun U => rfl
-    rw [e T, e T₀, h0, hdec, h', hm₁]
-  have hβ' : ∀ ε : ℝ, ε ≤ 2 * (M₁ / T.t) * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
-      2 * (1 * M₂) * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) →
-      ε ≤ (stepOutputPhysical T hHull).theta ∧
-      ε ≤ stepTheta 3 3 T.marksKc' (2 * T.κdec - 1) T.κ0 T.κ' := by
-    intro ε hε
-    have hs : 0 < Real.sqrt (β * 3 ^ k) := Real.sqrt_pos.2 hb3
-    have hℓ : 1 ≤ Real.log (β * 3 ^ k) := by
-      rw [Real.le_log_iff_exp_le hb3]
-      have h3k : (1 : ℝ) ≤ 3 ^ k := one_le_pow₀ (by norm_num)
-      have : β ≤ β * 3 ^ k := le_mul_of_one_le_right (by linarith) h3k
-      exact (Real.exp_one_lt_three.le.trans hβ3).trans this
-    have hw : (Real.log (β * 3 ^ k)) ^ p ≤ (Real.log (β * 3 ^ k)) ^ (3 * p) :=
-      pow_le_pow_right₀ hℓ (by omega)
-    have hw0 : 0 ≤ (Real.log (β * 3 ^ k)) ^ p := by positivity
-    have hinv' := hinv k β T.t hβ2 hctG
-    rw [scale_three_cast] at hinv'
-    have h1 : 2 * (1 * M₂) * (Real.log (β * 3 ^ k)) ^ p / Real.sqrt (β * 3 ^ k) ≤
-        2 * (1 * M₂) * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) :=
-      div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hw (by positivity)) hs.le
-    have e1 : (2 * M₁ / T.t + 2 * M₂) * Real.log (β * 3 ^ k) ^ (3 * p) / Real.sqrt (β * 3 ^ k) =
-        2 * (M₁ / T.t) * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) +
-        2 * (1 * M₂) * (Real.log (β * 3 ^ k)) ^ (3 * p) / Real.sqrt (β * 3 ^ k) := by ring
-    have hθ : ε ≤ (stepOutputPhysical T hHull).theta := by
-      rw [hθeq]
-      linarith
-    exact ⟨hθ, hθ.trans (StepTower.marks_theta_le_stepTheta T hHull)⟩
-  obtain ⟨h1, h2, h3, h4, h5⟩ := T.toG.zeroSourceActivity_common_of_witness_rho
-    (stepOutputPhysical T hHull) p (CE := M₁ / T.t) hM₂ 1 hρ k hk N₁ (by simpa using h3N) ν hνpos
-    (by simpa using hν) β hβ3 (β * 3 ^ k) (by norm_num) hβ' p₁ hp0 q hq0 hq
-    (StepTower.scaleDataG_of_fixed T D) (rhoSepG_three _).symm S
-    (by rw [hS]; exact (StepTower.toG_step_heq T k hk N₁ ν β p₁).symm) hp val I hF hεU hεpos hε4
-    Jr ⟨A, hAeq, han, hcontA, hW1, hW2, hS1⟩
-  exact ⟨Jr, val, I, hF, hεU, hval, h1, h3, h4, h5⟩
+  obtain ⟨β₀, h3, H⟩ := zeroSourceActivity_common_fromTower_agree_rot T₀ hHull hA p hc hα
+  refine ⟨β₀, h3, fun T hm₁ hBG hBG₂ hκ k hk N₁ _ h3N hN ν hν0 hν β hβ hct p₁ hp0 hp₁ q hq0 hq D S hS
+    hp => ?_⟩
+  exact (H T hm₁ hBG hBG₂ hκ k hk N₁ h3N hN ν hν0 hν β hβ hct p₁ hp0 hp₁ q hq0 hq D S hS hp).imp
+    fun _ => Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ => Exists.imp fun _ h => h.2
 
 end Balaban.Inhabited

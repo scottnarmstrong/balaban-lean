@@ -153,7 +153,14 @@ theorem e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_phi (m�
       (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := Tk.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`
+        (∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+          ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
+          (θ'.1 : RawData 3 3 (N₁ * 3 ^ Tk.m₁) (k + 1) 2) =
+            rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ Tk.m₁) (k + 1) 2) →
+          ∀ T', e θ' T' = e θ T') →
+        B ≤ CPE 3 3 (2 * (K0 3 3 Tk.κ0 + 1) + (K0 3 3 Tk.κ0 + rootUnionK 3 3 1 Tk.m₁ Tk.κ0) +
           rootUnionK 3 3 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
           (corrF0 Tk k β p₁ * K0 3 3 Tk.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ 3 * P.E₀ *

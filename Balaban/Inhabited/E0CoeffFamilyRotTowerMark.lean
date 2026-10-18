@@ -40,6 +40,59 @@ theorem markRadius_of_ray {X cψ p₁ r t : ℝ} (hp : 0 ≤ p₁) (hr : 0 < r) 
       mul_le_mul_of_nonneg_right hu.le (by positivity)
     nlinarith [mul_nonneg hX.le hp]
 
+section General
+
+variable {d L N N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+
+/-- **Spin covariance of the mark family at the clamp radius, from the ray margin.**  The one core
+behind the marks of the general tower and of the fixed tower `d = L = 3`, `N = 2` (the two mark
+families agree by `e1MarkGParamG_three`): `e1MarkGParamG_rot` at `ρ = cψ = S.p₁`, where the
+condition on the marks of the disc `‖u‖ < 17/16` follows from the ray margin `(2·2 + r) p₁ < c`
+and the fluctuation radius `√N ‖β^{-1/2}‖ C_cov c < ε`. -/
+theorem e1MarkGParamG_rot_of_ray (S : StepSetting d L N₁ m₁ k N ϱ)
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {c BG κ Kc Cx c₂ BG₂ eps : ℝ}
+    (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ eps) (hk : 1 ≤ k)
+    (hG : IsLevel Hm k)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (hF₁ : ∀ b, ∀ (s : DecParams S.G') (D : BgData S.G' N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC S.G' (bgC0 d L N) (c7 d L N BG κ) S.ν D → ∀ (φ : S.G'.Ω 1 × Fin N → ℂ)
+        (α : S.G'.Ω 1 → ℂ), IsDecBg S.G' (compWeight L S.a₁) S.ν (rho4 d L N BG κ) s D φ α →
+        F₁ b (s, rawOf D) = (φ, α))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (hSol : ∀ b, SolSpec S.G' Hm S.a₁ S.ν BG BG₂ κ eps eps (Sol b))
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) (e : Rn N ≃ₗᵢ[ℝ] Rn N)
+    (he : ∀ x : Rn N, e x = WithLp.toLp 2 (Q *ᵥ x.ofLp))
+    (hp : 0 < S.p₁) {r cψ' : ℝ} (hr : 0 < r) (ht : 0 < eps)
+    (hray : (2 * 2 + r) * S.p₁ < cψ')
+    (hfl : Real.sqrt N * (‖(((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))‖ *
+      (covSupConstC d L N (compWeight L S.a₁ k) κ * cψ')) < eps)
+    (z : RootIdx d L N₁ m₁ (k + 1)) (θ θ' : physParam N S)
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps)
+    (hθθ' : (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) =
+      rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N))
+    (Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ)
+    {Φ : ∀ b, (S.blockSplit 1 hp).Ωb b} (hΦc : Φ ∈ physCarrier S 1 hp) :
+    e1MarkGParamG S F₁ Sol S.p₁ hp z eps θ' Y' u (fun b x => e (Φ b x)) =
+      e1MarkGParamG S F₁ Sol S.p₁ hp z eps θ Y' u Φ := by
+  refine e1MarkGParamG_rot S hC hk hG (cψ := S.p₁) hp.le hMX hmar hα hsm F₁ hF₁ Sol hSol hQ e he
+    le_rfl le_rfl hp ?_ z θ θ' hθ hθθ' Y' u hΦc
+  intro u' hu'
+  have h := markRadius_of_ray (X := Real.sqrt N * (‖(((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))‖ *
+      covSupConstC d L N (compWeight L S.a₁ k) κ)) (cψ := cψ') (p₁ := S.p₁) hp.le hr ht hray
+    (by convert hfl using 1; ring) hu'
+  nlinarith [h]
+
+end General
+
 variable {d L N : ℕ} [NeZero L] {κmin : ℝ}
 
 /-- **Spin covariance of the mark family at the general tower.** -/
@@ -72,18 +125,11 @@ theorem e1MarkGParamG_rot_tower (T : StepTowerG d L N κmin) {k : ℕ} (hk : 1 �
     e1MarkGParamG S F₁ Sol S.p₁ hp z T.t θ' Y' u (fun b x => e (Φ b x)) =
       e1MarkGParamG S F₁ Sol S.p₁ hp z T.t θ Y' u Φ := by
   subst hS
-  refine e1MarkGParamG_rot (T.step k hk N₁ ν β p₁) D.core hk (T.step k hk N₁ ν β p₁).hG
-    (cψ := (T.step k hk N₁ ν β p₁).p₁) hp.le T.large_block T.dom_margin T.coer_margin
-    T.δc_small F₁ hF₁ Sol hSol hQ e he le_rfl le_rfl hp ?_ z θ θ' hθ hθθ' Y' u hΦc
-  intro u' hu'
-  have h := markRadius_of_ray (X := Real.sqrt N * (‖((((T.step k hk N₁ ν β p₁).betaU ^
-      (-(1 / 2 : ℝ)) : ℝ) : ℂ))‖ * covSupConstC d L N (compWeight L (T.step k hk N₁ ν β p₁).a₁ k)
-      T.κ)) (cψ := lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))))
-    (p₁ := (T.step k hk N₁ ν β p₁).p₁) hp.le D.r_pos T.t_pos D.ray_margin
-    (by
-      convert D.fl_radius using 1
-      have ha : (T.step k hk N₁ ν β p₁).a₁ = 1 := rfl
-      rw [ha]; ring) hu'
-  nlinarith [h]
+  refine e1MarkGParamG_rot_of_ray (T.step k hk N₁ ν β p₁) D.core hk (T.step k hk N₁ ν β p₁).hG
+    T.large_block T.dom_margin T.coer_margin T.δc_small F₁ hF₁ Sol hSol hQ e he hp D.r_pos
+    T.t_pos D.ray_margin ?_ z θ θ' hθ hθθ' Y' u hΦc
+  convert D.fl_radius using 1
+  have ha : (T.step k hk N₁ ν β p₁).a₁ = 1 := rfl
+  rw [ha]
 
 end Balaban.Inhabited

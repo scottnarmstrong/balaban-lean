@@ -66,3 +66,12 @@ direction stencil, direction clause in `ChiDomProp` for k > k₀, complex-source
 (R's output as a gas of removed clusters with decorated couplings, W968 proposal), R5 (`StepData.b_vac`)
 and R6 (birth-mass domains for the inherited levels). Text in `AGENTS.md` ("Author rulings"). No
 frozen declaration changes.
+
+## Rulings R8, CRotE, R7, R5′ (2026-10-18)
+
+Author (Scott Armstrong), 2026-10-18: "go with your recs on R8 and the others." This approves, as recommended
+in `notes/phase1/PLAN-B.md`: R8 (the step's mark, determinant and activity objects generic in an explicit
+background generating set, the current objects the instance `S.G'`), the repair of `Def6v2.CRotE` by the real
+clause and a Cayley path (`notes/phase1/CROTE.md` §4, removing every `hCR`), R7 (the physical base carrier
+`Kphys` of the W1009 handoff), and R5′ (the first vacuum region Z_k^c ∖ Ω_{k+1} of P6 (3.2)). Text in
+`AGENTS.md` ("Author rulings"). No frozen declaration changes.

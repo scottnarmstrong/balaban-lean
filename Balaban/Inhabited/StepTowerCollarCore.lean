@@ -254,7 +254,14 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_phi
       (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`
+        (∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+          ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+          (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+            rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+          ∀ T', e θ' T' = e θ T') →
+        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             εC * (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) / (2 * bb * corrU) *
@@ -369,6 +376,14 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_phi
     (mul_le_mul_of_nonneg_left (hcount Y hY) hf0).trans (by
       rw [← mul_assoc, ← mul_assoc]
       exact mul_le_mul_of_nonneg_right (by rw [mul_assoc]; exact hεC) (Real.exp_pos _).le)
+  have hErotC : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ,
+      rotRaw (cmat Q) r ∈ 𝒮 τ →
+      irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 (rotRaw (cmat Q) r).1
+        (rotRaw (cmat Q) r).2 =
+      irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2 := fun τ Q hQ r hr hr' =>
+    irrelTorus_rot hcl C.m₀ i₀ i₁ (hj1 τ) ((hjk τ).trans (Nat.le_succ k)) (hm ▸ hXp τ) (hy τ)
+      ⟨(isRealOrth_ofReal hQ).1, (isRealOrth_ofReal hQ).2⟩ (hchart τ r hr).1 (hchart τ _ hr').1
+  intro Φ hΦ
   exact HG' C z {τ // τ ∈ 𝒯E} hb₁ hbC
     (fun τ r => irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2) Bτ hBτ hβS
     (fun τ => τ.1.1) XL hj1 hjk Gk Gj
@@ -376,7 +391,8 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar_phi
       (fun x hx => (hag x (hXLsup τ hx)).1) (fun x hx => (hag x (hXLsup τ (Or.inl hx))).2))
     X₀ X₁f 𝒦X hBs hFs hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
     F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc
-    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hmr hsa hnumR hE hεnum
+    hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hmr hsa hnumR hE hεnum Φ
+    (fun e B hc hB => hΦ e B (hc hErotC) hB)
 
 open Classical in
 /-- **The class chain with the irrelevant-part bounds, at every tower radius, at a general
@@ -634,7 +650,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree_collar {κ
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0 Gk Gj X₀ X₁f hX₁ hBs hFs cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
   obtain ⟨e, B, -, h⟩ := @Hφ' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0 Gk Gj X₀ X₁f hX₁ hBs hFs cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
-    (fun _ _ => True) (fun _ _ _ => trivial)
+    (fun _ _ => True) (fun _ _ _ _ => trivial)
   exact ⟨e, B, h⟩
 
 end Balaban.Inhabited

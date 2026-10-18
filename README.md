@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 836,000 lines of Lean (about 650,000 without comments and blank
+As of October 2026, about 849,000 lines of Lean (about 650,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -16,58 +16,13 @@ block it.
 
 ## Where the work stands
 
-As of 18 October 2026. The small-field part of one renormalization step (background fields,
-localization, the fluctuation integral and its expansion, the inductive class of effective actions)
-is largely formalized, for general d, L and N. The remaining work is concentrated in seven blockers,
-described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
-
-- **The large-field gas (blocker 4).** The gas of removed large-field components is bounded from
-  the bound of each removed outcome, summed over histories. The composed window bound is now
-  proved (the intermediate Gaussian variables integrated exactly, the steps' actions summed into
-  the window's, the cancellation identity of P7 (2.58′)), from named P7 source estimates. For the
-  comparison of the steps' actions with the window's, every premise is now proved for the actual
-  pieces (read transport, coefficient, source and pair estimates, with constants uniform in the
-  scale), and so are the stability of the background under a change of generating set (P7 (2.14))
-  and the background hypotheses of the window. Following P7, the pieces and the window are evaluated
-  at one configuration, which gives the window's domain from the pieces' domains; what remains is
-  that the window point's field restricts to the pieces' data, and the link with the reference
-  datum of the cancellation chain. R's output is being written as a gas of removed clusters
-  (ruling R4).
-- **The last integral and the case with no renormalization step (blockers 5 and 1).** The
-  large-field part cannot be one factor per bad block times boundary terms: a good block between
-  two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead expands into
-  linked terms, switched on by a possibly disconnected set of bad blocks and reading a connected
-  region. The gas for such terms is proved (exact identity and activity bound, with the large
-  boundary constant paid by the heavy charge), and so is the bound on the coefficient summed over
-  all linked clusters with a given footprint; their identification with P7's operator is in
-  progress. The first large-field component of the base case has its local pieces; its physical
-  kernel waits on a change of the base carrier (ruling R7).
-- **The general inductive class (blocker 6).** The inherited terms enter through their irrelevant
-  parts (P1 Prop. 3.10). The chain is proved at towers for every scale with one threshold β₀: the
-  step radius follows the class radius (t_k = ε_{k+1}), the fluctuation radius is separate, and the
-  collar is the papers' wider one, so the step's chart covers the next class's chart while the
-  inherited terms keep room in their domains (with the narrower collar used before, the two are
-  proved incompatible). The filed torus defect is bounded at every centre.
-- **Two tori (blocker 7).** The clause at the gap scales is proved at the tower, on one family of
-  tori of every size, with the energy, determinant and observable terms tied to the step terms and
-  the geometry proved. What it takes as input is the agreement of the earlier scales' data on two
-  tori (the induction over scales); for Root-F, the sum over roots and the inherited terms remain.
-- **From one step to the next (the backbone).** The old terms are transported to the next scale's
-  torus, and on domains frozen at each level's birth mass (ruling R6) they keep all the clauses of
-  the class, including torus independence and the renormalization conditions. The step's large-field
-  data carry the vacuum constants of the step that created each region (ruling R5). For the new
-  level, the labels from the chain, the sum of their bounds (every class rate κ ≤ 1/5 at d = L = 3)
-  and the covariance of its densities under the full symmetry group are proved; its terms on the
-  local charts of each polymer, the closure of its energy constant and the counterterms of P4
-  (4.14)–(4.22) remain. Root-C's coefficient flow is
-  formalized for the parts that do not depend on the next class.
-- **Blockers 2 and 3.** The change of background along the flow is being implemented (ruling R2:
-  separate background and cutoff masses, extended direction tests, complex sources). For old
-  boundary terms across a long hole, the sufficient condition is proved in exponent arithmetic; its
-  physical producer needs the linked construction of the last integral.
-
-We no longer wait for the author's answers to source questions: where the papers are ambiguous we
-choose a reading and prove what it needs ([`notes/phase1/PLAN-B.md`](notes/phase1/PLAN-B.md)).
+The small-field part of one renormalization step (background fields, localization, the fluctuation
+integral and its expansion, the inductive class of effective actions) is largely formalized. What
+remains is concentrated in seven mathematical blockers and in joining the steps into the full flow.
+[docs/BLOCKERS.md](docs/BLOCKERS.md) describes each blocker and where it stands, and
+[docs/PROGRESS.md](docs/PROGRESS.md) gives the estimated completion by section with a dated log.
+Where the papers are ambiguous we choose a reading and prove what it needs
+([notes/phase1/PLAN-B.md](notes/phase1/PLAN-B.md)).
 
 ## The mathematics
 

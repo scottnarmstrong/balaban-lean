@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityFamilyTower
 public import Balaban.Inhabited.StepTowerBeta0Class
+public import Balaban.Inhabited.StepTowerRotLabels
 
 /-!
 The class chain with the label families general, at every tower radius
@@ -297,7 +298,7 @@ theorem e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad {κmin : ℝ
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  obtain ⟨β₀, hβ₀, H⟩ := e0CoeffFamily_class_fromTower_agree T₀ hA p hcR hαR
+  obtain ⟨β₀, hβ₀, H⟩ := e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad_rot T₀ hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt S hS hp
   obtain ⟨F₁, Sol, H'⟩ := H T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt S hS hp
@@ -307,18 +308,8 @@ theorem e0CoeffFamily_class_fromTower_of_labels_gen_onSet_agree_pad {κmin : ℝ
     hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk
     h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ y1 hy1 pad hpad
     hE hAhol hAcont hAdiff hAloc hW hεpos hKc hκG hκH hε
-  obtain ⟨F1, hF1eq, hF1, hmeas, hdep, hbd, hhol, hcont, hdiff, hloc, hroot, hid⟩ :=
-    Jr.classMarks_M2_of_family_gen_onSet_pad (h𝒮 := h𝒮)
-        C hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB
-      hF hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁
-      SolL hSolan hSolprop FkL hFkan hFk (fun τ => hSg τ ((hjk τ).trans (Nat.le_succ k))) hc7 hR
-      hsmR hRs hsmall hnum hnum' hN hm1 le_rfl
-      (by norm_num) z hρ hρc hρpp hp (by norm_num [corrU]) hbb hab G₁ hG₁ hEJ hρp hE Lab
-      (fun _ => Set.univ) (e1Dom S)
-      (by simpa using h3N) (e1Dom_isDj_of_eq T Dt hS) y1 hy1 (2 * T.κdec - 1) pad hpad
-  exact ⟨F1, hF1eq, H' Jr C z Lb Lab εH κH Kc A _ y1 G₁ F1 hE hAhol hAcont hAdiff hAloc hW hmeas hdep hbd
-    hhol hcont hdiff (fun T' θ hθ θ' hθ' hres s hs j hsub => hloc _ θ hθ θ' hθ' hres s hs j hsub)
-    hroot hid hF1 hεpos hKc hκG hκH hε⟩
+  obtain ⟨F1, hF1eq, c, e, h1, h2, h3, h4, -⟩ := @H' Jr C z Lb _ Lab εH κH Kc A ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hF cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ y1 hy1 pad hpad hE hAhol hAcont hAdiff hAloc hW hεpos hKc hκG hκH hε
+  exact ⟨F1, hF1eq, c, e, h1, h2, h3, h4⟩
 
 open Classical in
 /-- The class chain with the label families general, at every tower radius -/

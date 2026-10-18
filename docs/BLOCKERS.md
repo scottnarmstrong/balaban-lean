@@ -24,19 +24,23 @@ The last section lists the problems that have been resolved since the project st
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum); the window conversion now rests on one design point, the window's field off the pieces |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain; the singleton-gas reading of the large-field part is refuted by an example, and the linked gas of P7 (4.11) is being built |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); old terms keep their birth domain (R6); the chain is proved at towers for every scale with one β₀ and the papers' collar, with the filed torus defect bounded at every centre; the new level's labels, the sum of their bounds and the covariance of its densities are proved; its terms on the local charts, the closure of its energy constant and the counterterms remain |
-| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; at the scales just below the last no floor is needed for supports of radius below ℓ/20, and the clause holds on the whole quarter box given the closeness of the inherited terms, with the induction over the gap scales (proved in abstract form); proved at the tower on one family of tori of every size (W1021); the induction over scales and the sum over roots remain |
+| 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; proved at the tower on one family of tori of every size; one family over all tori needs exact two-torus agreement of the terms of small polymers, now proved for the coefficients of a step and being carried to the next class; the induction over scales and the sum over roots remain |
 
 ## Proceeding without the author's answers
 
 Several blockers carry questions to the author. We no longer wait for them: the two main theorems are
 statements about the model, so any construction that proves them is acceptable. Where the papers are
 ambiguous we choose a reading, record it, and prove what it needs; an answer, if it comes, becomes a
-check. Some of these choices change approved definitions and wait for a ruling (blocker 2's route; the representation of the
-large-field output as a gas and the vacuum clause of the step data in blocker 4). Opening new regions with aligned blocks
+check. Choices that change approved definitions are approved by the author first; all those asked so far are approved
+(recorded in `AGENTS.md`, "Author rulings"): blocker 2's route, the representation of the large-field output as a gas and
+the vacuum clause of the step data (blocker 4, with the vacuum region of P6 (3.2)), the birth-mass domains of the
+inherited levels, the physical carrier of the first large-field step (blocker 1), the computation of the new level's
+terms with local generating sets (blocker 6), and the repair of a complex-rotation hypothesis that the audit of the
+definitions found to be a hidden proof step. Opening new regions with aligned blocks
 was checked and does not close blocker 3: it breaks the Euclidean covariance of the coefficients, and a completed hole
 still has positive length between two active attachments.
-The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Focused analyses (astra sessions, one per open question) are running on every blocker; their notes are in
-[`notes/phase1/astra/`](../notes/phase1/astra/).
+The plan, blocker by blocker, is in [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md). Earlier focused analyses of the
+open questions are in [`notes/phase1/astra/`](../notes/phase1/astra/).
 
 A finding that concerns all blockers: the step tower produces the setting of each step but not yet the class of the
 next step (its terms, vacuum energy and family over tori). Many results above are proved for a given class; feeding the
@@ -267,6 +271,12 @@ and the window's domain follows from the pieces' domains with no loss (W1074). T
 premise and no premise on the window's domain. Two links remain: that the window point's field restricts to each
 piece's data, and the connection with the reference datum used by the cancellation chain.
 
+The first is proved (W1082). The second exposed an error: the reference datum of the cancellation chain is zero on
+the collar of the window, so it is not in the real domain there (W1085), and the chain's hypothesis cannot hold when
+the collar is nonempty. The collar ruling (`notes/phase1/COLLAR-RULING.md`) already fixes the correct choice; the
+chain is being restated with that collar data, and the comparison of the two window actions then reduces to a change
+of mass and of external field (W1086).
+
 ## 5. The cut family for the last integral
 
 The final fluctuation integral (P7 §4, with the covariance of P4 (6.4)–(6.6)) must be localized. The
@@ -477,6 +487,15 @@ class rate κ ≤ 1/5 at d = L = 3 (W1065, W1067). Remaining for the new level: 
 polymer (W1073: the polymer must be the hull of the labels' read set, and the terms must be carried from the step's
 chart to the local chart; in progress), the closure of its energy constant, and the counterterms of P4 (4.14)–(4.22).
 
+Update (18 October, night). The closure of the energy constant is proved (W1068) on one chain that carries any
+property of the coefficients from the core to the final theorem; the coefficients are invariant under spin rotations
+label by label (W1078, W1083). The renormalized field lies in the step's chart at the towers, and the second-order
+counterterms apply there (W1079, W1080). The local charts cannot be reached from the step's chart: a local field can
+wind around a hole of the polymer, which no field on the whole torus can do (W1081). As in P3 (4.44)–(4.47), the new
+level's terms must be computed with the local generating set; the step's mark, determinant and activity objects are
+written for the step's own generating set, and generalizing them is ruling R8, approved (`notes/phase1/PLAN-B.md`). The
+determinant and the zero-source activities on local sets, which need no ruling, are in progress (W1084).
+
 ## 7. Reading of the torus-independence clause
 
 The main theorem says that the terms on two tori agree on supports A in the box |y_μ| < min(ℓ, ℓ')/4
@@ -568,6 +587,15 @@ points remain: Root-F fixes its terms before the pair of tori, whereas the tower
 torus of a finite family, so one family of terms valid for all tori must be built (for instance as a limit over tori
 on compact supports); and Root-F's terms depend on the source only on X, which needs the resummation of the
 observable part alone.
+
+Update (18 October, night). The canonical torus of the tower's resummation cannot be chosen over all tori at once:
+its defining condition forces the size parameter to be bounded, because a one-site polymer lies in every torus. So
+one family of terms valid for all tori needs the terms of small polymers to agree exactly on two tori, not only to
+be close. That exact agreement is now proved for the coefficient family of a renormalization step: on two tori, the
+coefficients of a cube set agree whenever the data agree on a box of radius R + 3L^{k+1} around it, with one
+threshold β₀ for both tori (from the two-torus identities of the decoupled background, fluctuation and covariance).
+It is being carried from the step to the class of the next scale; the induction over scales, the source term
+⟨g, φ_k − h⟩ at later scales and general d, N remain.
 
 ## Large pieces of work that are not blockers
 

@@ -143,7 +143,14 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi (m₀
       (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`
+        (∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+          ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+          (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+            rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+          ∀ T', e θ' T' = e θ T') →
+        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
@@ -281,7 +288,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar_phi (m₀
     (fun _ => hSolprop) FkL hFkan hFkeq (fun τ => h𝒮 τ (FkL τ) (hFkeq τ)) p₁ hp0 le_rfl
     (by linarith) (corrR T' k (β * 3 ^ k) p₁)
     hRpos hab _ (fun _ _ _ _ => rfl) le_rfl _ rfl _ (fun _ _ _ _ => rfl) εC hεC0 hmr0 hsa
-    hεCdef.ge hE (max_le hfirst (by rw [← hεCdef] at hεnum; exact hεnum)) Φ (fun e B hB => hΦ e B (by
+    hεCdef.ge hE (max_le hfirst (by rw [← hεCdef] at hεnum; exact hεnum)) Φ (fun e B hc hB => hΦ e B hc (by
       have hane : δ₁ / (2 * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
       ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ)) ≠ 0 := by positivity
       rw [eps_cancel corrU_pos.ne' hane hεCdef] at hB
@@ -425,7 +432,7 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar (m₀ : �
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum
   obtain ⟨e, B, -, h⟩ := @HG 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum
-    (fun _ _ => True) (fun _ _ _ => trivial)
+    (fun _ _ => True) (fun _ _ _ _ => trivial)
   exact ⟨e, B, h⟩
 
 end Balaban.Inhabited

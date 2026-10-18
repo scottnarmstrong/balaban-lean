@@ -77,6 +77,25 @@ provider, and nothing may import a root, until the root is sealed.
   is re-proved for the new carrier (`notes/phase1/astra/SFFAM.md` Part 3).
   Every new or changed definition lands with an independent audit against its source.
 
+- **Rulings R8, CRotE, R7, R5′ (2026-10-18, Scott: "go with your recs on R8 and the others").** Approved as
+  recommended in `notes/phase1/PLAN-B.md`:
+  (R8) the step's mark, determinant and activity objects (`decMarkG`, `decMarkCorr`, `decMarkCorrTerm`,
+  `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`) are made generic in an explicit
+  background generating set, the current objects being the instance `S.G'`, so that the new level's terms are
+  computed with the local generating set of each polymer (P3 pp. 78–79, (4.44)–(4.47); P6 §4.1–4.4).
+  (CRotE) the defect of `Def6v2.CRotE` (`notes/phase1/AUDIT-DEFS-1018.md`) is repaired now as in
+  `notes/phase1/CROTE.md` §4: the four complex-rotation call sites use the real clause `rotE` with a Cayley
+  path for bounded-entry matrices (`rotE_of_near`, `exists_cay_path_near`, `rotE_of_cay_path`), and every
+  `hCR`/`CRotE` hypothesis is removed; `CRotE` is then deleted if nothing uses it.
+  (R7) the physical base carrier of `BaseSmallFieldInput` is specialized to M = K = 1 with
+  `a := H.localHistory 1 1 1 Z'` and a primary field `Kphys` on the history, component, base record, raw
+  collar spins, complex source and local variables (W1009 handoff, "Exact carrier change"), with an
+  extensionality field for the raw sites read; the source-free real factor and the per-witness complex
+  factorization become theorems on their nonvanishing domain, the source reindexing an explicit lemma, and the
+  carrier's exact definition receives the independent source audit before it is populated.
+  (R5′) the first region of `StepData.b_vac` is that of P6 (3.2): E_k|Z_k^c ∖ Ω_{k+1}|_k (replacing
+  E_k|Z′∖Z_k∖Ω_{k+1}|_k); the other two regions are unchanged (W1062: `stepVacuumVolume`).
+
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
   finite volume on tori with bounds uniform in the volume, infinite volume only in the final
