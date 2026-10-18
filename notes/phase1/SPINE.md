@@ -429,6 +429,37 @@ asks for some activities, so A6-3 is stronger than strictly needed. This is the 
 reading in LastIntegralInput's docstring. If the Lean class's `ℳ^{(j)}` at the constant configuration were not the source object
 (open item (a) of A6-1), A6-3 would have to change with it.
 
+## FrozenStepInput sub-inputs (W1114)
+
+**PROVED** (`Balaban/Spine/FrozenStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem frozenStepInput_of_parts (hSF : FrozenSFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hQ : FlowRateInput T P6) : FrozenStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+```
+It follows LFR Thm IV.2.2 (LF-5). The source has **no operation `R`** above `k₀` (clause (c): "no hull, no `R`"), so there is
+no frozen analogue of `RInput`: the step is LF-5's small-field half, then the coefficient step. Threshold: that of `hSF`.
+
+1. **`FrozenSFStepInput` (LF-5; LFR Thm IV.2.2 (a)–(f); P5/P6 Thm 4 repaired; P4 Thm 1, FLUCTUATION Thm 5.3, Lemma 2.9 for the
+   switch at `k = k₀`).** For `max(k₀,1) ≤ k < k̂_f`, `ρ ∈ FlatClassAt k`, `ν_k L² ≤ 7/8`: `ρ'` in `FlatPreAt (k+1) k X`,
+   i.e. `IsRepFlat2` at `k + 1`, `β_0 = β`, `ν_0 = ν`, (I.2) up to `k` only, `LFCoherent`, running mass at the scale `k`
+   equal to `ν_k` (`X = (ν_k^{new} = ν_k)`), and `IntegralStep ρ ρ'`. The flow relation (H.6) at `k + 1` is `IsRepFlat2.sfData.coeff`.
+   Open: all of it (same status as `SFStepInput`: the small-field step on complete backgrounds; (H6♭) at `K = k̂_f + 1` needs
+   LF-2 (ii) truncated at `k + 1`; the R6 birth-mass domains, see the ClassStepInput section).
+2. **`FlowRateInput`** (reused from `Spine/ClassStep.lean`): `c₈ q ≤ (1 - q)/20`.
+
+Proved inside:
+* (I.2) at `k + 1`: `runningHypTo_succ_of_coeffBounds_core` (ClassStep's lemma with the hypothesis `P.Admissible` replaced by
+  `γ > 0`, `c₈ > 0`; `runningHypTo_succ_of_coeffBounds` is now its instance), applied at `massOne P6` to `sfData.coeff`;
+* the mass bound (D9♭) `ν_{k+1} ≤ 9/10`: `nu_succ_le_of_coeffBounds`. `ν_{k+1} = ν_k L² (1+ξ₃)/(1+ξ₂)` (`Flow.nuSeq`), `|ξ^{(k)}| ≤
+  (c₈/4) q^{k+1} ≤ 1/80` from `c₈ q ≤ (1-q)/20`, so `ν_{k+1} ≤ (81/79) ν_k L² ≤ (81/79)(7/8) < 9/10`. `ν_k > 0` from `D9Flat`.
+
+Refactor of a landed definition body: `FlatRep` (`Spine/RootFInputs.lean`) is now `FlatRepGen … k (fun _ => νk ≤ 9/10)`, where
+`FlatRepGen` has the scale `r` of (I.2) and the closing clause `X F.sf.ν` as parameters. `FlatRep` and `FlatClassAt` have the
+same statements (defeq), no dependent file changed.
+
+Rule 10: `flatPreAt_witness` (from `flatClassAt_witness` via `FlatClassAt.toFlatPreAt`); `FlowRateInput`: `flowRateInput_of_lower`.
+`FrozenSFStepInput` needs the exemption of the seven inputs.
+
 ## BaseStepInput sub-inputs (W1110)
 
 **PROVED** (`Balaban/Spine/BaseStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):

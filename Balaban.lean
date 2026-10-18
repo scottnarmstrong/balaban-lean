@@ -2845,6 +2845,7 @@ public import Balaban.Spine.Witness
 public import Balaban.Spine.TransferAnalysis
 public import Balaban.Spine.Transfer
 public import Balaban.Spine.ClassStep
+public import Balaban.Spine.FrozenStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero

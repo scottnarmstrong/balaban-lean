@@ -113,9 +113,10 @@ the scale `k`, start from the bare couplings (`β_0 = β`, `ν_0 = ν`) and sati
 bounds (H.6) of Def-6 at the scale `k + 1` with `c₈ q ≤ ε (1 - q)`, `q = L^{-2γ}`, then they satisfy
 (I.2) up to the scale `k + 1`. The new factors are `γ_{k+1} = γ_k (1 + ξ₃^{(k)})⁻¹` and
 `δ_{k+1} = ν_{k+1}/(ν L^{2(k+1)})`; their positivity comes from `|ξ^{(k)}| ≤ 1/4` and `ν_{k+1} > 0`,
-and their bounds from `Flow.norm_gammaSeq_le`. -/
-theorem runningHypTo_succ_of_coeffBounds {d L : ℕ} {β ν a ε : ℝ} {P : Def6.Consts}
-    {βs νs as : ℕ → ℝ} {k : ℕ} (hP : P.Admissible d L)
+and their bounds from `Flow.norm_gammaSeq_le`. Only `γ > 0` and `c₈ > 0` of the constants are used, so the statement also
+applies to the constants with the mass bound replaced (`massOne`). -/
+theorem runningHypTo_succ_of_coeffBounds_core {d L : ℕ} {β ν a ε : ℝ} {P : Def6.Consts}
+    {βs νs as : ℕ → ℝ} {k : ℕ} (hγ : 0 < P.γ) (hc8₀ : 0 < P.c₈)
     (hε : P.c₈ * Flow.rate (L : ℝ) P.γ ≤ ε * (1 - Flow.rate (L : ℝ) P.γ))
     (hC : Def6.CoeffBounds d L (k + 1) P βs νs as) (hβ0 : βs 0 = β) (hν0 : νs 0 = ν)
     (hrun : RunningHypTo d L β ν a ε βs νs k) :
@@ -125,8 +126,8 @@ theorem runningHypTo_succ_of_coeffBounds {d L : ℕ} {β ν a ε : ℝ} {P : Def
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
   have hq0 : 0 < Flow.rate (L : ℝ) P.γ := Flow.rate_pos hLpos _
-  have hq1 : Flow.rate (L : ℝ) P.γ < 1 := Flow.rate_lt_one hL1 hP.γ_pos
-  have hc8 : 0 ≤ P.c₈ := hP.c₈_pos.le
+  have hq1 : Flow.rate (L : ℝ) P.γ < 1 := Flow.rate_lt_one hL1 hγ
+  have hc8 : 0 ≤ P.c₈ := hc8₀.le
   have hexp : Real.exp (P.c₈ * Flow.ratePartialSum (Flow.rate (L : ℝ) P.γ) (k + 1)) ≤
       Real.exp ε := by
     refine Real.exp_le_exp.2 ?_
@@ -200,6 +201,15 @@ theorem runningHypTo_succ_of_coeffBounds {d L : ℕ} {β ν a ε : ℝ} {P : Def
       exact pos_of_mul_pos_right h hp.le
     exact ⟨δ', hδ'pos, abs_log_le_of_ofReal_eq ed1 hδ'pos (hd1.trans hexp) (hd2.trans hexp),
       hνk1⟩
+
+/-- `runningHypTo_succ_of_coeffBounds_core` for admissible Def-6 constants. -/
+theorem runningHypTo_succ_of_coeffBounds {d L : ℕ} {β ν a ε : ℝ} {P : Def6.Consts}
+    {βs νs as : ℕ → ℝ} {k : ℕ} (hP : P.Admissible d L)
+    (hε : P.c₈ * Flow.rate (L : ℝ) P.γ ≤ ε * (1 - Flow.rate (L : ℝ) P.γ))
+    (hC : Def6.CoeffBounds d L (k + 1) P βs νs as) (hβ0 : βs 0 = β) (hν0 : νs 0 = ν)
+    (hrun : RunningHypTo d L β ν a ε βs νs k) :
+    RunningHypTo d L β ν a ε βs νs (k + 1) :=
+  runningHypTo_succ_of_coeffBounds_core hP.γ_pos hP.c₈_pos hε hC hβ0 hν0 hrun
 
 /-- **(I.2) at the scale of the output of a step.** A member of the pre-`R` class at the scale
 `k + 1` whose running constants satisfy (I.2) up to `k` satisfies it up to `k + 1`, when the

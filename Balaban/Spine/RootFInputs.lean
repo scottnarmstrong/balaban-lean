@@ -141,6 +141,29 @@ def ActAgree (d N L M kf : ℕ)
           (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) -
           p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ')) 0
 
+/-- **The body of `FlatRep` with the scale of (I.2) and the last clause as parameters.** It is
+`FlatRep` with (I.2) asked up to a scale `r` (`RunningHypTo`) instead of `k`, and with the closing
+clause `νk ≤ 9/10` replaced by `X F.sf.ν`, a clause on the running masses of the representation.
+`FlatRep` is the case `r = k`, `X = (νk ≤ 9/10)`. The frozen step (`Spine/FrozenStep.lean`) states
+its small-field output with `r = k` at the scale `k + 1` and `X = (ν_k = the input mass)`. -/
+def FlatRepGen (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
+    (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k r : ℕ)
+    (X : (ℕ → ℝ) → Prop)
+    [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
+    (R : ℕ → ℝ)
+    (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
+    (cs : OpConsts) (P : BudgetConsts)
+    (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
+    (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
+    (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
+  (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
+    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
+    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
+    IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
+      kf hM6 hkK F ρ St vc ∧
+    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r ∧ LFCoherent F ∧ X F.sf.ν
+
 /-- **The body of `FlatClassAt` for given witnesses** `hM6, hkK, R, geo, cs, P, F, St, vc`: the
 representation `F` of `ρ` in `ℛ♭_k` (`IsRepFlat2`, horizon `k̂ = kf`) on the tori of the horizon
 `K = kf + 1`, with the outer constants of the prefix, `β_0 = β`, `ν_0 = ν`, `ν_k = νk`, (I.2) up to
@@ -160,13 +183,8 @@ def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : Bud
     (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
     (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
     (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
-  (∀ (nK : ℕ) [NeZero nK], (geo nK).M1 = M1 ∧ (geo nK).c = c) ∧
-    cs.aKer = cs₀.aKer ∧ cs.Cpsi = cs₀.Cpsi ∧ cs.Cb = cs₀.Cb ∧ cs.aw = cs₀.aw ∧
-    P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
-    IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
-      kf hM6 hkK F ρ St vc ∧
-    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F ∧ νk ≤ 9 / 10
+  FlatRepGen d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ => νk ≤ 9 / 10) hM6 hkK R geo cs P F
+    St vc ρ νk
 
 /-- **The a priori horizon `k̂_f`** (LFR (I.1), D-IV.1): the least `k` with `ν L^{2k+2} ≥ 1`.
 Root-F's `kf` is `k̂_f`; the flow runs on the tori with `M L^{k̂_f + 1} ∣ ℓ`. -/
