@@ -651,6 +651,7 @@ The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.s
    The kernels are unchanged (`b⁰_k = b_k + ` the vacuum term of the flow); the content is `StepData.b0_bound` for these constants: `b⁰_k` is bounded by
    `(C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|_{k+1}` with constants free of `E` (W965 normalization; W968 vacuum). `IsRepPre2` does not carry the tie, hence this
    sub-input; it is a property of the pre-`R` class and uses nothing of `R`.
+   * **W1119 (not provable from `PreRec`).** Retying keeps `ker`, sets `vacE := sf.E j` etc., `b0 := b + vacTerm`; then `b0_bound` reads `‖b_k + (E V + δ″ v₂ + δ‴ v₃)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|`, but `PreRec` carries only `b_bound` for `b_k` and no bound on `E` (`SFData.E : ℕ → ℝ` is indexed by the Def-6 torus `N₁`, the constant `E_k` of the record's one scale `k`; `VacuumTie` reads `E j` at step `j`, so the tie as stated conflates torus index and scale). Needed: a scale-indexed flow `E_j` with `|E_j| ≤ C(log β_j+1)` in the pre-class, or `RVacuumInput` stated on the physical step data (SFStepInput).
    * Landed: `StepData.b_vac`, `stepVacuumTerm`, `stepVacuumVolume` (`stepVacuumVolume_eq_add_excess`), `StepData.VacuumTie`, `VacuumTie.b0_sub_shift`,
      `VacuumTie.removed_weight_shift`, `stepVacuum_removed_*`. Open: the bound of `b⁰_k` at the physical constants (P4 (2.1), (2.41), (2.63), (4.21)).
 1. **`RKeptInput` (kept half; LFR Lemma III.10.5, Def. III.10.6, Thm III.8.9 (a), (b); P7 (1.3)–(1.6)).** For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk`:
