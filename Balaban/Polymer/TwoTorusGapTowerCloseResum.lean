@@ -38,11 +38,11 @@ section Mixed
 variable {d : ℕ}
 
 /-- **The torus clause at a gap scale on a family of tori of all sizes.**  The conclusion of
-`resum_gapScale_torus_of_wideMargin` with `a = 2 B e^{(Kthr/4) lam}` and `t₀ = 0`, for any family
-with `2 ≤ K ℓ`: the wide supports `Wd` (with the chain margin `τ ≤ 7 |X|`) and the exact clause
-`hex` are required only on the tori with `Kthr ≤ K ℓ`. -/
+`resum_gapScale_torus_of_wideMargin` with `a = 2 B e^{(Kthr/4) lam}`, for any family with
+`2 ≤ K ℓ`: the wide supports `Wd` (with the chain margin `τ ≤ 7 |X|`) and the exact clause `hex`
+(at margins `τ ≥ t₀`) are required only on the tori with `Kthr ≤ K ℓ`. -/
 theorem resum_gapScale_torus_mixed {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZero (K ℓ)] (hd : 0 < d)
-    (Kthr : ℕ) (hK2 : ∀ ℓ, 2 ≤ K ℓ) (P : ι → Finset (Finset (Fin d → ℤ)))
+    (Kthr t₀ : ℕ) (hK2 : ∀ ℓ, 2 ≤ K ℓ) (P : ι → Finset (Finset (Fin d → ℤ)))
     (Q : ι → Finset (Fin d → ℤ) → Prop) (sz : Finset (Fin d → ℤ) → ℕ)
     (τ : ι → Finset (Fin d → ℤ) → ℕ) (can : Finset (Fin d → ℤ) → ι) (D : Set G)
     (W : Submodule ℂ (G → ℂ)) (R : Finset (Fin d → ℤ) → Prop)
@@ -64,7 +64,7 @@ theorem resum_gapScale_torus_mixed {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZ
     (hloc : ∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → T ℓ g X = T ℓ g' X)
     (han : ∀ ℓ X, X ∈ P ℓ → (fun g => T ℓ g X) ∈ W)
     (hbd : ∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖T ℓ g X‖ ≤ B * Real.exp (-κ' * (sz X : ℝ)))
-    (hex : ∀ ℓ X, Kthr ≤ K ℓ → X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → ∀ g ∈ D,
+    (hex : ∀ ℓ X, Kthr ≤ K ℓ → X ∈ P ℓ → Q ℓ X → ¬ Wd ℓ X → t₀ ≤ τ ℓ X → ∀ g ∈ D,
       T ℓ g X = T (can X) g X) :
     ∃ Φ : ι → Finset (Fin d → ℤ) → Finset (Fin d → ℤ),
     ∃ Tn : ι → G → Finset (Fin d → ℤ) → ℂ,
@@ -75,8 +75,8 @@ theorem resum_gapScale_torus_mixed {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZ
       (∀ ℓ g, ∑ X ∈ P ℓ, Tn ℓ g X = ∑ X ∈ P ℓ, T ℓ g X) ∧
       (∀ ℓ ℓ' g X, Q ℓ X → Q ℓ' X → Tn ℓ g X = Tn ℓ' g X) ∧
       (∀ ℓ X, X ∈ P ℓ → ∀ g ∈ D, ‖Tn ℓ g X‖ ≤
-        (B + (2 * B * Real.exp (((Kthr / 4 : ℕ) : ℝ) * lam) + 2 * B) * Real.exp κ₂ + 2 * B) *
-          Real.exp (-κ * (sz X : ℝ))) ∧
+        (B + (2 * B * Real.exp (((Kthr / 4 : ℕ) : ℝ) * lam) + 2 * B) * Real.exp κ₂ +
+          2 * B * Real.exp (κ₂ * (t₀ : ℝ))) * Real.exp (-κ * (sz X : ℝ))) ∧
       (∀ ℓ X, X ∈ P ℓ → ¬ R X → ∀ g, Tn ℓ g X = 0) ∧
       (∀ ℓ X, X ∈ P ℓ → ∀ g g', Ag X g g' → Tn ℓ g X = Tn ℓ g' X) ∧
       (∀ ℓ X, X ∈ P ℓ → (fun g => Tn ℓ g X) ∈ W) := by
@@ -91,12 +91,12 @@ theorem resum_gapScale_torus_mixed {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZ
       (hQ ℓ _).1 hQX _ (Finset.mem_image_of_mem _ hb) μ
     obtain ⟨Y', hY', h⟩ := quarterBox_polymer_larger (hK2 ℓ) (hcanK ℓ _ hX hQX) hY hbox
     exact (hP _ _).2 ⟨Y', hY', h.symm⟩
-  have hFclose : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ (Kthr ≤ K ℓ ∧ Wd ℓ X) → 0 ≤ τ ℓ X → ∀ g ∈ D,
+  have hFclose : ∀ ℓ X, X ∈ P ℓ → Q ℓ X → ¬ (Kthr ≤ K ℓ ∧ Wd ℓ X) → t₀ ≤ τ ℓ X → ∀ g ∈ D,
       ‖T ℓ g X - T (can X) g X‖ ≤ 2 * B * Real.exp (((Kthr / 4 : ℕ) : ℝ) * lam) *
         Real.exp (-lam * (τ ℓ X : ℝ)) * Real.exp (-κ₂ * (sz X : ℝ)) := by
-    intro ℓ X hX hQX hw _ g hg
+    intro ℓ X hX hQX hw ht g hg
     by_cases hK : Kthr ≤ K ℓ
-    · rw [hex ℓ X hK hX hQX (fun h => hw ⟨hK, h⟩) g hg, sub_self, norm_zero]
+    · rw [hex ℓ X hK hX hQX (fun h => hw ⟨hK, h⟩) ht g hg, sub_self, norm_zero]
       positivity
     · have hτK : τ ℓ X ≤ Kthr / 4 := by
         rw [hτ]
@@ -121,12 +121,10 @@ theorem resum_gapScale_torus_mixed {ι G : Type*} (K : ι → ℕ) [∀ ℓ, NeZ
         _ = 2 * B * Real.exp (((Kthr / 4 : ℕ) : ℝ) * lam) * Real.exp (-lam * (τ ℓ X : ℝ)) *
             Real.exp (-κ₂ * (sz X : ℝ)) := by ring
   obtain ⟨Φ, Tn, h1, h2, h3, h4, h5, h6, h7, h8⟩ := resum_gapScale_torus_of_wideMargin K hd hK2 P Q
-    sz τ can D W R Ag T (fun ℓ X => Kthr ≤ K ℓ ∧ Wd ℓ X) (t₀ := 0) hP hQ hsz hτ hR hAg hcanK
+    sz τ can D W R Ag T (fun ℓ X => Kthr ≤ K ℓ ∧ Wd ℓ X) (t₀ := t₀) hP hQ hsz hτ hR hAg hcanK
     (fun ℓ X hX hQX hw => hWm ℓ X hw.1 hX hQX hw.2) hB (by positivity) hκ hκ₂ hlam hκ' hsupp hloc
-    han hbd (fun ℓ X hX hQX hw ht g hg => hFclose ℓ X hX hQX hw (Nat.zero_le _) g hg)
-  refine ⟨Φ, Tn, h1, h2, h3, h4, fun ℓ X hX g hg => ?_, h6, h7, h8⟩
-  have := h5 ℓ X hX g hg
-  simpa using this
+    han hbd hFclose
+  exact ⟨Φ, Tn, h1, h2, h3, h4, h5, h6, h7, h8⟩
 
 end Mixed
 
