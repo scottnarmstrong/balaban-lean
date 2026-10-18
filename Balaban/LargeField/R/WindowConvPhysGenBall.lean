@@ -98,4 +98,61 @@ theorem piece_window_layers_iff_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m'
       · refine Or.inr fun hc' => h2 (Finset.mem_coe.2 (mem_lin.2 ⟨c, mem_ancFin.1 hc, ?_⟩))
         exact Finset.mem_coe.1 hc'
 
+/-- The radius `t = 2` is admissible for every piece. -/
+theorem piece_window_layers_iff_ball_two (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hxy : supDist y x ≤ 2 * (S.L ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
+        (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ↔
+      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
+  have hk1pos := hW.k1_pos hkK
+  have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
+  have hL := H.F.ok.two_le_L
+  have h1 : 1 ≤ ⌊R m'⌋₊ := by
+    refine Nat.le_floor ?_
+    have := g.hRlow m'
+    have : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+    push_cast; linarith
+  have h2 : 2 ≤ ⌊R j⌋₊ := by
+    refine Nat.le_floor ?_
+    have := g.hRlow j
+    have : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
+    push_cast; linarith
+  exact piece_window_layers_iff_ball hkK hW hj hk1j hK hc hx (t := 2) (by omega) (by omega)
+    (by omega) hxy hm1 hmj
+
+/-- The radius `t = ⌊R_base⌋` is admissible for the pieces with `j ≥ 2`. -/
+theorem piece_window_layers_iff_ball_Rb (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j ≤ m') (hj2 : 2 ≤ j) (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hxy : supDist y x ≤ ⌊S.Rb⌋₊ * (S.L ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
+        (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ↔
+      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
+  have hfl : ∀ i, 1 ≤ i → ⌊S.Rb⌋₊ ≤ ⌊R i⌋₊ := fun i _ => Nat.floor_le_floor (g.hRlow i)
+  exact piece_window_layers_iff_ball hkK hW hj hk1j hK hc hx (t := ⌊S.Rb⌋₊)
+    (by have := hfl (j - 1) (by omega); omega) (by have := hfl m' (by omega); omega)
+    (hfl j (by omega)) hxy hm1 hmj
+
+/-- The same statement for an `ℓ¹`-ball of radius `2 L^j M`. -/
+theorem piece_window_layers_iff_ball_two_torusDist (hkK : m' + 1 ≤ K)
+    (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K)
+    {c : H.Comp (j + 1)} (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hxy : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) y x ≤
+      2 * ((S.L : ℝ) ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
+        (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ↔
+      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
+  refine piece_window_layers_iff_ball_two hkK hW hj hk1j hK hc hx ?_ hm1 hmj
+  have := supDist_le_torusDist y x
+  have h2 : (supDist y x : ℝ) ≤ ((2 * (S.L ^ j * M) : ℕ) : ℝ) := by push_cast; linarith
+  exact_mod_cast h2
+
 end Balaban.LargeField
