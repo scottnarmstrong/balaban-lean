@@ -104,10 +104,14 @@ asks, on every admissible torus:
    (I.2) up to the scale `c`, `Analytic/Constants.lean`, `Budget/LemmaB.lean`; `BudgetSetup` is its every-cutoff case, `BudgetSetup.toTo`);
    (d) `exists_good_lamHat`, `hLam_window` (needs `c_H ≥ d(d-2) log L / 2`, `log β ≥ 2d`), `analyticK_at`, `kZero_le_horizon`
    (`Spine/TransferAnalysis.lean`); `flatClassAt_of_repClassAt` (one class member) and `transferInput_of_prefix`
-   (`Spine/Transfer.lean`): `PrefixInput` and `TransferTyping` give `TransferInput`.
-   **Finding:** `PrefixInput` does not constrain `Ty κ c₉` beyond `L, M`, nor `PB κ c₉`; `S.Good` (needs `Typing.Ok`), (H-λ) (needs
-   `c_H ≥ d(d-2) log L / 2`, `θ₋ ≤ (d-2) log L ≤ θ₊`) and the budget setup (`H₀ > 0`, `c₁ ≥ 0`, `L ≤ M`, `c_v ≥ M^d (H₀+c₁+3)`) need them.
-   They are collected in `TransferTyping` (inhabited, `transferTyping_exists`). The orchestrator may add these clauses to `PrefixInput`.
+   (`Spine/Transfer.lean`).
+   **Correction (W1112):** `S.Good` (needs `Typing.Ok`), (H-λ) (needs `c_H ≥ d(d-2) log L / 2`, `θ₋ ≤ (d-2) log L ≤ θ₊`) and the budget
+   setup (`H₀ > 0`, `c₁ ≥ 0`, `L ≤ M`, `c_v ≥ M^d (H₀+c₁+3)`) are now clauses of `PrefixInput` (`TypingClauses`, with `R₀(d,L) ≤ ϱ`;
+   `PrefixInput` takes `PB` and `ϱ`). `transferInput_of_prefix : PrefixInput → TransferInput`. `prefixInput_exists` produces them at every
+   `d ≥ 3`, `L ≥ 3` (`prefixTyping`, `Typing.Ok` in general dimension). `TransferTyping` and `TransferWitness.lean` are removed.
+   **Mass bound:** `FlatRep` (hence `FlatClassAt`) carries `ν_k ≤ 9/10`. Source: (D9♭) of LFR Thm IV.2.2, `ν_{k+1} = ν_k L² (1+ξ₃)/(1+ξ₂) ≤ 7/8 e^{c_ξ/β}`
+   for `k < k_f`, which is `≤ 9/10` for `β ≥ β₀`; at the first frozen scale from the transfer, `ν_{k₀} ≤ e^{1/20}/β` (`nu_kZero_le`, proved from
+   `β ν L^{k₀ d} ≤ 1`). `BaseStepInput` (`k₀ = 0`, `ν₁ = ν L² (1+ξ₃)/(1+ξ₂) ≤ 7/8 e^{c/β}`) and `FrozenStepInput` must produce it (cited input).
 5. **`FrozenStepInput` (A4, LF-5)**: `max(k₀,1) ≤ k < k̂_f`, `ν_k ≤ 7/8 L⁻²`, `ℛ♭_k → ℛ♭_{k+1}`, `∫ρ' = c∫ρ`; LFR Thm IV.2.2,
    switch FLUCTUATION Lemma 2.9. Landed: the small-field pieces of item 3. `Rep.budgetFlat_of_LF2` does not apply at
    `K = k̂_f + 1` (D3). Named sub-inputs: 4 (a), (c), (d) for (H6♭) at `k + 1`; the step theorem; blocker 2; R5′; blocker 6.
@@ -344,6 +348,9 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        * `c₉^{flow} e^{-κ_flow d_j(X)} ≤ (c₉/2) e^{-κ|X|/(ML^j)^d}`, from `G1_card` and `c₉^{flow} ≤ (c₉/2)e^{-κ_flow}`.
 
      Then A6-1 becomes a theorem with `PrefixInput` as a premise. ~300–500 lines.
+     W1111, W1112 (`Spine/InheritedBound.lean`): (a), (b), (c) proved; `inheritedBoundInput_of_prefix : PrefixInput → InheritedBoundInput`. The `BgHyp` mass cap
+     `ν_j L^{2(k-j)} ≤ 1` at `k = k̂_f` follows from (I.2) and the class bound `ν_k ≤ 9/10` (`physMass_cap_of_top`: `δ_j ≤ e^{1/10} δ_k ≤ 10/9 δ_k`);
+     `3 ≤ d` and `bgR0 d L ≤ ϱ` are clauses of `PrefixInput`.
 2. **`InheritedAgreeInput` (A6-2, exact agreement of the inherited terms; LFR Thm IV.5.3 item 7 for `j ≤ k_f`; P4 (H.4); (D8)).**
    `ActAgree` of `inhObs F.sf P6.m₀ h`. It follows from `D8SF.M_eq`, a clause (`coherent`) of `IsRepFlat2`.
    * Landed:

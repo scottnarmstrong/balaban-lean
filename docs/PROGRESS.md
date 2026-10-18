@@ -36,12 +36,12 @@ uses, this is open.
 
 | Input | Content (source) | Status |
 |---|---|---|
-| `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | satisfiable at every L ≥ 3 (proved); the final choice of constants must also meet the other inputs |
+| `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | satisfiable at every d ≥ 3 and L ≥ 3 (proved); the final choice of constants must also meet the other inputs |
 | `BaseStepInput` | the first renormalization step lands in the class of scale 1 (P4 (2.42)–(2.54), LF-6; blocker 1) | open |
 | `ClassStepInput` | one step k → k+1 below the switching scale, small and large field (P4–P7, LF-3, LF-4; blockers 2–4, 6) | split by a proved sub-spine into the small-field step, the large-field operation R and a rate condition on the coefficients (the last holds after lowering one constant); the first two open |
-| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | proved from the constants input together with a few typing and budget conditions on the constants (shown satisfiable for d = L = 3); these conditions are being moved into the constants input |
+| `TransferInput` | the class at the switching scale lies in the frozen-background class (LF reconstruction Lemma IV.2.1; blocker 2) | **proved** from the constants input (`transferInput_of_prefix`) |
 | `FrozenStepInput` | one step above the switching scale (LF-5) | open |
-| `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | split by a proved sub-spine into four parts: the bound and the two-torus agreement of the inherited terms (proofs from the class's own clauses, no new mathematics), and the small-field and large-field halves of the last integral (blocker 5); all four open |
+| `LastIntegralInput` | the last integral, with the activities in Root-F's form and agreeing on two tori (P7 §4, LF-8 (a); blockers 5, 7) | split by a proved sub-spine into four parts: the bound on the inherited terms (**proved** from the constants input), their two-torus agreement (being proved), and the small-field and large-field halves of the last integral (blocker 5, open) |
 | `KfZeroInput` | the case with no renormalization step, ν > 7/8 L⁻² (LF-8 (b); blocker 1) | open |
 
 ## By part of the proof
