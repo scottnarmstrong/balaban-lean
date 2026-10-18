@@ -21,8 +21,8 @@ background of the step, `G = 𝔹_k(W₂(Y))`, `Y = Z_kᶜ`, lies within `ρ_k` 
 
 * `parentPsi_dir_of_chiY_ne_zero` (the bound (RD) of `Q13-LATE.md` at all data sites, with
   constant `1`): `χ_Y ≠ 0` gives `‖Ψ(s) - h‖ < δ_k / √ν_k` at every data site `s` of `G`;
-* `r3_of_dir_sphere`: the direction bound and the sphere bound give the clause `r3` of the real
-  domain;
+* `one_sub_dot_div_le`, `r3_of_dir`: the direction bound gives the clause `r3` of the real
+  domain (no lower bound on the length of the datum is needed);
 * `inPsiTilde_genW_of_factors_local_r3`: the assembly of the real domain with a direction bound at
   every data site in place of the early mass bound `hmass`;
 * `inPsiTilde_genW_of_late_chiY_local` (**`LateParentR3`**): the parent domain at the scales above
@@ -77,19 +77,46 @@ theorem parentPsi_dir_of_chiY_ne_zero (hL : 2 ≤ S.L) (Y : Set (Torus S.d (n (j
   rw [e, vn_ofReal] at key
   exact key
 
-/-- **The clause `r3` from a direction bound and a sphere bound.**  For a unit `h`, a datum `a`
-with `|a · a - 1| ≤ 1/2`, a fine mass `m` and a level `ℓ ≤ k`:
-`m L^{2ℓ} |1 - a · h / ‖a‖| ≤ 2 m L^{2k} ‖a - h‖²`. -/
-theorem r3_of_dir_sphere {L ℓ k : ℕ} (hLpos : 1 ≤ L) (hℓ : ℓ ≤ k) (a h : Fin N → ℝ)
-    (hh : ∑ i, h i ^ 2 = 1) (hsph : |∑ i, a i ^ 2 - 1| ≤ 1 / 2) {m : ℝ} (hm : 0 ≤ m) :
+/-- **The angle of a datum against a unit vector** (any datum, no lower bound on its length):
+`|1 - a · h / ‖a‖| ≤ 2 ‖a - h‖²` for `Σ h² = 1` (with `a · h / 0 = 0` at `a = 0`). -/
+theorem one_sub_dot_div_le (a h : Fin N → ℝ) (hh : ∑ i, h i ^ 2 = 1) :
+    |1 - (∑ i, a i * h i) / rn a| ≤ 2 * rn (fun i => a i - h i) ^ 2 := by
+  have h1 : rn a ^ 2 = ∑ i, a i ^ 2 := rn_sq a
+  have h2 : rn (fun i => a i - h i) ^ 2 = ∑ i, (a i - h i) ^ 2 := rn_sq _
+  have h3 : ∑ i, (a i - h i) ^ 2 = rn a ^ 2 - 2 * ∑ i, a i * h i + 1 := by
+    have : ∀ i, (a i - h i) ^ 2 = a i ^ 2 - 2 * (a i * h i) + h i ^ 2 := fun i => by ring
+    simp_rw [this, Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum, hh, h1]
+  have hcs : (∑ i, a i * h i) ^ 2 ≤ (∑ i, a i ^ 2) * ∑ i, h i ^ 2 :=
+    Finset.sum_mul_sq_le_sq_mul_sq _ _ _
+  rw [hh, mul_one, ← h1] at hcs
+  have hr0 : 0 ≤ rn a := Real.sqrt_nonneg _
+  have habs : |∑ i, a i * h i| ≤ rn a := abs_le_of_sq_le_sq hcs hr0
+  rw [h2, h3]
+  generalize ∑ i, a i * h i = t at *
+  generalize rn a = r at *
+  obtain ⟨htl, htr⟩ := abs_le.1 habs
+  rcases hr0.eq_or_lt with h0 | hrpos
+  · subst h0
+    have ht : t = 0 := by linarith
+    subst ht
+    norm_num
+  · have hx : 0 ≤ 1 - t / r := by rw [sub_nonneg, div_le_one hrpos]; exact htr
+    rw [abs_of_nonneg hx]
+    have e : 1 - t / r = (r - t) / r := by field_simp
+    rw [e, div_le_iff₀ hrpos]
+    rcases le_or_gt (1 / 4) r with hr4 | hr4
+    · nlinarith [mul_nonneg (mul_nonneg hrpos.le (sq_nonneg (r - 1))) (by norm_num : (0 : ℝ) ≤ 2),
+        mul_nonneg (sub_nonneg.2 htr) (by linarith : (0 : ℝ) ≤ 4 * r - 1)]
+    · nlinarith [mul_nonneg (by linarith : (0 : ℝ) ≤ t + r) (by linarith : (0 : ℝ) ≤ 1 - 4 * r),
+        pow_pos hrpos 3, sq_nonneg r]
+
+/-- **The clause `r3` from a direction bound.**  For a unit `h`, any datum `a`, a fine mass
+`m ≥ 0` and a level `ℓ ≤ k`: `m L^{2ℓ} |1 - a · h / ‖a‖| ≤ 2 m L^{2k} ‖a - h‖²`. -/
+theorem r3_of_dir {L ℓ k : ℕ} (hLpos : 1 ≤ L) (hℓ : ℓ ≤ k) (a h : Fin N → ℝ)
+    (hh : ∑ i, h i ^ 2 = 1) {m : ℝ} (hm : 0 ≤ m) :
     m * ((L : ℝ) ^ ℓ) ^ 2 * |1 - (∑ i, a i * h i) / rn a| ≤
       2 * (m * ((L : ℝ) ^ k) ^ 2) * rn (fun i => a i - h i) ^ 2 := by
-  have hr : 1 / 4 ≤ rn a := by
-    have h1 : rn a ^ 2 = ∑ i, a i ^ 2 := rn_sq a
-    have h2 : 1 / 2 ≤ ∑ i, a i ^ 2 := by linarith [(abs_le.1 hsph).1]
-    have h0 : 0 ≤ rn a := Real.sqrt_nonneg _
-    nlinarith
-  have hx := one_sub_dot_le a h hh hr
+  have hx := one_sub_dot_div_le a h hh
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hLpos
   have hℓk : ((L : ℝ) ^ ℓ) ^ 2 ≤ ((L : ℝ) ^ k) ^ 2 :=
     pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 hℓ) 2
@@ -113,10 +140,8 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- **The domain statement with a direction bound at every data site.**  As
 `inPsiTilde_genW_of_factors_local`, with the early mass bound `hmass` replaced by the direction
-bound `hdir` at every data site (the clause `r3` then follows from the sphere bound, which is
-derived from the other hypotheses, and `η ≤ 1/2`). -/
+bound `hdir` at every data site (the clause `r3` then follows from `r3_of_dir`). -/
 theorem inPsiTilde_genW_of_factors_local_r3 (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hηY : 0 < ηY)
-    (hη : max (3 * S.d * S.L * Cx.cs.delta j) ηY ≤ 1 / 2)
     (hdir : ∀ s ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
       2 * (ν * ((S.L : ℝ) ^ (j + 1)) ^ 2) * rn (fun i => parentPsi Cx ψk s i - hv i) ^ 2 <
         (max (3 * S.d * S.L * Cx.cs.delta j) ηY) ^ 2)
@@ -138,14 +163,7 @@ theorem inPsiTilde_genW_of_factors_local_r3 (hν : 0 ≤ ν) (hunit : ‖hv‖ =
   have hηYle : ηY ≤ max (3 * S.d * S.L * Cx.cs.delta j) ηY := le_max_right _ _
   have hη0 : 0 < max (3 * S.d * S.L * Cx.cs.delta j) ηY := lt_of_lt_of_le hηY hηYle
   have hsum : ∑ i, hv i ^ 2 = 1 := by rw [parent_sum_sq_eq_norm_sq, hunit]; norm_num
-  have hR2 : ∀ x ∈ dataSites (Cx.genW ((H.step (j + 1)).Z)ᶜ),
-      |∑ i, parentPsi Cx ψk x i ^ 2 - 1| < max (3 * S.d * S.L * Cx.cs.delta j) ηY := by
-    intro x hx
-    rcases siteCube_dichotomy H Cx x with hY | ⟨C, hC, hq⟩
-    · exact (hR2Y x hx hY).trans_le hηYle
-    · obtain ⟨A, xs, hχ⟩ := hActLoc C hC ⟨x, hx, hq⟩
-      exact (parentPsi_sphere_of_chiDomAt_local H Cx hC ψk hχ hx hq).trans_le hηC
-  refine ⟨parentPsi_layerConst Cx _ ψk, ?_, hR2, ?_, ?_⟩
+  refine ⟨parentPsi_layerConst Cx _ ψk, ?_, ?_, ?_, ?_⟩
   · intro x x' hp
     rcases interface_pair_cases H Cx x x' with ⟨t, hts, C, hC, hq⟩ | ⟨h1, h2⟩
     · obtain ⟨A, xs, hχ⟩ := hActLoc C hC
@@ -153,10 +171,14 @@ theorem inPsiTilde_genW_of_factors_local_r3 (hν : 0 ≤ ν) (hunit : ‖hv‖ =
       exact (parentPsi_pair_of_chiDomAt_local H Cx hC ψk hχ hp hts hq).trans_le hηC
     · exact (hR1Y x x' hp h1 h2).trans_le hηYle
   · intro x hx
-    have hsph : |∑ i, parentPsi Cx ψk x i ^ 2 - 1| ≤ 1 / 2 := ((hR2 x hx).trans_le hη).le
+    rcases siteCube_dichotomy H Cx x with hY | ⟨C, hC, hq⟩
+    · exact (hR2Y x hx hY).trans_le hηYle
+    · obtain ⟨A, xs, hχ⟩ := hActLoc C hC ⟨x, hx, hq⟩
+      exact (parentPsi_sphere_of_chiDomAt_local H Cx hC ψk hχ hx hq).trans_le hηC
+  · intro x hx
     have hL1 : 1 ≤ S.L := Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
-    exact (r3_of_dir_sphere hL1 (layerIndex_le_k _ x) (parentPsi Cx ψk x) (fun i => hv i)
-      hsum hsph hν).trans_lt (hdir x hx)
+    exact (r3_of_dir hL1 (layerIndex_le_k _ x) (parentPsi Cx ψk x) (fun i => hv i)
+      hsum hν).trans_lt (hdir x hx)
   · simp only [hsum, sub_self, abs_zero, mul_zero]
     positivity
 
@@ -164,11 +186,10 @@ theorem inPsiTilde_genW_of_factors_local_r3 (hν : 0 ≤ ν) (hunit : ‖hv‖ =
 cube mass is the physical mass (`hμ : μ_k = ν L^{-2k}`, `ν > 0`; above `k₀` this is
 `Def7.FieldClauses.mu_eq` with `Coh.nu_cs`), from `χ_Y ≠ 0` (with the extended direction stencil),
 the cube `BgHyp` and the local activity factor, the datum lies in the real domain of the
-complete background with `η = max (3 d L δ_j) (4 (d + 1) δ_k) ≤ 1/2`.  No mass smallness
+complete background with `η = max (3 d L δ_j) (4 (d + 1) δ_k)`.  No mass smallness
 `2 ν L^{2k} < η²` is assumed. -/
 theorem inPsiTilde_genW_of_late_chiY_local (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν)
     (hunit : ‖hv‖ = 1) (hδ : 0 < Cx.cs.delta (j + 1)) (hδ1 : (S.d + 1) * Cx.cs.delta (j + 1) ≤ 1)
-    (hη : max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)) ≤ 1 / 2)
     (hμ : Cx.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
     (hχ : Cx.chiY ((H.step (j + 1)).Z)ᶜ ψk hv ≠ 0)
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
@@ -190,7 +211,7 @@ theorem inPsiTilde_genW_of_late_chiY_local (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 
     have := mul_le_mul_of_nonneg_left (show 2 + (S.d + 1) * Cx.cs.delta (j + 1) ≤ 4 by linarith) hε
     linarith
   refine inPsiTilde_genW_of_factors_local_r3 H Cx ψk hv _ (4 * (S.d + 1) * Cx.cs.delta (j + 1))
-    hm0 hunit (by positivity) hη ?_ hActLoc ?_ ?_
+    hm0 hunit (by positivity) ?_ hActLoc ?_ ?_
   · intro s hs
     have hdir := parentPsi_dir_of_chiY_ne_zero Cx hL _ ψk hv hχ hν hμ hs
     have hsq : 0 < Real.sqrt ν := Real.sqrt_pos.2 hν
@@ -236,7 +257,6 @@ second-version post term of the history `A` is nonzero at `ψ_k`, then above `k�
 theorem inPsiTilde_of_postTerm2_ne_zero_late (hgeo : Cx.geo = geo) (hcs : Cx.cs = cs)
     (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν) (hunit : ‖hv‖ = 1)
     (hδ : 0 < Cx.cs.delta (j + 1)) (hδ1 : (S.d + 1) * Cx.cs.delta (j + 1) ≤ 1)
-    (hη : max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)) ≤ 1 / 2)
     (hμ : Cx.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
     (hT : postTerm2 Cx vc rep A ψk hv g ≠ 0) :
@@ -244,7 +264,7 @@ theorem inPsiTilde_of_postTerm2_ne_zero_late (hgeo : Cx.geo = geo) (hcs : Cx.cs 
       (max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)))
       (parentPsi Cx ψk) (fun i => hv i) := by
   obtain ⟨x, hx⟩ := exists_postWeighted2_ne_zero_of_postTerm2_ne_zero Cx vc rep A ψk hv g hT
-  exact inPsiTilde_genW_of_late_chiY_local A.H Cx ψk hv hL hν hunit hδ hδ1 hη hμ
+  exact inPsiTilde_genW_of_late_chiY_local A.H Cx ψk hv hL hν hunit hδ hδ1 hμ
     (chiY_ne_zero_of_postWeighted2_ne_zero Cx vc rep A ψk hv g x hx) HB
     (hActLoc_of_forall Cx rep A hgeo hcs ψk x
       (chiDomAt_of_postWeighted2_ne_zero Cx vc rep A ψk hv g x hx))
@@ -254,7 +274,6 @@ lies in the real domain. -/
 theorem postTerm2_eq_zero_or_inPsiTilde_late (hgeo : Cx.geo = geo) (hcs : Cx.cs = cs)
     (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν) (hunit : ‖hv‖ = 1)
     (hδ : 0 < Cx.cs.delta (j + 1)) (hδ1 : (S.d + 1) * Cx.cs.delta (j + 1) ≤ 1)
-    (hη : max (3 * S.d * S.L * Cx.cs.delta j) (4 * (S.d + 1) * Cx.cs.delta (j + 1)) ≤ 1 / 2)
     (hμ : Cx.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1))) :
     postTerm2 Cx vc rep A ψk hv g = 0 ∨
@@ -264,7 +283,7 @@ theorem postTerm2_eq_zero_or_inPsiTilde_late (hgeo : Cx.geo = geo) (hcs : Cx.cs 
   by_cases h : postTerm2 Cx vc rep A ψk hv g = 0
   · exact Or.inl h
   · exact Or.inr (inPsiTilde_of_postTerm2_ne_zero_late Cx rep A ψk hv g vc hgeo hcs hL hν hunit
-      hδ hδ1 hη hμ HB h)
+      hδ hδ1 hμ HB h)
 
 end D1
 
