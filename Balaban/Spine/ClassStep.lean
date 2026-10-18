@@ -93,6 +93,9 @@ structure PreRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB 
   νk : F.sf.ν k = νk
   run : RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r
   coh : LFCoherent F
+  /-- the scale-indexed vacuum flow `E_j` (rulings R5, R5′) -/
+  Ev : ℕ → ℝ
+  vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k
 
 /-- **The pre-`R` class `ℛ^pre_k` at the constants of the prefix** (LFR §II.6.3, first item,
 second version `IsRepPre2`: the class of the output of one step before the operation `R`), with the
@@ -243,10 +246,10 @@ theorem PreClassAt.succ {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts
     (hq : P6.c₈ * Flow.rate (T.L : ℝ) P6.γ ≤ 1 / 20 * (1 - Flow.rate (T.L : ℝ) P6.γ)) :
     PreClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf (k + 1) (k + 1) ρ νk := by
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-    hνk, hrun, hcoh⟩ := hρ
+    hνk, hrun, hcoh, Ev, hvac⟩ := hρ
   obtain ⟨_, hsf⟩ := hpre.sfData.sfClass
   exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0, hνk,
-    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh⟩
+    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh, Ev, hvac⟩
 
 /-!
 ### The assembly of the integral
@@ -419,7 +422,8 @@ theorem preClassAt_witness (rH : ℝ) (r : ℕ) (hr : r ≤ 1) :
       h11, h12, h13⟩ := @preClassAt_witness_aux rH r hr _ spineSetting_eq_wS
         ⟨by norm_num [typing, typing0]⟩
     exact ⟨ρ, νk, ⟨hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
-      h11, h12, h13.1, h13.2⟩⟩
+      h11, h12, h13.1, h13.2, fun _ => 0, vacuumFlowTo_zero fun _ _ => by
+        rw [show (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb = 0 from rfl, zero_mul]⟩⟩
 
 /-- **`FlowRateInput` costs only a smaller `c₈`**: for every family of admissible Def-6 constants
 on block sizes `L ≥ 2`, lowering `c₈` to `min(c₈, (1 - q)/(20 q))` keeps the constants admissible
