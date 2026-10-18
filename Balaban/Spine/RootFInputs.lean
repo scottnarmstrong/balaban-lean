@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.Def7v2Variants
+public import Balaban.Spine.Coherence
 public import Balaban.Frozen.Model.PartitionFunction
 public import Balaban.Frozen.Geometry.IsPolymer
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -34,14 +34,19 @@ the weights `a_n`), `M1, c` (the unit `M₁` of the generating sets and `M = c M
 of the pinned field ball) and `ϱ` (the separation of the generating sets). The running constants
 (`β_j, ν_j, z_j, E_j`, the masses, the tolerances) are not fixed in advance: they are part of the
 representation of each density (`Coh` ties them to its small-field data) and are produced by the
-steps (LFR Theorem IV.3.2 (d)). The a priori setting at `β` is
-`𝒮[d, T, β, a] = (T with d, λ̂_j = log(β a) + 1 + j θ)` (`lamHat`, D-IV.2); the regime index is the
-a priori `k₀ = kZero d L β ν` (D-IV.11) and the horizon is `k̂_f` (`IsHorizon`, D-IV.1): the flow
-runs on the tori of side `ℓ = M n_K L^K`, `K = k̂_f + 1`, and Root-F's `kf` is `k̂_f`.
+steps (LFR Theorem IV.3.2 (d)); the class predicates ask (I.2) for them up to the current scale
+(`RunningHypTo`) and pin them to the bare couplings at scale `0` (`β_0 = β`, `ν_0 = ν`). The a
+priori setting at `β` is `𝒮[d, T, β, a] = (T with d, λ̂_j = log(β a) + 1 + j θ)` (`lamHat`, D-IV.2);
+the regime index is the a priori `k₀ = kZero d L β ν` (D-IV.11) and the horizon is `k̂_f`
+(`IsHorizon`, D-IV.1): the flow runs on the tori of side `ℓ = M n_K L^K`, `K = k̂_f + 1`, and
+Root-F's `kf` is `k̂_f`.
 
 ## The inputs (A-numbers of `notes/phase1/ROOTASM2.md`)
 
-* `PrefixInput` (A1): `2 ≤ L`, `1 ≤ M`, and `c₈ q/(1 - q) ≤ 1/20` (LFR (I.2)).
+* `PrefixInput` (A1): the constant conditions that every class member needs (`L ≥ 3`, the window of
+  the kernel constant `a`, `M = c M₁ = L^{m₀+m₁}` with `c ≥ 14`, the admissibility of the Def-6
+  constants, `c₉, B₀ > 0`, `C_b ≥ 0`) and the ties of the class constants to Root-F's `δ, κ, c₉`
+  (LFR rows 1, 5, 10).
 * `BaseStepInput` (A3, LF-6): the first step `ρ₀ ↦ ρ₁` lands in `ℛ₁` (or `ℛ♭₁` if `k₀ = 0`) with
   `∫ ρ₁ = c Z(g)`.
 * `ClassStepInput` (A4, LF-3 + LF-4): `ℛ_k → ℛ_{k+1}` for `1 ≤ k < k₀`, `∫ ρ_{k+1} = c ∫ ρ_k`.
@@ -51,10 +56,14 @@ runs on the tori of side `ℓ = M n_K L^K`, `K = k̂_f + 1`, and Root-F's `kf` i
   scale-`j` activities `p_j` in the observable form of Root-F (`ObservableActivities`).
 * `KfZeroInput` (A7, LF-8 (b)): the same for `Z(g)` itself when `ν > 7/8 L⁻²`, at scale `1`.
 
-The two-torus agreement (A11) is not a separate source statement: it is the coherence (D8) of the
-class (carried by A3, A4) and the agreement conjunct of `ObservableActivities` (A6, A7). The rate,
-support and amplitude ties of A9, A10 are the bound and support conjuncts of `ObservableActivities`
-(LFR Theorem IV.5.3 items 2, 3, 5). -/
+The two-torus agreement (A11) is not a separate source statement. Its input is the torus coherence
+(D8) of the class: the small-field half is the landed clause `D8SF` of `IsRep2`/`IsRepFlat2`, the
+large-field half is `LFCoherent` (`Spine/Coherence.lean`, LFR D-IV.9), a conjunct of
+`RepClassAt`/`FlatClassAt`. The base and step inputs (A3, A4) produce it; the last integral (A6)
+consumes it, and its output is the agreement conjunct of `ObservableActivities` (LFR Theorem IV.5.3
+item 7); A7 states the agreement directly. The rate, support and amplitude ties of A9, A10 are the
+bound and support conjuncts of `ObservableActivities` (LFR Theorem IV.5.3 items 2, 3, 5), with the
+class constants tied to Root-F's by `PrefixInput`. -/
 
 @[expose] public section
 
@@ -87,8 +96,10 @@ def IsHorizon (L : ℕ) (ν : ℝ) (kf : ℕ) : Prop :=
 `IsRep2`; regime `k ≤ k₀`): `ρ` has a representation `F` on the tori of the horizon `K = kf + 1` for
 the a priori setting `𝒮[d, T, β, a]`, the a priori regime index `kZero d L β ν`, the outer constants
 `P6, C7` and the outer parts `cs₀, PB, M1, c` of the operator, budget and geometric constants, whose
-running small-field coefficients start from the bare mass (`ν_0 = ν`); `νk` is its running mass
-`ν_k` at scale `k`. -/
+running small-field coefficients start from the bare couplings (`β_0 = β`, `ν_0 = ν`) and satisfy
+(I.2) up to the scale `k` (`RunningHypTo`, `ε = 1/20`, LFR (A-IV.2)), and whose large-field data are
+torus coherent (`LFCoherent`, the large-field half of (D8), LFR D-IV.9; the small-field half is the
+clause `coherent` of `IsRep2`); `νk` is its running mass `ν_k` at scale `k`. -/
 def RepClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
     [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
@@ -102,7 +113,8 @@ def RepClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : 
     P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
     IsRep2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
       hM6 hkK F ρ St vc ∧
-    F.sf.ν 0 = ν ∧ F.sf.ν k = νk
+    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F
 
 /-- **The frozen-regime class `ℛ♭_k` at the constants of the prefix** (LFR §II.6.3, second version
 `IsRepFlat2`; regime `k₀ ≤ k ≤ k_f`, horizon `k̂ = kf`), with the same conventions as `RepClassAt`.
@@ -120,7 +132,8 @@ def FlatClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB :
     P.c1 = PB.c1 ∧ P.c2 = PB.c2 ∧ P.H0 = PB.H0 ∧
     IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
       kf hM6 hkK F ρ St vc ∧
-    F.sf.ν 0 = ν ∧ F.sf.ν k = νk
+    F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν k ∧ LFCoherent F
 
 /-- **The normalization `∫ ρ_k dψ_k = c Z(g)`** (LFR Theorem IV.3.2 (c), P1 (1.11), P7 (1.7)): on
 every torus of the family (side `ℓ = M n_K L^K`) and every source of the unit `ℓ¹` ball, the
@@ -143,29 +156,33 @@ def IntegralStep (d N : ℕ) (T : Typing) (β a : ℝ) (K k : ℕ) [NeZero T.M] 
       ∫ ψ, ρ' nK ψ g = (C nK : ℂ) * ∫ ψ, ρ nK ψ g
 
 /-- **Activities in the observable form of Root-F** (LFR Definition IV.5.2 and Theorem IV.5.3 items
-2–5, 7; the device of P7 (4.15)–(4.17), ARCH (F3)), scales `1 ≤ j ≤ J`: on every admissible torus
-(`M L^{kf+1} ∣ ℓ`) the activity `p_j(X; g)` vanishes unless `X` is a scale-`j` polymer
-(`IsPolymer d ℓ (M L^j) X`), is analytic on the unit `ℓ¹` ball, depends on `g|_X` only, and is
-bounded there by `(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}`; and the activities of two
-admissible tori agree on the images of a finite set `A ⊂ ℤ^d` in the box `|y_μ| < min(ℓ, ℓ')/4` (P4
-(H.4), (D8), PE (f)). The factor `1/2` pays the Cauchy estimate of the derivative on the half ball
-(`norm_kf0Deriv_le_two`). -/
+2–5, 7; the device of P7 (4.15)–(4.17), ARCH (F3)), scales `1 ≤ j ≤ J`. Only the increments
+`p_j(X; g) - p_j(X; 0)` enter `log (Z(g)/Z(0))`, and only they are constrained. On every admissible
+torus (`M L^{kf+1} ∣ ℓ`): the increment vanishes unless `X` is a scale-`j` polymer
+(`IsPolymer d ℓ (M L^j) X`); `p_j(X; ·)` is analytic on the unit `ℓ¹` ball and depends on `g|_X`
+only; the increment is bounded there by `(c₉/2) L^{-j((d-2)/2+δ)} e^{-κ|X|/(M L^j)^d}`. The
+increments of two admissible tori agree on the images of a finite set `A ⊂ ℤ^d` in the box
+`|y_μ| < min(ℓ, ℓ')/4` (P4 (H.4), (D8), PE (f)). The factor `1/2` pays the Cauchy estimate of the
+derivative on the half ball (`norm_kf0Deriv_le_two`). -/
 def ObservableActivities (d N L M : ℕ) (κ c₉ δ : ℝ) (J kf : ℕ)
     (p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ) : Prop :=
   (∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-    (∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g, p ℓ j X g = 0) ∧
+    (∀ j X, ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g,
+      p ℓ j X g = p ℓ j X 0) ∧
     (∀ j X, AnalyticOnNhd ℂ (p ℓ j X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
     (∀ j X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) → p ℓ j X g = p ℓ j X g') ∧
     (∀ j ∈ Finset.Icc 1 J, ∀ X (g : Torus d ℓ → Fin N → ℂ), ∑ y, ∑ i, ‖g y i‖ < 1 →
-      ‖p ℓ j X g‖ ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+      ‖p ℓ j X g - p ℓ j X 0‖ ≤ c₉ / 2 * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
         * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d))) ∧
   ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
     ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
       a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
       p ℓ j (A.image fun y μ => (y μ : ZMod ℓ))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) =
+          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) -
+          p ℓ j (A.image fun y μ => (y μ : ZMod ℓ)) 0 =
         p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ'))
-          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ))
+          (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) -
+          p ℓ' j (A.image fun y μ => (y μ : ZMod ℓ')) 0
 
 section Inputs
 
@@ -173,21 +190,39 @@ variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ �
   (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
   (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
 
-/-- **A1 (the prefix; LFR §I.1.4 rows 3, 6, and (I.2)).** For every `κ, c₉ > 0` the scale factor and
-the cube side of the prefix satisfy Root-F's ranges `2 ≤ L` (row 3 asks `L ≥ 3`) and `1 ≤ M`
-(`M = L^{m₀} M₁`, row 6), and the constant `c₈` of the coefficient bounds (H.6) is small:
-`ε = c₈ q/(1 - q) ≤ 1/20` with `q = L^{-2γ}` (LFR (I.2), Theorem IV.3.2 (d); the flow's `c₈ = c_ξ/β`
-is below any fixed value for `β ≥ β₀`). -/
+/-- **A1 (the prefix; LFR §I.1.4).** For every `κ, c₉ > 0` the constants of the prefix satisfy every
+condition that a member of the classes needs, so that a wrong choice cannot empty them:
+* row 3: `L ≥ 3` (Root-F's `2 ≤ L` follows);
+* the kernel constant `a = cs₀.aKer`: `1 < a < 3/2` (`RunningHypTo`, (I.2)) and
+  `9/10 ≤ a (1 - L⁻²)²` (with `a_k = a (1 - L⁻²)/(1 - L^{-2k})` (`Coh.a_free`), the window
+  `9/10 (1 - L⁻²)⁻¹ ≤ a_k < 3/2` of (H.6) (`CoeffBounds.a_ge`, `a_lt`) at every scale);
+* row 6: `M = c M₁` with `c ≥ 14`, `M₁ ≥ 1` (`Geo`) and `M = L^{m₀ + m₁}` (`Coh.M_pow`);
+* the Def-6 constants are admissible (`IsSFFamily2.admissible`), `c₉^{flow} > 0` (the strict bound
+  (H.7)), `B₀ > 0` (the strict bound (D7)), `C_b ≥ 0` (the bound (S0) of `b_k`);
+
+and the ties of the class constants to Root-F's (LFR D-IV.7, rows 1, 5, 10): `δ ≤ γ - α₁`,
+`κ_flow ≥ C_{d,L} (κ + 1)` with `C_{d,L} = 3^{d+1} L^{2d+1}`, and `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`.
+-/
 def PrefixInput : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → 2 ≤ (T κ c₉).L ∧ 1 ≤ (T κ c₉).M ∧
-    20 * (P6 κ c₉).c₈ * Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ ≤
-      1 - Flow.rate ((T κ c₉).L : ℝ) (P6 κ c₉).γ
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
+    3 ≤ (T κ c₉).L ∧
+    1 < (cs₀ κ c₉).aKer ∧ (cs₀ κ c₉).aKer < 3 / 2 ∧
+    9 / 10 ≤ (cs₀ κ c₉).aKer * (1 - (((T κ c₉).L : ℝ) ^ 2)⁻¹) ^ 2 ∧
+    (T κ c₉).M = c κ c₉ * M1 κ c₉ ∧ 14 ≤ c κ c₉ ∧ 1 ≤ M1 κ c₉ ∧
+    (T κ c₉).M = (T κ c₉).L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁) ∧
+    (P6 κ c₉).Admissible d (T κ c₉).L ∧ 0 < (P6 κ c₉).c₉ ∧ 0 < (C7 κ c₉).B0 ∧
+    0 ≤ (cs₀ κ c₉).Cb ∧
+    δ ≤ (P6 κ c₉).γ - (P6 κ c₉).α₁ ∧
+    (3 : ℝ) ^ (d + 1) * ((T κ c₉).L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ (P6 κ c₉).κ ∧
+    (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ)
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5 p.
 487).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
 `kf = k̂_f`: the density `ρ₁ = S^{(0)} T^{(0)} ρ₀` of the first step has a representation in `ℛ₁` if
-`k₀ ≥ 1` (regime (A)) and in `ℛ♭₁` if `k₀ = 0` (regime (B)), with running mass `ν_0 = ν`, and
-`∫ ρ₁ dψ₁ = c Z(g)` on every torus of the family. -/
+`k₀ ≥ 1` (regime (A)) and in `ℛ♭₁` if `k₀ = 0` (regime (B)), and `∫ ρ₁ dψ₁ = c Z(g)` on every torus
+of the family. Membership includes `β_0 = β`, `ν_0 = ν`, (I.2) at the scales `0, 1` (LF-7 (d)) and
+the torus coherence (D8) of both halves (Theorem II.7.10 (d): every datum is given by the same
+formula on `ℤ^d`). -/
 def BaseStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -206,10 +241,13 @@ def BaseStepInput : Prop :=
 
 /-- **A4 (one full step below `k₀`: LF-3 + LF-4; LFR Theorem IV.1.1 (P5 Theorem 1, P6 Theorem 1, P5
 p. 499) followed by Theorem III.10.8 (P5 Theorem 2 = P7 Theorem 2, P7 (1.3)–(1.7), pp. 497–529)).**
-For `1 ≤ k < k₀`, every `ρ ∈ ℛ_k` has `ρ' = R^{(k+1)} S^{(k)} T^{(k)} ρ ∈ ℛ_{k+1}` (running
-constants extended by the step, still with `ν_0 = ν`) with `∫ ρ' = c ∫ ρ`. The small-field part of
-the step (P4 Theorem 1 for `IsSFFamily2`, the clause (D2) of `ℛ_{k+1}`) is a cited input of LF-3; it
-is not split off because no landed operator states the relation between the two small-field data. -/
+For `1 ≤ k < k₀`, every `ρ ∈ ℛ_k` has `ρ' = R^{(k+1)} S^{(k)} T^{(k)} ρ ∈ ℛ_{k+1}` with
+`∫ ρ' = c ∫ ρ`. The hypothesis carries the premises of LF-3 and LF-4: (A-IV.2) through `β_0 = β`,
+`ν_0 = ν` and (I.2) up to `k`, and (D8) of both halves (D-IV.9). The conclusion asks the same of
+`ρ'`: running constants extended by the step (LF-7 (d)), (D8) by the locality of the constructions
+(Theorem IV.1.1 (h), Theorem III.10.8 (D8)). The small-field part of the step (P4 Theorem 1 for
+`IsSFFamily2`, the clause (D2) of `ℛ_{k+1}`) is a cited input of LF-3. It is not split off, because
+no landed operator states the relation between the two small-field data. -/
 def ClassStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -226,7 +264,10 @@ def ClassStepInput : Prop :=
 
 /-- **A4 (the transfer at `k₀`; LFR Lemma IV.2.1, P5 p. 490, LF-2 (iv)).** If `k₀ ≥ 1`, every member
 of `ℛ_{k₀}` (with running mass `ν_{k₀}`) is a member of `ℛ♭_{k₀}` with the same density and the same
-running mass (the representation is re-read: (D2) to (D2♭), (D9) to (D9♭), (H6′) to (H6♭)). -/
+running mass (the representation is re-read: (D2) to (D2♭), (D9) to (D9♭), (H6′) to (H6♭); (D8),
+`β_0 = β` and (I.2) are unchanged). Its landed half is `IsRep2.toFlat`, which needs the torus
+horizon `K ≤ k₀ + 1`; at `K = k̂_f + 1` it needs LF-2 (ii) with the counter history truncated at
+`k + 1` (`notes/phase1/SPINE.md`, item 4). -/
 def TransferInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -241,7 +282,9 @@ def TransferInput : Prop :=
 
 /-- **A4 (one frozen step: LF-5; LFR Theorem IV.2.2, P5/P6 Theorem 4 repaired, P6 p. 21).** For
 `max(k₀, 1) ≤ k < kf` and `ρ ∈ ℛ♭_k` whose running mass has not reached the stopping threshold
-(`ν_k ≤ 7/8 L⁻²`, i.e. `k < k_f`), `ρ' = S^{(k)} T^{(k)} ρ ∈ ℛ♭_{k+1}` with `∫ ρ' = c ∫ ρ`. -/
+(`ν_k ≤ 7/8 L⁻²`, i.e. `k < k_f`), `ρ' = S^{(k)} T^{(k)} ρ ∈ ℛ♭_{k+1}` with `∫ ρ' = c ∫ ρ`. As for
+`ClassStepInput`, hypothesis and conclusion carry `β_0 = β`, `ν_0 = ν`, (I.2) up to the scale and
+(D8); the budget (H6♭) at `K = k̂_f + 1` needs LF-2 (ii) truncated at `k + 1`. -/
 def FrozenStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -265,7 +308,10 @@ the family, where for `j ≤ k` the activity is `p_j(X; g) = ∑_{x ∈ X} ⟨g(
 (the (H.7) terms of the class at the constant configuration) and for `j = k + 1` it collects
 `ℳ^{(k+1)}_0`, the polymer terms `ℛ^{(k+1)}_n` and `𝒫^{(k+1)}` regrouped by the scale-`(k+1)`
 polymer `Ȳ` of their domain; the activities satisfy `ObservableActivities` with top scale `k + 1`.
--/
+The hypothesis is that of Theorem IV.4.1: a member of `ℛ♭_k` with (A-IV.2) (`β_0 = β`, `ν_0 = ν`,
+(I.2) up to `k`) and the torus coherence (D8) of both halves. The agreement conjunct of the
+conclusion is Theorem IV.5.3 item 7, derived in the source from (D8) and the locality of the last
+integral; the bounds use the ties of `PrefixInput`. -/
 def LastIntegralInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →

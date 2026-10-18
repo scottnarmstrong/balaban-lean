@@ -31,7 +31,7 @@ theorem rootFAndC1Star_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : 
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → SmallField.Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput Ty P6)
+    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
@@ -42,7 +42,7 @@ theorem rootFAndC1Star_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : 
     (hC1 : Nonempty (@C1Star d N (Ty (kappaStar d) 1).L (Ty (kappaStar d) 1).M ⟨by omega⟩ hN)) :
     RootFAndC1Star d N hN := by
   have hκ : 0 < kappaStar d := kappaStar_pos (by omega)
-  obtain ⟨-, hM1, -⟩ := hA1 (kappaStar d) hκ 1 one_pos
+  obtain ⟨-, hM1⟩ := prefix_ranges hA1 hκ one_pos
   obtain ⟨β₀, hβ₀⟩ := rootF_clauses_of_spine d N hd hN δ Ty P6 C7 PB cs₀ M1 c rH ϱ hA1 hA3 hA4
     hA4t hA4f hA6 hA7 (kappaStar d) hκ 1 one_pos
   exact ⟨δ, hδ, (Ty (kappaStar d) 1).L, (Ty (kappaStar d) 1).M, hL3, hM1, β₀, hβ₀, hC1⟩
@@ -52,7 +52,7 @@ theorem rootC_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → SmallField.Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
-    (hA1 : PrefixInput Ty P6)
+    (hA1 : PrefixInput d δ Ty P6 C7 cs₀ M1 c)
     (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)

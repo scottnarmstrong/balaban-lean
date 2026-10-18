@@ -244,9 +244,10 @@ end Agreement
 -/
 
 /-- **Root-F's clauses from observable activities** (LFR Theorem IV.5.3 items 2–7): activities with
-`ObservableActivities` (top scale `J`) and the exponential identity
+`ObservableActivities` (top scale `J`; increments bounded) and the exponential identity
 `Z(g)/Z(0) = exp(⟨g, h⟩ + ∑_{j=1}^{kf+1} ∑_X (p_j(X; g) - p_j(X; 0)))` on every admissible torus
-give the clauses `RootFClauses` for the terms `activityTerm M L kf p`. -/
+give the clauses `RootFClauses` for the terms `activityTerm` of the increments
+`p_j(X; g) - p_j(X; 0)`. -/
 theorem rootFClauses_of_activities {d N L M : ℕ} [NeZero N] {β ν κ c₉ δ : ℝ}
     {h : EuclideanSpace ℝ (Fin N)} {J kf : ℕ}
     {p : (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ} (hc₉ : 0 < c₉)
@@ -256,11 +257,23 @@ theorem rootFClauses_of_activities {d N L M : ℕ} [NeZero N] {β ν κ c₉ δ 
         partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0 =
           Complex.exp (∑ x, ∑ i, g x i * (h i : ℂ)
             + ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ X : Finset (Torus d ℓ), (p ℓ j X g - p ℓ j X 0))) :
-    RootFClauses d N L M β ν h kf κ c₉ δ (activityTerm M L kf p) := by
+    RootFClauses d N L M β ν h kf κ c₉ δ
+      (activityTerm M L kf fun ℓ j X g => p ℓ j X g - p ℓ j X 0) := by
   obtain ⟨htor, hagr⟩ := hobs
-  refine ⟨fun ℓ _ hℓ => ?_, rootFAgreement_activityTerm (J := J)
-    (fun ℓ _ hℓ => (htor ℓ hℓ).1) (fun ℓ _ hℓ => (htor ℓ hℓ).2.2.1) hagr⟩
-  obtain ⟨hs, ha, hl, hb⟩ := htor ℓ hℓ
-  exact rootFTorusClauses_activityTerm hc₉ hs ha hl hb (hexp ℓ hℓ)
+  have hsupp : ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ → ∀ j X,
+      ¬ (j ∈ Finset.Icc 1 J ∧ IsPolymer d ℓ (M * L ^ j) X) → ∀ g : Torus d ℓ → Fin N → ℂ,
+        p ℓ j X g - p ℓ j X 0 = 0 :=
+    fun ℓ _ hℓ j X hX g => sub_eq_zero.2 ((htor ℓ hℓ).1 j X hX g)
+  have hloc : ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ → ∀ j X
+      (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) →
+        p ℓ j X g - p ℓ j X 0 = p ℓ j X g' - p ℓ j X 0 :=
+    fun ℓ _ hℓ j X g g' hgg => by rw [(htor ℓ hℓ).2.2.1 j X g g' hgg]
+  refine ⟨fun ℓ _ hℓ => ?_, rootFAgreement_activityTerm (J := J) hsupp hloc
+    fun ℓ ℓ' _ _ hℓ hℓ' j a A g ha hbox => hagr ℓ ℓ' hℓ hℓ' j a A g ha hbox⟩
+  refine rootFTorusClauses_activityTerm hc₉ (hsupp ℓ hℓ)
+    (fun j X => ((htor ℓ hℓ).2.1 j X).sub analyticOnNhd_const) (hloc ℓ hℓ)
+    (htor ℓ hℓ).2.2.2 fun g hg => ?_
+  rw [hexp ℓ hℓ g hg]
+  simp
 
 end Balaban.RootFSpine
