@@ -2852,3 +2852,5 @@ public import Balaban.Spine.KfZero
 public import Balaban.Spine.InheritedBound
 public import Balaban.Spine.InheritedAgreeGeom
 public import Balaban.Spine.InheritedAgree
+public import Balaban.Spine.StepDensity
+public import Balaban.Spine.SFStepClauses
