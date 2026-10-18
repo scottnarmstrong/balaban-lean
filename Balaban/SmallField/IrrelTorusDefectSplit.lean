@@ -72,7 +72,7 @@ the infinite volume, the two terms agree on the common shapes, and the infinite 
 The norm of the finite sum is at most the norm of the sum over the shapes of the torus that are not
 shapes of the infinite volume plus the bound of the finite sums over the shapes of the infinite
 volume that are not shapes of the torus. -/
-theorem norm_sum_le_of_unmatched {ι : Type*} (Lfin : Finset ι) (polys : Set ι) (fFin fInf : ι → ℂ)
+theorem norm_sum_le_of_unmatched {ι : Type*} [DecidableEq ι] (Lfin : Finset ι) (polys : Set ι) (fFin fInf : ι → ℂ)
     (hmatch : ∀ X ∈ Lfin, X ∈ polys → fFin X = fInf X)
     (hs : Summable (fun x : polys => fInf x.1)) (h0 : ∑' x : polys, fInf x.1 = 0)
     {BF BI : ℝ}
