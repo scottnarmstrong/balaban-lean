@@ -2736,6 +2736,7 @@ public import Balaban.Inhabited.StepTowerCollarClass
 public import Balaban.Inhabited.StepTowerRenThetaMargin
 public import Balaban.Inhabited.StepTowerRenThetaRoom
 public import Balaban.Inhabited.StepTowerRenThetaClass
+public import Balaban.Inhabited.StepTowerLocalChart
 public import Balaban.LargeField.R.WindowOffRead
 public import Balaban.LargeField.R.WindowOffConv
 public import Balaban.LargeField.R.WindowOffSwitch
