@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.StepTowerNewLevelE0Beta
 public import Balaban.Inhabited.StepTowerNewLevelE0Close
+public import Balaban.Inhabited.StepTowerScaleT
 
 /-!
 # The closure of `E₀` at the towers (`StepTowerNewLevelE0Tower`)
