@@ -1624,6 +1624,7 @@ public import Balaban.Inhabited.StepTowerSmallBase
 public import Balaban.Inhabited.StepTowerChainStruct
 public import Balaban.Inhabited.StepTowerChainStep
 public import Balaban.Inhabited.StepTowerChainStructAmp
+public import Balaban.Inhabited.StepTowerNewLevelSep
 public import Balaban.Inhabited.StepTowerChainDomNbhd
 public import Balaban.Inhabited.StepTowerChainDomXi
 public import Balaban.Inhabited.StepTowerChainDomPath
