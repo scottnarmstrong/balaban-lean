@@ -219,7 +219,16 @@ theorem e0CoeffFamily_class_fromTower_of_families_red_onSet_agree_phi {κmin : �
       (Φ : (physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
       (∀ (e : physParam 2 S → Finset (CubeB (d := 3) (L := 3) (N₁ := N₁) (m₁ := T.m₁)
-          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ), B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
+          (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+        -- the spin covariance of `e`, from that of the old terms `Eτ` on the sets `𝒮`
+        ((∀ τ, ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 → ∀ r ∈ 𝒮 τ, rotRaw (cmat Q) r ∈ 𝒮 τ →
+            Eτ τ (rotRaw (cmat Q) r) = Eτ τ r) →
+          ∀ Q : Matrix (Fin 2) (Fin 2) ℝ, Qᵀ * Q = 1 →
+            ∀ θ ∈ physV S S.a₁ S.ν T.t, ∀ θ' ∈ physV S S.a₁ S.ν T.t,
+            (θ'.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) =
+              rotRaw (cmat Q) (θ.1 : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2) →
+            ∀ T', e θ' T' = e θ T') →
+        B ≤ CPE 3 3 (2 * (K0 3 3 T.κ0 + 1) + (K0 3 3 T.κ0 + rootUnionK 3 3 1 T.m₁ T.κ0) +
           rootUnionK 3 3 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0 T k β p₁ * K0 3 3 T.κ0 +
             εC * (δ₁ / (2 * markedRad 3 3 2 k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) / (2 * bb * corrU) *
@@ -277,7 +286,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_red_onSet_agree_phi {κmin : �
       hκdec hκ h1 hlog hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk hN hm1 le_rfl
       (S.blockU z) hρ hρc hp ha1 hbb.le hab 𝒴C h𝒴 h𝒴dj H (fun θ Y u Φ => by rw [hH]) hκ0' hmr
       hsa hnumR) hE hεnum Φ
-      (fun e B h => hΦ e B (h hmr hnumR))
+      (fun e B hc h => hΦ e B hc (h hmr hnumR))
 
 open Classical in
 /-- The class chain with the reduced activity family, at every tower radius -/
@@ -503,7 +512,7 @@ theorem e0CoeffFamily_class_fromTower_of_families_red_onSet_agree {κmin : ℝ} 
   refine ⟨Jr, ?_⟩
   intro C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC hmr hsa hnumR hE hεnum
   obtain ⟨e, B, -, h⟩ := @Hφ' C z ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hFl cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH εC hεC hmr hsa hnumR hE hεnum
-    (fun _ _ => True) (fun _ _ _ => trivial)
+    (fun _ _ => True) (fun _ _ _ _ => trivial)
   exact ⟨e, B, h⟩
 
 end Balaban.Inhabited

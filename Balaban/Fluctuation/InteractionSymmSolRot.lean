@@ -84,8 +84,10 @@ variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
 include hC
 
 /-- **The function expanded for a functional of `(φ_{k+1}, α_{k+1}, δφ, u)` is `O(N)`-invariant**
-on the polydisc. -/
-theorem fnOfDecSol_rot
+on the polydisc, the invariance of the functional being required only at the realizable triples over
+the point `u` whose rotation is again realizable.  The decoupled background and the fluctuation field
+of `u` give such a triple (`point_facts_core`). -/
+theorem fnOfDecSol_rot_real
     {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N →
       (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
     (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
@@ -97,9 +99,12 @@ theorem fnOfDecSol_rot
     {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
     {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
-    (hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ u,
-      Φ (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) = Φ bg δφ u)
     {u : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)}
+    (hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ,
+      (bg, δφ, u) ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      ((rotFld (cmat Q) bg.1, bg.2), rotFld (cmat Q) δφ, rotU (cmat Q) u) ∈
+        FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      Φ (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) = Φ bg δφ u)
     (hu : u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁)
     {s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ}
     (hs : s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
@@ -118,8 +123,8 @@ theorem fnOfDecSol_rot
   have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
   have hψ' : (fun x => cmat Q *ᵥ ψ' x) ∈ FlBall Hm δ₁ := hu'.2
   have hD' := xiCData_rot hQ hD
-  obtain ⟨φ, α, δφ, δα, hI, hF, hstr, hS, -⟩ := point_facts_core hC hF₁ hSol hsx hs1 hD hψ
-  obtain ⟨φ', α', δφ', δα', hI', hF', hstr', hS', -⟩ :=
+  obtain ⟨φ, α, δφ, δα, hI, hF, hstr, hS, hmem⟩ := point_facts_core hC hF₁ hSol hsx hs1 hD hψ
+  obtain ⟨φ', α', δφ', δα', hI', hF', hstr', hS', hmem'⟩ :=
     point_facts_core hC hF₁ hSol hsx hs1 hD' hψ'
   have hrot := F₁_rot hC hF₁ hsx hD hQ
   have hF'' : F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rotRaw (cmat Q) (rawOf D)) =
@@ -150,7 +155,45 @@ theorem fnOfDecSol_rot
       flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s, rawOf D)) D.Ψ ψ')).1
     (rawOf D, ψ')
   rw [hF]
-  exact hΦ (φ, α) _ (rawOf D, ψ')
+  have hSa : (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
+      flEdat Gp Hm (φ, α) D.Ψ ψ')).1 = δφ := by rw [hS]
+  have hSb : (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) s,
+      flEdat Gp Hm (rotFld (cmat Q) φ, α) (DecEquiv.rotSite (cmat Q) D.Ψ)
+        (DecEquiv.rotSite (cmat Q) ψ'))).1 = rotFld (cmat Q) δφ := by
+    rw [hE, hSolr, hSa]
+  have hδ' : δφ' = rotFld (cmat Q) δφ := by
+    have h0 := congrArg Prod.fst hS'
+    exact h0.symm.trans hSb
+  rw [hSa]
+  refine hΦ (φ, α) δφ hmem ?_
+  have h3 : ((rotFld (cmat Q) φ, α), δφ', rawOf (BgData.rot (cmat Q) D),
+      fun x => cmat Q *ᵥ ψ' x) ∈ FlReal Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁ := hmem'
+  rw [hδ'] at h3
+  exact h3
+
+/-- **The function expanded for a functional of `(φ_{k+1}, α_{k+1}, δφ, u)` is `O(N)`-invariant**
+on the polydisc. -/
+theorem fnOfDecSol_rot
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) K N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : SolSpec Gp Hm a₁ ν BG BG₂ κ eps δ₁ Sol)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ) → ℂ}
+    (hΦ : ∀ (bg : (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) δφ u,
+      Φ (rotFld (cmat Q) bg.1, bg.2) (rotFld (cmat Q) δφ) (rotU (cmat Q) u) = Φ bg δφ u)
+    {u : RawData d L (N₁ * L ^ m₁) K N × (CTorus d L N₁ m₁ K → Fin N → ℂ)}
+    (hu : u ∈ XiCRaw Gp (compWeight L a₁) ν K 1 eps ×ˢ FlBall Hm δ₁)
+    {s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ}
+    (hs : s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ K)) → ℂ)
+      (fun _ => Real.exp κ)) :
+    fnOfDec Gp Hm X₁f F₁ Sol Φ (rotU (cmat Q) u) s = fnOfDec Gp Hm X₁f F₁ Sol Φ u s :=
+  fnOfDecSol_rot_real hC hF₁ hSol hQ (fun bg δφ _ _ => hΦ bg δφ u) hu hs
 
 /-- **The expansion terms of a functional of `(φ_{k+1}, α_{k+1}, δφ, u)` inherit its
 `O(N)`-invariance**: `𝓔(X, Y)(R u) = 𝓔(X, Y)(u)` whenever
