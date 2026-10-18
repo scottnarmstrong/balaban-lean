@@ -2704,3 +2704,5 @@ public import Balaban.Inhabited.StepTowerCollarCore
 public import Balaban.Inhabited.StepTowerCollarX
 public import Balaban.Inhabited.StepTowerCollarBgSet
 public import Balaban.Inhabited.StepTowerCollarBase
+public import Balaban.Inhabited.StepTowerCollarStruct
+public import Balaban.Inhabited.StepTowerCollarStep
