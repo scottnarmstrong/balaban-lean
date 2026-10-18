@@ -1705,6 +1705,7 @@ public import Balaban.Fluctuation.LocalSetDetCrossGeom
 public import Balaban.Fluctuation.LocalSetDetCrossCut
 public import Balaban.Fluctuation.LocalSetDetCrossTrace
 public import Balaban.Fluctuation.LocalSetDetCrossAct
+public import Balaban.Fluctuation.LocalSetDetFlCore
 public import Balaban.Fluctuation.LocalSetActBlock
 public import Balaban.Fluctuation.LocalSetActLocalB
 public import Balaban.Fluctuation.LocalSetActHat
