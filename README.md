@@ -22,40 +22,43 @@ is largely formalized, for general d, L and N. The remaining work is concentrate
 described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
 
 - **The large-field gas (blocker 4).** The gas of removed large-field components is bounded from
-  the bound of each removed outcome, summed over histories. That bound is being completed along
-  P7: the intermediate Gaussian variables of the window are integrated exactly, the actions of
-  its steps are summed into the action of the window up to a bounded constant (P7 (2.15′)), and
-  the cancellation identity of (2.58′) is applied. The comparison of the steps' actions with the
-  window's needs five physical estimates for the actual history, not for an arbitrary
-  decomposition; the actual window setup is being built for them. The bounds of the kept
-  components (Theorem III.8.9 (a)) have their gains for the first and third outcomes.
+  the bound of each removed outcome, summed over histories. The composed window bound is now
+  proved (the intermediate Gaussian variables integrated exactly, the steps' actions summed into
+  the window's, the cancellation identity of P7 (2.58′)), from named P7 source estimates. For the
+  comparison of the steps' actions with the window's, the read transport is proved, each piece has
+  a positive decomposition of the right size, the response of the background to a change of
+  coefficient is proved, and the coefficient premise follows from read-energy budgets; the shared
+  regional source estimate and the pair estimate remain. R's output is being written as a gas of
+  removed clusters (ruling R4).
 - **The last integral and the case with no renormalization step (blockers 5 and 1).** The
-  large-field part was first written as one factor per bad block times boundary terms. An
-  explicit example shows that this factorization fails for exact cut-off cells: a good block
-  between two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead
-  expands into linked terms, switched on by a possibly disconnected set of bad blocks and reading a
-  connected region. The linked Mayer identity is proved; the gas bound for such terms and their
-  identification with P7's operator are being built. The first large-field component of the base
-  case has its local pieces (chart, cut positivity, determinant factorization, record count,
-  reserve); its physical kernel is next.
+  large-field part cannot be one factor per bad block times boundary terms: a good block between
+  two bad blocks couples them (`notes/phase1/astra/KF0B.md`, Theorem B.7). P7 instead expands into
+  linked terms, switched on by a possibly disconnected set of bad blocks and reading a connected
+  region. The gas for such terms is proved (exact identity and activity bound, with the large
+  boundary constant paid by the heavy charge), and so is the bound on the coefficient summed over
+  all linked clusters with a given footprint; their identification with P7's operator is in
+  progress. The first large-field component of the base case has its local pieces; its physical
+  kernel waits on a change of the base carrier (ruling R7).
 - **The general inductive class (blocker 6).** The inherited terms enter through their irrelevant
-  parts (P1 Prop. 3.10). The chain is proved with the per-label bounds as inputs, at an actual
-  tower whose numerical conditions are now satisfied; the per-label bounds (the anisotropic datum,
-  the patched field in the class domain, the torus defect at the centre's cube) are in progress.
-- **Two tori (blocker 7).** The clause at the gap scales is proved given the step terms; the
-  determinant term of the tower is tied to it, and the energy and observable terms are being tied.
-- **From one step to the next (the backbone).** The tower produces each step's setting but not yet
-  the next step's class. The old terms are now transported to the next scale's torus, with their
-  generating sets and locality; their remaining clauses are in progress. The domain of the old
-  levels needs a decision: with the current scale's mass for every level, the domains are not
-  inherited across a step (an explicit example, `notes/phase1/astra/SFFAM.md` Part 3), and domains
-  frozen at each level's birth mass are proposed. Root-C's coefficient flow is formalized for the parts that do not depend on
-  this (complex charts, the large-β contraction, coherent inputs along the flow).
-- **Blockers 2 and 3.** The change of background along the flow is formalized up to the physical
-  kernels and waits on a ruling that changes two definitions. For old boundary terms across a long
-  hole, the sufficient condition (an extra decay factor for clusters that couple two attachments
-  across a hole) is proved in exponent arithmetic, and its physical producer needs the same
-  linked construction as the last integral.
+  parts (P1 Prop. 3.10). The chain is proved at an actual tower with its numerical and structural
+  premises discharged and the class domain shown to contain a ball around the constant field; the
+  per-label bounds are proved for the non-special labels, and for the torus defect the full raw
+  second-moment cancellation is proved. Remaining: the tails of the filed defect, and the composed
+  pairs in the class domain (a radius condition like the chart condition).
+- **Two tori (blocker 7).** The clause at the gap scales is proved at the tower, on one family of
+  tori of every size, with the energy, determinant and observable terms tied to the step terms and
+  the geometry proved. What it takes as input is the agreement of the earlier scales' data on two
+  tori (the induction over scales); for Root-F, the sum over roots and the inherited terms remain.
+- **From one step to the next (the backbone).** The old terms are transported to the next scale's
+  torus, and on domains frozen at each level's birth mass (ruling R6) they keep all the clauses of
+  the class, including torus independence and the renormalization conditions. The step's large-field
+  data carry the vacuum constants of the step that created each region (ruling R5). What remains is
+  the new level's terms from the step and the density identity. Root-C's coefficient flow is
+  formalized for the parts that do not depend on the next class.
+- **Blockers 2 and 3.** The change of background along the flow is being implemented (ruling R2:
+  separate background and cutoff masses, extended direction tests, complex sources). For old
+  boundary terms across a long hole, the sufficient condition is proved in exponent arithmetic; its
+  physical producer needs the linked construction of the last integral.
 
 We no longer wait for the author's answers to source questions: where the papers are ambiguous we
 choose a reading and prove what it needs ([`notes/phase1/PLAN-B.md`](notes/phase1/PLAN-B.md)).
