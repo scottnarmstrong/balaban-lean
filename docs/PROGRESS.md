@@ -48,7 +48,7 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit 1845cce2 2026-10-18.
+Computed at commit a4b47d64 2026-10-18.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
@@ -58,11 +58,11 @@ Computed at commit 1845cce2 2026-10-18.
 | Background fields and generating sets (P2) | 117 | 41,059 | 2,137 |
 | Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
 | Small-field class (P1, P4, P5) | 219 | 55,021 | 2,464 |
-| Fluctuation step and renormalization (P4-P6) | 599 | 200,969 | 6,084 |
-| Instantiated step at fixed parameters | 366 | 112,726 | 2,892 |
-| Large-field regions (P5-P7, E9-E10) | 784 | 190,298 | 8,639 |
+| Fluctuation step and renormalization (P4-P6) | 599 | 201,216 | 6,087 |
+| Instantiated step at fixed parameters | 404 | 121,743 | 3,009 |
+| Large-field regions (P5-P7, E9-E10) | 803 | 194,027 | 8,702 |
 | Observables and correlations (P8, P9) | 75 | 17,302 | 681 |
-| **Total** | **2839** | **836,442** | **31,727** |
+| **Total** | **2896** | **849,435** | **31,910** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -98,3 +98,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-18 | ~84% | ~56% | Astras retired; Claude workers only. Blocker 7: the gap-scale clause at the tower on one family of tori of every size, geometry proved. Blocker 4: the composed window bound; the read transport, the positive piece decomposition, the coefficient response. Blocker 6: the chain at an actual tower with numerical and structural premises discharged, the class-domain ball, the non-special per-label bound, the raw second-moment cancellation. Backbone: inheritance of the old levels on birth-mass domains with all class and family clauses (ruling R6); vacuum constants in the step data (ruling R5). Blocker 5: the linked gas and the aggregated coefficient bound. |
 | 2026-10-18 (later) | ~85% | ~57% | Blocker 4: the window conversion assembled for the actual pieces with every premise proved except the stability of the background under a change of generating set (P7 (2.14)), now in progress; R2 landed (three masses, extended direction tests, complex sources). Blocker 6: the chain needs the per-label bounds only at the step's composed data; the filed torus defect at every centre, also on birth-mass domains; towers with a scale-dependent step radius satisfy the radius room. Blocker 7: the clause on Root-F's exact box with the observable terms in Root-F's bound form; open: one family of terms for all tori. Backbone: old levels inherit on birth-mass domains (R6). |
 | 2026-10-18 (evening) | ~86% | ~57% | Blocker 6: the chain at towers for every scale with one β₀ (step radius t_k = ε_{k+1}, a separate fluctuation radius, the papers' collar): the step's chart covers the next class's chart and the inherited terms keep room; at the narrower collar used before the two are proved incompatible. Backbone: the new level's labels, the sum of their bounds (class rates κ ≤ 1/5) and the covariance of its densities under the full symmetry group. Blocker 4: background stability under a change of generating set and the window's background hypotheses; the window's field off the pieces is the last design point. Audit of the approved definitions: faithful except CRotE (ruling asked). |
+| 2026-10-18 (night) | ~87% | ~57% | Blocker 4: the window's field off the pieces by P7's design (one configuration for pieces and window), the window domain from the pieces, the lift to the pieces' data; found: the cancellation chain's reference datum is zero on the collar, outside the domain (being restated per the collar ruling). Blocker 6 and backbone: the E₀ closure on one property-forwarding chain; spin covariance of each coefficient at the final chain theorem; the labels on the hull of their read sets; the renormalized field in the step's chart and the second-order counterterms at the towers; the local charts need the step's objects for a general generating set (ruling R8 asked). |

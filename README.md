@@ -29,9 +29,10 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   pieces (read transport, coefficient, source and pair estimates, with constants uniform in the
   scale), and so are the stability of the background under a change of generating set (P7 (2.14))
   and the background hypotheses of the window. Following P7, the pieces and the window are evaluated
-  at one configuration, which gives the window's domain from the pieces' domains; what remains is
-  that the window point's field restricts to the pieces' data, and the link with the reference
-  datum of the cancellation chain. R's output is being written as a gas of removed clusters
+  at one configuration, which gives the window's domain from the pieces' domains, and the window
+  point's field restricts to the pieces' data. The reference datum of the cancellation chain was
+  found to be outside the domain on the collar (it is zero there), which made that chain's hypothesis
+  unsatisfiable; it is being restated with the collar data required by the collar ruling. R's output is being written as a gas of removed clusters
   (ruling R4).
 - **The last integral and the case with no renormalization step (blockers 5 and 1).** The
   large-field part cannot be one factor per bad block times boundary terms: a good block between
@@ -47,7 +48,12 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   step radius follows the class radius (t_k = ε_{k+1}), the fluctuation radius is separate, and the
   collar is the papers' wider one, so the step's chart covers the next class's chart while the
   inherited terms keep room in their domains (with the narrower collar used before, the two are
-  proved incompatible). The filed torus defect is bounded at every centre.
+  proved incompatible). The filed torus defect is bounded at every centre. The coefficients of the
+  chain are invariant under spin rotations, label by label, at the final theorem. The new level's
+  terms must be computed with the local generating set of each polymer, as in P3 (4.44)–(4.47):
+  mapping a local field to the step's chart is impossible in general (a local field can wind around a
+  hole of the polymer). This needs the step's objects for a general background generating set
+  (ruling R8 asked); the parts that need no ruling are in progress.
 - **Two tori (blocker 7).** The clause at the gap scales is proved at the tower, on one family of
   tori of every size, with the energy, determinant and observable terms tied to the step terms and
   the geometry proved. What it takes as input is the agreement of the earlier scales' data on two
@@ -56,10 +62,12 @@ described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
   torus, and on domains frozen at each level's birth mass (ruling R6) they keep all the clauses of
   the class, including torus independence and the renormalization conditions. The step's large-field
   data carry the vacuum constants of the step that created each region (ruling R5). For the new
-  level, the labels from the chain, the sum of their bounds (every class rate κ ≤ 1/5 at d = L = 3)
-  and the covariance of its densities under the full symmetry group are proved; its terms on the
-  local charts of each polymer, the closure of its energy constant and the counterterms of P4
-  (4.14)–(4.22) remain. Root-C's coefficient flow is
+  level, the labels from the chain on the hull of their read sets, the sum of their bounds (every
+  class rate κ ≤ 1/200 at d = L = 3), the covariance of its densities under the full symmetry group,
+  the closure of its energy constant (one chain carrying any property of the coefficients from the
+  core to the final theorem), the renormalized field in the step's chart and the second-order
+  counterterms at the towers are proved; its terms on the local charts, the old terms of a general
+  class at the renormalized field and the assembly of the new energy density remain. Root-C's coefficient flow is
   formalized for the parts that do not depend on the next class.
 - **Blockers 2 and 3.** The change of background along the flow is being implemented (ruling R2:
   separate background and cutoff masses, extended direction tests, complex sources). For old
