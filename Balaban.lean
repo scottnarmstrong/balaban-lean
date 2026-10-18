@@ -2501,6 +2501,7 @@ public import Balaban.SmallField.IrrelTorusDefectInfTail
 public import Balaban.SmallField.IrrelTorusDefectMatch
 public import Balaban.SmallField.IrrelTorusDefectSplit
 public import Balaban.SmallField.IrrelTorusDefectFiled
+public import Balaban.SmallField.IrrelTorusDefectFiledPower
 public import Balaban.SmallField.IrrelTorusDefectRawSymm
 public import Balaban.SmallField.IrrelTorusDefectRawMatrix
 public import Balaban.SmallField.IrrelTorusDefectSizeTransport
