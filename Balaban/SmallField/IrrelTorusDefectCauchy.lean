@@ -10,10 +10,12 @@ public import Balaban.SmallField.RenormAnisoCtx
 /-!
 # Cauchy form of the filed term
 
-For a term family with the anisotropic premises and data in the anisotropic class, the filed
-term `T_X + Φ_{y,X}` of one polymer is bounded by `C E₀ (1 + d_j(X))^4 e^{-κ d_j(X)}`, with `C`
-depending only on `N`, `Λ`, the diameter constant and the linear count constant. The longitudinal
-radius `r²` and the transverse radius `r` cancel the denominators of the Cauchy bounds.
+For a term analytic and bounded on the anisotropic polydisc and a datum with the anisotropic
+properties, the filed term `T_X + Φ_{y,X}` of one polymer is bounded by `C M t^4`, `t = 1 + d_j(X)`,
+with `C` depending only on `N`, `Λ`, the diameter constant and the linear count constant. The
+longitudinal radius `r²` and the transverse radius `r` cancel the denominators of the Cauchy
+bounds. No membership of the datum in a domain of terms is used: the datum enters through its
+frame, its adjacent differences and its longitudinal field component only.
 -/
 
 @[expose] public section
@@ -24,56 +26,103 @@ namespace Balaban.SmallField
 
 variable {d N : ℕ}
 
-section CtxAniso
+section Lite
 
-variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
+variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r A Λ M σ ε K₂ t : ℝ} {X : Finset (Site d)}
   {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
-  {σ ε K₂ : ℝ} {u : ℂ} {R : Matrix (Fin N) (Fin N) ℂ}
 
-theorem CtxAniso.norm_phitw_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
-    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+/-- The second order part `Φ_{y,X}` of the filed term in the anisotropic Cauchy form. -/
+theorem norm_phitw_le_of_data (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
+    (hσ : 0 < σ) (hσ1 : σ ≤ 1) (hε : 0 < ε) (hεΛ : ε ≤ Λ * r) (hτ : σ ^ 2 * ε ≤ 1 / 4)
+    (hr : 0 < r) (han : AnalyticOnNhd ℂ (T.term X) (polyAniso i₀ ν r X))
+    (hM : ∀ c ∈ polyAniso i₀ ν r X, ‖T.term X c‖ ≤ M)
+    (hdiam : ∀ x ∈ X, (l1 x : ℝ) ≤ A * t) :
     ‖Phitw T i₀ i₁ ν X ψ‖ ≤
-      (X.card : ℝ) ^ 2 * (E₀ * Real.exp (-κ * T.dist X)) *
-        ((2 * (A * (1 + T.dist X))) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
-  have hr := c.rpos
-  have hM0 : 0 ≤ E₀ * Real.exp (-κ * T.dist X) := by have := c.E0nn; positivity
-  rw [c.frame.phitw_eq c.τle, norm_neg]
-  have h := c.Lq_le hX
-  have hσε : σ * ε ≤ Λ * r := by
-    have := c.σle; have := c.εle; have := c.εpos; nlinarith
-  have hσε0 : 0 ≤ σ * ε := by have := c.σpos; have := c.εpos; positivity
-  have h3 : (N * (N * 40 * (σ * ε)) ^ 2) ≤ (N * (N * 40 * (Λ * r)) ^ 2) := by
-    gcongr
-  refine h.trans ?_
-  have e : (X.card : ℝ) ^ 2 * (E₀ * Real.exp (-κ * T.dist X) / r ^ 2) *
-        ((2 * (A * (1 + T.dist X))) ^ 2 * (N * (N * 40 * (Λ * r)) ^ 2)) =
-      (X.card : ℝ) ^ 2 * (E₀ * Real.exp (-κ * T.dist X)) *
-        ((2 * (A * (1 + T.dist X))) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
-    field_simp
-  rw [← e]
-  gcongr
+      (X.card : ℝ) ^ 2 * M * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
+  obtain ⟨u, R, fr⟩ := exists_frame i₀ dat.toDataHyp hτ
+  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM _ (refPt_mem_polyAniso hr))
+  have hΛ : 0 ≤ Λ := by
+    by_contra h
+    push Not at h
+    nlinarith
+  have hN : (0 : ℝ) ≤ N := Nat.cast_nonneg N
+  have hσε : σ * ε ≤ Λ * r := by nlinarith
+  have hσε0 : 0 ≤ σ * ε := by positivity
+  rw [fr.phitw_eq hτ, norm_neg]
+  have hrot : ∀ x : Site d, ‖rotDiff R ψ x‖ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := by
+    intro x
+    have h := norm_mulVec_le (R := R) (B := 40) (by norm_num) (fun i k => by
+      have := fr.bd i k; simpa [rotBound] using this) (ψ x - ψ 0)
+    have h2 := norm_sub_le_l1 (ψ := ψ) (δ := σ * ε) dat.adj 0 x
+    simp only [zero_add] at h2
+    unfold rotDiff
+    calc ‖R.mulVec (ψ x - ψ 0)‖ ≤ N * 40 * ‖ψ x - ψ 0‖ := h
+      _ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := mul_le_mul_of_nonneg_left h2 (by positivity)
+  have hGm : ∀ μ μ', ‖gradTensor i₀ R ψ μ μ'‖ ≤ N * (N * 40 * (σ * ε)) ^ 2 := by
+    intro μ μ'
+    have hφ : ∀ ν', ‖rotDiff R ψ (eU ν')‖ ≤ N * 40 * (σ * ε) := fun ν' => by
+      have := hrot (eU ν')
+      rwa [l1_eU, Nat.cast_one, one_mul] at this
+    refine (norm_dotT_le i₀ _ _).trans ?_
+    rw [sq]
+    exact mul_le_mul_of_nonneg_left (mul_le_mul (hφ μ) (hφ μ') (norm_nonneg _) (by positivity)) hN
+  have hcard : (Fintype.card ↥X : ℝ) = X.card := by simp
+  have hcr2 : 0 ≤ 4 * M / r ^ 2 := by positivity
+  have h1 : ‖∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+      wquad (gradTensor i₀ R ψ) x.1 x'.1‖ ≤ (Fintype.card ↥X : ℝ) * ((Fintype.card ↥X : ℝ) *
+        (4 * M / r ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * (σ * ε)) ^ 2)))) := by
+    refine norm_sum_le_card _ fun x => ?_
+    refine norm_sum_le_card _ fun x' => ?_
+    rw [norm_mul]
+    refine mul_le_mul (aniso_norm_D2_basis_le hr han hM (anisoWt_inl _) (anisoWt_inl _)) ?_
+      (norm_nonneg _) (by positivity)
+    refine (norm_wquad_le _ hGm x.1 x'.1).trans ?_
+    have hl : (l1 (x.1 - x'.1) : ℝ) ≤ 2 * (A * t) := by
+      have := l1_sub_le x.1 x'.1
+      have h3 : (l1 (x.1 - x'.1) : ℝ) ≤ l1 x.1 + l1 x'.1 := by exact_mod_cast this
+      have h4 := hdiam x.1 x.2
+      have h5 := hdiam x'.1 x'.2
+      linarith
+    have hl0 : (0 : ℝ) ≤ l1 (x.1 - x'.1) := Nat.cast_nonneg _
+    have : 0 ≤ (N : ℝ) * (N * 40 * (σ * ε)) ^ 2 := by positivity
+    exact mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hl0 hl 2) this
+  unfold Lx
+  rw [norm_mul]
+  have h2 : ‖(1 / 4 : ℂ)‖ = 1 / 4 := by simp
+  rw [h2, hcard] at *
+  have h3 : (N * (N * 40 * (σ * ε)) ^ 2) ≤ (N * (N * 40 * (Λ * r)) ^ 2) := by gcongr
+  calc 1 / 4 * ‖∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+        wquad (gradTensor i₀ R ψ) x.1 x'.1‖
+      ≤ 1 / 4 * ((X.card : ℝ) * ((X.card : ℝ) *
+        (4 * M / r ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * (σ * ε)) ^ 2))))) :=
+        mul_le_mul_of_nonneg_left h1 (by norm_num)
+    _ ≤ 1 / 4 * ((X.card : ℝ) * ((X.card : ℝ) *
+        (4 * M / r ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * (Λ * r)) ^ 2))))) := by gcongr
+    _ = (X.card : ℝ) ^ 2 * M * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
+        field_simp
 
 
-theorem CtxAniso.norm_ttw_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
-    {X : Finset (Site d)} (hX : X ∈ T.polys) :
-    ‖Ttw T i₀ ν X ψ b‖ ≤
-      (E₀ * Real.exp (-κ * T.dist X)) * (1 + Λ * (X.card : ℝ) + Λ ^ 2) := by
-  have hr := c.rpos
-  have han := c.analytic_poly hX
-  have hM := c.hM hX
-  set M : ℝ := E₀ * Real.exp (-κ * T.dist X) with hMdef
-  have hM0 : 0 ≤ M := by have := c.E0nn; positivity
-  have hΛ := c.Λnn
+/-- The first order part `T_X` of the filed term in the anisotropic Cauchy form. -/
+theorem norm_ttw_le_of_data (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
+    (hσ : 0 < σ) (hσ1 : σ ≤ 1) (hε : 0 < ε) (hεΛ : ε ≤ Λ * r) (hτ : σ ^ 2 * ε ≤ 1 / 4)
+    (hr : 0 < r) (han : AnalyticOnNhd ℂ (T.term X) (polyAniso i₀ ν r X))
+    (hM : ∀ c ∈ polyAniso i₀ ν r X, ‖T.term X c‖ ≤ M) :
+    ‖Ttw T i₀ ν X ψ b‖ ≤ M * (1 + Λ * (X.card : ℝ) + Λ ^ 2) := by
+  obtain ⟨u, R, fr⟩ := exists_frame i₀ dat.toDataHyp hτ
+  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM _ (refPt_mem_polyAniso hr))
+  have hΛ : 0 ≤ Λ := by
+    by_contra h
+    push Not at h
+    nlinarith
   have hα : ‖uInv ψ - 1‖ ≤ Λ * r := by
-    rw [c.uInv_eq]
-    refine c.frame.u_close.trans ?_
-    have h1 : σ ^ 2 ≤ 1 := by have := c.σle; have := c.σpos; nlinarith
-    have := c.εle; have := c.εpos
+    rw [fr.uInv_eq hτ]
+    refine fr.u_close.trans ?_
+    have h1 : σ ^ 2 ≤ 1 := by nlinarith
     nlinarith
   have hβ : ‖vInv ψ b - ν‖ ≤ Λ ^ 2 * r ^ 2 := by
-    refine c.dat.b_long.trans ?_
-    have h1 : σ ^ 2 ≤ 1 := by have := c.σle; have := c.σpos; nlinarith
-    have h2 : ε ^ 2 ≤ (Λ * r) ^ 2 := pow_le_pow_left₀ c.εpos.le c.εle 2
+    refine dat.b_long.trans ?_
+    have h1 : σ ^ 2 ≤ 1 := by nlinarith
+    have h2 : ε ^ 2 ≤ (Λ * r) ^ 2 := pow_le_pow_left₀ hε.le hεΛ 2
     calc σ ^ 2 * ε ^ 2 ≤ 1 * ε ^ 2 := by gcongr
       _ ≤ (Λ * r) ^ 2 := by linarith
       _ = _ := by ring
@@ -92,43 +141,41 @@ theorem CtxAniso.norm_ttw_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Do
         gcongr
     _ = M * (1 + Λ * (X.card : ℝ) + Λ ^ 2) := by field_simp
 
-
 /-- **Cauchy form of the filed term** (`T_X + Φ_{y,X}`): with the linear count bound
-`|X| ≤ H (1 + d_j(X))`, the sum is bounded by `C E₀ e^{-κ d_j(X)} (1 + d_j(X))^4`, with `C`
-depending on `N, Λ, A, H` only. -/
-theorem CtxAniso.norm_ttw_add_phitw_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
-    {X : Finset (Site d)} (hX : X ∈ T.polys) {H : ℝ} (hH : 0 ≤ H)
-    (hcard : (X.card : ℝ) ≤ H * (1 + T.dist X)) :
+`|X| ≤ H t`, `t = 1 + d_j(X) ≥ 1`, the sum is bounded by `C M t^4`, where `M` bounds the term on
+the anisotropic polydisc and `C` depends on `N`, `Λ`, `A`, `H` only. -/
+theorem norm_ttw_add_phitw_le_of_data (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
+    (hσ : 0 < σ) (hσ1 : σ ≤ 1) (hε : 0 < ε) (hεΛ : ε ≤ Λ * r) (hτ : σ ^ 2 * ε ≤ 1 / 4)
+    (hr : 0 < r) (han : AnalyticOnNhd ℂ (T.term X) (polyAniso i₀ ν r X))
+    (hM : ∀ c ∈ polyAniso i₀ ν r X, ‖T.term X c‖ ≤ M)
+    (hdiam : ∀ x ∈ X, (l1 x : ℝ) ≤ A * t) (ht : 1 ≤ t) {H : ℝ} (hH : 0 ≤ H)
+    (hcard : (X.card : ℝ) ≤ H * t) :
     ‖Ttw T i₀ ν X ψ b + Phitw T i₀ i₁ ν X ψ‖ ≤
-      (1 + Λ * H + Λ ^ 2 + H ^ 2 * (2 * A) ^ 2 * (N * (N * 40 * Λ) ^ 2)) *
-        (E₀ * (1 + T.dist X) ^ 4 * Real.exp (-κ * T.dist X)) := by
-  have hd0 : 0 ≤ T.dist X := c.hyp.dist_nonneg X hX
-  have hΛ := c.Λnn
-  have hE := c.E0nn
-  set t : ℝ := 1 + T.dist X with ht
-  have ht1 : 1 ≤ t := by rw [ht]; linarith
-  set M : ℝ := E₀ * Real.exp (-κ * T.dist X) with hMdef
-  have hM0 : 0 ≤ M := by positivity
+      (1 + Λ * H + Λ ^ 2 + H ^ 2 * (2 * A) ^ 2 * (N * (N * 40 * Λ) ^ 2)) * (M * t ^ 4) := by
+  have hM0 : 0 ≤ M := (norm_nonneg _).trans (hM _ (refPt_mem_polyAniso hr))
+  have hΛ : 0 ≤ Λ := by
+    by_contra h
+    push Not at h
+    nlinarith
   have hc0 : (0 : ℝ) ≤ X.card := Nat.cast_nonneg _
-  have h1 := c.norm_ttw_le hX
-  have h2 := c.norm_phitw_le hX
+  have h1 := norm_ttw_le_of_data dat hσ hσ1 hε hεΛ hτ hr han hM
+  have h2 := norm_phitw_le_of_data (i₁ := i₁) dat hσ hσ1 hε hεΛ hτ hr han hM hdiam
   refine (norm_add_le _ _).trans ((add_le_add h1 h2).trans ?_)
-  have ht4 : 1 ≤ t ^ 4 := one_le_pow₀ ht1
+  have ht4 : 1 ≤ t ^ 4 := one_le_pow₀ ht
   have hK : 0 ≤ (N : ℝ) * (N * 40 * Λ) ^ 2 := by positivity
-  have hcard2 : (X.card : ℝ) ^ 2 ≤ (H * t) ^ 2 := pow_le_pow_left₀ hc0 hcard 2
   have e1 : Λ * (X.card : ℝ) ≤ Λ * H * t ^ 4 := by
     calc Λ * (X.card : ℝ) ≤ Λ * (H * t) := by gcongr
       _ = Λ * H * t := by ring
       _ ≤ Λ * H * t ^ 4 := by
-        have : t ≤ t ^ 4 := by nlinarith [pow_le_pow_right₀ ht1 (by norm_num : 1 ≤ 4)]
+        have : t ≤ t ^ 4 := by nlinarith [pow_le_pow_right₀ ht (by norm_num : 1 ≤ 4)]
         have : 0 ≤ Λ * H := by positivity
         nlinarith
   have e2 : (X.card : ℝ) ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) ≤
       H ^ 2 * (2 * A) ^ 2 * (N * (N * 40 * Λ) ^ 2) * t ^ 4 := by
     calc (X.card : ℝ) ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2))
-        ≤ (H * t) ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by gcongr
+        ≤ (H * t) ^ 2 * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) := by
+          gcongr
       _ = H ^ 2 * (2 * A) ^ 2 * (N * (N * 40 * Λ) ^ 2) * t ^ 4 := by ring
-  have e3 : 1 ≤ t ^ 4 := ht4
   have e4 : Λ ^ 2 ≤ Λ ^ 2 * t ^ 4 := by nlinarith [sq_nonneg Λ]
   have hsum : M * (1 + Λ * (X.card : ℝ) + Λ ^ 2) +
       (X.card : ℝ) ^ 2 * M * ((2 * (A * t)) ^ 2 * (N * (N * 40 * Λ) ^ 2)) ≤
@@ -139,8 +186,8 @@ theorem CtxAniso.norm_ttw_add_phitw_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A 
     apply mul_le_mul_of_nonneg_left _ hM0
     nlinarith
   calc _ ≤ M * ((1 + Λ * H + Λ ^ 2 + H ^ 2 * (2 * A) ^ 2 * (N * (N * 40 * Λ) ^ 2)) * t ^ 4) := hsum
-    _ = _ := by rw [hMdef]; ring
+    _ = _ := by ring
 
-end CtxAniso
+end Lite
 
 end Balaban.SmallField
