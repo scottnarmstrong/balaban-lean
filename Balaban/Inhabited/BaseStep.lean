@@ -32,16 +32,15 @@ theorem baseStepData_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ)
   obtain ⟨inp⟩ := baseSmallFieldInput_nonempty geo cs N k0
   exact ⟨baseStepData_of_input inp hz hc⟩
 
-/-- **The Gaussian structure is inhabited** for every admissible history, component and raw spins. -/
+/-- **The Gaussian structure is inhabited** for every admissible history, and component. -/
 theorem gaussStructureFn_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (br : BaseRecord S.d S.L (n 1) (R 0)) (hbr : br = H.baseRecord)
-    (φ : CfgT S.d N S.L (n 1)) :
+     :
     ∃ (Kfn : OutT N R (H.localHistory 1 1 1 Z') 1 → NewCfg N (H.localHistory 1 1 1 Z') 0 →
         EuclideanSpace ℝ (Fin N) → ℝ) (wit : GaussWit N R (H.localHistory 1 1 1 Z') 0),
       GaussStructureFn cs (H.localHistory 1 1 1 Z') 0 Kfn wit := by
   obtain ⟨inp⟩ := baseSmallFieldInput_nonempty geo cs N k0
-  exact ⟨_, _, (baseStepData_of_input inp hz hc).gauss1 H hH Z' br hbr φ⟩
+  exact ⟨_, _, (baseStepData_of_input inp hz hc).gauss1 H hH Z'⟩
 
 end Balaban.Inhabited
