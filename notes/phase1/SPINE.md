@@ -100,7 +100,14 @@ asks, on every admissible torus:
      to `k`. A truncated `RunningHyp`, or `P.beta` pinned beyond `k`, is needed;
    * (d) `S.Good` and (H-λ) `hH1`, `hH2` (LFR Lemma IV.3.3 (c); window `(d−2)/2 < θ ≤ (d−2) log L`) as a lemma of the prefix.
 
-   ~600.
+   **Proved (W1106):** (a), (b) by W1099 (`IsRep2.toFlat_of_all_horizons`); (c) `BudgetSetupTo S P c` (Lemma B and Lemma II.1.2 for
+   (I.2) up to the scale `c`, `Analytic/Constants.lean`, `Budget/LemmaB.lean`; `BudgetSetup` is its every-cutoff case, `BudgetSetup.toTo`);
+   (d) `exists_good_lamHat`, `hLam_window` (needs `c_H ≥ d(d-2) log L / 2`, `log β ≥ 2d`), `analyticK_at`, `kZero_le_horizon`
+   (`Spine/TransferAnalysis.lean`); `flatClassAt_of_repClassAt` (one class member) and `transferInput_of_prefix`
+   (`Spine/Transfer.lean`): `PrefixInput` and `TransferTyping` give `TransferInput`.
+   **Finding:** `PrefixInput` does not constrain `Ty κ c₉` beyond `L, M`, nor `PB κ c₉`; `S.Good` (needs `Typing.Ok`), (H-λ) (needs
+   `c_H ≥ d(d-2) log L / 2`, `θ₋ ≤ (d-2) log L ≤ θ₊`) and the budget setup (`H₀ > 0`, `c₁ ≥ 0`, `L ≤ M`, `c_v ≥ M^d (H₀+c₁+3)`) need them.
+   They are collected in `TransferTyping` (inhabited, `transferTyping_exists`). The orchestrator may add these clauses to `PrefixInput`.
 5. **`FrozenStepInput` (A4, LF-5)**: `max(k₀,1) ≤ k < k̂_f`, `ν_k ≤ 7/8 L⁻²`, `ℛ♭_k → ℛ♭_{k+1}`, `∫ρ' = c∫ρ`; LFR Thm IV.2.2,
    switch FLUCTUATION Lemma 2.9. Landed: the small-field pieces of item 3. `Rep.budgetFlat_of_LF2` does not apply at
    `K = k̂_f + 1` (D3). Named sub-inputs: 4 (a), (c), (d) for (H6♭) at `k + 1`; the step theorem; blocker 2; R5′; blocker 6.
