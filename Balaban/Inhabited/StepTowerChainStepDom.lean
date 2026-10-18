@@ -26,7 +26,7 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- **The `_step` class chain at a tower for the domain `xiFieldDom`**: `e0CoeffFamily_class_exists_tower_struct_step` with `hdom` discharged by `exists_xiDom_ball`. -/
-theorem e0CoeffFamily_class_exists_tower_structe0CoeffFamily_class_exists_tower_struct_xiFieldDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+theorem e0CoeffFamily_class_exists_tower_struct_xiFieldDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ (κmin : ℝ) (_ : stepHullMin ≤ κmin) (T : StepTower κmin) (δ₃ δfl κdec : ℝ), ∃ β₀ : ℝ, 3 ≤ β₀ ∧
       ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_ : 3 ∣ N₁), 5 < N₁ →
       ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
@@ -151,7 +151,7 @@ theorem e0CoeffFamily_class_exists_tower_structe0CoeffFamily_class_exists_tower_
 
 open Classical in
 /-- **The `_step` class chain at a tower for the pinned domain `pinFieldDom`**: `e0CoeffFamily_class_exists_tower_struct_step` with `hdom` discharged by `exists_pin_ball`. -/
-theorem e0CoeffFamily_class_exists_tower_structe0CoeffFamily_class_exists_tower_struct_pinFieldDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+theorem e0CoeffFamily_class_exists_tower_struct_pinFieldDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ (κmin : ℝ) (_ : stepHullMin ≤ κmin) (T : StepTower κmin) (δ₃ δfl κdec : ℝ), ∃ β₀ : ℝ, 3 ≤ β₀ ∧
       ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_ : 3 ∣ N₁), 5 < N₁ →
       ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
@@ -277,7 +277,7 @@ theorem e0CoeffFamily_class_exists_tower_structe0CoeffFamily_class_exists_tower_
 
 open Classical in
 /-- **The `_step` class chain at a tower for the birth-mass domain `birthXiDom`**: `e0CoeffFamily_class_exists_tower_struct_step` with `hdom` discharged by `exists_birthXiDom_ball`. -/
-theorem e0CoeffFamily_class_exists_tower_structe0CoeffFamily_class_exists_tower_struct_birthXiDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
+theorem e0CoeffFamily_class_exists_tower_struct_birthXiDom_step (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) :
     ∃ (κmin : ℝ) (_ : stepHullMin ≤ κmin) (T : StepTower κmin) (δ₃ δfl κdec : ℝ), ∃ β₀ : ℝ, 3 ≤ β₀ ∧
       ∀ (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (_ : 3 ∣ N₁), 5 < N₁ →
       ∀ ν : ℝ, 0 < ν → ν * 3 ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
