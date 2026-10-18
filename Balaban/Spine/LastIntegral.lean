@@ -36,26 +36,26 @@ The sub-inputs:
   (H.7) of the class at the constant configuration with the ties of `PrefixInput` (`δ ≤ γ - α₁`,
   `κ_flow ≥ C_{d,L}(κ + 1)`, `c₉^{flow} ≤ (c₉/2) e^{-κ_flow}`) and the comparison of the covering
   size with the volume (FLUCTUATION Lemma 1.2 (G1); `G1_card`, `rootRate_of_sizeJ`).
-* `InheritedAgreeInput` (the exact two-torus agreement of the inherited activities; LFR Theorem IV.5.3
-  item 7 for `j ≤ k_f`): from the small-field half of (D8) of the class (`D8SF.M_eq`), transported to
-  Root-F's quarter box.
+* `InheritedAgreeInput` (the exact two-torus agreement of the inherited activities; LFR Theorem
+  IV.5.3 item 7 for `j ≤ k_f`): from the small-field half of (D8) of the class (`D8SF.M_eq`),
+  transported to Root-F's quarter box.
 * `FinalSmallFieldInput` (the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) and
   (4.15)–(4.17), LFR Theorem IV.4.1; blocker 5, small-field half):
   `Ξ^sf = exp(E + ⟨g, h⟩ + ∑_{j ≤ k} ∑_X q_j(X; g) + ∑_X a(X; g))` with scale-`(k+1)` activities
   `a` in Root-F's form at half the amplitude.
 * `FinalLargeFieldInput` (the large-field part: the final-scale fluctuation representation and the
-  linked gas; P7 (4.9)–(4.14), P5 (3.18), LFR Lemma IV.4.2 and the proof of Theorem IV.4.1; blocker 5,
-  item 18): `∫ ρ = Ξ^sf exp(∑_X b(X; g))` with scale-`(k+1)` activities `b` in Root-F's form at half
-  the amplitude.
+  linked gas; P7 (4.9)–(4.14), P5 (3.18), LFR Lemma IV.4.2 and the proof of Theorem IV.4.1;
+  blocker 5, item 18): `∫ ρ = Ξ^sf exp(∑_X b(X; g))` with scale-`(k+1)` activities `b` in Root-F's
+  form at half the amplitude.
 
 The clause of locality in `g` of the inherited activities is proved here from the clause `localM`
 of the class (`inhObs_actLocal`). The assembly (`lastIntegralInput_of_parts`) builds the activities
 `p = q + 1_{j = k+1} (a + b)`, proves the five clauses of `ObservableActivities` for them
 (`ActSupport`, `ActAnalytic`, `ActLocal`, `ActBound`, `ActAgree`, its conjuncts:
-`observableActivities_iff`) and the exponential identity. `FlatRep` is the body of `FlatClassAt` for
-given witnesses (`flatClassAt_iff_exists_flatRep`), so that the sub-inputs can read the representation
-`F`. The sub-inputs are spine-local; the list and the status of each are in `notes/phase1/SPINE.md`,
-section "LastIntegralInput sub-inputs". -/
+`observableActivities_iff`) and the exponential identity. `FlatRep` is the body of `FlatClassAt`
+for given witnesses (`flatClassAt_iff_exists_flatRep`), so that the sub-inputs can read the
+representation `F`. The sub-inputs are spine-local; the list and the status of each are in
+`notes/phase1/SPINE.md`, section "LastIntegralInput sub-inputs". -/
 
 @[expose] public section
 
@@ -318,6 +318,27 @@ theorem inhObs_of_lt (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanS
   · rfl
   · exact absurd hc.2.1 (by omega)
   · rfl
+
+/-- The inherited activities vanish at the source `g = 0` (every term carries a factor `g`), so
+their increments are their values. -/
+theorem inhObs_zero (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
+    {ℓ j : ℕ} (X : Finset (Torus d ℓ)) : inhObs sf m₀ hv ℓ j X 0 = 0 := by
+  unfold inhObs
+  split_ifs <;> simp
+
+/-- **The Def-6 torus of the inherited activities on the torus `n_K` of the family** is the Def-6
+torus `N₁ = L^{m₀} n_k` (`sfIdx`) of the context `RepFam.ctx` of the representation: for
+`M = L^{m₀ + m₁}` and `k ≤ K`, `(M n_K L^K)/(L^{m₁} L^k) = L^{m₀} n_K L^{K-k}`. -/
+theorem sideDiv_eq_sfIdx {M m₀ K : ℕ} (hM : M = L ^ (m₀ + m₁)) (hk : k ≤ K) (nK : ℕ) :
+    M * sides L K nK K * L ^ K / (L ^ m₁ * L ^ k) = sfIdx L m₀ (sides L K nK) k := by
+  have hpos : 0 < L ^ m₁ * L ^ k :=
+    Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
+  have e : M * sides L K nK K * L ^ K = sfIdx L m₀ (sides L K nK) k * (L ^ m₁ * L ^ k) := by
+    have hK : L ^ K = L ^ (K - k) * L ^ k := by rw [← pow_add]; congr 1; omega
+    simp only [sides, sfIdx, Nat.sub_self, pow_zero, mul_one]
+    rw [hM, hK, pow_add]
+    ring
+  rw [e, Nat.mul_div_cancel _ hpos]
 
 /-- **The inherited activities depend on `g|_X` only**, by the locality clause `localM` of (H.7) on
 every Def-6 torus. -/
