@@ -126,7 +126,7 @@ theorem lamStar_spec : LamStarConditions typing lamStar :=
 theorem setting_good (β : ℝ) (hβ : 10 < β) (hx : lamStar ≤ Real.log (β * (5 / 4)) + 1) :
     (setting β).Good where
   ok := setting_ok β hβ
-  lc := JointWitness.LamStarConditions.mono lamStar_spec (by
+  lc := LamStarConditions.mono lamStar_spec (by
     show lamStar ≤ Real.log (β * (5 / 4)) + 1 + ((0 : ℕ) : ℝ) * Real.log 3
     simp; exact hx)
 
