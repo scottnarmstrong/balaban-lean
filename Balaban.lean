@@ -2703,3 +2703,4 @@ public import Balaban.Inhabited.StepTowerNewLevelE0Marks
 public import Balaban.Inhabited.StepTowerNewLevelE0Labels
 public import Balaban.Inhabited.StepTowerNewLevelE0Act
 public import Balaban.Inhabited.StepTowerNewLevelE0Red
+public import Balaban.Inhabited.StepTowerNewLevelE0IrrelCore
