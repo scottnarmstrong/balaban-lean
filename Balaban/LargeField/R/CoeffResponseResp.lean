@@ -35,7 +35,6 @@ section Resp
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L]
   {U : Type*} {S : Set U} {ι : Type*} [Fintype ι] {sc : ι → ℕ} {k1 k : ℕ}
 
-set_option linter.unusedVariables false in
 /-- **`hcoef` with the response supremum discharged.**  There are `K_w, δ_w > 0`, depending only on
 `(d, L, N)`, such that the coefficient residual bound of `hcoef_of_response_flow_cubes` holds with
 `H_resp = A_max (V_max (…) + V_max²/2 (…))`, `V_max = K_w (Δ · 2 E_max)`, for the backgrounds of
@@ -47,71 +46,71 @@ theorem PieceWindowSetup.exists_hcoef_of_flow_cubes_resp (hd3 : 3 ≤ d) (hL3 : 
     (W : PieceWindowSetup d L N₀ K N S ι sc k1 k)
     (Asrc : ι → ℝ)
     {CB A₀ Kwt Cb Cg Cm Sb Sg Sm Amax Emax : ℝ}
-    (hA : ∀ i, 0 ≤ Asrc i) (hCB : 0 ≤ CB)
-    (hSb : 0 ≤ Sb) (hSg : 0 ≤ Sg) (hSm : 0 ≤ Sm) (hd : 2 ≤ d)
+    (_ : ∀ i, 0 ≤ Asrc i) (_ : 0 ≤ CB)
+    (_ : 0 ≤ Sb) (_ : 0 ≤ Sg) (_ : 0 ≤ Sm) (_ : 2 ≤ d)
     -- the cells of the decomposition: layer blocks of weight one
-    (hwt1 : ∀ i c, (W.decomp i).wt c = 1)
-    (hcells : ∀ i c, ∃ x ∈ (W.Xc i).sites,
+    (_ : ∀ i c, (W.decomp i).wt c = 1)
+    (_ : ∀ i c, ∃ x ∈ (W.Xc i).sites,
       ((W.decomp i).cube c).sites = (W.Gc i).blk ((W.Gc i).layerIndex x) x ∧
         (W.Gc i).layerIndex x ≤ sc i + 1)
     (cs : OpConsts)
     -- the originating block budget (51)
-    (hblock : ∀ i, ∀ u ∈ S, (W.chain i).β (sc i + 1) * ((1 / 2) *
+    (_ : ∀ i, ∀ u ∈ S, (W.chain i).β (sc i + 1) * ((1 / 2) *
       ∑ x ∈ (W.Xc i).sites, ‖levelCoeff (W.Gc i) ((W.chain i).a (sc i + 1)) x‖ *
         ∑ j, ‖((W.chain i).Dat u k).Ψ x j - blockAvg (W.Gc i) ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) x j‖ ^ 2) ≤
       CB * (Asrc i * W.mcount i))
     -- the real flow
     (β ν η Cξ q : ℝ) (g δ : ℕ → ℝ) (ξ : ℕ → Fin 3 → ℝ)
-    (hβpos : 0 < β) (hCξ : 0 ≤ Cξ) (hq0 : 0 ≤ q) (hq1 : q < 1)
-    (hβ : ∀ n, cs.beta n = β * (L : ℝ) ^ ((d - 2) * n) * g n)
-    (hμ : ∀ n, cs.muAct n = ν * δ n)
-    (hg : ∀ n, g n = g (n + 1) * (1 + ξ n 2))
-    (hδ : ∀ n, δ n * (1 + ξ n 2) = δ (n + 1) * (1 + ξ n 1))
-    (hμne : ∀ n, cs.muAct n ≠ 0)
-    (hgenv : ∀ n, Real.exp (-η) ≤ g n ∧ g n ≤ Real.exp η)
-    (hξ : ∀ n c, |ξ n c| ≤ Cξ * β⁻¹ * q ^ (n + 1))
-    (hchj : ∀ i, (W.chain i).β (sc i + 1) = betaCanon d L (cs.beta (sc i + 1)) (sc i + 1) 0)
-    (hchk : ∀ i, (W.chain i).β k = betaCanon d L (cs.beta k) k 0)
-    (hAq : ∀ i, Asrc i * q ^ (sc i + 1) ≤ A₀)
+    (_ : 0 < β) (_ : 0 ≤ Cξ) (_ : 0 ≤ q) (_ : q < 1)
+    (_ : ∀ n, cs.beta n = β * (L : ℝ) ^ ((d - 2) * n) * g n)
+    (_ : ∀ n, cs.muAct n = ν * δ n)
+    (_ : ∀ n, g n = g (n + 1) * (1 + ξ n 2))
+    (_ : ∀ n, δ n * (1 + ξ n 2) = δ (n + 1) * (1 + ξ n 1))
+    (_ : ∀ n, cs.muAct n ≠ 0)
+    (_ : ∀ n, Real.exp (-η) ≤ g n ∧ g n ≤ Real.exp η)
+    (_ : ∀ n c, |ξ n c| ≤ Cξ * β⁻¹ * q ^ (n + 1))
+    (_ : ∀ i, (W.chain i).β (sc i + 1) = betaCanon d L (cs.beta (sc i + 1)) (sc i + 1) 0)
+    (_ : ∀ i, (W.chain i).β k = betaCanon d L (cs.beta k) k 0)
+    (_ : ∀ i, Asrc i * q ^ (sc i + 1) ≤ A₀)
     -- the source size `A_i = cs.beta (j+1) ε_{j+1}²`, `ε_n ≥ ε₀ > 0` for `n ≤ k`
-    (α α₀ ε₀ : ℝ) (hα : 0 ≤ α) (hα₀ : 0 < α₀) (hε₀ : 0 < ε₀)
-    (hε₀le : ε₀ ≤ α₀ * ((L : ℝ) ^ (-α)) ^ k)
-    (hAsrc : ∀ i, Asrc i = cs.beta (sc i + 1) * epsSeq L α α₀ (sc i + 1) ^ 2)
+    (α α₀ ε₀ : ℝ) (_ : 0 ≤ α) (_ : 0 < α₀) (_ : 0 < ε₀)
+    (_ : ε₀ ≤ α₀ * ((L : ℝ) ^ (-α)) ^ k)
+    (_ : ∀ i, Asrc i = cs.beta (sc i + 1) * epsSeq L α α₀ (sc i + 1) ^ 2)
     -- the sizes of the coefficients and the regime
-    (Ka Δ Dδ : ℝ) (hKa : ∀ ℓ, |W.ak ℓ| ≤ Ka)
-    (hchA : ∀ i, (W.chain i).a (sc i + 1) = cs.aw) (hΔ : ∀ ℓ, |cs.aw ℓ - W.ak ℓ| ≤ Δ)
-    (hchν : ∀ i, (W.chain i).ν k = cs.muAct k)
-    (hreg : β * |ν| * (L : ℝ) ^ (k * d) ≤ 1) (hδk : |δ k| ≤ Dδ)
+    (Ka Δ Dδ : ℝ) (_ : ∀ ℓ, |W.ak ℓ| ≤ Ka)
+    (_ : ∀ i, (W.chain i).a (sc i + 1) = cs.aw) (_ : ∀ ℓ, |cs.aw ℓ - W.ak ℓ| ≤ Δ)
+    (_ : ∀ i, (W.chain i).ν k = cs.muAct k)
+    (_ : β * |ν| * (L : ℝ) ^ (k * d) ≤ 1) (_ : |δ k| ≤ Dδ)
     -- the constants
-    (hCb : Real.exp (2 * η) * Ka / ε₀ ^ 2 ≤ Cb) (hCg : Real.exp (2 * η) / ε₀ ^ 2 ≤ Cg)
-    (hCm : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm)
-    (hKwt : Sb * (β * Real.exp η * (L : ℝ) ^ ((d - 2) * k) * Δ) / 2 ≤ Kwt)
+    (_ : Real.exp (2 * η) * Ka / ε₀ ^ 2 ≤ Cb) (_ : Real.exp (2 * η) / ε₀ ^ 2 ≤ Cg)
+    (_ : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm)
+    (_ : Sb * (β * Real.exp η * (L : ℝ) ^ ((d - 2) * k) * Δ) / 2 ≤ Kwt)
     -- the sup bounds of the datum reads at the reference field `φ⁰`
-    (hrB : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites,
+    (_ : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites,
       ∑ j, ‖((W.chain i).Dat u k).Ψ x j - blockAvg (W.Gc i) ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) x j‖ ^ 2 ≤ Sb)
-    (hrGf : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites, ∀ μ : Fin d,
+    (_ : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites, ∀ μ : Fin d,
       (W.Gc i).spacing x ^ 2 * ∑ j, ‖barField (W.Gc i) ((W.chain i).Dat u k).Ψ ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k)))
         (x + Pi.single μ 1) j - barField (W.Gc i) ((W.chain i).Dat u k).Ψ ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) x j‖ ^ 2 ≤ Sg)
-    (hrGb : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites, ∀ μ : Fin d,
+    (_ : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites, ∀ μ : Fin d,
       (W.Gc i).spacing x ^ 2 * ∑ j, ‖barField (W.Gc i) ((W.chain i).Dat u k).Ψ ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k)))
         (x - Pi.single μ 1) j - barField (W.Gc i) ((W.chain i).Dat u k).Ψ ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) x j‖ ^ 2 ≤ Sg)
-    (hrM : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites,
+    (_ : ∀ i, ∀ u ∈ S, ∀ x ∈ (W.Xc i).sites,
       ∑ j, ‖svec (W.Gc i) ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) x j - ((W.chain i).Dat u k).h x j‖ ^ 2 ≤ Sm)
     -- the standing hypotheses and the class domain of the two coefficients at the mass of the piece
-    (hN : ∀ i, ∃ N₁ m₁ : ℕ, W.N₀c i = N₁ * L ^ m₁)
-    (H0 : ∀ i, BgHyp d L (W.Kc i) (W.ϱc i) cs.aw ((W.chain i).ν k))
-    (H1 : ∀ i, BgHyp d L (W.Kc i) (W.ϱc i) W.ak ((W.chain i).ν k))
-    (hsepO : ∀ i, 2 * d * Real.log L ≤ agmonRate d / 16 * (W.ϱc i - 1))
-    (hsm : ∀ i, (4 * d + 6) * ((2 * d + 1) * epsSeq L α α₀ (sc i + 1)) ≤ 1)
-    (hc1 : ∀ i, xiC1 d * epsSeq L α α₀ (sc i + 1) ≤ bgC1 d L N)
-    (D0 : ∀ i, ∀ u ∈ S, XiCOneReal (W.Gc i) cs.aw ((W.chain i).ν k) (epsSeq L α α₀ (sc i + 1))
+    (_ : ∀ i, ∃ N₁ m₁ : ℕ, W.N₀c i = N₁ * L ^ m₁)
+    (_ : ∀ i, BgHyp d L (W.Kc i) (W.ϱc i) cs.aw ((W.chain i).ν k))
+    (_ : ∀ i, BgHyp d L (W.Kc i) (W.ϱc i) W.ak ((W.chain i).ν k))
+    (_ : ∀ i, 2 * d * Real.log L ≤ agmonRate d / 16 * (W.ϱc i - 1))
+    (_ : ∀ i, (4 * d + 6) * ((2 * d + 1) * epsSeq L α α₀ (sc i + 1)) ≤ 1)
+    (_ : ∀ i, xiC1 d * epsSeq L α α₀ (sc i + 1) ≤ bgC1 d L N)
+    (_ : ∀ i, ∀ u ∈ S, XiCOneReal (W.Gc i) cs.aw ((W.chain i).ν k) (epsSeq L α α₀ (sc i + 1))
       ((W.chain i).Dat u k))
-    (D1 : ∀ i, ∀ u ∈ S, XiCOneReal (W.Gc i) W.ak ((W.chain i).ν k) (epsSeq L α α₀ (sc i + 1))
+    (_ : ∀ i, ∀ u ∈ S, XiCOneReal (W.Gc i) W.ak ((W.chain i).ν k) (epsSeq L α α₀ (sc i + 1))
       ((W.chain i).Dat u k))
-    (hsmall : ∀ i, bgK1 d L N * (xiC1 d * epsSeq L α α₀ (sc i + 1)) ≤
+    (_ : ∀ i, bgK1 d L N * (xiC1 d * epsSeq L α α₀ (sc i + 1)) ≤
       min (deltaStar d L N) δw)
-    (hmB : ∀ i, Δ * (2 * epsSeq L α α₀ (sc i + 1)) ≤ min (deltaStar d L N) δw)
-    (hEmax : ∀ i, epsSeq L α α₀ (sc i + 1) ≤ Emax) (hAmax : ∀ i, Asrc i ≤ Amax),
+    (_ : ∀ i, Δ * (2 * epsSeq L α α₀ (sc i + 1)) ≤ min (deltaStar d L N) δw)
+    (_ : ∀ i, epsSeq L α α₀ (sc i + 1) ≤ Emax) (_ : ∀ i, Asrc i ≤ Amax),
     ∀ i, ∀ u ∈ S,
       ‖((W.chain i).β k : ℂ) * actionRegionC (W.Xc i) ((W.chain i).a k) ((W.chain i).ν k)
           ((W.chain i).Dat u k) ((bgFieldC (W.Gc i) cs.aw ((W.chain i).ν k) (bgC0 d L N) ((W.chain i).Dat u k))) -
