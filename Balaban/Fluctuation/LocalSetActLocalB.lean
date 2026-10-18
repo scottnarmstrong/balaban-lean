@@ -15,9 +15,9 @@ P6 §4.1, Lemma 4.1 and P3 pp. 78-79 for the zero-source part of the activities:
 domain at zero source is built from the block energy `blockEnergyFun 𝔹 𝔹⁻ … n z` of the block
 `B_{n+1}(z)` at the decoupled background of `(coverOf 𝔹, 𝔹)` and the fluctuation field of
 `(coverOf 𝔹, 𝔹⁻)` (`zeroSourceActivity_common_fromTowerG_core`).  Here the ambient level sets
-`𝔹 = 𝔹_{k+1}`, `𝔹⁻ = 𝔹_k` are replaced by the local generating sets `𝔹_{k+1}(Y) = localB (k + 1) … Y`
-and `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`, with the transported parameters `τ w` of
-`coef_eTermFun_replacement_localB`.
+`𝔹 = 𝔹_{k+1}`, `𝔹⁻ = 𝔹_k` are replaced by the local generating sets
+`𝔹_{k+1}(Y) = localB (k + 1) … Y` and `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`, with the transported
+parameters `τ w` of `coef_eTermFun_replacement_localB`.
 
 * `block_read_of_near`: the reading hypothesis of `blockEnergyFun_replacement_cross_of_agree` (the
   block, its right neighbours and its `n`-blocks lie in the `M₁ L^{k+1}`-neighbourhood of the read
@@ -79,13 +79,13 @@ variable {a : ℕ → ℝ} {ν : ℝ}
 `𝔹_{k+1}`, `𝔹_k` be level sets (`k ≥ 1`), `𝔹_{k+1}(Y) = localB (k + 1) … Y`,
 `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`, `𝒞` a family of cubes of the cover of `𝔹_{k+1}` disjoint
 from `X₁`, and `R` a set of sites containing the cubes of `𝒞`, the cubes meeting `X₁` and the block
-`B_{n+1}(z)`, with the margin: every site within `2 M₁ L^{k+1}` of `R` lies in `Ω_{k+1}(𝔹_{k+1}(Y))`.
-With the constants, the maps `F₁, F₁'` and `Sol, Sol'` of the ambient and the local pairs, a datum
-`D'` of `𝔹_{k+1}(Y)` agreeing with `D` on the top layer, and fluctuation variables `ψ₁(w)`, `ψ₂(w)`
-with the strict data inequalities on their sides that agree within `L^{k+1}` of `R`: the coefficient
-`coef (·) 𝒞` of the ambient block energy with the parameters `σ w = extParams 𝔹_{k+1} X₁ w` equals
-that of the block energy recomputed on `(𝔹_{k+1}(Y), 𝔹_k(Y))` with the transported parameters
-`τ w`. -/
+`B_{n+1}(z)`, with the margin: every site within `2 M₁ L^{k+1}` of `R` lies in
+`Ω_{k+1}(𝔹_{k+1}(Y))`.  With the constants, the maps `F₁, F₁'` and `Sol, Sol'` of the ambient and
+the local pairs, a datum `D'` of `𝔹_{k+1}(Y)` agreeing with `D` on the top layer, and fluctuation
+variables `ψ₁(w)`, `ψ₂(w)` with the strict data inequalities on their sides that agree within
+`L^{k+1}` of `R`: the coefficient `coef (·) 𝒞` of the ambient block energy with the parameters
+`σ w = extParams 𝔹_{k+1} X₁ w` equals that of the block energy recomputed on `(𝔹_{k+1}(Y), 𝔹_k(Y))`
+with the transported parameters `τ w`. -/
 theorem coef_blockEnergyFun_replacement_localB (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k)
     (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
     (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
