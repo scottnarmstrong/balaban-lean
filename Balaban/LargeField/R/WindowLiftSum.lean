@@ -94,4 +94,94 @@ theorem window_hlift_pt {k1 m' : ℕ} (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K) {Z :
 
 end Pt
 
+
+section Fam
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K}
+
+/-- A family `(jf, cf)` that is the family of pieces of `window_sum_pt` lists the ancestors of `Z`,
+injectively and exhaustively. -/
+theorem window_family_facts {k1 m' : ℕ} (hk1 : k1 ≤ m') {Z : H.Comp (m' + 1)}
+    (jf : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hfam : ∀ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) =
+      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩)) :
+    (∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z) ∧
+      Function.Injective (fun i => (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1))) ∧
+      ∀ j (c : H.Comp (j + 1)), k1 ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
+        ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩ := by
+  refine ⟨fun i => ?_, fun a b hab => ?_, fun j c h1 h2 hc => ?_⟩
+  · have h1 := (chain_piece_spec (Z := Z) hk1 i).2.2
+    rw [← hfam i] at h1
+    exact h1
+  · rw [funext hfam] at hab
+    exact chain_piece_inj hab
+  · obtain ⟨i, hi⟩ := chain_piece_cover (Z := Z) j c h1 h2 hc
+    exact ⟨i, (hfam i).trans hi⟩
+
+open Classical in
+/-- `window_hlift_pt` for a family `(jf, cf)` of pieces given by `hfam`, with the data `(ou, xu)`
+tied to `(o, x)` by heterogeneous equations (the types of `ou i`, `xu i` depend on `jf i`, `cf i`). -/
+theorem window_hlift_pt_fam (geo : Geo S n R M) (cs : OpConsts) {κs κ' : ℕ → LocalHistory S n M K → ℝ}
+    {lamHat : ℕ → ℝ} (SD : StepData k0 geo cs N κs) (KD : KeptData k0 geo cs N κ' lamHat)
+    {hH : H.Admissible} {lab : ∀ k, H.Comp k → Fin 5} {k1 m' : ℕ} (hk1 : k1 ≤ m')
+    (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)}
+    (hq : ∀ s, k1 < s → ∀ Y : H.Comp s, H.Desc s (m' + 1) Y Z → ¬ IsKept H s Y)
+    (ρ : ∀ (s : ℕ), k1 ≤ s → ∀ (P : H.Comp s) (hd : H.Desc s (m' + 1) P Z),
+      SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).A →
+      SubCfg N (H.localHistory M K s P) s (locOp geo cs SD KD hH lab s (hd.le.trans hm) P).A)
+    (hρ : ∀ s (hs : k1 ≤ s) P (hd : H.Desc s (m' + 1) P Z) x p, ρ s hs P hd x p =
+      x ⟨_, locOp_A_incl geo cs SD KD hm hd (fun t ht Y' h' => hq t (lt_of_le_of_lt hs ht) Y' h')
+        p.1 p.2⟩)
+    (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (jf : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hfam : ∀ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) =
+      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩))
+    (hjf : ∀ i, k1 ≤ jf i ∧ jf i ≤ m') (hjK : ∀ i, jf i + 1 ≤ K)
+    (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1))
+    (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i))
+    (hou0 : HEq (ou none) o)
+    (hxu0 : HEq (xu none) (newRestrict (H.localHistory M K (m' + 1) Z)
+      (newVars_sub_locOp_A geo cs SD KD hm (hq (m' + 1) (Nat.lt_succ_of_le hk1) Z (Desc.refl Z))) x))
+    (hou1 : ∀ (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+      (c : ↥(H.parts (j.1 + 1) P.1)), HEq (ou (some ⟨j, P, c⟩)) (ancOut (N := N) (R := R) c.1 P.1
+        (ρ (j.1 + 1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) P.1 (mem_ancFin.mp P.2) x)))
+    (hxu1 : ∀ (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+      (c : ↥(H.parts (j.1 + 1) P.1)), HEq (xu (some ⟨j, P, c⟩))
+        (newRestrict (H.localHistory M K (j.1 + 1) c.1)
+          (newVars_sub_locOp_A geo cs SD KD ((desc_of_parts c.2 (mem_ancFin.mp P.2)).le.trans hm)
+            (hq (j.1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) c.1
+              (desc_of_parts c.2 (mem_ancFin.mp P.2))))
+          (ρ (j.1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) c.1
+            (desc_of_parts c.2 (mem_ancFin.mp P.2)) x)))
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hψ1 : ∀ b, ψ ⟨m' + 1, b⟩ = outField N o (torusCast (blk_eq_top H.F.hnn hm le_rfl) b))
+    (hψ0 : ∀ i (hi : i ≤ m') b, ψ ⟨i, b⟩ =
+      subVarField N x i (torusCast (blk_eq_top H.F.hnn hm (hi.trans (Nat.le_succ _))) b)) :
+    ∀ i (y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))),
+      torusCast (piece_torus_eq geo H.F.hnn hm (hjf i).2) y ∈
+        dataSites (locGen geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+          (locComp_mem H (hjK i) (cf i)) (hjK i)) →
+      (locData geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+        (hjK i) (ou i) (xu i) hv).Ψ (torusCast (piece_torus_eq geo H.F.hnn hm (hjf i).2) y) =
+        fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
+          (if torusCast (piece_torus_eq geo H.F.hnn hm (hjf i).2) y ∈
+              fineK1 geo.M1 geo.c (n (jf i + 1)) S.L (jf i)
+                ((H.locRH (jf i + 1) (cf i)).step (jf i)).Omega
+            then jf i + 1 else jf i) y) q : ℝ) : ℂ) := by
+  obtain rfl : jf = fun i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) =>
+      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 :=
+    funext fun i => congrArg Sigma.fst (hfam i)
+  obtain rfl : cf = fun i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) =>
+      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).2 :=
+    funext fun i => eq_of_heq (Sigma.mk.inj (hfam i)).2
+  exact window_hlift_pt geo cs SD KD hk1 hm hq ρ hρ o x hv ou xu (eq_of_heq hou0) (eq_of_heq hxu0)
+    (fun j P c => eq_of_heq (hou1 j P c)) (fun j P c => eq_of_heq (hxu1 j P c)) ψ hψ1 hψ0
+
+end Fam
+
 end Balaban.LargeField
