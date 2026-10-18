@@ -346,30 +346,24 @@ theorem fieldMul_BD {ι : Type*} [Fintype ι] [DecidableEq ι] (c : ι → Prop)
     rw [hp]
   · simp [fieldMul, hp] at h
 
-/-- The proviso (i), for the operator `H = H_{k,x}`: between a site `y` and a site `y'` of the
-core of `s`, a non-zero matrix element of `H` does not cross the boundary of `Y'`. -/
-abbrev HRespects (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (aT x ν : ℝ)
-    (α : G.Ω 1 → ℂ) (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ)
-    (Y' : Finset (CTorus d L N₁ m₁ (k + 1))) : Prop :=
-  ∀ y y' : G.Ω 1, xDirichletOperator G a aT x ν α y y' ≠ 0 →
+section BlocksCore
+
+/-! The cores of the block statements below: the dichotomy of the active thickened cubes in place of
+`HatConn` and the components; the proviso (i) is written out (it is `HRespects`, defined below). -/
+
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hα : AdmPot G α)
+  (hU : IsUnit (1 - Kcalx G a aT x ν α s)) {Y' : Finset (CTorus d L N₁ m₁ (k + 1))}
+  (hH : ∀ y y' : G.Ω 1, xDirichletOperator G a aT x ν α y y' ≠ 0 →
     (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Core G s →
-    ((y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' ↔ (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
-
-section Blocks
-
-variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (hα : AdmPot G α)
-  (hU : IsUnit (1 - Kcalx G a aT x ν α s))
-  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
-  (hH : HRespects G a aT x ν α s Y')
-include S hx hconn hα hU hY hH
+    ((y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' ↔ (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y'))
+  (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
+include S hx hα hU hH hdich
 
 local notation "cY" => (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
 
-omit hconn hY in
 /-- The commutator term `K_x(φ₀) G` has no cross elements, under the dichotomy of the active
 thickened cubes and the proviso `HRespects`. -/
-theorem commK_Gsx_BD_of_hatDich
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
+theorem commK_Gsx_BD_of_hatDich :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (commK (xDirichletOperator G a aT x ν α) (restrictField G φ) *
@@ -388,10 +382,8 @@ theorem commK_Gsx_BD_of_hatDich
     by_contra hc; exact hG (Gsx_apply_eq_zero_of_not_core p.1 q.1 hc)
   exact (hH y p.1 hHp hcore).trans (Gsx_BD_of_hatDich S hx hα hU hdich p.1 q.1 hG)
 
-omit hconn hY in
 /-- `decM` has no cross elements (core). -/
-theorem decM_BD_of_hatDich
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
+theorem decM_BD_of_hatDich :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decM G a aT x ν α s φ) := by
@@ -399,22 +391,17 @@ theorem decM_BD_of_hatDich
   exact ((fieldMul_BD cY _).transpose.mul (fieldMul_BD cY _)).sub
     ((commK_Gsx_BD_of_hatDich S hx hα hU hH hdich).mul (fieldMul_BD cY _))
 
-omit hconn hY in
 /-- `decN` has no cross elements (core). -/
-theorem decN_BD_of_hatDich
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y') :
+theorem decN_BD_of_hatDich :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decN G a aT x ν α s φ) := by
   unfold decN constraintN
   exact (fieldMul_BD cY _).transpose.sub (commK_Gsx_BD_of_hatDich S hx hα hU hH hdich)
 
-omit hconn hY in
 /-- **T4 (b), core.** `decPi` has no matrix elements between `Y'` and its complement, if `decM`
 is invertible. -/
-theorem decPi_BD_of_hatDich
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
-    (hM : IsUnit (decM G a aT x ν α s φ)) :
+theorem decPi_BD_of_hatDich (hM : IsUnit (decM G a aT x ν α s φ)) :
     BD (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (fun p : G.Ω 1 × Fin N => (p.1 : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
       (decPi G a aT x ν α s φ) := by
@@ -422,12 +409,9 @@ theorem decPi_BD_of_hatDich
   exact (((liftOp_Gsx_BD_of_hatDich S hx hα hU hdich).mul (fieldMul_BD cY _)).mul
     ((decM_BD_of_hatDich S hx hα hU hH hdich).inv hM)).mul (decN_BD_of_hatDich S hx hα hU hH hdich)
 
-omit hconn hY in
 /-- **T4, core.** `decCov - covA` has no cross elements, under the dichotomy of the active
 thickened cubes and the provisos. -/
-theorem decCov_sub_BD_of_hatDich
-    (hdich : ∀ q ∈ cubeIdx G, sProd G s q ≠ 0 → hatI G q ⊆ Y' ∨ Disjoint (hatI G q) Y')
-    (hM : IsUnit (decM G a aT x ν α s φ))
+theorem decCov_sub_BD_of_hatDich (hM : IsUnit (decM G a aT x ν α s φ))
     (cκ : κι → Prop) (Q : Matrix κι (G.Ω 1) ℂ) (P : Matrix κι κι ℂ)
     (hQ : BD cκ (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y') Q) (hP : BD cκ cκ P) :
     BD (fun p : κι × Fin N => cκ p.1) (fun p : κι × Fin N => cκ p.1)
@@ -447,6 +431,27 @@ theorem decCov_sub_BD_of_hatDich
   unfold decCov
   rw [add_sub_cancel_left]
   exact (((hA.mul hQl).mul hT).mul hQl.transpose |>.mul hA).smul _
+
+end BlocksCore
+
+/-- The proviso (i), for the operator `H = H_{k,x}`: between a site `y` and a site `y'` of the
+core of `s`, a non-zero matrix element of `H` does not cross the boundary of `Y'`. -/
+abbrev HRespects (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (aT x ν : ℝ)
+    (α : G.Ω 1 → ℂ) (s : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ)
+    (Y' : Finset (CTorus d L N₁ m₁ (k + 1))) : Prop :=
+  ∀ y y' : G.Ω 1, xDirichletOperator G a aT x ν α y y' ≠ 0 →
+    (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Core G s →
+    ((y : CTorus d L N₁ m₁ (k + 1)) ∈ Y' ↔ (y' : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
+
+section Blocks
+
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x) (hconn : HatConn G) (hα : AdmPot G α)
+  (hU : IsUnit (1 - Kcalx G a aT x ν α s))
+  {Y' : Finset (CTorus d L N₁ m₁ (k + 1))} (hY : IsNnComp (Yreg G s) Y')
+  (hH : HRespects G a aT x ν α s Y')
+include S hx hconn hα hU hY hH
+
+local notation "cY" => (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
 
 theorem commK_Gsx_BD :
     BD (fun y : G.Ω 1 => (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y')
