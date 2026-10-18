@@ -390,6 +390,58 @@ theorem d1Triple_rot (a : ℕ → ℝ) (R : Matrix (Fin N) (Fin N) ℂ)
       funext i
       simp [Matrix.mulVec, dotProduct]
 
+/-- **The composite datum of the old term is covariant**: for two realizable triples `t` and
+`(R φ, α; R δφ; R u)` whose chain facts are known (the composed datum of `𝔹_k(X)` is `flDatum` and
+the composition of the background lies in the chart of `𝔹_j(X)`), the raw datum
+`D2raw (d1Triple t)` that the old term reads is rotated by `R`. -/
+theorem d2raw_d1Triple_rot_of_chain (hP : Precedes Gk Gp) (hPm : Precedes Gk Hm)
+    (hq : Precedes Gj Gk)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    {D D2 : BgData Gp N} {ψ' ψ2 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    {hlc : IsLayerConstant Hm ψ'} {hlc2 : IsLayerConstant Hm ψ2}
+    (hd1 : d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2 =
+      rawOf (flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
+    (hD2 : D2raw Gk Gj (compWeight L a₁) Fk
+        (rawOf (flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) =
+      rawOf (composeData hq (compWeight L a₁)
+        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+          (flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
+        (flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)))
+    (hd1' : d1Triple Gp Gk Hm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+        (rotU (cmat Q) t.2.2) =
+      rawOf (flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+        D2 ψ2 hlc2))
+    (hD2' : D2raw Gk Gj (compWeight L a₁) Fk
+        (rawOf (flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1)
+          (rotFld (cmat Q) t.2.1) D2 ψ2 hlc2)) =
+      rawOf (composeData hq (compWeight L a₁)
+        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+          (flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+            D2 ψ2 hlc2))
+        (flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+          D2 ψ2 hlc2))) :
+    D2raw Gk Gj (compWeight L a₁) Fk
+        (d1Triple Gp Gk Hm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
+          (rotU (cmat Q) t.2.2)) =
+      rotRaw (cmat Q) (D2raw Gk Gj (compWeight L a₁) Fk
+        (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2)) := by
+  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
+  have hrawF2 : rawOf (flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1)
+      (rotFld (cmat Q) t.2.1) D2 ψ2 hlc2) =
+      rawOf ((flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc).rot (cmat Q)) := by
+    rw [← hd1', d1Triple_rot, hd1]
+    rfl
+  have hF2 : flDatum Gk hP hPm (compWeight L a₁) (rotFld (cmat Q) t.1.1)
+      (rotFld (cmat Q) t.2.1) D2 ψ2 hlc2 =
+      (flDatum Gk hP hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc).rot (cmat Q) :=
+    Background.BgData.ext' (congrArg Prod.fst hrawF2) (congrArg Prod.snd hrawF2)
+  rw [hd1', hD2', hd1, hD2, hF2, (bgFieldC_rot (compWeight L a₁) ν hR (bgC0 d L N) _).1,
+    composeData_rot]
+  rfl
+
 /-- **Two-functional form of `eTermFun_rot_cover`**: `E₁ (R r) = E₂ r` on the chart gives
 `Φ_{E₁}(R φ, α; R δφ; R u) = Φ_{E₂}(φ, α; δφ; u)` on realizable triples. -/
 theorem eTermFun_rot_cover_of_cov {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
@@ -426,44 +478,25 @@ theorem eTermFun_rot_cover_of_cov {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scale
     eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₁ (rotFld (cmat Q) t.1.1, t.1.2)
         (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₂ t.1 t.2.1 t.2.2 := by
-  have hR : (cmat Q)ᵀ * cmat Q = 1 := (isRealOrth_ofReal hQ).1
   obtain ⟨D, ψ', hlc, -, -, hd1, hD2, hXj⟩ :=
     eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
       hnum dsX₀ hN hT hr₀ hj hF hFk ht
   obtain ⟨D2, ψ2, hlc2, -, -, hd1', hD2', -⟩ :=
     eTerm_chain_cover_of_one_le hb₁ hbC hS S hG hSS hMM ha₁ HBp HBk HBj hP hq colk colj hκ hM
       hnum dsX₀ hN hT hr₀ hj hF hFk ht'
-  set F := flDatum Gk hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc with hFdef
-  set F2 := flDatum Gk hP hF.hPm (compWeight L a₁)
-    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
-      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
-      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).1.1
-    (((rotFld (cmat Q) t.1.1, t.1.2), rotFld (cmat Q) t.2.1, rotU (cmat Q) t.2.2) :
-      ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
-      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))).2.1
-    D2 ψ2 hlc2 with hF2def
-  have hrawF2 : rawOf F2 = rawOf (F.rot (cmat Q)) := by
-    rw [← hd1']
-    show d1Triple Gp Gk Hm (compWeight L a₁) (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1)
-      (rotU (cmat Q) t.2.2) = _
-    rw [d1Triple_rot, hd1]
-    rfl
-  have hF2 : F2 = F.rot (cmat Q) :=
-    Background.BgData.ext' (congrArg Prod.fst hrawF2) (congrArg Prod.snd hrawF2)
-  have e1 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₂ t.1 t.2.1 t.2.2 =
-      E₂ (rawOf (composeData hq (compWeight L a₁)
-        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F) F)) := by
-    show E₂ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1
-      t.2.2)) = _
+  have hr := d2raw_d1Triple_rot_of_chain hP hF.hPm hq hQ hd1 hD2 hd1' hD2'
+  have hrr : D2raw Gk Gj (compWeight L a₁) Fk
+      (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2) =
+      rawOf (composeData hq (compWeight L a₁)
+        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N)
+          (flDatum Gk hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc))
+        (flDatum Gk hP hF.hPm (compWeight L a₁) t.1.1 t.2.1 D ψ' hlc)) := by
     rw [hd1, hD2]
-  have e2 : eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E₁ (rotFld (cmat Q) t.1.1, t.1.2)
-      (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2) =
-      E₁ (rawOf (composeData hq (compWeight L a₁)
-        (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) F2) F2)) := by
-    show E₁ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁)
-      (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2))) = _
-    rw [hd1', hD2']
-  rw [e1, e2, hF2, (bgFieldC_rot (compWeight L a₁) ν hR (bgC0 d L N) F).1, composeData_rot]
+  show E₁ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁)
+    (rotFld (cmat Q) t.1.1) (rotFld (cmat Q) t.2.1) (rotU (cmat Q) t.2.2))) =
+    E₂ (D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1
+      t.2.2))
+  rw [hr, hrr]
   exact hEr _ ⟨_, hXj, rfl⟩
 
 /-- **`O(N)`-invariance of the old-term functional on the realizable triples, for a sup-separated

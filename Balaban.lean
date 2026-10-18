@@ -2692,6 +2692,7 @@ public import Balaban.Inhabited.StepTowerRotClass
 public import Balaban.Inhabited.StepTowerRotLabels
 public import Balaban.Inhabited.StepTowerRotZero
 public import Balaban.Inhabited.StepTowerRotFields
+public import Balaban.Inhabited.StepTowerRotOld
 public import Balaban.Inhabited.StepTowerBeta0Class
 public import Balaban.Inhabited.StepTowerBeta0Labels
 public import Balaban.Inhabited.StepTowerBeta0Fields
