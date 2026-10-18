@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.WindowCloseQuotPt
+public import Balaban.LargeField.R.WindowDuHbGMain
 
 /-!
 # The composed window bound `hbG` (blocker 4, W1004)
@@ -423,41 +424,8 @@ theorem window_hbG :
                   blockMap S.L (M * n K * S.L ^ (K - (j + 1))) y' = y), fld v j y')) ∂
         ((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod
           ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod
-            (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot) := by
-  classical
-  intro hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp
-  have hβG : 0 < betaK S.d S.L (m' + 1) β0 := by
-    unfold betaK
-    have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
-    positivity
-  obtain ⟨D, ψk, aN, hDreal, hpos, hψkD, hR1, hR2, hDh, hD0, haNf, hint⟩ := window_hbG_node geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv hv par wd cc ro sh a nd' w' fld ft hfld hft
-  have hZbpos0 : ∀ z ∈ Zb, 0 < aN z := fun z hz => (mul_pos_iff_of_pos_left hβG).mp (hpos z hz)
-  refine ⟨?_, ?_⟩
-  · exact window_pos_of_eq hint (mul_pos (constNat_pos hβG hZbpos0) (Real.exp_pos _))
-  have hha : ∀ j, 0 ≤ compWeight S.L a₁ j := compWeight_nonneg H.F.ok.two_le_L ha₁
-  by_cases hTube : TubeOn (windowOfHistory H Z geo hm hW).bdry (X \ box b0 wb) δ
-      (fun (z : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1)))) (i : Fin N) =>
-        outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (0, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
-          (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) z) i)
-  swap
-  · have h0 := remDen_eq_zero_of_not_tube (H.localHistory M K (m' + 1) Z) (blk_eq_top H.F.hnn hm (le_refl (m' + 1)))
-      (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc Zr 0
-      (0 : Fin N → ℝ) β0 p0 Z0 hZ0b rr hrdef _ hTube
-    rw [h0]
-    simp
-  have hrd := remDen_pos (H.localHistory M K (m' + 1) Z) (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) hd hk b0 wb hw1 hwD hmD
-    hXreg hΩ hdata Hbg hδ hδc Zr 0 (0 : Fin N → ℝ) β0 p0 Z0 hZ0b rr hrdef hha le_rfl hβ0 hp0 hradδ (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par) hTube
-  have hrdeq := remDen_eq_integral_rhoZeroRestricted (H.localHistory M K (m' + 1) Z) (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) (windowOfHistory H Z geo hm hW).bdry
-    (compWeight S.L a₁) hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc Zr 0 (0 : Fin N → ℝ) β0 p0 Z0 hZ0b rr hrdef
-    hβ0 hp0 hradδ (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par) hTube
-  obtain ⟨C, hC, hCb⟩ := window_hbG_sum geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp D hDh hD0 hR1 hR2
-  have hψoutz := window_hbG_psiz geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv par wd cc ro sh a nd' w'
-  obtain ⟨Zp, Dpp, hZp, hDpp, hDppX⟩ := window_hbG_regions geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv
-  obtain ⟨ψ0, hψ0⟩ := exists_blockV_of_top (psiZero N (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) hd hk b0
-    wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hTube)
-  obtain ⟨AD'', hmono, hquot⟩ := window_hbG_quot geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp D ψk aN hDreal hpos hψkD hR1 hR2 hDh hD0 haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX
-  exact window_pt_combine_final (hc0 _) (hc01 _) hrd hrdeq (constNat_pos hβG hZbpos0) (window_hbG_cI geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv)
-    (by rw [hC]; linarith [(Complex.re_le_norm C).trans hCb]) hmono hquot hint hQtotv
+            (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot) :=
+  window_hbG_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp (fun _ _ _ _ _ _ _ _ _ _ _ => 0) (fun _ _ _ _ _ _ _ _ _ _ _ _ => rfl) (window_hbG_namedC geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hc0 hrr Zt δk cen radZ e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hnamed hQtotv) hQtotv
 
 end Core
 
