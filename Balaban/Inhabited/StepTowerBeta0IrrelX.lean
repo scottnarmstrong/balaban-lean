@@ -7,13 +7,14 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Inhabited.StepTowerBeta0IrrelCore
+public import Balaban.Inhabited.StepTowerCollarX
 
 /-!
 The class chain with the irrelevant-part bounds in the form X, at every tower radius
 
 `e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree`: the statement of `e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet` for all towers that agree with a reference tower `T₀`
 on `m₁, BG, BG₂, κ, δ` and every radius `t ≥ c 3^{-α(k+1)}` (`2 α < 1`), beyond one threshold
-`β₀`; the proof is that of `e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet` with the lower threshold replaced by its `_agree` form.
+`β₀`; the instance `r₀ ≤ 324` of `e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree_collar`.
 -/
 
 @[expose] public section
@@ -273,76 +274,15 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree {κmin : ℝ}
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  classical
-  obtain ⟨β₀, hβ₀, HC⟩ := e0CoeffFamily_class_fromTower_of_irrelBounds_core_onSet_agree T₀ hHull hA p hcR hαR
+  obtain ⟨β₀, hβ₀, HC⟩ :=
+    e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree_collar T₀ hHull hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκ hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκ hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀
-    i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
-    X₁f'' j₁ hB0 hF0
-  have hmem : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ∈ Finset.Icc 1 k ∧ Aligned (3 ^ τ.1.1) τ.1.2.1 ∧
-      IsPolyDom C.m₀ τ.1.1 τ.1.2.2 ∧ τ.1.2.1 ∈ τ.1.2.2 := by
-    intro τ
-    have h : τ.1 ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus 3 3 N₁ T.m₁ (k + 1) ×
-        Set (CTorus 3 3 N₁ T.m₁ (k + 1))))).filter
-        (fun τ => Aligned (3 ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2) := by
-      rw [← h𝒯]; exact τ.2
-    rw [Finset.mem_filter, Finset.mem_product] at h
-    exact ⟨h.1.1, h.2⟩
-  have hj1 : ∀ τ : {τ // τ ∈ 𝒯E}, 1 ≤ τ.1.1 := fun τ => (Finset.mem_Icc.1 (hmem τ).1).1
-  have hjk : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ≤ k := fun τ => (Finset.mem_Icc.1 (hmem τ).1).2
-  have hXp : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 τ.1.2.2 := fun τ => (hmem τ).2.2.1
-  have hy : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.2.1 ∈ τ.1.2.2 := fun τ => (hmem τ).2.2.2
-  have hcov : ∀ τ : {τ // τ ∈ 𝒯E}, CovSetup S.G' C.m₀ τ.1.1 (XL τ) (𝒦X τ) := fun τ =>
-    covSetup_of_chosen S.hG' hN (Nat.succ_le_succ (hjk τ)) (by norm_num) (h𝒦 τ)
-  have hXLpoly : ∀ τ : {τ // τ ∈ 𝒯E}, IsPolyDom C.m₀ τ.1.1 (XL τ) := fun τ => by
-    rw [hXL τ]
-    exact isPolyDom_union (hXp τ) (isPolyDom_cubeAt hN ((hjk τ).trans (Nat.le_succ k)) τ.1.2.1)
-      (hy τ) (mem_cubeAt τ.1.2.1)
-  -- the per-label settings
-  have h81 : 3 ^ 4 ∣ N₁ := (pow_dvd_pow 3 (by omega : 4 ≤ C.m₀)).trans hN
-  obtain ⟨N₁', hN1', hc⟩ := exists_finer_torus T.m₁ h81
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg⟩ := settings_family_castLocalB_spec (N₁' := N₁')
-    (m₁' := T.m₁ + 4) hc S.hG' hB0 hF0 S.hG (by norm_num) (m₀ := C.m₀) hN (by omega)
-    (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) XL 𝒦X hj1 hjk hXLpoly hcov hϱ₁ (bgR0_le_rhoSep _) hs₁
-    (rhoSep_le_minSep_three hrho) (c₁ := 81) (le_of_eq (by rw [pow_add]; norm_num))
-    (index_condition_shift_three hm7 hr₀)
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ
-    hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
-    hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴
-    H hH εC hεC0 hmr hsa hεC hE hεnum
-  have hκ1 : 1 ≤ κdec := by linarith
-  have hE1 : 0 ≤ Real.exp ((κdec - 1) * cG 3 3) := (Real.exp_pos _).le
-  have hBτ' : ∀ τ, 0 ≤ Bτ τ * (Real.exp ((κdec - 1) * cG 3 3)) := fun τ => mul_nonneg (hBτ τ) hE1
-  have hCI' : 0 ≤ CI * (Real.exp ((κdec - 1) * cG 3 3)) := mul_nonneg hCI hE1
-  have hKL' : 0 ≤ KL * (Real.exp ((κdec - 1) * cG 3 3)) := mul_nonneg hKL hE1
-  have hEbI' : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 + n₁ ≤ k →
-      Bτ τ * (Real.exp ((κdec - 1) * cG 3 3)) ≤ CI * (Real.exp ((κdec - 1) * cG 3 3)) * P.E₀ * ((((3 : ℕ) : ℝ)⁻¹ ^ (k - τ.1.1)) ^ (((3 : ℕ) : ℝ) + α₃)) :=
-    fun τ h => by
-      have := mul_le_mul_of_nonneg_right (hEbI τ h) hE1
-      calc _ ≤ _ := this
-        _ = _ := by ring
-  have hEbL' : ∀ τ : {τ // τ ∈ 𝒯E}, k < τ.1.1 + n₁ → Bτ τ * (Real.exp ((κdec - 1) * cG 3 3)) ≤ KL * (Real.exp ((κdec - 1) * cG 3 3)) * P.E₀ := fun τ h => by
-    have := mul_le_mul_of_nonneg_right (hEbL τ h) hE1
-    calc _ ≤ _ := this
-      _ = _ := by ring
-  have hsupp : ∀ τ : {τ // τ ∈ 𝒯E}, treeLenCovOne C.m₀ τ.1.1 (XL τ) ≤
-      treeLenCovOne C.m₀ τ.1.1 τ.1.2.2 + cG 3 3 := fun τ => by
-    rw [hXL τ]
-    exact treeLenCovOne_support_le hN ((hjk τ).trans (Nat.le_succ k)) (hXp τ) (hy τ)
-  have hEbd' : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ r ∈ 𝒮 τ,
-      ‖irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2‖ ≤
-        Bτ τ * (Real.exp ((κdec - 1) * cG 3 3)) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ τ.1.1 (XL τ)) :=
-    fun τ r hr => irrel_bound_transfer (hBτ τ) hκ1 (hsupp τ) (hEbd τ r hr)
-  exact @HC' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS
-    hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
-    Gk Gj X₀ X₁f hX₁ hBs hFs cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1
-    hlog 𝒮 hchart (fun τ => Bτ τ * Real.exp ((κdec - 1) * cG 3 3)) hBτ' hEbd' (CI * Real.exp ((κdec - 1) * cG 3 3)) (KL * Real.exp ((κdec - 1) * cG 3 3)) α₃ n₁ hCI' hKL' hα₃
-    hEbI' hEbL' hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR
-    hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE
-    hεnum
+    i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀
+  exact HC' C z 𝒯E h𝒯 hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7
+    (hr₀.trans (by norm_num))
 
 end Balaban.Inhabited
