@@ -623,6 +623,75 @@ amplitudes (`b = p − a`, the difference of the vacuum terms on `X = ∅`, for 
 plausible exactly when the whole case is. The landed `rootF_kf0_partial_of_oneScaleInput` takes the one-scale input in ratio form,
 with `L, M` existential; `KfZeroInput` is that input in absolute form at the prefix's `L, M` (SPINE-AUDIT).
 
+## RInput sub-inputs (W1118)
+
+**PROVED** (`Balaban/Spine/RStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+```
+theorem rInput_of_parts (hK : RKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hG : RGasInput d N T P6 C7 PB cs₀ M1 c rH ϱ) : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+```
+It follows LFR Thm III.10.8 and Lemma III.8.4 (P7 Thm 2, (1.3)–(1.7), (3.1)–(3.29)) with ruling R4. Threshold: the larger of the two.
+`RInput` is stated unchanged; `RStep.lean` edits no existing file but `Balaban.lean`.
+
+**Why two sub-inputs, and why they are existential.** No landed operator constructs the output representation: `Balaban/LargeField/R/` has
+the gas, the kernels and the normalizations for abstract carriers, and nothing ties them to `Rep.B`, `Rep.κK`, `Rep.KD`, `Rep.hist`.
+So each sub-input is "there are output data with these properties", over the input record. Statements "for all output data
+with P, Q holds" would be false: two boundary terms can give the same `ρ'` and only one satisfies (D7); the kept exponent `κK` is part of
+the type of the kept data. The output data are therefore produced in two stages, and the later stage quantifies over the
+earlier one's output under the earlier one's properties (`KeptOutput` includes its coherence).
+
+Carrier: `PreRec …` (new, `Spine/RStep.lean`): the witnesses of `PreClassAt` as fields (`preClassAt_iff : PreClassAt … ↔ Nonempty (PreRec …)`;
+the body is written a second time, as `preClassAt_witness_aux` does; dedupe by `PreClassAt := ∃ …, PreRec` needs an edit of `ClassStep.lean`).
+The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.sf Rpp` (`sf + ℛ''`, the other fields of `SFData` unchanged), large-field part
+`lf₁` with the boundary terms replaced by `B'`.
+
+1. **`RKeptInput` (kept half; LFR Lemma III.10.5, Def. III.10.6, Thm III.8.9 (a), (b); P7 (1.3)–(1.6)).** For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk`:
+   `∃ lf₁`, one `Rep` per torus with the step data of `rec.F`, histories complete at `(k, k+1)`, and `KeptOutput`: `D4Pin (k+1)`
+   (the exponent `κ_k` of a kept component is `κ^pre_k`; OPEN-R-TOP-PIN), `D5Bound (k+1)` (the bound (1.26) of the kept operators `locOp`
+   with exponent `κ_k − C_R λ_k^{2d+1} + γ(ϰ)`), `D6Budget` ((H6′) with the kept exponents; (Rg) of LF-2), and `LFCoherent` of the family with these data and
+   no boundary terms (so the step and kept clauses of (D8); the boundary clause is in `GasOutput`).
+   * Landed: `keptKernel_one_kerBound`, `keptKernel_two_kerBound`, `keptKernel_three_kerBound` (the kept outcomes `ϰ = 1, 2, 3`), `Rep.rg_ripe`,
+     `Counter` (`CounterConclusion.Gp_ripe`, `flow_counter`), `isComplete_succ_of_enum`, `exists_isComplete`, `pin_succ_of_pin` (`d4Pin_succ_iff`),
+     `Rep.budgetPre_of_LF2`.
+   * Open: (e) the kept bounds `ϰ₄`, `ϰ₅` (`hquot`); OPEN-R-HISTORY-ENUM only as far as the new histories must agree with the old ones
+     below `k` (completeness is no longer open: any complete set at `(k, k+1)` exists); the budget (`budget`, strict `k < t*` of the post book);
+     `opBound` (`locOp` at `k` uses the kept data `keptOp` at ripe components, `preOpTop` does not).
+2. **`RGasInput` (gas half; LFR Thm III.10.8 (b), (c), Lemma III.8.4; P7 (3.1)–(3.29); ruling R4).** For the same record and any `lf₁` as in 1:
+   `∃ B' Rpp ρ'` with `GasOutput`: (i) `ℛ''` has `RTermsH4` with the allowance `1/2` at `m = m₀ + m₁` and `0` elsewhere (OPEN-R-RM-H4; P7 (3.28)–(3.29)),
+   and `D8SF` (`sfWithRem`: coherent) — `D8SF.R_eq` of `ℛ''` comes from `LFCoherent` of the input (audit D1); (ii) `D1Form2` for `ρ'` on the family `repFamPost`
+   (the gas gives the form: OPEN `form`); (iii) `D7Bdry2Post` (OPEN-R-D7-PHYSICAL; the gas activity bound `d7Post_bound_of_avoid_of_gas`
+   from the small factor (3.10″) gives its `bound` field; `real`, `analytic`, `loc_field`, `rot`, `support` label by label (`real_of_avoid`, …),
+   `loc_hist`, `euclid` and the new gas labels remain); (iv) `LFCoherent` of the output (the boundary clause); (v) `∫ ρ' = ∫ ρ` (P7 (1.7)).
+   Sub-sub-inputs, in the order of the proof (none is a Lean hypothesis; all are inside the existential):
+   * (a) **the window bound** of the removed histories: `removedKernel_kerBound_of_hid_action_cl` (`hnamedCU`), `sum_mainActionLoc_eq_gen_of_flow_window_pt_Du`, `…_cl`
+     cores, `genSet_stability_core`, `removed_kerBound_logC_of_window`. Open: `hnamedC.1` (the ~60 numeric side conditions of Step 1, P7) and the P7
+     Q-part of `hnamedC.2` at the physical collar (COLLAR-FIX 1.2);
+   * (b) **the small factor** (3.10), pointwise (3.10″) of ruling R4: `lf4R_removed`, `norm_tau_le_of_removed_kernels`, `r4HeavyFamily_bound`,
+     `gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run_of_kernel`; open for the actual removed operators, and (H-op): hole closure, the two PE
+     inequalities, the product measure; also `hosc` (§5.5 of `LF4R-PLAN.md`) and the transport `OutT ↔ BlockField` (§6);
+   * (c) **ℬ′** (P7 (3.22)–(3.25)) and the representation as a gas of removed clusters: `RopC`, `rhoSigma`, `Rop_integral_coupling`, `gasDecor_eq`, `gasR4Decor_eq`,
+     `gasR4DecorOp_eq`, `r4Fresh_aggregate_of_localization`, `r4HeavyActivity_bound`, `gasOp_pe_hole`, `r4Coupling`, `r4Fresh_*`, `gasLinked*`. Open: the physical extension that
+     `r4Fresh` needs, and the tie of `r4Coupling` to `Rep.B`;
+   * (d) **the vacuum constants** (R5, R5′): `StepData.b_vac`, `stepVacuumTerm`, `StepData.VacuumTie`, `stepVacuum_removed_*`, `VacuumTie.removed_weight_*`. The cancellation of `e^{E_k|Z|_k}` with the
+     vacuum term of the creating step needs `vacE = E_k` on the creating histories and `b⁰_k` free of `E`;
+   * (e) the normalization: `R_normalization_of_indep`, `R_normalization_sum_of_indep`, `R_normalizationPhysical` (named integrability hypotheses);
+   * (f) the coherence of the new boundary terms (D8, from locality).
+
+Proved inside `rInput_of_parts`: `coh_addRem`, `field_addRem`, `corr_addRem`, `coeff_addRem` (`Coh`, `FieldClauses`, `D1CorrLim`, `D9Coeff` read none of the remainders),
+`d8SF_addRem` (sum of the two `R_eq`), `sfData_of_remainder_added` (the input allowance `1/2` at `m` plus the allowance `1/2` of `ℛ''`), `complete` (from 1),
+`pin`, `opBound`, `budget` (from 1, they do not read `B`), the ties of `RepClassAt`, (I.2) and the running constants (those of the input, `repFamPost` has the same `β, ν`).
+
+**Flags.**
+* **The vacuum tie is not in the pre-`R` class.** `IsRepPre2`/`PreClassAt` do not tie `StepData.vacE` to `sf.E`. A pre-`R` record whose step data carry other vacuum
+  constants has the same kernels (`b⁰` is free); (3.10″) needs the tie and `b⁰_k` bounded with constants free of `E`. So `RGasInput` is plausible for the outputs
+  of `SFStepInput` and not clearly true for every member of `PreClassAt`. The tie belongs to the output of `SFStepInput` (a clause of `PreClassAt`/`IsRepPre2`), which
+  changes a landed definition; not done (orchestrator).
+* The six sub-inputs of the brief (window, small factor, representation, kept bounds, vacuum, coherence) are not separate Lean sub-inputs, because their objects (the removed
+  operator `removedKernel` with its reference density, ℬ′) are not part of the output record; they are (a)–(f) above. Window and small factor are proved to chain (`removed_kerBound_logC_of_window`, `lf4R_removed`) at the gas level.
+* Rule 10: both sub-inputs need the exemption of the seven inputs (as `RInput`). `KeptOutput` and `GasOutput` are not inhabited here; `preClassAt_witness` inhabits the hypothesis, and
+  the landed post witness `Wit.wIsRep2` (`Inhabited/RFieldProjectionWitness.lean`) has the same small-field data (`rfl`).
+* Generality: general `d, N` and the constants of the prefix, as `RInput`; the existential in `RKeptInput`, `RGasInput` is at fixed `κ, c₉, β, ν, h, kf, k, ρ, νk`.
+
 ## Non-vacuity (D4, F5) and rule 10
 
 Inputs 3–6 are `∀ ρ ∈ class`. Input 2 asserts a member with `∫ρ₁ = cZ(g) ≠ 0`, inputs 3–5 propagate it, and the stop lemma
