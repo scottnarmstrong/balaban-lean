@@ -281,15 +281,14 @@ theorem stop_of_flatClassAt {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Co
 
 /-! ### The assembly -/
 
-/-- **The Root-F spine.**  Root-F (the body of `Balaban.logPartition_multiscale`, verbatim) from the
-named inputs of `Balaban/Spine/RootFInputs.lean` at the constants
-`δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ`
-of the prefix: A1 `PrefixInput`, A3 `BaseStepInput`, A4 `ClassStepInput`, `TransferInput`,
-`FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.  Root-F's `L, M` are
-`Ty.L, Ty.M` (at `κ, c₉`), its `kf` is the horizon `k̂_f`, and its terms are `activityTerm` of the
-activities of
-the last integral (`ν ≤ 7/8 L⁻²`) or of A7 (`ν > 7/8 L⁻²`). -/
-theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ : 0 < δ)
+/-- **The Root-F spine, for one pair `κ, c₉`.**  From the named inputs of
+`Balaban/Spine/RootFInputs.lean` at the constants `δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the
+prefix (A1 `PrefixInput`, A3 `BaseStepInput`, A4 `ClassStepInput`, `TransferInput`,
+`FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`): there is `β₀` such that for every
+`β ≥ β₀`, `ν ∈ (0, 1]` and unit `h` the horizon `kf = k̂_f` satisfies the scale clauses and Root-F's
+clauses `RootFClauses` hold with `L = Ty.L`, `M = Ty.M` (at `κ, c₉`), for the terms `activityTerm`
+of the activities of the last integral (`ν ≤ 7/8 L⁻²`) or of A7 (`ν > 7/8 L⁻²`). -/
+theorem rootF_clauses_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ)
     (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
     (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
     (rH ϱ : ℝ → ℝ → ℝ)
@@ -299,38 +298,13 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
     (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA4f : FrozenStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
     (hA6 : LastIntegralInput d N δ Ty P6 C7 PB cs₀ M1 c rH ϱ)
-    (hA7 : KfZeroInput d N δ Ty) :
-    ∃ δ : ℝ, 0 < δ ∧
-    ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
-    ∃ L M : ℕ, 2 ≤ L ∧ 1 ≤ M ∧ ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
+    (hA7 : KfZeroInput d N δ Ty) (κ : ℝ) (hκ : 0 < κ) (c₉ : ℝ) (hc₉ : 0 < c₉) :
+    ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
     ∀ ν : ℝ, 0 < ν → ν ≤ 1 → ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 →
-    ∃ kf : ℕ, (L : ℝ) ^ kf * Real.sqrt ν ≤ L ∧ 1 / 2 ≤ (L : ℝ) ^ (kf + 1) * Real.sqrt ν ∧
-    ∃ T : (ℓ : ℕ) → ℕ → Torus d ℓ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) →
-        (Fin N → ℂ),
-      (∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
-        (∀ j x X, ¬ (j ∈ Finset.Icc 1 (kf + 1) ∧ x ∈ X ∧ IsPolymer d ℓ (M * L ^ j) X) →
-          T ℓ j x X = 0) ∧
-        (∀ j x X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) →
-          T ℓ j x X g = T ℓ j x X g') ∧
-        (∀ j x X, AnalyticOnNhd ℂ (T ℓ j x X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
-        (∀ j ∈ Finset.Icc 1 (kf + 1), ∀ x X (g : Torus d ℓ → Fin N → ℂ),
-          ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
-          ‖T ℓ j x X g‖ ≤ c₉ * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
-            * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)) ∧
-        ∀ g : Torus d ℓ → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < 1 →
-          Complex.log (partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0) =
-            ∑ x, ∑ i, g x i * (h i : ℂ)
-              + ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ x, ∑ X : Finset (Torus d ℓ), ∑ i,
-                  g x i * T ℓ j x X g i) ∧
-      ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
-        ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
-          a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
-          T ℓ j (fun μ => (a μ : ZMod ℓ)) (A.image fun y μ => (y μ : ZMod ℓ))
-              (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) =
-            T ℓ' j (fun μ => (a μ : ZMod ℓ')) (A.image fun y μ => (y μ : ZMod ℓ'))
-              (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) := by
+    ∃ kf : ℕ, ((Ty κ c₉).L : ℝ) ^ kf * Real.sqrt ν ≤ (Ty κ c₉).L ∧
+      1 / 2 ≤ ((Ty κ c₉).L : ℝ) ^ (kf + 1) * Real.sqrt ν ∧
+      ∃ T : RootFFamily d N, RootFClauses d N (Ty κ c₉).L (Ty κ c₉).M β ν h kf κ c₉ δ T := by
   have : NeZero N := ⟨by omega⟩
-  refine ⟨δ, hδ, fun κ hκ c₉ hc₉ => ?_⟩
   obtain ⟨hL2, hM1, hc₈⟩ := hA1 κ hκ c₉ hc₉
   have : NeZero (Ty κ c₉).L := ⟨by omega⟩
   have : NeZero (Ty κ c₉).M := ⟨by omega⟩
@@ -340,8 +314,7 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
   obtain ⟨β₄f, hβ₄f⟩ := hA4f κ hκ c₉ hc₉
   obtain ⟨β₆, hβ₆⟩ := hA6 κ hκ c₉ hc₉
   obtain ⟨β₇, hβ₇⟩ := hA7 κ hκ c₉ hc₉
-  refine ⟨(Ty κ c₉).L, (Ty κ c₉).M, hL2, hM1,
-    max 2 (max β₃ (max β₄ (max β₄t (max β₄f (max β₆ β₇))))), ?_⟩
+  refine ⟨max 2 (max β₃ (max β₄ (max β₄t (max β₄f (max β₆ β₇))))), ?_⟩
   intro β hβ ν hν0 hν1 h hh
   simp only [max_le_iff] at hβ
   obtain ⟨hβ2, hβ₃', hβ₄', hβ₄t', hβ₄f', hβ₆', hβ₇'⟩ := hβ
@@ -447,5 +420,58 @@ theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ
       (fun g _ => by simp) (fun g hg => ?_) g hg
     rw [hZ ℓ hℓ g hg]
     simp
+
+/-- **The Root-F spine.**  Root-F (the body of `Balaban.logPartition_multiscale`, verbatim) from the
+named inputs of `Balaban/Spine/RootFInputs.lean` at the constants
+`δ, Ty, P6, C7, PB, cs₀, M1, c, rH, ϱ` of the prefix: A1 `PrefixInput`, A3 `BaseStepInput`,
+A4 `ClassStepInput`, `TransferInput`, `FrozenStepInput`, A6 `LastIntegralInput`, A7 `KfZeroInput`.
+Root-F's `L, M` are `Ty.L, Ty.M` (at `κ, c₉`), its `kf` is the horizon `k̂_f`, and its terms are
+`activityTerm` of the activities of the last integral (`ν ≤ 7/8 L⁻²`) or of A7
+(`ν > 7/8 L⁻²`) (`rootF_clauses_of_spine`). -/
+theorem rootF_of_spine (d N : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (δ : ℝ) (hδ : 0 < δ)
+    (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
+    (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ)
+    (rH ϱ : ℝ → ℝ → ℝ)
+    (hA1 : PrefixInput Ty P6)
+    (hA3 : BaseStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA4 : ClassStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA4t : TransferInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA4f : FrozenStepInput d N Ty P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA6 : LastIntegralInput d N δ Ty P6 C7 PB cs₀ M1 c rH ϱ)
+    (hA7 : KfZeroInput d N δ Ty) :
+    ∃ δ : ℝ, 0 < δ ∧
+    ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
+    ∃ L M : ℕ, 2 ≤ L ∧ 1 ≤ M ∧ ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
+    ∀ ν : ℝ, 0 < ν → ν ≤ 1 → ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 →
+    ∃ kf : ℕ, (L : ℝ) ^ kf * Real.sqrt ν ≤ L ∧ 1 / 2 ≤ (L : ℝ) ^ (kf + 1) * Real.sqrt ν ∧
+    ∃ T : (ℓ : ℕ) → ℕ → Torus d ℓ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) →
+        (Fin N → ℂ),
+      (∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ →
+        (∀ j x X, ¬ (j ∈ Finset.Icc 1 (kf + 1) ∧ x ∈ X ∧ IsPolymer d ℓ (M * L ^ j) X) →
+          T ℓ j x X = 0) ∧
+        (∀ j x X (g g' : Torus d ℓ → Fin N → ℂ), (∀ y ∈ X, g y = g' y) →
+          T ℓ j x X g = T ℓ j x X g') ∧
+        (∀ j x X, AnalyticOnNhd ℂ (T ℓ j x X) {g | ∑ y, ∑ i, ‖g y i‖ < 1}) ∧
+        (∀ j ∈ Finset.Icc 1 (kf + 1), ∀ x X (g : Torus d ℓ → Fin N → ℂ),
+          ∑ y, ∑ i, ‖g y i‖ ≤ 1 / 2 →
+          ‖T ℓ j x X g‖ ≤ c₉ * (L : ℝ) ^ (-((j : ℝ) * (((d : ℝ) - 2) / 2 + δ)))
+            * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ j) ^ d)) ∧
+        ∀ g : Torus d ℓ → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < 1 →
+          Complex.log (partitionFunction d N ℓ β ν h g / partitionFunction d N ℓ β ν h 0) =
+            ∑ x, ∑ i, g x i * (h i : ℂ)
+              + ∑ j ∈ Finset.Icc 1 (kf + 1), ∑ x, ∑ X : Finset (Torus d ℓ), ∑ i,
+                  g x i * T ℓ j x X g i) ∧
+      ∀ (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'], M * L ^ (kf + 1) ∣ ℓ → M * L ^ (kf + 1) ∣ ℓ' →
+        ∀ (j : ℕ) (a : Fin d → ℤ) (A : Finset (Fin d → ℤ)) (g : (Fin d → ℤ) → Fin N → ℂ),
+          a ∈ A → (∀ y ∈ A, ∀ μ, 4 * |y μ| < (ℓ : ℤ) ∧ 4 * |y μ| < (ℓ' : ℤ)) →
+          T ℓ j (fun μ => (a μ : ZMod ℓ)) (A.image fun y μ => (y μ : ZMod ℓ))
+              (fun z => g fun μ => ZMod.valMinAbs (n := ℓ) (z μ)) =
+            T ℓ' j (fun μ => (a μ : ZMod ℓ')) (A.image fun y μ => (y μ : ZMod ℓ'))
+              (fun z => g fun μ => ZMod.valMinAbs (n := ℓ') (z μ)) := by
+  refine ⟨δ, hδ, fun κ hκ c₉ hc₉ => ?_⟩
+  obtain ⟨hL2, hM1, -⟩ := hA1 κ hκ c₉ hc₉
+  exact ⟨(Ty κ c₉).L, (Ty κ c₉).M, hL2, hM1, rootF_clauses_of_spine d N hd hN δ Ty P6 C7 PB cs₀
+    M1 c rH ϱ hA1 hA3 hA4 hA4t hA4f hA6 hA7 κ hκ c₉ hc₉⟩
+
 
 end Balaban.RootFSpine
