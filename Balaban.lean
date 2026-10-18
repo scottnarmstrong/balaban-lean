@@ -2733,3 +2733,6 @@ public import Balaban.Inhabited.StepTowerCollarTower
 public import Balaban.Inhabited.StepTowerCollarScales
 public import Balaban.Inhabited.StepTowerCollarUniform
 public import Balaban.Inhabited.StepTowerCollarClass
+public import Balaban.Inhabited.StepTowerRenThetaMargin
+public import Balaban.Inhabited.StepTowerRenThetaRoom
+public import Balaban.Inhabited.StepTowerRenThetaClass
