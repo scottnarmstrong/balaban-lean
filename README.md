@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 770,000 lines of Lean (about 610,000 without comments and blank
+As of October 2026, about 800,000 lines of Lean (about 635,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -16,7 +16,7 @@ block it.
 
 ## Where the work stands
 
-As of 17 October 2026. The small-field part of one renormalization step (background fields,
+As of 18 October 2026. The small-field part of one renormalization step (background fields,
 localization, the fluctuation integral and its expansion, the inductive class of effective actions)
 is largely formalized, for general d, L and N. The remaining work is concentrated in seven blockers,
 described in [docs/BLOCKERS.md](docs/BLOCKERS.md). The current fronts:
