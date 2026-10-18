@@ -7,6 +7,7 @@ module
 
 public import Balaban.Inhabited.StepTowerChainStruct
 public import Balaban.Inhabited.StepTowerBeta0IrrelBase
+public import Balaban.Inhabited.StepTowerCollarStruct
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -17,9 +18,8 @@ import Mathlib.Tactic.Linarith
 tower `T₀` on `m₁, BG, BG₂, κ, δ` and every radius `t ≥ c 3^{-α(k+1)}` (`2 α < 1`), beyond one
 threshold `β₀`.  The label rate `κ_dec` with its two inequalities for `T₀` and the numerical
 conditions `ChainNum`, `FlNum` of the radius `T.t` (with the radii `δ₃`, `δ_fl`) are premises of
-the statement; the proof is that of `e0CoeffFamily_class_exists_tower_struct_onSet` with the
-thresholds of `corrR`, the amplitude, the scale record and the chain replaced by their `_agree`
-forms.
+the statement; it is the instance `r₀ = 324`, `δ₁ = T.t` of
+`e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar`.
 -/
 
 @[expose] public section
@@ -154,99 +154,9 @@ theorem e0CoeffFamily_class_exists_tower_struct_onSet_agree (m₀ : ℕ) {κmin 
           Jr.densE0 C (rootSite z) q = ∑ T',
             (if h : clipRaw S.G' q ∈ rawSub 2 S.G' then
               e ((⟨clipRaw S.G' q, h⟩ : rawSub 2 S.G'), 0) T' else 0) := by
-  classical
-  have hK0 := T₀.marks_K0_pos
-  have hrU : 0 ≤ rootUnionK 3 3 1 T₀.m₁ T₀.κ0 := rootUnionK_nonneg 1 T₀.κ0
-  obtain ⟨βc, hβc, hRU⟩ := exists_beta0_e1_agree T₀ hA p hcR hαR 3
-  obtain ⟨βa, hβa3, Hamp⟩ := StepTower.exists_beta0_amp_agree T₀ hA p
-    (Kc' := (2 * (K0 3 3 T₀.κ0 + 1) + (K0 3 3 T₀.κ0 + rootUnionK 3 3 1 T₀.m₁ T₀.κ0) +
-      rootUnionK 3 3 1 T₀.m₁ T₀.κ0) / 2) (by linarith) hcR hαR
-  obtain ⟨βray, hβray3, Hscale⟩ := StepTower.scale_agree T₀ hA p hcR hαR
-  obtain ⟨βb, hβb, HC⟩ :=
-    e0CoeffFamily_class_fromTower_of_irrelBounds_base_onSet_agree T₀ hlo hA p hcR hαR
-  refine ⟨max (max (max βb βc) βa) βray,
-    hβb.trans (((le_max_left _ _).trans (le_max_left _ _)).trans (le_max_left _ _)),
-    fun T hm₁ hBG hBG₂ hκT hδ δ₃ δfl hnB hnF => ?_⟩
-  obtain ⟨h0, hdecT, h'⟩ := StepTower.agree_rates T₀ T
-  have hκ : 4 * 3 * (((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * κdec ≤ T.κ := by rw [hκT]; exact hκ₀
-  have hr : (2 * T.κdec - 1) * (((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
-      ((3 : ℕ) : ℝ) ^ m₀ * ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3) + 1 ≤ 2 * κdec := by
-    rw [hdecT]; exact hr₀
-  intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ S hS
-  obtain ⟨⟨⟨hβb', hβc'⟩, hβa'⟩, hβr'⟩ : ((βb ≤ β ∧ βc ≤ β) ∧ βa ≤ β) ∧ βray ≤ β := by
-    simpa only [max_le_iff] using hβ
-  obtain ⟨Dt⟩ := Hscale T hκT hδ k hk N₁ h3N hN₁ ν hν0.le hν β hβr' hct p₁ hp0 hp₁
-  subst hS
-  have hp : 0 < (T.step k hk N₁ ν β p₁).p₁ := hp0
-  obtain ⟨Jr, HC'⟩ := HC T hm₁ hBG hBG₂ hκT hδ k hk N₁ h3N hN₁ ν hν0 hν β hβb' hct p₁ hp0 hp₁ Dt _ rfl hp
-  refine ⟨Jr, ?_⟩
-  intro C z 𝒯E h𝒯 P Dom bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom δ₃ δfl bL hb₁ hbC hm hcl
-    hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hnB hnF
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
-  intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum
-  have hC := Dt.core
-  have hd0 : 0 < 3 := by norm_num
-  have ht0 := T.t_pos
-  have hc1 := one_le_c1 3 3
-  have hβ0 : 0 < β := by linarith
-  have hb0 : 0 < β * 3 ^ k := by positivity
-  have hδ0 : 0 < xiC1 3 * T.t := by have := hC.eps_pos; have := one_le_xiC1 3; positivity
-  have hB0 : 0 ≤ 2 * (K4 3 3 2 T.BG T.κ * (xiC1 3 * T.t)) :=
-    mul_nonneg (by norm_num) (mul_nonneg (K4_pos hC.hS.fam.2.1 hd0).le hδ0.le)
-  obtain ⟨F₁, hF₁an, hF₁⟩ := i4b_analytic hC.hS hC.Sp hC.HBp hC.hκ.le hC.hM
-  obtain ⟨Sol, hSolan, hSolprop⟩ := Dec2.i4a_analytic (N := 2) hC.hS2.fam hC.hS2.an
-    hC.SM.toCoverBase hC.hκ.le hC.hM2 false hB0 hC.δ₁_pos.le hC.B_le hC.δ₁_le
-  have hFk : ∀ τ : {τ // τ ∈ 𝒯E}, ∃ Fk : RawData 3 3 (N₁ * 3 ^ T.m₁) (k + 1) 2 →
-      ((Gk τ).Ω 1 × Fin 2 → ℂ) × ((Gk τ).Ω 1 → ℂ),
-      AnalyticOnNhd ℂ Fk {p | ∃ D : BgData (Gk τ) 2,
-        InUnionDomainC (Gk τ) (bgC0 3 3 2) (bgC1 3 3 2) (T.step k hk N₁ ν β p₁).ν D ∧
-          p = (D.Ψ, D.h)} ∧
-      ∀ D : BgData (Gk τ) 2,
-        InUnionDomainC (Gk τ) (bgC0 3 3 2) (bgC1 3 3 2) (T.step k hk N₁ ν β p₁).ν D →
-        Fk (rawOf D) = (bgFieldC (Gk τ) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-          (T.step k hk N₁ ν β p₁).ν (bgC0 3 3 2) D,
-          bgMultC (Gk τ) (compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-            (T.step k hk N₁ ν β p₁).ν (bgC0 3 3 2) D) :=
-    fun τ => theorem72_analytic (G := Gk τ) (a := compWeight 3 (T.step k hk N₁ ν β p₁).a₁)
-      (ν := (T.step k hk N₁ ν β p₁).ν) (hBs τ).HBk
-  choose FkL hFkan hFkeq using hFk
-  have hRU' := (hRU T hm₁ hBG hBG₂ hκT).1 k hk β hβc' hct p₁ hp0 hp₁
-  have hbU : (T.step k hk N₁ ν β p₁).betaU = β * 3 ^ k := hatStepK_betaU k T.m₁ hk ν β p₁ T.δ
-  have hmrEq : markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ) = decMR T k (β * 3 ^ k) p₁ := by
-    rw [hbU]; exact markedRad_eq T k hb0.le p₁
-  obtain ⟨hRpos, hdec, hsa0, hab0⟩ := T.marked_numerics hk hb0 hp0 hRU'
-  have hU := corrU_pos
-  have hmr0 : 0 < markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ) := by rw [hmrEq]; exact hdec
-  have hsa : 2 * corrU * markedRad 3 3 2 k (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ) < T.t := by
-    rw [hmrEq]; exact hsa0
-  have hab : (corrU + corrR T k (β * 3 ^ k) p₁) * markedRad 3 3 2 k
-      (T.step k hk N₁ ν β p₁).a₁ T.κ p₁
-      ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ) < T.t := by
-    rw [hmrEq]; exact hab0
-  have hfirst := Hamp T hm₁ hBG hBG₂ hκT k hk β hβa' hct p₁ hp0 hp₁
-  rw [show 2 * ((2 * (K0 3 3 T₀.κ0 + 1) + (K0 3 3 T₀.κ0 + rootUnionK 3 3 1 T₀.m₁ T₀.κ0) +
-    rootUnionK 3 3 1 T₀.m₁ T₀.κ0) / 2) = 2 * (K0 3 3 T₀.κ0 + 1) + (K0 3 3 T₀.κ0 +
-    rootUnionK 3 3 1 T₀.m₁ T₀.κ0) + rootUnionK 3 3 1 T₀.m₁ T₀.κ0 by ring] at hfirst
-  rw [← h0, ← hm₁] at hfirst
-  have hεex : ∃ εC : ℝ, εC = corrU / (T.t / (2 * markedRad 3 3 2 k
-      (T.step k hk N₁ ν β p₁).a₁ T.κ p₁ ((((T.step k hk N₁ ν β p₁).betaU ^ (-(1 / 2 : ℝ)) : ℝ)) : ℂ))) *
-          (((2 ^ 3 ^ 3 : ℕ) : ℝ) * (c1 3 3 * ((((3 : ℕ) : ℝ) ^ (1 + C.m₀ + T.m₁)) ^ 3 * P.E₀ *
-          (2 * K0 3 3 T.κ0 * (CI * Real.exp ((κdec - 1) * cG 3 3) * (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ +
-            n₁ * (KL * Real.exp ((κdec - 1) * cG 3 3)) * ((((3 : ℕ) : ℝ) ^ (n₁ - 1)) ^ 3)))) *
-          Real.exp ((2 * T.κdec - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ C.m₀ *
-            ((((3 ^ (C.m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) := ⟨_, rfl⟩
-  obtain ⟨εC, hεCdef⟩ := hεex
-  have hεC0 : 0 ≤ εC := by
-    rw [hεCdef]; exact epsC_nonneg hmr0 ht0 hE₀ hCI hKL hα₃ T.marks_K0_pos
-  exact @HG p₁ hp0.le (StepTower.hatConn_step T hk) (StepTower.rowInHat_step T hk hN₁ hν0.le hν)
-    κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL (by rw [hCm]; exact hr)
-    (fun _ => F₁) (fun _ => hF₁an) (fun _ => hF₁) (fun _ => Sol) (fun _ => hSolan)
-    (fun _ => hSolprop) FkL hFkan hFkeq (fun τ => h𝒮 τ (FkL τ) (hFkeq τ)) p₁ hp0 le_rfl (by linarith) (corrR T k (β * 3 ^ k) p₁)
-    hRpos hab _ (fun _ _ _ _ => rfl) le_rfl _ rfl _ (fun _ _ _ _ => rfl) εC hεC0 hmr0 hsa
-    hεCdef.ge hE (max_le hfirst (by rw [← hεCdef] at hεnum; exact hεnum))
+  obtain ⟨β₀, hβ₀, HC⟩ :=
+    e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_collar m₀ hlo T₀ hκ₀ hr₀ hA p hcR hαR
+  refine ⟨β₀, hβ₀, fun T hm₁ hBG hBG₂ hκT hδ δ₃ δfl hnB hnF => ?_⟩
+  exact HC T hm₁ hBG hBG₂ hκT hδ 324 δ₃ T.t δfl le_rfl (by norm_num) hnB hnF le_rfl
 
 end Balaban.Inhabited

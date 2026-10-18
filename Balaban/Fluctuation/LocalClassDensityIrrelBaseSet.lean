@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.ClassOldDecInputE
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Inhabited.LevelCoversDef
+public import Balaban.Inhabited.StepTowerCollarBgSet
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -126,36 +127,8 @@ theorem step_bgSetting_base (Dt : StepScaleData T k hk N₁ ν β p₁) {δ₃ :
     (hnum : ChainNum 3 3 2 T.m₁ T.BG T.κ 324 T.t δ₃) :
     BgSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
       (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν
-      T.c T.BG T.κ 324 T.t δ₃ (dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) Finset.univ 1 := by
-  have hC := Dt.core
-  exact {
-    hS := hC.hS
-    Sp := hC.Sp
-    ha₁ := one_pos
-    HBp := hC.HBp
-    HBk := hC.HBp
-    HBj := hC.HBp
-    hP := hC.hPmp
-    hq := precedes_refl _
-    colk := fun z _ => by
-      show z ∈ (lvTop N₁ T.m₁ k (rhoSep T.m₁)).Ω 1
-      rw [(isLevel_lvTop (N₁ := N₁) (m₁ := T.m₁) (k := k) (ϱ := rhoSep T.m₁)).Ω_one]
-      exact Finset.mem_univ _
-    colj := fun z hz => classOldDec_collar hk z hz
-    hκ := hC.hκ
-    hM := hC.hM
-    num := hnum
-    dsX₀ := fun x hx => hx
-    hN := fun _ _ _ y _ => Finset.mem_univ y
-    hr := by
-      have h1 : (0 : ℝ) ≤ 36 * 3 ^ T.m₁ := by positivity
-      have h2 := rhoSep_tail_nonneg
-      have h3 := rhoSep_ge T.m₁
-      push_cast
-      nlinarith
-    hr₀ := by norm_num
-    dep := fun _ _ y _ => Finset.mem_univ y
-    hj := by omega }
+      T.c T.BG T.κ 324 T.t δ₃ (dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) Finset.univ 1 :=
+  step_bgSetting_base_collar T Dt hnum le_rfl (by norm_num)
 
 /-- **`FlSetting` of the step from the tower** (`Gk₀ = 𝔹_k`, `Hm = 𝔹_k`, `δ₁ = T.t`, `X₁f'' =` the
 whole torus), from `FlCore` of the scale record and `FlNum`. -/
