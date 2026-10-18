@@ -2621,3 +2621,4 @@ public import Balaban.LargeField.R.WindowConvPhysAssemblyPhys
 public import Balaban.LargeField.R.WindowConvPhysFieldClauses
 public import Balaban.LargeField.R.WindowConvPhysGenBallHist
 public import Balaban.LargeField.R.WindowConvPhysGenBallPiece
+public import Balaban.LargeField.R.WindowConvPhysGenBallWin

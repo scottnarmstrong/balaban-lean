@@ -39,15 +39,15 @@ theorem supDist_ball_mono {q q' t : ℕ} (hqq : q ≤ q') {k : ℕ} {x y : Torus
     (Nat.pos_of_ne_zero (NeZero.ne S.L)) hqq)))
 
 /-- A site of the piece has its `π_j`-cube outside `Lin_j(Z)`. -/
-theorem piece_not_mem_lin (hmK : m' + 1 ≤ K) (hj : j ≤ m') {c : H.Comp (j + 1)}
+theorem piece_not_mem_lin (hkK : m' + 1 ≤ K) (hj : j ≤ m') {c : H.Comp (j + 1)}
     (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z) {x : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
     (hx1 : cubeMap n S.L M (m' + 1) (j + 1) x ∈ c.1)
     (hx2 : cubeMap n S.L M (m' + 1) j x ∉ H.lin j (j + 1) c) :
     cubeMap n S.L M (m' + 1) j x ∉ ((H.lin j (m' + 1) Z : Finset (Torus S.d (n j))) : Set _) :=
-  fun h => hx2 (cube_mem_lin_of_anc hmK hj hc hx1 (Finset.mem_coe.mp h))
+  fun h => hx2 (cube_mem_lin_of_anc hkK hj hc hx1 (Finset.mem_coe.mp h))
 
 /-- Near a site of the piece the `π_{j+1}`-cube lies in `Lin_{j+1}(Z)` only if it lies in `c`. -/
-theorem cube_mem_of_ball (hmK : m' + 1 ≤ K) (hj : j ≤ m') {c : H.Comp (j + 1)}
+theorem cube_mem_of_ball (hkK : m' + 1 ≤ K) (hj : j ≤ m') {c : H.Comp (j + 1)}
     {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
     (hx1 : cubeMap n S.L M (m' + 1) (j + 1) x ∈ c.1) {t : ℕ} (htj : t ≤ ⌊R j⌋₊)
     (hxy : supDist y x ≤ t * (S.L ^ j * M))
@@ -57,13 +57,139 @@ theorem cube_mem_of_ball (hmK : m' + 1 ≤ K) (hj : j ≤ m') {c : H.Comp (j + 1
   by_cases hYc : Y = c
   · subst hYc; exact hyY
   · exfalso
-    have h1 := cubeMap_supDist_le_of_ball H hmK (show j + 1 ≤ m' + 1 by omega)
+    have h1 := cubeMap_supDist_le_of_ball H hkK (show j + 1 ≤ m' + 1 by omega)
       (supDist_ball_mono (show j ≤ j + 1 by omega) hxy)
     have h2 := comp_sep hYc hyY hx1
     have : NeZero S.M := ⟨by have := H.F.ok.one_le_M; omega⟩
     have h3 := H.radius_lt_omega (k := j + 1) (by omega)
     simp only [Nat.add_sub_cancel] at h3
     omega
+
+/-- A site of `Z_q`'s complement coarse neighbourhood lies in the top layer of the core piece. -/
+theorem core_top_mem_of_ball (hkK : m' + 1 ≤ K) {q : ℕ} (hq : q ≤ m' + 1)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : cubeMap n S.L M (m' + 1) q x ∉ ((H.lin q (m' + 1) Z : Finset (Torus S.d (n q))) : Set _))
+    (hxy : supDist (cubeMap n S.L M (m' + 1) q y) (cubeMap n S.L M (m' + 1) q x) ≤
+      2 * (⌊R (q - 1)⌋₊ + 1)) :
+    y ∈ (windowCore H Z g q hq).Ω q := by
+  refine windowCore_top_mem (g := g) (fun i hi => H.F.hnn i (by omega)) q hq ?_
+  unfold coreW
+  rw [thick2_eq]
+  refine mem_nbhd.2 ⟨cubeMap n S.L M (m' + 1) q x, ?_, hxy⟩
+  rw [locRH_Z Z hq (hq.trans hkK)]
+  exact hx
+
+theorem windowGenSet_Ω_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m')
+    (hk1j : S.k1 (m' + 1) ≤ j) {c : H.Comp (j + 1)} (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx1 : cubeMap n S.L M (m' + 1) (j + 1) x ∈ c.1)
+    (hx2 : cubeMap n S.L M (m' + 1) j x ∉ H.lin j (j + 1) c) {t : ℕ}
+    (ht1 : t ≤ ⌊R (j - 1)⌋₊ + 2) (ht2 : t ≤ ⌊R m'⌋₊ + 1)
+    (hxy : supDist y x ≤ t * (S.L ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
+    y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m ↔
+      y ∈ (windowOfHistory H Z g hkK hW).full.Ω m := by
+  classical
+  have hk1pos := hW.k1_pos hkK
+  obtain ⟨i, rfl⟩ : ∃ i, j = i + 1 := ⟨j - 1, by omega⟩
+  have hL := H.F.ok.two_le_L
+  have hRnn := H.F.RH.nonneg
+  have hnx : cubeMap n S.L M (m' + 1) (i + 1) x ∉
+      ((H.lin (i + 1) (m' + 1) Z : Finset (Torus S.d (n (i + 1)))) : Set _) :=
+    piece_not_mem_lin hkK hj hc hx1 hx2
+  have hfull : ∀ q, (windowOfHistory H Z g hkK hW).full.Ω q =
+      (H.locGen Z M hkK H.F.ok.two_le_L (fun j _ _ => g.hRlow j)).Ω q :=
+    fun q => windowOfHistory_full_Ω hkK hW q
+  have hxΩ : x ∈ (windowOfHistory H Z g hkK hW).full.Ω (i + 1) := by
+    rw [hfull]; exact mem_locGen_j hkK hL (fun j _ _ => g.hRlow j) hc (by omega) hj hx1 hx2
+  have hyΩ : y ∈ (windowOfHistory H Z g hkK hW).full.Ω (i + 1) := by
+    rw [hfull]
+    refine mem_locGen_of_ball H hkK (Z := Z) (i := i) (by omega) (t := t) ?_ hnx hxy hL
+      (fun j _ _ => g.hRlow j)
+    have : ⌊R i⌋₊ ≤ ⌊2 * R i⌋₊ := Nat.floor_le_floor (by linarith [hRnn i])
+    simp only [Nat.add_sub_cancel] at ht1
+    omega
+  have hmΩ : m ≤ i + 1 → y ∈ (windowOfHistory H Z g hkK hW).full.Ω m := fun hm =>
+    (windowOfHistory H Z g hkK hW).full.Ω_antitone hm1 hm (by omega) hyΩ
+  have hnn : ∀ q, q < m' + 1 → n q = S.L * n (q + 1) := fun q hq => H.F.hnn q (by omega)
+  have hxk : cubeMap n S.L M (m' + 1) (m' + 1) x ∈ Z.1 :=
+    (mem_locFine_k hkK).1 (cube_mem_locFine_top hkK hc hx1)
+  by_cases hyZ : y ∈ (windowOfHistory H Z g hkK hW).Z
+  · by_cases hyK : y ∈ (windowOfHistory H Z g hkK hW).Zk1
+    · have hkj : S.k1 (m' + 1) = i + 1 := by
+        by_contra hne
+        have hki : S.k1 (m' + 1) ≤ i := by omega
+        have hyi : y ∈ H.locFine Z M i := by
+          rw [windowOfHistory_Zk1, mem_locFineFin] at hyK
+          exact locFine_mono hkK hki (by omega) hyK
+        rw [mem_locFine] at hyi
+        have hOm : blockMap S.L (n (i + 1)) (cubeMap n S.L M (m' + 1) i x) ∈
+            ((H.locRH (m' + 1) Z).step i).Omega := by
+          rw [cubeMap_succ hnn (by omega) x]
+          have := hxΩ
+          rw [hfull, mem_locGen_succ (by omega)] at this
+          exact this
+        have hfar := ((H.locRH (m' + 1) Z).step i).fine_far
+          (Nat.pos_of_ne_zero (NeZero.ne S.L)) (hnn i (by omega)) hOm hyi
+        have hd := cubeMap_supDist_le_of_ball H hkK (show i ≤ m' + 1 by omega) (t := t * S.L)
+          (x := x) (y := y) (by
+            have : t * (S.L ^ (i + 1) * M) = t * S.L * (S.L ^ i * M) := by ring
+            rw [← this]; exact hxy)
+        rw [supDist_comm] at hd
+        simp only [Nat.add_sub_cancel] at ht1
+        have h4 : t * S.L ≤ (⌊R i⌋₊ + 2) * S.L := Nat.mul_le_mul_right _ ht1
+        have : 0 < S.L := Nat.pos_of_ne_zero (NeZero.ne S.L)
+        nlinarith
+      have hcore : y ∈ (windowOfHistory H Z g hkK hW).core.Ω (S.k1 (m' + 1)) := by
+        refine core_top_mem_of_ball hkK (k1_le hW) (x := x) ?_ ?_
+        · rw [hkj]; exact hnx
+        · have := cubeMap_supDist_le_of_ball H hkK (show i + 1 ≤ m' + 1 by omega) hxy
+          rw [hkj]
+          simp only [Nat.add_sub_cancel] at ht1 ⊢
+          omega
+      rw [hkj] at hcore
+      by_cases hmle : m ≤ i + 1
+      · have h1 : y ∈ (windowOfHistory H Z g hkK hW).core.Ω m :=
+          (windowOfHistory H Z g hkK hW).core.Ω_antitone hm1 hmle (by omega) hcore
+        rw [WindowPieces.windowGenSet_Ω]
+        exact ⟨fun _ => hmΩ hmle, fun _ => Finset.mem_union_left _ (Finset.mem_union_left _
+          (Finset.mem_inter.2 ⟨h1, hyK⟩))⟩
+      · have hm2 : m = i + 2 := by omega
+        have hno : y ∉ (windowOfHistory H Z g hkK hW).full.Ω m := by
+          have := windowOfHistory_hZk1top (g := g) hkK hW y hyK
+          rw [hkj] at this
+          rw [hm2]; exact this
+        refine iff_of_false ?_ hno
+        rw [WindowPieces.windowGenSet_Ω]
+        intro h
+        simp only [Finset.mem_union, Finset.mem_inter, Finset.mem_sdiff] at h
+        rcases h with (⟨h1, -⟩ | ⟨-, -, h3⟩) | ⟨-, -, h3⟩
+        · exact windowCore_not_mem_of_gt (H := H) (Z := Z) (g := g) (S.k1 (m' + 1)) (k1_le hW)
+            (m := m) (by omega) y h1
+        · exact h3 hyK
+        · exact h3 hyZ
+    · exact windowGenSet_mem_iff_full _ _ (Finset.mem_sdiff.2 ⟨hyZ, hyK⟩) hyZ m
+  · have hyZ' : cubeMap n S.L M (m' + 1) (m' + 1) y ∉ Z.1 := by
+      rw [windowOfHistory_Z, mem_locFineFin, mem_locFine_k hkK] at hyZ; exact hyZ
+    have hyU : cubeMap n S.L M (m' + 1) (m' + 1) y ∈ bdryU H Z := by
+      unfold bdryU thick
+      refine mem_nbhd.2 ⟨_, hxk, ?_⟩
+      have := cubeMap_supDist_le_of_ball H hkK le_rfl
+        (supDist_ball_mono (show i + 1 ≤ m' + 1 by omega) hxy)
+      simp only [Nat.add_sub_cancel]
+      omega
+    have hbd : y ∈ (windowOfHistory H Z g hkK hW).bdry.Ω m :=
+      (windowOfHistory H Z g hkK hW).bdry.Ω_antitone hm1 (show m ≤ m' + 1 by omega) (Nat.le_succ _)
+        (windowBdry_top_mem (g := g) hyU)
+    have hUnb : y ∈ (windowOfHistory H Z g hkK hW).Unb := by
+      rw [windowOfHistory_Unb, mem_fineFin]
+      unfold bdryUnb
+      exact subset_nbhd _ _ hyU
+    have hfm : y ∈ (windowOfHistory H Z g hkK hW).full.Ω m :=
+      (windowOfHistory H Z g hkK hW).full.Ω_antitone hm1 (show m ≤ m' + 1 by omega) (Nat.le_succ _)
+        (windowOfHistory_hOmK hkK hW (by omega) y hyZ)
+    rw [WindowPieces.windowGenSet_Ω]
+    exact ⟨fun _ => hfm, fun _ => Finset.mem_union_right _ (Finset.mem_inter.2 ⟨hbd,
+      Finset.mem_sdiff.2 ⟨hUnb, hyZ⟩⟩)⟩
 
 end RegionHistory
 
