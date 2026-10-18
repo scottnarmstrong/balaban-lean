@@ -44,12 +44,14 @@ theorem Region.layerBlock_eq_of_mem (X : Region G) {x y : Torus d (N₀ * L ^ K)
 /-- Every regional block cell has strictly positive weight one, and its crossing
 bonds admit at most `2 d` oriented face slots.  The total is the number of
 distinct layer blocks meeting `X`. -/
-theorem Region.exists_stepDecomp_positive_blocks (X : Region G) :
+theorem Region.exists_stepDecomp_positive_blocks_cells (X : Region G) :
     ∃ Dc : StepDecomp X,
       (∀ i, 0 < Dc.wt i) ∧
       Dc.inc = 2 * d ∧
       Dc.total = ((X.sites.image fun x => G.blk (G.layerIndex x) x).card : ℝ) ∧
-      (∀ q, Dc.wall q ⊆ (Dc.cube (Dc.wallCube q)).crossing) := by
+      (∀ q, Dc.wall q ⊆ (Dc.cube (Dc.wallCube q)).crossing) ∧
+      (∀ i, Dc.wt i = 1) ∧
+      (∀ i, ∃ x ∈ X.sites, (Dc.cube i).sites = G.blk (G.layerIndex x) x) := by
   classical
   let cells : Finset (Finset (Torus d (N₀ * L ^ K))) :=
     X.sites.image fun x => G.blk (G.layerIndex x) x
@@ -181,13 +183,28 @@ theorem Region.exists_stepDecomp_positive_blocks (X : Region G) :
         rw [heq]
         simp [Fintype.card_prod, Nat.mul_comm]
     }
-  refine ⟨Dc, ?_, rfl, ?_, ?_⟩
+  refine ⟨Dc, ?_, rfl, ?_, ?_, fun _ => rfl, ?_⟩
   · intro i
     norm_num [Dc]
   · change (∑ _ : ι, (1 : ℝ)) = (cells.card : ℝ)
     simp only [Finset.sum_const, nsmul_eq_mul, mul_one, Finset.card_univ]
     exact_mod_cast Fintype.card_coe cells
   · exact hwallSub
+  · intro B
+    obtain ⟨x, hx, hBx⟩ := Finset.mem_image.mp B.2
+    exact ⟨x, hx, hBx.symm⟩
+
+/-- Every regional block cell has strictly positive weight one, and its crossing
+bonds admit at most `2 d` oriented face slots.  The total is the number of
+distinct layer blocks meeting `X`. -/
+theorem Region.exists_stepDecomp_positive_blocks (X : Region G) :
+    ∃ Dc : StepDecomp X,
+      (∀ i, 0 < Dc.wt i) ∧
+      Dc.inc = 2 * d ∧
+      Dc.total = ((X.sites.image fun x => G.blk (G.layerIndex x) x).card : ℝ) ∧
+      (∀ q, Dc.wall q ⊆ (Dc.cube (Dc.wallCube q)).crossing) := by
+  obtain ⟨Dc, h1, h2, h3, h4, -, -⟩ := X.exists_stepDecomp_positive_blocks_cells
+  exact ⟨Dc, h1, h2, h3, h4⟩
 
 /-- When a region meets only layers `j` and `j+1`, its canonical cell count
 is the sum of the numbers of distinct blocks at those two scales. -/
