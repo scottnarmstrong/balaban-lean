@@ -2921,8 +2921,13 @@ public import Balaban.LargeField.R.WindowPieceLayers
 public import Balaban.LargeField.R.WindowPieceAssemble
 public import Balaban.LargeField.R.WindowPieceY
 public import Balaban.LargeField.R.WindowPieceNone
+public import Balaban.LargeField.R.WindowPieceParent
 public import Balaban.LargeField.R.WindowPostSupport
 public import Balaban.LargeField.R.WindowDomChi
+public import Balaban.LargeField.R.WindowDomAnc
+public import Balaban.LargeField.R.WindowDomPieces
+public import Balaban.LargeField.R.WindowDomFacts
+public import Balaban.LargeField.R.WindowRadiusRegime
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
 public import Balaban.LargeField.R.WindowDomKernel
