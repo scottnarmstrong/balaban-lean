@@ -868,3 +868,14 @@ prove them from the spine inputs and this hypothesis.
 clause measure ψ ↦ ρ ψ g, and `rep.B`, the small-field data and `bgSF` are free off their domains. Kept as a
 provider input: the step maps Φ, ΦE and the physical densities the provider constructs are bounded and
 measurable, so integrability is proved for the construction, not from the class (no class-definition change).
+
+## A4-2v: `RVacuumB0Input` is obstructed (W1134)
+
+`VacuumB0Bound` needs `‖b_k + stepVacuumTerm(E_k, E_k+δ″, E_k+δ‴)‖ ≤ C |Z_{k+1}∖Z_k|_{k+1}`. In `localHistory`, `Z_j`, `Ω`, `Ω″` are
+intersected with `fineSet Z'`, but `stepVacuumTerm`'s first region `(a.Z k)ᶜ ∖ a.Omega k` is a complement in the whole fine torus, so it contains
+`(fineSet Z')ᶜ` (`compl_fineSet_subset_vacuumRegion`, `Spine/RVacuumB0Defect.lean`). The term `E_k · |that region|_k` grows with the torus
+for fixed `Z'`; the offsets `δ″, δ‴` multiply the other two regions and cannot cancel it, and `b_k` is bounded by `b_bound` alone
+(`norm_vacuumTerm_le_of_b0Bound`: the bound forces `‖vacuum term‖ ≤ 2C|Z_{k+1}∖Z_k|`). Only `E_k = 0` is consistent. Smallest honest replacement
+(needs a ruling, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
+by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; excesses 2, 3 are `Ω∖Ω″` and `Ω″` inside `Z_k`, needing a geometric bound
+`|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` from the definition of `Ω`.
