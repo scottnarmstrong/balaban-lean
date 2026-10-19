@@ -394,7 +394,11 @@ variable (ht : ∀ o x, 0 ≤ t o x ∧ t o x ≤ 1)
 variable (hs : ∀ o x, 0 ≤ s o x ∧ s o x ≤ 1)
 variable (hz : ∀ o x, 0 ≤ z o x ∧ z o x ≤ 1)
 variable (hw : ∀ o x, 0 ≤ w o x ∧ w o x ≤ 1)
-variable (hwt : ∀ o x, wt o x = ROutcome.weight (t o x) (s o x) (z o x) (w o x) ROutcome.toR)
+variable (Pp : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1) → Prop)
+variable (hc0P : ∀ o, c0 o ≠ 0 → Pp o)
+variable (hPloc : ∀ o o', (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 o).2 =
+  (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 o').2 → (Pp o ↔ Pp o'))
+variable (hwt : ∀ o x, wt o x = ROutcome.weight (t o x) (s o x) (z o x) (w o x) ROutcome.toR * supInd Pp o)
 variable (ht_def : ∀ o x, t o x = chiTilde (H.localHistory M K (m' + 1) Z) (m' + 1) Zt δk
       (outField N o))
 variable (hc0s : ∀ (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
@@ -441,7 +445,7 @@ variable (hF : ∀ hv g par oz x w', F hv g par (oz, x, w') = ENNReal.ofReal
         remDen (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 rr (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) oz par)))
 variable (hδd : ∀ k, 0 ≤ cs.delta k)
 
-include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp cl hcl wt hnamedC hQtotv hQuiet hz0 hc hdL hβ haw hμ hr hTB cst hcst bw0 hbw0 hjS hTnr hNT t s z w ht hs hz hw hwt ht_def hc0s hcb hcbZ0 hrad hκ2 parC hparC F hF hδd
+include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp cl hcl wt hnamedC hQtotv hQuiet hz0 hc hdL hβ haw hμ hr hTB cst hcst bw0 hbw0 hjS hTnr hNT t s z w ht hs hz hw Pp hc0P hPloc hwt ht_def hc0s hcb hcbZ0 hrad hκ2 parC hparC F hF hδd
 
 open Classical in
 /-- **The window integral of the removed outcome with the node integral done exactly and `hbG` from the history**:
@@ -477,7 +481,7 @@ theorem window_hid_core_action_of_history_cl :
   have hQtot : 0 < Qtot := by
     rw [hQtotv]; exact ENNReal.ofReal_pos.mpr (mul_pos hcI (Real.exp_pos _))
   have hQtotT : Qtot ≠ ⊤ := by rw [hQtotv]; exact ENNReal.ofReal_ne_top
-  exact window_hid_core_action geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq hQuiet hz0 hc hδd hdL hβ haw hμ r hr TB hTB cst hcst bw0 hbw0 ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hjS hTnr hNT t s z w ht hs hz hw hc0 hrr Zt δk ht_def cen radZ e cb hc0s hcb hcbZ0 hN2 hrad hκ2 parC hparC F hF Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot hQtot hQtotT (fun hv par wd cc ro sh a nd' w' fld ft hfld hft hw' hTBp hK => hbG hv par wd cc ro sh a nd' w' fld ft hfld hft hw' hTBp (by rw [hwt]; exact hK))
+  exact window_hid_core_action geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq hQuiet hz0 hc hδd hdL hβ haw hμ r hr TB hTB cst hcst bw0 hbw0 ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS hjS hTnr hNT t s z w ht hs hz hw hc0 hrr Zt δk ht_def cen radZ e cb hc0s hcb hcbZ0 hN2 hrad hκ2 parC hparC F hF Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot hQtot hQtotT Pp hc0P hPloc (fun hv par wd cc ro sh a nd' w' fld ft hfld hft hw' hTBp hK => hbG hv par wd cc ro sh a nd' w' fld ft hfld hft hw' hTBp (by rw [hwt]; exact hK))
 
 end Core
 
