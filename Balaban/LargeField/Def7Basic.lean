@@ -195,13 +195,21 @@ theorem Rep.budget_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ} (hpin :
   rw [← hG]
   exact h2
 
+/-- **LF-2 (i) for a representation, truncated counter history: (H6′)^pre** at `1 ≤ k ≤ k₀`, with
+the counter history truncated at a scale `K' ≤ K`, `K' ≤ top`, `k ≤ K'`: only (I.2) up to `K'`
+(`BudgetSetupTo`) is used, and no relation between the torus horizon `K` and `top`. -/
+theorem Rep.budgetPre_of_LF2_trunc {K' : ℕ} (G : S.Good) (B : BudgetSetupTo S P K') {top : ℕ}
+    (hpin : D4Pin top rep) (hK : K' ≤ K) (hKtop : K' ≤ top) (hk1 : 1 ≤ k) (hk0 : k ≤ k0)
+    (hkK : k ≤ K') : D6Pre rep := by
+  intro A hA c
+  exact (G.window_budget ((rep.lf2HypTrunc B G.ok hpin hK hKtop A hA).toCounterHist G.ok) k hk1
+    hk0 hkK).1 c
+
 /-- **LF-2 (i) for a representation: (H6′)^pre** (the budget clause of `IsRep^pre_k`). -/
 theorem Rep.budgetPre_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ}
     (hpin : D4Pin top rep) (hKtop : K ≤ top) (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hkK : k ≤ K) :
-    D6Pre rep := by
-  intro A hA c
-  exact (G.window_budget ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok) k hk1 hk0
-    hkK).1 c
+    D6Pre rep :=
+  rep.budgetPre_of_LF2_trunc G (B.toTo K) hpin le_rfl hKtop hk1 hk0 hkK
 
 /-- **LF-2 (ii) for a representation, truncated counter history: (H6♭)** at `k₀ ≤ k ≤ K`,
 `k ≥ 1`, with no relation between `K` and `k̂`: only `k ≤ k̂` and `k < top` are used (the counter
