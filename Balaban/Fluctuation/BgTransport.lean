@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.HatEngineLift
+public import Balaban.Fluctuation.MarkedHatRows
 public import Balaban.Localization.Decoupled2Analytic
 public import Balaban.Localization.DecCover
 
@@ -40,7 +41,7 @@ expansion set `Gp` to `Gb`:
 
 namespace Balaban.Localization
 
-open Balaban Balaban.Multiscale Balaban.Fluctuation Finset
+open Balaban Balaban.Multiscale Balaban.Fluctuation Balaban.Background Balaban.SmallField Finset Matrix
 
 section Transport
 
@@ -117,7 +118,16 @@ open Classical in
 /-- **The canonical transport to a background set `Gb`** (P3 (4.44)-(4.47)): a cube of `Gb` based
 in the top layer `Ω_{k+1}(Gb)` keeps the parameter of `Gp` (extended by `1` off the centres of `Gp`),
 the other cubes get `0`; the lift is the extension by zero `liftZ`; the hat variable is restricted
-by `resZ`. -/
+by `resZ`.
+
+The transport is defined for every `Gb`, but it is the transport of the source only for the local
+generating set `Gb = localB (k + 1) hk Y⁺ _ = 𝔹_{k+1}(Y)` of a polymer, with the margin `hmar`
+(every site within sup-distance `2 M₁ L^{k+1}` of the read region `R` lies in `Ω_{k+1}(𝔹_{k+1}(Y))`).
+For such `Gb` the cubes based in the top layer are the cubes of the source's `Y₁` that matter
+(P3 p. 79: the parameters are `s` inside `Y₁` and `0` outside), because
+`coef_eTermFun_replacement_localB` proves that the coefficient of the term recomputed on `Gb` with
+the parameters `par` equals that of the term of the whole-level expansion; "top layer of `Gb`" is
+`Y₁` only through that lemma. For other `Gb` no such identity is asserted. -/
 noncomputable def BgTransport.canon (Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
     (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (N : ℕ) : BgTransport Gp Gb N where
   par s P := if P.1.2 ∈ Gb.Ω (k + 1) then Dec2.extS (coverOf Gp) s P.1 else 0
@@ -160,6 +170,41 @@ theorem BgTransport.canon_eq_self (hG' : IsLevel Gp (k + 1)) :
     funext p
     rw [resZ_apply, dite_eq_left p.1.2]
     rfl
+
+
+open Classical in
+/-- **The preimage of a mask**: the unit points of `Gb` whose unit block, as a unit point of the
+level set `Gp`, lies in the set `Zm` of unit points of `Gp`. -/
+noncomputable def maskPre (hG' : IsLevel Gp (k + 1))
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (Zm : Finset (unitPts Gp)) :
+    Finset (unitPts Gb) :=
+  Finset.univ.filter fun q => (⟨q.1, mem_unitPts_of_isLevel hG' q.1⟩ : unitPts Gp) ∈ Zm
+
+/-- **The mask of `markedHatPsiFBg` with the extension by zero is the mask on the fine site.**
+For `Zb = maskPre hG' Gb Zm`, the marked hat field `markedHatPsiFBg Gb … (liftZ Gb) … Zb` at a site
+`x` is `(u + 1[unitPt x ∈ Zm] t)` times the local hat lift of `cc • C^{1/2}_{Gb}(s) ψ̂` (zero off
+the unit blocks of `Gb`): the marked form of `LocalClassDensityMarks`. -/
+theorem markedHatPsiFBg_liftZ_preimage_mask (hG' : IsLevel Gp (k + 1)) (a₁ ν : ℝ) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Zm : Finset (unitPts Gp)) (u t : ℂ) (s : DecParams Gb)
+    (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gb × Fin N → ℂ)
+    (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
+    markedHatPsiFBg Gb a₁ ν (liftZ Gb) cc F₁ (maskPre hG' Gb Zm) u t s Θ ψh x i =
+      (u + if unitPt hG' x ∈ Zm then t else 0) *
+        (if h : unitBlock x ∈ unitPts Gb then
+          (cc • (hatSqrtF Gb a₁ ν F₁ s Θ *ᵥ ψh)) (⟨unitBlock x, h⟩, i) else 0) := by
+  classical
+  unfold markedHatPsiFBg
+  simp only [Pi.add_apply, Pi.smul_apply, liftZ_apply, smul_eq_mul]
+  by_cases h : unitBlock x ∈ unitPts Gb
+  · have hm : (⟨unitBlock x, h⟩ : unitPts Gb) ∈ maskPre hG' Gb Zm ↔ unitPt hG' x ∈ Zm := by
+      simp only [maskPre, Finset.mem_filter, Finset.mem_univ, true_and]; rfl
+    simp only [h, dite_true, maskBlock]
+    by_cases hz : unitPt hG' x ∈ Zm
+    · simp [hm.2 hz, hz]; ring
+    · simp [hz, mt hm.1 hz]
+  · simp [h]
 
 end Transport
 
