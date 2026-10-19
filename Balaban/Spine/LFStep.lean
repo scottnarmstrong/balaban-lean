@@ -733,6 +733,132 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
       coherent := hD8
       coeff := hD9 }
 
+/-- **(D5) of the successor from the signs of its running constants** (LFR Lemma II.6.3 (a), "(D4)
+implies (D5)", `Rep.opBound_of_data`): the step and kept data of the successor carry (S1)–(S3) by
+their types, so the localized operators of every scale satisfy (1.26) once `z_{j+1} > 0` and
+`β_j a L^{d-2} ≥ 0` at every scale. The constants of the successor are frozen after `k + 1`; the
+couplings are positive by (I.2) of `rec` at `j ≤ k` and by the coefficient bounds (H.6) of the image
+at `k + 1` (`imageBeta_pos`), `a > 1` by (I.2); the field renormalizations by `LFSignInput`. -/
+theorem lfOpBoundInput_of_signs (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hz : LFSignInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
+    LFOpBoundInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨b, hb⟩ := hz κ hκ c₉ hc₉
+  refine ⟨b, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+    _ _ _ _ _ => ?_⟩
+  have hz' := hb β hβ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+  refine Rep.opBound_of_data _ (fun j => ?_) (fun j => ?_) (k + 1) hkK'
+  · show 0 < frozenAfter (Φ κ c₉ β ν k rec.F.sf).z (k + 1) (j + 1)
+    exact hz' _ (le_min (by omega) (by omega)) (min_le_right _ _)
+  · show 0 ≤ frozenAfter (Φ κ c₉ β ν k rec.F.sf).β (k + 1) j * rec.cs.aKer *
+      ((T κ c₉).L : ℝ) ^ (d - 2)
+    have hβj := rec.imageBeta_pos (Φ κ c₉ β ν k rec.F.sf) hD2 (fun i hi => (hcst i hi).1)
+      (min_le_right j (k + 1))
+    have ha : 0 < rec.cs.aKer := by rw [rec.tie_aKer]; linarith [rec.run.ha1]
+    have hL : (0 : ℝ) < (T κ c₉).L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne _)
+    unfold frozenAfter
+    positivity
+
+/-- **(D6) of the successor from the pinned exponents and the prefix** (LF-2 (i); LFR Theorem I.5.4
+(i), Lemma II.6.3 (d); "(D6) for `rep'` is LF-2 (i)"). The counter history of a history of the
+successor, truncated at `k + 1` (`Rep.budgetPre_of_LF2_trunc`), satisfies the hypotheses of LF-2:
+(B) by Lemma B (`BudgetSetupTo`: (I.2) up to `k + 1`, the analytic conditions (Λ15)–(Λ17′) at the a
+priori `λ̂_j`, the budget constants of the prefix) and (Rg) by the pinned exponents (`LFPinInput`);
+the setting is `Good` by the typing clauses of the prefix (`exists_good_lamHat`). (I.2) up to
+`k + 1` for the image: (I.2) of `rec` up to `k`, the ties of the image at `j ≤ k`, the coefficient
+bounds (H.6) of the image at `k + 1` and the rate of the prefix (`runningHypTo_succ_of_coeffBounds`). -/
+theorem lfBudgetInput_of_pin {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+    (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ) :
+    LFBudgetInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨b, hb⟩ := hP κ hκ c₉ hc₉
+  obtain ⟨hL3, ha1, -, -, -, -, -, -, -, -, -, -, -, -, -, ⟨hTok, hθ, -, hH0, hc1, hLM, hcv⟩, -,
+    hq⟩ := hA1 κ hκ c₉ hc₉
+  obtain ⟨x₀, hx₀⟩ := exists_good_lamHat ({ T κ c₉ with d := d } : Typing) hTok hθ
+  have hd3 : 3 ≤ d := hTok.three_le_d
+  have hL2 : 2 ≤ (T κ c₉).L := by omega
+  set Xa : ℝ := max (3 / (1 - (2 : ℝ) ^ (-(1 / (2 * ((T κ c₉).p0 : ℝ))))))
+    (max ((PB κ c₉).c2 + 2)
+      (3 + 2 * (thetaOf d (T κ c₉).L + 1 + 1 / (PB κ c₉).H0))) with hXa
+  refine ⟨max b (Real.exp (max x₀ Xa)), ?_⟩
+  intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM nK _
+  have hpin := hb β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9
+    hafree hcst hkK' SD KD hM nK
+  have hβe : Real.exp (max x₀ Xa) ≤ β := le_of_max_le_right hβ
+  have hβ0 : 0 < β := lt_of_lt_of_le (Real.exp_pos _) hβe
+  have hlog : max x₀ Xa ≤ Real.log β := (Real.le_log_iff_exp_le hβ0).2 hβe
+  have hlogβa : Real.log β ≤ Real.log (β * (cs₀ κ c₉).aKer) :=
+    Real.log_le_log hβ0 (by nlinarith)
+  have hG := hx₀ β (cs₀ κ c₉).aKer (by linarith [le_max_left x₀ Xa])
+  have hθ0 : 0 ≤ thetaOf d (T κ c₉).L := by
+    unfold thetaOf
+    exact mul_nonneg (Nat.cast_nonneg _)
+      (Real.log_nonneg (by have : (2 : ℝ) ≤ (T κ c₉).L := by exact_mod_cast hL2
+                           linarith))
+  have hK : ∀ j, AnalyticLamAt (analyticK d (T κ c₉).L (T κ c₉).p0 (PB κ c₉).H0 (PB κ c₉).c2)
+      (lamHat d (T κ c₉).L β (cs₀ κ c₉).aKer j) := by
+    intro j
+    apply analyticK_at (by omega) hL2 hH0
+    have : 0 ≤ (j : ℝ) * thetaOf d (T κ c₉).L := mul_nonneg (Nat.cast_nonneg _) hθ0
+    unfold lamHat
+    linarith [le_max_right x₀ Xa]
+  have hrun : RunningHypTo d (T κ c₉).L β ν (cs₀ κ c₉).aKer (1 / 20) (Φ κ c₉ β ν k rec.F.sf).β
+      (Φ κ c₉ β ν k rec.F.sf).ν (k + 1) := by
+    obtain ⟨_, hsf⟩ := hD2.sfClass
+    exact runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff
+      ((hcst 0 (Nat.zero_le k)).1.trans rec.β0) ((hcst 0 (Nat.zero_le k)).2.1.trans rec.ν0)
+      (runningHypTo_congr rec.run (fun j hj => (hcst j hj).1) (fun j hj => (hcst j hj).2.1))
+  let B : BudgetSetupTo 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (rec.succP (Φ κ c₉ β ν k rec.F.sf))
+      (k + 1) :=
+    { β := β
+      ν := ν
+      a := (cs₀ κ c₉).aKer
+      ε := 1 / 20
+      nuRun := (Φ κ c₉ β ν k rec.F.sf).ν
+      K := analyticK d (T κ c₉).L (T κ c₉).p0 (PB κ c₉).H0 (PB κ c₉).c2
+      lam_eq := fun _ => rfl
+      Kd := rfl
+      KL := rfl
+      Kp0 := rfl
+      KH0 := rec.tie_H0.symm
+      Kc2 := rec.tie_c2.symm
+      lam_cond := hK
+      H0_nonneg := by
+        show 0 ≤ rec.P.H0
+        rw [rec.tie_H0]
+        exact hH0.le
+      c1_nonneg := by
+        show 0 ≤ rec.P.c1
+        rw [rec.tie_c1]
+        exact hc1
+      L_le_M := hLM
+      cv_ge := by
+        show ((T κ c₉).M : ℝ) ^ d * (rec.P.H0 + rec.P.c1 + 3) ≤ (T κ c₉).cv
+        rw [rec.tie_H0, rec.tie_c1]
+        exact hcv
+      run := runningHypTo_congr hrun (fun j hj => frozenAfter_of_le _ hj) (fun _ _ => rfl) }
+  exact Rep.budgetPre_of_LF2_trunc _ hG B hpin hkK' le_rfl (by omega) (by omega) le_rfl
+
+/-- **The large-field half of the step from its parts and the prefix**: `lfStepInput_of_parts`, with
+(D5) from the signs of the field renormalizations (`lfOpBoundInput_of_signs`, LFR Lemma II.6.3 (a))
+and (D6) from the pinned exponents and the prefix (`lfBudgetInput_of_pin`, LF-2 (i)). -/
+theorem lfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+    (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
+    (hK : LFKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hz : LFSignInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ)
+    (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hC : LFCoherenceInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hc : LFCorrInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
+    LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE :=
+  lfStepInput_of_parts Λ hH hS hK hB hBs hF (lfOpBoundInput_of_signs Λ hz) hP
+    (lfBudgetInput_of_pin hA1 Λ hP) hC hc
+
 end Assembly
 
 end Balaban.RootFSpine
