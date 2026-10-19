@@ -2913,6 +2913,15 @@ public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads
 public import Balaban.Fluctuation.DirectTermsBg
 public import Balaban.LargeField.R.WindowDeltaRegime
+public import Balaban.LargeField.R.WindowShellY
+public import Balaban.LargeField.R.WindowPieceDomain
+public import Balaban.LargeField.R.WindowThetaY
+public import Balaban.LargeField.R.WindowPieceTheta
+public import Balaban.LargeField.R.WindowPieceLayers
+public import Balaban.LargeField.R.WindowPieceAssemble
+public import Balaban.LargeField.R.WindowPieceY
+public import Balaban.LargeField.R.WindowPieceNone
+public import Balaban.LargeField.R.WindowPostSupport
 public import Balaban.LargeField.R.WindowDomChi
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
