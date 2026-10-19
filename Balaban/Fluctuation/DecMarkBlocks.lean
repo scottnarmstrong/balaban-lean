@@ -238,12 +238,52 @@ section BlocksBg
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱm : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
   {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {T : BgTransport S.G' Gb N}
+  {ϱg : ℝ} {Gg : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱg}
 variable {a₁ ν κ eps δ₁ cψ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
 variable {m₀ j : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 variable {cc : ℂ} {Zm : Finset (unitPts Gb)}
 variable {F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)}
 variable {Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+
+/-- **Core of `deriv_evDecBg_hatOf_dep` on a chart of a generating set `Gg`**: the statement of
+`deriv_evDecBg_hatOf_dep` with the data in the chart `XiCRaw Gg` and the parameters in `physVBg
+Gg` in place of the step's chart; `deriv_evDecBg_hatOf_dep` is its instance `Gg = S.G'`. -/
+theorem deriv_evDecBg_hatOf_dep_gen (mb : ℕ)
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hloc : ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ∀ u' ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      AgHatDir S.hG' Y u u' →
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u.1, T.res u.2) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u'.1, T.res u'.2))
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y Y' : Set (CTorus d L N₁ m₁ (k + 1))} (hYm : LabelMargin Gb Y) (hYY : Y ⊆ Y')
+    (hY' : ∀ y ∈ Y', box (cbase (cellSide L mb m₁ (k + 1)) y) (cellSide L mb m₁ (k + 1)) ⊆ Y') :
+    DepOn (blocksOf mb (k + 1) Set.univ Y')
+      (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+        deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) := by
+  intro Φ Φ' h
+  have hmem : ∀ Ψ : ∀ b, (S.blockSplit mb hp).Ωb b, (Θ, S.hatOf mb ρ hp Ψ) ∈
+      XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} :=
+    fun Ψ => ⟨hΘ, fun p => (S.hatOf_mem mb hρ hp Ψ p).trans hρc⟩
+  have hhat := S.agHatFDir_hatOf mb hY' ρ hp Φ Φ' h
+  have key : ∀ tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y
+          (Θ, T.res (S.hatOf mb ρ hp Φ)) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y
+          (Θ, T.res (S.hatOf mb ρ hp Φ')) :=
+    fun tm htm => hloc um tm htm Y hYm (Θ, S.hatOf mb ρ hp Φ) (hmem Φ) (Θ, S.hatOf mb ρ hp Φ')
+      (hmem Φ') ⟨agreeOn_refl _ _, fun y hy i => hhat y (hYY hy) i⟩
+  exact deriv_evDecBg_congr_of key hum
 
 /-- **Block locality of the mark derivative on a background generating set.**  If the terms
 `evDecBg` on `Gb` are local in the step's hat variable for the labels `Y` of `Gb` (`LabelMargin Gb Y`;
@@ -273,21 +313,35 @@ theorem deriv_evDecBg_hatOf_dep (mb : ℕ)
     DepOn (blocksOf mb (k + 1) Set.univ Y')
       (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
         deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
-            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) := by
-  intro Φ Φ' h
-  have hmem : ∀ Ψ : ∀ b, (S.blockSplit mb hp).Ωb b, (Θ, S.hatOf mb ρ hp Ψ) ∈
-      XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
-        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ} :=
-    fun Ψ => ⟨hΘ, fun p => (S.hatOf_mem mb hρ hp Ψ p).trans hρc⟩
-  have hhat := S.agHatFDir_hatOf mb hY' ρ hp Φ Φ' h
-  have key : ∀ tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-      evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y
-          (Θ, T.res (S.hatOf mb ρ hp Φ)) =
-        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y
-          (Θ, T.res (S.hatOf mb ρ hp Φ')) :=
-    fun tm htm => hloc um tm htm Y hYm (Θ, S.hatOf mb ρ hp Φ) (hmem Φ) (Θ, S.hatOf mb ρ hp Φ')
-      (hmem Φ') ⟨agreeOn_refl _ _, fun y hy i => hhat y (hYY hy) i⟩
-  exact deriv_evDecBg_congr_of key hum
+            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) :=
+  deriv_evDecBg_hatOf_dep_gen (Gg := S.G') S mb hloc hρ hρc hp hΘ hum hYm hYY hY'
+
+/-- **Core of `norm_deriv_evDecBg_hatOf_le` on a chart of a generating set `Gg`**: the statement of
+`norm_deriv_evDecBg_hatOf_le` with the data in the chart `XiCRaw Gg` and the parameters in
+`physVBg Gg` in place of the step's chart; `norm_deriv_evDecBg_hatOf_le` is its instance `Gg =
+S.G'`. -/
+theorem norm_deriv_evDecBg_hatOf_le_gen (mb : ℕ)
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {B : Set (CTorus d L N₁ m₁ (k + 1)) → ℝ}
+    (hcau : ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b →
+      (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ um : ℂ, ‖um‖ ≤ a →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+          (u.1, T.res u.2)) 0‖ ≤ B Y / t₀)
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    {a b t₀ : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (ht : 0 < t₀) (htb : t₀ ≤ b)
+    (hab : (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁) {um : ℂ} (hum : ‖um‖ ≤ a)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hYm : LabelMargin Gb Y)
+    (Φ : ∀ b, (S.blockSplit mb hp).Ωb b) :
+    ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+        (Θ, T.res (S.hatOf mb ρ hp Φ))) 0‖ ≤ B Y / t₀ :=
+  hcau a b t₀ ha hb ht htb hab um hum Y hYm (Θ, S.hatOf mb ρ hp Φ)
+    ⟨hΘ, fun p => (S.hatOf_mem mb hρ hp Φ p).trans hρc⟩
 
 /-- **The bound of the mark derivative on a background generating set.**  From a Cauchy estimate
 `hcau` of the mark derivatives of the terms `evDecBg` on `Gb` with a bound `B Y`, at the points of
@@ -313,8 +367,94 @@ theorem norm_deriv_evDecBg_hatOf_le (mb : ℕ)
     (Φ : ∀ b, (S.blockSplit mb hp).Ωb b) :
     ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
         (Θ, T.res (S.hatOf mb ρ hp Φ))) 0‖ ≤ B Y / t₀ :=
-  hcau a b t₀ ha hb ht htb hab um hum Y hYm (Θ, S.hatOf mb ρ hp Φ)
-    ⟨hΘ, fun p => (S.hatOf_mem mb hρ hp Φ p).trans hρc⟩
+  norm_deriv_evDecBg_hatOf_le_gen (Gg := S.G') S mb hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
+
+/-- **Core of `deriv_evDecBg_hatOf_fields` on a chart of a generating set `Gg`**: the statement of
+`deriv_evDecBg_hatOf_fields` with the data in the chart `XiCRaw Gg` and the parameters in
+`physVBg Gg` in place of the step's chart; `deriv_evDecBg_hatOf_fields` is its instance `Gg =
+S.G'`. -/
+theorem deriv_evDecBg_hatOf_fields_gen (mb : ℕ)
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {B : Set (CTorus d L N₁ m₁ (k + 1)) → ℝ}
+    (hloc : ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ∀ u' ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      AgHatDir S.hG' Y u u' →
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u.1, T.res u.2) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u'.1, T.res u'.2))
+    (hcau : ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b →
+      (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ um : ℂ, ‖um‖ ≤ a →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+          (u.1, T.res u.2)) 0‖ ≤ B Y / t₀)
+    (hJ2 : ∀ Y, LabelMargin Gb Y → AnalyticOnNhd ℂ
+        (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
+          evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2.1 p.2.2 Y (p.1.1, T.res p.1.2))
+        ((XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}))
+    (hJ4 : ∀ Y, LabelMargin Gb Y → ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
+        ∀ a b : ℝ, 0 ≤ a → 0 < b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParamBg N Gg × ℂ => deriv (fun t : ℂ =>
+          evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2 t Y
+            ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), T.res ψh)) 0)
+          (physVBg N Gg a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a))
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) :
+      (∀ (Y Y' : Set (CTorus d L N₁ m₁ (k + 1))), LabelMargin Gb Y → Y ⊆ Y' →
+        (∀ y ∈ Y', box (cbase (cellSide L mb m₁ (k + 1)) y) (cellSide L mb m₁ (k + 1)) ⊆ Y') →
+        ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        DepOn (blocksOf mb (k + 1) Set.univ Y')
+          (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+            deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+                (Θ, T.res (S.hatOf mb ρ hp Φ))) 0)) ∧
+      (∀ Y, LabelMargin Gb Y → ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        Continuous (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+          deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+              (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) ∧
+        Measurable (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+          deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+              (Θ, T.res (S.hatOf mb ρ hp Φ))) 0)) ∧
+      (∀ Y, LabelMargin Gb Y → ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps,
+        ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b →
+        0 < t₀ → t₀ ≤ b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ → ∀ um : ℂ, ‖um‖ ≤ a →
+        ∀ Φ : (∀ b, (S.blockSplit mb hp).Ωb b),
+        ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0‖ ≤ B Y / t₀) ∧
+      (∀ Y, LabelMargin Gb Y → ∀ Φ : (∀ b, (S.blockSplit mb hp).Ωb b), ∀ a b : ℝ, 0 ≤ a → 0 < b →
+        (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParamBg N Gg × ℂ =>
+          deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2 t Y
+            ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), T.res (S.hatOf mb ρ hp Φ))) 0)
+          (physVBg N Gg a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro Y Y' hYm hYY hY' Θ hΘ um hum
+    exact deriv_evDecBg_hatOf_dep_gen S mb hloc hρ hρc hp hΘ hum hYm hYY hY'
+  · intro Y hYm Θ hΘ um hum
+    have hW : (um, (0 : ℂ)) ∈ {w : ℂ × ℂ |
+        (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} := hum
+    have hana := analyticOnNhd_deriv_mark (hJ2 Y hYm)
+    have hc : ContinuousOn (fun ψ : unitPts S.G' × Fin N → ℂ => deriv (fun t : ℂ =>
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y (Θ, T.res ψ)) 0)
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ} :=
+      hana.continuousOn.comp (f := fun ψ : unitPts S.G' × Fin N → ℂ => ((Θ, ψ), um))
+        (by fun_prop) (fun ψ hψ => ⟨⟨hΘ, hψ⟩, hW⟩)
+    have hcont : Continuous (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
+        deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) :=
+      hc.comp_continuous (S.continuous_hatOf mb ρ hp)
+        (fun Φ q => (S.hatOf_mem mb hρ hp Φ q).trans hρc)
+    exact ⟨hcont, hcont.measurable⟩
+  · intro Y hYm Θ hΘ a b t₀ ha hb ht htb hab um hum Φ
+    exact norm_deriv_evDecBg_hatOf_le_gen S mb hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
+  · intro Y hYm Φ a b ha hb hab
+    exact hJ4 Y hYm (S.hatOf mb ρ hp Φ) (fun q => (S.hatOf_mem mb hρ hp Φ q).trans hρc) a b ha hb hab
 
 /-- **The fields of the mark derivative on a background generating set**: block locality,
 continuity and measurability, the bound `B Y / t₀`, and analyticity in `(e, u)` on the admissible
@@ -380,29 +520,32 @@ theorem deriv_evDecBg_hatOf_fields (mb : ℕ)
         AnalyticOnNhd ℂ (fun p : physParam N S × ℂ =>
           deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2 t Y
             ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), T.res (S.hatOf mb ρ hp Φ))) 0)
-          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · intro Y Y' hYm hYY hY' Θ hΘ um hum
-    exact deriv_evDecBg_hatOf_dep S mb hloc hρ hρc hp hΘ hum hYm hYY hY'
-  · intro Y hYm Θ hΘ um hum
-    have hW : (um, (0 : ℂ)) ∈ {w : ℂ × ℂ |
-        (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} := hum
-    have hana := analyticOnNhd_deriv_mark (hJ2 Y hYm)
-    have hc : ContinuousOn (fun ψ : unitPts S.G' × Fin N → ℂ => deriv (fun t : ℂ =>
-        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y (Θ, T.res ψ)) 0)
-        {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ} :=
-      hana.continuousOn.comp (f := fun ψ : unitPts S.G' × Fin N → ℂ => ((Θ, ψ), um))
-        (by fun_prop) (fun ψ hψ => ⟨⟨hΘ, hψ⟩, hW⟩)
-    have hcont : Continuous (fun Φ : ∀ b, (S.blockSplit mb hp).Ωb b =>
-        deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
-            (Θ, T.res (S.hatOf mb ρ hp Φ))) 0) :=
-      hc.comp_continuous (S.continuous_hatOf mb ρ hp)
-        (fun Φ q => (S.hatOf_mem mb hρ hp Φ q).trans hρc)
-    exact ⟨hcont, hcont.measurable⟩
-  · intro Y hYm Θ hΘ a b t₀ ha hb ht htb hab um hum Φ
-    exact norm_deriv_evDecBg_hatOf_le S mb hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
-  · intro Y hYm Φ a b ha hb hab
-    exact hJ4 Y hYm (S.hatOf mb ρ hp Φ) (fun q => (S.hatOf_mem mb hρ hp Φ q).trans hρc) a b ha hb hab
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) :=
+  deriv_evDecBg_hatOf_fields_gen (Gg := S.G') S mb hloc hcau hJ2 hJ4 hρ hρc hp
+
+/-- **Core of `decMarkGBg_dep` on a chart of a generating set `Gg`**: the statement of
+`decMarkGBg_dep` with the data in the chart `XiCRaw Gg` and the parameters in `physVBg Gg` in
+place of the step's chart; `decMarkGBg_dep` is its instance `Gg = S.G'`. -/
+theorem decMarkGBg_dep_gen
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hloc : ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ∀ u' ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      AgHatDir S.hG' Y u u' →
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u.1, T.res u.2) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u'.1, T.res u'.2))
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    {Y Y' : Set (CTorus d L N₁ m₁ (k + 1))} (hYm : LabelMargin Gb Y) (hYY : Y ⊆ Y')
+    (hY' : ∀ y ∈ Y', box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y') :
+    DepOn (blocksOf m₀ (k + 1) Set.univ Y')
+      (decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um) :=
+  deriv_evDecBg_hatOf_dep_gen S m₀ hloc hρ hρc hp hΘ hum hYm hYY hY'
 
 /-- **Block locality of the mark on a background generating set** (`deriv_evDecBg_hatOf_dep` at
 the block index `m₀` of the expansion). -/
@@ -425,7 +568,31 @@ theorem decMarkGBg_dep
     (hY' : ∀ y ∈ Y', box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y') :
     DepOn (blocksOf m₀ (k + 1) Set.univ Y')
       (decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um) :=
-  deriv_evDecBg_hatOf_dep S m₀ hloc hρ hρc hp hΘ hum hYm hYY hY'
+  decMarkGBg_dep_gen (Gg := S.G') S hloc hρ hρc hp hΘ hum hYm hYY hY'
+
+/-- **Core of `norm_decMarkGBg_le` on a chart of a generating set `Gg`**: the statement of
+`norm_decMarkGBg_le` with the data in the chart `XiCRaw Gg` and the parameters in `physVBg Gg`
+in place of the step's chart; `norm_decMarkGBg_le` is its instance `Gg = S.G'`. -/
+theorem norm_decMarkGBg_le_gen
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {B : Set (CTorus d L N₁ m₁ (k + 1)) → ℝ}
+    (hcau : ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b →
+      (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ um : ℂ, ‖um‖ ≤ a →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+          (u.1, T.res u.2)) 0‖ ≤ B Y / t₀)
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    {a b t₀ : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) (ht : 0 < t₀) (htb : t₀ ≤ b)
+    (hab : (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁) {um : ℂ} (hum : ‖um‖ ≤ a)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hYm : LabelMargin Gb Y)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    ‖decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ‖ ≤ B Y / t₀ :=
+  norm_deriv_evDecBg_hatOf_le_gen S m₀ hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
 
 /-- **The bound of the mark on a background generating set** (`norm_deriv_evDecBg_hatOf_le` at the
 block index `m₀` of the expansion). -/
@@ -448,7 +615,7 @@ theorem norm_decMarkGBg_le
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hYm : LabelMargin Gb Y)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     ‖decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ‖ ≤ B Y / t₀ :=
-  norm_deriv_evDecBg_hatOf_le S m₀ hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
+  norm_decMarkGBg_le_gen (Gg := S.G') S hcau hρ hρc hp hΘ ha hb ht htb hab hum Y hYm Φ
 
 end BlocksBg
 

@@ -225,13 +225,199 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν Kc Cx : ℝ} {ι : Type*} [Fintype ι]
 
+omit [Fintype ι] in
+/-- **The marked local hat field lies in the fluctuation ball** (from the specification of the
+background map): the marked local hat field `u ψ'_loc + t M_Z ψ'_loc` of the cover of `𝔹` at the
+background `F₁(s, D)`, for parameters `|s_P| < e^κ`, a datum `D` of the chart `Ξ^c(𝔹; 1, ε)`,
+`|ψ̂| ≤ c_ψ` and `(‖u‖ + ‖t‖) √N ‖cc‖ K c_ψ < δ₁`, lies in `FlBallLC H⁻ δ₁` for every `H⁻` without
+layer `k + 1` (`localHatLiftMul_mem_flBallLC_of_spec` with the multiplier `u + t 1_Z`). -/
+theorem markedHatPsiFBg_liftZ_mem_flBallLC_of_spec (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁)
+    (ha₂ : a₁ ≤ 2) {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ : ℝ} (hδ₁0 : 0 < δ₁) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    (Zb : Finset (unitPts Gp)) {u t : ℂ}
+    (hW : (‖u‖ + ‖t‖) *
+      (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁)
+    {s : Dec2.DecParams (coverOf Gp)} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {ψh : unitPts Gp × Fin N → ℂ} (hψh : ∀ q, ‖ψh q‖ ≤ cψ) :
+    markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb u t s (rawOf D) ψh ∈ FlBallLC Hm δ₁ := by
+  have hmb : ∀ b : unitPts Gp, ‖u + (if b ∈ Zb then t else 0)‖ ≤ ‖u‖ + ‖t‖ := by
+    intro b
+    refine (norm_add_le _ _).trans (add_le_add le_rfl ?_)
+    split_ifs
+    · exact le_rfl
+    · rw [norm_zero]; exact norm_nonneg _
+  rw [markedHatPsiFBg_liftZ_eq (Gb := Gp) a₁ ν cc F₁ Zb u t s (rawOf D) ψh]
+  exact localHatLiftMul_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS S HBp hκ.le hM hMX hCx hF₁ heps
+    hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 (fun b => u + if b ∈ Zb then t else 0)
+    hmb hW hψh
+
+/-- **(AE1) for the local term with the marked local hat variable** (P3 (4.46) on `𝔹`, cover
+form, with the marks of P3 (4.44)).  The fluctuation is the marked local hat field
+`ψ' = u ψ'_loc + t M_Z ψ'_loc` (`markedHatPsiFBg … (liftZ 𝔹) …`), `ψ'_loc = cc C^{1/2}(s) ψ̂` the
+local hat lift of the cover of `𝔹` at the background `F₁(s, Θ)` (extended by zero off the unit
+blocks of `𝔹`), `Z` a set of unit points of `𝔹`, and the parameters are `s = σ w` for an analytic
+map `σ` from a polydisc of radius `e^κ` with `|σ w| < e^κ` and `σ w = 1` on the cubes meeting `X₁`.
+For `Φ` analytic on `FlRealLC`, the composite is analytic in `((Θ, ψ̂), (u, t), w)` on the chart
+`Ξ^c(𝔹; 1, ε')` times the ball `|ψ̂| ≤ c_ψ` times the marks with `(‖u‖ + ‖t‖) m_R < δ₁`,
+`m_R = √N ‖cc‖ K c_ψ`, times the polydisc.  `fanLocalHat_analytic_cover` is the case `(u, t) = (1, 0)`. -/
+theorem fanLocalHatMarked_analytic_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ BG₂ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁an : AnalyticOnNhd ℂ F₁ {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧ ∃ D : BgData Gp N,
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSolan : AnalyticOnNhd ℂ Sol {p | (∀ P, ‖p.1 P‖ < Real.exp κ) ∧
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2})
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf Gp)} (hσan : ∀ w, AnalyticAt ℂ σ w)
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → σ w ⟨P, hP⟩ = 1) (Zb : Finset (unitPts Gp))
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : AnalyticOnNhd ℂ (fun t => Φ t.1 t.2.1 t.2.2)
+      (FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁)) :
+    AnalyticOnNhd ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+        (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) =>
+      Φ (F₁ (σ p.2, p.1.1.1))
+        (Sol (σ p.2, flEdat Gp Hm (F₁ (σ p.2, p.1.1.1)) p.1.1.1.1
+          (markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb p.1.2.1 p.1.2.2 (σ p.2) p.1.1.1
+            p.1.1.2))).1
+        (p.1.1.1, markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb p.1.2.1 p.1.2.2 (σ p.2) p.1.1.1
+          p.1.1.2))
+      (((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+            (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}) ×ˢ
+        polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) := by
+  classical
+  rintro ⟨⟨⟨u, ψh⟩, w2⟩, w⟩ ⟨⟨⟨⟨D, hD, rfl⟩, hψh⟩, hW⟩, hw⟩
+  have hd0 : 0 < d := by have := HBp.hd; omega
+  have hc1 := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hs : ∀ P, ‖σ w P‖ < Real.exp κ := hσκ w hw
+  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    inUnionDomainC_of_inDomainC HBp hδ0
+      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
+      (xiCData_inDomainC HBp hsmall hD)
+  -- the marked hat field at the point lies in the fluctuation ball of `H⁻`
+  have hψ := markedHatPsiFBg_liftZ_mem_flBallLC_of_spec hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps
+    hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hHm hF₁ Zb hW hs hD hψh
+  -- the fan composite is analytic at the image point
+  have hA := fanLC_analyticAt_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁an hF₁
+    hSolan hSol hΦ hs (hσ1 w) hD hψ
+  -- the map `p ↦ ((Θ, ψ'(p)), σ w)` is analytic at the point
+  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HBp hκ.le hM heps hsmall hc7 hs hD
+  have hFe : F₁ (σ w, rawOf D) = (φ, α) := hF₁ (σ w) D hs hU φ α ⟨hI.small, hI.fixed, hI.field⟩
+  have hdom := decDom_of_coverBg hS S HBp hκ.le hM heps hsmall hc7 hphi hs hD hI hmarD hαD
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
+    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
+  set pt : ((RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) ×
+    (ι → ℂ) := (((rawOf D, ψh), w2), w) with hpt
+  have hσp : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => σ p.2) pt :=
+    (hσan w).comp_of_eq analyticAt_snd rfl
+  have hΘp : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => p.1.1.1) pt :=
+    analyticAt_fst.comp (analyticAt_fst.comp analyticAt_fst)
+  have ha1 : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => F₁ (σ p.2, p.1.1.1)) pt :=
+    (hF₁an (σ w, rawOf D) ⟨hs, D, hU, rfl⟩).comp_of_eq (hσp.prod hΘp) rfl
+  have hφ1 : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => (F₁ (σ p.2, p.1.1.1)).1) pt :=
+    analyticAt_fst.comp ha1
+  have hΨ1 : ∀ y jj, AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => p.1.1.1.1 y jj) pt := fun y jj =>
+    (analyticAt_rawΨ y jj (rawOf D)).comp_of_eq hΘp rfl
+  have hmem' : (σ pt.2, (barField Gp pt.1.1.1.1 (F₁ (σ pt.2, pt.1.1.1)).1,
+      (F₁ (σ pt.2, pt.1.1.1)).2)) ∈ DecDom Gp N κ δc := by
+    show (σ w, (barField Gp D.Ψ (F₁ (σ w, rawOf D)).1, (F₁ (σ w, rawOf D)).2)) ∈ DecDom Gp N κ δc
+    rw [hFe]; exact hdom
+  have hu1 : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => p.1.2.1) pt :=
+    analyticAt_fst.comp (analyticAt_snd.comp analyticAt_fst)
+  have hu2 : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) => p.1.2.2) pt :=
+    analyticAt_snd.comp (analyticAt_snd.comp analyticAt_fst)
+  have hlift := analyticAt_localHatLiftMul_of_decDom (N := N) SX hCx hκ.le hMX hδc hsm cc
+    (sF := fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) ×
+      (ℂ × ℂ)) × (ι → ℂ) => σ p.2)
+    (ΨF := fun p => p.1.1.1.1) (φF := fun p => (F₁ (σ p.2, p.1.1.1)).1)
+    (αF := fun p => (F₁ (σ p.2, p.1.1.1)).2) (ψh := fun p => p.1.1.2)
+    (mF := fun p b => p.1.2.1 + if b ∈ Zb then p.1.2.2 else 0)
+    (fun P => analyticAt_pi_iff.1 hσp P) hΨ1 (fun r => analyticAt_pi_iff.1 hφ1 r)
+    (fun y => analyticAt_pi_iff.1 (analyticAt_snd.comp ha1) y)
+    (fun r => analyticAt_pi_iff.1
+      (analyticAt_snd.comp (analyticAt_fst.comp analyticAt_fst)) r)
+    (fun b => by
+      by_cases hb : b ∈ Zb
+      · simp only [hb, ite_true]; exact hu1.add hu2
+      · simp only [hb, ite_false]; exact hu1.add analyticAt_const) hmem'
+  have hlift' : AnalyticAt ℂ (fun p : ((RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (unitPts Gp × Fin N → ℂ)) × (ℂ × ℂ)) × (ι → ℂ) =>
+      markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb p.1.2.1 p.1.2.2 (σ p.2) p.1.1.1 p.1.1.2) pt :=
+    hlift.congr (Filter.Eventually.of_forall fun p =>
+      (markedHatPsiFBg_liftZ_eq (Gb := Gp) a₁ ν cc F₁ Zb _ _ _ _ _).symm)
+  exact hA.comp_of_eq ((hΘp.prod hlift').prod hσp) rfl
+
 /-- **(AE1) for the local term with the local hat variable** (P3 (4.46) on `𝔹`, cover form).  The
 fluctuation is the local hat lift `ψ' = cc C^{1/2}(s) ψ̂` of the cover of `𝔹` at the background
 `F₁(s, Θ)` (extended by zero off the unit blocks of `𝔹`), and the parameters are `s = σ w` for an
 analytic map `σ` from a polydisc of radius `e^κ` with `|σ w| < e^κ` and `σ w = 1` on the cubes
 meeting `X₁`.  For `Φ` analytic on `FlRealLC`, the composite is analytic in `((Θ, ψ̂), w)` on the
 chart `Ξ^c(𝔹; 1, ε')` times the ball `|ψ̂| ≤ c_ψ` times the polydisc.  Only the datum `Θ` of `𝔹`
-enters. -/
+enters. (`fanLocalHatMarked_analytic_cover` at `(u, t) = (1, 0)`). -/
 theorem fanLocalHat_analytic_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
@@ -298,77 +484,85 @@ theorem fanLocalHat_analytic_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
       ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
         polydisc (0 : ι → ℂ) (fun _ => Real.exp κ)) := by
-  classical
-  rintro ⟨⟨u, ψh⟩, w⟩ ⟨⟨⟨D, hD, rfl⟩, hψh⟩, hw⟩
-  have hd0 : 0 < d := by have := HBp.hd; omega
-  have hc1 := one_le_xiC1 d
-  have hδ0 : 0 < xiC1 d * eps := by positivity
+  intro p hp
+  have h := fanLocalHatMarked_analytic_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
+    hphi hmarD hαD hsm cc hcψ hδ₁0 hPmp hHm hF₁an hF₁ hSolan hSol hσan hσκ hσ1 ∅ hΦ
+    ((p.1, ((1 : ℂ), (0 : ℂ))), p.2) ⟨⟨hp.1, by simpa using hδ₁⟩, hp.2⟩
+  refine (h.comp_of_eq ((analyticAt_fst.prod analyticAt_const).prod analyticAt_snd)
+    (f := fun q : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) =>
+      ((q.1, ((1 : ℂ), (0 : ℂ))), q.2)) rfl).congr (Filter.Eventually.of_forall fun q => ?_)
+  dsimp only [Function.comp_apply]
+  rw [← localHatLift_eq_markedHatPsiFBg (Gb := Gp) a₁ ν cc F₁ (σ q.2) q.1.1 q.1.2]
+  rfl
+
+omit [Fintype ι] in
+/-- **The bound of the local term with the marked local hat variable**: if `Φ` is bounded by `B` on
+`FlRealLC`, the composite of `fanLocalHatMarked_analytic_cover` is bounded by `B` on the chart
+times the ball `|ψ̂| ≤ c_ψ` times the marks of the radius set times the polydisc
+(`fanLocalHat_norm_le_cover` is the case `(u, t) = (1, 0)`). -/
+theorem fanLocalHatMarked_norm_le_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
+    (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
+    (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ eps : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    {δc : ℝ} (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ BG₂ : ℝ} (hδ₁0 : 0 < δ₁)
+    (hPmp : Precedes Hm Gp) (hHm : Hm.Ω (k + 1) = ∅)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {σ : (ι → ℂ) → Dec2.DecParams (coverOf Gp)}
+    (hσκ : ∀ w ∈ polydisc (0 : ι → ℂ) (fun _ => Real.exp κ), ∀ P, ‖σ w P‖ < Real.exp κ)
+    (hσ1 : ∀ w (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ (coverOf Gp).cubeIdx),
+      P ∉ (coverOf Gp).parCubes X₁f → σ w ⟨P, hP⟩ = 1) (Zb : Finset (unitPts Gp))
+    {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {B : ℝ} (hΦbd : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, ‖Φ t.1 t.2.1 t.2.2‖ ≤ B) :
+    ∀ p ∈ ((XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+          {ψh : unitPts Gp × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) *
+            (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁}) ×ˢ
+        polydisc (0 : ι → ℂ) (fun _ => Real.exp κ),
+      ‖Φ (F₁ (σ p.2, p.1.1.1))
+        (Sol (σ p.2, flEdat Gp Hm (F₁ (σ p.2, p.1.1.1)) p.1.1.1.1
+          (markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb p.1.2.1 p.1.2.2 (σ p.2) p.1.1.1
+            p.1.1.2))).1
+        (p.1.1.1, markedHatPsiFBg Gp a₁ ν (liftZ Gp) cc F₁ Zb p.1.2.1 p.1.2.2 (σ p.2) p.1.1.1
+          p.1.1.2)‖ ≤ B := by
+  rintro ⟨⟨⟨u, ψh⟩, w2⟩, w⟩ ⟨⟨⟨⟨D, hD, rfl⟩, hψh⟩, hW⟩, hw⟩
   have hs : ∀ P, ‖σ w P‖ < Real.exp κ := hσκ w hw
-  have hU : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    inUnionDomainC_of_inDomainC HBp hδ0
-      (hc7.trans ((c7_le_bgC1 d L N BG κ).trans (bgC1_le_bgC0 d L N hd0))) hc7
-      (xiCData_inDomainC HBp hsmall hD)
-  -- the local hat lift at the point lies in the fluctuation ball of `H⁻`
-  have hψ := localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS S HBp hκ.le hM hMX hCx hF₁
-    heps hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 hδ₁ hψh
-  -- the fan composite is analytic at the image point
-  have hA := fanLC_analyticAt_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁an hF₁
-    hSolan hSol hΦ hs (hσ1 w) hD hψ
-  -- the map `p ↦ ((Θ, ψ'(p)), σ w)` is analytic at the point
-  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HBp hκ.le hM heps hsmall hc7 hs hD
-  have hFe : F₁ (σ w, rawOf D) = (φ, α) := hF₁ (σ w) D hs hU φ α ⟨hI.small, hI.fixed, hI.field⟩
-  have hdom := decDom_of_coverBg hS S HBp hκ.le hM heps hsmall hc7 hphi hs hD hI hmarD hαD
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
-      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
-      unfold decDomMargin; positivity
-    linarith
-  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν Cx :=
-    ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
-  set pt : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) :=
-    ((rawOf D, ψh), w) with hpt
-  have hσp : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) => σ p.2) pt :=
-    (hσan w).comp_of_eq analyticAt_snd rfl
-  have ha0 : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) => (σ p.2, p.1.1)) pt :=
-    hσp.prod (analyticAt_fst.comp analyticAt_fst)
-  have ha1 : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) => F₁ (σ p.2, p.1.1)) pt :=
-    (hF₁an (σ w, rawOf D) ⟨hs, D, hU, rfl⟩).comp_of_eq ha0 rfl
-  have hφ1 : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) => (F₁ (σ p.2, p.1.1)).1) pt :=
-    analyticAt_fst.comp ha1
-  have hΨ1 : ∀ y jj, AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) => p.1.1.1 y jj) pt := fun y jj =>
-    (analyticAt_rawΨ y jj (rawOf D)).comp_of_eq (analyticAt_fst.comp analyticAt_fst) rfl
-  have hmem' : (σ pt.2, (barField Gp pt.1.1.1 (F₁ (σ pt.2, pt.1.1)).1,
-      (F₁ (σ pt.2, pt.1.1)).2)) ∈ DecDom Gp N κ δc := by
-    show (σ w, (barField Gp D.Ψ (F₁ (σ w, rawOf D)).1, (F₁ (σ w, rawOf D)).2)) ∈ DecDom Gp N κ δc
-    rw [hFe]; exact hdom
-  have hlift := analyticAt_localHatLift_of_decDom (N := N) SX hCx hκ.le hMX hδc hsm cc
-    (sF := fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) ×
-      (ι → ℂ) => σ p.2)
-    (ΨF := fun p => p.1.1.1) (φF := fun p => (F₁ (σ p.2, p.1.1)).1)
-    (αF := fun p => (F₁ (σ p.2, p.1.1)).2) (ψh := fun p => p.1.2)
-    (fun P => analyticAt_pi_iff.1 hσp P) hΨ1 (fun r => analyticAt_pi_iff.1 hφ1 r)
-    (fun y => analyticAt_pi_iff.1 (analyticAt_snd.comp ha1) y)
-    (fun r => analyticAt_pi_iff.1 (analyticAt_snd.comp analyticAt_fst) r) hmem'
-  have hin : AnalyticAt ℂ (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N ×
-      (unitPts Gp × Fin N → ℂ)) × (ι → ℂ) =>
-      ((p.1.1, fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
-        if h : unitBlock x ∈ unitPts Gp then
-          (cc • (decCovSqrt Gp (compWeight L a₁) a₁ ν (F₁ (σ p.2, p.1.1)).2
-            (Dec2.extS (coverOf Gp) (σ p.2)) (barField Gp p.1.1.1 (F₁ (σ p.2, p.1.1)).1)
-            (unitQ Gp) (unitP Gp) *ᵥ p.1.2)) (⟨unitBlock x, h⟩, i)
-        else 0), σ p.2)) pt :=
-    ((analyticAt_fst.comp analyticAt_fst).prod hlift).prod hσp
-  exact hA.comp_of_eq hin rfl
+  have hψ := markedHatPsiFBg_liftZ_mem_flBallLC_of_spec hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps
+    hsmall hc7 hphi hmarD hαD hsm cc hcψ hδ₁0 hHm hF₁ Zb hW hs hD hψh
+  exact fanLC_norm_le_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁ hSol hΦbd hs
+    (hσ1 w) hD hψ
 
 omit [Fintype ι] in
 /-- **The bound of the local term with the local hat variable**: if `Φ` is bounded by `B` on
 `FlRealLC`, the composite of `fanLocalHat_analytic_cover` is bounded by `B` on the chart times the
-ball `|ψ̂| ≤ c_ψ` times the polydisc. -/
+ball `|ψ̂| ≤ c_ψ` times the polydisc. (`fanLocalHatMarked_norm_le_cover` at `(u, t) = (1, 0)`). -/
 theorem fanLocalHat_norm_le_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {c BG : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (S : Dec2.CoverBase (coverOf Gp) Gp (compWeight L a₁) ν Kc Cx)
@@ -428,12 +622,12 @@ theorem fanLocalHat_norm_le_cover (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha�
                 (Dec2.extS (coverOf Gp) (σ p.2)) (barField Gp p.1.1.1 (F₁ (σ p.2, p.1.1)).1)
                 (unitQ Gp) (unitP Gp) *ᵥ p.1.2)) (⟨unitBlock x, h⟩, i)
             else 0)‖ ≤ B := by
-  rintro ⟨⟨u, ψh⟩, w⟩ ⟨⟨⟨D, hD, rfl⟩, hψh⟩, hw⟩
-  have hs : ∀ P, ‖σ w P‖ < Real.exp κ := hσκ w hw
-  have hψ := localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS S HBp hκ.le hM hMX hCx hF₁
-    heps hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 hδ₁ hψh
-  exact fanLC_norm_le_cover hS S HBp hκ hM heps hsmall hc7 hphi hδ₁0 hPmp hF₁ hSol hΦbd hs
-    (hσ1 w) hD hψ
+  intro p hp
+  have h := fanLocalHatMarked_norm_le_cover hk1 ha₁ ha₂ hS S HBp hκ hM hMX hCx heps hsmall hc7
+    hphi hmarD hαD hsm cc hcψ hδ₁0 hPmp hHm hF₁ hSol hσκ hσ1 ∅ hΦbd
+    ((p.1, ((1 : ℂ), (0 : ℂ))), p.2) ⟨⟨hp.1, by simpa using hδ₁⟩, hp.2⟩
+  rw [← localHatLift_eq_markedHatPsiFBg (Gb := Gp) a₁ ν cc F₁ (σ p.2) p.1.1 p.1.2] at h
+  exact h
 
 end FanHat
 
