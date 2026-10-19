@@ -91,20 +91,54 @@ theorem StepTower.exists_beta0_amp {κmin : ℝ} (T : StepTower κmin) {A₁ : �
   rw [hεU] at hdo
   linarith
 
-/-- **The marked-radius numerics of the class chain at a tower.**  If `2 U ≤ R` (`R = corrR`),
-the marked radius `decMR` is positive and `2 U decMR`, `(U + R) decMR` are below `T.t`. -/
+/-- **The marked-radius numerics of the class chain at a general tower.**  If `2 U ≤ R`
+(`R = corrRG`), the marked radius `decMRG` is positive and `2 U decMRG`, `(U + R) decMRG` are below
+`T.t`. -/
+theorem StepTowerG.marked_numerics {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    {k : ℕ} (hk : 1 ≤ k) {b p₁ : ℝ} (hb0 : 0 < b) (hp0 : 0 < p₁)
+    (hRU : 2 * corrU ≤ corrRG T k b p₁) :
+    0 < corrRG T k b p₁ ∧ 0 < decMRG T k b p₁ ∧ 2 * corrU * decMRG T k b p₁ < T.t ∧
+      (corrU + corrRG T k b p₁) * decMRG T k b p₁ < T.t := by
+  have hdec := decMRG_pos T hk hb0 hp0
+  have hR2 := two_corrRG_mul_decMRG_lt T hk hb0 hp0
+  have hRpos := corrRG_pos T hk hb0 hp0
+  have hU := corrU_pos
+  refine ⟨hRpos, hdec, ?_, ?_⟩
+  · nlinarith [mul_pos hRpos hdec]
+  · nlinarith [mul_pos hRpos hdec]
+
+/-- **The marked-radius numerics of the class chain at a tower** (the tower at `d = L = 3`,
+`N = 2`). -/
 theorem StepTower.marked_numerics {κmin : ℝ} (T : StepTower κmin) {k : ℕ} (hk : 1 ≤ k) {β p₁ : ℝ}
     (hb0 : 0 < β * 3 ^ k) (hp0 : 0 < p₁) (hRU : 2 * corrU ≤ corrR T k (β * 3 ^ k) p₁) :
     0 < corrR T k (β * 3 ^ k) p₁ ∧ 0 < decMR T k (β * 3 ^ k) p₁ ∧
       2 * corrU * decMR T k (β * 3 ^ k) p₁ < T.t ∧
       (corrU + corrR T k (β * 3 ^ k) p₁) * decMR T k (β * 3 ^ k) p₁ < T.t := by
-  have hdec := decMR_pos T hk hb0 hp0
-  have hR2 := two_corrR_mul_decMR_lt T hk hb0 hp0
-  have hRpos := corrR_pos T hk hb0 hp0
+  have hb : β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by norm_num
+  have h := StepTowerG.marked_numerics T.toG hk (b := β * 3 ^ k) hb0 hp0
+    (by rw [← corrR_toG]; exact hRU)
+  simp only [corrR_toG, decMR_toG]
+  exact h
+
+/-- **The constant `ε_C` is nonnegative** (general `d`, `L`). -/
+theorem epsC_nonnegG {d L : ℕ} [NeZero L] {mr t E₀ CI KL α₃ κdec κ0 κdec' : ℝ}
+    {n₁ m₀ m₁ : ℕ} (hmr : 0 < mr)
+    (ht : 0 < t) (hE₀ : 0 ≤ E₀) (hCI : 0 ≤ CI) (hKL : 0 ≤ KL) (hα₃ : 0 < α₃)
+    (hK0 : 0 < K0 d L κ0) :
+    0 ≤ corrU / (t / (2 * mr)) *
+          (((2 ^ L ^ d : ℕ) : ℝ) * (c1 d L * ((((L : ℝ) ^ (1 + m₀ + m₁)) ^ d) * E₀ *
+          (2 * K0 d L κ0 * (CI * Real.exp ((κdec - 1) * cG d L) * (1 - (L : ℝ) ^ (-α₃))⁻¹ +
+            n₁ * (KL * Real.exp ((κdec - 1) * cG d L)) * (((L : ℝ) ^ (n₁ - 1)) ^ d)))) *
+          Real.exp ((2 * κdec' - 1) * (2 * (d : ℝ) * (L : ℝ) ^ m₀ *
+            ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L)))) := by
+  have hw : 0 ≤ (1 - (L : ℝ) ^ (-α₃))⁻¹ := by
+    refine inv_nonneg.2 (sub_nonneg.2 ?_)
+    exact Real.rpow_le_one_of_one_le_of_nonpos
+      (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)) (by linarith)
+  have hc1 : 0 ≤ c1 d L := by have := one_le_c1 d L; linarith
   have hU := corrU_pos
-  refine ⟨hRpos, hdec, ?_, ?_⟩
-  · nlinarith [mul_pos hRpos hdec]
-  · nlinarith [mul_pos hRpos hdec]
+  generalize (1 - (L : ℝ) ^ (-α₃))⁻¹ = w at hw ⊢
+  positivity
 
 /-- **The constant `ε_C` is nonnegative.** -/
 theorem epsC_nonneg {mr t E₀ CI KL α₃ κdec κ0 κdec' : ℝ} {n₁ m₀ m₁ : ℕ} (hmr : 0 < mr)
@@ -115,11 +149,7 @@ theorem epsC_nonneg {mr t E₀ CI KL α₃ κdec κ0 κdec' : ℝ} {n₁ m₀ m�
           (2 * K0 3 3 κ0 * (CI * Real.exp ((κdec - 1) * cG 3 3) * (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ +
             n₁ * (KL * Real.exp ((κdec - 1) * cG 3 3)) * ((((3 : ℕ) : ℝ) ^ (n₁ - 1)) ^ 3)))) *
           Real.exp ((2 * κdec' - 1) * (2 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ m₀ *
-            ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) := by
-  have hw : 0 ≤ (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ := by
-    refine inv_nonneg.2 (sub_nonneg.2 ?_)
-    exact Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by linarith)
-  have hc1 : 0 ≤ c1 3 3 := by have := one_le_c1 3 3; linarith
-  have hU := corrU_pos
-  generalize (1 - ((3 : ℕ) : ℝ) ^ (-α₃))⁻¹ = w at hw ⊢
-  positivity
+            ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c1 3 3)))) :=
+  epsC_nonnegG hmr ht hE₀ hCI hKL hα₃ hK0
+
+end Balaban.Inhabited
