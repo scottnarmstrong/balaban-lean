@@ -2824,6 +2824,7 @@ public import Balaban.LargeField.R.WindowDuMassTerm
 public import Balaban.LargeField.R.WindowDuAssemble
 public import Balaban.LargeField.R.WindowDuAgree
 public import Balaban.LargeField.R.WindowDuPt
+public import Balaban.LargeField.R.WindowSideConds
 public import Balaban.Polymer.TwoTorusGapTowerAllCan
 public import Balaban.Inhabited.E0CoeffFamilyTorusRad
 public import Balaban.Inhabited.E0CoeffFamilyTorusCoef
