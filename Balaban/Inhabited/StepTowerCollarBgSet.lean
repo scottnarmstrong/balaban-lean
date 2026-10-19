@@ -8,6 +8,8 @@ module
 public import Balaban.Fluctuation.ClassOldDecInputE
 public import Balaban.Fluctuation.LocalClassDensityIrrelAux
 public import Balaban.Inhabited.LevelCoversDef
+public import Balaban.Inhabited.StepScaleDataGBridge
+public import Balaban.Inhabited.StepTowerCollarGBgSet
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -42,36 +44,20 @@ theorem step_bgSetting_base_collar (Dt : StepScaleData T k hk N₁ ν β p₁) {
     BgSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
       (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν
       T.c T.BG T.κ r₀ T.t δ₃ (dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) Finset.univ 1 := by
-  have hC := Dt.core
-  exact {
-    hS := hC.hS
-    Sp := hC.Sp
-    ha₁ := one_pos
-    HBp := hC.HBp
-    HBk := hC.HBp
-    HBj := hC.HBp
-    hP := hC.hPmp
-    hq := precedes_refl _
-    colk := fun z _ => by
-      show z ∈ (lvTop N₁ T.m₁ k (rhoSep T.m₁)).Ω 1
-      rw [(isLevel_lvTop (N₁ := N₁) (m₁ := T.m₁) (k := k) (ϱ := rhoSep T.m₁)).Ω_one]
-      exact Finset.mem_univ _
-    colj := fun z hz => classOldDec_collar hk z hz
-    hκ := hC.hκ
-    hM := hC.hM
-    num := hnum
-    dsX₀ := fun x hx => hx
-    hN := fun _ _ _ y _ => Finset.mem_univ y
-    hr := by
-      have h0 : (0 : ℝ) ≤ 3 ^ T.m₁ := by positivity
-      have h1 : r₀ * 3 ^ T.m₁ ≤ 360 * 3 ^ T.m₁ := mul_le_mul_of_nonneg_right hr₂ h0
-      have h2 := rhoSep_tail_nonneg
-      have h3 := rhoSep_ge T.m₁
-      push_cast
-      linarith
-    hr₀ := by norm_num; linarith
-    dep := fun _ _ y _ => Finset.mem_univ y
-    hj := by omega }
+  have h := T.toG.step_bgSetting_base_collar (StepTower.scaleDataG_of_fixed T Dt) hnum
+    (by norm_num; exact hr₁) (by norm_num; linarith)
+  have key : ∀ ϱ : ℝ, ϱ = rhoSep T.m₁ →
+      BgSetting 2 (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁
+          T.δ).G' (stepG 3 3 N₁ T.m₁ k ϱ) (stepG 3 3 N₁ T.m₁ k ϱ)
+        (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁ T.δ).a₁
+        (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁ T.δ).ν
+        T.c T.BG T.κ r₀ T.t δ₃ (dataSites (stepG 3 3 N₁ T.m₁ k ϱ)) Finset.univ 1 →
+      BgSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+        (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁
+        (T.step k hk N₁ ν β p₁).ν T.c T.BG T.κ r₀ T.t δ₃
+        (dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) Finset.univ 1 := by
+    intro ϱ hϱ; subst hϱ; exact id
+  exact key _ (rhoSepG_three _) h
 
 end Base
 
