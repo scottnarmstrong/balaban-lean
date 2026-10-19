@@ -32,6 +32,12 @@ step, their sum and their bound.  This file records the remaining proved propert
 
 ## The record
 
+* `DetExpansionLocCBg S Gb Tr hT Zb m₀ z ε κ'' c_det` (ruling R8): the same record with the inside of each
+  term computed on a background generating set `Gb`, the datum read through the transport
+  `Tr : BgTransport S.G' Gb N` (`Tr.gdat hT D`) and the root block replaced by a mask `Zb` of unit
+  points of `Gb`; `DetExpansionLocC` is its instance `Gb = S.G'`, `Tr = BgTransport.self`,
+  `Zb = S.blockU z` (an `abbrev`), `exists_detExpansionLocCBg_of_chart` its inhabitation, and
+  `detTermLoc` the terms of a family with one set `Gb T` per polymer `T`.
 * `DetExpansionLocC S m₀ z ε κ'' c_det`: terms `term D T` defined for every block datum `D`, with,
   for the data of the chart `Ξ^c(𝔹_{k+1}; 1, ε)`:
   - `sum_eq`: the terms add up to the rooted trace of `B(z)` at the uncut background of `D`;
@@ -731,5 +737,57 @@ theorem DetExpansionLocC.term_eq_of_agree_cellNear (E : DetExpansionLocC S m₀ 
   DetExpansionLocCBg.term_eq_of_agree_cellNear E S.hG' hN h3 hD hD₂ T h
 
 end DependencyStep
+
+/-! ### The terms of the polymers, each on its own background set -/
+
+section Loc
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {m₀ : ℕ}
+  {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
+  {ϱb : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+    Set.univ) → ℝ}
+  {Gb : ∀ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+    Set.univ), GeneratingSet d L (N₁ * L ^ m₁) (k + 1) (ϱb T)}
+  {Tr : ∀ T, BgTransport S.G' (Gb T) N} {hT : ∀ T, (Tr T).Reads}
+  {Zb : ∀ T, Finset (unitPts (Gb T))}
+
+/-- **The terms of the determinant, each polymer on its own background generating set** (P3
+pp. 78-79: the term of the polymer `T` is recomputed on `𝔹_{k+1}(T)`): the term at the polymer `T`
+of the record `E T` on the set `Gb T`, as a function of the datum of the step. -/
+def detTermLoc
+    (E : ∀ T, DetExpansionLocCBg S (Gb T) (Tr T) (hT T) (Zb T) m₀ z eps κ'' cdet)
+    (D : BgData S.G' N) (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ)) : ℂ :=
+  (E T).term D T
+
+/-- **The step's terms are the family on the step's own set**: for the constant family `E T = E`
+the terms are those of `E` (`rfl`). -/
+theorem detTermLoc_const (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    detTermLoc S (Gb := fun _ => S.G') (Tr := fun _ => BgTransport.self S.hG')
+      (hT := fun _ => BgTransport.reads_self S.hG') (Zb := fun _ => S.blockU z) (fun _ => E) D T =
+      E.term D T := rfl
+
+/-- The bound of the term of the polymer `T` on the chart of its own set `Gb T`. -/
+theorem detTermLoc_bound
+    (E : ∀ T, DetExpansionLocCBg S (Gb T) (Tr T) (hT T) (Zb T) m₀ z eps κ'' cdet)
+    {D : BgData S.G' N} (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ))
+    (hD : XiCData (Gb T) S.a S.ν (k + 1) 1 eps ((Tr T).gdat (hT T) D)) :
+    ‖detTermLoc S E D T‖ ≤ cdet * Real.exp (-κ'' * dExt T) :=
+  (E T).bound D hD T
+
+/-- The term of the polymer `T` vanishes unless `T` contains the root cube of `z`. -/
+theorem detTermLoc_eq_zero_of_not_mem
+    (E : ∀ T, DetExpansionLocCBg S (Gb T) (Tr T) (hT T) (Zb T) m₀ z eps κ'' cdet)
+    {D : BgData S.G' N} (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+      (k + 1) Set.univ))
+    (hD : XiCData (Gb T) S.a S.ν (k + 1) 1 eps ((Tr T).gdat (hT T) D))
+    (hroot : rootCube (m₀ := m₀) (K := k + 1) z ∉ T) : detTermLoc S E D T = 0 :=
+  (E T).term_eq_zero_of_not_mem hD hroot
+
+end Loc
 
 end Balaban.Fluctuation
