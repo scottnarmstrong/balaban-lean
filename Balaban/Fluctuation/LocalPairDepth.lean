@@ -390,13 +390,20 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 
+/-- At a site of the top layer `Ω_{k+1}(Gl)` of a generating set `Gl`, the level set `𝔹_{k+1}` and
+`Gl` have the same layers.  The core of `level_localB_layer_iff_of_top`. -/
+theorem level_layer_iff_of_top (hG' : IsLevel Gp (k + 1)) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : x ∈ Gl.Ω (k + 1)) :
+    ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ Gl.layer n) :=
+  fun _ hn hnK => level_layer_iff_of_mem_top hG' hx hn hnK
+
 /-- At a site of the top layer `Ω_{k+1}(𝔹_{k+1}(Y))`, the level set `𝔹_{k+1}` and `𝔹_{k+1}(Y)` have
 the same layers. -/
 theorem level_localB_layer_iff_of_top (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
     {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
     ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ (localB (k + 1) hk Y hsep).layer n) :=
-  fun _ hn hnK => level_layer_iff_of_mem_top hG' hx hn hnK
+  level_layer_iff_of_top hG' hx
 
 /-- `Ω_k(𝔹_{k+1}(Y))` lies in `Ω₁(𝔹_k(Y))`, `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))` (`k ≥ 1`).
 
@@ -785,6 +792,19 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
   {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
 
+/-- **The cover bases of the ambient level set and of a cube-aligned, sup-separated generating set
+`Gl`**, with the constants `mixedKc d L`, `Cchi d L` (the first two pairs of
+`replacement_coverBases`). -/
+theorem level_local_coverBases (hG' : IsLevel Gp (k + 1)) (hA : CubeAligned Gl m₁)
+    (hSS : SupSep Gl m₁) (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {a : ℕ → ℝ} {ν : ℝ} (HB : BgHyp d L (k + 1) ϱ a ν)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1)) :
+    Dec2.CoverBase (coverOf Gp) Gp a ν (Dec2.mixedKc d L) (Cchi d L) ∧
+    Dec2.CoverBase (coverOf Gl) Gl a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  ⟨level_coverBase_mixed hG' Gp hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag,
+    coverBase_of_aligned_supSep hA hSS hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagl⟩
+
 /-- **One pair `(K_c, C_χ)` for the four cover bases of the replacement**, for a cube-aligned,
 sup-separated generating set `Gl` in place of `𝔹_{k+1}(Y)` and a generating set `Gd ≺ Gl` in place of
 `𝔹_k(Y)`: the ambient background pair `(coverOf 𝔹_{k+1}, 𝔹_{k+1})`, the local background pair
@@ -805,8 +825,8 @@ theorem replacement_coverBases (hG' : IsLevel Gp (k + 1))
     Dec2.CoverBase (coverOf Gl) Gl a ν (Dec2.mixedKc d L) (Cchi d L) ∧
     Dec2.CoverBase (coverOf Gp) Hm a ν (Dec2.mixedKc d L) (Cchi d L) ∧
     Dec2.CoverBase (coverOf Gl) Gd a ν (Dec2.mixedKc d L) (Cchi d L) :=
-  ⟨level_coverBase_mixed hG' Gp hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag,
-    coverBase_of_aligned_supSep hA hSS hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagl,
+  ⟨(level_local_coverBases hG' hA hSS hN hm₁ hM HB hag hagl).1,
+    (level_local_coverBases hG' hA hSS hN hm₁ hM HB hag hagl).2,
     level_coverBase_mixed hG' Hm hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagm,
     (footLocal_of_precedes hA hSS hPd hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights
       hagd).toCoverBase⟩
