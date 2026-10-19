@@ -105,6 +105,26 @@ section LevelLocal
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 
+/-- **IndexMatch, layers, for any generating set**: at a site of the top layer `Ω_{k+1}(Gl)` of a
+generating set `Gl`, the ambient level set `𝔹_{k+1}` (`IsLevel`) and `Gl` have the same layers (both:
+the top layer `k + 1` only).  `level_localB_layer_iff` is the instance `Gl = 𝔹_{k+1}(Y)`. -/
+theorem level_layer_iff_of_mem_top (hG' : IsLevel Gp (k + 1))
+    {ϱl : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ Gl.Ω (k + 1))
+    {n : ℕ} (hn : 1 ≤ n) (hnK : n ≤ k + 1) :
+    x ∈ Gp.layer n ↔ x ∈ Gl.layer n := by
+  rw [mem_layer_iff_of_mem_top ((Gp.mem_layer).1 (hG'.mem_layer x)).1 hn hnK,
+    mem_layer_iff_of_mem_top hx hn hnK]
+
+/-- **IndexMatch, cover cubes, for any generating set**: a cube whose base lies in the top layer
+`Ω_{k+1}(Gl)` is a cube of the cover of the ambient level set exactly when it is a cube of the cover
+of `Gl`. -/
+theorem level_mem_cubeIdx_iff_of_mem_top (hG' : IsLevel Gp (k + 1))
+    {ϱl : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q.2 ∈ Gl.Ω (k + 1)) :
+    q ∈ cubeIdx Gp ↔ q ∈ cubeIdx Gl :=
+  mem_cubeIdx_congr_of_layer fun _ hn hnK => level_layer_iff_of_mem_top hG' hq hn hnK
+
 /-- **IndexMatch, layers**: at a site whose `𝒞_{k+1}`-cube lies in `Y`, the ambient level set
 `𝔹_{k+1}` (`IsLevel`) and the literal local generator `𝔹_{k+1}(Y) = localB (k + 1) … Y` have the
 same layers (both: the top layer `k + 1` only). -/
@@ -117,9 +137,8 @@ theorem level_localB_layer_iff (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
         fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
           (torusCast x : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) → y ∈ Y)
     {n : ℕ} (hn : 1 ≤ n) (hnK : n ≤ k + 1) :
-    x ∈ Gp.layer n ↔ x ∈ (GsSpec.localB (k + 1) hk Y hsep).layer n := by
-  rw [mem_layer_iff_of_mem_top ((Gp.mem_layer).1 (hG'.mem_layer x)).1 hn hnK,
-    mem_layer_iff_of_mem_top ((GsSpec.mem_localB_Ω_top x).2 hx) hn hnK]
+    x ∈ Gp.layer n ↔ x ∈ (GsSpec.localB (k + 1) hk Y hsep).layer n :=
+  level_layer_iff_of_mem_top hG' ((GsSpec.mem_localB_Ω_top x).2 hx) hn hnK
 
 /-- **IndexMatch, cover cubes**: a cube whose base has its `𝒞_{k+1}`-cube in `Y` is a cube of the
 cover of the ambient level set exactly when it is a cube of the cover of `𝔹_{k+1}(Y)`. -/
@@ -132,7 +151,7 @@ theorem level_localB_mem_cubeIdx_iff (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ 
         fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
           (torusCast q.2 : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) → y ∈ Y) :
     q ∈ cubeIdx Gp ↔ q ∈ cubeIdx (GsSpec.localB (k + 1) hk Y hsep) :=
-  mem_cubeIdx_congr_of_layer fun _ hn hnK => level_localB_layer_iff hG' hk Y hsep hq hn hnK
+  level_mem_cubeIdx_iff_of_mem_top hG' ((GsSpec.mem_localB_Ω_top q.2).2 hq)
 
 end LevelLocal
 

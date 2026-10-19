@@ -202,10 +202,10 @@ domain, so its proofs survive the change.
      * (H6′)^pre by LF-2 (i): `Rep.budgetPre_of_LF2`. Its `BudgetSetup.run` asks (I.2) at every scale (item 4 (c));
      * a non-quiet kernel exists only at `k = 0` (R7 `Kphys`).
    * Open:
-     * (a) R8: the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
+     * (a) R8 (W1141: `Tr.Reads` for `canon` proved; (A1)–(A5) still open — f is not definable from the existential `e`; needs the chain's assembly layers at `Gb`, marks, inherited terms (c); the K_loc chart of (A3) is a risk for the inherited part: the restricted datum has radius (1+(2K₁+1)C₁)ε ≥ 4ε, and 4ε_{k+1} > ε_k): the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
        with an explicit background generating set (not started). With them, (A1)–(A5) of `newLabels_castInputs_of_localFamily`:
        the new level's terms on the local charts of `𝔹_{k+1}(Y⁺(T′))`.
-     * (b) The castG gap. W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
+     * (b) The castG gap: CLOSED by W1141 (cores for an arbitrary generating set in LocalPairIndexMatch/LevelInner/Depth/HatLift/Collar/LocalClassTau/LatTau/LocalGeneratorRestriction; `LocalPairCast.lean`). Was: W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
        reads `castG hc (localB …)` on `(N₁′, m₁ + 4)`. Missing: castG versions of `LocalPairDepth`, `LocalPairLevelInner`,
        `localHatLift_eq_hatPsiF_localB`, `localB_collar_margin`, `localB_tauExt_*`.
      * (c) The inherited terms on two tori. For a general class the chain's `e` is not a core family (W1090). `D8SF.M_eq` at
@@ -416,9 +416,10 @@ theorem lfStepInput_of_parts (Λ : LFStepMap …) (hH : LFHistInput … Φ Λ) (
     (hP : LFPinInput … Φ Λ) (hG : LFBudgetInput … Φ Λ) (hC : LFCoherenceInput … Φ Λ) (hc : LFCorrInput … Φ) :
     LFStepInput … Φ ΦE
 theorem lfOpBoundInput_of_signs (Λ : LFStepMap …) (hz : LFSignInput … Φ) : LFOpBoundInput … Φ Λ
+theorem lfSignInput_of_inherit (hI : SFInheritInput … Φ) : LFSignInput … Φ   -- W1142
 theorem lfBudgetInput_of_pin (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) (Λ : LFStepMap …) (hP : LFPinInput … Φ Λ) :
     LFBudgetInput … Φ Λ
-theorem lfStepInput_of_prefix (hA1 : PrefixInput …) (Λ) hH hS hB hBs hF (hz : LFSignInput … Φ) hP hC hc : LFStepInput … Φ ΦE
+theorem lfStepInput_of_prefix (hA1 : PrefixInput …) (Λ) hH hS hB hBs hF (hI : SFInheritInput … Φ) hP hC hc : LFStepInput … Φ ΦE
 ```
 One landed proof was generalized (statement unchanged, `stmtcheck` CHANGED empty): `Rep.budgetPre_of_LF2` is now the instance
 `K' = K` of `Rep.budgetPre_of_LF2_trunc` (`Def7Basic.lean`; (H6′)^pre from the counter history truncated at `K' ≤ K`, `K' ≤ top`).
@@ -451,11 +452,11 @@ whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over 
 | (c) `LFHistInput` | `IsComplete (k+1) (k+1)` of `Λ.hist nK` | LF-3 (c); Def. I.3.1, (R8) | O — `exists_isComplete` | 300 | L |
 | (g1) `LFStepDataInput` | `∃ SD : StepData` at `cs'`, `P'` with `SD.ker = Λ.ker nK` and `SD.VacuumTie Set.univ (vacExt rec.Ev k ΦE) δ″ δ‴` | Lemmas II.5.14, IV.1.3, IV.1.4, IV.1.6; (S0) P6 (2.32)–(2.33); R5, R5′ | O — `quietStepData'`, `quietKernel`, `StepData.retie`, `vacExt` | 1,700 | H |
 | (g1) kept data (S3) | `succKD` is `KeptData` at `cs'` | (S3) "no kept data are created" | **P** (`KeptData.upTo`, `chiDomAt_congr`) | 0 | – |
-| (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | O | 1,200 | H (B3) |
+| (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | Rd — W1140: `lfBdryInput_of_parts` (`Spine/LFBdry.lean`) from the three kinds; blocker-3 piece proved under ruling R11 (`Spine/LFBdryHole.lean`); section "LFBdryInput sub-inputs" | 1,100 | H (B3 → R11) |
 | (g5) `LFBdrySrcInput` | `D7BdryBall`: `analytic`, `bound` at `h' ∈ hSetB2 h r_h`, `h' ≠ h` | blocker 2 leaf 5; Q13-YM §§2, 5; R2 | O — R2 objects, `KerBoundSrc` | 600 | H (B2) |
 | (g3) `LFFormInput` | `D1PreForm2 (F'.ctx …) vc' (F'.lf nK) h (stepDensity … (β_k a L^{d−2}) z_{k+1} Λ.s ρ nK)` for `D1CorrLim … St' h vc'` | P5 (2.1)–(2.14), (2.42)–(2.48), §3, (3.18); P6 §2, (3.3); P5 (1.8) | O — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M |
 | (g3) `LFOpBoundInput` | `D5Bound (k+1)` of `F'` | Lemma II.6.3 (a) | **P** from `LFSignInput` (`lfOpBoundInput_of_signs`, `Rep.opBound_of_data`) | 0 | – |
-| `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | O — `z_{k+1} > 0` is A4-1a; `j ≤ k` not in the class | 50 | L |
+| `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | **P** (W1142): `lfSignInput_of_inherit` from `SFInheritInput` (`z_{k+1} > 0`, A4-1a, and `z_j` kept at `j ≤ k`) and the new carrier field `RepRec.zpos` / `PreRec.zpos` (`z_j > 0`, `1 ≤ j ≤ k`: the class clauses `D9Coeff`/`CoeffBounds`/`SFClassAt`/`RepClassAt` do not constrain `z_j`); `lfStepInput_of_prefix` takes `SFInheritInput` instead of `LFSignInput`; `zpos` is produced by `sfStepInput_of_parts` (from the input's `zpos` and A4-1a), carried by `rInput_of_parts`, `PreRec.retie`, `PreClassAt.succ`, and proved in the witnesses | 0 | – |
 | (g4) `LFPinInput` | `D4Pin (k+1)` of `F'` (the exponents and kept data of `rec`) | (D4), LF-3 proof; LF-3 (c) | O | 300 | L |
 | (g4) `LFBudgetInput` | `D6Pre` of `F'` | LF-2 (i), Thm I.5.4 (i) | **P** from `LFPinInput` + prefix (`lfBudgetInput_of_pin`, `Rep.budgetPre_of_LF2_trunc`) | 0 | – |
 | (h) `LFCoherenceInput` | `LFCoherent F'` | LF-3 (h), D-IV.9 | O — (D8) of `rec` (old data), `quietKernel_twoTorus`, `bgLocPiece_twoTorus` | 1,000 | M |
@@ -497,7 +498,82 @@ parts and the combinators `LFImageInput`, `RepRec.SuccFams` need the exemption o
 
 **Size.** ≈ 6,750 remaining (table), against ~6,000 before the split: the split exposed (c), (g4)'s `D4Pin` and `LFCorrInput`, which the old
 estimate counted inside (g3) and (h); the kept data and (D5), (D6) are proved. H items: (g1) (non-quiet kernels, and the old-step tie after
-R10), (g2) (B3), (g5) (B2).
+R10), (g2) (B3; closed under ruling R11, W1140), (g5) (B2).
+
+## LFBdryInput sub-inputs (W1140)
+
+**PROVED** (`Balaban/Spine/LFBdry.lean`, `Balaban/Spine/LFBdryHole.lean`; no `sorry`; axioms `propext, Classical.choice,
+Quot.sound`; `…` = `d N T P6 C7 PB cs₀ M1 c rH ϱ`):
+```
+theorem D7Bdry.add_B (rep) (h₁ : D7Bdry … { rep with B := B₁ } … fac₁ rate hv) (h₂ : … B₂ … fac₂ …)
+    (hB : rep.B = B₁ + B₂) : D7Bdry … rep … (fac₁ + fac₂) rate hv
+theorem lfBdryInput_of_parts (Λ : LFStepMap …) (Sb : LFBdrySplit … Λ) {Bn Bd Bo : ℝ → ℝ → ℝ}
+    (hBst : ∀ κ c₉, Bn κ c₉ + Bd κ c₉ + Bo κ c₉ ≤ (C7 κ c₉).Bst)
+    (hN : LFBdryNewInput … Φ Λ Sb Bn) (hD : LFBdryDeltaInput … Φ Λ Sb Bd) (hO : LFBdryOldInput … Φ Λ Sb Bo) :
+    LFBdryInput … Φ Λ
+theorem norm_sum_le_of_transfer (I : Finset ι) (T : ι → ℂ) (Dm mk : ι → ℝ) (hCre : 0 ≤ Cre) (hB₀ : 0 ≤ B₀)
+    (hκ : 0 ≤ κ) (hκo : 0 ≤ κo) (hT : ∀ a ∈ I, ‖T a‖ ≤ Cre * B₀ * exp (-κ * Dm a) * exp (-κm * mk a))
+    (hmin : ∀ a ∈ I, Dmin ≤ Dm a) (hB₀min : B₀ * exp (-(κ/2) * Dmin) ≤ 1) (hsize : ∀ a ∈ I, Dp ≤ Dm a / L + Cd * mk a)
+    (hent : ∑ a ∈ I, exp (-(κ/2 - κo/L) * Dm a - (κm - κo*Cd) * mk a) ≤ Kent) :
+    ‖∑ a ∈ I, T a‖ ≤ Cre * Kent * exp (-κo * Dp)
+theorem Def7.exists_transfer_fineValidFinAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
+    (hX : FineValidFinAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
+      FineValidFinAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Def7.exists_transfer_fineValidAt_of_open … (hopen : ∀ z ∈ (d7Pull F (k+1) Om')ᶜ,
+      IsPiPrimeUnion m₀ (k+1) (OmegaComp (d7Pull F (k+1) Om') z)) (hX : FineValidAt F k Om X) :
+    ∃ Y, … ∧ FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Fluctuation.transfer_patches … : DjModFin m₀ (j+1) Ω' (holeClose Ω' (transferLabel … ∪ ⋃ p ∈ P, box p …)) ∧
+    dcovMod … ≤ (L)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card
+theorem Fluctuation.spill_of_defect, Fluctuation.djModFin_Yhat, Fluctuation.dcovMod_ge_supDist,
+  DjModFin.cellCount_le ((G1)), djModFin_union ((G3)), djMod_iff_djModFin, Def7.fineValidAt_iff_fineValidFinAt
+theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F) (hnn) (H) (hk : k + 1 ≤ K) :
+    d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆ d7Pull F k (H.omegaPost k)
+theorem RegionHistory.le_d7SizeAt_of_reach (F) (hnn) (H) (hk : k + 1 ≤ K)
+    (hX : X ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z)
+    (hmeet : (d7Pull F k X ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) :
+    (S.L : ℝ) * (⌊R k⌋₊ + 2) ≤ d7SizeAt F k (H.omegaPost k) X
+theorem Def7.FineValidFinAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidFinAt F k Om Y) : DmodOmega Om Y
+```
+
+**The split** (LFR Lemma IV.1.5: three kinds with constants of rows 0–11, `B_st` their sum). `LFBdrySplit Λ` (a map,
+like `Λ`: `LFBdryPieces` = `new`, `delta`, `old` with `Λ.B = new + delta + old` on every torus; inhabited) and
+`LFBdryPart` (the statement of `LFBdryInput` with the boundary terms replaced by one kind and the constant `fac`):
+
+| part | statement | source | status | rem | R |
+|---|---|---|---|--:|:-:|
+| (i) `LFBdryNewInput` | `D7Bdry` of `new` with `Bn` | P5 Props 3.1–3.4, P6 Props 2.1–2.3; P6 p. 15 | O — the labels `Ŷ(S)` of the marked expansion are R11 labels (`djModFin_Yhat`) | 400 | M |
+| (ii) `LFBdryDeltaInput` | `D7Bdry` of `delta` with `Bd` | Lemma IV.1.3 (FLUCTUATION Thm 4.2, landed `theorem42_late_of_input`) | O — labels `Ŷ(T)` as in (i) | 300 | M |
+| (iii) `LFBdryOldInput` | `D7Bdry` of `old` with `Bo` | Lemma IV.1.5 (iii); P6 (4.32)–(4.34); P3 (4.41)–(4.49) | Rd — bound by `norm_sum_le_of_transfer`; `hsize` (blocker 3) proved under R11 | 400 | H → M |
+
+`lfBdryInput_of_parts` is the assembly (additivity `D7Bdry.add_B`, `D7Bdry.mono_fac`).
+
+**Blocker 3 (route decision, W1140).** The obstruction is the π′-shape that `FineValidAt` (via `Fluctuation.DjMod`) asks
+at the hole sites of every label. A transferred old label must contain every new hole it meets (`loc_hist`); a new hole
+need not be a union of π′_{k+1}-cubes (seam, ALIGNED (23)–(26)); every landed label containing it then contains active
+sites along the seam (`spill_of_defect`) and its size grows with the seam (`G1_cellCount`), with no decay of an
+H7-admissible constant coefficient to pay it (ALIGNED (33)). The same holds for kinds (i), (ii) at `Ŷ(S)`. Routes:
+(i) a property of the P6 construction — refuted for the class (the constant coefficient re-expands to itself);
+(ii) a stronger H7 — refuted (the spill is created by the next scale's hole; also hits (i), (ii)); (iii) route B —
+removes the spill but breaks the domain entropy (G2) (`G2_X`, `D7GasRootEntropy`) unless the size charges hole sites,
+which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B): `FineValidAt := DjModFin` (π′-cubes at the active sites
+only; size, `loc_hist`, H7 domain unchanged). Under R11 the transfer of every label across every new hole is proved
+(`Def7.exists_transfer_fineValidFinAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
+the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidAt_of_open`).
+
+**Leaves of (iii)** (each ≤ 300 lines; none involves a new hole once R11 is in):
+* O1 `old_reexpansion`: the old part at a label is the finite sum over assignments (old label `X'`, marks `J`) of P6
+  (4.32)–(4.34), with `‖T‖ ≤ C_re B₀ e^{-κ d_k(X')} e^{-κ_m |J|}` (the record's `D7BdryPost.bound` and the P3 mark
+  factor) and output label the transfer of `X'` with its patches; structural clauses (locality, `loc_hist`, reality,
+  analyticity, O(N), covariance: average over the optimal covers of `X'`, which form a covariant finite set). The
+  analytic engine is the one of kind (i).
+* O2 **PROVED** (`RegionHistory.d7Pull_OmegaCube_succ_subset`): `d7Pull F (k+1) (OmegaCube H (k+1)) ⊆
+  d7Pull F k (H.omegaPost k)` (P5 (2.3): the opening misses `nbhd (U'_k)`, `(Ω_k^post)^c ⊆ Z_k`).
+* O3 cube level **PROVED** (`Def7.FineValidFinAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
+  transferred labels meet `Z^pre_{k+1}` and its complement (the others go to `b_k`, LFR Lemma IV.1.3) — part of O1.
+* O4 **PROVED** (`RegionHistory.le_d7SizeAt_of_reach`): an old post-`R` label whose fine set meets the new region has
+  `d7SizeAt ≥ L(⌊R_k⌋ + 2)` (exit of a hole `DmodOmega.exists_active_near`, `dcovMod_ge_supDist`); `hmin`, with (Λ28)
+  `B₀ e^{-(κ/2) L(⌊R_k⌋+2)} ≤ 1` for `hB₀min`.
+* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (after R11's `G2_X` core) and the mark count of P3 (4.49).
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -783,7 +859,7 @@ A3-2. Each becomes a theorem once the first step's representation is defined at 
 theorem kfZeroInput_of_parts (hG : KF0GoodSectorInput d N δ T thr)
     (hB : KF0BadSectorInput d N δ T thr) : KfZeroInput d N δ T
 ```
-for every block threshold `thr : ℝ → ℝ → ℝ → ℝ → ℝ` (`r = thr κ c₉ β ν`; the notes take `r = δ_β = A log(βa)/√(βν)`). It follows
+for every block threshold `thr : ℝ → ℝ → ℝ → ℝ → ℝ` (`r = thr κ c₉ β ν`; the notes take `r = δ_β = A log(βa)/√(βν)`, now `kf0Thr A a β ν`, W1142). The range premise `_hthr` is restricted to the regime of `KfZeroInput` (`7/8 < νL²`, `ν ≤ 1`, `β ≥ β₀`; it is false for all `ν` as `ν → 0`); `kf0Thr_range` proves `0 < kf0Thr A a β ν ≤ √2` there for `A > 0`, `a > 1`, `L > 0` (`β₀` from `log(βa) ≤ √β/(AL)`, `√2√ν L ≥ 1`), and `kfZeroInput_of_parts_kf0Thr` drops the premise for `thr = kf0Thr (A κ c₉) (a κ c₉)`. The source threshold never exceeds `√2` in the regime once `β ≥ β₀`. It follows
 route (A) of `KF0-INFL.md`, hard physical sectors. On an admissible torus (`M L^{kf+1} ∣ ℓ`) the blocks have side `s = M L` (the cubes
 of Root-F's scale-`1` polymers), `m = ℓ/(M L)` per side (`exists_blockCount`). A block is good if `|φ_x − h| < r` at all its sites.
 `Z_B(g) = kf0Sector (M L) m r β ν h B g` is the sector of the bad set `B`.
