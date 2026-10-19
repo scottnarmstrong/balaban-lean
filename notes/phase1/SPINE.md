@@ -669,6 +669,28 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `d7SizeAt ≥ L(⌊R_k⌋ + 2)` (exit of a hole `DmodOmega.exists_active_near`, `dcovMod_ge_supDist`); `hmin`, with (Λ28)
   `B₀ e^{-(κ/2) L(⌊R_k⌋+2)} ≤ 1` for `hB₀min`.
 * O5 `assign_entropy`: `hent` from (G2) over the R11 labels (`G2_XFin`, landed with R11) and the mark count of P3 (4.49).
+* **Status of O1 and O5 (W1148, 2026-10-20): not provable as stated; the obstruction is the interface, not the geometry.**
+  `LFBdryOldInput` is a statement about the parameters `Λ : LFStepMap` and `Sb : LFBdrySplit Λ`. In `LFStepRaw` the
+  boundary terms `B` are a bare field (`B : ∀ nK, BTerms …`), and `LFBdryPieces` constrains `old` only by
+  `sum_eq : D.B = new + delta + old`. Nothing in Lean ties `Sb.old` to the old boundary terms of the record `rec`, to a
+  re-expansion over assignments `(X′, J)`, or to the fluctuation integral. For the split `new = delta = 0`,
+  `old = D.B` the statement `LFBdryOldInput` is the whole of `LFBdryInput` for `Λ`; for an arbitrary `Λ` it is false
+  (take `B` large). So O1 cannot be proved from `norm_sum_le_of_transfer`, the transfer lemmas and `G2_XFin`: the
+  hypotheses `hT` (the bound P6 (4.34) of each assignment), `hsize` (the transfer with patches) and `hent` are about
+  objects that do not exist as definitions: the assignment set at an output label, the coefficient `T a` of an
+  assignment (the old term integrated against the marked expansion, P3 (4.41)–(4.48)), and the identification of
+  `Sb.old` with their sum.
+  What is proved and usable: the geometry (`exists_transfer_fineValidAt` for `hsize` with `m(a) = 0`, `transfer_patches` for
+  patches, `le_d7SizeAt_of_reach` for `hmin`, `norm_sum_le_of_transfer` for the ledger) and the entropy core `G2_XFin`
+  for `hent` (the sum over the old labels `X′` containing a root cell of `Y`: at most `#roots · K₀`, `#roots ≤ c₁(1 + Dp)`
+  by `DjModFin.cellCount_le`, which costs a factor `(1 + Dp)` absorbed by lowering `κ_o`).
+  To close (iii) the following definitions are needed first (each a source definition, none a step of a proof):
+  (a) the old part of the step's boundary terms as a defined object: for the record's term `ℬ^{(k)}(X′)` the coefficient of
+  the re-expansion at an output label `Y`, `old B Y = ∑_{(X′, J) ↦ Y} T(X′, J)`, with `T` the P6 (4.32) integral;
+  (b) `Λ.B` defined by `new + delta + old` (so that `sum_eq` is a theorem, not a field); (c) the assignment set and its
+  transfer map (`transferLabel` with the optimal cover and the mark patches, a choice made covariantly).
+  Then O1 is the estimate P6 (4.34) for `T`, which is analytic (the fluctuation machinery of `Fluctuation/StepActivity*`,
+  `ClassOldTerm*`), and O5 is the counting above.
 
 ## LastIntegralInput sub-inputs (W1108)
 
