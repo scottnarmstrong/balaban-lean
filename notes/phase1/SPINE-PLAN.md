@@ -142,6 +142,8 @@ R7′ and R9 are with Scott; R-N₁ should be asked now. Wave 1 starts as W1126 
   gas, (c)–(f): milestone `ClassStepInput` at general `d, N`; 23–26 A6-3 (a), (b), (c), (e), A6-4 (a)(b), (d); 27–30 ★ A4f-1 (2), (4), A7-1 (b)–(e),
   A7-2 (d).
 
+**Re-estimate (2026-10-19, evening).** Landed today ≈ 14,000 net Lean lines (G for everything the spine cites, ≈ 6,000; R8 parts 1–2; `ΦE`/A4-1g; the LFStep and LFBdry sub-spines; signs and `thr`; window pieces). A4-1b grew from 3,150 to ≈ 8,850 (W1144: the chain proves its coefficients exist, so the route returns them as a formula); rulings R10 and R11 add ≈ 900 of repairs. Net remaining: **≈ 47,000 lines (range 40,000–75,000)**, of which the new mathematics is unchanged at ≈ 10,000.
+
 **Overall estimate.** The tree: ≈ 38,500 lines; cross-cutting: G 6,000, `Φ`/`ΦE` 1,400, witnesses 1,200, R9 repairs ≈ 500: ≈ 9,100. Total
 **≈ 48,000 lines (range 40,000–75,000**; the sub-spines of `ClassStepInput` came to about twice SPINE.md's first ~10,000), Root-C's `C1Star` (≈ 3,000 (?)) not
 included. **New mathematics** (the H rows, ≈ 10,000 lines): A3-1 (a) the first step's small field and (b) the first components' gain (B1, B2);
