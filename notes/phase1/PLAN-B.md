@@ -112,3 +112,16 @@ approved declaration.
   class's general M and K (the corrected `Kphys` of W1101 unchanged in content; only the geometry
   parameters freed), so that `BasePreStepInput`/`BaseFlatStepInput` can be populated from it.
   Recommended: yes.
+
+## Ruling R9 asked (2026-10-19)
+- `sides L K nK j = nK * L^(K-j)` (`LargeField/Def7.lean:72`) uses truncated subtraction, so above the torus
+  horizon (j > K) the torus keeps the size nK instead of being a point, as in the source (the torus of side
+  ℓ/L^j is one point beyond the last scale). Above K the localized histories then evolve by `blockMap` on a
+  torus of size nK, which does not commute with translations by level-K cubes; `QuietStepInput'.real_euclid`
+  fails for nK ≥ 2 (W1124, explicit translation counterexample), so the quiet step data, and with them the
+  class witnesses at the configurations the flow uses (K ≥ 2), cannot be built.
+- Proposal: `sides L K nK j := if j ≤ K then nK * L^(K-j) else 1`; weaken `hsub` to `K < j → n j = 1` in
+  `ImageHist`, `ImageHistBook`, `QuietImage`. The fine torus is unchanged. Cost: `sides` appears in 148 files
+  (full rebuild; some `rfl` proofs may need repair). Alternative without a definition change: extend the quiet
+  kernel along `HistImage` orbits (a rewrite of `QuietStepData`/`QuietLocalInput`, ~1,200 lines).
+  Recommended: the definition fix.
