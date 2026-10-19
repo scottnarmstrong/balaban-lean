@@ -35,6 +35,14 @@ theorem StepTowerG.flCore_scale_mono {d L N : ℕ} [NeZero L] {κmin : ℝ}
       (Cchi d L) T.c₂ T.BG₂ e' :=
   (flCore_stepG T.hd T.hL T.m₁_four (Classical.choice T.core) hk hN hν0 hν).mono he het he' he't
 
+/-- **The core of the general tower at radii `e, e' ≤ t`.** -/
+theorem StepTowerG.core_mono {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    {e e' : ℝ} (he : 0 < e) (het : e ≤ T.t) (he' : 0 < e') (he't : e' ≤ T.t) :
+    Nonempty (FlCore N (GpG d L 9 T.m₁ 1) (HmG d L 9 T.m₁ 1) 1 (νref L) T.c T.BG T.κ e
+      (levelKc d L) (Cchi d L) T.c₂ T.BG₂ e') := by
+  obtain ⟨h⟩ := T.core
+  exact ⟨h.mono he het he' he't⟩
+
 /-- **The core of the tower at radii `e, e' ≤ t`.** -/
 theorem StepTower.core_mono {κmin : ℝ} (T : StepTower κmin) {e e' : ℝ} (he : 0 < e)
     (het : e ≤ T.t) (he' : 0 < e') (he't : e' ≤ T.t) :

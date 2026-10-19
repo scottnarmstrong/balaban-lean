@@ -95,6 +95,29 @@ def BgTransport.self (hG' : IsLevel Gp (k + 1)) : BgTransport Gp Gp N where
 @[simp] theorem BgTransport.self_res (hG' : IsLevel Gp (k + 1))
     (ψh : unitPts Gp × Fin N → ℂ) : (BgTransport.self (N := N) hG').res ψh = ψh := rfl
 
+/-- **The datum of `Gb` is read from every datum of the step**: the datum `T.dat (rawOf D)` of `Gb`
+read by a term from a datum `D` of the step is a datum of `Gb` (constant on the blocks of every layer
+of `Gb`, zero off its data sites), for every `D`.  Typing data of the records of the terms
+recomputed on `Gb`. -/
+def BgTransport.Reads (T : BgTransport Gp Gb N) : Prop :=
+  ∀ D : BgData Gp N, T.dat (rawOf D) ∈ rawSub N Gb
+
+/-- **The step's own transport reads every datum**: the datum read is the datum itself. -/
+theorem BgTransport.reads_self (hG' : IsLevel Gp (k + 1)) :
+    (BgTransport.self (N := N) hG').Reads := fun D => rawOf_mem_rawSub D
+
+/-- **The datum of `Gb` read by a term from the datum `D` of the step**: `T.dat (rawOf D)` as a
+datum of `Gb`. -/
+def BgTransport.gdat (T : BgTransport Gp Gb N) (hT : T.Reads) (D : BgData Gp N) : BgData Gb N :=
+  bgOfRaw (T.dat (rawOf D)) (hT D)
+
+theorem BgTransport.rawOf_gdat (T : BgTransport Gp Gb N) (hT : T.Reads) (D : BgData Gp N) :
+    rawOf (T.gdat hT D) = T.dat (rawOf D) := rfl
+
+/-- **For the step's own transport the datum read is the datum itself** (definitionally). -/
+theorem BgTransport.gdat_self (hG' : IsLevel Gp (k + 1)) (D : BgData Gp N) :
+    (BgTransport.self (N := N) hG').gdat (BgTransport.reads_self hG') D = D := rfl
+
 open Classical in
 /-- **The extension by zero** of a field of the unit lattice of `Gb` to the fine torus: the value
 at a site is that of its unit block when the block is a unit point of `Gb`, and `0` otherwise. -/
@@ -183,16 +206,6 @@ theorem mem_unitPts_of_isLevel (hG' : IsLevel Gp (k + 1)) (b : UnitTorus d L N�
   obtain ⟨x, hx⟩ := exists_unitBlock_eq (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) b
   exact (mem_unitPts Gp).2 ⟨x, hG'.mem_layer x, hx⟩
 
-/-- **The cut-off to the data of a level set is the identity.** -/
-theorem clipRaw_isLevel (hG' : IsLevel Gp (k + 1)) (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) :
-    clipRaw Gp r = r := by
-  classical
-  have h1 : ∀ x, x ∈ dataSites Gp := fun x => (mem_dataSites Gp).2 (Or.inl (hG' x).1)
-  have h2 : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
-  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-  · simp [clipRaw, h1 x]
-  · simp [clipRaw, h2 x]
-
 /-- **At a level set the canonical transport is the step's own transport.** -/
 theorem BgTransport.canon_eq_self (hG' : IsLevel Gp (k + 1)) :
     BgTransport.canon Gp Gp N = BgTransport.self hG' := by
@@ -213,7 +226,7 @@ theorem BgTransport.canon_eq_self (hG' : IsLevel Gp (k + 1)) :
     funext p
     rw [resZ_apply, dite_eq_left p.1.2]
     rfl
-  · exact LinearMap.ext fun r => clipRaw_isLevel hG' r
+  · exact LinearMap.ext fun r => clipRaw_of_isLevel hG' r
 
 
 open Classical in

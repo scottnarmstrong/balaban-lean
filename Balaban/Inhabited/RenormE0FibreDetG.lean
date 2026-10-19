@@ -164,7 +164,7 @@ theorem StepTowerThetaG.renE0_fibre_det_at (T : StepTowerThetaG d L N κmin)
         (E z).detGrouped (renThetaDatum (T.step k hk N₁ ν β p₁) e D ξ) X := by
       symm
       refine Finset.sum_subset (Finset.subset_univ _) fun X _ hX => ?_
-      unfold DetExpansionLocC.detGrouped detCollarGrouped
+      unfold DetExpansionLocC.detGrouped DetExpansionLocCBg.detGrouped detCollarGrouped
       refine Finset.sum_eq_zero fun T' hT' => absurd ?_ hX
       rw [← mem_detCollarFibre.1 hT']
       exact Finset.mem_image_of_mem _ (Finset.mem_univ _)

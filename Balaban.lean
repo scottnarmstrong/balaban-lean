@@ -2898,6 +2898,7 @@ public import Balaban.Spine.LFBdryHole
 public import Balaban.Spine.LFBdry
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
+public import Balaban.Fluctuation.DirectTermsBg
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
 public import Balaban.LargeField.R.WindowDomKernel
