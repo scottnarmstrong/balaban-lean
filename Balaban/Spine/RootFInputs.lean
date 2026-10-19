@@ -94,6 +94,21 @@ scoped macro "𝒟[" d:term ", " N:term ", " T:term ", " β:term ", " a:term ", 
       EuclideanSpace ℝ (Fin $N)) →
     (GIdx 𝒮[$d, $T, $β, $a] (sides (Typing.L $T) $K nK) (Typing.M $T) $K $N → ℂ) → ℂ)
 
+/-- **The vacuum flow up to a scale** (P4 (2.1), (2.41), (2.63); rulings R5, R5′): the scale-indexed
+vacuum constants `E_j`, `j ≤ r`, satisfy `|E_j| ≤ C (log β_j + 1)`. The class predicates carry such a
+flow with the constant `C_b` of the bound (S0) (`OpConsts.Cb`), which LFR Theorem IV.1.1 (f) defines
+from the vacuum constants among others. It is the flow to which the vacuum constants of the step data
+of the creating steps are tied (`StepData.VacuumTie`; the tie of the records is `VacuumTied`,
+`Spine/RStep.lean`, which is to be restated on this flow). The flow is indexed by the scale, unlike
+the constant `SFData.E`, which is indexed by the Def-6 torus. -/
+def VacuumFlowTo (C : ℝ) (E βs : ℕ → ℝ) (r : ℕ) : Prop :=
+  ∀ j, j ≤ r → |E j| ≤ C * (Real.log (βs j) + 1)
+
+/-- The zero flow satisfies the bound when its right side is nonnegative (rule 10). -/
+theorem vacuumFlowTo_zero {C : ℝ} {βs : ℕ → ℝ} {r : ℕ}
+    (h : ∀ j, j ≤ r → 0 ≤ C * (Real.log (βs j) + 1)) : VacuumFlowTo C (fun _ => 0) βs r :=
+  fun j hj => by simpa using h j hj
+
 /-!
 ### The clauses of the observable form, and the body of the frozen-regime class
 -/
@@ -187,35 +202,19 @@ def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : Bud
   FlatRepGen d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ _ _ => νk ≤ 9 / 10) hM6 hkK R geo cs P F
     St vc ρ νk
 
-/-- **The vacuum flow up to a scale** (P4 (2.1), (2.41), (2.63); rulings R5, R5′): the scale-indexed
-vacuum constants `E_j`, `j ≤ r`, satisfy `|E_j| ≤ C (log β_j + 1)`. The class predicates carry such a
-flow with the constant `C_b` of the bound (S0) (`OpConsts.Cb`), which LFR Theorem IV.1.1 (f) defines
-from the vacuum constants among others; the step data of the creating steps are tied to it
-(`VacuumTied`, `Spine/RStep.lean`). The flow is indexed by the scale, unlike the constant
-`SFData.E`, which is indexed by the Def-6 torus. -/
-def VacuumFlowTo (C : ℝ) (E βs : ℕ → ℝ) (r : ℕ) : Prop :=
-  ∀ j, j ≤ r → |E j| ≤ C * (Real.log (βs j) + 1)
-
-/-- The zero flow satisfies the bound when its right side is nonnegative (rule 10). -/
-theorem vacuumFlowTo_zero {C : ℝ} {βs : ℕ → ℝ} {r : ℕ}
-    (h : ∀ j, j ≤ r → 0 ≤ C * (Real.log (βs j) + 1)) : VacuumFlowTo C (fun _ => 0) βs r :=
-  fun j hj => by simpa using h j hj
-
 /-- **The a priori horizon `k̂_f`** (LFR (I.1), D-IV.1): the least `k` with `ν L^{2k+2} ≥ 1`.
 Root-F's `kf` is `k̂_f`; the flow runs on the tori with `M L^{k̂_f + 1} ∣ ℓ`. -/
 def IsHorizon (L : ℕ) (ν : ℝ) (kf : ℕ) : Prop :=
   1 ≤ ν * (L : ℝ) ^ (2 * kf + 2) ∧ ∀ k < kf, ν * (L : ℝ) ^ (2 * k + 2) < 1
 
-/-- **The data of a member of the class `ℛ_k` at the constants of the prefix** (LFR Definition
-II.6.2, second version `IsRep2`; regime `k ≤ k₀`; the body of `RepClassAt`, with its witnesses as
-fields, so that the step inputs can speak about them): `ρ` has a representation `F` on the tori of the horizon `K = kf + 1` for
+/-- **The class `ℛ_k` at the constants of the prefix** (LFR Definition II.6.2, second version
+`IsRep2`; regime `k ≤ k₀`): `ρ` has a representation `F` on the tori of the horizon `K = kf + 1` for
 the a priori setting `𝒮[d, T, β, a]`, the a priori regime index `kZero d L β ν`, the outer constants
 `P6, C7` and the outer parts `cs₀, PB, M1, c` of the operator, budget and geometric constants, whose
 running small-field coefficients start from the bare couplings (`β_0 = β`, `ν_0 = ν`) and satisfy
 (I.2) up to the scale `k` (`RunningHypTo`, `ε = 1/20`, LFR (A-IV.2)), and whose large-field data are
 torus coherent (`LFCoherent`, the large-field half of (D8), LFR D-IV.9; the small-field half is the
-clause `coherent` of `IsRep2`); `νk` is its running mass `ν_k` at scale `k`; it carries a vacuum
-flow `E_j`, `j ≤ k`, with `|E_j| ≤ C_b (log β_j + 1)` (`VacuumFlowTo`, rulings R5, R5′). -/
+clause `coherent` of `IsRep2`); `νk` is its running mass `ν_k` at scale `k`. -/
 structure RepRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
     [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) where
@@ -247,7 +246,10 @@ structure RepRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB 
   Ev : ℕ → ℝ
   vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k
 
-/-- **The class `ℛ_k` at the constants of the prefix**: the existence of a record `RepRec`. -/
+/-- **The class `ℛ_k` at the constants of the prefix**: the existence of a record `RepRec` (the body,
+with its witnesses as fields so that the step inputs can speak about them; as `PreClassAt` and
+`PreRec`). The record carries the vacuum flow `E_j`, `j ≤ k`, with `|E_j| ≤ C_b (log β_j + 1)`
+(`VacuumFlowTo`, rulings R5, R5′). -/
 def RepClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k : ℕ)
     [NeZero T.M] [NeZero T.L] (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
