@@ -260,7 +260,8 @@ root `z`, with the joint representation `Jr` at the radius `t`: the zero-source 
 inherited levels `O`; the thick activities `AC` of the domains `𝒴C` of the inherited polymers
 (`hAC`: on the chart they are the explicit family `H` of the localized old terms `hH`); the marks
 `G₁` of the old terms (`hG₁`) and the bridge marks of the decoupling pairs `F₁`, `Sol` (`hF₁`,
-`hSol`); and the old terms are the old terms of `C` (`hEJ`: they sum to the inherited energy). -/
+`hSol`), both local (`hG₁dep`, `hbrdep`); and the old terms are the old terms of `C` (`hEJ`: they
+sum to the inherited energy). -/
 structure NewLevelSystem (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
     (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp) where
   hp : 0 < S.p₁
@@ -334,6 +335,15 @@ structure NewLevelSystem (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d
       ((stepG d L N₁ m₁ k ϱ).Ω 1 × Fin N → ℂ) × ((stepG d L N₁ m₁ k ϱ).Ω 1 → ℂ)
   hF₁ : ∀ b, DecFieldPin S κ BG (F₁ (z, b))
   hSol : ∀ b, DecSolPin S κ BG₂ (2 * (K4 d L N BG κ * (xiC1 d * t))) t (Sol (z, b))
+  /-- the locality of the marks of the old terms: the mark of `q` depends only on the blocks of its
+  bridge -/
+  hG₁dep : ∀ θ q u, DepOn (blocksOf 1 (k + 1) Set.univ (bridge 1 z q.1.2)) (G₁ θ q u)
+  /-- the locality of the bridge marks: the mark of the bridge `i` depends only on its blocks -/
+  hbrdep : ∀ θ (i : {Y' // Y' ∈ bridgeFamily 1
+      (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
+        (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z}) u,
+    DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+      (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z t θ i u)
 
 namespace NewLevelSystem
 
@@ -414,6 +424,18 @@ noncomputable def G (θ : physParam N S) :
       ℂ → (∀ b, (S.blockSplit 1 NS.hp).Ωb b) → ℂ :=
   Sum.elim (fun i u Φ => e1MarkGParamG S (fun b => NS.F₁ (z, b)) (fun b => NS.Sol (z, b))
     NS.p₁ NS.hp z t θ i u Φ) (NS.G₁ θ)
+
+/-- **The locality of the marks of the new level**: the mark of the anchor `i` depends only on the
+blocks of the site set of its label (the fields `hbrdep`, `hG₁dep`). -/
+theorem G_dep (θ : physParam N S)
+    (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
+      (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
+      {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
+        (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}) (u : ℂ) :
+    DepOn (blocksOf 1 (k + 1) Set.univ (NS.Lab.ysite (NS.y0 i))) (NS.G θ i u) := by
+  rcases i with i | q
+  · exact NS.hbrdep θ i u
+  · exact NS.hG₁dep θ q u
 
 /-- **The coefficient of the system** (P3 (4.41)-(4.47), P4 (2.56)): the determinant part of the
 block of the root plus the interpolation coefficient of the marked cluster expansion with the
