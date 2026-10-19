@@ -22,38 +22,37 @@ import Mathlib.Tactic.Positivity
 each one clause of the source's construction, at general `d, N` on the class carriers.
 
 **The construction map.** As for the small-field half (`Φ`, `ΦE`), the parts are properties of one
-construction: the clause (D1) of the step density holds only for the histories, kernels, kept data
-and boundary terms that the step constructs, and the other clauses (bounds, coherence) do not
-determine these data. So the sub-spine takes the large-field data of the successor as a map `Λ`
-(`LFStepMap`): for every record `rec` of `ℛ_k` the raw data `LFStepRaw` on every torus of the family
-(the histories `𝔄'`, the exponents `κ_j` of the kept bound, the step kernels `(K_j, b_j)`, the kept
-data, the boundary terms `ℬ^{(k+1)}`, the vacuum normalization `s`). A `Rep` also contains proofs
-((S0)–(S3) are fields of `StepData`, `KeptData`), so the map gives the data, and the parts assert
-that step and kept data with these data exist (LFR Lemma IV.1.4, Lemma II.5.14, (S0), (S3)).
+construction: the clause (D1) of the step density holds only for the histories, kernels and
+boundary terms that the step constructs, and the other clauses (bounds, coherence) do not determine
+these data. So the sub-spine takes the large-field data created by the step as a map `Λ`
+(`LFStepMap`): for every record `rec` of `ℛ_k` the data `LFStepRaw` on every torus of the family
+(the histories `𝔄'`, the step kernels `(K_j, b_j)`, the boundary terms `ℬ^{(k+1)}`, the vacuum
+normalization `s`). A `Rep` also contains proofs ((S0)–(S2) are fields of `StepData`), so the map
+gives the data, and a part asserts that step data with these kernels exist.
 
-**Maps and existentials** (rule: what the source defines by a formula is a map, what it only asserts
-to exist is an existential inside the part):
+**Maps, definitions and existentials** (rule: what the source defines by a formula is a map, what it
+only asserts to exist is an existential inside the part):
 * maps, fields of `LFStepRaw`: the histories (LF-3 (c): the histories of `rep` followed by every step
   record and the hull closure), the step kernels (LF-3 (d): the quiet kernels and the kernels of
   P5 (2.47)·P6 (3.2) with the local background, the boundary factors of P6 (2.32)–(2.33), (3.3)),
-  the kept data and their exponents (no kept data are created by a step: those of `rep`, pinned to
-  `κ^pre`), the boundary terms `ℬ^{(k+1)}` (LFR Lemma IV.1.5: the three kinds of P5 p. 512, P6
-  pp. 14–15), the normalization `s = L^d E_k - e₀/|T^{(k+1)}_1|` (`Spine/SFVacuum.lean`);
-* defined here: the operator constants `cs' = succOpConsts` and the budget constants
-  `P' = succBudgetConsts` (the running constants of the image `Φ rec.F.sf`, LFR §II.1.1), so that
-  `Coh`, `FieldClauses` and the ties to the outer constants are proved, not asked;
+  the boundary terms `ℬ^{(k+1)}` (LFR Lemma IV.1.5: the three kinds of P5 p. 512, P6 pp. 14–15), the
+  normalization `s = L^d E_k - e₀/|T^{(k+1)}_1|` (`Spine/SFVacuum.lean`);
+* defined here (formulas whose clauses are then proved, not asked): the operator constants
+  `cs' = succOpConsts` and the budget constants `P' = succBudgetConsts` (those of `rec` at the scales
+  `≤ k`, the running constants of the image `Φ rec.F.sf` at `k + 1`, LFR §II.1.1), and the kept data
+  `succKD` with the exponents of `rec` ("no kept data are created by a step": the kept data of `rec`
+  restricted to the scales `≤ k`, `KeptData.upTo`, which is (S3) at `cs'`);
 * existentials inside a part: the Gaussian witnesses of (S1), the remainder `b⁰` and the offsets
   `δ″, δ‴` of the vacuum constants (inside `LFStepDataInput`: read by no other part; `b⁰` is
-  determined by `b_vac`), the proofs of (S0)–(S3) (the structures `StepData`, `KeptData`), and the
-  coefficient data `St', vc'` (P1 (3.106)–(3.110): thermodynamic limits that the source asserts to
-  exist, inside `LFCorrInput`; the form clause is asked for every `vc'` with `D1CorrLim`, which
-  determines `vc'` at the scales the form reads).
+  determined by `b_vac`), the proofs of (S0)–(S2) (the structure `StepData`), and the coefficient
+  data `St', vc'` (P1 (3.106)–(3.110): thermodynamic limits that the source asserts to exist, inside
+  `LFCorrInput`; the form clause is asked for every `vc'` with `D1CorrLim`, which determines `vc'` at
+  the scales the form reads).
 
 **The parts** (statements below; sources in the docstrings; status in `notes/phase1/SPINE.md`):
 * `LFHistInput` (LF-3 (c)): the histories are complete up to `k + 1`;
 * `LFStepDataInput` (row (g1); Lemmas IV.1.3, IV.1.4, IV.1.6, Lemma II.5.14; R5, R5′): step data
   (S0)–(S2) with the kernels of the map, tied to the vacuum flow extended by `ΦE`;
-* `LFKeptInput` (row (g1), (S3)): kept data with the kept data of the map;
 * `LFBdryInput` (row (g2); Lemma IV.1.5): (D7) of the boundary terms at the physical field;
 * `LFBdrySrcInput` (row (g5); blocker 2, leaf 5): (D7) at the other fields of the pinned ball;
 * `LFFormInput` (row (g3); P5 (1.8), (1.26), P5 §§2–3, P6 §§2–3): (D1) of the step density;
@@ -64,6 +63,7 @@ to exist is an existential inside the part):
   counter history truncated at `k + 1` (`Rep.budgetPre_of_LF2_trunc`), `lfBudgetInput_of_pin`;
 * `LFCoherenceInput` (row (h); LF-3 (h), D-IV.9): `LFCoherent` of the successor;
 * `LFCorrInput` (row (h); P1 (3.110)): the coefficient data of the image exist.
+The kept data (row (g1), (S3)) are not a part: `succKD` is proved to be kept data.
 
 **Proved in the assembly**: the existential package of `LFStepInput`; `cs'`, `P'` and their seven
 ties to the outer constants; `Coh` and `FieldClauses` at `k + 1` (`coh_succ`, `field_succ`); (D2),
@@ -83,7 +83,8 @@ the vacuum tie of the input's step data at the old steps (in `LFStepDataInput`; 
 A4-2v, `VacuumB0Bound`, blocked on ruling R10: `norm_stepVacuumTerm_le_of_stepData`) and `z_j > 0` at
 the old scales (in `LFSignInput`).
 
-Rule 10: `LFStepRaw` is inhabited (`LFStepRaw.zero`), `D7BdryBall` is (`d7BdryBall_of_hist_eq_empty`);
+Rule 10: `LFStepRaw` is inhabited (`LFStepRaw.zero`), `Matches` (`LFStepRaw.matches_zero`) and
+`D7BdryBall` (`d7BdryBall_of_hist_eq_empty`) are satisfiable;
 the parts and the combinators `LFImageInput`, `RepRec.SuccFams` need the exemption of the spine inputs.
 -/
 
@@ -96,34 +97,25 @@ open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.La
 namespace Balaban.RootFSpine
 
 /-!
-### The raw large-field data of the successor
+### The large-field data created by a step
 -/
 
 section Raw
 
 variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] {N : ℕ}
 
-/-- **The large-field data of a representation at the scale `k` on the tori of a family**, without
-the proofs that `Rep` carries (LFR Definition II.6.1): on every torus `n_K` the histories `𝔄`, the
-exponents `κ_j(Z, 𝔞)` of the kept bound, the step kernels and boundary factors `(K_j, b_j)(Z', 𝔞)`,
-the kept data (the variables `I''` and kernels, `C_dec`, `γ_j`), the boundary terms `ℬ^{(k)}`; and
-the vacuum normalization `s` of the step density that the data represent. -/
+/-- **The large-field data created by a step**, at the scale `k` on the tori of a family, without the
+proofs that `Rep` carries (LFR Definition II.6.1; LF-3 (c), (d)): on every torus `n_K` the histories
+`𝔄`, the step kernels and boundary factors `(K_j, b_j)(Z', 𝔞)` and the boundary terms `ℬ^{(k)}`; and
+the vacuum normalization `s` of the step density that they represent. The kept data and their
+exponents are not created by a step: those of the successor are the input's (`KeptData.upTo`). -/
 structure LFStepRaw (S : Setting) (R : ℕ → ℝ) (k0 K M : ℕ) [NeZero M] [NeZero S.L] (N k : ℕ) where
   /-- the histories `𝔄` -/
   hist : ∀ (nK : ℕ) [NeZero nK], Finset (LabHist S (sides S.L K nK) R k0 K)
-  /-- the exponents `κ_j(Z, 𝔞)` of the kept bound -/
-  κK : ∀ (nK : ℕ) [NeZero nK], ℕ → LocalHistory S (sides S.L K nK) M K → ℝ
   /-- the step kernels and boundary factors -/
   ker : ∀ (nK : ℕ) [NeZero nK] (j : ℕ) (a : LocalHistory S (sides S.L K nK) M K),
     LFKernel (OutT N R a (j + 1)) (NewCfg N a j) (EuclideanSpace ℝ (Fin N))
       (GIdx S (sides S.L K nK) M K N)
-  /-- the kept variables and kernels -/
-  datum : ∀ (nK : ℕ) [NeZero nK] (j : ℕ) (a : LocalHistory S (sides S.L K nK) M K), Fin 5 →
-    KeptDatum N R a j
-  /-- the numbers `C_dec(ϰ)` -/
-  Cdec : ∀ (nK : ℕ) [NeZero nK], Fin 5 → ℝ
-  /-- the kept exponents `γ_j(ϰ)` -/
-  gam : ∀ (nK : ℕ) [NeZero nK], ℕ → Fin 5 → ℝ
   /-- the boundary terms `ℬ^{(k)}(X, 𝔸)` -/
   B : ∀ (nK : ℕ) [NeZero nK], BTerms S (sides S.L K nK) R k0 K M N k
   /-- the vacuum normalization of the step density -/
@@ -133,18 +125,10 @@ namespace LFStepRaw
 
 variable {k : ℕ}
 
-/-- **The zero data** (rule 10): no histories, zero kernels, kept data with all variables kept, zero
-kernels and the constants of `zeroKeptData`, zero boundary terms. -/
+/-- **The zero data** (rule 10): no histories, zero kernels, zero boundary terms. -/
 noncomputable def zero : LFStepRaw S R k0 K M N k where
   hist := fun _ _ => ∅
-  κK := fun _ _ _ _ => 0
   ker := fun _ _ _ _ => zeroKer _ _ _ _
-  datum := fun _ _ _ _ _ =>
-    { Ikeep := Set.univ
-      contains := fun _ _ => Set.mem_univ _
-      ker := zeroKer _ _ _ _ }
-  Cdec := fun _ _ _ => 5
-  gam := fun _ _ j _ => S.A3' * S.lam j ^ S.pR + Real.log 5
   B := fun _ _ _ _ _ _ _ _ => 0
   s := 0
 
@@ -153,40 +137,41 @@ instance : Nonempty (LFStepRaw S R k0 K M N k) := ⟨zero⟩
 variable (D : LFStepRaw S R k0 K M N k)
   {geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M} {cs : OpConsts} {P : BudgetConsts}
 
-/-- The representation on the torus `n_K` with the data of `D`, the step data `SD` and the kept
-data `KD`. -/
-def rep (nK : ℕ) [NeZero nK] (SD : StepData k0 (geo nK) cs N (kappaStepLoc (K := K) S P M))
-    (KD : KeptData k0 (geo nK) cs N (D.κK nK) S.lam) :
+/-- The representation on the torus `n_K` with the data of `D`, the kept exponents `κK`, the step
+data `SD` and the kept data `KD`. -/
+def rep (nK : ℕ) [NeZero nK] (κK : ℕ → LocalHistory S (sides S.L K nK) M K → ℝ)
+    (SD : StepData k0 (geo nK) cs N (kappaStepLoc (K := K) S P M))
+    (KD : KeptData k0 (geo nK) cs N κK S.lam) :
     Rep S (sides S.L K nK) R k0 K M N (geo nK) cs P k where
   hist := D.hist nK
-  κK := D.κK nK
+  κK := κK
   SD := SD
   KD := KD
   B := D.B nK
 
-/-- The step data and the kept data on every torus carry the data of `D`: the kernels `ker`, the
-kept data `datum`, `C_dec`, `γ` (the other data of `StepData`, `KeptData` are read by no clause of
-`IsRepPre2` or `LFCoherent` other than (S0)–(S3) themselves). -/
-def Matches (SD : ∀ (nK : ℕ) [NeZero nK], StepData k0 (geo nK) cs N (kappaStepLoc (K := K) S P M))
-    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (D.κK nK) S.lam) : Prop :=
-  ∀ (nK : ℕ) [NeZero nK], (SD nK).ker = D.ker nK ∧ (KD nK).datum = D.datum nK ∧
-    (KD nK).Cdec = D.Cdec nK ∧ (KD nK).gam = D.gam nK
+/-- The step data on every torus carry the kernels of `D` (the other data of `StepData` are read by
+no clause of `IsRepPre2` or `LFCoherent` other than (S0)–(S2) themselves: the operators read the step
+data only through `ker`, `preOpTop_congr`). -/
+def Matches (SD : ∀ (nK : ℕ) [NeZero nK], StepData k0 (geo nK) cs N (kappaStepLoc (K := K) S P M)) :
+    Prop :=
+  ∀ (nK : ℕ) [NeZero nK], (SD nK).ker = D.ker nK
 
 /-- **`Matches` is satisfiable** (rule 10): the zero data are carried by the zero step data (horizon
-`K ≤ 1`, `C_b = 0`) and the zero kept data. -/
+`K ≤ 1`, `C_b = 0`). -/
 theorem matches_zero (hK : K ≤ 1) (hCb : cs.Cb = 0) :
     (zero : LFStepRaw S R k0 K M N k).Matches (geo := geo) (P := P)
-      (fun nK _ => zeroStepData (geo nK) cs hK hCb _) (fun nK _ => zeroKeptData (geo nK) cs _ S.lam) :=
-  fun _ _ => ⟨rfl, rfl, rfl, rfl⟩
+      (fun nK _ => zeroStepData (geo nK) cs hK hCb _) :=
+  fun _ _ => rfl
 
 /-- The family of representations with the small-field data `sf` and, on every torus, the data of
-`D` with the step data `SD` and the kept data `KD`. -/
+`D` with the kept exponents `κK`, the step data `SD` and the kept data `KD`. -/
 def fam {m₁ : ℕ} {ϱ : ℝ} (sf : SFData S.d S.L m₁ k N ϱ)
+    (κK : ∀ (nK : ℕ) [NeZero nK], ℕ → LocalHistory S (sides S.L K nK) M K → ℝ)
     (SD : ∀ (nK : ℕ) [NeZero nK], StepData k0 (geo nK) cs N (kappaStepLoc (K := K) S P M))
-    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (D.κK nK) S.lam) :
+    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (κK nK) S.lam) :
     RepFam S R k0 K M N geo cs P k m₁ ϱ where
   sf := sf
-  lf := fun nK _ => D.rep nK (SD nK) (KD nK)
+  lf := fun nK _ => D.rep nK (κK nK) (SD nK) (KD nK)
 
 end LFStepRaw
 
@@ -198,77 +183,102 @@ end Raw
 
 section Consts
 
-/-- **A sequence frozen after the scale `r`**: `f_j` for `j ≤ r`, `f_r` beyond (the class at the
-scale `r` reads its running constants only at the scales `≤ r`). -/
-def frozenAfter (f : ℕ → ℝ) (r : ℕ) : ℕ → ℝ := fun j => f (min j r)
+/-- A sequence of scale `k` followed by `e` at `k + 1` takes the values of `f` at `j ≤ k + 1` if it
+agrees with `f` at `j ≤ k` and `e = f (k + 1)`. -/
+theorem vacExt_eq_of_le_succ {E f : ℕ → ℝ} {k j : ℕ} {e : ℝ} (hE : ∀ i, i ≤ k → E i = f i)
+    (he : e = f (k + 1)) (hj : j ≤ k + 1) : vacExt E k e j = f j := by
+  by_cases h : j ≤ k
+  · rw [vacExt_of_le _ h]
+    exact hE j h
+  · obtain rfl : j = k + 1 := by omega
+    rw [vacExt_succ]
+    exact he
 
-theorem frozenAfter_of_le (f : ℕ → ℝ) {r j : ℕ} (h : j ≤ r) : frozenAfter f r j = f j := by
-  simp [frozenAfter, Nat.min_eq_left h]
+/-- `δ_j` reads the coupling at `j` only. -/
+theorem deltaRun_congr {A0 a : ℝ} {p0 : ℕ} {b b' : ℕ → ℝ} {j : ℕ} (h : b j = b' j) :
+    deltaRun A0 p0 a b j = deltaRun A0 p0 a b' j := by
+  simp only [deltaRun, pZero, runLam, h]
 
-variable {S : Setting} [NeZero S.L] {m₁ r N : ℕ} {ϱ : ℝ}
+/-- `p₀(β_j)` reads the coupling at `j` only. -/
+theorem pZero_congr {A0 a : ℝ} {p0 : ℕ} {b b' : ℕ → ℝ} {j : ℕ} (h : b j = b' j) :
+    pZero A0 p0 a b j = pZero A0 p0 a b' j := by
+  simp only [pZero, runLam, h]
 
-/-- **The operator constants of the successor** (LFR §II.1.1, Definition II.1.1): the running
-constants of the small-field data `sf` of the scale `r` (couplings `β_j`, masses, `ν_j`, `z_j`, the
-tolerances `δ_j` and `p₀(β_j)` computed from `β_j`), frozen after `r`; the cutoff mass is `bgMass`
-(zero below `k₀`), the background and action masses are the physical `ν_j L^{-2j}` (ruling R2); the
+variable {S : Setting} [NeZero S.L] {m₁ N : ℕ} {ϱ : ℝ}
+
+/-- **The operator constants of the successor** (LFR §II.1.1, Definition II.1.1): those of `cs` (the
+input's) at the scales `j ≤ k`; at `k + 1` the running constants of the small-field data `sf'` of the
+scale `k + 1` (the coupling `β_{k+1}`, the mass `ν_{k+1}`, `z_{k+1}`, the tolerances `δ_{k+1}`, `p₀(β_{k+1})`
+computed from `β_{k+1}`, the cutoff mass `bgMass` (zero below `k₀`), the background and action masses
+`ν_{k+1} L^{-2(k+1)}`, ruling R2), kept beyond `k + 1` (`vacExt`; never read at the scale `k + 1`); the
 non-running constants (`a_n`, `C_ψ`, `a`, `C_b`, `B₀`) are those of `cs`. -/
-noncomputable def succOpConsts (S : Setting) [NeZero S.L] (k0 : ℕ) (A0 : ℝ) (cs : OpConsts)
-    (sf : SFData S.d S.L m₁ r N ϱ) : OpConsts where
+noncomputable def succOpConsts (S : Setting) [NeZero S.L] (k0 : ℕ) (A0 : ℝ) (cs : OpConsts) (k : ℕ)
+    (sf' : SFData S.d S.L m₁ (k + 1) N ϱ) : OpConsts where
   aw := cs.aw
-  mu := frozenAfter (bgMass k0 S.L sf.ν) r
-  muBg := frozenAfter (fun j => sf.ν j / (S.L : ℝ) ^ (2 * j)) r
-  muAct := frozenAfter (fun j => sf.ν j / (S.L : ℝ) ^ (2 * j)) r
-  nu := frozenAfter sf.ν r
-  delta := frozenAfter (deltaRun A0 S.p0 cs.aKer sf.β) r
-  p0 := frozenAfter (pZero A0 S.p0 cs.aKer sf.β) r
+  mu := vacExt cs.mu k (bgMass k0 S.L sf'.ν (k + 1))
+  muBg := vacExt cs.muBg k (sf'.ν (k + 1) / (S.L : ℝ) ^ (2 * (k + 1)))
+  muAct := vacExt cs.muAct k (sf'.ν (k + 1) / (S.L : ℝ) ^ (2 * (k + 1)))
+  nu := vacExt cs.nu k (sf'.ν (k + 1))
+  delta := vacExt cs.delta k (deltaRun A0 S.p0 cs.aKer sf'.β (k + 1))
+  p0 := vacExt cs.p0 k (pZero A0 S.p0 cs.aKer sf'.β (k + 1))
   Cpsi := cs.Cpsi
-  beta := frozenAfter sf.β r
-  z := frozenAfter sf.z r
+  beta := vacExt cs.beta k (sf'.β (k + 1))
+  z := vacExt cs.z k (sf'.z (k + 1))
   aKer := cs.aKer
   Cb := cs.Cb
   B0 := cs.B0
 
-/-- **The budget constants of the successor**: `c₁, c₂, H₀` of `P` and the couplings of `sf`, frozen
-after `r`. -/
-noncomputable def succBudgetConsts (P : BudgetConsts) (sf : SFData S.d S.L m₁ r N ϱ) :
+/-- **The budget constants of the successor**: `c₁, c₂, H₀` of `P`, the couplings of `P` at the
+scales `j ≤ k` and `β_{k+1}` of `sf'` after. -/
+noncomputable def succBudgetConsts (P : BudgetConsts) (k : ℕ) (sf' : SFData S.d S.L m₁ (k + 1) N ϱ) :
     BudgetConsts where
   c1 := P.c1
   c2 := P.c2
   H0 := P.H0
-  beta := frozenAfter sf.β r
+  beta := vacExt P.beta k (sf'.β (k + 1))
 
 variable {R : ℕ → ℝ} {k0 M : ℕ} {cs : OpConsts} {P : BudgetConsts} {P6 : Def6.Consts}
   {C7 : Consts7} {β ν : ℝ} {k : ℕ} {sf : SFData S.d S.L C7.m₁ k N ϱ}
   {sf' : SFData S.d S.L C7.m₁ (k + 1) N ϱ}
 
 /-- **`Coh` at the successor**: the coherence of the constants of the successor with its small-field
-data `sf'` (whose kernel coefficients follow the free flow up to `k + 1`), from the coherence of
-the input (the typing and a priori data, `B₀`). -/
-theorem coh_succ (hcoh : Coh S R k0 M cs P P6 C7 β ν k sf)
+data `sf'`, which keep the couplings, masses and field renormalizations of `sf` at the scales `j ≤ k`
+and whose kernel coefficients follow the free flow up to `k + 1`, from the coherence of the input. -/
+theorem coh_succ (hcoh : Coh S R k0 M cs P P6 C7 β ν k sf) (hβ : ∀ j, j ≤ k → sf'.β j = sf.β j)
+    (hν : ∀ j, j ≤ k → sf'.ν j = sf.ν j) (hz : ∀ j, j ≤ k → sf'.z j = sf.z j)
     (ha : ∀ j, 1 ≤ j → j ≤ k + 1 → sf'.a j = compWeight S.L cs.aKer j) :
-    Coh S R k0 M (succOpConsts S k0 C7.A0 cs sf') (succBudgetConsts P sf') P6 C7 β ν (k + 1) sf'
-    where
+    Coh S R k0 M (succOpConsts S k0 C7.A0 cs k sf') (succBudgetConsts P k sf') P6 C7 β ν (k + 1)
+      sf' where
   M_eq := hcoh.M_eq
   M_pow := hcoh.M_pow
   lam_eq := hcoh.lam_eq
   R_eq := hcoh.R_eq
   k0_eq := hcoh.k0_eq
   a_free := ha
-  beta_cs := fun _ hj => frozenAfter_of_le _ hj
-  beta_P := fun _ hj => frozenAfter_of_le _ hj
-  z_cs := fun _ hj => frozenAfter_of_le _ hj
-  nu_cs := fun _ hj => frozenAfter_of_le _ hj
-  delta_cs := fun _ hj => frozenAfter_of_le (deltaRun C7.A0 S.p0 cs.aKer sf'.β) hj
-  p0_cs := fun _ hj => frozenAfter_of_le (pZero C7.A0 S.p0 cs.aKer sf'.β) hj
+  beta_cs := fun _ hj =>
+    vacExt_eq_of_le_succ (fun i hi => (hcoh.beta_cs i hi).trans (hβ i hi).symm) rfl hj
+  beta_P := fun _ hj =>
+    vacExt_eq_of_le_succ (fun i hi => (hcoh.beta_P i hi).trans (hβ i hi).symm) rfl hj
+  z_cs := fun _ hj => vacExt_eq_of_le_succ (fun i hi => (hcoh.z_cs i hi).trans (hz i hi).symm) rfl hj
+  nu_cs := fun _ hj =>
+    vacExt_eq_of_le_succ (fun i hi => (hcoh.nu_cs i hi).trans (hν i hi).symm) rfl hj
+  delta_cs := fun _ hj => vacExt_eq_of_le_succ
+    (fun i hi => (hcoh.delta_cs i hi).trans (deltaRun_congr (hβ i hi).symm)) rfl hj
+  p0_cs := fun _ hj => vacExt_eq_of_le_succ
+    (fun i hi => (hcoh.p0_cs i hi).trans (pZero_congr (hβ i hi).symm)) rfl hj
   B0_cs := hcoh.B0_cs
 
 /-- **The field clauses at the successor** (ruling R2): the masses of the successor's constants. -/
-theorem field_succ {hv : EuclideanSpace ℝ (Fin N)} (hf : FieldClauses S k0 k cs sf hv) :
-    FieldClauses S k0 (k + 1) (succOpConsts S k0 C7.A0 cs sf') sf' hv where
+theorem field_succ {hv : EuclideanSpace ℝ (Fin N)} (hf : FieldClauses S k0 k cs sf hv)
+    (hν : ∀ j, j ≤ k → sf'.ν j = sf.ν j) :
+    FieldClauses S k0 (k + 1) (succOpConsts S k0 C7.A0 cs k sf') sf' hv where
   h_unit := hf.h_unit
-  mu_eq := fun _ hj => frozenAfter_of_le (bgMass k0 S.L sf'.ν) hj
-  muBg_eq := fun _ hj => frozenAfter_of_le (fun j => sf'.ν j / (S.L : ℝ) ^ (2 * j)) hj
-  muAct_eq := fun _ hj => frozenAfter_of_le (fun j => sf'.ν j / (S.L : ℝ) ^ (2 * j)) hj
+  mu_eq := fun _ hj => vacExt_eq_of_le_succ
+    (fun i hi => (hf.mu_eq i hi).trans (by simp only [LargeField.bgMass, hν i hi])) rfl hj
+  muBg_eq := fun _ hj => vacExt_eq_of_le_succ (f := fun j => sf'.ν j / (S.L : ℝ) ^ (2 * j))
+    (fun i hi => (hf.muBg_eq i hi).trans (by rw [hν i hi])) rfl hj
+  muAct_eq := fun _ hj => vacExt_eq_of_le_succ (f := fun j => sf'.ν j / (S.L : ℝ) ^ (2 * j))
+    (fun i hi => (hf.muAct_eq i hi).trans (by rw [hν i hi])) rfl hj
 
 /-- **The background of the large-field actions is the small-field one** (the SF→LF watch item;
 ruling R2): under the field clauses the background mass `cs.muBg j` of the large-field operators is
@@ -283,6 +293,103 @@ theorem muBg_eq_sfBgMass_of_fieldClauses {hv : EuclideanSpace ℝ (Fin N)}
   rw [pow_mul, div_eq_mul_inv, inv_pow, ← pow_mul, ← pow_mul, mul_comm j 2]
 
 end Consts
+
+/-!
+### The kept data of the successor
+-/
+
+section Kept
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs cs' : OpConsts}
+
+/-- **`χ^{dom}` at the scale `j` reads the tolerances `δ_i` (`i ≤ j`), the radii `p₀(β_i)` (`i < j`)
+and `C_ψ` only** (Definition II.3.4, P5 (1.24)–(1.25)). -/
+theorem chiDomAt_congr {j : ℕ} (hδ : ∀ i, i ≤ j → cs'.delta i = cs.delta i)
+    (hp : ∀ i, i < j → cs'.p0 i = cs.p0 i) (hC : cs'.Cpsi = cs.Cpsi) (H : RegionHistory S n R k0 K)
+    (Z : H.Comp j) {A : Set (InternalVars (H.localHistory M K j Z) j)}
+    (o : OutT N R (H.localHistory M K j Z) j) (x : SubCfg N (H.localHistory M K j Z) j A) :
+    ChiDomAt geo cs' H j Z o x ↔ ChiDomAt geo cs H j Z o x := by
+  unfold ChiDomAt ChiDomProp
+  rw [hC]
+  constructor
+  · rintro ⟨h1, h2, h3⟩
+    refine ⟨fun i hi y hy hy' => ?_, fun i hi1 hi y hy hy' hy'' => ?_, fun i hi y hy => ?_⟩
+    · rw [← hδ i hi.le]
+      exact h1 i hi y hy hy'
+    · rw [← hδ i hi]
+      exact h2 i hi1 hi y hy hy' hy''
+    · rw [← hp i hi]
+      exact h3 i hi y hy
+  · rintro ⟨h1, h2, h3⟩
+    refine ⟨fun i hi y hy hy' => ?_, fun i hi1 hi y hy hy' hy'' => ?_, fun i hi y hy => ?_⟩
+    · rw [hδ i hi.le]
+      exact h1 i hi y hy hy'
+    · rw [hδ i hi]
+      exact h2 i hi1 hi y hy hy' hy''
+    · rw [hp i hi]
+      exact h3 i hi y hy
+
+/-- **The kept data restricted to the scales `≤ k`, at other constants** ((S3) of the step: "no kept
+data are created by a step", LFR proof of Theorem IV.1.1): the kept variables, `C_dec` and `γ` of
+`KD`, the kept kernels of `KD` at the scales `≤ k` and zero kernels above. At constants `cs'` whose
+tolerances `δ_i`, radii `p₀(β_i)` (`i ≤ k`) and `C_ψ` are those of `cs` these are kept data (S3):
+`χ^{dom}` at the scales `≤ k` reads nothing else (`chiDomAt_congr`), and a zero kernel satisfies
+(1.26) (`kerBound_of_K_zero`). -/
+noncomputable def _root_.Balaban.LargeField.KeptData.upTo {κ : ℕ → LocalHistory S n M K → ℝ}
+    {lamHat : ℕ → ℝ} (KD : KeptData k0 geo cs N κ lamHat) (k : ℕ) (cs' : OpConsts)
+    (hδ : ∀ i, i ≤ k → cs'.delta i = cs.delta i) (hp : ∀ i, i ≤ k → cs'.p0 i = cs.p0 i)
+    (hC : cs'.Cpsi = cs.Cpsi) : KeptData k0 geo cs' N κ lamHat where
+  datum := fun j a ϰ =>
+    { Ikeep := (KD.datum j a ϰ).Ikeep
+      contains := (KD.datum j a ϰ).contains
+      ker := if j ≤ k then (KD.datum j a ϰ).ker else zeroKer _ _ _ _ }
+  Cdec := KD.Cdec
+  gam := KD.gam
+  one_le_Cdec := KD.one_le_Cdec
+  sum_inv_Cdec := KD.sum_inv_Cdec
+  gam_ge := KD.gam_ge
+  b_supp := fun j a ϰ o x hv g g' hg => by
+    by_cases hj : j ≤ k
+    · simp only [hj, ↓reduceIte]
+      exact KD.b_supp j a ϰ o x hv g g' hg
+    · simp only [hj, ↓reduceIte]
+      rfl
+  rot_K := fun j a ϰ ρ o x hv => by
+    by_cases hj : j ≤ k
+    · simp only [hj, ↓reduceIte]
+      exact KD.rot_K j a ϰ ρ o x hv
+    · simp only [hj, ↓reduceIte]
+      rfl
+  rot_b := fun j a ϰ ρ o x hv g => by
+    by_cases hj : j ≤ k
+    · simp only [hj, ↓reduceIte]
+      exact KD.rot_b j a ϰ ρ o x hv g
+    · simp only [hj, ↓reduceIte]
+      rfl
+  euclid_I := fun j σ a a' hI hk ϰ p => KD.euclid_I j σ a a' hI hk ϰ p
+  euclid_K := fun j σ a a' hI hk ϰ o o' x x' hv ho hx => by
+    by_cases hj : j ≤ k
+    · simp only [hj, ↓reduceIte]
+      exact KD.euclid_K j σ a a' hI hk ϰ o o' x x' hv ho hx
+    · simp only [hj, ↓reduceIte]
+      rfl
+  euclid_b := fun j σ a a' hI hk ϰ o o' x x' hv g g' ho hx hg => by
+    by_cases hj : j ≤ k
+    · simp only [hj, ↓reduceIte]
+      exact KD.euclid_b j σ a a' hI hk ϰ o o' x x' hv g g' ho hx hg
+    · simp only [hj, ↓reduceIte]
+      rfl
+  bound := fun H hH j Z hj1 hj0 hrip ϰ => by
+    by_cases hj : j ≤ k
+    · obtain ⟨hvan, hb⟩ := KD.bound H hH j Z hj1 hj0 hrip ϰ
+      simp only [hj, ↓reduceIte]
+      exact ⟨fun o x hv hd => hvan o x hv fun h' => hd ((chiDomAt_congr
+        (fun i hi => hδ i (hi.trans hj)) (fun i hi => hp i (hi.le.trans hj)) hC H Z o x).2 h'), hb⟩
+    · simp only [hj, ↓reduceIte]
+      exact ⟨fun _ _ _ _ => rfl, kerBound_of_K_zero _ _ _ (fun _ _ _ => rfl) _⟩
+
+end Kept
 
 /-!
 ### (D7) at the pinned ball
@@ -410,26 +517,34 @@ variable (rec : RepRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k ρ νk)
   (sf' : SFData d T.L C7.m₁ (k + 1) N ϱ)
 
 /-- The operator constants of the successor of `rec` with the small-field data `sf'`
-(`succOpConsts`: the running constants of `sf'`, the other constants of `rec`). -/
+(`succOpConsts`: those of `rec` at the scales `≤ k`, the running constants of `sf'` at `k + 1`). -/
 noncomputable def succCs : OpConsts :=
-  succOpConsts 𝒮[d, T, β, cs₀.aKer] (kZero d T.L β ν) C7.A0 rec.cs sf'
+  succOpConsts 𝒮[d, T, β, cs₀.aKer] (kZero d T.L β ν) C7.A0 rec.cs k sf'
 
 /-- The budget constants of the successor of `rec` with the small-field data `sf'`. -/
-noncomputable def succP : BudgetConsts := succBudgetConsts (S := 𝒮[d, T, β, cs₀.aKer]) rec.P sf'
+noncomputable def succP : BudgetConsts :=
+  succBudgetConsts (S := 𝒮[d, T, β, cs₀.aKer]) rec.P k sf'
 
-/-- **The successor families**: `Q` holds for every family with the small-field data `sf'` and, on
-every torus, the large-field data of `D` with step and kept data at the constants of the successor
-that carry the data of `D` (`LFStepRaw.Matches`). The clauses of `IsRepPre2` and `LFCoherent` read
-the step and kept data only through these data, so a statement of this form is a statement about
-`sf'` and `D`. -/
+/-- **The kept data of the successor** on the torus `n_K` ((S3): no kept data are created by a step):
+the kept data of `rec` restricted to the scales `≤ k` (`KeptData.upTo`), at the constants of the
+successor, which are those of `rec` at the scales `≤ k`. Their exponents are those of `rec`. -/
+noncomputable def succKD (nK : ℕ) [NeZero nK] :
+    KeptData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N (rec.F.lf nK).κK
+      (Setting.lam 𝒮[d, T, β, cs₀.aKer]) :=
+  (rec.F.lf nK).KD.upTo k (rec.succCs sf') (fun _ hi => vacExt_of_le _ hi)
+    (fun _ hi => vacExt_of_le _ hi) rfl
+
+/-- **The successor families**: `Q` holds for the family with the small-field data `sf'` and, on
+every torus, the histories, kernels and boundary terms of `D`, the kept data `succKD` with the
+exponents of `rec`, and any step data at the constants of the successor that carry the kernels of
+`D` (`LFStepRaw.Matches`). The clauses of `IsRepPre2` and `LFCoherent` read the step data only through
+their kernels, so a statement of this form is a statement about `sf'`, `D` and `rec`. -/
 def SuccFams (D : LFStepRaw 𝒮[d, T, β, cs₀.aKer] rec.R (kZero d T.L β ν) (kf + 1) T.M N (k + 1))
     (Q : RepFam 𝒮[d, T, β, cs₀.aKer] rec.R (kZero d T.L β ν) (kf + 1) T.M N rec.geo
       (rec.succCs sf') (rec.succP sf') (k + 1) C7.m₁ ϱ → Prop) : Prop :=
-  ∀ (SD : ∀ (nK : ℕ) [NeZero nK], StepData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N
-      (kappaStepLoc (K := kf + 1) 𝒮[d, T, β, cs₀.aKer] (rec.succP sf') T.M))
-    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N
-      (D.κK nK) (Setting.lam 𝒮[d, T, β, cs₀.aKer])),
-    D.Matches SD KD → Q (D.fam sf' SD KD)
+  ∀ SD : ∀ (nK : ℕ) [NeZero nK], StepData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N
+      (kappaStepLoc (K := kf + 1) 𝒮[d, T, β, cs₀.aKer] (rec.succP sf') T.M),
+    D.Matches SD → Q (D.fam sf' (fun nK _ => (rec.F.lf nK).κK) SD (rec.succKD sf'))
 
 /-- The couplings of a record are positive at the scales `j ≤ k` ((I.2)). -/
 theorem sfBeta_pos {j : ℕ} (hj : j ≤ k) : 0 < rec.F.sf.β j := by
@@ -536,19 +651,6 @@ def LFStepDataInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
       SD.ker = (Λ κ c₉ β ν h kf k ρ νk rec).ker nK ∧
       ∃ dpp dppp : ℕ → ℝ, SD.VacuumTie Set.univ
         (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp
-
-/-- **The kept data of the successor (row (g1), (S3); LF-3 proof of Theorem IV.1.1, "(S3): no kept
-data are created by a step").** On every torus there are kept data (S3) at the constants of the
-successor with the kept variables and kernels, `C_dec` and `γ` of the map (those of `rec` at the
-scales `≤ k`), for the exponents `κ_j` of the map. -/
-def LFKeptInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
-  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
-    ∀ (nK : ℕ) [NeZero nK], ∃ KD : KeptData (kZero d (T κ c₉).L β ν) (rec.geo nK)
-        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)) N ((Λ κ c₉ β ν h kf k ρ νk rec).κK nK)
-        (Setting.lam 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]),
-      KD.datum = (Λ κ c₉ β ν h kf k ρ νk rec).datum nK ∧
-        KD.Cdec = (Λ κ c₉ β ν h kf k ρ νk rec).Cdec nK ∧
-        KD.gam = (Λ κ c₉ β ν h kf k ρ νk rec).gam nK
 
 /-- **The boundary terms at the physical field (row (g2); LFR Lemma IV.1.5; P5 p. 512, P6 pp. 14–15,
 34).** On every torus the boundary terms `ℬ^{(k+1)}` of the map satisfy (D7) of the pre-`R` class at
@@ -667,22 +769,22 @@ variable {d N : ℕ} {T : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Con
 
 /-- **The large-field half of the step from its parts** (LFR Theorem IV.1.1 (b)–(d), (h)). For a
 record `rec` of `ℛ_k` and its image `Φ rec.F.sf`:
-* the step and kept data on every torus are chosen by `LFStepDataInput`, `LFKeptInput` (their data
-  are those of the map `Λ rec`); the successor family is `⟨Φ rec.F.sf, Λ rec with these data⟩`;
-* the constants are `succCs`, `succP` (the running constants of the image), whose ties to the outer
-  constants are those of `rec`, and whose `Coh`, `FieldClauses` at `k + 1` are `coh_succ`,
-  `field_succ`;
+* the step data on every torus are chosen by `LFStepDataInput` (their kernels are those of the map
+  `Λ rec`); the kept data are those of `rec` (`succKD`, (S3) proved); the successor family is
+  `⟨Φ rec.F.sf, Λ rec with these data⟩`;
+* the constants are `succCs`, `succP` (those of `rec` at the scales `≤ k`, the running constants of
+  the image at `k + 1`), whose ties to the outer constants are those of `rec`, and whose `Coh`,
+  `FieldClauses` at `k + 1` are `coh_succ`, `field_succ` (with the ties of the image at `j ≤ k`);
 * `IsRepPre2`: (D2), (D8), (D9) are the hypotheses on the image; completeness `LFHistInput`; (D1)
   `LFFormInput` for the coefficient data of `LFCorrInput`; (D4) `LFPinInput`; (D5) `LFOpBoundInput`;
   (D6) `LFBudgetInput`; (D7) of the second version from `LFBdryInput` and `LFBdrySrcInput`
   (`D7Bdry.toD7Bdry2_of_ball`);
 * `LFCoherent` is `LFCoherenceInput`; the vacuum tie with `vacExt rec.Ev k (ΦE …)` is that of the
   chosen step data.
-The threshold is the largest of the eleven thresholds. -/
+The threshold is the largest of the ten thresholds. -/
 theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
     (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
-    (hK : LFKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
@@ -695,7 +797,6 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
   intro κ hκ c₉ hc₉
   obtain ⟨b₁, h₁⟩ := hH κ hκ c₉ hc₉
   obtain ⟨b₂, h₂⟩ := hS κ hκ c₉ hc₉
-  obtain ⟨b₃, h₃⟩ := hK κ hκ c₉ hc₉
   obtain ⟨b₄, h₄⟩ := hB κ hκ c₉ hc₉
   obtain ⟨b₅, h₅⟩ := hBs κ hκ c₉ hc₉
   obtain ⟨b₆, h₆⟩ := hF κ hκ c₉ hc₉
@@ -704,39 +805,39 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
   obtain ⟨b₉, h₉⟩ := hG κ hκ c₉ hc₉
   obtain ⟨b₁₀, h₁₀⟩ := hC κ hκ c₉ hc₉
   obtain ⟨b₁₁, h₁₁⟩ := hc κ hκ c₉ hc₉
-  refine ⟨max (max (max b₁ b₂) (max b₃ b₄)) (max (max b₅ b₆) (max (max b₇ b₈)
-    (max b₉ (max b₁₀ b₁₁)))), ?_⟩
+  refine ⟨max (max (max b₁ b₂) (max b₄ b₅)) (max (max b₆ b₇) (max b₈ (max b₉ (max b₁₀ b₁₁)))),
+    ?_⟩
   intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
   simp only [max_le_iff] at hβ
-  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₃, hb₄⟩, ⟨hb₅, hb₆⟩, ⟨hb₇, hb₈⟩, hb₉, hb₁₀, hb₁₁⟩ := hβ
+  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₄, hb₅⟩, ⟨hb₆, hb₇⟩, hb₈, hb₉, hb₁₀, hb₁₁⟩ := hβ
   choose SD hSDker hSDtie using
     h₂ β hb₂ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
-  choose KD hKD using h₃ β hb₃ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
-  have hM : (Λ κ c₉ β ν h kf k ρ νk rec).Matches SD KD := fun nK _ => ⟨hSDker nK, hKD nK⟩
+  have hM : (Λ κ c₉ β ν h kf k ρ νk rec).Matches SD := fun nK _ => hSDker nK
   obtain ⟨St', vc', hcorr⟩ :=
     h₁₁ β hb₁₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
   refine ⟨rec.succCs (Φ κ c₉ β ν k rec.F.sf), rec.succP (Φ κ c₉ β ν k rec.F.sf),
-    fun nK _ => (Λ κ c₉ β ν h kf k ρ νk rec).rep nK (SD nK) (KD nK), St', vc',
+    fun nK _ => (Λ κ c₉ β ν h kf k ρ νk rec).rep nK (rec.F.lf nK).κK (SD nK)
+      (rec.succKD (Φ κ c₉ β ν k rec.F.sf) nK), St', vc',
     (Λ κ c₉ β ν h kf k ρ νk rec).s, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
     rec.tie_c2, rec.tie_H0, ?_,
-    h₁₀ β hb₁₀ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM,
+    h₁₀ β hb₁₀ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM,
     fun nK _ => hSDtie nK⟩
   exact
-    { coh := coh_succ rec.rep.coh fun j hj1 hj => (hafree j hj1 hj).trans (by rw [rec.tie_aKer])
-      field := field_succ rec.rep.field
+    { coh := coh_succ rec.rep.coh (fun j hj => (hcst j hj).1) (fun j hj => (hcst j hj).2.1)
+        (fun j hj => (hcst j hj).2.2) fun j hj1 hj => (hafree j hj1 hj).trans (by rw [rec.tie_aKer])
+      field := field_succ rec.rep.field fun j hj => (hcst j hj).2.1
       complete := h₁ β hb₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
-      form := h₆ β hb₆ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+      form := h₆ β hb₆ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
         St' vc' hcorr
       corr := hcorr
       sfData := hD2
-      pin := h₈ β hb₈ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
-      opBound :=
-        h₇ β hb₇ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
-      budget := h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+      pin := h₈ β hb₈ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
+      opBound := h₇ β hb₇ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
+      budget := h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
       bdry := fun nK _ =>
-        (h₄ β hb₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+        (h₄ β hb₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
           nK).toD7Bdry2_of_ball
-        (h₅ β hb₅ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM nK)
+        (h₅ β hb₅ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM nK)
       coherent := hD8
       coeff := hD9 }
 
@@ -752,18 +853,25 @@ theorem lfOpBoundInput_of_signs (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
   intro κ hκ c₉ hc₉
   obtain ⟨b, hb⟩ := hz κ hκ c₉ hc₉
   refine ⟨b, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
-    _ _ _ _ _ => ?_⟩
+    _ _ _ _ => ?_⟩
   have hz' := hb β hβ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
   refine Rep.opBound_of_data _ (fun j => ?_) (fun j => ?_) (k + 1) hkK'
-  · show 0 < frozenAfter (Φ κ c₉ β ν k rec.F.sf).z (k + 1) (j + 1)
-    exact hz' _ (le_min (by omega) (by omega)) (min_le_right _ _)
-  · show 0 ≤ frozenAfter (Φ κ c₉ β ν k rec.F.sf).β (k + 1) j * rec.cs.aKer *
+  · show 0 < vacExt rec.cs.z k ((Φ κ c₉ β ν k rec.F.sf).z (k + 1)) (j + 1)
+    by_cases hj : j + 1 ≤ k
+    · rw [vacExt_of_le _ hj, rec.rep.coh.z_cs _ hj, ← (hcst _ hj).2.2]
+      exact hz' _ (by omega) (by omega)
+    · simp only [vacExt, hj, ↓reduceIte]
+      exact hz' _ (by omega) le_rfl
+  · show 0 ≤ vacExt rec.cs.beta k ((Φ κ c₉ β ν k rec.F.sf).β (k + 1)) j * rec.cs.aKer *
       ((T κ c₉).L : ℝ) ^ (d - 2)
-    have hβj := rec.imageBeta_pos (Φ κ c₉ β ν k rec.F.sf) hD2 (fun i hi => (hcst i hi).1)
-      (min_le_right j (k + 1))
+    have hβj : 0 < vacExt rec.cs.beta k ((Φ κ c₉ β ν k rec.F.sf).β (k + 1)) j := by
+      by_cases hj : j ≤ k
+      · rw [vacExt_of_le _ hj, rec.rep.coh.beta_cs _ hj]
+        exact rec.sfBeta_pos hj
+      · simp only [vacExt, hj, ↓reduceIte]
+        exact rec.imageBeta_pos (Φ κ c₉ β ν k rec.F.sf) hD2 (fun i hi => (hcst i hi).1) le_rfl
     have ha : 0 < rec.cs.aKer := by rw [rec.tie_aKer]; linarith [rec.run.ha1]
     have hL : (0 : ℝ) < (T κ c₉).L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne _)
-    unfold frozenAfter
     positivity
 
 /-- **(D6) of the successor from the pinned exponents and the prefix** (LF-2 (i); LFR Theorem I.5.4
@@ -789,9 +897,9 @@ theorem lfBudgetInput_of_pin {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀
     (max ((PB κ c₉).c2 + 2)
       (3 + 2 * (thetaOf d (T κ c₉).L + 1 + 1 / (PB κ c₉).H0))) with hXa
   refine ⟨max b (Real.exp (max x₀ Xa)), ?_⟩
-  intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM nK _
+  intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM nK _
   have hpin := hb β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9
-    hafree hcst hkK' SD KD hM nK
+    hafree hcst hkK' SD hM nK
   have hβe : Real.exp (max x₀ Xa) ≤ β := le_of_max_le_right hβ
   have hβ0 : 0 < β := lt_of_lt_of_le (Real.exp_pos _) hβe
   have hlog : max x₀ Xa ≤ Real.log β := (Real.le_log_iff_exp_le hβ0).2 hβe
@@ -844,7 +952,9 @@ theorem lfBudgetInput_of_pin {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀
         show ((T κ c₉).M : ℝ) ^ d * (rec.P.H0 + rec.P.c1 + 3) ≤ (T κ c₉).cv
         rw [rec.tie_H0, rec.tie_c1]
         exact hcv
-      run := runningHypTo_congr hrun (fun j hj => frozenAfter_of_le _ hj) (fun _ _ => rfl) }
+      run := runningHypTo_congr hrun (fun _ hj => vacExt_eq_of_le_succ
+        (fun i hi => (rec.rep.coh.beta_P i hi).trans (hcst i hi).1.symm) rfl hj)
+        (fun _ _ => rfl) }
   exact Rep.budgetPre_of_LF2_trunc _ hG B hpin hkK' le_rfl (by omega) (by omega) le_rfl
 
 /-- **The large-field half of the step from its parts and the prefix**: `lfStepInput_of_parts`, with
@@ -854,7 +964,6 @@ theorem lfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs�
     (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
     (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
-    (hK : LFKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
@@ -863,7 +972,7 @@ theorem lfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs�
     (hC : LFCoherenceInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hc : LFCorrInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
     LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE :=
-  lfStepInput_of_parts Λ hH hS hK hB hBs hF (lfOpBoundInput_of_signs Λ hz) hP
+  lfStepInput_of_parts Λ hH hS hB hBs hF (lfOpBoundInput_of_signs Λ hz) hP
     (lfBudgetInput_of_pin hA1 Λ hP) hC hc
 
 end Assembly
