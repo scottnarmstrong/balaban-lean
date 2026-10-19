@@ -379,14 +379,19 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    Landed: `e0CoeffFamily_value_fromTowerG_core_twoTorus` (W1089, `StepTowerG d L N`, `m₀ = 1`), `coreE0_unique` (W1090). Open: the
    chain's `e` of a general class is not a core family (open (c) of A4-1); `R_eq` of `ℛ^{(k+1)}`. The inherited levels are proved
    (`liftOldTermsFam_M_eq_of_d8`). ~800.
-7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). For a flow with `VacuumFlowTo C_b E sf.β k`,
-   `|ΦE sf E| ≤ C_b (log β′_{k+1} + 1)`. Landed: `StepSetting.Ep/Epp/Eppp`, `halfLogDetC`, `VacuumFlow` (`vacuum_sub_eq`,
-   `abs_vacuum_backward_le`), `stepVacuumTerm`, `stepVacuumVolume`. Open: the increment bound `|g_k| ≤ A log β_k + B` and the per-step
-   normalization `s`. **Tie (W1125):** the step data of the successor are tied to the extended flow `vacExt rec.Ev k ΦE` (`E_0, …, E_k, ΦE`): `LFStepInput`
-   (now with the parameter `ΦE`) outputs `∀ nK, ∃ dpp dppp, (lf' nK).SD.VacuumTie univ (vacExt rec.Ev k ΦE) dpp dppp`, and `SFStepInput` outputs
-   `VacuumTied rec'` (`VacuumTied` now lives in `ClassStep.lean` and reads `rec.Ev`). The step data are bounded through `b0_bound`/`b_bound`
-   inside `IsRepPre2`, so `ΦE = 0` satisfies the tie only if the source's vacuum energy is 0. Not tied: the normalization `s` of `stepDensity`
-   (a free output of `LFStepInput`). ~300.
+7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). **ΦE defined and the bound proved (W1132, `Spine/SFVacuum.lean`,
+   `Spine/SFVacuumRatio.lean`).** The map is `vacMap` = `vacIncrement d L N aKer β_k (p(β_k))`, the Gaussian increment
+   `Γ_k = L^d(E‴_k − E_k) = ½N(L^d−1) log β_k − ½N log(a₁L^{d−2}/2π) − L^d log Z₁(p₁)` (`vacIncrement_eq_step`, from `step_increment_eq`).
+   It does not depend on the record or on `Ev`. The physical recursion is `E^{tot}_{k+1} = L^d E_k + Γ_k − e₀/|T^{(k+1)}_1|`
+   (`vacuumEnergy_succ_eq_increment`); the class keeps `Γ_k` and the normalization `s = L^d E_k − e₀/|T^{(k+1)}_1|` of `stepDensity` carries
+   the extensive rest (`vacIncrement_add_normalization`: `E^{tot}_{k+1} = Γ_k + s`). This is the one convention to confirm: `e₀` (determinant
+   `½ log det C^{(k)}` plus `ℰ₁^{(k+1)}` at the zero datum) is put into `s`, not into `ΦE`; `s` is a free output of `LFStepInput`, and the tie
+   only needs `|ΦE| ≲ log β`. **Proved:** `sfVacuumInput_of_inherit_renorm : SFInheritInput → SFRenormInput → SFVacuumInput … (vacMap …)`, with two
+   range premises on the constants: `p(x) ≥ 1` for large `x` (`hp`) and `vacConst d L N aKer ≤ Cb` (`hCb`; `vacConst = ½N(L^d−1)(1 + log(5/4)) + ½N|log(aKer L^{d−2}/2π)|
+   + L^d(|log Z₁(1)| + ½N|log 2π|)`). Ingredients: `abs_vacIncrement_le`, `abs_log_fluctNorm_le`, `CoeffBounds.beta_succ_ge`
+   (`β_{k+1} ≥ (4/5) β_k L^{d−2}`) and (I.2) for `β_k ≥ (19/20) β`. **Open:** nothing in A4-1g itself; the size of `e₀/|T^{(k+1)}_1|`
+   (needed for `s`, not for `ΦE`) and the tie `RecB0Bound` are A4-1h. If the orchestrator wants `e₀` inside `ΦE`, the added input is
+   `|e₀|/|T^{(k+1)}_1| ≤ A' log β_k + B'` for the new terms (determinant part: `abs_halfLogDetC_le`, `O(1)`; `ℰ₁` part: new source mathematics, ~300).
 8. **A4-1h `LFStepInput`** (LF-3 (b)–(d), (h); P5 §§2–3, P6 §§2–3; LFR Lemmas IV.1.2–IV.1.6, LF-2 (i), Lemma IV.1.5). For a record of
    `ℛ_k` whose image `Φ rec.F.sf` has (D2) with `preFac`, (D8SF), (D9), `a_j = compWeight` up to `k + 1` and the inherited `β, ν, z`:
    `∃ cs' P' lf' St' vc' s` with the outer constants, `IsRepPre2 … (k+1) ⟨Φ rec.F.sf, lf'⟩ (stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ) St' vc'`

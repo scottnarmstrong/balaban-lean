@@ -39,7 +39,7 @@ source question. deps: ids below, rulings R7′/R9, Bn = blocker n of `docs/BLOC
 | A4-1d | `SFDensityInput`: reality of the new level's terms and composites at real data | O | P4 (H.1) | 20% — Lemma IV.1.3's `Δ` real, `IsSF2.density` | 400 | L | Φ |
 | A4-1e | `SFRemainderInput`: `RTermsH4 … preFac` for `ℛ^{(k+1)}_n` | O | P5 Props 3.1–3.4; LFR Lemma IV.1.8 | 5% — only `rTermsH4_mono`, `rTermsH4_add` | 1,500 | M | ★ Φ |
 | A4-1f | `SFCoherenceInput`: `D8SF` of the new level and `ℛ^{(k+1)}`; the chain's `e` of a general class is no core family (W1090): the old-term pieces `AC`, `G₁` on two tori | O | Thm IV.1.1 (h); D-IV.9 | 30% — `e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`, `liftOldTermsFam_M_eq_of_d8` | 800 | M | ★ A4-1b, A4-1e |
-| A4-1g | `SFVacuumInput`: `|ΦE| ≤ C_b(log β′_{k+1} + 1)` from `|g_k| ≤ A log β_k + B` and the step normalization `s` (the tie is W1125's `vacExt`; `s` is a free output of A4-1h) | O | P4 (2.1), (2.41), (2.63); R5, R5′ | 50% — `abs_vacuum_backward_le`, `halfLogDetC`, `stepVacuumTerm`, `vacExt` | 300 | L | ΦE |
+| A4-1g | `SFVacuumInput`: `|ΦE| ≤ C_b(log β′_{k+1} + 1)` from `|g_k| ≤ A log β_k + B` and the step normalization `s` (the tie is W1125's `vacExt`; `s` is a free output of A4-1h) | O | P4 (2.1), (2.41), (2.63); R5, R5′ | 95% — W1132: `vacMap` (= Gaussian increment `Γ_k`, `e₀` into `s`), `sfVacuumInput_of_inherit_renorm` (premises: A4-1a, A4-1c, ranges `p ≥ 1`, `Cb ≥ vacConst`); remaining: confirm the `e₀`-into-`s` convention | 30 | L | – |
 | A4-1h | `LFStepInput` (one input today; split it, wave 2) | O | LF-3 (b)–(d), (h); P5, P6 §§2–3 | 20% — `quietKernel`, `quietStepData'`, `quietKernel_twoTorus`, `bgLocPiece_twoTorus`, `Rep.budgetPre_of_LF2` | 6,000 | H | Φ, R9, B2, B3; SF→LF watch |
 | (g1) | non-quiet kernels P5 (2.47)·P6 (3.2) for `k ≥ 1` with local backgrounds, (S1)–(S5) | O | Lemmas IV.1.3, 4, 6 | 25% | 1,500 | M | R9 |
 | (g2) | `ℬ^{(k+1)}` with `B_st`: old boundary terms across a new hole | O | Lemma IV.1.5; P6 p. 34 | 15% | 1,200 | H | B3 |
@@ -100,8 +100,7 @@ small-torus cases where the non-winding hypotheses fail. Recommended: ask it.
   `𝔹_{k+1}(Y⁺(T′))` and regrouped on `𝒟^{(m₀)}_{k+1}`, plus `D_E`, `D_M`); `Rt′` the `ℛ^{(k+1)}_n` of P5 Props 3.1–3.4. Rule 4: `ξ^{(k)}` is "the
   unique solution", so its `∃!` (existence: `rg_step_infty`) and a characterization land first. A total function (the same formula off the class).
   ≈ 1,200 + an independent audit; after G, A4-1b (iii); M. ★
-* `ΦE`: `E_{k+1}` from `E_k`, the vacuum terms of the step and the normalization `s` of `stepDensity` (W1115; the forward flow grows like
-  `L^{dk}`, W965); ≈ 200; L.
+* `ΦE`: DONE (W1132): `vacMap` = the Gaussian increment `Γ_k` of the step (`Spine/SFVacuum.lean`); the forward flow `L^d E_k − e₀/|T|` is the normalization `s`.
 * `Φ♭, ΦE♭` (A4f-1): the same at complete backgrounds; inside A4f-1's 3,000.
 * The first density: landed (`firstDensity` reads `baseRho1`; `integral_firstDensityAt`).
 * `thr` (A7): `δ_β = A log(βa)/√(βν)`, ≤ 50 lines. The constants: A1′.
