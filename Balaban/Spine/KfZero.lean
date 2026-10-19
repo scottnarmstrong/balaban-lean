@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.Witness
 public import Balaban.LargeField.Base.KF0BlockSplit
+import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 
 /-!
 # The case `k_f = 0` of the spine from two sub-inputs
@@ -74,6 +75,65 @@ theorem kf0Sector_eq_zero_of_two_lt {d N ℓ : ℕ} [NeZero ℓ] (s m : ℕ) [Ne
     rw [sectorWeight_eq_ite, ite_eq_right (by rw [hgood φ]; exact Ne.symm hB)]
   simp [hw]
 
+/-- **The block threshold of the source** (LF-BASE-KF0 Part D, (B′.1) and the cutoff scale
+`r_β = A log(β a)/√β`; `KF0-HEAVY.md`, `KF0-LINK.md`, `astra/KF0B.md` §B.9: `δ_β = A ℓ_β/√(β ν)`,
+`ℓ_β = log(β a)`): the block `Q` is good for `φ` when `|φ_x - h| < δ_β` at all its sites. The constants
+`A > 0` and `a > 1` are fixed by the provider (`A > √2 b/√ν_*` for the all-plus event of height
+`b log(β a)`, `ν_* = 7/(8 L²)`). -/
+noncomputable def kf0Thr (A a β ν : ℝ) : ℝ := A * Real.log (β * a) / Real.sqrt (β * ν)
+
+/-- **The source threshold lies in the range `0 < δ_β ≤ √2`** on the whole regime of `KfZeroInput`
+(`ν > 7/8 L⁻²`, no renormalization step), for `β ≥ β₀(A, a, L)` (the condition `δ_β ≤ 1` of
+`astra/KF0B.md` §B.9 is the eventual condition on `β`; here `β₀` is the existential threshold of
+`log(β a) ≤ √β/(A L)`). It does not hold for all `ν`: as `ν → 0` the source threshold tends to
+infinity. -/
+theorem kf0Thr_range {A a : ℝ} (hA : 0 < A) (ha : 1 < a) {L : ℕ} (hL : 0 < L) :
+    ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β → ∀ ν : ℝ, 7 / 8 < ν * (L : ℝ) ^ 2 →
+      0 < kf0Thr A a β ν ∧ kf0Thr A a β ν ≤ Real.sqrt 2 := by
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast hL
+  have hε : 0 < 1 / (A * L) := by positivity
+  have hlog : (fun x : ℝ => Real.log (x * a)) =o[Filter.atTop] fun x => Real.sqrt x := by
+    have h1 := (isLittleO_log_rpow_atTop (r := 1 / 2) (by norm_num)).comp_tendsto
+      (Filter.tendsto_id.atTop_mul_const (by linarith : 0 < a))
+    refine h1.trans_isBigO (Asymptotics.IsBigO.of_bound (Real.sqrt a) ?_)
+    filter_upwards [Filter.eventually_ge_atTop (0 : ℝ)] with x hx
+    simp only [Function.comp_apply, id_eq, Real.norm_eq_abs]
+    rw [Real.mul_rpow hx (by linarith), ← Real.sqrt_eq_rpow, ← Real.sqrt_eq_rpow,
+      abs_of_nonneg (by positivity), abs_of_nonneg (Real.sqrt_nonneg _), mul_comm]
+  obtain ⟨β₀, hβ₀⟩ := Filter.eventually_atTop.1
+    ((hlog.def hε).and (Filter.eventually_ge_atTop (1 : ℝ)))
+  refine ⟨β₀, fun β hβ ν hν => ?_⟩
+  obtain ⟨hb1, hb2⟩ := hβ₀ β hβ
+  have hν0 : 0 < ν := by
+    by_contra hneg
+    nlinarith [sq_nonneg (L : ℝ), not_lt.1 hneg]
+  have hβpos : 0 < β := by linarith
+  have hlogpos : 0 < Real.log (β * a) := Real.log_pos (by nlinarith)
+  have hsq : 0 < Real.sqrt (β * ν) := Real.sqrt_pos.2 (by positivity)
+  refine ⟨div_pos (mul_pos hA hlogpos) hsq, ?_⟩
+  unfold kf0Thr
+  rw [div_le_iff₀ hsq]
+  have hν2 : 1 ≤ Real.sqrt 2 * Real.sqrt ν * L := by
+    rw [← Real.sqrt_mul (by norm_num), show (1 : ℝ) = Real.sqrt 1 by simp]
+    have : 1 ≤ Real.sqrt (2 * ν) * L := by
+      rw [← Real.sqrt_sq hL0.le, ← Real.sqrt_mul (by positivity)]
+      exact Real.one_le_sqrt.2 (by nlinarith)
+    simpa using this
+  have h3 : Real.sqrt 2 * Real.sqrt (β * ν) = Real.sqrt β * (Real.sqrt 2 * Real.sqrt ν) := by
+    rw [Real.sqrt_mul hβpos.le]
+    ring
+  rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_pos hlogpos,
+    abs_of_nonneg (Real.sqrt_nonneg _)] at hb1
+  have h4 : A * Real.log (β * a) ≤ Real.sqrt β / L := by
+    have := mul_le_mul_of_nonneg_left hb1 hA.le
+    calc A * Real.log (β * a) ≤ A * (1 / (A * L) * Real.sqrt β) := this
+      _ = Real.sqrt β / L := by field_simp
+  calc A * Real.log (β * a) ≤ Real.sqrt β / L := h4
+    _ ≤ Real.sqrt β * (Real.sqrt 2 * Real.sqrt ν) := by
+        rw [div_le_iff₀ hL0]
+        nlinarith [Real.sqrt_nonneg β]
+    _ = Real.sqrt 2 * Real.sqrt (β * ν) := h3.symm
+
 section Inputs
 
 variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (thr : ℝ → ℝ → ℝ → ℝ → ℝ)
@@ -137,11 +197,14 @@ def KF0BadSectorInput : Prop :=
 `Z_∅ = exp(E + ⟨g, h⟩ + ∑_X a)` (`KF0GoodSectorInput`). The activities are `p = a + b`, with the
 amplitudes `c₉/4 + c₉/4`; `E` is the vacuum term of the all-good sector. The threshold is the
 larger of the two thresholds. The block threshold is constrained to the source range
-`0 < thr ≤ √2` (`_hthr`, typing data for the provider's choice: a non-positive threshold makes
+`0 < thr ≤ √2` in the regime of `KfZeroInput` for `β ≥ β₀` (`_hthr`, typing data for the provider's
+choice, proved for the source threshold `kf0Thr` by `kf0Thr_range`: a non-positive threshold makes
 `KF0GoodSectorInput` false, `not_kf0GoodSectorInput_of_thr_nonpos`, and a threshold above `2` makes
 the bad sectors empty, `kf0BadSectorInput_of_two_lt`); the identity itself holds for every `thr`. -/
 theorem kfZeroInput_of_parts
-    (_hthr : ∀ κ c₉ β ν, 0 < thr κ c₉ β ν ∧ thr κ c₉ β ν ≤ Real.sqrt 2) (hG : KF0GoodSectorInput d N δ T thr)
+    (_hthr : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β → ∀ ν : ℝ,
+      7 / 8 < ν * ((T κ c₉).L : ℝ) ^ 2 → ν ≤ 1 →
+        0 < thr κ c₉ β ν ∧ thr κ c₉ β ν ≤ Real.sqrt 2) (hG : KF0GoodSectorInput d N δ T thr)
     (hB : KF0BadSectorInput d N δ T thr) : KfZeroInput d N δ T := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, h₁⟩ := hG κ hκ c₉ hc₉
@@ -161,6 +224,18 @@ theorem kfZeroInput_of_parts
     congr 1
     simp only [actAdd, Finset.sum_add_distrib]
     ring
+
+/-- **The case `k_f = 0` for the source threshold**: with the block threshold `δ_β = A log(β a)/√(β ν)`
+of the source (`kf0Thr`, constants `A, a` of the provider with `A > 0`, `a > 1`), the range premise of
+`kfZeroInput_of_parts` is `kf0Thr_range`. -/
+theorem kfZeroInput_of_parts_kf0Thr (A a : ℝ → ℝ → ℝ) (hA : ∀ κ c₉, 0 < A κ c₉)
+    (ha : ∀ κ c₉, 1 < a κ c₉) (hL : ∀ κ c₉, 0 < (T κ c₉).L)
+    (hG : KF0GoodSectorInput d N δ T fun κ c₉ => kf0Thr (A κ c₉) (a κ c₉))
+    (hB : KF0BadSectorInput d N δ T fun κ c₉ => kf0Thr (A κ c₉) (a κ c₉)) :
+    KfZeroInput d N δ T :=
+  kfZeroInput_of_parts d N δ T _ (fun κ _ c₉ _ => by
+    obtain ⟨β₀, hβ₀⟩ := kf0Thr_range (hA κ c₉) (ha κ c₉) (hL κ c₉)
+    exact ⟨β₀, fun β hβ ν hν _ => hβ₀ β hβ ν hν⟩) hG hB
 
 /-- **`KF0BadSectorInput` is not vacuous**: for thresholds `r > 2` every block is good, the bad
 sectors vanish (`kf0Sector_eq_zero_of_two_lt`) and the sub-input holds with `b = 0`
