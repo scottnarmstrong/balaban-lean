@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.DetCauchyBgActivity
 public import Balaban.Fluctuation.RootMarkGeom
 public import Balaban.Localization.XiCRawOpen
@@ -127,6 +128,56 @@ section Record
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
+/-- **The determinant part of the step as a family of localized terms, computed on a background
+generating set `Gb`** (ruling R8; P3 pp. 78-79, (4.44)-(4.47)).  The expansion (the cubes, the
+finite sets `T` of cubes of `π_{k+1}`, the root `z`) is the step's, and a term is a function of the
+datum `D` of the step; inside the term the generating set is `Gb`: the datum of `Gb` read from `D` is
+`Tr.gdat hT D` (`Tr.dat (rawOf D)`), the mask of the rooted trace is the set `Zb` of unit points of
+`Gb` (`S.blockU z` for the step's own set), and the chart is the chart `Ξ^c(Gb; 1, ε)`.  For the data
+`D` whose datum on `Gb` lies in the chart
+
+* `sum_eq`: the terms add up to the rooted trace `-½ ∑_{y ∈ Zb} tr 𝕃(y, y)` at the uncut background
+  `(bgFieldC, bgMultC)` of the datum of `Gb`;
+* `bound`: `‖term D T‖ ≤ c_det e^{-κ'' d(T)}`, with the same `c_det`, `κ''` for all data;
+* `anchor`: if `term D T ≠ 0` then the root cube of `z` belongs to `T` and the sites of `T` form
+  a polymer;
+* `local_resDep`: two data whose data on `Gb` agree on the sets `resDep Gb x`, `x` a site
+  of `T` in `Ω₁(Gb)`, have the same term at `T`;
+* `analyticAt_raw`: there is a function of all raw data which is analytic at the raw datum of
+  every such datum and is the term at `T` there.
+
+For `Gb = S.G'` with the transport `BgTransport.self` and the mask `S.blockU z` this is the record
+`DetExpansionLocC` of the step.  The last two fields are weaker than the clauses of the class: the
+dependency set is larger than the polymer, and the analyticity is at the points of a set which is
+not open in the space of raw data. -/
+structure DetExpansionLocCBg (S : StepSetting d L N₁ m₁ k N ϱ) {ϱb : ℝ}
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (Tr : BgTransport S.G' Gb N)
+    (hT : Tr.Reads) (Zb : Finset (unitPts Gb)) (m₀ : ℕ)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (eps κ'' cdet : ℝ) where
+  /-- The term of the set `T` of cubes as a function of the block datum of the step. -/
+  term : BgData S.G' N → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
+    (k + 1) Set.univ) → ℂ
+  sum_eq : ∀ D : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+    rootTrace Gb S.a S.a₁ S.ν (unitQ Gb) (unitP Gb) Zb (fun _ => 1)
+        (svec Gb (bgFieldC Gb S.a S.ν (bgC0 d L N) (Tr.gdat hT D)))
+        (bgMultC Gb S.a S.ν (bgC0 d L N) (Tr.gdat hT D)) = ∑ T, term D T
+  bound : ∀ D : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+    ∀ T, ‖term D T‖ ≤ cdet * Real.exp (-κ'' * dExt T)
+  anchor : ∀ D : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+    ∀ T, term D T ≠ 0 →
+      rootCube (m₀ := m₀) (K := k + 1) z ∈ T ∧ IsPolyDom m₀ (k + 1) (sitesOf T)
+  local_resDep : ∀ D D₂ : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+    XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D₂) → ∀ T,
+    (∀ x : Gb.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ sitesOf T →
+      ∀ w ∈ resDep Gb (x : CTorus d L N₁ m₁ (k + 1)),
+        (Tr.gdat hT D).Ψ w = (Tr.gdat hT D₂).Ψ w ∧
+          (w ∈ Gb.Ω 1 → (Tr.gdat hT D).h w = (Tr.gdat hT D₂).h w)) → term D T = term D₂ T
+  analyticAt_raw : ∀ T, ∃ A : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+    (∀ D : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+      AnalyticAt ℂ A (rawOf D)) ∧
+    ∀ D : BgData S.G' N, XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D) →
+      A (rawOf D) = term D T
+
 /-- **The determinant part of the step as a family of localized terms.**  For a step `S`, a root
 `z` and a radius `ε` of the chart `Ξ^c(𝔹_{k+1}; 1, ε)`: terms `term D T`, defined for every block
 datum `D` and every finite set `T` of cubes of `π_{k+1}`, such that for the data `D` of the chart
@@ -143,29 +194,113 @@ datum `D` and every finite set `T` of cubes of `π_{k+1}`, such that for the dat
 
 The last two fields are weaker than the clauses of the class: the dependency set is larger than
 the polymer, and the analyticity is at the points of a set which is not open in the space of raw
-data. -/
-structure DetExpansionLocC (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
-    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (eps κ'' cdet : ℝ) where
-  /-- The term of the set `T` of cubes as a function of the block datum. -/
-  term : BgData S.G' N → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀
-    (k + 1) Set.univ) → ℂ
-  sum_eq : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-    rootTrace S.G' S.a S.a₁ S.ν (unitQ S.G') (unitP S.G') (S.blockU z) (fun _ => 1)
-        (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) D) = ∑ T, term D T
-  bound : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-    ∀ T, ‖term D T‖ ≤ cdet * Real.exp (-κ'' * dExt T)
-  anchor : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-    ∀ T, term D T ≠ 0 →
-      rootCube (m₀ := m₀) (K := k + 1) z ∈ T ∧ IsPolyDom m₀ (k + 1) (sitesOf T)
-  local_resDep : ∀ D D₂ : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D →
-    XiCData S.G' S.a S.ν (k + 1) 1 eps D₂ → ∀ T,
-    (∀ x : S.G'.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ sitesOf T →
-      ∀ w ∈ resDep S.G' (x : CTorus d L N₁ m₁ (k + 1)),
-        D.Ψ w = D₂.Ψ w ∧ (w ∈ S.G'.Ω 1 → D.h w = D₂.h w)) → term D T = term D₂ T
-  analyticAt_raw : ∀ T, ∃ A : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
-    (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → AnalyticAt ℂ A (rawOf D)) ∧
-    ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → A (rawOf D) = term D T
+data.  This is `DetExpansionLocCBg` at `Gb = S.G'` with the transport `BgTransport.self` and the
+mask `S.blockU z`. -/
+abbrev DetExpansionLocC (S : StepSetting d L N₁ m₁ k N ϱ) (m₀ : ℕ)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (eps κ'' cdet : ℝ) : Type :=
+  DetExpansionLocCBg S S.G' (BgTransport.self S.hG') (BgTransport.reads_self S.hG') (S.blockU z)
+    m₀ z eps κ'' cdet
+
+namespace DetExpansionLocCBg
+
+variable {S : StepSetting d L N₁ m₁ k N ϱ} {ϱb : ℝ}
+  {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {Tr : BgTransport S.G' Gb N}
+  {hT : Tr.Reads} {Zb : Finset (unitPts Gb)} {m₀ : ℕ}
+  {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
+
+/-- A smaller rate and a larger constant. -/
+def weaken (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ}
+    (h0 : 0 ≤ cdet) (hc : cdet ≤ cdet₂) (hκ : κ₂ ≤ κ'') :
+    DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ₂ cdet₂ where
+  term := E.term
+  sum_eq := E.sum_eq
+  bound := fun D hD T => (E.bound D hD T).trans (by
+    have hd := dExt_nonneg (m₀ := m₀) (j := k + 1) (Ω := Set.univ) T
+    have he : Real.exp (-κ'' * dExt T) ≤ Real.exp (-κ₂ * dExt T) :=
+      Real.exp_le_exp.2 (by nlinarith)
+    exact mul_le_mul hc he (Real.exp_pos _).le (h0.trans hc))
+  anchor := E.anchor
+  local_resDep := E.local_resDep
+  analyticAt_raw := E.analyticAt_raw
+
+@[simp] theorem weaken_term (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ}
+    (h0 : 0 ≤ cdet) (hc : cdet ≤ cdet₂) (hκ : κ₂ ≤ κ'') :
+    (E.weaken h0 hc hκ).term = E.term := rfl
+
+/-- A term vanishes at a set of cubes that does not contain the root cube of `z`. -/
+theorem term_eq_zero_of_not_mem (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    {D : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)} (hT' : rootCube (m₀ := m₀) (K := k + 1) z ∉ T) : E.term D T = 0 := by
+  by_contra h
+  exact hT' (E.anchor D hD T h).1
+
+/-- A term vanishes at a set of cubes that is not a polymer. -/
+theorem term_eq_zero_of_not_isPolyDom (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    {D : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)} (hT' : ¬ IsPolyDom m₀ (k + 1) (sitesOf T)) : E.term D T = 0 := by
+  by_contra h
+  exact hT' (E.anchor D hD T h).2
+
+/-- **Locality in the thickening `thickSet`** (`I5Local`) of `Gb`: two data whose data on `Gb` lie
+in the chart and whose raw data read through `Tr.dat` agree on the sites of `T` and on the sets
+`resDep Gb x`, `x` a site of `T` in `Ω₁(Gb)`, have the same term at `T`. -/
+theorem term_eq_of_agreeOn (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    {D D₂ : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    (hD₂ : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D₂))
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (h : agreeOn (thickSet Gb (sitesOf T)) (Tr.dat (rawOf D)) (Tr.dat (rawOf D₂))) :
+    E.term D T = E.term D₂ T := by
+  refine E.local_resDep D D₂ hD hD₂ T fun x hx w hw => ?_
+  have hw' := h w (Or.inr ⟨x, hx, x.2, hw⟩)
+  exact ⟨hw'.1, fun _ => hw'.2⟩
+
+/-- **Analyticity on the chart of `Gb` as an open subset of the subspace of data of the step.**
+The set of data of the step (as the subspace `rawSub` of its raw data) whose raw datum read through
+`Tr.dat` lies in the chart `Ξ^c(Gb; 1, ε)` is open (the chart is open in the subspace of data of
+`Gb`, `isOpen_preimage_xiCRaw`, and `Tr.dat` is continuous), and on it the term is an analytic
+function of the raw datum. -/
+theorem analyticOnNhd_rawSub (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    (H : BgHyp d L (k + 1) ϱb S.a S.ν)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.term (bgOfRaw e.1 e.2) T)
+      ((fun e : rawSub N S.G' => Tr.dat (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+  obtain ⟨A, hA, hAv⟩ := E.analyticAt_raw T
+  have hopen : IsOpen ((fun e : rawSub N S.G' =>
+      Tr.dat (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹' XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+    have h0 := isOpen_preimage_xiCRaw (G := Gb) (N := N) (n := k + 1) (σ := 1) (ε := eps) H
+    have hc : Continuous (fun e : rawSub N S.G' => (⟨Tr.dat (e : RawData d L (N₁ * L ^ m₁)
+        (k + 1) N), hT (bgOfRaw e.1 e.2)⟩ : rawSub N Gb)) := by
+      refine Continuous.subtype_mk ?_ _
+      exact (LinearMap.continuous_of_finiteDimensional Tr.dat).comp continuous_subtype_val
+    exact h0.preimage hc
+  have h1 : AnalyticOnNhd ℂ (fun e : rawSub N S.G' =>
+      A (e : RawData d L (N₁ * L ^ m₁) (k + 1) N))
+      ((fun e : rawSub N S.G' => Tr.dat (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+    rintro e he
+    obtain ⟨D', hD', hDe⟩ := he
+    have hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT (bgOfRaw e.1 e.2)) := by
+      have : Tr.gdat hT (bgOfRaw e.1 e.2) = D' := BgData.eq_of_raw hDe
+      rw [this]
+      exact hD'
+    have h2 : AnalyticAt ℂ A ((rawSub N S.G').subtypeL e) := by
+      show AnalyticAt ℂ A (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      exact hA _ hD
+    exact h2.comp ((rawSub N S.G').subtypeL.analyticAt e)
+  refine h1.congr hopen fun e he => ?_
+  obtain ⟨D', hD', hDe⟩ := he
+  have hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT (bgOfRaw e.1 e.2)) := by
+    have : Tr.gdat hT (bgOfRaw e.1 e.2) = D' := BgData.eq_of_raw hDe
+    rw [this]
+    exact hD'
+  exact hAv _ hD
+
+end DetExpansionLocCBg
 
 namespace DetExpansionLocC
 
@@ -204,7 +339,7 @@ def atDatum (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
 
 /-- **The record does not depend on the datum of the step**: a record of `S` is a record of the
 step `S.withDatum D` (same generating set, weights, mass, blocks and chart). -/
-def withDatum (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
+noncomputable def withDatum (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
     (hDh : ∀ y i, D.h y i = (S.h₀ i : ℂ)) :
     DetExpansionLocC (S.withDatum D hDh) m₀ z eps κ'' cdet where
   term := E.term
@@ -214,19 +349,10 @@ def withDatum (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
   local_resDep := E.local_resDep
   analyticAt_raw := E.analyticAt_raw
 
-/-- A smaller rate and a larger constant. -/
-def weaken (E : DetExpansionLocC S m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ} (h0 : 0 ≤ cdet)
-    (hc : cdet ≤ cdet₂) (hκ : κ₂ ≤ κ'') : DetExpansionLocC S m₀ z eps κ₂ cdet₂ where
-  term := E.term
-  sum_eq := E.sum_eq
-  bound := fun D hD T => (E.bound D hD T).trans (by
-    have hd := dExt_nonneg (m₀ := m₀) (j := k + 1) (Ω := Set.univ) T
-    have he : Real.exp (-κ'' * dExt T) ≤ Real.exp (-κ₂ * dExt T) :=
-      Real.exp_le_exp.2 (by nlinarith)
-    exact mul_le_mul hc he (Real.exp_pos _).le (h0.trans hc))
-  anchor := E.anchor
-  local_resDep := E.local_resDep
-  analyticAt_raw := E.analyticAt_raw
+/-- A smaller rate and a larger constant (`DetExpansionLocCBg.weaken` at the step's own set). -/
+noncomputable def weaken (E : DetExpansionLocC S m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ} (h0 : 0 ≤ cdet)
+    (hc : cdet ≤ cdet₂) (hκ : κ₂ ≤ κ'') : DetExpansionLocC S m₀ z eps κ₂ cdet₂ :=
+  DetExpansionLocCBg.weaken E h0 hc hκ
 
 @[simp] theorem weaken_term (E : DetExpansionLocC S m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ}
     (h0 : 0 ≤ cdet) (hc : cdet ≤ cdet₂) (hκ : κ₂ ≤ κ'') :
@@ -236,17 +362,15 @@ def weaken (E : DetExpansionLocC S m₀ z eps κ'' cdet) {κ₂ cdet₂ : ℝ} (
 theorem term_eq_zero_of_not_mem (E : DetExpansionLocC S m₀ z eps κ'' cdet) {D : BgData S.G' N}
     (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
     {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ)} (hT : rootCube (m₀ := m₀) (K := k + 1) z ∉ T) : E.term D T = 0 := by
-  by_contra h
-  exact hT (E.anchor D hD T h).1
+      Set.univ)} (hT : rootCube (m₀ := m₀) (K := k + 1) z ∉ T) : E.term D T = 0 :=
+  DetExpansionLocCBg.term_eq_zero_of_not_mem E hD hT
 
 /-- A term vanishes at a set of cubes that is not a polymer. -/
 theorem term_eq_zero_of_not_isPolyDom (E : DetExpansionLocC S m₀ z eps κ'' cdet)
     {D : BgData S.G' N} (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
     {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ)} (hT : ¬ IsPolyDom m₀ (k + 1) (sitesOf T)) : E.term D T = 0 := by
-  by_contra h
-  exact hT (E.anchor D hD T h).2
+      Set.univ)} (hT : ¬ IsPolyDom m₀ (k + 1) (sitesOf T)) : E.term D T = 0 :=
+  DetExpansionLocCBg.term_eq_zero_of_not_isPolyDom E hD hT
 
 /-- **Locality in the thickening `thickSet`** (`I5Local`): two data of the chart whose raw data
 agree on the sites of `T` and on the sets `resDep x`, `x` a site of `T` in `Ω₁`, have the same
@@ -256,10 +380,8 @@ theorem term_eq_of_agreeOn (E : DetExpansionLocC S m₀ z eps κ'' cdet) {D D₂
     (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ))
     (h : agreeOn (thickSet S.G' (sitesOf T)) (rawOf D) (rawOf D₂)) :
-    E.term D T = E.term D₂ T := by
-  refine E.local_resDep D D₂ hD hD₂ T fun x hx w hw => ?_
-  have hw' := h w (Or.inr ⟨x, hx, x.2, hw⟩)
-  exact ⟨hw'.1, fun _ => hw'.2⟩
+    E.term D T = E.term D₂ T :=
+  DetExpansionLocCBg.term_eq_of_agreeOn E hD hD₂ T h
 
 /-- **Analyticity on the chart as an open subset of the subspace of data.**  The chart is open in
 the subspace `rawSub` of raw data of data (`isOpen_preimage_xiCRaw`), and on it the term is an
@@ -270,25 +392,8 @@ theorem analyticOnNhd_rawSub (E : DetExpansionLocC S m₀ z eps κ'' cdet)
       Set.univ)) :
     AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.term (bgOfRaw e.1 e.2) T)
       (((↑) : rawSub N S.G' → RawData d L (N₁ * L ^ m₁) (k + 1) N) ⁻¹'
-        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) := by
-  obtain ⟨A, hA, hAv⟩ := E.analyticAt_raw T
-  have hopen := isOpen_preimage_xiCRaw (G := S.G') (N := N) (n := k + 1) (σ := 1) (ε := eps) H
-  have h1 : AnalyticOnNhd ℂ (fun e : rawSub N S.G' =>
-      A (e : RawData d L (N₁ * L ^ m₁) (k + 1) N))
-      (((↑) : rawSub N S.G' → RawData d L (N₁ * L ^ m₁) (k + 1) N) ⁻¹'
-        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) := by
-    rintro e ⟨D, hD, he⟩
-    have h2 : AnalyticAt ℂ A ((rawSub N S.G').subtypeL e) := by
-      show AnalyticAt ℂ A (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)
-      rw [he]
-      exact hA D hD
-    exact h2.comp ((rawSub N S.G').subtypeL.analyticAt e)
-  refine h1.congr hopen fun e he => ?_
-  obtain ⟨D, hD, hDe⟩ := he
-  have hbg : bgOfRaw e.1 e.2 = D := BgData.eq_of_raw ((rawOf_bgOfRaw e.1 e.2).trans hDe)
-  show A (e : RawData d L (N₁ * L ^ m₁) (k + 1) N) = E.term (bgOfRaw e.1 e.2) T
-  rw [hbg, hDe]
-  exact hAv D hD
+        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) :=
+  DetExpansionLocCBg.analyticOnNhd_rawSub E H T
 
 end DetExpansionLocC
 
@@ -304,13 +409,96 @@ variable (S : StepSetting d L N₁ m₁ k N ϱ)
   {c BG κ eps Kc Cx c₂ BG₂ δ₁ δc : ℝ}
 
 open Classical in
-/-- **The localized determinant family of a step on the chart.**  Under `FlCore`, the cap and the
-margins of the covariance chart, `HatConn`, `L^{m₀} ∣ N₁` and the rate condition
-`e^κ > 2 (detDeg d L + 1)²`, the record `DetExpansionLocC` of the block `B(z)` has an element whose
-term at the datum `D` and the polymer `T` is the sum over the unit blocks `y ∈ B(z)` of the
-activities `detActivityBg D y T`; its rate is `(κ - log 2 - 2 log (detDeg d L + 1)) / (2 d L)` and
+/-- **The localized determinant family on a background generating set `Gb`.**  Under `FlCore` of
+`Gb`, the cap and the margins of the covariance chart, `HatConn`, `L^{m₀} ∣ N₁`, the rate condition
+`e^κ > 2 (detDeg d L + 1)²`, and a mask `Zb` of at most `L^d` unit points of `Gb` whose root index is
+`z`, the record `DetExpansionLocCBg` has an element whose term at the datum `D` of the step and the
+polymer `T` is the sum over the unit points `y ∈ Zb` of the activities `detActivityBg D' y T` at the
+datum `D' = Tr.gdat hT D` of `Gb`; its rate is `(κ - log 2 - 2 log (detDeg d L + 1)) / (2 d L)` and
 its constant is `L^d · ½ N covBLog d L a_k (a₁/L²) κ / (1 - (detDeg d L + 1)² · 2 / e^κ)`, which
 involves neither the torus, nor `z`, nor the datum. -/
+theorem exists_detExpansionLocCBg_of_chart {ϱb : ℝ}
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (Tr : BgTransport S.G' Gb N)
+    (hT : Tr.Reads) (Zb : Finset (unitPts Gb))
+    (hC : FlCore N Gb Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hδc : 0 ≤ δc)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (hconn : HatConn Gb) (hN : L ^ m₀ ∣ N₁)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1)
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : ∀ y ∈ Zb, rootIdxOf y = z) (hZc : Zb.card ≤ L ^ d) :
+    ∃ E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps
+        ((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L))
+        ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+          (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)))),
+      ∀ D T, E.term D T =
+        ∑ y ∈ Zb, detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) (Tr.gdat hT D) y T := by
+  have hc : 0 ≤ covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ := by
+    unfold covBLog
+    have := covB4_nonneg d L (S.a k) κ
+    have := (xSetting_of_flCore hC S.hk1).hak_pos
+    positivity
+  have hC0 : 0 ≤ (1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+      (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) :=
+    div_nonneg (by positivity) (by linarith)
+  refine ⟨⟨fun D T => ∑ y ∈ Zb,
+    detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) (Tr.gdat hT D) y T, fun D hD => ?_, fun D hD T => ?_,
+    fun D hD T hTne => ?_, fun D D₂ hD hD₂ T hdata => ?_, fun T => ?_⟩, fun _ _ => rfl⟩
+  · rw [← rootTraceBg_one_eq_of_flCore hC hD,
+      rootTraceBg_eq_sum_single S.a S.a₁ S.ν (rho4 d L N BG κ) Zb (Tr.gdat hT D) (fun _ => 1),
+      Finset.sum_comm]
+    exact Finset.sum_congr rfl fun y _ =>
+      sum_detActivityBg_eq S.a S.a₁ S.ν (rho4 d L N BG κ) (Tr.gdat hT D) y
+  · refine (norm_sum_le _ _).trans ?_
+    have hb : ∀ y ∈ Zb,
+        ‖detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) (Tr.gdat hT D) y T‖ ≤
+          (1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+            (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+          Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+            (2 * d * L)) * dExt T) := fun y _ =>
+      norm_detActivityBg_le hC S.hk1 hδc hMX hsm hdm hα hconn hD hN y hz T
+    refine (Finset.sum_le_sum hb).trans ?_
+    rw [Finset.sum_const, nsmul_eq_mul]
+    have hcard : ((Zb).card : ℝ) ≤ (L : ℝ) ^ d := by
+      exact_mod_cast hZc
+    have he : 0 ≤ Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+        (2 * d * L)) * dExt T) := (Real.exp_pos _).le
+    calc ((Zb).card : ℝ) * ((1 / 2 : ℝ) * N *
+            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+              (2 * d * L)) * dExt T))
+        ≤ (L : ℝ) ^ d * ((1 / 2 : ℝ) * N *
+            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+              (2 * d * L)) * dExt T)) :=
+          mul_le_mul_of_nonneg_right hcard (mul_nonneg hC0 he)
+      _ = _ := by ring
+  · obtain ⟨y, hy, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hTne
+    have h := detActivityBg_ne_zero_imp hC S.hk1 hδc hMX hsm hdm hα hconn hD hN hne
+    rw [hZ y hy] at h
+    exact h
+  · exact Finset.sum_congr rfl fun y _ =>
+      detActivityBg_eq_of_agree hC S.hk1 hδc hMX hsm hdm hα hconn hD hD₂ hN y T hdata
+  · choose A hA hAv using fun y : unitPts Gb =>
+      exists_analytic_detActivityBg_raw (m₀ := m₀) hC S.hk1 hδc hMX hsm hdm hα y T
+    exact ⟨fun r => ∑ y ∈ Zb, A y (Tr.dat r),
+      fun D hD => Finset.analyticAt_fun_sum _ fun y _ =>
+        (hA y (Tr.gdat hT D) hD).comp_of_eq
+          ((LinearMap.toContinuousLinearMap Tr.dat).analyticAt (rawOf D)) rfl,
+      fun D hD => Finset.sum_congr rfl fun y _ => hAv y (Tr.gdat hT D) hD⟩
+
+
+open Classical in
+/-- **The localized determinant family of a step on the chart.**  The record `DetExpansionLocC` of
+the block `B(z)` has an element whose term at the datum `D` and the polymer `T` is the sum over the
+unit blocks `y ∈ B(z)` of the activities `detActivityBg D y T`
+(`exists_detExpansionLocCBg_of_chart` at `Gb = S.G'`); its rate is
+`(κ - log 2 - 2 log (detDeg d L + 1)) / (2 d L)` and its constant is
+`L^d · ½ N covBLog d L a_k (a₁/L²) κ / (1 - (detDeg d L + 1)² · 2 / e^κ)`, which involves neither
+the torus, nor `z`, nor the datum. -/
 theorem exists_detExpansionLocC_of_chart
     (hC : FlCore N S.G' Hm S.a₁ S.ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hδc : 0 ≤ δc)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
@@ -324,60 +512,10 @@ theorem exists_detExpansionLocC_of_chart
         ((L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
           (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)))),
       ∀ D T, E.term D T =
-        ∑ y ∈ S.blockU z, detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) D y T := by
-  have hc : 0 ≤ covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ := by
-    unfold covBLog
-    have := covB4_nonneg d L (S.a k) κ
-    have := (xSetting_of_flCore hC S.hk1).hak_pos
-    positivity
-  have hC0 : 0 ≤ (1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
-      (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) :=
-    div_nonneg (by positivity) (by linarith)
-  refine ⟨⟨fun D T => ∑ y ∈ S.blockU z,
-    detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) D y T, fun D hD => ?_, fun D hD T => ?_,
-    fun D hD T hT => ?_, fun D D₂ hD hD₂ T hdata => ?_, fun T => ?_⟩, fun _ _ => rfl⟩
-  · rw [← rootTraceBg_one_eq_of_flCore hC hD,
-      rootTraceBg_eq_sum_single S.a S.a₁ S.ν (rho4 d L N BG κ) (S.blockU z) D (fun _ => 1),
-      Finset.sum_comm]
-    exact Finset.sum_congr rfl fun y _ =>
-      sum_detActivityBg_eq S.a S.a₁ S.ν (rho4 d L N BG κ) D y
-  · refine (norm_sum_le _ _).trans ?_
-    have hb : ∀ y ∈ S.blockU z,
-        ‖detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) D y T‖ ≤
-          (1 / 2 : ℝ) * N * covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
-            (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
-          Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
-            (2 * d * L)) * dExt T) := fun y _ =>
-      norm_detActivityBg_le hC S.hk1 hδc hMX hsm hdm hα hconn hD hN y hz T
-    refine (Finset.sum_le_sum hb).trans ?_
-    rw [Finset.sum_const, nsmul_eq_mul]
-    have hcard : ((S.blockU z).card : ℝ) ≤ (L : ℝ) ^ d := by
-      exact_mod_cast card_blockU_le S z
-    have he : 0 ≤ Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
-        (2 * d * L)) * dExt T) := (Real.exp_pos _).le
-    calc ((S.blockU z).card : ℝ) * ((1 / 2 : ℝ) * N *
-            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
-              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
-            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
-              (2 * d * L)) * dExt T))
-        ≤ (L : ℝ) ^ d * ((1 / 2 : ℝ) * N *
-            covBLog d L (S.a k) (S.a₁ / (L : ℝ) ^ 2) κ /
-              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
-            Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
-              (2 * d * L)) * dExt T)) :=
-          mul_le_mul_of_nonneg_right hcard (mul_nonneg hC0 he)
-      _ = _ := by ring
-  · obtain ⟨y, hy, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hT
-    have h := detActivityBg_ne_zero_imp hC S.hk1 hδc hMX hsm hdm hα hconn hD hN hne
-    rw [rootIdxOf_eq_of_mem_blockU hy] at h
-    exact h
-  · exact Finset.sum_congr rfl fun y _ =>
-      detActivityBg_eq_of_agree hC S.hk1 hδc hMX hsm hdm hα hconn hD hD₂ hN y T hdata
-  · choose A hA hAv using fun y : S.U =>
-      exists_analytic_detActivityBg_raw (m₀ := m₀) hC S.hk1 hδc hMX hsm hdm hα y T
-    exact ⟨fun r => ∑ y ∈ S.blockU z, A y r,
-      fun D hD => Finset.analyticAt_fun_sum _ fun y _ => hA y D hD,
-      fun D hD => Finset.sum_congr rfl fun y _ => hAv y D hD⟩
+        ∑ y ∈ S.blockU z, detActivityBg m₀ S.a S.a₁ S.ν (rho4 d L N BG κ) D y T :=
+  exists_detExpansionLocCBg_of_chart S S.G' (BgTransport.self S.hG')
+    (BgTransport.reads_self S.hG') (S.blockU z) hC hδc hMX hdm hα hsm hconn hN hz z
+    (fun _ hy => rootIdxOf_eq_of_mem_blockU hy) (card_blockU_le S z)
 
 end Chart
 
@@ -525,9 +663,43 @@ end Dependency
 
 section DependencyStep
 
-variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb : ℝ}
   {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
   {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
+  {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {Tr : BgTransport S.G' Gb N}
+  {hT : Tr.Reads} {Zb : Finset (unitPts Gb)}
+
+/-- **Locality of a term in a neighbourhood of its polymer.**  For a level set `Gb` of level
+`k + 1`: two data whose data on `Gb` lie in the chart and agree at every site which is, in each
+coordinate, within `r_det = 3 L^{k+1} - 1` of a site of `T` have the same term at `T`. -/
+theorem DetExpansionLocCBg.term_eq_of_agree_near
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (hGb : IsLevel Gb (k + 1))
+    {D D₂ : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    (hD₂ : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D₂))
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (h : ∀ v : CTorus d L N₁ m₁ (k + 1), (∃ x ∈ sitesOf T, ∀ μ,
+      CoordNear (N₁ * L ^ m₁ * L ^ (k + 1)) (detDepRadius L (k + 1)) (v μ) (x μ)) →
+      (Tr.gdat hT D).Ψ v = (Tr.gdat hT D₂).Ψ v ∧ (Tr.gdat hT D).h v = (Tr.gdat hT D₂).h v) :
+    E.term D T = E.term D₂ T :=
+  E.term_eq_of_agreeOn hD hD₂ T fun v hv => h v (thickSet_coordNear hGb _ hv)
+
+/-- **Locality of a term in the cells of its polymer and their neighbours.**  For a level set `Gb`
+of level `k + 1` and `3 ≤ L^{m₀ + m₁}`: two data whose data on `Gb` lie in the chart and agree at
+every site whose cell of `π_{k+1}` is equal or `*`-adjacent to the cell of a site of `T` have the
+same term at `T`. -/
+theorem DetExpansionLocCBg.term_eq_of_agree_cellNear
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (hGb : IsLevel Gb (k + 1))
+    (hN : L ^ m₀ ∣ N₁) (h3 : 3 ≤ L ^ (m₀ + m₁))
+    {D D₂ : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    (hD₂ : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D₂))
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (h : ∀ v : CTorus d L N₁ m₁ (k + 1), (∃ x ∈ sitesOf T, CellNear m₀ (k + 1) x v) →
+      (Tr.gdat hT D).Ψ v = (Tr.gdat hT D₂).Ψ v ∧ (Tr.gdat hT D).h v = (Tr.gdat hT D₂).h v) :
+    E.term D T = E.term D₂ T :=
+  E.term_eq_of_agreeOn hD hD₂ T fun v hv =>
+    h v (thickSet_cellNear hGb hN (detDepRadius_lt_cellSide h3 (k + 1)) _ hv)
 
 /-- **Locality of a term in a neighbourhood of its polymer.**  Two data of the chart whose raw
 data agree at every site which is, in each coordinate, within `r_det = 3 L^{k+1} - 1` of a site of
@@ -541,7 +713,7 @@ theorem DetExpansionLocC.term_eq_of_agree_near (E : DetExpansionLocC S m₀ z ep
       CoordNear (N₁ * L ^ m₁ * L ^ (k + 1)) (detDepRadius L (k + 1)) (v μ) (x μ)) →
       D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) :
     E.term D T = E.term D₂ T :=
-  E.term_eq_of_agreeOn hD hD₂ T fun v hv => h v (thickSet_coordNear S.hG' _ hv)
+  DetExpansionLocCBg.term_eq_of_agree_near E S.hG' hD hD₂ T h
 
 /-- **Locality of a term in the cells of its polymer and their neighbours.**  If
 `3 ≤ L^{m₀ + m₁}`, two data of the chart whose raw data agree at every site whose cell of
@@ -556,8 +728,7 @@ theorem DetExpansionLocC.term_eq_of_agree_cellNear (E : DetExpansionLocC S m₀ 
     (h : ∀ v : CTorus d L N₁ m₁ (k + 1), (∃ x ∈ sitesOf T, CellNear m₀ (k + 1) x v) →
       D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) :
     E.term D T = E.term D₂ T :=
-  E.term_eq_of_agreeOn hD hD₂ T fun v hv =>
-    h v (thickSet_cellNear S.hG' hN (detDepRadius_lt_cellSide h3 (k + 1)) _ hv)
+  DetExpansionLocCBg.term_eq_of_agree_cellNear E S.hG' hN h3 hD hD₂ T h
 
 end DependencyStep
 
