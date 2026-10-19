@@ -57,6 +57,23 @@ theorem locData_Ψ_of_not_omega (o : OutT N R (locHist (H.locRH (i + 1 + 1) C) M
   simp only [hm, ↓reduceIte]
   rfl
 
+omit [NeZero M] [NeZero S.L] in
+/-- A cube of `Ω_k` of the localized history (`k = i + 1`) is a cube of `lhOmega` at scale `k`. -/
+theorem cubeSub_lhOmega_of_omega_k {q : Torus S.d (n (i + 1))}
+    (hq : q ∈ ((H.locRH (i + 1 + 1) C).step i).Omega) :
+    CubeSub (S := S) (n := n) M K (i + 1)  q
+      (lhOmega (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1)) := by
+  intro x' hx'
+  by_cases hqC : cubeMap n S.L M K (i + 1 + 1) x' ∈ C.1
+  · left
+    refine ⟨?_, ?_⟩
+    · show cubeMap n S.L M K (i + 1) x' ∈ ((H.locRH (i + 1 + 1) C).step i).Omega
+      rw [hx']; exact hq
+    · exact hqC
+  · right
+    intro hz
+    exact hqC hz.2
+
 include hjK in
 /-- The block of scale `k = i + 1` of a site whose `π_k`-cube lies in `Ω_k` of the localized history
 lies in `lhOmega`, so that the gate of `subMultiscaleField` is open. -/
@@ -67,16 +84,7 @@ theorem blockSub_lhOmega_of_cube {y : BlockAt S n M K (i + 1)}
   intro x' hx'
   have hc : cubeMap n S.L M K (i + 1) x' = blockCube S n M K (i + 1) y :=
     (blockCube_eq_cubeMap H.F.hnn (by omega) hx').symm
-  by_cases hqC : cubeMap n S.L M K (i + 1 + 1) x' ∈ C.1
-  · left
-    refine ⟨?_, ?_⟩
-    · show cubeMap n S.L M K (i + 1) x' ∈ ((H.locRH (i + 1 + 1) C).step i).Omega
-      rw [hc]; exact hy
-    · exact hqC
-  · right
-    intro hz
-    exact hqC hz.2
-
+  exact cubeSub_lhOmega_of_omega_k (M := M) H C (q := blockCube S n M K (i + 1) y) hy x' hc
 
 include hjK in
 /-- The value of the datum at a site off `Ω_{k+1}` whose `π_k`-cube lies in `Ω_k` is the multiscale
@@ -224,6 +232,21 @@ theorem blockAdj_symm' {b b' : BlockPt S n M K} (h : BlockAdj b b') : BlockAdj b
   exact ⟨x', x, hx', hx, hadj.symm⟩
 
 include hjK in
+/-- Adjacent `k`-blocks for an interface pair (in either order) of two sites off `Ω_{k+1}`. -/
+theorem blockAdj_psi_of_pair {s s' : BgT g (i + 1 + 1)}
+    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s' ∨
+      IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s' s)
+    (hOs : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
+    (hOs' : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s' ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega) :
+    BlockAdj (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K)
+      (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s')⟩ : BlockPt S n M K) := by
+  have hls := layerIndex_le_of_not_omega H g C hjK hOs
+  have hls' := layerIndex_le_of_not_omega H g C hjK hOs'
+  rcases hp with hp | hp
+  · exact blockAdj_of_interfacePair_le H g hjK hp hls hls' (by omega) (by omega)
+  · exact blockAdj_symm' (blockAdj_of_interfacePair_le H g hjK hp hls' hls (by omega) (by omega))
+
+include hjK in
 /-- **The mixed pair bound** (R1 between a `ψ_{k+1}`-site and a `ψ_k`-site): for `s` over `Ω_{k+1}`
 and `s'` off it with an interface pair, the multiscale field at their blocks (layers `k + 1`, `k`)
 is within `η`, from the first family of `ChiDomProp` at the cube of `s'`. -/
@@ -296,7 +319,8 @@ theorem piece_psi_pair {η : ℝ}
     {s s' : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
-    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s')
+    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s' ∨
+      IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s' s)
     (hOs : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
     (hOs' : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s' ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
     (hy : blockMap (S.L ^ (i + 1) * (g.c * g.M1)) (n (i + 1)) s ∈ ((H.locRH (i + 1 + 1) C).step i).Omega)
@@ -307,7 +331,12 @@ theorem piece_psi_pair {η : ℝ}
       ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s' l).re) < η := by
   have hq : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈ C.1 :=
     mem_comp_of_not_omega H C hjK (by rw [cubeMap_bgToFine_gen]; exact hOs)
-  have hnear := (blockAdj_of_interfacePair H g hjK hp).1
+  have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
+  have hnear : supDist (cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s'))
+      (cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s)) ≤ 1 := by
+    rw [supDist_comm]
+    exact supDist_cubeMap_le_one (show i + 1 ≤ i + 1 + 1 by omega) hjK H.F.hnn
+      (cube_near_of_blockAdj H.F.hnn (show i + 1 ≤ K by omega) hadj)
   have hZ := cubeSub_Z_of_mem_comp (M := M) H C hjK hq
   have hmem : ∀ (t : BgT g (i + 1 + 1)),
       blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) t ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega →
@@ -323,9 +352,7 @@ theorem piece_psi_pair {η : ℝ}
     exact ⟨Nat.succ_pos i, (by show i + 1 ≤ K; omega), _, hlay, rfl, mem_nbhd.2 ⟨_, rfl, ht3⟩⟩
   have hb := hmem s hOs hy (by simp [supDist_self])
   have hb' := hmem s' hOs' hy' hnear
-  have hls := layerIndex_le_of_not_omega H g C hjK hOs
-  have hls' := layerIndex_le_of_not_omega H g C hjK hOs'
-  have hadj := blockAdj_of_interfacePair_le H g hjK hp hls hls' (by omega) (by omega)
+  have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
   have key := (hψ _ hZ hsim).1 _ hb _ hb' (Or.inl rfl) hadj
   have e := piece_psi_value H g C hjK o x hv hs hOs hy
   have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
@@ -396,7 +423,8 @@ theorem piece_psi_pair_far {η : ℝ}
     {s s' : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
-    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s')
+    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s' ∨
+      IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s' s)
     (hOs : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
     (hOs' : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s' ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
     (hy : blockMap (S.L ^ (i + 1) * (g.c * g.M1)) (n (i + 1)) s ∈ ((H.locRH (i + 1 + 1) C).step i).Omega)
@@ -409,9 +437,7 @@ theorem piece_psi_pair_far {η : ℝ}
       ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s' l).re) < η := by
   have hq : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈ C.1 :=
     mem_comp_of_not_omega H C hjK (by rw [cubeMap_bgToFine_gen]; exact hOs)
-  have hls := layerIndex_le_of_not_omega H g C hjK hOs
-  have hls' := layerIndex_le_of_not_omega H g C hjK hOs'
-  have hadj := blockAdj_of_interfacePair_le H g hjK hp hls hls' (by omega) (by omega)
+  have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
   have hnear := cube_near_of_blockAdj H.F.hnn (show i + 1 ≤ K by omega) hadj
   have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K) ∈
       scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
@@ -427,6 +453,106 @@ theorem piece_psi_pair_far {η : ℝ}
       (pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s'))) l) =
     fun l => (pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)) -
       pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s'))) l from rfl,
+    rn_fun_eq_norm]
+  exact key
+
+/-- The first family of `ChiDomProp` at the scale `k = i + 1` (the cubes of `Z_k`): the hypothesis
+of the lemmas for the sites over `Z_k`.  `ψw` is the multiscale field of the operator whose domain
+is tested. -/
+def PieceZkFamily (ψw : MultiField S n M K N) (η : ℝ) : Prop :=
+  ∀ q : Torus S.d (n (i + 1)),
+    CubeSub (S := S) (n := n) M K (i + 1) q ((H.localHistory M K (i + 1 + 1) C).Z (i + 1)) →
+    q ∈ lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1) →
+    PsiTildeMulti ψw (genBlocksIn (chiDomGen H g (i + 1 + 1) C) (i + 1) (nbhd 1 {q})) η
+
+include hjK in
+/-- **The sphere bound at a site off `Ω_{k+1}` over `Z_k`** (R2 for the `ψ_k` datum): the cube
+`□ ⊂ Z_k ∩ Ω_k` is tested by the first family of `ChiDomProp` at the scale `k`. -/
+theorem piece_psi_sphere_Zk {η : ℝ} (ψw : MultiField S n M K N)
+    (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
+    (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
+    (hψ : PieceZkFamily H g C ψw η)
+    {s : BgT g (i + 1 + 1)}
+    (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
+    (hO : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
+    (hy : blockMap (S.L ^ (i + 1) * (g.c * g.M1)) (n (i + 1)) s ∈ ((H.locRH (i + 1 + 1) C).step i).Omega)
+    (hZk : CubeSub (S := S) (n := n) M K (i + 1) (cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s))
+      ((H.localHistory M K (i + 1 + 1) C).Z (i + 1)))
+    (hag : ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)) =
+      pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s))) :
+    |∑ l, ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s l).re ^ 2 - 1| < η := by
+  have hyk : cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s) ∈ ((H.locRH (i + 1 + 1) C).step i).Omega := by
+    rw [cubeMap_bgToFine_gen]; exact hy
+  have hsim : cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s) ∈
+      lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1) := by
+    unfold lhOmegaSim lhOmegaNb
+    rw [ite_eq_right_of_eq_false _ _ (eq_false (by omega))]
+    exact mem_nbhd.2 ⟨_, cubeSub_lhOmega_of_omega_k (M := M) H C hyk, by simp [supDist_self]⟩
+  have hlay := mem_layer_psi H g C hjK (x := bgToFine g H.F.hnn hjK s)
+    hyk (by rw [cubeMap_bgToFine_gen]; exact hO)
+  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K) ∈
+      genBlocksIn (chiDomGen H g (i + 1 + 1) C) (i + 1)
+        (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
+    ⟨Nat.succ_pos i, (by show i + 1 ≤ K; omega), _, hlay, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
+  have key := (hψ _ hZk hsim).2 _ hb
+  have e := piece_psi_value H g C hjK o x hv hs hO hy
+  simp_rw [e, ← hag]
+  rw [parent_sum_sq_eq_norm_sq]
+  exact key
+
+include hjK in
+/-- **The pair bound for two `ψ_k`-sites, the cube of the first over `Z_k`** (R1). -/
+theorem piece_psi_pair_Zk {η : ℝ} (ψw : MultiField S n M K N)
+    (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
+    (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
+    (hψ : PieceZkFamily H g C ψw η)
+    {s s' : BgT g (i + 1 + 1)}
+    (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
+    (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
+    (hp : IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s s' ∨
+      IsInterfacePair (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) s' s)
+    (hOs : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
+    (hOs' : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s' ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
+    (hy : blockMap (S.L ^ (i + 1) * (g.c * g.M1)) (n (i + 1)) s ∈ ((H.locRH (i + 1 + 1) C).step i).Omega)
+    (hy' : blockMap (S.L ^ (i + 1) * (g.c * g.M1)) (n (i + 1)) s' ∈ ((H.locRH (i + 1 + 1) C).step i).Omega)
+    (hZk : CubeSub (S := S) (n := n) M K (i + 1) (cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s))
+      ((H.localHistory M K (i + 1 + 1) C).Z (i + 1)))
+    (hag : ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)) =
+      pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)))
+    (hag' : ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s')) =
+      pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s'))) :
+    rn (fun l => ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s l).re -
+      ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s' l).re) < η := by
+  have hyk : cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s) ∈ ((H.locRH (i + 1 + 1) C).step i).Omega := by
+    rw [cubeMap_bgToFine_gen]; exact hy
+  have hsim : cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s) ∈
+      lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1) := by
+    unfold lhOmegaSim lhOmegaNb
+    rw [ite_eq_right_of_eq_false _ _ (eq_false (by omega))]
+    exact mem_nbhd.2 ⟨_, cubeSub_lhOmega_of_omega_k (M := M) H C hyk, by simp [supDist_self]⟩
+  have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
+  have hnear := cube_near_of_blockAdj H.F.hnn (show i + 1 ≤ K by omega) hadj
+  have hlay := mem_layer_psi H g C hjK (x := bgToFine g H.F.hnn hjK s)
+    hyk (by rw [cubeMap_bgToFine_gen]; exact hOs)
+  have hlay' := mem_layer_psi H g C hjK (x := bgToFine g H.F.hnn hjK s')
+    (by rw [cubeMap_bgToFine_gen]; exact hy') (by rw [cubeMap_bgToFine_gen]; exact hOs')
+  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K) ∈
+      genBlocksIn (chiDomGen H g (i + 1 + 1) C) (i + 1)
+        (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
+    ⟨Nat.succ_pos i, (by show i + 1 ≤ K; omega), _, hlay, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
+  have hb' : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s')⟩ : BlockPt S n M K) ∈
+      genBlocksIn (chiDomGen H g (i + 1 + 1) C) (i + 1)
+        (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
+    ⟨Nat.succ_pos i, (by show i + 1 ≤ K; omega), _, hlay', rfl,
+      mem_nbhd.2 ⟨_, rfl, by rw [supDist_comm]; exact hnear⟩⟩
+  have key := (hψ _ hZk hsim).1 _ hb _ hb' (Or.inl rfl) hadj
+  have e := piece_psi_value H g C hjK o x hv hs hOs hy
+  have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
+  simp_rw [e, e', ← hag, ← hag']
+  rw [show (fun l => (ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s))) l -
+      (ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s'))) l) =
+    fun l => (ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)) -
+      ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s'))) l from rfl,
     rn_fun_eq_norm]
   exact key
 
