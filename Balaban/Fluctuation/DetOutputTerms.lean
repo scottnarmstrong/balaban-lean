@@ -313,6 +313,49 @@ namespace DetExpansionLocC
 variable {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
   {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
 
+/-- `sum_eq` of the record at the step's own set, in terms of the datum `D` of the step: the terms add
+up to the rooted trace of the block `B(z)` at the uncut background of `D`. -/
+theorem sum_eq (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D) :
+    rootTrace S.G' S.a S.a₁ S.ν (unitQ S.G') (unitP S.G') (S.blockU z) (fun _ => 1)
+        (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D) = ∑ T, E.term D T :=
+  DetExpansionLocCBg.sum_eq E D hD
+
+/-- `bound` of the record at the step's own set. -/
+theorem bound (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) : ‖E.term D T‖ ≤ cdet * Real.exp (-κ'' * dExt T) :=
+  DetExpansionLocCBg.bound E D hD T
+
+/-- `anchor` of the record at the step's own set. -/
+theorem anchor (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D : BgData S.G' N)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) (h : E.term D T ≠ 0) :
+    rootCube (m₀ := m₀) (K := k + 1) z ∈ T ∧ IsPolyDom m₀ (k + 1) (sitesOf T) :=
+  DetExpansionLocCBg.anchor E D hD T h
+
+/-- `local_resDep` of the record at the step's own set. -/
+theorem local_resDep (E : DetExpansionLocC S m₀ z eps κ'' cdet) (D D₂ : BgData S.G' N)
+    (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D) (hD₂ : XiCData S.G' S.a S.ν (k + 1) 1 eps D₂)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (h : ∀ x : S.G'.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ sitesOf T →
+      ∀ w ∈ resDep S.G' (x : CTorus d L N₁ m₁ (k + 1)),
+        D.Ψ w = D₂.Ψ w ∧ (w ∈ S.G'.Ω 1 → D.h w = D₂.h w)) : E.term D T = E.term D₂ T :=
+  DetExpansionLocCBg.local_resDep E D D₂ hD hD₂ T h
+
+/-- `analyticAt_raw` of the record at the step's own set. -/
+theorem analyticAt_raw (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ∃ A : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ,
+      (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → AnalyticAt ℂ A (rawOf D)) ∧
+      ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 eps D → A (rawOf D) = E.term D T :=
+  DetExpansionLocCBg.analyticAt_raw E T
+
 /-- **The forgetful map to `DetExpansionC`**: if the datum of the step is a datum of the chart,
 the terms at that datum form a `DetExpansionC` with the same rate and constant. -/
 def toDetExpansionC (E : DetExpansionLocC S m₀ z eps κ'' cdet)
