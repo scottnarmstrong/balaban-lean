@@ -84,8 +84,9 @@ end Respects
 
 section Cores
 
-variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
 
 /-- **The core of the ambient cover lies in the read region**: a site of the core of an active
 cube of the cover of the level set `𝔹_{k+1}` (parameters `extParams 𝔹_{k+1} X₁ w`, `w` supported
@@ -105,6 +106,34 @@ theorem level_core_mem_of_active (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁)
 /-- **The core of the local cover lies in the read region**: with the transported parameters `τ w`
 (the ambient parameters at the cubes with base in the top layer of `𝔹_{k+1}(Y)`, `0` at the
 others), every active cube of the cover of `𝔹_{k+1}(Y)` is an active ambient cube
+(`level_localB_active_cross`), so its core lies in `R`.
+
+The core of `localB_core_mem_of_active`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem core_mem_of_active (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)  (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} {C : Finset (ParIdx Gp X₁)}
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    {w : ParIdx Gp X₁ → ℂ} (hw : w ∈ supportedOn C) {y : CTorus d L N₁ m₁ (k + 1)}
+    (hy : y ∈ Dec2.Core (coverOf Gl)
+      (Dec2.extS (coverOf Gl)
+        (fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+          then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))) : y ∈ R := by
+  classical
+  simp only [Dec2.Core, Dec2.Zs, Finset.mem_biUnion, Finset.mem_filter] at hy
+  obtain ⟨z, ⟨hz, hne⟩, hyz⟩ := hy
+  have hs'0 := tau_off_top (Gl := Gl) (extParams Gp X₁ w)
+  obtain ⟨-, heq, -⟩ := level_active_cross hSS (H' := Gl) hG' hk1
+    (fun x hx => Gl.Ω_antitone le_rfl hk1
+      (by omega) hx) hs'0
+    (hat_of_active (Gp := Gp) hSS hA hk1 hM hs'0)
+    (tau_top (Gl := Gl) hG' (extParams Gp X₁ w)) hz hne
+  exact level_intBox_subset_of_active hG' hm₁ hRC hRX hw (by rw [heq]; exact hne)
+    (coreBox_subset_box hyz)
+
+/-- **The core of the local cover lies in the read region**: with the transported parameters `τ w`
+(the ambient parameters at the cubes with base in the top layer of `𝔹_{k+1}(Y)`, `0` at the
+others), every active cube of the cover of `𝔹_{k+1}(Y)` is an active ambient cube
 (`level_localB_active_cross`), so its core lies in `R`. -/
 theorem localB_core_mem_of_active (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
@@ -116,19 +145,7 @@ theorem localB_core_mem_of_active (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
     (hy : y ∈ Dec2.Core (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
       (Dec2.extS (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
         (fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
-          then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))) : y ∈ R := by
-  classical
-  simp only [Dec2.Core, Dec2.Zs, Finset.mem_biUnion, Finset.mem_filter] at hy
-  obtain ⟨z, ⟨hz, hne⟩, hyz⟩ := hy
-  have hs'0 := localB_tau_off_top hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)
-  obtain ⟨-, heq, -⟩ := level_localB_active_cross (H' := localB (k + 1) hk Y
-    (le_refl (minSep L (L ^ m₁)))) hG' hk1 hk Y (le_refl (minSep L (L ^ m₁)))
-    (fun x hx => (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone le_rfl hk1
-      (by omega) hx) hs'0
-    (localB_hat_of_active (Gp := Gp) hk1 hk Y (le_refl (minSep L (L ^ m₁))) hm₁ hM hs'0)
-    (localB_tau_top hG' hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)) hz hne
-  exact level_intBox_subset_of_active hG' hm₁ hRC hRX hw (by rw [heq]; exact hne)
-    (coreBox_subset_box hyz)
+          then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))) : y ∈ R := core_mem_of_active (localB_supSep hk Y (le_refl (minSep L (L ^ m₁)))) (localB_cubeAligned hk Y (le_refl (minSep L (L ^ m₁))) hm₁) hG' hk1 hm₁ hM hRC hRX hw hy
 
 end Cores
 
@@ -136,8 +153,265 @@ end Cores
 
 section HatLift
 
-variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {ν : ℝ}
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl} {ν : ℝ}
+
+/-- **The local hat lift equals the ambient hat lift near the read region (P3 (4.22)-(4.24) at
+`𝔹_{k+1}(Y)`).**  Let `𝔹_{k+1}` be a level set (`k ≥ 1`), `𝔹_{k+1}(Y) = localB (k + 1) … Y`, `R` a
+read region with the margin of `coef_eTermFun_replacement_localB` (every site within
+`2 M₁ L^{k+1}` of `R` has its `𝒞_{k+1}`-cube in `Y`), and `w` supported on the family `𝒞` with
+`|σ w| < e^κ`, `σ w = extParams 𝔹_{k+1} X₁ w`; let `τ w` be the transported parameters.  Let `D` be
+a datum of the chart `Ξ^c(𝔹_{k+1}; 1, ε)` and `D'` a datum of `Ξ^c(𝔹_{k+1}(Y); 1, ε')` agreeing with
+`D` on the top layer of `𝔹_{k+1}(Y)`, and `F₁`, `F₁'` the decoupled background maps of the two
+pairs.  Then at every site `x₀` within `L^{k+1}` of `R` the local hat lift
+`cc C'^{1/2}(τ w) ψ̂'` (the square root of the cover of `𝔹_{k+1}(Y)` at the local background, `ψ̂'`
+the restriction of `ψ̂` to the unit lattice of `𝔹_{k+1}(Y)`, extended by zero off its unit blocks)
+equals the ambient hat lift `hatPsiF` at `σ w`.
+
+The core of `localHatLift_eq_hatPsiF_localB`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem localHatLift_eq_hatPsiF (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)
+
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    {c BG a₁ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν)
+    (HB' : BgHyp d L (k + 1) ϱl (compWeight L a₁) ν)
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) {κ : ℝ} (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) ×
+        (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gp) Gp (compWeight L a₁) ν (rho4 d L N BG κ)
+          s D φ α → F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl))
+      (D : BgData Gl N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gl)
+          Gl (compWeight L a₁) ν
+            (rho4 d L N BG κ) s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {eps eps' δc : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (heps' : 0 < eps') (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1)
+    (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
+    (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
+    (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hmarD' : decDomMargin d L N BG κ (xiC1 d * eps') < δc)
+    (hαD' : K4 d L N BG κ * (xiC1 d * eps') < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {D' : BgData Gl N}
+    (hD'x : XiCData Gl (compWeight L a₁) ν
+      (k + 1) 1 eps' D')
+    (hD' : ∀ x ∈ Gl.Ω (k + 1),
+      D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} {C : Finset (ParIdx Gp X₁)}
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    {w : ParIdx Gp X₁ → ℂ} (hw : w ∈ supportedOn C)
+    (hsw : ∀ P, ‖extParams Gp X₁ w P‖ < Real.exp κ) (cc : ℂ) (ψh : unitPts Gp × Fin N → ℂ)
+    {x₀ : CTorus d L N₁ m₁ (k + 1)} (hx₀ : ∃ x ∈ R, supDist x x₀ ≤ L ^ (k + 1)) (i : Fin N) :
+    (if h : unitBlock x₀ ∈ unitPts Gl then
+      (cc • (decCovSqrt Gl (compWeight L a₁) a₁ ν
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D')).2
+        (Dec2.extS (coverOf Gl)
+          (fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))
+        (barField Gl D'.Ψ
+          (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D')).1)
+        (unitQ Gl)
+        (unitP Gl) *ᵥ
+        (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)))
+        (⟨unitBlock x₀, h⟩, i)
+      else 0) =
+    hatPsiF Gp a₁ ν hG' cc F₁ (extParams Gp X₁ w) (rawOf D) ψh x₀ i := by
+  classical
+  obtain ⟨x₁, hx₁R, hx₁⟩ := hx₀
+  -- the cover bases, the data domains, the parameters
+  obtain ⟨Sb, Sb'⟩ := level_local_coverBases hG' hA hSS hN hm₁ hM HB hag hagl
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hM2 : 2 ≤ L ^ m₁ := by nlinarith [Nat.one_le_pow 2 L hL1]
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have hδ0' : 0 < xiC1 d * eps' := by positivity
+  have hDd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
+    have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
+    exact inUnionDomainC_of_inDomainC HB hδ0 (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7
+      (xiCData_inDomainC HB hsmall hD)
+  have hDd' : InUnionDomainC Gl (bgC0 d L N)
+      (c7 d L N BG κ) ν D' := by
+    have hc1 : xiC1 d * eps' ≤ bgC1 d L N := hc7'.trans (c7_le_bgC1 d L N BG κ)
+    exact inUnionDomainC_of_inDomainC HB' hδ0' (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7'
+      (xiCData_inDomainC HB' hsmall' hD'x)
+  have hs'0 := tau_off_top (Gl := Gl) (extParams Gp X₁ w)
+  have hsτ := tau_top (Gl := Gl) hG' (extParams Gp X₁ w)
+  have hhat := hat_of_active (Gp := Gp) hSS hA hk1 hM hs'0
+  have hsτn := tau_norm_lt (Gl := Gl) hsw hE1
+  -- the backgrounds of the two pairs
+  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS Sb HB hκ.le hMc heps hsmall hc7 hsw hD
+  have hFe : F₁ (extParams Gp X₁ w, rawOf D) = (φ, α) :=
+    hF₁ _ D hsw hDd φ α ⟨hI.small, hI.fixed, hI.field⟩
+  obtain ⟨φ', α', hI', -, -⟩ := coverBg_exists hS Sb' HB' hκ.le hMc heps' hsmall' hc7'
+    (s := fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+      then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0) hsτn hD'x
+  have hFe' : F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+      (k + 1) then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D') =
+      (φ', α') := hF₁' _ D' hsτn hDd' φ' α' ⟨hI'.small, hI'.fixed, hI'.field⟩
+  have hdom := decDom_of_coverBg hS Sb HB hκ.le hMc heps hsmall hc7 hphi hsw hD hI hmarD hαD
+  have hdom' := decDom_of_coverBg hS Sb' HB' hκ.le hMc heps' hsmall' hc7' hphi' hsτn hD'x hI'
+    hmarD' hαD'
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν (Cchi d L) :=
+    ⟨Sb.toCoverGeom, (Sb.weights k hk1 (by omega)).1, (Sb.weights k hk1 (by omega)).2, ha₁, ha₂⟩
+  have SX' : Dec2.XCover (coverOf Gl)
+      Gl (compWeight L a₁) a₁ ν (Cchi d L) :=
+    ⟨Sb'.toCoverGeom, (Sb'.weights k hk1 (by omega)).1, (Sb'.weights k hk1 (by omega)).2, ha₁, ha₂⟩
+  -- the sets `T` (block union) and `Y_b`
+  obtain ⟨T, hT⟩ : ∃ T : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ y, y ∈ T ↔ ∃ x ∈ R,
+      ∃ z, jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) z =
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y ∧ supDist x z ≤ L ^ (k + 1) :=
+    ⟨Finset.univ.filter fun y => ∃ x ∈ R, ∃ z, jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) z =
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y ∧ supDist x z ≤ L ^ (k + 1),
+      fun y => by simp⟩
+  obtain ⟨Yb, hYb⟩ : ∃ Yb : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ y, y ∈ Yb ↔ ∃ x ∈ R,
+      supDist x y ≤ 3 * L ^ (k + 1) :=
+    ⟨Finset.univ.filter fun y => ∃ x ∈ R, supDist x y ≤ 3 * L ^ (k + 1), fun y => by simp⟩
+  have hRT1 : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1) → y ∈ T := fun x hx y h =>
+    (hT y).2 ⟨x, hx, y, rfl, h⟩
+  have hRT : ∀ x ∈ R, x ∈ T := fun x hx =>
+    hRT1 x hx x (by rw [supDist_self]; exact Nat.zero_le _)
+  have hTR : ∀ y ∈ T, ∃ x ∈ R, supDist x y ≤ 2 * L ^ (k + 1) := by
+    intro y hy
+    obtain ⟨x, hx, z, hz, hd⟩ := (hT y).1 hy
+    have hzy : supDist z y ≤ L ^ (k + 1) :=
+      supDist_le_of_sameCell (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
+        (sameCell_of_jBlock_eq le_rfl hz)
+    exact ⟨x, hx, (supDist_triangle x z y).trans (by omega)⟩
+  have hTblk : IsBlockUnion L (N₁ * L ^ m₁) (k + 1) (k + 1) T := by
+    intro y y' hyy'
+    rw [hT, hT]
+    constructor
+    · rintro ⟨x, hx, z, hz, hd⟩; exact ⟨x, hx, z, hz.trans hyy', hd⟩
+    · rintro ⟨x, hx, z, hz, hd⟩; exact ⟨x, hx, z, hz.trans hyy'.symm, hd⟩
+  have hTYb : T ⊆ Yb := fun y hy => by
+    obtain ⟨x, hx, hd⟩ := hTR y hy
+    exact (hYb y).2 ⟨x, hx, by omega⟩
+  have h3 : 3 * L ^ (k + 1) ≤ L ^ (k + 1 + m₁) := by
+    rw [pow_add L (k + 1) m₁]
+    have : 3 ≤ L ^ m₁ := by nlinarith [Nat.one_le_pow 2 L hL1]
+    calc 3 * L ^ (k + 1) = L ^ (k + 1) * 3 := by ring
+      _ ≤ L ^ (k + 1) * L ^ m₁ := Nat.mul_le_mul_left _ this
+  have hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁) := fun y hy => by
+    obtain ⟨x, hx, hd⟩ := (hYb y).1 hy
+    exact ⟨x, hx, hd.trans h3⟩
+  have htop : ∀ y ∈ Yb, y ∈ Gl.Ω (k + 1) :=
+    fun y hy => topLayer_of_mem hmar hYR hy
+  have hstb := fun y (hy : y ∈ Gl.Ω (k + 1)) =>
+    level_layer_iff_of_top hG' hy
+  have hHb : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
+  have hH'b : ∀ x ∈ Gl.Ω k,
+      x ∈ Gl.Ω 1 := fun x hx =>
+    Gl.Ω_antitone le_rfl hk1 (by omega) hx
+  have hΩ1 : ∀ y ∈ Yb, y ∈ Gl.Ω 1 :=
+    fun y hy => Gl.Ω_antitone le_rfl
+      (by omega) (by omega) (htop y hy)
+  -- the component hypotheses for `T`
+  have hdich : ∀ q ∈ (coverOf Gp).cubeIdx,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) (extParams Gp X₁ w)) q ≠ 0 →
+        SubI Gp (intBox q) T ∨ DisjI Gp (intBox q) T := fun q _ hne =>
+    Or.inl fun x hx => hRT _ (level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx)
+  have hdich' := level_dich_cross hSS hG' hk1 hHb hH'b hs'0 hhat hsτ hdich
+  have hrowb : ∀ q ∈ (coverOf Gp).cubeIdx,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) (extParams Gp X₁ w)) q ≠ 0 →
+        ∀ x ∈ Yb, x ∈ intBox q → x ∈ T := fun q _ hne x _ hx =>
+    hRT _ (level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx)
+  have hrowb' := level_row_cross hSS hG' hk1 hs'0 hhat hsτ hrowb
+  have hin := level_inner_cross hG' hHb (T := T) (fun q hq hne =>
+    depth_deep (fun x y h => hA.union (k + 1) (by omega) le_rfl x y h) hG' hm₁ hRC hRX hmar hstb hw q
+      (Finset.mem_filter.2 ⟨(Finset.mem_filter.1 hq).1, fun x hx =>
+        level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx⟩) hne) hsτ
+  have hin' := level_inner_cross' hSS (H := Gp) hG' hk1 hH'b (T := T) hs'0 hhat hsτ
+  have hresb : ∀ x ∈ T, x ∈ Gp.Ω 1 → ∀ y ∈ resSites Gp x, y ∈ Gp.Ω 1 ∧ y ∈ Yb := by
+    intro x hx _ y hy
+    obtain ⟨x', hx', hd⟩ := hTR x hx
+    have := supDist_le_of_mem_resSites hy
+    exact ⟨hHb y, (hYb y).2 ⟨x', hx', (supDist_triangle x' x y).trans (by omega)⟩⟩
+  -- the background comparison on `T`
+  obtain ⟨hbα, hbφ⟩ := Dec2.decBg_value_cross hS Sb Sb' HB HB' hκ.le hMc hF₁ hF₁' hsw hsτn hDd
+    hDd' hTYb (fun y hy => hstb y (htop y hy)) hdich hdich' hrowb hrowb' hin hin' hresb
+    (depth_act hG' hM2 hmar hYR)
+    (fun y hy _ z hz => by
+      have ht := depth_approxDep (Gp := Gp) hM2 hmar hYR y hy z hz
+      exact ⟨(hD' z ht).1.symm, (hD' z ht).2.symm⟩)
+  rw [hFe, hFe'] at hbα hbφ
+  -- the standing hypotheses of the covariances
+  have hXD : ∀ x : ℝ, 0 < x → Dec2.XData (coverOf Gp) Gp (compWeight L a₁) a₁ ν x α κ
+      (extS Gp (extParams Gp X₁ w)) (Cchi d L) := fun x hx =>
+    xData_cover_of_mem SX (Cchi_nonneg d L) hx.le hκ.le hMX hdom
+  have hXD' : ∀ x : ℝ, 0 < x → Dec2.XData
+      (coverOf Gl)
+      Gl (compWeight L a₁) a₁ ν x α' κ
+      (extS Gl
+        (fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+          then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0)) (Cchi d L) :=
+    fun x hx => xData_cover_of_mem SX' (Cchi_nonneg d L) hx.le hκ.le hMX hdom'
+  have key := Dec2.localLift_eq_liftC_on_component (T := T) (α := α) (α' := α')
+    (s := Dec2.extS (coverOf Gp) (extParams Gp X₁ w))
+    (s' := Dec2.extS (coverOf Gl)
+      (fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+        then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))
+    (φ := barField Gp D.Ψ φ)
+    (φ' := barField Gl D'.Ψ φ') hG' SX SX'
+    (fun v => (hdom.2.2 v).le) (fun v => (hdom'.2.2 v).le)
+    (fun y hy => hstb y (htop y (hTYb hy)))
+    (fun x hx => (hXD x hx).isUnit_one_sub) (fun x hx => (hXD' x hx).isUnit_one_sub)
+    hdich hdich' hin hin'
+    (fun x hx hx' hxT => (hbα x hx hx' hxT).symm)
+    (fun y hy => by
+      have hyb := hTYb hy
+      funext j
+      simp only [barField]
+      rw [dite_eq_left (hΩ1 y hyb), dite_eq_left (hHb y)]
+      exact hbφ y (hHb y) (hΩ1 y hyb) hyb j)
+    (fun x _ => Dec2.hRespects_of_core_near _ _ _ _ _ fun y' hy' y hd =>
+      hRT1 _ (level_core_mem_of_active hG' hm₁ hRC hRX hw hy') y hd)
+    (fun x _ => Dec2.hRespects_of_core_near _ _ _ _ _ fun y' hy' y hd =>
+      hRT1 _ (core_mem_of_active hSS hA hG' hk1 hm₁ hM hRC hRX hw hy') y hd)
+    (fun x hx => decM_isUnit_cover (hXD x hx) hdom.2.1.toIsConstraintField hδc hsm)
+    (fun x hx => decM_isUnit_cover (hXD' x hx) hdom'.2.1.toIsConstraintField hδc hsm)
+    hTblk cc ψh (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)
+    (fun b hb hb' _ j => by simp only [dite_eq_left hb])
+    (hRT1 _ hx₁R _ hx₁) (hG'.mem_layer x₀) i
+  have hFe2 : F₁ (@Prod.mk (DecParams Gp) (RawData d L (N₁ * L ^ m₁) (k + 1) N)
+      (extParams Gp X₁ w) (rawOf D)) = (φ, α) := hFe
+  rw [hFe']
+  unfold hatPsiF hatSqrtF
+  rw [hFe2]
+  exact key
 
 /-- **The local hat lift equals the ambient hat lift near the read region (P3 (4.22)-(4.24) at
 `𝔹_{k+1}(Y)`).**  Let `𝔹_{k+1}` be a level set (`k ≥ 1`), `𝔹_{k+1}(Y) = localB (k + 1) … Y`, `R` a
@@ -222,176 +496,7 @@ theorem localHatLift_eq_hatPsiF_localB (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k
         (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)))
         (⟨unitBlock x₀, h⟩, i)
       else 0) =
-    hatPsiF Gp a₁ ν hG' cc F₁ (extParams Gp X₁ w) (rawOf D) ψh x₀ i := by
-  classical
-  obtain ⟨x₁, hx₁R, hx₁⟩ := hx₀
-  -- the cover bases, the data domains, the parameters
-  obtain ⟨Sb, Sb', -, -⟩ := localB_replacement_coverBases hG' Gp hk Y hN hm₁ hM HB hag hag hagl
-  have hd0 : 0 < d := by have := HB.hd; omega
-  have hxi := one_le_xiC1 d
-  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
-  have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  have hM2 : 2 ≤ L ^ m₁ := by nlinarith [Nat.one_le_pow 2 L hL1]
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  have hδ0' : 0 < xiC1 d * eps' := by positivity
-  have hDd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D := by
-    have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
-    exact inUnionDomainC_of_inDomainC HB hδ0 (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7
-      (xiCData_inDomainC HB hsmall hD)
-  have hDd' : InUnionDomainC (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (bgC0 d L N)
-      (c7 d L N BG κ) ν D' := by
-    have hc1 : xiC1 d * eps' ≤ bgC1 d L N := hc7'.trans (c7_le_bgC1 d L N BG κ)
-    exact inUnionDomainC_of_inDomainC HB' hδ0' (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7'
-      (xiCData_inDomainC HB' hsmall' hD'x)
-  have hs'0 := localB_tau_off_top hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)
-  have hsτ := localB_tau_top hG' hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)
-  have hhat := localB_hat_of_active (Gp := Gp) hk1 hk Y (le_refl (minSep L (L ^ m₁))) hm₁ hM hs'0
-  have hsτn := localB_tau_norm_lt hk Y (le_refl (minSep L (L ^ m₁))) hsw hE1
-  -- the backgrounds of the two pairs
-  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS Sb HB hκ.le hMc heps hsmall hc7 hsw hD
-  have hFe : F₁ (extParams Gp X₁ w, rawOf D) = (φ, α) :=
-    hF₁ _ D hsw hDd φ α ⟨hI.small, hI.fixed, hI.field⟩
-  obtain ⟨φ', α', hI', -, -⟩ := coverBg_exists hS Sb' HB' hκ.le hMc heps' hsmall' hc7'
-    (s := fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
-      then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0) hsτn hD'x
-  have hFe' : F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω
-      (k + 1) then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D') =
-      (φ', α') := hF₁' _ D' hsτn hDd' φ' α' ⟨hI'.small, hI'.fixed, hI'.field⟩
-  have hdom := decDom_of_coverBg hS Sb HB hκ.le hMc heps hsmall hc7 hphi hsw hD hI hmarD hαD
-  have hdom' := decDom_of_coverBg hS Sb' HB' hκ.le hMc heps' hsmall' hc7' hphi' hsτn hD'x hI'
-    hmarD' hαD'
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
-      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
-      unfold decDomMargin; positivity
-    linarith
-  have SX : Dec2.XCover (coverOf Gp) Gp (compWeight L a₁) a₁ ν (Cchi d L) :=
-    ⟨Sb.toCoverGeom, (Sb.weights k hk1 (by omega)).1, (Sb.weights k hk1 (by omega)).2, ha₁, ha₂⟩
-  have SX' : Dec2.XCover (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
-      (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) a₁ ν (Cchi d L) :=
-    ⟨Sb'.toCoverGeom, (Sb'.weights k hk1 (by omega)).1, (Sb'.weights k hk1 (by omega)).2, ha₁, ha₂⟩
-  -- the sets `T` (block union) and `Y_b`
-  obtain ⟨T, hT⟩ : ∃ T : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ y, y ∈ T ↔ ∃ x ∈ R,
-      ∃ z, jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) z =
-        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y ∧ supDist x z ≤ L ^ (k + 1) :=
-    ⟨Finset.univ.filter fun y => ∃ x ∈ R, ∃ z, jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) z =
-        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) y ∧ supDist x z ≤ L ^ (k + 1),
-      fun y => by simp⟩
-  obtain ⟨Yb, hYb⟩ : ∃ Yb : Finset (CTorus d L N₁ m₁ (k + 1)), ∀ y, y ∈ Yb ↔ ∃ x ∈ R,
-      supDist x y ≤ 3 * L ^ (k + 1) :=
-    ⟨Finset.univ.filter fun y => ∃ x ∈ R, supDist x y ≤ 3 * L ^ (k + 1), fun y => by simp⟩
-  have hRT1 : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1) → y ∈ T := fun x hx y h =>
-    (hT y).2 ⟨x, hx, y, rfl, h⟩
-  have hRT : ∀ x ∈ R, x ∈ T := fun x hx =>
-    hRT1 x hx x (by rw [supDist_self]; exact Nat.zero_le _)
-  have hTR : ∀ y ∈ T, ∃ x ∈ R, supDist x y ≤ 2 * L ^ (k + 1) := by
-    intro y hy
-    obtain ⟨x, hx, z, hz, hd⟩ := (hT y).1 hy
-    have hzy : supDist z y ≤ L ^ (k + 1) :=
-      supDist_le_of_sameCell (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
-        (sameCell_of_jBlock_eq le_rfl hz)
-    exact ⟨x, hx, (supDist_triangle x z y).trans (by omega)⟩
-  have hTblk : IsBlockUnion L (N₁ * L ^ m₁) (k + 1) (k + 1) T := by
-    intro y y' hyy'
-    rw [hT, hT]
-    constructor
-    · rintro ⟨x, hx, z, hz, hd⟩; exact ⟨x, hx, z, hz.trans hyy', hd⟩
-    · rintro ⟨x, hx, z, hz, hd⟩; exact ⟨x, hx, z, hz.trans hyy'.symm, hd⟩
-  have hTYb : T ⊆ Yb := fun y hy => by
-    obtain ⟨x, hx, hd⟩ := hTR y hy
-    exact (hYb y).2 ⟨x, hx, by omega⟩
-  have h3 : 3 * L ^ (k + 1) ≤ L ^ (k + 1 + m₁) := by
-    rw [pow_add L (k + 1) m₁]
-    have : 3 ≤ L ^ m₁ := by nlinarith [Nat.one_le_pow 2 L hL1]
-    calc 3 * L ^ (k + 1) = L ^ (k + 1) * 3 := by ring
-      _ ≤ L ^ (k + 1) * L ^ m₁ := Nat.mul_le_mul_left _ this
-  have hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁) := fun y hy => by
-    obtain ⟨x, hx, hd⟩ := (hYb y).1 hy
-    exact ⟨x, hx, hd.trans h3⟩
-  have htop : ∀ y ∈ Yb, y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) :=
-    fun y hy => localB_top_of_mem hk Y _ hmar hYR hy
-  have hstb := fun y (hy : y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)) =>
-    level_localB_layer_iff_of_top hG' hk Y (le_refl (minSep L (L ^ m₁))) hy
-  have hHb : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
-  have hH'b : ∀ x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k,
-      x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 := fun x hx =>
-    (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone le_rfl hk1 (by omega) hx
-  have hΩ1 : ∀ y ∈ Yb, y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 :=
-    fun y hy => (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone le_rfl
-      (by omega) (by omega) (htop y hy)
-  -- the component hypotheses for `T`
-  have hdich : ∀ q ∈ (coverOf Gp).cubeIdx,
-      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) (extParams Gp X₁ w)) q ≠ 0 →
-        SubI Gp (intBox q) T ∨ DisjI Gp (intBox q) T := fun q _ hne =>
-    Or.inl fun x hx => hRT _ (level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx)
-  have hdich' := level_localB_dich_cross hG' hk1 hk Y _ hHb hH'b hs'0 hhat hsτ hdich
-  have hrowb : ∀ q ∈ (coverOf Gp).cubeIdx,
-      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) (extParams Gp X₁ w)) q ≠ 0 →
-        ∀ x ∈ Yb, x ∈ intBox q → x ∈ T := fun q _ hne x _ hx =>
-    hRT _ (level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx)
-  have hrowb' := level_localB_row_cross hG' hk1 hk Y _ hs'0 hhat hsτ hrowb
-  have hin := level_localB_inner_cross hG' hk Y _ hHb (T := T) (fun q hq hne =>
-    localB_depth_deep hG' hm₁ hk Y _ hRC hRX hmar hstb hw q
-      (Finset.mem_filter.2 ⟨(Finset.mem_filter.1 hq).1, fun x hx =>
-        level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx⟩) hne) hsτ
-  have hin' := level_localB_inner_cross' (H := Gp) hG' hk1 hk Y _ hH'b (T := T) hs'0 hhat hsτ
-  have hresb : ∀ x ∈ T, x ∈ Gp.Ω 1 → ∀ y ∈ resSites Gp x, y ∈ Gp.Ω 1 ∧ y ∈ Yb := by
-    intro x hx _ y hy
-    obtain ⟨x', hx', hd⟩ := hTR x hx
-    have := supDist_le_of_mem_resSites hy
-    exact ⟨hHb y, (hYb y).2 ⟨x', hx', (supDist_triangle x' x y).trans (by omega)⟩⟩
-  -- the background comparison on `T`
-  obtain ⟨hbα, hbφ⟩ := Dec2.decBg_value_cross hS Sb Sb' HB HB' hκ.le hMc hF₁ hF₁' hsw hsτn hDd
-    hDd' hTYb (fun y hy => hstb y (htop y hy)) hdich hdich' hrowb hrowb' hin hin' hresb
-    (localB_depth_act hG' hM2 hk Y _ hmar hYR)
-    (fun y hy _ z hz => by
-      have ht := localB_depth_approxDep (Gp := Gp) hM2 hk Y _ hmar hYR y hy z hz
-      exact ⟨(hD' z ht).1.symm, (hD' z ht).2.symm⟩)
-  rw [hFe, hFe'] at hbα hbφ
-  -- the standing hypotheses of the covariances
-  have hXD : ∀ x : ℝ, 0 < x → Dec2.XData (coverOf Gp) Gp (compWeight L a₁) a₁ ν x α κ
-      (extS Gp (extParams Gp X₁ w)) (Cchi d L) := fun x hx =>
-    xData_cover_of_mem SX (Cchi_nonneg d L) hx.le hκ.le hMX hdom
-  have hXD' : ∀ x : ℝ, 0 < x → Dec2.XData
-      (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
-      (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) (compWeight L a₁) a₁ ν x α' κ
-      (extS (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁))))
-        (fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
-          then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0)) (Cchi d L) :=
-    fun x hx => xData_cover_of_mem SX' (Cchi_nonneg d L) hx.le hκ.le hMX hdom'
-  have key := Dec2.localLift_eq_liftC_on_component (T := T) (α := α) (α' := α')
-    (s := Dec2.extS (coverOf Gp) (extParams Gp X₁ w))
-    (s' := Dec2.extS (coverOf (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))))
-      (fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
-        then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))
-    (φ := barField Gp D.Ψ φ)
-    (φ' := barField (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))) D'.Ψ φ') hG' SX SX'
-    (fun v => (hdom.2.2 v).le) (fun v => (hdom'.2.2 v).le)
-    (fun y hy => hstb y (htop y (hTYb hy)))
-    (fun x hx => (hXD x hx).isUnit_one_sub) (fun x hx => (hXD' x hx).isUnit_one_sub)
-    hdich hdich' hin hin'
-    (fun x hx hx' hxT => (hbα x hx hx' hxT).symm)
-    (fun y hy => by
-      have hyb := hTYb hy
-      funext j
-      simp only [barField]
-      rw [dite_eq_left (hΩ1 y hyb), dite_eq_left (hHb y)]
-      exact hbφ y (hHb y) (hΩ1 y hyb) hyb j)
-    (fun x _ => Dec2.hRespects_of_core_near _ _ _ _ _ fun y' hy' y hd =>
-      hRT1 _ (level_core_mem_of_active hG' hm₁ hRC hRX hw hy') y hd)
-    (fun x _ => Dec2.hRespects_of_core_near _ _ _ _ _ fun y' hy' y hd =>
-      hRT1 _ (localB_core_mem_of_active hG' hk1 hk Y hm₁ hM hRC hRX hw hy') y hd)
-    (fun x hx => decM_isUnit_cover (hXD x hx) hdom.2.1.toIsConstraintField hδc hsm)
-    (fun x hx => decM_isUnit_cover (hXD' x hx) hdom'.2.1.toIsConstraintField hδc hsm)
-    hTblk cc ψh (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)
-    (fun b hb hb' _ j => by simp only [dite_eq_left hb])
-    (hRT1 _ hx₁R _ hx₁) (hG'.mem_layer x₀) i
-  have hFe2 : F₁ (@Prod.mk (DecParams Gp) (RawData d L (N₁ * L ^ m₁) (k + 1) N)
-      (extParams Gp X₁ w) (rawOf D)) = (φ, α) := hFe
-  rw [hFe']
-  unfold hatPsiF hatSqrtF
-  rw [hFe2]
-  exact key
+    hatPsiF Gp a₁ ν hG' cc F₁ (extParams Gp X₁ w) (rawOf D) ψh x₀ i := localHatLift_eq_hatPsiF (localB_supSep hk Y (le_refl (minSep L (L ^ m₁)))) (localB_cubeAligned hk Y (le_refl (minSep L (L ^ m₁))) hm₁) hG' hk1 hN hm₁ hM hag hagl hS HB HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' heps hsmall hc7 hphi heps' hsmall' hc7' hphi' hmarD hαD hmarD' hαD' hsm hD hD'x hD' hRC hRX hmar hw hsw cc ψh hx₀ i
 
 end HatLift
 

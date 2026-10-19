@@ -126,6 +126,19 @@ theorem localB_coverGeom {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁
   p6_coverGeom_of_pair (localB_cubeAligned hj X hsep hm₁) (localB_supSep hj X hsep)
     (SmallField.precedes_refl _) hM hd hL hν hνL ha hag
 
+/-- **The cover base of a cube-aligned, sup-separated generating set**: `Dec2.CoverBase` of
+`(coverOf G, G)` with the cut-operator constant `mixedKc d L` (`N₁ > 5`), from the cube alignment and
+the sup-separation of `G` at the cube size `m₁`. -/
+theorem coverBase_of_aligned_supSep {K : ℕ} {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+    (hA : CubeAligned G m₁) (hSS : SupSep G m₁) (hN : 5 < N₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {a : ℕ → ℝ} {ν : ℝ} (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν)
+    (hνL : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1) (ha : IsAdmissibleWeights K a)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)) :
+    Dec2.CoverBase (coverOf G) G a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  Dec2.coverBase_mixed hN G
+    (p6_coverGeom_of_pair hA hSS (SmallField.precedes_refl _) hM hd hL hν hνL ha hag) hνL
+    (fun _ hq => hq)
+
 /-- **The cover base of the literal local generator**: `Dec2.CoverBase` of `(coverOf 𝔹, 𝔹)` with
 the cut-operator constant `mixedKc d L` (`N₁ > 5`). -/
 theorem localB_coverBase {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁ k))
@@ -135,8 +148,8 @@ theorem localB_coverBase {j : ℕ} (hj : j ≤ k) (X : Set (CTorus d L N₁ m₁
     (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1)) :
     Dec2.CoverBase (coverOf (SmallField.GsSpec.localB j hj X hsep))
       (SmallField.GsSpec.localB j hj X hsep) a ν (Dec2.mixedKc d L) (Cchi d L) :=
-  Dec2.coverBase_mixed hN _ (localB_coverGeom hj X hsep hm₁ hM hd hL hν hνL ha hag) hνL
-    (fun _ hq => hq)
+  coverBase_of_aligned_supSep (localB_cubeAligned hj X hsep hm₁) (localB_supSep hj X hsep) hN hM
+    hd hL hν hνL ha hag
 
 end LocalB
 

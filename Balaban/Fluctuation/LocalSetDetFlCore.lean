@@ -95,13 +95,10 @@ theorem footLocal_castG_localB (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hm : 
     (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1)) :
     Dec2.FootLocal (coverOf (castG hc (localB t ht X hsep))) Hm a ν (Dec2.mixedKc d L)
       (Cchi d L) :=
-  { toCoverBase := Dec2.coverBase_mixed hN (castG hc (localB t ht X hsep))
-      (p6_coverGeom_of_pair
-        (cubeAligned_of_le (cubeAligned_castG hc (localB_cubeAligned ht X hsep (by omega))) hm₁
-          hm (dvd_mul_left _ _))
-        (supSep_of_le (supSep_castG hc (localB_supSep ht X hsep)) hm) hP hM hd hL hν hνL ha hag)
-      hνL (fun _ hq => hq)
-    chi_core := (Dec2.footLocalGeom_coverOf _).chi_core }
+  footLocal_of_precedes
+    (cubeAligned_of_le (cubeAligned_castG hc (localB_cubeAligned ht X hsep (by omega))) hm₁ hm
+      (dvd_mul_left _ _))
+    (supSep_of_le (supSep_castG hc (localB_supSep ht X hsep)) hm) hP hN hM hd hL hν hνL ha hag
 
 end Pair
 

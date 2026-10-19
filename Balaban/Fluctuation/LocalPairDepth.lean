@@ -211,6 +211,7 @@ section Depth
 
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
 
 /-- **The thickened cube of an active ambient cube lies in the read region.**  Let `𝔹_{k+1}` be a
 level set, `w` a vector of parameters supported on a family `𝒞` of cubes disjoint from `X₁`, and
@@ -285,6 +286,23 @@ section Tau
 
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+
+/-- **The transport `τ` vanishes off the top layer**: `τ s` (the parameter `s_P` at the cubes of
+`𝔹_{k+1}(Y)` with base in `Ω_{k+1}(𝔹_{k+1}(Y))`, `0` at the others) is `0` at a cube of the cover of
+`𝔹_{k+1}(Y)` whose base is not in the top layer.
+
+The core of `localB_tau_off_top`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem tau_off_top  (s : Dec2.DecParams (coverOf Gp)) :
+    ∀ P ∈ (coverOf Gl).cubeIdx,
+      P.2 ∉ Gl.Ω (k + 1) →
+        Dec2.extS (coverOf Gl)
+          (fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+            Dec2.extS (coverOf Gp) s P.1 else 0) P = 0 := by
+  intro P hP hPt
+  unfold Dec2.extS
+  rw [dite_eq_left hP]
+  exact ite_eq_right hPt
 
 /-- **The transport `τ` vanishes off the top layer**: `τ s` (the parameter `s_P` at the cubes of
 `𝔹_{k+1}(Y)` with base in `Ω_{k+1}(𝔹_{k+1}(Y))`, `0` at the others) is `0` at a cube of the cover of
@@ -295,11 +313,29 @@ theorem localB_tau_off_top (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁
       P.2 ∉ (localB (k + 1) hk Y hsep).Ω (k + 1) →
         Dec2.extS (coverOf (localB (k + 1) hk Y hsep))
           (fun P => if P.1.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) then
-            Dec2.extS (coverOf Gp) s P.1 else 0) P = 0 := by
-  intro P hP hPt
-  unfold Dec2.extS
-  rw [dite_eq_left hP]
-  exact ite_eq_right hPt
+            Dec2.extS (coverOf Gp) s P.1 else 0) P = 0 := tau_off_top s
+
+/-- **The transport `τ` agrees with `s` on the top layer** (`𝔹_{k+1}` a level set): at a pair
+`P` with base in `Ω_{k+1}(𝔹_{k+1}(Y))` the extended parameters of `τ s` (cover of `𝔹_{k+1}(Y)`) and
+of `s` (cover of `𝔹_{k+1}`) coincide; the pair is a cube of both covers or of neither.
+
+The core of `localB_tau_top`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem tau_top (hG' : IsLevel Gp (k + 1))
+    (s : Dec2.DecParams (coverOf Gp)) :
+    ∀ P : ℕ × CTorus d L N₁ m₁ (k + 1), P.2 ∈ Gl.Ω (k + 1) →
+      Dec2.extS (coverOf Gl)
+          (fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+            Dec2.extS (coverOf Gp) s P.1 else 0) P =
+        Dec2.extS (coverOf Gp) s P := by
+  intro P hP
+  by_cases hc : P ∈ (coverOf Gl).cubeIdx
+  · unfold Dec2.extS
+    rw [dite_eq_left hc]
+    exact ite_eq_left hP
+  · have hc' : P ∉ (coverOf Gp).cubeIdx := fun h =>
+      hc ((level_mem_cubeIdx_iff_of_mem_top hG' hP).1 h)
+    unfold Dec2.extS
+    rw [dite_eq_right hc, dite_eq_right hc']
 
 /-- **The transport `τ` agrees with `s` on the top layer** (`𝔹_{k+1}` a level set): at a pair
 `P` with base in `Ω_{k+1}(𝔹_{k+1}(Y))` the extended parameters of `τ s` (cover of `𝔹_{k+1}(Y)`) and
@@ -311,25 +347,17 @@ theorem localB_tau_top (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 1)
       Dec2.extS (coverOf (localB (k + 1) hk Y hsep))
           (fun P => if P.1.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) then
             Dec2.extS (coverOf Gp) s P.1 else 0) P =
-        Dec2.extS (coverOf Gp) s P := by
-  intro P hP
-  by_cases hc : P ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx
-  · unfold Dec2.extS
-    rw [dite_eq_left hc]
-    exact ite_eq_left hP
-  · have hc' : P ∉ (coverOf Gp).cubeIdx := fun h =>
-      hc ((level_localB_mem_cubeIdx_iff hG' hk Y hsep ((mem_localB_Ω_top P.2).1 hP)).1 h)
-    unfold Dec2.extS
-    rw [dite_eq_right hc, dite_eq_right hc']
+        Dec2.extS (coverOf Gp) s P := tau_top hG' s
 
 /-- **The transport `τ` keeps the polydisc**: if `|s_P| < r` for all cubes and `1 < r`, then
-`|(τ s)_P| < r`. -/
-theorem localB_tau_norm_lt (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
-    (hsep : ϱl ≤ minSep L (L ^ m₁)) {s : Dec2.DecParams (coverOf Gp)} {r : ℝ}
+`|(τ s)_P| < r`.
+
+The core of `localB_tau_norm_lt`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem tau_norm_lt  {s : Dec2.DecParams (coverOf Gp)} {r : ℝ}
     (hs : ∀ P, ‖s P‖ < r) (hr : 1 < r) :
-    ∀ P : ↥(coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
-      ‖(fun P : ↥(coverOf (localB (k + 1) hk Y hsep)).cubeIdx =>
-        if P.1.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) then
+    ∀ P : ↥(coverOf Gl).cubeIdx,
+      ‖(fun P : ↥(coverOf Gl).cubeIdx =>
+        if P.1.2 ∈ Gl.Ω (k + 1) then
           Dec2.extS (coverOf Gp) s P.1 else 0) P‖ < r := by
   intro P
   simp only
@@ -340,6 +368,16 @@ theorem localB_tau_norm_lt (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁
     · simpa using hr
   · simpa using (zero_lt_one.trans hr)
 
+/-- **The transport `τ` keeps the polydisc**: if `|s_P| < r` for all cubes and `1 < r`, then
+`|(τ s)_P| < r`. -/
+theorem localB_tau_norm_lt (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hsep : ϱl ≤ minSep L (L ^ m₁)) {s : Dec2.DecParams (coverOf Gp)} {r : ℝ}
+    (hs : ∀ P, ‖s P‖ < r) (hr : 1 < r) :
+    ∀ P : ↥(coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
+      ‖(fun P : ↥(coverOf (localB (k + 1) hk Y hsep)).cubeIdx =>
+        if P.1.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) then
+          Dec2.extS (coverOf Gp) s P.1 else 0) P‖ < r := tau_norm_lt hs hr
+
 end Tau
 
 /-! ### Layers at the top layer of the local generator -/
@@ -348,7 +386,16 @@ section TopLayers
 
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl ϱl' ϱm : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+  {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+
+/-- At a site of the top layer `Ω_{k+1}(Gl)` of a generating set `Gl`, the level set `𝔹_{k+1}` and
+`Gl` have the same layers.  The core of `level_localB_layer_iff_of_top`. -/
+theorem level_layer_iff_of_top (hG' : IsLevel Gp (k + 1)) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : x ∈ Gl.Ω (k + 1)) :
+    ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ Gl.layer n) :=
+  fun _ hn hnK => level_layer_iff_of_mem_top hG' hx hn hnK
 
 /-- At a site of the top layer `Ω_{k+1}(𝔹_{k+1}(Y))`, the level set `𝔹_{k+1}` and `𝔹_{k+1}(Y)` have
 the same layers. -/
@@ -356,19 +403,36 @@ theorem level_localB_layer_iff_of_top (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
     {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
     ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Gp.layer n ↔ x ∈ (localB (k + 1) hk Y hsep).layer n) :=
-  fun _ hn hnK => level_localB_layer_iff hG' hk Y hsep ((mem_localB_Ω_top x).1 hx) hn hnK
+  level_layer_iff_of_top hG' hx
 
-/-- `Ω_k(𝔹_{k+1}(Y))` lies in `Ω₁(𝔹_k(Y))`, `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))` (`k ≥ 1`). -/
+/-- `Ω_k(𝔹_{k+1}(Y))` lies in `Ω₁(𝔹_k(Y))`, `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))` (`k ≥ 1`).
+
+The core of `localB_drop_Ω_one_of_mem`: `Gd` is any generating set with the same layer `k` as `Gl`. -/
+theorem drop_Ω_one_of_mem (hdk : Gd.Ω k = Gl.Ω k) (hk1 : 1 ≤ k) {x : CTorus d L N₁ m₁ (k + 1)}
+    (hx : x ∈ Gl.Ω k) : x ∈ Gd.Ω 1 := by
+  refine Gd.Ω_antitone le_rfl hk1 (by omega) ?_
+  rw [hdk]; exact hx
+
 theorem localB_drop_Ω_one_of_mem (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1) (hk' : k ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
     (hsep' : ϱl' ≤ minSep L (L ^ m₁)) {x : CTorus d L N₁ m₁ (k + 1)}
     (hx : x ∈ (localB (k + 1) hk Y hsep).Ω k) :
     x ∈ (localB k hk' (↑((localB (k + 1) hk Y hsep).Ω k) : Set (CTorus d L N₁ m₁ (k + 1)))
-      hsep').Ω 1 := by
-  have h := localB_drop_Ω hk hk' Y hsep hsep' (le_refl k)
-  refine (localB k hk' (↑((localB (k + 1) hk Y hsep).Ω k) : Set (CTorus d L N₁ m₁ (k + 1)))
-      hsep').Ω_antitone le_rfl hk1 (by omega) ?_
-  rw [h]; exact hx
+      hsep').Ω 1 :=
+  drop_Ω_one_of_mem (localB_drop_Ω hk hk' Y hsep hsep' (le_refl k)) hk1 hx
+
+/-- At a site of the top layer `Ω_{k+1}(Gl)`, a level set `𝔹_k` and a generating set `Gd` with the
+layer `Ω_k(Gd) = Ω_k(Gl)` and no layer `k + 1` have the same layers (`k ≥ 1`).
+
+The core of `localB_drop_layer_iff_of_top`. -/
+theorem drop_layer_iff_of_top (hG : IsLevel Hm k) (hk1 : 1 ≤ k) (hdk : Gd.Ω k = Gl.Ω k)
+    (hdtop : Gd.Ω (k + 1) = ∅) {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ Gl.Ω (k + 1)) :
+    ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Hm.layer n ↔ x ∈ Gd.layer n) := by
+  intro n hn hnK
+  have hxk : x ∈ Gd.Ω k := by
+    rw [hdk]
+    exact Gl.Ω_antitone hk1 (Nat.le_succ k) (by omega) hx
+  exact layer_iff_of_level_of_top hG hdtop hxk hn hnK
 
 /-- At a site of the top layer `Ω_{k+1}(𝔹_{k+1}(Y))`, a level set `𝔹_k` and the local fluctuation
 generator `𝔹_k(Y)` have the same layers (`k ≥ 1`). -/
@@ -378,13 +442,9 @@ theorem localB_drop_layer_iff_of_top (hG : IsLevel Hm k) (hk1 : 1 ≤ k) (hk : k
     (hx : x ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
     ∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ Hm.layer n ↔
       x ∈ (localB k hk' (↑((localB (k + 1) hk Y hsep).Ω k) : Set (CTorus d L N₁ m₁ (k + 1)))
-        hsep').layer n) := by
-  intro n hn hnK
-  have hxk : x ∈ (localB k hk' (↑((localB (k + 1) hk Y hsep).Ω k) :
-      Set (CTorus d L N₁ m₁ (k + 1))) hsep').Ω k := by
-    rw [localB_drop_Ω hk hk' Y hsep hsep' (le_refl k)]
-    exact (localB (k + 1) hk Y hsep).Ω_antitone hk1 (Nat.le_succ k) (by omega) hx
-  exact layer_iff_of_level_of_top hG (localB_drop_top hk hk' Y hsep hsep') hxk hn hnK
+        hsep').layer n) :=
+  drop_layer_iff_of_top hG hk1 (localB_drop_Ω hk hk' Y hsep hsep' (le_refl k))
+    (localB_drop_top hk hk' Y hsep hsep') hx
 
 end TopLayers
 
@@ -394,6 +454,7 @@ section Margin
 
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱl ϱH ϱH' ϱ₁ : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
 
 omit [NeZero N₁] [NeZero L] in
 /-- The top cube side `M₁ L^n` is at least `2 L^n` when `M₁ = L^{m₁} ≥ 2`. -/
@@ -404,6 +465,20 @@ theorem two_mul_pow_le_pow_add (hM2 : 2 ≤ L ^ m₁) (n : ℕ) : 2 * L ^ n ≤ 
 
 /-- **The sites near `Y_b` are in the top layer.**  Under the margin `d_∞(R, y) ≤ 2 M₁ L^{k+1} ⇒
 y ∈ Ω_{k+1}(𝔹_{k+1}(Y))`, a site within `M₁ L^{k+1}` of a site of `Y_b` (itself within
+`M₁ L^{k+1}` of `R`) lies in the top layer.
+
+The core of `localB_top_of_near`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem topLayer_of_near  {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁))
+    {y z : CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ Yb) (hz : supDist y z ≤ L ^ (k + 1 + m₁)) :
+    z ∈ Gl.Ω (k + 1) := by
+  obtain ⟨x, hx, hxy⟩ := hYR y hy
+  exact hmar x hx z ((supDist_triangle x y z).trans (by omega))
+
+/-- **The sites near `Y_b` are in the top layer.**  Under the margin `d_∞(R, y) ≤ 2 M₁ L^{k+1} ⇒
+y ∈ Ω_{k+1}(𝔹_{k+1}(Y))`, a site within `M₁ L^{k+1}` of a site of `Y_b` (itself within
 `M₁ L^{k+1}` of `R`) lies in the top layer. -/
 theorem localB_top_of_near (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
     (hsep : ϱl ≤ minSep L (L ^ m₁)) {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
@@ -411,9 +486,17 @@ theorem localB_top_of_near (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁
       y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁))
     {y z : CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ Yb) (hz : supDist y z ≤ L ^ (k + 1 + m₁)) :
-    z ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
-  obtain ⟨x, hx, hxy⟩ := hYR y hy
-  exact hmar x hx z ((supDist_triangle x y z).trans (by omega))
+    z ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := topLayer_of_near hmar hYR hy hz
+
+/-- The sites of `Y_b` are in the top layer.
+
+The core of `localB_top_of_mem`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem topLayer_of_mem  {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁))
+    {y : CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ Yb) : y ∈ Gl.Ω (k + 1) :=
+  topLayer_of_near hmar hYR hy (by rw [supDist_self]; exact Nat.zero_le _)
 
 /-- The sites of `Y_b` are in the top layer. -/
 theorem localB_top_of_mem (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
@@ -421,8 +504,7 @@ theorem localB_top_of_mem (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ 
     (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
       y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁))
-    {y : CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ Yb) : y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) :=
-  localB_top_of_near hk Y hsep hmar hYR hy (by rw [supDist_self]; exact Nat.zero_le _)
+    {y : CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ Yb) : y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := topLayer_of_mem hmar hYR hy
 
 /-- **Depth, dichotomy.**  Every interaction cube of an active ambient cube lies in the read region
 `R` (for any operator generating set `H`). -/
@@ -457,6 +539,66 @@ theorem localB_depth_row (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁)
 layers of `H`, `H'` agree on the stencil of `□_z` (given that they agree on the top layer), its base
 is in the top layer, the bases of the cubes (of either cover) whose bump does not vanish on `□_z`
 are in the top layer, and so are those of the cubes meeting `□̂_z`.  These are the hypotheses
+`hdeep` of `level_localB_inner_cross`.
+
+The core of `localB_depth_deep`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem depth_deep (hU : ∀ x y : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m₁)) x y →
+      (x ∈ Gl.Ω (k + 1) ↔ y ∈ Gl.Ω (k + 1))) (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} {C : Finset (ParIdx Gp X₁)}
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
+    {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
+    (hst : ∀ y ∈ Gl.Ω (k + 1), ∀ n, 1 ≤ n → n ≤ k + 1 →
+      (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    {w : ParIdx Gp X₁ → ℂ} (hw : w ∈ supportedOn C) :
+    ∀ q ∈ Dec2.innerCentres (coverOf Gp) H R,
+      (coverOf Gp).sProd (Dec2.extS (coverOf Gp) (extParams Gp X₁ w)) q ≠ 0 →
+        (∀ x ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+          (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+            ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+        q.2 ∈ Gl.Ω (k + 1) ∧
+        (∀ x ∈ intBox q, ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+          (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
+            cubeBump m₁ q'.1 q'.2 x ≠ 0 → q'.2 ∈ Gl.Ω (k + 1)) ∧
+        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
+          (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
+            (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
+              q'.2 ∈ Gl.Ω (k + 1)) := by
+  intro q _ hne
+  have hM1 : 1 ≤ L ^ (k + 1 + m₁) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  refine ⟨fun x hx y hy => hst y ?_, ?_, fun x hx q' hq' hb => ?_, ?_⟩
+  · have hxR := level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx
+    refine hmar x hxR y ?_
+    rcases hy with rfl | ⟨μ, rfl | rfl⟩
+    · rw [supDist_self]; exact Nat.zero_le _
+    · exact (supDist_add_single_le x μ).trans (by omega)
+    · exact (supDist_sub_single_le x μ).trans (by omega)
+  · exact hmar _ (level_base_mem_of_active hG' hm₁ hRC hRX hw hne) _
+      (by rw [supDist_self]; exact Nat.zero_le _)
+  · have hxR := level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx
+    have hj : q'.1 ≤ k + 1 := by
+      rcases hq' with h | h
+      · exact ((mem_cubeIdx _).1 h).1.2
+      · exact ((mem_cubeIdx _).1 h).1.2
+    have hB : (0 : ℝ) ≤ 3 / 2 * (L : ℝ) ^ (q'.1 + m₁) := by positivity
+    have hd := supDist_le_of_inBox hB (inBox_of_cubeBump_ne_zero hb)
+    have hLj : (L : ℝ) ^ (q'.1 + m₁) ≤ (L : ℝ) ^ (k + 1 + m₁) :=
+      pow_le_pow_right₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)) (by omega)
+    have hd' : (supDist x q'.2 : ℝ) ≤ ((2 * L ^ (k + 1 + m₁) : ℕ) : ℝ) := by
+      push_cast; linarith
+    exact hmar x hxR q'.2 (by exact_mod_cast hd')
+  · exact level_hat_of_box hU fun y hy =>
+      hmar y (level_hatBox_subset_of_active hG' hm₁ hRC hRX hw hne hy) y
+        (by rw [supDist_self]; exact Nat.zero_le _)
+
+/-- **Depth, the inner cubes.**  For an active ambient cube with interaction cube in `R`: the
+layers of `H`, `H'` agree on the stencil of `□_z` (given that they agree on the top layer), its base
+is in the top layer, the bases of the cubes (of either cover) whose bump does not vanish on `□_z`
+are in the top layer, and so are those of the cubes meeting `□̂_z`.  These are the hypotheses
 `hdeep` of `level_localB_inner_cross`. -/
 theorem localB_depth_deep (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁) (hk : k + 1 ≤ k + 1)
     (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hsep : ϱl ≤ minSep L (L ^ m₁))
@@ -483,33 +625,7 @@ theorem localB_depth_deep (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁) (hk : 
         (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
           (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
             (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
-              q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) := by
-  intro q _ hne
-  have hM1 : 1 ≤ L ^ (k + 1 + m₁) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
-  refine ⟨fun x hx y hy => hst y ?_, ?_, fun x hx q' hq' hb => ?_, ?_⟩
-  · have hxR := level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx
-    refine hmar x hxR y ?_
-    rcases hy with rfl | ⟨μ, rfl | rfl⟩
-    · rw [supDist_self]; exact Nat.zero_le _
-    · exact (supDist_add_single_le x μ).trans (by omega)
-    · exact (supDist_sub_single_le x μ).trans (by omega)
-  · exact hmar _ (level_base_mem_of_active hG' hm₁ hRC hRX hw hne) _
-      (by rw [supDist_self]; exact Nat.zero_le _)
-  · have hxR := level_intBox_subset_of_active hG' hm₁ hRC hRX hw hne hx
-    have hj : q'.1 ≤ k + 1 := by
-      rcases hq' with h | h
-      · exact ((mem_cubeIdx _).1 h).1.2
-      · exact ((mem_cubeIdx _).1 h).1.2
-    have hB : (0 : ℝ) ≤ 3 / 2 * (L : ℝ) ^ (q'.1 + m₁) := by positivity
-    have hd := supDist_le_of_inBox hB (inBox_of_cubeBump_ne_zero hb)
-    have hLj : (L : ℝ) ^ (q'.1 + m₁) ≤ (L : ℝ) ^ (k + 1 + m₁) :=
-      pow_le_pow_right₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)) (by omega)
-    have hd' : (supDist x q'.2 : ℝ) ≤ ((2 * L ^ (k + 1 + m₁) : ℕ) : ℝ) := by
-      push_cast; linarith
-    exact hmar x hxR q'.2 (by exact_mod_cast hd')
-  · exact level_localB_hat_of_box hk Y hsep fun y hy =>
-      hmar y (level_hatBox_subset_of_active hG' hm₁ hRC hRX hw hne hy) y
-        (by rw [supDist_self]; exact Nat.zero_le _)
+              q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) := depth_deep (localB_top_union hk Y hsep) hG' hm₁ hRC hRX hmar hst hw
 
 /-- **Depth, the residual rows of the background.**  For `x ∈ R` the sites read by the residual at
 `x` are in `Ω₁(𝔹_{k+1})` and in `Y_b` (the `M₁ L^{k+1}`-neighbourhood of `R`). -/
@@ -518,6 +634,28 @@ theorem localB_depth_res_bg (hG' : IsLevel Gp (k + 1)) {R Yb : Finset (CTorus d 
     ∀ x ∈ R, x ∈ Gp.Ω 1 → ∀ y ∈ resSites Gp x, y ∈ Gp.Ω 1 ∧ y ∈ Yb :=
   fun x hx _ y hy => ⟨(hG' y).1, hRY x hx y ((supDist_le_of_mem_resSites hy).trans
     (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by omega)))⟩
+
+/-- **Depth, the residual rows of the fluctuation.**  For `x ∈ R` the sites read by the residual of
+`H` at `x` are in `Y_f` (the `M₁ L^{k+1}`-neighbourhood of `R`), where the layers of `H` and `H'`
+agree.
+
+The core of `localB_depth_res_fl`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem depth_res_fl  {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    (hRY : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1 + m₁) → y ∈ Yb)
+    (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁))
+    {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
+    {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
+    (hst : ∀ y ∈ Gl.Ω (k + 1), ∀ n, 1 ≤ n → n ≤ k + 1 →
+      (y ∈ H.layer n ↔ y ∈ H'.layer n)) :
+    ∀ x ∈ R, x ∈ H.Ω 1 → ∀ y ∈ resSites H x,
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧ (y ∈ H.Ω 1 → y ∈ Yb) ∧
+        y ∈ Yb := by
+  intro x hx _ y hy
+  have hyY : y ∈ Yb := hRY x hx y ((supDist_le_of_mem_resSites hy).trans
+    (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by omega)))
+  exact ⟨hst y (topLayer_of_mem hmar hYR hyY), fun _ => hyY, hyY⟩
 
 /-- **Depth, the residual rows of the fluctuation.**  For `x ∈ R` the sites read by the residual of
 `H` at `x` are in `Y_f` (the `M₁ L^{k+1}`-neighbourhood of `R`), where the layers of `H` and `H'`
@@ -534,11 +672,27 @@ theorem localB_depth_res_fl (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m�
       (y ∈ H.layer n ↔ y ∈ H'.layer n)) :
     ∀ x ∈ R, x ∈ H.Ω 1 → ∀ y ∈ resSites H x,
       (∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧ (y ∈ H.Ω 1 → y ∈ Yb) ∧
-        y ∈ Yb := by
-  intro x hx _ y hy
-  have hyY : y ∈ Yb := hRY x hx y ((supDist_le_of_mem_resSites hy).trans
-    (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by omega)))
-  exact ⟨hst y (localB_top_of_mem hk Y hsep hmar hYR hyY), fun _ => hyY, hyY⟩
+        y ∈ Yb := depth_res_fl hmar hRY hYR hst
+
+/-- **Depth, the active blocks of the approximate field.**  At a site of `Y_b`, the bases of the
+blocks whose bump does not vanish are in the top layer, where the layers of `𝔹_{k+1}` and
+`𝔹_{k+1}(Y)` agree (`M₁ ≥ 2`).
+
+The core of `localB_depth_act`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem depth_act (hG' : IsLevel Gp (k + 1)) (hM2 : 2 ≤ L ^ m₁)
+    {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) :
+    ∀ y ∈ Yb, y ∈ Gp.Ω 1 → ∀ q : ℕ × CTorus d L N₁ m₁ (k + 1), 1 ≤ q.1 →
+      q.1 ≤ k + 1 → bump q.1 q.2 y ≠ 0 →
+        ∀ n, 1 ≤ n → n ≤ k + 1 → (q.2 ∈ Gp.layer n ↔ q.2 ∈ Gl.layer n) := by
+  intro y hy _ q _ hqK hb
+  have h1 := supDist_le_of_bump_ne_zero hb
+  have h2 : 2 * L ^ q.1 ≤ 2 * L ^ (k + 1) :=
+    Nat.mul_le_mul_left 2 (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) hqK)
+  have h3 := two_mul_pow_le_pow_add hM2 (k + 1)
+  exact (fun n hn hnK => level_layer_iff_of_mem_top hG' (topLayer_of_near hmar hYR hy (by omega)) hn hnK)
 
 /-- **Depth, the active blocks of the approximate field.**  At a site of `Y_b`, the bases of the
 blocks whose bump does not vanish are in the top layer, where the layers of `𝔹_{k+1}` and
@@ -551,14 +705,22 @@ theorem localB_depth_act (hG' : IsLevel Gp (k + 1)) (hM2 : 2 ≤ L ^ m₁) (hk :
     (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) :
     ∀ y ∈ Yb, y ∈ Gp.Ω 1 → ∀ q : ℕ × CTorus d L N₁ m₁ (k + 1), 1 ≤ q.1 →
       q.1 ≤ k + 1 → bump q.1 q.2 y ≠ 0 →
-        ∀ n, 1 ≤ n → n ≤ k + 1 → (q.2 ∈ Gp.layer n ↔ q.2 ∈ (localB (k + 1) hk Y hsep).layer n) := by
-  intro y hy _ q _ hqK hb
-  have h1 := supDist_le_of_bump_ne_zero hb
-  have h2 : 2 * L ^ q.1 ≤ 2 * L ^ (k + 1) :=
-    Nat.mul_le_mul_left 2 (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) hqK)
+        ∀ n, 1 ≤ n → n ≤ k + 1 → (q.2 ∈ Gp.layer n ↔ q.2 ∈ (localB (k + 1) hk Y hsep).layer n) := depth_act hG' hM2 hmar hYR
+
+/-- **Depth, the data of the approximate field.**  At a site of `Y_b`, the sites whose data enter
+the approximate field of `𝔹_{k+1}` are in the top layer (`M₁ ≥ 2`).
+
+The core of `localB_depth_approxDep`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem depth_approxDep (hM2 : 2 ≤ L ^ m₁)
+    {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1))
+    (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) :
+    ∀ y ∈ Yb, ∀ z ∈ approxDep Gp y, z ∈ Gl.Ω (k + 1) := by
+  intro y hy z hz
+  have h1 := supDist_le_of_mem_approxDep hz
   have h3 := two_mul_pow_le_pow_add hM2 (k + 1)
-  exact level_localB_layer_iff_of_top hG' hk Y hsep
-    (localB_top_of_near hk Y hsep hmar hYR hy (by omega))
+  exact topLayer_of_near hmar hYR hy (by omega)
 
 /-- **Depth, the data of the approximate field.**  At a site of `Y_b`, the sites whose data enter
 the approximate field of `𝔹_{k+1}` are in the top layer (`M₁ ≥ 2`). -/
@@ -568,23 +730,20 @@ theorem localB_depth_approxDep (hM2 : 2 ≤ L ^ m₁) (hk : k + 1 ≤ k + 1)
     (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
       y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
     (hYR : ∀ y ∈ Yb, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) :
-    ∀ y ∈ Yb, ∀ z ∈ approxDep Gp y, z ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := by
-  intro y hy z hz
-  have h1 := supDist_le_of_mem_approxDep hz
-  have h3 := two_mul_pow_le_pow_add hM2 (k + 1)
-  exact localB_top_of_near hk Y hsep hmar hYR hy (by omega)
+    ∀ y ∈ Yb, ∀ z ∈ approxDep Gp y, z ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) := depth_approxDep hM2 hmar hYR
 
 /-- **Depth, the composition.**  At a data site `x ∈ R` of the term generator `𝔹_k(X)`: the layers
 of `H`, `H'` agree at `x`, and the sites read by `composeField` at `x` (the site, its block of
-`𝔹_k(X)` and its block of `H`) are in `Y_b`. -/
-theorem localB_depth_compose (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
-    (hsep : ϱl ≤ minSep L (L ^ m₁)) {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+`𝔹_k(X)` and its block of `H`) are in `Y_b`.
+
+The core of `localB_depth_compose`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
+theorem depth_compose  {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
-      y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
+      y ∈ Gl.Ω (k + 1))
     (hRY : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1 + m₁) → y ∈ Yb)
     {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
     {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
-    (hst : ∀ y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1), ∀ n, 1 ≤ n → n ≤ k + 1 →
+    (hst : ∀ y ∈ Gl.Ω (k + 1), ∀ n, 1 ≤ n → n ≤ k + 1 →
       (y ∈ H.layer n ↔ y ∈ H'.layer n))
     {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁} (hRk : ∀ x ∈ dataSites Gk, x ∈ R) :
     ∀ x ∈ dataSites Gk,
@@ -604,14 +763,73 @@ theorem localB_depth_compose (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m�
   · exact (supDist_le_of_mem_blk (layerIndex_le_of_Ω_empty H H.top x) hy).trans
       (hLM _ (layerIndex_le_of_Ω_empty H H.top x))
 
+/-- **Depth, the composition.**  At a data site `x ∈ R` of the term generator `𝔹_k(X)`: the layers
+of `H`, `H'` agree at `x`, and the sites read by `composeField` at `x` (the site, its block of
+`𝔹_k(X)` and its block of `H`) are in `Y_b`. -/
+theorem localB_depth_compose (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hsep : ϱl ≤ minSep L (L ^ m₁)) {R Yb : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
+    (hRY : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1 + m₁) → y ∈ Yb)
+    {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
+    {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
+    (hst : ∀ y ∈ (localB (k + 1) hk Y hsep).Ω (k + 1), ∀ n, 1 ≤ n → n ≤ k + 1 →
+      (y ∈ H.layer n ↔ y ∈ H'.layer n))
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁} (hRk : ∀ x ∈ dataSites Gk, x ∈ R) :
+    ∀ x ∈ dataSites Gk,
+      (∀ n, 1 ≤ n → n ≤ k + 1 → (x ∈ H.layer n ↔ x ∈ H'.layer n)) ∧
+      ∀ y : CTorus d L N₁ m₁ (k + 1),
+        (y = x ∨ y ∈ Gk.blk (Gk.layerIndex x) x ∨ y ∈ H.blk (H.layerIndex x) x) → y ∈ Yb := depth_compose hmar hRY hst hRk
+
 end Margin
 
 /-! ### One pair of constants for the four cover bases -/
 
 section Constants
 
-variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
+variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm ϱl ϱl' : ℝ}
 variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+  {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
+
+/-- **The cover bases of the ambient level set and of a cube-aligned, sup-separated generating set
+`Gl`**, with the constants `mixedKc d L`, `Cchi d L` (the first two pairs of
+`replacement_coverBases`). -/
+theorem level_local_coverBases (hG' : IsLevel Gp (k + 1)) (hA : CubeAligned Gl m₁)
+    (hSS : SupSep Gl m₁) (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {a : ℕ → ℝ} {ν : ℝ} (HB : BgHyp d L (k + 1) ϱ a ν)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1)) :
+    Dec2.CoverBase (coverOf Gp) Gp a ν (Dec2.mixedKc d L) (Cchi d L) ∧
+    Dec2.CoverBase (coverOf Gl) Gl a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  ⟨level_coverBase_mixed hG' Gp hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag,
+    coverBase_of_aligned_supSep hA hSS hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagl⟩
+
+/-- **One pair `(K_c, C_χ)` for the four cover bases of the replacement**, for a cube-aligned,
+sup-separated generating set `Gl` in place of `𝔹_{k+1}(Y)` and a generating set `Gd ≺ Gl` in place of
+`𝔹_k(Y)`: the ambient background pair `(coverOf 𝔹_{k+1}, 𝔹_{k+1})`, the local background pair
+`(coverOf Gl, Gl)`, the ambient fluctuation pair `(coverOf 𝔹_{k+1}, H⁻)` and the local fluctuation pair
+`(coverOf Gl, Gd)` all have `Dec2.CoverBase` with `K_c = mixedKc d L`, `C_χ = Cchi d L`.  The Agmon
+condition is asked at the index of each of `𝔹_{k+1}`, `H⁻`, `Gl`, `Gd`.  The core of
+`localB_replacement_coverBases`. -/
+theorem replacement_coverBases (hG' : IsLevel Gp (k + 1))
+    (Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm)
+    (hA : CubeAligned Gl m₁) (hSS : SupSep Gl m₁) (hPd : Precedes Gd Gl)
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    {a : ℕ → ℝ} {ν : ℝ} (HB : BgHyp d L (k + 1) ϱ a ν)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    (hagd : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl' - 1)) :
+    Dec2.CoverBase (coverOf Gp) Gp a ν (Dec2.mixedKc d L) (Cchi d L) ∧
+    Dec2.CoverBase (coverOf Gl) Gl a ν (Dec2.mixedKc d L) (Cchi d L) ∧
+    Dec2.CoverBase (coverOf Gp) Hm a ν (Dec2.mixedKc d L) (Cchi d L) ∧
+    Dec2.CoverBase (coverOf Gl) Gd a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  ⟨(level_local_coverBases hG' hA hSS hN hm₁ hM HB hag hagl).1,
+    (level_local_coverBases hG' hA hSS hN hm₁ hM HB hag hagl).2,
+    level_coverBase_mixed hG' Hm hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagm,
+    (footLocal_of_precedes hA hSS hPd hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights
+      hagd).toCoverBase⟩
 
 /-- **One pair `(K_c, C_χ)` for the ambient and the local cover bases** (deliverable (2)).  Let
 `𝔹_{k+1}` be a level set (index `ϱ`) and `H⁻` any operator generating set (index `ϱ_m`).  With the
@@ -640,11 +858,8 @@ theorem localB_replacement_coverBases (hG' : IsLevel Gp (k + 1))
         (↑((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) :
           Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
       a ν (Dec2.mixedKc d L) (Cchi d L) :=
-  ⟨level_coverBase_mixed hG' Gp hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag,
-    localB_coverBase hk Y _ hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagl,
-    level_coverBase_mixed hG' Hm hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights hagm,
-    (localB_drop_pair hk Y hN hm₁ hM HB.hd HB.hL HB.mass HB.massLe HB.weights
-      hagl).2.2.1.toCoverBase⟩
+  replacement_coverBases hG' Hm (localB_cubeAligned hk Y _ hm₁) (localB_supSep hk Y _)
+    (localB_drop_precedes hk (Nat.le_succ k) Y _ _) hN hm₁ hM HB hag hagm hagl hagl
 
 end Constants
 

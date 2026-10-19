@@ -202,10 +202,10 @@ domain, so its proofs survive the change.
      * (H6′)^pre by LF-2 (i): `Rep.budgetPre_of_LF2`. Its `BudgetSetup.run` asks (I.2) at every scale (item 4 (c));
      * a non-quiet kernel exists only at `k = 0` (R7 `Kphys`).
    * Open:
-     * (a) R8: the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
+     * (a) R8 (W1141: `Tr.Reads` for `canon` proved; (A1)–(A5) still open — f is not definable from the existential `e`; needs the chain's assembly layers at `Gb`, marks, inherited terms (c); the K_loc chart of (A3) is a risk for the inherited part: the restricted datum has radius (1+(2K₁+1)C₁)ε ≥ 4ε, and 4ε_{k+1} > ε_k): the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
        with an explicit background generating set (not started). With them, (A1)–(A5) of `newLabels_castInputs_of_localFamily`:
        the new level's terms on the local charts of `𝔹_{k+1}(Y⁺(T′))`.
-     * (b) The castG gap. W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
+     * (b) The castG gap: CLOSED by W1141 (cores for an arbitrary generating set in LocalPairIndexMatch/LevelInner/Depth/HatLift/Collar/LocalClassTau/LatTau/LocalGeneratorRestriction; `LocalPairCast.lean`). Was: W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
        reads `castG hc (localB …)` on `(N₁′, m₁ + 4)`. Missing: castG versions of `LocalPairDepth`, `LocalPairLevelInner`,
        `localHatLift_eq_hatPsiF_localB`, `localB_collar_margin`, `localB_tauExt_*`.
      * (c) The inherited terms on two tori. For a general class the chain's `e` is not a core family (W1090). `D8SF.M_eq` at

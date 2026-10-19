@@ -37,7 +37,9 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Sm
 
 section Tau
 
-variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱl ϱl₂ : ℝ}
+  {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+  {Gl₂ : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl₂}
 
 /-- Two cube bases of the same cell coincide. -/
 theorem cubeBase_eq_of_sameCell {K j : ℕ} {y y' : CTorus d L N₁ m₁ K} (hy : CubeBase m₁ j y)
@@ -51,27 +53,30 @@ theorem cubeBase_eq_of_sameCell {K j : ℕ} {y y' : CTorus d L N₁ m₁ K} (hy 
   rw [← e1, ← e2, h μ]
 
 /-- **The parameter maps of `Y` and `σ Y` correspond** (the hypothesis `hww` of
-`localB_eTermHat_evTerm_paving` for `σ_Y w = τ_Y (extParams 𝔹_{k+1} X₁ w)`). -/
-theorem localB_tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
-    (hG : IsLevel Ga (k + 1)) (hk : k + 1 ≤ k + 1) {Yp Yp₂ : Set (CTorus d L N₁ m₁ (k + 1))}
+`localB_eTermHat_evTerm_paving` for `σ_Y w = τ_Y (extParams 𝔹_{k+1} X₁ w)`).
+
+The core of `localB_tauExt_sym`, for arbitrary generating sets `Gl`, `Gl₂` in place of
+`𝔹_{k+1}(Y⁺)`, `𝔹_{k+1}((σ Y)⁺)`. -/
+theorem tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (hG : IsLevel Ga (k + 1))
     {σ : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
     (hΩ : ∀ i, 1 ≤ i → i ≤ k + 1 + 1 → ∀ x,
-      σ x ∈ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω i ↔
-        x ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω i)
-    (hca₂ : CubeAligned (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))) m₁)
+      σ x ∈ Gl₂.Ω i ↔
+        x ∈ Gl.Ω i)
+    (hca₂ : CubeAligned Gl₂ m₁)
     {m₀ : ℕ} (CS : CoverSymm (coverOf Ga) σ) (PS : PolymerSymm Ga m₀ σ CS.τ)
     (X₁ : Set (CTorus d L N₁ m₁ (k + 1))) (w' : ParIdx Ga (σ '' X₁) → ℂ)
     (P P' : ℕ × CTorus d L N₁ m₁ (k + 1))
-    (hP : P ∈ (coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx)
-    (hP' : P' ∈ (coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁))))).cubeIdx)
+    (hP : P ∈ (coverOf Gl).cubeIdx)
+    (hP' : P' ∈ (coverOf Gl₂).cubeIdx)
     (h1 : P'.1 = P.1) (hc : SameCell (L ^ (P.1 + m₁)) (σ P.2) P'.2) :
-    Dec2.extS (coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))))
-        (fun P'' : ↥(coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁))))).cubeIdx =>
-          if P''.1.2 ∈ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) then
+    Dec2.extS (coverOf Gl₂)
+        (fun P'' : ↥(coverOf Gl₂).cubeIdx =>
+          if P''.1.2 ∈ Gl₂.Ω (k + 1) then
             Dec2.extS (coverOf Ga) (extParams Ga (σ '' X₁) w') P''.1 else 0) P' =
-      Dec2.extS (coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
-        (fun P'' : ↥(coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx =>
-          if P''.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) then
+      Dec2.extS (coverOf Gl)
+        (fun P'' : ↥(coverOf Gl).cubeIdx =>
+          if P''.1.2 ∈ Gl.Ω (k + 1) then
             Dec2.extS (coverOf Ga) (extParams Ga X₁ (w' ∘ parEquiv CS PS rfl)) P''.1 else 0) P := by
   classical
   have hPm := (mem_cubeIdx _).1 hP
@@ -81,13 +86,13 @@ theorem localB_tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
     fun s Q hQ => by unfold Dec2.extS; simp [hQ]
   rw [eo _ hP', eo _ hP]
   dsimp only
-  have hiff : P'.2 ∈ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) ↔
-      P.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) := by
+  have hiff : P'.2 ∈ Gl₂.Ω (k + 1) ↔
+      P.2 ∈ Gl.Ω (k + 1) := by
     rw [← hΩ (k + 1) (by omega) (by omega)]
     have hc' : SameCell (L ^ (k + 1 + m₁)) (σ P.2) P'.2 :=
       SameCell.mono (pow_dvd_pow L (by omega)) hc
     exact (hca₂.union (k + 1) (by omega) le_rfl _ _ hc').symm
-  by_cases h : P.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
+  by_cases h : P.2 ∈ Gl.Ω (k + 1)
   · have h' := hiff.2 h
     simp only [h, h', ↓reduceIte]
     -- the centre `P` is a cube of the ambient level set at the top layer
@@ -96,7 +101,7 @@ theorem localB_tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
       rw [GeneratingSet.mem_layer] at hl
       by_contra hne
       have hlt : P.1 < k + 1 := lt_of_le_of_ne hPm.1.2 hne
-      exact hl.2 ((localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω_antitone
+      exact hl.2 (Gl.Ω_antitone
         (i := P.1 + 1) (j := k + 1) (by omega) (by omega) (by omega) h)
     have hPa : P ∈ cubeIdx Ga := by
       rw [mem_cubeIdx]
@@ -120,9 +125,33 @@ theorem localB_tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
     rw [extParams_sym CS PS rfl w']
     refine (CoverSymm.extS_par CS _ P').trans ?_
     rw [← hτP, Equiv.symm_apply_apply]
-  · have h' : P'.2 ∉ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) :=
+  · have h' : P'.2 ∉ Gl₂.Ω (k + 1) :=
       fun hh => h (hiff.1 hh)
     simp only [h, h', ↓reduceIte]
+
+/-- **The parameter maps of `Y` and `σ Y` correspond** (the hypothesis `hww` of
+`localB_eTermHat_evTerm_paving` for `σ_Y w = τ_Y (extParams 𝔹_{k+1} X₁ w)`). -/
+theorem localB_tauExt_sym {Ga : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (hG : IsLevel Ga (k + 1)) (hk : k + 1 ≤ k + 1) {Yp Yp₂ : Set (CTorus d L N₁ m₁ (k + 1))}
+    {σ : Equiv.Perm (CTorus d L N₁ m₁ (k + 1))}
+    (hΩ : ∀ i, 1 ≤ i → i ≤ k + 1 + 1 → ∀ x,
+      σ x ∈ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω i ↔
+        x ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω i)
+    (hca₂ : CubeAligned (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))) m₁)
+    {m₀ : ℕ} (CS : CoverSymm (coverOf Ga) σ) (PS : PolymerSymm Ga m₀ σ CS.τ)
+    (X₁ : Set (CTorus d L N₁ m₁ (k + 1))) (w' : ParIdx Ga (σ '' X₁) → ℂ)
+    (P P' : ℕ × CTorus d L N₁ m₁ (k + 1))
+    (hP : P ∈ (coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx)
+    (hP' : P' ∈ (coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁))))).cubeIdx)
+    (h1 : P'.1 = P.1) (hc : SameCell (L ^ (P.1 + m₁)) (σ P.2) P'.2) :
+    Dec2.extS (coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))))
+        (fun P'' : ↥(coverOf (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁))))).cubeIdx =>
+          if P''.1.2 ∈ (localB (k + 1) hk Yp₂ (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) then
+            Dec2.extS (coverOf Ga) (extParams Ga (σ '' X₁) w') P''.1 else 0) P' =
+      Dec2.extS (coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
+        (fun P'' : ↥(coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))).cubeIdx =>
+          if P''.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) then
+            Dec2.extS (coverOf Ga) (extParams Ga X₁ (w' ∘ parEquiv CS PS rfl)) P''.1 else 0) P := tauExt_sym hG hΩ hca₂ CS PS X₁ w' P P' hP hP' h1 hc
 
 end Tau
 
