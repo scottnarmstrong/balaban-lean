@@ -965,7 +965,8 @@ Proved inside:
      * (a) `allPlus_gas` is the Gaussian chart integral with the product cutoff `sup_y |ψ_y| ≤ p` (on which every site is good,
        (F.6)). `Z_∅` has the physical threshold, which is not local in `ψ` (LF-BASE-KF0 E.4). The good sites with a large Gaussian
        variable must be expanded inside the all-good sector, or `Z_∅` expanded in the spin variables;
-     * (b) the complex source: `allPlus_gas` has a real source `src`; the activities must be analytic on the `ℓ¹` ball;
+     * (W1145) items (b)-(e) DONE as lemmas: `Spine/KfZeroGoodParts.lean` (`kf0GoodAct` and its support / locality / analytic (`kf0GoodAct_analytic`) / bound (`kf0GoodAct_bound`, amplitude `c₉/4`) / two-torus agreement (`kf0GoodAct_agree`) clauses, `kf0GoodAct_sum`, `kf0_gas_facts`, `kf0_choose_eps`), `LargeField/Base/KF0AllPlusGasC` (complex source, `kf0PY_analyticOnNhd`), `KF0BoxLift`, `KF0BlockLift`, `KF0PolymerLift` (lifts, `kf0PY_agree`), `Polymer/MayerTransport`, `KF0SmallUniform`. The reduction is the theorem `kf0GoodSectorInput_of_threshold`: `KF0GoodSectorInput` follows from `KF0ThresholdInput` (the new Prop = item (a): activities `r` of amplitude `c₉/4` with `Z_∅ = exp(E₀ + Σ r) · (product-cutoff integral)`) and `M ≥ 3(κ+2κ₀+4)3^d(2d+1)L`. Only (a) is open.
+     * (b) [done, see above] the complex source: `allPlus_gas` has a real source `src`; the activities must be analytic on the `ℓ¹` ball;
      * (c) the measurable walk terms with clipping (KF0AllGoodGas, T4 (i)–(ii));
      * (d) the regrouping onto `IsPolymer d ℓ (M L)` and the exact two-torus agreement of the increments (walk lifts, PE (f));
      * (e) the amplitude `c₉/4` (the rate (F.13)).
