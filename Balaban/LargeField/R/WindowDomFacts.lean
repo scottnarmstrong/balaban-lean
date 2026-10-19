@@ -227,6 +227,12 @@ theorem window_domain_facts {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)}
       (hpd i (cs.muAct (m' + 1)) (δx (jf i)) (hδx_rad i) (hμ0 _) (hδx_mass i (m' + 1) h1 le_rfl))
   · exact hpd i (cs.muAct (m' + 1)) δl (hδl_rad i) (hμ0 _) (hδl_mass i)
 
+/-- Above the scale `k₀` no component is removed, so the window component is retained. -/
+theorem window_retained_of_gt {m' : ℕ} {Z : H.Comp (m' + 1)} (h : k0 < m' + 1) :
+    Z.1 ∉ H.rem (m' + 1) := by
+  rw [H.rem_empty (m' + 1) (Or.inr h)]
+  exact Finset.notMem_empty _
+
 end Facts
 
 end Balaban.LargeField
