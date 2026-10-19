@@ -104,6 +104,25 @@ theorem localB_collar_gsSpecStrong (hk : k + 1 ≤ k + 1) (hsep : ϱl ≤ minSep
     GsSpecStrong (k + 1) hk Yp (localB (k + 1) hk Yp hsep) :=
   gsSpecStrong_localB (Nat.le_add_left 1 k) (localB_collar_cubeUnion hYp)
 
+/-- **The margin from `R ⊆ Y`, for any generating set whose top layer is given by a cell
+condition.**  Let `Yp` be the collar of `Y` at the cube size `m'` (a site lies in `Yp` iff a site of
+`Y` is within sup-distance `2 L^{k+1+m'}` of a site in its cell of side `L^{k+1+m'}`), and `Gl` a
+generating set whose top layer consists of the sites whose whole cell of side `L^{k+1+m'}` lies in
+`Yp`.  If `m₁ ≤ m'`, every site within sup-distance `2 L^{k+1+m₁}` of a site of a set `R ⊆ Y` lies in
+the top layer of `Gl`.  The core of `localB_collar_margin` (`m' = m₁`, `Gl = 𝔹_{k+1}(Y⁺)`). -/
+theorem collar_margin_of_top {m' : ℕ} (hm : m₁ ≤ m')
+    {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    (htop : ∀ z, z ∈ Gl.Ω (k + 1) ↔
+      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m')) w z → w ∈ Yp)
+    (hYp : ∀ z, z ∈ Yp ↔ ∃ x ∈ Y, ∃ y : CTorus d L N₁ m₁ (k + 1),
+      SameCell (L ^ (k + 1 + m')) y z ∧ supDist x y ≤ 2 * L ^ (k + 1 + m'))
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))} (hRY : ∀ x ∈ R, x ∈ Y) :
+    ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) → y ∈ Gl.Ω (k + 1) := by
+  intro x hx y hxy
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  refine (htop y).2 fun w hw => (hYp w).2 ⟨x, hRY x hx, y, hw.symm, hxy.trans ?_⟩
+  exact Nat.mul_le_mul_left 2 (Nat.pow_le_pow_right hL (by omega))
+
 /-- **The margin from `R ⊆ Y`.**  If the read region `R` lies in the expansion domain `Y`, every
 site within sup-distance `2 M₁ L^{k+1}` of `R` lies in the top layer of `𝔹_{k+1}(Y⁺)`: its
 `𝒞_{k+1}`-cube meets the `2 M₁ L^{k+1}`-neighbourhood of `Y`.  This is the hypothesis `hmar` of
@@ -117,10 +136,9 @@ theorem localB_collar_margin (hk : k + 1 ≤ k + 1) (hsep : ϱl ≤ minSep L (L 
       supDist x y ≤ 2 * L ^ (k + 1 + m₁))
     {R : Finset (CTorus d L N₁ m₁ (k + 1))} (hRY : ∀ x ∈ R, x ∈ Y) :
     ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
-      y ∈ (localB (k + 1) hk Yp hsep).Ω (k + 1) := by
-  intro x hx y hxy
-  refine (mem_localB_Ω_top y).2 fun y' hy' => ?_
-  exact (hYp y').2 ⟨x, hRY x hx, y, hy'.symm, hxy⟩
+      y ∈ (localB (k + 1) hk Yp hsep).Ω (k + 1) :=
+  collar_margin_of_top (le_refl m₁) (mem_localB_Ω_top_sameCell hk Yp hsep)
+    (fun z => by rw [hYp z]; simp only [fineCubeIdx_top_iff_sameCell]) hRY
 
 end Collar
 

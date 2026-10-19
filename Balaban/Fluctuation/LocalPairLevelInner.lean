@@ -162,6 +162,7 @@ theorem level_localB_qset_eq_of_cover (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤
         (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
           q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) :
     (coverOf Gp).Qset q = (coverOf (localB (k + 1) hk Y hsep)).Qset q := level_qset_eq_of_cover hG' hq
+
 /-- Two sites in the same cell of side `M₁ L^j`, `j ≤ k + 1`, have the same `𝒞_{k+1}`-cube. -/
 theorem fineCubeIdx_top_eq_of_sameCell {j : ℕ} (hj : j ≤ k + 1) {y z : CTorus d L N₁ m₁ (k + 1)}
     (h : SameCell (L ^ (j + m₁)) y z) :
@@ -175,6 +176,30 @@ theorem fineCubeIdx_top_eq_of_sameCell {j : ℕ} (hj : j ≤ k + 1) {y z : CToru
   have e : L ^ (k + 1) * L ^ m₁ = L ^ (j + m₁) * L ^ (k + 1 - j) := by
     rw [← pow_add, ← pow_add]; congr 1; omega
   rw [e, ← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul, h ν]
+
+/-- Two sites have the same `𝒞_{k+1}`-cube (side `M₁ L^{k+1}`) exactly when they lie in one cell of
+side `L^{k+1+m₁}`. -/
+theorem fineCubeIdx_top_iff_sameCell (y z : CTorus d L N₁ m₁ (k + 1)) :
+    fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+        (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) (k + 1)
+        (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ↔
+      SameCell (L ^ (k + 1 + m₁)) y z := by
+  have hc : N₁ * L ^ m₁ * L ^ (k + 1) = L ^ m₁ * N₁ * L ^ (k + 1) := by rw [mul_comm (L ^ m₁) N₁]
+  rw [LargeField.fineCubeIdx_eq_iff_sameCell (le_refl (k + 1))]
+  unfold SameCell
+  simp only [torusCast_val hc]
+  have e : L ^ (k + 1) * L ^ m₁ = L ^ (k + 1 + m₁) := (pow_add L (k + 1) m₁).symm
+  rw [e]
+
+/-- **The top layer of the literal local generator, as a cell condition**: a site lies in
+`Ω_{k+1}(𝔹_{k+1}(Y))` iff every site of its cell of side `L^{k+1+m₁}` lies in `Y`. -/
+theorem mem_localB_Ω_top_sameCell (hk : k + 1 ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hsep : ϱl ≤ minSep L (L ^ m₁)) (x : CTorus d L N₁ m₁ (k + 1)) :
+    x ∈ (localB (k + 1) hk Y hsep).Ω (k + 1) ↔
+      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m₁)) w x → w ∈ Y := by
+  rw [mem_localB_Ω_top]
+  exact forall_congr' fun w => imp_congr_left (fineCubeIdx_top_iff_sameCell w x)
 
 /-- **The top layer of the literal local generator is a union of cells of side `M₁ L^{k+1}`**: two
 sites in one cell of side `L^{k+1+m₁}` are in the top layer together. -/
