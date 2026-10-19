@@ -426,6 +426,96 @@ theorem decFixed_component_cross {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar 
     hres ιU hα0 hφ0 hΨ hf hsmA hsmB hα
   exact ⟨fun x hx hx' hxT => (hα x hx hx' hxT).symm, hrows.2⟩
 
+/-- **CrossI4a, values, with separate strict-data levels on the two sides.**  The statement of
+`decSol_value_cross` with the defining property of `Sol` asked at the levels `(δ₀, δ₁)` and that of
+`Sol'` at the levels `(δ₀', δ₁')` (the data `e`, `e'` strict at their own levels).  The landed
+statement is the instance `δ₀' = δ₀`, `δ₁' = δ₁`. -/
+theorem decSol_value_cross_sep {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG)
+    (S : CoverBase C H a ν Kc Cx) (S' : CoverBase C' H' a ν Kc Cx) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (ιU : Bool) {δ₀ δ₁ δ₀' δ₁' : ℝ}
+    (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁) (h0' : 0 ≤ δ₀') (h1' : 0 ≤ δ₁')
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁' : δ₁' ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {Sol : DecParams C × Edat H N → (H.Ω 1 × Fin N → ℂ) × (H.Ω 1 → ℂ)}
+    {Sol' : DecParams C' × Edat H' N → (H'.Ω 1 × Fin N → ℂ) × (H'.Ω 1 → ℂ)}
+    (hSol : ∀ p : DecParams C × Edat H N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM H N ιU δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi H (decG C H a ν p.1) p.2.2.1 p.2.1
+          (pertSource H a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        DecFixed C H a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource H a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small H (Sol p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small H (Sol p).2 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        SupBounds H (Sol p).1 (cK2' d L N (famConst d L BG κ) * δ₁) ∧
+        (∀ δα' : H.Ω 1 → ℂ, Small H δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          DecFixed C H a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource H a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : DecParams C' × Edat H' N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM H' N ιU δ₀' δ₁' p.2 →
+        (Sol' p).1 = dphi H' (decG C' H' a ν p.1) p.2.2.1 p.2.1
+          (pertSource H' a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        DecFixed C' H' a ν p.1 ιU p.2.2.1 p.2.1
+          (pertSource H' a p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
+        Small H' (Sol' p).2 (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) ∧
+        Small H' (Sol' p).2 (cK2' d L N (famConst d L BG κ) * δ₁') ∧
+        SupBounds H' (Sol' p).1 (cK2' d L N (famConst d L BG κ) * δ₁') ∧
+        (∀ δα' : H'.Ω 1 → ℂ, Small H' δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8)) →
+          DecFixed C' H' a ν p.1 ιU p.2.2.1 p.2.1
+            (pertSource H' a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    {s : DecParams C} {s' : DecParams C'} (hs : ∀ P, ‖s P‖ < Real.exp κ)
+    (hs' : ∀ P, ‖s' P‖ < Real.exp κ) {e : Edat H N} {e' : Edat H' N}
+    (he : StrictDataM H N ιU δ₀ δ₁ e) (he' : StrictDataM H' N ιU δ₀' δ₁' e')
+    {Y T : Finset (CTorus d L N₁ m₁ K)} (hTY : T ⊆ Y)
+    (hYΩ : ∀ x ∈ Y, (x ∈ H.Ω 1 ↔ x ∈ H'.Ω 1))
+    (hdich : ∀ q ∈ C.cubeIdx, C.sProd (extS C s) q ≠ 0 →
+      SubI H (intBox q) T ∨ DisjI H (intBox q) T)
+    (hdich' : ∀ q ∈ C'.cubeIdx, C'.sProd (extS C' s') q ≠ 0 →
+      SubI H' (intBox q) T ∨ DisjI H' (intBox q) T)
+    (hrow : ∀ q ∈ C.cubeIdx, C.sProd (extS C s) q ≠ 0 → ∀ x ∈ Y, x ∈ intBox q → x ∈ T)
+    (hrow' : ∀ q ∈ C'.cubeIdx, C'.sProd (extS C' s') q ≠ 0 → ∀ x ∈ Y, x ∈ intBox q → x ∈ T)
+    (hin : ∀ q ∈ innerCentres C H T, C.sProd (extS C s) q ≠ 0 →
+      q ∈ innerCentres C' H' T ∧ C'.sProd (extS C' s') q = C.sProd (extS C s) q ∧
+      (∀ x ∈ intBox q, ∀ y : CTorus d L N₁ m₁ K,
+        (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+          ∀ n, 1 ≤ n → n ≤ K → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧
+      (∀ x ∈ intBox q, C.chi q x = C'.chi q x))
+    (hin' : ∀ q ∈ innerCentres C' H' T, C'.sProd (extS C' s') q ≠ 0 →
+      q ∈ innerCentres C H T ∧ C.sProd (extS C s) q ≠ 0)
+    (hres : ∀ x ∈ T, x ∈ H.Ω 1 → ∀ y ∈ resSites H x,
+      (∀ n, 1 ≤ n → n ≤ K → (y ∈ H.layer n ↔ y ∈ H'.layer n)) ∧ (y ∈ H.Ω 1 → y ∈ Y))
+    (hα0 : ∀ (x : CTorus d L N₁ m₁ K) (hx : x ∈ H.Ω 1) (hx' : x ∈ H'.Ω 1), x ∈ T →
+      e.2.1 ⟨x, hx⟩ = e'.2.1 ⟨x, hx'⟩)
+    (hφ0 : ∀ x ∈ T, x ∈ H.Ω 1 → ∀ y ∈ resSites H x, e.1 y = e'.1 y)
+    (hΨ : ∀ x ∈ T, x ∈ H.Ω 1 → ∀ y ∈ resSites H x, e.2.2.1 y = e'.2.2.1 y)
+    (hf : ∀ (x : CTorus d L N₁ m₁ K) (hx : x ∈ H.Ω 1) (hx' : x ∈ H'.Ω 1), x ∈ T →
+      ∀ i, e.2.2.2 (⟨x, hx⟩, i) = e'.2.2.2 (⟨x, hx'⟩, i)) :
+    (∀ (x : CTorus d L N₁ m₁ K) (hx : x ∈ H.Ω 1) (hx' : x ∈ H'.Ω 1), x ∈ T →
+      (Sol' (s', e')).2 ⟨x, hx'⟩ = (Sol (s, e)).2 ⟨x, hx⟩) ∧
+    (∀ (y : CTorus d L N₁ m₁ K) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1), y ∈ Y → ∀ i : Fin N,
+      (Sol' (s', e')).1 (⟨y, hy'⟩, i) = (Sol (s, e)).1 (⟨y, hy⟩, i)) := by
+  set Bc : ℝ := famConst d L BG κ with hBc
+  set Γ : ℝ := gamma1 d / 8 with hΓdef
+  have hle1 : δ₀ ≤ 1 := hδ₀.trans (by
+    have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
+      (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
+    exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have hle1' : δ₀' ≤ 1 := hδ₀'.trans (by
+    have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
+      (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
+    exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
+  have Hh := StrictDataM.hyp S.toOpSetting.toGreen h0 h1 hle1 he
+  have Hh' := StrictDataM.hyp S'.toOpSetting.toGreen h0' h1' hle1' he'
+  obtain ⟨hfld, hfix, hsm, -⟩ := hSol (s, e) hs he
+  obtain ⟨hfld', hfix', hsm', -⟩ := hSol' (s', e') hs' he'
+  obtain ⟨hα, hcorr⟩ := decFixed_component_cross hF S S' hκ hM (fun P => (hs P).le)
+    (fun P => (hs' P).le) hTY hYΩ hdich hdich' hrow hrow' hin hin' hres ιU Hh Hh' hδ₀ hδ₁ hδ₀' hδ₁'
+    hα0 hφ0 hΨ hf hfix hsm hfix' hsm'
+  refine ⟨hα, fun y hy hy' hyY i => ?_⟩
+  rw [hfld, hfld']
+  exact hcorr y hy hy' hyY i
+
 /-- **CrossI4a, values.**  Let `Sol`, `Sol'` be maps with the defining property of the analytic
 solution of Theorem I-4a for the two pairs (the form of `Dec2.i4a_analytic` and of the hypothesis
 `hSol` of `point_facts_fl`): on parameters with `|s_P| < e^κ` and data `e` with the strict
@@ -495,23 +585,9 @@ theorem decSol_value_cross {cstar BG : ℝ} (hF : FamSpec d L Kc Cx cstar BG)
     (∀ (x : CTorus d L N₁ m₁ K) (hx : x ∈ H.Ω 1) (hx' : x ∈ H'.Ω 1), x ∈ T →
       (Sol' (s', e')).2 ⟨x, hx'⟩ = (Sol (s, e)).2 ⟨x, hx⟩) ∧
     (∀ (y : CTorus d L N₁ m₁ K) (hy : y ∈ H.Ω 1) (hy' : y ∈ H'.Ω 1), y ∈ Y → ∀ i : Fin N,
-      (Sol' (s', e')).1 (⟨y, hy'⟩, i) = (Sol (s, e)).1 (⟨y, hy⟩, i)) := by
-  set Bc : ℝ := famConst d L BG κ with hBc
-  set Γ : ℝ := gamma1 d / 8 with hΓdef
-  have hle1 : δ₀ ≤ 1 := hδ₀.trans (by
-    have := (min_le_right (min (cTau' d L N Bc / 3) (Γ / 4))
-      (min (min 1 (c6' d L N Bc Γ / (2 * cN' d L N Bc))) (cTau' d L N Bc / (3 * cF d L))))
-    exact this.trans ((min_le_left _ _).trans (min_le_left _ _)))
-  have Hh := StrictDataM.hyp S.toOpSetting.toGreen h0 h1 hle1 he
-  have Hh' := StrictDataM.hyp S'.toOpSetting.toGreen h0 h1 hle1 he'
-  obtain ⟨hfld, hfix, hsm, -⟩ := hSol (s, e) hs he
-  obtain ⟨hfld', hfix', hsm', -⟩ := hSol' (s', e') hs' he'
-  obtain ⟨hα, hcorr⟩ := decFixed_component_cross hF S S' hκ hM (fun P => (hs P).le)
-    (fun P => (hs' P).le) hTY hYΩ hdich hdich' hrow hrow' hin hin' hres ιU Hh Hh' hδ₀ hδ₁ hδ₀ hδ₁
-    hα0 hφ0 hΨ hf hfix hsm hfix' hsm'
-  refine ⟨hα, fun y hy hy' hyY i => ?_⟩
-  rw [hfld, hfld']
-  exact hcorr y hy hy' hyY i
+      (Sol' (s', e')).1 (⟨y, hy'⟩, i) = (Sol (s, e)).1 (⟨y, hy⟩, i)) :=
+  decSol_value_cross_sep hF S S' hκ hM ιU h0 h1 h0 h1 hδ₀ hδ₁ hδ₀ hδ₁ hSol hSol' hs hs' he he' hTY
+    hYΩ hdich hdich' hrow hrow' hin hin' hres hα0 hφ0 hΨ hf
 
 end Pair
 
