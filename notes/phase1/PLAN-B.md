@@ -109,7 +109,7 @@ approved declaration.
 - R7: the base carrier `Kphys` of the W1009 handoff (Blocker 1); W1015 resumes on it.
 - R5′: the first vacuum region of `StepData.b_vac` is Z_k^c ∖ Ω_{k+1} (P6 (3.2)).
 
-## Ruling R7′ asked (2026-10-18)
+## Ruling R7′ asked (2026-10-18) — APPROVED 2026-10-19
 - R7 specialized the physical base carrier `BaseSmallFieldInput` to M = K = 1 (`Geo S n R 1`,
   `RegionHistory S n R k0 1`, W1009 proposal). The spine's classes at the prefix constants have M = c·M₁
   with c ≥ 14 and torus horizon K = k̂_f + 1 ≥ 2, and no landed map connects the M = K = 1 carrier to
@@ -118,7 +118,7 @@ approved declaration.
   parameters freed), so that `BasePreStepInput`/`BaseFlatStepInput` can be populated from it.
   Recommended: yes.
 
-## Ruling R9 asked (2026-10-19)
+## Ruling R9 asked (2026-10-19) — APPROVED 2026-10-19
 - `sides L K nK j = nK * L^(K-j)` (`LargeField/Def7.lean:72`) uses truncated subtraction, so above the torus
   horizon (j > K) the torus keeps the size nK instead of being a point, as in the source (the torus of side
   ℓ/L^j is one point beyond the last scale). Above K the localized histories then evolve by `blockMap` on a
@@ -131,13 +131,13 @@ approved declaration.
   kernel along `HistImage` orbits (a rewrite of `QuietStepData`/`QuietLocalInput`, ~1,200 lines).
   Recommended: the definition fix.
 
-## Ruling R-N₁ proposed (2026-10-19, W1127)
+## Ruling R-N₁ proposed (2026-10-19, W1127) — APPROVED 2026-10-19
 - `D2SF2` and `SFFlat2` require their small-field clauses on every Def-6 torus N₁ ≥ 1, but the class family
   only ever reads N₁ = L^{m₀} n_k (`sfIdx`), exactly the tori where the chain's conditions (3 ∣ N₁, 5 < N₁,
   3^{m₀} ∣ N₁) hold. Proposal: restrict those two clauses to the tori that are read (11 files); this removes
   a ≈ 600-line obligation (the step on every torus). Recommended: yes.
 
-## Ruling R10 asked (2026-10-19, W1134)
+## Ruling R10 asked (2026-10-19, W1134) — APPROVED 2026-10-19
 - `stepVacuumTerm` (`LargeField/Operators/StepData.lean`, region 1 set by ruling R5′) takes the first vacuum region
   as `(Z_k)ᶜ ∖ Ω_{k+1}` with the complement in the whole fine torus, while the local history of a component
   `Z'` has `Z_j`, `Ω`, `Ω″` inside `fineSet Z'` and `Z_{k+1} = fineSet Z'` (`locRH_Z`). So region 1 contains
@@ -150,7 +150,7 @@ approved declaration.
   `stepVacuumVolume_eq_add_excess` is empty; the other two need the geometric bound
   `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1} ∖ Z_k|` from the definition of `Ω`. Recommended: yes.
 
-## Ruling R11 asked (2026-10-19, W1140): blocker 3 — boundary-term domains need cover cubes only at their small-field sites
+## Ruling R11 asked (2026-10-19, W1140) — APPROVED 2026-10-19: blocker 3 — boundary-term domains need cover cubes only at their small-field sites
 - **What changes.** One clause of the valid domains (labels) of the boundary terms, `FineValidAt` in
   `LargeField/Def7FineSize.lean`. Today a valid domain must be a nonempty connected union of π′-cubes of its
   scale, contain or miss every large-field hole (component of Ω^c), and have finite size. R11 drops "union of
