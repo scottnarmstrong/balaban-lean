@@ -55,7 +55,9 @@ extended parameters, the background is `F₁` of `Gb`, the fluctuation field is 
 `Gb`, and the tangent is the masked hat field `markedHatPsiFBg Gb … T.lift …` of a hat variable of
 the unit lattice of `Gb`:
 `(Θ, ψ̂) ↦ (s ↦ Φ (F₁ (σ, Θ)) (Sol (σ, …)).1 (Θ, markedHatPsiFBg … σ Θ ψ̂))`,
-`σ = T.par (extParams Gp X₁f s)` (P3 pp. 78-79, (4.44)-(4.46)). -/
+`σ = T.par (extParams Gp X₁f s)` (P3 pp. 78-79, (4.44)-(4.46)).  The raw datum of the term is
+`T.dat u.1`: the step's datum `u.1` cut off to the data of `Gb` (the identity for the step's own
+set). -/
 noncomputable def FFmarkedBg (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) {ϱb : ℝ}
     (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν : ℝ) (T : BgTransport Gp Gb N)
     (cc : ℂ)
@@ -67,13 +69,14 @@ noncomputable def FFmarkedBg (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) {ϱ
     (Zm : Finset (unitPts Gb)) (um tm : ℂ) :
     RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gb × Fin N → ℂ) →
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) → ℂ :=
-  fun u s => Φ (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), u.1))
+  fun u s => Φ (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), T.dat u.1))
     (Sol (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s),
-      flEdat Gb Hm (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), u.1))
-        u.1.1 (markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
-          (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) u.1 u.2))).1
-    (u.1, markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
-      (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) u.1 u.2)
+      flEdat Gb Hm
+        (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), T.dat u.1))
+        (T.dat u.1).1 (markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
+          (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) (T.dat u.1) u.2))).1
+    (T.dat u.1, markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
+      (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) (T.dat u.1) u.2)
 
 /-- **The marked cut-parameter functional.**  For a fixed pair of marks `(um, tm)`, the functional
 `(Θ, ψ̂) ↦ (s ↦ Φ (F₁ (s, Θ)) (Sol (s, …)).1 (Θ, markedHatPsiF … s Θ ψ̂))` of the fan hypothesis of
@@ -90,6 +93,16 @@ noncomputable def FFmarked (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁
     RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) →
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) → ℂ :=
   FFmarkedBg Gp X₁f Gp a₁ ν (BgTransport.self hG') cc F₁ Sol Φ Zm um tm
+
+/-- **Instance lemma.**  The step's masked tangent is `markedHatPsiFBg` at `Gb = Gp` with the lift
+of `BgTransport.self`. -/
+theorem markedHatPsiF_eq_markedHatPsiFBg_self (a₁ ν : ℝ) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (Z : Finset (unitPts Gp)) (u t : ℂ)
+    (s : DecParams Gp) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gp × Fin N → ℂ) :
+    markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh =
+      markedHatPsiFBg Gp a₁ ν (BgTransport.self (N := N) hG').lift cc F₁ Z u t s Θ ψh := rfl
 
 /-- The marked cut-parameter functional at `(u, s)`. -/
 theorem FFmarked_apply (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ)
