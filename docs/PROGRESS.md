@@ -34,6 +34,15 @@ tie of the running coupling to β, and the constants carry every condition a cla
 classes are shown non-empty only at the smallest configuration so far; at the configurations the flow
 uses, this is open.
 
+**Remaining work, estimated from the spine** ([`notes/phase1/SPINE-PLAN.md`](../notes/phase1/SPINE-PLAN.md),
+19 October 2026). Every open input has been split into named statements of the papers. Summing estimates over
+them gives about 48,000 lines of Lean still to write (range 40,000–75,000), of which about 10,000 are new
+mathematics: the first renormalization step (blockers 1, 2), old boundary terms across a hole (blocker 3), the
+shrinking source radius (blocker 2), the small factor of the removed large-field operators (blocker 4), exact
+agreement on two tori at the last scale (blocker 7), the coupling across large-field cells at the last scale
+(blocker 5), and the case with no renormalization step (blocker 1). The rest is engineering, led by extending the
+step chain from d = L = 3, N = 2 to general d and N. At the present pace this is roughly 30 rounds of work.
+
 | Input | Content (source) | Status |
 |---|---|---|
 | `PrefixInput` | constants: L ≥ 2, M ≥ 1, the smallness of the large-field reconstruction (LF-RECONSTRUCTION (I.2)) | satisfiable at every d ≥ 3 and L ≥ 3 (proved); the final choice of constants must also meet the other inputs |

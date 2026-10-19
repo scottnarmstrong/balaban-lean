@@ -125,3 +125,9 @@ approved declaration.
   (full rebuild; some `rfl` proofs may need repair). Alternative without a definition change: extend the quiet
   kernel along `HistImage` orbits (a rewrite of `QuietStepData`/`QuietLocalInput`, ~1,200 lines).
   Recommended: the definition fix.
+
+## Ruling R-N₁ proposed (2026-10-19, W1127)
+- `D2SF2` and `SFFlat2` require their small-field clauses on every Def-6 torus N₁ ≥ 1, but the class family
+  only ever reads N₁ = L^{m₀} n_k (`sfIdx`), exactly the tori where the chain's conditions (3 ∣ N₁, 5 < N₁,
+  3^{m₀} ∣ N₁) hold. Proposal: restrict those two clauses to the tori that are read (11 files); this removes
+  a ≈ 600-line obligation (the step on every torus). Recommended: yes.
