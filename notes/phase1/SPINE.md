@@ -416,9 +416,10 @@ theorem lfStepInput_of_parts (Λ : LFStepMap …) (hH : LFHistInput … Φ Λ) (
     (hP : LFPinInput … Φ Λ) (hG : LFBudgetInput … Φ Λ) (hC : LFCoherenceInput … Φ Λ) (hc : LFCorrInput … Φ) :
     LFStepInput … Φ ΦE
 theorem lfOpBoundInput_of_signs (Λ : LFStepMap …) (hz : LFSignInput … Φ) : LFOpBoundInput … Φ Λ
+theorem lfSignInput_of_inherit (hI : SFInheritInput … Φ) : LFSignInput … Φ   -- W1142
 theorem lfBudgetInput_of_pin (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) (Λ : LFStepMap …) (hP : LFPinInput … Φ Λ) :
     LFBudgetInput … Φ Λ
-theorem lfStepInput_of_prefix (hA1 : PrefixInput …) (Λ) hH hS hB hBs hF (hz : LFSignInput … Φ) hP hC hc : LFStepInput … Φ ΦE
+theorem lfStepInput_of_prefix (hA1 : PrefixInput …) (Λ) hH hS hB hBs hF (hI : SFInheritInput … Φ) hP hC hc : LFStepInput … Φ ΦE
 ```
 One landed proof was generalized (statement unchanged, `stmtcheck` CHANGED empty): `Rep.budgetPre_of_LF2` is now the instance
 `K' = K` of `Rep.budgetPre_of_LF2_trunc` (`Def7Basic.lean`; (H6′)^pre from the counter history truncated at `K' ≤ K`, `K' ≤ top`).
@@ -455,7 +456,7 @@ whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over 
 | (g5) `LFBdrySrcInput` | `D7BdryBall`: `analytic`, `bound` at `h' ∈ hSetB2 h r_h`, `h' ≠ h` | blocker 2 leaf 5; Q13-YM §§2, 5; R2 | O — R2 objects, `KerBoundSrc` | 600 | H (B2) |
 | (g3) `LFFormInput` | `D1PreForm2 (F'.ctx …) vc' (F'.lf nK) h (stepDensity … (β_k a L^{d−2}) z_{k+1} Λ.s ρ nK)` for `D1CorrLim … St' h vc'` | P5 (2.1)–(2.14), (2.42)–(2.48), §3, (3.18); P6 §2, (3.3); P5 (1.8) | O — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M |
 | (g3) `LFOpBoundInput` | `D5Bound (k+1)` of `F'` | Lemma II.6.3 (a) | **P** from `LFSignInput` (`lfOpBoundInput_of_signs`, `Rep.opBound_of_data`) | 0 | – |
-| `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | O — `z_{k+1} > 0` is A4-1a; `j ≤ k` not in the class | 50 | L |
+| `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | **P** (W1142): `lfSignInput_of_inherit` from `SFInheritInput` (`z_{k+1} > 0`, A4-1a, and `z_j` kept at `j ≤ k`) and the new carrier field `RepRec.zpos` / `PreRec.zpos` (`z_j > 0`, `1 ≤ j ≤ k`: the class clauses `D9Coeff`/`CoeffBounds`/`SFClassAt`/`RepClassAt` do not constrain `z_j`); `lfStepInput_of_prefix` takes `SFInheritInput` instead of `LFSignInput`; `zpos` is produced by `sfStepInput_of_parts` (from the input's `zpos` and A4-1a), carried by `rInput_of_parts`, `PreRec.retie`, `PreClassAt.succ`, and proved in the witnesses | 0 | – |
 | (g4) `LFPinInput` | `D4Pin (k+1)` of `F'` (the exponents and kept data of `rec`) | (D4), LF-3 proof; LF-3 (c) | O | 300 | L |
 | (g4) `LFBudgetInput` | `D6Pre` of `F'` | LF-2 (i), Thm I.5.4 (i) | **P** from `LFPinInput` + prefix (`lfBudgetInput_of_pin`, `Rep.budgetPre_of_LF2_trunc`) | 0 | – |
 | (h) `LFCoherenceInput` | `LFCoherent F'` | LF-3 (h), D-IV.9 | O — (D8) of `rec` (old data), `quietKernel_twoTorus`, `bgLocPiece_twoTorus` | 1,000 | M |
@@ -783,7 +784,7 @@ A3-2. Each becomes a theorem once the first step's representation is defined at 
 theorem kfZeroInput_of_parts (hG : KF0GoodSectorInput d N δ T thr)
     (hB : KF0BadSectorInput d N δ T thr) : KfZeroInput d N δ T
 ```
-for every block threshold `thr : ℝ → ℝ → ℝ → ℝ → ℝ` (`r = thr κ c₉ β ν`; the notes take `r = δ_β = A log(βa)/√(βν)`). It follows
+for every block threshold `thr : ℝ → ℝ → ℝ → ℝ → ℝ` (`r = thr κ c₉ β ν`; the notes take `r = δ_β = A log(βa)/√(βν)`, now `kf0Thr A a β ν`, W1142). The range premise `_hthr` is restricted to the regime of `KfZeroInput` (`7/8 < νL²`, `ν ≤ 1`, `β ≥ β₀`; it is false for all `ν` as `ν → 0`); `kf0Thr_range` proves `0 < kf0Thr A a β ν ≤ √2` there for `A > 0`, `a > 1`, `L > 0` (`β₀` from `log(βa) ≤ √β/(AL)`, `√2√ν L ≥ 1`), and `kfZeroInput_of_parts_kf0Thr` drops the premise for `thr = kf0Thr (A κ c₉) (a κ c₉)`. The source threshold never exceeds `√2` in the regime once `β ≥ β₀`. It follows
 route (A) of `KF0-INFL.md`, hard physical sectors. On an admissible torus (`M L^{kf+1} ∣ ℓ`) the blocks have side `s = M L` (the cubes
 of Root-F's scale-`1` polymers), `m = ℓ/(M L)` per side (`exists_blockCount`). A block is good if `|φ_x − h| < r` at all its sites.
 `Z_B(g) = kf0Sector (M L) m r β ν h B g` is the sector of the bad set `B`.
