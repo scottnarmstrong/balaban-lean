@@ -161,37 +161,37 @@ theorem decMarkCorrBg_dep
     {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
     (hloc : ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-      ∀ Y, ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
-      ∀ u' ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       AgHatDir S.hG' Y u u' →
         evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u.1, T.res u.2) =
         evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u'.1, T.res u'.2))
     {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
     {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
     {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
-    {Y Y' : Set (CTorus d L N₁ m₁ (k + 1))} (hYY : Y ⊆ Y')
+    {Y Y' : Set (CTorus d L N₁ m₁ (k + 1))} (hYm : LabelMargin Gb Y) (hYY : Y ⊆ Y')
     (hY' : ∀ y ∈ Y', box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y') :
     DepOn (blocksOf m₀ (k + 1) Set.univ Y')
       (decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um) := by
   intro Φ Φ' h
   have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
-  have e1 := decMarkGBg_dep S hloc hρ hρc hp hΘ hum hYY hY' Φ Φ' h
-  have e2 := decMarkGBg_dep S hloc hρ hρc hp hΘ h0 hYY hY' Φ Φ' h
+  have e1 := decMarkGBg_dep S hloc hρ hρc hp hΘ hum hYm hYY hY' Φ Φ' h
+  have e2 := decMarkGBg_dep S hloc hρ hρc hp hΘ h0 hYm hYY hY' Φ Φ' h
   have hopen : IsOpen {t : ℂ | (‖t‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
     isOpen_lt (by fun_prop) continuous_const
   have e3 : deriv (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ) 0 =
       deriv (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ') 0 := by
     refine Filter.EventuallyEq.deriv_eq ?_
     filter_upwards [hopen.mem_nhds h0] with v hv
-    exact decMarkGBg_dep S hloc hρ hρc hp hΘ hv hYY hY' Φ Φ' h
+    exact decMarkGBg_dep S hloc hρ hρc hp hΘ hv hYm hYY hY' Φ Φ' h
   unfold decMarkCorrBg
   rw [e1, e2, e3]
 
 /-- **The cubic bound of the corrected mark on a background generating set.**  From the Cauchy
-estimate `hcau` with a bound `B` and the joint analyticity `hJ2` of the terms on the chart of `Gb`:
+estimate `hcau` with a bound `B` and the joint analyticity `hJ2` of the terms on the chart of the step (the datum read on `Gb` is `T.dat` of it):
 for `0 < R`, `(R + R) · markedRad < δ₁`, `2 U ≤ R` and `‖um‖ ≤ U`,
 `‖decMarkCorrBg … um Φ‖ ≤ 4 (B Y / R) (U / R)²` (`norm_taylor1_remainder_le`). -/
 theorem norm_decMarkCorrBg_le
@@ -201,24 +201,25 @@ theorem norm_decMarkCorrBg_le
     (hcau : ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b →
       (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
       ∀ um : ℂ, ‖um‖ ≤ a →
-      ∀ Y, ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
           (u.1, T.res u.2)) 0‖ ≤ B Y / t₀)
-    (hJ2 : ∀ Y, AnalyticOnNhd ℂ
+    (hJ2 : ∀ Y, LabelMargin Gb Y → AnalyticOnNhd ℂ
         (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
           evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2.1 p.2.2 Y (p.1.1, T.res p.1.2))
-        ((XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        ((XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
           {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}))
     {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
-    (Y : Set (CTorus d L N₁ m₁ (k + 1))) {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps) {R U : ℝ} (hR : 0 < R)
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (hYm : LabelMargin Gb Y)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps) {R U : ℝ} (hR : 0 < R)
     (hRR : (R + R) * markedRad d L N k a₁ κ cψ cc < δ₁) (hUR : 2 * U ≤ R) {um : ℂ}
     (hum : ‖um‖ ≤ U) (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     ‖decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ‖ ≤
       4 * (B Y / R) * (U / R) ^ 2 := by
-  have hana := analyticOnNhd_deriv_mark (hJ2 Y)
+  have hana := analyticOnNhd_deriv_mark (hJ2 Y hYm)
   have hdiff : DifferentiableOn ℂ
       (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ)
       (ball 0 R) := by
@@ -231,23 +232,23 @@ theorem norm_decMarkCorrBg_le
   have hB : ∀ w ∈ ball (0 : ℂ) R,
       ‖decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ w Φ‖ ≤ B Y / R :=
     fun w hw => norm_decMarkGBg_le S hcau hρ hρc hp hΘ hR.le hR.le hR le_rfl hRR
-      (mem_ball_zero_iff.1 hw).le Y Φ
+      (mem_ball_zero_iff.1 hw).le Y hYm Φ
   exact norm_taylor1_remainder_le hR hdiff hB hum hUR
 
 /-- **The fields of the corrected marks on a background generating set.**  From the locality
 `hloc`, the Cauchy estimate `hcau` with a bound `B`, the joint analyticity `hJ2` of the terms on
-the chart of `Gb` and the analyticity `hJ4` of the derivative marks on `physVBg`, for `0 < δ₁`:
+the chart of the step (the datum read on `Gb` is `T.dat` of it) and the analyticity `hJ4` of the derivative marks on `physV`, for `0 < δ₁`:
 block locality on the blocks inside every cell-union `Y′ ⊇ Y`; continuity and measurability in the
 block configuration; the cubic bound `4 (B Y / R) (U / R)²` for `‖um‖ ≤ U`, `2 U ≤ R`,
-`(R + R) · markedRad < δ₁`; analyticity in `(e, um)` on `physVBg × {‖um‖ < a}`. -/
+`(R + R) · markedRad < δ₁`; analyticity in `(e, um)` on `physV × {‖um‖ < a}`. -/
 theorem decMarkCorrBg_fields_of
     {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
     {B : Set (CTorus d L N₁ m₁ (k + 1)) → ℝ}
     (hloc : ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-      ∀ Y, ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
-      ∀ u' ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ u' ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       AgHatDir S.hG' Y u u' →
         evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um tm Y (u.1, T.res u.2) =
@@ -255,56 +256,56 @@ theorem decMarkCorrBg_fields_of
     (hcau : ∀ a b t₀ : ℝ, 0 ≤ a → 0 ≤ b → 0 < t₀ → t₀ ≤ b →
       (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
       ∀ um : ℂ, ‖um‖ ≤ a →
-      ∀ Y, ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       ‖deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
           (u.1, T.res u.2)) 0‖ ≤ B Y / t₀)
-    (hJ2 : ∀ Y, AnalyticOnNhd ℂ
+    (hJ2 : ∀ Y, LabelMargin Gb Y → AnalyticOnNhd ℂ
         (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
           evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2.1 p.2.2 Y (p.1.1, T.res p.1.2))
-        ((XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        ((XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
           {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}))
-    (hJ4 : ∀ Y, ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
+    (hJ4 : ∀ Y, LabelMargin Gb Y → ∀ ψh : unitPts S.G' × Fin N → ℂ, (∀ q, ‖ψh q‖ ≤ cψ) →
         ∀ a b : ℝ, 0 ≤ a → 0 < b → (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-        AnalyticOnNhd ℂ (fun p : physParamBg N Gb × ℂ => deriv (fun t : ℂ =>
+        AnalyticOnNhd ℂ (fun p : physParam N S × ℂ => deriv (fun t : ℂ =>
           evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2 t Y
             ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), T.res ψh)) 0)
-          (physVBg N Gb a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a))
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a))
     {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁) :
-      (∀ (Y Y' : Set (CTorus d L N₁ m₁ (k + 1))), Y ⊆ Y' →
+      (∀ (Y Y' : Set (CTorus d L N₁ m₁ (k + 1))), LabelMargin Gb Y → Y ⊆ Y' →
         (∀ y ∈ Y', box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y') →
-        ∀ Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
         (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
         DepOn (blocksOf m₀ (k + 1) Set.univ Y')
           (decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um)) ∧
-      (∀ Y, ∀ Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+      (∀ Y, LabelMargin Gb Y → ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
         (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
         Continuous (decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um) ∧
         Measurable (decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um)) ∧
-      (∀ Y, ∀ Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps, ∀ R U : ℝ, 0 < R →
+      (∀ Y, LabelMargin Gb Y → ∀ Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps, ∀ R U : ℝ, 0 < R →
         (R + R) * markedRad d L N k a₁ κ cψ cc < δ₁ → 2 * U ≤ R → ∀ um : ℂ, ‖um‖ ≤ U →
         ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b),
         ‖decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ‖ ≤
           4 * (B Y / R) * (U / R) ^ 2) ∧
-      (∀ Y, ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b), ∀ a b : ℝ, 0 < a → 0 < b →
+      (∀ Y, LabelMargin Gb Y → ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b), ∀ a b : ℝ, 0 < a → 0 < b →
         (a + b) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-        AnalyticOnNhd ℂ (fun p : physParamBg N Gb × ℂ =>
+        AnalyticOnNhd ℂ (fun p : physParam N S × ℂ =>
           decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp
             (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ)
-          (physVBg N Gb a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
   refine ⟨?_, ?_, ?_, ?_⟩
-  · intro Y Y' hYY hY' Θ hΘ um hum
-    exact decMarkCorrBg_dep S hloc hρ hρc hp hδ hΘ hum hYY hY'
-  · intro Y Θ hΘ um hum
+  · intro Y Y' hYm hYY hY' Θ hΘ um hum
+    exact decMarkCorrBg_dep S hloc hρ hρc hp hδ hΘ hum hYm hYY hY'
+  · intro Y hYm Θ hΘ um hum
     have hW0 : ((0 : ℂ), (0 : ℂ)) ∈ {w : ℂ × ℂ |
         (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} := by
       show (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * _ < δ₁
       simpa using hδ
-    have hana := analyticOnNhd_deriv_mark (hJ2 Y)
+    have hana := analyticOnNhd_deriv_mark (hJ2 Y hYm)
     have hanaD := analyticOnNhd_deriv_snd hana hW0
     have hmem : ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b), (Θ, S.hatOf m₀ ρ hp Φ) ∈
-        XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
           {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ} :=
       fun Φ => ⟨hΘ, fun q => (S.hatOf_mem m₀ hρ hp Φ q).trans hρc⟩
     have hcm : ∀ w : ℂ, (‖w‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
@@ -327,24 +328,24 @@ theorem decMarkCorrBg_fields_of
       unfold decMarkCorrBg
       exact ((hcm um hum).sub (hcm 0 h0)).sub (continuous_const.mul hD)
     exact ⟨hcont, hcont.measurable⟩
-  · intro Y Θ hΘ R U hR hRR hUR um hum Φ
-    exact norm_decMarkCorrBg_le S hcau hJ2 hρ hρc hp hδ Y hΘ hR hRR hUR hum Φ
-  · intro Y Φ a b ha hb hab
-    have hF := hJ4 Y (S.hatOf m₀ ρ hp Φ) (fun q => (S.hatOf_mem m₀ hρ hp Φ q).trans hρc) a b
+  · intro Y hYm Θ hΘ R U hR hRR hUR um hum Φ
+    exact norm_decMarkCorrBg_le S hcau hJ2 hρ hρc hp hδ Y hYm hΘ hR hRR hUR hum Φ
+  · intro Y hYm Φ a b ha hb hab
+    have hF := hJ4 Y hYm (S.hatOf m₀ ρ hp Φ) (fun q => (S.hatOf_mem m₀ hρ hp Φ q).trans hρc) a b
       ha.le hb hab
-    have hD := analyticOnNhd_deriv_snd (A := physVBg N Gb a₁ ν eps) (S := ball (0 : ℂ) a)
-      (g := fun p : physParamBg N Gb × ℂ => deriv (fun t : ℂ =>
+    have hD := analyticOnNhd_deriv_snd (A := physV S a₁ ν eps) (S := ball (0 : ℂ) a)
+      (g := fun p : physParam N S × ℂ => deriv (fun t : ℂ =>
           evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm p.2 t Y
             ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), T.res (S.hatOf m₀ ρ hp Φ))) 0)
       hF (mem_ball_self ha)
-    have hF0 := hF.comp (f := fun p : physParamBg N Gb × ℂ => (p.1, (0 : ℂ)))
+    have hF0 := hF.comp (f := fun p : physParam N S × ℂ => (p.1, (0 : ℂ)))
       (fun _ _ => analyticAt_fst.prod analyticAt_const)
-      (fun p (hp' : p ∈ physVBg N Gb a₁ ν eps ×ˢ ball (0 : ℂ) a) => ⟨hp'.1, mem_ball_self ha⟩)
-    have hDp := hD.comp (f := fun p : physParamBg N Gb × ℂ => p.1)
+      (fun p (hp' : p ∈ physV S a₁ ν eps ×ˢ ball (0 : ℂ) a) => ⟨hp'.1, mem_ball_self ha⟩)
+    have hDp := hD.comp (f := fun p : physParam N S × ℂ => p.1)
       (fun _ _ => analyticAt_fst)
-      (fun p (hp' : p ∈ physVBg N Gb a₁ ν eps ×ˢ ball (0 : ℂ) a) => hp'.1)
-    exact (hF.sub hF0).sub ((show AnalyticOnNhd ℂ (fun p : physParamBg N Gb × ℂ => p.2)
-      (physVBg N Gb a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a) from fun p _ => analyticAt_snd).mul hDp)
+      (fun p (hp' : p ∈ physV S a₁ ν eps ×ˢ ball (0 : ℂ) a) => hp'.1)
+    exact (hF.sub hF0).sub ((show AnalyticOnNhd ℂ (fun p : physParam N S × ℂ => p.2)
+      (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a) from fun p _ => analyticAt_snd).mul hDp)
 
 end BlocksBg
 
@@ -407,7 +408,8 @@ theorem decMarkCorr_dep
     DepOn (blocksOf m₀ (k + 1) Set.univ Y')
       (decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
         Zm Y ρ hp Θ um) :=
-  decMarkCorrBg_dep S (T := BgTransport.self S.hG') hP.2.1 hρ hρc hp hδ hΘ hum hYY hY'
+  decMarkCorrBg_dep S (T := BgTransport.self S.hG') (fun um tm hm Y _ => hP.2.1 um tm hm Y) hρ hρc
+    hp hδ hΘ hum (labelMargin_of_isLevel S.hG' Y) hYY hY'
 
 /-- **The fields of the corrected marks, for a given pair.**  The four field conclusions of
 `decMarkCorr_fields` for an explicitly given pair `(F₁, Sol)` with its eight clauses `hP`, joint
@@ -461,11 +463,17 @@ theorem decMarkCorr_fields_of_pair
           decMarkCorr S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol
             (blockEnergyFun S.G' Hm (compWeight L a₁) ν k z)
             Zm Y ρ hp (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ)
-          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) :=
-  decMarkCorrBg_fields_of S (T := BgTransport.self S.hG')
+          (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
+  have h := decMarkCorrBg_fields_of S (T := BgTransport.self S.hG')
     (B := fun Y => energyBdScaled d L N (compWeight L a₁) k
       (cK2' d L N (famConst d L BG₂ κ) * δ₁) δ₁ (rho4 d L N BG κ) *
-      Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) hP.2.1 hP.2.2.2.2.1 hJ2 hJ4 hρ hρc hp hδ
+      Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y)) (fun um tm hm Y _ => hP.2.1 um tm hm Y)
+    (fun a b t₀ ha hb ht htb hab um hum Y _ => hP.2.2.2.2.1 a b t₀ ha hb ht htb hab um hum Y)
+    (fun Y _ => hJ2 Y) (fun Y _ => hJ4 Y) hρ hρc hp hδ
+  exact ⟨fun Y Y' => h.1 Y Y' (labelMargin_of_isLevel S.hG' Y),
+    fun Y => h.2.1 Y (labelMargin_of_isLevel S.hG' Y),
+    fun Y => h.2.2.1 Y (labelMargin_of_isLevel S.hG' Y),
+    fun Y => h.2.2.2 Y (labelMargin_of_isLevel S.hG' Y)⟩
 
 /-- **The fields of the corrected marks.**  For the pair `(F₁, Sol)` of `decMarkG_fields` (from
 `MarkedEvJointPhysV`), the clamp radius `0 < ρ ≤ cψ`, and `0 < δ₁`:

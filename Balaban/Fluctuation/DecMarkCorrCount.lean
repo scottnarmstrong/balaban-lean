@@ -56,39 +56,39 @@ variable {F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
 variable {Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
 
 /-- **The mark on a background generating set vanishes where its term derivative vanishes.**  If
-the mark derivative of the term of `Y` vanishes at every point of the chart of `Gb` times the box
+the mark derivative of the term of `Y` vanishes at every point of the chart of the step (the datum read on `Gb` is `T.dat` of it) times the box
 `|ψ̂| ≤ cψ` (`hmiss`), then `decMarkGBg … um Φ = 0` for every block configuration. -/
 theorem decMarkGBg_eq_zero_of
     {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
     {um : ℂ} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
-    (hmiss : ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+    (hmiss : ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
         (u.1, T.res u.2)) 0 = 0)
     {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
     {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 :=
   hmiss (Θ, S.hatOf m₀ ρ hp Φ) ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
 
 /-- **The corrected mark on a background generating set vanishes where the term derivatives
 vanish.**  If, for every first mark `um` of the disc, the mark derivative of the term of `Y`
-vanishes on the chart of `Gb` times the box, then `decMarkCorrBg … um Φ = 0`: the mark is zero
+vanishes on the chart of the step (the datum read on `Gb` is `T.dat` of it) times the box, then `decMarkCorrBg … um Φ = 0`: the mark is zero
 on a neighbourhood of `0` in the first mark, so are its value at `0` and its derivative at `0`. -/
 theorem decMarkCorrBg_eq_zero_of
     {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
     {Y : Set (CTorus d L N₁ m₁ (k + 1))}
     (hmiss : ∀ um : ℂ, (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
-      ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+      ∀ u ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
         {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
       deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
         (u.1, T.res u.2)) 0 = 0)
     {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
     {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
-    (hΘ : Θ ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps)
+    (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
     {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 := by
