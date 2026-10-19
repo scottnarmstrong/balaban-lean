@@ -9,6 +9,7 @@ public import Balaban.Fluctuation.LocalPairCollar
 public import Balaban.Fluctuation.LocalPairHatLift
 public import Balaban.Fluctuation.LocalClassLatTau
 public import Balaban.Fluctuation.LocalSetDetFlCore
+public import Balaban.SmallField.LocalGeneratorRestriction
 
 /-!
 # The local generating sets of the new level in the replacement theory (`LocalPairCast`)
@@ -40,7 +41,9 @@ dropped set `Gd` with the layers of `Gl` up to `k` and no layer `k + 1`, and the
   (`castG_localB_drop_top`, of `LocalSetDetFlCore`, gives that it has no layer `k + 1`);
 * `castG_localB_collar_margin`: the margin of the replacement from `R ⊆ Y` for the cast set built on
   the collar `Y'⁺` of the transported label;
-* `castG_localB_tauExt_eq_one`: `hσ1` for the cast set.
+* `castG_localB_tauExt_eq_one`: `hσ1` for the cast set;
+* `castG_localB_xiDom_of_ambient_xiDom`: the chart of the step restricts to the chart of the cast set
+  (the radius loss `c₀ + (2 K₁ + 1) c₁` of the recomputation of the backgrounds is explicit).
 -/
 
 @[expose] public section
@@ -48,7 +51,7 @@ dropped set `Gd` with the layers of `Gl` up to `k` and no layer `k + 1`, and the
 namespace Balaban.Localization
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Finset
-  Balaban.LargeField Balaban.SmallField.GsSpec Balaban.Fluctuation
+  Balaban.LargeField Balaban.SmallField.GsSpec Balaban.SmallField.Def6 Balaban.Fluctuation
 
 section CastSets
 
@@ -187,6 +190,21 @@ theorem castG_localB_tauExt_eq_one {ϱp : ℝ} {Gp : GeneratingSet d L (N₁ * L
             Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0) ⟨P, hP⟩ = 1 :=
   tauExt_eq_one hG' hX₁f fun x hx => castG_localB_collar_margin hc hm hk hsep hY' hYp'
     (R := X₁f) hX₁Y x hx x (by rw [supDist_self]; exact Nat.zero_le _)
+
+/-- **The chart of the step restricts to the chart of the cast local generating set** (P3 (4.44)-(4.47),
+`localB_xiDom_of_ambient_xiDom` for `castG hc (localB (k + 1) … Y' hsep)`): a pair of fields in the
+chart `Ξ^c_{k+1}(Gp; 1, ε)` of the step's level set lies in the chart of the cast set of radius
+`ε_loc` once `ε_loc ≥ c₀ + (2 K₁ + 1) c₁` (the explicit loss of the recomputation of the
+backgrounds on `Gb`). -/
+theorem castG_localB_xiDom_of_ambient_xiDom {ϱp : ℝ} {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    (hG : IsLevel Gp (k + 1)) (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hk : k + 1 ≤ k + 1)
+    (Y' : Set (CTorus d L N₁' m₁' (k + 1))) (hsep : ϱ ≤ minSep L (L ^ m₁')) {N : ℕ}
+    {A : ℕ → ℝ} {μ εamb εloc : ℝ} (H : BgHyp d L (k + 1) ϱ A μ) (hμ : 0 ≤ μ)
+    (hbudget : bgC0 d L N + (2 * bgK1 d L N + 1) * bgC1 d L N ≤ εloc)
+    {Ψ h : Fld d L N₁ m₁ (k + 1) N} (hAmb : XiDom Gp A μ (k + 1) εamb Ψ h) :
+    XiDom (castG hc (localB (k + 1) hk Y' hsep)) A μ (k + 1) εloc Ψ h :=
+  xiDom_of_ambient_xiDom_of_isLevel hG (Nat.le_add_left 1 k) le_rfl
+    (castG hc (localB (k + 1) hk Y' hsep)).top H hμ hbudget hAmb
 
 end CastSets
 
