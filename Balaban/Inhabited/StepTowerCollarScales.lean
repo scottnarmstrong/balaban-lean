@@ -167,47 +167,62 @@ theorem exists_stepTower_collar_scales (m₀ : ℕ) (κlo : ℝ) {q : ℝ} (hq0 
 
 /-! ### The class sequence -/
 
-/-- The class sequence `ε_j = P.eps 3 3 j` is antitone (`α ≥ 0`, `α₀ ≥ 0`). -/
-theorem classEps_antitone {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 3) :
-    Antitone (P.eps 3 3) := by
+/-- The class sequence `ε_j = P.eps d L j` is antitone (`α ≥ 0`, `α₀ ≥ 0`, `L ≥ 1`). -/
+theorem classEpsG_antitone {d L : ℕ} [NeZero L] {P : Consts} (hα₀ : 0 ≤ P.α₀)
+    (hα : 0 ≤ P.alpha d) : Antitone (P.eps d L) := by
   refine antitone_nat_of_succ_le fun j => ?_
-  have hg := epsSeq_gapE 3 (P.alpha 3) P.α₀ hα₀ j
-  have hq : ((3 : ℕ) : ℝ) ^ (-P.alpha 3) ≤ 1 :=
-    Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by linarith)
-  have e : (1 - (1 - ((3 : ℕ) : ℝ) ^ (-P.alpha 3))) = ((3 : ℕ) : ℝ) ^ (-P.alpha 3) := by ring
+  have hg := epsSeq_gapE L (P.alpha d) P.α₀ hα₀ j
+  have hL1 : (1 : ℝ) ≤ (L : ℝ) := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hq : (L : ℝ) ^ (-P.alpha d) ≤ 1 :=
+    Real.rpow_le_one_of_one_le_of_nonpos hL1 (by linarith)
+  have e : (1 - (1 - (L : ℝ) ^ (-P.alpha d))) = (L : ℝ) ^ (-P.alpha d) := by ring
   rw [e] at hg
-  have h0 : 0 ≤ P.eps 3 3 j := by
+  have h0 : 0 ≤ P.eps d L j := by
     have := epsTail_pos j
     unfold Consts.eps epsSeq
     positivity
   unfold Consts.eps at h0 ⊢
   nlinarith
 
-/-- The gap of the class sequence: `ε_{j+1} ≤ 3^{-α} ε_j`. -/
-theorem classEps_gap {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
-    P.eps 3 3 (j + 1) ≤ (3 : ℝ) ^ (-P.alpha 3) * P.eps 3 3 j := by
-  have hg := epsSeq_gapE 3 (P.alpha 3) P.α₀ hα₀ j
-  have e : (1 - (1 - ((3 : ℕ) : ℝ) ^ (-P.alpha 3))) = (3 : ℝ) ^ (-P.alpha 3) := by
-    push_cast; ring
+/-- The gap of the class sequence: `ε_{j+1} ≤ L^{-α} ε_j`. -/
+theorem classEpsG_gap {d L : ℕ} [NeZero L] {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+    P.eps d L (j + 1) ≤ (L : ℝ) ^ (-P.alpha d) * P.eps d L j := by
+  have hg := epsSeq_gapE L (P.alpha d) P.α₀ hα₀ j
+  have e : (1 - (1 - (L : ℝ) ^ (-P.alpha d))) = (L : ℝ) ^ (-P.alpha d) := by ring
   rw [e] at hg
   exact hg
 
-/-- The lower bound of the class sequence: `α₀ 3^{-α j} ≤ ε_j`. -/
-theorem classEps_lower {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
-    P.α₀ * (3 : ℝ) ^ (-(P.alpha 3 * (j : ℝ))) ≤ P.eps 3 3 j := by
+/-- The lower bound of the class sequence: `α₀ L^{-α j} ≤ ε_j`. -/
+theorem classEpsG_lower {d L : ℕ} [NeZero L] {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+    P.α₀ * (L : ℝ) ^ (-(P.alpha d * (j : ℝ))) ≤ P.eps d L j := by
   have ht : 1 ≤ epsTail j := by
     unfold epsTail
     have : 0 ≤ ∑' m : ℕ, if j ≤ m then ((m : ℝ) ^ 2)⁻¹ else 0 :=
       tsum_nonneg fun m => by split_ifs <;> positivity
     linarith
-  have e : (((3 : ℕ) : ℝ) ^ (-P.alpha 3)) ^ j = (3 : ℝ) ^ (-(P.alpha 3 * (j : ℝ))) := by
-    push_cast
-    rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num)]
+  have hL0 : (0 : ℝ) ≤ (L : ℝ) := Nat.cast_nonneg L
+  have e : ((L : ℝ) ^ (-P.alpha d)) ^ j = (L : ℝ) ^ (-(P.alpha d * (j : ℝ))) := by
+    rw [← Real.rpow_natCast, ← Real.rpow_mul hL0]
     ring_nf
-  have h0 : 0 ≤ (3 : ℝ) ^ (-(P.alpha 3 * (j : ℝ))) := by positivity
+  have h0 : 0 ≤ (L : ℝ) ^ (-(P.alpha d * (j : ℝ))) := by positivity
   unfold Consts.eps epsSeq
   rw [e]
   have := mul_le_mul_of_nonneg_left ht hα₀
   nlinarith
+
+/-- The class sequence `ε_j = P.eps 3 3 j` is antitone (`α ≥ 0`, `α₀ ≥ 0`). -/
+theorem classEps_antitone {P : Consts} (hα₀ : 0 ≤ P.α₀) (hα : 0 ≤ P.alpha 3) :
+    Antitone (P.eps 3 3) :=
+  classEpsG_antitone hα₀ hα
+
+/-- The gap of the class sequence: `ε_{j+1} ≤ 3^{-α} ε_j`. -/
+theorem classEps_gap {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+    P.eps 3 3 (j + 1) ≤ (3 : ℝ) ^ (-P.alpha 3) * P.eps 3 3 j := by
+  simpa using classEpsG_gap (d := 3) (L := 3) hα₀ j
+
+/-- The lower bound of the class sequence: `α₀ 3^{-α j} ≤ ε_j`. -/
+theorem classEps_lower {P : Consts} (hα₀ : 0 ≤ P.α₀) (j : ℕ) :
+    P.α₀ * (3 : ℝ) ^ (-(P.alpha 3 * (j : ℝ))) ≤ P.eps 3 3 j := by
+  simpa using classEpsG_lower (d := 3) (L := 3) hα₀ j
 
 end Balaban.Inhabited
