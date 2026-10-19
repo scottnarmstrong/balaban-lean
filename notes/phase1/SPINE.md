@@ -525,6 +525,13 @@ theorem Fluctuation.transfer_patches … : DjModFin m₀ (j+1) Ω' (holeClose Ω
     dcovMod … ≤ (L)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card
 theorem Fluctuation.spill_of_defect, Fluctuation.djModFin_Yhat, Fluctuation.dcovMod_ge_supDist,
   DjModFin.cellCount_le ((G1)), djModFin_union ((G3)), djMod_iff_djModFin, Def7.fineValidAt_iff_fineValidFinAt
+theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F) (hnn) (H) (hk : k + 1 ≤ K) :
+    d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆ d7Pull F k (H.omegaPost k)
+theorem RegionHistory.le_d7SizeAt_of_reach (F) (hnn) (H) (hk : k + 1 ≤ K)
+    (hX : X ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z)
+    (hmeet : (d7Pull F k X ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) :
+    (S.L : ℝ) * (⌊R k⌋₊ + 2) ≤ d7SizeAt F k (H.omegaPost k) X
+theorem Def7.FineValidFinAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidFinAt F k Om Y) : DmodOmega Om Y
 ```
 
 **The split** (LFR Lemma IV.1.5: three kinds with constants of rows 0–11, `B_st` their sum). `LFBdrySplit Λ` (a map,
@@ -558,13 +565,13 @@ the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidA
   factor) and output label the transfer of `X'` with its patches; structural clauses (locality, `loc_hist`, reality,
   analyticity, O(N), covariance: average over the optimal covers of `X'`, which form a covariant finite set). The
   analytic engine is the one of kind (i).
-* O2 `omega_succ_fine_subset`: `d7Pull F (k+1) (OmegaCube A'.H (k+1)) ⊆ d7Pull F k (A.H.omegaPost k)` for the successor
-  history `A'` of `A` (P5 (2.3): the opening misses `nbhd (U'_k)`, `U'_k ⊇` coarsened `Z_k ⊇ (Ω_k^post)^c`).
-* O3 `transfer_mem_bdryDoms`: the cube label `Y` is in `bdryDoms (OmegaCube A'.H (k+1)) (Zpre (k+1))` (cube-level
-  `DmodOmega` from the fine `DjModFin` by `siteConnected_d7Pull`, `cellComps_d7Pull`; `Y` meets `Z_{k+1}` and its
-  complement since `X'` does).
-* O4 `old_label_size_ge`: an old label meeting `Ω_{k+1}` has active sites at cube distance `≥ ([R̂_k]+4)L - 1`
-  (Lemma I.3.5 (d)–(f)), so `d_k(X') ≥ L[R̂_k] - 2L` (`dcovMod_ge_supDist`): `hmin`, with (Λ28) for `hB₀min`.
+* O2 **PROVED** (`RegionHistory.d7Pull_OmegaCube_succ_subset`): `d7Pull F (k+1) (OmegaCube H (k+1)) ⊆
+  d7Pull F k (H.omegaPost k)` (P5 (2.3): the opening misses `nbhd (U'_k)`, `(Ω_k^post)^c ⊆ Z_k`).
+* O3 cube level **PROVED** (`Def7.FineValidFinAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
+  transferred labels meet `Z^pre_{k+1}` and its complement (the others go to `b_k`, LFR Lemma IV.1.3) — part of O1.
+* O4 **PROVED** (`RegionHistory.le_d7SizeAt_of_reach`): an old post-`R` label whose fine set meets the new region has
+  `d7SizeAt ≥ L(⌊R_k⌋ + 2)` (exit of a hole `DmodOmega.exists_active_near`, `dcovMod_ge_supDist`); `hmin`, with (Λ28)
+  `B₀ e^{-(κ/2) L(⌊R_k⌋+2)} ≤ 1` for `hB₀min`.
 * O5 `assign_entropy`: `hent` from (G2) over the R11 labels (after R11's `G2_X` core) and the mark count of P3 (4.49).
 
 ## LastIntegralInput sub-inputs (W1108)
