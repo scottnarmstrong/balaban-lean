@@ -395,6 +395,46 @@ theorem cubeSub_fineSet_of_cube {t : Torus S.d (M * n K * S.L ^ K)}
   exact hq
 
 include hjK in
+/-- **The block bound at a fine site far from `Ω_{k+1}`, from the second family** (R2 at the block
+level): for a fine site `t` over a cube of `C` whose `π_k`-cube misses `Z_k` and whose parent cube is
+not near `Ω_{k+1}`, the `k`-block field at `t` is on the sphere to within `η`. -/
+theorem psi_block_sphere_far {η : ℝ} (ψ' : MultiField S n M K N) (hψ : PieceSecondFamily H C ψ' η)
+    {t : Torus S.d (M * n K * S.L ^ K)} (hq : cubeMap n S.L M K (i + 1 + 1) t ∈ C.1)
+    (hZk : ∀ z, cubeMap n S.L M K (i + 1) z = cubeMap n S.L M K (i + 1) t →
+      z ∉ (H.localHistory M K (i + 1 + 1) C).Z (i + 1))
+    (hfar : ∀ z, cubeMap n S.L M K (i + 1) z = cubeMap n S.L M K (i + 1) t →
+      cubeMap n S.L M K (i + 1 + 1) z ∉ lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)) :
+    |‖ψ' (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) t)‖ ^ 2 - 1| < η := by
+  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) t⟩ : BlockPt S n M K) ∈
+      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) t}) :=
+    ⟨_, rfl, t, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
+  have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).2 _ hb
+  exact key
+
+include hjK in
+/-- **The block bound for two fine sites with adjacent `k`-blocks, far from `Ω_{k+1}`** (R1 at the
+block level), from the second family at the `π_k`-cube of the first. -/
+theorem psi_block_pair_far {η : ℝ} (ψ' : MultiField S n M K N) (hψ : PieceSecondFamily H C ψ' η)
+    {t t' : Torus S.d (M * n K * S.L ^ K)} (hq : cubeMap n S.L M K (i + 1 + 1) t ∈ C.1)
+    (hZk : ∀ z, cubeMap n S.L M K (i + 1) z = cubeMap n S.L M K (i + 1) t →
+      z ∉ (H.localHistory M K (i + 1 + 1) C).Z (i + 1))
+    (hfar : ∀ z, cubeMap n S.L M K (i + 1) z = cubeMap n S.L M K (i + 1) t →
+      cubeMap n S.L M K (i + 1 + 1) z ∉ lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1))
+    (hadj : BlockAdj (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) t⟩ : BlockPt S n M K)
+      (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) t'⟩ : BlockPt S n M K)) :
+    ‖ψ' (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) t) -
+      ψ' (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) t')‖ < η := by
+  have hnear := cube_near_of_blockAdj H.F.hnn (show i + 1 ≤ K by omega) hadj
+  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) t⟩ : BlockPt S n M K) ∈
+      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) t}) :=
+    ⟨_, rfl, t, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
+  have hb' : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) t'⟩ : BlockPt S n M K) ∈
+      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) t}) :=
+    ⟨_, rfl, t', rfl, mem_nbhd.2 ⟨_, rfl, by rw [supDist_comm]; exact hnear⟩⟩
+  have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).1 _ hb _ hb' (Or.inl rfl) hadj
+  exact key
+
+include hjK in
 /-- **The sphere bound at a site off `Ω_{k+1}` far from `Ω_{k+1}`** (R2 for the `ψ_k` datum), from
 the second family of `ChiDomProp`. -/
 theorem piece_psi_sphere_far {η : ℝ}
@@ -414,10 +454,7 @@ theorem piece_psi_sphere_far {η : ℝ}
     |∑ l, ((locData g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv).Ψ s l).re ^ 2 - 1| < η := by
   have hq : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈ C.1 :=
     mem_comp_of_not_omega H C hjK (by rw [cubeMap_bgToFine_gen]; exact hO)
-  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K) ∈
-      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
-    ⟨_, rfl, bgToFine g H.F.hnn hjK s, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
-  have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).2 _ hb
+  have key := psi_block_sphere_far H C hjK ψ' hψ hq hZk hfar
   simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hO hy
   simp_rw [e]
@@ -451,14 +488,7 @@ theorem piece_psi_pair_far {η : ℝ}
   have hq : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈ C.1 :=
     mem_comp_of_not_omega H C hjK (by rw [cubeMap_bgToFine_gen]; exact hOs)
   have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
-  have hnear := cube_near_of_blockAdj H.F.hnn (show i + 1 ≤ K by omega) hadj
-  have hb : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K) ∈
-      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
-    ⟨_, rfl, bgToFine g H.F.hnn hjK s, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
-  have hb' : (⟨i + 1, jBlock S.d S.L (M * n K) K (i + 1) (bgToFine g H.F.hnn hjK s')⟩ : BlockPt S n M K) ∈
-      scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
-    ⟨_, rfl, bgToFine g H.F.hnn hjK s', rfl, mem_nbhd.2 ⟨_, rfl, by rw [supDist_comm]; exact hnear⟩⟩
-  have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).1 _ hb _ hb' (Or.inl rfl) hadj
+  have key := psi_block_pair_far H C hjK ψ' hψ hq hZk hfar hadj
   simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hOs hy
   have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
