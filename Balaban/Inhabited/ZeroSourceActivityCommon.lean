@@ -132,17 +132,15 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   MeasureTheory Set Metric
 open scoped Classical
 
-/-- `K₀ ≤ 2 (K₀ + 1)`: the entropy constant of the base family of the mark records. -/
-theorem StepTower.marks_K0_le {κmin : ℝ} (T : StepTower κmin) :
-    K0 3 3 T.κ0 ≤ 2 * (K0 3 3 T.κ0 + 1) := by
-  have := T.marks_K0_pos
-  linarith
-
 /-- `K₀ ≤ 2 (K₀ + 1)` at the general tower. -/
 theorem StepTowerG.marks_K0_le {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) :
     K0 d L T.κ0 ≤ 2 * (K0 d L T.κ0 + 1) := by
   have := T.marks_K0_pos
   linarith
+
+/-- `K₀ ≤ 2 (K₀ + 1)`: the entropy constant of the base family of the mark records. -/
+theorem StepTower.marks_K0_le {κmin : ℝ} (T : StepTower κmin) :
+    K0 3 3 T.κ0 ≤ 2 * (K0 3 3 T.κ0 + 1) := T.toG.marks_K0_le
 
 /-- **The zero-source activity family on the common labels, for a given source witness, at source
 radius `ρ`, general tower.**  The statement of `zeroSourceActivity_common_of_witness_rho` at the

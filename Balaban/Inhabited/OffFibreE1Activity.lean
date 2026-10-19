@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.Inhabited.OffFibreE1ActivityG
 public import Balaban.Inhabited.OffFibreE1CoeffSum
 public import Balaban.Inhabited.SourceExponentFamily
 
@@ -85,50 +86,12 @@ theorem e1_common_activity_freeDatum_of_directTerms {κmin : ℝ} (T : StepTower
         ∑ y, (A₀ ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
           (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) (s : ℂ)).H y
           ((S.blockSplit 1 hp).restr x) := by
-  classical
-  intro s hs
-  have hpc : 2 * p₁ < lvCpsi T.κ T.t (β * 3 ^ k) := by
-    have hpos : 0 < lvR T.κ T.t (β * 3 ^ k) p₁ * p₁ :=
-      mul_pos Dt.r_pos hp0
-    nlinarith [Dt.ray_margin]
-  have he : ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) ∈
-      physVq S S.a₁ S.ν T.t 1 := by
-    rw [physVq_one]
-    exact ⟨⟨D, hX, rfl⟩, by
-      change (∑ x : CTorus 3 3 N₁ T.m₁ (k + 1),
-        ∑ i : Fin 2, ‖(0 : ℂ)‖) < 1
-      simp⟩
-  have hpS : S.p₁ = p₁ := by rw [hS]; rfl
-  filter_upwards [S.ae_hatOf_restr 1 hp0 hp hpS.le, S.ae_ball hp] with x hx hχ
-  have hxn : ‖x‖ < 2 * p₁ := by
-    have hx' := (chiFl_eq_one_iff hp x).1 hχ
-    rw [hpS] at hx'
-    linarith
-  have hW : Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
-      (rawOf D, (s : ℂ) • S.hatC x) =
-      (s : ℂ) ^ 2 * val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x)
-        (s : ℂ) (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ)
-          ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), 0)) := by
-    subst hS
-    rw [hval, physInclScaled_zeroClass_eq]
-    simp only [Pi.zero_apply, zero_div, zero_mul, Finset.sum_const_zero, mul_zero, add_zero]
-    exact Jr.W1_zeroClass_eq_hat_freeDatum D hX Dt.core one_pos
-      (bgHyp_lv (k := k) T.m₁ hνpos.le hν) T.c7_cap (T.step k hk N₁ ν β p₁).hk1
-      (R := 2) (by norm_num) T.bg1_cap T.large_block T.dom_margin
-      T.coer_margin T.δc_small Dt.cψ_pos.le Dt.fl_radius hpc x hxn hs
-  have hsum : ∑ y, (A ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) (s : ℂ)).H y
-      ((S.blockSplit 1 hp).restr x) =
-      val (S.hatC x, S.hatC x) (S.hatC x, S.hatC x) (s : ℂ)
-        (physInclScaled 2 S ((1 / S.β : ℝ) : ℂ)
-          ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'), 0)) := by
-    rw [hAeq, labelActFamilyOn_sum S 1 _ hF (by simpa using h3N : 3 ^ 1 ∣ N₁)
-      hp0 (by norm_num) hεU T.κ0_ent T.marks_K0_le he
-      (norm_ofReal_lt_of_mem hs (by norm_num : (1 : ℝ) < 2)), hx]
-  have hhat : S.hatC x = Balaban.Fluctuation.yhat x := rfl
-  rw [← hhat, hA₀sum, sqFactor_ofReal (by norm_num : (1 : ℝ) < 2) hs, hsum]
-  exact hW
+  subst hS
+  have hb : β * 3 ^ k = β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) := by norm_num
+  exact e1_common_activity_freeDatum_of_directTermsG T.toG k hk N₁ (by simpa using h3N) ν hνpos
+    (by simpa using hν) β p₁ hp0 (β * 3 ^ k) (by norm_num) (T.scaleDataG_of_fixed Dt)
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl hp Jr val hval I hF hεU
+    A hAeq A₀ hA₀sum D hX
 
 open Classical in
 /-- The tower supplies one common-label activity whose first-exponent sum is valid at
