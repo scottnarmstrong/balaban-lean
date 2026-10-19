@@ -2911,3 +2911,5 @@ public import Balaban.Inhabited.NewLevelCoeffBgCast
 public import Balaban.Fluctuation.NewLevelDetBgClauses
 public import Balaban.Fluctuation.NewLevelOldTermsBg
 public import Balaban.Inhabited.NewLevelOldTermsBgCast
+public import Balaban.Fluctuation.LocalSetActMarked
+public import Balaban.Fluctuation.NewLevelBlockTermsBg

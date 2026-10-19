@@ -86,6 +86,140 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
   {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
   {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'} {ν : ℝ}
 
+/-- **The read datum of a local generating set.**  For a datum `D` of the step chart of radius `ε`
+(with the smallness conditions of the chart) and `ε′ ≥ (2 K₁ + 2) C₁ ε`: `ε ≤ ε′`, the datum read on
+`Gl` by the canonical transport lies in the chart `Ξ^c(Gl; 1, ε′)`, and it agrees with `D` on the top
+layer of `Gl`. -/
+theorem canon_gdat_read (hG' : IsLevel Gp (k + 1)) {a₁ : ℝ}
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (HB' : BgHyp d L (k + 1) ϱl (compWeight L a₁) ν)
+    {BG κ eps eps' : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hεr : (2 * bgK1 d L N + 2) * xiC1 d * eps ≤ eps')
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D) :
+    eps ≤ eps' ∧
+      XiCData Gl (compWeight L a₁) ν (k + 1) 1 eps'
+        ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D) ∧
+      ∀ x ∈ Gl.Ω (k + 1),
+        ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D).Ψ x = D.Ψ x ∧
+          ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D).h x = D.h x := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
+  have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
+  have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
+  refine ⟨?_, canon_gdat_xiCData_of_xiCData (Gb := Gl) hG' HB HB' heps hsmall hc0 hc1 hεr D hD,
+    fun x hx => ?_⟩
+  · have h1 : eps ≤ xiC1 d * eps := le_mul_of_one_le_left heps.le hxi
+    have h2 : xiC1 d * eps ≤ (2 * bgK1 d L N + 2) * xiC1 d * eps := by
+      have h0 : 0 ≤ xiC1 d * eps := by positivity
+      nlinarith
+    linarith
+  · have h := canon_gdat_eq_of_mem_one hG' D (Gl.Ω_antitone le_rfl (Nat.le_add_left 1 k)
+      (by omega) hx)
+    exact ⟨h.1.symm, h.2.symm⟩
+
+open Classical in
+/-- **The cubes of a connected family of the label `Y` lie in `Y`** (as a finite set of sites). -/
+theorem mem_filter_of_mem_connFams {m₀ j : ℕ} (hU : LayerUnion Gp m₀) (hNm : L ^ m₀ ∣ N₁)
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒦X Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    {C : Finset (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))))}
+    (hC : C ∈ connFams (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      Gp m₀ (X1 Gp m₀ j 𝒦X) Y) :
+    ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ Finset.univ.filter (· ∈ Y) := by
+  have hY := ((mem_connFams _).1 hC).2
+  intro i hi y hy
+  rw [Finset.mem_filter, ← hY]
+  exact ⟨Finset.mem_univ _, Or.inr (Set.mem_iUnion₂.2 ⟨i, hi, Pset_subset_Dsites hU hNm i.1.2 hy⟩)⟩
+
+/-- **The marked term of a label recomputed on a local generating set, from the coefficients.**  For
+energies `Φ` of the step's pair `(Gp, Hm)` and `Φ'` of `(Gl, Gd)`, a datum `D` of `Gp` and a datum
+`D'` of `Gl` whose raw datum is the cut-off `clipRaw Gl (rawOf D)`: if for every connected family
+`𝒞` of the expansion with `Y[𝒞] = Y` the coefficient `coef (·) 𝒞` of the step's energy along the
+masked tangent equals that of `Φ'` at the transported parameters, the datum `D'` and the masked local
+hat lift, then the term `evDecBg` recomputed on `Gl` with the canonical transport (mask `maskPre`)
+equals the step's term `evDec`.  The replacement identities of the old terms (`Φ = eTermFun`) and of
+the block energy (`Φ = blockEnergyFun`) are its instances. -/
+theorem evDecBg_canon_eq_evDec_of_coef (hG' : IsLevel Gp (k + 1)) (a₁ : ℝ) (cc : ℂ)
+    (F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (F₁' : Dec2.DecParams (coverOf Gl) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Sol' : Dec2.DecParams (coverOf Gl) × Edat Gd N → (Gd.Ω 1 × Fin N → ℂ) × (Gd.Ω 1 → ℂ))
+    (Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Φ' : ((Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)) → (Gd.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gp)) (um tm : ℂ) (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X Y : Set (CTorus d L N₁ m₁ (k + 1))) (D : BgData Gp N) (D' : BgData Gl N)
+    (hD'raw : rawOf D' = clipRaw Gl (rawOf D)) (ψh : unitPts Gp × Fin N → ℂ)
+    (hcoef : ∀ C ∈ connFams (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        Gp m₀ (X1 Gp m₀ j 𝒦X) Y,
+      coef (fun w => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w, rawOf D))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w, rawOf D)) D.Ψ
+            (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) (rawOf D) ψh))).1
+        (rawOf D, markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+          (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) (rawOf D) ψh)) C =
+      coef (fun w => Φ'
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then Dec2.extS (coverOf Gp)
+            (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0), rawOf D'))
+        (Sol' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then Dec2.extS (coverOf Gp)
+            (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0),
+          flEdat Gl Gd
+            (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then Dec2.extS (coverOf Gp)
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0), rawOf D'))
+            D'.Ψ
+            (fun x i => (um + if unitPt hG' x ∈ Zm then tm else 0) *
+              (if h : unitBlock x ∈ unitPts Gl then
+                (cc • (decCovSqrt Gl (compWeight L a₁) a₁ ν
+                  (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then Dec2.extS (coverOf Gp)
+                    (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0),
+                    rawOf D')).2
+                  (Dec2.extS (coverOf Gl) (fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+                    Dec2.extS (coverOf Gp)
+                      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0))
+                  (barField Gl D'.Ψ (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+                    Dec2.extS (coverOf Gp)
+                      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0),
+                    rawOf D')).1)
+                  (unitQ Gl) (unitP Gl) *ᵥ
+                  (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)))
+                  (⟨unitBlock x, h⟩, i)
+              else 0)))).1
+        (rawOf D', fun x i => (um + if unitPt hG' x ∈ Zm then tm else 0) *
+          (if h : unitBlock x ∈ unitPts Gl then
+            (cc • (decCovSqrt Gl (compWeight L a₁) a₁ ν
+              (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then Dec2.extS (coverOf Gp)
+                (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0),
+                rawOf D')).2
+              (Dec2.extS (coverOf Gl) (fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+                Dec2.extS (coverOf Gp)
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0))
+              (barField Gl D'.Ψ (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+                Dec2.extS (coverOf Gp)
+                  (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) P.1 else 0),
+                rawOf D')).1)
+              (unitQ Gl) (unitP Gl) *ᵥ
+              (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)))
+              (⟨unitBlock x, h⟩, i)
+          else 0))) C) :
+    evDecBg Gp X₁f m₀ j 𝒦X Gl a₁ ν (BgTransport.canon Gp Gl N) cc F₁' Sol' Φ'
+        (maskPre hG' Gl Zm) um tm Y (rawOf D, (BgTransport.canon Gp Gl N).res ψh) =
+      evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol Φ Zm um tm Y (rawOf D, ψh) := by
+  classical
+  have hdat : (BgTransport.canon Gp Gl N).dat (rawOf D) = rawOf D' := hD'raw.symm
+  have hΨ : D'.Ψ = (rawOf D').1 := rfl
+  unfold evDecBg evDec evTerm FFmarked
+  refine Finset.sum_congr rfl fun C hC => ?_
+  refine Eq.trans ?_ (hcoef C hC).symm
+  refine congrArg (fun f => coef f C) (funext fun w => ?_)
+  simp only [FFmarkedBg]
+  rw [markedHatPsiFBg_canon_res hG' a₁ ν cc F₁' Zm um tm
+    ((BgTransport.canon Gp Gl N).par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w))
+    ((BgTransport.canon Gp Gl N).dat (rawOf D)) ψh, hdat, hΨ]
+  rfl
+
 /-- **The marked term of an old label recomputed on a local generating set** (P3 pp. 78-79, (4.46),
 along the masked tangent `u ψ' + t M_Z ψ'`).  Let `𝔹_{k+1} = Gp` be a level set, `Hm` a level set of
 level `k` (`k ≥ 1`), `Gl` a cube-aligned, sup-separated generating set and `Gd ≺ Gl` with the layer
@@ -183,48 +317,18 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
       evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol (eTermFun Gp Gk Gj Hm ac Fk E) Zm um tm Y
         (rawOf D, ψh) := by
   classical
-  have hd0 : 0 < d := by have := HB.hd; omega
-  have hxi := one_le_xiC1 d
-  have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
-  have hle : eps ≤ eps' := by
-    have h1 : eps ≤ xiC1 d * eps := le_mul_of_one_le_left heps.le hxi
-    have h2 : xiC1 d * eps ≤ (2 * bgK1 d L N + 2) * xiC1 d * eps := by
-      have h0 : 0 ≤ xiC1 d * eps := by positivity
-      nlinarith
-    linarith
-  have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
-  have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
-  have hD'x := canon_gdat_xiCData_of_xiCData (Gb := Gl) hG' HB HB' heps hsmall hc0 hc1 hεr D hD
-  have hD' : ∀ x ∈ Gl.Ω (k + 1),
-      ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D).Ψ x = D.Ψ x ∧
-        ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D).h x = D.h x :=
-    fun x hx => by
-      have h := canon_gdat_eq_of_mem_one hG' D (Gl.Ω_antitone le_rfl (Nat.le_add_left 1 k)
-        (by omega) hx)
-      exact ⟨h.1.symm, h.2.symm⟩
+  obtain ⟨hle, hD'x, hD'⟩ := canon_gdat_read (Gl := Gl) hG' HB HB' heps hsmall hc7 hεr hD
   have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
-  unfold evDecBg evDec evTerm FFmarked
-  refine Finset.sum_congr rfl fun C hC => ?_
-  have hY := ((mem_connFams _).1 hC).2
-  have key := coef_eTermFun_replacement_marked_gen (Gj := Gj) hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁
+  refine evDecBg_canon_eq_evDec_of_coef hG' a₁ cc F₁ F₁' Sol Sol' _ _ Zm um tm X₁f m₀ j 𝒦X Y D
+    ((BgTransport.canon Gp Gl N).gdat (BgTransport.reads_canon hG') D) rfl ψh fun C hC => ?_
+  exact coef_eTermFun_replacement_marked_gen (Gj := Gj) hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁
     hM hag hagm hagl hagd hS HB HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' hF₂ hM₂ h0 h0' h1 hδ₀ hδ₀' hδ₁ hSol
     hSol' ac Fk E C hE1 le_rfl heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD hD'x hD' hmarD'
     hαD' hsm cc hcψ
-    Zm um tm hδ₁m ψh hψh (R := Finset.univ.filter (· ∈ Y))
-    (fun i hi y hy => by
-      rw [Finset.mem_filter, ← hY]
-      exact ⟨Finset.mem_univ _,
-        Or.inr (Set.mem_iUnion₂.2 ⟨i, hi, Pset_subset_Dsites hU hNm i.1.2 hy⟩)⟩)
+    Zm um tm hδ₁m ψh hψh (R := Finset.univ.filter (· ∈ Y)) (mem_filter_of_mem_connFams hU hNm hC)
     (fun P hP hdis y hy => Finset.mem_filter.2 ⟨Finset.mem_univ _, hXY P hP hdis y hy⟩)
     (fun x hx => Finset.mem_filter.2 ⟨Finset.mem_univ _, hkY x hx⟩)
     (fun x hx => hYmar x (Finset.mem_filter.1 hx).2)
-  refine Eq.trans ?_ key.symm
-  refine congrArg (fun f => coef f C) (funext fun w => ?_)
-  simp only [FFmarkedBg]
-  rw [markedHatPsiFBg_canon_res hG' a₁ ν cc F₁' Zm um tm
-    ((BgTransport.canon Gp Gl N).par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w))
-    ((BgTransport.canon Gp Gl N).dat (rawOf D)) ψh]
-  rfl
 
 end Term
 
