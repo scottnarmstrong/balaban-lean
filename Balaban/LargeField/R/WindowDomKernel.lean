@@ -20,7 +20,17 @@ step kernel vanishes unless the datum of its local background lies in the real d
 * `stepKernel_ne_zero_domain`: a nonzero quiet step kernel at `(o, x, hv)` gives
   `InUnionDomainR (locGen …) (bgC1) (μ_Bg) (locData …)`;
 * `window_pieces_kernel_ne_zero`: a nonzero weight of the operator of `Z` at `(o, x)` gives a
-  nonzero step kernel of every piece of the family at its data `(ou i, xu i)`.
+  nonzero step kernel of every piece of the family at its data `(ou i, xu i)`;
+* `isQuiet_of_ripeWindow`: the steps of a ripe window are quiet (no new cube above `k₁`);
+* `window_pieces_inUnionDomainR`: on the support of the weight every piece datum is in
+  `𝒟_ℝ(G_i; c₁, μ_Bg(j_i + 1))`.
+
+What the weight of the operator of `Z` does not carry: the radius is only `≤ c₁` (the indicator of
+the quiet kernel).  A radius `δ_l ≪ c₁` for the datum of a piece needs `|ψ(y) - ψ(y')| < δ_l`,
+`||ψ(y)|² - 1| < δ_l` at all data sites of `G_i`; these lie within `⌊R_{j_i}⌋ + 11 M₁ L^{j_i+1} + 1`
+of `Z'_i` (`genBoundaryLocal_near`), where the datum is the lift of the output `o_i` on `V_i ∖ Z'_i`,
+and the factors of the weight (`chiNew`, `χ_k`, `χ'_{k+1}`, `χ_{k+1}`, the Gaussians) involve only
+the cubes inside `Z'_i` and their one-cube neighbourhoods.
 -/
 
 @[expose] public section
