@@ -113,6 +113,16 @@ theorem sfClassAt_witness :
 ### The sub-inputs
 -/
 
+/-- **The extended vacuum flow**: the flow `E_j` of a record of scale `k` followed, at the scale
+`k + 1`, by the new vacuum constant `e` (and constant `e` beyond, which is never read). -/
+def vacExt (E : ℕ → ℝ) (k : ℕ) (e : ℝ) : ℕ → ℝ := fun j => if j ≤ k then E j else e
+
+theorem vacExt_of_le {E : ℕ → ℝ} {k j : ℕ} (e : ℝ) (h : j ≤ k) : vacExt E k e j = E j := by
+  simp [vacExt, h]
+
+theorem vacExt_succ (E : ℕ → ℝ) (k : ℕ) (e : ℝ) : vacExt E k e (k + 1) = e := by
+  simp [vacExt]
+
 section Inputs
 
 variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
@@ -238,7 +248,11 @@ represents the step density `stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ` in `
 (`IsRepPre2`: histories of `ρ` followed by every step record and the hull closure; the quiet kernels
 and the kernels of P5 (2.47)·P6 (3.2) with the local background and the boundary factors; the
 boundary terms `ℬ^{(k+1)}` with `3κ/2` and `B_st`; (H6′)^pre; the coefficient data of P5 (1.8)) and
-is torus coherent (`LFCoherent`). -/
+is torus coherent (`LFCoherent`). **The vacuum tie (R5, R5′; P4 (2.1), (2.41), (2.63)):** the step data
+of `lf'` carry the vacuum constants of the extended flow `E_0, …, E_k, ΦE` (`vacExt`; the new constant
+`E_{k+1}` is the one of A4-1g): on every torus `StepData.VacuumTie` with offsets `δ″, δ‴` free of the
+flow. The step data are the ones whose boundary exponent `b_k` is bounded (`IsRepPre2`), so `ΦE = 0`
+satisfies the tie only if the source's vacuum energy is zero. -/
 def LFStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -274,7 +288,9 @@ def LFStepInput : Prop :=
           ((Φ κ c₉ β ν k rec.F.sf).z (k + 1)) s ρ) St' vc' ∧
       LFCoherent (⟨Φ κ c₉ β ν k rec.F.sf, lf'⟩ : RepFam 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] rec.R
         (kZero d (T κ c₉).L β ν) (kf + 1) (T κ c₉).M N rec.geo cs' P' (k + 1) (C7 κ c₉).m₁
-        (ϱ κ c₉))
+        (ϱ κ c₉)) ∧
+      ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (lf' nK).SD.VacuumTie Set.univ
+        (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp
 
 /-- **A4-1i, the densities of `ℛ_k` are integrable (the premise of P1 (1.11), `∫ T ρ = ∫ ρ`).** For
 `1 ≤ k < k₀`, every member of `ℛ_k` is integrable in the field of the `k`-blocks on every torus of the
@@ -326,7 +342,7 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
     (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ) (hNw : SFNewLevelInput d N T P6 C7 cs₀ ϱ Φ)
     (hRn : SFRenormInput d N T P6 C7 cs₀ ϱ Φ) (hDn : SFDensityInput d N T P6 C7 cs₀ ϱ Φ)
     (hRt : SFRemainderInput d N T P6 C7 cs₀ ϱ Φ) (hCo : SFCoherenceInput d N T P6 C7 cs₀ ϱ Φ)
-    (hV : SFVacuumInput d N T P6 C7 cs₀ ϱ Φ ΦE) (hLF : LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ)
+    (hV : SFVacuumInput d N T P6 C7 cs₀ ϱ Φ ΦE) (hLF : LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE)
     (hInt : StepIntegrableInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
     SFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
@@ -365,7 +381,7 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
     · rw [(hcst j hj).2.2.2]; exact hsf.2.2.2.1 j hj1 hj
     · obtain rfl : j = k + 1 := by omega
       exact hfree'
-  obtain ⟨cs', P', lf', St', vc', s, o1, o2, o3, o4, o5, o6, o7, hpre, hcoh'⟩ :=
+  obtain ⟨cs', P', lf', St', vc', s, o1, o2, o3, o4, o5, o6, o7, hpre, hcoh', hvt⟩ :=
     h₈ β hb₈ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2' hD8' hD9' hafree
       (fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.1⟩) hkK'
   have hβk : 0 < rec.F.sf.β k := by
@@ -403,16 +419,16 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
       νk := rfl
       run := runningHypTo_congr rec.run (fun j hj => (hcst j hj).1) (fun j hj => (hcst j hj).2.1)
       coh := hcoh'
-      Ev := fun j => if j ≤ k then rec.Ev j else ΦE κ c₉ β ν k rec.F.sf rec.Ev
+      Ev := vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)
       vac := fun j hj => by
         by_cases hjk : j ≤ k
-        · simp only [hjk, ite_true]
-          rw [(hcst j hjk).1]
+        · rw [vacExt_of_le _ hjk, (hcst j hjk).1]
           exact rec.vac j hjk
         · obtain rfl : j = k + 1 := by omega
-          simp only [hjk, ite_false]
+          rw [vacExt_succ]
           exact hEv }, fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.2,
-      (hcst j hj).2.2.1, by simp only [hj, ite_true]⟩,
+      (hcst j hj).2.2.1, vacExt_of_le _ hj⟩,
+    fun nK _ => hvt nK,
     integralStep_stepDensity s hcK hz ρ (h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk ⟨rec⟩)⟩
 
 /-- **The small-field step from its sub-inputs and the prefix**: `sfStepInput_of_parts`, the typing
@@ -426,7 +442,7 @@ theorem sfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs�
     (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ) (hNw : SFNewLevelInput d N T P6 C7 cs₀ ϱ Φ)
     (hRn : SFRenormInput d N T P6 C7 cs₀ ϱ Φ) (hDn : SFDensityInput d N T P6 C7 cs₀ ϱ Φ)
     (hRt : SFRemainderInput d N T P6 C7 cs₀ ϱ Φ) (hCo : SFCoherenceInput d N T P6 C7 cs₀ ϱ Φ)
-    (hV : SFVacuumInput d N T P6 C7 cs₀ ϱ Φ ΦE) (hLF : LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ)
+    (hV : SFVacuumInput d N T P6 C7 cs₀ ϱ Φ ΦE) (hLF : LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE)
     (hInt : StepIntegrableInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
     SFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ :=
   sfStepInput_of_parts (hA1 1 one_pos 1 one_pos).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1.1.three_le_d

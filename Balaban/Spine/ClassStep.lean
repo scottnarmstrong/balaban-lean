@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.Witness
+public import Balaban.LargeField.Operators.StepVacuumR5
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.LinearCombination
@@ -270,6 +271,18 @@ theorem IntegralStep.trans_eq {ρ : 𝒟[d, N, T, β, a, K, k]} {ρ' ρ'' : 𝒟
 
 end Normalization
 
+/-- **The vacuum constants of the step data are those of the flow** (R5, R5′; P6 (3.2), P5 (3.18)):
+for every torus, the constants `vacE`, `vacEpp`, `vacEppp` of the creating step of every localized
+history are `E_k`, `E_k + δ″_k`, `E_k + δ‴_k` of the scale-indexed flow `rec.Ev` of the record, the offsets not depending on `E_k` (`StepData.VacuumTie`).
+The boundary factor of a step is then `b_k = b⁰_k − (E_k |Z_k^c ∖ Ω_{k+1}|_k + E″_k |Ω_{k+1} ∖ Ω″_{k+1}|_k +
+E‴_k |Ω″_{k+1} ∩ Z_{k+1}|_k)` with `b⁰_k` bounded by constants free of `E`. -/
+def VacuumTied {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7} {PB : BudgetConsts}
+    {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)} {kf k r : ℕ}
+    [NeZero T.M] [NeZero T.L] {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
+    (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) : Prop :=
+  ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ,
+    (rec.F.lf nK).SD.VacuumTie Set.univ rec.Ev dpp dppp
+
 /-!
 ### The sub-inputs
 -/
@@ -292,7 +305,8 @@ for `β_{k+1}, ν_{k+1}`; boundary terms with rate `3κ/2` and the constant `B_s
 with torus coherent large-field data (LF-3 (h), D-IV.9), and with `∫ ρ' = c ∫ ρ` (LF-3 (a)). The
 successor extends the running data of the input (SUBSPINE-AUDIT defect 5; the birth domain `sfDom`
 reads `ν_j` at every level): at the scales `j ≤ k` its `β_j`, `ν_j`, `a_j`, `z_j` and its vacuum
-flow `E_j` (`RepRec.Ev`, rulings R5, R5′) are those of the input record. -/
+flow `E_j` (`RepRec.Ev`, rulings R5, R5′) are those of the input record; the step data of the successor
+are tied to its vacuum flow, whose new constant `E_{k+1}` is the vacuum constant of the step (`VacuumTied`). -/
 def SFStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -307,7 +321,7 @@ def SFStepInput : Prop :=
         (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k ρ' νk'),
       (∀ j, j ≤ k → rec'.F.sf.β j = rec.F.sf.β j ∧ rec'.F.sf.ν j = rec.F.sf.ν j ∧
         rec'.F.sf.a j = rec.F.sf.a j ∧ rec'.F.sf.z j = rec.F.sf.z j ∧ rec'.Ev j = rec.Ev j) ∧
-      IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
+      VacuumTied rec' ∧ IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
 /-- **A4-2, the large-field operation `R` (LF-4; LFR Theorem III.10.8, P7 Theorem 2 = P5 Theorem 2,
 P7 (1.3)–(1.7), pp. 497–529; ruling R4).** For `1 ≤ k ≤ k₀`, every member `ρ` of `ℛ^pre_k` whose
@@ -363,7 +377,7 @@ theorem classStepInput_of_parts (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH 
   obtain ⟨β₂, hβ₂⟩ := hR κ hκ c₉ hc₉
   refine ⟨max β₁ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ => ?_⟩
   obtain ⟨rec⟩ := hρ
-  obtain ⟨ρ', νk', rec', -, hint⟩ :=
+  obtain ⟨ρ', νk', rec', -, -, hint⟩ :=
     hβ₁ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
   obtain ⟨ρ'', hcl, hint'⟩ :=
     hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf (k + 1) (by omega) hk ρ' νk'
