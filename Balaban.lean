@@ -2926,6 +2926,7 @@ public import Balaban.LargeField.R.WindowPostSupport
 public import Balaban.LargeField.R.WindowDomChi
 public import Balaban.LargeField.R.WindowDomAnc
 public import Balaban.LargeField.R.WindowDomPieces
+public import Balaban.LargeField.R.WindowDomFacts
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
 public import Balaban.LargeField.R.WindowDomKernel
