@@ -171,12 +171,11 @@ theorem mem_layer_psi {x : Torus S.d (M * n K * S.L ^ K)}
     exact hO h
 
 /-- The first family of `ChiDomProp` at the top scale (the hypothesis of the lemmas below). -/
-def PieceFirstFamily (η : ℝ) (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
-    (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) : Prop :=
+def PieceFirstFamily (ψ' : MultiField S n M K N) (η : ℝ) : Prop :=
   ∀ q : Torus S.d (n (i + 1 + 1)),
     CubeSub (S := S) (n := n) M K (i + 1 + 1) q ((H.localHistory M K (i + 1 + 1) C).Z (i + 1 + 1)) →
     q ∈ lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1) →
-    PsiTildeMulti (pieceField H C o x)
+    PsiTildeMulti ψ'
       (genBlocksIn (chiDomGen H g (i + 1 + 1) C) (i + 1 + 1) (nbhd 1 {q})) η
 
 include hjK in
@@ -184,7 +183,9 @@ include hjK in
 theorem piece_psi_sphere {η : ℝ}
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hψ : PieceFirstFamily H g C η o x)
+    (ψ' : MultiField S n M K N)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hψ : PieceFirstFamily H g C ψ' η)
     {s : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hO : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
@@ -202,6 +203,7 @@ theorem piece_psi_sphere {η : ℝ}
         (nbhd 1 {cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s)}) :=
     ⟨Nat.succ_pos i, (by show i + 1 ≤ K; omega), _, hlay, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
   have key := (hψ _ hZ hsim).2 _ hb
+  simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hO hy
   simp_rw [e]
   rw [parent_sum_sq_eq_norm_sq]
@@ -253,7 +255,10 @@ is within `η`, from the first family of `ChiDomProp` at the cube of `s'`. -/
 theorem piece_mixed_pair {η : ℝ}
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hψ : PieceFirstFamily H g C η o x)
+    (ψ' : MultiField S n M K N)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hagT : ∀ b, ψ' (i + 1 + 1) b = pieceField H C o x (i + 1 + 1) b)
+    (hψ : PieceFirstFamily H g C ψ' η)
     {s s' : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
@@ -299,6 +304,7 @@ theorem piece_mixed_pair {η : ℝ}
     · exact blockAdj_of_interfacePair_le H g hjK hp (layerIndex_le_k _ _) hls' le_rfl (by omega)
     · exact blockAdj_symm' (blockAdj_of_interfacePair_le H g hjK hp hls' (layerIndex_le_k _ _) (by omega) le_rfl)
   have key := (hψ _ hZ hsim).1 _ hb _ hb' (Or.inr rfl) hadj
+  simp only [hagK, hagT] at key
   have e := piece_theta_value H g C hjK o x hv hs hn (by rw [cubeMap_bgToFine_gen] at *; exact hOs)
   have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
   simp_rw [e, e']
@@ -315,7 +321,9 @@ at the cube of `s`. -/
 theorem piece_psi_pair {η : ℝ}
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hψ : PieceFirstFamily H g C η o x)
+    (ψ' : MultiField S n M K N)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hψ : PieceFirstFamily H g C ψ' η)
     {s s' : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
@@ -354,6 +362,7 @@ theorem piece_psi_pair {η : ℝ}
   have hb' := hmem s' hOs' hy' hnear
   have hadj := blockAdj_psi_of_pair H g C hjK hp hOs hOs'
   have key := (hψ _ hZ hsim).1 _ hb _ hb' (Or.inl rfl) hadj
+  simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hOs hy
   have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
   simp_rw [e, e']
@@ -366,14 +375,13 @@ theorem piece_psi_pair {η : ℝ}
 
 /-- The second family of `ChiDomProp` at the scale `k = i + 1` (the cubes far from `Ω_{k+1}`
 and not meeting `Z_k`): the hypothesis of the lemmas below. -/
-def PieceSecondFamily (η : ℝ) (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
-    (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) : Prop :=
+def PieceSecondFamily (ψ' : MultiField S n M K N) (η : ℝ) : Prop :=
   ∀ y : Torus S.d (n (i + 1)),
     CubeSub (S := S) (n := n) M K (i + 1) y (fineSet (S := S) (n := n) M K (i + 1 + 1) (C.1 : Set (Torus S.d (n (i + 1 + 1))))) →
     (∀ z, cubeMap n S.L M K (i + 1) z = y → z ∉ (H.localHistory M K (i + 1 + 1) C).Z (i + 1)) →
     (∀ z, cubeMap n S.L M K (i + 1) z = y →
       cubeMap n S.L M K (i + 1 + 1) z ∉ lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)) →
-    PsiTildeMulti (pieceField H C o x) (scaleBlocksIn (i + 1) (nbhd 1 {y})) η
+    PsiTildeMulti ψ' (scaleBlocksIn (i + 1) (nbhd 1 {y})) η
 
 include hjK in
 /-- The cube of a site over `C` at scale `k` is a subset of `C`. -/
@@ -392,7 +400,9 @@ the second family of `ChiDomProp`. -/
 theorem piece_psi_sphere_far {η : ℝ}
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hψ : PieceSecondFamily H C η o x)
+    (ψ' : MultiField S n M K N)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hψ : PieceSecondFamily H C ψ' η)
     {s : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hO : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega)
@@ -408,6 +418,7 @@ theorem piece_psi_sphere_far {η : ℝ}
       scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
     ⟨_, rfl, bgToFine g H.F.hnn hjK s, rfl, mem_nbhd.2 ⟨_, rfl, by simp [supDist_self]⟩⟩
   have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).2 _ hb
+  simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hO hy
   simp_rw [e]
   rw [parent_sum_sq_eq_norm_sq]
@@ -419,7 +430,9 @@ include hjK in
 theorem piece_psi_pair_far {η : ℝ}
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hψ : PieceSecondFamily H C η o x)
+    (ψ' : MultiField S n M K N)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hψ : PieceSecondFamily H C ψ' η)
     {s s' : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
@@ -446,6 +459,7 @@ theorem piece_psi_pair_far {η : ℝ}
       scaleBlocksIn (i + 1) (nbhd 1 {cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)}) :=
     ⟨_, rfl, bgToFine g H.F.hnn hjK s', rfl, mem_nbhd.2 ⟨_, rfl, by rw [supDist_comm]; exact hnear⟩⟩
   have key := (hψ _ (cubeSub_fineSet_of_cube H C hjK hq) hZk hfar).1 _ hb _ hb' (Or.inl rfl) hadj
+  simp only [hagK] at key
   have e := piece_psi_value H g C hjK o x hv hs hOs hy
   have e' := piece_psi_value H g C hjK o x hv hs' hOs' hy'
   simp_rw [e, e']

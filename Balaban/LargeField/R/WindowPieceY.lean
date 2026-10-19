@@ -85,7 +85,10 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
       ((S.d + 1) * Cx.cs.delta (i + 1 + 1) * (2 + (S.d + 1) * Cx.cs.delta (i + 1 + 1))))))
     (hmass : 2 * ν * ((S.L : ℝ) ^ (i + 1 + 1)) ^ 2 < (max (max η1 η2) (max η3 (max (3 * Cx.cs.delta (i + 1 + 1))
       ((S.d + 1) * Cx.cs.delta (i + 1 + 1) * (2 + (S.d + 1) * Cx.cs.delta (i + 1 + 1)))))) ^ 2)
-    (hF1 : PieceFirstFamily H Cx.geo C η1 o x) (hF2 : PieceSecondFamily H C η2 o x)
+    (ψ' : MultiField S n M K N)
+    (hagT : ∀ b, ψ' (i + 1 + 1) b = pieceField H C o x (i + 1 + 1) b)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hF1 : PieceFirstFamily H Cx.geo C ψ' η1) (hF2 : PieceSecondFamily H C ψ' η2)
     (hFZ : PieceZkFamily H Cx.geo C ψw η3)
     (hag : ∀ t : BgT Cx.geo (i + 1 + 1),
       t ∈ dataSites (locGen Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
@@ -124,7 +127,7 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
     have := hZ0C _ hb0
     rw [blockCube, cubeMap_eq_comp H.F.hnn hjK, cubeMap_bgToFine_gen] at this
     exact hq this
-  refine piece_inDomainR H Cx.geo C hjK ψw o x hv hν hunit hη hmass hF1 hF2 hFZ hag ?_ ?_
+  refine piece_inDomainR H Cx.geo C hjK ψw o x hv hν hunit hη hmass ψ' hagT hagK hF1 hF2 hFZ hag ?_ ?_
   · intro t ht hq
     refine lt_of_lt_of_le (locData_sphere_over_Y Cx (H.locRH (i + 1 + 1) C) C.1 (locComp_mem H hjK C) hjK
       _ ψk hv hχ HB hYZ o x ht (dataSite_cube_mem_Y H Cx.geo C hjK ht hq) (hψ t ht hq)) ?_

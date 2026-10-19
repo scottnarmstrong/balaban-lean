@@ -94,7 +94,10 @@ include hjK in
 theorem piece_sphere_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hF1 : PieceFirstFamily H g C η1 o x) (hF2 : PieceSecondFamily H C η2 o x)
+    (ψ' : MultiField S n M K N)
+    (hagT : ∀ b, ψ' (i + 1 + 1) b = pieceField H C o x (i + 1 + 1) b)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hF1 : PieceFirstFamily H g C ψ' η1) (hF2 : PieceSecondFamily H C ψ' η2)
     (hFZ : PieceZkFamily H g C ψw η3)
     (hag : ∀ t : BgT g (i + 1 + 1),
       t ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
@@ -109,7 +112,7 @@ theorem piece_sphere_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
   by_cases hO : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∈
       ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega
   · by_cases hC : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∈ C.1
-    · refine lt_of_lt_of_le (piece_theta_sphere H g C hjK o x hv hF1 hs ?_ hO) ?_
+    · refine lt_of_lt_of_le (piece_theta_sphere H g C hjK o x hv ψ' hagT hF1 hs ?_ hO) ?_
       · rw [cubeMap_bgToFine_gen]; exact hC
       · exact (le_max_left _ _).trans (le_max_left _ _)
     · exact lt_of_lt_of_le (hY s hs hC) ((le_max_right _ _).trans (le_max_right _ _))
@@ -117,12 +120,12 @@ theorem piece_sphere_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs (by rwa [mem_fineK1])
     by_cases hsim : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈
         lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)
-    · exact lt_of_lt_of_le (piece_psi_sphere H g C hjK o x hv hF1 hs hO hy hsim)
+    · exact lt_of_lt_of_le (piece_psi_sphere H g C hjK o x hv ψ' hagK hF1 hs hO hy hsim)
         ((le_max_left _ _).trans (le_max_left _ _))
     · rcases cubeSub_Z_or_avoid (M := M) H C hjK (cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)) with hZk | hav
       · exact lt_of_lt_of_le (piece_psi_sphere_Zk H g C hjK ψw o x hv hFZ hs hO hy hZk (hag s hs hO))
           ((le_max_left _ _).trans (le_max_right _ _))
-      · refine lt_of_lt_of_le (piece_psi_sphere_far H g C hjK o x hv hF2 hs hO hy hav ?_) ?_
+      · refine lt_of_lt_of_le (piece_psi_sphere_far H g C hjK o x hv ψ' hagK hF2 hs hO hy hav ?_) ?_
         · intro z hz
           rwa [show cubeMap n S.L M K (i + 1 + 1) z = cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) by
             rw [← cubeMap_succ H.F.hnn hjK z, ← cubeMap_succ H.F.hnn hjK (bgToFine g H.F.hnn hjK s), hz]]
@@ -133,7 +136,10 @@ include hjK in
 theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
-    (hF1 : PieceFirstFamily H g C η1 o x) (hF2 : PieceSecondFamily H C η2 o x)
+    (ψ' : MultiField S n M K N)
+    (hagT : ∀ b, ψ' (i + 1 + 1) b = pieceField H C o x (i + 1 + 1) b)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hF1 : PieceFirstFamily H g C ψ' η1) (hF2 : PieceSecondFamily H C ψ' η2)
     (hFZ : PieceZkFamily H g C ψw η3)
     (hag : ∀ t : BgT g (i + 1 + 1),
       t ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
@@ -167,23 +173,23 @@ theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
       ((H.locRH (i + 1 + 1) C).step (i + 1)).Omega
   · -- both over Ω
     by_cases hCs : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∈ C.1
-    · refine lt_of_lt_of_le (piece_theta_pair H g C hjK o x hv hF1 hs hs' hp (q := cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s))
+    · refine lt_of_lt_of_le (piece_theta_pair H g C hjK o x hv ψ' hagT hF1 hs hs' hp (q := cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s))
         (by rw [hcm]; exact hCs) ((omega_loc_iff H C hjK (by rw [hcm]; exact hCs)).1 (by rw [hcm]; exact hOs))
         (by simp [supDist_self]) hcube hOs hOs') hmax1
     · by_cases hCs' : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s' ∈ C.1
-      · refine lt_of_lt_of_le (piece_theta_pair H g C hjK o x hv hF1 hs hs' hp (q := cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s'))
+      · refine lt_of_lt_of_le (piece_theta_pair H g C hjK o x hv ψ' hagT hF1 hs hs' hp (q := cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s'))
           (by rw [hcm]; exact hCs') ((omega_loc_iff H C hjK (by rw [hcm]; exact hCs')).1 (by rw [hcm]; exact hOs'))
           hcube' (by simp [supDist_self]) hOs hOs') hmax1
       · exact lt_of_lt_of_le (hY s s' hs hs' hp hCs hCs' hOs hOs') hmaxY
   · -- s over Ω, s' off
     have hy' := locGen_dataSite_cube_mem_Omega (i := i) g (H.locRH (i + 1 + 1) C) C.1
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs' (by rwa [mem_fineK1])
-    exact lt_of_lt_of_le (piece_mixed_pair H g C hjK o x hv hF1 hs hs' (Or.inl hp) hOs hOs' hy') hmax1
+    exact lt_of_lt_of_le (piece_mixed_pair H g C hjK o x hv ψ' hagK hagT hF1 hs hs' (Or.inl hp) hOs hOs' hy') hmax1
   · -- s off, s' over Ω
     have hy := locGen_dataSite_cube_mem_Omega (i := i) g (H.locRH (i + 1 + 1) C) C.1
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs (by rwa [mem_fineK1])
     rw [Balaban.Fluctuation.rn_sub_comm]
-    exact lt_of_lt_of_le (piece_mixed_pair H g C hjK o x hv hF1 hs' hs (Or.inr hp) hOs' hOs hy) hmax1
+    exact lt_of_lt_of_le (piece_mixed_pair H g C hjK o x hv ψ' hagK hagT hF1 hs' hs (Or.inr hp) hOs' hOs hy) hmax1
   · -- both off
     have hy := locGen_dataSite_cube_mem_Omega (i := i) g (H.locRH (i + 1 + 1) C) C.1
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs (by rwa [mem_fineK1])
@@ -191,15 +197,15 @@ theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs' (by rwa [mem_fineK1])
     by_cases hsim : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈
         lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)
-    · exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv hF1 hs hs' (Or.inl hp) hOs hOs' hy hy' hsim) hmax1
+    · exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv ψ' hagK hF1 hs hs' (Or.inl hp) hOs hOs' hy hy' hsim) hmax1
     · by_cases hsim' : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s') ∈
           lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)
       · rw [Balaban.Fluctuation.rn_sub_comm]
-        exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv hF1 hs' hs (Or.inr hp) hOs' hOs hy' hy hsim') hmax1
+        exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv ψ' hagK hF1 hs' hs (Or.inr hp) hOs' hOs hy' hy hsim') hmax1
       · rcases cubeSub_Z_or_avoid (M := M) H C hjK (cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)) with hZk | hav
         · exact lt_of_lt_of_le (piece_psi_pair_Zk H g C hjK ψw o x hv hFZ hs hs' (Or.inl hp) hOs hOs' hy hy' hZk
             (hag s hs hOs) (hag s' hs' hOs')) hmax3
-        · refine lt_of_lt_of_le (piece_psi_pair_far H g C hjK o x hv hF2 hs hs' (Or.inl hp) hOs hOs' hy hy' hav ?_) hmax2
+        · refine lt_of_lt_of_le (piece_psi_pair_far H g C hjK o x hv ψ' hagK hF2 hs hs' (Or.inl hp) hOs hOs' hy hy' hav ?_) hmax2
           intro z hz
           rwa [show cubeMap n S.L M K (i + 1 + 1) z = cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) by
             rw [← cubeMap_succ H.F.hnn hjK z, ← cubeMap_succ H.F.hnn hjK (bgToFine g H.F.hnn hjK s), hz]]
@@ -239,7 +245,10 @@ theorem piece_inDomainR {η1 η2 η3 ηY ν : ℝ} (ψw : MultiField S n M K N)
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
     (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1) (hη : 0 < max (max η1 η2) (max η3 ηY))
     (hmass : 2 * ν * ((S.L : ℝ) ^ (i + 1 + 1)) ^ 2 < (max (max η1 η2) (max η3 ηY)) ^ 2)
-    (hF1 : PieceFirstFamily H g C η1 o x) (hF2 : PieceSecondFamily H C η2 o x)
+    (ψ' : MultiField S n M K N)
+    (hagT : ∀ b, ψ' (i + 1 + 1) b = pieceField H C o x (i + 1 + 1) b)
+    (hagK : ∀ b, ψ' (i + 1) b = pieceField H C o x (i + 1) b)
+    (hF1 : PieceFirstFamily H g C ψ' η1) (hF2 : PieceSecondFamily H C ψ' η2)
     (hFZ : PieceZkFamily H g C ψw η3)
     (hag : ∀ t : BgT g (i + 1 + 1),
       t ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
@@ -268,10 +277,10 @@ theorem piece_inDomainR {η1 η2 η3 ηY ν : ℝ} (ψw : MultiField S n M K N)
     (fun s hs l => locData_h_eq H g C hjK o x hv hs l) ?_ ?_
   · rw [parent_sum_sq_eq_norm_sq, hunit]; norm_num
   · intro s s' hp
-    exact piece_pair_all H g C hjK ψw o x hv hF1 hF2 hFZ hag
+    exact piece_pair_all H g C hjK ψw o x hv ψ' hagT hagK hF1 hF2 hFZ hag
       (fun t t' ht ht' hp' hC hC' hO hO' => hYp t t' ht ht' hp' hC hC' hO hO') hp.1 hp.2.1 hp
   · intro s hs
-    exact piece_sphere_all H g C hjK ψw o x hv hF1 hF2 hFZ hag hYs hs
+    exact piece_sphere_all H g C hjK ψw o x hv ψ' hagT hagK hF1 hF2 hFZ hag hYs hs
 
 end PieceAssemble
 

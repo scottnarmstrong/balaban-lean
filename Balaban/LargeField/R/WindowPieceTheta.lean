@@ -149,10 +149,12 @@ theorem piece_theta_value (hjK : j + 1 ≤ K)
 theorem piece_theta_sphere {η : ℝ} (hjK : j + 1 ≤ K)
     (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
     (x : NewCfg N (H.localHistory M K (j + 1) C) j) (hv : EuclideanSpace ℝ (Fin N))
+    (ψ' : MultiField S n M K N)
+    (hag : ∀ b, ψ' (j + 1) b = pieceField H C o x (j + 1) b)
     (hψ : ∀ q : Torus S.d (n (j + 1)),
       CubeSub (S := S) (n := n) M K (j + 1) q ((H.localHistory M K (j + 1) C).Z (j + 1)) →
       q ∈ lhOmegaSim (H.localHistory M K (j + 1) C) (j + 1) (j + 1) →
-      PsiTildeMulti (pieceField H C o x) (genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q})) η)
+      PsiTildeMulti ψ' (genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q})) η)
     {s : BgT g (j + 1)} (hs : s ∈ dataSites (locGen g (H.locRH (j + 1) C) j C.1 (locComp_mem H hjK C) hjK))
     (hq : cubeMap n S.L M K (j + 1) (bgToFine g H.F.hnn hjK s) ∈ C.1)
     (hO : blockMap (S.L ^ (j + 1) * (g.c * g.M1)) (n (j + 1)) s ∈ ((H.locRH (j + 1) C).step j).Omega) :
@@ -168,7 +170,7 @@ theorem piece_theta_sphere {η : ℝ} (hjK : j + 1 ≤ K)
   have e := piece_theta_value H g C hjK o x hv hs hxn hO
   simp_rw [e]
   rw [parent_sum_sq_eq_norm_sq]
-  exact key
+  simpa only [hag] using key
 
 /-- Blocks of two scales `m, m' ≤ j + 1` of the sites of an interface pair of a generating set of the
 level-`(j+1)` torus are adjacent when the layer indices are at most `m, m'`. -/
@@ -209,10 +211,12 @@ theorem blockAdj_of_interfacePair {ϱ' : ℝ} (hjK : j + 1 ≤ K)
 theorem piece_theta_pair {η : ℝ} (hjK : j + 1 ≤ K)
     (o : OutT N R (H.localHistory M K (j + 1) C) (j + 1))
     (x : NewCfg N (H.localHistory M K (j + 1) C) j) (hv : EuclideanSpace ℝ (Fin N))
+    (ψ' : MultiField S n M K N)
+    (hag : ∀ b, ψ' (j + 1) b = pieceField H C o x (j + 1) b)
     (hψ : ∀ q : Torus S.d (n (j + 1)),
       CubeSub (S := S) (n := n) M K (j + 1) q ((H.localHistory M K (j + 1) C).Z (j + 1)) →
       q ∈ lhOmegaSim (H.localHistory M K (j + 1) C) (j + 1) (j + 1) →
-      PsiTildeMulti (pieceField H C o x) (genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q})) η)
+      PsiTildeMulti ψ' (genBlocksIn (chiDomGen H g (j + 1) C) (j + 1) (nbhd 1 {q})) η)
     {s s' : BgT g (j + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (j + 1) C) j C.1 (locComp_mem H hjK C) hjK))
     (hs' : s' ∈ dataSites (locGen g (H.locRH (j + 1) C) j C.1 (locComp_mem H hjK C) hjK))
@@ -237,6 +241,7 @@ theorem piece_theta_pair {η : ℝ} (hjK : j + 1 ≤ K)
   have hb' := topBlock_mem_genBlocksIn H g hjK C (hn s' hs'q) (hΩ s' hO') (q := q) hs'q
   obtain ⟨-, hadj⟩ := blockAdj_of_interfacePair H g hjK hp
   have key := (hψ q hZ hsim).1 _ hb _ hb' (Or.inl rfl) hadj
+  simp only [hag] at key
   have e := piece_theta_value H g C hjK o x hv hs (hn s hsq) hO
   have e' := piece_theta_value H g C hjK o x hv hs' (hn s' hs'q) hO'
   simp_rw [e, e']
