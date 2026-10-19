@@ -102,8 +102,8 @@ theorem window_piece_none_domain {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' 
     (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
     {m₁ : ℕ} {ϱ : ℝ} (Cx : SFCtx S n R M K N (m' + 1) m₁ ϱ) (hgeo : Cx.geo = geo)
-    (hcs : Cx.cs = cs) (hret : Z.1 ∉ H.rem (m' + 1))
-    (Z0 : Set (BlockAt S n M K (m' + 1))) (hpost : WindowPostSupport H Cx hv Z0 o)
+    (hcs : Cx.cs = cs)
+    (Z0 : Set (BlockAt S n M K (m' + 1))) (hvp : EuclideanSpace ℝ (Fin N)) (hpost : WindowPostSupport H Cx hvp Z0 o)
     (hZ0 : ∀ y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1), y ∈ Z0 →
       ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y)
     (HB : BgHyp S.d S.L (m' + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (m' + 1)))
@@ -129,8 +129,8 @@ theorem window_piece_none_domain {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' 
   have hη : 0 < pieceRadiusWin S Cx.cs (i0 + 1) :=
     lt_of_lt_of_le (show 0 < 3 * Cx.cs.delta (i0 + 1 + 1) by linarith)
       (le_max_of_le_right (le_max_of_le_right (le_max_left _ _)))
-  have hD := piece_inDomainR_of_chiDomAt H _ hjK1 (ν := 0) Cx Cx.cs (newVars_sub_locOp_A Cx.geo Cx.cs SD KD hm (hq _ hmk _ (Desc.refl _))) hret _ _ hχd hv (le_refl 0)
-    hunit hη (by simp only [mul_zero, zero_mul]; exact pow_pos hη 2) ψk hχ HB
+  have hD := piece_inDomainR_of_chiDomAt H _ hjK1 (ν := 0) Cx Cx.cs (newVars_sub_locOp_A Cx.geo Cx.cs SD KD hm (hq _ hmk _ (Desc.refl _))) _ _ hχd hv (le_refl 0)
+    hunit hη (by simp only [mul_zero, zero_mul]; exact pow_pos hη 2) ψk hvp hχ HB
     {b | b ∈ Z0 ∧ b ∈ Vblk R (H.localHistory M K (i0 + 1 + 1) _) (i0 + 1 + 1)}
     (fun b hb => blockCube_mem_of_zblk _ hjK1 (hZ0 b hb.2 hb.1))
     (fun b hb hb0 => hψ b hb fun h0 => hb0 ⟨h0, hb⟩)

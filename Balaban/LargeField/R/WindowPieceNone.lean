@@ -87,7 +87,6 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
     (Cx : Def7.SFCtx S n R M K N (i + 1 + 1) m₁ ϱ) (cs : OpConsts)
     {A : Set (InternalVars (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))}
     (hnew : newVars (H.localHistory M K (i + 1 + 1) C) (i + 1) ⊆ A)
-    (hret : C.1 ∉ H.rem (i + 1 + 1))
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (xw : SubCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) A)
     (hχd : ChiDomAt Cx.geo cs H (i + 1 + 1) C o xw) (hv : EuclideanSpace ℝ (Fin N))
@@ -100,7 +99,7 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
       (max (3 * S.d * S.L * cs.delta i) (max (3 * Cx.cs.delta (i + 1 + 1))
         ((S.d + 1) * Cx.cs.delta (i + 1 + 1) * (2 + (S.d + 1) * Cx.cs.delta (i + 1 + 1)))))) ^ 2)
     (ψk : BlockAt S n M K (i + 1 + 1) → EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hvp ≠ 0)
     (HB : BgHyp S.d S.L (i + 1 + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (i + 1 + 1)))
     (Z0 : Set (BlockAt S n M K (i + 1 + 1)))
     (hZ0C : ∀ b ∈ Z0, blockCube S n M K (i + 1 + 1) b ∈ C.1)
@@ -112,14 +111,14 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
       (locData Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o
         (newRestrict (H.localHistory M K (i + 1 + 1) C) hnew xw) hv) := by
   obtain ⟨hF1, hF2, hFZ⟩ := families_of_chiDomAt H Cx.geo cs C hχd
-  exact piece_inDomainR_of_chiY H C hjK Cx hret
+  exact piece_inDomainR_of_chiY H C hjK Cx
     (subMultiscaleField N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)
       (Vblk R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)) xw o)
     o (newRestrict (H.localHistory M K (i + 1 + 1) C) hnew xw) hv hν hunit hη hmass
     (subMultiscaleField N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)
       (Vblk R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)) xw o)
     (pieceField_top_eq H C o xw hnew) (pieceField_k_eq H C o xw hnew) hF1 hF2 hFZ
-    (fun t _ _ => pieceField_k_eq H C o xw hnew _) ψk hχ HB Z0 hZ0C hψk
+    (fun t _ _ => pieceField_k_eq H C o xw hnew _) ψk hvp hχ HB Z0 hZ0C hψk
 
 end PieceNone
 

@@ -51,6 +51,16 @@ theorem dataSite_block_mem_Vblk {s : BgT g (i + 1 + 1)}
 
 
 
+/-- `χ_k(Y) ≠ 0` implies `χ_k(Y') ≠ 0` for `Y' ⊆ Y` (a product of factors, each nonzero). -/
+theorem chiY_ne_zero_of_subset {m₁ : ℕ} {ϱ : ℝ} {j : ℕ} (Cx : Def7.SFCtx S n R M K N (j + 1) m₁ ϱ)
+    {Y Y' : Set (Torus S.d (n (j + 1)))} (hYY : Y' ⊆ Y)
+    {ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)} {hv : EuclideanSpace ℝ (Fin N)}
+    (h : Cx.chiY Y ψk hv ≠ 0) : Cx.chiY Y' ψk hv ≠ 0 := by
+  unfold Def7.SFCtx.chiY cubeProd at h ⊢
+  rw [Finset.prod_ne_zero_iff] at h ⊢
+  intro y hy
+  exact h y (by simp only [cubeFin, Finset.mem_filter, Finset.mem_univ, true_and] at hy ⊢; exact hYY hy)
+
 variable {m₁ : ℕ} {ϱ : ℝ}
 
 include hjK in
@@ -77,7 +87,7 @@ window point (it agrees with the output `o` on the blocks of `V` off the zero se
 for the multiscale field `ψw` of the operator) and the typing data (`ν ≥ 0`, `|h| = 1`,
 `2 ν L^{2(k+1)} < η²`). -/
 theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M K N (i + 1 + 1) m₁ ϱ)
-    (hret : C.1 ∉ H.rem (i + 1 + 1)) (ψw : MultiField S n M K N)
+    (ψw : MultiField S n M K N)
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (x : NewCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1)) (hv : EuclideanSpace ℝ (Fin N))
     (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1)
@@ -96,7 +106,7 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
       ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine Cx.geo H.F.hnn hjK t)) =
         pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine Cx.geo H.F.hnn hjK t)))
     (ψk : BlockAt S n M K (i + 1 + 1) → EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hvp ≠ 0)
     (HB : BgHyp S.d S.L (i + 1 + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (i + 1 + 1)))
     (Z0 : Set (BlockAt S n M K (i + 1 + 1)))
     (hZ0C : ∀ b ∈ Z0, blockCube S n M K (i + 1 + 1) b ∈ C.1)
@@ -105,10 +115,11 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
       (max (max η1 η2) (max η3 (max (3 * Cx.cs.delta (i + 1 + 1))
         ((S.d + 1) * Cx.cs.delta (i + 1 + 1) * (2 + (S.d + 1) * Cx.cs.delta (i + 1 + 1))))))
       (locData Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o x hv) := by
-  have hYZ : ∀ y ∈ ((H.step (i + 1 + 1)).Z)ᶜ, y ∉ (H.locRH (i + 1 + 1) C).F.Zp (i + 1 + 1) := by
+  have hYZ : ∀ y ∈ ((H.step (i + 1 + 1)).Z)ᶜ \ C.1, y ∉ (H.locRH (i + 1 + 1) C).F.Zp (i + 1 + 1) := by
     intro y hy hy'
     rw [locRH_Zp hjK C] at hy'
-    exact comp_notMem_Y H C hret hy hy'
+    exact hy.2 hy'
+  have hχ' : Cx.chiY (((H.step (i + 1 + 1)).Z)ᶜ \ C.1) ψk hvp ≠ 0 := chiY_ne_zero_of_subset Cx Set.sdiff_subset hχ
   have hψ : ∀ t : BgT Cx.geo (i + 1 + 1),
       t ∈ dataSites (locGen Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
       blockMap (S.L ^ (i + 1 + 1) * (Cx.geo.c * Cx.geo.M1)) (n (i + 1 + 1)) t ∉ C.1 →
@@ -130,11 +141,11 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
   refine piece_inDomainR H Cx.geo C hjK ψw o x hv hν hunit hη hmass ψ' hagT hagK hF1 hF2 hFZ hag ?_ ?_
   · intro t ht hq
     refine lt_of_lt_of_le (locData_sphere_over_Y Cx (H.locRH (i + 1 + 1) C) C.1 (locComp_mem H hjK C) hjK
-      _ ψk hv hχ HB hYZ o x ht (dataSite_cube_mem_Y H Cx.geo C hjK ht hq) (hψ t ht hq)) ?_
+      _ ψk hv hvp hχ' HB hYZ o x ht ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ (hψ t ht hq)) ?_
     · exact le_max_right _ _
   · intro t t' ht ht' hp hq hq' hO hO'
     refine lt_of_lt_of_le (locData_pair_over_Y Cx (H.locRH (i + 1 + 1) C) C.1 (locComp_mem H hjK C) hjK
-      _ ψk hv hχ hYZ o x ht ht' hp (dataSite_cube_mem_Y H Cx.geo C hjK ht hq) hO' (hψ t ht hq) (hψ t' ht' hq')) ?_
+      _ ψk hv hvp hχ' hYZ o x ht ht' hp ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ hO' (hψ t ht hq) (hψ t' ht' hq')) ?_
     · exact le_max_left _ _
 
 end PieceY

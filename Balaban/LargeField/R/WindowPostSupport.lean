@@ -50,6 +50,13 @@ def WindowPostSupport (hv : EuclideanSpace ℝ (Fin N)) {Z : H.Comp (j + 1)}
         (x : SubCfg N (H.localHistory M K (j + 1) C) (j + 1) A),
         ChiDomAt Cx.geo Cx.cs H (j + 1) C (outOf R (H.localHistory M K (j + 1) C) (j + 1) ψk) x
 
+/-- **The support of the post weight at some direction**: `WindowPostSupport` for some `h`.
+The sphere and pair bounds read from `χ_Y` do not involve the direction, so the window domain facts
+need the support at one direction only; this predicate does not depend on `h`. -/
+def WindowPostSupportAny (Z0 : Set (BlockAt S n M K (j + 1))) {Z : H.Comp (j + 1)}
+    (o : OutT N R (H.localHistory M K (j + 1) Z) (j + 1)) : Prop :=
+  ∃ hv : EuclideanSpace ℝ (Fin N), WindowPostSupport H Cx hv Z0 o
+
 variable {H Cx}
 
 /-- **`WindowPostSupport` reads the output off `Z₀` only** (the premise `hPloc` of
@@ -64,6 +71,25 @@ theorem windowPostSupport_loc {hv : EuclideanSpace ℝ (Fin N)} {Z : H.Comp (j +
   refine ⟨ψk, fun b hb hb0 => ?_, hχ, hC⟩
   rw [hψ b hb hb0]
   exact outField_eq_of_split_snd (H.localHistory M K (j + 1) Z) (j + 1) Z0 h hb0
+
+/-- **`WindowPostSupportAny` reads the output off `Z₀` only.** -/
+theorem windowPostSupportAny_loc {Z : H.Comp (j + 1)}
+    (Z0 : Set (BlockAt S n M K (j + 1)))
+    (o o' : OutT N R (H.localHistory M K (j + 1) Z) (j + 1))
+    (h : (remZeroSplit (H.localHistory M K (j + 1) Z) (j + 1) Z0 o).2 =
+      (remZeroSplit (H.localHistory M K (j + 1) Z) (j + 1) Z0 o').2) :
+    WindowPostSupportAny (H := H) Cx Z0 o → WindowPostSupportAny (H := H) Cx Z0 o' :=
+  fun ⟨hv, hs⟩ => ⟨hv, windowPostSupport_loc Z0 o o' h hs⟩
+
+/-- **A nonzero kernel times a weight carrying `1[Pp]` gives the kernel nonzero and `Pp`**: the form in
+which the window points of nonzero weight enter `hnamedCU`. -/
+theorem ne_zero_and_of_mul_supInd {α : Type*} {P : α → Prop} {o : α} {Kv wt wg : ℝ}
+    (hwt : wt = wg * supInd P o) (h : Kv * wt ≠ 0) : Kv ≠ 0 ∧ P o := by
+  refine ⟨left_ne_zero_of_mul h, ?_⟩
+  by_contra hP
+  apply right_ne_zero_of_mul h
+  rw [hwt]
+  simp [supInd, hP]
 
 end PostSupport
 
