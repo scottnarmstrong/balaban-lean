@@ -237,6 +237,51 @@ noncomputable def maskPre (hG' : IsLevel Gp (k + 1))
     Finset (unitPts Gb) :=
   Finset.univ.filter fun q => (⟨q.1, mem_unitPts_of_isLevel hG' q.1⟩ : unitPts Gp) ∈ Zm
 
+/-- **The marked hat field with the extension by zero is the local hat lift times the marks.**
+For a mask `Zb` of unit points of `Gb`, the marked hat field `markedHatPsiFBg Gb … (liftZ Gb) … Zb`
+at a site `x` whose unit block `b` is a unit point of `Gb` is `(u + 1[b ∈ Zb] t)` times
+`(cc • C^{1/2}_{Gb}(s) ψ̂)(b)`, and `0` off the unit blocks of `Gb`. -/
+theorem markedHatPsiFBg_liftZ_eq (a₁ ν : ℝ) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Zb : Finset (unitPts Gb)) (u t : ℂ) (s : DecParams Gb)
+    (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gb × Fin N → ℂ) :
+    markedHatPsiFBg Gb a₁ ν (liftZ Gb) cc F₁ Zb u t s Θ ψh =
+      fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+        if h : unitBlock x ∈ unitPts Gb then
+          (u + if (⟨unitBlock x, h⟩ : unitPts Gb) ∈ Zb then t else 0) *
+            (cc • (hatSqrtF Gb a₁ ν F₁ s Θ *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+        else 0 := by
+  classical
+  funext x i
+  unfold markedHatPsiFBg
+  simp only [Pi.add_apply, Pi.smul_apply, liftZ_apply, smul_eq_mul]
+  by_cases h : unitBlock x ∈ unitPts Gb
+  · simp only [h, dite_true, maskBlock]
+    by_cases hz : (⟨unitBlock x, h⟩ : unitPts Gb) ∈ Zb
+    · simp [hz]; ring
+    · simp [hz]
+  · simp [h]
+
+/-- **The local hat lift is the marked hat field with the extension by zero at the marks
+`(1, 0)`**: `cc • C^{1/2}_{Gb}(s) ψ̂` extended by zero off the unit blocks of `Gb` is
+`markedHatPsiFBg Gb … (liftZ Gb) … ∅ 1 0 s Θ ψ̂`. -/
+theorem localHatLift_eq_markedHatPsiFBg (a₁ ν : ℝ) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (s : DecParams Gb) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gb × Fin N → ℂ) :
+    (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts Gb then
+        (cc • (decCovSqrt Gb (compWeight L a₁) a₁ ν (F₁ (s, Θ)).2 (Dec2.extS (coverOf Gb) s)
+          (barField Gb Θ.1 (F₁ (s, Θ)).1) (unitQ Gb) (unitP Gb) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+      else 0) = markedHatPsiFBg Gb a₁ ν (liftZ Gb) cc F₁ ∅ 1 0 s Θ ψh := by
+  rw [markedHatPsiFBg_liftZ_eq]
+  funext x i
+  by_cases h : unitBlock x ∈ unitPts Gb
+  · simp only [h, dite_true, Finset.notMem_empty, ite_false, add_zero, one_mul]
+    rfl
+  · simp only [h, dite_false]
+
 /-- **The mask of `markedHatPsiFBg` with the extension by zero is the mask on the fine site.**
 For `Zb = maskPre hG' Gb Zm`, the marked hat field `markedHatPsiFBg Gb … (liftZ Gb) … Zb` at a site
 `x` is `(u + 1[unitPt x ∈ Zm] t)` times the local hat lift of `cc • C^{1/2}_{Gb}(s) ψ̂` (zero off

@@ -23,7 +23,9 @@ For the pair `(coverOf G, G)` (no `DGSetting`), with `G` the literal local gener
 * `analyticAt_localLift`: the extension by zero of a field on the unit lattice of `G`, lifted to
   the fine lattice, is linear, hence analytic in analytic arguments.
 * `analyticAt_localHatLift_of_decDom`: the cover form of `analyticAt_hatPsi_of_decDom`: the local
-  hat lift `ψ' = cc C^{1/2}(s) ψ̂` is analytic in the datum at every point of `DecDom`.
+  hat lift `ψ' = cc C^{1/2}(s) ψ̂` is analytic in the datum at every point of `DecDom`; the instance
+  `m = 1` of `analyticAt_localHatLiftMul_of_decDom`, the lift times an analytic multiplier on the
+  unit points (the marked tangent `u + t 1_Z`).
 * `localB_analyticAt_localHatLift_of_decDom`: the instance at `localB j hj Y hsep`.
 -/
 
@@ -99,11 +101,54 @@ variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {a : ℕ → ℝ} {aT ν Cx κ δc : ℝ}
 variable {Q : Type*} [NormedAddCommGroup Q] [NormedSpace ℂ Q]
 
+/-- **Analyticity of the local hat lift times a multiplier in the datum** (cover form of
+`analyticAt_hatPsi_of_decDom`, from `Dec2.XCover (coverOf G) G`): if `(s, (φ̄, α))` lies in
+`DecDom` at `q` and `s, Ψ, φ, α, ψ̂` and the multiplier `m` on the unit points are analytic in `q`,
+then `q ↦ m(b) (cc C^{1/2}(s) ψ̂)(b)`, `b` the unit block of the site, extended by zero off the unit
+blocks of `G` and lifted to the fine lattice, is analytic at `q`.  The multiplier `m = u + t 1_Z`
+is the marked tangent of a mask `Z`; `analyticAt_localHatLift_of_decDom` is the case `m = 1`. -/
+theorem analyticAt_localHatLiftMul_of_decDom (S : Dec2.XCover (coverOf G) G a aT ν Cx)
+    (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δc)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {q : Q}
+    {sF : Q → DecParams G} {ΨF : Q → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    {φF : Q → G.Ω 1 × Fin N → ℂ} {αF : Q → G.Ω 1 → ℂ} {ψh : Q → unitPts G × Fin N → ℂ}
+    {mF : Q → unitPts G → ℂ}
+    (hs : ∀ P, AnalyticAt ℂ (fun q => sF q P) q)
+    (hΨ : ∀ y j, AnalyticAt ℂ (fun q => ΨF q y j) q)
+    (hφ : ∀ r, AnalyticAt ℂ (fun q => φF q r) q) (hα : ∀ y, AnalyticAt ℂ (fun q => αF q y) q)
+    (hψ : ∀ r, AnalyticAt ℂ (fun q => ψh q r) q) (hm : ∀ b, AnalyticAt ℂ (fun q => mF q b) q)
+    (hmem : (sF q, (barField G (ΨF q) (φF q), αF q)) ∈ DecDom G N κ δc) :
+    AnalyticAt ℂ (fun q => fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts G then
+        mF q ⟨unitBlock x, h⟩ *
+          (cc • (decCovSqrt G a aT ν (αF q) (extS G (sF q)) (barField G (ΨF q) (φF q))
+            (unitQ G) (unitP G) *ᵥ ψh q)) (⟨unitBlock x, h⟩, i)
+      else 0) q := by
+  classical
+  have hbar := analyticAt_barField (Gp := G) φF ΨF hφ hΨ
+  have he : AnalyticAt ℂ (fun q => (sF q, (barField G (ΨF q) (φF q), αF q))) q :=
+    AnalyticAt.prod (analyticAt_pi_iff.2 hs) (hbar.prod (analyticAt_pi_iff.2 hα))
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  have hent : ∀ p r, AnalyticAt ℂ (fun q => decCovSqrt G a aT ν (αF q)
+      (extS G (sF q)) (barField G (ΨF q) (φF q)) (unitQ G) (unitP G) p r) q := by
+    intro p r
+    have hg : AnalyticAt ℂ (fun e : DecData G N =>
+        decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 (unitQ G) (unitP G) p r)
+        (sF q, (barField G (ΨF q) (φF q), αF q)) :=
+      analyticOnNhd_decCovSqrt_entry_cover (N := N) S hCx hκ hM hδ hsm hU p r _ hmem
+    exact AnalyticAt.comp (f := fun q => (sF q, (barField G (ΨF q) (φF q), αF q))) hg he
+  refine analyticAt_localLift (V := fun q r => mF q r.1 * (cc • (decCovSqrt G a aT ν (αF q)
+      (extS G (sF q)) (barField G (ΨF q) (φF q)) (unitQ G) (unitP G) *ᵥ ψh q)) r) fun r => ?_
+  simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
+  exact (hm r.1).mul (analyticAt_const.mul
+    (Finset.analyticAt_fun_sum _ fun t _ => (hent r t).mul (hψ t)))
+
 /-- **Analyticity of the local hat lift in the datum** (cover form of
 `analyticAt_hatPsi_of_decDom`, from `Dec2.XCover (coverOf G) G`): if `(s, (φ̄, α))` lies in
 `DecDom` at `q` and `s, Ψ, φ, α, ψ̂` are analytic in `q`, then
 `q ↦ (cc C^{1/2}(s) ψ̂)` extended by zero off the unit blocks of `G` and lifted to the fine
-lattice is analytic at `q`. -/
+lattice is analytic at `q` (`analyticAt_localHatLiftMul_of_decDom` at `m = 1`). -/
 theorem analyticAt_localHatLift_of_decDom (S : Dec2.XCover (coverOf G) G a aT ν Cx)
     (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
     (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δc)
@@ -120,23 +165,9 @@ theorem analyticAt_localHatLift_of_decDom (S : Dec2.XCover (coverOf G) G a aT ν
         (cc • (decCovSqrt G a aT ν (αF q) (extS G (sF q)) (barField G (ΨF q) (φF q))
           (unitQ G) (unitP G) *ᵥ ψh q)) (⟨unitBlock x, h⟩, i)
       else 0) q := by
-  classical
-  have hbar := analyticAt_barField (Gp := G) φF ΨF hφ hΨ
-  have he : AnalyticAt ℂ (fun q => (sF q, (barField G (ΨF q) (φF q), αF q))) q :=
-    AnalyticAt.prod (analyticAt_pi_iff.2 hs) (hbar.prod (analyticAt_pi_iff.2 hα))
-  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
-  have hent : ∀ p r, AnalyticAt ℂ (fun q => decCovSqrt G a aT ν (αF q)
-      (extS G (sF q)) (barField G (ΨF q) (φF q)) (unitQ G) (unitP G) p r) q := by
-    intro p r
-    have hg : AnalyticAt ℂ (fun e : DecData G N =>
-        decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 (unitQ G) (unitP G) p r)
-        (sF q, (barField G (ΨF q) (φF q), αF q)) :=
-      analyticOnNhd_decCovSqrt_entry_cover (N := N) S hCx hκ hM hδ hsm hU p r _ hmem
-    exact AnalyticAt.comp (f := fun q => (sF q, (barField G (ΨF q) (φF q), αF q))) hg he
-  refine analyticAt_localLift (V := fun q => cc • (decCovSqrt G a aT ν (αF q)
-      (extS G (sF q)) (barField G (ΨF q) (φF q)) (unitQ G) (unitP G) *ᵥ ψh q)) fun r => ?_
-  simp only [Pi.smul_apply, Matrix.mulVec, dotProduct, smul_eq_mul]
-  exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun t _ => (hent r t).mul (hψ t))
+  have h := analyticAt_localHatLiftMul_of_decDom S hCx hκ hM hδ hsm cc (mF := fun _ _ => 1) hs hΨ
+    hφ hα hψ (fun _ => analyticAt_const) hmem
+  simpa only [one_mul] using h
 
 end LocalAnalytic
 
