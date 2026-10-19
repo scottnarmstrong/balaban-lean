@@ -85,6 +85,38 @@ noncomputable abbrev evDec (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀
   evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
     (X1 Gp m₀ j 𝒦X) (FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm um tm) Y u
 
+variable (Gp) in
+/-- **The localized term along the masked tangent, on a background generating set `Gb`**:
+`evTerm … (FFmarkedBg …) Y u`, the term of the label `Y` of the step's expansion on `Gp`, computed
+on `Gb` with the transport `T`, at a point `u = (Θ, ψ̂)` with `ψ̂` a hat variable of the unit lattice
+of `Gb`.  `evDec` is the case `Gb = Gp`, `T = BgTransport.self` (`evDec_eq_evDecBg`). -/
+noncomputable abbrev evDecBg (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) {ϱb : ℝ}
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν : ℝ) (T : BgTransport Gp Gb N)
+    (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gb)) (um tm : ℂ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gb × Fin N → ℂ)) : ℂ :=
+  evTerm (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) Gp m₀
+    (X1 Gp m₀ j 𝒦X) (FFmarkedBg Gp X₁f Gb a₁ ν T cc F₁ Sol Φ Zm um tm) Y u
+
+/-- `evDec` is `evDecBg` at `Gb = Gp` with the transport `BgTransport.self`. -/
+theorem evDec_eq_evDecBg (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gp)) (um tm : ℂ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ)) :
+    evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol Φ Zm um tm Y u =
+      evDecBg Gp X₁f m₀ j 𝒦X Gp a₁ ν (BgTransport.self hG') cc F₁ Sol Φ Zm um tm Y u := rfl
+
 end Defs
 
 section Block

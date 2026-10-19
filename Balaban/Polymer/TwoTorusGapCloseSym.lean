@@ -227,9 +227,8 @@ theorem FFmarked_sym
   have hSb : (Sol (CS.par sA, flEdat Gp Hm (S.fld φ, S.mul α) (symSite σ D.Ψ)
       (symSite σ ψ'))).1 = Sm.fld δφ := by
     rw [hE, hSolr, hSa]
-  unfold FFmarked
+  simp only [FFmarked_apply]
   rw [hext]
-  dsimp only
   rw [← hsA]
   rw [hmh, hFs, hF]
   have hSa' : (Sol (sA, flEdat Gp Hm (φ, α) (rawOf D).1 ψ')).1 = δφ := hSa

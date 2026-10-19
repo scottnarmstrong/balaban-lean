@@ -162,7 +162,7 @@ theorem decMarkG_congr_of_evDec {ρ : ℝ} (hp : 0 < S.p₁)
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um =
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ' um := by
   funext Φ
-  unfold decMarkG
+  unfold decMarkG decMarkGBg
   refine Filter.EventuallyEq.deriv_eq ?_
   have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
     isOpen_lt (by fun_prop) continuous_const
@@ -193,9 +193,11 @@ theorem decMarkCorr_congr_of_evDec {ρ : ℝ} (hp : 0 < S.p₁) (hδ : 0 < δ₁
     refine Filter.EventuallyEq.deriv_eq ?_
     filter_upwards [hopen.mem_nhds h0] with v hv
     rw [decMarkG_congr_of_evDec S hp hv fun tm ht => hloc v tm ht]
-  unfold decMarkCorr
-  rw [decMarkG_congr_of_evDec S hp hum fun tm ht => hloc um tm ht,
-    decMarkG_congr_of_evDec S hp h0 fun tm ht => hloc 0 tm ht, e3]
+  unfold decMarkCorr decMarkCorrBg
+  exact congrArg₂ (· - ·)
+    (congrArg₂ (· - ·) (congrFun (decMarkG_congr_of_evDec S hp hum fun tm ht => hloc um tm ht) Φ)
+      (congrFun (decMarkG_congr_of_evDec S hp h0 fun tm ht => hloc 0 tm ht) Φ))
+    (congrArg (um * ·) e3)
 
 /-- **Raw locality of the decoupled mark.**  Two admissible raw data that agree on `thickSet Y`
 give the same decoupled mark of the label `Y` (clause 2 of the pair, `AgHatDir`, with equal hat

@@ -63,7 +63,7 @@ theorem decMarkG_rot (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp (rotRaw (cmat Q) (rawOf D)) um
       (fun b u => e (Φ b u)) =
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp (rawOf D) um Φ := by
-  unfold decMarkG
+  unfold decMarkG decMarkGBg
   rw [hatOf_rot S m₀ hp e he hρ hΦc]
   refine Filter.EventuallyEq.deriv_eq ?_
   have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) *
@@ -127,8 +127,8 @@ theorem decMarkCorr_rot (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG
     filter_upwards [hopen.mem_nhds (show (0 : ℂ) ∈ {v : ℂ | (‖v‖ + ‖(0 : ℂ)‖) *
       (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁} from h0)]
       with v hv using hg hv
-  unfold decMarkCorr
-  rw [hg hum, hg h0, hd]
+  unfold decMarkCorr decMarkCorrBg
+  exact congrArg₂ (· - ·) (congrArg₂ (· - ·) (hg hum) (hg h0)) (congrArg (um * ·) hd)
 
 end CorrRot
 

@@ -790,7 +790,7 @@ theorem decMarkG_rootBlock_twoTorus
       decMarkG (SA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b)) m₀ k
         (LocalCover.fam m₀ (LocalCover.blockSite k b)) a₁ ν cc F₁ Sol
         (blockEnergyFun (GA) (HA) (compWeight L a₁) ν k b) Zm Y ρ hp (rawOf D) um Φ := by
-  unfold decMarkG
+  unfold decMarkG decMarkGBg
   refine Filter.EventuallyEq.deriv_eq ?_
   have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) * markedRad d L N k a₁ κ ρ cc < δ₁} :=
     isOpen_lt (by fun_prop) continuous_const
@@ -912,8 +912,8 @@ theorem decMarkCorr_rootBlock_twoTorus
         (LocalCover.fam m₀ (LocalCover.blockSite k b)) a₁ ν cc F₁ Sol
         (blockEnergyFun (GA) (HA) (compWeight L a₁) ν k b) Zm Y ρ hp (rawOf D) v Φ) 0 :=
     Filter.EventuallyEq.deriv_eq (Filter.mem_of_superset (hopen.mem_nhds hδ) fun v hv => hG v hv)
-  unfold decMarkCorr
-  rw [hG um hum, hG 0 hδ, hd]
+  unfold decMarkCorr decMarkCorrBg
+  exact congrArg₂ (· - ·) (congrArg₂ (· - ·) (hG um hum) (hG 0 hδ)) (congrArg (um * ·) hd)
 
 
 end Marks

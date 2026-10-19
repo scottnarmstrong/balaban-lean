@@ -130,7 +130,7 @@ theorem decMarkG_unique (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG
     {Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b} :
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp (rawOf D) um Φ =
     decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En Zm Y ρ hp (rawOf D) um Φ := by
-  unfold decMarkG
+  unfold decMarkG decMarkGBg
   refine Filter.EventuallyEq.deriv_eq ?_
   have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) *
       (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁} :=
@@ -192,8 +192,8 @@ theorem decMarkCorr_unique (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂
     filter_upwards [hopen.mem_nhds (show (0 : ℂ) ∈ {v : ℂ | (‖v‖ + ‖(0 : ℂ)‖) *
       (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁} from h0)]
       with v hv using hg hv
-  unfold decMarkCorr
-  rw [hg hum, hg h0, hd]
+  unfold decMarkCorr decMarkCorrBg
+  exact congrArg₂ (· - ·) (congrArg₂ (· - ·) (hg hum) (hg h0)) (congrArg (um * ·) hd)
 
 end CorrPin
 
@@ -261,8 +261,8 @@ theorem e1MarkGParamG_unique (S : StepSetting d L N₁ m₁ k N ϱ)
       (cc := ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (Zm := S.blockU z)
       (En := blockEnergyFun S.G' Hm (compWeight L S.a₁) S.ν k q.1)
       q.2 hρ hρc hp hD (hmark u hu) (Φ := Φ)
-    unfold decMarkCorrTerm
-    rw [hDθ, hr]
+    rw [hDθ]
+    exact congrArg (fun x => t * (-((S.β : ℝ) : ℂ) * x)) hr
   · rw [e1MarkGParamG_of_not S F₁ Sol ρ hp z eps θ Y' u Φ (fun h => hu h.2),
       e1MarkGParamG_of_not S F₁' Sol' ρ hp z eps θ Y' u Φ (fun h => hu h.2)]
 

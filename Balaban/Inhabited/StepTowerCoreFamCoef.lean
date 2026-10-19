@@ -399,7 +399,7 @@ theorem coreCoeff_unique
     Equiv.sumCongr (Equiv.subtypeEquivRight (fun Y => by rw [h𝒴])) (Equiv.refl _)
   obtain ⟨D₀, hD₀, hD₀θ⟩ := hθ1
   have hV : ((θ.1, 0) : physParam N (SA)) ∈ physVq (SA) (SA).a₁ (SA).ν T.t 1 :=
-    ⟨⟨hθ.1, by simp [l1Ball, physIncl_apply]⟩, by simp⟩
+    ⟨⟨hθ.1, by simp [l1Ball, physInclBg_apply]⟩, by simp⟩
   refine Eq.trans (gsumCoeff_congr _ _ _ _
     (fun i u Φ => e1MarkGParamG (SA) F₁' Sol' p₁ hp z T.t θ i u Φ)
     (fun i u Φ => e1MarkGParamG (SA) F₁ Sol p₁ hp z T.t θ i u Φ) _ (fun i u => hGdep' θ i u)

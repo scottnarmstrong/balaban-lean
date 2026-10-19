@@ -181,7 +181,7 @@ theorem analyticOnNhd_markedHatPsiF (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (c
     (fun y => analyticAt_pi_iff.1 (analyticAt_snd.comp ha1) y)
     (fun r => analyticAt_pi_iff.1
       (analyticAt_snd.comp (analyticAt_fst.comp analyticAt_fst)) r) hmem'
-  simp only [markedHatPsiF, hatPsiF, hatSqrtF]
+  simp only [markedHatPsiF, markedHatPsiFBg, hatSqrtF]
   exact hmain
 
 end Main

@@ -55,7 +55,7 @@ theorem markedHatPsiF_eq_liftC (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh =
       liftC hG' (u • (cc • (hatSqrtF Gp a₁ ν F₁ s Θ *ᵥ ψh)) +
         t • maskBlock Z (cc • (hatSqrtF Gp a₁ ν F₁ s Θ *ᵥ ψh))) := by
-  unfold markedHatPsiF hatPsiF
+  unfold markedHatPsiF markedHatPsiFBg
   simp only [map_add, map_smul]
 
 /-- A scalar multiple of the masked tangent is the masked tangent with scaled parameters. -/
@@ -66,7 +66,7 @@ theorem smul_markedHatPsiF (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gp × Fin N → ℂ) :
     σ • markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh =
       markedHatPsiF a₁ ν hG' cc F₁ Z (σ * u) (σ * t) s Θ ψh := by
-  unfold markedHatPsiF
+  unfold markedHatPsiF markedHatPsiFBg
   rw [smul_add, smul_smul, smul_smul]
 
 /-- **Pointwise bound (T1).**  At every site and coordinate the masked tangent is at most
