@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.MarkedI5Functional
+public import Balaban.Fluctuation.BgTransport
 
 /-!
 # Dependence of the localized marked block terms on the marks (`MarkedEvParam`)
@@ -46,10 +47,38 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν κ eps δ₁ : ℝ} {j : ℕ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+variable (Gp) in
+/-- **The marked cut-parameter functional on a background generating set `Gb`.**  The expansion is
+that of the step's set `Gp` (cut parameters `s` on the cubes of `Gp` disjoint from `X₁f`, extended
+by `1`); the term is computed on `Gb`: the parameters of the cubes of `Gb` are `T.par` of the
+extended parameters, the background is `F₁` of `Gb`, the fluctuation field is `Sol` of the cover of
+`Gb`, and the tangent is the masked hat field `markedHatPsiFBg Gb … T.lift …` of a hat variable of
+the unit lattice of `Gb`:
+`(Θ, ψ̂) ↦ (s ↦ Φ (F₁ (σ, Θ)) (Sol (σ, …)).1 (Θ, markedHatPsiFBg … σ Θ ψ̂))`,
+`σ = T.par (extParams Gp X₁f s)` (P3 pp. 78-79, (4.44)-(4.46)). -/
+noncomputable def FFmarkedBg (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) {ϱb : ℝ}
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν : ℝ) (T : BgTransport Gp Gb N)
+    (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gb)) (um tm : ℂ) :
+    RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gb × Fin N → ℂ) →
+      (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) → ℂ :=
+  fun u s => Φ (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), u.1))
+    (Sol (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s),
+      flEdat Gb Hm (F₁ (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s), u.1))
+        u.1.1 (markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
+          (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) u.1 u.2))).1
+    (u.1, markedHatPsiFBg Gb a₁ ν T.lift cc F₁ Zm um tm
+      (T.par (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s)) u.1 u.2)
+
 /-- **The marked cut-parameter functional.**  For a fixed pair of marks `(um, tm)`, the functional
 `(Θ, ψ̂) ↦ (s ↦ Φ (F₁ (s, Θ)) (Sol (s, …)).1 (Θ, markedHatPsiF … s Θ ψ̂))` of the fan hypothesis of
 `i5_functional_hat_marked_of_fan`, with the cut parameters `s` on the blocks of `X₁f`
-extended by `1` outside. -/
+extended by `1` outside (`FFmarkedBg` at `Gb = Gp` with the transport `BgTransport.self`). -/
 noncomputable def FFmarked (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ)
     (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
@@ -60,13 +89,27 @@ noncomputable def FFmarked (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁
     (Zm : Finset (unitPts Gp)) (um tm : ℂ) :
     RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ) →
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) → ℂ :=
-  fun u s => Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
-    (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
-      flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
-        u.1.1 (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
-          (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
-    (u.1, markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
-      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)
+  FFmarkedBg Gp X₁f Gp a₁ ν (BgTransport.self hG') cc F₁ Sol Φ Zm um tm
+
+/-- The marked cut-parameter functional at `(u, s)`. -/
+theorem FFmarked_apply (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ)
+    (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gp)) (um tm : ℂ)
+    (u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gp × Fin N → ℂ))
+    (s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) :
+    FFmarked X₁f a₁ ν hG' cc F₁ Sol Φ Zm um tm u s =
+      Φ (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+        (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+          flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, u.1))
+            u.1.1 (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+              (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2))).1
+        (u.1, markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+          (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2) := rfl
 
 /-- At the marks `(1, 0)` the marked functional is the unmarked one (`hatPsiF` in place of the
 masked tangent). -/
@@ -87,7 +130,7 @@ theorem FFmarked_one_zero (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (hG' :
         (u.1, hatPsiF Gp a₁ ν hG' cc F₁
           (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2) := by
   funext u s
-  simp only [FFmarked, markedHatPsiF_one_zero]
+  simp only [FFmarked_apply, markedHatPsiF_one_zero]
 
 /-- For the empty block the mask vanishes: the marked functional does not depend on `tm`. -/
 theorem FFmarked_empty (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (hG' : IsLevel Gp (k + 1))
@@ -108,7 +151,7 @@ theorem FFmarked_empty (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (hG' : Is
     rw [markedHatPsiF_apply, markedHatPsiF_apply]
     simp
   funext u s
-  simp only [FFmarked, h]
+  simp only [FFmarked_apply, h]
 
 
 /-- **`expansion_of_AE_hat_dir` with the family exposed.**  The same hypotheses and the same four

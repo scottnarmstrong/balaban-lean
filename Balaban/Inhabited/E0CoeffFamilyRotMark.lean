@@ -66,7 +66,7 @@ theorem markedHatPsiF_rot (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
       DecEquiv.rotSite (cmat Q) (markedHatPsiF a₁ ν hG' cc F₁ Z u t s (rawOf D) ψh) := by
   have h1 := hatPsiF_rot hC hk hG' cc hMX hmar hα hsm hF₁ hs hD hQ ψh
   have h2 := hatSqrtF_mulVec_rot hC hk hMX hmar hα hsm hF₁ hs hD hQ ψh
-  unfold markedHatPsiF
+  simp only [markedHatPsiF_eq_hatPsiF_add]
   rw [h1, h2]
   have h3 : cc • rotFld (cmat Q) (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh) =
       rotFld (cmat Q) (cc • (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh)) := by

@@ -36,9 +36,69 @@ section Def
 variable {d L N N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
 
 open Classical in
+/-- **The mark of the root `z` at the bridge label `Y′` on a background generating set `Gb`, as a
+function of the parameter `θ` of `Gb`** (ruling R8; P3 pp. 78-79, (4.44)-(4.47)): the rooted
+corrected output of the pairs `(F₁, Sol)` of `Gb`, with the transport `T` and the mask `Zb` (a set
+of unit points of `Gb`), at the raw datum of `θ`, when this datum lies in the chart
+`XiCRaw Gb … eps` of `Gb` and `‖u‖ < (17 / 16 : ℝ)`, and `0` otherwise.  The expansion (labels,
+bridge family, root) and the step's numbers `a₁, ν, β` are those of `S`. -/
+noncomputable def e1MarkGParamGBg (S : StepSetting d L N₁ m₁ k N ϱ) {ϱb : ℝ}
+    (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (T : BgTransport S.G' Gb N)
+    (Zb : Finset (unitPts Gb)) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (ρ : ℝ) (hp : 0 < S.p₁) (z : RootIdx d L N₁ m₁ (k + 1)) (eps : ℝ) (θ : physParamBg N Gb)
+    (Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ)
+    (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b) : ℂ :=
+  if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ) then
+    markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+      (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+        (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ)
+        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) u Φ) Y'.1
+  else 0
+
+section BgFacts
+
+variable (S : StepSetting d L N₁ m₁ k N ϱ) {ϱb : ℝ}
+  (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (T : BgTransport S.G' Gb N)
+  (Zb : Finset (unitPts Gb)) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+  (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+  (ρ : ℝ) (hp : 0 < S.p₁) (z : RootIdx d L N₁ m₁ (k + 1)) (eps : ℝ) (θ : physParamBg N Gb)
+  (Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ)
+  (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b)
+
+theorem e1MarkGParamGBg_of_mem
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps) (hu : ‖u‖ < (17 / 16 : ℝ)) :
+    e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ Y' u Φ =
+      markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+        (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+          (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ)
+          (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) u Φ) Y'.1 := by
+  simp [e1MarkGParamGBg, hθ, hu]
+
+theorem e1MarkGParamGBg_of_not (h : ¬ ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ))) :
+    e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ Y' u Φ = 0 := by
+  simp [e1MarkGParamGBg, h]
+
+end BgFacts
+
+open Classical in
 /-- **The mark of the root `z` at the bridge label `Y′` as a function of the parameter `θ`**: the
 rooted corrected output of the pairs `(F₁, Sol)` at the raw datum of `θ`, when this datum lies in
-the chart `XiCRaw … eps` and `‖u‖ < (17 / 16 : ℝ)`, and `0` otherwise. -/
+the chart `XiCRaw … eps` and `‖u‖ < (17 / 16 : ℝ)`, and `0` otherwise (`e1MarkGParamGBg` at
+`Gb = S.G'` with the transport `BgTransport.self` and the mask `S.blockU z`). -/
 noncomputable def e1MarkGParamG (S : StepSetting d L N₁ m₁ k N ϱ)
     {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
     (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
@@ -49,14 +109,7 @@ noncomputable def e1MarkGParamG (S : StepSetting d L N₁ m₁ k N ϱ)
     (ρ : ℝ) (hp : 0 < S.p₁) (z : RootIdx d L N₁ m₁ (k + 1)) (eps : ℝ) (θ : physParam N S)
     (Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ)
     (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b) : ℂ :=
-  if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-      XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ) then
-    markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
-      (decMarkCorrTerm S (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b)) (fun _ => k)
-        (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
-        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol (S.blockU z) ρ hp (S.β : ℂ)
-        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) u Φ) Y'.1
-  else 0
+  e1MarkGParamGBg S S.G' (BgTransport.self S.hG') (S.blockU z) F₁ Sol ρ hp z eps θ Y' u Φ
 
 variable (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
   (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
@@ -76,24 +129,183 @@ theorem e1MarkGParamG_of_mem
         (decMarkCorrTerm S (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b)) (fun _ => k)
           (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
           ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol (S.blockU z) ρ hp (S.β : ℂ)
-          (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) u Φ) Y'.1 := by
-  simp [e1MarkGParamG, hθ, hu]
+          (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) u Φ) Y'.1 :=
+  e1MarkGParamGBg_of_mem S S.G' (BgTransport.self S.hG') (S.blockU z) F₁ Sol ρ hp z eps θ Y' u Φ
+    hθ hu
 
 theorem e1MarkGParamG_of_not (h : ¬ ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
       XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ))) :
-    e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ = 0 := by
-  simp [e1MarkGParamG, h]
+    e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ = 0 :=
+  e1MarkGParamGBg_of_not S S.G' (BgTransport.self S.hG') (S.blockU z) F₁ Sol ρ hp z eps θ Y' u Φ h
 
 /-- **At the raw datum of the step** the mark of the parameter family is the landed `e1MarkG`. -/
 theorem e1MarkGParamG_eq_e1MarkGGen
     (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) = rawOf S.D')
     (hΘ : rawOf S.D' ∈ XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps) :
     e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ = e1MarkGGen S F₁ Sol ρ hp z Y' u Φ := by
-  unfold e1MarkGParamG e1MarkGGen
+  unfold e1MarkGParamG e1MarkGParamGBg e1MarkGGen
   rw [hθ]
   simp only [hΘ, true_and]
+  rfl
 
 end Def
+
+section RootedBg
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {T : BgTransport S.G' Gb N}
+variable {a₁ ν : ℝ} {m₀ : ℕ} {cc : ℂ} {Zm : Finset (unitPts Gb)}
+variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
+  {𝒦XV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Set (CTorus d L N₁ m₁ (k + 1))}
+  {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
+
+open Classical in
+/-- The rooted output of the corrected marks on a background generating set is continuous in the
+configuration when each corrected mark is. -/
+theorem continuous_markedOutDec_decMarkCorrTermBg
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (ρ : ℝ) (hp : 0 < S.p₁) (β : ℂ) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (um : ℂ)
+    (zr : RootIdx d L N₁ m₁ (k + 1)) (Y' : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hc : ∀ b, ∀ Y, Continuous (decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b)
+      (Sol b) (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um)) :
+    Continuous (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+      markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') := by
+  have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
+        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+            (fun q => bridge m₀ zr q.2 = Y'),
+          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
+    funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
+  rw [e]
+  exact continuous_finsetSum _ fun q _ => continuous_const.mul (hc q.1 q.2)
+
+end RootedBg
+
+section FieldsBg
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (T : BgTransport S.G' Gb N)
+  (Zb : Finset (unitPts Gb))
+  (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+  (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+  (ρ : ℝ) (hp : 0 < S.p₁) (z : RootIdx d L N₁ m₁ (k + 1)) (eps : ℝ)
+
+open Classical in
+/-- **The fields of the marks of the energy record on a background generating set, from the
+fields of the rooted outputs.**  If the rooted outputs of the corrected marks at a datum of the
+chart of `Gb` and a first mark `‖u‖ < 17 / 16` are measurable in `Φ` (`hmeas`), depend only on the
+blocks of their bridge label (`hdep`), are bounded by `F₀ e^{−κ_G d(Y′)}` (`hbd`), are continuous in
+`Φ` (`hcont`), and are analytic in `(θ, u)` on `physVBg × ball 0 (17 / 16)` (`hhol`), then the marks
+`e1MarkGParamGBg … θ Y′ u` are measurable for every parameter and mark, depend only on the blocks of
+`Y′` for `θ ∈ physVBg`, are bounded by `F₀ e^{−κ_G d(Y′)}` for all parameters, are analytic on
+`physVBg × ball 0 (17 / 16)`, and are continuous in `Φ` for `θ ∈ physVBg`, `‖u‖ < 17 / 16`. -/
+theorem e1MarkGParamGBg_fields_of {F₀ κG : ℝ} (hF₀ : 0 ≤ F₀)
+    (hopen : IsOpen (physVBg N Gb S.a₁ S.ν eps))
+    (hmeas : ∀ Y', ∀ Θ ∈ XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps, ∀ um : ℂ,
+      ‖um‖ < (17 / 16 : ℝ) →
+      Measurable (fun Φ : (∀ b, (S.blockSplit 1 hp).Ωb b) =>
+        markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+          (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+            (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ) Θ um Φ) Y'))
+    (hdep : ∀ Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z,
+      ∀ Θ ∈ XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps, ∀ um : ℂ,
+      ‖um‖ < (17 / 16 : ℝ) →
+      DepOn (blocksOf 1 (k + 1) Set.univ Y')
+        (fun Φ : (∀ b, (S.blockSplit 1 hp).Ωb b) =>
+          markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+            (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+              (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ) Θ um Φ) Y'))
+    (hbd : ∀ Y', ∀ Θ ∈ XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps, ∀ um : ℂ,
+      ‖um‖ < (17 / 16 : ℝ) → ∀ Φ : (∀ b, (S.blockSplit 1 hp).Ωb b),
+      ‖markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+          (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+            (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ) Θ um Φ) Y'‖ ≤
+        F₀ * Real.exp (-κG * treeLenCovOne 1 (k + 1) Y'))
+    (hcont : ∀ Y', ∀ Θ ∈ XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps, ∀ um : ℂ,
+      ‖um‖ < (17 / 16 : ℝ) →
+      Continuous (fun Φ : (∀ b, (S.blockSplit 1 hp).Ωb b) =>
+        markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+          (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+            (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ) Θ um Φ) Y'))
+    (hhol : ∀ Y', ∀ Φ : (∀ b, (S.blockSplit 1 hp).Ωb b),
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gb × ℂ =>
+        markedOutDec 1 (fun _ => Set.univ) (e1DomG S) z
+          (decMarkCorrTermBg S Gb T (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+            (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 S.a₁ S.ν
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) F₁ Sol Zb ρ hp (S.β : ℂ)
+            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ) Y')
+        (physVBg N Gb S.a₁ S.ν eps ×ˢ Metric.ball (0 : ℂ) (17 / 16 : ℝ))) :
+    (∀ (θ : physParamBg N Gb) (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+        (u : ℂ), Measurable (e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u)) ∧
+    (∀ θ ∈ physVBg N Gb S.a₁ S.ν eps,
+      ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ),
+      DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+        (e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u)) ∧
+    (∀ (θ : physParamBg N Gb) (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+        (u : ℂ) Φ,
+      ‖e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ‖ ≤
+        F₀ * Real.exp (-κG * treeLenCovOne 1 (k + 1) i.1)) ∧
+    (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+        (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gb × ℂ =>
+          e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps p.1 i p.2 Φ)
+        (physVBg N Gb S.a₁ S.ν eps ×ˢ Metric.ball (0 : ℂ) (17 / 16 : ℝ))) ∧
+    (∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}),
+      ∀ θ ∈ physVBg N Gb S.a₁ S.ν eps, ∀ u ∈ Metric.ball (0 : ℂ) (17 / 16 : ℝ),
+        Continuous (e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u)) := by
+  refine ⟨fun θ i u => ?_, fun θ hθ i u => ?_, fun θ i u Φ => ?_, fun i Φ => ?_,
+    fun i θ hθ u hu => ?_⟩
+  · by_cases hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ)
+    · have e : e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u = _ :=
+        funext fun Φ => e1MarkGParamGBg_of_mem S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hc.1 hc.2
+      rw [e]
+      exact hmeas i.1 _ hc.1 u hc.2
+    · have e : e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u = fun _ => 0 :=
+        funext fun Φ => e1MarkGParamGBg_of_not S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hc
+      rw [e]
+      exact measurable_const
+  · by_cases hu : ‖u‖ < (17 / 16 : ℝ)
+    · have e : e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u = _ :=
+        funext fun Φ => e1MarkGParamGBg_of_mem S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hθ.1 hu
+      rw [e]
+      exact hdep i.1 i.2 _ hθ.1 u hu
+    · intro Φ Φ' _
+      rw [e1MarkGParamGBg_of_not S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ fun h => hu h.2,
+        e1MarkGParamGBg_of_not S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ' fun h => hu h.2]
+  · by_cases hc : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ)
+    · rw [e1MarkGParamGBg_of_mem S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hc.1 hc.2]
+      exact hbd i.1 _ hc.1 u hc.2 Φ
+    · rw [e1MarkGParamGBg_of_not S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hc, norm_zero]
+      positivity
+  · refine (hhol i.1 Φ).congr (hopen.prod Metric.isOpen_ball) fun p hp'' => ?_
+    exact (e1MarkGParamGBg_of_mem S Gb T Zb F₁ Sol ρ hp z eps p.1 i p.2 Φ hp''.1.1
+      (mem_ball_zero_iff.1 hp''.2)).symm
+  · have hu' : ‖u‖ < (17 / 16 : ℝ) := mem_ball_zero_iff.1 hu
+    have e : e1MarkGParamGBg S Gb T Zb F₁ Sol ρ hp z eps θ i u = _ :=
+      funext fun Φ => e1MarkGParamGBg_of_mem S Gb T Zb F₁ Sol ρ hp z eps θ i u Φ hθ.1 hu'
+    rw [e]
+    exact hcont i.1 _ hθ.1 u hu'
+
+end FieldsBg
 
 section Rooted
 
@@ -119,18 +331,9 @@ theorem continuous_markedOutDec_decMarkCorrTerm
       (blockEnergyFun S.G' Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um)) :
     Continuous (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
       markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') := by
-  have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
-        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorr S (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun S.G' Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
-    funext fun Φ => markedOutDec_decMarkCorrTerm_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
-  rw [e]
-  exact continuous_finsetSum _ fun q _ => continuous_const.mul (hc q.1 q.2)
+        (decMarkCorrTerm S X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') :=
+  continuous_markedOutDec_decMarkCorrTermBg S (T := BgTransport.self S.hG') F₁ Sol ρ hp β Θ um zr Y'
+    hc
 
 end Rooted
 
@@ -233,60 +436,23 @@ theorem e1MarkParam_fields_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T 
     positivity
   have hR := corrRG_pos T hk hb0 hp0
   have hU := (by norm_num : (0:ℝ) < 17 / 16)
-  have hdepG : ∀ θ ∈ physV SG SG.a₁
-        SG.ν T.t,
-      ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1DomG SG) z}) (u : ℂ),
-      DepOn (blocksOf 1 (k + 1) Set.univ i.1)
-        (e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp
-          z T.t θ i u) := by
-    intro θ hθ i u
-    by_cases hu : ‖u‖ < (17 / 16 : ℝ)
-    · have e : e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParamG_of_mem _ _ _ _ hp z T.t θ i u Φ hθ.1 hu
-      rw [e]
-      exact hdep i.1 i.2 _ hθ.1 u (e1_rad_ltG T hk hβ hp0 hRU hu.le)
-    · intro Φ Φ' _
-      rw [e1MarkGParamG_of_not _ _ _ _ hp z T.t θ i u Φ fun h => hu h.2,
-        e1MarkGParamG_of_not _ _ _ _ hp z T.t θ i u Φ' fun h => hu h.2]
-  have hbdG : ∀ (θ : physParam N SG)
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1DomG SG) z}) (u : ℂ) Φ,
-      ‖e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z
-        T.t θ i u Φ‖ ≤
-        corrF0G T k β p₁ * Real.exp (-(2 * T.κdec - 1) * treeLenCovOne 1 (k + 1) i.1) := by
-    intro θ i u Φ
-    by_cases hc : (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) ∈
-        XiCRaw SG.G' (compWeight L SG.a₁)
-          SG.ν (k + 1) 1 T.t ∧ ‖u‖ < (17 / 16 : ℝ)
-    · rw [e1MarkGParamG_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2]
-      exact (hcnt _ hc.1 u hc.2.le Φ).1 i.1
-    · rw [e1MarkGParamG_of_not _ _ _ _ hp z T.t θ i u Φ hc, norm_zero]
-      positivity
-  have hmeasG : ∀ (θ : physParam N SG)
-      (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ)
-        (e1DomG SG) z}) (u : ℂ),
-      Measurable (e1MarkGParamG SG (fun b => F₁ (z, b))
-        (fun b => Sol (z, b)) p₁ hp z T.t θ i u) := by
-    intro θ i u
-    by_cases hc : (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) ∈
-        XiCRaw SG.G' (compWeight L SG.a₁)
-          SG.ν (k + 1) 1 T.t ∧ ‖u‖ < (17 / 16 : ℝ)
-    · have e : e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-        funext fun Φ => e1MarkGParamG_of_mem _ _ _ _ hp z T.t θ i u Φ hc.1 hc.2
-      rw [e]
-      exact hmeas i.1 _ hc.1 u (e1_rad_ltG T hk hβ hp0 hRU hc.2.le)
-    · have e : e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = fun _ => 0 :=
-        funext fun Φ => e1MarkGParamG_of_not _ _ _ _ hp z T.t θ i u Φ hc
-      rw [e]
-      exact measurable_const
   have hopen : IsOpen (physV SG SG.a₁
       SG.ν T.t) :=
     isOpen_physV _ _ _ _ (bgHyp_lvG (k := k) T.hd T.hL (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hν0 hν)
-  refine ⟨?_, hmeasG, fun Lb _ Lab => ⟨fun θ hθ => ?_, fun θ i u Φ => ?_⟩, ?_, ?_⟩
+  obtain ⟨hmeasG, hdepG, hbdG, hholG, hcontG⟩ := e1MarkGParamGBg_fields_of SG SG.G'
+    (BgTransport.self SG.hG') (SG.blockU z) (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t
+    (F₀ := corrF0G T k β p₁) (κG := 2 * T.κdec - 1) hF0.le hopen
+    (fun Y' Θ hΘ um hum => hmeas Y' Θ hΘ um (e1_rad_ltG T hk hβ hp0 hRU hum.le))
+    (fun Y' hY' Θ hΘ um hum => hdep Y' hY' Θ hΘ um (e1_rad_ltG T hk hβ hp0 hRU hum.le))
+    (fun Y' Θ hΘ um hum Φ => (hcnt Θ hΘ um hum.le Φ).1 Y')
+    (fun Y' Θ hΘ um hum => continuous_markedOutDec_decMarkCorrTerm SG _ _ p₁ hp _ _ _ z
+      Y' fun b Y => ((hblk b).2.1 Y _ hΘ um (e1_rad_ltG T hk hβ hp0 hRU hum.le)).1)
+    (fun Y' Φ => (hhol Y' Φ (corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁)
+      (corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁) hR hR (e1_rad_RR_ltG T hk hβ hp0)).mono
+      (Set.prod_mono (subset_refl _) (Metric.ball_subset_ball
+        (by linarith : (17 / 16 : ℝ) ≤ corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁))))
+  refine ⟨?_, hmeasG, fun Lb _ Lab => ⟨fun θ hθ => ?_, fun θ i u Φ => hbdG θ i u Φ⟩, hholG,
+    fun i θ hθ u hu => (hcontG i θ hθ u hu).continuousOn⟩
   · obtain ⟨Y, hY⟩ := e1DomG_bridgeFamily_nonempty T hm₀ D rfl z
     exact ⟨⟨Y, hY⟩⟩
   · exact (commonAnchor_marks_fields (Lab := Lab)
@@ -296,24 +462,6 @@ theorem e1MarkParam_fields_fromTowerG {d L N : ℕ} [NeZero L] {κmin : ℝ} (T 
       (2 * T.κdec - 1)
       (fun i u => e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b))
         p₁ hp z T.t θ i u) (hdepG θ hθ) (hbdG θ)).1
-  · exact hbdG θ i u Φ
-  · intro i Φ
-    have han := hhol i.1 Φ (corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁) (corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁) hR hR
-      (e1_rad_RR_ltG T hk hβ hp0)
-    have hmono := han.mono (Set.prod_mono (subset_refl _)
-      (Metric.ball_subset_ball (by linarith : (17 / 16 : ℝ) ≤ corrRG T k (β * (L : ℝ) ^ (k * (d - 2))) p₁)))
-    refine hmono.congr (hopen.prod Metric.isOpen_ball) fun p hp'' => ?_
-    exact (e1MarkGParamG_of_mem _ _ _ _ hp z T.t p.1 i p.2 Φ hp''.1.1
-      (mem_ball_zero_iff.1 hp''.2)).symm
-  · intro i θ hθ u hu
-    have hu' : ‖u‖ < (17 / 16 : ℝ) := mem_ball_zero_iff.1 hu
-    have e : e1MarkGParamG SG (fun b => F₁ (z, b)) (fun b => Sol (z, b))
-          p₁ hp z T.t θ i u = _ :=
-      funext fun Φ => e1MarkGParamG_of_mem _ _ _ _ hp z T.t θ i u Φ hθ.1 hu'
-    rw [e]
-    refine (continuous_markedOutDec_decMarkCorrTerm SG _ _ p₁ hp _ _ _ z
-      i.1 fun b Y => ?_).continuousOn
-    exact ((hblk b).2.1 Y _ hθ.1 u (e1_rad_ltG T hk hβ hp0 hRU hu'.le)).1
 
 open Classical in
 /-- **The `ParamMarkFamily` of the marks of the energy record on the common labels.**  One family

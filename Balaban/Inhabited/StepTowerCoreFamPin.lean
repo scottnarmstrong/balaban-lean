@@ -95,7 +95,7 @@ theorem markedHatPsiF_unique (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     (h : F₁ (s, Θ) = F₁' (s, Θ)) (Z : Finset (unitPts Gp)) (u t : ℂ)
     (ψh : unitPts Gp × Fin N → ℂ) :
     markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh = markedHatPsiF a₁ ν hG' cc F₁' Z u t s Θ ψh := by
-  unfold markedHatPsiF
+  simp only [markedHatPsiF_eq_hatPsiF_add]
   rw [hatPsiF_unique hG' cc h, hatSqrtF_unique h]
 
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
