@@ -133,8 +133,8 @@ namespace LFStepRaw
 
 variable {k : ℕ}
 
-/-- **The zero data** (rule 10): no histories, zero kernels, kept data with all variables kept and
-zero kernels, zero boundary terms. -/
+/-- **The zero data** (rule 10): no histories, zero kernels, kept data with all variables kept, zero
+kernels and the constants of `zeroKeptData`, zero boundary terms. -/
 noncomputable def zero : LFStepRaw S R k0 K M N k where
   hist := fun _ _ => ∅
   κK := fun _ _ _ _ => 0
@@ -143,8 +143,8 @@ noncomputable def zero : LFStepRaw S R k0 K M N k where
     { Ikeep := Set.univ
       contains := fun _ _ => Set.mem_univ _
       ker := zeroKer _ _ _ _ }
-  Cdec := fun _ _ _ => 1
-  gam := fun _ _ _ _ => 0
+  Cdec := fun _ _ _ => 5
+  gam := fun _ _ j _ => S.A3' * S.lam j ^ S.pR + Real.log 5
   B := fun _ _ _ _ _ _ _ _ => 0
   s := 0
 
@@ -171,6 +171,13 @@ def Matches (SD : ∀ (nK : ℕ) [NeZero nK], StepData k0 (geo nK) cs N (kappaSt
     (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (D.κK nK) S.lam) : Prop :=
   ∀ (nK : ℕ) [NeZero nK], (SD nK).ker = D.ker nK ∧ (KD nK).datum = D.datum nK ∧
     (KD nK).Cdec = D.Cdec nK ∧ (KD nK).gam = D.gam nK
+
+/-- **`Matches` is satisfiable** (rule 10): the zero data are carried by the zero step data (horizon
+`K ≤ 1`, `C_b = 0`) and the zero kept data. -/
+theorem matches_zero (hK : K ≤ 1) (hCb : cs.Cb = 0) :
+    (zero : LFStepRaw S R k0 K M N k).Matches (geo := geo) (P := P)
+      (fun nK _ => zeroStepData (geo nK) cs hK hCb _) (fun nK _ => zeroKeptData (geo nK) cs _ S.lam) :=
+  fun _ _ => ⟨rfl, rfl, rfl, rfl⟩
 
 /-- The family of representations with the small-field data `sf` and, on every torus, the data of
 `D` with the step data `SD` and the kept data `KD`. -/
