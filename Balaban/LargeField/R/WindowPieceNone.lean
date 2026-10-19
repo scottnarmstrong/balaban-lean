@@ -87,7 +87,6 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
     (Cx : Def7.SFCtx S n R M K N (i + 1 + 1) m₁ ϱ) (cs : OpConsts)
     {A : Set (InternalVars (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))}
     (hnew : newVars (H.localHistory M K (i + 1 + 1) C) (i + 1) ⊆ A)
-    (hret : C.1 ∉ H.rem (i + 1 + 1))
     (o : OutT N R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1))
     (xw : SubCfg N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) A)
     (hχd : ChiDomAt Cx.geo cs H (i + 1 + 1) C o xw) (hv : EuclideanSpace ℝ (Fin N))
@@ -112,7 +111,7 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
       (locData Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK o
         (newRestrict (H.localHistory M K (i + 1 + 1) C) hnew xw) hv) := by
   obtain ⟨hF1, hF2, hFZ⟩ := families_of_chiDomAt H Cx.geo cs C hχd
-  exact piece_inDomainR_of_chiY H C hjK Cx hret
+  exact piece_inDomainR_of_chiY H C hjK Cx
     (subMultiscaleField N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)
       (Vblk R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)) xw o)
     o (newRestrict (H.localHistory M K (i + 1 + 1) C) hnew xw) hv hν hunit hη hmass
