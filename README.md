@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 849,000 lines of Lean (about 650,000 without comments and blank
+As of October 2026, about 916,000 lines of Lean (about 730,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -20,7 +20,9 @@ The small-field part of one renormalization step (background fields, localizatio
 integral and its expansion, the inductive class of effective actions) is largely formalized. What
 remains is concentrated in seven mathematical blockers and in joining the steps into the full flow.
 A fully proved Lean theorem (the *spine*) derives Root-F from seven named inputs, each a statement of
-the papers, so what is left is a finite list.
+the papers, so what is left is a finite list. On 19 October the author approved five further readings
+(rulings R7′, R9, R-N₁, R10, R11); with them blockers 3 and 6 are settled mathematically and what remains
+of them is Lean work, while the other five each have a named hard step still open.
 [docs/BLOCKERS.md](docs/BLOCKERS.md) describes each blocker and where it stands, and
 [docs/PROGRESS.md](docs/PROGRESS.md) gives the estimated completion by section with a dated log.
 Where the papers are ambiguous we choose a reading and prove what it needs
@@ -129,7 +131,7 @@ The toolchain is `leanprover/lean4:v4.35.0-rc2` with the matching Mathlib releas
 `lean-toolchain` and `lakefile.lean`). With [elan](https://github.com/leanprover/elan) installed:
 
     lake exe cache get   # Mathlib build cache
-    lake build           # more than 2,000 project modules on top of Mathlib
+    lake build           # about 3,000 project modules on top of Mathlib
 
 A full build from scratch takes several hours on a typical workstation. The only warnings expected
 are the two `declaration uses 'sorry'` warnings for the main theorems. Checks:
