@@ -44,7 +44,7 @@ theorem step_bgSetting_base_collar (Dt : StepScaleData T k hk N₁ ν β p₁) {
     BgSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
       (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν
       T.c T.BG T.κ r₀ T.t δ₃ (dataSites (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))) Finset.univ 1 := by
-  have h := T.toG.step_bgSetting_base_collar (StepTower.scaleDataG_of_fixed T Dt) hnum
+  have h := T.toG.bgSetting_base_collar (StepTower.scaleDataG_of_fixed T Dt) hnum
     (by norm_num; exact hr₁) (by norm_num; linarith)
   have key : ∀ ϱ : ℝ, ϱ = rhoSep T.m₁ →
       BgSetting 2 (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁

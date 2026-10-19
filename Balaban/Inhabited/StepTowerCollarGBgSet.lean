@@ -16,12 +16,12 @@ import Mathlib.Tactic.Positivity
 
 For `T : StepTowerG d L N κmin` and its scale record `StepScaleDataG`:
 
-* `StepTowerG.step_bgSetting_base_collar`: `BgSetting` of `T.step k hk N₁ ν β p₁` (`Gp = 𝔹_{k+1}`,
+* `StepTowerG.bgSetting_base_collar`: `BgSetting` of `T.step k hk N₁ ν β p₁` (`Gp = 𝔹_{k+1}`,
   `Gk₀ = Gj₀ = 𝔹_k`, `X₀' = dataSites 𝔹_k`, `X₁f' =` the whole torus, `ε' = T.t`, `j₁ = 1`) at every
   collar `r₀ ∈ [4 d L³, 4 d L³ + 4 d L]`, from `ChainNum d L N T.m₁ T.BG T.κ r₀ T.t δ₃`.  The
   source collar `4 d L³ + L` lies in this range, since `L ≤ 4 d L`.  At `d = L = 3` the range is
   `[324, 360]`.
-* `StepTowerG.step_flSetting_base_dec`: `FlSetting` of the step at a fluctuation radius `δ₁`.
+* `StepTowerG.flSetting_base_dec`: `FlSetting` of the step at a fluctuation radius `δ₁`.
 -/
 
 @[expose] public section
@@ -38,7 +38,7 @@ variable {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {k 
   {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
 
 /-- **`BgSetting` of the general step at a collar `r₀ ∈ [4 d L³, 4 d L³ + 4 d L]`.** -/
-theorem step_bgSetting_base_collar (Dt : StepScaleDataG T k hk N₁ ν β p₁) {r₀ δ₃ : ℝ}
+theorem bgSetting_base_collar (Dt : StepScaleDataG T k hk N₁ ν β p₁) {r₀ δ₃ : ℝ}
     (hnum : ChainNum d L N T.m₁ T.BG T.κ r₀ T.t δ₃) (hr₁ : 4 * (d : ℝ) * (L : ℝ) ^ 3 ≤ r₀)
     (hr₂ : r₀ ≤ 4 * (d : ℝ) * (L : ℝ) ^ 3 + 4 * d * L) :
     BgSetting N (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
@@ -81,7 +81,7 @@ theorem step_bgSetting_base_collar (Dt : StepScaleDataG T k hk N₁ ν β p₁) 
 
 /-- **`FlSetting` of the general step at a fluctuation radius `δ₁`**: the fields come from `FlCore`
 of the scale record, the numerics from `FlNum … T.t δ₃ δ₁ δfl`. -/
-theorem step_flSetting_base_dec (Dt : StepScaleDataG T k hk N₁ ν β p₁) {δ₃ δ₁ δfl : ℝ}
+theorem flSetting_base_dec (Dt : StepScaleDataG T k hk N₁ ν β p₁) {δ₃ δ₁ δfl : ℝ}
     (hnum : FlNum d L N T.BG T.BG₂ T.κ T.t δ₃ δ₁ δfl) :
     FlSetting N (T.step k hk N₁ ν β p₁).G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
       (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (T.step k hk N₁ ν β p₁).a₁
