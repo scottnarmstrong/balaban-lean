@@ -43,8 +43,11 @@ dropped set `Gd` with the layers of `Gl` up to `k` and no layer `k + 1`, and the
 * `castG_localB_collar_margin`: the margin of the replacement from `R ⊆ Y` for the cast set built on
   the collar `Y'⁺` of the transported label;
 * `castG_localB_tauExt_eq_one`: `hσ1` for the cast set;
-* `BgTransport.canon_gdat_eq_levelRestrict`, `castG_canon_gdat_xiCData`: the datum read by the
-  canonical transport is the restriction of the step's datum and lies in the chart of the cast set;
+* `BgTransport.canon_gdat_eq_levelRestrict`, `canon_gdat_xiCData`, `castG_canon_gdat_xiCData`,
+  `canon_gdat_xiCData_of_xiCData`, `canon_gdat_eq_of_mem_one`: the datum read by the canonical
+  transport is the restriction of the step's datum, lies in the chart of any generating set `Gb`
+  (in particular of the cast set) at the radius `(2 K₁ + 2) C₁ ε` when the step's datum lies in the
+  step chart of radius `ε`, and agrees with the step's datum on `Ω₁(Gb)`;
 * `castG_localB_xiDom_of_ambient_xiDom`: the chart of the step restricts to the chart of the cast set
   (the radius loss `c₀ + (2 K₁ + 1) c₁` of the recomputation of the backgrounds is explicit).
 -/
@@ -228,11 +231,28 @@ theorem BgTransport.canon_gdat_eq_levelRestrict {ϱp ϱb : ℝ} {N : ℕ}
       simp [BgTransport.gdat, BgTransport.canon, bgOfRaw, clipRawL, clipRaw, levelRestrict,
         BgData.clip, rawOf, hx]
 
+/-- **The datum read by the canonical transport lies in the chart of `Gb`** (any generating set
+`Gb` of the torus).  For a datum `D` of the step in the data domain `InDomainC` (at `δ ≤ ε`) of the
+level set `Gp`, the datum `(BgTransport.canon Gp Gb N).gdat D` lies in the chart
+`Ξ^c_{k+1}(Gb; 1, ε_b)` for `ε + (2 K₁ + 1) δ ≤ ε_b` (`xiCData_levelRestrict`; the radius loss of the
+recomputation of the backgrounds is explicit). -/
+theorem canon_gdat_xiCData {ϱp ϱb : ℝ} {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} (hG : IsLevel Gp (k + 1)) {N : ℕ}
+    {A : ℕ → ℝ} {μ δ ε εb : ℝ} (H : BgHyp d L (k + 1) ϱb A μ) (hμ : 0 ≤ μ) (hδ0 : 0 < δ)
+    (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδc : δ ≤ bgC1 d L N)
+    (hμε : μ * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2)
+    (hεb : ε + (2 * bgK1 d L N + 1) * δ ≤ εb) (D : BgData Gp N) (hD : InDomainC Gp μ δ ε D) :
+    XiCData Gb A μ (k + 1) 1 εb
+      ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D) := by
+  rw [BgTransport.canon_gdat_eq_levelRestrict hG]
+  exact xiCData_levelRestrict hG (Nat.le_add_left 1 k) le_rfl Gb.top H hμ hδ0 hδε hε hδc hμε hεb D
+    hD
+
 /-- **The datum read by a term on the cast local generating set lies in its chart.**  For a datum
 `D` of the step in the data domain `InDomainC` (at `δ ≤ ε`) of the level set `Gp`, the datum
 `(BgTransport.canon Gp Gb N).gdat D` of `Gb = castG hc (localB (k + 1) … Y' hsep)` lies in the chart
-`Ξ^c_{k+1}(Gb; 1, ε_b)` for `ε + (2 K₁ + 1) δ ≤ ε_b` (`xiCData_levelRestrict`; the radius loss of the
-recomputation of the backgrounds is explicit). -/
+`Ξ^c_{k+1}(Gb; 1, ε_b)` for `ε + (2 K₁ + 1) δ ≤ ε_b` (the instance `Gb = castG …` of
+`canon_gdat_xiCData`). -/
 theorem castG_canon_gdat_xiCData {ϱp : ℝ} {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
     (hG : IsLevel Gp (k + 1)) (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hk : k + 1 ≤ k + 1)
     (Y' : Set (CTorus d L N₁' m₁' (k + 1))) (hsep : ϱ ≤ minSep L (L ^ m₁')) {N : ℕ}
@@ -242,10 +262,43 @@ theorem castG_canon_gdat_xiCData {ϱp : ℝ} {Gp : GeneratingSet d L (N₁ * L ^
     (hεb : ε + (2 * bgK1 d L N + 1) * δ ≤ εb) (D : BgData Gp N) (hD : InDomainC Gp μ δ ε D) :
     XiCData (castG hc (localB (k + 1) hk Y' hsep)) A μ (k + 1) 1 εb
       ((BgTransport.canon Gp (castG hc (localB (k + 1) hk Y' hsep)) N).gdat
-        (BgTransport.reads_canon hG) D) := by
+        (BgTransport.reads_canon hG) D) :=
+  canon_gdat_xiCData hG H hμ hδ0 hδε hε hδc hμε hεb D hD
+
+/-- **The radius of the read datum, for any generating set `Gb`** (P3 (4.44)-(4.47)): for a datum
+`D` of the chart `Ξ^c_{k+1}(Gp; 1, ε)` of the step's level set, the datum of `Gb` read by the
+canonical transport lies in the chart `Ξ^c_{k+1}(Gb; 1, ε′)` for every `ε′ ≥ (2 K₁ + 2) C₁ ε` (the
+data domain `Ψ̃^c(C₁ ε, C₁ ε)` of the chart, `xiCData_inDomainC`, restricted to `Gb`, and the
+backgrounds recomputed on `Gb`, `canon_gdat_xiCData`). -/
+theorem canon_gdat_xiCData_of_xiCData {ϱp ϱb : ℝ}
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} (hG : IsLevel Gp (k + 1)) {N : ℕ}
+    {a₁ ν ε ε' : ℝ} (HBp : BgHyp d L (k + 1) ϱp (compWeight L a₁) ν)
+    (H : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) (hε : 0 < ε)
+    (hsmall : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1) (hc0 : xiC1 d * ε ≤ bgC0 d L N)
+    (hc1 : xiC1 d * ε ≤ bgC1 d L N) (hε' : (2 * bgK1 d L N + 2) * xiC1 d * ε ≤ ε')
+    (D : BgData Gp N) (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 ε D) :
+    XiCData Gb (compWeight L a₁) ν (k + 1) 1 ε'
+      ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D) := by
+  have hDom := xiCData_inDomainC HBp hsmall hD
+  have hδ0 : 0 < xiC1 d * ε := mul_pos (lt_of_lt_of_le one_pos (one_le_xiC1 d)) hε
+  have hμε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * ε) ^ 2 ≤ (xiC1 d * ε) ^ 2 := by
+    have := HBp.massLe
+    nlinarith [sq_nonneg (xiC1 d * ε)]
+  exact canon_gdat_xiCData hG H HBp.mass hδ0 le_rfl hc0 hc1 hμε (by nlinarith) D hDom
+
+/-- **The read datum agrees with the datum of the step on the first domain of `Gb`** (both
+fields; `Ω₁(Gb)` lies in the data sites of `Gb`). -/
+theorem canon_gdat_eq_of_mem_one {ϱp ϱb : ℝ} {N : ℕ}
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} (hG : IsLevel Gp (k + 1))
+    (D : BgData Gp N) {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ Gb.Ω 1) :
+    D.Ψ x = ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D).Ψ x ∧
+      D.h x = ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D).h x := by
   rw [BgTransport.canon_gdat_eq_levelRestrict hG]
-  exact xiCData_levelRestrict hG (Nat.le_add_left 1 k) le_rfl
-    (castG hc (localB (k + 1) hk Y' hsep)).top H hμ hδ0 hδε hε hδc hμε hεb D hD
+  exact ⟨(levelRestrict_Ψ hG (Nat.le_add_left 1 k) le_rfl Gb.top D
+      ((mem_dataSites _).2 (Or.inl hx))).symm,
+    (levelRestrict_h hG (Nat.le_add_left 1 k) le_rfl Gb.top D hx).symm⟩
 
 end CastSets
 

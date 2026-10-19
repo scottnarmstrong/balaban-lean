@@ -1095,6 +1095,212 @@ theorem evTerm_eTermFun_replacement_localB_hat_xiDom (hG : IsLevel Hm k) (hk1 : 
     hc7 hphi hεb hsmall' hc7' hphi' hδ₀e hmarD' hαD' hsm cc hcψ hδ₁c hU hNm hXY hkY (q, ψh)
     ⟨hq', hψh⟩
 
+/-- **The replacement identity along the masked tangent, for an abstract local lift, core.**  The
+statement of `coef_eTermFun_replacement_localB_marked_of_lift` for a level set `𝔹_{k+1}`, arbitrary
+generating sets `Gl`, `Gd` with the hypotheses of `coef_eTermFun_replacement_gen`, a datum `D'` of
+the chart of `Gl` agreeing with `D` on the top layer of `Gl`, and the margin of the read region in
+the top layer of `Gl` (in place of the collar).  The landed `localB` statement is its instance. -/
+theorem coef_eTermFun_replacement_marked_of_lift_gen
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    (hG : IsLevel Hm k) (hk1 : 1 ≤ k) {ϱl ϱl' : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
+    (hA : CubeAligned Gl m₁) (hSS : SupSep Gl m₁) (hPd : Precedes Gd Gl)
+    (hdk : Gd.Ω k = Gl.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    (hagd : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl' - 1))
+    {c BG a₁ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (HB' : BgHyp d L (k + 1) ϱl (compWeight L a₁) ν)
+    {κ : ℝ} (hκ : 0 < κ) (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 ×
+        Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) ×
+        (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData
+      Gp N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ :
+        Gp.Ω 1
+        × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf
+          Gp)
+          Gp
+          (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl))
+      (D : BgData Gl N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gl)
+          Gl (compWeight L a₁) ν
+            (rho4 d L N BG κ) s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₀' δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h0' : 0 ≤ δ₀')
+    (h1 : 0 < δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N →
+      (Gd.Ω 1 × Fin N → ℂ) ×
+        (Gd.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf
+          Gp)
+          Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Gd N false δ₀' δ₁ p.2 →
+        (Sol' p).1 = dphi Gd
+          (Dec2.decG (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1)
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf Gl)
+          Gd (compWeight L a₁) ν p.1
+                false
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Small Gd (Sol' p).2
+          (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Gd (Sol' p).2
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Gd (Sol' p).1
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Gd.Ω 1 → ℂ,
+          Small Gd δα'
+            (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1 false
+            p.2.2.1 p.2.1
+            (pertSource Gd (compWeight L a₁)
+                  p.2.2.2.1
+              p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (C : Finset (ParIdx
+      Gp X₁))
+      {R' : ℝ} (hR' : 1 < R')
+    (hRκ : R' ≤ Real.exp κ)
+    {eps eps' : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hle : eps ≤ eps')
+    (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
+    (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
+    (hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀')
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {D' : BgData Gl N} (hD'x : XiCData Gl (compWeight L a₁) ν (k + 1) 1 eps' D')
+    (hD' : ∀ x ∈ Gl.Ω (k + 1), D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
+    (cc : ℂ) (Zm : Finset (unitPts Gp))
+    (um tm : ℂ) (ψh : unitPts Gp × Fin N → ℂ)
+    (M : (ParIdx Gp X₁ → ℂ) →
+      Matrix (unitPts Gl × Fin N)
+        (unitPts Gl × Fin N) ℂ)
+    (ψl : unitPts Gl × Fin N → ℂ)
+    (hℓ : ∀ w ∈ supN C R', (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts Gl then
+        ((((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc) • (M w *ᵥ ψl)) (⟨unitBlock x, h⟩, i) else 0) ∈ FlBall Hm δ₁)
+    (hamb : ∀ w ∈ supN C R', hatPsiF Gp a₁ ν
+      hG' (((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc) F₁
+      (extParams Gp X₁ w) (rawOf D) ψh ∈ FlBall Hm δ₁)
+
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hRk : ∀ x ∈ dataSites Gk, x ∈ R)
+    (hℓeq : ∀ w ∈ supN C R', ∀ x ∈ R, ∀ y : CTorus d L N₁ m₁ (k + 1), supDist x y ≤ L ^ (k + 1) →
+      ∀ i, (if h : unitBlock y ∈ unitPts Gl then
+        (cc • (M w *ᵥ ψl)) (⟨unitBlock y, h⟩, i) else 0) =
+      hatPsiF Gp a₁ ν hG' cc F₁
+        (extParams Gp X₁ w) (rawOf D) ψh y i)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) → y ∈ Gl.Ω (k + 1)) :
+    coef (fun w => eTermFun Gp Gk Gj Hm ac Fk E (F₁ (extParams
+      Gp X₁ w,
+      rawOf D))
+        (Sol (extParams Gp X₁ w,
+          flEdat Gp Hm (F₁ (extParams
+            Gp
+            X₁ w, rawOf D)) D.Ψ (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+          (extParams Gp X₁ w) (rawOf D) ψh))).1 (rawOf D, (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+          (extParams Gp X₁ w) (rawOf D) ψh))) C =
+      coef (fun w => eTermFun Gl Gk Gj
+        Gd
+        ac Fk E
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0), rawOf
+              D'))
+        (Sol' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0),
+          flEdat Gl
+            Gd
+            (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                (k + 1) then Dec2.extS (coverOf
+                  Gp) (extParams
+                  Gp X₁ w) P.1 else 0), rawOf
+                  D'))
+            D'.Ψ (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+          (um + if unitPt hG' x ∈ Zm then tm else 0) *
+          (if h : unitBlock x ∈ unitPts Gl then
+            (cc • (M w *ᵥ ψl)) (⟨unitBlock x, h⟩, i) else 0)))).1 (rawOf
+              D', (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+          (um + if unitPt hG' x ∈ Zm then tm else 0) *
+          (if h : unitBlock x ∈ unitPts Gl then
+            (cc • (M w *ᵥ ψl)) (⟨unitBlock x, h⟩, i) else 0)))) C  := by
+  classical
+  obtain ⟨Sb, -, Sf, -⟩ := replacement_coverBases hG' Hm hA hSS hPd hN hm₁ hM HB hag hagm hagl hagd
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
+    (norm_extParams_lt hR' hw.2 P).trans_le hRκ
+  have hψl := fun w (hw : w ∈ supN C R') =>
+    maskedLocalLift_mem_flBall (M w) ψl cc um tm (fun x => unitPt hG' x ∈ Zm) (hℓ w hw)
+  refine (coef_congr_near hR' fun w hw => ?_).trans
+    (coef_eTermFun_replacement_restrict_gen hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁ hM hag hagm
+      hagl hagd hS HB HB' hκ hMc hF₁ hF₁' hF₂ hM₂ h0 h0' h1 hδ₀ hδ₀' hδ₁ hSol hSol' ac Fk E C hR'
+      hRκ heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD hD'x hD' _ hψl hRC hRX hRk hmar)
+  exact eTermFun_level_hat_congr hG' hm₁ hF₂ Sf hκ.le hM₂ h0 h1.le hδ₀ hδ₁ hSol ac Fk E hRC hRX
+    hRk hw.1 (hsσ w hw) _ (rawOf D)
+    (strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
+      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD
+      (markedHatPsiF_mem_flBall_of hG' cc F₁ Zm um tm _ _ ψh (hamb w hw)))
+    (strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
+      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψl w hw))
+    (fun x hx y hy => funext fun i =>
+      (markedHatPsiF_apply hG' cc F₁ Zm um tm _ _ ψh y i).trans
+        (congrArg _ (hℓeq w hw x hx y hy i).symm))
+
+
 /-- **The replacement identity along the masked tangent, for an abstract local lift.**  The
 assembly step of `coef_eTermFun_replacement_localB_marked`: if the local lift
 `x ↦ cc (M w ψ̂_l)(unitBlock x)` (extended by zero off the unit points of `𝔹_{k+1}(Y⁺)`, `M w` any
@@ -1340,38 +1546,318 @@ theorem coef_eTermFun_replacement_localB_marked_of_lift (hG : IsLevel Hm k) (hk1
           (um + if unitPt (isLevel_levelGS (Nat.le_add_left 1 k) hk) x ∈ Zm then tm else 0) *
           (if h : unitBlock x ∈ unitPts (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) then
             (cc • (M w *ᵥ ψl)) (⟨unitBlock x, h⟩, i) else 0)))) C  := by
-  classical
-  have hG' : IsLevel (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
-      (k + 1) hk) (k + 1) := isLevel_levelGS (Nat.le_add_left 1 k) hk
-  obtain ⟨Sb, -, Sf, -⟩ := localB_replacement_coverBases hG' Hm hk Yp hN hm₁ hM HB hag hagm hagl
   have hd0 : 0 < d := by have := HB.hd; omega
   have hxi := one_le_xiC1 d
   have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
   have hδ0 : 0 < xiC1 d * eps := by positivity
   have hle : eps ≤ eps' := by nlinarith
+  have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
+  have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
+  have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
+    have := HB.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
   have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
   have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
     have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
       mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
     linarith
+  exact coef_eTermFun_replacement_marked_of_lift_gen (isLevel_levelGS (Nat.le_add_left 1 k) hk) hG
+    hk1 (localB_cubeAligned hk Yp _ hm₁) (localB_supSep hk Yp _)
+    (localB_drop_precedes hk (Nat.le_succ k) Yp _ _)
+    (localB_drop_Ω hk (Nat.le_succ k) Yp _ _ (le_refl k)) (localB_drop_top hk (Nat.le_succ k) Yp _ _)
+    hN hm₁ hM hag hagm hagl hagl hS HB HB' hκ hMc hF₁ hF₁' hF₂ hM₂ h0 h0 h1 hδ₀ hδ₀ hδ₁ hSol hSol' ac
+    Fk E C hR' hRκ heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD
+    (localB_xiCData_restrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
+      (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D (xiCData_inDomainC HB hsmall hD))
+    (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) cc Zm um tm ψh M ψl hℓ hamb
+    hRC hRX hRk hℓeq (localB_collar_margin hk (le_refl (minSep L (L ^ m₁))) hYp hRY)
+
+/-- **The replacement identity along the masked tangent, core** (P3 pp. 78-79, (4.46), with the
+masked tangent `u ψ' + t M_Z ψ'`).  The statement of `coef_eTermFun_replacement_localB_marked` for a
+level set `𝔹_{k+1}`, arbitrary generating sets `Gl`, `Gd` with the hypotheses of
+`coef_eTermFun_replacement_gen` (cube alignment and sup-separation of `Gl`, `Gd ≺ Gl` with the layer
+`k` of `Gl` and no layer `k + 1`), a datum `D'` of the chart `Ξ^c_{k+1}(Gl; 1, ε')` agreeing with `D`
+on the top layer of `Gl` (`ε ≤ ε'`), and the margin of the read region in the top layer of `Gl`.
+The landed `localB` statement is its instance; the cast local generating sets of the new level are
+another. -/
+theorem coef_eTermFun_replacement_marked_gen
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    (hG : IsLevel Hm k) (hk1 : 1 ≤ k) {ϱl ϱl' : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
+    (hA : CubeAligned Gl m₁) (hSS : SupSep Gl m₁) (hPd : Precedes Gd Gl)
+    (hdk : Gd.Ω k = Gl.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    (hagd : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl' - 1))
+    {c BG a₁ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (HB' : BgHyp d L (k + 1) ϱl (compWeight L a₁) ν)
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
+    {κ : ℝ} (hκ : 0 < κ) (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 ×
+        Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) ×
+        (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData
+      Gp N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ :
+        Gp.Ω 1
+        × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf
+          Gp)
+          Gp
+          (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl))
+      (D : BgData Gl N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gl)
+          Gl (compWeight L a₁) ν
+            (rho4 d L N BG κ) s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₀' δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h0' : 0 ≤ δ₀')
+    (h1 : 0 < δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N →
+      (Gd.Ω 1 × Fin N → ℂ) ×
+        (Gd.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf
+          Gp)
+          Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Gd N false δ₀' δ₁ p.2 →
+        (Sol' p).1 = dphi Gd
+          (Dec2.decG (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1)
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf Gl)
+          Gd (compWeight L a₁) ν p.1
+                false
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Small Gd (Sol' p).2
+          (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Gd (Sol' p).2
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Gd (Sol' p).1
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Gd.Ω 1 → ℂ,
+          Small Gd δα'
+            (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1 false
+            p.2.2.1 p.2.1
+            (pertSource Gd (compWeight L a₁)
+                  p.2.2.2.1
+              p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (C : Finset (ParIdx
+      Gp X₁))
+      {R' : ℝ} (hR' : 1 < R')
+    (hRκ : R' ≤ Real.exp κ)
+    {eps eps' : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hle : eps ≤ eps')
+    (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
+    (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
+    (hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀')
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {D' : BgData Gl N} (hD'x : XiCData Gl (compWeight L a₁) ν (k + 1) 1 eps' D')
+    (hD' : ∀ x ∈ Gl.Ω (k + 1), D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
+    {δc : ℝ} (hmarD' : decDomMargin d L N BG κ (xiC1 d * eps') < δc)
+    (hαD' : K4 d L N BG κ * (xiC1 d * eps') < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (Zm : Finset (unitPts Gp)) (um tm : ℂ)
+    (hδ₁m : (‖um‖ + ‖tm‖) *
+      (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁)
+    (ψh : unitPts Gp × Fin N → ℂ) (hψh : ∀ p, ‖ψh p‖ ≤ cψ)
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hRk : ∀ x ∈ dataSites Gk, x ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) → y ∈ Gl.Ω (k + 1)) :
+    coef (fun w => eTermFun Gp Gk Gj Hm ac Fk E (F₁ (extParams
+      Gp X₁ w,
+      rawOf D))
+        (Sol (extParams Gp X₁ w,
+          flEdat Gp Hm (F₁ (extParams
+            Gp
+            X₁ w, rawOf D)) D.Ψ
+            (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+              (extParams Gp X₁ w) (rawOf D) ψh))).1
+        (rawOf D, (markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
+              (extParams Gp X₁ w) (rawOf D) ψh))) C =
+      coef (fun w => eTermFun Gl Gk Gj
+        Gd
+        ac Fk E
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0), rawOf
+              D'))
+        (Sol' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0),
+          flEdat Gl
+            Gd
+            (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                (k + 1) then Dec2.extS (coverOf
+                  Gp) (extParams
+                  Gp X₁ w) P.1 else 0), rawOf
+                  D'))
+            D'.Ψ
+            (fun x i => (um + if unitPt hG' x ∈ Zm
+                then tm else 0) * (if h : unitBlock x ∈
+                unitPts Gl then
+              (cc • (decCovSqrt Gl
+                (compWeight L a₁) a₁ ν
+                (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0), rawOf
+                  D')).2
+                (Dec2.extS (coverOf Gl)
+                  (fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0))
+                (barField Gl
+                  D'.Ψ
+                  (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0), rawOf
+                  D')).1)
+                (unitQ Gl)
+                (unitP Gl) *ᵥ
+                (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2)
+                  else 0))) (⟨unitBlock x, h⟩, i)
+              else 0)))).1
+        (rawOf D',
+            (fun x i => (um + if unitPt hG' x ∈ Zm
+                then tm else 0) * (if h : unitBlock x ∈
+                unitPts Gl then
+              (cc • (decCovSqrt Gl
+                (compWeight L a₁) a₁ ν
+                (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0), rawOf
+                  D')).2
+                (Dec2.extS (coverOf Gl)
+                  (fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0))
+                (barField Gl
+                  D'.Ψ
+                  (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                  (k + 1) then Dec2.extS (coverOf
+                    Gp) (extParams
+                    Gp X₁ w) P.1 else 0), rawOf
+                  D')).1)
+                (unitQ Gl)
+                (unitP Gl) *ᵥ
+                (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2)
+                  else 0))) (⟨unitBlock x, h⟩, i)
+              else 0)))) C := by
+  classical
+  obtain ⟨Sb, Sb', -, -⟩ := replacement_coverBases hG' Hm hA hSS hPd hN hm₁ hM HB hag hagm hagl hagd
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have heps' : 0 < eps' := lt_of_lt_of_le heps hle
+  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
+  have hxle : xiC1 d * eps ≤ xiC1 d * eps' := mul_le_mul_of_nonneg_left hle (by linarith)
+  have hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2 :=
+    lt_of_le_of_lt (mul_le_mul_of_nonneg_left hxle hK4) hαD'
+  have hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc := by
+    refine lt_of_le_of_lt ?_ hmarD'
+    unfold decDomMargin
+    gcongr
   have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
     (norm_extParams_lt hR' hw.2 P).trans_le hRκ
-  have hψl := fun w (hw : w ∈ supN C R') =>
-    maskedLocalLift_mem_flBall (M w) ψl cc um tm (fun x => unitPt hG' x ∈ Zm) (hℓ w hw)
-  refine (coef_congr_near hR' fun w hw => ?_).trans
-    (coef_eTermFun_replacement_localB_collar hG hk1 hk Y Yp hYp hN hm₁ hM hag hagm hagl hS HB HB'
-      hκ hMc hF₁ hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7 hphi hεb
-      hsmall' hc7' hphi' hδ₀e hD _ hψl hRC hRX hRk hRY)
-  exact eTermFun_level_hat_congr hG' hm₁ hF₂ Sf hκ.le hM₂ h0 h1.le hδ₀ hδ₁ hSol ac Fk E hRC hRX
-    hRk hw.1 (hsσ w hw) _ (rawOf D)
-    (strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
-      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD
-      (markedHatPsiF_mem_flBall_of hG' cc F₁ Zm um tm _ _ ψh (hamb w hw)))
-    (strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
-      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψl w hw))
-    (fun x hx y hy => funext fun i =>
-      (markedHatPsiF_apply hG' cc F₁ Zm um tm _ _ ψh y i).trans
-        (congrArg _ (hℓeq w hw x hx y hy i).symm))
+  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+  have hHm : Hm.Ω (k + 1) = ∅ :=
+    Finset.eq_empty_of_forall_notMem fun x => isLevel_not_mem_Ω hG le_rfl (by omega) x
+  have hψh' : ∀ p : unitPts Gl × Fin N,
+      ‖(fun p : unitPts Gl × Fin N =>
+        if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0) p‖ ≤ cψ := by
+    intro p
+    dsimp only
+    split_ifs
+    · exact hψh _
+    · simpa using hcψ
+  have hcm : 0 ≤ ‖um‖ + ‖tm‖ := by positivity
+  have hδ₁cm : Real.sqrt N * (‖((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc‖ *
+      (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁ := by
+    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hcm]
+    calc Real.sqrt N * ((‖um‖ + ‖tm‖) * ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))
+        = (‖um‖ + ‖tm‖) *
+          (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) := by ring
+      _ < δ₁ := hδ₁m
+  exact coef_eTermFun_replacement_marked_of_lift_gen hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁ hM hag
+    hagm hagl hagd hS HB HB' hκ hMc hF₁ hF₁' hF₂ hM₂ h0 h0' h1 hδ₀ hδ₀' hδ₁ hSol hSol' ac Fk E C hR'
+    hRκ heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD hD'x hD' cc Zm um tm ψh
+    (fun w => decCovSqrt Gl (compWeight L a₁) a₁ ν
+      (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+        Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D')).2
+      (Dec2.extS (coverOf Gl) (fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+        Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0))
+      (barField Gl D'.Ψ (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1) then
+        Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D')).1)
+      (unitQ Gl) (unitP Gl))
+    (fun p => if hp : p.1.1 ∈ unitPts Gp then ψh (⟨p.1.1, hp⟩, p.2) else 0)
+    (fun w hw => (localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS Sb' HB' hκ.le hMc hMX
+      (Cchi_nonneg d L) hF₁' heps' hsmall' hc7' hphi' hmarD' hαD' hsm
+      (tau_norm_lt (Gl := Gl) (hsσ w hw) hE1) hD'x _ hcψ h1 hδ₁cm hψh').1)
+    (fun w hw => by
+      rw [hatPsiF_eq_dite (a₁ := a₁) (ν := ν) hG' (((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc) F₁
+        (extParams _ X₁ w) (rawOf D) ψh]
+      exact (localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS Sb HB hκ.le hMc hMX
+        (Cchi_nonneg d L) hF₁ heps hsmall hc7 hphi hmarD hαD hsm (hsσ w hw) hD _ hcψ h1 hδ₁cm
+        hψh).1)
+    hRC hRX hRk
+    (fun w hw x hx y hy i => localHatLift_eq_hatPsiF hSS hA hG' hk1 hN hm₁ hM hag hagl hS HB HB'
+      ha₁ ha₂ hκ hMc hMX hF₁ hF₁' heps hsmall hc7 hphi heps' hsmall' hc7' hphi' hmarD hαD
+      hmarD' hαD' hsm hD hD'x hD' hRC hRX hmar hw.1 (hsσ w hw) cc ψh ⟨x, hx, hy⟩ i)
+    hmar
+
 
 /-- **The replacement identity along the masked tangent** (the marked form of
 `coef_eTermFun_replacement_localB_hat`, for the marks of the inherited energy: P3 pp. 78-79 with the
@@ -1687,106 +2173,30 @@ theorem coef_eTermFun_replacement_localB_marked (hG : IsLevel Hm k) (hk1 : 1 ≤
                   (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk) then ψh (⟨p.1.1, hp⟩, p.2)
                   else 0))) (⟨unitBlock x, h⟩, i)
               else 0)))) C := by
-  classical
-  have hG' : IsLevel (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
-      (k + 1) hk) (k + 1) := isLevel_levelGS (Nat.le_add_left 1 k) hk
-  obtain ⟨Sb, Sb', -, -⟩ := localB_replacement_coverBases hG' Hm hk Yp hN hm₁ hM HB hag hagm hagl
   have hd0 : 0 < d := by have := HB.hd; omega
   have hxi := one_le_xiC1 d
   have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
   have hδ0 : 0 < xiC1 d * eps := by positivity
-  have heps' : 0 < eps' := by nlinarith
   have hle : eps ≤ eps' := by nlinarith
-  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
-  have hxle : xiC1 d * eps ≤ xiC1 d * eps' := mul_le_mul_of_nonneg_left hle (by linarith)
-  have hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2 :=
-    lt_of_le_of_lt (mul_le_mul_of_nonneg_left hxle hK4) hαD'
-  have hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc := by
-    refine lt_of_le_of_lt ?_ hmarD'
-    unfold decDomMargin
-    gcongr
-  have hDom := xiCData_inDomainC HB hsmall hD
   have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
   have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
   have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
     have := HB.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hD'x := localB_xiCData_restrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
-    (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D hDom
-  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
-    (norm_extParams_lt hR' hw.2 P).trans_le hRκ
-  have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
-  have hmar := localB_collar_margin hk (le_refl (minSep L (L ^ m₁))) hYp hRY
-  have hHm : Hm.Ω (k + 1) = ∅ :=
-    Finset.eq_empty_of_forall_notMem fun x => isLevel_not_mem_Ω hG le_rfl (by omega) x
-  have hψh' : ∀ p : unitPts (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) × Fin N,
-      ‖(fun p : unitPts (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))) × Fin N =>
-        if hp : p.1.1 ∈ unitPts (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-          (k := k + 1) (ϱ := ϱ) (k + 1) hk) then ψh (⟨p.1.1, hp⟩, p.2) else 0) p‖ ≤ cψ := by
-    intro p
-    dsimp only
-    split_ifs
-    · exact hψh _
-    · simpa using hcψ
-  have hcm : 0 ≤ ‖um‖ + ‖tm‖ := by positivity
-  have hδ₁cm : Real.sqrt N * (‖((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc‖ *
-      (covSupConstC d L N (compWeight L a₁ k) κ * cψ)) < δ₁ := by
-    rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hcm]
-    calc Real.sqrt N * ((‖um‖ + ‖tm‖) * ‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))
-        = (‖um‖ + ‖tm‖) *
-          (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) := by ring
-      _ < δ₁ := hδ₁m
-  exact coef_eTermFun_replacement_localB_marked_of_lift hG hk1 hk Y Yp hYp hN hm₁ hM hag hagm hagl
-    hS HB HB' hκ hMc hF₁ hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7
-    hphi hεb hsmall' hc7' hphi' hδ₀e hD cc Zm um tm ψh
-    (fun w => decCovSqrt (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
-                (compWeight L a₁) a₁ ν
-                (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω
-                  (k + 1) then Dec2.extS (coverOf
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0), rawOf
-                  (localBRestrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
-                  (Nat.le_add_left 1 k) D))).2
-                (Dec2.extS (coverOf (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
-                  (fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω
-                  (k + 1) then Dec2.extS (coverOf
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0))
-                (barField (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))
-                  (localBRestrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
-                  (Nat.le_add_left 1 k) D).Ψ
-                  (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))).Ω
-                  (k + 1) then Dec2.extS (coverOf
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk)) (extParams
-                    (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-                    (k := k + 1) (ϱ := ϱ) (k + 1) hk) X₁ w) P.1 else 0), rawOf
-                  (localBRestrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
-                  (Nat.le_add_left 1 k) D))).1)
-                (unitQ (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁)))))
-                (unitP (localB (k + 1) hk Yp (le_refl (minSep L (L ^ m₁))))))
-    (fun p => if hp : p.1.1 ∈ unitPts (Def6.levelGS (d := d) (L := L) (N₁ := N₁)
-                  (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) hk) then ψh (⟨p.1.1, hp⟩, p.2)
-                  else 0)
-    (fun w hw => (localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS Sb' HB' hκ.le hMc hMX
-      (Cchi_nonneg d L) hF₁' heps' hsmall' hc7' hphi' hmarD' hαD' hsm
-      (localB_tau_norm_lt hk Yp _ (hsσ w hw) hE1) hD'x _ hcψ h1 hδ₁cm hψh').1)
-    (fun w hw => by
-      rw [hatPsiF_eq_dite (a₁ := a₁) (ν := ν) hG' (((‖um‖ + ‖tm‖ : ℝ) : ℂ) * cc) F₁
-        (extParams _ X₁ w) (rawOf D) ψh]
-      exact (localHatLift_mem_flBallLC_of_spec hHm hk1 ha₁ ha₂ hS Sb HB hκ.le hMc hMX
-        (Cchi_nonneg d L) hF₁ heps hsmall hc7 hphi hmarD hαD hsm (hsσ w hw) hD _ hcψ h1 hδ₁cm
-        hψh).1)
-    hRC hRX hRk
-    (fun w hw x hx y hy i => localHatLift_eq_hatPsiF_localB hG' hk1 hk Yp hN hm₁ hM hag hagl hS HB
-      HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' heps hsmall hc7 hphi heps' hsmall' hc7' hphi' hmarD hαD
-      hmarD' hαD' hsm hD hD'x
-      (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) hRC hRX hmar hw.1
-      (hsσ w hw) cc ψh ⟨x, hx, hy⟩ i)
-    hRY
+  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
+  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
+    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
+      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
+    linarith
+  exact coef_eTermFun_replacement_marked_gen (isLevel_levelGS (Nat.le_add_left 1 k) hk) hG hk1
+    (localB_cubeAligned hk Yp _ hm₁) (localB_supSep hk Yp _)
+    (localB_drop_precedes hk (Nat.le_succ k) Yp _ _)
+    (localB_drop_Ω hk (Nat.le_succ k) Yp _ _ (le_refl k)) (localB_drop_top hk (Nat.le_succ k) Yp _ _)
+    hN hm₁ hM hag hagm hagl hagl hS HB HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' hF₂ hM₂ h0 h0 h1 hδ₀ hδ₀ hδ₁
+    hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD
+    (localB_xiCData_restrict (X := Yp) (hsep := le_refl (minSep L (L ^ m₁)))
+      (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D (xiCData_inDomainC HB hsmall hD))
+    (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) hmarD' hαD' hsm cc hcψ Zm
+    um tm hδ₁m ψh hψh hRC hRX hRk (localB_collar_margin hk (le_refl (minSep L (L ^ m₁))) hYp hRY)
 
 /-- **The replacement identity along the masked tangent as an identity of functions of the raw
 datum**: `coef_eTermFun_replacement_localB_marked` with the datum replaced by a raw datum `Θ` of the
