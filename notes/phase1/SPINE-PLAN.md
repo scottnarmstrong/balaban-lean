@@ -44,10 +44,10 @@ source question. deps: ids below, rulings R7′/R9, Bn = blocker n of `docs/BLOC
 | (c) | `LFHistInput`: the histories of `Λ` complete up to `k+1` | O | LF-3 (c); Def. I.3.1, (R8) | 30% — `exists_isComplete` | 300 | L | – |
 | (g1) | `LFStepDataInput`: `∃ StepData` at `cs'` with `ker = Λ.ker`, tied to `vacExt rec.Ev k ΦE`; non-quiet kernels P5 (2.47)·P6 (3.2) with local backgrounds; at the old steps the tie is the A4-2v estimate | O | Lemmas II.5.14, IV.1.3, 4, 6; (S0); R5, R5′ | 25% — `quietStepData'`, `StepData.retie`, `norm_stepVacuumTerm_le_of_stepData` | 1,700 | H | R9, R10 |
 | (g1′) | kept data (S3): `succKD` = `KeptData.upTo` of the input's | P | (S3) | 100% — `KeptData.upTo`, `chiDomAt_congr` | 0 | – | – |
-| (g2) | `LFBdryInput`: `D7Bdry` of `ℬ^{(k+1)}` at the physical field, `B_st`, `3κ/2`; old terms across a new hole | O | Lemma IV.1.5; P6 p. 34 | 15% | 1,200 | H | B3 |
+| (g2) | `LFBdryInput`: `D7Bdry` of `ℬ^{(k+1)}` at the physical field, `B_st`, `3κ/2`; old terms across a new hole | Rd | Lemma IV.1.5; P6 p. 34 | 40% — W1140: `lfBdryInput_of_parts` (`Spine/LFBdry.lean`; parts `LFBdryNewInput`, `LFBdryDeltaInput`, `LFBdryOldInput` on the split `LFBdrySplit`), `norm_sum_le_of_transfer`; blocker 3 located (π′-shape of hole sites) and its piece proved under R11 (`Def7.exists_transfer_fineValidFinAt`, `transfer_patches`, `Spine/LFBdryHole.lean`); leaves O2, O4 and the cube part of O3 proved (`d7Pull_OmegaCube_succ_subset`, `le_d7SizeAt_of_reach`, `FineValidFinAt.dmodOmega`); open O1 (analytic re-expansion), O5 (entropy, after R11), parts (i), (ii) (SPINE.md) | 1,000 | M (after R11) | R11, B3 |
 | (g3) | `LFFormInput`: `D1PreForm2` for `stepDensity … Λ.s ρ` with every `vc'` of `D1CorrLim` | O | P5 (2.1)–(2.48), §3, (1.8); P6 §2, (3.3) | 20% — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M | (g1), Φ |
 | (g3′) | `LFOpBoundInput` (`D5Bound`) | P | Lemma II.6.3 (a) | 100% — `lfOpBoundInput_of_signs` from `LFSignInput` | 0 | – | – |
-| (z) | `LFSignInput`: `z_j > 0`, `1 ≤ j ≤ k+1` (`j ≤ k` not carried by the class: carrier field proposed) | O | P1 (1.11), P4 (4.1) | 50% — `z_{k+1} > 0` in A4-1a | 50 | L | carrier |
+| (z) | `LFSignInput`: `z_j > 0`, `1 ≤ j ≤ k+1` | P | P1 (1.11), P4 (4.1) | 100% — W1142: carrier field `zpos` on `RepRec`/`PreRec`, `lfSignInput_of_inherit` from `SFInheritInput` | 0 | – | – |
 | (g4) | `LFPinInput` (`D4Pin (k+1)`: the histories of `Λ` restrict to those of `rec`, whose pins and kept data they keep) | O | (D4); LF-3 (c) | 10% | 300 | L | (c) |
 | (g4′) | `LFBudgetInput` (`D6Pre` with (I.2) to `k+1`) | P | LF-2 (i) | 100% — `lfBudgetInput_of_pin` (prefix, `Rep.budgetPre_of_LF2_trunc`) | 0 | – | – |
 | (g5) | `LFBdrySrcInput`: `D7BdryBall` (complex `h'` of the pinned ball): the activity bound on the transverse source radius | O | blocker 2 leaf 5; Q13-YM §§2, 5 | 50% — R2 objects (three masses, `chiY`, `KerBoundSrc`) | 600 | H | B2 |
@@ -111,7 +111,7 @@ small-torus cases where the non-winding hypotheses fail. Recommended: ask it.
 * `ΦE`: DONE (W1132): `vacMap` = the Gaussian increment `Γ_k` of the step (`Spine/SFVacuum.lean`); the forward flow `L^d E_k − e₀/|T|` is the normalization `s`.
 * `Φ♭, ΦE♭` (A4f-1): the same at complete backgrounds; inside A4f-1's 3,000.
 * The first density: landed (`firstDensity` reads `baseRho1`; `integral_firstDensityAt`).
-* `thr` (A7): `δ_β = A log(βa)/√(βν)`, ≤ 50 lines. The constants: A1′.
+* `thr` (A7): `δ_β = A log(βa)/√(βν)` — DONE (W1142): `kf0Thr A a β ν`, `kf0Thr_range` (range `0 < · ≤ √2` in the regime `7/8 < νL²`, `β ≥ β₀`), `kfZeroInput_of_parts_kf0Thr`. The constants `A > 0`, `a > 1`: A1′.
 * Not provider data: the outputs `lf′` (A4-1h), `lf₁, ℬ′, ℛ″, ρ′` (A4-2ab), `a, E, b` (A6-3/4, A7) are existentials built inside the proofs.
 
 **(c) Non-vacuity at the used configurations (rule 10), blocked on R9.** `RepRec`, `PreRec`, `FlatRep` at `kf ≥ 1`, `K = kf + 1 ≥ 2`, with `K` up to

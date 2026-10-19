@@ -20,7 +20,7 @@ The last section lists the problems that have been resolved since the project st
 |---|---|---|---|---|
 | 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains; local pieces of the first component proved (W981); the no-step case now goes through the linked gas of blocker 5 |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; a route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is designed; the estimate on the shrinking source radius remains (item 13 addendum); formalized up to the physical kernels (W973), the rest waits on ruling R2 |
-| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.34); P3 (4.48) | localization for general classes; large-field boundary terms | open, with the author; the completion spill is confirmed for P5's openings; routes compared (item 14, fifth addendum); aligned openings do not close it; being proved: decay of the coupling across a hole |
+| 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.33)–(1.34); P3 (4.48) | localization for general classes; large-field boundary terms | cause located: our domains must be unions of cover cubes even inside the holes, and new holes need not be; the transfer of every domain across any new hole is proved once that requirement is limited to the small-field sites (ruling R11 asked); the three earlier routes do not close it |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum); the window conversion now rests on one design point, the window's field off the pieces; vacuum: the step's vacuum constant is bounded (proved), the vacuum region of one component must be restricted to the component (ruling R10) |
 | 5 | The cut family for the last integral | P7 §4; P4 (6.4)–(6.6) | the last integral | open; determinant and interaction localized; the amplitude follows the papers (normalization at g = 0, second-order bound, cross term with the source-free exponent); the last-scale interaction identified with the class's energy terms (radius ε_{k_f}; comparison, N components, the domain inclusion and volume-uniform coefficient bounds proved); the identification with the physical density, the large-field part (route from P7 §4 built; the coupling across a large set asked, item 18 addendum) and the joins remain; the singleton-gas reading of the large-field part is refuted by an example, and the linked gas of P7 (4.11) is being built |
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | workaround largely built (replacement identity; analyticity, locality, bounds, rotation and paving covariance of the local terms); old terms keep their birth domain (R6); the chain is proved at towers for every scale with one β₀ and the papers' collar, with the filed torus defect bounded at every centre; the new level's labels, the sum of their bounds and the covariance of its densities are proved; its terms on the local charts, the closure of its energy constant and the counterterms remain |
@@ -143,6 +143,27 @@ pay a bridge between two attachments across a hole. Two closures remain: the coe
 coefficient of a cluster that couples two attachments across a hole carries an extra decay factor. The example of blocker
 5 (a good block between two bad ones couples them) suggests the first fails, so the second is being proved, from the decay
 of the massive covariance across the hole.
+
+Update (19 October). The obstruction is now located exactly, and it is narrower than the papers' statements
+suggested. A boundary term depends on the history of every large-field hole it meets, so its domain contains
+those holes whole; our domains are in addition required to be unions of the overlapping cubes of the cover
+(P5 (1.33)) at every site, the sites of the holes included. The new holes of the papers' construction need
+not be such unions: where two thick pieces of an earlier large-field region meet diagonally, every cover cube
+through a site of the seam between them contains small-field sites. Every admissible domain that contains the
+hole then contains small-field sites along the whole seam, and its size grows with the seam's length, while an
+inherited coefficient that does not depend on the fields, which the inductive class allows, has no decay to
+pay for it. The same happens to the new terms of the fluctuation integral, whose natural domains are a
+small-field set together with the holes next to it. None of the earlier proposals closes this: a special
+property of the coefficients the step produces fails for the class, which must be carried through every step;
+a stronger bound on the old coefficients cannot see the shape of a hole created at the next scale; and domains
+that need not contain whole holes remove the spill but lose the count of domains used by the cluster
+expansions, since a domain could then contain any part of a hole at no cost. What closes it is to require the
+cover cubes only at the small-field sites of a domain: the size of a domain depends only on those sites
+already, and a domain is still determined by its small-field part and the holes next to it. With this change
+(ruling request R11, [`notes/phase1/PLAN-B.md`](../notes/phase1/PLAN-B.md)) we proved that every domain of one
+scale carries over to the next scale across any new hole, with its size divided by L, and that the domains of
+the fluctuation integral are admissible as they are. What remains for the old boundary terms is the analytic
+re-expansion of P6 (4.32)–(4.34), which no longer meets the hole.
 
 ## 4. The gas of removed components and retained holes
 
