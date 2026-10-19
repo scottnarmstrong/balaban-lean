@@ -13,6 +13,7 @@ public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RRawHoleComponent
+public import Balaban.LargeField.R.RGasCoreConn
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -70,11 +71,12 @@ label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt
 * An old label of the post-`R` class whose fine set meets the new region has size at least
   `L (⌊R_k⌋ + 2)` (`RegionHistory.le_d7SizeAt_of_reach`, through the exit of a hole
   `DmodOmega.exists_active_near`): the lower bound `hmin` of `norm_sum_le_of_transfer`.
+* A valid label of R11 is a cube-level domain of `𝒟_k(mod Ω^c)` (`Def7.FineValidFinAt.dmodOmega`).
 
 **What is not proved here.**  The analytic re-expansion of the old terms (the coefficients of the
-assignments and their bounds, P6 (4.32)–(4.34)) and the cube-level membership of the transfer label
-in `bdryDoms` (cube-level `DmodOmega`, and it meets `Z_{k+1}` and its complement); these are leaves
-of `Spine/LFBdry.lean` (`notes/phase1/SPINE.md`, section "LFBdryInput sub-inputs").
+assignments and their bounds, P6 (4.32)–(4.34)), and which transferred labels meet `Z^pre_{k+1}` and
+its complement (the others go to `b_k`); these are leaves of `Spine/LFBdry.lean`
+(`notes/phase1/SPINE.md`, section "LFBdryInput sub-inputs").
 -/
 
 @[expose] public section
@@ -787,6 +789,22 @@ theorem exists_transfer_fineValidAt_of_open {k : ℕ} (hkK : k + 1 ≤ K) {Om : 
   refine ⟨Y, hYT ▸ subset_transferLabel _ _ _, ?_, hsize.trans_eq (by rw [hc]; rfl)⟩
   rw [fineValidAt_iff, hYT]
   exact djMod_transferLabel_of_open hΩ hA hXd.1.1 hXd.1.2.2 fun z hz => hopen z hz.2
+
+include hnn in
+/-- **A valid label of R11 is a domain of `𝒟_k(mod Ω^c)` at cube level** (`DmodOmega`, the
+condition of `bdryDoms`): its cubes are nearest-neighbour connected (`isDomain_iff_siteConnected`)
+and it contains or misses every nearest-neighbour component of the cube complement
+(`omegaComp_preimage`).  For the transfer label this is the cube-level part of leaf O3. -/
+theorem FineValidFinAt.dmodOmega {k : ℕ} (hkK : k ≤ K) {Om : Set (Torus S.d (n k))}
+    {Y : Finset (Torus S.d (n k))} (h : FineValidFinAt F k Om Y) : DmodOmega Om Y := by
+  have : NeZero (cellSide S.L m₀ m₁ k) := ⟨(cellSide_pos m₀ m₁ k).ne'⟩
+  have hN := fine_side_eq F hnn hkK
+  unfold FineValidFinAt at h
+  rw [d7Pull_eq_preimage_siteCube, d7Pull_eq_preimage_siteCube] at h
+  refine ⟨(isDomain_iff_siteConnected hN Y).2 ⟨h.1, h.2.1⟩, fun c hc => ?_⟩
+  obtain ⟨z, rfl⟩ := siteCube_surj' (N := (F.N₁ * S.L ^ m₁) * S.L ^ K) hN c
+  have := h.2.2.1 z hc
+  rwa [omegaComp_preimage hN Om z hc, preimage_subset_iff hN, preimage_disjoint_iff hN] at this
 
 end Cube
 
