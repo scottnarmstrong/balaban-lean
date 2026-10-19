@@ -64,11 +64,13 @@ label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt
   bound of LFR Lemma IV.1.5 (iii) that frees the constant of the step from `B₀`.
 * The labels of R11 keep the counting and union properties of the landed labels: (G1)
   (`DjModFin.cellCount_le`) and (G3) (`djModFin_union`) with the same constants.
+* The fine new region lies in the fine post-`R` region of the same history
+  (`RegionHistory.d7Pull_OmegaCube_succ_subset`), the inclusion the transfer needs.
 
 **What is not proved here.**  The analytic re-expansion of the old terms (the coefficients of the
-assignments and their bounds, P6 (4.32)–(4.34)); the inclusion of the fine new region in the fine
-post-`R` region of the input, and the cube-level membership of the transfer label in `bdryDoms`
-(it meets `Z_{k+1}` and its complement); these are leaves of `Spine/LFBdry.lean`.
+assignments and their bounds, P6 (4.32)–(4.34)) and the cube-level membership of the transfer label
+in `bdryDoms` (cube-level `DmodOmega`, and it meets `Z_{k+1}` and its complement); these are leaves
+of `Spine/LFBdry.lean` (`notes/phase1/SPINE.md`, section "LFBdryInput sub-inputs").
 -/
 
 @[expose] public section
@@ -783,3 +785,51 @@ theorem exists_transfer_fineValidAt_of_open {k : ℕ} (hkK : k + 1 ≤ K) {Om : 
 end Cube
 
 end Balaban.LargeField.Def7
+
+/-!
+### The new region lies in the old post-`R` region
+-/
+
+namespace Balaban.LargeField
+
+open Balaban
+
+section Region
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+
+/-- The complement of the raw region `Ω_k` lies in `Z^pre_k` (LFR Lemma I.3.5 (e)). -/
+theorem RegionHistory.compl_OmegaCube_subset_Zpre (H : RegionHistory S n R k0 K) (k : ℕ) :
+    (Def7.OmegaCube H k)ᶜ ⊆ H.F.Zpre k := by
+  cases k with
+  | zero => intro x hx; exact absurd (Set.mem_univ x) hx
+  | succ j => exact (H.step j).Omega_compl_subset_Z0.trans ((H.step j).Z0_subset_Zpre _ _)
+
+/-- The complement of the post-`R` region `Ω_k^post` lies in `Z_k = Z^pre_k ∖ ⋃ Rem_k`. -/
+theorem RegionHistory.compl_omegaPost_subset_Z (H : RegionHistory S n R k0 K) (k : ℕ) :
+    (H.omegaPost k)ᶜ ⊆ (H.step k).Z := by
+  intro x hx
+  rw [H.Z_eq]
+  exact ⟨H.compl_OmegaCube_subset_Zpre k fun h => hx (Or.inl h), fun h => hx (Or.inr h)⟩
+
+variable {M m₀ m₁ : ℕ} [NeZero S.L] [NeZero M]
+
+/-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
+transfer of `Def7.exists_transfer_fineValidFinAt`; P5 (2.3): the opening of scale `k + 1` misses
+the coarsening `U'_k` of `Z_k`, and `(Ω_k^post)^c ⊆ Z_k`). -/
+theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F : Def7.FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) :
+    Def7.d7Pull F (k + 1) (Def7.OmegaCube H (k + 1)) ⊆ Def7.d7Pull F k (H.omegaPost k) := by
+  intro x hx
+  rw [Def7.mem_d7Pull] at hx ⊢
+  by_contra hy
+  have hZ := H.compl_omegaPost_subset_Z k hy
+  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
+      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hZ, rfl⟩
+  rw [cubeMap_succ hnn hk] at hU
+  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hx)
+
+end Region
+
+end Balaban.LargeField
