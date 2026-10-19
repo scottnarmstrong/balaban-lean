@@ -5,7 +5,8 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.R.RRemovedChainRead
+public import Balaban.LargeField.Operators.Quiet
+public import Balaban.LargeField.R.WindowGaussTree
 import Mathlib.Tactic.Positivity
 
 /-!
@@ -20,6 +21,16 @@ step from the frozen partition function.
 @[expose] public section
 
 open MeasureTheory Balaban Balaban.LargeField
+
+namespace Balaban.LargeField
+
+/-- `gaussT` is the Gaussian density of the difference. -/
+theorem gaussT_eq_gaussDens (N : ℕ) (c : ℝ) (ϑ w : EuclideanSpace ℝ (Fin N)) :
+    gaussT N c ϑ w = gaussDens c (ϑ - w) := by
+  unfold gaussT gaussDens
+  rw [finrank_euclideanSpace_fin]
+
+end Balaban.LargeField
 
 namespace Balaban.RootFSpine
 
