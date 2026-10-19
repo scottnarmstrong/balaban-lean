@@ -822,6 +822,7 @@ public import Balaban.Fluctuation.SizeModCore
 public import Balaban.Fluctuation.SizeModG1
 public import Balaban.Fluctuation.SizeModUnion
 public import Balaban.Fluctuation.SizeModUnionTree
+public import Balaban.Fluctuation.DjModFin
 public import Balaban.Fluctuation.SizeModHoleRoot
 public import Balaban.Fluctuation.SizeModG4
 public import Balaban.Fluctuation.SizeModG5

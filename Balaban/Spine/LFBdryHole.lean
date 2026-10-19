@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.SizeModEntropy
 public import Balaban.Fluctuation.SizeModUnion
+public import Balaban.Fluctuation.DjModFin
 public import Balaban.Fluctuation.GeneralOldCoeffFamily
 public import Balaban.Fluctuation.HatLabelsGeom
 public import Balaban.Fluctuation.Thm31Inhab
@@ -26,11 +27,11 @@ LFR Lemma IV.1.5 (iii); P5 (1.33)–(1.34), p. 493, p. 512; P6 p. 34, (4.32)–(
 **The obstruction.**  An old boundary term `ℬ^{(k)}(X')` whose domain meets `Ω_{k+1}` is re-expanded
 by the step and assigned an output label `Y` of scale `k + 1`.  The term depends on the history of
 every component of the large-field region that it meets (P5 p. 493; `D7Bdry.loc_hist`), so `Y`
-contains `X'` and every component of the new holes `Ω_{k+1}^c` that meets it.  The landed labels
-(`Def7.FineValidAt`, `Fluctuation.DjMod`) are in addition unions of `π'_{k+1}`-cubes at **every**
+contains `X'` and every component of the new holes `Ω_{k+1}^c` that meets it.  The former labels
+(`Fluctuation.DjMod`) are in addition unions of `π'_{k+1}`-cubes at **every**
 site, the sites of the holes included.  A new hole need not be such a union: at a seam where two
 thick inherited pieces meet diagonally (ALIGNED (23)–(26)) every `π'_{k+1}`-cube through a site of
-the hole contains active sites (`spill_of_defect`), so every landed label containing the hole
+the hole contains active sites (`spill_of_defect`), so every former label containing the hole
 contains active sites along the whole seam, and its size grows linearly with the seam
 (`Fluctuation.G1_cellCount`, `R.completion_cellCount_le`).  A coefficient of the class that is
 constant in the fields and depends only on the history (ALIGNED (33), LFROOT3 Q2) has no decay to
@@ -40,12 +41,12 @@ background: their labels are the sets `Ŷ(S)` of finite modular size (FLUCTUATIO
 `π'`-cubes in the holes.
 
 **The change of ruling request R11** (`notes/phase1/PLAN-B.md`): require the `π'`-cube structure
-through the active sites only.  `DjModFin` (fine sites) and `Def7.FineValidFinAt` (class labels):
+through the active sites only.  `DjModFin` (fine sites) and `Def7.FineValidAt` (class labels):
 nonempty, nearest-neighbour connected, containing or missing every component of the holes, of finite
 modular size; the finite size already places every active site in a `π'`-cube inside the label
-(`DjModFin.exists_box`).  `djMod_iff_djModFin` and `Def7.fineValidAt_iff_fineValidFinAt`: the landed
-class is R11 plus the `π'`-cubes through the sites of the holes, so every landed label is an R11
-label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt` is unchanged.
+(`DjModFin.exists_box`).  `djMod_iff_djModFin` and `fineValidAt_of_djMod`: the former
+class is R11 plus the `π'`-cubes through the sites of the holes, so every former label is an R11
+label (`DjMod.djModFin`).  The size `d7SizeAt` is unchanged.
 
 **What is proved.**
 * The transfer label (`transferLabel`): the hole closure (`holeClose`) at the new region of the old
@@ -55,9 +56,9 @@ label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt
   a label of `DjModFin` with no condition on the new holes (`djModFin_transferLabel`).  In the
   landed class it is a label when the new holes it meets are unions of `π'_{k+1}`-cubes
   (`djMod_transferLabel_of_open`).
-* `exists_transfer_djModFin` (fine sites) and `Def7.exists_transfer_fineValidFinAt` (class labels):
+* `exists_transfer_djModFin` (fine sites) and `Def7.exists_transfer_fineValidAt` (class labels):
   **under R11 the old labels cross the new holes** with `d_{k+1}(Y) ≤ L⁻¹ d_k(X')`; the landed-class
-  versions `exists_transfer_djMod_of_open`, `Def7.exists_transfer_fineValidAt_of_open` hold when the
+  versions `exists_transfer_djMod_of_open`, `Def7.exists_transfer_djMod_of_open` hold when the
   new holes are unions of `π'_{k+1}`-cubes (the old terms that cross no defect of a new hole).
 * Mark patches rooted at active sites (P3 (4.44)–(4.48), modular form): the hole closure is free
   (`modAdmissible_holeClose`) and each patch costs `c_G = 2 d L` (`exists_admissible_union_boxes`,
@@ -71,7 +72,7 @@ label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt
 * An old label of the post-`R` class whose fine set meets the new region has size at least
   `L (⌊R_k⌋ + 2)` (`RegionHistory.le_d7SizeAt_of_reach`, through the exit of a hole
   `DmodOmega.exists_active_near`): the lower bound `hmin` of `norm_sum_le_of_transfer`.
-* A valid label of R11 is a cube-level domain of `𝒟_k(mod Ω^c)` (`Def7.FineValidFinAt.dmodOmega`).
+* A valid label of R11 is a cube-level domain of `𝒟_k(mod Ω^c)` (`Def7.FineValidAt.dmodOmega`).
 
 **What is not proved here.**  The analytic re-expansion of the old terms (the coefficients of the
 assignments and their bounds, P6 (4.32)–(4.34)), and which transferred labels meet `Z^pre_{k+1}` and
@@ -87,92 +88,9 @@ open Balaban Balaban.Localization
 
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ j : ℕ}
 
-/-! ### Labels whose `π'`-cube structure is required through the active sites only -/
-
-/-- **`𝒟_j(mod Ω^c)` with the `π'_j`-cube structure required through the sites of `Ω` only**
-(the label class of ruling request R11): `X` is nonempty, nearest-neighbour connected, contains or
-misses every component of `Ω^c` (P5 (1.33)), and its modular covering size is finite, that is, the
-sites of `X ∩ Ω` lie in `π'_j`-cubes contained in `X` (`DjModFin.exists_box`).  The landed class
-`DjMod` asks in addition that every site of `X` lie in a `π'_j`-cube contained in `X`
-(`djMod_iff_djModFin`). -/
-def DjModFin (m₀ j : ℕ) (Ω X : Set (CTorus d L N₁ m₁ K)) : Prop :=
-  X.Nonempty ∧ SiteConnected X ∧ (∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X ∨ Disjoint (OmegaComp Ω z) X) ∧
-    dcovModE m₀ j Ω X ≠ ⊤
-
-/-- A label of the landed class `𝒟_j(mod Ω^c)` belongs to `DjModFin`. -/
-theorem DjMod.djModFin {Ω X : Set (CTorus d L N₁ m₁ K)} (h : DjMod m₀ j Ω X) :
-    DjModFin m₀ j Ω X :=
-  ⟨h.1.1, h.1.2.2, h.2, dcovModE_ne_top_of_IsDj h.1⟩
-
-omit [NeZero N₁] [NeZero L] in
-/-- The sites of `X ∩ Ω` of a label of `DjModFin` lie in `π'_j`-cubes contained in `X`. -/
-theorem DjModFin.exists_box {Ω X : Set (CTorus d L N₁ m₁ K)} (h : DjModFin m₀ j Ω X)
-    {z : CTorus d L N₁ m₁ K} (hz : z ∈ X ∩ Ω) :
-    ∃ b, Aligned (cellSide L m₀ m₁ j) b ∧ z ∈ box b (L * cellSide L m₀ m₁ j) ∧
-      box b (L * cellSide L m₀ m₁ j) ⊆ X := by
-  obtain ⟨𝒦, W, E, hK, hcov, -⟩ := exists_admissible_of_ne_top h.2.2.2
-  obtain ⟨b, hb, hzb⟩ := Set.mem_iUnion₂.1 (hcov hz)
-  exact ⟨b, (hK b hb).1, hzb, (hK b hb).2⟩
-
-/-- **What R11 drops.**  A set belongs to the landed `𝒟_j(mod Ω^c)` exactly when it belongs to
-`DjModFin` and, in addition, every site of `X ∩ Ω^c` lies in a `π'_j`-cube contained in `X`. -/
-theorem djMod_iff_djModFin {Ω X : Set (CTorus d L N₁ m₁ K)} :
-    DjMod m₀ j Ω X ↔ DjModFin m₀ j Ω X ∧ ∀ z ∈ X ∩ Ωᶜ, ∃ b, Aligned (cellSide L m₀ m₁ j) b ∧
-      z ∈ box b (L * cellSide L m₀ m₁ j) ∧ box b (L * cellSide L m₀ m₁ j) ⊆ X := by
-  constructor
-  · intro h
-    exact ⟨h.djModFin, fun z hz => h.1.2.1 z hz.1⟩
-  · rintro ⟨h, hc⟩
-    refine ⟨⟨h.1, fun z hz => ?_, h.2.1⟩, h.2.2.1⟩
-    by_cases hzΩ : z ∈ Ω
-    · exact h.exists_box ⟨hz, hzΩ⟩
-    · exact hc z ⟨hz, hzΩ⟩
-
 /-- `DjModFin` is inhabited (rule 10): the whole torus. -/
 theorem djModFin_univ (Ω : Set (CTorus d L N₁ m₁ K)) : DjModFin m₀ j Ω Set.univ :=
   DjMod.djModFin ⟨isDj_univ d L N₁ m₁ K m₀ j, fun _ _ => Or.inl (Set.subset_univ _)⟩
-
-/-! ### (G1) and (G3) for the labels of R11 -/
-
-open Classical in
-/-- **(G1) for the labels of R11**: `n_π(X ∩ Ω) ≤ c₁ (1 + d^cov_j(X mod Ω^c))`, as
-`G1_cellCount` for the landed labels (the count reads only an admissible pair). -/
-theorem DjModFin.cellCount_le (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d L N₁ m₁ K)}
-    (h : DjModFin m₀ j Ω X) :
-    (cellCount (cellSide L m₀ m₁ j) (X ∩ Ω) : ℝ) ≤ c1 d L * (1 + dcovMod m₀ j Ω X) := by
-  obtain ⟨𝒦, W, E, hE, hcost⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h.2.2.2)
-  rw [← hcost]
-  exact cellCount_le_of_admissible hN hj hE
-
-omit [NeZero N₁] [NeZero L] in
-/-- Containing or missing every component of `Ω^c` is stable under unions. -/
-theorem comp_union_of_comp {Ω X₁ X₂ : Set (CTorus d L N₁ m₁ K)}
-    (h₁ : ∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X₁ ∨ Disjoint (OmegaComp Ω z) X₁)
-    (h₂ : ∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X₂ ∨ Disjoint (OmegaComp Ω z) X₂) :
-    ∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X₁ ∪ X₂ ∨ Disjoint (OmegaComp Ω z) (X₁ ∪ X₂) := by
-  intro z hz
-  rcases h₁ z hz with h | h
-  · exact Or.inl (h.trans Set.subset_union_left)
-  · rcases h₂ z hz with h' | h'
-    · exact Or.inl (h'.trans Set.subset_union_right)
-    · exact Or.inr (Set.disjoint_union_right.2 ⟨h, h'⟩)
-
-/-- **(G3) for the labels of R11**: two labels sharing a site of `Ω` have a union in `DjModFin` of
-size at most the sum plus `c_G = 2 d L`. -/
-theorem djModFin_union {Ω X₁ X₂ : Set (CTorus d L N₁ m₁ K)} (h₁ : DjModFin m₀ j Ω X₁)
-    (h₂ : DjModFin m₀ j Ω X₂) {t : CTorus d L N₁ m₁ K} (ht1 : t ∈ X₁) (ht2 : t ∈ X₂)
-    (htΩ : t ∈ Ω) :
-    DjModFin m₀ j Ω (X₁ ∪ X₂) ∧
-      dcovMod m₀ j Ω (X₁ ∪ X₂) ≤ dcovMod m₀ j Ω X₁ + dcovMod m₀ j Ω X₂ + cG d L := by
-  obtain ⟨𝒦₁, W₁, E₁, hA₁, he₁⟩ :=
-    exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₁.2.2.2)
-  obtain ⟨𝒦₂, W₂, E₂, hA₂, he₂⟩ :=
-    exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₂.2.2.2)
-  obtain ⟨𝒦, W, E, hA, hc⟩ := exists_union_admissible hA₁ hA₂ ht1 ht2 htΩ
-  refine ⟨⟨⟨t, Or.inl ht1⟩, siteConnected_union h₁.2.1 h₂.2.1 ht1 ht2,
-    comp_union_of_comp h₁.2.2.1 h₂.2.2.1, dcovModE_ne_top ⟨𝒦, W, E, hA⟩⟩, ?_⟩
-  rw [← he₁, ← he₂]
-  exact (dcovMod_le_of_admissible hA).trans hc
 
 /-! ### Connectivity -/
 
@@ -618,34 +536,6 @@ section Cube
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K m₀ m₁ : ℕ} [NeZero S.L]
 
-/-- **The valid labels of R11**: the fine set of `X` belongs to `DjModFin` at the fine set of the
-region `Ω` (nonempty, connected, containing or missing every component of `Ω_f^c`, of finite size).
-The landed `FineValidAt` asks in addition that the fine set be a union of `π'_k`-cubes
-(`fineValidAt_iff_fineValidFinAt`). -/
-def FineValidFinAt (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ) (Om : Set (Torus S.d (n k)))
-    (X : Finset (Torus S.d (n k))) : Prop :=
-  DjModFin m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k))))
-
-omit [∀ k, NeZero (n k)] in
-/-- **R11 drops exactly one clause of `FineValidAt`**: the `π'_k`-cubes through the sites of the
-holes. -/
-theorem fineValidAt_iff_fineValidFinAt {F : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
-    {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))} :
-    FineValidAt F k Om X ↔ FineValidFinAt F k Om X ∧
-      ∀ z ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∩ (d7Pull F k Om)ᶜ,
-        ∃ b, Aligned (cellSide S.L m₀ m₁ k) b ∧
-          z ∈ Localization.box b (S.L * cellSide S.L m₀ m₁ k) ∧
-          Localization.box b (S.L * cellSide S.L m₀ m₁ k) ⊆
-            d7Pull F k (X : Set (Torus S.d (n k))) := by
-  rw [fineValidAt_iff, FineValidFinAt, djMod_iff_djModFin]
-
-omit [∀ k, NeZero (n k)] in
-/-- A valid label of the landed class is a valid label of R11. -/
-theorem FineValidAt.fineValidFinAt {F : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
-    {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))} (h : FineValidAt F k Om X) :
-    FineValidFinAt F k Om X :=
-  (fineValidAt_iff_fineValidFinAt.1 h).1
-
 variable (F : FineSizeFrame S n M K m₀ m₁) (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
 
 include hnn in
@@ -746,48 +636,48 @@ theorem exists_cube_transferLabel {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus
 include hnn in
 /-- **The transfer of a class label across a new hole, with the labels of R11** (blocker 3, zero
 marks; LFR Lemma IV.1.5 (iii), P6 p. 34).  Let `X` be a valid label of R11 at the scale-`k` region
-`Om` (in particular a valid label of the landed class, `FineValidAt.fineValidFinAt`), and let `Om'`
+`Om` (in particular a label of the former class, `fineValidAt_of_djMod`), and let `Om'`
 be the region of scale `k + 1` with fine set inside that of `Om`.  There is a set `Y` of cubes of
 `𝕋_{k+1}` whose fine set contains the fine set of `X` (and every component of the new holes that
 meets it), that is a valid label of R11 at `Om'`, with
 `d7SizeAt F (k + 1) Om' Y ≤ L⁻¹ d7SizeAt F k Om X`.  No condition on the shape of the new holes:
 the seam of `notes/phase1/astra/ALIGNED.md` (23)–(26), which forces active sites into every label
 of the landed class (`Balaban.Fluctuation.spill_of_defect`), costs nothing here. -/
-theorem exists_transfer_fineValidFinAt {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n k))}
+theorem exists_transfer_fineValidAt {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n k))}
     {Om' : Set (Torus S.d (n (k + 1)))} (hΩ : d7Pull F (k + 1) Om' ⊆ d7Pull F k Om)
-    {X : Finset (Torus S.d (n k))} (hX : FineValidFinAt F k Om X) :
-    ∃ Y : Finset (Torus S.d (n (k + 1))),
-      d7Pull F k (X : Set (Torus S.d (n k))) ⊆ d7Pull F (k + 1) (Y : Set (Torus S.d (n (k + 1)))) ∧
-      FineValidFinAt F (k + 1) Om' Y ∧
-      d7SizeAt F (k + 1) Om' Y ≤ (S.L : ℝ)⁻¹ * d7SizeAt F k Om X := by
-  obtain ⟨𝒦, W, E, hA, hc⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top hX.2.2.2)
-  obtain ⟨Y, hYT, hsize⟩ := exists_cube_transferLabel F hnn hkK hΩ hA
-  refine ⟨Y, hYT ▸ subset_transferLabel _ _ _, ?_, hsize.trans_eq (by rw [hc]; rfl)⟩
-  unfold FineValidFinAt
-  rw [hYT]
-  exact djModFin_transferLabel hΩ hA hX.1 hX.2.1
-
-include hnn in
-/-- **The same transfer in the landed class, for new holes that are unions of `π'_{k+1}`-cubes.**
-If every component of the complement of the fine set of `Om'` is a union of `π'_{k+1}`-cubes, a
-valid label `X` of the landed class at `Om` has a transfer `Y` that is a valid label of the landed
-class at `Om'`, with `d7SizeAt F (k + 1) Om' Y ≤ L⁻¹ d7SizeAt F k Om X`.  This is the transfer of
-the old terms that cross no defect of a new hole; the remaining case is blocker 3. -/
-theorem exists_transfer_fineValidAt_of_open {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n k))}
-    {Om' : Set (Torus S.d (n (k + 1)))} (hΩ : d7Pull F (k + 1) Om' ⊆ d7Pull F k Om)
-    (hopen : ∀ z ∈ (d7Pull F (k + 1) Om')ᶜ,
-      IsPiPrimeUnion m₀ (k + 1) (OmegaComp (d7Pull F (k + 1) Om') z))
     {X : Finset (Torus S.d (n k))} (hX : FineValidAt F k Om X) :
     ∃ Y : Finset (Torus S.d (n (k + 1))),
       d7Pull F k (X : Set (Torus S.d (n k))) ⊆ d7Pull F (k + 1) (Y : Set (Torus S.d (n (k + 1)))) ∧
       FineValidAt F (k + 1) Om' Y ∧
       d7SizeAt F (k + 1) Om' Y ≤ (S.L : ℝ)⁻¹ * d7SizeAt F k Om X := by
-  have hXd := fineValidAt_iff.1 hX
+  obtain ⟨𝒦, W, E, hA, hc⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top hX.2.2.2)
+  obtain ⟨Y, hYT, hsize⟩ := exists_cube_transferLabel F hnn hkK hΩ hA
+  refine ⟨Y, hYT ▸ subset_transferLabel _ _ _, ?_, hsize.trans_eq (by rw [hc]; rfl)⟩
+  unfold FineValidAt
+  rw [hYT]
+  exact djModFin_transferLabel hΩ hA hX.1 hX.2.1
+
+include hnn in
+/-- **The same transfer in the former class, for new holes that are unions of `π'_{k+1}`-cubes.**
+If every component of the complement of the fine set of `Om'` is a union of `π'_{k+1}`-cubes, a
+label `X` of the former class `Fluctuation.DjMod` at `Om` has a transfer `Y` in the former class at
+`Om'`, with `d7SizeAt F (k + 1) Om' Y ≤ L⁻¹ d7SizeAt F k Om X`.  This is the transfer of the old
+terms that cross no defect of a new hole; for the other holes the labels of R11 are needed. -/
+theorem exists_transfer_djMod_of_open {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n k))}
+    {Om' : Set (Torus S.d (n (k + 1)))} (hΩ : d7Pull F (k + 1) Om' ⊆ d7Pull F k Om)
+    (hopen : ∀ z ∈ (d7Pull F (k + 1) Om')ᶜ,
+      IsPiPrimeUnion m₀ (k + 1) (OmegaComp (d7Pull F (k + 1) Om') z))
+    {X : Finset (Torus S.d (n k))}
+    (hXd : DjMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k))))) :
+    ∃ Y : Finset (Torus S.d (n (k + 1))),
+      d7Pull F k (X : Set (Torus S.d (n k))) ⊆ d7Pull F (k + 1) (Y : Set (Torus S.d (n (k + 1)))) ∧
+      DjMod m₀ (k + 1) (d7Pull F (k + 1) Om') (d7Pull F (k + 1) (Y : Set (Torus S.d (n (k + 1))))) ∧
+      d7SizeAt F (k + 1) Om' Y ≤ (S.L : ℝ)⁻¹ * d7SizeAt F k Om X := by
   obtain ⟨𝒦, W, E, hA, hc⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_IsDj
     (Ω := d7Pull F k Om) hXd.1)
   obtain ⟨Y, hYT, hsize⟩ := exists_cube_transferLabel F hnn hkK hΩ hA
   refine ⟨Y, hYT ▸ subset_transferLabel _ _ _, ?_, hsize.trans_eq (by rw [hc]; rfl)⟩
-  rw [fineValidAt_iff, hYT]
+  rw [hYT]
   exact djMod_transferLabel_of_open hΩ hA hXd.1.1 hXd.1.2.2 fun z hz => hopen z hz.2
 
 include hnn in
@@ -795,11 +685,11 @@ include hnn in
 condition of `bdryDoms`): its cubes are nearest-neighbour connected (`isDomain_iff_siteConnected`)
 and it contains or misses every nearest-neighbour component of the cube complement
 (`omegaComp_preimage`).  For the transfer label this is the cube-level part of leaf O3. -/
-theorem FineValidFinAt.dmodOmega {k : ℕ} (hkK : k ≤ K) {Om : Set (Torus S.d (n k))}
-    {Y : Finset (Torus S.d (n k))} (h : FineValidFinAt F k Om Y) : DmodOmega Om Y := by
+theorem FineValidAt.dmodOmega {k : ℕ} (hkK : k ≤ K) {Om : Set (Torus S.d (n k))}
+    {Y : Finset (Torus S.d (n k))} (h : FineValidAt F k Om Y) : DmodOmega Om Y := by
   have : NeZero (cellSide S.L m₀ m₁ k) := ⟨(cellSide_pos m₀ m₁ k).ne'⟩
   have hN := fine_side_eq F hnn hkK
-  unfold FineValidFinAt at h
+  unfold FineValidAt at h
   rw [d7Pull_eq_preimage_siteCube, d7Pull_eq_preimage_siteCube] at h
   refine ⟨(isDomain_iff_siteConnected hN Y).2 ⟨h.1, h.2.1⟩, fun c hc => ?_⟩
   obtain ⟨z, rfl⟩ := siteCube_surj' (N := (F.N₁ * S.L ^ m₁) * S.L ^ K) hN c
@@ -839,7 +729,7 @@ theorem RegionHistory.compl_omegaPost_subset_Z (H : RegionHistory S n R k0 K) (k
 variable {M m₀ m₁ : ℕ} [NeZero S.L] [NeZero M]
 
 /-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
-transfer of `Def7.exists_transfer_fineValidFinAt`; P5 (2.3): the opening of scale `k + 1` misses
+transfer of `Def7.exists_transfer_fineValidAt`; P5 (2.3): the opening of scale `k + 1` misses
 the coarsening `U'_k` of `Z_k`, and `(Ω_k^post)^c ⊆ Z_k`). -/
 theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F : Def7.FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (H : RegionHistory S n R k0 K) {k : ℕ}
@@ -932,7 +822,7 @@ theorem RegionHistory.le_d7SizeAt_of_reach (F : Def7.FineSizeFrame S n M K m₀ 
     rw [d7Pull_iff, hyu]; exact huX
   have hyΩ : y ∈ Def7.d7Pull F k (H.omegaPost k) := by rw [d7Pull_iff, hyu]; exact huΩ
   have hxΩ : x ∈ Def7.d7Pull F k (H.omegaPost k) := H.d7Pull_OmegaCube_succ_subset F hnn hk hxΩ'
-  have hge := Fluctuation.dcovMod_ge_supDist hv.2 ⟨hyX, hyΩ⟩ ⟨hxX, hxΩ⟩
+  have hge := Fluctuation.dcovMod_ge_supDist hv.2.2.2 ⟨hyX, hyΩ⟩ ⟨hxX, hxΩ⟩
   -- the distance of the two sites
   set ρ := ⌊R k⌋₊ with hρ
   set a := S.L ^ (k + 1) * M with ha

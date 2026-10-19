@@ -27,8 +27,9 @@ post region `Ω_k^post = Ω_k^pre ∪ ⋃ Rem_k`.  With `d = S.d`, `L = S.L` and
   inside it, `rawHole_nnConnected_subset_comp`; `cellComps_d7Pull` converts fine cell-components to
   coarse nearest-neighbour components);
 * `d7Size_le_d7SizePre_add` (**★**): `d7Size ≤ d7SizePre + (d L + d + 3) · |A_X|`, for `1 ≤ k ≤ K`
-  and a label whose fine lift is a connected union of `π'_k`-cubes (`IsDj`; this holds for every
-  `FineValid` label, `d7Size_le_d7SizePre_add_of_fineValid`);
+  and a label whose fine lift has the cube structure at the post-`R` region (`PiCubesAt`; this
+  holds for every `FineValid` label, `d7Size_le_d7SizePre_add_of_fineValid`, and for every `IsDj`
+  label);
 * `d7Size_eq_d7SizePre_of_no_removal`: for `k = 0` or `k₀ < k` the two sizes coincide, and
   `d7SizePre_le_d7Size_le` is the two-sided statement;
 * `newlyActive_card_le`, `d7Size_le_d7SizePre_add_removed` (**★★**): under admissibility, `Good`
@@ -94,12 +95,15 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- **Cover-size increment at the level of `dcovMod`** (★ for the region history). -/
 theorem dcovMod_omegaPost_le {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K) (X : Finset (Torus S.d (n k)))
-    (hX : Fluctuation.IsDj m₀ k (d7Pull F k (X : Set (Torus S.d (n k))))) :
+    (hX : Fluctuation.PiCubesAt m₀ k (d7Pull F k (A.H.omegaPost k))
+      (d7Pull F k (X : Set (Torus S.d (n k)))))
+    (hfin : d7SizePreE F A k X ≠ ⊤) :
     Fluctuation.dcovMod m₀ k (d7Pull F k (A.H.omegaPost k)) (d7Pull F k (X : Set (Torus S.d (n k)))) ≤
       Fluctuation.dcovMod m₀ k (d7Pull F k (OmegaCube A.H k))
           (d7Pull F k (X : Set (Torus S.d (n k)))) +
         ((S.d : ℝ) * S.L + S.d + 3) * ((A.H.newlyActive X).card : ℝ) := by
   have h := dcovMod_d7Pull_le_add F (RegionHistory.tower A.H) hkK hX (hsplit_omegaPost A.H F hk hkK X)
+    hfin
   have hset : d7Pull F k (X : Set (Torus S.d (n k))) ∩
       (d7Pull F k (A.H.omegaPost k) \ d7Pull F k (OmegaCube A.H k)) =
       d7Pull F k ((A.H.newlyActive X : Finset (Torus S.d (n k))) : Set (Torus S.d (n k))) := by
@@ -108,22 +112,28 @@ theorem dcovMod_omegaPost_le {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K) (X : Finse
   exact h
 
 /-- **(★) The size after `R` exceeds the size before `R` by at most `(d L + d + 3)` per newly
-active cube.**  For `1 ≤ k ≤ K` and a label `X` whose fine lift is in `𝒟_k` (a nonempty connected
-union of `π'_k`-cubes),
+active cube.**  For `1 ≤ k ≤ K` and a label `X` whose fine lift has the cube structure at the
+post-`R` region (`PiCubesAt`: a connected union of cells with `π'_k`-cubes at its sites in
+`Ω_k^post`; for instance a `FineValid` label, `d7Size_le_d7SizePre_add_of_fineValid`, or a label of
+`𝒟_k`) and a finite size before `R`,
 `d7Size F A k X ≤ d7SizePre F A k X + (d L + d + 3) · |X ∩ (⋃ Rem_k ∖ Ω_k^pre)|`. -/
 theorem d7Size_le_d7SizePre_add {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K)
     {X : Finset (Torus S.d (n k))}
-    (hX : Fluctuation.IsDj m₀ k (d7Pull F k (X : Set (Torus S.d (n k))))) :
+    (hX : Fluctuation.PiCubesAt m₀ k (d7Pull F k (A.H.omegaPost k))
+      (d7Pull F k (X : Set (Torus S.d (n k)))))
+    (hfin : d7SizePreE F A k X ≠ ⊤) :
     d7Size F A k X ≤ d7SizePre F A k X +
       ((S.d : ℝ) * S.L + S.d + 3) * ((A.H.newlyActive X).card : ℝ) :=
-  dcovMod_omegaPost_le F A hk hkK X hX
+  dcovMod_omegaPost_le F A hk hkK X hX hfin
 
 /-- (★) for every `FineValid` label. -/
 theorem d7Size_le_d7SizePre_add_of_fineValid {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K)
     {X : Finset (Torus S.d (n k))} (hv : FineValid F A k X) :
     d7Size F A k X ≤ d7SizePre F A k X +
       ((S.d : ℝ) * S.L + S.d + 3) * ((A.H.newlyActive X).card : ℝ) :=
-  d7Size_le_d7SizePre_add F A hk hkK hv.1.1
+  d7Size_le_d7SizePre_add F A hk hkK
+    (hv.piCubesAt F.divN₁ hkK (d7Pull_isPiUnion F (RegionHistory.tower A.H) hkK _))
+    (ne_top_of_le_ne_top hv.2.2.2 (d7SizePreE_le_d7SizeE F A k X))
 
 omit [NeZero S.L] in
 /-- For `k = 0` or `k₀ < k` nothing is removed and the two sizes coincide. -/
@@ -132,14 +142,16 @@ theorem d7Size_eq_d7SizePre_of_no_removal {k : ℕ} (hk : k = 0 ∨ k0 < k)
   d7Size_eq_d7SizePre_of_rem_empty F X (A.H.rem_empty k hk)
 
 /-- **The two-sided statement**: for a label of finite size after `R` (e.g. a `FineValid` label)
-with `1 ≤ k ≤ K` and `IsDj` fine lift, `d7SizePre ≤ d7Size ≤ d7SizePre + (d L + d + 3) |A_X|`. -/
+with `1 ≤ k ≤ K` and a fine lift with the cube structure at the post-`R` region, `d7SizePre ≤ d7Size ≤ d7SizePre + (d L + d + 3) |A_X|`. -/
 theorem d7SizePre_le_d7Size_le {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K) {X : Finset (Torus S.d (n k))}
     (hfin : d7SizeE F A k X ≠ ⊤)
-    (hX : Fluctuation.IsDj m₀ k (d7Pull F k (X : Set (Torus S.d (n k))))) :
+    (hX : Fluctuation.PiCubesAt m₀ k (d7Pull F k (A.H.omegaPost k))
+      (d7Pull F k (X : Set (Torus S.d (n k))))) :
     d7SizePre F A k X ≤ d7Size F A k X ∧
       d7Size F A k X ≤ d7SizePre F A k X +
         ((S.d : ℝ) * S.L + S.d + 3) * ((A.H.newlyActive X).card : ℝ) :=
-  ⟨d7SizePre_le_d7Size hfin, d7Size_le_d7SizePre_add F A hk hkK hX⟩
+  ⟨d7SizePre_le_d7Size hfin,
+    d7Size_le_d7SizePre_add F A hk hkK hX (ne_top_of_le_ne_top hfin (d7SizePreE_le_d7SizeE F A k X))⟩
 
 end Size
 
@@ -193,17 +205,21 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] (F : FineSizeFrame S n M K m₀ m₁) (A : LabHist S n R k0 K)
 
 /-- **(★★) The increment in terms of removed components.**  Under `Good` and the thickness
-condition, for `1 ≤ k ≤ K` and an `IsDj` label `X`,
+condition, for `1 ≤ k ≤ K` and a label `X` of finite size after `R` whose fine lift has the cube
+structure at the post-`R` region (`PiCubesAt`; e.g. an `IsDj` label, `Fluctuation.IsDj.piCubesAt`),
 `d7Size ≤ d7SizePre + (d L + d + 3) · N · (2ρ_k + 10)^d`, `N` the number of removed components
 that meet `X`. -/
 theorem d7Size_le_d7SizePre_add_removed (G : S.Good)
     (hT : ∀ j, 1 ≤ j → j ≤ k0 → 4 * S.rho j + 21 ≤ n j) {k : ℕ} (hk : 1 ≤ k) (hkK : k ≤ K)
     {X : Finset (Torus S.d (n k))}
-    (hX : Fluctuation.IsDj m₀ k (d7Pull F k (X : Set (Torus S.d (n k))))) :
+    (hX : Fluctuation.PiCubesAt m₀ k (d7Pull F k (A.H.omegaPost k))
+      (d7Pull F k (X : Set (Torus S.d (n k)))))
+    (hfin : d7SizeE F A k X ≠ ⊤) :
     d7Size F A k X ≤ d7SizePre F A k X +
       ((S.d : ℝ) * S.L + S.d + 3) *
         (((A.H.remMeeting X).card : ℝ) * ((2 * S.rho k + 10 : ℕ) ^ S.d : ℕ)) := by
   have h1 := d7Size_le_d7SizePre_add F A hk hkK hX
+    (ne_top_of_le_ne_top hfin (d7SizePreE_le_d7SizeE F A k X))
   have h2 := (newlyActive_card_le A.H G hT A.adm hkK X).2
   have h3 : ((A.H.newlyActive X).card : ℝ) ≤
       ((A.H.remMeeting X).card : ℝ) * (((2 * S.rho k + 10 : ℕ) ^ S.d : ℕ) : ℝ) := by

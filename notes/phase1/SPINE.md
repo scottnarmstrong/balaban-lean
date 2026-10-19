@@ -609,9 +609,9 @@ theorem norm_sum_le_of_transfer (I : Finset ι) (T : ι → ℂ) (Dm mk : ι →
     (hmin : ∀ a ∈ I, Dmin ≤ Dm a) (hB₀min : B₀ * exp (-(κ/2) * Dmin) ≤ 1) (hsize : ∀ a ∈ I, Dp ≤ Dm a / L + Cd * mk a)
     (hent : ∑ a ∈ I, exp (-(κ/2 - κo/L) * Dm a - (κm - κo*Cd) * mk a) ≤ Kent) :
     ‖∑ a ∈ I, T a‖ ≤ Cre * Kent * exp (-κo * Dp)
-theorem Def7.exists_transfer_fineValidFinAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
-    (hX : FineValidFinAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
-      FineValidFinAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Def7.exists_transfer_fineValidAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
+    (hX : FineValidAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
+      FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
 theorem Def7.exists_transfer_fineValidAt_of_open … (hopen : ∀ z ∈ (d7Pull F (k+1) Om')ᶜ,
       IsPiPrimeUnion m₀ (k+1) (OmegaComp (d7Pull F (k+1) Om') z)) (hX : FineValidAt F k Om X) :
     ∃ Y, … ∧ FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
@@ -625,7 +625,7 @@ theorem RegionHistory.le_d7SizeAt_of_reach (F) (hnn) (H) (hk : k + 1 ≤ K)
     (hX : X ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z)
     (hmeet : (d7Pull F k X ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) :
     (S.L : ℝ) * (⌊R k⌋₊ + 2) ≤ d7SizeAt F k (H.omegaPost k) X
-theorem Def7.FineValidFinAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidFinAt F k Om Y) : DmodOmega Om Y
+theorem Def7.FineValidAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidAt F k Om Y) : DmodOmega Om Y
 ```
 
 **The split** (LFR Lemma IV.1.5: three kinds with constants of rows 0–11, `B_st` their sum). `LFBdrySplit Λ` (a map,
@@ -648,10 +648,10 @@ H7-admissible constant coefficient to pay it (ALIGNED (33)). The same holds for 
 (i) a property of the P6 construction — refuted for the class (the constant coefficient re-expands to itself);
 (ii) a stronger H7 — refuted (the spill is created by the next scale's hole; also hits (i), (ii)); (iii) route B —
 removes the spill but breaks the domain entropy (G2) (`G2_X`, `D7GasRootEntropy`) unless the size charges hole sites,
-which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B): `FineValidAt := DjModFin` (π′-cubes at the active sites
+which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B; APPLIED by W1148: `FineValidAt` is `Fluctuation.DjModFin` at the fine sets; the entropy core is `G2_XFin`, the size growth core `dcovMod_le_add_of_piCubesAt`): `FineValidAt := DjModFin` (π′-cubes at the active sites
 only; size, `loc_hist`, H7 domain unchanged). Under R11 the transfer of every label across every new hole is proved
-(`Def7.exists_transfer_fineValidFinAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
-the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidAt_of_open`).
+(`Def7.exists_transfer_fineValidAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
+the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exists_transfer_djMod_of_open`).
 
 **Leaves of (iii)** (each ≤ 300 lines; none involves a new hole once R11 is in):
 * O1 `old_reexpansion`: the old part at a label is the finite sum over assignments (old label `X'`, marks `J`) of P6
@@ -661,12 +661,12 @@ the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidA
   analytic engine is the one of kind (i).
 * O2 **PROVED** (`RegionHistory.d7Pull_OmegaCube_succ_subset`): `d7Pull F (k+1) (OmegaCube H (k+1)) ⊆
   d7Pull F k (H.omegaPost k)` (P5 (2.3): the opening misses `nbhd (U'_k)`, `(Ω_k^post)^c ⊆ Z_k`).
-* O3 cube level **PROVED** (`Def7.FineValidFinAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
+* O3 cube level **PROVED** (`Def7.FineValidAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
   transferred labels meet `Z^pre_{k+1}` and its complement (the others go to `b_k`, LFR Lemma IV.1.3) — part of O1.
 * O4 **PROVED** (`RegionHistory.le_d7SizeAt_of_reach`): an old post-`R` label whose fine set meets the new region has
   `d7SizeAt ≥ L(⌊R_k⌋ + 2)` (exit of a hole `DmodOmega.exists_active_near`, `dcovMod_ge_supDist`); `hmin`, with (Λ28)
   `B₀ e^{-(κ/2) L(⌊R_k⌋+2)} ≤ 1` for `hB₀min`.
-* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (after R11's `G2_X` core) and the mark count of P3 (4.49).
+* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (`G2_XFin`, landed with R11) and the mark count of P3 (4.49).
 
 ## LastIntegralInput sub-inputs (W1108)
 
