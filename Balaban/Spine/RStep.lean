@@ -328,7 +328,7 @@ theorem rInput_of_parts (hV : RVacuumInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
   refine ⟨ρ', ?_, hint⟩
   refine ⟨rec.hM6, rec.hkK, rec.R, rec.geo, rec.cs, rec.P, repFamPost rec.F lf₁ B' Rpp, rec.St,
     rec.vc, rec.geoTie, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
-    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh, rec.Ev, rec.vac⟩
+    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh, rec.Ev, rec.vac, rec.zpos⟩
   exact
     { coh := coh_addRem rec.pre.coh
       field := field_addRem rec.pre.field

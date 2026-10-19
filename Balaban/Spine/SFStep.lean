@@ -426,7 +426,13 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
           exact rec.vac j hjk
         · obtain rfl : j = k + 1 := by omega
           rw [vacExt_succ]
-          exact hEv }, fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.2,
+          exact hEv
+      zpos := fun j hj1 hjk => by
+        by_cases hjk' : j ≤ k
+        · rw [show (Φ κ c₉ β ν k rec.F.sf).z j = rec.F.sf.z j from (hcst j hjk').2.2.1]
+          exact rec.zpos j hj1 hjk'
+        · obtain rfl : j = k + 1 := by omega
+          exact hz }, fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.2,
       (hcst j hj).2.2.1, vacExt_of_le _ hj⟩,
     fun nK _ => hvt nK,
     integralStep_stepDensity s hcK hz ρ (h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk ⟨rec⟩)⟩
