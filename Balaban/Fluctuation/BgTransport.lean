@@ -183,16 +183,6 @@ theorem mem_unitPts_of_isLevel (hG' : IsLevel Gp (k + 1)) (b : UnitTorus d L N�
   obtain ⟨x, hx⟩ := exists_unitBlock_eq (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) b
   exact (mem_unitPts Gp).2 ⟨x, hG'.mem_layer x, hx⟩
 
-/-- **The cut-off to the data of a level set is the identity.** -/
-theorem clipRaw_isLevel (hG' : IsLevel Gp (k + 1)) (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) :
-    clipRaw Gp r = r := by
-  classical
-  have h1 : ∀ x, x ∈ dataSites Gp := fun x => (mem_dataSites Gp).2 (Or.inl (hG' x).1)
-  have h2 : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
-  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-  · simp [clipRaw, h1 x]
-  · simp [clipRaw, h2 x]
-
 /-- **At a level set the canonical transport is the step's own transport.** -/
 theorem BgTransport.canon_eq_self (hG' : IsLevel Gp (k + 1)) :
     BgTransport.canon Gp Gp N = BgTransport.self hG' := by
@@ -213,7 +203,7 @@ theorem BgTransport.canon_eq_self (hG' : IsLevel Gp (k + 1)) :
     funext p
     rw [resZ_apply, dite_eq_left p.1.2]
     rfl
-  · exact LinearMap.ext fun r => clipRaw_isLevel hG' r
+  · exact LinearMap.ext fun r => clipRaw_of_isLevel hG' r
 
 
 open Classical in
