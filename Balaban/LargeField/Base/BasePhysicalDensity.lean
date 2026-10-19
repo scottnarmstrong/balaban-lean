@@ -1,6 +1,7 @@
 module
 
 public import Balaban.Frozen.Model.PartitionFunction
+public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.Lattice.Blocks
 public import Balaban.LargeField.Operators.Quiet
 public import Balaban.LargeField.Operators.ShellVolume
@@ -61,40 +62,6 @@ section Lemmas
 
 variable {d N L n : ℕ} [NeZero L] [NeZero n] [NeZero N]
 
-private lemma continuous_gaussT (c : ℝ) :
-    Continuous fun p : EuclideanSpace ℝ (Fin N) × EuclideanSpace ℝ (Fin N) => gaussT N c p.1 p.2 := by
-  unfold gaussT
-  fun_prop
-
-private lemma gaussT_sub (c : ℝ) (u w : EuclideanSpace ℝ (Fin N)) :
-    gaussT N c u w = gaussT N c (u - w) 0 := by
-  unfold gaussT; simp
-
-private lemma integrable_gaussT {c : ℝ} (hc : 0 < c) (w : EuclideanSpace ℝ (Fin N)) :
-    Integrable (fun u : EuclideanSpace ℝ (Fin N) => gaussT N c u w) := by
-  have h0 : Integrable (fun u : EuclideanSpace ℝ (Fin N) => gaussT N c u 0) := by
-    refine ⟨(continuous_gaussT c).comp (continuous_id.prodMk continuous_const) |>.aestronglyMeasurable, ?_⟩
-    unfold HasFiniteIntegral
-    have : ∀ u : EuclideanSpace ℝ (Fin N), ‖gaussT N c u 0‖ₑ = ENNReal.ofReal (gaussT N c u 0) := by
-      intro u; rw [Real.enorm_eq_ofReal (gaussT_nonneg N c hc.le u 0)]
-    simp_rw [this]
-    rw [lintegral_gaussT N hc]; exact ENNReal.one_lt_top
-  have := h0.comp_sub_right w
-  simpa [gaussT_sub c] using this
-
-private lemma integral_gaussT {c : ℝ} (hc : 0 < c) (w : EuclideanSpace ℝ (Fin N)) :
-    ∫ u : EuclideanSpace ℝ (Fin N), gaussT N c u w = 1 := by
-  have h1 : ∫ u : EuclideanSpace ℝ (Fin N), gaussT N c u 0 = 1 := by
-    rw [integral_eq_lintegral_of_nonneg_ae
-      (Filter.Eventually.of_forall fun u => gaussT_nonneg N c hc.le u 0)
-      ((continuous_gaussT c).comp (continuous_id.prodMk continuous_const)).aestronglyMeasurable,
-      lintegral_gaussT N hc]
-    simp
-  simp_rw [gaussT_sub c _ w]
-  rw [integral_sub_right_eq_self (fun u => gaussT N c u 0) w]
-  exact h1
-
-
 /-- The spin configurations. -/
 abbrev CfgT (d N L n : ℕ) : Type :=
   Torus d (L * n) → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1
@@ -135,42 +102,18 @@ lemma baseKernel_nonneg {β a : ℝ} (hβ : 0 < β) (ha : 0 < a)
     0 ≤ baseKernel d N L n β a θ φ :=
   Finset.prod_nonneg fun _ _ => gaussT_nonneg N _ (baseKernel_pos hβ ha).le _ _
 
-private lemma baseKernel_integrable {β a : ℝ} (hβ : 0 < β) (ha : 0 < a) (φ : CfgT d N L n) :
-    Integrable (fun θ : Torus d n → EuclideanSpace ℝ (Fin N) => baseKernel d N L n β a θ φ)
-      (Measure.pi fun _ => volume) := by
-  unfold baseKernel
-  exact Integrable.fintype_prod (f := fun y u => gaussT N _ u (baseQ d N L n φ y))
-    fun y => integrable_gaussT (baseKernel_pos hβ ha) _
-
-private lemma baseKernel_integral {β a : ℝ} (hβ : 0 < β) (ha : 0 < a) (φ : CfgT d N L n) :
-    ∫ θ : Torus d n → EuclideanSpace ℝ (Fin N), baseKernel d N L n β a θ φ
-      ∂(Measure.pi fun _ => volume) = 1 := by
-  unfold baseKernel
-  rw [integral_fintype_prod_eq_prod (f := fun y u => gaussT N _ u (baseQ d N L n φ y))]
-  exact Finset.prod_eq_one fun y _ => integral_gaussT (baseKernel_pos hβ ha) _
-
-private lemma finrank_coarse :
-    Module.finrank ℝ (Torus d n → EuclideanSpace ℝ (Fin N)) = N * Fintype.card (Torus d n) := by
-  simp [Module.finrank_pi_fintype, mul_comm]
-
 private lemma baseKernel_smul_integrable {β a z : ℝ} (hβ : 0 < β) (ha : 0 < a) (hz : 0 < z)
     (φ : CfgT d N L n) :
     Integrable (fun ψ : Torus d n → EuclideanSpace ℝ (Fin N) => baseKernel d N L n β a (z • ψ) φ)
       (Measure.pi fun _ => volume) :=
-  (baseKernel_integrable hβ ha φ).comp_smul hz.ne'
+  Balaban.RootFSpine.integrable_prod_gaussT_smul (baseKernel_pos hβ ha) hz _
 
 private lemma baseKernel_smul_integral {β a z : ℝ} (hβ : 0 < β) (ha : 0 < a) (hz : 0 < z)
     (φ : CfgT d N L n) :
     z ^ (N * Fintype.card (Torus d n)) *
       ∫ ψ : Torus d n → EuclideanSpace ℝ (Fin N), baseKernel d N L n β a (z • ψ) φ
-        ∂(Measure.pi fun _ => volume) = 1 := by
-  rw [Measure.integral_comp_smul (μ := (Measure.pi fun _ : Torus d n =>
-    (volume : Measure (EuclideanSpace ℝ (Fin N))))) (fun θ => baseKernel d N L n β a θ φ) z,
-    baseKernel_integral hβ ha φ, finrank_coarse]
-  have : 0 < z ^ (N * Fintype.card (Torus d n)) := by positivity
-  rw [abs_of_pos (by positivity)]
-  rw [smul_eq_mul, mul_one]
-  exact mul_inv_cancel₀ this.ne'
+        ∂(Measure.pi fun _ => volume) = 1 :=
+  Balaban.RootFSpine.integral_prod_gaussT_smul (baseKernel_pos hβ ha) hz _
 
 /-- Fubini for the product of the kernel and a bounded measurable function of the spins. -/
 private lemma fubini_core {β a z : ℝ} (hβ : 0 < β) (ha : 0 < a) (hz : 0 < z)
