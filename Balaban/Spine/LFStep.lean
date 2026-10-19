@@ -387,4 +387,260 @@ theorem norm_stepVacuumTerm_le_of_stepData (SD : StepData k0 geo cs N κs)
 
 end Vacuum
 
+/-!
+### The successor of a record
+-/
+
+section Succ
+
+variable {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7} {PB : BudgetConsts}
+  {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)} {kf k : ℕ}
+  [NeZero T.M] [NeZero T.L] {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
+
+namespace RepRec
+
+variable (rec : RepRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k ρ νk)
+  (sf' : SFData d T.L C7.m₁ (k + 1) N ϱ)
+
+/-- The operator constants of the successor of `rec` with the small-field data `sf'`
+(`succOpConsts`: the running constants of `sf'`, the other constants of `rec`). -/
+noncomputable def succCs : OpConsts :=
+  succOpConsts 𝒮[d, T, β, cs₀.aKer] (kZero d T.L β ν) C7.A0 rec.cs sf'
+
+/-- The budget constants of the successor of `rec` with the small-field data `sf'`. -/
+noncomputable def succP : BudgetConsts := succBudgetConsts (S := 𝒮[d, T, β, cs₀.aKer]) rec.P sf'
+
+/-- **The successor families**: `Q` holds for every family with the small-field data `sf'` and, on
+every torus, the large-field data of `D` with step and kept data at the constants of the successor
+that carry the data of `D` (`LFStepRaw.Matches`). The clauses of `IsRepPre2` and `LFCoherent` read
+the step and kept data only through these data, so a statement of this form is a statement about
+`sf'` and `D`. -/
+def SuccFams (D : LFStepRaw 𝒮[d, T, β, cs₀.aKer] rec.R (kZero d T.L β ν) (kf + 1) T.M N (k + 1))
+    (Q : RepFam 𝒮[d, T, β, cs₀.aKer] rec.R (kZero d T.L β ν) (kf + 1) T.M N rec.geo
+      (rec.succCs sf') (rec.succP sf') (k + 1) C7.m₁ ϱ → Prop) : Prop :=
+  ∀ (SD : ∀ (nK : ℕ) [NeZero nK], StepData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N
+      (kappaStepLoc (K := kf + 1) 𝒮[d, T, β, cs₀.aKer] (rec.succP sf') T.M))
+    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData (kZero d T.L β ν) (rec.geo nK) (rec.succCs sf') N
+      (D.κK nK) (Setting.lam 𝒮[d, T, β, cs₀.aKer])),
+    D.Matches SD KD → Q (D.fam sf' SD KD)
+
+/-- The couplings of a record are positive at the scales `j ≤ k` ((I.2)). -/
+theorem sfBeta_pos {j : ℕ} (hj : j ≤ k) : 0 < rec.F.sf.β j := by
+  obtain ⟨γ, hγ, -, hβj⟩ := rec.run.beta_eq j hj
+  rw [hβj]
+  have := rec.run.hβ
+  have hL : (0 : ℝ) < T.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne T.L)
+  positivity
+
+/-- The couplings of an image that keeps those of the record at the scales `j ≤ k` and satisfies
+(D2) at `k + 1` (whose coefficient bounds give `β_{k+1} > 0`, `CoeffBounds.beta_succ_ge`) are
+positive at the scales `j ≤ k + 1`. -/
+theorem imageBeta_pos {fac : ℕ → ℝ} (hD2 : D2SF2 P6 (kZero d T.L β ν) sf' fac)
+    (hβ : ∀ j, j ≤ k → sf'.β j = rec.F.sf.β j) {j : ℕ} (hj : j ≤ k + 1) : 0 < sf'.β j := by
+  rcases Nat.lt_or_ge j (k + 1) with h | h
+  · rw [hβ j (by omega)]
+    exact rec.sfBeta_pos (by omega)
+  · obtain rfl : j = k + 1 := by omega
+    obtain ⟨_, hsf⟩ := hD2.sfClass
+    have hL : 1 ≤ T.L := Nat.pos_of_ne_zero (NeZero.ne T.L)
+    exact (hsf.coeff.beta_succ_ge hL (by rw [hβ k le_rfl]; exact rec.sfBeta_pos le_rfl)).1
+
+end RepRec
+
+end Succ
+
+/-!
+### The parts
+-/
+
+section Inputs
+
+variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
+  (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
+  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+  (Φ : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉))
+  (ΦE : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → (ℕ → ℝ) → ℝ)
+
+/-- **The large-field step map** (a parameter of the sub-spine, defined by the provider): for every
+record `rec` of `ℛ_k` (constants `κ, c₉`, couplings `β, ν`, unit field `h`, horizon `kf`, density
+`ρ`), the large-field data of the successor at the scale `k + 1` on the tori of the family of `rec`
+(LF-3 (c), (d); LFR Lemma IV.1.5; P5 §§2–3, P6 §§2–3). -/
+abbrev LFStepMap :=
+  ∀ (κ c₉ β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf : ℕ) [NeZero (T κ c₉).L]
+    [NeZero (T κ c₉).M] (k : ℕ) (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ)
+    (rec : RepRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk),
+    LFStepRaw 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] rec.R (kZero d (T κ c₉).L β ν) (kf + 1)
+      (T κ c₉).M N (k + 1)
+
+/-- **The form of the parts**: a property `Q` of every record `rec` of `ℛ_k`, `1 ≤ k < k₀`, for
+`β ≥ β₀(κ, c₉)`, `0 < ν ≤ 7/8 L⁻²`, every unit field `h` and the horizon `kf`, whose small-field
+image `Φ rec.F.sf` satisfies the hypotheses of `LFStepInput`: (D2) with the allowance `preFac`,
+(D8), (D9), the free flow of `a_j` up to `k + 1`, and the running constants of `rec` at `j ≤ k`. -/
+def LFImageInput (Q : ∀ (κ c₉ β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf : ℕ)
+    [NeZero (T κ c₉).L] [NeZero (T κ c₉).M] (k : ℕ)
+    (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
+    RepRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk → k + 1 ≤ kf + 1 → Prop) : Prop :=
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
+  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
+  ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
+  ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
+  ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
+  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ)
+    (rec : RepRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk),
+    D2SF2 (P6 κ c₉) (kZero d (T κ c₉).L β ν) (Φ κ c₉ β ν k rec.F.sf)
+      (preFac ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)) →
+    D8SF (P6 κ c₉).m₀ (Φ κ c₉ β ν k rec.F.sf) →
+    D9Coeff (P6 κ c₉) (kZero d (T κ c₉).L β ν) (Φ κ c₉ β ν k rec.F.sf) →
+    (∀ j, 1 ≤ j → j ≤ k + 1 →
+      (Φ κ c₉ β ν k rec.F.sf).a j = compWeight (T κ c₉).L (cs₀ κ c₉).aKer j) →
+    (∀ j, j ≤ k → (Φ κ c₉ β ν k rec.F.sf).β j = rec.F.sf.β j ∧
+      (Φ κ c₉ β ν k rec.F.sf).ν j = rec.F.sf.ν j ∧ (Φ κ c₉ β ν k rec.F.sf).z j = rec.F.sf.z j) →
+    ∀ hkK' : k + 1 ≤ kf + 1, Q κ c₉ β ν h kf k ρ νk rec hkK'
+
+/-- **The histories of the successor (LF-3 (c); LFR Definition I.3.1, (R8)).** On every torus the
+histories of the map are a complete set of the histories up to the scale `k + 1` (without an
+`R`-record at `k + 1`): every history agrees up to `k + 1` with exactly one of them. -/
+def LFHistInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    ∀ (nK : ℕ) [NeZero nK], IsComplete (k + 1) (k + 1) ((Λ κ c₉ β ν h kf k ρ νk rec).hist nK)
+
+/-- **The step data of the successor (row (g1); LF-3 (d); LFR Lemma II.5.14 (quiet steps), Lemma
+IV.1.3 (the local background, the terms `Δ(Y)` of `b_k`), Lemma IV.1.4 ((S1)–(S2) of the kernels of
+P5 (2.47)·P6 (3.2) with the witness `χ'^{(k)c}(𝖯)χ'^{(k)}(…)`), Lemma IV.1.6 (rotation form), (S0)
+from P6 (2.32)–(2.33), (3.3); the vacuum constants: R5, R5′, P6 (3.2), P4 (2.1), (2.41), (2.63)).** On
+every torus there are step data (S0)–(S2) at the constants of the successor whose kernels are those
+of the map, and whose vacuum constants are those of the flow `E_0, …, E_k` of `rec` extended by the
+new constant `ΦE` (`vacExt`), with offsets `δ″, δ‴`. At the old steps `j < k` the kernels are those of
+`rec` (the composition of (D1)), so the tie there is the estimate `VacuumB0Bound` of the input's step
+data on its flow (A4-2v), which exists only after ruling R10 (`norm_stepVacuumTerm_le_of_stepData`).
+The witnesses of (S1), `b⁰` and the offsets are existential (read by no other part). -/
+def LFStepDataInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    ∀ (nK : ℕ) [NeZero nK], ∃ SD : StepData (kZero d (T κ c₉).L β ν) (rec.geo nK)
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)) N
+        (kappaStepLoc (K := kf + 1) 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
+          (rec.succP (Φ κ c₉ β ν k rec.F.sf)) (T κ c₉).M),
+      SD.ker = (Λ κ c₉ β ν h kf k ρ νk rec).ker nK ∧
+      ∃ dpp dppp : ℕ → ℝ, SD.VacuumTie Set.univ
+        (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp
+
+/-- **The kept data of the successor (row (g1), (S3); LF-3 proof of Theorem IV.1.1, "(S3): no kept
+data are created by a step").** On every torus there are kept data (S3) at the constants of the
+successor with the kept variables and kernels, `C_dec` and `γ` of the map (those of `rec` at the
+scales `≤ k`), for the exponents `κ_j` of the map. -/
+def LFKeptInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    ∀ (nK : ℕ) [NeZero nK], ∃ KD : KeptData (kZero d (T κ c₉).L β ν) (rec.geo nK)
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)) N ((Λ κ c₉ β ν h kf k ρ νk rec).κK nK)
+        (Setting.lam 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]),
+      KD.datum = (Λ κ c₉ β ν h kf k ρ νk rec).datum nK ∧
+        KD.Cdec = (Λ κ c₉ β ν h kf k ρ νk rec).Cdec nK ∧
+        KD.gam = (Λ κ c₉ β ν h kf k ρ νk rec).gam nK
+
+/-- **The boundary terms at the physical field (row (g2); LFR Lemma IV.1.5; P5 p. 512, P6 pp. 14–15,
+34).** On every torus the boundary terms `ℬ^{(k+1)}` of the map satisfy (D7) of the pre-`R` class at
+the physical field (`D7Bdry`: locality in the fields and in the history, reality, analyticity and the
+bound `B_st e^{-(3κ/2) d^cov}` on the H7 domain, covariance, support): the new terms of the
+fluctuation integral and of the renormalization, the terms `Δ(Y)` of Lemma IV.1.3 meeting
+`Z^c_{k+1}`, and the old terms whose domains meet `Ω_{k+1}` re-expanded (blocker 3: old terms across a
+new hole). -/
+def LFBdryInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec hkK' =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (nK : ℕ) [NeZero nK], D7Bdry (fineFrame 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
+          (sides (T κ c₉).L (kf + 1) nK) (kf + 1) rec.hM6) (sides_hnn (T κ c₉).L (kf + 1) nK)
+        hkK' (F'.lf nK) (fun A => A.H.F.Zpre (k + 1)) F'.weights
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).mu ((P6 κ c₉).eps d (T κ c₉).L)
+        (epsOne 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (P6 κ c₉) (C7 κ c₉))
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).nu (C7 κ c₉).Bst (3 / 2 * (P6 κ c₉).κ) h
+
+/-- **The boundary terms at the other fields of the pinned ball (row (g5); blocker 2, leaf 5;
+`notes/phase1/Q13-YM.md` §§2, 5; ruling R2).** On every torus the boundary terms of the map are
+analytic on the H7 domain and bounded by `B_st e^{-(3κ/2) d^cov}` at every complex field `h'` of the
+pinned ball `‖h' - h‖ < r_h` other than `h` (`D7BdryBall`): the activity bound at a complex source. -/
+def LFBdrySrcInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec hkK' =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (nK : ℕ) [NeZero nK], D7BdryBall (fineFrame 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
+          (sides (T κ c₉).L (kf + 1) nK) (kf + 1) rec.hM6) (sides_hnn (T κ c₉).L (kf + 1) nK)
+        hkK' (F'.lf nK) (fun A => A.H.F.Zpre (k + 1)) F'.weights
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).mu ((P6 κ c₉).eps d (T κ c₉).L)
+        (epsOne 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (P6 κ c₉) (C7 κ c₉))
+        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).nu (C7 κ c₉).Bst (3 / 2 * (P6 κ c₉).κ) h (rH κ c₉)
+
+/-- **The form of the step density (row (g3); LFR proof of Theorem IV.1.1 (c), (D1); P5 (2.1)–(2.14),
+(2.42)–(2.48), §3 (Propositions 3.1–3.4, (3.18)), P6 §2 ((2.11)–(2.33)), (3.3); P5 (1.8) for the
+correction).** On every torus the step density `ρ' = e^{-s|T^{(k+1)}_1|} z^{N|T^{(k+1)}|}(T^{(k)}ρ)(z·)`
+(`stepDensity`, with the Gaussian constant `β_k a L^{d-2}`, `z = z_{k+1}` of the image and the
+normalization `s` of the map) is the sum over the histories of the map of the pre-`R` terms of the
+successor (`D1PreForm2`), for the coefficient data `vc'` of P5 (1.8) defined by the limits
+`D1CorrLim` of the image. -/
+def LFFormInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec hkK' =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (St' : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d (T κ c₉).L N₁ (C7 κ c₉).m₁ (k + 1) N)
+        (vc' : CorrCoef d), D1CorrLim (P6 κ c₉).m₀ (Φ κ c₉ β ν k rec.F.sf) St' h vc' →
+      ∀ (nK : ℕ) [NeZero nK], D1PreForm2 (F'.ctx rec.hM6 hkK' nK) vc' (F'.lf nK) h
+        (stepDensity d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k
+          (rec.F.sf.β k * (cs₀ κ c₉).aKer * ((T κ c₉).L : ℝ) ^ (d - 2))
+          ((Φ κ c₉ β ν k rec.F.sf).z (k + 1)) (Λ κ c₉ β ν h kf k ρ νk rec).s ρ nK)
+
+/-- **The operator bound of the successor (row (g3), (D5)).** On every torus the localized operators
+of the successor satisfy (1.26) at every scale `≤ k + 1` (`D5Bound`). It follows from the step and
+kept data by LFR Lemma II.6.3 (a) given the signs of the running constants
+(`lfOpBoundInput_of_signs`). -/
+def LFOpBoundInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec hkK' =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (nK : ℕ) [NeZero nK], D5Bound (k + 1) hkK' (F'.lf nK)
+
+/-- **The field renormalizations are positive (P1 (1.11), P4 (4.1); LF-3: "there are
+`z_{k+1} > 0`").** The image has `z_j > 0` at the scales `1 ≤ j ≤ k + 1` (at `j ≤ k` these are the
+`z_j` of `rec`; the class does not carry their sign). -/
+def LFSignInput : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν _ _ _ _ k _ _ rec _ =>
+    ∀ j, 1 ≤ j → j ≤ k + 1 → 0 < (Φ κ c₉ β ν k rec.F.sf).z j
+
+/-- **The pinned exponents of the successor (row (g4), (D4); LF-3 proof of Theorem IV.1.1, (D4)).**
+On every torus the exponent `κ_j` of a kept component of a history of the map, at the scales
+`1 ≤ j ≤ k` carrying an `R`-record, is its pre-`R` exponent `κ^pre_j` (`D4Pin (k + 1)`): the kept data
+and the histories up to `k` are those of `rec`. -/
+def LFPinInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (nK : ℕ) [NeZero nK], D4Pin (k + 1) (F'.lf nK)
+
+/-- **The budget of the successor (row (g4), (D6); LF-2 (i), LFR Theorem I.5.4 (i)).** On every torus
+every component of `Z^pre_{k+1}` of a history of the map satisfies (H6′)^pre (`D6Pre`). It follows
+from the pinned exponents and the prefix by LF-2 (i) on the counter history truncated at `k + 1`
+(`lfBudgetInput_of_pin`). -/
+def LFBudgetInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
+      ∀ (nK : ℕ) [NeZero nK], D6Pre (F'.lf nK)
+
+/-- **The torus coherence of the successor (row (h); LF-3 (h), D-IV.9, LFR proof of Theorem IV.1.1
+(D8)).** The successor family is `LFCoherent`: its step kernels, kept data and boundary terms are
+given by the same formulas on `ℤ^d` (for the old data: (D8) of `rec`; for the new kernels: the local
+background `bgLocPiece`; for `ℬ^{(k+1)}`: the localization expansions). -/
+def LFCoherenceInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec _ =>
+    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' => LFCoherent F'
+
+/-- **The coefficient data of the image (row (h); P1 (3.106)–(3.110), P5 (1.8); CLASS-RULINGS-2
+item 6).** The source-form terms `St'` of the image and the thermodynamic limits `vc'` of their
+local coefficients exist (`D1CorrLim`). -/
+def LFCorrInput : Prop :=
+  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h _ _ _ k _ _ rec _ =>
+    ∃ (St' : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d (T κ c₉).L N₁ (C7 κ c₉).m₁ (k + 1) N)
+      (vc' : CorrCoef d), D1CorrLim (P6 κ c₉).m₀ (Φ κ c₉ β ν k rec.F.sf) St' h vc'
+
+end Inputs
+
 end Balaban.RootFSpine
