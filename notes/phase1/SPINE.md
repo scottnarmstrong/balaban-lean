@@ -382,9 +382,11 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
 7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). For a flow with `VacuumFlowTo C_b E sf.β k`,
    `|ΦE sf E| ≤ C_b (log β′_{k+1} + 1)`. Landed: `StepSetting.Ep/Epp/Eppp`, `halfLogDetC`, `VacuumFlow` (`vacuum_sub_eq`,
    `abs_vacuum_backward_le`), `stepVacuumTerm`, `stepVacuumVolume`. Open: the increment bound `|g_k| ≤ A log β_k + B` and the per-step
-   normalization `s`. **Note:** nothing in the output ties `ΦE` to the step data until `VacuumTied` is restated on `Ev` (the tie of the
-   vacuum constants of the new step `k → k+1` to `E_k` and of the normalization `s` to `E_{k+1}`); before that, A4-1g alone is satisfied
-   by `ΦE = 0`. ~300.
+   normalization `s`. **Tie (W1125):** the step data of the successor are tied to the extended flow `vacExt rec.Ev k ΦE` (`E_0, …, E_k, ΦE`): `LFStepInput`
+   (now with the parameter `ΦE`) outputs `∀ nK, ∃ dpp dppp, (lf' nK).SD.VacuumTie univ (vacExt rec.Ev k ΦE) dpp dppp`, and `SFStepInput` outputs
+   `VacuumTied rec'` (`VacuumTied` now lives in `ClassStep.lean` and reads `rec.Ev`). The step data are bounded through `b0_bound`/`b_bound`
+   inside `IsRepPre2`, so `ΦE = 0` satisfies the tie only if the source's vacuum energy is 0. Not tied: the normalization `s` of `stepDensity`
+   (a free output of `LFStepInput`). ~300.
 8. **A4-1h `LFStepInput`** (LF-3 (b)–(d), (h); P5 §§2–3, P6 §§2–3; LFR Lemmas IV.1.2–IV.1.6, LF-2 (i), Lemma IV.1.5). For a record of
    `ℛ_k` whose image `Φ rec.F.sf` has (D2) with `preFac`, (D8SF), (D9), `a_j = compWeight` up to `k + 1` and the inherited `β, ν, z`:
    `∃ cs' P' lf' St' vc' s` with the outer constants, `IsRepPre2 … (k+1) ⟨Φ rec.F.sf, lf'⟩ (stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ) St' vc'`
@@ -766,11 +768,16 @@ The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.s
 `lf₁` with the boundary terms replaced by `B'`.
 
 0. **`RVacuumInput` (R5, R5′; P6 (3.2), P5 (3.18); LFR proof of Thm IV.1.1).** For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk` is replaced by a record of the same
-   `ρ, νk` with `VacuumTied`: for every torus, `StepData.VacuumTie (rec.F.lf nK).SD Set.univ rec.F.sf.E dpp dppp` for some offsets `dpp, dppp` (`δ″_k`, `δ‴_k`, independent of `E_k`).
+   `ρ, νk` with `VacuumTied`: for every torus, `StepData.VacuumTie (rec.F.lf nK).SD Set.univ rec.Ev dpp dppp` (the scale-indexed flow, W1125) for some offsets `dpp, dppp` (`δ″_k`, `δ‴_k`, independent of `E_k`).
    The kernels are unchanged (`b⁰_k = b_k + ` the vacuum term of the flow); the content is `StepData.b0_bound` for these constants: `b⁰_k` is bounded by
    `(C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|_{k+1}` with constants free of `E` (W965 normalization; W968 vacuum). `IsRepPre2` does not carry the tie, hence this
    sub-input; it is a property of the pre-`R` class and uses nothing of `R`.
    * **W1119 (not provable from `PreRec`).** Retying keeps `ker`, sets `vacE := sf.E j` etc., `b0 := b + vacTerm`; then `b0_bound` reads `‖b_k + (E V + δ″ v₂ + δ‴ v₃)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|`, but `PreRec` carries only `b_bound` for `b_k` and no bound on `E` (`SFData.E : ℕ → ℝ` is indexed by the Def-6 torus `N₁`, the constant `E_k` of the record's one scale `k`; `VacuumTie` reads `E j` at step `j`, so the tie as stated conflates torus index and scale). Needed: a scale-indexed flow `E_j` with `|E_j| ≤ C(log β_j+1)` in the pre-class, or `RVacuumInput` stated on the physical step data (SFStepInput).
+   * **W1125 (restated and reduced).** `VacuumTied` reads `rec.Ev`. `Spine/RVacuumTie.lean`: `StepData.retie` (vacuum constants of a flow; `ker` unchanged),
+     `PreRec.retie` (all `IsRepPre2` clauses transported: `d5Bound_withSD`, `d1PreForm2_withSD`, `d7Bdry2_withSD`), `rVacuumInput_of_b0 : RVacuumB0Input → RVacuumInput`.
+     The remaining named sub-input `RVacuumB0Input`: for every `PreRec` there are torus-independent offsets `dpp dppp` with
+     `‖b_k + stepVacuumTerm a k (E_k) (E_k + δ″_k) (E_k + δ‴_k)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|_{k+1}` (`RecB0Bound`); this needs the volume of the vacuum regions
+     against `|Z_{k+1}∖Z_k|` and `|δ″_k|, |δ‴_k| = O(log β_k)` (P4 (2.1), (2.41), (2.63)) besides the flow bound.
    * Landed: `StepData.b_vac`, `stepVacuumTerm`, `stepVacuumVolume` (`stepVacuumVolume_eq_add_excess`), `StepData.VacuumTie`, `VacuumTie.b0_sub_shift`,
      `VacuumTie.removed_weight_shift`, `stepVacuum_removed_*`. Open: the bound of `b⁰_k` at the physical constants (P4 (2.1), (2.41), (2.63), (4.21)).
 1. **`RKeptGasInput` (kept half and gas half in one existential; W1121 after the sub-spine audit, defect 1).** `KeptOutput` consists of inequalities
