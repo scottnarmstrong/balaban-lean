@@ -711,10 +711,27 @@ def LFOpBoundInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
 
 /-- **The field renormalizations are positive (P1 (1.11), P4 (4.1); LF-3: "there are
 `z_{k+1} > 0`").** The image has `z_j > 0` at the scales `1 ≤ j ≤ k + 1` (at `j ≤ k` these are the
-`z_j` of `rec`; the class does not carry their sign). -/
+`z_j` of `rec`, positive by the field `RepRec.zpos`; at `j = k + 1` the sign is that of the new field
+renormalization, `SFInheritInput`, `lfSignInput_of_inherit`). -/
 def LFSignInput : Prop :=
   LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν _ _ _ _ k _ _ rec _ =>
     ∀ j, 1 ≤ j → j ≤ k + 1 → 0 < (Φ κ c₉ β ν k rec.F.sf).z j
+
+/-- **The signs of the field renormalizations from the inherited data of the small-field step
+(`SFInheritInput`; P1 (1.11), P4 (4.1)).** At the scales `j ≤ k` the image has the `z_j` of `rec`,
+positive by `RepRec.zpos`; at `k + 1` it is the new `z_{k+1} > 0` of A4-1a. -/
+theorem lfSignInput_of_inherit (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ) :
+    LFSignInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨β₀, hβ₀⟩ := hI κ hκ c₉ hc₉
+  refine ⟨β₀, fun β hβ ν hν hνL h _ kf _ _ _ k hk1 hk ρ νk rec _ _ _ _ _ _ => ?_⟩
+  obtain ⟨hcst, -, hz, -⟩ := hβ₀ β hβ ν hν hνL k hk1 hk rec.F.sf rec.sfClassAt
+  intro j hj1 hjk
+  by_cases hj : j ≤ k
+  · rw [(hcst j hj).2.2.1]
+    exact rec.zpos j hj1 hj
+  · obtain rfl : j = k + 1 := by omega
+    exact hz
 
 /-- **The pinned exponents of the successor (row (g4), (D4); LF-3 proof of Theorem IV.1.1, (D4)).**
 On every torus the exponent `κ_j` of a kept component of a history of the map, at the scales
@@ -967,12 +984,12 @@ theorem lfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs�
     (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
-    (hz : LFSignInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ)
+    (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ)
     (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hC : LFCoherenceInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hc : LFCorrInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
     LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE :=
-  lfStepInput_of_parts Λ hH hS hB hBs hF (lfOpBoundInput_of_signs Λ hz) hP
+  lfStepInput_of_parts Λ hH hS hB hBs hF (lfOpBoundInput_of_signs Λ (lfSignInput_of_inherit d N T P6 C7 PB cs₀ M1 c rH ϱ Φ hI)) hP
     (lfBudgetInput_of_pin hA1 Λ hP) hC hc
 
 end Assembly
