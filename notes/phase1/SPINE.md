@@ -451,7 +451,7 @@ whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over 
 | (c) `LFHistInput` | `IsComplete (k+1) (k+1)` of `Λ.hist nK` | LF-3 (c); Def. I.3.1, (R8) | O — `exists_isComplete` | 300 | L |
 | (g1) `LFStepDataInput` | `∃ SD : StepData` at `cs'`, `P'` with `SD.ker = Λ.ker nK` and `SD.VacuumTie Set.univ (vacExt rec.Ev k ΦE) δ″ δ‴` | Lemmas II.5.14, IV.1.3, IV.1.4, IV.1.6; (S0) P6 (2.32)–(2.33); R5, R5′ | O — `quietStepData'`, `quietKernel`, `StepData.retie`, `vacExt` | 1,700 | H |
 | (g1) kept data (S3) | `succKD` is `KeptData` at `cs'` | (S3) "no kept data are created" | **P** (`KeptData.upTo`, `chiDomAt_congr`) | 0 | – |
-| (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | O | 1,200 | H (B3) |
+| (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | Rd — W1140: `lfBdryInput_of_parts` (`Spine/LFBdry.lean`) from the three kinds; blocker-3 piece proved under ruling R11 (`Spine/LFBdryHole.lean`); section "LFBdryInput sub-inputs" | 1,100 | H (B3 → R11) |
 | (g5) `LFBdrySrcInput` | `D7BdryBall`: `analytic`, `bound` at `h' ∈ hSetB2 h r_h`, `h' ≠ h` | blocker 2 leaf 5; Q13-YM §§2, 5; R2 | O — R2 objects, `KerBoundSrc` | 600 | H (B2) |
 | (g3) `LFFormInput` | `D1PreForm2 (F'.ctx …) vc' (F'.lf nK) h (stepDensity … (β_k a L^{d−2}) z_{k+1} Λ.s ρ nK)` for `D1CorrLim … St' h vc'` | P5 (2.1)–(2.14), (2.42)–(2.48), §3, (3.18); P6 §2, (3.3); P5 (1.8) | O — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M |
 | (g3) `LFOpBoundInput` | `D5Bound (k+1)` of `F'` | Lemma II.6.3 (a) | **P** from `LFSignInput` (`lfOpBoundInput_of_signs`, `Rep.opBound_of_data`) | 0 | – |
@@ -497,7 +497,75 @@ parts and the combinators `LFImageInput`, `RepRec.SuccFams` need the exemption o
 
 **Size.** ≈ 6,750 remaining (table), against ~6,000 before the split: the split exposed (c), (g4)'s `D4Pin` and `LFCorrInput`, which the old
 estimate counted inside (g3) and (h); the kept data and (D5), (D6) are proved. H items: (g1) (non-quiet kernels, and the old-step tie after
-R10), (g2) (B3), (g5) (B2).
+R10), (g2) (B3; closed under ruling R11, W1140), (g5) (B2).
+
+## LFBdryInput sub-inputs (W1140)
+
+**PROVED** (`Balaban/Spine/LFBdry.lean`, `Balaban/Spine/LFBdryHole.lean`; no `sorry`; axioms `propext, Classical.choice,
+Quot.sound`; `…` = `d N T P6 C7 PB cs₀ M1 c rH ϱ`):
+```
+theorem D7Bdry.add_B (rep) (h₁ : D7Bdry … { rep with B := B₁ } … fac₁ rate hv) (h₂ : … B₂ … fac₂ …)
+    (hB : rep.B = B₁ + B₂) : D7Bdry … rep … (fac₁ + fac₂) rate hv
+theorem lfBdryInput_of_parts (Λ : LFStepMap …) (Sb : LFBdrySplit … Λ) {Bn Bd Bo : ℝ → ℝ → ℝ}
+    (hBst : ∀ κ c₉, Bn κ c₉ + Bd κ c₉ + Bo κ c₉ ≤ (C7 κ c₉).Bst)
+    (hN : LFBdryNewInput … Φ Λ Sb Bn) (hD : LFBdryDeltaInput … Φ Λ Sb Bd) (hO : LFBdryOldInput … Φ Λ Sb Bo) :
+    LFBdryInput … Φ Λ
+theorem norm_sum_le_of_transfer (I : Finset ι) (T : ι → ℂ) (Dm mk : ι → ℝ) (hCre : 0 ≤ Cre) (hB₀ : 0 ≤ B₀)
+    (hκ : 0 ≤ κ) (hκo : 0 ≤ κo) (hT : ∀ a ∈ I, ‖T a‖ ≤ Cre * B₀ * exp (-κ * Dm a) * exp (-κm * mk a))
+    (hmin : ∀ a ∈ I, Dmin ≤ Dm a) (hB₀min : B₀ * exp (-(κ/2) * Dmin) ≤ 1) (hsize : ∀ a ∈ I, Dp ≤ Dm a / L + Cd * mk a)
+    (hent : ∑ a ∈ I, exp (-(κ/2 - κo/L) * Dm a - (κm - κo*Cd) * mk a) ≤ Kent) :
+    ‖∑ a ∈ I, T a‖ ≤ Cre * Kent * exp (-κo * Dp)
+theorem Def7.exists_transfer_fineValidFinAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
+    (hX : FineValidFinAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
+      FineValidFinAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Def7.exists_transfer_fineValidAt_of_open … (hopen : ∀ z ∈ (d7Pull F (k+1) Om')ᶜ,
+      IsPiPrimeUnion m₀ (k+1) (OmegaComp (d7Pull F (k+1) Om') z)) (hX : FineValidAt F k Om X) :
+    ∃ Y, … ∧ FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Fluctuation.transfer_patches … : DjModFin m₀ (j+1) Ω' (holeClose Ω' (transferLabel … ∪ ⋃ p ∈ P, box p …)) ∧
+    dcovMod … ≤ (L)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card
+theorem Fluctuation.spill_of_defect, Fluctuation.djModFin_Yhat, Fluctuation.dcovMod_ge_supDist,
+  DjModFin.cellCount_le ((G1)), djModFin_union ((G3)), djMod_iff_djModFin, Def7.fineValidAt_iff_fineValidFinAt
+```
+
+**The split** (LFR Lemma IV.1.5: three kinds with constants of rows 0–11, `B_st` their sum). `LFBdrySplit Λ` (a map,
+like `Λ`: `LFBdryPieces` = `new`, `delta`, `old` with `Λ.B = new + delta + old` on every torus; inhabited) and
+`LFBdryPart` (the statement of `LFBdryInput` with the boundary terms replaced by one kind and the constant `fac`):
+
+| part | statement | source | status | rem | R |
+|---|---|---|---|--:|:-:|
+| (i) `LFBdryNewInput` | `D7Bdry` of `new` with `Bn` | P5 Props 3.1–3.4, P6 Props 2.1–2.3; P6 p. 15 | O — the labels `Ŷ(S)` of the marked expansion are R11 labels (`djModFin_Yhat`) | 400 | M |
+| (ii) `LFBdryDeltaInput` | `D7Bdry` of `delta` with `Bd` | Lemma IV.1.3 (FLUCTUATION Thm 4.2, landed `theorem42_late_of_input`) | O — labels `Ŷ(T)` as in (i) | 300 | M |
+| (iii) `LFBdryOldInput` | `D7Bdry` of `old` with `Bo` | Lemma IV.1.5 (iii); P6 (4.32)–(4.34); P3 (4.41)–(4.49) | Rd — bound by `norm_sum_le_of_transfer`; `hsize` (blocker 3) proved under R11 | 400 | H → M |
+
+`lfBdryInput_of_parts` is the assembly (additivity `D7Bdry.add_B`, `D7Bdry.mono_fac`).
+
+**Blocker 3 (route decision, W1140).** The obstruction is the π′-shape that `FineValidAt` (via `Fluctuation.DjMod`) asks
+at the hole sites of every label. A transferred old label must contain every new hole it meets (`loc_hist`); a new hole
+need not be a union of π′_{k+1}-cubes (seam, ALIGNED (23)–(26)); every landed label containing it then contains active
+sites along the seam (`spill_of_defect`) and its size grows with the seam (`G1_cellCount`), with no decay of an
+H7-admissible constant coefficient to pay it (ALIGNED (33)). The same holds for kinds (i), (ii) at `Ŷ(S)`. Routes:
+(i) a property of the P6 construction — refuted for the class (the constant coefficient re-expands to itself);
+(ii) a stronger H7 — refuted (the spill is created by the next scale's hole; also hits (i), (ii)); (iii) route B —
+removes the spill but breaks the domain entropy (G2) (`G2_X`, `D7GasRootEntropy`) unless the size charges hole sites,
+which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B): `FineValidAt := DjModFin` (π′-cubes at the active sites
+only; size, `loc_hist`, H7 domain unchanged). Under R11 the transfer of every label across every new hole is proved
+(`Def7.exists_transfer_fineValidFinAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
+the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidAt_of_open`).
+
+**Leaves of (iii)** (each ≤ 300 lines; none involves a new hole once R11 is in):
+* O1 `old_reexpansion`: the old part at a label is the finite sum over assignments (old label `X'`, marks `J`) of P6
+  (4.32)–(4.34), with `‖T‖ ≤ C_re B₀ e^{-κ d_k(X')} e^{-κ_m |J|}` (the record's `D7BdryPost.bound` and the P3 mark
+  factor) and output label the transfer of `X'` with its patches; structural clauses (locality, `loc_hist`, reality,
+  analyticity, O(N), covariance: average over the optimal covers of `X'`, which form a covariant finite set). The
+  analytic engine is the one of kind (i).
+* O2 `omega_succ_fine_subset`: `d7Pull F (k+1) (OmegaCube A'.H (k+1)) ⊆ d7Pull F k (A.H.omegaPost k)` for the successor
+  history `A'` of `A` (P5 (2.3): the opening misses `nbhd (U'_k)`, `U'_k ⊇` coarsened `Z_k ⊇ (Ω_k^post)^c`).
+* O3 `transfer_mem_bdryDoms`: the cube label `Y` is in `bdryDoms (OmegaCube A'.H (k+1)) (Zpre (k+1))` (cube-level
+  `DmodOmega` from the fine `DjModFin` by `siteConnected_d7Pull`, `cellComps_d7Pull`; `Y` meets `Z_{k+1}` and its
+  complement since `X'` does).
+* O4 `old_label_size_ge`: an old label meeting `Ω_{k+1}` has active sites at cube distance `≥ ([R̂_k]+4)L - 1`
+  (Lemma I.3.5 (d)–(f)), so `d_k(X') ≥ L[R̂_k] - 2L` (`dcovMod_ge_supDist`): `hmin`, with (Λ28) for `hB₀min`.
+* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (after R11's `G2_X` core) and the mark count of P3 (4.49).
 
 ## LastIntegralInput sub-inputs (W1108)
 

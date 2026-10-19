@@ -44,6 +44,11 @@ approved declaration.
   Work: an Opus analysis of the blast radius before the change, then the change itself.
 - Fallback: route B of VMOD-44 (plain domains, completion only for removed components), a change of the
   approved domain class Def7 (also a ruling).
+- W1140 (2026-10-19): the obstruction is the π′-shape required of the hole part of every domain (the new holes
+  have seams, ALIGNED (23)–(26)); it also hits the new terms at Ŷ(S). Routes (i) (a property of the P6
+  construction) and (ii) (a stronger H.7) are refuted, route B removes the spill but breaks the entropy (G2) of the
+  domains; the minimal closure is ruling request R11 below (cover cubes only at small-field sites), under which
+  the transfer of every domain across any new hole is proved (`Spine/LFBdryHole.lean`).
 
 ## Blocker 4: the large-field gas (item 16)
 - No author input needed: the clusters-on-core reading is our construction and its gas bound is
@@ -144,3 +149,70 @@ approved declaration.
   `StepVacuumVolume` and the users repaired by `simp [stepVacuumTerm]` in W1092. Then the first excess of
   `stepVacuumVolume_eq_add_excess` is empty; the other two need the geometric bound
   `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1} ∖ Z_k|` from the definition of `Ω`. Recommended: yes.
+
+## Ruling R11 asked (2026-10-19, W1140): blocker 3 — boundary-term domains need cover cubes only at their small-field sites
+- **What changes.** One clause of the valid domains (labels) of the boundary terms, `FineValidAt` in
+  `LargeField/Def7FineSize.lean`. Today a valid domain must be a nonempty connected union of π′-cubes of its
+  scale, contain or miss every large-field hole (component of Ω^c), and have finite size. R11 drops "union of
+  π′-cubes" at the sites of the holes: a valid domain is nonempty, connected, contains or misses every hole, and
+  has finite modular size. The finite size already puts every small-field site of the domain in a π′-cube inside
+  the domain (`DjModFin.exists_box`), so the size `d7SizeAt`, its covers and trees, the history clause
+  `loc_hist`, the H7 domain and the bounds are unchanged; every domain valid today stays valid
+  (`FineValidAt.fineValidFinAt`). The new clause, elaborated (landed as `Def7.FineValidFinAt` in
+  `Spine/LFBdryHole.lean`):
+  ```
+  def FineValidAt (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ) (Om : Set (Torus S.d (n k)))
+      (X : Finset (Torus S.d (n k))) : Prop :=
+    Fluctuation.DjModFin m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k))))
+  -- DjModFin m₀ j Ω X := X.Nonempty ∧ SiteConnected X ∧
+  --   (∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X ∨ Disjoint (OmegaComp Ω z) X) ∧ dcovModE m₀ j Ω X ≠ ⊤
+  ```
+- **Why the source needs it.** A boundary term depends on the history of every hole it meets (P5 p. 493), so its
+  domain contains whole holes (P5 (1.33)). In the step, an old term whose domain meets Ω_{k+1} is carried to a
+  domain of scale k+1 (P6 p. 34), which must contain every new hole it meets. The new holes of P5 (2.3)–(2.8) are
+  not unions of π′_{k+1}-cubes: where two thick inherited pieces meet diagonally, every π′-cube through a site of
+  the seam contains small-field sites (`notes/phase1/astra/ALIGNED.md` (23)–(26), at the level of the region
+  step). A domain that must be a union of π′-cubes then contains small-field sites along the whole seam
+  (`spill_of_defect`), its size grows linearly with the seam (`G1_cellCount`), and a coefficient constant in the
+  fields, which (H.7) allows, has no decay to pay it (ALIGNED (33), `LFROOT3.md`). The same happens to the new
+  terms: FLUCTUATION Theorem 4.2 and the marked expansion give terms on the domains Ŷ(S) (a small-field set with
+  the holes next to it) of finite modular size; these are R11 domains (`djModFin_Yhat`) but not π′-unions at a
+  seam, and the present `support` clause would force them to vanish. P5's size (1.34) and norms (1.36)–(1.37)
+  use the cover cubes only through X ∩ Ω; nothing in P5–P7 uses the π′-shape of the hole part of a domain.
+- **What it gives (proved, `Spine/LFBdryHole.lean`).** `Def7.exists_transfer_fineValidFinAt`: every valid domain
+  X of scale k has a transfer Y ⊇ X of scale k+1 (with every new hole it meets) that is valid under R11, with
+  d_{k+1}(Y) ≤ L⁻¹ d_k(X), for any shape of the new holes; with mark patches rooted at small-field sites the cost
+  is 2dL per patch (`transfer_patches`). This is the blocker-3 piece of row (g2) (`LFBdryOldInput`). In the
+  present class the same transfer holds only when the new holes are π′-unions
+  (`Def7.exists_transfer_fineValidAt_of_open`). R11 domains keep (G1) and (G3) with the same constants
+  (`DjModFin.cellCount_le`, `djModFin_union`).
+- **The three routes of the brief, checked.** (i) *A property of the actual P6 construction*: refuted for the class.
+  The step must work for every record of ℛ_k, and ℛ_k contains coefficients constant in the fields whose
+  re-expansion is the coefficient itself: no vanishing, no crossing factor (ALIGNED (33)). (ii) *A stronger (H.7)*:
+  no clause on the old coefficients helps, since the spill is created by the shape of the new hole at the next
+  scale and also hits the new terms at Ŷ(S); a factor in the hole length is not produced by the construction
+  (`LFH7PRIME.md`, `LFH7PRIME2.md`). (iii) *Route B (plain domains)*: it removes the spill too (a plain domain need
+  not contain the seam, and its hole sites lie in the thickened inherited set, a union of π′-cubes when
+  2(⌊R_k⌋ + 4) + 1 ≥ L, ALIGNED (22)), but it breaks the
+  entropy bound (G2) of the domains used by the fluctuation integral and by the gas (`G2_X`,
+  `D7GasRootEntropy`): with whole holes no longer required and hole sites not charged by the size, the domains
+  with a given small-field part and bounded size are not finitely many uniformly in the hole (any union of
+  π′-cubes of the hole may be added), so ∑_{X ∋ □} e^{−κ d(X)} grows with the hole volume. Charging the hole
+  sites instead (the plain size of P1 (2.27)) changes the size, re-indexes the landed fluctuation outputs Ŷ(S)
+  and the gas cores (`dExt_core_eq_d7SizeAt`), and asks a stronger (H.7) that is not known to be produced. R11 is
+  the part of route B that is needed and nothing more: whole holes stay (so a domain is determined by its
+  small-field cells and the holes next to them, and (G2) keeps its constant), only their π′-shape is freed.
+- **Cost (landed files touched).** `LargeField/Def7FineSize.lean` (the definition; `fineValidAt_iff`;
+  `fineValidAt_mono` holds only for domains whose newly small-field sites lie in π′-cubes of the domain, so
+  `bdryDomsAt_mono`, `fineValid_of_fineValidPre`, `bdryDomsPre_subset_bdryDomsPost` are restated for domains
+  avoiding the removed set or for removed components that are unions of π′-cubes, ~80 lines);
+  `R/D7AvoidGeometry.lean`, `R/D7BoundTransport.lean` (validity across R for domains avoiding the removed set,
+  ~60); `R/RExtraSize.lean` (`d7Size_le_d7SizePre_add_of_fineValid` through a cell-union core of
+  `Fluctuation.modAdmissible_extend`, ~100); `R/D7GasRootEntropy.lean` with `Fluctuation/SizeModStruct`,
+  `SizeModEntropy`, `SizeModHoleRoot` ((G2) over R11 domains: `X_eq_recon`, `G4_subset`, `G2_X`,
+  `sum_exp_le_of_roots` as cores over `DjModFin`, the landed theorems their instances, same constant K₀, ~150);
+  `Localization/P6ActiveSeed.lean` ((G1) through `DjModFin.cellCount_le`, ~10); witnesses unchanged
+  (`fineValidAt_of_djMod` still holds). About 400–450 lines in 10 files. Untouched: `Def7.lean` (the records
+  read `FineValidAt` through `bdryDomsPre`/`bdryDomsPost`), the history clauses, the H7 domain, the halos of R
+  (`isDj_d7Pull_halo`), `RGasCore*`. The R11 side is landed (`Spine/LFBdryHole.lean`).
+- **Recommendation: approve.**
