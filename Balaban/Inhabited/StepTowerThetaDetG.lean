@@ -138,7 +138,7 @@ theorem exists_renDetGrouped_ambient_of_le {m₀ : ℕ}
     exact AnalyticAt.comp_of_eq hA hTh rfl
   · intro D ξ hD hξ
     have hθ := renE0_theta_domain_of_le S H εren εstep ε₂ r₀ hM hle D hD ξ hξ
-    unfold DetExpansionLocC.detGrouped detCollarGrouped
+    unfold DetExpansionLocC.detGrouped DetExpansionLocCBg.detGrouped detCollarGrouped
     refine Finset.sum_congr rfl fun T _ => ?_
     exact hAeq T _ hθ
 

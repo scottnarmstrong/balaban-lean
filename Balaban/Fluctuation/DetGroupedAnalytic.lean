@@ -46,6 +46,67 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
   {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
 
+section Bg
+
+variable {ϱb : ℝ} {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {Tr : BgTransport S.G' Gb N}
+  {hT : Tr.Reads} {Zb : Finset (unitPts Gb)}
+
+/-- **Analyticity of the regrouped terms on the relative chart of `Gb`.**  The map
+`e ↦ E.detGrouped (bgOfRaw e.1 e.2) X` is analytic on the set of raw data of the step whose datum
+read through `Tr.dat` lies in the chart of `Gb`: a finite sum, over the fibre `detCollarFibre m₀ X`
+independent of the datum, of the terms of `analyticOnNhd_rawSub`. -/
+theorem DetExpansionLocCBg.detGrouped_analyticOnNhd_rawSub
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱb S.a S.ν)
+    (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.detGrouped (bgOfRaw e.1 e.2) X)
+      ((fun e : rawSub N S.G' => Tr.dat (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+  unfold DetExpansionLocCBg.detGrouped detCollarGrouped
+  have h := fun T => E.analyticOnNhd_rawSub H T
+  intro e he
+  have := Finset.analyticAt_fun_sum (detCollarFibre m₀ X) fun T _ => h T e he
+  exact this
+
+/-- **Analyticity of the regrouped terms on the parameter space of the step.**  On
+`physParam = rawSub × sources`, the map `e ↦ E.detGrouped (bgOfRaw e.1.1 e.1.2) X` is analytic on the
+set of parameters whose raw datum read through `Tr.dat` lies in the chart of `Gb`; the source
+coordinate does not enter. -/
+theorem DetExpansionLocCBg.detGrouped_analyticOnNhd_physParam
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱb S.a S.ν)
+    (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    AnalyticOnNhd ℂ (fun e : physParam N S => E.detGrouped (bgOfRaw e.1.1 e.1.2) X)
+      ((fun e : physParam N S => Tr.dat (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+  have h := E.detGrouped_analyticOnNhd_rawSub H X
+  let g : physParam N S →L[ℂ] rawSub N S.G' := ContinuousLinearMap.fst ℂ _ _
+  exact h.comp (g.analyticOnNhd _) fun e he => he
+
+/-- **Analyticity of the centred regrouped terms on the relative chart of `Gb`.** -/
+theorem DetExpansionLocCBg.detGroupedC_analyticOnNhd_rawSub
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱb S.a S.ν)
+    (q : ℕ) (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.detGroupedC q (bgOfRaw e.1 e.2) X)
+      ((fun e : rawSub N S.G' => Tr.dat (e : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+  unfold DetExpansionLocCBg.detGroupedC detCollarGroupedC
+  have h := fun T => E.analyticOnNhd_rawSub H T
+  intro e he
+  exact Finset.analyticAt_fun_sum _ fun T _ => h T e he
+
+/-- **The centred regrouped terms on the parameter space of the step** (as
+`detGrouped_analyticOnNhd_physParam`). -/
+theorem DetExpansionLocCBg.detGroupedC_analyticOnNhd_physParam
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱb S.a S.ν)
+    (q : ℕ) (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    AnalyticOnNhd ℂ (fun e : physParam N S => E.detGroupedC q (bgOfRaw e.1.1 e.1.2) X)
+      ((fun e : physParam N S => Tr.dat (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N)) ⁻¹'
+        XiCRaw Gb S.a S.ν (k + 1) 1 eps) := by
+  have h := E.detGroupedC_analyticOnNhd_rawSub H q X
+  let g : physParam N S →L[ℂ] rawSub N S.G' := ContinuousLinearMap.fst ℂ _ _
+  exact h.comp (g.analyticOnNhd _) fun e he => he
+
+end Bg
+
 /-- **Analyticity of the regrouped terms on the relative chart.**  The map
 `e ↦ E.detGrouped (bgOfRaw e.1 e.2) X` is analytic on the preimage in `rawSub` of `XiCRaw`: a
 finite sum, over the fibre `detCollarFibre m₀ X` independent of the datum, of the terms of
@@ -55,12 +116,8 @@ theorem DetExpansionLocC.detGrouped_analyticOnNhd_rawSub
     (X : Set (CTorus d L N₁ m₁ (k + 1))) :
     AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.detGrouped (bgOfRaw e.1 e.2) X)
       (((↑) : rawSub N S.G' → RawData d L (N₁ * L ^ m₁) (k + 1) N) ⁻¹'
-        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) := by
-  unfold DetExpansionLocC.detGrouped detCollarGrouped
-  have h := fun T => E.analyticOnNhd_rawSub H T
-  intro e he
-  have := Finset.analyticAt_fun_sum (detCollarFibre m₀ X) fun T _ => h T e he
-  exact this
+        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) :=
+  DetExpansionLocCBg.detGrouped_analyticOnNhd_rawSub E H X
 
 /-- **Analyticity of the regrouped terms on the physical chart.**  On the parameter space
 `physParam = rawSub × sources`, the map `e ↦ E.detGrouped (bgOfRaw e.1.1 e.1.2) X` is analytic on
@@ -69,11 +126,8 @@ theorem DetExpansionLocC.detGrouped_analyticOnNhd_physV
     (E : DetExpansionLocC S m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱ S.a S.ν)
     (X : Set (CTorus d L N₁ m₁ (k + 1))) :
     AnalyticOnNhd ℂ (fun e : physParam N S => E.detGrouped (bgOfRaw e.1.1 e.1.2) X)
-      (physV S S.a₁ S.ν eps) := by
-  have h := E.detGrouped_analyticOnNhd_rawSub H X
-  let g : physParam N S →L[ℂ] rawSub N S.G' := ContinuousLinearMap.fst ℂ _ _
-  refine h.comp (g.analyticOnNhd _) fun e he => ?_
-  exact he.1
+      (physV S S.a₁ S.ν eps) :=
+  (DetExpansionLocCBg.detGrouped_analyticOnNhd_physParam E H X).mono fun _ he => he.1
 
 /-- **The regrouped determinant terms on the chart.**  Under `3 ≤ L`, `L ^ m₀ ∣ N₁`,
 `3 ≤ L ^ (m₀ + m₁)`, `0 ≤ cdet`, `0 ≤ κ''` and `BgHyp`, for every `X`:
@@ -110,22 +164,16 @@ theorem DetExpansionLocC.detGroupedC_analyticOnNhd_rawSub
     (X : Set (CTorus d L N₁ m₁ (k + 1))) :
     AnalyticOnNhd ℂ (fun e : rawSub N S.G' => E.detGroupedC q (bgOfRaw e.1 e.2) X)
       (((↑) : rawSub N S.G' → RawData d L (N₁ * L ^ m₁) (k + 1) N) ⁻¹'
-        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) := by
-  unfold DetExpansionLocC.detGroupedC detCollarGroupedC
-  have h := fun T => E.analyticOnNhd_rawSub H T
-  intro e he
-  exact Finset.analyticAt_fun_sum _ fun T _ => h T e he
+        XiCRaw S.G' S.a S.ν (k + 1) 1 eps) :=
+  DetExpansionLocCBg.detGroupedC_analyticOnNhd_rawSub E H q X
 
 /-- The centred regrouped terms on the physical chart. -/
 theorem DetExpansionLocC.detGroupedC_analyticOnNhd_physV
     (E : DetExpansionLocC S m₀ z eps κ'' cdet) (H : BgHyp d L (k + 1) ϱ S.a S.ν) (q : ℕ)
     (X : Set (CTorus d L N₁ m₁ (k + 1))) :
     AnalyticOnNhd ℂ (fun e : physParam N S => E.detGroupedC q (bgOfRaw e.1.1 e.1.2) X)
-      (physV S S.a₁ S.ν eps) := by
-  have h := E.detGroupedC_analyticOnNhd_rawSub H q X
-  let g : physParam N S →L[ℂ] rawSub N S.G' := ContinuousLinearMap.fst ℂ _ _
-  refine h.comp (g.analyticOnNhd _) fun e he => ?_
-  exact he.1
+      (physV S S.a₁ S.ν eps) :=
+  (DetExpansionLocCBg.detGroupedC_analyticOnNhd_physParam E H q X).mono fun _ he => he.1
 
 /-- **The centred regrouped determinant terms on the chart.**  Under `q + 2 ≤ L`, `1 ≤ q`,
 `L ^ m₀ ∣ N₁`, `3 ≤ L ^ (m₀ + m₁)`, `0 ≤ cdet`, `0 ≤ κ''` and `BgHyp`, for every `X`: analytic on

@@ -88,7 +88,9 @@ asks, on every admissible torus:
    * the large-field (D8) of the constructed data.
 
    Watch (W1096): if the scheme-A step needs the SF→LF interface (`IsRep2WithInterface`) of its input, this input is stronger
-   than that step; `D2SF2` asks every Def-6 torus `N₁ ≥ 1`. ~10000.
+   than that step; `D2SF2` asks every Def-6 torus `N₁ ≥ 1`. ~10000. **Decided (W1136): the step does not need the interface**
+   (section "LFStepInput sub-inputs"); it needs two other clauses of its input that the class does not carry (the vacuum tie of
+   the step data, `z_j > 0`), asked by parts of A4-1h.
    **Split (W1102):** `classStepInput_of_parts` (`Spine/ClassStep.lean`) from `SFStepInput`, `RInput`, `FlowRateInput`; see
    "ClassStepInput sub-inputs" below.
 4. **`TransferInput` (A4, Lemma IV.2.1)**: `ℛ_{k₀} ⊂ ℛ♭_{k₀}`, same `ρ`, `ν_{k₀}`. Landed: `IsRep2.toFlat` (with `D2SF2.toFlat2`,
@@ -227,7 +229,7 @@ domain, so its proofs survive the change.
        * blocker 2 (R2 landed, leaf 5 open).
      * (h) (D8) of the new step kernels and of `ℬ^{(k+1)}`. Even the quiet kernel has no cross-torus theorem for `bgLocPiece`
        (W1103).
-     * (i) The SF→LF interface watch item (item 3).
+     * (i) The SF→LF interface watch item (item 3): decided by W1136, not needed (section "LFStepInput sub-inputs").
    * **The bridge, exactly (not landed; no theorem concludes `IsSFFamily2 … (k+1)` or `D2SF2 … (k+1)` except the witnesses).**
      Proposed: `d2SF2_succ_of_chain`, the small-field half of `SFStepInput`. Let `(F, ρ)` be a member of `RepClassAt k`,
      `1 ≤ k < k₀`. For every Def-6 torus `N₂ ≥ 1` of scale `k + 1`:
@@ -394,20 +396,108 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    `|e₀|/|T^{(k+1)}_1| ≤ A' log β_k + B'` for the new terms (determinant part: `abs_halfLogDetC_le`, `O(1)`; `ℰ₁` part: new source mathematics, ~300).
 8. **A4-1h `LFStepInput`** (LF-3 (b)–(d), (h); P5 §§2–3, P6 §§2–3; LFR Lemmas IV.1.2–IV.1.6, LF-2 (i), Lemma IV.1.5). For a record of
    `ℛ_k` whose image `Φ rec.F.sf` has (D2) with `preFac`, (D8SF), (D9), `a_j = compWeight` up to `k + 1` and the inherited `β, ν, z`:
-   `∃ cs' P' lf' St' vc' s` with the outer constants, `IsRepPre2 … (k+1) ⟨Φ rec.F.sf, lf'⟩ (stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ) St' vc'`
-   and `LFCoherent`. Open: W1102's (g) (non-quiet kernels P5 (2.47)·P6 (3.2) for `k ≥ 1` with local backgrounds, (S1)–(S5); `ℬ^{(k+1)}`
-   with `B_st`, blocker 3; `D1PreForm2` for the step density; `D5Bound`; `D6Pre` with (I.2) to `k + 1` (`Rep.budgetPre_of_LF2` needs
-   `K ≤ top`; the truncated LF-2 of W1106 is the model); blocker 2), (h) ((D8) of the new step kernels and of `ℬ^{(k+1)}`: no cross-torus
-   theorem for `bgLocPiece`, W1103), the coefficient data `D1CorrLim` of the new terms (thermodynamic limits), `Coh`/`FieldClauses` of
-   `cs'` (bookkeeping). Landed: `quietKernel`, `quietStepData'`, `gaussProd`/`qCoarseK` (the kernel of `stepDensity` on the Gaussian
-   blocks), `stepVacuumTerm`, `stepVacuumVolume`, `Rep.budgetPre_of_LF2`. ~6000.
+   `∃ cs' P' lf' St' vc' s` with the outer constants, `IsRepPre2 … (k+1) ⟨Φ rec.F.sf, lf'⟩ (stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ) St' vc'`,
+   `LFCoherent` and the vacuum tie. **Split (W1136):** `lfStepInput_of_parts` (`Spine/LFStep.lean`) from ten clause parts on a step map `Λ` (two
+   proved: (D5), (D6)) and the sign part; the kept data (S3) defined and proved; see "LFStepInput sub-inputs" below. ~6750 remaining.
 9. **A4-1i `StepIntegrableInput`** (premise of P1 (1.11)). Members of `ℛ_k` are integrable in `ψ_k` on every torus, for `‖g‖₁ < 1`.
    Landed: `baseRho1_integrable` (the first density). Open: integrability of a (D1) sum from (D5) and the Gaussian decay. ~300.
 
-**Watch.** (i) The SF→LF interface (item 3 of the inputs) is not used. (ii) `SFStepInput` now asks the ties `E′_j = E_j`; the frozen step's
+**Watch.** (i) The SF→LF interface (item 3 of the inputs) is not used, and is not needed by A4-1h (W1136, below). (ii) `SFStepInput` now asks the ties `E′_j = E_j`; the frozen step's
 analogue (`FrozenSFStepInput`) ties `β, ν, a` (W1121) but not the flow, and `FlatClassAt` carries no flow. (iii) The duplicates of private
 lemmas of `Base/BasePhysicalDensity.lean` (`integral_gaussT`, `baseKernel_smul_integral`, the Fubini core) are special cases of
 `integral_gaussT_left`, `integral_prod_gaussT_smul`, `integral_stepKernel_mul`; the base file can be re-based on them.
+
+## LFStepInput sub-inputs (W1136)
+
+**PROVED** (`Balaban/Spine/LFStep.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`; `…` = `d N T P6 C7 PB cs₀ M1 c rH ϱ`):
+```
+theorem lfStepInput_of_parts (Λ : LFStepMap …) (hH : LFHistInput … Φ Λ) (hS : LFStepDataInput … Φ ΦE Λ)
+    (hB : LFBdryInput … Φ Λ) (hBs : LFBdrySrcInput … Φ Λ) (hF : LFFormInput … Φ Λ) (hO : LFOpBoundInput … Φ Λ)
+    (hP : LFPinInput … Φ Λ) (hG : LFBudgetInput … Φ Λ) (hC : LFCoherenceInput … Φ Λ) (hc : LFCorrInput … Φ) :
+    LFStepInput … Φ ΦE
+theorem lfOpBoundInput_of_signs (Λ : LFStepMap …) (hz : LFSignInput … Φ) : LFOpBoundInput … Φ Λ
+theorem lfBudgetInput_of_pin (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) (Λ : LFStepMap …) (hP : LFPinInput … Φ Λ) :
+    LFBudgetInput … Φ Λ
+theorem lfStepInput_of_prefix (hA1 : PrefixInput …) (Λ) hH hS hB hBs hF (hz : LFSignInput … Φ) hP hC hc : LFStepInput … Φ ΦE
+```
+One landed proof was generalized (statement unchanged, `stmtcheck` CHANGED empty): `Rep.budgetPre_of_LF2` is now the instance
+`K' = K` of `Rep.budgetPre_of_LF2_trunc` (`Def7Basic.lean`; (H6′)^pre from the counter history truncated at `K' ≤ K`, `K' ≤ top`).
+
+**Why a map `Λ`.** As for `Φ`, `ΦE`: (D1) of the step density holds only for the histories, kernels and boundary terms that the step
+constructs, and the other clauses (bounds, coherence) do not determine them; parts "∃ data with X" and "∀ data with Y, Z" would not
+combine. A `Rep` contains the proofs (S0)–(S3) (fields of `StepData`, `KeptData`), so `Λ` gives the data created by the step only:
+`LFStepRaw` (on every torus: histories `hist`, step kernels `ker`, boundary terms `B`; and the normalization `s`).
+`LFStepRaw.Matches SD`: step data carrying these kernels; `LFStepRaw.fam`: the successor family; `RepRec.SuccFams sf' D Q`: `Q` for the
+family with `sf'`, `D`, the kept data `succKD` and every such `SD`. The clauses read `SD` only through `ker` (`preOpTop_congr`,
+`locOp_congr`), so a `SuccFams` statement is a statement about `Φ rec.F.sf`, `Λ rec` and `rec`.
+
+**Maps, definitions and existentials** (formula ⇒ map or Lean definition; asserted to exist ⇒ existential in the part):
+* maps (`Λ`): histories (LF-3 (c)), step kernels (LF-3 (d): quiet kernels, P5 (2.47)·P6 (3.2), boundary factors of P6 (2.32)–(2.33),
+  (3.3)), `ℬ^{(k+1)}` (Lemma IV.1.5: three kinds), `s = L^d E_k − e₀/|T^{(k+1)}_1|`;
+* Lean definitions (their clauses proved, not asked): `cs' = rec.succCs sf'` (`succOpConsts`: `rec.cs` at the scales `≤ k`, the running
+  constants of the image at `k + 1` and beyond (`vacExt`); masses per R2), `P' = rec.succP sf'` (`succBudgetConsts`), and the kept data
+  `rec.succKD sf'` with the exponents of `rec` ("no kept data are created by a step": `KeptData.upTo`, the input's kept data at the
+  scales `≤ k`, zero kernels above; (S3) at `cs'` proved, `chiDomAt_congr`: `χ^{dom}` at scale `j ≤ k` reads `δ_i, p₀(β_i), C_ψ` with `i ≤ j`,
+  which `cs'` shares with `rec.cs`);
+* existentials: the (S1) witnesses, `b⁰`, the offsets `δ″, δ‴` (in `LFStepDataInput`; read by no other part, `b⁰` fixed by `b_vac`); the
+  proofs (S0)–(S2); `St', vc'` (in `LFCorrInput`: P1 (3.110) asserts the limits; `LFFormInput` asks the form for every `vc'` with
+  `D1CorrLim`, which fixes `vc'` at the scales `1 ≤ j ≤ k + 1` the form reads, `src_pos` with `ν_{k+1} > 0`).
+
+**The parts** (`LFImageInput … Q`: every record `rec` of `ℛ_k`, `1 ≤ k < k₀`, `β ≥ β₀(κ, c₉)`, `ν L² ≤ 7/8`, unit `h`, horizon `kf`,
+whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over `rec.SuccFams (Φ rec.F.sf) (Λ rec)`):
+
+| part | statement | source | status, landed | rem | R |
+|---|---|---|---|--:|:-:|
+| (c) `LFHistInput` | `IsComplete (k+1) (k+1)` of `Λ.hist nK` | LF-3 (c); Def. I.3.1, (R8) | O — `exists_isComplete` | 300 | L |
+| (g1) `LFStepDataInput` | `∃ SD : StepData` at `cs'`, `P'` with `SD.ker = Λ.ker nK` and `SD.VacuumTie Set.univ (vacExt rec.Ev k ΦE) δ″ δ‴` | Lemmas II.5.14, IV.1.3, IV.1.4, IV.1.6; (S0) P6 (2.32)–(2.33); R5, R5′ | O — `quietStepData'`, `quietKernel`, `StepData.retie`, `vacExt` | 1,700 | H |
+| (g1) kept data (S3) | `succKD` is `KeptData` at `cs'` | (S3) "no kept data are created" | **P** (`KeptData.upTo`, `chiDomAt_congr`) | 0 | – |
+| (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | O | 1,200 | H (B3) |
+| (g5) `LFBdrySrcInput` | `D7BdryBall`: `analytic`, `bound` at `h' ∈ hSetB2 h r_h`, `h' ≠ h` | blocker 2 leaf 5; Q13-YM §§2, 5; R2 | O — R2 objects, `KerBoundSrc` | 600 | H (B2) |
+| (g3) `LFFormInput` | `D1PreForm2 (F'.ctx …) vc' (F'.lf nK) h (stepDensity … (β_k a L^{d−2}) z_{k+1} Λ.s ρ nK)` for `D1CorrLim … St' h vc'` | P5 (2.1)–(2.14), (2.42)–(2.48), §3, (3.18); P6 §2, (3.3); P5 (1.8) | O — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M |
+| (g3) `LFOpBoundInput` | `D5Bound (k+1)` of `F'` | Lemma II.6.3 (a) | **P** from `LFSignInput` (`lfOpBoundInput_of_signs`, `Rep.opBound_of_data`) | 0 | – |
+| `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | O — `z_{k+1} > 0` is A4-1a; `j ≤ k` not in the class | 50 | L |
+| (g4) `LFPinInput` | `D4Pin (k+1)` of `F'` (the exponents and kept data of `rec`) | (D4), LF-3 proof; LF-3 (c) | O | 300 | L |
+| (g4) `LFBudgetInput` | `D6Pre` of `F'` | LF-2 (i), Thm I.5.4 (i) | **P** from `LFPinInput` + prefix (`lfBudgetInput_of_pin`, `Rep.budgetPre_of_LF2_trunc`) | 0 | – |
+| (h) `LFCoherenceInput` | `LFCoherent F'` | LF-3 (h), D-IV.9 | O — (D8) of `rec` (old data), `quietKernel_twoTorus`, `bgLocPiece_twoTorus` | 1,000 | M |
+| (h) `LFCorrInput` | `∃ St' vc', D1CorrLim (P6.m₀) (Φ rec.F.sf) St' h vc'` | P1 (3.106)–(3.110), P5 (1.8) | O — `wD1Corr` (zero terms) | 400 | M |
+
+**Proved in the assembly** (no hypothesis beyond the parts): the choice of `SD` on every torus (`LFStepDataInput`) and `Matches`;
+`cs'`, `P'` and the seven ties to `cs₀`, `PB` (those of `rec`); `Coh` at `k + 1` (`coh_succ`: from `rec`'s `Coh` and the ties of the image
+at `j ≤ k`, `δ_j`, `p₀(β_j)` reading `β_j` only (`deltaRun_congr`, `pZero_congr`); `a_j` from the hypothesis); `FieldClauses` at `k + 1`
+(`field_succ`); the kept data (S3) (`succKD`); `IsRepPre2` from its clauses ((D2), (D8), (D9) are the hypotheses on the image); (D7) of the
+second version from (g2) and (g5) (`D7Bdry.toD7Bdry2_of_ball`, by cases `h' = h`); `LFCoherent`; the vacuum tie of the chosen step data.
+In `lfBudgetInput_of_pin`: `S.Good` (`exists_good_lamHat`), (Λ15)–(Λ17′) (`analyticK_at`), the budget data of the prefix, (I.2) up to
+`k + 1` for the image (`runningHypTo_succ_of_coeffBounds` from (I.2) of `rec`, the ties, (H.6) at `k + 1` of (D2), `FlowRateAt`) and for
+`P'.beta`, then LF-2 (i) truncated at `k + 1`. In `lfOpBoundInput_of_signs`: `β_j > 0` at every scale (`rec`'s at `j ≤ k` by (I.2),
+`imageBeta_pos` at `k + 1` by `CoeffBounds.beta_succ_ge`), `a > 1`, and `z_{j+1} > 0` from `LFSignInput` with the `Coh` of `rec`.
+
+**SF→LF interface (watch item of W1096): DECIDED — not needed.** Under the landed `FieldClauses` (ruling R2) both halves evaluate their
+actions at the complete background: `cs.muBg j = sfBgMass j` (`muBg_eq_sfBgMass_of_fieldClauses`); the main action of the step reads
+`cs.muBg (k + 1)` (`MainAction.lean`), the small-field factor `cs.muBg k` (`SFCtx.phiK`). The interface (`SFtoLFInterface`) is the chord
+between the actions at `lfBgMass` and `sfBgMass` with its localized pieces; no exponent of `IsRepPre2` is evaluated at `lfBgMass` (`cs.mu`
+= `lfBgMass` enters only the sharp characteristic functions). `IsRep2WithInterface` is used by no theorem and has no witness
+(`Def7v2Inhabited`: its (D9) forces `k ≤ k₀`, where the chord bound (3.5) is open). The change of the small-field exponent when the region
+shrinks (Q13-FACTOR (1.1)–(1.3): boundary flux of the P5 (1.8) correction and of the polymer sums, re-evaluation at the new composed field)
+belongs to (g3) and to the bound (S0) of `b_k` in (g1), and reads only (D1), (D2) of the input. No class clause and no ruling is needed for it.
+
+**Two clauses of the input that the class does not carry** (found in the split; each is asked by a part, not assumed):
+* *the vacuum tie of the input's step data.* The tie of `LFStepInput` is on `Set.univ`, i.e. at every step; at the old steps `j < k` the
+  kernels are those of `rec` (the composition in (D1)), so `LFStepDataInput` there is the retie of `rec`: `VacuumB0Bound` of
+  `(rec.F.lf nK).SD` on `rec.Ev` (the A4-2v estimate), blocked on ruling R10 like A4-2v (`norm_stepVacuumTerm_le_of_stepData`: every
+  `StepData` has `‖vacuum term‖ ≤ 2(C_b log β_k + C_b B₀)|Z_{k+1} ∖ Z_k|` on `χ^new`, so a tie to a flow with `E_k ≠ 0` needs region 1
+  localized). `VacuumTied` is produced by `SFStepInput` and dropped by `classStepInput_of_parts`; `RepRec`, `PreRec` have no tie field.
+  Proposal (coordinator, spine carriers, no Def-7 change): a field `tie` of `RepRec`/`PreRec` (`∀ nK, ∃ δ″ δ‴, (F.lf nK).SD.VacuumTie
+  Set.univ Ev δ″ δ‴`), produced by A3, kept by `RInput` (`RKeptGasInput` keeps `SD`), consumed by A4-1h; then the old-step half of
+  `LFStepDataInput` is inheritance.
+* *`z_j > 0` at the old scales.* `Rep.opBound_of_data` needs `z_{j+1} > 0` at every scale; `z_{k+1} > 0` is A4-1a, `z_j` for `j ≤ k` is
+  `rec`'s and no clause bounds it. Proposal: `z_pos : ∀ j, 1 ≤ j → j ≤ k → 0 < F.sf.z j` in `RepRec`/`PreRec` (or in `Coh`).
+
+**Rule 10.** `LFStepRaw` (`LFStepRaw.zero`), `Matches` (`LFStepRaw.matches_zero`), `D7BdryBall` (`d7BdryBall_of_hist_eq_empty`). The
+parts and the combinators `LFImageInput`, `RepRec.SuccFams` need the exemption of the spine inputs.
+
+**Size.** ≈ 6,750 remaining (table), against ~6,000 before the split: the split exposed (c), (g4)'s `D4Pin` and `LFCorrInput`, which the old
+estimate counted inside (g3) and (h); the kept data and (D5), (D6) are proved. H items: (g1) (non-quiet kernels, and the old-step tie after
+R10), (g2) (B3), (g5) (B2).
 
 ## LastIntegralInput sub-inputs (W1108)
 

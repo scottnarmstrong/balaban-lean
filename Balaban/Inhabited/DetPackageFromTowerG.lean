@@ -133,7 +133,7 @@ theorem detTerm_rot_of_formula
     rw [hE, hE]
     exact Finset.sum_congr rfl fun y _ => detActivityBg_rot hC hk hδc hMX hsm hdm hα hR hD y T
   refine ⟨ht, fun X => ?_⟩
-  unfold DetExpansionLocC.detGrouped detCollarGrouped
+  unfold DetExpansionLocC.detGrouped DetExpansionLocCBg.detGrouped detCollarGrouped
   exact Finset.sum_congr rfl fun T _ => ht T
 
 /-- **Invariance of the centred regrouped terms under a spin rotation of the datum**: the second
@@ -153,7 +153,7 @@ theorem detTerm_rotC_of_formula
     ∀ X : Set (CTorus d L N₁ m₁ (k + 1)), E.detGroupedC q (D.rot R) X = E.detGroupedC q D X := by
   have ht := (detTerm_rot_of_formula hC hk hδc hMX hsm hdm hα E hE hR hD).1
   intro X
-  unfold DetExpansionLocC.detGroupedC detCollarGroupedC
+  unfold DetExpansionLocC.detGroupedC DetExpansionLocCBg.detGroupedC detCollarGroupedC
   exact Finset.sum_congr rfl fun T _ => ht T
 
 end Transfer

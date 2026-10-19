@@ -40,13 +40,19 @@ source question. deps: ids below, rulings R7′/R9, Bn = blocker n of `docs/BLOC
 | A4-1e | `SFRemainderInput`: `RTermsH4 … preFac` for `ℛ^{(k+1)}_n` | O | P5 Props 3.1–3.4; LFR Lemma IV.1.8 | 5% — only `rTermsH4_mono`, `rTermsH4_add` | 1,500 | M | ★ Φ |
 | A4-1f | `SFCoherenceInput`: `D8SF` of the new level and `ℛ^{(k+1)}`; the chain's `e` of a general class is no core family (W1090): the old-term pieces `AC`, `G₁` on two tori | O | Thm IV.1.1 (h); D-IV.9 | 30% — `e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`, `liftOldTermsFam_M_eq_of_d8` | 800 | M | ★ A4-1b, A4-1e |
 | A4-1g | `SFVacuumInput`: `|ΦE| ≤ C_b(log β′_{k+1} + 1)` from `|g_k| ≤ A log β_k + B` and the step normalization `s` (the tie is W1125's `vacExt`; `s` is a free output of A4-1h) | O | P4 (2.1), (2.41), (2.63); R5, R5′ | 95% — W1132: `vacMap` (= Gaussian increment `Γ_k`, `e₀` into `s`), `sfVacuumInput_of_inherit_renorm` (premises: A4-1a, A4-1c, ranges `p ≥ 1`, `Cb ≥ vacConst`); remaining: confirm the `e₀`-into-`s` convention | 30 | L | – |
-| A4-1h | `LFStepInput` (one input today; split it, wave 2) | O | LF-3 (b)–(d), (h); P5, P6 §§2–3 | 20% — `quietKernel`, `quietStepData'`, `quietKernel_twoTorus`, `bgLocPiece_twoTorus`, `Rep.budgetPre_of_LF2` | 6,000 | H | Φ, R9, B2, B3; SF→LF watch |
-| (g1) | non-quiet kernels P5 (2.47)·P6 (3.2) for `k ≥ 1` with local backgrounds, (S1)–(S5) | O | Lemmas IV.1.3, 4, 6 | 25% | 1,500 | M | R9 |
-| (g2) | `ℬ^{(k+1)}` with `B_st`: old boundary terms across a new hole | O | Lemma IV.1.5; P6 p. 34 | 15% | 1,200 | H | B3 |
-| (g3) | `D1PreForm2` for `ρ' = z^{N|T|}(Tρ)(z·)`; `D5Bound` | O | P5 (1.8), (1.26) | 20% | 1,300 | M | (g1), Φ |
-| (g4) | `D6Pre` with (I.2) to `k+1` (truncated LF-2 (i)) | O | LF-2 (i) | 60% — `Rep.budgetPre_of_LF2`, `BudgetSetupTo` | 300 | L | – |
-| (g5) | blocker 2, leaf 5: the activity bound on the transverse source radius `≍ β^{-1/2}` | O | Q13-YM §5 | 50% — R2 objects (three masses, `chiY`, `KerBound`) | 600 | H | B2 |
-| (h) | (D8) of the new kernels and `ℬ^{(k+1)}`; `D1CorrLim`, `Coh`, `FieldClauses` of `cs'` | O | D-IV.9; P5 (1.8) | 35% — `quietKernel_twoTorus` (model) | 1,100 | M | (g1), (g2) |
+| A4-1h | `LFStepInput` | Rd | LF-3 (b)–(d), (h); P5, P6 §§2–3 | W1136: `lfStepInput_of_parts` (`Spine/LFStep.lean`) on the step map `Λ : LFStepMap` (`LFStepRaw`: histories, kernels, `ℬ^{(k+1)}`, `s`); `cs'`, `P'` (`succOpConsts`, `succBudgetConsts`) and the kept data `succKD` defined, their clauses proved; `IsRepPre2`, (D7) v2, the tie assembled; SF→LF interface not needed (SPINE.md) | 6,750 | H | Φ, R9, R10, B2, B3 |
+| (c) | `LFHistInput`: the histories of `Λ` complete up to `k+1` | O | LF-3 (c); Def. I.3.1, (R8) | 30% — `exists_isComplete` | 300 | L | – |
+| (g1) | `LFStepDataInput`: `∃ StepData` at `cs'` with `ker = Λ.ker`, tied to `vacExt rec.Ev k ΦE`; non-quiet kernels P5 (2.47)·P6 (3.2) with local backgrounds; at the old steps the tie is the A4-2v estimate | O | Lemmas II.5.14, IV.1.3, 4, 6; (S0); R5, R5′ | 25% — `quietStepData'`, `StepData.retie`, `norm_stepVacuumTerm_le_of_stepData` | 1,700 | H | R9, R10 |
+| (g1′) | kept data (S3): `succKD` = `KeptData.upTo` of the input's | P | (S3) | 100% — `KeptData.upTo`, `chiDomAt_congr` | 0 | – | – |
+| (g2) | `LFBdryInput`: `D7Bdry` of `ℬ^{(k+1)}` at the physical field, `B_st`, `3κ/2`; old terms across a new hole | O | Lemma IV.1.5; P6 p. 34 | 15% | 1,200 | H | B3 |
+| (g3) | `LFFormInput`: `D1PreForm2` for `stepDensity … Λ.s ρ` with every `vc'` of `D1CorrLim` | O | P5 (2.1)–(2.48), §3, (1.8); P6 §2, (3.3) | 20% — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M | (g1), Φ |
+| (g3′) | `LFOpBoundInput` (`D5Bound`) | P | Lemma II.6.3 (a) | 100% — `lfOpBoundInput_of_signs` from `LFSignInput` | 0 | – | – |
+| (z) | `LFSignInput`: `z_j > 0`, `1 ≤ j ≤ k+1` (`j ≤ k` not carried by the class: carrier field proposed) | O | P1 (1.11), P4 (4.1) | 50% — `z_{k+1} > 0` in A4-1a | 50 | L | carrier |
+| (g4) | `LFPinInput` (`D4Pin (k+1)`: the histories of `Λ` restrict to those of `rec`, whose pins and kept data they keep) | O | (D4); LF-3 (c) | 10% | 300 | L | (c) |
+| (g4′) | `LFBudgetInput` (`D6Pre` with (I.2) to `k+1`) | P | LF-2 (i) | 100% — `lfBudgetInput_of_pin` (prefix, `Rep.budgetPre_of_LF2_trunc`) | 0 | – | – |
+| (g5) | `LFBdrySrcInput`: `D7BdryBall` (complex `h'` of the pinned ball): the activity bound on the transverse source radius | O | blocker 2 leaf 5; Q13-YM §§2, 5 | 50% — R2 objects (three masses, `chiY`, `KerBoundSrc`) | 600 | H | B2 |
+| (h) | `LFCoherenceInput`: `LFCoherent` of the successor | O | LF-3 (h), D-IV.9 | 30% — (D8) of `rec`, `quietKernel_twoTorus`, `bgLocPiece_twoTorus` | 1,000 | M | (g1), (g2) |
+| (h′) | `LFCorrInput`: `∃ St' vc', D1CorrLim` of the image | O | P1 (3.106)–(3.110); P5 (1.8) | 10% — `wD1Corr` | 400 | M | Φ |
 | A4-1i | `StepIntegrableInput`: a (D1) sum is integrable, from (D5) and Gaussian decay | O | P1 (1.11) | 20% — `baseRho1_integrable` (first density only) | 300 | L | – |
 | A4-2 | `RInput` | Rd | Thm III.10.8; Lemma III.8.4 | `rInput_of_parts` | – | – | A4-2v, A4-2ab |
 | A4-2v | `RVacuumInput` = `rVacuumInput_of_b0`; open `RVacuumB0Input` (`RecB0Bound`): vacuum-region volumes against `|Z_{k+1}∖Z_k|`, `|δ″_k|, |δ‴_k| = O(log β_k)` | Rd | P4 (2.1), (2.41), (2.63), (4.21) | 30% — OBSTRUCTED (W1134): `stepVacuumTerm`'s first region `(Z_k)ᶜ ∖ Ω` is a complement in the whole fine torus (records are intersected with `Z'`, the complement is not), so it contains the fine set of `Z'ᶜ` and `RecB0Bound` is not derivable (`compl_fineSet_subset_vacuumRegion`, `norm_vacuumTerm_le_of_b0Bound`); needs Scott's ruling: region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (then excess 1 is empty), then geometry of `Ω ∩ Z_k`. Also `PreRec.retie`, `stepVacuumVolume_eq_add_excess` | 400 | M | ruling |
@@ -121,7 +127,7 @@ R7′ and R9 are with Scott; R-N₁ should be asked now. Wave 1 starts as W1126 
 * **Wave 1.** Opus ★ R8, part 1: generic `decMarkG`, `decMarkCorr`, `decMarkCorrTerm`, `e1MarkGParamG` over an explicit background generating set,
   the current objects their `S.G'` instances (definitionally), the first lemma layer, an audit packet (~600). Sonnet ★ G slice 1:
   `StepTowerCollar{Base,Core,X}` (1,909 lines) as cores at `StepTowerG d L N` (~600). Sonnet: the R9 change if approved; otherwise A4-1i and `thr`.
-* **Wave 2.** Opus: split A4-1h (`Spine/LFStep.lean`, `lfStepInput_of_parts` from (g1)–(g5), (h), each with statement, source, coverage, size; decide the
+* **Wave 2.** Opus (DONE, W1136): split A4-1h (`Spine/LFStep.lean`, `lfStepInput_of_parts` from (g1)–(g5), (h), each with statement, source, coverage, size; decide the
   SF→LF interface watch item) (~600). Sonnet ★ G slice 2: `StepTowerCollar{Struct,Step,Class,Uniform}`, `StepTowerChain*`. Sonnet: the `K ≥ 2`
   witnesses of §2c (after R9); otherwise A4-1g with `ΦE`.
 * **Waves 3–30, Opus lane** (one task per wave, H items as early as their inputs allow, so that one that fails does so early): 3 ★ R8 part 2

@@ -326,10 +326,81 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   {S : StepSetting d L N₁ m₁ k N ϱ} {m₀ : ℕ}
   {z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))} {eps κ'' cdet : ℝ}
 
-/-- **The regrouped determinant terms**: `det⁺(X; D) = ∑_{H(T) = X} term D T`. -/
-noncomputable def DetExpansionLocC.detGrouped (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+/-- **The regrouped determinant terms on a background set `Gb`**: `det⁺(X; D) = ∑_{H(T) = X} term D T`. -/
+noncomputable def DetExpansionLocCBg.detGrouped {ϱb : ℝ}
+    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {Tr : BgTransport S.G' Gb N}
+    {hT : Tr.Reads} {Zb : Finset (unitPts Gb)}
+    (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
     (D : BgData S.G' N) (X : Set (CTorus d L N₁ m₁ (k + 1))) : ℂ :=
   detCollarGrouped (fun T => E.term D T) X
+
+/-- **The regrouped determinant terms**: `det⁺(X; D) = ∑_{H(T) = X} term D T`
+(`DetExpansionLocCBg.detGrouped` at the step's own set). -/
+noncomputable def DetExpansionLocC.detGrouped (E : DetExpansionLocC S m₀ z eps κ'' cdet)
+    (D : BgData S.G' N) (X : Set (CTorus d L N₁ m₁ (k + 1))) : ℂ :=
+  DetExpansionLocCBg.detGrouped E D X
+
+section Bg
+
+variable {ϱb : ℝ} {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {Tr : BgTransport S.G' Gb N}
+  {hT : Tr.Reads} {Zb : Finset (unitPts Gb)}
+
+/-- The regrouped terms have the same total as the original ones, which is the rooted trace of the
+mask `Zb` at the background of the datum of `Gb`. -/
+theorem DetExpansionLocCBg.detGrouped_sum (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    {D : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D)) :
+    ∑ X ∈ (Finset.univ : Finset (Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
+        (K := k + 1) m₀ (k + 1) Set.univ))).image detCollarHull, E.detGrouped D X =
+      rootTrace Gb S.a S.a₁ S.ν (unitQ Gb) (unitP Gb) Zb (fun _ => 1)
+        (svec Gb (bgFieldC Gb S.a S.ν (bgC0 d L N) (Tr.gdat hT D)))
+        (bgMultC Gb S.a S.ν (bgC0 d L N) (Tr.gdat hT D)) := by
+  rw [E.sum_eq D hD]
+  exact sum_detCollarGrouped (fun T => E.term D T)
+
+/-- **The regrouped bound** for the determinant terms: if `3 ≤ L`, `0 ≤ c_det`, `0 ≤ κ''`,
+then `‖det⁺(X; D)‖ ≤ C_hull e^{-λ_hull sizeJ X}`, `λ = κ''`. -/
+theorem DetExpansionLocCBg.detGrouped_bound (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    (hL : 3 ≤ L) (hN : L ^ m₀ ∣ N₁) (hc : 0 ≤ cdet) (hκ : 0 ≤ κ'')
+    {D : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    ‖E.detGrouped D X‖ ≤
+      hullConst d L κ'' cdet * Real.exp (-hullRate d L κ'' * sizeJ m₀ (k + 1) X) :=
+  detCollarGrouped_bound hL hN hc hκ (fun T => E.term D T)
+    (fun T hT' => (E.anchor D hD T hT').2) (E.bound D hD) X
+
+/-- **The root clause**: a nonzero regrouped term sits on a polymer hull containing the root cube
+(all of its sites). -/
+theorem DetExpansionLocCBg.detGrouped_anchor (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    (hL : 3 ≤ L) (hN : L ^ m₀ ∣ N₁)
+    {D : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    {X : Set (CTorus d L N₁ m₁ (k + 1))} (hX : E.detGrouped D X ≠ 0) :
+    IsPolyDom m₀ (k + 1) X ∧
+      box (rootCube (m₀ := m₀) (K := k + 1) z).1 (cellSide L m₀ m₁ (k + 1)) ⊆ X := by
+  obtain ⟨T, hTf, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hX
+  have hTX := mem_detCollarFibre.1 hTf
+  obtain ⟨hroot, hpoly⟩ := E.anchor D hD T hne
+  subst hTX
+  exact ⟨isPolyDom_of_isDj (detCollarHull_isDj hL hN hpoly).1, box_subset_detCollarHull hroot⟩
+
+/-- **Locality on the hull itself** (chart data, `Gb` a level set): two data whose data on `Gb`
+lie in the chart and agree at every site of `X` have the same regrouped term at `X`. -/
+theorem DetExpansionLocCBg.detGrouped_local (E : DetExpansionLocCBg S Gb Tr hT Zb m₀ z eps κ'' cdet)
+    (hGb : IsLevel Gb (k + 1))
+    (hL : 3 ≤ L) (hN : L ^ m₀ ∣ N₁) (h3 : 3 ≤ L ^ (m₀ + m₁))
+    {D D₂ : BgData S.G' N} (hD : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D))
+    (hD₂ : XiCData Gb S.a S.ν (k + 1) 1 eps (Tr.gdat hT D₂))
+    {X : Set (CTorus d L N₁ m₁ (k + 1))}
+    (h : ∀ v ∈ X, (Tr.gdat hT D).Ψ v = (Tr.gdat hT D₂).Ψ v ∧
+      (Tr.gdat hT D).h v = (Tr.gdat hT D₂).h v) :
+    E.detGrouped D X = E.detGrouped D₂ X := by
+  unfold DetExpansionLocCBg.detGrouped detCollarGrouped
+  refine Finset.sum_congr rfl fun T hTf => ?_
+  have hTX := mem_detCollarFibre.1 hTf
+  refine E.term_eq_of_agree_cellNear hGb hN h3 hD hD₂ T fun v ⟨x, hx, hxv⟩ => h v ?_
+  rw [← hTX]
+  exact cellNear_mem_detCollarHull hL hN hx hxv
+
+end Bg
 
 /-- The regrouped terms have the same total as the original ones, which is the root trace. -/
 theorem DetExpansionLocC.detGrouped_sum (E : DetExpansionLocC S m₀ z eps κ'' cdet)
@@ -338,9 +409,8 @@ theorem DetExpansionLocC.detGrouped_sum (E : DetExpansionLocC S m₀ z eps κ'' 
         (K := k + 1) m₀ (k + 1) Set.univ))).image detCollarHull, E.detGrouped D X =
       rootTrace S.G' S.a S.a₁ S.ν (unitQ S.G') (unitP S.G') (S.blockU z) (fun _ => 1)
         (svec S.G' (bgFieldC S.G' S.a S.ν (bgC0 d L N) D))
-        (bgMultC S.G' S.a S.ν (bgC0 d L N) D) := by
-  rw [E.sum_eq D hD]
-  exact sum_detCollarGrouped (fun T => E.term D T)
+        (bgMultC S.G' S.a S.ν (bgC0 d L N) D) :=
+  DetExpansionLocCBg.detGrouped_sum E hD
 
 /-- **The regrouped bound** for the determinant terms: if `3 ≤ L`, `0 ≤ c_det`, `0 ≤ κ''`,
 then `‖det⁺(X; D)‖ ≤ C_hull e^{-λ_hull sizeJ X}`, `λ = κ''`. -/
@@ -350,8 +420,7 @@ theorem DetExpansionLocC.detGrouped_bound (E : DetExpansionLocC S m₀ z eps κ'
     (X : Set (CTorus d L N₁ m₁ (k + 1))) :
     ‖E.detGrouped D X‖ ≤
       hullConst d L κ'' cdet * Real.exp (-hullRate d L κ'' * sizeJ m₀ (k + 1) X) :=
-  detCollarGrouped_bound hL hN hc hκ (fun T => E.term D T)
-    (fun T hT => (E.anchor D hD T hT).2) (E.bound D hD) X
+  DetExpansionLocCBg.detGrouped_bound E hL hN hc hκ hD X
 
 /-- **The root clause**: a nonzero regrouped term sits on a polymer hull containing the root cube
 (all of its sites). -/
@@ -360,12 +429,8 @@ theorem DetExpansionLocC.detGrouped_anchor (E : DetExpansionLocC S m₀ z eps κ
     {D : BgData S.G' N} (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D)
     {X : Set (CTorus d L N₁ m₁ (k + 1))} (hX : E.detGrouped D X ≠ 0) :
     IsPolyDom m₀ (k + 1) X ∧
-      box (rootCube (m₀ := m₀) (K := k + 1) z).1 (cellSide L m₀ m₁ (k + 1)) ⊆ X := by
-  obtain ⟨T, hT, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hX
-  have hTX := mem_detCollarFibre.1 hT
-  obtain ⟨hroot, hpoly⟩ := E.anchor D hD T hne
-  subst hTX
-  exact ⟨isPolyDom_of_isDj (detCollarHull_isDj hL hN hpoly).1, box_subset_detCollarHull hroot⟩
+      box (rootCube (m₀ := m₀) (K := k + 1) z).1 (cellSide L m₀ m₁ (k + 1)) ⊆ X :=
+  DetExpansionLocCBg.detGrouped_anchor E hL hN hD hX
 
 /-- **Locality on the hull itself** (chart data): two data of the chart that agree at every site
 of `X` have the same regrouped term at `X`. -/
@@ -375,13 +440,8 @@ theorem DetExpansionLocC.detGrouped_local (E : DetExpansionLocC S m₀ z eps κ'
     (hD₂ : XiCData S.G' S.a S.ν (k + 1) 1 eps D₂)
     {X : Set (CTorus d L N₁ m₁ (k + 1))}
     (h : ∀ v ∈ X, D.Ψ v = D₂.Ψ v ∧ D.h v = D₂.h v) :
-    E.detGrouped D X = E.detGrouped D₂ X := by
-  unfold DetExpansionLocC.detGrouped detCollarGrouped
-  refine Finset.sum_congr rfl fun T hT => ?_
-  have hTX := mem_detCollarFibre.1 hT
-  refine E.term_eq_of_agree_cellNear hN h3 hD hD₂ T fun v ⟨x, hx, hxv⟩ => h v ?_
-  rw [← hTX]
-  exact cellNear_mem_detCollarHull hL hN hx hxv
+    E.detGrouped D X = E.detGrouped D₂ X :=
+  DetExpansionLocCBg.detGrouped_local E S.hG' hL hN h3 hD hD₂ h
 
 end DetStep
 
