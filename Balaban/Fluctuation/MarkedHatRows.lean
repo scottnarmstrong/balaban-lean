@@ -69,17 +69,45 @@ noncomputable def maskBlock (Z : Finset (unitPts Gp)) (w : unitPts Gp × Fin N �
     unitPts Gp × Fin N → ℂ :=
   fun q => if q.1 ∈ Z then w q else 0
 
+/-- **The masked decoupled tangent on a background generating set `Gb`, with a lift.**
+`v_t = u · lift (cc • C^{1/2}(s) ψ̂) + t · lift (M_Z (cc • C^{1/2}(s) ψ̂))`: the square root
+`C^{1/2}(s) = hatSqrtF Gb …` of the cover of `Gb` at the background `F₁(s, Θ)`, applied to a hat
+variable `ψ̂` of the unit lattice of `Gb`, masked on the set `Z` of unit points of `Gb` after the
+square root, and lifted to the fine torus by `lift`.  For a level set and `lift = liftC` this is
+`markedHatPsiF`; for the local generating set of a polymer and the extension by zero it is the
+marked hat field of the term recomputed on that set (P3 (4.46)). -/
+noncomputable def markedHatPsiFBg {ϱb : ℝ} (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
+    (a₁ ν : ℝ) (lift : (unitPts Gb × Fin N → ℂ) →ₗ[ℂ] (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))
+    (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Z : Finset (unitPts Gb)) (u t : ℂ)
+    (s : DecParams Gb) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gb × Fin N → ℂ) :
+    CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ :=
+  u • lift (cc • (hatSqrtF Gb a₁ ν F₁ s Θ *ᵥ ψh)) +
+    t • lift (maskBlock Z (cc • (hatSqrtF Gb a₁ ν F₁ s Θ *ᵥ ψh)))
+
 open Classical in
 /-- **The masked decoupled tangent** `v_t = u · hatPsiF + t · M_Z hatPsiF`, with the mask applied to
-the unit-lattice field `cc • C^{1/2}(s) ψ̂` after the covariance square root, then lifted. -/
+the unit-lattice field `cc • C^{1/2}(s) ψ̂` after the covariance square root, then lifted
+(`markedHatPsiFBg` at `Gb = Gp` with the lift `liftC`). -/
 noncomputable def markedHatPsiF (a₁ ν : ℝ) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
     (Z : Finset (unitPts Gp)) (u t : ℂ)
     (s : DecParams Gp) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gp × Fin N → ℂ) :
     CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ :=
-  u • hatPsiF Gp a₁ ν hG' cc F₁ s Θ ψh +
-    t • liftC hG' (maskBlock Z (cc • (hatSqrtF Gp a₁ ν F₁ s Θ *ᵥ ψh)))
+  markedHatPsiFBg Gp a₁ ν (liftC hG') cc F₁ Z u t s Θ ψh
+
+/-- The masked decoupled tangent is `u • hatPsiF + t • liftC (M_Z (cc • C^{1/2}(s) ψ̂))`. -/
+theorem markedHatPsiF_eq_hatPsiF_add (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (Z : Finset (unitPts Gp)) (u t : ℂ)
+    (s : DecParams Gp) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gp × Fin N → ℂ) :
+    markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh =
+      u • hatPsiF Gp a₁ ν hG' cc F₁ s Θ ψh +
+        t • liftC hG' (maskBlock Z (cc • (hatSqrtF Gp a₁ ν F₁ s Θ *ᵥ ψh))) := rfl
 
 /-- Pointwise form: the value at a site `y` is `u + t · 1[unitPt y ∈ Z]` times that of `hatPsiF`. -/
 theorem markedHatPsiF_apply (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -91,7 +119,8 @@ theorem markedHatPsiF_apply (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
     markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh y i =
       (u + if unitPt hG' y ∈ Z then t else 0) * hatPsiF Gp a₁ ν hG' cc F₁ s Θ ψh y i := by
   classical
-  unfold markedHatPsiF hatPsiF
+  rw [markedHatPsiF_eq_hatPsiF_add]
+  unfold hatPsiF
   simp only [Pi.add_apply, Pi.smul_apply, liftC_apply, maskBlock, smul_eq_mul]
   by_cases hy : unitPt hG' y ∈ Z
   · simp only [hy, ite_true]; ring
@@ -328,8 +357,8 @@ theorem markedHatPsiF_one
       (hatSqrtF S.G' S.a₁ S.ν F₁ (fun _ => 1) (rawOf S.D') *ᵥ yhat x) = S.shiftUC x := by
     rw [hatSqrtF_one_apply hC hF₁ hD, ← S.covSqrtC_eq_hatCovSqrt]
     rfl
-  unfold markedHatPsiF
-  rw [hatPsiF_one_eq_liftC_shiftUC S hC hF₁ hD, hsh, maskBlock_blockU, S.liftC_markedTangentC]
+  rw [markedHatPsiF_eq_hatPsiF_add, hatPsiF_one_eq_liftC_shiftUC S hC hF₁ hD, hsh,
+    maskBlock_blockU, S.liftC_markedTangentC]
 
 end StepSetting
 

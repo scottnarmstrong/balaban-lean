@@ -328,7 +328,7 @@ theorem decMarkCorr_rootBlock_recentred
       decMarkCorr (SA) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b)) m₀ k
         (LocalCover.fam m₀ (LocalCover.blockSite k b)) a₁ ν cc F₁ Sol
         (blockEnergyFun (GA) (HA) (compWeight L a₁) ν k b) Zm Y ρ hp (rawOf D) um Φ := by
-  unfold decMarkCorr decMarkG
+  unfold decMarkCorr decMarkCorrBg decMarkGBg
   exact markCorr_eq_of_eqOn (M := markedRad d L N k a₁ κ ρ cc) hC.δ₁_pos
     (f := fun v t => evDec (LocalCover.nbhdF m₀ (LocalCover.blockSite k b')) m₀ k
         (LocalCover.fam m₀ (LocalCover.blockSite k b')) a₁ ν (SB).hG' cc F₁' Sol'

@@ -230,11 +230,66 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
     RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
   {AgF : Set (CTorus d L N₁ m₁ (k + 1)) → F' → F' → Prop}
 
+section Bg
+
+variable {ϱb : ℝ}
+
+variable (N) in
+/-- **The parameter space of a datum of a background generating set `Gb`**: the subspace `rawSub`
+of raw data of data of `Gb` (constant on layer blocks, zero off the data sites), times the space of
+sources. -/
+abbrev physParamBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) : Type :=
+  ↥(rawSub N Gb) × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+
+variable (N) in
+/-- The inclusion of the parameter space of `Gb` in the ambient space `RawData × sources`
+(continuous linear; the identity on the source factor). -/
+noncomputable def physInclBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) :
+    physParamBg N Gb →L[ℂ] RawData d L (N₁ * L ^ m₁) (k + 1) N ×
+      (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) :=
+  (rawSub N Gb).subtypeL.prodMap (ContinuousLinearMap.id ℂ _)
+
+theorem physInclBg_apply (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (e : physParamBg N Gb) :
+    physInclBg N Gb e = ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), e.2) := rfl
+
+/-- The parameter set of a background generating set `Gb`: the chart `Ξ^c(Gb; 1, ε)` of `Gb`
+times the `ℓ¹` ball of sources (`physSΛ` at `Gb = S.G'`, `physSΛ_eq_physSΛBg`). -/
+def physSΛBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν eps : ℝ) :
+    Set (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) :=
+  XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ l1Ball d L N₁ m₁ (k + 1) N
+
+variable (N) in
+/-- **The admissible parameters of `Gb`**: the preimage of `physSΛBg` under the inclusion. -/
+def physVBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν eps : ℝ) :
+    Set (physParamBg N Gb) :=
+  physInclBg N Gb ⁻¹' physSΛBg Gb a₁ ν eps
+
+/-- **`physVBg` is open** in the parameter space (the chart of `Gb` is open relative to the
+subspace of data, and the `ℓ¹` ball of sources is open). -/
+theorem isOpen_physVBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb) (a₁ ν eps : ℝ)
+    (H : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) :
+    IsOpen (physVBg N Gb a₁ ν eps) :=
+  (isOpen_preimage_xiCRaw (G := Gb) (N := N) (n := k + 1) (σ := 1) (ε := eps) H).prod
+    (isOpen_l1Ball (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (N := N))
+
+/-- `physInclBg '' physVBg = physSΛBg`. -/
+theorem physInclBg_image_physVBg (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
+    (a₁ ν eps : ℝ) :
+    physInclBg N Gb '' physVBg N Gb a₁ ν eps = physSΛBg Gb a₁ ν eps := by
+  refine Set.Subset.antisymm ?_ ?_
+  · rintro _ ⟨e, he, rfl⟩
+    exact he
+  · rintro ⟨p, g⟩ hΘ
+    have hp : p ∈ rawSub N Gb := XiCRaw_subset_rawSub _ _ _ _ _ _ hΘ.1
+    exact ⟨(⟨p, hp⟩, g), hΘ, rfl⟩
+
+end Bg
+
 variable (N) in
 /-- **The parameter space of the physical datum**: the subspace `rawSub` of raw data of data
-(constant on layer blocks, zero off the data sites), times the space of sources. -/
-abbrev physParam (S : StepSetting d L N₁ m₁ k N ϱ) : Type :=
-  ↥(rawSub N S.G') × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+(constant on layer blocks, zero off the data sites), times the space of sources (`physParamBg` at
+`Gb = S.G'`). -/
+abbrev physParam (S : StepSetting d L N₁ m₁ k N ϱ) : Type := physParamBg N S.G'
 
 variable (N) in
 /-- The inclusion of the parameter space in the ambient space `RawData × sources`
@@ -242,32 +297,33 @@ variable (N) in
 noncomputable def physIncl (S : StepSetting d L N₁ m₁ k N ϱ) :
     physParam N S →L[ℂ] RawData d L (N₁ * L ^ m₁) (k + 1) N ×
       (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) :=
-  (rawSub N S.G').subtypeL.prodMap (ContinuousLinearMap.id ℂ _)
+  physInclBg N S.G'
 
 theorem physIncl_apply (e : physParam N S) : physIncl N S e = ((e.1 : RawData d L (N₁ * L ^ m₁)
     (k + 1) N), e.2) := rfl
 
+/-- `physSΛ` is `physSΛBg` at `Gb = S.G'`. -/
+theorem physSΛ_eq_physSΛBg (a₁ ν eps : ℝ) : physSΛ S a₁ ν eps = physSΛBg S.G' a₁ ν eps := rfl
+
 /-- **The admissible parameters**: the preimage of the physical parameter set `physSΛ` under the
-inclusion. -/
-def physV (a₁ ν eps : ℝ) : Set (physParam N S) := physIncl N S ⁻¹' physSΛ S a₁ ν eps
+inclusion (`physVBg` at `Gb = S.G'`). -/
+def physV (a₁ ν eps : ℝ) : Set (physParam N S) := physVBg N S.G' a₁ ν eps
+
+/-- `physV` is the preimage of `physSΛ` under `physIncl`. -/
+theorem physV_eq_preimage (a₁ ν eps : ℝ) :
+    physV S a₁ ν eps = physIncl N S ⁻¹' physSΛ S a₁ ν eps := rfl
 
 /-- **`physV` is open** in the parameter space (the chart is open relative to the subspace of
 data, and the `ℓ¹` ball of sources is open). -/
 theorem isOpen_physV (a₁ ν eps : ℝ) (H : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) :
     IsOpen (physV S a₁ ν eps) :=
-  (isOpen_preimage_xiCRaw (G := S.G') (N := N) (n := k + 1) (σ := 1) (ε := eps) H).prod
-    (isOpen_l1Ball (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) (N := N))
+  isOpen_physVBg S.G' a₁ ν eps H
 
 /-- Every point of `physSΛ` is the image of a point of `physV`, and the image of `physV` lies in
 `physSΛ`: `physIncl '' physV = physSΛ`. -/
 theorem physIncl_image_physV (a₁ ν eps : ℝ) :
-    physIncl N S '' physV S a₁ ν eps = physSΛ S a₁ ν eps := by
-  refine Set.Subset.antisymm ?_ ?_
-  · rintro _ ⟨e, he, rfl⟩
-    exact he
-  · rintro ⟨p, g⟩ hΘ
-    have hp : p ∈ rawSub N S.G' := XiCRaw_subset_rawSub _ _ _ _ _ _ hΘ.1
-    exact ⟨(⟨p, hp⟩, g), hΘ, rfl⟩
+    physIncl N S '' physV S a₁ ν eps = physSΛ S a₁ ν eps :=
+  physInclBg_image_physVBg S.G' a₁ ν eps
 
 /-- **The physical relative family.**  From the base `DirectTerms` over `physSΛ` and the
 continuity field of the physical expansion, the relative family over `physV` with `J = physIncl`. -/

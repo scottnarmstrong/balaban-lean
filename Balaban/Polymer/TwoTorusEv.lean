@@ -1051,7 +1051,8 @@ theorem FFmarked_eq_of_pair (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ 
   have hF := hF₁ σ D hσ hU φ α hI
   have hψ : markedHatPsiF a₁ ν hG' cc F₁ Zm um tm σ (rawOf D) ψh =
       markedHatPsiF a₁ ν hG' cc F₁a Zm um tm σ (rawOf D) ψh := by
-    unfold markedHatPsiF hatPsiF hatSqrtF
+    simp only [markedHatPsiF_eq_hatPsiF_add]
+    unfold hatPsiF hatSqrtF
     rw [hF, hFa]
   set ψ := markedHatPsiF a₁ ν hG' cc F₁a Zm um tm σ (rawOf D) ψh with hψdef
   have hSeq : Sol (σ, flEdat Gp Hm (φ, α) D.Ψ ψ) = Sola (σ, flEdat Gp Hm (φ, α) D.Ψ ψ) := by

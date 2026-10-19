@@ -87,7 +87,7 @@ theorem e1MarkGParamG_rot (S : StepSetting d L N₁ m₁ k N ϱ)
       (En := blockEnergyFun S.G' Hm (compWeight L S.a₁) S.ν k q.1)
       (fun bg δφ u' => energyBlock_rot (isRealOrth_ofReal hQ).1 _ S.ν k bg.2 δφ u'.2 q.1)
       q.2 hρ hρc hp hD (hmark u hu) hΦc
-    unfold decMarkCorrTerm
+    simp only [decMarkCorrTerm_apply]
     rw [hθθ', hDθ, hr]
   · rw [e1MarkGParamG_of_not S F₁ Sol ρ hp z eps θ' Y' u (fun b x => e (Φ b x)) (fun h => hu h.2),
       e1MarkGParamG_of_not S F₁ Sol ρ hp z eps θ Y' u Φ (fun h => hu h.2)]
