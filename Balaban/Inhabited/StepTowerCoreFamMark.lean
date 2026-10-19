@@ -261,8 +261,8 @@ theorem e1MarkGParamG_unique (S : StepSetting d L N₁ m₁ k N ϱ)
       (cc := ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) (Zm := S.blockU z)
       (En := blockEnergyFun S.G' Hm (compWeight L S.a₁) S.ν k q.1)
       q.2 hρ hρc hp hD (hmark u hu) (Φ := Φ)
-    simp only [decMarkCorrTerm_apply]
-    rw [hDθ, hr]
+    rw [hDθ]
+    exact congrArg (fun x => t * (-((S.β : ℝ) : ℂ) * x)) hr
   · rw [e1MarkGParamG_of_not S F₁ Sol ρ hp z eps θ Y' u Φ (fun h => hu h.2),
       e1MarkGParamG_of_not S F₁' Sol' ρ hp z eps θ Y' u Φ (fun h => hu h.2)]
 

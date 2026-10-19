@@ -313,9 +313,9 @@ theorem coreCoeff_twoTorus
   have hrad := markedRad_lvCpsiG_lt T D
   have hcψ := D.cψ_pos.le
   have hV : ((θ.1, 0) : physParam N (SA)) ∈ physVq (SA) (SA).a₁ (SA).ν T.t 1 :=
-    ⟨⟨hθ.1, by simp [l1Ball, physIncl_apply]⟩, by simp⟩
+    ⟨⟨hθ.1, by simp [l1Ball, physInclBg_apply]⟩, by simp⟩
   have hV' : ((θ'.1, 0) : physParam N (SB)) ∈ physVq (SB) (SB).a₁ (SB).ν T.t 1 :=
-    ⟨⟨hθ'.1, by simp [l1Ball, physIncl_apply]⟩, by simp⟩
+    ⟨⟨hθ'.1, by simp [l1Ball, physInclBg_apply]⟩, by simp⟩
   have key := gsumCoeff_e1_twoTorus_of_directTerms (N := N) (d := d) (L := L) T.hN hk ν β p₁
     T.δ D.core D'.core (SA).hG' (SB).hG' T.large_block T.dom_margin T.coer_margin T.δc_small
     hF₁ hF₁' hSol hSol' hN hN' hm₁ z hz hrc hroot hn hn' θ θ' hθ.1 hθ'.1 hraw hp0 hp hp' hum
