@@ -118,7 +118,7 @@ theorem StepTowerG.exists_collar (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3
       4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ T.κ ∧
       (2 * T.κdec - 1) * ((L : ℝ) ^ (m₀ - 1) + 2 * (d : ℝ) * (L : ℝ) ^ m₀ *
         ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L) + 1 ≤ 2 * κdec ∧
-      xiK2 d L N * (2 * composedCloseBound d L N T.m₁ T.BG T.κ (xiC1 d)
+      xiK2 d L N * ((N : ℝ) * composedCloseBound d L N T.m₁ T.BG T.κ (xiC1 d)
         (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤ θ := by
   obtain ⟨κmin, hlo, hk⟩ := StepTowerG.exists_labelRate d L N m₀ κlo
   obtain ⟨T₁, -, hm₁, h₁⟩ := StepTowerG.exists_pred d L N hd hL hN κmin
@@ -157,6 +157,7 @@ theorem exists_stepTower_collar (m₀ : ℕ) (κlo : ℝ) {θ : ℝ} (hθ : 0 < 
     StepTowerG.exists_collar 3 3 2 le_rfl le_rfl le_rfl m₀ κlo hθ
   have e : (4 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ 3 + ((3 : ℕ) : ℝ)) = 327 := by norm_num
   rw [e] at h1 h5
+  rw [show ((2 : ℕ) : ℝ) = 2 by norm_num] at h5
   exact ⟨κmin, hlo, T.ofThree h0 hm, δ₃, δfl, κdec, h1, h2, h3, h4, h5⟩
 
 end Balaban.Inhabited

@@ -248,7 +248,7 @@ theorem not_cover_and_room_r324 {P : Consts} (hα₀ : 0 < P.α₀) (hγ : 0 ≤
 theorem exists_pow_close_leG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) {BG κ θ : ℝ}
     (hBG : 0 ≤ BG) (hθ : 0 < θ) :
     ∃ M : ℝ, ∀ m₁ : ℕ, M ≤ (L : ℝ) ^ m₁ →
-      xiK2 d L N * (2 * composedCloseBound d L N m₁ BG κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤
+      xiK2 d L N * ((N : ℝ) * composedCloseBound d L N m₁ BG κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤
         θ := by
   have hγ : 0 < gammaW d := gammaW_pos' (by omega)
   have hX : 0 ≤ xiC1 d := le_trans zero_le_one (one_le_xiC1 d)
@@ -256,9 +256,9 @@ theorem exists_pow_close_leG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤
     have := cK2_pos d L N
     unfold xiK2; positivity
   set r : ℝ := 4 * (d : ℝ) * (L : ℝ) ^ 3 with hr
-  set A : ℝ := xiK2 d L N * (2 * composedCloseBound d L N 0 BG κ (xiC1 d) r) with hA
+  set A : ℝ := xiK2 d L N * ((N : ℝ) * composedCloseBound d L N 0 BG κ (xiC1 d) r) with hA
   have hA0 : 0 ≤ A :=
-    mul_nonneg hx2 (mul_nonneg (by norm_num) (composedCloseBound_nonneg hBG hX (by omega)))
+    mul_nonneg hx2 (mul_nonneg (Nat.cast_nonneg N) (composedCloseBound_nonneg hBG hX (by omega)))
   have hind : ∀ m₁ : ℕ, composedCloseBound d L N m₁ BG κ (xiC1 d) r =
       composedCloseBound d L N 0 BG κ (xiC1 d) r := by
     intro m₁
@@ -286,7 +286,7 @@ theorem exists_pow_close_leG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤
   have hAθ : A ≤ θ * Real.exp (gammaW d * (L : ℝ) ^ m₁) := by
     have h1 : A / θ ≤ Real.exp (gammaW d * (L : ℝ) ^ m₁) := by linarith
     rwa [div_le_iff₀ hθ, mul_comm] at h1
-  calc xiK2 d L N * (2 * (composedCloseBound d L N 0 BG κ (xiC1 d) r *
+  calc xiK2 d L N * ((N : ℝ) * (composedCloseBound d L N 0 BG κ (xiC1 d) r *
         (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹))
         = A * (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹ := by rw [hA]; ring
     _ ≤ θ * Real.exp (gammaW d * (L : ℝ) ^ m₁) * (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹ :=
@@ -305,7 +305,7 @@ theorem exists_pow_close_le {BG κ θ : ℝ} (hBG : 0 ≤ BG) (hθ : 0 < θ) :
   refine ⟨M, fun m₁ hm => ?_⟩
   have e : (4 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ 3 + ((3 : ℕ) : ℝ)) = 327 := by norm_num
   have h := hM m₁ (by simpa using hm)
-  rw [e] at h
+  rw [e, show ((2 : ℕ) : ℝ) = 2 by norm_num] at h
   exact h
 
 end Three
