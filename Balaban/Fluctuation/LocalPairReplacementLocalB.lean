@@ -199,8 +199,10 @@ theorem coef_eTermFun_replacement_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel H
           Gl a ν (rho4 d L N BG κ) s D φ α →
           F₁' (s, rawOf D) = (φ, α))
     {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
-    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₀' δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h0' : 0 ≤ δ₀')
+    (h1 : 0 ≤ δ₁)
     (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
     {Sol' : Dec2.DecParams (coverOf Gl) ×
@@ -222,7 +224,7 @@ theorem coef_eTermFun_replacement_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel H
     (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
         Edat Gd N,
       (∀ P, ‖p.1 P‖ < Real.exp κ) →
-      StrictDataM Gd N false δ₀ δ₁ p.2 →
+      StrictDataM Gd N false δ₀' δ₁ p.2 →
         (Sol' p).1 = dphi Gd
           (Dec2.decG (coverOf Gl)
             Gd a ν p.1)
@@ -262,7 +264,7 @@ theorem coef_eTermFun_replacement_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel H
     (ψ' : (ParIdx Gp X₁ → ℂ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
     (he : ∀ w ∈ supN C R', StrictDataM Hm N false δ₀ δ₁
       (flEdat Gp Hm (F₁ (extParams Gp X₁ w, rawOf D)) D.Ψ (ψ' w)))
-    (he' : ∀ w ∈ supN C R', StrictDataM Gd N false δ₀ δ₁
+    (he' : ∀ w ∈ supN C R', StrictDataM Gd N false δ₀' δ₁
       (flEdat Gl
         Gd
         (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
@@ -333,8 +335,8 @@ theorem coef_eTermFun_replacement_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel H
   have hdichb := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Gp hw.1
   have hdichf := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Hm hw.1
   have hrow := fun w (hw : w ∈ supN C R') => localB_depth_row hG' hm₁ hRC hRX Y₀ hw.1
-  refine coef_eTermFun_replacement_cross hS Sb Sb' HB HB' hκ hMc hF₁ hF₁' hF₂ Sf Sf' hM₂ h0 h1
-    hδ₀ hδ₁ hSol hSol' ac Fk E C hR' (extParams Gp X₁)
+  refine coef_eTermFun_replacement_cross_sep hS Sb Sb' HB HB' hκ hMc hF₁ hF₁' hF₂ Sf Sf' hM₂ h0 h1
+    h0' h1 hδ₀ hδ₁ hδ₀' hδ₁ hSol hSol' ac Fk E C hR' (extParams Gp X₁)
     (fun w P => if P.1.2 ∈ Gl.Ω (k + 1)
       then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0)
     hsσ (fun w hw => tau_norm_lt (Gl := Gl) (hsσ w hw) (hR'.trans_le hRκ))
@@ -549,7 +551,8 @@ theorem coef_eTermFun_replacement_localB (hG' : IsLevel Gp (k + 1)) (hG : IsLeve
   coef_eTermFun_replacement_gen hG' hG hk1 (localB_cubeAligned hk Y _ hm₁) (localB_supSep hk Y _)
     (localB_drop_precedes hk (Nat.le_succ k) Y _ _) (localB_drop_Ω hk (Nat.le_succ k) Y _ _ (le_refl k))
     (localB_drop_top hk (Nat.le_succ k) Y _ _) hN hm₁ hM hag hagm hagl hagl hS HB HB' hκ hMc hF₁
-    hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd hDd' hD' ψ' he he' hRC hRX hRk hmar
+    hF₁' hF₂ hM₂ h0 h0 h1 hδ₀ hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd hDd' hD' ψ' he he' hRC hRX
+    hRk hmar
 
 /-- **The replacement identity at a local generating set `Gl` for a datum of its chart, core.**
 The statement of `coef_eTermFun_replacement_localB_restrict` for a level set `𝔹_{k+1}` (any level
@@ -602,8 +605,10 @@ theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : 
             s D φ α →
           F₁' (s, rawOf D) = (φ, α))
     {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
-    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 < δ₁)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₀' δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h0' : 0 ≤ δ₀')
+    (h1 : 0 < δ₁)
     (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
     {Sol' : Dec2.DecParams (coverOf Gl) ×
@@ -627,7 +632,7 @@ theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : 
     (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
         Edat Gd N,
       (∀ P, ‖p.1 P‖ < Real.exp κ) →
-      StrictDataM Gd N false δ₀ δ₁ p.2 →
+      StrictDataM Gd N false δ₀' δ₁ p.2 →
         (Sol' p).1 = dphi Gd
           (Dec2.decG (coverOf Gl)
             Gd (compWeight L a₁) ν
@@ -671,7 +676,8 @@ theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : 
     (hle : eps ≤ eps')
     (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
     (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
-    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀)
+    (hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀')
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     {D' : BgData Gl N} (hD'x : XiCData Gl (compWeight L a₁) ν (k + 1) 1 eps' D')
     (hD' : ∀ x ∈ Gl.Ω (k + 1), D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
@@ -716,11 +722,6 @@ theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : 
   have hδ0 : 0 < xiC1 d * eps := by positivity
   have heps' : 0 < eps' := lt_of_lt_of_le heps hle
   have hδ0' : 0 < xiC1 d * eps' := by positivity
-  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
-  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
-    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
-      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
-    linarith
   have hc0 : xiC1 d * eps ≤ bgC0 d L N :=
     (hc7.trans (c7_le_bgC1 d L N BG κ)).trans (bgC1_le_bgC0 d L N hd0)
   have hc0' : xiC1 d * eps' ≤ bgC0 d L N :=
@@ -730,7 +731,8 @@ theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : 
   have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
     (norm_extParams_lt hR' hw.2 P).trans_le hRκ
   exact coef_eTermFun_replacement_gen hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁ hM hag hagm hagl hagd
-    hS HB HB' hκ.le hMc hF₁ hF₁' hF₂ hM₂ h0 h1.le hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd hDd' hD'
+    hS HB HB' hκ.le hMc hF₁ hF₁' hF₂ hM₂ h0 h0' h1.le hδ₀ hδ₀' hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd
+    hDd' hD'
     ψ'
     (fun w hw => strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
       (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψ w hw))
@@ -968,12 +970,17 @@ theorem coef_eTermFun_replacement_localB_restrict (hG : IsLevel Hm k) (hk1 : 1 �
   have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
   have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
     have := HB.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
+  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
+  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
+    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
+      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
+    linarith
   exact coef_eTermFun_replacement_restrict_gen (isLevel_levelGS (Nat.le_add_left 1 k) hk) hG hk1
     (localB_cubeAligned hk Y _ hm₁) (localB_supSep hk Y _)
     (localB_drop_precedes hk (Nat.le_succ k) Y _ _) (localB_drop_Ω hk (Nat.le_succ k) Y _ _ (le_refl k))
     (localB_drop_top hk (Nat.le_succ k) Y _ _) hN hm₁ hM hag hagm hagl hagl hS HB HB' hκ hMc hF₁
-    hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7 hphi hle hsmall' hc7'
-    hphi' hδ₀e hD (localB_xiCData_restrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+    hF₁' hF₂ hM₂ h0 h0 h1 hδ₀ hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7 hphi hle hsmall'
+    hc7' hphi' hδ₀a hδ₀e hD (localB_xiCData_restrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
       (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D (xiCData_inDomainC HB hsmall hD))
     (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) ψ' hψ hRC hRX hRk hmar
 

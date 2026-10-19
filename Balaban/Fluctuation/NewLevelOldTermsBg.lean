@@ -123,8 +123,10 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
         (α : Gl.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gl) Gl (compWeight L a₁) ν (rho4 d L N BG κ)
           s D φ α → F₁' (s, rawOf D) = (φ, α))
     {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
-    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 < δ₁)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₀' δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h0' : 0 ≤ δ₀')
+    (h1 : 0 < δ₁)
     (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₀' : δ₀' ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
     {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
     {Sol' : Dec2.DecParams (coverOf Gl) × Edat Gd N → (Gd.Ω 1 × Fin N → ℂ) × (Gd.Ω 1 → ℂ)}
@@ -141,7 +143,7 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
           Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
     (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) × Edat Gd N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
-      StrictDataM Gd N false δ₀ δ₁ p.2 →
+      StrictDataM Gd N false δ₀' δ₁ p.2 →
         (Sol' p).1 = dphi Gd (Dec2.decG (coverOf Gl) Gd (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
           (pertSource Gd (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol' p).2 ∧
         Dec2.DecFixed (coverOf Gl) Gd (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
@@ -160,7 +162,8 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
     (hεr : (2 * bgK1 d L N + 2) * xiC1 d * eps ≤ eps')
     (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
     (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
-    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀)
+    (hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀')
     {δc : ℝ} (hmarD' : decDomMargin d L N BG κ (xiC1 d * eps') < δc)
     (hαD' : K4 d L N BG κ * (xiC1 d * eps') < coerciveConst d / 2)
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
@@ -204,8 +207,9 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
   refine Finset.sum_congr rfl fun C hC => ?_
   have hY := ((mem_connFams _).1 hC).2
   have key := coef_eTermFun_replacement_marked_gen (Gj := Gj) hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁
-    hM hag hagm hagl hagd hS HB HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac
-    Fk E C hE1 le_rfl heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀e hD hD'x hD' hmarD' hαD' hsm cc hcψ
+    hM hag hagm hagl hagd hS HB HB' ha₁ ha₂ hκ hMc hMX hF₁ hF₁' hF₂ hM₂ h0 h0' h1 hδ₀ hδ₀' hδ₁ hSol
+    hSol' ac Fk E C hE1 le_rfl heps hsmall hc7 hphi hle hsmall' hc7' hphi' hδ₀a hδ₀e hD hD'x hD' hmarD'
+    hαD' hsm cc hcψ
     Zm um tm hδ₁m ψh hψh (R := Finset.univ.filter (· ∈ Y))
     (fun i hi y hy => by
       rw [Finset.mem_filter, ← hY]
@@ -225,3 +229,150 @@ theorem evDecBg_canon_eq_evDec (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k) (h
 end Term
 
 end Balaban.Localization
+
+namespace Balaban.Fluctuation
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Finset
+  Balaban.LargeField Balaban.Localization Matrix
+
+section Dat
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱb ϱm : ℝ}
+variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+  {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb}
+  {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+
+/-- The cut-off to the data of a generating set is idempotent. -/
+theorem clipRaw_clipRaw (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
+    (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) : clipRaw G (clipRaw G r) = clipRaw G r := by
+  classical
+  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_) <;>
+    by_cases h : x ∈ dataSites G <;> by_cases h' : x ∈ G.Ω 1 <;> simp [clipRaw, h, h']
+
+/-- **A term on `Gb` reads the step's datum only through the transport**: two points with the same
+datum read by `T` and the same hat variable give the same term `evDecBg`. -/
+theorem evDecBg_congr_dat (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ) (T : BgTransport Gp Gb N) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts Gb)) (um tm : ℂ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N} (hΘ : T.dat Θ = T.dat Θ')
+    (ψh : unitPts Gb × Fin N → ℂ) :
+    evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol Φ Zm um tm Y (Θ, ψh) =
+      evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol Φ Zm um tm Y (Θ', ψh) := by
+  unfold evDecBg evTerm FFmarkedBg
+  simp only [hΘ]
+
+end Dat
+
+section Objects
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱd : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) (Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
+  {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱd} (Tr : BgTransport S.G' Gb N)
+  (Zb : Finset (unitPts Gb)) {ι : Type*} [Fintype ι]
+  (X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ : ℕ) (jL : ι → ℕ)
+  (𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+  (F₁ : ι → DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+    (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+  (Sol : ι → Dec2.DecParams (coverOf Gb) × Edat Gd N → (Gd.Ω 1 × Fin N → ℂ) × (Gd.Ω 1 → ℂ))
+  (Φ : ι → ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Gd.Ω 1 × Fin N → ℂ) →
+    RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+  (ρ : ℝ) (hp : 0 < S.p₁) (Ru eps : ℝ)
+
+open Classical in
+/-- **The marks of the old labels on a background generating set** (P3 pp. 78-79, (4.44)-(4.47)):
+the mark `G₁` of the pair `q = (τ, Y)` of the root `z` recomputed on `Gb` with the transport `Tr`,
+the mask `Zb`, the decoupled maps `F₁ τ`, `Sol τ` of `(Gb, Gd)` and the functional `Φ τ` of the old
+term `τ`: at the parameter `θ` of `Gb` whose datum lies in the chart `Ξ^c_{k+1}(Gb; 1, ε)` and
+`‖u‖ < R_u`, `β ∂_t|₀` of the term `evDecBg` of the label `Y` at `(θ.raw, Tr.res ψ̂(Φ))`; `0`
+otherwise.  At `Gb = S.G'` with the transport `BgTransport.self` it is the formula of the marks of
+the energy record (`oldMarkGBg_self`). -/
+noncomputable def oldMarkGBg (z : RootIdx d L N₁ m₁ (k + 1)) (θ : physParamBg N Gb)
+    (q : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
+      (fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z})
+    (u : ℂ) (Ψ : ∀ b, (S.blockSplit 1 hp).Ωb b) : ℂ :=
+  if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < Ru then
+    (S.β : ℂ) * deriv (fun t : ℂ => evDecBg S.G' (X₁f q.1.1) m₀ (jL q.1.1) (𝒦X q.1.1) Gb S.a₁
+      S.ν Tr ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ q.1.1) (Sol q.1.1) (Φ q.1.1) Zb u t q.1.2
+      ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), Tr.res (S.hatOf 1 ρ hp Ψ))) 0
+  else 0
+
+open Classical in
+/-- **The activities of the old labels on a background generating set** (P3 pp. 78-79): the
+activity of the label `Y ∈ 𝒴_C` recomputed on `Gb`: at the parameter `θ` of `Gb` whose datum lies in
+the chart `Ξ^c_{k+1}(Gb; 1, ε)` and `‖u‖ < R_u`, the sum over the old terms `τ` whose expansion has
+the domain `Y` of `β (evDecBg(u, 0) − evDecBg(0, 0))` of the label `Y`; `0` otherwise.  At
+`Gb = S.G'` with the transport `BgTransport.self` it is the formula of the activity `H` of the energy
+record (`oldActBg_self`). -/
+noncomputable def oldActBg (𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (θ : physParamBg N Gb) (Y : {Y // Y ∈ 𝒴C}) (u : ℂ) (Ψ : ∀ b, (S.blockSplit 1 hp).Ωb b) : ℂ :=
+  if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw Gb (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < Ru then
+    ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
+      (S.β : ℂ) * (evDecBg S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) Gb S.a₁ S.ν Tr
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ) (Φ τ) Zb u 0 Y.1
+          ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), Tr.res (S.hatOf 1 ρ hp Ψ)) -
+        evDecBg S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) Gb S.a₁ S.ν Tr
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ) (Φ τ) Zb 0 0 Y.1
+          ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), Tr.res (S.hatOf 1 ρ hp Ψ)))
+    else 0
+  else 0
+
+end Objects
+
+section ObjectsSelf
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
+  (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+  (Zm : Finset (unitPts S.G')) {ι : Type*} [Fintype ι]
+  (X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ : ℕ) (jL : ι → ℕ)
+  (𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+  (F₁ : ι → DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+    (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+  (Sol : ι → Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+  (Φ : ι → ((S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+    RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+  (ρ : ℝ) (hp : 0 < S.p₁) (Ru eps : ℝ)
+
+open Classical in
+/-- **Instance lemma**: at the step's own set with the transport `BgTransport.self` the marks of
+the old labels are the formula of the marks `G₁` of the energy record (`evDec` at the step's datum and
+clamped hat field). -/
+theorem oldMarkGBg_self (z : RootIdx d L N₁ m₁ (k + 1)) (θ : physParam N S)
+    (q : {q // q ∈ markedIdx (fun _ => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
+      (fun τ => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z})
+    (u : ℂ) (Ψ : ∀ b, (S.blockSplit 1 hp).Ωb b) :
+    oldMarkGBg S S.G' (BgTransport.self S.hG') Zm X₁f m₀ jL 𝒦X F₁ Sol Φ ρ hp Ru eps z θ q u Ψ =
+      if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+          XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < Ru then
+        (S.β : ℂ) * deriv (fun t : ℂ => evDec (X₁f q.1.1) m₀ (jL q.1.1) (𝒦X q.1.1) S.a₁ S.ν
+          S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ q.1.1) (Sol q.1.1) (Φ q.1.1) Zm u t q.1.2
+          ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Ψ)) 0
+      else 0 := rfl
+
+open Classical in
+/-- **Instance lemma**: at the step's own set with the transport `BgTransport.self` the activities
+of the old labels are the formula of the activity `H` of the energy record. -/
+theorem oldActBg_self (𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1)))) (θ : physParam N S)
+    (Y : {Y // Y ∈ 𝒴C}) (u : ℂ) (Ψ : ∀ b, (S.blockSplit 1 hp).Ωb b) :
+    oldActBg S S.G' (BgTransport.self S.hG') Zm X₁f m₀ jL 𝒦X F₁ Sol Φ ρ hp Ru eps 𝒴C θ Y u Ψ =
+      if (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+          XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < Ru then
+        ∑ τ, if Y.1 ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
+          (S.β : ℂ) * (evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ) (Φ τ) Zm u 0 Y.1
+              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Ψ) -
+            evDec (X₁f τ) m₀ (jL τ) (𝒦X τ) S.a₁ S.ν S.hG'
+              ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (F₁ τ) (Sol τ) (Φ τ) Zm 0 0 Y.1
+              ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 ρ hp Ψ))
+        else 0
+      else 0 := rfl
+
+end ObjectsSelf
+
+end Balaban.Fluctuation
