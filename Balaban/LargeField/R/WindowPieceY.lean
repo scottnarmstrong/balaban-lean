@@ -106,7 +106,7 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
       ψw (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine Cx.geo H.F.hnn hjK t)) =
         pieceField H C o x (i + 1) (jBlock S.d S.L (M * n K) K (i + 1) (bgToFine Cx.geo H.F.hnn hjK t)))
     (ψk : BlockAt S n M K (i + 1 + 1) → EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hvp ≠ 0)
     (HB : BgHyp S.d S.L (i + 1 + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (i + 1 + 1)))
     (Z0 : Set (BlockAt S n M K (i + 1 + 1)))
     (hZ0C : ∀ b ∈ Z0, blockCube S n M K (i + 1 + 1) b ∈ C.1)
@@ -119,7 +119,7 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
     intro y hy hy'
     rw [locRH_Zp hjK C] at hy'
     exact hy.2 hy'
-  have hχ' : Cx.chiY (((H.step (i + 1 + 1)).Z)ᶜ \ C.1) ψk hv ≠ 0 := chiY_ne_zero_of_subset Cx Set.sdiff_subset hχ
+  have hχ' : Cx.chiY (((H.step (i + 1 + 1)).Z)ᶜ \ C.1) ψk hvp ≠ 0 := chiY_ne_zero_of_subset Cx Set.sdiff_subset hχ
   have hψ : ∀ t : BgT Cx.geo (i + 1 + 1),
       t ∈ dataSites (locGen Cx.geo (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK) →
       blockMap (S.L ^ (i + 1 + 1) * (Cx.geo.c * Cx.geo.M1)) (n (i + 1 + 1)) t ∉ C.1 →
@@ -141,11 +141,11 @@ theorem piece_inDomainR_of_chiY {η1 η2 η3 ν : ℝ} (Cx : Def7.SFCtx S n R M 
   refine piece_inDomainR H Cx.geo C hjK ψw o x hv hν hunit hη hmass ψ' hagT hagK hF1 hF2 hFZ hag ?_ ?_
   · intro t ht hq
     refine lt_of_lt_of_le (locData_sphere_over_Y Cx (H.locRH (i + 1 + 1) C) C.1 (locComp_mem H hjK C) hjK
-      _ ψk hv hχ' HB hYZ o x ht ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ (hψ t ht hq)) ?_
+      _ ψk hv hvp hχ' HB hYZ o x ht ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ (hψ t ht hq)) ?_
     · exact le_max_right _ _
   · intro t t' ht ht' hp hq hq' hO hO'
     refine lt_of_lt_of_le (locData_pair_over_Y Cx (H.locRH (i + 1 + 1) C) C.1 (locComp_mem H hjK C) hjK
-      _ ψk hv hχ' hYZ o x ht ht' hp ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ hO' (hψ t ht hq) (hψ t' ht' hq')) ?_
+      _ ψk hv hvp hχ' hYZ o x ht ht' hp ⟨dataSite_cube_mem_Y H Cx.geo C hjK ht hq, hq⟩ hO' (hψ t ht hq) (hψ t' ht' hq')) ?_
     · exact le_max_left _ _
 
 end PieceY

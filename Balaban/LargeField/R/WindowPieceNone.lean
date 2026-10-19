@@ -99,7 +99,7 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
       (max (3 * S.d * S.L * cs.delta i) (max (3 * Cx.cs.delta (i + 1 + 1))
         ((S.d + 1) * Cx.cs.delta (i + 1 + 1) * (2 + (S.d + 1) * Cx.cs.delta (i + 1 + 1)))))) ^ 2)
     (ψk : BlockAt S n M K (i + 1 + 1) → EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY ((H.step (i + 1 + 1)).Z)ᶜ ψk hvp ≠ 0)
     (HB : BgHyp S.d S.L (i + 1 + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (i + 1 + 1)))
     (Z0 : Set (BlockAt S n M K (i + 1 + 1)))
     (hZ0C : ∀ b ∈ Z0, blockCube S n M K (i + 1 + 1) b ∈ C.1)
@@ -118,7 +118,7 @@ theorem piece_inDomainR_of_chiDomAt {ν : ℝ}
     (subMultiscaleField N (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)
       (Vblk R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)) xw o)
     (pieceField_top_eq H C o xw hnew) (pieceField_k_eq H C o xw hnew) hF1 hF2 hFZ
-    (fun t _ _ => pieceField_k_eq H C o xw hnew _) ψk hχ HB Z0 hZ0C hψk
+    (fun t _ _ => pieceField_k_eq H C o xw hnew _) ψk hvp hχ HB Z0 hZ0C hψk
 
 end PieceNone
 

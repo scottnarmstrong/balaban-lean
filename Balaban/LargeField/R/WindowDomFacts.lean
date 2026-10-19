@@ -64,7 +64,7 @@ theorem window_pieces_domain {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)
     (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
     {m₁ : ℕ} {ϱ : ℝ} (Cx : SFCtx S n R M K N (m' + 1) m₁ ϱ) (hgeo : Cx.geo = geo)
     (hcs : Cx.cs = cs)
-    (Z0 : Set (BlockAt S n M K (m' + 1))) (hpost : WindowPostSupport H Cx hv Z0 o)
+    (Z0 : Set (BlockAt S n M K (m' + 1))) (hvp : EuclideanSpace ℝ (Fin N)) (hpost : WindowPostSupport H Cx hvp Z0 o)
     (hZ0 : ∀ y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1), y ∈ Z0 →
       ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y)
     (HB : BgHyp S.d S.L (m' + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (m' + 1)))
@@ -100,7 +100,7 @@ theorem window_pieces_domain {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)
   cases i with
   | none =>
     exact window_piece_none_domain geo cs SD KD hm hq (Nat.lt_succ_of_le hk1) hk1p hk1 o x hv hunit
-      hK Cx hgeo hcs Z0 hpost hZ0 HB hδpos (jf none) (cf none) (hfam none) (hjK none)
+      hK Cx hgeo hcs Z0 hvp hpost hZ0 HB hδpos (jf none) (cf none) (hfam none) (hjK none)
       (ou none) (xu none) hou0 hxu0
   | some s =>
     obtain ⟨j, P, c⟩ := s
@@ -142,7 +142,7 @@ theorem window_domain_facts {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)}
     (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
     {m₁ : ℕ} {ϱ : ℝ} (Cx : SFCtx S n R M K N (m' + 1) m₁ ϱ) (hgeo : Cx.geo = geo)
     (hcs : Cx.cs = cs)
-    (Z0 : Set (BlockAt S n M K (m' + 1))) (hpost : WindowPostSupport H Cx hv Z0 o)
+    (Z0 : Set (BlockAt S n M K (m' + 1))) (hvp : EuclideanSpace ℝ (Fin N)) (hpost : WindowPostSupport H Cx hvp Z0 o)
     (hZ0 : ∀ y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1), y ∈ Z0 →
       ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y)
     (HB : BgHyp S.d S.L (m' + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (m' + 1)))
@@ -209,7 +209,7 @@ theorem window_domain_facts {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)}
         (locData geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
           (hjK i) (ou i) (xu i) hv)) := by
   have hpd := window_pieces_domain geo cs SD KD hm hW hq hk1p ρ hρ o x hv hunit hK Cx hgeo hcs
-    Z0 hpost hZ0 HB hδpos jf cf hfam hjK ou xu hou0 hxu0 hou1 hxu1
+    Z0 hvp hpost hZ0 HB hδpos jf cf hfam hjK ou xu hou0 hxu0 hou1 hxu1
   have hδ0 : ∀ i, 0 < δx (jf i) := fun i =>
     lt_of_lt_of_le (pieceRadiusWin_pos S cs hδpos _) (hδx_rad i)
   refine ⟨fun i m h1 h2 => ?_, fun i => ?_, fun i => ?_, fun i => ?_⟩

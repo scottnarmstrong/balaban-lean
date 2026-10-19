@@ -66,7 +66,7 @@ theorem mem_omega_of_not_mem_Zp {y : Torus S.d (n (j + 1))}
 when `χ_{k+1}(Y) ≠ 0` for a global field `ψ` that agrees with the output `o` on the top block of `s`. -/
 theorem locData_sphere_over_Y (Y : Set (Torus S.d (n (j + 1))))
     (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY Y ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY Y ψk hvp ≠ 0)
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L Cx.geo.M1) Cx.weights (Cx.cs.mu (j + 1)))
     (hYZ : ∀ y ∈ Y, y ∉ Hl.F.Zp (j + 1))
     (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
@@ -80,7 +80,7 @@ theorem locData_sphere_over_Y (Y : Set (Torus S.d (n (j + 1))))
     |∑ i, ((locData Cx.geo Hl j Zc hZc hk o x hv).Ψ s i).re ^ 2 - 1| <
       ((S.d + 1) * Cx.cs.delta (j + 1)) * (2 + (S.d + 1) * Cx.cs.delta (j + 1)) := by
   have hO := mem_omega_of_not_mem_Zp Hl (hYZ _ hy)
-  have h := parentPsi_sphere_over_Y Cx Y ψk hv hχ HB (s := s) (by unfold parentSiteCube; rw [cubeMap_bgToFine]; exact hy)
+  have h := parentPsi_sphere_over_Y Cx Y ψk hvp hχ HB (s := s) (by unfold parentSiteCube; rw [cubeMap_bgToFine]; exact hy)
   have e : ∀ i, ((locData Cx.geo Hl j Zc hZc hk o x hv).Ψ s i).re = parentPsi Cx ψk s i := by
     intro i
     rw [locData_Ψ_of_omega Hl Zc hZc hk Cx.geo o x hv hs hO]
@@ -110,7 +110,7 @@ when `χ_{k+1}(Y) ≠ 0` and `s'` lies over `Ω_{k+1}`, for a global field `ψ` 
 top blocks of `s` and `s'`. -/
 theorem locData_pair_over_Y (Y : Set (Torus S.d (n (j + 1))))
     (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
-    (hχ : Cx.chiY Y ψk hv ≠ 0)
+    (hvp : EuclideanSpace ℝ (Fin N)) (hχ : Cx.chiY Y ψk hvp ≠ 0)
     (hYZ : ∀ y ∈ Y, y ∉ Hl.F.Zp (j + 1))
     (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
     (x : NewCfg N (locHist Hl M K (j + 1) Zc) j)
@@ -136,7 +136,7 @@ theorem locData_pair_over_Y (Y : Set (Torus S.d (n (j + 1))))
     have h1 : 0 < Cx.geo.M1 := Nat.pos_of_ne_zero (NeZero.ne _)
     exact Nat.mul_pos (by omega) h1
   obtain ⟨hnear, y, y', e1, e2, hadj⟩ := interfacePair_top_adj (M1 := Cx.geo.M1) hm hc hp
-  have hpair := parentPsi_pair_of_adj_over_Y Cx Y ψk hv hχ hy rfl
+  have hpair := parentPsi_pair_of_adj_over_Y Cx Y ψk hvp hχ hy rfl
     (mem_nbhd.2 ⟨_, rfl, by rw [supDist_comm]; exact hnear⟩) ⟨y, y', e1, e2, hadj⟩
   have e : ∀ (t : BgT Cx.geo (j + 1)) (h : t ∈ dataSites (locGen Cx.geo Hl j Zc hZc hk))
       (hOt : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) t ∈ (Hl.step j).Omega)
