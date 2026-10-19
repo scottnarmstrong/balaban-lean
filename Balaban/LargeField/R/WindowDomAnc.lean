@@ -148,6 +148,49 @@ theorem chiDomAt_anc_of_locOp_kernel_ne_zero (k1 m' : ℕ) (hk1 : k1 ≤ m') (hm
       (locOp_absW_ne_zero_anc geo cs SD KD k1 m' hk1 hm Z hq ρ hρ o x hv 0
         (absW_ne_zero_of_K_ne_zero _ hK 0) j P c))
 
+open Classical in
+/-- **`ChiDomAt` at every component of the lineage at the point read from the variables of `Z`**: for a
+component `P` of the lineage at a scale `j + 2` with `k₁ ≤ j < m'` there is an output `oP` with
+`ChiDomAt` for the operator of `P` at `(oP, ρ x)`: for `P = Z` it is `o`, otherwise `P` is a part of its
+successor in the lineage and `chiDomAt_anc_of_locOp_kernel_ne_zero` applies. -/
+theorem chiDomAt_exists_of_ancFin (k1 m' : ℕ) (hk1 : k1 ≤ m') (hm : m' + 1 ≤ K)
+    (Z : H.Comp (m' + 1))
+    (hq : ∀ s, k1 < s → ∀ Y : H.Comp s, H.Desc s (m' + 1) Y Z → ¬ IsKept H s Y)
+    (ρ : ∀ (s : ℕ), k1 ≤ s → ∀ (P : H.Comp s) (hd : H.Desc s (m' + 1) P Z),
+      SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).A →
+      SubCfg N (H.localHistory M K s P) s (locOp geo cs SD KD hH lab s (hd.le.trans hm) P).A)
+    (hρ : ∀ s (hs : k1 ≤ s) P (hd : H.Desc s (m' + 1) P Z) x p, ρ s hs P hd x p =
+      x ⟨_, locOp_A_incl geo cs SD KD hm hd
+        (fun t ht Y' h' => hq t (lt_of_le_of_lt hs ht) Y' h') p.1 p.2⟩)
+    (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
+    (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z)) :
+    ∃ oP : OutT N R (H.localHistory M K (j.1 + 1 + 1) P.1) (j.1 + 1 + 1),
+      ChiDomAt geo cs H (j.1 + 1 + 1) P.1 oP
+        (ρ (j.1 + 1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) P.1
+          (mem_ancFin.mp P.2) x) := by
+  obtain ⟨j0, hj0⟩ := j
+  obtain ⟨hj1, hj2⟩ := Finset.mem_Ico.mp hj0
+  obtain ⟨P0, hP0⟩ := P
+  have hd : H.Desc (j0 + 1 + 1) (m' + 1) P0 Z := mem_ancFin.mp hP0
+  rcases Nat.lt_succ_iff_lt_or_eq.1 (hd.le : j0 + 1 + 1 ≤ m' + 1) with hlt | heq
+  · obtain ⟨hrem, P1, hs1, hd1⟩ := Desc.first hd (by omega)
+    have hc : P0 ∈ H.parts (j0 + 1 + 1) P1 := (H.mem_parts _ _ _).mpr ⟨hrem, hs1⟩
+    have hj' : j0 + 1 ∈ Finset.Ico k1 m' := Finset.mem_Ico.mpr ⟨by omega, by omega⟩
+    exact ⟨_, chiDomAt_anc_of_locOp_kernel_ne_zero geo cs SD KD k1 m' hk1 hm Z hq ρ hρ o x hv hK
+      ⟨j0 + 1, hj'⟩ ⟨P1, mem_ancFin.mpr hd1⟩ ⟨P0, hc⟩⟩
+  · have hm1 : j0 + 1 = m' := by omega
+    subst hm1
+    obtain rfl : P0 = Z := Finset.mem_singleton.mp
+      ((Finset.ext_iff.mp (ancFin_self (j0 + 1 + 1) Z) P0).mp hP0)
+    have e1 : ρ (j0 + 1 + 1) (by omega) P0 hd x = x := funext fun p => by rw [hρ]; rfl
+    rw [e1]
+    exact ⟨o, chiDomAt_of_locOp_kernel_ne_zero geo cs SD KD hm P0 o x hv hK⟩
+
 end Anc
 
 end Balaban.LargeField
