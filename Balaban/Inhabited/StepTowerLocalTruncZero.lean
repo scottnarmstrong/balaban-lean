@@ -36,16 +36,6 @@ section Zero
 
 variable {d L N₁ m₁ K N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
-/-- **`clipRaw` of a whole-lattice generating set is the identity.** -/
-theorem clipRaw_of_isLevel {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {n : ℕ}
-    (hG : IsLevel G n) (r : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) : clipRaw G r = r := by
-  classical
-  have h1 : ∀ x, x ∈ dataSites G := fun x => (mem_dataSites G).2 (Or.inl (hG x).1)
-  have h2 : ∀ x, x ∈ G.Ω 1 := fun x => (hG x).1
-  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
-  · simp [clipRaw, h1 x]
-  · simp [clipRaw, h2 x]
-
 /-- **A datum of the step chart whose raw `h` vanishes at a site.**  If `h''` cancels `h₀` at a site,
 then `ν ℓ² ‖h₀‖ < σ² ε` and `ν L^{2n} |‖h₀‖² - 1| < (σ ε)²`. -/
 theorem xiC_h_zero_obstruction {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {n : ℕ}
