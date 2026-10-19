@@ -10,6 +10,7 @@ public import Balaban.Fluctuation.LocalPairHatLift
 public import Balaban.Fluctuation.LocalClassLatTau
 public import Balaban.Fluctuation.LocalSetDetFlCore
 public import Balaban.SmallField.LocalGeneratorRestriction
+public import Balaban.Fluctuation.BgTransportReads
 
 /-!
 # The local generating sets of the new level in the replacement theory (`LocalPairCast`)
@@ -42,6 +43,8 @@ dropped set `Gd` with the layers of `Gl` up to `k` and no layer `k + 1`, and the
 * `castG_localB_collar_margin`: the margin of the replacement from `R ⊆ Y` for the cast set built on
   the collar `Y'⁺` of the transported label;
 * `castG_localB_tauExt_eq_one`: `hσ1` for the cast set;
+* `BgTransport.canon_gdat_eq_levelRestrict`, `castG_canon_gdat_xiCData`: the datum read by the
+  canonical transport is the restriction of the step's datum and lies in the chart of the cast set;
 * `castG_localB_xiDom_of_ambient_xiDom`: the chart of the step restricts to the chart of the cast set
   (the radius loss `c₀ + (2 K₁ + 1) c₁` of the recomputation of the backgrounds is explicit).
 -/
@@ -205,6 +208,44 @@ theorem castG_localB_xiDom_of_ambient_xiDom {ϱp : ℝ} {Gp : GeneratingSet d L 
     XiDom (castG hc (localB (k + 1) hk Y' hsep)) A μ (k + 1) εloc Ψ h :=
   xiDom_of_ambient_xiDom_of_isLevel hG (Nat.le_add_left 1 k) le_rfl
     (castG hc (localB (k + 1) hk Y' hsep)).top H hμ hbudget hAmb
+
+/-- **The datum of `Gb` read by the canonical transport is the restriction of the step's datum**:
+`(BgTransport.canon Gp Gb N).gdat D = levelRestrict D` for a level set `Gp` (of level `k + 1`) and
+any generating set `Gb` of the same torus. -/
+theorem BgTransport.canon_gdat_eq_levelRestrict {ϱp ϱb : ℝ} {N : ℕ}
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} (hG : IsLevel Gp (k + 1))
+    (D : BgData Gp N) :
+    (BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D =
+      levelRestrict hG (Nat.le_add_left 1 k) le_rfl Gb.top D := by
+  classical
+  refine BgData.eq_of_raw ?_
+  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
+  · by_cases hx : x ∈ dataSites Gb <;>
+      simp [BgTransport.gdat, BgTransport.canon, bgOfRaw, clipRawL, clipRaw, levelRestrict,
+        BgData.clip, rawOf, hx]
+  · by_cases hx : x ∈ Gb.Ω 1 <;>
+      simp [BgTransport.gdat, BgTransport.canon, bgOfRaw, clipRawL, clipRaw, levelRestrict,
+        BgData.clip, rawOf, hx]
+
+/-- **The datum read by a term on the cast local generating set lies in its chart.**  For a datum
+`D` of the step in the data domain `InDomainC` (at `δ ≤ ε`) of the level set `Gp`, the datum
+`(BgTransport.canon Gp Gb N).gdat D` of `Gb = castG hc (localB (k + 1) … Y' hsep)` lies in the chart
+`Ξ^c_{k+1}(Gb; 1, ε_b)` for `ε + (2 K₁ + 1) δ ≤ ε_b` (`xiCData_levelRestrict`; the radius loss of the
+recomputation of the backgrounds is explicit). -/
+theorem castG_canon_gdat_xiCData {ϱp : ℝ} {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
+    (hG : IsLevel Gp (k + 1)) (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hk : k + 1 ≤ k + 1)
+    (Y' : Set (CTorus d L N₁' m₁' (k + 1))) (hsep : ϱ ≤ minSep L (L ^ m₁')) {N : ℕ}
+    {A : ℕ → ℝ} {μ δ ε εb : ℝ} (H : BgHyp d L (k + 1) ϱ A μ) (hμ : 0 ≤ μ) (hδ0 : 0 < δ)
+    (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδc : δ ≤ bgC1 d L N)
+    (hμε : μ * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2)
+    (hεb : ε + (2 * bgK1 d L N + 1) * δ ≤ εb) (D : BgData Gp N) (hD : InDomainC Gp μ δ ε D) :
+    XiCData (castG hc (localB (k + 1) hk Y' hsep)) A μ (k + 1) 1 εb
+      ((BgTransport.canon Gp (castG hc (localB (k + 1) hk Y' hsep)) N).gdat
+        (BgTransport.reads_canon hG) D) := by
+  rw [BgTransport.canon_gdat_eq_levelRestrict hG]
+  exact xiCData_levelRestrict hG (Nat.le_add_left 1 k) le_rfl
+    (castG hc (localB (k + 1) hk Y' hsep)).top H hμ hδ0 hδε hε hδc hμε hεb D hD
 
 end CastSets
 
