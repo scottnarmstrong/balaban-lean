@@ -157,6 +157,16 @@ noncomputable def clipRaw (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
     (r : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) : RawData d L (N₁ * L ^ m₁) K N :=
   (fun x i => if x ∈ dataSites G then r.1 x i else 0, fun x i => if x ∈ G.Ω 1 then r.2 x i else 0)
 
+/-- **`clipRaw` of a whole-lattice generating set is the identity.** -/
+theorem clipRaw_of_isLevel {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {n : ℕ}
+    (hG : IsLevel G n) (r : Fld d L N₁ m₁ K N × Fld d L N₁ m₁ K N) : clipRaw G r = r := by
+  classical
+  have h1 : ∀ x, x ∈ dataSites G := fun x => (mem_dataSites G).2 (Or.inl (hG x).1)
+  have h2 : ∀ x, x ∈ G.Ω 1 := fun x => (hG x).1
+  refine Prod.ext (funext fun x => funext fun i => ?_) (funext fun x => funext fun i => ?_)
+  · simp [clipRaw, h1 x]
+  · simp [clipRaw, h2 x]
+
 theorem continuous_clipRaw (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) :
     Continuous (clipRaw (N := N) G) := by
   classical

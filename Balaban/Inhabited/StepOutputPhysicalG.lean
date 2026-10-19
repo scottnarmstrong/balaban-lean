@@ -106,21 +106,36 @@ theorem exists_outputConsts
 
 end StepTowerG
 
+/-- The hull threshold of the general tower: the least `κmin` that gives the hull hypothesis of
+`StepTowerG.exists_outputConsts` when `κ0 = aEnt d L + 2` (so `κdec = 100 (κ0 + c₁ + 10)`). -/
+noncomputable def stepHullMinG (d L : ℕ) : ℝ :=
+  2 * (d : ℝ) * (L : ℝ) * (1 + collarB d L) *
+      (3 / 2 * (100 * (aEnt d L + 2 + c1 d L + 10)) + c1 d L * Real.log 2) +
+    Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)
+
+/-- At `d = L = 3` the general hull threshold is the closed threshold `detHullThreshold`. -/
+theorem stepHullMinG_three : stepHullMinG 3 3 = detHullThreshold := by
+  unfold stepHullMinG detHullThreshold
+  rw [collarB_three, c1_three]
+  push_cast
+  ring_nf
+
+/-- The hull threshold implies the hull hypothesis at a general tower with `κ0 = aEnt d L + 2`. -/
+theorem StepTowerG.hhull_of_stepHullMinG {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hk0 : T.κ0 = aEnt d L + 2) (h : stepHullMinG d L ≤ κmin) :
+    2 * d * L * (1 + collarB d L) * (3 / 2 * T.κdec + c1 d L * Real.log 2) +
+      Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ T.κ := by
+  have h1 := T.κmin_le
+  have e : T.κdec = 100 * (aEnt d L + 2 + c1 d L + 10) := by rw [T.κdec_eq, hk0]
+  rw [e]
+  unfold stepHullMinG at h
+  linarith
+
 /-- The fixed hull threshold implies the general hull hypothesis at `T.toG`. -/
 theorem StepTower.hhull_toG_of_stepHullMin {κmin : ℝ} (T : StepTower κmin)
     (h : detHullThreshold ≤ κmin) :
     2 * (3 : ℕ) * (3 : ℕ) * (1 + collarB 3 3) * (3 / 2 * T.toG.κdec + c1 3 3 * Real.log 2) +
-      Real.log 2 + 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) ≤ T.toG.κ := by
-  unfold detHullThreshold at h
-  have := T.κmin_le
-  have e : 3 / 2 * T.κdec = 3 / 2 * (100 * (aEnt 3 3 + 2 + 3375 + 10)) := by
-    rw [T.κdec_eq, T.κ0_eq, c1_three]
-  show _ ≤ T.κ
-  rw [collarB_three, c1_three]
-  have e2 : T.toG.κdec = T.κdec := rfl
-  rw [e2]
-  rw [e]
-  push_cast at h ⊢
-  linarith
+      Real.log 2 + 2 * Real.log ((detDeg 3 3 + 1 : ℕ) : ℝ) ≤ T.toG.κ :=
+  T.toG.hhull_of_stepHullMinG T.κ0_eq (by rw [stepHullMinG_three]; exact h)
 
 end Balaban.Inhabited
