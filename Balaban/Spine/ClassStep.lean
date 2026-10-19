@@ -93,6 +93,9 @@ structure PreRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB 
   νk : F.sf.ν k = νk
   run : RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r
   coh : LFCoherent F
+  /-- the scale-indexed vacuum flow `E_j` (rulings R5, R5′) -/
+  Ev : ℕ → ℝ
+  vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k
 
 /-- **The pre-`R` class `ℛ^pre_k` at the constants of the prefix** (LFR §II.6.3, first item,
 second version `IsRepPre2`: the class of the output of one step before the operation `R`), with the
@@ -243,10 +246,10 @@ theorem PreClassAt.succ {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts
     (hq : P6.c₈ * Flow.rate (T.L : ℝ) P6.γ ≤ 1 / 20 * (1 - Flow.rate (T.L : ℝ) P6.γ)) :
     PreClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf (k + 1) (k + 1) ρ νk := by
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-    hνk, hrun, hcoh⟩ := hρ
+    hνk, hrun, hcoh, Ev, hvac⟩ := hρ
   obtain ⟨_, hsf⟩ := hpre.sfData.sfClass
   exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0, hνk,
-    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh⟩
+    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh, Ev, hvac⟩
 
 /-!
 ### The assembly of the integral
@@ -286,19 +289,24 @@ quiet kernels and the kernels of P5 (2.47)·P6 (3.2) as step data; the small-fie
 1 on `Z^c_{k+1}`, whose coefficient bounds (H.6) at `k + 1` contain the flow relation of P4 (5.28)
 for `β_{k+1}, ν_{k+1}`; boundary terms with rate `3κ/2` and the constant `B_st`; the budget
 (H6′)^pre), with running constants that start from `β, ν` and satisfy (I.2) at the scales `≤ k`,
-with torus coherent large-field data (LF-3 (h), D-IV.9), and with `∫ ρ' = c ∫ ρ` (LF-3 (a)). -/
+with torus coherent large-field data (LF-3 (h), D-IV.9), and with `∫ ρ' = c ∫ ρ` (LF-3 (a)). The
+successor extends the running data of the input (SUBSPINE-AUDIT defect 5; the birth domain `sfDom`
+reads `ν_j` at every level): at the scales `j ≤ k` its `β_j`, `ν_j`, `a_j`, `z_j` and its vacuum
+flow `E_j` (`RepRec.Ev`, rulings R5, R5′) are those of the input record. -/
 def SFStepInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
   ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
   ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
-    RepClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk →
-    ∃ (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k + 1]) (νk' : ℝ),
-      PreClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k ρ' νk' ∧
+  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ)
+    (rec : RepRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk),
+    ∃ (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k + 1]) (νk' : ℝ)
+      (rec' : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+        (rH κ c₉) (ϱ κ c₉) β ν h kf (k + 1) k ρ' νk'),
+      (∀ j, j ≤ k → rec'.F.sf.β j = rec.F.sf.β j ∧ rec'.F.sf.ν j = rec.F.sf.ν j ∧
+        rec'.F.sf.a j = rec.F.sf.a j ∧ rec'.F.sf.z j = rec.F.sf.z j ∧ rec'.Ev j = rec.Ev j) ∧
       IntegralStep d N (T κ c₉) β (cs₀ κ c₉).aKer (kf + 1) k ρ ρ'
 
 /-- **A4-2, the large-field operation `R` (LF-4; LFR Theorem III.10.8, P7 Theorem 2 = P5 Theorem 2,
@@ -354,11 +362,12 @@ theorem classStepInput_of_parts (hSF : SFStepInput d N T P6 C7 PB cs₀ M1 c rH 
   obtain ⟨β₁, hβ₁⟩ := hSF κ hκ c₉ hc₉
   obtain ⟨β₂, hβ₂⟩ := hR κ hκ c₉ hc₉
   refine ⟨max β₁ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ => ?_⟩
-  obtain ⟨ρ', νk', hpre, hint⟩ :=
-    hβ₁ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk hρ
+  obtain ⟨rec⟩ := hρ
+  obtain ⟨ρ', νk', rec', -, hint⟩ :=
+    hβ₁ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
   obtain ⟨ρ'', hcl, hint'⟩ :=
     hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf (k + 1) (by omega) hk ρ' νk'
-      (hpre.succ (hQ κ hκ c₉ hc₉))
+      (PreClassAt.succ ⟨rec'⟩ (hQ κ hκ c₉ hc₉))
   exact ⟨ρ'', νk', hcl, hint.trans_eq hint'⟩
 
 /-- **The class step from its sub-inputs and the prefix**: `classStepInput_of_parts`, the rate
@@ -419,7 +428,8 @@ theorem preClassAt_witness (rH : ℝ) (r : ℕ) (hr : r ≤ 1) :
       h11, h12, h13⟩ := @preClassAt_witness_aux rH r hr _ spineSetting_eq_wS
         ⟨by norm_num [typing, typing0]⟩
     exact ⟨ρ, νk, ⟨hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
-      h11, h12, h13.1, h13.2⟩⟩
+      h11, h12, h13.1, h13.2, fun _ => 0, vacuumFlowTo_zero fun _ _ => by
+        rw [show (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb = 0 from rfl, zero_mul]⟩⟩
 
 /-- **`FlowRateInput` costs only a smaller `c₈`**: for every family of admissible Def-6 constants
 on block sizes `L ≥ 2`, lowering `c₈` to `min(c₈, (1 - q)/(20 q))` keeps the constants admissible

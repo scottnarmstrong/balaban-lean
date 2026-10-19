@@ -87,13 +87,14 @@ theorem repClassAt_witness_aux (rH : ℝ) (S : Setting) (hS : S = wS) [NeZero S.
       IsRep2 S R (kZero S.d S.L wβ wν₀) 1 27 2 geo cs P wP6 wC7 wβ wν₀ whv rH 1 hM6 hkK F ρ St vc ∧
       F.sf.β 0 = wβ ∧ F.sf.ν 0 = wν₀ ∧ F.sf.ν 1 = νk ∧
       RunningHypTo S.d S.L wβ wν₀ (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer (1 / 20) F.sf.β F.sf.ν 1 ∧
-      LFCoherent F := by
+      LFCoherent F ∧ ∃ Ev : ℕ → ℝ, VacuumFlowTo (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb Ev F.sf.β 1 := by
   subst hS
   exact ⟨wRho2 wν₀ (kZero 3 3 wβ wν₀) (1 + 1), wνs wν₀ 1, wM6, le_rfl, wR, wGeoF,
     wCs wν₀ (kZero 3 3 wβ wν₀), budgetConsts wβ, wFam2 wν₀ (kZero 3 3 wβ wν₀) (1 + 1), wSt wν₀,
     wVc, fun _ _ => ⟨rfl, rfl⟩, rfl, rfl, rfl, rfl, rfl, rfl, rfl,
     wIsRep2 wν₀ wν₀_pos wν₀_mul.le rH, by simp [wFam2, wSF2, wβs], by simp [wFam2, wSF2, wνs],
-    rfl, witness_runningHypTo, wFam2_lfCoherent _ _ _⟩
+    rfl, witness_runningHypTo, wFam2_lfCoherent _ _ _, fun _ => 0, vacuumFlowTo_zero fun _ _ => by
+      rw [show (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb = 0 from rfl, zero_mul]⟩
 
 /-- **`RepClassAt` is inhabited**: the witness of `IsRep2` at `ν = 1/(27β)`, horizon `kf = 0`, scale
 `k = 1`, with the outer constants of the witness. -/
@@ -101,8 +102,14 @@ theorem repClassAt_witness (rH : ℝ) :
     ∃ (ρ : 𝒟[3, 2, typing, wβ, (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer, 0 + 1, 1]) (νk : ℝ),
       @RepClassAt 3 2 typing wP6 wC7 (budgetConsts wβ) (wCs wν₀ (kZero 3 3 wβ wν₀)) 1 27 rH
         (Background.bgR0 3 3) wβ wν₀ whv 0 1 ⟨by norm_num [typing, typing0]⟩
-        ⟨by norm_num [typing, typing0]⟩ ρ νk :=
-  @repClassAt_witness_aux rH _ spineSetting_eq_wS ⟨by norm_num [typing, typing0]⟩
+        ⟨by norm_num [typing, typing0]⟩ ρ νk := by
+  have : NeZero typing.L := ⟨by norm_num [typing, typing0]⟩
+  have : NeZero typing.M := ⟨by norm_num [typing, typing0]⟩
+  obtain ⟨ρ, νk, hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
+    h11, h12, h13, h14, Ev, hEv⟩ := @repClassAt_witness_aux rH _ spineSetting_eq_wS
+      ⟨by norm_num [typing, typing0]⟩
+  exact ⟨ρ, νk, ⟨hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
+    h11, h12, h13, h14, Ev, hEv⟩⟩
 
 /-- The landed witness of `IsRepFlat2` (`wIsRepFlat2`, horizon `k̂ = 1`) with the horizon `k̂ = 0`:
 at the scale `k = 1` the two budget clauses (H6♭) coincide, since `W(2, 0) = W(2, 1) = 0`. -/

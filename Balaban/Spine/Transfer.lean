@@ -45,7 +45,7 @@ theorem flatClassAt_of_repClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C
     (hrep : RepClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf (kZero d T.L β ν) ρ νk) :
     FlatClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf (kZero d T.L β ν) ρ νk := by
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, hKer, hCpsi, hCb, haw, hP1, hP2, hP3, hIs,
-    hβ0, hν0, hνk, hrun, hcoh⟩ := hrep
+    hβ0, hν0, hνk, hrun, hcoh, -⟩ := hrep
   have hbeta : ∀ j ≤ kZero d T.L β ν, P.beta j = F.sf.β j := fun j hj => hIs.coh.beta_P j hj
   let B : BudgetSetupTo (Setting.mk { T with d := d } (lamHat d T.L β cs₀.aKer)) P
       (kZero d T.L β ν) :=
