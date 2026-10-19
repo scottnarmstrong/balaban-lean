@@ -284,6 +284,126 @@ domain, so its proofs survive the change.
    `exists_rootParams_consts_all` (`c₈ = 1`, `L = 7`, `γ < 1/2`) violates it, since then `q > 1/7`. `flowRateInput_of_lower`
    lowers `c₈`; the flow bound then costs `β ≥ c_ξ/c₈` (LF-7 (d)). (W1116) The rate is now the last clause of `PrefixInput` (`FlowRateAt`), `prefixInput_exists` produces it (`c₈ = (1 − q)/(20 q)`), and `flowRateInput_of_prefix` gives `FlowRateInput`.
 
+## SFStepInput sub-inputs (W1115)
+
+**PROVED** (`Balaban/Spine/SFStep.lean`, with `Spine/StepDensity.lean` and `Spine/SFStepClauses.lean`; no `sorry`; axioms
+`propext, Classical.choice, Quot.sound`):
+```
+theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → 3 ≤ (T κ c₉).L)
+    (hϱ : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → bgR0 d (T κ c₉).L ≤ ϱ κ c₉)
+    (Φ : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉))
+    (ΦE : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → (ℕ → ℝ) → ℝ)
+    (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ) (hNw : SFNewLevelInput d N T P6 C7 cs₀ ϱ Φ)
+    (hRn : SFRenormInput d N T P6 C7 cs₀ ϱ Φ) (hDn : SFDensityInput d N T P6 C7 cs₀ ϱ Φ)
+    (hRt : SFRemainderInput d N T P6 C7 cs₀ ϱ Φ) (hCo : SFCoherenceInput d N T P6 C7 cs₀ ϱ Φ)
+    (hV : SFVacuumInput d N T P6 C7 cs₀ ϱ Φ ΦE) (hLF : LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ)
+    (hInt : StepIntegrableInput d N T P6 C7 PB cs₀ M1 c rH ϱ) :
+    SFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ
+```
+and `sfStepInput_of_prefix` (the three typing facts from `PrefixInput`). General `d, N`, general constants, the class carriers.
+
+**Changes to the spine's carriers (coordinator; W1119 finding; SUBSPINE-AUDIT defects 2, 5).**
+* `RepClassAt := Nonempty RepRec` (`RootFInputs.lean`): the body with its witnesses as fields, as `PreClassAt := Nonempty PreRec`
+  (W1118). Every proof that used the anonymous-constructor form still works (`flatClassAt_of_repClassAt`, `rootF_of_spine`,
+  `rInput_of_parts`); `rootF_of_spine`'s conclusion is unchanged.
+* The scale-indexed **vacuum flow**: `VacuumFlowTo C E β r := ∀ j ≤ r, |E_j| ≤ C (log β_j + 1)`; `RepRec` and `PreRec` gain the fields
+  `Ev : ℕ → ℝ`, `vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k` (the constant is `C_b` of (S0), which LFR Thm IV.1.1 (f) defines from the vacuum
+  constants among others; a separate constant is a one-word change). `SFData.E` stays the torus-indexed constant of `E_k |T^{(k)}_1|`.
+  `PreClassAt.succ` and `rInput_of_parts` carry the flow (one line in `RStep.lean`: `rec.Ev, rec.vac` in the output record);
+  `flatClassAt_of_repClassAt` drops it (`FlatClassAt` is unchanged). Inhabited by the zero flow (`vacuumFlowTo_zero`; the witnesses have
+  `C_b = 0`). `VacuumTied` (`RStep.lean`) still reads `sf.E`; its restatement on `Ev` is the coordinator's next task.
+* `SFStepInput` is restated over the input record: `∀ rec : RepRec … k ρ νk, ∃ ρ' νk' (rec' : PreRec … (k+1) k ρ' νk'),
+  (∀ j ≤ k, β′_j = β_j ∧ ν′_j = ν_j ∧ a′_j = a_j ∧ z′_j = z_j ∧ E′_j = E_j) ∧ IntegralStep ρ ρ'` (defect 5: the birth domain `sfDom`
+  reads `ν_j` at every level). `classStepInput_of_parts` is re-proved (destructuring only).
+* `stepDensity` carries the vacuum normalization `s` of the step: `ρ' = e^{-s|T^{(k+1)}_1|} S^{(k)} T^{(k)} ρ`. The forward vacuum flow
+  `E_{k+1} = L^d E_k + g_k` grows like `L^{dk}` (`Fluctuation/VacuumFlow.lean`, W965), so a flow bounded by `C(log β_j + 1)` at every step
+  needs the per-step normalization; `IntegralStep` allows the positive constant `e^{-s|T^{(k+1)}_1|}`. `s = 0` is LFR's `ρ' = S T ρ`.
+
+**Why the construction maps.** The parts of LF-3 are properties of one construction. A split "∃ small-field data with clauses X" +
+"∀ small-field data with clauses X, ∃ large-field data with (D1) for `ρ'`" is false in its second half: the clauses are bounds and do not
+determine the data, while (D1) holds only for the small-field data the step constructs (a different decomposition of the new level moves
+`O(E₀)` terms between polymers, which the boundary terms cannot absorb). The source fixes the small-field image (LFR Thm IV.1.1 (e):
+"the small-field data of `rep'` are the image of those of `rep` under I-9"), so the sub-spine takes the image as a map `Φ` and the vacuum
+constant as a map `ΦE`, and every part is a statement about them. `SFStepInput` follows for every `Φ, ΦE`; the provider supplies the
+maps of the source (the R8 objects, P5 Props 3.1–3.4 for `ℛ`, `ξ^{(k)}` of `rg_step_infty`) and proves the parts. Given `SFStepInput`,
+maps satisfying the parts exist only if the image of the small-field data does not depend on the large-field data, which is LFR's (e).
+
+**Proved inside** (no hypothesis beyond the sub-inputs and the typing facts):
+* `sfSucc_clauses` (`SFStepClauses.lean`): (D2) of `IsRepPre2` at `k + 1` (`IsSFFamily2` on the birth domains with `preFac`), (D8SF),
+  (D9) for the image, from `SFClassAt` of the input and A4-1a–f. Inherited levels: the landed `sfTermClauses_splice_birth`,
+  `gsStrong_splice`, `torusIndep_splice`, `renorm_splice_birth` (general `d, L, N`, `Terms` on `birthXiDom`), with the old clauses moved to
+  the domain of the new data by `sfTermClauses_congr_le` (new; through `SFTermClauses.inherit_le`), the background hypothesis of the
+  inherited levels from (I.2) and `ν_k ≤ ν̄ ≤ 7/8 L⁻²` (`physMass_cap_of_top`), and (D8) of the inherited `ℳ^{(j)}` by
+  `liftOldTermsFam_M_eq_of_d8` (new; the `M` analogue of `liftOldTermsFam_E_eq_of_torusIndep`). The density clause from the reality
+  of the exponent: `exists_isSF2_of_real` (new).
+* the new level is stated on `newLevelTerms` (the levels `j > k` of a family; zero terms and the whole-level sets `levelGS j` below), so
+  `SFTermClauses`, `TorusIndep`, `D8SF` on it are the clauses of the new level alone, without restating their bodies;
+* `integralStep_stepDensity`: `∫ ρ' = e^{-s|T^{(k+1)}_1|} ∫ ρ` (Gaussian normalization `integral_prod_gaussT_smul`, Fubini
+  `integral_stepKernel_mul`, change of variables `θ ↦ zθ`), from the integrability A4-1i;
+* (I.2) up to `k`, `β_0 = β`, `ν_0 = ν` and the ties `j ≤ k` from A4-1a (`runningHypTo_congr`); the flow `E′ = E` on `j ≤ k`, `E′_{k+1} = ΦE`
+  with its bound; `k + 1 ≤ k̂_f + 1` (`kZero_le_of_isHorizon`, threshold `β ≥ 2`); the threshold is the largest of the nine and `2`.
+
+Rule 10: `SFClassAt` (`sfClassAt_witness`), `RepRec` (`repClassAt_witness`), `VacuumFlowTo` (`vacuumFlowTo_zero`). The nine
+sub-inputs (and the combinator `SFImageInput`) need the exemption of the spine inputs.
+
+**The sub-inputs** (each: statement; source; landed pieces and the bridge to the sub-input; open; size, rough). `SFClassAt sf` is the
+small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j = compWeight L a j`, `β_0 = β`, `ν_0 = ν`, (I.2) up to
+`k`); A4-1a–g are `∀ sf, SFClassAt sf → Q (Φ sf)` for `1 ≤ k < k₀`, `β ≥ β₀`, `ν L² ≤ 7/8` (`SFImageInput`).
+
+1. **A4-1a `SFInheritInput`** (I-9, inherited part; R6; the free flow (II.1)). `Φ sf` has `β_j, ν_j, z_j, a_j` of `sf` and the terms
+   `ℰ^{(j)}, ℳ^{(j)}`, `𝔹_j` of `liftOldTermsFam sf.Tm` at `j ≤ k`; `a_{k+1} = compWeight L a (k+1)`; `z_{k+1} > 0`.
+   Landed: `liftOldTerms`, `liftOldTermsFam`, `oldTorusEquiv` (general `d, L, N`). Bridge: none; true by construction once `Φ` is defined
+   as the splice of the inherited levels with the new level (`z_{k+1} > 0` from the flow). ~50.
+2. **A4-1b `SFNewLevelInput`** (P3 (4.44)–(4.47), P4 Prop. 4.1, R8). `SFTermClauses (sfDom … (Φ sf) N₂) (newLevelTerms (Φ sf).Tm N₂)`,
+   `GsSpecStrong (k+1)` of the new sets, `TorusIndep` of the new level.
+   Landed: `localClass_newLevel_of_expansion_cast` (general `d, L, N`; the level-`(k+1)` clauses as a conjunction, on `xiFieldDom` with the
+   sets `castG hc (localB …)`), its inputs from the chain at `d = L = 3`, `N = 2` (`e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot`,
+   `e0CoeffFamily_class_fromTower_of_irrelBounds_X`, `newLabels_castInputs_of_localFamily`, `tower_E0_closure_agree`), `localClass_termClausesE/M`.
+   Bridges (not landed): (i) the conjunction ⇒ `SFTermClauses` of `newLevelTerms` (the levels `≤ k` are trivial; at the top level
+   `birthXiDom` is `completeXiDom`, `birthXiDom_dom_self`), ~150; (ii) `StepTower` (3, 3, 2) ⇒ `StepTowerG d L N` (open (f) of A4-1),
+   `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) R8 generic objects (open (a)); (iv) the castG gap (open (b)); (v) `TorusIndep` of the new
+   level of a general class (only the core family is two-torus exact, W1089/W1090). ~3000.
+3. **A4-1c `SFRenormInput`** (P4 (4.14)–(4.22), (5.28), (H.5), (H.6)). `CoeffBounds (k+1)` and `RenormCond (k+1)` of `Φ sf`.
+   Landed: `rg_step_infty` (general), `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at` (3, 3, 2). Bridges: (H.6) at `k + 1`
+   from (H.6) at `k` and the bound of `ξ^{(k)}` (the flow is extended by one entry; ~150, not landed); (H.5) for the renormalized new level,
+   the counterterm assembly `D_E = ℰ''₀(θ_ξ) + oldE + C₁ + C₂ −` vacuum (open (e) of A4-1: `oldE` of a general class, physical `locC2`,
+   `locDφ`, `renE0_fibre`; `D_M`, `T_M` for the zero class only). ~1500.
+4. **A4-1d `SFDensityInput`** (P4 (H.1) at `k + 1`). `(exp (expo2 P6 ⟨k₀, ν′⟩ β′ a′ (Φ sf).Tm N₂ ((Φ sf).E N₂) D g)).im = 0` at real realized
+   data in `Ξ_{k+1}`. Landed: reality of the step's pieces (Lemma IV.1.3's `Δ` real for real arguments, the real old density `IsSF2.density`
+   at `k`). Open: reality of the new level's terms at real data (not a clause of `SFTermClauses`) and of the composites. ~400.
+5. **A4-1e `SFRemainderInput`** (P5 Props 3.1–3.4, LFR Lemma IV.1.8). `RTermsH4 … ((Φ sf).Rt N₂) (preFac (m₀ + m₁))`. Landed: the old
+   `ℛ^{(k)}` clauses (input); FLUCTUATION Thm 3.4 marked expansion inputs (cited). Open: the remainders of the step at a general class. ~1500.
+6. **A4-1f `SFCoherenceInput`** (LFR Thm IV.1.1 (h), D-IV.9). `D8SF m₀ {Φ sf with Tm := newLevelTerms}` (new level and `ℛ^{(k+1)}`).
+   Landed: `e0CoeffFamily_value_fromTowerG_core_twoTorus` (W1089, `StepTowerG d L N`, `m₀ = 1`), `coreE0_unique` (W1090). Open: the
+   chain's `e` of a general class is not a core family (open (c) of A4-1); `R_eq` of `ℛ^{(k+1)}`. The inherited levels are proved
+   (`liftOldTermsFam_M_eq_of_d8`). ~800.
+7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). For a flow with `VacuumFlowTo C_b E sf.β k`,
+   `|ΦE sf E| ≤ C_b (log β′_{k+1} + 1)`. Landed: `StepSetting.Ep/Epp/Eppp`, `halfLogDetC`, `VacuumFlow` (`vacuum_sub_eq`,
+   `abs_vacuum_backward_le`), `stepVacuumTerm`, `stepVacuumVolume`. Open: the increment bound `|g_k| ≤ A log β_k + B` and the per-step
+   normalization `s`. **Tie (W1125):** the step data of the successor are tied to the extended flow `vacExt rec.Ev k ΦE` (`E_0, …, E_k, ΦE`): `LFStepInput`
+   (now with the parameter `ΦE`) outputs `∀ nK, ∃ dpp dppp, (lf' nK).SD.VacuumTie univ (vacExt rec.Ev k ΦE) dpp dppp`, and `SFStepInput` outputs
+   `VacuumTied rec'` (`VacuumTied` now lives in `ClassStep.lean` and reads `rec.Ev`). The step data are bounded through `b0_bound`/`b_bound`
+   inside `IsRepPre2`, so `ΦE = 0` satisfies the tie only if the source's vacuum energy is 0. Not tied: the normalization `s` of `stepDensity`
+   (a free output of `LFStepInput`). ~300.
+8. **A4-1h `LFStepInput`** (LF-3 (b)–(d), (h); P5 §§2–3, P6 §§2–3; LFR Lemmas IV.1.2–IV.1.6, LF-2 (i), Lemma IV.1.5). For a record of
+   `ℛ_k` whose image `Φ rec.F.sf` has (D2) with `preFac`, (D8SF), (D9), `a_j = compWeight` up to `k + 1` and the inherited `β, ν, z`:
+   `∃ cs' P' lf' St' vc' s` with the outer constants, `IsRepPre2 … (k+1) ⟨Φ rec.F.sf, lf'⟩ (stepDensity … (β_k a L^{d-2}) z_{k+1} s ρ) St' vc'`
+   and `LFCoherent`. Open: W1102's (g) (non-quiet kernels P5 (2.47)·P6 (3.2) for `k ≥ 1` with local backgrounds, (S1)–(S5); `ℬ^{(k+1)}`
+   with `B_st`, blocker 3; `D1PreForm2` for the step density; `D5Bound`; `D6Pre` with (I.2) to `k + 1` (`Rep.budgetPre_of_LF2` needs
+   `K ≤ top`; the truncated LF-2 of W1106 is the model); blocker 2), (h) ((D8) of the new step kernels and of `ℬ^{(k+1)}`: no cross-torus
+   theorem for `bgLocPiece`, W1103), the coefficient data `D1CorrLim` of the new terms (thermodynamic limits), `Coh`/`FieldClauses` of
+   `cs'` (bookkeeping). Landed: `quietKernel`, `quietStepData'`, `gaussProd`/`qCoarseK` (the kernel of `stepDensity` on the Gaussian
+   blocks), `stepVacuumTerm`, `stepVacuumVolume`, `Rep.budgetPre_of_LF2`. ~6000.
+9. **A4-1i `StepIntegrableInput`** (premise of P1 (1.11)). Members of `ℛ_k` are integrable in `ψ_k` on every torus, for `‖g‖₁ < 1`.
+   Landed: `baseRho1_integrable` (the first density). Open: integrability of a (D1) sum from (D5) and the Gaussian decay. ~300.
+
+**Watch.** (i) The SF→LF interface (item 3 of the inputs) is not used. (ii) `SFStepInput` now asks the ties `E′_j = E_j`; the frozen step's
+analogue (`FrozenSFStepInput`) ties `β, ν, a` (W1121) but not the flow, and `FlatClassAt` carries no flow. (iii) The duplicates of private
+lemmas of `Base/BasePhysicalDensity.lean` (`integral_gaussT`, `baseKernel_smul_integral`, the Fubini core) are special cases of
+`integral_gaussT_left`, `integral_prod_gaussT_smul`, `integral_stepKernel_mul`; the base file can be re-based on them.
+
 ## LastIntegralInput sub-inputs (W1108)
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
@@ -648,11 +768,16 @@ The output family is `repFamPost F lf₁ B' Rpp`: small-field data `sfAddRem F.s
 `lf₁` with the boundary terms replaced by `B'`.
 
 0. **`RVacuumInput` (R5, R5′; P6 (3.2), P5 (3.18); LFR proof of Thm IV.1.1).** For `1 ≤ k ≤ k₀`, a record `rec : PreRec … k k ρ νk` is replaced by a record of the same
-   `ρ, νk` with `VacuumTied`: for every torus, `StepData.VacuumTie (rec.F.lf nK).SD Set.univ rec.F.sf.E dpp dppp` for some offsets `dpp, dppp` (`δ″_k`, `δ‴_k`, independent of `E_k`).
+   `ρ, νk` with `VacuumTied`: for every torus, `StepData.VacuumTie (rec.F.lf nK).SD Set.univ rec.Ev dpp dppp` (the scale-indexed flow, W1125) for some offsets `dpp, dppp` (`δ″_k`, `δ‴_k`, independent of `E_k`).
    The kernels are unchanged (`b⁰_k = b_k + ` the vacuum term of the flow); the content is `StepData.b0_bound` for these constants: `b⁰_k` is bounded by
    `(C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|_{k+1}` with constants free of `E` (W965 normalization; W968 vacuum). `IsRepPre2` does not carry the tie, hence this
    sub-input; it is a property of the pre-`R` class and uses nothing of `R`.
    * **W1119 (not provable from `PreRec`).** Retying keeps `ker`, sets `vacE := sf.E j` etc., `b0 := b + vacTerm`; then `b0_bound` reads `‖b_k + (E V + δ″ v₂ + δ‴ v₃)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|`, but `PreRec` carries only `b_bound` for `b_k` and no bound on `E` (`SFData.E : ℕ → ℝ` is indexed by the Def-6 torus `N₁`, the constant `E_k` of the record's one scale `k`; `VacuumTie` reads `E j` at step `j`, so the tie as stated conflates torus index and scale). Needed: a scale-indexed flow `E_j` with `|E_j| ≤ C(log β_j+1)` in the pre-class, or `RVacuumInput` stated on the physical step data (SFStepInput).
+   * **W1125 (restated and reduced).** `VacuumTied` reads `rec.Ev`. `Spine/RVacuumTie.lean`: `StepData.retie` (vacuum constants of a flow; `ker` unchanged),
+     `PreRec.retie` (all `IsRepPre2` clauses transported: `d5Bound_withSD`, `d1PreForm2_withSD`, `d7Bdry2_withSD`), `rVacuumInput_of_b0 : RVacuumB0Input → RVacuumInput`.
+     The remaining named sub-input `RVacuumB0Input`: for every `PreRec` there are torus-independent offsets `dpp dppp` with
+     `‖b_k + stepVacuumTerm a k (E_k) (E_k + δ″_k) (E_k + δ‴_k)‖ ≤ (C_b log β_k + C_b B_0)|Z_{k+1}∖Z_k|_{k+1}` (`RecB0Bound`); this needs the volume of the vacuum regions
+     against `|Z_{k+1}∖Z_k|` and `|δ″_k|, |δ‴_k| = O(log β_k)` (P4 (2.1), (2.41), (2.63)) besides the flow bound.
    * Landed: `StepData.b_vac`, `stepVacuumTerm`, `stepVacuumVolume` (`stepVacuumVolume_eq_add_excess`), `StepData.VacuumTie`, `VacuumTie.b0_sub_shift`,
      `VacuumTie.removed_weight_shift`, `stepVacuum_removed_*`. Open: the bound of `b⁰_k` at the physical constants (P4 (2.1), (2.41), (2.63), (4.21)).
 1. **`RKeptGasInput` (kept half and gas half in one existential; W1121 after the sub-spine audit, defect 1).** `KeptOutput` consists of inequalities

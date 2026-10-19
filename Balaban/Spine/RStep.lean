@@ -189,18 +189,6 @@ theorem preClassAt_iff {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7
     PreClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk ↔
       Nonempty (PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) := Iff.rfl
 
-/-- **The vacuum constants of the step data are those of the flow** (R5, R5′; P6 (3.2), P5 (3.18)):
-for every torus, the constants `vacE`, `vacEpp`, `vacEppp` of the creating step of every localized
-history are `E_k`, `E_k + δ″_k`, `E_k + δ‴_k`, the offsets not depending on `E_k` (`StepData.VacuumTie`).
-The boundary factor of a step is then `b_k = b⁰_k − (E_k |Z_k^c ∖ Ω_{k+1}|_k + E″_k |Ω_{k+1} ∖ Ω″_{k+1}|_k +
-E‴_k |Ω″_{k+1} ∩ Z_{k+1}|_k)` with `b⁰_k` bounded by constants free of `E`. -/
-def VacuumTied {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7} {PB : BudgetConsts}
-    {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)} {kf k r : ℕ}
-    [NeZero T.M] [NeZero T.L] {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
-    (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) : Prop :=
-  ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ,
-    (rec.F.lf nK).SD.VacuumTie Set.univ rec.F.sf.E dpp dppp
-
 /-!
 ### The output data and the two sub-inputs
 -/
@@ -340,7 +328,7 @@ theorem rInput_of_parts (hV : RVacuumInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
   refine ⟨ρ', ?_, hint⟩
   refine ⟨rec.hM6, rec.hkK, rec.R, rec.geo, rec.cs, rec.P, repFamPost rec.F lf₁ B' Rpp, rec.St,
     rec.vc, rec.geoTie, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
-    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh⟩
+    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh, rec.Ev, rec.vac⟩
   exact
     { coh := coh_addRem rec.pre.coh
       field := field_addRem rec.pre.field
