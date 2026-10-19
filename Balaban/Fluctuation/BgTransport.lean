@@ -95,6 +95,29 @@ def BgTransport.self (hG' : IsLevel Gp (k + 1)) : BgTransport Gp Gp N where
 @[simp] theorem BgTransport.self_res (hG' : IsLevel Gp (k + 1))
     (ψh : unitPts Gp × Fin N → ℂ) : (BgTransport.self (N := N) hG').res ψh = ψh := rfl
 
+/-- **The datum of `Gb` is read from every datum of the step**: the datum `T.dat (rawOf D)` of `Gb`
+read by a term from a datum `D` of the step is a datum of `Gb` (constant on the blocks of every layer
+of `Gb`, zero off its data sites), for every `D`.  Typing data of the records of the terms
+recomputed on `Gb`. -/
+def BgTransport.Reads (T : BgTransport Gp Gb N) : Prop :=
+  ∀ D : BgData Gp N, T.dat (rawOf D) ∈ rawSub N Gb
+
+/-- **The step's own transport reads every datum**: the datum read is the datum itself. -/
+theorem BgTransport.reads_self (hG' : IsLevel Gp (k + 1)) :
+    (BgTransport.self (N := N) hG').Reads := fun D => rawOf_mem_rawSub D
+
+/-- **The datum of `Gb` read by a term from the datum `D` of the step**: `T.dat (rawOf D)` as a
+datum of `Gb`. -/
+def BgTransport.gdat (T : BgTransport Gp Gb N) (hT : T.Reads) (D : BgData Gp N) : BgData Gb N :=
+  bgOfRaw (T.dat (rawOf D)) (hT D)
+
+theorem BgTransport.rawOf_gdat (T : BgTransport Gp Gb N) (hT : T.Reads) (D : BgData Gp N) :
+    rawOf (T.gdat hT D) = T.dat (rawOf D) := rfl
+
+/-- **For the step's own transport the datum read is the datum itself** (definitionally). -/
+theorem BgTransport.gdat_self (hG' : IsLevel Gp (k + 1)) (D : BgData Gp N) :
+    (BgTransport.self (N := N) hG').gdat (BgTransport.reads_self hG') D = D := rfl
+
 open Classical in
 /-- **The extension by zero** of a field of the unit lattice of `Gb` to the fine torus: the value
 at a site is that of its unit block when the block is a unit point of `Gb`, and `0` otherwise. -/

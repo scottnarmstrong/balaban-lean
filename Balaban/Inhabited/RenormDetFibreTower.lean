@@ -388,7 +388,7 @@ theorem renDetFibre_tower (T : StepTowerG d L N κmin) {q : ℕ} (hLq : L = 2 * 
         (detCollarHullC q), (E z).detGroupedC q D X := by
       symm
       refine Finset.sum_subset (Finset.subset_univ _) fun X _ hX => ?_
-      unfold DetExpansionLocC.detGroupedC detCollarGroupedC
+      unfold DetExpansionLocC.detGroupedC DetExpansionLocCBg.detGroupedC detCollarGroupedC
       refine Finset.sum_eq_zero fun T' hT' => absurd ?_ hX
       rw [← mem_detCollarFibreC.1 hT']
       exact Finset.mem_image_of_mem _ (Finset.mem_univ _)
