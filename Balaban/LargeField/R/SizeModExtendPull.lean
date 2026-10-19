@@ -60,23 +60,26 @@ theorem d7Pull_isPiUnion (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ
   exact hz'
 
 /-- **The region-growth inequality for fine lifts.**  For coarse sets `Ym`, `Yp` (the raw and
-post regions in the application to `R`) and a coarse set `X` whose fine lift is in `𝒟_k`, if
+post regions in the application to `R`) and a coarse set `X` whose fine lift has the cube structure
+at the larger region (`PiCubesAt`; a union of cells, connected, with `π'_k`-cubes at its sites in
+`Yp`) and an admissible pair for the smaller region (`hfin`), if
 every cell-component of the fine lift of `X ∩ Ymᶜ` lies in the fine lift of `Yp` or misses it,
-then the modular sizes satisfy the inequality of `Fluctuation.dcovMod_le_add_of_region_grow`.
+then the modular sizes satisfy the inequality of `Fluctuation.dcovMod_le_add_of_piCubesAt`.
 The component hypothesis (in terms of fine cells) is the input that the operation `R` has to
 supply; it is not proved here. -/
 theorem dcovMod_d7Pull_le_add (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {k : ℕ} (hkK : k ≤ K)
     {Ym Yp X : Set (Torus S.d (n k))}
-    (hX : Fluctuation.IsDj m₀ k (d7Pull F k X))
+    (hX : Fluctuation.PiCubesAt m₀ k (d7Pull F k Yp) (d7Pull F k X))
     (hsplit : ∀ Q ∈ Fluctuation.cellComps m₀ k (d7Pull F k X ∩ (d7Pull F k Ym)ᶜ),
-      Q ⊆ d7Pull F k Yp ∨ Disjoint Q (d7Pull F k Yp)) :
+      Q ⊆ d7Pull F k Yp ∨ Disjoint Q (d7Pull F k Yp))
+    (hfin : Fluctuation.dcovModE m₀ k (d7Pull F k Ym) (d7Pull F k X) ≠ ⊤) :
     Fluctuation.dcovMod m₀ k (d7Pull F k Yp) (d7Pull F k X) ≤
       Fluctuation.dcovMod m₀ k (d7Pull F k Ym) (d7Pull F k X) +
         ((S.d : ℝ) * S.L + S.d + 3) *
           ((Fluctuation.cellsIn m₀ k
             (d7Pull F k X ∩ (d7Pull F k Yp \ d7Pull F k Ym))).card : ℝ) :=
-  Fluctuation.dcovMod_le_add_of_region_grow F.divN₁ hkK hX (d7Pull_isPiUnion F hnn hkK Ym)
-    (d7Pull_isPiUnion F hnn hkK Yp) hsplit
+  Fluctuation.dcovMod_le_add_of_piCubesAt F.divN₁ hkK hX (d7Pull_isPiUnion F hnn hkK Ym)
+    (d7Pull_isPiUnion F hnn hkK Yp) hsplit hfin
 
 end Pull
 

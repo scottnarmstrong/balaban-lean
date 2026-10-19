@@ -246,20 +246,21 @@ theorem analytic_of_zero (hz : rout.B A Y = 0) (s : Set (FinFieldC S n M K N × 
 /-- **`support` of the post record at a label avoiding removal.**  If `Y ∈ bdryDoms Ω^pre Z^pre`
 avoids the removed set, is not `FineValid` after `R`, and the output coefficient is the input
 one, then the coefficient is zero: `Y` is not `FineValidPre` either
-(`fineValid_of_fineValidPre`), so the pre `support` applies. -/
+(`fineValid_of_fineValidPre_of_disjoint`), so the pre `support` applies. -/
 theorem post_support_of_avoid {fac rate : ℝ}
     (hin : D7Bdry2 Fr hnn hkK rin (fun A => A.H.F.Zpre k) aw μs ε ε1 νs fac rate hv rH)
     (hA' : Apre ∈ rin.hist) (hΩ : OmegaCube Apre.H k = OmegaCube A.H k)
     (hZ : Apre.H.F.Zpre k = A.H.F.Zpre k)
     (hcube : Y ∈ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k))
+    (hd : Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k))
     (hid : rout.B A Y = rin.B Apre Y) (hnv : ¬ FineValid Fr A k Y) :
     ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
       rout.B A Y ψ ψ' h g = 0 := by
   intro ψ ψ' h g
   have hnp : ¬ FineValidPre Fr Apre k Y := fun hv' => hnv (by
     have : FineValidPre Fr A k Y := by
-      unfold FineValidPre FineValidAt d7SizeAtE at hv' ⊢; rw [hΩ] at hv'; exact hv'
-    exact fineValid_of_fineValidPre this)
+      unfold FineValidPre FineValidAt at hv' ⊢; rw [hΩ] at hv'; exact hv'
+    exact fineValid_of_fineValidPre_of_disjoint hd this)
   rw [hid]
   exact hin.support Apre hA' Y (by rw [hΩ, hZ]; exact hcube) hnp ψ ψ' h g
 

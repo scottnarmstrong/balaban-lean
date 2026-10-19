@@ -318,6 +318,28 @@ theorem IsPiPrimeUnion.isPiUnion (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {X : Se
   obtain ⟨b, hb, hzb, hsub⟩ := h z hz
   exact (cell_subset_cube hdvd ha0 hb hzb).trans hsub
 
+/-- A label of `𝒟_j^fin(mod Ω^c)` is a union of cells. -/
+theorem DjModFin.isPiUnion (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d L N₁ m₁ K)}
+    (hΩ : IsPiUnion m₀ j Ω) (hX : DjModFin m₀ j Ω X) : IsPiUnion m₀ j X :=
+  (isPiUnion_iff_cell hN hj).2 fun _ hz => hX.cell_subset hN hj hΩ hz
+
+/-- **The cube structure that the region growth reads** (`modAdmissible_extend`): `X` is a union of
+cells, nearest-neighbour connected, and every site of `X ∩ Ω` lies in a `π'_j`-cube inside `X`. -/
+def PiCubesAt (m₀ j : ℕ) (Ω X : Set (CTorus d L N₁ m₁ K)) : Prop :=
+  IsPiUnion m₀ j X ∧ SiteConnected X ∧ ∀ q ∈ X ∩ Ω, ∃ b, Aligned (cellSide L m₀ m₁ j) b ∧
+    q ∈ box b (L * cellSide L m₀ m₁ j) ∧ box b (L * cellSide L m₀ m₁ j) ⊆ X
+
+/-- A label of `𝒟_j` has the cube structure at any region. -/
+theorem IsDj.piCubesAt (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {X : Set (CTorus d L N₁ m₁ K)}
+    (hX : IsDj m₀ j X) (Ω : Set (CTorus d L N₁ m₁ K)) : PiCubesAt m₀ j Ω X :=
+  ⟨hX.2.1.isPiUnion hN hj, hX.2.2, fun q hq => hX.2.1 q hq.1⟩
+
+/-- A label of `𝒟_j^fin(mod Ω^c)` has the cube structure at `Ω`. -/
+theorem DjModFin.piCubesAt (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d L N₁ m₁ K)}
+    (hΩ : IsPiUnion m₀ j Ω) (hX : DjModFin m₀ j Ω X) : PiCubesAt m₀ j Ω X :=
+  ⟨hX.isPiUnion hN hj hΩ, hX.2.1, fun _ hq => hX.exists_box hq⟩
+
+
 theorem cbase_mem_cellsIn (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {S : Set (CTorus d L N₁ m₁ K)}
     (h : IsPiUnion m₀ j S) {z : CTorus d L N₁ m₁ K} (hz : z ∈ S) :
     cbase (cellSide L m₀ m₁ j) z ∈ cellsIn m₀ j S :=

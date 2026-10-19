@@ -82,7 +82,7 @@ theorem dExt_core_le_d7SizePre_add_removed {R : ℕ → ℝ} {k0 : ℕ} [∀ k, 
       ((S.d : ℝ) * S.L + S.d + 3) *
         (((A.H.remMeeting X).card : ℝ) * ((2 * S.rho k + 10 : ℕ) ^ S.d : ℕ)) := by
   rw [dExt_core_eq_d7Size F A k T X hX hDj.2.2 hfin]
-  exact d7Size_le_d7SizePre_add_removed F A G hT hk hkK hDj
+  exact d7Size_le_d7SizePre_add_removed F A G hT hk hkK (hDj.piCubesAt F.divN₁ hkK _) hfin
 
 section Fibre
 

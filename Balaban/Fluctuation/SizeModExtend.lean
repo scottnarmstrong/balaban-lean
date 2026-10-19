@@ -234,7 +234,7 @@ admissible triple for `(Ωp, X)` whose cost exceeds that of `E` by at most
 theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     {X Ωm Ωp 𝒦 : Set (CTorus d L N₁ m₁ K)} {W : Finset (CTorus d L N₁ m₁ K)}
     {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
-    (hX : IsDj m₀ j X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
+    (hX : PiCubesAt m₀ j Ωp X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
     (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp)
     (h : ModAdmissible m₀ j Ωm X 𝒦 W E) :
     ∃ (𝒦' : Set (CTorus d L N₁ m₁ K)) (W' : Finset (CTorus d L N₁ m₁ K))
@@ -246,8 +246,7 @@ theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN hj
   have ha0 := cellSide_pos (L := L) m₀ m₁ j
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  obtain ⟨hXne, hXp, hXc⟩ := hX
-  have hXu : IsPiUnion m₀ j X := hXp.isPiUnion hN hj
+  obtain ⟨hXu, hXc, hXp⟩ := hX
   have hcΩm : IsPiUnion m₀ j Ωmᶜ := hΩm.compl hN hj
   obtain ⟨hK1, hcov, hconn, hWX, hmeet⟩ := h
   set a := cellSide L m₀ m₁ j with ha
@@ -273,12 +272,15 @@ theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
       exact Set.disjoint_left.1 h1 hcm (hcΩ (mem_box_self c ha0))
   have dich : ∀ t ∈ cellsIn m₀ j X, box t a ⊆ Ωm ∨ box t a ⊆ Ωmᶜ := fun t ht =>
     cell_dichotomy hN hj hΩm (mem_cellsIn.1 ht).1
-  have hbx : ∀ q, ∃ b, q ∈ X → (Aligned a b ∧ q ∈ box b (L * a) ∧ box b (L * a) ⊆ X) := by
+  have hbx : ∀ q, ∃ b, (q ∈ X ∧ q ∈ Ωp) →
+      (Aligned a b ∧ q ∈ box b (L * a) ∧ box b (L * a) ⊆ X) := by
     intro q
-    by_cases hq : q ∈ X
+    by_cases hq : q ∈ X ∩ Ωp
     · obtain ⟨b, hb⟩ := hXp q hq
       exact ⟨b, fun _ => hb⟩
     · exact ⟨q, fun h => absurd h hq⟩
+  have hAXΩ : ∀ q ∈ A, q ∈ X ∧ q ∈ Ωp := fun q hq =>
+    ⟨mem_of_mem_cellsIn ((memA q).1 hq).1, ((memA q).1 hq).2.1 (mem_box_self q ha0)⟩
   choose bx hbx using hbx
   obtain ⟨P, hP⟩ : ∃ P : CTorus d L N₁ m₁ K → Prop,
       ∀ q, P q ↔ ∃ w ∈ W, Linked X (scaleW L m₀ m₁ j) ρ w q := ⟨_, fun _ => Iff.rfl⟩
@@ -409,8 +411,7 @@ theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   refine ⟨𝒦 ∪ bx '' (A : Set (CTorus d L N₁ m₁ K)), W', E', ⟨?_, ?_, hc', hW'X, ?_⟩, ?_⟩
   · rintro b (hb | ⟨q, hq, rfl⟩)
     · exact hK1 b hb
-    · have hqX : q ∈ X := mem_of_mem_cellsIn ((memA q).1 (Finset.mem_coe.1 hq)).1
-      exact ⟨(hbx q hqX).1, (hbx q hqX).2.2⟩
+    · exact ⟨(hbx q (hAXΩ q (Finset.mem_coe.1 hq))).1, (hbx q (hAXΩ q (Finset.mem_coe.1 hq))).2.2⟩
   · rintro z ⟨hzX, hzΩ⟩
     by_cases hz : z ∈ Ωm
     · obtain ⟨b, hb, hzb⟩ := Set.mem_iUnion₂.1 (hcov ⟨hzX, hz⟩)
@@ -418,7 +419,7 @@ theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     · have htA : cbase a z ∈ A := (memA _).2 ⟨cbase_mem_cellsIn hN hj hXu hzX,
         hΩp.cell hN hj hzΩ, hcΩm.cell hN hj hz⟩
       have htX : cbase a z ∈ X := mem_of_mem_cellsIn ((memA _).1 htA).1
-      obtain ⟨hbal, htb, -⟩ := hbx _ htX
+      obtain ⟨hbal, htb, -⟩ := hbx _ (hAXΩ _ htA)
       have e : cbase a (cbase a z) = cbase a z :=
         cbase_eq_of_mem_box hdvd (aligned_cbase z) (mem_box_self _ ha0)
       have := cell_subset_cube hdvd ha0 hbal htb
@@ -428,13 +429,29 @@ theorem modAdmissible_extend (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   · rintro b (hb | ⟨q, hq, rfl⟩)
     · obtain ⟨x, hx, hxb⟩ := hmeet b hb
       exact ⟨x, hsubW (Finset.mem_biUnion.2 ⟨none, hSnone, hx⟩), hxb⟩
-    · have hqX : q ∈ X := mem_of_mem_cellsIn ((memA q).1 (Finset.mem_coe.1 hq)).1
-      exact ⟨q, hsubW (Finset.mem_biUnion.2 ⟨some q, (hSsome q).2 (Finset.mem_coe.1 hq),
-        Finset.mem_singleton_self q⟩), (hbx q hqX).2.1⟩
+    · exact ⟨q, hsubW (Finset.mem_biUnion.2 ⟨some q, (hSsome q).2 (Finset.mem_coe.1 hq),
+        Finset.mem_singleton_self q⟩), (hbx q (hAXΩ q (Finset.mem_coe.1 hq))).2.1⟩
   · have hn : (0 : ℝ) ≤ (A.card : ℝ) := Nat.cast_nonneg _
     push_cast at hcost
     rw [hρ] at hcost
     nlinarith [mul_nonneg (Nat.cast_nonneg d : (0 : ℝ) ≤ d) hn]
+
+/-- **T4: the modular size grows by at most a constant times the number of newly active cells**,
+core form.  For a label `X` with the cube structure at `Ω₊` (`PiCubesAt`), unions of cells
+`Ω₋`, `Ω₊`, the component hypothesis `hsplit` of `modAdmissible_extend`, and an admissible pair for
+`(Ω₋, X)` (`dcovModE m₀ j Ω₋ X ≠ ⊤`):
+`dcovMod(Ω₊, X) ≤ dcovMod(Ω₋, X) + (d L + d + 3) · #cells(X ∩ (Ω₊ ∖ Ω₋))`. -/
+theorem dcovMod_le_add_of_piCubesAt (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
+    {X Ωm Ωp : Set (CTorus d L N₁ m₁ K)}
+    (hX : PiCubesAt m₀ j Ωp X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
+    (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp)
+    (hfin : dcovModE m₀ j Ωm X ≠ ⊤) :
+    dcovMod m₀ j Ωp X ≤ dcovMod m₀ j Ωm X +
+      ((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ) := by
+  obtain ⟨𝒦, W, E, hadm, hE⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top hfin)
+  obtain ⟨𝒦', W', E', hadm', hcost⟩ := modAdmissible_extend hN hj hX hΩm hΩp hsplit hadm
+  rw [← hE]
+  exact (dcovMod_le_of_admissible hadm').trans hcost
 
 /-- **T4: the modular size grows by at most a constant times the number of newly active cells.**
 For `X ∈ 𝒟_j`, unions of cells `Ω₋`, `Ω₊`, and the component hypothesis `hsplit` of
@@ -446,12 +463,9 @@ theorem dcovMod_le_add_of_region_grow (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     (hX : IsDj m₀ j X) (hΩm : IsPiUnion m₀ j Ωm) (hΩp : IsPiUnion m₀ j Ωp)
     (hsplit : ∀ Q ∈ cellComps m₀ j (X ∩ Ωmᶜ), Q ⊆ Ωp ∨ Disjoint Q Ωp) :
     dcovMod m₀ j Ωp X ≤ dcovMod m₀ j Ωm X +
-      ((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ) := by
-  obtain ⟨𝒦, W, E, hadm, hE⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_IsDj
-    (m₀ := m₀) (j := j) (Ω := Ωm) hX)
-  obtain ⟨𝒦', W', E', hadm', hcost⟩ := modAdmissible_extend hN hj hX hΩm hΩp hsplit hadm
-  rw [← hE]
-  exact (dcovMod_le_of_admissible hadm').trans hcost
+      ((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ) :=
+  dcovMod_le_add_of_piCubesAt hN hj (hX.piCubesAt hN hj Ωp) hΩm hΩp hsplit
+    (dcovModE_ne_top_of_IsDj hX)
 
 /-- The `ENNReal` form of `dcovMod_le_add_of_region_grow`, for `dcovModE`. -/
 theorem dcovModE_le_add_of_region_grow (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
@@ -462,7 +476,8 @@ theorem dcovModE_le_add_of_region_grow (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
       ENNReal.ofReal (((d : ℝ) * L + d + 3) * ((cellsIn m₀ j (X ∩ (Ωp \ Ωm))).card : ℝ)) := by
   obtain ⟨𝒦, W, E, hadm, hE⟩ := exists_admissible_eq_dcovModE (exists_admissible_of_IsDj
     (m₀ := m₀) (j := j) (Ω := Ωm) hX)
-  obtain ⟨𝒦', W', E', hadm', hcost⟩ := modAdmissible_extend hN hj hX hΩm hΩp hsplit hadm
+  obtain ⟨𝒦', W', E', hadm', hcost⟩ :=
+    modAdmissible_extend hN hj (hX.piCubesAt hN hj Ωp) hΩm hΩp hsplit hadm
   rw [← hE]
   refine (dcovModE_le_of_admissible hadm').trans ?_
   rw [← ENNReal.ofReal_add (bondCost_scaleW_nonneg E) (by positivity)]

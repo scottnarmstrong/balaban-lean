@@ -89,8 +89,8 @@ theorem ripeFrame_validPre_univ :
         (side wS (bigN wS) (Tstar wS + 1) (Tstar wS)))) : Set _)) := by
     rw [Finset.coe_univ, d7Pull_univ]
     exact Fluctuation.isDj_univ _ _ _ _ _ _ _
-  refine ⟨⟨hX, fun z _ => Or.inl (by rw [Finset.coe_univ, d7Pull_univ]; exact Set.subset_univ _)⟩,
-    Fluctuation.dcovModE_ne_top_of_IsDj hX⟩
+  exact Fluctuation.DjMod.djModFin
+    ⟨hX, fun z _ => Or.inl (by rw [Finset.coe_univ, d7Pull_univ]; exact Set.subset_univ _)⟩
 
 /-- **Instance of `remMeeting_card_le` (T5).** -/
 theorem d7Gas_remMeeting_instance :
