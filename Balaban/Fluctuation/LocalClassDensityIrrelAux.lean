@@ -24,8 +24,8 @@ open Balaban Balaban.Localization Balaban.Multiscale Balaban.Background Balaban.
   Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Finset
 
 /-- A finer cube torus with the same number of sites, general `L`. -/
-theorem exists_finer_torusG {L N₁ : ℕ} [NeZero N₁] (m₁ : ℕ) (h : L ^ 4 ∣ N₁) :
-    ∃ (N₁' : ℕ) (_ : NeZero N₁'), N₁' * L ^ (m₁ + 4) = N₁ * L ^ m₁ := by
+theorem exists_finer_torusG {L N₁ : ℕ} [NeZero N₁] (m₁ s : ℕ) (h : L ^ s ∣ N₁) :
+    ∃ (N₁' : ℕ) (_ : NeZero N₁'), N₁' * L ^ (m₁ + s) = N₁ * L ^ m₁ := by
   obtain ⟨c, hc⟩ := h
   have hc0 : c ≠ 0 := by
     rintro rfl
@@ -37,7 +37,7 @@ theorem exists_finer_torusG {L N₁ : ℕ} [NeZero N₁] (m₁ : ℕ) (h : L ^ 4
 /-- A finer cube torus with the same number of sites. -/
 theorem exists_finer_torus {N₁ : ℕ} [NeZero N₁] (m₁ : ℕ) (h : 3 ^ 4 ∣ N₁) :
     ∃ (N₁' : ℕ) (_ : NeZero N₁'), N₁' * 3 ^ (m₁ + 4) = N₁ * 3 ^ m₁ :=
-  exists_finer_torusG m₁ h
+  exists_finer_torusG m₁ 4 h
 
 theorem bgR0_le_rhoSep (m₁ : ℕ) : bgR0 3 3 ≤ Localization.I5Inhabited.rhoSep m₁ := by
   rw [← Inhabited.LevelStep.rhoSepG_three]

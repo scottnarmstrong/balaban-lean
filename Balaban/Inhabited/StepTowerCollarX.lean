@@ -86,10 +86,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi {
           (E₀ : Finset (CTorus d L N₁ T.m₁ (k + 1) × CTorus d L N₁ T.m₁ (k + 1))),
           ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne C.m₀ τ.1.1 (𝒦X τ) W₀ ∧
             bondCost (scaleW L C.m₀ T.m₁ τ.1.1) E₀ = treeLenCovOne C.m₀ τ.1.1 (XL τ))
-        (_ : L ^ C.m₀ ∣ N₁) (_ : 4 ≤ C.m₀)
-        (_ : (((5 * L + 13) * L ^ 4 : ℕ) : ℝ) + r₀ * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
-        (_ : rhoSepG d L T.m₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + 4)))
-        (_ : bgR0 d L ≤ ϱ₁) (_ : ϱ₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + 4)))
+        (_ : L ^ C.m₀ ∣ N₁) (_ : 1 ≤ C.m₀) {s : ℕ} (_ : s ≤ C.m₀)
+        (_ : (((5 * L + 13) * L ^ s : ℕ) : ℝ) + r₀ * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
+        (_ : rhoSepG d L T.m₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + s)))
+        (_ : bgR0 d L ≤ ϱ₁) (_ : ϱ₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + s)))
         (Gk0 : GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱ₀)
         (Gj0 : GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱ₃)
         {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ T.m₁ (k + 1))} {j₁ : ℕ}
@@ -324,7 +324,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi {
   subst hϱ
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀
-    i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
+    i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f'
     X₁f'' j₁ hB0 hF0
   have hmem : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 ∈ Finset.Icc 1 k ∧ Aligned (L ^ τ.1.1) τ.1.2.1 ∧
       IsPolyDom C.m₀ τ.1.1 τ.1.2.2 ∧ τ.1.2.1 ∈ τ.1.2.2 := by
@@ -346,12 +346,12 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi {
     exact isPolyDom_union (hXp τ) (isPolyDom_cubeAt hN ((hjk τ).trans (Nat.le_succ k)) τ.1.2.1)
       (hy τ) (mem_cubeAt τ.1.2.1)
   -- the per-label settings
-  have h81 : L ^ 4 ∣ N₁ := (pow_dvd_pow L hm7).trans hN
-  obtain ⟨N₁', hN1', hc⟩ := exists_finer_torusG T.m₁ h81
+  have h81 : L ^ s ∣ N₁ := (pow_dvd_pow L hm7).trans hN
+  obtain ⟨N₁', hN1', hc⟩ := exists_finer_torusG T.m₁ s h81
   obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg⟩ := settings_family_castLocalB_spec (N₁' := N₁')
-    (m₁' := T.m₁ + 4) hc S.hG' hB0 hF0 S.hG (by have := T.hL; omega) (m₀ := C.m₀) hN (by omega)
+    (m₁' := T.m₁ + s) hc S.hG' hB0 hF0 S.hG (by have := T.hL; omega) (m₀ := C.m₀) hN (by omega)
     (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) XL 𝒦X hj1 hjk hXLpoly hcov hϱ₁ (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hs₁
-    hrho (c₁ := L ^ 4) (le_of_eq (pow_add L T.m₁ 4)) hr₀
+    hrho (c₁ := L ^ s) (le_of_eq (pow_add L T.m₁ s)) hr₀
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ
     hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
@@ -381,7 +381,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi {
         Bτ τ * (Real.exp ((κdec - 1) * cG d L)) * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ τ.1.1 (XL τ)) :=
     fun τ r hr => irrel_bound_transfer (hBτ τ) hκ1 (hsupp τ) (hEbd τ r hr)
   exact @HC' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS
-    hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN (by omega) hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+    hE₀ i₀ i₁ hdom XL 𝒦X hXL hcov hN hm0 s hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
     Gk Gj X₀ X₁f hX₁ hBs hFs cψ hcψ hMX δc hdm hα hsm hconn hrow hopt κdec κ₀ hκ₀ hκdec hκ h1
     hlog 𝒮 hchart (fun τ => Bτ τ * Real.exp ((κdec - 1) * cG d L)) hBτ' hEbd' (CI * Real.exp ((κdec - 1) * cG d L)) (KL * Real.exp ((κdec - 1) * cG d L)) α₃ n₁ hCI' hKL' hα₃
     hEbI' hEbL' hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR
@@ -666,7 +666,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree_collar_phi {�
   obtain ⟨Jr, G'⟩ := G
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, G''⟩ := @G' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN (by omega) (by have h := index_condition_shift_collar hm7 hr₀; norm_num at h ⊢; linarith) (by rw [rhoSepG_three]; exact Fluctuation.rhoSep_le_minSep_three hrho) hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, G''⟩ := @G' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN (by omega) 4 (by omega) (by have h := index_condition_shift_collar hm7 hr₀; norm_num at h ⊢; linarith) (by rw [rhoSepG_three]; exact Fluctuation.rhoSep_le_minSep_three hrho) hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
   have h27 : ∀ a b : ℝ, ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) * a / b) = 27 * a / b := by
@@ -716,10 +716,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar {d L 
           (E₀ : Finset (CTorus d L N₁ T.m₁ (k + 1) × CTorus d L N₁ T.m₁ (k + 1))),
           ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne C.m₀ τ.1.1 (𝒦X τ) W₀ ∧
             bondCost (scaleW L C.m₀ T.m₁ τ.1.1) E₀ = treeLenCovOne C.m₀ τ.1.1 (XL τ))
-        (_ : L ^ C.m₀ ∣ N₁) (_ : 4 ≤ C.m₀)
-        (_ : (((5 * L + 13) * L ^ 4 : ℕ) : ℝ) + r₀ * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
-        (_ : rhoSepG d L T.m₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + 4)))
-        (_ : bgR0 d L ≤ ϱ₁) (_ : ϱ₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + 4)))
+        (_ : L ^ C.m₀ ∣ N₁) (_ : 1 ≤ C.m₀) {s : ℕ} (_ : s ≤ C.m₀)
+        (_ : (((5 * L + 13) * L ^ s : ℕ) : ℝ) + r₀ * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
+        (_ : rhoSepG d L T.m₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + s)))
+        (_ : bgR0 d L ≤ ϱ₁) (_ : ϱ₁ ≤ Balaban.LargeField.minSep L (L ^ (T.m₁ + s)))
         (Gk0 : GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱ₀)
         (Gj0 : GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱ₃)
         {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ T.m₁ (k + 1))} {j₁ : ℕ}
@@ -933,8 +933,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar {d L 
   obtain ⟨Jr, Hφ'⟩ := Hφ T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁
     hp0 hp₁ Dt hϱ S hS hp
   refine ⟨Jr, ?_⟩
-  intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+  intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
   obtain ⟨e, B, -, h⟩ := @HG cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
@@ -1202,7 +1202,7 @@ theorem e0CoeffFamily_class_fromTower_of_irrelBounds_X_onSet_agree_collar {κmin
   obtain ⟨Jr, G'⟩ := G
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, G''⟩ := @G' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN (by omega) (by have h := index_condition_shift_collar hm7 hr₀; norm_num at h ⊢; linarith) (by rw [rhoSepG_three]; exact Fluctuation.rhoSep_le_minSep_three hrho) hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, G''⟩ := @G' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN (by omega) 4 (by omega) (by have h := index_condition_shift_collar hm7 hr₀; norm_num at h ⊢; linarith) (by rw [rhoSepG_three]; exact Fluctuation.rhoSep_le_minSep_three hrho) hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
   have h27 : ∀ a b : ℝ, ((3 : ℕ) : ℝ) ^ 3 * ((1 / 2 : ℝ) * ((2 : ℕ) : ℝ) * a / b) = 27 * a / b := by
