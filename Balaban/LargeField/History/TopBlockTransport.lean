@@ -277,39 +277,56 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (H : RegionHistory S n R k0 K)
   (Cx : SFCtx S n R M K N (j + 1) m₁ ϱ) {C : H.Comp (j + 1)}
 
+/-- The scale-`m` cube of a site of the level-`k` torus of the backgrounds, read on the fine torus
+of the history (`bgToFine`). -/
+theorem cubeMap_bgToFine_gen (geo : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
+    {k : ℕ} (hkK : k ≤ K) (m : ℕ) (s : BgT geo k) :
+    cubeMap n S.L M K m (bgToFine geo hnn hkK s) =
+      blockMap (S.L ^ m * (geo.c * geo.M1)) (n m) s := by
+  have e : S.L ^ m * M = S.L ^ m * (geo.c * geo.M1) :=
+    congrArg (fun t => S.L ^ m * t) geo.hM
+  unfold cubeMap bgToFine
+  rw [e, blockMap_torusCast]
+
+/-- The scale-`m` block of a site of the fine torus corresponding to a site `s` of the level-`k`
+torus (`m ≤ k`) is the image of the scale-`m` block of `s` under the identification of the block
+tori. -/
+theorem jBlock_bgToFine_gen (geo : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
+    {k : ℕ} (hkK : k ≤ K) {m : ℕ} (hm : m ≤ k) (s : BgT geo k) :
+    jBlock S.d S.L (M * n K) K m (bgToFine geo hnn hkK s) =
+      torusCast (histScale_eq geo.hM hnn hm hkK)
+        (jBlock S.d S.L (geo.M1 * (geo.c * n k)) k m s) := by
+  funext i
+  apply ZMod.val_injective
+  have h1 : (jBlock S.d S.L (M * n K) K m (bgToFine geo hnn hkK s) i).val =
+      ((bgToFine geo hnn hkK s) i).val / S.L ^ m := by
+    unfold jBlock
+    exact blockCoord_val (side_eq (hm.trans hkK)) _
+  have h2 : (jBlock S.d S.L (geo.M1 * (geo.c * n k)) k m s i).val =
+      (s i).val / S.L ^ m := by
+    unfold jBlock
+    exact blockCoord_val (side_eq hm) _
+  have h3 : ∀ {a b : ℕ} (h : a = b) (y : Torus S.d a) (i : Fin S.d), ((torusCast h y) i).val =
+      (y i).val := by
+    intro a b h y i; subst h; rfl
+  rw [h1, h3, h2]
+  unfold bgToFine
+  rw [h3]
+
 /-- The scale-`(j+1)` cube of a site of the level-`(j+1)` torus of the backgrounds, read on the
 fine torus of the history (`bgToFine`). -/
 theorem cubeMap_bgToFine (s : BgT Cx.geo (j + 1)) :
     cubeMap n S.L M K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) =
-      blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s := by
-  have e : S.L ^ (j + 1) * M = S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1) :=
-    congrArg (fun m => S.L ^ (j + 1) * m) Cx.geo.hM
-  unfold cubeMap bgToFine
-  rw [e, blockMap_torusCast]
+      blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s :=
+  cubeMap_bgToFine_gen Cx.geo Cx.hnn Cx.hkK (j + 1) s
 
 /-- The `(j+1)`-block of a site of the fine torus corresponding to `s` is the block
 `blkToBlock` of the `(j+1)`-block of `s` on the level-`(j+1)` torus. -/
 theorem jBlock_bgToFine (s : BgT Cx.geo (j + 1)) :
     jBlock S.d S.L (M * n K) K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) =
       blkToBlock Cx.geo Cx.hnn Cx.hkK
-        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s) := by
-  funext i
-  apply ZMod.val_injective
-  have hjK : j + 1 ≤ K := Cx.hkK
-  have h1 : (jBlock S.d S.L (M * n K) K (j + 1) (bgToFine Cx.geo Cx.hnn Cx.hkK s) i).val =
-      ((bgToFine Cx.geo Cx.hnn Cx.hkK s) i).val / S.L ^ (j + 1) := by
-    unfold jBlock
-    exact blockCoord_val (side_eq hjK) _
-  have h2 : (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s i).val =
-      (s i).val / S.L ^ (j + 1) := by
-    unfold jBlock
-    exact blockCoord_val (side_eq le_rfl) _
-  have h3 : ∀ {a b : ℕ} (h : a = b) (y : Torus S.d a) (i : Fin S.d), ((torusCast h y) i).val =
-      (y i).val := by
-    intro a b h y i; subst h; rfl
-  rw [h1]
-  unfold blkToBlock bgToFine
-  rw [h3, h3, h2]
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s) :=
+  jBlock_bgToFine_gen Cx.geo Cx.hnn Cx.hkK le_rfl s
 
 /-- **T1 (a), geometry.**  A datum site `s` of `G_{j+1} = 𝔹_{j+1}(W₂(Y))` lies over a cube of
 `𝕋_{j+1}` that is within one cube of a cube of `W₂(Y)`.  The numeric premise is the landed one:

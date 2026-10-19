@@ -41,14 +41,14 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (hk : j + 1 ≤ K)
 
 /-- The datum at a data site over `Ω_{k+1}` is the output field `ψ_{k+1}` at the top block of the site. -/
-theorem locData_Ψ_of_omega (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
+theorem locData_Ψ_of_omega (g : Geo S n R M) (o : OutT N R (locHist Hl M K (j + 1) Zc) (j + 1))
     (x : NewCfg N (locHist Hl M K (j + 1) Zc) j) (hv : EuclideanSpace ℝ (Fin N))
-    {s : BgT Cx.geo (j + 1)}
-    (hs : s ∈ dataSites (locGen Cx.geo Hl j Zc hZc hk))
-    (hO : blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) s ∈ (Hl.step j).Omega) :
-    (locData Cx.geo Hl j Zc hZc hk o x hv).Ψ s =
-      fun i => ((outField N o (blkToBlock Cx.geo Hl.F.hnn hk
-        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)) i : ℝ) : ℂ) := by
+    {s : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))}
+    (hs : s ∈ dataSites (locGen g Hl j Zc hZc hk))
+    (hO : blockMap (S.L ^ (j + 1) * (g.c * g.M1)) (n (j + 1)) s ∈ (Hl.step j).Omega) :
+    (locData g Hl j Zc hZc hk o x hv).Ψ s =
+      fun i => ((outField N o (blkToBlock g Hl.F.hnn hk
+        (jBlock S.d S.L (g.M1 * (g.c * n (j + 1))) (j + 1) (j + 1) s)) i : ℝ) : ℂ) := by
   unfold locData
   rw [liftMixed_Ψ _ _ _ _ _ _ hs]
   unfold mixedLift
@@ -83,7 +83,7 @@ theorem locData_sphere_over_Y (Y : Set (Torus S.d (n (j + 1))))
   have h := parentPsi_sphere_over_Y Cx Y ψk hv hχ HB (s := s) (by unfold parentSiteCube; rw [cubeMap_bgToFine]; exact hy)
   have e : ∀ i, ((locData Cx.geo Hl j Zc hZc hk o x hv).Ψ s i).re = parentPsi Cx ψk s i := by
     intro i
-    rw [locData_Ψ_of_omega Cx Hl Zc hZc hk o x hv hs hO]
+    rw [locData_Ψ_of_omega Hl Zc hZc hk Cx.geo o x hv hs hO]
     simp only [Complex.ofReal_re, parentPsi]
     rw [← hψ]
   simp_rw [e]
@@ -146,7 +146,7 @@ theorem locData_pair_over_Y (Y : Set (Torus S.d (n (j + 1))))
         (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) t))) i,
       ((locData Cx.geo Hl j Zc hZc hk o x hv).Ψ t i).re = parentPsi Cx ψk t i := by
     intro t h hOt hψt i
-    rw [locData_Ψ_of_omega Cx Hl Zc hZc hk o x hv h hOt]
+    rw [locData_Ψ_of_omega Hl Zc hZc hk Cx.geo o x hv h hOt]
     simp only [Complex.ofReal_re, parentPsi]
     rw [← hψt]
   simp_rw [e s hs hO hψ, e s' hs' hO' hψ']
