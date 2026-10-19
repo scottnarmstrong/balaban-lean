@@ -7,6 +7,8 @@ module
 
 public import Balaban.LargeField.R.WindowPieceLayers
 public import Balaban.LargeField.R.WindowPieceDomain
+public import Balaban.LargeField.R.WindowLiftGeom
+public import Balaban.Fluctuation.Lemma25Domain
 
 /-!
 # The real domain of a piece datum from the domain conditions (blocker 4)
@@ -42,18 +44,11 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 include hjK in
 /-- The cube of a data site of the local family of `C` is within `⌊R_{k}⌋ + 2` cubes of `C`. -/
-theorem dataSite_cube_near_comp {s : BgT g (i + 1 + 1)}
+theorem dataSite_cube_mem_nbhd_comp {s : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK)) :
     blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∈ nbhd (⌊R (i + 1)⌋₊ + 2) C.1 := by
-  have h := genBoundaryLocal_subset_V ((H.locRH (i + 1 + 1) C).step (i + 1)) g.hc
-    ((H.locRH (i + 1 + 1) C).F.hnn (i + 1) (by omega)) (H.locRH (i + 1 + 1) C).F.ok.two_le_L
-    (g.three_L_le_floor (H.locRH (i + 1 + 1) C) (i + 1 - 1))
-    ((H.locRH (i + 1 + 1) C).F.stepGeom (show i + 1 < K by omega)).rad.omega_rho
-    (Omega_compl_subset_Zpre' (i + 1) ((H.locRH (i + 1 + 1) C).step (i + 1)) _ _)
-    (locComp_mem H hjK C) hs
-  unfold thick at h
-  rw [nbhd_nbhd] at h
-  exact h
+  obtain ⟨v, hv, hd⟩ := dataSite_cube_near_comp g hjK C hs
+  exact mem_nbhd.2 ⟨v, hv, hd⟩
 
 include hjK in
 /-- A cube of `Z^pre_{k+1}` within `⌊R_k⌋ + 2` cubes of the component `C` belongs to `C`
@@ -72,7 +67,7 @@ theorem dataSite_cube_not_mem_Zp {s : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK))
     (hq : blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ C.1) :
     blockMap (S.L ^ (i + 1 + 1) * (g.c * g.M1)) (n (i + 1 + 1)) s ∉ H.F.Zp (i + 1 + 1) :=
-  fun hw => hq (mem_comp_of_near_comp H C hjK hw (dataSite_cube_near_comp H g C hjK hs))
+  fun hw => hq (mem_comp_of_near_comp H C hjK hw (dataSite_cube_mem_nbhd_comp H g C hjK hs))
 
 include hjK in
 /-- The fine set `Z_{k}` of the localized history is a union of `π_k`-cubes: a cube lies in it or
@@ -133,13 +128,6 @@ theorem piece_sphere_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
             rw [← cubeMap_succ H.F.hnn hjK z, ← cubeMap_succ H.F.hnn hjK (bgToFine g H.F.hnn hjK s), hz]]
         · exact (le_max_right _ _).trans (le_max_left _ _)
 
-omit [NeZero M] [NeZero S.L] in
-theorem rn_sub_comm' {N : ℕ} (a b : Fin N → ℝ) :
-    rn (fun l => a l - b l) = rn (fun l => b l - a l) := by
-  unfold rn
-  congr 1
-  exact Finset.sum_congr rfl fun l _ => by ring
-
 include hjK in
 /-- **The pair bound at every interface pair of the piece** (R1). -/
 theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
@@ -194,7 +182,7 @@ theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
   · -- s off, s' over Ω
     have hy := locGen_dataSite_cube_mem_Omega (i := i) g (H.locRH (i + 1 + 1) C) C.1
       (locComp_mem H hjK C) hjK (locRH_rem (i + 1 + 1) C) hs (by rwa [mem_fineK1])
-    rw [rn_sub_comm']
+    rw [Balaban.Fluctuation.rn_sub_comm]
     exact lt_of_lt_of_le (piece_mixed_pair H g C hjK o x hv hF1 hs' hs (Or.inr hp) hOs' hOs hy) hmax1
   · -- both off
     have hy := locGen_dataSite_cube_mem_Omega (i := i) g (H.locRH (i + 1 + 1) C) C.1
@@ -206,7 +194,7 @@ theorem piece_pair_all {η1 η2 η3 ηY : ℝ} (ψw : MultiField S n M K N)
     · exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv hF1 hs hs' (Or.inl hp) hOs hOs' hy hy' hsim) hmax1
     · by_cases hsim' : cubeMap n S.L M K (i + 1 + 1) (bgToFine g H.F.hnn hjK s') ∈
           lhOmegaSim (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) (i + 1 + 1)
-      · rw [rn_sub_comm']
+      · rw [Balaban.Fluctuation.rn_sub_comm]
         exact lt_of_lt_of_le (piece_psi_pair H g C hjK o x hv hF1 hs' hs (Or.inr hp) hOs' hOs hy' hy hsim') hmax1
       · rcases cubeSub_Z_or_avoid (M := M) H C hjK (cubeMap n S.L M K (i + 1) (bgToFine g H.F.hnn hjK s)) with hZk | hav
         · exact lt_of_lt_of_le (piece_psi_pair_Zk H g C hjK ψw o x hv hFZ hs hs' (Or.inl hp) hOs hOs' hy hy' hZk

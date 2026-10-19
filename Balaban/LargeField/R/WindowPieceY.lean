@@ -38,7 +38,7 @@ theorem dataSite_block_mem_Vblk {s : BgT g (i + 1 + 1)}
     (hs : s ∈ dataSites (locGen g (H.locRH (i + 1 + 1) C) (i + 1) C.1 (locComp_mem H hjK C) hjK)) :
     jBlock S.d S.L (M * n K) K (i + 1 + 1) (bgToFine g H.F.hnn hjK s) ∈
       Vblk R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1) := by
-  have h := dataSite_cube_near_comp H g C hjK hs
+  have h := dataSite_cube_mem_nbhd_comp H g C hjK hs
   show blockCube S n M K (i + 1 + 1) _ ∈ Vcubes R (H.localHistory M K (i + 1 + 1) C) (i + 1 + 1)
   unfold blockCube Vcubes
   rw [cubeMap_eq_comp H.F.hnn hjK, cubeMap_bgToFine_gen]
