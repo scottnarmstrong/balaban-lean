@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.WindowThetaY
 public import Balaban.LargeField.History.ParentDomain
+public import Balaban.LargeField.R.WindowOfHistory
 
 /-!
 # The output side of the piece datum from the first family of `ChiDomProp` (blocker 4)
@@ -31,6 +32,57 @@ statement about the multiscale field (`η = 3 d L δ_j`).
 namespace Balaban.LargeField
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.LargeField.Def7 RegionHistory
+
+section Helpers
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
+  [NeZero S.L]
+
+/-- Two sites whose `m`-blocks are adjacent lie over `π_m`-cubes within one cube of each other. -/
+theorem cube_near_of_blockAdj (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) {m : ℕ} (hm : m ≤ K)
+    {a a' : Torus S.d (M * n K * S.L ^ K)}
+    (h : BlockAdj (⟨m, jBlock S.d S.L (M * n K) K m a⟩ : BlockPt S n M K)
+      (⟨m, jBlock S.d S.L (M * n K) K m a'⟩ : BlockPt S n M K)) :
+    supDist (cubeMap n S.L M K m a) (cubeMap n S.L M K m a') ≤ 1 := by
+  obtain ⟨x, x', hx, hx', hadj⟩ := h
+  have e1 : cubeMap n S.L M K m x = cubeMap n S.L M K m a := by
+    rw [← cubeMap_eq_comp hnn hm, ← cubeMap_eq_comp hnn hm, hx]
+  have e2 : cubeMap n S.L M K m x' = cubeMap n S.L M K m a' := by
+    rw [← cubeMap_eq_comp hnn hm, ← cubeMap_eq_comp hnn hm, hx']
+  rw [← e1, ← e2]
+  exact cubeMap_adj hnn hm hadj
+
+
+open Classical in
+/-- A site of the block of `s` lies in the same `m`-block as `s` when the layer index of `s` is at
+most `m`. -/
+theorem jBlock_eq_of_mem_blockSet_le {d L N₀ q : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    (G : GeneratingSet d L N₀ q ϱ) {s y : Torus d (N₀ * L ^ q)} (hy : y ∈ blockSet G s) {m : ℕ}
+    (hm : G.layerIndex s ≤ m) (hmq : m ≤ q) :
+    jBlock d L N₀ q m y = jBlock d L N₀ q m s := by
+  unfold blockSet at hy
+  by_cases hs : s ∈ G.Ω 1
+  · simp only [hs, ↓reduceIte] at hy
+    exact jBlock_eq_of_le hm hmq (GeneratingSet.mem_blk.1 hy)
+  · simp only [hs, ↓reduceIte, Finset.mem_singleton] at hy
+    rw [hy]
+
+section Gen
+
+variable (g : Geo S n R M) (Hl : RegionHistory S n R k0 K) (k : ℕ)
+  (Zc : Finset (Torus S.d (n (k + 1)))) (hZc : Zc ∈ comps (S.omega (k + 1)) (Hl.F.Zp (k + 1)))
+  (hk : k + 1 ≤ K)
+
+/-- The top layer of the local family lies in the fine set of `Ω_{k+1}`. -/
+theorem locGen_top_subset :
+    (locGen g Hl k Zc hZc hk).Ω (k + 1) ⊆ fineK1 g.M1 g.c (n (k + 1)) S.L k (Hl.step k).Omega :=
+  genBoundaryLocal_top_subset (Hl.step k) g.hc (Hl.F.hnn k (by omega)) Hl.F.ok.two_le_L
+    (g.three_L_le_floor Hl (k - 1)) (Hl.F.stepGeom (by omega)).rad.omega_rho
+    (Omega_compl_subset_Zpre' k (Hl.step k) _ _) hZc
+
+end Gen
+
+end Helpers
 
 section PieceTheta
 
@@ -118,6 +170,26 @@ theorem piece_theta_sphere {η : ℝ} (hjK : j + 1 ≤ K)
   rw [parent_sum_sq_eq_norm_sq]
   exact key
 
+/-- Blocks of two scales `m, m' ≤ j + 1` of the sites of an interface pair of a generating set of the
+level-`(j+1)` torus are adjacent when the layer indices are at most `m, m'`. -/
+theorem blockAdj_of_interfacePair_le {ϱ' : ℝ}
+    {G : GeneratingSet S.d S.L (g.M1 * (g.c * n (j + 1))) (j + 1) ϱ'} {s s' : BgT g (j + 1)}
+    (hp : IsInterfacePair G s s') {m m' : ℕ} (hm : G.layerIndex s ≤ m) (hm' : G.layerIndex s' ≤ m')
+    (hmq : m ≤ j + 1) (hmq' : m' ≤ j + 1) :
+    BlockAdj (⟨m, jBlock S.d S.L (M * n K) K m (bgToFine g H.F.hnn hjK s)⟩ : BlockPt S n M K)
+      (⟨m', jBlock S.d S.L (M * n K) K m' (bgToFine g H.F.hnn hjK s')⟩ : BlockPt S n M K) := by
+  obtain ⟨-, -, -, y, hy, y', hy', hadj⟩ := hp
+  have e1 := jBlock_eq_of_mem_blockSet_le G hy hm hmq
+  have e2 := jBlock_eq_of_mem_blockSet_le G hy' hm' hmq'
+  refine ⟨bgToFine g H.F.hnn hjK y, bgToFine g H.F.hnn hjK y', ?_, ?_, ?_⟩
+  · show jBlock S.d S.L (M * n K) K m _ = _
+    rw [jBlock_bgToFine_gen g H.F.hnn hjK hmq, jBlock_bgToFine_gen g H.F.hnn hjK hmq, e1]
+  · show jBlock S.d S.L (M * n K) K m' _ = _
+    rw [jBlock_bgToFine_gen g H.F.hnn hjK hmq', jBlock_bgToFine_gen g H.F.hnn hjK hmq', e2]
+  · obtain ⟨μ, h | h⟩ := hadj
+    · exact ⟨μ, Or.inl (by unfold bgToFine; rw [h, torusCast_add_single])⟩
+    · exact ⟨μ, Or.inr (by unfold bgToFine; rw [h, torusCast_add_single])⟩
+
 /-- An interface pair of any generating set of the level-`(j+1)` torus has adjacent top blocks over
 cubes within one cube of each other. -/
 theorem blockAdj_of_interfacePair {ϱ' : ℝ} (hjK : j + 1 ≤ K)
@@ -129,22 +201,9 @@ theorem blockAdj_of_interfacePair {ϱ' : ℝ} (hjK : j + 1 ≤ K)
           BlockPt S n M K)
         (⟨j + 1, jBlock S.d S.L (M * n K) K (j + 1) (bgToFine g H.F.hnn hjK s')⟩ :
           BlockPt S n M K) := by
-  have hm : g.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = g.c * n (j + 1) := by simp
-  have hc : 0 < g.c * g.M1 := by
-    have := g.hc
-    have h1 : 0 < g.M1 := Nat.pos_of_ne_zero (NeZero.ne _)
-    exact Nat.mul_pos (by omega) h1
-  obtain ⟨hnear, y, y', e1, e2, hadj⟩ := interfacePair_top_adj (M1 := g.M1) hm hc hp
-  refine ⟨?_, bgToFine g H.F.hnn hjK y, bgToFine g H.F.hnn hjK y', ?_, ?_, ?_⟩
-  · rw [cubeMap_bgToFine_gen, cubeMap_bgToFine_gen, supDist_comm]; exact hnear
-  · show jBlock S.d S.L (M * n K) K (j + 1) _ = _
-    rw [jBlock_bgToFine_gen g H.F.hnn hjK le_rfl, jBlock_bgToFine_gen g H.F.hnn hjK le_rfl, e1]
-  · show jBlock S.d S.L (M * n K) K (j + 1) _ = _
-    rw [jBlock_bgToFine_gen g H.F.hnn hjK le_rfl, jBlock_bgToFine_gen g H.F.hnn hjK le_rfl, e2]
-  · obtain ⟨μ, h | h⟩ := hadj
-    · exact ⟨μ, Or.inl (by unfold bgToFine; rw [h, torusCast_add_single])⟩
-    · exact ⟨μ, Or.inr (by unfold bgToFine; rw [h, torusCast_add_single])⟩
-
+  have hadj := blockAdj_of_interfacePair_le H g hjK hp (layerIndex_le_k G s) (layerIndex_le_k G s')
+    le_rfl le_rfl
+  exact ⟨by rw [supDist_comm]; exact cube_near_of_blockAdj H.F.hnn hjK hadj, hadj⟩
 
 /-- **The pair bound for two sites over `Ω_{j+1}` near a cube of the component** (R1). -/
 theorem piece_theta_pair {η : ℝ} (hjK : j + 1 ≤ K)
