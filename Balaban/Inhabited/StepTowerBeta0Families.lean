@@ -397,7 +397,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
   subst hϱ
   obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
   set S := T.step k hk N₁ ν β p₁ with hSdef
-  obtain ⟨F₁, Sol, hpin, HC⟩ := H1 T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β
+  obtain ⟨F₁, Sol, hpin, hbrdep, HC⟩ := H1 T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β
     ((le_max_left _ _).trans hβ) hct p₁ hp₁ Dt rfl S rfl hp
   obtain ⟨Jr, valS, I, hF, hεU0, ⟨h𝒴I, F₂, Sol₂, hF₂, hSol₂, hTI⟩, hvalS, A, hAeq, hZc⟩ :=
     H2 T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β ((le_max_right _ _).trans hβ)
@@ -474,7 +474,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
         Real.exp (-((2 * T.κdec - 1) - T.κ0) * treeLenCovOne 1 (k + 1) (bridge 1 z q.1.2)),
       fun q => rfl⟩
   have hpadF : ∀ q, 0 < padF q := fun q => by rw [hpadFdef q]; positivity
-  obtain ⟨F1, hF1eq, c, e, hcf, hdet, hprop, hvals, hval, hcovc⟩ := HC (h𝒮 := h𝒮) Jr C z ({Y // Y ∈ I.𝒴} ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
+  obtain ⟨F1, hF1eq, hG₁dep, c, e, hcf, hdet, hprop, hvals, hval, hcovc⟩ := HC (h𝒮 := h𝒮) Jr C z ({Y // Y ∈ I.𝒴} ⊕ ({Y // Y ∈ 𝒴C} ⊕ RootUnionLb 1
       (fun _ => (Set.univ : Set (CTorus d L N₁ T.m₁ (k + 1))))
       (fun τ : ι => polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ))))
     ((thickLabels I.𝒴 I.dom).sum (commonLabels (thickLabels (m₀ := 1) (j := k + 1) 𝒴C h𝒴dj) hN1
@@ -565,7 +565,9 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
       F₁ := F₁,
       Sol := Sol,
       hF₁ := fun b => (hpin z b).1,
-      hSol := fun b => (hpin z b).2 }, rfl, ?_⟩
+      hSol := fun b => (hpin z b).2,
+      hG₁dep := hG₁dep,
+      hbrdep := hbrdep z }, rfl, ?_⟩
     intro θ hθ T'
     rw [hdet θ hθ T', hcf θ T']
     rfl

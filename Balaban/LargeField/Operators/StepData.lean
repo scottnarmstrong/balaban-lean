@@ -48,11 +48,11 @@ noncomputable def volScale (S : Setting) {m : ℕ} (j : ℕ) (X : Set (Torus S.d
 
 /-- The vacuum part of the creating-step boundary factor.  This is the three-region expression
 of P6 (3.2), P5 (3.18), and the large-field recursion (S0): the first region is
-`Z_k^c ∖ Ω_{k+1}` (outside `Ω_{k+1}`), the second lies in `Ω_{k+1} ∖ Ω''_{k+1}`, and the last lies in `Ω''_{k+1}`.
+`(Z_{k+1} ∖ Z_k) ∖ Ω_{k+1}` (P6 (3.2) on the component, outside `Ω_{k+1}`), the second lies in `Ω_{k+1} ∖ Ω''_{k+1}`, and the last lies in `Ω''_{k+1}`.
 The arguments are the constants of the *creating step* `k`, in scale-`k` units. -/
 noncomputable def stepVacuumTerm (a : LocalHistory S n M K) (k : ℕ)
     (Ek Epp Eppp : ℝ) : ℝ :=
-  Ek * volScale S k ((a.Z k)ᶜ \ a.Omega k) +
+  Ek * volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k) +
     Epp * volScale S k (a.Omega k \ a.OmegaDD k) +
       Eppp * volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
 

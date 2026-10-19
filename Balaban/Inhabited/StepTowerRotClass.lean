@@ -90,6 +90,11 @@ theorem StepTowerG.e0CoeffFamily_class_agree_rot_formula {d L N : ℕ} [NeZero L
                 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' →
               δα' = ((Sol (z, b)) p).2))) ∧
+      -- the locality of the bridge marks: the mark of the bridge `i` depends only on its blocks
+      (∀ (z : RootIdx d L N₁ T.m₁ (k + 1)) (θ : physParam N S)
+          (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ),
+        DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+          (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
       ∀ (Jr : S.JointRep T.t (2 * p₁)) (C : StepClass d L N₁ T.m₁ k N ϱ)
         (z : RootIdx d L N₁ T.m₁ (k + 1)) (Lb : Type) [Fintype Lb]
         (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
@@ -262,7 +267,13 @@ theorem StepTowerG.e0CoeffFamily_class_agree_rot_formula {d L N : ℕ} [NeZero L
   have hβpos : 0 < β := by linarith
   have hRU := (H1 T hm₀T hm₁ hBG hBG₂ hκ h0 h' hdec).1 k hk β hβ hct p₁ hp0 hp₁
   obtain ⟨F₁, Sol, hF⟩ := e1MarkParam_pairs_fromTowerG T hm1 Dt h3N hN hν0.le hν hβpos rfl rfl hp hRU
-  refine ⟨F₁, Sol, fun z b => (hF z).2.2.2.2.2.2 b, ?_⟩
+  -- the locality of the bridge marks, read off with the empty labels
+  let Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1) Set.univ
+      Empty :=
+    { ysite := fun y => y.elim, dl := fun y => y.elim, isDj := fun y => y.elim,
+      meets := fun y => y.elim, size := fun y => y.elim }
+  refine ⟨F₁, Sol, fun z b => (hF z).2.2.2.2.2.2 b,
+    fun z θ i u => ((hF z).2.2.2.1 Empty Lab₀).1 θ i u, ?_⟩
   intro Jr C z Lb _ Lab εH κH Kc A ι₁ _ y1 G₁ F1 hE hAhol hAcont hAdiff hAloc hW hG1meas
     hG1dep hG1bd hG1hol hG1cont hG1diff hG1loc hroot₁ hF₁ hF1 hεpos hKc hκG hκ hε
   have hN1 : L ^ 1 ∣ N₁ := by rwa [hm1] at h3N
@@ -627,7 +638,7 @@ theorem StepTowerG.e0CoeffFamily_class_agree_rot {d L N : ℕ} [NeZero L] {κmin
   obtain ⟨β₀, hβ₀, H⟩ := StepTowerG.e0CoeffFamily_class_agree_rot_formula T₀ hm₀ hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ _ h3N hN ν hν0 hν β hβ hct p₁ hp₁
     Dt ϱ hϱ S hS hp => ?_⟩
-  obtain ⟨F₁, Sol, -, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN ν hν0 hν β hβ hct p₁
+  obtain ⟨F₁, Sol, -, -, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN ν hν0 hν β hβ hct p₁
     hp₁ Dt hϱ S hS hp
   refine ⟨F₁, Sol, fun Jr C z Lb _ Lab εH κH Kc A ι₁ _ y1 G₁ F1 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 h11
     h12 h13 h14 h15 h16 h17 h18 h19 h20 h21 => ?_⟩

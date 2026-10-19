@@ -23,7 +23,7 @@ variable {S : Setting} {n : ℕ → ℕ} {M K : ℕ}
 
 /-- The three volumes occurring in the creating-step vacuum contribution. -/
 noncomputable def stepVacuumVolume (a : LocalHistory S n M K) (k : ℕ) : ℝ :=
-  volScale S k ((a.Z k)ᶜ \ a.Omega k) +
+  volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k) +
     volScale S k (a.Omega k \ a.OmegaDD k) +
       volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
 
@@ -52,7 +52,7 @@ theorem norm_stepVacuumTerm_ref_sub_le (a : LocalHistory S n M K) (k : ℕ)
     (hEpp : |Eref - Epp| ≤ D) (hEppp : |Eref - Eppp| ≤ D) :
     ‖(stepVacuumTerm a k (Eref - Ek) (Eref - Epp) (Eref - Eppp) : ℂ)‖ ≤
       D * stepVacuumVolume a k := by
-  let v1 := volScale S k ((a.Z k)ᶜ \ a.Omega k)
+  let v1 := volScale S k ((a.Z (k + 1) \ a.Z k) \ a.Omega k)
   let v2 := volScale S k (a.Omega k \ a.OmegaDD k)
   let v3 := volScale S k (a.OmegaDD k ∩ a.Z (k + 1))
   have hv1 : 0 ≤ v1 := by unfold v1 volScale; positivity
