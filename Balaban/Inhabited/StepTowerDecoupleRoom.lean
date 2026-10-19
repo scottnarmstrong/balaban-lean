@@ -242,50 +242,71 @@ theorem not_cover_and_room_r324 {P : Consts} (hα₀ : 0 < P.α₀) (hγ : 0 ≤
   have := cover_room_r324_bound hα₀ hγ hC (by linarith) hκ hfl k hcov hroom
   linarith
 
+/-- **The ratio of the closeness bound at the collar `4 d L³ + L` is small for a large block, general
+`d`, `L`, `N`** (FLUCTUATION §1.5 row 6): for every `θ > 0` there is `M` such that
+`K₂ · 2 · composedCloseBound(…, C_{Ξ1}, 4 d L³ + L) ≤ θ` whenever `L^{m₁} ≥ M`. -/
+theorem exists_pow_close_leG {d L N : ℕ} [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) {BG κ θ : ℝ}
+    (hBG : 0 ≤ BG) (hθ : 0 < θ) :
+    ∃ M : ℝ, ∀ m₁ : ℕ, M ≤ (L : ℝ) ^ m₁ →
+      xiK2 d L N * (2 * composedCloseBound d L N m₁ BG κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤
+        θ := by
+  have hγ : 0 < gammaW d := gammaW_pos' (by omega)
+  have hX : 0 ≤ xiC1 d := le_trans zero_le_one (one_le_xiC1 d)
+  have hx2 : 0 ≤ xiK2 d L N := by
+    have := cK2_pos d L N
+    unfold xiK2; positivity
+  set r : ℝ := 4 * (d : ℝ) * (L : ℝ) ^ 3 with hr
+  set A : ℝ := xiK2 d L N * (2 * composedCloseBound d L N 0 BG κ (xiC1 d) r) with hA
+  have hA0 : 0 ≤ A :=
+    mul_nonneg hx2 (mul_nonneg (by norm_num) (composedCloseBound_nonneg hBG hX (by omega)))
+  have hind : ∀ m₁ : ℕ, composedCloseBound d L N m₁ BG κ (xiC1 d) r =
+      composedCloseBound d L N 0 BG κ (xiC1 d) r := by
+    intro m₁
+    unfold composedCloseBound
+    rw [hr]
+    simp
+  refine ⟨(Real.log (A / θ + 1)) / gammaW d, fun m₁ hM => ?_⟩
+  rw [composedCloseBound_collar BG κ (xiC1 d) r (4 * (d : ℝ) * (L : ℝ) ^ 3 + L), hind m₁]
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have e : -(gammaW d * ((4 * (d : ℝ) * (L : ℝ) ^ 3 + L - r) * (L : ℝ) ^ m₁ / (L : ℝ))) =
+      -(gammaW d * (L : ℝ) ^ m₁) := by
+    rw [hr]
+    field_simp
+    ring
+  rw [e]
+  have hlog : Real.log (A / θ + 1) ≤ gammaW d * (L : ℝ) ^ m₁ := by
+    rw [div_le_iff₀ hγ] at hM
+    linarith
+  have hpos : 0 < A / θ + 1 := by positivity
+  have hexp : A / θ + 1 ≤ Real.exp (gammaW d * (L : ℝ) ^ m₁) := by
+    calc A / θ + 1 = Real.exp (Real.log (A / θ + 1)) := (Real.exp_log hpos).symm
+      _ ≤ _ := Real.exp_le_exp.2 hlog
+  have hE : 0 < Real.exp (gammaW d * (L : ℝ) ^ m₁) := Real.exp_pos _
+  rw [Real.exp_neg]
+  have hAθ : A ≤ θ * Real.exp (gammaW d * (L : ℝ) ^ m₁) := by
+    have h1 : A / θ ≤ Real.exp (gammaW d * (L : ℝ) ^ m₁) := by linarith
+    rwa [div_le_iff₀ hθ, mul_comm] at h1
+  calc xiK2 d L N * (2 * (composedCloseBound d L N 0 BG κ (xiC1 d) r *
+        (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹))
+        = A * (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹ := by rw [hA]; ring
+    _ ≤ θ * Real.exp (gammaW d * (L : ℝ) ^ m₁) * (Real.exp (gammaW d * (L : ℝ) ^ m₁))⁻¹ :=
+        mul_le_mul_of_nonneg_right hAθ (inv_nonneg.2 hE.le)
+    _ = θ := by field_simp
+
+
 /-- **The ratio of the closeness bound at the collar `327 = 4dL³ + L` is small for a large
 block** (FLUCTUATION §1.5 row 6): for every `θ > 0` there is `M` such that
 `K₂ · 2 · composedCloseBound(…, C_{Ξ1}, 327) ≤ θ` whenever `3^{m₁} ≥ M`. -/
 theorem exists_pow_close_le {BG κ θ : ℝ} (hBG : 0 ≤ BG) (hθ : 0 < θ) :
     ∃ M : ℝ, ∀ m₁ : ℕ, M ≤ (3 : ℝ) ^ m₁ →
       xiK2 3 3 2 * (2 * composedCloseBound 3 3 2 m₁ BG κ (xiC1 3) 327) ≤ θ := by
-  have hγ : 0 < gammaW 3 := gammaW_pos' (by norm_num)
-  have hX : 0 ≤ xiC1 3 := le_trans zero_le_one (one_le_xiC1 3)
-  have hx2 : 0 ≤ xiK2 3 3 2 := by
-    have := cK2_pos 3 3 2
-    unfold xiK2; positivity
-  set A : ℝ := xiK2 3 3 2 * (2 * composedCloseBound 3 3 2 0 BG κ (xiC1 3) 324) with hA
-  have hA0 : 0 ≤ A :=
-    mul_nonneg hx2 (mul_nonneg (by norm_num) (composedCloseBound_nonneg hBG hX (by norm_num)))
-  have hind : ∀ m₁ : ℕ, composedCloseBound 3 3 2 m₁ BG κ (xiC1 3) 324 =
-      composedCloseBound 3 3 2 0 BG κ (xiC1 3) 324 := by
-    intro m₁
-    unfold composedCloseBound
-    norm_num
-  refine ⟨(Real.log (A / θ + 1)) / gammaW 3, fun m₁ hM => ?_⟩
-  rw [composedCloseBound_collar BG κ (xiC1 3) 324 327, hind m₁]
-  have hL : ((3 : ℕ) : ℝ) ^ m₁ = (3 : ℝ) ^ m₁ := by push_cast; ring
-  have e : -(gammaW 3 * ((327 - 324) * ((3 : ℕ) : ℝ) ^ m₁ / ((3 : ℕ) : ℝ))) =
-      -(gammaW 3 * (3 : ℝ) ^ m₁) := by
-    rw [hL]; push_cast; ring
-  rw [e]
-  have hlog : Real.log (A / θ + 1) ≤ gammaW 3 * (3 : ℝ) ^ m₁ := by
-    rw [div_le_iff₀ hγ] at hM
-    linarith
-  have hpos : 0 < A / θ + 1 := by positivity
-  have hexp : A / θ + 1 ≤ Real.exp (gammaW 3 * (3 : ℝ) ^ m₁) := by
-    calc A / θ + 1 = Real.exp (Real.log (A / θ + 1)) := (Real.exp_log hpos).symm
-      _ ≤ _ := Real.exp_le_exp.2 hlog
-  have hE : 0 < Real.exp (gammaW 3 * (3 : ℝ) ^ m₁) := Real.exp_pos _
-  rw [Real.exp_neg]
-  have hAθ : A ≤ θ * Real.exp (gammaW 3 * (3 : ℝ) ^ m₁) := by
-    have h1 : A / θ ≤ Real.exp (gammaW 3 * (3 : ℝ) ^ m₁) := by linarith
-    rwa [div_le_iff₀ hθ, mul_comm] at h1
-  calc xiK2 3 3 2 * (2 * (composedCloseBound 3 3 2 0 BG κ (xiC1 3) 324 *
-        (Real.exp (gammaW 3 * (3 : ℝ) ^ m₁))⁻¹))
-        = A * (Real.exp (gammaW 3 * (3 : ℝ) ^ m₁))⁻¹ := by rw [hA]; ring
-    _ ≤ θ * Real.exp (gammaW 3 * (3 : ℝ) ^ m₁) * (Real.exp (gammaW 3 * (3 : ℝ) ^ m₁))⁻¹ :=
-        mul_le_mul_of_nonneg_right hAθ (inv_nonneg.2 hE.le)
-    _ = θ := by field_simp
+  obtain ⟨M, hM⟩ := exists_pow_close_leG (d := 3) (L := 3) (N := 2) le_rfl le_rfl (BG := BG)
+    (κ := κ) hBG hθ
+  refine ⟨M, fun m₁ hm => ?_⟩
+  have e : (4 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) ^ 3 + ((3 : ℕ) : ℝ)) = 327 := by norm_num
+  have h := hM m₁ (by simpa using hm)
+  rw [e] at h
+  exact h
 
 end Three
 
