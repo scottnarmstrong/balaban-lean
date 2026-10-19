@@ -2932,3 +2932,4 @@ public import Balaban.Fluctuation.NewLevelZeroSourceBg
 public import Balaban.Inhabited.NewLevelCoeffBgClass
 public import Balaban.Inhabited.NewLevelCoeffBgClassCast
 public import Balaban.Inhabited.NewLevelSystemCanon
+public import Balaban.Fluctuation.NewLevelTermsBgAnalytic
