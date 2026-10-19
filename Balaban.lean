@@ -2945,3 +2945,5 @@ public import Balaban.LargeField.Base.KF0FRBand
 public import Balaban.LargeField.Base.KF0FROrd
 public import Balaban.LargeField.Base.KF0FRHeavyPt
 public import Balaban.LargeField.Base.KF0FRHeavySite
+public import Balaban.LargeField.Base.KF0FRHeavyD
+public import Balaban.LargeField.Base.KF0FRHeavyDInt

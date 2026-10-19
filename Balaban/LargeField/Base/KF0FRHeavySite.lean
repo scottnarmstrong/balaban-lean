@@ -185,40 +185,49 @@ theorem lintegral_heavy_le {ε : ℝ} (hε : 0 ≤ ε) (L : Bool → ℝ) (hL : 
         rw [lintegral_add_left (hm1.const_mul _), lintegral_const_mul _ hm1,
           lintegral_const_mul _ hm2]
 
-/-- **A heavy site, density form**, for `X = e^{a|ψ| + θ|ψ|²}`, `θ ≤ 1/8`. -/
+/-- **A heavy site, density form**, for `X = e^{a|ψ| + θ|ψ|²}`, `θ ≤ 1/8`: the density bound is
+`(2π)^{-n/2} e^{a²} (L(+) + ε(1+ε)^{-1} L(-))`. -/
 theorem sup_heavy_le {ε a θ : ℝ} (hε : 0 ≤ ε) (hθ : θ ≤ 1 / 8) (L : Bool → ℝ)
     (hL : ∀ b, 0 ≤ L b) (ψ : perp h) :
     (∫⁻ b, (frOrd h p)ᶜ.indicator 1 (ψ, b) * ENNReal.ofReal (L b * frEx h a θ ψ) ∂(frBern ε)) *
         ENNReal.ofReal (gDens h ψ) ≤
       ENNReal.ofReal ((2 * Real.pi) ^ (-(Module.finrank ℝ (perp h) : ℝ) / 2) *
-        Real.exp (a ^ 2) * (L true + L false)) := by
-  have hpt : ∀ b : Bool, (frOrd h p)ᶜ.indicator 1 (ψ, b) * ENNReal.ofReal (L b * frEx h a θ ψ) ≤
-      ENNReal.ofReal ((L true + L false) * frEx h a θ ψ) := by
+        Real.exp (a ^ 2) * (L true + ε / (1 + ε) * L false)) := by
+  have hind : ∀ b : Bool, (frOrd h p)ᶜ.indicator 1 (ψ, b) * ENNReal.ofReal (L b * frEx h a θ ψ) ≤
+      ENNReal.ofReal (L b * frEx h a θ ψ) := by
     intro b
     calc _ ≤ 1 * ENNReal.ofReal (L b * frEx h a θ ψ) := by
           gcongr; unfold Set.indicator; split_ifs <;> simp
-      _ ≤ _ := by
-          rw [one_mul]
-          refine ENNReal.ofReal_le_ofReal (mul_le_mul_of_nonneg_right ?_ (frEx_pos h a θ ψ).le)
-          cases b <;> linarith [hL true, hL false]
-  have hprob := isProbabilityMeasure_frBern hε
+      _ = _ := one_mul _
+  have hX := (frEx_pos h a θ ψ).le
+  have hε1 : 0 ≤ ε / (1 + ε) := by positivity
   have h1 : ∫⁻ b, (frOrd h p)ᶜ.indicator 1 (ψ, b) * ENNReal.ofReal (L b * frEx h a θ ψ)
-      ∂(frBern ε) ≤ ENNReal.ofReal ((L true + L false) * frEx h a θ ψ) :=
-    (lintegral_mono hpt).trans (by rw [lintegral_const, measure_univ, mul_one])
+      ∂(frBern ε) ≤ ENNReal.ofReal ((L true + ε / (1 + ε) * L false) * frEx h a θ ψ) := by
+    rw [lintegral_frBern]
+    have h11 : ENNReal.ofReal (1 / (1 + ε)) ≤ 1 := by
+      rw [ENNReal.ofReal_le_one, div_le_one (by linarith)]; linarith
+    calc _ ≤ 1 * ENNReal.ofReal (L true * frEx h a θ ψ) +
+          ENNReal.ofReal (ε / (1 + ε)) * ENNReal.ofReal (L false * frEx h a θ ψ) :=
+          add_le_add (mul_le_mul' h11 (hind true)) (mul_le_mul' le_rfl (hind false))
+      _ = _ := by
+          rw [one_mul, ← ENNReal.ofReal_mul hε1, ← ENNReal.ofReal_add
+            (mul_nonneg (hL true) hX) (mul_nonneg hε1 (mul_nonneg (hL false) hX))]
+          congr 1; ring
   have h2 := gaussDens_mul_exp_le (E := perp h) (a := a) hθ ‖ψ‖
-  have hL0 : 0 ≤ L true + L false := add_nonneg (hL true) (hL false)
-  calc _ ≤ ENNReal.ofReal ((L true + L false) * frEx h a θ ψ) * ENNReal.ofReal (gDens h ψ) :=
-        mul_le_mul' h1 le_rfl
-    _ = ENNReal.ofReal ((L true + L false) *
+  have hL0 : 0 ≤ L true + ε / (1 + ε) * L false :=
+    add_nonneg (hL true) (mul_nonneg hε1 (hL false))
+  calc _ ≤ ENNReal.ofReal ((L true + ε / (1 + ε) * L false) * frEx h a θ ψ) *
+        ENNReal.ofReal (gDens h ψ) := mul_le_mul' h1 le_rfl
+    _ = ENNReal.ofReal ((L true + ε / (1 + ε) * L false) *
           ((2 * Real.pi) ^ (-(Module.finrank ℝ (perp h) : ℝ) / 2) *
             Real.exp (-(1 / 2) * ‖ψ‖ ^ 2) * Real.exp (a * ‖ψ‖ + θ * ‖ψ‖ ^ 2))) := by
-        rw [← ENNReal.ofReal_mul (mul_nonneg hL0 (frEx_pos h a θ ψ).le)]
+        rw [← ENNReal.ofReal_mul (mul_nonneg hL0 hX)]
         congr 1
         unfold gDens frEx
         ring
     _ ≤ _ := by
         refine ENNReal.ofReal_le_ofReal ?_
-        calc _ ≤ (L true + L false) * ((2 * Real.pi) ^
+        calc _ ≤ (L true + ε / (1 + ε) * L false) * ((2 * Real.pi) ^
               (-(Module.finrank ℝ (perp h) : ℝ) / 2) * Real.exp (a ^ 2)) :=
               mul_le_mul_of_nonneg_left h2 hL0
           _ = _ := by ring
