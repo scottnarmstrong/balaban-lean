@@ -109,8 +109,8 @@ theorem StepTowerG.zeroSourceFamily_fields_agree_rot {d L N : ℕ} [NeZero L] {�
       exact commonAct_zeroSourceAct_hA_rawY S 1 _ hF hN1 hp0 zero_le_two hεU T.κ0_ent
         T.marks_K0_le (fun _ => Set.univ) (e1DomG S) (e1DomG_isDj_of_eq T hm1 Dt rfl hS)
         (by have := T.hL; omega) hεzs T.κ0_two one_pos T' θ hθ θ' hθ' hres s hs (Sum.inl y) hsub,
-    fun D hX => e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β p₁ hp0 Dt
-      S hS hp Jr val hval I hF hεU A hAeq (zeroSourceAct A 2 zero_le_two)
+    fun D hX => e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β p₁ hp0 _ rfl Dt
+      rfl S hS hp Jr val hval I hF hεU A hAeq (zeroSourceAct A 2 zero_le_two)
       (zeroSourceAct_total A 2 zero_le_two) D hX,
     fun Q hQ θ hθ θ' hθ' hrot s hs y Φ hΦ => ?_⟩
   subst hS
