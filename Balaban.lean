@@ -2893,5 +2893,6 @@ public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
 public import Balaban.Spine.RVacuumTie
 public import Balaban.LargeField.R.WindowDuNamed
+public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomKernel
 public import Balaban.LargeField.R.WindowDomXi
