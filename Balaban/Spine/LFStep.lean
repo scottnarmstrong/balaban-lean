@@ -322,7 +322,7 @@ theorem d7BdryBall_of_hist_eq_empty (h : rep.hist = ∅) :
 
 /-- **(D7) of the pre-`R` class, second version, from (D7) at the physical field and at the other
 fields of the pinned ball.** -/
-theorem D7Bdry.toD7Bdry2_of_ball (h : D7Bdry Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv)
+theorem _root_.Balaban.LargeField.Def7.D7Bdry.toD7Bdry2_of_ball (h : D7Bdry Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv)
     (hb : D7BdryBall Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) :
     D7Bdry2 Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH where
   loc_field := h.loc_field
@@ -642,5 +642,97 @@ def LFCorrInput : Prop :=
       (vc' : CorrCoef d), D1CorrLim (P6 κ c₉).m₀ (Φ κ c₉ β ν k rec.F.sf) St' h vc'
 
 end Inputs
+
+/-!
+### The assembly
+-/
+
+section Assembly
+
+variable {d N : ℕ} {T : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Consts}
+  {C7 : ℝ → ℝ → Consts7} {PB : ℝ → ℝ → BudgetConsts} {cs₀ : ℝ → ℝ → OpConsts}
+  {M1 c : ℝ → ℝ → ℕ} {rH ϱ : ℝ → ℝ → ℝ}
+  {Φ : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉)}
+  {ΦE : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → (ℕ → ℝ) → ℝ}
+
+/-- **The large-field half of the step from its parts** (LFR Theorem IV.1.1 (b)–(d), (h)). For a
+record `rec` of `ℛ_k` and its image `Φ rec.F.sf`:
+* the step and kept data on every torus are chosen by `LFStepDataInput`, `LFKeptInput` (their data
+  are those of the map `Λ rec`); the successor family is `⟨Φ rec.F.sf, Λ rec with these data⟩`;
+* the constants are `succCs`, `succP` (the running constants of the image), whose ties to the outer
+  constants are those of `rec`, and whose `Coh`, `FieldClauses` at `k + 1` are `coh_succ`,
+  `field_succ`;
+* `IsRepPre2`: (D2), (D8), (D9) are the hypotheses on the image; completeness `LFHistInput`; (D1)
+  `LFFormInput` for the coefficient data of `LFCorrInput`; (D4) `LFPinInput`; (D5) `LFOpBoundInput`;
+  (D6) `LFBudgetInput`; (D7) of the second version from `LFBdryInput` and `LFBdrySrcInput`
+  (`D7Bdry.toD7Bdry2_of_ball`);
+* `LFCoherent` is `LFCoherenceInput`; the vacuum tie with `vacExt rec.Ev k (ΦE …)` is that of the
+  chosen step data.
+The threshold is the largest of the eleven thresholds. -/
+theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
+    (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
+    (hK : LFKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hO : LFOpBoundInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hG : LFBudgetInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hC : LFCoherenceInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
+    (hc : LFCorrInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
+    LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨b₁, h₁⟩ := hH κ hκ c₉ hc₉
+  obtain ⟨b₂, h₂⟩ := hS κ hκ c₉ hc₉
+  obtain ⟨b₃, h₃⟩ := hK κ hκ c₉ hc₉
+  obtain ⟨b₄, h₄⟩ := hB κ hκ c₉ hc₉
+  obtain ⟨b₅, h₅⟩ := hBs κ hκ c₉ hc₉
+  obtain ⟨b₆, h₆⟩ := hF κ hκ c₉ hc₉
+  obtain ⟨b₇, h₇⟩ := hO κ hκ c₉ hc₉
+  obtain ⟨b₈, h₈⟩ := hP κ hκ c₉ hc₉
+  obtain ⟨b₉, h₉⟩ := hG κ hκ c₉ hc₉
+  obtain ⟨b₁₀, h₁₀⟩ := hC κ hκ c₉ hc₉
+  obtain ⟨b₁₁, h₁₁⟩ := hc κ hκ c₉ hc₉
+  refine ⟨max (max (max b₁ b₂) (max b₃ b₄)) (max (max b₅ b₆) (max (max b₇ b₈)
+    (max b₉ (max b₁₀ b₁₁)))), ?_⟩
+  intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+  simp only [max_le_iff] at hβ
+  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₃, hb₄⟩, ⟨hb₅, hb₆⟩, ⟨hb₇, hb₈⟩, hb₉, hb₁₀, hb₁₁⟩ := hβ
+  choose SD hSDker hSDtie using
+    h₂ β hb₂ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+  choose KD hKD using h₃ β hb₃ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+  have hM : (Λ κ c₉ β ν h kf k ρ νk rec).Matches SD KD := fun nK _ => ⟨hSDker nK, hKD nK⟩
+  obtain ⟨St', vc', hcorr⟩ :=
+    h₁₁ β hb₁₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+  refine ⟨rec.succCs (Φ κ c₉ β ν k rec.F.sf), rec.succP (Φ κ c₉ β ν k rec.F.sf),
+    fun nK _ => (Λ κ c₉ β ν h kf k ρ νk rec).rep nK (SD nK) (KD nK), St', vc',
+    (Λ κ c₉ β ν h kf k ρ νk rec).s, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
+    rec.tie_c2, rec.tie_H0, ?_,
+    h₁₀ β hb₁₀ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM,
+    fun nK _ => hSDtie nK⟩
+  exact
+    { coh := coh_succ rec.rep.coh fun j hj1 hj => (hafree j hj1 hj).trans (by rw [rec.tie_aKer])
+      field := field_succ rec.rep.field
+      complete := h₁ β hb₁ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
+      form := h₆ β hb₆ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+        St' vc' hcorr
+      corr := hcorr
+      sfData := hD2
+      pin := h₈ β hb₈ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+      opBound :=
+        h₇ β hb₇ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+      budget := h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+      bdry := fun nK _ =>
+        (h₄ β hb₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM
+          nK).toD7Bdry2_of_ball
+        (h₅ β hb₅ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD KD hM nK)
+      coherent := hD8
+      coeff := hD9 }
+
+end Assembly
 
 end Balaban.RootFSpine
