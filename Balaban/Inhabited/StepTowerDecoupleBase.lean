@@ -7,6 +7,8 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Fluctuation.LocalClassDensityIrrelBaseSet
+public import Balaban.Inhabited.StepTowerCollarGBgSet
+public import Balaban.Inhabited.StepScaleDataGBridge
 
 /-!
 # The class chain at the base settings with the fluctuation radius free (`StepTowerDecoupleBase`)
@@ -96,15 +98,19 @@ theorem step_flSetting_base_dec (Dt : StepScaleData T k hk N₁ ν β p₁) {δ�
     FlSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
       (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν
       T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ δ₁ δfl Finset.univ := by
-  have hC := Dt.core
-  exact {
-    hS2 := hC.hS2
-    SM := hC.SM
-    hM2 := hC.hM2
-    hPm := precedes_refl _
-    hPmp := hC.hPmp
-    depm := fun _ _ y _ => Finset.mem_univ y
-    num := hnum }
+  have h := T.toG.flSetting_base_dec (StepTower.scaleDataG_of_fixed T Dt) hnum
+  have key : ∀ ϱ : ℝ, ϱ = rhoSep T.m₁ →
+      FlSetting 2 (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁
+          T.δ).G' (stepG 3 3 N₁ T.m₁ k ϱ) (stepG 3 3 N₁ T.m₁ k ϱ)
+        (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁ T.δ).a₁
+        (hatStepKG (d := 3) (L := 3) (N := 2) (N₁ := N₁) le_rfl k T.m₁ ϱ hk ν β p₁ T.δ).ν
+        T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ δ₁ δfl Finset.univ →
+      FlSetting 2 (T.step k hk N₁ ν β p₁).G' (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁))
+        (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) (T.step k hk N₁ ν β p₁).a₁
+        (T.step k hk N₁ ν β p₁).ν T.κ T.BG T.t δ₃ (levelKc 3 3) (Cchi 3 3) T.c₂ T.BG₂ δ₁ δfl
+        Finset.univ := by
+    intro ϱ hϱ; subst hϱ; exact id
+  exact key _ (rhoSepG_three _) h
 
 end Base
 

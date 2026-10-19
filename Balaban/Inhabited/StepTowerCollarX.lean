@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Inhabited.StepTowerCollarCore
+public import Balaban.Inhabited.StepTowerCollarGNum
 
 /-!
 # The class chain with the per-label bound in `d(X)` at a general collar (`StepTowerCollarX`)
@@ -41,7 +42,9 @@ theorem index_condition_shift_collar {m₀ : ℕ} (hm : 7 ≤ m₀) {r₀ : ℝ}
       (((3 - 2 : ℕ)) : ℝ) * ((3 : ℕ) : ℝ) ^ (m₀ + 1) := by
   have h : ((3 : ℕ) : ℝ) ^ 8 ≤ ((3 : ℕ) : ℝ) ^ (m₀ + 1) :=
     pow_le_pow_right₀ (by norm_num) (by omega)
-  norm_num at h ⊢
+  have := index_condition_collar_of_le (L := 3) (m₀ := m₀) hr
+    (R := 1431) (by norm_num at h ⊢; linarith)
+  norm_num at this ⊢
   linarith
 
 open Classical in
