@@ -38,3 +38,29 @@ marked forms of `LocalClassDensityMarks` put `1[unitPt y ∈ Zm]` on the fine si
 unit points of `Gb` over `Zm`; this is not formalised.
 (3) The lemma layer takes clause hypotheses on the terms on `Gb`: `hloc` (with `AgHatDir S.hG'` on the step's hat),
 `hcau`, `hJ2`, and `hJ4` on `physVBg`. For the local `Gb` these are open, as (A1)-(A5) of the next waves.
+
+## R8 part 2 (W1139): the determinant record and the direct terms
+
+The step's expansion (cubes, polymers `T`, root `z`) is on `S.G'`; inside a term the generating set is `Gb`, the datum read through
+`Tr : BgTransport S.G' Gb N`. Typing datum `Tr.Reads` (`T.dat (rawOf D)` is a datum of `Gb` for every datum `D` of the step); then
+`Tr.gdat hT D : BgData Gb N` (`BgTransport.gdat`, `gdat_self` is `rfl`, `reads_self`).
+
+| generic | source object | landed instance |
+|---|---|---|
+| `DetExpansionLocCBg S Gb Tr hT Zb m₀ z ε κ'' c` (DetOutputTerms) | terms of `-½ ∑_{y∈B(z)} tr 𝕃(y,y)` by polymers `T`, P3 (4.44)-(4.47), P4 (2.56): rooted trace on `Gb` over the mask `Zb ⊆ unitPts Gb` at the background of `Tr.gdat hT D`; chart `Ξ^c(Gb;1,ε)` at that datum; locality on `resDep Gb`; analyticity in the raw datum of the step | `DetExpansionLocC S m₀ z ε κ'' c` is an `abbrev` at `Gb = S.G'`, `Tr = self`, `Zb = S.blockU z` (fields defeq, since `self.gdat D = D` by structure eta) |
+| `DetExpansionLocCBg.detGrouped`, `detGroupedC` and `_sum/_bound/_anchor/_local/_analyticOnNhd_rawSub/_physParam` | collar-hull regrouping | landed defs/lemmas are one-line instances (bodies call the generic ones) |
+| `exists_detExpansionLocCBg_of_chart` | inhabitation (rule 10): `FlCore` of `Gb`, mask with `rootIdxOf y = z`, `|Zb| ≤ L^d` | `exists_detExpansionLocC_of_chart` is the call at `self` |
+| `detTermLoc` (family `E T` on `Gb T`) | term of the polymer `T` recomputed on `𝔹_{k+1}(T)` | `detTermLoc_const` (`rfl`) |
+| `DirectTermsBg S m₀ hp Gb Tr embB …` (DirectTermsBg) | direct terms with expansion variables `embB (Tr.res ψ̂)` | `DirectTerms` (`directTermsBg_self`, `rfl`) |
+| `physInclTr`, `physVTr`, `isOpen_physVTr`, `physical_directTermsFamilyOn_Tr` | parameter `θ` of the step read as the datum `(Tr.dat θ.1, θ.2)` of `Gb`; admissible set `physSΛBg Gb` | `physInclTr_self = physIncl`, `physVTr_self = physV` (propositional; `physIncl` is a CLM, not unfolded) |
+
+Why `Gb = S.G'` recovers the landed objects: `self.dat = id`, so `self.gdat D = D`; every generic field is the landed field after
+unfolding. `DirectTerms` was already generic in the hat embedding and `DirectTermsFamilyOn` in the parameter map; `Gb` enters only through
+`embB ∘ Tr.res` and `physInclTr Tr`, so the lemma layer (`labelAct_of_directTerms`, `dtAct`, `labelActFamilyOn`, `paramMarkFamilyOn_of_marks`)
+applies unchanged and is not copied.
+
+Points for the auditor. (1) Fields of `DetExpansionLocCBg` ask the chart of `Gb` at `Tr.gdat hT D`, not the step's chart; at `self` they coincide.
+(2) The dependency-radius lemmas (`term_eq_of_agree_near`, `_cellNear`, `detGrouped_local`, `detGroupedC_local`) need `IsLevel Gb (k+1)`: the radius
+lemmas of `FootprintMargin` are for level sets only; for a local `Gb` (not a level set) locality comes from the field `local_resDep` and the margin.
+(3) `Tr.Reads` is not proved for `BgTransport.canon`: the clipped datum is layer-constant for `Gb` only under conditions on the layers of `Gb`.
+(4) `physical_directTermsFamilyOn` (landed) was not rewritten as the instance, because `ParamActivitySubspace` is imported by `DirectTermsBg`.
