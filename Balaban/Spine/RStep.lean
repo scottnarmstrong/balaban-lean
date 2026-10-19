@@ -11,9 +11,9 @@ public import Balaban.LargeField.Operators.StepVacuumR5
 import Mathlib.Tactic.Linarith
 
 /-!
-# The operation `R` of the spine from three sub-inputs
+# The operation `R` of the spine from two sub-inputs
 
-`rInput_of_parts` proves `RInput` (`Spine/ClassStep.lean`) from three named sub-inputs, following
+`rInput_of_parts` proves `RInput` (`Spine/ClassStep.lean`) from two named sub-inputs, following
 LFR Theorem III.10.8 and Lemma III.8.4 (P7 Theorem 2, (1.3)-(1.7), (3.1)-(3.29)) with the
 representation of the output as a gas of removed clusters (ruling R4).
 
@@ -39,24 +39,20 @@ for abstract gases, kernels and normalizations).
 * `RVacuumInput` (the vacuum constants, R5, R5′; P6 (3.2)): a member of `ℛ^pre_k` has a record of the same density
   whose step data carry the vacuum constants of the flow (`VacuumTied`, `StepData.VacuumTie`). It is
   asked of the input because `IsRepPre2` does not carry the tie.
-* `RKeptInput` (the kept data; LFR Lemma III.10.5, Definition III.10.6, Theorem III.8.9 (a), (b)):
-  for a member of `ℛ^pre_k` there are histories complete at `(k, k + 1)` and kept data (`κK`, `KD`)
-  for the same step data with the pinned exponents (`D4Pin (k + 1)`), the operator bound at `k + 1`
-  (`D5Bound`), the budget (`D6Budget`) and torus coherent (`KeptOutput`).
-* `RGasInput` (the gas; LFR Theorem III.10.8 (b), (c), Lemma III.8.4, P7 (3.10)-(3.29)): for a
-  vacuum tied record and such kept data there are boundary terms `ℬ'`, a term `ℛ''` and a density `ρ'` such that `ℛ''` has the
-  bound of (D2) with the allowance `1/2` at `m` and is torus coherent, `ρ'` has the form (D1) of the
-  output, the boundary terms satisfy (D7), the output is torus coherent, and `∫ ρ' = ∫ ρ`
-  (`GasOutput`).
+* `RKeptGasInput` (the kept data and the gas; LFR Lemma III.10.5, Definition III.10.6, Theorem III.8.9 (a), (b),
+  Theorem III.10.8 (b), (c), Lemma III.8.4, P7 (3.10)-(3.29)): for a vacuum tied record there are
+  kept data `lf₁` (histories complete at `(k, k + 1)`, the step data of the input, `KeptOutput`),
+  boundary terms `ℬ'`, a term `ℛ''` and a density `ρ'` with `GasOutput`. One existential, because
+  `KeptOutput` consists of inequalities and does not determine the kept kernels.
 
 Proved here: the carrying over of the small-field clauses along `sf' = sf + ℛ''`
 (`coh_addRem`, `field_addRem`, `corr_addRem`, `coeff_addRem`, `d8SF_addRem`), the form of the
 output family (`repFamPost`), and the assembly (the output is in `ℛ_k` with the same running
 constants, `IsComplete`, `sfData_of_remainder_added`).
 
-The open sub-sub-inputs of `RGasInput` (window bound of the removed histories, the small factor
+The open sub-sub-inputs of `RKeptGasInput` (window bound of the removed histories, the small factor
 (3.10″), the vacuum constants, ℬ′, the kept bounds) are listed in `notes/phase1/SPINE.md`, section
-"RInput sub-inputs". The three sub-inputs need the exemption of the seven inputs (rule 10), as `RInput`
+"RInput sub-inputs". The two sub-inputs need the exemption of the seven inputs (rule 10), as `RInput`
 does. -/
 
 @[expose] public section
@@ -287,39 +283,18 @@ def RVacuumInput : Prop :=
     ∃ rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
       (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk, VacuumTied rec
 
-/-- **A4-2a, the kept half of `R` (LFR Lemma III.10.5, Definition III.10.6, Theorem III.8.9 (a), (b);
-P7 (1.3)-(1.6)).** For `1 ≤ k ≤ k₀`, a member of `ℛ^pre_k` with (I.2) up to `k` and torus coherent
-has, on every torus, histories complete at `(k, k + 1)` (the outcome, removed or kept with a label,
-of every ripe component is recorded) and kept data for the step data of the input with the pinned
-exponents, the operator bound at `k + 1`, the budget, and torus coherent (`KeptOutput`). The new
-kept data are the bounds `ϰ₄`, `ϰ₅` of the kept outcomes (Lemma III.5.3 for the ripe components,
-Theorem III.8.9 (a), (b)) and the pin `κ_k = κ^pre_k`. -/
-def RKeptInput : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
-  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
-  ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
-  ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
-  ∀ k : ℕ, 1 ≤ k → k ≤ kZero d (T κ c₉).L β ν →
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
-  ∀ rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk,
-    ∃ lf₁ : ∀ (nK : ℕ) [NeZero nK], Rep 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
-      (sides (T κ c₉).L (kf + 1) nK) rec.R (kZero d (T κ c₉).L β ν) (kf + 1) (T κ c₉).M N
-      (rec.geo nK) rec.cs rec.P k,
-      (∀ (nK : ℕ) [NeZero nK],
-        IsComplete k (k + 1) (lf₁ nK).hist ∧ (lf₁ nK).SD = (rec.F.lf nK).SD) ∧
-      KeptOutput rec.hkK rec.F lf₁
-
-/-- **A4-2b, the gas half of `R` (LFR Theorem III.10.8 (b), (c), Lemma III.8.4; P7 (3.1)-(3.29);
-ruling R4).** For `1 ≤ k ≤ k₀`, a member `ρ` of `ℛ^pre_k` with (I.2) up to `k` and torus coherent, and
-kept data as in `RKeptInput`, there are new boundary terms `ℬ'`, a new remainder `ℛ''` and the density
-`ρ' = R ρ` (`GasOutput`): the ripe components that are removed are summed as a gas of removed clusters
-(the heavy objects), whose couplings are decorated by the removed members they meet,
-`b_X(S) = ℬ(X, 𝔸′ ∪ S) - ℬ̂(X; 𝔸′) + ℬ′_X(S)` (P7 (3.22)-(3.27)), and whose activities are bounded
-through the small factor (3.10″) of the removed operators (the window bound with the cancellation
-identity, the vacuum constants of the step data); the gas gives the new term `ℛ''_m` and the new
-boundary terms; `∫ R ρ = ∫ ρ`. -/
-def RGasInput : Prop :=
+/-- **A4-2ab, the kept half and the gas half of `R` (LFR Lemma III.10.5, Definition III.10.6,
+Theorem III.8.9 (a), (b), Theorem III.10.8 (b), (c), Lemma III.8.4; P7 (1.3)-(1.6), (3.1)-(3.29);
+ruling R4).** For `1 ≤ k ≤ k₀` and a vacuum tied record of a member `ρ` of `ℛ^pre_k` (I.2 up to `k`,
+torus coherent) there are, for the one output, the kept data `lf₁` (histories complete at
+`(k, k + 1)`, the step data of the input, `KeptOutput`: the pinned exponents, the operator bound at
+`k + 1`, the budget, torus coherence), the boundary terms `ℬ'`, the remainder `ℛ''` and the density
+`ρ' = R ρ` (`GasOutput`). The kept data are existentially quantified together with the gas data: the
+properties in `KeptOutput` are inequalities and do not determine the kept kernels, so the gas of removed
+clusters is asked of the kept data that the construction produces (the ripe components that are
+removed are summed as a gas, whose couplings are decorated by the removed members they meet,
+`b_X(S) = ℬ(X, 𝔸′ ∪ S) - ℬ̂(X; 𝔸′) + ℬ′_X(S)`, P7 (3.22)-(3.27); the small factor (3.10″); `∫ R ρ = ∫ ρ`). -/
+def RKeptGasInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
@@ -329,19 +304,19 @@ def RGasInput : Prop :=
   ∀ rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
       (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk,
   VacuumTied rec →
-  ∀ lf₁ : (∀ (nK : ℕ) [NeZero nK], Rep 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
+    ∃ (lf₁ : ∀ (nK : ℕ) [NeZero nK], Rep 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
       (sides (T κ c₉).L (kf + 1) nK) rec.R (kZero d (T κ c₉).L β ν) (kf + 1) (T κ c₉).M N
-      (rec.geo nK) rec.cs rec.P k),
-    (∀ (nK : ℕ) [NeZero nK],
-      IsComplete k (k + 1) (lf₁ nK).hist ∧ (lf₁ nK).SD = (rec.F.lf nK).SD) →
-    KeptOutput rec.hkK rec.F lf₁ →
-    ∃ (B' : ∀ (nK : ℕ) [NeZero nK], BTerms 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
+      (rec.geo nK) rec.cs rec.P k)
+      (B' : ∀ (nK : ℕ) [NeZero nK], BTerms 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
         (sides (T κ c₉).L (kf + 1) nK) rec.R (kZero d (T κ c₉).L β ν) (kf + 1) (T κ c₉).M N k)
       (Rpp : RemTerm d (T κ c₉).L (C7 κ c₉).m₁ k N)
       (ρ' : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]),
+      (∀ (nK : ℕ) [NeZero nK],
+        IsComplete k (k + 1) (lf₁ nK).hist ∧ (lf₁ nK).SD = (rec.F.lf nK).SD) ∧
+      KeptOutput rec.hkK rec.F lf₁ ∧
       GasOutput (hv := h) (rH := rH κ c₉) rec.hM6 rec.hkK rec.F rec.vc ρ ρ' lf₁ B' Rpp
 
-/-- **`RInput` from its three sub-inputs** (LFR Theorem III.10.8, Lemma III.8.4). The vacuum half
+/-- **`RInput` from its two sub-inputs** (LFR Theorem III.10.8, Lemma III.8.4). The vacuum half
 (`RVacuumInput`) gives a record of the same density with the vacuum constants of the flow. The kept half gives
 the large-field part `lf₁`, the gas half the boundary terms `ℬ'`, the remainder `ℛ''` and the
 density `ρ'`. The output family is `repFamPost`: its small-field data are `sf + ℛ''`, so `Coh`,
@@ -352,21 +327,16 @@ the form, (D7), the coherence and the integral are those of the gas half; `D4Pin
 `D6Budget` are those of the kept half (they do not read the boundary terms). The threshold is the
 larger of the two thresholds. -/
 theorem rInput_of_parts (hV : RVacuumInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hK : RKeptInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hG : RGasInput d N T P6 C7 PB cs₀ M1 c rH ϱ) : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ := by
+    (hG : RKeptGasInput d N T P6 C7 PB cs₀ M1 c rH ϱ) : RInput d N T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₀, hβ₀⟩ := hV κ hκ c₉ hc₉
-  obtain ⟨β₁, hβ₁⟩ := hK κ hκ c₉ hc₉
   obtain ⟨β₂, hβ₂⟩ := hG κ hκ c₉ hc₉
-  refine ⟨max β₀ (max β₁ β₂), fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ => ?_⟩
+  refine ⟨max β₀ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk hρ => ?_⟩
   obtain ⟨rec₀⟩ := preClassAt_iff.1 hρ
   obtain ⟨rec, hvac⟩ :=
     hβ₀ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec₀
-  obtain ⟨lf₁, hlf, hker⟩ :=
-    hβ₁ β (le_of_max_le_left (le_of_max_le_right hβ)) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
-  obtain ⟨B', Rpp, ρ', hRpp, hD8, hform, hbdry, hcoh, hint⟩ :=
-    hβ₂ β (le_of_max_le_right (le_of_max_le_right hβ)) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
-      hvac lf₁ hlf hker
+  obtain ⟨lf₁, B', Rpp, ρ', hlf, hker, hRpp, hD8, hform, hbdry, hcoh, hint⟩ :=
+    hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hvac
   refine ⟨ρ', ?_, hint⟩
   refine ⟨rec.hM6, rec.hkK, rec.R, rec.geo, rec.cs, rec.P, repFamPost rec.F lf₁ B' Rpp, rec.St,
     rec.vc, rec.geoTie, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,

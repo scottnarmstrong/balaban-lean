@@ -143,12 +143,13 @@ def ActAgree (d N L M kf : ℕ)
 
 /-- **The body of `FlatRep` with the scale of (I.2) and the last clause as parameters.** It is
 `FlatRep` with (I.2) asked up to a scale `r` (`RunningHypTo`) instead of `k`, and with the closing
-clause `νk ≤ 9/10` replaced by `X F.sf.ν`, a clause on the running masses of the representation.
+clause `νk ≤ 9/10` replaced by `X F.sf.β F.sf.ν F.sf.a`, a clause on the running couplings, masses and
+kernel constants of the representation.
 `FlatRep` is the case `r = k`, `X = (νk ≤ 9/10)`. The frozen step (`Spine/FrozenStep.lean`) states
 its small-field output with `r = k` at the scale `k + 1` and `X = (ν_k = the input mass)`. -/
 def FlatRepGen (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : BudgetConsts)
     (cs₀ : OpConsts) (M1 c : ℕ) (rH ϱ : ℝ) (β ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (kf k r : ℕ)
-    (X : (ℕ → ℝ) → Prop)
+    (X : (ℕ → ℝ) → (ℕ → ℝ) → (ℕ → ℝ) → Prop)
     [NeZero T.M] [NeZero T.L] (hM6 : T.M = T.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ kf + 1)
     (R : ℕ → ℝ)
     (geo : ∀ (nK : ℕ) [NeZero nK], Geo 𝒮[d, T, β, cs₀.aKer] (sides T.L (kf + 1) nK) R T.M)
@@ -162,7 +163,7 @@ def FlatRepGen (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : 
     IsRepFlat2 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P P6 C7 β ν h rH k
       kf hM6 hkK F ρ St vc ∧
     F.sf.β 0 = β ∧ F.sf.ν 0 = ν ∧ F.sf.ν k = νk ∧
-    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r ∧ LFCoherent F ∧ X F.sf.ν
+    RunningHypTo d T.L β ν cs₀.aKer (1 / 20) F.sf.β F.sf.ν r ∧ LFCoherent F ∧ X F.sf.β F.sf.ν F.sf.a
 
 /-- **The body of `FlatClassAt` for given witnesses** `hM6, hkK, R, geo, cs, P, F, St, vc`: the
 representation `F` of `ρ` in `ℛ♭_k` (`IsRepFlat2`, horizon `k̂ = kf`) on the tori of the horizon
@@ -183,7 +184,7 @@ def FlatRep (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB : Bud
     (F : RepFam 𝒮[d, T, β, cs₀.aKer] R (kZero d T.L β ν) (kf + 1) T.M N geo cs P k C7.m₁ ϱ)
     (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ k N) (vc : CorrCoef d)
     (ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]) (νk : ℝ) : Prop :=
-  FlatRepGen d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ => νk ≤ 9 / 10) hM6 hkK R geo cs P F
+  FlatRepGen d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k k (fun _ _ _ => νk ≤ 9 / 10) hM6 hkK R geo cs P F
     St vc ρ νk
 
 /-- **The vacuum flow up to a scale** (P4 (2.1), (2.41), (2.63); rulings R5, R5′): the scale-indexed
