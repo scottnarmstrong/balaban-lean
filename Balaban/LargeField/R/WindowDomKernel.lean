@@ -59,6 +59,14 @@ theorem stepKernel_ne_zero_domain (g : Geo S n R M) (cs : OpConsts) {κs : ℕ �
   exact quietKernel_ne_zero_domain g (H.locRH (k + 1) Z') k Z'.1 (locComp_mem H hk Z') hk cs
     (locRH_rem (k + 1) Z') o x hv h
 
+/-- A nonzero kernel value has a nonzero weight, for every external field. -/
+theorem absW_ne_zero_of_K_ne_zero {O X H ι : Type*} [MeasurableSpace O] [MeasurableSpace X]
+    [Fintype ι] (T : LFKernel O X H ι) {o : O} {x : X} {h : H} (hK : T.K o x h ≠ 0)
+    (g : ι → ℂ) : T.absW o x h g ≠ 0 := by
+  unfold LFKernel.absW
+  refine (ENNReal.ofReal_pos.2 (mul_pos ?_ (Real.exp_pos _))).ne'
+  exact lt_of_le_of_ne (T.K_nonneg o x h) (Ne.symm hK)
+
 /-- A nonzero weight of a step kernel is a nonzero kernel value. -/
 theorem kernel_ne_zero_of_absW_ne_zero {κs : ℕ → LocalHistory S n M K → ℝ} {g : Geo S n R M}
     {cs : OpConsts} (SD : StepData k0 g cs N κs) (k : ℕ) (a : LocalHistory S n M K)
@@ -212,8 +220,8 @@ theorem window_pieces_inUnionDomainR (geo : Geo S n R M) (cs : OpConsts)
     (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
     (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
       (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
-    (hv : EuclideanSpace ℝ (Fin N)) (gg : GIdx S n M K N → ℂ)
-    (hne : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.absW o x hv gg ≠ 0)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
     (jf : (Option (Σ j : ↥(Finset.Ico (S.k1 (m' + 1)) m'),
       Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) → ℕ)
     (cf : ∀ i, H.Comp (jf i + 1))
@@ -247,7 +255,8 @@ theorem window_pieces_inUnionDomainR (geo : Geo S n R M) (cs : OpConsts)
   exact stepKernel_ne_zero_domain geo cs SD hH (hjK i) (cf i)
     (isQuiet_of_ripeWindow hW (hjf i).1 (hjf i).2 (hjK i) (cf i) (mem_ancFin.mp (hcf i))) (ou i)
     (xu i) hv
-    (window_pieces_kernel_ne_zero geo cs SD KD hW.k1_le_sub_one hm hq ρ hρ o x hv gg hne jf cf hfam
+    (window_pieces_kernel_ne_zero geo cs SD KD hW.k1_le_sub_one hm hq ρ hρ o x hv 0
+      (absW_ne_zero_of_K_ne_zero _ hK 0) jf cf hfam
       ou xu hou0 hxu0 hou1 hxu1 i)
 
 end First
