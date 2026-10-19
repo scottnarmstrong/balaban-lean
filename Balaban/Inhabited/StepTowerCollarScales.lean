@@ -110,7 +110,6 @@ theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) 
       Q * ε (k + 1) := by
     rw [hQdef, composedCloseBound_smul d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d * ε (k + 1)),
       composedCloseBound_smul d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)]
-    push_cast
     ring
   have hδ₃le : Q * ε (k + 1) ≤ l * δ₃ := by rw [← hδeq]; exact hCs.close
   -- the fluctuation radius `δ₁ = min(t_k, η ε_k)` and `δ_fl = F δ₁`
@@ -121,7 +120,7 @@ theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) 
   have hfleq : (N : ℝ) * (5 * (cK2' d L N (famConst d L T₀.BG₂ T₀.κ) *
       min (ε (k + 1)) (η * ε k)) + min (ε (k + 1)) (η * ε k)) =
       F * min (ε (k + 1)) (η * ε k) := by
-    rw [hFdef]; push_cast; ring
+    rw [hFdef]; ring
   rw [hfleq] at hFk
   have hroom := room_of_radii (t := ε (k + 1)) (δ₃ := Q * ε (k + 1))
     (δ₁ := min (ε (k + 1)) (η * ε k)) (δfl := F * min (ε (k + 1)) (η * ε k)) hε hK.le hQ hF.le
