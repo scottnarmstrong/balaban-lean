@@ -41,7 +41,7 @@ mathematics: the first renormalization step (blockers 1, 2), old boundary terms 
 shrinking source radius (blocker 2), the small factor of the removed large-field operators (blocker 4), exact
 agreement on two tori at the last scale (blocker 7), the coupling across large-field cells at the last scale
 (blocker 5), and the case with no renormalization step (blocker 1). The rest is engineering, led by extending the
-step chain from d = L = 3, N = 2 to general d and N. At the present pace this is roughly 30 rounds of work.
+step chain from d = L = 3, N = 2 to general d and N. At the present pace this is roughly 30 rounds of work. Re-estimated on 19 October (evening): about 14,000 lines landed that day, most of it the extension to general d and N; the part that recomputes the new terms on the local generating set of each polymer turned out about 5,700 lines larger than planned, because the step chain proves that its coefficients exist without giving them by a formula. The net estimate is about 47,000 lines still to write.
 
 | Input | Content (source) | Status |
 |---|---|---|

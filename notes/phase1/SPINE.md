@@ -202,9 +202,10 @@ domain, so its proofs survive the change.
      * (H6′)^pre by LF-2 (i): `Rep.budgetPre_of_LF2`. Its `BudgetSetup.run` asks (I.2) at every scale (item 4 (c));
      * a non-quiet kernel exists only at `k = 0` (R7 `Kphys`).
    * Open:
-     * (a) R8 (W1141: `Tr.Reads` for `canon` proved; (A1)–(A5) still open — f is not definable from the existential `e`; needs the chain's assembly layers at `Gb`, marks, inherited terms (c); the K_loc chart of (A3) is a risk for the inherited part: the restricted datum has radius (1+(2K₁+1)C₁)ε ≥ 4ε, and 4ε_{k+1} > ε_k): the generic `decMarkG`, `decMarkCorr(Term)`, `e1MarkGParamG`, `DetExpansionLocC`, `DirectTerms`, `physParam`/`physV`
-       with an explicit background generating set (not started). With them, (A1)–(A5) of `newLabels_castInputs_of_localFamily`:
-       the new level's terms on the local charts of `𝔹_{k+1}(Y⁺(T′))`.
+     * (a) R8: the generic objects are landed (W1129, W1138, W1139, `Tr.Reads` for `canon` W1141). (A1)–(A5) of
+       `newLabels_castInputs_of_localFamily` (the new level's terms on the local charts of `𝔹_{k+1}(Y⁺(T′))`): route R-LOC, section
+       "A4-1b (iii)" below (W1144): the chain returns its family as the formula `newLevelCoeffBg` (base layer proved), the recomputed family
+       is the formula on `Gb(T′)`; the radius loss of the read datum is real but enters only identities.
      * (b) The castG gap: CLOSED by W1141 (cores for an arbitrary generating set in LocalPairIndexMatch/LevelInner/Depth/HatLift/Collar/LocalClassTau/LatTau/LocalGeneratorRestriction; `LocalPairCast.lean`). Was: W1084's local pieces live on the literal `localB` at `minSep` on the step torus, while the cast theorem
        reads `castG hc (localB …)` on `(N₁′, m₁ + 4)`. Missing: castG versions of `LocalPairDepth`, `LocalPairLevelInner`,
        `localHatLift_eq_hatPsiF_localB`, `localB_collar_margin`, `localB_tauExt_*`.
@@ -365,8 +366,9 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    `e0CoeffFamily_class_fromTower_of_irrelBounds_X`, `newLabels_castInputs_of_localFamily`, `tower_E0_closure_agree`), `localClass_termClausesE/M`.
    Bridges (not landed): (i) the conjunction ⇒ `SFTermClauses` of `newLevelTerms` (the levels `≤ k` are trivial; at the top level
    `birthXiDom` is `completeXiDom`, `birthXiDom_dom_self`), ~150; (ii) `StepTower` (3, 3, 2) ⇒ `StepTowerG d L N` (open (f) of A4-1),
-   `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) R8 generic objects (open (a)); (iv) the castG gap (open (b)); (v) `TorusIndep` of the new
-   level of a general class (only the core family is two-torus exact, W1089/W1090). ~3000.
+   `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) (A1)–(A5) on the local sets: route R-LOC (section "A4-1b (iii)", W1144; ~7,000);
+   (iv) the castG gap (closed, W1141); (v) `TorusIndep` of the new level of a general class (only the core family is two-torus exact,
+   W1089/W1090; after R-LOC L2 it is the two-torus agreement of the objects of `NewLevelFormula`). ~8,850.
 3. **A4-1c `SFRenormInput`** (P4 (4.14)–(4.22), (5.28), (H.5), (H.6)). `CoeffBounds (k+1)` and `RenormCond (k+1)` of `Φ sf`.
    Landed: `rg_step_infty` (general), `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at` (3, 3, 2). Bridges: (H.6) at `k + 1`
    from (H.6) at `k` and the bound of `ξ^{(k)}` (the flow is extended by one entry; ~150, not landed); (H.5) for the renormalized new level,
@@ -406,6 +408,84 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
 analogue (`FrozenSFStepInput`) ties `β, ν, a` (W1121) but not the flow, and `FlatClassAt` carries no flow. (iii) The duplicates of private
 lemmas of `Base/BasePhysicalDensity.lean` (`integral_gaussT`, `baseKernel_smul_integral`, the Fubini core) are special cases of
 `integral_gaussT_left`, `integral_prod_gaussT_smul`, `integral_stepKernel_mul`; the base file can be re-based on them.
+
+## A4-1b (iii): the new level on the local generating sets (W1144)
+
+Target: a family `f z T′` with (A1)–(A5) of `newLabels_castInputs_of_localFamily` (`Inhabited/StepTowerLocalChart.lean`) on the local sets
+`Gb(T′) = castG hc (localB (k+1) … (Yp Y⁺(T′)) hsep)` (`Yp` the collar of width `2L^{k+1+m₁′}`, `m₁′ = m₁ + 4`),
+`Y⁺(T′) = sitesOf (piHull m₀ (thickSet S.G' (sitesOf T′)))`.
+
+**(B4) Verdict: the radius loss of the read datum is real, and no clause pays it.**
+* Radii. Class chart `ε_{k+1}`; chain step radius `t = λε_{k+1}` with the room `t + K₂Qt + K₂F·min(t, ηλε_k) ≤ ε_j` (`…_classEps_ren_rot`). At
+  `Gb(T′)`: (A1), (A2), (A4) on the local chart of radius `ε_{k+1}`; (A3) on the local chart of radius `K_loc ε_{k+1}`, `K_loc = (2K₁+2)C₁`;
+  (A5) at the data of the step chart of radius `ε_{k+1}`, whose datum read on `Gb` (`BgTransport.canon … .gdat`) lies in the local chart at
+  `K_loc ε_{k+1}` (`castG_canon_gdat_xiCData_of_xiCData`, **proved**: `Ξ^c(S.G';1,ε) ⊆ Ψ̃^c(C₁ε, C₁ε)`, restriction to `Gb`, backgrounds
+  recomputed on `Gb` at `ε + (2K₁+1)δ`).
+* The loss is real: there is no inclusion at `(1 + o(1))ε`. `Ξ^c(Gb;1,ε′)` contains `collarBond`, `|Ψ(z) − Ψ(z′)| < ε′` for adjacent collar
+  sites of `Gb` (real datum; the same for the displacement `Ψ″`), and on the layers `n ≤ k` of `Gb` the bounds `ε′/L^n`, `ε′/L^{2n}` on the
+  gradient and Laplacian of a background whose `n`-block data are the step's `(k+1)`-block values. The step chart (a level set: no collar)
+  bounds adjacent block values only through `close` (`|Ψ − Qφ| < ε` per block) and `grad` (`|Qφ(B) − Qφ(B′)| < ε`). A checkerboard datum
+  `Ψ₀(B) = φ₀ ± ρεu` (`u ⊥ φ₀`, `ρ < 1`), whose background follows the checkerboard with the ratio `r = a/(a + O(d)) ≈ 0.1`, meets `grad`,
+  `lap`, `close` at radius `ε` (hand estimate, not formalized: it needs the background of an explicit datum) and has adjacent block values
+  `2ρε` apart; where a collar line of `Gb` crosses a block face, the read datum violates `collarBond` unless `ε′ > 2ρε`. So `ε′ ≥ 2ε(1 − o(1))`
+  is necessary; the landed `K_loc ε` is sufficient. At `d = L = 3`, `q = ε_{k+1}/ε_k = 3^{−(1/2−γ)} > 0.577`, so even `2t > ε_k`: the chain
+  cannot run at the read datum's radius (W1141's risk confirmed). (At `L = 7`, `q ≥ 0.378`; whether the true loss fits is open and irrelevant.)
+* The source (P3 p. 79): the recomputed term is analytic on `Ξ^c_{k+1}(𝔹_{k+1}(Y);1,ε′)` (4.46) "with `ε′, δ₁` as discussed in connection with
+  Lemma 4.2" — the local chart of the step's radius `ε′ ≤ ε_{k+1}`, under the same condition (4.37) `ε′ + (K₂+1)δ₃ ≤ ε_k` — and it equals the
+  step's term as a function "depending on `θ, ψ′` restricted to `Y₁`" (pp. 78–79). The source never maps the step chart into the local chart.
+* Why it costs nothing. No clause asks the read datum in the analyticity chart. (A1), (A2), (A4) are on the local chart of radius `ε_{k+1}`,
+  where Lemma 4.2 at `Gb` has the step's room (`K₂ = xiK2 d L N` does not depend on the generating set). (A3) and (A5) are identities whose
+  hypotheses are smallness conditions of `K_loc ε_{k+1}` against absolute constants (`FlCore`, `decDomMargin`, the coercivity margin,
+  `C₁ε ≤ c₇`, `(3+K₄)C₁ε < 1/2`, `δ₀ ≥ 2K₄C₁ε`): the landed `coef_eTermFun_replacement_localB_restrict` is proved at `ε″ ≥ (2K₁+2)C₁ε′` with
+  exactly these, and so are `detActivityBg_cross` and `newLevelDetBg_castG_canon` (L1′). Consequences: (i) the objects recomputed on `Gb`
+  are gated and pinned at a radius `r_gate ≥ K_loc ε_{k+1}`, decoupled from the analyticity radius; (ii) the formula takes the activities as
+  functions (`newLevelCoeffBg`), so it has a value at the read datum even where the bound of a `LabelAct` fails, the bundled `LabelAct`
+  being formed only on the analyticity chart; (iii) A1′ gains the absolute smallness `K_loc ε₁ ≤ ε_*` (the provider's `α₀`).
+
+**(B1) Route R-LOC: the chain's family as a formula, recomputed on `Gb`.** A family given only existentially cannot be recomputed, and the
+chain's clauses do not determine it (W1076). R-LOC makes the chain return `e = newLevelCoeffBg S.G' …` on the step chart (determinant part
+`newLevelDetBg` plus the interpolation coefficient of the marked cluster expansion, P3 (4.41)–(4.47), P4 (2.56)), and sets
+`f z T′ p := newLevelCoeffBg (Gb(T′)) … (π_b (clipRaw Gb(T′) p), 0) T′` with the objects recomputed on `Gb(T′)` (R8's generic objects at
+`Tr = canon`, gates at `r_gate`) and `π_b` a continuous linear projection onto `rawSub Gb` (as `π` of the step). (A5) is then the replacement
+identity term by term: `newLevelCoeffBg_eq_of_agree` reduces it to the determinant part (proved, L1′), the activities on the labels whose cubes
+lie in `T′` and the marks on the anchors inside `T′` (L3). (A1)–(A4) are Lemma 4.2 at `Gb` (L4).
+
+| layer | content | status | rem |
+|---|---|---|--:|
+| L1 | `newLevelDetBg`, `newLevelCoeffBg` (generic in `Gb`, activities as functions), `gsumCoeff_eq_integral_of_agree`, `newLevelCoeffBg_eq_of_agree`; the base of the class chain returns its family as the formula, with the pins of the decoupling pairs `F₁`, `Sol` of the marks: `StepTowerG.e0CoeffFamily_class_agree_rot_formula` (`e = newLevelDetBg S.G' … (S.blockU z) + c` on `physV`, `c` the landed `gsumCoeff` formula; the landed `…_agree_rot` is its corollary) | **P** (`Fluctuation/NewLevelCoeffBg.lean`, `Inhabited/StepTowerRotClass.lean`) | 0 |
+| L1′ | (B4) `castG_canon_gdat_xiCData_of_xiCData`, `canon_gdat_eq_of_mem_one`; determinant half of (A5): `newLevelDetBg_cross`, `newLevelDetBg_castG_canon` (margin `8L^{k+1+m₁}` from the collar `2L^{k+1+m₁+4}`) | **P** (`Inhabited/NewLevelCoeffBgCast.lean`) | 0 |
+| L1″ | (B3) the determinant part on `Gb` without `HatConn`: `newLevelDetBg_analyticOnNhd` (on `physVBg`), `norm_newLevelDetBg_le_of_avoid`, `newLevelDetBg_ne_zero_imp_of_avoid`, `newLevelDetBg_eq_of_agree`, `newLevelDetBg_rot` | **P** (`Fluctuation/NewLevelDetBgClauses.lean`) | 0 |
+| L2 | forward the formula to the endpoint. (a) **P**: `StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula` (RotLabels, as L1); (b) expose the zero-source family (`I` the direct terms, `A₀ = zeroSourceAct A 2`, `Lab₀ = thickLabels I.𝒴 I.dom`, the equation `hAeq` of `A`) through `zeroSourceActivity_common_agree_rot`, `zeroSourceFamily_fields_agree_rot`; (c) one definition `NewLevelFormula S C z Jr e` (∃ the internal objects with their pins and defining equations, and `∀ θ ∈ physV, e θ = newLevelCoeffBg S.G' … θ`), proved at the Families layer, added to the premises of `hΦ` and carried through Red, Collar{Core,X,Base,Struct,Step,Uniform,Class}, `…_ren_phi`, `…_ren_rot` (as W1083 carried the covariance); (d) the Collar core's equation of `Eτ` (the old term of `τ` from `C.Tm`) inside `NewLevelFormula` | (a) P, rest O | 1,600 |
+| L3 | replacement of each object at `(Gb(T′), canon)` against `(S.G', self)` at the read datum: zero-source activity (`zeroSourceTerm_localB_hat` as a core over a general `Gl`, as W1141 did for the LocalPair files), old-term activities `AC` and marks `G₁` (`coef_eTermFun_replacement_localB(_marked)` at castG sets), bridge marks (`decMarkGBg … canon` against `decMarkG`, mask `maskPre`); (A5) assembled by `newLevelCoeffBg_eq_of_agree` | O | 1,100 |
+| L4 | clauses of `newLevelCoeffBg (Gb(T′))` on the local chart: `ParamMarkFamily` over `physVBg Gb` (bundled `LabelAct` on the chart of radius `ε_{k+1}`); Lemma 4.2 at `Gb` (`BgSetting N Gb (Gk τ) (Gj τ)`, `FlSetting` at castG sets from `flCore_castG_localB`, the composed data in the old terms' domains: the premise `hchart` of the chain, open item (d), at `Gb`); the bridge marks' `hloc/hcau/hJ2/hJ4` at `Gb` (R8-AUDIT D2: per label inside the top layer); (A3) Gb-vs-Gb locality on the `K_loc` chart, which needs `Gst_congr` with a `DepOn` hypothesis in place of the bundled activity (a core in `Polymer/MarkedCubesLocal.lean`, landed statement its instance; low in the import graph: a large rebuild); (A4) covariance at `Gb` | O | 3,800 |
+| L5 | `f`, `π_b`, the inputs (A1)–(A5), then `localClass_newLevel_of_expansion_cast` | O | 300 |
+
+Specification of L2 (c), for L3: at the Families layer `e = newLevelDetBg S.G' … (S.blockU z) + gsumCoeff μ Lab (A ·) y0 G` with
+`Lab = Lab₀.sum (commonLabels (thickLabels 𝒴C) …)`, `A θ u = commonAct AC (A₀ …) θ u`, `y0 = Sum.elim (commonAnchor …) y1′`,
+`G θ = Sum.elim (e1MarkGParamG S (F₁ (z, ·)) (Sol (z, ·)) p₁ hp z t θ) (G₁ θ)`. A structure `NewLevelSystem S C z` with these objects as fields and,
+as proof fields, what L3 reads: the pins of `F₁`, `Sol` (now returned by L1/L2 (a)), of `F₁L`, `SolL`, `FkL` (inputs of Families), the equations
+`hH` of the thick activities (`(AC θ u).H Y = H θ Y u` on `physV`) and `hG₁` of the old marks, the zero-source equation from (b), and the equation
+of `Eτ` from (d); `NewLevelFormula S C z Jr e := ∃ Σ : NewLevelSystem S C z, ∀ θ ∈ physV, ∀ T′, e θ T′ = Σ.coeff θ T′` (rule 10: inhabited by
+the chain itself, which constructs a system at every admissible parameter).
+
+Order: L2 (b) and L3 are independent (Sonnet); L4 needs L3's objects (Opus: Lemma 4.2 at `Gb`); L2 (c)–(d) after (b); L5 last. Remaining
+≈ 6,800 (SPINE-PLAN's 1,300 for (iii) assumed `e` recomputable from the chain's statement). No landed definition changes: the R8 objects take
+the gate radius as a parameter, and `DetExpansionLocCBg` (indexed by the step's datum) is not used for `f`, whose determinant part is
+`newLevelDetBg` on `Gb`'s parameter. No ruling is requested.
+
+**(B3).** `exists_detExpansionLocCBg_of_chart` needs `HatConn Gb`, false for local sets; `f` does not use it. L1″ proves the determinant clauses
+on `Gb` from W1084's per-polymer forms (`norm_detActivityBg_le_of_avoid`, `detActivityBg_ne_zero_imp_of_avoid`, `detActivityBg_eq_of_agree_core`)
+for polymers avoiding the layer 1 of `Gb` (a label `T′` lies in the top layer `k + 1 ≥ 2` of `Gb(T′)`) and from
+`exists_analytic_detActivityBg_raw` (no `HatConn`). The bound is the step's (`|Zb| ≤ L^d`), so `b z T′` of (A2) is the chain's.
+
+**(B2).** The coefficient is `dz + gsumCoeff(commonAct(A₀, AC), (bridge marks, G₁))`; `AC`, `G₁` are built from the inherited terms `Eτ`, and
+the cluster expansion is not additive in the activities, so there is no "new-level part alone" (such as the zero-class core `e0`) for which
+(A1)–(A5) would suffice: they are statements about the whole formula, `AC^{Gb}`, `G₁^{Gb}` included. Of the inherited pieces they need only the
+generic definitions on `Gb` (R8: `evDecBg`, `FFmarkedBg`, `decMarkGBg`), the replacement at matched data (L3) and Lemma 4.2 at `Gb` (L4), not
+their two-torus agreement. A4-1f needs that other property, and with L2 it becomes the two-torus agreement of each object of
+`NewLevelFormula` (W1090's obstruction "the chain's `e` is not a core family" disappears with the formula): `AC`, `G₁` agree on two tori where
+the inherited terms do (D8 of the inherited levels, `liftOldTermsFam_M_eq_of_d8`) and `evDec`, `decSol` do (W1089: `decSol_value_twoTorus`,
+`explicit_evDec_of_core`). So A4-1f lands nothing that (A1)–(A5) need; both need L2; A4-1f after L2 ≈ 700.
 
 ## LFStepInput sub-inputs (W1136)
 
