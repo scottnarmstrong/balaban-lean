@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.History.OmegaPost
 public import Balaban.Fluctuation.SizeModCore
+public import Balaban.Fluctuation.DjModFin
 public import Balaban.Localization.CubeAligned
 
 /-!
@@ -54,10 +55,11 @@ proved:
 
 `d7SizeAt` is the real value; `(⊤ : ENNReal).toReal = 0`, so a bound stated with it is only
 meaningful where `d7SizeAtE ≠ ⊤`.  `FineValidAt` is the condition under which the bounds of (D7)
-are stated: `X_f ∈ 𝒟_k(mod Ω_f^c)` in the sense of the fluctuation step (`Fluctuation.DjMod`: a
-nonempty nearest-neighbour connected union of `π'_k`-cubes containing or missing every
-nearest-neighbour component of `Ω_f^c`) and `d7SizeAtE ≠ ⊤` (the second follows from the first,
-`fineValidAt_iff`).  `bdryDomsAt F k Ω Z` is the set of the boundary domains of a record: the
+are stated (ruling R11): `X_f` is a label of `Fluctuation.DjModFin` at `Ω_f`: nonempty,
+nearest-neighbour connected, containing or missing every nearest-neighbour component of `Ω_f^c`,
+and of finite modular size `d7SizeAtE ≠ ⊤`, so that the sites of `X_f ∩ Ω_f` lie in `π'_k`-cubes
+inside `X_f`; the sites of the holes need not.  The labels of the former class
+(`Fluctuation.DjMod`, a union of `π'_k`-cubes at every site) are valid, `fineValidAt_of_djMod`.  `bdryDomsAt F k Ω Z` is the set of the boundary domains of a record: the
 domains `X ∈ 𝒟_k(mod Ω^c)` at cube level (`bdryDoms`) meeting `Z` and its complement that are
 valid.  Each record has a clause `support`: the boundary terms vanish at the cube-level boundary
 domains that are not valid (the papers index the boundary terms by `𝒟_k(mod Ω^c_k)`; the
@@ -74,14 +76,15 @@ recovered from a bound in `dCovMod`.
 `Ω_k^pre ⊆ Ω_k^post` (`RegionHistory.OmegaCube_subset_omegaPost`) and `Z_k ⊆ Z^pre_k`
 (`RegionHistory.Z_subset_Zpre`).  The following are proved here.
 
-* *Labels.*  `𝒟_k(mod Ω^c)` is nondecreasing in `Ω`, at cube level (`dmodOmega_mono`) and for the
-  fine sets (`djMod_mono_region`).  Hence a valid label before `R` is a valid label after `R`
-  (`fineValid_of_fineValidPre`), `bdryDomsPre F 𝔸 k Z ⊆ bdryDomsPost F 𝔸 k Z` for the same `Z`
-  (`bdryDomsPre_subset_bdryDomsPost`), and a boundary domain of `IsRep^pre_k` (region `Z^pre_k`)
-  that meets `Z_k` is a boundary domain of `IsRep_k` (`mem_bdryDomsPost_of_mem_bdryDomsPre`).  The
-  converse inclusions do not follow from the definitions: a domain of `𝒟_k(mod (Ω_k^post)^c)` may
-  contain a part of a removed component and miss the rest, and a boundary domain before `R` that
-  meets only removed components is not one after `R`.
+* *Labels.*  `𝒟_k(mod Ω^c)` is nondecreasing in `Ω`, at cube level (`dmodOmega_mono`).  A valid
+  label before `R` that avoids the removed components is a valid label after `R`
+  (`fineValid_of_fineValidPre_of_disjoint`; under R11 validity is monotone in the region only along
+  regions that add no site of the label, `fineValidAt_mono_of_inter`), and a boundary domain of
+  `IsRep^pre_k` (region `Z^pre_k`) that avoids the removed components and meets `Z_k` is a boundary
+  domain of `IsRep_k` (`mem_bdryDomsPost_of_mem_bdryDomsPre`).  The converse inclusions do not
+  follow from the definitions: a domain of `𝒟_k(mod (Ω_k^post)^c)` may contain a part of a removed
+  component and miss the rest, and a boundary domain before `R` that meets only removed components
+  is not one after `R`.
 * *Sizes.*  The fine size is nondecreasing in `Ω` (`dcovModE_mono_region`: a cover of `X ∩ Ω'`
   covers `X ∩ Ω` for `Ω ⊆ Ω'`; no such lemma was landed in `Fluctuation/SizeMod*`).  Hence
   `d7SizePreE ≤ d7SizeE` (`d7SizePreE_le_d7SizeE`), `d7SizePre ≤ d7Size` where the latter is
@@ -284,6 +287,39 @@ theorem djMod_mono_region {Ω Ω' X : Set (Localization.CTorus d L N₁ m₁ K)}
   · exact Or.inl ((omegaComp_anti_region h z).trans h1)
   · exact Or.inr (Set.disjoint_of_subset_left (omegaComp_anti_region h z) h1)
 
+/-- The modular size is unchanged under a change of the region that keeps the traces on `X`: a
+pair admissible for `Ω` is admissible for `Ω'`. -/
+theorem modAdmissible_congr_inter {Ω Ω' X 𝒦 : Set (Localization.CTorus d L N₁ m₁ K)}
+    {W : Finset (Localization.CTorus d L N₁ m₁ K)}
+    {E : Finset (Localization.CTorus d L N₁ m₁ K × Localization.CTorus d L N₁ m₁ K)}
+    (h : X ∩ Ω = X ∩ Ω') (hE : Fluctuation.ModAdmissible m₀ j Ω X 𝒦 W E) :
+    Fluctuation.ModAdmissible m₀ j Ω' X 𝒦 W E :=
+  ⟨hE.1, h ▸ hE.2.1, hE.2.2⟩
+
+/-- **The modular covering size `d^cov_j(X mod Ω^c)` depends on `Ω` only through `X ∩ Ω`** (the
+cover clause of `ModAdmissible` is `X ∩ Ω ⊆ ⋃ boxes`, every other clause is about `X`). -/
+theorem dcovModE_congr_inter {Ω Ω' X : Set (Localization.CTorus d L N₁ m₁ K)}
+    (h : X ∩ Ω = X ∩ Ω') : Fluctuation.dcovModE m₀ j Ω X = Fluctuation.dcovModE m₀ j Ω' X := by
+  refine le_antisymm ?_ ?_
+  · refine le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E => le_iInf fun hE => ?_
+    exact Fluctuation.dcovModE_le_of_admissible (modAdmissible_congr_inter h.symm hE)
+  · refine le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E => le_iInf fun hE => ?_
+    exact Fluctuation.dcovModE_le_of_admissible (modAdmissible_congr_inter h hE)
+
+/-- **`DjModFin` moves to a larger region that adds no site of `X`**: for `Ω ⊆ Ω'` with
+`X ∩ Ω' = X ∩ Ω`, a label of `DjModFin` at `Ω` is a label at `Ω'`.  (Without the trace condition it
+fails: a site of `X ∩ (Ω' ∖ Ω)` need not lie in a `π'_j`-cube inside `X`.) -/
+theorem djModFin_mono_region_of_inter {Ω Ω' X : Set (Localization.CTorus d L N₁ m₁ K)}
+    (h : Ω ⊆ Ω') (hX : X ∩ Ω' = X ∩ Ω) (hD : Fluctuation.DjModFin m₀ j Ω X) :
+    Fluctuation.DjModFin m₀ j Ω' X := by
+  refine ⟨hD.1, hD.2.1, fun z hz => ?_, ?_⟩
+  · have hz' : z ∈ Ωᶜ := fun h' => hz (h h')
+    rcases hD.2.2.1 z hz' with h1 | h1
+    · exact Or.inl ((omegaComp_anti_region h z).trans h1)
+    · exact Or.inr (Set.disjoint_of_subset_left (omegaComp_anti_region h z) h1)
+  · rw [dcovModE_congr_inter hX]
+    exact hD.2.2.2
+
 end Mono
 
 /-! ### The size and the valid labels at a region -/
@@ -308,13 +344,14 @@ noncomputable def d7SizeAt (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ) (Om :
     (X : Finset (Torus S.d (n k))) : ℝ :=
   (d7SizeAtE F k Om X).toReal
 
-/-- **The valid labels at a region `Ω`**: the fine set of `X` belongs to `𝒟_k(mod Ω_f^c)` in the
-sense of the fluctuation step (`Fluctuation.DjMod`) and its size is finite.  (The second clause
-follows from the first, `fineValidAt_iff`.) -/
+/-- **The valid labels at a region `Ω`** (ruling R11): the fine set of `X` belongs to `DjModFin`
+at the fine set of `Ω`: nonempty, nearest-neighbour connected, containing or missing every
+component of `Ω_f^c`, of finite modular size.  The sites of `X ∩ Ω` then lie in `π'_k`-cubes
+contained in `X` (`Fluctuation.DjModFin.exists_box`); the sites of the holes need not.  The labels
+of the landed class `Fluctuation.DjMod` are valid (`fineValidAt_of_djMod`). -/
 def FineValidAt (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ) (Om : Set (Torus S.d (n k)))
     (X : Finset (Torus S.d (n k))) : Prop :=
-  Fluctuation.DjMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) ∧
-    d7SizeAtE F k Om X ≠ ⊤
+  Fluctuation.DjModFin m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k))))
 
 open Classical in
 /-- **The boundary domains at a region `Ω` with valid fine set**: the domains
@@ -343,17 +380,15 @@ theorem d7SizeAtE_ne_top_of_isDj [NeZero S.L]
     d7SizeAtE F k Om X ≠ ⊤ :=
   Fluctuation.dcovModE_ne_top_of_IsDj h
 
-/-- A domain whose fine set belongs to `𝒟_k(mod Ω_f^c)` is a valid label: the finiteness of the
-size follows. -/
+/-- A domain whose fine set belongs to `𝒟_k(mod Ω_f^c)` is a valid label. -/
 theorem fineValidAt_of_djMod [NeZero S.L]
     (h : Fluctuation.DjMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k))))) :
     FineValidAt F k Om X :=
-  ⟨h, d7SizeAtE_ne_top_of_isDj h.1⟩
+  h.djModFin
 
-theorem fineValidAt_iff [NeZero S.L] :
-    FineValidAt F k Om X ↔
-      Fluctuation.DjMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) :=
-  ⟨fun h => h.1, fineValidAt_of_djMod⟩
+/-- The size of a valid label is finite. -/
+theorem FineValidAt.d7SizeAtE_ne_top [NeZero S.L] (h : FineValidAt F k Om X) : d7SizeAtE F k Om X ≠ ⊤ :=
+  h.2.2.2
 
 /-- **The fine size is nondecreasing in the region.** -/
 theorem d7SizeAtE_mono (h : Om ⊆ Om') (X : Finset (Torus S.d (n k))) :
@@ -364,10 +399,13 @@ theorem d7SizeAt_mono (h : Om ⊆ Om') (hfin : d7SizeAtE F k Om' X ≠ ⊤) :
     d7SizeAt F k Om X ≤ d7SizeAt F k Om' X :=
   ENNReal.toReal_mono hfin (d7SizeAtE_mono h X)
 
-/-- **The valid labels are nondecreasing in the region.** -/
-theorem fineValidAt_mono [NeZero S.L] (h : Om ⊆ Om') (hX : FineValidAt F k Om X) :
-    FineValidAt F k Om' X :=
-  fineValidAt_of_djMod (djMod_mono_region (d7Pull_mono F k h) hX.1)
+/-- **The valid labels move to a larger region that adds no site of `X`** (ruling R11: validity is
+monotone in the region only along regions whose new sites miss the label). -/
+theorem fineValidAt_mono_of_inter [NeZero S.L] (h : Om ⊆ Om')
+    (hX : (X : Set (Torus S.d (n k))) ∩ Om' = (X : Set (Torus S.d (n k))) ∩ Om)
+    (hv : FineValidAt F k Om X) : FineValidAt F k Om' X :=
+  djModFin_mono_region_of_inter (d7Pull_mono F k h)
+    (by rw [← d7Pull_inter, ← d7Pull_inter, hX]) hv
 
 end Region
 
@@ -404,14 +442,6 @@ theorem bdryDoms_OmegaCube_subset_omegaPost {S : Setting} {n : ℕ → ℕ} [∀
     {R : ℕ → ℝ} {k0 K : ℕ} (H : RegionHistory S n R k0 K) (k : ℕ) (Z : Set (Torus S.d (n k))) :
     bdryDoms (OmegaCube H k) Z ⊆ bdryDoms (H.omegaPost k) Z :=
   bdryDoms_mono (H.OmegaCube_subset_omegaPost k) Z
-
-/-- The valid boundary domains are nondecreasing in the region. -/
-theorem bdryDomsAt_mono {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K m₀ m₁ : ℕ}
-    [NeZero S.L] (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ) {Om Om' : Set (Torus S.d (n k))}
-    (h : Om ⊆ Om') (Z : Set (Torus S.d (n k))) : bdryDomsAt F k Om Z ⊆ bdryDomsAt F k Om' Z := by
-  intro X hX
-  rw [mem_bdryDomsAt] at hX ⊢
-  exact ⟨bdryDoms_mono h Z hX.1, fineValidAt_mono h hX.2⟩
 
 /-! ### The two instances: the post-`R` region and the raw region -/
 
@@ -499,10 +529,10 @@ theorem d7SizePre_nonneg (F : FineSizeFrame S n M K m₀ m₁) (A : LabHist S n 
   ENNReal.toReal_nonneg
 
 theorem d7SizeE_ne_top_of_mem (h : X ∈ bdryDomsPost F A k Z) : d7SizeE F A k X ≠ ⊤ :=
-  (mem_bdryDomsPost.1 h).2.2
+  (mem_bdryDomsPost.1 h).2.2.2.2
 
 theorem d7SizePreE_ne_top_of_mem (h : X ∈ bdryDomsPre F A k Z) : d7SizePreE F A k X ≠ ⊤ :=
-  (mem_bdryDomsPre.1 h).2.2
+  (mem_bdryDomsPre.1 h).2.2.2.2
 
 /-- The size is finite when the fine set of `X` belongs to `𝒟_k` (a nonempty nearest-neighbour
 connected union of `π'_k`-cubes). -/
@@ -538,30 +568,41 @@ follow from the pre-`R` bound by a comparison of sizes, and the decay in the add
 operation `R`.  When no component is removed at scale `k` the two regions, sizes and label sets
 coincide. -/
 
-/-- **A valid label before `R` is a valid label after `R`.**  (The converse does not follow: the
-fine set of `X` may contain a part of a removed component and miss the rest.) -/
-theorem fineValid_of_fineValidPre [NeZero S.L] (h : FineValidPre F A k X) : FineValid F A k X :=
-  fineValidAt_mono (A.H.OmegaCube_subset_omegaPost k) h
+/-- **The trace of the added region on a label avoiding the removed set**: for `X` disjoint from
+the removed components, `X ∩ Ω_k^post = X ∩ Ω_k^pre`. -/
+theorem inter_omegaPost_of_disjoint (H : RegionHistory S n R k0 K) (k : ℕ)
+    {X : Set (Torus S.d (n k))} (h : Disjoint X (H.removedSet k)) :
+    X ∩ H.omegaPost k = X ∩ OmegaCube H k := by
+  ext x
+  simp only [omegaPost, Set.mem_inter_iff, Set.mem_union]
+  constructor
+  · rintro ⟨hx, hx' | hx'⟩
+    · exact ⟨hx, hx'⟩
+    · exact absurd hx' (Set.disjoint_left.1 h hx)
+  · rintro ⟨hx, hx'⟩
+    exact ⟨hx, Or.inl hx'⟩
 
-/-- **The boundary domains of the pre-`R` class are boundary domains of the post-`R` class**, for
-the same region `Z`. -/
-theorem bdryDomsPre_subset_bdryDomsPost [NeZero S.L] (F : FineSizeFrame S n M K m₀ m₁)
-    (A : LabHist S n R k0 K) (k : ℕ) (Z : Set (Torus S.d (n k))) :
-    bdryDomsPre F A k Z ⊆ bdryDomsPost F A k Z :=
-  bdryDomsAt_mono F k (A.H.OmegaCube_subset_omegaPost k) Z
+/-- **A valid label before `R` that avoids the removed components is a valid label after `R`.**
+(Without the avoidance a site of the label inside a removed component need not lie in a
+`π'_k`-cube inside the label; the converse fails too.) -/
+theorem fineValid_of_fineValidPre_of_disjoint [NeZero S.L] (h : Disjoint (X : Set (Torus S.d (n k)))
+    (A.H.removedSet k)) (hv : FineValidPre F A k X) : FineValid F A k X :=
+  fineValidAt_mono_of_inter (A.H.OmegaCube_subset_omegaPost k)
+    (inter_omegaPost_of_disjoint A.H k h) hv
 
 /-- **From the labels of `IsRep^pre_k` to the labels of `IsRep_k`**: a boundary domain of the
-pre-`R` class for `Z^pre_k` that still meets `Z_k = Z^pre_k ∖ ⋃ Rem_k` is a boundary domain of the
-post-`R` class for `Z_k`.  (A pre-`R` boundary domain that meets only removed components is not
-a boundary domain after `R`.) -/
+pre-`R` class for `Z^pre_k` that avoids the removed components and still meets
+`Z_k = Z^pre_k ∖ ⋃ Rem_k` is a boundary domain of the post-`R` class for `Z_k`.  (A pre-`R`
+boundary domain that meets only removed components is not a boundary domain after `R`.) -/
 theorem mem_bdryDomsPost_of_mem_bdryDomsPre [NeZero S.L]
     (hX : X ∈ bdryDomsPre F A k (A.H.F.Zpre k))
+    (hd : Disjoint (X : Set (Torus S.d (n k))) (A.H.removedSet k))
     (hne : ((X : Set (Torus S.d (n k))) ∩ (A.H.step k).Z).Nonempty) :
     X ∈ bdryDomsPost F A k (A.H.step k).Z := by
   obtain ⟨hb, hv⟩ := mem_bdryDomsPre.1 hX
   obtain ⟨hD, -, x, hxX, hxZ⟩ := mem_bdryDoms.1 hb
   exact mem_bdryDomsPost.2 ⟨mem_bdryDoms.2 ⟨dmodOmega_mono (A.H.OmegaCube_subset_omegaPost k) hD,
-    hne, x, hxX, fun h => hxZ (A.H.Z_subset_Zpre k h)⟩, fineValid_of_fineValidPre hv⟩
+    hne, x, hxX, fun h => hxZ (A.H.Z_subset_Zpre k h)⟩, fineValid_of_fineValidPre_of_disjoint hd hv⟩
 
 /-- **The size before `R` is at most the size after `R`**, in `[0, ∞]`. -/
 theorem d7SizePreE_le_d7SizeE (F : FineSizeFrame S n M K m₀ m₁) (A : LabHist S n R k0 K) (k : ℕ)

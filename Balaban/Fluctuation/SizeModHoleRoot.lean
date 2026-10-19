@@ -14,14 +14,14 @@ import Mathlib.Tactic.Positivity
 /-!
 # Rooted entropy at a hole component
 
-`G2_X` roots the labels `X ∈ 𝒟_j(mod Ω^c)` at a cell of `Ω`.  A hole component `H` (a union of
+`G2_XFin` roots the labels `X ∈ 𝒟_j^fin(mod Ω^c)` at a cell of `Ω`.  A hole component `H` (a union of
 whole nearest-neighbour components of `Ω^c`) has no cell of `Ω` in it, but a label `X ⊇ H` that
 meets `Ω` leaves `H` through an active cell next to `H`:
 
 * `exists_active_adj_hole` (the exit cell): `X ∈ 𝒟_j(mod Ω^c)`, `H ⊆ X`, `X ∩ Ω ≠ ∅` give a
   cell of `X ∩ Ω` that is cell-adjacent (`CAdj`) to the cell of a site of `H`;
 * `sum_exp_le_of_roots`: if every label of a family contains one of finitely many root cells of
-  `Ω`, the `G2_X` sum over the family is at most `#roots · K₀`;
+  `Ω`, the `G2_XFin` sum over the family is at most `#roots · K₀`;
 * `sum_exp_le_of_hole`: the sum over labels `X ⊇ H` meeting `Ω` is at most
   `2 d · #(cells of H) · K₀`.
 
@@ -39,10 +39,10 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ j : ℕ}
 
 /-- **The exit cell.**  Let `Ω` be a union of `π_j`-cells and `H ⊆ Ω^c` closed under
 nearest-neighbour steps into `Ω^c` (a union of whole components of `Ω^c`).  If
-`X ∈ 𝒟_j(mod Ω^c)` contains `H ≠ ∅` and meets `Ω`, then some `π_j`-cell contained in `X ∩ Ω` is
+`X ∈ 𝒟_j^fin(mod Ω^c)` (`DjModFin`) contains `H ≠ ∅` and meets `Ω`, then some `π_j`-cell contained in `X ∩ Ω` is
 cell-adjacent to the cell of a site of `H`. -/
 theorem exists_active_adj_hole (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
-    {Ω X H : Set (CTorus d L N₁ m₁ K)} (hΩ : IsPiUnion m₀ j Ω) (hX : DjMod m₀ j Ω X)
+    {Ω X H : Set (CTorus d L N₁ m₁ K)} (hΩ : IsPiUnion m₀ j Ω) (hX : DjModFin m₀ j Ω X)
     (hHΩ : H ⊆ Ωᶜ) (hHcl : ∀ y ∈ H, ∀ z, z ∉ Ω → Nbr y z → z ∈ H) (hHX : H ⊆ X)
     (hHne : H.Nonempty) (hXΩ : (X ∩ Ω).Nonempty) :
     ∃ u ∈ H, ∃ t, Aligned (cellSide L m₀ m₁ j) t ∧
@@ -51,7 +51,7 @@ theorem exists_active_adj_hole (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN hj
   obtain ⟨y, hy⟩ := hHne
   obtain ⟨x, hxX, hxΩ⟩ := hXΩ
-  have hpath := hX.1.2.2 y (hHX hy) x hxX
+  have hpath := hX.2.1 y (hHX hy) x hxX
   have key : ∀ b, Relation.ReflTransGen (fun u v => u ∈ X ∧ v ∈ X ∧ Nbr u v) y b →
       b ∈ H ∨ ∃ u ∈ H, ∃ v ∈ X, v ∉ H ∧ Nbr u v := by
     intro b hb
@@ -72,7 +72,7 @@ theorem exists_active_adj_hole (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     obtain ⟨b, hb1, hb2, hb3⟩ := hΩ v hvΩ
     rw [cbase_eq_of_mem_box hdvd hb1 hb2]; exact hb3
   have hcellX : box (cbase (cellSide L m₀ m₁ j) v) (cellSide L m₀ m₁ j) ⊆ X := by
-    obtain ⟨b, hb1, hb2, hb3⟩ := hX.1.2.1 v hvX
+    obtain ⟨b, hb1, hb2, hb3⟩ := hX.exists_box ⟨hvX, hvΩ⟩
     exact (cell_subset_cube hdvd ha0 hb1 hb2).trans hb3
   refine ⟨u, hu, cbase (cellSide L m₀ m₁ j) v, aligned_cbase v, fun z hz => ⟨hcellX hz, hcellΩ hz⟩, ?_⟩
   rcases cbase_nbr hdvd ha0 huv with h | h
@@ -87,12 +87,12 @@ theorem sum_exp_le_of_roots (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     {Ω : Set (CTorus d L N₁ m₁ K)} (hΩ : IsPiUnion m₀ j Ω) (Rt : Finset (CTorus d L N₁ m₁ K))
     (hRt : ∀ r ∈ Rt, Aligned (cellSide L m₀ m₁ j) r ∧ box r (cellSide L m₀ m₁ j) ⊆ Ω)
     {κ₀ : ℝ} (hκ : aEnt d L + 1 ≤ κ₀) (P : Set (CTorus d L N₁ m₁ K) → Prop)
-    (hP : ∀ X, DjMod m₀ j Ω X → P X → ∃ r ∈ Rt, box r (cellSide L m₀ m₁ j) ⊆ X) :
+    (hP : ∀ X, DjModFin m₀ j Ω X → P X → ∃ r ∈ Rt, box r (cellSide L m₀ m₁ j) ⊆ X) :
     (open Classical in
-      ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) => DjMod m₀ j Ω X ∧ P X),
+      ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) => DjModFin m₀ j Ω X ∧ P X),
         Real.exp (-κ₀ * dcovMod m₀ j Ω X)) ≤ Rt.card * K0 d L κ₀ := by
   classical
-  set S := Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) => DjMod m₀ j Ω X ∧ P X) with hS
+  set S := Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) => DjModFin m₀ j Ω X ∧ P X) with hS
   set f : Set (CTorus d L N₁ m₁ K) → ℝ := fun X => Real.exp (-κ₀ * dcovMod m₀ j Ω X) with hf
   have hf0 : ∀ X, 0 ≤ f X := fun X => (Real.exp_pos _).le
   have h1 : ∀ X ∈ S, f X ≤ ∑ r ∈ Rt, if box r (cellSide L m₀ m₁ j) ⊆ X then f X else 0 := by
@@ -109,8 +109,8 @@ theorem sum_exp_le_of_roots (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     obtain ⟨hr1, hr2⟩ := hRt r hr
     rw [← Finset.sum_filter]
     refine le_trans (Finset.sum_le_sum_of_subset_of_nonneg (t := Finset.univ.filter
-      (fun X : Set (CTorus d L N₁ m₁ K) => DjMod m₀ j Ω X ∧ box r (cellSide L m₀ m₁ j) ⊆ X)) ?_
-      (fun X _ _ => hf0 X)) (G2_X hN hj hΩ hr1 hr2 hκ)
+      (fun X : Set (CTorus d L N₁ m₁ K) => DjModFin m₀ j Ω X ∧ box r (cellSide L m₀ m₁ j) ⊆ X)) ?_
+      (fun X _ _ => hf0 X)) (G2_XFin hN hj hΩ hr1 hr2 hκ)
     intro X hX
     obtain ⟨hX1, hX2⟩ := Finset.mem_filter.1 hX
     exact Finset.mem_filter.2 ⟨Finset.mem_univ _, (Finset.mem_filter.1 hX1).2.1, hX2⟩
@@ -145,7 +145,7 @@ theorem CAdj_mem_adjCells {s t : CTorus d L N₁ m₁ K} (h : CAdj (cellSide L m
 /-- **Rooted entropy at a hole component.**  Let `Ω` be a union of `π_j`-cells, `H ≠ ∅` a subset
 of `Ω^c` closed under nearest-neighbour steps into `Ω^c` (a union of whole components of `Ω^c`)
 and `κ₀ ≥ a_ent + 1`.  Summing over the labels `X ∈ 𝒟_j(mod Ω^c)` with `H ⊆ X` and `X ∩ Ω ≠ ∅`
-(in the form of the sum of `G2_X`):
+(in the form of the sum of `G2_XFin`):
 `∑ e^{-κ₀ d^cov_j(X mod Ω^c)} ≤ 2 d · #(cells meeting H) · K₀`. -/
 theorem sum_exp_le_of_hole (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     {Ω H : Set (CTorus d L N₁ m₁ K)} (hΩ : IsPiUnion m₀ j Ω)
@@ -153,7 +153,7 @@ theorem sum_exp_le_of_hole (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
     {κ₀ : ℝ} (hκ : aEnt d L + 1 ≤ κ₀) :
     (open Classical in
       ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
-          DjMod m₀ j Ω X ∧ H ⊆ X ∧ (X ∩ Ω).Nonempty),
+          DjModFin m₀ j Ω X ∧ H ⊆ X ∧ (X ∩ Ω).Nonempty),
         Real.exp (-κ₀ * dcovMod m₀ j Ω X)) ≤
       2 * d * (holeBases m₀ j H).card * K0 d L κ₀ := by
   classical

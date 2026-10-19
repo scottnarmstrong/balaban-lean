@@ -35,7 +35,7 @@ theorem Yhat_inter_subset (Ω S : Set (CTorus d L N₁ m₁ K)) : Yhat Ω S ∩ 
 
 omit [NeZero N₁] [NeZero L] in
 /-- **(G4), inclusion.** -/
-theorem G4_subset {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : IsDj m₀ j Y) (hne : (Y ∩ Ω).Nonempty) :
+theorem G4_subset {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : SiteConnected Y) (hne : (Y ∩ Ω).Nonempty) :
     Y ⊆ Yhat Ω (Y ∩ Ω) := by
   obtain ⟨s0, hs0Y, hs0Ω⟩ := hne
   have key : ∀ y, Relation.ReflTransGen (fun u v => u ∈ Y ∧ v ∈ Y ∧ Nbr u v) s0 y →
@@ -52,7 +52,7 @@ theorem G4_subset {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : IsDj m₀ j Y) (hn
         · exact ⟨c, hcΩ, ⟨b, ⟨ih.1, hb⟩, hbc.2.2⟩, hcΩ, Relation.ReflTransGen.refl⟩
         · exact ⟨z, hz, hs, hcΩ, hbz.2.tail ⟨hbz.1, hcΩ, hbc.2.2⟩⟩
   intro y hy
-  obtain ⟨-, h | h⟩ := key y (hY.2.2 s0 hs0Y y hy)
+  obtain ⟨-, h | h⟩ := key y (hY s0 hs0Y y hy)
   · exact Or.inl ⟨hy, h⟩
   · exact Or.inr h
 
@@ -62,7 +62,7 @@ theorem G4_siteConnected {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : IsDj m₀ j
     (hne : (Y ∩ Ω).Nonempty) : SiteConnected (Yhat Ω (Y ∩ Ω)) := by
   obtain ⟨s0, hs0Y, hs0Ω⟩ := hne
   set Z := Yhat Ω (Y ∩ Ω) with hZ
-  have hYZ : Y ⊆ Z := G4_subset hY ⟨s0, hs0Y, hs0Ω⟩
+  have hYZ : Y ⊆ Z := G4_subset hY.2.2 ⟨s0, hs0Y, hs0Ω⟩
   have hsymm : ∀ a b : CTorus d L N₁ m₁ K,
       (a ∈ Z ∧ b ∈ Z ∧ Nbr a b) → (b ∈ Z ∧ a ∈ Z ∧ Nbr b a) :=
     fun _ _ h => ⟨h.2.1, h.1, h.2.2.symm⟩
@@ -119,7 +119,7 @@ theorem G4_dOmega_le {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : IsDj m₀ j Y)
   obtain ⟨h1, h2, h3, h4⟩ := (modAdmissible_iff_chosen (Set.subset_univ Y)).1 hE
   obtain ⟨𝒦', W', E', h1', h2', h3', h4', hc'⟩ := treeLenCovOne_attained m₀ j Y ⟨𝒦, W, E, h1, h2, h3, h4⟩
   have hA := modAdmissible_mono (modAdmissible_of_chosen (Ω := Ω) h1' h2' h3' h4')
-    (G4_subset hY hne) ((Yhat_inter_subset Ω _).trans Set.inter_subset_left)
+    (G4_subset hY.2.2 hne) ((Yhat_inter_subset Ω _).trans Set.inter_subset_left)
   rw [← hc']
   exact dcovModE_le_of_admissible hA
 
@@ -131,7 +131,7 @@ theorem G4_dOmega_le_mod {Ω Y : Set (CTorus d L N₁ m₁ K)} (hY : DjMod m₀ 
   unfold dOmega
   simp only [G4_siteConnected hY.1 hne, ↓reduceIte]
   obtain ⟨𝒦, W, E, hE, hc⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_IsDj (Ω := Ω) hY.1)
-  have hA := modAdmissible_mono hE (G4_subset hY.1 hne)
+  have hA := modAdmissible_mono hE (G4_subset hY.1.2.2 hne)
     ((Yhat_inter_subset Ω _).trans Set.inter_subset_left)
   rw [← hc]
   exact dcovModE_le_of_admissible hA

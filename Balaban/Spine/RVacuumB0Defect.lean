@@ -9,17 +9,17 @@ public import Balaban.Spine.RVacuumTie
 public import Balaban.LargeField.Operators.StepVacuumVolume
 
 /-!
-# Why `RVacuumB0Input` is not derivable from the clauses of `PreRec` (A4-2v)
+# Records of a localized history and the necessary condition for `RVacuumB0Input` (A4-2v)
 
 `VacuumB0Bound` asks `‖b_k + stepVacuumTerm(E_k, E_k + δ″, E_k + δ‴)‖ ≤ C |Z_{k+1} ∖ Z_k|_{k+1}`
-for the localized history `a = H.localHistory (k+1) Z'`. All records of `a` (`Z_j`, `Ω_{k+1}`, `Ω″_{k+1}`)
-are intersected with the fine set of the component `Z'`, but the first vacuum region
-`(Z_k)^c ∖ Ω_{k+1}` is a complement in the whole fine torus. It therefore contains the whole
-fine set of the complement of `Z'` (`compl_fineSet_subset_vacuumRegion`), whose volume is that of the
-torus up to `|Z'|`, and the `E_k`-term of the vacuum term is not bounded by `|Z_{k+1} ∖ Z_k|_{k+1}`.
+for the localized history `a = H.localHistory (k+1) Z'`.
+
+Before ruling R10 the first vacuum region was `(Z_k)^c ∖ Ω_{k+1}`, a complement in the whole fine
+torus, which contained the fine set of the complement of `Z'`; the lemma stating this
+(`compl_fineSet_subset_vacuumRegion`) documented the defect and is deleted, as it is false for the
+region `(Z_{k+1} ∖ Z_k) ∖ Ω_{k+1}` of R10.  The lemmas that remain are true as stated:
 
 * `localHistory_Z_subset_fineSet`, `localHistory_Omega_subset_fineSet`: the records lie in `Z'`;
-* `compl_fineSet_subset_vacuumRegion`: the complement of `Z'` lies in the first vacuum region;
 * `norm_vacuumTerm_le_of_b0Bound`: the necessary condition that `VacuumB0Bound` and `b_bound` impose.
 -/
 
@@ -43,14 +43,6 @@ theorem localHistory_Omega_subset_fineSet {m : ℕ} (Z : H.Comp m) (j : ℕ) :
     (H.localHistory M K m Z).Omega j ⊆
       fineSet (S := S) (n := n) M K m (Z.1 : Set (Torus S.d (n m))) :=
   fun _ hx => hx.2
-
-/-- The fine set of the complement of the component lies in the first vacuum region
-`(Z_k)^c ∖ Ω_{k+1}` of the creating step. -/
-theorem compl_fineSet_subset_vacuumRegion {m : ℕ} (Z : H.Comp m) (k : ℕ) :
-    (fineSet (S := S) (n := n) M K m (Z.1 : Set (Torus S.d (n m))))ᶜ ⊆
-      ((H.localHistory M K m Z).Z k)ᶜ \ (H.localHistory M K m Z).Omega k :=
-  fun _ hx => ⟨fun h => hx (localHistory_Z_subset_fineSet H Z k h),
-    fun h => hx (localHistory_Omega_subset_fineSet H Z k h)⟩
 
 end Defect
 

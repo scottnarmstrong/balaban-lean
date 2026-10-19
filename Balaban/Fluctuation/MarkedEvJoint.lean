@@ -762,6 +762,85 @@ namespace Balaban.Fluctuation
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Analysis
   Balaban.Localization Balaban.Polymer Finset Matrix
 
+section ChartBg
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
+
+/-- **From the chart of a generating set `Gg` to its parameter set `physVBg`.**  If `f ((Θ, x), w)`
+is analytic at every point of `(Ξ^c(Gg) × B) × W` (as a function on all of `(RawData × G) × H`),
+then on the parameter space `physParamBg Gg = rawSub Gg × sources` the function
+`((e, x), w) ↦ f ((e.1, x), w)` is analytic at every point of `(physVBg Gg × B) × W`; the source
+coordinate of `e` does not enter.  (Composition with the continuous linear inclusion.) -/
+theorem analyticOnNhd_physVBg_of_chart {ϱg : ℝ} (Gg : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱg)
+    {G H : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
+    [NormedAddCommGroup H] [NormedSpace ℂ H] (a₁ ν eps : ℝ) {B : Set G} {W : Set H}
+    {f : (RawData d L (N₁ * L ^ m₁) (k + 1) N × G) × H → ℂ}
+    (hf : AnalyticOnNhd ℂ f ((XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B) ×ˢ W)) :
+    AnalyticOnNhd ℂ (fun p : (physParamBg N Gg × G) × H =>
+      f (((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2), p.2))
+      ((physVBg N Gg a₁ ν eps ×ˢ B) ×ˢ W) := by
+  let g : (physParamBg N Gg × G) × H →L[ℂ] (RawData d L (N₁ * L ^ m₁) (k + 1) N × G) × H :=
+    (((rawSub N Gg).subtypeL.comp (ContinuousLinearMap.fst ℂ _ _)).prodMap
+      (ContinuousLinearMap.id ℂ G)).prodMap (ContinuousLinearMap.id ℂ H)
+  refine hf.comp (g.analyticOnNhd _) fun p hp => ?_
+  exact ⟨⟨hp.1.1.1, hp.1.2⟩, hp.2⟩
+
+/-- **Clauses 3–5 of `markedEv_joint_physV` for any family of marked terms on the chart of a
+generating set `Gg`.**  For terms `Ev Y um tm (Θ, ψ̂)` analytic in `((Θ, ψ̂), (um, tm))` at every point
+of `(Ξ^c(Gg) × B̂) × W` (`hJ`, `W = {(u, t) | (‖u‖ + ‖t‖) · m_R < δ₁}`) and bounded by `B Y` on every
+closed bidisc of `W` (`hbd`):
+
+1. on the parameter space `physParamBg Gg`: `((e, ψ̂), (um, tm)) ↦ Ev Y um tm (e.1, ψ̂)` is analytic
+   at every point of `(physVBg Gg × B̂) × W`;
+2. for `ψ̂ ∈ B̂`, `a ≥ 0`, `b > 0` with `(a + b) · m_R < δ₁`, the derivative mark
+   `(e, u) ↦ ∂_t Ev Y u t (e.1, ψ̂)|_{t=0}` is analytic on `physVBg Gg × {‖u‖ < a}`;
+3. the derivative mark jointly with the hat field is analytic on
+   `(physVBg Gg × B̂) × {u | (u, 0) ∈ W}`.
+
+`markedEv_physV_of_joint` is the instance of the step's terms `evDec` at `Gg = S.G'`. -/
+theorem markedEv_physVBg_of_joint {ϱg : ℝ} {Gg : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱg}
+    {a₁ ν eps δ₁ mR : ℝ} (HBg : BgHyp d L (k + 1) ϱg (compWeight L a₁) ν) (hδ₁ : 0 < δ₁)
+    {P : Type*} [NormedAddCommGroup P] [NormedSpace ℂ P] {Bh : Set P}
+    {Ev : Set (CTorus d L N₁ m₁ (k + 1)) → ℂ → ℂ → RawData d L (N₁ * L ^ m₁) (k + 1) N × P → ℂ}
+    {B : Set (CTorus d L N₁ m₁ (k + 1)) → ℝ}
+    (hJ : ∀ Y, AnalyticOnNhd ℂ
+        (fun p : (RawData d L (N₁ * L ^ m₁) (k + 1) N × P) × (ℂ × ℂ) => Ev Y p.2.1 p.2.2 p.1)
+        ((XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ Bh) ×ˢ
+          {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * mR < δ₁}))
+    (hbd : ∀ a b : ℝ, 0 ≤ a → 0 ≤ b → (a + b) * mR < δ₁ →
+      ∀ um tm : ℂ, ‖um‖ ≤ a → ‖tm‖ ≤ b →
+      ∀ Y, ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ Bh, ‖Ev Y um tm u‖ ≤ B Y) :
+    (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (physParamBg N Gg × P) × (ℂ × ℂ) =>
+          Ev Y p.2.1 p.2.2 ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2))
+        ((physVBg N Gg a₁ ν eps ×ˢ Bh) ×ˢ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * mR < δ₁})) ∧
+      (∀ Y, ∀ ψh ∈ Bh, ∀ a b : ℝ, 0 ≤ a → 0 < b → (a + b) * mR < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParamBg N Gg × ℂ => deriv (fun t : ℂ =>
+          Ev Y p.2 t ((p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), ψh)) 0)
+          (physVBg N Gg a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) ∧
+      (∀ Y, AnalyticOnNhd ℂ
+        (fun p : (physParamBg N Gg × P) × ℂ => deriv (fun t : ℂ =>
+          Ev Y p.2 t ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
+        ((physVBg N Gg a₁ ν eps ×ˢ Bh) ×ˢ {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * mR < δ₁})) := by
+  have hT2 : ∀ Y, AnalyticOnNhd ℂ
+      (fun p : (physParamBg N Gg × P) × (ℂ × ℂ) =>
+        Ev Y p.2.1 p.2.2 ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2))
+      ((physVBg N Gg a₁ ν eps ×ˢ Bh) ×ˢ {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * mR < δ₁}) := fun Y =>
+    analyticOnNhd_physVBg_of_chart Gg a₁ ν eps (hJ Y)
+  refine ⟨hT2, ?_, fun Y => analyticOnNhd_deriv_mark (hT2 Y)⟩
+  intro Y ψh hψh a b ha hb hab
+  have hf := analyticOnNhd_slice_mid (hT2 Y) (y₀ := ψh) hψh
+  have hW : ∀ u t : ℂ, ‖u‖ < a → ‖t‖ < b → (u, t) ∈
+      {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * mR < δ₁} :=
+    fun u t hu ht => mem_markedRadiusSet_of_pos hδ₁ hab hu.le ht.le
+  have hM : ∀ e ∈ physVBg N Gg a₁ ν eps, ∀ u t : ℂ, ‖u‖ < a → ‖t‖ < b →
+      ‖Ev Y u t ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), ψh)‖ ≤ B Y := by
+    intro e he u t hu ht
+    exact hbd a b ha hb.le hab u t hu.le ht.le Y _ ⟨he.1, hψh⟩
+  exact analyticOnNhd_deriv_mark_cauchy (isOpen_physVBg Gg a₁ ν eps HBg) hf hb hW hM
+
+end ChartBg
+
 section Chart
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
@@ -771,19 +850,15 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱm : ℝ}
 of `(Ξ^c × B) × W` (as a function on all of `(RawData × G) × H`), then on the parameter space
 `physParam = rawSub × sources` the function `((e, x), w) ↦ f ((e.1, x), w)` is analytic at every
 point of `(physV × B) × W`; the source coordinate of `e` does not enter.  (Composition with the
-continuous linear inclusion `physIncl`.) -/
+continuous linear inclusion `physIncl`; `analyticOnNhd_physVBg_of_chart` at `Gg = S.G'`.) -/
 theorem analyticOnNhd_physV_of_chart {G H : Type*} [NormedAddCommGroup G] [NormedSpace ℂ G]
     [NormedAddCommGroup H] [NormedSpace ℂ H] (a₁ ν eps : ℝ) {B : Set G} {W : Set H}
     {f : (RawData d L (N₁ * L ^ m₁) (k + 1) N × G) × H → ℂ}
     (hf : AnalyticOnNhd ℂ f ((XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps ×ˢ B) ×ˢ W)) :
     AnalyticOnNhd ℂ (fun p : (physParam N S × G) × H =>
       f (((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2), p.2))
-      ((physV S a₁ ν eps ×ˢ B) ×ˢ W) := by
-  let g : (physParam N S × G) × H →L[ℂ] (RawData d L (N₁ * L ^ m₁) (k + 1) N × G) × H :=
-    (((rawSub N S.G').subtypeL.comp (ContinuousLinearMap.fst ℂ _ _)).prodMap
-      (ContinuousLinearMap.id ℂ G)).prodMap (ContinuousLinearMap.id ℂ H)
-  refine hf.comp (g.analyticOnNhd _) fun p hp => ?_
-  exact ⟨⟨hp.1.1.1, hp.1.2⟩, hp.2⟩
+      ((physV S a₁ ν eps ×ˢ B) ×ˢ W) :=
+  analyticOnNhd_physVBg_of_chart S.G' a₁ ν eps hf
 
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
@@ -801,7 +876,9 @@ by `B Y` on every closed bidisc of `W` (`hbd`):
    `(e, u) ↦ ∂_t evDec … u t Y (e.1, ψ̂)|_{t=0}` is analytic on `physV × {‖u‖ < a}` (Cauchy integral
    over the `t`-disc of radius `b`);
 3. the derivative mark jointly with the hat field is analytic on
-   `(physV × B̂) × {u | (u, 0) ∈ W}`. -/
+   `(physV × B̂) × {u | (u, 0) ∈ W}`.
+
+The instance of `markedEv_physVBg_of_joint` at `Gg = S.G'`. -/
 theorem markedEv_physV_of_joint
     (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (cc : ℂ) {cψ : ℝ}
     (Zm : Finset (unitPts S.G'))
@@ -839,33 +916,9 @@ theorem markedEv_physV_of_joint
           evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol Φ Zm p.2 t Y
             ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2)) 0)
         ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) := by
-  have hT2 : ∀ Y, AnalyticOnNhd ℂ
-      (fun p : (physParam N S × (unitPts S.G' × Fin N → ℂ)) × (ℂ × ℂ) =>
-        evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol Φ Zm p.2.1 p.2.2 Y
-          ((p.1.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), p.1.2))
-      ((physV S a₁ ν eps ×ˢ {ψh : unitPts S.G' × Fin N → ℂ | ∀ q, ‖ψh q‖ ≤ cψ}) ×ˢ
-        {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁}) := fun Y => by
-    have key := analyticOnNhd_physV_of_chart S a₁ ν eps (hJ Y)
-    exact key
-  refine ⟨hT2, ?_, fun Y => ?_⟩
-  swap
-  · have key := analyticOnNhd_deriv_mark (hT2 Y)
-    exact key
-  intro Y ψh hψh a b ha hb hab
-  have hf := analyticOnNhd_slice_mid (hT2 Y) (y₀ := ψh) hψh
-  have hW : ∀ u t : ℂ, ‖u‖ < a → ‖t‖ < b → (u, t) ∈
-      {w : ℂ × ℂ | (‖w.1‖ + ‖w.2‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
-    fun u t hu ht => mem_markedRadiusSet_of_pos hC.δ₁_pos hab hu.le ht.le
-  have hM : ∀ e ∈ physV S a₁ ν eps, ∀ u t : ℂ, ‖u‖ < a → ‖t‖ < b →
-      ‖evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol Φ Zm u t Y
-        ((e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), ψh)‖ ≤ B Y := by
-    intro e he u t hu ht
-    have hΘ : (e.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps := he.1
-    exact hbd a b ha hb.le hab u t hu.le ht.le Y _ ⟨hΘ, hψh⟩
-  have key := analyticOnNhd_deriv_mark_cauchy (isOpen_physV S a₁ ν eps hC.HBp) hf hb hW hM
-  exact key
+          {u : ℂ | (‖u‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁})) :=
+  markedEv_physVBg_of_joint (Gg := S.G') (Ev := fun Y um tm u =>
+    evDec X₁f m₀ j 𝒦X a₁ ν S.hG' cc F₁ Sol Φ Zm um tm Y u) hC.HBp hC.δ₁_pos hJ hbd
 
 /-- **The conclusion of `markedEv_joint_physV`.**  For a step `S` (`Gp = S.G'`) there is one pair
 `(F₁, Sol)` (not depending on the marks) such that:

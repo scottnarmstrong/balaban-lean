@@ -822,6 +822,7 @@ public import Balaban.Fluctuation.SizeModCore
 public import Balaban.Fluctuation.SizeModG1
 public import Balaban.Fluctuation.SizeModUnion
 public import Balaban.Fluctuation.SizeModUnionTree
+public import Balaban.Fluctuation.DjModFin
 public import Balaban.Fluctuation.SizeModHoleRoot
 public import Balaban.Fluctuation.SizeModG4
 public import Balaban.Fluctuation.SizeModG5
@@ -2913,7 +2914,22 @@ public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads
 public import Balaban.Fluctuation.DirectTermsBg
 public import Balaban.LargeField.R.WindowDeltaRegime
+public import Balaban.LargeField.R.WindowShellY
+public import Balaban.LargeField.R.WindowPieceDomain
+public import Balaban.LargeField.R.WindowThetaY
+public import Balaban.LargeField.R.WindowPieceTheta
+public import Balaban.LargeField.R.WindowPieceLayers
+public import Balaban.LargeField.R.WindowPieceAssemble
+public import Balaban.LargeField.R.WindowPieceY
+public import Balaban.LargeField.R.WindowPieceNone
+public import Balaban.LargeField.R.WindowPieceParent
+public import Balaban.LargeField.R.WindowPostSupport
 public import Balaban.LargeField.R.WindowDomChi
+public import Balaban.LargeField.R.WindowDomAnc
+public import Balaban.LargeField.R.WindowDomPieces
+public import Balaban.LargeField.R.WindowDomFacts
+public import Balaban.LargeField.R.WindowDomRegime
+public import Balaban.LargeField.R.WindowRadiusRegime
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
 public import Balaban.LargeField.R.WindowDomKernel
@@ -2949,3 +2965,4 @@ public import Balaban.LargeField.Base.KF0FRHeavyD
 public import Balaban.LargeField.Base.KF0FRHeavyDInt
 public import Balaban.LargeField.Base.KF0FRHeavy
 public import Balaban.LargeField.Base.KF0FRProd
+public import Balaban.Fluctuation.NewLevelTermsBgAnalytic

@@ -59,6 +59,62 @@ theorem hatPsiF_eq_dite (hG' : IsLevel G (k + 1)) (cc : ℂ)
   rw [dite_eq_left ((mem_unitPts G).2 ⟨x, hG'.mem_layer x, rfl⟩)]
   rfl
 
+/-- **The local hat lift times a bounded multiplier lies in the fluctuation ball** (from the
+specification of the background map; the multiplier `m = u + t 1_Z` is the marked tangent of a mask
+`Z`, and `localHatLift_mem_flBallLC_of_spec` is the case `m = 1`): for a cover base of `(coverOf G, G)`, parameters `|s_P| < e^κ`, a datum `D` of the chart
+`Ξ^c(G; 1, ε)` and `F₁` the decoupled background map, the local hat lift
+`cc C^{1/2}(s) ψ̂` at the background `F₁(s, D)` (extended by zero off the unit points of `G`) lies in
+`FlBallLC Hl δ₁` for every `Hl` without layer `k + 1`, when `|ψ̂| ≤ c_ψ` and
+`M √N ‖cc‖ K c_ψ < δ₁`, `|m| ≤ M` (`localHatLiftMul_mem_flBallLC_cover` at the point of `DecDom`
+given by `decDom_of_coverBg`). -/
+theorem localHatLiftMul_mem_flBallLC_of_spec {Hl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    (hHl : Hl.Ω (k + 1) = ∅) (hk1 : 1 ≤ k) (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2)
+    {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (S : Dec2.CoverBase (coverOf G) G (compWeight L a₁) ν Kc Cx)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cx)
+    {F₁ : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf G)) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : G.Ω 1 × Fin N → ℂ)
+        (α : G.Ω 1 → ℂ), Dec2.IsDecBg (coverOf G) G (compWeight L a₁) ν (rho4 d L N BG κ)
+          s D φ α → F₁ (s, rawOf D) = (φ, α))
+    {eps δc : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hmarD : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαD : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {s : Dec2.DecParams (coverOf G)} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData G N}
+    (hD : XiCData G (compWeight L a₁) ν (k + 1) 1 eps D) (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    {δ₁ : ℝ} (hδ₁0 : 0 < δ₁) (m : unitPts G → ℂ) {Mm : ℝ} (hm : ∀ b, ‖m b‖ ≤ Mm)
+    (hδ₁ : Mm * (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁)
+    {ψh : unitPts G × Fin N → ℂ} (hψh : ∀ p, ‖ψh p‖ ≤ cψ) :
+    (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts G then
+        m ⟨unitBlock x, h⟩ *
+          (cc • (decCovSqrt G (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2 (Dec2.extS (coverOf G) s)
+            (barField G D.Ψ (F₁ (s, rawOf D)).1) (unitQ G) (unitP G) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
+      else 0) ∈ FlBallLC Hl δ₁ := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HB hκ hMc heps hsmall hc7 hs hD
+  have hDd : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D := by
+    have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
+    exact inUnionDomainC_of_inDomainC HB hδ0 (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7
+      (xiCData_inDomainC HB hsmall hD)
+  have hFe : F₁ (s, rawOf D) = (φ, α) := hF₁ s D hs hDd φ α ⟨hI.small, hI.fixed, hI.field⟩
+  have hdom := decDom_of_coverBg hS S HB hκ hMc heps hsmall hc7 hphi hs hD hI hmarD hαD
+  have hδc : 0 ≤ δc := by
+    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
+      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
+      unfold decDomMargin; positivity
+    linarith
+  have SX : Dec2.XCover (coverOf G) G (compWeight L a₁) a₁ ν Cx := ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
+  rw [hFe]
+  exact localHatLiftMul_mem_flBallLC_cover SX hCx hκ hMX hδc hsm hdom cc hcψ hδ₁0 m hm hδ₁ hψh hHl
+
 /-- **The local hat lift lies in the fluctuation ball** (from the specification of the background
 map): for a cover base of `(coverOf G, G)`, parameters `|s_P| < e^κ`, a datum `D` of the chart
 `Ξ^c(G; 1, ε)` and `F₁` the decoupled background map, the local hat lift
@@ -94,24 +150,10 @@ theorem localHatLift_mem_flBallLC_of_spec {Hl : GeneratingSet d L (N₁ * L ^ m�
         (cc • (decCovSqrt G (compWeight L a₁) a₁ ν (F₁ (s, rawOf D)).2 (Dec2.extS (coverOf G) s)
           (barField G D.Ψ (F₁ (s, rawOf D)).1) (unitQ G) (unitP G) *ᵥ ψh)) (⟨unitBlock x, h⟩, i)
       else 0) ∈ FlBallLC Hl δ₁ := by
-  have hd0 : 0 < d := by have := HB.hd; omega
-  have hxi := one_le_xiC1 d
-  have hδ0 : 0 < xiC1 d * eps := by positivity
-  obtain ⟨φ, α, hI, -, -⟩ := coverBg_exists hS S HB hκ hMc heps hsmall hc7 hs hD
-  have hDd : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D := by
-    have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
-    exact inUnionDomainC_of_inDomainC HB hδ0 (hc1.trans (bgC1_le_bgC0 d L N hd0)) hc7
-      (xiCData_inDomainC HB hsmall hD)
-  have hFe : F₁ (s, rawOf D) = (φ, α) := hF₁ s D hs hDd φ α ⟨hI.small, hI.fixed, hI.field⟩
-  have hdom := decDom_of_coverBg hS S HB hκ hMc heps hsmall hc7 hphi hs hD hI hmarD hαD
-  have hδc : 0 ≤ δc := by
-    have : 0 ≤ decDomMargin d L N BG κ (xiC1 d * eps) := by
-      have : 0 < K4 d L N BG κ := K4_pos hS.fam.2.1 hd0
-      unfold decDomMargin; positivity
-    linarith
-  have SX : Dec2.XCover (coverOf G) G (compWeight L a₁) a₁ ν Cx := ⟨S.toCoverGeom, (S.weights k hk1 (by omega)).1, (S.weights k hk1 (by omega)).2, ha₁, ha₂⟩
-  rw [hFe]
-  exact localHatLift_mem_flBallLC_cover SX hCx hκ hMX hδc hsm hdom cc hcψ hδ₁0 hδ₁ hψh hHl
+  have h := localHatLiftMul_mem_flBallLC_of_spec hHl hk1 ha₁ ha₂ hS S HB hκ hMc hMX hCx hF₁ heps
+    hsmall hc7 hphi hmarD hαD hsm hs hD cc hcψ hδ₁0 (fun _ => 1) (Mm := 1)
+    (fun _ => by rw [norm_one]) (by rwa [one_mul]) hψh
+  simpa only [one_mul] using h
 
 end Ball
 

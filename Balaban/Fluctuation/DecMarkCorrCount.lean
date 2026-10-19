@@ -48,12 +48,31 @@ section VanishingBg
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱm : ℝ}
   (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
   {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} {T : BgTransport S.G' Gb N}
+  {ϱg : ℝ} {Gg : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱg}
 variable {a₁ ν κ eps δ₁ cψ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
 variable {m₀ j : ℕ} {𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 variable {cc : ℂ} {Zm : Finset (unitPts Gb)}
 variable {F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)}
 variable {Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+
+/-- **Core of `decMarkGBg_eq_zero_of` on a chart of a generating set `Gg`**: the statement of
+`decMarkGBg_eq_zero_of` with the data in the chart `XiCRaw Gg` and the parameters in `physVBg
+Gg` in place of the step's chart; `decMarkGBg_eq_zero_of` is its instance `Gg = S.G'`. -/
+theorem decMarkGBg_eq_zero_of_gen
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {um : ℂ} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hmiss : ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+        (u.1, T.res u.2)) 0 = 0)
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 :=
+  hmiss (Θ, S.hatOf m₀ ρ hp Φ) ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
 
 /-- **The mark on a background generating set vanishes where its term derivative vanishes.**  If
 the mark derivative of the term of `Y` vanishes at every point of the chart of the step (the datum read on `Gb` is `T.dat` of it) times the box
@@ -71,7 +90,37 @@ theorem decMarkGBg_eq_zero_of
     (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
     decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 :=
-  hmiss (Θ, S.hatOf m₀ ρ hp Φ) ⟨hΘ, fun p => (S.hatOf_mem m₀ hρ hp Φ p).trans hρc⟩
+  decMarkGBg_eq_zero_of_gen (Gg := S.G') S hmiss hρ hρc hp hΘ Φ
+
+/-- **Core of `decMarkCorrBg_eq_zero_of` on a chart of a generating set `Gg`**: the statement of
+`decMarkCorrBg_eq_zero_of` with the data in the chart `XiCRaw Gg` and the parameters in `physVBg
+Gg` in place of the step's chart; `decMarkCorrBg_eq_zero_of` is its instance `Gg = S.G'`. -/
+theorem decMarkCorrBg_eq_zero_of_gen
+    {En : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hmiss : ∀ um : ℂ, (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ u ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts S.G' × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      deriv (fun t : ℂ => evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+        (u.1, T.res u.2)) 0 = 0)
+    {ρ : ℝ} (hρ : 0 < ρ) (hρc : ρ ≤ cψ) (hp : 0 < S.p₁) (hδ : 0 < δ₁)
+    {Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N}
+    (hΘ : Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps)
+    {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 := by
+  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
+  have hopen : IsOpen {t : ℂ | (‖t‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
+    isOpen_lt (by fun_prop) continuous_const
+  have hev : (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ)
+      =ᶠ[nhds (0 : ℂ)] fun _ => 0 := by
+    filter_upwards [hopen.mem_nhds h0] with v hv
+    exact decMarkGBg_eq_zero_of_gen S (hmiss v hv) hρ hρc hp hΘ Φ
+  unfold decMarkCorrBg
+  rw [decMarkGBg_eq_zero_of_gen S (hmiss um hum) hρ hρc hp hΘ Φ,
+    decMarkGBg_eq_zero_of_gen S (hmiss 0 h0) hρ hρc hp hΘ Φ, hev.deriv_eq]
+  simp
 
 /-- **The corrected mark on a background generating set vanishes where the term derivatives
 vanish.**  If, for every first mark `um` of the disc, the mark derivative of the term of `Y`
@@ -91,18 +140,8 @@ theorem decMarkCorrBg_eq_zero_of
     (hΘ : Θ ∈ XiCRaw S.G' (compWeight L a₁) ν (k + 1) 1 eps)
     {um : ℂ} (hum : (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁)
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
-    decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 := by
-  have h0 : (‖(0 : ℂ)‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ := by simpa using hδ
-  have hopen : IsOpen {t : ℂ | (‖t‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁} :=
-    isOpen_lt (by fun_prop) continuous_const
-  have hev : (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ)
-      =ᶠ[nhds (0 : ℂ)] fun _ => 0 := by
-    filter_upwards [hopen.mem_nhds h0] with v hv
-    exact decMarkGBg_eq_zero_of S (hmiss v hv) hρ hρc hp hΘ Φ
-  unfold decMarkCorrBg
-  rw [decMarkGBg_eq_zero_of S (hmiss um hum) hρ hρc hp hΘ Φ,
-    decMarkGBg_eq_zero_of S (hmiss 0 h0) hρ hρc hp hΘ Φ, hev.deriv_eq]
-  simp
+    decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ = 0 :=
+  decMarkCorrBg_eq_zero_of_gen (Gg := S.G') S hmiss hρ hρc hp hδ hΘ hum Φ
 
 end VanishingBg
 

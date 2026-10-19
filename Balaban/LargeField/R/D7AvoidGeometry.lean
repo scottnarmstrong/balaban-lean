@@ -22,7 +22,7 @@ geometry of such labels, with no analysis:
   through `X ∩ Ω`.  Hence `d7SizeE_eq_d7SizePreE_of_disjoint` and
   `d7Size_eq_d7SizePre_of_disjoint`: for a label avoiding the removed set the sizes before and
   after `R` are equal.
-* T3: validity.  `fineValid_of_fineValidPre` (landed) gives `FineValidPre -> FineValid`.  The
+* T3: validity.  `fineValid_of_fineValidPre_of_disjoint` gives `FineValidPre -> FineValid` for a label avoiding the removed set.  The
   converse can fail, and the failure is exactly the following.  A connected component of the
   complement of the raw (pre-`R`) fine region may contain removed cells; after `R` it splits into
   several components of the complement of the post region.  A label that contains some of these
@@ -60,20 +60,6 @@ section Regions
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ}
 
-/-- **T1.** For a set `X` of cubes disjoint from the removed components, `X ∩ Ω_k^post` equals
-`X ∩ Ω_k^pre`. -/
-theorem inter_omegaPost_of_disjoint (H : RegionHistory S n R k0 K) (k : ℕ)
-    {X : Set (Torus S.d (n k))} (h : Disjoint X (H.removedSet k)) :
-    X ∩ H.omegaPost k = X ∩ OmegaCube H k := by
-  ext x
-  simp only [omegaPost, Set.mem_inter_iff, Set.mem_union]
-  constructor
-  · rintro ⟨hx, hx' | hx'⟩
-    · exact ⟨hx, hx'⟩
-    · exact absurd hx' (Set.disjoint_left.1 h hx)
-  · rintro ⟨hx, hx'⟩
-    exact ⟨hx, Or.inl hx'⟩
-
 /-- **T1, fine lifts.** For `X` disjoint from the removed components the fine sets satisfy
 `X_f ∩ Ω_f^post = X_f ∩ Ω_f^pre`. -/
 theorem d7Pull_inter_omegaPost_of_disjoint (F : FineSizeFrame S n M K m₀ m₁)
@@ -89,25 +75,6 @@ end Regions
 section Size
 
 variable {d L N₁ m₁ K j : ℕ} [NeZero N₁] [NeZero L] {m₀ : ℕ}
-
-omit [NeZero N₁] [NeZero L] in
-theorem modAdmissible_congr_inter {Ω Ω' X 𝒦 : Set (Localization.CTorus d L N₁ m₁ K)}
-    {W : Finset (Localization.CTorus d L N₁ m₁ K)} {E : Finset (Localization.CTorus d L N₁ m₁ K × Localization.CTorus d L N₁ m₁ K)}
-    (h : X ∩ Ω = X ∩ Ω') (hE : Fluctuation.ModAdmissible m₀ j Ω X 𝒦 W E) :
-    Fluctuation.ModAdmissible m₀ j Ω' X 𝒦 W E :=
-  ⟨hE.1, h ▸ hE.2.1, hE.2.2⟩
-
-omit [NeZero N₁] [NeZero L] in
-/-- **T2.** The modular covering size `d^cov_j(X mod Ω^c)` depends on `Ω` only through
-`X ∩ Ω` (the cover clause of `ModAdmissible` is `X ∩ Ω ⊆ ⋃ boxes`, every other clause is about
-`X`). -/
-theorem dcovModE_congr_inter {Ω Ω' X : Set (Localization.CTorus d L N₁ m₁ K)} (h : X ∩ Ω = X ∩ Ω') :
-    Fluctuation.dcovModE m₀ j Ω X = Fluctuation.dcovModE m₀ j Ω' X := by
-  refine le_antisymm ?_ ?_
-  · refine le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E => le_iInf fun hE => ?_
-    exact Fluctuation.dcovModE_le_of_admissible (modAdmissible_congr_inter h.symm hE)
-  · refine le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E => le_iInf fun hE => ?_
-    exact Fluctuation.dcovModE_le_of_admissible (modAdmissible_congr_inter h hE)
 
 end Size
 
@@ -167,40 +134,42 @@ theorem omegaComp_subset_of_disjoint {Ω C : Set (Localization.CTorus d L N₁ m
   exact ⟨fun h => h.elim hy (Set.disjoint_left.1 hC ⟨hy, hzy⟩), key y hzy⟩
 
 omit [NeZero N₁] [NeZero L] in
-/-- **T3 (geometry).**  Let `Ω_+ = Ω ∪ C`.  If `X ∈ 𝒟_j(mod Ω_+^c)` and every component of
-`Ω^c` that meets `X` without being contained in `X` contains no cell of `C`, then
-`X ∈ 𝒟_j(mod Ω^c)`. -/
-theorem djMod_of_post_of_comp_avoids {Ω C X : Set (Localization.CTorus d L N₁ m₁ K)}
-    (hpost : Fluctuation.DjMod m₀ j (Ω ∪ C) X)
+/-- **T3 (geometry).**  Let `Ω_+ = Ω ∪ C`.  If `X ∈ 𝒟_j^fin(mod Ω_+^c)` (`DjModFin`) and every
+component of `Ω^c` that meets `X` without being contained in `X` contains no cell of `C`, then
+`X ∈ 𝒟_j^fin(mod Ω^c)`. -/
+theorem djModFin_of_post_of_comp_avoids {Ω C X : Set (Localization.CTorus d L N₁ m₁ K)}
+    (hpost : Fluctuation.DjModFin m₀ j (Ω ∪ C) X)
     (h : ∀ z ∈ Ωᶜ, (Fluctuation.OmegaComp Ω z ∩ X).Nonempty →
       ¬ Fluctuation.OmegaComp Ω z ⊆ X → Disjoint (Fluctuation.OmegaComp Ω z) C) :
-    Fluctuation.DjMod m₀ j Ω X := by
-  refine ⟨hpost.1, fun z hz => ?_⟩
-  by_cases hsub : Fluctuation.OmegaComp Ω z ⊆ X
-  · exact Or.inl hsub
-  by_cases hd : Disjoint (Fluctuation.OmegaComp Ω z) X
-  · exact Or.inr hd
-  exfalso
-  have hne : (Fluctuation.OmegaComp Ω z ∩ X).Nonempty := Set.not_disjoint_iff_nonempty_inter.1 hd
-  have hC := h z hz hne hsub
-  have hzC : z ∈ (Ω ∪ C)ᶜ := fun h' =>
-    h'.elim hz (Set.disjoint_left.1 hC ⟨hz, Relation.ReflTransGen.refl⟩)
-  have hsub' := omegaComp_subset_of_disjoint hz hC
-  rcases hpost.2 z hzC with h1 | h1
-  · exact hsub (hsub'.trans h1)
-  · obtain ⟨y, hy1, hy2⟩ := hne
-    exact Set.disjoint_left.1 h1 (hsub' hy1) hy2
+    Fluctuation.DjModFin m₀ j Ω X := by
+  refine ⟨hpost.1, hpost.2.1, fun z hz => ?_, ?_⟩
+  · by_cases hsub : Fluctuation.OmegaComp Ω z ⊆ X
+    · exact Or.inl hsub
+    by_cases hd : Disjoint (Fluctuation.OmegaComp Ω z) X
+    · exact Or.inr hd
+    exfalso
+    have hne : (Fluctuation.OmegaComp Ω z ∩ X).Nonempty :=
+      Set.not_disjoint_iff_nonempty_inter.1 hd
+    have hC := h z hz hne hsub
+    have hzC : z ∈ (Ω ∪ C)ᶜ := fun h' =>
+      h'.elim hz (Set.disjoint_left.1 hC ⟨hz, Relation.ReflTransGen.refl⟩)
+    have hsub' := omegaComp_subset_of_disjoint hz hC
+    rcases hpost.2.2.1 z hzC with h1 | h1
+    · exact hsub (hsub'.trans h1)
+    · obtain ⟨y, hy1, hy2⟩ := hne
+      exact Set.disjoint_left.1 h1 (hsub' hy1) hy2
+  · exact ne_top_of_le_ne_top hpost.2.2.2 (dcovModE_mono_region Set.subset_union_left)
 
 omit [NeZero N₁] [NeZero L] in
-/-- **T3 (failure).**  If `X ∈ 𝒟_j(mod (Ω ∪ C)^c)` but `X ∉ 𝒟_j(mod Ω^c)`, some component of
+/-- **T3 (failure).**  If `X ∈ 𝒟_j^fin(mod (Ω ∪ C)^c)` but `X ∉ 𝒟_j^fin(mod Ω^c)`, some component of
 `Ω^c` meets `X`, is not contained in `X`, and contains a cell of `C`: removal split a component
 of `Ω^c` into pieces, some in `X` and some not. -/
-theorem exists_split_comp_of_djMod_not {Ω C X : Set (Localization.CTorus d L N₁ m₁ K)}
-    (hpost : Fluctuation.DjMod m₀ j (Ω ∪ C) X) (hnot : ¬ Fluctuation.DjMod m₀ j Ω X) :
+theorem exists_split_comp_of_djModFin_not {Ω C X : Set (Localization.CTorus d L N₁ m₁ K)}
+    (hpost : Fluctuation.DjModFin m₀ j (Ω ∪ C) X) (hnot : ¬ Fluctuation.DjModFin m₀ j Ω X) :
     ∃ z ∈ Ωᶜ, (Fluctuation.OmegaComp Ω z ∩ X).Nonempty ∧
       ¬ Fluctuation.OmegaComp Ω z ⊆ X ∧ ¬ Disjoint (Fluctuation.OmegaComp Ω z) C := by
   by_contra hcon
-  refine hnot (djMod_of_post_of_comp_avoids hpost fun z hz hne hsub => ?_)
+  refine hnot (djModFin_of_post_of_comp_avoids hpost fun z hz hne hsub => ?_)
   by_contra hd
   exact hcon ⟨z, hz, hne, hsub, hd⟩
 
@@ -211,6 +180,7 @@ section ValidLabels
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] [NeZero S.L] {R : ℕ → ℝ}
   {k0 K M m₀ m₁ : ℕ} {k : ℕ}
 
+omit [NeZero S.L] in
 /-- **T3.**  A post-valid label is pre-valid when every component of the complement of the raw
 fine region that meets `X_f` without being contained in `X_f` contains no removed cell.  (The
 labels `X` avoiding the removed set need no separate hypothesis: the condition is on the
@@ -225,8 +195,9 @@ theorem fineValidPre_of_fineValid_of_comp_avoids (F : FineSizeFrame S n M K m₀
       Disjoint (Fluctuation.OmegaComp (d7Pull F k (OmegaCube A.H k)) z)
         (d7Pull F k (A.H.removedSet k))) :
     FineValidPre F A k X :=
-  fineValidPre_of_djMod F A (djMod_of_post_of_comp_avoids hv.1 h)
+  djModFin_of_post_of_comp_avoids hv h
 
+omit [NeZero S.L] in
 /-- **T3 (failure of the converse).**  A label that is post-valid but not pre-valid has a
 component of the raw fine complement meeting `X_f`, not contained in `X_f`, and containing a
 removed cell. -/
@@ -240,16 +211,16 @@ theorem exists_split_comp_of_fineValid_not_pre (F : FineSizeFrame S n M K m₀ m
         d7Pull F k (X : Set (Torus S.d (n k))) ∧
       ¬ Disjoint (Fluctuation.OmegaComp (d7Pull F k (OmegaCube A.H k)) z)
         (d7Pull F k (A.H.removedSet k)) :=
-  exists_split_comp_of_djMod_not hv.1 fun hd => hn (fineValidPre_of_djMod F A hd)
+  exists_split_comp_of_djModFin_not hv hn
 
-/-- **T3.**  For a label avoiding the removed set, pre-validity implies post-validity (landed
-as `fineValid_of_fineValidPre` for every label), and a pre-valid label is a post-valid one with
-the same size. -/
+/-- **T3.**  For a label avoiding the removed set, pre-validity implies post-validity
+(`fineValid_of_fineValidPre_of_disjoint`), and a pre-valid label is a post-valid one with the same
+size. -/
 theorem fineValid_and_size_of_fineValidPre_of_disjoint (F : FineSizeFrame S n M K m₀ m₁)
     (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (h : Disjoint (X : Set (Torus S.d (n k))) (A.H.removedSet k)) (hv : FineValidPre F A k X) :
     FineValid F A k X ∧ d7Size F A k X = d7SizePre F A k X :=
-  ⟨fineValid_of_fineValidPre hv, d7Size_eq_d7SizePre_of_disjoint F A X h⟩
+  ⟨fineValid_of_fineValidPre_of_disjoint h hv, d7Size_eq_d7SizePre_of_disjoint F A X h⟩
 
 end ValidLabels
 

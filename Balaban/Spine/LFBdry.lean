@@ -34,13 +34,15 @@ accordingly.
   transfer of the labels and the entropy of the assignments, every constant shown.
 
 **Kind (iii) and blocker 3.**  The size transfer (`hsize` of `norm_sum_le_of_transfer`) is
-geometric.  It is proved in `Spine/LFBdryHole.lean` for the labels of the change R11
-(`Balaban.LargeField.Def7.exists_transfer_fineValidFinAt`, with mark patches
-`Balaban.Fluctuation.transfer_patches`), and for the landed labels when the new holes are unions of
-`π'_{k+1}`-cubes (`Balaban.LargeField.Def7.exists_transfer_fineValidAt_of_open`).  For the landed
-labels it fails at a defect of a new hole (`Balaban.Fluctuation.spill_of_defect`; the seam of
-`notes/phase1/astra/ALIGNED.md` (23)–(26)): this is blocker 3.  The labels `Ŷ(S)` of kinds (i) and
-(ii) meet the same obstruction (`Balaban.Fluctuation.djModFin_Yhat`).  The ruling request is R11 in
+geometric.  It is proved in `Spine/LFBdryHole.lean` for the valid labels `Def7.FineValidAt`, which
+(ruling R11) require the `π'`-cubes only at the small-field sites
+(`Balaban.LargeField.Def7.exists_transfer_fineValidAt`, with mark patches
+`Balaban.Fluctuation.transfer_patches`), whatever the shape of the new holes.  For the former
+labels (`Fluctuation.DjMod`, `π'`-cubes at every site) it holds only when the new holes are unions
+of `π'_{k+1}`-cubes (`Balaban.LargeField.Def7.exists_transfer_djMod_of_open`); at a defect of a new
+hole it fails (`Balaban.Fluctuation.spill_of_defect`; the seam of
+`notes/phase1/astra/ALIGNED.md` (23)–(26)), which is why R11 was needed.  The labels `Ŷ(S)` of
+kinds (i) and (ii) are labels of R11 (`Balaban.Fluctuation.djModFin_Yhat`).  The ruling is R11 in
 `notes/phase1/PLAN-B.md`; the named leaves of the three parts are listed in `notes/phase1/SPINE.md`,
 row (g2).
 

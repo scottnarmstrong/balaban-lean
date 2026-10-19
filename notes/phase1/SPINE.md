@@ -457,7 +457,7 @@ lie in `T′` and the marks on the anchors inside `T′` (L3). (A1)–(A4) are L
 | L1″ | (B3) the determinant part on `Gb` without `HatConn`: `newLevelDetBg_analyticOnNhd` (on `physVBg`), `norm_newLevelDetBg_le_of_avoid`, `newLevelDetBg_ne_zero_imp_of_avoid`, `newLevelDetBg_eq_of_agree`, `newLevelDetBg_rot` | **P** (`Fluctuation/NewLevelDetBgClauses.lean`) | 0 |
 | L2 | forward the formula to the endpoint. (a) **P**: `StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula` (RotLabels, as L1). (b) **P**: `StepTowerG.zeroSourceFamily_fields_agree_rot_formula` (`StepTowerRotFields`: the direct terms `I` with `I.𝒴`, the pins `F₂`, `Sol₂`, the formulas of `I.T` and of `val`, `A = labelActFamilyOn … I`, `A₀ = zeroSourceAct A 2` on `thickLabels I.𝒴 I.dom`, `ZeroSourceFields`; `zeroSourceActivity_common_agree_rot` already returned all of these, with `hAeq`, so it is unchanged). (c) **P**: `NewLevelSystem`, `NewLevelFormulaFor`, `NewLevelFormula` (`Inhabited/NewLevelSystem.lean`); proved at the Families layer (`…of_families_core_onSet_agree_phi_formula`) and carried, as one more premise of `hΦ`, through Red, Collar{Core, X, Base, Struct, Step, Uniform, Class}, `…classEps_ren_phi`, `…classEps_phi` (each `_phi_formula` core; the landed `_phi` theorem is its corollary, statement unchanged) and returned as a conjunct by `…classEps_ren_rot_formula`, `…classEps_rot_formula`. (d) **P**: the Collar core discharges `OldTermsAreIrrel` (the old term of `τ` is `irrelTorus C.m₀ C.Tm i₀ i₁ j y X`), turning `NewLevelFormulaFor` (explicit `OldTermSystem`) into `NewLevelFormula` (inhabitation of the chain's `ι`, `Eτ`) | **P** | 0 |
 | L3 | replacement of each object at `(Gb, canon)` (any cube-aligned, sup-separated `Gl`, `Gd ≺ Gl` with the layer `k` and no layer `k+1`; the recomputed maps pinned at their own level `δ₀′ ≥ 2K₄C₁ε′`) against `(S.G', self)` at the read datum `clipRaw Gl (rawOf D)`, for labels whose `2M₁L^{k+1}`-neighbourhood lies in the top layer of `Gl`: the block energy along the masked tangent (`coef_blockEnergyFun_replacement_marked_gen`, from `coef_blockEnergyFun_replacement_gen`); the terms from the coefficients, one core for both energies (`evDecBg_canon_eq_evDec_of_coef`; instances `evDecBg_canon_eq_evDec` (old terms), `evDecBg_canon_eq_evDec_block`); old marks and activities (`oldMarkGBg_canon_eq`, `oldActBg_canon_eq`); bridge marks on the parameter of `Gl` (`e1MarkGParamGBgOn` — `e1MarkGParamGBg` its instance `Gg = S.G'` — and `e1MarkGParamGBgOn_canon_eq`, via `decMarkGBg_eq_of_evDecBg`, `decMarkCorrBg_eq_of_evDecBg`); zero-source terms and activities on `Gb` (`zeroTermBg`, `zeroActBg`: the block-energy term at the marks `(1,0)` read at `Tr.res ψ̂`; `zeroTermBg_self`, `zeroTermBg_canon_eq`, `zeroActBg_canon_eq`; the chain's zero-source family is `zeroActBg` at the step's set: `zeroSourceAct_labelActFamilyOn_H_eq`); (A5) assembled: `newLevelCoeffBg_class_canon_eq_of_det` (the class family `commonAct (A₀.sum (commonAct A_C …))` of the Families layer, `classActFun`, `newLevelCoeffBg_class_eq_of_agree`), reduced to the determinant part (L1′) | **P** (`Fluctuation/LocalSetActMarked.lean`, `NewLevelOldTermsBg.lean`, `NewLevelBlockTermsBg.lean`, `NewLevelZeroSourceBg.lean`, `Inhabited/NewLevelOldTermsBgCast.lean`, `NewLevelBridgeMarksBgCast.lean`, `NewLevelCoeffBgClass.lean`, `NewLevelCoeffBgClassCast.lean`; W1146) | 0 |
-| L4 | clauses of `newLevelCoeffBg (Gb(T′))` on the local chart: `ParamMarkFamily` over `physVBg Gb` (bundled `LabelAct` on the chart of radius `ε_{k+1}`); Lemma 4.2 at `Gb` (`BgSetting N Gb (Gk τ) (Gj τ)`, `FlSetting` at castG sets from `flCore_castG_localB`, the composed data in the old terms' domains: the premise `hchart` of the chain, open item (d), at `Gb`); the bridge marks' `hloc/hcau/hJ2/hJ4` at `Gb` (R8-AUDIT D2: per label inside the top layer); (A3) Gb-vs-Gb locality on the `K_loc` chart, which needs `Gst_congr` with a `DepOn` hypothesis in place of the bundled activity (a core in `Polymer/MarkedCubesLocal.lean`, landed statement its instance; low in the import graph: a large rebuild); (A4) covariance at `Gb` | O | 3,800 |
+| L4 | clauses of `newLevelCoeffBg (Gb(T′))` on the local chart: `ParamMarkFamily` over `physVBg Gb` (bundled `LabelAct` on the chart of radius `ε_{k+1}`); Lemma 4.2 at `Gb` (`BgSetting N Gb (Gk τ) (Gj τ)`, `FlSetting` at castG sets from `flCore_castG_localB`, the composed data in the old terms' domains: the premise `hchart` of the chain, open item (d), at `Gb`); the bridge marks' `hloc/hcau/hJ2/hJ4` at `Gb` (R8-AUDIT D2: per label inside the top layer); (A3) Gb-vs-Gb locality on the `K_loc` chart, which needs `Gst_congr` with a `DepOn` hypothesis in place of the bundled activity (a core in `Polymer/MarkedCubesLocal.lean`, landed statement its instance; low in the import graph: a large rebuild); (A4) covariance at `Gb`. **Done (W1146):** L4-1, the R8 field lemmas of the marks on the chart of any generating set `Gg` (`XiCRaw Gg`, `physVBg N Gg`): `deriv_evDecBg_hatOf_fields_gen`, `decMarkGBg_dep_gen`, `norm_decMarkGBg_le_gen`, `decMarkCorrBg_fields_of_gen`, `decMarkGBg_eq_zero_of_gen`, `decMarkCorrBg_eq_zero_of_gen`, `e1MarkGParamGBgOn_fields_label/_of` (the landed lemmas at `Gg = S.G'` their instances); L4-2a, Lemma 4.2 at `Gb`, (AE1) part (`Fluctuation/NewLevelTermsBgAnalytic.lean`): `evDecBg_canon_bound_analytic` (every term `evDecBg` recomputed on `Gb` with `BgTransport.canon`, for a functional analytic and bounded on `FlRealLC Gb Gd … X₁g`, `X₁g ⊆ X₁` in the top layer of `Gb`, is bounded by `E_b e^{-κ₀Δ - 2κ_dec d̃(Y)}` and jointly analytic in `((Θ, ψ̂), (um, tm))` on the chart of `Gb`), `evDecBg_canon_fields` (the hypotheses `hcau`, `hJ2`, `hJ4` of the R8 field lemmas at `Gg = Gb`); cover-form marked fan `fanLocalHatMarked_analytic_cover`, `fanLocalHatMarked_norm_le_cover` (the marked local hat field `u ψ'_loc + t M_Z ψ'_loc`; the landed `fanLocalHat_*_cover` the instances `(u, t) = (1, 0)`), the multiplier cores `localHatLiftMul_*`, `markedEv_physVBg_of_joint`. **Open:** L4-2b, the locality (AE2) of the terms on `Gb` (`hloc` of the R8 lemmas; dep of the activities and marks, and (A3)): a Gb-vs-Gb replacement core from `eTermFun_replacement_cross_of_agree_sep` / `localLift_eq_localLift_on_component` with the active-cube geometry of `restrict_gen` on both sides; L4-3 the `ParamMarkFamily` over `physVBg Gb` (zero-source activities by `rayTerm_dl3_analytic_bound`, old activities, bridge and old marks, truncated to the labels inside `T′`); L4-4 (A1)–(A4) | O | 3,000 |
 | L5 | `f`, `π_b`, the inputs (A1)–(A5), then `localClass_newLevel_of_expansion_cast` | O | 300 |
 
 **L3 interface (W1146).** `newLevelCoeffBg_class_canon_eq_of_det` takes the step's objects through their formulas at the step's own set at the read parameter `θ`: `h0eq` ((A₀ θ s).H Y = `zeroActBg` self …; from the zero-source equation of L2 (b) by `zeroSourceAct_labelActFamilyOn_H_eq` and `zeroTermBg_self`), `h1eq` ((AC θ s).H Y = `oldActBg` self …: the chain's `hAC` with `hH`, `oldActBg_self` by `rfl`), `hG₁eq` (`hG₁`, `oldMarkGBg_self` by `rfl`); the bridge marks are `e1MarkGParamG` itself; `hGdep` (locality of the step's marks, (M2)); the read condition `hkX` (data sites of `Gk τ` in `X₁(τ)`: from `BgSetting.dsX₀` and `.hN`); the radius conditions `17/16 ≤ R_u`, `R_u m_R < δ₁`, `2ρ₀ ≤ c_ψ` (zero source, `ρ₀ = p₁`), `ρ ≤ c_ψ`. L5 supplies the margin of `sitesOf T′` in the top layer of `Gb(T′)` (`castG_localB_collar_margin`) and `hdet` (`newLevelDetBg_castG_canon`). **For the system** (`Inhabited/NewLevelSystemCanon.lean`, W1146): `NewLevelSystem.coeffBg` (the coefficient of a system recomputed on `Gl` at a parameter of `Gl`) and `NewLevelSystem.coeff_eq_coeffBg_canon_of_det` (`NS.coeff θ T = NS.coeffBg … θ_b T` at the read datum when the determinant parts agree; `h0eq` by `NewLevelSystem.zeroAct_eq_zeroActBg`, `h1eq` by `hAC`, `hH`, `hG₁eq` by `hG₁`; the pins of the system for the step's pairs; the old terms keep their own constants `O.κ`, `O.BG`, `O.BG₂`, `O.δ₁`, through the core `newLevelCoeffBg_class_canon_eq_of_det_gen`). The locality of the marks is carried by the system: fields `hG₁dep` (the mark of `q` depends on the blocks of `bridge 1 z q.1.2`) and `hbrdep` (the bridge mark of `i` on the blocks of `i`), `NewLevelSystem.G_dep`; proved at the Families layer from what the chain proves: RotLabels returns the locality of `G₁` (from `classMarks_M2_of_family_gen_onSet_pad`), the base layer `…agree_rot_formula` that of the bridge marks (from `e1MarkParam_pairs_fromTowerG`). L5 reads `NS.G_dep` for `hGdep`.
@@ -484,7 +484,7 @@ chain's variables); `OldTermsAreIrrel S C O` (`O.m₀ = C.m₀` and `Eτ τ r = 
 O.hFkL`, `hH`, `hG₁`, `hF₁`, `hSol`, and the equation `OldTermsAreIrrel`; the bounds of the activities are not part of the system.
 
 Order: L2 (b)–(d) done (W1147); L3 done (W1146, reads their objects); L4 needs L3's objects (Opus: Lemma 4.2 at `Gb`); L5 last. Remaining
-≈ 4,100 (after L3, W1146) (SPINE-PLAN's 1,300 for (iii) assumed `e` recomputable from the chain's statement). No landed definition changes: the R8 objects take
+≈ 3,300 (after L3 and L4-1, L4-2a, W1146) (SPINE-PLAN's 1,300 for (iii) assumed `e` recomputable from the chain's statement). No landed definition changes: the R8 objects take
 the gate radius as a parameter, and `DetExpansionLocCBg` (indexed by the step's datum) is not used for `f`, whose determinant part is
 `newLevelDetBg` on `Gb`'s parameter. No ruling is requested.
 
@@ -611,9 +611,9 @@ theorem norm_sum_le_of_transfer (I : Finset ι) (T : ι → ℂ) (Dm mk : ι →
     (hmin : ∀ a ∈ I, Dmin ≤ Dm a) (hB₀min : B₀ * exp (-(κ/2) * Dmin) ≤ 1) (hsize : ∀ a ∈ I, Dp ≤ Dm a / L + Cd * mk a)
     (hent : ∑ a ∈ I, exp (-(κ/2 - κo/L) * Dm a - (κm - κo*Cd) * mk a) ≤ Kent) :
     ‖∑ a ∈ I, T a‖ ≤ Cre * Kent * exp (-κo * Dp)
-theorem Def7.exists_transfer_fineValidFinAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
-    (hX : FineValidFinAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
-      FineValidFinAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
+theorem Def7.exists_transfer_fineValidAt (F) (hnn) (hkK : k + 1 ≤ K) (hΩ : d7Pull F (k+1) Om' ⊆ d7Pull F k Om)
+    (hX : FineValidAt F k Om X) : ∃ Y : Finset (Torus S.d (n (k+1))), d7Pull F k X ⊆ d7Pull F (k+1) Y ∧
+      FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
 theorem Def7.exists_transfer_fineValidAt_of_open … (hopen : ∀ z ∈ (d7Pull F (k+1) Om')ᶜ,
       IsPiPrimeUnion m₀ (k+1) (OmegaComp (d7Pull F (k+1) Om') z)) (hX : FineValidAt F k Om X) :
     ∃ Y, … ∧ FineValidAt F (k+1) Om' Y ∧ d7SizeAt F (k+1) Om' Y ≤ (S.L)⁻¹ * d7SizeAt F k Om X
@@ -627,7 +627,7 @@ theorem RegionHistory.le_d7SizeAt_of_reach (F) (hnn) (H) (hk : k + 1 ≤ K)
     (hX : X ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z)
     (hmeet : (d7Pull F k X ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) :
     (S.L : ℝ) * (⌊R k⌋₊ + 2) ≤ d7SizeAt F k (H.omegaPost k) X
-theorem Def7.FineValidFinAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidFinAt F k Om Y) : DmodOmega Om Y
+theorem Def7.FineValidAt.dmodOmega (F) (hnn) (hkK : k ≤ K) (h : FineValidAt F k Om Y) : DmodOmega Om Y
 ```
 
 **The split** (LFR Lemma IV.1.5: three kinds with constants of rows 0–11, `B_st` their sum). `LFBdrySplit Λ` (a map,
@@ -650,10 +650,10 @@ H7-admissible constant coefficient to pay it (ALIGNED (33)). The same holds for 
 (i) a property of the P6 construction — refuted for the class (the constant coefficient re-expands to itself);
 (ii) a stronger H7 — refuted (the spill is created by the next scale's hole; also hits (i), (ii)); (iii) route B —
 removes the spill but breaks the domain entropy (G2) (`G2_X`, `D7GasRootEntropy`) unless the size charges hole sites,
-which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B): `FineValidAt := DjModFin` (π′-cubes at the active sites
+which re-indexes `Ŷ(S)` and the gas cores. **R11** (PLAN-B; APPLIED by W1148: `FineValidAt` is `Fluctuation.DjModFin` at the fine sets; the entropy core is `G2_XFin`, the size growth core `dcovMod_le_add_of_piCubesAt`): `FineValidAt := DjModFin` (π′-cubes at the active sites
 only; size, `loc_hist`, H7 domain unchanged). Under R11 the transfer of every label across every new hole is proved
-(`Def7.exists_transfer_fineValidFinAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
-the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidAt_of_open`).
+(`Def7.exists_transfer_fineValidAt`: `d_{k+1}(Y) ≤ L⁻¹ d_k(X)`; marks `transfer_patches`: `+ 2dL` per patch); in
+the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exists_transfer_djMod_of_open`).
 
 **Leaves of (iii)** (each ≤ 300 lines; none involves a new hole once R11 is in):
 * O1 `old_reexpansion`: the old part at a label is the finite sum over assignments (old label `X'`, marks `J`) of P6
@@ -663,12 +663,12 @@ the landed class only for π′-open new holes (`Def7.exists_transfer_fineValidA
   analytic engine is the one of kind (i).
 * O2 **PROVED** (`RegionHistory.d7Pull_OmegaCube_succ_subset`): `d7Pull F (k+1) (OmegaCube H (k+1)) ⊆
   d7Pull F k (H.omegaPost k)` (P5 (2.3): the opening misses `nbhd (U'_k)`, `(Ω_k^post)^c ⊆ Z_k`).
-* O3 cube level **PROVED** (`Def7.FineValidFinAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
+* O3 cube level **PROVED** (`Def7.FineValidAt.dmodOmega`: an R11 label is a cube-level `DmodOmega`); open: which
   transferred labels meet `Z^pre_{k+1}` and its complement (the others go to `b_k`, LFR Lemma IV.1.3) — part of O1.
 * O4 **PROVED** (`RegionHistory.le_d7SizeAt_of_reach`): an old post-`R` label whose fine set meets the new region has
   `d7SizeAt ≥ L(⌊R_k⌋ + 2)` (exit of a hole `DmodOmega.exists_active_near`, `dcovMod_ge_supDist`); `hmin`, with (Λ28)
   `B₀ e^{-(κ/2) L(⌊R_k⌋+2)} ≤ 1` for `hB₀min`.
-* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (after R11's `G2_X` core) and the mark count of P3 (4.49).
+* O5 `assign_entropy`: `hent` from (G2) over the R11 labels (`G2_XFin`, landed with R11) and the mark count of P3 (4.49).
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -1137,7 +1137,7 @@ measurable, so integrability is proved for the construction, not from the class 
 intersected with `fineSet Z'`, but `stepVacuumTerm`'s first region `(a.Z k)ᶜ ∖ a.Omega k` is a complement in the whole fine torus, so it contains
 `(fineSet Z')ᶜ` (`compl_fineSet_subset_vacuumRegion`, `Spine/RVacuumB0Defect.lean`). The term `E_k · |that region|_k` grows with the torus
 for fixed `Z'`; the offsets `δ″, δ‴` multiply the other two regions and cannot cancel it, and `b_k` is bounded by `b_bound` alone
-(`norm_vacuumTerm_le_of_b0Bound`: the bound forces `‖vacuum term‖ ≤ 2C|Z_{k+1}∖Z_k|`). Only `E_k = 0` is consistent. Smallest honest replacement
-(needs a ruling, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
+(`norm_vacuumTerm_le_of_b0Bound`: the bound forces `‖vacuum term‖ ≤ 2C|Z_{k+1}∖Z_k|`). Only `E_k = 0` is consistent. LANDED (W1148, ruling R10, 2026-10-19): `Spine/RVacuumB0Defect.lean` keeps only the true lemmas, `compl_fineSet_subset_vacuumRegion` is deleted. Replacement
+(ruling R10, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
 by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; excesses 2, 3 are `Ω∖Ω″` and `Ω″` inside `Z_k`, needing a geometric bound
 `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` from the definition of `Ω`.

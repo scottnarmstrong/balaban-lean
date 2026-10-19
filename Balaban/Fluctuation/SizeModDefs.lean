@@ -106,6 +106,16 @@ nonempty set, in particular for `X ∈ 𝒟_j(mod Ω^c)` with `X ∩ Ω ≠ ∅`
 noncomputable def dcovMod (Ω X : Set (CTorus d L N₁ m₁ K)) : ℝ :=
   (dcovModE m₀ j Ω X).toReal
 
+/-- **`𝒟_j(mod Ω^c)` with the `π'_j`-cube structure required through the sites of `Ω` only**
+(the label class of ruling R11): `X` is nonempty, nearest-neighbour connected, contains or
+misses every component of `Ω^c` (P5 (1.33)), and its modular covering size is finite, that is, the
+sites of `X ∩ Ω` lie in `π'_j`-cubes contained in `X` (`DjModFin.exists_box`).  The class `DjMod`
+asks in addition that every site of `X` lie in a `π'_j`-cube contained in `X`
+(`djMod_iff_djModFin`). -/
+def DjModFin (Ω X : Set (CTorus d L N₁ m₁ K)) : Prop :=
+  X.Nonempty ∧ SiteConnected X ∧ (∀ z ∈ Ωᶜ, OmegaComp Ω z ⊆ X ∨ Disjoint (OmegaComp Ω z) X) ∧
+    dcovModE m₀ j Ω X ≠ ⊤
+
 /-- `Ŷ(S)`: `S` together with all components of `Ω^c` adjacent to `S`. -/
 def Yhat (Ω S : Set (CTorus d L N₁ m₁ K)) : Set (CTorus d L N₁ m₁ K) :=
   S ∪ {y | ∃ z ∈ Ωᶜ, (∃ s ∈ S, Nbr s z) ∧ y ∈ OmegaComp Ω z}
@@ -114,6 +124,25 @@ def Yhat (Ω S : Set (CTorus d L N₁ m₁ K)) : Set (CTorus d L N₁ m₁ K) :=
 noncomputable def dOmega (Ω S : Set (CTorus d L N₁ m₁ K)) : ENNReal :=
   open Classical in
   if SiteConnected (Yhat Ω S) then dcovModE m₀ j Ω (Yhat Ω S) else ⊤
+
+variable {m₀ j}
+
+omit [NeZero N₁] [NeZero L] in
+theorem exists_admissible_of_ne_top {Ω X : Set (CTorus d L N₁ m₁ K)}
+    (h : dcovModE m₀ j Ω X ≠ ⊤) : ∃ 𝒦 W E, ModAdmissible m₀ j Ω X 𝒦 W E := by
+  by_contra hh
+  exact h (le_antisymm le_top (le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E =>
+    le_iInf fun h => absurd ⟨𝒦, W, E, h⟩ hh))
+
+omit [NeZero N₁] [NeZero L] in
+/-- The sites of `X ∩ Ω` of a label of `DjModFin` lie in `π'_j`-cubes contained in `X`. -/
+theorem DjModFin.exists_box {Ω X : Set (CTorus d L N₁ m₁ K)} (h : DjModFin m₀ j Ω X)
+    {z : CTorus d L N₁ m₁ K} (hz : z ∈ X ∩ Ω) :
+    ∃ b, Aligned (cellSide L m₀ m₁ j) b ∧ z ∈ box b (L * cellSide L m₀ m₁ j) ∧
+      box b (L * cellSide L m₀ m₁ j) ⊆ X := by
+  obtain ⟨𝒦, W, E, hK, hcov, -⟩ := exists_admissible_of_ne_top h.2.2.2
+  obtain ⟨b, hb, hzb⟩ := Set.mem_iUnion₂.1 (hcov hz)
+  exact ⟨b, (hK b hb).1, hzb, (hK b hb).2⟩
 
 end Defs
 

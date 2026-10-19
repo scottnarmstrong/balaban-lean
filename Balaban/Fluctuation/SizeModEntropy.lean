@@ -150,19 +150,19 @@ theorem mem_famT_of_admissible (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K)
   exact mem_nbF.2 ⟨t, hT' t htT, hn⟩
 
 open Classical in
-/-- **(G2), polymers.**  For a `π_j`-cube `□ ⊆ Ω` and `κ₀ ≥ a_ent + 1`:
-`∑_{X ⊇ □, X ∈ 𝒟_j(mod Ω^c)} e^{-κ₀ d^cov_j(X mod Ω^c)} ≤ K₀`. -/
-theorem G2_X (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus d L N₁ m₁ K)}
+/-- **(G2), polymers, for the labels of R11.**  For a `π_j`-cube `□ ⊆ Ω` and `κ₀ ≥ a_ent + 1`:
+`∑_{X ⊇ □, X ∈ 𝒟_j^fin(mod Ω^c)} e^{-κ₀ d^cov_j(X mod Ω^c)} ≤ K₀`. -/
+theorem G2_XFin (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus d L N₁ m₁ K)}
     (hΩ : IsPiUnion m₀ j Ω) {t0 : CTorus d L N₁ m₁ K} (ht0 : Aligned (cellSide L m₀ m₁ j) t0)
     (ht0Ω : box t0 (cellSide L m₀ m₁ j) ⊆ Ω) {κ₀ : ℝ} (hκ : aEnt d L + 1 ≤ κ₀) :
     ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
-        DjMod m₀ j Ω X ∧ box t0 (cellSide L m₀ m₁ j) ⊆ X),
+        DjModFin m₀ j Ω X ∧ box t0 (cellSide L m₀ m₁ j) ⊆ X),
       Real.exp (-κ₀ * dcovMod m₀ j Ω X) ≤ K0 d L κ₀ := by
   have ha0 := cellSide_pos (L := L) m₀ m₁ j
   refine sum_exp_le _ _ (fun X _ => dcovMod_nonneg _ _) (aEnt_nonneg d L) hκ (fun ℓ => ?_)
   refine le_trans ?_ (card_famT_le_exp L (cellSide L m₀ m₁ j) ℓ t0)
   have hsub : (Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
-        DjMod m₀ j Ω X ∧ box t0 (cellSide L m₀ m₁ j) ⊆ X)).filter
+        DjModFin m₀ j Ω X ∧ box t0 (cellSide L m₀ m₁ j) ⊆ X)).filter
         (fun X => dcovMod m₀ j Ω X < ℓ + 1) ⊆
       (famT L (cellSide L m₀ m₁ j) (3 ^ d * (ℓ + 2)) t0).image
         (fun p => reconSet m₀ j Ω p.1 p.2) := by
@@ -170,7 +170,7 @@ theorem G2_X (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus d L N₁ 
     obtain ⟨hX1, hlt⟩ := Finset.mem_filter.1 hX
     obtain ⟨hXD, hbox⟩ := (Finset.mem_filter.1 hX1).2
     obtain ⟨𝒦, W, E, hE, hc⟩ :=
-      exists_admissible_eq_dcovMod (exists_admissible_of_IsDj (Ω := Ω) hXD.1)
+      exists_admissible_eq_dcovMod (exists_admissible_of_ne_top hXD.2.2.2)
     have ht0X : t0 ∈ X ∩ Ω := ⟨hbox (mem_box_self t0 ha0), ht0Ω (mem_box_self t0 ha0)⟩
     refine Finset.mem_image.2 ⟨(cellsIn m₀ j (X ∩ Ω), Uset m₀ j Ω X), ?_,
       (X_eq_recon hN hj hΩ hXD hbox ht0Ω).symm⟩
@@ -183,12 +183,21 @@ theorem G2_X (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus d L N₁ 
   have := (Finset.card_le_card hsub).trans Finset.card_image_le
   exact_mod_cast this
 
-omit [NeZero N₁] [NeZero L] in
-theorem exists_admissible_of_ne_top {Ω X : Set (CTorus d L N₁ m₁ K)}
-    (h : dcovModE m₀ j Ω X ≠ ⊤) : ∃ 𝒦 W E, ModAdmissible m₀ j Ω X 𝒦 W E := by
-  by_contra hh
-  exact h (le_antisymm le_top (le_iInf fun 𝒦 => le_iInf fun W => le_iInf fun E =>
-    le_iInf fun h => absurd ⟨𝒦, W, E, h⟩ hh))
+open Classical in
+/-- **(G2), polymers.**  For a `π_j`-cube `□ ⊆ Ω` and `κ₀ ≥ a_ent + 1`:
+`∑_{X ⊇ □, X ∈ 𝒟_j(mod Ω^c)} e^{-κ₀ d^cov_j(X mod Ω^c)} ≤ K₀`; the instance of `G2_XFin` for the
+former labels (a former label is a label of `DjModFin`, `DjMod.djModFin`). -/
+theorem G2_X (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus d L N₁ m₁ K)}
+    (hΩ : IsPiUnion m₀ j Ω) {t0 : CTorus d L N₁ m₁ K} (ht0 : Aligned (cellSide L m₀ m₁ j) t0)
+    (ht0Ω : box t0 (cellSide L m₀ m₁ j) ⊆ Ω) {κ₀ : ℝ} (hκ : aEnt d L + 1 ≤ κ₀) :
+    ∑ X ∈ Finset.univ.filter (fun X : Set (CTorus d L N₁ m₁ K) =>
+        DjMod m₀ j Ω X ∧ box t0 (cellSide L m₀ m₁ j) ⊆ X),
+      Real.exp (-κ₀ * dcovMod m₀ j Ω X) ≤ K0 d L κ₀ :=
+  (Finset.sum_le_sum_of_subset_of_nonneg
+    (fun X hX => by
+      obtain ⟨h1, h2⟩ := (Finset.mem_filter.1 hX).2
+      exact Finset.mem_filter.2 ⟨Finset.mem_univ _, DjMod.djModFin h1, h2⟩)
+    (fun _ _ _ => (Real.exp_pos _).le)).trans (G2_XFin hN hj hΩ ht0 ht0Ω hκ)
 
 open Classical in
 /-- **(G2), supports.**  For a `π_j`-cube `□ ⊆ Ω` and `κ₀ ≥ a_ent + 1`, summing over the sets

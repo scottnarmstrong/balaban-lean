@@ -57,11 +57,11 @@ theorem cubeIdx_nbr {y z : Balaban.Localization.CTorus S.d S.L F.N₁ m₁ K} (h
     have := (cAdj_iff_nnAdj F hnn hkK (aligned_cbase y) (aligned_cbase z)).1 e
     rwa [cubeIdx_cbase F hnn hkK, cubeIdx_cbase F hnn hkK] at this
 
-/-- **The exit root.**  A pre-valid label `X` (a label whose fine lift is in `𝒟_k(mod (Ω_f)ᶜ)`)
+/-- **The exit root.**  A pre-valid label `X` (a label whose fine lift is in `𝒟_k^fin(mod (Ω_f)ᶜ)`)
 that contains a cube `x ∉ Ω` and meets `Ω` contains a cube `q ∈ Ω` that is a nearest neighbour of
 a cube `q'` joined to `x` by a nearest-neighbour path in `Ωᶜ`. -/
 theorem exists_exit_root {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))}
-    (hX : Fluctuation.DjMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))))
+    (hX : Fluctuation.DjModFin m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))))
     {x : Torus S.d (n k)} (hxX : x ∈ X) (hxO : x ∉ Om) (hXO : ∃ q ∈ X, q ∈ Om) :
     ∃ q ∈ X, q ∈ Om ∧ ∃ q', Relation.ReflTransGen
       (fun u v => u ∉ Om ∧ v ∉ Om ∧ NNAdj u v) x q' ∧ NNAdj q' q := by
@@ -74,7 +74,7 @@ theorem exists_exit_root {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n 
   have hyO : y ∉ Of := by rw [hOf, d7Pull_iff, hyc]; exact hxO
   set Hc := Fluctuation.OmegaComp Of y with hHc
   have hHsub : Hc ⊆ Xf := by
-    rcases hX.2 y hyO with h | h
+    rcases hX.2.2.1 y hyO with h | h
     · exact h
     · exact absurd hyX (Set.disjoint_left.1 h (show y ∈ Fluctuation.OmegaComp Of y from
         ⟨hyO, Relation.ReflTransGen.refl⟩))
@@ -162,7 +162,7 @@ theorem sum_exp_le_of_coarse_roots (Om : Set (Torus S.d (n k))) (Rt : Finset (To
   · intro Y hY
     obtain ⟨X, hX, rfl⟩ := Finset.mem_image.1 hY
     obtain ⟨-, hv, hp⟩ := Finset.mem_filter.1 hX
-    exact Finset.mem_filter.2 ⟨Finset.mem_univ _, hv.1, (hPf _).2 ⟨X, hv, hp, rfl⟩⟩
+    exact Finset.mem_filter.2 ⟨Finset.mem_univ _, hv, (hPf _).2 ⟨X, hv, hp, rfl⟩⟩
   · exact mul_le_mul_of_nonneg_right (by exact_mod_cast Finset.card_image_le) hK
 
 end Exit
@@ -209,7 +209,7 @@ theorem exists_root_of_removed (hk : 1 ≤ k) {c : Finset (Torus S.d (n k))} (hc
   by_cases hxO : x ∈ OmegaCube A.H k
   · exact ⟨x, hxX, hxO, Or.inl hxc⟩
   · obtain ⟨q, hqX, hqO, q', hchain, hadj⟩ :=
-      exists_exit_root F (RegionHistory.tower A.H) hkK hX.1 hxX hxO hXO
+      exists_exit_root F (RegionHistory.tower A.H) hkK hX hxX hxO hXO
     exact ⟨q, hqX, hqO, Or.inr ⟨q', A.H.mem_of_nnPath_rawHole hk hc
       (T := (OmegaCube A.H k)ᶜ) subset_rfl hxc hchain, hadj⟩⟩
 
@@ -243,7 +243,7 @@ theorem sum_exp_le_rawHole (Q : Finset (Torus S.d (n k))) (hQne : Q.Nonempty)
       rintro X hX ⟨hQX, hXO⟩
       obtain ⟨x, hx⟩ := hQne
       obtain ⟨q, hqX, hqO, q', hchain, hadj⟩ :=
-        exists_exit_root F hnn hkK hX.1 (hQX hx) (hQhole x hx) hXO
+        exists_exit_root F hnn hkK hX (hQX hx) (hQhole x hx) hXO
       have hq' : q' ∈ Q := by
         have key : ∀ b, Relation.ReflTransGen
             (fun u v => u ∉ OmegaCube A.H k ∧ v ∉ OmegaCube A.H k ∧ NNAdj u v) x b → b ∈ Q := by
@@ -389,8 +389,8 @@ theorem remMeeting_card_le (hk : 1 ≤ k) {X : Finset (Torus S.d (n k))}
       calc ∑ q ∈ Ract, (Cq q).card ≤ ∑ _q ∈ Ract, (2 * S.d + 1) :=
             Finset.sum_le_sum fun q _ => hCcard q
         _ = _ := by simp))
-  have hG1 := Fluctuation.G1_cellCount (m₀ := m₀) (j := k) F.divN₁ hkK
-    (Ω := d7Pull F k (OmegaCube A.H k)) (X := d7Pull F k (X : Set (Torus S.d (n k)))) hX.1
+  have hG1 := Fluctuation.DjModFin.cellCount_le (m₀ := m₀) (j := k) F.divN₁ hkK
+    (Ω := d7Pull F k (OmegaCube A.H k)) (X := d7Pull F k (X : Set (Torus S.d (n k)))) hX
   have hset : d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F k (OmegaCube A.H k) =
       d7Pull F k (Ract : Set (Torus S.d (n k))) := by
     ext x

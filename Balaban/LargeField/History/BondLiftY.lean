@@ -583,17 +583,16 @@ theorem pair_over_cube {ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤
   have := hnear y hy y' hadj
   rwa [cube_eq_of_jBlock_eq hm (GeneratingSet.mem_blk.1 hy')] at this
 
-/-- **The bond lift over a cube (bulk case).**  Let `Gc` have top domain over `nbhd_2 {y₁}` and `Gk` top domain over `W ⊇ nbhd_2 {y₁}`; if `BlockClose` and `GradClose` hold with tolerance `δ` on the stencil `nbhd_1 {y₁}` for the data `D` and the field `φ` on `Gc`, then for every interface pair `(s, s')` of `Gk` with `s` over `y₁`, `‖Ψ(s) - Ψ(s')‖ < 3 δ`. -/
-theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
-    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (Gk : GeneratingSet d L (M1 * N₁) q ϱk)
-    (W : Set (Torus d n)) (y₁ : Torus d n) (hW : nbhd 2 {y₁} ⊆ W)
+/-- **The bond lift over a cube, for two sites over adjacent blocks** (the core of `pair_bound_of_close`; no generating set for the pair).  Let `Gc` have top domain over `nbhd_2 {y₁}` and `Gk` top domain over `W ⊇ nbhd_2 {y₁}`; if `BlockClose` and `GradClose` hold with tolerance `δ` on the stencil `nbhd_1 {y₁}` for the data `D` and the field `φ` on `Gc`, then for every interface pair `(s, s')` of `Gk` with `s` over `y₁`, `‖Ψ(s) - Ψ(s')‖ < 3 δ`. -/
+theorem pair_bound_of_close_blocks {ϱc : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
+    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (y₁ : Torus d n)
     (hGc : ∀ x, x ∈ Gc.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ nbhd 2 {y₁})
-    (hGk : ∀ x, x ∈ Gk.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ W)
     (D : BgData Gc N) (φ : Gc.Ω 1 × Fin N → ℂ) (α : Gc.Ω 1 → ℂ) (δ : ℝ)
     (hBC : BlockClose Gc D φ (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
     (hGC : GradClose Gc D φ α ((L : ℝ) ^ q) (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
     {s s' : Torus d (M1 * N₁ * L ^ q)} (hs : blockMap (L ^ q * (c * M1)) n s = y₁)
-    (hp : IsInterfacePair Gk s s') :
+    (hs'cube : blockMap (L ^ q * (c * M1)) n s' ∈ nbhd 1 {y₁})
+    (hadj : ∃ y ∈ Gc.blk q s, ∃ y' ∈ Gc.blk q s', Adj y y') :
     vn (fun i => D.Ψ s i - D.Ψ s' i) < 3 * δ := by
   classical
   have hcN : N₁ = c * n := by simpa using hm
@@ -612,12 +611,9 @@ theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (h
       blockMap (L ^ q * (c * M1)) n z ∈ nbhd 1 {y₁} := fun z => mem_cubePre
   have hTc : ∀ z, z ∈ cubeNbhd M1 N₁ L q c n 1 y₁ → z ∈ Gc.Ω q := fun z hz =>
     (hGc z).2 (hn1 _ ((hT z).1 hz))
-  have hTk : ∀ z, z ∈ cubeNbhd M1 N₁ L q c n 1 y₁ → z ∈ Gk.Ω q := fun z hz =>
-    (hGk z).2 (hW (hn1 _ ((hT z).1 hz)))
   have hy₁ : y₁ ∈ nbhd 1 ({y₁} : Set (Torus d n)) := subset_nbhd 1 _ rfl
   have hsT : s ∈ cubeNbhd M1 N₁ L q c n 1 y₁ := (hT s).2 (hs ▸ hy₁)
-  obtain ⟨hsk, hs'k, hs'cube, y, hy, y', hy', hadj⟩ :=
-    pair_over_cube hm hq Gk W y₁ hW hGk hs hp
+  obtain ⟨y, hy, y', hy', hadj⟩ := hadj
   have hs'T : s' ∈ cubeNbhd M1 N₁ L q c n 1 y₁ := (hT s').2 hs'cube
   have hsc : s ∈ Gc.Ω q := hTc s hsT
   have hs'c : s' ∈ Gc.Ω q := hTc s' hs'T
@@ -688,6 +684,24 @@ theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (h
   have t2 := vn_triangle' (fun i => blockAvg Gc φ s i) (fun i => blockAvg Gc φ s' i)
     (fun i => D.Ψ s' i)
   linarith
+
+
+
+/-- **The bond lift over a cube (bulk case).** -/
+theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
+    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (Gk : GeneratingSet d L (M1 * N₁) q ϱk)
+    (W : Set (Torus d n)) (y₁ : Torus d n) (hW : nbhd 2 {y₁} ⊆ W)
+    (hGc : ∀ x, x ∈ Gc.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ nbhd 2 {y₁})
+    (hGk : ∀ x, x ∈ Gk.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ W)
+    (D : BgData Gc N) (φ : Gc.Ω 1 × Fin N → ℂ) (α : Gc.Ω 1 → ℂ) (δ : ℝ)
+    (hBC : BlockClose Gc D φ (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
+    (hGC : GradClose Gc D φ α ((L : ℝ) ^ q) (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
+    {s s' : Torus d (M1 * N₁ * L ^ q)} (hs : blockMap (L ^ q * (c * M1)) n s = y₁)
+    (hp : IsInterfacePair Gk s s') :
+    vn (fun i => D.Ψ s i - D.Ψ s' i) < 3 * δ := by
+  obtain ⟨-, -, hs'cube, y, hy, y', hy', hadj⟩ :=
+    pair_over_cube hm hq Gk W y₁ hW hGk hs hp
+  exact pair_bound_of_close_blocks hm hq Gc y₁ hGc D φ α δ hBC hGC hs hs'cube ⟨y, hy, y', hy', hadj⟩
 
 end PairBound
 
@@ -1113,6 +1127,50 @@ theorem sphere_bound_of_close (G : GeneratingSet d L N₀ k ϱ) (D : BgData G N)
 end Sphere
 
 
+section CubeSphere
+
+variable {d M1 N₁ L q c n N : ℕ} [NeZero L] [NeZero M1] [NeZero N₁] [NeZero n]
+
+/-- **R2 over a tested cube** (the core of `sphere_over_Y`).  If `Reg` holds at the cube `y₁` for
+the block field `ψ` of scale `q` (`ChiKProp`, that is `χ_q(y₁) = 1`) and the numeric premise `BgHyp`
+of the background solver holds, then `| |ψ(B(s))| - 1 | < (d + 1) δ` for every site `s` over `y₁`. -/
+theorem sphere_of_chiKProp {a : ℕ → ℝ} {μ δ : ℝ} {h : Fin N → ℝ}
+    {ψ : BlockCfg d (M1 * N₁) L q q N}
+    (H : BgHyp d L q (minSep L M1) a μ) (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
+    {y₁ : Torus d n}
+    (hK : ChiKProp (M1 := M1) (N₁ := N₁) (L := L) (q := q) (N := N) a μ δ h c n y₁ ψ)
+    {s : Torus d (M1 * N₁ * L ^ q)} (hs : blockMap (L ^ q * (c * M1)) n s = y₁) :
+    |rn (ψ (jBlock d L (M1 * N₁) q q s)) - 1| < (d + 1) * δ := by
+  classical
+  have hD := hK.1
+  have hBC := hK.2.1
+  have hGC := hK.2.2.1
+  have hunit := (theorem71 H hD).2.1
+  rw [← (theorem72_real H hD).1] at hunit
+  have hy₁' : y₁ ∈ nbhd 1 ({y₁} : Set (Torus d n)) := subset_nbhd 1 _ rfl
+  have hn1 : ∀ z : Torus d n, z ∈ nbhd 1 {y₁} → z ∈ nbhd 2 {y₁} := fun z hz =>
+    nbhd_mono (by omega) subset_rfl hz
+  have hsT : s ∈ cubeNbhd M1 N₁ L q c n 1 y₁ := mem_cubePre.2 (hs ▸ hy₁')
+  have hTc : ∀ z, blockMap (L ^ q * (c * M1)) n z ∈ nbhd 1 {y₁} →
+      z ∈ (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y₁).Ω q := fun z hz =>
+    (genCube_top_mem hm y₁).2 (hn1 _ hz)
+  have hsc := hTc s (hs ▸ hy₁')
+  have hcube : ∀ z : Torus d (M1 * N₁ * L ^ q), jBlock d L (M1 * N₁) q q z =
+      jBlock d L (M1 * N₁) q q s → blockMap (L ^ q * (c * M1)) n z = y₁ := fun z hz =>
+    (cube_eq_of_jBlock_eq (M1 := M1) (N₁ := N₁) (L := L) (q := q) (c := c) (n := n) hm hz).trans hs
+  have key := sphere_bound_of_close
+    (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y₁) _ _ _ _ δ hq hGC hunit
+    (s := s) (mem_layer_top _ hsc)
+    (fun z hz => ⟨mem_cubePre.2 (hcube z hz ▸ hy₁'),
+      mem_Ω_one_of_top _ hq (hTc z (hcube z hz ▸ hy₁'))⟩)
+    (hBC s hsT)
+  rw [show (cubeData (M1 := M1) (N₁ := N₁) (L := L) (q := q) h c n y₁ ψ).Ψ s =
+    fun i => ((ψ (jBlock d L (M1 * N₁) q q s) i : ℝ) : ℂ) from
+    liftSingle_Ψ _ _ _ ((mem_dataSites _).2 (Or.inl (mem_Ω_one_of_top _ hq hsc))), vn_ofReal] at key
+  exact key
+
+end CubeSphere
+
 section SmallSphere
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
@@ -1139,41 +1197,14 @@ theorem sphere_over_Y (Y : Set (Torus S.d (n (j + 1))))
   classical
   have hmem : y₁ ∈ cubeFin Y := by simp [cubeFin, hy₁]
   have hm : Cx.geo.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = Cx.geo.c * n (j + 1) := by simp
-  have hK := chiKProp_of_chiY_ne_zero Cx Y ψk hv h hmem
-  obtain ⟨hBC, hGC⟩ := chiY_ne_zero_blockClose_gradClose Cx Y ψk hv h hmem
-  have hD := hK.1
-  have hunit := (theorem71 H hD).2.1
-  rw [← (theorem72_real H hD).1] at hunit
-  have hy₁' : y₁ ∈ nbhd 1 ({y₁} : Set (Torus S.d (n (j + 1)))) := subset_nbhd 1 _ rfl
-  have hn1 : ∀ z : Torus S.d (n (j + 1)), z ∈ nbhd 1 {y₁} → z ∈ nbhd 2 {y₁} := fun z hz =>
-    nbhd_mono (by omega) subset_rfl hz
-  have hsT : s ∈ cubeNbhd Cx.geo.M1 (Cx.geo.c * n (j + 1)) S.L (j + 1) Cx.geo.c (n (j + 1)) 1 y₁ :=
-    mem_cubePre.2 (hs ▸ hy₁')
-  have hTc : ∀ z, blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) z ∈ nbhd 1 {y₁} →
-      z ∈ (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
-        Cx.geo.c (n (j + 1)) y₁).Ω (j + 1) := fun z hz =>
-    (genCube_top_mem hm y₁).2 (hn1 _ hz)
-  have hsc := hTc s (hs ▸ hy₁')
-  have hsk : s ∈ (Cx.genW Y).Ω (j + 1) :=
-    (genW_mem_top_iff Cx Y).2 (nbhd_two_subset_W2 Y hy₁ (hn1 _ (hs ▸ hy₁')))
-  have hcube : ∀ z : BgT Cx.geo (j + 1), jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1)))
-      (j + 1) (j + 1) z = jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s →
-      blockMap (S.L ^ (j + 1) * (Cx.geo.c * Cx.geo.M1)) (n (j + 1)) z = y₁ := fun z hz =>
-    (cube_eq_of_jBlock_eq (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
-      (q := j + 1) (c := Cx.geo.c) (n := n (j + 1)) hm hz).trans hs
-  have key := sphere_bound_of_close
-    (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L) (q := j + 1)
-      Cx.geo.c (n (j + 1)) y₁) _ _ _ _ (Cx.cs.delta (j + 1)) (Nat.succ_pos j) hGC hunit
-    (s := s) (mem_layer_top _ hsc)
-    (fun z hz => ⟨mem_cubePre.2 (hcube z hz ▸ hy₁'),
-      mem_Ω_one_of_top _ (Nat.succ_pos j) (hTc z (hcube z hz ▸ hy₁'))⟩)
-    (hBC s hsT)
-  have e := cubeData_Ψ_eq_liftSingle_Ψ Cx Y ψk hv y₁
-    ((mem_dataSites _).2 (Or.inl (mem_Ω_one_of_top _ (Nat.succ_pos j) hsc)))
-    ((mem_dataSites _).2 (Or.inl (mem_Ω_one_of_top _ (Nat.succ_pos j) hsk)))
-  rw [e, liftSingle_genW_Ψ_top Cx Y ψk hv
-    ((mem_dataSites _).2 (Or.inl (mem_Ω_one_of_top _ (Nat.succ_pos j) hsk))), vn_ofReal_euclid] at key
-  exact key
+  have key := sphere_of_chiKProp (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
+    (q := j + 1) (c := Cx.geo.c) (n := n (j + 1)) H hm (Nat.succ_pos j)
+    (chiKProp_of_chiY_ne_zero Cx Y ψk hv h hmem) hs
+  rwa [show rn (blockCfgOf Cx.geo Cx.hnn le_rfl Cx.hkK ψk
+      (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s)) =
+    ‖ψk (blkToBlock Cx.geo Cx.hnn Cx.hkK
+        (jBlock S.d S.L (Cx.geo.M1 * (Cx.geo.c * n (j + 1))) (j + 1) (j + 1) s))‖ from
+    ((vn_ofReal _).symm.trans (vn_ofReal_euclid _))] at key
 
 end SmallSphere
 

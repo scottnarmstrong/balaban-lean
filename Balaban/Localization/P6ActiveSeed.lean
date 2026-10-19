@@ -249,7 +249,7 @@ theorem d7ActiveSeed_active {M1 c n0 : ℕ} [NeZero c] [NeZero M1] {Rprev Rk : �
 `Δ_X = d7SizeAt F k Om X` the fine modular size of the valid boundary domain `X` at the region
 `Om`.  Distinct top cells are disjoint, and each one meeting `X_f ∩ Om_f` contains a cell of side
 `L^{k+m₀+m₁}` inside it (the fine sets are unions of such cells), so `|A_X| ≤ n_π(X_f ∩ Om_f)` and
-the landed `Fluctuation.G1_cellCount` applies. -/
+`Fluctuation.DjModFin.cellCount_le` (G1 for the labels of R11) applies. -/
 theorem d7ActiveSeed_card_le {c : ℕ} [NeZero c] (F : FineSizeFrame S n M (k + 1) m₀ m₁)
     (hside : (F.N₁ * S.L ^ m₁) * S.L ^ (k + 1) = (c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))
     {Om : Set (Torus S.d (n k))} (ΩK : Set (Torus S.d (n (k + 1))))
@@ -311,7 +311,7 @@ theorem d7ActiveSeed_card_le {c : ℕ} [NeZero c] (F : FineSizeFrame S n M (k + 
       rw [h1 u hu', h1 v hv']
       simp only at huv
       rw [huv]
-  have hcount := Fluctuation.G1_cellCount (j := k) (m₀ := m₀) hN (Nat.le_succ k) hv.1
+  have hcount := Fluctuation.DjModFin.cellCount_le (j := k) (m₀ := m₀) hN (Nat.le_succ k) hv
   have hsz : Fluctuation.dcovMod m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) =
       d7SizeAt F k Om X := rfl
   rw [hsz] at hcount
