@@ -39,7 +39,7 @@ namespace Balaban.Polymer
 
 section Comb
 
-variable {T V : Type*}
+variable {T V : Type*} [DecidableEq V]
 
 /-- **The combinatorial part of the mark bound**: for `0 < θ ≤ 1`, `a = θ^{1/(2k)}` and every site
 read by at most `k` terms of `C`,
@@ -131,7 +131,7 @@ end Comb
 
 section Measure
 
-variable {V : Type*} [Fintype V] {Ω : V → Type*} [∀ x, MeasurableSpace (Ω x)]
+variable {V : Type*} [Fintype V] [DecidableEq V] {Ω : V → Type*} [∀ x, MeasurableSpace (Ω x)]
   (μ : ∀ x, Measure (Ω x)) [∀ x, IsProbabilityMeasure (μ x)]
   {T : Type*}
 
@@ -178,11 +178,90 @@ theorem sum_markEvent_indicator (O : ∀ x, Set (Ω x)) (W : Finset V) (ω : ∀
   rw [Finset.sum_eq_single H₀ (fun H hH hne => by rw [ite_eq_right (fun h => hne (huniq H hH h))])
     (fun h => absurd (Finset.mem_powerset.2 (Finset.filter_subset _ _)) h), ite_eq_left h0]
 
+omit [Fintype V] [∀ x, MeasurableSpace (Ω x)] in
+/-- On the mark event of `H`, the product is at most the product of the ordinary bounds of the
+terms not touching `H` times the product of the terms touching `H`. -/
+theorem enorm_ite_mul_prod_le (O : ∀ x, Set (Ω x)) (S : T → Finset V) (f : T → (∀ x, Ω x) → ℂ)
+    (C : Finset T) (ε : T → ℝ) (hε0 : ∀ t, 0 ≤ ε t)
+    (hord : ∀ t ω, (∀ x ∈ S t, ω x ∈ O x) → ‖f t ω‖ ≤ ε t) (H : Finset V) (ω : ∀ x, Ω x) :
+    ‖(if MarkEvent O (C.biUnion S) H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω‖ₑ ≤
+      ENNReal.ofReal (∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t) *
+        Set.indicator {ω | MarkEvent O (C.biUnion S) H ω}
+          (fun ω => ∏ t ∈ C.filter (fun t => ¬ Disjoint (S t) H), ‖f t ω‖ₑ) ω := by
+  by_cases hm : MarkEvent O (C.biUnion S) H ω
+  · have henorm : ‖∏ t ∈ C, f t ω‖ₑ = ∏ t ∈ C, ‖f t ω‖ₑ := by
+      rw [← ofReal_norm, norm_prod, ENNReal.ofReal_prod_of_nonneg (fun _ _ => norm_nonneg _)]
+      simp only [ofReal_norm]
+    rw [ite_eq_left hm, one_mul, Set.indicator_of_mem (by exact hm), henorm,
+      ← Finset.prod_filter_mul_prod_filter_not C (fun t => Disjoint (S t) H)]
+    refine mul_le_mul' ?_ le_rfl
+    rw [ENNReal.ofReal_prod_of_nonneg (fun t _ => hε0 t)]
+    refine Finset.prod_le_prod fun t ht => ?_
+    rw [← ofReal_norm]
+    refine ENNReal.ofReal_le_ofReal (hord t ω fun x hx => ?_)
+    have htC := (Finset.mem_filter.1 ht).1
+    have hdisj := (Finset.mem_filter.1 ht).2
+    refine hm.2 x (Finset.mem_biUnion.2 ⟨t, htC, hx⟩) fun hxH => ?_
+    exact Finset.disjoint_left.1 hdisj hx hxH
+  · rw [ite_eq_right hm, zero_mul, enorm_zero]
+    exact bot_le
+
+omit [∀ x, IsProbabilityMeasure (μ x)] in
+/-- The integral of one mark event is at most `(∏_{t not touching H} ε_t) θ^{|H|}`. -/
+theorem lintegral_enorm_ite_mul_prod_le (O : ∀ x, Set (Ω x)) (S : T → Finset V)
+    (f : T → (∀ x, Ω x) → ℂ) (C : Finset T) (ε : T → ℝ) (hε0 : ∀ t, 0 ≤ ε t)
+    (hord : ∀ t ω, (∀ x ∈ S t, ω x ∈ O x) → ‖f t ω‖ ≤ ε t) {θ : ℝ} (H : Finset V)
+    (hheavy : ∫⁻ ω, Set.indicator {ω | MarkEvent O (C.biUnion S) H ω}
+        (fun ω => ∏ t ∈ C.filter (fun t => ¬ Disjoint (S t) H), ‖f t ω‖ₑ) ω ∂(Measure.pi μ) ≤
+      ENNReal.ofReal (θ ^ H.card)) :
+    ∫⁻ ω, ‖(if MarkEvent O (C.biUnion S) H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω‖ₑ
+        ∂(Measure.pi μ) ≤
+      ENNReal.ofReal (∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t) *
+        ENNReal.ofReal (θ ^ H.card) := by
+  refine (lintegral_mono fun ω => enorm_ite_mul_prod_le O S f C ε hε0 hord H ω).trans ?_
+  rw [lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
+  exact mul_le_mul' le_rfl hheavy
+
+omit [∀ x, IsProbabilityMeasure (μ x)] in
+/-- **Integrability from ordinary and heavy marks.** -/
+theorem integrable_prod_of_marks (O : ∀ x, Set (Ω x)) (hO : ∀ x, MeasurableSet (O x))
+    (S : T → Finset V) (f : T → (∀ x, Ω x) → ℂ) (hfm : ∀ t, Measurable (f t)) (C : Finset T)
+    (ε : T → ℝ) (hε0 : ∀ t, 0 ≤ ε t)
+    (hord : ∀ t ω, (∀ x ∈ S t, ω x ∈ O x) → ‖f t ω‖ ≤ ε t) {θ : ℝ}
+    (hheavy : ∀ H ⊆ C.biUnion S, ∫⁻ ω, Set.indicator {ω | MarkEvent O (C.biUnion S) H ω}
+        (fun ω => ∏ t ∈ C.filter (fun t => ¬ Disjoint (S t) H), ‖f t ω‖ₑ) ω ∂(Measure.pi μ) ≤
+      ENNReal.ofReal (θ ^ H.card)) :
+    Integrable (fun ω => ∏ t ∈ C, f t ω) (Measure.pi μ) := by
+  set W := C.biUnion S
+  refine ⟨(Finset.measurable_prod _ fun t _ => hfm t).aestronglyMeasurable, ?_⟩
+  rw [hasFiniteIntegral_iff_enorm]
+  have hpt : ∀ ω, ‖∏ t ∈ C, f t ω‖ₑ ≤ ∑ H ∈ W.powerset,
+      ‖(if MarkEvent O W H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω‖ₑ := by
+    intro ω
+    calc ‖∏ t ∈ C, f t ω‖ₑ = ‖∑ H ∈ W.powerset,
+          (if MarkEvent O W H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω‖ₑ := by
+          rw [← Finset.sum_mul, sum_markEvent_indicator, one_mul]
+      _ ≤ _ := enorm_sum_le _ _
+  have hm : ∀ H, Measurable fun ω => ‖(if MarkEvent O W H ω then (1 : ℂ) else 0) *
+      ∏ t ∈ C, f t ω‖ₑ := fun H =>
+    ((Measurable.ite (measurableSet_markEvent hO W H) measurable_const measurable_const).mul
+      (Finset.measurable_prod _ fun t _ => hfm t)).enorm
+  calc ∫⁻ ω, ‖∏ t ∈ C, f t ω‖ₑ ∂(Measure.pi μ)
+      ≤ ∫⁻ ω, ∑ H ∈ W.powerset, ‖(if MarkEvent O W H ω then (1 : ℂ) else 0) *
+          ∏ t ∈ C, f t ω‖ₑ ∂(Measure.pi μ) := lintegral_mono hpt
+    _ = ∑ H ∈ W.powerset, ∫⁻ ω, ‖(if MarkEvent O W H ω then (1 : ℂ) else 0) *
+          ∏ t ∈ C, f t ω‖ₑ ∂(Measure.pi μ) := lintegral_finsetSum _ fun H _ => hm H
+    _ ≤ ∑ H ∈ W.powerset, ENNReal.ofReal (∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t) *
+          ENNReal.ofReal (θ ^ H.card) := Finset.sum_le_sum fun H hH =>
+        lintegral_enorm_ite_mul_prod_le μ O S f C ε hε0 hord H
+          (hheavy H (Finset.mem_powerset.1 hH))
+    _ < ⊤ := ENNReal.sum_lt_top.2 fun H _ =>
+        ENNReal.mul_lt_top ENNReal.ofReal_lt_top ENNReal.ofReal_lt_top
+
 omit [∀ x, IsProbabilityMeasure (μ x)] in
 /-- **The product bound from ordinary and heavy marks.** -/
 theorem norm_integral_prod_le_marks (O : ∀ x, Set (Ω x)) (hO : ∀ x, MeasurableSet (O x))
     (S : T → Finset V) (f : T → (∀ x, Ω x) → ℂ) (hfm : ∀ t, Measurable (f t)) (C : Finset T)
-    (hint : Integrable (fun ω => ∏ t ∈ C, f t ω) (Measure.pi μ))
     (ε : T → ℝ) (hε0 : ∀ t, 0 ≤ ε t)
     (hord : ∀ t ω, (∀ x ∈ S t, ω x ∈ O x) → ‖f t ω‖ ≤ ε t)
     {θ : ℝ} (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) {k : ℕ} (hk : 1 ≤ k)
@@ -193,6 +272,7 @@ theorem norm_integral_prod_le_marks (O : ∀ x, Set (Ω x)) (hO : ∀ x, Measura
     ‖∫ ω, ∏ t ∈ C, f t ω ∂(Measure.pi μ)‖ ≤
       ∏ t ∈ C, ((1 + Real.sqrt θ) ^ (S t).card *
         (ε t + θ ^ ((1 : ℝ) / (2 * k)) * (S t).card)) := by
+  have hint := integrable_prod_of_marks μ O hO S f hfm C ε hε0 hord hheavy
   set W := C.biUnion S
   have hsplit : ∫ ω, ∏ t ∈ C, f t ω ∂(Measure.pi μ) =
       ∑ H ∈ W.powerset, ∫ ω, (if MarkEvent O W H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω
@@ -215,34 +295,11 @@ theorem norm_integral_prod_le_marks (O : ∀ x, Set (Ω x)) (hO : ∀ x, Measura
       θ ^ H.card * ∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t := by
     intro H hH
     rw [Finset.mem_powerset] at hH
-    have hpt : ∀ ω, ‖(if MarkEvent O W H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω‖ₑ ≤
-        ENNReal.ofReal (∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t) *
-          Set.indicator {ω | MarkEvent O W H ω}
-            (fun ω => ∏ t ∈ C.filter (fun t => ¬ Disjoint (S t) H), ‖f t ω‖ₑ) ω := by
-      intro ω
-      by_cases hm : MarkEvent O W H ω
-      · have henorm : ‖∏ t ∈ C, f t ω‖ₑ = ∏ t ∈ C, ‖f t ω‖ₑ := by
-          rw [← ofReal_norm, norm_prod, ENNReal.ofReal_prod_of_nonneg (fun _ _ => norm_nonneg _)]
-          simp only [ofReal_norm]
-        rw [ite_eq_left hm, one_mul, Set.indicator_of_mem (by exact hm), henorm,
-          ← Finset.prod_filter_mul_prod_filter_not C (fun t => Disjoint (S t) H)]
-        refine mul_le_mul' ?_ le_rfl
-        rw [ENNReal.ofReal_prod_of_nonneg (fun t _ => hε0 t)]
-        refine Finset.prod_le_prod fun t ht => ?_
-        rw [← ofReal_norm]
-        refine ENNReal.ofReal_le_ofReal (hord t ω fun x hx => ?_)
-        have htC := (Finset.mem_filter.1 ht).1
-        have hdisj := (Finset.mem_filter.1 ht).2
-        refine hm.2 x (Finset.mem_biUnion.2 ⟨t, htC, hx⟩) fun hxH => ?_
-        exact Finset.disjoint_left.1 hdisj hx hxH
-      · rw [ite_eq_right hm, zero_mul, enorm_zero]
-        exact bot_le
     have hle : ‖∫ ω, (if MarkEvent O W H ω then (1 : ℂ) else 0) * ∏ t ∈ C, f t ω
         ∂(Measure.pi μ)‖ₑ ≤ ENNReal.ofReal (∏ t ∈ C.filter (fun t => Disjoint (S t) H), ε t) *
-          ENNReal.ofReal (θ ^ H.card) := by
-      refine (enorm_integral_le_lintegral_enorm _).trans ((lintegral_mono hpt).trans ?_)
-      rw [lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]
-      exact mul_le_mul' le_rfl (hheavy H hH)
+          ENNReal.ofReal (θ ^ H.card) :=
+      (enorm_integral_le_lintegral_enorm _).trans
+        (lintegral_enorm_ite_mul_prod_le μ O S f C ε hε0 hord H (hheavy H hH))
     rw [← ENNReal.ofReal_mul (Finset.prod_nonneg fun t _ => hε0 t)] at hle
     have := (ENNReal.toReal_le_toReal enorm_ne_top ENNReal.ofReal_ne_top).2 hle
     rw [toReal_enorm, ENNReal.toReal_ofReal (mul_nonneg (Finset.prod_nonneg fun t _ => hε0 t)
