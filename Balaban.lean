@@ -1853,6 +1853,9 @@ public import Balaban.LargeField.Base.KF0TaylorMajorant
 public import Balaban.LargeField.Base.KF0F1Assembly
 public import Balaban.LargeField.Base.KF0AllGoodGas
 public import Balaban.LargeField.Base.KF0AllPlusGas
+public import Balaban.Polymer.MayerSupport
+public import Balaban.Polymer.MayerMarksPY
+public import Balaban.LargeField.Base.KF0AllPlusComplex
 public import Balaban.LargeField.Base.KF0HaloAffine
 public import Balaban.LargeField.Base.KF0CollarClosure
 public import Balaban.Polymer.LabelRootUnion
