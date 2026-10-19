@@ -136,8 +136,12 @@ def KF0BadSectorInput : Prop :=
 `∑_B Z_B = Z_∅ exp(∑_X b)` (`KF0BadSectorInput`) and the all-good sector gives
 `Z_∅ = exp(E + ⟨g, h⟩ + ∑_X a)` (`KF0GoodSectorInput`). The activities are `p = a + b`, with the
 amplitudes `c₉/4 + c₉/4`; `E` is the vacuum term of the all-good sector. The threshold is the
-larger of the two thresholds; the block threshold `thr` is arbitrary. -/
-theorem kfZeroInput_of_parts (hG : KF0GoodSectorInput d N δ T thr)
+larger of the two thresholds. The block threshold is constrained to the source range
+`0 < thr ≤ √2` (`_hthr`, typing data for the provider's choice: a non-positive threshold makes
+`KF0GoodSectorInput` false, `not_kf0GoodSectorInput_of_thr_nonpos`, and a threshold above `2` makes
+the bad sectors empty, `kf0BadSectorInput_of_two_lt`); the identity itself holds for every `thr`. -/
+theorem kfZeroInput_of_parts
+    (_hthr : ∀ κ c₉ β ν, 0 < thr κ c₉ β ν ∧ thr κ c₉ β ν ≤ Real.sqrt 2) (hG : KF0GoodSectorInput d N δ T thr)
     (hB : KF0BadSectorInput d N δ T thr) : KfZeroInput d N δ T := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, h₁⟩ := hG κ hκ c₉ hc₉

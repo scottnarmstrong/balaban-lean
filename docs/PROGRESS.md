@@ -1,6 +1,6 @@
 # Progress
 
-*Last updated: 2026-10-18.*
+*Last updated: 2026-10-19.*
 
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
@@ -33,6 +33,15 @@ prove. The inputs are now corrected: the classes carry the torus coherence of th
 tie of the running coupling to β, and the constants carry every condition a class member needs. The
 classes are shown non-empty only at the smallest configuration so far; at the configurations the flow
 uses, this is open.
+
+**Remaining work, estimated from the spine** ([`notes/phase1/SPINE-PLAN.md`](../notes/phase1/SPINE-PLAN.md),
+19 October 2026). Every open input has been split into named statements of the papers. Summing estimates over
+them gives about 48,000 lines of Lean still to write (range 40,000–75,000), of which about 10,000 are new
+mathematics: the first renormalization step (blockers 1, 2), old boundary terms across a hole (blocker 3), the
+shrinking source radius (blocker 2), the small factor of the removed large-field operators (blocker 4), exact
+agreement on two tori at the last scale (blocker 7), the coupling across large-field cells at the last scale
+(blocker 5), and the case with no renormalization step (blocker 1). The rest is engineering, led by extending the
+step chain from d = L = 3, N = 2 to general d and N. At the present pace this is roughly 30 rounds of work.
 
 | Input | Content (source) | Status |
 |---|---|---|
@@ -126,3 +135,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-18 (later) | ~85% | ~57% | Blocker 4: the window conversion assembled for the actual pieces with every premise proved except the stability of the background under a change of generating set (P7 (2.14)), now in progress; R2 landed (three masses, extended direction tests, complex sources). Blocker 6: the chain needs the per-label bounds only at the step's composed data; the filed torus defect at every centre, also on birth-mass domains; towers with a scale-dependent step radius satisfy the radius room. Blocker 7: the clause on Root-F's exact box with the observable terms in Root-F's bound form; open: one family of terms for all tori. Backbone: old levels inherit on birth-mass domains (R6). |
 | 2026-10-18 (evening) | ~86% | ~57% | Blocker 6: the chain at towers for every scale with one β₀ (step radius t_k = ε_{k+1}, a separate fluctuation radius, the papers' collar): the step's chart covers the next class's chart and the inherited terms keep room; at the narrower collar used before the two are proved incompatible. Backbone: the new level's labels, the sum of their bounds (class rates κ ≤ 1/5) and the covariance of its densities under the full symmetry group. Blocker 4: background stability under a change of generating set and the window's background hypotheses; the window's field off the pieces is the last design point. Audit of the approved definitions: faithful except CRotE (ruling asked). |
 | 2026-10-18 (night) | ~87% | ~57% | Blocker 4: the window's field off the pieces by P7's design (one configuration for pieces and window), the window domain from the pieces, the lift to the pieces' data; found: the cancellation chain's reference datum is zero on the collar, outside the domain (being restated per the collar ruling). Blocker 6 and backbone: the E₀ closure on one property-forwarding chain; spin covariance of each coefficient at the final chain theorem; the labels on the hull of their read sets; the renormalized field in the step's chart and the second-order counterterms at the towers; the local charts need the step's objects for a general generating set (ruling R8 asked). Blocker 7: the canonical torus cannot index all tori; exact agreement of a step's coefficients on two tori proved. |
+| 2026-10-19 | ~87% | ~57% | The no-step case now requires the block threshold to lie in (0, √2], the range its sector argument needs. Integrability of the class densities does not follow from the class conditions (they do not make the density measurable off its domains), so it stays an input proved for the actual construction. Extending the step chain to general d and N: the base settings of the step and the block-index condition are now general; the chain is being generalized from the bottom layer up, since its upper files depend on about 50 lower results still written at d = L = 3. |

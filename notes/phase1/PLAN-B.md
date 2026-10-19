@@ -125,3 +125,22 @@ approved declaration.
   (full rebuild; some `rfl` proofs may need repair). Alternative without a definition change: extend the quiet
   kernel along `HistImage` orbits (a rewrite of `QuietStepData`/`QuietLocalInput`, ~1,200 lines).
   Recommended: the definition fix.
+
+## Ruling R-N₁ proposed (2026-10-19, W1127)
+- `D2SF2` and `SFFlat2` require their small-field clauses on every Def-6 torus N₁ ≥ 1, but the class family
+  only ever reads N₁ = L^{m₀} n_k (`sfIdx`), exactly the tori where the chain's conditions (3 ∣ N₁, 5 < N₁,
+  3^{m₀} ∣ N₁) hold. Proposal: restrict those two clauses to the tori that are read (11 files); this removes
+  a ≈ 600-line obligation (the step on every torus). Recommended: yes.
+
+## Ruling R10 asked (2026-10-19, W1134)
+- `stepVacuumTerm` (`LargeField/Operators/StepData.lean`, region 1 set by ruling R5′) takes the first vacuum region
+  as `(Z_k)ᶜ ∖ Ω_{k+1}` with the complement in the whole fine torus, while the local history of a component
+  `Z'` has `Z_j`, `Ω`, `Ω″` inside `fineSet Z'` and `Z_{k+1} = fineSet Z'` (`locRH_Z`). So region 1 contains
+  the whole torus outside `Z'` (`compl_fineSet_subset_vacuumRegion`, `Spine/RVacuumB0Defect.lean`), the term
+  `E_k·|region 1|` grows with the torus, and the bound of `b⁰_k` by `(C_b log β_k + C_b B₀)|Z_{k+1} ∖ Z_k|`
+  (`RVacuumB0Input`, A4-2v) fails for every flow with `E_k ≠ 0` (`norm_vacuumTerm_le_of_b0Bound`).
+- Proposal: localize region 1 to the component, `(Z_{k+1} ∖ Z_k) ∖ Ω_{k+1}` (P6 (3.2) restricted to `Z'`;
+  the same object as R5′ on the component). Files: `StepData.lean` (`stepVacuumTerm`), `StepVacuumR5`,
+  `StepVacuumVolume` and the users repaired by `simp [stepVacuumTerm]` in W1092. Then the first excess of
+  `stepVacuumVolume_eq_add_excess` is empty; the other two need the geometric bound
+  `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1} ∖ Z_k|` from the definition of `Ω`. Recommended: yes.

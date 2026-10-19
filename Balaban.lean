@@ -2809,6 +2809,8 @@ public import Balaban.Inhabited.StepTowerLocalTruncZero
 public import Balaban.Inhabited.StepTowerCollarCore
 public import Balaban.Inhabited.StepTowerCollarX
 public import Balaban.Inhabited.StepTowerCollarBgSet
+public import Balaban.Inhabited.StepTowerCollarGBgSet
+public import Balaban.Inhabited.StepTowerCollarGNum
 public import Balaban.Inhabited.StepTowerCollarBase
 public import Balaban.Inhabited.StepTowerCollarStruct
 public import Balaban.Inhabited.StepTowerCollarStep
@@ -2882,10 +2884,16 @@ public import Balaban.Spine.KfZeroGood
 public import Balaban.Spine.InheritedBound
 public import Balaban.Spine.InheritedAgreeGeom
 public import Balaban.Spine.InheritedAgree
+public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
+public import Balaban.Spine.SFVacuumRatio
+public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
 public import Balaban.Spine.RVacuumTie
+public import Balaban.Spine.RVacuumB0Defect
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
+public import Balaban.LargeField.R.WindowDomKernel
+public import Balaban.LargeField.R.WindowDomXi

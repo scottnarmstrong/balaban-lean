@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.RRemovedWindowAnc
 public import Balaban.LargeField.R.WindowGaussTree
+public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.LargeField.R.DeltaPsiEdge
 
 /-!
@@ -104,12 +105,6 @@ theorem subVarField_restrictSub {a : LocalHistory S n M K} {k : ℕ} {A B : Set 
       (varSet a j .large), mkVar a k j .large y hj' hb' ∈ B := ⟨hj, hb, h hA⟩
   simp only [subVarField, hex1, hex2, dite_true]
   rfl
-
-/-- `gaussT` is the Gaussian density of the difference. -/
-theorem gaussT_eq_gaussDens (N : ℕ) (c : ℝ) (ϑ w : EuclideanSpace ℝ (Fin N)) :
-    gaussT N c ϑ w = gaussDens c (ϑ - w) := by
-  unfold gaussT gaussDens
-  rw [finrank_euclideanSpace_fin]
 
 /-- **(R1) The output of an old part read from the variables of the top component**: the field
 `ψ_{j+1}(y)` of the output of `c` at a Gaussian block `y`, read from the restriction `ρP` to the
