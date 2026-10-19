@@ -583,17 +583,16 @@ theorem pair_over_cube {ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤
   have := hnear y hy y' hadj
   rwa [cube_eq_of_jBlock_eq hm (GeneratingSet.mem_blk.1 hy')] at this
 
-/-- **The bond lift over a cube (bulk case).**  Let `Gc` have top domain over `nbhd_2 {y₁}` and `Gk` top domain over `W ⊇ nbhd_2 {y₁}`; if `BlockClose` and `GradClose` hold with tolerance `δ` on the stencil `nbhd_1 {y₁}` for the data `D` and the field `φ` on `Gc`, then for every interface pair `(s, s')` of `Gk` with `s` over `y₁`, `‖Ψ(s) - Ψ(s')‖ < 3 δ`. -/
-theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
-    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (Gk : GeneratingSet d L (M1 * N₁) q ϱk)
-    (W : Set (Torus d n)) (y₁ : Torus d n) (hW : nbhd 2 {y₁} ⊆ W)
+/-- **The bond lift over a cube, for two sites over adjacent blocks** (the core of `pair_bound_of_close`; no generating set for the pair).  Let `Gc` have top domain over `nbhd_2 {y₁}` and `Gk` top domain over `W ⊇ nbhd_2 {y₁}`; if `BlockClose` and `GradClose` hold with tolerance `δ` on the stencil `nbhd_1 {y₁}` for the data `D` and the field `φ` on `Gc`, then for every interface pair `(s, s')` of `Gk` with `s` over `y₁`, `‖Ψ(s) - Ψ(s')‖ < 3 δ`. -/
+theorem pair_bound_of_close_blocks {ϱc : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
+    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (y₁ : Torus d n)
     (hGc : ∀ x, x ∈ Gc.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ nbhd 2 {y₁})
-    (hGk : ∀ x, x ∈ Gk.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ W)
     (D : BgData Gc N) (φ : Gc.Ω 1 × Fin N → ℂ) (α : Gc.Ω 1 → ℂ) (δ : ℝ)
     (hBC : BlockClose Gc D φ (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
     (hGC : GradClose Gc D φ α ((L : ℝ) ^ q) (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
     {s s' : Torus d (M1 * N₁ * L ^ q)} (hs : blockMap (L ^ q * (c * M1)) n s = y₁)
-    (hp : IsInterfacePair Gk s s') :
+    (hs'cube : blockMap (L ^ q * (c * M1)) n s' ∈ nbhd 1 {y₁})
+    (hadj : ∃ y ∈ Gc.blk q s, ∃ y' ∈ Gc.blk q s', Adj y y') :
     vn (fun i => D.Ψ s i - D.Ψ s' i) < 3 * δ := by
   classical
   have hcN : N₁ = c * n := by simpa using hm
@@ -612,12 +611,9 @@ theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (h
       blockMap (L ^ q * (c * M1)) n z ∈ nbhd 1 {y₁} := fun z => mem_cubePre
   have hTc : ∀ z, z ∈ cubeNbhd M1 N₁ L q c n 1 y₁ → z ∈ Gc.Ω q := fun z hz =>
     (hGc z).2 (hn1 _ ((hT z).1 hz))
-  have hTk : ∀ z, z ∈ cubeNbhd M1 N₁ L q c n 1 y₁ → z ∈ Gk.Ω q := fun z hz =>
-    (hGk z).2 (hW (hn1 _ ((hT z).1 hz)))
   have hy₁ : y₁ ∈ nbhd 1 ({y₁} : Set (Torus d n)) := subset_nbhd 1 _ rfl
   have hsT : s ∈ cubeNbhd M1 N₁ L q c n 1 y₁ := (hT s).2 (hs ▸ hy₁)
-  obtain ⟨hsk, hs'k, hs'cube, y, hy, y', hy', hadj⟩ :=
-    pair_over_cube hm hq Gk W y₁ hW hGk hs hp
+  obtain ⟨y, hy, y', hy', hadj⟩ := hadj
   have hs'T : s' ∈ cubeNbhd M1 N₁ L q c n 1 y₁ := (hT s').2 hs'cube
   have hsc : s ∈ Gc.Ω q := hTc s hsT
   have hs'c : s' ∈ Gc.Ω q := hTc s' hs'T
@@ -688,6 +684,24 @@ theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (h
   have t2 := vn_triangle' (fun i => blockAvg Gc φ s i) (fun i => blockAvg Gc φ s' i)
     (fun i => D.Ψ s' i)
   linarith
+
+
+
+/-- **The bond lift over a cube (bulk case).** -/
+theorem pair_bound_of_close {ϱc ϱk : ℝ} (hm : N₁ * L ^ (q - q) = c * n) (hq : 1 ≤ q)
+    (Gc : GeneratingSet d L (M1 * N₁) q ϱc) (Gk : GeneratingSet d L (M1 * N₁) q ϱk)
+    (W : Set (Torus d n)) (y₁ : Torus d n) (hW : nbhd 2 {y₁} ⊆ W)
+    (hGc : ∀ x, x ∈ Gc.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ nbhd 2 {y₁})
+    (hGk : ∀ x, x ∈ Gk.Ω q ↔ blockMap (L ^ q * (c * M1)) n x ∈ W)
+    (D : BgData Gc N) (φ : Gc.Ω 1 × Fin N → ℂ) (α : Gc.Ω 1 → ℂ) (δ : ℝ)
+    (hBC : BlockClose Gc D φ (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
+    (hGC : GradClose Gc D φ α ((L : ℝ) ^ q) (cubeNbhd M1 N₁ L q c n 1 y₁) δ)
+    {s s' : Torus d (M1 * N₁ * L ^ q)} (hs : blockMap (L ^ q * (c * M1)) n s = y₁)
+    (hp : IsInterfacePair Gk s s') :
+    vn (fun i => D.Ψ s i - D.Ψ s' i) < 3 * δ := by
+  obtain ⟨-, -, hs'cube, y, hy, y', hy', hadj⟩ :=
+    pair_over_cube hm hq Gk W y₁ hW hGk hs hp
+  exact pair_bound_of_close_blocks hm hq Gc y₁ hGc D φ α δ hBC hGC hs hs'cube ⟨y, hy, y', hy', hadj⟩
 
 end PairBound
 
