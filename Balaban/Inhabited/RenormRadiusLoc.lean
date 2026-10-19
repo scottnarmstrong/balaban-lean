@@ -560,4 +560,24 @@ theorem renLoc_fields_scale_of_tower {κmin : ℝ} (R : StepTowerRenSol κmin) (
   rw [rhoSepG_three] at h
   exact h
 
+/-- **`locC1` at every scale of the tower.** -/
+theorem renLocC1_scale_of_tower {κmin : ℝ} (T : StepTower κmin) (k : ℕ) (hk : 1 ≤ k)
+    (N₁ : ℕ) [NeZero N₁] (h3N : 3 ∣ N₁) (hN : 5 < N₁) {ν : ℝ} (hν0 : 0 ≤ ν)
+    (hν : ν * 3 ^ (2 * (k + 1)) ≤ 1) {κa r₀ : ℝ} (hκa : κa ≤ 2 * T.κdec)
+    (hr₀0 : 0 < r₀) (hr₀1 : r₀ ≤ 1 / 16) (z : Torus 3 (N₁ * 3 ^ T.m₁ * 3 ^ (k + 1 - (k + 1)))) :
+    HasLocPrinciple (N := 2) (lvTop N₁ T.m₁ k (rhoSep T.m₁))
+      (XiCOneReal (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν T.t) r₀
+      (renYs (renCube (lvTop N₁ T.m₁ k (rhoSep T.m₁))
+          (X1 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1 k (fam 1 (blockSite k z))))
+        (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1
+        (X1 (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1 k (fam 1 (blockSite k z))))
+      (renDY (lvTop N₁ T.m₁ k (rhoSep T.m₁)) 1) κa 1
+      (fun D _ => bgClass (lvTop N₁ T.m₁ k (rhoSep T.m₁)) ν
+        ((2 + 2 * K4 3 3 2 T.BG T.κ * xiC1 3) * T.t) D)
+      (fun D φ ξ => renC1On (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν T.t
+        (blockSites 3 3 N₁ T.m₁ (k + 1) k z) D.Ψ D.h φ ξ)
+      (fun D _ => bgFieldC (lvTop N₁ T.m₁ k (rhoSep T.m₁)) (compWeight 3 1) ν (bgC0 3 3 2) D) :=
+  renLocC1_scale_of_tower_of_le_at T k hk N₁ h3N hN hν0 hν T.t_pos le_rfl hκa hr₀0 hr₀1 z
+    (cK' := 2 + 2 * K4 3 3 2 T.BG T.κ * xiC1 3) le_rfl
+
 end Balaban.Inhabited
