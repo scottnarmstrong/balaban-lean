@@ -92,7 +92,7 @@ ambient level set exactly when it is a cube of the cover of `𝔹_{k+1}(Y)`, if 
 top layer `Ω_{k+1}(𝔹_{k+1}(Y))` whenever it is a cube of one of the two covers.
 
 The core of `level_localB_iff_of_cover`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_iff_of_cover (hG' : IsLevel Gp (k + 1)) 
+theorem level_iff_of_cover (hG' : IsLevel Gp (k + 1))
     {q' : ℕ × CTorus d L N₁ m₁ (k + 1)}
     (h : (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
       q'.2 ∈ Gl.Ω (k + 1)) :
@@ -116,7 +116,7 @@ bump does not vanish at `x` have their bases in the top layer (`chi_congr_of_act
 `level_localB_iff_of_cover` for the cubes of the two covers).
 
 The core of `level_localB_chi_eq_of_cover`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_chi_eq_of_cover (hG' : IsLevel Gp (k + 1)) 
+theorem level_chi_eq_of_cover (hG' : IsLevel Gp (k + 1))
     {x : CTorus d L N₁ m₁ (k + 1)}
     (hx : ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
       (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
@@ -142,7 +142,7 @@ thickened cube `□̂_z` have their bases in the top layer (`qset_coverOf_congr`
 `level_localB_iff_of_cover` for the cubes of the two covers).
 
 The core of `level_localB_qset_eq_of_cover`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_qset_eq_of_cover (hG' : IsLevel Gp (k + 1)) 
+theorem level_qset_eq_of_cover (hG' : IsLevel Gp (k + 1))
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
     (hq : ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
       (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
@@ -229,7 +229,7 @@ a cube of the cover of `𝔹_{k+1}(Y)` inside `T` (read on `H'`), with the same 
 on the stencil and the same partition function.
 
 The core of `level_localB_inner_cross`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_inner_cross (hG' : IsLevel Gp (k + 1)) 
+theorem level_inner_cross (hG' : IsLevel Gp (k + 1))
     {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
     {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'} (hH : ∀ x, x ∈ H.Ω 1)
     {T : Finset (CTorus d L N₁ m₁ (k + 1))} {s : Dec2.DecParams (coverOf Gp)}
@@ -243,7 +243,7 @@ theorem level_inner_cross (hG' : IsLevel Gp (k + 1))
         (∀ x ∈ intBox q, ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
           (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → cubeBump m₁ q'.1 q'.2 x ≠ 0 →
           q'.2 ∈ Gl.Ω (k + 1)) ∧
-        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → 
+        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ Gl.Ω (k + 1)))
@@ -300,7 +300,7 @@ theorem level_localB_inner_cross (hG' : IsLevel Gp (k + 1)) (hk : k + 1 ≤ k + 
         (∀ x ∈ intBox q, ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1),
           (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → cubeBump m₁ q'.1 q'.2 x ≠ 0 →
           q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)) ∧
-        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+        (∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1)))
@@ -322,7 +322,7 @@ sites are within sup-distance `3 M₁ L^{k+1}` of the base, and `𝔹_{k+1}(Y)` 
 (`localB_supSep`, the `5 L` thickening of P3 (4.5)).
 
 The core of `localB_intBox_top_subset`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem top_intBox_subset (hSS : SupSep Gl m₁) (hk1 : 1 ≤ k) 
+theorem top_intBox_subset (hSS : SupSep Gl m₁) (hk1 : 1 ≤ k)
     {q : ℕ × CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ (coverOf Gl).cubeIdx)
     (hq2 : q.2 ∈ Gl.Ω (k + 1)) {x : CTorus d L N₁ m₁ (k + 1)}
     (hx : x ∈ intBox q) : x ∈ Gl.Ω k := by
@@ -356,7 +356,7 @@ cube of the local cover with a non-zero factor is a cube of the cover of `𝔹_{
 factor, and its interaction cube lies in `Ω₁(H')`.
 
 The core of `level_localB_active_cross`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_active_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) 
+theorem level_active_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)
     {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
     (hH' : ∀ x ∈ Gl.Ω k, x ∈ H'.Ω 1)
     {s : Dec2.DecParams (coverOf Gp)}
@@ -367,7 +367,7 @@ theorem level_active_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk
     (hhat : ∀ q ∈ (coverOf Gl).cubeIdx,
       (coverOf Gl).sProd
           (Dec2.extS (coverOf Gl) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ Gl.Ω (k + 1))
@@ -417,7 +417,7 @@ theorem level_localB_active_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
@@ -436,7 +436,7 @@ theorem level_localB_active_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
 `level_localB_active_cross`).
 
 The core of `level_localB_inner_cross'`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_inner_cross' (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) 
+theorem level_inner_cross' (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)
     {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
     {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'}
     (hH' : ∀ x ∈ Gl.Ω k, x ∈ H'.Ω 1)
@@ -448,7 +448,7 @@ theorem level_inner_cross' (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk
     (hhat : ∀ q ∈ (coverOf Gl).cubeIdx,
       (coverOf Gl).sProd
           (Dec2.extS (coverOf Gl) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ Gl.Ω (k + 1))
@@ -483,7 +483,7 @@ theorem level_localB_inner_cross' (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
@@ -499,7 +499,7 @@ theorem level_localB_inner_cross' (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk
 `level_localB_active_cross`; `Ω₁(H)` the whole torus).
 
 The core of `level_localB_dich_cross`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_dich_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) 
+theorem level_dich_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)
     {H : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH}
     {H' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱH'} (hH : ∀ x, x ∈ H.Ω 1)
     (hH' : ∀ x ∈ Gl.Ω k, x ∈ H'.Ω 1)
@@ -511,7 +511,7 @@ theorem level_dich_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 
     (hhat : ∀ q ∈ (coverOf Gl).cubeIdx,
       (coverOf Gl).sProd
           (Dec2.extS (coverOf Gl) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ Gl.Ω (k + 1))
@@ -545,7 +545,7 @@ theorem level_localB_dich_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk :
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
@@ -562,7 +562,7 @@ theorem level_localB_dich_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk :
 `level_localB_active_cross`).
 
 The core of `level_localB_row_cross`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem level_row_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) 
+theorem level_row_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k)
     {Yc T : Finset (CTorus d L N₁ m₁ (k + 1))} {s : Dec2.DecParams (coverOf Gp)}
     {s' : Dec2.DecParams (coverOf Gl)}
     (hs'0 : ∀ P ∈ (coverOf Gl).cubeIdx,
@@ -571,7 +571,7 @@ theorem level_row_cross (hSS : SupSep Gl m₁) (hG' : IsLevel Gp (k + 1)) (hk1 :
     (hhat : ∀ q ∈ (coverOf Gl).cubeIdx,
       (coverOf Gl).sProd
           (Dec2.extS (coverOf Gl) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx Gl) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ Gl.Ω (k + 1))
@@ -600,7 +600,7 @@ theorem level_localB_row_cross (hG' : IsLevel Gp (k + 1)) (hk1 : 1 ≤ k) (hk : 
     (hhat : ∀ q ∈ (coverOf (localB (k + 1) hk Y hsep)).cubeIdx,
       (coverOf (localB (k + 1) hk Y hsep)).sProd
           (Dec2.extS (coverOf (localB (k + 1) hk Y hsep)) s') q ≠ 0 →
-        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) → 
+        ∀ q' : ℕ × CTorus d L N₁ m₁ (k + 1), (q' ∈ cubeIdx Gp ∨ q' ∈ cubeIdx (localB (k + 1) hk Y hsep)) →
           (∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧
           InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y) →
             q'.2 ∈ (localB (k + 1) hk Y hsep).Ω (k + 1))
@@ -622,7 +622,7 @@ up to half a cube), and a site of `□̂_z` in the layer `k` would put its own c
 parameter vanishes, into `𝒬(z)`.
 
 The core of `localB_hatBox_top_of_active`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem hatBox_top_of_active (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hk1 : 1 ≤ k) 
+theorem hatBox_top_of_active (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hk1 : 1 ≤ k)
     (hM : 4 * L ^ 2 ≤ L ^ m₁)
     {s' : Dec2.DecParams (coverOf Gl)}
     (hs'0 : ∀ P ∈ (coverOf Gl).cubeIdx,
@@ -700,7 +700,7 @@ theorem localB_hatBox_top_of_active (hk1 : 1 ≤ k) (hk : k + 1 ≤ k + 1)
 top layer (`localB_hatBox_top_of_active`, `level_localB_hat_of_box`).
 
 The core of `localB_hat_of_active`, for an arbitrary generating set `Gl` in place of `𝔹_{k+1}(Y)`. -/
-theorem hat_of_active (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hk1 : 1 ≤ k) 
+theorem hat_of_active (hSS : SupSep Gl m₁) (hA : CubeAligned Gl m₁) (hk1 : 1 ≤ k)
     (hM : 4 * L ^ 2 ≤ L ^ m₁)
     {s' : Dec2.DecParams (coverOf Gl)}
     (hs'0 : ∀ P ∈ (coverOf Gl).cubeIdx,

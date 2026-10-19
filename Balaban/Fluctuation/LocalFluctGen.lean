@@ -197,10 +197,24 @@ section Pair
 
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 
-/-- **`FootLocal` of the pair `(coverOf 𝔹_{t}(Y), H⁻)`** for every generating set `H⁻ ≺ 𝔹_t(Y)` of
-the literal local generator (`p6_coverGeom_of_pair`, the mixed-wall cut-operator estimate
+/-- **`FootLocal` of the pair `(coverOf G, H⁻)`** for a cube-aligned, sup-separated generating set
+`G` and every `H⁻ ≺ G` (`p6_coverGeom_of_pair`, the mixed-wall cut-operator estimate
 `Dec2.coverBase_mixed`), with the constants `mixedKc d L`, `Cchi d L`.  The cover geometry needs
-`N₁ > 5`, `M₁ = L^{m₁} ≥ 4 L²`, `m₁ ≥ 2` and the Agmon condition for the separation of `H⁻`. -/
+`N₁ > 5`, `M₁ = L^{m₁} ≥ 4 L²` and the Agmon condition for the separation of `H⁻`. -/
+theorem footLocal_of_precedes {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+    (hA : CubeAligned G m₁) (hSS : SupSep G m₁) {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
+    (hP : Precedes Hm G) (hN : 5 < N₁) (hM : 4 * L ^ 2 ≤ L ^ m₁) {a : ℕ → ℝ} {ν : ℝ}
+    (hd : 3 ≤ d) (hL : 3 ≤ L) (hν : 0 ≤ ν) (hνL : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1)
+    (ha : IsAdmissibleWeights K a) (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1)) :
+    Dec2.FootLocal (coverOf G) Hm a ν (Dec2.mixedKc d L) (Cchi d L) :=
+  { toCoverBase := Dec2.coverBase_mixed hN G
+      (p6_coverGeom_of_pair hA hSS hP hM hd hL hν hνL ha hag) hνL (fun _ hq => hq)
+    chi_core := (Dec2.footLocalGeom_coverOf _).chi_core }
+
+/-- **`FootLocal` of the pair `(coverOf 𝔹_{t}(Y), H⁻)`** for every generating set `H⁻ ≺ 𝔹_t(Y)` of
+the literal local generator, with the constants `mixedKc d L`, `Cchi d L` (`footLocal_of_precedes`).
+The cover geometry needs `N₁ > 5`, `M₁ = L^{m₁} ≥ 4 L²`, `m₁ ≥ 2` and the Agmon condition for the
+separation of `H⁻`. -/
 theorem localB_footLocal_of_precedes {t : ℕ} (ht : t ≤ K) (Y : Set (CTorus d L N₁ m₁ K))
     (hsep : ϱ ≤ minSep L (L ^ m₁)) {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
     (hP : Precedes Hm (GsSpec.localB t ht Y hsep)) (hN : 5 < N₁) (hm₁ : 2 ≤ m₁)
@@ -208,10 +222,8 @@ theorem localB_footLocal_of_precedes {t : ℕ} (ht : t ≤ K) (Y : Set (CTorus d
     (hνL : ν * ((L : ℝ) ^ K) ^ 2 ≤ 1) (ha : IsAdmissibleWeights K a)
     (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1)) :
     Dec2.FootLocal (coverOf (GsSpec.localB t ht Y hsep)) Hm a ν (Dec2.mixedKc d L) (Cchi d L) :=
-  { toCoverBase := Dec2.coverBase_mixed hN (GsSpec.localB t ht Y hsep)
-      (p6_coverGeom_of_pair (localB_cubeAligned ht Y hsep hm₁) (localB_supSep ht Y hsep) hP hM
-        hd hL hν hνL ha hag) hνL (fun _ hq => hq)
-    chi_core := (Dec2.footLocalGeom_coverOf _).chi_core }
+  footLocal_of_precedes (localB_cubeAligned ht Y hsep hm₁) (localB_supSep ht Y hsep) hP hN hM hd hL
+    hν hνL ha hag
 
 /-- **`RowInHat` of the pair `(coverOf 𝔹_t(Y), H⁻)`** for every `H⁻ ≺ 𝔹_t(Y)`
 (`p6_rowInHat_of_pair`): the rows of `H⁻_D(α)` at the sites of a cover cube `□_z` stay in `□̂_z`. -/
