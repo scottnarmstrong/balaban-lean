@@ -2931,3 +2931,4 @@ public import Balaban.Inhabited.NewLevelBridgeMarksBgCast
 public import Balaban.Fluctuation.NewLevelZeroSourceBg
 public import Balaban.Inhabited.NewLevelCoeffBgClass
 public import Balaban.Inhabited.NewLevelCoeffBgClassCast
+public import Balaban.Inhabited.NewLevelSystemCanon

@@ -84,6 +84,11 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula
                 false p.2.2.1 p.2.1
                 (pertSource (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' →
               δα' = ((Sol (z, b)) p).2))) ∧
+      -- the locality of the bridge marks: the mark of the bridge `i` depends only on its blocks
+      (∀ (z : RootIdx d L N₁ T.m₁ (k + 1)) (θ : physParam N S)
+          (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ),
+        DepOn (blocksOf 1 (k + 1) Set.univ i.1)
+          (e1MarkGParamG S (fun b => F₁ (z, b)) (fun b => Sol (z, b)) p₁ hp z T.t θ i u)) ∧
       ∀ (Jr : S.JointRep T.t (2 * p₁)) (C : StepClass d L N₁ T.m₁ k N ϱ)
         (z : RootIdx d L N₁ T.m₁ (k + 1)) (Lb : Type) [Fintype Lb]
         (Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁) (K := k + 1) 1 (k + 1)
@@ -274,7 +279,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula
           treeLenCovOne m₀ (jL q.1.1) (XL q.1.1) - 2 * κdec * treeLenCov S.G' m₀ q.1.2) / bb) +
           pad q) * Real.exp ((2 * T.κdec - 1) * (commonLabels Lab
           (by rwa [hm₀T.trans hm₀] at h3N : L ^ 1 ∣ N₁) (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S)
-          (e1DomG_isDj_of_eq T (hm₀T.trans hm₀) Dt hϱ hS)).dl (y1 q))) ∧ ∃ c e : physParam N S → Finset
+          (e1DomG_isDj_of_eq T (hm₀T.trans hm₀) Dt hϱ hS)).dl (y1 q))) ∧
+        -- the locality of the marks: the mark of `q` depends only on the blocks of its bridge
+        (∀ θ q u, DepOn (blocksOf 1 (k + 1) Set.univ (bridge 1 z q.1.2)) (G₁ θ q u)) ∧
+        ∃ c e : physParam N S → Finset
               (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
           (K := k + 1) 1 (k + 1) Set.univ) → ℂ,
         (∀ θ T', c θ T' = gsumCoeff (S.blockSplit 1 hp).μ
@@ -359,8 +367,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula
   refine ⟨β₀, hβ₀, fun T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ => ?_⟩
   have hmT : T.m₀ = 1 := hm₀T.trans hm₀
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt ϱ hϱ S hS hp
-  obtain ⟨F₁, Sol, hpin, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt hϱ S hS hp
-  refine ⟨F₁, Sol, hpin, ?_⟩
+  obtain ⟨F₁, Sol, hpin, hbrdep, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt hϱ S hS hp
+  refine ⟨F₁, Sol, hpin, hbrdep, ?_⟩
   intro Jr C z Lb _ Lab εH κH Kc A ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ
     hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hF cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow
     hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk
@@ -375,7 +383,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula
       (by have := T.hL; omega) z hρ hρc hρpp hp (by norm_num [corrU]) hbb hab G₁ hG₁ hEJ hρp hE Lab
       (fun _ => Set.univ) (e1DomG S)
       (by rwa [hmT] at h3N) (e1DomG_isDj_of_eq T hmT Dt hϱ hS) y1 hy1 (2 * T.κdec - 1) pad hpad
-  exact ⟨F1, hF1eq, H' Jr C z Lb Lab εH κH Kc A _ y1 G₁ F1 hE hAhol hAcont hAdiff hAloc hW hmeas hdep hbd
+  exact ⟨F1, hF1eq, fun θ q u => hy1 q ▸ hdep θ q u, H' Jr C z Lb Lab εH κH Kc A _ y1 G₁ F1 hE
+    hAhol hAcont hAdiff hAloc hW hmeas hdep hbd
     hhol hcont hdiff (fun T' θ hθ θ' hθ' hres s hs j hsub => hloc _ θ hθ θ' hθ' hres s hs j hsub)
     hroot hid hF1 hεpos hKc hκG hκH hε⟩
 
@@ -674,7 +683,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot {d L N 
     StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot_formula T₀ hm₀ hA p hcR hαR
   refine ⟨β₀, hβ₀, ?_⟩
   intro T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp₁ Dt ϱ hϱ S hS hp
-  obtain ⟨F₁, Sol, -, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁
+  obtain ⟨F₁, Sol, -, -, H'⟩ := H T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβ hct p₁
     hp₁ Dt hϱ S hS hp
   refine ⟨F₁, Sol, ?_⟩
   intro Jr C z Lb _ Lab εH κH Kc A ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ
@@ -682,7 +691,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_labels_gen_onSet_agree_pad_rot {d L N 
     hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk
     h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ y1 hy1
     pad hpad hE hAhol hAcont hAdiff hAloc hW hεpos hKc hκG hκH hε
-  obtain ⟨F1, hF1eq, c, e, hc, -, he⟩ := @H' Jr C z Lb _ Lab εH κH Kc A ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ
+  obtain ⟨F1, hF1eq, -, c, e, hc, -, he⟩ := @H' Jr C z Lb _ Lab εH κH Kc A ι _ m₀ ϱ₁ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC Eτ Bτ
     hBτ hβS jL XL hj1 hjk Gk Gj hlocE X₀ X₁f 𝒦X hB hF cψ hcψ hMX δc hdm hα hsm hcov hX₁ hconn hrow
     hopt κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hEan hEbd F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk
     h𝒮 hSg hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp hN hm1 bb hbb hab G₁ hG₁ hρp hEJ y1 hy1
