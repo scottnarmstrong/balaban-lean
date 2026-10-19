@@ -273,6 +273,7 @@ variable (hnamedC : ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.l
                     (desc_of_parts c.2 (mem_ancFin.mp P.2))))
                 (ρ (j.1 + 1) (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
                   (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1))) →
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1 hv ≠ 0 →
         ∀ (Du : BgData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) N) (_hDuh : ∀ x i, Du.h x i = 0)
           (_hDu0 : ∀ x, x ∉ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).Ω 1 → ∀ i, Du.Ψ x i = ((cl hv par wd cc ro sh a nd' w' x i : ℝ) : ℂ))
           (_hDu1 : ∀ x ∈ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).Ω 1, (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).layerIndex x ≠ m' + 1 → ∀ i, Du.Ψ x i =
@@ -373,6 +374,7 @@ variable (hTBp : (TB m' Z (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1)
                     (desc_of_parts c.2 (mem_ancFin.mp P.2))))
                 (ρ (j.1 + 1) (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
                   (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1))))
+variable (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1 hv ≠ 0)
 variable (D : BgData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) N)
   (ψk : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1))) → Fin N → ℂ)
   (aN : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1))) → ℝ)
@@ -413,7 +415,7 @@ variable (hZp : ∀ x, x ∈ Zp.sites ↔ ∃ y ∈ (windowOfHistory H Z geo hm 
 variable (hDpp : Dpp.sites = ((windowOfHistory H Z geo hm hW).Z \ (windowOfHistory H Z geo hm hW).Zk1) \ Zp.sites)
 variable (hDppX : Dpp.sites ⊆ Xwin.sites)
 
-include hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp D ψk aN hDreal hpos hψkD hR1 hR2 hDh hD0 haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX
+include hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK D ψk aN hDreal hpos hψkD hR1 hR2 hDh hD0 haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX
 
 open Classical in
 /-- **The quotient bound (2.58′) at the data of the point**: for some `A'' ≤ Re(β_k A_{X_win})` (the restricted action on `X_win ∖ Z_{k₁}^+`). -/
@@ -439,7 +441,7 @@ theorem window_hbG_quot_cl :
     unfold betaK
     have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
     positivity
-  have hnamed' := hnamedC hv par wd cc ro sh a nd' w' _ _ (fun _ _ _ => rfl) (fun _ _ => rfl) hw hTBp D hDh hD0
+  have hnamed' := hnamedC hv par wd cc ro sh a nd' w' _ _ (fun _ _ _ => rfl) (fun _ _ => rfl) hw hTBp hK D hDh hD0
     (fun x hx hxl i => hR1 x hx hxl i) (fun x hx hxl i => hR2 x hx hxl i)
   have hZbpos0 : ∀ z ∈ Zb, 0 < aN z := fun z hz => (mul_pos_iff_of_pos_left hβG).mp (hpos z hz)
   have hha : ∀ j, 0 ≤ compWeight S.L a₁ j := compWeight_nonneg H.F.ok.two_le_L ha₁

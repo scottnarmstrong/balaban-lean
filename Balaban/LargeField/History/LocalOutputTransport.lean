@@ -247,19 +247,7 @@ theorem inPsiTilde_genW_of_factors_local (hν : 0 ≤ ν) (hunit : ‖hv‖ = 1)
     · obtain ⟨A, xs, hχ⟩ := hActLoc C hC ⟨x, hx, hq⟩
       exact (parentPsi_sphere_of_chiDomAt_local H Cx hC ψk hχ hx hq).trans_le hηC
   · intro x hx
-    have hCS : (∑ i, parentPsi Cx ψk x i * hv i) ^ 2 ≤ ∑ i, parentPsi Cx ψk x i ^ 2 := by
-      have := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ (fun i => parentPsi Cx ψk x i)
-        (fun i => hv i)
-      rwa [hsum, mul_one] at this
-    have habs : |∑ i, parentPsi Cx ψk x i * hv i| ≤ rn (parentPsi Cx ψk x) :=
-      Real.abs_le_sqrt hCS
-    have hq : |(∑ i, parentPsi Cx ψk x i * hv i) / rn (parentPsi Cx ψk x)| ≤ 1 := by
-      rcases (rn_nonneg (parentPsi Cx ψk x)).eq_or_lt with h0 | hpos
-      · rw [← h0]; simp
-      · rw [abs_div, abs_of_pos hpos, div_le_one hpos]; exact habs
-    have h2 : |1 - (∑ i, parentPsi Cx ψk x i * hv i) / rn (parentPsi Cx ψk x)| ≤ 2 := by
-      obtain ⟨hq1, hq2⟩ := abs_le.1 hq
-      exact abs_le.2 ⟨by linarith, by linarith⟩
+    have h2 := abs_one_sub_inner_div_rn_le_two (u := parentPsi Cx ψk x) (h := fun i => hv i) hsum
     have hℓ : ((S.L : ℝ) ^ (Cx.genW ((H.step (j + 1)).Z)ᶜ).layerIndex x) ^ 2 ≤
         ((S.L : ℝ) ^ (j + 1)) ^ 2 := by
       have hL1 : (1 : ℝ) ≤ S.L := by

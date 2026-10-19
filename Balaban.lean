@@ -2895,5 +2895,8 @@ public import Balaban.Spine.RVacuumTie
 public import Balaban.Spine.RVacuumB0Defect
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
+public import Balaban.LargeField.R.WindowDomDecomp
+public import Balaban.LargeField.R.WindowDomHS
 public import Balaban.LargeField.R.WindowDomKernel
+public import Balaban.LargeField.R.WindowDomMass
 public import Balaban.LargeField.R.WindowDomXi
