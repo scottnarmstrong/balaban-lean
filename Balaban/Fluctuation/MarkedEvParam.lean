@@ -91,6 +91,16 @@ noncomputable def FFmarked (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁
       (ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ) → ℂ :=
   FFmarkedBg Gp X₁f Gp a₁ ν (BgTransport.self hG') cc F₁ Sol Φ Zm um tm
 
+/-- **Instance lemma.**  The step's masked tangent is `markedHatPsiFBg` at `Gb = Gp` with the lift
+of `BgTransport.self`. -/
+theorem markedHatPsiF_eq_markedHatPsiFBg_self (a₁ ν : ℝ) (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
+    (F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ))
+    (Z : Finset (unitPts Gp)) (u t : ℂ)
+    (s : DecParams Gp) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (ψh : unitPts Gp × Fin N → ℂ) :
+    markedHatPsiF a₁ ν hG' cc F₁ Z u t s Θ ψh =
+      markedHatPsiFBg Gp a₁ ν (BgTransport.self (N := N) hG').lift cc F₁ Z u t s Θ ψh := rfl
+
 /-- The marked cut-parameter functional at `(u, s)`. -/
 theorem FFmarked_apply (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ)
     (hG' : IsLevel Gp (k + 1)) (cc : ℂ)

@@ -121,6 +121,13 @@ variable (S : StepSetting d L N₁ m₁ k N ϱ) {Hm : GeneratingSet d L (N₁ * 
   (Y' : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) (u : ℂ)
   (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b)
 
+/-- **Instance lemma.**  The step's mark is `e1MarkGParamGBg` at `Gb = S.G'` with the transport
+`BgTransport.self S.hG'` and the mask `S.blockU z`. -/
+theorem e1MarkGParamG_eq_e1MarkGParamGBg_self :
+    e1MarkGParamG S F₁ Sol ρ hp z eps θ Y' u Φ =
+      e1MarkGParamGBg S S.G' (BgTransport.self S.hG') (S.blockU z) F₁ Sol ρ hp z eps θ Y' u Φ :=
+  rfl
+
 theorem e1MarkGParamG_of_mem
     (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
       XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 eps) (hu : ‖u‖ < (17 / 16 : ℝ)) :

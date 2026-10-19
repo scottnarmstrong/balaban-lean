@@ -164,6 +164,22 @@ noncomputable def decMarkG (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀
     (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) : ℂ :=
   decMarkGBg S S.G' (BgTransport.self S.hG') X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ
 
+/-- **Instance lemma.**  The step's block-level decoupled mark is `decMarkGBg` at `Gb = S.G'` with
+the transport `BgTransport.self S.hG'`. -/
+theorem decMarkG_eq_decMarkGBg_self (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
+    (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) (a₁ ν : ℝ) (cc : ℂ)
+    (F₁ : DecParams S.G' × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf S.G') × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (En : ((S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zm : Finset (unitPts S.G')) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (ρ : ℝ) (hp : 0 < S.p₁) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (um : ℂ)
+    (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b) :
+    decMarkG S X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ =
+      decMarkGBg S S.G' (BgTransport.self S.hG') X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um
+        Φ := rfl
+
 /-- The block-level decoupled mark is the `t`-derivative at `0` of `evDec` at the clamped hat
 field. -/
 theorem decMarkG_eq_deriv_evDec (X₁f : Finset (CTorus d L N₁ m₁ (k + 1))) (m₀ j : ℕ)
