@@ -153,6 +153,224 @@ variable {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
 variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
 variable {a : ℕ → ℝ} {ν : ℝ}
 
+/-- **The replacement identity at a local generating set `Gl` (P3 pp. 78-79), core.**  The
+statement of `coef_eTermFun_replacement_localB` for an arbitrary generating set `Gl` in place of
+`𝔹_{k+1}(Y)` and an arbitrary generating set `Gd` in place of `𝔹_k(Y)`: `Gl` is cube aligned and
+sup-separated at the cube size `M₁ = L^{m₁}`, `Gd ≺ Gl`, `Gd` has the layer `k` of `Gl` and no
+layer `k + 1`, and the Agmon condition holds at the indices of `Gl`, `Gd`.  The coefficient
+`coef (·) 𝒞` of Lemma AE of the old term on the level set `𝔹_{k+1}` with the parameters
+`σ w = extParams 𝔹_{k+1} X₁ w` equals that of the term recomputed on `(Gl, Gd)` with the transported
+parameters `τ w` (`σ w` at the cubes of `Gl` with base in its top layer, `0` at the others), for a
+datum `D'` of `Gl` agreeing with `D` on the top layer of `Gl`, under the margin: every site within
+sup-distance `2 M₁ L^{k+1}` of the read region `R` lies in the top layer of `Gl`.
+`coef_eTermFun_replacement_localB` is the instance `Gl = 𝔹_{k+1}(Y)`, `Gd = 𝔹_k(Y)`; the cast local
+generating sets of the new level are another instance. -/
+theorem coef_eTermFun_replacement_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k)
+    (hk1 : 1 ≤ k) {ϱl ϱl' : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
+    (hA : CubeAligned Gl m₁) (hSS : SupSep Gl m₁) (hPd : Precedes Gd Gl)
+    (hdk : Gd.Ω k = Gl.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    (hagd : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl' - 1))
+    {c BG : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ a ν) (HB' : BgHyp d L (k + 1) ϱl a ν)
+    {κ : ℝ} (hκ : 0 ≤ κ) (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) ×
+        (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gp) Gp a ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl))
+      (D : BgData Gl N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gl)
+          Gl a ν (rho4 d L N BG κ) s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 ≤ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N →
+      (Gd.Ω 1 × Fin N → ℂ) ×
+        (Gd.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gp) Hm a ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm a ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm a p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm a ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm a p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Gd N false δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi Gd
+          (Dec2.decG (coverOf Gl)
+            Gd a ν p.1)
+          p.2.2.1 p.2.1
+          (pertSource Gd a p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf Gl)
+          Gd a ν p.1 false
+          p.2.2.1 p.2.1
+          (pertSource Gd a p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Small Gd (Sol' p).2
+          (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Gd (Sol' p).2
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Gd (Sol' p).1
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Gd.Ω 1 → ℂ,
+          Small Gd δα'
+            (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gl)
+            Gd a ν p.1 false
+            p.2.2.1 p.2.1
+            (pertSource Gd a p.2.2.2.1
+              p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (C : Finset (ParIdx Gp X₁)) {R' : ℝ} (hR' : 1 < R')
+    (hRκ : R' ≤ Real.exp κ)
+    {D : BgData Gp N} {D' : BgData Gl N}
+    (hDd : InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDd' : InUnionDomainC Gl (bgC0 d L N)
+      (c7 d L N BG κ) ν D')
+    (hD' : ∀ x ∈ Gl.Ω (k + 1),
+      D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
+    (ψ' : (ParIdx Gp X₁ → ℂ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+    (he : ∀ w ∈ supN C R', StrictDataM Hm N false δ₀ δ₁
+      (flEdat Gp Hm (F₁ (extParams Gp X₁ w, rawOf D)) D.Ψ (ψ' w)))
+    (he' : ∀ w ∈ supN C R', StrictDataM Gd N false δ₀ δ₁
+      (flEdat Gl
+        Gd
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D'))
+        D'.Ψ (ψ' w)))
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hRk : ∀ x ∈ dataSites Gk, x ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1)) :
+    coef (fun w => eTermFun Gp Gk Gj Hm ac Fk E (F₁ (extParams Gp X₁ w, rawOf D))
+        (Sol (extParams Gp X₁ w,
+          flEdat Gp Hm (F₁ (extParams Gp X₁ w, rawOf D)) D.Ψ (ψ' w))).1 (rawOf D, ψ' w)) C =
+      coef (fun w => eTermFun Gl Gk Gj
+        Gd
+        ac Fk E
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D'))
+        (Sol' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0),
+          flEdat Gl
+            Gd
+            (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                (k + 1) then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D'))
+            D'.Ψ (ψ' w))).1 (rawOf D', ψ' w)) C := by
+  classical
+  -- the cover bases with one pair of constants
+  obtain ⟨Sb, Sb', Sf, Sf'⟩ := replacement_coverBases hG' Hm hA hSS hPd hN hm₁ hM HB hag hagm hagl hagd
+  -- the sets `T = R` and `Y₀ = {y : d(R, y) ≤ M₁ L^{k+1}}`
+  set Y₀ : Finset (CTorus d L N₁ m₁ (k + 1)) :=
+    Finset.univ.filter (fun y => ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) with hY₀
+  have hRY : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1 + m₁) → y ∈ Y₀ := fun x hx y h =>
+    Finset.mem_filter.2 ⟨Finset.mem_univ _, x, hx, h⟩
+  have hYR : ∀ y ∈ Y₀, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁) := fun y hy =>
+    (Finset.mem_filter.1 hy).2
+  have hRY₀ : ∀ x ∈ R, x ∈ Y₀ := fun x hx => hRY x hx x (by rw [supDist_self]; exact Nat.zero_le _)
+  have hM2 : 2 ≤ L ^ m₁ := by
+    have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+    nlinarith [Nat.one_le_pow 2 L hL1]
+  have htop : ∀ y ∈ Y₀, y ∈ Gl.Ω (k + 1) :=
+    fun y hy => topLayer_of_mem hmar hYR hy
+  have hU : ∀ x y : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m₁)) x y →
+      (x ∈ Gl.Ω (k + 1) ↔ y ∈ Gl.Ω (k + 1)) :=
+    fun x y h => hA.union (k + 1) (by omega) le_rfl x y h
+  -- layers on the top layer
+  have hstb := fun y (hy : y ∈ Gl.Ω (k + 1)) =>
+    level_layer_iff_of_top hG' hy
+  have hstf := fun y (hy : y ∈ Gl.Ω (k + 1)) =>
+    drop_layer_iff_of_top (Hm := Hm) hG hk1 hdk hdtop hy
+  have hHb : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
+  have hHf : ∀ x, x ∈ Hm.Ω 1 := fun x => (hG x).1
+  have hH'b : ∀ x ∈ Gl.Ω k,
+      x ∈ Gl.Ω 1 := fun x hx =>
+    Gl.Ω_antitone le_rfl hk1 (by omega) hx
+  have hH'f := fun x (hx : x ∈ Gl.Ω k) =>
+    drop_Ω_one_of_mem hdk hk1 hx
+  -- the transported parameters
+  have hs'0 := fun w : ParIdx Gp X₁ → ℂ =>
+    tau_off_top (Gl := Gl) (extParams Gp X₁ w)
+  have hsτ := fun w : ParIdx Gp X₁ → ℂ =>
+    tau_top (Gl := Gl) hG' (extParams Gp X₁ w)
+  have hhat := fun w : ParIdx Gp X₁ → ℂ =>
+    hat_of_active (Gp := Gp) hSS hA hk1 hM (hs'0 w)
+  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams Gp X₁ w P‖ < Real.exp κ := fun w hw P =>
+    (norm_extParams_lt hR' hw.2 P).trans_le hRκ
+  -- the background and fluctuation components
+  have hdichb := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Gp hw.1
+  have hdichf := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Hm hw.1
+  have hrow := fun w (hw : w ∈ supN C R') => localB_depth_row hG' hm₁ hRC hRX Y₀ hw.1
+  refine coef_eTermFun_replacement_cross hS Sb Sb' HB HB' hκ hMc hF₁ hF₁' hF₂ Sf Sf' hM₂ h0 h1
+    hδ₀ hδ₁ hSol hSol' ac Fk E C hR' (extParams Gp X₁)
+    (fun w P => if P.1.2 ∈ Gl.Ω (k + 1)
+      then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0)
+    hsσ (fun w hw => tau_norm_lt (Gl := Gl) (hsσ w hw) (hR'.trans_le hRκ))
+    hDd hDd' ψ' he he' hRY₀ (fun y hy => hstb y (htop y hy)) hdichb
+    (fun w hw => level_dich_cross hSS hG' hk1 hHb hH'b (hs'0 w) (hhat w) (hsτ w)
+      (hdichb w hw))
+    hrow
+    (fun w hw => level_row_cross hSS hG' hk1 (hs'0 w) (hhat w) (hsτ w) (hrow w hw))
+    (fun w hw => level_inner_cross hG' hHb
+      (depth_deep hU hG' hm₁ hRC hRX hmar hstb hw.1) (hsτ w))
+    (fun w _ => level_inner_cross' hSS hG' hk1 hH'b (hs'0 w) (hhat w) (hsτ w))
+    (localB_depth_res_bg hG' hRY) (depth_act hG' hM2 hmar hYR)
+    (fun y hy _ z hz => by
+      have ht := depth_approxDep (Gp := Gp) hM2 hmar hYR y hy z hz
+      exact ⟨(hD' z ht).1.symm, (hD' z ht).2.symm⟩)
+    (fun y hy => (hD' y (htop y hy)).1.symm)
+    hRY₀ (fun _ hx => hx)
+    (fun x hx => iff_of_true (hHf x) (hH'f x
+      (Gl.Ω_antitone hk1 (Nat.le_succ k)
+        (by omega) (htop x hx))))
+    hdichf
+    (fun w hw => level_dich_cross hSS hG' hk1 hHf hH'f (hs'0 w) (hhat w) (hsτ w)
+      (hdichf w hw))
+    hrow
+    (fun w hw => level_row_cross hSS hG' hk1 (hs'0 w) (hhat w) (hsτ w) (hrow w hw))
+    (fun w hw => level_inner_cross hG' hHf
+      (depth_deep hU hG' hm₁ hRC hRX hmar hstf hw.1) (hsτ w))
+    (fun w _ => level_inner_cross' hSS hG' hk1 hH'f (hs'0 w) (hhat w) (hsτ w))
+    (depth_res_fl hmar hRY hYR hstf)
+    (depth_compose hmar hRY hstb hRk)
+    (depth_compose hmar hRY hstf hRk)
+    (fun x hx => by
+      have ht := hmar x (hRk x hx) x (by rw [supDist_self]; exact Nat.zero_le _)
+      exact ⟨(hD' x ht).1.symm, fun _ => (hD' x ht).2.symm⟩)
+
+
 /-- **The replacement identity at the local generating set (P3 pp. 78-79).**  Let `𝔹_{k+1}`, `𝔹_k`
 be level sets (`k ≥ 1`), `𝔹_{k+1}(Y) = localB (k + 1) … Y` and `𝔹_k(Y) = localB k … Ω_k(𝔹_{k+1}(Y))`
 (index `5 L M₁`), and let `𝒞` be a family of cubes of the cover of `𝔹_{k+1}` disjoint from `X₁`.
@@ -327,86 +545,200 @@ theorem coef_eTermFun_replacement_localB (hG' : IsLevel Gp (k + 1)) (hG : IsLeve
                 Set (CTorus d L N₁ m₁ (k + 1))) (le_refl (minSep L (L ^ m₁))))
             (F₁' ((fun P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω
                 (k + 1) then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0), rawOf D'))
-            D'.Ψ (ψ' w))).1 (rawOf D', ψ' w)) C := by
+            D'.Ψ (ψ' w))).1 (rawOf D', ψ' w)) C :=
+  coef_eTermFun_replacement_gen hG' hG hk1 (localB_cubeAligned hk Y _ hm₁) (localB_supSep hk Y _)
+    (localB_drop_precedes hk (Nat.le_succ k) Y _ _) (localB_drop_Ω hk (Nat.le_succ k) Y _ _ (le_refl k))
+    (localB_drop_top hk (Nat.le_succ k) Y _ _) hN hm₁ hM hag hagm hagl hagl hS HB HB' hκ hMc hF₁
+    hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd hDd' hD' ψ' he he' hRC hRX hRk hmar
+
+/-- **The replacement identity at a local generating set `Gl` for a datum of its chart, core.**
+The statement of `coef_eTermFun_replacement_localB_restrict` for a level set `𝔹_{k+1}` (any level
+set of level `k + 1`), arbitrary generating sets `Gl`, `Gd` with the hypotheses of
+`coef_eTermFun_replacement_gen`, and a datum `D'` of the chart `Ξ^c_{k+1}(Gl; 1, ε')` agreeing with
+the datum `D` of the chart `Ξ^c_{k+1}(𝔹_{k+1}; 1, ε)` on the top layer of `Gl` (`ε ≤ ε'`): the data
+domains of `D`, `D'` and the strict data inequalities of both fluctuation problems are discharged
+from the two charts.  `coef_eTermFun_replacement_localB_restrict` is the instance
+`Gl = 𝔹_{k+1}(Y)`, `D' = localBRestrict D`. -/
+theorem coef_eTermFun_replacement_restrict_gen (hG' : IsLevel Gp (k + 1)) (hG : IsLevel Hm k)
+    (hk1 : 1 ≤ k) {ϱl ϱl' : ℝ} {Gl : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl}
+    {Gd : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱl'}
+    (hA : CubeAligned Gl m₁) (hSS : SupSep Gl m₁) (hPd : Precedes Gd Gl)
+    (hdk : Gd.Ω k = Gl.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
+    (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
+    (hagm : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱm - 1))
+    (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
+    (hagd : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl' - 1))
+    {c BG a₁ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c BG)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν) (HB' : BgHyp d L (k + 1) ϱl (compWeight L a₁) ν)
+    {κ : ℝ} (hκ : 0 < κ) (hMc : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F₁ : Dec2.DecParams (coverOf Gp) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 ×
+        Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    {F₁' : Dec2.DecParams (coverOf Gl) ×
+        RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) ×
+        (Gl.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : Dec2.DecParams (coverOf Gp)) (D : BgData
+      Gp N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ :
+        Gp.Ω 1
+        × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), Dec2.IsDecBg (coverOf
+          Gp)
+          Gp
+          (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+          F₁ (s, rawOf D) = (φ, α))
+    (hF₁' : ∀ (s : Dec2.DecParams (coverOf Gl))
+      (D : BgData Gl N),
+      (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N)
+        (c7 d L N BG κ) ν D →
+      ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ),
+        Dec2.IsDecBg (coverOf Gl)
+          Gl (compWeight L a₁) ν (rho4 d L N BG κ)
+            s D φ α →
+          F₁' (s, rawOf D) = (φ, α))
+    {c₂ BG₂ : ℝ} (hF₂ : Dec2.FamSpec d L (Dec2.mixedKc d L) (Cchi d L) c₂ BG₂)
+    (hM₂ : c₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ₀ δ₁ : ℝ} (h0 : 0 ≤ δ₀) (h1 : 0 < δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG₂ κ) (gamma1 d / 8))
+    {Sol : Dec2.DecParams (coverOf Gp) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    {Sol' : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N →
+      (Gd.Ω 1 × Fin N → ℂ) ×
+        (Gd.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gp) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false δ₀ δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf
+          Gp)
+          Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gp) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (hSol' : ∀ p : Dec2.DecParams (coverOf Gl) ×
+        Edat Gd N,
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Gd N false δ₀ δ₁ p.2 →
+        (Sol' p).1 = dphi Gd
+          (Dec2.decG (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1)
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Dec2.DecFixed (coverOf Gl)
+          Gd (compWeight L a₁) ν p.1
+                false
+          p.2.2.1 p.2.1
+          (pertSource Gd (compWeight L a₁)
+                p.2.2.2.1
+            p.2.2.2.2) (Sol' p).2 ∧
+        Small Gd (Sol' p).2
+          (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Gd (Sol' p).2
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Gd (Sol' p).1
+          (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Gd.Ω 1 → ℂ,
+          Small Gd δα'
+            (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gl)
+            Gd (compWeight L a₁) ν
+                  p.1 false
+            p.2.2.1 p.2.1
+            (pertSource Gd (compWeight L a₁)
+                  p.2.2.2.1
+              p.2.2.2.2) δα' → δα' = (Sol' p).2))
+    (ac : ℕ → ℝ)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {X₁ : Set (CTorus d L N₁ m₁ (k + 1))} (C : Finset (ParIdx
+      Gp X₁))
+      {R' : ℝ} (hR' : 1 < R')
+    (hRκ : R' ≤ Real.exp κ)
+    {eps eps' : ℝ} (heps : 0 < eps) (hsmall : (4 * d + 6) * ((2 * d + 1) * eps) ≤ 1)
+    (hc7 : xiC1 d * eps ≤ c7 d L N BG κ) (hphi : (3 + K4 d L N BG κ) * (xiC1 d * eps) < 1 / 2)
+    (hle : eps ≤ eps')
+    (hsmall' : (4 * d + 6) * ((2 * d + 1) * eps') ≤ 1) (hc7' : xiC1 d * eps' ≤ c7 d L N BG κ)
+    (hphi' : (3 + K4 d L N BG κ) * (xiC1 d * eps') < 1 / 2)
+    (hδ₀e : 2 * (K4 d L N BG κ * (xiC1 d * eps')) ≤ δ₀)
+    {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {D' : BgData Gl N} (hD'x : XiCData Gl (compWeight L a₁) ν (k + 1) 1 eps' D')
+    (hD' : ∀ x ∈ Gl.Ω (k + 1), D'.Ψ x = D.Ψ x ∧ D'.h x = D.h x)
+    (ψ' : (ParIdx Gp X₁ → ℂ) → CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)
+    (hψ : ∀ w ∈ supN C R', ψ' w ∈ FlBall Hm δ₁)
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hRC : ∀ i ∈ C, ∀ y ∈ Pset m₁ i.1.1, y ∈ R)
+    (hRX : ∀ P ∈ cubeIdx Gp, ¬ Disjoint (Pset m₁ P) X₁ → ∀ y ∈ Pset m₁ P, y ∈ R)
+    (hRk : ∀ x ∈ dataSites Gk, x ∈ R)
+    (hmar : ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
+      y ∈ Gl.Ω (k + 1)) :
+    coef (fun w => eTermFun Gp Gk Gj Hm ac Fk E (F₁ (extParams
+      Gp X₁ w,
+      rawOf D))
+        (Sol (extParams Gp X₁ w,
+          flEdat Gp Hm (F₁ (extParams
+            Gp
+            X₁ w, rawOf D)) D.Ψ (ψ' w))).1 (rawOf D, ψ' w)) C =
+      coef (fun w => eTermFun Gl Gk Gj
+        Gd
+        ac Fk E
+        (F₁' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0), rawOf
+              D'))
+        (Sol' ((fun P => if P.1.2 ∈ Gl.Ω (k + 1)
+            then Dec2.extS (coverOf Gp) (extParams
+              Gp X₁ w) P.1 else 0),
+          flEdat Gl
+            Gd
+            (F₁' ((fun P => if P.1.2 ∈ Gl.Ω
+                (k + 1) then Dec2.extS (coverOf
+                  Gp) (extParams
+                  Gp X₁ w) P.1 else 0), rawOf
+                  D'))
+            D'.Ψ (ψ' w))).1 (rawOf
+              D', ψ' w)) C := by
   classical
-  -- the cover bases with one pair of constants
-  obtain ⟨Sb, Sb', Sf, Sf'⟩ := localB_replacement_coverBases hG' Hm hk Y hN hm₁ hM HB hag hagm hagl
-  -- the sets `T = R` and `Y₀ = {y : d(R, y) ≤ M₁ L^{k+1}}`
-  set Y₀ : Finset (CTorus d L N₁ m₁ (k + 1)) :=
-    Finset.univ.filter (fun y => ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁)) with hY₀
-  have hRY : ∀ x ∈ R, ∀ y, supDist x y ≤ L ^ (k + 1 + m₁) → y ∈ Y₀ := fun x hx y h =>
-    Finset.mem_filter.2 ⟨Finset.mem_univ _, x, hx, h⟩
-  have hYR : ∀ y ∈ Y₀, ∃ x ∈ R, supDist x y ≤ L ^ (k + 1 + m₁) := fun y hy =>
-    (Finset.mem_filter.1 hy).2
-  have hRY₀ : ∀ x ∈ R, x ∈ Y₀ := fun x hx => hRY x hx x (by rw [supDist_self]; exact Nat.zero_le _)
-  have hM2 : 2 ≤ L ^ m₁ := by
-    have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-    nlinarith [Nat.one_le_pow 2 L hL1]
-  have htop : ∀ y ∈ Y₀, y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1) :=
-    fun y hy => localB_top_of_mem hk Y _ hmar hYR hy
-  -- layers on the top layer
-  have hstb := fun y (hy : y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)) =>
-    level_localB_layer_iff_of_top hG' hk Y (le_refl (minSep L (L ^ m₁))) hy
-  have hstf := fun y (hy : y ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)) =>
-    localB_drop_layer_iff_of_top (Hm := Hm) hG hk1 hk (Nat.le_succ k) Y
-      (le_refl (minSep L (L ^ m₁))) (le_refl (minSep L (L ^ m₁))) hy
-  have hHb : ∀ x, x ∈ Gp.Ω 1 := fun x => (hG' x).1
-  have hHf : ∀ x, x ∈ Hm.Ω 1 := fun x => (hG x).1
-  have hH'b : ∀ x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k,
-      x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω 1 := fun x hx =>
-    (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone le_rfl hk1 (by omega) hx
-  have hH'f := fun x (hx : x ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω k) =>
-    localB_drop_Ω_one_of_mem hk1 hk (Nat.le_succ k) Y (le_refl (minSep L (L ^ m₁)))
-      (le_refl (minSep L (L ^ m₁))) hx
-  -- the transported parameters
-  have hs'0 := fun w : ParIdx Gp X₁ → ℂ =>
-    localB_tau_off_top hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)
-  have hsτ := fun w : ParIdx Gp X₁ → ℂ =>
-    localB_tau_top hG' hk Y (le_refl (minSep L (L ^ m₁))) (extParams Gp X₁ w)
-  have hhat := fun w : ParIdx Gp X₁ → ℂ =>
-    localB_hat_of_active (Gp := Gp) hk1 hk Y (le_refl (minSep L (L ^ m₁))) hm₁ hM (hs'0 w)
-  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams Gp X₁ w P‖ < Real.exp κ := fun w hw P =>
+  obtain ⟨Sb, Sb', -, -⟩ := replacement_coverBases hG' Hm hA hSS hPd hN hm₁ hM HB hag hagm hagl hagd
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hxi := one_le_xiC1 d
+  have hδ0 : 0 < xiC1 d * eps := by positivity
+  have heps' : 0 < eps' := lt_of_lt_of_le heps hle
+  have hδ0' : 0 < xiC1 d * eps' := by positivity
+  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
+  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
+    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
+      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
+    linarith
+  have hc0 : xiC1 d * eps ≤ bgC0 d L N :=
+    (hc7.trans (c7_le_bgC1 d L N BG κ)).trans (bgC1_le_bgC0 d L N hd0)
+  have hc0' : xiC1 d * eps' ≤ bgC0 d L N :=
+    (hc7'.trans (c7_le_bgC1 d L N BG κ)).trans (bgC1_le_bgC0 d L N hd0)
+  have hDd := inUnionDomainC_of_inDomainC HB hδ0 hc0 hc7 (xiCData_inDomainC HB hsmall hD)
+  have hDd' := inUnionDomainC_of_inDomainC HB' hδ0' hc0' hc7' (xiCData_inDomainC HB' hsmall' hD'x)
+  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
     (norm_extParams_lt hR' hw.2 P).trans_le hRκ
-  -- the background and fluctuation components
-  have hdichb := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Gp hw.1
-  have hdichf := fun w (hw : w ∈ supN C R') => localB_depth_dich hG' hm₁ hRC hRX Hm hw.1
-  have hrow := fun w (hw : w ∈ supN C R') => localB_depth_row hG' hm₁ hRC hRX Y₀ hw.1
-  refine coef_eTermFun_replacement_cross hS Sb Sb' HB HB' hκ hMc hF₁ hF₁' hF₂ Sf Sf' hM₂ h0 h1
-    hδ₀ hδ₁ hSol hSol' ac Fk E C hR' (extParams Gp X₁)
-    (fun w P => if P.1.2 ∈ (localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω (k + 1)
-      then Dec2.extS (coverOf Gp) (extParams Gp X₁ w) P.1 else 0)
-    hsσ (fun w hw => localB_tau_norm_lt hk Y _ (hsσ w hw) (hR'.trans_le hRκ))
-    hDd hDd' ψ' he he' hRY₀ (fun y hy => hstb y (htop y hy)) hdichb
-    (fun w hw => level_localB_dich_cross hG' hk1 hk Y _ hHb hH'b (hs'0 w) (hhat w) (hsτ w)
-      (hdichb w hw))
-    hrow
-    (fun w hw => level_localB_row_cross hG' hk1 hk Y _ (hs'0 w) (hhat w) (hsτ w) (hrow w hw))
-    (fun w hw => level_localB_inner_cross hG' hk Y _ hHb
-      (localB_depth_deep hG' hm₁ hk Y _ hRC hRX hmar hstb hw.1) (hsτ w))
-    (fun w _ => level_localB_inner_cross' hG' hk1 hk Y _ hH'b (hs'0 w) (hhat w) (hsτ w))
-    (localB_depth_res_bg hG' hRY) (localB_depth_act hG' hM2 hk Y _ hmar hYR)
-    (fun y hy _ z hz => by
-      have ht := localB_depth_approxDep (Gp := Gp) hM2 hk Y _ hmar hYR y hy z hz
-      exact ⟨(hD' z ht).1.symm, (hD' z ht).2.symm⟩)
-    (fun y hy => (hD' y (htop y hy)).1.symm)
-    hRY₀ (fun _ hx => hx)
-    (fun x hx => iff_of_true (hHf x) (hH'f x
-      ((localB (k + 1) hk Y (le_refl (minSep L (L ^ m₁)))).Ω_antitone hk1 (Nat.le_succ k)
-        (by omega) (htop x hx))))
-    hdichf
-    (fun w hw => level_localB_dich_cross hG' hk1 hk Y _ hHf hH'f (hs'0 w) (hhat w) (hsτ w)
-      (hdichf w hw))
-    hrow
-    (fun w hw => level_localB_row_cross hG' hk1 hk Y _ (hs'0 w) (hhat w) (hsτ w) (hrow w hw))
-    (fun w hw => level_localB_inner_cross hG' hk Y _ hHf
-      (localB_depth_deep hG' hm₁ hk Y _ hRC hRX hmar hstf hw.1) (hsτ w))
-    (fun w _ => level_localB_inner_cross' hG' hk1 hk Y _ hH'f (hs'0 w) (hhat w) (hsτ w))
-    (localB_depth_res_fl hk Y _ hmar hRY hYR hstf)
-    (localB_depth_compose hk Y _ hmar hRY hstb hRk)
-    (localB_depth_compose hk Y _ hmar hRY hstf hRk)
-    (fun x hx => by
-      have ht := hmar x (hRk x hx) x (by rw [supDist_self]; exact Nat.zero_le _)
-      exact ⟨(hD' x ht).1.symm, fun _ => (hD' x ht).2.symm⟩)
+  exact coef_eTermFun_replacement_gen hG' hG hk1 hA hSS hPd hdk hdtop hN hm₁ hM hag hagm hagl hagd
+    hS HB HB' hκ.le hMc hF₁ hF₁' hF₂ hM₂ h0 h1.le hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd hDd' hD'
+    ψ'
+    (fun w hw => strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
+      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψ w hw))
+    (fun w hw => strictDataM_flEdat_cover hS Sb' HB' hκ hMc heps' hsmall' hc7' hphi' h1 hδ₀e
+      hPd hF₁' hSol' (tau_norm_lt (Gl := Gl) (hsσ w hw) (hR'.trans_le hRκ)) hD'x
+      (fun x _ => hψ w hw x ((mem_dataSites Hm).2 (Or.inl (hG x).1))))
+    hRC hRX hRk hmar
+
 
 /-- **The replacement identity at the local generating set, with the restricted datum.**  The case
 `𝔹_{k+1} = levelGS (k + 1)` (the whole-level set of the class) and `D' = localBRestrict D` (the clip of
@@ -627,42 +959,23 @@ theorem coef_eTermFun_replacement_localB_restrict (hG : IsLevel Hm k) (hk1 : 1 �
               (Nat.le_add_left 1 k) D).Ψ (ψ' w))).1 (rawOf
               (localBRestrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
               (Nat.le_add_left 1 k) D), ψ' w)) C := by
-  classical
-  have hG' : IsLevel (Def6.levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) (ϱ := ϱ)
-      (k + 1) hk) (k + 1) := isLevel_levelGS (Nat.le_add_left 1 k) hk
-  obtain ⟨Sb, Sb', -, -⟩ := localB_replacement_coverBases hG' Hm hk Y hN hm₁ hM HB hag hagm hagl
   have hd0 : 0 < d := by have := HB.hd; omega
   have hxi := one_le_xiC1 d
   have hK1 : 0 < bgK1 d L N := bgK1_pos d L N
   have hδ0 : 0 < xiC1 d * eps := by positivity
-  have heps' : 0 < eps' := by nlinarith
   have hle : eps ≤ eps' := by nlinarith
-  have hK4 : 0 ≤ K4 d L N BG κ := (K4_pos hS.fam.2.1 hd0).le
-  have hδ₀a : 2 * (K4 d L N BG κ * (xiC1 d * eps)) ≤ δ₀ := by
-    have : K4 d L N BG κ * (xiC1 d * eps) ≤ K4 d L N BG κ * (xiC1 d * eps') :=
-      mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hle (by linarith)) hK4
-    linarith
-  have hDom := xiCData_inDomainC HB hsmall hD
   have hc1 : xiC1 d * eps ≤ bgC1 d L N := hc7.trans (c7_le_bgC1 d L N BG κ)
   have hc0 : xiC1 d * eps ≤ bgC0 d L N := hc1.trans (bgC1_le_bgC0 d L N hd0)
-  have hDd := inUnionDomainC_of_inDomainC HB hδ0 hc0 hc7 hDom
   have hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * eps) ^ 2 ≤ (xiC1 d * eps) ^ 2 := by
     have := HB.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
-  have hD'x := localB_xiCData_restrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
-    (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D hDom
-  have hsσ : ∀ w ∈ supN C R', ∀ P, ‖extParams _ X₁ w P‖ < Real.exp κ := fun w hw P =>
-    (norm_extParams_lt hR' hw.2 P).trans_le hRκ
-  exact coef_eTermFun_replacement_localB hG' hG hk1 hk Y hN hm₁ hM hag hagm hagl hS HB HB' hκ.le
-    hMc hF₁ hF₁' hF₂ hM₂ h0 h1.le hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ hDd
-    (localB_inUnionDomainC_restrict_const (Nat.le_add_left 1 k) HB.mass D hDd)
-    (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) ψ'
-    (fun w hw => strictDataM_flEdat_cover hS Sb HB hκ hMc heps hsmall hc7 hphi h1 hδ₀a
-      (isLevel_top_precedes hG' Hm) hF₁ hSol (hsσ w hw) hD (hψ w hw))
-    (fun w hw => strictDataM_flEdat_cover hS Sb' HB' hκ hMc heps' hsmall' hc7' hphi' h1 hδ₀e
-      (localB_drop_precedes hk (Nat.le_succ k) Y le_rfl le_rfl) hF₁' hSol'
-      (localB_tau_norm_lt hk Y _ (hsσ w hw) (hR'.trans_le hRκ)) hD'x
-      (fun x _ => hψ w hw x ((mem_dataSites Hm).2 (Or.inl (hG x).1))))
-    hRC hRX hRk hmar
+  exact coef_eTermFun_replacement_restrict_gen (isLevel_levelGS (Nat.le_add_left 1 k) hk) hG hk1
+    (localB_cubeAligned hk Y _ hm₁) (localB_supSep hk Y _)
+    (localB_drop_precedes hk (Nat.le_succ k) Y _ _) (localB_drop_Ω hk (Nat.le_succ k) Y _ _ (le_refl k))
+    (localB_drop_top hk (Nat.le_succ k) Y _ _) hN hm₁ hM hag hagm hagl hagl hS HB HB' hκ hMc hF₁
+    hF₁' hF₂ hM₂ h0 h1 hδ₀ hδ₁ hSol hSol' ac Fk E C hR' hRκ heps hsmall hc7 hphi hle hsmall' hc7'
+    hphi' hδ₀e hD (localB_xiCData_restrict (X := Y) (hsep := le_refl (minSep L (L ^ m₁)))
+      (Nat.le_add_left 1 k) HB' HB.mass hδ0 le_rfl hc0 hc1 hνε hεb D (xiCData_inDomainC HB hsmall hD))
+    (fun x hx => localBRestrict_eq_of_mem_top (Nat.le_add_left 1 k) D hx) ψ' hψ hRC hRX hRk hmar
 
 end Assembly
 
