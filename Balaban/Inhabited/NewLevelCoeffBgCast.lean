@@ -31,9 +31,9 @@ the local chart of radius `ε_{k+1}` itself.
 
 * `castG_canon_gdat_xiCData_of_xiCData`: the datum read by the canonical transport from a datum of
   the step chart of radius `ε` lies in the chart of the cast local set at every radius
-  `ε′ ≥ (2 K₁ + 2) C₁ ε`;
-* `canon_gdat_eq_of_mem_one`: the read datum agrees with the datum of the step on `Ω₁` of the local
-  set;
+  `ε′ ≥ (2 K₁ + 2) C₁ ε` (the instance of `canon_gdat_xiCData_of_xiCData`, `LocalPairCast`); the
+  read datum agrees with the datum of the step on `Ω₁` of the local set
+  (`canon_gdat_eq_of_mem_one`, `LocalPairCast`);
 * `newLevelDetBg_cross`: the determinant part of the coefficient (`newLevelDetBg`) on the step's
   level set and on a generating set `H'` agree at two data of the charts (same radius) agreeing on a
   region `R` of the top layer of `H'`, for the mask `maskPre` of the mask of the step and a polymer
@@ -71,27 +71,8 @@ theorem castG_canon_gdat_xiCData_of_xiCData {ϱp : ℝ}
     (D : BgData Gp N) (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 ε D) :
     XiCData (castG hc (localB (k + 1) hk Y' hsep)) (compWeight L a₁) ν (k + 1) 1 ε'
       ((BgTransport.canon Gp (castG hc (localB (k + 1) hk Y' hsep)) N).gdat
-        (BgTransport.reads_canon hG) D) := by
-  have hDom := xiCData_inDomainC HBp hsmall hD
-  have hδ0 : 0 < xiC1 d * ε := mul_pos (lt_of_lt_of_le one_pos (one_le_xiC1 d)) hε
-  have hμε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (xiC1 d * ε) ^ 2 ≤ (xiC1 d * ε) ^ 2 := by
-    have := HBp.massLe
-    nlinarith [sq_nonneg (xiC1 d * ε)]
-  exact castG_canon_gdat_xiCData hG hc hk Y' hsep H HBp.mass hδ0 le_rfl hc0 hc1 hμε
-    (by nlinarith) D hDom
-
-/-- **The read datum agrees with the datum of the step on the first domain of `Gb`** (both
-fields; `Ω₁(Gb)` lies in the data sites of `Gb`). -/
-theorem canon_gdat_eq_of_mem_one {ϱp ϱb : ℝ} {N : ℕ}
-    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱp}
-    {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb} (hG : IsLevel Gp (k + 1))
-    (D : BgData Gp N) {x : CTorus d L N₁ m₁ (k + 1)} (hx : x ∈ Gb.Ω 1) :
-    D.Ψ x = ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D).Ψ x ∧
-      D.h x = ((BgTransport.canon Gp Gb N).gdat (BgTransport.reads_canon hG) D).h x := by
-  rw [BgTransport.canon_gdat_eq_levelRestrict hG]
-  exact ⟨(levelRestrict_Ψ hG (Nat.le_add_left 1 k) le_rfl Gb.top D
-      ((mem_dataSites _).2 (Or.inl hx))).symm,
-    (levelRestrict_h hG (Nat.le_add_left 1 k) le_rfl Gb.top D hx).symm⟩
+        (BgTransport.reads_canon hG) D) :=
+  canon_gdat_xiCData_of_xiCData hG HBp H hε hsmall hc0 hc1 hε' D hD
 
 end Read
 
