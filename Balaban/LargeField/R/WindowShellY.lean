@@ -35,7 +35,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- The datum of a cube generating set reads `ψ_{j+1}` at the top block of a data site: it is the
 field `parentPsi` there. -/
-theorem cubeData_Ψ_eq_parentPsi (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N))
+theorem cubeData_Ψ_eq_parentPsi_top (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N))
     (hv : EuclideanSpace ℝ (Fin N)) (y₁ : Torus S.d (n (j + 1))) {s : BgT Cx.geo (j + 1)}
     (hs : s ∈ dataSites (genCube (M1 := Cx.geo.M1) (N₁ := Cx.geo.c * n (j + 1)) (L := S.L)
       (q := j + 1) Cx.geo.c (n (j + 1)) y₁)) (i : Fin N) :
@@ -82,8 +82,8 @@ theorem parentPsi_pair_of_adj_over_Y (Y : Set (Torus S.d (n (j + 1))))
     (L := S.L) (q := j + 1) (c := Cx.geo.c) (n := n (j + 1)) hm (Nat.succ_pos j) _ y₁ hGc _ _ _ _
     hBC hGC hs hs' (by obtain ⟨y, y', hy, hy', ha⟩ := hadj; exact ⟨y, GeneratingSet.mem_blk.2 hy, y', GeneratingSet.mem_blk.2 hy', ha⟩)
   have hy₁' : y₁ ∈ nbhd 2 ({y₁} : Set (Torus S.d (n (j + 1)))) := subset_nbhd 2 _ rfl
-  have e1 := cubeData_Ψ_eq_parentPsi Cx ψk hv y₁ (mem_dataSites_genCube Cx (by rw [hs]; exact hy₁'))
-  have e2 := cubeData_Ψ_eq_parentPsi Cx ψk hv y₁
+  have e1 := cubeData_Ψ_eq_parentPsi_top Cx ψk hv y₁ (mem_dataSites_genCube Cx (by rw [hs]; exact hy₁'))
+  have e2 := cubeData_Ψ_eq_parentPsi_top Cx ψk hv y₁
     (mem_dataSites_genCube Cx (nbhd_mono (by omega) subset_rfl hs'))
   have hv0 : vn (fun i => ((parentPsi Cx ψk s i : ℝ) : ℂ) - ((parentPsi Cx ψk s' i : ℝ) : ℂ)) <
       3 * Cx.cs.delta (j + 1) := by
