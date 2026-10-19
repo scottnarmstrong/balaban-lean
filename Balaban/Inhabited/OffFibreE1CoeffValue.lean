@@ -24,6 +24,121 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 open Classical in
 /-- The actual E1 parameter coefficients have the raw localized derivative value at a free datum. -/
+theorem StepTowerG.e1_param_coeff_sum_eq_raw_deriv_of_directTerms {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (Dt : StepScaleDataG T k hk N₁ ν β p₁) (b : ℝ) (hb : b = β * (L : ℝ) ^ (k * (d - 2))) (hm₀ : T.m₀ = 1)
+    (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (S : StepSetting d L N₁ T.m₁ k N ϱ)
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Jr : S.JointRep T.t (2 * p₁))
+    (hp : 0 < S.p₁) (hp0 : 0 < p₁) (hlt : S.p₁ < 2 * p₁) (hβpos : 0 < β)
+    {BG κdec : ℝ}
+    (F₁ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k ϱ) N →
+        ((stepG d L N₁ T.m₁ k ϱ).Ω 1 × Fin N → ℂ) ×
+          ((stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ))
+    (z : RootIdx d L N₁ T.m₁ (k + 1))
+    (hP : ∀ b, MarkedBlockExpansionDecPair N
+      (stepG d L N₁ T.m₁ k ϱ) S.hG'
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν BG T.BG₂ T.κ T.t T.t κdec p₁
+      (S.blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+      (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ b) (Sol b))
+    (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 T.t D)
+    (hN3 : L ^ 1 ∣ N₁) (hdj : ∀ b, ∀ Y ∈ e1DomG S b, IsDj 1 (k + 1) Y)
+    {Lb : Type} [Fintype Lb]
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+      (K := k + 1) 1 (k + 1) Set.univ Lb)
+    {εH : ℝ}
+    (A₀ : physParam N S → ℂ →
+      LabelAct (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj)
+        (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0))
+    (θ : physParam N S)
+    (hθ : θ = ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+      (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)))
+    (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
+      ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
+      (RawData d L (N₁ * L ^ T.m₁) (k + 1) N ×
+        (CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) → ℂ)
+    (hval : ∀ x w σ Θ, val x w σ Θ =
+      (-(S.β : ℂ)) * raySrc3 (hatFun S.G' S.a₁ S.ν T.t S.hG'
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+        (interactionOne S.hG S.hG' (le_refl (k + 1)) S.a₁ S.ν T.t))
+        taylorWeight x.1 w.1 σ Θ.1 +
+      (S.β : ℂ) * (∑ s : CTorus d L N₁ T.m₁ (k + 1) × Fin N, Θ.2 s.1 s.2 *
+        dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG'
+          ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+          (onXi S.G' S.a₁ S.ν T.t
+            (fun D ψ' => svec (stepG d L N₁ T.m₁ k ϱ)
+              (flFieldOne S.G' (stepG d L N₁ T.m₁ k ϱ)
+                T.BG₂ T.κ S.a₁ S.ν D ψ') s.1 s.2)))
+          (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))
+    (I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
+      (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β)) (2 * T.κdec - 1)
+      (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+      (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
+      (physXW S (lvCpsiG d L N T.κ T.t b) 2 2
+        (lvRG d L N T.κ T.t b p₁)) val (physAgΘ S) (AgFDirPair S))
+    (hF : DirectTermsFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
+      (physVq S S.a₁ S.ν T.t 1))
+    (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+      (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β))
+    (A : physParam N S → ℂ → LabelAct (thickLabels I.𝒴 I.dom) (S.blockSplit 1 hp).Ωb
+      (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β)))
+      (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1)))
+    (hAeq : A = labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
+      hN3 hp0 (by norm_num) hεU T.κ0_ent
+      T.marks_K0_le)
+    (hA₀sum : ∀ (e : physParam N S) (u : ℂ)
+      (Φ : ∀ b, (S.blockSplit 1 hp).Ωb b),
+      ∑ y, (A₀ e u).H y Φ =
+        sqFactor 2 u * ∑ y, (A ((e.1, 0) : physParam N S) u).H y Φ)
+    (hεpos : 0 < εH)
+    (hε : εH ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ')
+    (hAhol : ∀ y Φ, DifferentiableOn ℂ (fun u => (A₀ θ u).H y Φ)
+      (Metric.ball (0 : ℂ) corrU))
+    (hmeas : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ), Measurable (e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u))
+    (hdep : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ), DepOn (blocksOf 1 (k + 1) Set.univ
+        ((commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj).ysite
+          (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)))
+        (e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u))
+    (hbnd : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ) Φ, ‖e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ‖ ≤
+        corrF0G T k β p₁ * Real.exp (-(2 * T.κdec - 1) *
+          (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj).dl
+            (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)))
+    (hGhol : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) Φ,
+      DifferentiableOn ℂ (fun u => e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ)
+        (Metric.ball (0 : ℂ) corrU)) :
+    (∑ C, gsumCoeff (S.blockSplit 1 hp).μ
+      (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj)
+      (A₀ θ)
+      (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z} =>
+        commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)
+      (fun i u Φ => e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ) C) =
+    ∫ s in (0 : ℝ)..1, avgFun S.nuFl
+      (fun s x => Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x))
+      (fun x => (fderiv ℂ (fun w : S.EC =>
+        Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ) (rawOf D, w))
+        ((s : ℂ) • yhat x))
+        ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
+  subst hθ
+  have hact := e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN3 ν hνpos hν β p₁ hp0 b hb Dt
+    hϱ S hS hp Jr val hval I hF hεU A hAeq A₀ hA₀sum D hX
+  subst hb
+  exact T.e1_param_coeff_sum_eq_raw_deriv_of_activity Dt hm₀ hϱ S hS Jr hp hlt hβpos
+    F₁ Sol z hP D hX hN3 hdj Lab₀ A₀ _ rfl hact hεpos hε hAhol
+    hmeas hdep hbnd hGhol
+
+
+open Classical in
+/-- The actual E1 parameter coefficients have the raw localized derivative value at a free datum. -/
 theorem e1_param_coeff_sum_eq_raw_deriv_of_directTerms {κmin : ℝ} (T : StepTower κmin)
     {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
     (Dt : StepScaleData T k hk N₁ ν β p₁)
@@ -128,12 +243,11 @@ theorem e1_param_coeff_sum_eq_raw_deriv_of_directTerms {κmin : ℝ} (T : StepTo
         Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D, w))
         ((s : ℂ) • yhat x))
         ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
-  subst hθ
-  have hact := e1_common_activity_freeDatum_of_directTerms T k hk N₁
-    (by simpa using hN3 : 3 ∣ N₁) ν hνpos hν β p₁ hp0 Dt S hS hp Jr
-    val hval I hF hεU A hAeq A₀ hA₀sum D hX
-  exact e1_param_coeff_sum_eq_raw_deriv_of_activity T Dt S hS Jr hp hlt hβpos
-    F₁ Sol z hP D hX hN3 hdj Lab₀ A₀ _ rfl hact hεpos hε hAhol
-    hmeas hdep hbnd hGhol
+  subst hS
+  exact T.toG.e1_param_coeff_sum_eq_raw_deriv_of_directTerms (T.scaleDataG_of_fixed Dt) (β * 3 ^ k)
+    (by norm_num) rfl hνpos (by simpa using hν) (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm
+    (T.step k hk N₁ ν β p₁) rfl Jr hp hp0 hlt hβpos F₁ Sol z hP D hX hN3 hdj Lab₀ A₀ _ hθ val hval I hF hεU A hAeq hA₀sum
+    hεpos hε hAhol hmeas hdep (fun i u Φ => by have := hbnd i u Φ; rwa [corrF0_toG] at this) hGhol
+
 
 end Balaban.Inhabited

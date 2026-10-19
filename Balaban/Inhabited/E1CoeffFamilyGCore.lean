@@ -334,7 +334,7 @@ theorem e1CoeffFamily_value_fromTowerG_core {d L N : ℕ} [NeZero L] {κmin : �
   · refine ⟨Jr, fun D' hX => ?_, val, I0, hFd, hεU, rfl, rfl, ?_, ?_, hex⟩
     · have hN1 : L ^ 1 ∣ N₁ := by rwa [hm₀] at h3N
       exact e1_common_activity_freeDatum_of_directTermsG T k hk N₁ hN1 ν hν0 hν β
-        p₁ (show 0 < p₁ from hp) D _ rfl hp Jr val hval I0 hFd hεU A hAeq
+        p₁ (show 0 < p₁ from hp) _ rfl D rfl _ rfl hp Jr val hval I0 hFd hεU A hAeq
         A0 hsum D' hX
     · exact HEq.rfl
     · subst hA0eq

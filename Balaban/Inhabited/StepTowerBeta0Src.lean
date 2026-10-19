@@ -126,6 +126,104 @@ theorem srcAmp_agree (T₀ : StepTowerG d L N κmin) {A₁ : ℝ} (hA : 0 < A₁
   rw [← e1]
   linarith
 
+/-- **The amplitude of the step at the source slice `q = 1` is small, uniformly in the scale and the
+step radius, general tower.**  For towers `T` that agree with `T₀` on `m₀, m₁, BG, BG₂, κ, κ₀, κ'`
+and every radius `t ≥ c L^{-α(k+1)}`, `2 α < d - 2`: `2² · 2 ε_U` is at most the threshold of the
+amplitude condition at the entropy constant `2 K_c'`. -/
+theorem exists_beta0_amp_agree (T₀ : StepTowerG d L N κmin) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+    {Kc' : ℝ} (hKc : 0 < Kc') {c α : ℝ} (hc : 0 < c) (hα : 2 * α < ((d - 2 : ℕ) : ℝ)) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ∀ T : StepTowerG d L N κmin, T.m₀ = T₀.m₀ → T.m₁ = T₀.m₁ →
+      T.BG = T₀.BG → T.BG₂ = T₀.BG₂ → T.κ = T₀.κ → T.κ0 = T₀.κ0 → T.κ' = T₀.κ' →
+      ∀ k : ℕ, 1 ≤ k → ∀ β : ℝ, β₀ ≤ β →
+      c * (L : ℝ) ^ (-(α * ((k : ℝ) + 1))) ≤ T.t → ∀ p₁ : ℝ, 0 < p₁ →
+      p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+      2 ^ 2 * (2 * (β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β))) ≤
+      1 / (8 * (2 * Kc') ^ 3 * c1 d L *
+        Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG d L + c1 d L + T.κ' * cG d L)) := by
+  have hd := T₀.hd
+  have hL := T₀.hL
+  obtain ⟨β₁, M₁, M₂, hβ₁, hM₁, hM₂, H⟩ := srcAmp_agree T₀ hA p hc hα
+  have hdaT := daT_pos d L (by norm_num : (0 : ℝ) < 4) (by positivity : 0 < 2 * Kc') T₀.κdec
+    T₀.κ0 T₀.κ'
+  obtain ⟨β₂, hβ₂, hinv⟩ := exists_beta0_inv_t_le (d := d) (L := L) hd hL (M₁ := 2 * M₁)
+    (M₂ := 2 * M₂) (η := daT d L 4 (2 * Kc') T₀.κdec T₀.κ0 T₀.κ') (c := c) (α := α) (3 * p)
+    (by positivity) (by positivity) hdaT hc hα
+  refine ⟨max β₁ β₂, hβ₁.trans (le_max_left _ _), ?_⟩
+  intro T hm₀ hm₁ hBG hBG₂ hκ h0 h' k hk β hβ hct p₁ hp0 hp₁
+  have hdec : T.κdec = T₀.κdec := by rw [T.κdec_eq, T₀.κdec_eq, h0]
+  have hβ₁' : β₁ ≤ β := (le_max_left _ _).trans hβ
+  have hβ₂' : β₂ ≤ β := (le_max_right _ _).trans hβ
+  have hβ0 : 0 < β := by linarith
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have h3k : (1 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := one_le_pow₀ hL1
+  have hbβ : β ≤ β * (L : ℝ) ^ (k * (d - 2)) := le_mul_of_one_le_right hβ0.le h3k
+  have hb0 : 0 < β * (L : ℝ) ^ (k * (d - 2)) := by linarith
+  have hℓ : 1 ≤ Real.log (β * (L : ℝ) ^ (k * (d - 2))) := by
+    rw [Real.le_log_iff_exp_le hb0]
+    exact (Real.exp_one_lt_three.le.trans (hβ₁.trans hβ₁')).trans hbβ
+  have hs : 0 < Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := Real.sqrt_pos.2 hb0
+  have hw : (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p ≤
+      (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) := pow_le_pow_right₀ hℓ (by omega)
+  have hw3 : 0 ≤ (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) := by positivity
+  obtain ⟨-, hε⟩ := H T hm₀ hm₁ hBG hBG₂ hκ k hk 1 0 β hβ₁' hct p₁ hp0 hp₁ 1 one_pos
+    (T.step k hk 1 0 β p₁) rfl
+  have hβS : (T.step k hk 1 0 β p₁).β = β := rfl
+  have ha₁ : (T.step k hk 1 0 β p₁).a₁ = 1 := rfl
+  rw [hβS, ha₁] at hε
+  have hb' := hinv k β T.t hβ₂' hct
+  have ht0 := T.t_pos
+  have hA0 : 0 ≤ M₁ / T.t * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := by positivity
+  have hB : M₂ * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ p /
+      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) ≤ M₂ *
+      (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) :=
+    div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hw hM₂.le) hs.le
+  have hB0 : 0 ≤ M₂ * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) := by positivity
+  have e1 : (2 * M₁ / T.t + 2 * M₂) * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+      Real.sqrt (β * (L : ℝ) ^ (k * (d - 2))) =
+      2 * (M₁ / T.t * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2)))) +
+      2 * (M₂ * (Real.log (β * (L : ℝ) ^ (k * (d - 2)))) ^ (3 * p) /
+        Real.sqrt (β * (L : ℝ) ^ (k * (d - 2)))) := by ring
+  rw [one_mul] at hε
+  have hε' : 2 * (β * prop33EpsEtaScaled d L N T.m₁ k T.m₀ 1 T.BG T.BG₂ T.κ T.t
+      (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / β)) ≤
+      daT d L 4 (2 * Kc') T.κdec T.κ0 T.κ' := by
+    rw [hdec, h0, h']
+    refine le_trans ?_ hb'
+    linarith
+  have hdo := (hDA_iff d L (by norm_num : (0 : ℝ) < 4) (by positivity : 0 < 2 * Kc') T.κdec T.κ0
+    T.κ' _).2 hε'
+  rw [show (2 : ℝ) ^ 2 = 4 by norm_num]
+  exact hdo
+
 end StepTowerG
+
+/-- **The amplitude of the step at the source slice `q = 1` is small, uniformly in the scale and
+the step radius.**  For towers `T` that agree with `T₀` on `m₁, BG, BG₂, κ` and every radius
+`t ≥ c 3^{-α(k+1)}`, `2 α < 1`. -/
+theorem StepTower.exists_beta0_amp_agree {κmin : ℝ} (T₀ : StepTower κmin) {A₁ : ℝ} (hA : 0 < A₁)
+    (p : ℕ) {Kc' : ℝ} (hKc : 0 < Kc') {c α : ℝ} (hc : 0 < c) (hα : 2 * α < 1) :
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧ ∀ T : StepTower κmin, T.m₁ = T₀.m₁ → T.BG = T₀.BG → T.BG₂ = T₀.BG₂ →
+      T.κ = T₀.κ → ∀ k : ℕ, 1 ≤ k → ∀ β : ℝ, β₀ ≤ β →
+      c * (3 : ℝ) ^ (-(α * ((k : ℝ) + 1))) ≤ T.t → ∀ p₁ : ℝ, 0 < p₁ →
+      p₁ ≤ pLog A₁ p (β * 3 ^ k) →
+      2 ^ 2 * (2 * (β * prop33EpsEtaScaled 3 3 2 T.m₁ k 1 1 T.BG T.BG₂ T.κ T.t
+        (lvR T.κ T.t (β * 3 ^ k) p₁) 0 0 (1 / β))) ≤
+      1 / (8 * (2 * Kc') ^ 3 * c1 3 3 *
+        Real.exp ((2 * T.κdec - 1 - 2 * T.κ0) * cG 3 3 + c1 3 3 + T.κ' * cG 3 3)) := by
+  obtain ⟨β₀, h3, H⟩ := StepTowerG.exists_beta0_amp_agree T₀.toG hA p hKc hc (alpha_three_cast hα)
+  refine ⟨β₀, h3, fun T hm₁ hBG hBG₂ hκ k hk β hβ hct p₁ hp0 hp₁ => ?_⟩
+  obtain ⟨h0, hdec, h'⟩ := StepTower.agree_rates T₀ T
+  have hb : ∀ (k : ℕ) (β : ℝ), β * ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = β * 3 ^ k := by
+    intro k β; norm_num
+  have := H T.toG rfl hm₁ hBG hBG₂ hκ h0 h' k hk β hβ (by rw [radius_three_cast]; exact hct) p₁ hp0
+    (by rw [hb]; exact hp₁)
+  rw [hb] at this
+  exact this
+
 
 end Balaban.Inhabited

@@ -70,6 +70,78 @@ theorem rhoSep_le_minSep_of_four {m₁ : ℕ} (h4 : 4 ≤ m₁) :
 
 section Rate
 
+/-- **The rate condition of the labels gives the lower bounds the chain needs, general `d`, `L`.**
+For a class block index `m₀ ≥ max 1 d`, a tower decoupling rate `κT ≥ 3` and a label rate `κdec` with
+`(2 κT - 1) A + 1 ≤ 2 κdec`, `A = L^{m₀-1} + 2 d L^{m₀} (L^{m₀-1})^d c₁`, `c₁ ≥ 1`: `κT ≤ κdec`, and
+if also `4 d (2L+1)^d κdec ≤ κ` then `log ((2L+1)^d (L^{m₀})^d) ≤ (κ/2 - 1)/2`. -/
+theorem rate_consequencesG {d L m₀ : ℕ} (hd : 3 ≤ d) (hL : 2 ≤ L) (hm1 : 1 ≤ m₀) (hmd : d ≤ m₀)
+    {κ κT κdec c₁ : ℝ} (hT : 3 ≤ κT) (hc : 1 ≤ c₁)
+    (h4 : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ κ)
+    (hr : (2 * κT - 1) * ((L : ℝ) ^ (m₀ - 1) + 2 * (d : ℝ) * (L : ℝ) ^ m₀ *
+          ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c₁) + 1 ≤ 2 * κdec) :
+    κT ≤ κdec ∧
+      Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2 := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast (by omega : 1 ≤ L)
+  have hL2 : (2 : ℝ) ≤ L := by exact_mod_cast hL
+  have hd1 : (3 : ℝ) ≤ d := by exact_mod_cast hd
+  set w : ℝ := (L : ℝ) ^ (m₀ - 1) with hw
+  have hw1 : 1 ≤ w := one_le_pow₀ hL1
+  have hLm : (L : ℝ) ^ m₀ = L * w := by
+    rw [hw, ← pow_succ']
+    congr 1
+    omega
+  have hwd : (((L ^ (m₀ - 1)) ^ d : ℕ) : ℝ) = w ^ d := by
+    rw [hw]; push_cast; rfl
+  rw [hLm, hwd] at hr
+  have hwpos : 0 < w := by linarith
+  have hwd1 : 1 ≤ w ^ d := one_le_pow₀ hw1
+  set A : ℝ := w + 2 * (d : ℝ) * (L * w) * w ^ d * c₁ with hA
+  have hA1 : 1 ≤ A := by
+    have : 0 ≤ 2 * (d : ℝ) * (L * w) * w ^ d * c₁ := by positivity
+    linarith
+  have hT5 : 5 ≤ 2 * κT - 1 := by linarith
+  have hkd : (2 * κT - 1) * A + 1 ≤ 2 * κdec := hr
+  refine ⟨by nlinarith, ?_⟩
+  -- the logarithm
+  have hX0 : 0 < (((2 * L + 1) ^ d : ℕ) : ℝ) * (((L ^ m₀) ^ d : ℕ) : ℝ) := by positivity
+  refine (Real.log_le_sub_one_of_pos hX0).trans ?_
+  have hkdec : 5 / 2 * A ≤ κdec := by nlinarith
+  have hP : (1 : ℝ) ≤ (((2 * L + 1) ^ d : ℕ) : ℝ) := by
+    exact_mod_cast Nat.one_le_pow _ _ (by omega)
+  have hAlow : 2 * (d : ℝ) * (L * w) * w ^ d ≤ A := by
+    have : 2 * (d : ℝ) * (L * w) * w ^ d ≤ 2 * (d : ℝ) * (L * w) * w ^ d * c₁ := by
+      have h0 : 0 ≤ 2 * (d : ℝ) * (L * w) * w ^ d := by positivity
+      nlinarith
+    linarith
+  have hLd : (L : ℝ) ^ d ≤ w * L := by
+    have : (L : ℝ) ^ d ≤ (L : ℝ) ^ (m₀ - 1 + 1) := pow_le_pow_right₀ hL1 (by omega)
+    rw [pow_succ] at this
+    exact this
+  have hLmd : (((L ^ m₀) ^ d : ℕ) : ℝ) = (L : ℝ) ^ d * w ^ d := by
+    push_cast
+    rw [hLm, mul_pow]
+  set P : ℝ := (((2 * L + 1) ^ d : ℕ) : ℝ) with hPdef
+  rw [hLmd]
+  have hPpos : 0 < P := by linarith
+  have hLdw : (L : ℝ) ^ d * w ^ d ≤ (w * L) * w ^ d :=
+    mul_le_mul_of_nonneg_right hLd (by positivity)
+  have hdd : (0 : ℝ) < d := by linarith
+  have hq : 0 < P * (L * w * w ^ d) := by positivity
+  have hk1 : 4 * d * P * κdec ≤ κ := h4
+  have hk2 : 4 * d * P * (5 / 2 * A) ≤ 4 * d * P * κdec := by
+    have : 0 ≤ 4 * (d : ℝ) * P := by positivity
+    exact mul_le_mul_of_nonneg_left hkdec this
+  have hk3 : 4 * d * P * (5 / 2 * (2 * (d : ℝ) * (L * w) * w ^ d)) ≤ 4 * d * P * (5 / 2 * A) := by
+    have : 0 ≤ 4 * (d : ℝ) * P := by positivity
+    exact mul_le_mul_of_nonneg_left (by linarith) this
+  have hk4 : 20 * (d : ℝ) ^ 2 * (P * (L * w * w ^ d)) ≤ κ := by nlinarith
+  have hX1 : P * ((L : ℝ) ^ d * w ^ d) ≤ P * (L * w * w ^ d) := by
+    have := mul_le_mul_of_nonneg_left hLdw hPpos.le
+    calc P * ((L : ℝ) ^ d * w ^ d) ≤ P * ((w * L) * w ^ d) := this
+      _ = P * (L * w * w ^ d) := by ring
+  have hdd2 : (1 : ℝ) ≤ (d : ℝ) ^ 2 := by nlinarith
+  nlinarith [mul_le_mul_of_nonneg_right hdd2 hq.le]
+
 /-- **The rate condition of the labels gives the lower bounds the chain needs.**  For a class
 block index `m₀ ≥ 7`, a tower decoupling rate `κT ≥ 3` and a label rate `κdec` with
 `(2 κT - 1) A + 1 ≤ 2 κdec`, `A = 3^{m₀-1} + 2·3·3^{m₀}·(3^{m₀-1})^3 c₁`, `c₁ ≥ 1`: `κT ≤ κdec`, and
@@ -79,40 +151,8 @@ theorem rate_consequences {m₀ : ℕ} (hm : 7 ≤ m₀) {κ κT κdec c₁ : �
     (hr : (2 * κT - 1) * (((3 : ℕ) : ℝ) ^ (m₀ - 1) + 2 * ((3 : ℕ) : ℝ) *
           ((3 : ℕ) : ℝ) ^ m₀ * ((((3 ^ (m₀ - 1)) ^ 3 : ℕ)) : ℝ) * c₁) + 1 ≤ 2 * κdec) :
     κT ≤ κdec ∧
-      Real.log ((((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * (((3 ^ m₀) ^ 3 : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2 := by
-  obtain ⟨n, rfl⟩ : ∃ n, m₀ = n + 7 := ⟨m₀ - 7, by omega⟩
-  have e1 : n + 7 - 1 = n + 6 := by omega
-  rw [e1] at hr
-  push_cast at hr h4 ⊢
-  set w : ℝ := (3 : ℝ) ^ (n + 6) with hw
-  have hw729 : (729 : ℝ) ≤ w := by
-    have : (3 : ℝ) ^ 6 ≤ 3 ^ (n + 6) := pow_le_pow_right₀ (by norm_num) (by omega)
-    norm_num at this
-    exact this
-  have e2 : (3 : ℝ) ^ (n + 7) = 3 * w := by rw [hw]; ring
-  rw [e2] at hr ⊢
-  have hw0 : 0 < w := by linarith
-  have hcub : 0 ≤ w ^ 3 := by positivity
-  have hA : 18 * w ^ 4 ≤ w + 2 * 3 * (3 * w) * w ^ 3 * c₁ := by
-    have : 18 * w ^ 4 ≤ 2 * 3 * (3 * w) * w ^ 3 * c₁ := by
-      have h4' : 0 ≤ 18 * w ^ 4 := by positivity
-      nlinarith [mul_le_mul_of_nonneg_left hc h4']
-    linarith
-  have hA1 : 1 ≤ w + 2 * 3 * (3 * w) * w ^ 3 * c₁ := by
-    have : 1 ≤ w ^ 4 := one_le_pow₀ (by linarith)
-    linarith
-  have hT5 : 5 ≤ 2 * κT - 1 := by linarith
-  have hprod : 5 * (w + 2 * 3 * (3 * w) * w ^ 3 * c₁) ≤
-      (2 * κT - 1) * (w + 2 * 3 * (3 * w) * w ^ 3 * c₁) :=
-    mul_le_mul_of_nonneg_right hT5 (by linarith)
-  have hprod1 : (w + 2 * 3 * (3 * w) * w ^ 3 * c₁) ≤
-      (2 * κT - 1) * (w + 2 * 3 * (3 * w) * w ^ 3 * c₁) := by linarith
-  refine ⟨by nlinarith, ?_⟩
-  have hlogle : Real.log (343 * (3 * w) ^ 3) ≤ 343 * (3 * w) ^ 3 - 1 :=
-    Real.log_le_sub_one_of_pos (by positivity)
-  refine hlogle.trans ?_
-  have hw4 : 729 * w ^ 3 ≤ w ^ 4 := by nlinarith
-  nlinarith
+      Real.log ((((2 * 3 + 1) ^ 3 : ℕ) : ℝ) * (((3 ^ m₀) ^ 3 : ℕ) : ℝ)) ≤ (κ / 2 - 1) / 2 :=
+  rate_consequencesG (d := 3) (L := 3) (by norm_num) (by norm_num) (by omega) (by omega) hT hc h4 hr
 
 end Rate
 

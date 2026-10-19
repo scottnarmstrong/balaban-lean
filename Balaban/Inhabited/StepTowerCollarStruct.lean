@@ -7,7 +7,7 @@ module
 
 public import Balaban.Inhabited.StepTowerCollarBase
 public import Balaban.Inhabited.StepTowerNewLevelE0Bound
-public import Balaban.Inhabited.StepTowerBeta0Amp
+public import Balaban.Inhabited.StepTowerBeta0Src
 public import Balaban.Inhabited.StepTowerSmall
 public import Balaban.Inhabited.MarkedFamilyFromTower
 public import Balaban.Inhabited.MarkCorrBudget

@@ -29,9 +29,9 @@ theorem e1_common_activity_freeDatum_of_directTermsG {d L N : ℕ} [NeZero L]
     {κmin : ℝ} (T : StepTowerG d L N κmin)
     (k : ℕ) (hk : 1 ≤ k) (N₁ : ℕ) [NeZero N₁] (hLN : L ^ 1 ∣ N₁)
     (ν : ℝ) (hνpos : 0 < ν) (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1)
-    (β p₁ : ℝ) (hp0 : 0 < p₁) (Dt : StepScaleDataG T k hk N₁ ν β p₁)
-    (S : StepSetting d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
-    (hS : S = T.step k hk N₁ ν β p₁) (hp : 0 < S.p₁)
+    (β p₁ : ℝ) (hp0 : 0 < p₁) (b : ℝ) (hb : b = β * (L : ℝ) ^ (k * (d - 2))) (Dt : StepScaleDataG T k hk N₁ ν β p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (S : StepSetting d L N₁ T.m₁ k N ϱ)
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (hp : 0 < S.p₁)
     (Jr : S.JointRep T.t (2 * p₁))
     (val : ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) →
       ((S.U × Fin N → ℂ) × (S.U × Fin N → ℂ)) → ℂ →
@@ -46,26 +46,26 @@ theorem e1_common_activity_freeDatum_of_directTermsG {d L N : ℕ} [NeZero L]
         dirTermSrc (hatFun S.G' S.a₁ S.ν T.t S.hG'
           ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
           (onXi S.G' S.a₁ S.ν T.t
-            (fun D ψ' => svec (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
-              (flFieldOne S.G' (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
+            (fun D ψ' => svec (stepG d L N₁ T.m₁ k ϱ)
+              (flFieldOne S.G' (stepG d L N₁ T.m₁ k ϱ)
                 T.BG₂ T.κ S.a₁ S.ν D ψ') s.1 s.2)))
           (fun _ => (1 : ℂ)) x.2 w.2 σ Θ.1))
     (I : DirectTerms S 1 hp (fun ψ => (ψ, ψ)) p₁ 2
       (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))
+        (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β))
       (2 * T.κdec - 1)
       (rawOf S.D', (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
       (physSΛEta S S.a₁ S.ν T.t (1 / S.β))
-      (physXW S (lvCpsiG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2)))) 2 2
-        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁)) val
+      (physXW S (lvCpsiG d L N T.κ T.t b) 2 2
+        (lvRG d L N T.κ T.t b p₁)) val
       (physAgΘ S) (AgFDirPair S))
     (hF : DirectTermsFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I
       (physVq S S.a₁ S.ν T.t 1))
     (hεU : 0 ≤ S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-      (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β))
+      (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β))
     (A : physParam N S → ℂ → LabelAct (thickLabels I.𝒴 I.dom) (S.blockSplit 1 hp).Ωb
       (2 * (S.β * prop33EpsEtaScaled d L N T.m₁ k 1 S.a₁ T.BG T.BG₂ T.κ T.t
-        (lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁) 0 0 (1 / S.β)))
+        (lvRG d L N T.κ T.t b p₁) 0 0 (1 / S.β)))
       (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1)))
     (hAeq : A = labelActFamilyOn S 1 (physInclScaled N S (((1 / S.β : ℝ)) : ℂ)) I hF
       hLN hp0 (by norm_num) hεU T.κ0_ent T.marks_K0_le)
@@ -80,12 +80,14 @@ theorem e1_common_activity_freeDatum_of_directTermsG {d L N : ℕ} [NeZero L]
         sqFactor 2 u * ∑ y, (A ((e.1, 0) : physParam N S) u).H y Φ)
     (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 T.t D) :
     ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ᵐ x ∂S.nuFl,
-      Jr.W1 (zeroClass d L N₁ T.m₁ k N (rhoSepG d L T.m₁))
+      Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
         (rawOf D, (s : ℂ) • Balaban.Fluctuation.yhat x) =
         ∑ y, (A₀ ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
           (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (s : ℂ)).H y
           ((S.blockSplit 1 hp).restr x) := by
   classical
+  subst hϱ
+  subst hb
   intro s hs
   have hpc : 2 * p₁ < lvCpsiG d L N T.κ T.t
       (β * (L : ℝ) ^ (k * (d - 2))) := by

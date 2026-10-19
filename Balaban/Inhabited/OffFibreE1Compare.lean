@@ -23,6 +23,53 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
   Balaban.Localization.I5Inhabited Balaban.Inhabited.LevelStep Balaban.SmallField Set Matrix
 
 /-- The marked fluctuation disc is valid for every incoming field in the chart. -/
+theorem StepTowerG.markReal_disc_slice_raw {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {k : ℕ}
+    {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
+    (Dt : StepScaleDataG T k hk N₁ ν β p₁) (hp : 0 < p₁) {ϱ : ℝ}
+    (hϱ : ϱ = rhoSepG d L T.m₁) {S : StepSetting d L N₁ T.m₁ k N ϱ}
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ)
+    (D : BgData S.G' N)
+    (hX : XiCData S.G' (compWeight L 1) ν (k + 1) 1 T.t D)
+    (x : S.E) (hx : ‖x‖ ≤ p₁)
+    (z : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))))
+    {u : ℂ} (hu : ‖u‖ < 17 / 16) :
+    ∀ t : ℂ, ‖t‖ < 1 / 16 → ∀ σ : ℂ,
+      ‖σ‖ < 17 / 16 + lvRG d L N T.κ T.t (β * (L : ℝ) ^ (k * (d - 2))) p₁ / 4 →
+      σ • (liftC S.hG'
+          (u • S.hatField
+            (hatCovSqrt S.G'
+              S.a₁ S.ν D) (yhat x)) +
+        t • liftC S.hG'
+          (S.maskUC z
+            (S.hatField
+              (hatCovSqrt S.G'
+                S.a₁ S.ν D) (yhat x)))) ∈
+        FlBall (stepG d L N₁ T.m₁ k ϱ) T.t := by
+  intro t ht σ hσ
+  subst hϱ
+  obtain rfl : S = T.step k hk N₁ ν β p₁ := hS
+  let S := T.step k hk N₁ ν β p₁
+  obtain ⟨Q, -, hQ, hQb⟩ := exists_analytic_hatField_chart Dt.core hk
+    T.large_block T.dom_margin T.coer_margin T.δc_small
+    (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) hp.le
+    (fun p => S.yhat_le_of_norm_le hx p)
+  have hY := hQb (rawOf D) ⟨D, hX, rfl⟩
+  have hQ' : Q (rawOf D) =
+      S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x) := hQ D hX
+  have hY' : ∀ b : S.U,
+      vn (fun i => S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x) (b, i)) ≤
+        markedRad d L N k S.a₁ T.κ p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
+    intro b
+    have ha : S.a₁ = 1 := rfl
+    rw [ha]
+    calc
+      _ = vn (fun i => Q (rawOf D) (b, i)) :=
+        congrArg vn (funext fun i => (congrFun hQ' (b, i)).symm)
+      _ ≤ _ := hY b
+  exact S.markedDisc_field_mem_flBall z (isLevel_lvLowG hk) hY'
+    (Dt.marked_radius_lt hp) hu ht hσ
+
+/-- The marked fluctuation disc is valid for every incoming field in the chart. -/
 theorem markReal_disc_slice_raw {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
     {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ}
     (Dt : StepScaleData T k hk N₁ ν β p₁) (hp : 0 < p₁)
@@ -43,27 +90,11 @@ theorem markReal_disc_slice_raw {κmin : ℝ} (T : StepTower κmin) {k : ℕ}
               (hatCovSqrt (T.step k hk N₁ ν β p₁).G'
                 (T.step k hk N₁ ν β p₁).a₁ (T.step k hk N₁ ν β p₁).ν D) (yhat x)))) ∈
         FlBall (stepG 3 3 N₁ T.m₁ k (rhoSep T.m₁)) T.t := by
+  have e : ((3 : ℕ) : ℝ) ^ (k * (3 - 2)) = 3 ^ k := by norm_num
   intro t ht σ hσ
-  let S := T.step k hk N₁ ν β p₁
-  obtain ⟨Q, -, hQ, hQb⟩ := exists_analytic_hatField_chart Dt.core hk
-    T.large_block T.dom_margin T.coer_margin T.δc_small
-    (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) hp.le
-    (fun p => S.yhat_le_of_norm_le hx p)
-  have hY := hQb (rawOf D) ⟨D, hX, rfl⟩
-  have hQ' : Q (rawOf D) =
-      S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x) := hQ D hX
-  have hY' : ∀ b : S.U,
-      vn (fun i => S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x) (b, i)) ≤
-        markedRad 3 3 2 k S.a₁ T.κ p₁ (((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
-    intro b
-    have ha : S.a₁ = 1 := rfl
-    rw [ha]
-    calc
-      _ = vn (fun i => Q (rawOf D) (b, i)) :=
-        congrArg vn (funext fun i => (congrFun hQ' (b, i)).symm)
-      _ ≤ _ := hY b
-  exact S.markedDisc_field_mem_flBall z (isLevel_lvLow hk) hY'
-    (Dt.marked_radius_lt hp) hu ht hσ
+  exact T.toG.markReal_disc_slice_raw (T.scaleDataG_of_fixed Dt) hp (ϱ := rhoSep T.m₁)
+    (rhoSepG_three _).symm (S := T.step k hk N₁ ν β p₁) rfl D hX x hx z hu t ht σ
+    (by rw [e]; exact hσ)
 
 end Balaban.Inhabited
 

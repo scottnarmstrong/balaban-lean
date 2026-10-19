@@ -28,6 +28,204 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 open Classical in
 /-- The parameter coefficient sum is the localized raw first-energy derivative integral.
 The `InterpMarks` witness contains the free-datum activity identity in its `hW` field. -/
+theorem StepTowerG.e1_param_coeff_sum_eq_raw_deriv_of_interpMarks {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ pp : ℝ}
+    (Dt : StepScaleDataG T k hk N₁ ν β p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (S : StepSetting d L N₁ T.m₁ k N ϱ)
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Jr : S.JointRep T.t pp)
+    (hp : 0 < S.p₁) (hlt : S.p₁ < pp)
+    {BG κdec : ℝ}
+    (F₁ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k ϱ) N →
+        ((stepG d L N₁ T.m₁ k ϱ).Ω 1 × Fin N → ℂ) ×
+          ((stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ))
+    (z : RootIdx d L N₁ T.m₁ (k + 1))
+    (hP : ∀ b, MarkedBlockExpansionDecPair N
+      (stepG d L N₁ T.m₁ k ϱ) S.hG'
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν BG T.BG₂ T.κ T.t T.t κdec p₁
+      (S.blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+      (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ b) (Sol b))
+    (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 T.t D)
+    (I : InterpMarks S.nuFl (S.blockSplit 1 hp)
+      (fun s x => Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x))
+      (fun s x => ∑ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z},
+        e1MarkGParamG S F₁ Sol p₁ hp z T.t
+          ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+            (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) i (s : ℂ)
+          ((S.blockSplit 1 hp).restr x)))
+    (e : I.ι ≃ {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+    (hG : ∀ i u Φ, I.G i u Φ =
+      e1MarkGParamG S F₁ Sol p₁ hp z T.t
+        ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (e i) u Φ) :
+    (∑ C, gsumCoeff (S.blockSplit 1 hp).μ I.Lab I.A I.y0
+      (fun i u Φ => e1MarkGParamG S F₁ Sol p₁ hp z T.t
+        ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (e i) u Φ) C) =
+    ∫ s in (0 : ℝ)..1, avgFun S.nuFl
+      (fun s x => Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x))
+      (fun x => (fderiv ℂ (fun w : S.EC =>
+        Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ) (rawOf D, w))
+        ((s : ℂ) • yhat x))
+        ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
+  have hsum := (interpCoeff_spec I).1
+  change _ = ∑ C, gsumCoeff (S.blockSplit 1 hp).μ I.Lab I.A I.y0 I.G C at hsum
+  have hGeq : I.G = (fun i u Φ => e1MarkGParamG S F₁ Sol p₁ hp z T.t
+      ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+        (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) (e i) u Φ) := by
+    funext i u Φ
+    exact hG i u Φ
+  rw [hGeq] at hsum
+  rw [← hsum]
+  unfold interpAvg
+  apply intervalIntegral.integral_congr
+  intro s hs
+  rw [Set.uIcc_of_le zero_le_one] at hs
+  apply avgFun_congr_ae (ν := S.nuFl) (W := fun s x =>
+    Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+      (rawOf D, (s : ℂ) • yhat x)) (Filter.Eventually.of_forall fun _ => rfl)
+  filter_upwards [S.ae_ball hp] with x hx
+  have hxn : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp x).1 hx
+  have hpS : S.p₁ = p₁ := by subst hS; rfl
+  exact (T.e1_param_marks_eq_raw_deriv Dt hϱ S hS Jr hp hlt F₁ Sol z hP D hX s hs x
+    (hpS ▸ hxn.le))
+
+open Classical in
+/-- With a free-datum activity identity and the fixed-parameter mark bounds, the sum of the
+actual E1 parameter coefficients equals the localized raw derivative integral. -/
+theorem StepTowerG.e1_param_coeff_sum_eq_raw_deriv_of_activity {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin)
+    {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ pp : ℝ}
+    (Dt : StepScaleDataG T k hk N₁ ν β p₁)
+    (hm₀ : T.m₀ = 1) {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (S : StepSetting d L N₁ T.m₁ k N ϱ)
+    (hS : S = hatStepKG T.hN k T.m₁ ϱ hk ν β p₁ T.δ) (Jr : S.JointRep T.t pp)
+    (hp : 0 < S.p₁) (hlt : S.p₁ < pp) (hβpos : 0 < β)
+    {BG κdec : ℝ}
+    (F₁ : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams S.G' × RawData d L (N₁ * L ^ T.m₁) (k + 1) N →
+        (S.G'.Ω 1 × Fin N → ℂ) × (S.G'.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ T.m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf S.G') × Edat (stepG d L N₁ T.m₁ k ϱ) N →
+        ((stepG d L N₁ T.m₁ k ϱ).Ω 1 × Fin N → ℂ) ×
+          ((stepG d L N₁ T.m₁ k ϱ).Ω 1 → ℂ))
+    (z : RootIdx d L N₁ T.m₁ (k + 1))
+    (hP : ∀ b, MarkedBlockExpansionDecPair N
+      (stepG d L N₁ T.m₁ k ϱ) S.hG'
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) S.a₁ S.ν BG T.BG₂ T.κ T.t T.t κdec p₁
+      (S.blockU z) (LocalCover.nbhdF 1 (LocalCover.blockSite k b)) 1 k
+      (LocalCover.fam 1 (LocalCover.blockSite k b)) b (F₁ b) (Sol b))
+    (D : BgData S.G' N) (hX : XiCData S.G' S.a S.ν (k + 1) 1 T.t D)
+    (hN3 : L ^ 1 ∣ N₁) (hdj : ∀ b, ∀ Y ∈ e1DomG S b, IsDj 1 (k + 1) Y)
+    {Lb : Type} [Fintype Lb]
+    (Lab₀ : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := T.m₁)
+      (K := k + 1) 1 (k + 1) Set.univ Lb)
+    {εH : ℝ}
+    (A₀ : physParam N S → ℂ →
+      LabelAct (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj)
+        (S.blockSplit 1 hp).Ωb εH (2 * T.κdec - 1) T.κ0 (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0))
+    (θ : physParam N S)
+    (hθ : θ = ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+      (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)))
+    (hact : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → ∀ᵐ (x : S.E) ∂S.nuFl,
+      Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x) =
+        ∑ y, (A₀ θ (s : ℂ)).H y ((S.blockSplit 1 hp).restr x))
+    (hεpos : 0 < εH)
+    (hε : εH ≤ stepTheta d L (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ')
+    (hAhol : ∀ y Φ, DifferentiableOn ℂ (fun u => (A₀ θ u).H y Φ)
+      (Metric.ball (0 : ℂ) corrU))
+    (hmeas : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ), Measurable (e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u))
+    (hdep : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ), DepOn (blocksOf 1 (k + 1) Set.univ
+        ((commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj).ysite
+          (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)))
+        (e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u))
+    (hbnd : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z})
+      (u : ℂ) Φ, ‖e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ‖ ≤
+        corrF0G T k β p₁ * Real.exp (-(2 * T.κdec - 1) *
+          (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj).dl
+            (commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)))
+    (hGhol : ∀ (i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}) Φ,
+      DifferentiableOn ℂ (fun u => e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ)
+        (Metric.ball (0 : ℂ) corrU)) :
+    (∑ C, gsumCoeff (S.blockSplit 1 hp).μ
+      (commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj)
+      (A₀ θ)
+      (fun i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z} =>
+        commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i)
+      (fun i u Φ => e1MarkGParamG S F₁ Sol p₁ hp z T.t θ i u Φ) C) =
+    ∫ s in (0 : ℝ)..1, avgFun S.nuFl
+      (fun s x => Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x))
+      (fun x => (fderiv ℂ (fun w : S.EC =>
+        Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ) (rawOf D, w))
+        ((s : ℂ) • yhat x))
+        ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
+  subst hθ
+  have hne : Nonempty {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z} := by
+    subst hS
+    obtain ⟨Y, hY⟩ := e1DomG_bridgeFamily_nonempty T hm₀ Dt hϱ z
+    exact ⟨⟨Y, hY⟩⟩
+  let I : InterpMarks S.nuFl (S.blockSplit 1 hp)
+      (fun s x => Jr.W1 (zeroClass d L N₁ T.m₁ k N ϱ)
+        (rawOf D, (s : ℂ) • yhat x))
+      (fun s x => ∑ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z},
+        e1MarkGParamG S F₁ Sol p₁ hp z T.t
+          ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+            (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) i (s : ℂ)
+          ((S.blockSplit 1 hp).restr x)) := {
+    Lb := Lb ⊕ RootUnionLb 1 (fun _ => Set.univ) (e1DomG S)
+    Lab := commonLabels Lab₀ hN3 (by have := T.hL; omega) (fun _ => Set.univ) (e1DomG S) hdj
+    ι := {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1DomG S) z}
+    nonempty := hne
+    εH := εH
+    κH := 2 * T.κdec - 1
+    κG := 2 * T.κdec - 1
+    κ0 := T.κ0
+    κ' := T.κ'
+    Kc := (2 * (K0 d L T.κ0 + 1) + rootUnionK d L 1 T.m₁ T.κ0)
+    F0 := fun _ => corrF0G T k β p₁
+    hN := hN3
+    𝒰 := Metric.ball (0 : ℂ) corrU
+    isOpen := Metric.isOpen_ball
+    seg := fun s hs => by
+      rw [mem_ball_zero_iff]
+      refine norm_ofReal_lt_of_mem hs ?_
+      unfold corrU
+      norm_num
+    A := A₀ (⟨rawOf D, rawOf_mem_rawSub _⟩,
+      (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ))
+    y0 := fun i => commonAnchor Lb (fun _ => Set.univ) (e1DomG S) z i
+    G := fun i u Φ => e1MarkGParamG S F₁ Sol p₁ hp z T.t
+      (⟨rawOf D, rawOf_mem_rawSub _⟩,
+        (0 : CTorus d L N₁ T.m₁ (k + 1) → Fin N → ℂ)) i u Φ
+    meas := hmeas
+    dep := hdep
+    bound := hbnd
+    holA := hAhol
+    holG := hGhol
+    hκ0 := T.marks_hκ0
+    hKc := by have := T.marks_hKc; rwa [hm₀] at this
+    hεpos := hεpos
+    hF0 := fun _ => corrF0G_pos T hk hβpos (by
+      have hpS : S.p₁ = p₁ := by subst hS; rfl
+      exact hpS ▸ hp)
+    hκ' := T.marks_hκ'
+    hκG := T.marks_hκG
+    hκ := T.marks_hκ
+    hε := by unfold stepTheta at hε; exact hε
+    hW := hact
+    hF := fun _ _ => Filter.Eventually.of_forall fun _ => rfl }
+  exact T.e1_param_coeff_sum_eq_raw_deriv_of_interpMarks Dt hϱ S hS Jr hp hlt F₁ Sol z hP D hX
+    I (Equiv.refl _) (fun _ _ _ => rfl)
+open Classical in
+/-- The parameter coefficient sum is the localized raw first-energy derivative integral.
+The `InterpMarks` witness contains the free-datum activity identity in its `hW` field. -/
 theorem e1_param_coeff_sum_eq_raw_deriv_of_interpMarks {κmin : ℝ} (T : StepTower κmin)
     {k : ℕ} {hk : 1 ≤ k} {N₁ : ℕ} [NeZero N₁] {ν β p₁ pp : ℝ}
     (Dt : StepScaleData T k hk N₁ ν β p₁)
@@ -73,27 +271,10 @@ theorem e1_param_coeff_sum_eq_raw_deriv_of_interpMarks {κmin : ℝ} (T : StepTo
         Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D, w))
         ((s : ℂ) • yhat x))
         ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
-  have hsum := (interpCoeff_spec I).1
-  change _ = ∑ C, gsumCoeff (S.blockSplit 1 hp).μ I.Lab I.A I.y0 I.G C at hsum
-  have hGeq : I.G = (fun i u Φ => e1MarkGParam S F₁ Sol p₁ hp z T.t
-      ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-        (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) (e i) u Φ) := by
-    funext i u Φ
-    exact hG i u Φ
-  rw [hGeq] at hsum
-  rw [← hsum]
-  unfold interpAvg
-  apply intervalIntegral.integral_congr
-  intro s hs
-  rw [Set.uIcc_of_le zero_le_one] at hs
-  apply avgFun_congr_ae (ν := S.nuFl) (W := fun s x =>
-    Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
-      (rawOf D, (s : ℂ) • yhat x)) (Filter.Eventually.of_forall fun _ => rfl)
-  filter_upwards [S.ae_ball hp] with x hx
-  have hxn : ‖x‖ < S.p₁ := (chiFl_eq_one_iff hp x).1 hx
-  have hpS : S.p₁ = p₁ := by subst hS; rfl
-  exact (e1_param_marks_eq_raw_deriv T Dt S hS Jr hp hlt F₁ Sol z hP D hX s hs x
-    (hpS ▸ hxn.le))
+  subst hS
+  exact T.toG.e1_param_coeff_sum_eq_raw_deriv_of_interpMarks (T.scaleDataG_of_fixed Dt)
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl Jr hp hlt F₁ Sol z hP D hX
+    I e hG
 
 open Classical in
 /-- With a free-datum activity identity and the fixed-parameter mark bounds, the sum of the
@@ -166,62 +347,13 @@ theorem e1_param_coeff_sum_eq_raw_deriv_of_activity {κmin : ℝ} (T : StepTower
         Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁)) (rawOf D, w))
         ((s : ℂ) • yhat x))
         ((Jr.Mx (rawOf D))⁻¹ *ᵥ S.maskUC z (Jr.Mx (rawOf D) *ᵥ yhat x))) s := by
-  subst hθ
-  have hne : Nonempty {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z} := by
-    subst hS
-    obtain ⟨Y, hY⟩ := e1Dom_bridgeFamily_nonempty T Dt z
-    exact ⟨⟨Y, hY⟩⟩
-  let I : InterpMarks S.nuFl (S.blockSplit 1 hp)
-      (fun s x => Jr.W1 (zeroClass 3 3 N₁ T.m₁ k 2 (rhoSep T.m₁))
-        (rawOf D, (s : ℂ) • yhat x))
-      (fun s x => ∑ i : {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z},
-        e1MarkGParam S F₁ Sol p₁ hp z T.t
-          ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub 2 S.G'),
-            (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i (s : ℂ)
-          ((S.blockSplit 1 hp).restr x)) := {
-    Lb := Lb ⊕ RootUnionLb 1 (fun _ => Set.univ) (e1Dom S)
-    Lab := commonLabels Lab₀ hN3 (by norm_num) (fun _ => Set.univ) (e1Dom S) hdj
-    ι := {Y' // Y' ∈ bridgeFamily 1 (fun _ => Set.univ) (e1Dom S) z}
-    nonempty := hne
-    εH := εH
-    κH := 2 * T.κdec - 1
-    κG := 2 * T.κdec - 1
-    κ0 := T.κ0
-    κ' := T.κ'
-    Kc := T.marksKc'
-    F0 := fun _ => corrF0 T k β p₁
-    hN := hN3
-    𝒰 := Metric.ball (0 : ℂ) corrU
-    isOpen := Metric.isOpen_ball
-    seg := fun s hs => by
-      rw [mem_ball_zero_iff]
-      refine norm_ofReal_lt_of_mem hs ?_
-      unfold corrU
-      norm_num
-    A := A₀ (⟨rawOf D, rawOf_mem_rawSub _⟩,
-      (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ))
-    y0 := fun i => commonAnchor Lb (fun _ => Set.univ) (e1Dom S) z i
-    G := fun i u Φ => e1MarkGParam S F₁ Sol p₁ hp z T.t
-      (⟨rawOf D, rawOf_mem_rawSub _⟩,
-        (0 : CTorus 3 3 N₁ T.m₁ (k + 1) → Fin 2 → ℂ)) i u Φ
-    meas := hmeas
-    dep := hdep
-    bound := hbnd
-    holA := hAhol
-    holG := hGhol
-    hκ0 := T.marks_hκ0
-    hKc := T.marks_hKc
-    hεpos := hεpos
-    hF0 := fun _ => corrF0_pos T hk hβpos (by
-      have hpS : S.p₁ = p₁ := by subst hS; rfl
-      exact hpS ▸ hp)
-    hκ' := T.marks_hκ'
-    hκG := T.marks_hκG
-    hκ := T.marks_hκ
-    hε := by unfold stepTheta at hε; exact hε
-    hW := hact
-    hF := fun _ _ => Filter.Eventually.of_forall fun _ => rfl }
-  exact e1_param_coeff_sum_eq_raw_deriv_of_interpMarks T Dt S hS Jr hp hlt F₁ Sol z hP D hX
-    I (Equiv.refl _) (fun _ _ _ => rfl)
+  subst hS
+  refine T.toG.e1_param_coeff_sum_eq_raw_deriv_of_activity (T.scaleDataG_of_fixed Dt) rfl
+    (ϱ := rhoSep T.m₁) (rhoSepG_three _).symm (T.step k hk N₁ ν β p₁) rfl Jr hp hlt hβpos F₁ Sol z hP D hX
+    hN3 hdj Lab₀ A₀ θ hθ hact hεpos hε hAhol hmeas hdep ?_ hGhol
+  intro i u Φ
+  have := hbnd i u Φ
+  rwa [corrF0_toG] at this
+
 
 end Balaban.Inhabited
