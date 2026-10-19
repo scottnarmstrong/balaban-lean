@@ -2908,6 +2908,7 @@ public import Balaban.LargeField.R.WindowThetaY
 public import Balaban.LargeField.R.WindowPieceTheta
 public import Balaban.LargeField.R.WindowPieceLayers
 public import Balaban.LargeField.R.WindowPieceAssemble
+public import Balaban.LargeField.R.WindowPieceY
 public import Balaban.LargeField.R.WindowPostSupport
 public import Balaban.LargeField.R.WindowDomChi
 public import Balaban.LargeField.R.WindowDomDecomp
