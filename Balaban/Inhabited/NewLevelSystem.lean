@@ -461,6 +461,24 @@ theorem NewLevelFormula.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepC
   obtain ⟨NS, rfl, h⟩ := h
   exact ⟨NS, hO, h⟩
 
+/-- **The coefficient of a system is the coefficient of a system** (non-vacuity of
+`NewLevelFormulaFor`: it holds for the family `NS.coeff` of every system, whose inhabitation for
+the physical step is the content of the formula theorems of the class chain,
+`StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula`). -/
+theorem NewLevelSystem.formulaFor_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) :
+    NewLevelFormulaFor S C z Jr NS.O NS.coeff :=
+  ⟨NS, rfl, fun _ _ _ => rfl⟩
+
+/-- The coefficient of a system whose inherited levels are the irrelevant terms of `C` satisfies
+`NewLevelFormula`. -/
+theorem NewLevelSystem.formula_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) (h : OldTermsAreIrrel S C NS.O) :
+    NewLevelFormula S C z Jr NS.coeff :=
+  NewLevelFormula.of_for h NS.formulaFor_coeff
+
 end Pins
 
 end Balaban.Inhabited
