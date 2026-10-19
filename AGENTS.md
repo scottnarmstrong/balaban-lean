@@ -95,6 +95,22 @@ provider, and nothing may import a root, until the root is sealed.
   carrier's exact definition receives the independent source audit before it is populated.
   (R5′) the first region of `StepData.b_vac` is that of P6 (3.2): E_k|Z_k^c ∖ Ω_{k+1}|_k (replacing
   E_k|Z′∖Z_k∖Ω_{k+1}|_k); the other two regions are unchanged (W1062: `stepVacuumVolume`).
+- **Rulings R7′, R9, R-N₁, R10, R11 (2026-10-19, Scott: "Yes on all five decisions").** Approved as recommended in
+  `notes/phase1/PLAN-B.md`:
+  (R7′) the physical base carrier `BaseSmallFieldInput` (R7, `Kphys`) is stated at the class's general block
+  constant M and torus horizon K (content of the corrected `Kphys` unchanged; only the geometry parameters freed),
+  so that `BasePreStepInput`/`BaseFlatStepInput` can be populated from it.
+  (R9) `sides L K nK j := if j ≤ K then nK * L^(K-j) else 1` (`LargeField/Def7.lean`): above the torus horizon the
+  torus is a point, as in the source; `hsub` weakened to `K < j → n j = 1` in `ImageHist`, `ImageHistBook`,
+  `QuietImage`; the fine torus is unchanged.
+  (R-N₁) the small-field clauses of `D2SF2` and `SFFlat2` are required only on the Def-6 tori the class family reads,
+  N₁ ∈ L^{m₀}ℕ₊ (`sfIdx`), instead of every N₁ ≥ 1.
+  (R10) the first vacuum region of `stepVacuumTerm` is localized to the component: (Z_{k+1} ∖ Z_k) ∖ Ω_{k+1}
+  (P6 (3.2) on the component; the object of R5′ on the component).
+  (R11) a valid boundary-term domain (`FineValidAt`, `LargeField/Def7FineSize.lean`) is `Fluctuation.DjModFin` on the
+  fine sets: nonempty, connected, containing or missing every hole, of finite modular size — π′-cubes are required
+  only at its small-field sites, not at the hole sites; size, covers, `loc_hist`, the H7 domain and the bounds are
+  unchanged, and every domain valid before stays valid.
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;

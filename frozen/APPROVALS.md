@@ -75,3 +75,11 @@ background generating set, the current objects the instance `S.G'`), the repair 
 clause and a Cayley path (`notes/phase1/CROTE.md` §4, removing every `hCR`), R7 (the physical base carrier
 `Kphys` of the W1009 handoff), and R5′ (the first vacuum region Z_k^c ∖ Ω_{k+1} of P6 (3.2)). Text in
 `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R7′, R9, R-N₁, R10, R11 (2026-10-19)
+
+Author (Scott Armstrong), 2026-10-19: "Yes on all five decisions." This approves, as recommended in
+`notes/phase1/PLAN-B.md`: R7′ (the base carrier at the class's general M and K), R9 (`sides` = 1 above the torus
+horizon, `hsub` weakened), R-N₁ (the small-field clauses of `D2SF2`, `SFFlat2` on the tori the class reads), R10 (the
+first vacuum region of `stepVacuumTerm` localized to the component) and R11 (`FineValidAt := DjModFin` on the fine
+sets). Text in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
