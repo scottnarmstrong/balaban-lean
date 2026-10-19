@@ -1137,7 +1137,7 @@ measurable, so integrability is proved for the construction, not from the class 
 intersected with `fineSet Z'`, but `stepVacuumTerm`'s first region `(a.Z k)ᶜ ∖ a.Omega k` is a complement in the whole fine torus, so it contains
 `(fineSet Z')ᶜ` (`compl_fineSet_subset_vacuumRegion`, `Spine/RVacuumB0Defect.lean`). The term `E_k · |that region|_k` grows with the torus
 for fixed `Z'`; the offsets `δ″, δ‴` multiply the other two regions and cannot cancel it, and `b_k` is bounded by `b_bound` alone
-(`norm_vacuumTerm_le_of_b0Bound`: the bound forces `‖vacuum term‖ ≤ 2C|Z_{k+1}∖Z_k|`). Only `E_k = 0` is consistent. Smallest honest replacement
-(needs a ruling, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
+(`norm_vacuumTerm_le_of_b0Bound`: the bound forces `‖vacuum term‖ ≤ 2C|Z_{k+1}∖Z_k|`). Only `E_k = 0` is consistent. LANDED (W1148, ruling R10, 2026-10-19): `Spine/RVacuumB0Defect.lean` keeps only the true lemmas, `compl_fineSet_subset_vacuumRegion` is deleted. Replacement
+(ruling R10, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
 by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; excesses 2, 3 are `Ω∖Ω″` and `Ω″` inside `Z_k`, needing a geometric bound
 `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` from the definition of `Ω`.
