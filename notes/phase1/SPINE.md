@@ -858,3 +858,8 @@ definitions mean their sources. Carrier defects (e.g. CRotE, repaired by W1091) 
 
 Sources: LFR Thm IV.5.4, Prop. IV.4.4, OBS Thms 3.1, 5.2. `rootFAndC1Star_of_spine` and `rootC_of_spine` (`Spine/RootC.lean`)
 prove them from the spine inputs and this hypothesis.
+
+**StepIntegrableInput (W1131, decision 2026-10-19).** Not provable from the class clauses: `IsRep2` makes no
+clause measure ψ ↦ ρ ψ g, and `rep.B`, the small-field data and `bgSF` are free off their domains. Kept as a
+provider input: the step maps Φ, ΦE and the physical densities the provider constructs are bounded and
+measurable, so integrability is proved for the construction, not from the class (no class-definition change).
