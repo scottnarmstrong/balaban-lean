@@ -2885,4 +2885,5 @@ public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
 public import Balaban.Spine.RStep
+public import Balaban.Spine.RVacuumTie
 public import Balaban.LargeField.R.WindowDuNamed
