@@ -81,6 +81,16 @@ theorem windowPostSupportAny_loc {Z : H.Comp (j + 1)}
     WindowPostSupportAny (H := H) Cx Z0 o → WindowPostSupportAny (H := H) Cx Z0 o' :=
   fun ⟨hv, hs⟩ => ⟨hv, windowPostSupport_loc Z0 o o' h hs⟩
 
+/-- **A nonzero kernel times a weight carrying `1[Pp]` gives the kernel nonzero and `Pp`**: the form in
+which the window points of nonzero weight enter `hnamedCU`. -/
+theorem ne_zero_and_of_mul_supInd {α : Type*} {P : α → Prop} {o : α} {Kv wt wg : ℝ}
+    (hwt : wt = wg * supInd P o) (h : Kv * wt ≠ 0) : Kv ≠ 0 ∧ P o := by
+  refine ⟨left_ne_zero_of_mul h, ?_⟩
+  by_contra hP
+  apply right_ne_zero_of_mul h
+  rw [hwt]
+  simp [supInd, hP]
+
 end PostSupport
 
 end Balaban.LargeField
