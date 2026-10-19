@@ -12,6 +12,7 @@ public import Balaban.Fluctuation.HatLabelsGeom
 public import Balaban.Fluctuation.Thm31Inhab
 public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.R.CoarseFineComponents
+public import Balaban.LargeField.R.RRawHoleComponent
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -66,6 +67,9 @@ label (`DjMod.djModFin`, `Def7.FineValidAt.fineValidFinAt`).  The size `d7SizeAt
   (`DjModFin.cellCount_le`) and (G3) (`djModFin_union`) with the same constants.
 * The fine new region lies in the fine post-`R` region of the same history
   (`RegionHistory.d7Pull_OmegaCube_succ_subset`), the inclusion the transfer needs.
+* An old label of the post-`R` class whose fine set meets the new region has size at least
+  `L (⌊R_k⌋ + 2)` (`RegionHistory.le_d7SizeAt_of_reach`, through the exit of a hole
+  `DmodOmega.exists_active_near`): the lower bound `hmin` of `norm_sum_le_of_transfer`.
 
 **What is not proved here.**  The analytic re-expansion of the old terms (the coefficients of the
 assignments and their bounds, P6 (4.32)–(4.34)) and the cube-level membership of the transfer label
@@ -158,8 +162,10 @@ theorem djModFin_union {Ω X₁ X₂ : Set (CTorus d L N₁ m₁ K)} (h₁ : DjM
     (htΩ : t ∈ Ω) :
     DjModFin m₀ j Ω (X₁ ∪ X₂) ∧
       dcovMod m₀ j Ω (X₁ ∪ X₂) ≤ dcovMod m₀ j Ω X₁ + dcovMod m₀ j Ω X₂ + cG d L := by
-  obtain ⟨𝒦₁, W₁, E₁, hA₁, he₁⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₁.2.2.2)
-  obtain ⟨𝒦₂, W₂, E₂, hA₂, he₂⟩ := exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₂.2.2.2)
+  obtain ⟨𝒦₁, W₁, E₁, hA₁, he₁⟩ :=
+    exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₁.2.2.2)
+  obtain ⟨𝒦₂, W₂, E₂, hA₂, he₂⟩ :=
+    exists_admissible_eq_dcovMod (exists_admissible_of_ne_top h₂.2.2.2)
   obtain ⟨𝒦, W, E, hA, hc⟩ := exists_union_admissible hA₁ hA₂ ht1 ht2 htΩ
   refine ⟨⟨⟨t, Or.inl ht1⟩, siteConnected_union h₁.2.1 h₂.2.1 ht1 ht2,
     comp_union_of_comp h₁.2.2.1 h₂.2.2.1, dcovModE_ne_top ⟨𝒦, W, E, hA⟩⟩, ?_⟩
@@ -831,5 +837,132 @@ theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F : Def7.FineSizeFrame S n M
   exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hx)
 
 end Region
+
+/-!
+### An old label that reaches the new region is long (LFR Lemma IV.1.5 (iii))
+-/
+
+section Exit
+
+variable {d n : ℕ} [NeZero n]
+
+/-- **The exit of a hole.**  If a domain `X` of `𝒟(mod Ω^c)` meets a set `Z ⊇ Ω^c` and its
+complement, it has a cube of `Ω` within distance `1` of `Z`. -/
+theorem DmodOmega.exists_active_near {Ω Z : Set (Torus d n)} {X : Finset (Torus d n)}
+    (hX : DmodOmega Ω X) (hΩZ : Ωᶜ ⊆ Z) (hXZ : ((X : Set (Torus d n)) ∩ Z).Nonempty)
+    (hXZc : ((X : Set (Torus d n)) \ Z).Nonempty) :
+    ∃ u ∈ X, u ∈ Ω ∧ u ∈ nbhd 1 Z := by
+  obtain ⟨c, hcX, hcZ⟩ := hXZ
+  by_cases hcΩ : c ∈ Ω
+  · exact ⟨c, hcX, hcΩ, subset_nbhd 1 Z hcZ⟩
+  obtain ⟨e, heX, heZ⟩ := hXZc
+  have hpath := hX.1.2 c hcX e heX
+  -- the first cube of the path outside the component of `c` in `Ω^c`
+  suffices key : ∀ y, Relation.ReflTransGen
+      (fun a b => a ∈ (X : Set (Torus d n)) ∧ b ∈ (X : Set (Torus d n)) ∧ NNAdj a b) c y →
+      y ∉ nnComp Ωᶜ c → ∃ u ∈ X, u ∈ Ω ∧ u ∈ nbhd 1 Z by
+    refine key e hpath fun he => heZ (hΩZ (nnComp_subset _ he))
+  intro y hy
+  induction hy with
+  | refl => exact fun h => (h (mem_nnComp_self hcΩ)).elim
+  | @tail a b hca hab ih =>
+    intro hb
+    by_cases ha : a ∈ nnComp Ωᶜ c
+    · have hbΩ : b ∈ Ω := by
+        by_contra hbΩ
+        exact hb ⟨hbΩ, ha.2.tail ⟨ha.1, hbΩ, hab.2.2⟩⟩
+      refine ⟨b, hab.2.1, hbΩ, mem_nbhd.2 ⟨a, hΩZ ha.1, ?_⟩⟩
+      rw [supDist_comm]
+      exact NNAdj.supDist_le_one hab.2.2
+    · exact ih ha
+
+end Exit
+
+section Size
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ}
+  [NeZero S.L] [NeZero M]
+
+omit [∀ k, NeZero (n k)] [NeZero S.L] [NeZero M] in
+/-- The cast between two tori of equal side preserves the distance. -/
+theorem supDist_castT {d N N' : ℕ} (h : N = N') (x y : Torus d N) :
+    supDist (Localization.castT h x) (Localization.castT h y) = supDist x y := by
+  subst h; rfl
+
+/-- **An old label that reaches the new region is long** (LFR Lemma IV.1.5 (iii)).  A boundary
+domain `X` of the post-`R` class at scale `k` (it meets `Z_k` and its complement) whose fine set
+meets the fine set of the new region `Ω_{k+1}` has size at least `L (⌊R_k⌋ + 2)`: it has a cube of
+`Ω_k^post` next to `Z_k` (`DmodOmega.exists_active_near`), the new region lies at distance
+`⌊R_k⌋ + 5` from the coarsening of `Z_k` (P5 (2.3)), and two active sites at that distance force
+the size (`Fluctuation.dcovMod_ge_supDist`).  With `B₀ e^{-(κ/2) L (⌊R_k⌋+2)} ≤ 1` this frees the
+constant of the re-expanded old terms from `B₀`. -/
+theorem RegionHistory.le_d7SizeAt_of_reach (F : Def7.FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ Def7.bdryDomsAt F k (H.omegaPost k) (H.step k).Z)
+    (hmeet : (Def7.d7Pull F k (X : Set (Torus S.d (n k))) ∩
+      Def7.d7Pull F (k + 1) (Def7.OmegaCube H (k + 1))).Nonempty) :
+    (S.L : ℝ) * (⌊R k⌋₊ + 2) ≤ Def7.d7SizeAt F k (H.omegaPost k) X := by
+  have hkK : k ≤ K := by omega
+  rw [Def7.mem_bdryDomsAt, Def7.mem_bdryDoms] at hX
+  obtain ⟨⟨hD, hXZ, hXZc⟩, hv⟩ := hX
+  obtain ⟨u, huX, huΩ, huZ⟩ := hD.exists_active_near (H.compl_omegaPost_subset_Z k) hXZ hXZc
+  obtain ⟨x, hxX, hxΩ'⟩ := hmeet
+  set y := cubeBase F k u with hy
+  have hyu : cubeIdx F k y = u := cubeIdx_cubeBase F hnn hkK u
+  have hyX : y ∈ Def7.d7Pull F k (X : Set (Torus S.d (n k))) := by
+    rw [d7Pull_iff, hyu]; exact huX
+  have hyΩ : y ∈ Def7.d7Pull F k (H.omegaPost k) := by rw [d7Pull_iff, hyu]; exact huΩ
+  have hxΩ : x ∈ Def7.d7Pull F k (H.omegaPost k) := H.d7Pull_OmegaCube_succ_subset F hnn hk hxΩ'
+  have hge := Fluctuation.dcovMod_ge_supDist hv.2 ⟨hyX, hyΩ⟩ ⟨hxX, hxΩ⟩
+  -- the distance of the two sites
+  set ρ := ⌊R k⌋₊ with hρ
+  set a := S.L ^ (k + 1) * M with ha
+  have hapos : 0 < a := Nat.mul_pos (pow_pos (Nat.pos_of_ne_zero (NeZero.ne S.L)) _)
+    (Nat.pos_of_ne_zero (NeZero.ne M))
+  have hU : blockMap S.L (n (k + 1)) u ∈ (H.step k).Uprime :=
+    ⟨u, nbhd_mono (by omega) le_rfl huZ, rfl⟩
+  have hcx : cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∈ (H.step k).Omega := hxΩ'
+  have hcy : cubeMap n S.L M K (k + 1) (Localization.castT F.side y) =
+      blockMap S.L (n (k + 1)) u := by
+    rw [← cubeMap_succ hnn hk]
+    exact congrArg _ hyu
+  have hfar : ρ + 5 ≤ supDist (cubeMap n S.L M K (k + 1) (Localization.castT F.side x))
+      (cubeMap n S.L M K (k + 1) (Localization.castT F.side y)) := by
+    by_contra hlt
+    have hin : cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∈
+        nbhd (ρ + 4) (H.step k).Uprime := by
+      rw [mem_nbhd]
+      exact ⟨_, hU, by rw [← hcy]; omega⟩
+    exact Region.nbhd_subset_compl_OmegaPrime S.L ρ _ hin
+      ((H.step k).Omega_subset_OmegaPrime hcx)
+  have hbl := supDist_blockMap_le (L := a) (m := n (k + 1)) (fine_eq hnn hk)
+    (Localization.castT F.side x) (Localization.castT F.side y)
+  have hd : a * (ρ + 4) + 1 ≤ supDist x y := by
+    rw [supDist_castT] at hbl
+    have h1 : ρ + 5 ≤ (supDist x y + a - 1) / a := hfar.trans hbl
+    have h2 := (Nat.le_div_iff_mul_le hapos).1 h1
+    have : a * (ρ + 4) + a = (ρ + 5) * a := by ring
+    omega
+  -- the arithmetic
+  have hLpos : (0 : ℝ) < (S.L : ℝ) := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
+  have hp : (0 : ℝ) < (S.L : ℝ) ^ (k + m₀ + m₁) := by positivity
+  have hae : ((a : ℕ) : ℝ) = (S.L : ℝ) * (S.L : ℝ) ^ (k + m₀ + m₁) := by
+    rw [ha, F.hM]; push_cast; ring
+  have hd' : ((a : ℝ)) * (ρ + 4) ≤ (supDist x y : ℝ) := by
+    have : ((a * (ρ + 4) : ℕ) : ℝ) ≤ (supDist x y : ℝ) := by exact_mod_cast (Nat.le_succ _).trans hd
+    push_cast at this
+    exact this
+  rw [hae] at hd'
+  have hq : (S.L : ℝ) * (ρ + 4) ≤ (supDist x y : ℝ) / (S.L : ℝ) ^ (k + m₀ + m₁) := by
+    rw [le_div_iff₀ hp]; nlinarith
+  rw [supDist_comm] at hge
+  have : Def7.d7SizeAt F k (H.omegaPost k) X =
+      Fluctuation.dcovMod m₀ k (Def7.d7Pull F k (H.omegaPost k))
+        (Def7.d7Pull F k (X : Set (Torus S.d (n k)))) := rfl
+  rw [this]
+  nlinarith
+
+end Size
 
 end Balaban.LargeField
