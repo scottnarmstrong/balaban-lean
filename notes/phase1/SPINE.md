@@ -814,6 +814,7 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      definite `Kq` on `blocks × Fin N` and centre `ψ₀`, `∫ sfFactor2 C vc Y = Z_Kq ∫ sfGaussIntegrand dγ`, `sfGaussIntegrand = sfFactor2(ψ₀ + Kq^{-1/2}w)·e^{Q_Kq(Kq^{-1/2}w)/2}`;
      `sfIntegral_eq_gauss` is `Y = univ`; measurability of `ψ ↦ sfFactor2` is a hypothesis); `Spine/FinalSfUniv.lean` (`EresJ2_univ`, `EresK2_univ`: `F_{k_f} = Σ_{j≤k} Edens` of
      Def-6 at `ψ^{(j)}_k`, minus the full double sum `corrSum`; `Fres_univ`: `⟨g,φ̄⟩ + Σ_j Floc`; `Rres_univ`).
+     **Landed (P1, `Spine/FinalSfConst.lean`).** `phiK_const`, `phiBar_const_univ` (`φ̄_k ≡ h` on the torus for `ψ_k ≡ h`, `|h| = 1`), `actStar2_const_univ` (`A*_k(univ; h) = 0`, i.e. `V(h·1) = 0`). Edens at the constant field is not shown to vanish (no translation covariance of `E` on a finite torus in `Def6`); per the coordinator the constant value `Σ_j Edens(ψ ≡ h)` is field-independent and is carried into the vacuum term `E` of `Ξ^sf`.
      **Findings.** (C) `corrSum` vanishes on the whole torus only for symmetric coefficients (`EresJ2_univ_of_symm`; `corrSum_self_eq_zero`); `CorrCoef`/`D1CorrLim` do not
      state `vc.v1 j (-z) = vc.v1 j z` (same for `v2`), and without it `Ares2` at `Y = univ` carries the extra term `-corrSum`, a nonzero translation-invariant quadratic form in `ψ`
      (it would shift the Hessian). (D) The cutoff: `chiY` is the product of `Reg` conditions (`|ψ_y − ψ_{y'}| < δ`, `||ψ_y|²−1| < δ`, directional clauses) — a region in the
