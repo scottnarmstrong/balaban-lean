@@ -832,6 +832,44 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        * the amplitude ((Λ32)).
    * The representation and the gas are one sub-input here (the brief expected two). Splitting them needs a landed `𝕋'_{k+1}`:
      the only statement that would separate them is "`∫ρ / Ξ^sf` is the linked gas of the weights `𝕋'(Z')`".
+   * **W1151 (A6-4 (a)(b)).** Landed, `Spine/FinalRepGroup.lean` (exact, from `D1Form2`, no new operator): `lastRegion A k = Z_k(𝔸)` as
+     a finite set of cubes; `lastHistInt` (`∫ postTerm2 dψ_k` of one history); `lastRegionWeight Z` (sum over the histories of the representation
+     with region `Z`); `integral_eq_sum_lastRegionWeight : ∫ρ = Σ_Z lastRegionWeight Z` under integrability of the terms; `postTerm2_of_region_empty`
+     (no component, no boundary domain: the term is `sfFactor2 univ`); `lastRegionWeight_empty = n₀ • ∫ sfFactor2 univ` and
+     `lastRegionWeight_empty_eq_sfIntegral` when `n₀ = 1`.
+     **Finding (n₀).** `n₀ := #{A ∈ hist : Z_k(A) = ∅}`. The set `hist` is complete for `Agree k (k+1)`, which compares the removal records
+     `Rem_j`, `j ≤ k`; a history whose earlier components were all removed by `R` has `Z_k = ∅` yet is not the trivial history, and by
+     `postTerm2_of_region_empty` contributes the same `sfFactor2 univ` (its boundary domains must meet `Z_k = ∅`). So `∫ρ` contains `n₀ Ξ^sf`
+     and `FinalLargeFieldInput` as stated holds only if `n₀ = 1` (or the removal histories are absent for the classes that occur). The class
+     clauses (`IsRep2`) do not state `n₀ = 1`; to be decided: either a class clause / an `R`-step theorem that the removal histories
+     carry their `R`-output elsewhere, or the representation of the empty region as `n₀ Ξ^sf` with `n₀` counted in the gas.
+     **n₀ settled (W1151, `Spine/FinalRepRemoval.lean`).** (a) Yes: `IsComplete k (k+1)` keeps one history per class of `Agree k (k+1)`, which compares
+     `P,Q,R,S` of the steps `j < k` and `Rem_j, j ≤ k`; the regions `Z_j, j ≤ k` are functions of these records (`LabHist.Agree.region_eq`). Two global
+     histories with `Z_k = ∅` that do not agree therefore give two elements of every complete set with empty region (`two_le_card_empty_region`).
+     (b) Each carries `postTerm2 = sfFactor2 C vc univ` with the same `C = F.ctx`, `vc` (`postTerm2_of_region_empty`): `C` is built from `F.sf` and constants,
+     `PostComp A k` is empty and `bdryDoms _ ∅ = ∅`, so neither the removed components nor their gas weights enter the term of that history; `ℛ''` is one
+     class-level term of `F.sf` and is not summed over histories. (c) n₀ = 1 is not derivable; a landed definition forces n₀ ≥ 2: at the genuine-radii
+     witness (`wS`, `k₀ = k_f = T`, horizon `K = T+1`, `RipeRemoval.ripeRemHistory`, the ripe component of `Z^pre_T` removed at `T`, `Z_T = ∅`; against the
+     trivial history) every `hist` with `IsComplete T (T+1)` has `2 ≤ #{A : lastRegion A T = ∅}` (`two_le_card_empty_region_ripeRem`). The same holds at
+     every `k ≥ T` and for the pre class (`IsComplete k k`, removal at `j < k`). **Consequence:** for `D1Form2` the small-field part of `ρ` is `n₀ · sfFactor2 univ`,
+     `n₀ ≥ 2`, while the source has one term whose exponent contains `ℛ''` (P7 (3.28)): the removed alternative must carry the weight `τ` of the removed
+     cluster (P7 (3.22)-(3.27), R4), which `postTerm2` does not. **Defect:** `postTerm2`/`integrand2` (`Def7v2Form.lean`) together with `IsComplete`
+     (`Def7Hist.lean:144`), `LabHist.Agree` (`Def7Hist.lean:81`). **Proposed change (either):** (i) `D1Form2` sums over classes of `Agree` modulo removal of components
+     that do not meet `Z_k` (merge histories with the same post region and the same surviving records; their weights go into `ℛ''`); or (ii) multiply
+     `postTerm2 A` by the removed-gas weight `∏_{c removed at scales ≤ k} τ_A(c)` (decorated by the removed members, R4) so that the removed alternatives are not copies of
+     `sfFactor2 univ`. Not changed here (rule 3 of the brief); `FinalLargeFieldInput` as stated is false in a parameter range where a ripe removal with `Z_k = ∅` exists.
+     **Why `𝕋'_{k+1}` is not defined (design obstruction).** In the source `𝕋'_{k+1}(Z_{k+1}, 𝔸')` is not a datum of the class: it is produced by
+     (4.2)–(4.9): the decomposition of unity on the layer, the Gaussian integral over the fluctuation of the exterior `Z_{k+1}^c` around the
+     `Z_{k+1}`-dependent saddle `ψ_0^{(k)} = Q_k φ_{k,0}` ((4.3)–(4.8), massive problem), leaving an integration over the variables of `Z_{k+1}` only with
+     the exterior contributing `exp(E' − E''|Z^c| + F + F' + ΣR_n)(Z^c)` and the boundary terms `B'`. Any Lean definition on the whole carrier is
+     the cut version, for every `Z'`, of the analysis of A6-3 (a) (`sfIntegral` as the cut expansion: Gaussian change of variables,
+     `det(U+E)/det(U)·J`), which is itself open; and the cluster factorization `cell Z = Q ∏ τ exp(boundary Z)` (`hOperator` of
+     `final_large_integral_eq_gasXi_of_factorization`) is the statement that the integrals over distinct components decouple, the content of the
+     Z-dependent background (item 18, L4). A split of `FinalLargeFieldInput` into representation, bounds and end needs a canonical gas datum to which
+     the bounds refer; a bare `∃` datum with the identity does not pin it (any datum with the right `gasLinkedXi` would do), so the split cannot be
+     stated before `𝕋'` exists. Recommended order: (1) A6-3 (a) for a general cut `Y = Z'^c` (the fluctuation integral of `sfFactor2 C vc Y`
+     with the `Y`-dependent background; the `Z=∅` case is `sfIntegral`); (2) `𝕋'` as the remaining integral over `ψ_k|_{Z'}`; (3) then
+     `∫ρ / Ξ^sf = gasLinkedXi` with `hOperator`, `hBoundary` proved, and (c), (d).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
