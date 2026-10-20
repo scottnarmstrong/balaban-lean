@@ -50,11 +50,11 @@ def frBs (d : ℕ) (κ : ℝ) (s : ℕ) : ℝ :=
   Real.exp (-frD d κ) / (16 * (1 + d) * 3 ^ d * (s : ℝ) ^ d)
 
 /-- The spread heavy smallness. -/
-def frTau (d : ℕ) (κ : ℝ) (s : ℕ) : ℝ := frBs d κ s / (4 * frS1 d s)
+def frTauB (d : ℕ) (κ : ℝ) (s : ℕ) : ℝ := frBs d κ s / (4 * frS1 d s)
 
 /-- The heavy smallness of one site. -/
 def frEta (d : ℕ) (κ : ℝ) (s : ℕ) : ℝ :=
-  frTau d κ s ^ (2 * frKk d s) / (8 ^ frKk d s * Real.exp 1)
+  frTauB d κ s ^ (2 * frKk d s) / (8 ^ frKk d s * Real.exp 1)
 
 /-- The cutoff of the Gaussian variables. -/
 def frP (d N : ℕ) (κ : ℝ) (s : ℕ) : ℝ :=
@@ -112,26 +112,26 @@ theorem frBs_le_one (d : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 1 ≤ 
   rw [div_le_one (by linarith)]
   linarith
 
-theorem frTau_pos (d : ℕ) (κ : ℝ) {s : ℕ} (hs : 1 ≤ s) : 0 < frTau d κ s := by
-  unfold frTau
+theorem frTauB_pos (d : ℕ) (κ : ℝ) {s : ℕ} (hs : 1 ≤ s) : 0 < frTauB d κ s := by
+  unfold frTauB
   have := frBs_pos d κ hs
   have : (1 : ℝ) ≤ frS1 d s := by exact_mod_cast one_le_frS1 d s
   positivity
 
-theorem frTau_le_one (d : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 1 ≤ s) : frTau d κ s ≤ 1 := by
-  unfold frTau
+theorem frTauB_le_one (d : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 1 ≤ s) : frTauB d κ s ≤ 1 := by
+  unfold frTauB
   have h1 := frBs_le_one d hκ hs
   have h2 : (1 : ℝ) ≤ frS1 d s := by exact_mod_cast one_le_frS1 d s
   rw [div_le_one (by positivity)]
   nlinarith [frBs_pos d κ hs]
 
 theorem frEta_pos (d : ℕ) (κ : ℝ) {s : ℕ} (hs : 1 ≤ s) : 0 < frEta d κ s := by
-  unfold frEta; have := frTau_pos d κ hs; positivity
+  unfold frEta; have := frTauB_pos d κ hs; positivity
 
 theorem frEta_le_one (d : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 1 ≤ s) : frEta d κ s ≤ 1 := by
   unfold frEta
-  have h1 : frTau d κ s ^ (2 * frKk d s) ≤ 1 :=
-    pow_le_one₀ (frTau_pos d κ hs).le (frTau_le_one d hκ hs)
+  have h1 : frTauB d κ s ^ (2 * frKk d s) ≤ 1 :=
+    pow_le_one₀ (frTauB_pos d κ hs).le (frTauB_le_one d hκ hs)
   have h2 : (1 : ℝ) ≤ 8 ^ frKk d s * Real.exp 1 := by
     have : (1 : ℝ) ≤ 8 ^ frKk d s := one_le_pow₀ (by norm_num)
     have : (1 : ℝ) ≤ Real.exp 1 := Real.one_le_exp (by norm_num)
@@ -176,9 +176,9 @@ theorem frP_sq_le (d N : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 6 ≤ 
   have hcb0 : 0 < cb := by rw [hcb]; positivity
   have hbs : frBs d κ s = cb / (s : ℝ) ^ d := by
     unfold frBs; rw [hcb]; field_simp
-  have hτ0 := frTau_pos d κ hs1
-  have hτlow : cb / (4 * (s : ℝ) ^ (2 * d)) ≤ frTau d κ s := by
-    unfold frTau
+  have hτ0 := frTauB_pos d κ hs1
+  have hτlow : cb / (4 * (s : ℝ) ^ (2 * d)) ≤ frTauB d κ s := by
+    unfold frTauB
     rw [hbs, div_div]
     have h1 : (frS1 d s : ℝ) ≤ (s : ℝ) ^ d := by exact_mod_cast frS1_le (by omega : 3 ≤ s)
     have h2 : (1 : ℝ) ≤ frS1 d s := by exact_mod_cast one_le_frS1 d s
@@ -186,9 +186,9 @@ theorem frP_sq_le (d N : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 6 ≤ 
     refine div_le_div_of_nonneg_left hcb0.le (mul_pos hsd (by linarith)) ?_
     rw [pow_mul']
     nlinarith [mul_le_mul_of_nonneg_left h1 hsd.le]
-  have hlogτ : Real.log (frTau d κ s)⁻¹ ≤
+  have hlogτ : Real.log (frTauB d κ s)⁻¹ ≤
       Real.log (64 * (1 + d) * 3 ^ d * Real.exp (frD d κ)) + 2 * d * s := by
-    have h1 : (frTau d κ s)⁻¹ ≤ 4 * (s : ℝ) ^ (2 * d) / cb := by
+    have h1 : (frTauB d κ s)⁻¹ ≤ 4 * (s : ℝ) ^ (2 * d) / cb := by
       rw [inv_le_comm₀ hτ0 (by positivity), inv_div]; exact hτlow
     have h2 : 4 * (s : ℝ) ^ (2 * d) / cb = 64 * (1 + d) * 3 ^ d * Real.exp (frD d κ) *
         (s : ℝ) ^ (2 * d) := by
@@ -204,12 +204,12 @@ theorem frP_sq_le (d N : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 6 ≤ 
   have hk1 : (1 : ℝ) ≤ frKk d s := by exact_mod_cast one_le_frKk d s
   have hkle : (frKk d s : ℝ) ≤ (1 + d) * (s : ℝ) ^ d := by
     exact_mod_cast frKk_le (by omega : 3 ≤ s)
-  have hsplit : Real.log (4 * 2 ^ (N - 1) / (frTau d κ s ^ (2 * frKk d s) /
+  have hsplit : Real.log (4 * 2 ^ (N - 1) / (frTauB d κ s ^ (2 * frKk d s) /
       (8 ^ frKk d s * Real.exp 1))) = Real.log (4 * 2 ^ (N - 1) * Real.exp 1) +
-      frKk d s * Real.log 8 + 2 * frKk d s * Real.log (frTau d κ s)⁻¹ := by
-    have e1 : 4 * 2 ^ (N - 1) / (frTau d κ s ^ (2 * frKk d s) / (8 ^ frKk d s * Real.exp 1)) =
+      frKk d s * Real.log 8 + 2 * frKk d s * Real.log (frTauB d κ s)⁻¹ := by
+    have e1 : 4 * 2 ^ (N - 1) / (frTauB d κ s ^ (2 * frKk d s) / (8 ^ frKk d s * Real.exp 1)) =
         (4 * 2 ^ (N - 1) * Real.exp 1) *
-          ((8 : ℝ) ^ frKk d s * ((frTau d κ s)⁻¹) ^ (2 * frKk d s)) := by
+          ((8 : ℝ) ^ frKk d s * ((frTauB d κ s)⁻¹) ^ (2 * frKk d s)) := by
       rw [inv_pow, div_div_eq_mul_div]; ring
     rw [e1, Real.log_mul (x := 4 * 2 ^ (N - 1) * Real.exp 1) (by positivity) (by positivity),
       Real.log_mul (x := (8 : ℝ) ^ frKk d s) (by positivity) (by positivity), Real.log_pow,
@@ -234,15 +234,15 @@ theorem frP_sq_le (d N : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 6 ≤ 
   have hsd : (s : ℝ) ^ d * s = (s : ℝ) ^ (d + 1) := by ring
   have hsd1 : (1 : ℝ) ≤ (s : ℝ) ^ (d + 1) := one_le_pow₀ (by linarith)
   have hsdd : (s : ℝ) ^ d ≤ (s : ℝ) ^ (d + 1) := pow_le_pow_right₀ (by linarith) (by omega)
-  have hlogτ0 : 0 ≤ Real.log (frTau d κ s)⁻¹ :=
-    Real.log_nonneg (one_le_inv₀ hτ0 |>.2 (frTau_le_one d hκ hs1))
+  have hlogτ0 : 0 ≤ Real.log (frTauB d κ s)⁻¹ :=
+    Real.log_nonneg (one_le_inv₀ hτ0 |>.2 (frTauB_le_one d hκ hs1))
   set Ld := Real.log (64 * (1 + d) * 3 ^ d * Real.exp (frD d κ))
   set C0 := Real.log (4 * 2 ^ (N - 1) * Real.exp 1)
   have hd0 : (0 : ℝ) ≤ d := Nat.cast_nonneg _
   -- the bound term by term
-  have hA : (frKk d s : ℝ) * Real.log 8 + 2 * frKk d s * Real.log (frTau d κ s)⁻¹ ≤
+  have hA : (frKk d s : ℝ) * Real.log 8 + 2 * frKk d s * Real.log (frTauB d κ s)⁻¹ ≤
       (1 + d) * (3 + 2 * Ld + 4 * d) * (s : ℝ) ^ (d + 1) := by
-    have h1 : (frKk d s : ℝ) * Real.log 8 + 2 * frKk d s * Real.log (frTau d κ s)⁻¹ ≤
+    have h1 : (frKk d s : ℝ) * Real.log 8 + 2 * frKk d s * Real.log (frTauB d κ s)⁻¹ ≤
         frKk d s * (3 + 2 * (Ld + 2 * d * s)) := by
       have := mul_le_mul_of_nonneg_left hlogτ (by positivity : (0 : ℝ) ≤ 2 * frKk d s)
       nlinarith
