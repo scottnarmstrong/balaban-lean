@@ -37,7 +37,7 @@ whenever `sup_ψ (∫ a_x(ψ,·) dπ_ε) γ(ψ) ≤ A_x` (`lintegral_jac_sites`)
 (J3) `det (C_R)|_{D×D} ≥ (ν (2d+ν)^{-3/2})^{|D|}` (`det_submatrix_kf0CR_ge`, from the lower form
 bound `C_R ≥ (1-q)(2d+ν)^{-1/2}`).
 
-## G. One-site Gaussian estimates
+## G. One-site Gaussian estimates (Lean: proved, `KF0FRGauss`)
 
 For `0 ≤ a`, `0 ≤ θ ≤ 1/8`, `r = |ψ|`, `γ(ψ) = (2π)^{-n/2} e^{-r²/2}`:
 (G1) `γ(ψ) e^{a r + θ r²} ≤ (2π)^{-n/2} e^{a²}`;
@@ -45,7 +45,7 @@ For `0 ≤ a`, `0 ≤ θ ≤ 1/8`, `r = |ψ|`, `γ(ψ) = (2π)^{-n/2} e^{-r²/2}
 (G3) for `a ≤ p/8`: `∫ 1[r > p] e^{a r + θ r²} dγ ≤ 2^n e^{-p²/8}`.
 Proofs: `a r ≤ r²/8 + 2a²`, `1[r>p] ≤ e^{(r²-p²)/8}`, and `∫ e^{b r²} dγ = (1-2b)^{-n/2}`.
 
-## O. Ordinary bounds
+## O. Ordinary bounds (Lean: proved, `KF0FRBand`, `KF0FROrd`)
 
 A site is *ordinary* if `|ψ_x| ≤ p` and `σ_x = +`. Put `ρ = p (βν)^{-1/2} ≤ 1/2` and
 `G_x = ∑_i |g_{x,i}| ≤ G`.
@@ -56,7 +56,10 @@ A site is *ordinary* if `|ψ_x| ≤ p` and `σ_x = +`. Put `ρ = p (βν)^{-1/2}
 the bracket without `ρ²` is at most `1`; if all sites of `S_{x,μ}` are ordinary,
 `|F_{x,μ} - 1| ≤ ε_bond := βρ⁴/2`.
 
-## H. The heavy bound
+## H. The heavy bound (Lean: proved, `frHeavy_le`; `KF0FRHeavyPt`, `KF0FRHeavySite`, `KF0FRHeavyD`, `KF0FRHeavyDInt`, `KF0FRHeavy`)
+
+In Lean the inner-band constant is `2` instead of `2/√3`, `c_b = 1/128` (`t < 7/8` off the band), and
+`θ = 8^k e η`.
 
 Fix terms `C`, `W = ∪_{t∈C} S_t`, `H ⊆ W`; the event `E_H`: the sites of `H` are not ordinary, the
 sites of `W ∖ H` are. Let `C_H = {t ∈ C : S_t ∩ H ≠ ∅}`; `|C_H| ≤ k|H|` with
@@ -82,13 +85,13 @@ most `(2/√3) K₀`, an ordinary site of `W'` at most `K₀ = e^{ap + θ_Q p²/
 `|D| ≤ k|H|`, `|W'| ≤ k s^d |H|` and `K₀^{k s^d} ≤ e`, each `A` gives
 `(4/√3)^{k|H|} e^{|H|} η_h^{|H|}`, and the `2^{k|H|}` sets `A` give the claim.
 
-## M. The product bound of the Mayer weights (Lean: abstract part proved)
+## M. The product bound of the Mayer weights (Lean: proved, `norm_integral_prod_frF_le`)
 
 `norm_integral_prod_le_marks` (`Polymer/MarkBound.lean`) with the ordinary sets above, the supports
 `S_t`, `ε_t ∈ {ε_site, ε_bond}`, the multiplicity `k` and (H):
 `|∫ ∏_{t∈C} (F_t - 1) dμ| ≤ ∏_{t∈C} b_t`, `b_t = (1+√θ)^{|S_t|}(ε_t + θ^{1/(2k)} |S_t|)`.
 
-## B. The block gas
+## B. The block gas (Lean: open)
 
 The terms are regrouped by their block support `X = bsup t` (blocks meeting `S_t`):
 `f_X = ∏_{bsup t = X} F_t - 1`. Then `∫ ∏_t F_t dμ = ∫ ∏_X (1 + f_X) = Ξ(K)`
@@ -100,26 +103,26 @@ of the base site (`2R+1 < s/2`), so its Steiner size is at most `3^d` and it car
 (G1–G3 with `c = 0`, `c₁ = 1`, `K₀ = 4e^{-κ₀}`) and `pe_size` give
 `Ξ = exp ∑_Y P(Y)`, `∑_{Y ∋ b} |P(Y)| e^{κ' |Y|_St} ≤ α`.
 
-## A. Analyticity
+## A. Analyticity (Lean: open)
 
 Every product `∏_{t∈A} F_t` is `P_A(ω) exp(∑_{x,i} g_{x,i} V_{x,i}(ω))` with `P_A` independent of `g`
 and `|V| ≤ 2`; `g ↦ ∫ P e^{⟨g,V⟩}` is entire when `P` is integrable (exponential series and
 Weierstrass). So `K(Y; ·)` is analytic on the ball `∑|g| < G`, with the uniform Kotecký–Preiss bound,
 and `P(Y; ·)` is analytic there (`pe_PY_analyticOnNhd`).
 
-## S. Increments
+## S. Increments (Lean: open)
 
 For `F` analytic on `{∑|g| < G}` with `|F| ≤ B`: `|F(g) - F(0)| ≤ 3B/G` on the unit ball (Schwarz on
 `λ ↦ F(λg)`). With `G = c_G √β` the increments carry `β^{-1/2}`, which pays `c₉`.
 
-## T. Two-torus agreement
+## T. Two-torus agreement (Lean: open)
 
 `C_R` and `Q_R` are polynomials of degree `≤ 2R+1` in `A`; on two tori of sides `> 4R+2` they agree at
 pairs with equal centred displacement (`kf0CR_torus_eq`). Polymers in the quarter box correspond
 (`polymer_lift`), the terms with block support inside them correspond and agree on related
 configurations, and the local terms agree (`PY_mayer_transport`, general weights).
 
-## P. Parameters
+## P. Parameters (Lean: open)
 
 `R = ⌊(s-3)/4⌋`, `k = (1+d)(4R+3)^d`, `p² = 8(2k log(9 s^d/b_*) + log(4^N e))`; `b_*` is fixed by the
 gas numerics at `κ' = κ` (`κ₀ = kf0K0 d`, `κ₁ = κ + κ₀ + 5/2`). The typing condition: `θ_Q p² k² s^d`
