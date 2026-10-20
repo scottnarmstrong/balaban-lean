@@ -16,17 +16,22 @@ block it.
 
 ## Where the work stands
 
-The small-field part of one renormalization step (background fields, localization, the fluctuation
-integral and its expansion, the inductive class of effective actions) is largely formalized. What
-remains is concentrated in seven mathematical blockers and in joining the steps into the full flow.
-A fully proved Lean theorem (the *spine*) derives Root-F from seven named inputs, each a statement of
-the papers, so what is left is a finite list. On 19 October the author approved five further readings
-(rulings R7′, R9, R-N₁, R10, R11); with them blockers 3 and 6 are settled mathematically and what remains
-of them is Lean work, while the other five each have a named hard step still open.
-[docs/BLOCKERS.md](docs/BLOCKERS.md) describes each blocker and where it stands, and
-[docs/PROGRESS.md](docs/PROGRESS.md) gives the estimated completion by section with a dated log.
-Where the papers are ambiguous we choose a reading and prove what it needs
-([notes/phase1/PLAN-B.md](notes/phase1/PLAN-B.md)).
+Balaban's argument has two parts. The first treats one renormalization step in the regions where the
+spin field is smooth: it computes the effective action at the next scale and shows that it has the same
+form as at the previous one. This part is largely formalized. The second part treats the rare regions
+where the field is not smooth (*large fields*), and then combines all the scales into the two main
+theorems. Most of the remaining work is in this second part.
+
+The first main theorem has already been reduced, by a complete Lean proof, to seven intermediate
+results, each of them a theorem of the papers. What is left is to prove those seven results.
+
+In seven places the papers, as written, do not give what the next step of the argument needs: either a
+step is stated without a proof that we could reconstruct, or an estimate is weaker than the one used
+later. [docs/BLOCKERS.md](docs/BLOCKERS.md) describes these seven *blockers*. Two of them are now
+resolved on paper and only need to be written in Lean; the other five are open and being worked on.
+Where the papers can be read in more than one way, we choose a reading, record the choice, and prove
+everything it requires ([notes/phase1/PLAN-B.md](notes/phase1/PLAN-B.md)).
+[docs/PROGRESS.md](docs/PROGRESS.md) estimates how far each part has come, with a dated log.
 
 ## The mathematics
 

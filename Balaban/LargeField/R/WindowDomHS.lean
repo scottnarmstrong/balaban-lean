@@ -26,6 +26,38 @@ namespace Balaban.LargeField
 
 open Balaban Balaban.Multiscale Balaban.Background RegionHistory
 
+section MassLe
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+/-- **Monotonicity of the real domain in the mass**: a datum in `Ψ̃(G; μ, δ)` is in `Ψ̃(G; μ', δ')`
+for `μ' ≤ μ` and `0 ≤ δ ≤ δ'`, with the same direction (R3 and R4 are monotone in the mass). -/
+theorem inPsiTilde_mass_le {G : GeneratingSet d L N₀ k ϱ} {μ μ' δ δ' : ℝ}
+    {Ψ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h : Fin N → ℝ} (hP : InPsiTilde G μ δ Ψ h)
+    (hδ0 : 0 ≤ δ) (hδ : δ ≤ δ') (hle : μ' ≤ μ) : InPsiTilde G μ' δ' Ψ h where
+  layerConst := hP.layerConst
+  r1 x x' hx := (hP.r1 x x' hx).trans_le hδ
+  r2 x hx := (hP.r2 x hx).trans_le hδ
+  r3 x hx := by
+    have hsq : δ ^ 2 ≤ δ' ^ 2 := pow_le_pow_left₀ hδ0 hδ 2
+    have h1 : μ' * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |1 - (∑ i, Ψ x i * h i) / rn (Ψ x)| ≤
+        μ * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |1 - (∑ i, Ψ x i * h i) / rn (Ψ x)| :=
+      mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hle (by positivity)) (abs_nonneg _)
+    linarith [hP.r3 x hx]
+  r4 := by
+    have hsq : δ ^ 2 ≤ δ' ^ 2 := pow_le_pow_left₀ hδ0 hδ 2
+    have h1 : μ' * ((L : ℝ) ^ k) ^ 2 * |∑ i, h i ^ 2 - 1| ≤ μ * ((L : ℝ) ^ k) ^ 2 * |∑ i, h i ^ 2 - 1| :=
+      mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hle (by positivity)) (abs_nonneg _)
+    linarith [hP.r4]
+
+/-- **`𝒟_ℝ(G; c₁, μ)` at a smaller mass.** -/
+theorem inUnionDomainR_mass_le {G : GeneratingSet d L N₀ k ϱ} {D : BgData G N} {c₁ μ μ' : ℝ}
+    (hD : InUnionDomainR G c₁ μ D) (hle : μ' ≤ μ) : InUnionDomainR G c₁ μ' D := by
+  obtain ⟨δ, hδ, hδc, Ψ, h, hP, hΨ, hh⟩ := hD
+  exact ⟨δ, hδ, hδc, Ψ, h, inPsiTilde_mass_le hP hδ.le le_rfl hle, hΨ, hh⟩
+
+end MassLe
+
 section Window
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
@@ -100,6 +132,69 @@ theorem window_pieces_hS (geo : Geo S n R M) (cs : OpConsts)
   refine ⟨h1, fun m hm1 hm2 => ?_⟩
   exact inUnionDomainR_mass_change (hv := fun q => hv q) (bgC1_pos_of hd) h1 hsum
     (fun z hz q => congrFun (liftMixed_h _ _ _ _ _ _ hz) q) (hμ0 m) (hmass i m hm1 hm2)
+
+open Classical in
+/-- **The two clauses of `hS` without the unit direction**: if `μ_act(m) ≤ μ_Bg(j_i+1)` for `j_i+2 ≤ m ≤ m'+1`, the second clause follows from the first by monotonicity of the clauses R3, R4 in the mass; `‖hv‖ = 1` is not needed. **The two clauses of `hS` on the support of the window integrand**: if the kernel of the operator
+of `Z` is nonzero at the window point `(o, x)`, every piece datum is in `𝒟_ℝ(G_i; c₁, μ_Bg(j_i+1))`
+and, for `j_i + 2 ≤ m ≤ m' + 1`, in `𝒟_ℝ(G_i; c₁, μ_act(m))`, provided the masses satisfy
+`2 μ_act(m) L^{2(j_i+1)} < c₁²`. -/
+theorem window_pieces_hS_of_mass_le (geo : Geo S n R M) (cs : OpConsts)
+    {κs κ' : ℕ → LocalHistory S n M K → ℝ} {lamHat : ℕ → ℝ} (SD : StepData k0 geo cs N κs)
+    (KD : KeptData k0 geo cs N κ' lamHat) {hH : H.Admissible} {lab : ∀ k, H.Comp k → Fin 5}
+    {m' : ℕ} (hm : m' + 1 ≤ K) {Z : H.Comp (m' + 1)} (hW : H.RipeWindow (m' + 1) Z)
+    (hq : ∀ s, S.k1 (m' + 1) < s → ∀ Y : H.Comp s, H.Desc s (m' + 1) Y Z → ¬ IsKept H s Y)
+    (ρ : ∀ (s : ℕ), S.k1 (m' + 1) ≤ s → ∀ (P : H.Comp s) (hd : H.Desc s (m' + 1) P Z),
+      SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).A →
+      SubCfg N (H.localHistory M K s P) s (locOp geo cs SD KD hH lab s (hd.le.trans hm) P).A)
+    (hρ : ∀ s (hs : S.k1 (m' + 1) ≤ s) P (hd : H.Desc s (m' + 1) P Z) x p, ρ s hs P hd x p =
+      x ⟨_, locOp_A_incl geo cs SD KD hm hd (fun t ht Y' h' => hq t (lt_of_le_of_lt hs ht) Y' h')
+        p.1 p.2⟩)
+    (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+      (locOp geo cs SD KD hH lab (m' + 1) hm Z).A)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (hK : (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K o x hv ≠ 0)
+    (jf : (Option (Σ j : ↥(Finset.Ico (S.k1 (m' + 1)) m'),
+      Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))) → ℕ)
+    (cf : ∀ i, H.Comp (jf i + 1))
+    (hfam : ∀ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) =
+      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hjK : ∀ i, jf i + 1 ≤ K)
+    (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1))
+    (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i))
+    (hou0 : HEq (ou none) o)
+    (hxu0 : HEq (xu none) (newRestrict (H.localHistory M K (m' + 1) Z)
+      (newVars_sub_locOp_A geo cs SD KD hm
+        (hq (m' + 1) (Nat.lt_succ_of_le hW.k1_le_sub_one) Z (Desc.refl Z))) x))
+    (hou1 : ∀ (j : ↥(Finset.Ico (S.k1 (m' + 1)) m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+      (c : ↥(H.parts (j.1 + 1) P.1)), HEq (ou (some ⟨j, P, c⟩)) (ancOut (N := N) (R := R) c.1 P.1
+        (ρ (j.1 + 1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) P.1 (mem_ancFin.mp P.2) x)))
+    (hxu1 : ∀ (j : ↥(Finset.Ico (S.k1 (m' + 1)) m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+      (c : ↥(H.parts (j.1 + 1) P.1)), HEq (xu (some ⟨j, P, c⟩))
+        (newRestrict (H.localHistory M K (j.1 + 1) c.1)
+          (newVars_sub_locOp_A geo cs SD KD ((desc_of_parts c.2 (mem_ancFin.mp P.2)).le.trans hm)
+            (hq (j.1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) c.1
+              (desc_of_parts c.2 (mem_ancFin.mp P.2))))
+          (ρ (j.1 + 1) (by have := (Finset.mem_Ico.mp j.2).1; omega) c.1
+            (desc_of_parts c.2 (mem_ancFin.mp P.2)) x)))
+    (hle : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → cs.muAct m ≤ cs.muBg (jf i + 1)) :
+    ∀ i, InUnionDomainR
+      (locGen geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))
+      (bgC1 S.d S.L N) (cs.muBg (jf i + 1))
+      (locData geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+        (hjK i) (ou i) (xu i) hv) ∧
+    ∀ m, jf i + 2 ≤ m → m ≤ m' + 1 →
+      InUnionDomainR
+        (locGen geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+          (hjK i)) (bgC1 S.d S.L N) (cs.muAct m)
+        (locData geo (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+          (hjK i) (ou i) (xu i) hv) := by
+  intro i
+  refine ⟨window_pieces_inUnionDomainR geo cs SD KD hm hW hq ρ hρ o x hv hK jf cf hfam hjf hjK
+    ou xu hou0 hxu0 hou1 hxu1 i, fun m hm1 hm2 => ?_⟩
+  exact inUnionDomainR_mass_le (window_pieces_inUnionDomainR geo cs SD KD hm hW hq ρ hρ o x hv hK
+    jf cf hfam hjf hjK ou xu hou0 hxu0 hou1 hxu1 i) (hle i m hm1 hm2)
 
 end Window
 
