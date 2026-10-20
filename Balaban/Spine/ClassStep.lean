@@ -99,6 +99,13 @@ structure PreRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB 
   vac : VacuumFlowTo cs₀.Cb Ev F.sf.β k
   /-- the field renormalizations are positive, `z_j > 0` for `1 ≤ j ≤ k` (P1 (1.11), P4 (4.1)) -/
   zpos : ∀ j, 1 ≤ j → j ≤ k → 0 < F.sf.z j
+  /-- **the vacuum tie** (R5, R5′; P4 (2.1), (2.41), (2.63); P6 (3.2)): on every torus the vacuum
+  constants of the step data are `E_j`, `E_j + δ″_j`, `E_j + δ‴_j` of the flow `Ev`, with offsets
+  `δ″, δ‴` that do not depend on `E_j`. In the source the flow constant `E_j` is the vacuum constant
+  of the step that created the component, so the tie is a clause of the construction
+  (`StepData.VacuumTie`); with it the estimate of `b⁰_j` is that of the step data themselves
+  (`rVacuumB0Input`, `Spine/RVacuumTie.lean`). -/
+  vacTie : ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (F.lf nK).SD.VacuumTie Set.univ Ev dpp dppp
 
 /-- **The pre-`R` class `ℛ^pre_k` at the constants of the prefix** (LFR §II.6.3, first item,
 second version `IsRepPre2`: the class of the output of one step before the operation `R`), with the
@@ -249,10 +256,10 @@ theorem PreClassAt.succ {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts
     (hq : P6.c₈ * Flow.rate (T.L : ℝ) P6.γ ≤ 1 / 20 * (1 - Flow.rate (T.L : ℝ) P6.γ)) :
     PreClassAt d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf (k + 1) (k + 1) ρ νk := by
   obtain ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0,
-    hνk, hrun, hcoh, Ev, hvac, hz⟩ := hρ
+    hνk, hrun, hcoh, Ev, hvac, hz, hvt⟩ := hρ
   obtain ⟨_, hsf⟩ := hpre.sfData.sfClass
   exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, h1, h2, h3, h4, h5, h6, h7, hpre, hβ0, hν0, hνk,
-    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh, Ev, hvac, hz⟩
+    runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff hβ0 hν0 hrun, hcoh, Ev, hvac, hz, hvt⟩
 
 /-!
 ### The assembly of the integral
@@ -284,6 +291,13 @@ def VacuumTied {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7} {PB : 
     (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) : Prop :=
   ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ,
     (rec.F.lf nK).SD.VacuumTie Set.univ rec.Ev dpp dppp
+
+/-- Every record is vacuum tied: the tie is a field of the record. -/
+theorem PreRec.vacuumTied {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7}
+    {PB : BudgetConsts} {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)}
+    {kf k r : ℕ} [NeZero T.M] [NeZero T.L] {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
+    (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) : VacuumTied rec :=
+  rec.vacTie
 
 /-!
 ### The sub-inputs
@@ -420,13 +434,16 @@ theorem preClassAt_witness_aux (rH : ℝ) (r : ℕ) (hr : r ≤ 1) (S : Setting)
         vc ∧
       F.sf.β 0 = wβ ∧ F.sf.ν 0 = wν₀ ∧ F.sf.ν 1 = νk ∧
       RunningHypTo S.d S.L wβ wν₀ (wCs wν₀ (kZero 3 3 wβ wν₀)).aKer (1 / 20) F.sf.β F.sf.ν r ∧
-      LFCoherent F ∧ ∀ j, 1 ≤ j → j ≤ 1 → 0 < F.sf.z j := by
+      LFCoherent F ∧ (∀ j, 1 ≤ j → j ≤ 1 → 0 < F.sf.z j) ∧
+      ∀ (nK : ℕ) [NeZero nK],
+        (F.lf nK).SD.VacuumTie Set.univ (fun _ => 0) (fun _ => 0) (fun _ => 0) := by
   subst hS
   exact ⟨wRhoPre2 wν₀ (kZero 3 3 wβ wν₀) 1, wνs wν₀ 1, wM6, le_rfl, wR, wGeoF,
     wCs wν₀ (kZero 3 3 wβ wν₀), budgetConsts wβ, wFam2 wν₀ (kZero 3 3 wβ wν₀) 1, wSt wν₀,
     wVc, fun _ _ => ⟨rfl, rfl⟩, rfl, rfl, rfl, rfl, rfl, rfl, rfl,
     wIsRepPre2 wν₀ wν₀_pos wν₀_mul.le rH, by simp [wFam2, wSF2, wβs], by simp [wFam2, wSF2, wνs],
-    rfl, witness_runningHypTo.mono hr, wFam2_lfCoherent _ _ _, fun _ _ _ => one_pos⟩
+    rfl, witness_runningHypTo.mono hr, wFam2_lfCoherent _ _ _, fun _ _ _ => one_pos,
+    fun _ _ => StepData.vacuumTie_zero _ _ fun _ _ _ => ⟨rfl, rfl, rfl⟩⟩
 
 open Balaban.LargeField.Def7.Wit Balaban.LargeField.Def7v2.Wit in
 /-- **`PreClassAt` is inhabited**: the landed witness of `IsRepPre2` at `ν = 1/(27β)`, horizon
@@ -445,7 +462,8 @@ theorem preClassAt_witness (rH : ℝ) (r : ℕ) (hr : r ≤ 1) :
         ⟨by norm_num [typing, typing0]⟩
     exact ⟨ρ, νk, ⟨hM6, hkK, R, geo, cs, P, F, St, vc, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10,
       h11, h12, h13.1, h13.2.1, fun _ => 0, vacuumFlowTo_zero fun _ _ => by
-        rw [show (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb = 0 from rfl, zero_mul], h13.2.2⟩⟩
+        rw [show (wCs wν₀ (kZero 3 3 wβ wν₀)).Cb = 0 from rfl, zero_mul], h13.2.2.1,
+      fun nK _ => ⟨fun _ => 0, fun _ => 0, h13.2.2.2 nK⟩⟩⟩
 
 /-- **`FlowRateInput` costs only a smaller `c₈`**: for every family of admissible Def-6 constants
 on block sizes `L ≥ 2`, lowering `c₈` to `min(c₈, (1 - q)/(20 q))` keeps the constants admissible

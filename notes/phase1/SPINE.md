@@ -1217,3 +1217,7 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
   tie is a clause of the construction. Repair: put the tie into the record (`PreRec` carries `SD.vacE = Ev`, `VacuumTie` as a field, as `LFStepDataInput` already does
   for the successor) or weaken `VacuumB0Bound` to the bound with slack `D V` and give `StepData` a `b0_bound'` with that slack. Both change a landed statement:
   needs the orchestrator. The geometry `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` is then only needed for the slack form and is not attempted here.
+
+**Resolved (W1148, 2026-10-20).** `PreRec` carries the field `vacTie` (the step data of every torus are tied to the flow `Ev`, offsets per torus), as the source's construction gives it
+(P4 (2.1), (2.41), (2.63)); `SFStep` supplies it from `LFStepDataInput`, the rule-10 witness has the zero flow. `vacuumB0Bound_of_tie` (D = 0 in `norm_b_add_flowVacuumTerm_le`) proves
+`VacuumB0Bound`, `rVacuumB0Input` proves `RVacuumB0Input` (`RecB0Bound` now has offsets per torus).

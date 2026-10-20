@@ -17,13 +17,16 @@ obeys `b0_bound`. Replacing the constants by those of a flow `E_k, E_k + δ″_k
 cost: `‖b_k + stepVacuumTerm(flow)‖ ≤ (C_b log β_k + C_b B₀)|Z_{k+1} ∖ Z_k| + D V`, where `D` bounds
 the three differences and `V = stepVacuumVolume`. The extra term `D V` is not absorbed by the
 constant of `VacuumB0Bound`; see `notes/phase1/SPINE.md`, A4-2v.
+For step data already tied to the flow (`PreRec.vacTie`) the differences vanish, `D = 0`
+(`vacuumB0Bound_of_tie`), which proves `RVacuumB0Input` (`rVacuumB0Input`).
 -/
 
 @[expose] public section
 
 namespace Balaban.RootFSpine
 
-open Balaban Balaban.LargeField Balaban.LargeField.Def7 RegionHistory
+open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.LargeField.Def7v2
+  Balaban.SmallField Balaban.SmallField.Def6v2 Balaban.Multiscale RegionHistory
 
 section Cost
 
@@ -70,6 +73,34 @@ theorem norm_b_add_flowVacuumTerm_le (SD : StepData k0 geo cs N κs) (H : Region
   simp only [zero_sub, neg_neg] at hb
   exact (norm_add_le _ _).trans (add_le_add (SD.b0_bound H hH k Z' o x hv g hg hchi) hb)
 
+/-- **`VacuumB0Bound` for step data tied to the flow.**  If the vacuum constants of `SD` are those of
+the flow, the differences vanish (`D = 0`) and the cost of the retie is zero: `b⁰_k` of the retied data
+is `b⁰_k` of `SD`, bounded by `b0_bound`. -/
+theorem vacuumB0Bound_of_tie (SD : StepData k0 geo cs N κs) {E dpp dppp : ℕ → ℝ}
+    (hT : SD.VacuumTie Set.univ E dpp dppp) : VacuumB0Bound SD E dpp dppp := by
+  intro H hH k Z' o x hv g hg hchi
+  have := norm_b_add_flowVacuumTerm_le SD H hH k Z' o x hv g hg hchi (E k) (dpp k) (dppp k) 0
+    (by rw [hT.E_eq k _ (Set.mem_univ _)]; simp)
+    (by rw [hT.Epp_eq k _ (Set.mem_univ _)]; simp)
+    (by rw [hT.Eppp_eq k _ (Set.mem_univ _)]; simp)
+  simpa using this
+
 end Cost
+
+section Record
+
+variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
+  (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
+  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+
+/-- **A4-2v′ is proved** (ruling: the vacuum tie is a field of `PreRec`): the estimate of `b⁰_k` for
+the flow of every record, from `PreRec.vacTie` and `vacuumB0Bound_of_tie`. -/
+theorem rVacuumB0Input : RVacuumB0Input d N T P6 C7 PB cs₀ M1 c rH ϱ := by
+  intro κ _ c₉ _
+  refine ⟨0, fun β _ ν _ _ h _ kf _ _ _ k _ _ ρ νk rec nK _ => ?_⟩
+  obtain ⟨dpp, dppp, hT⟩ := rec.vacTie nK
+  exact ⟨dpp, dppp, vacuumB0Bound_of_tie _ hT⟩
+
+end Record
 
 end Balaban.RootFSpine
