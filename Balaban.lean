@@ -2896,6 +2896,7 @@ public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.FinalRepGroup
 public import Balaban.Spine.FinalRepRemoval
 public import Balaban.Spine.FinalSfGauss
+public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
 public import Balaban.Spine.KfZeroGood
