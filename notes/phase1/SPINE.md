@@ -1245,3 +1245,15 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
    and `prefixBudgetFacts` (`Spine/PrefixBudget.lean`, extracted from `transferInput_of_prefix`)).
 Refactors of landed proofs: `transferInput_of_prefix` now uses `prefixBudgetFacts` and `budgetSetupToOfRun`; `SFStep.lean` definitions `SFImageInput`, `StepIntegrableInput` and the six
 sub-inputs are built from the new generic forms (definitionally the same statements).
+
+## SF→LF interface at `k = k₀` (`FrozenSwitchInput ifc`; W1148, 2026-10-20)
+
+`ifc` must provide, for the data `sf` of a member of `ℛ♭_{k₀}` and every Def-6 torus, `SFtoLFData` `X` with: `Σ_Y X.D_Y = chordD`, `Σ_Y X.E_Y = ΔE`, `Σ_Y X.F_Y(g) = ΔF(g)` on the overlap of the two background domains
+(exact, by `sfToLF_identity`'s definitions); `F_Y` analytic on `‖g‖₁ < 1`; the polymer bounds `|D_Y| ≤ C_D β_k m_k² e^{-κ_D d(Y)}`, `‖E_Y‖ ≤ C_E E₀(m_k/ε_k) e^{-κ_E d(Y)}`, `‖F_Y‖ ≤ C_F(m_k + E₀ m_k/ε_k) e^{-κ_F d(Y)}`;
+`β_{k₀} m_{k₀} ≤ C₀` and the reserve `C_int[C₀²/β + C₀E₀/(βε)] < η`. Landed that gives parts: `sfToLFInterface_complete` (`k > k₀`, trivial); `chordD` identity `(1.1)` of INTERFACE-A
+(`chord_identity`, `expansion_chord`); the regime bound `β_{k₀}ν_{k₀} ≤ e^{1/10}` from (I.2) and `β ν L^{k₀ d} ≤ 1` (`beta_nu_kZero_le`, `Spine/FrozenSwitchMass.lean`, proved). The class members come from the transfer
+(`transferInput_of_prefix`, `IsRep2.toFlat`), the budget setup from `budgetSetupToOfRun`/`prefixBudgetFacts`, but none of them gives the localized bounds.
+**Obstruction (precise).** The three polymer bounds are estimates, not identities: for the full-torus action the chord is `½⟨w,(H_m+α^m)w⟩` with `w = φ⁰ - φ^m`, which localizes to blocks only through the weighted mass response
+`‖w‖_loc ≤ 2K₂B_h m` (BG Prop. 5.1: `WeightedProp51S` under `Prop51Hyp`, which the overlap `InUnionDomainR` does not supply: OPEN common-collar BG application) and the Hessian bound `C_H n ‖w‖²`;
+`E_Y`, `F_Y` need the Cauchy estimate (2.2) with the anisotropic I-6 bound uniformly on the complex segment (hypotheses "to be verified for the revised class", INTERFACE-A §2). For P7's regional half-bond action
+the localized chord is false without a wall term (INTERFACE-A (1.4)); `SFtoLFInterface` has no wall field. So `FrozenSwitchInput` is not provable from landed results; it is not consumed by `frozenSFStepInput_of_parts`.
