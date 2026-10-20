@@ -2908,6 +2908,7 @@ public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
 public import Balaban.Spine.FrozenSFClauses
+public import Balaban.Spine.FrozenSFBudget
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
