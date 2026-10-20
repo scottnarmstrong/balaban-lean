@@ -285,6 +285,14 @@ def torusSeq (L m₀ n : ℕ) : ℕ := L ^ m₀ * (n + 1)
 theorem torusSeq_ne_zero (m₀ n : ℕ) : torusSeq L m₀ n ≠ 0 :=
   Nat.mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (Nat.succ_ne_zero n)
 
+theorem torusSeq_tendsto_atTop (m₀ : ℕ) :
+    Tendsto (torusSeq L m₀) atTop atTop := by
+  refine Filter.tendsto_atTop.2 fun b => ?_
+  filter_upwards [Filter.eventually_ge_atTop b] with n hn
+  have h1 : 1 ≤ L ^ m₀ := Nat.one_le_pow _ _ (NeZero.pos L)
+  unfold torusSeq
+  nlinarith
+
 /-- The eventual value of a sequence, `0` if it is not eventually constant. -/
 noncomputable def stabVal (f : ℕ → ℂ) : ℂ :=
   open Classical in if h : ∃ c, ∀ᶠ n in atTop, f n = c then h.choose else 0
@@ -431,8 +439,9 @@ The infinite-volume family is `ElocInf` (stabilization, `Einf`; it needs `TorusI
 `IsSFFamily.torusIndep`).  No exact finite-torus equality is asserted (the finite-torus form of
 1-3, P1 p. 118 (H.6), is `RenormCondTorus`).  The scale-`j` coefficient is `ν_j = ν_k s_{jk}²`
 (`nuIdeal`). -/
-structure RenormCond (m₀ : ℕ) (k : ℕ) (νk : ℝ)
-    (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ) (j : ℕ) : Prop where
+structure RenormCondAlong (m₀ : ℕ) (k : ℕ) (νk : ℝ)
+    (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ) (j : ℕ) (idx : ℕ → ℕ)
+    (hidx : ∀ n, idx n ≠ 0) : Prop where
   val : ∀ (i₀ : Fin N),
     ElocInf m₀ Tm j 0 (constInf (Pi.single i₀ 1)) (constInf (Pi.single i₀ 1)) = 0
   dh : ∀ (i₀ : Fin N), 0 < nuIdeal L k νk j →
@@ -442,8 +451,34 @@ structure RenormCond (m₀ : ℕ) (k : ℕ) (νk : ℝ)
     deriv (fun t : ℂ => ElocInf m₀ Tm j 0
       (constInf ((1 + t) • (Pi.single i₀ 1 : Fin N → ℂ))) (constInf (Pi.single i₀ 1))) 0 = 0
   moment : ∀ (i₀ i₁ : Fin N), i₀ ≠ i₁ →
-    Tendsto (fun n : ℕ => haveI : NeZero (n + 1) := ⟨Nat.succ_ne_zero n⟩
-      momentSum m₀ (Tm (n + 1)) j i₀ i₁) atTop (𝓝 0)
+    Tendsto (fun n : ℕ => haveI : NeZero (idx n) := ⟨hidx n⟩
+      momentSum m₀ (Tm (idx n)) j i₀ i₁) atTop (𝓝 0)
+
+/-- **The renormalization conditions (H.5), infinite-volume form** (the instance of
+`RenormCondAlong` along the tori `n + 1`, with the same fields as before). -/
+abbrev RenormCond (m₀ : ℕ) (k : ℕ) (νk : ℝ)
+    (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ) (j : ℕ) : Prop :=
+  RenormCondAlong m₀ k νk Tm j (fun n => n + 1) (fun n => Nat.succ_ne_zero n)
+
+/-- **The conditions along the tori `n + 1` give the conditions along any sequence of tori that
+tends to infinity** (limits along a subsequence of tori; ROLAND_ANSWERS batch 1). -/
+theorem RenormCond.along {m₀ k : ℕ} {νk : ℝ}
+    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ} {j : ℕ}
+    (hR : RenormCond m₀ k νk Tm j) {idx : ℕ → ℕ} (hidx : ∀ n, idx n ≠ 0)
+    (htop : Tendsto idx atTop atTop) : RenormCondAlong m₀ k νk Tm j idx hidx where
+  val := hR.val
+  dh := hR.dh
+  dpsi := hR.dpsi
+  moment i₀ i₁ hne := by
+    have hsub : Tendsto (fun n => idx n - 1) atTop atTop := by
+      refine Filter.tendsto_atTop.2 fun b => ?_
+      filter_upwards [Filter.tendsto_atTop.1 htop (b + 1)] with n hn
+      omega
+    refine ((hR.moment i₀ i₁ hne).comp hsub).congr fun n => ?_
+    have key : ∀ t t' : ℕ, t = t' → ∀ (h : NeZero t) (h' : NeZero t'),
+        momentSum m₀ (Tm t) j i₀ i₁ = momentSum m₀ (Tm t') j i₀ i₁ := by
+      intro t t' e; subst e; intros; rfl
+    exact key _ _ (by have := hidx n; show idx n - 1 + 1 = idx n; omega) _ _
 
 /-- **The finite-torus form of the first three renormalization conditions** [P1 p. 118 (H.6)]:
 optional data, *not* a field of `IsSFFamily` (P4 states (H.5) through the thermodynamic limit,

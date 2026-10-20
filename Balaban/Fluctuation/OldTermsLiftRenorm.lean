@@ -23,11 +23,11 @@ open Balaban Balaban.SmallField.Def6
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ} {m₀ : ℕ}
   {Tm : ∀ (N₂ : ℕ) [NeZero N₂], Terms d L N₂ m₁ k N ϱ}
-  {j : ℕ} {νk : ℝ}
+  {j : ℕ} {νk : ℝ} {idx : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
 
 /-- The zero value at the reference field is retained at an inherited level. -/
 theorem liftOldTermsFam_renormVal (hT : TorusIndep m₀ Tm)
-    (hR : RenormCond m₀ k νk Tm j) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hR : RenormCondAlong m₀ k νk Tm j idx hidx) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (i₀ : Fin N) :
     ElocInf m₀ (liftOldTermsFam Tm) j 0
       (constInf (Pi.single i₀ 1)) (constInf (Pi.single i₀ 1)) = 0 := by
@@ -36,7 +36,7 @@ theorem liftOldTermsFam_renormVal (hT : TorusIndep m₀ Tm)
 
 /-- The external-field derivative condition is retained at an inherited level. -/
 theorem liftOldTermsFam_renormDh (hT : TorusIndep m₀ Tm)
-    (hR : RenormCond m₀ k νk Tm j) (hν : 0 < νk)
+    (hR : RenormCondAlong m₀ k νk Tm j idx hidx) (hν : 0 < νk)
     (hj1 : 1 ≤ j) (hjk : j ≤ k) (i₀ : Fin N) :
     fderiv ℂ (fun h : Fin N → ℂ => ElocInf m₀ (liftOldTermsFam Tm) j 0
       (constInf (Pi.single i₀ 1)) (constInf h))
@@ -56,7 +56,7 @@ theorem liftOldTermsFam_renormDh (hT : TorusIndep m₀ Tm)
 
 /-- The constant-field derivative condition is retained at an inherited level. -/
 theorem liftOldTermsFam_renormDpsi (hT : TorusIndep m₀ Tm)
-    (hR : RenormCond m₀ k νk Tm j) (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hR : RenormCondAlong m₀ k νk Tm j idx hidx) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (i₀ : Fin N) :
     deriv (fun t : ℂ => ElocInf m₀ (liftOldTermsFam Tm) j 0
       (constInf ((1 + t) • (Pi.single i₀ 1 : Fin N → ℂ)))
