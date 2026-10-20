@@ -1265,3 +1265,15 @@ the localized chord is false without a wall term (INTERFACE-A (1.4)); `SFtoLFInt
 `Coh` and `FieldClauses` of the successor (`coh_succ`, `field_succ`), the kept data (`KeptData.upTo`, (S3)), the assembly of `IsRepFlat2` with (H6♭) as the premise discharged by `frozenBudget_of_pin`.
 All eight parts are open (same status as the pre-`R` parts (g1)–(g5), (h): they need the exemption of the seven inputs); there is no vacuum flow and no removal record in a frozen step, so neither A4-2v nor the removal-history ruling touches them.
 `FrozenSwitchInput` is not provable from landed results (obstruction above) and is consumed by none of these.
+
+**Generic parts of the large-field halves (W1148, 2026-10-20).**
+* (c) histories: PROVED once, generically. `canonHist` (`Spine/HistCanon.lean`) is a fixed complete set (`exists_isComplete`; `IsComplete k r` refers to the setting only, D-III.8); `LFHistInput_of_canon`
+  (`IsComplete (k+1) (k+1)`) and `FrozenHistInput_of_canon` (`IsComplete (k+1) (k+2)`) hold for every step map whose histories are the canonical ones (a constraint on the provider's map, not a premise on the analysis).
+* (h′) coefficient data `LFCorrInput` / `FrozenCorrInput` (`∃ St' vc', D1CorrLim`): BLOCKED, not provable from landed results. `D1CorrLim` asks the thermodynamic limits `v1T`, `v2T` along the tori `torusSeq L m₀ n`
+  of the image at every level `j ≤ k+1` with the normalization `nuIdeal L (k+1) ν_{k+1}`. Landed: only the radial limit `tendsto_v1T_aInfC` (`R/RadialCoefficientLimit.lean`) for `IsSFFamily` on all tori with the numeric premises `MomNum`,
+  and the witnesses `wD1Corr`, `wD1CorrLim`. Missing: (i) the `v2` limit (transverse coefficient) for a class member, not landed at all; (ii) the same chain for the read-torus class `IsSFFamily2On` (R-N₁); (iii) for the inherited levels, the transfer of the old limits
+  to the rescaled source (`nuIdeal L (k+1) ν_{k+1} j` against `nuIdeal L k ν_k j`, factor `ν_{k+1}/(L² ν_k)`) along `oldSideSeq`; (iv) the new level `k+1`. About 600 lines of new analysis; one generic statement (over a class `IsSFFamily2On` + `MomNum`)
+  serves both the pre-`R` and the frozen part.
+* (g4) pins `LFPinInput` / `FrozenPinInput` (`D4Pin`): reduces to a transport lemma that is not landed: for `A, B` with `A.Agree k (k+1) B`, the local histories and `kappaPreH A j Z`, `kappaH`, `keptExp` at the scales `j ≤ k` coincide
+  (`RegionHistory.kappaPre` reads `H.parts`, `newCubes`, `outCubes` of the scales `< j` and `P.kappaStep`; the components of `A` and `B` live in different dependent types `Comp j`, equal only through `comps_zp_eq_of_agree`). With it, `D4Pin (k+1)`
+  of the successor is `D4Pin (k+1)` of the input pulled along `Agree`; for the frozen part the new scale `k+1 > k₀` has no kept event (`IsKeptEvent` needs `k ≤ k₀`), so `D4Pin (k+2)` is the same statement. About 300–400 lines.
