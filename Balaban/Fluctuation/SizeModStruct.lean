@@ -95,21 +95,41 @@ theorem cell_dichotomy (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω : Set (CTorus
     intro z hz hzΩ
     exact h ⟨z, hz, hzΩ⟩
 
+/-- **A label of `𝒟_j^fin(mod Ω^c)` is a union of cells**: every site of `X` has its cell inside
+`X` (a site of `Ω` lies in a `π'_j`-cube inside `X`; a site of `Ω^c` has its cell, which is a
+connected subset of `Ω^c`, inside its component, which is inside `X`). -/
+theorem DjModFin.cell_subset (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d L N₁ m₁ K)}
+    (hΩ : IsPiUnion m₀ j Ω) (hX : DjModFin m₀ j Ω X) {z : CTorus d L N₁ m₁ K} (hz : z ∈ X) :
+    box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ X := by
+  have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN hj
+  have ha0 := cellSide_pos (L := L) m₀ m₁ j
+  by_cases hzΩ : z ∈ Ω
+  · obtain ⟨b, hb1, hb2, hb3⟩ := hX.exists_box ⟨hz, hzΩ⟩
+    exact (cell_subset_cube hdvd ha0 hb1 hb2).trans hb3
+  · have hcell : box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ Ωᶜ := by
+      rcases cell_dichotomy hN hj hΩ (aligned_cbase (a := cellSide L m₀ m₁ j) z) with h | h
+      · exact absurd (h (mem_box_cbase ha0 z)) hzΩ
+      · exact h
+    have hcomp : OmegaComp Ω z ⊆ X := by
+      rcases hX.2.2.1 z hzΩ with h | h
+      · exact h
+      · exact (Set.disjoint_left.1 h (mem_comp_self hzΩ) hz).elim
+    intro y hy
+    exact hcomp ⟨hcell hy, rtg_box_compl hcell (mem_box_cbase ha0 z) hy⟩
+
 theorem X_eq_recon (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d L N₁ m₁ K)}
-    (hΩ : IsPiUnion m₀ j Ω) (hX : DjMod m₀ j Ω X) {t0 : CTorus d L N₁ m₁ K}
+    (hΩ : IsPiUnion m₀ j Ω) (hX : DjModFin m₀ j Ω X) {t0 : CTorus d L N₁ m₁ K}
     (ht0X : box t0 (cellSide L m₀ m₁ j) ⊆ X) (ht0Ω : box t0 (cellSide L m₀ m₁ j) ⊆ Ω) :
     X = reconSet m₀ j Ω (cellsIn m₀ j (X ∩ Ω)) (Uset m₀ j Ω X) := by
   have hdvd := cellSide_dvd (K := K) (m₁ := m₁) hN hj
   have ha0 := cellSide_pos (L := L) m₀ m₁ j
-  have hcellX : ∀ z ∈ X, box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ X := by
-    intro z hz
-    obtain ⟨b, hb1, hb2, hb3⟩ := hX.1.2.1 z hz
-    exact (cell_subset_cube hdvd ha0 hb1 hb2).trans hb3
   have hcompX : ∀ z ∈ X, z ∈ Ωᶜ → OmegaComp Ω z ⊆ X := by
     intro z hz hzΩ
-    rcases hX.2 z hzΩ with h | h
+    rcases hX.2.2.1 z hzΩ with h | h
     · exact h
     · exact (Set.disjoint_left.1 h (mem_comp_self hzΩ) hz).elim
+  have hcellX : ∀ z ∈ X, box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ X :=
+    fun _ hz => hX.cell_subset hN hj hΩ hz
   have hne : (X ∩ Ω).Nonempty :=
     ⟨t0, ht0X (mem_box_self t0 ha0), ht0Ω (mem_box_self t0 ha0)⟩
   ext z
@@ -125,7 +145,7 @@ theorem X_eq_recon (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) {Ω X : Set (CTorus d
       · exact h hy
       · exact absurd hzΩ (h (mem_box_cbase ha0 z))
     · right
-      rcases G4_subset hX.1 hne hz with ⟨-, h⟩ | ⟨z', hz'Ω, ⟨s, hs, hsz'⟩, hzc⟩
+      rcases G4_subset hX.2.1 hne hz with ⟨-, h⟩ | ⟨z', hz'Ω, ⟨s, hs, hsz'⟩, hzc⟩
       · exact absurd h hzΩ
       · have hz'c : z' ∈ OmegaComp Ω z := ⟨hz'Ω, rc_symm hzc.2⟩
         have hz'X : z' ∈ X := hcompX z hz hzΩ hz'c

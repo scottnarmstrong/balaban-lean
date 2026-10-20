@@ -48,8 +48,10 @@ theorem rExtraSize_instance :
   have hfin : d7SizeE F A (Tstar wS) Finset.univ ≠ ⊤ :=
     Fluctuation.dcovModE_ne_top_of_IsDj hX
   refine ⟨A, F, Finset.univ, rfl, ?_, d7SizePre_le_d7Size hfin,
-    d7Size_le_d7SizePre_add F A hk hkK hX,
-    d7Size_le_d7SizePre_add_removed F A wS_good ripeRem_thickness hk hkK hX⟩
+    d7Size_le_d7SizePre_add F A hk hkK (hX.piCubesAt F.divN₁ hkK _)
+      (ne_top_of_le_ne_top hfin (d7SizePreE_le_d7SizeE F A _ _)),
+    d7Size_le_d7SizePre_add_removed F A wS_good ripeRem_thickness hk hkK
+      (hX.piCubesAt F.divN₁ hkK _) hfin⟩
   -- some cube becomes active
   obtain ⟨x, hx⟩ : (A.H.omegaPost (Tstar wS) \ OmegaCube A.H (Tstar wS)).Nonempty := by
     by_contra h
