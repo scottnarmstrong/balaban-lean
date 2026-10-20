@@ -1257,3 +1257,11 @@ sub-inputs are built from the new generic forms (definitionally the same stateme
 `‖w‖_loc ≤ 2K₂B_h m` (BG Prop. 5.1: `WeightedProp51S` under `Prop51Hyp`, which the overlap `InUnionDomainR` does not supply: OPEN common-collar BG application) and the Hessian bound `C_H n ‖w‖²`;
 `E_Y`, `F_Y` need the Cauchy estimate (2.2) with the anisotropic I-6 bound uniformly on the complex segment (hypotheses "to be verified for the revised class", INTERFACE-A §2). For P7's regional half-bond action
 the localized chord is false without a wall term (INTERFACE-A (1.4)); `SFtoLFInterface` has no wall field. So `FrozenSwitchInput` is not provable from landed results; it is not consumed by `frozenSFStepInput_of_parts`.
+
+**`FrozenLFStepInput` split (W1148, 2026-10-20; `Spine/FrozenLFStep.lean`).** `frozenLFStepInput_of_parts` (PROVED, axioms `propext, Classical.choice, Quot.sound`) from the frozen step map
+`Λ♭ : FrozenLFStepMap` (`LFStepRaw` for every `FlatRep`) and eight parts, as `lfStepInput_of_parts` with `IsRepFlat2` for `IsRepPre2`: `FrozenHistInput` (`IsComplete (k+1) (k+2)`), `FrozenStepDataInput`
+((S0)–(S2) at the constants of the successor with the kernels of `Λ♭`), `FrozenBdryInput` (`D7Bdry2Post`, no hull, no `R`, `B_st ≤ B₀ - 1`), `FrozenFormInput` (`D1Form2` of `stepDensity`),
+`FrozenOpBoundInput` (`D5Bound (k+2)`), `FrozenPinInput` (`D4Pin (k+2)`), `FrozenLFCoherenceInput` (`LFCoherent`), `FrozenCorrInput` (`D1CorrLim`). Proved inside: the constants (`succOpConsts`, `succBudgetConsts`),
+`Coh` and `FieldClauses` of the successor (`coh_succ`, `field_succ`), the kept data (`KeptData.upTo`, (S3)), the assembly of `IsRepFlat2` with (H6♭) as the premise discharged by `frozenBudget_of_pin`.
+All eight parts are open (same status as the pre-`R` parts (g1)–(g5), (h): they need the exemption of the seven inputs); there is no vacuum flow and no removal record in a frozen step, so neither A4-2v nor the removal-history ruling touches them.
+`FrozenSwitchInput` is not provable from landed results (obstruction above) and is consumed by none of these.
