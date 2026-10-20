@@ -472,11 +472,16 @@ theorem blockGen_gas {κ0 κ1 κ' H0 : ℝ}
     ∫ Φ, ∏ X, (1 + f X Φ) ∂(Measure.pi μ) =
       Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
         Finset (Balaban.Torus d m'))) (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f)) ∧
-    ∀ b : Balaban.Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Balaban.Torus d m'))).filter
+    (∀ b : Balaban.Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Balaban.Torus d m'))).filter
         (fun Y => b ∈ Y),
       ‖PY (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')))
           Subtype.val (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f) Y‖ *
-        Real.exp (κ' * stSize Y) ≤ 64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
+        Real.exp (κ' * stSize Y) ≤ 64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0))) ∧
+    logSeries (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')))
+        (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f) =
+      ∑ Y : Finset (Balaban.Torus d m'), PY (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
+        Finset (Balaban.Torus d m'))) Subtype.val
+          (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f) Y := by
   have hκ0nn : 0 ≤ κ0 := by
     have : 0 ≤ Real.log 4 := Real.log_nonneg (by norm_num)
     linarith
@@ -509,8 +514,8 @@ theorem blockGen_gas {κ0 κ1 κ' H0 : ℝ}
     (fun Y => card_le_stSize Y.1) hK0 hκ' le_rfl
     (fun b => by convert hG2 b) (fun n X hX => by simpa using stSize_union_cluster X hX)
     hκ hα
-  obtain ⟨h1, h2, -⟩ := hmain
-  refine ⟨h1, fun b => ?_⟩
+  obtain ⟨h1, h2, -, h5⟩ := hmain
+  refine ⟨h1, fun b => ?_, h5⟩
   have h4 : 2 * (2 * H0 * (4 * Real.exp (-κ0)) * Real.exp (κ1 * 0)) * 1 * (4 * Real.exp (-κ0)) *
       Real.exp (1 + κ' * 0) * Real.exp (-(κ' * 0)) ≤
       64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
@@ -556,7 +561,7 @@ theorem block_gas {κ0 κ1 κ' H0 : ℝ}
     rw [Complex.exp_sum]
     exact Finset.prod_congr rfl (fun X _ => by ring)
   simp_rw [hf]
-  exact hmain
+  exact ⟨hmain.1, hmain.2.1⟩
 
 end Consumer
 

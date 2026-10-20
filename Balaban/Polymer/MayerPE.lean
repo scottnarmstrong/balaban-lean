@@ -67,7 +67,10 @@ theorem mayerGen_pe {f : T → (∀ b, Ω b) → ℂ} (hne : ∀ t, (sup t).None
           Real.exp (-(κ' * cP))) ∧
     ‖logSeries (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerGenK μ sup f)‖ ≤
       Fintype.card B *
-        (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP)) := by
+        (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP)) ∧
+    logSeries (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerGenK μ sup f) =
+      ∑ Y : Finset B, PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val
+        (mayerGenK μ sup f) Y := by
   have hMY := mayerGen_integral_eq μ hne hloc hmeas hdom
   have hK : ∀ Y : NePoly B, ‖mayerGenK μ sup f Y‖ ≤
       (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1) * Real.exp (-(κ1 - 3 / 2) * d Y.1) := by
@@ -83,9 +86,9 @@ theorem mayerGen_pe {f : T → (∀ b, Ω b) → ℂ} (hne : ∀ t, (sup t).None
     (by simpa [mul_assoc] using hα) Finset.univ
     (fun Y => by obtain ⟨b, hb⟩ := Y.2; exact ⟨b, Finset.mem_univ _, hb⟩)
     (mayerGenK μ sup f) hK
-  obtain ⟨h1, _, h3, h4, _⟩ := hpe
+  obtain ⟨h1, h2, h3, h4, _⟩ := hpe
   rw [← hMY] at h1
-  refine ⟨h1, ?_, ?_⟩
+  refine ⟨h1, ?_, ?_, h2⟩
   · intro b
     simpa [mul_assoc] using h3 b
   · simpa [mul_assoc] using h4
@@ -165,7 +168,7 @@ theorem mayer_pe (hne : ∀ t, (sup t).Nonempty) (hloc : ∀ t, DepOn (sup t) (H
     rw [Complex.exp_sum]
     exact Finset.prod_congr rfl (fun t _ => by ring)
   simp_rw [hf]
-  exact hmain
+  exact ⟨hmain.1, hmain.2.1, hmain.2.2.1⟩
 
 end MayerPE
 
