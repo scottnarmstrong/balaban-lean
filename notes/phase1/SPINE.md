@@ -136,8 +136,11 @@ asks, on every admissible torus:
    (ROOTFFAM 4); the rate/amplitude conversion (item 5); blocker 7 (item 24, W1090, `hFclose`, TORUSCOH2). Nothing is over
    `IsRepFlat2`. ~6000.
 7. **`KfZeroInput` (A7, LF-8 (b))**: `7/8 L⁻² < ν ≤ 1`, `Z(g) = exp(E_ℓ + ⟨g,h⟩ + Σ_X p_1)`, `ObservableActivities … 1`; LFR
-   Prop. IV.4.3 / LF-BASE-KF0; no paper. Landed: shape of the hypothesis of `rootF_kf0_partial_of_oneScaleInput`; `KF0AllGoodGas`,
-   `KF0AllPlusGas`, `Green/KF0CovarianceAtoms`. Open: reversed-spin sector (blocker 1), `CompleteHeavyLocality`. ~2500.
+   Prop. IV.4.3 / LF-BASE-KF0; no paper. **PROVED by route FR** (W1149, `notes/phase1/KF0-FR.md`): `kfZeroInput_of_typing`
+   (`Spine/KfZeroFRMain.lean`) from `1 ≤ d` and the typing condition `kf0FRs0 d N L κ ≤ M L` for every `κ, c₉ > 0` (a lower
+   bound on the block side depending on `d, N, L, κ` only; compatible with `M = L^n`, `kf0FRs0_le_pow`). The sectors are never
+   separated: finite-range whitening of the Gaussian chart, a block gas on the block torus, analyticity in `g`, Schwarz
+   increments at source radius `c_G √β`. The split into A7-1/A7-2 (`kfZeroInput_of_parts`, below) is superseded.
 
 ## ClassStepInput sub-inputs (W1102)
 
@@ -1008,6 +1011,11 @@ representations of `ρ₁` they fail (audit D1: rescale the boundary terms on on
 A3-2. Each becomes a theorem once the first step's representation is defined at the class's `M, K`.
 
 ## KfZeroInput sub-inputs (W1110)
+
+**Superseded by route FR (W1149).** `KfZeroInput` is proved directly by `kfZeroInput_of_typing` (`Spine/KfZeroFRMain.lean`,
+`notes/phase1/KF0-FR.md`) under the typing condition `kf0FRs0 d N L κ ≤ M L`. The sector split below (A7-1
+`KF0GoodSectorInput` with `KF0ThresholdInput`, A7-2 `KF0BadSectorInput`, the threshold premise) is no longer on the path to
+Root-F; the text is kept as the record of that route.
 
 **PROVED** (`Balaban/Spine/KfZero.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
