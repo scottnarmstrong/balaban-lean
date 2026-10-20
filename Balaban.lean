@@ -2969,3 +2969,4 @@ public import Balaban.LargeField.Base.KF0FRProd
 public import Balaban.Fluctuation.NewLevelTermsBgAnalytic
 public import Balaban.Polymer.Regroup
 public import Balaban.LargeField.Base.KF0FRBox
+public import Balaban.Polymer.LaplaceAnalytic
