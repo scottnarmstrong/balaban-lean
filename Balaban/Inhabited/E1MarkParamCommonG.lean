@@ -224,6 +224,38 @@ variable {jV : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → ℕ}
   {X₁V : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) → Finset (CTorus d L N₁ m₁ (k + 1))}
 
 open Classical in
+/-- **Core of `continuous_markedOutDec_decMarkCorrTermBg` for the rooted domains of a class `P`
+closed under subsets**: the continuity of the corrected marks of the labels of `P` suffices (the
+labels of the pairs attached to `Y′` lie in `Y′`). -/
+theorem continuous_markedOutDec_decMarkCorrTermBg_on
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (ρ : ℝ) (hp : 0 < S.p₁) (β : ℂ) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N) (um : ℂ)
+    (zr : RootIdx d L N₁ m₁ (k + 1)) (Y' : Set (CTorus d L N₁ m₁ (k + 1)))
+    (P : Set (CTorus d L N₁ m₁ (k + 1)) → Prop) (hP : ∀ Y Y', Y ⊆ Y' → P Y' → P Y)
+    (hY' : P Y')
+    (hc : ∀ b, ∀ Y, P Y → Continuous (decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc
+      (F₁ b) (Sol b) (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um)) :
+    Continuous (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+      markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+        (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') := by
+  have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
+        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+            (fun q => bridge m₀ zr q.2 = Y'),
+          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
+    funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
+  rw [e]
+  exact continuous_finsetSum _ fun q hq => continuous_const.mul (hc q.1 q.2
+    (hP _ _ ((Finset.mem_filter.1 hq).2 ▸ subset_bridge zr q.2) hY'))
+
+open Classical in
 /-- The rooted output of the corrected marks on a background generating set is continuous in the
 configuration when each corrected mark is. -/
 theorem continuous_markedOutDec_decMarkCorrTermBg
@@ -238,18 +270,9 @@ theorem continuous_markedOutDec_decMarkCorrTermBg
       (Sol b) (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um)) :
     Continuous (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
       markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-        (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') := by
-  have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
-        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
-    funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
-  rw [e]
-  exact continuous_finsetSum _ fun q _ => continuous_const.mul (hc q.1 q.2)
+        (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') :=
+  continuous_markedOutDec_decMarkCorrTermBg_on S F₁ Sol ρ hp β Θ um zr Y' (fun _ => True)
+    (fun _ _ _ _ => trivial) trivial fun b Y _ => hc b Y
 
 end RootedBg
 
