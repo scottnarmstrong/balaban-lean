@@ -33,6 +33,20 @@ variable {N : ℕ} {φ φ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {α
   {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
   {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
 
+/-- **Core of `Gsx_agree_local2`**, with the standing hypotheses `LocHypAdm` (connectedness of the
+thickened cubes at the admissible centres only). -/
+theorem Gsx_agree_local2_adm (S : XSetting G a aT ν) (hx : 0 ≤ x₀)
+    (H : LocHypAdm G X₁ 𝒞 Y α s s')
+    (hα' : AdmPot G α')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α' s')) :
+    ∀ g g' : G.Ω 1 → ℂ,
+      (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → g y = g' y) →
+      ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y →
+        (Gsx G a aT x₀ ν α s *ᵥ g) y = (Gsx G a aT x₀ ν α' s' *ᵥ g') y :=
+  fun _ _ hg y hy =>
+    dg5x'_inner_adm S hx H.conn H.nn H.pot hα' hU hU' H.s1 H.s0 H.ag hA hg y hy
+
 /-- The agreement of `Ĝ` on `Y` for sources agreeing on `S_Y`, in the form of the core
 `Gvec_agree` (from `dg5x'_inner`). -/
 theorem Gsx_agree_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
@@ -43,8 +57,19 @@ theorem Gsx_agree_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp 
       (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → g y = g' y) →
       ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y →
         (Gsx G a aT x₀ ν α s *ᵥ g) y = (Gsx G a aT x₀ ν α' s' *ᵥ g') y :=
-  fun _ _ hg y hy =>
-    dg5x'_inner S hx H.conn H.nn H.pot hα' hU hU' H.s1 H.s0 H.ag hA hg y hy
+  Gsx_agree_local2_adm S hx H.toAdm hα' hA hU hU'
+
+/-- **Core of `Gvec_local2`** with the standing hypotheses `LocHypAdm`. -/
+theorem Gvec_local2_adm (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHypAdm G X₁ 𝒞 Y α s s')
+    (hα' : AdmPot G α')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α' s'))
+    {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i)) :
+    ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w) (y, i) =
+        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w') (y, i) := by
+  exact Gvec_agree (Gsx_agree_local2_adm S hx H hα' hA hU hU') hw
 
 theorem Gvec_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
     (hα' : AdmPot G α')
@@ -54,8 +79,8 @@ theorem Gvec_local2 (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X�
     (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i)) :
     ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
       (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w) (y, i) =
-        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w') (y, i) := by
-  exact Gvec_agree (Gsx_agree_local2 S hx H hα' hA hU hU') hw
+        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w') (y, i) :=
+  Gvec_local2_adm S hx H.toAdm hα' hA hU hU' hw
 
 section ZLocal
 
