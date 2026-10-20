@@ -128,7 +128,7 @@ theorem IsSFFamily2.exists_levelOnly_cap
   · refine
       { admissible := ?_
         coeff := ?_
-        torus := fun N₁ _ => ?_
+        torus := fun N₁ _ _ => ?_
         torusIndep := ?_
         renorm := fun i hi1 hik => ?_ }
     · exact ⟨hadm.γ_pos, hadm.γ_lt, hadm.α₁_pos, hadm.α₁_lt, hadm.α₀_pos, hadm.κ_pos,

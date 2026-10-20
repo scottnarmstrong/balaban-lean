@@ -303,13 +303,13 @@ theorem inhObs_constDom {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
     (hsf : SFFlat2 P6 k0 sf)
     (hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
-    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {N₁ : ℕ} [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Set (Localization.CTorus d L N₁ m₁ k)}
     (hX : Def6.IsPolyDom P6.m₀ j X) :
     (sfDom P6 k0 sf N₁).dom j ((sf.Tm N₁).gs j X) (Def6.constFld (hC hv))
       (Def6.constFld (hC hv)) := by
   obtain ⟨ρsf, hρ⟩ := hsf.torus
-  have hΩ := ((hρ N₁).terms.gs_spec j hj1 hjk X hX).2
+  have hΩ := ((hρ N₁ hN).terms.gs_spec j hj1 hjk X hX).2
   have hε := eps_pos_of_admissible hsf.admissible j
   exact xiDom_const (hBg j hj1 hjk) hΩ hjk hε (fun i => hv i)
     (sum_sq_eq_one_of_norm_eq_one hv hunit)
@@ -321,7 +321,7 @@ theorem inhObs_term_bound {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k 
     (hsf : SFFlat2 P6 k0 sf)
     (hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
-    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {N₁ : ℕ} [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Set (Localization.CTorus d L N₁ m₁ k)}
     (hX : Def6.IsPolyDom P6.m₀ j X) {x : Localization.CTorus d L N₁ m₁ k} (hx : x ∈ X)
     {g : Fld d L N₁ m₁ k N} (hg : Def6.l1 g < 1) :
@@ -329,8 +329,8 @@ theorem inhObs_term_bound {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k 
       P6.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
         Real.exp (-P6.κ * sizeJ P6.m₀ j X) := by
   obtain ⟨ρsf, hρ⟩ := hsf.torus
-  exact (hρ N₁).terms.boundM j hj1 hjk x X hX hx _ _ g
-    (inhObs_constDom hsf hBg hv hunit hj1 hjk hX) hg
+  exact (hρ N₁ hN).terms.boundM j hj1 hjk x X hX hx _ _ g
+    (inhObs_constDom hsf hBg hN hv hunit hj1 hjk hX) hg
 
 /-- The `ℓ¹` norm `Def6.l1` of a source is at most the sum of the moduli of its entries. -/
 theorem l1_le_sum {N₁ : ℕ} [NeZero N₁] (g : Fld d L N₁ m₁ k N) :
@@ -343,7 +343,7 @@ theorem inhObs_norm_le {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N �
     (hsf : SFFlat2 P6 k0 sf)
     (hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
-    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    {N₁ : ℕ} [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k))}
     (hX : Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
       (X : Set (Localization.CTorus d L N₁ m₁ k)))
@@ -357,7 +357,7 @@ theorem inhObs_norm_le {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N �
   have hl1 : Def6.l1 g < 1 := (l1_le_sum g).trans_lt hg
   have hterm : ∀ x ∈ X, vn ((sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
       (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g) < B := fun x hx =>
-    inhObs_term_bound hsf hBg hv hunit hj1 hjk hX (Finset.mem_coe.2 hx) hl1
+    inhObs_term_bound hsf hBg hN hv hunit hj1 hjk hX (Finset.mem_coe.2 hx) hl1
   have hB0 : 0 ≤ B := by
     obtain ⟨x, hx⟩ := hX.1
     exact (vn_nonneg _).trans (hterm x (Finset.mem_coe.1 hx)).le
@@ -398,7 +398,7 @@ theorem inhObs_analytic {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
     (hsf : SFFlat2 P6 k0 sf)
     (hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)))
-    {N₁ : ℕ} [NeZero N₁] (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) (j : ℕ)
+    {N₁ : ℕ} [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) (j : ℕ)
     (X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k))) :
     AnalyticOnNhd ℂ (inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X)
       {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
@@ -431,13 +431,13 @@ theorem inhObs_analytic {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
           intro i _
           refine (analyticOnNhd_coord x i _).mul ?_
           obtain ⟨ρsf, hρ⟩ := hsf.torus
-          have hM := (hρ N₁).terms.analyticM j hj1 hjk x _ hpoly hx
+          have hM := (hρ N₁ hN).terms.analyticM j hj1 hjk x _ hpoly hx
           have hΦ : AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
               ((Def6.constFld (hC hv) : Fld d L N₁ m₁ k N),
                 (Def6.constFld (hC hv) : Fld d L N₁ m₁ k N), g))
               {g | ∑ y, ∑ i, ‖g y i‖ < 1} :=
             analyticOnNhd_const.prod (analyticOnNhd_const.prod analyticOnNhd_id)
-          have hcomp := hM.comp hΦ (fun g hg => ⟨inhObs_constDom hsf hBg hv hunit hj1 hjk hpoly,
+          have hcomp := hM.comp hΦ (fun g hg => ⟨inhObs_constDom hsf hBg hN hv hunit hj1 hjk hpoly,
             (l1_le_sum g).trans_lt hg⟩)
           intro g hg
           exact (analyticAt_pi_coord i _).comp (hcomp g hg)
@@ -498,7 +498,7 @@ theorem actBoundAt_inhObs {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k 
     positivity
   by_cases hpoly : Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
       (X : Set (Localization.CTorus d L N₁ m₁ k))
-  · refine (inhObs_norm_le hsf hBg hv hunit hj1 hjk hpoly g hg).trans ?_
+  · refine (inhObs_norm_le hsf hBg hN hv hunit hj1 hjk hpoly g hg).trans ?_
     have hG := Fluctuation.G1_card (m₀ := P6.m₀) hN hjk (isDj_of_isPolyDom hpoly)
     have hs : 0 ≤ sizeJ P6.m₀ j (X : Set (Localization.CTorus d L N₁ m₁ k)) :=
       treeLenCovOne_nonneg P6.m₀ j _
@@ -679,7 +679,7 @@ theorem inheritedBoundInput_of_prefix (hPre : PrefixInput d δ T P6 C7 PB cs₀ 
   have hne : N₁ * (T κ c₉).L ^ (C7 κ c₉).m₁ * (T κ c₉).L ^ k ≠ 0 := NeZero.ne _
   have : NeZero N₁ := ⟨fun h0 => hne (by rw [h0]; simp)⟩
   have hL1 : 1 ≤ (T κ c₉).L := le_trans (by norm_num) hL3
-  exact ⟨actSupportAt_inhObs hN₁ hMpow h, fun j X => inhObs_analytic hsf hBg h hh j X,
+  exact ⟨actSupportAt_inhObs hN₁ hMpow h, fun j X => inhObs_analytic hsf hBg hN₁ h hh j X,
     actBoundAt_inhObs hsf hBg hN₁ hMpow h hh hκ hc₉.le hc9pos.le hδγ hL1 hκf hc9f⟩
 
 end Final

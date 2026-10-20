@@ -547,7 +547,7 @@ theorem isSFFamily2_xi_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 �
         (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (fun _ => 0)) 0) (fun _ => 0) where
   admissible := witnessConsts_admissible hα
   coeff := witness_coeff k
-  torus := fun N₁ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
+  torus := fun N₁ _ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
     (fun _ => le_rfl) (fun j => by simpa using (witness_c9_pos α₀ j).le) (witness_c9_pos α₀)
     (fun j hj => absurd rfl hj)
     (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
@@ -569,7 +569,7 @@ theorem isSFFamily2_pin_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 �
         (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts α₀).κ (witCj 3)) 0) (fun _ => 0) where
   admissible := witnessConsts_admissible hα
   coeff := witness_coeff k
-  torus := fun N₁ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
+  torus := fun N₁ _ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible hα).κ_pos.le
     (fun j => (witCj_pos j).le) (witness_cj_le α₀) (witness_c9_pos α₀)
     (fun j _ G Ψ h hd x => by
       have hp : Pin (Pi.single 0 1) rH G (aIdeal 3 k (witnessa k))

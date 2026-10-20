@@ -62,13 +62,27 @@ noncomputable def sfDom (P6 : Def6.Consts) (k0 : ℕ) (sf : SFData d L m₁ k N 
     ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ :=
   birthXiDom P6 (⟨k0, sf.ν⟩ : Regime L) sf.a
 
+/-- **The Def-6 tori the class family reads** (ruling R-N₁): the tori `N₁ ∈ L^{m₀} ℕ₊`, those of the
+form `L^{m₀} n_k` (`sfIdx`) on which the chain's divisibility conditions hold.  The small-field
+clauses of (D2) and (D2♭) are required on these tori only, and the second-moment limit of the
+renormalization conditions is taken along the tori `L^{m₀} (n + 1)` (`Def6.torusSeq`), which are
+read tori. -/
+def ReadTorus (L m₀ N₁ : ℕ) : Prop := L ^ m₀ ∣ N₁
+
+/-- The old side `L N₂` of a read torus `N₂` is a read torus. -/
+theorem readTorus_mul {L m₀ N₂ : ℕ} (h : ReadTorus L m₀ N₂) : ReadTorus L m₀ (L * N₂) :=
+  Dvd.dvd.mul_left h L
+
 /-- **(D2) Small-field data, second version** (LFR (D2) [F-1]; CLASS-RULINGS-2 items 1, 2, 4):
-`𝔰` is a member of Def-6 v2 (`IsSFFamily2`) for the regime `(k₀, ν)` on the wide domain
-`sfDom`, and the `ℛ^{(k)}_n` satisfy P5 H4 on every Def-6 torus (`RTermsH4`, unchanged). -/
+`𝔰` is a member of Def-6 v2 (`IsSFFamily2On`, on the read tori `ReadTorus L P6.m₀`, ruling R-N₁) for
+the regime `(k₀, ν)` on the wide domain `sfDom`, and the `ℛ^{(k)}_n` satisfy P5 H4 on every Def-6
+torus (`RTermsH4`, unchanged). -/
 structure D2SF2 (P6 : Def6.Consts) (k0 : ℕ) (sf : SFData d L m₁ k N ϱ) (fac : ℕ → ℝ) : Prop where
   sfClass : ∃ ρsf : ∀ (N₁ : ℕ) [NeZero N₁], (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) →
       (Fin N → ℝ) → (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ,
-    IsSFFamily2 P6 (⟨k0, sf.ν⟩ : Regime L) sf.β sf.a (sfDom P6 k0 sf) sf.Tm ρsf sf.E
+    IsSFFamily2On (ReadTorus L P6.m₀) (Def6.torusSeq L P6.m₀)
+      (fun n => Def6.torusSeq_ne_zero P6.m₀ n) P6 (⟨k0, sf.ν⟩ : Regime L) sf.β sf.a (sfDom P6 k0 sf) sf.Tm ρsf
+      sf.E
   rTerms : ∀ (N₁ : ℕ) [NeZero N₁], RTermsH4 (ϱ := ϱ) P6 sf.β sf.ν sf.a N₁ (sf.Rt N₁) fac
 
 /-- **(D2♭), second version** (§II.6.3 (iii)): as `D2SF2` with the mass range `0 < ν_k ≤ 1`
@@ -78,11 +92,12 @@ structure SFFlat2 (P6 : Def6.Consts) (k0 : ℕ) (sf : SFData d L m₁ k N ϱ) : 
   coeff : Def6.CoeffBounds d L k (massOne P6) sf.β sf.ν sf.a
   torus : ∃ ρsf : ∀ (N₁ : ℕ) [NeZero N₁], (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) →
       (Fin N → ℝ) → (Localization.CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ,
-    ∀ (N₁ : ℕ) [NeZero N₁], IsSF2 P6 (⟨k0, sf.ν⟩ : Regime L) sf.β sf.a (sfDom P6 k0 sf N₁)
-      (sf.Tm N₁) (ρsf N₁) (sf.E N₁)
+    ∀ (N₁ : ℕ) [NeZero N₁], ReadTorus L P6.m₀ N₁ → IsSF2 P6 (⟨k0, sf.ν⟩ : Regime L) sf.β sf.a
+      (sfDom P6 k0 sf N₁) (sf.Tm N₁) (ρsf N₁) (sf.E N₁)
   torusIndep : Def6.TorusIndep P6.m₀ sf.Tm
-  renorm : ∀ j, 1 ≤ j → j ≤ k → Def6.RenormCond (d := d) (L := L) (m₁ := m₁) (N := N)
-    (ϱ := ϱ) P6.m₀ k (sf.ν k) sf.Tm j
+  renorm : ∀ j, 1 ≤ j → j ≤ k → Def6.RenormCondAlong (d := d) (L := L) (m₁ := m₁) (N := N)
+    (ϱ := ϱ) P6.m₀ k (sf.ν k) sf.Tm j (Def6.torusSeq L P6.m₀)
+    (fun n => Def6.torusSeq_ne_zero P6.m₀ n)
   rTerms : ∀ (N₁ : ℕ) [NeZero N₁], RTermsH4 (ϱ := ϱ) P6 sf.β sf.ν sf.a N₁ (sf.Rt N₁) (fun _ => 1)
 
 end SF

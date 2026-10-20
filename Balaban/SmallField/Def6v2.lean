@@ -228,12 +228,12 @@ structure IsSF2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Dom : FieldDo
   gsStrong : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
     GsSpec.GsSpecStrong j hjk X (Tm.gs j X)
 
-/-- **Def-6 v2: the small-field class of families over the tori** (CLASS-RULINGS-2): `IsSF2` on
-every torus (with a field domain on every torus), torus independence of the terms (P4 (H.4)), the
-renormalization conditions (H.5) at every scale `j ≤ k` (kept verbatim, see the module docstring)
-and the coefficient bounds (H.6) for the physical masses of the regime.  Draft pending Roland's
-answer to Q13. -/
-structure IsSFFamily2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ)
+/-- **Def-6 v2: the small-field class of families over the tori, on the selected tori**
+(CLASS-RULINGS-2; ruling R-N₁): `IsSF2` on every torus `N₁` with `Sel N₁` (with a field domain on
+every torus), torus independence of the terms (P4 (H.4)), the renormalization conditions (H.5) at
+every scale `j ≤ k` (kept verbatim, see the module docstring) and the coefficient bounds (H.6) for
+the physical masses of the regime.  Draft pending Roland's answer to Q13. -/
+structure IsSFFamily2On (Sel : ℕ → Prop) (idx : ℕ → ℕ) (hidx : ∀ n, idx n ≠ 0) (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ)
     (Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ)
     (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
     (ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
@@ -241,10 +241,45 @@ structure IsSFFamily2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ)
     (Ek : ℕ → ℝ) : Prop where
   admissible : P.Admissible d L
   coeff : CoeffBounds d L k P β Rg.ν a
-  torus : ∀ (N₁ : ℕ) [NeZero N₁], IsSF2 P Rg β a (Dom N₁) (Tm N₁) (ρ N₁) (Ek N₁)
+  torus : ∀ (N₁ : ℕ) [NeZero N₁], Sel N₁ → IsSF2 P Rg β a (Dom N₁) (Tm N₁) (ρ N₁) (Ek N₁)
   torusIndep : TorusIndep P.m₀ Tm
-  renorm : ∀ j, 1 ≤ j → j ≤ k → RenormCond (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ)
-    P.m₀ k (Rg.ν k) Tm j
+  renorm : ∀ j, 1 ≤ j → j ≤ k → RenormCondAlong (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ)
+    P.m₀ k (Rg.ν k) Tm j idx hidx
+
+/-- **Def-6 v2: the small-field class of families over the tori** (CLASS-RULINGS-2): `IsSF2` on
+every torus and the second-moment limit along the tori `n + 1`; the instance of `IsSFFamily2On`
+with every torus selected. -/
+abbrev IsSFFamily2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ)
+    (Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ)
+    (Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ)
+    (ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ)
+    (Ek : ℕ → ℝ) : Prop :=
+  IsSFFamily2On (fun _ => True) (fun n => n + 1) (fun n => Nat.succ_ne_zero n) P Rg β a Dom Tm ρ Ek
+
+/-- The clause `IsSF2` of a family on every torus. -/
+theorem IsSFFamily2.torus {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
+    {Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ}
+    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℕ → ℝ} (h : IsSFFamily2 P Rg β a Dom Tm ρ Ek) (N₁ : ℕ) [NeZero N₁] :
+    IsSF2 P Rg β a (Dom N₁) (Tm N₁) (ρ N₁) (Ek N₁) :=
+  IsSFFamily2On.torus h N₁ trivial
+
+/-- A family on every torus is a family on any selection of tori, with the second-moment limit
+along any sequence of tori that tends to infinity. -/
+theorem IsSFFamily2On.of_family {Sel : ℕ → Prop} {idx : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
+    (htop : Filter.Tendsto idx Filter.atTop Filter.atTop) {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
+    {Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ}
+    {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    {ρ : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    {Ek : ℕ → ℝ} (h : IsSFFamily2 P Rg β a Dom Tm ρ Ek) :
+    IsSFFamily2On Sel idx hidx P Rg β a Dom Tm ρ Ek :=
+  { h with
+    torus := fun N₁ _ _ => h.torus N₁
+    renorm := fun j h1 h2 => Def6.RenormCond.along (h.renorm j h1 h2) hidx htop }
 
 /-- The standing hypotheses of the background theory for the background mass of a regime
 (`d ≥ 3`, `L ≥ 3`, `ϱ ≥ R₀(d, L)`, the coefficient bounds (H.6)). -/
@@ -350,7 +385,7 @@ theorem _root_.Balaban.SmallField.Def6.IsSFFamily.toV2 {P : Consts} {β ν a : �
       (fun N₁ _ => rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a (ρ N₁)) Ek where
   admissible := h.admissible
   coeff := h.coeff
-  torus := fun N₁ _ => (h.torus N₁).toV2 (hS N₁) hμ (hsub N₁)
+  torus := fun N₁ _ _ => (h.torus N₁).toV2 (hS N₁) hμ (hsub N₁)
   torusIndep := h.torusIndep
   renorm := h.renorm
 

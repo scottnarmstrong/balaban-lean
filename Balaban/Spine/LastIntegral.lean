@@ -305,12 +305,13 @@ theorem sideDiv_eq_sfIdx {M m₀ K : ℕ} (hM : M = L ^ (m₀ + m₁)) (hk : k �
   rw [e, Nat.mul_div_cancel _ hpos]
 
 /-- **The inherited activities depend on `g|_X` only**, by the locality clause `localM` of (H.7) on
-every Def-6 torus. -/
+the read Def-6 tori (ruling R-N₁). -/
 theorem inhObs_local (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
-    (hloc : ∀ (N₁ : ℕ) [NeZero N₁] j x X Ψ Ψ' h h' g g',
+    {Sel : ℕ → Prop}
+    (hloc : ∀ (N₁ : ℕ) [NeZero N₁], Sel N₁ → ∀ j x X Ψ Ψ' h h' g g',
       (∀ z ∈ X, Ψ z = Ψ' z ∧ h z = h' z ∧ g z = g' z) →
       (sf.Tm N₁).M j x X Ψ h g = (sf.Tm N₁).M j x X Ψ' h' g')
-    {ℓ j : ℕ} (X : Finset (Torus d ℓ)) (g g' : Torus d ℓ → Fin N → ℂ)
+    {ℓ : ℕ} (hℓ : Sel (ℓ / (L ^ m₁ * L ^ k))) {j : ℕ} (X : Finset (Torus d ℓ)) (g g' : Torus d ℓ → Fin N → ℂ)
     (hgg : ∀ y ∈ X, g y = g' y) : inhObs sf m₀ hv ℓ j X g = inhObs sf m₀ hv ℓ j X g' := by
   unfold inhObs
   split_ifs with hN hc
@@ -318,7 +319,7 @@ theorem inhObs_local (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanS
   · have : NeZero (ℓ / (L ^ m₁ * L ^ k)) := ⟨hN⟩
     refine Finset.sum_congr rfl fun x _ => ?_
     split_ifs with hx
-    · rw [hloc (ℓ / (L ^ m₁ * L ^ k)) j x (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X)
+    · rw [hloc (ℓ / (L ^ m₁ * L ^ k)) hℓ j x (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X)
         (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) (Def6.constFld (hC hv))
         (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) (fun y => g' (sfSite ℓ y))
         fun z hz => ⟨rfl, rfl, hgg _ hz⟩, hgg _ hx]
@@ -326,13 +327,33 @@ theorem inhObs_local (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanS
   · rfl
 
 /-- **The locality clause of the inherited activities** from (D2♭) of the class: the clause
-`localM` of (H.7) on every Def-6 torus (`SFFlat2.torus`). -/
+`localM` of (H.7) on the read Def-6 tori (`SFFlat2.torus`), the torus `ℓ / (L^{m₁} L^k)` of the
+activities being read. -/
 theorem inhObs_actLocal {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
-    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N)) (ℓ : ℕ) :
+    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N)) (ℓ : ℕ)
+    (hℓ : ReadTorus L P6.m₀ (ℓ / (L ^ m₁ * L ^ k))) :
     ActLocalAt d N ℓ (inhObs sf m₀ hv) := by
   obtain ⟨_, hρsf⟩ := hsf.torus
   exact fun j X g g' hgg =>
-    inhObs_local sf m₀ hv (fun N₁ _ => (hρsf N₁).terms.localM) X g g' hgg
+    inhObs_local sf m₀ hv (fun N₁ _ hN => (hρsf N₁ hN).terms.localM) hℓ X g g' hgg
+
+/-- **The torus of the activities on an admissible torus is read**: if `ℓ` is divisible by
+`L^{m₀+m₁} L^{K}` with `k ≤ K`, then `ℓ / (L^{m₁} L^k)` is divisible by `L^{m₀}`
+(`sideDiv_eq_sfIdx`). -/
+theorem readTorus_div {m₀ K : ℕ} (hk : k ≤ K) {ℓ : ℕ} (hℓ : L ^ (m₀ + m₁) * L ^ K ∣ ℓ) :
+    ReadTorus L m₀ (ℓ / (L ^ m₁ * L ^ k)) := by
+  obtain ⟨c, rfl⟩ := hℓ
+  have hpos : 0 < L ^ m₁ * L ^ k :=
+    Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
+  have e : L ^ (m₀ + m₁) * L ^ K * c = (L ^ (m₀ + K - k) * c) * (L ^ m₁ * L ^ k) := by
+    have : L ^ (m₀ + m₁) * L ^ K = L ^ (m₀ + K - k) * (L ^ m₁ * L ^ k) := by
+      rw [← pow_add, ← pow_add, ← pow_add]
+      congr 1
+      omega
+    rw [this]
+    ring
+  rw [e, Nat.mul_div_cancel _ hpos]
+  exact Dvd.dvd.mul_right (pow_dvd_pow _ (by omega)) _
 
 end Inherited
 
@@ -539,7 +560,8 @@ theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB c
     rw [add_halves] at hbAB
     exact ⟨(hs.mono (Nat.le_succ k)).add ((hsA.add hsB).actAt (k + 1)),
       han.add ((haA.add haB).actAt (k + 1)),
-      (inhObs_actLocal hrep.sfFlat (P6 κ c₉).m₀ h ℓ).add ((hlA.add hlB).actAt (k + 1)),
+      (inhObs_actLocal hrep.sfFlat (P6 κ c₉).m₀ h ℓ
+        (readTorus_div (m₀ := (P6 κ c₉).m₀) hkK (by rw [← hM6]; exact hℓ))).add ((hlA.add hlB).actAt (k + 1)),
       ActBoundAt.add_actAt_succ hs hbd hbAB⟩
   · intro nK _ g hg
     rw [hidB nK g hg, hidA nK g hg, ← Complex.exp_add,

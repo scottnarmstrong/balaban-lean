@@ -169,9 +169,10 @@ level, their generating sets satisfy the strong specification `𝔹_{k+1}(X)`, a
 independent (P4 (H.4)). -/
 def SFNewLevelInput : Prop :=
   SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ β ν k _ _ sf' =>
-    (∀ (N₂ : ℕ) [NeZero N₂], SFTermClauses (P6 κ c₉)
-      (sfDom (P6 κ c₉) (kZero d (T κ c₉).L β ν) sf' N₂) (newLevelTerms (sf'.Tm N₂))) ∧
-    (∀ (N₂ : ℕ) [NeZero N₂] (X : Set (CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1))),
+    (∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ →
+      SFTermClauses (P6 κ c₉)
+        (sfDom (P6 κ c₉) (kZero d (T κ c₉).L β ν) sf' N₂) (newLevelTerms (sf'.Tm N₂))) ∧
+    (∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ → ∀ (X : Set (CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1))),
       IsPolyDom (P6 κ c₉).m₀ (k + 1) X →
         GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X)) ∧
     TorusIndep (P6 κ c₉).m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂))
@@ -185,7 +186,8 @@ conditions (H.5) at `k + 1`. -/
 def SFRenormInput : Prop :=
   SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ _ _ k _ _ sf' =>
     CoeffBounds d (T κ c₉).L (k + 1) (P6 κ c₉) sf'.β sf'.ν sf'.a ∧
-    RenormCond (P6 κ c₉).m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1)
+    RenormCondAlong (P6 κ c₉).m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1)
+      (torusSeq (T κ c₉).L (P6 κ c₉).m₀) (fun n => torusSeq_ne_zero (P6 κ c₉).m₀ n)
 
 /-- **A4-1d, the density of the new small-field class is real (P4 (H.1) at `k + 1`).** On every
 Def-6 torus, at the real fields realized by a datum `D` inside the small-field region `Ξ_{k+1}` and
@@ -194,7 +196,8 @@ the action at the complete background and the composites `ℰ_{k+1}`, `ℱ_{k+1}
 term clauses this gives the density clause of `IsSF2` (`exists_isSF2_of_real`). -/
 def SFDensityInput : Prop :=
   SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ β ν k _ _ sf' =>
-    ∀ (N₂ : ℕ) [NeZero N₂] (Ψ₀ : CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) → Fin N → ℝ)
+    ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ →
+      ∀ (Ψ₀ : CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) → Fin N → ℝ)
       (h₀ : Fin N → ℝ) (g : CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) → Fin N → ℝ)
       (D : BgData (topGS d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) (ϱ κ c₉)) N),
       Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
