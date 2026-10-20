@@ -456,12 +456,225 @@ variable (hPloc : ∀ o o', (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 
   (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 o').2 → (Pp o ↔ Pp o'))
 variable (wt : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1) → SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1) (locOp geo cs SD KD hH lab (m' + 1) hm Z).A → ℝ)
 variable (hwt : ∀ o x, wt o x = ROutcome.weight (t o x) (s o x) (z o x) (w o x) ROutcome.toR * supInd Pp o)
+variable (hnamedCU : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
+        OutIdx (K := K) (M := M) R C.2.1 ⊕
+          ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
+        ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A) (jS : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A → ℕ) (_hjS : ∀ p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A, p ∈ Set.range κc ∨
+        (p.1.1.2.1 = VarKind.large ∧ nd ⟨(p.1.1.1 : ℕ), p.1.1.2.2⟩) ∨
+        (k1 ≤ jS p ∧ jS p ≤ m' ∧ k1 ≤ (p.1.1.1 : ℕ) ∧
+          ∀ (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+            (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1)
+              (locOp geo cs SD KD hH lab (m' + 1) hm Z).A),
+            TB m' Z o (newRestrict (H.localHistory M K (m' + 1) Z)
+              (newVars_sub_locOp_A geo cs SD KD hm (hq (m' + 1) hmk Z (Desc.refl Z))) x) →
+            (∀ (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+              (c : ↥(H.parts (j.1 + 1) P.1)),
+              TB j.1 c.1 (ancOut (N := N) (R := R) c.1 P.1 (ρ (j.1 + 1 + 1)
+                  (le_trans (le_trans (Finset.mem_Ico.mp j.2).1 (Nat.le_succ _)) (Nat.le_succ _)) P.1 (mem_ancFin.mp P.2) x))
+                (newRestrict (H.localHistory M K (j.1 + 1) c.1)
+                  (newVars_sub_locOp_A geo cs SD KD
+                    ((desc_of_parts c.2 (mem_ancFin.mp P.2)).le.trans hm)
+                    (hq (j.1 + 1) (Nat.lt_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
+                      (desc_of_parts c.2 (mem_ancFin.mp P.2))))
+                  (ρ (j.1 + 1) (le_trans (Finset.mem_Ico.mp j.2).1 (Nat.le_succ _)) c.1
+                    (desc_of_parts c.2 (mem_ancFin.mp P.2)) x))) →
+            |‖VarVal.toEuc (x p)‖ ^ 2 - 1| < r (jS p))) (Φ : ((OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin))) ×
+        ((∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
+            OutZ N R (H.localHistory M K k1 C.2.1) k1 ×
+              SubCfg N (H.localHistory M K k1 C.2.1) k1
+                (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) ×
+            ((OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3) × OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) ×
+              (((∀ t : ↥Nd, VarVal N t.1.1.isSpin) × (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin)) ×
+                OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0)))) →
+      OutZ N R (H.localHistory M K (m' + 1) Z) (m' + 1) × (SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1) (locOp geo cs SD KD hH lab (m' + 1) hm Z).A × OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0)) (_φ1 : ∀ θ (y : {y // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0}),
+      (Φ θ).1 ⟨y.1, y.2.1, hZ0 _ y.2.1 y.2.2⟩ = θ.1.1 y) (_φ2 : ∀ θ (y : {y // y ∈ V2 ∧ P2 y}),
+      (Φ θ).1 ⟨y.1, (hV2 y.1 y.2.1 y.2.2).1, (hV2 y.1 y.2.1 y.2.2).2.1⟩ = θ.1.2.1 y) (_φ3 : ∀ θ (t : ↥T), (Φ θ).2.1 t.1 = θ.1.2.2 t) (_φ4 : ∀ θ (C : Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1))
+        (y : OutIdx (K := K) (M := M) R C.2.1),
+        (θ.2.1 C).1 y = VarVal.toEuc ((Φ θ).2.1 (κc ⟨C, Sum.inl y⟩))) (_φ5 : ∀ θ (C : Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1))
+        (q : ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A),
+        VarVal.toEuc ((θ.2.1 C).2 q) = VarVal.toEuc ((Φ θ).2.1 (κc ⟨C, Sum.inr q⟩))) (_φ7 : ∀ θ (y : {y // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧
+          (ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)}),
+      (Φ θ).1 ⟨y.1, y.2.1, y.2.2.1⟩ = θ.2.2.1.2 y) (_φ9 : ∀ θ (t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A //
+        p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}), (Φ θ).2.1 t.1 = θ.2.2.2.1.2 t) (_φ8 : ∀ θ (t : ↥Nd), (Φ θ).2.1 t.1 = θ.2.2.2.1.1 t) (_φ10 : ∀ θ, (Φ θ).2.2 = θ.2.2.2.2), ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+      (wd : (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin)))) (cc : (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A)) (ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3))) (sh : (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin))
+      (a : OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)) (nd' : ∀ t : ↥Nd, VarVal N t.1.1.isSpin)
+      (w' : OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0)
+      (fld : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3) × ((∀ t : ↥Nd, VarVal N t.1.1.isSpin) × OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))) → ∀ s, BlockAt S n M K s → EuclideanSpace ℝ (Fin N))
+      (ft : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3) × ((∀ t : ↥Nd, VarVal N t.1.1.isSpin) × OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))) → BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N)), (∀ v s y, fld v s y = subVarField N (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y) → (∀ v y, ft v y = outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
+            ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
+              (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1)
+                (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).1 par)).2)) y) → wd ∈ ({o : OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 |
+            ∀ i, ‖o i - cen par i‖ < radZ} ×ˢ
+          ({o : OutPart N V2 P2 | ∃ ψ : BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N),
+            (∀ i, ψ i.1 = o i) ∧ (∀ c, ψ (cb c) = e par c) ∧
+              ChiTildeProp (H.localHistory M K (m' + 1) Z) (m' + 1) Zt δk ψ} ×ˢ
+            {w3 : ∀ t : ↥T, VarVal N t.1.1.isSpin |
+              ∀ t : ↥T, |‖VarVal.toEuc (w3 t)‖ ^ 2 - 1| < r (jS t.1)})) → (TB m' Z (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (newRestrict (H.localHistory M K (m' + 1) Z)
+            (newVars_sub_locOp_A geo cs SD KD hm (hq (m' + 1) hmk Z (Desc.refl Z))) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1) ∧
+          ∀ (j : ↥(Finset.Ico k1 m')) (P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z))
+            (c : ↥(H.parts (j.1 + 1) P.1)),
+            TB j.1 c.1 (ancOut (N := N) (R := R) c.1 P.1 (ρ (j.1 + 1 + 1) (Nat.le_succ_of_le (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1)) P.1 (mem_ancFin.mp P.2) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1))
+              (newRestrict (H.localHistory M K (j.1 + 1) c.1)
+                (newVars_sub_locOp_A geo cs SD KD
+                  ((desc_of_parts c.2 (mem_ancFin.mp P.2)).le.trans hm)
+                  (hq (j.1 + 1) (Nat.lt_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
+                    (desc_of_parts c.2 (mem_ancFin.mp P.2))))
+                (ρ (j.1 + 1) (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
+                  (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1))) →
+        (locOp geo cs SD KD hH lab (m' + 1) hm Z).T.K (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1 hv * wt (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1 ≠ 0 →
+        ∀ (Du : BgData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) N) (_hDuh : ∀ x i, Du.h x i = 0)
+          (_hDu0 : ∀ x, x ∉ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).Ω 1 → ∀ i, Du.Ψ x i = ((cl κc jS _hjS Φ _φ1 _φ2 _φ3 _φ4 _φ5 _φ7 _φ9 _φ8 _φ10 hv par wd cc ro sh a nd' w' x i : ℝ) : ℂ))
+          (_hDu1 : ∀ x ∈ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).Ω 1, (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).layerIndex x ≠ m' + 1 → ∀ i, Du.Ψ x i =
+            ((fld (a, nd', w') ((windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).layerIndex x) (jBlock S.d S.L (M * n K) K ((windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).layerIndex x)
+              (torusCast (fine_eq_top H.F.hnn hm).symm x)) i : ℝ) : ℂ))
+          (_hDu2 : ∀ x ∈ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).Ω 1, (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)).layerIndex x = m' + 1 → ∀ i, Du.Ψ x i =
+            ((ft (a, nd', w') (jBlock S.d S.L (M * n K) K (m' + 1) (torusCast (fine_eq_top H.F.hnn hm).symm x)) i : ℝ) : ℂ)),
+          (∃ C : ℂ, (mainActionLoc geo (H.locRH (m' + 1) Z) m' Z.1 (locComp_mem H hm Z) hm cs
+          (locRH_rem (m' + 1) Z) (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).1 par)).2)) (newRestrict (H.localHistory M K (m' + 1) Z)
+            (newVars_sub_locOp_A geo cs SD KD hm (hq (m' + 1) hmk Z (Desc.refl Z))) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1) hv +
+        ∑ j : ↥(Finset.Ico k1 m'), ∑ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
+          ∑ c : ↥(H.parts (j.1 + 1) P.1),
+            mainActionLoc geo (H.locRH (j.1 + 1) c.1) j.1 c.1.1
+              (locComp_mem H (Nat.le_trans (Finset.mem_Ico.mp j.2).2 (Nat.le_of_succ_le hm)) c.1)
+              (Nat.le_trans (Finset.mem_Ico.mp j.2).2 (Nat.le_of_succ_le hm)) cs (locRH_rem (j.1 + 1) c.1)
+              (ancOut (N := N) (R := R) c.1 P.1 (ρ (j.1 + 1 + 1) (Nat.le_succ_of_le (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1)) P.1 (mem_ancFin.mp P.2) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1))
+              (newRestrict (H.localHistory M K (j.1 + 1) c.1)
+                (newVars_sub_locOp_A geo cs SD KD
+                  ((desc_of_parts c.2 (mem_ancFin.mp P.2)).le.trans hm)
+                  (hq (j.1 + 1) (Nat.lt_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
+                    (desc_of_parts c.2 (mem_ancFin.mp P.2))))
+                (ρ (j.1 + 1) (Nat.le_succ_of_le (Finset.mem_Ico.mp j.2).1) c.1
+                  (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd', sh), w')))).2.1)) hv) =
+      ((β0 : ℂ) * actionRegionC Xwin (compWeight S.L a₁) 0 Du (bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du)).re - C.re ∧
+      ‖C‖ ≤ ((9 * Real.exp (2 * η) * Kconv / (1 - (S.L : ℝ) ^ (-(2 * γ))) + Kbg) * ∑ i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))), (decomp i).total)) ∧
+          (∀ (ψout : BlockField S.d S.L (M * n (m' + 1)) (m' + 1) N)
+            (hψout : TubeOn (windowOfHistory H Z geo hm hW).bdry (X \ box b0 wb) δ ψout)
+            (_hψoutz : ∀ y : BlockAt S n M K (m' + 1), y ∉ Z0 → ∀ i,
+              ψout (torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y) i = ft (a, nd', w') y i)
+            (ψ0 : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+            (_hψ0 : ∀ z i, ψ0 ⟨m' + 1, z⟩ i =
+              psiZero N (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hψout z i)
+            (Dpp : Region (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW))) (Zp : Region (windowOfHistory H Z geo hm hW).bdry)
+            (_hZp : ∀ x, x ∈ Zp.sites ↔ ∃ y ∈ (windowOfHistory H Z geo hm hW).Zk1,
+              jBlock S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1) x = jBlock S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1) y)
+            (_hDpp : Dpp.sites = ((windowOfHistory H Z geo hm hW).Z \ (windowOfHistory H Z geo hm hW).Zk1) \ Zp.sites)
+            (Zb : Finset (Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1)))))
+            (_hZb : ∀ zb, zb ∈ Zb ↔ ∃ y : BlockAt S n M K (m' + 1), y ∈ V2 ∧ P2 y ∧
+              y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' ∧ zb = torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y)
+            (ψk : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1))) → Fin N → ℂ)
+            (_hψk : ∀ y : BlockAt S n M K (m' + 1), y ∈ V2 → P2 y → y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' → ∀ i,
+              ψk (torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y) i = ((ft (a, nd', w') y i : ℝ) : ℂ))
+            (aN : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1 - (m' + 1))) → ℝ)
+            (_haN : ∀ y : BlockAt S n M K (m' + 1), y ∈ V2 → P2 y → y ∈ gaussBlocks (H.localHistory M K (m' + 1) Z) m' →
+              ∀ b0 : {b : Σ s, BlockAt S n M K s // nd b}, b0.1 = ⟨m' + 1, y⟩ →
+                betaK S.d S.L (m' + 1) β0 * aN (torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y) =
+                  (∑ b ∈ Finset.univ.filter (fun b : {b : Σ s, BlockAt S n M K s // nd b} =>
+                      pa^[Fintype.card {b : Σ s, BlockAt S n M K s // nd b}] b = b0),
+                    varpi (m' + 1) cs.z (b.1.1 - 1) ^ 2 * blockFrac (S.L ^ S.d) (m' + 1) b.1.1 ^ 2 /
+                      (cs.beta (b.1.1 - 1) * cs.aKer * (S.L : ℝ) ^ (S.d - 2)))⁻¹),
+            ((windowData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (windowOfHistory H Z geo hm hW).bdry (windowOfHistory_precedes geo hm hW) (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ)).IsReal) ∧
+          (∀ p, ((windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ)) p).im = 0) ∧
+          (InUnionDomainR (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (bgC1 S.d S.L N) 0 Du) ∧
+          (‖(β0 : ℂ) * actionRegion0 Zp 0 (psiZeroData (windowOfHistory H Z geo hm hW).bdry ψ0 (0 : Fin N → ℝ))
+      (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))‖ < 1 / 4) ∧
+          (‖(1 / 2 : ℂ) * (β0 : ℂ) * Dpp.sitePair ((windowOfHistory_precedes geo hm hW).restrictα (alphaZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ)))
+        (svec (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) ((bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du) - (windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))))
+        (svec (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) ((bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du) - (windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))))‖ < 1 / 4) ∧
+          (‖(β0 : ℂ) * stTerm Dpp (windowData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (windowOfHistory H Z geo hm hW).bdry (windowOfHistory_precedes geo hm hW) (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ)) Du
+        ((windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))) (bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du)‖ < 1 / 4) ∧
+          (‖(β0 : ℂ) * nuTerm Dpp 0 (windowData (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (windowOfHistory H Z geo hm hW).bdry (windowOfHistory_precedes geo hm hW) (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))
+        ((windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))) (bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du)‖ < 1 / 4) ∧
+          (‖Cnat0 a₁ (windowOfHistory_precedes geo hm hW) ψ0 (0 : Fin N → ℝ) Du Zb β0 (varpi (m' + 1) cs.z) aN ψk‖ ≤ Cnat * S.lam (m' + 1) ^ (2 * S.d + 1))))
+
+include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet hδd hdL hβ haw hμ hrad hT t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 wz Lc hLc hwz1 hwz2 bw0 hbw0 F hF ok hx Cvol CE' hCE' hCvol hCR u hu hu1 hb htm hsm hzm hwm hum hc0m hrm A0 C6 hC6 hA0 hδk hradZ parT rk hrk hreg hregc hadj hadjc hw0 hw2 hcc Fz Ck hFz hTn hrem hTcard EZ hEZ B κK hκs hkept κpre hκ hr hTB cst hcst hCk hβa cl hcl Pp hc0P hPloc wt hwt hnamedCU
+
+open Classical in
+/-- **The removed-kernel bound with `hquot` proved from the history.** -/
+theorem removedKernel_kerBound_of_hid_action_cl :
+    KerBound (H.localHistory M K (m' + 1) Z) (m' + 1) (removedKernel (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (locOp geo cs SD KD hH lab (m' + 1) hm Z) t s z w u c0 rr EZ
+      (fun o x => (ht o x).1) (fun o x => (hs o x).1) (fun o x => (hz o x).1)
+      (fun o x => (hw o x).1) hu hc0 hrr htm hsm hzm hwm hum hc0m hrm)
+      (κpre - S.CR * S.lam (m' + 1) ^ (2 * S.d + 1)) := by
+  classical
+  subst hradZ
+  have hrfun : r = fun j => 3 * (S.d : ℝ) * S.L * cs.delta j := funext hr
+  subst hrfun
+  have hlam : 0 < S.lam (m' + 1) := by linarith
+  have hβk : 0 < betaK S.d S.L (m' + 1) β0 := by
+    unfold betaK
+    have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
+    positivity
+  obtain ⟨Qb, hQbdef⟩ : ∃ Qb : ℝ, Qb = Real.exp (Fz + CEt * (D0 : ℝ) ^ S.d +
+      Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + Ck) := ⟨_, rfl⟩
+  have hQb : 0 < Qb := hQbdef ▸ Real.exp_pos _
+  have hFr : Real.log Qb ≤ Fz + CEt * (D0 : ℝ) ^ S.d + Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + Ck := by
+    rw [hQbdef, Real.log_exp]
+  have hbw0' : cst m' Z + ∑ j : ↥(Finset.Ico k1 m'), ∑ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
+      ∑ c : ↥(H.parts (j.1 + 1) P.1), cst j.1 c.1 ≤ bw0 := by
+    simp only [hcst]; exact hbw0
+  have hbox : Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} =
+      (boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card :=
+    nat_card_subtype_eq_card _ (fun y => torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y)
+      (fun x => torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) x)
+      (fun y => torusCast_cast_symm _ y) (fun x => torusCast_symm_cast _ x) _ hZ0b
+  have hZcard : Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} ≤
+      (boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card := hbox.le
+  have hCN := window_constNat_le_exp (γw := γw) (M₀ := M₀) (M₁ := M₁) (α := α) (α₀ := α₀) geo cs SD KD hk1 hm Z0 V2 G3 P2 hV2 T Nd nd hN2 Qtot hZ0g hV2full hMS G h18 h3 hW hk1def Fx hβ0 ha₁ b0 wb hbx hZ0b Zb hZb Xc decomp hQtotv wz hLc hwz1 hwz2 hFz bw0 hCk hβa hQbdef
+  have hQle := window_Qtot_le_exp (γw := γw) (M₀ := M₀) (M₁ := M₁) (α := α) (α₀ := α₀) geo cs SD KD hk1 hm Z0 V2 G3 P2 hV2 T Nd nd hN2 Qtot hZ0g hV2full hMS G h18 h3 hW hk1def Fx hβ0 ha₁ b0 wb hbx hZ0b Zb hZb Xc decomp hQtotv wz hLc hwz1 hwz2 hFz bw0 hCk hβa hQbdef hCN hbox hQb
+  obtain ⟨κc, Θ, parC, E3, hMP, hE3, hid0, hsupp⟩ := exists_window_hid_action_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq (fun j => 3 * (S.d : ℝ) * S.L * cs.delta j) TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd hc0 hrr Zt δk cen _ e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet (fun k => (hzpos _).le) (fun k => (hcpos k).le) hδd hdL hβ haw hμ hr hTB cst hcst bw0 hbw0' t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 hrad F hF hT cl hcl Pp hc0P hPloc wt hwt hnamedCU
+  refine removedKernel_kerBound_of_window (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
+    (locOp geo cs SD KD hH lab (m' + 1) hm Z) EZ (fun o x => (ht o x).1) (fun o x => (hs o x).1)
+    (fun o x => (hz o x).1) (fun o x => (hw o x).1) hu hc0 hrr htm hsm hzm hwm hum hc0m hrm ok hx
+    (D0 := (D0 : ℝ)) (nZ0 := (Nat.card {y : BlockAt S n M K (m' + 1) //
+      y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} : ℝ))
+    (nTree := (Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ V2 ∧ P2 y} : ℝ)) hCE' (by positivity)
+    hCvol hCR hu1 hb
+    (μW := (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)).prod
+      ((outPartMeasure N V2 P2).prod (Measure.pi fun t : ↥T => varMeasure N t.1.1.isSpin)))
+    Θ hMP
+    (fun par => toMeasurable ((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1))
+      (· ∈ Z0)).prod ((outPartMeasure N V2 P2).prod (Measure.pi fun t : ↥T => varMeasure N t.1.1.isSpin)))
+      ({o | ∀ i, ‖o i - cen par i‖ < C6 * betaK S.d S.L (m' + 1) β0 ^ (-(1 / 2 : ℝ)) *
+          (A0 * S.lam (m' + 1) ^ S.p0)} ×ˢ
+        ({o : OutPart N V2 P2 | ∃ ψ : BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N),
+          (∀ i, ψ i.1 = o i) ∧ (∀ c, ψ (cb c) = e par c) ∧
+            ChiTildeProp (H.localHistory M K (m' + 1) Z) (m' + 1) Zt δk ψ} ×ˢ E3 par)))
+    (fun par => measurableSet_toMeasurable _ _) F hF
+    (fun hv g par w c => if g ∈ l1Ball (GIdx S n M K N) then
+          ∏ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
+            (locOp geo cs SD KD hH lab k1 hk1K C.2.1).T.absW
+              (mergeOut (H.localHistory M K k1 C.2.1) k1 (c C).1 (parC w.2.2 C)) (c C).2 hv g
+         else ⊤)
+    (fun _ _ _ _ _ => bw0) (fun _ _ _ _ _ => Qb) (Bw := bw0) (Ck := Ck) (Fr := Real.log Qb) (Fz := Fz)
+    (Lc := Lc)
+    (κcore := ∑ C ∈ H.ancFin k1 (m' + 1) Z, H.kappa B κK k1 C) (κpre := κpre)
+    (fun hv g par w c => (hid0 hv g par w c).trans (mul_le_mul' le_rfl hQle))
+    (fun hv g par w c hw' => hsupp hv g par w c (fun h => hw' (subset_toMeasurable _ _ h)))
+    (fun _ _ _ _ _ _ => le_rfl) (fun _ _ _ _ _ => hQb.le)
+    (fun _ _ _ _ _ _ => (Real.exp_log hQb).ge) ?_ ?_ hFr hEZ ?_ ?_ hκ
+  · intro hv g hg par w'
+    have h := hcore_of_anc geo cs SD KD hH lab (fun k => hzpos _) (fun k => (hcpos k).le) B κK hκs hkept
+      hmk hm Z (fun _ w => parC w.2.2) hv g hg par w'
+    refine Eq.trans_le (lintegral_congr fun c => ?_) h
+    simp only [hg, ↓reduceIte]
+  · intro par
+    rw [measure_toMeasurable]
+    have h := window_hvol_of_groups (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (by omega) (hE3 par)
+      (cen par) Zt δk V2 P2 (e par) cb parT rk hrk hreg hregc hadj hadjc S.p0 hβk hC6 hA0 hlam hδk wz hw0
+      hw2 hcc hLc hFz
+    exact h
+  · exact hTcard.trans (removed_cubeVol_le G hTn hH hm hrem)
+  · exact (Nat.cast_le.2 hZcard).trans (card_boxFinset_le b0 wb hwD)
+
+
+omit hnamedCU
+
 variable (hleBr : ∀ (i : Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
         ↥(H.parts (j.1 + 1) P.1))) m,
       (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 2 ≤ m →
       m ≤ m' + 1 → br.elMass (cs.muAct m) ≤
         cs.muBg ((Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 1))
-variable (hnamedCU : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
+variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
         OutIdx (K := K) (M := M) R C.2.1 ⊕
           ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
         ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A) (jS : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A → ℕ) (_hjS : ∀ p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A, p ∈ Set.range κc ∨
@@ -592,88 +805,23 @@ variable (hnamedCU : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z
         ((windowOfHistory_precedes geo hm hW).restrictφ (phiZero (windowOfHistory H Z geo hm hW).bdry (compWeight S.L a₁) ψ0 (0 : Fin N → ℝ))) (bgField (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) (compWeight S.L a₁) 0 Du)‖ < 1 / 4) ∧
           (‖Cnat0 a₁ (windowOfHistory_precedes geo hm hW) ψ0 (0 : Fin N → ℝ) Du Zb β0 (varpi (m' + 1) cs.z) aN ψk‖ ≤ Cnat * S.lam (m' + 1) ^ (2 * S.d + 1))))
 
-include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet hδd hdL hβ haw hμ hrad hT t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 wz Lc hLc hwz1 hwz2 bw0 hbw0 F hF ok hx Cvol CE' hCE' hCvol hCR u hu hu1 hb htm hsm hzm hwm hum hc0m hrm A0 C6 hC6 hA0 hδk hradZ parT rk hrk hreg hregc hadj hadjc hw0 hw2 hcc Fz Ck hFz hTn hrem hTcard EZ hEZ B κK hκs hkept κpre hκ hr hTB cst hcst hCk hβa cl hcl Pp hc0P hPloc wt hwt hleBr hnamedCU
 
-open Classical in
-/-- **The removed-kernel bound with `hquot` proved from the history.** -/
-theorem removedKernel_kerBound_of_hid_action_cl :
+include hleBr hnamedCUD
+
+/-- **`removedKernel_kerBound_of_hid_action_cl` without the domain clauses `hS` among the named inputs**: the
+named input `hnamedCUD` takes `WindowHS` (both clauses of `hS` at the window point) as a premise, which is
+proved from `K ≠ 0` and the mass inequality `hleBr` (`windowHS_of_kernel`; no unit direction). -/
+theorem removedKernel_kerBound_of_hid_action_cl_hS :
     KerBound (H.localHistory M K (m' + 1) Z) (m' + 1) (removedKernel (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (locOp geo cs SD KD hH lab (m' + 1) hm Z) t s z w u c0 rr EZ
       (fun o x => (ht o x).1) (fun o x => (hs o x).1) (fun o x => (hz o x).1)
       (fun o x => (hw o x).1) hu hc0 hrr htm hsm hzm hwm hum hc0m hrm)
       (κpre - S.CR * S.lam (m' + 1) ^ (2 * S.d + 1)) := by
   classical
-  subst hradZ
-  have hrfun : r = fun j => 3 * (S.d : ℝ) * S.L * cs.delta j := funext hr
-  subst hrfun
-  have hlam : 0 < S.lam (m' + 1) := by linarith
-  have hβk : 0 < betaK S.d S.L (m' + 1) β0 := by
-    unfold betaK
-    have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
-    positivity
-  obtain ⟨Qb, hQbdef⟩ : ∃ Qb : ℝ, Qb = Real.exp (Fz + CEt * (D0 : ℝ) ^ S.d +
-      Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + Ck) := ⟨_, rfl⟩
-  have hQb : 0 < Qb := hQbdef ▸ Real.exp_pos _
-  have hFr : Real.log Qb ≤ Fz + CEt * (D0 : ℝ) ^ S.d + Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + Ck := by
-    rw [hQbdef, Real.log_exp]
-  have hbw0' : cst m' Z + ∑ j : ↥(Finset.Ico k1 m'), ∑ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
-      ∑ c : ↥(H.parts (j.1 + 1) P.1), cst j.1 c.1 ≤ bw0 := by
-    simp only [hcst]; exact hbw0
-  have hbox : Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} =
-      (boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card :=
-    nat_card_subtype_eq_card _ (fun y => torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))).symm y)
-      (fun x => torusCast (blk_eq_top H.F.hnn hm (le_refl (m' + 1))) x)
-      (fun y => torusCast_cast_symm _ y) (fun x => torusCast_symm_cast _ x) _ hZ0b
-  have hZcard : Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} ≤
-      (boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card := hbox.le
-  have hCN := window_constNat_le_exp (γw := γw) (M₀ := M₀) (M₁ := M₁) (α := α) (α₀ := α₀) geo cs SD KD hk1 hm Z0 V2 G3 P2 hV2 T Nd nd hN2 Qtot hZ0g hV2full hMS G h18 h3 hW hk1def Fx hβ0 ha₁ b0 wb hbx hZ0b Zb hZb Xc decomp hQtotv wz hLc hwz1 hwz2 hFz bw0 hCk hβa hQbdef
-  have hQle := window_Qtot_le_exp (γw := γw) (M₀ := M₀) (M₁ := M₁) (α := α) (α₀ := α₀) geo cs SD KD hk1 hm Z0 V2 G3 P2 hV2 T Nd nd hN2 Qtot hZ0g hV2full hMS G h18 h3 hW hk1def Fx hβ0 ha₁ b0 wb hbx hZ0b Zb hZb Xc decomp hQtotv wz hLc hwz1 hwz2 hFz bw0 hCk hβa hQbdef hCN hbox hQb
-  obtain ⟨κc, Θ, parC, E3, hMP, hE3, hid0, hsupp⟩ := exists_window_hid_action_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq (fun j => 3 * (S.d : ℝ) * S.L * cs.delta j) TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd hc0 hrr Zt δk cen _ e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet (fun k => (hzpos _).le) (fun k => (hcpos k).le) hδd hdL hβ haw hμ hr hTB cst hcst bw0 hbw0' t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 hrad F hF hT cl hcl Pp hc0P hPloc wt hwt (fun κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK =>
-    hnamedCU κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK
-      (windowHS_of_kernel geo cs SD KD hk1 hm hmk hq ρ br hW hk1def hρ _ _ hv (left_ne_zero_of_mul hK) hleBr))
-  refine removedKernel_kerBound_of_window (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
-    (locOp geo cs SD KD hH lab (m' + 1) hm Z) EZ (fun o x => (ht o x).1) (fun o x => (hs o x).1)
-    (fun o x => (hz o x).1) (fun o x => (hw o x).1) hu hc0 hrr htm hsm hzm hwm hum hc0m hrm ok hx
-    (D0 := (D0 : ℝ)) (nZ0 := (Nat.card {y : BlockAt S n M K (m' + 1) //
-      y ∈ Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1) ∧ y ∈ Z0} : ℝ))
-    (nTree := (Nat.card {y : BlockAt S n M K (m' + 1) // y ∈ V2 ∧ P2 y} : ℝ)) hCE' (by positivity)
-    hCvol hCR hu1 hb
-    (μW := (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)).prod
-      ((outPartMeasure N V2 P2).prod (Measure.pi fun t : ↥T => varMeasure N t.1.1.isSpin)))
-    Θ hMP
-    (fun par => toMeasurable ((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1))
-      (· ∈ Z0)).prod ((outPartMeasure N V2 P2).prod (Measure.pi fun t : ↥T => varMeasure N t.1.1.isSpin)))
-      ({o | ∀ i, ‖o i - cen par i‖ < C6 * betaK S.d S.L (m' + 1) β0 ^ (-(1 / 2 : ℝ)) *
-          (A0 * S.lam (m' + 1) ^ S.p0)} ×ˢ
-        ({o : OutPart N V2 P2 | ∃ ψ : BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N),
-          (∀ i, ψ i.1 = o i) ∧ (∀ c, ψ (cb c) = e par c) ∧
-            ChiTildeProp (H.localHistory M K (m' + 1) Z) (m' + 1) Zt δk ψ} ×ˢ E3 par)))
-    (fun par => measurableSet_toMeasurable _ _) F hF
-    (fun hv g par w c => if g ∈ l1Ball (GIdx S n M K N) then
-          ∏ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
-            (locOp geo cs SD KD hH lab k1 hk1K C.2.1).T.absW
-              (mergeOut (H.localHistory M K k1 C.2.1) k1 (c C).1 (parC w.2.2 C)) (c C).2 hv g
-         else ⊤)
-    (fun _ _ _ _ _ => bw0) (fun _ _ _ _ _ => Qb) (Bw := bw0) (Ck := Ck) (Fr := Real.log Qb) (Fz := Fz)
-    (Lc := Lc)
-    (κcore := ∑ C ∈ H.ancFin k1 (m' + 1) Z, H.kappa B κK k1 C) (κpre := κpre)
-    (fun hv g par w c => (hid0 hv g par w c).trans (mul_le_mul' le_rfl hQle))
-    (fun hv g par w c hw' => hsupp hv g par w c (fun h => hw' (subset_toMeasurable _ _ h)))
-    (fun _ _ _ _ _ _ => le_rfl) (fun _ _ _ _ _ => hQb.le)
-    (fun _ _ _ _ _ _ => (Real.exp_log hQb).ge) ?_ ?_ hFr hEZ ?_ ?_ hκ
-  · intro hv g hg par w'
-    have h := hcore_of_anc geo cs SD KD hH lab (fun k => hzpos _) (fun k => (hcpos k).le) B κK hκs hkept
-      hmk hm Z (fun _ w => parC w.2.2) hv g hg par w'
-    refine Eq.trans_le (lintegral_congr fun c => ?_) h
-    simp only [hg, ↓reduceIte]
-  · intro par
-    rw [measure_toMeasurable]
-    have h := window_hvol_of_groups (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (by omega) (hE3 par)
-      (cen par) Zt δk V2 P2 (e par) cb parT rk hrk hreg hregc hadj hadjc S.p0 hβk hC6 hA0 hlam hδk wz hw0
-      hw2 hcc hLc hFz
-    exact h
-  · exact hTcard.trans (removed_cubeVol_le G hTn hH hm hrem)
-  · exact (Nat.cast_le.2 hZcard).trans (card_boxFinset_le b0 wb hwD)
-
+  exact removedKernel_kerBound_of_hid_action_cl geo cs SD KD hk1p hk1 hm hk1K hk1K1 hmk hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd hc0 hrr Zt δk cen radZ e cb hN2 Qtot hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef hβ0 ha₁ hd hk b0 wb hw1 hwD hmD hXreg hΩ hdata Hbg hδ hδc hp0 hradδ Hbg0 hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp hQtotv hQuiet hδd hdL hβ haw hμ hrad hT t s z w ht hs hz hw ht_def hc0s hcb hcbZ0 wz hLc hwz1 hwz2 bw0 hbw0 F hF ok hx hCE' hCvol hCR u hu hu1 hb htm hsm hzm hwm hum hc0m hrm hC6 hA0 hδk hradZ parT rk hrk hreg hregc hadj hadjc hw0 hw2 hcc hFz hTn hrem hTcard EZ hEZ B κK hκs hkept hκ hr hTB cst hcst hCk hβa cl hcl Pp hc0P hPloc wt hwt (fun κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10
+    hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK =>
+    hnamedCUD κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 hv par wd cc ro sh a nd' w' fld ft hfld hft hw
+      hTBp hK (windowHS_of_kernel geo cs SD KD hk1 hm hmk hq ρ br hW hk1def hρ _ _ hv
+        (left_ne_zero_of_mul hK) hleBr))
 
 end Core
 
