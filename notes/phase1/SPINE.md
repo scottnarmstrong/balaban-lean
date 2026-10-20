@@ -1221,3 +1221,9 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 **Resolved (W1148, 2026-10-20).** `PreRec` carries the field `vacTie` (the step data of every torus are tied to the flow `Ev`, offsets per torus), as the source's construction gives it
 (P4 (2.1), (2.41), (2.63)); `SFStep` supplies it from `LFStepDataInput`, the rule-10 witness has the zero flow. `vacuumB0Bound_of_tie` (D = 0 in `norm_b_add_flowVacuumTerm_le`) proves
 `VacuumB0Bound`, `rVacuumB0Input` proves `RVacuumB0Input` (`RecB0Bound` now has offsets per torus).
+
+**Row (c) of A4-2ab, `ℬ′`: what blocks it (W1148, 2026-10-20; for the Opus queue).**
+* `r4Fresh` (`LargeField/R/RGasRepR4Fresh.lean`) is the P3 mixed-derivative coefficient of a given decoupled extension `F S u : (ι → ℂ) → ℂ` of the P7 (3.23)–(3.25) exponent residual (old minus new exponent); `F` is an argument, not supplied (`AUDIT-DEFS-1018.md`).
+* `r4Fresh_aggregate_of_localization` gives `Σ_Y r4Fresh = F S u 1` only under the P3 §4 premises (`Localization.localization_expansion`): `F` analytic in the cut parameters on the P3 polydisc, bounded, and cut-local (`hcut`: it depends on the removed members only through those meeting `Y`).
+* `F` is not definable now: the residual is analytic and local only on the global H7 domain, and "analytic and local on the global domain" does not give a local analytic extension to cut-open parameters (`GENERATOR.md`, REFUTED, counterexample `1/(z - 3/2)`); an `h`-independent canonical extension off the fibre is also refuted (`OFFFIBRE.md`).
+* Needed: a construction of `F` from the old kernels and the removed operators with its analyticity polydisc and cut-locality proved, then the tie `r4Coupling = Rep.B` (`r4Coupling_empty` is not a consequence of the aggregate identity, `AUDIT-DEFS-1018.md`). Rows (d)(e) depend on this: the integral identity `∫ρ' = ∫ρ` of `GasOutput` is about the `ρ'` it produces.
