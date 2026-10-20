@@ -69,15 +69,15 @@ theorem frP_pos (d N : ℕ) {κ : ℝ} (hκ : 0 ≤ κ) {s : ℕ} (hs : 1 ≤ s)
   have : (1 : ℝ) ≤ 2 ^ (N - 1) := one_le_pow₀ (by norm_num)
   linarith
 
-theorem frTau_mul_frS1 (d : ℕ) (κ : ℝ) (s : ℕ) : frTau d κ s * frS1 d s = frBs d κ s / 4 := by
+theorem frTauB_mul_frS1 (d : ℕ) (κ : ℝ) (s : ℕ) : frTauB d κ s * frS1 d s = frBs d κ s / 4 := by
   have hne : (frS1 d s : ℝ) ≠ 0 := by
     have := one_le_frS1 d s
     exact_mod_cast (by omega : frS1 d s ≠ 0)
-  unfold frTau
+  unfold frTauB
   field_simp
 
 theorem frEta_mul (d : ℕ) (κ : ℝ) (s : ℕ) :
-    (8 : ℝ) ^ frKk d s * Real.exp 1 * frEta d κ s = frTau d κ s ^ (2 * frKk d s) := by
+    (8 : ℝ) ^ frKk d s * Real.exp 1 * frEta d κ s = frTauB d κ s ^ (2 * frKk d s) := by
   unfold frEta
   field_simp
 
@@ -360,7 +360,7 @@ theorem kf0FR_fixed {δ κ c₉ : ℝ} {L M : ℕ} (hd : 1 ≤ d) (hκ : 0 < κ)
   have hkR : (1 + d) * (4 * R + 3) ^ d = k := by rw [hk, hR]; rfl
   have hs₁R : (4 * R + 3) ^ d = s₁ := by rw [hs₁, hR]; rfl
   obtain ⟨bs, hbs⟩ : ∃ bs, bs = frBs d κ (M * L) := ⟨_, rfl⟩
-  obtain ⟨τ, hτ⟩ : ∃ τ, τ = frTau d κ (M * L) := ⟨_, rfl⟩
+  obtain ⟨τ, hτ⟩ : ∃ τ, τ = frTauB d κ (M * L) := ⟨_, rfl⟩
   obtain ⟨η, hη⟩ : ∃ η, η = frEta d κ (M * L) := ⟨_, rfl⟩
   obtain ⟨p, hp⟩ : ∃ p, p = frP d N κ (M * L) := ⟨_, rfl⟩
   obtain ⟨θ, hθ⟩ : ∃ θ, θ = frThetaStar d L R := ⟨_, rfl⟩
@@ -368,9 +368,9 @@ theorem kf0FR_fixed {δ κ c₉ : ℝ} {L M : ℕ} (hd : 1 ≤ d) (hκ : 0 < κ)
   have hns0 : 0 < ns := by rw [hns]; exact frNuStar_pos hL
   have hbs0 : 0 < bs := by rw [hbs]; exact frBs_pos d κ hs1
   have hbs1 : bs ≤ 1 := by rw [hbs]; exact frBs_le_one d hκ.le hs1
-  have hτ0 : 0 < τ := by rw [hτ]; exact frTau_pos d κ hs1
-  have hτ1 : τ ≤ 1 := by rw [hτ]; exact frTau_le_one d hκ.le hs1
-  have hτs : τ * s₁ = bs / 4 := by rw [hτ, hs₁, hbs]; exact frTau_mul_frS1 d κ _
+  have hτ0 : 0 < τ := by rw [hτ]; exact frTauB_pos d κ hs1
+  have hτ1 : τ ≤ 1 := by rw [hτ]; exact frTauB_le_one d hκ.le hs1
+  have hτs : τ * s₁ = bs / 4 := by rw [hτ, hs₁, hbs]; exact frTauB_mul_frS1 d κ _
   have hη0 : 0 < η := by rw [hη]; exact frEta_pos d κ hs1
   have hΘ : (8 : ℝ) ^ k * Real.exp 1 * η = τ ^ (2 * k) := by
     rw [hη, hτ, hk]; exact frEta_mul d κ _
