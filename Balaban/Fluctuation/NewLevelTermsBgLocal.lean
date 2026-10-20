@@ -608,6 +608,49 @@ theorem evDecBg_canon_local_of (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx c�
   exact coef_congr_near hE1 fun w hw => fanBg_canon_eq_of_family hC hk hG' hHm hHmtop hrow cc hcψ
     hMX hdm hα hsm hcov hX₁ hF₁ hSol Φ hΦ Zb hW hYm hC' hu hu' hAg hw
 
+/-- **The terms of a label not containing the frozen region vanish**: the label of a connected
+family of the expansion contains `X₁`, so if `X₁ ⊄ Y` no family has the label `Y` and every term
+`evDecBg … Y` vanishes. -/
+theorem evDecBg_eq_zero_of_not_subset (Tq : BgTransport Gp Gb N)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (h : ¬ ∀ x ∈ X₁f, x ∈ Y) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zq : Finset (unitPts Gb)) (um tm : ℂ)
+    (u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gb × Fin N → ℂ)) :
+    evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν Tq cc F₁ Sol Φ Zq um tm Y u = 0 := by
+  classical
+  have hempty : connFams (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+      Gp m₀ (X1 Gp m₀ j 𝒦X) Y = ∅ := by
+    refine Finset.eq_empty_of_forall_notMem fun C hCm => h fun x hx => ?_
+    obtain ⟨-, hCY⟩ := (mem_connFams _).1 hCm
+    rw [← hCY]
+    refine subset_Ysites _ C ?_
+    rw [← hX₁]
+    exact Finset.mem_coe.2 hx
+  unfold evDecBg evTerm
+  rw [hempty, Finset.sum_empty]
+
+/-- **The terms of a label with the margin vanish when the frozen region leaves the top layer**:
+a label `Y` with `LabelMargin Gb Y` lies in `Ω_{k+1}(Gb)`, so if `X₁` does not, `X₁ ⊄ Y`. -/
+theorem evDecBg_eq_zero_of_not_top (Tq : BgTransport Gp Gb N)
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (htop : ¬ ∀ x ∈ X₁f, x ∈ Gb.Ω (k + 1)) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYm : LabelMargin Gb Y) (cc : ℂ)
+    (F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    (Φ : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ)
+    (Zq : Finset (unitPts Gb)) (um tm : ℂ)
+    (u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (unitPts Gb × Fin N → ℂ)) :
+    evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν Tq cc F₁ Sol Φ Zq um tm Y u = 0 :=
+  evDecBg_eq_zero_of_not_subset Tq hX₁ (fun h => htop fun x hx => hYm.subset x (h x hx)) cc F₁
+    Sol Φ Zq um tm u
+
 /-- **(AE2) of Lemma 4.2 at `Gb` for the block energies** (the zero-source and old terms of the
 new level are terms of the block energies, `zeroTermBg`): under the hypotheses of
 `evDecBg_canon_local_of`, with the functional `blockEnergyFun Gb H⁻ … k z` of the block `z`, whose
@@ -667,17 +710,7 @@ theorem evDecBg_canon_local_blockEnergy (hC : FlCore N Gb Hm a₁ ν c BG κ eps
       _ (fun {_ _ _ _ _ _ _ _ _ _ _ _} hαSY _ hδ hψ _ hXY =>
         blockEnergyFun_rowAgree (compWeight L a₁) ν z hZ (blockMargin_of_top hC.Sp hG' htop hBM)
           hαSY hδ hψ hXY) Zb um tm hW Y hYm u hu u' hu' hAg
-  · have hempty : connFams (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
-        Gp m₀ (X1 Gp m₀ j 𝒦X) Y = ∅ := by
-      refine Finset.eq_empty_of_forall_notMem fun C hCm => htop fun x hx => ?_
-      obtain ⟨-, hCY⟩ := (mem_connFams _).1 hCm
-      refine hYm.subset x ?_
-      rw [← hCY]
-      refine compY_subset_Ysites hcov.hU hcov.hN (fun i => i.1.2) _ C ?_
-      rw [← hX₁]
-      exact subset_compY _ C (Finset.mem_coe.2 hx)
-    unfold evDecBg evTerm
-    rw [hempty, Finset.sum_empty, Finset.sum_empty]
+  · rw [evDecBg_eq_zero_of_not_top _ hX₁ htop hYm, evDecBg_eq_zero_of_not_top _ hX₁ htop hYm]
 
 end Local
 

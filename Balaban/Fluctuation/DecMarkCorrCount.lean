@@ -145,6 +145,47 @@ theorem decMarkCorrBg_eq_zero_of
 
 end VanishingBg
 
+section OnClass
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {β : Type*} [Fintype β] {m₀ : ℕ}
+
+open Classical in
+/-- **The count on a class of domains closed under subsets.**  The statement of
+`norm_markedOutDec_le_of_term_bounds` for the rooted domains `Y'` of a class `P` closed under
+subsets, from the bounds of the terms of the pairs whose domain is in `P`: the domains of the pairs
+attached to `Y'` lie in `Y'`, and the terms off `P` are cut off. -/
+theorem norm_markedOutDec_le_of_term_bounds_on (hN : L ^ m₀ ∣ N₁)
+    (reads : β → Set (CTorus d L N₁ m₁ K))
+    (dom : β → Finset (Set (CTorus d L N₁ m₁ K)))
+    (hdom : ∀ b, ∀ Y ∈ dom b, IsDj m₀ K Y) (z : RootIdx d L N₁ m₁ K)
+    (T : β → Set (CTorus d L N₁ m₁ K) → ℂ → ℂ)
+    {C₀ M κdec : ℝ} (hC₀ : 0 ≤ C₀) (hM : 0 ≤ M) (hκ : 1 ≤ 2 * κdec)
+    (P : Set (CTorus d L N₁ m₁ K) → Prop) (hP : ∀ Y Y', Y ⊆ Y' → P Y' → P Y)
+    (hbd : ∀ q ∈ markedIdx reads dom z, P q.2 → ‖deriv (T q.1 q.2) 0‖ ≤
+      C₀ * Real.exp (-(2 * κdec) * treeLenCovOne m₀ K q.2))
+    (hcount : ∀ Y, (((markedIdx reads dom z).filter (fun q => q.2 = Y)).card : ℝ) ≤
+      M * (1 + treeLenCovOne m₀ K Y))
+    {Y' : Set (CTorus d L N₁ m₁ K)} (hY' : P Y') :
+    ‖markedOutDec m₀ reads dom z T Y'‖ ≤ C₀ * M * ((nFibre d L : ℝ) *
+      (Real.exp ((2 * κdec - 1) * cBr d L) *
+        Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ K Y'))) := by
+  have e : markedOutDec m₀ reads dom z T Y' =
+      markedOutDec m₀ reads dom z (fun b Y => if P Y then T b Y else fun _ => 0) Y' := by
+    unfold markedOutDec
+    refine Finset.sum_congr rfl fun q hq => ?_
+    have hPq : P q.2 := hP _ _ ((Finset.mem_filter.1 hq).2 ▸ subset_bridge z q.2) hY'
+    simp only [hPq, ↓reduceIte]
+  rw [e]
+  refine norm_markedOutDec_le_of_term_bounds hN reads dom hdom z _ hC₀ hM hκ (fun q hq => ?_)
+    hcount Y'
+  by_cases hPq : P q.2
+  · simp only [hPq, ↓reduceIte]
+    exact hbd q hq hPq
+  · simp only [hPq, ↓reduceIte, deriv_const, norm_zero]
+    exact mul_nonneg hC₀ (Real.exp_pos _).le
+
+end OnClass
+
 section CountBg
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱm : ℝ}
@@ -198,6 +239,85 @@ theorem deriv_decMarkCorrTermBg
         (Sol b) (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um Φ) := rfl
   rw [e, h.deriv]
   simp
+
+open Classical in
+/-- **The bound of the rooted outputs of the corrected marks on a background generating set, on a
+class of domains closed under subsets** (conclusion 1 of `corrected_markedOutDecBg_count_of_bounds`,
+which is the case of all domains): from the cubic bound of the corrected marks of the labels of a
+class `P` closed under subsets, `‖O Y′‖ ≤ F₀ e^{−(2κ_dec−1) d(Y′)}` for every rooted domain `Y′` of
+`P` (the labels of the pairs attached to `Y′` lie in `Y′`). -/
+theorem corrected_markedOutDecBg_bound_on
+    (hG' : IsLevel S.G' (k + 1)) (hd : 3 ≤ d)
+    (hcovV : ∀ b, CovSetup S.G' m₀ (jV b) (XV b) (𝒦XV b))
+    (hX₁V : ∀ b, (↑(X₁V b) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' m₀ (jV b) (𝒦XV b))
+    (hoptV : ∀ b, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XV b) ∧ MeetsOne m₀ (jV b) (𝒦XV b) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (jV b)) E₀ = treeLenCovOne m₀ (jV b) (XV b))
+    (hZV : ∀ b, readSites Hm k b ⊆ ↑(X₁V b))
+    (hκ1 : 1 ≤ 2 * κdec)
+    (zr : RootIdx d L N₁ m₁ (k + 1))
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    {ρ : ℝ} (hp : 0 < S.p₁) (β : ℂ) (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N)
+    {R U Est : ℝ} (hR : 0 < R) {um : ℂ} (Φ : ∀ b, (S.blockSplit m₀ hp).Ωb b)
+    (P : Set (CTorus d L N₁ m₁ (k + 1)) → Prop) (hP : ∀ Y Y', Y ⊆ Y' → P Y' → P Y)
+    (hbd : ∀ b, ∀ Y, P Y → ‖decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b)
+        (Sol b) (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um Φ‖ ≤
+      4 * (Est * Real.exp (-2 * κdec * treeLenCov S.G' m₀ Y) / R) * (U / R) ^ 2) :
+    ∀ Y', P Y' → ‖markedOutDec m₀ (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y'‖ ≤
+        ‖β‖ * 4 * ‖Est‖ * U ^ 2 / R ^ 3 *
+          (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
+          ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) *
+          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y') := by
+  classical
+  set E : ℝ := ‖Est‖ with hE
+  have hN : L ^ m₀ ∣ N₁ := (hcovV zr).hN
+  have hdom : ∀ b, ∀ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b), IsDj m₀ (k + 1) Y :=
+    fun b Y hY => isDj_of_polymerDomains (fun i : ParIdx S.G' (↑(X₁V b) :
+      Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hG' (hcovV b) hd (fun i => i.1.2) (hoptV b) hY
+  -- the terms
+  have hterm : ∀ b, ∀ Y, P Y → ‖deriv (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm
+      ρ hp β Θ um Φ b Y) 0‖ ≤ (‖β‖ * 4 * E * U ^ 2 / R ^ 3) *
+      Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
+    intro b Y hY
+    rw [deriv_decMarkCorrTermBg, norm_mul, norm_neg]
+    have h3 := hbd b Y hY
+    rw [treeLenCov_eq_treeLenCovOne hG' m₀ Y] at h3
+    have hex : Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y) =
+        Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by congr 1; ring
+    rw [hex] at h3
+    have hee := Real.exp_pos (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y)
+    have hEle : Est ≤ E := Real.le_norm_self _
+    have h4 : 4 * (Est * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) / R) * (U / R) ^ 2 ≤
+        4 * E * U ^ 2 / R ^ 3 * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
+      have e : 4 * E * U ^ 2 / R ^ 3 * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) =
+          4 * (E * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) / R) * (U / R) ^ 2 := by
+        field_simp
+      rw [e]
+      gcongr
+    calc ‖β‖ * ‖decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
+          (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um Φ‖
+        ≤ ‖β‖ * (4 * E * U ^ 2 / R ^ 3 *
+            Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y)) :=
+          mul_le_mul_of_nonneg_left (h3.trans h4) (norm_nonneg _)
+      _ = _ := by ring
+  have hC₀ : 0 ≤ ‖β‖ * 4 * E * U ^ 2 / R ^ 3 := by positivity
+  have hcount := card_markedIdx_fibre_le_dec hG' hd zr hcovV hX₁V hoptV hZV (Hm := Hm)
+  have hM : 0 ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d := by
+    have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+    positivity
+  intro Y' hY'
+  refine (norm_markedOutDec_le_of_term_bounds_on hN (fun _ => Set.univ)
+    (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) hdom zr
+    (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ)
+    hC₀ hM hκ1 P hP (fun q _ hq => hterm q.1 q.2 hq) hcount hY').trans (le_of_eq ?_)
+  ring
 
 /-- **The rooted count of the corrected marks on a background generating set, from the term
 bounds.**  Let the covers of the blocks be as in `marked_count_scaled_dec` (on the step's set
@@ -271,50 +391,17 @@ theorem corrected_markedOutDecBg_count_of_bounds
   have hdom : ∀ b, ∀ Y ∈ polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b), IsDj m₀ (k + 1) Y :=
     fun b Y hY => isDj_of_polymerDomains (fun i : ParIdx S.G' (↑(X₁V b) :
       Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1) hG' (hcovV b) hd (fun i => i.1.2) (hoptV b) hY
-  -- the terms
-  have hterm : ∀ b, ∀ Y, ‖deriv (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp
-      β Θ um Φ b Y) 0‖ ≤ (‖β‖ * 4 * E * U ^ 2 / R ^ 3) *
-      Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
-    intro b Y
-    rw [deriv_decMarkCorrTermBg, norm_mul, norm_neg]
-    have h3 := hbd b Y
-    rw [treeLenCov_eq_treeLenCovOne hG' m₀ Y] at h3
-    have hex : Real.exp (-2 * κdec * treeLenCovOne m₀ (k + 1) Y) =
-        Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by congr 1; ring
-    rw [hex] at h3
-    have hee := Real.exp_pos (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y)
-    have hEle : Est ≤ E := Real.le_norm_self _
-    have h4 : 4 * (Est * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) / R) * (U / R) ^ 2 ≤
-        4 * E * U ^ 2 / R ^ 3 * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) := by
-      have e : 4 * E * U ^ 2 / R ^ 3 * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) =
-          4 * (E * Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y) / R) * (U / R) ^ 2 := by
-        field_simp
-      rw [e]
-      gcongr
-    calc ‖β‖ * ‖decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
-          (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um Φ‖
-        ≤ ‖β‖ * (4 * E * U ^ 2 / R ^ 3 *
-            Real.exp (-(2 * κdec) * treeLenCovOne m₀ (k + 1) Y)) :=
-          mul_le_mul_of_nonneg_left (h3.trans h4) (norm_nonneg _)
-      _ = _ := by ring
-  have hC₀ : 0 ≤ ‖β‖ * 4 * E * U ^ 2 / R ^ 3 := by positivity
-  have hcount := card_markedIdx_fibre_le_dec hG' hd zr hcovV hX₁V hoptV hZV (Hm := Hm)
-  have hM : 0 ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d := by
-    have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
-    positivity
-  have hbound := fun Y' => norm_markedOutDec_le_of_term_bounds hN (fun _ => Set.univ)
-    (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) hdom zr
-    (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ)
-    hC₀ hM hκ1 (fun q _ => hterm q.1 q.2) hcount Y'
   have hB : ∀ Y', ‖markedOutDec m₀ (fun _ => Set.univ)
           (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
           (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y'‖ ≤
         ‖β‖ * 4 * E * U ^ 2 / R ^ 3 * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
           ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) *
-          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y') := by
-    intro Y'
-    refine (hbound Y').trans (le_of_eq ?_)
-    ring
+          Real.exp (-(2 * κdec - 1) * treeLenCovOne m₀ (k + 1) Y') := fun Y' =>
+    corrected_markedOutDecBg_bound_on S hG' hd hcovV hX₁V hoptV hZV hκ1 zr F₁ Sol hp β Θ hR Φ
+      (fun _ => True) (fun _ _ _ _ => trivial) (fun b Y _ => hbd b Y) Y' trivial
+  have hM : 0 ≤ c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d := by
+    have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+    positivity
   have hF₀ : 0 ≤ ‖β‖ * 4 * E * U ^ 2 / R ^ 3 * (c1 d L * ((L : ℝ) ^ (m₀ + m₁)) ^ d) *
       ((nFibre d L : ℝ) * Real.exp ((2 * κdec - 1) * cBr d L)) := by
     have : (0 : ℝ) ≤ (nFibre d L : ℝ) := by unfold nFibre; positivity
