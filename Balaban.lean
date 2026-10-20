@@ -2890,6 +2890,8 @@ public import Balaban.Spine.RootF
 public import Balaban.Spine.RootC
 public import Balaban.Spine.Witness
 public import Balaban.Spine.TransferAnalysis
+public import Balaban.Spine.BudgetSetupOfRun
+public import Balaban.Spine.PrefixBudget
 public import Balaban.Spine.Transfer
 public import Balaban.Spine.ClassStep
 public import Balaban.Spine.FrozenStep
@@ -2899,6 +2901,7 @@ public import Balaban.Spine.FinalRepRemoval
 public import Balaban.Spine.FinalSfGauss
 public import Balaban.Spine.FinalSfConst
 public import Balaban.Spine.FinalSfUniv
+public import Balaban.Spine.RemovalHist
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
 public import Balaban.Spine.KfZeroGood
@@ -2909,11 +2912,16 @@ public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
+public import Balaban.Spine.FrozenSFClauses
+public import Balaban.Spine.FrozenSFBudget
+public import Balaban.Spine.FrozenSFImage
+public import Balaban.Spine.FrozenSFStep
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
 public import Balaban.Spine.RVacuumTie
 public import Balaban.Spine.RVacuumB0Defect
+public import Balaban.Spine.RVacuumRetieBound
 public import Balaban.Spine.LFStep
 public import Balaban.Spine.LFBdryHole
 public import Balaban.Spine.LFBdry
