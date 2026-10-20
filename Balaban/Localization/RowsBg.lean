@@ -109,15 +109,16 @@ theorem rowSite_subset (S : DGSetting G a ν)
     have hzZ' := Finset.mem_filter.1 hzZ
     exact hzZ'.2.2 y (row_mem_hatBox S hzZ'.1 α₀ hxz hxy)
 
-/-- **`local_step` with agreement on the sites read** (T1). -/
-theorem local_step_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
-    (hconn : HatConn G)
+/-- **Core of `local_step_rows`**, with the connectedness of the thickened cubes asked only at the
+admissible centres (`HatConnAdm`). -/
+theorem local_step_rows_adm {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
     {κ : ℝ} (hκ : 0 ≤ κ) (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
     {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
     {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ ρ : ℝ} (hα0 : Small G α₀ δ₀) (hα0' : Small G α₀' δ₀)
     (hρ : δ₀ + ρ ≤ gamma1 d / 8)
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hconn : HatConnAdm G X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
     (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
     (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
@@ -152,7 +153,7 @@ theorem local_step_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSett
     intro y hy i
     unfold dphi
     rw [liftOp_mulVec, liftOp_mulVec]
-    refine dg5'_inner S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
+    refine dg5'_inner_adm S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
       (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hs1 hs0 hag hAeq
       (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) (toAlpha G ξ) (b, i))
       (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') (toAlpha G η) (b, i)) ?_ y hy
@@ -178,6 +179,28 @@ theorem local_step_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSett
   · have hrow : RowSite G a ν α₀ (SY G X₁ 𝒞 Y) y := Or.inr ⟨x, hxT, hy⟩
     have hyY : (y : CTorus d L N₁ m₁ K) ∈ Y := rowSite_subset S hrow
     exact ⟨fun i => by rw [hD.phi y hrow], fun i => hdphi y hyY i⟩
+
+/-- **`local_step` with agreement on the sites read** (T1). -/
+theorem local_step_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G)
+    {κ : ℝ} (hκ : 0 ≤ κ) (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ ρ : ℝ} (hα0 : Small G α₀ δ₀) (hα0' : Small G α₀' δ₀)
+    (hρ : δ₀ + ρ ≤ gamma1 d / 8)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgreeRows G a ν N (SY G X₁ 𝒞 Y) α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {ξ η : G.Ω 1 → ℂ} (hξ : ∀ x, ‖ξ x‖ ≤ ρ) (hη : ∀ x, ‖η x‖ ≤ ρ)
+    (hξη : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → ξ x = η x) :
+    ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y →
+      Smap G (decG G a ν s) (dirichletOperator G a ν α₀) ιU α₀ φ₀ (pertSource G a δΨ f₁) ξ x =
+      Smap G (decG G a ν s') (dirichletOperator G a ν α₀') ιU α₀' φ₀' (pertSource G a δΨ' f₁') η x :=
+  local_step_rows_adm hF S hκ hM hs hs' hα0 hα0' hρ (hconn.hatConnAdm X₁ 𝒞) hY hs1 hs0 hag hD hξ hη
+    hξη
 
 /-- The landed `DataAgree` on `Y` implies the narrower agreement. -/
 theorem dataAgreeRows_of_dataAgree (S : DGSetting G a ν)
@@ -213,10 +236,10 @@ theorem local_step_of_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGS
   local_step_rows hF S hconn hκ hM hs hs' hα0 hα0' hρ hY hs1 hs0 hag
     (dataAgreeRows_of_dataAgree S hD) hξ hη hξη
 
-/-- **`i4a_local` with agreement on the sites read** (T2): the paired Picard iteration with
-`local_step_rows`. -/
-theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
-    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+/-- **Core of `i4a_local_rows`**, with the connectedness of the thickened cubes asked only at the
+admissible centres (`HatConnAdm`). -/
+theorem i4a_local_rows_adm {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
     {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
@@ -225,6 +248,7 @@ theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
     (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hconn : HatConnAdm G X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
     (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
     (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
@@ -285,8 +309,8 @@ theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     refine fixed_agree_of_step (T := fun x : G.Ω 1 => (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y)
       (fun u v hu hv huv i hi => ?_) (fun n => ⟨(hit n).1, (hit n).2⟩)
       (fun n => ⟨(hit' n).1, (hit' n).2⟩) hC.ρ_nn
-    exact local_step_rows hF S hconn hκ hM hs hs' H.alpha0 H'.alpha0 (hpoly H.alpha0)
-      hY hs1 hs0 hag hD hu hv huv i hi
+    exact local_step_rows_adm hF S hκ hM hs hs' H.alpha0 H'.alpha0 (hpoly H.alpha0)
+      hconn hY hs1 hs0 hag hD hu hv huv i hi
   have hδ : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x := by
     intro x hx
     rw [← e1, ← e2]
@@ -298,7 +322,7 @@ theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     ((Small.add H'.alpha0 hsm') z).trans (hpoly H'.alpha0)
   unfold dphi
   rw [liftOp_mulVec, liftOp_mulVec]
-  refine dg5'_inner S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
+  refine dg5'_inner_adm S hconn hY (admPot_of_small hd0 hA) (admPot_of_small hd0 hA')
     (hunit (admPot_of_small hd0 hA)) (hunit' (admPot_of_small hd0 hA')) hs1 hs0 hag
     (fun z hz => ?_) (f := fun b => Fsrc φ₀ (pertSource G a δΨ f₁) δα (b, i))
     (f' := fun b => Fsrc φ₀' (pertSource G a δΨ' f₁') δα' (b, i)) (fun b hb => ?_) y hy
@@ -306,6 +330,35 @@ theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetti
     rw [hD.alpha z hz, hδ z hz]
   · simp only [Fsrc]
     rw [pertSource_congr_rows hD hb i, hD.phi b (Or.inl hb), hδ b hb]
+
+/-- **`i4a_local` with agreement on the sites read** (T2): the paired Picard iteration with
+`local_step_rows`. -/
+theorem i4a_local_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
+    (hconn : HatConn G) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : cstar * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {s s' : DecParams G} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {ιU : Bool} {α₀ α₀' : G.Ω 1 → ℂ} {φ₀ φ₀' δΨ δΨ' : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    {f₁ f₁' : G.Ω 1 × Fin N → ℂ} {δ₀ δ₁ : ℝ}
+    (H : DecHyp G a ν ιU α₀ φ₀ δΨ f₁ δ₀ δ₁) (H' : DecHyp G a ν ιU α₀' φ₀' δΨ' f₁' δ₀ δ₁)
+    (hδ₀ : δ₀ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    (hδ₁ : δ₁ ≤ deltaStar' d L N (famConst d L BG κ) (gamma1 d / 8))
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hD : DataAgreeRows G a ν N (SY G X₁ 𝒞 Y) α₀ α₀' φ₀ φ₀' δΨ δΨ' f₁ f₁')
+    {δα δα' : G.Ω 1 → ℂ}
+    (hfix : DecFixed G a ν s ιU α₀ φ₀ (pertSource G a δΨ f₁) δα)
+    (hsm : Small G δα (c6' d L N (famConst d L BG κ) (gamma1 d / 8)))
+    (hfix' : DecFixed G a ν s' ιU α₀' φ₀' (pertSource G a δΨ' f₁') δα')
+    (hsm' : Small G δα' (c6' d L N (famConst d L BG κ) (gamma1 d / 8))) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → δα x = δα' x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      dphi G (decG G a ν s) α₀ φ₀ (pertSource G a δΨ f₁) δα (y, i) =
+      dphi G (decG G a ν s') α₀' φ₀' (pertSource G a δΨ' f₁') δα' (y, i)) :=
+  i4a_local_rows_adm hF S hκ hM hs hs' H H' hδ₀ hδ₁ (hconn.hatConnAdm X₁ 𝒞) hY hs1 hs0 hag hD hfix
+    hsm hfix' hsm'
 
 /-- The landed `i4a_local` from `i4a_local_rows` (T4). -/
 theorem i4a_local_of_rows {cstar BG : ℝ} (hF : FamSpec d L cstar BG) (S : DGSetting G a ν)
@@ -349,10 +402,9 @@ def RowsDep (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν
   (∃ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ B ∧ z ∈ resDep G (x : CTorus d L N₁ m₁ K)) ∨
     ∃ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) B y ∧ z ∈ approxDep G (y : CTorus d L N₁ m₁ K)
 
-/-- **`i4b_local` with raw-data agreement on `A` only** (T3).  Conclusions: multiplier equality on
-`B`; equality of the correction `φ - φ₀` on `Y`; equality of `φ` at sites of `Y` whose
-`approxDep` lies in `A`, and at the sites read by the rows. -/
-theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (hconn : HatConn G)
+/-- **Core of `i4b_local_rows`**, with the connectedness of the thickened cubes asked only at the
+admissible centres (`HatConnAdm`). -/
+theorem i4b_local_rows_adm {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν)
     (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
     (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
@@ -360,6 +412,7 @@ theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
     (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
     (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hconn : HatConnAdm G X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
     (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
     (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
@@ -411,7 +464,7 @@ theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
       (residual G a ν D₂ (approxField G a ν D₂.Ψ D₂.h)) :=
     ⟨fun _ _ => rfl, hphi, fun _ _ => rfl, fun _ _ _ => rfl,
       fun x hx i => residual_congr x i fun z hz => hdata z (Or.inl ⟨x, hx, hz⟩)⟩
-  obtain ⟨hα, hφ⟩ := i4a_local_rows hS.fam S hconn hκ hM hs hs' Hd Hd₂ hle hle hY hs1 hs0 hag hDA
+  obtain ⟨hα, hφ⟩ := i4a_local_rows_adm hS.fam S hκ hM hs hs' Hd Hd₂ hle hle hconn hY hs1 hs0 hag hDA
     hfix h.small hfix₂ h₂.small
   have hcorr : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
       φ (y, i) - approxField G a ν D.Ψ D.h y i = φ₂ (y, i) - approxField G a ν D₂.Ψ D₂.h y i := by
@@ -431,6 +484,36 @@ theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a 
   refine ⟨hα, hcorr, hfull, fun y hy i => hfull y (rowSite_subset S hy) ?_ i⟩
   intro z hz
   exact Or.inr ⟨y, hy, hz⟩
+
+/-- **`i4b_local` with raw-data agreement on `A` only** (T3).  Conclusions: multiplier equality on
+`B`; equality of the correction `φ - φ₀` on `Y`; equality of `φ` at sites of `Y` whose
+`approxDep` lies in `A`, and at the sites read by the rows. -/
+theorem i4b_local_rows {c BG : ℝ} (hS : DecSpecs d L c BG) (S : DGSetting G a ν) (hconn : HatConn G)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
+    (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hdata : ∀ z, RowsDep G a ν (SY G X₁ 𝒞 Y) z → D.Ψ z = D₂.Ψ z ∧ (z ∈ G.Ω 1 → D.h z = D₂.h z))
+    {φ φ₂ : G.Ω 1 × Fin N → ℂ} {α α₂ : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h₂ : IsDecBg G a ν (rho4 d L N BG κ) s' D₂ φ₂ α₂) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → α x = α₂ x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ (y, i) - approxField G a ν D.Ψ D.h y i = φ₂ (y, i) - approxField G a ν D₂.Ψ D₂.h y i) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep G (y : CTorus d L N₁ m₁ K), RowsDep G a ν (SY G X₁ 𝒞 Y) z) →
+      ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) ∧
+    (∀ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) (SY G X₁ 𝒞 Y) y → ∀ i : Fin N,
+      φ (y, i) = φ₂ (y, i)) :=
+  i4b_local_rows_adm hS S HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂ (hconn.hatConnAdm X₁ 𝒞) hY hs1
+    hs0 hag hdata h h₂
 
 /-- A site read by a row at `x` lies in `resSites x`. -/
 theorem mem_resSites_of_entry_ne_zero {α : G.Ω 1 → ℂ} {x y : G.Ω 1}

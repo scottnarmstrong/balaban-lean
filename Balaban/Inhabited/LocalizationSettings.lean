@@ -52,6 +52,17 @@ theorem locHyp_nonempty {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : �
   · intro P hP _; simp [hP]
   · intro P _ _; rfl
 
+/-- **`LocHypAdm` is inhabited** for every generating set with `HatConn` and every `X₁`
+(`locHyp_nonempty` and `LocHyp.toAdm`). -/
+theorem locHypAdm_nonempty {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    (hd : 0 < d) (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (hG : HatConn G)
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) :
+    ∃ (Y : Finset (CTorus d L N₁ m₁ (k + 1))) (α : G.Ω 1 → ℂ)
+      (s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ),
+      Nonempty (LocHypAdm G X₁ ∅ Y α s s') := by
+  obtain ⟨Y, α, s, s', ⟨H⟩⟩ := locHyp_nonempty hd G hG X₁
+  exact ⟨Y, α, s, s', ⟨H.toAdm⟩⟩
+
 section Pos
 
 /-- A positive-scale parameter choice: `m₁ ≥ 4` with `c* ≤ 3^{m₁}`. -/
