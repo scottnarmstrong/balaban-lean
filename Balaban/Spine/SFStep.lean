@@ -123,38 +123,14 @@ theorem vacExt_of_le {E : ℕ → ℝ} {k j : ℕ} (e : ℝ) (h : j ≤ k) : vac
 theorem vacExt_succ (E : ℕ → ℝ) (k : ℕ) (e : ℝ) : vacExt E k e (k + 1) = e := by
   simp [vacExt]
 
-section Inputs
+section ImageQ
 
-variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
-  (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
-  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
-  (Φ : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
-    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
-      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉))
-  (ΦE : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
-    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → (ℕ → ℝ) → ℝ)
-
-/-- **The form of the small-field sub-inputs**: a property `Q` of the image `Φ sf` of the small-field
-data `sf` of every member of `ℛ_k`, `1 ≤ k < k₀`, for `β ≥ β₀(κ, c₉)`, `0 < ν ≤ 7/8 L⁻²`. The map
-`Φ` is the small-field step of the source (I-9: SF Theorems 5.1–5.3, P4 Theorem 1, P5 Theorem 1),
-a parameter of the sub-spine. -/
-def SFImageInput (Q : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
-    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
-      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop) : Prop :=
-  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
-  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 → ∀ [NeZero (T κ c₉).L],
-  ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
-  ∀ sf : SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉),
-    SFClassAt d N (T κ c₉).L (P6 κ c₉) (C7 κ c₉).m₁ (ϱ κ c₉) (cs₀ κ c₉).aKer β ν k sf →
-    Q κ c₉ β ν k sf (Φ κ c₉ β ν k sf)
-
-/-- **A4-1a, the inherited data (I-9, inherited part; ruling R6; the free flow (II.1)).** The image
-keeps the running constants `β_j, ν_j, z_j, a_j` and the terms `ℰ^{(j)}, ℳ^{(j)}` with their
-generating sets at the levels `j ≤ k`, transported to the tori of scale `k + 1`
-(`liftOldTermsFam`, along `oldTorusEquiv`); the new kernel coefficient follows the free flow,
-`a_{k+1} = a (1 - L⁻²)/(1 - L^{-2(k+1)})`, and the new field renormalization is positive. -/
-def SFInheritInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ _ _ k _ sf sf' =>
+/-- The property `SFInheritQ` asserts of the image of the small-field data (see `SFInheritInput`). -/
+def SFInheritQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (C7 : ℝ → ℝ → Consts7) (ϱ : ℝ → ℝ → ℝ) (cs₀ : ℝ → ℝ → OpConsts) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ _ _ k _ sf sf' =>
     (∀ j, j ≤ k → sf'.β j = sf.β j ∧ sf'.ν j = sf.ν j ∧ sf'.z j = sf.z j ∧ sf'.a j = sf.a j) ∧
     sf'.a (k + 1) = compWeight (T κ c₉).L (cs₀ κ c₉).aKer (k + 1) ∧ 0 < sf'.z (k + 1) ∧
     ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ k →
@@ -162,13 +138,12 @@ def SFInheritInput : Prop :=
         (sf'.Tm N₂).M j = (liftOldTermsFam sf.Tm N₂).M j ∧
         (sf'.Tm N₂).gs j = (liftOldTermsFam sf.Tm N₂).gs j
 
-/-- **A4-1b, the new level (the fluctuation integral on the local generating set of each polymer;
-P3 (4.44)–(4.47), P4 Proposition 4.1, ruling R8).** On every Def-6 torus the terms of the new level
-`k + 1` (`newLevelTerms`) satisfy the term clauses (H.2)–(H.4), (H.7) on the birth domain of the
-level, their generating sets satisfy the strong specification `𝔹_{k+1}(X)`, and they are torus
-independent (P4 (H.4)). -/
-def SFNewLevelInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ β ν k _ _ sf' =>
+/-- The property `SFNewLevelQ` asserts of the image of the small-field data (see `SFNewLevelInput`). -/
+def SFNewLevelQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7) (ϱ : ℝ → ℝ → ℝ) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ β ν k _ _ sf' =>
     (∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ →
       SFTermClauses (P6 κ c₉)
         (sfDom (P6 κ c₉) (kZero d (T κ c₉).L β ν) sf' N₂) (newLevelTerms (sf'.Tm N₂))) ∧
@@ -177,25 +152,25 @@ def SFNewLevelInput : Prop :=
         GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X)) ∧
     TorusIndep (P6 κ c₉).m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂))
 
-/-- **A4-1c, the renormalization (the counterterm system `ξ^{(k)}` and the densities `D_E`, `D_M`;
-P4 (4.14)–(4.22), (5.28), conditions (H.5), (H.6); `rg_step_infty`).** The coefficients of the image
-satisfy the coefficient bounds (H.6) at `k + 1` (the flow `β_{k+1} = β_k L^{d-2}/(1 + ξ₃)`,
-`ν_{k+1} = ν_k L² (1 + ξ₃)/(1 + ξ₂)` with `|ξ^{(k)}| ≤ (c₈/4) q^{k+1}`, `β_{k+1} > B L^{(k+1)(d-2)}`,
-`0 < ν_{k+1} ≤ ν̄`, the window of `a_{k+1}`), and the new level satisfies the renormalization
-conditions (H.5) at `k + 1`. -/
-def SFRenormInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ _ _ k _ _ sf' =>
-    CoeffBounds d (T κ c₉).L (k + 1) (P6 κ c₉) sf'.β sf'.ν sf'.a ∧
+/-- The property `SFRenormQ` asserts of the image of the small-field data (see `SFRenormInput`): the
+coefficient bounds (H.6) at the constants `Pc` (`P6` for the pre-`R` steps, `massOne P6` for the frozen
+steps) and the renormalization conditions (H.5). -/
+def SFRenormQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7) (ϱ : ℝ → ℝ → ℝ)
+    (Pc : ℝ → ℝ → Def6.Consts) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ _ _ k _ _ sf' =>
+    CoeffBounds d (T κ c₉).L (k + 1) (Pc κ c₉) sf'.β sf'.ν sf'.a ∧
     RenormCondAlong (P6 κ c₉).m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1)
       (torusSeq (T κ c₉).L (P6 κ c₉).m₀) (fun n => torusSeq_ne_zero (P6 κ c₉).m₀ n)
 
-/-- **A4-1d, the density of the new small-field class is real (P4 (H.1) at `k + 1`).** On every
-Def-6 torus, at the real fields realized by a datum `D` inside the small-field region `Ξ_{k+1}` and
-for real sources of `ℓ¹` norm `< 1`, the exponential of the exponent (H.1) of the image (`expo2`,
-the action at the complete background and the composites `ℰ_{k+1}`, `ℱ_{k+1}`) is real. With the
-term clauses this gives the density clause of `IsSF2` (`exists_isSF2_of_real`). -/
-def SFDensityInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ β ν k _ _ sf' =>
+/-- The property `SFDensityQ` asserts of the image of the small-field data (see `SFDensityInput`). -/
+def SFDensityQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7) (ϱ : ℝ → ℝ → ℝ) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ β ν k _ _ sf' =>
     ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ →
       ∀ (Ψ₀ : CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) → Fin N → ℝ)
       (h₀ : Fin N → ℝ) (g : CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1) → Fin N → ℝ)
@@ -208,13 +183,108 @@ def SFDensityInput : Prop :=
       (Complex.exp (expo2 (P6 κ c₉) ⟨kZero d (T κ c₉).L β ν, sf'.ν⟩ sf'.β sf'.a (sf'.Tm N₂)
         (sf'.E N₂) D (fun x i => (g x i : ℂ)))).im = 0
 
+/-- The property `SFRemainderQ` asserts of the image of the small-field data (see `SFRemainderInput`):
+P5 H4 for `ℛ^{(k+1)}` with the allowance `fac` (`preFac` before `R`, `1` for the frozen steps). -/
+def SFRemainderQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (ϱ : ℝ → ℝ → ℝ)
+    (C7 : ℝ → ℝ → Consts7) (fac : ℝ → ℝ → ℕ → ℝ) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ _ _ _ _ _ sf' =>
+    ∀ (N₂ : ℕ) [NeZero N₂], RTermsH4 (ϱ := ϱ κ c₉) (P6 κ c₉) sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂)
+      (fac κ c₉)
+
+/-- The property `SFCoherenceQ` asserts of the image of the small-field data (see `SFCoherenceInput`). -/
+def SFCoherenceQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7) (ϱ : ℝ → ℝ → ℝ) :
+    ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop :=
+  fun κ c₉ _ _ _ _ _ sf' =>
+    D8SF (P6 κ c₉).m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }
+
+end ImageQ
+
+section Inputs
+
+variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
+  (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
+  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+  (Φ : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉))
+  (ΦE : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → (ℕ → ℝ) → ℝ)
+
+/-- **The form of the small-field sub-inputs, over a range and a class**: a property `Q` of the image
+`Φ sf` of the small-field data `sf` of every member of a class `Cls`, for `β ≥ β₀(κ, c₉)`,
+`0 < ν ≤ 7/8 L⁻²` and the scales `k` allowed by the guard `Guard` (a hypothesis list on `κ, c₉, β, ν, k`
+placed before the class). The map `Φ` is the small-field step of the source (I-9: SF Theorems 5.1–5.3,
+P4 Theorem 1, P5 Theorem 1), a parameter of the sub-spine. `SFImageInput` is the case of the pre-`R`
+steps `1 ≤ k < k₀` and the class `SFClassAt`; the frozen steps use the same statements
+(`Spine/FrozenSFImage.lean`). -/
+def SFImageInputGen
+    (Guard : ℝ → ℝ → ℝ → ℝ → ℕ → Prop → Prop)
+    (Cls : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) → Prop)
+    (Q : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop) : Prop :=
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
+  ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 → ∀ [NeZero (T κ c₉).L],
+  ∀ k : ℕ, Guard κ c₉ β ν k
+  (∀ sf : SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉),
+    Cls κ c₉ β ν k sf → Q κ c₉ β ν k sf (Φ κ c₉ β ν k sf))
+
+/-- **The form of the small-field sub-inputs**: a property `Q` of the image `Φ sf` of the small-field
+data `sf` of every member of `ℛ_k`, `1 ≤ k < k₀`, for `β ≥ β₀(κ, c₉)`, `0 < ν ≤ 7/8 L⁻²`. The map
+`Φ` is the small-field step of the source (I-9: SF Theorems 5.1–5.3, P4 Theorem 1, P5 Theorem 1),
+a parameter of the sub-spine. -/
+def SFImageInput (Q : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+    SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop) : Prop :=
+  SFImageInputGen d N T C7 ϱ Φ
+    (fun κ c₉ β ν k X => 1 ≤ k → k < kZero d (T κ c₉).L β ν → X)
+    (fun κ c₉ β ν k _ sf =>
+      SFClassAt d N (T κ c₉).L (P6 κ c₉) (C7 κ c₉).m₁ (ϱ κ c₉) (cs₀ κ c₉).aKer β ν k sf) Q
+
+/-- **A4-1a, the inherited data (I-9, inherited part; ruling R6; the free flow (II.1)).** The image
+keeps the running constants `β_j, ν_j, z_j, a_j` and the terms `ℰ^{(j)}, ℳ^{(j)}` with their
+generating sets at the levels `j ≤ k`, transported to the tori of scale `k + 1`
+(`liftOldTermsFam`, along `oldTorusEquiv`); the new kernel coefficient follows the free flow,
+`a_{k+1} = a (1 - L⁻²)/(1 - L^{-2(k+1)})`, and the new field renormalization is positive. -/
+def SFInheritInput : Prop :=
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFInheritQ d N T C7 ϱ cs₀)
+
+/-- **A4-1b, the new level (the fluctuation integral on the local generating set of each polymer;
+P3 (4.44)–(4.47), P4 Proposition 4.1, ruling R8).** On every Def-6 torus the terms of the new level
+`k + 1` (`newLevelTerms`) satisfy the term clauses (H.2)–(H.4), (H.7) on the birth domain of the
+level, their generating sets satisfy the strong specification `𝔹_{k+1}(X)`, and they are torus
+independent (P4 (H.4)). -/
+def SFNewLevelInput : Prop :=
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFNewLevelQ d N T P6 C7 ϱ)
+
+/-- **A4-1c, the renormalization (the counterterm system `ξ^{(k)}` and the densities `D_E`, `D_M`;
+P4 (4.14)–(4.22), (5.28), conditions (H.5), (H.6); `rg_step_infty`).** The coefficients of the image
+satisfy the coefficient bounds (H.6) at `k + 1` (the flow `β_{k+1} = β_k L^{d-2}/(1 + ξ₃)`,
+`ν_{k+1} = ν_k L² (1 + ξ₃)/(1 + ξ₂)` with `|ξ^{(k)}| ≤ (c₈/4) q^{k+1}`, `β_{k+1} > B L^{(k+1)(d-2)}`,
+`0 < ν_{k+1} ≤ ν̄`, the window of `a_{k+1}`), and the new level satisfies the renormalization
+conditions (H.5) at `k + 1`. -/
+def SFRenormInput : Prop :=
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFRenormQ d N T P6 C7 ϱ P6)
+
+/-- **A4-1d, the density of the new small-field class is real (P4 (H.1) at `k + 1`).** On every
+Def-6 torus, at the real fields realized by a datum `D` inside the small-field region `Ξ_{k+1}` and
+for real sources of `ℓ¹` norm `< 1`, the exponential of the exponent (H.1) of the image (`expo2`,
+the action at the complete background and the composites `ℰ_{k+1}`, `ℱ_{k+1}`) is real. With the
+term clauses this gives the density clause of `IsSF2` (`exists_isSF2_of_real`). -/
+def SFDensityInput : Prop :=
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFDensityQ d N T P6 C7 ϱ)
+
 /-- **A4-1e, the remainder terms `ℛ^{(k+1)}_n` (P5 Propositions 3.1–3.4, LFR Lemma IV.1.8).** On
 every Def-6 torus the terms `ℛ^{(k+1)}_n` of the image satisfy P5 H4 at the scale `k + 1` with the
 pre-`R` allowance `½ β_{k+1}^{-m-1}` at `n = m` (`preFac`). -/
 def SFRemainderInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ _ _ _ _ _ sf' =>
-    ∀ (N₂ : ℕ) [NeZero N₂], RTermsH4 (ϱ := ϱ κ c₉) (P6 κ c₉) sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂)
-      (preFac ((P6 κ c₉).m₀ + (C7 κ c₉).m₁))
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFRemainderQ d N T P6 ϱ C7 (fun κ c₉ => preFac ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)))
 
 /-- **A4-1f, the torus coherence of the new small-field data (D8 at `k + 1`, LFR Theorem IV.1.1 (h),
 D-IV.9; the exact two-torus agreement of the new level, W1089 `e0CoeffFamily_value_fromTowerG_core_twoTorus`,
@@ -222,8 +292,7 @@ W1090 `coreE0_unique`).** The new level `ℳ^{(k+1)}` and the terms `ℛ^{(k+1)}
 same on two tori for polymers that wind around neither (`D8SF` of the image with its levels `j ≤ k`
 emptied; the inherited levels are `liftOldTermsFam_M_eq_of_d8`). -/
 def SFCoherenceInput : Prop :=
-  SFImageInput d N T P6 C7 cs₀ ϱ Φ fun κ c₉ _ _ _ _ _ sf' =>
-    D8SF (P6 κ c₉).m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }
+  SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFCoherenceQ d N T P6 C7 ϱ)
 
 /-- **A4-1g, the vacuum constant of the step (P4 (2.1), (2.41), (2.63); rulings R5, R5′;
 `Fluctuation/VacuumFlow.lean`).** `ΦE` is the vacuum constant `E_{k+1}` of the scale `k + 1`
@@ -295,21 +364,34 @@ def LFStepInput : Prop :=
       ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (lf' nK).SD.VacuumTie Set.univ
         (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp
 
-/-- **A4-1i, the densities of `ℛ_k` are integrable (the premise of P1 (1.11), `∫ T ρ = ∫ ρ`).** For
-`1 ≤ k < k₀`, every member of `ℛ_k` is integrable in the field of the `k`-blocks on every torus of the
-family, for every source of the unit `ℓ¹` ball. -/
-def StepIntegrableInput : Prop :=
+/-- **The integrability input, over a guard and a class**: the members `ρ` of a class `Cls`, at the
+scales allowed by the guard, are integrable in the field of the `k`-blocks on every torus of the
+family, for every source of the unit `ℓ¹` ball. `StepIntegrableInput` is the case of `ℛ_k`,
+`1 ≤ k < k₀`; the frozen steps use `ℛ♭_k` (`Spine/FrozenSFImage.lean`). -/
+def StepIntegrableInputGen
+    (Guard : ℝ → ℝ → ℝ → ℝ → ℕ → ℕ → Prop → Prop)
+    (Cls : ∀ (κ c₉ β _ : ℝ) (_ : EuclideanSpace ℝ (Fin N)) (kf k : ℕ) [NeZero (T κ c₉).L]
+      [NeZero (T κ c₉).M], 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k] → ℝ → Prop) : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
   ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
-  ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
-  ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
-    RepClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
-      (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk →
+  ∀ k : ℕ, Guard κ c₉ β ν kf k
+  (∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
+    Cls κ c₉ β ν h kf k ρ νk →
     ∀ (nK : ℕ) [NeZero nK]
       (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
-        (kf + 1) N → ℂ), g ∈ LargeField.l1Ball _ → Integrable (fun ψ => ρ nK ψ g)
+        (kf + 1) N → ℂ), g ∈ LargeField.l1Ball _ → Integrable (fun ψ => ρ nK ψ g))
+
+/-- **A4-1i, the densities of `ℛ_k` are integrable (the premise of P1 (1.11), `∫ T ρ = ∫ ρ`).** For
+`1 ≤ k < k₀`, every member of `ℛ_k` is integrable in the field of the `k`-blocks on every torus of the
+family, for every source of the unit `ℓ¹` ball. -/
+def StepIntegrableInput : Prop :=
+  StepIntegrableInputGen d N T cs₀
+    (fun κ c₉ β ν _ k X => 1 ≤ k → k < kZero d (T κ c₉).L β ν → X)
+    (fun κ c₉ β ν h kf k _ _ ρ νk =>
+      RepClassAt d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+        (rH κ c₉) (ϱ κ c₉) β ν h kf k ρ νk)
 
 end Inputs
 
