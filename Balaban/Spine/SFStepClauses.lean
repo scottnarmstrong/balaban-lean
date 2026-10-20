@@ -209,14 +209,15 @@ theorem sfSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
       (sf'.Tm N₂).E j = (liftOldTermsFam sf.Tm N₂).E j ∧
         (sf'.Tm N₂).M j = (liftOldTermsFam sf.Tm N₂).M j ∧
         (sf'.Tm N₂).gs j = (liftOldTermsFam sf.Tm N₂).gs j)
-    (hnew : ∀ (N₂ : ℕ) [NeZero N₂],
+    (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
-    (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂] (X : Set (CTorus d L N₂ m₁ (k + 1))),
+    (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
       IsPolyDom P6.m₀ (k + 1) X → GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X))
     (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
     (hC' : CoeffBounds d L (k + 1) P6 sf'.β sf'.ν sf'.a)
-    (hR' : RenormCond P6.m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1))
-    (hreal : ∀ (N₂ : ℕ) [NeZero N₂] (Ψ₀ : CTorus d L N₂ m₁ (k + 1) → Fin N → ℝ) (h₀ : Fin N → ℝ)
+    (hR' : RenormCondAlong P6.m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1) (torusSeq L P6.m₀)
+      (fun n => torusSeq_ne_zero P6.m₀ n))
+    (hreal : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (Ψ₀ : CTorus d L N₂ m₁ (k + 1) → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (g : CTorus d L N₂ m₁ (k + 1) → Fin N → ℝ) (D : BgData (topGS d L N₂ m₁ (k + 1) ϱ) N),
       Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
       Xi (topGS d L N₂ m₁ (k + 1) ϱ) (aIdeal L (k + 1) (sf'.a (k + 1)))
@@ -243,34 +244,38 @@ theorem sfSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
     show 0 ≤ sf'.ν j
     rw [(hcst j hj).2.1]; exact (hνpos j hj).le
   -- the old term clauses on the domain of the new data (the domains agree at the levels `≤ k`)
-  have hcl : ∀ (N₂ : ℕ) [NeZero N₂],
-      SFTermClauses P6 (birthXiDom P6 ⟨k0, sf'.ν⟩ sf'.a N₂) (sf.Tm N₂) := fun N₂ _ =>
-    sfTermClauses_congr_le (hfam.torus N₂).terms fun j hj G Ψ h hdom =>
+  have hcl : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
+      SFTermClauses P6 (birthXiDom P6 ⟨k0, sf'.ν⟩ sf'.a N₂) (sf.Tm N₂) := fun N₂ _ hN =>
+    sfTermClauses_congr_le (hfam.torus N₂ hN).terms fun j hj G Ψ h hdom =>
       (birthXiDom_dom_congr P6 (by rw [hak]) (hcst j hj).2.1 G Ψ h).1 hdom
   -- the terms at the scale `k + 1`
-  have hterms : ∀ (N₂ : ℕ) [NeZero N₂],
-      SFTermClauses P6 (sfDom P6 k0 sf' N₂) (sf'.Tm N₂) := fun N₂ _ =>
+  have hterms : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
+      SFTermClauses P6 (sfDom P6 k0 sf' N₂) (sf'.Tm N₂) := fun N₂ _ hN =>
     sfTermClauses_splice_birth (Tm := sf.Tm (L * N₂)) (Tnew := newLevelTerms (sf'.Tm N₂)) ha hν
-      (hcl (L * N₂)) (hnew N₂)
+      (hcl (L * N₂) (readTorus_mul hN)) (hnew N₂ hN)
       (fun j hj => (hTm N₂ j hj).1) (fun j hj => (hTm N₂ j hj).2.1)
       (fun j hj => (hTm N₂ j hj).2.2) (fun j hj => (newLevelTerms_E _ hj).symm)
       (fun j hj => (newLevelTerms_M _ hj).symm) (fun j hj => (newLevelTerms_gs _ hj).symm)
-  have hgs : ∀ (N₂ : ℕ) [NeZero N₂], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k + 1, ∀ X, IsPolyDom P6.m₀ j X →
-      GsSpec.GsSpecStrong j hjk X ((sf'.Tm N₂).gs j X) := fun N₂ _ =>
+  have hgs : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ j, 1 ≤ j → ∀ hjk : j ≤ k + 1, ∀ X,
+      IsPolyDom P6.m₀ j X → GsSpec.GsSpecStrong j hjk X ((sf'.Tm N₂).gs j X) := fun N₂ _ hN =>
     gsStrong_splice (Tm := sf.Tm (L * N₂)) (Tnew := newLevelTerms (sf'.Tm N₂))
-      (hfam.torus (L * N₂)).gsStrong
+      (hfam.torus (L * N₂) (readTorus_mul hN)).gsStrong
       (fun j hj1 hjk X hX => by
         by_cases h : j ≤ k
         · rw [newLevelTerms_gs_le _ h]
           exact GsSpec.levelGS_strong hj1 hjk X
         · obtain rfl : j = k + 1 := by omega
           rw [newLevelTerms_gs _ h]
-          exact hgsnew N₂ X hX)
+          exact hgsnew N₂ hN X hX)
       (fun j hj => (hTm N₂ j hj).2.2) (fun j hj => (newLevelTerms_gs _ hj).symm)
-  have htor : ∀ (N₂ : ℕ) [NeZero N₂], ∃ ρ, IsSF2 P6 ⟨k0, sf'.ν⟩ sf'.β sf'.a (sfDom P6 k0 sf' N₂)
-      (sf'.Tm N₂) ρ (sf'.E N₂) := fun N₂ _ =>
-    exists_isSF2_of_real (hterms N₂) (hgs N₂) fun Ψ₀ h₀ g D _ hR hg hX =>
-      hreal N₂ Ψ₀ h₀ g D hR hg hX
+  have htor : ∀ (N₂ : ℕ) [NeZero N₂], ∃ ρ, ReadTorus L P6.m₀ N₂ →
+      IsSF2 P6 ⟨k0, sf'.ν⟩ sf'.β sf'.a (sfDom P6 k0 sf' N₂) (sf'.Tm N₂) ρ (sf'.E N₂) := by
+    intro N₂ _
+    by_cases hN : ReadTorus L P6.m₀ N₂
+    · obtain ⟨ρ, hρ⟩ := exists_isSF2_of_real (hterms N₂ hN) (hgs N₂ hN)
+        fun Ψ₀ h₀ g D _ hR hg hX => hreal N₂ hN Ψ₀ h₀ g D hR hg hX
+      exact ⟨ρ, fun _ => hρ⟩
+    · exact ⟨fun _ _ _ => 0, fun h => absurd h hN⟩
   have hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (sf'.a k)) (physMass L j ((⟨k0, sf'.ν⟩ : Regime L).ν j)) := by
     intro j hj1 hjk
@@ -293,11 +298,16 @@ theorem sfSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
     exact ⟨hd, hL, hϱ, fun _ hi hik => aIdeal_mem hL hC.a_ge hC.a_lt hi hik,
       by unfold physMass; exact mul_nonneg (hνpos j hjk).le (sq_nonneg _), hcap⟩
   have hren : ∀ j, 1 ≤ j → j ≤ k + 1 →
-      RenormCond P6.m₀ (k + 1) ((⟨k0, sf'.ν⟩ : Regime L).ν (k + 1)) sf'.Tm j :=
-    renorm_splice_birth (Tm := sf.Tm) (Tnew := sf'.Tm) hcl hBg
+      RenormCondAlong P6.m₀ (k + 1) ((⟨k0, sf'.ν⟩ : Regime L).ν (k + 1)) sf'.Tm j
+        (torusSeq L P6.m₀) (fun n => torusSeq_ne_zero P6.m₀ n) :=
+    renorm_splice_birth (Tm := sf.Tm) (Tnew := sf'.Tm) (fun n => torusSeq_ne_zero P6.m₀ n)
+      (oldSideSeq_tendsto_atTop (L := L)) (fun n => torusSeq_old_side P6.m₀ n)
+      (ReadTorus L P6.m₀) (fun n => torusSeq_dvd P6.m₀ n)
+      (fun N₂ _ hN => hcl (L * N₂) (readTorus_mul hN)) hBg
       (fun j _ _ => eps_pos_of_admissible hfam.admissible j) hfam.torusIndep
       (fun j hj1 hjk => by
-        show RenormCond P6.m₀ k (sf'.ν k) sf.Tm j
+        show RenormCondAlong P6.m₀ k (sf'.ν k) sf.Tm j (torusSeq L P6.m₀)
+          (fun n => torusSeq_ne_zero P6.m₀ n)
         rw [hνk]; exact hfam.renorm j hj1 hjk)
       (by show 0 < sf'.ν k; rw [hνk]; exact hνpos k le_rfl) hR'
       (fun N₂ _ j hj => (hTm N₂ j hj).1) (fun _ _ _ _ => rfl)

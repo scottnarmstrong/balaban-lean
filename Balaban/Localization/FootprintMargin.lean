@@ -184,11 +184,21 @@ section Level
 variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
 
-/-- **Spline read** (FOOTPRINT (c)).  For a level-`n` generating set, a site `v` read by the
-approximate field at `u` (that is, `v = u` or `v` the base of a block active at `u`) is, in each
-coordinate, at lift distance at most `2 L ^ n - 1` from `u`. -/
-theorem approxDep_coord_bound {n : ℕ} (hG : IsLevel G n) {u v : Torus d (N₁ * L ^ m₁ * L ^ K)}
-    (hv : v ∈ approxDep G u) (μ : Fin d) :
+/-- **The base of a block active at `u` is near `u`**: for every block `q` with nonzero bump at `u`,
+in each coordinate, `u` is at lift distance at most `2 L ^ {q.1} - 1` from the base `q.2`. -/
+theorem coordNear_base_of_mem_active {u : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    {q : ℕ × Torus d (N₁ * L ^ m₁ * L ^ K)} (hq : q ∈ active G u) (μ : Fin d) :
+    CoordNear (N₁ * L ^ m₁ * L ^ K) (2 * (L : ℝ) ^ q.1 - 1) (u μ) (q.2 μ) := by
+  obtain ⟨-, hne⟩ := (mem_active G).1 hq
+  have hp : perFac q.1 q.2 μ ((u μ).val : ℝ) ≠ 0 := fun h0 => hne (by
+    unfold bump
+    exact Finset.prod_eq_zero (Finset.mem_univ μ) h0)
+  exact coordNear_of_perFac_ne_zero (u := u) μ hp
+
+/-- **Core of `approxDep_coord_bound`**: the spline read for any generating set whose blocks active
+at `u` all have layer `n` (`hact`). -/
+theorem approxDep_coord_bound_of {n : ℕ} {u v : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hact : ∀ q ∈ active G u, q.1 = n) (hv : v ∈ approxDep G u) (μ : Fin d) :
     CoordNear (N₁ * L ^ m₁ * L ^ K) (2 * (L : ℝ) ^ n - 1) (u μ) (v μ) := by
   have hL1 : (1 : ℝ) ≤ (L : ℝ) ^ n :=
     one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
@@ -196,22 +206,30 @@ theorem approxDep_coord_bound {n : ℕ} (hG : IsLevel G n) {u v : Torus d (N₁ 
   rw [Finset.mem_insert, Finset.mem_image] at hv
   rcases hv with rfl | ⟨q, hq, rfl⟩
   · exact CoordNear.refl (by linarith) _
-  · obtain ⟨hqb, hne⟩ := (mem_active G).1 hq
-    obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_blockIdx G).1 hqb
-    have hqn : q.1 = n := by
-      by_contra hne'
-      exact hG.not_mem_layer h1 hK hne' _ hl
-    have hp : perFac q.1 q.2 μ ((u μ).val : ℝ) ≠ 0 := fun h0 => hne (by
-      unfold bump
-      exact Finset.prod_eq_zero (Finset.mem_univ μ) h0)
-    have := coordNear_of_perFac_ne_zero (u := u) μ hp
-    rw [hqn] at this
+  · have := coordNear_base_of_mem_active hq μ
+    rw [hact q hq] at this
     exact this
 
-/-- **Row sites** (FOOTPRINT (b)).  A row site of the residual at `x` in a level-`n` set (`x`, a
-nearest neighbour of `x`, a site of the `n`-block of `x`) is at lift distance `≤ L ^ n`. -/
-theorem resSites_coord_bound {n : ℕ} (hG : IsLevel G n) {x u : Torus d (N₁ * L ^ m₁ * L ^ K)}
-    (hu : u ∈ resSites G x) (μ : Fin d) :
+/-- At a level-`n` generating set every block has layer `n`. -/
+theorem active_layer_of_isLevel {n : ℕ} (hG : IsLevel G n) {u : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    {q : ℕ × Torus d (N₁ * L ^ m₁ * L ^ K)} (hq : q ∈ active G u) : q.1 = n := by
+  obtain ⟨hqb, -⟩ := (mem_active G).1 hq
+  obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_blockIdx G).1 hqb
+  by_contra hne'
+  exact hG.not_mem_layer h1 hK hne' _ hl
+
+/-- **Spline read** (FOOTPRINT (c)).  For a level-`n` generating set, a site `v` read by the
+approximate field at `u` (that is, `v = u` or `v` the base of a block active at `u`) is, in each
+coordinate, at lift distance at most `2 L ^ n - 1` from `u`. -/
+theorem approxDep_coord_bound {n : ℕ} (hG : IsLevel G n) {u v : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hv : v ∈ approxDep G u) (μ : Fin d) :
+    CoordNear (N₁ * L ^ m₁ * L ^ K) (2 * (L : ℝ) ^ n - 1) (u μ) (v μ) :=
+  approxDep_coord_bound_of (fun _ hq => active_layer_of_isLevel hG hq) hv μ
+
+/-- **Core of `resSites_coord_bound`**: the row sites of the residual at a site `x` of layer index
+`n ≤ K`, for any generating set. -/
+theorem resSites_coord_bound_of {n : ℕ} (hnK : n ≤ K) {x u : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hx : G.layerIndex x = n) (hu : u ∈ resSites G x) (μ : Fin d) :
     CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (u μ) (x μ) := by
   have hL1 : (1 : ℝ) ≤ (L : ℝ) ^ n :=
     one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
@@ -221,8 +239,7 @@ theorem resSites_coord_bound {n : ℕ} (hG : IsLevel G n) {x u : Torus d (N₁ *
     true_and] at hu
   rcases hu with rfl | (hb | ⟨ν, rfl⟩) | ⟨ν, rfl⟩
   · exact CoordNear.refl (by linarith) _
-  · rw [hG.layerIndex_eq, GeneratingSet.mem_blk] at hb
-    have hnK := hG.bounds.2
+  · rw [hx, GeneratingSet.mem_blk] at hb
     have hS := side_eq (L := L) (N₀ := N₁ * L ^ m₁) (k := K) hnK
     have hv := (blockMap_eq_iff_val hS _ _).1 hb μ
     exact (coordNear_of_div_eq (pow_pos hLpos n) hv).mono (by push_cast; linarith)
@@ -235,6 +252,13 @@ theorem resSites_coord_bound {n : ℕ} (hG : IsLevel G n) {x u : Torus d (N₁ *
       exact (coordNear_step _ _ (-1) (by norm_num) (by simp [sub_eq_add_neg])).mono hL1
     · exact (coordNear_step _ _ 0 (by norm_num) (by simp [Pi.single_eq_of_ne h])).mono (by linarith)
 
+/-- **Row sites** (FOOTPRINT (b)).  A row site of the residual at `x` in a level-`n` set (`x`, a
+nearest neighbour of `x`, a site of the `n`-block of `x`) is at lift distance `≤ L ^ n`. -/
+theorem resSites_coord_bound {n : ℕ} (hG : IsLevel G n) {x u : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hu : u ∈ resSites G x) (μ : Fin d) :
+    CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (u μ) (x μ) :=
+  resSites_coord_bound_of hG.bounds.2 (hG.layerIndex_eq x) hu μ
+
 /-- Sites of one `j`-block, `j ≤ K`, are at lift distance `≤ L ^ j - 1` in every coordinate. -/
 theorem jBlock_coord_bound {j : ℕ} (hj : j ≤ K) {x u : Torus d (N₁ * L ^ m₁ * L ^ K)}
     (hb : jBlock d L (N₁ * L ^ m₁) K j u = jBlock d L (N₁ * L ^ m₁) K j x) (μ : Fin d) :
@@ -246,19 +270,14 @@ theorem jBlock_coord_bound {j : ℕ} (hj : j ≤ K) {x u : Torus d (N₁ * L ^ m
   push_cast at this
   exact this
 
-/-- **Margin for a single site** (FOOTPRINT (a)-(d)).  Let `G` have level `n`, `z` be a centre of
-the cover and `x ∈ □_z`.  A site `w` within lift distance `L ^ n` of `x` in every coordinate
-has all its approximate-field reads `approxDep G w` inside `□̂_z`.  Only `L ≥ 1` is used: the
-reads lie within `L ^ n + 2 L ^ n - 1 < 3 L ^ 2 L ^ n` of the box centre beyond `□_z`. -/
-theorem approxDep_subset_hatBox_of_near {n : ℕ} (hG : IsLevel G n)
-    {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ cubeIdx G) {x : CTorus d L N₁ m₁ K}
+/-- **Core of `approxDep_subset_hatBox_of_near`**, for any generating set: the centre `z` has layer
+`n` and the blocks active at `w` have layer `n` (`hact`). -/
+theorem approxDep_subset_hatBox_of_near_of {n : ℕ}
+    {z : ℕ × CTorus d L N₁ m₁ K} (hz1 : z.1 = n) {x : CTorus d L N₁ m₁ K}
     (hx : x ∈ intBox z) {w : Torus d (N₁ * L ^ m₁ * L ^ K)}
-    (hw : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (w μ) (x μ)) :
+    (hw : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (w μ) (x μ))
+    (hact : ∀ q ∈ active G w, q.1 = n) :
     approxDep G w ⊆ hatBox z := by
-  obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_cubeIdx G).1 hz
-  have hz1 : z.1 = n := by
-    by_contra hne
-    exact hG.not_mem_layer h1 hK hne _ hl
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
   have hl1 : (1 : ℝ) ≤ (L : ℝ) ^ n := one_le_pow₀ hL1
   have hL2 : (1 : ℝ) ≤ (L : ℝ) ^ 2 := one_le_pow₀ hL1
@@ -267,7 +286,7 @@ theorem approxDep_subset_hatBox_of_near {n : ℕ} (hG : IsLevel G n)
   rw [mem_boxSet]
   intro μ
   obtain ⟨p0, h0⟩ := (mem_intBox.1 hx) μ
-  obtain ⟨p, hp⟩ := ((approxDep_coord_bound hG hv μ).symm.trans (hw μ))
+  obtain ⟨p, hp⟩ := ((approxDep_coord_bound_of hact hv μ).symm.trans (hw μ))
   refine ⟨p + p0, ?_⟩
   have e : ((v μ).val : ℝ) + ((p + p0 : ℤ) : ℝ) * (((N₁ * L ^ m₁ * L ^ K : ℕ)) : ℝ) -
       (((z.2 μ).val : ℝ) + ((L : ℝ) ^ (z.1 + m₁) - 1) / 2) =
@@ -281,6 +300,20 @@ theorem approxDep_subset_hatBox_of_near {n : ℕ} (hG : IsLevel G n)
   rw [hz1] at h0 ⊢
   have : (L : ℝ) ^ n ≤ (L : ℝ) ^ 2 * (L : ℝ) ^ n := by nlinarith
   linarith
+/-- **Margin for a single site** (FOOTPRINT (a)-(d)).  Let `G` have level `n`, `z` be a centre of
+the cover and `x ∈ □_z`.  A site `w` within lift distance `L ^ n` of `x` in every coordinate
+has all its approximate-field reads `approxDep G w` inside `□̂_z`.  Only `L ≥ 1` is used: the
+reads lie within `L ^ n + 2 L ^ n - 1 < 3 L ^ 2 L ^ n` of the box centre beyond `□_z`. -/
+theorem approxDep_subset_hatBox_of_near {n : ℕ} (hG : IsLevel G n)
+    {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ cubeIdx G) {x : CTorus d L N₁ m₁ K}
+    (hx : x ∈ intBox z) {w : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hw : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (w μ) (x μ)) :
+    approxDep G w ⊆ hatBox z := by
+  obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_cubeIdx G).1 hz
+  have hz1 : z.1 = n := by
+    by_contra hne
+    exact hG.not_mem_layer h1 hK hne _ hl
+  exact approxDep_subset_hatBox_of_near_of hz1 hx hw (fun _ hq => active_layer_of_isLevel hG hq)
 
 theorem resDep_subset_hatBox {n : ℕ} (hG : IsLevel G n)
     {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ cubeIdx G) {x : CTorus d L N₁ m₁ K}
@@ -310,24 +343,96 @@ theorem approxDep_sameBlock_subset_hatBox {n j : ℕ} (hG : IsLevel G n) (hjn : 
   refine approxDep_subset_hatBox_of_near hG hz hx fun μ => ?_
   exact (jBlock_coord_bound (hjn.trans hG.bounds.2) hb μ).mono (by linarith)
 
+/-- The base of a centre lies in its interaction box. -/
+theorem base_mem_intBox (z : ℕ × CTorus d L N₁ m₁ K) : z.2 ∈ intBox z := by
+  rw [mem_intBox]
+  intro μ
+  refine ⟨0, ?_⟩
+  have hB : (1 : ℝ) ≤ (L : ℝ) ^ (z.1 + m₁) :=
+    one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+  simp only [Int.cast_zero, zero_mul, add_zero]
+  rw [abs_lt]
+  constructor <;> nlinarith
+
+/-- A site of `S_Y` lies in `Y₁` when the thickened cubes of the centres of `Z_Y` lie in `Ω₁`. -/
+theorem mem_of_mem_SY {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {Y₁ : Finset (CTorus d L N₁ m₁ K)}
+    (hhat : ∀ z ∈ ZY G X₁ 𝒞 Y₁, ∀ v ∈ hatBox z, v ∈ G.Ω 1)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ SY G X₁ 𝒞 Y₁) : x ∈ Y₁ := by
+  classical
+  obtain ⟨z, hzZ, hxz⟩ := Finset.mem_biUnion.1 hx
+  obtain ⟨-, -, hsub⟩ := Finset.mem_filter.1 hzZ
+  exact hsub ⟨x, hhat z hzZ x (box_subset_hatBox z hxz)⟩ (box_subset_hatBox z hxz)
+
+/-- **The approximate-field reads near a site of `S_Y` lie in `Y₁`**, for any generating set, under
+the margin hypotheses: the thickened cubes of the centres of `Z_Y` lie in `Ω₁` (`hhat`) and every
+site within lift distance `3 L ^ K` of a site of `Y₁` lies in layer `n` (`hlay`).  A site `w` within
+lift distance `L ^ n` of a site `x ∈ S_Y` has `approxDep G w ⊆ Y₁`. -/
+theorem approxDep_subset_component_of_near {n : ℕ} (hn1 : 1 ≤ n) (hnK : n ≤ K)
+    {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {Y₁ : Finset (CTorus d L N₁ m₁ K)}
+    (hhat : ∀ z ∈ ZY G X₁ 𝒞 Y₁, ∀ v ∈ hatBox z, v ∈ G.Ω 1)
+    (hlay : ∀ x ∈ Y₁, ∀ y : CTorus d L N₁ m₁ K,
+      (∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (y μ) (x μ)) → y ∈ G.layer n)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ SY G X₁ 𝒞 Y₁) {w : CTorus d L N₁ m₁ K}
+    (hw : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (w μ) (x μ)) :
+    approxDep G w ⊆ Y₁ := by
+  classical
+  obtain ⟨z, hzZ, hxz⟩ := Finset.mem_biUnion.1 hx
+  obtain ⟨hz, -, hsub⟩ := Finset.mem_filter.1 hzZ
+  have hhY : ∀ v ∈ hatBox z, v ∈ Y₁ := fun v hv => hsub ⟨v, hhat z hzZ v hv⟩ hv
+  have hxY : x ∈ Y₁ := hhY x (box_subset_hatBox z hxz)
+  obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_cubeIdx G).1 hz
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hz2 : z.2 ∈ G.layer n := hlay z.2 (hhY _ (box_subset_hatBox z (base_mem_intBox z))) z.2
+    (fun μ => CoordNear.refl (by positivity) _)
+  have hz1 : z.1 = n := by
+    by_contra hne
+    exact G.layer_disjoint h1 hK hn1 hnK hne hl hz2
+  refine fun v hv => hhY v (approxDep_subset_hatBox_of_near_of hz1 hxz hw ?_ hv)
+  intro q hq
+  obtain ⟨hqb, -⟩ := (mem_active G).1 hq
+  obtain ⟨⟨hq1, hqK⟩, hql, -⟩ := (mem_blockIdx G).1 hqb
+  have hLn : (L : ℝ) ^ n ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hnK
+  have hLq : (L : ℝ) ^ q.1 ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hqK
+  have hnear : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (q.2 μ) (x μ) := fun μ =>
+    ((coordNear_base_of_mem_active hq μ).symm.trans (hw μ)).mono (by linarith)
+  have hq2 := hlay x hxY q.2 hnear
+  by_contra hne
+  exact G.layer_disjoint hq1 hqK hn1 hnK hne hql hq2
+
+/-- **Core of `footprint_subset_component`** (FP) for any generating set, under the margin
+hypotheses of `approxDep_subset_component_of_near`. -/
+theorem footprint_subset_component_of {n : ℕ} (hn1 : 1 ≤ n) (hnK : n ≤ K)
+    (X₁ : Finset (CTorus d L N₁ m₁ K)) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K))
+    (Y₁ : Finset (CTorus d L N₁ m₁ K))
+    (hhat : ∀ z ∈ ZY G X₁ 𝒞 Y₁, ∀ v ∈ hatBox z, v ∈ G.Ω 1)
+    (hlay : ∀ x ∈ Y₁, ∀ y : CTorus d L N₁ m₁ K,
+      (∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (y μ) (x μ)) → y ∈ G.layer n) :
+    (∀ x ∈ SY G X₁ 𝒞 Y₁, resDep G x ⊆ Y₁) ∧
+    (∀ x ∈ SY G X₁ 𝒞 Y₁, ∀ u ∈ resSites G x, approxDep G u ⊆ Y₁) := by
+  classical
+  have key : ∀ x ∈ SY G X₁ 𝒞 Y₁, ∀ u ∈ resSites G x, approxDep G u ⊆ Y₁ := by
+    intro x hx u hu
+    have hxY := mem_of_mem_SY hhat hx
+    have hxl : G.layerIndex x = n :=
+      G.layerIndex_eq hn1 hnK (hlay x hxY x (fun μ => CoordNear.refl (by positivity) _))
+    exact approxDep_subset_component_of_near hn1 hnK hhat hlay hx
+      (fun μ => resSites_coord_bound_of hnK hxl hu μ)
+  refine ⟨fun x hx v hv => ?_, key⟩
+  unfold resDep at hv
+  obtain ⟨u, hu, hvu⟩ := Finset.mem_biUnion.1 hv
+  exact key x hx u hu hvu
+
 /-- **(FP) for the site `x`.**  If the sites `x` of `S_Y` read the residual, then the whole
 footprint of the residual and the footprint of the approximate field at its row sites lie in `Y₁`. -/
 theorem footprint_subset_component {n : ℕ} (hG : IsLevel G n)
     (X₁ : Finset (CTorus d L N₁ m₁ K)) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K))
     (Y₁ : Finset (CTorus d L N₁ m₁ K)) :
     (∀ x ∈ SY G X₁ 𝒞 Y₁, resDep G x ⊆ Y₁) ∧
-    (∀ x ∈ SY G X₁ 𝒞 Y₁, ∀ u ∈ resSites G x, approxDep G u ⊆ Y₁) := by
-  classical
-  have key : ∀ x ∈ SY G X₁ 𝒞 Y₁, ∀ u ∈ resSites G x, approxDep G u ⊆ Y₁ := by
-    intro x hx u hu v hv
-    obtain ⟨z, hzZ, hxz⟩ := Finset.mem_biUnion.1 hx
-    obtain ⟨hz, -, hsub⟩ := Finset.mem_filter.1 hzZ
-    have hvh := approxDep_resSites_subset_hatBox hG hz hxz hu hv
-    exact hsub ⟨v, by rw [hG.Ω_one]; exact Finset.mem_univ _⟩ hvh
-  refine ⟨fun x hx v hv => ?_, key⟩
-  unfold resDep at hv
-  obtain ⟨u, hu, hvu⟩ := Finset.mem_biUnion.1 hv
-  exact key x hx u hu hvu
+    (∀ x ∈ SY G X₁ 𝒞 Y₁, ∀ u ∈ resSites G x, approxDep G u ⊆ Y₁) :=
+  footprint_subset_component_of hG.bounds.1 hG.bounds.2 X₁ 𝒞 Y₁
+    (fun _ _ v _ => by rw [hG.Ω_one]; exact Finset.mem_univ _) (fun _ _ y _ => hG.mem_layer y)
 
 /-- The union form of (FP): the footprint of the residual on `S_Y` lies in `Y₁`. -/
 theorem biUnion_resDep_subset {n : ℕ} (hG : IsLevel G n)

@@ -74,7 +74,7 @@ theorem wIsSFFamily2 (ν : ℝ) (hν0 : 0 < ν) (hν : ν * 9 ≤ 7 / 72) (m₁ 
       (fun _ => 0) where
   admissible := witnessConsts_admissible one_pos
   coeff := wcoeff ν hν0 hν
-  torus := fun N₁ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible one_pos).κ_pos.le
+  torus := fun N₁ _ _ => isSF2_pinTerms le_rfl (witnessConsts_admissible one_pos).κ_pos.le
     (fun _ => le_rfl) (fun j => by simpa using (witness_c9_pos 1 j).le) (witness_c9_pos 1)
     (fun j hj => absurd rfl hj)
     (bgHyp_of_class2 (witnessConsts_admissible one_pos) (wcoeff ν hν0 hν) le_rfl le_rfl le_rfl)
@@ -89,7 +89,7 @@ theorem wSF2_rTerms (ν : ℝ) (m₁ : ℕ) (fac : ℕ → ℝ) (hfac : ∀ nn, 
 /-- (D2) of the second version for the witness. -/
 theorem wSF2_D2 (ν : ℝ) (hν0 : 0 < ν) (hν : ν * 9 ≤ 7 / 72) (k0 m₁ : ℕ) (fac : ℕ → ℝ)
     (hfac : ∀ nn, 0 ≤ fac nn) : D2SF2 (witnessConsts 1) k0 (wSF2 ν m₁) fac where
-  sfClass := ⟨_, wIsSFFamily2 ν hν0 hν m₁ k0⟩
+  sfClass := ⟨_, IsSFFamily2On.of_family (torusSeq_tendsto_atTop (L := 3) (witnessConsts 1).m₀) (wIsSFFamily2 ν hν0 hν m₁ k0)⟩
   rTerms := fun N₁ _ => wSF2_rTerms ν m₁ fac hfac N₁
 
 /-- (D8), small-field part, for the witness (all terms vanish). -/
