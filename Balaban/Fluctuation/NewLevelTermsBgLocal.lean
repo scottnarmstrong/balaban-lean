@@ -145,6 +145,34 @@ theorem mem_cubeIdx_of_isLevel (hG' : IsLevel Gp (k + 1)) {P : ℕ × CTorus d L
   rw [h1]
   exact hG'.mem_layer _
 
+/-- **The block margin at a background generating set from the step's**: if the sites of a set
+`Zα` have the block margin against `X₁` for the level set `Gp` and `X₁` lies in the top region of
+`Gb`, they have it for `Gb`: the centre of `Gp` with thickened cube in `X₁` is a centre of `Gb`,
+and a cube of `Gb` meeting that thickened cube meets `X₁`, hence is a top cube, a cube of `Gp`
+meeting it, so not a parameter cube. -/
+theorem blockMargin_of_top (S : DGSetting Gb a ν) (hG' : IsLevel Gp (k + 1))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} (hX₁top : ∀ x ∈ X₁f, x ∈ Gb.Ω (k + 1))
+    {Zα : Set (CTorus d L N₁ m₁ (k + 1))} (hBM : BlockMargin Gp X₁f Zα) :
+    BlockMargin Gb X₁f Zα := by
+  classical
+  intro x hx _
+  have hΩ : ∀ v, v ∈ Gp.Ω 1 := fun v => by rw [hG'.Ω_one]; exact Finset.mem_univ _
+  obtain ⟨z, hz, hxz, hQ, hhat⟩ := hBM x hx (hΩ x)
+  have hhatX : ∀ v ∈ hatBox z, v ∈ X₁f := fun v hv => hhat ⟨v, hΩ v⟩ hv
+  have hzb : z ∈ cubeIdx Gb :=
+    mem_cubeIdx_of_top hG' hz (hX₁top _ (hhatX _ (box_subset_hatBox z (base_mem_intBox z))))
+  refine ⟨z, hzb, hxz, fun P hP hPpar => ?_, fun v hv => hhatX v hv⟩
+  obtain ⟨hPc, y, hy, hyb⟩ := (coverOf Gb).mem_Qset.1 hP
+  have hyX : y ∈ X₁f := hhatX y (mem_boxSet.2 hyb)
+  obtain ⟨⟨hm1, hmK⟩, hl, -⟩ := (mem_cubeIdx Gb).1 hPc
+  have hyl : y ∈ Gb.layer P.1 := (S.aligned.mem_layer_iff hm1 hmK hy).2 hl
+  have hP1 : P.1 = k + 1 := by
+    by_contra hne
+    exact Gb.layer_disjoint hm1 hmK (by omega) le_rfl hne hyl (mem_layer_top (hX₁top y hyX))
+  have hPp : P ∈ cubeIdx Gp := mem_cubeIdx_of_isLevel hG' hPc hP1
+  exact hQ P ((coverOf Gp).mem_Qset.2 ⟨hPp, y, hy, hyb⟩)
+    (Finset.mem_filter.2 ⟨hPp, (Finset.mem_filter.1 hPpar).2⟩)
+
 end Geom
 
 section Params
@@ -579,6 +607,77 @@ theorem evDecBg_canon_local_of (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx c�
   refine Finset.sum_congr rfl fun C hC' => ?_
   exact coef_congr_near hE1 fun w hw => fanBg_canon_eq_of_family hC hk hG' hHm hHmtop hrow cc hcψ
     hMX hdm hα hsm hcov hX₁ hF₁ hSol Φ hΦ Zb hW hYm hC' hu hu' hAg hw
+
+/-- **(AE2) of Lemma 4.2 at `Gb` for the block energies** (the zero-source and old terms of the
+new level are terms of the block energies, `zeroTermBg`): under the hypotheses of
+`evDecBg_canon_local_of`, with the functional `blockEnergyFun Gb H⁻ … k z` of the block `z`, whose
+sites have the block margin against `X₁` for the step (`hBM`) and whose read sites lie in `X₁`
+(`hZ`), the terms of every label with the margin agree at two data of the chart of `Gb` with
+`AgHatDir`.  If `X₁` is not in the top region of `Gb`, no family has sites a label with the margin
+and both terms vanish. -/
+theorem evDecBg_canon_local_blockEnergy (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (hHm : Hm.Ω (k + 1) = ∅)
+    (hHmtop : ∀ y ∈ Gb.Ω (k + 1), y ∈ Hm.Ω 1)
+    (hrow : RowInHat (coverOf Gb) Hm (compWeight L a₁) ν)
+    (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hdm : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    {F₁ : DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gb) (D : BgData Gb N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gb (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gb.Ω 1 × Fin N → ℂ)
+        (α : Gb.Ω 1 → ℂ), IsDecBg Gb (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {Sol : Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ)}
+    (hSol : ∀ p : Dec2.DecParams (coverOf Gb) × Edat Hm N, (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM Hm N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol p).1 = dphi Hm (Dec2.decG (coverOf Gb) Hm (compWeight L a₁) ν p.1) p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+          (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
+        Small Hm (Sol p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small Hm (Sol p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds Hm (Sol p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
+            (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))) (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hBM : BlockMargin Gp X₁f
+      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))))
+    (Zb : Finset (unitPts Gb)) :
+    ∀ um tm : ℂ, (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      ∀ Y, LabelMargin Gb Y → ∀ u ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      ∀ u' ∈ XiCRaw Gb (compWeight L a₁) ν (k + 1) 1 eps ×ˢ
+        {ψh : unitPts Gp × Fin N → ℂ | ∀ p, ‖ψh p‖ ≤ cψ},
+      AgHatDir hG' Y u u' →
+        evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν (BgTransport.canon Gp Gb N) cc F₁ Sol
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k z) Zb um tm Y
+            (u.1, (BgTransport.canon Gp Gb N).res u.2) =
+          evDecBg Gp X₁f m₀ j 𝒦X Gb a₁ ν (BgTransport.canon Gp Gb N) cc F₁ Sol
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k z) Zb um tm Y
+            (u'.1, (BgTransport.canon Gp Gb N).res u'.2) := by
+  classical
+  intro um tm hW Y hYm u hu u' hu' hAg
+  by_cases htop : ∀ x ∈ X₁f, x ∈ Gb.Ω (k + 1)
+  · exact evDecBg_canon_local_of hC hk hG' hHm hHmtop hrow cc hcψ hMX hdm hα hsm hcov hX₁ hF₁ hSol
+      _ (fun {_ _ _ _ _ _ _ _ _ _ _ _} hαSY _ hδ hψ _ hXY =>
+        blockEnergyFun_rowAgree (compWeight L a₁) ν z hZ (blockMargin_of_top hC.Sp hG' htop hBM)
+          hαSY hδ hψ hXY) Zb um tm hW Y hYm u hu u' hu' hAg
+  · have hempty : connFams (fun i : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) => i.1.1)
+        Gp m₀ (X1 Gp m₀ j 𝒦X) Y = ∅ := by
+      refine Finset.eq_empty_of_forall_notMem fun C hCm => htop fun x hx => ?_
+      obtain ⟨-, hCY⟩ := (mem_connFams _).1 hCm
+      refine hYm.subset x ?_
+      rw [← hCY]
+      refine compY_subset_Ysites hcov.hU hcov.hN (fun i => i.1.2) _ C ?_
+      rw [← hX₁]
+      exact subset_compY _ C (Finset.mem_coe.2 hx)
+    unfold evDecBg evTerm
+    rw [hempty, Finset.sum_empty, Finset.sum_empty]
 
 end Local
 

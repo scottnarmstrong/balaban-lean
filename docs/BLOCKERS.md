@@ -26,6 +26,22 @@ The last section lists the problems that have been resolved since the project st
 | 6 | Local generating sets and analyticity on their domains | P3 p. 78, (4.44)–(4.47) | the output class of each step | route fixed without a ruling: the step chain now returns the coefficients of the new level as a formula, and each term is recomputed on the local generating set of its polymer (P3 p. 79); the larger chart radius this needs is real but used only by identities, never by a bound; the generic objects of the step on a local set are built and audited; the remaining layers (carrying the formula through the chain, the agreement at the read datum, analyticity on the local chart) are in progress |
 | 7 | Reading of the torus-independence clause | P4 (H.4), p. 677 | the two-torus clause of Root-F | interpretation question; the last-scale design is proved in abstract form and wired for Root-F's tori; proved at the tower on one family of tori of every size; one family over all tori needs exact two-torus agreement of the terms of small polymers, now proved for the coefficients of a step and being carried to the next class; the induction over scales and the sum over roots remain |
 
+## What closes each blocker
+
+A blocker counts as closed only when the Lean statement it obstructs is proved, with no hypotheses beyond the
+papers' own premises, and is merged. A lemma that removes the mathematical difficulty is reported as that lemma,
+not as a closed blocker. All statements below are in `Balaban/Spine/`.
+
+| # | Statement that closes it | Proved |
+|---|---|---|
+| 1 | `KfZeroInput` (the case with no renormalization step) and `BaseStepInput` (the first step) | `KfZeroInput`: yes (20 October, `kfZeroInput_of_typing`; the one condition beyond the statement is a lower bound on the block side M·L by d, N, L, κ, a choice of the exponent of M = L^n); `BaseStepInput`: no |
+| 2 | the switch at the scale k₀ inside `FrozenSFStepInput`, and `LFBdrySrcInput` (the source radius) | no |
+| 3 | `LFBdryOldInput` for the step's actual boundary terms | no |
+| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | no |
+| 5 | `FinalSmallFieldInput` and `FinalLargeFieldInput` (the two halves of `LastIntegralInput`) | no |
+| 6 | the clauses (A1)–(A5) of the new level on the local generating sets, in `SFNewLevelInput` | no |
+| 7 | the two-torus clauses: exact agreement of the last-scale activities in `FinalSmallFieldInput`, and the agreement of each step's terms carried by the class | no |
+
 ## Proceeding without the author's answers
 
 Several blockers carry questions to the author. We no longer wait for them: the two main theorems are
