@@ -60,6 +60,38 @@ theorem rayTerm_dl3_analytic_bound {Ev : Λ × F → ℂ} {S : Set Λ} {B : Set 
   rw [dl3_apply]
   exact norm_dirL3_le hr (fun τ hτ => hEv _ ⟨hΘ, hz τ hτ⟩) (fun τ hτ => hb _ ⟨hΘ, hz τ hτ⟩)
 
+/-- **A finite sum of ray integrals of bounded analytic terms** (`rayTerm_dl3_analytic_bound` term
+by term): for terms `Ev z` analytic and bounded by `b z` on `S × B` for the indices `z` with `P z`,
+the sum `∑_z [P z] σ ∫₀¹ ω(t) ∂_w³ Ev_z(Θ, σ t x₀) dt` over an admissible ray is analytic in `(Θ, σ)`
+on `S × {|σ| < R_σ}` and bounded there by `|σ| ∑_z [P z] M_ω 6 b_z / r³`. -/
+theorem sum_rayTerm_dl3_analytic_bound {ι : Type*} [Fintype ι] (P : ι → Prop) [DecidablePred P]
+    {Ev : ι → Λ × F → ℂ} {S : Set Λ} {B : Set F} {b : ι → ℝ}
+    (hEv : ∀ z, P z → AnalyticOnNhd ℂ (Ev z) (S ×ˢ B))
+    (hb : ∀ z, P z → ∀ u ∈ S ×ˢ B, ‖Ev z u‖ ≤ b z)
+    {ω : ℂ → ℂ} {R₁ : ℝ} (hR₁ : 1 < R₁) (hω : AnalyticOnNhd ℂ ω (ball (0 : ℂ) R₁))
+    {Mω : ℝ} (hMω : 0 ≤ Mω) (hωb : ∀ t : ℝ, t ∈ Icc (0 : ℝ) 1 → ‖ω (t : ℂ)‖ ≤ Mω)
+    {r Rσ : ℝ} (hr : 0 < r) {x₀ w : F}
+    (hxw : ∀ σ : ℂ, ‖σ‖ < Rσ → ∀ t : ℂ, ‖t‖ < R₁ → ∀ τ : ℂ, ‖τ‖ ≤ r →
+      (σ * t) • x₀ + τ • w ∈ B) :
+    AnalyticOnNhd ℂ (fun p : Λ × ℂ => ∑ z, if P z then rayTerm (dl3 (Ev z) w) ω x₀ p.2 p.1 else 0)
+      (S ×ˢ ball (0 : ℂ) Rσ) ∧
+    ∀ Θ ∈ S, ∀ σ : ℂ, ‖σ‖ < Rσ →
+      ‖∑ z, if P z then rayTerm (dl3 (Ev z) w) ω x₀ σ Θ else 0‖ ≤
+        ‖σ‖ * ∑ z, if P z then Mω * (6 * b z / r ^ 3) else 0 := by
+  refine ⟨fun p hp => Finset.analyticAt_fun_sum _ fun z _ => ?_, fun Θ hΘ σ hσ => ?_⟩
+  · by_cases hz : P z
+    · simp only [hz, ↓reduceIte]
+      exact (rayTerm_dl3_analytic_bound (hEv z hz) (hb z hz) hR₁ hω hMω hωb hr hxw).1 p hp
+    · simp only [hz, ↓reduceIte]
+      exact analyticAt_const
+  · refine (norm_sum_le _ _).trans ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun z _ => ?_
+    by_cases hz : P z
+    · simp only [hz, ↓reduceIte]
+      exact (rayTerm_dl3_analytic_bound (hEv z hz) (hb z hz) hR₁ hω hMω hωb hr hxw).2 Θ hΘ σ hσ
+    · simp [hz]
+
 end RayBound
 
 section HatRays
