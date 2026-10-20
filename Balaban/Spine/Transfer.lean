@@ -7,6 +7,7 @@ module
 
 public import Balaban.Spine.RootFInputs
 public import Balaban.Spine.TransferAnalysis
+public import Balaban.Spine.BudgetSetupOfRun
 public import Balaban.LargeField.Def7v2Basic
 
 /-!
@@ -49,34 +50,7 @@ theorem flatClassAt_of_repClassAt (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C
   have hbeta : ∀ j ≤ kZero d T.L β ν, P.beta j = F.sf.β j := fun j hj => hIs.coh.beta_P j hj
   let B : BudgetSetupTo (Setting.mk { T with d := d } (lamHat d T.L β cs₀.aKer)) P
       (kZero d T.L β ν) :=
-    { β := β
-      ν := ν
-      a := cs₀.aKer
-      ε := 1 / 20
-      nuRun := F.sf.ν
-      K := analyticK d T.L T.p0 PB.H0 PB.c2
-      lam_eq := fun _ => rfl
-      Kd := rfl
-      KL := rfl
-      Kp0 := rfl
-      KH0 := hP3.symm
-      Kc2 := hP2.symm
-      lam_cond := hK
-      H0_nonneg := hP3 ▸ hH0
-      c1_nonneg := hP1 ▸ hc1
-      L_le_M := hLM
-      cv_ge := by rw [hP3, hP1]; exact hcv
-      run :=
-        { hd := hrun.hd
-          hL := hrun.hL
-          hβ := hrun.hβ
-          hν := hrun.hν
-          ha1 := hrun.ha1
-          ha2 := hrun.ha2
-          hε0 := hrun.hε0
-          hε := hrun.hε
-          beta_eq := fun j hj => by rw [hbeta j hj]; exact hrun.beta_eq j hj
-          nu_eq := hrun.nu_eq } }
+    budgetSetupToOfRun T PB P β ν cs₀.aKer (kZero d T.L β ν) F.sf.β F.sf.ν hP1 hP2 hP3 hbeta hrun hK hH0 hc1 hLM hcv
   exact ⟨hM6, hkK, R, geo, cs, P, F, St, vc, hgeo, hKer, hCpsi, hCb, haw, hP1, hP2, hP3,
     hIs.toFlat_of_all_horizons rfl G B hk0 hH1 hH2, hβ0, hν0, hνk, hrun, hcoh, hν9⟩
 
