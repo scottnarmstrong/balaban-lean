@@ -78,6 +78,41 @@ theorem commonAct_sum_H (A₀ : E → ℂ → LabelAct Lab₀ Ωb ε₀ κH κ0 
   rcases y with (y | y | y) | y <;> rfl
 
 open Classical in
+/-- **The activities of the class family agree with `classActFun` on the labels inside `T`** when
+the zero-class activities (`A₀` against `H₀`) and the inherited activities (`A₁` against `H₁`) agree
+for `s ∈ [0, 1]` on the labels whose blocks lie in `T`; the root-union labels carry `0` in both. -/
+theorem commonAct_sum_H_agree {E' : Type*} (A₀ : E → ℂ → LabelAct Lab₀ Ωb ε₀ κH κ0 K₀)
+    (A₁ : E → ℂ → LabelAct Lab₁ Ωb ε₁ κH κ0 K₁) (hN : L ^ 1 ∣ N₁) (hL : 2 ≤ L)
+    (reads₁ : β₁ → Set (CTorus d L N₁ m₁ (k + 1)))
+    (dom₁ : β₁ → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (hdom₁ : ∀ b, ∀ Y ∈ dom₁ b, IsDj 1 (k + 1) Y)
+    (reads : β₂ → Set (CTorus d L N₁ m₁ (k + 1)))
+    (dom : β₂ → Finset (Set (CTorus d L N₁ m₁ (k + 1))))
+    (hdom : ∀ b, ∀ Y ∈ dom b, IsDj 1 (k + 1) Y) (hε₁ : 0 ≤ ε₁) (hε : 0 ≤ max ε₀ ε₁)
+    (hκ0 : aEnt d L + 2 ≤ κ0) (e : E) (H₀ : E' → ℂ → Lb₀ → (∀ b, Ωb b) → ℂ)
+    (H₁ : E' → ℂ → Lb₁ → (∀ b, Ωb b) → ℂ) (θ : E')
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
+    (hA₀ : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
+      blocksOf 1 (k + 1) Set.univ (Lab₀.ysite y) ⊆ T → (A₀ e (s : ℂ)).H y = H₀ θ (s : ℂ) y)
+    (hA₁ : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
+      blocksOf 1 (k + 1) Set.univ (Lab₁.ysite y) ⊆ T → (A₁ e (s : ℂ)).H y = H₁ θ (s : ℂ) y) :
+    ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y,
+      blocksOf 1 (k + 1) Set.univ
+        ((commonLabels (Lab₀.sum (commonLabels Lab₁ hN hL reads₁ dom₁ hdom₁)) hN hL reads dom
+          hdom).ysite y) ⊆ T →
+      (commonAct (fun θ u => (A₀ θ u).sum (commonAct A₁ hN hL reads₁ dom₁ hdom₁ hε₁ hκ0 θ u))
+        hN hL reads dom hdom hε hκ0 e (s : ℂ)).H y =
+        classActFun (R₁ := RootUnionLb 1 reads₁ dom₁) (R₂ := RootUnionLb 1 reads dom) H₀ H₁ θ
+          (s : ℂ) y := by
+  intro s hs y hy
+  rw [commonAct_sum_H A₀ A₁ hN hL reads₁ dom₁ hdom₁ reads dom hdom hε₁ hε hκ0 e (s : ℂ)]
+  rcases y with (y | y | y) | y
+  · exact hA₀ s hs y hy
+  · exact hA₁ s hs y hy
+  · rfl
+  · rfl
+
+open Classical in
 /-- **The replacement identity of the coefficient of a class, reduced to its parts** (P3 p. 79):
 the coefficient of the step on `Gp` (the determinant part plus the interpolation coefficient of the
 class family `commonAct (A₀.sum (commonAct A₁ …))` at the parameter `e`) equals the formula
@@ -124,15 +159,10 @@ theorem newLevelCoeffBg_class_eq_of_agree {N : ℕ} {ϱp ϱb : ℝ}
             hN hL reads dom hdom hε hκ0 e) y0 G T =
       newLevelCoeffBg Gb μ a aT ν ρ Zb
         (commonLabels (Lab₀.sum (commonLabels Lab₁ hN hL reads₁ dom₁ hdom₁)) hN hL reads dom hdom)
-        (classActFun H₀ H₁) y0 G' θ T := by
-  refine newLevelCoeffBg_eq_of_agree Gb μ Gp a aT ν ρ Zp Zb _ _ y0 G θp _ G' θ T hdet hGdep
-    (fun s hs y hy => ?_) hG
-  rw [commonAct_sum_H A₀ A₁ hN hL reads₁ dom₁ hdom₁ reads dom hdom hε₁ hε hκ0 e (s : ℂ)]
-  rcases y with (y | y | y) | y
-  · exact hA₀ s hs y hy
-  · exact hA₁ s hs y hy
-  · rfl
-  · rfl
+        (classActFun H₀ H₁) y0 G' θ T :=
+  newLevelCoeffBg_eq_of_agree Gb μ Gp a aT ν ρ Zp Zb _ _ y0 G θp _ G' θ T hdet hGdep
+    (commonAct_sum_H_agree A₀ A₁ hN hL reads₁ dom₁ hdom₁ reads dom hdom hε₁ hε hκ0 e H₀ H₁ θ T
+      hA₀ hA₁) hG
 
 end Bundled
 
