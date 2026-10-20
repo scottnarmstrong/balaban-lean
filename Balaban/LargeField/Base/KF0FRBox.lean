@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Base.KF0FRProd
 public import Balaban.LargeField.Base.KF0PolymerLift
+public import Balaban.LargeField.Base.KF0FRBall
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -184,16 +185,33 @@ def frBase {ℓ : ℕ} : FRTerm d ℓ → Torus d ℓ
   | Sum.inl x => x
   | Sum.inr (x, _) => x
 
-/-- **The block support of a term**: the box of the block of its base site. -/
-def frBox (t : FRTerm d (s * m)) : Finset (Torus d m) := blockBox (blockOf d s m (frBase t))
+/-- The site support of a term is a ball around its base site. -/
+theorem frSupp_eq_torusBall {ℓ : ℕ} [NeZero ℓ] (R : ℕ) (t : FRTerm d ℓ) :
+    frSupp R t = torusBall (frBase t) (match t with
+      | Sum.inl _ => (2 * R + 1 : ℕ)
+      | Sum.inr _ => (R + 1 : ℕ)) := by
+  rcases t with x | ⟨x, μ⟩
+  · ext y; simp [frSupp, torusBall, frBase]
+  · ext y; simp [frSupp, torusBall, frBase]
 
-omit [NeZero s] [NeZero m] in
-theorem frBox_nonempty (t : FRTerm d (s * m)) : (frBox t).Nonempty :=
-  ⟨_, mem_blockBox_self _⟩
+theorem frBase_mem_frSupp {ℓ : ℕ} [NeZero ℓ] (R : ℕ) (t : FRTerm d ℓ) : frBase t ∈ frSupp R t := by
+  rcases t with x | ⟨x, μ⟩
+  · exact mem_frSupp_inl_self R x
+  · simp [frSupp, frBase, torusDist_self_eq]; positivity
 
-omit [NeZero s] [NeZero m] in
-theorem isAnimal_frBox (t : FRTerm d (s * m)) : IsAnimal (blockGraph d m) (frBox t) :=
-  isAnimal_blockBox _
+/-- **The block support of a term**: the blocks of its site support. -/
+def frBox (R : ℕ) (t : FRTerm d (s * m)) : Finset (Torus d m) :=
+  (frSupp R t).image (blockOf d s m)
+
+theorem frBox_nonempty (R : ℕ) (t : FRTerm d (s * m)) : (frBox R t).Nonempty :=
+  ⟨_, Finset.mem_image_of_mem _ (frBase_mem_frSupp R t)⟩
+
+/-- **The block support of a term is connected.** -/
+theorem isAnimal_frBox (R : ℕ) (t : FRTerm d (s * m)) : IsAnimal (blockGraph d m) (frBox R t) := by
+  refine Balaban.LargeField.KF0Gas.isAnimal_image_blockOf_of_nnConnected
+    ⟨_, frBase_mem_frSupp R t⟩ ?_
+  rw [frSupp_eq_torusBall]
+  exact nnConnected_torusBall _ _
 
 /-- The sites of the support of a term are at distance at most `2R + 1` from its base site. -/
 theorem torusDist_frBase_le {ℓ : ℕ} [NeZero ℓ] {R : ℕ} {t : FRTerm d ℓ} {y : Torus d ℓ}
@@ -203,20 +221,28 @@ theorem torusDist_frBase_le {ℓ : ℕ} [NeZero ℓ] {R : ℕ} {t : FRTerm d ℓ
   · simp only [frSupp, Finset.mem_filter, Finset.mem_univ, true_and] at hy
     simp only [frBase]; push_cast; linarith
 
-/-- **The block support contains the blocks of the site support** (`2R + 1 < s`). -/
-theorem blockOf_mem_frBox {R : ℕ} (hR : 2 * R + 1 < s) {t : FRTerm d (s * m)}
-    {y : Torus d (s * m)} (hy : y ∈ frSupp R t) : blockOf d s m y ∈ frBox t :=
-  blockOf_mem_blockBox hR (torusDist_frBase_le hy)
+/-- The block support contains the blocks of the site support. -/
+theorem blockOf_mem_frBox {R : ℕ} {t : FRTerm d (s * m)} {y : Torus d (s * m)}
+    (hy : y ∈ frSupp R t) : blockOf d s m y ∈ frBox R t :=
+  Finset.mem_image_of_mem _ hy
+
+/-- **The block support lies in the block box of the base site** (`2R + 1 < s`). -/
+theorem frBox_subset_blockBox {R : ℕ} (hR : 2 * R + 1 < s) (t : FRTerm d (s * m)) :
+    frBox R t ⊆ blockBox (blockOf d s m (frBase t)) := by
+  intro b hb
+  obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hb
+  exact blockOf_mem_blockBox hR (torusDist_frBase_le hy)
 
 /-- **The terms with a given block support**: at most `(1+d) s^d |X|`. -/
-theorem card_frBox_eq_le (X : Finset (Torus d m)) :
-    (Finset.univ.filter fun t : FRTerm d (s * m) => frBox t = X).card ≤ (1 + d) * (s ^ d * X.card) := by
-  have hsub : Finset.univ.filter (fun t : FRTerm d (s * m) => frBox t = X) ⊆
+theorem card_frBox_eq_le (R : ℕ) (X : Finset (Torus d m)) :
+    (Finset.univ.filter fun t : FRTerm d (s * m) => frBox R t = X).card ≤
+      (1 + d) * (s ^ d * X.card) := by
+  have hsub : Finset.univ.filter (fun t : FRTerm d (s * m) => frBox R t = X) ⊆
       ((siteSet d s m X).disjSum ((siteSet d s m X) ×ˢ (Finset.univ : Finset (Fin d)))) := by
     intro t ht
     rw [Finset.mem_filter] at ht
     have hb : frBase t ∈ siteSet d s m X := by
-      rw [mem_siteSet, ← ht.2]; exact mem_blockBox_self _
+      rw [mem_siteSet, ← ht.2]; exact blockOf_mem_frBox (frBase_mem_frSupp R t)
     rcases t with x | ⟨x, μ⟩
     · exact Finset.inl_mem_disjSum.2 hb
     · exact Finset.inr_mem_disjSum.2 (Finset.mem_product.2 ⟨hb, Finset.mem_univ _⟩)
