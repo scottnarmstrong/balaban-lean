@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.KfZero
+public import Balaban.Spine.KfZeroAct
 public import Balaban.LargeField.Base.KF0PolymerLift
 public import Balaban.LargeField.Base.KF0SmallUniform
 import Mathlib.Tactic.Linarith
@@ -55,46 +56,31 @@ section GoodAct
 variable {d N n : ℕ} {h : EuclideanSpace ℝ (Fin N)}
 
 /-- **The activity of a polymer of the torus of side `s m`**: the local term of the all-plus gas
-at the set of its blocks, zero for a non-polymer. -/
+at the set of its blocks, zero for a non-polymer (`blockActCore` of the local terms `kf0PY`). -/
 noncomputable def kf0ActCore (s m : ℕ) [NeZero s] [NeZero m]
     (e : OrthonormalBasis (Fin n) ℝ (perp h)) (β ν p : ℝ) (pc : Measure (perp h))
     (X : Finset (Torus d (s * m))) (g : Torus d (s * m) → Fin N → ℂ) : ℂ :=
-  if IsPolymer d (s * m) s X then kf0PY e β ν p pc (X.image (blockOf d s m)) g else 0
+  blockActCore s m (fun m _ Y g => kf0PY (s := s) (m' := m) e β ν p pc Y g) X g
 
 /-- **The all-good activities on every torus** `ℓ = s m`, in the form of `ObservableActivities` at
-scale `1`, and zero at the other scales and on tori whose side is not a multiple of `s`. -/
+scale `1`, and zero at the other scales and on tori whose side is not a multiple of `s`
+(`blockAct` of the local terms `kf0PY`). -/
 noncomputable def kf0GoodAct (s : ℕ) [NeZero s] (e : OrthonormalBasis (Fin n) ℝ (perp h))
     (β ν p : ℝ) (pc : Measure (perp h)) :
     (ℓ : ℕ) → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ :=
-  fun ℓ j X g =>
-    if j = 1 then
-      if hm : ∃ m : ℕ, 0 < m ∧ ℓ = s * m then
-        @kf0ActCore d N n h s hm.choose _ ⟨hm.choose_spec.1.ne'⟩ e β ν p pc
-          (hm.choose_spec.2 ▸ X) (hm.choose_spec.2 ▸ g)
-      else 0
-    else 0
+  blockAct s (fun m _ Y g => kf0PY (s := s) (m' := m) e β ν p pc Y g)
 
 theorem kf0GoodAct_of_ne {s : ℕ} [NeZero s] (e : OrthonormalBasis (Fin n) ℝ (perp h))
     (β ν p : ℝ) (pc : Measure (perp h)) {j : ℕ} (hj : j ≠ 1) (ℓ : ℕ) (X : Finset (Torus d ℓ))
-    (g : Torus d ℓ → Fin N → ℂ) : kf0GoodAct s e β ν p pc ℓ j X g = 0 := by
-  simp [kf0GoodAct, hj]
+    (g : Torus d ℓ → Fin N → ℂ) : kf0GoodAct s e β ν p pc ℓ j X g = 0 :=
+  blockAct_of_ne _ hj ℓ X g
 
 /-- On a torus of side `s m` the activity at scale `1` is `kf0ActCore`. -/
 theorem kf0GoodAct_spec {s : ℕ} [NeZero s] (e : OrthonormalBasis (Fin n) ℝ (perp h))
     (β ν p : ℝ) (pc : Measure (perp h)) (m : ℕ) [NeZero m] (X : Finset (Torus d (s * m)))
     (g : Torus d (s * m) → Fin N → ℂ) :
-    kf0GoodAct s e β ν p pc (s * m) 1 X g = kf0ActCore s m e β ν p pc X g := by
-  have hm : ∃ m' : ℕ, 0 < m' ∧ s * m = s * m' := ⟨m, Nat.pos_of_ne_zero (NeZero.ne m), rfl⟩
-  have hs : 0 < s := Nat.pos_of_ne_zero (NeZero.ne s)
-  have hmm : hm.choose = m := Nat.eq_of_mul_eq_mul_left hs hm.choose_spec.2.symm
-  simp only [kf0GoodAct, ite_true, hm, dite_true]
-  have key : ∀ (m₁ : ℕ) (inst : NeZero m₁) (h₁ : s * m = s * m₁), m₁ = m →
-      @kf0ActCore d N n h s m₁ _ inst e β ν p pc (h₁ ▸ X) (h₁ ▸ g) =
-        kf0ActCore s m e β ν p pc X g := by
-    intro m₁ inst h₁ hmm'
-    subst hmm'
-    rfl
-  exact key hm.choose ⟨hm.choose_spec.1.ne'⟩ hm.choose_spec.2 hmm
+    kf0GoodAct s e β ν p pc (s * m) 1 X g = kf0ActCore s m e β ν p pc X g :=
+  blockAct_spec _ m X g
 
 end GoodAct
 
@@ -104,55 +90,18 @@ variable {d N n : ℕ} {h : EuclideanSpace ℝ (Fin N)} {M L : ℕ} [NeZero (M *
   (e : OrthonormalBasis (Fin n) ℝ (perp h)) (β ν p : ℝ) (pc : Measure (perp h))
 
 theorem kf0GoodAct_support {ℓ : ℕ} [NeZero ℓ] (m : ℕ) [NeZero m] (hℓ : ℓ = M * L * m) :
-    ActSupportAt d N L M 1 ℓ (kf0GoodAct (M * L) e β ν p pc) := by
-  intro j X hX g
-  by_cases hj : j = 1
-  · subst hj
-    have hnp : ¬ IsPolymer d ℓ (M * L) X := fun hp =>
-      hX ⟨Finset.mem_Icc.2 ⟨le_rfl, le_rfl⟩, by rwa [pow_one]⟩
-    subst hℓ
-    rw [kf0GoodAct_spec, kf0GoodAct_spec]
-    simp only [kf0ActCore, hnp, ite_false]
-  · rw [kf0GoodAct_of_ne e β ν p pc hj, kf0GoodAct_of_ne e β ν p pc hj]
+    ActSupportAt d N L M 1 ℓ (kf0GoodAct (M * L) e β ν p pc) :=
+  blockAct_support _ m hℓ
 
 theorem kf0GoodAct_local {ℓ : ℕ} [NeZero ℓ] (m : ℕ) [NeZero m] (hℓ : ℓ = M * L * m) :
-    ActLocalAt d N ℓ (kf0GoodAct (M * L) e β ν p pc) := by
-  intro j X g g' hg
-  by_cases hj : j = 1
-  · subst hj
-    subst hℓ
-    rw [kf0GoodAct_spec, kf0GoodAct_spec]
-    unfold kf0ActCore
-    by_cases hX : IsPolymer d (M * L * m) (M * L) X
-    · simp only [hX, ite_true]
-      refine kf0PY_congr e β ν p pc _ fun x hx => hg x ?_
-      have := siteSet_image_blockOf (d := d) (s := M * L) (m := m) hX.2.1
-      rw [← this]
-      exact (mem_siteSet d (M * L) m).2 hx
-    · simp only [hX, ite_false]
-  · rw [kf0GoodAct_of_ne e β ν p pc hj, kf0GoodAct_of_ne e β ν p pc hj]
+    ActLocalAt d N ℓ (kf0GoodAct (M * L) e β ν p pc) :=
+  blockAct_local _ m hℓ fun Y _ _ hg => kf0PY_congr e β ν p pc Y hg
 
 theorem kf0GoodAct_analytic {ℓ : ℕ} [NeZero ℓ] (m : ℕ) [NeZero m] (hℓ : ℓ = M * L * m)
     (hAn : ∀ Y : Finset (Torus d m), AnalyticOnNhd ℂ (kf0PY e β ν p pc Y)
       {g : Torus d (M * L * m) → Fin N → ℂ | ∑ x, ∑ i, ‖g x i‖ < 1}) :
-    ActAnalyticAt d N ℓ (kf0GoodAct (M * L) e β ν p pc) := by
-  intro j X
-  by_cases hj : j = 1
-  · subst hj
-    subst hℓ
-    have : kf0GoodAct (M * L) e β ν p pc (M * L * m) 1 X = fun g => kf0ActCore (M * L) m e β ν p pc X g :=
-      funext fun g => kf0GoodAct_spec e β ν p pc m X g
-    rw [this]
-    unfold kf0ActCore
-    by_cases hX : IsPolymer d (M * L * m) (M * L) X
-    · simp only [hX, ite_true]
-      exact hAn _
-    · simp only [hX, ite_false]
-      exact analyticOnNhd_const
-  · have : kf0GoodAct (M * L) e β ν p pc ℓ j X = fun _ => 0 :=
-      funext fun g => kf0GoodAct_of_ne e β ν p pc hj ℓ X g
-    rw [this]
-    exact analyticOnNhd_const
+    ActAnalyticAt d N ℓ (kf0GoodAct (M * L) e β ν p pc) :=
+  blockAct_analytic _ m hℓ hAn
 
 end Clauses
 
@@ -167,37 +116,8 @@ theorem kf0GoodAct_bound {κ c₉' δ B : ℝ} {ℓ : ℕ} [NeZero ℓ] (m : ℕ
       ∀ g : Torus d (M * L * m) → Fin N → ℂ, ∑ x, ∑ i, ‖g x i‖ < 1 →
         ‖kf0PY (s := M * L) (m' := m) e β ν p pc Y g - kf0PY (s := M * L) (m' := m) e β ν p pc Y 0‖ ≤ B * Real.exp (-κ * (Y.card : ℝ)))
     (hB : B ≤ c₉' / 2 * (L : ℝ) ^ (-((1 : ℝ) * (((d : ℝ) - 2) / 2 + δ)))) :
-    ActBoundAt d N L M κ c₉' δ 1 ℓ (kf0GoodAct (M * L) e β ν p pc) := by
-  intro j hj X g hg
-  have hj1 : j = 1 := le_antisymm (Finset.mem_Icc.1 hj).2 (Finset.mem_Icc.1 hj).1
-  subst hj1
-  subst hℓ
-  rw [kf0GoodAct_spec, kf0GoodAct_spec]
-  unfold kf0ActCore
-  have hpos : 0 ≤ c₉' / 2 * (L : ℝ) ^ (-(((1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))) *
-      Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ 1) ^ d) := by
-    have := Real.exp_pos (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ 1) ^ d)
-    have h2 : 0 ≤ (L : ℝ) ^ (-(((1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))) :=
-      Real.rpow_nonneg (Nat.cast_nonneg _) _
-    positivity
-  by_cases hX : IsPolymer d (M * L * m) (M * L) X
-  · simp only [hX, ite_true]
-    have hY := isAnimal_image_blockOf (d := d) (s := M * L) (m := m) hX
-    have h1 := hBd _ hY g hg
-    have hcard := card_div_eq (d := d) (s := M * L) (m := m) X hX.2.1
-    have hexp : Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ 1) ^ d) =
-        Real.exp (-κ * ((X.image (blockOf d (M * L) m)).card : ℝ)) := by
-      rw [← hcard]
-      congr 1
-      push_cast
-      rw [pow_one]
-      ring
-    rw [hexp]
-    refine h1.trans ?_
-    simp only [Nat.cast_one] at hB ⊢
-    exact mul_le_mul_of_nonneg_right hB (Real.exp_pos _).le
-  · simp only [hX, ite_false, sub_self, norm_zero]
-    exact hpos
+    ActBoundAt d N L M κ c₉' δ 1 ℓ (kf0GoodAct (M * L) e β ν p pc) :=
+  blockAct_bound _ m hℓ hc hBd hB
 
 end Bound
 
@@ -206,47 +126,10 @@ section Agreement
 variable {d N n : ℕ} {h : EuclideanSpace ℝ (Fin N)} {M L : ℕ} [NeZero (M * L)]
   (e : OrthonormalBasis (Fin n) ℝ (perp h)) (β ν p : ℝ) (pc : Measure (perp h))
 
-/-- A torus side divisible by `M L^{kf+1}` is `M L m` with `m ≥ 1`. -/
-theorem exists_multiple {M L kf ℓ : ℕ} [NeZero ℓ] (hℓ : M * L ^ (kf + 1) ∣ ℓ) :
-    ∃ m : ℕ, NeZero m ∧ ℓ = M * L * m := by
-  obtain ⟨q, hq⟩ := hℓ
-  refine ⟨L ^ kf * q, ⟨fun h0 => NeZero.ne ℓ ?_⟩, ?_⟩
-  · rw [hq, pow_succ, show M * (L ^ kf * L) * q = M * L * (L ^ kf * q) by ring, h0, mul_zero]
-  · rw [hq, pow_succ]
-    ring
-
 /-- **The two-torus agreement of the all-good activities (d).** -/
 theorem kf0GoodAct_agree {kf : ℕ} (hs : 6 ≤ M * L) (hd : 1 ≤ d) [IsProbabilityMeasure pc] :
-    ActAgree d N L M kf (kf0GoodAct (M * L) e β ν p pc) := by
-  intro ℓ ℓ' _ _ hℓ hℓ' j a A g ha hbox
-  by_cases hj : j = 1
-  · subst hj
-    obtain ⟨m, hm, rfl⟩ := exists_multiple hℓ
-    obtain ⟨m2, hm2, rfl⟩ := exists_multiple hℓ'
-    have hXe : (A.image fun y μ => ((y μ : ℤ) : ZMod (M * L * m))) =
-        A.image (intToTorus d (M * L * m)) := rfl
-    have hXe2 : (A.image fun y μ => ((y μ : ℤ) : ZMod (M * L * m2))) =
-        A.image (intToTorus d (M * L * m2)) := rfl
-    rw [hXe, hXe2, kf0GoodAct_spec, kf0GoodAct_spec, kf0GoodAct_spec, kf0GoodAct_spec]
-    have hbox' : ∀ y ∈ A, ∀ μ, 4 * |y μ| < ((M * L * m : ℕ) : ℤ) ∧
-        4 * |y μ| < ((M * L * m2 : ℕ) : ℤ) := hbox
-    unfold kf0ActCore
-    by_cases hX : IsPolymer d (M * L * m) (M * L) (A.image (intToTorus d (M * L * m)))
-    · obtain ⟨hX', -⟩ := polymer_lift hs hd A hbox' hX
-      have h1 := kf0PY_agree hs hd A hbox' hX e β ν p pc g
-      have h2 : kf0PY (s := M * L) (m' := m2) e β ν p pc
-          ((A.image (intToTorus d (M * L * m2))).image (blockOf d (M * L) m2)) 0 =
-          kf0PY (s := M * L) (m' := m) e β ν p pc
-            ((A.image (intToTorus d (M * L * m))).image (blockOf d (M * L) m)) 0 :=
-        kf0PY_agree hs hd A hbox' hX e β ν p pc (fun _ _ => 0)
-      simp only [hX, hX', ite_true]
-      rw [h1, h2]
-    · have hX' : ¬ IsPolymer d (M * L * m2) (M * L) (A.image (intToTorus d (M * L * m2))) := by
-        intro hX'
-        exact hX (polymer_lift hs hd A (fun y hy μ => ⟨(hbox' y hy μ).2, (hbox' y hy μ).1⟩) hX').1
-      simp only [hX, hX', ite_false]
-  · rw [kf0GoodAct_of_ne e β ν p pc hj, kf0GoodAct_of_ne e β ν p pc hj,
-      kf0GoodAct_of_ne e β ν p pc hj, kf0GoodAct_of_ne e β ν p pc hj]
+    ActAgree d N L M kf (kf0GoodAct (M * L) e β ν p pc) :=
+  blockAct_agree _ hs hd fun _ _ _ _ A hA hX g => kf0PY_agree hs hd A hA hX e β ν p pc g
 
 end Agreement
 
@@ -264,32 +147,8 @@ theorem kf0GoodAct_sum {ℓ : ℕ} [NeZero ℓ] (m : ℕ) [NeZero m] (hℓ : ℓ
         gasTermC e β ν p X g' Φ = 0)
     (g : Torus d ℓ → Fin N → ℂ) :
     ∑ X : Finset (Torus d ℓ), kf0GoodAct (M * L) e β ν p pc ℓ 1 X g =
-      ∑ Y : Finset (Torus d m), kf0PY (s := M * L) (m' := m) e β ν p pc Y (hℓ ▸ g) := by
-  subst hℓ
-  simp only [kf0GoodAct_spec]
-  unfold kf0ActCore
-  rw [← Finset.sum_filter]
-  have hv : ∀ Y ∈ (Finset.univ : Finset (Finset (Torus d m))),
-      Y ∉ (Finset.univ : Finset (Finset (Torus d m))).filter (IsAnimal (blockGraph d m)) →
-      kf0PY (s := M * L) (m' := m) e β ν p pc Y g = 0 := by
-    intro Y _ hY
-    exact kf0PY_eq_zero_of_not_isAnimal e β ν p pc g (hz g) Y (by simpa using hY)
-  rw [← Finset.sum_subset (Finset.filter_subset _ _) hv]
-  refine Finset.sum_nbij' (fun X => X.image (blockOf d (M * L) m))
-    (fun Y => siteSet d (M * L) m Y) ?_ ?_ ?_ ?_ ?_
-  · intro X hX
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hX ⊢
-    exact isAnimal_image_blockOf hX
-  · intro Y hY
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hY ⊢
-    exact (isPolymer_siteSet_iff Y).mpr hY
-  · intro X hX
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hX
-    exact siteSet_image_blockOf hX.2.1
-  · intro Y _
-    exact image_siteSet Y
-  · intro X _
-    rfl
+      ∑ Y : Finset (Torus d m), kf0PY (s := M * L) (m' := m) e β ν p pc Y (hℓ ▸ g) :=
+  blockAct_sum _ m hℓ (fun g' Y hY => kf0PY_eq_zero_of_not_isAnimal e β ν p pc g' (hz g') Y hY) g
 
 end Sum
 

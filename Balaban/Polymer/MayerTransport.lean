@@ -39,12 +39,12 @@ variable {B B' : Type*} [Fintype B] [Fintype B'] [DecidableEq B']
   (μ : ∀ b, Measure (Ω b)) (μ' : ∀ b, Measure (Ω' b))
 
 
-/-- **Transport of the local terms of the Mayer gas.**  Let `σ` map the blocks of a first system to
+/-- **Transport of the local terms of the Mayer gas, general weights.**  Let `σ` map the blocks of a first system to
 those of a second, injectively on the set `Y`, and let a relation `Rel` between configurations
-carry integrals of functions of the blocks of `Z ⊆ Y`. If the terms `H_t`, `t ⊆ Y`, of the first
-system and `H'_{σ t}` of the second agree on related configurations, then the local terms of the
+carry integrals of functions of the blocks of `Z ⊆ Y`. If the weights `f_t`, `t ⊆ Y`, of the first
+system and `f'_{σ t}` of the second agree on related configurations, then the local terms of the
 two gases at `Y` and `σ '' Y` agree. -/
-theorem PY_mayer_transport (σ : B → B') (Y : Finset B) (hσ : Set.InjOn σ (Y : Set B))
+theorem PY_mayerGen_transport (σ : B → B') (Y : Finset B) (hσ : Set.InjOn σ (Y : Set B))
     (Hf : NePoly B → (∀ b, Ω b) → ℂ) (Hf' : NePoly B' → (∀ b, Ω' b) → ℂ)
     (Rel : (∀ b, Ω b) → (∀ b, Ω' b) → Prop)
     (hint : ∀ Z ⊆ Y, ∀ (F : (∀ b, Ω b) → ℂ) (F' : (∀ b, Ω' b) → ℂ), DepOn Z F →
@@ -54,27 +54,26 @@ theorem PY_mayer_transport (σ : B → B') (Y : Finset B) (hσ : Set.InjOn σ (Y
     (hH : ∀ t : NePoly B, t.1 ⊆ Y → ∀ Φ Φ', Rel Φ Φ' →
       Hf' ⟨t.1.image σ, t.2.image σ⟩ Φ' = Hf t Φ) :
     PY (shareBlock (Subtype.val : NePoly B' → Finset B')) Subtype.val
-        (mayerK μ' (fun X : NePoly B' => X.1) Hf') (Y.image σ) =
+        (mayerGenK μ' (fun X : NePoly B' => X.1) Hf') (Y.image σ) =
       PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val
-        (mayerK μ (fun X : NePoly B => X.1) Hf) Y := by
+        (mayerGenK μ (fun X : NePoly B => X.1) Hf) Y := by
   let img : NePoly B → NePoly B' := fun t => ⟨t.1.image σ, t.2.image σ⟩
   have himg_inj : ∀ t₁ t₂ : NePoly B, t₁.1 ⊆ Y → t₂.1 ⊆ Y → img t₁ = img t₂ → t₁ = t₂ :=
     fun t₁ t₂ h₁ h₂ h => Subtype.ext (eq_of_image_eq_of_injOn hσ h₁ h₂ (congrArg Subtype.val h))
   -- the activities of the polymers inside `Y` agree
   have hK : ∀ x : NePoly B, x.1 ⊆ Y →
-      mayerK μ' (fun X : NePoly B' => X.1) Hf' (img x) =
-        mayerK μ (fun X : NePoly B => X.1) Hf x := by
+      mayerGenK μ' (fun X : NePoly B' => X.1) Hf' (img x) =
+        mayerGenK μ (fun X : NePoly B => X.1) Hf x := by
     intro x hx
-    unfold mayerK
-    refine hint x.1 hx _ _ (depOn_mayerAct hdep x) (fun Φ Φ' hR => ?_)
-    unfold mayerAct
+    unfold mayerGenK
+    refine hint x.1 hx _ _ (depOn_mayerGenAct hdep x) (fun Φ Φ' hR => ?_)
+    unfold mayerGenAct
     refine polyAct_transport σ img x (img x) rfl (hσ.mono (by exact_mod_cast hx))
       (fun t _ => by rfl) (fun t₁ t₂ h₁ h₂ h => himg_inj t₁ t₂ (h₁.trans hx) (h₂.trans hx) h)
       (fun t' ht' => ?_) _ _ (fun t ht => ?_)
     · obtain ⟨t, htx, hte⟩ := exists_nePoly_image t' ht'
       exact ⟨t, htx, Subtype.ext hte⟩
-    · show Complex.exp (Hf' (img t) Φ') - 1 = Complex.exp (Hf t Φ) - 1
-      rw [hH t (ht.trans hx) Φ Φ' hR]
+    · exact hH t (ht.trans hx) Φ Φ' hR
   have hbij : Function.Bijective (fun x : {x : NePoly B // x.1 ⊆ Y} =>
       (⟨img x.1, Finset.image_subset_image x.2⟩ : {x' : NePoly B' // x'.1 ⊆ Y.image σ})) := by
     refine ⟨fun x₁ x₂ h => Subtype.ext (himg_inj _ _ x₁.2 x₂.2 (congrArg Subtype.val h)),
@@ -91,6 +90,33 @@ theorem PY_mayer_transport (σ : B → B') (Y : Finset B) (hσ : Set.InjOn σ (Y
   · rw [lnk_shareBlock, lnk_shareBlock]
     exact not_disjoint_image_iff_of_injOn hσ x.2 y.2
   · exact hK x.1 x.2
+
+/-- **Transport of the local terms of the Mayer gas.**  Let `σ` map the blocks of a first system to
+those of a second, injectively on the set `Y`, and let a relation `Rel` between configurations
+carry integrals of functions of the blocks of `Z ⊆ Y`. If the terms `H_t`, `t ⊆ Y`, of the first
+system and `H'_{σ t}` of the second agree on related configurations, then the local terms of the
+two gases at `Y` and `σ '' Y` agree (the weights `e^{H} - 1` of `PY_mayerGen_transport`). -/
+theorem PY_mayer_transport (σ : B → B') (Y : Finset B) (hσ : Set.InjOn σ (Y : Set B))
+    (Hf : NePoly B → (∀ b, Ω b) → ℂ) (Hf' : NePoly B' → (∀ b, Ω' b) → ℂ)
+    (Rel : (∀ b, Ω b) → (∀ b, Ω' b) → Prop)
+    (hint : ∀ Z ⊆ Y, ∀ (F : (∀ b, Ω b) → ℂ) (F' : (∀ b, Ω' b) → ℂ), DepOn Z F →
+      (∀ Φ Φ', Rel Φ Φ' → F' Φ' = F Φ) →
+        ∫ Φ', F' Φ' ∂(Measure.pi μ') = ∫ Φ, F Φ ∂(Measure.pi μ))
+    (hdep : ∀ t : NePoly B, DepOn t.1 (Hf t))
+    (hH : ∀ t : NePoly B, t.1 ⊆ Y → ∀ Φ Φ', Rel Φ Φ' →
+      Hf' ⟨t.1.image σ, t.2.image σ⟩ Φ' = Hf t Φ) :
+    PY (shareBlock (Subtype.val : NePoly B' → Finset B')) Subtype.val
+        (mayerK μ' (fun X : NePoly B' => X.1) Hf') (Y.image σ) =
+      PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val
+        (mayerK μ (fun X : NePoly B => X.1) Hf) Y :=
+  PY_mayerGen_transport μ μ' σ Y hσ (fun t Φ => Complex.exp (Hf t Φ) - 1)
+    (fun t Φ => Complex.exp (Hf' t Φ) - 1) Rel hint
+    (fun t Φ Φ' hΦ => by
+      show Complex.exp (Hf t Φ) - 1 = Complex.exp (Hf t Φ') - 1
+      rw [hdep t Φ Φ' hΦ])
+    (fun t ht Φ Φ' hR => by
+      show Complex.exp (Hf' _ Φ') - 1 = Complex.exp (Hf t Φ) - 1
+      rw [hH t ht Φ Φ' hR])
 
 end Transport
 

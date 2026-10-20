@@ -67,14 +67,15 @@ variable [Fintype B] {Ω : B → Type*} [∀ b, MeasurableSpace (Ω b)]
   (μ : ∀ b, Measure (Ω b)) {T : Type*} [Fintype T] (sup : T → Finset B)
   (Hf : T → (∀ b, Ω b) → ℂ)
 
-/-- **The Mayer activity of a non-connected block set vanishes** when the terms supported on
-non-connected sets vanish. -/
-theorem mayerK_eq_zero_of_not_isAnimal (hH : ∀ t, ¬ IsAnimal H (sup t) → ∀ Φ, Hf t Φ = 0)
-    (Z : NePoly B) (hZ : ¬ IsAnimal H Z.1) : mayerK μ sup Hf Z = 0 := by
-  unfold mayerK
+/-- **The Mayer activity of a non-connected block set vanishes, general weights**, when the weights
+of the terms supported on non-connected sets vanish. -/
+theorem mayerGenK_eq_zero_of_not_isAnimal (f : T → (∀ b, Ω b) → ℂ)
+    (hf : ∀ t, ¬ IsAnimal H (sup t) → ∀ Φ, f t Φ = 0)
+    (Z : NePoly B) (hZ : ¬ IsAnimal H Z.1) : mayerGenK μ sup f Z = 0 := by
+  unfold mayerGenK
   refine (integral_congr_ae (g := fun _ => (0 : ℂ)) (Filter.Eventually.of_forall fun Φ => ?_)).trans
     (integral_zero _ _)
-  unfold mayerAct polyAct
+  unfold mayerGenAct polyAct
   refine Finset.sum_eq_zero fun C hC => ?_
   obtain ⟨hconn, -, hU⟩ := mem_Cfam.1 hC
   have : ∃ t ∈ C, ¬ IsAnimal H (sup t) := by
@@ -82,7 +83,14 @@ theorem mayerK_eq_zero_of_not_isAnimal (hH : ∀ t, ¬ IsAnimal H (sup t) → �
     push Not at hall
     exact hZ (hU ▸ isAnimal_unionCs_of_connSet H sup hconn hall)
   obtain ⟨t, htC, ht⟩ := this
-  exact Finset.prod_eq_zero htC (by rw [hH t ht Φ]; simp)
+  exact Finset.prod_eq_zero htC (hf t ht Φ)
+
+/-- **The Mayer activity of a non-connected block set vanishes** when the terms supported on
+non-connected sets vanish. -/
+theorem mayerK_eq_zero_of_not_isAnimal (hH : ∀ t, ¬ IsAnimal H (sup t) → ∀ Φ, Hf t Φ = 0)
+    (Z : NePoly B) (hZ : ¬ IsAnimal H Z.1) : mayerK μ sup Hf Z = 0 :=
+  mayerGenK_eq_zero_of_not_isAnimal H μ sup (fun t Φ => Complex.exp (Hf t Φ) - 1)
+    (fun t ht Φ => by simp [hH t ht Φ]) Z hZ
 
 /-- **The local terms of a non-connected block set vanish** when the activities of the
 non-connected sets vanish. -/
