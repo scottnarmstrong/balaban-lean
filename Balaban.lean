@@ -2894,6 +2894,7 @@ public import Balaban.Spine.FrozenStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.FinalRepGroup
 public import Balaban.Spine.FinalRepRemoval
+public import Balaban.Spine.RemovalHist
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
 public import Balaban.Spine.KfZeroGood
