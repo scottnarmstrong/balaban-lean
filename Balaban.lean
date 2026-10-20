@@ -2967,3 +2967,4 @@ public import Balaban.LargeField.Base.KF0FRHeavyDInt
 public import Balaban.LargeField.Base.KF0FRHeavy
 public import Balaban.LargeField.Base.KF0FRProd
 public import Balaban.Fluctuation.NewLevelTermsBgAnalytic
+public import Balaban.Polymer.Regroup
