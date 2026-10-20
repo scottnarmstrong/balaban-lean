@@ -106,7 +106,7 @@ theorem energy_sheetCfg (hh : ‖h‖ = 1) (ν : ℝ) (σ : Torus d ℓ → Bool
     rw [hc, ← norm_sq_add_smul h hh (ξ x)]
     congr 1
     rw [sub_smul, one_smul]
-    abel
+    abel_nf
   unfold energy
   simp_rw [hbond, hsite]
   rw [tangentQuad_eq]
