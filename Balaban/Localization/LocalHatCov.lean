@@ -91,6 +91,35 @@ theorem localLift_mem_flBallLC_of_top_empty (hHl : Hl.Ω (k + 1) = ∅) (hδ₁ 
     funext i
     simp only [hu]
 
+/-- **A bounded field on the unit lattice times a bounded multiplier, extended by zero and lifted,
+lands in the local fluctuation ball**: for `w` on the unit lattice of `G` with `|w| ≤ B` and a
+multiplier `m` on the unit points of `G` with `|m| ≤ M`, `M (√N B) < δ₁`, the fluctuation
+`ψ'(x) = m(b) w(b)`, `b` the unit block of `x` (`0` off the unit blocks of `G`), is a block
+fluctuation of every generating set without layer `k + 1`.  The core of
+`localHatLiftMul_mem_flBallLC_cover` (`w = cc C^{1/2}(s) ψ̂`, `B = ‖cc‖ K c_ψ`). -/
+theorem localLiftMul_mem_flBallLC_of_coord (hHl : Hl.Ω (k + 1) = ∅) (hδ₁0 : 0 < δ₁)
+    {w : unitPts G × Fin N → ℂ} {B : ℝ} (hw : ∀ q, ‖w q‖ ≤ B)
+    (m : unitPts G → ℂ) {Mm : ℝ} (hm : ∀ b, ‖m b‖ ≤ Mm)
+    (hδ₁ : Mm * (Real.sqrt N * B) < δ₁) :
+    (fun (x : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) =>
+      if h : unitBlock x ∈ unitPts G then m ⟨unitBlock x, h⟩ * w (⟨unitBlock x, h⟩, i)
+      else 0) ∈ FlBallLC Hl δ₁ := by
+  refine localLift_mem_flBallLC_of_top_empty (v := fun q => m q.1 * w q) hHl hδ₁0 fun b => ?_
+  have hMm : 0 ≤ Mm := (norm_nonneg _).trans (hm b)
+  have hcoord : ∀ i, ‖m b * w (b, i)‖ ≤ Mm * B := by
+    intro i
+    rw [norm_mul]
+    exact mul_le_mul (hm b) (hw (b, i)) (norm_nonneg _) hMm
+  rcases Nat.eq_zero_or_pos N with hN | hN
+  · subst hN
+    have : vn (fun i : Fin 0 => m b * w (b, i)) = 0 := by
+      rw [vn_eq_sqrt]; simp
+    rw [this]; exact hδ₁0
+  · have hV : 0 ≤ Mm * B := (norm_nonneg _).trans (hcoord ⟨0, hN⟩)
+    refine lt_of_le_of_lt (vn_le_sqrt_mul hV hcoord) ?_
+    calc Real.sqrt N * (Mm * B) = Mm * (Real.sqrt N * B) := by ring
+      _ < δ₁ := hδ₁
+
 /-- **The local hat lift times a bounded multiplier lands in the local fluctuation ball** (cover
 form, any `G` with the standing data `Dec2.XCover (coverOf G) G …`).  For a datum
 `e = (s, φ₀, α₀) ∈ DecDom`, a hat variable `ψ̂` on the unit lattice of `G` with `|ψ̂| ≤ c_ψ`, a
@@ -112,29 +141,10 @@ theorem localHatLiftMul_mem_flBallLC_cover (S : Dec2.XCover (coverOf G) G a aT �
           (cc • (decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 (unitQ G) (unitP G) *ᵥ ψh))
             (⟨unitBlock x, h⟩, i)
       else 0) ∈ FlBallLC Hl δ₁ := by
-  refine localLift_mem_flBallLC_of_top_empty (v := fun q => m q.1 *
-    (cc • (decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 (unitQ G) (unitP G) *ᵥ ψh)) q)
-    hHl hδ₁0 fun b => ?_
   have hsup := decCovSqrt_supNorm_cover (N := N) S hCx hκ hM hδ hsm he ψh hcψ hψh
-  have hMm : 0 ≤ Mm := (norm_nonneg _).trans (hm b)
-  have hcoord : ∀ i, ‖m b * (cc • (decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1 (unitQ G)
-      (unitP G) *ᵥ ψh)) (b, i)‖ ≤ Mm * (‖cc‖ * (covSupConstC d L N (a k) κ * cψ)) := by
-    intro i
-    rw [Pi.smul_apply, smul_eq_mul, norm_mul, norm_mul]
-    exact mul_le_mul (hm b) (mul_le_mul_of_nonneg_left (hsup (b, i)) (norm_nonneg _))
-      (by positivity) hMm
-  rcases Nat.eq_zero_or_pos N with hN | hN
-  · subst hN
-    have : vn (fun i : Fin 0 => m b * (cc • (decCovSqrt G a aT ν e.2.2 (extS G e.1) e.2.1
-        (unitQ G) (unitP G) *ᵥ ψh)) (b, i)) = 0 := by
-      rw [vn_eq_sqrt]; simp
-    rw [this]; exact hδ₁0
-  · have hV : 0 ≤ Mm * (‖cc‖ * (covSupConstC d L N (a k) κ * cψ)) :=
-      (norm_nonneg _).trans (hcoord ⟨0, hN⟩)
-    refine lt_of_le_of_lt (vn_le_sqrt_mul hV hcoord) ?_
-    calc Real.sqrt N * (Mm * (‖cc‖ * (covSupConstC d L N (a k) κ * cψ)))
-        = Mm * (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (a k) κ * cψ))) := by ring
-      _ < δ₁ := hδ₁
+  refine localLiftMul_mem_flBallLC_of_coord hHl hδ₁0 (fun q => ?_) m hm hδ₁
+  rw [Pi.smul_apply, smul_eq_mul, norm_mul]
+  exact mul_le_mul_of_nonneg_left (hsup q) (norm_nonneg _)
 
 /-- **The local hat lift lands in the local fluctuation ball** (cover form, any `G` with the
 standing data `Dec2.XCover (coverOf G) G …`).  For a datum `e = (s, φ₀, α₀) ∈ DecDom`, a hat

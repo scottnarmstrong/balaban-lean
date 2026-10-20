@@ -46,17 +46,61 @@ section Background
 variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
 
+/-- **Core of `rowsDep_subset_component`**: the raw-data set of the row-local background theorem
+lies in the component whenever the footprints of the sites of `S_Y` do (`hfoot`, the conclusion of
+`footprint_subset_component`). -/
+theorem rowsDep_subset_component_of
+    {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {Y : Finset (CTorus d L N₁ m₁ K)}
+    (hfoot : (∀ x ∈ SY G X₁ 𝒞 Y, resDep G x ⊆ Y) ∧
+      (∀ x ∈ SY G X₁ 𝒞 Y, ∀ u ∈ resSites G x, approxDep G u ⊆ Y))
+    {z : CTorus d L N₁ m₁ K} (hz : RowsDep G a ν (SY G X₁ 𝒞 Y) z) : z ∈ Y := by
+  rcases hz with ⟨x, hx, hz⟩ | ⟨y, hy | ⟨x, hx, hxy⟩, hz⟩
+  · exact hfoot.1 _ hx hz
+  · exact hfoot.2 _ hy _ (mem_resSites_self _) hz
+  · exact hfoot.2 _ hx _ (mem_resSites_of_entry_ne_zero hxy) hz
+
 /-- **The raw-data set of the row-local background theorem lies in the component.**  At a
 whole-lattice generating set of level `n`, every site of `RowsDep G a ν (S_Y)` lies in `Y`. -/
 theorem rowsDep_subset_component {n : ℕ} (hG : IsLevel G n)
     (X₁ : Finset (CTorus d L N₁ m₁ K)) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K))
     (Y : Finset (CTorus d L N₁ m₁ K)) {z : CTorus d L N₁ m₁ K}
-    (hz : RowsDep G a ν (SY G X₁ 𝒞 Y) z) : z ∈ Y := by
-  have h := footprint_subset_component hG X₁ 𝒞 Y
-  rcases hz with ⟨x, hx, hz⟩ | ⟨y, hy | ⟨x, hx, hxy⟩, hz⟩
-  · exact h.1 _ hx hz
-  · exact h.2 _ hy _ (mem_resSites_self _) hz
-  · exact h.2 _ hx _ (mem_resSites_of_entry_ne_zero hxy) hz
+    (hz : RowsDep G a ν (SY G X₁ 𝒞 Y) z) : z ∈ Y :=
+  rowsDep_subset_component_of (footprint_subset_component hG X₁ 𝒞 Y) hz
+
+/-- **Core of `i4b_local_of_agree_on_component`**, for any generating set: the connectedness of the
+thickened cubes at the admissible centres (`HatConnAdm`) and the footprint inclusion of the sites of
+`S_Y` (`hfoot`) in place of `HatConn` and the level. -/
+theorem i4b_local_of_agree_on_component_adm {c BG : ℝ} (hS : DecSpecs d L c BG)
+    (S : DGSetting G a ν)
+    (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {s s' : DecParams G}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2) {D D₂ : BgData G N}
+    (hD : InDomainC G ν δ ε D) (hD₂ : InDomainC G ν δ ε D₂)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    (hconn : HatConnAdm G X₁ 𝒞)
+    (hfoot : (∀ x ∈ SY G X₁ 𝒞 Y, resDep G x ⊆ Y) ∧
+      (∀ x ∈ SY G X₁ 𝒞 Y, ∀ u ∈ resSites G x, approxDep G u ⊆ Y))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → extS G s P = 1 ∧ extS G s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → extS G s P = 0 ∧ extS G s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → extS G s P = extS G s' P)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D₂.Ψ z ∧ (z ∈ G.Ω 1 → D.h z = D₂.h z))
+    {φ φ₂ : G.Ω 1 × Fin N → ℂ} {α α₂ : G.Ω 1 → ℂ}
+    (h : IsDecBg G a ν (rho4 d L N BG κ) s D φ α)
+    (h₂ : IsDecBg G a ν (rho4 d L N BG κ) s' D₂ φ₂ α₂) :
+    (∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ K) ∈ SY G X₁ 𝒞 Y → α x = α₂ x) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y → ∀ i : Fin N,
+      φ (y, i) - approxField G a ν D.Ψ D.h y i = φ₂ (y, i) - approxField G a ν D₂.Ψ D₂.h y i) ∧
+    (∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ Y →
+      (∀ z ∈ approxDep G (y : CTorus d L N₁ m₁ K), RowsDep G a ν (SY G X₁ 𝒞 Y) z) →
+      ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) ∧
+    (∀ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) (SY G X₁ 𝒞 Y) y → ∀ i : Fin N,
+      φ (y, i) = φ₂ (y, i)) :=
+  i4b_local_rows_adm hS S HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂ hconn hY hs1 hs0 hag
+    (fun _ hz => hdata _ (rowsDep_subset_component_of hfoot hz)) h h₂
 
 /-- **`i4b_local` from raw-data agreement on the component only.**  Same conclusions as
 `i4b_local_rows`; the hypothesis is agreement of `Ψ` on `Y` and of `h` on `Y ∩ Ω₁`. -/
@@ -86,8 +130,8 @@ theorem i4b_local_of_agree_on_component {c BG : ℝ} (hS : DecSpecs d L c BG)
       ∀ i : Fin N, φ (y, i) = φ₂ (y, i)) ∧
     (∀ y : G.Ω 1, RowSite G a ν (0 : G.Ω 1 → ℂ) (SY G X₁ 𝒞 Y) y → ∀ i : Fin N,
       φ (y, i) = φ₂ (y, i)) :=
-  i4b_local_rows hS S hconn HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂ hY hs1 hs0 hag
-    (fun _ hz => hdata _ (rowsDep_subset_component hG X₁ 𝒞 Y hz)) h h₂
+  i4b_local_of_agree_on_component_adm hS S HB hκ hM hs hs' hδ0 hδε hε hδ hνε hD hD₂
+    (hconn.hatConnAdm X₁ 𝒞) (footprint_subset_component hG X₁ 𝒞 Y) hY hs1 hs0 hag hdata h h₂
 
 end Background
 

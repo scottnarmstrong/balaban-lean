@@ -167,11 +167,11 @@ section Inner
 variable {d L N₁ m₁ k : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {aT x₀ ν : ℝ}
 
-/-- **(DG5'), the version with data agreeing on `S_Y` only.**  Let `Y` be a union of
-nearest-neighbour components of `V(𝒞) ∩ Ω₁` and `S_Y = ⋃_{z ∈ Z_Y} □_z`.  If `A = A'` and `f = f'`
-on `S_Y` (and the parameters are as in `dg5'`) then `G_s(A) f = G_{s'}(A') f'` on all of `Y ∩ Ω₁`. -/
-theorem dg5x'_inner (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (hconn : HatConn G)
+/-- **Core of `dg5x'_inner`**, with the connectedness of the thickened cubes asked only at the
+admissible centres (`HatConnAdm`). -/
+theorem dg5x'_inner_adm (S : XSetting G a aT ν) (hx : 0 ≤ x₀)
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConnAdm G X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
     {α α' : G.Ω 1 → ℂ} (hα : AdmPot G α) (hα' : AdmPot G α')
     {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
@@ -211,7 +211,7 @@ theorem dg5x'_inner (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (hconn : HatConn 
     intro z hz hactive hbox
     obtain ⟨b, hb, hbbox⟩ := hbase z hz
     have hbY : (b : CTorus d L N₁ m₁ (k + 1)) ∈ Y := hbox b (hb ▸ hbbox)
-    rcases hdich_aux S.dg hconn hY z hz (hact z hactive) with h | h
+    rcases hdich_aux_adm S.dg hconn hY z hz (hact z hactive) with h | h
     · exact h
     · exact absurd hbY (h b (hb ▸ box_subset_hatBox z hbbox))
   have hzY : ∀ z ∈ cubeIdx G, (sProd G s z ≠ 0 ∨ sProd G s' z ≠ 0) →
@@ -220,7 +220,7 @@ theorem dg5x'_inner (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (hconn : HatConn 
   have hdichT : ∀ z ∈ cubeIdx G, (sProd G s z ≠ 0 ∨ sProd G s' z ≠ 0) →
       SubI G (intBox z) (SY G X₁ 𝒞 Y) ∨ DisjI G (intBox z) (SY G X₁ 𝒞 Y) := by
     intro z hz hactive
-    rcases hdich_aux S.dg hconn hY z hz (hact z hactive) with h | h
+    rcases hdich_aux_adm S.dg hconn hY z hz (hact z hactive) with h | h
     · left
       intro x hx
       have hzZ : z ∈ ZY G X₁ 𝒞 Y := Finset.mem_filter.2 ⟨hz, hact z hactive, h⟩
@@ -275,11 +275,29 @@ theorem dg5x'_inner (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (hconn : HatConn 
       have hactive : sProd G u z ≠ 0 := hzZ'.2
       have hP := hact_aux u hu z hactive
       have hxbox : (x : CTorus d L N₁ m₁ (k + 1)) ∈ intBox z := coreBox_subset_box hxz
-      rcases hdich_aux S.dg hconn hY z hzZ'.1 hP with h | h
+      rcases hdich_aux_adm S.dg hconn hY z hzZ'.1 hP with h | h
       · exact hxT (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hzZ'.1, hP, h⟩, hxbox⟩)
       · exact h x (box_subset_hatBox z hxbox) hxY
     rw [hz0 (fun P hP hPC => (hs0 P hP hPC).1), hz0 (fun P hP hPC => (hs0 P hP hPC).2)]
 
+/-- **(DG5'), the version with data agreeing on `S_Y` only.**  Let `Y` be a union of
+nearest-neighbour components of `V(𝒞) ∩ Ω₁` and `S_Y = ⋃_{z ∈ Z_Y} □_z`.  If `A = A'` and `f = f'`
+on `S_Y` (and the parameters are as in `dg5'`) then `G_s(A) f = G_{s'}(A') f'` on all of `Y ∩ Ω₁`. -/
+theorem dg5x'_inner (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (hconn : HatConn G)
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y)
+    {α α' : G.Ω 1 → ℂ} (hα : AdmPot G α) (hα' : AdmPot G α')
+    {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α' s'))
+    (hs1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → s P = 1 ∧ s' P = 1)
+    (hs0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → s P = 0 ∧ s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → s P = s' P)
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    {f f' : G.Ω 1 → ℂ}
+    (hf : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → f x = f' x) :
+    ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ Y →
+      (Gsx G a aT x₀ ν α s *ᵥ f) x = (Gsx G a aT x₀ ν α' s' *ᵥ f') x :=
+  dg5x'_inner_adm S hx (hconn.hatConnAdm X₁ 𝒞) hY hα hα' hU hU' hs1 hs0 hag hA hf
 
 end Inner
 
@@ -301,8 +319,26 @@ structure LocHyp (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
   s0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → s P = 0 ∧ s' P = 0
   ag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → s P = s' P
 
+/-- **The standing geometric hypotheses with connectedness at the admissible centres**: `LocHyp`
+with `HatConnAdm G X₁ 𝒞` (connectedness of the thickened cubes of the centres whose parameter cubes
+lie in `𝒞`) in place of `HatConn G`.  `LocHyp.toAdm` gives it from `LocHyp`. -/
+structure LocHypAdm (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)))
+    (Y : Finset (CTorus d L N₁ m₁ (k + 1))) (α : G.Ω 1 → ℂ)
+    (s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) : Prop where
+  conn : HatConnAdm G X₁ 𝒞
+  nn : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ G.Ω 1) Y
+  pot : AdmPot G α
+  s1 : ∀ P ∈ cubeIdx G, P ∉ parCubes G X₁ → s P = 1 ∧ s' P = 1
+  s0 : ∀ P ∈ parCubes G X₁, P ∉ 𝒞 → s P = 0 ∧ s' P = 0
+  ag : ∀ P ∈ 𝒞, SubI G (cubeP P) Y → s P = s' P
+
 variable {α : G.Ω 1 → ℂ} {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
   {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+
+/-- `LocHyp` gives `LocHypAdm` (`HatConn` gives `HatConnAdm`). -/
+theorem LocHyp.toAdm (H : LocHyp G X₁ 𝒞 Y α s s') : LocHypAdm G X₁ 𝒞 Y α s s' :=
+  ⟨H.conn.hatConnAdm X₁ 𝒞, H.nn, H.pot, H.s1, H.s0, H.ag⟩
 
 theorem Gvec_local (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
     (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α s'))

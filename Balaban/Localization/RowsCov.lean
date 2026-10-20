@@ -82,6 +82,65 @@ theorem unitOut_of_unitIn_or {Y : Finset (CTorus d L N₁ m₁ (k + 1))}
   · intro y' hy'
     exact hc y y' (SY_subset hy) (hy'.trans hyb.symm)
 
+section ZLocalAdm
+
+variable (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHypAdm G X₁ 𝒞 Y α s s') (hα' : AdmPot G α')
+  (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+  (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y → φ y = φ' y)
+  (hU : IsUnit (1 - Kcalx G a aT x₀ ν α s)) (hU' : IsUnit (1 - Kcalx G a aT x₀ ν α' s'))
+include S hx H hα' hA hφR hU hU'
+
+/-- **Core of `commK_Gvec_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem commK_Gvec_rows_adm {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i))
+    {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
+    (commK (xDirichletOperator G a aT x₀ ν α) (restrictField G φ) *ᵥ
+        (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w)) z =
+      (commK (xDirichletOperator G a aT x₀ ν α') (restrictField G φ') *ᵥ
+        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w')) z := by
+  refine commK_apply_eq2 (xDirichlet_apply_eq (hA z hz)) (hφR z (Or.inl hz)) ?_
+  intro y hy
+  have hyY := row_in_Y S hz hy
+  exact ⟨hφR y (Or.inr ⟨z, y, hz, rfl, x₀, hx, hy⟩), fun i => Gvec_local2_adm S hx H hα' hA hU hU' hw y hyY i⟩
+
+/-- **Core of `decN_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem decN_rows_adm {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i))
+    {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
+    (decN G a aT x₀ ν α s φ *ᵥ w) z = (decN G a aT x₀ ν α' s' φ' *ᵥ w') z := by
+  rw [decN_mulVec_eq, decN_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
+  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ w) z =
+      ((fieldMul (restrictField G φ'))ᵀ *ᵥ w') z := by
+    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    have := hφR z (Or.inl hz)
+    simp only [restrictField]
+    rw [this, hw z hz i]
+  rw [e1, commK_Gvec_rows_adm S hx H hα' hA hφR hU hU' hw hz]
+
+/-- **Core of `decM_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem decM_rows_adm {v v' : G.Ω 1 → ℂ}
+    (hv : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → v y = v' y)
+    {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
+    (decM G a aT x₀ ν α s φ *ᵥ v) z = (decM G a aT x₀ ν α' s' φ' *ᵥ v') z := by
+  rw [decM_mulVec_eq, decM_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
+  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ (fieldMul (restrictField G φ) *ᵥ v)) z =
+      ((fieldMul (restrictField G φ'))ᵀ *ᵥ (fieldMul (restrictField G φ') *ᵥ v')) z := by
+    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [fieldMul_mulVec, fieldMul_mulVec, hv z hz]
+    simp only [restrictField]
+    rw [hφR z (Or.inl hz)]
+  have e2 := commK_Gvec_rows_adm S hx H hα' hA hφR hU hU'
+    (w := fieldMul (restrictField G φ) *ᵥ v) (w' := fieldMul (restrictField G φ') *ᵥ v')
+    (fun y hy i => by
+      rw [fieldMul_mulVec, fieldMul_mulVec, hv y hy]
+      simp only [restrictField]
+      rw [hφR y (Or.inl hy)]) hz
+  rw [e1, e2]
+
+end ZLocalAdm
+
 section ZLocal
 
 variable (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s') (hα' : AdmPot G α')
@@ -96,51 +155,26 @@ theorem commK_Gvec_rows {w w' : G.Ω 1 × Fin N → ℂ}
     (commK (xDirichletOperator G a aT x₀ ν α) (restrictField G φ) *ᵥ
         (liftOp N (Gsx G a aT x₀ ν α s) *ᵥ w)) z =
       (commK (xDirichletOperator G a aT x₀ ν α') (restrictField G φ') *ᵥ
-        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w')) z := by
-  refine commK_apply_eq2 (xDirichlet_apply_eq (hA z hz)) (hφR z (Or.inl hz)) ?_
-  intro y hy
-  have hyY := row_in_Y S hz hy
-  exact ⟨hφR y (Or.inr ⟨z, y, hz, rfl, x₀, hx, hy⟩), fun i => Gvec_local2 S hx H hα' hA hU hU' hw y hyY i⟩
+        (liftOp N (Gsx G a aT x₀ ν α' s') *ᵥ w')) z :=
+  commK_Gvec_rows_adm S hx H.toAdm hα' hA hφR hU hU' hw hz
 
 theorem decN_rows {w w' : G.Ω 1 × Fin N → ℂ}
     (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i))
     {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
-    (decN G a aT x₀ ν α s φ *ᵥ w) z = (decN G a aT x₀ ν α' s' φ' *ᵥ w') z := by
-  rw [decN_mulVec_eq, decN_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
-  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ w) z =
-      ((fieldMul (restrictField G φ'))ᵀ *ᵥ w') z := by
-    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    have := hφR z (Or.inl hz)
-    simp only [restrictField]
-    rw [this, hw z hz i]
-  rw [e1, commK_Gvec_rows S hx H hα' hA hφR hU hU' hw hz]
+    (decN G a aT x₀ ν α s φ *ᵥ w) z = (decN G a aT x₀ ν α' s' φ' *ᵥ w') z :=
+  decN_rows_adm S hx H.toAdm hα' hA hφR hU hU' hw hz
 
 theorem decM_rows {v v' : G.Ω 1 → ℂ}
     (hv : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → v y = v' y)
     {z : G.Ω 1} (hz : (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y) :
-    (decM G a aT x₀ ν α s φ *ᵥ v) z = (decM G a aT x₀ ν α' s' φ' *ᵥ v') z := by
-  rw [decM_mulVec_eq, decM_mulVec_eq, Pi.sub_apply, Pi.sub_apply]
-  have e1 : ((fieldMul (restrictField G φ))ᵀ *ᵥ (fieldMul (restrictField G φ) *ᵥ v)) z =
-      ((fieldMul (restrictField G φ'))ᵀ *ᵥ (fieldMul (restrictField G φ') *ᵥ v')) z := by
-    rw [fieldMul_transpose_mulVec, fieldMul_transpose_mulVec]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [fieldMul_mulVec, fieldMul_mulVec, hv z hz]
-    simp only [restrictField]
-    rw [hφR z (Or.inl hz)]
-  have e2 := commK_Gvec_rows S hx H hα' hA hφR hU hU'
-    (w := fieldMul (restrictField G φ) *ᵥ v) (w' := fieldMul (restrictField G φ') *ᵥ v')
-    (fun y hy i => by
-      rw [fieldMul_mulVec, fieldMul_mulVec, hv y hy]
-      simp only [restrictField]
-      rw [hφR y (Or.inl hy)]) hz
-  rw [e1, e2]
+    (decM G a aT x₀ ν α s φ *ᵥ v) z = (decM G a aT x₀ ν α' s' φ' *ᵥ v') z :=
+  decM_rows_adm S hx H.toAdm hα' hA hφR hU hU' hv hz
 
 end ZLocal
 
-section ZLocal2
+section ZLocal2Adm
 
-variable {δ κ : ℝ} (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
+variable {δ κ : ℝ} (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHypAdm G X₁ 𝒞 Y α s s')
   (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
   (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y → φ y = φ' y)
   (D : XData G a aT ν x₀ α κ s) (D' : XData G a aT ν x₀ α' κ s')
@@ -148,9 +182,8 @@ variable {δ κ : ℝ} (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G 
   (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
 include S hx H hA hφR D D' hφ hφ' hδ hsm
 
-/-- **Two-background locality of `Z_s = Ĝ_s - Π_s`.**  If `w = w'` on `S_Y`, `α = α'` on `S_Y` and
-`φ = φ'` on `Y`, then `Z_{α,φ,s} w = Z_{α',φ',s'} w'` on all of `Y ∩ Ω₁`. -/
-theorem decZ_rows {w w' : G.Ω 1 × Fin N → ℂ}
+/-- **Core of `decZ_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem decZ_rows_adm {w w' : G.Ω 1 × Fin N → ℂ}
     (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i)) :
     ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
       (decZ G a aT x₀ ν α s φ *ᵥ w) (y, i) = (decZ G a aT x₀ ν α' s' φ' *ᵥ w') (y, i) := by
@@ -210,8 +243,8 @@ theorem decZ_rows {w w' : G.Ω 1 × Fin N → ℂ}
     show (decN G a aT x₀ ν α s φ *ᵥ w + u - decM G a aT x₀ ν α s φ *ᵥ u) z =
       (decN G a aT x₀ ν α' s' φ' *ᵥ w' + u' - decM G a aT x₀ ν α' s' φ' *ᵥ u') z
     simp only [Pi.sub_apply, Pi.add_apply]
-    rw [decN_rows S hx H hα' hA hφR hU hU' hw hz', huu z hz,
-      decM_rows S hx H hα' hA hφR hU hU' (fun y hy => huu y hy) hz']
+    rw [decN_rows_adm S hx H hα' hA hφR hU hU' hw hz', huu z hz,
+      decM_rows_adm S hx H hα' hA hφR hU hU' (fun y hy => huu y hy) hz']
   have hfix := fixed_point_agree T T' v v' {z : G.Ω 1 | (z : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y}
     hc hc' hag
   intro y hy i
@@ -224,13 +257,33 @@ theorem decZ_rows {w w' : G.Ω 1 × Fin N → ℂ}
     unfold decZ decPi
     rw [Matrix.sub_mulVec, hMi]
     simp only [Matrix.mulVec_mulVec, Matrix.mul_assoc]
-  have e1 := Gvec_local2 S hx H hα' hA hU hU' hw y hy i
-  have e2 := Gvec_local2 S hx H hα' hA hU hU' (w := fieldMul (restrictField G φ) *ᵥ v)
+  have e1 := Gvec_local2_adm S hx H hα' hA hU hU' hw y hy i
+  have e2 := Gvec_local2_adm S hx H hα' hA hU hU' (w := fieldMul (restrictField G φ) *ᵥ v)
     (w' := fieldMul (restrictField G φ') *ᵥ v') (fun y hy i => by
       rw [fieldMul_mulVec, fieldMul_mulVec, hfix y hy]
       simp only [restrictField]
       rw [hφR y (Or.inl hy)]) y hy i
   rw [hZ α s φ w v hv, hZ α' s' φ' w' v' hv', Pi.sub_apply, Pi.sub_apply, e1, e2]
+
+end ZLocal2Adm
+
+section ZLocal2
+
+variable {δ κ : ℝ} (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
+  (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+  (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y → φ y = φ' y)
+  (D : XData G a aT ν x₀ α κ s) (D' : XData G a aT ν x₀ α' κ s')
+  (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+  (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+include S hx H hA hφR D D' hφ hφ' hδ hsm
+
+/-- **Two-background locality of `Z_s = Ĝ_s - Π_s`.**  If `w = w'` on `S_Y`, `α = α'` on `S_Y` and
+`φ = φ'` on `Y`, then `Z_{α,φ,s} w = Z_{α',φ',s'} w'` on all of `Y ∩ Ω₁`. -/
+theorem decZ_rows {w w' : G.Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → ∀ i, w (y, i) = w' (y, i)) :
+    ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      (decZ G a aT x₀ ν α s φ *ᵥ w) (y, i) = (decZ G a aT x₀ ν α' s' φ' *ᵥ w') (y, i) :=
+  decZ_rows_adm S hx H.toAdm hA hφR D D' hφ hφ' hδ hsm hw
 
 end ZLocal2
 
@@ -240,10 +293,8 @@ open MeasureTheory Set
 
 variable {δ κ : ℝ}
 
-/-- **I-4c (v), two backgrounds, at fixed `x`.**  If `α = α'` on `S_Y`, `φ = φ'` on `Y`, and the
-inputs agree on the unit points at the output block and on the blocks meeting `S_Y`, then
-`C_x(α, φ, s)` and `C_x(α', φ', s')` agree at every unit point whose `(k+1)`-block lies in `Y`. -/
-theorem decCov_rows (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
+/-- **Core of `decCov_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem decCov_rows_adm (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHypAdm G X₁ 𝒞 Y α s s')
     (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
     (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y → φ y = φ' y)
     (D : XData G a aT ν x₀ α κ s) (D' : XData G a aT ν x₀ α' κ s')
@@ -292,7 +343,7 @@ theorem decCov_rows (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X�
     simp only at hj hQ
     subst hj
     exact z1 b2 ⟨y, hy, unitQ_ne_zero_imp (by simpa using hQ)⟩ _
-  have z3 := decZ_rows S hx H hA hφR D D' hφ hφ' hδ hsm z2
+  have z3 := decZ_rows_adm S hx H hA hφR D D' hφ hφ' hδ hsm z2
   have z4 : ∀ b3 : unitPts G, UnitOut G Y b3 → ∀ j,
       (liftRect N (unitQ G) *ᵥ (decZ G a aT x₀ ν α s φ *ᵥ
         ((liftRect N (unitQ G))ᵀ *ᵥ (covA (a k) (aT / (L : ℝ) ^ 2) x₀ (liftOp N (unitP G)) *ᵥ h))))
@@ -323,11 +374,26 @@ theorem decCov_rows (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X�
     exact z4 b3 (hbo b3 hP) _
   rw [t0, t1]
 
-/-- **Rows version of `I4c_local_sqrt2`, landed form of the hat hypothesis.**  Only the field
-hypothesis is narrowed: `φ = φ'` on `R(B)` instead of on `Y`. -/
-theorem I4c_local_sqrt2_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+/-- **I-4c (v), two backgrounds, at fixed `x`.**  If `α = α'` on `S_Y`, `φ = φ'` on `Y`, and the
+inputs agree on the unit points at the output block and on the blocks meeting `S_Y`, then
+`C_x(α, φ, s)` and `C_x(α', φ', s')` agree at every unit point whose `(k+1)`-block lies in `Y`. -/
+theorem decCov_rows (S : XSetting G a aT ν) (hx : 0 ≤ x₀) (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y → φ y = φ' y)
+    (D : XData G a aT ν x₀ α κ s) (D' : XData G a aT ν x₀ α' κ s')
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h h' : unitPts G × Fin N → ℂ)
+    (hh : ∀ b' : unitPts G, (UnitOut G Y b' ∨ UnitIn G X₁ 𝒞 Y b') → ∀ i, h (b', i) = h' (b', i)) :
+    ∀ b : unitPts G, UnitOut G Y b → ∀ i,
+      (decCov G a aT x₀ ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+        (decCov G a aT x₀ ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
+  decCov_rows_adm S hx H.toAdm hA hφR D D' hφ hφ' hδ hsm h h' hh
+
+/-- **Core of `I4c_local_sqrt2_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem I4c_local_sqrt2_rows_adm (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
     (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
-    (H : LocHyp G X₁ 𝒞 Y α s s')
+    (H : LocHypAdm G X₁ 𝒞 Y α s s')
     (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
     (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y →
       φ y = φ' y)
@@ -349,9 +415,44 @@ theorem I4c_local_sqrt2_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ 
     refine setIntegral_congr_fun measurableSet_Ioi fun x hx => ?_
     have hx0 : 0 ≤ x := (mem_Ioi.mp hx).le
     simp only [decSqrtInt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
-    rw [decCov_rows S hx0 H hA hφR (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' hh b hb i]
+    rw [decCov_rows_adm S hx0 H hA hφR (hfam x hx0) (hfam' x hx0) hφ hφ' hδ hsm h h' hh b hb i]
   simp only [decCovSqrt, Matrix.smul_mulVec, Pi.smul_apply, smul_eq_mul]
   rw [e1, e2, e3]
+
+/-- **Rows version of `I4c_local_sqrt2`, landed form of the hat hypothesis.**  Only the field
+hypothesis is narrowed: `φ = φ'` on `R(B)` instead of on `Y`. -/
+theorem I4c_local_sqrt2_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
+    (H : LocHyp G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y →
+      φ y = φ' y)
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (h h' : unitPts G × Fin N → ℂ)
+    (hh : ∀ b' : unitPts G, (UnitOut G Y b' ∨ UnitIn G X₁ 𝒞 Y b') → ∀ i, h (b', i) = h' (b', i))
+    {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
+    (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
+  I4c_local_sqrt2_rows_adm hfam hfam' H.toAdm hA hφR hφ hφ' hδ hsm h h' hh hb i
+
+/-- **Core of `I4c_local_sqrt_rows`** with the standing hypotheses `LocHypAdm`. -/
+theorem I4c_local_sqrt_rows_adm (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)
+    (hfam' : ∀ x, 0 ≤ x → XData G a aT ν x α' κ s')
+    (H : LocHypAdm G X₁ 𝒞 Y α s s')
+    (hA : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁ 𝒞 Y → α x = α' x)
+    (hφR : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R G a aT ν α X₁ 𝒞 Y →
+      φ y = φ' y)
+    (hφ : IsConstraintField G δ φ) (hφ' : IsConstraintField G δ φ') (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hcomp : CompleteBlocks G Y)
+    (h h' : unitPts G × Fin N → ℂ)
+    (hh : ∀ b' : unitPts G, UnitOut G Y b' → ∀ i, h (b', i) = h' (b', i))
+    {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
+    (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
+      (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
+  I4c_local_sqrt2_rows_adm hfam hfam' H hA hφR hφ hφ' hδ hsm h h'
+    (fun b' hb' i' => hh b' (unitOut_of_unitIn_or hcomp hb') i') hb i
 
 /-- **Rows version of `I4c_local_sqrt2`.**  The background field is compared only on `R(B)`
 (`rowsCov_R`), the multipliers `α, α'` on `B = S_Y`, and the hat inputs only at the unit points
@@ -371,8 +472,7 @@ theorem I4c_local_sqrt_rows (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s
     {b : unitPts G} (hb : UnitOut G Y b) (i : Fin N) :
     (decCovSqrt G a aT ν α s φ (unitQ G) (unitP G) *ᵥ h) (b, i) =
       (decCovSqrt G a aT ν α' s' φ' (unitQ G) (unitP G) *ᵥ h') (b, i) :=
-  I4c_local_sqrt2_rows hfam hfam' H hA hφR hφ hφ' hδ hsm h h'
-    (fun b' hb' i' => hh b' (unitOut_of_unitIn_or hcomp hb') i') hb i
+  I4c_local_sqrt_rows_adm hfam hfam' H.toAdm hA hφR hφ hφ' hδ hsm hcomp h h' hh hb i
 
 /-- **T5.**  `I4c_local_sqrt2` from `I4c_local_sqrt2_rows`, when `R(B) ⊆ Y`. -/
 theorem I4c_local_sqrt2_of_rows_subset (hfam : ∀ x, 0 ≤ x → XData G a aT ν x α κ s)

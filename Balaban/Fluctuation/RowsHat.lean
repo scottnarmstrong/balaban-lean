@@ -40,12 +40,9 @@ variable {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
 
-/-- **Rows version of `hatSqrtF_local`, given the background agreement.**  As `hatSqrtF_local`,
-with the raw-data condition on `resDep` replaced by the conclusion of the row-local background
-theorem (`hbg`: the multipliers agree on `S_Y`, the decoupled field on `R(B)`), the output block
-inside `Y`, and the hat variables agreeing on the unit points of the blocks inside `Y`. -/
-theorem hatSqrtF_rows_of_bgAgree (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
-    (hconn : HatConn Gp)
+/-- **Core of `hatSqrtF_rows_of_bgAgree`**, with the connectedness of the thickened cubes asked only
+at the admissible centres (`HatConnAdm`): `hatSqrtF_rows_of_bgAgree` for any generating set. -/
+theorem hatSqrtF_rows_of_bgAgree_adm (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
     (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
     (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
@@ -60,6 +57,7 @@ theorem hatSqrtF_rows_of_bgAgree (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
     {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConnAdm Gp X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
     (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
     (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
@@ -113,7 +111,7 @@ theorem hatSqrtF_rows_of_bgAgree (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
   have St' := covStanding_of_mem (N := N) (Q := unitQ Gp) (P := unitP Gp) hX hC.hκ.le hMX hδc hsm
     hU1 hdec'
   have hpot : AdmPot Gp α := fun w => (hdec.2.2 w).le
-  have H : LocHyp Gp X₁ 𝒞 Y α (extS Gp s) (extS Gp s') :=
+  have H : LocHypAdm Gp X₁ 𝒞 Y α (extS Gp s) (extS Gp s') :=
     ⟨hconn, hY, hpot, hs1, hs0, hag⟩
   have hφbar : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈
       rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y →
@@ -124,8 +122,47 @@ theorem hatSqrtF_rows_of_bgAgree (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx 
     exact hφY y hy i
   unfold hatSqrtF
   rw [hFeq, hFeq']
-  exact I4c_local_sqrt_rows St.fam St'.fam H (fun x hx => hαSY x hx) hφbar St.field St'.field
+  exact I4c_local_sqrt_rows_adm St.fam St'.fam H (fun x hx => hαSY x hx) hφbar St.field St'.field
     St.nonneg St.small hcomp ψh ψh' hh hb i
+
+/-- **Rows version of `hatSqrtF_local`, given the background agreement.**  As `hatSqrtF_local`,
+with the raw-data condition on `resDep` replaced by the conclusion of the row-local background
+theorem (`hbg`: the multipliers agree on `S_Y`, the decoupled field on `R(B)`), the output block
+inside `Y`, and the hat variables agreeing on the unit points of the blocks inside `Y`. -/
+theorem hatSqrtF_rows_of_bgAgree (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (hconn : HatConn Gp)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hcomp : CompleteBlocks Gp Y)
+    (hbg : ∀ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (φ₂ : Gp.Ω 1 × Fin N → ℂ)
+      (α₂ : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂ →
+      (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁ 𝒞 Y → α x = α₂ x) ∧
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y →
+        ∀ i, φ (y, i) = φ₂ (y, i)))
+    (ψh ψh' : unitPts Gp × Fin N → ℂ)
+    {b : unitPts Gp} (hb : UnitOut Gp Y b)
+    (hh : ∀ b' : unitPts Gp, UnitOut Gp Y b' → ∀ i, ψh (b', i) = ψh' (b', i)) (i : Fin N) :
+    (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh) (b, i) =
+      (hatSqrtF Gp a₁ ν F₁ s' (rawOf D') *ᵥ ψh') (b, i) :=
+  hatSqrtF_rows_of_bgAgree_adm hC hk hMX hmar hα hsm hF₁ hs hs' hD hD' (hconn.hatConnAdm X₁ 𝒞) hY hs1
+    hs0 hag hcomp hbg ψh ψh' hb hh i
 
 /-- **Rows version of `hatPsiF_local`, given the background agreement.**  The fluctuation field
 `hatPsiF` agrees on `Y` itself (the landed theorem concludes on `psiThick Y`), under `hbg` (the

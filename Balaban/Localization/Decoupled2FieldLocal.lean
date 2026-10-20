@@ -69,15 +69,26 @@ theorem hhat_aux (S : CoverLocal C H a ν Kc Cx) {X₁ : Finset (CTorus d L N₁
       exact hPP (Finset.mem_filter.2 ⟨hown, hc⟩)
     exact this hxP
 
-/-- The dichotomy: an active interaction cube lies inside `Y` or avoids it. -/
-theorem hdich_aux (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
-    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+/-- **The thickened interaction cubes are connected at the admissible centres** of the cover `C`:
+the centres `z` with `𝒬(z) ∩ 𝔓 ⊆ 𝒞` have `□̂_z ∩ Ω₁(H)` nearest-neighbour connected.  `HatConn`
+asks it at every centre (`HatConn.hatConnAdm`). -/
+def HatConnAdm (C : DecCover d L N₁ m₁ K) (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ)
+    (X₁ : Finset (CTorus d L N₁ m₁ K)) (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)) : Prop :=
+  ∀ z ∈ C.cubeIdx, (∀ P ∈ C.Qset z, P ∈ C.parCubes X₁ → P ∈ 𝒞) → ConnIn (hatI H z)
+
+theorem HatConn.hatConnAdm (h : HatConn C H) (X₁ : Finset (CTorus d L N₁ m₁ K))
+    (𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)) : HatConnAdm C H X₁ 𝒞 := fun z hz _ => h z hz
+
+/-- **Core of `hdich_aux`**: the dichotomy at an admissible centre, with the connectedness of the
+thickened cubes asked only at the admissible centres. -/
+theorem hdich_aux_adm (S : CoverLocal C H a ν Kc Cx) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} (hconn : HatConnAdm C H X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ H.Ω 1) Y)
     (z : ℕ × CTorus d L N₁ m₁ K) (hz : z ∈ C.cubeIdx)
     (hP : ∀ P ∈ C.Qset z, P ∈ C.parCubes X₁ → P ∈ 𝒞) :
     SubI H (hatBox z) Y ∨ DisjI H (hatBox z) Y := by
   classical
-  rcases connIn_dichotomy (hconn z hz) (hhat_aux S z hP) hY with h | h
+  rcases connIn_dichotomy (hconn z hz hP) (hhat_aux S z hP) hY with h | h
   · left
     intro x hx
     exact h (by
@@ -90,6 +101,15 @@ theorem hdich_aux (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H) {X₁ Y 
       unfold hatI
       rw [Finset.mem_filter]
       exact ⟨hx, x.2⟩) hxY
+
+/-- The dichotomy: an active interaction cube lies inside `Y` or avoids it. -/
+theorem hdich_aux (S : CoverLocal C H a ν Kc Cx) (hconn : HatConn C H) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ H.Ω 1) Y)
+    (z : ℕ × CTorus d L N₁ m₁ K) (hz : z ∈ C.cubeIdx)
+    (hP : ∀ P ∈ C.Qset z, P ∈ C.parCubes X₁ → P ∈ 𝒞) :
+    SubI H (hatBox z) Y ∨ DisjI H (hatBox z) Y :=
+  hdich_aux_adm S (hconn.hatConnAdm X₁ 𝒞) hY z hz hP
 
 
 theorem SY_subset {X₁ Y : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}

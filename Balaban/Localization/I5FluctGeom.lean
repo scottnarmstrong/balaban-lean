@@ -55,12 +55,12 @@ variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱm : ℝ}
 variable {C : DecCover d L N₁ m₁ K} {Hp : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
   {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm} {a : ℕ → ℝ} {ν Kc Cx : ℝ}
 
-/-- **A nearest-neighbour component of `V(𝒞) ∩ Ω₁(H⁺)` is a union of components of the
-parameter-incidence graph of `(C, H⁻)`**, with the parameter set `A` of the cubes attached to the
-centres inside it; the cubes of `A` lie in `Y`. -/
-theorem incUnion_of_nnComp (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.HatConn C Hp)
+/-- **Core of `incUnion_of_nnComp`**, with the connectedness of the thickened cubes asked only at
+the admissible centres (`Dec2.HatConnAdm`). -/
+theorem incUnion_of_nnComp_adm (SL : Dec2.CoverLocal C Hp a ν Kc Cx)
     (hsub : ∀ x, x ∈ Hm.Ω 1 → x ∈ Hp.Ω 1) (hrow : RowInHat C Hm a ν)
     {X₁ Y : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (hconn : Dec2.HatConnAdm C Hp X₁ 𝒞)
     (h𝒞 : ∀ P ∈ 𝒞, P ∈ C.cubeIdx)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Hp.Ω 1) Y) :
     ∃ A, Dec2.IsIncUnion C Hm a ν X₁ 𝒞 Y A ∧ ∀ P ∈ A, P ∈ 𝒞 ∧ ∀ x ∈ cubeP P, x ∈ Y := by
@@ -70,7 +70,7 @@ theorem incUnion_of_nnComp (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.
   set Upar : Set (ℕ × CTorus d L N₁ m₁ K) := {P | ∃ z ∈ Ucen, P ∈ C.Qset z ∧ P ∈ 𝒞} with hUpar
   -- eligible centres: the thickened cube is inside or outside `Y`
   have F2 : ∀ z, Dec2.EligC C X₁ 𝒞 z → SubI Hp (hatBox z) Y ∨ DisjI Hp (hatBox z) Y :=
-    fun z hz => Dec2.hdich_aux SL hconn hY z hz.1 hz.2
+    fun z hz => Dec2.hdich_aux_adm SL hconn hY z hz.1 hz.2
   have F3 : ∀ z, Dec2.EligC C X₁ 𝒞 z → ∀ x ∈ Dec2.footprint Hm a ν z, x ∈ Y →
       SubI Hp (hatBox z) Y := by
     intro z hz x hx hxY
@@ -172,12 +172,22 @@ theorem incUnion_of_nnComp (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.
     obtain ⟨z, hz, hPz, hP𝒞⟩ := hP.2
     exact ⟨hP.1, F5 z hz P hPz hP𝒞⟩
 
-/-- **The sites `S_Y^F` of `H⁻` lie in the sites `S_Y` of `H⁺`**, for a nearest-neighbour
-component `Y` of `V(𝒞) ∩ Ω₁(H⁺)`: an eligible centre with an operator site of `H⁻` and footprint in
-`Y` has its whole thickened cube (in `Ω₁(H⁺)`) in `Y`. -/
-theorem SYF_subset_SY (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.HatConn C Hp)
+/-- **A nearest-neighbour component of `V(𝒞) ∩ Ω₁(H⁺)` is a union of components of the
+parameter-incidence graph of `(C, H⁻)`**, with the parameter set `A` of the cubes attached to the
+centres inside it; the cubes of `A` lie in `Y`. -/
+theorem incUnion_of_nnComp (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.HatConn C Hp)
+    (hsub : ∀ x, x ∈ Hm.Ω 1 → x ∈ Hp.Ω 1) (hrow : RowInHat C Hm a ν)
+    {X₁ Y : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (h𝒞 : ∀ P ∈ 𝒞, P ∈ C.cubeIdx)
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Hp.Ω 1) Y) :
+    ∃ A, Dec2.IsIncUnion C Hm a ν X₁ 𝒞 Y A ∧ ∀ P ∈ A, P ∈ 𝒞 ∧ ∀ x ∈ cubeP P, x ∈ Y :=
+  incUnion_of_nnComp_adm SL hsub hrow (hconn.hatConnAdm X₁ 𝒞) h𝒞 hY
+
+/-- **Core of `SYF_subset_SY`**, with the connectedness of the thickened cubes asked only at the
+admissible centres (`Dec2.HatConnAdm`). -/
+theorem SYF_subset_SY_adm (SL : Dec2.CoverLocal C Hp a ν Kc Cx)
     (hsub : ∀ x, x ∈ Hm.Ω 1 → x ∈ Hp.Ω 1) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
-    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)} (hconn : Dec2.HatConnAdm C Hp X₁ 𝒞)
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Hp.Ω 1) Y) {x : CTorus d L N₁ m₁ K}
     (hx : x ∈ Dec2.SYF C Hm a ν X₁ 𝒞 Y) : x ∈ Dec2.SY C Hp X₁ 𝒞 Y := by
   classical
@@ -187,9 +197,19 @@ theorem SYF_subset_SY (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.HatCo
   unfold Dec2.SY
   refine Finset.mem_biUnion.2 ⟨z, ?_, hxz⟩
   refine Finset.mem_filter.2 ⟨hzc, hE.2, ?_⟩
-  rcases Dec2.hdich_aux SL hconn hY z hzc hE.2 with h | h
+  rcases Dec2.hdich_aux_adm SL hconn hY z hzc hE.2 with h | h
   · exact h
   · exact absurd (hfp _ (Dec2.mem_footprint_self hb)) (h ⟨b, hsub b b.2⟩ (box_subset_hatBox z hb))
+
+/-- **The sites `S_Y^F` of `H⁻` lie in the sites `S_Y` of `H⁺`**, for a nearest-neighbour
+component `Y` of `V(𝒞) ∩ Ω₁(H⁺)`: an eligible centre with an operator site of `H⁻` and footprint in
+`Y` has its whole thickened cube (in `Ω₁(H⁺)`) in `Y`. -/
+theorem SYF_subset_SY (SL : Dec2.CoverLocal C Hp a ν Kc Cx) (hconn : Dec2.HatConn C Hp)
+    (hsub : ∀ x, x ∈ Hm.Ω 1 → x ∈ Hp.Ω 1) {X₁ Y : Finset (CTorus d L N₁ m₁ K)}
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ K)}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Hp.Ω 1) Y) {x : CTorus d L N₁ m₁ K}
+    (hx : x ∈ Dec2.SYF C Hm a ν X₁ 𝒞 Y) : x ∈ Dec2.SY C Hp X₁ 𝒞 Y :=
+  SYF_subset_SY_adm SL hsub (hconn.hatConnAdm X₁ 𝒞) hY hx
 
 end Inc
 

@@ -86,16 +86,18 @@ theorem rowsCov_R_subset_resSites {a : ℕ → ℝ} {aT ν : ℝ} {α : Gp.Ω 1 
     exact xDirichlet_entry_eq_zero (G := Gp) (a := a) (aT := aT) (x₀ := x₀) (ν := ν) α hxy
       (fun μ => ⟨fun e => hp μ e.symm, fun e => hm μ e.symm⟩) hblk
 
-/-- **The background field from raw data on the component.**  At a whole-lattice generating set of
-level `k + 1`, if the raw data agree on `Y₁`, the multipliers of the decoupled backgrounds agree on
-`S_Y` and the fields agree at every site whose approximate-field footprint lies in `Y₁`. -/
-theorem bgField_of_agree_on_component
+/-- **Core of `bgField_of_agree_on_component`**, for any generating set: the connectedness of the
+thickened cubes at the admissible centres (`HatConnAdm`) and the footprint inclusion of the sites of
+`S_Y` (`hfoot`) in place of `HatConn` and the level. -/
+theorem bgField_of_agree_on_component_adm
     (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hconn : HatConn Gp) (hG : IsLevel Gp (k + 1))
     {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
     {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
     {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConnAdm Gp X₁ 𝒞)
+    (hfoot : (∀ x ∈ SY Gp X₁ 𝒞 Y, resDep Gp x ⊆ Y) ∧
+      (∀ x ∈ SY Gp X₁ 𝒞 Y, ∀ u ∈ resSites Gp x, approxDep Gp u ⊆ Y))
     (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
     (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
     (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
@@ -120,9 +122,9 @@ theorem bgField_of_agree_on_component
     have := hC.HBp.massLe; nlinarith [sq_nonneg (xiC1 d * eps)]
   have hDom := xiCData_inDomainC hC.HBp hC.small1 hD
   have hDom' := xiCData_inDomainC hC.HBp hC.small1 hD'
-  obtain ⟨hα, hcorr, -, -⟩ := i4b_local_of_agree_on_component hC.hS hC.Sp hconn hC.HBp hC.hκ.le
-    hC.hM (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom hDom' hG hY
-    hs1 hs0 hag hdata hI hI₂
+  obtain ⟨hα, hcorr, -, -⟩ := i4b_local_of_agree_on_component_adm hC.hS hC.Sp hC.HBp hC.hκ.le
+    hC.hM (fun P => (hs P).le) (fun P => (hs' P).le) hδ0 le_rfl hδ0' hδ1 hνε hDom hDom' hconn hfoot
+    hY hs1 hs0 hag hdata hI hI₂
   refine ⟨hα, fun y happ i => ?_⟩
   have hyY : (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y := happ (mem_approxDep_self _)
   have hphi : approxField Gp (compWeight L a₁) ν D.Ψ D.h y =
@@ -131,6 +133,60 @@ theorem bgField_of_agree_on_component
   have := hcorr y hyY i
   rw [hphi] at this
   linear_combination this
+
+/-- **The background field from raw data on the component.**  At a whole-lattice generating set of
+level `k + 1`, if the raw data agree on `Y₁`, the multipliers of the decoupled backgrounds agree on
+`S_Y` and the fields agree at every site whose approximate-field footprint lies in `Y₁`. -/
+theorem bgField_of_agree_on_component
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hconn : HatConn Gp) (hG : IsLevel Gp (k + 1))
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z)) :
+    ∀ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (φ₂ : Gp.Ω 1 × Fin N → ℂ)
+      (α₂ : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂ →
+      (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁ 𝒞 Y → α x = α₂ x) ∧
+      (∀ y : Gp.Ω 1, approxDep Gp (y : CTorus d L N₁ m₁ (k + 1)) ⊆ Y →
+          ∀ i, φ (y, i) = φ₂ (y, i)) :=
+  bgField_of_agree_on_component_adm hC hs hs' hD hD' (hconn.hatConnAdm X₁ 𝒞)
+    (footprint_subset_component hG X₁ 𝒞 Y) hY hs1 hs0 hag hdata
+
+/-- **Core of `bgAgree_of_agree_on_component`**, for any generating set (`HatConnAdm` and the
+footprint inclusion `hfoot` in place of `HatConn` and the level). -/
+theorem bgAgree_of_agree_on_component_adm
+    (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    {s s' : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) (hs' : ∀ P, ‖s' P‖ < Real.exp κ)
+    {D D' : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D')
+    {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))} {X₁ Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hconn : HatConnAdm Gp X₁ 𝒞)
+    (hfoot : (∀ x ∈ SY Gp X₁ 𝒞 Y, resDep Gp x ⊆ Y) ∧
+      (∀ x ∈ SY Gp X₁ 𝒞 Y, ∀ u ∈ resSites Gp x, approxDep Gp u ⊆ Y))
+    (hY : IsNnComp ((Vset X₁ 𝒞).filter fun x => x ∈ Gp.Ω 1) Y)
+    (hs1 : ∀ P ∈ cubeIdx Gp, P ∉ parCubes Gp X₁ → extS Gp s P = 1 ∧ extS Gp s' P = 1)
+    (hs0 : ∀ P ∈ parCubes Gp X₁, P ∉ 𝒞 → extS Gp s P = 0 ∧ extS Gp s' P = 0)
+    (hag : ∀ P ∈ 𝒞, SubI Gp (cubeP P) Y → extS Gp s P = extS Gp s' P)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z)) :
+    ∀ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ) (φ₂ : Gp.Ω 1 × Fin N → ℂ)
+      (α₂ : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+      IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂ →
+      (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁ 𝒞 Y → α x = α₂ x) ∧
+      (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈
+          rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y → ∀ i, φ (y, i) = φ₂ (y, i)) := by
+  classical
+  intro φ α φ₂ α₂ hI hI₂
+  obtain ⟨hα, hf⟩ := bgField_of_agree_on_component_adm hC hs hs' hD hD' hconn hfoot hY hs1 hs0 hag
+    hdata φ α φ₂ α₂ hI hI₂
+  refine ⟨hα, fun y hy i => ?_⟩
+  obtain ⟨z, hz, hyz⟩ := rowsCov_R_subset_resSites hy
+  exact hf y (hfoot.2 z hz _ hyz) i
 
 /-- **T1.  The hypothesis `hbg` of `hatSqrtF_rows_of_bgAgree` from raw-data agreement on `Y₁`.**
 At a whole-lattice generating set of level `k + 1`, if the raw data `D, D'` agree on `Y₁` (`Ψ` on
@@ -153,14 +209,9 @@ theorem bgAgree_of_agree_on_component
       IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s' D' φ₂ α₂ →
       (∀ x : Gp.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY Gp X₁ 𝒞 Y → α x = α₂ x) ∧
       (∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈
-          rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y → ∀ i, φ (y, i) = φ₂ (y, i)) := by
-  classical
-  intro φ α φ₂ α₂ hI hI₂
-  obtain ⟨hα, hf⟩ := bgField_of_agree_on_component hC hconn hG hs hs' hD hD' hY hs1 hs0 hag hdata
-    φ α φ₂ α₂ hI hI₂
-  refine ⟨hα, fun y hy i => ?_⟩
-  obtain ⟨z, hz, hyz⟩ := rowsCov_R_subset_resSites hy
-  exact hf y ((footprint_subset_component hG X₁ 𝒞 Y).2 z hz _ hyz) i
+          rowsCov_R Gp (compWeight L a₁) a₁ ν α X₁ 𝒞 Y → ∀ i, φ (y, i) = φ₂ (y, i)) :=
+  bgAgree_of_agree_on_component_adm hC hs hs' hD hD' (hconn.hatConnAdm X₁ 𝒞)
+    (footprint_subset_component hG X₁ 𝒞 Y) hY hs1 hs0 hag hdata
 
 end Bg
 
