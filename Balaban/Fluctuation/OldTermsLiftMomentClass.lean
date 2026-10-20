@@ -81,14 +81,17 @@ theorem liftOldTerms_momentSum_of_clauses {P : Consts}
     (by simpa only [cNew] using hAnNew)
     (by simpa only [cOld] using hAnOld)
 
-/-- The complete inherited renormalization record follows from the old
-family class clauses and membership of each reference pair in its birth domain. -/
+/-- The complete inherited renormalization record follows from the old family class clauses and
+membership of each reference pair in its birth domain, at the old sides of the selected new tori
+`SelN` (the new tori `idx' n` of the limit are selected). -/
 theorem liftOldTermsFam_renormCond_of_clauses {P : Consts}
     {DomFam : ∀ (N₂ : ℕ) [NeZero N₂], FieldDom d L N₂ m₁ k N ϱ}
     {Tm : ∀ (N₂ : ℕ) [NeZero N₂], Terms d L N₂ m₁ k N ϱ}
-    {νk : ℝ} {j : ℕ}
-    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SFTermClauses P (DomFam N₂) (Tm N₂))
-    (hRef : ∀ (N₂ : ℕ) [NeZero N₂] (i₀ : Fin N)
+    {νk : ℝ} {j : ℕ} {idx idx' φ : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
+    (hidx' : ∀ n, idx' n ≠ 0) (hφ : Filter.Tendsto φ Filter.atTop Filter.atTop)
+    (hrel : ∀ n, L * idx' n = idx (φ n)) (SelN : ℕ → Prop) (hSel : ∀ n, SelN (idx' n))
+    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SelN N₂ → SFTermClauses P (DomFam (L * N₂)) (Tm (L * N₂)))
+    (hRef : ∀ (N₂ : ℕ) [NeZero N₂], SelN N₂ → ∀ (i₀ : Fin N)
       (X : Set (CTorus d L (L * N₂) m₁ k)),
       IsPolyDom P.m₀ j X →
       (DomFam (L * N₂)).dom j ((Tm (L * N₂)).gs j X)
@@ -97,12 +100,13 @@ theorem liftOldTermsFam_renormCond_of_clauses {P : Consts}
         (constFld (d := d) (L := L) (N₁ := L * N₂) (m₁ := m₁) (k := k)
           (Pi.single i₀ 1)))
     (hT : TorusIndep P.m₀ Tm)
-    (hR : RenormCond P.m₀ k νk Tm j) (hν : 0 < νk)
+    (hR : RenormCondAlong P.m₀ k νk Tm j idx hidx) (hν : 0 < νk)
     (hj1 : 1 ≤ j) (hjk : j ≤ k) (νK : ℝ) :
-    RenormCond P.m₀ (k + 1) νK (liftOldTermsFam Tm) j := by
-  apply liftOldTermsFam_renormCond hT hR hν hj1 hjk νK
-  intro i₀ i₁ _ N₂
-  exact liftOldTerms_momentSum_of_clauses (hCl (L * N₂)) hj1 hjk i₀ i₁
-    (hRef N₂ i₀)
+    RenormCondAlong P.m₀ (k + 1) νK (liftOldTermsFam Tm) j idx' hidx' := by
+  apply liftOldTermsFam_renormCond hidx' hφ hrel hT hR hν hj1 hjk νK
+  intro i₀ i₁ _ n
+  have : NeZero (idx' n) := ⟨hidx' n⟩
+  exact liftOldTerms_momentSum_of_clauses (hCl (idx' n) (hSel n)) hj1 hjk i₀ i₁
+    (hRef (idx' n) (hSel n) i₀)
 
 end Balaban.Fluctuation

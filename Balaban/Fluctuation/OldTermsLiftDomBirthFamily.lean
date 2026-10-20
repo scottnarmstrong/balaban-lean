@@ -83,16 +83,16 @@ variable {Tm : ∀ (N₂ : ℕ) [NeZero N₂], Terms d L N₂ m₁ k N ϱ}
   {T T' : ∀ (N₂ : ℕ) [NeZero N₂], Terms d L N₂ m₁ k N ϱ}
 
 /-- The renormalization conditions at a level depend only on the energy terms of that level. -/
-theorem renormCond_congr_level {νk : ℝ} {j : ℕ}
+theorem renormCond_congr_level {νk : ℝ} {j : ℕ} {idx : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
     (hE : ∀ (N₂ : ℕ) [NeZero N₂], (T N₂).E j = (T' N₂).E j)
-    (hR : RenormCond m₀ k νk T j) : RenormCond m₀ k νk T' j := by
+    (hR : RenormCondAlong m₀ k νk T j idx hidx) : RenormCondAlong m₀ k νk T' j idx hidx := by
   have hEl : ElocInf m₀ T' j = ElocInf m₀ T j := by
     funext y ψ h
     unfold ElocInf Einf Eseq
     simp only [hE]
-  have hmom : ∀ (n : ℕ) (i₀ i₁ : Fin N),
-      momentSum m₀ (T' (n + 1)) j i₀ i₁ = momentSum m₀ (T (n + 1)) j i₀ i₁ := by
-    intro n i₀ i₁
+  have hmom : ∀ (t : ℕ) [NeZero t] (i₀ i₁ : Fin N),
+      momentSum m₀ (T' t) j i₀ i₁ = momentSum m₀ (T t) j i₀ i₁ := by
+    intro t _ i₀ i₁
     unfold momentSum Edens Eloc
     simp only [hE]
   refine ⟨fun i₀ => ?_, fun i₀ hν => ?_, fun i₀ => ?_, fun i₀ i₁ hne => ?_⟩
@@ -113,39 +113,45 @@ variable {P : Consts} {Rg : Regime L} {a : ℕ → ℝ}
 /-- **The renormalization conditions at an inherited level of the spliced family.**  The reference
 pairs lie in the birth domain of their own level (a neighbourhood of the constant field,
 `exists_birthXiDom_ball`), so no domain premise on the reference field is needed. -/
-theorem renormCond_splice_birth_of_le
-    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SFTermClauses P (birthXiDom P Rg a N₂) (Tm N₂))
+theorem renormCond_splice_birth_of_le {idx idx' φ : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
+    (hidx' : ∀ n, idx' n ≠ 0) (hφ : Filter.Tendsto φ Filter.atTop Filter.atTop)
+    (hrel : ∀ n, L * idx' n = idx (φ n)) (SelN : ℕ → Prop) (hSel : ∀ n, SelN (idx' n))
+    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SelN N₂ →
+      SFTermClauses P (birthXiDom P Rg a (L * N₂)) (Tm (L * N₂)))
     {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (physMass L j (Rg.ν j)))
     (hε : 0 < P.eps d L j) (hT : TorusIndep P.m₀ Tm)
-    (hR : RenormCond P.m₀ k (Rg.ν k) Tm j) (hν : 0 < Rg.ν k) (νK : ℝ)
+    (hR : RenormCondAlong P.m₀ k (Rg.ν k) Tm j idx hidx) (hν : 0 < Rg.ν k) (νK : ℝ)
     (hE : ∀ (N₂ : ℕ) [NeZero N₂], (T' N₂).E j = (liftOldTermsFam Tm N₂).E j) :
-    RenormCond P.m₀ (k + 1) νK T' j := by
+    RenormCondAlong P.m₀ (k + 1) νK T' j idx' hidx' := by
   refine renormCond_congr_level (fun N₂ _ => (hE N₂).symm)
-    (liftOldTermsFam_renormCond_of_clauses hCl ?_ hT hR hν hj1 hjk νK)
-  intro N₂ _ i₀ X hX
+    (liftOldTermsFam_renormCond_of_clauses hidx' hφ hrel SelN hSel hCl ?_ hT hR hν hj1 hjk νK)
+  intro N₂ _ hN i₀ X hX
   obtain ⟨ρ, hρ, hball⟩ := Balaban.Inhabited.exists_birthXiDom_ball (N₁ := L * N₂) (N := N)
     (ϱ := ϱ) P Rg a i₀ hjk hBg hε
-  exact hball _ ((hCl (L * N₂)).gs_spec j hj1 hjk X hX).2 _
+  exact hball _ ((hCl N₂ hN).gs_spec j hj1 hjk X hX).2 _
     (fun x i => by simp [constFld, hρ.le]) (fun _ _ _ => rfl)
 
-/-- **The `renorm` clause of `IsSFFamily2` at scale `k + 1` for the spliced family**: the levels
+/-- **The `renorm` clause of `IsSFFamily2On` at scale `k + 1` for the spliced family**: the levels
 `j ≤ k` are inherited, the level `k + 1` comes from the new family. -/
-theorem renorm_splice_birth
+theorem renorm_splice_birth {idx idx' φ : ℕ → ℕ} {hidx : ∀ n, idx n ≠ 0}
+    (hidx' : ∀ n, idx' n ≠ 0) (hφ : Filter.Tendsto φ Filter.atTop Filter.atTop)
+    (hrel : ∀ n, L * idx' n = idx (φ n)) (SelN : ℕ → Prop) (hSel : ∀ n, SelN (idx' n))
     {Tnew : ∀ (N₂ : ℕ) [NeZero N₂], Terms d L N₂ m₁ (k + 1) N ϱ}
-    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SFTermClauses P (birthXiDom P Rg a N₂) (Tm N₂))
+    (hCl : ∀ (N₂ : ℕ) [NeZero N₂], SelN N₂ →
+      SFTermClauses P (birthXiDom P Rg a (L * N₂)) (Tm (L * N₂)))
     (hBg : ∀ j, 1 ≤ j → j ≤ k →
       BgHyp d L k ϱ (aIdeal L k (a k)) (physMass L j (Rg.ν j)))
     (hε : ∀ j, 1 ≤ j → j ≤ k → 0 < P.eps d L j) (hT : TorusIndep P.m₀ Tm)
-    (hR : ∀ j, 1 ≤ j → j ≤ k → RenormCond P.m₀ k (Rg.ν k) Tm j) (hν : 0 < Rg.ν k)
-    (hRn : RenormCond P.m₀ (k + 1) (Rg.ν (k + 1)) Tnew (k + 1))
+    (hR : ∀ j, 1 ≤ j → j ≤ k → RenormCondAlong P.m₀ k (Rg.ν k) Tm j idx hidx) (hν : 0 < Rg.ν k)
+    (hRn : RenormCondAlong P.m₀ (k + 1) (Rg.ν (k + 1)) Tnew (k + 1) idx' hidx')
     (hE : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ k → (T' N₂).E j = (liftOldTermsFam Tm N₂).E j)
     (hE' : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), ¬ j ≤ k → (T' N₂).E j = (Tnew N₂).E j) :
-    ∀ j, 1 ≤ j → j ≤ k + 1 → RenormCond P.m₀ (k + 1) (Rg.ν (k + 1)) T' j := by
+    ∀ j, 1 ≤ j → j ≤ k + 1 → RenormCondAlong P.m₀ (k + 1) (Rg.ν (k + 1)) T' j idx' hidx' := by
   intro j hj1 hjk
   by_cases h : j ≤ k
-  · exact renormCond_splice_birth_of_le hCl hj1 h (hBg j hj1 h) (hε j hj1 h) hT (hR j hj1 h) hν
-      _ (fun N₂ _ => hE N₂ j h)
+  · exact renormCond_splice_birth_of_le hidx' hφ hrel SelN hSel hCl hj1 h (hBg j hj1 h)
+      (hε j hj1 h) hT (hR j hj1 h) hν _ (fun N₂ _ => hE N₂ j h)
   · have hj : j = k + 1 := by omega
     subst hj
     exact renormCond_congr_level (fun N₂ _ => (hE' N₂ _ h).symm) hRn

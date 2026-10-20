@@ -45,8 +45,8 @@ open Classical in
 `A` of the terms `ℳ^{(j)}(a, Ypoly j X'; h, h, pullFld j G)` of the lift of the set `X'` of blocks of
 `A`. The torus enters through the index `N₁` of the terms only. -/
 theorem inhObs_image_eq {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
-    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N)) {N₁ : ℕ} [NeZero N₁]
-    (hN : L ^ m₀ ∣ N₁) (hM8 : 8 ≤ L ^ (m₀ + m₁)) (j : ℕ) {A : Finset (Fin d → ℤ)}
+    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hm₀ : m₀ = P6.m₀) (hv : EuclideanSpace ℝ (Fin N))
+    {N₁ : ℕ} [NeZero N₁] (hN : L ^ m₀ ∣ N₁) (hM8 : 8 ≤ L ^ (m₀ + m₁)) (j : ℕ) {A : Finset (Fin d → ℤ)}
     (hA : ∀ y ∈ A, QBox d (N₁ * L ^ m₁ * L ^ k) y) (G : (Fin d → ℤ) → Fin N → ℂ) :
     inhObs sf m₀ hv (N₁ * L ^ m₁ * L ^ k) j (A.image (toTorus L N₁ m₁ k))
         (fun z => G fun μ => ZMod.valMinAbs (z μ)) =
@@ -56,7 +56,7 @@ theorem inhObs_image_eq {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
           (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) (pullFld j G) i
       else 0 := by
   obtain ⟨_, hρsf⟩ := hsf.torus
-  have hloc := (hρsf N₁).terms.localM
+  have hloc := (hρsf N₁ (hm₀ ▸ hN)).terms.localM
   rw [inhObs_eq_explicit, Finset.coe_image]
   by_cases hc : 1 ≤ j ∧ j ≤ k ∧ PolyZ L m₀ m₁ j (A : Set (Fin d → ℤ))
   · have hpd : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
@@ -97,7 +97,7 @@ theorem inhObs_image_eq {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
 source of the form `z ↦ G(centred representative of z)`: the small-field half of (D8) of the class
 (`D8SF.M_eq`) for the terms `ℳ^{(j)}`. -/
 theorem inhObs_image_agree {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
-    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hd8 : D8SF m₀ sf) (hv : EuclideanSpace ℝ (Fin N))
+    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hm₀ : m₀ = P6.m₀) (hd8 : D8SF m₀ sf) (hv : EuclideanSpace ℝ (Fin N))
     {N₁ N₂ : ℕ} [NeZero N₁] [NeZero N₂] (hN₁ : L ^ m₀ ∣ N₁) (hN₂ : L ^ m₀ ∣ N₂)
     (hM8 : 8 ≤ L ^ (m₀ + m₁)) (j : ℕ) {A : Finset (Fin d → ℤ)}
     (hA₁ : ∀ y ∈ A, QBox d (N₁ * L ^ m₁ * L ^ k) y)
@@ -106,7 +106,7 @@ theorem inhObs_image_agree {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k
         (fun z => G fun μ => ZMod.valMinAbs (z μ)) =
       inhObs sf m₀ hv (N₂ * L ^ m₁ * L ^ k) j (A.image (toTorus L N₂ m₁ k))
         (fun z => G fun μ => ZMod.valMinAbs (z μ)) := by
-  rw [inhObs_image_eq hsf m₀ hv hN₁ hM8 j hA₁ G, inhObs_image_eq hsf m₀ hv hN₂ hM8 j hA₂ G]
+  rw [inhObs_image_eq hsf m₀ hm₀ hv hN₁ hM8 j hA₁ G, inhObs_image_eq hsf m₀ hm₀ hv hN₂ hM8 j hA₂ G]
   by_cases hc : 1 ≤ j ∧ j ≤ k ∧ PolyZ L m₀ m₁ j (A : Set (Fin d → ℤ))
   · rw [ite_eq_left hc, ite_eq_left hc]
     have hjk := hc.2.1
@@ -145,7 +145,7 @@ variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 /-- **The two-torus agreement of the inherited activities** (`ActAgree`) from the small-field half
 of (D8) of the class: for `M = L^{m₀+m₁}`, `8 ≤ M` and `k ≤ k_f`. -/
 theorem inhObs_actAgree {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
-    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hd8 : D8SF m₀ sf) (hv : EuclideanSpace ℝ (Fin N))
+    (hsf : SFFlat2 P6 k0 sf) (m₀ : ℕ) (hm₀ : m₀ = P6.m₀) (hd8 : D8SF m₀ sf) (hv : EuclideanSpace ℝ (Fin N))
     {M kf : ℕ} (hM : M = L ^ (m₀ + m₁)) (hM8 : 8 ≤ M) (hk : k ≤ kf) :
     ActAgree d N L M kf (inhObs sf m₀ hv) := by
   intro ℓ ℓ' hnℓ hnℓ' hℓ hℓ' j a A g _ hbox
@@ -154,7 +154,7 @@ theorem inhObs_actAgree {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
   have : NeZero N₁ := ⟨left_ne_zero_of_mul (left_ne_zero_of_mul hnℓ.out)⟩
   have : NeZero N₂ := ⟨left_ne_zero_of_mul (left_ne_zero_of_mul hnℓ'.out)⟩
   rw [inhObs_zero, inhObs_zero, sub_zero, sub_zero]
-  exact inhObs_image_agree hsf m₀ hd8 hv hN₁ hN₂ (hM ▸ hM8) j (fun y hy μ => (hbox y hy μ).1)
+  exact inhObs_image_agree hsf m₀ hm₀ hd8 hv hN₁ hN₂ (hM ▸ hM8) j (fun y hy μ => (hbox y hy μ).1)
     (fun y hy μ => (hbox y hy μ).2) g
 
 /-- The small-field half of (D8) of a member of `FlatRep`. -/
@@ -189,7 +189,7 @@ theorem inheritedAgreeInput : InheritedAgreeInput d N T P6 C7 PB cs₀ M1 c rH �
     have h2 := (geo 1).hM
     have h3 : 1 ≤ (geo 1).M1 := Nat.pos_of_ne_zero (NeZero.ne _)
     nlinarith
-  exact inhObs_actAgree hrep.sfFlat (P6 κ c₉).m₀ hrep.d8 h hM6 (by omega) hk
+  exact inhObs_actAgree hrep.sfFlat (P6 κ c₉).m₀ rfl hrep.d8 h hM6 (by omega) hk
 
 end Assembly
 
