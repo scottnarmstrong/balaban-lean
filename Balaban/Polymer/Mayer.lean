@@ -151,6 +151,17 @@ def mayerAct (Y : NePoly B) (Φ : ∀ b, Ω b) : ℂ :=
 /-- The activity of the polymer `Y`. -/
 def mayerK (Y : NePoly B) : ℂ := ∫ Φ, mayerAct sup H Y Φ ∂(Measure.pi μ)
 
+/-! #### General weights -/
+
+/-- The integrand of the activity of the polymer `Y` for general weights `f t`: the sum over
+connected families of terms with union `Y` of the products of the weights. -/
+def mayerGenAct (f : T → (∀ b, Ω b) → ℂ) (Y : NePoly B) (Φ : ∀ b, Ω b) : ℂ :=
+  polyAct sup (fun _ : Finset T => True) (fun t => f t Φ) Y
+
+/-- The activity of the polymer `Y` for general weights. -/
+def mayerGenK (f : T → (∀ b, Ω b) → ℂ) (Y : NePoly B) : ℂ :=
+  ∫ Φ, mayerGenAct sup f Y Φ ∂(Measure.pi μ)
+
 variable {sup H}
 
 omit [Fintype B] in
@@ -176,41 +187,116 @@ theorem depOn_mayerAct (hloc : ∀ t, DepOn (sup t) (H t)) (Y : NePoly B) :
   show Complex.exp (H t Φ) - 1 = Complex.exp (H t Φ') - 1
   rw [hloc t Φ Φ' (fun b hb => hΦ b (this hb))]
 
+omit [Fintype B] in
+theorem measurable_mayerGenAct {f : T → (∀ b, Ω b) → ℂ} (hmeas : ∀ t, Measurable (f t))
+    (Y : NePoly B) : Measurable (mayerGenAct sup f Y) := by
+  unfold mayerGenAct polyAct
+  exact Finset.measurable_fun_sum _ (fun C _ => Finset.measurable_fun_prod _ (fun t _ => hmeas t))
+
+omit [Fintype B] [∀ b, MeasurableSpace (Ω b)] in
+theorem depOn_mayerGenAct {f : T → (∀ b, Ω b) → ℂ} (hloc : ∀ t, DepOn (sup t) (f t))
+    (Y : NePoly B) : DepOn Y.1 (mayerGenAct sup f Y) := by
+  intro Φ Φ' hΦ
+  unfold mayerGenAct polyAct
+  refine Finset.sum_congr rfl (fun C hC => Finset.prod_congr rfl (fun t ht => ?_))
+  have : sup t ⊆ Y.1 := sub_of_mem_Cfam hC ht
+  exact hloc t Φ Φ' (fun b hb => hΦ b (this hb))
+
+omit [Fintype B] [∀ b, MeasurableSpace (Ω b)] in
+/-- `|K(Y)(Φ)| ≤ ∏_{t ⊆ Y} (1 + |f t Φ|)`. -/
+theorem norm_mayerGenAct_le (f : T → (∀ b, Ω b) → ℂ) (Y : NePoly B) (Φ : ∀ b, Ω b) :
+    ‖mayerGenAct sup f Y Φ‖ ≤
+      ∏ t ∈ Finset.univ.filter (fun t => sup t ⊆ Y.1), (1 + ‖f t Φ‖) := by
+  unfold mayerGenAct polyAct
+  rw [Finset.prod_one_add]
+  refine (norm_sum_le _ _).trans ?_
+  refine le_trans (Finset.sum_le_sum fun C _ => le_of_eq (norm_prod _ _))
+    (Finset.sum_le_sum_of_subset_of_nonneg ?_ fun C _ _ => Finset.prod_nonneg fun t _ => norm_nonneg _)
+  intro C hC
+  rw [Finset.mem_powerset]
+  intro t ht
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+  exact sub_of_mem_Cfam hC ht
+
+omit [Fintype B] [∀ b, MeasurableSpace (Ω b)] in
+/-- The product of the activities of a compatible family is dominated by `∏_t (1 + |f t|)`. -/
+theorem norm_prod_mayerGenAct_le (hne : ∀ t, (sup t).Nonempty) (f : T → (∀ b, Ω b) → ℂ)
+    (Γ : Finset (NePoly B)) (hΓ : ∀ Y ∈ Γ, ∀ Y' ∈ Γ, Y ≠ Y' → Disjoint Y.1 Y'.1) (Φ : ∀ b, Ω b) :
+    ‖∏ Y ∈ Γ, mayerGenAct sup f Y Φ‖ ≤ ∏ t, (1 + ‖f t Φ‖) := by
+  rw [norm_prod]
+  refine (Finset.prod_le_prod₀ (fun Y _ => norm_nonneg _)
+    (fun Y _ => norm_mayerGenAct_le f Y Φ)).trans ?_
+  rw [← Finset.prod_biUnion]
+  · exact Finset.prod_le_prod_of_subset_of_one_le₀ (Finset.subset_univ _)
+      (fun t _ => by positivity) (fun t _ _ => le_add_of_nonneg_right (norm_nonneg _))
+  · intro Y hY Y' hY' hne'
+    rw [Function.onFun, Finset.disjoint_left]
+    intro t ht ht'
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at ht ht'
+    exact not_subset_of_disjoint (hΓ Y hY Y' hY' hne') (hne t) ht ht'
+
+/-- **MY (i), general weights**: the integral of `∏_t (1 + f t)` against a product of probability
+measures is the partition function of the polymer gas with the activities `mayerGenK`, when the
+dominating function `∏_t (1 + |f t|)` is integrable. -/
+theorem mayerGen_integral_eq {f : T → (∀ b, Ω b) → ℂ} (hne : ∀ t, (sup t).Nonempty)
+    (hloc : ∀ t, DepOn (sup t) (f t)) (hmeas : ∀ t, Measurable (f t))
+    (hdom : Integrable (fun Φ => ∏ t, (1 + ‖f t Φ‖)) (Measure.pi μ)) :
+    ∫ Φ, ∏ t, (1 + f t Φ) ∂(Measure.pi μ) =
+      Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerGenK μ sup f) := by
+  have hpt : ∀ Φ : ∀ b, Ω b, ∏ t, (1 + f t Φ) =
+      Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (fun Y => mayerGenAct sup f Y Φ) := by
+    intro Φ
+    rw [Finset.prod_one_add, Finset.powerset_univ]
+    have := decomposition (cs := sup) (A := fun _ : Finset T => True) (fun D _ t _ => hne t)
+      (fun D => by simp) (fun t => f t Φ)
+    simpa [mayerGenAct] using this
+  simp_rw [hpt]
+  unfold Xi
+  have hK : ∀ Y, Measurable (mayerGenAct sup f Y) := measurable_mayerGenAct hmeas
+  have hdisj : ∀ Γ ∈ (Finset.univ : Finset (Finset (NePoly B))).filter
+      (Compat (shareBlock (Subtype.val : NePoly B → Finset B))),
+      ∀ Y ∈ Γ, ∀ Y' ∈ Γ, Y ≠ Y' → Disjoint Y.1 Y'.1 := by
+    intro Γ hΓ Y hY Y' hY' hne'
+    rw [Finset.mem_filter] at hΓ
+    have := hΓ.2 Y hY Y' hY' hne'
+    rw [lnk_shareBlock] at this
+    exact not_not.mp this
+  have hint : ∀ Γ ∈ (Finset.univ : Finset (Finset (NePoly B))).filter
+      (Compat (shareBlock (Subtype.val : NePoly B → Finset B))),
+      Integrable (fun Φ => ∏ Y ∈ Γ, mayerGenAct sup f Y Φ) (Measure.pi μ) := fun Γ hΓ =>
+    hdom.mono (Finset.measurable_prod _ (fun Y _ => hK Y)).aestronglyMeasurable
+      (Filter.Eventually.of_forall fun Φ => by
+        refine (norm_prod_mayerGenAct_le hne f Γ (hdisj Γ hΓ) Φ).trans (le_of_eq ?_)
+        rw [Real.norm_of_nonneg (Finset.prod_nonneg fun t _ => by positivity)])
+  rw [integral_finsetSum _ hint]
+  refine Finset.sum_congr rfl (fun Γ hΓ => ?_)
+  exact integral_prod_depOn μ Γ (fun Y => Y.1) (fun Y => mayerGenAct sup f Y) (hdisj Γ hΓ)
+    (fun Y _ => depOn_mayerGenAct hloc Y) hK
+
 /-- **MY (i)**: the integral of `e^{∑ H}` against a product measure is the partition function of
 the polymer gas with the activities `mayerK`. -/
 theorem mayer_integral_eq (hne : ∀ t, (sup t).Nonempty) (hloc : ∀ t, DepOn (sup t) (H t))
     (hmeas : ∀ t, Measurable (H t)) (hbdd : ∀ t, Bdd (H t)) :
     ∫ Φ, Complex.exp (∑ t, H t Φ) ∂(Measure.pi μ) =
       Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerK μ sup H) := by
-  have hpt : ∀ Φ : ∀ b, Ω b, Complex.exp (∑ t, H t Φ) =
-      Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (fun Y => mayerAct sup H Y Φ) := by
+  have hf : ∀ Φ : ∀ b, Ω b, Complex.exp (∑ t, H t Φ) = ∏ t, (1 + (Complex.exp (H t Φ) - 1)) := by
     intro Φ
     rw [Complex.exp_sum]
-    have h1 : ∏ t, Complex.exp (H t Φ) = ∏ t, (1 + (Complex.exp (H t Φ) - 1)) :=
-      Finset.prod_congr rfl (fun t _ => by ring)
-    rw [h1, Finset.prod_one_add, Finset.powerset_univ]
-    have := decomposition (cs := sup) (A := fun _ : Finset T => True) (fun D _ t _ => hne t)
-      (fun D => by simp) (fun t => Complex.exp (H t Φ) - 1)
-    simpa [mayerAct] using this
-  simp_rw [hpt]
-  unfold Xi
-  have hK : ∀ Y, Measurable (mayerAct sup H Y) := measurable_mayerAct hmeas
-  have hint : ∀ Γ : Finset (NePoly B), Integrable (fun Φ => ∏ Y ∈ Γ, mayerAct sup H Y Φ)
-      (Measure.pi μ) := fun Γ => by
-    obtain ⟨C, hC⟩ := (Bdd.prod Γ (fun Y _ => bdd_mayerAct hbdd Y) :
-      Bdd (fun Φ => ∏ Y ∈ Γ, mayerAct sup H Y Φ))
-    exact Integrable.of_bound (Finset.measurable_prod _ (fun Y _ => hK Y)).aestronglyMeasurable C
-      (Filter.Eventually.of_forall hC)
-  rw [integral_finsetSum _ (fun Γ _ => hint Γ)]
-  refine Finset.sum_congr rfl (fun Γ hΓ => ?_)
-  rw [Finset.mem_filter] at hΓ
-  have hdisj : ∀ Y ∈ Γ, ∀ Y' ∈ Γ, Y ≠ Y' → Disjoint Y.1 Y'.1 := by
-    intro Y hY Y' hY' hne'
-    have := hΓ.2 Y hY Y' hY' hne'
-    rw [lnk_shareBlock] at this
-    exact not_not.mp this
-  exact integral_prod_depOn μ Γ (fun Y => Y.1) (fun Y => mayerAct sup H Y) hdisj
-    (fun Y _ => depOn_mayerAct hloc Y) hK
+    exact Finset.prod_congr rfl (fun t _ => by ring)
+  simp_rw [hf]
+  have hm : ∀ t, Measurable (fun Φ => Complex.exp (H t Φ) - 1) := fun t =>
+    (Complex.measurable_exp.comp (hmeas t)).sub_const 1
+  have hb : ∀ t, ∃ C : ℝ, ∀ Φ, ‖Complex.exp (H t Φ) - 1‖ ≤ C := fun t => bdd_expm1 (hbdd t)
+  choose C hC using hb
+  refine mayerGen_integral_eq μ hne (fun t => ?_) hm ?_
+  · intro Φ Φ' hΦ
+    show Complex.exp (H t Φ) - 1 = Complex.exp (H t Φ') - 1
+    rw [hloc t Φ Φ' hΦ]
+  · refine Integrable.of_bound (C := ∏ t, (1 + C t))
+      (Finset.measurable_prod _ fun t _ => measurable_const.add (hm t).norm).aestronglyMeasurable
+      (Filter.Eventually.of_forall fun Φ => ?_)
+    rw [Real.norm_of_nonneg (Finset.prod_nonneg fun t _ => by positivity)]
+    exact Finset.prod_le_prod₀ (fun t _ => by positivity) (fun t _ => by linarith [hC t Φ])
 
 end Mayer
 
@@ -410,6 +496,49 @@ theorem norm_mayerAct_le (hH0 : 0 ≤ H0) (hH0' : H0 ≤ Real.log 2) (hκ0 : 0 �
   exact Finset.prod_le_prod₀ (fun t _ => norm_nonneg _)
     (fun t _ => norm_expm1_le_rho hH0 hH0' hκ0 hκ1 hd t Φ (hH t Φ))
 
+omit [Fintype B] [(b : B) → MeasurableSpace (Ω b)] in
+/-- **The connected families inside `Y` with the enlarged weights** (the combinatorial part of
+MY (iii)): with `q = 2 H₀ K₀ e^{κ₁ c}`,
+`∑_{C ∈ Cfam(Y)} ∏_{t ∈ C} ρ_t e^{-κ₁ d(t)} ≤ e^{-κ₁ d(Y)} e^{-κ₁ c} (e^{q |Y|} - 1)`. -/
+theorem sum_cfam_rho_le (hH0 : 0 ≤ H0) (hκ1 : 0 ≤ κ1) (hne : ∀ t, (sup t).Nonempty)
+    {K0 : ℝ} (hG2 : ∀ b : B, ∑ t ∈ Finset.univ.filter (fun t => b ∈ sup t),
+      Real.exp (-κ0 * d (sup t)) ≤ K0)
+    (hG3 : ∀ C : Finset T, ConnSet sup C →
+      d (unionCs sup C) ≤ ∑ t ∈ C, d (sup t) + c * ((C.card : ℝ) - 1))
+    (Y : NePoly B) :
+    ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
+        ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))) ≤
+      Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
+        (Real.exp ((2 * H0 * K0 * Real.exp (κ1 * c)) * Y.1.card) - 1) := by
+  have hρ := mayerRho_nonneg (sup := sup) (d := d) (κ0 := κ0) hH0
+  have hr0 : ∀ t, 0 ≤ mayerRho sup d κ0 H0 t * Real.exp (κ1 * c) := fun t =>
+    mul_nonneg (hρ t) (Real.exp_pos _).le
+  have hpre : 0 ≤ Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) := by positivity
+  calc ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
+        ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t)))
+      ≤ ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
+        Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
+          ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) :=
+        Finset.sum_le_sum (fun C hC => by
+          have h := mem_Cfam.mp hC
+          have := prod_a_le hκ1 hρ hG3 h.1
+          rwa [h.2.2] at this)
+    _ = Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
+        ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
+          ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) := by rw [← Finset.mul_sum]
+    _ ≤ Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
+        (Real.exp (∑ t ∈ termsIn sup Y.1, mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) - 1) := by
+        refine mul_le_mul_of_nonneg_left ?_ hpre
+        refine le_trans ?_ (sum_powerset_erase_le _ hr0 (termsIn sup Y.1))
+        exact Finset.sum_le_sum_of_subset_of_nonneg cfam_subset_powerset
+          (fun _ _ _ => Finset.prod_nonneg (fun t _ => hr0 t))
+    _ ≤ _ := by
+        refine mul_le_mul_of_nonneg_left ?_ hpre
+        have := sum_rho_le (sup := sup) (d := d) (κ0 := κ0) (κ1 := κ1) (c := c) hH0
+          (Y := Y.1) (fun t _ => hne t) hG2
+        have := Real.exp_le_exp.mpr this
+        linarith
+
 /-- **MY (iii)**: the bound on the activities of the Mayer polymer gas.  With
 `q = 2 H₀ K₀ e^{κ₁ c}` and `q c₁ ≤ 1/2`, every polymer `Y` with `|Y| ≤ c₁ (1 + d(Y))` has
 `|K(Y)| ≤ 2 q c₁ e^{-(κ₁ - 3/2) d(Y)}`. -/
@@ -428,38 +557,9 @@ theorem mayer_activity_bound (hH0 : 0 ≤ H0) (hH0' : H0 ≤ Real.log 2) (hκ0 :
   have hK0 : 0 ≤ K0 := le_trans (Finset.sum_nonneg (fun t _ => (Real.exp_pos _).le)) (hG2 b0)
   set q := 2 * H0 * K0 * Real.exp (κ1 * c) with hqdef
   have hq0 : 0 ≤ q := by positivity
-  have hρ := mayerRho_nonneg (sup := sup) (d := d) (κ0 := κ0) hH0
-  have hr0 : ∀ t, 0 ≤ mayerRho sup d κ0 H0 t * Real.exp (κ1 * c) := fun t =>
-    mul_nonneg (hρ t) (Real.exp_pos _).le
-  have hpre : 0 ≤ Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) := by positivity
   have hΦ : ∀ Φ, ‖mayerAct sup H Y Φ‖ ≤
-      Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) * (Real.exp (q * Y.1.card) - 1) := by
-    intro Φ
-    refine (norm_mayerAct_le hH0 hH0' hκ0 hκ1 hd hH Y Φ).trans ?_
-    calc ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
-          ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t)))
-        ≤ ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
-          Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
-            ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) :=
-          Finset.sum_le_sum (fun C hC => by
-            have h := mem_Cfam.mp hC
-            have := prod_a_le hκ1 hρ hG3 h.1
-            rwa [h.2.2] at this)
-      _ = Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
-          ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1,
-            ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) := by rw [← Finset.mul_sum]
-      _ ≤ Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) *
-          (Real.exp (∑ t ∈ termsIn sup Y.1, mayerRho sup d κ0 H0 t * Real.exp (κ1 * c)) - 1) := by
-          refine mul_le_mul_of_nonneg_left ?_ hpre
-          refine le_trans ?_ (sum_powerset_erase_le _ hr0 (termsIn sup Y.1))
-          exact Finset.sum_le_sum_of_subset_of_nonneg cfam_subset_powerset
-            (fun _ _ _ => Finset.prod_nonneg (fun t _ => hr0 t))
-      _ ≤ _ := by
-          refine mul_le_mul_of_nonneg_left ?_ hpre
-          have := sum_rho_le (sup := sup) (d := d) (κ0 := κ0) (κ1 := κ1) (c := c) hH0
-            (Y := Y.1) (fun t _ => hne t) hG2
-          have := Real.exp_le_exp.mpr this
-          linarith
+      Real.exp (-κ1 * d Y.1) * Real.exp (-κ1 * c) * (Real.exp (q * Y.1.card) - 1) := fun Φ =>
+    (norm_mayerAct_le hH0 hH0' hκ0 hκ1 hd hH Y Φ).trans (sum_cfam_rho_le hH0 hκ1 hne hG2 hG3 Y)
   have hint := norm_integral_le_of_norm_le_const (μ := Measure.pi μ)
     (f := mayerAct sup H Y) (Filter.Eventually.of_forall hΦ)
   have hreal : (Measure.pi μ).real Set.univ = 1 := by simp
@@ -469,6 +569,45 @@ theorem mayer_activity_bound (hH0 : 0 ≤ H0) (hH0' : H0 ≤ Real.log 2) (hκ0 :
   have := mayer_real_bound (q := q) (c1 := c1) (κ1 := κ1) (c := c) (D := d Y.1)
     (n := (Y.1.card : ℝ)) hq0 hc1 hκ1 hc (hd _) (Nat.cast_nonneg _) hq hG1
   exact this
+
+omit [∀ b, IsProbabilityMeasure (μ b)] in
+/-- **MY (iii), general weights**: if the integrals of the products of the weights over every
+family of terms obey the product bound `‖∫ ∏_{t ∈ C} f_t‖ ≤ ∏_{t ∈ C} ρ_t e^{-κ₁ d(t)}` and
+`∏_t (1 + |f_t|)` is integrable, the activities obey the bound of MY (iii). -/
+theorem mayerGen_activity_bound {f : T → (∀ b, Ω b) → ℂ} (hmeas : ∀ t, Measurable (f t))
+    (hdom : Integrable (fun Φ => ∏ t, (1 + ‖f t Φ‖)) (Measure.pi μ))
+    (hH0 : 0 ≤ H0) (hκ1 : 0 ≤ κ1) (hc : 0 ≤ c) (hd : ∀ Y, 0 ≤ d Y) (hne : ∀ t, (sup t).Nonempty)
+    (hprod : ∀ C : Finset T, ‖∫ Φ, ∏ t ∈ C, f t Φ ∂(Measure.pi μ)‖ ≤
+      ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))))
+    {K0 : ℝ} (hG2 : ∀ b : B, ∑ t ∈ Finset.univ.filter (fun t => b ∈ sup t),
+      Real.exp (-κ0 * d (sup t)) ≤ K0)
+    (hG3 : ∀ C : Finset T, ConnSet sup C →
+      d (unionCs sup C) ≤ ∑ t ∈ C, d (sup t) + c * ((C.card : ℝ) - 1))
+    {c1 : ℝ} (hc1 : 0 ≤ c1) (hq : 2 * H0 * K0 * Real.exp (κ1 * c) * c1 ≤ 1 / 2)
+    (Y : NePoly B) (hG1 : (Y.1.card : ℝ) ≤ c1 * (1 + d Y.1)) :
+    ‖mayerGenK μ sup f Y‖ ≤
+      2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * Real.exp (-(κ1 - 3 / 2) * d Y.1) := by
+  obtain ⟨b0, hb0⟩ := Y.2
+  have hK0 : 0 ≤ K0 := le_trans (Finset.sum_nonneg (fun t _ => (Real.exp_pos _).le)) (hG2 b0)
+  set q := 2 * H0 * K0 * Real.exp (κ1 * c) with hqdef
+  have hq0 : 0 ≤ q := by positivity
+  have hintC : ∀ C : Finset T, Integrable (fun Φ => ∏ t ∈ C, f t Φ) (Measure.pi μ) := fun C =>
+    hdom.mono (Finset.measurable_prod _ fun t _ => hmeas t).aestronglyMeasurable
+      (Filter.Eventually.of_forall fun Φ => by
+        rw [norm_prod, Real.norm_of_nonneg (Finset.prod_nonneg fun t _ => by positivity)]
+        refine (Finset.prod_le_prod₀ (fun t _ => norm_nonneg _)
+          (fun t _ => le_add_of_nonneg_left zero_le_one)).trans ?_
+        exact Finset.prod_le_prod_of_subset_of_one_le₀ (Finset.subset_univ _)
+          (fun t _ => by positivity) (fun t _ _ => le_add_of_nonneg_right (norm_nonneg _)))
+  have hK : mayerGenK μ sup f Y =
+      ∑ C ∈ Cfam sup (fun _ : Finset T => True) Y.1, ∫ Φ, ∏ t ∈ C, f t Φ ∂(Measure.pi μ) := by
+    unfold mayerGenK mayerGenAct polyAct
+    exact integral_finsetSum _ fun C _ => hintC C
+  rw [hK]
+  refine (norm_sum_le _ _).trans ((Finset.sum_le_sum fun C _ => hprod C).trans
+    ((sum_cfam_rho_le hH0 hκ1 hne hG2 hG3 Y).trans ?_))
+  exact mayer_real_bound (q := q) (c1 := c1) (κ1 := κ1) (c := c) (D := d Y.1)
+    (n := (Y.1.card : ℝ)) hq0 hc1 hκ1 hc (hd _) (Nat.cast_nonneg _) hq hG1
 
 end Activity
 
