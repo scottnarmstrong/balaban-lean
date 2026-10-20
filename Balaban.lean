@@ -2900,6 +2900,7 @@ public import Balaban.Spine.FinalSfGauss
 public import Balaban.Spine.FinalSfConst
 public import Balaban.Spine.FinalValue
 public import Balaban.Spine.FinalValueAlg
+public import Balaban.Spine.FinalValueBridge
 public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
