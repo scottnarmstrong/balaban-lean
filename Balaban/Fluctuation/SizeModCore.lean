@@ -96,6 +96,11 @@ theorem dcovModE_ne_top_of_IsDj {Ω X : Set (CTorus d L N₁ m₁ K)} (hX : IsDj
     dcovModE m₀ j Ω X ≠ ⊤ :=
   dcovModE_ne_top (exists_admissible_of_IsDj hX)
 
+/-- A label of `𝒟_j(mod Ω^c)` belongs to `DjModFin` (the labels of ruling R11). -/
+theorem DjMod.djModFin {Ω X : Set (CTorus d L N₁ m₁ K)} (h : DjMod m₀ j Ω X) :
+    DjModFin m₀ j Ω X :=
+  ⟨h.1.1, h.1.2.2, h.2, dcovModE_ne_top_of_IsDj h.1⟩
+
 omit [NeZero N₁] [NeZero L] in
 theorem dcovMod_nonneg (Ω X : Set (CTorus d L N₁ m₁ K)) : 0 ≤ dcovMod m₀ j Ω X :=
   ENNReal.toReal_nonneg

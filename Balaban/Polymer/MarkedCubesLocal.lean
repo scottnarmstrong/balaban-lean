@@ -288,7 +288,7 @@ omit [Fintype Lb] in
 theorem ysite_subset_Yhat (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (hΩ : IsPiUnion m₀ j Ω)
     (Lab : CubeLabels m₀ j Ω Lb) (y : Lb) {S : Finset 𝔅}
     (h : blocksOf m₀ j Ω (Lab.ysite y) ⊆ S) : Lab.ysite y ⊆ Yhat Ω (sitesOf S) := by
-  refine (G4_subset (Lab.isDj y) (Lab.meets y)).trans (Yhat_mono ?_)
+  refine (G4_subset (Lab.isDj y).2.2 (Lab.meets y)).trans (Yhat_mono ?_)
   rw [← sitesOf_blocksOf hN hj hΩ (Lab.isDj y).2.1]
   exact sitesOf_mono h
 

@@ -188,7 +188,7 @@ theorem old_term_bound_of_D7BdryPost {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M
   intro y
   have hmem := mem_bdryDomsPost.1 (hlab y)
   have hcon : SiteConnected (d7Pull Fr k (labY y : Set (Torus S.d (n k)))) :=
-    hmem.2.1.1.2.2
+    hmem.2.2.1
   have hfin := d7SizeE_ne_top_of_mem (hlab y)
   rw [dExt_core_eq_d7Size Fr A k (cy y) (labY y) (hXY y) hcon hfin, hβ y]
   exact (hD.bound A hA (labY y) (hlab y) h hh p (hp y)).le

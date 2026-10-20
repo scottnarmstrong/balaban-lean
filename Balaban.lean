@@ -822,6 +822,7 @@ public import Balaban.Fluctuation.SizeModCore
 public import Balaban.Fluctuation.SizeModG1
 public import Balaban.Fluctuation.SizeModUnion
 public import Balaban.Fluctuation.SizeModUnionTree
+public import Balaban.Fluctuation.DjModFin
 public import Balaban.Fluctuation.SizeModHoleRoot
 public import Balaban.Fluctuation.SizeModG4
 public import Balaban.Fluctuation.SizeModG5
@@ -2928,6 +2929,7 @@ public import Balaban.LargeField.R.WindowDomAnc
 public import Balaban.LargeField.R.WindowDomPieces
 public import Balaban.LargeField.R.WindowDomFacts
 public import Balaban.LargeField.R.WindowDomRegime
+public import Balaban.LargeField.R.WindowHSDom
 public import Balaban.LargeField.R.WindowRadiusRegime
 public import Balaban.LargeField.R.WindowDomDecomp
 public import Balaban.LargeField.R.WindowDomHS
