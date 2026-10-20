@@ -184,6 +184,120 @@ theorem markedOutDec_decMarkCorrTermBg_eq
   exact Finset.sum_congr rfl fun q _ => deriv_decMarkCorrTermBg S F₁ Sol ρ hp β Θ um Φ q.1 q.2
 
 open Classical in
+/-- **Core of `markedOutDecCorrBg_fields_of` on the chart of a generating set `Gg`, for the rooted
+domains of a class `P` closed under subsets**: the hypotheses on the corrected marks are asked for
+the labels of `P` only (the labels of the pairs attached to a rooted domain `Y′` lie in `Y′`), with
+the data in the chart `XiCRaw Gg` and the parameters in `physVBg Gg`.  `markedOutDecCorrBg_fields_of`
+is the instance `Gg = S.G'`, `P = ⊤`. -/
+theorem markedOutDecCorrBg_fields_of_gen {ϱg : ℝ} (Gg : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱg)
+    (hG' : IsLevel S.G' (k + 1)) (hd : 3 ≤ d) (hN : L ^ m₀ ∣ N₁)
+    (hcovV : ∀ b, CovSetup S.G' m₀ (jV b) (XV b) (𝒦XV b))
+    (hoptV : ∀ b, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+      (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XV b) ∧ MeetsOne m₀ (jV b) (𝒦XV b) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (jV b)) E₀ = treeLenCovOne m₀ (jV b) (XV b))
+    (zr : RootIdx d L N₁ m₁ (k + 1))
+    (F₁ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+        (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ))
+    (Sol : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) →
+      Dec2.DecParams (coverOf Gb) × Edat Hm N → (Hm.Ω 1 × Fin N → ℂ) × (Hm.Ω 1 → ℂ))
+    {ρ : ℝ} (hp : 0 < S.p₁) (β : ℂ)
+    (P : Set (CTorus d L N₁ m₁ (k + 1)) → Prop) (hP : ∀ Y Y', Y ⊆ Y' → P Y' → P Y)
+    (hdepT : ∀ b, ∀ (Y Y' : Set (CTorus d L N₁ m₁ (k + 1))), P Y → Y ⊆ Y' →
+        (∀ y ∈ Y', box (cbase (cellSide L m₀ m₁ (k + 1)) y) (cellSide L m₀ m₁ (k + 1)) ⊆ Y') →
+        ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        DepOn (blocksOf m₀ (k + 1) Set.univ Y')
+          (decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um))
+    (hmeasT : ∀ b, ∀ Y, P Y → ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+        (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        Measurable (decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
+          (blockEnergyFun Gb Hm (compWeight L a₁) ν k b) Zm Y ρ hp Θ um))
+    (hholT : ∀ b, ∀ Y, P Y → ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b), ∀ a b' : ℝ, 0 < a →
+        0 < b' → (a + b') * markedRad d L N k a₁ κ cψ cc < δ₁ →
+        AnalyticOnNhd ℂ (fun p : physParamBg N Gg × ℂ =>
+          decMarkCorrBg S Gb T (X₁V b) m₀ (jV b) (𝒦XV b) a₁ ν cc (F₁ b) (Sol b)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k b)
+            Zm Y ρ hp (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ)
+          (physVBg N Gg a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) :
+    (∀ Y', P Y' → ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+      (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      Measurable (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y')) ∧
+    (∀ Y' ∈ bridgeFamily m₀ (fun _ => Set.univ)
+        (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr, P Y' →
+      ∀ Θ ∈ XiCRaw Gg (compWeight L a₁) ν (k + 1) 1 eps, ∀ um : ℂ,
+      (‖um‖ + ‖(0 : ℂ)‖) * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      DepOn (blocksOf m₀ (k + 1) Set.univ Y')
+        (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+          markedOutDec m₀ (fun _ => Set.univ)
+            (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+            (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y')) ∧
+    (∀ Y', P Y' → ∀ Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b), ∀ a b' : ℝ, 0 < a → 0 < b' →
+      (a + b') * markedRad d L N k a₁ κ cψ cc < δ₁ →
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gg × ℂ =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
+            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ) Y')
+        (physVBg N Gg a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
+  have hPq : ∀ Y', P Y' → ∀ q ∈ (markedIdx (fun _ => Set.univ)
+      (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+        (fun q => bridge m₀ zr q.2 = Y'), P q.2 := fun Y' hY' q hq =>
+    hP _ _ ((Finset.mem_filter.1 hq).2 ▸ subset_bridge zr q.2) hY'
+  refine ⟨fun Y' hY'P Θ hΘ um hum => ?_, fun Y' hY' hY'P Θ hΘ um hum => ?_,
+    fun Y' hY'P Φ a b' ha hb' hab => ?_⟩
+  · have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
+        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+            (fun q => bridge m₀ zr q.2 = Y'),
+          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
+      funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
+    rw [e]
+    refine Finset.measurable_sum _ fun (q : _ × _) hq => measurable_const.mul ?_
+    exact hmeasT q.1 q.2 (hPq Y' hY'P q hq) Θ hΘ um hum
+  · have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
+        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+            (fun q => bridge m₀ zr q.2 = Y'),
+          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
+      funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
+    rw [e]
+    intro Φ Φ' hΦ
+    refine Finset.sum_congr rfl fun q hq => ?_
+    obtain ⟨hq1, hq2⟩ := Finset.mem_filter.1 hq
+    have hmem := mem_markedIdx.1 hq1
+    have hDj : IsDj m₀ (k + 1) q.2 :=
+      isDj_of_polyDom hG' (hcovV q.1) hd (hoptV q.1) hmem.1
+    have hDj' : IsDj m₀ (k + 1) Y' := hq2 ▸ bridge_isDj hN zr hDj
+    have hsub : q.2 ⊆ Y' := hq2 ▸ subset_bridge zr q.2
+    have := hdepT q.1 q.2 Y' (hPq Y' hY'P q hq) hsub (cell_subset_of_isDj hN hDj') Θ hΘ um hum
+      Φ Φ' hΦ
+    rw [this]
+  · have e : (fun p : physParamBg N Gg × ℂ =>
+        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
+          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
+            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ) Y') =
+        fun p => ∑ q ∈ (markedIdx (fun _ => Set.univ)
+          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
+            (fun q => bridge m₀ zr q.2 = Y'),
+          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
+            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp
+            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ :=
+      funext fun p => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β _ _ Φ zr Y'
+    rw [e]
+    exact Finset.analyticOnNhd_fun_sum _ fun (q : _ × _) hq =>
+      analyticOnNhd_const.mul (hholT q.1 q.2 (hPq Y' hY'P q hq) Φ a b' ha hb' hab)
+
+open Classical in
 /-- **Fields of the rooted output of the corrected marks on a background generating set, from the
 fields of the corrected marks.**  If every corrected mark `decMarkCorrBg` of the blocks is local
 in the blocks inside every cell-union `Y′ ⊇ Y` (`hdepT`), measurable in the block configuration
@@ -243,53 +357,10 @@ theorem markedOutDecCorrBg_fields_of
           (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
             (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ) Y')
         (physV S a₁ ν eps ×ˢ Metric.ball (0 : ℂ) a)) := by
-  refine ⟨fun Y' Θ hΘ um hum => ?_, fun Y' hY' Θ hΘ um hum => ?_, fun Y' Φ a b' ha hb' hab => ?_⟩
-  · have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
-        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
-      funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
-    rw [e]
-    refine Finset.measurable_sum _ fun (q : _ × _) _ => measurable_const.mul ?_
-    exact hmeasT q.1 q.2 Θ hΘ um hum
-  · have e : (fun Φ : (∀ b, (S.blockSplit m₀ hp).Ωb b) =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β Θ um Φ) Y') =
-        fun Φ => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp Θ um Φ :=
-      funext fun Φ => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β Θ um Φ zr Y'
-    rw [e]
-    intro Φ Φ' hΦ
-    refine Finset.sum_congr rfl fun q hq => ?_
-    obtain ⟨hq1, hq2⟩ := Finset.mem_filter.1 hq
-    have hmem := mem_markedIdx.1 hq1
-    have hDj : IsDj m₀ (k + 1) q.2 :=
-      isDj_of_polyDom hG' (hcovV q.1) hd (hoptV q.1) hmem.1
-    have hDj' : IsDj m₀ (k + 1) Y' := hq2 ▸ bridge_isDj hN zr hDj
-    have hsub : q.2 ⊆ Y' := hq2 ▸ subset_bridge zr q.2
-    have := hdepT q.1 q.2 Y' hsub (cell_subset_of_isDj hN hDj') Θ hΘ um hum Φ Φ' hΦ
-    rw [this]
-  · have e : (fun p : physParam N S × ℂ =>
-        markedOutDec m₀ (fun _ => Set.univ) (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr
-          (decMarkCorrTermBg S Gb T X₁V jV 𝒦XV m₀ a₁ ν cc F₁ Sol Zm ρ hp β
-            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ) Y') =
-        fun p => ∑ q ∈ (markedIdx (fun _ => Set.univ)
-          (fun b => polyDom S.G' (X₁V b) m₀ (jV b) (𝒦XV b)) zr).filter
-            (fun q => bridge m₀ zr q.2 = Y'),
-          -β * decMarkCorrBg S Gb T (X₁V q.1) m₀ (jV q.1) (𝒦XV q.1) a₁ ν cc (F₁ q.1) (Sol q.1)
-            (blockEnergyFun Gb Hm (compWeight L a₁) ν k q.1) Zm q.2 ρ hp
-            (p.1.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) p.2 Φ :=
-      funext fun p => markedOutDec_decMarkCorrTermBg_eq S F₁ Sol ρ hp β _ _ Φ zr Y'
-    rw [e]
-    exact Finset.analyticOnNhd_fun_sum _ fun (q : _ × _) _ =>
-      analyticOnNhd_const.mul (hholT q.1 q.2 Φ a b' ha hb' hab)
+  obtain ⟨h1, h2, h3⟩ := markedOutDecCorrBg_fields_of_gen S S.G' hG' hd hN hcovV hoptV zr F₁ Sol
+    hp β (fun _ => True) (fun _ _ _ _ => trivial) (fun b Y Y' _ => hdepT b Y Y')
+    (fun b Y _ => hmeasT b Y) (fun b Y _ => hholT b Y)
+  exact ⟨fun Y' => h1 Y' trivial, fun Y' hY' => h2 Y' hY' trivial, fun Y' => h3 Y' trivial⟩
 
 end RootedBg
 
