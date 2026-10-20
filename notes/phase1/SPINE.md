@@ -1017,6 +1017,20 @@ A3-2. Each becomes a theorem once the first step's representation is defined at 
 `KF0GoodSectorInput` with `KF0ThresholdInput`, A7-2 `KF0BadSectorInput`, the threshold premise) is no longer on the path to
 Root-F; the text is kept as the record of that route.
 
+Files left without use by route FR (W1149, 20 October; computed from the constants that `kfZeroInput_of_typing` uses
+transitively, and from the import graph). No declaration of the following is used by `kfZeroInput_of_typing`, and no
+module outside the sector route imports them: `Spine/KfZero`, `Spine/KfZeroGood`; `LargeField/Base/KF0AllPlusComplex`,
+`KF0AllPlusGas`, `KF0AllPlusGasC`, `KF0BadCharge`, `KF0BlockSplit`, `KF0BoundarySquare`, `KF0CollarBudget`,
+`KF0CollarClosure`, `KF0F1Assembly`, `KF0GoodChart`, `KF0HaloAffine`, `KF0MeanShell`, `KF0SectorCharge`, `KF0SectorSum`,
+`KF0ShiftedSector`, `KF0SmallUniform`, `KF0SqrtReal`, `KF0TaylorMajorant`; `Green/KF0CovarianceAtoms`,
+`KF0CovarianceNoise`, `KF0DetWalks`, `KF0HoleWalk`, `KF0HoleWalkTorus`, `KF0KilledWalks`. They are still imported along
+route FR's chain only through `Spine/KfZeroAct` (imports `Spine/KfZero`, needs only `RootFInputs`) and
+`Spine/KfZeroGoodParts` (route FR uses only `kf0K0`, `kf0K0_ge_log`, `kf0K0_sq` from it). Used by route FR from the
+earlier KF0 work: `KfZeroGoodParts` (those three), `KfZeroAct`, `KF0AllGoodGas`, `KF0Gaussian`, `KF0CutoffSplit`,
+`KF0PolymerLift`, `KF0BlockLift`, `KF0BoxLift`, `Green/KF0Reference`, `KF0WalkHalo`, `KF0WalkSeries`, `KF0WalkTorus`,
+`KF0WalkTruncation`. `KF0GoodGaussian`, `KF0WalkOrdinary` are unused by route FR but imported elsewhere
+(`Green/GaussianChangeGeneral`, `Green/KernelSeriesGeneral`).
+
 **PROVED** (`Balaban/Spine/KfZero.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
 theorem kfZeroInput_of_parts (hG : KF0GoodSectorInput d N δ T thr)
