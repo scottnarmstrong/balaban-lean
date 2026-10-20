@@ -669,11 +669,7 @@ theorem removedKernel_kerBound_of_hid_action_cl :
 
 omit hnamedCU
 
-variable (hleBr : ∀ (i : Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
-        ↥(H.parts (j.1 + 1) P.1))) m,
-      (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 2 ≤ m →
-      m ≤ m' + 1 → br.elMass (cs.muAct m) ≤
-        cs.muBg ((Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 1))
+variable (hbr : m' + 1 ≤ k0 → br = MassBranch.massless)
 variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
         OutIdx (K := K) (M := M) R C.2.1 ⊕
           ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
@@ -806,11 +802,11 @@ variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) 
           (‖Cnat0 a₁ (windowOfHistory_precedes geo hm hW) ψ0 (0 : Fin N → ℝ) Du Zb β0 (varpi (m' + 1) cs.z) aN ψk‖ ≤ Cnat * S.lam (m' + 1) ^ (2 * S.d + 1))))
 
 
-include hleBr hnamedCUD
+include hbr hnamedCUD
 
 /-- **`removedKernel_kerBound_of_hid_action_cl` without the domain clauses `hS` among the named inputs**: the
 named input `hnamedCUD` takes `WindowHS` (both clauses of `hS` at the window point) as a premise, which is
-proved from `K ≠ 0` and the mass inequality `hleBr` (`windowHS_of_kernel`; no unit direction). -/
+proved from `K ≠ 0` (`windowHS_of_kernel`; no unit direction). A removed window lies at a scale `m' + 1 ≤ k₀` (`rem_empty`), where the branch is the massless one (`hbr`, P631 §1), so the mass inequality is `0 ≤ μ_Bg(j_i + 1)`, which is the mass clause of `hB0p`. -/
 theorem removedKernel_kerBound_of_hid_action_cl_hS :
     KerBound (H.localHistory M K (m' + 1) Z) (m' + 1) (removedKernel (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (locOp geo cs SD KD hH lab (m' + 1) hm Z) t s z w u c0 rr EZ
       (fun o x => (ht o x).1) (fun o x => (hs o x).1) (fun o x => (hz o x).1)
@@ -821,7 +817,15 @@ theorem removedKernel_kerBound_of_hid_action_cl_hS :
     hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK =>
     hnamedCUD κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 hv par wd cc ro sh a nd' w' fld ft hfld hft hw
       hTBp hK (windowHS_of_kernel geo cs SD KD hk1 hm hmk hq ρ br hW hk1def hρ _ _ hv
-        (left_ne_zero_of_mul hK) hleBr))
+        (left_ne_zero_of_mul hK) (by
+          have hle : m' + 1 ≤ k0 := by
+            by_contra hlt
+            have := H.rem_empty (m' + 1) (Or.inr (by omega))
+            rw [this] at hrem
+            exact Finset.notMem_empty _ hrem
+          intro i m _ _
+          rw [hbr hle]
+          exact (hB0p i).mass)))
 
 end Core
 

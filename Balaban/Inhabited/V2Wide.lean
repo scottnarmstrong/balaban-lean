@@ -252,7 +252,7 @@ theorem isSFFamily2_xi_witness_M (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 
         (pinTerms 3 3 N₁ m₁ k 2 ϱ (witnessConsts (wideα₀ k)).κ (witCj 3)) 0) (fun _ => 0) where
   admissible := witnessConsts_admissible (wideα₀_pos k)
   coeff := witness_coeff k
-  torus := fun N₁ _ => isSF2_pinTermsB le_rfl (witnessConsts_admissible (wideα₀_pos k)).κ_pos.le
+  torus := fun N₁ _ _ => isSF2_pinTermsB le_rfl (witnessConsts_admissible (wideα₀_pos k)).κ_pos.le
     (fun j => (witCj_pos j).le) (witness_cj_le _) (witness_c9_pos _)
     (fun j hj1 hjk _ Ψ h hd x => by
       refine vn_le_two_of_xiDom (physMass_witness_pos k) (physMass_witness_le_one k)

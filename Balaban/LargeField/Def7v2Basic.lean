@@ -56,7 +56,7 @@ theorem D2SF2.toFlat2 (h : D2SF2 P6 k0 sf (fun _ => 1)) : SFFlat2 P6 k0 sf := by
           nu_le := hF.coeff.nu_le.trans (nuBar_le_one hF.admissible)
           a_ge := hF.coeff.a_ge
           a_lt := hF.coeff.a_lt }
-      torus := ⟨ρsf, fun N₁ _ => hF.torus N₁⟩
+      torus := ⟨ρsf, fun N₁ _ hN => hF.torus N₁ hN⟩
       torusIndep := hF.torusIndep
       renorm := hF.renorm
       rTerms := h.rTerms }
