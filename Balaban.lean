@@ -864,6 +864,7 @@ public import Balaban.Polymer.MarkedCubesVanish
 public import Balaban.Polymer.MarkedHolo
 public import Balaban.Polymer.MarkedHoloParam
 public import Balaban.Fluctuation.Thm31CoeffAnalytic
+public import Balaban.Fluctuation.LabelActRestr
 public import Balaban.Polymer.MarkedCubesHolo
 public import Balaban.Polymer.MarkedDeriv2
 public import Balaban.LargeField.Base.BaseMarked
@@ -2975,3 +2976,4 @@ public import Balaban.LargeField.Base.KF0FRHeavy
 public import Balaban.LargeField.Base.KF0FRProd
 public import Balaban.Fluctuation.NewLevelTermsBgAnalytic
 public import Balaban.Fluctuation.NewLevelTermsBgLocal
+public import Balaban.Fluctuation.NewLevelZeroSourceBgFields
