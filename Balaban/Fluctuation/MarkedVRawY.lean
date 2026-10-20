@@ -33,6 +33,41 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
+/-- **The block energy has the agreement property of the row theorems** at any generating set `G`
+whose sites of the block `z` have the block margin `BlockMargin G X₁f` and whose read sites lie in
+`X₁f`: at two triples whose multipliers agree on `S_Y`, whose fluctuation fields and tangents agree
+on `Y ⊇ X₁f`, the block energies are equal (the hypothesis `hΦ` of `marked_fan_local_rawY_of` and of
+`fan_value_eq_of_component` for `blockEnergyFun`). -/
+theorem blockEnergyFun_rowAgree {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (a : ℕ → ℝ) (ν : ℝ) (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hZ : readSites Hm k z ⊆ ↑X₁f)
+    (hBM : BlockMargin G X₁f
+      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))))
+    {φ φ' : G.Ω 1 × Fin N → ℂ} {α α' : G.Ω 1 → ℂ} {δφ δφ' : Hm.Ω 1 × Fin N → ℂ}
+    {D D' : BgData G N} {ψ ψ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    {Y : Finset (CTorus d L N₁ m₁ (k + 1))} {𝒞 : Finset (ℕ × CTorus d L N₁ m₁ (k + 1))}
+    (hαSY : ∀ x : G.Ω 1, (x : CTorus d L N₁ m₁ (k + 1)) ∈ SY G X₁f 𝒞 Y → α x = α' x)
+    (hδ : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i, δφ (y, i) = δφ' (y, i))
+    (hψ : ∀ y ∈ Y, ψ y = ψ' y) (hXY : ∀ x ∈ X₁f, x ∈ Y) :
+    blockEnergyFun G Hm a ν k z (φ, α) δφ (rawOf D, ψ) =
+      blockEnergyFun G Hm a ν k z (φ', α') δφ' (rawOf D', ψ') := by
+  classical
+  have hαeq : ∀ y : G.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈
+      (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) →
+      α y = α' y := by
+    intro y hy
+    obtain ⟨z, hz, hyz, hQ, hhat⟩ := hBM y hy y.2
+    refine hαSY y (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, ?_, ?_⟩, hyz⟩)
+    · intro P hP hPpar
+      exact absurd hPpar (hQ P hP)
+    · intro x hx
+      exact hXY _ (hhat x hx)
+  exact blockEnergyFun_local_sharp (Gp := G) (Hm := Hm) a ν k z
+    (t := ((φ, α), δφ, (rawOf D, ψ))) (t' := ((φ', α'), δφ', (rawOf D', ψ')))
+    (fun y hy => hαeq y hy)
+    (fun y hy i => hδ y (hXY _ (hZ hy)) i)
+    (fun y hy => hψ y (hXY _ (hZ (readSites_of_blockSites hy))))
+
 variable (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
 include hC
 
@@ -351,23 +386,8 @@ theorem marked_vblock_fan_local_rawY (hk : 1 ≤ k) (hG : IsLevel Hm k) (hG' : I
           (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) u.1 u.2)) :=
   marked_fan_local_rawY_of hC hk hG hG' cc hcψ Zm um tm hMX hdm hα hsm hδ hcov hX₁ hconn hrow hF₁
     hSol (blockEnergyFun Gp Hm (compWeight L a₁) ν k z)
-    (fun {φ φ' α α' δφ δφ' D D' ψ ψ' Y 𝒞} hαSY _ hδ hψ _ hXY => by
-      classical
-      have hαeq : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈
-          (↑(blockSites d L N₁ m₁ (k + 1) k z) : Set (CTorus d L N₁ m₁ (k + 1))) →
-          α y = α' y := by
-        intro y hy
-        obtain ⟨z, hz, hyz, hQ, hhat⟩ := hBM y hy y.2
-        refine hαSY y (Finset.mem_biUnion.2 ⟨z, Finset.mem_filter.2 ⟨hz, ?_, ?_⟩, hyz⟩)
-        · intro P hP hPpar
-          exact absurd hPpar (hQ P hP)
-        · intro x hx
-          exact hXY _ (hhat x hx)
-      exact blockEnergyFun_local_sharp (Gp := Gp) (Hm := Hm) (compWeight L a₁) ν k z
-        (t := ((φ, α), δφ, (rawOf D, ψ))) (t' := ((φ', α'), δφ', (rawOf D', ψ')))
-        (fun y hy => hαeq y hy)
-        (fun y hy i => hδ y (hXY _ (hZ hy)) i)
-        (fun y hy => hψ y (hXY _ (hZ (readSites_of_blockSites hy)))))
+    (fun {_ _ _ _ _ _ _ _ _ _ _ _} hαSY _ hδ hψ _ hXY =>
+      blockEnergyFun_rowAgree (compWeight L a₁) ν z hZ hBM hαSY hδ hψ hXY)
 
 /-- **Core of `evDec_local_rawY`, for any functional `Φ`.**  If the fan of `Φ` along the masked
 tangent is local for the sharp agreement relation on the components (`hloc`, the conclusion of
