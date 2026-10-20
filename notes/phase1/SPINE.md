@@ -810,6 +810,23 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * (d) the exact two-torus agreement of `a`. It needs the complete localization of the last integral, with the winding remainder
        on winding polymers (SPINE-AUDIT-2 (d)); the landed results give closeness;
      * (e) the amplitude `c₉/4`: the `ℳ^{(k+1)}_0` part is `≤ (c₉/2)e^{−(κ+1)|X|_#}` by the ties, the rest is small in `β`.
+   * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
+     `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
+     every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
+     `blocks × Fin N`, measure preserving, `integral_spinField`); `Spine/FinalSfGauss.lean` (`integral_sfFactor2_gauss`: for every cut `Y`, every positive
+     definite `Kq` on `blocks × Fin N` and centre `ψ₀`, `∫ sfFactor2 C vc Y = Z_Kq ∫ sfGaussIntegrand dγ`, `sfGaussIntegrand = sfFactor2(ψ₀ + Kq^{-1/2}w)·e^{Q_Kq(Kq^{-1/2}w)/2}`;
+     `sfIntegral_eq_gauss` is `Y = univ`; measurability of `ψ ↦ sfFactor2` is a hypothesis); `Spine/FinalSfUniv.lean` (`EresJ2_univ`, `EresK2_univ`: `F_{k_f} = Σ_{j≤k} Edens` of
+     Def-6 at `ψ^{(j)}_k`, minus the full double sum `corrSum`; `Fres_univ`: `⟨g,φ̄⟩ + Σ_j Floc`; `Rres_univ`).
+     **Findings.** (C) `corrSum` vanishes on the whole torus only for symmetric coefficients (`EresJ2_univ_of_symm`; `corrSum_self_eq_zero`); `CorrCoef`/`D1CorrLim` do not
+     state `vc.v1 j (-z) = vc.v1 j z` (same for `v2`), and without it `Ares2` at `Y = univ` carries the extra term `-corrSum`, a nonzero translation-invariant quadratic form in `ψ`
+     (it would shift the Hessian). (D) The cutoff: `chiY` is the product of `Reg` conditions (`|ψ_y − ψ_{y'}| < δ`, `||ψ_y|²−1| < δ`, directional clauses) — a region in the
+     `ψ`-space, sandwiched between `w`-boxes but not a `w`-box; the landed pipeline (`cutoffInteraction_final_*`, `norm_coef_cutoff_class_le_levels`) integrates over the box
+     `∀ y, |ψ' y| ≤ pLog` of the Gaussian variable, so `sfIntegral` equals the model integral only up to `∫_{Reg ∖ box}`, which is a tail of Gaussian size but not a localized
+     analytic term (decision needed: define the small-field class by the box in the Gaussian variable, or treat `Reg ∖ box` as tail gas as in `FinalTail*`). (E) The main action
+     `−β₀ actStar` is not quadratic in `ψ_k`: `φ̄` is the unit-sphere minimizer. The Hessian at `ψ ≡ h` is `finalHessian` by `linearResponse` (`Background/LinearResponse`) and
+     the envelope formula `V' = ⟨ψ − Qφ̄, aδ⟩`, `V'' = a − aQ(G − Π)Q*a`; the cubic part `V³` of the value function (analytic by `theorem52_analytic`) belongs to the interaction
+     (DAPHYS PHYS-CUBIC), it is not in `F_{k_f} = Σ Edens`. Next pieces, in order: (P1) `V(h1) = 0`, `φ̄(h1) = h` (`bgFieldC_eq`, `ConstantConfig`), `Hess V = finalHessian` and
+     `V³ = O(|δ|³)` on a polydisc; (P2) `hθ`/the datum lemma beyond `k₀`; (P3) the chain `sfFactor2 → ∫ over box of exp(F∘Λ)` with the cut `Y`.
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
    `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.

@@ -22,6 +22,8 @@ public import Balaban.Green.SchurVariational
 public import Balaban.Green.UnitLattice
 public import Balaban.Green.FinalHessian
 public import Balaban.Green.GaussianChangeGeneral
+public import Balaban.Green.FinalGaussBochner
+public import Balaban.Green.FinalSpinCurry
 public import Balaban.Lattice.Blocks
 public import Balaban.Lattice.BlockAverage
 public import Balaban.Gaussian.Integral
@@ -2894,6 +2896,9 @@ public import Balaban.Spine.FrozenStep
 public import Balaban.Spine.LastIntegral
 public import Balaban.Spine.FinalRepGroup
 public import Balaban.Spine.FinalRepRemoval
+public import Balaban.Spine.FinalSfGauss
+public import Balaban.Spine.FinalSfConst
+public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
 public import Balaban.Spine.KfZeroGood
