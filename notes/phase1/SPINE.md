@@ -1227,3 +1227,21 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 * `r4Fresh_aggregate_of_localization` gives `Σ_Y r4Fresh = F S u 1` only under the P3 §4 premises (`Localization.localization_expansion`): `F` analytic in the cut parameters on the P3 polydisc, bounded, and cut-local (`hcut`: it depends on the removed members only through those meeting `Y`).
 * `F` is not definable now: the residual is analytic and local only on the global H7 domain, and "analytic and local on the global domain" does not give a local analytic extension to cut-open parameters (`GENERATOR.md`, REFUTED, counterexample `1/(z - 3/2)`); an `h`-independent canonical extension off the fibre is also refuted (`OFFFIBRE.md`).
 * Needed: a construction of `F` from the old kernels and the removed operators with its analyticity polydisc and cut-locality proved, then the tie `r4Coupling = Rep.B` (`r4Coupling_empty` is not a consequence of the aggregate identity, `AUDIT-DEFS-1018.md`). Rows (d)(e) depend on this: the integral identity `∫ρ' = ∫ρ` of `GasOutput` is about the `ρ'` it produces.
+
+## FrozenSFStepInput split (W1148, 2026-10-20)
+
+**PROVED** (`Spine/FrozenSFStep.lean`; axioms `propext, Classical.choice, Quot.sound`): `frozenSFStepInput_of_parts` from the frozen sub-inputs and `FrozenLFStepInput`
+(parameters `hP : PrefixInput`, `hQ : FlowRateInput`, the map `Φ♭`). Pieces:
+1. **Sub-spine core** (proved): `sfSucc_core` (`Spine/SFStepClauses.lean`) is the class-independent core of `sfSucc_clauses` (which is its instance for `D2SF2`); `sfFlatSucc_clauses`
+   (`Spine/FrozenSFClauses.lean`) is its instance for `SFFlat2`/`D9Flat` at `massOne P6` and the allowance `1`. `SFFlatClassAt`, `FlatRep.sfFlatClassAt`, `sfFlatClassAt_witness` (rule 10).
+2. **A4-1a–f, i at complete backgrounds** (`Spine/FrozenSFImage.lean`): `FrozenInheritInput`, `FrozenNewLevelInput`, `FrozenRenormInput` (`massOne P6`), `FrozenDensityInput`,
+   `FrozenRemainderInput` (allowance 1), `FrozenCoherenceInput`, `FrozenIntegrableInput`: the landed properties `SFInheritQ`, … (extracted from `Spine/SFStep.lean`, body-only refactor,
+   `SFImageInputGen`, `StepIntegrableInputGen`) over the scales `max(k₀,1) ≤ k < k̂_f` and the class `SFFlatClassAt` with `ν_k L² ≤ 7/8`. No copies. A4-1g has no frozen analogue (no vacuum flow in `ℛ♭`, no `R`).
+   Status: open, same as the pre-`R` inputs (they need the exemption of the seven inputs).
+3. **The switch at `k = k₀`.** FLUCT-A withdraws the two-stage switch: at `k = k₀` one complete small-field step, like every other scale. What remains is the SF/LF interface
+   (`OPEN-SF-LF-INTERFACE`): `FrozenSwitchInput ifc` states `SFtoLFInterface` for the data of a member of `ℛ♭_{k₀}` (open); `frozenSwitch_of_lt` proves it for `k > k₀` (zero kernel data).
+4. **Frozen large-field data**: `FrozenLFStepInput` (open): the data `lf'` of the successor (no hull, no `R`) with `D4Pin (k+2)`, `Coh`, `LFCoherent`, and `IsRepFlat2` **given** (H6♭).
+   (H6♭) is proved: `frozenBudget_of_pin` (`Spine/FrozenSFBudget.lean`: `Rep.budgetFlat_of_LF2_trunc` on `budgetSetupToOfRun` (`Spine/BudgetSetupOfRun.lean`, extracted from the transfer)
+   and `prefixBudgetFacts` (`Spine/PrefixBudget.lean`, extracted from `transferInput_of_prefix`)).
+Refactors of landed proofs: `transferInput_of_prefix` now uses `prefixBudgetFacts` and `budgetSetupToOfRun`; `SFStep.lean` definitions `SFImageInput`, `StepIntegrableInput` and the six
+sub-inputs are built from the new generic forms (definitionally the same statements).
