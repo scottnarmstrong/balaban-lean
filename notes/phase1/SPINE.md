@@ -821,6 +821,21 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      and `FinalLargeFieldInput` as stated holds only if `n₀ = 1` (or the removal histories are absent for the classes that occur). The class
      clauses (`IsRep2`) do not state `n₀ = 1`; to be decided: either a class clause / an `R`-step theorem that the removal histories
      carry their `R`-output elsewhere, or the representation of the empty region as `n₀ Ξ^sf` with `n₀` counted in the gas.
+     **n₀ settled (W1151, `Spine/FinalRepRemoval.lean`).** (a) Yes: `IsComplete k (k+1)` keeps one history per class of `Agree k (k+1)`, which compares
+     `P,Q,R,S` of the steps `j < k` and `Rem_j, j ≤ k`; the regions `Z_j, j ≤ k` are functions of these records (`LabHist.Agree.region_eq`). Two global
+     histories with `Z_k = ∅` that do not agree therefore give two elements of every complete set with empty region (`two_le_card_empty_region`).
+     (b) Each carries `postTerm2 = sfFactor2 C vc univ` with the same `C = F.ctx`, `vc` (`postTerm2_of_region_empty`): `C` is built from `F.sf` and constants,
+     `PostComp A k` is empty and `bdryDoms _ ∅ = ∅`, so neither the removed components nor their gas weights enter the term of that history; `ℛ''` is one
+     class-level term of `F.sf` and is not summed over histories. (c) n₀ = 1 is not derivable; a landed definition forces n₀ ≥ 2: at the genuine-radii
+     witness (`wS`, `k₀ = k_f = T`, horizon `K = T+1`, `RipeRemoval.ripeRemHistory`, the ripe component of `Z^pre_T` removed at `T`, `Z_T = ∅`; against the
+     trivial history) every `hist` with `IsComplete T (T+1)` has `2 ≤ #{A : lastRegion A T = ∅}` (`two_le_card_empty_region_ripeRem`). The same holds at
+     every `k ≥ T` and for the pre class (`IsComplete k k`, removal at `j < k`). **Consequence:** for `D1Form2` the small-field part of `ρ` is `n₀ · sfFactor2 univ`,
+     `n₀ ≥ 2`, while the source has one term whose exponent contains `ℛ''` (P7 (3.28)): the removed alternative must carry the weight `τ` of the removed
+     cluster (P7 (3.22)-(3.27), R4), which `postTerm2` does not. **Defect:** `postTerm2`/`integrand2` (`Def7v2Form.lean`) together with `IsComplete`
+     (`Def7Hist.lean:144`), `LabHist.Agree` (`Def7Hist.lean:81`). **Proposed change (either):** (i) `D1Form2` sums over classes of `Agree` modulo removal of components
+     that do not meet `Z_k` (merge histories with the same post region and the same surviving records; their weights go into `ℛ''`); or (ii) multiply
+     `postTerm2 A` by the removed-gas weight `∏_{c removed at scales ≤ k} τ_A(c)` (decorated by the removed members, R4) so that the removed alternatives are not copies of
+     `sfFactor2 univ`. Not changed here (rule 3 of the brief); `FinalLargeFieldInput` as stated is false in a parameter range where a ripe removal with `Z_k = ∅` exists.
      **Why `𝕋'_{k+1}` is not defined (design obstruction).** In the source `𝕋'_{k+1}(Z_{k+1}, 𝔸')` is not a datum of the class: it is produced by
      (4.2)–(4.9): the decomposition of unity on the layer, the Gaussian integral over the fluctuation of the exterior `Z_{k+1}^c` around the
      `Z_{k+1}`-dependent saddle `ψ_0^{(k)} = Q_k φ_{k,0}` ((4.3)–(4.8), massive problem), leaving an integration over the variables of `Z_{k+1}` only with
