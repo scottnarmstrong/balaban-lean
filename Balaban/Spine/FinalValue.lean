@@ -178,18 +178,16 @@ theorem actionC_const_line (e : Fin N → ℝ) (t : ℂ) (φ : G.Ω 1 × Fin N �
 def constVec (G : GeneratingSet d L N₀ k ϱ) (e : Fin N → ℝ) : G.Ω 1 → Fin N → ℂ :=
   fun _ i => (e i : ℂ)
 
-/-- **The second variation of the variational function at the constant configuration.**
-For `D₀ = (e, e)`, `|e| = 1`, and a real tangent datum `E` vanishing off `Ω₁` with `h̃ = 0`, the value
-of the action at the background field of `D₀ + tE` is, to second order,
-`t² (A(E, 0) − ½ ⟨φ̇, Ṡ⟩)`, with `Ṡ = source E` and `φ̇ = (H⁻¹ − Π) Ṡ`, `H = H_{D₀}(0)`,
-`Π = constrainedOp H⁻¹ e`. -/
-theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) :
-    Tendsto (fun t : ℂ => actionC G a ν ((constUnitBg G e).lineAt E t)
-        (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t)) / t ^ 2) (𝓝[≠] 0)
-      (𝓝 (actionC G a ν ((bgZero G N).lineAt E 1) 0 -
-        (1 / 2) * pair G ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
-          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E)
-          (source G a ν E))) := by
+omit hE hEh in
+/-- **The response data at the constant configuration**: the difference quotient of the background
+field converges to `φ̇ = (H⁻¹ − Π) Ṡ`, and `⟨φ̇, H φ̇⟩ = ⟨φ̇, Ṡ⟩`. -/
+theorem const_response (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) :
+    ∃ φd : G.Ω 1 × Fin N → ℂ,
+      φd = (liftOp N (dirichletOperator G a ν 0)⁻¹ -
+          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E ∧
+      Tendsto (fun t : ℂ => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
+        ((constUnitBg G e).lineAt E t) - constUnitPhi G e)) (𝓝[≠] 0) (𝓝 φd) ∧
+      pair G φd (liftOp N (dirichletOperator G a ν 0) *ᵥ φd) = pair G φd (source G a ν E) := by
   classical
   set D₀ := constUnitBg G e with hD₀
   have hD := constUnitBg_inUnionDomainC (G := G) (a := a) H he
@@ -231,7 +229,6 @@ theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he 
     have : liftOp N (dirichletOperator G a ν 0) *ᵥ φd = source G a ν E -
         fieldMul (constVec G e) *ᵥ αd := by rw [← E1]; abel
     rw [this, pair_sub_right, hpT, sub_zero]
-  -- the difference quotient
   set u : ℂ → G.Ω 1 × Fin N → ℂ := fun t => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
     (D₀.lineAt E t) - constUnitPhi G e) with hu
   have h1' : HasDerivAt (fun t : ℂ => bgFieldC G a ν (bgC0 d L N) (D₀.lineAt E t) -
@@ -240,6 +237,26 @@ theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he 
     have := (hasDerivAt_iff_tendsto_slope_zero.1 h1')
     refine this.congr fun t => ?_
     simp only [hu, zero_add, BgData.lineAt_zero, hf0, sub_self, sub_zero]
+  exact ⟨φd, hφ, hlim, hH0⟩
+
+/-- **The second variation of the variational function at the constant configuration.**
+For `D₀ = (e, e)`, `|e| = 1`, and a real tangent datum `E` vanishing off `Ω₁` with `h̃ = 0`, the value
+of the action at the background field of `D₀ + tE` is, to second order,
+`t² (A(E, 0) − ½ ⟨φ̇, Ṡ⟩)`, with `Ṡ = source E` and `φ̇ = (H⁻¹ − Π) Ṡ`, `H = H_{D₀}(0)`,
+`Π = constrainedOp H⁻¹ e`. -/
+theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) :
+    Tendsto (fun t : ℂ => actionC G a ν ((constUnitBg G e).lineAt E t)
+        (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t)) / t ^ 2) (𝓝[≠] 0)
+      (𝓝 (actionC G a ν ((bgZero G N).lineAt E 1) 0 -
+        (1 / 2) * pair G ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
+          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E)
+          (source G a ν E))) := by
+  classical
+  obtain ⟨φd, hφ, hlim, hH0⟩ := const_response E H he
+  set D₀ := constUnitBg G e with hD₀
+  have hf0 : bgFieldC G a ν (bgC0 d L N) D₀ = constUnitPhi G e := bgFieldC_constUnitBg H he
+  set u : ℂ → G.Ω 1 × Fin N → ℂ := fun t => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
+    (D₀.lineAt E t) - constUnitPhi G e) with hu
   set W := actionC G a ν ((bgZero G N).lineAt E 1) 0 with hW
   set g : (G.Ω 1 × Fin N → ℂ) → ℂ := fun w => W +
     (1 / 2) * pair G w (liftOp N (dirichletOperator G a ν 0) *ᵥ w) - pair G w (source G a ν E)
@@ -268,6 +285,67 @@ theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he 
   rw [hgφ] at hfin
   rw [hφ] at hfin
   exact hfin
+
+omit hE hEh in
+/-- Changing the mass in the action only changes the last summand. -/
+theorem actionC_mass_change (ν' : ℝ) (D : BgData G N) (φ : G.Ω 1 × Fin N → ℂ) :
+    actionC G a ν' D φ = actionC G a ν D φ +
+      (((ν' - ν : ℝ) : ℂ) / 2) * ∑ x : G.Ω 1, ∑ i, (φ (x, i) - D.h x i) * (φ (x, i) - D.h x i) := by
+  unfold actionC
+  push_cast
+  ring
+
+/-- **The second variation with a different action mass** (`ν'` in the action, `ν` in the
+background): the limit of `value_quadratic_limit` plus `½ (ν' − ν) ⟨φ̇, φ̇⟩`. -/
+theorem value_quadratic_limit_mass (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ}
+    (he : ∑ i, e i ^ 2 = 1) (ν' : ℝ) :
+    Tendsto (fun t : ℂ => actionC G a ν' ((constUnitBg G e).lineAt E t)
+        (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t)) / t ^ 2) (𝓝[≠] 0)
+      (𝓝 (actionC G a ν ((bgZero G N).lineAt E 1) 0 -
+        (1 / 2) * pair G ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
+          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E)
+          (source G a ν E) +
+        (((ν' - ν : ℝ) : ℂ) / 2) * pair G ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
+          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E)
+          ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
+          constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E))) := by
+  classical
+  obtain ⟨φd, hφ, hlim, -⟩ := const_response E H he
+  have main := value_quadratic_limit E hE hEh H he
+  set u : ℂ → G.Ω 1 × Fin N → ℂ := fun t => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
+    ((constUnitBg G e).lineAt E t) - constUnitPhi G e) with hu
+  have hpc : Continuous fun w : G.Ω 1 × Fin N → ℂ => pair G w w := by
+    unfold pair; fun_prop
+  have hlim2 : Tendsto (fun t => (((ν' - ν : ℝ) : ℂ) / 2) * pair G (u t) (u t)) (𝓝[≠] 0)
+      (𝓝 ((((ν' - ν : ℝ) : ℂ) / 2) * pair G φd φd)) :=
+    (((hpc.tendsto φd).comp hlim).const_mul _)
+  have hsum := main.add hlim2
+  rw [← hφ] at hsum ⊢
+  refine hsum.congr' ?_
+  filter_upwards [self_mem_nhdsWithin] with t ht
+  have ht0 : t ≠ 0 := ht
+  have hh : ∀ x : G.Ω 1, ∀ i, ((constUnitBg G e).lineAt E t).h x i = (e i : ℂ) := fun x i => by
+    simp [BgData.lineAt, constUnitBg_h x.2, hEh]
+  rw [actionC_mass_change (ν := ν) ν']
+  have hτ : ∑ x : G.Ω 1, ∑ i, (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) (x, i) -
+      ((constUnitBg G e).lineAt E t).h x i) *
+      (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) (x, i) -
+        ((constUnitBg G e).lineAt E t).h x i) = t ^ 2 * pair G (u t) (u t) := by
+    have hτu : bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) - constUnitPhi G e =
+        t • u t := by simp only [hu]; rw [smul_inv_smul₀ ht0]
+    set τ := bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) - constUnitPhi G e with hτdef
+    have e1 : ∑ x : G.Ω 1, ∑ i, (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) (x, i) -
+        ((constUnitBg G e).lineAt E t).h x i) *
+        (bgFieldC G a ν (bgC0 d L N) ((constUnitBg G e).lineAt E t) (x, i) -
+          ((constUnitBg G e).lineAt E t).h x i) = pair G τ τ := by
+      unfold pair
+      rw [Fintype.sum_prod_type]
+      refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+      simp only [hτdef, Pi.sub_apply, hh x i, constUnitPhi]
+    rw [e1, hτu, pair_smul_left, pair_smul_right']
+    ring
+  rw [hτ]
+  field_simp
 
 end Const
 
