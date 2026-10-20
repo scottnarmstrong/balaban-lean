@@ -1163,3 +1163,19 @@ for fixed `Z'`; the offsets `δ″, δ‴` multiply the other two regions and ca
 (ruling R10, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
 by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; excesses 2, 3 are `Ω∖Ω″` and `Ω″` inside `Z_k`, needing a geometric bound
 `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` from the definition of `Ω`.
+
+**Settlement of the constants (W1148, 2026-10-20).**
+* Consumer: only `StepData.b_ref_bound` (`StepVacuumR5.lean`) and the removed-weight cancellation read `b0_bound`; both already carry the slack `D·V`
+  (`‖b + E_ref V‖ ≤ (C_b log β + C_b B₀)|Z_{k+1}∖Z_k| + D V`, `D = C(log β + 1)`, `V = stepVacuumVolume`). `b_bound` is consumed only as the bound of `b` itself.
+* The vacuum term is not absorbed by the normalization `s` for an input record: `s` and the vacuum map `vacMap` fix the *new* constant `E_{k+1}` of the
+  step (tie by construction, inside `LFStepDataInput`); for a record of `ℛ^pre_k` the data `rec.F.lf.SD` already have their own constants `vacE, vacEpp, vacEppp`
+  with `b0_bound`, and `rec.Ev` is a separate flow constrained only by `|E_j| ≤ C_b(log β_j + 1)` (`PreRec.vac`).
+* Exact cost of retying to the flow (`norm_b_add_flowVacuumTerm_le`, `Spine/RVacuumRetieBound.lean`, proved): `‖b + vac(E, E+δ″, E+δ‴)‖ ≤ (C_b log β + C_b B₀)|Z_{k+1}∖Z_k| + D V`,
+  `D ≥` the three differences to `vacE, vacEpp, vacEppp`. `VacuumB0Bound` asks the same bound with `D V` removed, which is a cancellation: it holds in general only when the
+  constants of `SD` already equal the flow (up to `D V ≤ ` the slack in `C_b B₀`). It is not a consequence of the geometry `V ≲ |Z_{k+1}∖Z_k|`
+  (which would give `D V ≲ C(log β + 1)|Z_{k+1}∖Z_k|`, exceeding the constant by `C(log β + 1)`).
+* Consequence: `RVacuumB0Input` as stated (for an arbitrary `PreRec` and flow) is not provable: there is no inequality in P4 (2.1), (2.41), (2.63), (4.21) that gives
+  it; in the source the flow `E_k` *is* the vacuum constant of the step that created the component (Lemma II.5.14, (S0) with the constants of the step), so the
+  tie is a clause of the construction. Repair: put the tie into the record (`PreRec` carries `SD.vacE = Ev`, `VacuumTie` as a field, as `LFStepDataInput` already does
+  for the successor) or weaken `VacuumB0Bound` to the bound with slack `D V` and give `StepData` a `b0_bound'` with that slack. Both change a landed statement:
+  needs the orchestrator. The geometry `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` is then only needed for the slack form and is not attempted here.

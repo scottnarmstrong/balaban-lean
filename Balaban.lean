@@ -2906,6 +2906,7 @@ public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
 public import Balaban.Spine.RVacuumTie
 public import Balaban.Spine.RVacuumB0Defect
+public import Balaban.Spine.RVacuumRetieBound
 public import Balaban.Spine.LFStep
 public import Balaban.Spine.LFBdryHole
 public import Balaban.Spine.LFBdry
