@@ -451,27 +451,31 @@ section Consumer
 variable {Ω : Balaban.Torus d m' → Type*} [∀ b, MeasurableSpace (Ω b)]
   (μ : ∀ b, Measure (Ω b)) [∀ b, IsProbabilityMeasure (μ b)]
 
-/-- **The block gas theorem (T1, T3).**  On the torus of blocks with the Steiner size, local terms
-`H X`, one for each nonempty set `X` of blocks, measurable, depending only on the blocks of `X`
-and bounded for all configurations by `H0 e^{-(κ0 + κ1) |X|_St}`, with the numerical conditions
-below, satisfy `∫ exp (∑_X H X) d⨂μ = exp (∑_Y P(Y))` with `∑_{Y ∋ b} ‖P(Y)‖ e^{κ' |Y|_St} ≤
-64 e H0 e^{-2 κ0}`.  The hypotheses (G1)-(G3) of `mayer_pe` are supplied by the Steiner geometry
+/-- **The block gas theorem with general weights.**  On the torus of blocks with the Steiner
+size, weights `f X`, one for each nonempty set `X` of blocks, measurable, depending only on the
+blocks of `X`, with an integrable dominating function `∏_X (1 + |f X|)` and the product bound
+`|∫ ∏_{X ∈ C} f X| ≤ ∏_{X ∈ C} 2 H₀ e^{-(κ₀ + κ₁) |X|_St}`, satisfy
+`∫ ∏_X (1 + f X) d⨂μ = exp (∑_Y P(Y))` with `∑_{Y ∋ b} ‖P(Y)‖ e^{κ' |Y|_St} ≤ 64 e H0 e^{-2 κ0}`.
+The hypotheses (G1)-(G3) of `mayerGen_pe` are supplied by the Steiner geometry
 (`card_le_stSize`, `sum_exp_stSize_le`, `stSize_unionCs_le`, `stSize_union_cluster`) with
 `c = cP = 0`, `c1 = 1`, `K0 = K0P = 4 e^{-κ0}`. -/
-theorem block_gas {κ0 κ1 κ' H0 : ℝ}
+theorem blockGen_gas {κ0 κ1 κ' H0 : ℝ}
     (hq : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
     (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκ : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
-    (hH0 : 0 ≤ H0) (hH0log : H0 ≤ Real.log 2) (hH0K : H0 * (4 * Real.exp (-κ0)) ≤ 1 / 4)
-    (H : NePoly (Balaban.Torus d m') → (∀ b, Ω b) → ℂ)
-    (hloc : ∀ X, DepOn X.1 (H X)) (hmeas : ∀ X, Measurable (H X))
-    (hbd : ∀ X Φ, ‖H X Φ‖ ≤ H0 * Real.exp (-(κ0 + κ1) * stSize X.1)) :
-    ∫ Φ, Complex.exp (∑ X, H X Φ) ∂(Measure.pi μ) =
+    (hH0 : 0 ≤ H0) (hH0K : H0 * (4 * Real.exp (-κ0)) ≤ 1 / 4)
+    (f : NePoly (Balaban.Torus d m') → (∀ b, Ω b) → ℂ)
+    (hloc : ∀ X, DepOn X.1 (f X)) (hmeas : ∀ X, Measurable (f X))
+    (hdom : Integrable (fun Φ => ∏ X, (1 + ‖f X Φ‖)) (Measure.pi μ))
+    (hprod : ∀ C : Finset (NePoly (Balaban.Torus d m')), ‖∫ Φ, ∏ X ∈ C, f X Φ ∂(Measure.pi μ)‖ ≤
+      ∏ X ∈ C, (mayerRho (fun X : NePoly (Balaban.Torus d m') => X.1) stSize κ0 H0 X *
+        Real.exp (-κ1 * stSize X.1))) :
+    ∫ Φ, ∏ X, (1 + f X Φ) ∂(Measure.pi μ) =
       Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
-        Finset (Balaban.Torus d m'))) (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H)) ∧
+        Finset (Balaban.Torus d m'))) (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f)) ∧
     ∀ b : Balaban.Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Balaban.Torus d m'))).filter
         (fun Y => b ∈ Y),
       ‖PY (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')))
-          Subtype.val (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H) Y‖ *
+          Subtype.val (mayerGenK μ (fun X : NePoly (Balaban.Torus d m') => X.1) f) Y‖ *
         Real.exp (κ' * stSize Y) ≤ 64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
   have hκ0nn : 0 ≤ κ0 := by
     have : 0 ≤ Real.log 4 := Real.log_nonneg (by norm_num)
@@ -496,11 +500,10 @@ theorem block_gas {κ0 κ1 κ' H0 : ℝ}
         _ = 1 := by rw [← Real.exp_add]; simp
     have h2 : 0 ≤ Real.exp 1 := (Real.exp_pos 1).le
     nlinarith [mul_nonneg hH0 hK0]
-  have hmain := mayer_pe (μ := μ) (sup := fun X : NePoly (Balaban.Torus d m') => X.1) (H := H)
+  have hmain := mayerGen_pe (μ := μ) (sup := fun X : NePoly (Balaban.Torus d m') => X.1) (f := f)
     (d := stSize) (H0 := H0) (κ0 := κ0) (κ1 := κ1) (c := 0) (K0 := 4 * Real.exp (-κ0))
     (c1 := 1) (κ' := κ') (κ0P := κ0) (K0P := 4 * Real.exp (-κ0)) (cP := 0)
-    (fun X => X.2) hloc hmeas hH0 hH0log hκ0nn hκ1nn le_rfl (fun Y => stSize_nonneg Y)
-    (fun X Φ => by simpa using hbd X Φ) hK0
+    (fun X => X.2) hloc hmeas hdom hH0 hκ1nn le_rfl (fun Y => stSize_nonneg Y) hprod hK0
     (fun b => by rw [Finset.sum_filter]; convert hG2 b)
     (fun C hC => by simpa using stSize_unionCs_le C hC) zero_le_one hq'
     (fun Y => card_le_stSize Y.1) hK0 hκ' le_rfl
@@ -517,6 +520,43 @@ theorem block_gas {κ0 κ1 κ' H0 : ℝ}
       rw [show -(2 * κ0) = -κ0 + -κ0 by ring, Real.exp_add]; ring
     exact le_of_eq e
   convert (h2 b).trans h4
+
+/-- **The block gas theorem (T1, T3).**  On the torus of blocks with the Steiner size, local terms
+`H X`, one for each nonempty set `X` of blocks, measurable, depending only on the blocks of `X`
+and bounded for all configurations by `H0 e^{-(κ0 + κ1) |X|_St}`, with the numerical conditions
+below, satisfy `∫ exp (∑_X H X) d⨂μ = exp (∑_Y P(Y))` with `∑_{Y ∋ b} ‖P(Y)‖ e^{κ' |Y|_St} ≤
+64 e H0 e^{-2 κ0}`.  The case `f X = e^{H X} - 1` of `blockGen_gas`. -/
+theorem block_gas {κ0 κ1 κ' H0 : ℝ}
+    (hq : ((2 * d : ℕ) : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
+    (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκ : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
+    (hH0 : 0 ≤ H0) (hH0log : H0 ≤ Real.log 2) (hH0K : H0 * (4 * Real.exp (-κ0)) ≤ 1 / 4)
+    (H : NePoly (Balaban.Torus d m') → (∀ b, Ω b) → ℂ)
+    (hloc : ∀ X, DepOn X.1 (H X)) (hmeas : ∀ X, Measurable (H X))
+    (hbd : ∀ X Φ, ‖H X Φ‖ ≤ H0 * Real.exp (-(κ0 + κ1) * stSize X.1)) :
+    ∫ Φ, Complex.exp (∑ X, H X Φ) ∂(Measure.pi μ) =
+      Complex.exp (logSeries (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') →
+        Finset (Balaban.Torus d m'))) (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H)) ∧
+    ∀ b : Balaban.Torus d m', ∑ Y ∈ (Finset.univ : Finset (Finset (Balaban.Torus d m'))).filter
+        (fun Y => b ∈ Y),
+      ‖PY (shareBlock (Subtype.val : NePoly (Balaban.Torus d m') → Finset (Balaban.Torus d m')))
+          Subtype.val (mayerK μ (fun X : NePoly (Balaban.Torus d m') => X.1) H) Y‖ *
+        Real.exp (κ' * stSize Y) ≤ 64 * Real.exp 1 * H0 * Real.exp (-(2 * κ0)) := by
+  have hκ0nn : 0 ≤ κ0 := by
+    have : 0 ≤ Real.log 4 := Real.log_nonneg (by norm_num)
+    linarith
+  obtain ⟨hdom, hprod⟩ := expm1_dom_prod μ (sup := fun X : NePoly (Balaban.Torus d m') => X.1)
+    (d := stSize) hmeas hH0 hH0log hκ0nn (by linarith) (fun Y => stSize_nonneg Y) hbd
+  have hmain := blockGen_gas μ hq hκ0 hκ' hκ hH0 hH0K (fun X Φ => Complex.exp (H X Φ) - 1)
+    (fun X Φ Φ' hΦ => by
+      show Complex.exp (H X Φ) - 1 = Complex.exp (H X Φ') - 1
+      rw [hloc X Φ Φ' hΦ])
+    (fun X => (Complex.measurable_exp.comp (hmeas X)).sub_const 1) hdom hprod
+  have hf : ∀ Φ : ∀ b, Ω b, Complex.exp (∑ X, H X Φ) = ∏ X, (1 + (Complex.exp (H X Φ) - 1)) := by
+    intro Φ
+    rw [Complex.exp_sum]
+    exact Finset.prod_congr rfl (fun X _ => by ring)
+  simp_rw [hf]
+  exact hmain
 
 end Consumer
 

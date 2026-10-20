@@ -33,6 +33,96 @@ variable {B : Type*} [Fintype B] {Ω : B → Type*} [∀ b, MeasurableSpace (Ω 
   {T : Type*} [Fintype T] {sup : T → Finset B} {H : T → (∀ b, Ω b) → ℂ}
   {d : Finset B → ℝ} {H0 κ0 κ1 c K0 c1 κ' κ0P K0P cP : ℝ}
 
+/-- **MY + PE-L, general weights**: the integral of `∏_t (1 + f t)` against a product of
+probability measures, for weights with the product bound of MY (iii) and an integrable dominating
+function `∏_t (1 + |f t|)`, is `exp(L)` for an absolutely convergent cluster sum `L = ∑_Y P(Y)` with
+`∑_{Y ∋ □} |P(Y)| e^{κ' d(Y)} ≤ α e^{-κ' c}`. -/
+theorem mayerGen_pe {f : T → (∀ b, Ω b) → ℂ} (hne : ∀ t, (sup t).Nonempty)
+    (hloc : ∀ t, DepOn (sup t) (f t)) (hmeas : ∀ t, Measurable (f t))
+    (hdom : Integrable (fun Φ => ∏ t, (1 + ‖f t Φ‖)) (Measure.pi μ))
+    (hH0 : 0 ≤ H0) (hκ1 : 0 ≤ κ1) (hc : 0 ≤ c) (hd : ∀ Y, 0 ≤ d Y)
+    (hprod : ∀ C : Finset T, ‖∫ Φ, ∏ t ∈ C, f t Φ ∂(Measure.pi μ)‖ ≤
+      ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))))
+    (hK0 : 0 ≤ K0)
+    (hG2T : ∀ b : B, ∑ t ∈ Finset.univ.filter (fun t => b ∈ sup t),
+      Real.exp (-κ0 * d (sup t)) ≤ K0)
+    (hG3T : ∀ C : Finset T, ConnSet sup C →
+      d (unionCs sup C) ≤ ∑ t ∈ C, d (sup t) + c * ((C.card : ℝ) - 1))
+    (hc1 : 0 ≤ c1) (hq : 2 * H0 * K0 * Real.exp (κ1 * c) * c1 ≤ 1 / 2)
+    (hG1 : ∀ Y : NePoly B, (Y.1.card : ℝ) ≤ c1 * (1 + d Y.1))
+    (hK0P : 0 ≤ K0P) (hκ' : 0 ≤ κ') (hcP : 0 ≤ cP)
+    (hG2P : ∀ b : B, ∑ Y : NePoly B, (if b ∈ Y.1 then Real.exp (-κ0P * d Y.1) else 0) ≤ K0P)
+    (hG3P : ∀ (n : ℕ) (X : Fin (n + 1) → NePoly B),
+      (clusterGraph (shareBlock (Subtype.val : NePoly B → Finset B)) X).Connected →
+        d (unionOf (Subtype.val : NePoly B → Finset B) X) ≤ ∑ i, d (X i).1 + cP * n)
+    (hκ : κ' + κ0P + c1 ≤ κ1 - 3 / 2)
+    (hα : 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP) ≤ 1) :
+    ∫ Φ, ∏ t, (1 + f t Φ) ∂(Measure.pi μ) =
+      Complex.exp (logSeries (shareBlock (Subtype.val : NePoly B → Finset B))
+        (mayerGenK μ sup f)) ∧
+    (∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
+        ‖PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val (mayerGenK μ sup f) Y‖ *
+          Real.exp (κ' * d Y) ≤
+        2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP) *
+          Real.exp (-(κ' * cP))) ∧
+    ‖logSeries (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerGenK μ sup f)‖ ≤
+      Fintype.card B *
+        (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP)) := by
+  have hMY := mayerGen_integral_eq μ hne hloc hmeas hdom
+  have hK : ∀ Y : NePoly B, ‖mayerGenK μ sup f Y‖ ≤
+      (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1) * Real.exp (-(κ1 - 3 / 2) * d Y.1) := by
+    intro Y
+    have := mayerGen_activity_bound μ hmeas hdom hH0 hκ1 hc hd hne hprod hG2T hG3T hc1 hq Y (hG1 Y)
+    calc _ ≤ _ := this
+      _ = _ := by ring
+  have hε : 0 ≤ 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 := by positivity
+  have hpe := pe_size (Subtype.val : NePoly B → Finset B) d
+    (ε := 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1)
+    (κ := κ1 - 3 / 2) (κ' := κ') (κ0 := κ0P) (K0 := K0P) (c := cP) (c1 := c1)
+    hε hK0P hκ' hcP hd (fun Y => Y.2) hG1 hG2P hG3P hκ
+    (by simpa [mul_assoc] using hα) Finset.univ
+    (fun Y => by obtain ⟨b, hb⟩ := Y.2; exact ⟨b, Finset.mem_univ _, hb⟩)
+    (mayerGenK μ sup f) hK
+  obtain ⟨h1, _, h3, h4, _⟩ := hpe
+  rw [← hMY] at h1
+  refine ⟨h1, ?_, ?_⟩
+  · intro b
+    simpa [mul_assoc] using h3 b
+  · simpa [mul_assoc] using h4
+
+/-- The weights `e^{H_t} - 1` of bounded local terms have an integrable dominating function
+`∏_t (1 + |e^{H_t} - 1|)` and the product bound of MY (iii). -/
+theorem expm1_dom_prod (hmeas : ∀ t, Measurable (H t)) (hH0 : 0 ≤ H0) (hH0' : H0 ≤ Real.log 2)
+    (hκ0 : 0 ≤ κ0) (hκ1 : 0 ≤ κ1) (hd : ∀ Y, 0 ≤ d Y)
+    (hH : ∀ t Φ, ‖H t Φ‖ ≤ H0 * Real.exp (-(κ0 + κ1) * d (sup t))) :
+    Integrable (fun Φ => ∏ t, (1 + ‖Complex.exp (H t Φ) - 1‖)) (Measure.pi μ) ∧
+    ∀ C : Finset T, ‖∫ Φ, ∏ t ∈ C, (Complex.exp (H t Φ) - 1) ∂(Measure.pi μ)‖ ≤
+      ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))) := by
+  have hm : ∀ t, Measurable (fun Φ => Complex.exp (H t Φ) - 1) := fun t =>
+    (Complex.measurable_exp.comp (hmeas t)).sub_const 1
+  have hb : ∀ t Φ, ‖Complex.exp (H t Φ) - 1‖ ≤ mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t)) :=
+    fun t Φ => norm_expm1_le_rho hH0 hH0' hκ0 hκ1 hd t Φ (hH t Φ)
+  have hρ0 : ∀ t, 0 ≤ mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t)) := fun t =>
+    mul_nonneg (mayerRho_nonneg hH0 t) (Real.exp_pos _).le
+  have hdom : Integrable (fun Φ => ∏ t, (1 + ‖Complex.exp (H t Φ) - 1‖)) (Measure.pi μ) := by
+    refine Integrable.of_bound
+      (C := ∏ t, (1 + mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))))
+      (Finset.measurable_prod _ fun t _ => measurable_const.add (hm t).norm).aestronglyMeasurable
+      (Filter.Eventually.of_forall fun Φ => ?_)
+    rw [Real.norm_of_nonneg (Finset.prod_nonneg fun t _ => by positivity)]
+    exact Finset.prod_le_prod₀ (fun t _ => by positivity) (fun t _ => by linarith [hb t Φ])
+  have hprod : ∀ C : Finset T, ‖∫ Φ, ∏ t ∈ C, (Complex.exp (H t Φ) - 1) ∂(Measure.pi μ)‖ ≤
+      ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))) := by
+    intro C
+    have := norm_integral_le_of_norm_le_const (μ := Measure.pi μ)
+      (f := fun Φ => ∏ t ∈ C, (Complex.exp (H t Φ) - 1))
+      (C := ∏ t ∈ C, (mayerRho sup d κ0 H0 t * Real.exp (-κ1 * d (sup t))))
+      (Filter.Eventually.of_forall fun Φ => by
+        rw [norm_prod]
+        exact Finset.prod_le_prod₀ (fun t _ => norm_nonneg _) fun t _ => hb t Φ)
+    simpa using this
+  exact ⟨hdom, hprod⟩
+
 /-- **MY + PE-L**. -/
 theorem mayer_pe (hne : ∀ t, (sup t).Nonempty) (hloc : ∀ t, DepOn (sup t) (H t))
     (hmeas : ∀ t, Measurable (H t))
@@ -62,26 +152,20 @@ theorem mayer_pe (hne : ∀ t, (sup t).Nonempty) (hloc : ∀ t, DepOn (sup t) (H
           Real.exp (-(κ' * cP))) ∧
     ‖logSeries (shareBlock (Subtype.val : NePoly B → Finset B)) (mayerK μ sup H)‖ ≤
       Fintype.card B * (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 * K0P * Real.exp (c1 + κ' * cP)) := by
-  have hbdd : ∀ t, Bdd (H t) := fun t => ⟨_, hH t⟩
-  have hMY := mayer_integral_eq μ hne hloc hmeas hbdd
-  have hK : ∀ Y : NePoly B, ‖mayerK μ sup H Y‖ ≤
-      (2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1) * Real.exp (-(κ1 - 3 / 2) * d Y.1) := by
-    intro Y
-    have := mayer_activity_bound μ hH0 hH0' hκ0 hκ1 hc hd hne hH hG2T hG3T hc1 hq Y (hG1 Y)
-    calc _ ≤ _ := this
-      _ = _ := by ring
-  have hε : 0 ≤ 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1 := by positivity
-  have hpe := pe_size (Subtype.val : NePoly B → Finset B) d (ε := 2 * (2 * H0 * K0 * Real.exp (κ1 * c)) * c1)
-    (κ := κ1 - 3 / 2) (κ' := κ') (κ0 := κ0P) (K0 := K0P) (c := cP) (c1 := c1)
-    hε hK0P hκ' hcP hd (fun Y => Y.2) hG1 hG2P hG3P hκ
-    (by simpa [mul_assoc] using hα) Finset.univ (fun Y => by obtain ⟨b, hb⟩ := Y.2; exact ⟨b, Finset.mem_univ _, hb⟩)
-    (mayerK μ sup H) hK
-  obtain ⟨h1, _, h3, h4, _⟩ := hpe
-  rw [← hMY] at h1
-  refine ⟨h1, ?_, ?_⟩
-  · intro b
-    simpa [mul_assoc] using h3 b
-  · simpa [mul_assoc] using h4
+  have hm : ∀ t, Measurable (fun Φ => Complex.exp (H t Φ) - 1) := fun t =>
+    (Complex.measurable_exp.comp (hmeas t)).sub_const 1
+  obtain ⟨hdom, hprod⟩ := expm1_dom_prod μ hmeas hH0 hH0' hκ0 hκ1 hd hH
+  have hmain := mayerGen_pe μ (f := fun t Φ => Complex.exp (H t Φ) - 1) hne
+    (fun t Φ Φ' hΦ => by
+      show Complex.exp (H t Φ) - 1 = Complex.exp (H t Φ') - 1
+      rw [hloc t Φ Φ' hΦ])
+    hm hdom hH0 hκ1 hc hd hprod hK0 hG2T hG3T hc1 hq hG1 hK0P hκ' hcP hG2P hG3P hκ hα
+  have hf : ∀ Φ : ∀ b, Ω b, Complex.exp (∑ t, H t Φ) = ∏ t, (1 + (Complex.exp (H t Φ) - 1)) := by
+    intro Φ
+    rw [Complex.exp_sum]
+    exact Finset.prod_congr rfl (fun t _ => by ring)
+  simp_rw [hf]
+  exact hmain
 
 end MayerPE
 
