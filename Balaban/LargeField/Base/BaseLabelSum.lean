@@ -67,6 +67,17 @@ theorem labelZ_pos (d L k ρs : ℕ) (κ : ℝ) : 0 < labelZ d L k ρs κ := by
     by exact_mod_cast lt_of_lt_of_le (Nat.succ_pos _) (le_max_left _ _)
   positivity
 
+theorem labelAmp_nonneg (d L m₀ m₁ k ρs : ℕ) (κ : ℝ) {B : ℝ} (hB : 0 ≤ B)
+    (hz : labelZ d L k ρs κ < 1) : 0 ≤ labelAmp d L m₀ m₁ k ρs κ B := by
+  have hz0 := labelZ_pos d L k ρs κ
+  have hc1 : 0 ≤ c1 d L := by unfold c1; positivity
+  have h1z : 0 < 1 - labelZ d L k ρs κ := by linarith
+  have hlam : 0 < -Real.log (labelZ d L k ρs κ) := by
+    have := Real.log_neg hz0 hz; linarith
+  unfold labelAmp
+  have : 0 ≤ 1 + 2 / (-Real.log (labelZ d L k ρs κ) / ((2 * d * L : ℝ) * (20 : ℝ) ^ d)) := by positivity
+  positivity
+
 open Classical in
 /-- **The sum of the rooted coefficients with a given label decays in the size of the label.**
 Let `c x Cs` be coefficients of the finite families `Cs` of cells of a decoupling cover, non-zero

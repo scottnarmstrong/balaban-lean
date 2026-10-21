@@ -51,6 +51,12 @@ noncomputable def chartFe (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (a : �
     (x : G.Ω 1) (u : (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) : ℂ :=
   chartSite β (fun y i => u.1 (y, i)) (baseHamiltonian G a ν u.2 (fun _ => 1)) g (W u *ᵥ ψ) x
 
+theorem chartBound_nonneg (d L N : ℕ) (a1 ν β Aα Ee BW p₁ Gg : ℝ) (hβ : 0 < β) (hA : 0 ≤ Aα)
+    (hE : 0 ≤ Ee) (hBW : 0 ≤ BW) (hp : 0 ≤ p₁) (hG : 0 ≤ Gg) :
+    0 ≤ chartBound d L N a1 ν β Aα Ee BW p₁ Gg := by
+  unfold chartBound
+  positivity
+
 theorem chartFunctional_bound (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (a : ℕ → ℝ)
     (ν β : ℝ) (hβ : 0 < β) (g ψ : G.Ω 1 × Fin N → ℂ) (x : G.Ω 1)
     (W : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)
