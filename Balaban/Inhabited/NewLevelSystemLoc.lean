@@ -210,6 +210,96 @@ theorem coeff_eq_coeffLoc_of_agree (eps' : ℝ) (Zb : Finset (unitPts Gl))
     (NS.G_dep θ) hA hG
 
 open Classical in
+/-- **The fields of the recomputed activities of the labels inside `T` from their parts**: the
+zero-source and old activities of the labels inside `T` with their fields give the fields of the
+activity family `actBg` on every label inside `T` (`0` on the root-union labels). -/
+theorem actBg_fields_of_parts {eps : ℝ}
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
+    {εH κH : ℝ} {𝒰 : Set ℂ}
+    -- the zero-source activities of the labels inside `T`
+    (h0meas : ∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}), InPoly T Y.1 → Measurable (zeroActBg S Gl
+      (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+      (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+      taylorWeight NS.p₁ NS.hp eps θb u Y.1))
+    (h0bd : ∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}) Φ, InPoly T Y.1 → ‖zeroActBg S Gl
+      (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+      (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+      taylorWeight NS.p₁ NS.hp eps θb u Y.1 Φ‖ ≤
+        εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1))
+    (h0hol : ∀ Y : {Y // Y ∈ NS.Z.I.𝒴}, InPoly T Y.1 → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => zeroActBg S Gl
+        (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+        (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+        taylorWeight NS.p₁ NS.hp eps p.1 p.2 Y.1 Φ)
+        (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰))
+    (h0cont : ∀ Y : {Y // Y ∈ NS.Z.I.𝒴}, InPoly T Y.1 → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      ∀ u ∈ 𝒰, Continuous (zeroActBg S Gl
+        (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+        (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+        taylorWeight NS.p₁ NS.hp eps θb u Y.1))
+    -- the old activities of the labels inside `T`
+    (h1meas : ∀ θb u (Y : {Y // Y ∈ NS.𝒴C}), InPoly T Y.1 → Measurable (oldActBg S Gl
+      (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+      NS.O.𝒦X F₁L' SolL'
+      (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u))
+    (h1bd : ∀ θb u (Y : {Y // Y ∈ NS.𝒴C}) Φ, InPoly T Y.1 → ‖oldActBg S Gl
+      (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+      NS.O.𝒦X F₁L' SolL'
+      (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u Φ‖ ≤
+        εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1))
+    (h1hol : ∀ Y : {Y // Y ∈ NS.𝒴C}, InPoly T Y.1 → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => oldActBg S Gl
+        (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+        NS.O.𝒦X F₁L' SolL'
+        (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+          (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C p.1 Y p.2 Φ)
+        (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰))
+    (h1cont : ∀ Y : {Y // Y ∈ NS.𝒴C}, InPoly T Y.1 → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      ∀ u ∈ 𝒰, Continuous (oldActBg S Gl
+        (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+        NS.O.𝒦X F₁L' SolL'
+        (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+          (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u))
+    (hεpos : 0 < εH) :
+    (∀ θb u y, InPoly T (NS.Lab.ysite y) →
+      Measurable (NS.actBg F₂' Sol₂' F₁L' SolL' eps θb u y)) ∧
+    (∀ θb u y Φ, InPoly T (NS.Lab.ysite y) →
+      ‖NS.actBg F₂' Sol₂' F₁L' SolL' eps θb u y Φ‖ ≤ εH * Real.exp (-κH * NS.Lab.dl y)) ∧
+    (∀ y, InPoly T (NS.Lab.ysite y) → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => NS.actBg F₂' Sol₂' F₁L' SolL' eps p.1 p.2 y Φ)
+        (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰)) ∧
+    (∀ y, InPoly T (NS.Lab.ysite y) → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps, ∀ u ∈ 𝒰,
+      Continuous (NS.actBg F₂' Sol₂' F₁L' SolL' eps θb u y)) := by
+  refine ⟨fun θb u y hy => ?_, fun θb u y Φ hy => ?_, fun y hy Φ => ?_,
+    fun y hy θb hθb u hu => ?_⟩
+  · rcases y with (Y | Y | r) | r
+    · exact h0meas θb u Y hy
+    · exact h1meas θb u Y hy
+    · exact measurable_const
+    · exact measurable_const
+  · rcases y with (Y | Y | r) | r
+    · exact h0bd θb u Y Φ hy
+    · exact h1bd θb u Y Φ hy
+    · show ‖(0 : ℂ)‖ ≤ _
+      rw [norm_zero]
+      exact mul_nonneg hεpos.le (Real.exp_pos _).le
+    · show ‖(0 : ℂ)‖ ≤ _
+      rw [norm_zero]
+      exact mul_nonneg hεpos.le (Real.exp_pos _).le
+  · rcases y with (Y | Y | r) | r
+    · exact h0hol Y hy Φ
+    · exact h1hol Y hy Φ
+    · exact analyticOnNhd_const
+    · exact analyticOnNhd_const
+  · rcases y with (Y | Y | r) | r
+    · exact h0cont Y hy θb hθb u hu
+    · exact h1cont Y hy θb hθb u hu
+    · exact continuous_const
+    · exact continuous_const
+
+open Classical in
 /-- **Analyticity and bound of the coefficient recomputed from the labels inside `T`, from its
 parts** (the form of (A1), (A2)).  Let `V` be the parameters of the chart of `Gl` of radius
 `ε ≤ ε′` (`physVBg`), and let the parts gated at `ε` have, for the labels and anchors inside `T`, the
@@ -317,48 +407,112 @@ theorem coeffLoc_analytic_bound_of_parts {eps eps' : ℝ} (hle : eps ≤ eps')
             (∑ i, F0 i * Real.exp (-NS.Z.κ0 * NS.Lab.dl (NS.y0 i))) * Real.exp (-κ' * dExt T) := by
   have hV : IsOpen (physVBg N Gl S.a₁ S.ν eps) := isOpen_physVBg Gl S.a₁ S.ν eps HB'
   have hent := (NS.A 0 0).entropy
+  obtain ⟨hmeas, hbd, hhol, hcont⟩ := NS.actBg_fields_of_parts F₂' Sol₂' F₁L' SolL' T h0meas h0bd
+    h0hol h0cont h1meas h1bd h1hol h1cont hεpos
   have key := newLevelCoeffLoc_analytic_bound Gl (S.blockSplit 1 NS.hp).μ NS.Z.hN (compWeight L 1)
     1 S.ν (rho4 d L N NS.BG NS.κ) Zb NS.Lab Φ₀ (NS.actBg F₂' Sol₂' F₁L' SolL' eps) NS.y0
-    (NS.markBg F₁L' SolL' F₁b' Solb' eps) T (εH := εH) (κH := κH)
-    (fun θb u y hy => ?_) (fun θb u y Φ hy => ?_) hent hV hU hseg hQ hQm hcar
-    (fun y hy Φ => ?_) (fun y hy θb hθb u hu => ?_) hGmeas hGbd hGhol hGcont hκ0 hKc hεpos hι hF0
-    hκ' hκG hκ hε hdet
-  · -- the gate: on the chart of radius `ε` the coefficient gated at `ε′` is the one gated at `ε`
-    have heq : ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
-        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' Zb Φ₀ θb T =
-          newLevelCoeffLoc Gl (S.blockSplit 1 NS.hp).μ (compWeight L 1) 1 S.ν
-            (rho4 d L N NS.BG NS.κ) Zb NS.Lab Φ₀ (NS.actBg F₂' Sol₂' F₁L' SolL' eps) NS.y0
-            (NS.markBg F₁L' SolL' F₁b' Solb' eps) θb T :=
-      fun θb hθb => NS.coeffLoc_gate F₂' Sol₂' F₁L' SolL' F₁b' Solb' hle Zb Φ₀ hθb.1 T
-    refine ⟨fun θb hθb => (key.1 θb hθb).congr ?_, fun θb hθb => ?_⟩
-    · filter_upwards [hV.mem_nhds hθb] with θb' hθb'
-      exact (heq θb' hθb').symm
-    · rw [heq θb hθb]
-      exact key.2 θb hθb
-  · rcases y with (Y | Y | r) | r
-    · exact h0meas θb u Y hy
-    · exact h1meas θb u Y hy
-    · exact measurable_const
-    · exact measurable_const
-  · rcases y with (Y | Y | r) | r
-    · exact h0bd θb u Y Φ hy
-    · exact h1bd θb u Y Φ hy
-    · show ‖(0 : ℂ)‖ ≤ _
-      rw [norm_zero]
-      exact mul_nonneg hεpos.le (Real.exp_pos _).le
-    · show ‖(0 : ℂ)‖ ≤ _
-      rw [norm_zero]
-      exact mul_nonneg hεpos.le (Real.exp_pos _).le
-  · rcases y with (Y | Y | r) | r
-    · exact h0hol Y hy Φ
-    · exact h1hol Y hy Φ
-    · exact analyticOnNhd_const
-    · exact analyticOnNhd_const
-  · rcases y with (Y | Y | r) | r
-    · exact h0cont Y hy θb hθb u hu
-    · exact h1cont Y hy θb hθb u hu
-    · exact continuous_const
-    · exact continuous_const
+    (NS.markBg F₁L' SolL' F₁b' Solb' eps) T (εH := εH) (κH := κH) hmeas hbd hent hV hU hseg hQ
+    hQm hcar hhol hcont hGmeas hGbd hGhol hGcont hκ0 hKc hεpos hι hF0 hκ' hκG hκ hε hdet
+  -- the gate: on the chart of radius `ε` the coefficient gated at `ε′` is the one gated at `ε`
+  have heq : ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' Zb Φ₀ θb T =
+        newLevelCoeffLoc Gl (S.blockSplit 1 NS.hp).μ (compWeight L 1) 1 S.ν
+          (rho4 d L N NS.BG NS.κ) Zb NS.Lab Φ₀ (NS.actBg F₂' Sol₂' F₁L' SolL' eps) NS.y0
+          (NS.markBg F₁L' SolL' F₁b' Solb' eps) θb T :=
+    fun θb hθb => NS.coeffLoc_gate F₂' Sol₂' F₁L' SolL' F₁b' Solb' hle Zb Φ₀ hθb.1 T
+  refine ⟨fun θb hθb => (key.1 θb hθb).congr ?_, fun θb hθb => ?_⟩
+  · filter_upwards [hV.mem_nhds hθb] with θb' hθb'
+    exact (heq θb' hθb').symm
+  · rw [heq θb hθb]
+    exact key.2 θb hθb
+
+open Classical in
+/-- **The bundled family of the recomputed activities of the labels inside `T`** (the bundled family
+of `coeffLoc_rot_of_parts`): from the fields of the parts, a `LabelAct`-valued family over the
+parameters of `Gl` whose activities are the local activities `locAct … (actBg …)`
+(`paramMarkFamily_trunc` with the class of the labels inside `T`). -/
+theorem exists_bundled_actBg_of_parts {eps : ℝ}
+    (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)
+    (Φ₀ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
+    {εH κH κG : ℝ}
+    {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
+      (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
+      {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
+        (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}) → ℝ}
+    {𝒰 : Set ℂ} (hU : IsOpen 𝒰) (hseg : ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰)
+    {Q : Set (∀ b, (S.blockSplit 1 NS.hp).Ωb b)} (hQ : IsCompact Q) (hQm : MeasurableSet Q)
+    (hcar : ∀ᵐ Φ ∂(Measure.pi (S.blockSplit 1 NS.hp).μ), Φ ∈ Q)
+    -- the zero-source activities of the labels inside `T`
+    (h0meas : ∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}), InPoly T Y.1 → Measurable (zeroActBg S Gl
+      (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+      (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+      taylorWeight NS.p₁ NS.hp eps θb u Y.1))
+    (h0bd : ∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}) Φ, InPoly T Y.1 → ‖zeroActBg S Gl
+      (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+      (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+      taylorWeight NS.p₁ NS.hp eps θb u Y.1 Φ‖ ≤
+        εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1))
+    (h0hol : ∀ Y : {Y // Y ∈ NS.Z.I.𝒴}, InPoly T Y.1 → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => zeroActBg S Gl
+        (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+        (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+        taylorWeight NS.p₁ NS.hp eps p.1 p.2 Y.1 Φ)
+        (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰))
+    (h0cont : ∀ Y : {Y // Y ∈ NS.Z.I.𝒴}, InPoly T Y.1 → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      ∀ u ∈ 𝒰, Continuous (zeroActBg S Gl
+        (BgTransport.canon S.G' Gl N) (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b))
+        (fun _ => k) (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂'
+        taylorWeight NS.p₁ NS.hp eps θb u Y.1))
+    -- the old activities of the labels inside `T`
+    (h1meas : ∀ θb u (Y : {Y // Y ∈ NS.𝒴C}), InPoly T Y.1 → Measurable (oldActBg S Gl
+      (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+      NS.O.𝒦X F₁L' SolL'
+      (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u))
+    (h1bd : ∀ θb u (Y : {Y // Y ∈ NS.𝒴C}) Φ, InPoly T Y.1 → ‖oldActBg S Gl
+      (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+      NS.O.𝒦X F₁L' SolL'
+      (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u Φ‖ ≤
+        εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1))
+    (h1hol : ∀ Y : {Y // Y ∈ NS.𝒴C}, InPoly T Y.1 → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => oldActBg S Gl
+        (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+        NS.O.𝒦X F₁L' SolL'
+        (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+          (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C p.1 Y p.2 Φ)
+        (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰))
+    (h1cont : ∀ Y : {Y // Y ∈ NS.𝒴C}, InPoly T Y.1 → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      ∀ u ∈ 𝒰, Continuous (oldActBg S Gl
+        (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+        NS.O.𝒦X F₁L' SolL'
+        (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+          (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u))
+    -- the marks of the anchors inside `T`
+    (hGmeas : ∀ θb i u, InPoly T (NS.Lab.ysite (NS.y0 i)) →
+      Measurable (NS.markBg F₁L' SolL' F₁b' Solb' eps θb i u))
+    (hGbd : ∀ θb i u Φ, InPoly T (NS.Lab.ysite (NS.y0 i)) →
+      ‖NS.markBg F₁L' SolL' F₁b' Solb' eps θb i u Φ‖ ≤
+        F0 i * Real.exp (-κG * NS.Lab.dl (NS.y0 i)))
+    (hGhol : ∀ i, InPoly T (NS.Lab.ysite (NS.y0 i)) → ∀ Φ,
+      AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ =>
+        NS.markBg F₁L' SolL' F₁b' Solb' eps p.1 i p.2 Φ) (physVBg N Gl S.a₁ S.ν eps ×ˢ 𝒰))
+    (hGcont : ∀ i, InPoly T (NS.Lab.ysite (NS.y0 i)) → ∀ θb ∈ physVBg N Gl S.a₁ S.ν eps,
+      ∀ u ∈ 𝒰, Continuous (NS.markBg F₁L' SolL' F₁b' Solb' eps θb i u))
+    (hεpos : 0 < εH) (hF0 : ∀ i, 0 < F0 i) :
+    ∃ A : physParamBg N Gl → ℂ → LabelAct NS.Lab (S.blockSplit 1 NS.hp).Ωb εH κH NS.Z.κ0
+        (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 + rootUnionK d L 1 m₁ NS.Z.κ0) +
+          rootUnionK d L 1 m₁ NS.Z.κ0),
+      ∀ θb u y Φ, (A θb u).H y Φ =
+        locAct NS.Lab T Φ₀ (NS.actBg F₂' Sol₂' F₁L' SolL' eps) θb u y Φ := by
+  obtain ⟨hmeas, hbd, hhol, hcont⟩ := NS.actBg_fields_of_parts F₂' Sol₂' F₁L' SolL' T h0meas h0bd
+    h0hol h0cont h1meas h1bd h1hol h1cont hεpos
+  obtain ⟨A, hAH, -⟩ := paramMarkFamily_trunc (S.blockSplit 1 NS.hp).μ NS.Lab (InPoly T) Φ₀
+    (NS.actBg F₂' Sol₂' F₁L' SolL' eps) hmeas hbd hεpos.le (NS.A 0 0).entropy NS.y0
+    (NS.markBg F₁L' SolL' F₁b' Solb' eps) κG F0 (fun i => (hF0 i).le)
+    (isOpen_physVBg Gl S.a₁ S.ν eps HB') hU hseg hQ hQm hcar hhol hcont hGmeas hGbd hGhol hGcont
+  exact ⟨A, hAH⟩
 
 open Classical in
 /-- **Covariance of the coefficient recomputed from the labels inside `T`, from its parts** (the

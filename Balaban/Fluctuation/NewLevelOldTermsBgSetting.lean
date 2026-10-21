@@ -22,8 +22,9 @@ on the realizable triples of `Gb` (`eTermFun_analytic_of_one_le`, `eTermFun_boun
 
 * `composeDep_eq_of_layerIndex`: the composite dependency set reads only the layer index;
 * `precedes_of_Omega1_top`, `precedes_fl_of_top`: `Gk ≺ Gb` and `Gk ≺ H⁻`;
-* `bgSetting_of_top`, `flSetting_of_top`: the settings on `Gb`;
-* `eTermFun_analytic_bound_of_top`: analyticity and bound of the old-term functional on `Gb`.
+* `bgSetting_of_top`, `flSetting_of_top_gen` (`flSetting_of_top`): the settings on `Gb`;
+* `eTermFun_analytic_bound_of_top_gen` (`eTermFun_analytic_bound_of_top`): analyticity and bound of
+  the old-term functional on `Gb`.
 -/
 
 @[expose] public section
@@ -124,18 +125,19 @@ theorem bgSetting_of_top (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ�
   hj := hB.hj
 
 /-- **The fluctuation setting of an old term on `Gb`**: the step's `FlSetting` of the old term
-(fluctuation set `H⁻` of level `k`) gives the one on `Gb` with its fluctuation set `H⁻_b`
-(`Ω_k(H⁻_b) = Ω_k(Gb)`, no layer `k + 1`, `FlCore` of `(Gb, H⁻_b)`) when the data sites of `Gk`
-lie in the top layer of `Gb`. -/
-theorem flSetting_of_top {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
-    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f) (hG : IsLevel Hm k)
+(fluctuation set `H⁻` of level `k`, any constants `(Kc', Cx', c₂')` of its cover) gives the one on
+`Gb` with its fluctuation set `H⁻_b` (`Ω_k(H⁻_b) = Ω_k(Gb)`, no layer `k + 1`) and the constants
+`(Kc, Cx, c₂)` of the `FlCore` of `(Gb, H⁻_b)`, when the data sites of `Gk` lie in the top layer of
+`Gb`. -/
+theorem flSetting_of_top_gen {Kc Cx c₂ Kc' Cx' c₂' BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc' Cx' c₂' BG₂ δ₁ δfl X₁f) (hG : IsLevel Hm k)
     (hk1 : 1 ≤ k) (hC : FlCore N Gb Gd a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hdk : Gd.Ω k = Gb.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
     (htop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1)) :
     FlSetting N Gb Gk Gd a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f where
-  hS2 := hF.hS2
+  hS2 := hC.hS2
   SM := hC.SM
-  hM2 := hF.hM2
+  hM2 := hC.hM2
   hPm := precedes_fl_of_top hk1 hF.hPm hG hdk fun x hx =>
     htop x ((mem_dataSites Gk).2 (Or.inl hx))
   hPmp := hC.hPmp
@@ -145,11 +147,58 @@ theorem flSetting_of_top {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
       rw [(blockLayers_of_top hk1 hdk hdtop (htop x hx)).1.2, (hG x).2])] at hy
   num := hF.num
 
+/-- **The fluctuation setting of an old term on `Gb`**: the step's `FlSetting` of the old term
+(fluctuation set `H⁻` of level `k`) gives the one on `Gb` with its fluctuation set `H⁻_b`
+(`Ω_k(H⁻_b) = Ω_k(Gb)`, no layer `k + 1`, `FlCore` of `(Gb, H⁻_b)`) when the data sites of `Gk`
+lie in the top layer of `Gb` (the instance of `flSetting_of_top_gen` at the step's constants). -/
+theorem flSetting_of_top {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f) (hG : IsLevel Hm k)
+    (hk1 : 1 ≤ k) (hC : FlCore N Gb Gd a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hdk : Gd.Ω k = Gb.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (htop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1)) :
+    FlSetting N Gb Gk Gd a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f :=
+  flSetting_of_top_gen hF hG hk1 hC hdk hdtop htop
+
+/-- **(AE1) input of the old terms on `Gb`, general constants of the step's cover**: the statement
+of `eTermFun_analytic_bound_of_top` for a step `FlSetting` with any constants `(Kc', Cx', c₂')` of
+its cover (`flSetting_of_top_gen`). -/
+theorem eTermFun_analytic_bound_of_top_gen {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) (hG' : IsLevel Gp (k + 1))
+    {Kc Cx c₂ Kc' Cx' c₂' BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc' Cx' c₂' BG₂ δ₁ δfl X₁f) (hG : IsLevel Hm k)
+    (hk1 : 1 ≤ k) (Sb : DGSetting Gb (compWeight L a₁) ν)
+    (HBb : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱb - 1)
+    (hC : FlCore N Gb Gd a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hdk : Gd.Ω k = Gb.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (htop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1))
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
+      InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hE : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEb : ∀ r ∈ XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B) :
+    AnalyticOnNhd ℂ (fun t : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Gd.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
+      eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
+      (FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁) ∧
+    ∀ t ∈ FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁,
+      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
+  have hB' := bgSetting_of_top hB hG' Sb HBb hrb htop
+  have hF' := flSetting_of_top_gen hF hG hk1 hC hdk hdtop htop
+  exact ⟨eTermFun_analytic_of_one_le hb₁ hbC hB' hF' hFkan hFk hE,
+    fun t ht => eTermFun_bound_of_one_le hb₁ hbC hB' hF' hFk hEb ht⟩
+
 /-- **(AE1) input of the old terms on `Gb`**: the old-term functional `eTermFun` recomputed on
 `Gb` (with the fluctuation set `H⁻_b`) is analytic and bounded on the realizable triples of `Gb`
 (`eTermFun_analytic_of_one_le`, `eTermFun_bound_of_one_le` with `bgSetting_of_top`,
 `flSetting_of_top`), when the data sites of the old term's generating set lie in the top layer of
-`Gb` and the term `E` is analytic and bounded on its chart. -/
+`Gb` and the term `E` is analytic and bounded on its chart (the instance of
+`eTermFun_analytic_bound_of_top_gen` at the step's constants). -/
 theorem eTermFun_analytic_bound_of_top {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
     (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) (hG' : IsLevel Gp (k + 1))
     {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
@@ -175,11 +224,9 @@ theorem eTermFun_analytic_bound_of_top {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ 
       eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
       (FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁) ∧
     ∀ t ∈ FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁,
-      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
-  have hB' := bgSetting_of_top hB hG' Sb HBb hrb htop
-  have hF' := flSetting_of_top hF hG hk1 hC hdk hdtop htop
-  exact ⟨eTermFun_analytic_of_one_le hb₁ hbC hB' hF' hFkan hFk hE,
-    fun t ht => eTermFun_bound_of_one_le hb₁ hbC hB' hF' hFk hEb ht⟩
+      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  eTermFun_analytic_bound_of_top_gen hb₁ hbC hB hG' hF hG hk1 Sb HBb hrb hC hdk hdtop htop hFkan hFk
+    hE hEb
 
 end Setting
 

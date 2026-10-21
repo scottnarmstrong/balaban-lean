@@ -57,13 +57,11 @@ variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ} {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 
-/-- **Locality of the old-term functional, exact form**: as `eTermFun_local_dir`, with the raw data
-assumed equal on `X₁` itself (not on `thickSet X₁`), and the background field assumed equal only at
-the sites it is read at, namely the composite sites `composeDep Gk Gp x` of the data sites `x`
-(these lie in `X₁`). -/
-theorem eTermFun_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+/-- **Core of `eTermFun_local_rawY`**: the frozen region `X₁` inside `Ω₁` of `Gp` (`hX₁Ω`)
+replaces the cover setup. -/
+theorem eTermFun_local_rawY_of (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
     (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
-    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1))
     (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
     (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
     {t t' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
@@ -77,8 +75,6 @@ theorem eTermFun_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps 
     eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 =
       eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t'.1 t'.2.1 t'.2.2 := by
   classical
-  have hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1) := fun x hx =>
-    X1_subset_Omega1 hcov (hX₁ ▸ hx)
   have hXthick : ∀ y ∈ X₁f, t.2.2.1.1 y = t'.2.2.1.1 y ∧ t.2.2.1.2 y = t'.2.2.1.2 y := fun y hy =>
     hag y (Finset.mem_coe.2 hy)
   refine congrArg E (congrArg (D2raw Gk Gj (compWeight L a₁) Fk) ?_)
@@ -112,6 +108,27 @@ theorem eTermFun_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps 
       exact congrFun (hXthick x (hB.dep x hxd x (self_mem_composeDep x))).2 i
     · simp [hx]
 
+/-- **Locality of the old-term functional, exact form**: as `eTermFun_local_dir`, with the raw data
+assumed equal on `X₁` itself (not on `thickSet X₁`), and the background field assumed equal only at
+the sites it is read at, namely the composite sites `composeDep Gk Gp x` of the data sites `x`
+(these lie in `X₁`). -/
+theorem eTermFun_local_rawY (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hcov : CovSetup Gp m₀ j X 𝒦X) (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {t t' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (hφ : ∀ x ∈ dataSites Gk, ∀ y : Gp.Ω 1,
+      (y : CTorus d L N₁ m₁ (k + 1)) ∈ composeDep Gk Gp x → ∀ i, t.1.1 (y, i) = t'.1.1 (y, i))
+    (hδ : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) →
+      ∀ i, t.2.1 (y, i) = t'.2.1 (y, i))
+    (hag : agreeOn (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) t.2.2.1 t'.2.2.1)
+    (hψ : ∀ y ∈ (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))), t.2.2.2 y = t'.2.2.2 y) :
+    eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2 =
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t'.1 t'.2.1 t'.2.2 :=
+  eTermFun_local_rawY_of hB hF (fun _ hx => X1_subset_Omega1 hcov (hX₁ ▸ hx)) Fk E hφ hδ hag hψ
+
 /-- **Locality of the old-term functional, sharp form**: as `eTermFun_local`, with the fluctuation
 variable assumed equal only on the sites of `X₁`. -/
 theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
@@ -132,6 +149,42 @@ theorem eTermFun_local_dir (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps �
   eTermFun_local_rawY hB hF hcov hX₁ Fk E
     (fun x hx y hy i => hφ y (Finset.mem_coe.2 (hB.dep x hx y hy)) i) hδ
     (fun y hy => hag y (Or.inl hy)) hψ
+
+/-- **Core of `eTermFun_eq_of_component`**: the frozen region `X₁` inside `Ω₁` of `Gp` (`hX₁Ω`)
+and the approximate-field reads at the composite sites of the data sites inside `X₁` (`hread`)
+replace the level and the cover setup. -/
+theorem eTermFun_eq_of_component_of (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    (hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1))
+    (hread : ∀ x ∈ dataSites Gk, ∀ u ∈ composeDep Gk Gp x, approxDep Gp u ⊆ X₁f)
+    (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
+    (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ)
+    {φ φ' : Gp.Ω 1 × Fin N → ℂ} {α α' : Gp.Ω 1 → ℂ} {δφ δφ' : Hm.Ω 1 × Fin N → ℂ}
+    {D D' : BgData Gp N} {ψ ψ' : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ}
+    {Y : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hφd : ∀ y : Gp.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i,
+      φ (y, i) - approxField Gp (compWeight L a₁) ν D.Ψ D.h y i =
+        φ' (y, i) - approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y i)
+    (hδ : ∀ y : Hm.Ω 1, (y : CTorus d L N₁ m₁ (k + 1)) ∈ Y → ∀ i, δφ (y, i) = δφ' (y, i))
+    (hψ : ∀ y ∈ Y, ψ y = ψ' y)
+    (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
+    (hXY : ∀ x ∈ X₁f, x ∈ Y) :
+    eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (φ, α) δφ (rawOf D, ψ) =
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (φ', α') δφ' (rawOf D', ψ') := by
+  have hΨh : ∀ y ∈ X₁f, D.Ψ y = D'.Ψ y ∧ D.h y = D'.h y := fun y hy =>
+    ⟨(hdata y (hXY y hy)).1, (hdata y (hXY y hy)).2 (hX₁Ω (Finset.mem_coe.2 hy))⟩
+  refine eTermFun_local_rawY_of hB hF hX₁Ω Fk E
+    (t := ((φ, α), δφ, (rawOf D, ψ))) (t' := ((φ', α'), δφ', (rawOf D', ψ')))
+    (fun x hx y hy i => ?_) (fun y hy i => hδ y (hXY _ (by simpa using hy)) i)
+    (fun y hy => hΨh y (by simpa using hy)) (fun y hy => hψ y (hXY y (by simpa using hy)))
+  have hyX : (y : CTorus d L N₁ m₁ (k + 1)) ∈ X₁f := hB.dep x hx y hy
+  have h1 := hφd y (hXY _ hyX) i
+  have h2 : approxField Gp (compWeight L a₁) ν D.Ψ D.h y i =
+      approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y i :=
+    congrFun (approxField_congr_of_reads hΨh (hread x hx _ hy)) i
+  show φ (y, i) = φ' (y, i)
+  rw [h2] at h1
+  exact sub_left_injective h1
 
 /-- **The old-term functional at two triples agreeing on a component containing `X₁`.**  If the
 background fields agree on the component `Y ⊇ X₁` up to the approximate fields of the data, the
@@ -156,23 +209,9 @@ theorem eTermFun_eq_of_component (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀
     (hdata : ∀ z ∈ Y, D.Ψ z = D'.Ψ z ∧ (z ∈ Gp.Ω 1 → D.h z = D'.h z))
     (hXY : ∀ x ∈ X₁f, x ∈ Y) :
     eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (φ, α) δφ (rawOf D, ψ) =
-      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (φ', α') δφ' (rawOf D', ψ') := by
-  have hX₁Ω : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) ⊆ ↑(Gp.Ω 1) := fun x hx =>
-    X1_subset_Omega1 hcov (hX₁ ▸ hx)
-  have hΨh : ∀ y ∈ X₁f, D.Ψ y = D'.Ψ y ∧ D.h y = D'.h y := fun y hy =>
-    ⟨(hdata y (hXY y hy)).1, (hdata y (hXY y hy)).2 (hX₁Ω (Finset.mem_coe.2 hy))⟩
-  refine eTermFun_local_rawY hB hF hcov hX₁ Fk E
-    (t := ((φ, α), δφ, (rawOf D, ψ))) (t' := ((φ', α'), δφ', (rawOf D', ψ')))
-    (fun x hx y hy i => ?_) (fun y hy i => hδ y (hXY _ (by simpa using hy)) i)
-    (fun y hy => hΨh y (by simpa using hy)) (fun y hy => hψ y (hXY y (by simpa using hy)))
-  have hyX : (y : CTorus d L N₁ m₁ (k + 1)) ∈ X₁f := hB.dep x hx y hy
-  have h1 := hφd y (hXY _ hyX) i
-  have h2 : approxField Gp (compWeight L a₁) ν D.Ψ D.h y i =
-      approxField Gp (compWeight L a₁) ν D'.Ψ D'.h y i :=
-    congrFun (approxField_composeDep_congr hB hG' hΨh hx hy) i
-  show φ (y, i) = φ' (y, i)
-  rw [h2] at h1
-  exact sub_left_injective h1
+      eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E (φ', α') δφ' (rawOf D', ψ') :=
+  eTermFun_eq_of_component_of hB hF (fun _ hx => X1_subset_Omega1 hcov (hX₁ ▸ hx))
+    (fun _ hx _ hu => approxDep_composeDep_subset_X1 hB hG' hx hu) Fk E hφd hδ hψ hdata hXY
 
 /-- **Exact locality of the old-term functional, in the fan form.**  `fan_local_rawY` at
 `Φ := eTermFun … Fk E`: for sharp agreement on a component `compY … C` of the marked family (raw data

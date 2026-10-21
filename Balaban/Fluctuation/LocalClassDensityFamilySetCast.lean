@@ -148,15 +148,17 @@ section Bundle
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱ₂ ϱ₀ ϱ₃ ϱm : ℝ}
 
-/-- **`BgSetting` and `FlSetting` for `Gk = 𝔹_k(Z)` and `Gj = 𝔹_j(X)` on the finer cube torus.**
+/-- **`BgSetting` and `FlSetting` for `Gk = 𝔹_k(Z)` and `Gj = 𝔹_j(X_j)`, `X_j ⊆ X`, on the finer
+cube torus.**  The statement of `bgFlSetting_castLocalB` with the generating set `Gj` of the term
+built on a subset `X_j' ⊆ X'` (the cover and the set `Z'` stay those of `X`): `Gj ≺ Gk` and the
+collar of `Gj` in `Ω₁(Gk)` read only the sites of `X_j'`.
 Let `N₁' L^{m₁'} = N₁ L^{m₁}` (`m₁' ≥ m₁` with `L^{m₁'} ≤ L^{m₁} c₁`), `X'` the set `X` and `Z'`
 the set of sites at `𝒞_k`-cube-index distance `≤ 5 L` from `X'`, both read on the torus of
-`(N₁', m₁')`.  Let `Gk = castG (𝔹_k(Z'))`, `Gj = castG (𝔹_j(X'))` (indices `ϱ₁`, `ϱ₂` below
+`(N₁', m₁')`.  Let `Gk = castG (𝔹_k(Z'))`, `Gj = castG (𝔹_j(X_j'))` (indices `ϱ₁`, `ϱ₂` below
 `5 L^{m₁'+1}` and above `bgR0`).  For a covering setup `(X, 𝒦_X)` of index `m₀` and `j ≤ k`,
-`X₁f = X1 Gp m₀ j 𝒦_X` and
-`(5 L + 13) c₁ + r₀ L ≤ (L - 2) L^{m₀+1}`, `BgSetting` holds with `X₀ = dataSites Gk` and `FlSetting`
-holds, from base settings of the step. -/
-theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+`X₁f = X1 Gp m₀ j 𝒦_X` and `(5 L + 13) c₁ + r₀ L ≤ (L - 2) L^{m₀+1}`, `BgSetting` holds with
+`X₀ = dataSites Gk` and `FlSetting` holds, from base settings of the step. -/
+theorem bgFlSetting_castLocalB_gen {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
     {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
     {Gk0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
     {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₃}
@@ -170,6 +172,7 @@ theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * 
     {X' Z' : Set (CTorus d L N₁' m₁' (k + 1))}
     (hX' : ∀ x' : CTorus d L N₁' m₁' (k + 1),
       x' ∈ X' ↔ (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ X)
+    {Xj' : Set (CTorus d L N₁' m₁' (k + 1))} (hXj' : Xj' ⊆ X')
     (hZ' : ∀ z' : CTorus d L N₁' m₁' (k + 1), z' ∈ Z' ↔ ∃ y' ∈ X',
       supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
           (torusCast z' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
@@ -181,16 +184,22 @@ theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * 
     {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X) :
     BgSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁))
-        (castG hc (localB j (by omega) X' hs₂)) a₁ ν c BG κ r₀ eps δ₃
+        (castG hc (localB j (by omega) Xj' hs₂)) a₁ ν c BG κ r₀ eps δ₃
         (dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁))) X₁f j ∧
       FlSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁)) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂
         BG₂ δ₁ δfl X₁f := by
   have hceq : N₁' * L ^ m₁' * L ^ (k + 1) = N₁ * L ^ m₁ * L ^ (k + 1) := by rw [hc]
   have hZtop := Zset_hZ (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k + 1) (ϱ₂ := ϱ₁)
     (Nat.le_succ k) hZ' (h₂ := hs₁)
-  have hq' := localB_precedes_localB hL hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtop
+  have hZtopj : ∀ x : CTorus d L N₁' m₁' (k + 1), (∃ y ∈ Xj',
+      supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
+        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L) →
+      x ∈ (localB k (Nat.le_succ k) Z' hs₁).Ω k := fun x ⟨y, hy, hd⟩ => hZtop x ⟨y, hXj' hy, hd⟩
+  have hq' := localB_precedes_localB hL hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
     (h₁ := hs₂)
-  have hcol' := localB_collar_subset hL hj1 hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtop
+  have hcol' := localB_collar_subset hL hj1 hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
     (h₁ := hs₂)
   have hmar : ∀ x ∈ dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁)),
       ∀ y : CTorus d L N₁ m₁ (k + 1),
@@ -231,6 +240,46 @@ theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * 
   simp only [Finset.notMem_empty, iff_false]
   rw [mem_castG_Ω, localB_Ω_of_gt (Nat.lt_succ_self k)]
   exact Finset.notMem_empty _
+
+/-- **`BgSetting` and `FlSetting` for `Gk = 𝔹_k(Z)` and `Gj = 𝔹_j(X)` on the finer cube torus.**
+Let `N₁' L^{m₁'} = N₁ L^{m₁}` (`m₁' ≥ m₁` with `L^{m₁'} ≤ L^{m₁} c₁`), `X'` the set `X` and `Z'`
+the set of sites at `𝒞_k`-cube-index distance `≤ 5 L` from `X'`, both read on the torus of
+`(N₁', m₁')`.  Let `Gk = castG (𝔹_k(Z'))`, `Gj = castG (𝔹_j(X'))` (indices `ϱ₁`, `ϱ₂` below
+`5 L^{m₁'+1}` and above `bgR0`).  For a covering setup `(X, 𝒦_X)` of index `m₀` and `j ≤ k`,
+`X₁f = X1 Gp m₀ j 𝒦_X` and `(5 L + 13) c₁ + r₀ L ≤ (L - 2) L^{m₀+1}`, `BgSetting` holds with
+`X₀ = dataSites Gk` and `FlSetting` holds, from base settings of the step (the instance
+`X_j' = X'` of `bgFlSetting_castLocalB_gen`). -/
+theorem bgFlSetting_castLocalB {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    {Gk0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
+    {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₃}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {a₁ ν c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ m₁ (k + 1))} {j₁ : ℕ}
+    (hB0 : BgSetting N Gp Gk0 Gj0 a₁ ν c BG κ r₀ eps δ₃ X₀' X₁f' j₁)
+    (hF0 : FlSetting N Gp Gk0 Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f'')
+    (hG : IsLevel Hm k) (hL : 2 ≤ L) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {m₀ : ℕ}
+    {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} (hcov : CovSetup Gp m₀ j X 𝒦X)
+    {X' Z' : Set (CTorus d L N₁' m₁' (k + 1))}
+    (hX' : ∀ x' : CTorus d L N₁' m₁' (k + 1),
+      x' ∈ X' ↔ (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ X)
+    (hZ' : ∀ z' : CTorus d L N₁' m₁' (k + 1), z' ∈ Z' ↔ ∃ y' ∈ X',
+      supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast z' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
+        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast y' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L)
+    (hϱ₁ : bgR0 d L ≤ ϱ₁) (hϱ₂ : bgR0 d L ≤ ϱ₂) (hs₁ : ϱ₁ ≤ minSep L (L ^ m₁'))
+    (hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')) {c₁ : ℕ} (hm1 : L ^ m₁' ≤ L ^ m₁ * c₁)
+    (hm : (((5 * L + 13) * c₁ : ℕ) : ℝ) + r₀ * L ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (m₀ + 1))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X) :
+    BgSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁))
+        (castG hc (localB j (by omega) X' hs₂)) a₁ ν c BG κ r₀ eps δ₃
+        (dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁))) X₁f j ∧
+      FlSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁)) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂
+        BG₂ δ₁ δfl X₁f :=
+  bgFlSetting_castLocalB_gen hc hG' hB0 hF0 hG hL hj1 hjk hcov hX' subset_rfl hZ' hϱ₁ hϱ₂ hs₁ hs₂
+    hm1 hm hX₁
 
 end Bundle
 

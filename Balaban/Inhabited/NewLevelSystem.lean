@@ -30,7 +30,10 @@ generating set.
   labels), the marks (the bridge marks of the decoupling pairs `F₁`, `Sol` and the marks `G₁` of the
   old terms) with their equations, and `NewLevelSystem.coeff`, the determinant part plus the
   interpolation coefficient of the marked cluster expansion (`newLevelDetBg`, `gsumCoeff`).
-* `NewLevelFormula S C z Jr e`: `e` is the coefficient of a system on the step chart.
+* `OldTermSettings`: the settings of the inherited levels at the step radius (a field `OS` of the
+  system); `NewLevelConsts`, `NewLevelSystem.HasConsts`: the constants of a system.
+* `NewLevelFormula S C z Jr K e`: `e` is the coefficient of a system with the constants `K` on the
+  step chart.
 -/
 
 @[expose] public section
@@ -254,6 +257,60 @@ structure OldTermSystem (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) where
 
 attribute [instance] OldTermSystem.fin
 
+/-- **The settings of the inherited levels at the step radius** (the base premises of the class
+chain, `StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula`): the background
+and fluctuation settings of each old term (`BgSetting`, `FlSetting` with the step's level-`k` set,
+constants `(c_B, r₀, δ₃)` and `(K_c, C_χ, c₂, δ_fl)`), its covering setup on the set `XL τ`, the
+frozen region `X₁f τ = X1`, the trees realizing the length of `XL τ`, the analyticity of the
+background field `FkL τ` of its generating set, and `L^{m₀} ∣ N₁`. -/
+structure OldTermSettings (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) (O : OldTermSystem S t) where
+  cB : ℝ
+  r₀ : ℝ
+  δ₃ : ℝ
+  Kc : ℝ
+  Cx : ℝ
+  c₂ : ℝ
+  δfl : ℝ
+  X₀ : O.ι → Finset (CTorus d L N₁ m₁ (k + 1))
+  XL : O.ι → Set (CTorus d L N₁ m₁ (k + 1))
+  hB : ∀ τ, BgSetting N S.G' (O.Gk τ) (O.Gj τ) S.a₁ S.ν cB O.BG O.κ r₀ t δ₃ (X₀ τ) (O.X₁f τ)
+    (O.jL τ)
+  hF : ∀ τ, FlSetting N S.G' (O.Gk τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν O.κ O.BG t δ₃ Kc Cx c₂ O.BG₂
+    O.δ₁ δfl (O.X₁f τ)
+  hcov : ∀ τ, CovSetup S.G' O.m₀ (O.jL τ) (XL τ) (O.𝒦X τ)
+  hX₁ : ∀ τ, (↑(O.X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' O.m₀ (O.jL τ) (O.𝒦X τ)
+  hopt : ∀ τ, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
+    ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne O.m₀ (O.jL τ) (O.𝒦X τ) W₀ ∧
+      bondCost (scaleW L O.m₀ m₁ (O.jL τ)) E₀ = treeLenCovOne O.m₀ (O.jL τ) (XL τ)
+  hFkan : ∀ τ, AnalyticOnNhd ℂ (O.FkL τ) {p | ∃ D : BgData (O.Gk τ) N,
+    InUnionDomainC (O.Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)}
+  hN : L ^ O.m₀ ∣ N₁
+
+/-- **The constants of a system of the new level** (the record the class chain exposes with
+`NewLevelFormula`): those of the decoupling pairs `(κ, B_G, B_{G₂})`, the radius `p₁` of the hat
+variable and the rate `κ₀` of the zero-source family; the constants `(κ, B_G, B_{G₂}, δ₁, ρ, m₀)` of
+the inherited levels; and the constants `(c_B, r₀, δ₃, K_c, C_χ, c₂, δ_fl)` of their settings. -/
+structure NewLevelConsts where
+  κ : ℝ
+  BG : ℝ
+  BG₂ : ℝ
+  p₁ : ℝ
+  κ0 : ℝ
+  κO : ℝ
+  BGO : ℝ
+  BG₂O : ℝ
+  δ₁O : ℝ
+  ρO : ℝ
+  m₀O : ℕ
+  cB : ℝ
+  r₀ : ℝ
+  δ₃ : ℝ
+  Kc : ℝ
+  Cx : ℝ
+  c₂ : ℝ
+  δfl : ℝ
+
 open Classical in
 /-- **The system of the coefficient of the new level.**  For the step `S`, the class `C` and the
 root `z`, with the joint representation `Jr` at the radius `t`: the zero-source system `Z` and the
@@ -273,6 +330,8 @@ structure NewLevelSystem (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d
   BG₂ : ℝ
   Z : ZeroSourceSystem S hp t p₁ κ BG BG₂
   O : OldTermSystem S t
+  /-- the settings of the inherited levels at the step radius -/
+  OS : OldTermSettings S t O
   hEJ : ∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 t D → ∀ w : S.EC,
     Jr.EJ C (rawOf D, w) = ∑ τ, O.Eτ τ (Jr.PJ (O.jL τ) (rawOf D, w))
   /-- the marks of the old terms -/
@@ -446,6 +505,37 @@ noncomputable def coeff (θ : physParam N S)
   newLevelDetBg S.G' (compWeight L 1) 1 S.ν (rho4 d L N NS.BG NS.κ) (S.blockU z) θ T' +
     gsumCoeff (S.blockSplit 1 NS.hp).μ NS.Lab (NS.A θ) NS.y0 (NS.G θ) T'
 
+
+/-- The constants of the system (`NewLevelConsts`). -/
+def consts : NewLevelConsts :=
+  ⟨NS.κ, NS.BG, NS.BG₂, NS.p₁, NS.Z.κ0, NS.O.κ, NS.O.BG, NS.O.BG₂, NS.O.δ₁, NS.O.ρ, NS.O.m₀,
+    NS.OS.cB, NS.OS.r₀, NS.OS.δ₃, NS.OS.Kc, NS.OS.Cx, NS.OS.c₂, NS.OS.δfl⟩
+
+/-- **The system has the constants `K`.** -/
+structure HasConsts (K : NewLevelConsts) : Prop where
+  κ : NS.κ = K.κ
+  BG : NS.BG = K.BG
+  BG₂ : NS.BG₂ = K.BG₂
+  p₁ : NS.p₁ = K.p₁
+  κ0 : NS.Z.κ0 = K.κ0
+  κO : NS.O.κ = K.κO
+  BGO : NS.O.BG = K.BGO
+  BG₂O : NS.O.BG₂ = K.BG₂O
+  δ₁O : NS.O.δ₁ = K.δ₁O
+  ρO : NS.O.ρ = K.ρO
+  m₀O : NS.O.m₀ = K.m₀O
+  cB : NS.OS.cB = K.cB
+  r₀ : NS.OS.r₀ = K.r₀
+  δ₃ : NS.OS.δ₃ = K.δ₃
+  Kc : NS.OS.Kc = K.Kc
+  Cx : NS.OS.Cx = K.Cx
+  c₂ : NS.OS.c₂ = K.c₂
+  δfl : NS.OS.δfl = K.δfl
+
+/-- A system has its own constants (non-vacuity of `HasConsts`). -/
+theorem hasConsts_consts : NS.HasConsts NS.consts :=
+  ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+
 end NewLevelSystem
 
 /-- **The old terms are the irrelevant terms of the class**: the old term of `τ` is the term
@@ -457,48 +547,62 @@ def OldTermsAreIrrel (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N
     (X : O.ι → Set (CTorus d L N₁ m₁ (k + 1))), ∀ τ r,
     O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2
 
-/-- **`e` is the coefficient of a system with the given inherited levels `O`** on the step chart. -/
+/-- **`e` is the coefficient of a system with the given inherited levels `O` and constants `K`** on
+the step chart. -/
 def NewLevelFormulaFor (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
     (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp) (O : OldTermSystem S t)
+    (K : NewLevelConsts)
     (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
       (k + 1) Set.univ) → ℂ) : Prop :=
-  ∃ NS : NewLevelSystem S C z Jr, NS.O = O ∧
+  ∃ NS : NewLevelSystem S C z Jr, NS.O = O ∧ NS.HasConsts K ∧
     ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
 
-/-- **`e` is the coefficient of a system of the class `C`** on the step chart: the inherited
-levels are the irrelevant terms of `C`. -/
+/-- **`e` is the coefficient of a system of the class `C` with the constants `K`** on the step
+chart: the inherited levels are the irrelevant terms of `C`; the system carries the settings of the
+inherited levels (`NewLevelSystem.OS`) and its constants are those of `K`. -/
 def NewLevelFormula (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
-    (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp)
+    (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp) (K : NewLevelConsts)
     (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
       (k + 1) Set.univ) → ℂ) : Prop :=
-  ∃ NS : NewLevelSystem S C z Jr, OldTermsAreIrrel S C NS.O ∧
+  ∃ NS : NewLevelSystem S C z Jr, OldTermsAreIrrel S C NS.O ∧ NS.HasConsts K ∧
     ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
 
 theorem NewLevelFormula.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
     {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {O : OldTermSystem S t}
+    {K : NewLevelConsts}
     {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
       (k + 1) Set.univ) → ℂ}
-    (hO : OldTermsAreIrrel S C O) (h : NewLevelFormulaFor S C z Jr O e) :
-    NewLevelFormula S C z Jr e := by
-  obtain ⟨NS, rfl, h⟩ := h
-  exact ⟨NS, hO, h⟩
+    (hO : OldTermsAreIrrel S C O) (h : NewLevelFormulaFor S C z Jr O K e) :
+    NewLevelFormula S C z Jr K e := by
+  obtain ⟨NS, rfl, hK, h⟩ := h
+  exact ⟨NS, hO, hK, h⟩
+
+/-- `NewLevelFormula` along an equality of the constants. -/
+theorem NewLevelFormula.congr_consts {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} {K K' : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormula S C z Jr K e) (hK : K = K') : NewLevelFormula S C z Jr K' e :=
+  hK ▸ h
 
 /-- **The coefficient of a system is the coefficient of a system** (non-vacuity of
-`NewLevelFormulaFor`: it holds for the family `NS.coeff` of every system, whose inhabitation for
-the physical step is the content of the formula theorems of the class chain,
+`NewLevelFormulaFor`: it holds for the family `NS.coeff` and the constants `NS.consts` of every
+system, whose inhabitation for the physical step is the content of the formula theorems of the
+class chain,
 `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula`). -/
 theorem NewLevelSystem.formulaFor_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
     {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) :
-    NewLevelFormulaFor S C z Jr NS.O NS.coeff :=
-  ⟨NS, rfl, fun _ _ _ => rfl⟩
+    NewLevelFormulaFor S C z Jr NS.O NS.consts NS.coeff :=
+  ⟨NS, rfl, NS.hasConsts_consts, fun _ _ _ => rfl⟩
 
 /-- The coefficient of a system whose inherited levels are the irrelevant terms of `C` satisfies
-`NewLevelFormula`. -/
+`NewLevelFormula` with the constants of the system. -/
 theorem NewLevelSystem.formula_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
     {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) (h : OldTermsAreIrrel S C NS.O) :
-    NewLevelFormula S C z Jr NS.coeff :=
+    NewLevelFormula S C z Jr NS.consts NS.coeff :=
   NewLevelFormula.of_for h NS.formulaFor_coeff
 
 end Pins

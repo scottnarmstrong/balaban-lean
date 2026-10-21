@@ -12,7 +12,8 @@ import Mathlib.Tactic.Positivity
 /-!
 # Theorem 3.1: non-vacuity of the typing structures
 
-`SiteConnected` of the whole torus, the label set `{𝕋}`, and `ProdSplit` of a product measure.
+`SiteConnected` of the whole torus, the label set `{𝕋}`, `ProdSplit` of a product measure, and the
+witnesses of `InterpMarks` and of its region form `InterpMarksOn`.
 -/
 
 @[expose] public section
@@ -166,6 +167,14 @@ theorem nonempty_interpMarks :
     hε := le_rfl
     hW := fun s _ => Filter.Eventually.of_forall fun x => by simp [A]
     hF := fun s _ => Filter.Eventually.of_forall fun x => by simp }⟩
+
+/-- **`InterpMarksOn` is inhabited**: the whole-torus witness `nonempty_interpMarks` at `Ω = univ`. -/
+theorem nonempty_interpMarksOn :
+    ∃ (ν : Measure (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 0 K Set.univ → Unit))
+      (BS : ProdSplitOn ν d L N₁ m₁ K 0 Set.univ) (W f : ℝ → _ → ℂ),
+        Nonempty (InterpMarksOn ν BS W f) := by
+  obtain ⟨ν, BS, W, f, ⟨I⟩⟩ := nonempty_interpMarks d L N₁ m₁ K
+  exact ⟨ν, BS.toOn, W, f, ⟨I.toOn⟩⟩
 
 end Witness
 
