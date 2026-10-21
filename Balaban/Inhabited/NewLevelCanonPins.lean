@@ -173,13 +173,16 @@ theorem exists_domEquiv_of_canon_core
       NS'.O.jL τ' = NS.O.jL τ → NS'.Dom Y' τ') :
     ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom Y' τ'}, ∀ τ : {τ // NS.Dom Y τ},
       NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image
-        (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) := by
+        (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) ∧
+      y' (e τ).1 = boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1)) (y τ.1) ∧
+      X' (e τ).1 = (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) ''
+        X τ.1 := by
   obtain ⟨e, he⟩ := domEquiv_generic_core (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
     ((N₁' * L ^ m₁) * L ^ (k + 1))) (AdmPairs L N₁ m₁ k d C.m₀ k) (AdmPairs L N₁' m₁ k d C'.m₀ k)
     (fun x => InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) NS.O.jL y X NS'.O.jL y' X' hB hB'
     (fun a ha b hb hab => boxMap_inj (hm' := hm) ha hb hab) (NS.Dom Y) (NS'.Dom Y') hAdm hAdm'
     hbox hdom
-  refine ⟨e, fun τ => ⟨(he τ).2.2, ?_⟩⟩
+  refine ⟨e, fun τ => ⟨(he τ).2.2, ?_, (he τ).1, (he τ).2.1⟩⟩
   obtain ⟨h1, h2, h3⟩ := he τ
   rw [hX₁' (e τ).1, h3, h1, h2, hcov _ _ _ (hbox τ.1 τ.2), hX₁]
 
@@ -230,9 +233,10 @@ theorem exists_domEquiv_of_canon
     ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom Y' τ'}, ∀ τ : {τ // NS.Dom Y τ},
       NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image
         (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) := by
-  exact exists_domEquiv_of_canon_core NS NS' y X y' X' hB hB' hX₁ hX₁' Y Y' hm hAdm
+  obtain ⟨e, he⟩ := exists_domEquiv_of_canon_core NS NS' y X y' X' hB hB' hX₁ hX₁' Y Y' hm hAdm
     (fun τ' hτ' => by
       obtain ⟨τ, h1, h2, h3⟩ := hAdm' τ' hτ'
       exact ⟨τ, hdom' τ τ' hτ' h1 h2 h3, h1, h2, h3⟩) hbox hcov hdom
+  exact ⟨e, fun τ => ⟨(he τ).1, (he τ).2.1⟩⟩
 
 end Balaban.Inhabited
