@@ -122,6 +122,52 @@ theorem decBg (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (coverOf S.G')
   rw [H.a_eq, H.hν]
   exact hB
 
+/-- **The bijection of the unit points of the two steps.** -/
+noncomputable def u (H : StepAff S S' A) : S.U ≃ S'.U :=
+  (DetDecCov.exists_unitAct_pair H.latSymm' H.unitBlockPres).choose
+
+theorem u_spec (H : StepAff S S' A) (y : S.U) (x : CTorus d L N₁ m₁ (k + 1)) :
+    unitBlock (A.toEquiv x) = ((H.u y : S'.U) : UnitTorus d L N₁ m₁ k) ↔
+      unitBlock x = (y : UnitTorus d L N₁ m₁ k) :=
+  (DetDecCov.exists_unitAct_pair H.latSymm' H.unitBlockPres).choose_spec y x
+
+/-- **The covariance root of the step is transported**: the entries of `C^{1/2}(s)` of `S'` at the
+images of the unit points are those of `S`. -/
+theorem covSqrtAt_entry (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (coverOf S.G')}
+    {s' : Dec2.DecParams (coverOf S'.G')}
+    (hs : ∀ P, Dec2.extS (coverOf S'.G') s' (tau A P) = Dec2.extS (coverOf S.G') s P)
+    (p q : S.U × Fin N) :
+    S'.covSqrtAt (coverOf S'.G') ρ s' (H.u p.1, p.2) (H.u q.1, q.2) =
+      S.covSqrtAt (coverOf S.G') ρ s p q := by
+  have hB := H.decBg ρ hs
+  have hrm := DetDecCov.decCovSqrt_rm_pair (a := S.a) H.latSymm' H.unitBlockPres
+    (τ := tau A) (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ')
+    (cover_chi_aff A H.hAl H.hca H.hca' H.hΩ') (cover_box_aff A)
+    (cover_qset_aff A H.hAl H.hca H.hca' H.hΩ') (u := H.u) H.u_spec (aT := S.a₁) (ν := S.ν)
+    (N := N)
+    (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν ρ s S.D')
+    (s := Dec2.extS (coverOf S.G') s) (s' := Dec2.extS (coverOf S'.G') s') hs
+    (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ s S.D'))
+  have hB' : Dec2.decBgField (coverOf S'.G') S'.G' S.a S.ν ρ s' S'.D' =
+        H.latSymm'.fld (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ s S.D') ∧
+      Dec2.decBgMult (coverOf S'.G') S'.G' S.a S.ν ρ s' S'.D' =
+        H.latSymm'.mul (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν ρ s S.D') := by
+    have hB2 := hB
+    rw [H.a_eq, H.hν] at hB2
+    exact hB2
+  have hsv : ∀ φ : S.G'.Ω 1 × Fin N → ℂ, svec S'.G' (H.latSymm'.fld φ) =
+      symSite A.toEquiv (svec S.G' φ) := by
+    intro φ
+    funext y i
+    obtain ⟨x, rfl⟩ := A.toEquiv.surjective y
+    rw [H.latSymm'.svec_sym]
+    show _ = svec S.G' φ (A.toEquiv.symm (A.toEquiv x)) i
+    rw [Equiv.symm_apply_apply]
+  unfold HoleStep.covSqrtAt
+  rw [H.a_eq, H.ha₁, H.hν, hB'.1, hB'.2, hsv]
+  exact (congrFun (congrFun hrm (H.u p.1, p.2)) (H.u q.1, q.2)).trans
+    (rm_apply (H.u.prodCongr (Equiv.refl (Fin N))) _ p q)
+
 end StepAff
 
 end Balaban.Fluctuation
