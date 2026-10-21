@@ -494,39 +494,9 @@ theorem norm_boxCut_apply_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
     {s : MacIdx d N₀ M → ℂ} (hs : ∀ z, ‖s z‖ ≤ Real.exp κ) {r : ℝ} (hr0 : 0 ≤ r)
     (hr : r ≤ pdEps d L / 8) (P Q : L1Torus d N₀ × Fin N) :
-    ‖boxCut d L N₀ k M v a h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) := by
-  obtain ⟨x, i⟩ := P
-  obtain ⟨y, j⟩ := Q
-  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp i i)
-  have hsq : 0 ≤ 1 / Real.sqrt a := by positivity
-  have hT := taggedCfin_entry_bound (N₀ := N₀) (k := k) (L := L) (v := v) (a := a) (M := M) hd hk
-    hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hs hr0 hr x y
-  rw [boxCut_apply]
-  unfold boxCutConst
-  simp only [Nat.cast_one, one_mul]
-  set B := 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
-    Real.sqrt (finalGap d L)
-  have hspin : ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤ 1 + p := by
-    refine (norm_sub_le _ _).trans (add_le_add ?_ (hp i j))
-    by_cases hij : i = j <;> simp [hij]
-  have hE0 : 0 ≤ Real.exp (-r * dist x y) := (Real.exp_pos _).le
-  have h2 : ‖taggedCfin d L N₀ k M v a s x y * ((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤
-      B * Real.exp (-r * dist x y) * (1 + p) := by
-    rw [norm_mul]
-    exact mul_le_mul hT hspin (norm_nonneg _) ((norm_nonneg _).trans hT)
-  refine (norm_add_le _ _).trans ?_
-  by_cases hxy : x = y
-  · subst hxy
-    simp only [dist_self, mul_zero, Real.exp_zero, mul_one, ↓reduceIte] at h2 ⊢
-    have h1 : ‖((1 / Real.sqrt a : ℝ) : ℂ) * (chiSum d N₀ M s x * spinProj h i j)‖ ≤
-        1 / Real.sqrt a * Real.exp κ * p := by
-      rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg hsq, norm_mul, mul_assoc]
-      exact mul_le_mul_of_nonneg_left (mul_le_mul (norm_chiSum_le hs x) (hp i j) (norm_nonneg _)
-        (Real.exp_pos _).le) hsq
-    linarith
-  · simp only [hxy, ↓reduceIte, zero_mul, mul_zero, norm_zero, zero_add]
-    have hA0 : 0 ≤ 1 / Real.sqrt a * Real.exp κ * p := by positivity
-    nlinarith
+    ‖boxCut d L N₀ k M v a h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
+  (norm_boxCutU_apply_le (cutOpHyp_finalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ) hp hs hr0 hr
+    P Q).trans (le_of_eq (by unfold boxCutConst; push_cast; ring))
 
 /-- **Finite range of the localized square root**: `L(p, q) = 0` unless `q` lies in the region
 of the localization domain of `p`. -/

@@ -27,6 +27,11 @@ defines `Localization.sqrtMat`.
 * `taggedCfin_one`: `taggedCfin 1 = Localization.sqrtMat (finalOp …)`.
 * `taggedCfin_analyticOnNhd`: every entry of `s ↦ taggedCfin s` is analytic on the open polydisc
   `{s | ∀ p, ‖s p‖ < e^κ}` (via `analyticOnNhd_integral_Ioi`).
+* Shared, generic in the matrix: `taggedCfinU U s` (the same integral for any `U`;
+  `taggedCfinU_finalOp`), the hypothesis bundle `CutOpHyp` (inhabited at the final operator,
+  `cutOpHyp_finalOp`), and the cores `taggedCfinU_row_bound`, `taggedCfinU_entry_bound`,
+  `taggedCfinU_one` (`= sqrtMat U`), `analyticOnNhd_taggedCfinU`; `taggedCfin_entry_bound`,
+  `taggedCfin_one` and `taggedCfin_analyticOnNhd` are their instances.
 
 **`taggedCfin s` is not claimed to be a square root of anything for `s ≠ 1`**; only its value at
 `s = 1` is identified (with the principal inverse square root of the final operator).
@@ -52,6 +57,54 @@ noncomputable def taggedCfin (v a : ℝ) (s : MacIdx d N₀ M → ℂ) :
         (macTags d N₀ M) (finalOp d L N₀ k v a) t s)
 
 end Def
+
+section DefU
+
+variable (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L]
+
+/-- The Stieltjes integral family of the tagged parametrix for an arbitrary matrix `U`
+(a construction proposed in FINALFAM). -/
+noncomputable def taggedCfinU (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    (s : MacIdx d N₀ M → ℂ) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ :=
+  ((1 / Real.pi : ℝ) : ℂ) • Localization.intMat (volume.restrict (Ioi (0 : ℝ)))
+    (fun t => ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) •
+      taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+        (macTags d N₀ M) U t s)
+
+variable {d N₀ M}
+
+/-- For the final operator the family is `taggedCfin`. -/
+theorem taggedCfinU_finalOp {v a : ℝ} (s : MacIdx d N₀ M → ℂ) :
+    taggedCfinU d N₀ M (finalOp d L N₀ k v a) s = taggedCfin d L N₀ k M v a s := by
+  unfold taggedCfinU taggedCfin
+  exact rfl
+
+end DefU
+
+section Hyp
+
+/-- **The hypotheses of the tagged cut family of a matrix** (shared, generic in the matrix): `U`
+is coercive with gap `g` (`IsCoercive`), its entries are bounded by `A e^{-δ |x - y|}`, the rate
+`ε` satisfies `0 < ε ≤ δ` and `ε ≤ ctRate A δ g (ballConst d (δ/4))`, and the macro side `M` and
+the cut radius `κ ≥ 0` satisfy the ties of `taggedGfin_of_coercive`
+(`4 B e^{H κ} ≤ M`, `8 κ 7^d ≤ ε M`).  Inhabited at the final operator (`cutOpHyp_finalOp`). -/
+structure CutOpHyp (d N₀ M : ℕ) [NeZero N₀] (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ)
+    (g A δ ε κ : ℝ) : Prop where
+  hA : 0 ≤ A
+  hδ : 0 < δ
+  hg : 0 < g
+  coercive : IsCoercive U g
+  decay : ∀ x y, ‖U x y‖ ≤ A * Real.exp (-δ * dist x y)
+  hε : 0 < ε
+  hεδ : ε ≤ δ
+  hεc : ε ≤ ctRate A δ g (ballConst d (δ / 4))
+  hM : 0 < M
+  hκ : 0 ≤ κ
+  hMB : 4 * ((16 * 7 ^ d * A * pdLip d / (g * ε) *
+    (ballConst d (ε / 2) * ballConst d (3 * ε / 4))) * Real.exp (pdH d * κ)) ≤ M
+  hMκ : 8 * κ * 7 ^ d ≤ ε * M
+
+end Hyp
 
 section Main
 
@@ -233,10 +286,99 @@ theorem taggedCfin_row_bound_of_coercive (U : Matrix (L1Torus d N₀) (L1Torus d
     _ = _ := by field_simp
 
 
+section Generic
+
+variable {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} {g A δ ε κ : ℝ}
+
+/-- **T3, generic**: weighted row sums of `taggedCfinU U s` under `CutOpHyp`. -/
+theorem taggedCfinU_row_bound (h : CutOpHyp d N₀ M U g A δ ε κ) {s : MacIdx d N₀ M → ℂ}
+    (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) {r : ℝ} (hr0 : 0 ≤ r) (hr : r ≤ ε / 8) (x : L1Torus d N₀) :
+    ∑ y, Real.exp (r * dist x y) * ‖taggedCfinU d N₀ M U s x y‖ ≤
+      4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2)) / Real.sqrt g :=
+  taggedCfin_row_bound_of_coercive U h.hA h.hδ h.hg h.coercive h.decay h.hε h.hεδ h.hεc h.hM h.hκ
+    h.hMB h.hMκ hs hr0 hr x
+
+/-- **T3, generic entry bound** under `CutOpHyp`. -/
+theorem taggedCfinU_entry_bound (h : CutOpHyp d N₀ M U g A δ ε κ) {s : MacIdx d N₀ M → ℂ}
+    (hs : ∀ p, ‖s p‖ ≤ Real.exp κ) {r : ℝ} (hr0 : 0 ≤ r) (hr : r ≤ ε / 8) (x y : L1Torus d N₀) :
+    ‖taggedCfinU d N₀ M U s x y‖ ≤
+      4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2)) / Real.sqrt g *
+        Real.exp (-r * dist x y) := by
+  have hrow := taggedCfinU_row_bound h hs hr0 hr x
+  have h1 : Real.exp (r * dist x y) * ‖taggedCfinU d N₀ M U s x y‖ ≤ _ :=
+    (Finset.single_le_sum (f := fun y => Real.exp (r * dist x y) *
+      ‖taggedCfinU d N₀ M U s x y‖) (fun y _ => mul_nonneg (Real.exp_pos _).le
+        (norm_nonneg _)) (Finset.mem_univ y)).trans hrow
+  have h2 : Real.exp (-r * dist x y) * Real.exp (r * dist x y) = 1 := by
+    rw [← Real.exp_add]; simp
+  calc _ = Real.exp (-r * dist x y) * (Real.exp (r * dist x y) *
+        ‖taggedCfinU d N₀ M U s x y‖) := by rw [← mul_assoc, h2, one_mul]
+    _ ≤ Real.exp (-r * dist x y) * _ := mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
+    _ = _ := by ring
+
+/-- **T4, generic**: under `CutOpHyp`, `taggedCfinU U 1 = sqrtMat U`. -/
+theorem taggedCfinU_one (h : CutOpHyp d N₀ M U g A δ ε κ) :
+    taggedCfinU d N₀ M U (fun _ => 1) = Localization.sqrtMat U := by
+  unfold taggedCfinU Localization.sqrtMat
+  congr 1
+  ext p q
+  unfold Localization.intMat
+  refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
+  have hG := (taggedGfin_of_coercive U h.hA h.hδ h.hg h.coercive h.decay h.hε h.hεδ h.hεc
+    (Set.mem_Ioi.1 ht).le h.hM h.hκ h.hMB h.hMκ).2.2.2
+  simp only [hG, shiftMat, add_comm]
+
+/-- **T5, generic**: under `CutOpHyp`, every entry of `s ↦ taggedCfinU U s` is analytic on the
+open polydisc `{s | ∀ p, ‖s p‖ < e^κ}`. -/
+theorem analyticOnNhd_taggedCfinU (h : CutOpHyp d N₀ M U g A δ ε κ) (x y : L1Torus d N₀) :
+    AnalyticOnNhd ℂ (fun s => taggedCfinU d N₀ M U s x y)
+      {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} := by
+  have hopen : IsOpen {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} := by
+    have : {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} =
+        ⋂ p, (fun s : MacIdx d N₀ M → ℂ => ‖s p‖) ⁻¹' Iio (Real.exp κ) := by
+      ext s; simp
+    rw [this]
+    exact isOpen_iInter_of_finite fun p => isOpen_Iio.preimage (by fun_prop)
+  have hcl : ∀ s ∈ {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ},
+      ∀ p, ‖s p‖ ≤ Real.exp κ := fun s hs p => (hs p).le
+  have hint := Localization.analyticOnNhd_integral_Ioi (E := MacIdx d N₀ M → ℂ) hopen
+    (G := fun t s => ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
+      (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) U t s x y)
+    (g := fun t => 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (ε / 2)) *
+        (t ^ (-(1 / 2 : ℝ)) * (g + t)⁻¹))
+    (fun t ht => analyticOnNhd_const.mul (((taggedGfin_of_coercive U h.hA h.hδ h.hg h.coercive
+        h.decay h.hε h.hεδ h.hεc (Set.mem_Ioi.1 ht).le h.hM h.hκ h.hMB h.hMκ).2.2.1 x y).mono
+        fun s hs p => (hs p).le))
+    (fun s hs => ContinuousOn.mul (Complex.continuous_ofReal.comp_continuousOn
+        (fun t ht => (Real.continuousAt_rpow_const _ _
+          (Or.inl (Set.mem_Ioi.mp ht).ne')).continuousWithinAt))
+      (continuousOn_taggedGfin_of_coercive U h.hA h.hδ h.hg h.coercive h.decay h.hε h.hεδ h.hεc
+        h.hM h.hκ h.hMB h.hMκ (hcl s hs) x y))
+    (continuousOn_const.mul (ContinuousOn.mul
+      (fun t ht => (Real.continuousAt_rpow_const _ _
+          (Or.inl (Set.mem_Ioi.mp ht).ne')).continuousWithinAt)
+      (Localization.continuousOn_inv_add_Ioi h.hg)))
+    ((Localization.integrableOn_rpow_inv_add h.hg).const_mul _)
+    (fun t ht s hs => taggedCfin_integrand_le_of_coercive U h.hA h.hδ h.hg h.coercive h.decay
+      h.hε h.hεδ h.hεc h.hM h.hκ h.hMB h.hMκ (hcl s hs) ht x y)
+  have := (analyticOnNhd_const (v := ((1 / Real.pi : ℝ) : ℂ))).mul hint
+  exact this.congr hopen fun s _ => rfl
+
+end Generic
+
 variable (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2)
   (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
   (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
 include hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ
+
+/-- **`CutOpHyp` holds at the final operator** (rule 10, the inhabitation of `CutOpHyp`): gap
+`finalGap`, decay constant `finalDecayC`, rate `blockDecayRate`, `ε = pdEps`. -/
+theorem cutOpHyp_finalOp :
+    CutOpHyp d N₀ M (finalOp d L N₀ k v a) (finalGap d L) (finalDecayC d L) (blockDecayRate d)
+      (pdEps d L) κ :=
+  ⟨(finalDecayC_pos hd).le, blockDecayRate_pos hd, finalGap_pos (Nat.pos_of_ne_zero (NeZero.ne L)),
+    finalMass_isCoercive hd hv0 hv1 ha1 hmass, finalMass_entry_decay hd hk hv0 ha1 ha2,
+    pdEps_pos hd, min_le_left _ _, min_le_right _ _, hM, hκ, hMB, hMκ⟩
 
 /-- Pointwise domination of the integrand: for `t > 0`,
 `‖t^{-1/2} G_fin(s,t) x y‖ ≤ (4/3) · 2 e^{Hκ} B₀ · (t^{-1/2} (g + t)⁻¹)`. -/
@@ -279,18 +421,9 @@ theorem taggedCfin_entry_bound {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p
     {r : ℝ} (hr0 : 0 ≤ r) (hr : r ≤ pdEps d L / 8) (x y : L1Torus d N₀) :
     ‖taggedCfin d L N₀ k M v a s x y‖ ≤
       4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) /
-        Real.sqrt (finalGap d L) * Real.exp (-r * dist x y) := by
-  have h := taggedCfin_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hs hr0 hr x
-  have h1 : Real.exp (r * dist x y) * ‖taggedCfin d L N₀ k M v a s x y‖ ≤ _ :=
-    (Finset.single_le_sum (f := fun y => Real.exp (r * dist x y) *
-      ‖taggedCfin d L N₀ k M v a s x y‖) (fun y _ => mul_nonneg (Real.exp_pos _).le
-        (norm_nonneg _)) (Finset.mem_univ y)).trans h
-  have h2 : Real.exp (-r * dist x y) * Real.exp (r * dist x y) = 1 := by
-    rw [← Real.exp_add]; simp
-  calc _ = Real.exp (-r * dist x y) * (Real.exp (r * dist x y) *
-        ‖taggedCfin d L N₀ k M v a s x y‖) := by rw [← mul_assoc, h2, one_mul]
-    _ ≤ Real.exp (-r * dist x y) * _ := mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
-    _ = _ := by ring
+        Real.sqrt (finalGap d L) * Real.exp (-r * dist x y) :=
+  taggedCfinU_entry_bound (cutOpHyp_finalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ) hs hr0 hr
+    x y
 
 /-- **T3, rate-loss column bound.** -/
 theorem taggedCfin_column_bound {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s p‖ ≤ Real.exp κ)
@@ -325,50 +458,15 @@ theorem taggedCfin_column_bound {s : MacIdx d N₀ M → ℂ} (hs : ∀ p, ‖s 
 /-- **T4.**  At the base point `s = 1`, `taggedCfin` is the principal inverse square root
 `Localization.sqrtMat` of the final operator. -/
 theorem taggedCfin_one :
-    taggedCfin d L N₀ k M v a (fun _ => 1) = Localization.sqrtMat (finalOp d L N₀ k v a) := by
-  unfold taggedCfin Localization.sqrtMat
-  congr 1
-  ext p q
-  unfold Localization.intMat
-  refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
-  have h := (taggedGfin_final (N₀ := N₀) (k := k) (L := L) hd hk hv0 hv1 ha1 ha2 hmass
-    (Set.mem_Ioi.1 ht).le hM hκ hMB hMκ).2.2.2
-  simp only [h, shiftMat, add_comm]
+    taggedCfin d L N₀ k M v a (fun _ => 1) = Localization.sqrtMat (finalOp d L N₀ k v a) :=
+  taggedCfinU_one (cutOpHyp_finalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ)
 
 /-- **T5.**  Every entry of `s ↦ taggedCfin s` is analytic on the open polydisc
 `{s | ∀ p, ‖s p‖ < e^κ}`. -/
 theorem taggedCfin_analyticOnNhd (x y : L1Torus d N₀) :
     AnalyticOnNhd ℂ (fun s => taggedCfin d L N₀ k M v a s x y)
-      {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} := by
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hopen : IsOpen {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} := by
-    have : {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} =
-        ⋂ p, (fun s : MacIdx d N₀ M → ℂ => ‖s p‖) ⁻¹' Iio (Real.exp κ) := by
-      ext s; simp
-    rw [this]
-    exact isOpen_iInter_of_finite fun p => isOpen_Iio.preimage (by fun_prop)
-  have hcl : ∀ s ∈ {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ},
-      ∀ p, ‖s p‖ ≤ Real.exp κ := fun s hs p => (hs p).le
-  have hint := Localization.analyticOnNhd_integral_Ioi (E := MacIdx d N₀ M → ℂ) hopen
-    (G := fun t s => ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * Gf t s x y)
-    (g := fun t => 4 / 3 * (2 * Real.exp (pdH d * κ) * ballConst d (pdEps d L / 2)) *
-        (t ^ (-(1 / 2 : ℝ)) * (finalGap d L + t)⁻¹))
-    (fun t ht => analyticOnNhd_const.mul (((taggedGfin_final (N₀ := N₀) (k := k) (L := L) hd hk
-        hv0 hv1 ha1 ha2 hmass (Set.mem_Ioi.1 ht).le hM hκ hMB hMκ).2.2.1 x y).mono
-        fun s hs p => (hs p).le))
-    (fun s hs => ContinuousOn.mul (Complex.continuous_ofReal.comp_continuousOn
-        (fun t ht => (Real.continuousAt_rpow_const _ _
-          (Or.inl (Set.mem_Ioi.mp ht).ne')).continuousWithinAt))
-      (continuousOn_taggedGfin hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ (hcl s hs) x y))
-    (continuousOn_const.mul (ContinuousOn.mul
-      (fun t ht => (Real.continuousAt_rpow_const _ _
-          (Or.inl (Set.mem_Ioi.mp ht).ne')).continuousWithinAt)
-      (Localization.continuousOn_inv_add_Ioi (finalGap_pos (d := d) hL))))
-    ((Localization.integrableOn_rpow_inv_add (finalGap_pos (d := d) hL)).const_mul _)
-    (fun t ht s hs => taggedCfin_integrand_le hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ
-      (hcl s hs) ht x y)
-  have := (analyticOnNhd_const (v := ((1 / Real.pi : ℝ) : ℂ))).mul hint
-  exact this.congr hopen fun s _ => rfl
+      {s : MacIdx d N₀ M → ℂ | ∀ p, ‖s p‖ < Real.exp κ} :=
+  analyticOnNhd_taggedCfinU (cutOpHyp_finalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ) x y
 
 end Main
 

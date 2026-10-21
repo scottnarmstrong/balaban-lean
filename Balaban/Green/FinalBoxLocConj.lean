@@ -114,12 +114,19 @@ theorem conjM_finalOp : conjM (finalOp d L N₀ k v a) = finalOp d L N₀ k v a 
   rw [conjM_apply]
   exact Complex.conj_ofReal _
 
+omit [NeZero L] in
+/-- **Conjugation of the Stieltjes square-root family of a real matrix** (shared core):
+`conj (C_fin(U; s)) = C_fin(U; conj s)` for `conj U = U`. -/
+theorem conjM_taggedCfinU {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} (hU : conjM U = U)
+    (s : MacIdx d N₀ M → ℂ) :
+    conjM (taggedCfinU d N₀ M U s) = taggedCfinU d N₀ M U (fun p => conj (s p)) := by
+  unfold taggedCfinU
+  simp only [conjM_ofReal_smul, conjM_intMat, conjM_taggedGfin, hU, Complex.conj_ofReal]
+
 /-- **Conjugation of the Stieltjes square-root family**: `conj (C_fin(s)) = C_fin(conj s)`. -/
 theorem conjM_taggedCfin (s : MacIdx d N₀ M → ℂ) :
-    conjM (taggedCfin d L N₀ k M v a s) = taggedCfin d L N₀ k M v a (fun p => conj (s p)) := by
-  unfold taggedCfin
-  simp only [conjM_ofReal_smul, conjM_intMat, conjM_taggedGfin, conjM_finalOp,
-    Complex.conj_ofReal]
+    conjM (taggedCfin d L N₀ k M v a s) = taggedCfin d L N₀ k M v a (fun p => conj (s p)) :=
+  conjM_taggedCfinU conjM_finalOp s
 
 omit [NeZero L] in
 theorem conjM_liftOp (A : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) :
@@ -145,13 +152,22 @@ theorem conjM_diagonal_chiSum (s : MacIdx d N₀ M → ℂ) :
   funext x
   simp [chiSum, map_sum]
 
+omit [NeZero L] in
+/-- **Conjugation of the cut family of a real matrix** (shared core):
+`conj (boxCutU(U; h, s)) = boxCutU(U; conj h, conj s)` for `conj U = U`. -/
+theorem conjM_boxCutU {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} (hU : conjM U = U)
+    (h : Fin N → ℂ) (s : MacIdx d N₀ M → ℂ) :
+    conjM (boxCutU d N₀ M a U h s) =
+      boxCutU d N₀ M a U (fun i => conj (h i)) (fun p => conj (s p)) := by
+  unfold boxCutU
+  rw [map_add, conjM_ofReal_smul, map_mul, map_mul, map_sub, map_one, conjM_liftOp, conjM_liftOp,
+    conjM_diagonal_chiSum, conjM_taggedCfinU hU, conjM_projHC]
+
 /-- **Conjugation of the cut family**: `conj (boxCut(h, s)) = boxCut(conj h, conj s)`. -/
 theorem conjM_boxCut (h : Fin N → ℂ) (s : MacIdx d N₀ M → ℂ) :
     conjM (boxCut d L N₀ k M v a h s) =
-      boxCut d L N₀ k M v a (fun i => conj (h i)) (fun p => conj (s p)) := by
-  unfold boxCut
-  rw [map_add, conjM_ofReal_smul, map_mul, map_mul, map_sub, map_one, conjM_liftOp, conjM_liftOp,
-    conjM_diagonal_chiSum, conjM_taggedCfin, conjM_projHC]
+      boxCut d L N₀ k M v a (fun i => conj (h i)) (fun p => conj (s p)) :=
+  conjM_boxCutU conjM_finalOp h s
 
 end Final
 
