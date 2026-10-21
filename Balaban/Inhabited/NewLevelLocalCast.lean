@@ -20,8 +20,10 @@ public import Balaban.Localization.Decoupled2Background
 # The clauses (A1)–(A5) of the recomputed family on the cast local set of a polymer
 
 Route R-LOC, L5: the instance of `NewLevelSystem.clauses_of` at the local pair of the polymer `T`,
-`Gb = castG hc (𝔹_{k+1}(Yp'))` and `Gd = castG hc (𝔹_k(Ω_k(𝔹_{k+1}(Yp'))))`, for the collar `Yp'`
-of width `2 L^{k+1+m₁'}` of a set `Y ⊇ sitesOf T` (`m₁ + 2 ≤ m₁'`).  The facts of the local pair
+`Gb = castG hc (𝔹_{k+1}(Yp'))` and `Gd = castG hc (𝔹_k(Ω_k(𝔹_{k+1}(Yp'))))`, for a set `Yp'` whose
+cast local set has every site within `2 L^{k+1+m₁'}` of `sitesOf T` in its top layer (`m₁ + 2 ≤ m₁'`;
+e.g. the collar of width `2 L^{k+1+m₁'}` of a set `Y ⊇ sitesOf T`, `castLocal_margin`, or the set
+`Ŷ` of ruling R13).  The facts of the local pair
 (`castG_localB_pair`, `coverBase_of_aligned_supSep`), its fluctuation cores
 (`flCore_castG_localB_of`), its decoupling pairs (`Dec2.i4b_analytic`, `Dec2.i4a_analytic`), the
 projection onto its data (`exists_rawSub_proj`), the margins of `T` (`castLocal_labelMargin`,
@@ -72,22 +74,17 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {N₁' m₁' : ℕ} 
 
 open Classical in
 /-- **The determinant part at the read data on the cast local set of a polymer**: the hypothesis
-`hdetT` of `NewLevelSystem.clauses_of` at `Gb = castG hc (𝔹_{k+1}(Yp'))`, for the collar `Yp'` of
-width `2 L^{k+1+m₁'}` of a set `Y ⊇ sitesOf T` (`m₁ + 2 ≤ m₁'`, so that the deep margin
+`hdetT` of `NewLevelSystem.clauses_of` at `Gb = castG hc (𝔹_{k+1}(Yp'))`, for a set `Yp'` whose
+cast local set has every site within `2 L^{k+1+m₁'}` of `sitesOf T` in its top layer
+(`m₁ + 2 ≤ m₁'`, so that the deep margin
 `8 L^{k+1+m₁}` of `newLevelDetBg_castG_canon` lies in the top layer of `Gb`), a mask `Zp` whose
 blocks are unit points of `Gb`, and a retraction `π_b` onto the data of `Gb`. -/
 theorem newLevelDetBg_castLocal_read {S : StepSetting d L N₁ m₁ k N ϱ} (hS1 : S.a₁ = 1)
     (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hm : m₁ + 2 ≤ m₁') (hsep : ϱ ≤ minSep L (L ^ m₁'))
     {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ)}
-    {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hTY : sitesOf T ⊆ Y)
     {Yp' : Set (CTorus d L N₁' m₁' (k + 1))}
-    (hYp' : ∀ x, x ∈ Yp' ↔ ∃ x₀ ∈ {x' : CTorus d L N₁' m₁' (k + 1) |
-        (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ Y}, ∃ y : CTorus d L N₁' m₁' (k + 1),
-      fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) =
-        fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) ∧
-      supDist x₀ y ≤ 2 * L ^ (k + 1 + m₁'))
+    (hmarg' : ∀ x ∈ sitesOf T, ∀ y : CTorus d L N₁ m₁ (k + 1), supDist x y ≤ 2 * L ^ (k + 1 + m₁') →
+      y ∈ (castG hc (localB (k + 1) (le_refl (k + 1)) Yp' hsep)).Ω (k + 1))
     {Hf : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱf}
     {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
     {c BG κ eps Kc Cx c₂ BG₂ δ₁ Kc' Cx' c₂' BG₂' δ₁' c₃ : ℝ}
@@ -145,7 +142,7 @@ theorem newLevelDetBg_castLocal_read {S : StepSetting d L N₁ m₁ k N ϱ} (hS1
       y ∈ Finset.univ.filter
           (· ∈ (castG hc (localB (k + 1) (le_refl (k + 1)) Yp' hsep)).Ω (k + 1)) := fun x hx y hy =>
     Finset.mem_filter.2 ⟨Finset.mem_univ _,
-      castLocal_margin hc hsep hTY hYp' h8 x hx y (by rwa [supDist_comm])⟩
+      hmarg' x hx y ((by rwa [supDist_comm] : supDist x y ≤ 8 * L ^ (k + 1 + m₁)).trans h8)⟩
   rw [newLevelDetBg_castG_canon S.hG' hc le_rfl Yp' hsep hR hCs1.HBp hCz1.HBp hCs1 hCz1 hS3 hM3 hk1
     hδc hcap hsm hmar hα ht hsmall hc0 hc1 heps D hD hN1 Zp hZp 0 0 T hdeep, hπb _ hmem]
   congr 3
@@ -161,8 +158,9 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 open Classical in
 /-- **The clauses of the recomputed family on the cast local set of a polymer** (route R-LOC, L5):
-for the polymer `T` whose root cube is that of `z`, `Y ⊇ sitesOf T`, and `Yp'` the collar of `Y`
-of width `2 L^{k+1+m₁'}` (`m₁ + 2 ≤ m₁'`), under the hypotheses of `clauses_of` that do not
+for the polymer `T` whose root cube is that of `z` and a set `Yp'` whose cast local set has every
+site within `2 L^{k+1+m₁'}` of `sitesOf T` in its top layer (`m₁ + 2 ≤ m₁'`), under the hypotheses
+of `clauses_of` that do not
 concern the local pair, with the step's `FlCore` at the cover constants at the radii `t` and `ε′`
 for the constants of the system and of the old terms, there are a retraction `π_b` onto the data
 of `Gb = castG hc (𝔹_{k+1}(Yp'))` and a function `c_T` of the parameters of `Gb` (the coefficient
@@ -170,7 +168,7 @@ recomputed on `Gb` from the labels inside `T`) with the clauses (A1)–(A5) of
 `localFamily_of_coeff`. -/
 theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
-    -- the local pair: the cast local set of the collar `Yp'` of a set `Y ⊇ sitesOf T`
+    -- the local pair: the cast local set of a set `Yp'` with the margin of `sitesOf T`
     {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hm : m₁ + 2 ≤ m₁')
     (hsep : ϱ ≤ minSep L (L ^ m₁'))
     {eps' : ℝ}
@@ -325,15 +323,10 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (Φ₀ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b)
     (hΦ₀ : ∀ b u, Φ₀ b u = 0)
     (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
-    (hzT : rootCube (m₀ := 1) z ∈ T) {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hTY : sitesOf T ⊆ Y)
+    (hzT : rootCube (m₀ := 1) z ∈ T)
     {Yp' : Set (CTorus d L N₁' m₁' (k + 1))}
-    (hYp' : ∀ x, x ∈ Yp' ↔ ∃ x₀ ∈ {x' : CTorus d L N₁' m₁' (k + 1) |
-        (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ Y}, ∃ y : CTorus d L N₁' m₁' (k + 1),
-      fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) =
-        fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) ∧
-      supDist x₀ y ≤ 2 * L ^ (k + 1 + m₁'))
+    (hmarg' : ∀ x ∈ sitesOf T, ∀ y : CTorus d L N₁ m₁ (k + 1), supDist x y ≤ 2 * L ^ (k + 1 + m₁') →
+      y ∈ (castG hc (localB (k + 1) (le_refl (k + 1)) Yp' hsep)).Ω (k + 1))
     {Ypl : Set (CTorus d L N₁ m₁ (k + 1))}
     (hYpl : thickSet S.G' (sitesOf T) ⊆ Ypl)
     (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
@@ -408,9 +401,11 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
   -- the projection onto the data of the local set and the margins of `T`
   obtain ⟨πb, hπb⟩ := exists_rawSub_proj (N := N)
       (castG hc (localB (k + 1) (le_refl (k + 1)) Yp' hsep))
-  have hTm := castLocal_labelMargin hc hm' hsep hTY hYp'
+  have hTm : LabelMargin (castG hc (localB (k + 1) (le_refl (k + 1)) Yp' hsep)) (sitesOf T) :=
+    fun x hx y hy => hmarg' x hx y (hy.trans (Nat.mul_le_mul_left 2
+      (Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by omega))))
   -- the determinant part at the read data
-  have hdetT := newLevelDetBg_castLocal_read hS1 hc hm hsep hTY hYp' hCs' hCz' hS3 hM3 hδc hMXn hsm
+  have hdetT := newLevelDetBg_castLocal_read hS1 hc hm hsep hmarg' hCs' hCz' hS3 hM3 hδc hMXn hsm
     hdm' hα' hCs.eps_pos hCs.small1 hc0 ((hCs.c7le).trans (c7_le_bgC1 d L N NS.BG NS.κ)) hεr hN1
     (blockU_mem_unitPts_of_margin S z hzT fun x hx => hTm x hx x (by simp [supDist_self])) πb hπb
   obtain ⟨bT, hbT, hA1, hA2, hA3, hA4, hA5⟩ := NS.clauses_of
@@ -436,7 +431,8 @@ open Classical in
 /-- **The family of the new level recomputed on the local generating sets** (route R-LOC, L5; the
 forms `hfan`, `hfbd`, `hfloc`, `hfrot`, `hfval` of `newLabels_castInputs_of_localFamily` at the root
 `z`).  For the coefficient `e` of the system `NS` on the step chart (`he`), supported on the
-polymers rooted at `z` (`hsupp`), the collars `Yp Y` of width `2 L^{k+1+m₁'}` (`m₁ + 2 ≤ m₁'`)
+polymers rooted at `z` (`hsupp`), sets `Yp Y` whose cast local sets have every site within
+`2 L^{k+1+m₁'}` of `sitesOf T` in their top layer for `Y = Y⁺(T)` (`hmarg`; `m₁ + 2 ≤ m₁'`)
 and the class radius `ε_{k+1} = P.eps d L (k + 1) ≤ t`, under the hypotheses of
 `clauses_castLocal_of` that do not concern the polymer, there are a family `f T` of the pair of
 fields and bounds `b T` with (A1)–(A5) on the local generating sets
@@ -450,13 +446,11 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
     (hsep : ϱ ≤ minSep L (L ^ m₁'))
     {P : Consts} (hNP : L ^ P.m₀ ∣ N₁)
     (Yp : Set (CTorus d L N₁ m₁ (k + 1)) → Set (CTorus d L N₁' m₁' (k + 1)))
-    (hYp : ∀ Y x, x ∈ Yp Y ↔ ∃ x₀ ∈ {x' : CTorus d L N₁' m₁' (k + 1) |
-        (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ Y}, ∃ y : CTorus d L N₁' m₁' (k + 1),
-      fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) =
-        fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
-          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) ∧
-      supDist x₀ y ≤ 2 * L ^ (k + 1 + m₁'))
+    (hmarg : ∀ (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
+        Set.univ)), ∀ x ∈ sitesOf T, ∀ y : CTorus d L N₁ m₁ (k + 1),
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁') →
+      y ∈ (castG hc (localB (k + 1) (le_refl (k + 1))
+        (Yp (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))) hsep)).Ω (k + 1))
     {eps' : ℝ}
     (hle : t ≤ eps')
     (hεr : (2 * bgK1 d L N + 2) * xiC1 d * t ≤ eps')
@@ -647,9 +641,6 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
         Def6.XiDom S.G' S.a S.ν (k + 1) (P.eps d L (k + 1)) q.1 q.2 →
         f T q = e (π (clipRaw S.G' q), 0) T) := by
   classical
-  have hTY : ∀ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
-      Set.univ), sitesOf T ⊆ sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))) :=
-    fun T => Set.subset_union_left.trans (subset_sitesOf_piHull hNP _)
   have hYpl : ∀ T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1)
       Set.univ), thickSet S.G' (sitesOf T) ⊆ sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))) :=
     fun T => subset_sitesOf_piHull hNP _
@@ -731,7 +722,7 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
           hcψ hρ₀c hρp hRu hBG₂ hκ₀ hκdec hκκ h1 hlog hR₁ hr hrays hR hRR hUR hU hSL hCLs hCLs'
           hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm
           hcovL hX₁L hoptL hEb hb₁ hbC hBo hFLo hCN' hFN' hGs hrb hFkan hEan hEbd hEr
-          hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz hS3 hM3 hc0 hN1 Φ₀ hΦ₀ T hzT (hTY T) (hYp _)
+          hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz hS3 hM3 hc0 hN1 Φ₀ hΦ₀ T hzT (hmarg T)
           (hYpl T) e (fun θ hθ => he θ hθ T) π hπ
       exact ⟨πb, hπb, cT, bT, hbT, fun _ => ⟨h1, h2, h3, h4, h5⟩⟩
     · obtain ⟨πb, hπb⟩ := exists_rawSub_proj (N := N)

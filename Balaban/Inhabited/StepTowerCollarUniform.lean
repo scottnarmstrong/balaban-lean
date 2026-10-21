@@ -143,6 +143,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_p
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν Tk.c Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.κ Tk.BG Tk.t (Q * Tk.t)
           (levelKc d L) (Cchi d L) Tk.c₂ Tk.BG₂ (min Tk.t (η * ε k)) (F * min Tk.t (η * ε k)) (X₁f τ)) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀
         -- the composed step data of the labels lie in the term domain, `Ψ(y)·Ψ(y)` in the slit plane
         (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ (Fk : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →
@@ -204,10 +205,14 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_p
           (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
+        (NewLevelFormulaW S C z Jr
           ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * ε k), p₁, C.m₀, Tk.c,
             4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
-            F * min Tk.t (η * ε k)⟩ e →
+            F * min Tk.t (η * ε k)⟩ e ∧
+          (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * ε k), p₁, C.m₀, Tk.c,
+            4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * ε k)⟩ e)) →
         B ≤ CPE d L (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
           rootUnionK d L 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
           (corrF0G Tk k β p₁ * K0 d L Tk.κ0 +
@@ -462,7 +467,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_p
     N₁ h3N hN₁ ν hν0 hν β hβ hcδ p₁ hp0 hp₁ hϱ S hS
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @H' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @H' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
     hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum Φ hΦ

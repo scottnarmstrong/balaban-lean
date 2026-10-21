@@ -234,6 +234,9 @@ structure OldTermSystem (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) where
   X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))
   /-- the cover set of the term -/
   𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1))
+  /-- the polymer of the term (`X ∪ □(y)` for the label `(j, y, X)`), whose length enters the bound
+  of the term -/
+  XL : ι → Set (CTorus d L N₁ m₁ (k + 1))
   /-- the separation of the generating sets `Gk` -/
   ϱ₁ : ℝ
   Gk : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁
@@ -260,8 +263,8 @@ attribute [instance] OldTermSystem.fin
 /-- **The settings of the inherited levels at the step radius** (the base premises of the class
 chain, `StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula`): the background
 and fluctuation settings of each old term (`BgSetting`, `FlSetting` with the step's level-`k` set,
-constants `(c_B, r₀, δ₃)` and `(K_c, C_χ, c₂, δ_fl)`), its covering setup on the set `XL τ`, the
-frozen region `X₁f τ = X1`, the trees realizing the length of `XL τ`, the analyticity of the
+constants `(c_B, r₀, δ₃)` and `(K_c, C_χ, c₂, δ_fl)`), its covering setup on the polymer `O.XL τ`, the
+frozen region `X₁f τ = X1`, the trees realizing the length of `O.XL τ`, the analyticity of the
 background field `FkL τ` of its generating set, and `L^{m₀} ∣ N₁`. -/
 structure OldTermSettings (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) (O : OldTermSystem S t) where
   cB : ℝ
@@ -272,17 +275,16 @@ structure OldTermSettings (S : StepSetting d L N₁ m₁ k N ϱ) (t : ℝ) (O : 
   c₂ : ℝ
   δfl : ℝ
   X₀ : O.ι → Finset (CTorus d L N₁ m₁ (k + 1))
-  XL : O.ι → Set (CTorus d L N₁ m₁ (k + 1))
   hB : ∀ τ, BgSetting N S.G' (O.Gk τ) (O.Gj τ) S.a₁ S.ν cB O.BG O.κ r₀ t δ₃ (X₀ τ) (O.X₁f τ)
     (O.jL τ)
   hF : ∀ τ, FlSetting N S.G' (O.Gk τ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν O.κ O.BG t δ₃ Kc Cx c₂ O.BG₂
     O.δ₁ δfl (O.X₁f τ)
-  hcov : ∀ τ, CovSetup S.G' O.m₀ (O.jL τ) (XL τ) (O.𝒦X τ)
+  hcov : ∀ τ, CovSetup S.G' O.m₀ (O.jL τ) (O.XL τ) (O.𝒦X τ)
   hX₁ : ∀ τ, (↑(O.X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' O.m₀ (O.jL τ) (O.𝒦X τ)
   hopt : ∀ τ, ∃ (W₀ : Finset (CTorus d L N₁ m₁ (k + 1)))
     (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
-    ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne O.m₀ (O.jL τ) (O.𝒦X τ) W₀ ∧
-      bondCost (scaleW L O.m₀ m₁ (O.jL τ)) E₀ = treeLenCovOne O.m₀ (O.jL τ) (XL τ)
+    ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ O.XL τ) ∧ MeetsOne O.m₀ (O.jL τ) (O.𝒦X τ) W₀ ∧
+      bondCost (scaleW L O.m₀ m₁ (O.jL τ)) E₀ = treeLenCovOne O.m₀ (O.jL τ) (O.XL τ)
   hFkan : ∀ τ, AnalyticOnNhd ℂ (O.FkL τ) {p | ∃ D : BgData (O.Gk τ) N,
     InUnionDomainC (O.Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)}
   hN : L ^ O.m₀ ∣ N₁
@@ -538,14 +540,35 @@ theorem hasConsts_consts : NS.HasConsts NS.consts :=
 
 end NewLevelSystem
 
-/-- **The old terms are the irrelevant terms of the class**: the old term of `τ` is the term
-`irrelTorus` of the terms `C.Tm` of the class at the cube `y τ` and the polymer `X τ` of level
-`jL τ` (P1 (3.112)-(3.113)). -/
-def OldTermsAreIrrel (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {t : ℝ}
+/-- **The old terms are the irrelevant terms of the class** (weak form): the old term of `τ` is
+the term `irrelTorus` of the terms `C.Tm` of the class at the cube `y τ` and the polymer `X τ` of
+level `jL τ` (P1 (3.112)-(3.113)); nothing is said of the generating sets the terms are composed
+on. -/
+def OldTermsAreIrrelW (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {t : ℝ}
     (O : OldTermSystem S t) : Prop :=
   O.m₀ = C.m₀ ∧ ∃ (i₀ i₁ : Fin N) (y : O.ι → CTorus d L N₁ m₁ (k + 1))
     (X : O.ι → Set (CTorus d L N₁ m₁ (k + 1))), ∀ τ r,
     O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2
+
+/-- **The old terms are the irrelevant terms of the class, composed on the class generating sets**
+(ruling R13): the old term of `τ` is `irrelTorus` of `C.Tm` at the label `(jL τ, y τ, X τ)`
+(`1 ≤ jL τ ≤ k`, `y τ ∈ X τ` aligned to `L^{jL τ}`, `X τ ∈ 𝒟_{jL τ}`), and it is composed on the
+generating set `C.Tm.gs (jL τ) (X τ)` of the class (P1 (3.112)-(3.113), P3 (4.4)-(4.6)); its polymer
+`O.XL τ` is `X τ ∪ □(y τ)`. -/
+def OldTermsAreIrrel (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {t : ℝ}
+    (O : OldTermSystem S t) : Prop :=
+  O.m₀ = C.m₀ ∧ ∃ (i₀ i₁ : Fin N) (y : O.ι → CTorus d L N₁ m₁ (k + 1))
+    (X : O.ι → Set (CTorus d L N₁ m₁ (k + 1))),
+    (∀ τ r, O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2) ∧
+    ∀ τ, O.Gj τ = C.Tm.gs (O.jL τ) (X τ) ∧ 1 ≤ O.jL τ ∧ O.jL τ ≤ k ∧
+      Aligned (L ^ O.jL τ) (y τ) ∧ IsPolyDom C.m₀ (O.jL τ) (X τ) ∧ y τ ∈ X τ ∧
+      O.XL τ = X τ ∪ box (cbase (cellSide L C.m₀ m₁ (O.jL τ)) (y τ) -
+        natT fun _ => L / 2 * cellSide L C.m₀ m₁ (O.jL τ)) (L * cellSide L C.m₀ m₁ (O.jL τ))
+
+theorem OldTermsAreIrrel.toW {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {t : ℝ} {O : OldTermSystem S t} (h : OldTermsAreIrrel S C O) : OldTermsAreIrrelW S C O := by
+  obtain ⟨hm, i₀, i₁, y, X, hE, -⟩ := h
+  exact ⟨hm, i₀, i₁, y, X, hE⟩
 
 /-- **`e` is the coefficient of a system with the given inherited levels `O` and constants `K`** on
 the step chart. -/
@@ -557,15 +580,56 @@ def NewLevelFormulaFor (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L
   ∃ NS : NewLevelSystem S C z Jr, NS.O = O ∧ NS.HasConsts K ∧
     ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
 
+/-- **`e` is the coefficient of a system of the class `C` with the constants `K`** (weak form) on
+the step chart: the inherited levels are the irrelevant terms of `C` (`OldTermsAreIrrelW`); the
+system carries the settings of the inherited levels (`NewLevelSystem.OS`) and its constants are those
+of `K`. -/
+def NewLevelFormulaW (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
+    (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp) (K : NewLevelConsts)
+    (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ) : Prop :=
+  ∃ NS : NewLevelSystem S C z Jr, OldTermsAreIrrelW S C NS.O ∧ NS.HasConsts K ∧
+    ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
+
 /-- **`e` is the coefficient of a system of the class `C` with the constants `K`** on the step
-chart: the inherited levels are the irrelevant terms of `C`; the system carries the settings of the
-inherited levels (`NewLevelSystem.OS`) and its constants are those of `K`. -/
+chart: the inherited levels are the irrelevant terms of `C`, composed on the generating sets of the
+class (`OldTermsAreIrrel`, ruling R13); the system carries the settings of the inherited levels
+(`NewLevelSystem.OS`) and its constants are those of `K`. -/
 def NewLevelFormula (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
     (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp) (K : NewLevelConsts)
     (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
       (k + 1) Set.univ) → ℂ) : Prop :=
   ∃ NS : NewLevelSystem S C z Jr, OldTermsAreIrrel S C NS.O ∧ NS.HasConsts K ∧
     ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
+
+/-- **The class is in the regime of ruling R13** at the cube exponent `s` and the collar `r₀`: the
+block-index margin of the composition on `𝔹_j(X̂)`
+(`(5 L + 13) L^s + ⌊L/2⌋ L^{m₀} + r₀ L ≤ (L - 2) L^{m₀+1}`), `s` is the cube exponent `hatScale` of
+the separation `ϱ` and is below `m₀`, and the generating sets of the class are the local sets
+`𝔹_j(X̂)` (`HatSpec`). -/
+def ClassHatCond (C : StepClass d L N₁ m₁ k N ϱ) (s : ℕ) (r₀ : ℝ) : Prop :=
+  (((5 * L + 13) * L ^ s + L / 2 * L ^ C.m₀ : ℕ) : ℝ) + r₀ * L ≤
+      (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1) ∧
+    hatScale L m₁ ϱ = s ∧ s < C.m₀ ∧
+    ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom C.m₀ j X → HatSpec C.m₀ j X (C.Tm.gs j X)
+
+theorem NewLevelFormula.toW {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormula S C z Jr K e) : NewLevelFormulaW S C z Jr K e := by
+  obtain ⟨NS, hO, hK, h⟩ := h
+  exact ⟨NS, hO.toW, hK, h⟩
+
+theorem NewLevelFormulaW.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {O : OldTermSystem S t}
+    {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (hO : OldTermsAreIrrelW S C O) (h : NewLevelFormulaFor S C z Jr O K e) :
+    NewLevelFormulaW S C z Jr K e := by
+  obtain ⟨NS, rfl, hK, h⟩ := h
+  exact ⟨NS, hO, hK, h⟩
 
 theorem NewLevelFormula.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
     {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {O : OldTermSystem S t}

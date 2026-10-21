@@ -3090,3 +3090,6 @@ public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
 public import Balaban.SmallField.GsSpecHat
 public import Balaban.Fluctuation.OldTermsLiftHat
+public import Balaban.Fluctuation.HatSetGeom
+public import Balaban.Inhabited.ClassHatWitness
+public import Balaban.Inhabited.NewLevelOldTermsClass
