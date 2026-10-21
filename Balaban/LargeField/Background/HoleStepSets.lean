@@ -37,6 +37,8 @@ set `(𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1}`: the same layers below `k + 1` a
 * `cubeKOfC`, `activeCoreC`: the cube of `𝕋_k` of a site of the cover torus, and the sites of
   `A_X = X ∩ Ω_{k+1}` of a set `X` of cubes of `𝕋_k` (the uncut core of the re-expansion of an old
   boundary term, P6 p. 34; `mem_activeCoreC`);
+* `mem_castN_Ω`, `supDist_cast`, `p6TopC_ball`: the sites within `10` top cells of a site of
+  `Ω_{k+1}` lie in `Ω₁` of the set of (2.17) (the halo is far from the complement of `W_k`);
 * `collarCoreC`: the sites within sup-distance `r` of `A_X` (the uncut core of the re-expansion, with
   the collar of the pair condition `X₀^{∼r₀} ⊂ X₁` of P3 (2.14); `mem_collarCoreC`,
   `activeCoreC_subset_collarCoreC`).
@@ -266,5 +268,55 @@ theorem activeCoreC_subset_collarCoreC (hM1 : M1 = L ^ m₁) (r : ℕ) (X : Fins
   intro x hx
   rw [mem_collarCoreC]
   exact ⟨x, hx, by rw [supDist_self]; exact Nat.zero_le _⟩
+
+/-- Membership in a domain of a generating set transported along an equality of the base sides. -/
+theorem mem_castN_Ω {N₀ N₀' K' : ℕ} [NeZero N₀] [NeZero N₀'] {ϱ : ℝ} (h : N₀ = N₀')
+    (G : GeneratingSet d L N₀ K' ϱ) (j : ℕ) (x : Torus d (N₀' * L ^ K')) :
+    x ∈ (castN h G).Ω j ↔ ((congrArg (· * L ^ K') h).symm ▸ x : Torus d (N₀ * L ^ K')) ∈ G.Ω j := by
+  subst h; rfl
+
+/-- The sup-distance is preserved by the transport along an equality of sides. -/
+theorem supDist_cast {a b : ℕ} (h : a = b) (x y : Torus d a) :
+    supDist (h ▸ x : Torus d b) (h ▸ y) = supDist x y := by
+  subst h; rfl
+
+/-- **The sites near `Ω_{k+1}` lie in `Ω₁` of the set of (2.17)**: a site within `10` top cells
+(`10 M₁ L^{k+1}`) of a site of `Ω_{k+1}` (on the cover torus) lies in `Ω₁(G′)` (`c ≥ 14`,
+`⌊R_{k-1}⌋ ≥ 3 L`): `Ω_{k+1}` lies in the halo, which is far from the complement of `W_k = Ω_k`. -/
+theorem p6TopC_ball (hM1 : M1 = L ^ m₁) (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ')
+    (hc5 : 5 ≤ c) (hc : 14 ≤ c) (hk1 : 1 ≤ k) {x z : Localization.CTorus d L (c * n1) m₁ (k + 1)}
+    (hx : cubeOfC hM1 x ∈ st.Omega) (hxz : supDist x z ≤ 10 * L ^ (k + 1 + m₁)) :
+    z ∈ (p6TopC (k := k) st hM1 hn hρ hc5).Ω 1 := by
+  set e := (congrArg (· * L ^ (k + 1)) (p6_side (c := c) (n1 := n1) hM1)).symm with he
+  have hx' : (e ▸ x : Torus d (M1 * (c * n1) * L ^ (k + 1))) ∈ fineK1 M1 c n1 L k st.Omega := by
+    rw [mem_fineK1]; exact hx
+  have hxh := fineK1_Omega_subset_p6Halo st hn ρ' hx'
+  have hz : (e ▸ z : Torus d (M1 * (c * n1) * L ^ (k + 1))) ∈ stepW M1 c n1 L k ρ' st.Z := by
+    by_contra hz
+    have h := p6_halo_far_sup (M1 := M1) (c := c) hn (by omega) st.Z hz hxh
+    have hd : supDist (e ▸ z : Torus d (M1 * (c * n1) * L ^ (k + 1))) (e ▸ x) ≤
+        10 * (M1 * L ^ (k + 1)) := by
+      rw [supDist_cast, supDist_comm, hM1, ← pow_add, show m₁ + (k + 1) = k + 1 + m₁ by ring]
+      exact hxz
+    have hP : L ^ k * (c * M1) * (ρ' + 3 - 2 * L) ≥ L ^ k * (c * M1) * (L + 3) :=
+      Nat.mul_le_mul_left _ (by omega)
+    have hLk : L ^ (k + 1) = L ^ k * L := pow_succ L k
+    have hpos : 0 < L ^ k * M1 := Nat.pos_of_ne_zero (by
+      have := NeZero.ne L; have := NeZero.ne M1; positivity)
+    have h10 : 10 * (M1 * L ^ (k + 1)) < L ^ k * (c * M1) * (L + 2) + 1 := by
+      rw [hLk]
+      have : 10 * (M1 * (L ^ k * L)) = (L ^ k * M1) * (10 * L) := by ring
+      have h2 : L ^ k * (c * M1) * (L + 2) = (L ^ k * M1) * (c * (L + 2)) := by ring
+      rw [this, h2]
+      have : 10 * L < c * (L + 2) := by nlinarith
+      have := Nat.mul_lt_mul_of_pos_left this hpos
+      omega
+    have h3 : L ^ k * (c * M1) * (L + 3) = L ^ k * (c * M1) * (L + 2) + L ^ k * (c * M1) := by ring
+    omega
+  rw [p6TopC, mem_castN_Ω, p6Top_Ω_of_le hn hρ hc5 (by omega)]
+  have hk : (p6Hold M1 c n1 L k ρ' st.Z).Ω k ⊆ (p6Hold M1 c n1 L k ρ' st.Z).Ω 1 :=
+    (p6Hold M1 c n1 L k ρ' st.Z).Ω_antitone le_rfl hk1 (by omega)
+  rw [p6Hold_Ω_k hn] at hk
+  exact hk hz
 
 end Balaban.LargeField
