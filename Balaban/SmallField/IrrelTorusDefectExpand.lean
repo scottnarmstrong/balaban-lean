@@ -88,14 +88,13 @@ theorem irrelTorus_eq_expanded_filed (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N 
                D2 (fun Ψ' => Tm.E j y Z Ψ' e) e (blockDir L j x i₁)
                  (blockDir L j x' i₁) *
                  ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ'))
-       let R : ℂ := ∑ᶠ Z ∈ polysAt m₀ j y, TΦ Z
-       Tm.E j y X Ψ h - TΦ X
+       let R : ℂ := ∑ᶠ Z ∈ polysAt m₀ j y, if relBox m₀ y Z then TΦ Z else 0
+       Tm.E j y X Ψ h - (if relBox m₀ y X then TΦ X else 0)
          - (1 / 2 : ℂ) * ∑ x ∈ blk X, a X x *
              (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y))
          + if X = box (cbase (cellSide L m₀ m₁ j) y -
              natT fun _ => L / 2 * cellSide L m₀ m₁ j)
              (L * cellSide L m₀ m₁ j) then R else 0) := by
   rw [irrelTorus_eq_irrelTorusOn, irrelTorusOn_eq_expanded_filed]
-  simp only [ite_true]
 
 end Balaban.SmallField.Def6v2

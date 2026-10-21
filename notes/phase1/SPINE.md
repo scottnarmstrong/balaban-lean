@@ -372,8 +372,7 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) (A1)–(A5) on the local sets: route R-LOC (section "A4-1b (iii)", W1144; ~7,000);
    (iv) the castG gap (closed, W1141); (v) `TorusIndep` of the new level of a general class (only the core family is two-torus exact,
    W1089/W1090; after R-LOC L2 it is the two-torus agreement of the objects of `NewLevelFormula`). ~8,850.
-   **A1 (2026-10-21), (ii) for the box selection (blocker 6):** core `irrelTorusOn sm` (`SmallField/IrrelTorusOn.lean`; `irrelTorus` its instance `sm = ⊤`, all landed theorems instances); for `irrelTorusB = irrelTorusOn (relBox m₀)` (`SmallField/IrrelTorusBoxBound*.lean`): `norm_filed_relBox_le_power` (+ `_birth_cap`): the box filed sum `Σ_{Z ∋ y, relBox}(T+Φ) ≤ (filedPowerConst + relBoxTailConst) E₀ L^{-(k-j)(d+α₃)}` (complete filed sum `norm_filed_le_power` minus the large polymers: Cauchy form per polymer `norm_relPartTorus_le_of_data`, (G2) count `sum_exp_polysAt_le`, size `sizeJ_ge_of_not_relBox`); `norm_E_sub_aTermTorus_le_of_not_relBox` (large non-cell labels); `irrelTorusB_bound_of_dataHyp_of_threshold`, `irrelTorusB_bound_of_class` ((3.128) at every label, from `irrelTorusOn_bound_of_dataHyp_of_threshold` at `sm = ⊤` and `irrelTorusOn_eq_top_add`). P-2 stays a premise; the cell bound of the landed `irrelTorus` is W1146t's (c3).
-   After R15 (`irrelTorus := irrelTorusOn (relBox m₀)`): the non-cell bound of `irrelTorus` takes `relBox y X` or the large-polymer term; the identity (3.127) and congr/analytic/rot are unchanged (they hold for every `sm`).
+   **A1 (2026-10-21), (ii) under R15 (blocker 6):** `irrelTorus = irrelTorusOn (relBox m₀)` (core `SmallField/IrrelTorusOn.lean`; identity (3.127), congr/analytic/rot instances, statements unchanged). Bounds (`SmallField/IrrelTorusBoxBound*.lean`): box filed sum `norm_filed_relBox_le_power` (+ `_birth_cap`) `≤ (filedPowerConst + relBoxTailConst) E₀ L^{-(k-j)(d+α₃)}` (full sum `norm_filed_le_power` minus the large polymers: `norm_relPartTorus_le_of_data`, `sum_exp_polysAt_le`, `sizeJ_ge_of_not_relBox`); large non-cell labels `norm_E_sub_aTermTorus_le_of_not_relBox`; (3.128) at every label `irrelTorus_bound_all_of_dataHyp_of_threshold`, **`irrelTorus_label_bound_of_class`** and **`irrelTorus_label_bound_of_class_birth_cap`** (the cell label included; the theorem for W1146t). The non-cell `irrelTorus_bound_of_dataOn_of_threshold` (M1) / `_dataHyp_` take `relBox P.m₀ y X`. P-2 stays a premise.
 3. **A4-1c `SFRenormInput`** (P4 (4.14)–(4.22), (5.28), (H.5), (H.6)). `CoeffBounds (k+1)` and `RenormCond (k+1)` of `Φ sf`.
    Landed: `rg_step_infty` (general), `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at` (3, 3, 2). Bridges: (H.6) at `k + 1`
    from (H.6) at `k` and the bound of `ξ^{(k)}` (the flow is extended by one entry; ~150, not landed); (H.5) for the renormalized new level,
@@ -388,7 +387,7 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    Landed: `e0CoeffFamily_value_fromTowerG_core_twoTorus` (W1089, `StepTowerG d L N`, `m₀ = 1`), `coreE0_unique` (W1090). Open: the
    chain's `e` of a general class is not a core family (open (c) of A4-1); `R_eq` of `ℛ^{(k+1)}`. The inherited levels are proved
    (`liftOldTermsFam_M_eq_of_d8`). ~800.
-   **A1 (2026-10-21), cell case of the two-torus step clause (blocker 7):** `CellTermsAgree` is false for the landed `irrelTorus` (its filed sum runs over winding polymers); the replacement `irrelTorusB_cell_boxAgree` (`Polymer/IrrelTorusBCell.lean`) is proved: exact agreement of `irrelTorusB` at `□(y)` on two tori with `TorusIndep`, margin `8(R + r_K) + 3L^K + L·cellSide < n` on both, fields agreeing on `□(y) ∪ st₊(y)`; away from the cell `irrelTorusOn_boxAgree` (selections corresponding under `boxMap`; `irrelTorus_boxAgree` its instance `sm = ⊤`). After R15 it discharges the cell input of `newLevel_coeff_twoTorus_of_class_cells`.
+   **A1 (2026-10-21), cell case of the two-torus step clause (blocker 7), under R15:** `irrelTorus_cell_boxAgree` (`Polymer/IrrelTorusBCell.lean`: exact agreement at `□(y)` on two tori with `TorusIndep`, margin `8(R + r_K) + 3L^K + L·cellSide < n` on both, fields agreeing on `□(y) ∪ st₊(y)`); `cellTermsAgree_of_class` proves `CellTermsAgree`, on W1161's cast margins `castZ` through `cellStencil_subset_castZ`, and `newLevel_coeff_twoTorus_of_class_cells_R15` (`Inhabited/NewLevelCellAgree.lean`) is the step clause with `hcell` discharged (new premises: the margins `hmarC`, `hmarC'` of the box of radius `R + L^{k+1}` at the cell side of level `k + 1`).
 7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). **ΦE defined and the bound proved (W1132, `Spine/SFVacuum.lean`,
    `Spine/SFVacuumRatio.lean`).** The map is `vacMap` = `vacIncrement d L N aKer β_k (p(β_k))`, the Gaussian increment
    `Γ_k = L^d(E‴_k − E_k) = ½N(L^d−1) log β_k − ½N log(a₁L^{d−2}/2π) − L^d log Z₁(p₁)` (`vacIncrement_eq_step`, from `step_increment_eq`).
@@ -2097,3 +2096,20 @@ Request to the owner (one line each, proof unchanged): add `∀ τ, Gk τ = cast
 to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same torus) must be generalized to the cast form over `(N₁', m₁ + s)` (the `boxMap` of the
 two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
 quotient description of `Z'`.
+
+### Blocker 7, step clause: state after the cast comparison (W1161, 2026-10-21)
+
+Landed on the branch (all modules build, 0 warnings, axioms `propext`, `Classical.choice`, `Quot.sound`): `Gk` cores `settings_family_castLocalB_far_Gk/_hat_Gk`
+(explicit `Gk = castG (localB k (castNbhd Y))`); `Inhabited/NewLevelHatTop` (`dataSites_subset_top`, `hat_gap`: top layer, `θ = L^j/L^k`, collar);
+`CastLocalBCorr`, `NewLevelCastNbhd`, `NewLevelCubeImage`, `NewLevelCanonCast`, `NewLevelCanonCastGeom` (`hgeom_of_cast`), `NewLevelCanonReg` (`reg_of_hN`),
+`NewLevelCanonBigRad` (`hbig_of_size`), `NewLevelCanonX1` (`X1_far`).  Removed as dead: `CanonCoverLocal`, `hgeom_of_local`, `canonPts`, `canonZ`,
+`CanonCoverIsX1`, `hfar_of_isX1`, `margin_in_region`, `NewLevelCanonCells`, `Spine/CanonMarginTie` (the margin now comes from `BgSetting.hN`, no tie).
+`polySet` moved to `NewLevelCanonPins`; `OldTermsCanonPins(At)` gained the clause `O.XL τ = polySet …` (from `OldTermsAreIrrel`); producers adapted.
+`newLevel_coeff_twoTorus_of_class_cells` premises beyond typing data: `LC : CanonCoverCast` (the canonical covers are the cast local sets of the settings; produced by
+`exists_canonOldTermData` + `settings_family_castLocalB_hat_Gk`), `SpG`, `hL3`, `hs : s < m₀`, the torus-size bounds `hsz`, `hsz'`
+(`2R + (4(k+1)+36) L^{k+1+m₀+m₁} + 8 ≤ size`), and **`hcell`** (`CellTermsAgree` for `castZ`).  Derived inside: `hXLsub` (X1_far with the pinned `XL`), `hreg`
+(`reg_of_hN`), `hbigA/B` (`hbig_of_size`).
+**Open:** (1) `hcell`/`CellTermsAgree` — the irrelevant term at the distinguished cell on two tori (P4 (H.4) `hcellcase`; the relevant parts of the polymers that wrap
+around the torus enter): a property of the class's `irrelTorus`, a design question; (2) the producer of the zero-source/bridge part of `NewLevelSystem`
+(the rest of the fields besides `O`, `OS`) is the chain's (W1146t); (3) `hsz` are size conditions on the torus relative to the box radius `R` (as `hn19`, `hnE`, …), supplied
+by the caller.

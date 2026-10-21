@@ -80,6 +80,61 @@ theorem castLocalB_omega_boxMap_all (hcA : NA * L ^ m' = N₁ * L ^ m₁)
     have := h3 _ hxf n
     rwa [boxMap_torusCast hA.symm hB.symm x] at this
 
+/-- **`GSIso` for the cast local generating sets of corresponding polymers**, on a region `R`
+containing the sites of `Ω₁` and their neighbours. -/
+theorem gsIso_castLocalB_on (hcA : NA * L ^ m' = N₁ * L ^ m₁) (hcB : NB * L ^ m' = N₂ * L ^ m₁)
+    {j : ℕ} (hj : j ≤ k) (hK : 1 ≤ k) {X : Set (CTorus d L NA m' k)} {X' : Set (CTorus d L NB m' k)}
+    {hsep : ϱ ≤ minSep L (L ^ m')} {hsep' : ϱ' ≤ minSep L (L ^ m')} {ρ0 : ℕ}
+    (hX : ∀ x ∈ X, InBox d ρ0 ((NA * L ^ m') * L ^ k) x)
+    (hXX : X' = boxMap ((NA * L ^ m') * L ^ k) ((NB * L ^ m') * L ^ k) '' X)
+    (hmA : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m') + (5 * L + 2) * (L ^ n * L ^ m')) <
+      NA * L ^ m' * L ^ k)
+    (hmB : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m') + (5 * L + 2) * (L ^ n * L ^ m')) <
+      NB * L ^ m' * L ^ k)
+    (hn : 2 * (ρ0 + 6 * j * L ^ (j + m') + 1) + 3 * L ^ k + 5 < (N₁ * L ^ m₁) * L ^ k)
+    (hn' : 2 * (ρ0 + 6 * j * L ^ (j + m') + 1) + 3 * L ^ k + 5 < (N₂ * L ^ m₁) * L ^ k)
+    (a : ℕ → ℝ) (ν : ℝ) (R : Set (CTorus d L N₁ m₁ k))
+    (hR : ∀ x ∈ (castG hcA (localB j hj X hsep)).Ω 1, x ∈ R ∧ ∀ μ : Fin d,
+      x + Pi.single μ 1 ∈ R ∧ x - Pi.single μ 1 ∈ R) :
+    GSIso a ν (castG hcA (localB j hj X hsep)) (castG hcB (localB j hj X' hsep'))
+      (boxMap ((N₁ * L ^ m₁) * L ^ k) ((N₂ * L ^ m₁) * L ^ k)) R := by
+  obtain ⟨h1, h2, -⟩ := castLocalB_omega_boxMap_all hcA hcB hj hX hXX
+    (fun n hn => by have := hmA n hn; omega) (fun n hn => by have := hmB n hn; omega)
+    (hsep := hsep) (hsep' := hsep')
+  obtain ⟨-, -, h3⟩ := castLocalB_omega_boxMap_all hcA hcB hj (ρ0 := ρ0 + 1)
+    (fun x hx => inBox_mono (Nat.le_succ ρ0) (hX x hx)) hXX hmA hmB (hsep := hsep) (hsep' := hsep')
+  exact gsIso_of_omega_on a ν hK hn hn' (fun x hx => h1 1 x hx) (fun x hx => h2 1 x hx)
+    (fun x hx n _ _ => by
+      refine h3 x ?_ n
+      have : ρ0 + 1 + 6 * j * L ^ (j + m') = ρ0 + 6 * j * L ^ (j + m') + 1 := by ring
+      rwa [this]) R hR
+
+/-- **`GSCorr` for the cast local generating sets of corresponding polymers.** -/
+theorem gsCorr_castLocalB (hcA : NA * L ^ m' = N₁ * L ^ m₁) (hcB : NB * L ^ m' = N₂ * L ^ m₁)
+    {j : ℕ} (hj : j ≤ k) (hK : 1 ≤ k) {X : Set (CTorus d L NA m' k)} {X' : Set (CTorus d L NB m' k)}
+    {hsep : ϱ ≤ minSep L (L ^ m')} {hsep' : ϱ' ≤ minSep L (L ^ m')} {ρ0 : ℕ}
+    (hX : ∀ x ∈ X, InBox d ρ0 ((NA * L ^ m') * L ^ k) x)
+    (hXX : X' = boxMap ((NA * L ^ m') * L ^ k) ((NB * L ^ m') * L ^ k) '' X)
+    (hmA : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m') + (5 * L + 2) * (L ^ n * L ^ m')) <
+      NA * L ^ m' * L ^ k)
+    (hmB : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m') + (5 * L + 2) * (L ^ n * L ^ m')) <
+      NB * L ^ m' * L ^ k)
+    (hn : 2 * (ρ0 + 6 * j * L ^ (j + m') + 1 + L ^ k) + 3 * L ^ k + 5 < (N₁ * L ^ m₁) * L ^ k)
+    (hn' : 2 * (ρ0 + 6 * j * L ^ (j + m') + 1 + L ^ k) + 3 * L ^ k + 5 < (N₂ * L ^ m₁) * L ^ k) :
+    GSCorr (castG hcA (localB j hj X hsep)) (castG hcB (localB j hj X' hsep'))
+      (boxMap ((N₁ * L ^ m₁) * L ^ k) ((N₂ * L ^ m₁) * L ^ k))
+      {z | InBox d (ρ0 + 6 * j * L ^ (j + m')) ((N₁ * L ^ m₁) * L ^ k) z} := by
+  obtain ⟨h1, h2, -⟩ := castLocalB_omega_boxMap_all hcA hcB hj hX hXX
+    (fun n hn => by have := hmA n hn; omega) (fun n hn => by have := hmB n hn; omega)
+    (hsep := hsep) (hsep' := hsep')
+  obtain ⟨-, -, h3⟩ := castLocalB_omega_boxMap_all hcA hcB hj (ρ0 := ρ0 + 1)
+    (fun x hx => inBox_mono (Nat.le_succ ρ0) (hX x hx)) hXX hmA hmB (hsep := hsep) (hsep' := hsep')
+  exact gsCorr_of_omega hK hn hn' (fun x hx => h1 1 x hx) (fun x hx => h2 1 x hx)
+    (fun x hx n _ _ => by
+      refine h3 x ?_ n
+      have : ρ0 + 1 + 6 * j * L ^ (j + m') = ρ0 + 6 * j * L ^ (j + m') + 1 := by ring
+      rwa [this])
+
 end Cast
 
 end Balaban.Polymer.TwoTorusStep

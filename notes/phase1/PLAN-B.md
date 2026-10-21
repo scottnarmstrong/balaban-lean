@@ -251,6 +251,11 @@ approved declaration.
   `L^{m₀} ∣ N₁`; under R15 the large shapes add a tail of the same order.
 - **Work (ORCH-A, worker A1, branch `orchA-cellterm`).** The core `irrelTorusOn` (the landed `irrelTorus` its instance),
   its identity, bounds and two-torus agreement at the box instance; after approval, the body switch.
+- **Implemented (A1, 9ca0652e, branch `orchA-r15`; approved by Scott 2026-10-21).** `irrelTorus := irrelTorusOn (relBox m₀)`;
+  the identity and congr/analytic/rot unchanged; the non-cell bounds take `relBox P.m₀ y X` (M1 form kept); the large
+  labels `norm_E_sub_aTermTorus_le_of_not_relBox`; every label `irrelTorus_label_bound_of_class(_birth_cap)`; the cell
+  agreement `irrelTorus_cell_boxAgree`, `CellTermsAgree` by `cellTermsAgree_of_class`, the step clause with `hcell`
+  discharged `newLevel_coeff_twoTorus_of_class_cells_R15`.
 
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
 - **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
