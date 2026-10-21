@@ -2954,6 +2954,7 @@ public import Balaban.Polymer.LocalBBoxCorr
 public import Balaban.Inhabited.NewLevelHTransport
 public import Balaban.Inhabited.NewLevelHTwoTorus
 public import Balaban.Inhabited.NewLevelTermPair
+public import Balaban.Inhabited.NewLevelHPairs
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
