@@ -105,6 +105,7 @@ public import Balaban.Polymer.GasOpEq
 public import Balaban.Polymer.GasOpBound
 public import Balaban.Polymer.GasOperator
 public import Balaban.Polymer.HoleOperator
+public import Balaban.Polymer.GasOpAnalytic
 public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerMarked
@@ -115,6 +116,7 @@ public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
 public import Balaban.Analysis.ParamIntegralAnalytic
+public import Balaban.Analysis.ParamIntegralDominated
 public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
