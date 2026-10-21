@@ -3314,3 +3314,7 @@ public import Balaban.Polymer.LocalIsoOps
 public import Balaban.Polymer.LocalIsoCover
 public import Balaban.Polymer.LocalIsoDec2
 public import Balaban.Polymer.LocalIsoLocalB
+public import Balaban.Polymer.LocalIsoAlg
+public import Balaban.Polymer.LocalIsoBg
+public import Balaban.Polymer.LocalIsoDecFix
+public import Balaban.Polymer.LocalIsoStrict
