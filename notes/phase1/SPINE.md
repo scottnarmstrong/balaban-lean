@@ -725,9 +725,13 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `interpAvg_eq_sum_interpTermOn`). History instance (`Spine/LFHoleStep*`, `Spine/LFOldCoef`): `holeStepLF` (θ = z ψ_{k+1}),
   `composedMulti`, `phiLF` (log of the integrand of (2.16): `logKernelC` + the holomorphic `𝒜_k + ℱ_k + ℛ^{(k)}`,
   `LargeField/Def7SmallFieldC`; `stepKernel_mul_sfFactor`), `oldDoms`, `oldLF`, `locSloc` (R_{k+1}(□′) = `locDomC`),
-  `expWLF`, `oldTotalLF`, `oldCoefLF` (core `X ∩ Ω_{k+1}` = `activeCoreC`). **Remaining for O1:** (i) OPEN-P6-ACTIVE-
-  COMPOSITE-LOC under R12 = `LocalityAEOn` of `oldInterp` from the single-pair locality of (`coverOf` G′, G′)
-  (`Dec2.decBg_component_cross` self-comparison, `CovStanding.decCovSqrt_mulVec_eq_unit`); (ii) OPEN-H7-MIXED (the
+  `expWLF`, `oldTotalLF`, `oldCoefLF` (core: the `r`-collar of `X ∩ Ω_{k+1}`, `collarCoreC`). **(i) OPEN-P6-ACTIVE-
+  COMPOSITE-LOC under R12 PROVED** (`Fluctuation/HoleStepActComp`, `HoleStepPointLocal`, `HoleStepOldLocal`: the active
+  closure and its block hull; the composed field at a unit point agrees for two localization vectors with the same factors on
+  the closure, `composed_eq_of_hull`, from `Dec2.decBg_component_cross` and `Dec2.localLift_eq_localLift_on_component`
+  for (`coverOf` G′, G′) with itself; (AE2) `oldInterp_localityAEOn`, `oldCoef_eq_zero_of_not_reached`,
+  `oldCoef_congr_of_agreeReach`), given the standing analytic conditions (part of (ii)) and the geometric conditions
+  `hcov`, `hlocdeep` on the localization domains (to be proved for the history instance). **Remaining for O1:** (ii) OPEN-H7-MIXED (the
   image of the target H7 domain and the polydisc in the source H7 domain; gives `hana` of `sum_oldCoef_eq_of_analytic`
   and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
   exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame

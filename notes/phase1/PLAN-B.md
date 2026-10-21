@@ -241,6 +241,11 @@ approved declaration.
   for the decoupled objects of the single pair (C, G′) — the same-set decoupling locality (`Decoupled2FpLocal`,
   `Dec2Covariance.decCovSqrt_BD_of_GsxBD`, `DecSqrtCutFactor.CovStanding.decCovSqrt_agree`), plus the spectator part
   (old spins on X ∩ Ω^c_{k+1}, h, g fixed: P5 (2.35), (2.39); proved by `composedMulti_out`, `composedMulti_of_lt`).
+  Status (W1154, 2026-10-21): PROVED under R12 (`Fluctuation/HoleStepOldLocal.lean`: `oldInterp_localityAEOn`,
+  `oldCoef_eq_zero_of_not_reached`, `oldCoef_congr_of_agreeReach`), given the standing analytic conditions of the pair at
+  the localization vectors (domain of I-4b, `AdmPot`, units of `1 - 𝒦_x`, `M_x`: part of OPEN-H7-MIXED) and two geometric
+  conditions on the localization domains (each read point covered by a centre with footprint in the core and in its
+  domain; domains deep in Ω₁(G′), P3 (2.14) X₁ ⊂ Ω₁ with the collar of the cross lemmas).
 - **OPEN-H7-MIXED.** Reading: the image lemma for the composite of R12: for (θ, h, g) in the target H7 domain of
   scale k+1 (P5 (1.36)–(1.37) at Ω_{k+1}), |ψ̂| < p₁(β_k) and |s_P| ≤ e^{κ₁}, the multiscale field `composedMulti` (the
   composed field on the unit points of Ω_{k+1}, the record's fields elsewhere) lies in the source H7 domain of scale k
