@@ -1896,6 +1896,8 @@ public import Balaban.LargeField.Base.KF0BoxLift
 public import Balaban.Polymer.MayerTransport
 public import Balaban.LargeField.Base.KF0AllPlusGasC
 public import Balaban.Polymer.MayerSupport
+public import Balaban.Polymer.SteinerGas
+public import Balaban.Polymer.LocalGas
 public import Balaban.Polymer.MayerMarksPY
 public import Balaban.LargeField.Base.KF0AllPlusComplex
 public import Balaban.LargeField.Base.KF0HaloAffine
@@ -2950,9 +2952,10 @@ public import Balaban.Spine.FinalSfBound
 public import Balaban.Spine.FinalNumerics
 public import Balaban.Spine.FinalSfDomain
 public import Balaban.Spine.FinalSfIntegrable
-public import Balaban.Spine.FinalSfAssemble
 public import Balaban.Spine.FinalSfConstTerm
 public import Balaban.Spine.FinalSfFluct
+public import Balaban.Spine.FinalBoxK
+public import Balaban.Spine.FinalBoxLocal
 public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.BudgetSetupCore
 public import Balaban.Spine.KeptHalf

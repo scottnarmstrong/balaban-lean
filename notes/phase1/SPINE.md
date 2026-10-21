@@ -860,12 +860,15 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
-theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
+theorem lastIntegralInput_of_parts (cut : ℝ → ℝ → ℝ → ℝ)
+    (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
     (hA : InheritedAgreeInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
+    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut)
+    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut) :
     LastIntegralInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ
 ```
+(Since B2, reading B-1 of `PLAN-B.md`: the two halves split at the box `|w| ≤ p₁ = cut κ c₉ β_k` of the Gaussian variable; see
+items 3 and 4.)
 It follows LFR Thm IV.4.1 with Def. IV.5.2 and Thm IV.5.3. For a member `ρ` of `ℛ♭_k` at the stopping scale with a
 representation `F`, the activities are `p = q + 1_{j=k+1}(a + b)`; `E` is the vacuum term of A6-3; the threshold is the largest of
 the four. The three families:
@@ -948,7 +951,28 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      steps; at `j ≤ k` A6 needs none, since `inhObs` is already per polymer on every torus.
 3. **`FinalSmallFieldInput` (A6-3, the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) with `Z = ∅` and (4.15)–(4.17);
    LFR Thm IV.4.1; blocker 5, small-field half).** There are `a, E` with `ObservableActivities … κ (c₉/2) δ (k+1) kf a` and, on every
-   torus of the family and the unit ball, `Ξ^sf = exp(E + ⟨g,h⟩ + Σ_{j≤k} Σ_X q_j + Σ_X a_{k+1})`.
+   torus of the family and the unit ball, `Ξ_box = exp(E + ⟨g,h⟩ + Σ_{j≤k} Σ_X q_j + Σ_X a_{k+1})` (since B2; before: `Ξ^sf`).
+   * **B2 (box split, reading B-1 of `PLAN-B.md`; 2026-10-21).** Why: P7 (4.9) — on `{χ_k ≠ 0}` outside the box of the whitened
+     fluctuation field the source creates the final large-field regions, so the integral of `sfFactor2` over the whole torus contains
+     a final large-field region (the tail) and is not the small-field term; the small-field term is P4 (6.6) with `χ({|ψ'| < p₁})`.
+     Landed statements changed (old → new):
+     * `FinalSmallFieldInput … ϱ` (`sfIntegral F hM6 hkK vc h nK g = exp(…)`) → `FinalSmallFieldInput … ϱ cut`
+       (`sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g = exp(…)`); the right side is unchanged.
+     * `lastIntegralInput_of_parts hB hA hS hL` → `lastIntegralInput_of_parts cut hB hA hS hL` (`hS`, `hL` at the same `cut`; proof unchanged).
+     * `FinalSfFluctInput … ϱ` (`∃ Kq, Kq.PosDef ∧ Z_Kq ∫ sfGaussIntegrand(Kq, h)·e^{-X₀} dγ = exp(E + Σa)`) → `FinalSfFluctInput … ϱ cut`
+       (`ctxFluctBoxIntegral (F.ctx hM6 hkK nK) vc h (cut κ c₉ (F.sf.β k)) g = exp(E + Σa)`: the box average at the fixed `K = sfFinalK`).
+     * `finalSmallFieldInput_of_fluctForm hPre hG` (old statements) → the same at `cut` (proof: `ctxBoxIntegral_eq_exp_mul`, no change of
+       variables; the measurability part of `measInt_sfFactor2_of_flatRep` is no longer used, its `BgHyp` part is).
+     * Deleted (superseded: `Ξ_box` is by definition the Gaussian average at the fixed form and centre): `FinalSfGaussInput`,
+       `finalSmallFieldInput_of_gaussForm` (`Spine/FinalSfAssemble.lean`, no other callers).
+     * Moved, unchanged: `sfGaussIntegrand` (`Spine/FinalSfGauss.lean` → `Spine/LastIntegral.lean`). Unchanged statements:
+       `integral_sfFactor2_gauss` (now the instance `χ = 1` of the weighted core `integral_mul_sfFactor2_gauss`), `sfIntegral_eq_gauss`,
+       `measInt_sfFactor2_of_flatRep`, `sfIntegral` (docstring: the weight of the empty region, `lastRegionWeight_empty_eq_sfIntegral`).
+     New: `gaussBox`, `sfBlockSite`, `sfFinalK` (`K = β_k D`), `ctxBoxIntegral`, `sfBoxIntegral` (`Spine/LastIntegral.lean`);
+     `constExponent`, `ctxFluctBoxIntegral`, `ctxBoxIntegral_eq_exp_mul(_of)` (`Spine/FinalSfFluct.lean`); `Spine/FinalBoxK.lean`:
+     `sfFinalHm` (`H = L^{k(d-2)} D`), `pdQuad_sfFinalK` (`Q_K(v) = β_k L^{-k(d-2)} ⟨v, H v⟩`, the hypothesis of `sfGaussIntegrand_cubic`),
+     `actStar2_univ_hessian_sfFinalHm` (`A*_k(h + t u)/t² → ½⟨v, H v⟩` under the field clauses: `K` is the Hessian of
+     `β_k L^{-k(d-2)} A*_k`, the masses being equal, `sfActMass2_eq_muBg`), `sfFinalK_posDef`.
    * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
      * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
        `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;
@@ -1054,7 +1078,12 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
-   `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.
+   `∫ρ = Ξ_box · exp(Σ_X b_{k+1})` (since B2; before: `Ξ^sf`).
+   * **B2 (box split, reading B-1).** Landed statement changed: `FinalLargeFieldInput … ϱ` (`∫ρ = sfIntegral F hM6 hkK vc h nK g · exp(Σb)`)
+     → `FinalLargeFieldInput … ϱ cut` (`∫ρ = sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g · exp(Σb)`). Why: P7 (4.9) — the part
+     of the empty-region history outside the box (`sfIntegral - Ξ_box`, the integral of `sfFactor2` over `{χ_k ≠ 0}` with `|w_p| > p₁`
+     somewhere) is a final large-field region; it now belongs to `b`. The weight of the empty region is still `sfIntegral`
+     (`lastRegionWeight_empty_eq_sfIntegral_of_complete`, unchanged). The paragraphs below that write `Ξ^sf` predate B2.
    * Landed:
      * the linked gas (W990): `gasLinked_activity_bound`, `gasLinked_coverage_activity_bound`, `gasLinked_singleton_eq`;
      * the gas and the polymer expansion: `gas_eq`, `gas_activity_bound`, `pe_blockTorus`, `pe_PY_bound`, `pe_PY_analyticOnNhd`;
