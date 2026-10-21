@@ -1413,6 +1413,7 @@ public import Balaban.LargeField.Def7v2Corr
 public import Balaban.LargeField.Def7v2
 public import Balaban.LargeField.Def7v2Interface
 public import Balaban.LargeField.Def7v2Form
+public import Balaban.LargeField.Def7v2SmallFieldC
 public import Balaban.LargeField.Def7v2Class
 public import Balaban.LargeField.Def7v2Variants
 public import Balaban.LargeField.Def7v2Basic

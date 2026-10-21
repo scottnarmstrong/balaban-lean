@@ -31,6 +31,10 @@ by the bilinear products `v · v = ∑_i v_i²` (as `actionC` for `action`, BACK
   `MresJ_eq`, `sfLiftK_eq`; `phiBar_apply`: `φ̄_k` is the real part of `phiBarC`);
 * `actStarC`, `AresC`, `FresC`, `RresC`, `sfExpC`: the holomorphic `A*_k`, `𝒜_k`, `ℱ_k`, `ℛ^{(k)}`
   and the exponent `𝒜_k + ℱ_k + ℛ^{(k)}` of (D1) on `Y`;
+* `phiBarAt`, `psiJAt`, `EresMainAt`, `MresJAt`, `actStarAt`, `FresAt`: the same functions at a
+  general background field `φ` of `𝔹_k(W_k)` (and, for `actStarAt`, a general action mass); the
+  functions above are their instances `φ = φ_k`.  The decoupled background fields of the localization
+  of the residual of `R` (P3 §4) are inserted through them;
 * `sfExpC_blockToC`: at a real field whose complex background `φ_k` is real (the case of real data on
   the domain of BG Theorem 7.1), the exponent is the landed `𝒜_k + ℱ_k + ℛ^{(k)}`, and
   `sfFactor_eq_mul_exp`: the small-field factor of (D1) is `χ_k(Y) exp(sfExpC)`.
@@ -248,11 +252,16 @@ noncomputable def phiKC : (C.genW Y).Ω 1 × Fin N → ℂ :=
 theorem phiK_eq (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) :
     C.phiK Y ψk hv = C.phiKC Y (blockToC ψk) hv := rfl
 
+/-- **The extension `φ̄` of a background field `φ` of `𝔹_k(W_k)`** to all sites of the level-`k`
+torus (by the data off `Ω_1`); `phiBarC` is the instance `φ = φ_k`.  The field `φ` is a parameter
+so that the decoupled background fields of the localization expansion (P3 §4) can be inserted. -/
+noncomputable def phiBarAt (φ : (C.genW Y).Ω 1 × Fin N → ℂ) : BgT C.geo k → Fin N → ℂ :=
+  fun z i => barField (C.genW Y) (liftSingle (C.genW Y) (C.liftDataC ψC) (hC hv)).Ψ φ z i
+
 /-- **The complex background `φ̄_k`** on all sites of the level-`k` torus (extended by the data off
 `Ω_1`); the landed `φ̄_k` is its real part at real fields (`phiBar_apply`). -/
 noncomputable def phiBarC : BgT C.geo k → Fin N → ℂ :=
-  fun z i => barField (C.genW Y) (liftSingle (C.genW Y) (C.liftDataC ψC) (hC hv)).Ψ
-    (C.phiKC Y ψC hv) z i
+  C.phiBarAt Y ψC hv (C.phiKC Y ψC hv)
 
 theorem phiBar_apply (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (z : BgT C.geo k)
     (i : Fin N) : C.phiBar Y ψk hv z i = (C.phiBarC Y (blockToC ψk) hv z i).re := rfl
@@ -266,23 +275,36 @@ theorem hC_phiBar_of_real (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N
   · simp [hC, phiBar_apply]
   · simp [hC, hre z i]
 
+/-- **The composed field `ψ^{(j)}` of a background field `φ` of `𝔹_k(W_k)`**
+(`composeField(𝔹_j(W_k), 𝔹_k(W_k), a; φ, lift_k ψ_k)`, P5 (1.4)), read on the Def-6 torus; `psiJC`
+is the instance `φ = φ_k`. -/
+noncomputable def psiJAt (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (j : ℕ) : Def6.Fld S.d S.L C.N₁ m₁ k N :=
+  if hj : j ≤ k then
+    sfPull C.geo C.hT (composeField
+      (genSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (c := C.geo.c) (n := n k) hj
+        (W2 R Y))
+      (C.genW Y) C.weights φ (liftSingle (C.genW Y) (C.liftDataC ψC) (hC hv)).Ψ)
+  else 0
+
 /-- `ψ^{(j)}_k` at a complex field. -/
 noncomputable def psiJC (j : ℕ) : Def6.Fld S.d S.L C.N₁ m₁ k N :=
-  if hj : j ≤ k then
-    sfPull C.geo C.hT (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (c := C.geo.c)
-      (n := n k) C.weights (C.cs.muBg k) (bgC0 S.d S.L N) hj (W2 R Y) (C.liftDataC ψC) (hC hv))
-  else 0
+  C.psiJAt Y ψC hv (C.phiKC Y ψC hv) j
 
 theorem psiJ_eq (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (j : ℕ) :
     C.psiJ Y ψk hv j = C.psiJC Y (blockToC ψk) hv j := rfl
 
 open Classical in
+/-- **The localized terms of `ℰ^{(j)}(Y)`** (P5 (1.8), without the correction) at the composed field
+of a background field `φ`. -/
+noncomputable def EresMainAt (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (j : ℕ) : ℂ :=
+  ∑ y ∈ C.alignedIn j Y,
+    ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) | Def6.IsPolyDom C.m₀ j X ∧
+        y ∈ X ∧ X ⊆ C.sset (thickY R Y)},
+      (C.sf.Tm C.N₁).E j y X (C.psiJAt Y ψC hv φ j) (Def6.constFld (hC hv))
+
 /-- `ℰ^{(j)}(Y; ψ_j, h)` (P5 (1.8)) at a complex field. -/
 noncomputable def EresJC (j : ℕ) : ℂ :=
-  (∑ y ∈ C.alignedIn j Y,
-      ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) | Def6.IsPolyDom C.m₀ j X ∧
-          y ∈ X ∧ X ⊆ C.sset (thickY R Y)},
-        (C.sf.Tm C.N₁).E j y X (C.psiJC Y ψC hv j) (Def6.constFld (hC hv))) -
+  C.EresMainAt Y ψC hv (C.phiKC Y ψC hv) j -
     ∑ y ∈ C.alignedIn j Y, ∑ x ∈ C.alignedIn j (thickY R Y),
       C.sf.corr C.N₁ j y x (C.psiJC Y ψC hv j) (Def6.constFld (hC hv))
 
@@ -296,12 +318,18 @@ theorem EresK_eq (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) :
     C.EresK Y ψk hv = C.EresKC Y (blockToC ψk) hv := rfl
 
 open Classical in
-/-- `ℳ^{(j)}(x, Y)` (P5 (1.13)) at a complex field. -/
-noncomputable def MresJC (j : ℕ) (x : Localization.CTorus S.d S.L C.N₁ m₁ k) : Fin N → ℂ :=
+/-- **`ℳ^{(j)}(x, Y)` (P5 (1.13)) at the composed field of a background field `φ`** of
+`𝔹_k(W_k)`; `MresJC` is the instance `φ = φ_k`. -/
+noncomputable def MresJAt (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (j : ℕ)
+    (x : Localization.CTorus S.d S.L C.N₁ m₁ k) : Fin N → ℂ :=
   ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k) | Def6.IsPolyDom C.m₀ j X ∧ x ∈ X ∧
       X ⊆ C.sset (thickY R Y)},
-    (C.sf.Tm C.N₁).M j x X (C.psiJC Y ψC hv j) (Def6.constFld (hC hv))
+    (C.sf.Tm C.N₁).M j x X (C.psiJAt Y ψC hv φ j) (Def6.constFld (hC hv))
       (sfG C.geo C.hnn C.hkK C.hT g)
+
+/-- `ℳ^{(j)}(x, Y)` (P5 (1.13)) at a complex field. -/
+noncomputable def MresJC (j : ℕ) (x : Localization.CTorus S.d S.L C.N₁ m₁ k) : Fin N → ℂ :=
+  C.MresJAt Y ψC hv g (C.phiKC Y ψC hv) j x
 
 theorem MresJ_eq (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (j : ℕ)
     (x : Localization.CTorus S.d S.L C.N₁ m₁ k) :
@@ -314,11 +342,16 @@ def sfLiftKC : Def6.Fld S.d S.L C.N₁ m₁ k N :=
 theorem sfLiftK_eq (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) :
     sfLiftK C.geo C.hnn C.hkK C.hT ψk = C.sfLiftKC (blockToC ψk) := rfl
 
+/-- **The holomorphic single-scale action with half star bonds at a background field `φ` and an
+action mass `μ`**: `A*_k(Y; ψ_k, φ) = A_{T^{(k)}_1}(Y; ψ_k, φ̄) + ¼ ∑_{st(Y)} (∂φ̄)·(∂φ̄)` (P5 (1.5));
+`actStarC` is the instance `μ = sfActMass`, `φ = φ_k`. -/
+noncomputable def actStarAt (μ : ℝ) (φ : (C.genW Y).Ω 1 × Fin N → ℂ) : ℂ :=
+  actionGC (levelGen (ϱ := (1 : ℝ)) k) C.weights μ (hC hv) (C.bgSet Y)
+      (C.psiLevelKOf ψC) (C.phiBarAt Y ψC hv φ) +
+    1 / 4 * starBondEC (C.bgSet Y) (C.phiBarAt Y ψC hv φ)
+
 /-- **The holomorphic single-scale action with half star bonds** `A*_k(Y; ψ_k, φ_k)` (P5 (1.5)). -/
-noncomputable def actStarC : ℂ :=
-  actionGC (levelGen (ϱ := (1 : ℝ)) k) C.weights (sfActMass C.cs k) (hC hv) (C.bgSet Y)
-      (C.psiLevelKOf ψC) (C.phiBarC Y ψC hv) +
-    1 / 4 * starBondEC (C.bgSet Y) (C.phiBarC Y ψC hv)
+noncomputable def actStarC : ℂ := C.actStarAt Y ψC hv (sfActMass C.cs k) (C.phiKC Y ψC hv)
 
 /-- **The holomorphic `𝒜_k = -β_k A*_k + ℰ_k - E_k |Y|_k`** (P5 (1.6)). -/
 noncomputable def AresC : ℂ :=
@@ -326,13 +359,18 @@ noncomputable def AresC : ℂ :=
     ((C.sf.E C.N₁ * volK M Y : ℝ) : ℂ)
 
 open Classical in
-/-- **The holomorphic `ℱ_k(Y; ψ_k, h, g)`** (P5 (1.10)–(1.13)). -/
-noncomputable def FresC : ℂ :=
-  (∑ x ∈ C.bgSet Y, ∑ i : Fin N, g (bgToFine C.geo C.hnn C.hkK x, i) * C.phiBarC Y ψC hv x i) +
+/-- **`ℱ_k(Y; ψ_k, h, g)` (P5 (1.10)–(1.13)) at a background field `φ`** of `𝔹_k(W_k)`
+(`⟨χ_Y g, φ̄⟩₁` and the composed fields of `φ`); `FresC` is the instance `φ = φ_k`. -/
+noncomputable def FresAt (φ : (C.genW Y).Ω 1 × Fin N → ℂ) : ℂ :=
+  (∑ x ∈ C.bgSet Y, ∑ i : Fin N,
+      g (bgToFine C.geo C.hnn C.hkK x, i) * C.phiBarAt Y ψC hv φ x i) +
     ∑ j ∈ Finset.Icc 1 k, ∑ x : Localization.CTorus S.d S.L C.N₁ m₁ k,
       if x ∈ C.sset Y then
-        ∑ i : Fin N, sfG C.geo C.hnn C.hkK C.hT g x i * C.MresJC Y ψC hv g j x i
+        ∑ i : Fin N, sfG C.geo C.hnn C.hkK C.hT g x i * C.MresJAt Y ψC hv g φ j x i
       else 0
+
+/-- **The holomorphic `ℱ_k(Y; ψ_k, h, g)`** (P5 (1.10)–(1.13)). -/
+noncomputable def FresC : ℂ := C.FresAt Y ψC hv g (C.phiKC Y ψC hv)
 
 open Classical in
 /-- **`ℛ^{(k)}(Y; ψ_k, h, g)`** (P5 (1.16)–(1.17)) at a complex field. -/
@@ -353,23 +391,34 @@ variable (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
   (hre : ∀ z i, (C.phiBarC Y (blockToC ψk) hv z i).im = 0)
 include hre
 
-theorem actStarC_blockToC :
-    C.actStarC Y (blockToC ψk) hv = ((C.actStar Y ψk hv : ℝ) : ℂ) := by
-  have hφ : C.phiBarC Y (blockToC ψk) hv = fun z => hC (C.phiBar Y ψk hv z) :=
+/-- **At a real field with real background, the holomorphic action at the background `φ_k` and any
+action mass `μ` is the landed action** `A_{T^{(k)}_1}(Y; ψ_k, φ̄_k) + ¼ ∑_{st(Y)} |∂φ̄_k|²` of mass
+`μ` (the core of `actStarC_blockToC`). -/
+theorem actStarAt_blockToC (μ : ℝ) :
+    C.actStarAt Y (blockToC ψk) hv μ (C.phiKC Y (blockToC ψk) hv) =
+      ((actionG (levelGen (ϱ := (1 : ℝ)) k) C.weights μ hv (C.bgSet Y) (C.psiLevelK ψk)
+          (C.phiBar Y ψk hv) + 1 / 4 * starBondE (C.bgSet Y) (C.phiBar Y ψk hv) : ℝ) : ℂ) := by
+  have hφ : C.phiBarAt Y (blockToC ψk) hv (C.phiKC Y (blockToC ψk) hv) =
+      fun z => hC (C.phiBar Y ψk hv z) :=
     funext fun z => (C.hC_phiBar_of_real Y hv ψk hre z).symm
-  unfold actStarC actStar
+  unfold actStarAt
   rw [hφ, psiLevelKOf_blockToC, actionGC_hC, starBondEC_hC]
   push_cast
   ring
+
+theorem actStarC_blockToC :
+    C.actStarC Y (blockToC ψk) hv = ((C.actStar Y ψk hv : ℝ) : ℂ) :=
+  C.actStarAt_blockToC Y hv ψk hre (sfActMass C.cs k)
 
 theorem AresC_blockToC : C.AresC Y (blockToC ψk) hv = C.Ares Y ψk hv := by
   unfold AresC Ares
   rw [C.actStarC_blockToC Y hv ψk hre, ← EresK_eq]
 
 theorem FresC_blockToC : C.FresC Y (blockToC ψk) hv g = C.Fres Y ψk hv g := by
-  unfold FresC Fres
+  unfold FresC FresAt Fres
   congr 1
   refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+  show _ * C.phiBarC Y (blockToC ψk) hv x i = _
   rw [← C.hC_phiBar_of_real Y hv ψk hre x]
   rfl
 
