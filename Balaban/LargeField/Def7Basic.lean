@@ -179,21 +179,29 @@ noncomputable def Rep.lf2Hyp (B : BudgetSetup S P) (ok : S.Ok) {top : ℕ} (hpin
     (hKtop : K ≤ top) (A : LabHist S n R k0 K) (hA : A ∈ rep.hist) : LF2Hyp S n k0 K :=
   rep.lf2HypTrunc (B.toTo K) ok hpin le_rfl hKtop A hA
 
-/-- **LF-2 (i) for a representation: (D6)** (§II.6.4: "(D6) for `rep'` is LF-2 (i)"): under the
-conditions `S.Good` of LF-2, the hypotheses of Lemma B, the pinned exponents (D4) and a horizon
-`K ≤ top`, every history of the representation satisfies (H6′) at the scale `1 ≤ k ≤ k₀`. -/
-theorem Rep.budget_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ} (hpin : D4Pin top rep)
-    (hKtop : K ≤ top) (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hkK : k ≤ K) (hkt : k < top) :
-    D6Budget rep := by
+/-- **LF-2 (i) for a representation, truncated counter history: (D6)** at `1 ≤ k ≤ k₀`, with the
+counter history truncated at a scale `K' ≤ K`, `K' ≤ top`, `k ≤ K'`, and `k < top`: only (I.2) up to
+`K'` (`BudgetSetupTo`) is used, and no relation between the torus horizon `K` and `top`. -/
+theorem Rep.budget_of_LF2_trunc {K' : ℕ} (G : S.Good) (B : BudgetSetupTo S P K') {top : ℕ}
+    (hpin : D4Pin top rep) (hK : K' ≤ K) (hKtop : K' ≤ top) (hk1 : 1 ≤ k) (hk0 : k ≤ k0)
+    (hkK : k ≤ K') (hkt : k < top) : D6Budget rep := by
   intro A hA c
-  have h := (G.window_budget ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok) k hk1 hk0
-    hkK).2 c.1 (fun h' => c.2 ((A.H.mem_remC k c.1).mp h'))
-  have hG : ((rep.lf2Hyp B G.ok hpin hKtop A hA).toCounterHist G.ok).G k c.1 =
+  have h := (G.window_budget ((rep.lf2HypTrunc B G.ok hpin hK hKtop A hA).toCounterHist G.ok) k hk1
+    hk0 hkK).2 c.1 (fun h' => c.2 ((A.H.mem_remC k c.1).mp h'))
+  have hG : ((rep.lf2HypTrunc B G.ok hpin hK hKtop A hA).toCounterHist G.ok).G k c.1 =
       rep.Gpost A k c.1 := rep.gtrunc_of_lt A c.1 hkt
   obtain ⟨h1, h2⟩ := h
   refine ⟨h1, ?_⟩
   rw [← hG]
   exact h2
+
+/-- **LF-2 (i) for a representation: (D6)** (§II.6.4: "(D6) for `rep'` is LF-2 (i)"): under the
+conditions `S.Good` of LF-2, the hypotheses of Lemma B, the pinned exponents (D4) and a horizon
+`K ≤ top`, every history of the representation satisfies (H6′) at the scale `1 ≤ k ≤ k₀`. -/
+theorem Rep.budget_of_LF2 (G : S.Good) (B : BudgetSetup S P) {top : ℕ} (hpin : D4Pin top rep)
+    (hKtop : K ≤ top) (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hkK : k ≤ K) (hkt : k < top) :
+    D6Budget rep :=
+  rep.budget_of_LF2_trunc G (B.toTo K) hpin le_rfl hKtop hk1 hk0 hkK hkt
 
 /-- **LF-2 (i) for a representation, truncated counter history: (H6′)^pre** at `1 ≤ k ≤ k₀`, with
 the counter history truncated at a scale `K' ≤ K`, `K' ≤ top`, `k ≤ K'`: only (I.2) up to `K'`
