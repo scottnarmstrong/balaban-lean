@@ -2180,11 +2180,14 @@ public import Balaban.LargeField.Base.BaseXLog
 public import Balaban.LargeField.Base.BaseTwoTorusGreen
 public import Balaban.LargeField.Base.BaseTwoTorusCov
 public import Balaban.LargeField.Base.BaseTwoTorusRows
+public import Balaban.LargeField.Base.BaseTwoTorusLogShift
 public import Balaban.LargeField.Base.BaseTwoTorusBackground
 public import Balaban.LargeField.Base.BaseXLogShiftOps
 public import Balaban.LargeField.Base.BaseXLogShiftCube
 public import Balaban.LargeField.Base.BaseXLogShift
 public import Balaban.LargeField.Base.BaseXLogShiftInt
+public import Balaban.LargeField.Base.BaseXLogShiftPhys
+public import Balaban.LargeField.Base.BaseXLogShiftRows
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
