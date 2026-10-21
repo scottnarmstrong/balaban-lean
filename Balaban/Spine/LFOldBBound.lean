@@ -147,13 +147,13 @@ theorem fineOfC_mem_of_toFrame_mem {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ 
   rwa [castT_castT_symm] at h'
 
 open Classical in
-/-- **The bound of the old part at an output label for the local pairs of a reading** (the core of
-`norm_oldBAt_le` for the readings of the local pair, the datum `glob` and the label `σ` of the local
-sets): the bound of `norm_oldBAt_le` from the resummation `OldResumSiteAt` for the local sets
+/-- **The bound of the old part at an output label for the local pairs of a reading, with the families
+in the localization range** (the core of `norm_oldBAtAt_le_of_dom`: the local conditions `hloc` are
+asked only for the families `J ∈ allJ ρ`, those of the sum): the bound of `norm_oldBAt_le` from the resummation `OldResumSiteAt` for the local sets
 `V(σ X, J)` and, for every old label `X ∈ Xs` inside `Y` and every family `J` whose mark site lies in
 `Y`, the datum of the local pair in `Ψ̃^c(δ_b, δ_b)` and its composed multiscale field in the H7 domain
 of scale `k` at `X` (`hloc`). -/
-theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+theorem norm_oldBAtAt_le_of_dom_allJ (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
     (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
     (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
     {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
@@ -179,7 +179,7 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
     (Y : Finset (Torus S.d (n (k + 1)))) {ψ : MultiFieldC S n M K N} {q' : FinFieldC S n M K N}
     {gx : GIdx S n M K N → ℂ}
     (hloc : ∀ X ∈ Xs, ∀ J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
-      ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      J ∈ allJ g hnn hM1 A.H hk hρ ρ → ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
         (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
       outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
       dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
@@ -288,12 +288,13 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
         have hVY : ∀ V ∈ (sitesXAt (σ := σ) g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
             ∀ J ∈ famAtAt g hnn hM1 Fr A.H hk hρ ρ r r' (σ X) X V,
+              J ∈ allJ g hnn hM1 A.H hk hρ ρ ∧
               GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J ∧
               blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
                 (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T := by
           intro V hV J hJ
-          obtain ⟨-, hJg, hJV⟩ := (mem_famAtAt g hnn hM1).1 hJ
-          exact ⟨hJg, hJV ▸ (Finset.mem_filter.1 hV).2⟩
+          obtain ⟨hJa, hJg, hJV⟩ := (mem_famAtAt g hnn hM1).1 hJ
+          exact ⟨hJa, hJg, hJV ▸ (Finset.mem_filter.1 hV).2⟩
         have hterm : ∀ V ∈ (sitesXAt (σ := σ) g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
             ‖oldClusterSiteAt (glob := glob) (σ := σ) g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤
@@ -303,8 +304,10 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
           intro V hV
           have h := norm_oldClusterSiteAt_le_of_dom g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
             hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' (hXs X hX).1 V
-            (fun J hJ => (hloc X hX J T hTY hfin (hVY V hV J hJ).1 (hVY V hV J hJ).2).1)
-            (fun J hJ => (hloc X hX J T hTY hfin (hVY V hV J hJ).1 (hVY V hV J hJ).2).2)
+            (fun J hJ => (hloc X hX J (hVY V hV J hJ).1 T hTY hfin (hVY V hV J hJ).2.1
+              (hVY V hV J hJ).2.2).1)
+            (fun J hJ => (hloc X hX J (hVY V hV J hJ).1 T hTY hfin (hVY V hV J hJ).2.1
+              (hVY V hV J hJ).2.2).2)
             (hXs X hX).2 (Finset.mem_filter.1 hV).1 inner cb hcb hp I ψout hrψ hfac hres hCres hκV T
           rw [← hYD] at h
           refine h.trans (le_of_eq ?_)
@@ -481,6 +484,82 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
           refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right
             (mul_le_mul_of_nonneg_left hSXle hCst0) (by positivity)) (Real.exp_pos _).le
       _ = _ := by rw [hCst]; ring
+
+open Classical in
+/-- **The bound of the old part at an output label for the local pairs of a reading** (the core of
+`norm_oldBAt_le` for the readings of the local pair, the datum `glob` and the label `σ` of the local
+sets): the bound of `norm_oldBAt_le` from the resummation `OldResumSiteAt` for the local sets
+`V(σ X, J)` and, for every old label `X ∈ Xs` inside `Y` and every family `J` whose mark site lies in
+`Y`, the datum of the local pair in `Ψ̃^c(δ_b, δ_b)` and its composed multiscale field in the H7 domain
+of scale `k` at `X` (`hloc`). -/
+theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    {Xs : Finset (Finset (Torus S.d (n k)))}
+    (hXs : ∀ X ∈ Xs, X ∈ bdryDomsPost Fr A k (Zof A) ∧ X ∈ oldDoms Fr A.H k)
+    (Y : Finset (Torus S.d (n (k + 1)))) {ψ : MultiFieldC S n M K N} {q' : FinFieldC S n M K N}
+    {gx : GIdx S n M K N → ℂ}
+    (hloc : ∀ X ∈ Xs, ∀ J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
+      ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
+      outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
+      dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
+      GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J →
+      blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+        (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T →
+      InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D' ∧
+      ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
+        ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
+        (∀ P, ‖s P‖ < Real.exp κ₁) →
+        H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+          (composedMulti g hnn hM1 hk (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ψ
+            ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).composed
+              (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') (rho4 S.d S.L N BG κ)
+              ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).slocOf
+                (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)) ρ)
+                (HoleStep.coreExt (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                  (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
+          (extK q') (fun x i => gx (x, i)))
+    (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))
+    (hcb : ∀ u : inner, toFrame g hnn hM1 Fr hk
+      (unitRep (u : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)) ∈
+        Localization.box (cb u).1 (cellSide S.L m₀ m₁ (k + 1)))
+    (hp : 0 < p₁) (I : LocInteraction (fun b => {u : inner // cb u = b} → Rn N))
+    (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres : ℝ}
+    (hres : OldResumSiteAt g hnn hM1 Fr A.H hk hρ ρ r r' σ κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hκV : I.κH ≤ κV) (hαX : aEnt S.d S.L + 1 ≤ rate - κX) :
+    ‖oldBAtAt (glob := glob) (σ := σ) g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A Xs (extK q') hv gx Y‖ ≤
+      Real.exp (Real.log 2 * (c1 S.d S.L * (1 + d7SizeAt Fr (k + 1) (OmegaCube A.H (k + 1)) Y))) *
+        (CPE S.d S.L (I.Kc + 1) I.κH I.κ0 I.κ' * (fac * Cres)) *
+        ((S.L : ℝ) ^ S.d * (c1 S.d S.L * (1 + d7SizeAt Fr (k + 1) (OmegaCube A.H (k + 1)) Y)) * K0 S.d S.L (rate - κX)) *
+        (c1 S.d S.L * (1 + d7SizeAt Fr (k + 1) (OmegaCube A.H (k + 1)) Y) * K0 S.d S.L I.κ0) *
+        Real.exp (-I.κ' * d7SizeAt Fr (k + 1) (OmegaCube A.H (k + 1)) Y) :=
+  norm_oldBAtAt_le_of_dom_allJ g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag
+    ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hXs Y
+    (fun X hX J _ => hloc X hX J) inner cb hcb hp I ψout hrψ hfac hres hCres hκV hαX
 
 open Classical in
 /-- **The old label and the mark site lie in the output label** (any local sets `V(σ X, J)`): for an
@@ -705,6 +784,99 @@ noncomputable def oldB {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : �
   oldBOf g hnn hM1 false F (fun X => X) hk hk1 hρ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ ρc ρ r r' rep
     hv
 
+/-- **The (D7) bound of the re-expanded old boundary terms on the local pairs of a reading, with the
+families in the localization range** (the core of `norm_oldBOf_le_of_dom`, `hloc` asked for `J ∈ allJ ρ`;
+the core of `norm_oldB_le`: the resummation `OldResumSiteAt` for the local sets `V(σ X, J)` and the
+hypotheses `hloc` of `norm_oldBAtAt_le_of_dom` at the field `p`). -/
+theorem norm_oldBOf_le_of_dom_allJ (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    (hXs : ∀ X ∈ oldDoms Fr A.H k, X ∈ bdryDomsPost Fr A k (Zof A))
+    (Y : Finset (Torus S.d (n (k + 1)))) (p : FinFieldC S n M K N × FinFieldC S n M K N ×
+      (GIdx S n M K N → ℂ))
+    (hloc : ∀ X ∈ oldDoms Fr A.H k, ∀ J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
+      J ∈ allJ g hnn hM1 A.H hk hρ ρ → ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
+      outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
+      dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
+      GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J →
+      blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+        (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T →
+      InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D' ∧
+      ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
+        ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
+        (∀ P, ‖s P‖ < Real.exp κ₁) →
+        H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+          (composedMulti g hnn hM1 hk (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' (extK p.1)
+            ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).composed
+              (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') (rho4 S.d S.L N BG κ)
+              ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).slocOf
+                (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)) ρ)
+                (HoleStep.coreExt (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                  (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
+          (extK p.2.1) (fun x i => p.2.2 (x, i)))
+    (inner : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N), inner A ψ →
+      CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))
+    (hcb : ∀ u : inner A (extK p.1), toFrame g hnn hM1 Fr hk
+      (unitRep (u : (holeStepLF g hnn hM1 A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ).U)) ∈
+        Localization.box (cb A (extK p.1) u).1 (cellSide S.L m₀ m₁ (k + 1)))
+    (hp : 0 < p₁)
+    (I : ∀ (A : LabHist S n R k0 K) (ψ _ : MultiFieldC S n M K N) (_ : GIdx S n M K N → ℂ),
+      LocInteraction (fun b => {u : inner A ψ // cb A ψ u = b} → Rn N))
+    (ψout : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres rate' : ℝ}
+    (hres : OldResumSiteAt g hnn hM1 Fr A.H hk hρ ρ r r' σ κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hκV : (I A (extK p.1) (extK p.2.1) p.2.2).κH ≤ κV) (hαX : aEnt S.d S.L + 1 ≤ rate - κX)
+    (hκ' : rate' + Real.log 2 * c1 S.d S.L + 2 ≤ (I A (extK p.1) (extK p.2.1) p.2.2).κ') :
+    ‖oldBOf (glob := glob) (σ := σ) g hnn hM1 Fr hk hk1 hρ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ
+        (rho4 S.d S.L N BG κ) ρ r r' rep hv A Y (extK p.1) (extK p.2.1) (hC hv) p.2.2‖ ≤
+      Real.exp (Real.log 2 * c1 S.d S.L) *
+        (CPE S.d S.L ((I A (extK p.1) (extK p.2.1) p.2.2).Kc + 1)
+          (I A (extK p.1) (extK p.2.1) p.2.2).κH (I A (extK p.1) (extK p.2.1) p.2.2).κ0
+          (I A (extK p.1) (extK p.2.1) p.2.2).κ' * (fac * Cres)) *
+        ((S.L : ℝ) ^ S.d * c1 S.d S.L * K0 S.d S.L (rate - κX)) *
+        (c1 S.d S.L * K0 S.d S.L (I A (extK p.1) (extK p.2.1) p.2.2).κ0) *
+        Real.exp (-rate' * d7SizePre Fr A (k + 1) Y) := by
+  have h := norm_oldBAtAt_le_of_dom_allJ g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
+    hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' (Xs := oldDoms Fr A.H k) (fun X hX => ⟨hXs X hX, hX⟩) Y hloc
+    (inner A (extK p.1)) (cb A (extK p.1)) hcb hp
+    (I A (extK p.1) (extK p.2.1) p.2.2) (ψout A (extK p.1)) hrψ hfac hres hCres hκV hαX
+  have hCPE : 0 ≤ CPE S.d S.L ((I A (extK p.1) (extK p.2.1) p.2.2).Kc + 1)
+      (I A (extK p.1) (extK p.2.1) p.2.2).κH (I A (extK p.1) (extK p.2.1) p.2.2).κ0
+      (I A (extK p.1) (extK p.2.1) p.2.2).κ' := by
+    have := one_le_c1 S.d S.L
+    unfold CPE
+    exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg _)) (by linarith))
+      (Real.exp_pos _).le
+  refine h.trans ?_
+  exact exp_poly_le_exp (by linarith [one_le_c1 S.d S.L]) (mul_nonneg hCPE (by positivity))
+    (by positivity) (K0_pos _ _ _).le (K0_pos _ _ _).le
+    (d7SizeAt_nonneg Fr (k + 1) (OmegaCube A.H (k + 1)) Y) hκ'
+
 /-- **The (D7) bound of the re-expanded old boundary terms on the local pairs of a reading** (the
 core of `norm_oldB_le`: the resummation `OldResumSiteAt` for the local sets `V(σ X, J)` and the
 hypotheses `hloc` of `norm_oldBAtAt_le_of_dom` at the field `p`). -/
@@ -780,22 +952,10 @@ theorem norm_oldBOf_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n
           (I A (extK p.1) (extK p.2.1) p.2.2).κ' * (fac * Cres)) *
         ((S.L : ℝ) ^ S.d * c1 S.d S.L * K0 S.d S.L (rate - κX)) *
         (c1 S.d S.L * K0 S.d S.L (I A (extK p.1) (extK p.2.1) p.2.2).κ0) *
-        Real.exp (-rate' * d7SizePre Fr A (k + 1) Y) := by
-  have h := norm_oldBAtAt_le_of_dom g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
-    hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' (Xs := oldDoms Fr A.H k) (fun X hX => ⟨hXs X hX, hX⟩) Y hloc
-    (inner A (extK p.1)) (cb A (extK p.1)) hcb hp
-    (I A (extK p.1) (extK p.2.1) p.2.2) (ψout A (extK p.1)) hrψ hfac hres hCres hκV hαX
-  have hCPE : 0 ≤ CPE S.d S.L ((I A (extK p.1) (extK p.2.1) p.2.2).Kc + 1)
-      (I A (extK p.1) (extK p.2.1) p.2.2).κH (I A (extK p.1) (extK p.2.1) p.2.2).κ0
-      (I A (extK p.1) (extK p.2.1) p.2.2).κ' := by
-    have := one_le_c1 S.d S.L
-    unfold CPE
-    exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg _)) (by linarith))
-      (Real.exp_pos _).le
-  refine h.trans ?_
-  exact exp_poly_le_exp (by linarith [one_le_c1 S.d S.L]) (mul_nonneg hCPE (by positivity))
-    (by positivity) (K0_pos _ _ _).le (K0_pos _ _ _).le
-    (d7SizeAt_nonneg Fr (k + 1) (OmegaCube A.H (k + 1)) Y) hκ'
+        Real.exp (-rate' * d7SizePre Fr A (k + 1) Y) :=
+  norm_oldBOf_le_of_dom_allJ g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag
+    ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hXs Y p
+    (fun X hX J _ => hloc X hX J) inner cb hcb hp I ψout hrψ hfac hres hCres hκV hαX hκ'
 
 /-- **The (D7) bound of the re-expanded old boundary terms** (P6 (4.34); LFR Lemma IV.1.5 (iii)): at a
 history `𝔸` of the record, an output label `Y` and a field `p` in the H7 domain of scale `k + 1` at the

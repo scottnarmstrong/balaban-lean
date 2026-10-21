@@ -205,6 +205,109 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N m₁ : ℕ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
+/-- **The sites read by the named inputs of reading HS-2 have their cubes in the output label**
+(condition D1 at the fine set of `Y`): for an old label `X`, a family `J` with a good site whose cubes in
+`Ω_{k+1}` lie in a set `T` of cubes with output label `Y` and `d_Ω(T) < ∞`, the cubes of `𝕋_{k+1}` of the
+data sites of the local pair of `V₂(X, J)`, and of the sites of the stencil of `X`, lie in the fine set of
+`Y` (`d7Pull_stencilX_subset_outLabel`, the data sites lie in the mark site, `cubesOfIn_fineSet`). -/
+theorem cubesOfIn_of_mark2 {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (hk : k + 1 ≤ K) {H : RegionHistory S n R k0 K} (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ)
+    (Y : Finset (Torus S.d (n (k + 1)))) {X : Finset (Torus S.d (n k))} (hXd : X ∈ oldDoms Fr H k)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull Fr (k + 1) (OmegaCube H (k + 1)))))
+    (hTY : outLabel Fr k (OmegaCube H (k + 1)) T = Y)
+    (hfin : dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤)
+    (hJ : GoodJAt g hnn hM1 Fr H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube H (k + 1))) (stencilX X)
+      X J)
+    (hT : blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube H (k + 1)))
+      (markSiteAt g hnn hM1 Fr H hk hρ r r' (stencilX X) X J) ⊆ T) :
+    CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1)
+        (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1)))))
+        (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ
+          (locSetXJ2 g hM1 H r r' X J)) : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) ∧
+      CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1)
+        (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1)))))
+        (fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) ∪
+          fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ
+            (locSetXJ2 g hM1 H r r' X J)) : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) := by
+  have hmark := subset_outLabel_of_mark g hnn hM1 Fr H hk hρ stencilX r r' hXd J Y T hTY hfin hJ hT
+  have hst := d7Pull_stencilX_subset_outLabel g hnn hM1 Fr H hk hρ r r' hXd J T hfin hJ hT
+  rw [hTY] at hst
+  have hdata : fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ
+      (locSetXJ2 g hM1 H r r' X J)) : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆
+      fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1)))) := by
+    rintro _ ⟨x, hx, rfl⟩
+    exact fineOfC_mem_of_toFrame_mem g hnn hM1 Fr hk (hmark.2
+      (markBaseAt_subset_markSiteAt g hnn hM1 Fr H hk hρ r r' (stencilX X) X J
+        (Or.inr ⟨x, hx, rfl⟩)))
+  exact ⟨cubesOfIn_fineSet hdata,
+    cubesOfIn_fineSet (Set.union_subset (fineSet_subset_of_d7Pull_subset Fr hst) hdata)⟩
+
+/-- **The local conditions of the old part at an output label of reading HS-2, for a target record with
+the regions `Z'`** (the core of `locConds_of_h7MixedLoc2` and of `locConds_of_h7MixedLoc2Pre`; the
+conditions `H7MixedInnerLocXJ`, `H7MixedDatumLocV` at `X`, `J` in place of the named inputs): for a target field of the H7 domain of scale `k + 1` at the fine set of `Y`, every old label
+`X` and every family `J` with a good site whose cubes in `Ω_{k+1}` lie in a set `T` of cubes with
+output label `Y` and `d_Ω(T) < ∞`, the named inputs `H7MixedInnerLoc2`, `H7MixedDatumLoc2` give the
+conditions `hloc` of `norm_oldBAtAt_le_of_dom` for the local pair of reading HS-2: the condition D1
+holds at the fine set of `Y`, since the stencil of `X` (`d7Pull_stencilX_subset_outLabel`) and the
+data sites of the local pair (which lie in the mark site) lie in it (`cubesOfIn_fineSet`). -/
+theorem locConds_of_h7MixedLoc2_withZ {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (hk : k + 1 ≤ K) {A : LabHist S n R k0 K} (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {aw μs ε ε1 νs : ℕ → ℝ} {hv : EuclideanSpace ℝ (Fin N)}
+    {BG δb κ κ₁ rψ : ℝ} (hL : 2 ≤ S.L) (ρ r r' : ℕ)
+    (Z' : ℕ → Set (Torus S.d (M * n K * S.L ^ K)))
+    (hZ' : ∀ j, j ≤ k → omegaCNb { globalLH A.H M with Z := Z' } 3 j = omegaCNb (globalLH A.H M) 3 j)
+    (Y : Finset (Torus S.d (n (k + 1)))) {ψ : MultiFieldC S n M K N} {ψ' : MultiFieldC S n M K N}
+    {gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ}
+    (htgt : H7Domain g.M1 g.c g.hM hnn { globalLH A.H M with Z := Z' } (k + 1) hk
+      (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1))))) aw μs ε ε1 νs
+      (hC hv) ψ ψ' gf)
+    {X : Finset (Torus S.d (n k))} (hXd : X ∈ oldDoms Fr A.H k)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hin : H7MixedInnerLocXJ g hnn hM1 { globalLH A.H M with Z := Z' } A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ
+      (rho4 S.d S.L N BG κ) ρ r r' aw μs ε ε1 νs (hC hv) (Real.exp κ₁) rψ X J)
+    (hD : H7MixedDatumLocV g hnn hM1 { globalLH A.H M with Z := Z' } A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw
+      μs ε ε1 νs (hC hv) ν δb (locSetXJ2 g hM1 A.H r r' X J))
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))))
+    (hTY : outLabel Fr k (OmegaCube A.H (k + 1)) T = Y)
+    (hfin : dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤)
+    (hJ : GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (stencilX X)
+      X J)
+    (hT : blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+      (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (stencilX X) X J) ⊆ T) :
+    InDomainC (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+        (locSetXJ2 g hM1 A.H r r' X J)).G' ν δb δb
+      (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 A.H r r' X J)).D' ∧
+      ∀ ψo : (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ2 g hM1 A.H r r' X J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
+        ∀ s : Dec2.DecParams (coverOf (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ2 g hM1 A.H r r' X J)).G'),
+        (∀ P, ‖s P‖ < Real.exp κ₁) →
+        H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+          (composedMulti g hnn hM1 hk (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+              (locSetXJ2 g hM1 A.H r r' X J)).G' ψ
+            ((holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+              (locSetXJ2 g hM1 A.H r r' X J)).composed
+              (coverOf (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                (locSetXJ2 g hM1 A.H r r' X J)).G') (rho4 S.d S.L N BG κ)
+              ((holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                (locSetXJ2 g hM1 A.H r r' X J)).slocOf
+                (coverOf (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                  (locSetXJ2 g hM1 A.H r r' X J)).G')
+                (locDomsLF g hM1 (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                  (locSetXJ2 g hM1 A.H r r' X J)) ρ)
+                (HoleStep.coreExt (coverOf (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                  (locSetXJ2 g hM1 A.H r r' X J)).G')
+                  (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
+          ψ' gf := by
+  obtain ⟨hdata, hY⟩ := cubesOfIn_of_mark2 g hnn hM1 hk hρ r r' Y hXd J T hTY hfin hJ hT
+  exact ⟨hD _ ψ ψ' gf htgt hdata, fun ψo hψo s hs =>
+    h7Domain_composedMulti_loc2_withZ g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ
+      r r' aw μs ε ε1 νs (hC hv) hL Z' hZ' X J hin htgt hY hψo hs⟩
+
 /-- **The local conditions of the old part at an output label from the named inputs of reading
 HS-2**: for a target field of the H7 domain of scale `k + 1` at the fine set of `Y`, every old label
 `X` and every family `J` with a good site whose cubes in `Ω_{k+1}` lie in a set `T` of cubes with
@@ -259,21 +362,9 @@ theorem locConds_of_h7MixedLoc2 {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m�
                 (HoleStep.coreExt (coverOf (holeStepLoc2 g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
                   (locSetXJ2 g hM1 A.H r r' X J)).G')
                   (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
-          ψ' gf := by
-  have hmark := subset_outLabel_of_mark g hnn hM1 Fr A.H hk hρ stencilX r r' hXd J Y T hTY hfin hJ hT
-  have hst := d7Pull_stencilX_subset_outLabel g hnn hM1 Fr A.H hk hρ r r' hXd J T hfin hJ hT
-  rw [hTY] at hst
-  have hdata : fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 A.H hk hρ
-      (locSetXJ2 g hM1 A.H r r' X J)) : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆
-      fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1)))) := by
-    rintro _ ⟨x, hx, rfl⟩
-    exact fineOfC_mem_of_toFrame_mem g hnn hM1 Fr hk (hmark.2
-      (markBaseAt_subset_markSiteAt g hnn hM1 Fr A.H hk hρ r r' (stencilX X) X J
-        (Or.inr ⟨x, hx, rfl⟩)))
-  have hY := cubesOfIn_fineSet (Set.union_subset (fineSet_subset_of_d7Pull_subset Fr hst) hdata)
-  exact ⟨hDat _ _ ψ ψ' gf htgt (cubesOfIn_fineSet hdata), fun ψo hψo s hs =>
-    h7Domain_composedMulti_loc2 g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r'
-      aw μs ε ε1 νs (hC hv) hL hIn X J htgt hY hψo hs⟩
+          ψ' gf :=
+  locConds_of_h7MixedLoc2_withZ g hnn hM1 hk hk1 hρ z h₀ a₁ ν β p₁ δ hL ρ r r' (globalLH A.H M).Z
+    (fun _ _ => rfl) Y htgt hXd J (hIn X J) (hDat _) T hTY hfin hJ hT
 
 end Conds
 

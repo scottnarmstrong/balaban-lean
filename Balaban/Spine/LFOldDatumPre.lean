@@ -201,15 +201,8 @@ def H7MixedDatumLoc2Pre (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤
     (aw μs ε ε1 νs : ℕ → ℝ) (νb δb : ℝ) : Prop :=
   ∀ (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))),
     J ∈ allJ g hnn hM1 H hk hρ ρ →
-    ∀ (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
-      (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ),
-    H7Domain g.M1 g.c g.hM hnn (globalLHPre H M (k + 1)) (k + 1) hk Yf aw μs ε ε1 νs
-      (fun i => (h₀ i : ℂ)) ψ ψ' gf →
-    CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
-      (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
-        Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
-    InDomainC (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 H r r' X J)).G'
-      νb δb δb (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 H r r' X J)).D'
+    H7MixedDatumLocV g hnn hM1 (globalLHPre H M (k + 1)) H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs
+      (fun i => (h₀ i : ℂ)) νb δb (locSetXJ2 g hM1 H r r' X J)
 
 /-- **`H7MixedDatumLoc2Pre` holds** (the case analysis `inDomainC_holeStepLoc2_of_h7` at the pre-`R`
 records): for `L ≥ 2`, `ρ ≤ ⌊R_k⌋`, the room `r + r′ ≤ c M₁ L^{k+1}` (then every data site of
