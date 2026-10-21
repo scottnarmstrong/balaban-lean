@@ -318,6 +318,68 @@ theorem kappaStepLoc_nonpos_of_quietRealized (P : BudgetConsts) (hc1 : 0 ≤ P.c
 end Kappa
 
 
+section KappaLe
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L]
+
+/-- **The volume of `Z^c_k ∩ Z'` in the units of the scale `k + 1`** of the localized history of a
+component is `M^d L^{-d}` times the number of its old-complement cubes: the volume factor of
+`quietKappaStep` is the one of `BudgetConsts.kappaStep`. -/
+theorem volScale_out_localHistory (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (Z' : H.Comp (k + 1)) :
+    volScale S (k + 1) {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+        z ∉ (H.localHistory M K (k + 1) Z').Z k} =
+      (M : ℝ) ^ S.d / (S.L : ℝ) ^ S.d * ((H.outCubes k Z').card : ℝ) := by
+  classical
+  have := H.neZero_L
+  have h1 := H.localHistory_Z (M := M) Z' hk (j := k + 1) le_rfl
+  have h0 := H.localHistory_Z (M := M) Z' hk (j := k) (Nat.le_succ k)
+  rw [H.lin_self] at h1
+  rw [H.lin_succ_self (by omega)] at h0
+  have hD : {z | z ∈ (H.localHistory M K (k + 1) Z').Z (k + 1) ∧
+        z ∉ (H.localHistory M K (k + 1) Z').Z k} =
+      RegionHistory.fineSet (S := S) (n := n) M K k
+        ((H.outCubes k Z' : Finset (Torus S.d (n k))) : Set _) := by
+    rw [h1, h0]
+    ext x
+    simp only [RegionHistory.fineSet, Set.mem_ofPred_eq, Finset.mem_coe,
+      RegionHistory.oldCubes, RegionHistory.outCubes, Finset.mem_filter, Finset.mem_univ,
+      true_and]
+    rw [← cubeMap_succ H.F.hnn hk x]
+    tauto
+  unfold volScale
+  rw [hD, card_fineSet H.F.hnn (by omega)]
+  have hL : (0 : ℝ) < (S.L : ℝ) := by exact_mod_cast NeZero.pos S.L
+  push_cast
+  rw [show (k + 1) * S.d = k * S.d + S.d by ring, pow_add, mul_pow, ← pow_mul, mul_comm k S.d]
+  field_simp
+
+/-- **The step exponent is at most the quiet exponent at the quiet steps**: for `c₁ ≤ c₁(P)`,
+`c₂ ≤ c₂(P)` (LFR row 14: `c₁ ≥ C_b`, `c₂ ≥ C_b B₀`), `M = S.M` (`Coh.M_eq`), `β_k` the coupling of both and `log β_k ≥ 0`,
+`κ^{(k)} = -(c₁(P) log β_k + c₂(P)) |Z^c_k ∩ Z'|_{k+1} ≤ -(c₁ log β_k + c₂) |Z^c_k ∩ Z'|_{k+1}`
+(a quiet step has no new cube). -/
+theorem kappaStepLoc_le_quietKappaStep (P : BudgetConsts) (cs : OpConsts) (c1 c2 : ℝ)
+    (hM : M = S.M) (hc1 : c1 ≤ P.c1) (hc2 : c2 ≤ P.c2) (hbeta : ∀ k, cs.beta k = P.beta k)
+    (hlog : ∀ k, 0 ≤ Real.log (P.beta k)) {k : ℕ} {a : LocalHistory S n M K}
+    (h : QuietRealized R k0 k a) :
+    kappaStepLoc S P M k a ≤ quietKappaStep cs c1 c2 k a := by
+  obtain ⟨H, -, Z', -, hk, hq, rfl⟩ := h
+  rw [Def7.kappaStepLoc_localHistory P H hk Z', card_inter_newCubes_of_isQuiet H hk Z' hq]
+  unfold BudgetConsts.kappaStep quietKappaStep
+  rw [volScale_out_localHistory H hk Z', hbeta k, ← hM]
+  have hv : 0 ≤ (M : ℝ) ^ S.d / (S.L : ℝ) ^ S.d * ((H.outCubes k Z').card : ℝ) := by
+    have := NeZero.pos S.L
+    positivity
+  have := hlog k
+  have h1 : c1 * Real.log (P.beta k) + c2 ≤ P.c1 * Real.log (P.beta k) + P.c2 := by
+    nlinarith
+  simp only [Nat.cast_zero, mul_zero, zero_sub, neg_mul]
+  exact neg_le_neg (mul_le_mul_of_nonneg_right h1 hv)
+
+end KappaLe
+
+
 section OfSlice
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
@@ -326,28 +388,30 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **The step data of the first step**: a scale-`0` slice (the base kernel and boundary factor)
 spliced with the quiet step data of the scales `k ≥ 1` (`quietStepData'`, constants `c₁ = c₂ = 0`),
 at the step exponent `κ^{(k)}` of the budget `P` (`kappaStepLoc`). The quiet steps have no new
-cube, so `κ^{(k)} ≤ 0`, the exponent of the quiet step data with `c₁ = c₂ = 0`
-(`kappaStepLoc_nonpos_of_quietRealized`). -/
-noncomputable def StepData.ofZeroSliceQuiet [NeZero N] (P : BudgetConsts) (hP1 : 0 ≤ P.c1)
-    (hP2 : 0 ≤ P.c2) (hPlog : ∀ k, 0 ≤ Real.log (P.beta k))
+cube, so `κ^{(k)} = -(c₁(P) log β_k + c₂(P)) |Z^c_k ∩ Z'|_{k+1}`, which is at most the exponent
+`-(c₁ log β_k + c₂) |Z^c_k ∩ Z'|_{k+1}` of the quiet step data for `c₁ ≤ c₁(P)`, `c₂ ≤ c₂(P)`
+(`kappaStepLoc_le_quietKappaStep`; the volume factors agree, `volScale_out_localHistory`). The
+constants satisfy `C_b ≤ c₁`, `C_b B₀ ≤ c₂` (LFR row 14). -/
+noncomputable def StepData.ofZeroSliceQuiet [NeZero N] (P : BudgetConsts) (c1 c2 : ℝ) (hM : M = S.M)
+    (hP1 : c1 ≤ P.c1) (hP2 : c2 ≤ P.c2) (hbeta : ∀ k, cs.beta k = P.beta k)
+    (hPlog : ∀ k, 0 ≤ Real.log (P.beta k))
     (sl : StepSlice0 k0 geo cs N (kappaStepLoc (K := K) S P M 0))
     (inp : QuietStepInput' K k0 geo cs N)
     (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
     (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
     (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.muBg q))
-    (hN : 2 ≤ N) (hc1 : cs.Cb ≤ 0) (hc2 : cs.Cb * cs.B0 ≤ 0)
-    (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
+    (hN : 2 ≤ N) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
     (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
     (hδ : ∀ k, 0 < cs.delta k) (hδ1 : ∀ k, 3 * S.d * S.L * cs.delta k ≤ 1 / 2)
     (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
     (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) :
     StepData k0 geo cs N (kappaStepLoc (K := K) S P M) :=
+  have hlog : ∀ k, 0 ≤ Real.log (cs.beta k) := fun k => by rw [hbeta k]; exact hPlog k
   StepData.spliceZero sl
-    (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN 0 0 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0)
-    (quietStepData'_gauss_le inp hz hc hβ haw hμ hbg hbgB hN 0 0 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
-      hB0 (fun k a hr => by
-        simpa [quietKappaStep] using kappaStepLoc_nonpos_of_quietRealized P hP1 hP2 hPlog hr))
+    (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0)
+    (quietStepData'_gauss_le inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
+      hB0 (fun _ _ hr => kappaStepLoc_le_quietKappaStep P cs c1 c2 hM hP1 hP2 hbeta hPlog hr))
 
 end OfSlice
 

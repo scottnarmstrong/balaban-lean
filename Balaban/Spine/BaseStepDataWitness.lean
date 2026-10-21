@@ -182,8 +182,8 @@ theorem hlogβ : ∀ k, 0 ≤ Real.log (cs.beta k) := fun k => by
 noncomputable def SD (nK : ℕ) [NeZero nK] :
     StepData (kZero 3 typ.L wβ wν₀) (baseGeoF 3 typ wβ cs0.aKer 1 M1 27 ok rfl (by norm_num) nK) cs
       2 (kappaStepLoc (K := 1 + 1) S (baseBudgetConsts (budgetConsts wβ) sf) typ.M) :=
-  StepData.ofZeroSliceQuiet (baseBudgetConsts (budgetConsts wβ) sf) le_rfl le_rfl
-    (fun k => by show 0 ≤ Real.log 1; simp)
+  StepData.ofZeroSliceQuiet (baseBudgetConsts (budgetConsts wβ) sf) 0 0 rfl le_rfl le_rfl
+    (fun _ => rfl) (fun k => by show 0 ≤ Real.log 1; simp)
     (StepSlice0.zero _ cs hCb _)
     (quietStepInput'_nonempty_sides (by have := kZero_wν₀; show kZero 3 3 wβ wν₀ ≤ 1 + 1; omega) _
       cs 2 (le_of_eq hCb) (by show (0 : ℝ) ≤ 1; norm_num) hlogβ).some
@@ -196,7 +196,7 @@ noncomputable def SD (nK : ℕ) [NeZero nK] :
       le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
     (baseOpConsts_bgHyp_muBg _ _ _ _ _ (fun _ => by show (0 : ℝ) ≤ 1 / 2; norm_num) (fun _ => by show (1 / 2 : ℝ) ≤ 1; norm_num)
       le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
-    le_rfl (le_of_eq hCb) (by show (0 : ℝ) * 1 ≤ 0; norm_num) hlogβ
+    le_rfl (le_of_eq hCb) (by show (0 : ℝ) * 1 ≤ 0; norm_num)
     (fun k => by show (0 : ℝ) < 1 * (5 / 4) * ((3 : ℕ) : ℝ) ^ (3 - 2); norm_num)
     (fun k => by rw [cs_delta]; exact δ0_pos) (fun k => by rw [cs_delta]; exact δ0_le)
     (fun k => by rw [cs_delta]; exact δ0_le') (le_of_eq hCb.symm) (by show (0 : ℝ) ≤ 1; norm_num)
