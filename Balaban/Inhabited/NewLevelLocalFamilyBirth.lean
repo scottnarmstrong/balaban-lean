@@ -30,7 +30,11 @@ with the conditions on constants of L5 discharged (`NewLevelConstants`):
   analyticity of the old densities along the path (a premise of the chain), and the conditions on
   constants `L^{-α} ≤ 1/16`, `(N + 1) K₂ ε₁ ≤ 1/8`, `2 K_m τ₁ ≤ 1/9` (`L` large, `α₀` and the flow
   constant small: ties of the prefix); the radii of the marks, `hca`, `hsmO`, the (DL-gap) and the
-  numerics of the new level are no longer premises.
+  numerics of the new level are no longer premises;
+* `StepTowerG.newLevel_localFamilies_birth_of` (row (iii) of A4-1b): the same for the families of
+  all roots at once — the premises `hsupp`, `hval`, `hfan`, `hfbd`, `hfloc`, `hfrot`, `hfval` of
+  `newLabels_castInputs_of_localFamily` (the provider of the label inputs of
+  `localClass_newLevel_of_expansion_cast`).
 -/
 
 @[expose] public section
@@ -437,6 +441,186 @@ theorem StepTowerG.newLevel_localFamily_birth_of
     (by rw [hSa, hSb, hTκ]; exact hRR) hUR hU
     (by rw [hSβ, hSa, hTm, hTB₂, hTκ, hTB, hTk0, hκdecT, hκ'T]; exact hsmZ)
     (by rw [hSa, hSb, hTκ]; exact hmr) (by rw [hSa, hSb, hTκ]; exact hca) hεnum hc hsep π hπ
+  exact ⟨f, b, hf⟩
+
+open Classical in
+/-- **The clauses (A1)–(A5) of the new level at every root along the class chain** (row (iii) of
+A4-1b, route R-LOC; the provider of the label inputs of the new level).  At a base tower `T₀` of the
+class chain with `K₂ Q ≤ 1/16` and the numerics of the new level (the tower of
+`exists_newLevelConstants`), for `L^{-α} ≤ 1/16`: for every class constant `P₀` with
+`(N + 1) K₂ ε₁ ≤ 1/8` and every set of constants of the bound of the irrelevant parts there is `β₀`
+such that at every scale `k`, for every class `C` in the regime of ruling R13 with the flow constant
+small and with the bound of its irrelevant terms on their term domain (A4-1b (ii)), the chain gives
+a coefficient family `e z` of every root `z` with its rooted support and its value `E0locJ C z` on
+the step chart, and, on the cast local sets `𝔹_{k+1}(Ŷ⁺(T′))`, local families `f z` with bounds
+`b z` and (A1)–(A5) (`NewLevelLocalFamily`).  These are the premises `hsupp`, `hval`, `hfan`,
+`hfbd`, `hfloc`, `hfrot`, `hfval` of `newLabels_castInputs_of_localFamily` (with `hG` from the step,
+`S.G' = 𝔹_{k+1}`, and `hε` the cover `ε_{k+1} ≤ T_k.t`), which gives the label inputs of
+`localClass_newLevel_of_expansion_cast`. -/
+theorem StepTowerG.newLevel_localFamilies_birth_of
+    {d L N : ℕ} [NeZero L] (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ)
+    (hγ1 : γ < 1 / 2) {κmin : ℝ} (T₀ : StepTowerG d L N κmin) {κdec : ℝ}
+    (hT : CollarBase d L N m₀ ((L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) T₀ κdec) {Q F η : ℝ}
+    (hQdef : Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+    (hFdef : F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))
+    (hηdef : η = (1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / (4 * xiK2 d L N * F))
+    (hLq : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) ≤ 1 / 16) (hQ16 : xiK2 d L N * Q ≤ 1 / 16)
+    (hNLN : Nonempty (NewLevelNumerics d L N T₀.m₁ T₀.c T₀.BG T₀.κ T₀.t T₀.c₂ T₀.BG₂ T₀.δc
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) ((2 * bgK1 d L N + 2) * xiC1 d * T₀.t))) :
+    ∀ P₀ : Consts, P₀.γ = γ → 0 < P₀.α₀ →
+    -- the radius constant `α₀` small (the (DL-gap))
+    ((N : ℝ) + 1) * cK2 d L N * P₀.eps d L 1 ≤ 1 / 8 →
+    -- the constants of the bound of the irrelevant parts (A4-1b (ii))
+    ∀ (CI KL α₃ : ℝ) (n₁ : ℕ), 0 ≤ CI → 0 ≤ KL → 0 < α₃ →
+    ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+    ∀ r₀ lam : ℝ, 0 < r₀ → lam = 1 + xiK2 d L N * ((3 / 2 : ℝ) * r₀) →
+    xiK2 d L N * ((3 / 2 : ℝ) * r₀) ≤ 1 / 16 → lam * P₀.eps d L 1 ≤ T₀.t →
+    ∀ (k : ℕ) (hk : 1 ≤ k), ∃ Tk : StepTowerG d L N κmin, Tk.t = lam * P₀.eps d L (k + 1) ∧
+      Tk.m₁ = T₀.m₁ ∧ Tk.c = T₀.c ∧ Tk.BG = T₀.BG ∧ Tk.κ = T₀.κ ∧ Tk.c₂ = T₀.c₂ ∧
+      Tk.BG₂ = T₀.BG₂ ∧ Tk.δc = T₀.δc ∧ Tk.δ = T₀.δ ∧ Tk.δ' = T₀.δ' ∧ Tk.κ0 = T₀.κ0 ∧ Tk.m₀ = T₀.m₀ ∧
+      ChainNum d L N Tk.m₁ Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) ∧
+      FlNum d L N Tk.BG Tk.BG₂ Tk.κ Tk.t (Q * Tk.t) (min Tk.t (η * (lam * P₀.eps d L k)))
+        (F * min Tk.t (η * (lam * P₀.eps d L k))) ∧
+      -- the cover: the radius premise of `newLabels_castInputs` at `eps = Tk.t`
+      P₀.eps d L (k + 1) ≤ Tk.t ∧
+      -- the room of the inherited labels at every level `j ≤ k`
+      (∀ j ≤ k, Tk.t + xiK2 d L N * (Q * Tk.t) +
+        xiK2 d L N * (F * min Tk.t (η * (lam * P₀.eps d L k))) ≤ P₀.eps d L j) ∧
+    ∀ (N₁ : ℕ) [NeZero N₁] (_ : L ^ Tk.m₀ ∣ N₁), 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+    ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+    ∀ {ϱ : ℝ} (_ : ϱ = rhoSepG d L Tk.m₁) (S : StepSetting d L N₁ Tk.m₁ k N ϱ)
+      (_ : S = hatStepKG Tk.hN k Tk.m₁ ϱ hk ν β p₁ Tk.δ),
+    ∃ Jr : S.JointRep Tk.t (2 * p₁),
+    ∀ (C : StepClass d L N₁ Tk.m₁ k N ϱ)
+      (𝒯E : Finset (ℕ × CTorus d L N₁ Tk.m₁ (k + 1) × Set (CTorus d L N₁ Tk.m₁ (k + 1))))
+      (_ : 𝒯E = ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ Tk.m₁ (k + 1) ×
+          Set (CTorus d L N₁ Tk.m₁ (k + 1))))).filter
+        (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
+      (Rg : Regime L) (a : ℕ → ℝ)
+      (_ : P₀.m₀ = C.m₀) (_ : SFTermClauses P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
+      (_ : 0 ≤ P₀.E₀) (i₀ : Fin N)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1)
+          ϱ, (∀ i, j < i → G.Ω i = ∅) →
+        ∀ Ψ : Fld d L N₁ Tk.m₁ (k + 1) N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+        (∀ x x', jBlock d L (N₁ * L ^ Tk.m₁) (k + 1) j x = jBlock d L (N₁ * L ^ Tk.m₁) (k + 1) j x' →
+          Ψ x = Ψ x') →
+        (birthXiDom P₀ Rg a N₁).dom j G Ψ (constFld (Pi.single i₀ 1)))
+      (XL 𝒦X : {τ // τ ∈ 𝒯E} → Set (CTorus d L N₁ Tk.m₁ (k + 1)))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, XL τ = τ.1.2.2 ∪ box (cbase (cellSide L C.m₀ Tk.m₁ τ.1.1) τ.1.2.1 -
+        natT fun _ => L / 2 * cellSide L C.m₀ Tk.m₁ τ.1.1) (L * cellSide L C.m₀ Tk.m₁ τ.1.1))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ChosenOne C.m₀ τ.1.1 (XL τ) (𝒦X τ))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∃ (W₀ : Finset (CTorus d L N₁ Tk.m₁ (k + 1)))
+        (E₀ : Finset (CTorus d L N₁ Tk.m₁ (k + 1) × CTorus d L N₁ Tk.m₁ (k + 1))),
+        ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne C.m₀ τ.1.1 (𝒦X τ) W₀ ∧
+          bondCost (scaleW L C.m₀ Tk.m₁ τ.1.1) E₀ = treeLenCovOne C.m₀ τ.1.1 (XL τ))
+      (_ : L ^ C.m₀ ∣ N₁) (_ : d ≤ C.m₀) {s : ℕ} (_ : s ≤ C.m₀)
+      (_ : (((5 * L + 13) * L ^ s : ℕ) : ℝ) + (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
+      (_ : rhoSepG d L Tk.m₁ ≤ Balaban.LargeField.minSep L (L ^ (Tk.m₁ + s))) (_ : C.m₀ = m₀)
+      -- the regime of ruling R13, and the composed data of the labels in the class domain at the
+      -- birth masses (the weights, the flow of the masses, the (DL-gap) and the smallness of `ε_j`)
+      (_ : ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+      (_ : aIdeal L (k + 1) (a (k + 1)) = compWeight L S.a₁)
+      {ξ : ℕ → Fin 3 → ℂ} {q c₈ ν₀ : ℝ} (_ : 0 ≤ q) (_ : q < 1) (_ : 0 ≤ c₈)
+      (_ : c₈ * q ≤ 1 - q) (_ : ∀ n, ‖ξ n‖ ≤ c₈ / 4 * q ^ (n + 1))
+      (_ : ∀ n, n ≤ k → ((Rg.ν n : ℝ) : ℂ) = Flow.nuSeq (L : ℝ) ξ (ν₀ : ℂ) n)
+      (_ : ν = physMass L k (Rg.ν k))
+      {rm : ℝ} (_ : (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1) ≤ 1 / 2) (_ : 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1) < rm) (_ : rm ≤ 1 / 16)
+      (_ : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (1 + 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1)) ≤ 1)
+      -- the flow constant small (the (DL-gap))
+      (_ : (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) *
+        (2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1)) ≤ 1 / 9)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → (4 * d + 6) * ((2 * d + 1) * P₀.eps d L j) ≤ 1)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → 4 * (xiC1 d * P₀.eps d L j) ≤ bgC1 d L N)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → bgK1 d L N * (xiC1 d * P₀.eps d L j) + 3 * rm ≤ deltaStar d L N)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → 8 * P₀.eps d L j * rm ≤ deltaStar d L N)
+      -- the bounds of the irrelevant parts in `d(X)` on their term domain with their decay in the
+      -- level (P1 (3.128), the open input A4-1b (ii))
+      (Bl : ℕ → CTorus d L N₁ Tk.m₁ (k + 1) → Set (CTorus d L N₁ Tk.m₁ (k + 1)) → ℝ)
+      (_ : ∀ j y X, 0 ≤ Bl j y X)
+      (_ : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ Tk.m₁ (k + 1))
+        (X : Set (CTorus d L N₁ Tk.m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
+        ∀ Ψ h : Fld d L N₁ Tk.m₁ (k + 1) N, (birthXiDom P₀ Rg a N₁).dom j (C.Tm.gs j X) Ψ h →
+        dot (Ψ y) (Ψ y) ∈ Complex.slitPlane →
+        ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X Ψ h‖ ≤
+          Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
+      (_ : ∀ j y X, j + n₁ ≤ k →
+        Bl j y X ≤ CI * P₀.E₀ * ((((L : ℝ)⁻¹ ^ (k - j)) ^ ((d : ℝ) + α₃))))
+      (_ : ∀ j y X, k < j + n₁ → Bl j y X ≤ KL * P₀.E₀),
+    -- the old densities are analytic along the path
+    (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+      ∀ s ∈ Set.Icc (0 : ℝ) 1, ∀ x : S.E, ‖x‖ ≤ S.p₁ → ∀ j ∈ Finset.Icc 1 k,
+      AnalyticAt ℂ
+        (fun q : Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N =>
+          Edens C.m₀ C.Tm j q.1 q.2)
+        (Jr.PJ j (rawOf D, (s : ℂ) • Balaban.Fluctuation.yhat x))) →
+    ∃ e : RootIdx d L N₁ Tk.m₁ (k + 1) → physParam N S →
+        Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+          ℂ,
+      -- the rooted polymer support and the value of the family of every root (the premises
+      -- `hsupp`, `hval` of `newLabels_castInputs_of_localFamily`)
+      (∀ z θ T', e z θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
+      (∀ z (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+        Jr.E0locJ C z (rawOf D) = ∑ T', e z ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ Tk.m₁ (k + 1) → Fin N → ℂ)) T') ∧
+      -- the clauses (A1)–(A5) of every root on the local sets `𝔹_{k+1}(Ŷ⁺(T′))`
+      ∀ {N₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ (Tk.m₁ + s) = N₁ * L ^ Tk.m₁)
+        (hsep : ϱ ≤ Balaban.LargeField.minSep L (L ^ (Tk.m₁ + s)))
+        (π : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →L[ℂ] rawSub N S.G'),
+        (∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩) →
+      ∃ (f : RootIdx d L N₁ Tk.m₁ (k + 1) → Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+          (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+            Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N → ℂ)
+        (b : RootIdx d L N₁ Tk.m₁ (k + 1) → Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+          (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℝ),
+        ∀ z, NewLevelLocalFamily S P₀ hc hsep
+          (fun Y => {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) |
+            (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈ hatSet P₀.m₀ (k + 1) Y}) π (e z) (f z)
+          (b z) := by
+  intro P₀ hγ hα₀ hquad CI KL α₃ n₁ hCI hKL hα₃
+  obtain ⟨β₀, hβ₀, H⟩ := T₀.newLevel_localFamily_birth_of m₀ hA p hγ0 hγ1 hT hQdef hFdef hηdef
+    hLq hQ16 hNLN P₀ hγ hα₀ hquad CI KL α₃ n₁ hCI hKL hα₃
+  refine ⟨β₀, hβ₀, fun r₀ lam hr hlam hr16 hε1 k hk => ?_⟩
+  obtain ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, hcov,
+    hroom, Hk⟩ := H r₀ lam hr hlam hr16 hε1 k hk
+  refine ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, hcov,
+    hroom, ?_⟩
+  intro N₁ _ hN₁ h5 ν hν0 hν β hβ p₁ hp0 hp₁ ϱ hϱ S hS
+  obtain ⟨Jr, HJ⟩ := Hk N₁ hN₁ h5 ν hν0 hν β hβ p₁ hp0 hp₁ hϱ S hS
+  refine ⟨Jr, ?_⟩
+  intro C 𝒯E h𝒯 Rg a hm hcl hE₀ i₀ hdom XL 𝒦X hXL h𝒦 hopt hNC hm7 s hs hidx hmin hCm hHat
+    hAw ξ q c₈ ν₀ hq0 hq1 hc₈ hc₈q hξ hνflow hνS rm hτ hτr hrm hmass hτK hsmε hc1ε hKε hζε
+    Bl hBl hB hEbI hEbL hE
+  -- the family of every root
+  have Hz : ∀ z : RootIdx d L N₁ Tk.m₁ (k + 1), ∃ e : physParam N S →
+      Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+        ℂ,
+      (∀ θ T', e θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
+      (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+        Jr.E0locJ C z (rawOf D) = ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ Tk.m₁ (k + 1) → Fin N → ℂ)) T') ∧
+      ∀ {N₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ (Tk.m₁ + s) = N₁ * L ^ Tk.m₁)
+        (hsep : ϱ ≤ Balaban.LargeField.minSep L (L ^ (Tk.m₁ + s)))
+        (π : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →L[ℂ] rawSub N S.G'),
+        (∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩) →
+      ∃ (f : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ) → Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N → ℂ)
+        (b : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ) → ℝ),
+        NewLevelLocalFamily S P₀ hc hsep
+          (fun Y => {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) |
+            (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈ hatSet P₀.m₀ (k + 1) Y}) π e f b := by
+    intro z
+    obtain ⟨-, -, -, -, -, -, -, -, HG⟩ := @HJ C z 𝒯E h𝒯 Rg a hm hcl hE₀ i₀ hdom XL 𝒦X hXL h𝒦
+      hopt hNC hm7 s hs hidx hmin hCm hHat hAw ξ q c₈ ν₀ hq0 hq1 hc₈ hc₈q hξ hνflow hνS rm hτ hτr
+      hrm hmass hτK hsmε hc1ε hKε hζε
+    obtain ⟨e, _B, h1, h2, -, -, -, hloc⟩ := HG Bl hBl hB hEbI hEbL hE
+    exact ⟨e, fun θ T' => (h1 T').2.2.2 θ, fun D hD => (h2 D hD).1, hloc⟩
+  choose e he using Hz
+  refine ⟨e, fun z => (he z).1, fun z => (he z).2.1, ?_⟩
+  intro N₁' _ hc hsep π hπ
+  choose f b hf using fun z => (he z).2.2 hc hsep π hπ
   exact ⟨f, b, hf⟩
 
 end Balaban.Inhabited
