@@ -2939,6 +2939,7 @@ public import Balaban.Spine.BasePre
 public import Balaban.Spine.BaseFlat
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
+public import Balaban.Inhabited.NewLevelMarkUnique
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
