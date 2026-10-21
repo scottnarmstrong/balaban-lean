@@ -132,14 +132,15 @@ theorem phiBar_const_of_mem
   rw [e, liftSingle_const]
   simp [barField_constUnitPhi _ hz]
 
-/-- On the whole torus every site is a site of the first layer of `𝔹_k(W_k)` (`k ≥ 1`). -/
-theorem genW_Ω_univ (hk : 1 ≤ k) :
-    (C.genW (Set.univ : Set (Torus S.d (n k)))).Ω 1 = Finset.univ := by
+/-- On the whole torus every site is a site of the layers `Ω_m`, `m ≤ j` of `𝔹_j(W_k)`, `j ≤ k`. -/
+theorem genSF_Ω_univ_of_le {j m : ℕ} (hjk : j ≤ k) (hmj : m ≤ j) :
+    (genSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k) (L := S.L) (c := C.geo.c) (n := n k) hjk
+      (W2 R (Set.univ : Set (Torus S.d (n k))))).Ω m = Finset.univ := by
   classical
   refine Finset.eq_univ_of_forall fun x => ?_
-  unfold SFCtx.genW genSF
+  unfold genSF
   rw [minimalGenSet_Ω]
-  refine minLayer_antitone hk ?_
+  refine minLayer_antitone hmj ?_
   rw [minLayer_self]
   refine (mem_cubeInterior _).2 fun y _ => ?_
   rw [mem_cubePre]
@@ -149,6 +150,16 @@ theorem genW_Ω_univ (hk : 1 ≤ k) :
       exact Set.univ_subset_iff.1 (subset_nbhd _ _))))
   rw [this]
   trivial
+
+/-- On the whole torus every site is a site of the layers `Ω_m`, `m ≤ k` of `𝔹_k(W_k)`. -/
+theorem genW_Ω_univ_of_le {m : ℕ} (hmk : m ≤ k) :
+    (C.genW (Set.univ : Set (Torus S.d (n k)))).Ω m = Finset.univ :=
+  genSF_Ω_univ_of_le C le_rfl hmk
+
+/-- On the whole torus every site is a site of the first layer of `𝔹_k(W_k)` (`k ≥ 1`). -/
+theorem genW_Ω_univ (hk : 1 ≤ k) :
+    (C.genW (Set.univ : Set (Torus S.d (n k)))).Ω 1 = Finset.univ :=
+  genW_Ω_univ_of_le C hk
 
 /-- **`φ̄_k ≡ h` on the whole torus** for the cut `Y = univ` (`k ≥ 1`). -/
 theorem phiBar_const_univ
