@@ -20,6 +20,13 @@ elementary object is.
   connected admissible families whose union of full supports is `X`.
 * `gasOp_pe_hole`: `E Ξ = Ξ_hole(holeKOp)` and `pe_hole` for these activities, under the bounds of
   `gasOp_activity_bound` (with the Steiner size).
+
+The general form is for the activation rules of `GasOpCore.lean`, integrable heavy weights
+(a reference measure written as a density times a probability measure, the density inside the
+heavy weights), couplings bounded where the heavy weights activating them do not vanish, and the
+weighted counts `∑_{Z ∋ b, |Z| = v} E|τ Z| ≤ K₀^v e^{-p - h v}`: `actGasHoleKOp`,
+`actGasKOp_eq_sum_actGasHoleKOp`, `norm_actGasHoleKOp_le`, `actGasOp_pe_hole`.  The statements
+above are its instances for the rule `coreAct`.
 -/
 
 @[expose] public section
@@ -275,8 +282,8 @@ theorem isAnimal_unionCs (hcy : ∀ y, cy y = cyF y \ S₀) (hzs : ∀ z, zs z =
 polymer with charged support `Y`. -/
 theorem holePoly_of_cfam (hcy : ∀ y, cy y = cyF y \ S₀) (hzs : ∀ z, zs z = zsF z \ S₀)
     (hS : ∀ t, IsAnimal H (gasCs cyF zsF t)) (hcl : ∀ t, HoleClosed H S₀ (gasCs cyF zsF t))
-    {cr : Zt → Finset B} {Y : Finset B} (hY : Y.Nonempty) {D : Finset (Yt ⊕ Zt)}
-    (hD : D ∈ Cfam (gasCs cy zs) (gasA cy zs cr) Y) :
+    {A : Finset (Yt ⊕ Zt) → Prop} {Y : Finset B} (hY : Y.Nonempty) {D : Finset (Yt ⊕ Zt)}
+    (hD : D ∈ Cfam (gasCs cy zs) A Y) :
     IsAnimal H (unionCs (gasCs cyF zsF) D) ∧ ¬ unionCs (gasCs cyF zsF) D ⊆ S₀ ∧
       HoleClosed H S₀ (unionCs (gasCs cyF zsF) D) ∧ unionCs (gasCs cyF zsF) D \ S₀ = Y := by
   obtain ⟨hconn, _, hU⟩ := mem_Cfam.mp hD
@@ -296,32 +303,114 @@ section Activity
 variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
   {Ω : B → Type*} [∀ b, MeasurableSpace (Ω b)]
   (H : SimpleGraph B) (S₀ : Finset B)
-  (cyF : Yt → Finset B) (zsF : Zt → Finset B)
+  (cyF : Yt → Finset B) (zsF : Zt → Finset B) (act : Yt → Finset Zt → Prop)
   (cy : Yt → Finset B) (zs cr : Zt → Finset B)
   (β : Yt → (∀ b, Ω b) → ℂ) (τ : Zt → (∀ b, Ω b) → ℂ) (μ : ∀ b, Measure (Ω b))
 
-/-- The activity integrand of a hole polymer `X`: the sum over the connected admissible families
-(connected through charged contacts) whose union of full supports is `X`. -/
-def holeActOp (X : HolePolymer H S₀) (Φ : ∀ b, Ω b) : ℂ :=
-  ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) (holeSupp H S₀ X),
+/-- The activity integrand of a hole polymer `X` for the activation rule `act`: the sum over the
+connected admissible families (connected through charged contacts) whose union of full supports is
+`X`. -/
+def actGasHoleActOp (X : HolePolymer H S₀) (Φ : ∀ b, Ω b) : ℂ :=
+  ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) (holeSupp H S₀ X),
     if unionCs (gasCs cyF zsF) C = X.1 then
       ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t else 0
 
+/-- The expected activity of a hole polymer for the activation rule `act`. -/
+def actGasHoleKOp (X : HolePolymer H S₀) : ℂ :=
+  ∫ Φ, actGasHoleActOp H S₀ cyF zsF act cy zs β τ X Φ ∂(Measure.pi μ)
+
+/-- The activity integrand of a hole polymer `X` (the rule `coreAct` of `Gas.lean`). -/
+def holeActOp (X : HolePolymer H S₀) (Φ : ∀ b, Ω b) : ℂ :=
+  actGasHoleActOp H S₀ cyF zsF (coreAct cy cr) cy zs β τ X Φ
+
 /-- The expected activity of a hole polymer. -/
 def holeKOp (X : HolePolymer H S₀) : ℂ :=
-  ∫ Φ, holeActOp H S₀ cyF zsF cy zs cr β τ X Φ ∂(Measure.pi μ)
+  actGasHoleKOp H S₀ cyF zsF (coreAct cy cr) cy zs β τ μ X
 
-variable {H S₀ cyF zsF cy zs cr β τ μ}
+variable {H S₀ cyF zsF act cy zs cr β τ μ}
 
 theorem integrable_holeActOp [∀ b, IsProbabilityMeasure (μ b)]
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
     (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z)) (X : HolePolymer H S₀) :
     Integrable (holeActOp H S₀ cyF zsF cy zs cr β τ X) (Measure.pi μ) := by
-  unfold holeActOp
+  unfold holeActOp actGasHoleActOp
   refine integrable_finsetSum _ (fun C _ => ?_)
   by_cases hc : unionCs (gasCs cyF zsF) C = X.1
   · simp only [hc, ite_true]; exact integrable_prod_gasW hβm hτm hβb hτb C
   · simp only [hc, ite_false]; exact integrable_zero _ _ _
+
+omit [(b : B) → MeasurableSpace (Ω b)] in
+/-- The activity integrands of the gas of charged supports are the sums of those of the hole
+polymers with that charged support. -/
+theorem sum_actGasHoleActOp_eq (hcy : ∀ y, cy y = cyF y \ S₀) (hzs : ∀ z, zs z = zsF z \ S₀)
+    (hS : ∀ t, IsAnimal H (gasCs cyF zsF t)) (hcl : ∀ t, HoleClosed H S₀ (gasCs cyF zsF t))
+    (Y : NePoly B) (Φ : ∀ b, Ω b) :
+    ∑ X ∈ Finset.univ.filter (fun X : HolePolymer H S₀ =>
+        chargedPoly (holeSupp H S₀) holeSupp_nonempty X = Y),
+      actGasHoleActOp H S₀ cyF zsF act cy zs β τ X Φ = actGasActOp act cy zs β τ Y Φ := by
+  set F := Finset.univ.filter (fun X : HolePolymer H S₀ =>
+        chargedPoly (holeSupp H S₀) holeSupp_nonempty X = Y) with hF
+  have hmemF : ∀ X : HolePolymer H S₀, X ∈ F ↔ holeSupp H S₀ X = Y.1 := by
+    intro X
+    constructor
+    · intro h
+      exact congrArg Subtype.val (Finset.mem_filter.mp h).2
+    · intro h
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, Subtype.ext h⟩
+  unfold actGasActOp actGasK polyAct
+  have h1 : ∀ X ∈ F, actGasHoleActOp H S₀ cyF zsF act cy zs β τ X Φ =
+      ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) Y.1,
+        if unionCs (gasCs cyF zsF) C = X.1 then
+          ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t else 0 := by
+    intro X hX
+    unfold actGasHoleActOp
+    rw [(hmemF X).mp hX]
+  rw [Finset.sum_congr rfl h1, Finset.sum_comm]
+  refine Finset.sum_congr rfl (fun C hC => ?_)
+  obtain ⟨h1, h2, h3, h4⟩ := holePoly_of_cfam H S₀ hcy hzs hS hcl Y.2 hC
+  set X0 : HolePolymer H S₀ := ⟨unionCs (gasCs cyF zsF) C, h1, h2, h3⟩ with hX0
+  rw [Finset.sum_eq_single X0]
+  · simp [hX0]
+  · intro X _ hne
+    have hneq : ¬ unionCs (gasCs cyF zsF) C = X.1 := fun h => hne (Subtype.ext h.symm)
+    simp [hneq]
+  · intro hX0F
+    exfalso
+    apply hX0F
+    rw [hmemF]
+    exact h4
+
+theorem integrable_actGasHoleActOp [∀ b, IsProbabilityMeasure (μ b)] {s : Yt → ℝ}
+    (hτd : ∀ z, DepOn (zs z) (τ z)) (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
+    (hτi : ∀ z, Integrable (τ z) (Measure.pi μ))
+    (hB : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) → ‖Complex.exp (β y Φ) - 1‖ ≤ s y)
+    (X : HolePolymer H S₀) :
+    Integrable (actGasHoleActOp H S₀ cyF zsF act cy zs β τ X) (Measure.pi μ) := by
+  unfold actGasHoleActOp
+  refine integrable_finsetSum _ (fun C hC => ?_)
+  by_cases hc : unionCs (gasCs cyF zsF) C = X.1
+  · simp only [hc, ite_true]
+    exact integrable_prod_gasW_of_actGasA hτd hβm hτm hτi hB (mem_Cfam.mp hC).2.1
+  · simp only [hc, ite_false]; exact integrable_zero _ _ _
+
+/-- The activities of the gas of charged supports are the sums of the activities of the hole
+polymers with that charged support (activation rule `act`, integrable heavy weights). -/
+theorem actGasKOp_eq_sum_actGasHoleKOp [∀ b, IsProbabilityMeasure (μ b)] {s : Yt → ℝ}
+    (hcy : ∀ y, cy y = cyF y \ S₀) (hzs : ∀ z, zs z = zsF z \ S₀)
+    (hS : ∀ t, IsAnimal H (gasCs cyF zsF t)) (hcl : ∀ t, HoleClosed H S₀ (gasCs cyF zsF t))
+    (hτd : ∀ z, DepOn (zs z) (τ z)) (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
+    (hτi : ∀ z, Integrable (τ z) (Measure.pi μ))
+    (hB : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) → ‖Complex.exp (β y Φ) - 1‖ ≤ s y)
+    (Y : NePoly B) :
+    actGasKOp act cy zs β τ μ Y = ∑ X ∈ Finset.univ.filter (fun X : HolePolymer H S₀ =>
+        chargedPoly (holeSupp H S₀) holeSupp_nonempty X = Y),
+      actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ X := by
+  unfold actGasKOp actGasHoleKOp
+  rw [← integral_finsetSum _ (fun X _ => integrable_actGasHoleActOp hτd hβm hτm hτi hB X)]
+  exact integral_congr_ae (Filter.Eventually.of_forall (fun Φ =>
+    (sum_actGasHoleActOp_eq hcy hzs hS hcl Y Φ).symm))
 
 /-- The activities of the gas of charged supports are the sums of the activities of the hole
 polymers with that charged support. -/
@@ -332,47 +421,73 @@ theorem gasKOp_eq_sum_holeKOp [∀ b, IsProbabilityMeasure (μ b)]
     (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z)) (Y : NePoly B) :
     gasKOp cy zs cr β τ μ Y = ∑ X ∈ Finset.univ.filter (fun X : HolePolymer H S₀ =>
         chargedPoly (holeSupp H S₀) holeSupp_nonempty X = Y), holeKOp H S₀ cyF zsF cy zs cr β τ μ X := by
-  set F := Finset.univ.filter (fun X : HolePolymer H S₀ =>
-        chargedPoly (holeSupp H S₀) holeSupp_nonempty X = Y) with hF
-  have hmemF : ∀ X : HolePolymer H S₀, X ∈ F ↔ holeSupp H S₀ X = Y.1 := by
-    intro X
-    constructor
-    · intro h
-      exact congrArg Subtype.val (Finset.mem_filter.mp h).2
-    · intro h
-      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, Subtype.ext h⟩
-  have hpt : ∀ Φ : ∀ b, Ω b,
-      ∑ X ∈ F, holeActOp H S₀ cyF zsF cy zs cr β τ X Φ = gasActOp cy zs cr β τ Y Φ := by
-    intro Φ
-    unfold gasActOp gasK polyAct
-    have h1 : ∀ X ∈ F, holeActOp H S₀ cyF zsF cy zs cr β τ X Φ =
-        ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) Y.1,
-          if unionCs (gasCs cyF zsF) C = X.1 then
-            ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t else 0 := by
-      intro X hX
-      unfold holeActOp
-      rw [(hmemF X).mp hX]
-    rw [Finset.sum_congr rfl h1, Finset.sum_comm]
-    refine Finset.sum_congr rfl (fun C hC => ?_)
-    obtain ⟨h1, h2, h3, h4⟩ := holePoly_of_cfam H S₀ hcy hzs hS hcl Y.2 hC
-    set X0 : HolePolymer H S₀ := ⟨unionCs (gasCs cyF zsF) C, h1, h2, h3⟩ with hX0
-    rw [Finset.sum_eq_single X0]
-    · simp [hX0]
-    · intro X _ hne
-      have hneq : ¬ unionCs (gasCs cyF zsF) C = X.1 := fun h => hne (Subtype.ext h.symm)
-      simp [hneq]
-    · intro hX0F
-      exfalso
-      apply hX0F
-      rw [hmemF]
-      exact h4
-  unfold gasKOp holeKOp
-  rw [← integral_finsetSum _ (fun X _ => integrable_holeActOp hβm hτm hβb hτb X)]
-  exact integral_congr_ae (Filter.Eventually.of_forall (fun Φ => (hpt Φ).symm))
+  unfold gasKOp holeKOp actGasKOp actGasHoleKOp
+  have hint : ∀ X : HolePolymer H S₀,
+      Integrable (actGasHoleActOp H S₀ cyF zsF (coreAct cy cr) cy zs β τ X) (Measure.pi μ) :=
+    integrable_holeActOp hβm hτm hβb hτb
+  rw [← integral_finsetSum _ (fun X _ => hint X)]
+  exact integral_congr_ae (Filter.Eventually.of_forall (fun Φ =>
+    (sum_actGasHoleActOp_eq hcy hzs hS hcl Y Φ).symm))
 
 section Bound
 
 variable {d : Finset B → ℝ} {B0 κ' κ'' c c1 c2 p h : ℝ} [∀ b, IsProbabilityMeasure (μ b)]
+
+/-- The expected activity of a hole polymer is at most the sum, over the connected admissible
+families of its charged support, of the norms of their expectations. -/
+theorem norm_actGasHoleKOp_le_sum {s : Yt → ℝ}
+    (hτd : ∀ z, DepOn (zs z) (τ z)) (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
+    (hτi : ∀ z, Integrable (τ z) (Measure.pi μ))
+    (hB : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) → ‖Complex.exp (β y Φ) - 1‖ ≤ s y)
+    (X : HolePolymer H S₀) :
+    ‖actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ X‖ ≤
+      ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) (holeSupp H S₀ X),
+        ‖∫ Φ, ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t ∂(Measure.pi μ)‖ := by
+  unfold actGasHoleKOp actGasHoleActOp
+  rw [integral_finsetSum _ (fun C hC => by
+    by_cases hc : unionCs (gasCs cyF zsF) C = X.1
+    · simp only [hc, ite_true]
+      exact integrable_prod_gasW_of_actGasA hτd hβm hτm hτi hB (mem_Cfam.mp hC).2.1
+    · simp only [hc, ite_false]; exact integrable_zero _ _ _)]
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum (fun C _ => ?_))
+  by_cases hU : unionCs (gasCs cyF zsF) C = X.1
+  · simp only [hU, ite_true, le_refl]
+  · simp only [hU, ite_false, integral_zero, norm_zero]
+    exact norm_nonneg _
+
+/-- The expected activity of a hole polymer obeys the bound of `sum_norm_integral_cfam_le_of_counts`
+for its charged support (activation rule `act`, integrable heavy weights, weighted counts). -/
+theorem norm_actGasHoleKOp_le {K0' K0'' : ℝ}
+    (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c) (hc1 : 0 ≤ c1) (hp : 0 ≤ p)
+    (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (hτd : ∀ z, DepOn (zs z) (τ z)) (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
+    (hτi : ∀ z, Integrable (τ z) (Measure.pi μ))
+    (hB : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) → ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → actGasA act zs C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    (hK0' : 0 ≤ K0')
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0')
+    (hK1 : 1 ≤ K0'')
+    (hcount : ∀ (b : B) (v : ℕ),
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v),
+        ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ K0'' ^ v * Real.exp (-p - h * v))
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 +
+      Real.log K0'' ≤ h)
+    (X : HolePolymer H S₀)
+    (hG1 : ((holeSupp H S₀ X).card : ℝ) ≤ c1 * (1 + d (holeSupp H S₀ X))) :
+    ‖actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ X‖ ≤
+      3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d (holeSupp H S₀ X)) :=
+  (norm_actGasHoleKOp_le_sum (s := fun y => B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)))
+      hτd hβm hτm hτi (fun Γ hΓ y hy Φ hΦ => norm_expm1_le (β := fun y => β y Φ) hB0
+        (hκ'.trans hκ'') hd y (hB Γ hΓ y hy Φ hΦ)) X).trans
+    (sum_norm_integral_cfam_le_of_counts hB0 hκ' hκ'' hc hc1 hp hd hz hmeet hτd hβm hτm hτi hB
+      hzd hG3 hK0' hent hK1 hcount hh (holeSupp H S₀ X) hG1)
 
 /-- The expected activity of a hole polymer obeys the bound of `gas_activity_bound` for its charged
 support (the activity of the gas of charged supports, restricted to the families with the given
@@ -382,7 +497,7 @@ theorem norm_holeKOp_le (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'
     (hcr : ∀ z, cr z ⊆ zs z)
     (hτd : ∀ z, DepOn (zs z) (τ z))
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
-    (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z))
+    (hτb : ∀ z, Bdd (τ z))
     (hB : ∀ y Φ, ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
     (hτ : ∀ z, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ Real.exp (-p - h * (zs z).card))
     (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
@@ -398,30 +513,101 @@ theorem norm_holeKOp_le (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'
     (X : HolePolymer H S₀)
     (hG1 : ((holeSupp H S₀ X).card : ℝ) ≤ c1 * (1 + d (holeSupp H S₀ X))) :
     ‖holeKOp H S₀ cyF zsF cy zs cr β τ μ X‖ ≤
-      3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d (holeSupp H S₀ X)) := by
-  have hscal := gasBound_norm_le (cy := cy) (zs := zs) (cr := cr) (d := d) hB0 hκ' hκ'' hc hc1 hp hd hz
-    hcr hzd hG3 hK0' hent hK1 hcount hh ⟨holeSupp H S₀ X, holeSupp_nonempty X⟩ hG1
-  refine le_trans ?_ hscal
-  rw [norm_gasK_bound (cy := cy) (zs := zs) (cr := cr) (d := d) (κ'' := κ'') (p := p) (h := h) hB0]
-  unfold holeKOp holeActOp
-  rw [integral_finsetSum _ (fun C _ => by
-    by_cases hc : unionCs (gasCs cyF zsF) C = X.1
-    · simp only [hc, ite_true]; exact integrable_prod_gasW hβm hτm hβb hτb C
-    · simp only [hc, ite_false]; exact integrable_zero _ _ _)]
-  refine (norm_sum_le _ _).trans (Finset.sum_le_sum (fun C hC => ?_))
-  by_cases hU : unionCs (gasCs cyF zsF) C = X.1
-  · simp only [hU, ite_true]
-    exact norm_integral_family_le hB0 hβm hτm hτd hβb hτb hB hτ hC
-  · simp only [hU, ite_false, integral_zero, norm_zero]
-    refine mul_nonneg (Finset.prod_nonneg (fun y _ => ?_))
-      (Finset.prod_nonneg (fun z _ => (Real.exp_pos _).le))
-    simp only [sub_nonneg]; exact Real.one_le_exp (by positivity)
+      3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d (holeSupp H S₀ X)) :=
+  norm_actGasHoleKOp_le hB0 hκ' hκ'' hc hc1 hp hd hz
+    (coreAct_meets (fun _ => Finset.Subset.rfl) hcr) hτd hβm hτm
+    (fun z => integrable_of_bdd μ (hτm z) (hτb z)) (fun _ _ y _ Φ _ => hB y Φ) hzd hG3 hK0'
+    (fun Γ _ b => sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
+    (sum_filter_le_of_count hτ hcount) hh X hG1
 
 end Bound
 
 section Main
 
 variable {B0 κ'' c c2 p h : ℝ} [∀ b, IsProbabilityMeasure (μ b)]
+
+/-- **GAS + PE with a hole for a general activation rule and functions of the configuration.**
+Let the couplings `β Y` and the heavy weights `τ Z` depend on the configuration through the charged
+supports `Y \ S₀`, `Z \ S₀` (full supports connected and closed under the components of the hole
+`S₀`), the activation rule satisfy (L) and (M), the heavy weights be integrable with the weighted
+counts `∑_{Z ∋ b, |Z| = v} E|τ Z| ≤ K₀ₕ^v e^{-p - h v}`, and the couplings be bounded by
+`B₀ e^{-κ'' steiner(Y)}` where the heavy weights activating them do not vanish.  Then the expected
+partition function is the partition function of the gas of hole polymers with the activities
+`actGasHoleKOp`, and these obey `pe_hole` with the Steiner size: `E Ξ = exp L`, `L = ∑_Y P(Y)`,
+`∑_{Y ∋ b} |P(Y)| e^{κp steiner(Y)} ≤ α`, and the bounds on `L` and `Ξ`. -/
+theorem actGasOp_pe_hole {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {κg κp α : ℝ}
+    (hB0 : 0 ≤ B0) (hκg : 0 ≤ κg) (hκ'' : κg ≤ κ'') (hc : 0 ≤ c) (hp : 0 ≤ p) (hκp : 0 ≤ κp)
+    (hz : ∀ z, (zs z).Nonempty)
+    (hloc : ∀ y Γ, act y Γ ↔ act y (Γ.filter (fun z => ¬ Disjoint (cy y) (zs z))))
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (hcy : ∀ y, cy y = cyF y \ S₀) (hzs : ∀ z, zs z = zsF z \ S₀)
+    (hS : ∀ t, IsAnimal H (gasCs cyF zsF t)) (hcl : ∀ t, HoleClosed H S₀ (gasCs cyF zsF t))
+    (hβd : ∀ y, DepOn (cy y) (β y)) (hτd : ∀ z, DepOn (zs z) (τ z))
+    (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
+    (hτi : ∀ z, Integrable (τ z) (Measure.pi μ))
+    (hB : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) →
+        ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * (steiner H (cy y) : ℝ)))
+    (hzd : ∀ z, (steiner H (zs z) : ℝ) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → actGasA act zs C →
+      (steiner H (unionCs (gasCs cy zs) C) : ℝ) ≤
+        ∑ t ∈ C, (steiner H (gasCs cy zs t) : ℝ) + c * ((C.card : ℝ) - 1))
+    {K0g K0h : ℝ} (hK0g : 0 ≤ K0g)
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        Real.exp (-(κ'' - κg) * (steiner H (cy y) : ℝ)) ≤ K0g)
+    (hK1 : 1 ≤ K0h)
+    (hcount : ∀ (b : B) (v : ℕ),
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v),
+        ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ K0h ^ v * Real.exp (-p - h * v))
+    (hh : B0 * Real.exp B0 * Real.exp (κg * c) * K0g + κg * (c2 + c) + 1 + 3 + Real.log K0h ≤ h)
+    (hq : (Δ : ℝ) ^ 2 * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α)) < 1)
+    (hcond : 3 * Real.exp (-p) * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α)) /
+      (1 - (Δ : ℝ) ^ 2 * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α))) ≤ α) :
+    actGasXiOp act zs β τ μ =
+      Xi (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) ∧
+    Xi (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) =
+      Complex.exp (logSeries (shareBlock (holeSupp H S₀))
+        (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ)) ∧
+    logSeries (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) =
+      ∑ Y : Finset B, PY (shareBlock (holeSupp H S₀)) (holeSupp H S₀)
+        (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) Y ∧
+    (∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
+        ‖PY (shareBlock (holeSupp H S₀)) (holeSupp H S₀)
+          (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) Y‖ *
+          Real.exp (κp * (steiner H Y : ℝ)) ≤ α) ∧
+    ‖logSeries (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ)‖ ≤
+      ((Finset.univ \ S₀).card : ℝ) * α ∧
+    Real.exp (-(((Finset.univ \ S₀).card : ℝ) * α)) ≤
+      ‖Xi (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ)‖ ∧
+    ‖Xi (shareBlock (holeSupp H S₀)) (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ)‖ ≤
+      Real.exp (((Finset.univ \ S₀).card : ℝ) * α) := by
+  have hd : ∀ Y : Finset B, 0 ≤ (steiner H Y : ℝ) := fun Y => Nat.cast_nonneg _
+  have hBs : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z Φ ≠ 0) → ‖Complex.exp (β y Φ) - 1‖ ≤
+        B0 * Real.exp B0 * Real.exp (-κ'' * (steiner H (cy y) : ℝ)) :=
+    fun Γ hΓ y hy Φ hΦ => norm_expm1_le (β := fun y => β y Φ) hB0 (hκg.trans hκ'') hd y
+      (hB Γ hΓ y hy Φ hΦ)
+  have hK : ∀ X : HolePolymer H S₀, ‖actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ X‖ ≤
+      3 * Real.exp (-p) * Real.exp (-(κg - 2) * (steiner H (holeSupp H S₀ X) : ℝ)) := by
+    intro X
+    have := norm_actGasHoleKOp_le (cyF := cyF) (zsF := zsF) (d := fun Y : Finset B => (steiner H Y : ℝ))
+      (c1 := 1) hB0 hκg
+      hκ'' hc zero_le_one hp hd hz hmeet hτd hβm hτm hτi hB hzd hG3 hK0g hent hK1 hcount hh X
+      (by
+        have h1 := card_le_steiner (exists_animal_of_holePolymer X)
+        have h2 : ((holeSupp H S₀ X).card : ℝ) ≤ (steiner H (holeSupp H S₀ X) : ℝ) := by
+          exact_mod_cast h1
+        simp only [one_mul]
+        linarith)
+    simpa [mul_assoc] using this
+  have hε : 0 ≤ 3 * Real.exp (-p) := by positivity
+  have hpe := pe_hole (S₀ := S₀) hdeg hε hκp hq hcond
+    (actGasHoleKOp H S₀ cyF zsF act cy zs β τ μ) hK
+  refine ⟨?_, hpe⟩
+  rw [actGasXiOp_eq hz hloc hmeet hβd hτd hβm hτm hτi hBs]
+  exact (xi_fiber (holeSupp H S₀) holeSupp_nonempty _ _
+    (fun Y => (actGasKOp_eq_sum_actGasHoleKOp hcy hzs hS hcl hτd hβm hτm hτi hBs Y))).symm
 
 /-- **GAS + PE with a hole for functions of the configuration.**  Let the couplings `β Y` and the
 heavy weights `τ Z` depend on the configuration through the charged supports `Y \ S₀`, `Z \ S₀`
@@ -438,7 +624,7 @@ theorem gasOp_pe_hole {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {κg κp α :
     (hS : ∀ t, IsAnimal H (gasCs cyF zsF t)) (hcl : ∀ t, HoleClosed H S₀ (gasCs cyF zsF t))
     (hβd : ∀ y, DepOn (cy y) (β y)) (hτd : ∀ z, DepOn (zs z) (τ z))
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
-    (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z))
+    (hτb : ∀ z, Bdd (τ z))
     (hB : ∀ y Φ, ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * (steiner H (cy y) : ℝ)))
     (hτ : ∀ z, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ Real.exp (-p - h * (zs z).card))
     (hzd : ∀ z, (steiner H (zs z) : ℝ) ≤ c2 * (zs z).card)
@@ -470,26 +656,13 @@ theorem gasOp_pe_hole {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {κg κp α :
     Real.exp (-(((Finset.univ \ S₀).card : ℝ) * α)) ≤
       ‖Xi (shareBlock (holeSupp H S₀)) (holeKOp H S₀ cyF zsF cy zs cr β τ μ)‖ ∧
     ‖Xi (shareBlock (holeSupp H S₀)) (holeKOp H S₀ cyF zsF cy zs cr β τ μ)‖ ≤
-      Real.exp (((Finset.univ \ S₀).card : ℝ) * α) := by
-  have hd : ∀ Y : Finset B, 0 ≤ (steiner H Y : ℝ) := fun Y => Nat.cast_nonneg _
-  have hK : ∀ X : HolePolymer H S₀, ‖holeKOp H S₀ cyF zsF cy zs cr β τ μ X‖ ≤
-      3 * Real.exp (-p) * Real.exp (-(κg - 2) * (steiner H (holeSupp H S₀ X) : ℝ)) := by
-    intro X
-    have := norm_holeKOp_le (cyF := cyF) (zsF := zsF) (d := fun Y : Finset B => (steiner H Y : ℝ)) (c1 := 1) hB0 hκg hκ''
-      hc zero_le_one hp hd hz hcr hτd hβm hτm hβb hτb hB hτ hzd hG3 hK0g hent hK1 hcount hh X
-      (by
-        have h1 := card_le_steiner (exists_animal_of_holePolymer X)
-        have h2 : ((holeSupp H S₀ X).card : ℝ) ≤ (steiner H (holeSupp H S₀ X) : ℝ) := by
-          exact_mod_cast h1
-        simp only [one_mul]; linarith)
-    simpa [mul_assoc] using this
-  have hε : 0 ≤ 3 * Real.exp (-p) := by positivity
-  have hpe := pe_hole (S₀ := S₀) hdeg hε hκp hq hcond
-    (holeKOp H S₀ cyF zsF cy zs cr β τ μ) hK
-  refine ⟨?_, hpe⟩
-  rw [gasOp_eq hz hcr hβd hτd hβm hτm hβb hτb]
-  exact (xi_fiber (holeSupp H S₀) holeSupp_nonempty _ _
-    (fun Y => (gasKOp_eq_sum_holeKOp hcy hzs hS hcl hβm hτm hβb hτb Y))).symm
+      Real.exp (((Finset.univ \ S₀).card : ℝ) * α) :=
+  actGasOp_pe_hole hdeg hB0 hκg hκ'' hc hp hκp hz
+    (coreAct_local (fun _ => Finset.Subset.rfl) hcr) (coreAct_meets (fun _ => Finset.Subset.rfl) hcr)
+    hcy hzs hS hcl hβd hτd hβm hτm (fun z => integrable_of_bdd μ (hτm z) (hτb z))
+    (fun _ _ y _ Φ _ => hB y Φ) hzd hG3 hK0g
+    (fun Γ _ b => sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
+    (sum_filter_le_of_count hτ hcount) hh hq hcond
 
 end Main
 
