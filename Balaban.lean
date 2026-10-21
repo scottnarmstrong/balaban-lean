@@ -2169,6 +2169,10 @@ public import Balaban.LargeField.Base.BaseXCover
 public import Balaban.LargeField.Base.BaseMassShift
 public import Balaban.LargeField.Base.BaseXCov
 public import Balaban.LargeField.Base.BaseBackgroundLocal
+public import Balaban.LargeField.Base.BaseChartAct
+public import Balaban.LargeField.Base.BaseChartActAnalytic
+public import Balaban.LargeField.Base.BaseChartActAlg
+public import Balaban.LargeField.Base.BaseChartActBound
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
