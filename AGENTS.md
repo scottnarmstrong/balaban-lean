@@ -111,6 +111,12 @@ provider, and nothing may import a root, until the root is sealed.
   fine sets: nonempty, connected, containing or missing every hole, of finite modular size — π′-cubes are required
   only at its small-field sites, not at the hole sites; size, covers, `loc_hist`, the H7 domain and the bounds are
   unchanged, and every domain valid before stays valid.
+- **Ruling R12 (2026-10-21, Scott: "yes, approve R12").** In the post-`R` form of the class (`D1Form2`,
+  `LargeField/Def7v2Form.lean`), the term `postTerm2` of a history is zero whenever the history has a removal
+  record `Rem_j ≠ ∅` at some scale `j ≤ k`; the history set and `IsComplete` are unchanged. Removed components
+  are accounted for in `ℬ′` and `ℛ″` (P7 (3.26)–(3.29)); without the change the all-small-field term is counted
+  n₀ ≥ 2 times (W1151 `two_le_card_empty_region`, audit `notes/phase1/REMOVAL-HIST.md`). This is the reading of
+  LFR D-III.8 ("terms with zero operator are harmless").
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;

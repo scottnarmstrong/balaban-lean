@@ -28,7 +28,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **`BaseStepData` is inhabited** for `0 ≤ z_1` and `0 ≤ β_0 a_ker L^{d-2}`. -/
 theorem baseStepData_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) :
-    Nonempty (BaseStepData k0 geo cs N) := by
+    Nonempty (BaseStepData 1 1 k0 geo cs N) := by
   obtain ⟨inp⟩ := baseSmallFieldInput_nonempty geo cs N k0
   exact ⟨baseStepData_of_input inp hz hc⟩
 

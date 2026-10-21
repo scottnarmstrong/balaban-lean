@@ -38,11 +38,11 @@ section Line
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
-/-- **The directional derivative reads the function only on the line.**  If `f(x + τ v)` and
-`g(x' + τ v)` agree for `|τ| < r`, so do `lineD v f (x + τ v)` and `lineD v g (x' + τ v)`. -/
-theorem lineD_congr_line {f g : E → ℂ} {x x' v : E} {r : ℝ}
-    (h : ∀ τ : ℂ, ‖τ‖ < r → f (x + τ • v) = g (x' + τ • v)) :
-    ∀ τ : ℂ, ‖τ‖ < r → lineD v f (x + τ • v) = lineD v g (x' + τ • v) := by
+/-- **Core of `lineD_congr_line`, for two lines**: if `f(x + τ v)` and `g(x' + τ v')` agree for
+`|τ| < r`, so do `lineD v f (x + τ v)` and `lineD v' g (x' + τ v')`. -/
+theorem lineD_congr_line_of {f g : E → ℂ} {x x' v v' : E} {r : ℝ}
+    (h : ∀ τ : ℂ, ‖τ‖ < r → f (x + τ • v) = g (x' + τ • v')) :
+    ∀ τ : ℂ, ‖τ‖ < r → lineD v f (x + τ • v) = lineD v' g (x' + τ • v') := by
   intro τ hτ
   unfold lineD
   refine Filter.EventuallyEq.deriv_eq ?_
@@ -50,26 +50,57 @@ theorem lineD_congr_line {f g : E → ℂ} {x x' v : E} {r : ℝ}
     isOpen_lt (continuous_const.add continuous_id).norm continuous_const
   filter_upwards [hopen.mem_nhds (by simpa using hτ)] with s hs
   have e1 : x + τ • v + s • v = x + (τ + s) • v := by rw [add_smul, add_assoc]
-  have e2 : x' + τ • v + s • v = x' + (τ + s) • v := by rw [add_smul, add_assoc]
+  have e2 : x' + τ • v' + s • v' = x' + (τ + s) • v' := by rw [add_smul, add_assoc]
   rw [e1, e2]
   exact h _ hs
 
+/-- **The directional derivative reads the function only on the line.**  If `f(x + τ v)` and
+`g(x' + τ v)` agree for `|τ| < r`, so do `lineD v f (x + τ v)` and `lineD v g (x' + τ v)`. -/
+theorem lineD_congr_line {f g : E → ℂ} {x x' v : E} {r : ℝ}
+    (h : ∀ τ : ℂ, ‖τ‖ < r → f (x + τ • v) = g (x' + τ • v)) :
+    ∀ τ : ℂ, ‖τ‖ < r → lineD v f (x + τ • v) = lineD v g (x' + τ • v) :=
+  lineD_congr_line_of h
+
 variable {Λ : Type*} [NormedAddCommGroup Λ] [NormedSpace ℂ Λ]
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℂ F]
+
+/-- **Core of `dl3_congr_line`, for two segments**: if `Ev(Θ, z + τ w)` and `Ev'(Θ', z' + τ w')`
+agree for `|τ| < r` (`r > 0`), then `dl3 Ev w (Θ, z) = dl3 Ev' w' (Θ', z')`. -/
+theorem dl3_congr_line_of {Ev Ev' : Λ × F → ℂ} {Θ Θ' : Λ} {z z' w w' : F} {r : ℝ} (hr : 0 < r)
+    (h : ∀ τ : ℂ, ‖τ‖ < r → Ev (Θ, z + τ • w) = Ev' (Θ', z' + τ • w')) :
+    dl3 Ev w (Θ, z) = dl3 Ev' w' (Θ', z') := by
+  have hline : ∀ (Θ₀ : Λ) (z₀ w₀ : F) (τ : ℂ),
+      ((Θ₀, z₀) : Λ × F) + τ • ((0 : Λ), w₀) = (Θ₀, z₀ + τ • w₀) := by
+    intro Θ₀ z₀ w₀ τ
+    ext <;> simp
+  have h0 : ∀ τ : ℂ, ‖τ‖ < r → Ev (((Θ, z) : Λ × F) + τ • ((0 : Λ), w)) =
+      Ev' (((Θ', z') : Λ × F) + τ • ((0 : Λ), w')) := fun τ hτ => by
+    rw [hline, hline]; exact h τ hτ
+  have h3 := lineD_congr_line_of (lineD_congr_line_of (lineD_congr_line_of h0)) 0
+    (by simpa using hr)
+  simpa [dl3] using h3
 
 /-- **The third derivative reads the term only on the segment.**  If `Ev(Θ, z + τ w)` and
 `Ev'(Θ', z + τ w)` agree for `|τ| < r` (`r > 0`), then `dl3 Ev w (Θ, z) = dl3 Ev' w (Θ', z)`. -/
 theorem dl3_congr_line {Ev Ev' : Λ × F → ℂ} {Θ Θ' : Λ} {z w : F} {r : ℝ} (hr : 0 < r)
     (h : ∀ τ : ℂ, ‖τ‖ < r → Ev (Θ, z + τ • w) = Ev' (Θ', z + τ • w)) :
-    dl3 Ev w (Θ, z) = dl3 Ev' w (Θ', z) := by
-  have hline : ∀ (Θ₀ : Λ) (τ : ℂ), ((Θ₀, z) : Λ × F) + τ • ((0 : Λ), w) = (Θ₀, z + τ • w) := by
-    intro Θ₀ τ
-    ext <;> simp
-  have h0 : ∀ τ : ℂ, ‖τ‖ < r → Ev (((Θ, z) : Λ × F) + τ • ((0 : Λ), w)) =
-      Ev' (((Θ', z) : Λ × F) + τ • ((0 : Λ), w)) := fun τ hτ => by
-    rw [hline, hline]; exact h τ hτ
-  have h3 := lineD_congr_line (lineD_congr_line (lineD_congr_line h0)) 0 (by simpa using hr)
-  simpa [dl3] using h3
+    dl3 Ev w (Θ, z) = dl3 Ev' w (Θ', z) :=
+  dl3_congr_line_of hr h
+
+/-- **Core of `rayTerm_dl3_congr_of_line`, for two rays**: if at every point `σ t x₀` of the first
+ray and `σ t x₀'` of the second (`t ∈ [0, 1]`) there are segments `σ t x₀ + τ w`,
+`σ t x₀' + τ w'`, `|τ| < r`, on which `Ev` (at `Θ`) and `Ev'` (at `Θ'`) agree, then
+`rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w') ω x₀' σ Θ'`. -/
+theorem rayTerm_dl3_congr_of_line_of {Ev Ev' : Λ × F → ℂ} (ω : ℂ → ℂ) {x₀ x₀' w w' : F}
+    {σ : ℂ} {Θ Θ' : Λ}
+    (h : ∀ t : ℝ, t ∈ uIcc (0 : ℝ) 1 → ∃ r : ℝ, 0 < r ∧ ∀ τ : ℂ, ‖τ‖ < r →
+      Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w) = Ev' (Θ', (σ * (t : ℂ)) • x₀' + τ • w')) :
+    rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w') ω x₀' σ Θ' := by
+  unfold rayTerm
+  congr 1
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  obtain ⟨r, hr, hτ⟩ := h t ht
+  exact congrArg _ (dl3_congr_line_of hr hτ)
 
 /-- **The ray integral of the third derivative reads the term only along the ray.**  If at every
 point `σ t x₀` of the ray (`t ∈ [0, 1]`) there is a segment `σ t x₀ + τ w`, `|τ| < r`, on which `Ev`
@@ -79,12 +110,8 @@ theorem rayTerm_dl3_congr_of_line {Ev Ev' : Λ × F → ℂ} (ω : ℂ → ℂ) 
     {Θ Θ' : Λ}
     (h : ∀ t : ℝ, t ∈ uIcc (0 : ℝ) 1 → ∃ r : ℝ, 0 < r ∧ ∀ τ : ℂ, ‖τ‖ < r →
       Ev (Θ, (σ * (t : ℂ)) • x₀ + τ • w) = Ev' (Θ', (σ * (t : ℂ)) • x₀ + τ • w)) :
-    rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ' := by
-  unfold rayTerm
-  congr 1
-  refine intervalIntegral.integral_congr fun t ht => ?_
-  obtain ⟨r, hr, hτ⟩ := h t ht
-  exact congrArg _ (dl3_congr_line hr hτ)
+    rayTerm (dl3 Ev w) ω x₀ σ Θ = rayTerm (dl3 Ev' w) ω x₀ σ Θ' :=
+  rayTerm_dl3_congr_of_line_of ω h
 
 end Line
 

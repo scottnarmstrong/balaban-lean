@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 916,000 lines of Lean (about 730,000 without comments and blank
+As of October 2026, about 938,000 lines of Lean (about 746,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -27,8 +27,10 @@ results, each of them a theorem of the papers. What is left is to prove those se
 
 In seven places the papers, as written, do not give what the next step of the argument needs: either a
 step is stated without a proof that we could reconstruct, or an estimate is weaker than the one used
-later. [docs/BLOCKERS.md](docs/BLOCKERS.md) describes these seven *blockers*. Two of them are now
-resolved on paper and only need to be written in Lean; the other five are open and being worked on.
+later. [docs/BLOCKERS.md](docs/BLOCKERS.md) describes these seven *blockers* and names, for each, the
+Lean statement that closes it. None is closed yet. Two of those statements are now proved: the case of
+the flow with no renormalization step (part of the first blocker) and the bound on the vacuum energy of a
+step (part of the fourth).
 Where the papers can be read in more than one way, we choose a reading, record the choice, and prove
 everything it requires ([notes/phase1/PLAN-B.md](notes/phase1/PLAN-B.md)).
 [docs/PROGRESS.md](docs/PROGRESS.md) estimates how far each part has come, with a dated log.
@@ -136,7 +138,7 @@ The toolchain is `leanprover/lean4:v4.35.0-rc2` with the matching Mathlib releas
 `lean-toolchain` and `lakefile.lean`). With [elan](https://github.com/leanprover/elan) installed:
 
     lake exe cache get   # Mathlib build cache
-    lake build           # about 3,000 project modules on top of Mathlib
+    lake build           # about 3,200 project modules on top of Mathlib
 
 A full build from scratch takes several hours on a typical workstation. The only warnings expected
 are the two `declaration uses 'sorry'` warnings for the main theorems. Checks:

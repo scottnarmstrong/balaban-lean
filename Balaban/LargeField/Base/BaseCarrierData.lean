@@ -35,9 +35,9 @@ section Carrier
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] [NeZero S.L] {R : ℕ → ℝ} {k0 K N : ℕ}
 
 /-- The fine sites of the component `Z'` of `Z^pre_1`, as fine sites `Torus d (1 * n_1 * L ^ 1)` of the large-field layer. -/
-def baseZsites (H : RegionHistory S n R k0 K) (Z' : H.Comp 1) :
-    Set (Torus S.d (1 * n 1 * S.L ^ 1)) :=
-  fineSet (S := S) (n := n) 1 1 1 (Z'.1 : Set (Torus S.d (n 1)))
+def baseZsites (M : ℕ) [NeZero M] (H : RegionHistory S n R k0 K) (Z' : H.Comp 1) :
+    Set (Torus S.d (M * n K * S.L ^ K)) :=
+  fineSet (S := S) (n := n) M K 1 (Z'.1 : Set (Torus S.d (n 1)))
 
 theorem base_site_size_eq (S : Setting) (n : ℕ → ℕ) : S.L * n 1 = 1 * n 1 * S.L ^ 1 := by ring
 
@@ -101,10 +101,10 @@ theorem baseRotSrc_zero (ρ : OrthN N) : baseRotSrc ρ (0 : Torus S.d (S.L * n 1
 
 /-- The `ℓ¹` norm `‖g|_{Z'}‖_1` of the source of the large-field layer on the sites of the component
 `Z'`. -/
-noncomputable def baseSourceNorm (H : RegionHistory S n R k0 K) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ) : ℝ :=
+noncomputable def baseSourceNorm (M : ℕ) [NeZero M] (H : RegionHistory S n R k0 K) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ) : ℝ :=
   open Classical in
-  ∑ i : GIdx S n 1 1 N, if i.1 ∈ baseZsites H Z' then ‖g i‖ else 0
+  ∑ i : GIdx S n M K N, if i.1 ∈ baseZsites M H Z' then ‖g i‖ else 0
 
 end Carrier
 
