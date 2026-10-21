@@ -425,6 +425,19 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+- **H7MixedDatumLoc2 on the R14 domains (W1154c, in progress).** Piece 1 landed: `Background/DataPatch.lean`,
+  `inDomainC_of_patch` (splits of the datum attached to the sites by a chart map constant on the layer blocks, each
+  satisfying `Ψ̃^c(δ, ε)` at its sites and interface pairs, patch into `Ψ̃^c(3δ + 2ε, 3δ + 2ε)`). The three premises and
+  their sources: (h) `h = h₀` is the identity at the physical field (R16, reading `h₀ := Re h = hv`); (z) `|z_{k+1} − 1| ≤
+  ε_{k+1}/3`: the datum's top values are `z ψ_{k+1}` while the cube tests read `ψ_{k+1}`; **no Lean source bounds
+  `z_{k+1} − 1`** (`SFData.z` is free; the class and A4-1a give only `z_j > 0`; `Flow` has no `z`), so the discharge
+  needs a clause of the small-field step's image (P4 (4.1); LF-RECONSTRUCTION: `z_{k+1} = 1 + O(ε_{k+1})`); (ν) the
+  step's background mass is `muBg = ν_j L^{-2j}` (`FieldClauses.muBg_eq`) while the cutoff mass of the cube tests is
+  `μ_j = bgMass = 0` for `j ≤ k₀` (`mu_eq`), so `ν_b ≤ μ_s` fails below `k₀`; the premise there is the small-mass form
+  `ν_b L^{2(k+1)} ≤ δ_b²/2` (condition (R3) then holds for every split), `ν_b ≤ μ_s` above `k₀`. Open: the case analysis
+  over the data sites of `G′_V` (which cube test reads each site: `DeltaC_{k+1}`, `DeltaPrimeC`, `DeltaC_k`); for `V`
+  arbitrary the sites of `G′_V` off `Ω_{k+1}` in the lower layers carry `ψ_k` (the mixed lift), which no test of the
+  scale-`(k+1)` domain need constrain, so the input is to be restated for `V = V₂(X, J)` (its use) with a room premise.
 - **Ruling request R14, APPROVED (Scott, 2026-10-21, "approve all"; W1154b, applied by W1154c).** In
   `DeltaC`, `DeltaPrimeC` (`LargeField/Characteristic/Analytic.lean`) the domain conjunct `InUnionDomainC G c₀ c₁ μ`
   becomes `InDomainC G μ ε ε` (the lifted datum, resp. pair, in `Ψ̃^c(ε, ε)`, `K = 1`); the reader of the domain conjunct

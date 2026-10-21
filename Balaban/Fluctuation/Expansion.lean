@@ -13,7 +13,9 @@ import Mathlib.Tactic.FieldSimp
 Setting of `CriticalPoint`: whole-lattice generating sets `G` (level `n = k`) and `G'` (level
 `n + 1`), `a = compWeight L a₁`, bilinear products (complex data).
 
-* `coupling_add_actionC`: `couplingC(θ, Ψ) + A_n(Ψ; φ|) = A_{n+1}(θ; φ) + defectC` for all fields;
+* `coupling_add_actionC`: `couplingC(θ, Ψ) + A_n(Ψ; φ|) = A_{n+1}(θ; φ) + defectC` for all fields, the
+  instance `R = 𝕋` of `RegionPair.coupling_add_actionC_on` (the identity on the new region `R` of a
+  region pair, P5 (2.21));
 * `chord_identity`: for `(φ₁, α₁)` a solution of (EL) of level `n + 1` and any field `φ` with
   `φ · φ = 1`, the exact expansion (2.3) of `J` around `(ψ^{(k)}, φ₁)`;
 * `expansion_chord` (Lemma 2.3 (a)): the same for the complex small solutions
@@ -57,7 +59,7 @@ theorem actionC_eq_level_add_rest (a : ℕ → ℝ) (ν : ℝ) {N : ℕ} (D : Bg
 theorem levelTermC_eq (hG : IsLevel G n) (a : ℕ → ℝ) {N : ℕ} (D : BgData G N)
     (φ : G.Ω 1 × Fin N → ℂ) :
     levelTermC G a D φ = levelEnergyC G a n D.Ψ (svec G φ) := by
-  unfold levelTermC levelEnergyC
+  unfold levelTermC levelEnergyC levelEnergyCOn
   rw [show (((1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) =
     (1 / 2) * ((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) by push_cast; ring, mul_assoc]
   congr 1
@@ -93,6 +95,136 @@ theorem restTermC_eq (hG : IsLevel G n) (ν : ℝ) {N : ℕ} (D : BgData G N)
     refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
     rw [svec_of_mem]
 
+namespace RegionPair
+
+variable (P : RegionPair G G' n)
+include P
+
+/-- **The key identity for a region pair, bilinear form** (core of `coupling_add_actionC`). -/
+theorem coupling_add_actionC_on (hL : 2 ≤ L) (ha₁ : 0 < a₁)
+    (D : BgData G N) (D' : BgData G' N) (hh : ∀ x i, D.h x i = D'.h x i)
+    (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) (φ' : G'.Ω 1 × Fin N → ℂ) :
+    couplingCOn (G'.Ω (n + 1)) G' a₁ (n + 1) D'.Ψ D.Ψ +
+        actionC G (compWeight L a₁) ν D (P.hpre.restrictφ φ') =
+      actionC G' (compWeight L a₁) ν D' φ' +
+        defectCOn (G'.Ω (n + 1)) G G' (compWeight L a₁) a₁ n D'.Ψ D.Ψ (svec G' φ') := by
+  classical
+  set R := G'.Ω (n + 1) with hRdef
+  have hRsub := P.top_subset
+  have hRb : ∀ z ∈ R, ∀ y ∈ G'.blk (n + 1) z, y ∈ R := fun z hz y hy => P.top_blk hz hy
+  -- the block field, extended by zero off the new region
+  set θ : Torus d (N₀ * L ^ K) → Fin N → ℂ := fun x i => if x ∈ R then D'.Ψ x i else 0 with hθdef
+  have hθR : ∀ x ∈ R, θ x = D'.Ψ x := fun x hx => funext fun i => by simp [hθdef, hx]
+  have hθc : ∀ x y i, y ∈ G'.blk (n + 1) x → θ y i = θ x i := by
+    intro x y i hy
+    by_cases hx : x ∈ R
+    · have hyR := hRb x hx y hy
+      have hxl : x ∈ G'.layer (n + 1) := by
+        have hs := G'.layerIndex_spec (P.Ω_one ▸ hRsub hx)
+        rw [(P.top_layer x hx).2] at hs
+        exact hs.2.2
+      simp only [hθdef, hx, hyR, ↓reduceIte]
+      exact congrFun (D'.Ψ_layerConst (n + 1) (by omega) P.hp x hxl y hy) i
+    · have hyR : y ∉ R := fun hyR => hx (hRb y hyR x (GeneratingSet.mem_blk.2
+        (GeneratingSet.mem_blk.1 hy).symm))
+      simp [hθdef, hx, hyR]
+  have key := coupling_add_levelC_on (G := G) (G' := G') hL ha₁ P.hn P.hp R hRb θ D.Ψ
+    (svec G' φ') hθc
+  rw [couplingCOn_congr_left R a₁ (n + 1) D.Ψ hθR, levelEnergyCOn_congr_left R _ (n + 1) _ hθR,
+    defectCOn_congr_left R hRb _ a₁ D.Ψ _ hθR] at key
+  have hsv := P.svec_restrictφ φ'
+  have hbar := P.barField_restrictφ D D' hΨ φ'
+  have havg : ∀ x i, x ∈ G.Ω 1 → x ∉ R →
+      blockAvg G (P.hpre.restrictφ φ') x i = blockAvg G' φ' x i := by
+    intro x i hx hxR
+    unfold blockAvg
+    rw [P.off_layer x hx hxR]
+    simp only [hsv]
+    rfl
+  have havgR : ∀ x i, x ∈ R →
+      blockAvg G (P.hpre.restrictφ φ') x i = blockMean G n (fun y => svec G' φ' y i) x := by
+    intro x i hx
+    unfold blockAvg blockMean
+    rw [(P.top_layer x hx).1]
+    simp only [hsv]
+  have havgR' : ∀ x i, x ∈ R →
+      blockAvg G' φ' x i = blockMean G' (n + 1) (fun y => svec G' φ' y i) x := by
+    intro x i hx
+    unfold blockAvg blockMean
+    rw [(P.top_layer x hx).2]
+  set F : Torus d (N₀ * L ^ K) → ℂ := fun x =>
+    ((compWeight L a₁ (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2 : ℝ) : ℂ) *
+      ∑ i, (D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i) *
+        (D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i) with hF
+  set F' : Torus d (N₀ * L ^ K) → ℂ := fun x =>
+    ((compWeight L a₁ (G'.layerIndex x) / ((L : ℝ) ^ G'.layerIndex x) ^ 2 : ℝ) : ℂ) *
+      ∑ i, (D'.Ψ x i - blockAvg G' φ' x i) * (D'.Ψ x i - blockAvg G' φ' x i) with hF'
+  have hlev : ∑ x : G.Ω 1, F x = ∑ x ∈ G.Ω 1 \ R, F x + ∑ x ∈ R, F x := by
+    rw [Finset.sum_coe_sort (G.Ω 1) F, Finset.sum_sdiff hRsub]
+  have hlev' : ∑ x : G'.Ω 1, F' x = ∑ x ∈ G.Ω 1 \ R, F' x + ∑ x ∈ R, F' x := by
+    rw [Finset.sum_coe_sort (G'.Ω 1) F', P.Ω_one, Finset.sum_sdiff hRsub]
+  have hoff : ∑ x ∈ G.Ω 1 \ R, F x = ∑ x ∈ G.Ω 1 \ R, F' x := by
+    refine Finset.sum_congr rfl fun x hx => ?_
+    obtain ⟨hx1, hxR⟩ := Finset.mem_sdiff.1 hx
+    simp only [hF, hF', P.off_layer x hx1 hxR, hΨ x hxR, havg x _ hx1 hxR]
+  have hon : ∑ x ∈ R, F x = 2 * levelEnergyCOn R G (compWeight L a₁) n D.Ψ (svec G' φ') := by
+    unfold levelEnergyCOn
+    rw [Finset.mul_sum]
+    push_cast
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x hx => ?_
+    simp only [hF, (P.top_layer x hx).1, havgR x _ hx]
+    push_cast
+    ring
+  have hon' : ∑ x ∈ R, F' x = 2 * levelEnergyCOn R G' (compWeight L a₁) (n + 1) D'.Ψ (svec G' φ') := by
+    unfold levelEnergyCOn
+    rw [Finset.mul_sum]
+    push_cast
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x hx => ?_
+    simp only [hF', (P.top_layer x hx).2, havgR' x _ hx]
+    push_cast
+    ring
+  have hgrad : ∑ x : Torus d (N₀ * L ^ K), ∑ μ : Fin d,
+      (if x ∈ G.Ω 1 ∨ x + Pi.single μ 1 ∈ G.Ω 1 then
+        ∑ i, (barField G D.Ψ (P.hpre.restrictφ φ') (x + Pi.single μ 1) i -
+          barField G D.Ψ (P.hpre.restrictφ φ') x i) *
+          (barField G D.Ψ (P.hpre.restrictφ φ') (x + Pi.single μ 1) i -
+          barField G D.Ψ (P.hpre.restrictφ φ') x i) else 0) =
+      ∑ x : Torus d (N₀ * L ^ K), ∑ μ : Fin d,
+      (if x ∈ G'.Ω 1 ∨ x + Pi.single μ 1 ∈ G'.Ω 1 then
+        ∑ i, (barField G' D'.Ψ φ' (x + Pi.single μ 1) i - barField G' D'.Ψ φ' x i) *
+          (barField G' D'.Ψ φ' (x + Pi.single μ 1) i - barField G' D'.Ψ φ' x i) else 0) := by
+    simp only [hbar, P.Ω_one]
+  have hmass : ∑ x : G.Ω 1, ∑ i, ((P.hpre.restrictφ φ') (x, i) - D.h x i) *
+      ((P.hpre.restrictφ φ') (x, i) - D.h x i) =
+      ∑ x : G'.Ω 1, ∑ i, (φ' (x, i) - D'.h x i) * (φ' (x, i) - D'.h x i) := by
+    have e1 : ∑ x : G.Ω 1, ∑ i, ((P.hpre.restrictφ φ') (x, i) - D.h x i) *
+        ((P.hpre.restrictφ φ') (x, i) - D.h x i) =
+        ∑ x ∈ G.Ω 1, ∑ i, (svec G' φ' x i - D'.h x i) * (svec G' φ' x i - D'.h x i) := by
+      rw [← Finset.sum_coe_sort (G.Ω 1)]
+      refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+      rw [← hsv, svec_of_mem G _ x i, hh]
+    have e2 : ∑ x : G'.Ω 1, ∑ i, (φ' (x, i) - D'.h x i) * (φ' (x, i) - D'.h x i) =
+        ∑ x ∈ G'.Ω 1, ∑ i, (svec G' φ' x i - D'.h x i) * (svec G' φ' x i - D'.h x i) := by
+      rw [← Finset.sum_coe_sort (G'.Ω 1)]
+      refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+      rw [svec_of_mem G' _ x i]
+    rw [e1, e2, P.Ω_one]
+  unfold actionC
+  rw [show (∑ x : G.Ω 1, ((compWeight L a₁ (G.layerIndex (x : Torus d (N₀ * L ^ K))) /
+      ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ K))) ^ 2 : ℝ) : ℂ) *
+      ∑ i, (D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i) *
+        (D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i)) = ∑ x : G.Ω 1, F x from rfl,
+    show (∑ x : G'.Ω 1, ((compWeight L a₁ (G'.layerIndex (x : Torus d (N₀ * L ^ K))) /
+      ((L : ℝ) ^ G'.layerIndex (x : Torus d (N₀ * L ^ K))) ^ 2 : ℝ) : ℂ) *
+      ∑ i, (D'.Ψ x i - blockAvg G' φ' x i) * (D'.Ψ x i - blockAvg G' φ' x i)) =
+      ∑ x : G'.Ω 1, F' x from rfl,
+    hlev, hlev', hoff, hon, hon', hgrad, hmass]
+  linear_combination key
+
+end RegionPair
+
 /-- **The key identity, bilinear form**: for the data `D` of level `n` and `D'` of level `n + 1`
 with the same `h̃`,
 `couplingC(θ = D'.Ψ, D.Ψ) + A_n(D; φ|) = A_{n+1}(D'; φ) + defectC`. -/
@@ -104,18 +236,12 @@ theorem coupling_add_actionC (hL : 2 ≤ L) (ha₁ : 0 < a₁) (hG : IsLevel G n
         actionC G (compWeight L a₁) ν D ((hG.precedes hG' hp).restrictφ φ') =
       actionC G' (compWeight L a₁) ν D' φ' +
         defectC G G' (compWeight L a₁) a₁ n D'.Ψ D.Ψ (svec G' φ') := by
-  have hn := hG.bounds
-  have key := coupling_add_levelC (G := G) (G' := G') hL ha₁ hn.1 hp D'.Ψ D.Ψ (svec G' φ')
-    (fun x y i hy => data_blockConst hG' D' x y i hy)
-  rw [actionC_eq_level_add_rest, actionC_eq_level_add_rest, levelTermC_eq hG, levelTermC_eq hG',
-    restTermC_eq hG, restTermC_eq hG']
-  have e : ∀ y i, svec G ((hG.precedes hG' hp).restrictφ φ') y i = svec G' φ' y i :=
-    svec_restrict hG hG' hp φ'
-  have ef : svec G ((hG.precedes hG' hp).restrictφ φ') = svec G' φ' :=
-    funext fun y => funext (e y)
-  rw [ef]
-  simp only [hh]
-  linear_combination key
+  have h := (RegionPair.ofLevel hG hG' hp).coupling_add_actionC_on (ν := ν) hL ha₁ D D' hh
+    (fun x hx => absurd (hG'.Ω_top ▸ Finset.mem_univ x) hx) φ'
+  rw [hG'.Ω_top] at h
+  exact h
+
+
 
 end KeyC
 
@@ -176,7 +302,7 @@ theorem pair_blockVec_eq {m : ℕ} (hG : IsLevel G m) (a : ℕ → ℝ) {N : ℕ
       show τ p * (_ * blockAvg G τ p.1 p.2) = _
       ring
   rw [hpair, ← eC]
-  unfold levelEnergyC
+  unfold levelEnergyC levelEnergyCOn
   have hsum : ∀ F : Torus d (N₀ * L ^ K) → ℂ, ∑ x : G.Ω 1, F x = ∑ x, F x := fun F => by
     rw [Finset.sum_coe_sort (G.Ω 1) F, hG.Ω_one]
   rw [hsum (fun x => ((a (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2 : ℝ) : ℂ) *
@@ -275,7 +401,7 @@ theorem chord_identity (hL : 2 ≤ L) (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG'
     ring
   have hdef : defectC G G' a a₁ n D'.Ψ D.Ψ (svec G' φh) =
       defectC G G' a a₁ n (fun _ _ => 0) ψ' (svec G' τ) := by
-    unfold defectC
+    unfold defectC defectCOn
     simp only [hu]
   have hG0 := coupling_add_levelC (G := G) (G' := G') hL ha₁ hn.1 hp (fun _ _ => 0) ψ'
     (svec G' τ) (fun x y i hy => rfl)
