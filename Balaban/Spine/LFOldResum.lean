@@ -150,6 +150,116 @@ theorem treeLenCovOne_boxUnion_le (hN : L ^ m₀ ∣ N₁) (hj : j ≤ K) (B : S
         rw [Finset.sum_const_zero, zero_add]
         nlinarith [mul_nonneg hCpos (by positivity : (0 : ℝ) ≤ 4 * d * L + 1)]
 
+
+section Cells
+
+variable {n : ℕ} [NeZero n]
+
+/-- **The cells of two sites at sup-distance `≤ R`** are at cell-index distance `≤ R / a + 1`. -/
+theorem near_cbase_of_supDist_le {a : ℕ} (ha : a ∣ n) (ha0 : 0 < a) {x y : Torus d n} {R : ℕ}
+    (h : LargeField.supDist x y ≤ R) : Near (R / a + 1) a (cbase a y) (cbase a x) := by
+  have key : ∀ (X qx rx : ℕ), a * qx + rx = X →
+      ((a * qx : ℕ) : ZMod n) = ((X : ℕ) : ZMod n) - ((rx : ℕ) : ZMod n) := by
+    intro X qx rx hX
+    rw [← hX]; push_cast; ring
+  have hcoord : ∀ μ, ∃ q : ℤ, |q| ≤ (R / a + 1 : ℕ) ∧
+      cbase a x μ = cbase a y μ + (((a : ℤ) * q : ℤ) : ZMod n) := by
+    intro μ
+    obtain ⟨t, ht, hte⟩ := (LargeField.cycNorm_le_iff _ R).1 (LargeField.supDist_le_iff.1 h μ)
+    have hcx : cbase a x μ = ((a * ((x μ).val / a) : ℕ) : ZMod n) := rfl
+    have hcy : cbase a y μ = ((a * ((y μ).val / a) : ℕ) : ZMod n) := rfl
+    have hxX : (((x μ).val : ℕ) : ZMod n) = x μ := ZMod.natCast_zmod_val _
+    have hyY : (((y μ).val : ℕ) : ZMod n) = y μ := ZMod.natCast_zmod_val _
+    have hrx := Nat.mod_lt (x μ).val ha0
+    have hry := Nat.mod_lt (y μ).val ha0
+    have kx := key _ _ _ (Nat.div_add_mod (x μ).val a)
+    have ky := key _ _ _ (Nat.div_add_mod (y μ).val a)
+    generalize (x μ).val / a = qx at hcx kx
+    generalize (y μ).val / a = qy at hcy ky
+    generalize (x μ).val % a = rx at kx hrx
+    generalize (y μ).val % a = ry at ky hry
+    set z : ℤ := t - (rx : ℤ) + (ry : ℤ) with hz
+    have hdiff : cbase a x μ - cbase a y μ = ((z : ℤ) : ZMod n) := by
+      rw [hcx, hcy, kx, ky, hxX, hyY, hz]
+      push_cast
+      rw [hte]
+      ring
+    have hdvd : (a : ℤ) ∣ z := by
+      have hn : ((n : ℕ) : ℤ) ∣ z - ((a * qx : ℕ) - (a * qy : ℕ) : ℤ) := by
+        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+        have e : (((z - ((a * qx : ℕ) - (a * qy : ℕ) : ℤ)) : ℤ) : ZMod n) =
+            ((z : ℤ) : ZMod n) - (((a * qx : ℕ) : ZMod n) - ((a * qy : ℕ) : ZMod n)) := by
+          push_cast; ring
+        rw [e, ← hdiff, hcx, hcy, sub_self]
+      have ha' : (a : ℤ) ∣ ((n : ℕ) : ℤ) := by exact_mod_cast ha
+      have h2 : (a : ℤ) ∣ ((a * qx : ℕ) - (a * qy : ℕ) : ℤ) := by
+        push_cast
+        exact ⟨(qx : ℤ) - qy, by ring⟩
+      have := dvd_add (ha'.trans hn) h2
+      simpa using this
+    obtain ⟨q, hq⟩ := hdvd
+    refine ⟨q, ?_, ?_⟩
+    · have haz : (0 : ℤ) < a := by exact_mod_cast ha0
+      have hrx' : (rx : ℤ) < a := by exact_mod_cast hrx
+      have hry' : (ry : ℤ) < a := by exact_mod_cast hry
+      have hrx0 : (0 : ℤ) ≤ rx := by positivity
+      have hry0 : (0 : ℤ) ≤ ry := by positivity
+      obtain ⟨ht1, ht2⟩ := abs_le.1 ht
+      have hzle : |z| ≤ (R : ℤ) + a - 1 := by
+        rw [hz, abs_le]; constructor <;> linarith
+      have hq' : |q| * a ≤ (R : ℤ) + a - 1 := by
+        rw [hq, abs_mul, abs_of_pos haz] at hzle; linarith
+      have hR : (R : ℤ) < ((R / a + 1 : ℕ) : ℤ) * a := by
+        have := Nat.lt_div_mul_add (a := R) ha0
+        have h1 : ((R : ℕ) : ℤ) < ((R / a * a + a : ℕ) : ℤ) := by exact_mod_cast this
+        push_cast at h1 ⊢
+        linarith
+      by_contra hcon
+      have h1 : ((R / a + 1 : ℕ) : ℤ) + 1 ≤ |q| := by
+        have := lt_of_not_ge hcon
+        omega
+      have : (((R / a + 1 : ℕ) : ℤ) + 1) * a ≤ |q| * a := mul_le_mul_of_nonneg_right h1 haz.le
+      nlinarith
+    · rw [← hq, ← hdiff]; ring
+  choose q hq hqe using hcoord
+  exact ⟨q, fun μ => by exact_mod_cast hq μ, funext fun μ => hqe μ⟩
+
+open Classical in
+/-- **The cells of a neighbourhood**: the cells of the sites within sup-distance `R` of a finite set
+`S` are at most `(2 (R / a + 1) + 1)^d` times the cells of `S`. -/
+theorem card_cbase_nbhd_le {a : ℕ} (ha : a ∣ n) (ha0 : 0 < a) (S : Finset (Torus d n)) (R : ℕ) :
+    ((Finset.univ.filter fun x : Torus d n => ∃ y ∈ S, LargeField.supDist x y ≤ R).image
+      (cbase a)).card ≤ (2 * (R / a + 1) + 1) ^ d * (S.image (cbase a)).card := by
+  have hsub : (Finset.univ.filter fun x : Torus d n => ∃ y ∈ S, LargeField.supDist x y ≤ R).image
+      (cbase a) ⊆ (S.image (cbase a)).biUnion fun c =>
+        Finset.univ.filter fun v => Near (R / a + 1) a c v := by
+    intro v hv
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hv
+    obtain ⟨y, hy, hxy⟩ := (Finset.mem_filter.1 hx).2
+    exact Finset.mem_biUnion.2 ⟨cbase a y, Finset.mem_image_of_mem _ hy,
+      Finset.mem_filter.2 ⟨Finset.mem_univ _, near_cbase_of_supDist_le ha ha0 hxy⟩⟩
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ c ∈ S.image (cbase a), (Finset.univ.filter fun v => Near (R / a + 1) a c v).card
+      ≤ ∑ _c ∈ S.image (cbase a), (2 * (R / a + 1) + 1) ^ d :=
+        Finset.sum_le_sum fun c _ => card_near_le _ _ _
+    _ = _ := by rw [Finset.sum_const, smul_eq_mul, mul_comm]
+
+omit [NeZero n] in
+/-- Two sites in one cell of side `a` lie in one cell of side `b` for `a ∣ b`. -/
+theorem SameCell.of_dvd {a b : ℕ} (hab : a ∣ b) {x y : Torus d n} (h : SameCell a x y) :
+    SameCell b x y := by
+  obtain ⟨c, rfl⟩ := hab
+  intro μ
+  rw [← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul, h μ]
+
+omit [NeZero n] in
+/-- Sites in one cell of side `a` have the same base cell. -/
+theorem cbase_eq_of_sameCell {a : ℕ} {x y : Torus d n} (h : SameCell a x y) : cbase a x = cbase a y := by
+  funext μ
+  simp only [cbase, h μ]
+
+end Cells
+
 end Balaban.Fluctuation
 
 open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.Multiscale
