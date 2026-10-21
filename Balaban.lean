@@ -3167,3 +3167,5 @@ public import Balaban.Inhabited.NewLevelLocalCast
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
 public import Balaban.LargeField.R.WindowDuBranch
+public import Balaban.LargeField.R.WindowDuFlowEst
+public import Balaban.LargeField.R.WindowDuBound
