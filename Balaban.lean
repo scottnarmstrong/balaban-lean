@@ -698,6 +698,7 @@ public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6ContInhabited
 public import Balaban.SmallField.Def6Terms
+public import Balaban.SmallField.PolyDomOpt
 public import Balaban.SmallField.Def6
 public import Balaban.SmallField.Def6BridgeDomain
 public import Balaban.SmallField.Def6BridgeLift
