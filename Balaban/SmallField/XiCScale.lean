@@ -31,19 +31,6 @@ open Balaban Balaban.Background Balaban.Multiscale
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
 
-/-- A vector whose components are at most `c` has norm at most `N c`. -/
-theorem vn_le_card_mul {c : ℝ} (hc : 0 ≤ c) (v : Fin N → ℂ) (h : ∀ i, ‖v i‖ ≤ c) :
-    vn v ≤ N * c := by
-  have hsq : vn v ^ 2 ≤ ((N : ℝ) * c) ^ 2 := by
-    rw [vn_sq]
-    calc ∑ i, ‖v i‖ ^ 2 ≤ ∑ _i : Fin N, c ^ 2 :=
-          Finset.sum_le_sum fun i _ => pow_le_pow_left₀ (norm_nonneg _) (h i) 2
-      _ = N * c ^ 2 := by simp
-      _ ≤ ((N : ℝ) * c) ^ 2 := by
-          have : (N : ℝ) ≤ (N : ℝ) ^ 2 := by exact_mod_cast Nat.le_self_pow (by norm_num) N
-          nlinarith [sq_nonneg c]
-  exact (pow_le_pow_iff_left₀ (vn_nonneg _) (by positivity) two_ne_zero).1 hsq
-
 /-- The block average of a field with `‖svec‖ ≤ V` is at most `V`. -/
 theorem norm_blockAvg_le {φ : G.Ω 1 × Fin N → ℂ} {V : ℝ} (h : ∀ (y : Torus d (N₀ * L ^ k)) (i : Fin N), ‖svec G φ y i‖ ≤ V) {x : Torus d (N₀ * L ^ k)}
     (hx : x ∈ G.Ω 1) (i : Fin N) : ‖blockAvg G φ x i‖ ≤ V := by
@@ -144,7 +131,7 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
     have h2 := vn_add' (fun i => svec G F y i - svec G F x i)
       (fun i => if y ∈ G.Ω 1 then (0 : ℂ) else ζ * Dc.Ψ y i)
     have h3 : vn (fun i => svec G F y i - svec G F x i) ≤ N * (V / G.spacing x) :=
-      vn_le_card_mul (by positivity) _ fun i => by
+      vn_le_card_mul (by positivity) fun i => by
         rw [le_div_iff₀ hℓ]; rw [mul_comm]; exact hcomp i
     have h4 := ht y hy
     have key : N * (V / G.spacing x) + (if y ∈ G.Ω 1 then 0 else 3 * ‖ζ‖) ≤
@@ -260,7 +247,7 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
       nlinarith [norm_nonneg (∑ μ : Fin d, (svec G F (x + Pi.single μ 1) i +
           svec G F (x - Pi.single μ 1) i - 2 * svec G F x i))]
     have hvn : vn extra ≤ N * ((V + 6 * d * ‖ζ‖ * (L : ℝ) ^ 2) / G.spacing x ^ 2) :=
-      vn_le_card_mul (by positivity) extra hcomp
+      vn_le_card_mul (by positivity) hcomp
     rw [e]
     have h1 := vn_add' (fun i => ∑ μ : Fin d,
         ((barField G Dc.Ψ φc (x + Pi.single μ 1) i - barField G Dr.Ψ φr (x + Pi.single μ 1) i) +
@@ -296,7 +283,7 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
     rw [e]
     have h2 := vn_add (fun i => φc (x, i) - φr (x, i)) (fun i => φn (x, i) - φc (x, i))
     have h3 : vn (fun i => φn (x, i) - φc (x, i)) ≤ N * V :=
-      vn_le_card_mul hV _ fun i => by
+      vn_le_card_mul hV fun i => by
         have := hsupn x i
         simpa [svec, zeroExt, Pi.sub_apply] using this
     linarith
@@ -314,7 +301,7 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
       (fun i => ζ * Dc.Ψ x i - blockAvg G (φn - φc) x i)
     have hxd : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl hx)
     have h3 : vn (fun i => ζ * Dc.Ψ x i - blockAvg G (φn - φc) x i) ≤ N * (3 * ‖ζ‖ + V) :=
-      vn_le_card_mul (by positivity) _ fun i => by
+      vn_le_card_mul (by positivity) fun i => by
         refine (norm_sub_le _ _).trans (add_le_add ?_ (norm_blockAvg_le hsupn hx i))
         rw [norm_mul]
         have := (norm_le_vn (Dc.Ψ x) i).trans (hvΨ x hxd)
