@@ -9,6 +9,8 @@ public import Balaban.Inhabited.NewLevelLabelGap
 public import Balaban.Inhabited.NewLevelHatLayer
 public import Balaban.SmallField.XiComposedPullback
 public import Balaban.SmallField.RelBoxPath
+public import Balaban.LargeField.R.RegionalAligned
+public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
 
 /-!
 # The data hypothesis at the composed data of a label (the producer)
@@ -24,6 +26,9 @@ through the cells `y + L^j v` of the layer `j`, satisfies `DataHypAnisoOn` on th
 edges are interface pairs (`interface_shift_of_layer_of_gap`); the paths are those of
 `exists_latPath_of_relBox`.  The remaining premises are the conditions on constants and the chart
 membership of the pulled-back datum and of its constant configuration.
+`composedChartGap_dataHypAnisoOn_size`: the same with the path length `A (1 + d_j(X))` of the
+consumers, for `A ≥ L^{(m₀+m₁)d} c₁` (`#S ≤ L^{(m₀+m₁)d} #cells(X) ≤ L^{(m₀+m₁)d} c₁ (1 + d_j(X))`,
+`card_placeSet_le`).
 -/
 
 @[expose] public section
@@ -186,5 +191,105 @@ theorem composedChartGap_dataHypAnisoOn (hd : 3 ≤ d) (hL : 3 ≤ L) :
     (by rw [hf0]; exact hch) (by rw [hf0]; exact hch0)
   rw [hf0] at H
   exact H
+
+/-- `DataHypAnisoOn` with a larger path length. -/
+theorem dataHypAnisoOn_mono_len {N : ℕ} {polys : Set (Finset (Site d))}
+    {ℓ ℓ' : Finset (Site d) → ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)} {ν σ ε K₂ : ℝ} {ψ : Site d → Spin N} {b : Spin N}
+    (h : DataHypAnisoOn polys ℓ Dom ν σ ε K₂ ψ b) (hℓ0 : ∀ X ∈ polys, 0 ≤ ℓ X)
+    (hℓ : ∀ X ∈ polys, ℓ X ≤ ℓ' X) (hσε : 0 ≤ σ * ε) :
+    DataHypAnisoOn polys ℓ' Dom ν σ ε K₂ ψ b where
+  K2_nonneg := h.K2_nonneg
+  sq0 := h.sq0
+  sq := h.sq
+  bdd0 := h.bdd0
+  grad0 := h.grad0
+  incr X hX x hx := (h.incr X hX x hx).trans (mul_le_mul_of_nonneg_right (hℓ X hX) hσε)
+  taylor X hX x hx x' hx' := (h.taylor X hX x hx x' hx').trans (by
+    have h2 : ℓ X ^ 2 ≤ ℓ' X ^ 2 := pow_le_pow_left₀ (hℓ0 X hX) (hℓ X hX) 2
+    have h3 := h.K2_nonneg
+    nlinarith)
+  b_close := h.b_close
+  b_long := h.b_long
+  mem := h.mem
+  mem_const := h.mem_const
+
+open Classical in
+/-- **The size of the placed polymer**: `#S ≤ L^{(m₀+m₁)d} c₁ (1 + d_j(X))` (the aligned sites of a
+union of cells, `card_aligned_le_cellCount`, and the cell count, `cellCount_le_one_add_treeLenCovOne`). -/
+theorem card_placeSet_le {K j m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hjK : j ≤ K)
+    {y : CTorus d L N₁ m₁ K} {X : Set (CTorus d L N₁ m₁ K)} (hX : IsPolyDom m₀ j X)
+    {S : Finset (Site d)}
+    (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
+      (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) j (x - y))) :
+    (S.card : ℝ) ≤ ((L ^ (m₀ + m₁) : ℕ) : ℝ) ^ d * c1 d L * (1 + sizeJ m₀ j X) := by
+  have hD := isDj_of_isPolyDom hX
+  have h1 : S.card ≤ (Finset.univ.filter fun x : CTorus d L N₁ m₁ K =>
+      x ∈ X ∧ Aligned (L ^ j) x).card := by
+    rw [hSdef]
+    refine Finset.card_image_le.trans (le_of_eq ?_)
+    congr 1
+    ext x
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, and_comm]
+  have h2 := LargeField.RegionalAligned.card_aligned_le_cellCount hN hjK hD.2.1
+  have h3 := cellCount_le_one_add_treeLenCovOne hN hjK hD
+  have hq : (0 : ℝ) ≤ ((L ^ (m₀ + m₁) : ℕ) : ℝ) ^ d := by positivity
+  unfold sizeJ
+  calc (S.card : ℝ) ≤ _ := by exact_mod_cast h1
+    _ ≤ _ := h2
+    _ ≤ _ := by rw [mul_assoc]; exact mul_le_mul_of_nonneg_left h3 hq
+
+/-- **`DataHypAnisoOn` at the composed data of a label, with the path length of the consumers**:
+the statement of `composedChartGap_dataHypAnisoOn` with the length `A (1 + d_j(X))` for every
+`A ≥ L^{(m₀+m₁)d} c₁` (`card_placeSet_le`, `dataHypAnisoOn_mono_len`). -/
+theorem composedChartGap_dataHypAnisoOn_size (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ B : ℝ, 0 ≤ B ∧ ∀ {θh : ℝ}, 0 < θh → θh < 1 →
+    ∀ {N₁ m₁ k N : ℕ} [NeZero N₁] {ϱ : ℝ} {m₀ j : ℕ}
+      {X : Set (CTorus d L N₁ m₁ (k + 1))} {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+      {a₁ ν ε A : ℝ} {y : CTorus d L N₁ m₁ (k + 1)} {S : Finset (Site d)},
+      HatSpec m₀ j X Gj → hatScale L m₁ ϱ < m₀ →
+      ϱ ≤ LargeField.minSep L (L ^ (m₁ + hatScale L m₁ ϱ)) →
+      ∀ {N₁' : ℕ} [NeZero N₁'], N₁' * L ^ (m₁ + hatScale L m₁ ϱ) = N₁ * L ^ m₁ →
+      2 ≤ m₀ → L ^ m₀ ∣ N₁ → 1 ≤ j → j ≤ k →
+      Aligned (L ^ j) y → IsPolyDom m₀ j X → y ∈ X → relBox m₀ y X →
+      S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
+        (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) j (x - y)) →
+      ((L ^ (m₀ + m₁) : ℕ) : ℝ) ^ d * c1 d L ≤ A →
+      0 < ν → 0 < a₁ →
+      (4 * d + 6) * (xiC1 d * ε) ≤ 1 → xiC1 d * ε ≤ bgC1 d L N → xiC1 d * ε ≤ 1 / 200 →
+      scaledC0 d * ((L : ℝ) ^ j / (L : ℝ) ^ k) ≤ 1 →
+      ν * ((L : ℝ) ^ j) ^ 2 ≤ (scaledC0 d * ((L : ℝ) ^ j / (L : ℝ) ^ k)) ^ 2 →
+      ∀ r ∈ composedChartGap (N := N) Gj (compWeight L a₁) ν j 1 ε,
+      ∀ {Dom : Set ((Site d → Spin N) × Spin N)},
+      ((fun v => r.1 (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) j v)),
+        ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) • r.2 y) ∈ Dom →
+      ((fun _ => r.1 y), ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) • r.2 y) ∈ Dom →
+      DataHypAnisoOn {S} (fun _ => A * (1 + sizeJ m₀ j X)) Dom (ν * ((L : ℝ) ^ j) ^ 2)
+        (scaledC0 d * ((L : ℝ) ^ j / (L : ℝ) ^ k)) (10 * (xiC1 d * ε))
+        (xiSigma d L N B θh * ((L : ℝ) ^ j / (L : ℝ) ^ k) ^ (2 - θh) * ε)
+        (fun v => r.1 (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) j v))
+        (((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) • r.2 y) := by
+  obtain ⟨B, hB0, hB⟩ := composedChartGap_dataHypAnisoOn (d := d) (L := L) hd hL
+  refine ⟨B, hB0, ?_⟩
+  intro θh hθh0 hθh1 N₁ m₁ k N _ ϱ m₀ j X Gj a₁ ν ε A y S hHat hlt hs N₁' _ hc hm₀ hN hj1 hjk hy
+    hX hyX hbox hSdef hA hν0 ha₁ hsmall hc1 hζ1 hτ1 hντ r hr Dom hch hch0
+  have H := hB hθh0 hθh1 hHat hlt hs hc hm₀ hN hj1 hjk hy hX hyX hbox hSdef hν0 ha₁ hsmall hc1 hζ1
+    hτ1 hντ r hr hch hch0
+  have hcard := card_placeSet_le (K := k + 1) hN (by omega) hX hSdef
+  have hc1p : (0 : ℝ) < ((L ^ (m₀ + m₁) : ℕ) : ℝ) ^ d * c1 d L := by
+    have := one_le_c1 d L
+    have : (0 : ℝ) < ((L ^ (m₀ + m₁) : ℕ) : ℝ) := by exact_mod_cast pow_pos (by omega) _
+    positivity
+  have hs0 : (0 : ℝ) ≤ 1 + sizeJ m₀ j X := by
+    have h0 : (0 : ℝ) ≤ (S.card : ℝ) := Nat.cast_nonneg _
+    by_contra hneg
+    push_neg at hneg
+    nlinarith
+  have hσε : 0 ≤ scaledC0 d * ((L : ℝ) ^ j / (L : ℝ) ^ k) * (10 * (xiC1 d * ε)) :=
+    (norm_nonneg _).trans (H.grad0 ⟨0, by omega⟩)
+  refine dataHypAnisoOn_mono_len H (fun _ _ => Nat.cast_nonneg _) (fun X' hX' => ?_) hσε
+  rw [Set.mem_singleton_iff] at hX'
+  subst hX'
+  exact hcard.trans (mul_le_mul_of_nonneg_right hA hs0)
 
 end Balaban.Inhabited
