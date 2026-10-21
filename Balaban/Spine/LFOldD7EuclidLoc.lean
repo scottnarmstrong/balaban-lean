@@ -268,4 +268,32 @@ theorem blockLift_coverField_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k +
   rw [coverBlk_aff, symM]
   simp
 
+section LocStep
+
+variable (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+
+theorem holeStepLoc_G_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j : ℕ)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        (holeStepLoc g hnn hM1 H' hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ
+          ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G.Ω j ↔
+      x ∈ (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G.Ω j := by
+  rw [holeStepLoc_G, holeStepLoc_G, GeneratingSet.inter_Ω, GeneratingSet.inter_Ω,
+    Finset.mem_inter, Finset.mem_inter,
+    holeStepLF_G_aff g hnn hM1 H H' hk hk1 hρ ψ ψ₁ z h₀ a₁ ν β p₁ δ σ hI,
+    locB_aff g hnn hM1 σ hk V]
+
+theorem holeStepLoc_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j : ℕ)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        (holeStepLoc g hnn hM1 H' hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ
+          ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G'.Ω j ↔
+      x ∈ (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G'.Ω j := by
+  rw [holeStepLoc_G', holeStepLoc_G', GeneratingSet.inter_Ω, GeneratingSet.inter_Ω,
+    Finset.mem_inter, Finset.mem_inter,
+    holeStepLF_G'_aff g hnn hM1 H H' hk hk1 hρ ψ ψ₁ z h₀ a₁ ν β p₁ δ σ hI,
+    locB_aff g hnn hM1 σ hk V]
+
+end LocStep
+
 end Balaban.RootFSpine
