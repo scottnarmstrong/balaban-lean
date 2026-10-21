@@ -65,10 +65,11 @@ theorem Mloc_localTerms (m₀ j : ℕ) (x : CTorus d L N₁ m₁ k) (ψ h g : Fl
 
 /-- **The strong term clauses hold for the zero terms with the minimal generating sets**: a class
 member whose local sets `Tm.gs j X = 𝔹_j(X)` are genuinely local (`Ω₁(𝔹_j(X))` is not the whole
-torus in general, `gsSpecStrong_minimal_witness`). -/
+torus in general, `gsSpecStrong_minimal_witness`), when the cubes of the sets `𝔹_j(X̂)` of `HatSpec`
+are not finer than the cells (`m₀ ≤ hatScale`). -/
 theorem sfTermClausesStrong_localTerms {P : Consts} (hE₀ : 0 ≤ P.E₀)
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (Dom : FieldDom d L N₁ m₁ k N (minSep L 1)) :
+    (hm : P.m₀ ≤ hatScale L m₁ (minSep L 1)) (Dom : FieldDom d L N₁ m₁ k N (minSep L 1)) :
     SFTermClausesStrong P Dom (localTerms d L N₁ m₁ k N) where
   gs_spec := fun j hj1 hjk X hX => by
     rw [localTerms_gs hjk]
@@ -107,13 +108,15 @@ theorem sfTermClausesStrong_localTerms {P : Consts} (hE₀ : 0 ≤ P.E₀)
   gsStrong := fun j hj1 hjk X hX => by
     rw [localTerms_gs hjk]
     exact gsSpecStrong_polyGS hj1 hjk hX
+  hat := fun _ _ _ _ _ => hatSpec_of_le hm
 
 /-- The strong term clauses with genuinely local generating sets are inhabited (hard rule 10):
 the zero terms with the minimal generating sets, for every field domain, with the constants
 `witnessConsts`. -/
 theorem sfTermClausesStrong_localTerms_nonempty (Dom : FieldDom d L N₁ m₁ k N (minSep L 1)) :
     Nonempty (SFTermClausesStrong witnessConsts Dom (localTerms d L N₁ m₁ k N)) := by
-  refine ⟨sfTermClausesStrong_localTerms (by simp [witnessConsts]) (fun j => ?_) Dom⟩
+  refine ⟨sfTermClausesStrong_localTerms (by simp [witnessConsts]) (fun j => ?_)
+    (by simp [witnessConsts]) Dom⟩
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   simp only [witnessConsts, one_mul]
   positivity

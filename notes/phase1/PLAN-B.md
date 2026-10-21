@@ -235,6 +235,23 @@ approved declaration.
 - **Recommendation (coordinator): approve (a).**
 - **Amendment (W1146, 2026-10-21): the set must contain the sites read by the irrelevant part.** The inherited term of a label `(j, y, X)` is the irrelevant part `irrelTorus`, which reads the field on `X` and at the neighbours `y + L^j e_μ` of `y` (`irrelTorus_congr`); these may lie outside `X`. The chain identifies the term at the composed field with the class term at the whole-level composed field only on the top layer `j` of the composition set (`composeData_agree_on_X`, used through the chain's clause `GsSpecStrong j (XL τ) (Gj τ)`, `XL τ = X ∪ □(y)`). On `𝔹_j(X)` the neighbours outside `X` lie in a lower layer (or the collar, `j = 1`), where the composed field is a different object, so composing on `𝔹_j(X)` itself breaks that identification. The set to require is `𝔹_j(X⁺)`, `X⁺` the union of `X` and the `𝒞_j`-cubes of the neighbours `y + L^j e_μ` (`y ∈ X` aligned): the chain then composes on `Tm.gs j X` (top layer `X⁺ ⊇ X ∪ st₊(y)`), the inclusion of the composed data in the class domain is the room lemma (`d2raw_mem_birthXiDom_of_top`), and the settings construction takes `X_j = X⁺` with the cover set `XL τ ⊇ X⁺` (`settings_family_castLocalB_spec_gen`). The R13 definition change is held until this is settled.
 
+## Ruling R15 asked (2026-10-21, ORCH-A): the cell term of `irrelTorus` — renormalize only polymers inside a fixed box
+- **Problem.** At the cell `X = □(y)`, `irrelTorus` adds `Σ_{X'∋y}(T_{X'} + Φ_{y,X'})` over every polymer through `y`,
+  wrapping ones included. The flow's couplings are common to all tori, so the renormalization conditions hold only in
+  infinite volume (`RenormCondAlong`), not on each torus (P1 (H.6)); the sum is a small nonzero defect that differs
+  between two tori, and the exact two-torus agreement at the cell (`CellTermsAgree`, blocker 7's step clause) is false.
+- **Proposal.** With `B(y)` the box of radius `r_k = ⌊L^{m₀+m₁+k}/8⌋` fine sites around `y` (1/8 of the side of the
+  smallest torus with `L^{m₀} ∣ N₁`; polymers in it do not wind on any torus of the family):
+  `ℰ_irrel(y,X) = ℰ(y,X) − A_{y,X} − 1[X ⊆ B(y)](T_X + Φ_{y,X}) + 1[X = □(y)] Σ_{X'∋y, X'⊆B(y)} (T_{X'} + Φ_{y,X'})`.
+  Larger polymers keep their relevant parts and are small by size (`d_j(X) ≳ L^{k−j}`). Only the body of `irrelTorus`
+  changes; the torus identity `Σ ℰ_irrel = ℰ`, the class and the infinite-volume conditions are unchanged; the top one or
+  two levels get no extraction (the chain treats the top `n₁` levels separately).
+- **Blocker 6 (the bound at the cell label).** No torus form of the conditions is needed, under either definition: the
+  landed `norm_filed_le_power` (W980) bounds the full torus filed sum by `C E₀ L^{−(k−j)(d+α₃)}` on every torus with
+  `L^{m₀} ∣ N₁`; under R15 the large shapes add a tail of the same order.
+- **Work (ORCH-A, worker A1, branch `orchA-cellterm`).** The core `irrelTorusOn` (the landed `irrelTorus` its instance),
+  its identity, bounds and two-torus agreement at the box instance; after approval, the body switch.
+
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
 - **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
   Sets: G = 𝔹_k(W_k) (`p6OldC`) ≺ G′ = (𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1} of (2.17) (`p6TopC`), datum ψ_k off Ω_{k+1}
@@ -335,3 +352,52 @@ approved declaration.
   not recommended.
 - **Status of blocker 3 after W1154b.** Items (1)–(4) of the W1154b brief are blocked by this obstruction: (1) is false as
   stated and needs the ruling and D1–D3; the bound of (2)–(4) rests on (1); the identity (3) needs D3.
+- **Reading HS-2 (W1154b, 2026-10-21; the repairs D1–D3 of reading HS-1′, beside the landed objects;
+  `Spine/LFOldHS2.lean`).** (D3) the datum of the local pair is the restriction of the global mixed lift
+  (`holeStepLoc2`: `θ = z ψ_{k+1}` on every block of `Ω_{k+1}`, `ψ_k` elsewhere; `holeStepLoc2_D'_Ψ_eq`: it is the
+  datum of the step at the common data sites; `holeStepLoc2_D'_Ψ_congr`: it does not read `ψ_k` on `Ω_{k+1}`).
+  (D2) the local set `V₂(X, J) = locSetXJ (X^{∼3}) J` (`stencilX`, `locSetXJ2`): its core is the `r`-collar of
+  `Ω_{k+1} ∩ X^{∼3}`, so for `r′ ≥ L^{k+1+m₁}` the sites of `Ω_{k+1}` read by the cube tests of the H7 domain of `X`
+  are unit points of the local pair (`mem_top_locG'_locSetXJ2`); the parameter core `X₁` (the `r`-collar of `A_X`,
+  where the decoupling parameters are `1`) is unchanged. The resummation at a mark site holds for these local sets:
+  `oldResumSite2_holds` (`OldResumSiteAt stencilX`), from the core `oldResumSiteAt_holds` with the cell count
+  `card_cells_stencilCore_le` (`#cells_{k+1}(Ω_{k+1} ∩ X^{∼3}) ≤ 9^d c₁ (1 + d_k(X))`: a cube within 3 cubes of
+  `u ∈ X` whose coarse cube is in `Ω_{k+1}` forces `u ∉ Z_k`, P5 (2.3)); the landed `oldResumSite_holds` is the
+  instance `σ = id`, `c_S = c₁` of the same core (the bodies of `markBase`, `markSite`, `GoodJ`, `famAt`,
+  `OldResumSite` are now built from `markBaseAt`, `markSiteAt`, `GoodJAt`, `famAtAt`, `OldResumSiteAt`,
+  definitionally equal; landed statements unchanged). (D1) the named inputs ask the H7 domain at a set `Y_f`
+  containing the cubes of `𝕋_k` and `𝕋_{k+1}` within 3 cubes of the sites read (`CubesNearIn`).
+  Restated named inputs: `H7MixedInnerLoc2` (for every `X`, `J`, with `V = V₂(X, J)`; open) and `H7MixedDatumLoc2`
+  (for every `V`; open, and false at zero sharp mass with the present cube domains, as for its predecessor; it is
+  stated for the cube domains of the ruling request R14), with `h7Domain_composedMulti_loc2`. Not yet done: the
+  chain of pieces 5c–5q (coefficient, marks, cluster terms, `oldB` and its bound) on `holeStepLoc2` and `V₂`; it
+  waits for the decision on R14, which changes its domain hypotheses.
+- **Reading HS-2, the chain on the local pairs (W1154c, 2026-10-21).** Pieces 5c–5q and W1158's coefficient clauses are
+  cores over the readings of the local pair (`Spine/LFHoleStepLoc` … `Spine/LFOldBBound`, `Spine/LFOldD7*Loc`): the
+  datum is a parameter `glob` of `holeStepLocAt` (`locTop`: the top set of the mixed lift is the global top layer
+  `Ω_{k+1}` for `glob = true`, the top layer of the restricted set for `glob = false`), the local set of a label `X` is
+  `V(σ X, J)`; the landed HS-1′ objects are the instances `glob = false`, `σ = id` (statements unchanged, bodies calls
+  of the cores; `holeStepLoc` is now an `abbrev`). The cores take, in place of the named inputs, the two local
+  conditions they use (`hD`: the datum in `Ψ̃^c(δ_b, δ_b)`; `hdom`: the composed multiscale field in the source H7
+  domain at `X`), and at an output label `Y` the conditions for the old labels and families whose mark sites lie in
+  `T` with `Ŷ(T) = Y` (`hloc`). Instances for HS-2 (`glob = true`, `σ = stencilX`): `oldCoefLoc2`,
+  `norm_oldCoefLoc2_le_of_inputs`, `oldB2`, **`norm_oldB2_le`** (`Spine/LFOldHS2Chain`; conditional on
+  `H7MixedInnerLoc2`, `H7MixedDatumLoc2`, with `OldResumSiteAt stencilX` proved by `oldResumSite2_holds`) and the
+  coefficient clauses `oldCoefLoc2_rot`, `_im`, `_congr_fields`, `_analytic_family(_LF)`, `_euclid`,
+  `holeStepLoc2_congr_hist_Z`, `stepReadsIn_outLabel2` (`Spine/LFOldHS2D7`).
+  **Amendment of D1 (W1154c).** The named inputs of HS-2 ask the cubes of `𝕋_{k+1}` *of* the sites read to lie in `Y_f`
+  (`CubesOfIn`; for `H7MixedInnerLoc2` the sites of the stencil `X^{∼3}` and the data sites of `G′_V`, for
+  `H7MixedDatumLoc2` the data sites), not the cubes *within 3 cubes* of them (`CubesNearIn`, removed): the output label
+  `Ŷ(T)` has no margin around the mark site (its `π′`-cubes start at the cells of the base sites), so the 3-neighbourhoods
+  do not lie in it, while every site of `Ŷ(T)` has its cube there (`cubesOfIn_fineSet`); every site read is still read
+  by the test at its own cube, which also reads its neighbours. The stencil of an old label lies in `Ŷ(T)`
+  (`d7Pull_stencilX_subset_outLabel`: it is connected, `siteConnected_d7Pull_stencilX`, and its sites in `Ω_{k+1}` are
+  sites of the core of `V₂(X, J)`, hence of the mark site). With this the conditions of the cores at an output label
+  follow from the two named inputs (`locConds_of_h7MixedLoc2`).
+  **The remaining inputs (open).** `H7MixedInnerLoc2` is P5 Lemma 2.1 in the complex domains (Balaban: "we will have to
+  prove a more general statement in Sect. 2 of the third paper"): for the cubes of `𝕋_k` near `Ω_{k+1}` the composed field
+  `ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂` passes the scale-`k` cube tests; its proof needs the datum of the local
+  pair in the domain of I-4b (the background bounds; without it `decBgField` is `0`), the comparison of the background of
+  the cube set `G_k(□)` at the composed field with the background of the local pair, and room conditions on `r_ψ`, `R`
+  and the tolerances (the named input has none, so it is a schematic statement to be proved under them).
+  `H7MixedDatumLoc2` waits for R14.

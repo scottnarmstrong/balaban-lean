@@ -20,6 +20,8 @@ at the complete mass are the landed ones:
 * `premisesTermAnisoInf_of_v2`, `renormalization_aniso_of_v2`: the statements of the second
   version, applied to the image of `toXi`, are the landed statements
   `Def6.IsSFFamily.premisesTermAnisoInf`, `Def6.IsSFFamily.renormalization_aniso` in that regime.
+  Both take, besides the strong specification of the generating sets, their specification as the
+  local sets `𝔹_j(X̂)` (`GsSpec.HatSpec`, ruling R13), a field of the second version.
 
 Below the switch of the landed class (`β_k ν_k ≤ 1`) there is no comparison: the landed class has
 backgrounds of mass `0` and the second version backgrounds of mass `ν_k L^{-2k} > 0`
@@ -86,7 +88,9 @@ its complete regime, the statement `IsSFFamily2.premisesTermAnisoInf` of the sec
 member `toXi` is the landed statement `Def6.IsSFFamily.premisesTermAnisoInf`. -/
 theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek)
     (hS : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
-      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X)) (hd : 3 ≤ d) (hL : 3 ≤ L)
+      GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X))
+    (hH : ∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X →
+      GsSpec.HatSpec P.m₀ j X ((Tm N₁).gs j X)) (hd : 3 ≤ d) (hL : 3 ≤ L)
     (hϱ : bgR0 d L ≤ ϱ) (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     (hκ : aEnt d L + 3 ≤ P.κ) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) :
@@ -95,7 +99,7 @@ theorem premisesTermAnisoInf_of_v2 (hF : IsSFFamily P β ν a Tm ρd Ek)
       (diamA d L P.m₀ m₁)
       ((c1 d L * ((L : ℝ) ^ (P.m₀ + m₁)) ^ d) ^ 2 * (Nat.factorial 8 * Real.exp 1) *
         K0 d L (P.κ - 2)) (liftDomInf P β ν a Tm j i₀) := by
-  have h := (hF.toXi 0 hS hμ).premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
+  have h := (hF.toXi 0 hS hH hμ).premisesTermAnisoInf hd hL hϱ hj1 hjk hsmall hκ hne
   rw [liftDomInfM_complete hμ 0] at h
   exact h
 
@@ -114,7 +118,9 @@ theorem renormalization_aniso_of_v2 (d L N m₁ : ℕ) [NeZero L] (P : Consts)
         (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ),
       IsSFFamily P β ν a Tm ρd Ek →
       (∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
-        GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X)) → 1 < β k * ν k → ∀ (j : ℕ), MomNum d L N k j ϱ P →
+        GsSpec.GsSpecStrong j hjk X ((Tm N₁).gs j X)) →
+      (∀ (N₁ : ℕ) [NeZero N₁], ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X →
+        GsSpec.HatSpec P.m₀ j X ((Tm N₁).gs j X)) → 1 < β k * ν k → ∀ (j : ℕ), MomNum d L N k j ϱ P →
       ∀ (i₀ i₁ : Fin N), i₁ ≠ i₀ →
       ∀ (ψ : Site d → Spin N) (b : Spin N) (σ ε K₂ : ℝ),
       DataHypAniso (avgDom P β ν a Tm j i₀ (nuIdeal L k (ν k) j)) (nuIdeal L k (ν k) j) σ ε K₂
@@ -144,9 +150,9 @@ theorem renormalization_aniso_of_v2 (d L N m₁ : ℕ) [NeZero L] (P : Consts)
           (dot (ψT (y + liftSite ℓ z)) (ψT (y + liftSite ℓ z)) - dot (ψT y) (ψT y)) = 0 := by
   obtain ⟨C, hC0, hC⟩ := IsSFFamily2.renormalization_aniso d L N m₁ P hP Λ Ksig hΛ hKsig
   refine ⟨C, hC0, ?_⟩
-  intro k ϱ β ν a Ek Tm ρd hF hS hβν
+  intro k ϱ β ν a Ek Tm ρd hF hS hH hβν
   have hμ : physMass L k (ν k) = Def6.bgMass L k (β k) (ν k) := physMass_eq_bgMass_of_lt hβν
-  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hS hμ)
+  have h := hC k ϱ ⟨0, ν⟩ β a Ek Tm _ (hF.toXi 0 hS hH hμ)
   simp only [avgFamilyAM_complete hμ 0, avgDomM_complete hμ 0] at h
   exact h
 

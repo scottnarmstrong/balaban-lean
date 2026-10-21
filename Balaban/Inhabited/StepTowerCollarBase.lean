@@ -120,6 +120,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_base_onSet_dec_agree_colla
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.κ T.BG T.t δ₃
           (levelKc d L) (Cchi d L) T.c₂ T.BG₂ δ₁ δfl (X₁f τ)) ∧
+        (ClassHatCond C s r₀ → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀ {cψ : ℝ} (_ : 0 ≤ cψ)
         (_ : HatConn S.G')
         (_ : RowInHat (coverOf S.G') (stepG d L N₁ T.m₁ k ϱ) (compWeight L S.a₁) S.ν)
@@ -282,9 +283,12 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_base_onSet_dec_agree_colla
           (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
+        (NewLevelFormulaW S C z Jr
           ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, ρ, C.m₀, T.c, r₀, δ₃, levelKc d L,
-            Cchi d L, T.c₂, δfl⟩ e →
+            Cchi d L, T.c₂, δfl⟩ e ∧
+          (ClassHatCond C s r₀ → NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, ρ, C.m₀, T.c, r₀, δ₃, levelKc d L,
+            Cchi d L, T.c₂, δfl⟩ e)) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +
@@ -336,14 +340,14 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_base_onSet_dec_agree_colla
   have hβS : 0 < (T.step k hk N₁ ν β p₁).β := by
     show 0 < β
     linarith
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom (rhoSepG d L T.m₁)
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom (rhoSepG d L T.m₁)
     (rhoSepG d L T.m₁) (rhoSepG d L T.m₁) T.c T.BG T.κ r₀ δ₃ (levelKc d L) (Cchi d L) T.c₂ T.BG₂ δ₁
     δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN (by have := T.hd; omega) s hms
     hidx hmin (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hmin
     (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))
     (X₀' := dataSites (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁))) (X₁f' := Finset.univ)
     (X₁f'' := Finset.univ) (j₁ := 1) hB0 hF0
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
+  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, ?_⟩
   intro cψ hcψ hconn hrow κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hrate
     F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C
     h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum
@@ -628,7 +632,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_base_onSet_dec_agree_colla
     hp₁ Dt hϱ S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hmd s hms hidx hmin hr₁ hr₂ hnumB hnumF hδ₁T
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @H' C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hmd s hms hidx hmin hr₁ hr₂ hnumB hnumF hδ₁T
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @H' C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hmd s hms hidx hmin hr₁ hr₂ hnumB hnumF hδ₁T
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hconn hrow κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum Φ hΦ
   exact @HG cψ hcψ hconn hrow κdec hκ 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum Φ (fun e B hc _ hb => hΦ e B hc hb)

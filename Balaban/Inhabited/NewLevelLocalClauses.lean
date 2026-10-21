@@ -455,7 +455,9 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
       (NS.O.κ / 2 - 1) / 2)
     (hρL : 0 < NS.O.ρ) (hρcL : NS.O.ρ ≤ cψL)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
-      NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
+      NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
       markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     (hF₁Lan : ∀ τ, AnalyticOnNhd ℂ (F₁L' τ) {q | (∀ P, ‖q.1 P‖ < Real.exp NS.O.κ) ∧
@@ -512,7 +514,7 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
       ‖(S.β : ℂ)⁻¹ * NS.O.Eτ τ r‖ ≤
         Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ)))
     -- the bounds in the class form
-    {εH κ' : ℝ}
+    {εH κH κ' : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -520,10 +522,10 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -539,10 +541,10 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
         (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}))
     (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ')
-    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1)
+    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 +
       rootUnionK d L 1 m₁ NS.Z.κ0) + rootUnionK d L 1 m₁ NS.Z.κ0) ^ 3 * c1 d L *
-      Real.exp ((2 * κdec - 1 - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
+      Real.exp ((κH - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
     -- the determinant part
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp NS.κ) < 1)
     -- the polymer
@@ -558,8 +560,9 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
   have key := NS.coeffLoc_analytic_bound_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1 hle HB' hd SpG hS Sb
     hC hMX hCx hMX' hδc hmarD hαD hsm hcψ hBG₂ hdk hHm hHmtop hrow hκ₀ hκdec hκκ h1 hlog hρc hδ₁c
     hR₁ hr hrays hR hRR hUR hU hF₂an hF₂s' hSol₂an hSol₂' hF₁ban hF₁b' hSolban hSolb' hSL SbL hCL
-    hMXL hCxL hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L' hSolLan hSolL'
-    hcovL hX₁L hoptL hEb (fun τ h => (hΦ' τ h).1) (fun τ h => (hΦ' τ h).2) hεz hεo hFb hFo hεpos hι
+    hMXL hCxL hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL hca haL ht₀ hRt hF₁Lan hF₁L'
+    hSolLan hSolL' hcovL hX₁L hoptL hEb (fun τ h => (hΦ' τ h).1) (fun τ h => (hΦ' τ h).2) hκH hεz
+    hεo hFb hFo hεpos hι
     hF0 hκ' hκ hε hz Zb Φ₀ T hTm
   exact ⟨max 0 (
           Zb.card * ((1 / 2 : ℝ) * N * covBLog d L (compWeight L S.a₁ k) (S.a₁ / (L : ℝ) ^ 2)
@@ -567,7 +570,7 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
             Real.exp (-((NS.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
               (2 * d * L)) * dExt T)) +
           CPE d L (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 + rootUnionK d L 1 m₁ NS.Z.κ0) +
-              rootUnionK d L 1 m₁ NS.Z.κ0) (2 * κdec - 1) NS.Z.κ0 κ' *
+              rootUnionK d L 1 m₁ NS.Z.κ0) κH NS.Z.κ0 κ' *
             (∑ i, F0 i * Real.exp (-NS.Z.κ0 * NS.Lab.dl (NS.y0 i))) * Real.exp (-κ' * dExt T)),
     le_max_left _ _, key.1, fun θb hθb => (key.2 θb hθb).trans (le_max_right _ _)⟩
 
@@ -660,7 +663,9 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
       (NS.O.κ / 2 - 1) / 2)
     (hρL : 0 < NS.O.ρ) (hρcL : NS.O.ρ ≤ cψL)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
-      NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
+      NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
       markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     (hF₁Lan : ∀ τ, AnalyticOnNhd ℂ (F₁L' τ) {q | (∀ P, ‖q.1 P‖ < Real.exp NS.O.κ) ∧
@@ -717,7 +722,7 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
       ‖(S.β : ℂ)⁻¹ * NS.O.Eτ τ r‖ ≤
         Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ)))
     -- the bounds in the class form
-    {εH : ℝ}
+    {εH κH : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -725,10 +730,10 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -760,10 +765,11 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
         NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' Zb Φ₀ θb T := by
   have hΦ' := NS.oldFun_fields_of HB' hdk hHm hCL hb₁ hbC hBo hFLo hGs hrb hFkan hEan hEbd
   obtain ⟨h0m, h0b, h0h, h0c⟩ := NS.zeroAct_fields_of F₂' Sol₂' hS1 HB' hS Sb hC hMX hCx hmarD hαD
-    hsm hcψ hBG₂ hdk hHm hκ₀ hκdec hκκ h1 hlog hδ₁c hR₁ hr hrays hF₂an hF₂s' hSol₂an hSol₂' hεz T
-    hTm
+    hsm hcψ hBG₂ hdk hHm hκ₀ hκdec hκκ h1 hlog hδ₁c hR₁ hr hrays hF₂an hF₂s' hSol₂an hSol₂' hεz hκH
+    T hTm
   obtain ⟨h1m, h1b, h1h, h1c⟩ := NS.oldAct_fields_of F₁L' SolL' hS1 HB' hHm hκ₀ hκdec hSL Sb hCL
-    hMXL hCx hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL hF₁Lan hF₁L' hSolLan hSolL' hcovL
+    hMXL hCx hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL hca haL hF₁Lan hF₁L' hSolLan hSolL'
+    hcovL
     hX₁L hoptL hEb (fun τ h => (hΦ' τ h).1) (fun τ h => (hΦ' τ h).2) hεo T hTm
   obtain ⟨hGm, hGb, hGh, hGc⟩ := NS.marks_fields_of F₁L' SolL' F₁b' Solb' hS1 HB' hd SpG hS Sb hC
     hMX hCx hMX' hmarD hαD hsm hcψ hBG₂ hdk hHm hHmtop hrow hκ₀ hκdec hκκ h1 hlog hρc hR hRR hUR hU
@@ -854,7 +860,9 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
       (NS.O.κ / 2 - 1) / 2)
     (hρL : 0 < NS.O.ρ) (hρcL : NS.O.ρ ≤ cψL) (hρpL : S.p₁ ≤ NS.O.ρ)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
-      NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
+      NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
       markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     -- the settings of the old terms
@@ -964,7 +972,7 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
           Dec2.DecFixed (coverOf Gl) Gd (compWeight L S.a₁) S.ν p.1 false p.2.2.1 p.2.1
             (pertSource Gd (compWeight L S.a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (SolL' τ p).2))
     -- the bounds in the class form and the numerical conditions of Theorem 3.4
-    {εH κ' : ℝ}
+    {εH κH κ' : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -972,10 +980,10 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -990,10 +998,10 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
         (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}))
     (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ')
-    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1)
+    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 +
       rootUnionK d L 1 m₁ NS.Z.κ0) + rootUnionK d L 1 m₁ NS.Z.κ0) ^ 3 * c1 d L *
-      Real.exp ((2 * κdec - 1 - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
+      Real.exp ((κH - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp NS.κ) < 1)
     -- the polymer, the chain's family and the read datum
     (Φ₀ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b) (hΦ₀ : ∀ b u, Φ₀ b u = 0)
@@ -1084,11 +1092,11 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
         (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
         (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL Sb hCo hMXLd hCx hdmL
         hαL hsmL hcψL hκκL h1L hlogL
-    hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L'
+    hρL hρcL hRuL hca haL ht₀ hRt hF₁Lan hF₁L'
         (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩)
         (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁
         hbC hBo hFLo hGs
-    hrb hFkan hEan hEbd hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz (maskPre S.hG' Gl (S.blockU z)) Φ₀
+    hrb hFkan hEan hEbd hκH hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz (maskPre S.hG' Gl (S.blockU z)) Φ₀
     T hTm
   refine ⟨bT, hbT, han, hbd, ?_, ?_, ?_⟩
   · exact NS.clause_local_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1 SpG hCz' hdtop hHmtop hrow hcψ hMXn
@@ -1102,10 +1110,10 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
           (fun b p hp hs => hSol₂' b p hp (strictDataM_mono_left hle0 hs)) hF₁ban hF₁b'
           (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
       (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL hCo hMXLd hdmL hαL hsmL
-          hcψL hκκL h1L hlogL hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L'
+          hcψL hκκL h1L hlogL hρL hρcL hRuL hca haL ht₀ hRt hF₁Lan hF₁L'
       (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩)
           (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁
-          hbC hBo hFLo hGs hrb hFkan hEan hEbd hεz hεo hFb
+          hbC hBo hFLo hGs hrb hFkan hEan hEbd hκH hεz hεo hFb
       hFo hεpos hF0 hρ₀c hρp hρpL hRu hAl hSS hM hMXLn hEr (maskPre S.hG' Gl (S.blockU z)) Φ₀ hΦ₀ T
       hTm
   · exact NS.coeffLoc_read_of hAl hSS hPd hdk hdtop hN hm₁ hM hag

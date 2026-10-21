@@ -8,6 +8,8 @@ module
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
 public import Balaban.Inhabited.StepTowerCollarCore
 public import Balaban.Inhabited.StepTowerCollarGNum
+public import Balaban.Fluctuation.HatSetGeom
+public import Balaban.Fluctuation.OldTermsLiftHat
 
 /-!
 # The class chain with the per-label bound in `d(X)` at a general collar (`StepTowerCollarX`)
@@ -106,6 +108,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν cB BG κ r₀ T.t δ₃ (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν κ BG T.t δ₃
           KcL Cx c₂ BG₂ δ₁ δfl (X₁f τ)) ∧
+        -- in the regime of ruling R13 the terms are composed on the generating sets of the class
+        (ClassHatCond C s r₀ → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀ {cψ : ℝ} (_ : 0 ≤ cψ)
         (_ : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ T.m₁) {δc : ℝ}
         (_ : decDomMargin d L N BG κ (xiC1 d * T.t) < δc)
@@ -282,8 +286,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
           (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
-          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e →
+        NewLevelFormulaW S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e ∧
+        (ClassHatCond C s r₀ → NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +
@@ -350,18 +356,44 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
     rw [hXL τ]
     exact isPolyDom_union (hXp τ) (isPolyDom_cubeAt hN ((hjk τ).trans (Nat.le_succ k)) τ.1.2.1)
       (hy τ) (mem_cubeAt τ.1.2.1)
-  -- the per-label settings
+  -- the per-label settings: in the regime of ruling R13 each term is composed on the generating set
+  -- `𝔹_j(X̂)` of the class, otherwise on `𝔹_j(XL τ)`
   have h81 : L ^ s ∣ N₁ := (pow_dvd_pow L hm7).trans hN
   obtain ⟨N₁', hN1', hc⟩ := exists_finer_torusG T.m₁ s h81
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg⟩ := settings_family_castLocalB_spec (N₁' := N₁')
-    (m₁' := T.m₁ + s) hc S.hG' hB0 hF0 S.hG (by have := T.hL; omega) (m₀ := C.m₀) hN (by omega)
-    (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) XL 𝒦X hj1 hjk hXLpoly hcov hϱ₁ (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hs₁
-    hrho (c₁ := L ^ s) (le_of_eq (pow_add L T.m₁ s)) hr₀
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg, hGjC⟩ : ∃ (Gk : {τ // τ ∈ 𝒯E} →
+        GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱ₁)
+      (Gj : {τ // τ ∈ 𝒯E} → GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) (rhoSepG d L T.m₁))
+      (X₀ X₁f : {τ // τ ∈ 𝒯E} → Finset (CTorus d L N₁ T.m₁ (k + 1))),
+      (∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ T.m₁ (k + 1))) = X1 S.G' C.m₀ τ.1.1 (𝒦X τ)) ∧
+      (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν cB BG κ r₀ T.t δ₃ (X₀ τ) (X₁f τ) τ.1.1) ∧
+      (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) S.a₁ S.ν κ BG T.t
+        δ₃ KcL Cx c₂ BG₂ δ₁ δfl (X₁f τ)) ∧
+      (∀ (τ : {τ // τ ∈ 𝒯E}) (h : τ.1.1 ≤ k + 1), GsSpecStrong τ.1.1 h (XL τ) (Gj τ)) ∧
+      (ClassHatCond C s r₀ → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) := by
+    by_cases hH : ClassHatCond C s r₀
+    · obtain ⟨hidx', hsc, hslt, hHatC⟩ := hH
+      obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg, hGjeq⟩ := settings_family_castLocalB_hat
+        (N₁' := N₁') (m₁' := T.m₁ + s) hc S.hG' hB0 hF0 S.hG (by have := T.hL; omega) hN
+        (by omega) (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) XL 𝒦X (fun τ => τ.1.2.2) hj1 hjk hXp
+        (fun τ => by rw [hXL τ]; exact Set.subset_union_left)
+        (fun τ => by rw [hXL τ]; exact union_cubeAt_subset_hatSet (hy τ)) hcov hϱ₁
+        (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hs₁ hrho (c₁ := L ^ s) (le_of_eq (pow_add L T.m₁ s))
+        hidx'
+      refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg, fun _ τ => (hGjeq τ).trans ?_⟩
+      subst hsc
+      exact (Balaban.Fluctuation.HatSpec.eq_castLocalB (hHatC τ.1.1 (hj1 τ) (hjk τ) τ.1.2.2 (hXp τ))
+        hslt hrho (Nat.le_succ_of_le (hjk τ)) hc).symm
+    · obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg⟩ := settings_family_castLocalB_spec
+        (N₁' := N₁') (m₁' := T.m₁ + s) hc S.hG' hB0 hF0 S.hG (by have := T.hL; omega)
+        (m₀ := C.m₀) hN (by omega) (fun τ : {τ // τ ∈ 𝒯E} => τ.1.1) XL 𝒦X hj1 hjk hXLpoly hcov
+        hϱ₁ (bgR0_le_rhoSepG T.m₁ T.hd T.hL) hs₁ hrho (c₁ := L ^ s)
+        (le_of_eq (pow_add L T.m₁ s)) hr₀
+      exact ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hSg, fun h => absurd h hH⟩
+  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ
     hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL
     hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴
-    H hH εC hεC0 hmr hsa hεC hE hεnum
+    H hH εC hεC0 hmr hsa hεC hE hεnum Φ hΦ
   have hκ1 : 1 ≤ κdec := by linarith
   have hE1 : 0 ≤ Real.exp ((κdec - 1) * cG d L) := (Real.exp_pos _).le
   have hBτ' : ∀ τ, 0 ≤ Bτ τ * (Real.exp ((κdec - 1) * cG d L)) := fun τ => mul_nonneg (hBτ τ) hE1
@@ -391,7 +423,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
     hlog 𝒮 hchart (fun τ => Bτ τ * Real.exp ((κdec - 1) * cG d L)) hBτ' hEbd' (CI * Real.exp ((κdec - 1) * cG d L)) (KL * Real.exp ((κdec - 1) * cG d L)) α₃ n₁ hCI' hKL' hα₃
     hEbI' hEbL' hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR
     hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE
-    hεnum
+    hεnum Φ (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, fun hHat => hnl.2 (hGjC hHat)⟩ hB)
 
 open Classical in
 /-- The class chain (XCollar), with `B` bounded by an explicit constant. -/
@@ -666,7 +698,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi {
     hp₁ Dt hϱ S hS hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @H' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @H' C z 𝒯E h𝒯 P Dom ϱ₁ ϱ₀ ϱ₃ cB BG κ r₀ δ₃ KcL Cx c₂ BG₂ δ₁ δfl bL hb₁ hbC hm hcl hβS hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm0 s hm7 hr₀ hrho hϱ₁ hs₁ Gk0 Gj0 X₀' X₁f' X₁f'' j₁ hB0 hF0
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum Φ hΦ
   exact @HG cψ hcψ hMX δc hdm hα hsm hconn hrow κdec κ₀ hκ₀ hκdec hκ h1 hlog 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hc7 R hR hsmR hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE hεnum Φ (fun e B hc _ hb => hΦ e B hc hb)

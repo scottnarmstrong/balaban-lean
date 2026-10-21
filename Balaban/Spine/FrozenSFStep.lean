@@ -149,14 +149,14 @@ theorem frozenSFStepInput_of_parts {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB 
   have hcls : SFFlatClassAt d N (T κ c₉).L (P6 κ c₉) (C7 κ c₉).m₁ (ϱ κ c₉) (cs₀ κ c₉).aKer β ν k
       F.sf ∧ F.sf.ν k * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 := ⟨hsf0, by rw [hνk]; exact hνkL⟩
   obtain ⟨hcst, hfree', hz, hTm⟩ := h₁ β hb₁ ν hν hνL k hk1 hk0 hhor F.sf hcls
-  obtain ⟨hnew, hgsnew, hTInew⟩ := h₂ β hb₂ ν hν hνL k hk1 hk0 hhor F.sf hcls
+  obtain ⟨hnew, hgsnew, hhatnew, hTInew⟩ := h₂ β hb₂ ν hν hνL k hk1 hk0 hhor F.sf hcls
   obtain ⟨hC', hR'⟩ := h₃ β hb₃ ν hν hνL k hk1 hk0 hhor F.sf hcls
   have hreal := h₄ β hb₄ ν hν hνL k hk1 hk0 hhor F.sf hcls
   have hRtm := h₅ β hb₅ ν hν hνL k hk1 hk0 hhor F.sf hcls
   have hD8n := h₆ β hb₆ ν hν hνL k hk1 hk0 hhor F.sf hcls
   obtain ⟨hcl, hD8, -, hfreeOld, -, -, hrunOld, hν910⟩ := hsf0
   obtain ⟨hD2', hD8', hD9'⟩ := sfFlatSucc_clauses hd (hL) (hϱ) hk1 hcl hD8 hν910 hfreeOld hrunOld
-    hcst hfree' hTm hnew hgsnew hTInew hC' hR' hreal hRtm hD8n
+    hcst hfree' hTm hnew hgsnew hhatnew hTInew hC' hR' hreal hRtm hD8n
   have hkK' : k + 1 ≤ kf + 1 := by omega
   have hafree : ∀ j, 1 ≤ j → j ≤ k + 1 →
       (Φ κ c₉ β ν k F.sf).a j = compWeight (T κ c₉).L (cs₀ κ c₉).aKer j := by
