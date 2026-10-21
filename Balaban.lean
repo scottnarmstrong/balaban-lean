@@ -3203,3 +3203,4 @@ public import Balaban.LargeField.R.WindowDuBound
 public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.LargeField.R.WindowDuRunning
 public import Balaban.LargeField.R.WindowSingle
+public import Balaban.LargeField.R.WindowConvPhysCoefPiece

@@ -25,8 +25,8 @@ variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {U : Type*} {S : Set U} {
   {sc : ι → ℕ} {k1 k : ℕ}
 
 /-- **The window family of one piece.** -/
-def PieceWindowSetup.single (W : PieceWindowSetup d L N₀ K N S ι sc k1 k) (i : ι) :
-    PieceWindowSetup d L N₀ K N S PUnit (fun _ => sc i) k1 k where
+@[reducible] def PieceWindowSetup.single (W : PieceWindowSetup d L N₀ K N S ι sc k1 k) (i : ι) :
+    PieceWindowSetup d L N₀ K N S PUnit.{1} (fun _ => sc i) k1 k where
   sc_mem := fun _ => W.sc_mem i
   ϱw := W.ϱw
   Gw := W.Gw
