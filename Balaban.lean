@@ -3290,3 +3290,12 @@ public import Balaban.Green.FinalBoxLocW5
 public import Balaban.Green.FinalBoxLocTies
 public import Balaban.Green.FinalBoxLocK
 public import Balaban.Green.FinalBoxLocParam
+public import Balaban.Inhabited.NewLevelCastNbhd
+public import Balaban.Inhabited.NewLevelCubeImage
+public import Balaban.Inhabited.NewLevelCanonCast
+public import Balaban.Inhabited.NewLevelCanonCastGeom
+public import Balaban.Inhabited.NewLevelCanonReg
+public import Balaban.LargeField.R.WindowDuRunning
+public import Balaban.Spine.FinalBoxLocChi
+public import Balaban.Green.FinalBoxLocSum
+public import Balaban.Inhabited.NewLevelHatTop

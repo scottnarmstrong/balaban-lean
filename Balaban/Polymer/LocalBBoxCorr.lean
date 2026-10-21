@@ -211,6 +211,33 @@ theorem inBox_of_near {N₀ : ℕ} {x y : Torus d N₀} {R b : ℕ} (hy : InBox 
   rw [Nat.cast_add]
   linarith
 
+/-- **A site within `5 L` cubes of a site of the box lies in the enlarged box.** -/
+theorem inBox_of_cubeNear {n : ℕ} (hnk : n ≤ k) {R : ℕ} {x y : CTorus d L N₁ m₁ k}
+    (hyb : InBox d R ((N₁ * L ^ m₁) * L ^ k) y)
+    (hm : 2 * (R + (5 * L + 2) * (L ^ n * L ^ m₁)) < N₁ * L ^ m₁ * L ^ k)
+    (hd : supDist (fineCubeIdx (L ^ m₁) N₁ L k n
+          (GsSpec.torusCast x : Torus d (L ^ m₁ * N₁ * L ^ k)))
+        (fineCubeIdx (L ^ m₁) N₁ L k n
+          (GsSpec.torusCast y : Torus d (L ^ m₁ * N₁ * L ^ k))) ≤ 5 * L) :
+    InBox d (R + (5 * L + 1) * (L ^ n * L ^ m₁)) ((N₁ * L ^ m₁) * L ^ k) x := by
+  have hs0 : 0 < L ^ n * L ^ m₁ :=
+    Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
+  have hsz : (0 : ℤ) < ((L ^ n * L ^ m₁ : ℕ) : ℤ) := by exact_mod_cast hs0
+  have hQy : ∀ μ, |(y μ).valMinAbs / ((L ^ n * L ^ m₁ : ℕ) : ℤ)| ≤
+      (R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 := fun μ => abs_ediv_le hsz (hyb μ)
+  have hc : 2 * ((R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 + (5 * L : ℕ)) + 2 <
+      ((N₁ * L ^ (k - n) : ℕ) : ℤ) :=
+    cube_margin (a := N₁ * L ^ m₁ * L ^ k) (s := L ^ n * L ^ m₁) (c := N₁ * L ^ (k - n))
+      (ρ := R) (m := 5 * L) (cube_card_eq hnk) hs0 hm
+  have hQ := (supDist_fineCubeIdx_le_iff hnk x y hQy hc).1 hd
+  have hnear : ∀ μ, |(x μ).valMinAbs - (y μ).valMinAbs| ≤ (((5 * L + 1) * (L ^ n * L ^ m₁) : ℕ) : ℤ) := by
+    intro μ
+    have := abs_sub_le_of_quot (ξ := (x μ).valMinAbs) (ξ' := (y μ).valMinAbs) (m := 5 * L) hsz
+      (by exact_mod_cast hQ μ)
+    push_cast at this ⊢
+    exact this
+  exact inBox_of_near hyb hnear
+
 /-- **One step of the support of the local generating set.** -/
 theorem localB_support_step {j n : ℕ} (hj : j ≤ k) (hn : n < j) {X : Set (CTorus d L N₁ m₁ k)}
     {hsep : ϱ ≤ minSep L (L ^ m₁)} {R : ℕ}
@@ -220,24 +247,62 @@ theorem localB_support_step {j n : ℕ} (hj : j ≤ k) (hn : n < j) {X : Set (CT
   intro x hx
   rw [mem_localB_Ω_succ hn] at hx
   obtain ⟨y, hy, hd⟩ := hx
-  have hs0 : 0 < L ^ n * L ^ m₁ :=
-    Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
+  exact inBox_mono (Nat.add_le_add_left (side_bound (L := L) hn m₁) R)
+    (inBox_of_cubeNear (by omega) (sprev y hy) hm hd)
+
+/-- **One step of the recursion of the local generating set on two tori**: the sites of the cube-index
+neighbourhood (`5 L` cubes of side `L^n L^{m₁}`) of corresponding sets `S`, `S'` correspond. -/
+theorem exists_near_boxMap_iff {n : ℕ} (hnk : n ≤ k) {R ρx : ℕ} (hs0 : 0 < L ^ n * L ^ m₁)
+    {S : Set (CTorus d L N₁ m₁ k)} {S' : Set (CTorus d L N₁' m₁ k)}
+    (hS : ∀ y ∈ S, InBox d R ((N₁ * L ^ m₁) * L ^ k) y)
+    (hS' : ∀ y ∈ S', InBox d R ((N₁' * L ^ m₁) * L ^ k) y)
+    (eqv : ∀ y : CTorus d L N₁ m₁ k, InBox d R ((N₁ * L ^ m₁) * L ^ k) y → (bm y ∈ S' ↔ y ∈ S))
+    {x : CTorus d L N₁ m₁ k} (hx : InBox d ρx ((N₁ * L ^ m₁) * L ^ k) x)
+    (hmx : 2 * ρx + 1 < N₁' * L ^ m₁ * L ^ k)
+    (hmR : 2 * R + 1 < N₁' * L ^ m₁ * L ^ k) (hmRA : 2 * R + 1 < N₁ * L ^ m₁ * L ^ k)
+    (hcA : 2 * ((R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 + (5 * L : ℕ)) + 2 <
+      ((N₁ * L ^ (k - n) : ℕ) : ℤ))
+    (hcB : 2 * ((R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 + (5 * L : ℕ)) + 2 <
+      ((N₁' * L ^ (k - n) : ℕ) : ℤ)) :
+    (∃ y' ∈ S', supDist (fineCubeIdx (L ^ m₁) N₁' L k n
+          (GsSpec.torusCast (bm x) : Torus d (L ^ m₁ * N₁' * L ^ k)))
+        (fineCubeIdx (L ^ m₁) N₁' L k n
+          (GsSpec.torusCast y' : Torus d (L ^ m₁ * N₁' * L ^ k))) ≤ 5 * L) ↔
+    (∃ y ∈ S, supDist (fineCubeIdx (L ^ m₁) N₁ L k n
+          (GsSpec.torusCast x : Torus d (L ^ m₁ * N₁ * L ^ k)))
+        (fineCubeIdx (L ^ m₁) N₁ L k n
+          (GsSpec.torusCast y : Torus d (L ^ m₁ * N₁ * L ^ k))) ≤ 5 * L) := by
   have hsz : (0 : ℤ) < ((L ^ n * L ^ m₁ : ℕ) : ℤ) := by exact_mod_cast hs0
-  have hyb := sprev y hy
-  have hQy : ∀ μ, |(y μ).valMinAbs / ((L ^ n * L ^ m₁ : ℕ) : ℤ)| ≤
-      (R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 := fun μ => abs_ediv_le hsz (hyb μ)
-  have hc : 2 * ((R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 + (5 * L : ℕ)) + 2 <
-      ((N₁ * L ^ (k - n) : ℕ) : ℤ) :=
-    cube_margin (a := N₁ * L ^ m₁ * L ^ k) (s := L ^ n * L ^ m₁) (c := N₁ * L ^ (k - n))
-      (ρ := R) (m := 5 * L) (cube_card_eq (by omega)) hs0 hm
-  have hQ := (supDist_fineCubeIdx_le_iff (by omega) x y hQy hc).1 hd
-  have hnear : ∀ μ, |(x μ).valMinAbs - (y μ).valMinAbs| ≤ (((5 * L + 1) * (L ^ n * L ^ m₁) : ℕ) : ℤ) := by
+  have hQx : ∀ μ, ((bm x) μ).valMinAbs = (x μ).valMinAbs := fun μ =>
+    valMinAbs_boxMap (by omega) hx μ
+  have hQbound : ∀ {N₀ : ℕ} (z : Torus d N₀), InBox d R N₀ z → ∀ μ,
+      |(z μ).valMinAbs / ((L ^ n * L ^ m₁ : ℕ) : ℤ)| ≤ (R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 :=
+    fun z hz μ => abs_ediv_le hsz (hz μ)
+  constructor
+  · rintro ⟨y', hy', hd'⟩
+    have hyb' := hS' y' hy'
+    have hya : InBox d R ((N₁ * L ^ m₁) * L ^ k) (bm' y') :=
+      inBox_boxMap (by omega) hyb'
+    have hyy : bm (bm' y') = y' := boxMap_boxMap (by omega) hyb'
+    have hyΩ : bm' y' ∈ S := (eqv (bm' y') hya).1 (by rw [hyy]; exact hy')
+    have hQ' := (supDist_fineCubeIdx_le_iff hnk (bm x) y' (hQbound y' hyb') hcB).1 hd'
+    refine ⟨bm' y', hyΩ, (supDist_fineCubeIdx_le_iff hnk x (bm' y') (hQbound _ hya) hcA).2 ?_⟩
     intro μ
-    have := abs_sub_le_of_quot (ξ := (x μ).valMinAbs) (ξ' := (y μ).valMinAbs) (m := 5 * L) hsz
-      (by exact_mod_cast hQ μ)
-    push_cast at this ⊢
+    have := hQ' μ
+    rw [hQx μ] at this
+    have e2 : ((bm' y') μ).valMinAbs = (y' μ).valMinAbs := valMinAbs_boxMap (by omega) hyb' μ
+    rw [e2]
     exact this
-  exact inBox_mono (Nat.add_le_add_left (side_bound (L := L) hn m₁) R) (inBox_of_near hyb hnear)
+  · rintro ⟨y, hy, hd⟩
+    have hyb := hS y hy
+    have hbyb : InBox d R ((N₁' * L ^ m₁) * L ^ k) (bm y) := inBox_boxMap (by omega) hyb
+    have hyΩ : bm y ∈ S' := (eqv y hyb).2 hy
+    have hQ := (supDist_fineCubeIdx_le_iff hnk x y (hQbound y hyb) hcA).1 hd
+    refine ⟨bm y, hyΩ, (supDist_fineCubeIdx_le_iff hnk (bm x) (bm y) (hQbound _ hbyb) hcB).2 ?_⟩
+    intro μ
+    have := hQ μ
+    rw [hQx μ, valMinAbs_boxMap (by omega) hyb μ]
+    exact this
 
 /-- **The domains of the local generating sets of corresponding polymers correspond.** -/
 theorem localB_omega_boxMap {j : ℕ} (hj : j ≤ k) {X : Set (CTorus d L N₁ m₁ k)}
@@ -404,33 +469,9 @@ theorem localB_omega_boxMap {j : ℕ} (hj : j ≤ k) {X : Set (CTorus d L N₁ m
         |(z μ).valMinAbs / ((L ^ n * L ^ m₁ : ℕ) : ℤ)| ≤ (R : ℤ) / ((L ^ n * L ^ m₁ : ℕ) : ℤ) + 1 :=
       fun z hz μ => abs_ediv_le hsz (hz μ)
     rw [mem_localB_Ω_succ hn, mem_localB_Ω_succ hn]
-    constructor
-    · rintro ⟨y', hy', hd'⟩
-      have hyb' := sB y' hy'
-      have hya : InBox d R ((N₁ * L ^ m₁) * L ^ k) (bm' y') :=
-        inBox_boxMap (by omega) hyb'
-      have hyy : bm (bm' y') = y' := boxMap_boxMap (by omega) hyb'
-      have hyΩ : bm' y' ∈ (localB j hj X hsep).Ω (n + 1) :=
-        (eqv (bm' y') hya).1 (by rw [hyy]; exact hy')
-      have hQ' := (supDist_fineCubeIdx_le_iff hnk (bm x) y' (hQbound y' hyb') hcB).1 hd'
-      refine ⟨bm' y', hyΩ, (supDist_fineCubeIdx_le_iff hnk x (bm' y') (hQbound _ hya) hcA).2 ?_⟩
-      intro μ
-      have := hQ' μ
-      rw [hQx μ] at this
-      have e2 : ((bm' y') μ).valMinAbs = (y' μ).valMinAbs := valMinAbs_boxMap (by omega) hyb' μ
-      rw [e2]
-      exact this
-    · rintro ⟨y, hy, hd⟩
-      have hyb := sA y hy
-      have hbyb : InBox d R ((N₁' * L ^ m₁) * L ^ k) (bm y) := inBox_boxMap (by omega) hyb
-      have hyΩ : bm y ∈ (localB j hj X' hsep').Ω (n + 1) := (eqv y hyb).2 hy
-      have hQ := (supDist_fineCubeIdx_le_iff hnk x y (hQbound y hyb) hcA).1 hd
-      refine ⟨bm y, hyΩ, (supDist_fineCubeIdx_le_iff hnk (bm x) (bm y) (hQbound _ hbyb) hcB).2 ?_⟩
-      intro μ
-      have := hQ μ
-      rw [hQx μ, valMinAbs_boxMap (by omega) hyb μ]
-      exact this
-
+    exact exists_near_boxMap_iff (S := {y | y ∈ (localB j hj X hsep).Ω (n + 1)})
+      (S' := {y | y ∈ (localB j hj X' hsep').Ω (n + 1)}) hnk hs0 sA sB eqv hx hmargB
+      (by omega) (by omega) hcA hcB
 
 /-- **The domains of the local generating sets of corresponding polymers correspond on the whole
 box.** -/
