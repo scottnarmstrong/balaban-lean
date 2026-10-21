@@ -25,9 +25,11 @@ the properties of its activities in the fields, are the named input Proposition 
 * `HoleStep.Prop33On`: **Proposition 3.3 on a region at one field** (the core of the named input):
   the interaction localizes the exponent of the measure, holomorphically in the parameter;
 * `toFrame`: the site of the frame torus of a site of the cover torus of the step;
-* `markSite`: **the site of the mark of `(X, J)`**: the `π'_{k+1}`-cubes based at the cells of the
-  fine set of `X` and of the local set `V(X, J)`; `isPiPrimeUnion_markSite`,
-  `d7Pull_subset_markSite`, `toFrame_locSetXJ_subset_markSite`;
+* `optW`, `optW_spec`: the connecting structure of an optimal cover of an old label;
+* `markSite`: **the site of the mark of `(X, J)`**: the `π'_{k+1}`-cubes based at the cells of
+  `X ∩ Ω_{k+1}`, of `optW` and of the local set `V(X, J)` (not the holes of `X`);
+  `isPiPrimeUnion_markSite`, `d7Pull_inter_subset_markSite`, `optW_subset_markSite`,
+  `toFrame_locSetXJ_subset_markSite`;
 * `GoodJ`: the families `J` whose site is a set of `𝒟_{k+1}` meeting `Ω`;
 * `unitRep_mem_of_mem_locUnits`: the unit points of the local pair lie in the local set;
 * `oldMarkLF_depOn_markSite`: the mark depends only on the cubes inside its site;
@@ -83,14 +85,50 @@ def toFrame {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k
     (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) : CTorus S.d S.L F.N₁ m₁ K :=
   castT F.side.symm (fineOfC g hnn hM1 hk x)
 
-/-- **The site of the mark of `(X, J)`**, on the frame torus: the `π'_{k+1}`-cubes (side
-`L · cellSide`) based at the cells of the sites of the fine set of `X` and of the local set
-`V(X, J)` of the coefficient. -/
-def markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K) {k : ℕ}
-    (hk : k + 1 ≤ K) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+open Classical in
+/-- **The connecting structure of an optimal cover of an old label** (P3 (4.44)–(4.48), P6 p. 34): the
+sites `W` of an admissible pair `(𝒦, W, E)` of the fine set of `X` modulo the fine set of `Om` whose
+cost is the size `d7SizeAt F k Om X` (FLUCTUATION Definition 1.1); empty when there is none.  It joins
+the components of `X ∩ Ω_{k+1}` through the holes of `X` at a cost of order `d_k(X mod Ω_k^c)`. -/
+noncomputable def optW {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (k : ℕ)
+    (Om : Set (Torus S.d (n k))) (X : Finset (Torus S.d (n k))) :
+    Finset (CTorus S.d S.L F.N₁ m₁ K) :=
+  if h : ∃ (𝒦 : Set (CTorus S.d S.L F.N₁ m₁ K)) (W : Finset (CTorus S.d S.L F.N₁ m₁ K))
+      (E : Finset (CTorus S.d S.L F.N₁ m₁ K × CTorus S.d S.L F.N₁ m₁ K)),
+      ModAdmissible m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦 W E ∧
+        bondCost (scaleW S.L m₀ m₁ k) E = d7SizeAt F k Om X
+  then h.choose_spec.choose else ∅
+
+omit [∀ k, NeZero (n k)] [NeZero M] in
+/-- **For a valid label, `optW` is the connecting structure of an optimal cover.** -/
+theorem optW_spec {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ}
+    {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))} (hX : FineValidAt F k Om X) :
+    ∃ (𝒦 : Set (CTorus S.d S.L F.N₁ m₁ K))
+      (E : Finset (CTorus S.d S.L F.N₁ m₁ K × CTorus S.d S.L F.N₁ m₁ K)),
+      ModAdmissible m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦
+        (optW F k Om X) E ∧ bondCost (scaleW S.L m₀ m₁ k) E = d7SizeAt F k Om X := by
+  classical
+  have h : ∃ (𝒦 : Set (CTorus S.d S.L F.N₁ m₁ K)) (W : Finset (CTorus S.d S.L F.N₁ m₁ K))
+      (E : Finset (CTorus S.d S.L F.N₁ m₁ K × CTorus S.d S.L F.N₁ m₁ K)),
+      ModAdmissible m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦 W E ∧
+        bondCost (scaleW S.L m₀ m₁ k) E = d7SizeAt F k Om X :=
+    exists_admissible_eq_dcovMod (exists_admissible_of_ne_top hX.2.2.2)
+  unfold optW
+  simp only [h, ↓reduceDIte]
+  exact ⟨h.choose, h.choose_spec.choose_spec.choose, h.choose_spec.choose_spec.choose_spec⟩
+
+/-- **The site of the mark of `(X, J)`**, on the frame torus (P6 p. 34, the domain `Y₁` of P3
+(4.42) completed as in (4.44)): the `π'_{k+1}`-cubes (side `L · cellSide`) based at the cells of the
+sites of `X ∩ Ω_{k+1}`, of the connecting structure `optW` of an optimal cover of `X` (which joins
+the components of `X ∩ Ω_{k+1}` through the holes of `X`), and of the local set `V(X, J)` of the
+coefficient.  The holes of `X` are not in the site: the size of the site is controlled by the
+modular size of `X`. -/
+noncomputable def markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     Set (CTorus S.d S.L F.N₁ m₁ K) :=
-  {x | ∃ y, (y ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∨
+  {x | ∃ y, (y ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ∨
+      y ∈ (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ∨
       y ∈ toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J) ∧
     x ∈ Localization.box (cbase (cellSide S.L m₀ m₁ (k + 1)) y)
       (S.L * cellSide S.L m₀ m₁ (k + 1))}
@@ -104,12 +142,22 @@ theorem mem_box_cbase_cellSide {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
     (mem_box_cbase (cellSide_pos m₀ m₁ (k + 1)) y)
 
 omit [NeZero M] in
-/-- The fine set of `X` lies in the site of the mark. -/
-theorem d7Pull_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+/-- The sites of `X ∩ Ω_{k+1}` lie in the site of the mark. -/
+theorem d7Pull_inter_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
     (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    d7Pull F k (X : Set (Torus S.d (n k))) ⊆ markSite g hnn hM1 F H hk r r' X J := fun y hy =>
+    d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆
+      markSite g hnn hM1 F H hk r r' X J := fun y hy =>
   ⟨y, Or.inl hy, mem_box_cbase_cellSide F y⟩
+
+omit [NeZero M] in
+/-- The connecting structure of an optimal cover of `X` lies in the site of the mark. -/
+theorem optW_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
+    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ⊆
+      markSite g hnn hM1 F H hk r r' X J := fun y hy =>
+  ⟨y, Or.inr (Or.inl hy), mem_box_cbase_cellSide F y⟩
 
 omit [NeZero M] in
 /-- The local set lies in the site of the mark. -/
@@ -117,7 +165,7 @@ theorem toFrame_locSetXJ_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K
     (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
     (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J ⊆ markSite g hnn hM1 F H hk r r' X J :=
-  fun y hy => ⟨y, Or.inr hy, mem_box_cbase_cellSide F y⟩
+  fun y hy => ⟨y, Or.inr (Or.inr hy), mem_box_cbase_cellSide F y⟩
 
 omit [NeZero M] in
 /-- **The site of a mark is a union of `π'_{k+1}`-cubes.** -/
@@ -180,7 +228,7 @@ theorem image_cb_subset_blocksOf_markSite {m₀ : ℕ} (F : FineSizeFrame S n M 
   obtain ⟨u, hu, rfl⟩ := Finset.mem_image.1 hb
   have hV := unitRep_mem_of_mem_locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _
     (Finset.mem_filter.1 hu).2
-  refine mem_blocksOf.2 fun x hx => ⟨_, Or.inr ⟨_, hV, rfl⟩, ?_⟩
+  refine mem_blocksOf.2 fun x hx => ⟨_, Or.inr (Or.inr ⟨_, hV, rfl⟩), ?_⟩
   rw [cbase_eq_of_mem_box (cellSide_dvd F.divN₁ hk) (cb u).2.1 (hcb u)]
   exact Localization.box_mono _ (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne S.L))) hx
 

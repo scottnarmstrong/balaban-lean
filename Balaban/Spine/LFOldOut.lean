@@ -130,42 +130,43 @@ theorem outLabel_spec {k : ℕ} (hk : k + 1 ≤ K) (Om' : Set (Torus S.d (n (k +
 
 include hnn in
 /-- **The old label lies in the output label** (FLUCTUATION Theorem 3.1 (c); P6 p. 34): if the old
-label `X` is valid at `Ω_k^post` and meets `Ω_{k+1}`, and the cubes of `Ω_{k+1}` inside the site
+label `X` is valid (at any region of scale `k`) and meets `Ω_{k+1}`, and the cubes of `Ω_{k+1}` inside the site
 of the mark of `(X, J)` lie in `T` (the cluster term is zero otherwise), then the fine set of `X` lies
 in `Ŷ(T)`, the fine set of the output label. -/
 theorem d7Pull_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo S n R M}
     (hM1 : g.M1 = S.L ^ m₁) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
-    {Om : Set (Torus S.d (n k))} {Om' : Set (Torus S.d (n (k + 1)))}
-    {X : Finset (Torus S.d (n k))} (hX : FineValidAt F k Om X)
-    (hXm : (d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) Om').Nonempty) (r r' : ℕ)
+    {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))} (hX : FineValidAt F k Om X)
+    (hXm : (d7Pull F k (X : Set (Torus S.d (n k))) ∩
+      d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) (r r' : ℕ)
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
-      (d7Pull F (k + 1) Om')))
-    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) Om') (markSite g hnn hM1 F H hk r r' X J)
-      ⊆ T)
-    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) Om') (sitesOf T) ≠ ⊤) :
+      (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
+    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSite g hnn hM1 F H hk r r' X J) ⊆ T)
+    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
     d7Pull F k (X : Set (Torus S.d (n k))) ⊆
-      d7Pull F (k + 1) (outLabel F k Om' T : Set (Torus S.d (n (k + 1)))) := by
+      d7Pull F (k + 1) (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) := by
   have ha0 := cellSide_pos (L := S.L) m₀ m₁ (k + 1)
-  have hsub : d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) Om' ⊆ sitesOf T := by
+  have hsub : d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆
+      sitesOf T := by
     rintro x ⟨hxX, hxΩ⟩
     have hcell : Localization.box (cbase (cellSide S.L m₀ m₁ (k + 1)) x)
-        (cellSide S.L m₀ m₁ (k + 1)) ⊆ d7Pull F (k + 1) Om' := by
-      rcases cell_dichotomy F.divN₁ hk (d7Pull_isPiUnion F hnn hk Om')
+        (cellSide S.L m₀ m₁ (k + 1)) ⊆ d7Pull F (k + 1) (OmegaCube H (k + 1)) := by
+      rcases cell_dichotomy F.divN₁ hk (d7Pull_isPiUnion F hnn hk (OmegaCube H (k + 1)))
           (aligned_cbase (a := cellSide S.L m₀ m₁ (k + 1)) x) with h | h
       · exact h
       · exact absurd hxΩ (h (mem_box_cbase ha0 x))
     have hmem : (⟨cbase (cellSide S.L m₀ m₁ (k + 1)) x, aligned_cbase x, hcell⟩ :
         CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
-          (d7Pull F (k + 1) Om')) ∈ T := by
-      refine hT (mem_blocksOf.2 fun y hy => ⟨x, Or.inl hxX, ?_⟩)
+          (d7Pull F (k + 1) (OmegaCube H (k + 1)))) ∈ T := by
+      refine hT (mem_blocksOf.2 fun y hy => ⟨x, Or.inl ⟨hxX, hxΩ⟩, ?_⟩)
       exact Localization.box_mono _ (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne S.L))) hy
     exact mem_sitesOf.2 ⟨_, hmem, mem_box_cbase ha0 x⟩
   obtain ⟨x, hx⟩ := hXm
   have hTne : T.Nonempty := by
     obtain ⟨b, hb, -⟩ := mem_sitesOf.1 (hsub hx)
     exact ⟨b, hb⟩
-  rw [(outLabel_spec F hnn hk Om' T hTne hfin).1]
+  rw [(outLabel_spec F hnn hk (OmegaCube H (k + 1)) T hTne hfin).1]
   exact subset_Yhat_of_connected hX.2.1 ⟨x, hx⟩ hsub
 
 end Out
