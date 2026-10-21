@@ -62,29 +62,34 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (hv : EuclideanSpace ℝ (Fin N))
   (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N))
 
+/-- The datum of the cut `Y` is in the real domain `𝒟_ℝ` when the field is in the data domain
+`Ψ̃`. -/
+theorem mem_DomSetY_of_inPsiTilde (Y : Set (Torus S.d (n (j + 1)))) {m η : ℝ} (hη0 : 0 < η)
+    (hη1 : η ≤ bgC1 S.d S.L N)
+    (hP : InPsiTilde (C.genW Y) m η (parentPsi C ψk) (fun i => hv i)) : ψk ∈ DomSetY C hv Y m :=
+  ⟨η, hη0, hη1, parentPsi C ψk, fun i => hv i, hP,
+    fun x hx i => liftSingle_Ψ_eq_parentPsi C _ ψk hv hx i,
+    fun x hx i => by unfold DfamY; rw [liftSingle_h _ _ _ hx]; rfl⟩
+
 /-- The datum is in the real domain `𝒟_ℝ` when the field is in the data domain `Ψ̃`. -/
 theorem mem_DomSet_of_inPsiTilde {m η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ bgC1 S.d S.L N)
     (hP : InPsiTilde (C.genW (Set.univ : Set (Torus S.d (n (j + 1))))) m η (parentPsi C ψk)
       (fun i => hv i)) : ψk ∈ DomSet C hv m :=
-  ⟨η, hη0, hη1, parentPsi C ψk, fun i => hv i, hP,
-    fun x hx i => liftSingle_Ψ_eq_parentPsi C _ ψk hv hx i,
-    fun x hx i => by unfold Dfam; rw [liftSingle_h _ _ _ hx]; rfl⟩
+  mem_DomSetY_of_inPsiTilde C hv ψk Set.univ hη0 hη1 hP
 
-/-- **The real background `φ̄_k` is a unit field** on the domain (coordinates of modulus `≤ 1`). -/
-theorem abs_phiBar_le_one
+/-- **The real background `φ̄_k` of a cut is a unit field on the first layer** of `𝔹_k(W₂(Y))`, on
+the domain (coordinates of modulus `≤ 1`). -/
+theorem abs_phiBarY_le_one (Y : Set (Torus S.d (n (j + 1))))
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
-    (hψ : ψk ∈ DomSet C hv (C.cs.muBg (j + 1))) (z : BgT C.geo (j + 1)) (i : Fin N) :
-    |(C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv z) i| ≤ 1 := by
+    (hψ : ψk ∈ DomSetY C hv Y (C.cs.muBg (j + 1))) {z : BgT C.geo (j + 1)}
+    (hz : z ∈ (C.genW Y).Ω 1) (i : Fin N) :
+    |(C.phiBar Y ψk hv z) i| ≤ 1 := by
   obtain ⟨δ, hδ0, hδc, hD⟩ := hψ
   obtain ⟨φ, α, hs, hb, hu, hunit, -, -⟩ := bg_real HB hδ0 hδc hD
   obtain ⟨hfC, -⟩ := bgFieldC_eq hs hu
-  have hz : z ∈ (C.genW (Set.univ : Set (Torus S.d (n (j + 1))))).Ω 1 := by
-    rw [genW_Ω_univ C (by omega)]; exact Finset.mem_univ _
-  have hphiK : C.phiK (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv = φ := hfC
-  have key : (C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv z) i =
-      (φ (⟨z, hz⟩, i)).re := by
-    show (barField (C.genW (Set.univ : Set (Torus S.d (n (j + 1))))) (Dfam C hv ψk).Ψ
-      (C.phiK (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv) z i).re = _
+  have hphiK : C.phiK Y ψk hv = φ := hfC
+  have key : (C.phiBar Y ψk hv z) i = (φ (⟨z, hz⟩, i)).re := by
+    show (barField (C.genW Y) (DfamY C hv Y ψk).Ψ (C.phiK Y ψk hv) z i).re = _
     rw [hphiK]
     simp [barField, hz]
   rw [key]
@@ -95,6 +100,14 @@ theorem abs_phiBar_le_one
       (Finset.mem_univ i)
   have h3 : ‖φ (⟨z, hz⟩, i)‖ ≤ 1 := by nlinarith [norm_nonneg (φ (⟨z, hz⟩, i))]
   exact (Complex.abs_re_le_norm _).trans h3
+
+/-- **The real background `φ̄_k` is a unit field** on the domain (coordinates of modulus `≤ 1`). -/
+theorem abs_phiBar_le_one
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hψ : ψk ∈ DomSet C hv (C.cs.muBg (j + 1))) (z : BgT C.geo (j + 1)) (i : Fin N) :
+    |(C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv z) i| ≤ 1 :=
+  abs_phiBarY_le_one C hv ψk Set.univ HB hψ
+    (by rw [genW_Ω_univ C (by omega)]; exact Finset.mem_univ z) i
 
 /-- **A block field in the data domain is bounded**: `‖ψ_k(b)‖ ≤ 2` for `η ≤ 1`. -/
 theorem norm_le_two_of_inPsiTilde {m η : ℝ} (hη1 : η ≤ 1)
