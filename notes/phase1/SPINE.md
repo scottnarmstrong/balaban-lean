@@ -879,6 +879,16 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   are exactly `(𝕋_{k+1} ∖ Ω_{k+1})^{∼3}` and such sites do not exist; the issue is confined to the holes of `Ω_{k+1}` in
   components removed by `R^{(k+1)}` (PLAN-B, "The band outside `Ω_{k+1}`").
 
+  **W1154e (2026-10-21).** (3a)–(3c): `H7MixedDatumLoc2Pre` (the datum input at `V₂(X, J)`, `J ∈ allJ ρ`, for the
+  pre-`R` records `globalLHPre`, R17) **PROVED** (`Spine/LFOldDatumPre`: `h7MixedDatumLoc2Pre_holds`, `_of_sfz`, `_zero`,
+  `massRegime_of_bgMass`; the case analysis `inDomainC_holeStepLoc2_of_h7` with the third chart `Δ^c_k` at the cube of
+  `𝕋_k`, `Background/DataPatchChart.chartSplit_spec`); the chain at `globalLHPre`: `Spine/LFOldHS2Pre`
+  (`H7MixedInnerLoc2Pre` open, `locConds_of_h7MixedLoc2Pre`, `norm_oldB2Pre_le`), through cores with landed instances
+  (`norm_oldBOf_le_of_dom_allJ`, `h7Domain_composedMulti_of_inner_withZ`, `H7MixedInnerLocXJ`, `H7MixedDatumLocV`,
+  `locConds_of_h7MixedLoc2_withZ`).  Open for blocker 3: `H7MixedInnerLoc2Pre` (P5 Lemma 2.1 in the complex domains),
+  Proposition 3.3 on a region (the interaction of `oldB2`), the identity of the old part with `∑ oldB2`, the clauses
+  `euclid` and `loc_hist` (W1162/W1163; evaluation of the collar finding in PLAN-B, ruling R22).
+
 ## LastIntegralInput sub-inputs (W1108)
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):

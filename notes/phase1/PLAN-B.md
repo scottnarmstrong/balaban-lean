@@ -495,6 +495,38 @@ approved declaration.
   there the test is `Δ^c_k` at the cube of `𝕋_k` (a level-`k` cube set on the torus of level `k`; the transport of its
   split, `cubeKOfC_eq_of_jBlock` ready); the restatement of `H7MixedDatumLoc2` at `V₂(X, J)` with the target
   `globalLHPre` (R17) and the room premise; `δ_b ≥ 3δ₁ + 2ε_k` via `InDomainC.mono_diag`.
+- **W1154e (2026-10-21): `H7MixedDatumLoc2` proved at the local sets of its use, for the pre-`R` records; the chain
+  of reading HS-2 at `globalLHPre`.** (3a) `inDomainC_holeStepLoc2_of_h7` (`Spine/LFOldDatum`, replaces the near-only
+  version; `hroom` removed): three charts — `Δ'^c_{k+1}(□)`, `Δ^c_{k+1}(□)` at the cube of `𝕋_{k+1}` when it lies in
+  `Ω^{∼3}_{k+1}`, and `Δ^c_k(□_k)` at the cube of `𝕋_k` farther out (read through `toCubeK`, `Spine/LFOldDatumGeo`);
+  each chart's conditions come from `Background.chartSplit_spec` (`Background/DataPatchChart`).  Premise `hfar`: the
+  far data sites lie over cubes of `𝕋_k` outside the holes of scale `k`.  The large-mass regime carries a factor `τ`
+  (`ν ≤ τ μ_{k+1}`, `ν ≤ τ μ_k`, `2τε_k² ≤ δ₁²`): the far test has the cutoff mass of scale `k`.
+  (3b) `Spine/LFOldDatumPre`: the data sites of `G′_{V₂(X,J)}`, `J ∈ allJ ρ`, lie over cubes within `ρ + 3` cubes of
+  `Ω_{k+1}` when `r + r′ ≤ c M₁ L^{k+1}` (`near_omega_of_mem_dataSites_locSetXJ2`, from `localB_dataSites_range`);
+  such cubes are at distance `≥ ⌊R_{k-1}⌋ + 3` from `Z_k` for `ρ ≤ ⌊R_k⌋` (`le_supDist_Z_of_near_omega`,
+  `RegionStep.fine_far`), so `hfar` holds; `hholes` holds for `globalLHPre` (`cubeSub_holes_globalLHPre`).
+  **`H7MixedDatumLoc2Pre`** (the named input at `V₂(X, J)`, `J ∈ allJ ρ`, target `globalLHPre H M (k+1)`, external
+  field `h₀`) is PROVED: `h7MixedDatumLoc2Pre_holds` (`|z − 1| ≤ η`, (R4), mass in either regime,
+  `3δ₁ + 2ε_k ≤ δ_b`), `h7MixedDatumLoc2Pre_of_sfz` (`η = c₁₀ ε_{k+1}`, `SFZInput`), `massRegime_of_bgMass` (the
+  regimes from `μ_j = bgMass(k₀, j)`: small-mass form for `k ≤ k₀`, large-mass form with `τ` for `k > k₀`),
+  `h7MixedDatumLoc2Pre_zero` (rule 10).  (3c) cores with landed instances: `h7Domain_composedMulti_of_inner_withZ`
+  (target at the global records with the regions `Z′`), `norm_oldBAtAt_le_of_dom_allJ`, `norm_oldBOf_le_of_dom_allJ`
+  (`hloc` for `J ∈ allJ ρ` only), `H7MixedInnerLocXJ`, `H7MixedDatumLocV` (the old named inputs are built from them,
+  bodies definitionally equal), `h7Domain_composedMulti_loc2_withZ`, `cubesOfIn_of_mark2`,
+  `locConds_of_h7MixedLoc2_withZ`; `Spine/LFOldHS2Pre`: `H7MixedInnerLoc2Pre` (open), `locConds_of_h7MixedLoc2Pre`,
+  **`norm_oldB2Pre_le`** (the (D7) bound at a field of the H7 domain of `globalLHPre`, from `H7MixedInnerLoc2Pre` and
+  the proved `H7MixedDatumLoc2Pre`, with `h₀ = hv`, ruling R16).  The provider still fixes the step's mass `ν`, `η`
+  and `δ_b` and discharges the mass regime from the flow.
+- **W1162's `loc_hist` finding, evaluated (W1154e, 2026-10-21).** Not (a): enlarging the output labels by the collar
+  `⌊R_k⌋ + 13` cubes costs a factor `(2⌊R_k⌋ + 27)^d` in the size, growing with `k`.  (b) holds for components kept
+  by `R^{(k+1)}`: the clause's premise on the localized histories of the components of `Z_{k+1}` meeting `Y` covers
+  the collar (a cube where `Ω_{k+1}` differs within `ρ + 13` of `Y` has its `⌊2R_k⌋ + 6`-ball in `Z^{(0)}`,
+  Lemma I.3.5 (d), (e); a cube where `Z_k` differs within the read range has its coarse cube in `U′_k`, and
+  `nbhd (ρ + 4) U′ ⊆ Z^{(0)}`; the localized records equal the global ones on the component, `locRH_derived`).
+  Finding 2 needs no hypothesis: `Ω^post_k ∩ X = (Ω_k ∩ X) ∪ (X ∖ Ω_k ∖ Z_k)`.  (c) for components removed by
+  `R^{(k+1)}`: the pre-`R` records compared the post-`R` objects at the top scale; ruling R22 (approved) makes them
+  compare `Z^pre_k` and all components of `Z^pre_k`.
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
 - The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
   integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
