@@ -1988,3 +1988,20 @@ Request to the owner (one line each, proof unchanged): add `∀ τ, Gk τ = cast
 to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same torus) must be generalized to the cast form over `(N₁', m₁ + s)` (the `boxMap` of the
 two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
 quotient description of `Z'`.
+
+### Blocker 7, step clause: state after the cast comparison (W1161, 2026-10-21)
+
+Landed on the branch (all modules build, 0 warnings, axioms `propext`, `Classical.choice`, `Quot.sound`): `Gk` cores `settings_family_castLocalB_far_Gk/_hat_Gk`
+(explicit `Gk = castG (localB k (castNbhd Y))`); `Inhabited/NewLevelHatTop` (`dataSites_subset_top`, `hat_gap`: top layer, `θ = L^j/L^k`, collar);
+`CastLocalBCorr`, `NewLevelCastNbhd`, `NewLevelCubeImage`, `NewLevelCanonCast`, `NewLevelCanonCastGeom` (`hgeom_of_cast`), `NewLevelCanonReg` (`reg_of_hN`),
+`NewLevelCanonBigRad` (`hbig_of_size`), `NewLevelCanonX1` (`X1_far`).  Removed as dead: `CanonCoverLocal`, `hgeom_of_local`, `canonPts`, `canonZ`,
+`CanonCoverIsX1`, `hfar_of_isX1`, `margin_in_region`, `NewLevelCanonCells`, `Spine/CanonMarginTie` (the margin now comes from `BgSetting.hN`, no tie).
+`polySet` moved to `NewLevelCanonPins`; `OldTermsCanonPins(At)` gained the clause `O.XL τ = polySet …` (from `OldTermsAreIrrel`); producers adapted.
+`newLevel_coeff_twoTorus_of_class_cells` premises beyond typing data: `LC : CanonCoverCast` (the canonical covers are the cast local sets of the settings; produced by
+`exists_canonOldTermData` + `settings_family_castLocalB_hat_Gk`), `SpG`, `hL3`, `hs : s < m₀`, the torus-size bounds `hsz`, `hsz'`
+(`2R + (4(k+1)+36) L^{k+1+m₀+m₁} + 8 ≤ size`), and **`hcell`** (`CellTermsAgree` for `castZ`).  Derived inside: `hXLsub` (X1_far with the pinned `XL`), `hreg`
+(`reg_of_hN`), `hbigA/B` (`hbig_of_size`).
+**Open:** (1) `hcell`/`CellTermsAgree` — the irrelevant term at the distinguished cell on two tori (P4 (H.4) `hcellcase`; the relevant parts of the polymers that wrap
+around the torus enter): a property of the class's `irrelTorus`, a design question; (2) the producer of the zero-source/bridge part of `NewLevelSystem`
+(the rest of the fields besides `O`, `OS`) is the chain's (W1146t); (3) `hsz` are size conditions on the torus relative to the box radius `R` (as `hn19`, `hnE`, …), supplied
+by the caller.

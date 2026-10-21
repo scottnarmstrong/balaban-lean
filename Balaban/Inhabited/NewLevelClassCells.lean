@@ -18,9 +18,9 @@ public import Balaban.Inhabited.NewLevelCanonX1
 # The coefficient of the new level on two tori for canonical covers from local generating sets
 
 `newLevel_coeff_twoTorus_of_class_cells`: `newLevel_coeff_twoTorus_of_class_of_cellTerms` with the geometry
-hypothesis `hgeom` discharged by `hgeom_of_local` for canonical covers whose generating sets are local
-generating sets of polymers (`CanonCoverLocal`).  The hypotheses besides the class, the pins, the
-zero-source pins and `CellTermsAgree` are the cover property `hX1` (`CanonCoverIsX1`: the canonical cover is the region `X1` of a chosen family of the polymer) and the numeric tie `htie` (`CanonMarginTie`), the correspondence of the polymers, and size
+hypothesis `hgeom` discharged by `hgeom_of_cast` for canonical covers whose generating sets are the cast
+local generating sets of the settings (`CanonCoverCast`).  The hypotheses besides the class, the pins, the
+zero-source pins and `CellTermsAgree` are the torus-size bound `hsz`, the exponent `s < m₀` of the cast sets, and the agreement `hcell` of the irrelevant terms at the distinguished cell; the covers and the data-site ball come from the settings of the terms, and size
 conditions.
 -/
 
@@ -71,8 +71,9 @@ attribute [local irreducible] NewLevelSystem.Dom
 
 /-- **The coefficient of the new level on two tori for canonical covers built from local generating
 sets.**  The geometry hypothesis of `newLevel_coeff_twoTorus_of_class_of_cellTerms` is discharged by
-`hgeom_of_local`; `hX1` is the cover property and `htie` the numeric tie and `hcell` the agreement of the irrelevant term at
-the distinguished cell. -/
+`hgeom_of_cast`; the region `X₁` contains the polymer (`X1_far`) and the ball around the data sites
+(`BgSetting.hN`), `hsz` is the torus-size bound and `hcell` the agreement of the irrelevant term at the
+distinguished cell. -/
 theorem newLevel_coeff_twoTorus_of_class_cells
     (hN2 : 2 ≤ N)
     (hk : 1 ≤ k)

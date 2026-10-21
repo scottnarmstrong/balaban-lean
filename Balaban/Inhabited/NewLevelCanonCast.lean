@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Inhabited.NewLevelCanonCells
+public import Balaban.Inhabited.NewLevelCanonLocal
 public import Balaban.Inhabited.NewLevelCanonGeomDef
 public import Balaban.Inhabited.NewLevelCanonLocal
 public import Balaban.Inhabited.NewLevelCastNbhd

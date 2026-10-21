@@ -3224,7 +3224,6 @@ public import Balaban.Inhabited.NewLevelLocalCast
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
 public import Balaban.Inhabited.NewLevelCanonGeomDef
-public import Balaban.Inhabited.NewLevelCanonCells
 public import Balaban.Inhabited.NewLevelCanonLocal
 public import Balaban.Inhabited.NewLevelCanonGeom
 public import Balaban.Inhabited.NewLevelClassCells
@@ -3258,7 +3257,6 @@ public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
 public import Balaban.Inhabited.NewLevelCanonMargin
 public import Balaban.Inhabited.NewLevelCanonProducer
 public import Balaban.Inhabited.NewLevelCanonX1
-public import Balaban.Spine.CanonMarginTie
 public import Balaban.Inhabited.StepTowerBeta0OldFields
 public import Balaban.Inhabited.NewLevelCanonSettings
 public import Balaban.Polymer.CastLocalBCorr
