@@ -35,14 +35,12 @@ do not enter the kept half.
 `D5Bound (k+1)` (LFR Lemma II.6.3 (a), `Rep.opBound_of_data_le`) and `D6Budget` (LF-2 (i),
 `Rep.budget_of_LF2_trunc`).
 
-**Named residuals** (the hypotheses; nothing else is assumed): `KappaPreLocal` (OPEN-R-TOP-PIN: the
-exponent `κ^pre_k(Z, 𝔸 ∩ Z)` of a kept component is a function of its localized history; the
-kept costs `γ_j(ϰ)` below `k` enter it; they are label independent by the clause
-`KeptScaleData.gam_indep`, so what remains is the lineage locality of the bookkeeping: the parts, the
-kept events (`Ripe` of the book, whose spine is a `Classical.choose`) and the kept exponents of the
-parts are functions of the localized history), and `KeptScaleData` (the kept kernels of the five
-outcomes at the scale `k`, with the bound (1.26) at the exponent
-`κ_k - C_R λ̂_k^{2d+1} + γ_k(ϰ)`: `keptKernel_one_kerBound` to `keptKernel_five_kerBound`).
+**Named residual** (the hypothesis; nothing else is assumed): `KeptScaleData` (the kept kernels of the five
+outcomes at the scale `k`, with the bound (1.26) at the exponent `κ_k - C_R λ̂_k^{2d+1} + γ_k(ϰ)`:
+`keptKernel_one_kerBound` to `keptKernel_five_kerBound`).  `KappaPreLocal` (OPEN-R-TOP-PIN: the
+exponent `κ^pre_k(Z, 𝔸 ∩ Z)` of a kept component is a function of its localized history) is proved
+in `Spine/KappaLocal.lean` (`kappaPreLocal_of_gam_indep`) from the label independence of the kept
+costs (the clause `KeptScaleData.gam_indep`).
 -/
 
 @[expose] public section
