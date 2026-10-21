@@ -1225,6 +1225,22 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      stated before `𝕋'` exists. Recommended order: (1) A6-3 (a) for a general cut `Y = Z'^c` (the fluctuation integral of `sfFactor2 C vc Y`
      with the `Y`-dependent background; the `Z=∅` case is `sfIntegral`); (2) `𝕋'` as the remaining integral over `ψ_k|_{Z'}`; (3) then
      `∫ρ / Ξ^sf = gasLinkedXi` with `hOperator`, `hBoundary` proved, and (c), (d).
+   * **B3 (A6-4 design and pieces (A), (i); 2026-10-21).** Design: `notes/phase1/A64-DESIGN.md` (accepted by ORCH-B; reading B-1″ of
+     `PLAN-B.md`, the local-pair principle, adopted for obstruction O1). No landed statement changed; new (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFAssembly.lean`: `observableActivities_actAdd_of_const` (adding a source-independent family keeps the clauses of
+       `ObservableActivities`), `sides_top`, **`finalLargeFieldInput_of_torusForm`** (`PrefixInput`, explicit per-torus activities `bT`;
+       `hId`: `∫ρ = Ξ_box exp(E + Σ_X bT)` on every torus; `hTC`: `LastScaleTorusClauses` at the rate `κ + log 2` with an amplitude
+       `≤ η L^{-(k+1)θ}` for every `η` and `β` large; `hC` (A2, blocker 7): `LastScaleTwoTorusClose` of `bT` with `a_C e^{κ+log 2} ≤ (c₉/8)
+       L^{-(k+1)θ}` ⇒ `FinalLargeFieldInput`; the constant `E + Σ_X bT(X; 0)` of each torus is placed on `∅`, which is not a polymer).
+     * `Spine/FinalLFSplit.lean` (P7 (4.1)–(4.2)): `lfHist` (removal-free histories with nonempty region), **`integral_eq_sum_lfHist`**
+       (`∫ρ = ∫ sfFactor2(univ) + Σ_{𝔸 ∈ lfHist} lastHistInt 𝔸`, from (D1), R12 and `card_remFree_empty_eq_one`, under integrability of the
+       terms); `lfGlue`, `lfGlue_eq_symm`, `gWeight_congr` (the kernels read `ψ_k` only on `Vblk`), **`integral_gOp_eq_split`** (Fubini at a
+       set `Ω` of blocks no kernel reads: `∫ dψ 𝕋[F(ψ)] = ∫ dψ_out ∫ dμ(x) w(ψ_out, x) ∫ dψ_in F(ψ_out ⊔ ψ_in)(x)`), `lfRegInt` (the regional
+       integral `I_𝔸(ψ_out, x)`, with the boundary terms inside: their domains reach any block of `Z^c_k`),
+       **`lastHistInt_eq_regional_of_integrable`**.
+     Open (A64-DESIGN §2): `𝕋′` and (IV.4.1); the history factorization; the couplings and their bounds on B2's operator-gas core;
+     the regional analysis on B1's local-pair whitening (B-1″); `LastStepTies` (separate side input); `CutSfDomInput`, `LFH7SupportInput`.
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
