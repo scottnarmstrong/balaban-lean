@@ -71,7 +71,9 @@ the solutions `(φn, αn)` of `Dn` and `(φc, αc)` of `Dc` differ by `F = φn �
 `ε' ≥ ε`, as soon as the loss `Δ = ε' − ε` satisfies `room1`–`room6`.  Here `vn (Dc.Ψ x) ≤ 3` on the data
 sites and `|Dc.Ψ z − Dc.Ψ z'| ≤ 2 σ ε` on adjacent collar sites are consequences of the domain and of
 `XiBounds`, `XiCBounds` for `Dc`. -/
-theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) (hϱ : 1 < ϱ)
+theorem XiCBounds.scale {Ψ''n : Torus d (N₀ * L ^ k) → Fin N → ℂ}
+    (hΨ''n : ∀ x ∈ dataSites G, ∀ i, Ψ''n x i = Ψ'' x i + ζ * Dc.Ψ x i)
+    (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr αc) (hϱ : 1 < ϱ)
     (hΨn : ∀ x ∈ dataSites G, ∀ i, Dn.Ψ x i = (1 + ζ) * Dc.Ψ x i)
     (hsup : SupBounds G (φn - φc) V) (hsm : Small G (αn - αc) V) (hV : 0 ≤ V) (hσ : 0 < σ) (hε0 : 0 < ε)
     (hvΨ : ∀ x ∈ dataSites G, vn (Dc.Ψ x) ≤ 3)
@@ -82,7 +84,7 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
     (room3 : V ≤ σ ^ 2 * (ε' - ε)) (room4 : N * V ≤ ε' - ε)
     (room5 : N * (3 * ‖ζ‖ + V) ≤ σ ^ 2 * (ε' - ε))
     (room6 : 2 * σ * ε * ‖ζ‖ ≤ σ * (ε' - ε)) :
-    XiCBounds G ν σ ε' Dr Dn (fun x i => Ψ'' x i + ζ * Dc.Ψ x i) h'' φr φn αr αn := by
+    XiCBounds G ν σ ε' Dr Dn Ψ''n h'' φr φn αr αn := by
   classical
   have hρ := norm_nonneg ζ
   have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
@@ -290,6 +292,11 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
   · -- close
     intro x hx
     have h1 := hB.close x hx
+    have hxd0 : x ∈ dataSites G := (mem_dataSites G).2 (Or.inl hx)
+    have e0 : (fun i => Ψ''n x i - blockAvg G (φn - φr) x i) =
+        fun i => (Ψ'' x i + ζ * Dc.Ψ x i) - blockAvg G (φn - φr) x i := by
+      funext i; rw [hΨ''n x hxd0 i]
+    rw [e0]
     have hφ : φn - φr = (φc - φr) + (φn - φc) := by funext p; simp
     have e : (fun i => (Ψ'' x i + ζ * Dc.Ψ x i) - blockAvg G (φn - φr) x i) =
         fun i => (Ψ'' x i - blockAvg G (φc - φr) x i) +
@@ -310,6 +317,12 @@ theorem XiCBounds.scale (hB : XiCBounds G ν σ ε Dr Dc Ψ'' h'' φr φc αr α
   · -- collarBond
     intro z hz z' hz' hadj
     have h1 := hB.collarBond z hz z' hz' hadj
+    have hzd : z ∈ dataSites G := (mem_dataSites G).2 (Or.inr hz)
+    have hzd' : z' ∈ dataSites G := (mem_dataSites G).2 (Or.inr hz')
+    have e0 : (fun i => Ψ''n z i - Ψ''n z' i) =
+        fun i => (Ψ'' z i + ζ * Dc.Ψ z i) - (Ψ'' z' i + ζ * Dc.Ψ z' i) := by
+      funext i; rw [hΨ''n z hzd i, hΨ''n z' hzd' i]
+    rw [e0]
     have e : (fun i => (Ψ'' z i + ζ * Dc.Ψ z i) - (Ψ'' z' i + ζ * Dc.Ψ z' i)) =
         fun i => (Ψ'' z i - Ψ'' z' i) + ζ * (Dc.Ψ z i - Dc.Ψ z' i) := by
       funext i; ring
