@@ -1277,3 +1277,14 @@ All eight parts are open (same status as the pre-`R` parts (g1)–(g5), (h): the
 * (g4) pins `LFPinInput` / `FrozenPinInput` (`D4Pin`): reduces to a transport lemma that is not landed: for `A, B` with `A.Agree k (k+1) B`, the local histories and `kappaPreH A j Z`, `kappaH`, `keptExp` at the scales `j ≤ k` coincide
   (`RegionHistory.kappaPre` reads `H.parts`, `newCubes`, `outCubes` of the scales `< j` and `P.kappaStep`; the components of `A` and `B` live in different dependent types `Comp j`, equal only through `comps_zp_eq_of_agree`). With it, `D4Pin (k+1)`
   of the successor is `D4Pin (k+1)` of the input pulled along `Agree`; for the frozen part the new scale `k+1 > k₀` has no kept event (`IsKeptEvent` needs `k ≤ k₀`), so `D4Pin (k+2)` is the same statement. About 300–400 lines.
+
+**Update (W1148, 2026-10-21): pins PROVED for both halves; the coefficient data scoped.**
+* (g4) `lfPinInput` and `frozenPinInput` (`Spine/PinParts.lean`) hold for every step map `Λ` (no hypothesis on `Λ`). The transport lemma is `d4Pin_of_agree` (`Spine/AgreeTransportRep.lean`), built from
+  `HAgr m H₁ H₂` (same steps `j < m`, same `Rem_j`, `j ≤ m`; `HAgr.of_agree` from `Agree m (m+1)`) and the transports `cequiv` (components), `parts_eq`, `newCubes_eq`, `outCubes_eq`
+  (`AgreeTransport.lean`), `spineOK_iff`, `spineTarget_eq`, `nextSpine_eq`, `spine_eq`, `bk_eq` (`AgreeTransportSpine.lean`, with `nextBook_map`, `Spine/BookMap.lean`), `kappa_eq`, `kappaPre_eq`, `isKept_iff`
+  (`AgreeTransportKappa.lean`), `desc_map`, `lin_eq`, `tailZ_eq`, `locStep_eq`, `localHistory_eq` (`AgreeTransportLocal.lean`) and the equality of the labels of non-removed kept components along `Agree`
+  (`lab_eq_of_agree`). In the frozen step the new scale `k+1 > k₀` has no kept component, so `D4Pin (k+2)` is the transported `D4Pin (k+1)` (`d4Pin_succ_iff`).
+* (h′) `LFCorrInput` / `FrozenCorrInput`: NOT done, and the estimate in the previous entry (≈ 600 lines) is too small. `D1CorrLim` needs the thermodynamic limits of `v1T` and `v2T` for the image at every level, for the class
+  `IsSFFamily2On` (complete backgrounds, `IsSF2`). The landed limit theory (`tendsto_v1T_aInfC` and its chain: `Def6Avg*`, `Def6Inf*`, `Def6Bridge*`, `RadialCoefficient*`, ≈ 13,000 lines) is stated for the first-version class `IsSFFamily`
+  (`IsSF`, massless domain) and only for the radial coordinate `Pi.single i₀ 1`; there is no `v2` limit, no rotation to a general unit field `hv`, and no version for `IsSF2`. Inherited levels would follow from the old limits
+  (source rescaling and `oldSideSeq`), but the new level `k+1` needs the full theory for the second-version class. This is a campaign, not a lemma.
