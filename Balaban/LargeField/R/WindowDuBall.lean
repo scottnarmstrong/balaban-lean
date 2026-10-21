@@ -363,6 +363,15 @@ theorem one_le_ball_radius {M : ℕ} [NeZero M] (j : ℕ) : (1 : ℝ) ≤ 2 * ((
   have hp : (1 : ℝ) ≤ (L : ℝ) ^ j := one_le_pow₀ hL
   nlinarith only [hp, hM]
 
+/-- The radius `t L^j M`, `2 ≤ t`, of the ball around a piece is at least `1`. -/
+theorem one_le_ball_radius_t {M : ℕ} [NeZero M] (j : ℕ) {t : ℕ} (ht : 2 ≤ t) :
+    (1 : ℝ) ≤ (t : ℝ) * ((L : ℝ) ^ j * M) := by
+  refine (one_le_ball_radius (L := L) (M := M) j).trans ?_
+  have h2 : (2 : ℝ) ≤ t := by exact_mod_cast ht
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hM : (0 : ℝ) ≤ M := Nat.cast_nonneg _
+  exact mul_le_mul_of_nonneg_right h2 (mul_nonneg (by positivity) hM)
+
 end Generic
 
 section Near
