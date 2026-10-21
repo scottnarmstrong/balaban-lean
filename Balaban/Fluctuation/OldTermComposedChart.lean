@@ -115,6 +115,26 @@ theorem d2raw_d1Triple_mem_composedChart {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b �
     (d2raw_d1Triple_mem_composedChartP (fun _ _ => True) trivial hb₁ hbC hB hF hFk ht)
 
 /-- **The bound of the old-term functional on the realizable triples from the bound of the term on
+its composed chart with a condition `Pr` on the source** (core of `eTermFun_bound_composed`). -/
+theorem eTermFun_bound_composedP
+    (Pr : ∀ ϱ₁' : ℝ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁' → Prop) (hPr : Pr ϱ₁ Gk) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hEb : ∀ r ∈ composedChartP Pr Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  hEb _ (d2raw_d1Triple_mem_composedChartP Pr hPr hb₁ hbC hB hF hFk ht)
+
+
+/-- **The bound of the old-term functional on the realizable triples from the bound of the term on
 its composed chart** (P1 (3.128) read at the data of the step). -/
 theorem eTermFun_bound_composed {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
     (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
@@ -130,7 +150,8 @@ theorem eTermFun_bound_composed {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
     (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
     ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
-  hEb _ (d2raw_d1Triple_mem_composedChart hb₁ hbC hB hF hFk ht)
+  eTermFun_bound_composedP (fun _ _ => True) trivial hb₁ hbC hB hF hFk
+    (fun r hr => hEb r (composedChartP_subset hr)) ht
 
 end Read
 
