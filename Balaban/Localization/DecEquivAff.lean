@@ -466,6 +466,32 @@ theorem cover_box_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m
   rw [mem_intBox, mem_intBox]
   exact inBox_aff_iff A q.1 q.2 x _
 
+include hAl hG hG' hΩ in
+theorem cover_qset_aff (q q' : ℕ × CTorus d L N₁ m₁ K) :
+    affCentres (m₁ := m₁) A m₁ q' ∈ (coverOf G').Qset (affCentres (m₁ := m₁) A m₁ q) ↔
+      q' ∈ (coverOf G).Qset q := by
+  rw [DecCover.mem_Qset, DecCover.mem_Qset, cover_idx_aff A hAl hG hG' hΩ q']
+  refine and_congr_right fun hq' => ?_
+  have hr : 1 ≤ q'.1 ∧ q'.1 ≤ K := ((mem_cubeIdx G).1 hq').1
+  obtain ⟨-, -, hb⟩ := (mem_cubeIdx G).1 hq'
+  have hAj := aligned_cube A hAl hr.2
+  have hpos : 0 < L ^ (q'.1 + m₁) := by have := NeZero.pos L; positivity
+  have hc := sameCell_baseImg A hpos (dvd_side hr.2) hAj q'.2 hb
+  show (∃ y, SameCell (L ^ (q'.1 + m₁)) y (baseImg A (L ^ (q'.1 + m₁)) q'.2) ∧
+      InBox m₁ q.1 (baseImg A (L ^ (q.1 + m₁)) q.2) (hatRad L m₁ q.1) y) ↔
+    ∃ y, SameCell (L ^ (q'.1 + m₁)) y q'.2 ∧ InBox m₁ q.1 q.2 (hatRad L m₁ q.1) y
+  constructor
+  · rintro ⟨y, h1, h2⟩
+    refine ⟨A.invFun y, ?_, ?_⟩
+    · have h1' : SameCell (L ^ (q'.1 + m₁)) y (A.toFun q'.2) := h1.trans hc
+      have := (sameCell_aff_iff A hpos (dvd_side hr.2) hAj (A.invFun y) q'.2).1
+      exact this (by rwa [AffIso.toFun_invFun])
+    · have := (inBox_aff_iff A q.1 q.2 (A.invFun y) (hatRad L m₁ q.1)).1
+      exact this (by rwa [AffIso.toFun_invFun])
+  · rintro ⟨y, h1, h2⟩
+    refine ⟨A.toFun y, ?_, (inBox_aff_iff A q.1 q.2 y _).2 h2⟩
+    exact ((sameCell_aff_iff A hpos (dvd_side hr.2) hAj y q'.2).2 h1).trans hc.symm
+
 end CoverAff
 
 end Balaban.Localization.DecEquiv
