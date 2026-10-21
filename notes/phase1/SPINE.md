@@ -865,6 +865,12 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at
   the balls of the marks); `euclid`, `loc_hist` open. Findings for the identity (external field `h`, predecessor
   histories, field-independent families) and the scope of (3) and (2): PLAN-B, "The (D7) clauses of the old part".
+  **W1154d (2026-10-21), the band outside `Ω_{k+1}`.** `Spine/LFOldDatumFree.lean`: `h7Domain_succ_congr_k` (the H7 domain
+  of scale `k + 1` does not read `ψ_k` on blocks near `Ω_{k+1}` away from the holes of the H7 domain),
+  `not_h7MixedDatumLoc2_of_site` (a data site of `G′_V` there refutes `H7MixedDatumLoc2`), and the correction
+  `mem_omegaCNb_of_notMem_omega`, `rem_ne_empty_of_far`: without a removal at scale `k + 1` the holes of the H7 domain
+  are exactly `(𝕋_{k+1} ∖ Ω_{k+1})^{∼3}` and such sites do not exist; the issue is confined to the holes of `Ω_{k+1}` in
+  components removed by `R^{(k+1)}` (PLAN-B, "The band outside `Ω_{k+1}`").
 
 ## LastIntegralInput sub-inputs (W1108)
 

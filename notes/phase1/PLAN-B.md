@@ -446,3 +446,22 @@ approved declaration.
   directly. In `Spine/LFOldH7Refute.lean` the refutation (`deltaC_rotConst`, `h7Domain_rotConst`,
   `not_h7MixedDatumLoc`, `not_h7MixedDatumLoc_of_le_c7`) no longer holds and is replaced by `not_mem_deltaC_of_im`:
   the new cube domains exclude constant fields with a coordinate of imaginary part `≥ 2 ε`.
+- **The band outside `Ω_{k+1}` and the holes of the H7 domain (W1154d, 2026-10-21; `Spine/LFOldDatumFree.lean`).**
+  PROVED: `h7Domain_succ_congr_k` — the H7 domain of scale `k + 1` does not read `ψ_k` on the `k`-blocks whose cube of
+  `𝕋_{k+1}` lies within `2` cubes of `Ω_{k+1}` and farther than `3` cubes from `(Ω^c_{k+1})^{∼3}`, and whose cube of `𝕋_k`
+  lies farther than `3` cubes from `(Ω^c_k)^{∼3}` (`L ≥ 3`; from `deltaC_stencil`, `deltaPrimeC_stencil`);
+  `exists_h7Domain_not_inDomainC_of_site`, `not_h7MixedDatumLoc2_of_site` — a data site of `G′_V` off `Ω_{k+1}` in such a
+  block refutes `H7MixedDatumLoc2` (`ψ_k` at its block set to `i(2|δ_b| + 1)(1, …, 1)`; the site is a hypothesis).
+  **Correction of the W1154c finding.** `mem_omegaCNb_of_notMem_omega`: when `R^{(k+1)}` removes no component
+  (`Rem_{k+1} = ∅`, in particular for `k + 1 > k₀`), every cube of `𝕋_{k+1}` off `Ω_{k+1}` lies in `Z_{k+1} ∖ Ω_{k+1}`
+  (`Ω^c_{k+1} ⊆ Z^{(0)}_{k+1} ⊆ Z^pre_{k+1}`, Lemma I.3.5 (e), `Omega_compl_subset_Z0`), so `omegaCNb` is the printed
+  `(Ω^c_{k+1})^{∼3}` and the band just outside `Ω_{k+1}` is read by `Δ'^c_{k+1}`; `rem_ne_empty_of_far`: the hypotheses of the
+  failure lemma force `Rem_{k+1} ≠ ∅`. The claim "by (R6) `Z_{k+1}` lies in the deep interior of `Ω''_{k+1}`" is false:
+  `opening L m F` is the union of the blocks at distance `≥ m` from `F`, so (R6) gives
+  `Z^{(0)} = Op(F^Z)^c ⊇ F^Z ⊇ (Ω''^c)^{∼4}` (`nbhd_six_Omega_compl_subset_Z0`). The two readings of `Ω^c_j` differ only at
+  the holes of `Ω_j` inside a component of `Z^pre_j` removed by `R^{(j)}` (`Z_j = Z^pre_j ∖ ⋃ Rem_j`): there the pre-`R`
+  boundary terms of a history with that removal record read `ψ_k` in the band around them through no cube test, and `H7MixedDatumLoc2`
+  fails at such histories. The convention `Ω^c_j := Z_j ∖ Ω_j` is also the localized complement `Ω^c ∩ Z′` of the quiet
+  kernel (`quietA2`–`quietA4`) and of `R/HgeoDischarge` (localized histories, where the plain complement would contain
+  every cube outside the component), so ruling request R17 as briefed (`omegaCNb` := `(𝕋_j ∖ Ω_j)^{∼3}`) would change
+  those objects too; not prepared, pending the orchestrator (options in the W1154d handoff).
