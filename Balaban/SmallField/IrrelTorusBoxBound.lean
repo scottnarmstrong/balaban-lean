@@ -31,12 +31,15 @@ relevant part of an unselected polymer and, at the cell `□(y)`, by the filed s
   `C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`;
 * `norm_sum_not_relBox_le_power`: so is the sum over the large polymers through `y` of their
   relevant parts (without the factor `e^{-(κ-1) d_j}`);
-* `norm_E_sub_aTermTorus_le_of_not_relBox`: for a large label, `ℰ(y,X) - A_{y,X}` (the label
-  functional of `irrelTorusB` away from the cell) is bounded by
+* `norm_E_sub_aTermTorus_le_of_not_relBox`: for a large non-cell label, `ℰ(y,X) - A_{y,X}` (the
+  label functional of `irrelTorusB` there) is bounded by
   `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`;
+* `irrelTorusOn_eq_top_add`: the functional of a selection is that of all polymers, plus the kept
+  relevant part of an unselected polymer, minus at the cell the unselected relevant parts;
 * `irrelTorusB_bound_of_dataHyp_of_threshold`: **the label bound of `irrelTorusB`** at every
   polymer `X ∋ y`: `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`
-  plus, at the cell, the filed sum of the selection.
+  plus, at the cell, the complete filed sum and `C' E₀ L^{-(k-j)(d+α₃)}`, from the bound of the
+  functional of all polymers (`irrelTorusOn_bound_of_dataHyp_of_threshold`).
 
 All constants depend on `d, L, N, m₀, m₁`, the class constants and the numerical parameters only:
 not on the torus, `k`, `j`, the label or the data.
@@ -99,6 +102,15 @@ theorem sizeJ_ge_of_not_relBox {m₀ j : ℕ} {y : CTorus d L N₁ m₁ k}
         (treeLenCovOne (L := L) (N₁ := N₁) (m₁ := m₁) (K := k) m₀ j X +
           2 * Real.sqrt d * L) := hG
     _ = _ := by ring
+
+omit [NeZero L] [NeZero N₁] in
+/-- The selection `relBox` is inhabited: the polymer `{y}` (and every set of sites within `r_k` of
+`y`) is selected. -/
+theorem relBox_singleton (m₀ : ℕ) (y : CTorus d L N₁ m₁ k) : relBox m₀ y {y} := by
+  intro z hz μ
+  rw [Set.mem_singleton_iff.1 hz, sub_self]
+  simp only [Pi.zero_apply, ZMod.valMinAbs_zero, abs_zero]
+  exact Int.natCast_nonneg _
 
 omit [NeZero N₁] in
 /-- **The threshold of the large polymers is a power of `L^{k-j}`**: for `p > 0`,
@@ -446,10 +458,41 @@ variable {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ 
   {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
 
 open Classical in
-/-- **A large label: `ℰ(y,X) - A_{y,X}`** (blocker 6, the labels kept unrenormalized by the
-selection `relBox`): for a polymer `X ∋ y` leaving the box of half-side `r_k` around `y`,
+/-- **The label functional of a selection against that of all polymers**: the functional of `sm`
+is that of the selection of all polymers (`sm = ⊤`, the landed `irrelTorus` before ruling R15),
+plus the relevant part of an unselected polymer (kept), minus at the cell `□(y)` the relevant parts
+of the unselected polymers through `y` (no longer filed). -/
+theorem irrelTorusOn_eq_top_add (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ m₁ k)
+    (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) :
+    irrelTorusOn sm m₀ Tm i₀ i₁ j y X Ψ h =
+      irrelTorusOn (fun _ _ => True) m₀ Tm i₀ i₁ j y X Ψ h +
+        (if sm y X then 0 else relPartTorus Tm i₀ i₁ j y Ψ h X) -
+        (if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
+            (L * cellSide L m₀ m₁ j) then
+          ∑ᶠ Z ∈ polysAt m₀ j y, (if sm y Z then 0 else relPartTorus Tm i₀ i₁ j y Ψ h Z)
+          else 0) := by
+  have hfin := Set.toFinite (polysAt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j y)
+  have hsum : (∑ᶠ Z ∈ polysAt m₀ j y,
+      (if sm y Z then relPartTorus Tm i₀ i₁ j y Ψ h Z else 0)) =
+      ∑ᶠ Z ∈ polysAt m₀ j y, relPartTorus Tm i₀ i₁ j y Ψ h Z -
+        ∑ᶠ Z ∈ polysAt m₀ j y, (if sm y Z then 0 else relPartTorus Tm i₀ i₁ j y Ψ h Z) := by
+    rw [finsum_mem_eq_finite_toFinset_sum _ hfin, finsum_mem_eq_finite_toFinset_sum _ hfin,
+      finsum_mem_eq_finite_toFinset_sum _ hfin, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun Z _ => ?_
+    split_ifs <;> ring
+  unfold irrelTorusOn
+  simp only [ite_true]
+  rw [hsum]
+  split_ifs <;> ring
+
+open Classical in
+/-- **A large non-cell label: `ℰ(y,X) - A_{y,X}`** (blocker 6, the labels kept unrenormalized by
+the selection `relBox`; in the setting of `irrelTorus_bound_of_dataHyp_of_threshold`): for a polymer
+`X ≠ □(y)` through `y` leaving the box of half-side `r_k` around `y`,
 `|ℰ(y,X) - A_{y,X}| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`,
-`C = relBoxLargeConst`: the termwise part plus the relevant part of a large polymer. -/
+`C = relBoxLargeConst`: the label functional of all polymers (`irrelTorusOn_bound_of_dataHyp_of_threshold`)
+plus the relevant part of a large polymer. -/
 theorem norm_E_sub_aTermTorus_le_of_not_relBox
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
@@ -458,6 +501,8 @@ theorem norm_E_sub_aTermTorus_le_of_not_relBox
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
     (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hrel : ¬ relBox P.m₀ y X)
+    (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
+      natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
       (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
@@ -494,27 +539,33 @@ theorem norm_E_sub_aTermTorus_le_of_not_relBox
         relBoxLargeConst d L N P m₁ Λ * P.E₀ *
           ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁))) *
           Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) := by
-  obtain ⟨CI, hCI0, hCI⟩ := norm_termPart_le_of_dataHyp_of_threshold hP hcl hBg hN hν hμν hνb hj1
-    hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl
-    hρ hbase hCρ hρpow
+  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusOn_bound_of_dataHyp_of_threshold (fun _ _ => True) hP hcl hBg hN
+    hν hμν hνb hj1 hjk hy hX hyX trivial hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
+    hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
   refine ⟨CI, hCI0, ?_⟩
   have hσ : 0 < σ := by rw [hσs]; positivity
+  simp only [hXne, ↓reduceIte, norm_zero, add_zero] at hCI
   have e : Tm.E j y X Ψ (constFld hv) - aTermTorus Tm i₀ j y Ψ X =
-      (Tm.E j y X Ψ (constFld hv) - relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X -
-        aTermTorus Tm i₀ j y Ψ X) + relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X := by ring
+      irrelTorusOn (fun _ _ => True) P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) +
+        relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X := by
+    unfold irrelTorusOn
+    simp only [hXne, ↓reduceIte, add_zero]
+    ring
   rw [e]
   exact (norm_add_le _ _).trans (add_le_add hCI (norm_relPartTorus_le_of_not_relBox hP hcl hBg hν
     hμν hνb hj1 hjk hN hy hX hyX hrel hne hrad Ψ hv dat hσ hσ1 hε hεΛ hτ))
 
 open Classical in
 /-- **The label bound of the box-renormalized functional** (P1 Corollary 3.11, (3.128), for
-`irrelTorusB`; conditional on the anisotropic data hypothesis `DataHypAniso`, the open input P-2, as
-in `irrelTorus_bound_of_dataHyp_of_threshold`): at every polymer `X ∋ y`,
+`irrelTorusB`; in the setting and with the premises of `irrelTorus_bound_of_dataHyp_of_threshold`,
+the anisotropic data hypothesis being the open input P-2): at every polymer `X ∋ y`,
 `|ℰ^B_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`
-plus, at the cell `□(y)`, the filed sum `Σ_{Z ∋ y, relBox} (T_Z + Φ_{y,Z})`;
-`C = relBoxLargeConst` (the second term is present only for the large polymers). -/
+plus, at the cell `□(y)`, the complete filed sum `|Σ_{Z ∋ y} (T_Z + Φ_{y,Z})|` and
+`C' E₀ L^{-(k-j)(d+α₃)}` (the large polymers through `y`); `C = relBoxLargeConst`,
+`C' = relBoxTailConst`.  The complete filed sum is the term of the renormalization conditions
+(bounded for the members of the class by `norm_filed_le_power`, `irrelTorusB_bound_of_class`). -/
 theorem irrelTorusB_bound_of_dataHyp_of_threshold
-    (hP : P.Admissible d L)
+    (hP : P.Admissible d L) (hκ : aEnt d L + 3 ≤ P.κ)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
@@ -556,14 +607,18 @@ theorem irrelTorusB_bound_of_dataHyp_of_threshold
         relBoxLargeConst d L N P m₁ Λ * P.E₀ *
           ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁))) *
           Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) +
-        ‖if X = box (cbase (cellSide L P.m₀ m₁ j) y -
+        (‖if X = box (cbase (cellSide L P.m₀ m₁ j) y -
             natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j) then
-          ∑ᶠ Z ∈ polysAt P.m₀ j y,
-            (if relBox P.m₀ y Z then relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z else 0)
-          else 0‖ := by
-  obtain ⟨CI, hCI0, hCI⟩ := norm_termPart_le_of_dataHyp_of_threshold hP hcl hBg hN hν hμν hνb hj1
-    hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl
-    hρ hbase hCρ hρpow
+          ∑ᶠ Z ∈ polysAt P.m₀ j y, relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z else 0‖ +
+        if X = box (cbase (cellSide L P.m₀ m₁ j) y -
+            natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j) then
+          relBoxTailConst d L N P m₁ Λ * P.E₀ *
+            ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁)))
+          else 0) := by
+  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusOn_bound_of_dataHyp_of_threshold (fun _ _ => True) hP hcl hBg hN
+    hν hμν hνb hj1 hjk hy hX hyX trivial hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
+    hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
+  simp only [ite_true] at hCI
   refine ⟨CI, hCI0, ?_⟩
   have hσ : 0 < σ := by rw [hσs]; positivity
   have hlarge : ‖if relBox P.m₀ y X then 0 else relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X‖ ≤
@@ -594,9 +649,32 @@ theorem irrelTorusB_bound_of_dataHyp_of_threshold
     · simp only [hrel, ↓reduceIte]
       exact norm_relPartTorus_le_of_not_relBox hP hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX hrel hne
         hrad Ψ hv dat hσ hσ1 hε hεΛ hτ
-  rw [irrelTorusB, irrelTorusOn_eq_split]
-  refine (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add hCI hlarge))
-    le_rfl)
+  have htail : ‖if X = box (cbase (cellSide L P.m₀ m₁ j) y -
+            natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j) then
+        ∑ᶠ Z ∈ polysAt P.m₀ j y,
+          (if relBox P.m₀ y Z then 0 else relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z) else 0‖ ≤
+      if X = box (cbase (cellSide L P.m₀ m₁ j) y -
+            natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j) then
+        relBoxTailConst d L N P m₁ Λ * P.E₀ *
+          ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁)))
+        else 0 := by
+    by_cases hXc : X = box (cbase (cellSide L P.m₀ m₁ j) y -
+            natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j)
+    · rw [ite_eq_left hXc, ite_eq_left hXc]
+      exact norm_sum_not_relBox_le_power hP hκ hcl hBg hν hμν hνb hj1 hjk hN hy hne hrad Ψ hv
+        dat hσ hσ1 hε hεΛ hτ
+    · rw [ite_eq_right hXc, ite_eq_right hXc, norm_zero]
+  rw [irrelTorusB, irrelTorusOn_eq_top_add]
+  calc _ ≤ ‖irrelTorusOn (fun _ _ => True) P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) +
+          (if relBox P.m₀ y X then 0 else relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X)‖ +
+        ‖if X = box (cbase (cellSide L P.m₀ m₁ j) y -
+            natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j) then
+          ∑ᶠ Z ∈ polysAt P.m₀ j y,
+            (if relBox P.m₀ y Z then 0 else relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z)
+          else 0‖ := norm_sub_le _ _
+    _ ≤ _ := by
+      have h1 := (norm_add_le _ _).trans (add_le_add hCI hlarge)
+      linarith [h1, htail]
 
 end Label
 

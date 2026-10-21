@@ -18,9 +18,6 @@ renormalization conditions hold in infinite volume only (`RenormCondAlong`):
   `Σ_{Z ∋ y, relBox y Z} (T_Z + Φ_{y,Z})`, is bounded by `C E₀ L^{-(k-j)(d+α₃)}`: it is the complete
   filed sum (`norm_filed_le_power`) minus the kept relevant parts of the large polymers
   (`norm_sum_not_relBox_le_power`);
-* `irrelTorus_bound_cell_of_dataHyp`: **the cell label of `irrelTorus`** satisfies P1 (3.128) with
-  the infinite-volume conditions only: `|ℰ_{irrel}(y, □(y))| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(□(y))}
-  + C_R E₀ L^{-(k-j)(d+α₃)}`;
 * `irrelTorusB_bound_of_class`: **the label bound of `irrelTorusB` at every label**:
   `|ℰ^B_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}
   + 1_{X = □(y)} C' E₀ L^{-(k-j)(d+α₃)}`.
@@ -210,109 +207,19 @@ theorem irrelTorusB_bound_of_class
   have hνb := hF.coeff.nuIdeal_le_one hF.admissible j
   have hrad := hF.anisoRadiusOK hn.hsmall i₀
   have hσ : 0 < σ := by rw [hσs]; positivity
-  have hfiled := norm_filed_relBox_le_power hF hn hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat hsec
-  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusB_bound_of_dataHyp_of_threshold hF.admissible hcl hBg hN hν
-    hμν hνb hn.hj1 hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ hνσ hK
-    hcentre hb hbl hρ hbase hCρ hρpow
-  refine ⟨CI, hCI0, hCI.trans (add_le_add le_rfl ?_)⟩
-  by_cases hXc : X = box (cbase (cellSide L P.m₀ m₁ j) y -
-      natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j)
-  · rw [ite_eq_left hXc, ite_eq_left hXc]
-    exact hfiled
-  · rw [ite_eq_right hXc, ite_eq_right hXc, norm_zero]
-
-open Classical in
-/-- **The cell label of `irrelTorus` satisfies P1 (3.128) with the infinite-volume renormalization
-conditions only** (blocker 6): for the members of the class, at the cell `□(y)` of an aligned
-centre, `|ℰ_{irrel}(y, □(y))| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(□(y))} + C_R E₀ L^{-(k-j)(d+α₃)}`,
-`C_R = filedPowerConst` (`norm_filed_le_power`), with the data hypotheses of
-`irrelTorus_bound_of_dataHyp_of_threshold` and of `norm_filed_le_power`. -/
-theorem irrelTorus_bound_cell_of_dataHyp
-    (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
-    (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
-    {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
-    {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
-    (hy : Aligned (L ^ j) y)
-    (hXc : X = box (cbase (cellSide L P.m₀ m₁ j) y -
-      natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
-    (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
-      (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
-    {Ψ : Fld d L N₁ m₁ k N} {hv : Fin N → ℂ}
-    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x =
-      jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
-    {Λ Ksig γ C₀ KR s σ ε K₂ q ρ Cρ : ℝ}
-    (hΛ : 1 ≤ Λ) (hKsig : 0 ≤ Ksig) (hC₀ : 0 < C₀)
-    (dat : DataHypAniso {p | ∃ Ψ' h' : Fld d L N₁ m₁ k N,
-        (∀ z ∈ X, Ψ' z = fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
-            (pack S p.1 p.2) (z - y) ∧
-          h' z = hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) (nuIdeal L k (Rg.ν k) j) S
-            (pack S p.1 p.2) z) ∧
-        XiDom ((Tm N₁).gs j X) (aIdeal L k (a k)) (Rg.sfBgMass k) j (P.eps d L j) Ψ' h'}
-      (nuIdeal L k (Rg.ν k) j) σ ε K₂
-      (fun v => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j v))
-      (((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv))
-    (hs : 0 < s) (hσs : σ = C₀ * s)
-    (hR : ε / anisoRadius d L N P j ≤ KR * s ^ (((d : ℝ) - 2) / 2 - γ))
-    (hε : 0 < ε) (hεΛ : ε ≤ Λ * anisoRadius d L N P j) (hσ1 : σ ≤ 1)
-    (hτ : σ ^ 2 * ε ≤ 1 / 4) (hνσ : nuIdeal L k (Rg.ν k) j ≤ σ ^ 2)
-    (hK : K₂ ≤ Ksig * σ ^ (2 - P.α₁) * ε)
-    (hcentre : ∀ i, ‖Ψ y i - (Pi.single i₀ 1 : Spin N) i‖ ≤ q)
-    (hb : ∀ i, ‖(((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv) i -
-      ((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) * (Pi.single i₀ 1 : Spin N) i‖ ≤ anisoRadius d L N P j)
-    (hbl : ‖(((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv) i₀ - ((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ)‖ <
-      anisoRadius d L N P j ^ 2)
-    (hρ : 0 < ρ)
-    (hbase : q + diamA d L P.m₀ m₁ * (σ * ε) / ρ ≤ anisoRadius d L N P j)
-    (hCρ : 0 ≤ Cρ)
-    (hρpow : ρ ^ 3 ≤ Cρ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)))
-    (hdat : ∀ {Dom : Set ((Site d → Spin N) × Spin N)},
-      ((fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s)),
-          ((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv) ∈ Dom ∧
-        ((fun _ => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j 0)),
-          ((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv) ∈ Dom →
-      (∀ (x : Site d) (μ μ' : Fin d),
-        ‖Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j
-            (x + Pi.single μ 1 + Pi.single μ' 1)) -
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x + Pi.single μ 1)) -
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x + Pi.single μ' 1)) +
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x)‖ ≤ K₂) →
-      DataHypAniso Dom (nuIdeal L k (Rg.ν k) j) σ ε K₂
-        (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
-        (((nuIdeal L k (Rg.ν k) j : ℝ) : ℂ) • hv))
-    (hsec : ∀ (x : Site d) (μ μ' : Fin d),
-        ‖Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j
-            (x + Pi.single μ 1 + Pi.single μ' 1)) -
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x + Pi.single μ 1)) -
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x + Pi.single μ' 1)) +
-          Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x)‖ ≤ K₂) :
-    ∃ CI : ℝ, 0 ≤ CI ∧
-      ‖irrelTorus P.m₀ (Tm N₁) i₀ i₁ j y X Ψ (constFld hv)‖ ≤
-        CI * P.E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)) *
-          Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) +
-        filedPowerConst d L N P m₁ Λ * P.E₀ *
-          ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁))) := by
-  have hjk := hn.hjk
-  have hcl : SFTermClauses P (xiFieldDom (aIdeal L k (a k)) (Rg.sfBgMass k) (P.eps d L))
-      (Tm N₁) := (hF.torus N₁).terms
-  have hBg := bgHyp_of_class2 hF.admissible hF.coeff hn.hd hn.hL hn.hϱ
-  have hν : 0 < nuIdeal L k (Rg.ν k) j := nuIdeal_pos' (L := L) hF.coeff.nu_pos j
-  have hμν := (Rg.sfBgMass_mul_sq hjk).le
-  have hνb := hF.coeff.nuIdeal_le_one hF.admissible j
-  have hrad := hF.anisoRadiusOK hn.hsmall i₀
-  have hσ : 0 < σ := by rw [hσs]; positivity
   have hfull : ‖∑ᶠ Z ∈ polysAt P.m₀ j y, relPartTorus (Tm N₁) i₀ i₁ j y Ψ (constFld hv) Z‖ ≤
       filedPowerConst d L N P m₁ Λ * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) :=
     norm_filed_le_power hF hn hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat hsec
-  have hX : IsPolyDom P.m₀ j X := by rw [hXc]; exact isPolyDom_cubeAt hN hjk y
-  have hyX : y ∈ X := by rw [hXc]; exact mem_cubeAt y
-  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusOn_bound_of_dataHyp_of_threshold (fun _ _ => True)
-    hF.admissible hcl hBg hN hν hμν hνb hn.hj1 hjk hy hX hyX trivial hSdef hne hrad hΨb hΛ hKsig hC₀
-    dat hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
-  refine ⟨CI, hCI0, ?_⟩
-  rw [irrelTorus_eq_irrelTorusOn]
-  refine hCI.trans (add_le_add le_rfl ?_)
-  rw [ite_eq_left hXc]
-  simpa only [ite_true] using hfull
+  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusB_bound_of_dataHyp_of_threshold hF.admissible hn.hκ hcl hBg
+    hN hν hμν hνb hn.hj1 hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
+    hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
+  refine ⟨CI, hCI0, hCI.trans (add_le_add le_rfl ?_)⟩
+  by_cases hXc : X = box (cbase (cellSide L P.m₀ m₁ j) y -
+      natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j)
+  · rw [ite_eq_left hXc, ite_eq_left hXc, ite_eq_left hXc]
+    linarith [hfull]
+  · rw [ite_eq_right hXc, ite_eq_right hXc, ite_eq_right hXc, norm_zero]
+    simp
 
 end Balaban.SmallField.Def6v2
