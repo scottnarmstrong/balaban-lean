@@ -6,7 +6,9 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Operators.QuietIndep
 public import Balaban.Localization.Decoupled
+public import Balaban.SmallField.GsSpecPoly
 
 /-!
 # The small-field generating sets of `R` on the Def-6 torus
@@ -26,7 +28,7 @@ The conditions are conditions on the constants of the step:
 * `2 d log L ≤ (agmonRate d / 16) (5 L M₁ - 1)` (`DGSetting.sep`);
 and the weights and the mass of the background.  `5 < N₁` follows from `L^{m₁} ∣ M₁` and `c ≥ 14`.
 
-* `SFCtx.coarseSide_eq`, `SFCtx.genWC`, `SFCtx.mem_genWC_Ω`;
+* `SFCtx.coarseSide_eq`, `SFCtx.genWC` (the transport `castG`), `SFCtx.mem_genWC_Ω`;
 * `SFCtx.cubeAligned_genWC`, `SFCtx.five_lt_N₁`, `SFCtx.dgSetting_genWC`.
 -/
 
@@ -35,29 +37,6 @@ and the weights and the mass of the background.  `5 < N₁` follows from `L^{m�
 namespace Balaban.LargeField.Def7
 
 open Balaban Balaban.Multiscale Balaban.Localization
-
-/-! ### Transport of a generating set along an equality of coarse sides -/
-
-section Cast
-
-variable {d L k : ℕ} [NeZero L]
-
-/-- Transport of a generating set along `N₀ = N₀'`. -/
-def castGS {N₀ N₀' : ℕ} [NeZero N₀] [NeZero N₀'] {ϱ : ℝ} (h : N₀ = N₀')
-    (G : GeneratingSet d L N₀ k ϱ) : GeneratingSet d L N₀' k ϱ := h ▸ G
-
-theorem torusCast_val_eq {a b : ℕ} (h : a = b) (y : Torus d a) (μ : Fin d) :
-    ((torusCast h y) μ).val = (y μ).val := by
-  subst h
-  rfl
-
-theorem mem_castGS_Ω {N₀ N₀' : ℕ} [NeZero N₀] [NeZero N₀'] {ϱ : ℝ} (h : N₀ = N₀')
-    (h' : N₀' * L ^ k = N₀ * L ^ k) (G : GeneratingSet d L N₀ k ϱ) (j : ℕ)
-    (x : Torus d (N₀' * L ^ k)) : x ∈ (castGS h G).Ω j ↔ torusCast h' x ∈ G.Ω j := by
-  subst h
-  rfl
-
-end Cast
 
 namespace SFCtx
 
@@ -77,15 +56,20 @@ instance : NeZero (C.geo.M1 * (C.geo.c * n k)) :=
 instance : NeZero (C.N₁ * S.L ^ m₁) :=
   ⟨Nat.mul_ne_zero (NeZero.ne _) (pow_ne_zero _ (NeZero.ne _))⟩
 
-/-- **The small-field generating set `𝔹_k(W_k)` of `Y` on the Def-6 torus.** -/
+/-- **The small-field generating set `𝔹_k(W_k)` of `Y` on the Def-6 torus** (the transport `castG`
+along `M₁ (c n_k) = N₁ L^{m₁}`). -/
 noncomputable def genWC (Y : Set (Torus S.d (n k))) :
     GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) k (minSep S.L C.geo.M1) :=
-  castGS C.coarseSide_eq (C.genW Y)
+  SmallField.GsSpec.castG C.coarseSide_eq (C.genW Y)
 
 theorem mem_genWC_Ω (Y : Set (Torus S.d (n k))) (j : ℕ)
     (x : Localization.CTorus S.d S.L C.N₁ m₁ k) :
-    x ∈ (C.genWC Y).Ω j ↔ sfToBg C.geo C.hT x ∈ (C.genW Y).Ω j :=
-  mem_castGS_Ω C.coarseSide_eq C.hT (C.genW Y) j x
+    x ∈ (C.genWC Y).Ω j ↔ sfToBg C.geo C.hT x ∈ (C.genW Y).Ω j := by
+  have e : (SmallField.GsSpec.torusCast x : BgT C.geo k) = sfToBg C.geo C.hT x := by
+    funext μ
+    apply ZMod.val_injective
+    rw [SmallField.GsSpec.torusCast_val C.hT, sfToBg, torusCast_val]
+  rw [genWC, SmallField.GsSpec.mem_castG_Ω, e]
 
 /-- The layers of `𝔹_k(W)` are unions of the cubes `𝒞_j` (side `L^j M₁`): membership in `Ω_j`
 depends only on the cube index at the level `j`. -/
@@ -119,7 +103,7 @@ theorem cubeAligned_genWC (Y : Set (Torus S.d (n k))) (hdvd : S.L ^ m₁ ∣ C.g
     have hv : ∀ z : Localization.CTorus S.d S.L C.N₁ m₁ k,
         ((sfToBg C.geo C.hT z) μ).val = (z μ).val := fun z => by
       unfold sfToBg
-      exact torusCast_val_eq C.hT z μ
+      exact torusCast_val C.hT z μ
     rw [hv, hv, ht, ← Nat.div_div_eq_div_mul, ← Nat.div_div_eq_div_mul, hxx' μ]
 
 /-- `5 < N₁`: from `L^{m₁} ∣ M₁` and `c ≥ 14`. -/

@@ -1615,6 +1615,12 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 * Found: `Dec2.HatConn` (used by `Dec2.i4b_local`) can fail for generating sets with holes (a hat box at a diagonal corner of a hole); the R-step sets have holes, so the instance needs the admissible form (`HatConnAdm`, `i4b_local_of_agree_on_component_adm`, footprint margins as in `evDecBg_canon_local_of`).
 * Open: the R-step instance (cast of `genW` to the Def-6 torus, `DGSetting`), the root decomposition of the v2 holomorphic exponent and of `A_Z`, the named domain estimate for `ℰ^{(j)}`, `ℳ^{(j)}`, hcut (CrossI4b), the tie to `Rep.B`.
 
+**Row (c), pieces 5–7 (A4, 2026-10-21; axioms `propext, Classical.choice, Quot.sound`).**
+* `R/BPrimeLocal`, `BPrimeRoot`: the admissible locality (`decBgField_lab_local_adm`, `rootLocPremises_pairExt_adm`, `bPrime_pairs_aggregate_adm`; `HatConnAdm`, no footprint premise); the `HatConn` forms are instances.
+* `R/BPrimeGenW.lean`: `SFCtx.genWC` (`castG` of `𝔹_k(W)` to the Def-6 torus), `cubeAligned_genWC`, `dgSetting_genWC` from conditions on the constants; `Spine/RGenWTies.lean` (`RGenWTies`, `rGenWTies_of_pow`), `Spine/RGenWTiesJoint.lean`: `prefixInput_newLevelTies_rGenWTies_exists` (the three side inputs at one choice; cores `prefixInput_exists_of_pow`, `prefixInput_newLevelTies_exists_gap`).
+* `R/BPrimeBgSetting.lean` (shared with ORCH-B): `bgSetting_hat` — `BgSetting` of the chain `𝔹_j(X̂) ≺ 𝔹_{K-1}(Z) ≺ G'` for any top set `G'` of level `K` with `DGSetting` whose top layer contains the `L a_K`-neighbourhood of the polymer, the margin being `NewLevelTies.hat_margin`; instances `bgSetting_hat_of_isLevel`, `bgSetting_hat_levelGS` (`dgSetting_levelGS`, `supSep_levelGS`, `cubeAligned_levelGS`).
+* Finding for the named domain estimate: it needs no I-5 chain. `psiTildeC_subset_xiC` (Theorems 7.1/7.2 on the term's own set) gives `Ξ^c` from the `Ψ̃^c` bounds at its data sites (as `xiDom_of_allSites` for `s = 1`), and the decoupled deviation `φ(s) - φ(1)` enters as the complex part.
+
 ## FrozenSFStepInput split (W1148, 2026-10-20)
 
 **PROVED** (`Spine/FrozenSFStep.lean`; axioms `propext, Classical.choice, Quot.sound`): `frozenSFStepInput_of_parts` from the frozen sub-inputs and `FrozenLFStepInput`
