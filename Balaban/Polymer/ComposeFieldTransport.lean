@@ -119,6 +119,12 @@ structure GSCorr (G : GeneratingSet d L N₀ k ϱ) (H : GeneratingSet d L N₀' 
   collar_iff : ∀ z ∈ R, σ z ∈ collar H ↔ z ∈ collar G
   site : ∀ z ∈ R, SiteCorr G H σ z
 
+theorem GSCorr.mono {G : GeneratingSet d L N₀ k ϱ} {H : GeneratingSet d L N₀' k ϱ₂}
+    {σ : Torus d (N₀ * L ^ k) → Torus d (N₀' * L ^ k)} {R R' : Set (Torus d (N₀ * L ^ k))}
+    (h : GSCorr G H σ R) (hR : R' ⊆ R) : GSCorr G H σ R' :=
+  ⟨fun z hz => h.mem_iff z (hR hz), fun z hz => h.collar_iff z (hR hz),
+    fun z hz => h.site z (hR hz)⟩
+
 /-- **The composed field at every site of a set of correspondence.** -/
 theorem composeField_corr (a : ℕ → ℝ) {R : Set (Torus d (N₀ * L ^ k))}
     (hG : GSCorr G H σ R) (hG' : GSCorr G' H' σ R) {z : Torus d (N₀ * L ^ k)} (hz : z ∈ R)
