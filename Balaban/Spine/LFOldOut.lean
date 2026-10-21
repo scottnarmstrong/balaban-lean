@@ -24,7 +24,10 @@ label of a mark whose cubes lie in `T`.
 * `subset_Yhat_of_connected`: a connected set meeting `Ω'` whose sites in `Ω'` lie in `A` lies in
   `Ŷ(A)`;
 * `d7Pull_subset_outLabel`: **the old label lies in the output label** when the cubes of the site
-  of its mark lie in `T`.
+  of its mark lie in `T`;
+* `holeClose_subset_Yhat_of_connected`, `markSite_holeClose_subset_outLabel`,
+  `markSite_subset_outLabel`: **the site of a mark and the components of `Ω_{k+1}^c` meeting it lie
+  in the output label**.
 -/
 
 @[expose] public section
@@ -61,6 +64,21 @@ theorem subset_Yhat_of_connected {Ω A X : Set (CTorus d L N₁ m₁ K)} (hX : S
             exact mem_comp_self hxΩ
           · exact Or.inr ⟨hcΩ, hbC.2.tail ⟨hbΩ, hcΩ, hn⟩⟩
   exact (key t (hX x hx t htX)).1 htΩ
+
+omit [NeZero N₁] [NeZero L] in
+/-- **The hole closure of a connected set lies in `Ŷ(A)`** when the set meets `Ω`, its sites in `Ω`
+lie in `A` and `A ⊆ Ω`: a component of `Ω^c` meeting the set is the component of a site next to `A`. -/
+theorem holeClose_subset_Yhat_of_connected {Ω A X : Set (CTorus d L N₁ m₁ K)} (hX : SiteConnected X)
+    (hm : (X ∩ Ω).Nonempty) (hA : X ∩ Ω ⊆ A) (hAΩ : A ⊆ Ω) : holeClose Ω X ⊆ Yhat Ω A := by
+  have hXY := subset_Yhat_of_connected hX hm hA
+  rintro y (hy | hy)
+  · exact hXY hy
+  · obtain ⟨z, ⟨hzX, hzΩ⟩, hyz⟩ := Set.mem_iUnion₂.1 hy
+    rcases hXY hzX with hzA | ⟨w, hw, hwA, hzw⟩
+    · exact absurd (hAΩ hzA) hzΩ
+    · refine Or.inr ⟨w, hw, hwA, ?_⟩
+      rw [comp_eq_of_rtg hzw.2]
+      exact hyz
 
 end Balaban.Fluctuation
 
@@ -169,6 +187,59 @@ theorem d7Pull_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo 
     exact ⟨b, hb⟩
   rw [(outLabel_spec F hnn hk (OmegaCube H (k + 1)) T hTne hfin).1]
   exact subset_Yhat_of_connected hX.2.1 ⟨x, hx⟩ hsub
+
+include hnn in
+/-- **The hole closure of the site of a mark lies in the output label** (P6 p. 34; FLUCTUATION
+Theorem 3.1 (c)): for a family `J` with a good site (`GoodJ` at `Ω_{k+1}`) and a set `T` of cubes of
+`Ω_{k+1}` with `d_Ω(T) < ∞` containing the cubes of `Ω_{k+1}` inside the site (the cluster term is
+zero otherwise), the site and the components of `Ω_{k+1}^c` meeting it lie in `Ŷ(T)`, the fine set of
+the output label of `T`. -/
+theorem markSite_holeClose_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo S n R M}
+    (hM1 : g.M1 = S.L ^ m₁) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hJ : GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J)
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
+    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSite g hnn hM1 F H hk hρ r r' X J) ⊆ T)
+    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
+    holeClose (d7Pull F (k + 1) (OmegaCube H (k + 1))) (markSite g hnn hM1 F H hk hρ r r' X J) ⊆
+      d7Pull F (k + 1) (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) := by
+  obtain ⟨hDj, hm⟩ := hJ
+  have hsites : sitesOf (blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSite g hnn hM1 F H hk hρ r r' X J)) =
+      markSite g hnn hM1 F H hk hρ r r' X J ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) :=
+    sitesOf_blocksOf F.divN₁ hk (d7Pull_isPiUnion F hnn hk (OmegaCube H (k + 1))) hDj.2.1
+  have hsub : markSite g hnn hM1 F H hk hρ r r' X J ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆
+      sitesOf T := by
+    rw [← hsites]
+    intro z hz
+    obtain ⟨b, hb, hzb⟩ := mem_sitesOf.1 hz
+    exact mem_sitesOf.2 ⟨b, hT hb, hzb⟩
+  have hTne : T.Nonempty := by
+    obtain ⟨z, hz⟩ := hm
+    obtain ⟨b, hb, -⟩ := mem_sitesOf.1 (hsub hz)
+    exact ⟨b, hb⟩
+  rw [(outLabel_spec F hnn hk (OmegaCube H (k + 1)) T hTne hfin).1]
+  exact holeClose_subset_Yhat_of_connected hDj.2.2 hm hsub (sitesOf_subset F T)
+
+include hnn in
+/-- **The site of a mark lies in the output label** (`markSite_holeClose_subset_outLabel`). -/
+theorem markSite_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo S n R M}
+    (hM1 : g.M1 = S.L ^ m₁) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hJ : GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J)
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
+    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSite g hnn hM1 F H hk hρ r r' X J) ⊆ T)
+    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
+    markSite g hnn hM1 F H hk hρ r r' X J ⊆
+      d7Pull F (k + 1) (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) :=
+  (subset_holeClose _ _).trans
+    (markSite_holeClose_subset_outLabel F hnn hM1 H hk hρ r r' X J hJ T hT hfin)
 
 end Out
 
