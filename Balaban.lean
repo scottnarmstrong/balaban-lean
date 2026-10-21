@@ -2525,6 +2525,7 @@ public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.SmallField.IrrelTorusOn
 public import Balaban.SmallField.IrrelTorus
 public import Balaban.SmallField.IrrelTorusSum
 public import Balaban.SmallField.IrrelTorusBoundTube
@@ -3038,7 +3039,9 @@ public import Balaban.Inhabited.NewLevelCanonPins
 public import Balaban.Polymer.PolyDomBoxMap
 public import Balaban.Polymer.FderivTransfer
 public import Balaban.Polymer.IrrelBoxTransfer
+public import Balaban.Polymer.IrrelTorusOnBox
 public import Balaban.Polymer.IrrelTorusBox
+public import Balaban.Polymer.IrrelTorusBCell
 public import Balaban.Inhabited.NewLevelClassPair
 public import Balaban.Inhabited.NewLevelClassE
 public import Balaban.Inhabited.NewLevelCanonBox
