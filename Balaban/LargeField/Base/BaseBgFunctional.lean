@@ -7,7 +7,7 @@ module
 
 public import Balaban.LargeField.Base.BaseBgAgree
 public import Balaban.LargeField.Base.BaseBgLocalityAlg
-public import Balaban.LargeField.Base.BaseBgExpansion
+public import Balaban.Green.FinalBoxLocCore
 public import Balaban.LargeField.Base.BaseBackgroundLocal
 
 /-!

@@ -2176,7 +2176,6 @@ public import Balaban.LargeField.Base.BaseChartActExpansion
 public import Balaban.LargeField.Base.BaseChartActReads
 public import Balaban.LargeField.Base.BaseChartActLocal
 public import Balaban.LargeField.Base.BaseBgFunctional
-public import Balaban.LargeField.Base.BaseBgExpansion
 public import Balaban.LargeField.Base.BaseBgAgree
 public import Balaban.LargeField.Base.BaseBgLocalityAlg
 public import Balaban.LargeField.Base.BaseBackgroundIdent
