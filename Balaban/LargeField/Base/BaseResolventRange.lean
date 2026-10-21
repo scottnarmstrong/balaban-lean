@@ -139,20 +139,21 @@ theorem baseHamiltonian_apply (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 → ℂ)
   unfold baseHamiltonian cutOperator
   simp [restrictOp, Matrix.diagonal_apply, Matrix.sum_apply, Matrix.add_apply]
 
-theorem sum_norm_cutFull_row_le {a : ℕ → ℝ} (ha : IsAdmissibleWeights 1 a) {ν : ℝ}
-    (hν : 0 ≤ ν) (z : G.Ω 1) :
-    ∑ y : G.Ω 1, |cutFullMatrix G a ν (baseCutBonds G) z y| ≤ ν + 4 * d + 2 := by
+/-- Row sums of the cut full matrix: at most `ν + 4 d + 2` for every set of removed bonds. -/
+theorem sum_norm_cutFull_row_le_cut (cut : Finset (FineBond d L N₀)) {a : ℕ → ℝ}
+    (ha : IsAdmissibleWeights 1 a) {ν : ℝ} (hν : 0 ≤ ν) (z : G.Ω 1) :
+    ∑ y : G.Ω 1, |cutFullMatrix G a ν cut z y| ≤ ν + 4 * d + 2 := by
   classical
-  have hsub : ∑ y : G.Ω 1, |cutFullMatrix G a ν (baseCutBonds G) z y| ≤
-      ∑ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν (baseCutBonds G) z y| := by
-    calc _ = ∑ y ∈ G.Ω 1, |cutFullMatrix G a ν (baseCutBonds G) z y| :=
-          Finset.sum_coe_sort (G.Ω 1) (fun y => |cutFullMatrix G a ν (baseCutBonds G) z y|)
+  have hsub : ∑ y : G.Ω 1, |cutFullMatrix G a ν cut z y| ≤
+      ∑ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν cut z y| := by
+    calc _ = ∑ y ∈ G.Ω 1, |cutFullMatrix G a ν cut z y| :=
+          Finset.sum_coe_sort (G.Ω 1) (fun y => |cutFullMatrix G a ν cut z y|)
       _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _)
           (fun _ _ _ => abs_nonneg _)
   refine hsub.trans ?_
-  have hentry : ∀ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν (baseCutBonds G) z y| ≤
+  have hentry : ∀ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν cut z y| ≤
       (if (z : Torus d (N₀ * L ^ 1)) = y then ν else 0) +
-        ∑ b ∈ Finset.univ \ baseCutBonds G, |bondMatrix b z y| + |avgMatrix G a z y| := by
+        ∑ b ∈ Finset.univ \ cut, |bondMatrix b z y| + |avgMatrix G a z y| := by
     intro y
     rw [cutFullMatrix_eq]
     simp only [Matrix.add_apply, Matrix.smul_apply, Matrix.one_apply, Matrix.sum_apply,
@@ -162,18 +163,23 @@ theorem sum_norm_cutFull_row_le {a : ℕ → ℝ} (ha : IsAdmissibleWeights 1 a)
     split_ifs with h
     · simp [abs_of_nonneg hν]
     · simp
-  calc ∑ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν (baseCutBonds G) z y|
+  calc ∑ y : Torus d (N₀ * L ^ 1), |cutFullMatrix G a ν cut z y|
       ≤ ∑ y : Torus d (N₀ * L ^ 1), ((if (z : Torus d (N₀ * L ^ 1)) = y then ν else 0) +
-        ∑ b ∈ Finset.univ \ baseCutBonds G, |bondMatrix b z y| + |avgMatrix G a z y|) :=
+        ∑ b ∈ Finset.univ \ cut, |bondMatrix b z y| + |avgMatrix G a z y|) :=
         Finset.sum_le_sum fun y _ => hentry y
-    _ = ν + ∑ b ∈ Finset.univ \ baseCutBonds G, ∑ y : Torus d (N₀ * L ^ 1), |bondMatrix b z y| +
+    _ = ν + ∑ b ∈ Finset.univ \ cut, ∑ y : Torus d (N₀ * L ^ 1), |bondMatrix b z y| +
           ∑ y, |avgMatrix G a z y| := by
         rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_comm]
         simp
     _ ≤ ν + 4 * d + 2 := by
-        have h1 := sum_bonds_abs_row_le (Finset.univ \ baseCutBonds G) z
+        have h1 := sum_bonds_abs_row_le (Finset.univ \ cut) z
         have h2 := sum_abs_avgMatrix_row G ha z
         linarith
+
+theorem sum_norm_cutFull_row_le {a : ℕ → ℝ} (ha : IsAdmissibleWeights 1 a) {ν : ℝ}
+    (hν : 0 ≤ ν) (z : G.Ω 1) :
+    ∑ y : G.Ω 1, |cutFullMatrix G a ν (baseCutBonds G) z y| ≤ ν + 4 * d + 2 :=
+  sum_norm_cutFull_row_le_cut G (baseCutBonds G) ha hν z
 
 omit [NeZero N₀] in
 theorem eta_le_one {η : ℝ} (hη : η ≤ baseCoercivity L / (8 * d)) : η ≤ 1 := by
