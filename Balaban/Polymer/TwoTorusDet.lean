@@ -1207,6 +1207,45 @@ theorem detActivityOf_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁
     exact (hmix J hJY (i J) (hpi J)).symm
 
 
+omit [NeZero N₁'] in
+/-- **The sites seen by a set of parameter cubes with hull `Y` lie in the box.**  If the sites of
+the polymer `Y` lie in the box of radius `r` and `Y` contains the root cube of the unit point `y`,
+then for every set `J` of parameter cubes with hull `Y` the sites of the `(k+1)`-block of `y` and
+the cubes of the patches of `J` lie in the box of radius `r`. -/
+theorem inBox_hull_facts (hN : L ^ m₀ ∣ N₁) (y : unitPts (GA))
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y) {r : ℕ}
+    (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (J : Finset (cubeIdx (GA))) (hJY : hullOf m₀ (rootIdxOf y) (patches J) = Y) :
+    (∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧
+    ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+  classical
+  obtain ⟨x0, -, hx0⟩ := (mem_unitPts _).1 y.2
+  have hroot : ∀ x ∈ rootSet m₀ (rootIdxOf y), InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => hYr x (mem_sitesOf.2 ⟨_, hyY, hx⟩)
+  have hboxA : ∀ x ∈ hullSet m₀ (rootIdxOf y) (patches J),
+      InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    refine hYr x ?_
+    rw [← hJY]
+    exact subset_sitesOf_piHull hN _ hx
+  have hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    refine hroot x ?_
+    have h : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x =
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
+      rw [← unitBlock1_unitBlock x, ← unitBlock1_unitBlock x0, hx, hx0]
+    rw [rootIdxOf_eq hx0, ← blockIndex_eq_of_jBlock_eq h]
+    exact mem_rootSet_blockIndex x
+  have hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro P hP x hx
+    refine hboxA x (Or.inr (Set.mem_iUnion₂.2 ⟨P, hP, ?_⟩))
+    rw [← coe_cubeP_eq_Pset]; exact hx
+  exact ⟨hbR, hJR⟩
+
 /-- **D3: the determinant activity of a polymer on two tori.**  Let `Y` be a set of level-`(k+1)`
 cubes of the first torus with sites in the box of radius `r`, containing the root cube of the unit
 point `y`, and `Y' = cubeMap '' Y`.  Under the standing hypotheses of the charts on the two tori
@@ -1259,28 +1298,7 @@ theorem detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁
     omega
   refine detActivityOf_twoTorus hN hN' y Y hyY hYr (by omega) (by omega) hn3 hn3' hnH hnH' ?_
   intro J hJY J' hJ'
-  obtain ⟨x0, -, hx0⟩ := (mem_unitPts _).1 y.2
-  have hroot : ∀ x ∈ rootSet m₀ (rootIdxOf y), InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun x hx => hYr x (mem_sitesOf.2 ⟨_, hyY, hx⟩)
-  have hboxA : ∀ x ∈ hullSet m₀ (rootIdxOf y) (patches J),
-      InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro x hx
-    refine hYr x ?_
-    rw [← hJY]
-    exact subset_sitesOf_piHull hN _ hx
-  have hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
-      unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro x hx
-    refine hroot x ?_
-    have h : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x =
-        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
-      rw [← unitBlock1_unitBlock x, ← unitBlock1_unitBlock x0, hx, hx0]
-    rw [rootIdxOf_eq hx0, ← blockIndex_eq_of_jBlock_eq h]
-    exact mem_rootSet_blockIndex x
-  have hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro P hP x hx
-    refine hboxA x (Or.inr (Set.mem_iUnion₂.2 ⟨P, hP, ?_⟩))
-    rw [← coe_cubeP_eq_Pset]; exact hx
+  obtain ⟨hbR, hJR⟩ := inBox_hull_facts hN y Y hyY hYr J hJY
   exact mixDiff_rootTraceBg_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' J J' hJ'
     hbR hJR hn hn' hnS hnS' hraw
 
