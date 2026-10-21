@@ -230,4 +230,51 @@ theorem StepData.spliceZero_ker_succ (sl : StepSlice0 k0 geo cs N (κs 0))
 
 end Splice
 
+
+section QuietGauss
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+
+/-- **The Gaussian bound of the quiet step data at a smaller exponent**: at the localized histories
+of quiet steps the exponent `κs` may be any number at most `quietKappaStep` (the one-step bound is
+monotone, `GaussStepSpec.mono`); elsewhere the kernel is zero and every exponent is allowed. -/
+theorem quietStepData'_gauss_le [NeZero N] (inp : QuietStepInput' K k0 geo cs N)
+    (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.muBg q))
+    (hN : 2 ≤ N) (c1 c2 : ℝ) (hc1 : cs.Cb ≤ c1) (hc2 : cs.Cb * cs.B0 ≤ c2)
+    (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
+    (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (hδ : ∀ k, 0 < cs.delta k) (hδ1 : ∀ k, 3 * S.d * S.L * cs.delta k ≤ 1 / 2)
+    (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
+    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0)
+    {κs : ℕ → LocalHistory S n M K → ℝ}
+    (hκ : ∀ k a, QuietRealized R k0 k a → κs k a ≤ quietKappaStep cs c1 c2 k a)
+    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (k : ℕ) (Z' : H.Comp (k + 1 + 1)) :
+    GaussStepSpec cs R (H.localHistory M K (k + 1 + 1) Z') (k + 1)
+      (κs (k + 1) (H.localHistory M K (k + 1 + 1) Z'))
+      ((quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
+        hB0).ker (k + 1) (H.localHistory M K (k + 1 + 1) Z'))
+      ((quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
+        hB0).wit (k + 1) (H.localHistory M K (k + 1 + 1) Z')) := by
+  classical
+  by_cases hr : QuietRealized R k0 (k + 1) (H.localHistory M K (k + 1 + 1) Z')
+  · exact (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
+      hB0).gauss H hH (k + 1) Z' |>.mono (hκ _ _ hr)
+  · have hw : (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ
+        hCb hB0).wit (k + 1) (H.localHistory M K (k + 1 + 1) Z') =
+        zeroWit N R (H.localHistory M K (k + 1 + 1) Z') (k + 1) := by
+      show quietWit inp.toInput hz hc hβ haw hμ hbg hbgB hN c1 c2 hc1 hc2 hlog hcpos hδ hδ1 hΛ (k + 1) _ = _
+      unfold quietWit
+      simp only [hr, ↓reduceDIte]
+    rw [hw]
+    refine gaussSpec_zero cs _ (k + 1) _ _ fun o x hv => ?_
+    show (quietKer inp.toInput hz hc hβ haw hμ hbg hbgB (k + 1) _).K o x hv = 0
+    rw [quietKer_K]
+    simp only [hr, ↓reduceIte]
+
+end QuietGauss
+
 end Balaban.LargeField
