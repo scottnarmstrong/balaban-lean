@@ -2959,6 +2959,7 @@ public import Balaban.Inhabited.NewLevelGPairs
 public import Balaban.Polymer.NewLevelDetTwoTorus
 public import Balaban.Inhabited.NewLevelCoeffTwoTorus
 public import Balaban.Inhabited.NewLevelCanon
+public import Balaban.Polymer.PolyDomBoxMap
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
