@@ -94,4 +94,98 @@ theorem step_Z_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K}
   have h : S.L ^ k * M = S.L ^ k * (g.c * g.M1) := congrArg (S.L ^ k * ·) g.hM
   rw [hf, h]
 
+theorem step_Omega_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K}
+    (hI : RegionIso σ H H') {k : ℕ} (hk : k + 1 ≤ K) :
+    (H'.step k).Omega = ((stepAff g hnn hM1 σ hk).coarse (S.L ^ (k + 1) * (g.c * g.M1))
+      (n (k + 1))).toFun '' (H.step k).Omega := by
+  rw [stepAff_coarse, hI.omega hk]
+  have hf : ⇑(σ.ec (k + 1)) = (σ.aff.coarse (S.L ^ (k + 1) * M) (n (k + 1))).toFun :=
+    funext (σ.ec_eq hnn hk)
+  have h : S.L ^ (k + 1) * M = S.L ^ (k + 1) * (g.c * g.M1) :=
+    congrArg (S.L ^ (k + 1) * ·) g.hM
+  rw [hf, h]
+
+variable (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+  (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ ψ₁ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+  (a₁ ν β p₁ δ : ℝ)
+
+/-- **The old set `G` of the step is carried by the lattice symmetry.** -/
+theorem holeStepLF_G_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j : ℕ)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        (holeStepLF g hnn hM1 H' hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).G.Ω j ↔
+      x ∈ (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.Ω j := by
+  rw [holeStepLF_G_Ω, holeStepLF_G_Ω, ← stepAff_toFun g hnn hM1 σ hk x]
+  have hal := stepAff_aligned g hnn hM1 σ hk
+  have hn : n k = S.L * n (k + 1) := hnn k (by omega)
+  have h1 := stepW_map hal hn (⌊R (k - 1)⌋₊) (H.step k).Z
+  rw [← step_Z_aff g hnn hM1 σ hI hk] at h1
+  have h2 := minLayer_map (A := stepAff g hnn hM1 σ hk) (c := g.c) hal (j := k) (Nat.le_succ k)
+    (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H.step k).Z) j
+  rw [h1] at h2
+  have key : ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+      (stepAff g hnn hM1 σ hk).toFun y ∈ minLayer g.M1 (g.c * n (k + 1)) S.L (k + 1) k
+        (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H'.step k).Z) j ↔
+      y ∈ minLayer g.M1 (g.c * n (k + 1)) S.L (k + 1) k
+        (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H.step k).Z) j := by
+    intro y
+    rw [h2, Finset.mem_map_equiv]
+    have e : (stepAff g hnn hM1 σ hk).toEquiv.symm ((stepAff g hnn hM1 σ hk).toFun y) = y :=
+      (stepAff g hnn hM1 σ hk).invFun_toFun y
+    rw [e]
+  exact key _
+
+theorem holeStepLF_G'_Ω_top' (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    x ∈ (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.Ω (k + 1) ↔
+      ((congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm ▸ x :
+        Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1))) ∈
+        fineK1 g.M1 g.c (n (k + 1)) S.L k (H.step k).Omega := by
+  unfold holeStepLF holeStepOf
+  dsimp only
+  rw [p6TopC, mem_castN_Ω, p6Top_Ω_top]
+
+/-- **The set `G'` of the step is carried by the lattice symmetry.** -/
+theorem holeStepLF_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j : ℕ)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        (holeStepLF g hnn hM1 H' hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).G'.Ω j ↔
+      x ∈ (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.Ω j := by
+  by_cases hj : j = k + 1
+  · subst hj
+    rw [holeStepLF_G'_Ω_top', holeStepLF_G'_Ω_top', ← stepAff_toFun g hnn hM1 σ hk x]
+    have hal := stepAff_aligned g hnn hM1 σ hk
+    have hn : n k = S.L * n (k + 1) := hnn k (by omega)
+    have h1 := fineK1_map hal hn (H.step k).Omega
+    rw [← step_Omega_aff g hnn hM1 σ hI hk] at h1
+    have key : ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+        (stepAff g hnn hM1 σ hk).toFun y ∈ fineK1 g.M1 g.c (n (k + 1)) S.L k (H'.step k).Omega ↔
+        y ∈ fineK1 g.M1 g.c (n (k + 1)) S.L k (H.step k).Omega := by
+      intro y
+      rw [← h1, Finset.mem_map_equiv]
+      have e : (stepAff g hnn hM1 σ hk).toEquiv.symm ((stepAff g hnn hM1 σ hk).toFun y) = y :=
+        (stepAff g hnn hM1 σ hk).invFun_toFun y
+      rw [e]
+    exact key _
+  · rw [holeStepLF_G'_Ω_of_ne g hnn hM1 H' hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ hj,
+      holeStepLF_G'_Ω_of_ne g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ hj,
+      ← stepAff_toFun g hnn hM1 σ hk x]
+    have hal := stepAff_aligned g hnn hM1 σ hk
+    have hn : n k = S.L * n (k + 1) := hnn k (by omega)
+    have h1 := stepW_map hal hn (⌊R (k - 1)⌋₊) (H.step k).Z
+    rw [← step_Z_aff g hnn hM1 σ hI hk] at h1
+    have h2 := minLayer_map (A := stepAff g hnn hM1 σ hk) (c := g.c) hal (j := k)
+      (Nat.le_succ k) (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H.step k).Z) j
+    rw [h1] at h2
+    have key : ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+        (stepAff g hnn hM1 σ hk).toFun y ∈ minLayer g.M1 (g.c * n (k + 1)) S.L (k + 1) k
+          (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H'.step k).Z) j ↔
+        y ∈ minLayer g.M1 (g.c * n (k + 1)) S.L (k + 1) k
+          (stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H.step k).Z) j := by
+      intro y
+      rw [h2, Finset.mem_map_equiv]
+      have e : (stepAff g hnn hM1 σ hk).toEquiv.symm ((stepAff g hnn hM1 σ hk).toFun y) = y :=
+        (stepAff g hnn hM1 σ hk).invFun_toFun y
+      rw [e]
+    exact key _
+
 end Balaban.RootFSpine
