@@ -76,6 +76,8 @@ theorem baseRho1_allGood_baseWhite
           ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
             (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re))) : ℝ) : ℂ) *
           F (tangentProj e he (W φ))) ∧
+      (∀ (φ : Config (Torus d (L * n)) N) (x : Torus d (L * n)),
+        ‖W φ x‖ ≤ N * matRowSum Wc * ‖φ‖) ∧
       baseRho1 d N L n β a z₁ ν h ψ g =
         ((z₁ ^ (N * Fintype.card (Torus d n)) : ℝ) : ℂ) *
           ((((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) •
@@ -113,7 +115,7 @@ theorem baseRho1_allGood_baseWhite
     exact this.symm
   have hWim : ∀ p q, (Wc p q).im = 0 := fun p q =>
     whiteW_im_eq_zero _ _ _ (fun i j => by rw [hAc]; simp) R p q
-  obtain ⟨W, hW1, hW2⟩ := exists_config_whitening e Hα c Wc Dc _ (fun p q => hAc p q) hWim hdet
+  obtain ⟨W, hW1, hW2, hW3⟩ := exists_config_whitening e Hα c Wc Dc _ (fun p q => hAc p q) hWim hdet
     (fun ψ' => baseWhite_bilinear G ea hμ R ψ')
   have hK := baseSector_gaussForm_posDef_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H hΛ1
     θ φ₀ hp
@@ -121,7 +123,7 @@ theorem baseRho1_allGood_baseWhite
   have hint := integrable_gaussian_mul_baseSectorF hβ a ν δ₀ ϱ aw regimeB hδ h hh H hΛ1 g θ φ₀ hp
   have hFm : Measurable F := measurable_baseSectorF β a ν regimeB h g θ e he Hα χ
     (measurable_baseSectorCubeProduct regimeB ν δ₀ h θ) κ
-  refine ⟨W, integrable_tangent_gaussian_whitened e he Hα hK W _ hW2 F hFm hint, ?_⟩
+  refine ⟨W, integrable_tangent_gaussian_whitened e he Hα hK W _ hW2 F hFm hint, hW3, ?_⟩
   rw [← hW1]
   exact baseRho1_allGood_whitened hβ ha0 ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 hΛ2 g ψ φ₀ hp W
     (fun φ => ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
@@ -168,6 +170,8 @@ theorem baseRho1_allGood_baseWhite_split
     let Wc := baseWhiteW G aw (if regimeB then ν else 0) α (fun _ => 1) ea R
     let Dc := whiteDefect (baseWhiteK G aw (if regimeB then ν else 0) α (fun _ => 1) ea) R
     ∃ W : Config (Torus d (L * n)) N ≃ₗ[ℝ] Config (Torus d (L * n)) N,
+      (∀ (φ : Config (Torus d (L * n)) N) (x : Torus d (L * n)),
+        ‖W φ x‖ ≤ N * matRowSum Wc * ‖φ‖) ∧
       let Ψ : Config (Torus d (L * n)) N → ℂ := fun φ =>
         (((Real.exp (-(1 / 2) * (cinner φ φ +
           ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
@@ -184,9 +188,9 @@ theorem baseRho1_allGood_baseWhite_split
                 ((1 - rSmall (ι := Torus d (L * n)) (N := N) p₁ φ : ℝ) : ℂ) * Ψ φ))) +
             baseFirstRest d N L n β a z₁ ν regimeB δ₀ h g ψ) := by
   intro θ G α e he Hα χ κ F ea c Wc Dc
-  obtain ⟨W, hI, hρ⟩ := baseRho1_allGood_baseWhite hβ ha0 ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 hΛ2
+  obtain ⟨W, hI, hrow, hρ⟩ := baseRho1_allGood_baseWhite hβ ha0 ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 hΛ2
     g ψ φ₀ hp R hR
-  refine ⟨W, ?_⟩
+  refine ⟨W, hrow, ?_⟩
   dsimp only
   rw [hρ]
   congr 4
