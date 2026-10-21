@@ -408,7 +408,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_ph
       (by exact ⟨rfl, i₀, i₁, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun τ r => rfl⟩) hnl,
       fun hGjC => NewLevelFormula.of_for
         (by exact ⟨rfl, i₀, i₁, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun τ r => rfl,
-          fun τ => ⟨hGjC τ, hj1 τ, hjk τ, hal τ, hXp τ, hy τ, hXL τ⟩⟩) hnl⟩ hB)
+          fun τ => ⟨hGjC τ, hj1 τ, hjk τ, hal τ, hXp τ, hy τ, hXL τ⟩,
+          fun τ τ' h1 h2 h3 => Subtype.ext (Prod.ext h1 (Prod.ext h2 h3))⟩) hnl⟩ hB)
 
 open Classical in
 /-- The class chain (CoreCollar), with `B` bounded by an explicit constant. -/

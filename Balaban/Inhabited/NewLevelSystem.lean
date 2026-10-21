@@ -554,16 +554,17 @@ def OldTermsAreIrrelW (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L 
 (ruling R13): the old term of `τ` is `irrelTorus` of `C.Tm` at the label `(jL τ, y τ, X τ)`
 (`1 ≤ jL τ ≤ k`, `y τ ∈ X τ` aligned to `L^{jL τ}`, `X τ ∈ 𝒟_{jL τ}`), and it is composed on the
 generating set `C.Tm.gs (jL τ) (X τ)` of the class (P1 (3.112)-(3.113), P3 (4.4)-(4.6)); its polymer
-`O.XL τ` is `X τ ∪ □(y τ)`. -/
+`O.XL τ` is `X τ ∪ □(y τ)`, and distinct old terms have distinct labels. -/
 def OldTermsAreIrrel (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ) {t : ℝ}
     (O : OldTermSystem S t) : Prop :=
   O.m₀ = C.m₀ ∧ ∃ (i₀ i₁ : Fin N) (y : O.ι → CTorus d L N₁ m₁ (k + 1))
     (X : O.ι → Set (CTorus d L N₁ m₁ (k + 1))),
     (∀ τ r, O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2) ∧
-    ∀ τ, O.Gj τ = C.Tm.gs (O.jL τ) (X τ) ∧ 1 ≤ O.jL τ ∧ O.jL τ ≤ k ∧
+    (∀ τ, O.Gj τ = C.Tm.gs (O.jL τ) (X τ) ∧ 1 ≤ O.jL τ ∧ O.jL τ ≤ k ∧
       Aligned (L ^ O.jL τ) (y τ) ∧ IsPolyDom C.m₀ (O.jL τ) (X τ) ∧ y τ ∈ X τ ∧
       O.XL τ = X τ ∪ box (cbase (cellSide L C.m₀ m₁ (O.jL τ)) (y τ) -
-        natT fun _ => L / 2 * cellSide L C.m₀ m₁ (O.jL τ)) (L * cellSide L C.m₀ m₁ (O.jL τ))
+        natT fun _ => L / 2 * cellSide L C.m₀ m₁ (O.jL τ)) (L * cellSide L C.m₀ m₁ (O.jL τ))) ∧
+    ∀ τ τ', O.jL τ = O.jL τ' → y τ = y τ' → X τ = X τ' → τ = τ'
 
 theorem OldTermsAreIrrel.toW {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
     {t : ℝ} {O : OldTermSystem S t} (h : OldTermsAreIrrel S C O) : OldTermsAreIrrelW S C O := by
