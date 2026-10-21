@@ -740,6 +740,7 @@ public import Balaban.SmallField.Def6v2Domain
 public import Balaban.SmallField.Def6v2
 public import Balaban.Background.ScaledDomain
 public import Balaban.Background.ScaledDomainC
+public import Balaban.Fluctuation.RenormXiC
 public import Balaban.SmallField.RenormCondStep
 public import Balaban.SmallField.Def6v2RefJet
 public import Balaban.SmallField.Def6v2Source
