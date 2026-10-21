@@ -26,9 +26,10 @@ transported to the Def-6 torus `CTorus d L N₁ m₁ k` (`SFCtx.genWC`).  Their 
 background theory's separation, which is weaker than the Agmon separation here.
 
 * `RGenWTies`: the four conditions for every `κ, c₉ > 0`;
-* `rGenWTies_exists`: they are jointly satisfiable with `M = c M₁ = L^{m₀ + m₁}`, `c ≥ 14`, for
-  every `d, L ≥ 3` and every large `m₁` (`M₁ = L^{m₁ + a}`, `c = L^{m₀ - a}`);
-* `rGenWTies_nonempty`: `RGenWTies` holds for a choice of `m₁` and `M₁` (Rule 10).
+* `rGenWTies_of_pow`, `rGenWTies_of_choice`: at the choice of the prefix witness
+  (`prefixInput_exists_of`: `c = L³`, `M₁ = L^{m₀ + m₁ - 3}`) they hold as soon as `3 ≤ m₀`, `4 ≤ m₁`
+  and `R₀(d, L) < L^{m₀-3}` (all monotone in the exponents);
+* `rGenWTies_nonempty`: `RGenWTies` holds for a choice of `M₁` (Rule 10).
 -/
 
 @[expose] public section
@@ -45,71 +46,89 @@ def RGenWTies (d : ℕ) (T : ℝ → ℝ → Typing) (C7 : ℝ → ℝ → Const
     4 * d * (T κ c₉).L ^ (C7 κ c₉).m₁ ≤ 5 * M1 κ c₉ ∧
     2 * d * Real.log (T κ c₉).L ≤ agmonRate d / 16 * (minSep (T κ c₉).L (M1 κ c₉) - 1)
 
-/-- The arithmetic of the conditions on `M₁` at one `L ≥ 3` and `m₁`, `M₁ = L^{m₁ + a}`: they hold
-as soon as `L^a` dominates `d` and the Agmon constant. -/
-theorem rGenWTies_at {d L m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ a : ℕ, L ^ m₁ ∣ L ^ (m₁ + a) ∧ 4 * d * L ^ m₁ ≤ 5 * L ^ (m₁ + a) ∧
-      2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ (m₁ + a)) - 1) := by
+/-- **The conditions in combinable form** (the explicit choice of `prefixInput_exists_of`:
+`c = L³`, `M₁ = L^{m₀ + m₁ - 3}`): they hold as soon as `3 ≤ m₀`, `4 ≤ m₁` and `R₀(d, L) < L^{m₀-3}`.
+The hypotheses are monotone in `m₀` and in `m₁` (eventually true), so they intersect with the other
+ties of the constants. -/
+theorem rGenWTies_of_pow {d L m₀ m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) (hm₀ : 3 ≤ m₀) (hm₁ : 4 ≤ m₁)
+    (hR : Background.bgR0 d L < (L : ℝ) ^ (m₀ - 3)) :
+    L ^ m₁ ∣ L ^ (m₀ + m₁ - 3) ∧ 2 ≤ m₁ ∧ 4 * L ^ 2 ≤ L ^ m₁ ∧
+      4 * d * L ^ m₁ ≤ 5 * L ^ (m₀ + m₁ - 3) ∧
+      2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L (L ^ (m₀ + m₁ - 3)) - 1) := by
   have hag := agmonRate_pos (show 0 < d by omega)
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (show 1 < L by omega)
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hd3 : (3 : ℝ) ≤ d := by exact_mod_cast hd
   have hlog : 0 ≤ Real.log L := Real.log_nonneg hL1.le
-  obtain ⟨a, ha⟩ := pow_unbounded_of_one_lt (4 * (d : ℝ) + 32 * d * Real.log L / agmonRate d + 1) hL1
-  refine ⟨a, pow_dvd_pow L (by omega), ?_, ?_⟩
-  · have h1 : (4 * d : ℝ) ≤ (L : ℝ) ^ a := by
-      have : 0 ≤ 32 * (d : ℝ) * Real.log L / agmonRate d := by positivity
-      linarith
-    have h2 : ((4 * d * L ^ m₁ : ℕ) : ℝ) ≤ ((5 * L ^ (m₁ + a) : ℕ) : ℝ) := by
+  have hsplit : (L : ℝ) ^ (m₀ + m₁ - 3) = (L : ℝ) ^ m₁ * (L : ℝ) ^ (m₀ - 3) := by
+    rw [← pow_add]; congr 1; omega
+  have hpm : (81 : ℝ) ≤ (L : ℝ) ^ m₁ := by
+    calc (81 : ℝ) = 3 ^ 4 := by norm_num
+      _ ≤ (L : ℝ) ^ 4 := by gcongr
+      _ ≤ (L : ℝ) ^ m₁ := pow_le_pow_right₀ hL1.le hm₁
+  have hb1 : 4 * (d : ℝ) * L ≤ Background.bgR0 d L := le_max_left _ _
+  have hb2 : 1 + 2 * d * Real.log L / (agmonRate d / 2 / 2) ≤ Background.bgR0 d L :=
+    le_max_right _ _
+  have hP : (0 : ℝ) ≤ (L : ℝ) ^ (m₀ - 3) := by positivity
+  refine ⟨pow_dvd_pow L (by omega), by omega, ?_, ?_, ?_⟩
+  · have h1 : 4 * L ^ 2 ≤ L ^ 4 := by
+      have : 4 ≤ L ^ 2 := by nlinarith
+      calc 4 * L ^ 2 ≤ L ^ 2 * L ^ 2 := Nat.mul_le_mul_right _ this
+        _ = L ^ 4 := by ring
+    exact h1.trans (Nat.pow_le_pow_right (by omega) hm₁)
+  · have h : ((4 * d * L ^ m₁ : ℕ) : ℝ) ≤ ((5 * L ^ (m₀ + m₁ - 3) : ℕ) : ℝ) := by
       push_cast
-      rw [pow_add]
-      have hp : (0 : ℝ) ≤ (L : ℝ) ^ m₁ := by positivity
+      rw [hsplit]
+      have hdL : 4 * (d : ℝ) ≤ (L : ℝ) ^ (m₀ - 3) := by nlinarith
+      have hpm0 : (0 : ℝ) ≤ (L : ℝ) ^ m₁ := by positivity
       nlinarith
-    exact_mod_cast h2
+    exact_mod_cast h
   · unfold minSep
-    have h1 : 32 * (d : ℝ) * Real.log L / agmonRate d ≤ (L : ℝ) ^ a := by
-      have : (0 : ℝ) ≤ 4 * d := by positivity
-      linarith
-    have hpm : (1 : ℝ) ≤ (L : ℝ) ^ m₁ := one_le_pow₀ hL1.le
-    have hpa : (0 : ℝ) ≤ (L : ℝ) ^ a := by positivity
-    have h2 : 32 * (d : ℝ) * Real.log L ≤ agmonRate d * (L : ℝ) ^ a := by
-      rw [div_le_iff₀ hag] at h1; linarith
-    have h3 : (L : ℝ) ^ a ≤ 5 * L * (L : ℝ) ^ (m₁ + a) - 1 := by
-      rw [pow_add]
-      have hpa1 : (1 : ℝ) ≤ (L : ℝ) ^ a := one_le_pow₀ hL1.le
-      have hP : (L : ℝ) ^ a ≤ (L : ℝ) ^ m₁ * (L : ℝ) ^ a := le_mul_of_one_le_left hpa hpm
-      have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
-      have hP0 : (0 : ℝ) ≤ (L : ℝ) ^ m₁ * (L : ℝ) ^ a := by positivity
-      have h5 : 15 * ((L : ℝ) ^ m₁ * (L : ℝ) ^ a) ≤ 5 * L * ((L : ℝ) ^ m₁ * (L : ℝ) ^ a) := by
-        nlinarith
-      nlinarith
     push_cast
-    have h4 : agmonRate d * (L : ℝ) ^ a ≤ agmonRate d * (5 * L * (L : ℝ) ^ (m₁ + a) - 1) :=
-      mul_le_mul_of_nonneg_left h3 hag.le
+    rw [hsplit]
+    have hq : 2 * (d : ℝ) * Real.log L / (agmonRate d / 2 / 2) = 8 * d * Real.log L / agmonRate d := by
+      field_simp; ring
+    rw [hq] at hb2
+    have h8 : 8 * (d : ℝ) * Real.log L ≤ agmonRate d * ((L : ℝ) ^ (m₀ - 3) - 1) := by
+      have := (div_le_iff₀ hag).1 (by linarith : 8 * (d : ℝ) * Real.log L / agmonRate d ≤
+        (L : ℝ) ^ (m₀ - 3) - 1)
+      linarith
+    have hbig : 4 * ((L : ℝ) ^ (m₀ - 3) - 1) + 1 ≤ 5 * L * ((L : ℝ) ^ m₁ * (L : ℝ) ^ (m₀ - 3)) := by
+      have h5 : (L : ℝ) ^ (m₀ - 3) ≤ (L : ℝ) ^ m₁ * (L : ℝ) ^ (m₀ - 3) := by nlinarith
+      nlinarith
+    have hA : 0 ≤ agmonRate d * ((L : ℝ) ^ (m₀ - 3) - 1) := by
+      have : (1 : ℝ) ≤ (L : ℝ) ^ (m₀ - 3) := by
+        have : 1 ≤ Background.bgR0 d L := by
+          have : (0 : ℝ) ≤ 2 * d * Real.log L / (agmonRate d / 2 / 2) := by positivity
+          linarith [hb2]
+        linarith
+      nlinarith
     nlinarith
 
-/-- **The four conditions are compatible with `M = c M₁ = L^{m₀ + m₁}`, `c ≥ 14`** (the clauses
-of `PrefixInput` on `M`, `c`, `M₁`): for `d, L ≥ 3` and every `m₁` there are `m₀`, `c`, `M₁` with
-all of them (the conditions `2 ≤ m₁`, `4 L² ≤ L^{m₁}` concern `m₁` alone). -/
-theorem rGenWTies_exists {d L m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ m₀ c M₁ : ℕ, c * M₁ = L ^ (m₀ + m₁) ∧ 14 ≤ c ∧ 1 ≤ M₁ ∧
-      L ^ m₁ ∣ M₁ ∧ 4 * d * L ^ m₁ ≤ 5 * M₁ ∧
-      2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M₁ - 1) := by
-  obtain ⟨a, hdvd, hcov, hsep⟩ := rGenWTies_at (m₁ := m₁) hd hL
-  refine ⟨a + 3, L ^ 3, L ^ (m₁ + a), ?_, ?_, Nat.one_le_pow _ _ (by omega), hdvd, hcov, hsep⟩
-  · rw [← pow_add]; congr 1; ring
-  · calc 14 ≤ 3 ^ 3 := by norm_num
-      _ ≤ L ^ 3 := Nat.pow_le_pow_left hL 3
-
-/-- **`RGenWTies` is inhabited** (Rule 10): for a typing with `L ≥ 3` in every pair, the choice
-`m₁ = m` with `4 L² ≤ L^m` and `M₁ = L^{m + a}` of `rGenWTies_at` satisfies it. -/
-theorem rGenWTies_nonempty (d : ℕ) (hd : 3 ≤ d) (T : ℝ → ℝ → Typing)
-    (hL : ∀ κ c₉, 3 ≤ (T κ c₉).L) (C7 : ℝ → ℝ → Consts7)
-    (hm : ∀ κ c₉, 2 ≤ (C7 κ c₉).m₁ ∧ 4 * (T κ c₉).L ^ 2 ≤ (T κ c₉).L ^ (C7 κ c₉).m₁) :
-    ∃ M1 : ℝ → ℝ → ℕ, RGenWTies d T C7 M1 := by
-  classical
-  have h := fun κ c₉ => rGenWTies_at (m₁ := (C7 κ c₉).m₁) hd (hL κ c₉)
-  refine ⟨fun κ c₉ => (T κ c₉).L ^ ((C7 κ c₉).m₁ + Classical.choose (h κ c₉)), ?_⟩
+/-- **`RGenWTies` at the choice `M₁ = L^{m₀ + m₁ - 3}`** (that of `prefixInput_exists_of`): if, in
+every pair `κ, c₉`, the typing has `L ≥ 3`, `M₁ = L^{m₀ + m₁ - 3}` with the cell exponent `m₀ ≥ 3`,
+`R₀(d, L) < L^{m₀ - 3}` and the block exponent `m₁ ≥ 4`, then `RGenWTies` holds. -/
+theorem rGenWTies_of_choice {d : ℕ} (hd : 3 ≤ d) {T : ℝ → ℝ → Typing} {C7 : ℝ → ℝ → Consts7}
+    {M1 : ℝ → ℝ → ℕ} {m₀ : ℝ → ℝ → ℕ}
+    (h : ∀ κ c₉, 3 ≤ (T κ c₉).L ∧ M1 κ c₉ = (T κ c₉).L ^ (m₀ κ c₉ + (C7 κ c₉).m₁ - 3) ∧
+      3 ≤ m₀ κ c₉ ∧ 4 ≤ (C7 κ c₉).m₁ ∧
+      Background.bgR0 d (T κ c₉).L < ((T κ c₉).L : ℝ) ^ (m₀ κ c₉ - 3)) :
+    RGenWTies d T C7 M1 := by
   intro κ _ c₉ _
-  obtain ⟨hdvd, hcov, hsep⟩ := Classical.choose_spec (h κ c₉)
-  exact ⟨hdvd, (hm κ c₉).1, (hm κ c₉).2, hcov, hsep⟩
+  obtain ⟨hL, hM, hm₀, hm₁, hR⟩ := h κ c₉
+  rw [hM]
+  exact rGenWTies_of_pow hd hL hm₀ hm₁ hR
+
+/-- **`RGenWTies` is inhabited** (Rule 10): at `L ≥ 3`, `m₁ = 4` and `M₁ = L^{m₀ + 1}` for an `m₀`
+with `R₀(d, L) < L^{m₀ - 3}`. -/
+theorem rGenWTies_nonempty {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) (T : ℝ → ℝ → Typing)
+    (hT : ∀ κ c₉, (T κ c₉).L = L) (C7 : ℝ → ℝ → Consts7) (hC7 : ∀ κ c₉, (C7 κ c₉).m₁ = 4) :
+    ∃ M1 : ℝ → ℝ → ℕ, RGenWTies d T C7 M1 := by
+  have hL1 : (1 : ℝ) < L := by exact_mod_cast (show 1 < L by omega)
+  obtain ⟨n, hn⟩ := pow_unbounded_of_one_lt (Background.bgR0 d L) hL1
+  refine ⟨fun _ _ => L ^ (n + 3 + 4 - 3), rGenWTies_of_choice (m₀ := fun _ _ => n + 3) hd
+    fun κ c₉ => ⟨by rw [hT]; exact hL, by rw [hT, hC7], by omega, by rw [hC7], ?_⟩⟩
+  rw [hT]
+  simpa using hn
 
 end Balaban.RootFSpine
