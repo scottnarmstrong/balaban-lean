@@ -75,119 +75,92 @@ variable (M K) in
 /-- **The product form of the physical base carrier** (LFR (II.7.4); BASECARRIER obligation D4):
 the source-free real factors `Kt^w ≥ 0` and the one boundary exponent `b` of all the witnesses. -/
 structure BaseProductData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : ℕ) where
-  /-- the source-free real factors `K̃^w_0` (before the exponent) -/
-  Kt : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (Z' : H.Comp 1),
-    BaseW (H.localHistory M K 1 Z') 0 → OutT N R (H.localHistory M K 1 Z') 1 →
-    NewCfg N (H.localHistory M K 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℝ
+  /-- the source-free real factors `K̃^w_0` (before the exponent), indexed by the localized history
+  (S4) -/
+  Kt : ∀ (a : LocalHistory S n M K), BaseW a 0 → OutT N R a 1 → NewCfg N a 0 →
+    EuclideanSpace ℝ (Fin N) → ℝ
   /-- the boundary exponent `b₀`, the same for all witnesses -/
-  b : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (Z' : H.Comp 1),
-    (GIdx S n M K N → ℂ) → OutT N R (H.localHistory M K 1 Z') 1 →
-    NewCfg N (H.localHistory M K 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℂ
-  Kt_nonneg : ∀ H hH Z' w o x hv, 0 ≤ Kt H hH Z' w o x hv
-  Kt_meas : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (w : BaseW (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    Measurable fun p : OutT N R (H.localHistory M K 1 Z') 1 ×
-      NewCfg N (H.localHistory M K 1 Z') 0 => Kt H hH Z' w p.1 p.2 hv
-  Kt_outside : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (w : BaseW (H.localHistory M K 1 Z') 0) (o o' : OutT N R (H.localHistory M K 1 Z') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    (∀ y : Vblk R (H.localHistory M K 1 Z') (0 + 1),
-      y.1 ∉ gaussBlocks (H.localHistory M K 1 Z') 0 → o y = o' y) →
-      Kt H hH Z' w o x hv = Kt H hH Z' w o' x hv
-  Kt_dom : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+  b : ∀ (a : LocalHistory S n M K), (GIdx S n M K N → ℂ) → OutT N R a 1 → NewCfg N a 0 →
+    EuclideanSpace ℝ (Fin N) → ℂ
+  Kt_nonneg : ∀ a w o x hv, 0 ≤ Kt a w o x hv
+  Kt_meas : ∀ (a : LocalHistory S n M K) (w : BaseW a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    Measurable fun p : OutT N R a 1 × NewCfg N a 0 => Kt a w p.1 p.2 hv
+  Kt_outside : ∀ (a : LocalHistory S n M K) (w : BaseW a 0) (o o' : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ y : Vblk R a (0 + 1), y.1 ∉ gaussBlocks a 0 → o y = o' y) → Kt a w o x hv = Kt a w o' x hv
+  /-- `K̃^w_0` vanishes off `χ^new_0` -/
+  Kt_dom : ∀ (H : RegionHistory S n R k0 K) (_ : H.Admissible) (Z' : H.Comp 1)
     (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
     (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    ¬ ChiNewAt geo cs H 0 Z' o x → Kt H hH Z' w o x hv = 0
-  Kt_rot : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (w : BaseW (H.localHistory M K 1 Z') 0) (ρ : OrthN N)
-    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
-    (hv : EuclideanSpace ℝ (Fin N)),
-    Kt H hH Z' w (rotOut ρ o) (rotSub ρ x) (ρ hv) = Kt H hH Z' w o x hv
+    ¬ ChiNewAt geo cs H 0 Z' o x → Kt (H.localHistory M K 1 Z') w o x hv = 0
+  Kt_rot : ∀ (a : LocalHistory S n M K) (w : BaseW a 0) (ρ : OrthN N) (o : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    Kt a w (rotOut ρ o) (rotSub ρ x) (ρ hv) = Kt a w o x hv
   /-- Euclidean covariance of `∏ z₁^N t₀ · ∑_w F^w₀ K̃^w₀` (the witness sum) -/
-  euclid_Kt : ∀ (σ : TorusSym S n M K)
-    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (H' : RegionHistory S n R k0 K) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
-    (hI : HistImage σ (H.localHistory M K 1 Z') (H'.localHistory M K 1 Z''))
-    (hk : 0 + 1 ≤ K)
-    (o : OutT N R (H.localHistory M K 1 Z') 1) (o' : OutT N R (H'.localHistory M K 1 Z'') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (x' : NewCfg N (H'.localHistory M K 1 Z'') 0)
-    (hv : EuclideanSpace ℝ (Fin N)),
+  euclid_Kt : ∀ (σ : TorusSym S n M K) (a a' : LocalHistory S n M K) (hI : HistImage σ a a')
+    (hk : 0 + 1 ≤ K) (o : OutT N R a 1) (o' : OutT N R a' 1) (x : NewCfg N a 0)
+    (x' : NewCfg N a' 0) (hv : EuclideanSpace ℝ (Fin N)),
     RelOut σ o o' → RelSub hI hk x x' →
-      gaussProd N (H'.localHistory M K 1 Z'') 0 cs o' x' *
-          baseSumOf cs (H'.localHistory M K 1 Z'') (fun w => Kt H' hH' Z'' w) o' x' hv =
-        gaussProd N (H.localHistory M K 1 Z') 0 cs o x *
-          baseSumOf cs (H.localHistory M K 1 Z') (fun w => Kt H hH Z' w) o x hv
-  b_meas : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n M K N → ℂ) (hv : EuclideanSpace ℝ (Fin N)),
-    Measurable fun p : OutT N R (H.localHistory M K 1 Z') 1 ×
-      NewCfg N (H.localHistory M K 1 Z') 0 => b H hH Z' g p.1 p.2 hv
-  b_outside : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n M K N → ℂ) (o o' : OutT N R (H.localHistory M K 1 Z') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    (∀ y : Vblk R (H.localHistory M K 1 Z') (0 + 1),
-      y.1 ∉ gaussBlocks (H.localHistory M K 1 Z') 0 → o y = o' y) →
-      b H hH Z' g o x hv = b H hH Z' g o' x hv
-  b_analytic : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
+      gaussProd N a' 0 cs o' x' * baseSumOf cs a' (fun w => Kt a' w) o' x' hv =
+        gaussProd N a 0 cs o x * baseSumOf cs a (fun w => Kt a w) o x hv
+  b_meas : ∀ (a : LocalHistory S n M K) (g : GIdx S n M K N → ℂ) (hv : EuclideanSpace ℝ (Fin N)),
+    Measurable fun p : OutT N R a 1 × NewCfg N a 0 => b a g p.1 p.2 hv
+  b_outside : ∀ (a : LocalHistory S n M K) (g : GIdx S n M K N → ℂ) (o o' : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ y : Vblk R a (0 + 1), y.1 ∉ gaussBlocks a 0 → o y = o' y) → b a g o x hv = b a g o' x hv
+  b_analytic : ∀ (a : LocalHistory S n M K) (o : OutT N R a 1) (x : NewCfg N a 0)
     (hv : EuclideanSpace ℝ (Fin N)),
-    AnalyticOnNhd ℂ (fun g => b H hH Z' g o x hv) (l1Ball (GIdx S n M K N))
-  b_zero_real : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
-    (hv : EuclideanSpace ℝ (Fin N)), (b H hH Z' 0 o x hv).im = 0
-  b_real : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    g ∈ l1Ball (GIdx S n M K N) → (∀ i, (g i).im = 0) → (b H hH Z' g o x hv).im = 0
-  b_supp : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    AnalyticOnNhd ℂ (fun g => b a g o x hv) (l1Ball (GIdx S n M K N))
+  b_zero_real : ∀ (a : LocalHistory S n M K) (o : OutT N R a 1) (x : NewCfg N a 0)
+    (hv : EuclideanSpace ℝ (Fin N)), (b a 0 o x hv).im = 0
+  b_real : ∀ (a : LocalHistory S n M K) (g : GIdx S n M K N → ℂ) (o : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    g ∈ l1Ball (GIdx S n M K N) → (∀ i, (g i).im = 0) → (b a g o x hv).im = 0
+  /-- `b` reads the source only on the sites of `Z'` -/
+  b_supp : ∀ (H : RegionHistory S n R k0 K) (_ : H.Admissible) (Z' : H.Comp 1)
     (g g' : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
     (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     (∀ i : GIdx S n M K N, i.1 ∈ baseZsites M H Z' → g i = g' i) →
-      b H hH Z' g o x hv = b H hH Z' g' o x hv
-  b_rot : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n M K N → ℂ) (ρ : OrthN N) (o : OutT N R (H.localHistory M K 1 Z') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    b H hH Z' (rotG ρ g) (rotOut ρ o) (rotSub ρ x) (ρ hv) = b H hH Z' g o x hv
-  b_euclid : ∀ (σ : TorusSym S n M K)
-    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
-    (H' : RegionHistory S n R k0 K) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
-    (hI : HistImage σ (H.localHistory M K 1 Z') (H'.localHistory M K 1 Z''))
-    (hk : 0 + 1 ≤ K) (g g' : GIdx S n M K N → ℂ)
-    (o : OutT N R (H.localHistory M K 1 Z') 1) (o' : OutT N R (H'.localHistory M K 1 Z'') 1)
-    (x : NewCfg N (H.localHistory M K 1 Z') 0) (x' : NewCfg N (H'.localHistory M K 1 Z'') 0)
-    (hv : EuclideanSpace ℝ (Fin N)),
-    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
-      b H' hH' Z'' g' o' x' hv = b H hH Z' g o x hv
+      b (H.localHistory M K 1 Z') g o x hv = b (H.localHistory M K 1 Z') g' o x hv
+  b_rot : ∀ (a : LocalHistory S n M K) (g : GIdx S n M K N → ℂ) (ρ : OrthN N) (o : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    b a (rotG ρ g) (rotOut ρ o) (rotSub ρ x) (ρ hv) = b a g o x hv
+  b_euclid : ∀ (σ : TorusSym S n M K) (a a' : LocalHistory S n M K) (hI : HistImage σ a a')
+    (hk : 0 + 1 ≤ K) (g g' : GIdx S n M K N → ℂ) (o : OutT N R a 1) (o' : OutT N R a' 1)
+    (x : NewCfg N a 0) (x' : NewCfg N a' 0) (hv : EuclideanSpace ℝ (Fin N)),
+    RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' → b a' g' o' x' hv = b a g o x hv
   /-- the relative bound of the source part: `Re (b(g) - b(0)) ≤ ‖g|_{Z'}‖₁` on the `ℓ¹` ball and
   `χ^new_0` -/
-  b_bound : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+  b_bound : ∀ (H : RegionHistory S n R k0 K) (_ : H.Admissible) (Z' : H.Comp 1)
     (g : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
     (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     g ∈ l1Ball (GIdx S n M K N) → ChiNewAt geo cs H 0 Z' o x →
-    (b H hH Z' g o x hv - b H hH Z' 0 o x hv).re ≤ baseSourceNorm M H Z' g
+    (b (H.localHistory M K 1 Z') g o x hv - b (H.localHistory M K 1 Z') 0 o x hv).re ≤
+      baseSourceNorm M H Z' g
 
 variable {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
 
 /-- **The zero product data** (rule 10): `Kt = 0`, `b = 0`. -/
 def zeroBaseProductData : BaseProductData M K k0 geo cs N where
-  Kt := fun _ _ _ _ _ _ _ => 0
-  b := fun _ _ _ _ _ _ _ => 0
-  Kt_nonneg := fun _ _ _ _ _ _ _ => le_rfl
-  Kt_meas := fun _ _ _ _ _ => measurable_const
-  Kt_outside := fun _ _ _ _ _ _ _ _ _ => rfl
+  Kt := fun _ _ _ _ _ => 0
+  b := fun _ _ _ _ _ => 0
+  Kt_nonneg := fun _ _ _ _ _ => le_rfl
+  Kt_meas := fun _ _ _ => measurable_const
+  Kt_outside := fun _ _ _ _ _ _ _ => rfl
   Kt_dom := fun _ _ _ _ _ _ _ _ => rfl
-  Kt_rot := fun _ _ _ _ _ _ _ _ => rfl
+  Kt_rot := fun _ _ _ _ _ _ => rfl
   euclid_Kt := by
-    intro σ H hH Z' H' hH' Z'' hI hk o o' x x' hv ho hx
+    intro σ a a' hI hk o o' x x' hv ho hx
     classical
     simp [baseSumOf]
-  b_meas := fun _ _ _ _ _ => measurable_const
-  b_outside := fun _ _ _ _ _ _ _ _ _ => rfl
-  b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
-  b_zero_real := fun _ _ _ _ _ _ => rfl
-  b_real := fun _ _ _ _ _ _ _ _ _ => rfl
+  b_meas := fun _ _ _ => measurable_const
+  b_outside := fun _ _ _ _ _ _ _ => rfl
+  b_analytic := fun _ _ _ _ => analyticOnNhd_const
+  b_zero_real := fun _ _ _ _ => rfl
+  b_real := fun _ _ _ _ _ _ _ => rfl
   b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
-  b_rot := fun _ _ _ _ _ _ _ _ => rfl
-  b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+  b_rot := fun _ _ _ _ _ _ => rfl
+  b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
   b_bound := by
     intro H hH Z' g o x hv _ _
     simp only [sub_self, Complex.zero_re]
@@ -224,58 +197,61 @@ properties of `BaseProductData`. -/
 noncomputable def BaseProductData.toInput (D : BaseProductData M K k0 geo cs N) :
     BaseSmallFieldInput M K k0 geo cs N where
   Kphys := fun H hH Z' g w o x hv =>
-    (D.Kt H hH Z' w o x hv : ℂ) * Complex.exp (D.b H hH Z' g o x hv)
+    (D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) *
+      Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv)
   Kphys_meas := fun H hH Z' g w hv =>
-    (Complex.measurable_ofReal.comp (D.Kt_meas H hH Z' w hv)).mul
-      (Complex.measurable_exp.comp (D.b_meas H hH Z' g hv))
+    (Complex.measurable_ofReal.comp (D.Kt_meas _ w hv)).mul
+      (Complex.measurable_exp.comp (D.b_meas _ g hv))
   Kphys_outside := fun H hH Z' g w o o' x hv h => by
-    rw [D.Kt_outside H hH Z' w o o' x hv h, D.b_outside H hH Z' g o o' x hv h]
+    rw [D.Kt_outside _ w o o' x hv h, D.b_outside _ g o o' x hv h]
   Kphys_dom := fun H hH Z' g w o x hv h => by
     rw [D.Kt_dom H hH Z' w o x hv h]; simp
   Kphys_zero_sector := fun H hH Z' w o x hv => by
-    rw [cexp_of_im_eq_zero (D.b_zero_real H hH Z' o x hv), ← Complex.ofReal_mul]
+    rw [cexp_of_im_eq_zero (D.b_zero_real _ o x hv), ← Complex.ofReal_mul]
     exact ⟨Complex.ofReal_im _, by
-      rw [Complex.ofReal_re]; exact mul_nonneg (D.Kt_nonneg H hH Z' w o x hv) (Real.exp_pos _).le⟩
+      rw [Complex.ofReal_re]; exact mul_nonneg (D.Kt_nonneg _ w o x hv) (Real.exp_pos _).le⟩
   Kphys_bound := fun H hH Z' g w o x hv hg hc => by
-    rw [cexp_of_im_eq_zero (D.b_zero_real H hH Z' o x hv), ← Complex.ofReal_mul,
+    rw [cexp_of_im_eq_zero (D.b_zero_real _ o x hv), ← Complex.ofReal_mul,
       Complex.ofReal_re, norm_mul, Complex.norm_real, Complex.norm_exp,
-      Real.norm_of_nonneg (D.Kt_nonneg H hH Z' w o x hv), mul_assoc, ← Real.exp_add]
-    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (D.Kt_nonneg H hH Z' w o x hv)
+      Real.norm_of_nonneg (D.Kt_nonneg _ w o x hv), mul_assoc, ← Real.exp_add]
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (D.Kt_nonneg _ w o x hv)
     have := D.b_bound H hH Z' g o x hv hg hc
     rw [Complex.sub_re] at this
     linarith
   Kphys_analytic := fun H hH Z' w o x hv =>
-    fun g hg => analyticAt_const.fun_mul ((D.b_analytic H hH Z' o x hv g hg).cexp)
+    fun g hg => analyticAt_const.fun_mul ((D.b_analytic _ o x hv g hg).cexp)
   Kphys_real := fun H hH Z' g w o x hv hg hr => by
-    exact im_ofReal_mul_cexp (D.b_real H hH Z' g o x hv hg hr)
+    exact im_ofReal_mul_cexp (D.b_real _ g o x hv hg hr)
   Kphys_supp := fun H hH Z' g g' w o x hv h => by
     rw [D.b_supp H hH Z' g g' o x hv h]
   Kphys_rot := fun H hH Z' g w ρ o x hv => by
-    rw [D.Kt_rot H hH Z' w ρ o x hv, D.b_rot H hH Z' g ρ o x hv]
+    rw [D.Kt_rot _ w ρ o x hv, D.b_rot _ g ρ o x hv]
   euclid_K := by
     intro σ H hH Z' H' hH' Z'' hI hk g g' o o' x x' hv ho hx hg
-    have h1 := D.euclid_Kt σ H hH Z' H' hH' Z'' hI hk o o' x x' hv ho hx
-    have h2 := D.b_euclid σ H hH Z' H' hH' Z'' hI hk g g' o o' x x' hv ho hx hg
+    have h1 := D.euclid_Kt σ _ _ hI hk o o' x x' hv ho hx
+    have h2 := D.b_euclid σ _ _ hI hk g g' o o' x x' hv ho hx hg
     have e1 := baseSumC_mul_const cs (H'.localHistory M K 1 Z'')
-      (fun w => D.Kt H' hH' Z'' w) (fun o x hv => Complex.exp (D.b H' hH' Z'' g' o x hv)) o' x' hv
+      (fun w => D.Kt (H'.localHistory M K 1 Z'') w)
+      (fun o x hv => Complex.exp (D.b (H'.localHistory M K 1 Z'') g' o x hv)) o' x' hv
     have e2 := baseSumC_mul_const cs (H.localHistory M K 1 Z')
-      (fun w => D.Kt H hH Z' w) (fun o x hv => Complex.exp (D.b H hH Z' g o x hv)) o x hv
+      (fun w => D.Kt (H.localHistory M K 1 Z') w)
+      (fun o x hv => Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv)) o x hv
     show (gaussProd N (H'.localHistory M K 1 Z'') 0 cs o' x' : ℂ) *
         baseSumC cs (H'.localHistory M K 1 Z'')
-          (fun w o x hv => (D.Kt H' hH' Z'' w o x hv : ℂ) *
-            Complex.exp (D.b H' hH' Z'' g' o x hv)) o' x' hv =
+          (fun w o x hv => (D.Kt (H'.localHistory M K 1 Z'') w o x hv : ℂ) *
+            Complex.exp (D.b (H'.localHistory M K 1 Z'') g' o x hv)) o' x' hv =
       (gaussProd N (H.localHistory M K 1 Z') 0 cs o x : ℂ) *
         baseSumC cs (H.localHistory M K 1 Z')
-          (fun w o x hv => (D.Kt H hH Z' w o x hv : ℂ) *
-            Complex.exp (D.b H hH Z' g o x hv)) o x hv
+          (fun w o x hv => (D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) *
+            Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv)) o x hv
     rw [e1, e2, h2]
     have h1c := congrArg (fun r : ℝ => (r : ℂ)) h1
     simp only [Complex.ofReal_mul] at h1c
     calc _ = ((gaussProd N (H'.localHistory M K 1 Z'') 0 cs o' x' : ℂ) *
-          (baseSumOf cs (H'.localHistory M K 1 Z'') (fun w => D.Kt H' hH' Z'' w) o' x' hv : ℂ)) *
-          Complex.exp (D.b H hH Z' g o x hv) := by ring
+          (baseSumOf cs (H'.localHistory M K 1 Z'') (fun w => D.Kt (H'.localHistory M K 1 Z'') w)
+            o' x' hv : ℂ)) *
+          Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv) := by ring
       _ = _ := by rw [h1c]; ring
-
 
 variable (D : BaseProductData M K k0 geo cs N)
   (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
@@ -287,10 +263,10 @@ theorem BaseProductData.Kphys_cross (g : GIdx S n M K N → ℂ)
     (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
     D.toInput.Kphys H hH Z' g w o x hv * D.toInput.Kphys H hH Z' 0 w' o x hv =
       D.toInput.Kphys H hH Z' g w' o x hv * D.toInput.Kphys H hH Z' 0 w o x hv := by
-  show (D.Kt H hH Z' w o x hv : ℂ) * Complex.exp (D.b H hH Z' g o x hv) *
-      ((D.Kt H hH Z' w' o x hv : ℂ) * Complex.exp (D.b H hH Z' 0 o x hv)) =
-    (D.Kt H hH Z' w' o x hv : ℂ) * Complex.exp (D.b H hH Z' g o x hv) *
-      ((D.Kt H hH Z' w o x hv : ℂ) * Complex.exp (D.b H hH Z' 0 o x hv))
+  show (D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) * Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv) *
+      ((D.Kt (H.localHistory M K 1 Z') w' o x hv : ℂ) * Complex.exp (D.b (H.localHistory M K 1 Z') 0 o x hv)) =
+    (D.Kt (H.localHistory M K 1 Z') w' o x hv : ℂ) * Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv) *
+      ((D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) * Complex.exp (D.b (H.localHistory M K 1 Z') 0 o x hv))
   ring
 
 /-- The source-free factor of the product carrier is `Kt^w e^{Re b(0)}`. -/
@@ -298,10 +274,10 @@ theorem BaseProductData.baseKt0_toInput (w : BaseW (H.localHistory M K 1 Z') 0)
     (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
     baseKt0 D.toInput H hH Z' w o x hv =
-      D.Kt H hH Z' w o x hv * Real.exp (D.b H hH Z' 0 o x hv).re := by
+      D.Kt (H.localHistory M K 1 Z') w o x hv * Real.exp (D.b (H.localHistory M K 1 Z') 0 o x hv).re := by
   unfold baseKt0
-  show ((D.Kt H hH Z' w o x hv : ℂ) * Complex.exp (D.b H hH Z' 0 o x hv)).re = _
-  rw [cexp_of_im_eq_zero (D.b_zero_real H hH Z' o x hv), ← Complex.ofReal_mul,
+  show ((D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) * Complex.exp (D.b (H.localHistory M K 1 Z') 0 o x hv)).re = _
+  rw [cexp_of_im_eq_zero (D.b_zero_real _ o x hv), ← Complex.ofReal_mul,
     Complex.ofReal_re]
 
 /-- **The total exponent**: `baseKC = baseK0 · exp(b(g) - b(0))` everywhere (not only on the
@@ -312,27 +288,27 @@ theorem BaseProductData.baseKC_toInput (g : GIdx S n M K N → ℂ)
     (hv : EuclideanSpace ℝ (Fin N)) :
     baseKC D.toInput H hH Z' g o x hv =
       (baseK0 D.toInput H hH Z' o x hv : ℂ) *
-        Complex.exp (D.b H hH Z' g o x hv - D.b H hH Z' 0 o x hv) := by
-  have h0 := D.b_zero_real H hH Z' o x hv
-  have hx : Complex.exp (D.b H hH Z' g o x hv) =
-      ((Real.exp (D.b H hH Z' 0 o x hv).re : ℝ) : ℂ) *
-        Complex.exp (D.b H hH Z' g o x hv - D.b H hH Z' 0 o x hv) := by
+        Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv - D.b (H.localHistory M K 1 Z') 0 o x hv) := by
+  have h0 := D.b_zero_real _ o x hv
+  have hx : Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv) =
+      ((Real.exp (D.b (H.localHistory M K 1 Z') 0 o x hv).re : ℝ) : ℂ) *
+        Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv - D.b (H.localHistory M K 1 Z') 0 o x hv) := by
     rw [← cexp_of_im_eq_zero h0, ← Complex.exp_add]
     congr 1
     ring
-  have e1 := baseSumC_mul_const cs (H.localHistory M K 1 Z') (fun w => D.Kt H hH Z' w)
-    (fun o x hv => Complex.exp (D.b H hH Z' g o x hv)) o x hv
-  have e2 := baseSumOf_mul_const cs (H.localHistory M K 1 Z') (fun w => D.Kt H hH Z' w)
-    (fun o x hv => Real.exp (D.b H hH Z' 0 o x hv).re) o x hv
+  have e1 := baseSumC_mul_const cs (H.localHistory M K 1 Z') (fun w => D.Kt (H.localHistory M K 1 Z') w)
+    (fun o x hv => Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv)) o x hv
+  have e2 := baseSumOf_mul_const cs (H.localHistory M K 1 Z') (fun w => D.Kt (H.localHistory M K 1 Z') w)
+    (fun o x hv => Real.exp (D.b (H.localHistory M K 1 Z') 0 o x hv).re) o x hv
   have hfun : (fun w => baseKt0 D.toInput H hH Z' w) = fun w o x hv =>
-      D.Kt H hH Z' w o x hv * Real.exp (D.b H hH Z' 0 o x hv).re := by
+      D.Kt (H.localHistory M K 1 Z') w o x hv * Real.exp (D.b (H.localHistory M K 1 Z') 0 o x hv).re := by
     funext w o x hv
     exact D.baseKt0_toInput H hH Z' w o x hv
   unfold baseKC baseK0
   rw [hfun]
   show (gaussProd N (H.localHistory M K 1 Z') 0 cs o x : ℂ) *
-      baseSumC cs (H.localHistory M K 1 Z') (fun w o x hv => (D.Kt H hH Z' w o x hv : ℂ) *
-        Complex.exp (D.b H hH Z' g o x hv)) o x hv = _
+      baseSumC cs (H.localHistory M K 1 Z') (fun w o x hv => (D.Kt (H.localHistory M K 1 Z') w o x hv : ℂ) *
+        Complex.exp (D.b (H.localHistory M K 1 Z') g o x hv)) o x hv = _
   rw [e1, e2, hx]
   push_cast
   ring
