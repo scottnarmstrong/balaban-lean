@@ -568,7 +568,7 @@ whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over 
 | (g1) `LFStepDataInput` | `∃ SD : StepData` at `cs'`, `P'` with `SD.ker = Λ.ker nK` and `SD.VacuumTie Set.univ (vacExt rec.Ev k ΦE) δ″ δ‴` | Lemmas II.5.14, IV.1.3, IV.1.4, IV.1.6; (S0) P6 (2.32)–(2.33); R5, R5′ | O — `quietStepData'`, `quietKernel`, `StepData.retie`, `vacExt` | 1,700 | H |
 | (g1) kept data (S3) | `succKD` is `KeptData` at `cs'` | (S3) "no kept data are created" | **P** (`KeptData.upTo`, `chiDomAt_congr`) | 0 | – |
 | (g2) `LFBdryInput` | `D7Bdry` (physical field, `B_st`, `3κ/2`, `Zpre (k+1)`) of `F'` | Lemma IV.1.5; P5 p. 512; P6 pp. 14–15, 34 | Rd — W1140: `lfBdryInput_of_parts` (`Spine/LFBdry.lean`) from the three kinds; blocker-3 piece proved under ruling R11 (`Spine/LFBdryHole.lean`); section "LFBdryInput sub-inputs" | 1,100 | H (B3 → R11) |
-| (g5) `LFBdrySrcInput` | `D7BdryBall`: `analytic`, `bound` at `h' ∈ hSetB2 h r_h`, `h' ≠ h` | blocker 2 leaf 5; Q13-YM §§2, 5; R2 | O — R2 objects, `KerBoundSrc` | 600 | H (B2) |
+| (g5) `LFBdrySrcInput` | removed under ruling R16 (approved 2026-10-21): (D7) is asked at the physical field only (`hSetB hv`); `D7BdryBall`, `hSetB2`, `hDomR2` deleted; the radius `rH` of `D7Bdry2`, `D7Bdry2Post` is kept, unused | R16 (approved 2026-10-21) | — | 0 | — |
 | (g3) `LFFormInput` | `D1PreForm2 (F'.ctx …) vc' (F'.lf nK) h (stepDensity … (β_k a L^{d−2}) z_{k+1} Λ.s ρ nK)` for `D1CorrLim … St' h vc'` | P5 (2.1)–(2.14), (2.42)–(2.48), §3, (3.18); P6 §2, (3.3); P5 (1.8) | O — `stepDensity`, `integral_stepKernel_mul`, `preOpTop_congr` | 1,200 | M |
 | (g3) `LFOpBoundInput` | `D5Bound (k+1)` of `F'` | Lemma II.6.3 (a) | **P** from `LFSignInput` (`lfOpBoundInput_of_signs`, `Rep.opBound_of_data`) | 0 | – |
 | `LFSignInput` | `0 < (Φ rec.F.sf).z j`, `1 ≤ j ≤ k+1` | P1 (1.11), P4 (4.1) | **P** (W1142): `lfSignInput_of_inherit` from `SFInheritInput` (`z_{k+1} > 0`, A4-1a, and `z_j` kept at `j ≤ k`) and the new carrier field `RepRec.zpos` / `PreRec.zpos` (`z_j > 0`, `1 ≤ j ≤ k`: the class clauses `D9Coeff`/`CoeffBounds`/`SFClassAt`/`RepClassAt` do not constrain `z_j`); `lfStepInput_of_prefix` takes `SFInheritInput` instead of `LFSignInput`; `zpos` is produced by `sfStepInput_of_parts` (from the input's `zpos` and A4-1a), carried by `rInput_of_parts`, `PreRec.retie`, `PreClassAt.succ`, and proved in the witnesses | 0 | – |
@@ -581,7 +581,7 @@ whose image `Φ rec.F.sf` has the hypotheses of `LFStepInput`; `F'` ranges over 
 `cs'`, `P'` and the seven ties to `cs₀`, `PB` (those of `rec`); `Coh` at `k + 1` (`coh_succ`: from `rec`'s `Coh` and the ties of the image
 at `j ≤ k`, `δ_j`, `p₀(β_j)` reading `β_j` only (`deltaRun_congr`, `pZero_congr`); `a_j` from the hypothesis); `FieldClauses` at `k + 1`
 (`field_succ`); the kept data (S3) (`succKD`); `IsRepPre2` from its clauses ((D2), (D8), (D9) are the hypotheses on the image); (D7) of the
-second version from (g2) and (g5) (`D7Bdry.toD7Bdry2_of_ball`, by cases `h' = h`); `LFCoherent`; the vacuum tie of the chosen step data.
+second version from (g2) (`D7Bdry.toD7Bdry2`); `LFCoherent`; the vacuum tie of the chosen step data.
 In `lfBudgetInput_of_pin`: `S.Good` (`exists_good_lamHat`), (Λ15)–(Λ17′) (`analyticK_at`), the budget data of the prefix, (I.2) up to
 `k + 1` for the image (`runningHypTo_succ_of_coeffBounds` from (I.2) of `rec`, the ties, (H.6) at `k + 1` of (D2), `FlowRateAt`) and for
 `P'.beta`, then LF-2 (i) truncated at `k + 1`. In `lfOpBoundInput_of_signs`: `β_j > 0` at every scale (`rec`'s at `j ≤ k` by (I.2),
