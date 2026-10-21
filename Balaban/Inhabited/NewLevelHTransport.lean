@@ -26,8 +26,8 @@ For two systems whose old terms correspond under a bijection `e` of the index ty
 namespace Balaban.Inhabited
 
 /-- **A conditional sum under a bijection of the index types.** -/
-theorem sum_ite_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι'] (e : ι ≃ ι') (P : ι → Prop)
-    (P' : ι' → Prop) [DecidablePred P] [DecidablePred P'] (f : ι → ℂ) (f' : ι' → ℂ)
+theorem sum_ite_equiv {ι ι' : Type*} {_ : Fintype ι} {_ : Fintype ι'} (e : ι ≃ ι') (P : ι → Prop)
+    (P' : ι' → Prop) {_ : DecidablePred P} {_ : DecidablePred P'} (f : ι → ℂ) (f' : ι' → ℂ)
     (hP : ∀ τ, P τ ↔ P' (e τ)) (hf : ∀ τ, P τ → f' (e τ) = f τ) :
     ∑ τ', (if P' τ' then f' τ' else 0) = ∑ τ, (if P τ then f τ else 0) := by
   rw [← Equiv.sum_comp e]
@@ -39,13 +39,14 @@ theorem sum_ite_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι'] (e : ι ≃ ι
 
 /-- **A conditional sum of differences under a bijection**, from the agreement of each of the two
 terms. -/
-theorem sum_ite_sub_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι'] (e : ι ≃ ι') (P : ι → Prop)
-    (P' : ι' → Prop) [DecidablePred P] [DecidablePred P'] (c : ℂ) (g h : ι → ℂ)
+theorem sum_ite_sub_equiv {ι ι' : Type*} {_ : Fintype ι} {_ : Fintype ι'} (e : ι ≃ ι') (P : ι → Prop)
+    (P' : ι' → Prop) {_ : DecidablePred P} {_ : DecidablePred P'} (c c' : ℂ) (hc : c' = c)
+    (g h : ι → ℂ)
     (g' h' : ι' → ℂ) (hP : ∀ τ, P τ ↔ P' (e τ)) (hg : ∀ τ, P τ → g' (e τ) = g τ)
     (hh : ∀ τ, P τ → h' (e τ) = h τ) :
-    ∑ τ', (if P' τ' then c * (g' τ' - h' τ') else 0) =
+    ∑ τ', (if P' τ' then c' * (g' τ' - h' τ') else 0) =
       ∑ τ, (if P τ then c * (g τ - h τ) else 0) :=
-  sum_ite_equiv e P P' (fun τ => c * (g τ - h τ)) (fun τ' => c * (g' τ' - h' τ')) hP
-    fun τ hτ => by rw [hg τ hτ, hh τ hτ]
+  sum_ite_equiv e P P' (fun τ => c * (g τ - h τ)) (fun τ' => c' * (g' τ' - h' τ')) hP
+    fun τ hτ => by rw [hg τ hτ, hh τ hτ, hc]
 
 end Balaban.Inhabited
