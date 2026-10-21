@@ -479,6 +479,22 @@ approved declaration.
   `H7MixedDatumLoc2` is false at histories with a component removed at scale `k + 1` (`not_h7MixedDatumLoc2_of_site`,
   `rem_ne_empty_of_far`). Target (3) of W1154d is proved under this reading (the step's terms are pre-`R` records at
   `k + 1`, H7 domain at `globalLHPre H M (k + 1)`).
+- **Target (3) of W1154d: the datum of the local pair from the cube tests (2026-10-21; `Spine/LFOldDatum*`,
+  `Background/DataPatchScaled`).** PROVED: `inDomainC_holeStepLoc2_of_h7Near` — for a target H7 domain of scale
+  `k + 1` at a history `a` with top region `Ω_{k+1}` whose holes at scale `k + 1` contain every cube off `Ω_{k+1}`
+  (`hholes`; R17: `globalLHPre H M (k+1)`, unconditional by `mem_Zpre_of_notMem_omega`; `globalLH` needs
+  `Rem_{k+1} = ∅`), at `Y_f` with `CubesOfIn` of the data sites, and for local sets whose data sites lie over cubes of
+  `Ω^{∼3}_{k+1}` (`hroom`), the datum of `holeStepLoc2` lies in `Ψ̃^c(3δ₁ + 2ε_k, 3δ₁ + 2ε_k)`,
+  `δ₁ = scaledTol ε_k ε_k η`, `|z − 1| ≤ η`, `ε_{k+1} ≤ ε_k`, (R4) for `h₀`, and the mass condition in either regime
+  (small: `ν L^{2(k+1)} (1 + |h₀|) < δ₁²`; large: `ν ≤ μ_{k+1}`, `2ε_k² ≤ δ₁²`; `r3_of_small_mass`, `r3_of_large_mass`);
+  the H7 field is `h = h₀` (R16, `h₀ := Re h = hv`). **Case analysis:** a data site over a cube `□` is read by
+  `Δ'^c_{k+1}(□)` when `□ ∈ (Ω^c_{k+1})^{∼3}`, by `Δ^c_{k+1}(□)` otherwise (then `□^{∼3} ⊂ Ω_{k+1}`); the test reads
+  every interface partner (cubes within one cube, `cubeOfC_near_of_pair`) at layers `k`, `k + 1 ≥` its layer in
+  `G′_V`; the splits patch by `inDomainC_of_patch_scaled` (`θ = z ψ_{k+1}` against tests reading `ψ_{k+1}`).
+  **Open for (3):** sites over cubes farther than `3` cubes from `Ω_{k+1}` (`V₂(X, J)` reaches `ρ` cubes through `J`):
+  there the test is `Δ^c_k` at the cube of `𝕋_k` (a level-`k` cube set on the torus of level `k`; the transport of its
+  split, `cubeKOfC_eq_of_jBlock` ready); the restatement of `H7MixedDatumLoc2` at `V₂(X, J)` with the target
+  `globalLHPre` (R17) and the room premise; `δ_b ≥ 3δ₁ + 2ε_k` via `InDomainC.mono_diag`.
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
 - The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
   integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
