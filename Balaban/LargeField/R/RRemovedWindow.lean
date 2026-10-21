@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.LargeField.R.RRemovedWindowKernel
 public import Balaban.LargeField.R.RRemovedWindowPoint
 public import Balaban.LargeField.R.RRemovedWindowVol
@@ -157,6 +158,64 @@ Named inputs (the objects not yet available), all with their exact statements ab
   `hcore` ((D5) at scale `k₁`), `hvol` (the volumes of the groups), `hFr`, `hEZ`, `hnT`, `hnZ`,
   `hκ` (the bounds on the constants and the budget `c₁ ≥ C_W`, `c₂ ≥ C'_W`);
 * `hb` (the exponent `b^pre` does not read `ψ_k↾Z₀`), `hu1` (`χ_{Z''} ≤ 1`). -/
+theorem removedKernel_kerBoundOn_of_window (Hs : EuclideanSpace ℝ (Fin N) → Prop) (ok : S.Ok) (hx : 1 ≤ S.lam k)
+    {Cvol CEt CE' Cnat D0 : ℝ} (hCE' : 0 ≤ CE') (hD0 : 0 ≤ D0) (hCvol : 0 ≤ Cvol)
+    (hCR : ((N : ℝ) / 2 * Real.log 2 + N * S.p0 + |Cvol| + 2 * CE') *
+        ((S.M : ℝ) ^ S.d * (2 * S.c0 * S.Rb + 2 * S.c0 + 10) ^ S.d) +
+        D0 ^ S.d * (N * S.p0 + |Cvol| + |CEt|) + Cnat + 10 ≤ S.CR)
+    (hu1 : ∀ o, u o ≤ 1)
+    (hb : ∀ (o o' : OutT N R a k) (x : SubCfg N a k P.A) (hv : EuclideanSpace ℝ (Fin N))
+      (g : GIdx S n M K N → ℂ),
+      (remZeroSplit a k Z0 o).2 = (remZeroSplit a k Z0 o').2 → P.T.b o x hv g = P.T.b o' x hv g)
+    {Wd Cr Jv : Type*} [MeasurableSpace Wd] [MeasurableSpace Cr] [MeasurableSpace Jv]
+    {μW : Measure Wd} {μC : Measure Cr} {μJ : Measure Jv} [SFinite μW] [SFinite μC] [SFinite μJ]
+    (Θ : OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) ≃ᵐ Wd × (Cr × Jv))
+    (hΘ : MeasurePreserving Θ
+      ((outPartMeasure N (Vblk R a k) (ZBlk a k)).prod
+        ((subMeasure N a k P.A).prod (outPartMeasure N (Vblk R a k) (· ∈ Z0))))
+      (μW.prod (μC.prod μJ)))
+    (E : OutPar N R a k → Set Wd) (hE : ∀ par, MeasurableSet (E par))
+    (F : EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → OutPar N R a k →
+      OutZ N R a k × (SubCfg N a k P.A × OutZero N R a k Z0) → ℝ≥0∞)
+    (hF : ∀ hv g par oz x w', F hv g par (oz, x, w') = ENNReal.ofReal
+      (c0 (mergeOut a k oz par) *
+        (toRKernel a k P.T.K t s z w (remZeroMerge a k Z0
+            (w', (remZeroSplit a k Z0 (mergeOut a k oz par)).2)) x hv *
+          Real.exp (P.T.b (remZeroMerge a k Z0
+            (w', (remZeroSplit a k Z0 (mergeOut a k oz par)).2)) x hv g).re) /
+        remDen a k Z0 r (mergeOut a k oz par)))
+    (Core : EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → OutPar N R a k → Wd → Cr → ℝ≥0∞)
+    (bw frac : EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → OutPar N R a k → Wd → Cr → ℝ)
+    {Bw Ck Fr Fz Lc κcore κpre nZ0 nTree : ℝ}
+    (hid : ∀ hv, Hs hv → ∀ g par w c, ∫⁻ j, F hv g par (Θ.symm (w, c, j)) ∂μJ ≤ Core hv g par w c *
+      ENNReal.ofReal (Real.exp (bw hv g par w c) * Real.exp Lc * frac hv g par w c))
+    (hsupp : ∀ hv, Hs hv → ∀ g par w c, w ∉ E par → ∫⁻ j, F hv g par (Θ.symm (w, c, j)) ∂μJ = 0)
+    (hbw : ∀ hv, Hs hv → ∀ g par w c, w ∈ E par → bw hv g par w c ≤ Bw)
+    (hfrac0 : ∀ hv, Hs hv → ∀ g par w c, 0 ≤ frac hv g par w c)
+    (hfrac : ∀ hv, Hs hv → ∀ g par w c, w ∈ E par → frac hv g par w c ≤ Real.exp Fr)
+    (hcore : ∀ hv, Hs hv → ∀ g, g ∈ l1Ball (GIdx S n M K N) → ∀ par w,
+      ∫⁻ c, Core hv g par w c ∂μC ≤ ENNReal.ofReal (Real.exp (-κcore)))
+    (hvol : ∀ par, ENNReal.ofReal (Real.exp (Lc + Fz)) * μW (E par) ≤
+      ENNReal.ofReal (Real.exp (((N : ℝ) * S.p0 * Real.log (S.lam k) + Cvol) * (nZ0 + nTree))))
+    (hFr : Fr ≤ Fz + CEt * D0 ^ S.d + Cnat * S.lam k ^ (2 * S.d + 1) + 4 + Ck)
+    (hEZ : EZ ≤ (CE' * S.lam k + CE') * ((S.M : ℝ) * S.crit k) ^ S.d)
+    (hnT : nTree ≤ ((S.M : ℝ) * S.crit k) ^ S.d) (hnZ : nZ0 ≤ D0 ^ S.d)
+    (hκ : κpre ≤ κcore - (Bw + Ck)) :
+    KerBoundOn a k (removedKernel a k Z0 P t s z w u c0 r EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm
+      hum hc0m hrm) (κpre - S.CR * S.lam k ^ (2 * S.d + 1)) Hs := by
+  intro hv hhv g hg par
+  have h1 := removedKernel_lintegral_le a k Z0 P EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm hum hc0m
+    hrm hu1 hb hv g par (F hv g par) (hF hv g par)
+  have hFm : Measurable (F hv g par) :=
+    measurable_removedWindowF a k Z0 P htm hsm hzm hwm hc0m hrm hv g par (F hv g par)
+      (hF hv g par)
+  refine h1.trans ?_
+  have := window_lintegral_le_exp S ok k hx N hCE' hD0 hCvol hCR Θ hΘ (E par) (hE par)
+    (F hv g par) hFm (Core hv g par) (bw hv g par) (frac hv g par) (Fz := Fz) (Lc := Lc)
+    (hid hv hhv g par) (hsupp hv hhv g par) (hbw hv hhv g par) (hfrac0 hv hhv g par) (hfrac hv hhv g par)
+    (hcore hv hhv g hg par) (hvol par) (γ := 0) (by linarith) hEZ hnT hnZ hκ
+  simpa using this
+
 theorem removedKernel_kerBound_of_window (ok : S.Ok) (hx : 1 ≤ S.lam k)
     {Cvol CEt CE' Cnat D0 : ℝ} (hCE' : 0 ≤ CE') (hD0 : 0 ≤ D0) (hCvol : 0 ≤ Cvol)
     (hCR : ((N : ℝ) / 2 * Real.log 2 + N * S.p0 + |Cvol| + 2 * CE') *
@@ -202,18 +261,7 @@ theorem removedKernel_kerBound_of_window (ok : S.Ok) (hx : 1 ≤ S.lam k)
     (hκ : κpre ≤ κcore - (Bw + Ck)) :
     KerBound a k (removedKernel a k Z0 P t s z w u c0 r EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm
       hum hc0m hrm) (κpre - S.CR * S.lam k ^ (2 * S.d + 1)) := by
-  intro hv g hg par
-  have h1 := removedKernel_lintegral_le a k Z0 P EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm hum hc0m
-    hrm hu1 hb hv g par (F hv g par) (hF hv g par)
-  have hFm : Measurable (F hv g par) :=
-    measurable_removedWindowF a k Z0 P htm hsm hzm hwm hc0m hrm hv g par (F hv g par)
-      (hF hv g par)
-  refine h1.trans ?_
-  have := window_lintegral_le_exp S ok k hx N hCE' hD0 hCvol hCR Θ hΘ (E par) (hE par)
-    (F hv g par) hFm (Core hv g par) (bw hv g par) (frac hv g par) (Fz := Fz) (Lc := Lc)
-    (hid hv g par) (hsupp hv g par) (hbw hv g par) (hfrac0 hv g par) (hfrac hv g par)
-    (hcore hv g hg par) (hvol par) (γ := 0) (by linarith) hEZ hnT hnZ hκ
-  simpa using this
+  exact kerBound_iff_on.2 (removedKernel_kerBoundOn_of_window a k Z0 P EZ ht hs hz hw hu hc0 hr htm hsm hzm hwm hum hc0m hrm (fun _ => True) ok hx hCE' hD0 hCvol hCR hu1 hb Θ hΘ E hE F hF Core bw frac (fun hv _ g par w c => hid hv g par w c) (fun hv _ g par w c => hsupp hv g par w c) (fun hv _ g par w c => hbw hv g par w c) (fun hv _ g par w c => hfrac0 hv g par w c) (fun hv _ g par w c => hfrac hv g par w c) (fun hv _ g hg par w => hcore hv g hg par w) hvol hFr hEZ hnT hnZ hκ)
 
 end Window
 
