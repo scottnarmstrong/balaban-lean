@@ -159,6 +159,44 @@ theorem window_layer_eq_full_ball {j : ℕ} (hmK : m' + 1 ≤ K) (hW : H.RipeWin
 universe u
 
 /-- **`Du` is the physical datum on the balls around the regions of the pieces.** -/
+theorem du_ball_eqT (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    {ι : Type u} (jf : ι → ℕ)
+    {t : ι → ℕ} (hR : ∀ i, BallRadiusOK R m' (jf i) (t i)) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    {A : Set (InternalVars (H.localHistory M K (m' + 1) Z) (m' + 1))}
+    (o : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (x : SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1) A)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hψ1 : ∀ b, ψ ⟨m' + 1, b⟩ = outField N o (torusCast (blk_eq_top H.F.hnn hmK le_rfl) b))
+    (hψ0 : ∀ i (hi : i ≤ m') b, ψ ⟨i, b⟩ =
+      subVarField N x i (torusCast (blk_eq_top H.F.hnn hmK (hi.trans (Nat.le_succ _))) b))
+    (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N)
+    (Fs : ∀ s, BlockAt S n M K s → EuclideanSpace ℝ (Fin N))
+    (Ft : BlockAt S n M K (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hFs : ∀ s y, Fs s y = subVarField N x s y) (hFt : ∀ y, Ft y = outField N o y)
+    (hDu1 : ∀ y ∈ ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).Ω 1, ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex y ≠ m' + 1 →
+        ∀ i, Du.Ψ y i = ((Fs (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex y)
+          (jBlock S.d S.L (M * n K) K (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex y)
+            (torusCast (fine_eq_top H.F.hnn hmK).symm y)) i : ℝ) : ℂ))
+    (hDu2 : ∀ y ∈ ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).Ω 1, ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)).layerIndex y = m' + 1 →
+        ∀ i, Du.Ψ y i = ((Ft (jBlock S.d S.L (M * n K) K (m' + 1)
+          (torusCast (fine_eq_top H.F.hnn hmK).symm y)) i : ℝ) : ℂ)) :
+    ∀ (i : ι) (x' : Torus S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1))),
+      (∃ z ∈ (Xc i).sites, Green.torusDist S.d
+        (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x' ≤ (t i : ℝ) * ((S.L : ℝ) ^ jf i * M)) →
+      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') := by
+  intro i x' ⟨z, hz, hzx⟩
+  rw [hXc i] at hz
+  obtain ⟨z', hz'X, hsup⟩ := ball_witnessT hmK (hjf i).2 hz hzx
+  obtain ⟨hyf, hyw, hl⟩ := window_layer_eq_full_ballT (hR i) hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i)
+    hz'X hsup
+  exact du_eq_physical_of_fields hmK hW o x hv ψ hψ1 hψ0 Du Fs Ft hFs hFt hDu1 hDu2 hyw hyf hl
+
+/-- **`Du` is the physical datum on the balls around the regions of the pieces.** -/
 theorem du_ball_eq (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     {ι : Type u} (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
     (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
@@ -187,13 +225,9 @@ theorem du_ball_eq (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     ∀ (i : ι) (x' : Torus S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1))),
       (∃ z ∈ (Xc i).sites, Green.torusDist S.d
         (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x' ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
-      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') := by
-  intro i x' ⟨z, hz, hzx⟩
-  rw [hXc i] at hz
-  obtain ⟨z', hz'X, hsup⟩ := ball_witness hmK (hjf i).2 hz hzx
-  obtain ⟨hyf, hyw, hl⟩ := window_layer_eq_full_ball hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i)
-    hz'X hsup
-  exact du_eq_physical_of_fields hmK hW o x hv ψ hψ1 hψ0 Du Fs Ft hFs hFt hDu1 hDu2 hyw hyf hl
+      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x') :=
+  du_ball_eqT (hmK := hmK) (hW := hW) (jf := jf) (cf := cf) (hjf := hjf) (hcf := hcf) (hjK := hjK) (Xc := Xc) (hXc := hXc) (o := o) (x := x) (hv := hv) (ψ := ψ) (hψ1 := hψ1) (hψ0 := hψ0) (Du := Du) (Fs := Fs) (Ft := Ft) (hFs := hFs) (hFt := hFt) (hDu1 := hDu1) (hDu2 := hDu2)
+    (t := fun _ => 2) (hR := fun i => ballRadiusOK_two H g m' (jf i))
 
 end Agree
 
