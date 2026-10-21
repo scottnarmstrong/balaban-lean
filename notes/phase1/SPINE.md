@@ -741,6 +741,28 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
   exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
   (labels `Ŷ(S)` ↦ `Finset (Torus d n_{k+1})`) and the assembly of `old` as `BTerms`, then the (D7) clauses.
+* **Status after W1154 pieces 4n–5 (2026-10-21): reading HS-1′ (the coefficient on the local pair, `PLAN-B.md`).**
+  Under HS-1 the composite is `Dec2.decBgField` of the global pair, so (D7) `loc_field`/`analytic` cannot hold for the
+  re-expanded terms (H7(Y) constrains only the cubes of Y); HS-1′ computes `T(X, J)` on the restriction of
+  (`coverOf` G′, G′) to `𝔹_{k+1}(V(X, J))`. Landed pieces: `Spine/LFOldRead` (`oldTermLF_congr_of_locField`: the field
+  locality `hB` of the old term from (D7) `loc_field`); `Spine/LFOldH7` (`deltaC_stencil`, `deltaPrimeC_stencil`,
+  `h7Domain_composedMulti_of_inner`: **the transfer part of OPEN-H7-MIXED PROVED** — every condition of the source H7 domain
+  at X that does not read the composed field near Ω_{k+1} follows from the target domain at Y ⊇ X);
+  `Fluctuation/HoleStepLocal` (`GeneratingSet.inter`, `HoleStep.restrict`); `Spine/LFHoleStepLoc` (`locB`, `holeStepLoc`,
+  cover bases of the local pair); `Spine/LFOldLocCoef` (`locSetXJ`, `oldCoefLoc`, the Cauchy bound `norm_oldCoefLoc_le`);
+  `Spine/LFOldH7Loc` (`h7Domain_composedMulti_loc`); `Spine/LFOldMarkBound` (`norm_oldInterp_loc_lt`: at every parameter
+  of the polydisc the interpolated old term of the local pair is below the record's `fac e^{-rate d^cov(X)}`, from the
+  record's (D7) and `H7MixedInnerLoc`). **Named inputs (open):**
+  - `H7MixedInnerLoc` — the composed field of the local pair lies in Δ^c_k(□; 1, ε_k) at the cubes □ ⊂ X near Ω_{k+1}
+    (P5 (2.39)–(2.43): composition identity, locality of the background between `genCube` and the local pair, the
+    fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
+  - `H7MixedDatumLoc` — the datum of the local pair lies in Ψ̃^c(G′_V; δ_b, δ_b) (patching the per-cube decompositions of
+    RegC into one real slowly varying field on V; size: medium);
+  - Proposition 3.3 on a region (the localized exponent of the measure of the step, `InterpMarksOn` minus the marks):
+    still to be stated.
+  Next: the analyticity in `s` of the interpolated old term of the local pair (I-4b `i4b_analytic`,
+  `analyticOnNhd_decCovSqrt_entry`), the coefficient bound from the record's (D7) and the named inputs, then the marks,
+  `oldB` as `BTerms` and its (D7) clauses, and the bound P6 (4.34).
 
 ## LastIntegralInput sub-inputs (W1108)
 
