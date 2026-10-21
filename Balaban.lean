@@ -2973,6 +2973,7 @@ public import Balaban.Spine.LFOldD7RealLoc
 public import Balaban.Spine.LFOldD7Loc
 public import Balaban.Spine.LFOldD7Hist
 public import Balaban.Spine.LFOldD7Reads
+public import Balaban.Spine.LFOldD7Euclid
 public import Balaban.Spine.LFOldD7Analytic
 public import Balaban.Spine.LFOldD7AnalyticLoc
 public import Balaban.Spine.LFOldD7AnalyticRec

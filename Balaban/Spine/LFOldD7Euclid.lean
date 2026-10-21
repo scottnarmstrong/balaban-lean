@@ -327,6 +327,31 @@ theorem oldInterp_entry (H : StepAff S S' A) (ρ : ℝ)
   rw [Equiv.symm_apply_apply]
   exact H.composed_entry ρ (fun b P => H.sloc_rel hX₁ hloc hs b P) hψ b i
 
+/-- **The coefficient `T(X, J)` of the re-expansion is transported**: `T'(X', κ J) = T(X, J)`
+(Lemma AE, `coef_relabel`). -/
+theorem oldCoef_entry (H : StepAff S S' A) (ρ : ℝ)
+    {X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁loc' : S'.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁ X₁' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX₁ : ∀ x, A.toFun x ∈ X₁' ↔ x ∈ X₁)
+    (hloc : ∀ b x, A.toFun x ∈ X₁loc' (H.u b) ↔ x ∈ X₁loc b)
+    {ψout : S.U → Fin N → ℂ} {ψout' : S'.U → Fin N → ℂ}
+    (hψ : ∀ q i, ψout' (H.u q) i = ψout q i) {B : (S.U → Fin N → ℂ) → ℂ}
+    {B' : (S'.U → Fin N → ℂ) → ℂ}
+    (hB : ∀ c : S.U → Fin N → ℂ, B' (fun b' i => c (H.u.symm b') i) = B c)
+    (ψin : (∅ : Finset S.U) → Rn N) (ψin' : (∅ : Finset S'.U) → Rn N)
+    {R : ℝ} (hR : 1 < R)
+    (hana : AnalyticOnNhd ℂ (S.oldInterp (coverOf S.G') ρ X₁loc X₁ ∅ ψout B ψin)
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf S.G')) fun _ => R))
+    (hana' : AnalyticOnNhd ℂ (S'.oldInterp (coverOf S'.G') ρ X₁loc' X₁' ∅ ψout' B' ψin')
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf S'.G')) fun _ => R))
+    (J : Finset (coverOf S.G').cubeIdx) :
+    S'.oldCoef (coverOf S'.G') ρ X₁loc' X₁' ∅ ψout' B' (J.map H.kappa.toEmbedding) ψin' =
+      S.oldCoef (coverOf S.G') ρ X₁loc X₁ ∅ ψout B J ψin := by
+  unfold HoleStep.oldCoef
+  exact coef_relabel hR H.kappa hana hana' (fun s' _ =>
+    H.oldInterp_entry ρ hX₁ hloc hψ hB ψin ψin' (s := s' ∘ H.kappa) (s' := s') (fun P => rfl)) J
+
 end StepAff
 
 end Balaban.Fluctuation
