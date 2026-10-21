@@ -3092,6 +3092,7 @@ public import Balaban.LargeField.Base.BaseCutoffClass
 public import Balaban.LargeField.Base.BaseFirstChi1
 public import Balaban.LargeField.Base.BaseFRWhiteRow
 public import Balaban.LargeField.Base.BaseFRWhiteLogDetBase
+public import Balaban.LargeField.Base.BaseAllGoodEnd
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
