@@ -25,7 +25,8 @@ smallness of `ε_j`; and the bound at the composed data is the bound of the clas
 (the open input A4-1b (ii), ruling R2).  The family is then the coefficient of a system of the class
 (`NewLevelFormula`).
 
-* `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth`.
+* `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth`;
+* `classLabel_mem`: the facts of a label of the chain.
 -/
 
 @[expose] public section
@@ -37,6 +38,24 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
   Balaban.SmallField Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Matrix Metric Set
   MeasureTheory Balaban.Inhabited.MarkBudgetAudit Balaban.SmallField.Def6v2
   Balaban.SmallField.GsSpec Balaban.Analysis
+
+open Classical in
+/-- The labels of the class chain: a member of the label set `𝒯E` of the levels `1 ≤ j ≤ k` is
+aligned, its polymer is a polymer of `𝒟_j` and contains its cube. -/
+theorem classLabel_mem {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {m₀ : ℕ}
+    {𝒯E : Finset (ℕ × CTorus d L N₁ m₁ (k + 1) × Set (CTorus d L N₁ m₁ (k + 1)))}
+    (h𝒯 : 𝒯E = ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
+    (τ : {τ // τ ∈ 𝒯E}) :
+    1 ≤ τ.1.1 ∧ τ.1.1 ≤ k ∧ Aligned (L ^ τ.1.1) τ.1.2.1 ∧ IsPolyDom m₀ τ.1.1 τ.1.2.2 ∧
+      τ.1.2.1 ∈ τ.1.2.2 := by
+  have h : τ.1 ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+      Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2) := by
+    rw [← h𝒯]; exact τ.2
+  rw [Finset.mem_filter, Finset.mem_product] at h
+  exact ⟨(Finset.mem_Icc.1 h.1.1).1, (Finset.mem_Icc.1 h.1.1).2, h.2⟩
 
 open Classical in
 /-- **The class chain on its formula path, with the chart premise replaced by the inclusion of the
@@ -235,16 +254,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         dot (r.1 τ.1.2.1) (r.1 τ.1.2.1) ∈ Complex.slitPlane := by
     intro τ Fk hFk t ht r hr
     subst hr
-    have hmem : τ.1.1 ∈ Finset.Icc 1 k ∧ Aligned (L ^ τ.1.1) τ.1.2.1 ∧
-        IsPolyDom C.m₀ τ.1.1 τ.1.2.2 ∧ τ.1.2.1 ∈ τ.1.2.2 := by
-      have h : τ.1 ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ Tk.m₁ (k + 1) ×
-          Set (CTorus d L N₁ Tk.m₁ (k + 1))))).filter
-          (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2) := by
-        rw [← h𝒯]; exact τ.2
-      rw [Finset.mem_filter, Finset.mem_product] at h
-      exact ⟨h.1.1, h.2⟩
-    obtain ⟨hjI, -, hX, hy⟩ := hmem
-    obtain ⟨hj1, hjk⟩ := Finset.mem_Icc.1 hjI
+    obtain ⟨hj1, hjk, -, hX, hy⟩ := classLabel_mem h𝒯 τ
     have hB' := hBs τ
     have hF' := hFs τ
     rw [hGj τ] at hB'
