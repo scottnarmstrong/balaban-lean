@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.SFStep
+public import Balaban.Spine.BudgetSetupCore
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.RStep
 public import Balaban.Spine.Transfer
@@ -905,73 +906,24 @@ theorem lfBudgetInput_of_pin {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀
     LFBudgetInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ := by
   intro κ hκ c₉ hc₉
   obtain ⟨b, hb⟩ := hP κ hκ c₉ hc₉
-  obtain ⟨hL3, ha1, -, -, -, -, -, -, -, -, -, -, -, -, -, ⟨hTok, hθ, -, hH0, hc1, hLM, hcv⟩, -,
-    hq, -⟩ := hA1 κ hκ c₉ hc₉
-  obtain ⟨x₀, hx₀⟩ := exists_good_lamHat ({ T κ c₉ with d := d } : Typing) hTok hθ
-  have hd3 : 3 ≤ d := hTok.three_le_d
-  have hL2 : 2 ≤ (T κ c₉).L := by omega
-  set Xa : ℝ := max (3 / (1 - (2 : ℝ) ^ (-(1 / (2 * ((T κ c₉).p0 : ℝ))))))
-    (max ((PB κ c₉).c2 + 2)
-      (3 + 2 * (thetaOf d (T κ c₉).L + 1 + 1 / (PB κ c₉).H0))) with hXa
-  refine ⟨max b (Real.exp (max x₀ Xa)), ?_⟩
+  obtain ⟨b₁, hb₁⟩ := budget_good_setup hA1 hκ hc₉
+  obtain ⟨-, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, -, hq, -⟩ := hA1 κ hκ c₉ hc₉
+  refine ⟨max b b₁, ?_⟩
   intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM nK _
   have hpin := hb β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9
     hafree hcst hkK' SD hM nK
-  have hβe : Real.exp (max x₀ Xa) ≤ β := le_of_max_le_right hβ
-  have hβ0 : 0 < β := lt_of_lt_of_le (Real.exp_pos _) hβe
-  have hlog : max x₀ Xa ≤ Real.log β := (Real.le_log_iff_exp_le hβ0).2 hβe
-  have hlogβa : Real.log β ≤ Real.log (β * (cs₀ κ c₉).aKer) :=
-    Real.log_le_log hβ0 (by nlinarith)
-  have hG := hx₀ β (cs₀ κ c₉).aKer (by linarith [le_max_left x₀ Xa])
-  have hθ0 : 0 ≤ thetaOf d (T κ c₉).L := by
-    unfold thetaOf
-    exact mul_nonneg (Nat.cast_nonneg _)
-      (Real.log_nonneg (by have : (2 : ℝ) ≤ (T κ c₉).L := by exact_mod_cast hL2
-                           linarith))
-  have hK : ∀ j, AnalyticLamAt (analyticK d (T κ c₉).L (T κ c₉).p0 (PB κ c₉).H0 (PB κ c₉).c2)
-      (lamHat d (T κ c₉).L β (cs₀ κ c₉).aKer j) := by
-    intro j
-    apply analyticK_at (by omega) hL2 hH0
-    have : 0 ≤ (j : ℝ) * thetaOf d (T κ c₉).L := mul_nonneg (Nat.cast_nonneg _) hθ0
-    unfold lamHat
-    linarith [le_max_right x₀ Xa]
+  obtain ⟨hG, hB⟩ := hb₁ β (le_of_max_le_right hβ)
   have hrun : RunningHypTo d (T κ c₉).L β ν (cs₀ κ c₉).aKer (1 / 20) (Φ κ c₉ β ν k rec.F.sf).β
       (Φ κ c₉ β ν k rec.F.sf).ν (k + 1) := by
     obtain ⟨_, hsf⟩ := hD2.sfClass
     exact runningHypTo_succ_of_coeffBounds hsf.admissible hq hsf.coeff
       ((hcst 0 (Nat.zero_le k)).1.trans rec.β0) ((hcst 0 (Nat.zero_le k)).2.1.trans rec.ν0)
       (runningHypTo_congr rec.run (fun j hj => (hcst j hj).1) (fun j hj => (hcst j hj).2.1))
-  let B : BudgetSetupTo 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (rec.succP (Φ κ c₉ β ν k rec.F.sf))
-      (k + 1) :=
-    { β := β
-      ν := ν
-      a := (cs₀ κ c₉).aKer
-      ε := 1 / 20
-      nuRun := (Φ κ c₉ β ν k rec.F.sf).ν
-      K := analyticK d (T κ c₉).L (T κ c₉).p0 (PB κ c₉).H0 (PB κ c₉).c2
-      lam_eq := fun _ => rfl
-      Kd := rfl
-      KL := rfl
-      Kp0 := rfl
-      KH0 := rec.tie_H0.symm
-      Kc2 := rec.tie_c2.symm
-      lam_cond := hK
-      H0_nonneg := by
-        show 0 ≤ rec.P.H0
-        rw [rec.tie_H0]
-        exact hH0.le
-      c1_nonneg := by
-        show 0 ≤ rec.P.c1
-        rw [rec.tie_c1]
-        exact hc1
-      L_le_M := hLM
-      cv_ge := by
-        show ((T κ c₉).M : ℝ) ^ d * (rec.P.H0 + rec.P.c1 + 3) ≤ (T κ c₉).cv
-        rw [rec.tie_H0, rec.tie_c1]
-        exact hcv
-      run := runningHypTo_congr hrun (fun _ hj => vacExt_eq_of_le_succ
-        (fun i hi => (rec.rep.coh.beta_P i hi).trans (hcst i hi).1.symm) rfl hj)
-        (fun _ _ => rfl) }
+  obtain ⟨B⟩ := hB (rec.succP (Φ κ c₉ β ν k rec.F.sf)) ν (Φ κ c₉ β ν k rec.F.sf).ν (k + 1)
+    rec.tie_H0 rec.tie_c1 rec.tie_c2
+    (runningHypTo_congr hrun (fun _ hj => vacExt_eq_of_le_succ
+      (fun i hi => (rec.rep.coh.beta_P i hi).trans (hcst i hi).1.symm) rfl hj)
+      (fun _ _ => rfl))
   exact Rep.budgetPre_of_LF2_trunc _ hG B hpin hkK' le_rfl (by omega) (by omega) le_rfl
 
 /-- **The large-field half of the step from its parts and the prefix**: `lfStepInput_of_parts`, with
