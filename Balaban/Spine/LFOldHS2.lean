@@ -225,6 +225,11 @@ def CubesOfIn (j : ℕ) (Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))) : Prop :=
   ∀ x ∈ Sf, CubeSub (S := S) (n := n) M K j (LargeField.cubeMap n S.L M K j x) Yf
 
 omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+/-- `CubesOfIn` is satisfiable (rule 10): it holds at `Y_f = 𝕋`. -/
+theorem cubesOfIn_univ (j : ℕ) (Sf : Set (Torus S.d (M * n K * S.L ^ K))) :
+    CubesOfIn (S := S) (n := n) (M := M) (K := K) j Set.univ Sf := fun _ _ _ _ => Set.mem_univ _
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
 /-- The sites of `S_f` lie in `Y_f` when their cubes do. -/
 theorem subset_of_cubesOfIn {j : ℕ} {Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))}
     (h : CubesOfIn (S := S) (n := n) (M := M) (K := K) j Yf Sf) : Sf ⊆ Yf := fun x hx =>
