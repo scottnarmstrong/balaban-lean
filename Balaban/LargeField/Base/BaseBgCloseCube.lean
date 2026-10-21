@@ -168,8 +168,8 @@ every bond `(x, x + e_μ)` with `x` in the cube `y0`:
 `L |∂_μ gl(x)| < δ₁ + √N ε`, `ε = K_w c_F (2d+2) K₁ δ' e^{-γ_w c M₁}`. -/
 theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
-      ∀ {M1 N₁ m₁ c n : ℕ} [NeZero M1] [NeZero N₁] [NeZero n] (hM1 : M1 = L ^ m₁)
-        (hm : N₁ * L ^ (1 - 1) = c * n) {ϱ1 a₁ ν δ' ε' δ₁ : ℝ} (h : Fin N → ℝ),
+      ∀ {M1 N₁ m₁ c n : ℕ} [NeZero M1] [NeZero N₁] [NeZero n] (_hM1 : M1 = L ^ m₁)
+        (_hm : N₁ * L ^ (1 - 1) = c * n) {ϱ1 a₁ ν δ' ε' δ₁ : ℝ} (h : Fin N → ℝ),
         0 < a₁ →
         BgHyp d L 1 (minSep L M1) (compWeight L a₁) ν → BgHyp d L 1 ϱ1 (compWeight L a₁) ν →
         0 ≤ ν → ν * ((L : ℝ) ^ 1) ^ 2 ≤ 1 →
@@ -201,7 +201,7 @@ theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
             Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) ∧
         (∀ (x : Torus d (M1 * N₁ * L ^ 1)),
         blockMap (L ^ 1 * (c * M1)) n x = y0 →
-        ∀ (hx : x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1),
+        ∀ (_hx : x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1),
         vn (fun i => (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) -
           blockAvg (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
             (bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
