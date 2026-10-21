@@ -613,6 +613,90 @@ theorem card_cells_optW_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
   exact h
 
 
+open Classical in
+/-- **The cubes of the cover of the step inside a site**: the cubes of levels `k`, `k + 1` of the
+localization range whose frame sites lie in `V`. -/
+noncomputable def cubesIn {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
+    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ : ℕ)
+    (V : Set (CTorus S.d S.L F.N₁ m₁ K)) :
+    Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
+  ((coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx.filter fun P => k ≤ P.1 ∧
+    (cubeP P : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆ locRange g hM1 H ρ).filter
+      fun P => toFrame g hnn hM1 F hk '' (cubeP P : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+        ⊆ V
+
+omit [NeZero M] in
+/-- **A family with the site `V` consists of cubes inside `V`.** -/
+theorem subset_cubesIn_of_mem_famAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    {ρ r r' : ℕ} {X : Finset (Torus S.d (n k))} {V : Set (CTorus S.d S.L F.N₁ m₁ K)}
+    {J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
+    (hJ : J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V) :
+    J ⊆ cubesIn g hnn hM1 F H hk hρ ρ V := by
+  classical
+  obtain ⟨hJa, -, hJV⟩ := (mem_famAt g hnn hM1).1 hJ
+  intro P hP
+  refine Finset.mem_filter.2 ⟨Finset.mem_powerset.1 hJa hP, ?_⟩
+  rintro _ ⟨x, hx, rfl⟩
+  rw [← hJV]
+  refine markBase_subset_markSite g hnn hM1 F H hk hρ r r' X J (Or.inl (Or.inr ⟨x, ?_, rfl⟩))
+  exact cubeP_subset_locSetXJ g hM1 H r r' X hP hx
+
+omit [NeZero M] in
+open Classical in
+/-- **The number of cubes of one level inside a union of `π'_{k+1}`-cubes**: at most
+`L^{d (k + 1 + m₀ - j)}` per cell of scale `k + 1`. -/
+theorem card_cubesIn_level_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ : ℕ)
+    {V : Set (CTorus S.d S.L F.N₁ m₁ K)} (hV : IsPiPrimeUnion m₀ (k + 1) V) {j : ℕ}
+    (hjk : j ≤ k + 1) :
+    ((cubesIn g hnn hM1 F H hk hρ ρ V).filter fun P => P.1 = j).card ≤
+      cellCount (cellSide S.L m₀ m₁ (k + 1)) V * (S.L ^ (k + 1 + m₀ - j)) ^ S.d := by
+  set cs := cellSide S.L m₀ m₁ (k + 1) with hcs
+  set a := S.L ^ (j + m₁) with ha
+  have hcs0 : 0 < cs := cellSide_pos m₀ m₁ (k + 1)
+  have hdvd : cs ∣ (F.N₁ * S.L ^ m₁) * S.L ^ K := cellSide_dvd F.divN₁ hk
+  have hcs_eq : cs = S.L ^ (k + 1 + m₀ - j) * a := by
+    rw [hcs, ha, ← pow_add]; unfold cellSide; congr 1; omega
+  have hadvd : a ∣ cs := ⟨S.L ^ (k + 1 + m₀ - j), by rw [hcs_eq, mul_comm]⟩
+  have ha0 : 0 < a := pow_pos (Nat.pos_of_ne_zero (NeZero.ne S.L)) _
+  have hinj : Set.InjOn (fun P : ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) =>
+      toFrame g hnn hM1 F hk P.2) ↑((cubesIn g hnn hM1 F H hk hρ ρ V).filter fun P => P.1 = j) := by
+    intro P hP Q hQ h
+    have h1 := (Finset.mem_filter.1 (Finset.mem_coe.1 hP)).2
+    have h2 := (Finset.mem_filter.1 (Finset.mem_coe.1 hQ)).2
+    exact Prod.ext (h1.trans h2.symm) (toFrame_injective g hnn hM1 F hk h)
+  rw [← Finset.card_image_of_injOn hinj]
+  have hsub : ((cubesIn g hnn hM1 F H hk hρ ρ V).filter fun P => P.1 = j).image
+      (fun P => toFrame g hnn hM1 F hk P.2) ⊆
+      (Finset.univ.filter fun b : CTorus S.d S.L F.N₁ m₁ K => Aligned cs b ∧ Localization.box b cs ⊆ V).biUnion
+        fun c => Finset.univ.filter fun t : CTorus S.d S.L F.N₁ m₁ K =>
+          Aligned a t ∧ t ∈ Localization.box c (S.L ^ (k + 1 + m₀ - j) * a) := by
+    intro t ht
+    obtain ⟨P, hP, rfl⟩ := Finset.mem_image.1 ht
+    obtain ⟨hPc, hPj⟩ := Finset.mem_filter.1 hP
+    obtain ⟨hPa, hPV⟩ := Finset.mem_filter.1 hPc
+    have hPg := (Finset.mem_filter.1 hPa).1
+    obtain ⟨-, -, hbase⟩ := (mem_cubeIdx _).1 hPg
+    have htV : toFrame g hnn hM1 F hk P.2 ∈ V := hPV ⟨P.2, (mem_cubeP).2 (SameCell.refl _ _), rfl⟩
+    obtain ⟨b, hb, htb, hbV⟩ := hV _ htV
+    refine Finset.mem_biUnion.2 ⟨cbase cs (toFrame g hnn hM1 F hk P.2), ?_, ?_⟩
+    · exact Finset.mem_filter.2 ⟨Finset.mem_univ _, aligned_cbase _,
+        (cell_subset_cube hdvd hcs0 hb htb).trans hbV⟩
+    · refine Finset.mem_filter.2 ⟨Finset.mem_univ _, fun μ => ?_, ?_⟩
+      · rw [toFrame_val, ha, ← hPj]; exact hbase μ
+      · rw [← hcs_eq]; exact mem_box_cbase hcs0 _
+  refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
+  calc ∑ c ∈ (Finset.univ.filter fun b : CTorus S.d S.L F.N₁ m₁ K => Aligned cs b ∧ Localization.box b cs ⊆ V),
+        (Finset.univ.filter fun t : CTorus S.d S.L F.N₁ m₁ K =>
+          Aligned a t ∧ t ∈ Localization.box c (S.L ^ (k + 1 + m₀ - j) * a)).card
+      ≤ ∑ _c ∈ (Finset.univ.filter fun b : CTorus S.d S.L F.N₁ m₁ K => Aligned cs b ∧ Localization.box b cs ⊆ V),
+          (S.L ^ (k + 1 + m₀ - j)) ^ S.d :=
+        Finset.sum_le_sum fun c hc => card_aligned_in_box_mul (hadvd.trans hdvd) ha0 _
+          (Localization.aligned_of_dvd hadvd (Finset.mem_filter.1 hc).2.1)
+    _ = _ := by rw [Finset.sum_const, smul_eq_mul]; rfl
+
+
 end Resum
 
 end Balaban.RootFSpine
