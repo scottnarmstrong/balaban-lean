@@ -11,6 +11,8 @@ public import Balaban.Inhabited.NewLevelCanonHPrem
 public import Balaban.Inhabited.NewLevelClassCoeff
 public import Balaban.Inhabited.NewLevelCanonGeom
 public import Balaban.Inhabited.NewLevelCanonReg
+public import Balaban.Inhabited.NewLevelCanonBigRad
+public import Balaban.Inhabited.NewLevelCanonX1
 
 /-!
 # The coefficient of the new level on two tori for canonical covers from local generating sets
@@ -167,16 +169,9 @@ theorem newLevel_coeff_twoTorus_of_class_cells
     {NA NB s : ℕ} [NeZero NA] [NeZero NB] {hcA : NA * L ^ (m₁ + s) = N₁ * L ^ m₁}
     {hcB : NB * L ^ (m₁ + s) = N₁' * L ^ m₁} (LC : CanonCoverCast C.m₀ s hcA hcB F F')
     (SpG : DGSetting (SA).G' (compWeight L (SA).a₁) (SA).ν)
-    (hbigA : 2 * (R + 3 * ((2 * (L / 2) + 1) * cellSide L C.m₀ m₁ k) +
-        (5 * L + 1) * (L ^ k * L ^ (m₁ + s)) + 6 * (k + 1) * L ^ ((k + 1) + (m₁ + s)) + 1 +
-        (5 * L + 2) * L ^ ((k + 1) + (m₁ + s)) + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 <
-      NA * L ^ (m₁ + s) * L ^ (k + 1))
-    (hbigB : 2 * (R + 3 * ((2 * (L / 2) + 1) * cellSide L C.m₀ m₁ k) +
-        (5 * L + 1) * (L ^ k * L ^ (m₁ + s)) + 6 * (k + 1) * L ^ ((k + 1) + (m₁ + s)) + 1 +
-        (5 * L + 2) * L ^ ((k + 1) + (m₁ + s)) + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 <
-      NB * L ^ (m₁ + s) * L ^ (k + 1))
-    (hXLsub : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      polySet C.m₀ j y₀ X₀ ⊆ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))))
+    (hs : s < C.m₀)
+    (hsz : 2 * R + (4 * (k + 1) + 36) * L ^ (k + 1 + C.m₀ + m₁) + 8 ≤ N₁ * L ^ m₁ * L ^ (k + 1))
+    (hsz' : 2 * R + (4 * (k + 1) + 36) * L ^ (k + 1 + C.m₀ + m₁) + 8 ≤ N₁' * L ^ m₁ * L ^ (k + 1))
     (hL3 : 3 ≤ L)
     (hcell : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
       (∀ x ∈ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))),
@@ -225,6 +220,34 @@ theorem newLevel_coeff_twoTorus_of_class_cells
     have := reg_of_hN (SA).hG' hB0.hr₀ hL3 (by have := hB0.Sp.hd; omega) hB0.hN
       (hB0.dsX₀ p hp) v hv
     rwa [hX1f] at this
+  have hbigA : 2 * (R + 3 * ((2 * (L / 2) + 1) * cellSide L C.m₀ m₁ k) +
+        (5 * L + 1) * (L ^ k * L ^ (m₁ + s)) + 6 * (k + 1) * L ^ ((k + 1) + (m₁ + s)) + 1 +
+        (5 * L + 2) * L ^ ((k + 1) + (m₁ + s)) + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 <
+      NA * L ^ (m₁ + s) * L ^ (k + 1) := by
+    rw [hcA]; exact hbig_of_size hL3 hs hsz
+  have hbigB : 2 * (R + 3 * ((2 * (L / 2) + 1) * cellSide L C.m₀ m₁ k) +
+        (5 * L + 1) * (L ^ k * L ^ (m₁ + s)) + 6 * (k + 1) * L ^ ((k + 1) + (m₁ + s)) + 1 +
+        (5 * L + 2) * L ^ ((k + 1) + (m₁ + s)) + L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 <
+      NB * L ^ (m₁ + s) * L ^ (k + 1) := by
+    rw [hcB]; exact hbig_of_size hL3 hs hsz'
+  have hXLsub : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
+      polySet C.m₀ j y₀ X₀ ⊆ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))) := by
+    intro j y₀ X₀ hadm p hp
+    obtain ⟨τ, -, hτ⟩ := hB.surjOn hadm
+    simp only [Prod.mk.injEq] at hτ
+    obtain ⟨hj, hy, hX⟩ := hτ
+    have hXL : NS.O.XL τ = polySet C.m₀ j y₀ X₀ := by
+      rw [(hpin τ).2.2.2.2.2, hj, hy, hX]
+    have hX1f : NS.O.X₁f τ = F.X₁fC j y₀ X₀ := by rw [(hpin τ).1, hj, hy, hX]
+    have hm0 : NS.O.m₀ = C.m₀ := hP0.1
+    have hch := (NS.OS.hcov τ).chosen
+    have hjk : NS.O.jL τ ≤ k := hj ▸ hadm.2.1
+    have := X1_far (SA).hG' (NS.OS.hN) (by omega) (by omega) hch
+      (p := p) (by rw [hXL]; exact hp) 0 (fun μ => by simp only [Pi.zero_apply, abs_zero]; positivity)
+    have h0 : (intTorus (0 : Fin d → ℤ) : CTorus d L N₁ m₁ (k + 1)) = 0 := by
+      funext μ; simp [intTorus_apply]
+    rw [h0, add_zero, ← NS.OS.hX₁ τ] at this
+    rw [← hX1f]; exact this
   exact newLevel_coeff_twoTorus_of_class_of_cellTerms (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hum := hum) (humB := humB) (hδc := hδc) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (i₀ := i₀) (i₁ := i₁) (hP := hP0) (hP' := hP') (hCm := hCm) (hCT := hCT) (hCT' := hCT') (hTI := hTI) (hlocB := hlocB) (hM8 := hM8) (hcX := hcX) (hcX' := hcX') (hRR := hRR) (hcloc := hcloc) (hcov := hcov) (hGA2 := hGA2) (hGB2 := hGB2) (hnE := hnE) (hnE' := hnE') (hK := hK) (hK' := hK') (oMX := oMX) (omar := omar) (oαK := oαK) (osm := osm) (hρ := hρ) (hΦan := hΦan) (hn19 := hn19) (hn19' := hn19') (hmE₁ := hmE₁) (hmE₂ := hmE₂) (hgeom := hgeom_of_cast LC hL3 (by omega) hN₁ hN₂ SpG hXLsub hreg hbigA hbigB hcell)
 
 end Final

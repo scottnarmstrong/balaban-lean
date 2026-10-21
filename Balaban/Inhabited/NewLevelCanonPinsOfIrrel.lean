@@ -41,7 +41,8 @@ theorem oldTermsCanonPinsAt_of_irrel {S : StepSetting d L N₁ m₁ k N ϱ}
     (hinj : ∀ τ τ', O.jL τ = O.jL τ' → y τ = y τ' → X τ = X τ' → τ = τ')
     (hsurj : ∀ p ∈ AdmPairs L N₁ m₁ k d C.m₀ k, ∃ τ, (O.jL τ, y τ, X τ) = p)
     (hpin : ∀ τ, O.X₁f τ = F.X₁fC (O.jL τ) (y τ) (X τ) ∧ O.𝒦X τ = F.𝒦XC (O.jL τ) (y τ) (X τ) ∧
-      O.Gk τ = F.GkC (O.jL τ) (y τ) (X τ) ∧ O.Gj τ = F.GjC (O.jL τ) (y τ) (X τ) ∧ O.ρ = F.ρC) :
+      O.Gk τ = F.GkC (O.jL τ) (y τ) (X τ) ∧ O.Gj τ = F.GjC (O.jL τ) (y τ) (X τ) ∧ O.ρ = F.ρC ∧
+      O.XL τ = polySet C.m₀ (O.jL τ) (y τ) (X τ)) :
     OldTermsCanonPinsAt S C O F i₀ i₁ :=
   ⟨hm, y, X, hE, ⟨fun τ _ => hlab τ, fun a _ b _ h => by
       simp only [Prod.mk.injEq] at h

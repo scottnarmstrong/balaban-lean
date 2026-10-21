@@ -35,12 +35,6 @@ variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L]
 set_option hygiene false in
 local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
 
-/-- **The polymer of an inherited term**: `X ∪ □(y)`, the polymer `XL` of `OldTermsAreIrrel`. -/
-def polySet (m₀ j : ℕ) (y : CTorus d L N₁ m₁ (k + 1)) (X : Set (CTorus d L N₁ m₁ (k + 1))) :
-    Set (CTorus d L N₁ m₁ (k + 1)) :=
-  X ∪ Localization.box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-    (L * cellSide L m₀ m₁ j)
-
 /-- **The canonical cover is the region `X₁` of a chosen family of the polymer**: for every admissible
 pair there is a chosen family `𝒦` of the polymer `X ∪ □(y)` at the scale `j` with `X₁ = X1 𝒦` (P1
 (2.30)-(2.31); the field `hX₁` of `OldTermSettings` with `hcov`). -/
