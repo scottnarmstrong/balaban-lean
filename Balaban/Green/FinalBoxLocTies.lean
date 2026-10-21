@@ -18,9 +18,9 @@ The geometry of the macro cover gives the constants of the count of rooted famil
 * `cellGraph_degree_le`: a box meets at most `16^d` boxes (`macTags_near_card`), so the cell graph
   has degree at most `16^d`;
 * `card_boxes_mem_le`: a block lies in at most `7^d` boxes (`macBox_overlap`);
-* `cellCount`, `cellCount_union_le`, `cellCount_macBoxF_le`: the number of macro cells whose core
-  meets a set of blocks is subadditive, and at most `16^d` on a box;
-* `exp_cellCount_rootRegion_le`: `e^{a · cellCount(R ∪ ⋃_{z ∈ C} B_z)} ≤ e^{a · cellCount(R)} θ^{|C|}`,
+* `macCellCount`, `macCellCount_union_le`, `macCellCount_macBoxF_le`: the number of macro cells
+  meeting a set of blocks (B2's `cellCount`) is subadditive, and at most `16^d` on a box;
+* `exp_macCellCount_rootRegion_le`: `e^{a · #cells(R ∪ ⋃_{z ∈ C} B_z)} ≤ e^{a · #cells(R)} θ^{|C|}`,
   `θ = e^{a 16^d}` — the weight hypothesis of `sum_norm_localFormOf_le_of_coef`.
 
 **The constraint (`BoxCutTies`).**  At the cut radius `κ` and the cell rate `a`: `1 ≤ κ`, the macro
@@ -73,53 +73,51 @@ theorem card_boxes_mem_le (hM : 0 < M) (x : L1Torus d N₀) :
   ext z
   simp [mem_macBoxF]
 
-open Classical in
-/-- **The cell count** of a set of blocks: the number of macro cells whose core meets it. -/
-noncomputable def cellCount (d N₀ M : ℕ) [NeZero N₀] (Y : Finset (L1Torus d N₀)) : ℕ :=
-  (Finset.univ.filter fun z : MacIdx d N₀ M => ∃ x ∈ Y, x ∈ macCore d N₀ M z).card
+/-- **The cell count** of a set of blocks: the number of macro cells meeting it, i.e. of the cells
+`macZ x` of its blocks (the count of B2's `BoxLocalForm`, on the general torus). -/
+def macCellCount (d N₀ M : ℕ) [NeZero N₀] (Y : Finset (L1Torus d N₀)) : ℕ :=
+  (Y.image (macZ (d := d) M)).card
 
-theorem cellCount_union_le (A B : Finset (L1Torus d N₀)) :
-    cellCount d N₀ M (A ∪ B) ≤ cellCount d N₀ M A + cellCount d N₀ M B := by
+theorem macCellCount_union_le (A B : Finset (L1Torus d N₀)) :
+    macCellCount d N₀ M (A ∪ B) ≤ macCellCount d N₀ M A + macCellCount d N₀ M B := by
   classical
-  unfold cellCount
-  refine (Finset.card_le_card fun z hz => ?_).trans (Finset.card_union_le _ _)
-  obtain ⟨x, hx, hxz⟩ := (Finset.mem_filter.1 hz).2
-  rcases Finset.mem_union.1 hx with h | h
-  · exact Finset.mem_union_left _ (Finset.mem_filter.2 ⟨Finset.mem_univ _, x, h, hxz⟩)
-  · exact Finset.mem_union_right _ (Finset.mem_filter.2 ⟨Finset.mem_univ _, x, h, hxz⟩)
+  unfold macCellCount
+  rw [Finset.image_union]
+  exact Finset.card_union_le _ _
 
-theorem cellCount_macBoxF_le (hM : 0 < M) (z : MacIdx d N₀ M) :
-    cellCount d N₀ M (macBoxF d N₀ M z) ≤ 16 ^ d := by
+theorem macCellCount_macBoxF_le (hM : 0 < M) (z : MacIdx d N₀ M) :
+    macCellCount d N₀ M (macBoxF d N₀ M z) ≤ 16 ^ d := by
   classical
-  unfold cellCount
+  unfold macCellCount
   refine (Finset.card_le_card fun w hw => ?_).trans (macTags_near_card hM z)
-  obtain ⟨x, hx, hxw⟩ := (Finset.mem_filter.1 hw).2
-  exact Finset.mem_filter.2 ⟨Finset.mem_univ _, x, macCore_subset_box w hM hxw, mem_macBoxF.1 hx⟩
+  obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hw
+  exact Finset.mem_filter.2 ⟨Finset.mem_univ _, x,
+    macCore_subset_box _ hM (mem_macCore_macZ x), mem_macBoxF.1 hx⟩
 
-theorem cellCount_rootRegion_le (hM : 0 < M) (R : Finset (L1Torus d N₀))
+theorem macCellCount_rootRegion_le (hM : 0 < M) (R : Finset (L1Torus d N₀))
     (C : Finset (MacIdx d N₀ M)) :
-    cellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C) ≤ cellCount d N₀ M R + 16 ^ d * C.card := by
+    macCellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C) ≤ macCellCount d N₀ M R + 16 ^ d * C.card := by
   classical
   unfold rootRegion
-  refine (cellCount_union_le _ _).trans (Nat.add_le_add_left ?_ _)
+  refine (macCellCount_union_le _ _).trans (Nat.add_le_add_left ?_ _)
   induction C using Finset.induction_on with
-  | empty => simp [cellCount]
+  | empty => simp [macCellCount]
   | @insert z C hz ih =>
     rw [Finset.biUnion_insert, Finset.card_insert_of_notMem hz]
-    refine (cellCount_union_le _ _).trans ?_
-    have := cellCount_macBoxF_le (N₀ := N₀) hM z
+    refine (macCellCount_union_le _ _).trans ?_
+    have := macCellCount_macBoxF_le (N₀ := N₀) hM z
     nlinarith
 
-/-- **The weight of a region**: `e^{a · cellCount(R ∪ ⋃_{z ∈ C} B_z)} ≤ e^{a · cellCount(R)} θ^{|C|}`,
+/-- **The weight of a region**: `e^{a · #cells(R ∪ ⋃_{z ∈ C} B_z)} ≤ e^{a · #cells(R)} θ^{|C|}`,
 `θ = e^{a 16^d}`, for `a ≥ 0`. -/
-theorem exp_cellCount_rootRegion_le (hM : 0 < M) {a : ℝ} (ha : 0 ≤ a)
+theorem exp_macCellCount_rootRegion_le (hM : 0 < M) {a : ℝ} (ha : 0 ≤ a)
     (R : Finset (L1Torus d N₀)) (C : Finset (MacIdx d N₀ M)) :
-    Real.exp (a * cellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C)) ≤
-      Real.exp (a * cellCount d N₀ M R) * Real.exp (a * 16 ^ d) ^ C.card := by
+    Real.exp (a * macCellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C)) ≤
+      Real.exp (a * macCellCount d N₀ M R) * Real.exp (a * 16 ^ d) ^ C.card := by
   rw [← Real.exp_nat_mul, ← Real.exp_add, Real.exp_le_exp]
-  have h := cellCount_rootRegion_le (N₀ := N₀) hM R C
-  have h' : (cellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C) : ℝ) ≤
-      cellCount d N₀ M R + 16 ^ d * C.card := by exact_mod_cast h
+  have h := macCellCount_rootRegion_le (N₀ := N₀) hM R C
+  have h' : (macCellCount d N₀ M (rootRegion R (macBoxF d N₀ M) C) : ℝ) ≤
+      macCellCount d N₀ M R + 16 ^ d * C.card := by exact_mod_cast h
   nlinarith
 
 end Cover
