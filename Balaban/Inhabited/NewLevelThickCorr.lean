@@ -71,7 +71,10 @@ theorem thick_act_agree
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
-      (u t₀ : ℂ), NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
+      RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
+      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -84,7 +87,9 @@ theorem thick_act_agree
     (y : {Y // Y ∈ NS.𝒴C}) (hyR : ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
     (hy' : bm '' y.1 ∈ NS'.𝒴C)
     (θ : physParam N (SA)) (θ' : physParam N (SB))
-    (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t) :
+    (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t)
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N)) :
     ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 →
       ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -105,9 +110,9 @@ theorem thick_act_agree
     (fun τ hτ => (e ⟨τ, hτ⟩).1) (fun _ _ => rfl)
     ⟨fun _ => ⟨hθ'.1, hu⟩, fun _ => ⟨hθ.1, hu⟩⟩ rfl rfl rfl rfl
     hXs hm₀ hjs rfl
-    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' (s : ℂ) 0 hτ (hjs τ hτ)
+    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' (s : ℂ) 0 hθ hθ' hraw hτ (hjs τ hτ)
       (hXs τ hτ) hyR hΦ (by simpa using hum (s : ℂ) hs1))
-    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' 0 0 hτ (hjs τ hτ)
+    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' 0 0 hθ hθ' hraw hτ (hjs τ hτ)
       (hXs τ hτ) hyR hΦ (by simpa using hum 0 (by simp)))
   rw [show (NS'.AC θ' (s : ℂ)).H ⟨bm '' y.1, hy'⟩ Φ' = NS'.H θ' ⟨bm '' y.1, hy'⟩ (s : ℂ) Φ' from
     congrFun (NS'.hAC θ' hθ' (s : ℂ) ⟨bm '' y.1, hy'⟩) Φ',
@@ -138,7 +143,10 @@ theorem thick_labelCorr
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
-      (u t₀ : ℂ), NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
+      RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
+      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -149,7 +157,9 @@ theorem thick_labelCorr
     (hum : ∀ u : ℂ, ‖u‖ ≤ 1 → ‖u‖ * markedRad d L N k (SA).a₁ NS.O.κ NS.O.ρ
       (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     (θ : physParam N (SA)) (θ' : physParam N (SB))
-    (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t) :
+    (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t)
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N)) :
     ∃ ψ₁ : (∀ y : {Y // Y ∈ NS.𝒴C}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
         {Y // Y ∈ NS'.𝒴C}),
       (∀ y hy, blocksOf 1 (k + 1) Set.univ (ψ₁ y hy).1 =
@@ -197,7 +207,7 @@ theorem thick_labelCorr
     have hy'mem := (hmem y.1 (hYR1 y hy)).2 y.2
     have hψy : ψ₁ y hy = ⟨bm '' y.1, hy'mem⟩ := Subtype.ext (hψ y hy)
     rw [hψy]
-    exact thick_act_agree hN2 hk νS β p₁ δ NS NS' hm₀ hE hprem hum y (hYR1 y hy) hy'mem θ θ' hθ hθ'
+    exact thick_act_agree hN2 hk νS β p₁ δ NS NS' hm₀ hE hprem hum y (hYR1 y hy) hy'mem θ θ' hθ hθ' hraw
       s hs Φ Φ' hΦ
 
 end Coeff
