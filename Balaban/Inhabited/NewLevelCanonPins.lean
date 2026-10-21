@@ -64,8 +64,10 @@ theorem OldTermsCanonPins.canon {S : StepSetting d L N₁ m₁ k N ϱ}
 
 variable {N₁' : ℕ} [NeZero N₁']
 
-/-- **The partial index bijection of two canonically indexed families (generic form).** -/
-theorem domEquiv_generic {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × T × Set T))
+/-- **The partial index bijection of two canonically indexed families (core).**  As
+`domEquiv_generic`, with the back correspondence `hAdm'` giving, for every `τ'` in the second domain,
+a `τ` of the first domain with the corresponding labels (no premise on the other `τ`). -/
+theorem domEquiv_generic_core {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × T × Set T))
     (A' : Set (ℕ × T' × Set T')) (Bx : T → Prop)
     (jL : ι → ℕ) (y : ι → T) (X : ι → Set T) (jL' : ι' → ℕ) (y' : ι' → T') (X' : ι' → Set T')
     (hB : Set.BijOn (fun τ => (jL τ, y τ, X τ)) Set.univ A)
@@ -73,10 +75,9 @@ theorem domEquiv_generic {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × 
     (hφinj : Set.InjOn φ {x | Bx x})
     (Dom : ι → Prop) (Dom' : ι' → Prop)
     (hAdm : ∀ τ, Dom τ → (jL τ, φ (y τ), φ '' X τ) ∈ A')
-    (hAdm' : ∀ τ', Dom' τ' → ∃ τ, y' τ' = φ (y τ) ∧ X' τ' = φ '' X τ ∧ jL' τ' = jL τ)
+    (hAdm' : ∀ τ', Dom' τ' → ∃ τ, Dom τ ∧ y' τ' = φ (y τ) ∧ X' τ' = φ '' X τ ∧ jL' τ' = jL τ)
     (hbox : ∀ τ, Dom τ → ∀ x ∈ insert (y τ) (X τ), Bx x)
-    (hdom : ∀ τ τ', Dom τ → y' τ' = φ (y τ) → X' τ' = φ '' X τ → jL' τ' = jL τ → Dom' τ')
-    (hdom' : ∀ τ τ', Dom' τ' → y' τ' = φ (y τ) → X' τ' = φ '' X τ → jL' τ' = jL τ → Dom τ) :
+    (hdom : ∀ τ τ', Dom τ → y' τ' = φ (y τ) → X' τ' = φ '' X τ → jL' τ' = jL τ → Dom' τ') :
     ∃ e : {τ // Dom τ} ≃ {τ' // Dom' τ'}, ∀ τ : {τ // Dom τ},
       y' (e τ).1 = φ (y τ.1) ∧ X' (e τ).1 = φ '' X τ.1 ∧ jL' (e τ).1 = jL τ.1 := by
   classical
@@ -95,8 +96,8 @@ theorem domEquiv_generic {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × 
       obtain ⟨h1, h2, h3⟩ := (hpair τ τ').1 h
       exact hdom τ τ' hτ h1 h2 h3)
     (fun τ' hτ' => by
-      obtain ⟨τ, h1, h2, h3⟩ := hAdm' τ' hτ'
-      exact ⟨τ, hdom' τ τ' hτ' h1 h2 h3, (hpair τ τ').2 ⟨h1, h2, h3⟩⟩)
+      obtain ⟨τ, hτ, h1, h2, h3⟩ := hAdm' τ' hτ'
+      exact ⟨τ, hτ, (hpair τ τ').2 ⟨h1, h2, h3⟩⟩)
     (fun τ₁ τ₂ h₁ h₂ h => by
       simp only [Φ, Prod.mk.injEq] at h
       obtain ⟨hj, hy, hX⟩ := h
@@ -108,6 +109,80 @@ theorem domEquiv_generic {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × 
         · exact fun x hx => hbox τ₂ h₂ x (Set.mem_insert_of_mem _ hx)
       exact hB.injOn (Set.mem_univ τ₁) (Set.mem_univ τ₂) (by simp only [hj, hy', hXe]))
   exact ⟨e, fun τ => (hpair τ.1 (e τ).1).1 (he τ)⟩
+
+/-- **The partial index bijection of two canonically indexed families (generic form).** -/
+theorem domEquiv_generic {ι ι' T T' : Type*} (φ : T → T') (A : Set (ℕ × T × Set T))
+    (A' : Set (ℕ × T' × Set T')) (Bx : T → Prop)
+    (jL : ι → ℕ) (y : ι → T) (X : ι → Set T) (jL' : ι' → ℕ) (y' : ι' → T') (X' : ι' → Set T')
+    (hB : Set.BijOn (fun τ => (jL τ, y τ, X τ)) Set.univ A)
+    (hB' : Set.BijOn (fun τ => (jL' τ, y' τ, X' τ)) Set.univ A')
+    (hφinj : Set.InjOn φ {x | Bx x})
+    (Dom : ι → Prop) (Dom' : ι' → Prop)
+    (hAdm : ∀ τ, Dom τ → (jL τ, φ (y τ), φ '' X τ) ∈ A')
+    (hAdm' : ∀ τ', Dom' τ' → ∃ τ, y' τ' = φ (y τ) ∧ X' τ' = φ '' X τ ∧ jL' τ' = jL τ)
+    (hbox : ∀ τ, Dom τ → ∀ x ∈ insert (y τ) (X τ), Bx x)
+    (hdom : ∀ τ τ', Dom τ → y' τ' = φ (y τ) → X' τ' = φ '' X τ → jL' τ' = jL τ → Dom' τ')
+    (hdom' : ∀ τ τ', Dom' τ' → y' τ' = φ (y τ) → X' τ' = φ '' X τ → jL' τ' = jL τ → Dom τ) :
+    ∃ e : {τ // Dom τ} ≃ {τ' // Dom' τ'}, ∀ τ : {τ // Dom τ},
+      y' (e τ).1 = φ (y τ.1) ∧ X' (e τ).1 = φ '' X τ.1 ∧ jL' (e τ).1 = jL τ.1 :=
+  domEquiv_generic_core φ A A' Bx jL y X jL' y' X' hB hB' hφinj Dom Dom' hAdm
+    (fun τ' hτ' => by
+      obtain ⟨τ, h1, h2, h3⟩ := hAdm' τ' hτ'
+      exact ⟨τ, hdom' τ τ' hτ' h1 h2 h3, h1, h2, h3⟩) hbox hdom
+
+/-- **The partial index bijection of the old terms of two canonically pinned systems (core).**
+As `exists_domEquiv_of_canon`, with the back correspondence `hAdm'` giving for every `τ'` of the
+second domain a `τ` of the first domain with the corresponding labels, and no premise `hdom'`.  For the
+label `Y` in the box and `Y' = bm '' Y`, the old terms whose domains contain `Y` correspond to those
+whose domains contain `Y'`, with the same level and the label cubes of the images.  `y X`, `y' X'` are
+the witnesses of the canonical indexing; the hypotheses are the box geometry of the pairs
+(`hAdm`, `hAdm'`, `hbox`), the covers of the images (`hcov`) and the correspondence of the domains
+(`hdom`, `hdom'`, from `polyDom_boxMap_iff`). -/
+theorem exists_domEquiv_of_canon_core
+    {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp}
+    (NS : NewLevelSystem S C z Jr)
+    {S' : StepSetting d L N₁' m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
+    {z' : RootIdx d L N₁' m₁ (k + 1)} {t' pp' : ℝ} {Jr' : S'.JointRep t' pp'}
+    (NS' : NewLevelSystem S' C' z' Jr')
+    {F : CanonCover d L N₁ m₁ k ϱ NS.O.ϱ₁} {F' : CanonCover d L N₁' m₁ k ϱ NS'.O.ϱ₁}
+    (y : NS.O.ι → CTorus d L N₁ m₁ (k + 1)) (X : NS.O.ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (y' : NS'.O.ι → CTorus d L N₁' m₁ (k + 1)) (X' : NS'.O.ι → Set (CTorus d L N₁' m₁ (k + 1)))
+    (hB : Set.BijOn (fun τ => (NS.O.jL τ, y τ, X τ)) Set.univ (AdmPairs L N₁ m₁ k d C.m₀ k))
+    (hB' : Set.BijOn (fun τ => (NS'.O.jL τ, y' τ, X' τ)) Set.univ (AdmPairs L N₁' m₁ k d C'.m₀ k))
+    (hX₁ : ∀ τ, NS.O.X₁f τ = F.X₁fC (NS.O.jL τ) (y τ) (X τ))
+    (hX₁' : ∀ τ, NS'.O.X₁f τ = F'.X₁fC (NS'.O.jL τ) (y' τ) (X' τ))
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Y' : Set (CTorus d L N₁' m₁ (k + 1)))
+    {R : ℕ} (hm : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hAdm : ∀ τ, NS.Dom Y τ → (NS.O.jL τ, boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1)) (y τ), (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1))) '' X τ) ∈ AdmPairs L N₁' m₁ k d C'.m₀ k)
+    (hAdm' : ∀ τ', NS'.Dom Y' τ' → ∃ τ, NS.Dom Y τ ∧ y' τ' = boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1)) (y τ) ∧ X' τ' = (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1))) '' X τ ∧ NS'.O.jL τ' = NS.O.jL τ)
+    (hbox : ∀ τ, NS.Dom Y τ → ∀ x ∈ insert (y τ) (X τ),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hcov : ∀ j y₀ X₀, (∀ x ∈ insert y₀ X₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
+      F'.X₁fC j (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1)) y₀)
+        ((boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) '' X₀) =
+      (F.X₁fC j y₀ X₀).image (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1))))
+    (hdom : ∀ τ τ', NS.Dom Y τ → y' τ' = boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+        ((N₁' * L ^ m₁) * L ^ (k + 1)) (y τ) →
+      X' τ' = (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) '' X τ →
+      NS'.O.jL τ' = NS.O.jL τ → NS'.Dom Y' τ') :
+    ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom Y' τ'}, ∀ τ : {τ // NS.Dom Y τ},
+      NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image
+        (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) := by
+  obtain ⟨e, he⟩ := domEquiv_generic_core (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
+    ((N₁' * L ^ m₁) * L ^ (k + 1))) (AdmPairs L N₁ m₁ k d C.m₀ k) (AdmPairs L N₁' m₁ k d C'.m₀ k)
+    (fun x => InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) NS.O.jL y X NS'.O.jL y' X' hB hB'
+    (fun a ha b hb hab => boxMap_inj (hm' := hm) ha hb hab) (NS.Dom Y) (NS'.Dom Y') hAdm hAdm'
+    hbox hdom
+  refine ⟨e, fun τ => ⟨(he τ).2.2, ?_⟩⟩
+  obtain ⟨h1, h2, h3⟩ := he τ
+  rw [hX₁' (e τ).1, h3, h1, h2, hcov _ _ _ (hbox τ.1 τ.2), hX₁]
+
 
 /-- **The partial index bijection of the old terms of two canonically pinned systems.**  For the
 label `Y` in the box and `Y' = bm '' Y`, the old terms whose domains contain `Y` correspond to those
@@ -155,13 +230,9 @@ theorem exists_domEquiv_of_canon
     ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom Y' τ'}, ∀ τ : {τ // NS.Dom Y τ},
       NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image
         (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) := by
-  obtain ⟨e, he⟩ := domEquiv_generic (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1))
-    ((N₁' * L ^ m₁) * L ^ (k + 1))) (AdmPairs L N₁ m₁ k d C.m₀ k) (AdmPairs L N₁' m₁ k d C'.m₀ k)
-    (fun x => InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) NS.O.jL y X NS'.O.jL y' X' hB hB'
-    (fun a ha b hb hab => boxMap_inj (hm' := hm) ha hb hab) (NS.Dom Y) (NS'.Dom Y') hAdm hAdm'
-    hbox hdom hdom'
-  refine ⟨e, fun τ => ⟨(he τ).2.2, ?_⟩⟩
-  obtain ⟨h1, h2, h3⟩ := he τ
-  rw [hX₁' (e τ).1, h3, h1, h2, hcov _ _ _ (hbox τ.1 τ.2), hX₁]
+  exact exists_domEquiv_of_canon_core NS NS' y X y' X' hB hB' hX₁ hX₁' Y Y' hm hAdm
+    (fun τ' hτ' => by
+      obtain ⟨τ, h1, h2, h3⟩ := hAdm' τ' hτ'
+      exact ⟨τ, hdom' τ τ' hτ' h1 h2 h3, h1, h2, h3⟩) hbox hcov hdom
 
 end Balaban.Inhabited
