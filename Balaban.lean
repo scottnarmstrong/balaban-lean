@@ -2580,6 +2580,7 @@ public import Balaban.SmallField.IrrelTorusXidomChart
 public import Balaban.SmallField.IrrelTorusXidomRotate
 public import Balaban.SmallField.IrrelTorusXidomLarge
 public import Balaban.SmallField.IrrelTorusXidomXiC
+public import Balaban.SmallField.ComposedAnisoGap
 public import Balaban.SmallField.IrrelTorusXidomWitness
 public import Balaban.SmallField.IrrelTorusXidomPatchGeom
 public import Balaban.SmallField.IrrelTorusXidomPatch
