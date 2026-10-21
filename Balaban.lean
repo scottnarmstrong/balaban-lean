@@ -1317,6 +1317,7 @@ public import Balaban.Inhabited.V2EnergySource
 public import Balaban.Inhabited.V2EnergyD1
 public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.HoleStep
+public import Balaban.Fluctuation.HoleStepMeasure
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
