@@ -163,6 +163,10 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
             Cchi d L, T.c₂, δfl⟩ e ∧
           (ClassHatCond C s r₀ → NewLevelFormula S C z Jr
           ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, p₁, C.m₀, T.c, r₀, δ₃, levelKc d L,
+            Cchi d L, T.c₂, δfl⟩ e) ∧
+        (ClassHatCond C s r₀ → NewLevelFormulaP S C z Jr
+          (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, p₁, C.m₀, T.c, r₀, δ₃, levelKc d L,
             Cchi d L, T.c₂, δfl⟩ e)) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
@@ -479,6 +483,8 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
     | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨H.1, ?_⟩; replace H := H.2)
     | peel H with H
+  intro hΦ
+  exact H (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, hnl.2.1⟩ hB)
 
 open Classical in
 /-- The class chain at a general tower with the structural premises discharged, at a general collar, with `B` bounded by an explicit constant. -/

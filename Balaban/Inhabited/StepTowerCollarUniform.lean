@@ -208,6 +208,11 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_p
         (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
         ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * ε k), p₁, C.m₀, Tk.c,
           4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+          F * min Tk.t (η * ε k)⟩ e) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormulaP S C z Jr
+        (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
+        ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * ε k), p₁, C.m₀, Tk.c,
+          4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
           F * min Tk.t (η * ε k)⟩ e)) →
       B ≤ CPE d L (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
         rootUnionK d L 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
@@ -452,6 +457,8 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_p
     | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨H.1, ?_⟩; replace H := H.2)
     | peel H with H
+  intro hΦ
+  exact H (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, hnl.2.1⟩ hB)
 
 open Classical in
 /-- **The class chain at the collar towers of a general tower (one threshold for every scale), with

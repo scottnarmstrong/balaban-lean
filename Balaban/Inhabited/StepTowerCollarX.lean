@@ -290,6 +290,9 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
         NewLevelFormulaW S C z Jr
           ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e ∧
         (ClassHatCond C s r₀ → NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e) ∧
+        (ClassHatCond C s r₀ → NewLevelFormulaP S C z Jr
+          (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
           ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
@@ -327,7 +330,7 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
               e ((⟨clipRaw S.G' q, h⟩ : rawSub N S.G'), 0) T' else 0)
   := by
   classical
-  obtain ⟨β₀, hβ₀, HC⟩ := StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_phi_formula T₀
+  obtain ⟨β₀, hβ₀, HC⟩ := StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_phi_formula_gap T₀
     hm₀ hhull hA p hcR hαR
   refine ⟨β₀, hβ₀, fun T hm₀T hm₁ hBG hBG₂ hκ h0 h' hδ => ?_⟩
   intro k hk N₁ _ h3N hN₁ ν hν0 hν β hβ hct p₁ hp0 hp₁ Dt ϱ hϱ S hS hp
@@ -425,7 +428,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
     hlog 𝒮 hchart (fun τ => Bτ τ * Real.exp ((κdec - 1) * cG d L)) hBτ' hEbd' (CI * Real.exp ((κdec - 1) * cG d L)) (KL * Real.exp ((κdec - 1) * cG d L)) α₃ n₁ hCI' hKL' hα₃
     hEbI' hEbL' hκe hκH hrate F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 R hR hsmR
     hRs hsmall hnum hnum' ρ hρ hρc hρpp bb hbb hab G₁ hG₁ hρp 𝒴C h𝒴 H hH εC hεC0 hmr hsa hεC hE
-    hεnum Φ (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, fun hHat => hnl.2 (fun τ => (hGjC hHat τ).1)⟩ hB)
+    hεnum Φ (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, fun hHat => hnl.2.1 (fun τ => (hGjC hHat τ).1),
+      fun hHat => hnl.2.2 (hGjC hHat)⟩ hB)
 
 open Classical in
 /-- **The class chain with the per-label bound in `d(X)`, with the formula of its family.**  The
@@ -711,6 +715,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_X_onSet_agree_collar_phi_f
     | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨H.1, ?_⟩; replace H := H.2)
     | peel H with H
+  intro hΦ
+  exact H (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, hnl.2.1⟩ hB)
 
 open Classical in
 /-- The class chain (XCollar), with `B` bounded by an explicit constant. -/

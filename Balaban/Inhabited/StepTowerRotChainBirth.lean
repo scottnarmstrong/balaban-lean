@@ -214,6 +214,10 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr
         ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
           Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+          F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e ∧
+      NewLevelFormulaP S C z Jr (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
+        ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+          Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
           F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e := by
   have hd := T₀.hd
   have hL := T₀.hL
@@ -297,7 +301,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         (one_le_scaledC0 d) hB' hF' hFk ht
       rw [one_pow, one_mul] at hmem
       exact hB τ _ hmem) CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum
-  exact ⟨e, B, h1, h2, h3, h4, hW.2 hHat⟩
+  exact ⟨e, B, h1, h2, h3, h4, hW.2.1 hHat, hW.2.2 hHat⟩
 
 
 open Classical in
@@ -456,13 +460,20 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   repeat
     first
     | exact H
+    | exact H.1
     | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨H.1, ?_⟩; replace H := H.2)
     | peel H with H
   -- the bound premise of the core is on the composed charts with the scale gap of the source
   first
-  | (intro hB; exact H (fun τ r hr => hB τ r (composedChartGap_subset hr)))
-  | (intro Bτ hBτ hB; exact H Bτ hBτ (fun τ r hr => hB τ r (composedChartGap_subset hr)))
+  | (intro hB; replace H := H (fun τ r hr => hB τ r (composedChartGap_subset hr)))
+  | (intro Bτ hBτ hB; replace H := H Bτ hBτ (fun τ r hr => hB τ r (composedChartGap_subset hr)))
+  repeat
+    first
+    | exact H
+    | exact H.1
+    | (refine ⟨H.1, ?_⟩; replace H := H.2)
+    | peel H with H
 
 open Classical in
 /-- **Core of `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth`: the class chain on its formula path with the chart premise replaced by the inclusion, at a given base tower.**  For a base tower `T₀` of the chain (`CollarBase` at the ratio `q = L^{-α}`) and the constants `Q`, `F`, `η` of the chain at `T₀`, the statement of the landed theorem after its constants (the instance of `…_birth_composed_of`: the

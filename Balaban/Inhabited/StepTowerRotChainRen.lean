@@ -184,6 +184,11 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
         ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
           Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+          F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormulaP S C z Jr
+        (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
+        ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+          Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
           F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e)) := by
   have hd := T₀.hd
   have hL := T₀.hL
@@ -223,6 +228,11 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
             Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
             F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e ∧
           (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormulaP S C z Jr
+          (fun O => ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ))
           ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
             Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
             F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e))) (fun _ _ hc hnl _ => ⟨hc, hnl⟩)
@@ -388,6 +398,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   repeat
     first
     | exact H
+    | exact H.1
     | (refine ⟨fun hh τ => (H.1 hh τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
     | (refine ⟨H.1, ?_⟩; replace H := H.2)
