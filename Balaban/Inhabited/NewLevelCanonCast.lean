@@ -31,7 +31,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
 
 section Cast
 
-variable {d L N₁ N₂ NA NB m₁ k N : ℕ} [NeZero N₁] [NeZero N₂] [NeZero NA] [NeZero NB] [NeZero L]
+variable {d L N₁ N₂ NA NB m₁ m' k N : ℕ} [NeZero N₁] [NeZero N₂] [NeZero NA] [NeZero NB] [NeZero L]
   {ϱ ϱ₁ ϱ₁' : ℝ}
 
 /-- The fine set whose cube-index neighbourhood is the set `Z` of `Gk`: the cast of `X ∪ □(y)` and `X̂`. -/
@@ -148,6 +148,36 @@ theorem hatFine_boxMap {m₀ s j : ℕ} (hcA : NA * L ^ (m₁ + s) = N₁ * L ^ 
   unfold hatFine
   rw [hatSet_boxMap (N₂ := N₂) (k := k + 1) hN hN' (by omega) hX hn]
   exact fine_image hA hB _
+
+omit [NeZero N₁] [NeZero N₂] [NeZero NB] [NeZero L] in
+/-- **The cube-index neighbourhood is a union of cubes**: its top layer in `𝔹_k` is itself. -/
+theorem castNbhd_saturated {Y : Set (CTorus d L NA m' (k + 1))} (x : CTorus d L NA m' (k + 1))
+    (hx : x ∈ castNbhd (N₁' := NA) (m₁' := m') Y) (y : CTorus d L NA m' (k + 1))
+    (hy : fineCubeIdx (L ^ m') NA L (k + 1) k (GsSpec.torusCast y : Torus d (L ^ m' * NA * L ^ (k + 1))) =
+      fineCubeIdx (L ^ m') NA L (k + 1) k (GsSpec.torusCast x : Torus d (L ^ m' * NA * L ^ (k + 1)))) :
+    y ∈ castNbhd (N₁' := NA) (m₁' := m') Y := by
+  obtain ⟨y', hy', hd⟩ := hx
+  exact ⟨y', hy', by rw [hy]; exact hd⟩
+
+/-- **The sites of the set are data sites of the cast local set on its cube-index neighbourhood.** -/
+theorem mem_dataSites_kernel {N₀ : ℕ} [NeZero N₀] (hc : NA * L ^ m' = N₀) (hk1 : 1 ≤ k)
+    {hs : ϱ₁ ≤ minSep L (L ^ m')} {Y : Set (CTorus d L NA m' (k + 1))}
+    {xf : CTorus d L NA m' (k + 1)} (hxf : xf ∈ Y) :
+    (torusCast xf : Torus d (N₀ * L ^ (k + 1))) ∈
+      dataSites (castG hc (localB k (Nat.le_succ k)
+        (castNbhd (N₁' := NA) (m₁' := m') Y) hs)) := by
+  have hP : xf ∈ castNbhd (N₁' := NA) (m₁' := m') Y := ⟨xf, hxf, by simp [supDist_self]⟩
+  have htop := localB_Ω_top_eq (hj := Nat.le_succ k) (X := castNbhd (N₁' := NA) (m₁' := m') Y)
+    (hsep := hs) (fun x hx y hy => castNbhd_saturated x hx y hy)
+  have hΩk : xf ∈ (localB k (Nat.le_succ k) (castNbhd (N₁' := NA) (m₁' := m') Y) hs).Ω k := by
+    have := hP
+    rw [← htop] at this
+    exact Finset.mem_coe.1 this
+  have hΩ1 := (localB k (Nat.le_succ k) (castNbhd (N₁' := NA) (m₁' := m') Y) hs).Ω_antitone
+    le_rfl hk1 (by omega) hΩk
+  refine (mem_dataSites _).2 (Or.inl ?_)
+  rw [mem_castG_Ω, torusCast_torusCast (by rw [hc])]
+  exact hΩ1
 
 end Cast
 
