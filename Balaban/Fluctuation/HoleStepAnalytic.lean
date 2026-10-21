@@ -25,9 +25,11 @@ Theorems I-4b and I-4c (those of `standing_of_inDomainC`):
   family of localization vectors with entries in the open polydisc (Theorem I-4c (iii),
   `analyticOnNhd_decCovSqrt_entry_cover`, for the covariance root; `an_composeField` for the
   composition with `G`);
-* `HoleStep.analyticOnNhd_oldInterp`: **the interpolated old term `F_X(s)` is analytic** on the
-  polydisc of radius `e^{κ₁}`, `κ₁ ≤ κ`, `κ > 0`, when the old term is analytic at the values of the
-  composed field there (the hypothesis `hana` of `sum_oldCoef_eq_of_analytic`).
+* `HoleStep.analyticOnNhd_oldInterp_out`, `HoleStep.analyticOnNhd_oldInterp`: **the interpolated old
+  term `F_X(s)` is analytic**, jointly in the fixed fluctuation field and the parameters on
+  `U × polydisc` (radius `e^{κ₁}`, `κ₁ ≤ κ`, `κ > 0`), and in the parameters alone (the hypothesis
+  `hana` of `sum_oldCoef_eq_of_analytic`), when the old term is analytic at the values of the
+  composed field there.
 -/
 
 @[expose] public section
@@ -107,8 +109,8 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
 /-- **The composed field of P5 (2.39) is analytic in the localization vectors** (Theorems I-4b (i),
 I-4c (iii)): for the pair `(coverOf G′, G′)` with the standing conditions of
 `standing_of_inDomainC`, the datum in `Ψ̃^c(δ, δ)`, and a family `f` of localization vectors
-analytic at `e₀` with entries in the open polydisc `|s_P| < e^κ` there, every coordinate of the
-composed field is analytic at `e₀`. -/
+analytic at `e₀` with entries in the open polydisc `|s_P| < e^κ` there, and a family of fluctuation
+fields analytic at `e₀`, every coordinate of the composed field is analytic at `e₀`. -/
 theorem analyticAt_composed {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (Sb : Dec2.CoverBase (coverOf S.G') S.G' (compWeight L S.a₁) S.ν Kc Cx)
     (SX : Dec2.XCover (coverOf S.G') S.G' (compWeight L S.a₁) S.a₁ S.ν Cx₂) (hCx₂ : 0 ≤ Cx₂)
@@ -126,8 +128,9 @@ theorem analyticAt_composed {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpecs 
     {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
     {f : E → S.U → Dec2.DecParams (coverOf S.G')} {e₀ : E}
     (hf : ∀ b P, AnalyticAt ℂ (fun e => f e b P) e₀) (hfv : ∀ b P, ‖f e₀ b P‖ < Real.exp κ)
-    (ψhat : S.U → Fin N → ℂ) (b : S.U) (i : Fin N) :
-    AnalyticAt ℂ (fun e => S.composed (coverOf S.G') (rho4 d L N BG κ) (f e) ψhat b i) e₀ := by
+    {ψhat : E → S.U → Fin N → ℂ} (hψ : ∀ b i, AnalyticAt ℂ (fun e => ψhat e b i) e₀)
+    (b : S.U) (i : Fin N) :
+    AnalyticAt ℂ (fun e => S.composed (coverOf S.G') (rho4 d L N BG κ) (f e) (ψhat e) b i) e₀ := by
   have hv : AnalyticAt ℂ (fun e => f e b) e₀ := analyticAt_pi_iff.2 (hf b)
   have hdec := (Dec2.analyticOnNhd_decBg hS Sb HB hκ hM hδ0 hε hδ hνε hD (f e₀ b) (hfv b)).comp_of_eq
     hv rfl
@@ -170,15 +173,86 @@ theorem analyticAt_composed {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpecs 
     simp only [covSqrtAt]
     rw [decCovSqrt_svec_eq_barField (coverOf S.G') S.a S.a₁ S.ν _ _ S.D'.Ψ]
     rfl
-  have hshift : AnalyticAt ℂ (fun e => S.shiftLoc (coverOf S.G') (rho4 d L N BG κ) (f e) ψhat b i) e₀ := by
+  have hshift : AnalyticAt ℂ
+      (fun e => S.shiftLoc (coverOf S.G') (rho4 d L N BG κ) (f e) (ψhat e) b i) e₀ := by
     unfold shiftLoc
-    exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun q _ => (hcov q).mul analyticAt_const)
+    exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun q _ => (hcov q).mul (hψ q.1 q.2))
   exact hpsi.add hshift
+
+/-- **The interpolated old term is jointly analytic in the fluctuation field and the parameters**
+(Theorems I-4b (i), I-4c (iii)): with the standing conditions of `analyticAt_composed`, `κ > 0` and
+`κ₁ ≤ κ`, if the old term `B` is analytic at the composed field for every fixed field `ψout ∈ U` and
+every localization vector of the polydisc of radius `e^{κ₁}`, then `(ψout, s) ↦ F_X(s)` is analytic
+on `U × polydisc`. -/
+theorem analyticOnNhd_oldInterp_out {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf S.G') S.G' (compWeight L S.a₁) S.ν Kc Cx)
+    (SX : Dec2.XCover (coverOf S.G') S.G' (compWeight L S.a₁) S.a₁ S.ν Cx₂) (hCx₂ : 0 ≤ Cx₂)
+    (HB : BgHyp d L (k + 1) ϱ' (compWeight L S.a₁) S.ν) {κ : ℝ} (hκ : 0 < κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX d L Cx₂ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hδ0 : 0 < δ) (hε : δ ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * δ ^ 2 ≤ δ ^ 2)
+    (hphi : 3 * δ + K4 d L N BG κ * δ < 1 / 2)
+    (hmarD : K4 d L N BG κ * δ + 2 * δ + K4 d L N BG κ * δ * (K4 d L N BG κ * δ + 2 * (1 + 3 * δ))
+      < δc)
+    (hαD : K4 d L N BG κ * δ < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hD : InDomainC S.G' S.ν δ δ S.D') {κ₁ : ℝ} (hκ₁ : κ₁ ≤ κ)
+    (X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (X₁ : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (inner : Finset S.U) (B : (S.U → Fin N → ℂ) → ℂ) (ψin : inner → Rn N)
+    (U : Set (S.U → Fin N → ℂ))
+    (hB : ∀ ψout ∈ U, ∀ s ∈ Analysis.polydisc (0 : Dec2.DecParams (coverOf S.G'))
+      (fun _ => Real.exp κ₁), AnalyticAt ℂ B (S.composed (coverOf S.G') (rho4 d L N BG κ)
+        (S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s)) (S.fill inner ψin ψout))) :
+    AnalyticOnNhd ℂ (fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') =>
+        S.oldInterp (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner q.1 B ψin q.2)
+      (U ×ˢ Analysis.polydisc 0 fun _ => Real.exp κ₁) := by
+  classical
+  rintro ⟨ψo, s⟩ ⟨hψo, hs⟩
+  have hf : ∀ b P, AnalyticAt ℂ (fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') =>
+      S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ q.2) b P) (ψo, s) := by
+    intro b P
+    have hproj : AnalyticAt ℂ (fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') => q.2 P)
+        (ψo, s) :=
+      ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : (coverOf S.G').cubeIdx => ℂ) P).analyticAt
+        _).comp analyticAt_snd
+    simp only [slocOf, coreExt]
+    split_ifs <;> first
+      | exact analyticAt_const.mul analyticAt_const
+      | exact hproj.mul analyticAt_const
+  have hfv : ∀ b P, ‖S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s) b P‖ <
+      Real.exp κ := by
+    intro b P
+    have h1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
+    have hsP : ‖s P‖ < Real.exp κ :=
+      lt_of_lt_of_le (by simpa using hs P) (Real.exp_le_exp.2 hκ₁)
+    simp only [slocOf, coreExt]
+    split_ifs <;> simp <;> linarith
+  have hψ : ∀ b i, AnalyticAt ℂ (fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') =>
+      S.fill inner ψin q.1 b i) (ψo, s) := by
+    intro b i
+    simp only [fill]
+    split_ifs
+    · exact analyticAt_const
+    · exact ((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) i).comp
+        (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : S.U => Fin N → ℂ) b)).analyticAt _ |>.comp
+          analyticAt_fst
+  have hΓ : AnalyticAt ℂ (fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') =>
+      S.composed (coverOf S.G') (rho4 d L N BG κ)
+        (S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ q.2)) (S.fill inner ψin q.1))
+      (ψo, s) :=
+    analyticAt_pi_iff.2 fun b => analyticAt_pi_iff.2 fun i =>
+      S.analyticAt_composed hS Sb SX hCx₂ HB hκ.le hM hMX hδ0 hε hδ hνε hphi hmarD hαD hsm hD
+        (f := fun q : (S.U → Fin N → ℂ) × Dec2.DecParams (coverOf S.G') =>
+          S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ q.2)) hf hfv
+        (ψhat := fun q => S.fill inner ψin q.1) hψ b i
+  exact (hB ψo hψo s hs).comp_of_eq hΓ rfl
 
 /-- **The interpolated old term is analytic on the polydisc** (the hypothesis `hana` of
 `sum_oldCoef_eq_of_analytic`; Theorems I-4b (i), I-4c (iii)): with the standing conditions of
 `analyticAt_composed`, `κ > 0` and `κ₁ ≤ κ`, if the old term `B` is analytic at the composed field of
-every localization vector of the polydisc of radius `e^{κ₁}`, then `F_X(s)` is analytic there. -/
+every localization vector of the polydisc of radius `e^{κ₁}`, then `F_X(s)` is analytic there (the
+instance of `analyticOnNhd_oldInterp_out` at one fluctuation field). -/
 theorem analyticOnNhd_oldInterp {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (Sb : Dec2.CoverBase (coverOf S.G') S.G' (compWeight L S.a₁) S.ν Kc Cx)
     (SX : Dec2.XCover (coverOf S.G') S.G' (compWeight L S.a₁) S.a₁ S.ν Cx₂) (hCx₂ : 0 ≤ Cx₂)
@@ -201,31 +275,13 @@ theorem analyticOnNhd_oldInterp {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSp
         (S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s)) (S.fill inner ψin ψout))) :
     AnalyticOnNhd ℂ (S.oldInterp (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner ψout B ψin)
       (Analysis.polydisc 0 fun _ => Real.exp κ₁) := by
-  classical
   intro s hs
-  have hf : ∀ b P, AnalyticAt ℂ
-      (fun s' => S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s') b P) s := by
-    intro b P
-    have hproj : AnalyticAt ℂ (fun s' : Dec2.DecParams (coverOf S.G') => s' P) s :=
-      (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : (coverOf S.G').cubeIdx => ℂ) P).analyticAt s
-    simp only [slocOf, coreExt]
-    split_ifs <;> first
-      | exact analyticAt_const.mul analyticAt_const
-      | exact hproj.mul analyticAt_const
-  have hfv : ∀ b P, ‖S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s) b P‖ <
-      Real.exp κ := by
-    intro b P
-    have h1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hκ
-    have hsP : ‖s P‖ < Real.exp κ :=
-      lt_of_lt_of_le (by simpa using hs P) (Real.exp_le_exp.2 hκ₁)
-    simp only [slocOf, coreExt]
-    split_ifs <;> simp <;> linarith
-  have hΓ : AnalyticAt ℂ (fun s' => S.composed (coverOf S.G') (rho4 d L N BG κ)
-      (S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s')) (S.fill inner ψin ψout)) s :=
-    analyticAt_pi_iff.2 fun b => analyticAt_pi_iff.2 fun i =>
-      S.analyticAt_composed hS Sb SX hCx₂ HB hκ.le hM hMX hδ0 hε hδ hνε hphi hmarD hαD hsm hD
-        (f := fun s' => S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ s')) hf hfv _ b i
-  exact (hB s hs).comp_of_eq hΓ rfl
+  have h := S.analyticOnNhd_oldInterp_out hS Sb SX hCx₂ HB hκ hM hMX hδ0 hε hδ hνε hphi hmarD hαD
+    hsm hD hκ₁ X₁loc X₁ inner B ψin {ψout}
+    (fun ψo hψo => by obtain rfl := Set.mem_singleton_iff.1 hψo; exact hB) (ψout, s) ⟨rfl, hs⟩
+  have hg : AnalyticAt ℂ (fun s' : Dec2.DecParams (coverOf S.G') => (ψout, s')) s :=
+    analyticAt_const.prod analyticAt_id
+  exact h.comp hg
 
 end HoleStep
 
