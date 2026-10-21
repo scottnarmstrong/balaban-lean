@@ -1608,6 +1608,13 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 * (AE1) `Dec2.i4b_analytic` ∘ affine; bound from the I-4b bounds and the class bounds (no decay of the background difference used; it only improves `Eb`). (AE2) `i4b_local` per pair and CrossI4b `decBg_value_cross` (the two fields agree where the layers agree); hcut: CrossI4b for `W_old(S)`, `W_old(S ∩ near Y)`. Named estimate: the composed decoupled data lie in the inherited terms' birth domains for `|s_i| < e^{κ₁}`.
 * `ℬ′_Y(S) := Σ_r r4Fresh_r S Y`; `F_{∅,r} ≡ 0`; tie `old x S := r₀.B (𝔸′ ∪ S) x`, `kept x := r₀.B 𝔸′ x`. No landed definition changes; no local `BgSetting` needed. Files `R/BPrimeSum`, `BPrimePair`, `BPrimeRoot`, `BPrimeResidual*`, `BPrimeStep`, `Spine/RGasTie` (≈ 4,000 lines).
 
+**Row (c), pieces 1–4 (A4, 2026-10-21; axioms `propext, Classical.choice, Quot.sound`).**
+* `R/BPrimeSum.lean`: `bPrime` (`ℬ′_Y(S) = Σ_r r4Fresh_r(S, Y)`), `RootLocPremises` (the P3 premises of one root; `rootLocPremises_nonempty`), `bPrime_aggregate_of_localization` (`Σ_r F_r(S;1) = Σ_Y ℬ′_Y(S)`, locality, bound `Σ_r Eb_r e^{-κ₀Δ_r-2κ d̃(Y)}`, analyticity), `bPrime_congr_cut`, `bPrime_empty`, `r4Coupling_bPrime_empty`.
+* `R/BPrimePair.lean`, `BPrimeLocal.lean`: one label vector `s` read by each cover through a label map (`labParams`); `analyticOnNhd_decBgField_comp` (joint analyticity of `Dec2.decBgField` in data and labels), `decBgField_one_eq` (`= bgFieldC` at `s = 1`), `decBgField_lab_local` ((AE2), from `Dec2.i4b_local`).
+* `R/BPrimeRoot.lean`: `pairExt` (a root functional `Φ u φ₁ φ₂` at the two decoupled fields), `rootLocPremises_pairExt`, `bPrime_pairs_aggregate`: for root functionals analytic and bounded on the I-4b field region and reading the fields on `X₁`, `Σ_r Φ_r(bgFieldC old, bgFieldC new) = Σ_Y ℬ′_Y`.
+* Found: `Dec2.HatConn` (used by `Dec2.i4b_local`) can fail for generating sets with holes (a hat box at a diagonal corner of a hole); the R-step sets have holes, so the instance needs the admissible form (`HatConnAdm`, `i4b_local_of_agree_on_component_adm`, footprint margins as in `evDecBg_canon_local_of`).
+* Open: the R-step instance (cast of `genW` to the Def-6 torus, `DGSetting`), the root decomposition of the v2 holomorphic exponent and of `A_Z`, the named domain estimate for `ℰ^{(j)}`, `ℳ^{(j)}`, hcut (CrossI4b), the tie to `Rep.B`.
+
 ## FrozenSFStepInput split (W1148, 2026-10-20)
 
 **PROVED** (`Spine/FrozenSFStep.lean`; axioms `propext, Classical.choice, Quot.sound`): `frozenSFStepInput_of_parts` from the frozen sub-inputs and `FrozenLFStepInput`
