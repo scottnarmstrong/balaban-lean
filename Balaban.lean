@@ -2914,6 +2914,7 @@ public import Balaban.Spine.FinalRegroupAct
 public import Balaban.Spine.FinalRegroupAgree
 public import Balaban.Spine.FinalRepOne
 public import Balaban.Spine.FinalAmplitude
+public import Balaban.Green.GaussianMgf
 public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.RemovalHist
 public import Balaban.Spine.BaseStep
