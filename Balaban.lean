@@ -3228,6 +3228,7 @@ public import Balaban.Inhabited.NewLevelCanonCells
 public import Balaban.Inhabited.NewLevelCanonLocal
 public import Balaban.Inhabited.NewLevelCanonGeom
 public import Balaban.Inhabited.NewLevelClassCells
+public import Balaban.Inhabited.NewLevelCellAgree
 public import Balaban.SmallField.GsSpecHat
 public import Balaban.Fluctuation.OldTermsLiftHat
 public import Balaban.Fluctuation.HatSetGeom
