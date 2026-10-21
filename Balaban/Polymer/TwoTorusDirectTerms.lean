@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.TwoTorusE1Coef
+public import Balaban.Polymer.TwoTorusLabelBox
 public import Balaban.Fluctuation.ParamActivitySubspace
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -772,13 +773,8 @@ theorem directTerms_labelCorr_twoTorus
   have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
   -- the labels with blocks in `T` lie in the box
   have hyR : ∀ y : {Y // Y ∈ I.𝒴}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
-      ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro y hy x hx
-    have hDj := I.dom y.1 y.2
-    have hs := sitesOf_blocksOf hN (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
-    have hx' : x ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y.1) := by rw [hs]; exact ⟨hx, trivial⟩
-    obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx'
-    exact hT b (hy hb) x hxb
+      ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun y hy => inBox_of_blocksOf_subset hN (I.dom y.1 y.2) hT hy
   -- the domains of the box correspond
   have hmem𝒴 : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ I'.𝒴 ↔ Y ∈ I.𝒴) := by
@@ -794,42 +790,9 @@ theorem directTerms_labelCorr_twoTorus
       (congrArg Subtype.val h))
   · intro y' hy'
     change blocksOf 1 (k + 1) Set.univ y'.1 ⊆ T.image (σc) at hy'
-    have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      intro x hx
-      obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
-      exact hT b hb x hxb
-    have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T hT'
-    have hDj' := I'.dom y'.1 y'.2
-    have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
-    have hy'R : ∀ x' ∈ y'.1, InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
-      intro x' hx'
-      have h1 : x' ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y'.1) := by
-        rw [hs']; exact ⟨hx', trivial⟩
-      obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
-      have h2 : x' ∈ sitesOf (T.image (σc)) := mem_sitesOf.2 ⟨b', hy' hb', hxb'⟩
-      rw [hsT] at h2
-      obtain ⟨w, hw, rfl⟩ := h2
-      exact inBox_boxMap hm' (hT' w hw)
-    have hYR : ∀ x ∈ bm' '' y'.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      rintro _ ⟨x', hx', rfl⟩
-      exact inBox_boxMap hm (hy'R x' hx')
-    have hYimg : bm '' (bm' '' y'.1) = y'.1 :=
-      image_image_boxMap (n' := (N₁ * L ^ m₁) * L ^ (k + 1)) hm hy'R
-    have hYmem : bm' '' y'.1 ∈ I.𝒴 := (hmem𝒴 _ hYR).1 (by rw [hYimg]; exact y'.2)
-    have hYT : blocksOf 1 (k + 1) Set.univ (bm' '' y'.1) ⊆ T := by
-      intro b hb
-      have hbimg : σc b ∈ blocksOf 1 (k + 1) Set.univ (bm '' (bm' '' y'.1)) := by
-        rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
-        exact Finset.mem_image_of_mem _ hb
-      rw [hYimg] at hbimg
-      obtain ⟨b₂, hb₂, he⟩ := Finset.mem_image.1 (hy' hbimg)
-      have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos 1 m₁ (k + 1)))
-      have hbR := hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ (cellSide_pos 1 m₁ (k + 1))))
-      have h1 := congrArg Subtype.val he
-      rw [cubeMap_val, cubeMap_val] at h1
-      have h2 : b₂ = b := Subtype.ext (boxMap_inj (hm' := hm') hb₂R hbR h1)
-      exact h2 ▸ hb₂
-    exact ⟨⟨_, hYmem⟩, hYT, Subtype.ext hYimg⟩
+    obtain ⟨hYR, hYT, hYimg⟩ := exists_preimage_label hN hN' hm hm' (by omega) (by omega)
+      (by omega) T hT (I'.dom y'.1 y'.2) hy'
+    exact ⟨⟨_, (hmem𝒴 _ hYR).1 (by rw [hYimg]; exact y'.2)⟩, hYT, Subtype.ext hYimg⟩
   · intro s hs y hy Φ Φ' hR
     have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
       rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
