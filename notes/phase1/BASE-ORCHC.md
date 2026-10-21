@@ -139,6 +139,17 @@ row sums would need a weighted (`ε > 0`) version of `baseCovX_vec_bound` (C2), 
 range × norm. Lemma AE is used only through the decoupled background `(e(s), α(s))` (C2, Q10); `W` itself is C1's
 `Base/BaseFRWhite.lean` (F1).
 
+## 4d. The all-good sector, end to end (plan after the FR-1 decision)
+`log ρ₁^{good}(θ) = −βA₁(e_θ;θ) + log|det W| − ½N|D| log β + c + log ∫ e^{H(ψ')} dμ_cut + log Z_cut`, where
+`log|det W| = ½ Σ_n (−1)^{n+1} tr D^n / n − ½ log det A_e` (first part local term by term, C1 Q12; second
+`Σ_y Σ_Y baseDetActivity`, C3, landed in orchC-det), `μ_cut = ⊗_x` the standard Gaussian restricted to `|ψ'_x| < p₁`
+(normalized; `Z_cut` its mass), `H = −Σ_x V_x − ½⟨ψ', Dψ'⟩` (finite range given `W`; chart Jacobian inside `V_x`).
+Steps: (T-A, C1) the integral identity in this product form; (T-B, C2) Lemma AE through `e(s)` → rooted coefficients →
+`LabelAct` → `marked_cubes_explicit`: `log ∫ e^{H} dμ_cut = Σ_Y Pst(Y)` and the source marks; (T-C) regroup the local
+terms onto the polymers `X ∈ 𝒟_1` and express them through the class field on `𝔹_1(X̂)` (the replacement identity
+`hc5` of `localFamily_of_coeff_gen` with the local background `localB` at `K = 1`) — the `k = 0` analogue of blocker 6's
+L1–L5; (T-D) the RG extraction at scale 1 (constants → `E₁`, relevant parts → `ξ^{(0)}` → `β₁, ν₁, z₁`), regime (B) first.
+
 ## 5. Queue
 - C1 (running): constants, `BaseConstsInput`, `BaseOpBoundInput`, assemblies without `hC`, `hO`.
 - C2 (running): `𝖰₁, 𝖱₁, 𝖲₁` gains.

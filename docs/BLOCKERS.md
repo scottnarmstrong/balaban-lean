@@ -131,6 +131,24 @@ sites controls them without a pointwise bound on each factor. The only condition
 that M·L exceed a threshold depending on d, N, L and κ; M is a power of L, so this is a choice of the
 exponent. The sector split of the earlier attempt (all-good sector, bad sectors as a linked gas) is not used.
 
+Update (21 October, evening). Work on the base case (the first renormalization step, the statement
+`BaseStepInput`) has started on the following plan. The first step is treated as the general small-field step at
+scale zero, so its small-field output must satisfy the same named conditions as every later step. In Lean so far: the
+bookkeeping of the first step (its constants, kept data and step data at every scale, the vacuum flow); the
+assembly of the small-field conditions at scale one from the same pieces as the general step; the gains of the first
+large-field components from the lower bounds of LF-1; the exact identity of the first density in the all-good sector;
+and the Gaussian ingredients of the first fluctuation integral (the covariance family, its square root and logarithm,
+the localized determinant terms, their agreement on two tori). One step of the papers does not carry over to scale
+zero: the local change of variables of P5 (2.39) uses a cube-by-cube square root of the covariance, which is exact
+from scale one on (where the basic quadratic form is block-diagonal) but leaves an error of order one at scale zero,
+where the Hessian contains the lattice Laplacian. The first step therefore uses the finite-range whitening that solved
+the case of no renormalization step: a polynomial approximation W of the inverse square root, of finite range, whose
+error W A W − 1 is small (proved). Still open: the cluster expansion of the first fluctuation integral, its
+regrouping into the terms of the class at scale one, the renormalization conditions at scale one, the large-field
+kernels of the first step and the identity that represents the first density in the class. The small-field part
+shares the open steps of the general small-field step (blocker 6 at scale zero).
+
+
 ## 2. Switching from ν-free to complete backgrounds
 
 Balaban's flow computes the background field without the external-field term while β_k ν_k ≤ 1,
