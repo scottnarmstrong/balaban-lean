@@ -9,6 +9,7 @@ public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.LargeField.Base.BaseFRWhiteConfig
 public import Balaban.LargeField.Base.BaseFRWhiteReal
 public import Balaban.LargeField.Base.BaseFRWhiteSymm
+public import Balaban.LargeField.Base.BaseFirstFIntegrable
 
 /-!
 # The all-good sector of the first density with the finite-range whitening
@@ -70,6 +71,11 @@ theorem baseRho1_allGood_baseWhite
     let Wc := baseWhiteW G aw (if regimeB then ν else 0) α (fun _ => 1) ea R
     let Dc := whiteDefect (baseWhiteK G aw (if regimeB then ν else 0) α (fun _ => 1) ea) R
     ∃ W : Config (Torus d (L * n)) N ≃ₗ[ℝ] Config (Torus d (L * n)) N,
+      Integrable (fun φ : Config (Torus d (L * n)) N =>
+        (((Real.exp (-(1 / 2) * (cinner φ φ +
+          ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
+            (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re))) : ℝ) : ℂ) *
+          F (tangentProj e he (W φ))) ∧
       baseRho1 d N L n β a z₁ ν h ψ g =
         ((z₁ ^ (N * Fintype.card (Torus d n)) : ℝ) : ℂ) *
           ((((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) •
@@ -109,10 +115,81 @@ theorem baseRho1_allGood_baseWhite
     whiteW_im_eq_zero _ _ _ (fun i j => by rw [hAc]; simp) R p q
   obtain ⟨W, hW1, hW2⟩ := exists_config_whitening e Hα c Wc Dc _ (fun p q => hAc p q) hWim hdet
     (fun ψ' => baseWhite_bilinear G ea hμ R ψ')
-  refine ⟨W, ?_⟩
+  have hK := baseSector_gaussForm_posDef_of_product_ne_zero ϱ aw regimeB ν δ₀ hδ h hh H hΛ1
+    θ φ₀ hp
+  dsimp only at hK
+  have hint := integrable_gaussian_mul_baseSectorF hβ a ν δ₀ ϱ aw regimeB hδ h hh H hΛ1 g θ φ₀ hp
+  have hFm : Measurable F := measurable_baseSectorF β a ν regimeB h g θ e he Hα χ
+    (measurable_baseSectorCubeProduct regimeB ν δ₀ h θ) κ
+  refine ⟨W, integrable_tangent_gaussian_whitened e he Hα hK W _ hW2 F hFm hint, ?_⟩
   rw [← hW1]
   exact baseRho1_allGood_whitened hβ ha0 ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 hΛ2 g ψ φ₀ hp W
     (fun φ => ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
       (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re) hW2
+
+open Classical in
+/-- **The all-good sector split along the `𝖱₁` test, unconditionally** (LFR Definition II.7.1, P5
+(2.43) at `k = 0`): the whitened all-good term of `baseRho1_allGood_baseWhite` is the sum of the
+small-fluctuation term `∏_x 1[|φ_x| < p₁]` and its complement; the integrability premise of
+`integral_whitened_allGood_split` holds (`integrable_gaussian_mul_baseSectorF`). -/
+theorem baseRho1_allGood_baseWhite_split
+    {β a z₁ : ℝ} (hβ : 0 < β) (ha0 : 0 < a)
+    (ν δ₀ : ℝ) (ϱ : ℝ) (aw : ℕ → ℝ) (ha : aw 1 = a)
+    (regimeB : Prop) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (hΛ2 : (d + 2 + 4 * d * bgK1 d L N) * L * δ₀ ≤ 1 / 4)
+    (g : Torus d (L * n) → Fin N → ℂ)
+    (ψ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (φ₀ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h (z₁ • ψ) φ₀ ≠ 0) (R : ℕ) (p₁ : ℝ)
+    (hR : 4 * Real.sqrt (1 - Real.sqrt (1 - ((baseCoercivity L / 2) /
+        baseJ d (if regimeB then ν else 0)) ^ 2))⁻¹ *
+      (Real.sqrt (1 - ((baseCoercivity L / 2) / baseJ d (if regimeB then ν else 0)) ^ 2) ^ (R + 1) /
+        (1 - Real.sqrt (1 - ((baseCoercivity L / 2) /
+          baseJ d (if regimeB then ν else 0)) ^ 2))) < 1) :
+    let θ : Torus d n → EuclideanSpace ℝ (Fin N) := z₁ • ψ
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+    let he := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
+    let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
+      baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
+    let χ := baseSectorCubeProduct regimeB ν δ₀ h θ
+    let κ : ℂ := ((∏ _y : Torus d n,
+      ((β * a * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
+        ((N : ℝ) / 2) : ℝ) : ℂ)
+    let F := baseSectorF β a ν regimeB h g θ e he Hα χ κ
+    let ea : G.Ω 1 → Fin N → ℝ := fun z i => e (baseSiteEquiv ϱ z) i
+    let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
+      (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+        (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
+    let Wc := baseWhiteW G aw (if regimeB then ν else 0) α (fun _ => 1) ea R
+    let Dc := whiteDefect (baseWhiteK G aw (if regimeB then ν else 0) α (fun _ => 1) ea) R
+    ∃ W : Config (Torus d (L * n)) N ≃ₗ[ℝ] Config (Torus d (L * n)) N,
+      let Ψ : Config (Torus d (L * n)) N → ℂ := fun φ =>
+        (((Real.exp (-(1 / 2) * (cinner φ φ +
+          ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
+            (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re))) : ℝ) : ℂ) *
+          F (tangentProj e he (W φ))
+      baseRho1 d N L n β a z₁ ν h ψ g =
+        ((z₁ ^ (N * Fintype.card (Torus d n)) : ℝ) : ℂ) *
+          ((((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) •
+            ((((2 * Real.pi) ^ (-(Fintype.card (Torus d (L * n)) : ℝ) / 2) * ‖Wc.det‖ :
+                ℝ) : ℂ) *
+              ((∫ φ : Config (Torus d (L * n)) N,
+                ((rSmall (ι := Torus d (L * n)) (N := N) p₁ φ : ℝ) : ℂ) * Ψ φ) +
+              ∫ φ : Config (Torus d (L * n)) N,
+                ((1 - rSmall (ι := Torus d (L * n)) (N := N) p₁ φ : ℝ) : ℂ) * Ψ φ))) +
+            baseFirstRest d N L n β a z₁ ν regimeB δ₀ h g ψ) := by
+  intro θ G α e he Hα χ κ F ea c Wc Dc
+  obtain ⟨W, hI, hρ⟩ := baseRho1_allGood_baseWhite hβ ha0 ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 hΛ2
+    g ψ φ₀ hp R hR
+  refine ⟨W, ?_⟩
+  dsimp only
+  rw [hρ]
+  congr 4
+  exact integral_whitened_allGood_split p₁ _ _ hI
 
 end Balaban.LargeField
