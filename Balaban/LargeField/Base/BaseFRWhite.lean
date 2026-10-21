@@ -270,24 +270,24 @@ theorem norm_entry_le_l2 (M : Matrix ι ι ℂ) (x y : ι) : ‖M x y‖ ≤ ‖
   rw [h1, mul_one] at h
   exact hx.trans h
 
-variable (δ : ι → ι → ℕ)
+variable (δ : ι → ι → ℝ)
 
 /-- The distance function is zero on the diagonal. -/
-def DistSelf (δ : ι → ι → ℕ) : Prop := ∀ x, δ x x = 0
+def DistSelf (δ : ι → ι → ℝ) : Prop := ∀ x, δ x x = 0
 
 /-- The triangle inequality. -/
-def DistTri (δ : ι → ι → ℕ) : Prop := ∀ x y z, δ x z ≤ δ x y + δ y z
+def DistTri (δ : ι → ι → ℝ) : Prop := ∀ x y z, δ x z ≤ δ x y + δ y z
 
 /-- The matrix `M` has range `r` for the distance `δ`: `M x y = 0` when `δ x y > r`. -/
-def HasRange (M : Matrix ι ι ℂ) (r : ℕ) : Prop := ∀ x y, r < δ x y → M x y = 0
+def HasRange (M : Matrix ι ι ℂ) (r : ℝ) : Prop := ∀ x y, r < δ x y → M x y = 0
 
 variable {δ}
 
-theorem HasRange.mono {M : Matrix ι ι ℂ} {r r' : ℕ} (h : HasRange δ M r) (hr : r ≤ r') :
+theorem HasRange.mono {M : Matrix ι ι ℂ} {r r' : ℝ} (h : HasRange δ M r) (hr : r ≤ r') :
     HasRange δ M r' := fun x y hxy => h x y (lt_of_le_of_lt hr hxy)
 
 omit [DecidableEq ι] in
-theorem HasRange.mul [DecidableEq ι] (hδ : DistTri δ) {A B : Matrix ι ι ℂ} {r s : ℕ} (hA : HasRange δ A r)
+theorem HasRange.mul [DecidableEq ι] (hδ : DistTri δ) {A B : Matrix ι ι ℂ} {r s : ℝ} (hA : HasRange δ A r)
     (hB : HasRange δ B s) : HasRange δ (A * B) (r + s) := by
   intro x y hxy
   rw [Matrix.mul_apply]
@@ -296,7 +296,7 @@ theorem HasRange.mul [DecidableEq ι] (hδ : DistTri δ) {A B : Matrix ι ι ℂ
   · rw [hA x z h1, zero_mul]
   · have h2 : s < δ z y := by
       have := hδ x z y
-      omega
+      linarith
     rw [hB z y h2, mul_zero]
 
 theorem HasRange.one (hδ0 : DistSelf δ) : HasRange δ (1 : Matrix ι ι ℂ) 0 := by
@@ -308,55 +308,59 @@ theorem HasRange.one (hδ0 : DistSelf δ) : HasRange δ (1 : Matrix ι ι ℂ) 0
   simp [hne]
 
 omit [DecidableEq ι] in
-theorem HasRange.add {A B : Matrix ι ι ℂ} {r : ℕ} (hA : HasRange δ A r) (hB : HasRange δ B r) :
+theorem HasRange.add {A B : Matrix ι ι ℂ} {r : ℝ} (hA : HasRange δ A r) (hB : HasRange δ B r) :
     HasRange δ (A + B) r := fun x y hxy => by
   simp [hA x y hxy, hB x y hxy]
 
 omit [DecidableEq ι] in
-theorem HasRange.sub {A B : Matrix ι ι ℂ} {r : ℕ} (hA : HasRange δ A r) (hB : HasRange δ B r) :
+theorem HasRange.sub {A B : Matrix ι ι ℂ} {r : ℝ} (hA : HasRange δ A r) (hB : HasRange δ B r) :
     HasRange δ (A - B) r := fun x y hxy => by
   simp [hA x y hxy, hB x y hxy]
 
 omit [DecidableEq ι] in
-theorem HasRange.smul {A : Matrix ι ι ℂ} {r : ℕ} (hA : HasRange δ A r) (c : ℂ) :
+theorem HasRange.smul {A : Matrix ι ι ℂ} {r : ℝ} (hA : HasRange δ A r) (c : ℂ) :
     HasRange δ (c • A) r := fun x y hxy => by
   simp [hA x y hxy]
 
-theorem HasRange.pow (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℕ} (hK : HasRange δ K r) (n : ℕ) :
-    HasRange δ (K ^ n) (n * r) := by
+theorem HasRange.pow (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℝ}
+    (hK : HasRange δ K r) (n : ℕ) : HasRange δ (K ^ n) (n * r) := by
   induction n with
   | zero => simpa using HasRange.one hδ0
   | succ n ih =>
-    rw [pow_succ, Nat.succ_mul]
-    exact HasRange.mul hδ ih hK
+    rw [pow_succ]
+    have := HasRange.mul hδ ih hK
+    have e : (n : ℝ) * r + r = ((n + 1 : ℕ) : ℝ) * r := by push_cast; ring
+    rwa [e] at this
 
 omit [Fintype ι] in
-theorem HasRange.sum {s : Finset ℕ} {f : ℕ → Matrix ι ι ℂ} {r : ℕ}
+theorem HasRange.sum {s : Finset ℕ} {f : ℕ → Matrix ι ι ℂ} {r : ℝ}
     (h : ∀ n ∈ s, HasRange δ (f n) r) : HasRange δ (∑ n ∈ s, f n) r := fun x y hxy => by
   rw [Matrix.sum_apply]
   exact Finset.sum_eq_zero fun n hn => h n hn x y hxy
 
 /-- The truncation `S_R(K)` has range `R r`. -/
-theorem sqrtTrunc_hasRange (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℕ} (hK : HasRange δ K r) (R : ℕ) :
+theorem sqrtTrunc_hasRange (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℝ}
+    (hr : 0 ≤ r) (hK : HasRange δ K r) (R : ℕ) :
     HasRange δ (sqrtTrunc K R) (R * r) := by
   unfold sqrtTrunc
   refine HasRange.sum fun n hn => ?_
   have hn' : n ≤ R := Nat.lt_succ_iff.mp (Finset.mem_range.mp hn)
-  exact ((HasRange.pow hδ0 hδ hK n).smul _).mono (Nat.mul_le_mul_right r hn')
+  exact ((HasRange.pow hδ0 hδ hK n).smul _).mono (mul_le_mul_of_nonneg_right (by exact_mod_cast hn') hr)
 
 /-- The defect of the truncated whitening: `D_R = S_R(K)² (1 - K) - 1`. -/
 noncomputable def whiteDefect (K : Matrix ι ι ℂ) (R : ℕ) : Matrix ι ι ℂ :=
   sqrtTrunc K R * sqrtTrunc K R * (1 - K) - 1
 
 /-- The defect vanishes beyond `(2R + 1) r`. -/
-theorem whiteDefect_hasRange (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℕ} (hK : HasRange δ K r) (R : ℕ) :
+theorem whiteDefect_hasRange (hδ0 : DistSelf δ) (hδ : DistTri δ) {K : Matrix ι ι ℂ} {r : ℝ}
+    (hr : 0 ≤ r) (hK : HasRange δ K r) (R : ℕ) :
     HasRange δ (whiteDefect K R) ((2 * R + 1) * r) := by
-  have hS := sqrtTrunc_hasRange hδ0 hδ hK R
-  have h1 : HasRange δ (1 - K) r := (HasRange.one hδ0).mono (Nat.zero_le r) |>.sub hK
+  have hS := sqrtTrunc_hasRange hδ0 hδ hr hK R
+  have h1 : HasRange δ (1 - K) r := (HasRange.one hδ0).mono hr |>.sub hK
   have h2 := HasRange.mul hδ (HasRange.mul hδ hS hS) h1
   have e : R * r + R * r + r = (2 * R + 1) * r := by ring
   rw [e] at h2
-  exact h2.sub (((HasRange.one hδ0).mono (Nat.zero_le _)))
+  exact h2.sub (((HasRange.one hδ0).mono (by positivity)))
 
 /-- **The defect is small**: `‖D_R‖ ≤ 4 (1 - q)^{-1/2} q^{R+1}/(1 - q)`. -/
 theorem norm_whiteDefect_le [Nonempty ι] {K : Matrix ι ι ℂ} {q : ℝ} (hK : ‖K‖ ≤ q) (hq0 : 0 ≤ q)
@@ -393,7 +397,7 @@ theorem norm_whiteDefect_le [Nonempty ι] {K : Matrix ι ι ℂ} {q : ℝ} (hK :
 
 
 /-- Row sums of a matrix of range `ρ`: `∑_y |M x y| ≤ #{y : δ x y ≤ ρ} · ‖M‖`. -/
-theorem sum_norm_row_le {M : Matrix ι ι ℂ} {ρ : ℕ} (hM : HasRange δ M ρ) (x : ι) :
+theorem sum_norm_row_le {M : Matrix ι ι ℂ} {ρ : ℝ} (hM : HasRange δ M ρ) (x : ι) :
     ∑ y, ‖M x y‖ ≤
       ((Finset.univ.filter fun y => δ x y ≤ ρ).card : ℝ) * ‖M‖ := by
   classical
