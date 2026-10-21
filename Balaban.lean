@@ -3012,3 +3012,4 @@ public import Balaban.Fluctuation.NewLevelOldTermsBgLocal
 public import Balaban.Inhabited.NewLevelOldTermsBgRot
 public import Balaban.Inhabited.NewLevelLocalSetFacts
 public import Balaban.Inhabited.NewLevelLocalClauses
+public import Balaban.Inhabited.NewLevelLocalCast

@@ -15,17 +15,17 @@ public import Balaban.Inhabited.NewLevelSystemRead
 /-!
 # The clauses (A1)–(A5) of the recomputed family with the old terms given by their settings
 
-Route R-LOC, L5: the forms of the clauses (A3) and (A4) of `localFamily_of_coeff` for the coefficient
-recomputed on a local generating set `Gl` from the labels inside the polymer `T`, with the locality
-and the covariance of the terms of the old terms derived from their settings at the step
+Route R-LOC, L5: the forms of the clauses (A1)–(A5) of `localFamily_of_coeff` for the coefficient
+recomputed on a local generating set `Gl` from the labels inside the polymer `T`, with the
+locality and the covariance of the terms of the old terms derived from their settings at the step
 (`evDecBg_canon_local_eTerm`, `evDecBg_canon_rot_eTerm`) in place of the hypotheses `holdloc`,
 `holdrot` of `coeffLoc_local_of`, `coeffLoc_rot_of`.
 
-* `NewLevelSystem.clause_local_of`, `NewLevelSystem.clause_rot_of`, `NewLevelSystem.clause_analytic_of`
-  (the old functionals analytic and bounded on the realizable triples of `Gl` from their settings,
-  `eTermFun_analytic_bound_of_top`);
-* `NewLevelSystem.clause_rot_full_of`: (A4) with the old functionals and the parts of the coefficient
-  derived from the settings and the decoupling pairs;
+* `NewLevelSystem.clause_local_of`, `NewLevelSystem.clause_rot_of`,
+  `NewLevelSystem.clause_analytic_of` (the old functionals analytic and bounded on the realizable
+  triples of `Gl` from their settings, `eTermFun_analytic_bound_of_top`);
+* `NewLevelSystem.clause_rot_full_of`: (A4) with the old functionals and the parts of the
+  coefficient derived from the settings and the decoupling pairs;
 * `NewLevelSystem.clauses_of`: the five clauses (A1)–(A5) of `localFamily_of_coeff` for one polymer,
   at the mask of the block of the root and the reference configuration `0`.
 -/
@@ -322,9 +322,9 @@ theorem clause_rot_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     (fun D hD => NS.O.hFkL τ D hD) hQ (hEr τ Q hQ) (maskPre S.hG' Gl (S.blockU z)) hW hYm hD hψh
 
 /-- **The functionals of the old terms on the realizable triples of `Gl`** (the hypotheses `hΦ`,
-`hΦbd` of `coeffLoc_analytic_bound_of`): for an old term whose frozen region lies in the top layer of
-`Gl`, with the step's settings at the radius `ε` and the old term analytic and bounded on its chart,
-the functional `eTermFun Gl …` is analytic and bounded on the realizable triples of `Gl`
+`hΦbd` of `coeffLoc_analytic_bound_of`): for an old term whose frozen region lies in the top layer
+of `Gl`, with the step's settings at the radius `ε` and the old term analytic and bounded on its
+chart, the functional `eTermFun Gl …` is analytic and bounded on the realizable triples of `Gl`
 (`eTermFun_analytic_bound_of_top`). -/
 theorem oldFun_fields_of {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)
     (hdk : Gd.Ω k = Gl.Ω k) (hHm : Gd.Ω (k + 1) = ∅)
@@ -790,7 +790,8 @@ of the root, reference configuration `0`) has the clauses of `localFamily_of_coe
 `ε_loc` with respect to `Y⁺ ⊇ thickSet S.G' (sitesOf T)`, invariance under the real rotations, and
 the replacement identity at the pairs of the step chart of radius `ε ≤ t`. -/
 theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
-    (HB : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν) (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)
+    (HB : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν)
+        (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)
     (hd : 3 ≤ d) (hN : 5 < N₁) (hm₁ : 2 ≤ m₁) (hM : 4 * L ^ 2 ≤ L ^ m₁)
     (hag : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱ - 1))
     (hagl : 2 * d * Real.log L ≤ agmonRate d / 16 * (ϱl - 1))
@@ -812,13 +813,15 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
     {c c₂ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c NS.BG)
     (hCz : FlCore N Gl Gd S.a₁ S.ν c NS.BG NS.κ t (Dec2.mixedKc d L) (Cchi d L) c₂ NS.BG₂ t)
     (hCz' : FlCore N Gl Gd S.a₁ S.ν c NS.BG NS.κ eps' (Dec2.mixedKc d L) (Cchi d L) c₂ NS.BG₂ t)
-    (hMXd : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁) (hCx : 0 ≤ Cchi d L)
+    (hMXd : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁)
+        (hCx : 0 ≤ Cchi d L)
     (hMXn : cstarX d L * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ} (hδc : 0 ≤ δc)
     (hdm : decDomMargin d L N NS.BG NS.κ (xiC1 d * t) < δc)
     (hα : K4 d L N NS.BG NS.κ * (xiC1 d * t) < coerciveConst d / 2)
     (hdm' : decDomMargin d L N NS.BG NS.κ (xiC1 d * eps') < δc)
     (hα' : K4 d L N NS.BG NS.κ * (xiC1 d * eps') < coerciveConst d / 2)
-    (hsm : δc ^ 2 * smallConstX d L NS.κ ≤ 1 / 4) {cψ : ℝ} (hcψ : 0 ≤ cψ) (hρ₀c : 2 * NS.p₁ ≤ cψ) (hρp : S.p₁ ≤ NS.p₁)
+    (hsm : δc ^ 2 * smallConstX d L NS.κ ≤ 1 / 4) {cψ : ℝ} (hcψ : 0 ≤ cψ) (hρ₀c : 2 * NS.p₁ ≤ cψ)
+        (hρp : S.p₁ ≤ NS.p₁)
     (hRu : corrU * markedRad d L N k S.a₁ NS.κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < t)
     (hBG₂ : 0 ≤ NS.BG₂)
     {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
@@ -866,9 +869,11 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
     (hBo' : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀' eps' δ₃'
       (X₀' τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ (Dec2.mixedKc d L) (Cchi d L) c₂L
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ (Dec2.mixedKc d L)
+        (Cchi d L) c₂L
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ))
-    (hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃' (Dec2.mixedKc d L) (Cchi d L) c₂L
+    (hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃'
+        (Dec2.mixedKc d L) (Cchi d L) c₂L
       NS.O.BG₂ NS.O.δ₁ δfl' (NS.O.X₁f τ))
     (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1) (hrb' : r₀' * (L : ℝ) ^ m₁ ≤ ϱl - 1)
@@ -1004,12 +1009,16 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
     (hdetT : ∀ D : BgData S.G' N, XiCData S.G' (compWeight L S.a₁) S.ν (k + 1) 1 t D →
       newLevelDetBg S.G' (compWeight L 1) 1 S.ν (rho4 d L N NS.BG NS.κ) (S.blockU z)
           (⟨rawOf D, rawOf_mem_rawSub D⟩, 0) T =
-        newLevelDetBg Gl (compWeight L 1) 1 S.ν (rho4 d L N NS.BG NS.κ) (maskPre S.hG' Gl (S.blockU z))
+        newLevelDetBg Gl (compWeight L 1) 1 S.ν (rho4 d L N NS.BG NS.κ)
+            (maskPre S.hG' Gl (S.blockU z))
           (πb (clipRaw Gl (rawOf D)), 0) T) :
     ∃ bT : ℝ, 0 ≤ bT ∧
-      AnalyticOnNhd ℂ (fun θb => NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T)
+      AnalyticOnNhd ℂ
+          (fun θb => NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps'
+          (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T)
         (physVBg N Gl S.a₁ S.ν t) ∧
-      (∀ θb ∈ physVBg N Gl S.a₁ S.ν t, ‖NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T‖ ≤ bT) ∧
+      (∀ θb ∈ physVBg N Gl S.a₁ S.ν t, ‖NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps'
+          (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T‖ ≤ bT) ∧
       (∀ θb θb' : physParamBg N Gl,
         (θb.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
           XiCRaw Gl (compWeight L S.a₁) S.ν (k + 1) 1 εloc →
@@ -1019,15 +1028,20 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
             (θb'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).1 x ∧
           (θb.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 x =
             (θb'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 x) →
-        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T = NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb' T) ∧
+        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T =
+            NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps'
+            (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb' T) ∧
       (∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
         ∀ θb ∈ physVBg N Gl S.a₁ S.ν t, ∀ θb' ∈ physVBg N Gl S.a₁ S.ν t,
         (θb'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) =
           rotRaw (cmat Q) (θb.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) →
-        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb' T = NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T) ∧
+        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb' T =
+            NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps'
+            (maskPre S.hG' Gl (S.blockU z)) Φ₀ θb T) ∧
       (∀ q : Def6.Fld d L N₁ m₁ (k + 1) N × Def6.Fld d L N₁ m₁ (k + 1) N,
         Def6.XiDom S.G' (compWeight L S.a₁) S.ν (k + 1) ε q.1 q.2 →
-        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀ (πb (clipRaw Gl q), 0) T = e (π (clipRaw S.G' q), 0) T) := by
+        NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀
+            (πb (clipRaw Gl q), 0) T = e (π (clipRaw S.G' q), 0) T) := by
   have hk1 := S.hk1
   have hd0 : 0 < d := by omega
   have ha₁ : 1 / 2 ≤ S.a₁ := by rw [hS1]; norm_num
@@ -1054,9 +1068,16 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
       (by norm_num)
   obtain ⟨bT, hbT, han, hbd⟩ := NS.clause_analytic_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1
     hle HB' hd SpG hS Sb hCz hMXd hCx hMXn hδc hdm hα hsm hcψ hBG₂ hdk hdtop
-    hHmtop hrow hκ₀ hκdec hκκ h1 hlog hρc hδ₁c hR₁ hr hrays hR hRR hUR hU hF₂an hF₂s' (fun b => (hSol₂an b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
-    (fun b p hp hs => hSol₂' b p hp (strictDataM_mono_left hle0 hs)) hF₁ban hF₁b' (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩) (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL Sb hCo hMXLd hCx hdmL hαL hsmL hcψL hκκL h1L hlogL
-    hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L' (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩) (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁ hbC hBo hFLo hGs
+    hHmtop hrow hκ₀ hκdec hκκ h1 hlog hρc hδ₁c hR₁ hr hrays hR hRR hUR hU hF₂an hF₂s'
+        (fun b => (hSol₂an b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
+    (fun b p hp hs => hSol₂' b p hp (strictDataM_mono_left hle0 hs)) hF₁ban hF₁b'
+        (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
+        (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL Sb hCo hMXLd hCx hdmL
+        hαL hsmL hcψL hκκL h1L hlogL
+    hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L'
+        (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩)
+        (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁
+        hbC hBo hFLo hGs
     hrb hFkan hEan hEbd hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz (maskPre S.hG' Gl (S.blockU z)) Φ₀
     T hTm
   refine ⟨bT, hbT, han, hbd, ?_, ?_, ?_⟩
@@ -1066,9 +1087,15 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
       T hTm hYpl hεloc
   · exact NS.clause_rot_full_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1 hle HB' hd SpG
       hS Sb hCz hMXd hCx hMXn hδc hdm hα hsm hcψ hBG₂ hdk hdtop hHmtop hrow hκ₀ hκdec hκκ h1 hlog
-      hρc hδ₁c hR₁ hr hrays hR hRR hUR hU hF₂an hF₂s' (fun b => (hSol₂an b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩) (fun b p hp hs => hSol₂' b p hp (strictDataM_mono_left hle0 hs)) hF₁ban hF₁b' (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
-      (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL hCo hMXLd hdmL hαL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L'
-      (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩) (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁ hbC hBo hFLo hGs hrb hFkan hEan hEbd hεz hεo hFb
+      hρc hδ₁c hR₁ hr hrays hR hRR hUR hU hF₂an hF₂s'
+          (fun b => (hSol₂an b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
+          (fun b p hp hs => hSol₂' b p hp (strictDataM_mono_left hle0 hs)) hF₁ban hF₁b'
+          (fun b => (hSolban b).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0 hp.2⟩)
+      (fun b p hp hs => hSolb' b p hp (strictDataM_mono_left hle0 hs)) hSL hCo hMXLd hdmL hαL hsmL
+          hcψL hκκL h1L hlogL hρL hρcL hRuL ht₀ hRt hF₁Lan hF₁L'
+      (fun τ => (hSolLan τ).mono fun _ hp => ⟨hp.1, strictDataM_mono_left hle0L hp.2⟩)
+          (fun τ p hp hs => hSolL' τ p hp (strictDataM_mono_left hle0L hs)) hcovL hX₁L hoptL hEb hb₁
+          hbC hBo hFLo hGs hrb hFkan hEan hEbd hεz hεo hFb
       hFo hεpos hF0 hρ₀c hρp hρpL hRu hAl hSS hM hMXLn hEr (maskPre S.hG' Gl (S.blockU z)) Φ₀ hΦ₀ T
       hTm
   · exact NS.coeffLoc_read_of hAl hSS hPd hdk hdtop hN hm₁ hM hag
