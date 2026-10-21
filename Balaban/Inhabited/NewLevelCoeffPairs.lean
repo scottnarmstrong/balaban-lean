@@ -70,6 +70,7 @@ the box. -/
 theorem newLevel_coeff_twoTorus_of_pairs
     (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : (SA).JointRep t pp} {C' : StepClass d L N₁' m₁ k N ϱ} {pp' : ℝ} {Jr' : (SB).JointRep t pp'} (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' (bc z) Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁')
     (hm₁ : 1 ≤ m₁)
     {rc R : ℕ}
@@ -99,14 +100,14 @@ theorem newLevel_coeff_twoTorus_of_pairs
       Finset.univ.biUnion fun s : CTorus d L N₁' m₁ (k + 1) × Fin N =>
         polyDom (GB) (LocalCover.nbhdF 1 s.1) 1 k (LocalCover.fam 1 s.1))
     (hm₀ : NS'.O.m₀ = NS.O.m₀)
-    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧ Q τ.1 (e τ).1)
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -135,8 +136,8 @@ theorem newLevel_coeff_twoTorus_of_pairs
       (rawOf (bgOfRaw (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) θ.1.2))
       (rawOf (bgOfRaw (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) θ'.1.2)) := by
     rw [rawOf_bgOfRaw, rawOf_bgOfRaw]; exact hraw
-  obtain ⟨ψ, hψP, hψb, hψi, hψs, hψA⟩ := newLevel_psi_data (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁.symm) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hC := hC) (hC' := hC') (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hN := hN) (hN' := hN') (hm₁ := hm₁) (hn := hn) (hn' := hn') (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (T := T) (hT := hT) (hm₀ := hm₀) (hE := hE) (hprem := hprem) (hum := hum)
-  obtain ⟨κ, hκb, hκi, hκs, hκG⟩ := newLevel_kappa_data (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc0) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hm₀ := hm₀) (hE := hE) (hprem := hprem) (humB := humB) (hum := hum)
+  obtain ⟨ψ, hψP, hψb, hψi, hψs, hψA⟩ := newLevel_psi_data (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁.symm) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hC := hC) (hC' := hC') (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hN := hN) (hN' := hN') (hm₁ := hm₁) (hn := hn) (hn' := hn') (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (T := T) (hT := hT) (hm₀ := hm₀) (hE := hE) (hprem := hprem) (Q := Q) (hum := hum)
+  obtain ⟨κ, hκb, hκi, hκs, hκG⟩ := newLevel_kappa_data (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc0) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hm₀ := hm₀) (hE := hE) (hprem := hprem) (Q := Q) (humB := humB) (hum := hum)
   exact NewLevelSystem.coeff_twoTorus (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (θ := θ) (θ' := θ') (hBG := hBG) (hκ := hκ) (hN := hN) (hN' := hN') (hn := hnM) (hn' := hnM') (hGA := hGA) (hGB := hGB) (hp := NS.hp) (hp' := NS'.hp) (hGdep := fun i u => NS.G_dep θ i u) (T := T) (hT := hT) (P := NS.IsActLab) (P' := NS'.IsActLab) (hA0 := fun s _ y hy Φ => NS.A_H_inactive θ (s : ℂ) y hy Φ) (hA0' := fun s _ y hy Φ => NS'.A_H_inactive θ' (s : ℂ) y hy Φ) (ψ := ψ) (hψP := hψP) (hψb := hψb) (hψinj := hψi) (hψsurj := hψs) (hA := hψA) (κ := κ) (hκb := hκb) (hκinj := hκi) (hκsurj := hκs) (hG := hκG) (hC := hC) (hC' := hC') (hδc := hδc) (hcap := hMX) (hsm := hsm) (hmar := hmar) (hαK := hαK) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (hz := hz) (hrc := hrc) (hroot := hroot) (hYr := hYr) (hnd := hn1) (hnd' := hn1') (hnS := hnS) (hnS' := hnS') (hnH := hnH) (hnH' := hnH') (hraw := hraw') (r := R)
 
 end Final

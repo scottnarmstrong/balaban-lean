@@ -62,19 +62,21 @@ theorem thick_act_agree
     {C' : StepClass d L N₁' m₁ k N ϱ} {z' : RootIdx d L N₁' m₁ (k + 1)} {pp' : ℝ}
     {Jr' : (SB).JointRep t pp'}
     (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' z' Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     {R : ℕ}
     (hm₀ : NS'.O.m₀ = NS.O.m₀)
     (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ,
-        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧
+          Q τ.1 (e τ).1)
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -102,17 +104,18 @@ theorem thick_act_agree
     have : (corrU : ℝ) = 17 / 16 := rfl
     rw [this]; linarith
   obtain ⟨e, he⟩ := hE y.1 hyR
-  obtain ⟨hXs, hjs⟩ : (∀ (τ : NS.O.ι) (hτ : NS.Dom y.1 τ),
+  obtain ⟨hXs, hjs, hQs⟩ : (∀ (τ : NS.O.ι) (hτ : NS.Dom y.1 τ),
       NS'.O.X₁f (e ⟨τ, hτ⟩).1 = (NS.O.X₁f τ).image bm) ∧
-      (∀ (τ : NS.O.ι) (hτ : NS.Dom y.1 τ), NS'.O.jL (e ⟨τ, hτ⟩).1 = NS.O.jL τ) :=
-    ⟨fun τ hτ => (he ⟨τ, hτ⟩).2, fun τ hτ => (he ⟨τ, hτ⟩).1⟩
+      (∀ (τ : NS.O.ι) (hτ : NS.Dom y.1 τ), NS'.O.jL (e ⟨τ, hτ⟩).1 = NS.O.jL τ) ∧
+      (∀ (τ : NS.O.ι) (hτ : NS.Dom y.1 τ), Q τ (e ⟨τ, hτ⟩).1) :=
+    ⟨fun τ hτ => (he ⟨τ, hτ⟩).2.1, fun τ hτ => (he ⟨τ, hτ⟩).1, fun τ hτ => (he ⟨τ, hτ⟩).2.2⟩
   have key := NS.H_twoTorus_partial_of_pairs NS' θ θ' y ⟨bm '' y.1, hy'⟩ (s : ℂ) Φ Φ' e
     (fun τ hτ => (e ⟨τ, hτ⟩).1) (fun _ _ => rfl)
     ⟨fun _ => ⟨hθ'.1, hu⟩, fun _ => ⟨hθ.1, hu⟩⟩ rfl rfl rfl rfl
     hXs hm₀ hjs rfl
-    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' (s : ℂ) 0 hθ hθ' hraw hτ (hjs τ hτ)
+    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' (s : ℂ) 0 hθ hθ' hraw (hQs τ hτ) hτ (hjs τ hτ)
       (hXs τ hτ) hyR hΦ (by simpa using hum (s : ℂ) hs1))
-    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' 0 0 hθ hθ' hraw hτ (hjs τ hτ)
+    (fun τ hτ => hprem τ (e ⟨τ, hτ⟩).1 θ θ' y.1 Φ Φ' 0 0 hθ hθ' hraw (hQs τ hτ) hτ (hjs τ hτ)
       (hXs τ hτ) hyR hΦ (by simpa using hum 0 (by simp)))
   rw [show (NS'.AC θ' (s : ℂ)).H ⟨bm '' y.1, hy'⟩ Φ' = NS'.H θ' ⟨bm '' y.1, hy'⟩ (s : ℂ) Φ' from
     congrFun (NS'.hAC θ' hθ' (s : ℂ) ⟨bm '' y.1, hy'⟩) Φ',
@@ -126,6 +129,7 @@ theorem thick_labelCorr
     {C' : StepClass d L N₁' m₁ k N ϱ} {z' : RootIdx d L N₁' m₁ (k + 1)} {pp' : ℝ}
     {Jr' : (SB).JointRep t pp'}
     (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' z' Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁') {R : ℕ}
     (hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
@@ -139,14 +143,15 @@ theorem thick_labelCorr
     (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ,
-        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧
+          Q τ.1 (e τ).1)
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -207,7 +212,7 @@ theorem thick_labelCorr
     have hy'mem := (hmem y.1 (hYR1 y hy)).2 y.2
     have hψy : ψ₁ y hy = ⟨bm '' y.1, hy'mem⟩ := Subtype.ext (hψ y hy)
     rw [hψy]
-    exact thick_act_agree hN2 hk νS β p₁ δ NS NS' hm₀ hE hprem hum y (hYR1 y hy) hy'mem θ θ' hθ hθ' hraw
+    exact thick_act_agree hN2 hk νS β p₁ δ NS NS' Q hm₀ hE hprem hum y (hYR1 y hy) hy'mem θ θ' hθ hθ' hraw
       s hs Φ Φ' hΦ
 
 end Coeff

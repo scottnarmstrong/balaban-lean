@@ -308,20 +308,21 @@ theorem anchor_inr_surj
 theorem anchor_inr_corr
     (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : (SA).JointRep t pp} {C' : StepClass d L N₁' m₁ k N ϱ} {pp' : ℝ} {Jr' : (SB).JointRep t pp'} (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' (bc z) Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁')
     (hm₁ : 1 ≤ m₁)
     {rc R : ℕ}
     (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ R) (hroot : ∀ x ∈ rootSet 1 z, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
     (hn : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1)) (hn' : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
     (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ)) (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L 1 m₁ (k + 1)), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧ Q τ.1 (e τ).1)
     
     :
     ∃ ψ : (∀ q : {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (fun τ => polyDom (SA).G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}, blocksOf 1 (k + 1) Set.univ (bridge 1 z q.1.2) ⊆ T → {q // q ∈ markedIdx (fun _ : NS'.O.ι => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1)))) (fun τ => polyDom (SB).G' (NS'.O.X₁f τ) NS'.O.m₀ (NS'.O.jL τ) (NS'.O.𝒦X τ)) (bc z)}),
       (∀ q hq, (ψ q hq).1.2 = bm '' q.1.2 ∧
         (∀ x ∈ q.1.2, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧ NS.Dom q.1.2 q.1.1 ∧
         NS'.O.jL (ψ q hq).1.1 = NS.O.jL q.1.1 ∧
-        NS'.O.X₁f (ψ q hq).1.1 = (NS.O.X₁f q.1.1).image bm) ∧
+        NS'.O.X₁f (ψ q hq).1.1 = (NS.O.X₁f q.1.1).image bm ∧ Q q.1.1 (ψ q hq).1.1) ∧
       (∀ q₁ h₁ q₂ h₂, ψ q₁ h₁ = ψ q₂ h₂ → q₁ = q₂) ∧
       (∀ q' : {q // q ∈ markedIdx (fun _ : NS'.O.ι => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1)))) (fun τ => polyDom (SB).G' (NS'.O.X₁f τ) NS'.O.m₀ (NS'.O.jL τ) (NS'.O.𝒦X τ)) (bc z)},
         blocksOf 1 (k + 1) Set.univ (bridge 1 (bc z) q'.1.2) ⊆ T.image (σc) →
@@ -349,9 +350,10 @@ theorem anchor_inr_corr
   refine ⟨ψ, ?_, hψinj, hψsurj, ?_⟩
   · intro q hq
     obtain ⟨hY, hτ, h2, h3⟩ := hψr q hq
-    refine ⟨h2, hY, hτ, ?_, ?_⟩
+    refine ⟨h2, hY, hτ, ?_, ?_, ?_⟩
     · rw [← h3]; exact (heY q.1.2 hY ⟨q.1.1, hτ⟩).1
-    · rw [← h3]; exact (heY q.1.2 hY ⟨q.1.1, hτ⟩).2
+    · rw [← h3]; exact (heY q.1.2 hY ⟨q.1.1, hτ⟩).2.1
+    · rw [← h3]; exact (heY q.1.2 hY ⟨q.1.1, hτ⟩).2.2
   · intro q hq
     obtain ⟨hY, hτ, h2, h3⟩ := hψr q hq
     rw [h2, bridge_image hN hN' hnH hnH' z hz hrc hroot hY]

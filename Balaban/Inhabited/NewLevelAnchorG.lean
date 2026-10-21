@@ -154,6 +154,7 @@ theorem anchor_G_inl
 theorem anchor_G_inr
     (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : (SA).JointRep t pp} {C' : StepClass d L N₁' m₁ k N ϱ} {pp' : ℝ} {Jr' : (SB).JointRep t pp'} (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' (bc z) Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     {R : ℕ}
     (θ : physParam N (SA)) (θ' : physParam N (SB)) (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t) (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z} (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N))
     (hm₀ : NS'.O.m₀ = NS.O.m₀)
@@ -163,7 +164,7 @@ theorem anchor_G_inr
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -176,7 +177,7 @@ theorem anchor_G_inr
     (q : {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (fun τ => polyDom (SA).G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}) (q' : {q // q ∈ markedIdx (fun _ : NS'.O.ι => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1)))) (fun τ => polyDom (SB).G' (NS'.O.X₁f τ) NS'.O.m₀ (NS'.O.jL τ) (NS'.O.𝒦X τ)) (bc z)})
     (hq2 : q'.1.2 = bm '' q.1.2) (hYR : ∀ x ∈ q.1.2, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
     (hDom : NS.Dom q.1.2 q.1.1) (hj : NS'.O.jL q'.1.1 = NS.O.jL q.1.1)
-    (hX : NS'.O.X₁f q'.1.1 = (NS.O.X₁f q.1.1).image bm) :
+    (hX : NS'.O.X₁f q'.1.1 = (NS.O.X₁f q.1.1).image bm) (hQ : Q q.1.1 q'.1.1) :
     ∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x → Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ = Φ ((SA).cellOf 1 (unitPt (SA).hG' x)) ⟨unitPt (SA).hG' x, rfl⟩) →
       (NS'.G θ') (Sum.inr q') (s : ℂ) Φ' = (NS.G θ) (Sum.inr q) (s : ℂ) Φ := by
   intro s hs Φ Φ' hΦ
@@ -196,7 +197,7 @@ theorem anchor_G_inr
     exact ht.eventually_lt_const (by simpa using hmr)
   exact NS.G₁_twoTorus_at_of_pairs NS' q'.1.1 θ θ' q q' (s : ℂ) Φ Φ'
     ⟨fun _ => ⟨hθ'.1, hu⟩, fun _ => ⟨hθ.1, hu⟩⟩ rfl rfl rfl rfl rfl hq2 hX hm₀ hj
-    (hev.mono fun t₀ ht => hprem q.1.1 q'.1.1 θ θ' q.1.2 Φ Φ' (s : ℂ) t₀ hθ hθ' hraw hDom hj hX
+    (hev.mono fun t₀ ht => hprem q.1.1 q'.1.1 θ θ' q.1.2 Φ Φ' (s : ℂ) t₀ hθ hθ' hraw hQ hDom hj hX
       hYR hΦ ht)
 
 end AnchorG

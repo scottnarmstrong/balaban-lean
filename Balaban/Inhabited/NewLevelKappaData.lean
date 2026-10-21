@@ -63,6 +63,7 @@ attribute [local irreducible] NewLevelSystem.Dom
 theorem newLevel_kappa_data
     (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : (SA).JointRep t pp} {C' : StepClass d L N₁' m₁ k N ϱ} {pp' : ℝ} {Jr' : (SB).JointRep t pp'} (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' (bc z) Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁')
     (hm₁ : 1 ≤ m₁)
     {rc R : ℕ}
@@ -76,14 +77,14 @@ theorem newLevel_kappa_data
     (hMX : cstarX d L * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ} (hmar : decDomMargin d L N NS.BG NS.κ (xiC1 d * t) < δc) (hαK : K4 d L N NS.BG NS.κ * (xiC1 d * t) < coerciveConst d / 2) (hsm : δc ^ 2 * smallConstX d L NS.κ ≤ 1 / 4)
     (θ : physParam N (SA)) (θ' : physParam N (SB)) (hθ : θ ∈ physV (SA) (SA).a₁ (SA).ν t) (hθ' : θ' ∈ physV (SB) (SB).a₁ (SB).ν t) (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z} (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N))
     (hm₀ : NS'.O.m₀ = NS.O.m₀)
-    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+    (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)), (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ, NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧ Q τ.1 (e τ).1)
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -110,7 +111,7 @@ theorem newLevel_kappa_data
   have hc : 2 * R + cellSide L 1 m₁ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
   have hc' : 2 * R + cellSide L 1 m₁ (k + 1) < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
   obtain ⟨φ, hφr, hφi, hφs⟩ := anchor_inl_corr (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT)
-  obtain ⟨ψ, hψr, hψi, hψs, hψb⟩ := anchor_inr_corr (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hE := hE)
+  obtain ⟨ψ, hψr, hψi, hψs, hψb⟩ := anchor_inr_corr (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hE := hE) (Q := Q)
   have hbox : ∀ a : {Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG (SA)) z},
       blocksOf 1 (k + 1) Set.univ a.1 ⊆ T → ∀ x ∈ a.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
@@ -136,8 +137,8 @@ theorem newLevel_kappa_data
       exact ⟨Sum.inr q, hq, congrArg Sum.inr h⟩
   · rintro s hs (a | q) hi Φ Φ' hΦ
     · exact anchor_G_inl (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hum := humB) a (φ a hi) (hφr a hi) (hbox a hi) s hs Φ Φ' hΦ
-    · obtain ⟨h2, hYR, hDom, hj, hX⟩ := hψr q hi
-      exact anchor_G_inr (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hm₀ := hm₀) (hprem := hprem) (hum := hum) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) q (ψ q hi) h2 hYR hDom hj hX s hs Φ Φ' hΦ
+    · obtain ⟨h2, hYR, hDom, hj, hX, hQ⟩ := hψr q hi
+      exact anchor_G_inr (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hm₀ := hm₀) (hprem := hprem) (Q := Q) (hum := hum) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) q (ψ q hi) h2 hYR hDom hj hX hQ s hs Φ Φ' hΦ
 
 end Kappa
 

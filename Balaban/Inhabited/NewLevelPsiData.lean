@@ -91,6 +91,7 @@ attribute [local irreducible] NewLevelSystem.Dom
 theorem newLevel_psi_data
     (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : (SA).JointRep t pp} {C' : StepClass d L N₁' m₁ k N ϱ} {pp' : ℝ} {Jr' : (SB).JointRep t pp'} (NS : NewLevelSystem (SA) C z Jr) (NS' : NewLevelSystem (SB) C' (bc z) Jr')
+    (Q : NS.O.ι → NS'.O.ι → Prop)
     (hκ : NS'.κ = NS.κ) (hBG : NS'.BG = NS.BG) (hBG₂ : NS'.BG₂ = NS.BG₂)
     (hp₁ : NS.p₁ = NS'.p₁) (hεU : NS.Z.εU = NS'.Z.εU) (hκH : NS.Z.κH = NS'.Z.κH)
     (hκ0 : NS.Z.κ0 = NS'.Z.κ0)
@@ -130,14 +131,15 @@ theorem newLevel_psi_data
     (hE : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       ∃ e : {τ // NS.Dom Y τ} ≃ {τ' // NS'.Dom (bm '' Y) τ'}, ∀ τ,
-        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm)
+        NS'.O.jL (e τ).1 = NS.O.jL τ.1 ∧ NS'.O.X₁f (e τ).1 = (NS.O.X₁f τ.1).image bm ∧
+        Q τ.1 (e τ).1)
     (hprem : ∀ (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N (SA)) (θ' : physParam N (SB))
       (Y : Set (CTorus d L N₁ m₁ (k + 1)))
       (Φ : ∀ b, ((SA).blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 NS'.hp).Ωb b)
       (u t₀ : ℂ), θ ∈ physV (SA) (SA).a₁ (SA).ν t → θ' ∈ physV (SB) (SB).a₁ (SB).ν t →
       RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
         (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) →
-      NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
+      Q τ τ' → NS.Dom Y τ → NS'.O.jL τ' = NS.O.jL τ →
       NS'.O.X₁f τ' = (NS.O.X₁f τ).image bm → (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
       (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
         Φ' ((SB).cellOf 1 (unitPt (SB).hG' (bm x))) ⟨unitPt (SB).hG' (bm x), rfl⟩ =
@@ -170,7 +172,7 @@ theorem newLevel_psi_data
   obtain ⟨ψ₀, h0b, h0i, h0s, h0A⟩ := zeroSource_labelCorr hN2 hk νS β p₁ δ NS NS' hκ hBG hBG₂
     hp₁ hεU hκH hκ0 hC hC' hGA hGB hMX hmar hαK hsm hN hN' hm₁ hn hn' θ θ' hθ hθ' hraw hcψ hρc
     hrad hI𝒴 hI𝒴' T hT
-  obtain ⟨ψ₁, h1b, h1i, h1s, h1A⟩ := thick_labelCorr hN2 hk νS β p₁ δ NS NS' hN hN' hm hm' hr hc
+  obtain ⟨ψ₁, h1b, h1i, h1s, h1A⟩ := thick_labelCorr hN2 hk νS β p₁ δ NS NS' Q hN hN' hm hm' hr hc
     hc' T hT hm₀ hE hprem hum θ θ' hθ hθ' hraw
   refine ⟨fun y => match y with
     | Sum.inl (Sum.inl a) => fun _ hy => Sum.inl (Sum.inl (ψ₀ a hy))
