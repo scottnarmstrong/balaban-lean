@@ -1339,6 +1339,10 @@ public import Balaban.Fluctuation.HoleStepLocal
 public import Balaban.Fluctuation.HoleStepAnalytic
 public import Balaban.Fluctuation.HoleStepMarks
 public import Balaban.Fluctuation.MarkCluster
+public import Balaban.Fluctuation.MarkClusterAnalytic
+public import Balaban.Fluctuation.MarkClusterEquiv
+public import Balaban.Fluctuation.MarkClusterFam
+public import Balaban.Fluctuation.MarkClusterReal
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.LargeField.Background.HoleStepCover
 public import Balaban.Fluctuation.StepIdentityQuad
@@ -3111,6 +3115,7 @@ public import Balaban.Spine.LFOldH7Refute
 public import Balaban.Spine.LFOldHS2
 public import Balaban.Spine.LFOldHS2Chain
 public import Balaban.Spine.LFOldHS2D7
+public import Balaban.Spine.LFOldBD7
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads
