@@ -7,6 +7,7 @@ module
 
 public import Balaban.Spine.FinalSfFluct
 public import Balaban.Polymer.BlockTorus
+public import Balaban.Green.FinalMacroCover
 
 /-!
 # The local form of the fluctuation integrand on the box
@@ -15,7 +16,7 @@ A6-3, the interface between the localization of the last integral and its gas la
 `notes/phase1/PLAN-B.md`; P4 (6.6), P7 (4.9)). On one torus of the family, with the context `C` of a
 member of the class at the stopping scale, the Gaussian variable `w` of the box integral
 (`ctxBoxIntegral`) is a real field on the `k`-blocks `Λ` and the spin components, `w : Λ × Fin N → ℝ`,
-and the box is `|w_p| ≤ p₁` (`gaussBox`). `BoxLocalForm C vc hv p₁ G₀ a ε W` says that on the box the
+and the box is `|w_p| ≤ p₁` (`gaussBox`). `BoxLocalForm C vc hv p₁ G₀ M_c a ε W` says that on the box the
 fluctuation integrand, i.e. the Gaussian integrand `sfGaussIntegrand` (form `K = β_k D`, centre `h`)
 divided by `exp X₀`, `X₀ = (𝒜_k + ℱ_k)(T; h, h, g)` (`constExponent`), is `exp(E₀ + Σ_Y W_Y(w, g))`
 for a family `W` of local terms indexed by the sets `Y` of `k`-blocks:
@@ -27,7 +28,9 @@ for a family `W` of local terms indexed by the sets `Y` of `k`-blocks:
   the increment bound on the unit ball, `Analysis.norm_sub_le_of_l1Ball`), and `(g, w) ↦ W_Y(w, g)` is
   continuous on (ball) × (box) (for the analyticity in `g` of the integrals over the box,
   `Analysis.analyticAt_integral_of_continuousOn`);
-* (W5) on the box and the ball, `Σ_{Y ∋ x} ‖W_Y(w, g)‖ e^{a|Y|} ≤ ε` for every block `x`;
+* (W5) on the box and the ball, `Σ_{Y ∋ x} ‖W_Y(w, g)‖ e^{a·#_c(Y)} ≤ ε` for every block `x`, where
+  `#_c(Y)` (`cellCount`) is the number of macro cells of side `M_c` (`Green.macZ`, the cells of the
+  cut family of the localization) meeting `Y`: the decay of the localized terms is per macro cell;
 * (W6) on the box and the unit ball, `sfGaussIntegrand(w) · exp(-X₀(g)) = exp(E₀ + Σ_Y W_Y(w, g))`
   for a constant `E₀` of the torus, independent of `w` and `g`.
 
@@ -66,12 +69,18 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 def fineBlock (k : ℕ) (x : Torus S.d (M * n K * S.L ^ K)) : BlockAt S n M K k :=
   jBlock S.d S.L (M * n K) K k x
 
+/-- **The number of macro cells meeting a set of `k`-blocks**: the cells of side `M_c` of the
+`k`-block torus (`Green.macZ`; intervals of `M_c` to `2M_c - 1` blocks in each coordinate, the cells
+of the cut family `boxCut` of the localization). -/
+def cellCount (k Mc : ℕ) (Y : Finset (BlockAt S n M K k)) : ℕ :=
+  (Y.image (Green.macZ (d := S.d) (m := M * n K * S.L ^ (K - k)) Mc)).card
+
 /-- **The local form of the fluctuation integrand on the box** (A6-3; P4 (6.6), P7 (4.9)): the
 clauses (W1)–(W6) of the module docstring for the family `W` of local terms on the sets `Y` of
-`k`-blocks, the cutoff `p₁`, the radius `G₀` of the source ball, the decay rate `a` and the
-smallness `ε`. -/
+`k`-blocks, the cutoff `p₁`, the radius `G₀` of the source ball, the side `M_c` of the macro cells,
+the decay rate `a` per cell and the smallness `ε`. -/
 structure BoxLocalForm (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
-    (hv : EuclideanSpace ℝ (Fin N)) (p1 G₀ a ε : ℝ)
+    (hv : EuclideanSpace ℝ (Fin N)) (p1 G₀ : ℝ) (Mc : ℕ) (a ε : ℝ)
     (W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) →
       (GIdx S n M K N → ℂ) → ℂ) : Prop where
   /-- the source ball is larger than the unit ball -/
@@ -89,11 +98,11 @@ structure BoxLocalForm (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
   /-- (W4) joint continuity on (ball) × (box) -/
   cont : ∀ Y, ContinuousOn (fun q : (GIdx S n M K N → ℂ) × (BlockAt S n M K k × Fin N → ℝ) =>
     W Y q.2 q.1) (l1BallR (GIdx S n M K N) G₀ ×ˢ gaussBox (BlockAt S n M K k × Fin N) p1)
-  /-- (W5) the summed bound with exponential decay in the number of blocks -/
+  /-- (W5) the summed bound with exponential decay in the number of macro cells -/
   bound : ∀ w ∈ gaussBox (BlockAt S n M K k × Fin N) p1, ∀ g ∈ l1BallR (GIdx S n M K N) G₀,
     ∀ x : BlockAt S n M K k,
       ∑ Y ∈ Finset.univ.filter (fun Y : Finset (BlockAt S n M K k) => x ∈ Y),
-        ‖W Y w g‖ * Real.exp (a * (Y.card : ℝ)) ≤ ε
+        ‖W Y w g‖ * Real.exp (a * (cellCount k Mc Y : ℝ)) ≤ ε
   /-- (W6) the fluctuation integrand on the box is `exp(E₀ + Σ_Y W_Y)` -/
   identity : ∃ E₀ : ℂ, ∀ w ∈ gaussBox (BlockAt S n M K k × Fin N) p1,
     ∀ g ∈ l1Ball (GIdx S n M K N),
@@ -104,9 +113,9 @@ structure BoxLocalForm (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
 /-- **The box average of the fluctuation integrand in the local form**: under `BoxLocalForm`, for
 every source of the unit ball, `ctxFluctBoxIntegral = Z_K e^{E₀} ∫_{box} exp(Σ_Y W_Y(w, g)) dγ(w)`. -/
 theorem ctxFluctBoxIntegral_eq_of_boxLocalForm {C : SFCtx S n R M K N k m₁ ϱ} {vc : CorrCoef S.d}
-    {hv : EuclideanSpace ℝ (Fin N)} {p1 G₀ a ε : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)} {p1 G₀ : ℝ} {Mc : ℕ} {a ε : ℝ}
     {W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) → (GIdx S n M K N → ℂ) → ℂ}
-    (hW : BoxLocalForm C vc hv p1 G₀ a ε W) :
+    (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) :
     ∃ E₀ : ℂ, ∀ g ∈ l1Ball (GIdx S n M K N),
       ctxFluctBoxIntegral C vc hv p1 g =
         (pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) * Complex.exp E₀ *
@@ -133,10 +142,10 @@ theorem ctxFluctBoxIntegral_eq_of_boxLocalForm {C : SFCtx S n R M K N k m₁ ϱ}
   ring
 
 /-- **Rule 10: `BoxLocalForm` is inhabited** — the zero family, for a negative cutoff (the box is
-empty, `N ≥ 1`), every radius `G₀ > 1` and every rate `a` and bound `ε`. -/
+empty, `N ≥ 1`), every radius `G₀ > 1`, cell side `M_c`, rate `a` and bound `ε`. -/
 theorem boxLocalForm_zero (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (hv : EuclideanSpace ℝ (Fin N)) [NeZero N] {p1 : ℝ} (hp1 : p1 < 0) {G₀ : ℝ} (hG₀ : 1 < G₀)
-    (a ε : ℝ) : BoxLocalForm C vc hv p1 G₀ a ε (fun _ _ _ => 0) := by
+    (Mc : ℕ) (a ε : ℝ) : BoxLocalForm C vc hv p1 G₀ Mc a ε (fun _ _ _ => 0) := by
   have hempty : ∀ w, w ∉ gaussBox (BlockAt S n M K k × Fin N) p1 := fun w hw => by
     have := hw (0, 0)
     linarith [abs_nonneg (w (0, 0))]
