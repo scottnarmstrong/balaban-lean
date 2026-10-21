@@ -3311,3 +3311,4 @@ public import Balaban.Green.FinalBoxLocSum
 public import Balaban.Inhabited.NewLevelHatTop
 public import Balaban.Inhabited.NewLevelLabelGap
 public import Balaban.Inhabited.NewLevelGapSecondDiff
+public import Balaban.Inhabited.NewLevelLabelProducer
