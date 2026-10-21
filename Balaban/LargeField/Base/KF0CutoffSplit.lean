@@ -372,15 +372,13 @@ theorem setIntegral_largeSites_le (p : ℝ) (P : Finset ι) {F : (ι → W) → 
           gcongr
           exact le_trans (norm_nonneg _) (hF (fun _ => 0))
 
-/-- **T4 (the conditioned product measure).**  For `γ(‖ψ‖ ≤ p) > 0`, the product measure restricted
-to the all-small event is `γ(‖ψ‖ ≤ p)^{|ι|}` times the product of the conditioned measures
-`γ(· | ‖ψ‖ ≤ p)`. -/
-theorem restrict_pi_smallSet_eq (p : ℝ) (hpos : γ (smallSet p) ≠ 0) :
-    (Measure.pi fun _ : ι => γ).restrict (Set.pi Set.univ fun _ : ι => smallSet p) =
-      (γ (smallSet p)) ^ Fintype.card ι •
-        Measure.pi fun _ : ι => ProbabilityTheory.cond γ (smallSet p) := by
-  set A : Set W := smallSet p with hA
-  have hAm : MeasurableSet A := measurableSet_smallSet p
+omit [NormedAddCommGroup W] [BorelSpace W] [SecondCountableTopology W] in
+/-- **The conditioned product measure on a product set**: for a measurable set `A` with `γ(A) > 0`,
+the product measure restricted to `A^ι` is `γ(A)^{|ι|}` times the product of the conditioned measures
+`γ(· | A)`. -/
+theorem restrict_pi_set_eq {A : Set W} (hAm : MeasurableSet A) (hpos : γ A ≠ 0) :
+    (Measure.pi fun _ : ι => γ).restrict (Set.pi Set.univ fun _ : ι => A) =
+      (γ A) ^ Fintype.card ι • Measure.pi fun _ : ι => ProbabilityTheory.cond γ A := by
   have hc0 : (γ A) ^ Fintype.card ι ≠ 0 := pow_ne_zero _ hpos
   have hct : (γ A) ^ Fintype.card ι ≠ ⊤ := ENNReal.pow_ne_top (measure_ne_top _ _)
   have key : (Measure.pi fun _ : ι => ProbabilityTheory.cond γ A) =
@@ -393,6 +391,15 @@ theorem restrict_pi_smallSet_eq (p : ℝ) (hpos : γ (smallSet p) ≠ 0) :
       Finset.card_univ, smul_eq_mul, ENNReal.inv_pow]
     simp only [Set.inter_comm]
   rw [key, smul_smul, ENNReal.mul_inv_cancel hc0 hct, one_smul]
+
+/-- **T4 (the conditioned product measure).**  For `γ(‖ψ‖ ≤ p) > 0`, the product measure restricted
+to the all-small event is `γ(‖ψ‖ ≤ p)^{|ι|}` times the product of the conditioned measures
+`γ(· | ‖ψ‖ ≤ p)` (the case `A = smallSet p` of `restrict_pi_set_eq`). -/
+theorem restrict_pi_smallSet_eq (p : ℝ) (hpos : γ (smallSet p) ≠ 0) :
+    (Measure.pi fun _ : ι => γ).restrict (Set.pi Set.univ fun _ : ι => smallSet p) =
+      (γ (smallSet p)) ^ Fintype.card ι •
+        Measure.pi fun _ : ι => ProbabilityTheory.cond γ (smallSet p) :=
+  restrict_pi_set_eq γ (measurableSet_smallSet p) hpos
 
 /-- **T4 (normalization).**  If `γ(‖ψ‖ ≤ p) > 0` (equivalently `τ < 1`), then
 `∫ F · ∏_x 1{‖ψ_x‖ ≤ p} d⊗γ = (1-τ)^{|ι|} ∫ F d(⊗ γ(· | ‖ψ‖ ≤ p))`, `τ = γ(‖ψ‖ > p)`. -/
