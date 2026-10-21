@@ -518,6 +518,75 @@ theorem union_labelAct_eps {κ' εs : ℝ} (hκ'0 : 0 ≤ κ')
     positivity
   exact ⟨hεpos, hεs, hdom, fun e => (A e).mono (add_nonneg hε1 hε2) hεtot le_rfl le_rfl le_rfl, hA1, hA2, hA3⟩
 
+open Classical in
+include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hd
+  hVS hA hG hWr hfld_meas hfld_bd hfld_loc hV hDB hDrow hDrange in
+/-- **The coefficients of the cluster expansion of the union family are analytic in the data.**
+For every product probability measure `μ` carried by a compact set `Q` on which the assembled field
+is continuous, `e ↦ Pst μ Lab (A e).H Y` is analytic on `V` (`Pst_Gst_analyticOnNhd` with the mark
+`G = 1`, `F0 = e^{κG d(y0)}`), for the union family of `union_labelAct_eps`. -/
+theorem union_Pst_analyticOnNhd [∀ b, TopologicalSpace (Ωb b)] [∀ b, OpensMeasurableSpace (Ωb b)]
+    [∀ b, SecondCountableTopology (Ωb b)] (hfld_cont : Continuous fld)
+    (μ : ∀ b, MeasureTheory.Measure (Ωb b)) [∀ b, MeasureTheory.IsProbabilityMeasure (μ b)]
+    {Q : Set (∀ b, Ωb b)} (hQ : IsCompact Q) (hQm : MeasurableSet Q)
+    (hμQ : ∀ᵐ Φ ∂(MeasureTheory.Measure.pi μ), Φ ∈ Q)
+    {κ' εs : ℝ} (hκ'0 : 0 ≤ κ')
+    (hκlarge : 1 + 2 * Real.log (labelDelta d L 0 (ρ + L) : ℕ) +
+      4 * d * L * 20 ^ d * (κ' + 3 * (aEnt d L + 1) + c1 d L + 3 / 2) ≤ κ)
+    (hεpos : 0 < εs)
+    (hεs : εs ≤ epsMax d L (K0 d L (aEnt d L + 1) + 1) (labelRate d L 0 (ρ + L) κ) (aEnt d L + 1) κ')
+    (hεtot : labelAmp d L m₀ m₁ 0 (ρ + L) κ (2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg) +
+      defAmp d L m₀ m₁ N rD DB p₁ (labelRate d L 0 (ρ + L) κ) ≤ εs)
+    (Y0 : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
+    (hY0 : Y0 ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD)
+    (Y : Finset (CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (K := 1) m₀ 1 Set.univ)) :
+    ∃ (hdom : ∀ Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD, IsDj m₀ 1 Y)
+      (A : RawData d L (N₁ * L ^ m₁) 1 N → LabelAct
+        (thickLabels (m₀ := m₀) (j := 1) (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom) Ωb
+        εs (labelRate d L 0 (ρ + L) κ) (aEnt d L + 1) (K0 d L (aEnt d L + 1) + 1)),
+      (∀ e ∈ V, ∀ (y : {Y // Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD}) Φ,
+        (A e).H y Φ = chartTerm G a ν β g W F m₀ (ρ + L) y.1 e (fld Φ) +
+          defTerm G Dm m₀ rD y.1 (fld Φ)) ∧
+      AnalyticOnNhd ℂ (fun e => Pst μ (thickLabels (m₀ := m₀) (j := 1)
+        (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom) (A e).H Y) V := by
+  have hc1 := one_le_c1 d L
+  have haent := aEnt_nonneg d L
+  have hT : 0 < κ' + 3 * (aEnt d L + 1) + c1 d L + 3 / 2 := by linarith
+  obtain ⟨-, hrate⟩ := labelRate_ge d L 0 (ρ + L) hd hT hκlarge
+  obtain ⟨-, -, hdom, A, hA1, hA2, hA3⟩ := union_labelAct_eps hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD
+    hDr hm4 hd hL2 g ρ W hWloc hWr hWan hE hBW hp hA hG hU hg hsmall hmemAll hN fld hfld_meas hfld_bd
+    hfld_loc hV hVS Dm rD hDB hDrow hDrange hκ'0 hκlarge hεpos hεs hεtot
+  refine ⟨hdom, A, hA1, ?_⟩
+  have hK0pos : 0 < K0 d L (aEnt d L + 1) := by
+    unfold K0
+    have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
+    exact div_pos (Real.exp_pos _) (by linarith)
+  have hcont : ∀ y, ∀ e ∈ V, ContinuousOn ((A e).H y) Q := by
+    intro y e he
+    have h1 : (A e).H y = fun Φ => chartTerm G a ν β g W F m₀ (ρ + L) y.1 e (fld Φ) +
+        defTerm G Dm m₀ rD y.1 (fld Φ) := funext fun Φ => hA1 e he y Φ
+    rw [h1]
+    exact ((chartTerm_continuous (G := G) (a := a) (ν := ν) (β := β) (g := g) (W := W) (F := F)
+      (ρ := ρ) (hFan := hFan) (hWan := hWan) (hE := hE) (hU := hU) (hsmall := hsmall)
+      (hmemAll := hmemAll) (hβ := hβ) (hκ := hκ) (hVS := hVS) (hfld_bd := hfld_bd) (fld := fld)
+      (m₀ := m₀) (V := V) hfld_cont y.1 he).add
+      (defTerm_continuous (G := G) (Dm := Dm) (fld := fld) (m₀ := m₀) (rD := rD) hfld_cont y.1)).continuousOn
+  have := Pst_Gst_analyticOnNhd (μ := μ) (hN := hN) (hj := le_refl 1) (hΩ := isPiUnion_univ_K)
+    (Lab := thickLabels (m₀ := m₀) (j := 1) (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom)
+    (εH := εs) (κH := labelRate d L 0 (ρ + L) κ) (κG := labelRate d L 0 (ρ + L) κ)
+    (κ0 := aEnt d L + 1) (κ' := κ') (Kc := K0 d L (aEnt d L + 1) + 1)
+    (F0 := Real.exp (labelRate d L 0 (ρ + L) κ * (thickLabels (m₀ := m₀) (j := 1)
+      (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom).dl ⟨Y0, hY0⟩)) (hV := hV) (hQ := hQ) (hQm := hQm)
+    (hμQ := hμQ) (A := A) (y0 := ⟨Y0, hY0⟩) (G := fun _ _ => 1) (hGm := fun _ => measurable_const)
+    (hG := fun u Φ => by
+      simp only [norm_one]
+      rw [← Real.exp_add]; simp)
+    (hAhol := fun y Φ _ => hA2 y Φ) (hGhol := fun Φ _ => analyticOnNhd_const)
+    (hAcont := hcont) (hGcont := fun u _ => continuousOn_const) (hκ0 := le_refl _)
+    (hKc := le_refl _) (hεpos := hεpos) (hF0 := Real.exp_pos _) (hκ' := hκ'0) (hκG := le_refl _)
+    (hκ := hrate) (hε := hεs) (Y := Y)
+  exact this.1
+
 end Union
 
 end Balaban.LargeField.Base
