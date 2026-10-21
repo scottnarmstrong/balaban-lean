@@ -24,6 +24,10 @@ set `(𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1}`: the same layers below `k + 1` a
 * `p6Top`: the set of P5 (2.17), `p6Hold.addTop (fine Ω_{k+1})`; `p6Top_Ω_top`, `p6Top_Ω_of_le`,
   `p6Hold_precedes_p6Top`;
 * `p6TopC`: the same on the cover torus (`castN`), next to `p6OldC`;
+* `p6Top_cubeAligned`, `p6Top_supSep`, `p6TopC_cubeAligned`, `p6TopC_supSep`: the set of (2.17) is
+  cube aligned and sup-separated (from those of `F♯`, `p6_fsharp_cubeAligned`, `p6_fsharp_supSep`:
+  the layers below the top are those of `F♯` and the top `Ω_{k+1}` lies in the top `A` of `F♯`), the
+  hypotheses of the cover estimates of the pair `(coverOf G′, G′)`;
 * `holeStepOf`: **the step on a region of a region step** (`Fluctuation.HoleStep`), with the old set
   `p6OldC`, the set `p6TopC`, and the mixed datum `liftMixed` of the old field `ψ_k`, the block
   variable `θ` and the field `h`;
@@ -103,12 +107,59 @@ theorem p6Hold_precedes_p6Top (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ
     exact Finset.empty_subset _
   · rw [p6Top_Ω_of_le hn hρ hc (by omega)]
 
+/-- **The set of P5 (2.17) is sup-separated** (`M₁ = L^{m₁}`): its layers below the top are those of
+`F♯`, and its top `Ω_{k+1}` lies in the top of `F♯`. -/
+theorem p6Top_supSep (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (hc : 5 ≤ c)
+    (hM1 : M1 = L ^ m₁) : SupSep (p6Top (M1 := M1) (k := k) st hn hρ hc) m₁ := by
+  intro j hj1 hjK x hx y hy
+  refine p6_fsharp_supSep (k := k) hn hρ hc st.Z hM1 j hj1 hjK x ?_ y ?_
+  · rw [p6Fsharp_Ω_of_le hn hρ hc st.Z (by omega)]
+    rwa [p6Top_Ω_of_le hn hρ hc (by omega)] at hx
+  · by_cases hj : j + 1 ≤ k
+    · rw [p6Fsharp_Ω_of_le hn hρ hc st.Z hj]
+      rwa [p6Top_Ω_of_le hn hρ hc hj] at hy
+    · have hjk : j + 1 = k + 1 := by omega
+      rw [hjk, p6Fsharp_Ω_top]
+      rw [hjk, p6Top_Ω_top] at hy
+      exact fineK1_Omega_subset_p6Halo st hn ρ' hy
+
+/-- **The set of P5 (2.17) is cube aligned** (`M₁ = L^{m₁}`, `m₁ ≥ 2`): its layers below the top are
+those of `F♯`, and its top `Ω_{k+1}` is a union of cubes of `𝕋_{k+1}`. -/
+theorem p6Top_cubeAligned (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ') (hc : 5 ≤ c)
+    (hM1 : M1 = L ^ m₁) (hm₁ : 2 ≤ m₁) : CubeAligned (p6Top (M1 := M1) (k := k) st hn hρ hc) m₁ := by
+  have hF := p6_fsharp_cubeAligned (k := k) hn hρ hc st.Z hM1 hm₁
+  refine ⟨hm₁, hF.dvd, ?_⟩
+  intro j hj1 hjK x x' hcell
+  by_cases hj : j = k + 1
+  · subst hj
+    rw [p6Top_Ω_top, mem_fineK1, mem_fineK1]
+    have hdvd : L ^ (k + 1 + m₁) ∣ L ^ (k + 1) * (c * M1) := by
+      rw [hM1, show L ^ (k + 1) * (c * L ^ m₁) = L ^ (k + 1 + m₁) * c by rw [pow_add]; ring]
+      exact Dvd.intro _ rfl
+    rw [blockMap_eq_of_sameCell (m := n1) hcell hdvd]
+  · have hjk : j ≤ k := by omega
+    rw [p6Top_Ω_of_le hn hρ hc hjk]
+    have := hF.union j hj1 hjK x x' hcell
+    rwa [p6Fsharp_Ω_of_le hn hρ hc st.Z hjk] at this
+
 variable (st)
 
 /-- The set of P5 (2.17) on the cover torus. -/
 noncomputable def p6TopC (hM1 : M1 = L ^ m₁) (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ')
     (hc : 5 ≤ c) : GeneratingSet d L ((c * n1) * L ^ m₁) (k + 1) (minSep L M1) :=
   castN (p6_side hM1) (p6Top st hn hρ hc)
+
+variable {st} in
+/-- The set of P5 (2.17) on the cover torus is sup-separated. -/
+theorem p6TopC_supSep (hM1 : M1 = L ^ m₁) (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ')
+    (hc : 5 ≤ c) : SupSep (p6TopC (k := k) st hM1 hn hρ hc) m₁ :=
+  castN_supSep (p6_side hM1) (p6Top_supSep hn hρ hc hM1)
+
+variable {st} in
+/-- The set of P5 (2.17) on the cover torus is cube aligned. -/
+theorem p6TopC_cubeAligned (hM1 : M1 = L ^ m₁) (hn : n0 = L * n1) {ρ' : ℕ} (hρ : 3 * L ≤ ρ')
+    (hc : 5 ≤ c) (hm₁ : 2 ≤ m₁) : CubeAligned (p6TopC (k := k) st hM1 hn hρ hc) m₁ :=
+  castN_cubeAligned (p6_side hM1) (p6Top_cubeAligned hn hρ hc hM1 hm₁)
 
 theorem castN_Ω_subset {N₀ N₀' K' : ℕ} [NeZero N₀] [NeZero N₀'] {ϱ ϱ' : ℝ} (h : N₀ = N₀')
     {G : GeneratingSet d L N₀ K' ϱ} {G' : GeneratingSet d L N₀ K' ϱ'} {i j : ℕ}
