@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.LFOldBBound
 public import Balaban.Fluctuation.LocalPairLevelInner
 public import Balaban.Fluctuation.LocalPairDepth
+public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
 
 /-!
 # The resummation over the decoupling families at a mark site (P3 (4.45)–(4.49); P6 p. 34)
@@ -285,6 +286,19 @@ theorem sameCell_cbase_self {a : ℕ} (x : Torus d n) : SameCell a x (cbase a x)
   have hlt : a * ((x μ).val / a) < n := lt_of_le_of_lt (Nat.mul_div_le _ _) (ZMod.val_lt _)
   simp only [cbase]
   rw [ZMod.val_natCast, Nat.mod_eq_of_lt hlt, Nat.mul_div_cancel_left _ ha0]
+
+
+/-- **The subsets of a finite set with weight `e^{-β |J|}`**: `∑_{J ⊆ T} e^{-β |J|} ≤ e^{e^{-β} |T|}`. -/
+theorem sum_powerset_exp_le {α : Type*} (T : Finset α) (β : ℝ) :
+    ∑ J ∈ T.powerset, Real.exp (-β * J.card) ≤ Real.exp (Real.exp (-β) * T.card) := by
+  have e : ∑ J ∈ T.powerset, Real.exp (-β * J.card) =
+      ∑ J ∈ T.powerset, Real.exp (-β) ^ J.card * (1 : ℝ) ^ (T.card - J.card) := by
+    refine Finset.sum_congr rfl fun J _ => ?_
+    rw [one_pow, mul_one, ← Real.exp_nat_mul]; ring_nf
+  rw [e, Finset.sum_pow_mul_eq_add_pow]
+  calc (Real.exp (-β) + 1) ^ T.card ≤ Real.exp (Real.exp (-β)) ^ T.card :=
+        pow_le_pow_left₀ (by positivity) (by linarith [Real.add_one_le_exp (Real.exp (-β))]) _
+    _ = Real.exp (Real.exp (-β) * T.card) := by rw [← Real.exp_nat_mul]; ring_nf
 
 end Cells
 
@@ -695,6 +709,51 @@ theorem card_cubesIn_level_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
         Finset.sum_le_sum fun c hc => card_aligned_in_box_mul (hadvd.trans hdvd) ha0 _
           (Localization.aligned_of_dvd hadvd (Finset.mem_filter.1 hc).2.1)
     _ = _ := by rw [Finset.sum_const, smul_eq_mul]; rfl
+
+
+omit [NeZero M] in
+/-- **The number of cubes of the cover inside a site of `𝒟_{k+1}`**: at most
+`2 L^{d (m₀ + 1)} c₁ (1 + d^cov_{k+1}(V))`. -/
+theorem card_cubesIn_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ : ℕ)
+    {V : Set (CTorus S.d S.L F.N₁ m₁ K)} (hV : IsDj m₀ (k + 1) V) :
+    ((cubesIn g hnn hM1 F H hk hρ ρ V).card : ℝ) ≤
+      2 * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d * (c1 S.d S.L * (1 + treeLenCovOne (d := S.d) (L := S.L)
+        (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1) V)) := by
+  classical
+  have hsplit : cubesIn g hnn hM1 F H hk hρ ρ V ⊆
+      ((cubesIn g hnn hM1 F H hk hρ ρ V).filter fun P => P.1 = k) ∪
+        ((cubesIn g hnn hM1 F H hk hρ ρ V).filter fun P => P.1 = k + 1) := by
+    intro P hP
+    have hPa := (Finset.mem_filter.1 hP).1
+    have hkP := (Finset.mem_filter.1 hPa).2.1
+    have hPk : P.1 ≤ k + 1 := ((mem_cubeIdx _).1 (Finset.mem_filter.1 hPa).1).1.2
+    rcases (show P.1 = k ∨ P.1 = k + 1 by omega) with h | h
+    · exact Finset.mem_union_left _ (Finset.mem_filter.2 ⟨hP, h⟩)
+    · exact Finset.mem_union_right _ (Finset.mem_filter.2 ⟨hP, h⟩)
+  have h1 := card_cubesIn_level_le g hnn hM1 F H hk hρ ρ hV.2.1 (j := k) (by omega)
+  have h2 := card_cubesIn_level_le g hnn hM1 F H hk hρ ρ hV.2.1 (j := k + 1) le_rfl
+  have hcc := cellCount_le_one_add_treeLenCovOne F.divN₁ hk hV
+  have hcard : (cubesIn g hnn hM1 F H hk hρ ρ V).card ≤
+      cellCount (cellSide S.L m₀ m₁ (k + 1)) V * (S.L ^ (k + 1 + m₀ - k)) ^ S.d +
+        cellCount (cellSide S.L m₀ m₁ (k + 1)) V * (S.L ^ (k + 1 + m₀ - (k + 1))) ^ S.d :=
+    (Finset.card_le_card hsplit).trans ((Finset.card_union_le _ _).trans (Nat.add_le_add h1 h2))
+  have e1 : k + 1 + m₀ - k = m₀ + 1 := by omega
+  have e2 : k + 1 + m₀ - (k + 1) = m₀ := by omega
+  rw [e1, e2] at hcard
+  have hL1 : (1 : ℝ) ≤ S.L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  have hpow : ((S.L : ℝ) ^ m₀) ^ S.d ≤ ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d :=
+    pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 (by omega)) _
+  have hcR : ((cubesIn g hnn hM1 F H hk hρ ρ V).card : ℝ) ≤
+      (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d +
+        (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) * ((S.L : ℝ) ^ m₀) ^ S.d := by
+    exact_mod_cast hcard
+  have hc0 : (0 : ℝ) ≤ cellCount (cellSide S.L m₀ m₁ (k + 1)) V := Nat.cast_nonneg _
+  calc _ ≤ (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d +
+        (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d :=
+        hcR.trans (by nlinarith [mul_le_mul_of_nonneg_left hpow hc0])
+    _ = 2 * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d * (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) := by ring
+    _ ≤ _ := mul_le_mul_of_nonneg_left hcc (by positivity)
 
 
 end Resum
