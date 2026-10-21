@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Base.BaseXLogShiftRows
 public import Balaban.Localization.YregBlocks
 public import Balaban.Localization.DecCovCutSupport
+public import Balaban.Fluctuation.DetCauchyGraph
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -140,6 +141,51 @@ theorem baseLogShift_rows_of_comp {κ δ : ℝ} {α : G.Ω 1 → ℂ} (hdg : DGS
     · exact hmk hY' q hq h
   exact baseCovXLogShift_rows_exact S hCx hκ hM hδ hsm hα hs hs' hSY hdich hagr
     (fun p q hp h => mem_nbrClosure_of_nbr hp h) hφ (x, i) z (mem_nbrClosure_of_nbr hx (Or.inl rfl))
+
+/-- **Rows of the shifted logarithm at a site not covered by any active thickened cube.**  If no
+active centre of `s` or `s'` has the site `x` in its thickened cube, the rows of `baseCovXLogShift`
+at `x` agree for `s` and `s'`. -/
+theorem baseLogShift_rows_of_unattached {κ δ : ℝ} {α : G.Ω 1 → ℂ} (hdg : DGSetting G a ν)
+    (S : Dec2.XCover (coverOf G) G a aT ν Cx) (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
+    (hM : Dec2.cstarX d L Cx * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) (hδ : 0 ≤ δ)
+    (hsm : δ ^ 2 * smallConstX d L κ ≤ 1 / 4) (hα : AdmPot G α)
+    {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+    (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) (hs' : ∀ P, ‖s' P‖ ≤ Real.exp κ)
+    {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ} (hφ : IsConstraintField G δ φ)
+    (x : G.Ω 1)
+    (hxs : ∀ q ∈ Zs G s, (x : Balaban.Localization.CTorus d L N₁ m₁ 1) ∉ hatBox q)
+    (hxs' : ∀ q ∈ Zs G s', (x : Balaban.Localization.CTorus d L N₁ m₁ 1) ∉ hatBox q)
+    (i : Fin N) (z : G.Ω 1 × Fin N) :
+    (∀ t : ℝ, 0 ≤ t → baseCovXShiftIntegrand G a aT ν α s φ t (x, i) z =
+      baseCovXShiftIntegrand G a aT ν α s' φ t (x, i) z) ∧
+    baseCovXLogShift G a aT ν α s φ (x, i) z = baseCovXLogShift G a aT ν α s' φ (x, i) z := by
+  classical
+  have hmk : ∀ {s₀ : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1 → ℂ}
+      (hx₀ : ∀ q ∈ Zs G s₀, (x : Balaban.Localization.CTorus d L N₁ m₁ 1) ∉ hatBox q)
+      (q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ 1), q ∈ cubeIdx G → sProd G s₀ q ≠ 0 →
+      DisjI G (intBox q) ({(x : Balaban.Localization.CTorus d L N₁ m₁ 1)} :
+        Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)) := by
+    intro s₀ hx₀ q hq h0 t htb htx
+    have : (t : Balaban.Localization.CTorus d L N₁ m₁ 1) = x := Finset.mem_singleton.1 htx
+    exact hx₀ q (Finset.mem_filter.2 ⟨hq, h0⟩) (this ▸ box_subset_hatBox q htb)
+  have hdich : ∀ q ∈ (coverOf G).cubeIdx,
+      ((coverOf G).sProd s q ≠ 0 ∨ (coverOf G).sProd s' q ≠ 0) →
+      SubI G (intBox q) (∅ : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)) ∨
+        DisjI G (intBox q) ({(x : Balaban.Localization.CTorus d L N₁ m₁ 1)} :
+          Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)) := by
+    intro q hq h
+    rcases h with h | h
+    · exact Or.inr (hmk hxs q hq h)
+    · exact Or.inr (hmk hxs' q hq h)
+  have hagr : ∀ q ∈ (coverOf G).cubeIdx,
+      SubI G (intBox q) (∅ : Finset (Balaban.Localization.CTorus d L N₁ m₁ 1)) →
+      (coverOf G).sProd s q = (coverOf G).sProd s' q := by
+    intro q hq hsub
+    obtain ⟨t, htb, htΩ⟩ := Balaban.Fluctuation.exists_site_intBox hdg hq
+    exact absurd (hsub ⟨t, htΩ⟩ htb) (Finset.notMem_empty _)
+  exact baseCovXLogShift_rows_exact S hCx hκ hM hδ hsm hα hs hs' (Finset.empty_subset _) hdich hagr
+    (fun p q hp _ => absurd hp (Finset.notMem_empty _)) hφ (x, i) z
+    (Finset.mem_singleton_self _)
 
 end Rows
 
