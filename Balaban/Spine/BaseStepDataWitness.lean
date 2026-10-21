@@ -87,12 +87,6 @@ noncomputable abbrev M1 : ℕ := Balaban.Inhabited.RadiiSet.M1
 
 instance : NeZero M1 := ⟨(Balaban.Inhabited.RadiiSet.M1_pos).ne'⟩
 
-theorem bgR0_le_minSep : bgR0 3 3 ≤ minSep 3 M1 := by
-  have := Balaban.Inhabited.RadiiSet.bgR0_le_minSep
-  unfold minSep
-  push_cast at this ⊢
-  linarith
-
 /-- The typing of the witness with the block constant `M = 27 M₁`. -/
 noncomputable def typ : Typing := { typing with M := 27 * M1 }
 
@@ -189,9 +183,19 @@ noncomputable def SD (nK : ℕ) [NeZero nK] :
     (fun _ => by show (0 : ℝ) ≤ 1; norm_num)
     (fun k => by show (0 : ℝ) ≤ 1 / 2 / ((3 : ℕ) : ℝ) ^ (2 * (k + 1)); positivity)
     (baseOpConsts_bgHyp_mu _ _ _ _ _ (fun _ => by show (0 : ℝ) ≤ 1 / 2; norm_num) (fun _ => by show (1 / 2 : ℝ) ≤ 1; norm_num)
-      le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
+      le_rfl (by show 3 ≤ 3; norm_num) M1 (by
+        show bgR0 3 3 ≤ minSep 3 M1
+        have h := Balaban.Inhabited.RadiiSet.bgR0_le_minSep
+        unfold minSep
+        push_cast at h ⊢
+        linarith) haw)
     (baseOpConsts_bgHyp_muBg _ _ _ _ _ (fun _ => by show (0 : ℝ) ≤ 1 / 2; norm_num) (fun _ => by show (1 / 2 : ℝ) ≤ 1; norm_num)
-      le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
+      le_rfl (by show 3 ≤ 3; norm_num) M1 (by
+        show bgR0 3 3 ≤ minSep 3 M1
+        have h := Balaban.Inhabited.RadiiSet.bgR0_le_minSep
+        unfold minSep
+        push_cast at h ⊢
+        linarith) haw)
     le_rfl (le_of_eq hCb) (by show (0 : ℝ) * 1 ≤ 0; norm_num)
     (fun k => by show (0 : ℝ) < 1 * (5 / 4) * ((3 : ℕ) : ℝ) ^ (3 - 2); norm_num)
     (fun k => by rw [cs_delta]; exact δ0_pos) (fun k => by rw [cs_delta]; exact δ0_le)

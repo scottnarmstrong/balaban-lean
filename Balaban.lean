@@ -3077,6 +3077,10 @@ public import Balaban.LargeField.Base.BaseFirstAllGood
 public import Balaban.LargeField.Base.BaseFirstPartitionQ
 public import Balaban.LargeField.Base.BaseFRWhite
 public import Balaban.LargeField.Base.BaseFRWhiteFirst
+public import Balaban.LargeField.Base.BaseFRWhiteSymm
+public import Balaban.LargeField.Base.BaseFRWhiteChange
+public import Balaban.LargeField.Base.BaseFRWhiteLogDet
+public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
 public import Balaban.Inhabited.NewLevelMarkUnique
