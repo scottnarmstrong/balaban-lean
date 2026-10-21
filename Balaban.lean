@@ -1330,6 +1330,7 @@ public import Balaban.Fluctuation.HoleStepStanding
 public import Balaban.Fluctuation.HoleStepGeom
 public import Balaban.Fluctuation.HoleStepLocal
 public import Balaban.Fluctuation.HoleStepAnalytic
+public import Balaban.Fluctuation.HoleStepMarks
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.LargeField.Background.HoleStepCover
 public import Balaban.Fluctuation.StepIdentityQuad
