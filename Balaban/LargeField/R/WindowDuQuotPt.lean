@@ -248,7 +248,8 @@ variable (hcl : ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.local
       (a : OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)) (nd' : ∀ t : ↥Nd, VarVal N t.1.1.isSpin)
       (w' : OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0), ∀ x, x ∉ dataSites (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) → ∀ i, cl hv par wd cc ro sh a nd' w' x i = 0)
 variable (wt : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1) → SubCfg N (H.localHistory M K (m' + 1) Z) (m' + 1) (locOp geo cs SD KD hH lab (m' + 1) hm Z).A → ℝ)
-variable (hnamedC : ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+variable (hvOK : EuclideanSpace ℝ (Fin N) → Prop)
+variable (hnamedC : ∀ (hv : EuclideanSpace ℝ (Fin N)) (_hok : hvOK hv) (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
       (wd : (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin)))) (cc : (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A)) (ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3))) (sh : (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin))
       (a : OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)) (nd' : ∀ t : ↥Nd, VarVal N t.1.1.isSpin)
       (w' : OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0)
@@ -341,7 +342,7 @@ variable (hnamedC : ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.l
 variable (hQtotv : Qtot = ENNReal.ofReal (ActionConv.constNat N (betaK S.d S.L (m' + 1) β0)
       (compWeightZ (windowOfHistory H Z geo hm hW |>.windowGenSet (windowOfHistory_hyp (g := geo) hm hW)) a₁) Zb * Real.exp ((N : ℝ) / 2 * Real.log (betaK S.d S.L (m' + 1) β0) * ((boxFinset (L := S.L) (N₀ := M * n (m' + 1)) (k := m' + 1) b0 wb).card : ℝ) + CEt * (D0 : ℝ) ^ S.d + Cnat * S.lam (m' + 1) ^ (2 * S.d + 1) + 4 + ((9 * Real.exp (2 * η) * Kconv / (1 - (S.L : ℝ) ^ (-(2 * γ))) + Kbg) * ∑ i : (Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z), ↥(H.parts (j.1 + 1) P.1))), (decomp i).total))))
 
-include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp cl hcl wt hnamedC hQtotv
+include k1 m' hk1p hk1 hm hk1K hk1K1 hmk Z hq r TB ρ hρ Z0 V2 G3 P2 hZ0 hV2 hG3 T Nd nd hNd κc jS c0 rr hc0 hrr Zt δk cen radZ ρt e cb hN2 Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 Qtot φ8 φ10 hnd hnd0 hZ0g hV2full hMS G h18 h3 hW hk1def hzpos hcpos hc01 pa hpa Fx hFxdef a₁ β0 hβ0 ha₁ D0 hd hk b0 wb hw1 hwD hmD X hXreg hΩ hdata Hbg δ hδ hδc p0 hp0 hradδ Hbg0 Kw δw hWP hKw hOp hsep2 hsmall hρs hRfl hlogβ hxl CEt Cnat hCEt hbx hZ0b Zr hZrs hrdef Zb hZb br Xw hXw Xwin hXwin Xc hXc decomp Kconv Kbg γw M₀ M₁ ε Rhat γ η α α₀ hγ hα₀ hε hγα hflow hKc hKb hγw hsep hβp hμp hB0p hBnp cl hcl wt hvOK hnamedC hQtotv
 
 section QuotPt
 
@@ -415,8 +416,9 @@ variable (hZp : ∀ x, x ∈ Zp.sites ↔ ∃ y ∈ (windowOfHistory H Z geo hm 
         jBlock S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1) x = jBlock S.d S.L (M * n (m' + 1)) (m' + 1) (m' + 1) y)
 variable (hDpp : Dpp.sites = ((windowOfHistory H Z geo hm hW).Z \ (windowOfHistory H Z geo hm hW).Zk1) \ Zp.sites)
 variable (hDppX : Dpp.sites ⊆ Xwin.sites)
+variable (hok : hvOK hv)
 
-include hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK D ψk aN hDreal hpos hψkD hR1 hR2 hDh hD0 haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX
+include hv par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK D ψk aN hDreal hpos hψkD hR1 hR2 hDh hD0 haNf hTube hψoutz ψ0 hψ0 Zp Dpp hZp hDpp hDppX hok
 
 open Classical in
 /-- **The quotient bound (2.58′) at the data of the point**: for some `A'' ≤ Re(β_k A_{X_win})` (the restricted action on `X_win ∖ Z_{k₁}^+`). -/
@@ -442,7 +444,7 @@ theorem window_hbG_quot_cl :
     unfold betaK
     have : (0 : ℝ) < S.L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne S.L)
     positivity
-  have hnamed' := hnamedC hv par wd cc ro sh a nd' w' _ _ (fun _ _ _ => rfl) (fun _ _ => rfl) hw hTBp hK D hDh hD0
+  have hnamed' := hnamedC hv hok par wd cc ro sh a nd' w' _ _ (fun _ _ _ => rfl) (fun _ _ => rfl) hw hTBp hK D hDh hD0
     (fun x hx hxl i => hR1 x hx hxl i) (fun x hx hxl i => hR2 x hx hxl i)
   have hZbpos0 : ∀ z ∈ Zb, 0 < aN z := fun z hz => (mul_pos_iff_of_pos_left hβG).mp (hpos z hz)
   have hha : ∀ j, 0 ≤ compWeight S.L a₁ j := compWeight_nonneg H.F.ok.two_le_L ha₁

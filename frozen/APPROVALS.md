@@ -98,3 +98,11 @@ the generating set of a level-`j` class term on `X` is the local set `𝔹_j(X�
 neighbours its irrelevant part reads), the chain composes on it with the cover set `X⁺ ∪ □(y)`, and the class
 domain uses the step's weights and background mass. Text in `AGENTS.md` ("Author rulings"). No frozen declaration
 changes.
+
+## Rulings R14, R15, R16 and the implementation of R13 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve all". This approves: (R14) the complex H7 cube domains ask the lifted
+datum in `Ψ̃^c(ε, ε)`; (R15) at the cell `□(y)`, `irrelTorus` renormalizes only the polymers inside the box of radius
+`⌊L^{m₀+m₁+k}/8⌋` around `y`; (R16) the large-field boundary terms are analytic and bounded at the physical external
+field only; and two details of R13's implementation (the `⌊L/2⌋`-cell thickening `X̂`, and the birth-mass class
+domain with the mass response). Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
