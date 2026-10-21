@@ -13,7 +13,7 @@ public import Balaban.LargeField.Def7v2Class
 **Draft, pending Roland's answer to Q13.**  The second versions of the variant classes of §II.6.3
 and Definition IV.3.1 (`Def7Variants`), assembled from `D1PreForm2`/`D1Form2` (physical action mass
 and the P5 (1.8) correction), `D2SF2`/`SFFlat2` (`IsSFFamily2` on the wide domain), (D7) on the
-physical field `hSetB hv` (ruling R16, pending; the pre-`R` record `D7Bdry2` for `IsRepPre2`, the post-`R` record
+physical field `hSetB hv` (ruling R16, approved 2026-10-21; the pre-`R` record `D7Bdry2` for `IsRepPre2`, the post-`R` record
 `D7Bdry2Post` with the fine size `d7Size` for `IsRepFlat2`) and the unchanged clauses (D4)-(D6),
 (H6♭), (D8), (D9), (D9♭).  As for
 `IsRep2`, the SF-to-LF interface is not a field.  The continuity clauses `FamCont` of the family

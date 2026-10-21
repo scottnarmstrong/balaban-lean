@@ -68,7 +68,7 @@ The kept data (row (g1), (S3)) are not a part: `succKD` is proved to be kept dat
 **Proved in the assembly**: the existential package of `LFStepInput`; `cs'`, `P'` and their seven
 ties to the outer constants; `Coh` and `FieldClauses` at `k + 1` (`coh_succ`, `field_succ`); (D2),
 (D8), (D9) from the hypotheses on the image; (D7) of `IsRepPre2` from the physical-field part (`D7Bdry.toD7Bdry2`; row (g5), the pinned-ball
-part, removed under ruling R16, pending); the vacuum tie of the chosen step data with
+part, removed under ruling R16, approved 2026-10-21); the vacuum tie of the chosen step data with
 `vacExt rec.Ev k (ΦE …)`.
 
 **The SF→LF interface (watch item of W1096).** The step does not need the interface clause of

@@ -22,7 +22,7 @@ decision "scheme A" (`orchestration/LEDGER.md`; W2-RESOLVE §4; CLASS-RULINGS-2 
   backgrounds, physical mass `ν_k L^{-2k}`), and the terms `ℛ^{(k)}_n` satisfy P5 H4 (`RTermsH4`,
   unchanged);
 * (D7) `D7Bdry2Post`: the boundary terms are analytic and bounded at the physical external field
-  `hSetB hv` (ruling R16, pending; the radius `rH` of the former pinned ball is unused), on the boundary domains
+  `hSetB hv` (ruling R16, approved 2026-10-21; the radius `rH` of the former pinned ball is unused), on the boundary domains
   `bdryDomsPost` with the fine chosen-cover modular size `d7Size` at the post-`R` region
   (`Def7FineSize`); `D7Bdry2` is the pre-`R` record (boundary domains `bdryDomsPre` at the raw
   region, fine size `d7SizePre`), used by `IsRepPre2`;
@@ -112,7 +112,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **(D7) Boundary terms, second version, pre-`R` record** (P5 H7, (1.38)-(1.39);
 CLASS-RULINGS-2 item 4): as `Def7.D7Bdry` (the boundary domains `bdryDomsPre`, the fine
 chosen-cover modular size `d7SizePre` at the raw region, and the vanishing `support` off the valid
-labels), with the clauses of `Def7.D7Bdry` (ruling R16, pending: the external field of the analyticity
+labels), with the clauses of `Def7.D7Bdry` (ruling R16, approved 2026-10-21: the external field of the analyticity
 and bound clauses is the physical field `hSetB hv`; `rH`, the radius of the former pinned ball, is
 unused).  It is the clause (D7) of `IsRepPre2`; the post-`R` classes use `D7Bdry2Post`. -/
 structure D7Bdry2 {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
@@ -194,7 +194,7 @@ theorem D7Bdry2.toD7Bdry {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁
   support := h.support
 
 /-- The landed (D7) gives the second version, for every radius `rH`: with the external field the
-physical field, the clauses of `D7Bdry` and `D7Bdry2` are the same (ruling R16, pending). -/
+physical field, the clauses of `D7Bdry` and `D7Bdry2` are the same (ruling R16, approved 2026-10-21). -/
 theorem _root_.Balaban.LargeField.Def7.D7Bdry.toD7Bdry2 {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
     {hnn : ∀ i, i < K → n i = S.L * n (i + 1)} {hkK : k ≤ K}
     {rep : Rep S n R k0 K M N geo cs P k} {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))}
@@ -214,7 +214,7 @@ theorem _root_.Balaban.LargeField.Def7.D7Bdry.toD7Bdry2 {m₀ m₁ : ℕ} {Fr : 
 CLASS-RULINGS-2 item 4): as `Def7.D7BdryPost` (the boundary domains `bdryDomsPost`, the fine
 chosen-cover modular size `d7Size` at the post-`R` region, and the vanishing `support` off the
 valid labels), with the external field of the analyticity and bound clauses the physical field
-`hSetB hv` (ruling R16, pending; `rH`, the radius of the former pinned ball, is unused). -/
+`hSetB hv` (ruling R16, approved 2026-10-21; `rH`, the radius of the former pinned ball, is unused). -/
 structure D7Bdry2Post {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))

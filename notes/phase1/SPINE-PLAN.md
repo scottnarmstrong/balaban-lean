@@ -59,7 +59,7 @@ source question. deps: ids below, rulings R7′/R9, Bn = blocker n of `docs/BLOC
 | (z) | `LFSignInput`: `z_j > 0`, `1 ≤ j ≤ k+1` | P | P1 (1.11), P4 (4.1) | 100% — W1142: carrier field `zpos` on `RepRec`/`PreRec`, `lfSignInput_of_inherit` from `SFInheritInput` | 0 | – | – |
 | (g4) | `LFPinInput` (`D4Pin (k+1)`: the histories of `Λ` restrict to those of `rec`, whose pins and kept data they keep) | O | (D4); LF-3 (c) | 10% | 300 | L | (c) |
 | (g4′) | `LFBudgetInput` (`D6Pre` with (I.2) to `k+1`) | P | LF-2 (i) | 100% — `lfBudgetInput_of_pin` (prefix, `Rep.budgetPre_of_LF2_trunc`) | 0 | – | – |
-| (g5) | removed under ruling R16 (pending): (D7) at the physical field only; no pinned-ball part | — | R16 (pending) | — | 0 | — | — |
+| (g5) | removed under ruling R16 (approved 2026-10-21): (D7) at the physical field only; no pinned-ball part | — | R16 (approved 2026-10-21) | — | 0 | — | — |
 | (h) | `LFCoherenceInput`: `LFCoherent` of the successor | O | LF-3 (h), D-IV.9 | 30% — (D8) of `rec`, `quietKernel_twoTorus`, `bgLocPiece_twoTorus` | 1,000 | M | (g1), (g2) |
 | (h′) | `LFCorrInput`: `∃ St' vc', D1CorrLim` of the image | O | P1 (3.106)–(3.110); P5 (1.8) | 10% — `wD1Corr` | 400 | M | Φ |
 | A4-1i | `StepIntegrableInput`: a (D1) sum is integrable, from (D5) and Gaussian decay | O | P1 (1.11) | 20% — `baseRho1_integrable` (first density only) | 300 | L | – |
