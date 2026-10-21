@@ -135,4 +135,130 @@ theorem measurable_baseChiPrimeOne (a : ℕ → ℝ) (μ δ νk : ℝ) (h : Fin 
 
 end Instance
 
+section Identity
+
+variable {d N L n : ℕ} [NeZero L] [NeZero n] [NeZero N]
+
+/-- The bare spin integrand `K(θ, φ) e^{-βH(φ) + ⟨g, φ⟩}` of the first density. -/
+noncomputable def baseFirstF (β a ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (φ : CfgT d N L n) : ℂ :=
+  ((baseKernel d N L n β a θ φ : ℝ) : ℂ) *
+    Complex.exp (-((β * energy d N (L * n) ν h φ : ℝ) : ℂ) +
+      ∑ x : Torus d (L * n), ∑ i : Fin N,
+        g x i * (((φ x : EuclideanSpace ℝ (Fin N)) i : ℝ) : ℂ))
+
+omit [NeZero N] in
+/-- A measurable weight in `[0, 1]` times the bare integrand is integrable (the integrand is
+continuous on the compact configuration space). -/
+theorem integrable_weight_mul_baseFirstF (β a ν : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (w : CfgT d N L n → ℝ) (hw : Measurable w) (hw1 : ∀ φ, 0 ≤ w φ ∧ w φ ≤ 1) :
+    Integrable (fun φ : CfgT d N L n => ((w φ : ℝ) : ℂ) * baseFirstF β a ν h g θ φ)
+      (aprioriMeasure d N (L * n)) := by
+  have hFcont : Continuous (baseFirstF β a ν h g θ) := by
+    unfold baseFirstF
+    dsimp [baseKernel, baseQ, gaussT, energy]
+    fun_prop
+  obtain ⟨C, hC⟩ := isCompact_univ.exists_bound_of_continuousOn hFcont.continuousOn
+  refine Integrable.of_bound
+    ((Complex.measurable_ofReal.comp hw).mul hFcont.measurable).aestronglyMeasurable C
+    (Filter.Eventually.of_forall fun φ => ?_)
+  rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (hw1 φ).1]
+  calc _ ≤ 1 * ‖baseFirstF β a ν h g θ φ‖ :=
+        mul_le_mul_of_nonneg_right (hw1 φ).2 (norm_nonneg _)
+    _ ≤ C := by rw [one_mul]; exact hC φ (Set.mem_univ _)
+
+open Classical in
+/-- **The exact identity for the cubes `𝖰₁`** (P5 (2.14) at `k = 0`; LFR Lemma II.7.2): for every
+choice of the cube sets `C(𝖯₁) ⊆ 𝕋_1` (in particular `C = Ω₁(𝖯₁)^{∼3}`, `baseCubesQ`) and of the sets
+`Ω(𝖯₁)` entering the mixed data,
+`ρ₁(ψ; g) = z₁^{N|𝕋_n|} ∑_{𝖯₁} ∑_{𝖰₁ ⊆ C(𝖯₁)} ∫ [P-factors] ∏_{c ∈ 𝖰₁} (1 - χ'_1(c))
+∏_{c ∈ C(𝖯₁) ∖ 𝖰₁} χ'_1(c) · K e^{-βH + ⟨g, φ⟩} dσ`, with `θ = z₁ψ`. -/
+theorem baseRho1_eq_sum_firstP_Q
+    (β a z ν : ℝ) (regimeB : Prop) (δ₀ : ℝ) (h : EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (ψ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (aχ : ℕ → ℝ) (μχ δχ νχ : ℝ) (Hbg : BgHyp d L (0 + 1) (minSep L 1) aχ μχ)
+    (Wset : Finset (Torus d n) → Set (Torus d n))
+    (Cset : Finset (Torus d n) → Finset (Torus d n)) :
+    baseRho1 d N L n β a z ν h ψ g =
+      ((z ^ (N * Fintype.card (Torus d n)) : ℝ) : ℂ) *
+        ∑ P ∈ (Finset.univ : Finset (Torus d n)).powerset,
+          ∑ Q ∈ (Cset P).powerset,
+            ∫ φ, ((((∏ c ∈ P, (1 - chiPrimeZero (baseSectorN L n) L 1 1 regimeB ν δ₀
+                (fun i => h i) c (baseSectorSpin φ, baseSectorTheta (z • ψ)))) *
+              ∏ c ∈ (Finset.univ : Finset (Torus d n)) \ P,
+                chiPrimeZero (baseSectorN L n) L 1 1 regimeB ν δ₀ (fun i => h i) c
+                  (baseSectorSpin φ, baseSectorTheta (z • ψ))) *
+              ((∏ c ∈ Q, (1 - baseChiPrimeOne aχ μχ δχ νχ (fun i => h i) (Wset P) c (z • ψ) φ)) *
+                ∏ c ∈ Cset P \ Q,
+                  baseChiPrimeOne aχ μχ δχ νχ (fun i => h i) (Wset P) c (z • ψ) φ) : ℝ) : ℂ) *
+              baseFirstF β a ν h g (z • ψ) φ ∂aprioriMeasure d N (L * n) := by
+  rw [baseRho1_eq_sum_firstP β a z ν regimeB δ₀ h g ψ]
+  congr 1
+  refine Finset.sum_congr rfl fun P _ => ?_
+  obtain ⟨hWm, hW0, hW1⟩ := baseFirstPhysicalP_weight_measurable_unit (d := d) (N := N) (L := L)
+    (n := n) regimeB ν δ₀ h (z • ψ) P
+  have hG := integrable_weight_mul_baseFirstF β a ν h g (z • ψ) _ hWm
+    (fun φ => ⟨hW0 φ, hW1 φ⟩)
+  refine (integral_partition_prod (aprioriMeasure d N (L * n)) (Cset P)
+    (fun c φ => baseChiPrimeOne aχ μχ δχ νχ (fun i => h i) (Wset P) c (z • ψ) φ)
+    (fun c => measurable_baseChiPrimeOne aχ μχ δχ νχ (fun i => h i) Hbg (Wset P) c (z • ψ))
+    (fun c φ => baseChiPrimeOne_zero_or_one aχ μχ δχ νχ (fun i => h i) (Wset P) c (z • ψ) φ) _ hG).trans ?_
+  refine Finset.sum_congr rfl fun Q _ => ?_
+  refine integral_congr_ae (Filter.Eventually.of_forall fun φ => ?_)
+  simp only [Complex.ofReal_mul]
+  ring
+
+end Identity
+
+section Records
+
+variable {d L n : ℕ} [NeZero L] [NeZero n]
+
+open Classical in
+/-- **The cube set of `𝖰₁`** (P5 (2.14) at `k = 0`; the record constraint `Q_sub`): the cubes of
+`Ω₁(𝖯₁)^{∼3}`, `Ω₁ = Op_1(𝖯₁^{∼3}; 𝕋_1)`. -/
+noncomputable def baseCubesQ (P : Finset (Torus d n)) : Finset (Torus d n) :=
+  (Set.toFinite (nbhd 3 (Region.Omega L (P : Set (Torus d n)) Set.univ))).toFinset
+
+/-- The narrower reading: the cubes of `Ω₁(𝖯₁)` only. -/
+noncomputable def baseCubesOmega (P : Finset (Torus d n)) : Finset (Torus d n) :=
+  (Set.toFinite (Region.Omega L (P : Set (Torus d n)) Set.univ)).toFinset
+
+omit [NeZero L] in
+theorem mem_baseCubesQ {P : Finset (Torus d n)} {c : Torus d n} :
+    c ∈ baseCubesQ (L := L) P ↔ c ∈ nbhd 3 (Region.Omega L (P : Set (Torus d n)) Set.univ) := by
+  classical
+  simp [baseCubesQ]
+
+omit [NeZero L] in
+theorem mem_baseCubesOmega {P : Finset (Torus d n)} {c : Torus d n} :
+    c ∈ baseCubesOmega (L := L) P ↔ c ∈ Region.Omega L (P : Set (Torus d n)) Set.univ := by
+  classical
+  simp [baseCubesOmega]
+
+omit [NeZero L] in
+theorem baseCubesOmega_subset (P : Finset (Torus d n)) :
+    baseCubesOmega (L := L) P ⊆ baseCubesQ (L := L) P := fun _ hc =>
+  mem_baseCubesQ.2 (subset_nbhd 3 _ (mem_baseCubesOmega.1 hc))
+
+omit [NeZero L] in
+/-- **The cubes `𝖰₁` of a base record lie in the cube set `C(𝖯₁)`** (the constraint `Q ⊆ Ω₁^{∼3}`
+of Definition II.7.1). -/
+theorem BaseRecord.Q_subset_cubesQ {Rk : ℝ} (br : BaseRecord d L n Rk) (P : Finset (Torus d n))
+    (hP : br.P = (P : Set (Torus d n))) {c : Torus d n} (hc : c ∈ br.Q) :
+    c ∈ baseCubesQ (L := L) P := by
+  refine mem_baseCubesQ.2 ?_
+  have := br.Q_sub hc
+  rwa [hP] at this
+
+omit [NeZero L] in
+/-- The cubes `𝖰₁` lie in `F''_1`, hence the opening `Ω''_1` is built from them. -/
+theorem BaseRecord.Q_subset_FDD {Rk : ℝ} (br : BaseRecord d L n Rk) {c : Torus d n}
+    (hc : c ∈ br.Q) : c ∈ br.FDD :=
+  Or.inl (subset_nbhd _ _ hc)
+
+end Records
+
 end Balaban.LargeField
