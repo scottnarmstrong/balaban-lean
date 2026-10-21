@@ -45,6 +45,45 @@ theorem maskBlock_rotFld (Z : Finset (unitPts Gp)) (R : Matrix (Fin N) (Fin N) �
   · simp [h]
   · simp [h]
 
+/-- **Core of `markedHatPsiF_rot`, for any lift commuting with the spin rotation**: the marked
+tangent `u · lift(cc C^{1/2} ψ̂) + t · lift(M_Z cc C^{1/2} ψ̂)` of the rotated datum and the rotated
+hat variable is the pointwise rotation of the marked tangent (the covariance of `C^{1/2}`,
+`hatSqrtF_mulVec_rot`; the mask is a projection on unit points). -/
+theorem markedHatPsiFBg_rot (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
+    (lift : (unitPts Gp × Fin N → ℂ) →ₗ[ℂ] (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))
+    (hlift : ∀ (R : Matrix (Fin N) (Fin N) ℂ) (w : unitPts Gp × Fin N → ℂ),
+      lift (rotFld R w) = DecEquiv.rotSite R (lift w)) (cc : ℂ)
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hα : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    {F₁ : DecParams Gp × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)}
+    (hF₁ : ∀ (s : DecParams Gp) (D : BgData Gp N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gp (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gp.Ω 1 × Fin N → ℂ)
+        (α : Gp.Ω 1 → ℂ), IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        F₁ (s, rawOf D) = (φ, α))
+    {s : DecParams Gp} (hs : ∀ P, ‖s P‖ < Real.exp κ) {D : BgData Gp N}
+    (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
+    {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) (Z : Finset (unitPts Gp)) (u t : ℂ)
+    (ψh : unitPts Gp × Fin N → ℂ) :
+    markedHatPsiFBg Gp a₁ ν lift cc F₁ Z u t s (rotRaw (cmat Q) (rawOf D))
+        (rotFld (cmat Q) ψh) =
+      DecEquiv.rotSite (cmat Q) (markedHatPsiFBg Gp a₁ ν lift cc F₁ Z u t s (rawOf D) ψh) := by
+  have h2 := hatSqrtF_mulVec_rot hC hk hMX hmar hα hsm hF₁ hs hD hQ ψh
+  unfold markedHatPsiFBg
+  rw [h2]
+  have h3 : cc • rotFld (cmat Q) (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh) =
+      rotFld (cmat Q) (cc • (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh)) := by
+    funext p
+    simp only [Pi.smul_apply, rotFld, smul_eq_mul, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun j _ => by ring
+  rw [h3, maskBlock_rotFld, hlift, hlift]
+  funext x i
+  simp only [Pi.add_apply, Pi.smul_apply, DecEquiv.rotSite, Matrix.mulVec, dotProduct,
+    smul_eq_mul, Finset.mul_sum, ← Finset.sum_add_distrib]
+  exact Finset.sum_congr rfl fun j _ => by ring
+
 /-- **Covariance of the masked decoupled tangent under spin rotations.** -/
 theorem markedHatPsiF_rot (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k)
     (hG' : IsLevel Gp (k + 1)) (cc : ℂ)
@@ -63,21 +102,9 @@ theorem markedHatPsiF_rot (hC : FlCore N Gp Hm a₁ ν c BG κ eps Kc Cx c₂ BG
     {Q : Matrix (Fin N) (Fin N) ℝ} (hQ : Qᵀ * Q = 1) (Z : Finset (unitPts Gp)) (u t : ℂ)
     (ψh : unitPts Gp × Fin N → ℂ) :
     markedHatPsiF a₁ ν hG' cc F₁ Z u t s (rotRaw (cmat Q) (rawOf D)) (rotFld (cmat Q) ψh) =
-      DecEquiv.rotSite (cmat Q) (markedHatPsiF a₁ ν hG' cc F₁ Z u t s (rawOf D) ψh) := by
-  have h1 := hatPsiF_rot hC hk hG' cc hMX hmar hα hsm hF₁ hs hD hQ ψh
-  have h2 := hatSqrtF_mulVec_rot hC hk hMX hmar hα hsm hF₁ hs hD hQ ψh
-  simp only [markedHatPsiF_eq_hatPsiF_add]
-  rw [h1, h2]
-  have h3 : cc • rotFld (cmat Q) (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh) =
-      rotFld (cmat Q) (cc • (hatSqrtF Gp a₁ ν F₁ s (rawOf D) *ᵥ ψh)) := by
-    funext p
-    simp only [Pi.smul_apply, rotFld, smul_eq_mul, Finset.mul_sum]
-    exact Finset.sum_congr rfl fun j _ => by ring
-  rw [h3, maskBlock_rotFld, liftC_rotFld]
-  funext x i
-  simp only [Pi.add_apply, Pi.smul_apply, DecEquiv.rotSite, Matrix.mulVec, dotProduct,
-    smul_eq_mul, Finset.mul_sum, ← Finset.sum_add_distrib]
-  exact Finset.sum_congr rfl fun j _ => by ring
+      DecEquiv.rotSite (cmat Q) (markedHatPsiF a₁ ν hG' cc F₁ Z u t s (rawOf D) ψh) :=
+  markedHatPsiFBg_rot hC hk (liftC hG') (liftC_rotFld hG') cc hMX hmar hα hsm hF₁ hs hD hQ Z u t
+    ψh
 
 variable {ι : Type*} [DecidableEq ι] [Fintype ι] {m₀ : ℕ}
 

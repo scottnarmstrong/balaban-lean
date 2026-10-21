@@ -129,6 +129,45 @@ theorem castG_localB_drop_Ω (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hA : k 
   ext x
   rw [mem_castG_Ω, mem_castG_Ω, localB_drop_Ω hA hB X' hsep hsep' hn]
 
+/-- **Core of `castG_localB_collar_margin`, at any radius up to the collar width**: every site
+within sup-distance `r ≤ 2 L^{k+1+m₁'}` of a site of `R ⊆ Y` lies in the top layer of
+`castG hc (𝔹_{k+1}(Yp'))`. -/
+theorem castG_localB_collar_margin_le (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) {r : ℕ}
+    (hk : k + 1 ≤ k + 1) {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    {Y' Yp' : Set (CTorus d L N₁' m₁' (k + 1))} (hsep : ϱ ≤ minSep L (L ^ m₁'))
+    (hY' : ∀ x' : CTorus d L N₁' m₁' (k + 1),
+      x' ∈ Y' ↔ (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ Y)
+    (hYp' : ∀ z, z ∈ Yp' ↔ ∃ x ∈ Y', ∃ y : CTorus d L N₁' m₁' (k + 1),
+      fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
+          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) =
+        fineCubeIdx (L ^ m₁') N₁' L (k + 1) (k + 1)
+          (torusCast z : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))) ∧
+      supDist x y ≤ 2 * L ^ (k + 1 + m₁'))
+    {R : Finset (CTorus d L N₁ m₁ (k + 1))} (hRY : ∀ x ∈ R, x ∈ Y)
+    (hr : r ≤ 2 * L ^ (k + 1 + m₁')) :
+    ∀ x ∈ R, ∀ y, supDist x y ≤ r →
+      y ∈ (castG hc (localB (k + 1) hk Yp' hsep)).Ω (k + 1) := by
+  have hceq : N₁ * L ^ m₁ * L ^ (k + 1) = N₁' * L ^ m₁' * L ^ (k + 1) := by rw [hc]
+  refine collar_margin_of_top_le (Y := Y) (Yp := {w | (torusCast w : CTorus d L N₁' m₁' (k + 1)) ∈ Yp'})
+    (castG_localB_top_sameCell hc hk Yp' hsep) (fun z => ?_) hRY hr
+  show (torusCast z : CTorus d L N₁' m₁' (k + 1)) ∈ Yp' ↔ _
+  rw [hYp']
+  constructor
+  · rintro ⟨x', hx', y', hfc, hd⟩
+    refine ⟨torusCast x', (hY' x').1 hx', torusCast y', ?_, ?_⟩
+    · have h1 := (fineCubeIdx_top_iff_sameCell (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k)
+        y' (torusCast z)).1 hfc
+      have h2 := (sameCell_torusCast_iff hceq.symm y' (torusCast z : CTorus d L N₁' m₁' (k + 1))).2 h1
+      rwa [torusCast_torusCast hceq] at h2
+    · rwa [supDist_torusCast_val hceq.symm]
+  · rintro ⟨x, hx, y, hy, hd⟩
+    refine ⟨torusCast x, ?_, torusCast y, ?_, ?_⟩
+    · rw [hY']; rwa [torusCast_torusCast hceq]
+    · refine (fineCubeIdx_top_iff_sameCell (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k)
+        (torusCast y) (torusCast z)).2 ?_
+      exact (sameCell_torusCast_iff hceq y z).2 hy
+    · rwa [supDist_torusCast_val hceq]
+
 /-- **The margin of the replacement for the cast set built on the collar.**  Let `Y` be a label of
 the step torus, `Y'` its image on the torus `(N₁', m₁')` (`hY'`) and `Yp'` the collar of `Y'` there
 (`hYp'`: `z ∈ Yp'` iff a site of `Y'` is within sup-distance `2 L^{k+1+m₁'}` of a site of the
@@ -149,26 +188,9 @@ theorem castG_localB_collar_margin (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (h
     {R : Finset (CTorus d L N₁ m₁ (k + 1))} (hRY : ∀ x ∈ R, x ∈ Y) :
     ∀ x ∈ R, ∀ y, supDist x y ≤ 2 * L ^ (k + 1 + m₁) →
       y ∈ (castG hc (localB (k + 1) hk Yp' hsep)).Ω (k + 1) := by
-  have hceq : N₁ * L ^ m₁ * L ^ (k + 1) = N₁' * L ^ m₁' * L ^ (k + 1) := by rw [hc]
-  refine collar_margin_of_top (Y := Y) (Yp := {w | (torusCast w : CTorus d L N₁' m₁' (k + 1)) ∈ Yp'})
-    hm (castG_localB_top_sameCell hc hk Yp' hsep) (fun z => ?_) hRY
-  show (torusCast z : CTorus d L N₁' m₁' (k + 1)) ∈ Yp' ↔ _
-  rw [hYp']
-  constructor
-  · rintro ⟨x', hx', y', hfc, hd⟩
-    refine ⟨torusCast x', (hY' x').1 hx', torusCast y', ?_, ?_⟩
-    · have h1 := (fineCubeIdx_top_iff_sameCell (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k)
-        y' (torusCast z)).1 hfc
-      have h2 := (sameCell_torusCast_iff hceq.symm y' (torusCast z : CTorus d L N₁' m₁' (k + 1))).2 h1
-      rwa [torusCast_torusCast hceq] at h2
-    · rwa [supDist_torusCast_val hceq.symm]
-  · rintro ⟨x, hx, y, hy, hd⟩
-    refine ⟨torusCast x, ?_, torusCast y, ?_, ?_⟩
-    · rw [hY']; rwa [torusCast_torusCast hceq]
-    · refine (fineCubeIdx_top_iff_sameCell (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k)
-        (torusCast y) (torusCast z)).2 ?_
-      exact (sameCell_torusCast_iff hceq y z).2 hy
-    · rwa [supDist_torusCast_val hceq]
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  exact castG_localB_collar_margin_le hc hk hsep hY' hYp' hRY
+    (Nat.mul_le_mul_left 2 (Nat.pow_le_pow_right hL (by omega)))
 
 /-- **`hσ1` for the cast set**: `τ (extParams 𝔹_{k+1} X₁ w)` is `1` at every cube of the cover of
 `castG hc (𝔹_{k+1}(Yp'))` contained in `X₁f`, for `X₁f ⊆ X₁` and `X₁f ⊆ Y` (`𝔹_{k+1}` a level

@@ -452,11 +452,11 @@ object of the large-field layer.  `zero_input_kernel_eq_zero` and `positive_tran
 the `BaseSmallFieldInput` fields alone do not imply it. -/
 structure Prop279Phys (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) (regimeA : Prop)
     (eps : ℕ → ℝ) where
-  inp : BaseSmallFieldInput k0 geo cs N
+  inp : BaseSmallFieldInput 1 1 k0 geo cs N
   /-- the source-strength constant `C_{b,sf}` -/
   Csf : ℝ
   Kphys_reads : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
+    (g : GIdx S n 1 1 N → ℂ)
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o o' : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     (∀ y : Vblk R (H.localHistory 1 1 1 Z') (0 + 1),
@@ -469,7 +469,7 @@ structure Prop279Phys (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) (
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖inp.Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+    ‖inp.Kphys H hH Z' g w o x hv‖ ≤
       (inp.Kphys H hH Z' 0 w o x hv).re *
         Real.exp (Csf * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
   Cb_ge : Csf + max 0 (baseVolConst S N) ≤ cs.Cb
@@ -556,7 +556,7 @@ structure Prop279Conclusion {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0
     {hN : S.L ^ m₀ ∣ N₁} {hj : j ≤ K} {hΩ : IsPiUnion m₀ j Ω} {m : ℕ}
     (I : Prop279Input k0 geo cs N regimeA regimeB eps hz hc ν δ₀ r h br Zc hN hj hΩ m) :
     Prop where
-  stepData : ∃ D : BaseStepData k0 geo cs N,
+  stepData : ∃ D : BaseStepData 1 1 k0 geo cs N,
     ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),
       D.K H hH Z' = baseK0 I.phys.inp H hH Z' ∧
         D.KC H hH Z' = baseKC I.phys.inp H hH Z'
@@ -565,7 +565,7 @@ structure Prop279Conclusion {regimeA regimeB : Prop} {eps : ℕ → ℝ} {hz : 0
     (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
     (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖I.phys.inp.Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+    ‖I.phys.inp.Kphys H hH Z' g w o x hv‖ ≤
       (I.phys.inp.Kphys H hH Z' 0 w o x hv).re *
         Real.exp (cs.Cb * (Real.log (cs.beta 0) + 1) * baseVol S (H.localHistory 1 1 1 Z'))
   s5 : regimeA → ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),

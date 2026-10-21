@@ -111,6 +111,20 @@ provider, and nothing may import a root, until the root is sealed.
   fine sets: nonempty, connected, containing or missing every hole, of finite modular size — π′-cubes are required
   only at its small-field sites, not at the hole sites; size, covers, `loc_hist`, the H7 domain and the bounds are
   unchanged, and every domain valid before stays valid.
+- **Ruling R12 (2026-10-21, Scott: "yes, approve R12").** In the post-`R` form of the class (`D1Form2`,
+  `LargeField/Def7v2Form.lean`), the term `postTerm2` of a history is zero whenever the history has a removal
+  record `Rem_j ≠ ∅` at some scale `j ≤ k`; the history set and `IsComplete` are unchanged. Removed components
+  are accounted for in `ℬ′` and `ℛ″` (P7 (3.26)–(3.29)); without the change the all-small-field term is counted
+  n₀ ≥ 2 times (W1151 `two_le_card_empty_region`, audit `notes/phase1/REMOVAL-HIST.md`). This is the reading of
+  LFR D-III.8 ("terms with zero operator are harmless").
+- **Ruling R13 (2026-10-21, Scott: "approve R13"; amended form).** In the small-field class (`IsSF2`,
+  `SFTermClausesStrong`, the generating-set clause of `SFNewLevelInput`) the generating set `Tm.gs j X` of a
+  level-`j` term on the polymer `X` is the local set `𝔹_j(X⁺)`, where `X⁺` is `X` together with the `𝒞_j`-cubes of
+  the neighbours `y + L^j e_μ` (`y ∈ X` aligned) that the irrelevant part reads; the step chain composes each
+  inherited term on that set, and its cover set grows from `X ∪ □(y)` to `X⁺ ∪ □(y)`. The class domain reads the
+  fields with the step's weights and background mass (`Def6.bgMass`). Source: P3 (4.4)–(4.6), P5 (2.10)–(2.11).
+  Without it the class's own bound says nothing at the composed data and blocker 6's (A1)–(A5) cannot be
+  derived (W1146, `notes/phase1/PLAN-B.md` "Ruling R13", `Fluctuation/OldTermClassDomain.lean`).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;

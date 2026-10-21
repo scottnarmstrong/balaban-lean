@@ -364,6 +364,27 @@ theorem mem_of_mem_SY {X₁ : Finset (CTorus d L N₁ m₁ K)} {𝒞 : Finset (�
   obtain ⟨-, -, hsub⟩ := Finset.mem_filter.1 hzZ
   exact hsub ⟨x, hhat z hzZ x (box_subset_hatBox z hxz)⟩ (box_subset_hatBox z hxz)
 
+/-- **The blocks active near a site whose neighbourhood lies in one layer have that layer**: if
+every site within lift distance `3 L ^ K` of `x` lies in the layer `n`, every block active at a
+site `w` within lift distance `L ^ n` of `x` has the layer `n`. -/
+theorem active_layer_of_near {n : ℕ} (hn1 : 1 ≤ n) (hnK : n ≤ K) {x : CTorus d L N₁ m₁ K}
+    (hlay : ∀ y : CTorus d L N₁ m₁ K,
+      (∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (y μ) (x μ)) → y ∈ G.layer n)
+    {w : Torus d (N₁ * L ^ m₁ * L ^ K)}
+    (hw : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n) (w μ) (x μ)) :
+    ∀ q ∈ active G w, q.1 = n := by
+  intro q hq
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  obtain ⟨hqb, -⟩ := (mem_active G).1 hq
+  obtain ⟨⟨hq1, hqK⟩, hql, -⟩ := (mem_blockIdx G).1 hqb
+  have hLn : (L : ℝ) ^ n ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hnK
+  have hLq : (L : ℝ) ^ q.1 ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hqK
+  have hnear : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (q.2 μ) (x μ) := fun μ =>
+    ((coordNear_base_of_mem_active hq μ).symm.trans (hw μ)).mono (by linarith)
+  have hq2 := hlay q.2 hnear
+  by_contra hne
+  exact G.layer_disjoint hq1 hqK hn1 hnK hne hql hq2
+
 /-- **The approximate-field reads near a site of `S_Y` lie in `Y₁`**, for any generating set, under
 the margin hypotheses: the thickened cubes of the centres of `Z_Y` lie in `Ω₁` (`hhat`) and every
 site within lift distance `3 L ^ K` of a site of `Y₁` lies in layer `n` (`hlay`).  A site `w` within
@@ -383,23 +404,13 @@ theorem approxDep_subset_component_of_near {n : ℕ} (hn1 : 1 ≤ n) (hnK : n �
   have hhY : ∀ v ∈ hatBox z, v ∈ Y₁ := fun v hv => hsub ⟨v, hhat z hzZ v hv⟩ hv
   have hxY : x ∈ Y₁ := hhY x (box_subset_hatBox z hxz)
   obtain ⟨⟨h1, hK⟩, hl, -⟩ := (mem_cubeIdx G).1 hz
-  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
   have hz2 : z.2 ∈ G.layer n := hlay z.2 (hhY _ (box_subset_hatBox z (base_mem_intBox z))) z.2
     (fun μ => CoordNear.refl (by positivity) _)
   have hz1 : z.1 = n := by
     by_contra hne
     exact G.layer_disjoint h1 hK hn1 hnK hne hl hz2
-  refine fun v hv => hhY v (approxDep_subset_hatBox_of_near_of hz1 hxz hw ?_ hv)
-  intro q hq
-  obtain ⟨hqb, -⟩ := (mem_active G).1 hq
-  obtain ⟨⟨hq1, hqK⟩, hql, -⟩ := (mem_blockIdx G).1 hqb
-  have hLn : (L : ℝ) ^ n ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hnK
-  have hLq : (L : ℝ) ^ q.1 ≤ (L : ℝ) ^ K := pow_le_pow_right₀ hL1 hqK
-  have hnear : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) (3 * (L : ℝ) ^ K) (q.2 μ) (x μ) := fun μ =>
-    ((coordNear_base_of_mem_active hq μ).symm.trans (hw μ)).mono (by linarith)
-  have hq2 := hlay x hxY q.2 hnear
-  by_contra hne
-  exact G.layer_disjoint hq1 hqK hn1 hnK hne hql hq2
+  exact fun v hv => hhY v (approxDep_subset_hatBox_of_near_of hz1 hxz hw
+    (active_layer_of_near hn1 hnK (hlay x hxY) hw) hv)
 
 /-- **Core of `footprint_subset_component`** (FP) for any generating set, under the margin
 hypotheses of `approxDep_subset_component_of_near`. -/

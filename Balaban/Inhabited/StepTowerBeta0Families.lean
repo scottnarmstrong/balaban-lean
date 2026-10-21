@@ -344,7 +344,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
             ∀ T', e θ' T' = e θ T') →
         NewLevelFormulaFor S C z Jr
           (OldTermSystem.mk (S := S) (t := T.t) ι inferInstance m₀ jL X₁f 𝒦X ϱ₁ Gk Gj Eτ F₁L SolL
-            FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁pin τ) (fun τ => hSolpin τ) (fun τ => hFkpin τ)) e →
+            FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁pin τ) (fun τ => hSolpin τ) (fun τ => hFkpin τ))
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e →
         (0 < markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) →
           (∀ Y ∈ 𝒴C, corrU / (δ₁ / (2 * markedRad d L N k S.a₁ κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
           (∑ τ : ι, if Y ∈ polyDom S.G' (X₁f τ) m₀ (jL τ) (𝒦X τ) then
@@ -516,7 +517,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
     · rfl
   have hNL : NewLevelFormulaFor S C z Jr
       (OldTermSystem.mk (S := S) (t := T.t) ι inferInstance m₀ jL X₁f 𝒦X ϱ₁ Gk Gj Eτ F₁L SolL
-        FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁ τ) (fun τ => hSolprop τ) (fun τ => hFk τ)) e := by
+        FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁ τ) (fun τ => hSolprop τ) (fun τ => hFk τ))
+      ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e := by
     refine ⟨{
       hp := hp,
       p₁ := p₁,
@@ -545,6 +547,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
         hval := hvalS },
       O := OldTermSystem.mk (S := S) (t := T.t) ι inferInstance m₀ jL X₁f 𝒦X ϱ₁ Gk Gj Eτ F₁L SolL
         FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁ τ) (fun τ => hSolprop τ) (fun τ => hFk τ),
+      OS := {
+        cB := cB, r₀ := r₀, δ₃ := δ₃, Kc := KcL, Cx := Cx, c₂ := c₂, δfl := δfl, X₀ := X₀,
+        XL := XL, hB := hB, hF := hFl, hcov := hcov, hX₁ := hX₁, hopt := hopt, hFkan := hFkan,
+        hN := hN },
       hEJ := hEJ,
       G₁ := G₁,
       hG₁ := hG₁,
@@ -567,7 +573,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_core_onSet_agree_phi_formula 
       hF₁ := fun b => (hpin z b).1,
       hSol := fun b => (hpin z b).2,
       hG₁dep := hG₁dep,
-      hbrdep := hbrdep z }, rfl, ?_⟩
+      hbrdep := hbrdep z }, rfl,
+      ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩, ?_⟩
     intro θ hθ T'
     rw [hdet θ hθ T', hcf θ T']
     rfl

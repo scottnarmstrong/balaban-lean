@@ -144,9 +144,10 @@ theorem solMap_surjective (e : G₁.Ω 1 ≃ G₂.Ω 1) :
   refine Prod.ext (funext fun p => ?_) (funext fun y => ?_) <;> simp [solMap]
 
 include hF hS hsp in
-/-- **Transport of the background along an equivalence of the regions.** -/
-theorem bgFieldC_equiv (x : G₁.Ω 1) (i : Fin N) :
-    bgFieldC G₂ a ν c₀ D₂ (e x, i) = bgFieldC G₁ a ν c₀ D₁ (x, i) := by
+/-- **Transport of the background field and multiplier along an equivalence of the regions.** -/
+theorem bgPairC_equiv :
+    (∀ (x : G₁.Ω 1) (i : Fin N), bgFieldC G₂ a ν c₀ D₂ (e x, i) = bgFieldC G₁ a ν c₀ D₁ (x, i)) ∧
+      ∀ x : G₁.Ω 1, bgMultC G₂ a ν c₀ D₂ (e x) = bgMultC G₁ a ν c₀ D₁ x := by
   classical
   have hiff : ∀ s, IsSmallSolution G₂ a ν c₀ D₂ (solMap e s).1 (solMap e s).2 ↔
       IsSmallSolution G₁ a ν c₀ D₁ s.1 s.2 := fun s =>
@@ -167,16 +168,34 @@ theorem bgFieldC_equiv (x : G₁.Ω 1) (i : Fin N) :
       (φ := (solMap e s).1) (α := (solMap e s).2) hs2 (fun φ' α' h => by
         have := H'.unique (y₁ := (φ', α')) (y₂ := solMap e s) h hs2
         exact ⟨congrArg Prod.fst this, congrArg Prod.snd this⟩)
-    rw [e1.1, e2.1]
-    simp [solMap]
+    refine ⟨fun x i => ?_, fun x => ?_⟩
+    · rw [e1.1, e2.1]
+      simp [solMap]
+    · rw [e1.2, e2.2]
+      simp [solMap]
   · have H' : ¬ ∃! s' : (G₂.Ω 1 × Fin N → ℂ) × (G₂.Ω 1 → ℂ),
         IsSmallSolution G₂ a ν c₀ D₂ s'.1 s'.2 := by
       rintro ⟨s', hs', hu'⟩
       obtain ⟨s, rfl⟩ := solMap_surjective e s'
       refine H ⟨s, (hiff s).1 hs', fun t ht => ?_⟩
       exact solMap_injective e (hu' (solMap e t) ((hiff t).2 ht))
-    unfold bgFieldC
-    simp [H, H']
+    refine ⟨fun x i => ?_, fun x => ?_⟩
+    · unfold bgFieldC
+      simp [H, H']
+    · unfold bgMultC
+      simp [H, H']
+
+include hF hS hsp in
+/-- **Transport of the background along an equivalence of the regions.** -/
+theorem bgFieldC_equiv (x : G₁.Ω 1) (i : Fin N) :
+    bgFieldC G₂ a ν c₀ D₂ (e x, i) = bgFieldC G₁ a ν c₀ D₁ (x, i) :=
+  (bgPairC_equiv e hF hS hsp).1 x i
+
+include hF hS hsp in
+/-- **Transport of the background multiplier along an equivalence of the regions.** -/
+theorem bgMultC_equiv (x : G₁.Ω 1) :
+    bgMultC G₂ a ν c₀ D₂ (e x) = bgMultC G₁ a ν c₀ D₁ x :=
+  (bgPairC_equiv e hF hS hsp).2 x
 
 end Equiv
 

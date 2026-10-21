@@ -58,6 +58,9 @@ theorem evDec_unique (hk : 1 ≤ k)
     (hSol' : SolSpec Gp Hm a₁ ν BG BG₂ κ eps δ₁ Sol')
     {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Φ' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, Φ t.1 t.2.1 t.2.2 = Φ' t.1 t.2.1 t.2.2)
     {m₀ j : ℕ} (Zm : Finset (unitPts Gp)) (𝒦X : Set (CTorus d L N₁ m₁ (k + 1))) {um tm : ℂ}
     (hδ : (‖um‖ + ‖tm‖) *
       (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁)
@@ -65,7 +68,7 @@ theorem evDec_unique (hk : 1 ≤ k)
     {D : BgData Gp N} (hD : XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D)
     {ψh : unitPts Gp × Fin N → ℂ} (hψh : ∀ p, ‖ψh p‖ ≤ cψ) :
     evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁ Sol Φ Zm um tm Y (rawOf D, ψh) =
-    evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁' Sol' Φ Zm um tm Y (rawOf D, ψh) := by
+    evDec X₁f m₀ j 𝒦X a₁ ν hG' cc F₁' Sol' Φ' Zm um tm Y (rawOf D, ψh) := by
   refine evTerm_congr_polydisc _ (Real.one_lt_exp_iff.2 hC.hκ) _ Y fun s hs => ?_
   have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
   have hE1 : 1 < Real.exp κ := Real.one_lt_exp_iff.2 hC.hκ
@@ -76,12 +79,12 @@ theorem evDec_unique (hk : 1 ≤ k)
   have hFF := F₁_unique hC hF₁ hF₁' hsx hD
   show fnOfDec Gp Hm X₁f F₁ Sol Φ (rawOf D, markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
       (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh) s =
-    fnOfDec Gp Hm X₁f F₁' Sol' Φ (rawOf D, markedHatPsiF a₁ ν hG' cc F₁' Zm um tm
+    fnOfDec Gp Hm X₁f F₁' Sol' Φ' (rawOf D, markedHatPsiF a₁ ν hG' cc F₁' Zm um tm
       (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh) s
   rw [← markedHatPsiF_unique hG' cc hFF]
-  refine fnOfDec_unique hC hF₁ hF₁' hSol hSol' (Φ := Φ)
+  refine fnOfDec_unique hC hF₁ hF₁' hSol hSol' (Φ := Φ) (Φ' := Φ') hΦ
     (u := (rawOf D, markedHatPsiF a₁ ν hG' cc F₁ Zm um tm
-      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)) ?_ hs
+      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)) ?_ hmem.2 hs
   exact ⟨⟨D, hD, rfl⟩, hmem.1⟩
 
 end MarkPin
@@ -138,7 +141,7 @@ theorem decMarkG_unique (hC : FlCore N S.G' Hm a₁ ν c BG κ eps Kc Cx c₂ BG
   have h0 : (0 : ℂ) ∈ {t : ℂ | (‖um‖ + ‖t‖) *
       (Real.sqrt N * (‖cc‖ * (covSupConstC d L N (compWeight L a₁ k) κ * cψ))) < δ₁} := hum
   filter_upwards [hopen.mem_nhds h0] with t ht
-  refine evDec_unique hC hk hG S.hG' cc hcψ hMX hmar hα hsm hF₁ hF₁' hSol hSol' Zm 𝒦X ht Y hD ?_
+  refine evDec_unique hC hk hG S.hG' cc hcψ hMX hmar hα hsm hF₁ hF₁' hSol hSol' (Φ' := En) (fun _ _ => rfl) Zm 𝒦X ht Y hD ?_
   intro q
   have := S.hatOf_mem m₀ (lt_of_lt_of_le hp hρ) hp Φ q
   exact this.trans hρc
