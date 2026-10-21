@@ -1635,3 +1635,8 @@ Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hc
 per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
 
 **`hγ` removed (W1158, 2026-10-21).** `GamConst rep` (`Spine/Coherence.lean`: `rep.KD.gam i l = log 5 + A'₃ λ̂_i^{p_R}` for all `i, l`, LFR Def. III.5.2) is a field `gamVal` of `PreRec` and `RepRec`. Producers: the base step (`BaseRaw.KDgam`, the provider's choice of kept data), the step `LFStepInput` (new conjunct `GamConst (lf' nK)`; `lfStepInput_of_parts`: the kept data of the successor are `KeptData.upTo`, which copies `gam`), `RKeptGasInput` (new conjunct `GamConst (lf₁ nK)`; the kept half gives it, `keptLF_gamConst`), the Rule-10 witnesses (`zeroKeptData` has `γ = A'₃ λ̂^{p_R} + log 5`). `keptOutput_of_kernels` no longer has `hγ` (`rec.gamVal`).
+
+## D7 clause rows at coefficient level (W1158)
+
+* **Done** (`Spine/LFOldD7Support.lean`, `LFOldD7Rot.lean`, `LFOldD7RotLoc.lean`): support row (`oldFiber` empty/zero-sum lifts by summation); rot row (d5) for `oldCoef` (`oldCoef_rotBy`) and for the local pair (`oldCoefLoc_rot`, hypotheses packaged in `OldCoefRotHyp`).
+* **Open, with exact gaps**: (d3) real: needs reality of `Dec2.decCovSqrt` at real decoupling vectors (only `s = 1` exists in `Lemma25Real`), then reality of the composed field and of `oldInterp` at vertices (`sum_coef_unit`); (d1)/(d6) loc_field, loc_hist: locality is relative to the output label `Y`, and `V(X,J)` may exceed `Y`, so needs the geometric inclusion (closure in `fineSet Y`) as a named input; d2, d4 not started.
