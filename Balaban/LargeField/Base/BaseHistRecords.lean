@@ -69,6 +69,7 @@ theorem agree_one_iff (A B : LabHist S n R k0 K) :
           exact this.false ⟨c, hc⟩
         simp [hA, hB]
 
+omit [NeZero S.L] in
 /-- **The histories of a complete set at scale `1` are determined by their base record**: each
 base record occurs at most once. -/
 theorem canonHist_baseRecord_injOn (𝔄 : Finset (LabHist S n R k0 K)) (h : IsComplete 1 1 𝔄)
