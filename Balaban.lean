@@ -3014,6 +3014,8 @@ public import Balaban.Inhabited.NewLevelZeroCorr
 public import Balaban.Inhabited.NewLevelThickCorr
 public import Balaban.Inhabited.NewLevelAnchorCorr
 public import Balaban.Inhabited.NewLevelAnchorG
+public import Balaban.Inhabited.NewLevelPsiData
+public import Balaban.Inhabited.NewLevelKappaData
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
