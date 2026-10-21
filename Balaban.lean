@@ -723,6 +723,7 @@ public import Balaban.SmallField.Def6AvgGeom
 public import Balaban.SmallField.Def6AvgFamily
 public import Balaban.SmallField.Def6AvgLimit
 public import Balaban.SmallField.Def6AvgDens
+public import Balaban.SmallField.CoefShapeLimit
 public import Balaban.SmallField.Def6AvgSumConst
 public import Balaban.SmallField.Def6AvgSumConds
 public import Balaban.SmallField.Def6AvgMomTorus
@@ -1560,6 +1561,7 @@ public import Balaban.LargeField.R.RegionEnergyAlgebraFR
 public import Balaban.LargeField.R.RadialCoefficient
 public import Balaban.LargeField.R.RadialCoefficientAvg
 public import Balaban.LargeField.R.RadialCoefficientLimit
+public import Balaban.LargeField.R.CoefCtx
 public import Balaban.LargeField.R.RadialCoefficientLimitEres
 public import Balaban.LargeField.R.RadialCoefficientLimitInhab
 public import Balaban.LargeField.R.PositiveMassFacts
