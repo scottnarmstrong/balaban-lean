@@ -59,6 +59,25 @@ theorem AllSitesBounds.cast {N₀' : ℕ} (hN : N₀ = N₀') (e : N₀ * L ^ q 
   subst hN
   exact hf
 
+omit [NeZero N₀] [NeZero L] in
+/-- Weaker bounds at every site: a larger radius `2 η` and a mass `m'` with
+`m' L^{2j} ≤ 4 m L^{2j}`. -/
+theorem AllSitesBounds.weaken {jj : ℕ} {m m' η : ℝ} {f : Torus d (N₀ * L ^ q) → Fin N → ℝ}
+    {h₀ : Fin N → ℝ} (hf : AllSitesBounds jj m η f h₀) (hη : 0 < η)
+    (hmm : m' * ((L : ℝ) ^ jj) ^ 2 ≤ 4 * (m * ((L : ℝ) ^ jj) ^ 2)) :
+    AllSitesBounds jj m' (2 * η) f h₀ where
+  block := hf.block
+  adj x x' h := (hf.adj x x' h).trans (by linarith)
+  sphere x := (hf.sphere x).trans (by linarith)
+  dir x := by
+    have h0 : 0 ≤ |1 - (∑ i, f x i * h₀ i) / rn (f x)| := abs_nonneg _
+    calc m' * ((L : ℝ) ^ jj) ^ 2 * |1 - (∑ i, f x i * h₀ i) / rn (f x)|
+        ≤ 4 * (m * ((L : ℝ) ^ jj) ^ 2) * |1 - (∑ i, f x i * h₀ i) / rn (f x)| :=
+          mul_le_mul_of_nonneg_right hmm h0
+      _ = 4 * (m * ((L : ℝ) ^ jj) ^ 2 * |1 - (∑ i, f x i * h₀ i) / rn (f x)|) := by ring
+      _ < 4 * η ^ 2 := by have := hf.dir x; linarith
+      _ = (2 * η) ^ 2 := by ring
+
 end Generic
 
 section Weights
@@ -171,6 +190,55 @@ theorem psiJ_allSites {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 �
       funext i
       unfold psiJRe
       rw [hpsi x i]
+
+/-- **The inherited field in the analyticity domain of the terms, on the `χ`-support.** For a
+generating set `𝔹` of the Def-6 torus with empty layers above `j'` (the `𝔹_{j'}(X)` of a polymer),
+the standing hypotheses `BgHyp` at the birth mass `ν_b` (with `ν_b L^{2j'} ≤ 4 ν L^{-2k} L^{2j'}`)
+and radii `2 C₄ K₁ · 4 (d+1) δ_k ≤ min (c₀, c₁)`, `(2 K₁ + 2) · 2 C₄ K₁ · 4 (d+1) δ_k ≤ ε_{j'}`: the
+inherited field `ψ^{(j')}_k` of the whole torus lies in `Ξ^c_{j'}(𝔹; 1, ε)`. -/
+theorem psiJ_xiDom {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 ≤ S.L) {ν : ℝ}
+    (hν : 0 < ν) (hunit : ‖hv‖ = 1) (hδ : 0 < C.cs.delta (j + 1))
+    (hδ1 : (S.d + 1) * C.cs.delta (j + 1) ≤ 1)
+    (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hμBg : C.cs.muBg (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hχ : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv ≠ 0)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hη : 4 * (S.d + 1) * C.cs.delta (j + 1) ≤ thm73C1 S.d S.L N)
+    {a : ℕ → ℝ} {νb : ℝ} (Hb : BgHyp S.d S.L (j + 1) ϱ a νb)
+    (gs : GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) (j + 1) ϱ)
+    (hΩ : ∀ i, jj < i → gs.Ω i = ∅)
+    (hmm : νb * ((S.L : ℝ) ^ jj) ^ 2 ≤ 4 * (sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ jj) ^ 2))
+    {ε : ℝ}
+    (hc0 : 2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1)))) ≤
+      bgC0 S.d S.L N)
+    (hc1 : 2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1)))) ≤
+      bgC1 S.d S.L N)
+    (hε : (2 * bgK1 S.d S.L N + 2) *
+      (2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))))) ≤ ε) :
+    Def6.XiDom gs a νb jj ε (C.psiJ Set.univ ψk hv jj) (Def6.constFld (hC hv)) := by
+  obtain ⟨hreal, hA⟩ := psiJ_allSites C ψk hv hj1 hj hL hν hunit hδ hδ1 hμ hμBg hχ HB hη
+  have hd : 0 < S.d := by have := Hb.hd; omega
+  have hK1 := bgK1_ge_one S.d S.L N
+  have hC4 := compC4_ge S.d
+  have hηc : 0 < compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))) := by
+    have : (0 : ℝ) < S.d := by exact_mod_cast hd
+    positivity
+  have hA2 := hA.weaken hηc hmm
+  have hNN : C.N₁ * S.L ^ m₁ = C.geo.M1 * (C.geo.c * n (j + 1)) := by
+    have hT := C.hT
+    have hpos : 0 < S.L ^ (j + 1) := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne S.L))
+    exact Nat.eq_of_mul_eq_mul_right hpos hT
+  have hA3 := AllSitesBounds.cast (N₀ := C.N₁ * S.L ^ m₁) hNN C.hT hA2
+  have hxi := xiDom_of_allSites (G := gs) Hb hΩ (by omega : jj ≤ j + 1) (by linarith) hc0 hc1 hε
+    (fun x => psiJRe C ψk hv hj (torusCast C.hT x)) (fun i => hv i)
+    ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
+  have hpsi : C.psiJ Set.univ ψk hv jj = fun x i => ((psiJRe C ψk hv hj (torusCast C.hT x) i : ℝ) : ℂ) := by
+    unfold SFCtx.psiJ
+    simp only [hj, ↓reduceDIte]
+    funext x i
+    exact hreal _ i
+  rw [hpsi]
+  exact hxi
 
 end Ctx
 
