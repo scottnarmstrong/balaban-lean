@@ -27,7 +27,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 namespace HAgr
 
-variable {m : ℕ} {H₁ H₂ : RegionHistory S n R k0 K} (h : HAgr m H₁ H₂)
+variable {m j : ℕ} {H₁ H₂ : RegionHistory S n R k0 K} (h : HAgr m H₁ H₂)
 include h
 
 theorem isKeptEvent_iff {j : ℕ} (hj : j ≤ m) (c : H₁.Comp j) :
@@ -44,11 +44,12 @@ theorem rem_iff {j : ℕ} (hj : j ≤ m) (c : H₁.Comp j) :
     (h.cmap hj c).1 ∉ H₂.rem j ↔ c.1 ∉ H₁.rem j := by
   rw [h.cmap_val, h.rem j hj]
 
-theorem kappa_eq (P : BudgetConsts) (κ₁ : ∀ k, H₁.Comp k → ℝ) (κ₂ : ∀ k, H₂.Comp k → ℝ)
+theorem kappa_eq (P₁ P₂ : BudgetConsts)
+    (hP : ∀ i, i < m → ∀ a b, P₂.kappaStep S i a b = P₁.kappaStep S i a b) (κ₁ : ∀ k, H₁.Comp k → ℝ) (κ₂ : ∀ k, H₂.Comp k → ℝ)
     (hκ : ∀ i (hi : i ≤ m) (c : H₁.Comp i), c.1 ∉ H₁.rem i → H₁.IsKeptEvent i c →
       κ₂ i (h.cmap hi c) = κ₁ i c) :
     ∀ (j : ℕ) (hj : j ≤ m) (c : H₁.Comp j), c.1 ∉ H₁.rem j →
-      H₂.kappa P κ₂ j (h.cmap hj c) = H₁.kappa P κ₁ j c
+      H₂.kappa P₂ κ₂ j (h.cmap hj c) = H₁.kappa P₁ κ₁ j c
   | 0, _, c, _ => (H₁.F.isEmpty_comp_zero.false c).elim
   | j + 1, hj, c, hc => by
     classical
@@ -61,11 +62,22 @@ theorem kappa_eq (P : BudgetConsts) (κ₁ : ∀ k, H₁.Comp k → ℝ) (κ₂ 
       simp only [hk, hk2, ite_false]
       unfold RegionHistory.kappaPre
       rw [h.parts_eq hj c, Finset.sum_map, h.outCubes_eq hj c, h.cmap_val,
-        ← h.newCubes_eq (show j < m by omega)]
+        ← h.newCubes_eq (show j < m by omega), hP j (by omega)]
       congr 1
       refine Finset.sum_congr rfl fun c' hc' => ?_
       simp only [Equiv.coe_toEmbedding]
-      exact kappa_eq P κ₁ κ₂ hκ j (by omega) c' ((H₁.mem_parts j c' c).1 hc').1
+      exact kappa_eq P₁ P₂ hP κ₁ κ₂ hκ j (by omega) c' ((H₁.mem_parts j c' c).1 hc').1
+
+theorem kappaPre_eq (P₁ P₂ : BudgetConsts)
+    (hP : ∀ i, i < m → ∀ a b, P₂.kappaStep S i a b = P₁.kappaStep S i a b)
+    (κ₁ : H₁.Comp j → ℝ) (κ₂ : H₂.Comp j → ℝ) (hj : j + 1 ≤ m) (Z : H₁.Comp (j + 1))
+    (hκ : ∀ c ∈ H₁.parts j Z, κ₂ (h.cmap (by omega) c) = κ₁ c) :
+    H₂.kappaPre P₂ j κ₂ (h.cmap hj Z) = H₁.kappaPre P₁ j κ₁ Z := by
+  unfold RegionHistory.kappaPre
+  rw [h.parts_eq hj Z, Finset.sum_map, h.outCubes_eq hj Z, h.cmap_val,
+    ← h.newCubes_eq (show j < m by omega), hP j (by omega)]
+  congr 1
+  exact Finset.sum_congr rfl fun c hc => hκ c hc
 
 end HAgr
 
