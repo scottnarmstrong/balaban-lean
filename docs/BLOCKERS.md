@@ -691,6 +691,8 @@ this sum includes polymers that wrap around it. The class renormalizes these par
 so the cell term differs slightly between two tori. The intended repair is the one already used at the last scale:
 keep the non-wrapping polymers in the cell term and move the remainder onto polymers that wrap the torus.
 
+
+Update (21 October, evening). Both open points of this blocker now have a design proved in Lean. At the distinguished cell, the relevant parts are extracted only from polymers inside a fixed box around the cell, an eighth of the side of the smallest torus (ruling R15, approved 21 October); larger polymers keep their relevant parts and are small by their size. With this, the cell term agrees exactly on two tori (proved), and its bound needs only the infinite-volume renormalization conditions (proved); the switch of the definition is being built. At the last scale, activities computed separately on each torus and close on two tori are turned into activities that agree exactly (proved: on small supports they are the limit over growing tori, and the remainder is moved onto the other polymers, with the condition that the block size M be large against the decay rate). Closeness of the activities of a polymer expansion follows from closeness of its local terms, and the cut family of the final operator is close on two tori with a margin (proved). What remains for the last scale is the closeness of the local terms themselves, which waits for the localized form of the last integral.
 ## Large pieces of work that are not blockers
 
 These have no known mathematical gap, but they are substantial and not yet done.
