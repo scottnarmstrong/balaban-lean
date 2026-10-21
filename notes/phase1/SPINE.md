@@ -830,6 +830,32 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      the envelope formula `V' = ⟨ψ − Qφ̄, aδ⟩`, `V'' = a − aQ(G − Π)Q*a`; the cubic part `V³` of the value function (analytic by `theorem52_analytic`) belongs to the interaction
      (DAPHYS PHYS-CUBIC), it is not in `F_{k_f} = Σ Edens`. Next pieces, in order: (P1) `V(h1) = 0`, `φ̄(h1) = h` (`bgFieldC_eq`, `ConstantConfig`), `Hess V = finalHessian` and
      `V³ = O(|δ|³)` on a polydisc; (P2) `hθ`/the datum lemma beyond `k₀`; (P3) the chain `sfFactor2 → ∫ over box of exp(F∘Λ)` with the cut `Y`.
+   * **W1151s (A6-3 item 1 and the assembly).** Landed (`Spine/FinalDom*`, `FinalSf*`, `FinalNumerics`):
+     * *Birth-domain transport on the `χ`-support, cut `Y = univ`.* `FinalDomCore` (`AllSitesBounds`, `inPsiTilde_of_allSites`, `xiDom_of_allSites`: a real field constant on the
+       `j`-blocks with the bounds R1, R2, R3 at every site lies in `Ψ̃(𝔹; η)` and, for `(2K₁+2)η ≤ ε`, in `Ξ^c_j(𝔹; 1, ε)` for every generating set with empty layers above `j`);
+       `FinalDomLevel` (`inPsiTilde_genW_univ_late`: on `χ_univ ≠ 0` at a scale with physical cube mass the level-`k` datum is in `Ψ̃(𝔹_k; 4(d+1)δ_k)`, no region history);
+       `FinalDomCompose` (`inPsiTilde_composeField_bgFieldC`: Theorem 7.3 with the explicit radius `C₄K₁η`); `FinalDomPsiJ` (`psiJ_allSites`, `psiJ_xiDom`: the inherited field
+       `ψ^{(j)}_k` of the whole torus is real, satisfies the bounds at every site, and lies in `XiDom` of every polymer chart `𝔹_j(X)`; `sfLiftK_xiDom`: the level-`k` lift lies in the domain of
+       `ℛ^{(k)}_n`).
+     * *Measurability and integrability.* `FinalSfCont` (continuity of `φ_k`, `φ̄_k`, `ψ^{(j)}_k` in `ψ_k` on the real domain, `contOn_bg`), `FinalSfChi` (`measurable_chiY`),
+       `FinalSfMeas` (`measurable_sfFactor2_univ_of_dom`: Borel on the support, `0` off it), `FinalSfBound` (`exists_bound_sfFactor2`; `measInt_sfFactor2_univ_of_dom`),
+       `FinalNumerics` (`delta_le_geom`, `exists_beta_delta_le`: `Γ δ_k ≤ min(c, α₀ (L^{-α})^k)` for `β` large, uniformly in `k`), `FinalSfDomain` (`measInt_sfFactor2_univ_of_delta_le`),
+       `FinalSfIntegrable` (**`measInt_sfFactor2_of_flatRep`**: for `β ≥ β₀(κ, c₉)`, every member of `ℛ♭_k` at the stopping scale `ν_k L² > 7/8`, every torus and `g` in the unit `ℓ¹` ball:
+       `BgHyp` of the cube, `sfFactor2 C vc univ` Borel and integrable in `ψ_k`). Typing premise added: `hsep : bgR0 d L ≤ 5 L M₁ = minSep L M₁` (separation of the cube generating
+       sets; `PrefixInput` has `M₁ ≥ 1` only). `kZero_lt_of_stop`: `k₀ < k` at the stopping scale for `β ≥ 2L`.
+     * *Assembly.* `FinalSfConstTerm` (`sum_inhObs_eq_Floc`, `const_exponent`: at `ψ_k ≡ h` the exponent `𝒜_k + ℱ_k` is the vacuum term `ℰ_k(h) − E_k|T|_k`, `⟨g, h⟩` and `Σ_j Σ_X q_j`),
+       `FinalSfAssemble` (`finalSmallFieldInput_of_gaussForm`: `FinalSfGaussInput → FinalSmallFieldInput`), `FinalSfFluct` (**`finalSmallFieldInput_of_fluctForm`**: `FinalSfFluctInput →
+       FinalSmallFieldInput`). `FinalSfFluctInput` is the exact remaining statement: for a member of `ℛ♭_k` at the stopping scale there are scale-`(k+1)` activities `a`
+       (`ObservableActivitiesAt`, including the two-torus agreement) and a vacuum term `E` with `Z_K ∫ sfGaussIntegrand(centre h) · exp(−(𝒜_k + ℱ_k)(h)) dγ = exp(E + Σ_X a)`.
+       Its content: (i) PHYS-CUBIC (`V³ = A*_k − ½⟨v, Hv⟩` volume uniform and localized, isolated by `sfGaussIntegrand_cubic`); (ii) the polymer expansion with the cut `χ_k`
+       (`cutoffInteraction_final_*`, `abstract_expansion_taggedCfin_final`; the Gaussian average of the source's first-order response, `gauss_source_linear`; the regrouping and
+       amplitude, `regroup_observableActivities`, `amplitude_split`); (iii) the exact two-torus agreement of `a` (blocker 7).
+     * **Statements that are false as stated, to be repaired in `PrefixInput`:** `FinalSmallFieldInput` (and `FinalSfFluctInput`) needs `0 < C7.A0`: for `A₀ ≤ 0` the tolerance
+       `δ_k = deltaRun A₀ … ≤ 0`, `χ_k ≡ 0`, `sfIntegral = 0` (`sfFactor2_univ_eq_zero_of_not_pos`) while the right side is an exponential. Also `bgR0 d L ≤ minSep L M₁` (above).
+     * **Not done (genuine open point): A4-1i for the class (`FrozenIntegrableInput`) and any cut `Y = Z^c ≠ univ`.** The transport above uses that every site is over `Y`. For a cut,
+       the chart of `𝔹_j(X)`, `X ⊂ Y^≈`, needs the regional statements of `Q13-COMPOSED.md` (`CanonicalPrecedes`, `RegionalLocalPairAgreement`, `ParentDomainFromFactors` for the retained
+       components) and the integrability of the operator integrals `gOp` (PkgBound (1.26)).
+
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
    `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.
