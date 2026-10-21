@@ -276,9 +276,9 @@ omit [Fintype ι] [Fintype J] in
 theorem srcM_eq_srcMDir (F : (ι → J → ℂ) → ℂ) (g : ι → J → ℂ) (x : ι) (i : J) :
     srcM F g x i = srcMDir F g (unitSrc x i) := rfl
 
+omit [DecidableEq ι] [DecidableEq J] in
 /-- **Covariance of the ray integral under a linear map of the sources**: for a continuous linear
 `T` that maps the ball into the ball, `srcMDir (F ∘ T) g v = srcMDir F (T g) (T v)`. -/
-omit [DecidableEq ι] [DecidableEq J] in
 theorem srcMDir_comp {F : (ι → J → ℂ) → ℂ} {G : ℝ}
     (hF : AnalyticOnNhd ℂ F {g | l1src g < G}) (T : (ι → J → ℂ) →L[ℂ] (ι → J → ℂ))
     (hT : ∀ g, l1src g < G → l1src (T g) < G) {g : ι → J → ℂ} (hg : l1src g < G)
