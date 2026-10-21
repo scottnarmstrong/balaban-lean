@@ -542,19 +542,29 @@ section Mass
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 
+omit [NeZero L] in
+/-- **The standing hypotheses `BgHyp` for the ideal weights `a_n` of scale `k`**, at any separation
+`ϱ' ≥ R₀(d, L)` and any mass `m ≥ 0` with `m L^{2k} ≤ 1`: the weights are those of the ideal flow
+(`aIdeal_mem`) for a coefficient `a_k` in the window `[9/10 (1 - L⁻²)⁻¹, 3/2)` of (H.6). -/
+theorem bgHyp_of_ideal {ak ϱ' m : ℝ} (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ')
+    (h1 : 9 / 10 * (1 - ((L : ℝ) ^ 2)⁻¹)⁻¹ ≤ ak) (h2 : ak < 3 / 2) (hm0 : 0 ≤ m)
+    (hcap : m * ((L : ℝ) ^ k) ^ 2 ≤ 1) :
+    BgHyp d L k ϱ' (aIdeal L k ak) m where
+  hd := hd
+  hL := hL
+  hϱ := hϱ
+  weights := fun _ hj hjk => aIdeal_mem hL h1 h2 hj hjk
+  mass := hm0
+  massLe := hcap
+
 /-- **The standing hypotheses of the background theory at the birth mass of the level `j ≤ k`**
 for a member of (D2♭): the weights `a_n` are those of the ideal flow (`aIdeal_mem`), the
 mass `ν_j L^{-2j}` is nonnegative, and `ν_j L^{-2j} L^{2k} ≤ 1` (`hcap`). -/
 theorem bgHyp_birth {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N ϱ}
     (hsf : SFFlat2 P6 k0 sf) (hd : 3 ≤ d) (hL : 3 ≤ L) (hϱ : bgR0 d L ≤ ϱ) {j : ℕ}
     (hν0 : 0 ≤ sf.ν j) (hcap : physMass L j (sf.ν j) * ((L : ℝ) ^ k) ^ 2 ≤ 1) :
-    BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)) where
-  hd := hd
-  hL := hL
-  hϱ := hϱ
-  weights := fun _ hj hjk => aIdeal_mem hL hsf.coeff.a_ge hsf.coeff.a_lt hj hjk
-  mass := by unfold physMass; positivity
-  massLe := hcap
+    BgHyp d L k ϱ (aIdeal L k (sf.a k)) (physMass L j (sf.ν j)) :=
+  bgHyp_of_ideal hd hL hϱ hsf.coeff.a_ge hsf.coeff.a_lt (by unfold physMass; positivity) hcap
 
 omit [NeZero L] in
 /-- The mass cap expression: `(ν L^{2j} δ_j) L^{-2j} L^{2k} = ν L^{2k} δ_j`. -/
@@ -620,6 +630,27 @@ theorem physMass_cap_of_lt {j : ℕ} (hL : 3 ≤ L) {ν δj : ℝ} (hν : 0 < ν
   have hpos : 0 < ν * ((L : ℝ) ^ k) ^ 2 := by positivity
   nlinarith
 
+omit [NeZero L] in
+/-- **The mass cap at every inherited level** `j ≤ k` of a member of `ℛ♭_k` at the horizon `k̂_f`:
+with (I.2), `ν_j = ν L^{2j} δ_j`, `|log δ_j| ≤ 1/20`, and `ν_k ≤ 9/10` at the stopping scale,
+`ν_j L^{-2j} L^{2k} ≤ 1`: below the horizon by `physMass_cap_of_lt`, at the horizon by
+`physMass_cap_of_top`. -/
+theorem birth_cap_of_run {L k kf : ℕ} (hL : 3 ≤ L) {ν : ℝ} (hν : 0 < ν) {νs : ℕ → ℝ}
+    (hnu : ∀ j, j ≤ k → ∃ δ : ℝ, 0 < δ ∧ |Real.log δ| ≤ 1 / 20 ∧
+      νs j = ν * (L : ℝ) ^ (2 * j) * δ)
+    (hkf : IsHorizon L ν kf) (hkkf : k ≤ kf) (h9 : νs k ≤ 9 / 10) (j : ℕ) (hj : j ≤ k) :
+    physMass L j (νs j) * ((L : ℝ) ^ k) ^ 2 ≤ 1 := by
+  obtain ⟨δj, hδj0, hδj, hνj⟩ := hnu j hj
+  rcases hkkf.lt_or_eq with hlt | heq
+  · rw [hνj]
+    exact physMass_cap_of_lt hL hν hδj0 hδj (hkf.2 k hlt)
+  · subst heq
+    obtain ⟨δk, hδk0, hδk, hνk'⟩ := hnu k le_rfl
+    rw [hνj]
+    refine physMass_cap_of_top hL hν hδj0 hδj hδk0 hδk ?_
+    rw [← hνk']
+    exact h9
+
 end Mass
 
 section Final
@@ -653,16 +684,8 @@ theorem inheritedBoundInput_of_prefix (hPre : PrefixInput d δ T P6 C7 PB cs₀ 
     intro j hj1 hjk
     obtain ⟨δj, hδj0, hδj, hνj⟩ := hnu j hjk
     have hνj0 : 0 ≤ F.sf.ν j := by rw [hνj]; positivity
-    refine bgHyp_birth hsf hd hL3 hϱ hνj0 ?_
-    rcases hkkf.lt_or_eq with hlt | heq
-    · rw [hνj]
-      exact physMass_cap_of_lt hL3 hν0' hδj0 hδj (hkf.2 k hlt)
-    · subst heq
-      obtain ⟨δk, hδk0, hδk, hνk'⟩ := hnu k le_rfl
-      rw [hνj]
-      refine physMass_cap_of_top hL3 hν0' hδj0 hδj hδk0 hδk ?_
-      rw [← hνk', hνkF]
-      exact hν9
+    exact bgHyp_birth hsf hd hL3 hϱ hνj0
+      (birth_cap_of_run hL3 hν0' hnu hkf hkkf (by rw [hνkF]; exact hν9) j hjk)
   obtain ⟨c', hc'⟩ := hℓ
   obtain ⟨N₁, hℓN, hN₁⟩ : ∃ N₁ : ℕ, ℓ = N₁ * (T κ c₉).L ^ (C7 κ c₉).m₁ * (T κ c₉).L ^ k ∧
       (T κ c₉).L ^ (P6 κ c₉).m₀ ∣ N₁ := by
