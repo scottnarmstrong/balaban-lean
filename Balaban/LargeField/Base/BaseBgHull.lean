@@ -51,7 +51,7 @@ theorem cbase_mem_ballCells {s : ℕ} {c y : Torus d n} {R : ℕ} (h : supDist c
     cbase s y ∈ ballCells s c R := mem_ballCells.2 ⟨y, h, rfl⟩
 
 /-- A point at sup-distance `≤ R` from `c` is `c + t` for an integer vector of size `≤ R`. -/
-theorem exists_int_of_supDist {c y : Torus d n} {R : ℕ} (h : supDist c y ≤ R) :
+theorem exists_int_add_of_supDist {c y : Torus d n} {R : ℕ} (h : supDist c y ≤ R) :
     ∃ t : Fin d → ℤ, (∀ μ, |t μ| ≤ R) ∧ y = c + fun μ => ((t μ : ℤ) : ZMod n) := by
   have h' := supDist_le_iff.1 h
   choose t ht1 ht2 using fun μ => (cycNorm_le_iff _ _).1 (h' μ)
@@ -69,7 +69,7 @@ theorem card_ballCells_le {s : ℕ} (hs : s ∣ n) (hs0 : 0 < s) (c : Torus d n)
       (fun q : Fin d → ℕ => b0 + natT (fun μ => s * q μ)) := by
     intro b hb'
     obtain ⟨y, hy, rfl⟩ := mem_ballCells.1 hb'
-    obtain ⟨t, ht, hyt⟩ := exists_int_of_supDist hy
+    obtain ⟨t, ht, hyt⟩ := exists_int_add_of_supDist hy
     set w : Fin d → ℕ := fun μ => (R + t μ).toNat with hw
     have hw1 : ∀ μ, w μ ≤ 2 * R := fun μ => by
       have := abs_le.1 (ht μ); simp only [hw]; omega
@@ -120,7 +120,7 @@ theorem supDist_add_int_le {c : Torus d n} {R : ℕ} (t : Fin d → ℤ) (ht : �
 theorem supBall_chain {c y : Torus d n} {R : ℕ} (h : supDist c y ≤ R) :
     Relation.ReflTransGen (fun a b : Torus d n => supDist c a ≤ R ∧ supDist c b ≤ R ∧ Nbr a b) c y := by
   classical
-  obtain ⟨t, ht, rfl⟩ := exists_int_of_supDist h
+  obtain ⟨t, ht, rfl⟩ := exists_int_add_of_supDist h
   suffices H : ∀ N : ℕ, ∀ t : Fin d → ℤ, (∀ μ, |t μ| ≤ R) → ∑ μ, (t μ).natAbs = N →
       Relation.ReflTransGen (fun a b : Torus d n => supDist c a ≤ R ∧ supDist c b ≤ R ∧ Nbr a b)
         c (c + fun μ => ((t μ : ℤ) : ZMod n)) from H _ t ht rfl

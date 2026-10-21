@@ -6,19 +6,20 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Base.BaseBgHull
+public import Balaban.Green.FinalBoxLocCount
 public import Balaban.Polymer.RootedAnimals
 import Mathlib.Tactic.Linarith
 
 /-!
 # The graph of cells with overlapping patches
 
-The cells of the decoupling cover are the vertices of `cellGraph C D`: two distinct cells are
+The cells of the decoupling cover are the vertices of `Green.cellGraph (cellPatch C D)`: two distinct cells are
 adjacent when their patches (`cellPatch`) meet.  Every patch lies within `9 L^{k+1+m₁}` of the base
 of its cell (`supDist_cellPatch_le`), so the neighbours of a cell have bases within
 `18 L^{k+1+m₁}` and are counted layer by layer by the cells of side `L^{n+m₁}` that meet a ball
 (`card_cells_near_le`): the degree is at most `cellsNear d L k 18`, a number independent of `m₁`
-(`cellGraph_degree_le`).  A rooted family of cells (`IsRootedFamily`) is rooted in this graph at the
-cells whose patch meets the seed (`rooted_cellGraph`), at most `cellsRoot d L k ρ` of them.
+(`cellPatch_degree_le`).  A rooted family of cells (`IsRootedFamily`) is rooted in this graph at the
+cells whose patch meets the seed (`rooted_cellPatchGraph`), at most `cellsRoot d L k ρ` of them.
 -/
 
 @[expose] public section
@@ -33,7 +34,7 @@ variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] (C : DecCover d L N₁
 
 
 omit [NeZero N₁] [NeZero L] in
-theorem pow_dvd_side {n : ℕ} (hn : n ≤ k + 1) : L ^ (n + m₁) ∣ N₁ * L ^ m₁ * L ^ (k + 1) := by
+theorem pow_dvd_cover_side {n : ℕ} (hn : n ≤ k + 1) : L ^ (n + m₁) ∣ N₁ * L ^ m₁ * L ^ (k + 1) := by
   obtain ⟨t, ht⟩ := Nat.exists_eq_add_of_le hn
   rw [ht]
   exact ⟨N₁ * L ^ t, by ring⟩
@@ -46,12 +47,6 @@ theorem two_mul_div_side {n : ℕ} (hn : n ≤ k + 1) (c : ℕ) :
   rw [h1, ht, show 2 * (c * L ^ (n + t + m₁)) = (2 * c * L ^ t) * L ^ (n + m₁) by ring]
   exact Nat.mul_div_cancel _ (pow_pos hL0 _)
 
-open Classical in
-/-- **The graph of cells with overlapping patches.** -/
-noncomputable def cellGraph (D : ℕ) : SimpleGraph ↥C.cubeIdx where
-  Adj i j := i ≠ j ∧ (cellPatch C D i ∩ cellPatch C D j).Nonempty
-  symm := ⟨fun _ _ h => ⟨h.1.symm, by rw [Set.inter_comm]; exact h.2⟩⟩
-  loopless := ⟨fun _ h => h.1 rfl⟩
 
 /-- The number of cells within sup-distance `R` of a site, `R = c · L^{k+1+m₁}`: the cells of layer
 `n` have bases in the cells of side `L^{n+m₁}` that meet the ball. -/
@@ -82,11 +77,11 @@ theorem card_cells_near_le_aux
     obtain ⟨h1, h2⟩ := hlay q hqI
     refine Finset.mem_biUnion.2 ⟨q.1, Finset.mem_Icc.2 ⟨h1, h2⟩, Finset.mem_image.2 ⟨q.2, ?_, rfl⟩⟩
     refine mem_ballCells.2 ⟨q.2, hqd, ?_⟩
-    exact cbase_eq_self_of_aligned' (pow_dvd_side h2) (pow_pos hL0 _) (hal q hqI)
+    exact cbase_eq_self_of_aligned' (pow_dvd_cover_side h2) (pow_pos hL0 _) (hal q hqI)
   refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
   refine Finset.sum_le_sum fun n hn => ?_
   have hn2 := (Finset.mem_Icc.1 hn).2
-  have hdvd := pow_dvd_side (L := L) (N₁ := N₁) (m₁ := m₁) hn2
+  have hdvd := pow_dvd_cover_side (L := L) (N₁ := N₁) (m₁ := m₁) hn2
   exact Finset.card_image_le.trans (card_ballCells_le hdvd (pow_pos hL0 _) z _)
 
 theorem card_cells_near_le
@@ -136,15 +131,19 @@ theorem supDist_cellPatch_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 *
 
 open Classical in
 /-- **Degree of the graph of cells.**  A cell is adjacent to at most `cellsNear d L k 18` others. -/
-theorem cellGraph_degree_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 * L ^ 2 ≤ L ^ m₁)
+theorem cellPatch_degree_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 * L ^ 2 ≤ L ^ m₁)
     (hlay : ∀ q ∈ C.cubeIdx, 1 ≤ q.1 ∧ q.1 ≤ k + 1)
     (hal : ∀ q ∈ C.cubeIdx, Aligned (L ^ (q.1 + m₁)) q.2) (i : ↥C.cubeIdx) :
-    (cellGraph C D).degree i ≤ cellsNear d L k 18 := by
+    (Green.cellGraph (cellPatch C D)).degree i ≤ cellsNear d L k 18 := by
   rw [← SimpleGraph.card_neighborFinset_eq_degree]
   refine le_trans ?_ (card_cells_near_le C hlay hal i.1.2 18)
   refine Finset.card_le_card_of_injOn Subtype.val (fun j hj => ?_) (fun _ _ _ _ h => Subtype.ext h)
   have hj' := (SimpleGraph.mem_neighborFinset _ _ _).1 (Finset.mem_coe.1 hj)
-  obtain ⟨-, y, hyi, hyj⟩ := hj'
+  obtain ⟨-, hr⟩ := (SimpleGraph.fromRel_adj _ _ _).1 hj'
+  obtain ⟨y, hyi, hyj⟩ : (cellPatch C D i ∩ cellPatch C D j).Nonempty := by
+    rcases hr with h | h
+    · exact h
+    · rwa [Set.inter_comm]
   refine Finset.mem_coe.2 (Finset.mem_filter.2 ⟨j.2, ?_⟩)
   have h1 := supDist_cellPatch_le hD hm (fun q hq => (hlay q hq).2) i hyi
   have h2 := supDist_cellPatch_le hD hm (fun q hq => (hlay q hq).2) j hyj
@@ -152,27 +151,16 @@ theorem cellGraph_degree_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 * 
   rw [supDist_comm y j.1.2] at h3
   omega
 
-open Classical in
-/-- The cells whose patch meets the root set `S`. -/
-noncomputable def rootCells (D : ℕ) (S : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))) :
-    Finset ↥C.cubeIdx :=
-  Finset.univ.filter fun i => (cellPatch C D i ∩ S).Nonempty
-
-theorem mem_rootCells {D : ℕ} {S : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
-    {i : ↥C.cubeIdx} : i ∈ rootCells (C := C) D S ↔ (cellPatch C D i ∩ S).Nonempty := by
-  classical
-  simp [rootCells]
-
 theorem card_rootCells_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 * L ^ 2 ≤ L ^ m₁)
     (hlay : ∀ q ∈ C.cubeIdx, 1 ≤ q.1 ∧ q.1 ≤ k + 1)
     (hal : ∀ q ∈ C.cubeIdx, Aligned (L ^ (q.1 + m₁)) q.2)
     (x : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) {ρs : ℕ}
     {S : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hS : ∀ y ∈ S, supDist x y ≤ ρs) :
-    (rootCells (C := C) D S).card ≤ cellsRoot d L k ρs := by
+    (Green.rootCells (cellPatch C D) S).card ≤ cellsRoot d L k ρs := by
   classical
   refine le_trans ?_ (card_cells_root_le C hlay hal x ρs)
   refine Finset.card_le_card_of_injOn Subtype.val (fun j hj => ?_) (fun _ _ _ _ h => Subtype.ext h)
-  obtain ⟨y, hyj, hyS⟩ := mem_rootCells.1 (Finset.mem_coe.1 hj)
+  obtain ⟨y, hyj, hyS⟩ := Green.mem_rootCells.1 (Finset.mem_coe.1 hj)
   refine Finset.mem_coe.2 (Finset.mem_filter.2 ⟨j.2, ?_⟩)
   have h1 := supDist_cellPatch_le hD hm (fun q hq => (hlay q hq).2) j hyj
   have h2 := hS y hyS
@@ -182,25 +170,25 @@ theorem card_rootCells_le {D : ℕ} (hD : D ≤ L ^ (k + 1 + m₁)) (hm : 4 * L 
 
 open Classical in
 theorem walkIn_of_cellAdj {D : ℕ} {Cs : Finset ↥C.cubeIdx} {b c : ↥C.cubeIdx}
-    (h : Green.CellAdj (cellPatch C D) Cs b c) : Polymer.WalkIn (cellGraph C D) Cs b c := by
+    (h : Green.CellAdj (cellPatch C D) Cs b c) : Polymer.WalkIn (Green.cellGraph (cellPatch C D)) Cs b c := by
   obtain ⟨hb, hc, hne⟩ := h
   by_cases hbc : b = c
   · subst hbc; exact Polymer.WalkIn.refl hb
-  · refine ⟨SimpleGraph.Walk.cons ⟨hbc, hne⟩ SimpleGraph.Walk.nil, fun x hx => ?_⟩
+  · refine ⟨SimpleGraph.Walk.cons (Green.cellGraph_adj _ hbc hne) SimpleGraph.Walk.nil, fun x hx => ?_⟩
     change x ∈ b :: [c] at hx
     simp only [List.mem_cons, List.not_mem_nil, or_false] at hx
     rcases hx with rfl | rfl <;> assumption
 
 open Classical in
 /-- **A rooted family of cells is rooted in the graph of cells.** -/
-theorem rooted_cellGraph {D : ℕ} {S : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+theorem rooted_cellPatchGraph {D : ℕ} {S : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
     {Cs : Finset ↥C.cubeIdx} (h : Green.IsRootedFamily (cellPatch C D) S Cs) :
-    Polymer.Rooted (cellGraph C D) ((rootCells (C := C) D S : Finset ↥C.cubeIdx) : Set ↥C.cubeIdx) Cs := by
+    Polymer.Rooted (Green.cellGraph (cellPatch C D)) ((Green.rootCells (cellPatch C D) S : Finset ↥C.cubeIdx) : Set ↥C.cubeIdx) Cs := by
   intro i hi
   obtain ⟨j, hj, hjS, hji⟩ := h i hi
-  refine ⟨j, Finset.mem_coe.2 (mem_rootCells.2 hjS), ?_⟩
+  refine ⟨j, Finset.mem_coe.2 (Green.mem_rootCells.2 hjS), ?_⟩
   have key : ∀ i', Relation.ReflTransGen (Green.CellAdj (cellPatch C D) Cs) j i' →
-      Polymer.WalkIn (cellGraph C D) Cs i' j := by
+      Polymer.WalkIn (Green.cellGraph (cellPatch C D)) Cs i' j := by
     intro i' h'
     induction h' with
     | refl => exact Polymer.WalkIn.refl hj

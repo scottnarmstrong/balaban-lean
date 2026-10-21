@@ -20,7 +20,7 @@ site `x`), non-zero only for the families rooted at a set of sites within `ρs` 
 the set `labelSet` of the hull of the root cube of `x` and the patches `labelJ` of the family.  The
 sum of the coefficients with a given label `Y` is at most `labelAmp · e^{-labelRate · d^cov(Y)}`
 (`norm_labelSum_le`), provided `Δ² e^{-(κ-1)} < 1` with `Δ = labelDelta`, a number independent of
-`m₁` (it bounds the degree of the graph of cells, `cellGraph_degree_le`, and the number of cells
+`m₁` (it bounds the degree of the graph of cells, `cellPatch_degree_le`, and the number of cells
 that meet the seed, `card_rootCells_le`).  The proof counts the families by rooted animals of that
 graph (`rooted_tail_sum_le`), the sites `x` by the sites of `Y` (`ncard_le_of_isDj`), and uses the
 size of the hull, at most `2 d L (A + 20^d |Cs|)` (`labelHull_spec`), to bound `|Cs|` from below.
@@ -137,13 +137,13 @@ theorem norm_labelSum_le {ι : Type*} [Fintype ι] (hd : 0 < d)
   have hσ0 : 0 ≤ σ := treeLenCovOne_nonneg m₀ (k + 1) Y
   set n : ℕ := ⌈(σ / (2 * d * L : ℝ) - A) / (20 : ℝ) ^ d⌉₊ with hn
   set Xs : Finset ι := Finset.univ.filter (fun x => pos x ∈ Y) with hXs
-  have hmain := norm_sum_label_le (Gr := cellGraph C D) (V := ↥C.cubeIdx)
+  have hmain := norm_sum_label_le (Gr := Green.cellGraph (cellPatch C D)) (V := ↥C.cubeIdx)
     (b := cellsNear d L k 18) (b_root := cellsRoot d L k ρs)
-    (cellGraph_degree_le hD hm hlay hal) (fun x => rootCells (C := C) D (S x))
+    (cellPatch_degree_le hD hm hlay hal) (fun x => Green.rootCells (cellPatch C D) (S x))
     (fun x => card_rootCells_le hD hm hlay hal (pos x) (hS x))
     (t := Real.exp (-(κ - 1))) (Real.exp_pos _).le hz c hB
     (fun x Cs => labelSet C m₀ (pos x) ρs Cs) Y n Xs
-    (fun x Cs h => Polymer.mem_rootedSets.2 (rooted_cellGraph (hroot x Cs h))) hbd
+    (fun x Cs h => Polymer.mem_rootedSets.2 (rooted_cellPatchGraph (hroot x Cs h))) hbd
     (fun x Cs h hl => by
       refine Nat.ceil_le.2 ?_
       have h3 := (hspec x Cs h).2.2

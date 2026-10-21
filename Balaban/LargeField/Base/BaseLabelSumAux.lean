@@ -19,7 +19,7 @@ import Mathlib.Tactic.Positivity
   `|Xs| B z^n / (1 - z)` when each of them has `|C| ≥ n` and `x ∈ Xs` (rooted animals,
   `rooted_tail_sum_le`).
 * `ncard_le_of_isDj`: a domain `Y ∈ 𝒟_j` has at most `a_j^d c₁ (1 + d^cov_j(Y))` sites.
-* `one_add_mul_exp_le`, `tail_decay_aux`: the real inequality that turns the tail `z^n` of the
+* `one_add_mul_exp_le_half`, `tail_decay_aux`: the real inequality that turns the tail `z^n` of the
   rooted sum, `n ≥ (σ/γ - A)/P`, into the decay `e^{-μσ/2}`.
 -/
 
@@ -30,7 +30,7 @@ namespace Balaban.LargeField.Base
 open Balaban Balaban.Fluctuation Balaban.Localization Finset
 
 /-- `(1 + σ) e^{-μ σ} ≤ (1 + 2/μ) e^{-μσ/2}` for `σ ≥ 0`, `μ > 0`. -/
-theorem one_add_mul_exp_le {μ σ : ℝ} (hμ : 0 < μ) (hσ : 0 ≤ σ) :
+theorem one_add_mul_exp_le_half {μ σ : ℝ} (hμ : 0 < μ) (hσ : 0 ≤ σ) :
     (1 + σ) * Real.exp (-(μ * σ)) ≤ (1 + 2 / μ) * Real.exp (-(μ / 2 * σ)) := by
   have h1 : Real.exp (-(μ * σ)) = Real.exp (-(μ / 2 * σ)) * Real.exp (-(μ / 2 * σ)) := by
     rw [← Real.exp_add]; congr 1; ring
@@ -76,7 +76,7 @@ theorem tail_decay_aux {z γ P A σ : ℝ} {n : ℕ} (hz0 : 0 < z) (hz1 : z < 1)
       have e3 : lam / P * (P * n) = lam * n := by field_simp
       nlinarith
     linarith
-  have h2 := one_add_mul_exp_le hμ0 hσ
+  have h2 := one_add_mul_exp_le_half hμ0 hσ
   calc (1 + σ) * z ^ n ≤ (1 + σ) * (Real.exp (lam * A / P) * Real.exp (-(μ * σ))) :=
         mul_le_mul_of_nonneg_left h1 (by linarith)
     _ = Real.exp (lam * A / P) * ((1 + σ) * Real.exp (-(μ * σ))) := by ring
