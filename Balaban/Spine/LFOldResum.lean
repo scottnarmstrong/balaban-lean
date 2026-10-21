@@ -28,7 +28,8 @@ This file proves the named input `OldResumSite` (`oldResumSite_holds`), with exp
   site** are at most `c₁ (1 + d_k(X))`, `3^d (d_k(X)/L + 1)` and `N₀` times these and `|J|`;
 * `cubesIn`, `subset_cubesIn_of_mem_famAt`, `card_cubesIn_level_le`, `card_cubesIn_le`: **the cover
   cubes inside a site** are at most `C_P (1 + d^cov_{k+1}(V))` (P3 (4.49));
-* `resumTree`, `resumNbhd`, `resumCubes`, **`oldResumSite_holds`**.
+* `resumTree`, `resumNbhd`, `resumCubes`, **`oldResumSite_holds`**; `pow_dvd_c_mul` (its divisibility
+  hypothesis from the frame).
 -/
 
 @[expose] public section
@@ -891,6 +892,22 @@ theorem oldResumSite_holds {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
         rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add, hQ]
         congr 1
         ring
+
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+include hM1 in
+/-- **In a frame, `c = L^{m₀}`**, so `L^{m₀}` divides `c n_{k+1}` (the hypothesis `hgc` of
+`oldResumSite_holds`). -/
+theorem pow_dvd_c_mul {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) [NeZero S.L] (j : ℕ) :
+    S.L ^ m₀ ∣ g.c * n j := by
+  have hL : 0 < S.L := Nat.pos_of_ne_zero (NeZero.ne S.L)
+  have h : g.c * S.L ^ m₁ = S.L ^ m₀ * S.L ^ m₁ := by
+    have e1 : g.c * g.M1 = M := g.hM.symm
+    rw [hM1] at e1
+    rw [e1, F.hM, pow_add]
+  have hc : g.c = S.L ^ m₀ := Nat.eq_of_mul_eq_mul_right (pow_pos hL m₁) h
+  rw [hc]
+  exact dvd_mul_right _ _
 
 
 end Resum
