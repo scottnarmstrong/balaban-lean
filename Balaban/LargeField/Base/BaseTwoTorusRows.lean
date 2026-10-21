@@ -78,6 +78,78 @@ variable {a : ℕ → ℝ} {aT ν x κ δ : ℝ}
   {φ : Balaban.Localization.CTorus d L N₁ m₁ 1 → Fin N → ℂ}
   {φ' : Balaban.Localization.CTorus d L N₁' m₁ 1 → Fin N → ℂ}
 
+/-- **The neighbourhood hypothesis transfers to the second torus.**  Let `Sr ⊆ Y` be sets of sites
+of the box of radius `R` such that `Y` contains the lattice neighbours and layer-block mates of
+the sites of `Sr` on the first torus.  Then `bm '' Y` contains those of the sites of `bm '' Sr` on
+the second torus: `boxMap` commutes with the lattice translations inside the box, and a site of
+the second torus in the `L`-block of an image lies in the image of a site of the box of radius
+`R + L` (`inBox_of_jBlock_eq`, `jBlock_boxMap_iff`). -/
+theorem nbr_image_twoTorus (hSY : Sr ⊆ Y) (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ 1) y)
+    (hn : 4 * R + 12 * L ^ (1 + m₁) + 3 * L ^ 1 + 5 < (N₁ * L ^ m₁) * L ^ 1)
+    (hn' : 4 * R + 12 * L ^ (1 + m₁) + 3 * L ^ 1 + 5 < (N₁' * L ^ m₁) * L ^ 1)
+    (hnbr : ∀ p q : (GA).Ω 1, (p : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Sr →
+    ((q : Balaban.Localization.CTorus d L N₁ m₁ 1) = p ∨
+      (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+          (p : Balaban.Localization.CTorus d L N₁ m₁ 1) + Pi.single μ 1 ∨
+        (q : Balaban.Localization.CTorus d L N₁ m₁ 1) =
+          (p : Balaban.Localization.CTorus d L N₁ m₁ 1) - Pi.single μ 1) ∨
+      (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
+        (GA).blk ((GA).layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
+    (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y) :
+    ∀ p q : (GB).Ω 1, (p : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Sr.image bm →
+    ((q : Balaban.Localization.CTorus d L N₁' m₁ 1) = p ∨
+      (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
+          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) + Pi.single μ 1 ∨
+        (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
+          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) - Pi.single μ 1) ∨
+      (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈
+        (GB).blk ((GB).layerIndex (p : Balaban.Localization.CTorus d L N₁' m₁ 1)) p) →
+    (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Y.image bm := by
+  classical
+  have hL1 : 1 ≤ L ^ 1 := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hLL : L ^ 1 ≤ L ^ (1 + m₁) := Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L))
+    (by omega)
+  intro p q hp h
+  obtain ⟨p0, hp0, hpe⟩ := Finset.mem_image.1 hp
+  have hp0R := hYR p0 (hSY hp0)
+  let P0 : (GA).Ω 1 := ⟨p0, levelGS_mem_Ω_one (le_refl 1) le_rfl _⟩
+  have hP0 : (P0 : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Sr := hp0
+  rcases h with h | ⟨μ, h | h⟩ | h
+  · rw [h, ← hpe]; exact Finset.mem_image_of_mem _ (hSY hp0)
+  · let Q0 : (GA).Ω 1 := ⟨p0 + Pi.single μ 1, levelGS_mem_Ω_one (le_refl 1) le_rfl _⟩
+    have hQ := hnbr P0 Q0 hP0 (Or.inr (Or.inl ⟨μ, Or.inl rfl⟩))
+    have : (q : Balaban.Localization.CTorus d L N₁' m₁ 1) = bm (p0 + Pi.single μ 1) := by
+      rw [boxMap_add_single (ρ := R) (by omega) (by omega) hp0R μ, hpe, h]
+    rw [this]; exact Finset.mem_image_of_mem _ hQ
+  · let Q0 : (GA).Ω 1 := ⟨p0 - Pi.single μ 1, levelGS_mem_Ω_one (le_refl 1) le_rfl _⟩
+    have hQ := hnbr P0 Q0 hP0 (Or.inr (Or.inl ⟨μ, Or.inr rfl⟩))
+    have : (q : Balaban.Localization.CTorus d L N₁' m₁ 1) = bm (p0 - Pi.single μ 1) := by
+      rw [boxMap_sub_single (ρ := R) (by omega) (by omega) hp0R μ, hpe, h]
+    rw [this]; exact Finset.mem_image_of_mem _ hQ
+  · -- the layer block of the image
+    obtain ⟨h1, h2, hl⟩ := (GB).layerIndex_spec p.2
+    have hn1 : (GB).layerIndex (p : Balaban.Localization.CTorus d L N₁' m₁ 1) = 1 := by omega
+    rw [hn1] at h
+    have hbl := GeneratingSet.mem_blk.1 h
+    have hpB : InBox d R ((N₁' * L ^ m₁) * L ^ 1) (p : Balaban.Localization.CTorus d L N₁' m₁ 1) := by
+      rw [← hpe]; exact inBox_boxMap (by omega) hp0R
+    have hqB : InBox d (R + L ^ 1) ((N₁' * L ^ m₁) * L ^ 1) (q : Balaban.Localization.CTorus d L N₁' m₁ 1) :=
+      inBox_of_jBlock_eq (k := 0) (N₁ := N₁') (m := 1) (by omega)
+        (by have h1 : L ^ (0 + 1) = L ^ 1 := rfl; rw [h1]; omega) hpB hbl
+    set q0 : Balaban.Localization.CTorus d L N₁ m₁ 1 :=
+      boxMap ((N₁' * L ^ m₁) * L ^ 1) ((N₁ * L ^ m₁) * L ^ 1) q with hq0
+    have hq0R : InBox d (R + L ^ 1) ((N₁ * L ^ m₁) * L ^ 1) q0 := inBox_boxMap (by omega) hqB
+    have hqq : bm q0 = q := boxMap_boxMap (by omega) hqB
+    have hjb := (jBlock_boxMap_iff (K := 1) (j := 1) (N₁' := N₁') (ρ := R + L ^ 1) le_rfl
+      (by omega) (by omega) hq0R (inBox_mono (by omega) hp0R)).2
+      (by rw [hqq, hpe]; exact hbl)
+    let Q0 : (GA).Ω 1 := ⟨q0, levelGS_mem_Ω_one (le_refl 1) le_rfl _⟩
+    have hQ := hnbr P0 Q0 hP0 (Or.inr (Or.inr (by
+      obtain ⟨g1, g2, gl⟩ := (GA).layerIndex_spec P0.2
+      have gn : (GA).layerIndex (P0 : Balaban.Localization.CTorus d L N₁ m₁ 1) = 1 := by omega
+      rw [gn]; exact GeneratingSet.mem_blk.2 hjb)))
+    rw [← hqq]; exact Finset.mem_image_of_mem _ hQ
+
 section Vec
 
 variable (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
@@ -103,19 +175,10 @@ variable (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
       (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
         (GA).blk ((GA).layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
     (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y)
-  (hnbr' : ∀ p q : (GB).Ω 1, (p : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Sr.image bm →
-    ((q : Balaban.Localization.CTorus d L N₁' m₁ 1) = p ∨
-      (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
-          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) + Pi.single μ 1 ∨
-        (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
-          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) - Pi.single μ 1) ∨
-      (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈
-        (GB).blk ((GB).layerIndex (p : Balaban.Localization.CTorus d L N₁' m₁ 1)) p) →
-    (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Y.image bm)
   (hagree : ∀ q ∈ innerCentres (GA) Sr,
     (coverOf (GB)).sProd s' (Prod.map id bm q) = (coverOf (GA)).sProd s q)
   (hφ : ∀ u ∈ Y, φ' (bm u) = φ u)
-include hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hSY hYR hn hn' hα hdich hdich' hnbr hnbr'
+include hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hSY hYR hn hn' hα hdich hdich' hnbr
   hagree hφ
 
 /-- **The vector form of the correspondence of the shifted covariance on two tori.**  Under the
@@ -145,7 +208,7 @@ theorem baseCovX_mulVec_rows_twoTorus (SA : Dec2.XCover (coverOf (GA)) (GA) a aT
   have hrow' : ∀ z y : (GB).Ω 1, (z : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Sr.image bm →
       xDirichletOperator (GB) a aT 0 (ν + x) α' z y ≠ 0 →
       (y : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Y.image bm :=
-    fun p q hp hpq => hnbr' p q hp (xDirichlet_row_cases α' hpq)
+    fun p q hp hpq => nbr_image_twoTorus hSY hYR hn hn' hnbr p q hp (xDirichlet_row_cases α' hpq)
   have hZ := decZ_rows_Sr (k := 0) (x₀ := 0) SA SB le_rfl hSY hYR hn hn' hαA hαB hα
     DA.isUnit_one_sub DB.isUnit_one_sub hdich hdich' hrow hrow' hagree hφ hMA hMB
     (w := w) (w' := w') (fun y hy i => hw y (hSY hy) i) y hy i
@@ -193,7 +256,7 @@ theorem baseCovX_rows_twoTorus (SA : Dec2.XCover (coverOf (GA)) (GA) a aT (ν + 
   refine baseCovX_mulVec_rows_twoTorus SA SB (hCx := hCx) (hκ := hκ) (hM := hM) (hδ := hδ)
     (hsm := hsm) (hαA := hαA) (hαB := hαB) (hs := hs) (hs' := hs') (hφA := hφA) (hφB := hφB)
     (hSY := hSY) (hYR := hYR) (hn := hn) (hn' := hn') (hα := hα) (hdich := hdich)
-    (hdich' := hdich') (hnbr := hnbr) (hnbr' := hnbr') (hagree := hagree) (hφ := hφ)
+    (hdich' := hdich') (hnbr := hnbr) (hagree := hagree) (hφ := hφ)
     (w := Pi.single (z, j) 1)
     (w' := Pi.single (ιb z, j) 1) (fun u hu i' => ?_) y hy i
   by_cases huz : u = z
@@ -225,7 +288,7 @@ theorem baseCovX_sqrt_rows_twoTorus (SA : Dec2.XCover (coverOf (GA)) (GA) a aT �
     (xCover_add_mass SB (mem_Ioi.mp hx).le) (hCx := hCx) (hκ := hκ) (hM := hM) (hδ := hδ)
     (hsm := hsm) (hαA := hαA) (hαB := hαB) (hs := hs) (hs' := hs') (hφA := hφA) (hφB := hφB)
     (hSY := hSY) (hYR := hYR) (hn := hn) (hn' := hn') (hα := hα) (hdich := hdich)
-    (hdich' := hdich') (hnbr := hnbr) (hnbr' := hnbr') (hagree := hagree) (hφ := hφ) y z hy hz
+    (hdich' := hdich') (hnbr := hnbr) (hagree := hagree) (hφ := hφ) y z hy hz
     i j]
 
 end Vec
