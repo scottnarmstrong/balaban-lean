@@ -730,8 +730,9 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   closure and its block hull; the composed field at a unit point agrees for two localization vectors with the same factors on
   the closure, `composed_eq_of_hull`, from `Dec2.decBg_component_cross` and `Dec2.localLift_eq_localLift_on_component`
   for (`coverOf` G′, G′) with itself; (AE2) `oldInterp_localityAEOn`, `oldCoef_eq_zero_of_not_reached`,
-  `oldCoef_congr_of_agreeReach`), given the standing analytic conditions (part of (ii)) and the geometric conditions
-  `hcov`, `hlocdeep` on the localization domains (to be proved for the history instance). **Remaining for O1:** (ii) OPEN-H7-MIXED (the
+  `oldCoef_congr_of_agreeReach`); history instance `Spine/LFOldLocal.lean` `oldCoefLF_eq_zero_of_not_reached` with every
+  geometric hypothesis proved and the standing conditions from the datum in the chart (`standing_of_xiCData`,
+  `p6TopC_coverBase`). **Remaining for O1:** (ii) OPEN-H7-MIXED (the
   image of the target H7 domain and the polydisc in the source H7 domain; gives `hana` of `sum_oldCoef_eq_of_analytic`
   and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
   exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
