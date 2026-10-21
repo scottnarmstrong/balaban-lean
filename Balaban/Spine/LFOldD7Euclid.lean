@@ -214,6 +214,40 @@ theorem psiLoc_entry (H : StepAff S S' A) (ρ : ℝ)
   exact congrFun (bgData_unit_const S (composeData S.hpre S.a
     (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ (sloc b) S.D') S.D') b _ hx) i
 
+theorem betaU_eq (H : StepAff S S' A) : S'.betaU = S.betaU := by
+  unfold HoleStep.betaU; rw [H.hβ]
+
+/-- **The fluctuation part of the composed field is transported.** -/
+theorem shiftLoc_entry (H : StepAff S S' A) (ρ : ℝ)
+    {sloc : S.U → Dec2.DecParams (coverOf S.G')} {sloc' : S'.U → Dec2.DecParams (coverOf S'.G')}
+    (hsl : ∀ b P, Dec2.extS (coverOf S'.G') (sloc' (H.u b)) (tau A P) =
+      Dec2.extS (coverOf S.G') (sloc b) P)
+    {ψhat : S.U → Fin N → ℂ} {ψhat' : S'.U → Fin N → ℂ}
+    (hψ : ∀ q i, ψhat' (H.u q) i = ψhat q i) (b : S.U) (i : Fin N) :
+    S'.shiftLoc (coverOf S'.G') ρ sloc' ψhat' (H.u b) i =
+      S.shiftLoc (coverOf S.G') ρ sloc ψhat b i := by
+  unfold HoleStep.shiftLoc
+  rw [H.betaU_eq]
+  congr 1
+  rw [← Equiv.sum_comp (H.u.prodCongr (Equiv.refl (Fin N)))]
+  refine Finset.sum_congr rfl fun q _ => ?_
+  have := H.covSqrtAt_entry ρ (hsl b) (b, i) q
+  show S'.covSqrtAt (coverOf S'.G') ρ (sloc' (H.u b)) (H.u b, i) (H.u q.1, q.2) *
+      ψhat' (H.u q.1) q.2 = _
+  rw [this, hψ]
+
+/-- **The composed field of P5 (2.39) is transported.** -/
+theorem composed_entry (H : StepAff S S' A) (ρ : ℝ)
+    {sloc : S.U → Dec2.DecParams (coverOf S.G')} {sloc' : S'.U → Dec2.DecParams (coverOf S'.G')}
+    (hsl : ∀ b P, Dec2.extS (coverOf S'.G') (sloc' (H.u b)) (tau A P) =
+      Dec2.extS (coverOf S.G') (sloc b) P)
+    {ψhat : S.U → Fin N → ℂ} {ψhat' : S'.U → Fin N → ℂ}
+    (hψ : ∀ q i, ψhat' (H.u q) i = ψhat q i) (b : S.U) (i : Fin N) :
+    S'.composed (coverOf S'.G') ρ sloc' ψhat' (H.u b) i =
+      S.composed (coverOf S.G') ρ sloc ψhat b i := by
+  unfold HoleStep.composed
+  rw [H.psiLoc_entry ρ hsl, H.shiftLoc_entry ρ hsl hψ]
+
 end StepAff
 
 end Balaban.Fluctuation
