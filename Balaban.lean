@@ -386,6 +386,7 @@ public import Balaban.Localization.DecEquivLatBg
 public import Balaban.Localization.DecEquivTerms
 public import Balaban.Localization.DecEquivTranslate
 public import Balaban.Localization.DecEquivAff
+public import Balaban.Localization.LatPairDecBg
 public import Balaban.Localization.DecEquivTranslatePolymer
 public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
