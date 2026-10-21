@@ -694,6 +694,25 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   transfer map (`transferLabel` with the optimal cover and the mark patches, a choice made covariantly).
   Then O1 is the estimate P6 (4.34) for `T`, which is analytic (the fluctuation machinery of `Fluctuation/StepActivity*`,
   `ClassOldTerm*`), and O5 is the counting above.
+* **Status after W1154 (2026-10-21): O2–O5 and the geometry of O1 PROVED** (`Spine/LFBdryOldEntropy.lean`,
+  `Spine/LFBdryOldAssign.lean`; axioms `propext, Classical.choice, Quot.sound`). Definitions: the assignments
+  `Def7.oldAssign F H k` (old post-`R` boundary domain `X` meeting `Ω_{k+1}`, an optimal cover `𝒦 ∈ optCovers`, rooted
+  patches `J`), the output label `assignOut` (= `transferCubes`, the transfer label of `𝒦 ∪ J`), the weight
+  `assignWt = 1/#optCovers` (covariant average over the optimal covers). Proved: `oldAssign_spec` (validity of `X` and of
+  the output, `X ⊆ Y`, patches, `d_{k+1}(Y) ≤ d_k(X)/L + c_G|J|`, O4 `d_k(X) ≥ L(⌊R_k⌋+2)`); O3 `assignOut_meets_Zpre`,
+  `assignOut_mem_bdryDomsAt_iff` (an output is a boundary domain at `k+1` iff it meets `(Z^pre_{k+1})^c`); O5
+  `sum_exp_oldIn_le`, `card_patchesIn_le`, `sum_exp_assign_le` (`assignEnt`), `assignEnt_le_exp`; and the per-label
+  bound `norm_sum_oldAssign_fiber_le`: for any coefficients `T` on the fiber of `Y` with
+  `‖T a‖ ≤ assignWt · C_re B₀ e^{-κ d_k(X)} e^{-κ_m |J|}` (hT), `‖∑ T‖ ≤ C_re · assignEnt(…) · e^{-κ_o d_{k+1}(Y)}`, the
+  other hypotheses being the constant conditions `κ/2 - κ_o/L ≥ a_ent + 1` and (Λ28).
+  **Open: O1 proper** — the coefficient `T(X, 𝒦, J)` and its bound hT. The old part of `ℬ^{(k+1)}` is FLUCTUATION
+  Theorem 3.1 (c) (P5 (2.48), (3.2)): `∫₀¹ du ⟨ℬ''^{(k)}(ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂)⟩''_u`, which needs
+  (1) the composed field (the map from the scale-`(k+1)` multiscale field to the scale-`k` one on `Ω_{k+1}`: at scale `k+1`
+  the H7 domain leaves `ψ_k` free on `Ω_{k+1}` away from the collar, so no identity transport is bounded), (2) the
+  measure of the step with holes (`Fluctuation.StepSetting` is the whole-lattice step; `Thm31cde.lean`), (3) the bound
+  (Vmod) of each old term, conditional on OPEN-H7-MIXED, OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC and the
+  common-cover I-4a theorem (VMOD.md §1.4, VMOD-39). P6 (4.33) is the localized interaction: the step's terms are at the
+  cluster labels `Ŷ(S) ⊇ Y₀` of Theorem 3.4; the landed assignments are the `Y₀` layer.
 
 ## LastIntegralInput sub-inputs (W1108)
 
