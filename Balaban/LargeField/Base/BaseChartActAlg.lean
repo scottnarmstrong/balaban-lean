@@ -142,6 +142,22 @@ theorem analyticAt_chartSite {q₀ : E} {β : ℝ} {e : E → ι → Fin N → �
     (analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun i _ => (hg x i).mul
       ((hv x i).add (hz x i))))
 
+/-- **The site exponent for an abstract whitening family**: `v = Q_e (W ψ')`.  Analytic in the
+inputs `(e, H, g, W, ψ')` wherever `1 - t_y` is in the slit plane. -/
+theorem analyticAt_chartSiteW {q₀ : E} {β : ℝ} {e : E → ι → Fin N → ℂ} {H : E → Matrix ι ι ℂ}
+    {g ψ : E → ι × Fin N → ℂ} {W : E → Matrix (ι × Fin N) (ι × Fin N) ℂ}
+    (he : ∀ y i, AnalyticAt ℂ (fun q => e q y i) q₀)
+    (hH : ∀ x y, AnalyticAt ℂ (fun q => H q x y) q₀)
+    (hg : ∀ y i, AnalyticAt ℂ (fun q => g q (y, i)) q₀)
+    (hW : ∀ p r, AnalyticAt ℂ (fun q => W q p r) q₀)
+    (hψ : ∀ r, AnalyticAt ℂ (fun q => ψ q r) q₀)
+    (hs : ∀ x, 1 - chartT β (chartTangent (e q₀) (W q₀ *ᵥ ψ q₀)) x ∈ Complex.slitPlane) (x : ι) :
+    AnalyticAt ℂ (fun q => chartSite β (e q) (H q) (g q) (W q *ᵥ ψ q) x) q₀ := by
+  have hw : ∀ y i, AnalyticAt ℂ (fun q => (W q *ᵥ ψ q) (y, i)) q₀ := fun y i => by
+    simp only [Matrix.mulVec, dotProduct]
+    exact Finset.analyticAt_fun_sum _ fun r _ => (hW (y, i) r).mul (hψ r)
+  exact analyticAt_chartSite (w := fun q => W q *ᵥ ψ q) he hH hg hw hs x
+
 end Analytic
 
 section Real
