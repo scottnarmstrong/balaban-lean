@@ -15,7 +15,7 @@ public import Balaban.LargeField.History.ImageHistBook
 # Quiet realizability is closed under lattice symmetries
 
 For a lattice symmetry `σ : LatTorusSym` and an admissible region history `H` on tori that are
-points above the horizon (`n j = 1` for `j ≥ K`), with `k₀ ≤ K`, the image history `imgHist σ H`
+points above the horizon (`n j = 1` for `j > K`), with `k₀ ≤ K`, the image history `imgHist σ H`
 (`History/ImageHist.lean`; admissible by `admissible_imgHist_iff`, `History/ImageHistBook.lean`)
 realizes the `σ`-image of every quiet realizable localized history.  Consequently the quiet
 realizable localized histories are closed under `HistImage` (`quietRealized_iff_of_histImage`):
@@ -34,7 +34,7 @@ section Hist
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
   [NeZero S.L] (σ : LatTorusSym S n M K) (H : RegionHistory S n R k0 K)
-  (hsub : ∀ j, K ≤ j → n j = 1)
+  (hsub : ∀ j, K < j → n j = 1)
 
 
 local notation "Hi" => imgHist σ H hsub
@@ -56,7 +56,7 @@ end Hist
 section Realized
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
-  [NeZero S.L] (σ : LatTorusSym S n M K) (hsub : ∀ j, K ≤ j → n j = 1) (hk0 : k0 ≤ K)
+  [NeZero S.L] (σ : LatTorusSym S n M K) (hsub : ∀ j, K < j → n j = 1) (hk0 : k0 ≤ K)
 
 include hsub hk0 in
 /-- Quiet realizability is stable under lattice symmetries (for `k₀ ≤ K` and tori that are points
