@@ -47,7 +47,7 @@ theorem clipRaw_mem_rawSub_of_xiDom {G : GeneratingSet d L (N₁ * L ^ m₁) (k 
   XiCRaw_subset_rawSub _ _ _ _ _ _ (clipRaw_mem_xiCRaw_of_xiDom le_rfl hp)
 
 open Classical in
-/-- **The family of the pair of fields from families of the parameters of local generating sets**
+/-- **The family of the pair of fields from families of the parameters of local generating sets**, over an arbitrary generating set `G'` of the step chart
 (route R-LOC, L5).  Let `Gb T` be generating sets with retractions `π_b T` onto their data, `c T` a
 function of the parameters of `Gb T` and `gate` a class of polymers.  If, for the polymers of the
 class, `c T` is analytic and bounded by `b T ≥ 0` on the parameters `physVBg (Gb T) ε_an`
@@ -56,7 +56,7 @@ whose data agree on `Y⁺ T` (which contains the sites read by the data), is inv
 rotations on `physVBg (Gb T) ε_an`, and equals the step's coefficient `e (π q, 0) T` at the datum
 read from a pair `q` of the step chart; and if `e (π q, 0) T = 0` off the class; then
 `f T p = c T (π_b T (clipRaw (Gb T) p), 0)` on the class and `0` off it satisfies (A1)–(A5). -/
-theorem localFamily_of_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
+theorem localFamily_of_coeff_gen {ϱ' : ℝ} (G' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ')
     (Gb : Finset 𝔅 → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
     (Ypl : Finset 𝔅 → Set (CTorus d L N₁ m₁ (k + 1))) (gate : Finset 𝔅 → Prop)
     (πb : ∀ T, RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N (Gb T))
@@ -78,13 +78,13 @@ theorem localFamily_of_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
       ∀ θ ∈ physVBg N (Gb T) a₁ ν εan, ∀ θ' ∈ physVBg N (Gb T) a₁ ν εan,
       (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) =
         rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) → c T θ' = c T θ)
-    (e : physParam N S → Finset 𝔅 → ℂ)
-    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (e : physParamBg N G' → Finset 𝔅 → ℂ)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N G')
     (hc5 : ∀ T, gate T → ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
-      XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 →
-      c T (πb T (clipRaw (Gb T) q), 0) = e (π (clipRaw S.G' q), 0) T)
+      XiDom G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 →
+      c T (πb T (clipRaw (Gb T) q), 0) = e (π (clipRaw G' q), 0) T)
     (he0 : ∀ T, ¬ gate T → ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
-      XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → e (π (clipRaw S.G' q), 0) T = 0) :
+      XiDom G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → e (π (clipRaw G' q), 0) T = 0) :
     ∃ f : Finset 𝔅 → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ,
       (∀ T, AnalyticOnNhd ℂ (f T) {p | XiDom (Gb T) (compWeight L a₁) ν (k + 1) ε p.1 p.2}) ∧
       (∀ T, ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
@@ -98,7 +98,7 @@ theorem localFamily_of_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
         XiDom (Gb T) (compWeight L a₁) ν (k + 1) ε p.1 p.2 →
         f T (rotField (cmat Q) p.1, rotField (cmat Q) p.2) = f T p) ∧
       (∀ T (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
-        XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → f T q = e (π (clipRaw S.G' q), 0) T) := by
+        XiDom G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → f T q = e (π (clipRaw G' q), 0) T) := by
   -- the parameter read from a pair of fields
   set θb : ∀ T, Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → physParamBg N (Gb T) :=
     fun T p => (πb T (clipRaw (Gb T) p), 0) with hθbdef
@@ -178,6 +178,62 @@ theorem localFamily_of_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
       exact hc5 T hg q hq
     · simp only [hg, ↓reduceIte]
       exact (he0 T hg q hq).symm
+
+
+open Classical in
+/-- **The family of the pair of fields from families of the parameters of local generating sets**
+(route R-LOC, L5).  Let `Gb T` be generating sets with retractions `π_b T` onto their data, `c T` a
+function of the parameters of `Gb T` and `gate` a class of polymers.  If, for the polymers of the
+class, `c T` is analytic and bounded by `b T ≥ 0` on the parameters `physVBg (Gb T) ε_an`
+(`ε ≤ ε_an`), takes equal values at two parameters with zero sources of the chart of radius `ε_loc`
+whose data agree on `Y⁺ T` (which contains the sites read by the data), is invariant under the real
+rotations on `physVBg (Gb T) ε_an`, and equals the step's coefficient `e (π q, 0) T` at the datum
+read from a pair `q` of the step chart; and if `e (π q, 0) T = 0` off the class; then
+`f T p = c T (π_b T (clipRaw (Gb T) p), 0)` on the class and `0` off it satisfies (A1)–(A5). -/
+theorem localFamily_of_coeff {S : StepSetting d L N₁ m₁ k N ϱ}
+    (Gb : Finset 𝔅 → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb)
+    (Ypl : Finset 𝔅 → Set (CTorus d L N₁ m₁ (k + 1))) (gate : Finset 𝔅 → Prop)
+    (πb : ∀ T, RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N (Gb T))
+    (hπb : ∀ T r (h : r ∈ rawSub N (Gb T)), πb T r = ⟨r, h⟩)
+    (c : ∀ T, physParamBg N (Gb T) → ℂ) {a₁ ν ε εan εloc : ℝ} (hεan : ε ≤ εan)
+    (hc1 : ∀ T, gate T → AnalyticOnNhd ℂ (c T) (physVBg N (Gb T) a₁ ν εan))
+    (b : Finset 𝔅 → ℝ) (hb0 : ∀ T, 0 ≤ b T)
+    (hc2 : ∀ T, gate T → ∀ θ ∈ physVBg N (Gb T) a₁ ν εan, ‖c T θ‖ ≤ b T)
+    (hc3 : ∀ T, gate T → ∀ θ θ' : physParamBg N (Gb T),
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw (Gb T) (compWeight L a₁) ν (k + 1) 1 εloc →
+      (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw (Gb T) (compWeight L a₁) ν (k + 1) 1 εloc → θ.2 = 0 → θ'.2 = 0 →
+      (∀ x ∈ Ypl T, (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).1 x =
+          (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).1 x ∧
+        (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 x =
+          (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2 x) → c T θ = c T θ')
+    (hc4 : ∀ T, gate T → ∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
+      ∀ θ ∈ physVBg N (Gb T) a₁ ν εan, ∀ θ' ∈ physVBg N (Gb T) a₁ ν εan,
+      (θ'.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) =
+        rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) → c T θ' = c T θ)
+    (e : physParam N S → Finset 𝔅 → ℂ)
+    (π : RawData d L (N₁ * L ^ m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hc5 : ∀ T, gate T → ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 →
+      c T (πb T (clipRaw (Gb T) q), 0) = e (π (clipRaw S.G' q), 0) T)
+    (he0 : ∀ T, ¬ gate T → ∀ q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+      XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → e (π (clipRaw S.G' q), 0) T = 0) :
+    ∃ f : Finset 𝔅 → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ,
+      (∀ T, AnalyticOnNhd ℂ (f T) {p | XiDom (Gb T) (compWeight L a₁) ν (k + 1) ε p.1 p.2}) ∧
+      (∀ T, ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+        XiDom (Gb T) (compWeight L a₁) ν (k + 1) ε p.1 p.2 → ‖f T p‖ ≤ b T) ∧
+      (∀ T, ∀ p p' : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+        XiDom (Gb T) (compWeight L a₁) ν (k + 1) εloc p.1 p.2 →
+        XiDom (Gb T) (compWeight L a₁) ν (k + 1) εloc p'.1 p'.2 →
+        (∀ x ∈ Ypl T, p.1 x = p'.1 x ∧ p.2 x = p'.2 x) → f T p = f T p') ∧
+      (∀ T, ∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
+        ∀ p : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N,
+        XiDom (Gb T) (compWeight L a₁) ν (k + 1) ε p.1 p.2 →
+        f T (rotField (cmat Q) p.1, rotField (cmat Q) p.2) = f T p) ∧
+      (∀ T (q : Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N),
+        XiDom S.G' (compWeight L a₁) ν (k + 1) ε q.1 q.2 → f T q = e (π (clipRaw S.G' q), 0) T) :=
+  localFamily_of_coeff_gen S.G' Gb Ypl gate πb hπb c hεan hc1 b hb0 hc2 hc3 hc4 e π hc5 he0
 
 end F
 
