@@ -302,7 +302,8 @@ def RKeptGasInput : Prop :=
       (∀ (nK : ℕ) [NeZero nK],
         IsComplete k (k + 1) (lf₁ nK).hist ∧ (lf₁ nK).SD = (rec.F.lf nK).SD) ∧
       KeptOutput rec.hkK rec.F lf₁ ∧
-      GasOutput (hv := h) (rH := rH κ c₉) rec.hM6 rec.hkK rec.F rec.vc ρ ρ' lf₁ B' Rpp
+      GasOutput (hv := h) (rH := rH κ c₉) rec.hM6 rec.hkK rec.F rec.vc ρ ρ' lf₁ B' Rpp ∧
+      (∀ (nK : ℕ) [NeZero nK], GamConst (lf₁ nK))
 
 /-- **`RInput` from its two sub-inputs** (LFR Theorem III.10.8, Lemma III.8.4). The vacuum half
 (`RVacuumInput`) gives a record of the same density with the vacuum constants of the flow. The kept half gives
@@ -323,12 +324,12 @@ theorem rInput_of_parts (hV : RVacuumInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
   obtain ⟨rec₀⟩ := preClassAt_iff.1 hρ
   obtain ⟨rec, hvac⟩ :=
     hβ₀ β (le_of_max_le_left hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec₀
-  obtain ⟨lf₁, B', Rpp, ρ', hlf, hker, hRpp, hD8, hform, hbdry, hcoh, hint⟩ :=
+  obtain ⟨lf₁, B', Rpp, ρ', hlf, hker, ⟨hRpp, hD8, hform, hbdry, hcoh, hint⟩, hgam⟩ :=
     hβ₂ β (le_of_max_le_right hβ) ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hvac
   refine ⟨ρ', ?_, hint⟩
   refine ⟨rec.hM6, rec.hkK, rec.R, rec.geo, rec.cs, rec.P, repFamPost rec.F lf₁ B' Rpp, rec.St,
     rec.vc, rec.geoTie, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
-    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh, rec.Ev, rec.vac, rec.zpos⟩
+    rec.tie_c2, rec.tie_H0, ?_, rec.β0, rec.ν0, rec.νk, rec.run, hcoh, rec.Ev, rec.vac, rec.zpos, fun nK _ => hgam nK⟩
   exact
     { coh := coh_addRem rec.pre.coh
       field := field_addRem rec.pre.field

@@ -32,7 +32,8 @@ variable {d L k : ℕ}
 (the hypothesis `hm` of `polyAniso_subset_birthXiDom_of_mass`) is equivalent to
 `∏_{n=j}^{k-1} (1 + ξ₃^{(n)})/(1 + ξ₂^{(n)}) ≥ 1` and is not implied by the flow bounds; this
 lemma gives the uniform allowance `Λ = e²` instead (P4 (H.6), (5.32)). -/
-theorem physMass_mul_sq_le_exp_nuIdeal [NeZero L] {P : Consts} (hP : P.Admissible d L) (hL : 2 ≤ L)
+theorem physMass_mul_sq_le_exp_nuIdeal_core [NeZero L] {P : Consts} (hγ : 0 < P.γ)
+    (hc8 : 0 < P.c₈) (hL : 2 ≤ L)
     {β ν a : ℕ → ℝ} (h : CoeffBounds d L k P β ν a) {j : ℕ} (hjk : j ≤ k) :
     physMass L j (ν j) * ((L : ℝ) ^ j) ^ 2 ≤ Real.exp 2 * nuIdeal L k (ν k) j := by
   obtain ⟨ξ, β₀, ν₀, hξ, hs, hseq⟩ := h.flow
@@ -40,14 +41,14 @@ theorem physMass_mul_sq_le_exp_nuIdeal [NeZero L] {P : Consts} (hP : P.Admissibl
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
   set q := Flow.rate (L : ℝ) P.γ with hq
   have hq0 : 0 ≤ q := (Flow.rate_pos hLpos _).le
-  have hq1 : q < 1 := Flow.rate_lt_one hL1 hP.γ_pos
-  have hb := fun n => Flow.norm_gammaSeq_le hq0 hq1 hP.c₈_pos.le hs hξ n
+  have hq1 : q < 1 := Flow.rate_lt_one hL1 hγ
+  have hb := fun n => Flow.norm_gammaSeq_le hq0 hq1 hc8.le hs hξ n
   have hS : ∀ n, P.c₈ * Flow.ratePartialSum q n ≤ 1 := by
     intro n
     have h1 := Flow.ratePartialSum_le hq0 hq1 n
     have h2 : P.c₈ * (q / (1 - q)) ≤ 1 := by
       rw [← mul_div_assoc, div_le_one (by linarith)]; exact hs
-    exact (mul_le_mul_of_nonneg_left h1 hP.c₈_pos.le).trans h2
+    exact (mul_le_mul_of_nonneg_left h1 hc8.le).trans h2
   have hδj : ‖Flow.deltaSeq ξ j‖ ≤ Real.exp 1 :=
     (hb j).2.2.1.trans (Real.exp_le_exp.2 (hS j))
   have hδk : ‖(Flow.deltaSeq ξ k)⁻¹‖ ≤ Real.exp 1 :=
@@ -100,5 +101,10 @@ theorem physMass_mul_sq_le_exp_nuIdeal [NeZero L] {P : Consts} (hP : P.Admissibl
     rw [inv_pow]; field_simp
   rw [e3, ← div_eq_mul_inv, ← mul_div_assoc, le_div_iff₀ hLt2]
   exact h7
+
+theorem physMass_mul_sq_le_exp_nuIdeal [NeZero L] {P : Consts} (hP : P.Admissible d L) (hL : 2 ≤ L)
+    {β ν a : ℕ → ℝ} (h : CoeffBounds d L k P β ν a) {j : ℕ} (hjk : j ≤ k) :
+    physMass L j (ν j) * ((L : ℝ) ^ j) ^ 2 ≤ Real.exp 2 * nuIdeal L k (ν k) j :=
+  physMass_mul_sq_le_exp_nuIdeal_core hP.γ_pos hP.c₈_pos hL h hjk
 
 end Balaban.SmallField.Def6v2

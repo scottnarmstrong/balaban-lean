@@ -364,8 +364,9 @@ def LFStepInput : Prop :=
       LFCoherent (⟨Φ κ c₉ β ν k rec.F.sf, lf'⟩ : RepFam 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] rec.R
         (kZero d (T κ c₉).L β ν) (kf + 1) (T κ c₉).M N rec.geo cs' P' (k + 1) (C7 κ c₉).m₁
         (ϱ κ c₉)) ∧
-      ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (lf' nK).SD.VacuumTie Set.univ
-        (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp
+      (∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (lf' nK).SD.VacuumTie Set.univ
+        (vacExt rec.Ev k (ΦE κ c₉ β ν k rec.F.sf rec.Ev)) dpp dppp) ∧
+      ∀ (nK : ℕ) [NeZero nK], GamConst (lf' nK)
 
 /-- **The integrability input, over a guard and a class**: the members `ρ` of a class `Cls`, at the
 scales allowed by the guard, are integrable in the field of the `k`-blocks on every torus of the
@@ -469,7 +470,7 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
     · rw [(hcst j hj).2.2.2]; exact hsf.2.2.2.1 j hj1 hj
     · obtain rfl : j = k + 1 := by omega
       exact hfree'
-  obtain ⟨cs', P', lf', St', vc', s, o1, o2, o3, o4, o5, o6, o7, hpre, hcoh', hvt⟩ :=
+  obtain ⟨cs', P', lf', St', vc', s, o1, o2, o3, o4, o5, o6, o7, hpre, hcoh', hvt, hgam'⟩ :=
     h₈ β hb₈ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2' hD8' hD9' hafree
       (fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.1⟩) hkK'
   have hβk : 0 < rec.F.sf.β k := by
@@ -521,7 +522,8 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
           exact rec.zpos j hj1 hjk'
         · obtain rfl : j = k + 1 := by omega
           exact hz
-      vacTie := hvt }, fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.2,
+      vacTie := hvt
+      gamVal := hgam' }, fun j hj => ⟨(hcst j hj).1, (hcst j hj).2.1, (hcst j hj).2.2.2,
       (hcst j hj).2.2.1, vacExt_of_le _ hj⟩,
     fun nK _ => hvt nK,
     integralStep_stepDensity s hcK hz ρ (h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk ⟨rec⟩)⟩

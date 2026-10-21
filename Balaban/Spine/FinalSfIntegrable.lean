@@ -190,7 +190,7 @@ theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M
         Measurable (fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g) ∧
         Integrable fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g := by
   intro κ hκ c₉ hc₉
-  obtain ⟨hL3, haKer1, haKer2, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -, -, hsepM⟩ :=
+  obtain ⟨hL3, haKer1, haKer2, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -, -, hsepM, -⟩ :=
     hPre κ hκ c₉ hc₉
   have hd : 3 ≤ d := hTy.1.three_le_d
   have hLr : (2 : ℝ) ≤ (T κ c₉).L := by exact_mod_cast (by omega : 2 ≤ (T κ c₉).L)

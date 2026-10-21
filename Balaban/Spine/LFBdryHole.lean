@@ -15,6 +15,7 @@ public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RRawHoleComponent
 public import Balaban.LargeField.R.RGasCoreConn
+public import Balaban.LargeField.Region.StepMisses
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -60,9 +61,11 @@ label (`DjMod.djModFin`).  The size `d7SizeAt` is unchanged.
   **under R11 the old labels cross the new holes** with `d_{k+1}(Y) ≤ L⁻¹ d_k(X')`; the landed-class
   versions `exists_transfer_djMod_of_open`, `Def7.exists_transfer_djMod_of_open` hold when the
   new holes are unions of `π'_{k+1}`-cubes (the old terms that cross no defect of a new hole).
-* Mark patches rooted at active sites (P3 (4.44)–(4.48), modular form): the hole closure is free
-  (`modAdmissible_holeClose`) and each patch costs `c_G = 2 d L` (`exists_admissible_union_boxes`,
-  `transfer_patches`).
+* Mark patches (P3 (4.44)–(4.48), modular form): chains of patches rooted at a set (`PatchChain`, each
+  patch meeting the set or an earlier patch; `patchChain_of_rooted` for patches rooted at active
+  sites); the hole closure is free (`modAdmissible_holeClose`) and each patch costs `c_G = 2 d L`
+  (`exists_admissible_union_chain`, `transfer_patches_chain`, and their rooted instances
+  `exists_admissible_union_boxes`, `transfer_patches`).
 * Two active sites at distance `D` force the size `D / a_j - 2L` (`dcovMod_ge_supDist`): the lower
   bound of LFR Lemma IV.1.5 (iii) that frees the constant of the step from `B₀`.
 * The labels of R11 keep the counting and union properties of the landed labels: (G1)
@@ -406,27 +409,80 @@ theorem modAdmissible_box (Ω : Set (CTorus d L N₁ m₁ K)) {p : CTorus d L N�
   · rw [Set.mem_singleton_iff.1 hb]
     exact ⟨p, Finset.mem_singleton_self p, mem_box_self p hLa⟩
 
-omit [NeZero N₁] in
-/-- **Adding mark patches rooted at active sites** (P3 (4.44)–(4.48), modular form): if every cube
-of a finite family `P` of `π'_j`-cubes contains a site of `Y ∩ Ω`, an admissible pair of `Y` modulo
-`Ω` extends to the union with these cubes at the extra cost `c_G = 2 d L` per cube. -/
-theorem exists_admissible_union_boxes {Ω Y 𝒦 : Set (CTorus d L N₁ m₁ K)}
-    {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
-    (h : ModAdmissible m₀ j Ω Y 𝒦 W E) (P : Finset (CTorus d L N₁ m₁ K))
+omit [NeZero N₁] [NeZero L] in
+/-- **A chain of patches rooted at a set** `T` in `Ω` (P3 (4.44)–(4.48)): a finite family of aligned
+`π'_j`-cubes that can be added one at a time, each meeting `T` or a cube added before inside `Ω`
+(a connected family of patches with a cube meeting `T ∩ Ω`). -/
+inductive PatchChain (m₀ j : ℕ) (T Ω : Set (CTorus d L N₁ m₁ K)) :
+    Finset (CTorus d L N₁ m₁ K) → Prop
+  | nil : PatchChain m₀ j T Ω ∅
+  | cons {p : CTorus d L N₁ m₁ K} {P : Finset (CTorus d L N₁ m₁ K)} (hP : PatchChain m₀ j T Ω P)
+      (hp : p ∉ P) (hal : Aligned (cellSide L m₀ m₁ j) p)
+      (hmeet : (box p (L * cellSide L m₀ m₁ j) ∩
+        ((T ∪ ⋃ q ∈ P, box q (L * cellSide L m₀ m₁ j)) ∩ Ω)).Nonempty) :
+      PatchChain m₀ j T Ω (insert p P)
+
+omit [NeZero N₁] [NeZero L] in
+/-- Patches each meeting `T ∩ Ω` (patches rooted at active sites) form a chain. -/
+theorem patchChain_of_rooted {T Ω : Set (CTorus d L N₁ m₁ K)} (P : Finset (CTorus d L N₁ m₁ K))
     (hP : ∀ p ∈ P, Aligned (cellSide L m₀ m₁ j) p ∧
-      (box p (L * cellSide L m₀ m₁ j) ∩ (Y ∩ Ω)).Nonempty) :
+      (box p (L * cellSide L m₀ m₁ j) ∩ (T ∩ Ω)).Nonempty) :
+    PatchChain m₀ j T Ω P := by
+  classical
+  induction P using Finset.induction_on with
+  | empty => exact PatchChain.nil
+  | insert p P hpP ih =>
+    obtain ⟨hal, t, htp, htT, htΩ⟩ := hP p (Finset.mem_insert_self p P)
+    exact PatchChain.cons (ih fun q hq => hP q (Finset.mem_insert_of_mem hq)) hpP hal
+      ⟨t, htp, Or.inl htT, htΩ⟩
+
+omit [NeZero N₁] [NeZero L] in
+/-- The patches of a chain are aligned. -/
+theorem PatchChain.aligned {T Ω : Set (CTorus d L N₁ m₁ K)} {P : Finset (CTorus d L N₁ m₁ K)}
+    (h : PatchChain m₀ j T Ω P) {p : CTorus d L N₁ m₁ K} (hp : p ∈ P) :
+    Aligned (cellSide L m₀ m₁ j) p := by
+  classical
+  induction h with
+  | nil => exact absurd hp (Finset.notMem_empty p)
+  | cons _ _ hal _ ih =>
+    rcases Finset.mem_insert.1 hp with rfl | hp
+    · exact hal
+    · exact ih hp
+
+omit [NeZero N₁] [NeZero L] in
+/-- Every patch of a chain meets `Ω`. -/
+theorem PatchChain.meets {T Ω : Set (CTorus d L N₁ m₁ K)} {P : Finset (CTorus d L N₁ m₁ K)}
+    (h : PatchChain m₀ j T Ω P) {p : CTorus d L N₁ m₁ K} (hp : p ∈ P) :
+    (box p (L * cellSide L m₀ m₁ j) ∩ Ω).Nonempty := by
+  classical
+  induction h with
+  | nil => exact absurd hp (Finset.notMem_empty p)
+  | cons _ _ _ hmeet ih =>
+    rcases Finset.mem_insert.1 hp with rfl | hp
+    · obtain ⟨t, htp, -, htΩ⟩ := hmeet
+      exact ⟨t, htp, htΩ⟩
+    · exact ih hp
+
+omit [NeZero N₁] in
+/-- **Adding a chain of mark patches** (P3 (4.44)–(4.48), modular form): an admissible pair of `Y`
+modulo `Ω` extends to the union with the cubes of a chain of patches rooted at `Y` in `Ω`, at the
+extra cost `c_G = 2 d L` per cube. -/
+theorem exists_admissible_union_chain {Ω Y 𝒦 : Set (CTorus d L N₁ m₁ K)}
+    {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
+    (h : ModAdmissible m₀ j Ω Y 𝒦 W E) {P : Finset (CTorus d L N₁ m₁ K)}
+    (hP : PatchChain m₀ j Y Ω P) :
     ∃ 𝒦' W' E', ModAdmissible m₀ j Ω (Y ∪ ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ j)) 𝒦' W' E' ∧
       bondCost (scaleW L m₀ m₁ j) E' ≤ bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card := by
   classical
-  induction P using Finset.induction_on with
-  | empty =>
+  induction hP with
+  | nil =>
     refine ⟨𝒦, W, E, ?_, by simp⟩
     simpa using h
-  | insert p P hpP ih =>
-    obtain ⟨𝒦₁, W₁, E₁, h₁, hc₁⟩ := ih fun q hq => hP q (Finset.mem_insert_of_mem hq)
-    obtain ⟨hp, t, htp, htY, htΩ⟩ := hP p (Finset.mem_insert_self p P)
-    obtain ⟨𝒦₂, W₂, E₂, h₂, hc₂⟩ := exists_union_admissible h₁ (modAdmissible_box Ω hp)
-      (Or.inl htY) htp htΩ
+  | @cons p P _ hpP hal hmeet ih =>
+    obtain ⟨𝒦₁, W₁, E₁, h₁, hc₁⟩ := ih
+    obtain ⟨t, htp, htY, htΩ⟩ := hmeet
+    obtain ⟨𝒦₂, W₂, E₂, h₂, hc₂⟩ := exists_union_admissible h₁ (modAdmissible_box Ω hal)
+      htY htp htΩ
     have hset : (Y ∪ ⋃ q ∈ P, box q (L * cellSide L m₀ m₁ j)) ∪ box p (L * cellSide L m₀ m₁ j) =
         Y ∪ ⋃ q ∈ insert p P, box q (L * cellSide L m₀ m₁ j) := by
       rw [Finset.set_biUnion_insert]
@@ -438,6 +494,78 @@ theorem exists_admissible_union_boxes {Ω Y 𝒦 : Set (CTorus d L N₁ m₁ K)}
     rw [Finset.card_insert_of_notMem hpP]
     push_cast
     linarith
+
+omit [NeZero N₁] in
+/-- **Adding mark patches rooted at active sites** (P3 (4.44)–(4.48), modular form): if every cube
+of a finite family `P` of `π'_j`-cubes contains a site of `Y ∩ Ω`, an admissible pair of `Y` modulo
+`Ω` extends to the union with these cubes at the extra cost `c_G = 2 d L` per cube. -/
+theorem exists_admissible_union_boxes {Ω Y 𝒦 : Set (CTorus d L N₁ m₁ K)}
+    {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
+    (h : ModAdmissible m₀ j Ω Y 𝒦 W E) (P : Finset (CTorus d L N₁ m₁ K))
+    (hP : ∀ p ∈ P, Aligned (cellSide L m₀ m₁ j) p ∧
+      (box p (L * cellSide L m₀ m₁ j) ∩ (Y ∩ Ω)).Nonempty) :
+    ∃ 𝒦' W' E', ModAdmissible m₀ j Ω (Y ∪ ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ j)) 𝒦' W' E' ∧
+      bondCost (scaleW L m₀ m₁ j) E' ≤ bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card :=
+  exists_admissible_union_chain h (patchChain_of_rooted P hP)
+
+omit [NeZero N₁] [NeZero L] in
+/-- **A connected set with a chain of patches attached is connected.** -/
+theorem siteConnected_union_chain {A Ω : Set (CTorus d L N₁ m₁ K)} (hA : SiteConnected A)
+    {t : CTorus d L N₁ m₁ K} (ht : t ∈ A) {P : Finset (CTorus d L N₁ m₁ K)}
+    (hP : PatchChain m₀ j A Ω P) :
+    SiteConnected (A ∪ ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ j)) := by
+  classical
+  induction hP with
+  | nil => simpa using hA
+  | @cons p P _ _ _ hmeet ih =>
+    obtain ⟨u, hup, huA, -⟩ := hmeet
+    have h1 := siteConnected_union_iUnion (I := ({()} : Set Unit))
+      (B := fun _ => box p (L * cellSide L m₀ m₁ j)) ih (fun _ _ => siteConnected_box _ _)
+      (fun _ _ => ⟨u, hup, huA⟩) (Or.inl ht)
+    have hset : ((A ∪ ⋃ q ∈ P, box q (L * cellSide L m₀ m₁ j)) ∪
+        ⋃ i ∈ ({()} : Set Unit), box p (L * cellSide L m₀ m₁ j)) =
+        A ∪ ⋃ q ∈ insert p P, box q (L * cellSide L m₀ m₁ j) := by
+      ext x
+      simp only [Finset.set_biUnion_insert, Set.mem_union, Set.mem_iUnion, Set.mem_singleton_iff,
+        exists_prop, true_and, exists_const]
+      constructor
+      · rintro ((h | h) | h)
+        · exact Or.inl h
+        · exact Or.inr (Or.inr h)
+        · exact Or.inr (Or.inl h)
+      · rintro (h | h | h)
+        · exact Or.inl (Or.inl h)
+        · exact Or.inr h
+        · exact Or.inl (Or.inr h)
+    rw [← hset]
+    exact h1
+
+/-- **The transfer with a chain of mark patches, with the class of R11.**  For an admissible pair
+`(𝒦, W, E)` of `X` modulo `Ω ⊇ Ω'` and a chain `P` of `π'_{j+1}`-cubes rooted at the transfer label in
+`Ω'` (`PatchChain`: each cube meets the label or a cube added before, inside `Ω'`), the hole closure
+at `Ω'` of the transfer label and the patches is a label of `DjModFin` at scale `j + 1` (when `X` is
+nonempty and connected) of size at most `L⁻¹ cost(E) + c_G |P|`: the bound of P3 (4.48) with modular
+sizes, with no term for the holes. -/
+theorem transfer_patches_chain {Ω Ω' X 𝒦 : Set (CTorus d L N₁ m₁ K)}
+    {W : Finset (CTorus d L N₁ m₁ K)} {E : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)}
+    (hΩ : Ω' ⊆ Ω) (h : ModAdmissible m₀ j Ω X 𝒦 W E) (hXne : X.Nonempty) (hXc : SiteConnected X)
+    {P : Finset (CTorus d L N₁ m₁ K)} (hP : PatchChain m₀ (j + 1) (transferLabel m₀ j Ω' X 𝒦) Ω' P) :
+    DjModFin m₀ (j + 1) Ω' (holeClose Ω' (transferLabel m₀ j Ω' X 𝒦 ∪
+        ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ (j + 1)))) ∧
+      dcovMod m₀ (j + 1) Ω' (holeClose Ω' (transferLabel m₀ j Ω' X 𝒦 ∪
+        ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ (j + 1)))) ≤
+        (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card := by
+  have hT := djModFin_transferLabel hΩ h hXne hXc
+  obtain ⟨𝒦', W', E', h', hc'⟩ := exists_admissible_union_chain (modAdmissible_transferLabel hΩ h) hP
+  have hA := modAdmissible_holeClose h'
+  obtain ⟨t, ht⟩ := hT.1
+  refine ⟨⟨⟨t, subset_holeClose _ _ (Or.inl ht)⟩, siteConnected_holeClose
+    (siteConnected_union_chain hT.2.1 ht hP) (Or.inl ht), fun z _ => holeClose_comp Ω' _ z,
+    dcovModE_ne_top ⟨_, _, _, hA⟩⟩, ?_⟩
+  have hle := ENNReal.toReal_mono ENNReal.ofReal_ne_top (dcovModE_le_of_admissible hA)
+  rw [ENNReal.toReal_ofReal (bondCost_scaleW_nonneg E')] at hle
+  rw [bondCost_scaleW_succ (m₀ := m₀) (j := j) E] at hc'
+  exact hle.trans hc'
 
 /-- **The transfer with mark patches, with the class of R11.**  For an admissible pair `(𝒦, W, E)`
 of `X` modulo `Ω ⊇ Ω'` and a finite family `P` of `π'_{j+1}`-cubes each containing a site of the
@@ -455,21 +583,8 @@ theorem transfer_patches {Ω Ω' X 𝒦 : Set (CTorus d L N₁ m₁ K)}
         ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ (j + 1)))) ∧
       dcovMod m₀ (j + 1) Ω' (holeClose Ω' (transferLabel m₀ j Ω' X 𝒦 ∪
         ⋃ p ∈ P, box p (L * cellSide L m₀ m₁ (j + 1)))) ≤
-        (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card := by
-  have hT := djModFin_transferLabel hΩ h hXne hXc
-  obtain ⟨𝒦', W', E', h', hc'⟩ := exists_admissible_union_boxes (modAdmissible_transferLabel hΩ h)
-    P hP
-  have hA := modAdmissible_holeClose h'
-  obtain ⟨t, ht⟩ := hT.1
-  refine ⟨⟨⟨t, subset_holeClose _ _ (Or.inl ht)⟩, siteConnected_holeClose
-    (siteConnected_union_iUnion hT.2.1 (fun p _ => siteConnected_box _ _) (fun p hp => ?_) ht)
-    (Or.inl ht), fun z _ => holeClose_comp Ω' _ z, dcovModE_ne_top ⟨_, _, _, hA⟩⟩, ?_⟩
-  · obtain ⟨u, hu, huT, -⟩ := (hP p hp).2
-    exact ⟨u, hu, huT⟩
-  · have hle := ENNReal.toReal_mono ENNReal.ofReal_ne_top (dcovModE_le_of_admissible hA)
-    rw [ENNReal.toReal_ofReal (bondCost_scaleW_nonneg E')] at hle
-    rw [bondCost_scaleW_succ (m₀ := m₀) (j := j) E] at hc'
-    exact hle.trans hc'
+        (L : ℝ)⁻¹ * bondCost (scaleW L m₀ m₁ j) E + cG d L * P.card :=
+  transfer_patches_chain hΩ h hXne hXc (patchChain_of_rooted P hP)
 
 /-! ### Two active sites far apart force the size -/
 
@@ -736,11 +851,8 @@ theorem RegionHistory.cubeMap_succ_notMem_Omega (F : Def7.FineSizeFrame S n M K 
     (hk : k + 1 ≤ K) {x : Localization.CTorus S.d S.L F.N₁ m₁ K}
     (hx : cubeMap n S.L M K k (Localization.castT F.side x) ∈ (H.step k).Z) :
     cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∉ (H.step k).Omega := by
-  intro hxΩ
-  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
-      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hx, rfl⟩
-  rw [cubeMap_succ hnn hk] at hU
-  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hxΩ)
+  rw [← cubeMap_succ hnn hk]
+  exact (H.step k).blockMap_notMem_Omega hx
 
 /-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
 transfer of `Def7.exists_transfer_fineValidAt`; P5 (2.3): the opening of scale `k + 1` misses

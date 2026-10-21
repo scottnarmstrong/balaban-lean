@@ -704,6 +704,111 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   transfer map (`transferLabel` with the optimal cover and the mark patches, a choice made covariantly).
   Then O1 is the estimate P6 (4.34) for `T`, which is analytic (the fluctuation machinery of `Fluctuation/StepActivity*`,
   `ClassOldTerm*`), and O5 is the counting above.
+* **Status after W1154 (2026-10-21): O2–O5 and the geometry of O1 PROVED** (`Spine/LFBdryOldEntropy.lean`,
+  `Spine/LFBdryOldAssign.lean`; axioms `propext, Classical.choice, Quot.sound`). Definitions: the assignments
+  `Def7.oldAssign F H k` (old post-`R` boundary domain `X` meeting `Ω_{k+1}`, an optimal cover `𝒦 ∈ optCovers`, rooted
+  patches `J`), the output label `assignOut` (= `transferCubes`, the transfer label of `𝒦 ∪ J`), the weight
+  `assignWt = 1/#optCovers` (covariant average over the optimal covers). Proved: `oldAssign_spec` (validity of `X` and of
+  the output, `X ⊆ Y`, patches, `d_{k+1}(Y) ≤ d_k(X)/L + c_G|J|`, O4 `d_k(X) ≥ L(⌊R_k⌋+2)`); O3 `assignOut_meets_Zpre`,
+  `assignOut_mem_bdryDomsAt_iff` (an output is a boundary domain at `k+1` iff it meets `(Z^pre_{k+1})^c`); O5
+  `sum_exp_oldIn_le`, `card_patchesIn_le`, `sum_exp_assign_le` (`assignEnt`), `assignEnt_le_exp`; and the per-label
+  bound `norm_sum_oldAssign_fiber_le`: for any coefficients `T` on the fiber of `Y` with
+  `‖T a‖ ≤ assignWt · C_re B₀ e^{-κ d_k(X)} e^{-κ_m |J|}` (hT), `‖∑ T‖ ≤ C_re · assignEnt(…) · e^{-κ_o d_{k+1}(Y)}`, the
+  other hypotheses being the constant conditions `κ/2 - κ_o/L ≥ a_ent + 1` and (Λ28).
+  **Open: O1 proper** — the coefficient `T(X, 𝒦, J)` and its bound hT. The old part of `ℬ^{(k+1)}` is FLUCTUATION
+  Theorem 3.1 (c) (P5 (2.48), (3.2)): `∫₀¹ du ⟨ℬ''^{(k)}(ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂)⟩''_u`, which needs
+  (1) the composed field (the map from the scale-`(k+1)` multiscale field to the scale-`k` one on `Ω_{k+1}`: at scale `k+1`
+  the H7 domain leaves `ψ_k` free on `Ω_{k+1}` away from the collar, so no identity transport is bounded), (2) the
+  measure of the step with holes (`Fluctuation.StepSetting` is the whole-lattice step; `Thm31cde.lean`), (3) the bound
+  (Vmod) of each old term, conditional on OPEN-H7-MIXED, OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC and the
+  common-cover I-4a theorem (VMOD.md §1.4, VMOD-39). P6 (4.33) is the localized interaction: the step's terms are at the
+  cluster labels `Ŷ(S) ⊇ Y₀` of Theorem 3.4; the landed assignments are the `Y₀` layer.
+* **Status after W1154 pieces 2–3 (2026-10-21): the step with holes DEFINED with characterizations** (readings HS-1,
+  OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC, OPEN-H7-MIXED recorded in `PLAN-B.md`). Core (any
+  `Fluctuation.HoleStep`, the whole-lattice `StepSetting` is the instance `toHole`, rfl lemmas): the composed field of P5
+  (2.39) `HoleStep.composed` (decoupled background and covariance root of the pair (C, G′) at the localization vectors
+  `slocOf`), the measure `nuIn`, the exponent `expW`, `avgOld`, `oldTotal` (= `∫₀¹ ⟨ℬ''⟩''_u`), `partFun_one_eq_mul_exp_oldTotal`
+  (`HoleStepMeasure`); the coefficient `T(X, J) = oldCoef` (Lemma AE `coef` of the interpolated old term `oldInterp`),
+  `sum_oldCoef_eq_of_analytic`, `oldCoef_eq_zero_of_core`, `oldCoef_eq_zero_of_far` (`HoleStepOldCoef`); the block
+  structure `prodSplit` and Theorem 3.1 (c) on a region `oldTotal_eq_sum_of_marks`, `oldBOut`, `oldTotal_eq_sum_oldBOut`,
+  `norm_oldBOut_le` (`HoleStepSplit`, through the region-general `Thm31cdeOn`: `ProdSplitOn`, `InterpMarksOn`,
+  `interpAvg_eq_sum_interpTermOn`). History instance (`Spine/LFHoleStep*`, `Spine/LFOldCoef`): `holeStepLF` (θ = z ψ_{k+1}),
+  `composedMulti`, `phiLF` (log of the integrand of (2.16): `logKernelC` + the holomorphic `𝒜_k + ℱ_k + ℛ^{(k)}`,
+  `LargeField/Def7SmallFieldC`; `stepKernel_mul_sfFactor`), `oldDoms`, `oldLF`, `locSloc` (R_{k+1}(□′) = `locDomC`),
+  `expWLF`, `oldTotalLF`, `oldCoefLF` (core: the `r`-collar of `X ∩ Ω_{k+1}`, `collarCoreC`). **(i) OPEN-P6-ACTIVE-
+  COMPOSITE-LOC under reading HS-1 PROVED** (`Fluctuation/HoleStepActComp`, `HoleStepPointLocal`, `HoleStepOldLocal`: the active
+  closure and its block hull; the composed field at a unit point agrees for two localization vectors with the same factors on
+  the closure, `composed_eq_of_hull`, from `Dec2.decBg_component_cross` and `Dec2.localLift_eq_localLift_on_component`
+  for (`coverOf` G′, G′) with itself; (AE2) `oldInterp_localityAEOn`, `oldCoef_eq_zero_of_not_reached`,
+  `oldCoef_congr_of_agreeReach`); history instance `Spine/LFOldLocal.lean` `oldCoefLF_eq_zero_of_not_reached` with every
+  geometric hypothesis proved and the standing conditions from the datum in the chart (`standing_of_xiCData`,
+  `p6TopC_coverBase`). **Remaining for O1:** (ii) OPEN-H7-MIXED (the
+  image of the target H7 domain and the polydisc in the source H7 domain; gives `hana` of `sum_oldCoef_eq_of_analytic`
+  and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
+  exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
+  (labels `Ŷ(S)` ↦ `Finset (Torus d n_{k+1})`) and the assembly of `old` as `BTerms`, then the (D7) clauses.
+* **Status after W1154 pieces 4n–5 (2026-10-21): reading HS-1′ (the coefficient on the local pair, `PLAN-B.md`).**
+  Under HS-1 the composite is `Dec2.decBgField` of the global pair, so (D7) `loc_field`/`analytic` cannot hold for the
+  re-expanded terms (H7(Y) constrains only the cubes of Y); HS-1′ computes `T(X, J)` on the restriction of
+  (`coverOf` G′, G′) to `𝔹_{k+1}(V(X, J))`. Landed pieces: `Spine/LFOldRead` (`oldTermLF_congr_of_locField`: the field
+  locality `hB` of the old term from (D7) `loc_field`); `Spine/LFOldH7` (`deltaC_stencil`, `deltaPrimeC_stencil`,
+  `h7Domain_composedMulti_of_inner`: **the transfer part of OPEN-H7-MIXED PROVED** — every condition of the source H7 domain
+  at X that does not read the composed field near Ω_{k+1} follows from the target domain at Y ⊇ X);
+  `Fluctuation/HoleStepLocal` (`GeneratingSet.inter`, `HoleStep.restrict`); `Spine/LFHoleStepLoc` (`locB`, `holeStepLoc`,
+  cover bases of the local pair); `Spine/LFOldLocCoef` (`locSetXJ`, `oldCoefLoc`, the Cauchy bound `norm_oldCoefLoc_le`);
+  `Spine/LFOldH7Loc` (`h7Domain_composedMulti_loc`); `Spine/LFOldMarkBound` (`norm_oldInterp_loc_lt`: at every parameter
+  of the polydisc the interpolated old term of the local pair is below the record's `fac e^{-rate d^cov(X)}`, from the
+  record's (D7) and `H7MixedInnerLoc`); `Fluctuation/HoleStepAnalytic` (`Dec2.analyticOnNhd_decBg`,
+  `HoleStep.analyticAt_composed`, `HoleStep.analyticOnNhd_oldInterp`: the composed field and the interpolated old term are
+  analytic in the parameters, I-4b (i) and I-4c (iii)); `Spine/LFOldCoefBound` (**`norm_oldCoefLoc_le_of_inputs`: the
+  bound of P6 (4.34) at one coefficient, `|T(X, J)| ≤ fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|}`**, from the record's (D7),
+  the standing conditions of the local pair and the two named inputs). **Named inputs (open):**
+  - `H7MixedInnerLoc` — the composed field of the local pair lies in Δ^c_k(□; 1, ε_k) at the cubes □ ⊂ X near Ω_{k+1}
+    (P5 (2.39)–(2.43): composition identity, locality of the background between `genCube` and the local pair, the
+    fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
+  - `H7MixedDatumLoc` — the datum of the local pair lies in Ψ̃^c(G′_V; δ_b, δ_b) (patching the per-cube decompositions of
+    RegC into one real slowly varying field on V; size: medium);
+  - **Proposition 3.3 on a region** (FLUCTUATION Prop. 3.3; P5 (3.2), P6 (4.32)) — the interaction package
+    `I : Fluctuation.LocInteraction` (data: labels `Lab` of the cubes of Ω, activities `A(u)`, the constants of
+    Theorem 3.4 with one mark, `Fluctuation/MarkCluster`) on the block structure `HoleStep.prodSplit` of the measure
+    of the step: its core at one field is `HoleStep.Prop33On` (`Spine/LFOldCluster`: `A(u)` holomorphic on an open
+    𝒰 ⊃ [0,1] and `W(s) = ∑_y H_y(s)` ν-a.e. for the exponent `expWLF`); the named Prop over the fields adds the
+    field properties of `H_y` (locality in the fields near the label's site, analyticity on the H7 domain, real,
+    rot, euclid, loc_hist) and is stated with (g2)(iii)-c, where the family of packages over the fields of `oldB`
+    is fixed. Size: large (the region analogue of `Fluctuation/Prop33*`, with the old terms of the exponent).
+  Landed for (g2)(iii)-a (W1154 piece 5i–5j): `Fluctuation/MarkCluster` (`markTerm`, `markTerm_spec`: the cluster
+  term `∫₀¹ G*(V, S) du` of one mark with the mark's site added as a label of zero activity; `LocInteraction`,
+  `markTerm_spec_of_norm_le`); `Spine/LFOldCluster` (`markSite`, `isPiPrimeUnion_markSite`, `GoodJ`,
+  `unitRep_mem_of_mem_locUnits`, `oldMarkLF_depOn_markSite`, `oldClusterLF`, **`oldClusterLF_spec`: the bound
+  `C_PE fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|} e^{(κ_H-κ₀) 𝗱(V)} e^{-κ' d_Ω(T)}` and the support of the cluster term
+  of the mark of (X, J)**, conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc`; the package enters only through its
+  constants). Piece 5k–5l: the cluster expansion runs on the cells of scale `k+1` of `Ω_{k+1}` on the frame torus of
+  (D7) (`toFrame`, `markSite`, `oldClusterLF` on the frame; `HoleStep.markOf`/`oldMarkLF` take cubes of any type,
+  `HoleStep.cubeMeasure`); the output label of `(X, J, T)` is `Ŷ(T)` (FLUCTUATION Theorem 3.1 (c), P6 p. 34–35;
+  `Spine/LFOldOut`: `outLabel`, `outLabel_spec` valid at `Ω_{k+1}` with size `d_Ω(T)`, `d7Pull_subset_outLabel` the old
+  label inside the output label). Not the assignments of `oldAssign` with the cubes of `T` as patches: the cubes of `T`
+  may be joined only through holes of `Ω_{k+1}`, so they need not form a `PatchChain` inside `Ω_{k+1}`.
+  Piece 5m–5p ((g2)(iii)-c, approved design): the site of a mark is `markSite` = the `π'_{k+1}`-cubes at the cells of
+  `markBase` = `X ∩ Ω_{k+1}`, the connecting structure `optW` of an optimal cover of `X`, `V(X, J)` and the data sites
+  of the local pair `G′_V` (`locG'`) — not the holes of `X`; `markSite_holeClose_subset_outLabel`,
+  `markSite_subset_outLabel` (the site and its hole closure lie in `Ŷ(T)`); the marks are grouped by `(X, V)` as in
+  P3 (4.45) (`Spine/LFOldB`: `famAt`, `sitesX`, `oldMarkSite`, `oldClusterSite`, `norm_oldClusterSite_le`, `oldBAt`);
+  **`norm_oldBAt_le` (`Spine/LFOldBBound`): the bound of the old part at an output label `Y`,
+  `≤ 2^{c₁(1+D)} C_PE fac C_res · L^d c₁(1+D) K₀(rate-κ_X) · c₁(1+D) K₀(κ₀) · e^{-κ' D}`, `D = d_{k+1}(Y mod Ω^c)`**,
+  conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc` and the third named input:
+  - **`OldResumSite`** (named input, **open**; P3 (4.45)–(4.49), P6 p. 34; approved 2026-10-21) — for every old label
+    `X` meeting `Ω_{k+1}` and every site `V`, `∑_{J with site V} e^{-(κ₁-1)|J_V|} ≤ C_res e^{κ_X d_k(X)} e^{-κ_V 𝗱(V)}`,
+    `J` ranging over the families of cover cubes inside the localization range `locRange` (the sites within `ρ` cubes
+    of `Ω_{k+1}`; `allJ`): there the cover cubes are of levels `k`, `k+1` (`Ω_{k+1} ⊂ Ω'_{k+1}`, far from `W_k^c`),
+    so their number per cell is bounded; the parameters of the other cubes do not enter the localization vectors.
+    Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
+    per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
+    cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.
+  `oldB` as `BTerms` (`Spine/LFOldBBound`: `oldB`, the old labels `oldDoms`, the families `inner`, `cb`, `I` over the
+  histories and fields) and **`norm_oldB_le`: its (D7) bound `2^{c₁} C_PE fac C_res L^d c₁ K₀ c₁ K₀ e^{-rate' d^pre_{k+1}(Y)}`
+  at a field of the H7 domain of `Y`, for `κ' ≥ rate' + c₁ log 2 + 2`** (`exp_poly_le_exp`). Remaining for (iii)-c:
+  the named Prop 3.3 on a region over the fields (with the field properties of `H_y` for (iii)-d), the uniformity of the
+  constants of `I` over the fields, and `OldResumSite` (W1154 next).
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -1394,6 +1499,17 @@ Proved inside: completeness of the histories (`canonHist_complete`); the pins `D
 at `0`, the flow `CoeffBounds.flow` starts there). Open: (a) the small-field data and boundary terms, (b) the kernels, (c) the transform relation (`Σ_records ∏ K_0 = ρ_1`, BASECARRIER item T), (f) the coherence, the coefficient limits `D1CorrLim` (see the
 coefficient-limit entry above). Rule 10: the parts need the exemption of the seven inputs; the assembled class members are inhabited by `preClassAt_witness`/`flatClassAt_witness`.
 
+
+**Kept half of `R` (W1157, 2026-10-21; `Spine/KeptHalf.lean`, `KeptHalfRec.lean`, `LargeField/R/KeptOutcomeWindow.lean`).**
+* `keptKernel_four_kerBound`, `keptKernel_five_kerBound`: Lemma III.5.3 (d), (e), `keptKernel_kerBound_of_window` at `Outcome.kept 3`, `kept 4`. Their premises (the window data `Θ, E, Core, bw, frac`, `hid`, `hsupp`, `hcore`, `hvol`, `hFr`, `hnT`, `hnZ`, `hκ`) are not discharged for the physical kernels; only the instantiation is landed.
+* `keptRep r₀ D` (one torus): histories `canonHist k (k+1)`, `SD = r₀.SD`, `B = r₀.B`, exponents `keptExpOut` (those of `r₀` except at scale `k`, where `pinnedExp`), kept data `D.KD : KeptData …` with `D.gam_eq` below `k`. `enum_of_isComplete_succ`, `canonHist_enum`: a set complete at `(k, k+1)` has exactly one history per pair (history of the pre set, realized outcome assignment, removal outcome included). By R12 the histories with a removal record are in the set and their term vanishes, so OPEN-R-HISTORY-ENUM reduces to completeness.
+* Proved: `keptRep_complete`, `keptRep_SD`, `keptRep_pin_below` (`D4Pin k` by `d4Pin_of_agree_le`, the new transport with the exponents compared up to `m`), `keptRep_pin` (`D4Pin (k+1)` from `KappaPreLocal`), `keptRep_opBound` (`D5Bound (k+1)` by `Rep.opBound_of_data_le`: the signs are needed only below `k`), `keptRep_budget` (`D6Budget` by `Rep.budget_of_LF2_trunc`, the counter history truncated at `k`). `keptOutput_of_scaleData`: the kept half of `RKeptGasInput` (complete, `SD`, `KeptOutput`) on a `PreRec`, with `β` large by `budget_good_setup` (extracted from `lfBudgetInput_of_pin`, which is now an instance).
+* **Residual 1, `KappaPreLocal` (OPEN-R-TOP-PIN).** `LocalHistory` carries no kept labels, while `κ_{j}(Y)` of a kept component adds `γ_j(ϰ)` of its label. Two histories of the complete set with the same localized history of `Z'` and different labels `ϰ` at a kept component below `Z'` have different `κ^pre_k(Z')` unless `γ_j` does not distinguish the realized labels. The pin `D4Pin` of the landed class has the same property at every scale, so it constrains the data `KD.gam` (e.g. `γ_j(ϰ) = log 5 + A'_3 λ̂_j^{p_R}` for all `ϰ` satisfies `gam_ge` and `sum_inv_Cdec`). `KappaPreLocal` is stated and used as the hypothesis; it is not proved.
+* **Residual 2, `KeptScaleData`.** The kept kernels of the five outcomes at the scale `k` (`outcomeKernel` of `K^pre`, bounded by `keptKernel_*_kerBound` at the pinned exponent), with `b_supp`, `rot_*`, `euclid_*` (the structure `KeptData`), and `LFCoherent` of the output family. Needs the window premises above for the physical kernels (Lemma III.5.3) and the covariance of `outcomeKernel`. Rule 10 exemption requested for `KeptScaleData` and `KappaPreLocal` (hypotheses of the same kind as the seven inputs of `RInput`).
+
+**Update (W1157): label independence.** `KeptScaleData.gam_indep` (spine-local clause: `γ_i(ϰ)` independent of `ϰ`, as `C_dec = 5`; `KeptData` allows label-dependent `gam`) removes the label dependence of `κ^pre_k`. `KappaPreLocal` is not proved: what remains is the lineage locality of the bookkeeping, i.e. that for two histories with the same localized history of `Z'` the parts of `Z'`, their kept events (`Ripe (bk c)`, with `bk` built from `nextSpine`, a `Classical.choose`) and their exponents agree. The landed transports (`HAgr`, `kappa_eq`) need global `Agree`; a lineage version of `HAgr` (spines, books, parts along `lin`) is the missing piece (about the size of `AgreeTransport*`).
+
+**Update (W1158, 2026-10-21): `KappaPreLocal` PROVED (`Spine/KappaLocal.lean`).** The lineage version of `HAgr` is not needed: the landed `Budget/CanonicalBook.lean` / `Budget/RecordForward.lean` already give that the spine and the book of a component are functions of its localized history (`spine_bk_eq_of_localHistory_eq`; the `Classical.choose` in `nextSpine` is a choice among the spines satisfying `SpineCan`, a predicate on the cubes of `Z'`, the old parts as a set of cubes with their spines, and the number of new cubes, so it is local: no non-locality, no change of the choice needed), hence the kept events (`isKeptEvent_iff_of_localHistory_eq`), and `record_forward` gives the old parts (same cubes, same localized histories), the new cubes and, with `card_oldCubes_add_outCubes`, the number of cubes of `Z_{k-1}^c` over `Z'`. `kappaPre_eq_of_localHistory_eq`, `kappaH_eq_of_localHistory_eq` (induction on the scale), `kappaPreH_eq_of_localHistory_eq`, `kappaPreLocal_of_gam_indep` (hypothesis: `γ_i(ϰ)`, `i < k`, label independent = `KeptScaleData.gam_indep_below`, and `k ≤ K`). `keptOutput_of_scaleData` no longer takes `KappaPreLocal`. The only residuals of the kept half are `KeptScaleData` and `LFCoherent`.
 **A4-1f `SFCoherenceInput`: blocked on the map `Φ` (W1148, 2026-10-21).** `SFCoherenceQ` is a clause on `D8SF` of `{ Φ sf with Tm := newLevelTerms … }`, i.e. on the `M^{(k+1)}` and `ℛ^{(k+1)}` terms of the image `Φ sf` as functions of the
 fields `(ψ, h, g)` on the Def-6 tori. No definition turns the output of the fluctuation chain (`NewLevelFormula`, `newLevelCoeffBg`, a coefficient family indexed by `physParam`/`physV` and the polymer `T′`) into `Terms d L N₁ m₁ (k+1) N ϱ`:
 `Terms` is only produced by the witnesses (`Inhabited/GeneralClassWitness`, `V2*`) and by the splice `newLevelTerms`; the spine's `Φ` is a parameter (rows ★ `Φ`, A4-1b (iii)). Until `Φ` is built (the evaluation of the chain's coefficient at the
@@ -1505,3 +1621,59 @@ statement, the same on both tori), whence `gsIso_localB` and `gsCorr_localB`.  M
 for `Gk = 𝔹_j(X)`.  Open: (4) `H`/`G₁` of two `NewLevelSystem`s (index bijection of the old terms, `polyDom`
 under `boxMap`, `hatOf_boxMap`, the per-term premises of `evDec_oldTerm_twoTorus` at the marks
 `(u,0)`, `(0,0)`); (5) `NS.coeff` via `gsumCoeff_transport`.
+
+### A4-1f two-torus agreement of the chain objects (W1148r, 2026-10-21)
+
+Landed: `OldTermPair` (premises structure), `TwoTorusEvOldGen`, `NewLevelTermPair`
+(`TermPairPremises`, `evTerm_twoTorus_of_premises`), `NewLevelHPairs` (`H_twoTorus_of_pairs`),
+`NewLevelGPairs` (`G₁_twoTorus_of_pairs`), `NewLevelDetTwoTorus`, `NewLevelCoeffTwoTorus`
+(`NewLevelSystem.coeff_twoTorus` for two systems of the tower steps `hatStepKG`, roots `z`, `bc z`).
+Premises are typing/geometry data (labels, bijections `ψ`, `κ`, `e`, margins, `GSCorr/GSIso`,
+the D8 box form of the old terms).  What remains for the full A4-1f agreement: discharge those
+premises for the actual systems (label/mark bijections on `Lab1`, from the class), and the map Φ.
+
+**Update (W1158, 2026-10-21): `LFCoherent` of the output of the kept half PROVED (`Spine/Corr*.lean`, `KeptPinned.lean`, `KeptCoherence.lean`).** `keptOutput_of_scaleData` no longer takes `LFCoherent` of the output family; its hypotheses on the output are the kept data `data` (`KeptScaleData`) and their datum coherence `KeptDatumCoh` (the datum clause of (D8) for the kept kernels, below).
+* **What is proved.** `lfCoherent_post`: for `F` with `LFCoherent F`, kept data `D`, `D4Pin k` of `keptRep (F.lf nK) (D nK)` and `KeptDatumCoh`, the family `repFamPost F (keptRep …) bZero remZero` is `LFCoherent`. Clause 1 (step kernels) and the exponents `κ_j`, `j ≠ k`, are those of the input; the boundary terms are zero; the pinned exponent `κ_k = κ^pre_k` is coherent by `pinnedExp_corr`.
+* **Proof of `pinnedExp_corr`** (`KeptPinned.lean`). (1) Every kept component `Z₂` of an admissible region history `H₂` is the localized history of a kept non-removed component of a history of the complete set `canonHist` (`exists_canon_of_kept`: `H.locRH k Z` is an admissible history without removals, `localHistory_locRH` in `CorrLoc.lean`; the book is a function of the localized history). So the realized set is the same on both tori once kept events correspond. (2) For a pinned representation with label-independent kept costs the exponents `κ_j` of non-removed components are the model exponents `kapM` (`kappaH_eq_kapM`: `κ_{j+1} = ∑ κ_j + κ^{(j)} + c_{j+1}` at kept events), a function of the bookkeeping only. (3) The books and the model exponents of components with corresponding lineages agree (`bk_corr`, `kapM_corr`, `kapPreM_corr`).
+* **The two-torus bookkeeping** (`CorrLift`, `CorrHull`, `CorrBook`, `CorrKappa`, `CorrHist`). Cube indices of a set of cubes whose sites lie in the box are lifted to `ℤ^d` (`clift`); a `SetCorr` of fine sets is the equality of the lifted index sets (`setCorr_iff_clift`); the components of the cubes are, under the lift, the components of the lifted set (`image_comps`, using that two cubes of a set in the box are less than `q/2` indices apart, `GBox.pair`); `IsSmall` and `side` are those of the lifted set (`isSmall_side`, margin of one cube). The induction on the scale (`bk_corr`) uses `spineTarget` (the spine length is canonical), `nextBook_congr` and the old parts as the components of `Z_{k-1}` over `Z`. The hypotheses come from the clause of `LFCoherent`: `corr_of_V` derives the room (`≥ 32` cubes per side, `room_of_V`), the margin (`zone_margin`) and `LinCorr` (lineages and new cubes correspond) from `HistCorr` and `SetCorr` of `V`.
+* **A clause added to `KeptScaleData`** (replaces `gam_indep`): `gam_val : γ_i(ϰ) = log 5 + A'₃ λ̂_i^{p_R}` for all `i, ϰ` (LFR Definition III.5.2, `C_dec = 5`). Without it the output is not coherent: `KeptData` allows `gam` to depend on the torus, and `κ_{k-1}` of a kept part contains `γ_{k-1}`; `LFCoherent` of the input constrains `κK` but not `gam`. `gam_indep` is now a theorem. Consequence for the input: `gam_eq` (`D.gam i = r₀.gam i`, `i < k`) says that the input kept costs below `k` are these constants; this is an invariant of the class (the kept data of every earlier step have `gam_val`), to be recorded in `RepRec`/`PreRec` when the first step with kept data is built.
+* **`KeptDatumCoh`** (`KeptCoherence.lean`): the datum clause of clause 2 of `LFCoherent` for the kept data family `nK ↦ (data nK).KD`: for admissible `H₁, H₂`, components with `HistCorr` and `SetCorr` of `V`, and every label `ϰ`, the variable sets `I''` correspond and the kept kernels `K`, `b` agree at corresponding outputs, configurations and sources. Admissibility is not used by the exponent. Rule 10: exemption requested together with `KeptScaleData`.
+
+**`KeptScaleData` split (W1158, 2026-10-21; `Spine/KeptParts.lean`, `KeptHalfKernels.lean`).** `KeptScaleData` is no longer a residual in its own right: `KeptScaleData.ofKernels r₀ hγ Ks` builds it from the structure `KeptScaleKernels r₀` (the kept kernels of the five outcomes at the scale `k`), and `keptOutput_of_kernels` is `keptOutput_of_scaleData` with `data := ofKernels`. The kept datum is `mixDatum`: that of the input below `k` (R does not change kept components below `k`; its bound (1.26) is the input's, with the same exponent because `gam_eq`), `Ks.datum` at `k`, `zeroDatum` above (the zero kernel satisfies (1.26) at every exponent, `zeroKernel_kerBound`). The costs are the constants `C_dec = 5`, `γ_i = log 5 + A'₃ λ̂_i^{p_R}` (all of `one_le_Cdec`, `sum_inv_Cdec`, `gam_ge`, `gam_val` are proved). `keptDatumCoh_of_kernels`: `KeptDatumCoh` of the output from `LFCoherent` of the input (scales `< k`), `KeptDatumCohAt k` of the kernels, and triviality above. `KeptScaleKernels.zero`: the structure is inhabited (Rule 10), as is `KeptDatumCohAt` for it.
+
+Residuals of the kept half, now exactly:
+1. **`hγ` (class invariant, no kernels).** `(rec.F.lf nK).KD.gam i l = log 5 + A'₃ λ̂_i^{p_R}` for `i < k`: to be a clause of `RepRec`/`PreRec` (or `LFStepInput`), true for the kept data built by `ofKernels` at every earlier step, and for the base. Size: ≈ 40 lines at the place where the first kept data are built.
+2. **`KeptScaleKernels r₀`, field `datum` and `bound`** (LFR Lemma III.5.3, P7 (1.20)–(1.26); the content of the window work). `datum a ϰ` = the outcome kernel `outcomeKernel (K^pre) (t, s, z, w, u) (kept ϰ)` of the pre-`R` kernel `K^pre` of `𝕋^pre_k(Z, a)` (`preOp`, composed with the operators of the old parts) with the five outcome weights of Definition III.5.1, internal variables `I'' = Ikeep` (any set containing the multiscale and fluctuation variables, e.g. the pre-`R` variables), `b'' = b^pre`; `bound`: vanishing off `χ^dom_k` (the weights vanish off the domain, `outcomeKernel_nonneg`-type) and (1.26) at `κ^pre_k - C_R λ̂_k^{2d+1} + γ_k` for the five labels: `keptKernel_one_kerBound … keptKernel_five_kerBound` (landed, `LargeField/R/KeptOutcomeWindow.lean`) reduce it, for each label, to the window data `Θ, E, Core, bw, frac` and the premises `hid, hsupp, hcore, hvol, hFr, hnT, hnZ, hκ` (Lemma III.8.7 steps (1)–(4), the removed-lane window); not discharged for the physical kernels. Size: the window premises for the physical `K^pre` (the bulk of the R work, ≈ 1,500–2,500 lines; shared with the removed lane `RRemovedWindow`) plus ≈ 150 lines to assemble `datum`/`bound` from the five instantiations.
+3. **`b_supp`** (S0: `b^pre` reads `g` only on `V`): from the support clause of `SD`/the old kept data (`StepData.b_supp`-type), composition lemma for `preOp`. ≈ 100 lines.
+4. **`rot_K`, `rot_b`** (`O(N)`-covariance): the weights are `O(N)`-invariant functions of the field (`χ`-functions of `|ψ|`-type quantities), `K^pre` is covariant by the covariance of `SD` and of the old parts (`LFKernel.rot_*` composition). ≈ 150 lines.
+5. **`euclid_I`, `euclid_K`, `euclid_b`** (covariance under lattice symmetries preserving the localized history): same as 4 with `symVar`, `RelOut`, `RelSub`, `RelG`; the weights are built from geometric data of the localized history. ≈ 250 lines.
+6. **`KeptDatumCohAt k` for `Ks`** (the datum clause of (D8) at the scale `k`): the transport of the pre-`R` kernel and of the weights along `boxMap` (`quietKernel_twoTorus`, `bgLocPiece_twoTorus`, `chiNew_corr`, the two-torus files; the weights depend on the cutoff functions `χ_q`, `χ'`, `chiNew` of corresponding histories). ≈ 400–600 lines (the same transport as `LFCoherenceInput` of the step, for the composed kernel).
+7. **`KeptScaleKernels` sign of `Ripe` and the old data:** none; `Ks.bound` is only asked at `1 ≤ k ≤ k₀` and `Ripe`, as in `KeptData.bound`.
+### Obstruction to `newLevel_coeff_twoTorus_of_class` (W1148r, 2026-10-21)
+
+The index bijection `e : NS.O.ι ≃ NS'.O.ι` (and so every premise of `H_twoTorus_of_pairs`,
+`G₁_twoTorus_of_pairs`, `coeff_twoTorus`) cannot be produced from class membership.  The inherited levels
+of a `NewLevelSystem` are existential data: `OldTermSystem.ι` is an arbitrary finite type, and the only
+constraints are `hEJ` (`∑ τ, Eτ τ = Jr.EJ C`, a constraint on the sum) and `OldTermsAreIrrel`
+(`Eτ τ = irrelTorus … (y τ) (X τ)`, with `y`, `X` arbitrary).  Neither says which pairs `(y, X)` occur or
+that `τ ↦ (y τ, X τ)` is injective and onto the admissible pairs, so two systems on the two tori need not
+correspond (duplicate, cancelling or missing terms give the same sum).  The same holds for the pinned
+fields `Gk`, `Gj`, `F₁L`, ... (existential beyond their pins; the pin uniqueness of `NewLevelPinUnique`
+only compares fields with the same index).
+Smallest repair: strengthen `OldTermsAreIrrel` with the canonical index clause
+`τ ↦ (jL τ, y τ, X τ)` is a bijection of `ι` onto the set of admissible irrelevant pairs of the class
+(determined by the class geometry); then `e` is `boxMap` on pairs on the quarter box, and the remaining
+premises are the D8 box form of `irrelTorus C.Tm` plus the landed `gsCorr_localB`/`gsIso_localB`.
+
+`OldTermsCanon` (Inhabited/NewLevelCanon.lean, W1148r): the chain's producer must prove it for the inherited levels (to be added after R13 lands).
+It pins the index set and `Eτ`; for `newLevel_coeff_twoTorus_of_class` it must also pin the other free fields of `OldTermSystem`
+(`X₁f τ`, `𝒦X τ`, `Gk τ`, `Gj τ`, `ρ`) as canonical functions of `(jL τ, y τ, X τ)` (they are existential, constrained only by
+`CovSetup`/`BgSetting`); the pinned decoupled fields `F₁L`, `SolL`, `FkL` are then unique by `NewLevelPinUnique`.
+Also needed: a partial index bijection (the full index types have different sizes on the two tori): only the `τ` with `Y ∈ polyDom τ` correspond.
+
+Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`, `G₁_twoTorus_at_of_pairs`, `PolyDomBoxMap.polyDom_boxMap_iff`,
+`OldTermsCanonPins` + `CanonCover` + `exists_domEquiv_of_canon` (NewLevelCanonPins) give the index bijection e from boxMap on pairs.
+Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
+per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
+
+**`hγ` removed (W1158, 2026-10-21).** `GamConst rep` (`Spine/Coherence.lean`: `rep.KD.gam i l = log 5 + A'₃ λ̂_i^{p_R}` for all `i, l`, LFR Def. III.5.2) is a field `gamVal` of `PreRec` and `RepRec`. Producers: the base step (`BaseRaw.KDgam`, the provider's choice of kept data), the step `LFStepInput` (new conjunct `GamConst (lf' nK)`; `lfStepInput_of_parts`: the kept data of the successor are `KeptData.upTo`, which copies `gam`), `RKeptGasInput` (new conjunct `GamConst (lf₁ nK)`; the kept half gives it, `keptLF_gamConst`), the Rule-10 witnesses (`zeroKeptData` has `γ = A'₃ λ̂^{p_R} + log 5`). `keptOutput_of_kernels` no longer has `hγ` (`rec.gamVal`).

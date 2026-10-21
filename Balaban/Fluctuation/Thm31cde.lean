@@ -5,8 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.Thm31Avg
-public import Balaban.Fluctuation.MeasureInterp
+public import Balaban.Fluctuation.Thm31cdeOn
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -20,7 +19,9 @@ measure `Z_u⁻¹ e^{W(u)} dν_{p₁}` whose exponent is expanded by Proposition
 (`StepSetting` is the whole-lattice step, where they vanish), so the statements here are for the
 abstract interpolation average `interpAvg` of the integrand of P5 (3.2), (3.9), (3.11), with the
 stated sizes.  The conclusion is the sum over sets `S` of `π_{k+1}`-cubes with the rate `κ'`
-(`κ_a` for (c), `κ_b` for (d), (e)).
+(`κ_a` for (c), `κ_b` for (d), (e)).  The measures here are products over the cubes of the whole
+torus; the proofs are the instances `Ω = univ` (`ProdSplit.toOn`, `InterpMarks.toOn`) of the region
+core `Fluctuation/Thm31cdeOn.lean`.
 -/
 
 @[expose] public section
@@ -32,10 +33,6 @@ open Balaban Balaban.Localization Balaban.Polymer MeasureTheory
 section Generic
 
 variable {d L N₁ m₁ K : ℕ} [NeZero L] [NeZero N₁] {X : Type*} [MeasurableSpace X]
-
-/-- The interpolation average `∫₀¹ ⟨f(u)⟩_u du` for the measures `Z_u⁻¹ e^{W(u)} dν`. -/
-noncomputable def interpAvg (ν : Measure X) (W : ℝ → X → ℂ) (f : ℝ → X → ℂ) : ℂ :=
-  ∫ u in (0 : ℝ)..1, avgFun ν W (f u) u
 
 /-- The block structure of `ν`: the variable is the family of its restrictions to the cubes of
 `𝕋` at scale `K`, and `ν` is the product of probability measures `ν_b`. -/
@@ -50,30 +47,23 @@ structure ProdSplit (ν : Measure X) (d L N₁ m₁ K m₀ : ℕ) [NeZero L] [Ne
 
 attribute [instance] ProdSplit.ms ProdSplit.prob
 
+/-- The whole-torus split is the instance `Ω = univ`. -/
+def ProdSplit.toOn {ν : Measure X} {m₀ : ℕ} (BS : ProdSplit ν d L N₁ m₁ K m₀) :
+    ProdSplitOn ν d L N₁ m₁ K m₀ Set.univ where
+  Ωb := BS.Ωb
+  μ := BS.μ
+  restr := BS.restr
+  meas := BS.meas
+  map_eq := BS.map_eq
+
 theorem avgFun_eq_avgPi_gen {ν : Measure X} {m₀ : ℕ} (BS : ProdSplit ν d L N₁ m₁ K m₀)
     {Lb : Type*} [Fintype Lb] (W : ℝ → X → ℂ) (f : X → ℂ) (s : ℝ)
     (H : Lb → (∀ b, BS.Ωb b) → ℂ) (G : (∀ b, BS.Ωb b) → ℂ)
     (hHm : ∀ y, Measurable (H y)) (hGm : Measurable G)
     (hW : ∀ᵐ x ∂ν, W s x = ∑ y, H y (BS.restr x))
     (hf : ∀ᵐ x ∂ν, f x = G (BS.restr x)) :
-    avgFun ν W f s = avgPi (K := K) (j := K) (Ω := Set.univ) BS.μ H G := by
-  have hmeas : Measurable (fun Φ : ∀ b, BS.Ωb b => Complex.exp (∑ y, H y Φ)) :=
-    Complex.measurable_exp.comp (Finset.measurable_sum _ fun y _ => hHm y)
-  have hZ : partFun ν W s = ∫ Φ, Complex.exp (∑ y, H y Φ) ∂(Measure.pi BS.μ) := by
-    rw [← BS.map_eq, integral_map BS.meas.aemeasurable hmeas.aestronglyMeasurable]
-    unfold partFun
-    refine integral_congr_ae ?_
-    filter_upwards [hW] with x hx
-    rw [hx]
-  have hN : ∫ x, f x * Complex.exp (W s x) ∂ν =
-      ∫ Φ, G Φ * Complex.exp (∑ y, H y Φ) ∂(Measure.pi BS.μ) := by
-    rw [← BS.map_eq, integral_map (f := fun Φ => G Φ * Complex.exp (∑ y, H y Φ))
-      BS.meas.aemeasurable (hGm.mul hmeas).aestronglyMeasurable]
-    refine integral_congr_ae ?_
-    filter_upwards [hW, hf] with x hx hfx
-    rw [hx, hfx]
-  unfold avgFun avgPi
-  rw [hZ, hN]
+    avgFun ν W f s = avgPi (K := K) (j := K) (Ω := Set.univ) BS.μ H G :=
+  avgFun_eq_avgPi_on BS.toOn W f s H G hHm hGm hW hf
 
 /-- **Proposition 3.3 for an interpolation average in the variable `ψ̂`**: exponent `W(u)` and
 integrand `f(u)` are, `ν`-a.e. and for `u ∈ [0,1]`, sums of block-local terms (holomorphic in `u`
@@ -121,6 +111,44 @@ structure InterpMarks (ν : Measure X) {m₀ : ℕ} (BS : ProdSplit ν d L N₁ 
 
 attribute [instance] InterpMarks.fin InterpMarks.finι
 
+/-- The whole-torus data are the instance `Ω = univ`. -/
+def InterpMarks.toOn {ν : Measure X} {m₀ : ℕ} {BS : ProdSplit ν d L N₁ m₁ K m₀}
+    {W : ℝ → X → ℂ} {f : ℝ → X → ℂ} (I : InterpMarks ν BS W f) :
+    InterpMarksOn ν BS.toOn W f where
+  Lb := I.Lb
+  Lab := I.Lab
+  ι := I.ι
+  nonempty := I.nonempty
+  εH := I.εH
+  κH := I.κH
+  κG := I.κG
+  κ0 := I.κ0
+  κ' := I.κ'
+  Kc := I.Kc
+  F0 := I.F0
+  hN := I.hN
+  𝒰 := I.𝒰
+  isOpen := I.isOpen
+  seg := I.seg
+  A := I.A
+  y0 := I.y0
+  G := I.G
+  meas := I.meas
+  dep := I.dep
+  bound := I.bound
+  holA := I.holA
+  holG := I.holG
+  hκ0 := I.hκ0
+  hKc := I.hKc
+  hεpos := I.hεpos
+  hF0 := I.hF0
+  hκ' := I.hκ'
+  hκG := I.hκG
+  hκ := I.hκ
+  hε := I.hε
+  hW := I.hW
+  hF := I.hF
+
 open Classical in
 /-- **A localization expansion of an interpolation average** (the common core of Theorem 3.1
 (a), (c), (d), (e)); conditional on `InterpMarks`. -/
@@ -130,20 +158,9 @@ theorem interpAvg_expansion_of_input {ν : Measure X} {m₀ : ℕ}
     ∃ E : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ K Set.univ) → ℂ,
       interpAvg ν W f = ∑ T, E T ∧
       ∀ T, ‖E T‖ ≤ CPE d L I.Kc I.κH I.κ0 I.κ' *
-          (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) * Real.exp (-I.κ' * dExt T) := by
-  obtain ⟨-, hint, hbd⟩ := avg_integral_expansion BS.μ I.hN le_rfl
-    (Ω := Set.univ) (j := K) (fun z _ => ⟨cbase (cellSide L m₀ m₁ K) z, aligned_cbase z,
-      mem_box_cbase (cellSide_pos (L := L) m₀ m₁ K) z, Set.subset_univ _⟩)
-    I.isOpen I.seg I.A I.y0 I.G I.meas I.dep I.bound I.holA I.holG I.hκ0 I.hKc I.hεpos
-    I.nonempty I.hF0 I.hκ' I.hκG I.hκ I.hε
-  refine ⟨fun T => ∫ s in (0 : ℝ)..1,
-    Gsum BS.μ I.Lab (I.A (s : ℂ)).H I.y0 (fun i => I.G i (s : ℂ)) T, ?_, hbd⟩
-  rw [← hint]
-  unfold interpAvg
-  refine intervalIntegral.integral_congr fun s hs => ?_
-  rw [Set.uIcc_of_le zero_le_one] at hs
-  exact avgFun_eq_avgPi_gen BS _ _ s (I.A (s : ℂ)).H (fun Φ => ∑ i, I.G i (s : ℂ) Φ)
-    (I.A (s : ℂ)).meas (Finset.measurable_sum _ fun i _ => I.meas i _) (I.hW s hs) (I.hF s hs)
+          (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) * Real.exp (-I.κ' * dExt T) :=
+  ⟨interpTermOn I.toOn, interpAvg_eq_sum_interpTermOn (fun z _ => ⟨cbase (cellSide L m₀ m₁ K) z,
+    aligned_cbase z, mem_box_cbase (cellSide_pos (L := L) m₀ m₁ K) z, Set.subset_univ _⟩) I.toOn⟩
 
 /-- **Theorem 3.1 (c), (d), (e) with their sizes** (common form; the source rates are the choices
 `κ' = κ_a` for (c) with `B = β_k^{-1}`, `κ' = κ_b` for (d) with `B = ½β_{k+1}^{-m-1}`, and

@@ -108,16 +108,17 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- **Lemma II.6.3 (a), post-`R` operators**: every localized operator `𝕋_j(Z, 𝔸 ∩ Z)`, `j ≤ K`,
 satisfies (1.26) with the exponent `κ_j(Z, 𝔸 ∩ Z)` (Definition II.5.11). -/
-theorem Rep.locOp_bound (hz : ∀ j, 0 < cs.z (j + 1))
-    (hc : ∀ j, 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (A : LabHist S n R k0 K) :
-    ∀ (j : ℕ) (hj : j ≤ K) (c : A.H.Comp j),
+theorem Rep.locOp_bound_le (m : ℕ) (hz : ∀ j, j + 1 ≤ m → 0 < cs.z (j + 1))
+    (hc : ∀ j, j + 1 ≤ m → 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (A : LabHist S n R k0 K) :
+    ∀ (j : ℕ) (hj : j ≤ K), j ≤ m → ∀ (c : A.H.Comp j),
       PkgBound (A.H.localHistory M K j c) j
         (locOp geo cs rep.SD rep.KD A.adm (fun i c => A.lab i c.1) j hj c) (rep.kappaH A j c) := by
   intro j
   induction j with
-  | zero => intro _ c; exact (A.H.F.isEmpty_comp_zero.false c).elim
+  | zero => intro _ _ c; exact (A.H.F.isEmpty_comp_zero.false c).elim
   | succ j ih =>
-    intro hj c
+    intro hj hjm c
     by_cases hkept : IsKept A.H (j + 1) c
     · have e := locOp_kept geo cs rep.SD rep.KD (lab := fun i c => A.lab i c.1) (hH := A.adm) hj
         hkept
@@ -132,7 +133,7 @@ theorem Rep.locOp_bound (hz : ∀ j, 0 < cs.z (j + 1))
         hkept
       have hb := preOp_pkgBound geo cs rep.SD A.adm hj c
         (fun Y _ => locOp geo cs rep.SD rep.KD A.adm (fun i c => A.lab i c.1) j (by omega) Y)
-        (hz j) (hc j) (fun Y => rep.kappaH A j Y.1) (fun Y => ih (by omega) Y.1)
+        (hz j hjm) (hc j hjm) (fun Y => rep.kappaH A j Y.1) (fun Y => ih (by omega) (by omega) Y.1)
       have hκ : rep.kappaH A (j + 1) c = kappaStepLoc S P M j (A.H.localHistory M K (j + 1) c) +
           ∑ Y : ↥(A.H.parts j c), rep.kappaH A j Y.1 := by
         have hev : ¬ A.H.IsKeptEvent (j + 1) c := hkept
@@ -142,19 +143,27 @@ theorem Rep.locOp_bound (hz : ∀ j, 0 < cs.z (j + 1))
       rw [e, hκ]
       exact hb
 
-/-- **Lemma II.6.3 (a), pre-`R` operators**: every pre-`R` operator `𝕋^pre_j(Z, 𝔸 ∩ Z)` satisfies
-(1.26) with the exponent `κ^pre_j(Z, 𝔸 ∩ Z)`. -/
-theorem Rep.preOpTop_bound (hz : ∀ j, 0 < cs.z (j + 1))
+/-- **Lemma II.6.3 (a), post-`R` operators** (all scales). -/
+theorem Rep.locOp_bound (hz : ∀ j, 0 < cs.z (j + 1))
     (hc : ∀ j, 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (A : LabHist S n R k0 K) :
     ∀ (j : ℕ) (hj : j ≤ K) (c : A.H.Comp j),
+      PkgBound (A.H.localHistory M K j c) j
+        (locOp geo cs rep.SD rep.KD A.adm (fun i c => A.lab i c.1) j hj c) (rep.kappaH A j c) :=
+  fun j hj c => rep.locOp_bound_le K (fun j _ => hz j) (fun j _ => hc j) A j hj hj c
+
+/-- **Lemma II.6.3 (a), pre-`R` operators, up to the scale `m`**: the signs are needed only below `m`. -/
+theorem Rep.preOpTop_bound_le (m : ℕ) (hz : ∀ j, j + 1 ≤ m → 0 < cs.z (j + 1))
+    (hc : ∀ j, j + 1 ≤ m → 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (A : LabHist S n R k0 K) :
+    ∀ (j : ℕ) (hj : j ≤ K), j ≤ m → ∀ (c : A.H.Comp j),
       PkgBound (A.H.localHistory M K j c) j (preOpTop geo cs rep.SD rep.KD A j hj c)
         (rep.kappaPreH A j c)
-  | 0, _, c => (A.H.F.isEmpty_comp_zero.false c).elim
-  | j + 1, hj, c => by
+  | 0, _, _, c => (A.H.F.isEmpty_comp_zero.false c).elim
+  | j + 1, hj, hjm, c => by
     have hb := preOp_pkgBound geo cs rep.SD A.adm hj c
       (fun Y _ => locOp geo cs rep.SD rep.KD A.adm (fun i c => A.lab i c.1) j (by omega) Y)
-      (hz j) (hc j) (fun Y => rep.kappaH A j Y.1)
-      (fun Y => rep.locOp_bound hz hc A j (by omega) Y.1)
+      (hz j hjm) (hc j hjm) (fun Y => rep.kappaH A j Y.1)
+      (fun Y => rep.locOp_bound_le m hz hc A j (by omega) (by omega) Y.1)
     have hκ : rep.kappaPreH A (j + 1) c = kappaStepLoc S P M j (A.H.localHistory M K (j + 1) c) +
         ∑ Y : ↥(A.H.parts j c), rep.kappaH A j Y.1 := by
       rw [kappaStepLoc_localHistory P A.H hj c, Finset.sum_coe_sort]
@@ -162,6 +171,23 @@ theorem Rep.preOpTop_bound (hz : ∀ j, 0 < cs.z (j + 1))
       ring
     rw [hκ]
     exact hb
+
+/-- **(D4) implies (D5), up to the scale `k`**: the signs `z_{j+1} > 0`, `β_j a L^{d-2} ≥ 0` are
+needed only for `j + 1 ≤ k`, the scales read by `D5Bound` of a representation at scale `k`. -/
+theorem Rep.opBound_of_data_le (hz : ∀ j, j + 1 ≤ k → 0 < cs.z (j + 1))
+    (hc : ∀ j, j + 1 ≤ k → 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (top : ℕ)
+    (hkK : k ≤ K) : D5Bound top hkK rep :=
+  fun A _ j hj => ⟨fun _ c _ => rep.locOp_bound_le k hz hc A j (hj.trans hkK) hj c,
+    fun c => rep.preOpTop_bound_le k hz hc A j (hj.trans hkK) hj c⟩
+
+/-- **Lemma II.6.3 (a), pre-`R` operators**: every pre-`R` operator `𝕋^pre_j(Z, 𝔸 ∩ Z)` satisfies
+(1.26) with the exponent `κ^pre_j(Z, 𝔸 ∩ Z)`. -/
+theorem Rep.preOpTop_bound (hz : ∀ j, 0 < cs.z (j + 1))
+    (hc : ∀ j, 0 ≤ cs.beta j * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) (A : LabHist S n R k0 K) :
+    ∀ (j : ℕ) (hj : j ≤ K) (c : A.H.Comp j),
+      PkgBound (A.H.localHistory M K j c) j (preOpTop geo cs rep.SD rep.KD A j hj c)
+        (rep.kappaPreH A j c) :=
+  fun j hj c => rep.preOpTop_bound_le K (fun j _ => hz j) (fun j _ => hc j) A j hj hj c
 
 /-- **Lemma II.6.3 (a): (D4) implies (D5).**  The step and kept data of a representation (which
 satisfy (S0)-(S3) by their types) give the operator bound (D5), at every top scale. -/
