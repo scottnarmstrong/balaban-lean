@@ -216,3 +216,12 @@ approved declaration.
   read `FineValidAt` through `bdryDomsPre`/`bdryDomsPost`), the history clauses, the H7 domain, the halos of R
   (`isDj_d7Pull_halo`), `RGasCore*`. The R11 side is landed (`Spine/LFBdryHole.lean`).
 - **Recommendation: approve.**
+
+## Ruling R12 asked (2026-10-21, W1151, audit W1148) — APPROVED 2026-10-21: removal histories contribute nothing to the post-R sum
+- **What changes.** `postTerm2` (`LargeField/Def7v2Form.lean`) is zero for a history with `Rem_j ≠ ∅` at some `j ≤ k`;
+  its 7 direct users are adjusted. The history set and its completeness are unchanged.
+- **Why.** `IsComplete k (k+1)` keeps one history per pattern of removals; a history whose removed components lie
+  away from every kept component has the same term as the history without them, so the post-R sum counted the
+  all-small-field term n₀ ≥ 2 times (`two_le_card_empty_region`, `postTerm2_eq_of_region_empty`). The source
+  (P7 (3.26)–(3.29)) has one term, with the removed components in `ℬ′` and `ℛ″`; LFR D-III.8 intended these terms
+  to vanish. Evidence and options: `notes/phase1/REMOVAL-HIST.md`.
