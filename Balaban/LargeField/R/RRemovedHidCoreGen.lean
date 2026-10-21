@@ -227,11 +227,11 @@ theorem window_hid_core_gen {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (h
                 (Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin)).prod
                 (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0)))) = 0) := by
   classical
-  have hglue := window_hid_core_glue geo cs SD KD (hk1p := hk1p) (hk1 := hk1) (hm := hm) (hk1K := hk1K) (hk1K1 := hk1K1) (hmk := hmk) (hq := hq) (hz0 := hz0) (hc := hc) (r := r) (TB := TB) (bw0 := bw0) (ρ := ρ) (hρ := hρ) (Z0 := Z0) (V2 := V2) (G3 := G3) (P2 := P2) (T := T) (Nd := Nd) (nd := nd) (hNd := hNd) (κc := κc) (jS := jS) (hjS := hjS) (hTnr := hTnr) (hNT := hNT) (hN2 := hN2) (hrad := hrad) (hκ2 := hκ2) (parC := parC) (hparC := hparC) (F := F) (Ewin := Ewin) (Φ := Φ) (φ3 := φ3) (φ4 := φ4) (φ5 := φ5) (hFpt1 := hFpt1) (hFpt2 := hFpt2)
+  have hglue := window_hid_core_glue (hvOK := fun _ => True) geo cs SD KD (hk1p := hk1p) (hk1 := hk1) (hm := hm) (hk1K := hk1K) (hk1K1 := hk1K1) (hmk := hmk) (hq := hq) (hz0 := hz0) (hc := hc) (r := r) (TB := TB) (bw0 := bw0) (ρ := ρ) (hρ := hρ) (Z0 := Z0) (V2 := V2) (G3 := G3) (P2 := P2) (T := T) (Nd := Nd) (nd := nd) (hNd := hNd) (κc := κc) (jS := jS) (hjS := hjS) (hTnr := hTnr) (hNT := hNT) (hN2 := hN2) (hrad := hrad) (hκ2 := hκ2) (parC := parC) (hparC := hparC) (F := F) (Ewin := Ewin) (Φ := Φ) (φ3 := φ3) (φ4 := φ4) (φ5 := φ5) (hFpt1 := fun hv _ => hFpt1 hv) (hFpt2 := hFpt2)
     (Qf := fun _ _ _ _ _ _ _ => ENNReal.ofReal Qb) (P := ENNReal.ofReal (Real.exp Lc * Qb))
     (hP0 := by rw [ne_eq, ENNReal.ofReal_eq_zero, not_le]; have := Real.exp_pos Lc; positivity)
     (hG := by
-      intro hv g par wd c ro sh hg hw fld ft hfld hft
+      intro hv _ g par wd c ro sh hg hw fld ft hfld hft
       have hfld' : fld = fun v s y => subVarField N (Φ (wd, c, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y :=
       funext fun v => funext fun s => funext fun y => hfld v s y
       have hft' : ft = fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
@@ -321,7 +321,7 @@ theorem window_hid_core_gen {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m') (h
         rw [← ENNReal.ofReal_mul hQb.le, mul_comm]
 
     )
-  refine ⟨fun hv g par w c => (hglue.1 hv g par w c).trans (le_of_eq ?_), hglue.2⟩
+  refine ⟨fun hv g par w c => (hglue.1 hv trivial g par w c).trans (le_of_eq ?_), hglue.2⟩
   congr 1
   rw [← ENNReal.ofReal_mul (Real.exp_pos _).le, mul_assoc]
 
