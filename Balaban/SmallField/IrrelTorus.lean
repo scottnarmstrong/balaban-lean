@@ -5,8 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.SmallField.Def6v2
-public import Balaban.SmallField.RenormTermwiseAnalytic
+public import Balaban.SmallField.IrrelTorusOn
 
 /-!
 # The irrelevant part of a term of the effective action on the torus (P1 Proposition 3.10)
@@ -20,7 +19,10 @@ the relevant local parts `T_{X'} + Φ_{y,X'}` resummed over the polymers `X' ∋
 for each `y` the cube `□` of the cover `π_j` containing `y` in its central large cube is taken,
 and the local expression of `y` is assigned to the term of `(y, □)`).
 
-* `irrelTorus`: the label functional `ℰ^{(j)}_{irrel}(y, X; Ψ, h)` on the fine torus;
+* `irrelTorus`: the label functional `ℰ^{(j)}_{irrel}(y, X; Ψ, h)` on the fine torus, built from the
+  relevant local part `relPartTorus` and the term `aTermTorus` (`IrrelTorusOn.lean`);
+* `irrelTorus_eq_irrelTorusOn`: it is the functional `irrelTorusOn` of the selection of all
+  polymers; the properties below are the instances of those of `irrelTorusOn`;
 * `irrelTorus_congr`: it depends on `(Ψ, h)` only through `Ψ` on `X^⋆ = X ∪ st₊(y)` and `h` on
   `X` (`y ∈ X`), `st₊(y) = {y + L^j e_μ}` (FLUCTUATION (3.0), Lemma 3.2 (ii));
 * `irrelTorus_analyticOnNhd`: it is analytic on the domain of the term where
@@ -62,28 +64,17 @@ volume (`Ttw_tsum_zero`, `Phitw_tsum_zero`); `Σ_y Σ_X A_{y,X} = 0` on the toru
 covariance of the density (P1 (3.112)–(3.113)). -/
 noncomputable def irrelTorus (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ)
     (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) : ℂ :=
-  let e : Fld d L N₁ m₁ k N := constFld (Pi.single i₀ 1)
-  let blk : Set (CTorus d L N₁ m₁ k) → Finset (CTorus d L N₁ m₁ k) := fun Z =>
-    Finset.univ.filter fun x => Aligned (L ^ j) x ∧ x ∈ Z
-  let u : ℂ := sqrtC (dot (Ψ y) (Ψ y))
-  let dΨ : Fin d → Fin N → ℂ := fun μ =>
-    Ψ (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) - Ψ y
-  let g : Fin d → Fin d → ℂ := fun μ μ' =>
-    dot (dΨ μ) (dΨ μ') - dot (Ψ y) (dΨ μ) * dot (Ψ y) (dΨ μ') / dot (Ψ y) (Ψ y)
-  let lift : CTorus d L N₁ m₁ k → Fin d → ℂ := fun z μ =>
-    ((unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) μ : ℤ) : ℂ)
-  let a : Set (CTorus d L N₁ m₁ k) → CTorus d L N₁ m₁ k → ℂ := fun Z x =>
-    fderiv ℂ (fun Ψ' => Tm.E j y Z Ψ' e) e (blockDir L j x i₀)
-  let TΦ : Set (CTorus d L N₁ m₁ k) → ℂ := fun Z =>
-    Tm.E j y Z e e + (u - 1) * ∑ x ∈ blk Z, a Z x
-      + (dot (Ψ y) (h y) / u - 1) * fderiv ℂ (fun h' => Tm.E j y Z e h') e e
-      - (1 / 4 : ℂ) * ∑ μ, ∑ μ', g μ μ' * ∑ x ∈ blk Z, ∑ x' ∈ blk Z,
-          D2 (fun Ψ' => Tm.E j y Z Ψ' e) e (blockDir L j x i₁) (blockDir L j x' i₁) *
-            ((lift x μ - lift x' μ) * (lift x μ' - lift x' μ'))
-  Tm.E j y X Ψ h - TΦ X
-    - (1 / 2 : ℂ) * ∑ x ∈ blk X, a X x * (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y))
+  Tm.E j y X Ψ h - relPartTorus Tm i₀ i₁ j y Ψ h X - aTermTorus Tm i₀ j y Ψ X
     + if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-        (L * cellSide L m₀ m₁ j) then ∑ᶠ Z ∈ polysAt m₀ j y, TΦ Z else 0
+        (L * cellSide L m₀ m₁ j) then ∑ᶠ Z ∈ polysAt m₀ j y, relPartTorus Tm i₀ i₁ j y Ψ h Z else 0
+
+open Classical in
+/-- **`irrelTorus` is the label functional of the selection of all polymers**
+(`irrelTorusOn` with `sm = ⊤`). -/
+theorem irrelTorus_eq_irrelTorusOn (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ)
+    (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) :
+    irrelTorus m₀ Tm i₀ i₁ j y X Ψ h = irrelTorusOn (fun _ _ => True) m₀ Tm i₀ i₁ j y X Ψ h := by
+  simp only [irrelTorus, irrelTorusOn, ite_true]
 
 section API
 
@@ -100,40 +91,8 @@ theorem irrelTorus_congr (hcl : SFTermClauses P Dom Tm) (m₀ : ℕ) (i₀ i₁ 
       Ψ x = Ψ' x)
     (hh : ∀ x ∈ X, h x = h' x) :
     irrelTorus m₀ Tm i₀ i₁ j y X Ψ h = irrelTorus m₀ Tm i₀ i₁ j y X Ψ' h' := by
-  have e1 : Ψ y = Ψ' y := hΨ y (Or.inl hy)
-  have e2 : h y = h' y := hh y hy
-  have e3 : ∀ μ : Fin d, Ψ (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) =
-      Ψ' (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) :=
-    fun μ => hΨ _ (Or.inr ⟨μ, rfl⟩)
-  have e4 : Tm.E j y X Ψ h = Tm.E j y X Ψ' h' :=
-    hcl.localE j y X Ψ Ψ' h h' fun x hx => ⟨hΨ x (Or.inl hx), hh x hx⟩
-  simp only [irrelTorus, e1, e2, e3, e4]
-  congr 3
-  refine Finset.sum_congr rfl fun x hx => ?_
-  rw [hΨ x (Or.inl (Finset.mem_filter.1 hx).2.2)]
-
-/-- The evaluation `p ↦ p.1 x i` of the first field of a pair is analytic. -/
-theorem analyticAt_fld_fst_apply (x : CTorus d L N₁ m₁ k) (i : Fin N)
-    (p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N) :
-    AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => p.1 x i) p :=
-  (((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) i).comp
-    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : CTorus d L N₁ m₁ k => Fin N → ℂ) x)).comp
-    (ContinuousLinearMap.fst ℂ _ _)).analyticAt p
-
-/-- The evaluation `p ↦ p.2 x i` of the second field of a pair is analytic. -/
-theorem analyticAt_fld_snd_apply (x : CTorus d L N₁ m₁ k) (i : Fin N)
-    (p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N) :
-    AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => p.2 x i) p :=
-  (((ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : Fin N => ℂ) i).comp
-    (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : CTorus d L N₁ m₁ k => Fin N → ℂ) x)).comp
-    (ContinuousLinearMap.snd ℂ _ _)).analyticAt p
-
-theorem analyticAt_dot_of {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
-    {f g : E → Fin N → ℂ} {p : E} (hf : ∀ i, AnalyticAt ℂ (fun q => f q i) p)
-    (hg : ∀ i, AnalyticAt ℂ (fun q => g q i) p) :
-    AnalyticAt ℂ (fun q => dot (f q) (g q)) p := by
-  unfold dot
-  exact Finset.analyticAt_fun_sum _ fun i _ => (hf i).mul (hg i)
+  rw [irrelTorus_eq_irrelTorusOn, irrelTorus_eq_irrelTorusOn]
+  exact irrelTorusOn_congr hcl _ m₀ i₀ i₁ j hy hΨ hh
 
 open Classical in
 /-- **Analyticity of the label functional** (FLUCTUATION.md Lemma 3.2 (ii)): for a polymer
@@ -146,51 +105,8 @@ theorem irrelTorus_analyticOnNhd (hcl : SFTermClauses P Dom Tm) (m₀ : ℕ) (i�
     AnalyticOnNhd ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
         irrelTorus m₀ Tm i₀ i₁ j y X p.1 p.2)
       {p | Dom.dom j (Tm.gs j X) p.1 p.2 ∧ dot (p.1 y) (p.1 y) ∈ Complex.slitPlane} := by
-  intro p₀ hp₀
-  have hE : AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N => Tm.E j y X p.1 p.2)
-      p₀ := hcl.analyticE j hj1 hjk y X hX hy p₀ hp₀.1
-  have hev := fun x i => analyticAt_fld_fst_apply (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)
-    (N := N) x i p₀
-  have hevh := fun x i => analyticAt_fld_snd_apply (d := d) (L := L) (N₁ := N₁) (m₁ := m₁)
-    (k := k) (N := N) x i p₀
-  have hdot : ∀ x x', AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
-      dot (p.1 x) (p.1 x')) p₀ := fun x x' => analyticAt_dot_of (hev x) (hev x')
-  have h0 : dot (p₀.1 y) (p₀.1 y) ≠ 0 := Complex.slitPlane_ne_zero hp₀.2
-  have hu : AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
-      sqrtC (dot (p.1 y) (p.1 y))) p₀ := (hdot y y).cpow analyticAt_const hp₀.2
-  have hu0 : sqrtC (dot (p₀.1 y) (p₀.1 y)) ≠ 0 := sqrtC_ne_zero h0
-  have hdiff : ∀ μ : Fin d, ∀ i, AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
-      (p.1 (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) - p.1 y) i) p₀ :=
-    fun μ i => (hev _ i).sub (hev y i)
-  have hg : ∀ μ μ' : Fin d, AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
-      dot (p.1 (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) - p.1 y)
-          (p.1 (y + (L ^ j) • (Pi.single μ' 1 : CTorus d L N₁ m₁ k)) - p.1 y) -
-        dot (p.1 y) (p.1 (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ k)) - p.1 y) *
-          dot (p.1 y) (p.1 (y + (L ^ j) • (Pi.single μ' 1 : CTorus d L N₁ m₁ k)) - p.1 y) /
-          dot (p.1 y) (p.1 y)) p₀ := fun μ μ' =>
-    (analyticAt_dot_of (hdiff μ) (hdiff μ')).sub
-      (((analyticAt_dot_of (hev y) (hdiff μ)).mul (analyticAt_dot_of (hev y) (hdiff μ'))).div
-        (hdot y y) h0)
-  have hv : AnalyticAt ℂ (fun p : Fld d L N₁ m₁ k N × Fld d L N₁ m₁ k N =>
-      dot (p.1 y) (p.2 y) / sqrtC (dot (p.1 y) (p.1 y))) p₀ :=
-    (analyticAt_dot_of (hev y) (hevh y)).div hu hu0
-  simp only [irrelTorus]
-  refine ((hE.sub ?_).sub ?_).add ?_
-  · exact ((analyticAt_const.add ((hu.sub analyticAt_const).mul analyticAt_const)).add
-      ((hv.sub analyticAt_const).mul analyticAt_const)).sub
-      (analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun μ _ =>
-        Finset.analyticAt_fun_sum _ fun μ' _ => (hg μ μ').mul analyticAt_const))
-  · exact analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun x _ =>
-      analyticAt_const.mul ((hdot x x).sub (hdot y y)))
-  · split_ifs
-    · have hfin := (Set.toFinite (polysAt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j y))
-      simp only [finsum_mem_eq_finite_toFinset_sum _ hfin]
-      exact Finset.analyticAt_fun_sum _ fun Z _ =>
-        ((analyticAt_const.add ((hu.sub analyticAt_const).mul analyticAt_const)).add
-          ((hv.sub analyticAt_const).mul analyticAt_const)).sub
-          (analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun μ _ =>
-            Finset.analyticAt_fun_sum _ fun μ' _ => (hg μ μ').mul analyticAt_const))
-    · exact analyticAt_const
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact irrelTorusOn_analyticOnNhd hcl _ m₀ i₀ i₁ hj1 hjk hX hy
 
 /-- **`O(N)` invariance of the label functional** (FLUCTUATION.md Lemma 3.2 (ii); P1 (H.4)): for
 a real orthogonal `R` and data `(Ψ, h)`, `(RΨ, Rh)` in the domain of the term of `X ∈ 𝒟_j`,
@@ -203,11 +119,8 @@ theorem irrelTorus_rot (hcl : SFTermClauses P Dom Tm) (m₀ : ℕ) (i₀ i₁ : 
     (h2 : Dom.dom j (Tm.gs j X) (rotField R Ψ) (rotField R h)) :
     irrelTorus m₀ Tm i₀ i₁ j y X (rotField R Ψ) (rotField R h) =
       irrelTorus m₀ Tm i₀ i₁ j y X Ψ h := by
-  have hd : ∀ v w : Spin N, dot (R.mulVec v) (R.mulVec w) = dot v w := dot_mulVec_rot hR.1
-  have hE := hcl.rotE j hj1 hjk y X hX hy R hR Ψ h h1 h2
-  simp only [irrelTorus]
-  rw [hE]
-  simp only [rotField, ← Matrix.mulVec_sub, hd]
+  rw [irrelTorus_eq_irrelTorusOn, irrelTorus_eq_irrelTorusOn]
+  exact irrelTorusOn_rot hcl _ m₀ i₀ i₁ hj1 hjk hX hy hR h1 h2
 
 end API
 
