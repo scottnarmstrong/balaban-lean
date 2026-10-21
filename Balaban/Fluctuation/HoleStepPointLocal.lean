@@ -23,7 +23,15 @@ at `b` when the block of `b` lies in `T`.
 * `subI_or_disjI_actHull`, `mem_actHull_of_nbhd`: the dichotomy and row hypotheses of the cross lemmas
   for the hull `T` and its `L^{k+1}`-neighbourhood `Y`;
 * `decBg_agree_of_hull`: **the decoupled backgrounds and multipliers at `v` and `v'` agree** (on `Y`,
-  resp. `T`), for data in the domain of Theorem I-4b.
+  resp. `T`), for data in the domain of Theorem I-4b;
+* `unitRep_mem_top`: the representative of a unit point lies in the top layer;
+* `shiftLoc_eq_of_hull`: **the fluctuation part `β_k^{-1/2} (C^{1/2}_loc ψ̂)(b)` of the composed field
+  agrees** at a unit point whose block lies in `T`, for hat variables agreeing on the unit blocks of
+  `T` (`Dec2.localLift_eq_localLift_on_component` for the pair compared with itself), under the
+  standing conditions of the covariance at the two vectors (`AdmPot`, `IsUnit` of `1 - 𝒦_x` and of
+  `M_x`);
+* `composeField_congr`, `psiLoc_eq_of_hull`, `composed_eq_of_hull`: the background part, and **the
+  composed field of P5 (2.39) agrees at the unit point**.
 -/
 
 @[expose] public section
@@ -99,6 +107,34 @@ theorem subset_nbhdSup (r : ℕ) (T : Finset (CTorus d L N₁ m₁ K)) : T ⊆ n
 
 end Background
 
+section Inner
+
+variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+  {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
+/-- **An inner active centre of the hull lies in the closure of a larger vector**: if `T` is the
+hull of the closure of `t` and `t`'s active centres are active for `smax`, every centre of the cover
+of `G` with its interaction box (sites of `Ω₁`) in `T` and active for `t` belongs to the closure of
+`smax` (its base is a site of `Ω₁` in `T`). -/
+theorem mem_actComp_of_inner {D : ℕ} (hD : 2 * L ^ (k + 1) ≤ D)
+    {t smax : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ} {seed : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (ht : ∀ q, ActC (coverOf G) t q → ActC (coverOf G) smax q)
+    {q : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hq : q ∈ Dec2.innerCentres (coverOf G) G (actHull (coverOf G) D t seed))
+    (hne : (coverOf G).sProd t q ≠ 0) : q ∈ actComp (coverOf G) D smax seed := by
+  classical
+  have hqC : q ∈ (coverOf G).cubeIdx := (Finset.mem_filter.1 hq).1
+  have hsub : SubI G (intBox q) (actHull (coverOf G) D t seed) := (Finset.mem_filter.1 hq).2
+  have hqC' : q ∈ cubeIdx G := hqC
+  have hmem := (mem_cubeIdx G).1 hqC'
+  have hq2 : q.2 ∈ G.Ω 1 := G.layer_subset hmem.1.1 hmem.1.2 hmem.2.1
+  have hq2T := hsub ⟨q.2, hq2⟩ (base_mem_intBox q)
+  have hD0 : 0 + 2 * L ^ (k + 1) ≤ D := by omega
+  exact actComp_mono ht seed (mem_actComp_of_near hD0 ⟨hqC, hne⟩
+    (base_mem_intBox q) hq2T (by rw [supDist_self]))
+
+end Inner
+
 namespace HoleStep
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
@@ -145,26 +181,6 @@ theorem decBg_agree_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c B
   have hTT' : actHull (coverOf S.G') D (Dec2.extS _ v') seed =
       actHull (coverOf S.G') D (Dec2.extS _ v) seed :=
     (actHull_eq_of_sProd_eq hsup hsup' hcomp).symm
-  -- the inner active centres of `v` and of `v'` belong to the closure of `smax`
-  have hinner : ∀ (t : Dec2.DecParams (coverOf S.G')),
-      (∀ q, ActC (coverOf S.G') (Dec2.extS _ t) q → ActC (coverOf S.G') (Dec2.extS _ smax) q) →
-      actHull (coverOf S.G') D (Dec2.extS _ t) seed =
-        actHull (coverOf S.G') D (Dec2.extS _ v) seed →
-      ∀ q ∈ Dec2.innerCentres (coverOf S.G') S.G' (actHull (coverOf S.G') D (Dec2.extS _ v) seed),
-        (coverOf S.G').sProd (Dec2.extS _ t) q ≠ 0 →
-        q ∈ actComp (coverOf S.G') D (Dec2.extS _ smax) seed := by
-    intro t ht hTt q hq hne
-    have hqC : q ∈ (coverOf S.G').cubeIdx := (Finset.mem_filter.1 hq).1
-    have hsub : SubI S.G' (intBox q) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) :=
-      (Finset.mem_filter.1 hq).2
-    have hqC' : q ∈ cubeIdx S.G' := hqC
-    have hmem := (mem_cubeIdx S.G').1 hqC'
-    have hq2 : q.2 ∈ S.G'.Ω 1 := S.G'.layer_subset hmem.1.1 hmem.1.2 hmem.2.1
-    have hq2T := hsub ⟨q.2, hq2⟩ (base_mem_intBox q)
-    rw [← hTt] at hq2T
-    have hD0 : 0 + 2 * L ^ (k + 1) ≤ D := by omega
-    exact actComp_mono ht seed (mem_actComp_of_near hD0 ⟨hqC, hne⟩
-      (base_mem_intBox q) hq2T (by rw [supDist_self]))
   have hres : ∀ x ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed, x ∈ S.G'.Ω 1 →
       ∀ y ∈ resSites S.G' x, y ∈ S.G'.Ω 1 ∧
         y ∈ nbhdSup (L ^ (k + 1)) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) := by
@@ -204,14 +220,17 @@ theorem decBg_agree_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c B
           (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
             ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ S.G'.layer n ↔ y ∈ S.G'.layer n)) ∧
         (∀ x ∈ intBox q, (coverOf S.G').chi q x = (coverOf S.G').chi q x) :=
-    fun q hq hne => ⟨hq, (hcomp q (hinner v hsup rfl q hq hne)).symm,
+    fun q hq hne => ⟨hq, (hcomp q (mem_actComp_of_inner hD2 hsup hq hne)).symm,
       fun _ _ _ _ _ _ _ => Iff.rfl, fun _ _ => rfl⟩
   have hin' : ∀ q ∈ Dec2.innerCentres (coverOf S.G') S.G'
         (actHull (coverOf S.G') D (Dec2.extS _ v) seed),
       (coverOf S.G').sProd (Dec2.extS _ v') q ≠ 0 →
       q ∈ Dec2.innerCentres (coverOf S.G') S.G' (actHull (coverOf S.G') D (Dec2.extS _ v) seed) ∧
-        (coverOf S.G').sProd (Dec2.extS _ v) q ≠ 0 :=
-    fun q hq hne => ⟨hq, by rw [hcomp q (hinner v' hsup' hTT' q hq hne)]; exact hne⟩
+        (coverOf S.G').sProd (Dec2.extS _ v) q ≠ 0 := by
+    intro q hq hne
+    have hq' := hq
+    rw [← hTT'] at hq'
+    exact ⟨hq, by rw [hcomp q (mem_actComp_of_inner hD2 hsup' hq' hne)]; exact hne⟩
   have h := Dec2.decBg_component_cross (C := coverOf S.G') (C' := coverOf S.G') (H := S.G')
     (H' := S.G') (s := v) (s' := v') (D := S.D') (D' := S.D')
     (T := actHull (coverOf S.G') D (Dec2.extS _ v) seed)
@@ -220,6 +239,155 @@ theorem decBg_agree_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c B
     (fun _ _ _ _ _ => Iff.rfl) hdich hdich' hrow hrow' hin hin' hres
     (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) (fun _ _ _ _ _ => ⟨rfl, rfl⟩) hsol hsol'
   exact ⟨fun x hx hxT => h.1 x hx hx hxT, fun y hy hyY i => h.2 y hy hy hyY i⟩
+
+/-- The representative of a unit point lies in the top layer (`Ω_{k+1}` is a union of
+`(k+1)`-blocks). -/
+theorem unitRep_mem_top (b : S.U) : (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ S.G'.layer (k + 1) := by
+  obtain ⟨x, hx, hxb⟩ := (mem_unitPts S.G').1 b.2
+  have hlay : S.G'.layer (k + 1) = S.G'.Ω (k + 1) := by
+    unfold GeneratingSet.layer
+    rw [S.G'.top, Finset.sdiff_empty]
+  rw [hlay] at hx ⊢
+  have hblk : jBlock d L (N₁ * L ^ m₁) (k + 1) k x =
+      jBlock d L (N₁ * L ^ m₁) (k + 1) k (unitRep b) := by
+    have h1 : unitBlock x = unitBlock (unitRep b) := by rw [hxb, unitBlock_unitRep]
+    exact h1
+  have hblk' : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x =
+      jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) (unitRep b) :=
+    jBlock_eq_of_le (Nat.le_succ k) le_rfl hblk
+  exact (S.G'.blockUnion (k + 1) (Nat.succ_pos k) le_rfl x (unitRep b) hblk').1 hx
+
+/-- **The fluctuation part of the composed field agrees at a unit point of the hull** (P5 (2.35),
+(2.39); P3 (4.22)–(4.24) for the pair `(coverOf G′, G′)` compared with itself at two vectors): under the
+hypotheses of `decBg_agree_of_hull`, the standing conditions of the decoupled covariance at the two
+vectors, a unit point `b` whose representative lies in the hull, and hat variables agreeing on the
+unit points of the hull, `β_k^{-1/2} (C^{1/2}(v) ψ̂)(b) = β_k^{-1/2} (C^{1/2}(v') ψ̂')(b)`. -/
+theorem shiftLoc_eq_of_hull {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf S.G') S.G' S.a S.ν Kc Cx)
+    (SX : Dec2.XCover (coverOf S.G') S.G' S.a S.a₁ S.ν Cx₂)
+    (HB : BgHyp d L (k + 1) ϱ' S.a S.ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v v' smax : Dec2.DecParams (coverOf S.G')}
+    (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC S.G' S.ν δ ε S.D')
+    {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D) (seed : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (hsup : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v) q → ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hsup' : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v') q →
+      ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hcomp : ∀ q ∈ actComp (coverOf S.G') D (Dec2.extS _ smax) seed,
+      (coverOf S.G').sProd (Dec2.extS _ v) q = (coverOf S.G').sProd (Dec2.extS _ v') q)
+    (hdeep : ∀ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed, ∀ z : CTorus d L N₁ m₁ (k + 1),
+      supDist y z ≤ 2 * L ^ (k + 1) → z ∈ S.G'.Ω 1)
+    (hadm : AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D'))
+    (hadm' : AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D'))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') (Dec2.extS _ v')))
+    (hMu : ∀ x : ℝ, 0 < x → IsUnit (Dec2.decM (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)
+      (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D'))))
+    (hMu' : ∀ x : ℝ, 0 < x → IsUnit (Dec2.decM (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') (Dec2.extS _ v')
+      (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D'))))
+    {sloc sloc' : S.U → Dec2.DecParams (coverOf S.G')} {b : S.U} (hb : sloc b = v)
+    (hb' : sloc' b = v')
+    (hbT : (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed)
+    {ψhat ψhat' : S.U → Fin N → ℂ}
+    (hψ : ∀ b' : S.U, (∃ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed,
+      y ∈ S.G'.layer (k + 1) ∧ unitBlock y = (b' : UnitTorus d L N₁ m₁ k)) → ψhat b' = ψhat' b') :
+    S.shiftLoc (coverOf S.G') (rho4 d L N BG κ) sloc ψhat b =
+      S.shiftLoc (coverOf S.G') (rho4 d L N BG κ) sloc' ψhat' b := by
+  classical
+  obtain ⟨hαT, hφY⟩ := S.decBg_agree_of_hull hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hDD
+    seed hsup hsup' hcomp hdeep
+  have hTT' : actHull (coverOf S.G') D (Dec2.extS _ v') seed =
+      actHull (coverOf S.G') D (Dec2.extS _ v) seed :=
+    (actHull_eq_of_sProd_eq hsup hsup' hcomp).symm
+  have hD2 : 2 * L ^ (k + 1) ≤ D := by omega
+  have hdich : ∀ q ∈ (coverOf S.G').cubeIdx, (coverOf S.G').sProd (Dec2.extS _ v) q ≠ 0 →
+      SubI S.G' (intBox q) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) ∨
+        DisjI S.G' (intBox q) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) :=
+    fun q hq hne => subI_or_disjI_actHull hD2 ⟨hq, hne⟩
+  have hdich' : ∀ q ∈ (coverOf S.G').cubeIdx, (coverOf S.G').sProd (Dec2.extS _ v') q ≠ 0 →
+      SubI S.G' (intBox q) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) ∨
+        DisjI S.G' (intBox q) (actHull (coverOf S.G') D (Dec2.extS _ v) seed) := by
+    intro q hq hne
+    rw [← hTT']
+    exact subI_or_disjI_actHull hD2 ⟨hq, hne⟩
+  have hin : ∀ q ∈ Dec2.innerCentres (coverOf S.G') S.G'
+        (actHull (coverOf S.G') D (Dec2.extS _ v) seed),
+      (coverOf S.G').sProd (Dec2.extS _ v) q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf S.G') S.G' (actHull (coverOf S.G') D (Dec2.extS _ v) seed) ∧
+        (coverOf S.G').sProd (Dec2.extS _ v') q = (coverOf S.G').sProd (Dec2.extS _ v) q ∧
+        (∀ x ∈ intBox q, ∀ y : CTorus d L N₁ m₁ (k + 1),
+          (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+            ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ S.G'.layer n ↔ y ∈ S.G'.layer n)) ∧
+        (∀ x ∈ intBox q, (coverOf S.G').chi q x = (coverOf S.G').chi q x) :=
+    fun q hq hne => ⟨hq, (hcomp q (mem_actComp_of_inner hD2 hsup hq hne)).symm,
+      fun _ _ _ _ _ _ _ => Iff.rfl, fun _ _ => rfl⟩
+  have hin' : ∀ q ∈ Dec2.innerCentres (coverOf S.G') S.G'
+        (actHull (coverOf S.G') D (Dec2.extS _ v) seed),
+      (coverOf S.G').sProd (Dec2.extS _ v') q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf S.G') S.G' (actHull (coverOf S.G') D (Dec2.extS _ v) seed) ∧
+        (coverOf S.G').sProd (Dec2.extS _ v) q ≠ 0 := by
+    intro q hq hne
+    have hq' := hq
+    rw [← hTT'] at hq'
+    exact ⟨hq, by rw [hcomp q (mem_actComp_of_inner hD2 hsup' hq' hne)]; exact hne⟩
+  have hα : ∀ (x₀ : CTorus d L N₁ m₁ (k + 1)) (hx : x₀ ∈ S.G'.Ω 1) (hx' : x₀ ∈ S.G'.Ω 1),
+      x₀ ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed →
+      Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D' ⟨x₀, hx⟩ =
+        Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D' ⟨x₀, hx'⟩ :=
+    fun x₀ hx _ hxT => (hαT x₀ hx hxT).symm
+  have hφ : ∀ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed,
+      svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') y =
+        svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') y := by
+    intro y hyT
+    funext i
+    by_cases hy : y ∈ S.G'.Ω 1
+    · have h1 := svec_of_mem S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v'
+        S.D') ⟨y, hy⟩ i
+      have h2 := svec_of_mem S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v
+        S.D') ⟨y, hy⟩ i
+      simp only at h1 h2
+      rw [h1, h2]
+      exact hφY y hy (subset_nbhdSup _ _ hyT) i
+    · rw [svec_of_not_mem _ _ hy, svec_of_not_mem _ _ hy]
+  have hH : ∀ x : ℝ, 0 < x → Dec2.HRespects (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)
+      (actHull (coverOf S.G') D (Dec2.extS _ v) seed) :=
+    fun x _ => hRespects_actHull _ _ _ _ _ hDD _ _
+  have hH' : ∀ x : ℝ, 0 < x → Dec2.HRespects (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') (Dec2.extS _ v')
+      (actHull (coverOf S.G') D (Dec2.extS _ v) seed) := by
+    intro x _
+    rw [← hTT']
+    exact hRespects_actHull _ _ _ _ _ hDD _ _
+  have hψ' : ∀ (b'' : UnitTorus d L N₁ m₁ k) (hb₁ : b'' ∈ unitPts S.G') (hb₂ : b'' ∈ unitPts S.G'),
+      (∃ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed, y ∈ S.G'.layer (k + 1) ∧
+        unitBlock y = b'') → ∀ j : Fin N,
+        ψhat' ⟨b'', hb₂⟩ j = ψhat ⟨b'', hb₁⟩ j :=
+    fun b'' hb₁ _ hex j => (congrFun (hψ ⟨b'', hb₁⟩ hex) j).symm
+  funext i
+  have key := Dec2.localLift_eq_localLift_on_component (H := S.G') (H' := S.G')
+    (α := Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D')
+    (α' := Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D')
+    (s := Dec2.extS _ v) (s' := Dec2.extS _ v')
+    (φ := svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D'))
+    (φ' := svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D'))
+    (T := actHull (coverOf S.G') D (Dec2.extS _ v) seed)
+    SX SX hadm hadm' (fun _ _ _ _ _ => Iff.rfl) hU hU' hdich hdich' hin hin' hα hφ hH hH' hMu
+    hMu' (isBlockUnion_actHull _ _ _) ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+    (fun q => ψhat q.1 q.2) (fun q => ψhat' q.1 q.2) hψ' hbT (S.unitRep_mem_top b) i
+  have hub : unitBlock (unitRep b) ∈ unitPts S.G' := by rw [unitBlock_unitRep]; exact b.2
+  have hsub : (⟨unitBlock (unitRep b), hub⟩ : S.U) = b := Subtype.ext (unitBlock_unitRep b)
+  simp only [hub, ↓reduceDIte, hsub] at key
+  unfold shiftLoc covSqrtAt
+  rw [hb, hb']
+  simp only [Pi.smul_apply, smul_eq_mul, Matrix.mulVec, dotProduct] at key
+  exact key.symm
 
 end HoleStep
 
