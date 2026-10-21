@@ -29,7 +29,10 @@ set `(𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1}`: the same layers below `k + 1` a
   variable `θ` and the field `h`;
 * `cubeOfC`, `locDomC`: the cube of `𝕋_{k+1}` of a site of the cover torus, and the localization
   domain `X₁ = R_{k+1}(□')` of P5 (2.18) of a site: the sites of the cubes of `𝕋_{k+1}` within `ρ`
-  cubes of its cube (`mem_locDomC`; it contains the cube, `mem_locDomC_of_cube_eq`).
+  cubes of its cube (`mem_locDomC`; it contains the cube, `mem_locDomC_of_cube_eq`);
+* `cubeKOfC`, `activeCoreC`: the cube of `𝕋_k` of a site of the cover torus, and the sites of
+  `A_X = X ∩ Ω_{k+1}` of a set `X` of cubes of `𝕋_k` (the uncut core of the re-expansion of an old
+  boundary term, P6 p. 34; `mem_activeCoreC`).
 -/
 
 @[expose] public section
@@ -167,5 +170,26 @@ theorem mem_locDomC {hM1 : M1 = L ^ m₁} {ρ : ℕ} {b x : Localization.CTorus 
 theorem mem_locDomC_of_cube_eq {hM1 : M1 = L ^ m₁} (ρ : ℕ) {b x : Localization.CTorus d L (c * n1) m₁ (k + 1)}
     (h : cubeOfC hM1 x = cubeOfC hM1 b) : x ∈ locDomC hM1 ρ b :=
   mem_locDomC.2 (subset_nbhd _ _ (by rw [h]; rfl))
+
+/-- **The cube of `𝕋_k` of a site of the cover torus** (`𝕋_k = Torus d n0`, cubes of side
+`c M₁ L^k`). -/
+def cubeKOfC (hM1 : M1 = L ^ m₁) (x : Localization.CTorus d L (c * n1) m₁ (k + 1)) : Torus d n0 :=
+  blockMap (L ^ k * (c * M1)) n0
+    ((congrArg (· * L ^ (k + 1)) (p6_side (c := c) (n1 := n1) hM1)).symm ▸ x :
+      Torus d (M1 * (c * n1) * L ^ (k + 1)))
+
+open Classical in
+/-- **The sites of `A_X = X ∩ Ω_{k+1}`** on the cover torus, for a set `X` of cubes of `𝕋_k`: the
+sites whose cube of `𝕋_k` lies in `X` and whose cube of `𝕋_{k+1}` lies in `Ω_{k+1}` (the uncut core
+of the re-expansion of an old boundary term, P6 p. 34). -/
+noncomputable def activeCoreC (hM1 : M1 = L ^ m₁) (X : Finset (Torus d n0)) :
+    Finset (Localization.CTorus d L (c * n1) m₁ (k + 1)) :=
+  Finset.univ.filter fun x => cubeKOfC (n0 := n0) hM1 x ∈ X ∧ cubeOfC hM1 x ∈ st.Omega
+
+theorem mem_activeCoreC {hM1 : M1 = L ^ m₁} {X : Finset (Torus d n0)}
+    {x : Localization.CTorus d L (c * n1) m₁ (k + 1)} :
+    x ∈ activeCoreC st hM1 X ↔ cubeKOfC (n0 := n0) hM1 x ∈ X ∧ cubeOfC hM1 x ∈ st.Omega := by
+  classical
+  simp [activeCoreC]
 
 end Balaban.LargeField
