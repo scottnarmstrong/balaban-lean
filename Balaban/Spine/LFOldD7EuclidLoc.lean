@@ -549,4 +549,27 @@ theorem unitOfBlock_coverBlk {k : ℕ} (hk : k + 1 ≤ K)
   rw [torusCast_cancel']
   rfl
 
+theorem exists_coverBlk_eq {k : ℕ} (hk : k + 1 ≤ K) (z : BlockAt S n M K k) :
+    ∃ x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1),
+      coverBlk g hnn hM1 hk k (Nat.le_succ k) x = z := by
+  obtain ⟨x, hx⟩ := unitBlock_surj (d := S.d) (L := S.L) (N₁ := g.c * n (k + 1)) (m₁ := m₁)
+    (k := k) (unitOfBlock g hnn hM1 hk z)
+  refine ⟨x, ?_⟩
+  unfold coverBlk
+  have : jBlock S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) k x = unitOfBlock g hnn hM1 hk z := hx
+  rw [this]
+  unfold unitOfBlock
+  exact torusCast_cancel _ _
+
+theorem mem_unitPts_iff_layer {ϱ₀ : ℝ} {k : ℕ}
+    (G : GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) ϱ₀)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    unitBlock x ∈ unitPts G ↔ x ∈ G.layer (k + 1) := by
+  rw [mem_unitPts]
+  constructor
+  · rintro ⟨x', hx', h⟩
+    exact layer_of_unitBlock G h hx'
+  · intro hx
+    exact ⟨x, hx, rfl⟩
+
 end Balaban.RootFSpine
