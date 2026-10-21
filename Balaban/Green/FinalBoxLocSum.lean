@@ -216,19 +216,19 @@ theorem localFormOf_eq_zero_of_not_isAnimal (H : SimpleGraph Λ)
   exact absurd (hreg ▸ isAnimal_rootRegion H (hRA a) (fun i _ => hPB i) hrooted) hY
 
 open Classical in
-/-- **The summed bound of the local form**: for every block `x` and rate `α ≥ 0`,
-`∑_{Y ∋ x} ‖W_Y‖ e^{α|Y|}` is at most the sum over the terms rooted at `x` of
-`‖τ_a(φ₀)‖ e^{α|R_a|}` and over the pairs `(a, C)`, `C ≠ ∅` rooted at `R_a` with `x ∈ Y(a, C)`, of
-`‖coef_C‖ e^{α|Y(a, C)|}`. -/
-theorem sum_norm_localFormOf_le (w : Λ × Fin N → ℂ) (x : Λ) (α : ℝ) :
+/-- **The summed bound of the local form, for a weight** `ω ≥ 0` on the regions: for every block
+`x`, `∑_{Y ∋ x} ‖W_Y‖ ω(Y)` is at most the sum over the terms rooted at `x` of `‖τ_a(φ₀)‖ ω(R_a)`
+and over the pairs `(a, C)`, `C ≠ ∅` rooted at `R_a` with `x ∈ Y(a, C)`, of `‖coef_C‖ ω(Y(a, C))`. -/
+theorem sum_norm_localFormOf_le_weight (w : Λ × Fin N → ℂ) (x : Λ) (ω : Finset Λ → ℝ)
+    (hω : ∀ Y, 0 ≤ ω Y) :
     ∑ Y ∈ Finset.univ.filter (fun Y : Finset Λ => x ∈ Y),
-        ‖localFormOf τ RA PB φ₀ T Y w‖ * Real.exp (α * (Y.card : ℝ)) ≤
-      ∑ a, ((if x ∈ RA a then ‖τ a φ₀‖ * Real.exp (α * ((RA a).card : ℝ)) else 0) +
+        ‖localFormOf τ RA PB φ₀ T Y w‖ * ω Y ≤
+      ∑ a, ((if x ∈ RA a then ‖τ a φ₀‖ * ω (RA a) else 0) +
         ∑ C ∈ Finset.univ.filter (fun C : Finset ι => C.Nonempty ∧
           IsRootedFamily (blockPatch N PB) (blockSites N (RA a)) C ∧
             x ∈ rootRegion (RA a) PB C),
           ‖rootedCoef (τ a) φ₀ T w C‖ *
-            Real.exp (α * ((rootRegion (RA a) PB C).card : ℝ))) := by
+            ω (rootRegion (RA a) PB C)) := by
   classical
   -- the norm of each `W_Y` is at most the sum of the norms of its pieces
   have hW : ∀ Y, ‖localFormOf τ RA PB φ₀ T Y w‖ ≤
@@ -242,26 +242,26 @@ theorem sum_norm_localFormOf_le (w : Λ × Fin N → ℂ) (x : Λ) (α : ℝ) :
     refine (norm_add_le _ _).trans (add_le_add ?_ (norm_sum_le _ _))
     split_ifs <;> simp
   calc ∑ Y ∈ Finset.univ.filter (fun Y : Finset Λ => x ∈ Y),
-        ‖localFormOf τ RA PB φ₀ T Y w‖ * Real.exp (α * (Y.card : ℝ))
+        ‖localFormOf τ RA PB φ₀ T Y w‖ * ω Y
       ≤ ∑ Y ∈ Finset.univ.filter (fun Y : Finset Λ => x ∈ Y),
-          ∑ a, ((if RA a = Y then ‖τ a φ₀‖ * Real.exp (α * (Y.card : ℝ)) else 0) +
+          ∑ a, ((if RA a = Y then ‖τ a φ₀‖ * ω Y else 0) +
             ∑ C ∈ Finset.univ.filter (fun C : Finset ι => C.Nonempty ∧
               IsRootedFamily (blockPatch N PB) (blockSites N (RA a)) C ∧
                 rootRegion (RA a) PB C = Y),
-              ‖rootedCoef (τ a) φ₀ T w C‖ * Real.exp (α * (Y.card : ℝ))) := by
+              ‖rootedCoef (τ a) φ₀ T w C‖ * ω Y) := by
         refine Finset.sum_le_sum fun Y _ => ?_
-        refine (mul_le_mul_of_nonneg_right (hW Y) (Real.exp_pos _).le).trans (le_of_eq ?_)
+        refine (mul_le_mul_of_nonneg_right (hW Y) (hω Y)).trans (le_of_eq ?_)
         rw [Finset.sum_mul]
         refine Finset.sum_congr rfl fun a _ => ?_
         rw [add_mul, Finset.sum_mul]
         congr 1
         split_ifs <;> simp
     _ = ∑ a, ∑ Y ∈ Finset.univ.filter (fun Y : Finset Λ => x ∈ Y),
-          ((if RA a = Y then ‖τ a φ₀‖ * Real.exp (α * (Y.card : ℝ)) else 0) +
+          ((if RA a = Y then ‖τ a φ₀‖ * ω Y else 0) +
             ∑ C ∈ Finset.univ.filter (fun C : Finset ι => C.Nonempty ∧
               IsRootedFamily (blockPatch N PB) (blockSites N (RA a)) C ∧
                 rootRegion (RA a) PB C = Y),
-              ‖rootedCoef (τ a) φ₀ T w C‖ * Real.exp (α * (Y.card : ℝ))) := Finset.sum_comm
+              ‖rootedCoef (τ a) φ₀ T w C‖ * ω Y) := Finset.sum_comm
     _ = _ := by
         refine Finset.sum_congr rfl fun a _ => ?_
         rw [Finset.sum_add_distrib]
@@ -283,6 +283,23 @@ theorem sum_norm_localFormOf_le (w : Λ × Fin N → ℂ) (x : Λ) (α : ℝ) :
             · rintro ⟨h1, h2, h3⟩; exact ⟨⟨h1, h2, h3 ▸ (Finset.mem_filter.1 ‹Y ∈ _›).2⟩, h3⟩
             · rintro ⟨⟨h1, h2, -⟩, h3⟩; exact ⟨h1, h2, h3⟩
           · rw [(Finset.mem_filter.1 hC).2.2]
+
+open Classical in
+/-- **The summed bound of the local form**: for every block `x` and rate `α`,
+`∑_{Y ∋ x} ‖W_Y‖ e^{α|Y|}` is at most the sum over the terms rooted at `x` of
+`‖τ_a(φ₀)‖ e^{α|R_a|}` and over the pairs `(a, C)`, `C ≠ ∅` rooted at `R_a` with `x ∈ Y(a, C)`, of
+`‖coef_C‖ e^{α|Y(a, C)|}`. -/
+theorem sum_norm_localFormOf_le (w : Λ × Fin N → ℂ) (x : Λ) (α : ℝ) :
+    ∑ Y ∈ Finset.univ.filter (fun Y : Finset Λ => x ∈ Y),
+        ‖localFormOf τ RA PB φ₀ T Y w‖ * Real.exp (α * (Y.card : ℝ)) ≤
+      ∑ a, ((if x ∈ RA a then ‖τ a φ₀‖ * Real.exp (α * ((RA a).card : ℝ)) else 0) +
+        ∑ C ∈ Finset.univ.filter (fun C : Finset ι => C.Nonempty ∧
+          IsRootedFamily (blockPatch N PB) (blockSites N (RA a)) C ∧
+            x ∈ rootRegion (RA a) PB C),
+          ‖rootedCoef (τ a) φ₀ T w C‖ *
+            Real.exp (α * ((rootRegion (RA a) PB C).card : ℝ))) :=
+  sum_norm_localFormOf_le_weight w x (fun Y => Real.exp (α * (Y.card : ℝ)))
+    fun _ => (Real.exp_pos _).le
 
 /-- **Locality in an external parameter**: if each term, as a function of a parameter `g`, only
 depends on `g` through a relation `Ag` attached to its root, and `Ag` is monotone in the region,
