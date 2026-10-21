@@ -181,6 +181,95 @@ theorem bgFunctional_expansion {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx 
     linarith
   exact rootedExpansion_of_cutTo hκ hfan hcut hb
 
+theorem nbhdSup_mono {r : ℕ} {T T' : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+    (h : T ⊆ T') : nbhdSup r T ⊆ nbhdSup r T' := fun x hx => by
+  obtain ⟨y, hy, hyx⟩ := mem_nbhdSup.1 hx
+  exact mem_nbhdSup.2 ⟨y, h hy, hyx⟩
+
+theorem seedHull_mono {C : DecCover d L N₁ m₁ (k + 1)} {Dr : ℕ}
+    {s s' : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ}
+    (hss : ∀ q, ActC C s q → ActC C s' q)
+    (seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))) :
+    seedHull C Dr s seed ⊆ seedHull C Dr s' seed :=
+  Finset.union_subset_union (actHull_mono hss seed) (Finset.Subset.refl _)
+
+/-- The indicator vector of a family of cells: `1` on the cells of `A`, `0` elsewhere. -/
+def indVec (A : Finset ↥(coverOf G).cubeIdx) : Dec2.DecParams (coverOf G) :=
+  fun i => if i ∈ A then 1 else 0
+
+open Classical in
+/-- A centre active for `cutTo A s` is active for the indicator vector of `A`. -/
+theorem actC_indVec_of_cutTo (A : Finset ↥(coverOf G).cubeIdx) (s : Dec2.DecParams (coverOf G))
+    {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
+    (hq : ActC (coverOf G) (Dec2.extS _ (cutTo A s)) q) :
+    ActC (coverOf G) (Dec2.extS _ (indVec G A)) q := by
+  refine ⟨hq.1, ?_⟩
+  have : (coverOf G).sProd (Dec2.extS _ (indVec G A)) q = 1 := by
+    unfold DecCover.sProd
+    refine Finset.prod_eq_one fun i hi => ?_
+    have hiC : i ∈ (coverOf G).cubeIdx := (((coverOf G).mem_Qset).1 hi).1
+    have hn : Dec2.extS (coverOf G) (cutTo A s) i ≠ 0 := fun h0 =>
+      hq.2 (Finset.prod_eq_zero hi h0)
+    rw [extS_cutTo_apply A s hiC] at hn
+    have hA : (⟨i, hiC⟩ : ↥(coverOf G).cubeIdx) ∈ A := by
+      by_contra hna
+      exact hn (by simp [hna])
+    simp [Dec2.extS, hiC, indVec, hA]
+  rw [this]; exact one_ne_zero
+
+open Classical in
+/-- **Locality of the coefficients in the data.**  Two data of the union domain whose raw data agree on
+`approxDep` of the sites of the `L^{k+1}`-neighbourhood of the seed hull of the indicator vector of the
+rooted component of `Cs` give the same coefficient `coef_{Cs}` of a functional `Fe` that reads the seed
+(radius `Dr ≥ 3 L^{k+1}`, whole torus). -/
+theorem bgFunctional_coef_data_congr {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF : ∀ (s : Dec2.DecParams (coverOf G)) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : G.Ω 1 × Fin N → ℂ)
+        (α : G.Ω 1 → ℂ), Dec2.IsDecBg (coverOf G) G a ν (rho4 d L N BG κ) s D φ α →
+          F (s, (D.Ψ, D.h)) = (φ, α))
+    {Dd Dd' : BgData G N} (hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd)
+    (hDu' : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd')
+    (hΩ : ∀ z, z ∈ G.Ω 1) {Dr : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ Dr)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+    {Fe : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed G seed Fe)
+    (Cs : Finset ↥(coverOf G).cubeIdx)
+    (hdat : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _
+        (indVec G (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs))) seed),
+      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z) :
+    coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs = coef (fun s => Fe (F (s, (Dd'.Ψ, Dd'.h)))) Cs := by
+  classical
+  have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+  refine coef_congr_supported hR fun s hs hsC => ?_
+  have hsb : ∀ P, ‖s P‖ < Real.exp κ := fun P => by simpa using hs P
+  set A := rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs with hA
+  set s' := cutTo A s with hs'
+  have hs'lt : ∀ P, ‖s' P‖ < Real.exp κ := norm_cutTo_lt A s hsb
+  have e1 := bgFunctional_cutTo_invariant G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu hΩ hDD hFe hsC hsb
+  have e2 := bgFunctional_cutTo_invariant G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu' hΩ hDD hFe hsC hsb
+  rw [e1, e2]
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
+  obtain ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩ := hDu'
+  have hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd := ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩
+  have hDu' : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd' :=
+    ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩
+  have hdat' : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _ s') seed),
+      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z := fun y hy =>
+    hdat y (nbhdSup_mono (seedHull_mono (fun q hq => actC_indVec_of_cutTo G A s hq) seed) hy)
+  have key := decBg_agree_of_seedHull_data G a ν Dd Dd' hS Sb HB (by linarith : 0 ≤ κ) hM
+    (v := s') (v' := s') (smax := s') (fun P => (hs'lt P).le) (fun P => (hs'lt P).le) hδ0 hδε hε hδ
+    hνε hD hδ0' hδε' hε' hδ' hνε' hD₂ hDD seed (fun q hq => hq) (fun q hq => hq)
+    (fun q _ => rfl) (fun _ _ z _ => hΩ z) hdat'
+  rw [F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu,
+    F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu']
+  refine hFe _ _ (fun y hy i => ?_) (fun x hx => ?_)
+  · have hyT := seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hy
+    exact (key.2 y.1 y.2 (subset_nbhdSup _ _ hyT) i).symm
+  · exact (key.1 x.1 x.2 (seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hx)).symm
+
 end Functional
 
 end Balaban.LargeField.Base

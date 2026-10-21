@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.HoleStepPointLocal
+public import Balaban.Fluctuation.PhysicalReadsFNu
 public import Balaban.Green.FinalBoxLocCore
 
 /-!
@@ -46,19 +47,6 @@ variable {C}
 theorem box_subset_boxNbhd (D : ℕ) (q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) {x : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
     (hx : x ∈ intBox q) : x ∈ boxNbhd D q := ⟨x, hx, by rw [supDist_self]; exact Nat.zero_le _⟩
 
-/-- Every centre of the cover lies in its own footprint. -/
-theorem self_mem_Qset {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)} (hq : q ∈ C.cubeIdx) : q ∈ C.Qset q := by
-  rw [DecCover.mem_Qset]
-  refine ⟨hq, q.2, SameCell.refl _ _, fun μ => ⟨0, ?_⟩⟩
-  have hL : (1 : ℝ) ≤ (L : ℝ) ^ (q.1 + m₁) :=
-    one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
-  have hL2 : (1 : ℝ) ≤ (L : ℝ) ^ q.1 := one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
-  have hL3 : (1 : ℝ) ≤ (L : ℝ) ^ 2 := one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
-  unfold hatRad
-  rw [abs_lt]
-  push_cast
-  constructor <;> nlinarith [mul_nonneg (by linarith : (0 : ℝ) ≤ (L : ℝ) ^ 2) (by linarith : (0 : ℝ) ≤ (L : ℝ) ^ q.1)]
-
 theorem mem_cellPatch_of_box {D : ℕ} {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
     (hq : q ∈ C.cubeIdx) {i : ↥C.cubeIdx} (hi : i.1 ∈ C.Qset q)
     {y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)} (hy : y ∈ boxNbhd D q) :
@@ -67,7 +55,7 @@ theorem mem_cellPatch_of_box {D : ℕ} {q : ℕ × Balaban.Localization.CTorus d
 theorem mem_cellPatch_self {D : ℕ} {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
     (hq : q ∈ C.cubeIdx) {y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
     (hy : y ∈ boxNbhd D q) : y ∈ cellPatch C D (⟨q, hq⟩ : ↥C.cubeIdx) :=
-  ⟨q, hq, self_mem_Qset hq, hy⟩
+  ⟨q, hq, Balaban.Localization.self_mem_Qset_cover _ hq, hy⟩
 
 theorem mem_cellPatch_foot {D : ℕ} {q i : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
     (hq : q ∈ C.cubeIdx) (hi : i ∈ C.Qset q) (hiC : i ∈ C.cubeIdx)
@@ -97,7 +85,7 @@ theorem cell_rooted_of_adj {D : ℕ} {Cs : Finset ↥C.cubeIdx} {s : Dec2.DecPar
     (hadj : ActAdj C D (Dec2.extS C s) b c)
     (hb : (⟨b, hadj.1.1⟩ : ↥C.cubeIdx) ∈ rootComp (cellPatch C D) (seed : Set _) Cs) :
     (⟨c, hadj.2.1.1⟩ : ↥C.cubeIdx) ∈ rootComp (cellPatch C D) (seed : Set _) Cs := by
-  obtain ⟨_, hcCs⟩ := footprint_subset_of_active hs hadj.2.1 (self_mem_Qset hadj.2.1.1)
+  obtain ⟨_, hcCs⟩ := footprint_subset_of_active hs hadj.2.1 (Balaban.Localization.self_mem_Qset_cover _ hadj.2.1.1)
   obtain ⟨x, hx, x', hx', hxx'⟩ := hadj.2.2
   refine mem_rootComp_of_adj hb hcCs ⟨x', ?_, ?_⟩
   · exact mem_cellPatch_self hadj.1.1 ⟨x, hx, hxx'⟩
@@ -131,7 +119,7 @@ theorem footprint_subset_rootComp {D : ℕ} {Cs : Finset ↥C.cubeIdx} {s : Dec2
     induction hq' with
     | refl =>
       refine ⟨h₀, fun h => ?_⟩
-      obtain ⟨_, hCs⟩ := footprint_subset_of_active hs h₀ (self_mem_Qset h₀.1)
+      obtain ⟨_, hCs⟩ := footprint_subset_of_active hs h₀ (Balaban.Localization.self_mem_Qset_cover _ h₀.1)
       obtain ⟨x, hx, y, hy, hxy⟩ := hseed
       exact mem_rootComp_of_meets hCs ⟨y, mem_cellPatch_self h₀.1 ⟨x, hx, hxy⟩, hy⟩
     | tail _ hab ih =>
