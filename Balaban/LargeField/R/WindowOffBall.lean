@@ -53,26 +53,11 @@ theorem bgData_h_eq_of_Ω_one {Gl : GeneratingSet d L N₀l kl ϱl} {Gw : Genera
 
 end Generic
 
-/-- **Admissible ball radii** `t · L^j M` around a piece `j` of the window at scale `m' + 1`: the radii for which the
-layers of the window generating set agree with those of the parent (P7 p. 501, the collar `R_{j-1}`). -/
-def BallRadiusOK (R : ℕ → ℝ) (m' j t : ℕ) : Prop :=
-  t ≤ ⌊R (j - 1)⌋₊ + 2 ∧ t ≤ ⌊R m'⌋₊ ∧ t ≤ ⌊R j⌋₊ ∧ t ≤ ⌊R (j + 1)⌋₊
-
 section Ball
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {H : RegionHistory S n R k0 K} {m' j : ℕ} {Z : H.Comp (m' + 1)} {g : Geo S n R M}
   {N : ℕ}
-
-/-- The radius `t = 2` is admissible for every piece. -/
-theorem ballRadiusOK_two (H : RegionHistory S n R k0 K) (g : Geo S n R M) (m' j : ℕ) : BallRadiusOK R m' j 2 := by
-  have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
-  have hLr : (2 : ℝ) ≤ S.L := by exact_mod_cast H.F.ok.two_le_L
-  have hfl : ∀ q, 2 ≤ ⌊R q⌋₊ := fun q => by
-    refine Nat.le_floor ?_
-    have := g.hRlow q
-    push_cast; linarith
-  exact ⟨by omega, hfl m', hfl j, hfl (j + 1)⟩
 
 /-- On the ball around a site of the piece `(j, c)`, the cast of `y` lies in the `(j+1)`-cube
 union `U_{Z'}` of the local family (`stepU`). -/
