@@ -285,7 +285,6 @@ theorem PieceWindowSetup.exists_window_conversion_of_flow_constsP (hd3 : 3 ≤ d
     (by have := hbp (sc i + 1); have := hεpos i; positivity) (hAmax i)
   have hX : ∀ i, 0 ≤ Δ i * (2 * Emax i) := fun i =>
     mul_nonneg (hΔ0 i) (by have := hεpos i; have := hEmax i; linarith)
-  have hE0 : ∀ i, 0 ≤ Emax i := fun i => (hεpos i).le.trans (hEmax i)
   have hCb0 : ∀ i, 0 ≤ Cb i := fun i => le_trans (by have := hε₀ i; positivity) (hCb i)
   have hCg0 : ∀ i, 0 ≤ Cg i := fun i => le_trans (by have := hε₀ i; positivity) (hCg i)
   have hT : ∀ i, 0 ≤ (N : ℝ) * Cb i + d * (N * Cg i) + N * Cm i := fun i => by
@@ -304,7 +303,7 @@ theorem PieceWindowSetup.exists_window_conversion_of_flow_constsP (hd3 : 3 ≤ d
         ((W.chain i).Dat u k)))
     R (fun _ => Kpair) Kcoef Kswitch Kread hpair
     (fun i u hu => (hcoef' i u hu).trans
-      (mul_le_mul_of_nonneg_right (coef_piece_le (hAm i) (hX i) hKc.le hKwc (hCb0 i) (hCg0 i) (hCm0 i) (hE0 i) (hKcoef i)) (W.mcount_nonneg i))) hsw hrd
+      (mul_le_mul_of_nonneg_right (coef_piece_le (hAm i) (hX i) hKc.le hKwc (hCb0 i) (hCg0 i) (hCm0 i) (hKcoef i)) (W.mcount_nonneg i))) hsw hrd
   exact window_conversion_pieces_of_rg_sourceP W (fun _ m => cs.beta m) (fun _ t => ξ t)
     (fun i => Kpair + Kcoef i + Kswitch i + Kread i) β Cξ Ksrc α α₀ γ η hβ hCξ hKsrc0
     (fun i => by linarith [hKp0, hKc0 i, hKs0 i, hKr0 i]) (by omega) (by omega) hγ hα₀ hγα

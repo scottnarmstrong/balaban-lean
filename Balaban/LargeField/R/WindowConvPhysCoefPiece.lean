@@ -27,7 +27,7 @@ variable {d L N : ℕ} [NeZero L]
 /-- **The constant `K_w` of the coefficient comparison may be replaced by a larger one in `K_coef`.** -/
 theorem coef_piece_le {d N : ℕ} {a Kwt Amax E Δ Cb Cg Cm μ Kc Kw Kcoef : ℝ} (hA : 0 ≤ Amax)
     (hX : 0 ≤ Δ * (2 * E)) (hKc : 0 ≤ Kc) (hle : Kc ≤ Kw) (hCb : 0 ≤ Cb) (hCg : 0 ≤ Cg)
-    (hCm : 0 ≤ Cm) (hE : 0 ≤ E)
+    (hCm : 0 ≤ Cm)
     (hK : a + Kwt + Amax * (Kw * (Δ * (2 * E)) * (Real.sqrt (((4 * E ^ 2) * Cb) * (N * Cb)) +
         Real.sqrt ((d * ((4 * E ^ 2) * Cg)) * (d * (N * Cg))) +
         Real.sqrt (((4 * E ^ 2 / |μ|) * Cm) * (N * Cm))) +
