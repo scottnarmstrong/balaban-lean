@@ -209,36 +209,56 @@ theorem norm_srcM_le {F : (ι → J → ℂ) → ℂ} {G B : ℝ} (hG : 1 < G)
       nlinarith [ht.2])
   simpa using h
 
-/-- The derivative in the direction `(x, i)` vanishes if `F` does not depend on the source at `x`. -/
+omit [DecidableEq ι] [DecidableEq J] in
+theorem continuous_l1src : Continuous (l1src : (ι → J → ℂ) → ℝ) := by
+  unfold l1src
+  fun_prop
+
+omit [Fintype ι] [Fintype J] in
+theorem add_smul_unitSrc_eq_update (h : ι → J → ℂ) (x : ι) (i : J) (c : ℂ) :
+    h + c • unitSrc x i = Function.update h x (h x + c • Pi.single i 1) := by
+  funext y j
+  by_cases hy : y = x
+  · subst hy; simp [unitSrc]
+  · simp [unitSrc, hy]
+
+/-- The derivative in the direction `(x, i)` vanishes if `F` does not depend on the source at `x`
+(near `h`). -/
 theorem fderiv_unitSrc_eq_zero {F : (ι → J → ℂ) → ℂ} {h : ι → J → ℂ}
-    (hd : DifferentiableAt ℂ F h) (x : ι) (hx : ∀ h c, F (Function.update h x c) = F h) (i : J) :
+    (hd : DifferentiableAt ℂ F h) (x : ι) (i : J)
+    (hx : ∀ᶠ c : ℂ in nhds 0, F (h + c • unitSrc x i) = F h) :
     fderiv ℂ F h (unitSrc x i) = 0 := by
   have h1 : HasDerivAt (fun c : ℂ => h + c • unitSrc x i) (unitSrc x i) 0 := by
     have := (hasDerivAt_id (0 : ℂ)).smul_const (unitSrc x i)
     simpa using this.const_add h
   have h2 := (show HasFDerivAt F (fderiv ℂ F h) ((fun c : ℂ => h + c • unitSrc x i) 0) by
       simpa using hd.hasFDerivAt).comp_hasDerivAt (0 : ℂ) h1
-  have hconst : (fun c : ℂ => F (h + c • unitSrc x i)) = fun _ => F h := by
-    funext c
-    have : h + c • unitSrc x i = Function.update h x (h x + c • Pi.single i 1) := by
-      funext y j
-      by_cases hy : y = x
-      · subst hy; simp [unitSrc]
-      · simp [unitSrc, hy]
-    rw [this, hx]
-  have h3 : HasDerivAt (fun c : ℂ => F (h + c • unitSrc x i)) 0 0 := by
-    rw [hconst]; exact hasDerivAt_const _ _
+  have h3 : HasDerivAt (fun c : ℂ => F (h + c • unitSrc x i)) 0 0 :=
+    (hasDerivAt_const (0 : ℂ) (F h)).congr_of_eventuallyEq hx
   exact h2.unique h3
 
-/-- **Locality**: if `F` does not depend on the source at the site `x`, then `ℳ_{x,i} = 0`. -/
+/-- **Locality**: if `F` does not depend on the source at the site `x` (inside the ball), then
+`ℳ_{x,i} = 0`. -/
 theorem srcM_eq_zero {F : (ι → J → ℂ) → ℂ} {G : ℝ}
-    (hF : AnalyticOnNhd ℂ F {g | l1src g < G}) (x : ι) (hx : ∀ h c, F (Function.update h x c) = F h)
+    (hF : AnalyticOnNhd ℂ F {g | l1src g < G}) (x : ι)
+    (hx : ∀ h, l1src h < G → ∀ c, l1src (Function.update h x c) < G → F (Function.update h x c) = F h)
     {g : ι → J → ℂ} (hg : l1src g < G) (i : J) : srcM F g x i = 0 := by
   unfold srcM
   have : ∀ t ∈ Set.uIcc (0 : ℝ) 1, fderiv ℂ F ((t : ℂ) • g) (unitSrc x i) = 0 := by
     intro t ht
     rw [Set.uIcc_of_le zero_le_one] at ht
-    exact fderiv_unitSrc_eq_zero (hF _ (l1_smul_lt hg ht.1 ht.2)).differentiableAt x hx i
+    have hh := l1_smul_lt hg ht.1 ht.2
+    refine fderiv_unitSrc_eq_zero (hF _ hh).differentiableAt x i ?_
+    have hc : Continuous fun c : ℂ => l1src ((t : ℂ) • g + c • unitSrc x i) :=
+      continuous_l1src.comp (by fun_prop)
+    have hev : ∀ᶠ c : ℂ in nhds 0, l1src ((t : ℂ) • g + c • unitSrc x i) < G := by
+      have := hc.continuousAt (x := 0)
+      refine this.eventually (gt_mem_nhds ?_)
+      show l1src ((t : ℂ) • g + (0 : ℂ) • unitSrc x i) < G
+      rw [zero_smul, add_zero]; exact hh
+    filter_upwards [hev] with c hc'
+    rw [add_smul_unitSrc_eq_update] at hc' ⊢
+    exact hx _ hh _ hc'
   rw [intervalIntegral.integral_congr this]
   simp
 

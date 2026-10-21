@@ -14,7 +14,7 @@ import Mathlib.Tactic.Linarith
 
 `Pst_src_increment`: for a family `g ↦ A g` of `LabelAct` indexed by sources `g : CTorus → (J → ℂ)` in
 the `ℓ¹` ball of radius `Gs > 1`, analytic in `g`, with common constants satisfying the hypotheses of
-`marked_cubes_explicit`, and with `(A g).H y` depending on `g` only on the sites of the label of `y`:
+`marked_cubes_explicit`, and with `(A g).H y` depending on `g` only on the sites of the label of `y` (for `g` in the ball):
 `Pst(g) = Pst(0) + ∑_{x,i} g_{x,i} ℳ_{x,i}(g)` on the unit `ℓ¹` ball (`sub_eq_sum_srcM`), with
 `|ℳ_{x,i}(g)| ≤ ε_H Kc C_PE e^{-κ' d(Y)} / (Gs - 1)` (Cauchy, `norm_srcM_le`) and `ℳ_{x,i} = 0` for the
 sites `x` outside `Ŷ(Y)` (`Pst_ext_congr`).
@@ -51,8 +51,8 @@ theorem Pst_src_increment {Ωb : (CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (
     (A : (CTorus d L N₁ m₁ K → J → ℂ) → LabelAct Lab Ωb εH κH κ0 Kc) (y0 : Lb)
     (hAhol : ∀ y, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun g => (A g).H y Φ) {g | l1src g < Gs})
     (hAcont : ∀ y, ∀ g, l1src g < Gs → ContinuousOn ((A g).H y) Q)
-    (hdep : ∀ y (g g' : CTorus d L N₁ m₁ K → J → ℂ), (∀ z ∈ Lab.ysite y, g z = g' z) →
-      (A g).H y = (A g').H y)
+    (hdep : ∀ y (g g' : CTorus d L N₁ m₁ K → J → ℂ), l1src g < Gs → l1src g' < Gs →
+      (∀ z ∈ Lab.ysite y, g z = g' z) → (A g).H y = (A g').H y)
     (hκ0 : aEnt d L + 1 ≤ κ0) (hKc : K0 d L κ0 + 1 ≤ Kc) (hεpos : 0 < εH)
     (hκ' : 0 ≤ κ') (hκ : κ' + 3 * κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * Kc ^ 3 * c1 d L *
@@ -84,10 +84,11 @@ theorem Pst_src_increment {Ωb : (CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (
     exact this
   have hg' : l1src g < Gs := by linarith
   refine ⟨sub_eq_sum_srcM hP hg', fun x i => norm_srcM_le hGs hP hB hg x i, fun x hx i => ?_⟩
-  refine srcM_eq_zero hP x (fun h c => ?_) hg' i
-  exact Pst_ext_congr μ hN hj hΩ A hdep Y (fun z hz => by
-    have hzx : z ≠ x := fun h' => hx (h' ▸ hz)
-    simp [Function.update_of_ne hzx])
+  refine srcM_eq_zero hP x (fun h hh c hc => ?_) hg' i
+  exact Pst_congr μ μ (A (Function.update h x c)) (A h).H Y (fun _ _ => rfl) (fun y hy =>
+    hdep y _ _ hc hh (fun z hz => by
+      have hzx : z ≠ x := fun h' => hx (h' ▸ ysite_subset_Yhat hN hj hΩ Lab y hy hz)
+      simp [Function.update_of_ne hzx]))
 
 end SrcPst
 
