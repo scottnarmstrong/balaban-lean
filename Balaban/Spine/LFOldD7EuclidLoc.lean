@@ -377,4 +377,64 @@ theorem holeStepLoc_stepAff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') 
 
 end LocStep
 
+section Cubes
+
+theorem cubeOfC_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    cubeOfC hM1 ((coverAff g hnn hM1 σ hk).toFun x) =
+      ((stepAff g hnn hM1 σ hk).coarse (S.L ^ (k + 1) * (g.c * g.M1)) (n (k + 1))).toFun
+        (cubeOfC hM1 x) := by
+  unfold cubeOfC
+  rw [← stepAff_toFun g hnn hM1 σ hk x]
+  have hpos : 0 < S.L ^ (k + 1) * (g.c * g.M1) := by
+    have := NeZero.pos S.L; have := NeZero.pos g.c; have := NeZero.pos g.M1; positivity
+  exact AffIso.blockMap_level (stepAff_aligned g hnn hM1 σ hk) (by ring) hpos
+    ⟨1, by ring⟩ _
+
+theorem cubeKOfC_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    cubeKOfC (n0 := n k) hM1 ((coverAff g hnn hM1 σ hk).toFun x) =
+      ((stepAff g hnn hM1 σ hk).coarse (S.L ^ k * (g.c * g.M1)) (n k)).toFun
+        (cubeKOfC (n0 := n k) hM1 x) := by
+  unfold cubeKOfC
+  rw [← stepAff_toFun g hnn hM1 σ hk x]
+  have hpos : 0 < S.L ^ k * (g.c * g.M1) := by
+    have := NeZero.pos S.L; have := NeZero.pos g.c; have := NeZero.pos g.M1; positivity
+  have hn : n k = S.L * n (k + 1) := hnn k (by omega)
+  exact AffIso.blockMap_level (stepAff_aligned g hnn hM1 σ hk) (by rw [hn]; ring) hpos
+    ⟨S.L, by ring⟩ _
+
+theorem stepAff_coarse_ec (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K) (i : ℕ)
+    (hi : i ≤ K) :
+    ((stepAff g hnn hM1 σ hk).coarse (S.L ^ i * (g.c * g.M1)) (n i)).toFun = σ.ec i := by
+  rw [stepAff_coarse]
+  have h : S.L ^ i * M = S.L ^ i * (g.c * g.M1) := congrArg (S.L ^ i * ·) g.hM
+  funext y
+  rw [σ.ec_eq hnn hi, h]
+
+theorem mem_activeCoreC_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K}
+    (hI : RegionIso σ H H') {k : ℕ} (hk : k + 1 ≤ K) (X : Finset (Torus S.d (n k)))
+    (y : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun y ∈
+        activeCoreC (c := g.c) (k := k) (H'.step k) hM1 (X.map (σ.ec k).toEmbedding) ↔
+      y ∈ activeCoreC (c := g.c) (k := k) (H.step k) hM1 X := by
+  rw [mem_activeCoreC, mem_activeCoreC, cubeOfC_aff g hnn hM1 σ hk, cubeKOfC_aff g hnn hM1 σ hk,
+    step_Omega_aff g hnn hM1 σ hI hk, stepAff_coarse_ec g hnn hM1 σ hk k (by omega)]
+  have hf := stepAff_coarse_ec g hnn hM1 σ hk (k + 1) hk
+  rw [hf]
+  constructor
+  · rintro ⟨h1, h2⟩
+    refine ⟨?_, ?_⟩
+    · rw [Finset.mem_map_equiv] at h1
+      simpa using h1
+    · obtain ⟨z, hz, hz'⟩ := h2
+      have := (σ.ec (k + 1)).injective hz'
+      rw [← this]; exact hz
+  · rintro ⟨h1, h2⟩
+    refine ⟨?_, ⟨_, h2, rfl⟩⟩
+    rw [Finset.mem_map_equiv]
+    simpa using h1
+
+end Cubes
+
 end Balaban.RootFSpine
