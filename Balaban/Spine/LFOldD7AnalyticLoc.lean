@@ -175,6 +175,63 @@ theorem oldCoefLoc_analytic_family (H : RegionHistory S n R k0 K) {k : ℕ} (hk 
     (locCubes g (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G') J)
   exact key
 
+theorem oldCoefLF_eq_withD (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₀ ψ₁ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M}
+    {cs : OpConsts} {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k)
+    (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N)
+    (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψout : (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).U → Fin N → ℂ) :
+    oldCoefLF g hnn hM1 (locStepXJ g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ r r' X J) H hk
+      (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ r r' X J).G') ρc ρ r ∅
+      ψout rep A X ψ₁ ψ' hv gx
+      (locCubes g (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ r r' X J).G') J)
+      (fun b => absurd b.2 (Finset.notMem_empty _)) =
+    ((locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).withD
+        (locStepXJ g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ r r' X J).D'
+        (locStepXJ g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ r r' X J).hh₀).oldCoef
+      (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G') ρc
+      (locDomsLF g hM1 (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J) ρ)
+      (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ ψout
+      (oldTermLF g hnn hM1 rep A X hk
+        (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G' ψ₁ ψ' hv gx)
+      (locCubes g (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G') J)
+      (fun b => absurd b.2 (Finset.notMem_empty _)) := by
+  have e := holeStepLoc_eq_withD g hnn hM1 H hk hk1 hρ ψ₀ ψ₁ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J)
+  unfold oldCoefLF
+  rfl
+
+theorem oldCoefLoc_analytic_family_LF (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₀ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M}
+    {cs : OpConsts} {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k)
+    (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψout : (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).U → Fin N → ℂ)
+    {ρc₀ : ℝ} {Pset : Set E} (hP : IsOpen Pset) (ψ'E : E → MultiFieldC S n M K N)
+    (gxE : E → GIdx S n M K N → ℂ)
+    (key : AnalyticOnNhd ℂ (fun e =>
+      ((locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).withD
+        (locStepXJ g hnn hM1 H hk hk1 hρ (ψE e) z h₀ a₁ ν β p₁ δ r r' X J).D'
+        (locStepXJ g hnn hM1 H hk hk1 hρ (ψE e) z h₀ a₁ ν β p₁ δ r r' X J).hh₀).oldCoef
+        (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G') ρc₀
+        (locDomsLF g hM1 (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J) ρ)
+        (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ ψout
+        (oldTermLF g hnn hM1 rep A X hk
+          (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G' (ψE e) (ψ'E e) hv
+          (gxE e))
+        (locCubes g (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ r r' X J).G') J)
+        (fun b => absurd b.2 (Finset.notMem_empty _))) Pset) :
+    AnalyticOnNhd ℂ (fun e => oldCoefLF g hnn hM1
+      (locStepXJ g hnn hM1 H hk hk1 hρ (ψE e) z h₀ a₁ ν β p₁ δ r r' X J) H hk
+      (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ (ψE e) z h₀ a₁ ν β p₁ δ r r' X J).G') ρc₀ ρ r ∅
+      ψout rep A X (ψE e) (ψ'E e) hv (gxE e)
+      (locCubes g (coverOf (locStepXJ g hnn hM1 H hk hk1 hρ (ψE e) z h₀ a₁ ν β p₁ δ r r' X J).G') J)
+      (fun b => absurd b.2 (Finset.notMem_empty _))) Pset :=
+  key.congr hP (fun e _ => (oldCoefLF_eq_withD g hnn hM1 H hk hk1 hρ ψ₀ (ψE e) z h₀ a₁ ν β p₁ δ
+    ρc₀ ρ r r' rep A X (ψ'E e) hv (gxE e) J ψout).symm)
+
 end Fam2
 
 end Balaban.RootFSpine
