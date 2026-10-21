@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.LFOldHS2D7
 public import Balaban.Fluctuation.MarkClusterFam
 public import Balaban.Fluctuation.MarkClusterReal
+public import Balaban.Fluctuation.MarkClusterEquiv
 
 /-!
 # The (D7) clauses of the re-expanded old boundary terms at an output label
@@ -25,14 +26,16 @@ proves the clauses of (D7) that hold for every interaction family with the corre
   blocks inside the fine set of `Y`, when the activities of the labels inside `Y` and the fixed values
   at the unit points inside `Y` depend only on them;
 * `oldBAtAt_im` (clause `real`): the old part is real when the activities at real parameters, the
-  fixed values and the coefficients at real fluctuation fields are real.
+  fixed values and the coefficients at real fluctuation fields are real;
+* `oldBAtAt_rot` (clause `rot`): the old part is `O(N)`-invariant when the interaction family and the
+  coefficients are covariant.
 -/
 
 @[expose] public section
 
 open MeasureTheory ComplexConjugate Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.Multiscale
   Balaban.Localization Balaban.Fluctuation Balaban.LargeField.RegionHistory Balaban.Background
-  Balaban.Polymer
+  Balaban.Polymer Balaban.Localization.DecEquiv Matrix
 
 
 namespace Balaban.Fluctuation.HoleStep
@@ -269,6 +272,76 @@ theorem oldBAtAt_im (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m
   exact HoleStep.markOf_conj _ inner cb _ rψ (fun b i => Complex.conj_eq_iff_im.2 (hout b i))
     (fun ψhat hre hball => Complex.conj_eq_iff_im.2 (hcoef X hX J hJg ψhat
       (fun b i => Complex.conj_eq_iff_im.1 (hre b i)) hball)) Φ
+
+/-- The complex matrix of a rotation acts on real vectors as the rotation. -/
+theorem rotCMat_mulVec_ofReal (ρo : OrthN N) (v : Rn N) :
+    rotCMat ρo *ᵥ (fun i => ((v i : ℝ) : ℂ)) = fun i => ((ρo v i : ℝ) : ℂ) := by
+  funext i
+  simp only [Matrix.mulVec, dotProduct, rotCMat_apply, rot_apply_coord]
+  push_cast
+  rfl
+
+open Classical in
+/-- **The clause `rot` of (D7) for the old part at an output label** (any readings of the local
+pair): rotating the fields `ψ`, `h₀`, `ψ'`, the physical field, the source and the fixed values by
+`ρ ∈ O(N)`, with an interaction family covariant under the rotation of the cube variables (`hI`) and
+coefficients covariant on the balls of the marks (`hcoef`, `oldCoefLocAt_rot`), leaves the old part
+unchanged.  The cube measure is invariant under the rotation (`map_fluctMeasure1_isometry`). -/
+theorem oldBAtAt_rot (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (ρo : OrthN N)
+    (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1))))
+    (hp : 0 < p₁) {Prm : Type*} (IF : LocIntFam (fun b => {u : inner // cb u = b} → Rn N) Prm)
+    (p₁' p₂' : Prm)
+    (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (Xs : Finset (Finset (Torus S.d (n k)))) (ψ' : MultiFieldC S n M K N)
+    (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ) (Y : Finset (Torus S.d (n (k + 1))))
+    (hI : ∀ (u : ℝ) y Φ, (IF.A p₂' (u : ℂ)).H y (fun b v => ρo (Φ b v)) = (IF.A p₁' (u : ℂ)).H y Φ)
+    (hcoef : ∀ X ∈ Xs, ∀ J, GoodJAt g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (σ X) X J → ∀ ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ,
+      (∀ b ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J),
+        vn (ψhat b) < rψ) →
+      oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β
+          p₁ δ ρc ρ r r' rep A X (rotM ρo ψ') (ρo hv) (rotG ρo gx) J (rotSite (rotCMat ρo) ψhat) =
+        oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A
+          X ψ' hv gx J ψhat) :
+    oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ
+        inner cb hp (IF.at p₂') (rotSite (rotCMat ρo) ψout) rψ ρc ρ r r' rep A Xs (rotM ρo ψ')
+        (ρo hv) (rotG ρo gx) Y =
+      oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp
+        (IF.at p₁') ψout rψ ρc ρ r r' rep A Xs ψ' hv gx Y := by
+  have := (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).isProbabilityMeasure_cubeMeasure
+    inner cb hp
+  have hf1 := isProbabilityMeasure_fluctMeasure1 N hp
+  let ee : Rn N ≃ᵐ Rn N := ρo.toHomeomorph.toMeasurableEquiv
+  have hee : MeasurePreserving ee (fluctMeasure1 N p₁) (fluctMeasure1 N p₁) :=
+    ⟨ee.measurable, map_fluctMeasure1_isometry N p₁ ρo⟩
+  let E : ∀ b, ({u : inner // cb u = b} → Rn N) ≃ᵐ ({u : inner // cb u = b} → Rn N) := fun b =>
+    MeasurableEquiv.piCongrRight (fun _ : {u : inner // cb u = b} => ee)
+  have hE : ∀ b, MeasurePreserving (E b)
+      ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).cubeMeasure inner cb b)
+      ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).cubeMeasure inner cb b) := fun b =>
+    measurePreserving_pi (fun _ : {u : inner // cb u = b} => fluctMeasure1 N p₁)
+      (fun _ => fluctMeasure1 N p₁) (fun _ => hee)
+  have hRv : ∀ v, vn (rotCMat ρo *ᵥ v) = vn v :=
+    vn_rot (isRealOrth_ofReal (rotMat_transpose_mul ρo))
+  unfold oldBAtAt
+  refine Finset.sum_congr rfl fun T _ => Finset.sum_congr rfl fun X hX =>
+    Finset.sum_congr rfl fun V _ => ?_
+  unfold oldClusterSiteAt
+  refine markTerm_equiv _ E hE (Q := Set.univ) (ae_of_all _ fun _ => Set.mem_univ _)
+    (IF.at p₁').A (IF.at p₂').A V _ _ T (fun u y Φ _ => hI u y Φ) fun Φ _ => ?_
+  unfold oldMarkSiteAt
+  refine Finset.sum_congr rfl fun J hJ => ?_
+  obtain ⟨-, hJg, -⟩ := (mem_famAtAt g hnn hM1).1 hJ
+  unfold oldMarkLFAt
+  exact HoleStep.markOf_rot (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ) inner cb _ rψ ρo
+    (rotCMat ρo) (rotCMat_mulVec_ofReal ρo) hRv rfl (hcoef X hX J hJg) Φ
 
 end D7Old
 
