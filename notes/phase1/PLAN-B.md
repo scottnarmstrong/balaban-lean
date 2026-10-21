@@ -438,3 +438,9 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+
+## Reading B-1′ (ORCH-B, accepted 2026-10-21 by the main orchestrator with conditions; blocker 5, the whitening of the box)
+- The last fluctuation integral is whitened with the localized square root, as in the source (P7 §4, pp. 530–531, "exactly as in Sect. 3 [5]"; P5 (2.39)): `ψ_k = h + β_k^{-1/2} L ψ̂`, ψ̂ standard Gaussian, the box in ψ̂, `L` the rows of `boxCut` at the localized parameters (B1's definition). With the exact `K^{-1/2}` the class cutoff χ_k is not local in the Gaussian variable.
+- The change of variables is exact, at every invertible `A = β_k^{-1/2} L`: `∫ F dψ = |det A| (2π)^{n/2} ∫ F(h + Aψ̂) e^{|ψ̂|²/2} dγ(ψ̂)` (`integral_spin_whiten`); the Jacobian (`whitenNorm`) and the mismatch `exp(-½⟨ψ̂, (AᵀKA − 1)ψ̂⟩)` (`mismatchFactor`) are defined factors of the integrand (`integral_mul_sfFactor2_whiten`, `ctxBoxIntegralL`, `ctxFluctBoxIntegralL`); at `A = K^{-1/2}` the mismatch is 1 and the landed forms are the instances.
+- The local form (`BoxLocalForm … A … ε_U W U`) carries the mismatch as an undilated even part `U` (pair terms; smallness and evenness proved by B1 from the row bounds); the parity argument dilates `W` only.
+- Spine level: `sfBoxIntegral` (and so `FinalSmallFieldInput`, `FinalLargeFieldInput`, `lastIntegralInput_of_parts`) moves to B1's `L` when it lands, the same in both halves, never to a free whitening; until then the spine stays at the instance `K^{-1/2}` (`ctxBoxIntegral`).
