@@ -1422,3 +1422,13 @@ is not: it has a collar (`not_mem_collar_levelGS` fails), so the residual and th
 data agreement on the collar sites (new analysis, no landed `levelGS` analogue), and `Ω 1` is the polymer, so
 `levelGS_mem_Ω_one` becomes membership in the corresponding polymers.  Estimate: 2500+ lines (core
 generalization of three files plus the collar), then items 1-5.  Needs a design review before assigning.
+
+Design finding for `GSCorr` (W1148r, 2026-10-21): the `levelGS` two-torus files are single-scale.  Every
+cube of `levelGS j` is `(j, y0)` with `CubeBase`; `inner_base_mem`, `innerCentres_mapsTo`,
+`sum_innerCentres_boxMap`, `cubeG_boxMap_inner` and the margins (`4R + 12 L^(j+m₁) + …`) use this, and
+`TwoTorusCubeOps` (915 lines, 97 uses of `levelGS`) is the same.  `localB t` has layers `1..t` and so cubes at
+every scale (and a collar).  A `GSCorr` that "bundles the levelGS facts" is therefore not enough: the cube index
+sets, `innerCentres`, `cubeG`, and the margins have to be abstracted over a cube-scale structure (per-scale
+base sets, per-scale `intBox` radii), i.e. the port covers `TwoTorusCubeOps` as well (~3500 lines) before the
+collar.  Not started; needs a decision whether the localB cover of `Gk` can instead be handled through a
+single-scale statement (e.g. `Gk` with `t = k + 1` only) or the full multi-scale port is wanted.
