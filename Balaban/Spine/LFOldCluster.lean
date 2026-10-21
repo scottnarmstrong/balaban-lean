@@ -27,6 +27,8 @@ the properties of its activities in the fields, are the named input Proposition 
 * `toFrame`: the site of the frame torus of a site of the cover torus of the step;
 * `optW`, `optW_spec`: the connecting structure of an optimal cover of an old label;
 * `locG'`: the set `G′_V` of the local pair (independent of the fields);
+* `markBaseAt`, `markSiteAt`, `GoodJAt`: the cores with the local set of a label `X_s` (reading HS-2
+  takes the stencil of `X`); `markBase`, `markSite`, `GoodJ` are the case `X_s = X`;
 * `markBase`, `markSite`: **the site of the mark of `(X, J)`**: the `π'_{k+1}`-cubes based at the
   cells of `X ∩ Ω_{k+1}`, of `optW`, of the local set `V(X, J)` and of the data sites of `G′_V` (not
   the holes of `X`); `markBase_subset_markSite`, `isPiPrimeUnion_markSite`;
@@ -132,6 +134,22 @@ theorem holeStepLoc_G'_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 �
     (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' = locG' g hnn hM1 H hk hρ V :=
   rfl
 
+/-- **The base sites of a mark with the local set of a label `X_s`** (the core of `markBase`): the
+sites of `X ∩ Ω_{k+1}`, the connecting structure `optW` of an optimal cover of `X`, the local set
+`V(X_s, J)` and the data sites of its local pair.  `markBase` is the case `X_s = X` (reading
+HS-1′); reading HS-2 takes for `X_s` the stencil of `X` (`Spine/LFOldHS2.lean`). -/
+noncomputable def markBaseAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (Xs X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Set (CTorus S.d S.L F.N₁ m₁ K) :=
+  d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ∪
+    (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ∪
+    toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' Xs J ∪
+    toFrame g hnn hM1 F hk ''
+      (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' Xs J)) :
+        Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+
 /-- **The base sites of the mark of `(X, J)`**, on the frame torus (P6 p. 34, the domain `Y₁` of P3
 (4.42) completed as in (4.44)): the sites of `X ∩ Ω_{k+1}`, the connecting structure `optW` of an
 optimal cover of `X` (which joins the components of `X ∩ Ω_{k+1}` through the holes of `X`), the
@@ -142,12 +160,18 @@ noncomputable def markBase {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     Set (CTorus S.d S.L F.N₁ m₁ K) :=
-  d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ∪
-    (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ∪
-    toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J ∪
-    toFrame g hnn hM1 F hk ''
-      (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J)) :
-        Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+  markBaseAt g hnn hM1 F H hk hρ r r' X X J
+
+/-- **The site of a mark with the local set of a label `X_s`** (the core of `markSite`): the
+`π'_{k+1}`-cubes based at the cells of `markBaseAt`. -/
+noncomputable def markSiteAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (Xs X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Set (CTorus S.d S.L F.N₁ m₁ K) :=
+  {x | ∃ y ∈ markBaseAt g hnn hM1 F H hk hρ r r' Xs X J,
+    x ∈ Localization.box (cbase (cellSide S.L m₀ m₁ (k + 1)) y)
+      (S.L * cellSide S.L m₀ m₁ (k + 1))}
 
 /-- **The site of the mark of `(X, J)`**, on the frame torus: the `π'_{k+1}`-cubes (side
 `L · cellSide`) based at the cells of the base sites `markBase`. -/
@@ -156,9 +180,7 @@ noncomputable def markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     Set (CTorus S.d S.L F.N₁ m₁ K) :=
-  {x | ∃ y ∈ markBase g hnn hM1 F H hk hρ r r' X J,
-    x ∈ Localization.box (cbase (cellSide S.L m₀ m₁ (k + 1)) y)
-      (S.L * cellSide S.L m₀ m₁ (k + 1))}
+  markSiteAt g hnn hM1 F H hk hρ r r' X X J
 
 omit [∀ k, NeZero (n k)] [NeZero M] in
 /-- A site lies in the `π'_{k+1}`-cube based at its cell. -/
@@ -169,13 +191,32 @@ theorem mem_box_cbase_cellSide {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
     (mem_box_cbase (cellSide_pos m₀ m₁ (k + 1)) y)
 
 omit [NeZero M] in
+/-- The base sites lie in the site of the mark (any local set). -/
+theorem markBaseAt_subset_markSiteAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (Xs X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    markBaseAt g hnn hM1 F H hk hρ r r' Xs X J ⊆ markSiteAt g hnn hM1 F H hk hρ r r' Xs X J :=
+  fun y hy => ⟨y, hy, mem_box_cbase_cellSide F y⟩
+
+omit [NeZero M] in
 /-- The base sites lie in the site of the mark. -/
 theorem markBase_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
     (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    markBase g hnn hM1 F H hk hρ r r' X J ⊆ markSite g hnn hM1 F H hk hρ r r' X J := fun y hy =>
-  ⟨y, hy, mem_box_cbase_cellSide F y⟩
+    markBase g hnn hM1 F H hk hρ r r' X J ⊆ markSite g hnn hM1 F H hk hρ r r' X J :=
+  markBaseAt_subset_markSiteAt g hnn hM1 F H hk hρ r r' X X J
+
+omit [NeZero M] in
+/-- **The site of a mark is a union of `π'_{k+1}`-cubes** (any local set). -/
+theorem isPiPrimeUnion_markSiteAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (Xs X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    IsPiPrimeUnion m₀ (k + 1) (markSiteAt g hnn hM1 F H hk hρ r r' Xs X J) := by
+  rintro z ⟨y, hy, hz⟩
+  exact ⟨cbase (cellSide S.L m₀ m₁ (k + 1)) y, aligned_cbase y, hz, fun z' hz' => ⟨y, hy, hz'⟩⟩
 
 omit [NeZero M] in
 /-- **The site of a mark is a union of `π'_{k+1}`-cubes.** -/
@@ -183,9 +224,16 @@ theorem isPiPrimeUnion_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m�
     (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
     (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    IsPiPrimeUnion m₀ (k + 1) (markSite g hnn hM1 F H hk hρ r r' X J) := by
-  rintro z ⟨y, hy, hz⟩
-  exact ⟨cbase (cellSide S.L m₀ m₁ (k + 1)) y, aligned_cbase y, hz, fun z' hz' => ⟨y, hy, hz'⟩⟩
+    IsPiPrimeUnion m₀ (k + 1) (markSite g hnn hM1 F H hk hρ r r' X J) :=
+  isPiPrimeUnion_markSiteAt g hnn hM1 F H hk hρ r r' X X J
+
+/-- **A family with a good site, for the local set of a label `X_s`** (the core of `GoodJ`). -/
+def GoodJAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (Ω : Set (CTorus S.d S.L F.N₁ m₁ K))
+    (Xs X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) : Prop :=
+  IsDj m₀ (k + 1) (markSiteAt g hnn hM1 F H hk hρ r r' Xs X J) ∧
+    (markSiteAt g hnn hM1 F H hk hρ r r' Xs X J ∩ Ω).Nonempty
 
 /-- **A family `J` with a good site**: the site of the mark of `(X, J)` is a set of `𝒟_{k+1}`
 (nonempty, a union of `π'_{k+1}`-cubes, connected) meeting the region `Ω` of the cubes of the measure. -/
@@ -193,8 +241,7 @@ def GoodJ {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory 
     (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (Ω : Set (CTorus S.d S.L F.N₁ m₁ K))
     (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     Prop :=
-  IsDj m₀ (k + 1) (markSite g hnn hM1 F H hk hρ r r' X J) ∧
-    (markSite g hnn hM1 F H hk hρ r r' X J ∩ Ω).Nonempty
+  GoodJAt g hnn hM1 F H hk hρ r r' Ω X X J
 
 omit [NeZero M] in
 /-- **The unit points of the local pair lie in the local set**: the representative of a unit point

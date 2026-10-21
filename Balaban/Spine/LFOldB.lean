@@ -20,6 +20,7 @@ over the domains `Y₁` determining a fixed `Y`").
 * `stepG'`, `locRange`, `allJ`: the set of P5 (2.17) of the step, the localization range, and the
   families of cubes of its cover inside the localization range;
 * `famAt`, `sitesX`: the families of `X` with good site `V`, and the good sites of the marks of `X`;
+  `famAtAt`, `mem_famAtAt`, `OldResumSiteAt`: the cores with the local sets of a map of labels;
 * `OldResumSite`: **the resummation over the decoupling families at a mark site** (named input,
   open; P3 (4.45)–(4.49), P6 p. 34);
 * `oldMarkSite`, `oldMarkSite_dep`, `measurable_oldMarkSite`, `norm_oldMarkSite_le`: the mark of
@@ -76,15 +77,23 @@ noncomputable def allJ (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ 
     (cubeP P : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆ locRange g hM1 H ρ).powerset
 
 open Classical in
+/-- **The families with the good site `V`, for the local set of a label `X_s`** (the core of
+`famAt`). -/
+noncomputable def famAtAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
+    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ)
+    (Xs X : Finset (Torus S.d (n k))) (V : Set (CTorus S.d S.L F.N₁ m₁ K)) :
+    Finset (Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :=
+  (allJ g hnn hM1 H hk hρ ρ).filter fun J =>
+    GoodJAt g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) Xs X J ∧
+      markSiteAt g hnn hM1 F H hk hρ r r' Xs X J = V
+
 /-- **The families of an old label `X` with the good site `V`** (P3 (4.45): the domains `Y₁`
 determining a fixed site). -/
 noncomputable def famAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
     {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ)
     (X : Finset (Torus S.d (n k))) (V : Set (CTorus S.d S.L F.N₁ m₁ K)) :
     Finset (Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :=
-  (allJ g hnn hM1 H hk hρ ρ).filter fun J =>
-    GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J ∧
-      markSite g hnn hM1 F H hk hρ r r' X J = V
+  famAtAt g hnn hM1 F H hk hρ ρ r r' X X V
 
 open Classical in
 /-- **The good sites of the marks of an old label `X`.** -/
@@ -96,6 +105,18 @@ noncomputable def sitesX {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H :
       (markSite g hnn hM1 F H hk hρ r r' X)
 
 omit [NeZero M] in
+/-- A family with the site `V` has the site `V` and a good site (any local set). -/
+theorem mem_famAtAt {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁} {H : RegionHistory S n R k0 K}
+    {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊} {ρ r r' : ℕ}
+    {Xs X : Finset (Torus S.d (n k))} {V : Set (CTorus S.d S.L F.N₁ m₁ K)}
+    {J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))} :
+    J ∈ famAtAt g hnn hM1 F H hk hρ ρ r r' Xs X V ↔ J ∈ allJ g hnn hM1 H hk hρ ρ ∧
+      GoodJAt g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) Xs X J ∧
+        markSiteAt g hnn hM1 F H hk hρ r r' Xs X J = V := by
+  classical
+  simp [famAtAt]
+
+omit [NeZero M] in
 /-- A family with the site `V` has the site `V` and a good site. -/
 theorem mem_famAt {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁} {H : RegionHistory S n R k0 K}
     {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊} {ρ r r' : ℕ}
@@ -103,9 +124,8 @@ theorem mem_famAt {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁} {H : Region
     {J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))} :
     J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V ↔ J ∈ allJ g hnn hM1 H hk hρ ρ ∧
       GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J ∧
-        markSite g hnn hM1 F H hk hρ r r' X J = V := by
-  classical
-  simp [famAt]
+        markSite g hnn hM1 F H hk hρ r r' X J = V :=
+  mem_famAtAt g hnn hM1
 
 omit [NeZero M] in
 /-- **A good site of a mark is a set of `𝒟_{k+1}` meeting `Ω_{k+1}`**, the site of a good family. -/
@@ -120,6 +140,20 @@ theorem exists_of_mem_sitesX {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁}
   obtain ⟨hJa, hJg⟩ := Finset.mem_filter.1 hJ
   exact ⟨J, (mem_famAt g hnn hM1).2 ⟨hJa, hJg, rfl⟩, hJg⟩
 
+/-- **The resummation over the decoupling families at a mark site, for the local sets of a map
+`σ` of labels** (the core of `OldResumSite`: the local set of the families of `X` is `V(σ X, J)`;
+`OldResumSite` is `σ = id`, reading HS-2 takes `σ X` the stencil of `X`). -/
+def OldResumSiteAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
+    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ)
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (κ₁ κX κV Cres : ℝ) : Prop :=
+  ∀ X ∈ oldDoms F H k, ∀ V : Set (CTorus S.d S.L F.N₁ m₁ K),
+    ∑ J ∈ famAtAt g hnn hM1 F H hk hρ ρ r r' (σ X) X V,
+        Real.exp (-(κ₁ - 1) *
+          (locCubes g (coverOf (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' (σ X) J))) J).card) ≤
+      Cres * Real.exp (κX * d7SizeAt F k (H.omegaPost k) X) *
+        Real.exp (-κV * treeLenCovOne (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀
+          (k + 1) V)
+
 /-- **The resummation over the decoupling families at a mark site** (named input, **open**; P3
 (4.45)–(4.49), P6 p. 34: "the inequalities (4.48), (4.49) [3] hold with `d_j(X)`, `d̃_{j+1}(Y)`
 replaced by `d_k(X mod Ω_k^c)`, `d_{k+1}(Y mod Ω^c_{k+1})`"): for every old label `X` meeting
@@ -130,13 +164,7 @@ the local pair).  The proof needs the levels of the cover cubes in the localizat
 (P3 (4.48)) and the count of the reached families of cover cubes from one cube (P3 (4.49)). -/
 def OldResumSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K) {k : ℕ}
     (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ) (κ₁ κX κV Cres : ℝ) : Prop :=
-  ∀ X ∈ oldDoms F H k, ∀ V : Set (CTorus S.d S.L F.N₁ m₁ K),
-    ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V,
-        Real.exp (-(κ₁ - 1) *
-          (locCubes g (coverOf (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J))) J).card) ≤
-      Cres * Real.exp (κX * d7SizeAt F k (H.omegaPost k) X) *
-        Real.exp (-κV * treeLenCovOne (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀
-          (k + 1) V)
+  OldResumSiteAt g hnn hM1 F H hk hρ ρ r r' (fun X => X) κ₁ κX κV Cres
 
 /-- **The mark of `(X, V)`** (P3 (4.45), P6 p. 34): the sum of the marks of the families of `X` with
 the site `V`. -/
