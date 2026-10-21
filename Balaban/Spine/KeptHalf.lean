@@ -37,8 +37,10 @@ do not enter the kept half.
 
 **Named residuals** (the hypotheses; nothing else is assumed): `KappaPreLocal` (OPEN-R-TOP-PIN: the
 exponent `κ^pre_k(Z, 𝔸 ∩ Z)` of a kept component is a function of its localized history; the
-kept costs `γ_j(ϰ)` below `k` enter it, so this is the statement that they do not distinguish
-histories with the same localized history), and `KeptScaleData` (the kept kernels of the five
+kept costs `γ_j(ϰ)` below `k` enter it; they are label independent by the clause
+`KeptScaleData.gam_indep`, so what remains is the lineage locality of the bookkeeping: the parts, the
+kept events (`Ripe` of the book, whose spine is a `Classical.choose`) and the kept exponents of the
+parts are functions of the localized history), and `KeptScaleData` (the kept kernels of the five
 outcomes at the scale `k`, with the bound (1.26) at the exponent
 `κ_k - C_R λ̂_k^{2d+1} + γ_k(ϰ)`: `keptKernel_one_kerBound` to `keptKernel_five_kerBound`).
 -/
@@ -163,6 +165,15 @@ exponents `keptExpOut` whose costs `γ_i(ϰ)` below the scale `k` are those of `
 structure KeptScaleData (r₀ : Rep S n R k0 K M N geo cs P k) where
   KD : KeptData k0 geo cs N (keptExpOut r₀ (canonHist S n R k0 K k (k + 1)) k) S.lam
   gam_eq : ∀ i, i < k → ∀ l, KD.gam i l = r₀.KD.gam i l
+  /-- the kept costs do not depend on the label: `γ_i(ϰ) = log C_dec(ϰ) + A'₃ λ̂_i^{p_R}` with
+  `C_dec(ϰ) = 5` for every `ϰ` (LFR Definition III.5.2; `Σ C_dec⁻¹ = 1`).  `KeptData` itself allows
+  label-dependent `gam`; this clause is part of the construction of the kept data by the provider. -/
+  gam_indep : ∀ i (l l' : Fin 5), KD.gam i l = KD.gam i l'
+
+/-- The kept costs of the input below the scale `k` do not depend on the label. -/
+theorem KeptScaleData.gam_indep_below {r₀ : Rep S n R k0 K M N geo cs P k} (D : KeptScaleData r₀)
+    {i : ℕ} (hi : i < k) (l l' : Fin 5) : r₀.KD.gam i l = r₀.KD.gam i l' := by
+  rw [← D.gam_eq i hi l, ← D.gam_eq i hi l', D.gam_indep i l l']
 
 /-! ### The large-field part of the output -/
 
