@@ -21,7 +21,7 @@ operator `H₀ + diag α`.  The Gaussian form is positive definite.  The chart G
 other spins entering through the data `D`:
 
 * `compHess`: the componentwise real Hessian of a real matrix on `G.Ω 1`;
-* `pair_liftOp_eq_cinner`: the complex bilinear Dirichlet form of real fields is the real pairing;
+* `pair_liftOp_eq_cinner_compHess`: the complex bilinear Dirichlet form of real fields is the real pairing;
 * `baseNative_chartGaussian`: the chart Gaussian integral for the action of `G`.
 -/
 
@@ -90,7 +90,7 @@ theorem dirichletOperator_im_eq_zero (a : ℕ → ℝ) (ν : ℝ) (α : G.Ω 1 �
 
 /-- **The complex bilinear form of real fields is the real pairing**: for a matrix on `G.Ω 1`
 with real entries the pairing of `pair` is the real pairing against the componentwise Hessian. -/
-theorem pair_liftOp_eq_cinner (A : Matrix (G.Ω 1) (G.Ω 1) ℂ) (hA : ∀ x y, (A x y).im = 0)
+theorem pair_liftOp_eq_cinner_compHess (A : Matrix (G.Ω 1) (G.Ω 1) ℂ) (hA : ∀ x y, (A x y).im = 0)
     (u v : Config (G.Ω 1) N) :
     pair G (fun p : G.Ω 1 × Fin N => (((u p.1 p.2 : ℝ)) : ℂ))
       (liftOp N A *ᵥ fun p : G.Ω 1 × Fin N => (((v p.1 p.2 : ℝ)) : ℂ)) =
@@ -122,7 +122,7 @@ theorem isRealUnitField_of_sphere (ψ : G.Ω 1 → Metric.sphere (0 : EuclideanS
     _ = 1 := by rw [hn]; norm_num
 
 /-- The action is continuous in the field. -/
-theorem continuous_action (a : ℕ → ℝ) (ν : ℝ) (D : BgData G N) :
+theorem continuous_bgAction (a : ℕ → ℝ) (ν : ℝ) (D : BgData G N) :
     Continuous (fun φ : G.Ω 1 × Fin N → ℂ => action G a ν D φ) := by
   have hsv : ∀ y i, Continuous fun φ : G.Ω 1 × Fin N → ℂ => svec G φ y i := by
     intro y i
@@ -228,7 +228,7 @@ theorem action_sub_eq_bgHess (φ : Torus d (N₀ * L ^ 1) → Fin N → ℝ) (h 
         bgCenter G a ν D x) p.1 p.2 : ℝ)) : ℂ) := by
     funext p
     simp
-  rw [hdiff, pair_liftOp_eq_cinner G _ (dirichletOperator_im_eq_zero G a ν _ hαre)
+  rw [hdiff, pair_liftOp_eq_cinner_compHess G _ (dirichletOperator_im_eq_zero G a ν _ hαre)
     (fun x => (ψ x : EuclideanSpace ℝ (Fin N)) - bgCenter G a ν D x)
     (fun x => (ψ x : EuclideanSpace ℝ (Fin N)) - bgCenter G a ν D x)] at hch
   have : ((action G a ν D (fun p : G.Ω 1 × Fin N =>
@@ -280,13 +280,13 @@ theorem bgHess_gaussForm_posDef (φ : Torus d (N₀ * L ^ 1) → Fin N → ℝ) 
   simpa [Matrix.reindex_apply, Matrix.submatrix_submatrix] using this
 
 /-- **The spin field of a point of the product of spheres**, as a field on `G.Ω 1 × Fin N`. -/
-def spinField (ψ : G.Ω 1 → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1) :
+def sphereSpinField (ψ : G.Ω 1 → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1) :
     G.Ω 1 × Fin N → ℂ := fun p => (((ψ p.1 : EuclideanSpace ℝ (Fin N)) p.2 : ℝ) : ℂ)
 
 theorem continuous_action_spinField (D : BgData G N) :
     Continuous (fun ψ : G.Ω 1 → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1 =>
-      action G a ν D (spinField G ψ)) := by
-  refine (continuous_action G a ν D).comp ?_
+      action G a ν D (sphereSpinField G ψ)) := by
+  refine (continuous_bgAction G a ν D).comp ?_
   refine continuous_pi fun p => ?_
   have : Continuous fun ψ : G.Ω 1 → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1 =>
       ((ψ p.1 : EuclideanSpace ℝ (Fin N)) p.2 : ℝ) := by fun_prop
@@ -313,7 +313,7 @@ theorem baseNative_chartGaussian {β : ℝ} (hβ : 0 < β) (m : ℝ)
       LinearMap.det (R : Config (G.Ω 1) N →ₗ[ℝ] Config (G.Ω 1) N) =
         Real.sqrt (LinearMap.det (gaussForm (bgCenter G a ν D) (bgHess G a ν D)))⁻¹ ∧
       ∫ ψ, chartGaussDensity β m (WithLp.toLp 2 h) g K0 χ
-          (fun ψ => action G a ν D (spinField G ψ)) ψ
+          (fun ψ => action G a ν D (sphereSpinField G ψ)) ψ
           ∂(Measure.pi fun _ : G.Ω 1 => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere) =
         ((Real.sqrt β)⁻¹ ^ (Fintype.card (G.Ω 1) * (N - 1))) •
           ((((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card (G.Ω 1) / 2) *
@@ -326,7 +326,7 @@ theorem baseNative_chartGaussian {β : ℝ} (hβ : 0 < β) (m : ℝ)
   have he := bgCenter_unit G φ h D S H hΛ1 hΛ2
   exact chartGaussian_core hβ m (bgCenter G a ν D) he (bgHess G a ν D)
     (bgHess_symmetric G D) (bgHess_gaussForm_posDef G φ h D S H hΛ1 hΛ2) (WithLp.toLp 2 h) g K0
-    χ hχ hχ1 hχs (fun ψ => action G a ν D (spinField G ψ)) (continuous_action_spinField G D)
+    χ hχ hχ1 hχs (fun ψ => action G a ν D (sphereSpinField G ψ)) (continuous_action_spinField G D)
     (fun x => ⟨bgCenter G a ν D x, mem_sphere_zero_iff_norm.mpr (he x)⟩)
     (fun ψ => action_sub_eq_bgHess G φ h D S H hΛ1 he ψ)
 
