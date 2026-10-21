@@ -140,4 +140,35 @@ theorem footprint_subset_rootComp {D : ℕ} {Cs : Finset ↥C.cubeIdx} {s : Dec2
   obtain ⟨hqact, hqroot⟩ := key q hch
   exact spread q hqact hqroot i hi hiC
 
+theorem extS_cutTo_apply (A : Finset ↥C.cubeIdx) (s : Dec2.DecParams C)
+    {P : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)} (hP : P ∈ C.cubeIdx) :
+    Dec2.extS C (cutTo A s) P = if (⟨P, hP⟩ : ↥C.cubeIdx) ∈ A then Dec2.extS C s P else 0 := by
+  classical
+  simp [Dec2.extS, hP, cutTo]
+
+open Classical in
+/-- **The factors of `s` and of `cutTo A s` agree on every centre whose footprint lies in `A`.** -/
+theorem sProd_cutTo_eq_of_footprint (A : Finset ↥C.cubeIdx) (s : Dec2.DecParams C)
+    {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
+    (h : ∀ i ∈ C.Qset q, ∀ hi : i ∈ C.cubeIdx, (⟨i, hi⟩ : ↥C.cubeIdx) ∈ A) :
+    C.sProd (Dec2.extS C (cutTo A s)) q = C.sProd (Dec2.extS C s) q := by
+  unfold DecCover.sProd
+  refine Finset.prod_congr rfl fun i hi => ?_
+  have hiC : i ∈ C.cubeIdx := ((C.mem_Qset).1 hi).1
+  rw [extS_cutTo_apply A s hiC]
+  simp [h i hi hiC]
+
+open Classical in
+/-- **A centre active for `cutTo A s` is active for `s`, with the same factor.** -/
+theorem sProd_cutTo_eq_of_active (A : Finset ↥C.cubeIdx) (s : Dec2.DecParams C)
+    {q : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1)}
+    (h : C.sProd (Dec2.extS C (cutTo A s)) q ≠ 0) :
+    C.sProd (Dec2.extS C (cutTo A s)) q = C.sProd (Dec2.extS C s) q := by
+  refine sProd_cutTo_eq_of_footprint A s fun i hi hiC => ?_
+  by_contra hn
+  have h0 : Dec2.extS C (cutTo A s) i = 0 := by
+    rw [extS_cutTo_apply A s hiC]
+    simp [hn]
+  exact h (Finset.prod_eq_zero hi h0)
+
 end Balaban.LargeField.Base
