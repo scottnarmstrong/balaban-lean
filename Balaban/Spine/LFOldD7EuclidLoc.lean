@@ -188,6 +188,17 @@ theorem holeStepLF_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j
       rw [e]
     exact key _
 
+theorem coverAff_aligned (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K) :
+    (coverAff g hnn hM1 σ hk).Aligned (S.L ^ (k + 1 + m₁)) := by
+  unfold coverAff
+  refine AffIso.cast_aligned _ _ ?_
+  refine σ.aligned_of_dvd ?_
+  have h : M * S.L ^ K = g.c * S.L ^ m₁ * S.L ^ K := by
+    have : M * S.L ^ K = g.c * g.M1 * S.L ^ K := congrArg (· * S.L ^ K) g.hM
+    rw [this, hM1]
+  rw [h, add_comm (k + 1) m₁, pow_add]
+  exact Nat.mul_dvd_mul (dvd_mul_left _ _) (pow_dvd_pow S.L hk)
+
 section LocB
 
 open Balaban.SmallField.GsSpec in
@@ -218,6 +229,24 @@ theorem localCube_aff {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁]
     dvd_trans (by rw [← pow_add]; exact pow_dvd_pow L (by omega)) (hA i)
   show supDist (blockMap _ _ (A.toFun x)) (blockMap _ _ (A.toFun y)) = _
   rw [A.blockMap_toFun hℓ hpos hal, A.blockMap_toFun hℓ hpos hal, AffIso.supDist_eq]
+
+/-- **The layers of `𝔹_{k+1}(V)` under the lattice symmetry.** -/
+theorem locB_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) (j : ℕ)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V)).Ω j ↔
+      x ∈ (locB g hM1 V).Ω j := by
+  unfold locB
+  have h := SmallField.GsSpec.mem_localB_Ω_image_iff_of_cubeIso (j := k + 1) (hj := le_rfl)
+    (X := V) (hsep := minSep_le_locB g hM1)
+    (r := (coverAff g hnn hM1 σ hk).toEquiv)
+    (fun n hn x y => localCube_aff _ le_rfl (coverAff_aligned g hnn hM1 σ hk) hn x y) j
+    ((coverAff g hnn hM1 σ hk).toFun x)
+  have e : (coverAff g hnn hM1 σ hk).toEquiv.symm ((coverAff g hnn hM1 σ hk).toFun x) = x :=
+    (coverAff g hnn hM1 σ hk).invFun_toFun x
+  rw [e] at h
+  exact h
 
 end LocB
 
