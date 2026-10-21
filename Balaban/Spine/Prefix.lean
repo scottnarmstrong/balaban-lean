@@ -151,18 +151,21 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
       (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) := div_pos (by linarith) (by positivity)
   refine ⟨fun _ _ => prefixTyping d L (2 + s),
     fun κ c₉ => ⟨(1 + 2 * δ) / 4, (1 - 2 * δ) / 4,
-      (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1), 0,
+      ((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2), 0,
       (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) / (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)),
-      c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1))), 1, 1,
+      c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2)), 1, 1,
       7 / 8 * ((L : ℝ) ^ 2)⁻¹, fun _ => 1, 1⟩,
     fun _ _ => ⟨2 + s, 1, 0, 1, 0⟩, fun _ _ => ⟨0, 0, 2, fun _ => 1⟩,
     fun _ _ => ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, 0,
       fun _ => 0, fun _ => 0, 5 / 4, 0, 1⟩,
     fun _ _ => L ^ s, fun _ _ => L ^ 3, fun _ _ => Background.bgR0 d L, ?_⟩
   intro κ hκ c₉ hc₉
-  have hκf : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by positivity
+  have : NeZero L := ⟨by omega⟩
+  have haE := Balaban.Fluctuation.aEnt_nonneg d L
+  have hκf : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) +
+      Balaban.Fluctuation.aEnt d L + 2 := by positivity
   refine ⟨hL, by norm_num, by norm_num, ?_, hMs, h14, Nat.one_le_pow _ _ (by omega), rfl, ?_, ?_, by norm_num,
-    le_rfl, ?_, ?_, ?_, ?_, le_rfl, ?_, by norm_num, hsep⟩
+    le_rfl, ?_, ?_, ?_, ?_, le_rfl, ?_, by norm_num, hsep, ?_⟩
   · have h1 : (8 : ℝ) / 9 ≤ 1 - ((L : ℝ) ^ 2)⁻¹ := by linarith
     have h2 : (64 : ℝ) / 81 ≤ (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2 := by nlinarith
     show (9 : ℝ) / 10 ≤ 5 / 4 * (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2
@@ -173,7 +176,8 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
     positivity
   · show δ ≤ (1 + 2 * δ) / 4 - (1 - 2 * δ) / 4
     linarith
-  · exact le_rfl
+  · show (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ _
+    linarith
   · exact le_rfl
   · have hlog : 0 ≤ Real.log (L : ℝ) := Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ L))
     have hd' : (3 : ℝ) ≤ d := by exact_mod_cast hd
@@ -192,3 +196,7 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
       1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))
     refine le_of_eq ?_
     field_simp
+  · show Balaban.Fluctuation.aEnt d L + 1 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) +
+      Balaban.Fluctuation.aEnt d L + 2
+    have : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by positivity
+    linarith

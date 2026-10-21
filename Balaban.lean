@@ -1583,6 +1583,7 @@ public import Balaban.LargeField.R.CoefLimitV1
 public import Balaban.LargeField.R.CoefLimitV2
 public import Balaban.LargeField.R.CoefD1Corr
 public import Balaban.LargeField.R.CoefBirth
+public import Balaban.LargeField.R.CoefInhabited
 public import Balaban.LargeField.R.RadialCoefficientLimitEres
 public import Balaban.LargeField.R.RadialCoefficientLimitInhab
 public import Balaban.LargeField.R.PositiveMassFacts
@@ -2943,6 +2944,7 @@ public import Balaban.Spine.FinalSfIntegrable
 public import Balaban.Spine.FinalSfAssemble
 public import Balaban.Spine.FinalSfConstTerm
 public import Balaban.Spine.FinalSfFluct
+public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
