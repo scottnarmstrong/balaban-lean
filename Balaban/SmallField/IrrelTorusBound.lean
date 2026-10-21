@@ -20,7 +20,8 @@ constant:
   `Itw` (FLUCTUATION.md §3.2) of the one-polymer family of `premisesTermAniso_centred` at the data
   pulled back at `y`, `ψ_y(s) = Ψ(y + ibase s)`, `b = ν_j h`, whenever the pulled-back configuration
   lies in the anisotropic polydisc or outside the anisotropic tube (where the extension of the
-  term to the tube is the term itself);
+  term to the tube is the term itself); the instance of `irrelTorusOn_eq_Itw_centred`, the same
+  identity for the functional of any selection `sm` at a selected label;
 * `irrelTorus_bound_of_dataHyp_of_poly`: **conditional on `DataHypAniso`** at the pulled-back data
   (the open analytic input P-2: `σ = C₀ s_{jk}`, `ε = ε_k`), and for data in the polydisc or
   outside the tube, `|ℰ^{(j)}_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`
@@ -76,16 +77,17 @@ variable {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ 
   {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
 
 open Classical in
-/-- **The label functional is the termwise `Itw` of the label pulled back at its centre**: for
-`X ≠ □(y)`, `Ψ` constant on the `j`-blocks and the constant field `h`, with
-`ψ_y(s) = Ψ(y + ibase s)` and `b = ν_j h`,
-`ℰ^{(j)}_{irrel}(y, X; Ψ, h) = Itw(T_{y,X})(S; ψ_y, b)` for the one-polymer family `T_{y,X}` of
+/-- **The label functional of a selection is the termwise `Itw` of the label pulled back at its
+centre**: for a selected polymer `X ≠ □(y)` (`sm y X`), `Ψ` constant on the `j`-blocks and the
+constant field `h`, with `ψ_y(s) = Ψ(y + ibase s)` and `b = ν_j h`,
+`ℰ^{sm}_{irrel}(y, X; Ψ, h) = Itw(T_{y,X})(S; ψ_y, b)` for the one-polymer family `T_{y,X}` of
 `premisesTermAniso_centred`, whenever the configuration `pack S ψ_y b` lies in the anisotropic
 polydisc or outside the anisotropic tube. -/
-theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+theorem irrelTorusOn_eq_Itw_centred (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : sm y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -98,7 +100,7 @@ theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
         ((ν : ℂ) • hv) ∈ polyAniso i₀ ν r S ∨
       pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
         ((ν : ℂ) • hv) ∉ TubeAniso i₀ ν r S) :
-    irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
+    irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
       Itw (⟨{S}, fun _ => sizeJ P.m₀ j X, fun S' c => trickFnA i₀ ν r (fun c' : Cfg d N S' =>
            Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S' c' (z - y))
              (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S' c')) c⟩ : TermFamily d N)
@@ -254,8 +256,41 @@ theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
   have hcy : (constFld hv : Fld d L N₁ m₁ k N) y = hv := rfl
   unfold Itw
   rw [hTtw, hAx, hPhi, hTterm, hterm]
-  simp only [irrelTorus, hXne, ↓reduceIte, add_zero, hcy]
+  simp only [irrelTorusOn, relPartTorus, aTermTorus, hsm, hXne, ↓reduceIte, add_zero, hcy]
   ring
+
+open Classical in
+/-- **The label functional is the termwise `Itw` of the label pulled back at its centre**: for
+`X ≠ □(y)`, `Ψ` constant on the `j`-blocks and the constant field `h`, with
+`ψ_y(s) = Ψ(y + ibase s)` and `b = ν_j h`,
+`ℰ^{(j)}_{irrel}(y, X; Ψ, h) = Itw(T_{y,X})(S; ψ_y, b)` for the one-polymer family `T_{y,X}` of
+`premisesTermAniso_centred`, whenever the configuration `pack S ψ_y b` lies in the anisotropic
+polydisc or outside the anisotropic tube. -/
+theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
+      natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
+    (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
+      (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
+    {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
+    {Ψ : Fld d L N₁ m₁ k N}
+    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
+    (hv : Fin N → ℂ)
+    (hpack : pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
+        ((ν : ℂ) • hv) ∈ polyAniso i₀ ν r S ∨
+      pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
+        ((ν : ℂ) • hv) ∉ TubeAniso i₀ ν r S) :
+    irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
+      Itw (⟨{S}, fun _ => sizeJ P.m₀ j X, fun S' c => trickFnA i₀ ν r (fun c' : Cfg d N S' =>
+           Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S' c' (z - y))
+             (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S' c')) c⟩ : TermFamily d N)
+        i₀ i₁ ν S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
+        ((ν : ℂ) • hv) := by
+  rw [irrelTorus_eq_irrelTorusOn]
+  exact irrelTorusOn_eq_Itw_centred _ hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX trivial hXne hSdef hne
+    hrad hΨb hv hpack
 
 end Ident
 

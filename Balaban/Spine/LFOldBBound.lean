@@ -179,9 +179,13 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
     (Y : Finset (Torus S.d (n (k + 1)))) {ψ : MultiFieldC S n M K N} {q' : FinFieldC S n M K N}
     {gx : GIdx S n M K N → ℂ}
     (hloc : ∀ X ∈ Xs, ∀ J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
-      d7Pull Fr k (X : Set (Torus S.d (n k))) ⊆ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
-      markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J ⊆
-        d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
+      ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
+      outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
+      dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
+      GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J →
+      blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+        (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T →
       InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D' ∧
       ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
         ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
@@ -284,13 +288,12 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
         have hVY : ∀ V ∈ (sitesXAt (σ := σ) g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
             ∀ J ∈ famAtAt g hnn hM1 Fr A.H hk hρ ρ r r' (σ X) X V,
-              markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J ⊆
-                d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) := by
+              GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J ∧
+              blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+                (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T := by
           intro V hV J hJ
           obtain ⟨-, hJg, hJV⟩ := (mem_famAtAt g hnn hM1).1 hJ
-          have h := markSiteAt_subset_outLabel (σ := σ) Fr hnn hM1 A.H hk hρ r r' X J hJg T
-            (hJV ▸ (Finset.mem_filter.1 hV).2) hfin
-          rwa [hTY] at h
+          exact ⟨hJg, hJV ▸ (Finset.mem_filter.1 hV).2⟩
         have hterm : ∀ V ∈ (sitesXAt (σ := σ) g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
             ‖oldClusterSiteAt (glob := glob) (σ := σ) g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤
@@ -300,8 +303,8 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
           intro V hV
           have h := norm_oldClusterSiteAt_le_of_dom g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
             hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' (hXs X hX).1 V
-            (fun J hJ => (hloc X hX J hsub (hVY V hV J hJ)).1)
-            (fun J hJ => (hloc X hX J hsub (hVY V hV J hJ)).2)
+            (fun J hJ => (hloc X hX J T hTY hfin (hVY V hV J hJ).1 (hVY V hV J hJ).2).1)
+            (fun J hJ => (hloc X hX J T hTY hfin (hVY V hV J hJ).1 (hVY V hV J hJ).2).2)
             (hXs X hX).2 (Finset.mem_filter.1 hV).1 inner cb hcb hp I ψout hrψ hfac hres hCres hκV T
           rw [← hYD] at h
           refine h.trans (le_of_eq ?_)
@@ -479,6 +482,32 @@ theorem norm_oldBAtAt_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S
             (mul_le_mul_of_nonneg_left hSXle hCst0) (by positivity)) (Real.exp_pos _).le
       _ = _ := by rw [hCst]; ring
 
+open Classical in
+/-- **The old label and the mark site lie in the output label** (any local sets `V(σ X, J)`): for an
+old label `X` of `oldDoms`, a family `J` with a good site, and a set `T` of cubes with
+`d_Ω(T) < ∞`, output label `Y` and the cubes of the site inside `T`, the fine sets of `X` and of the
+site lie in the fine set of `Y` (`d7Pull_subset_outLabelAt`, `markSiteAt_subset_outLabel`). -/
+theorem subset_outLabel_of_mark {m₀ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (r r' : ℕ)
+    {X : Finset (Torus S.d (n k))} (hXd : X ∈ oldDoms Fr H k)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (Y : Finset (Torus S.d (n (k + 1))))
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull Fr (k + 1) (OmegaCube H (k + 1)))))
+    (hTY : outLabel Fr k (OmegaCube H (k + 1)) T = Y)
+    (hfin : dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤)
+    (hJ : GoodJAt g hnn hM1 Fr H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube H (k + 1))) (σ X) X J)
+    (hT : blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube H (k + 1)))
+      (markSiteAt g hnn hM1 Fr H hk hρ r r' (σ X) X J) ⊆ T) :
+    d7Pull Fr k (X : Set (Torus S.d (n k))) ⊆ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) ∧
+      markSiteAt g hnn hM1 Fr H hk hρ r r' (σ X) X J ⊆
+        d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) := by
+  obtain ⟨hb, hm⟩ := Finset.mem_filter.1 hXd
+  subst hTY
+  exact ⟨d7Pull_subset_outLabelAt (σ := σ) Fr hnn hM1 H hk hρ (mem_bdryDomsAt.1 hb).2 hm r r' J T hT
+    hfin, markSiteAt_subset_outLabel (σ := σ) Fr hnn hM1 H hk hρ r r' X J hJ T hT hfin⟩
+
 /-- **The local conditions of the old part at an output label from the named inputs** (reading
 HS-1′): for a target field of the H7 domain of scale `k + 1` at the fine set of `Y`, the named inputs
 `H7MixedInnerLoc`, `H7MixedDatumLoc` give, for every old label `X` inside `Y` and every family `J`
@@ -589,8 +618,12 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
   have hL : 2 ≤ S.L := by have := HB.hL; omega
   exact norm_oldBAtAt_le_of_dom g hnn hM1 false (fun X => X) hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
     hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hXs Y
-    (fun X _ J hsub hsite => locConds_of_h7MixedLoc g hnn hM1 hk hk1 hρ z h₀ a₁ ν β p₁ δ hL ρ r r'
-      hIn hDat Y htgt X J hsub hsite)
+    (fun X hX J T hTY hfin hJ hT => locConds_of_h7MixedLoc g hnn hM1 hk hk1 hρ z h₀ a₁ ν β p₁ δ hL ρ r
+      r' hIn hDat Y htgt X J
+      (subset_outLabel_of_mark g hnn hM1 Fr A.H hk hρ (fun X => X) r r' (hXs X hX).2 J Y T hTY hfin hJ
+        hT).1
+      (subset_outLabel_of_mark g hnn hM1 Fr A.H hk hρ (fun X => X) r r' (hXs X hX).2 J Y T hTY hfin hJ
+        hT).2)
     inner cb hcb hp I ψout hrψ hfac hres hCres hκV hαX
 
 /-- **A polynomial times `2^{c₁(1+D)}` is absorbed by the rate** (`1 + D ≤ e^D`): for `D ≥ 0` and
@@ -700,9 +733,13 @@ theorem norm_oldBOf_le_of_dom (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n
     (Y : Finset (Torus S.d (n (k + 1)))) (p : FinFieldC S n M K N × FinFieldC S n M K N ×
       (GIdx S n M K N → ℂ))
     (hloc : ∀ X ∈ oldDoms Fr A.H k, ∀ J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
-      d7Pull Fr k (X : Set (Torus S.d (n k))) ⊆ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
-      markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J ⊆
-        d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
+      ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
+      outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
+      dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
+      GoodJAt g hnn hM1 Fr A.H hk hρ r r' (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (σ X) X J →
+      blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))
+        (markSiteAt g hnn hM1 Fr A.H hk hρ r r' (σ X) X J) ⊆ T →
       InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D' ∧
       ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
         ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
@@ -823,8 +860,10 @@ theorem norm_oldB_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : �
   have hL : 2 ≤ S.L := by have := HB.hL; omega
   exact norm_oldBOf_le_of_dom g hnn hM1 false (fun X => X) hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ
     hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hXs Y p
-    (fun X _ J hsub hsite => locConds_of_h7MixedLoc g hnn hM1 hk hk1 hρ z h₀ a₁ ν β p₁ δ hL ρ r r'
-      hIn hDat Y htgt X J hsub hsite)
+    (fun X hX J T hTY hfin hJ hT => locConds_of_h7MixedLoc g hnn hM1 hk hk1 hρ z h₀ a₁ ν β p₁ δ hL ρ r
+      r' hIn hDat Y htgt X J
+      (subset_outLabel_of_mark g hnn hM1 Fr A.H hk hρ (fun X => X) r r' hX J Y T hTY hfin hJ hT).1
+      (subset_outLabel_of_mark g hnn hM1 Fr A.H hk hρ (fun X => X) r r' hX J Y T hTY hfin hJ hT).2)
     inner cb hcb hp I ψout hrψ hfac hres hCres hκV hαX hκ'
 
 end Bound

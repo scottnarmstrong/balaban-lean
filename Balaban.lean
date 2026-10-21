@@ -2525,6 +2525,7 @@ public import Balaban.LargeField.R.WindowRegionGeom
 public import Balaban.LargeField.R.WindowRegion
 public import Balaban.LargeField.R.WindowRegionUnion
 public import Balaban.LargeField.R.WindowRegionDecomp
+public import Balaban.SmallField.IrrelTorusOn
 public import Balaban.SmallField.IrrelTorus
 public import Balaban.SmallField.IrrelTorusSum
 public import Balaban.SmallField.IrrelTorusBoundTube
@@ -3039,7 +3040,9 @@ public import Balaban.Inhabited.NewLevelCanonPins
 public import Balaban.Polymer.PolyDomBoxMap
 public import Balaban.Polymer.FderivTransfer
 public import Balaban.Polymer.IrrelBoxTransfer
+public import Balaban.Polymer.IrrelTorusOnBox
 public import Balaban.Polymer.IrrelTorusBox
+public import Balaban.Polymer.IrrelTorusBCell
 public import Balaban.Inhabited.NewLevelClassPair
 public import Balaban.Inhabited.NewLevelClassE
 public import Balaban.Inhabited.NewLevelCanonBox
@@ -3080,6 +3083,8 @@ public import Balaban.Spine.LFOldBBound
 public import Balaban.Spine.LFOldResum
 public import Balaban.Spine.LFOldH7Refute
 public import Balaban.Spine.LFOldHS2
+public import Balaban.Spine.LFOldHS2Chain
+public import Balaban.Spine.LFOldHS2D7
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads
@@ -3196,3 +3201,10 @@ public import Balaban.Inhabited.NewLevelTowerFamily
 public import Balaban.Inhabited.NewLevelConstants
 public import Balaban.Inhabited.NewLevelLocalFamilyBirth
 public import Balaban.Inhabited.StepTowerRotChainBirth
+public import Balaban.LargeField.R.WindowDuBranch
+public import Balaban.LargeField.R.WindowDuFlowEst
+public import Balaban.LargeField.R.WindowDuBound
+public import Balaban.LargeField.Operators.KerBoundOn
+public import Balaban.Green.FinalBoxLocCore
+public import Balaban.Green.FinalBoxLocCut
+public import Balaban.Green.FinalBoxLocCubic
