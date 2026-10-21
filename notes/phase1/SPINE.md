@@ -776,8 +776,13 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `unitRep_mem_of_mem_locUnits`, `oldMarkLF_depOn_markSite`, `oldClusterLF`, **`oldClusterLF_spec`: the bound
   `C_PE fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|} e^{(κ_H-κ₀) 𝗱(V)} e^{-κ' d_Ω(T)}` and the support of the cluster term
   of the mark of (X, J)**, conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc`; the package enters only through its
-  constants). Next: (g2)(iii)-b (frame bridge, output labels), (g2)(iii)-c (`oldB` as `BTerms`, the named Prop 3.3
-  on a region over the fields, the bound at one output label).
+  constants). Piece 5k–5l: the cluster expansion runs on the cells of scale `k+1` of `Ω_{k+1}` on the frame torus of
+  (D7) (`toFrame`, `markSite`, `oldClusterLF` on the frame; `HoleStep.markOf`/`oldMarkLF` take cubes of any type,
+  `HoleStep.cubeMeasure`); the output label of `(X, J, T)` is `Ŷ(T)` (FLUCTUATION Theorem 3.1 (c), P6 p. 34–35;
+  `Spine/LFOldOut`: `outLabel`, `outLabel_spec` valid at `Ω_{k+1}` with size `d_Ω(T)`, `d7Pull_subset_outLabel` the old
+  label inside the output label). Not the assignments of `oldAssign` with the cubes of `T` as patches: the cubes of `T`
+  may be joined only through holes of `Ω_{k+1}`, so they need not form a `PatchChain` inside `Ω_{k+1}`. Next:
+  (g2)(iii)-c (`oldB` as `BTerms`, the named Prop 3.3 on a region over the fields, the bound at one output label).
 
 ## LastIntegralInput sub-inputs (W1108)
 
