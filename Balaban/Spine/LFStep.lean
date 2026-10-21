@@ -906,7 +906,7 @@ theorem lfBudgetInput_of_pin {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀
   intro κ hκ c₉ hc₉
   obtain ⟨b, hb⟩ := hP κ hκ c₉ hc₉
   obtain ⟨hL3, ha1, -, -, -, -, -, -, -, -, -, -, -, -, -, ⟨hTok, hθ, -, hH0, hc1, hLM, hcv⟩, -,
-    hq⟩ := hA1 κ hκ c₉ hc₉
+    hq, -⟩ := hA1 κ hκ c₉ hc₉
   obtain ⟨x₀, hx₀⟩ := exists_good_lamHat ({ T κ c₉ with d := d } : Typing) hTok hθ
   have hd3 : 3 ≤ d := hTok.three_le_d
   have hL2 : 2 ≤ (T κ c₉).L := by omega

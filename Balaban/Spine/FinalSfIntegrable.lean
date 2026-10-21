@@ -172,9 +172,7 @@ variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ �
 
 /-- **The small-field factor of the whole torus is integrable at the stopping scale** (A6-3 (a),
 item 1). -/
-theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
-    (hsep : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
-      bgR0 d (T κ c₉).L ≤ minSep (T κ c₉).L (M1 κ c₉)) :
+theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) :
     ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
     ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
     ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
@@ -192,7 +190,7 @@ theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M
         Measurable (fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g) ∧
         Integrable fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g := by
   intro κ hκ c₉ hc₉
-  obtain ⟨hL3, haKer1, haKer2, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -⟩ :=
+  obtain ⟨hL3, haKer1, haKer2, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -, -, hsepM⟩ :=
     hPre κ hκ c₉ hc₉
   have hd : 3 ≤ d := hTy.1.three_le_d
   have hLr : (2 : ℝ) ≤ (T κ c₉).L := by exact_mod_cast (by omega : 2 ≤ (T κ c₉).L)
@@ -253,7 +251,7 @@ theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M
       (F.ctx hM6 hkK nK).weights (cs.muBg (j + 1)) := by
     have hM1 : (geo nK).M1 = M1 κ c₉ := (hgeo nK).1
     rw [hM1]
-    refine bgHyp_of_ideal (L := (T κ c₉).L) hd hL3 (hsep κ hκ c₉ hc₉) hsf.coeff.a_ge hsf.coeff.a_lt
+    refine bgHyp_of_ideal (L := (T κ c₉).L) hd hL3 hsepM hsf.coeff.a_ge hsf.coeff.a_lt
       ?_ hcapBg
     rw [hμBg]; unfold sfBgMassAt physMass; positivity
   have hνpos : ∀ jj, jj ≤ j + 1 → 0 < F.sf.ν jj := by

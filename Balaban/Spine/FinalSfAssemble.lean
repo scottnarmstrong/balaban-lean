@@ -82,17 +82,14 @@ def FinalSfGaussInput : Prop :=
 
 /-- **`FinalSmallFieldInput` from its Gaussian form** (A6-3, assembly): `Ξ^sf` is the Gaussian
 average (`sfIntegral_eq_gauss`, the measurability of `sfFactor2` from
-`measInt_sfFactor2_of_flatRep`). The premises beyond `FinalSfGaussInput` are the prefix (`hPre`) and
-the typing premise that the cube generating sets are separated by at least `R₀(d, L)`: `hsep`,
-`bgR0 d L ≤ 5 L M₁`. -/
+`measInt_sfFactor2_of_flatRep`). The premises beyond `FinalSfGaussInput` are the prefix (`hPre`), which
+also gives the separation `bgR0 d L ≤ 5 L M₁` of the cube generating sets. -/
 theorem finalSmallFieldInput_of_gaussForm (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
-    (hsep : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
-      bgR0 d (T κ c₉).L ≤ minSep (T κ c₉).L (M1 κ c₉))
     (hG : FinalSfGaussInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
     FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, h₁⟩ := hG κ hκ c₉ hc₉
-  obtain ⟨β₂, h₂⟩ := measInt_sfFactor2_of_flatRep d N δ T P6 C7 PB cs₀ M1 c rH ϱ hPre hsep κ hκ c₉ hc₉
+  obtain ⟨β₂, h₂⟩ := measInt_sfFactor2_of_flatRep d N δ T P6 C7 PB cs₀ M1 c rH ϱ hPre κ hκ c₉ hc₉
   refine ⟨max β₁ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hkkf ρ νk hM6 hkK R geo cs P F St vc
     hF hstop => ?_⟩
   obtain ⟨a, E, hA, hid⟩ := h₁ β ((le_max_left _ _).trans hβ) ν hν hνL h hh kf hkf k hk1 hkkf ρ νk

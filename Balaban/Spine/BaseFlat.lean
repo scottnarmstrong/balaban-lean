@@ -91,7 +91,7 @@ theorem baseFlatStepInput_of_parts {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB 
   obtain ⟨b₇, h₇⟩ := hO κ hκ c₉ hc₉
   obtain ⟨b₈, h₈⟩ := hCh κ hκ c₉ hc₉
   obtain ⟨b₀, h₀⟩ := prefixBudgetFacts d δ T P6 C7 PB cs₀ M1 c ϱ hP κ hκ c₉ hc₉
-  obtain ⟨-, -, -, -, -, -, -, hM6, -, -, -, -, -, -, -, -, -, hflow⟩ := hP κ hκ c₉ hc₉
+  obtain ⟨-, -, -, -, -, -, -, hM6, -, -, -, -, -, -, -, -, -, hflow, -⟩ := hP κ hκ c₉ hc₉
   refine ⟨max (max (max b₁ b₂) (max b₄ b₅)) (max (max b₆ b₇) (max b₈ b₀)), ?_⟩
   intro β hβ ν hν hνL h hh kf hkf _ _ hk0
   simp only [max_le_iff] at hβ

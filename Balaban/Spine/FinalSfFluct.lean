@@ -44,7 +44,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 
 /-- **The vacuum term of the small-field factor at the constant configuration**
 (`ℰ_k(h) - E_k |T|_k`, independent of the source). -/
-noncomputable def vacConst (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+noncomputable def fluctVacConst (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (hv : EuclideanSpace ℝ (Fin N)) : ℂ :=
   EresK2 C vc Set.univ (fun _ => hv) hv -
     ((C.sf.E C.N₁ * volK M (Set.univ : Set (Torus S.d (n k))) : ℝ) : ℂ)
@@ -96,19 +96,17 @@ def FinalSfFluctInput : Prop :=
 /-- **`FinalSmallFieldInput` from the Gaussian average of the fluctuation integrand**
 (A6-3, assembly). -/
 theorem finalSmallFieldInput_of_fluctForm (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
-    (hsep : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
-      bgR0 d (T κ c₉).L ≤ minSep (T κ c₉).L (M1 κ c₉))
     (hG : FinalSfFluctInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
     FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, h₁⟩ := hG κ hκ c₉ hc₉
-  obtain ⟨β₂, h₂⟩ := measInt_sfFactor2_of_flatRep d N δ T P6 C7 PB cs₀ M1 c rH ϱ hPre hsep κ hκ c₉ hc₉
+  obtain ⟨β₂, h₂⟩ := measInt_sfFactor2_of_flatRep d N δ T P6 C7 PB cs₀ M1 c rH ϱ hPre κ hκ c₉ hc₉
   refine ⟨max β₁ β₂, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hkkf ρ νk hM6 hkK R geo cs P F St vc
     hF hstop => ?_⟩
   obtain ⟨a, E, hA, hid⟩ := h₁ β ((le_max_left _ _).trans hβ) ν hν hνL h hh kf hkf k hk1 hkkf ρ νk
     hM6 hkK R geo cs P F St vc hF hstop
   refine ⟨a, fun nK => if hnK : nK ≠ 0 then
-    (haveI : NeZero nK := ⟨hnK⟩; E nK + vacConst (F.ctx hM6 hkK nK) vc h) else 0, hA,
+    (haveI : NeZero nK := ⟨hnK⟩; E nK + fluctVacConst (F.ctx hM6 hkK nK) vc h) else 0, hA,
     fun nK _ g hg => ?_⟩
   have hnK : nK ≠ 0 := NeZero.ne nK
   obtain ⟨Kq, hK, heq⟩ := hid nK g hg
@@ -137,7 +135,7 @@ theorem finalSmallFieldInput_of_fluctForm (hPre : PrefixInput d δ T P6 C7 PB cs
     _ = _ := by
         rw [heq, ← Complex.exp_add]
         congr 1
-        have hX' : X₀ = vacConst (F.ctx hM6 hkK nK) vc h +
+        have hX' : X₀ = fluctVacConst (F.ctx hM6 hkK nK) vc h +
             (∑ y : Torus d ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
                 (T κ c₉).L ^ (kf + 1)), ∑ i : Fin N, g (y, i) * (h i : ℂ)) +
             ∑ j ∈ Finset.Icc 1 k, ∑ X : Finset (Torus d ((T κ c₉).M *
