@@ -119,12 +119,16 @@ theorem fnOfDec_unique
     (hSol' : SolSpec Gp Hm a₁ ν BG BG₂ κ eps δ₁ Sol')
     {Φ : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
       RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    {Φ' : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) → (Hm.Ω 1 × Fin N → ℂ) →
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) → ℂ}
+    (hΦ : ∀ t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁, Φ t.1 t.2.1 t.2.2 = Φ' t.1 t.2.1 t.2.2)
     {u : RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)}
     (hu : u ∈ XiCRaw Gp (compWeight L a₁) ν (k + 1) 1 eps ×ˢ FlBall Hm δ₁)
+    (hlc : IsLayerConstant Hm u.2)
     {s : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ}
     (hs : s ∈ polydisc (0 : ParIdx Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
       (fun _ => Real.exp κ)) :
-    fnOfDec Gp Hm X₁f F₁ Sol Φ u s = fnOfDec Gp Hm X₁f F₁' Sol' Φ u s := by
+    fnOfDec Gp Hm X₁f F₁ Sol Φ u s = fnOfDec Gp Hm X₁f F₁' Sol' Φ' u s := by
   obtain ⟨⟨D, hD, hDu⟩, hψ⟩ := hu
   obtain ⟨u1, ψ'⟩ := u
   have hs' : ∀ i, ‖s i‖ < Real.exp κ := fun i => by simpa using hs i
@@ -141,15 +145,22 @@ theorem fnOfDec_unique
       (Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
         flEdat Gp Hm (F₁ (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
           (rawOf D).1 ψ')).1 (rawOf D, ψ') =
-    Φ (F₁' (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
+    Φ' (F₁' (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
       (Sol' (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
         flEdat Gp Hm (F₁' (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s, rawOf D))
           (rawOf D).1 ψ')).1 (rawOf D, ψ')
   rw [← hFF, hF]
-  congr 2
-  refine Sol_unique hSol hSol' ?_ ?_
-  · exact hsx
-  · exact hstr
+  have hSS : Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+      flEdat Gp Hm (φ, α) (rawOf D).1 ψ') =
+      Sol' (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+      flEdat Gp Hm (φ, α) (rawOf D).1 ψ') := by
+    refine Sol_unique hSol hSol' ?_ ?_
+    · exact hsx
+    · exact hstr
+  have hS1 : Sol (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s,
+      flEdat Gp Hm (φ, α) (rawOf D).1 ψ') = (δφ, δα) := hS
+  rw [hS1, ← hSS, hS1]
+  exact hΦ _ ⟨hmem, hlc⟩
 
 /-- **The expansion terms of a hat-variable functional agree for two pinned pairs.** -/
 theorem evTermHat_unique (hk : 1 ≤ k)
@@ -199,9 +210,9 @@ theorem evTermHat_unique (hk : 1 ≤ k)
     fnOfDec Gp Hm X₁f F₁' Sol' Φ (rawOf D, hatPsiF Gp a₁ ν hG' cc F₁'
       (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh) s
   rw [← hatPsiF_unique hG' cc hFF]
-  refine fnOfDec_unique hC hF₁ hF₁' hSol hSol' (Φ := Φ)
+  refine fnOfDec_unique hC hF₁ hF₁' hSol hSol' (Φ := Φ) (Φ' := Φ) (fun _ _ => rfl)
     (u := (rawOf D, hatPsiF Gp a₁ ν hG' cc F₁
-      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)) ?_ hs
+      (extParams Gp (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) s) (rawOf D) ψh)) ?_ hmem.2 hs
   exact ⟨⟨D, hD, rfl⟩, hmem.1⟩
 
 end Pin
