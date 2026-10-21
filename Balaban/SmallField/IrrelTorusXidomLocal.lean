@@ -28,31 +28,40 @@ variable {d L N₁ m₁ k N m₀ : ℕ} [NeZero L] [NeZero N₁]
   {ψ : Site d → Spin N} {b : Spin N}
   {Dom : Set ((Site d → Spin N) × Spin N)}
 
-/-- The placed field of a `DataHypAniso` datum stays in the spin polydisc on a small
-polymer, provided its real-frame centre and the path length fit in the radius. -/
-theorem local_spin_bound_of_dataHyp
+/-- **The increments of a `DataHypAniso` datum on a polymer**: the first-difference bound along
+`ℓ¹` paths and the diameter bound of the polymer give
+`‖ψ(s) - ψ(0)‖ ≤ diamA (1 + d_j(X)) σ ε` on the placements `s ∈ S` of its aligned sites. -/
+theorem incr_of_dataHyp
     (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
     (hX : IsPolyDom m₀ j X) (hyX : y ∈ X)
     (hS' : ∀ s ∈ S, ∃ x ∈ X, Aligned (L ^ j) x ∧
       unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y) = s)
     (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
-    (hσε : 0 ≤ σ * ε)
+    (hσε : 0 ≤ σ * ε) :
+    ∀ s ∈ S, ‖ψ s - ψ 0‖ ≤ diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) * (σ * ε) := by
+  intro s hz
+  obtain ⟨x, hx, hxa, hxs⟩ := hS' s hz
+  have hgeom : (l1 s : ℝ) ≤ diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) := by
+    rw [l1_cast, ← hxs]
+    exact unlift_sub_diam hjk hX hx hyX hxa hy
+  have hp := norm_sub_le_l1 dat.adj 0 s
+  simp only [zero_add] at hp
+  exact hp.trans (mul_le_mul_of_nonneg_right hgeom hσε)
+
+omit [NeZero L] [NeZero N₁] in
+/-- **The placed field of a datum with bounded increments stays in the spin polydisc** (core of
+`local_spin_bound_of_dataHyp`): if `‖ψ(s) - ψ(0)‖ ≤ ℓ σ ε` on `S` and the real-frame centre and
+`ℓ σ ε` fit in the radius. -/
+theorem local_spin_bound_of_incr {ℓ : ℝ}
+    (hincr : ∀ s ∈ S, ‖ψ s - ψ 0‖ ≤ ℓ * (σ * ε))
     (hcentre : ∀ i, ‖ψ 0 i - (Pi.single i₀ 1 : Spin N) i‖ ≤ q)
-    (hsmall : q + diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) * (σ * ε) ≤ r) :
+    (hsmall : q + ℓ * (σ * ε) ≤ r) :
     ∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S →
       ∀ i, ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
         (pack S ψ b) (z - y) i - (Pi.single i₀ 1 : Spin N) i‖ ≤ r := by
   intro z hz i
   let s := unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y)
-  obtain ⟨x, hx, hxa, hxs⟩ := hS' s hz
-  have hgeom : (l1 s : ℝ) ≤ diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) := by
-    rw [l1_cast, ← hxs]
-    exact unlift_sub_diam hjk hX hx hyX hxa hy
-  have hpath : ‖ψ s - ψ 0‖ ≤
-      diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) * (σ * ε) := by
-    have hp := norm_sub_le_l1 dat.adj 0 s
-    simp only [zero_add] at hp
-    exact hp.trans (mul_le_mul_of_nonneg_right hgeom hσε)
+  have hpath : ‖ψ s - ψ 0‖ ≤ ℓ * (σ * ε) := hincr s hz
   have heq : fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
       (pack S ψ b) (z - y) i = ψ s i := by
     simp only [fieldOf, s, hz, ↓reduceDIte, pack, Sum.elim_inl]
@@ -69,5 +78,21 @@ theorem local_spin_bound_of_dataHyp
         simpa only [Pi.sub_apply] using (norm_le_pi_norm (ψ s - ψ 0) i)
       exact add_le_add hi (hcentre i)
     _ ≤ r := by linarith
+
+/-- The placed field of a `DataHypAniso` datum stays in the spin polydisc on a small
+polymer, provided its real-frame centre and the path length fit in the radius. -/
+theorem local_spin_bound_of_dataHyp
+    (hjk : j ≤ k) (hy : Aligned (L ^ j) y)
+    (hX : IsPolyDom m₀ j X) (hyX : y ∈ X)
+    (hS' : ∀ s ∈ S, ∃ x ∈ X, Aligned (L ^ j) x ∧
+      unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y) = s)
+    (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
+    (hσε : 0 ≤ σ * ε)
+    (hcentre : ∀ i, ‖ψ 0 i - (Pi.single i₀ 1 : Spin N) i‖ ≤ q)
+    (hsmall : q + diamA d L m₀ m₁ * (1 + sizeJ m₀ j X) * (σ * ε) ≤ r) :
+    ∀ z, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S →
+      ∀ i, ‖fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
+        (pack S ψ b) (z - y) i - (Pi.single i₀ 1 : Spin N) i‖ ≤ r :=
+  local_spin_bound_of_incr (incr_of_dataHyp hjk hy hX hyX hS' dat hσε) hcentre hsmall
 
 end Balaban.SmallField.Def6v2
