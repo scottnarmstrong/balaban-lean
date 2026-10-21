@@ -104,7 +104,7 @@ theorem lf4R_removed_of_flow
       a = RegionHistory.localHistory H M K (j + 1) ⟨(cz z).1, hY⟩ ∧
       S.Ripe (j + 1) (H.bk (j + 1) ⟨(cz z).1, hY⟩) ∧
       κpre z a = H.kappaPre P j (H.kappa P κK j) ⟨(cz z).1, hY⟩)
-    (hwin : ∀ z, ∀ a ∈ Hs z, KerBound a (j + 1) (Tr a) (κpre z a - S.CR * S.lam (j + 1) ^ (2 * S.d + 1)))
+    (hwin : ∀ z, ∀ a ∈ Hs z, KerBoundAt a (j + 1) (Tr a) hv (κpre z a - S.CR * S.lam (j + 1) ^ (2 * S.d + 1)))
     (hh : fac * Real.exp fac * Real.exp (κ' * cG S.d S.L) *
         (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1)) +
       κ' * (1 + cG S.d S.L) + c1 S.d S.L + 3 +
