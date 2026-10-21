@@ -341,4 +341,131 @@ theorem baseCoord_div {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : ZMod 
 
 end Cells
 
+section Torus
+
+variable {d n : ℕ} [NeZero n]
+
+theorem baseImg_apply_perm (A : AffIso d n) (lam : ℕ) (y : Torus d n) (μ : Fin d) :
+    baseImg A lam y (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn n (A.flip μ) * y μ -
+      (if A.flip μ then ((lam - 1 : ℕ) : ZMod n) else 0) := by
+  simp [baseImg, AffIso.toFun]
+
+theorem toFun_apply_perm (A : AffIso d n) (y : Torus d n) (μ : Fin d) :
+    A.toFun y (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn n (A.flip μ) * y μ := by
+  simp [AffIso.toFun]
+
+/-- **The base of the image cell is a base iff the base of the cell is** (cells of side `lam`). -/
+theorem baseImg_base_iff (A : AffIso d n) {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n)
+    (hA : A.Aligned lam) (y : Torus d n) :
+    (∀ μ, (baseImg A lam y μ).val % lam = 0) ↔ ∀ μ, (y μ).val % lam = 0 := by
+  constructor
+  · intro h μ
+    have := h (A.perm μ)
+    rw [baseImg_apply_perm, ← Nat.dvd_iff_mod_eq_zero] at this
+    rw [← Nat.dvd_iff_mod_eq_zero]
+    exact (baseCoord_dvd_iff hlam hn _ _ _ (by simpa using hA (A.perm μ))).1 this
+  · intro h i
+    have hi := h (A.perm.symm i)
+    obtain ⟨μ, rfl⟩ := A.perm.surjective i
+    rw [Equiv.symm_apply_apply, ← Nat.dvd_iff_mod_eq_zero] at hi
+    rw [baseImg_apply_perm, ← Nat.dvd_iff_mod_eq_zero]
+    exact (baseCoord_dvd_iff hlam hn _ _ _ (by simpa using hA (A.perm μ))).2 hi
+
+/-- **The base of the image cell lies in the image cell**: for a base `y`, `A y` and `baseImg A y`
+are in the same cell. -/
+theorem sameCell_baseImg (A : AffIso d n) {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n)
+    (hA : A.Aligned lam) (y : Torus d n) (hy : ∀ μ, (y μ).val % lam = 0) :
+    SameCell lam (baseImg A lam y) (A.toFun y) := by
+  intro i
+  obtain ⟨μ, rfl⟩ := A.perm.surjective i
+  rw [baseImg_apply_perm, toFun_apply_perm]
+  exact baseCoord_div hlam hn _ _ _ (by simpa using hA (A.perm μ))
+    (Nat.dvd_of_mod_eq_zero (hy μ))
+
+end Torus
+
+/-! ### Compatibility with the covers of two generating sets -/
+
+section CoverAff
+
+variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+
+/-- The mask `(lam - 1)` in the reversed directions. -/
+def baseMask {d n : ℕ} (A : AffIso d n) (lam : ℕ) : Torus d n := fun i =>
+  if A.flip (A.perm.symm i) then ((lam - 1 : ℕ) : ZMod n) else 0
+
+theorem baseImg_eq {d n : ℕ} (A : AffIso d n) (lam : ℕ) (y : Torus d n) :
+    baseImg A lam y = A.toFun y - baseMask A lam := rfl
+
+/-- **The action of `A` on the centres of cubes**: `(j, y₀) ↦ (j, base of the image cell)`. -/
+def affCentres (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (m₁' : ℕ) :
+    Equiv.Perm (ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :=
+  Equiv.prodShear (Equiv.refl ℕ) (fun j =>
+    A.toEquiv.trans (Equiv.subRight (baseMask A (L ^ (j + m₁')))))
+
+theorem affCentres_apply (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (m₁' : ℕ)
+    (q : ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :
+    affCentres (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) A m₁' q =
+      (q.1, baseImg A (L ^ (q.1 + m₁')) q.2) := rfl
+
+variable {G G' : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (A : AffIso d ((N₁ * L ^ m₁) * L ^ K))
+  (hAl : A.Aligned (L ^ (K + m₁))) (hG : CubeAligned G m₁) (hG' : CubeAligned G' m₁)
+  (hΩ : ∀ j x, A.toFun x ∈ G'.Ω j ↔ x ∈ G.Ω j)
+
+include hAl in
+theorem aligned_cube {j : ℕ} (hj : j ≤ K) : A.Aligned (L ^ (j + m₁)) :=
+  fun i => dvd_trans (pow_dvd_pow L (by omega)) (hAl i)
+
+include hΩ in
+theorem layer_aff (j : ℕ) (x : Torus d ((N₁ * L ^ m₁) * L ^ K)) :
+    A.toFun x ∈ G'.layer j ↔ x ∈ G.layer j := by
+  rw [GeneratingSet.mem_layer, GeneratingSet.mem_layer, hΩ j, hΩ (j + 1)]
+
+include hAl hG hG' hΩ in
+theorem cover_idx_aff (q : ℕ × CTorus d L N₁ m₁ K) :
+    affCentres (m₁ := m₁) A m₁ q ∈ (coverOf G').cubeIdx ↔ q ∈ (coverOf G).cubeIdx := by
+  show (q.1, baseImg A (L ^ (q.1 + m₁)) q.2) ∈ cubeIdx G' ↔ q ∈ cubeIdx G
+  rw [mem_cubeIdx, mem_cubeIdx]
+  constructor
+  · rintro ⟨hr, hl, hb⟩
+    have hr' : 1 ≤ q.1 ∧ q.1 ≤ K := hr
+    have hAj := aligned_cube A hAl hr'.2
+    have hpos : 0 < L ^ (q.1 + m₁) := by have := NeZero.pos L; positivity
+    have hb' : CubeBase m₁ q.1 q.2 :=
+      (baseImg_base_iff A hpos (dvd_side hr'.2) hAj q.2).1 hb
+    have hc := sameCell_baseImg A hpos (dvd_side hr'.2) hAj q.2 hb'
+    refine ⟨hr', ?_, hb'⟩
+    have hl' : baseImg A (L ^ (q.1 + m₁)) q.2 ∈ G'.layer q.1 := hl
+    exact (layer_aff A hΩ q.1 q.2).1 ((hG'.mem_layer_iff hr'.1 hr'.2 hc).1 hl')
+  · rintro ⟨hr, hl, hb⟩
+    have hAj := aligned_cube A hAl hr.2
+    have hpos : 0 < L ^ (q.1 + m₁) := by have := NeZero.pos L; positivity
+    have hc := sameCell_baseImg A hpos (dvd_side hr.2) hAj q.2 hb
+    refine ⟨hr, ?_, (baseImg_base_iff A hpos (dvd_side hr.2) hAj q.2).2 hb⟩
+    exact (hG'.mem_layer_iff hr.1 hr.2 hc).2 ((layer_aff A hΩ q.1 q.2).2 hl)
+
+include hAl hG hG' hΩ in
+theorem coverDenom_aff (x : CTorus d L N₁ m₁ K) :
+    coverDenom G' (A.toFun x) = coverDenom G x := by
+  unfold coverDenom
+  refine (Finset.sum_equiv (affCentres (m₁ := m₁) A m₁)
+    (fun q => (cover_idx_aff A hAl hG hG' hΩ q).symm) fun q _ => ?_).symm
+  rw [affCentres_apply]
+  exact (cubeBump_aff A q.1 q.2 x).symm
+
+include hAl hG hG' hΩ in
+theorem cover_chi_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) :
+    (coverOf G').chi (affCentres (m₁ := m₁) A m₁ q) (A.toFun x) = (coverOf G).chi q x := by
+  show chi G' (q.1, baseImg A (L ^ (q.1 + m₁)) q.2) (A.toFun x) = chi G q x
+  unfold chi
+  rw [coverDenom_aff A hAl hG hG' hΩ x]
+  exact congrArg (· / coverDenom G x) (cubeBump_aff A q.1 q.2 x)
+
+theorem cover_box_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) :
+    A.toFun x ∈ intBox (affCentres (m₁ := m₁) A m₁ q) ↔ x ∈ intBox q := by
+  rw [mem_intBox, mem_intBox]
+  exact inBox_aff_iff A q.1 q.2 x _
+
+end CoverAff
+
 end Balaban.Localization.DecEquiv
