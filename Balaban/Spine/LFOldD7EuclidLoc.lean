@@ -356,6 +356,25 @@ theorem holeStepLoc_D'_aff_h (σ : LatTorusSym S n M K) (hI : RegionIso σ H H')
   · rw [if_pos hx, if_pos (hΩ1.2 hx)]
   · rw [if_neg hx, if_neg (fun h => hx (hΩ1.1 h))]
 
+/-- **The local steps of two histories related by a lattice symmetry are related by `StepAff`.** -/
+theorem holeStepLoc_stepAff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hm₁ : 2 ≤ m₁) :
+    StepAff (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V)
+      (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)) (coverAff g hnn hM1 σ hk) where
+  hAl := coverAff_aligned g hnn hM1 σ hk
+  hΩ := holeStepLoc_G_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI
+  hΩ' := holeStepLoc_G'_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI
+  hca := holeStepLoc_cubeAligned g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hm₁
+  hca' := holeStepLoc_cubeAligned g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _ hm₁
+  hΨ := holeStepLoc_D'_aff_Ψ g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁
+  hh := holeStepLoc_D'_aff_h g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI
+  ha₁ := (holeStepLoc_consts g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _).2.1.trans
+    (holeStepLoc_consts g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).2.1.symm
+  hν := (holeStepLoc_consts g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _).2.2.1.trans
+    (holeStepLoc_consts g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).2.2.1.symm
+  hβ := (holeStepLoc_consts g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _).2.2.2.1.trans
+    (holeStepLoc_consts g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).2.2.2.1.symm
+
 end LocStep
 
 end Balaban.RootFSpine
