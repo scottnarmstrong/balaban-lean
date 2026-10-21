@@ -3038,6 +3038,7 @@ public import Balaban.LargeField.Base.BaseFRWhiteLogDet
 public import Balaban.LargeField.Base.BaseFRWhiteLogDetSeries
 public import Balaban.LargeField.Base.BaseFRWhiteReal
 public import Balaban.LargeField.Base.BaseFRWhiteConfig
+public import Balaban.LargeField.Base.BaseFirstAllGoodWhiteInst
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
