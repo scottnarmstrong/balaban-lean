@@ -45,7 +45,9 @@ This file defines these objects for an arbitrary pair of generating sets `G ≺ 
   layer and the values of `ψ^{(k)}(θ̃)` elsewhere (P5 (2.20): the decomposition of `ψ_k` on
   `Ω_{k+1}`, the other values of the datum unchanged);
 * the localized objects (P5 (2.18), (2.35)): for a decoupling cover `C` and a localization map
-  `sloc` (the decoupling vector attached to each unit point), `psiKdAt`, `covSqrtAt` (the decoupled
+  `sloc` (the decoupling vector attached to each unit point; P5's choice is `slocOf`, the vector
+  vanishing on the cover cubes outside the localization domain of the point), `psiKdAt`,
+  `covSqrtAt` (the decoupled
   background and covariance of the pair `(C, G')` at a decoupling vector), `psiLoc`, `shiftLoc`
   (`ψ^{(k)}_loc(θ)` and `β_k^{-1/2} C^{(k)1/2}_loc ψ̂` of (2.39), read row by row at the vector of the
   row), `composed` (the field of (2.39)) and `composedData` (the datum of `G` it determines).
@@ -289,6 +291,32 @@ noncomputable def covSqrtAt (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ) (s :
   Dec2.decCovSqrt C S.G' S.a S.a₁ S.ν (Dec2.decBgMult C S.G' S.a S.ν ρ s S.D')
     (Dec2.extS C s)
     (svec S.G' (Dec2.decBgField C S.G' S.a S.ν ρ s S.D')) (unitQ S.G') (unitP S.G')
+
+variable (S) in
+open Classical in
+/-- **The localization vector of P5 (2.18), (2.35)** at a unit point `b` with the localization
+domain `X₁ b` (P5: `X₁ = R_{k+1}(□')` for the cube `□' ∋ b`), times a decoupling vector `s`: the
+parameters of the cover cubes not contained in `X₁ b` are set to `0` (the localization extension
+at `s = 0` outside `X₁`, P3 Proposition 2.3; P6 p. 33 "the same extensions but with `s = 0`
+outside the domain `R_{k+1}(□')`"). -/
+noncomputable def slocOf (C : DecCover d L N₁ m₁ (k + 1))
+    (X₁ : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (s : Dec2.DecParams C) (b : S.U) :
+    Dec2.DecParams C :=
+  fun P => s P * if cubeP (P : ℕ × CTorus d L N₁ m₁ (k + 1)) ⊆ X₁ b then 1 else 0
+
+theorem slocOf_of_subset (C : DecCover d L N₁ m₁ (k + 1))
+    (X₁ : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (s : Dec2.DecParams C) (b : S.U)
+    (P : C.cubeIdx) (h : cubeP (P : ℕ × CTorus d L N₁ m₁ (k + 1)) ⊆ X₁ b) :
+    S.slocOf C X₁ s b P = s P := by
+  classical
+  simp [slocOf, h]
+
+theorem slocOf_of_not_subset (C : DecCover d L N₁ m₁ (k + 1))
+    (X₁ : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (s : Dec2.DecParams C) (b : S.U)
+    (P : C.cubeIdx) (h : ¬ cubeP (P : ℕ × CTorus d L N₁ m₁ (k + 1)) ⊆ X₁ b) :
+    S.slocOf C X₁ s b P = 0 := by
+  classical
+  simp [slocOf, h]
 
 variable (S) in
 /-- **`ψ^{(k)}_loc(θ)` of P5 (2.39)** on the unit points of the new region: at the unit point `b`,
