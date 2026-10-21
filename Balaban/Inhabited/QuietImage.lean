@@ -9,6 +9,7 @@ public import Balaban.LargeField.Operators.QuietLocalIso
 public import Balaban.LargeField.Operators.QuietLocalInput
 public import Balaban.LargeField.Region.SymmLoc
 public import Balaban.LargeField.History.ImageHistBook
+public import Balaban.LargeField.Def7
 
 
 /-!
@@ -152,6 +153,15 @@ theorem quietRealized_iff_of_histImage {k : ℕ} (hI : HistImage σ.toTorusSym a
     have hcomp := (LocalHistory.ImgBy.of_histImage hI).comp hb'
     rw [← pow_succ, Nat.sub_add_cancel hm, hfm] at hcomp
     rwa [← LocalHistory.ImgBy.one (S := S) (n := n) (M := M) (K := K) hcomp]
+
+/-- **`real_euclid` on the tori of the family** (ruling R9): for the side sequence `sides L K nK`
+(a point above the horizon) and `k₀ ≤ K`, the quiet realizable localized histories are closed under
+lattice symmetries, for every number `nK` of top cubes. -/
+theorem real_euclid_sides {S : Setting} [NeZero S.L] {nK : ℕ} [NeZero nK] {R : ℕ → ℝ}
+    {k0 M K : ℕ} [NeZero M] (hk0 : k0 ≤ K) (k : ℕ) (σ : LatTorusSym S (Def7.sides S.L K nK) M K)
+    (a a' : LocalHistory S (Def7.sides S.L K nK) M K) (hI : HistImage σ.toTorusSym a a') :
+    QuietRealized R k0 k a ↔ QuietRealized R k0 k a' :=
+  quietRealized_iff_of_histImage (fun _ hj => Def7.sides_of_gt hj) hk0 hI
 
 end Realized
 

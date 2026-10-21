@@ -1729,3 +1729,16 @@ its neighbours and the polymers of Gk, Gj.  The landed single-cube cover reaches
 cell, which is below 11 L^(k+1+m1) when m0 = 1, L = 3; and `X1 = ⋃ Q0` of a general polymer does not contain the neighbourhood of the
 cells of sites that stick out of the cell of a chosen cube.  So the canonical cover family (XL, chosen family) must be chosen large
 enough, or m0 >= 3 (L = 3) used.  Also, the localB support bound used is `localB_dataSites_range` (11 L^(m1+j) + 1).
+
+### Ruling R9 landed: `sides` above the torus horizon (W1161, 2026-10-21)
+
+`sides L K nK j := if j ≤ K then nK * L^(K-j) else 1` (`LargeField/Def7.lean`), with `sides_of_le`, `sides_of_gt`, `sides_self`; `sides_hnn`
+and the `NeZero` instance reproved.  The whole library builds; only two proofs broke (`Spine/LastIntegral.sideDiv_eq_sfIdx`,
+`Spine/RootF.sideOf_eq`, repaired with `sides_self`/`sides_of_le`); no theorem statement using only `j ≤ K` changed.
+Statements that changed: `sides` itself; `hsub : ∀ j, K < j → n j = 1` (was `K ≤ j`) in `ImageHist`, `ImageHistBook`, `QuietImage`
+(`torus_subsingleton` now takes `K < j`; the proofs already split at `j ≤ K`); `QuietWitness` adapted (`wn_top (by omega)`).
+`real_euclid`: `QuietImage.real_euclid_sides` proves the field of `QuietStepInput'` for the torus sequence `sides L K nK`, every `nK`
+(and `k₀ ≤ K`): quiet realizability is closed under `HistImage` (`quietRealized_iff_of_histImage` with `hsub` from `sides_of_gt`).
+The other fields of `QuietStepInput'` are not affected by R9.
+Also: the W1160 lemma `inBox_of_blocksOf_subset` of `Polymer/TwoTorusLabelBox` clashed with the same name in `TwoTorusObsKernel`
+(main); it is renamed `inBox_of_dom_blocksOf_subset`.
