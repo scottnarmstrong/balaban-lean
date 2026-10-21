@@ -29,11 +29,12 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
 /-- **The term clauses of the v2 class with the strong specification of the local sets**: the
 clauses of `SFTermClauses` and, for every polymer `X ∈ 𝒟_j`, `1 ≤ j ≤ k`, `GsSpecStrong` of
-`Tm.gs j X`. -/
+`Tm.gs j X` and the local form `HatSpec` of ruling R13 (`Tm.gs j X = 𝔹_j(X̂)`). -/
 structure SFTermClausesStrong (P : Consts) (Dom : FieldDom d L N₁ m₁ k N ϱ)
     (Tm : Terms d L N₁ m₁ k N ϱ) : Prop extends SFTermClauses P Dom Tm where
   gsStrong : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
     GsSpecStrong j hjk X (Tm.gs j X)
+  hat : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X → HatSpec P.m₀ j X (Tm.gs j X)
 
 /-! ### The strong clauses from the class `IsSF2` -/
 
@@ -49,6 +50,7 @@ theorem _root_.Balaban.SmallField.Def6v2.IsSF2.termsStrong
     (h : IsSF2 P Rg β a Dom Tm ρd Ek) : SFTermClausesStrong P Dom Tm where
   toSFTermClauses := h.terms
   gsStrong := h.gsStrong
+  hat := h.hat
 
 /-- `StrongGS` for the terms of a member of `IsSF2` (top level `k`). -/
 theorem _root_.Balaban.SmallField.Def6v2.IsSF2.strongGS
@@ -95,15 +97,17 @@ theorem SFTermClausesStrong.hlayer {P : Consts} {Dom : FieldDom d L N₁ m₁ k 
 
 /-- The strong clauses are inhabited: the pinned terms with all coefficients `0` (whole-level
 generating sets) satisfy them for any field domain and any admissible constants with
-`E₀, κ ≥ 0`, `c₉ > 0`. -/
+`E₀, κ ≥ 0`, `c₉ > 0`, when the cubes of the local sets are not finer than the cells
+(`m₀ ≤ hatScale`, so that `HatSpec` asks nothing). -/
 theorem sfTermClausesStrong_pin_nonempty {P : Consts} (hE₀ : 0 ≤ P.E₀) (hκ : 0 ≤ P.κ)
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (Dom : FieldDom d L N₁ m₁ k N ϱ) :
+    (hm : P.m₀ ≤ hatScale L m₁ ϱ) (Dom : FieldDom d L N₁ m₁ k N ϱ) :
     Nonempty (SFTermClausesStrong P Dom (pinTerms d L N₁ m₁ k N ϱ P.κ (fun _ => 0))) := by
   refine ⟨{
     toSFTermClauses := pinTerms_clauses hE₀ hκ (fun _ => le_rfl) (fun j => by
         have := hc9 j; linarith) hc9 (fun j h => absurd rfl h)
-    gsStrong := fun j hj1 hjk X _ => ?_ }⟩
+    gsStrong := fun j hj1 hjk X _ => ?_
+    hat := fun _ _ _ _ _ => hatSpec_of_le hm }⟩
   rw [pinTerms_gs hjk]
   exact levelGS_strong hj1 hjk X
 
@@ -125,7 +129,7 @@ theorem sfTermClausesStrong_witness (Dom : FieldDom d L N₁ m₁ k N ϱ) :
     Nonempty (SFTermClausesStrong witnessConsts Dom
       (pinTerms d L N₁ m₁ k N ϱ witnessConsts.κ (fun _ => 0))) := by
   refine sfTermClausesStrong_pin_nonempty (by simp [witnessConsts]) (by simp [witnessConsts])
-    (fun j => ?_) Dom
+    (fun j => ?_) (by simp [witnessConsts]) Dom
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   simp only [witnessConsts, one_mul]
   positivity

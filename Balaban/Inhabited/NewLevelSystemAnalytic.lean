@@ -9,6 +9,7 @@ public import Balaban.Inhabited.NewLevelSystemLoc
 public import Balaban.Inhabited.NewLevelBridgeMarksBgFields
 public import Balaban.Fluctuation.NewLevelOldTermsBgFields
 public import Balaban.Fluctuation.NewLevelDetBgClauses
+public import Balaban.Fluctuation.LocalClassDensityFamilyGenAmp
 
 /-!
 # Analyticity and bound of the coefficient recomputed from the labels inside the polymer
@@ -137,6 +138,7 @@ theorem zeroAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
+    {κH : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
     (hTm : LabelMargin Gl (sitesOf T)) :
     (∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}), InPoly T Y.1 → Measurable (zeroActBg S Gl (BgTransport.canon S.G' Gl N)
@@ -146,7 +148,7 @@ theorem zeroAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
     (∀ θb u (Y : {Y // Y ∈ NS.Z.I.𝒴}) Φ, InPoly T Y.1 → ‖zeroActBg S Gl (BgTransport.canon S.G' Gl N)
       (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b)) (fun _ => k)
       (fun b => LocalCover.fam 1 (LocalCover.blockSite k b)) 1 F₂' Sol₂' taylorWeight NS.p₁ NS.hp eps
-      θb u Y.1 Φ‖ ≤ εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y.1)) ∧
+      θb u Y.1 Φ‖ ≤ εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1)) ∧
     (∀ Y : {Y // Y ∈ NS.Z.I.𝒴}, InPoly T Y.1 → ∀ Φ,
       AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => zeroActBg S Gl (BgTransport.canon S.G' Gl N)
       (fun b => LocalCover.nbhdF 1 (LocalCover.blockSite k b)) (fun _ => k)
@@ -202,13 +204,22 @@ theorem zeroAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
   refine ((hzero Y hY).1 θb u Φ).trans ?_
   have e : ∀ X e' : ℝ, 8 * (|S.β| * (X * e')) = 8 * (|S.β| * X) * e' := fun X e' => by ring
   rw [e]
-  exact mul_le_mul_of_nonneg_right hεz (Real.exp_pos _).le
+  have hεH : 0 ≤ εH := le_trans (mul_nonneg (by norm_num) (mul_nonneg (abs_nonneg _)
+    (div_nonneg (by have := one_le_c1 d L; positivity) (pow_pos hr 3).le))) hεz
+  refine (mul_le_mul_of_nonneg_right hεz (Real.exp_pos _).le).trans
+    (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hεH)
+  -- the rate `2 κ_dec - 1 ≥ κ_H`
+  rw [neg_mul, neg_mul]
+  exact neg_le_neg (mul_le_mul_of_nonneg_right hκH (treeLenCovOne_nonneg (d := d) (L := L)
+    (N₁ := N₁) (m₁ := m₁) (K := k + 1) (m₀ := 1) (k + 1) Y.1))
 
 open Classical in
 /-- **The fields of the old activities of the labels inside `T`** (L4-3 at `Gl`): for the labels
 inside a polymer `T` with the label margin in `Gl`, the old activities recomputed on `Gl` are
-measurable, bounded by `ε_H e^{-(2κ_dec - 1) d^{cov,1}(Y)}` (`hεo`), analytic in `(θ, u)` on
-`physVBg Gl ε × {‖u‖ < 17/16}` and continuous in the configuration (`oldActBg_canon_fields`). -/
+measurable, bounded by `ε_H e^{-κ_H d^{cov,1}(Y)}` (`hεo`), analytic in `(θ, u)` on
+`physVBg Gl ε × {‖u‖ < 17/16}` and continuous in the configuration (`oldActBg_canon_fields`).  The
+bound is the amplitude of Schwarz's lemma on the disc `‖u‖ < a` on which the old activities are
+analytic (`a · markedRad < δ₁`, `corrU ≤ a`): the sum of the label bounds times `corrU / a`. -/
 theorem oldAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
     (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν) (hHm : Gd.Ω (k + 1) = ∅)
     {κdec κ₀ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκdec : 3 * κ₀ + 3 ≤ κdec)
@@ -226,6 +237,8 @@ theorem oldAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
     (hρL : 0 < NS.O.ρ) (hρcL : NS.O.ρ ≤ cψL)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
       NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     (hF₁Lan : ∀ τ, AnalyticOnNhd ℂ (F₁L' τ) {q | (∀ P, ‖q.1 P‖ < Real.exp NS.O.κ) ∧
       ∃ D : BgData Gl N, InUnionDomainC Gl (bgC0 d L N) (c7 d L N NS.O.BG NS.O.κ) S.ν D ∧
         q.2 = (D.Ψ, D.h)})
@@ -269,11 +282,11 @@ theorem oldAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
         ‖eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
           (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) t'.1 t'.2.1 t'.2.2‖ ≤
           Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ)))
-    {εH : ℝ}
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    {εH κH : ℝ}
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
     (hTm : LabelMargin Gl (sitesOf T)) :
     (∀ θb u (Y : {Y // Y ∈ NS.𝒴C}), InPoly T Y.1 → Measurable (oldActBg S Gl (BgTransport.canon S.G' Gl N)
@@ -285,7 +298,7 @@ theorem oldAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
       (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
       (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
         (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C
-      θb Y u Φ‖ ≤ εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y.1)) ∧
+      θb Y u Φ‖ ≤ εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1)) ∧
     (∀ Y : {Y // Y ∈ NS.𝒴C}, InPoly T Y.1 → ∀ Φ,
       AnalyticOnNhd ℂ (fun p : physParamBg N Gl × ℂ => oldActBg S Gl (BgTransport.canon S.G' Gl N)
       (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
@@ -304,21 +317,76 @@ theorem oldAct_fields_of (hS1 : S.a₁ = 1) {eps : ℝ}
       Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) →
       (∀ x ∈ Y, x ∈ Gl.Ω (k + 1)) → ∀ x ∈ NS.O.X₁f τ, x ∈ Gl.Ω (k + 1) := fun τ _ hY hYt x hx =>
     hYt x (subset_polyDom hY (by rw [← hX₁L τ]; exact hx))
-  have hold := fun (Y : {Y // Y ∈ NS.𝒴C}) (hY : InPoly T Y.1) =>
+  have hold := fun (Ru : ℝ) (hRu : Ru * markedRad d L N k S.a₁ NS.O.κ cψL
+      ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁) (Y : {Y // Y ∈ NS.𝒴C})
+      (hY : InPoly T Y.1) =>
     have hYtop := (labelMargin_of_subset (ysite_subset_sitesOf NS.Z.hN NS.Lab
       (Sum.inl (Sum.inr (Sum.inl Y))) hY) hTm).subset
     oldActBg_canon_fields S (maskPre S.hG' Gl (S.blockU z)) NS.𝒴C (X₁f := NS.O.X₁f)
       (m₀ := NS.O.m₀) (jL := NS.O.jL) (𝒦X := NS.O.𝒦X) (F₁ := F₁L') (Sol := SolL')
       (Φ := fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
-        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) (ρ := NS.O.ρ) (hp := NS.hp) (Ru := corrU)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) (ρ := NS.O.ρ) (hp := NS.hp) (Ru := Ru)
       (eps := eps) ha₁ ha₂ hSL SbL HB' hCL.hκ hCL.hM hMXL hCxL hCL.eps_pos hCL.small1 hCL.c7le
-      hCL.phi_lt hmarDL hαDL hsmL hcψL hCL.δ₁_pos hCL.hPmp hHm hRuL hF₁Lan hF₁L' hSolLan hSolL'
+      hCL.phi_lt hmarDL hαDL hsmL hcψL hCL.δ₁_pos hCL.hPmp hHm hRu hF₁Lan hF₁L' hSolLan hSolL'
       hcovL hX₁L hoptL hκ₀ hκdec hκκL h1L hlogL hEb hρL hρcL Y hYtop
       (fun τ hYτ => hΦ τ (htopτ τ hYτ hYtop)) (fun τ hYτ => hΦbd τ (htopτ τ hYτ hYtop))
-  exact ⟨fun θb u Y hY => (hold Y hY).2.2.2 θb u,
-    fun θb u Y Φ hY => ((hold Y hY).1 θb u Φ).trans (hεo Y.1 Y.2),
-    fun Y hY Φ => (hold Y hY).2.1 Φ,
-    fun Y hY θb hθb u hu => (hold Y hY).2.2.1 θb hθb.1 u (mem_ball_zero_iff.1 hu)⟩
+  have ha : 0 < a := corrU_pos.trans_le hca
+  -- the amplitude: Schwarz's lemma on the disc of radius `a` (`norm_le_of_ball_bound_zero`)
+  have hbd : ∀ θb u (Y : {Y // Y ∈ NS.𝒴C}) Φ, InPoly T Y.1 → ‖oldActBg S Gl
+      (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL
+      NS.O.𝒦X F₁L' SolL'
+      (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+        (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u Φ‖ ≤
+        εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y.1) := by
+    intro θb u Y Φ hY
+    have hA := hold a haL Y hY
+    have hB0 := (norm_nonneg _).trans (hA.1 θb u Φ)
+    have hR := hεo Y.1 Y.2
+    by_cases hg : (θb.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw Gl (compWeight L S.a₁) S.ν (k + 1) 1 eps ∧ ‖u‖ < corrU
+    · obtain ⟨hθ, hu⟩ := hg
+      set θ' : physParamBg N Gl := (θb.1, 0) with hθ'def
+      have hθ' : θ' ∈ physVBg N Gl S.a₁ S.ν eps :=
+        ⟨hθ, show ∑ x, ∑ i, ‖(0 : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) x i‖ < 1 by simp⟩
+      have e1 : oldActBg S Gl (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z))
+          NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
+          (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+            (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u Φ =
+          oldActBg S Gl (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z))
+          NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
+          (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+            (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp a eps NS.𝒴C θ' Y u Φ := by
+        unfold oldActBg
+        simp only [hθ'def, hθ, hu, hu.trans_le hca, and_self, ↓reduceIte]
+      have hdiff : DifferentiableOn ℂ (fun w => oldActBg S Gl (BgTransport.canon S.G' Gl N)
+          (maskPre S.hG' Gl (S.blockU z)) NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
+          (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+            (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp a eps NS.𝒴C θ' Y w Φ)
+          (Metric.ball 0 a) := fun w hw =>
+        ((hA.2.1 Φ (θ', w) ⟨hθ', hw⟩).comp
+          ((analyticAt_const (v := θ')).prod analyticAt_id)).differentiableAt.differentiableWithinAt
+      have h0 : oldActBg S Gl (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z))
+          NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
+          (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+            (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp a eps NS.𝒴C θ' Y 0 Φ = 0 := by
+        unfold oldActBg
+        split_ifs <;> simp
+      have hS := norm_le_of_ball_bound_zero hdiff (fun w _ => hA.1 θ' w Φ) h0 (hu.trans_le hca)
+      rw [e1]
+      refine hS.trans (le_trans ?_ hR)
+      rw [mul_div_assoc, mul_comm, div_eq_mul_inv, div_eq_mul_inv]
+      exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hu.le (inv_nonneg.2 ha.le)) hB0
+    · have e0 : oldActBg S Gl (BgTransport.canon S.G' Gl N) (maskPre S.hG' Gl (S.blockU z))
+          NS.O.X₁f NS.O.m₀ NS.O.jL NS.O.𝒦X F₁L' SolL'
+          (fun τ => eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
+            (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)) NS.O.ρ NS.hp corrU eps NS.𝒴C θb Y u Φ = 0 := by
+        unfold oldActBg
+        simp only [hg, ↓reduceIte]
+      rw [e0, norm_zero]
+      exact (mul_nonneg (div_nonneg corrU_pos.le ha.le) hB0).trans hR
+  exact ⟨fun θb u Y hY => (hold corrU hRuL Y hY).2.2.2 θb u, hbd,
+    fun Y hY Φ => (hold corrU hRuL Y hY).2.1 Φ,
+    fun Y hY θb hθb u hu => (hold corrU hRuL Y hY).2.2.1 θb hθb.1 u (mem_ball_zero_iff.1 hu)⟩
 
 open Classical in
 /-- **The fields of the marks of the anchors inside `T`** (L4-3 at `Gl`): for the anchors inside a
@@ -542,8 +610,10 @@ and bridge pairs, determinant) and with those of the old terms, the decoupling p
 pinned and analytic, the functionals of the old terms analytic and bounded on the realizable
 triples of `Gl` when their frozen region lies in the top layer of `Gl` (`hΦ`, `hΦbd`), and the
 sites of `T` with the label margin in `Gl`.  If the bounds of the recomputed activities and marks
-are of the class form (`hεz`, `hεo`, `hFb`, `hFo`) and the numerical conditions of Theorem 3.4
-hold, then the coefficient gated at `ε′` is analytic on `physVBg Gl ε` and bounded there by
+are of the class form (`hεz`, `hεo`, `hFb`, `hFo`; the activities at the rate `κ_H ≤ 2κ_dec - 1`,
+the old ones with the amplitude `corrU / a` of Schwarz's lemma on the disc `‖u‖ < a`) and the
+numerical conditions of Theorem 3.4 hold at the rate `κ_H`, then the coefficient gated at `ε′` is
+analytic on `physVBg Gl ε` and bounded there by
 `|Zb| · (½ N covBLog / (1 - z)) e^{-λ dExt T / (2 d L)} + CPE · ∑ᵢ F₀ᵢ e^{-κ₀ 𝗱(y0 i)} · e^{-κ' dExt T}`. -/
 theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν) (hd : 3 ≤ d)
@@ -628,7 +698,10 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
       (NS.O.κ / 2 - 1) / 2)
     (hρL : 0 < NS.O.ρ) (hρcL : NS.O.ρ ≤ cψL)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
-      NS.O.δ₁) {t₀ : ℝ} (ht₀ : 0 < t₀)
+      NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
+    {t₀ : ℝ} (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
       markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     (hF₁Lan : ∀ τ, AnalyticOnNhd ℂ (F₁L' τ) {q | (∀ P, ‖q.1 P‖ < Real.exp NS.O.κ) ∧
@@ -675,7 +748,7 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
           (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) t'.1 t'.2.1 t'.2.2‖ ≤
           Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ)))
     -- the bounds in the class form
-    {εH κ' : ℝ}
+    {εH κH κ' : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -683,10 +756,10 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -702,10 +775,10 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
         (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}))
     (hF0 : ∀ i, 0 < F0 i) (hκ' : 0 ≤ κ')
-    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1)
+    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 +
       rootUnionK d L 1 m₁ NS.Z.κ0) + rootUnionK d L 1 m₁ NS.Z.κ0) ^ 3 * c1 d L *
-      Real.exp ((2 * κdec - 1 - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
+      Real.exp ((κH - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
     -- the determinant part
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp NS.κ) < 1)
     -- the polymer
@@ -721,14 +794,14 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
             Real.exp (-((NS.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
               (2 * d * L)) * dExt T)) +
           CPE d L (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 + rootUnionK d L 1 m₁ NS.Z.κ0) +
-              rootUnionK d L 1 m₁ NS.Z.κ0) (2 * κdec - 1) NS.Z.κ0 κ' *
+              rootUnionK d L 1 m₁ NS.Z.κ0) κH NS.Z.κ0 κ' *
             (∑ i, F0 i * Real.exp (-NS.Z.κ0 * NS.Lab.dl (NS.y0 i))) * Real.exp (-κ' * dExt T) := by
   obtain ⟨h0meas, h0bd, h0hol, h0cont⟩ := NS.zeroAct_fields_of F₂' Sol₂' hS1 HB' hS Sb hC hMX
     hCx hmarD hαD hsm hcψ hBG₂ hdk hHm hκ₀ hκdec hκκ h1 hlog hδ₁c hR₁ hr hrays hF₂an hF₂s'
-    hSol₂an hSol₂' hεz T hTm
+    hSol₂an hSol₂' hεz hκH T hTm
   obtain ⟨h1meas, h1bd, h1hol, h1cont⟩ := NS.oldAct_fields_of F₁L' SolL' hS1 HB' hHm hκ₀ hκdec
-    hSL SbL hCL hMXL hCxL hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL hF₁Lan hF₁L'
-    hSolLan hSolL' hcovL hX₁L hoptL hEb hΦ hΦbd hεo T hTm
+    hSL SbL hCL hMXL hCxL hmarDL hαDL hsmL hcψL hκκL h1L hlogL hρL hρcL hRuL hca haL hF₁Lan
+    hF₁L' hSolLan hSolL' hcovL hX₁L hoptL hEb hΦ hΦbd hεo T hTm
   obtain ⟨hGmeas, hGbd, hGhol, hGcont⟩ := NS.marks_fields_of F₁L' SolL' F₁b' Solb' hS1 HB' hd SpG
     hS Sb hC hMX hCx hMX' hmarD hαD hsm hcψ hBG₂ hdk hHm hHmtop hrow hκ₀ hκdec hκκ h1 hlog hρc hR
     hRR hUR hU hF₁ban hF₁b' hSolban hSolb' hSL SbL hCL hMXL hCxL hmarDL hαDL hsmL hcψL hκκL h1L
@@ -757,7 +830,7 @@ theorem coeffLoc_analytic_bound_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : ep
   have key := NS.coeffLoc_analytic_bound_of_parts F₂' Sol₂' F₁L' SolL' F₁b' Solb' hle HB' Zb Φ₀ T
     Metric.isOpen_ball hseg (isCompact_physCarrier S 1 NS.hp) (measurableSet_physCarrier S 1 NS.hp)
     (ae_mem_physCarrier S 1 NS.hp) h0meas h0bd h0hol h0cont h1meas h1bd h1hol h1cont hGmeas hGbd
-    hGhol hGcont hκ0 hKc hεpos hι hF0 hκ' le_rfl hκ hε hdetA
+    hGhol hGcont hκ0 hKc hεpos hι hF0 hκ' hκH hκ hε hdetA
   refine ⟨key.1, fun θb hθb => (key.2 θb hθb).trans (add_le_add ?_ le_rfl)⟩
   -- the determinant part at the datum of the parameter
   obtain ⟨D, hD, hθD⟩ := hθb.1

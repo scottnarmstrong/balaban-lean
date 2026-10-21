@@ -78,6 +78,7 @@ theorem wIsSFFamily2 (ν : ℝ) (hν0 : 0 < ν) (hν : ν * 9 ≤ 7 / 72) (m₁ 
     (fun _ => le_rfl) (fun j => by simpa using (witness_c9_pos 1 j).le) (witness_c9_pos 1)
     (fun j hj => absurd rfl hj)
     (bgHyp_of_class2 (witnessConsts_admissible one_pos) (wcoeff ν hν0 hν) le_rfl le_rfl le_rfl)
+    (by simp [witnessConsts])
   torusIndep := torusIndep_pinTerms _ _ _
   renorm := fun _ _ _ => renormCond_pinTerms _ _ _ _ _ _
 

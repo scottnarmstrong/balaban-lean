@@ -17,7 +17,7 @@ canonically, that is `τ ↦ (jL τ, y τ, X τ)` is a bijection of `O.ι` onto 
 `NewLevelSystem` must prove it (the index set of the old terms is otherwise only constrained through
 the sum `hEJ`).
 
-* `OldTermsCanon.areIrrel`: it implies `OldTermsAreIrrel`;
+* `OldTermsCanon.areIrrel`: it implies `OldTermsAreIrrelW`;
 * `oldTermsCanon_pair_equiv`: two canonical systems on two tori whose admissible pairs correspond
   under a map `σ` have the index bijection `e` of the old terms in the box.
 -/
@@ -45,8 +45,11 @@ def OldTermsCanon (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁
     (∀ τ r, O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2) ∧
     Set.BijOn (fun τ => (O.jL τ, y τ, X τ)) Set.univ (AdmPairs L N₁ m₁ k d C.m₀ k)
 
+/-- The canonical indexing gives the weak form `OldTermsAreIrrelW` (the old terms are the irrelevant
+terms of the class); the full form `OldTermsAreIrrel` of ruling R13 also records the generating sets,
+the label facts and the polymers of the old terms, which the canonical indexing does not fix. -/
 theorem OldTermsCanon.areIrrel {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
-    {t : ℝ} {O : OldTermSystem S t} (h : OldTermsCanon S C O) : OldTermsAreIrrel S C O := by
+    {t : ℝ} {O : OldTermSystem S t} (h : OldTermsCanon S C O) : OldTermsAreIrrelW S C O := by
   obtain ⟨h0, i₀, i₁, y, X, hE, -⟩ := h
   exact ⟨h0, i₀, i₁, y, X, hE⟩
 

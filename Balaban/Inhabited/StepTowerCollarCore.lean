@@ -34,7 +34,8 @@ open Classical in
 /-- **The class chain (CoreCollar), with the formula of its family.**  The statement of
 `StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_phi` with one more premise of
 `hΦ`: the family `e` is the coefficient of a system of the new level of the class `C`
-(`NewLevelFormula`: the inherited levels are the irrelevant terms `irrelTorus` of `C.Tm`). -/
+(`NewLevelFormulaW`: the inherited levels are the irrelevant terms `irrelTorus` of `C.Tm`; and
+`NewLevelFormula` when the generating sets `Gj τ` of the labels are those of the class). -/
 theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_phi_formula {d L N : ℕ} [NeZero L] {κmin : ℝ} (T₀ : StepTowerG d L N κmin)
     (hm₀ : T₀.m₀ = 1) (hhull : 2 * d * L * (1 + collarB d L) * (3 / 2 * T₀.κdec + c1 d L * Real.log 2) +
       Real.log 2 + 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ) ≤ T₀.κ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {cR αR : ℝ} (hcR : 0 < cR) (hαR : 2 * αR < ((d - 2 : ℕ) : ℝ)) :
@@ -265,8 +266,10 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_ph
           (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
-          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e →
+        NewLevelFormulaW S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e ∧
+        ((∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) → NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, C.m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +
@@ -401,8 +404,12 @@ theorem StepTowerG.e0CoeffFamily_class_of_irrelBounds_core_onSet_agree_collar_ph
     X₀ X₁f 𝒦X hBs hFs hcψ hMX hdm hα hsm hcov hX₁ hconn hrow hopt hκ₀ hκdec hκ h1 hlog hEan hEbd
     F₁L hF₁an hF₁ SolL hSolan hSolprop FkL hFkan hFk h𝒮 hSg hc7 hR hsmR hRs hsmall hnum hnum' hρ hρc
     hρpp hN hm1 hbb hab G₁ hG₁ hρp hEJ 𝒴C h𝒴 H hH hεC0 hmr hsa hnumR hE hεnum Φ
-    (fun e B hc hnl hB => hΦ e B (hc hErotC) (NewLevelFormula.of_for
-      (by exact ⟨rfl, i₀, i₁, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun τ r => rfl⟩) hnl) hB)
+    (fun e B hc hnl hB => hΦ e B (hc hErotC) ⟨NewLevelFormulaW.of_for
+      (by exact ⟨rfl, i₀, i₁, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun τ r => rfl⟩) hnl,
+      fun hGjC => NewLevelFormula.of_for
+        (by exact ⟨rfl, i₀, i₁, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun τ r => rfl,
+          fun τ => ⟨hGjC τ, hj1 τ, hjk τ, hal τ, hXp τ, hy τ, hXL τ⟩,
+          fun τ τ' h1 h2 h3 => Subtype.ext (Prod.ext h1 (Prod.ext h2 h3))⟩) hnl⟩ hB)
 
 open Classical in
 /-- The class chain (CoreCollar), with `B` bounded by an explicit constant. -/

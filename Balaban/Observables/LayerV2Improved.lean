@@ -513,6 +513,7 @@ theorem improved_first_of_const_of_v2 (hβν : 1 < β k * ν k) (k₀ : ℕ)
     (hO : IsObs P Q β ν a Tm Ot Gker) (hsf : IsSF P β ν a Tm ρd Ek)
     (hGS : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
       GsSpecStrong j hjk X (Tm.gs j X))
+    (hHat : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X → HatSpec P.m₀ j X (Tm.gs j X))
     (hbg : BgHyp d L k ϱ (aIdeal L k (a k)) (bgMass L k (β k) (ν k)))
     (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
     {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom P.m₀ j X) {x : CTorus d L N₁ m₁ k} (hx : x ∈ X)
@@ -540,7 +541,7 @@ theorem improved_first_of_const_of_v2 (hβν : 1 < β k * ν k) (k₀ : ℕ)
   have hs : (⟨k₀, ν⟩ : Regime L).sfBgMass k = bgMass L k (β k) (ν k) := hμ
   have hS : IsSFObs2 P Q ⟨k₀, ν⟩ β a (completeXiDom P ⟨k₀, ν⟩ a N₁) Tm
       (rhoV2 (ϱ := ϱ) ⟨k₀, ν⟩ β a ρd) Ek Ot Gker :=
-    ⟨hsf.toV2 (k₀ := k₀) hGS hμ (Dom := completeXiDom P ⟨k₀, ν⟩ a N₁)
+    ⟨hsf.toV2 (k₀ := k₀) hGS hHat hμ (Dom := completeXiDom P ⟨k₀, ν⟩ a N₁)
       (fun j G Ψ h' hp => by
         have hp' : XiDom G (aIdeal L k (a k)) (physMass L k (ν k)) j (P.eps d L j) Ψ h' := hp
         rw [← hμ]; exact hp'), hO.toObs2 k₀ hμ⟩
