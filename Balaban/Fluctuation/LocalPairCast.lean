@@ -71,27 +71,64 @@ theorem sameCell_torusCast_iff {a n n' : ℕ} [NeZero n] (h : n = n') (x y : Tor
   unfold SameCell
   simp only [torusCast_val h]
 
-/-- **The top layer of the cast local generating set** (P3 (4.4)): a site of the step torus lies in
-`Ω_{k+1}(castG hc (𝔹_{k+1}(Y')))` iff every site of its cell of side `L^{k+1+m₁'}` has its image in
-`Y'` (`Y'` a set of the torus `(N₁', m₁')`). -/
-theorem castG_localB_top_sameCell (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
-    (hk : k + 1 ≤ k + 1) (Y' : Set (CTorus d L N₁' m₁' (k + 1)))
+/-- Two sites have the same `𝒞_n`-cube (side `M₁ L^n`), `n ≤ k + 1`, exactly when they lie in one
+cell of side `L^{n+m₁}` (the level-`n` form of `fineCubeIdx_top_iff_sameCell`). -/
+theorem fineCubeIdx_iff_sameCell {n : ℕ} (hn : n ≤ k + 1) (y z : CTorus d L N₁ m₁ (k + 1)) :
+    fineCubeIdx (L ^ m₁) N₁ L (k + 1) n
+        (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) =
+      fineCubeIdx (L ^ m₁) N₁ L (k + 1) n
+        (torusCast z : Torus d (L ^ m₁ * N₁ * L ^ (k + 1))) ↔
+      SameCell (L ^ (n + m₁)) y z := by
+  have hc : N₁ * L ^ m₁ * L ^ (k + 1) = L ^ m₁ * N₁ * L ^ (k + 1) := by rw [mul_comm (L ^ m₁) N₁]
+  rw [LargeField.fineCubeIdx_eq_iff_sameCell hn]
+  unfold SameCell
+  simp only [torusCast_val hc]
+  have e : L ^ n * L ^ m₁ = L ^ (n + m₁) := (pow_add L n m₁).symm
+  rw [e]
+
+/-- **The top layer of the local generator at level `j`, as a cell condition**: a site lies in
+`Ω_j(𝔹_j(Y))` iff every site of its cell of side `L^{j+m₁}` lies in `Y` (the level-`j` form of
+`mem_localB_Ω_top_sameCell`). -/
+theorem mem_localB_Ω_sameCell {j : ℕ} (hj : j ≤ k + 1) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (hsep : ϱ ≤ minSep L (L ^ m₁)) (x : CTorus d L N₁ m₁ (k + 1)) :
+    x ∈ (localB j hj Y hsep).Ω j ↔
+      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (j + m₁)) w x → w ∈ Y := by
+  rw [mem_localB_Ω_top]
+  exact forall_congr' fun w => imp_congr_left (fineCubeIdx_iff_sameCell hj w x)
+
+/-- **The top layer of the cast local generator at level `j`**: a site lies in
+`Ω_j(castG hc (𝔹_j(Y')))` iff every site of its cell of side `L^{j+m₁'}` lies in `Y'` (read
+through the cast). -/
+theorem castG_localB_sameCell (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) {j : ℕ}
+    (hj : j ≤ k + 1) (Y' : Set (CTorus d L N₁' m₁' (k + 1)))
     (hsep : ϱ ≤ minSep L (L ^ m₁')) (x : CTorus d L N₁ m₁ (k + 1)) :
-    x ∈ (castG hc (localB (k + 1) hk Y' hsep)).Ω (k + 1) ↔
-      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m₁')) w x →
+    x ∈ (castG hc (localB j hj Y' hsep)).Ω j ↔
+      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (j + m₁')) w x →
         (torusCast w : CTorus d L N₁' m₁' (k + 1)) ∈ Y' := by
   have hceq : N₁ * L ^ m₁ * L ^ (k + 1) = N₁' * L ^ m₁' * L ^ (k + 1) := by rw [hc]
-  rw [mem_castG_Ω, mem_localB_Ω_top_sameCell]
+  rw [mem_castG_Ω, mem_localB_Ω_sameCell]
   constructor
   · intro h w hw
     exact h _ ((sameCell_torusCast_iff hceq w x).2 hw)
   · intro h w hw
-    have hw' : SameCell (L ^ (k + 1 + m₁')) (torusCast w : CTorus d L N₁ m₁ (k + 1))
+    have hw' : SameCell (L ^ (j + m₁')) (torusCast w : CTorus d L N₁ m₁ (k + 1))
         (torusCast (torusCast x : CTorus d L N₁' m₁' (k + 1)) : CTorus d L N₁ m₁ (k + 1)) :=
       (sameCell_torusCast_iff hceq.symm w _).2 hw
     rw [torusCast_torusCast hceq] at hw'
     have := h _ hw'
     rwa [torusCast_torusCast hceq.symm] at this
+
+/-- **The top layer of the cast local generating set** (P3 (4.4)): a site of the step torus lies in
+`Ω_{k+1}(castG hc (𝔹_{k+1}(Y')))` iff every site of its cell of side `L^{k+1+m₁'}` has its image in
+`Y'` (`Y'` a set of the torus `(N₁', m₁')`).
+The instance of `castG_localB_sameCell` at `j = k + 1`. -/
+theorem castG_localB_top_sameCell (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    (hk : k + 1 ≤ k + 1) (Y' : Set (CTorus d L N₁' m₁' (k + 1)))
+    (hsep : ϱ ≤ minSep L (L ^ m₁')) (x : CTorus d L N₁ m₁ (k + 1)) :
+    x ∈ (castG hc (localB (k + 1) hk Y' hsep)).Ω (k + 1) ↔
+      ∀ w : CTorus d L N₁ m₁ (k + 1), SameCell (L ^ (k + 1 + m₁')) w x →
+        (torusCast w : CTorus d L N₁' m₁' (k + 1)) ∈ Y' :=
+  castG_localB_sameCell hc hk Y' hsep x
 
 /-- **The cast local generating set is sup-separated at the step's cube size** (`m₁ ≤ m₁'`). -/
 theorem castG_localB_supSep (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hm : m₁ ≤ m₁') {j : ℕ}

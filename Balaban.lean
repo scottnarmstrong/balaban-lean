@@ -673,6 +673,7 @@ public import Balaban.SmallField.RenormAnisoLocal
 public import Balaban.SmallField.RenormAnisoCtx
 public import Balaban.SmallField.RenormAnisoPath
 public import Balaban.SmallField.RenormAnisoPathExists
+public import Balaban.SmallField.RelBoxPath
 public import Balaban.SmallField.RenormAnisoIrrel
 public import Balaban.SmallField.RenormAnisoInhabited
 public import Balaban.SmallField.RenormAnisoDomain
@@ -701,6 +702,7 @@ public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
 public import Balaban.SmallField.XiFourData
 public import Balaban.SmallField.XiComposedData
+public import Balaban.SmallField.XiComposedPullback
 public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6ContInhabited
@@ -3260,6 +3262,7 @@ public import Balaban.Fluctuation.OldTermBirthDomain
 public import Balaban.Fluctuation.OldTermComposedBirth
 public import Balaban.Inhabited.NewLevelLocalFamilyClass
 public import Balaban.Inhabited.NewLevelHatLocal
+public import Balaban.Inhabited.NewLevelHatLayer
 public import Balaban.Fluctuation.BirthMassFlow
 public import Balaban.Inhabited.NewLevelTowerFamily
 public import Balaban.Inhabited.NewLevelConstants
