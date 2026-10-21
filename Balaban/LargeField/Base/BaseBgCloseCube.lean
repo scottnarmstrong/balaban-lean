@@ -108,17 +108,6 @@ section Reg
 
 variable {N : ℕ} (a : ℕ → ℝ) (μ δ : ℝ) (h : Fin N → ℝ)
 
-/-- At level one every site of `Ω₁(G)` is in the layer `1` and has spacing `L`. -/
-theorem layerIndex_one {ϱ : ℝ} {N₀ : ℕ} [NeZero N₀] (G : GeneratingSet d L N₀ 1 ϱ)
-    {x : Torus d (N₀ * L ^ 1)} (hx : x ∈ G.Ω 1) : G.layerIndex x = 1 := by
-  have := G.layerIndex_spec hx
-  omega
-
-theorem spacing_one {ϱ : ℝ} {N₀ : ℕ} [NeZero N₀] (G : GeneratingSet d L N₀ 1 ϱ)
-    {x : Torus d (N₀ * L ^ 1)} (hx : x ∈ G.Ω 1) : G.spacing x = (L : ℝ) := by
-  unfold GeneratingSet.spacing
-  rw [layerIndex_one G hx, pow_one]
-
 /-- The unpacked regularity predicate of the cube (`q = 1`): the domain, the block deviations on
 the sites of `□^{∼1}` and the gradients at the sites of `Ω₁ ∩ □^{∼1}` of the local background. -/
 theorem reg_gradClose {c n : ℕ} [NeZero n] (y0 : Torus d n)
