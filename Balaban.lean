@@ -1319,6 +1319,7 @@ public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.HoleStep
 public import Balaban.Fluctuation.HoleStepMeasure
 public import Balaban.Fluctuation.HoleStepOldCoef
+public import Balaban.Fluctuation.HoleStepSplit
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
