@@ -21,7 +21,7 @@ the proof that the local steps are related by `StepAff`.
 
 @[expose] public section
 
-open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Localization
+open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Localization Balaban.Localization.DecEquiv
   Balaban.LargeField Balaban.Fluctuation
 
 namespace Balaban.RootFSpine
@@ -435,6 +435,62 @@ theorem mem_activeCoreC_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n
     rw [Finset.mem_map_equiv]
     simpa using h1
 
+theorem mem_collarCoreC_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K}
+    (hI : RegionIso σ H H') {k : ℕ} (hk : k + 1 ≤ K) (r : ℕ) (X : Finset (Torus S.d (n k)))
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈
+        collarCoreC (c := g.c) (k := k) (H'.step k) hM1 r (X.map (σ.ec k).toEmbedding) ↔
+      x ∈ collarCoreC (c := g.c) (k := k) (H.step k) hM1 r X := by
+  rw [mem_collarCoreC, mem_collarCoreC]
+  constructor
+  · rintro ⟨y', hy', hd⟩
+    obtain ⟨y, rfl⟩ := (coverAff g hnn hM1 σ hk).toEquiv.surjective y'
+    have hy : y ∈ activeCoreC (c := g.c) (k := k) (H.step k) hM1 X :=
+      (mem_activeCoreC_aff g hnn hM1 σ hI hk X y).1 hy'
+    refine ⟨y, hy, ?_⟩
+    rw [← (coverAff g hnn hM1 σ hk).supDist_eq]
+    exact hd
+  · rintro ⟨y, hy, hd⟩
+    refine ⟨(coverAff g hnn hM1 σ hk).toFun y, (mem_activeCoreC_aff g hnn hM1 σ hI hk X y).2 hy, ?_⟩
+    rw [(coverAff g hnn hM1 σ hk).supDist_eq]
+    exact hd
+
 end Cubes
+
+/-- **The local set `V(X, J)` under the lattice symmetry.** -/
+theorem locSetXJ_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K}
+    (hI : RegionIso σ H H') {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {G₀ : GeneratingSet S.d S.L (g.c * n (k + 1) * S.L ^ m₁) (k + 1) (minSep S.L g.M1)}
+    (hJ : ∀ P ∈ J, P ∈ cubeIdx G₀) :
+    locSetXJ g hM1 H' r r' (X.map (σ.ec k).toEmbedding) (J.map (DecEquiv.affCentres (m₁ := m₁)
+        (coverAff g hnn hM1 σ hk) m₁).toEmbedding) =
+      (coverAff g hnn hM1 σ hk).toEquiv '' locSetXJ g hM1 H r r' X J := by
+  ext x'
+  obtain ⟨x, rfl⟩ := (coverAff g hnn hM1 σ hk).toEquiv.surjective x'
+  rw [Set.mem_image_equiv]
+  simp only [Equiv.symm_apply_apply]
+  unfold locSetXJ
+  simp only [Set.mem_ofPred_eq]
+  constructor
+  · rintro ⟨y', hy' | ⟨P', hP', hyP'⟩, hd⟩
+    · obtain ⟨y, rfl⟩ := (coverAff g hnn hM1 σ hk).toEquiv.surjective y'
+      refine ⟨y, Or.inl ?_, ?_⟩
+      · exact (mem_collarCoreC_aff g hnn hM1 σ hI hk r X y).1 hy'
+      · rw [← (coverAff g hnn hM1 σ hk).supDist_eq]; exact hd
+    · obtain ⟨y, rfl⟩ := (coverAff g hnn hM1 σ hk).toEquiv.surjective y'
+      obtain ⟨P, hP, rfl⟩ := Finset.mem_map.1 hP'
+      refine ⟨y, Or.inr ⟨P, hP, ?_⟩, ?_⟩
+      · exact (cubeP_aff (coverAff g hnn hM1 σ hk) (coverAff_aligned g hnn hM1 σ hk) (hJ P hP) y).1 hyP'
+      · rw [← (coverAff g hnn hM1 σ hk).supDist_eq]; exact hd
+  · rintro ⟨y, hy | ⟨P, hP, hyP⟩, hd⟩
+    · refine ⟨(coverAff g hnn hM1 σ hk).toFun y, Or.inl ?_, ?_⟩
+      · exact (mem_collarCoreC_aff g hnn hM1 σ hI hk r X y).2 hy
+      · show supDist ((coverAff g hnn hM1 σ hk).toFun x) ((coverAff g hnn hM1 σ hk).toFun y) ≤ r'
+        rw [(coverAff g hnn hM1 σ hk).supDist_eq]; exact hd
+    · refine ⟨(coverAff g hnn hM1 σ hk).toFun y, Or.inr ⟨_, Finset.mem_map_of_mem _ hP, ?_⟩, ?_⟩
+      · exact (cubeP_aff (coverAff g hnn hM1 σ hk) (coverAff_aligned g hnn hM1 σ hk) (hJ P hP) y).2 hyP
+      · show supDist ((coverAff g hnn hM1 σ hk).toFun x) ((coverAff g hnn hM1 σ hk).toFun y) ≤ r'
+        rw [(coverAff g hnn hM1 σ hk).supDist_eq]; exact hd
 
 end Balaban.RootFSpine
