@@ -202,6 +202,78 @@ theorem sfBase_core {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d 
   · have h1 := hD8new.M_eq j hj1 hjk x X' ψ h' g N₂ N₃ hnw₂ hnw₃ hp₂ hp₃
     simpa only [newLevelTerms_M _ (show ¬ j ≤ 0 by omega)] using h1
 
+/-- **The small-field clauses of the first step** (the `k = 0` analogue of `sfSucc_clauses`; LFR
+Theorem II.7.10, P4 Theorem 1 at the scale `1`): (D2) of `IsRepPre2` with the allowance `preFac`,
+(D8) and (D9) at the scale `1`, from the clauses of the new level, the coefficient bounds (H.6) and
+the renormalization (H.5) at `1`, the reality of the density exponent, P5 H4 for `ℛ^{(1)}` and the
+coherence of the new level. -/
+theorem sfBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
+    (hadm : P6.Admissible d L) (hk0 : 0 + 1 ≤ k0)
+    (hTm : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ 0 →
+      (sf'.Tm N₂).E j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).E j ∧
+        (sf'.Tm N₂).M j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).M j ∧
+        (sf'.Tm N₂).gs j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).gs j)
+    (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
+      SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
+    (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
+      IsPolyDom P6.m₀ (0 + 1) X → GsSpec.GsSpecStrong (0 + 1) le_rfl X ((sf'.Tm N₂).gs (0 + 1) X))
+    (hhatnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
+      IsPolyDom P6.m₀ (0 + 1) X → GsSpec.HatSpec P6.m₀ (0 + 1) X ((sf'.Tm N₂).gs (0 + 1) X))
+    (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
+    (hR' : RenormCondAlong P6.m₀ (0 + 1) (sf'.ν (0 + 1)) sf'.Tm (0 + 1) (torusSeq L P6.m₀)
+      (fun n => torusSeq_ne_zero P6.m₀ n))
+    (hreal : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (Ψ₀ : CTorus d L N₂ m₁ (0 + 1) → Fin N → ℝ) (h₀ : Fin N → ℝ)
+      (g : CTorus d L N₂ m₁ (0 + 1) → Fin N → ℝ) (D : BgData (topGS d L N₂ m₁ (0 + 1) ϱ) N),
+      Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
+      Xi (topGS d L N₂ m₁ (0 + 1) ϱ) (aIdeal L (0 + 1) (sf'.a (0 + 1)))
+        ((⟨k0, sf'.ν⟩ : Regime L).sfBgMass (0 + 1)) (0 + 1) 1
+        (P6.p (sf'.β (0 + 1)) / Real.sqrt (sf'.β (0 + 1))) Ψ₀ h₀ →
+      (Complex.exp (expo2 P6 ⟨k0, sf'.ν⟩ sf'.β sf'.a (sf'.Tm N₂) (sf'.E N₂) D
+        (fun x i => (g x i : ℂ)))).im = 0)
+    (hC' : CoeffBounds d L (0 + 1) P6 sf'.β sf'.ν sf'.a)
+    (hRt : ∀ (N₂ : ℕ) [NeZero N₂],
+      RTermsH4 (ϱ := ϱ) P6 sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂) (preFac (P6.m₀ + m₁)))
+    (hD8new : D8SF P6.m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }) :
+    D2SF2 P6 k0 sf' (preFac (P6.m₀ + m₁)) ∧ D8SF P6.m₀ sf' ∧ D9Coeff P6 k0 sf' := by
+  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core (β := β) (ν := ν) hTm hnew hgsnew hhatnew
+    hTInew hR' hreal hD8new
+  exact ⟨⟨⟨ρ', ⟨hadm, hC', hρ', hTI, hren⟩⟩, hRt⟩, hD8',
+    ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le, hk0⟩⟩
+
+/-- **The small-field clauses of the first step in regime (B)** (complete backgrounds; the `k = 0`
+analogue of `sfFlatSucc_clauses`): (D2♭), (D8), (D9♭) at the scale `1`. -/
+theorem sfFlatBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
+    (hadm : P6.Admissible d L)
+    (hTm : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ 0 →
+      (sf'.Tm N₂).E j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).E j ∧
+        (sf'.Tm N₂).M j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).M j ∧
+        (sf'.Tm N₂).gs j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).gs j)
+    (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
+      SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
+    (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
+      IsPolyDom P6.m₀ (0 + 1) X → GsSpec.GsSpecStrong (0 + 1) le_rfl X ((sf'.Tm N₂).gs (0 + 1) X))
+    (hhatnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
+      IsPolyDom P6.m₀ (0 + 1) X → GsSpec.HatSpec P6.m₀ (0 + 1) X ((sf'.Tm N₂).gs (0 + 1) X))
+    (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
+    (hR' : RenormCondAlong P6.m₀ (0 + 1) (sf'.ν (0 + 1)) sf'.Tm (0 + 1) (torusSeq L P6.m₀)
+      (fun n => torusSeq_ne_zero P6.m₀ n))
+    (hreal : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (Ψ₀ : CTorus d L N₂ m₁ (0 + 1) → Fin N → ℝ) (h₀ : Fin N → ℝ)
+      (g : CTorus d L N₂ m₁ (0 + 1) → Fin N → ℝ) (D : BgData (topGS d L N₂ m₁ (0 + 1) ϱ) N),
+      Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
+      Xi (topGS d L N₂ m₁ (0 + 1) ϱ) (aIdeal L (0 + 1) (sf'.a (0 + 1)))
+        ((⟨k0, sf'.ν⟩ : Regime L).sfBgMass (0 + 1)) (0 + 1) 1
+        (P6.p (sf'.β (0 + 1)) / Real.sqrt (sf'.β (0 + 1))) Ψ₀ h₀ →
+      (Complex.exp (expo2 P6 ⟨k0, sf'.ν⟩ sf'.β sf'.a (sf'.Tm N₂) (sf'.E N₂) D
+        (fun x i => (g x i : ℂ)))).im = 0)
+    (hC' : CoeffBounds d L (0 + 1) (massOne P6) sf'.β sf'.ν sf'.a)
+    (hRt : ∀ (N₂ : ℕ) [NeZero N₂],
+      RTermsH4 (ϱ := ϱ) P6 sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂) (fun _ => 1))
+    (hD8new : D8SF P6.m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }) :
+    SFFlat2 P6 k0 sf' ∧ D8SF P6.m₀ sf' ∧ D9Flat P6 sf' := by
+  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core (β := β) (ν := ν) hTm hnew hgsnew hhatnew
+    hTInew hR' hreal hD8new
+  exact ⟨⟨hadm, hC', ⟨ρ', hρ'⟩, hTI, hren, hRt⟩, hD8', ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le⟩⟩
+
 end Base
 
 end Balaban.RootFSpine
