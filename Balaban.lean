@@ -2907,6 +2907,8 @@ public import Balaban.Spine.FinalChart
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
+public import Balaban.Spine.FinalRegroup
+public import Balaban.Spine.FinalRegroupAct
 public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
