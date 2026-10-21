@@ -135,6 +135,27 @@ theorem reg_gradClose {c n : ℕ} [NeZero n] (y0 : Torus d n)
           (cubeData h c n y0 ψ)) x) < δ :=
   (hχ.2.2.1 x hxS).1 ν |>.1
 
+/-- At level one the block average of the restriction of a field is the block average of the
+field. -/
+theorem blockAvg_restrict {N₀ : ℕ} [NeZero N₀] {ϱ0 ϱ1 : ℝ} {G0 : GeneratingSet d L N₀ 1 ϱ0}
+    {G1 : GeneratingSet d L N₀ 1 ϱ1} (hprec : Precedes G0 G1) (gl : G1.Ω 1 × Fin N → ℂ)
+    {x : Torus d (N₀ * L ^ 1)} (hx : x ∈ G0.Ω 1) (i : Fin N) :
+    blockAvg G0 (hprec.restrictφ gl) x i = blockAvg G1 gl x i := by
+  have hx1 : x ∈ G1.Ω 1 := hprec.mem_Ω1 hx
+  have l0 := layerIndex_one G0 hx
+  have l1 := layerIndex_one G1 hx1
+  unfold blockAvg
+  rw [l0, l1]
+  congr 1
+  refine Finset.sum_congr rfl fun y hy => ?_
+  have hyΩ : y ∈ G0.Ω 1 := by
+    have h1 := G0.layerIndex_spec hx
+    rw [l0] at h1
+    exact blk_subset_Ω G0 h1.1 h1.2.1 (by simpa [l0] using h1.2.2)
+      (by rw [blk_eq_fibre G0 1 x]; rwa [blk_eq_fibre G1 1 x] at hy)
+  rw [svec_of_mem G0 _ ⟨y, hyΩ⟩, svec_of_mem G1 _ ⟨y, hprec.mem_Ω1 hyΩ⟩]
+  rfl
+
 end Reg
 
 section Margins
@@ -145,7 +166,7 @@ open Classical in
 `gl` its background; `ψ` passes the test `ChiKProp` at tolerance `δ₁` for the cube `y0`. Then for
 every bond `(x, x + e_μ)` with `x` in the cube `y0`:
 `L |∂_μ gl(x)| < δ₁ + √N ε`, `ε = K_w c_F (2d+2) K₁ δ' e^{-γ_w c M₁}`. -/
-theorem cube_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
+theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
       ∀ {M1 N₁ m₁ c n : ℕ} [NeZero M1] [NeZero N₁] [NeZero n] (hM1 : M1 = L ^ m₁)
         (hm : N₁ * L ^ (1 - 1) = c * n) {ϱ1 a₁ ν δ' ε' δ₁ : ℝ} (h : Fin N → ℝ),
@@ -163,7 +184,7 @@ theorem cube_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
           (liftSingle (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
             ψ.toC (fun i => (h i : ℂ))) →
         ChiKProp (compWeight L a₁) ν δ₁ h c n y0 ψ →
-        ∀ (x y : Torus d (M1 * N₁ * L ^ 1)) (μ : Fin d),
+        (∀ (x y : Torus d (M1 * N₁ * L ^ 1)) (μ : Fin d),
         blockMap (L ^ 1 * (c * M1)) n x = y0 → y = x + Pi.single μ 1 →
         ∀ (hx : x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1)
           (hy : y ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1),
@@ -177,11 +198,22 @@ theorem cube_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
             (liftSingle (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
               ψ.toC (fun i => (h i : ℂ))) (⟨x, hx⟩, i)) <
           δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ'))) *
-            Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ)))) := by
+            Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) ∧
+        (∀ (x : Torus d (M1 * N₁ * L ^ 1)),
+        blockMap (L ^ 1 * (c * M1)) n x = y0 →
+        ∀ (hx : x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1),
+        vn (fun i => (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) -
+          blockAvg (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
+            (bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
+              (compWeight L a₁) ν (bgC0 d L N)
+              (liftSingle (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
+                ψ.toC (fun i => (h i : ℂ)))) x i) <
+          δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ'))) *
+            Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) := by
   obtain ⟨Kw, δw, hK, hδw, hmar⟩ := bgField_nested_margins (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
   intro M1 N₁ m₁ c n _ _ _ hM1 hm ϱ1 a₁ ν δ' ε' δ₁ h ha₁ H0 H1 hν0 hνle hsep hKs hδ0' hδε' hε' hδc
-    hνε' hK1' hKw' ψ y0 hD' hχ x y μ hx0 hy hx hy'
+    hνε' hK1' hKw' ψ y0 hD' hχ
   set G0 := genCube (M1 := M1) (N₁ := N₁) (L := L) (q := 1) c n y0 with hG0
   set G1 := GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1 with hG1
   set D' := liftSingle G1 ψ.toC (fun i => (h i : ℂ)) with hD'def
@@ -214,7 +246,7 @@ theorem cube_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have : m = 1 := by omega
     subst this
     exact ⟨fun _ => by rw [hΩ1]; exact Finset.mem_univ z, fun _ => hz⟩
-  obtain ⟨hbond, -⟩ := hmar (N₁ := N₁) (m₁ := m₁) hN (G0 := G0) (G1 := G1) ha₁ H0 H1 hν0
+  obtain ⟨hbond, hblock⟩ := hmar (N₁ := N₁) (m₁ := m₁) hN (G0 := G0) (G1 := G1) ha₁ H0 H1 hν0
     (by simpa using hνle) hsep hprec hδ0' hδε' hε' hδc (by simpa using hνε') hD' hΨ hh hδR0 le_rfl
     hεR hδR1 hνεR hDC (hK1R.trans (min_le_left _ _)) (hK1R.trans (min_le_right _ _)) hK1' hKw' hE
     (Dist := ((c * M1 : ℕ) : ℝ))
@@ -229,42 +261,85 @@ theorem cube_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hn : M1 * N₁ * L ^ 1 = (L ^ 1 * (c * M1)) * n := cube_fine_eq hm
   have hΩtop : G0.Ω 1 = cubePre M1 N₁ L 1 (L ^ 1 * (c * M1)) n (nbhd 2 {y0}) :=
     genCube_Omega_top hm y0
-  have hxΩ : x ∈ G0.Ω 1 := by
-    rw [hΩtop, mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩
-  have hyΩ : y ∈ G0.Ω 1 := by
-    rw [hΩtop, mem_cubePre, mem_nbhd]
-    refine ⟨y0, Set.mem_singleton _, ?_⟩
-    have h1 : supDist x y ≤ 1 := by
-      rw [hy, supDist_comm]
-      exact Balaban.LargeField.Adj.supDist_le_one ⟨μ, Or.inr rfl⟩
-    have h2 := supDist_blockMap_le_one (M1 := M1) (N₁ := N₁) (L := L) (q := 1) hn (D := 1) hPpos
-      x y h1
-    rw [hx0] at h2
-    have h3 := supDist_triangle (blockMap (L ^ 1 * (c * M1)) n y) y0 y0
-    rw [supDist_comm] at h2
-    simp [supDist_self] at h3
-    omega
-  have key := hbond ⟨x, hxΩ⟩ ⟨y, hyΩ⟩ μ hy
-    (fun w hw => by
+  refine ⟨fun x y μ hx0 hy hx hy' => ?_, fun x hx0 hx => ?_⟩
+  ·   have hxΩ : x ∈ G0.Ω 1 := by
+        rw [hΩtop, mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩
+      have hyΩ : y ∈ G0.Ω 1 := by
+        rw [hΩtop, mem_cubePre, mem_nbhd]
+        refine ⟨y0, Set.mem_singleton _, ?_⟩
+        have h1 : supDist x y ≤ 1 := by
+          rw [hy, supDist_comm]
+          exact Balaban.LargeField.Adj.supDist_le_one ⟨μ, Or.inr rfl⟩
+        have h2 := supDist_blockMap_le_one (M1 := M1) (N₁ := N₁) (L := L) (q := 1) hn (D := 1) hPpos
+          x y h1
+        rw [hx0] at h2
+        have h3 := supDist_triangle (blockMap (L ^ 1 * (c * M1)) n y) y0 y0
+        rw [supDist_comm] at h2
+        simp [supDist_self] at h3
+        omega
+      have key := hbond ⟨x, hxΩ⟩ ⟨y, hyΩ⟩ μ hy
+        (fun w hw => by
+          refine genCube_far (d := d) (M1 := M1) (N₁ := N₁) (L := L) (c := c) (n := n) hm y0
+            (x := x) (w := w) hx0 ?_ hw
+          intro z
+          simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
+          exact Iff.rfl)
+      have hreg := reg_gradClose (compWeight L a₁) ν δ₁ h y0 ψ hχ ⟨x, hxΩ⟩
+        (by unfold cubeNbhd; rw [mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩) μ
+      have hsp : G0.spacing x = (L : ℝ) := spacing_one G0 hxΩ
+      have hbar : (barVec G0 D (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D)
+            ((x : Torus d (M1 * N₁ * L ^ 1)) + Pi.single μ 1) -
+          barVec G0 D (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D) x) =
+          fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨y, hyΩ⟩, i) -
+            bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨x, hxΩ⟩, i) := by
+        funext i
+        simp only [Pi.sub_apply, barVec, barField, ← hy, hxΩ, hyΩ, dite_true]
+      rw [hbar, pow_one] at hreg
+      rw [hsp] at key
+      calc (L : ℝ) * _ ≤ _ := key
+        _ < _ := by linarith
+  · have hxΩ : x ∈ G0.Ω 1 := by
+      rw [hΩtop, mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩
+    have hcube : ∀ z ∈ G0.blk (G0.layerIndex x) x, blockMap (L ^ 1 * (c * M1)) n z = y0 := by
+      intro z hz
+      rw [layerIndex_one G0 hxΩ, blk_eq_fibre, mem_blockFibre] at hz
+      have hℓ : M1 * N₁ * L ^ 1 = L ^ 1 * (M1 * N₁ * L ^ (1 - 1)) := by simp [pow_one]; ring
+      have hm' : M1 * N₁ * L ^ (1 - 1) = (c * M1) * n := by
+        have : N₁ = c * n := by simpa using hm
+        rw [this]; simp; ring
+      have e1 := blockMap_comp (d := d) (ℓ := M1 * N₁ * L ^ 1) (N := L ^ 1)
+        (m₁ := M1 * N₁ * L ^ (1 - 1)) (m₂ := n) (M := c * M1) hℓ hm' z
+      have e2 := blockMap_comp (d := d) (ℓ := M1 * N₁ * L ^ 1) (N := L ^ 1)
+        (m₁ := M1 * N₁ * L ^ (1 - 1)) (m₂ := n) (M := c * M1) hℓ hm' x
+      have hx0' := hx0
+      rw [← e2] at hx0'
+      rw [← e1, ← hx0']
+      exact congrArg _ hz
+    have key := (hblock x hxΩ (fun y hy hyΩ w hw => by
       refine genCube_far (d := d) (M1 := M1) (N₁ := N₁) (L := L) (c := c) (n := n) hm y0
-        (x := x) (w := w) hx0 ?_ hw
+        (x := y) (w := w) (hcube y hy) ?_ hw
       intro z
       simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
-      exact Iff.rfl)
-  have hreg := reg_gradClose (compWeight L a₁) ν δ₁ h y0 ψ hχ ⟨x, hxΩ⟩
-    (by unfold cubeNbhd; rw [mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩) μ
-  have hsp : G0.spacing x = (L : ℝ) := spacing_one G0 hxΩ
-  have hbar : (barVec G0 D (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D)
-        ((x : Torus d (M1 * N₁ * L ^ 1)) + Pi.single μ 1) -
-      barVec G0 D (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D) x) =
-      fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨y, hyΩ⟩, i) -
-        bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨x, hxΩ⟩, i) := by
-    funext i
-    simp only [Pi.sub_apply, barVec, barField, ← hy, hxΩ, hyΩ, dite_true]
-  rw [hbar, pow_one] at hreg
-  rw [hsp] at key
-  calc (L : ℝ) * _ ≤ _ := key
-    _ < _ := by linarith
+      exact Iff.rfl))
+    have hreg := hχ.2.1 x (by unfold cubeNbhd; rw [mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩)
+    have hΨx : D.Ψ x = fun i => (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) := by
+      funext i
+      rw [hDdef, cubeData, liftSingle_Ψ _ _ _ ((mem_dataSites G0).2 (Or.inl hxΩ))]
+      rfl
+    have hrestr : ∀ i, blockAvg G0 (hprec.restrictφ
+        (bgFieldC G1 (compWeight L a₁) ν (bgC0 d L N) D')) x i =
+        blockAvg G1 (bgFieldC G1 (compWeight L a₁) ν (bgC0 d L N) D') x i :=
+      fun i => blockAvg_restrict hprec _ hxΩ i
+    simp only [hrestr] at key
+    have hΨi : ∀ i, D.Ψ x i = (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) := fun i => by rw [hΨx]
+    simp only [hΨi] at key
+    have hreg' : vn (fun i => (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) -
+        blockAvg G0 (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D) x i) < δ₁ := by
+      have := hreg
+      unfold blockDev at this
+      have hΨi' : ∀ i, (cubeData h c n y0 ψ).Ψ x i = (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) := hΨi
+      simpa only [hΨi'] using this
+    exact lt_of_le_of_lt key (by linarith)
 
 end Margins
 
