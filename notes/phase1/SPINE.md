@@ -1364,3 +1364,17 @@ What the proof will need, in the chain's terms (to be proved for `Φ` once defin
 `A = commonAct (A₀, AC)`: `A₀` (zero-class, `StepTowerG.e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`); `AC` and `G₁` from the inherited terms `Eτ` (D8 of the inherited levels) via `evDec` (`explicit_evDec_of_core`);
 the bridge marks `G` via `decSol` (`decSol_value_twoTorus`, `decSol_value_twoTorus_of_decBg`); the determinant part `newLevelDetBg` (`newLevelDetBg_eq_of_agree`). The difficulty is not these ingredients but that the pins `F₁`, `Sol` are returned
 existentially per torus: the agreement needs the value-uniqueness statements of W1089 for the bridge marks of the formula (as `coreE0_unique` for the core), not yet stated for `AC`, `G₁`.
+
+## A4-1f chain-side value uniqueness (W1148r, 2026-10-21)
+
+Landed: `NewLevelPinUnique` (pins unique on their domains), `NewLevelValueUnique.eTermFun_unique`
+(the old-term functional reads `Fk` only through the union-domain pin, via `eTerm_chain_of_one_le`),
+`fnOfDec_unique`/`evDec_unique` generalized to two functionals agreeing on `FlRealLC`,
+`NewLevelMarkUnique.oldTermEvDec_unique` and `oldTermEvDec_deriv_unique` (the inherited terms of
+`H` and `G₁` do not depend on `F₁L`, `SolL`, `FkL`; FlCore/BgSetting/FlSetting as typing premises).
+Open: two-torus agreement of `NS.coeff`. (i) the old terms `Eτ` are fixed only by `hEJ` and
+`OldTermsAreIrrel` (they are `irrelTorus` of `C.Tm`), so their two-torus agreement is a spine fact
+(Agree-transport of `C.Tm`) and must enter as a premise; (ii) no two-torus statement exists for
+`evDec` of a localized old term (needs `composeField`/`d1Triple`/`D2raw` on two tori and the
+`StepTowerG` form of `FlCore`/`BgSetting`/`FlSetting`); the `coreE0_twoTorus` development is
+stated for the tower `StepTowerG`, not for a bare `StepSetting`.
