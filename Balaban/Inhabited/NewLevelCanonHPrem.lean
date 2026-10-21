@@ -9,6 +9,7 @@ public import Balaban.Inhabited.NewLevelCoeffPairs
 public import Balaban.Inhabited.NewLevelCanonBox
 public import Balaban.Inhabited.NewLevelClassPair
 public import Balaban.Inhabited.NewLevelClassE
+public import Balaban.Inhabited.NewLevelCanonGeomDef
 
 /-!
 # The premises of the comparison of corresponding old terms of canonically pinned systems
@@ -51,29 +52,6 @@ local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) 
 
 attribute [local irreducible] NewLevelSystem.Dom
 
-/-- **The agreement of the irrelevant term at the distinguished cell** (the named hypothesis
-`hcellcase` of `oldTerm_E_agree`): for the term of level `j` at `y₀` whose polymer `X₀` is the cell
-of `y₀` (the case that `irrelTorus_boxAgree` does not cover: there the relevant parts of all polymers
-at `y₀`, among them those wrapping around the torus, enter), the irrelevant terms of the classes `C`,
-`C'` at `(j, y₀, X₀)` and `(j, bm y₀, bm '' X₀)` agree on fields that agree on `Z` under `bm`. -/
-def CellTermsAgree (C : StepClass d L N₁ m₁ k N ϱ) (C' : StepClass d L N₁' m₁ k N ϱ)
-    (i₀ i₁ : Fin N) (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1)) (X₀ Z : Set (CTorus d L N₁ m₁ (k + 1))) :
-    Prop :=
-  X₀ = box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j))
-      (L * cellSide L C.m₀ m₁ j) →
-    ∀ (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) (r' : RawData d L (N₁' * L ^ m₁) (k + 1) N),
-      (∀ z ∈ Z, r.1 z = r'.1 (bm z) ∧ r.2 z = r'.2 (bm z)) →
-      irrelTorus C'.m₀ C'.Tm i₀ i₁ j (bm y₀) (bm '' X₀) r'.1 r'.2 =
-        irrelTorus C.m₀ C.Tm i₀ i₁ j y₀ X₀ r.1 r.2
-
-/-- The cell case holds vacuously when the polymer is not the cell of `y₀` (non-vacuity of
-`CellTermsAgree`). -/
-theorem CellTermsAgree.of_ne {C : StepClass d L N₁ m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
-    {i₀ i₁ : Fin N} {j : ℕ} {y₀ : CTorus d L N₁ m₁ (k + 1)} {X₀ Z : Set (CTorus d L N₁ m₁ (k + 1))}
-    (h : X₀ ≠ box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j))
-      (L * cellSide L C.m₀ m₁ j)) : CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z :=
-  fun hc => absurd hc h
-
 /-- **The premises of the comparison of corresponding old terms of two canonically pinned
 systems.** -/
 theorem canon_hprem
@@ -99,25 +77,7 @@ theorem canon_hprem
       (Tm N₁').E j y X Ψ h = (Tm N₁').E j y X Ψ' h')
     (hM8 : 8 ≤ L ^ (C.m₀ + m₁))
     {R : ℕ}
-    (hgeom : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      (∀ x ∈ insert y₀ X₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      (∀ μ : Fin d, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1))
-        (y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)))) ∧
-      (∀ z ∈ box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j)) (L * cellSide L C.m₀ m₁ j), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) z) ∧
-      ∃ Z : Set (CTorus d L N₁ m₁ (k + 1)), X₀ ⊆ Z ∧
-        (∀ μ : Fin d, y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)) ∈ Z) ∧
-        Z ⊆ ↑(F.X₁fC j y₀ X₀) ∧ BlockMargin (SA).G' (F.X₁fC j y₀ X₀) Z ∧
-        GSCorr (F.GkC j y₀ X₀) (F'.GkC j (bm y₀) (bm '' X₀)) bm Z ∧
-        GSCorr (F.GjC j y₀ X₀) (F'.GjC j (bm y₀) (bm '' X₀)) bm Z ∧
-        GSIso (compWeight L (SA).a₁) (SA).ν (F.GkC j y₀ X₀) (F'.GkC j (bm y₀) (bm '' X₀)) bm Z ∧
-        (∀ z ∈ Z, z ∈ (F.GkC j y₀ X₀).Ω 1 →
-          (∀ y ∈ (F.GkC j y₀ X₀).blk ((F.GkC j y₀ X₀).layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (SA).G'.blk ((SA).G'.layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (stepG d L N₁ m₁ k ϱ).blk ((stepG d L N₁ m₁ k ϱ).layerIndex z) z, y ∈ Z)) ∧
-        (∀ z ∈ Z, z ∈ (F.GjC j y₀ X₀).Ω 1 →
-          (∀ y ∈ (F.GjC j y₀ X₀).blk ((F.GjC j y₀ X₀).layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (F.GkC j y₀ X₀).blk ((F.GkC j y₀ X₀).layerIndex z) z, y ∈ Z)) ∧
-        CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z)
+    (hgeom : HGeom (SA) C C' F F' i₀ i₁ R)
     {K : NewLevelConsts} (hK : NS.HasConsts K) (hK' : NS'.HasConsts K)
     {δc : ℝ} (hMX : cstarX d L * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     (hmar : decDomMargin d L N NS.O.BG NS.O.κ (xiC1 d * t) < δc)
@@ -157,8 +117,10 @@ theorem canon_hprem
   have hadm := hB.mapsTo (Set.mem_univ τ)
   have hbox : ∀ x ∈ insert (y τ) (X τ), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
     insert_subset_box_of_dom NS hB hX₁ hcX hYR hDom
+  have hX₁R : ∀ x ∈ NS.O.X₁f τ, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := fun x hx =>
+    hYR x (x1f_subset_of_mem_polyDom (NS.OS.hX₁ τ) ((NS.dom_iff _ _).1 hDom) (Finset.mem_coe.2 hx))
   obtain ⟨hstep, hcell, Z, hZX, hZs, hZcov, hBMZ, hGkc, hGjc, hisoc, hblkc, hblk2c, hcellc⟩ :=
-    hgeom _ _ _ hadm hbox
+    hgeom _ _ _ hadm (fun x hx => hX₁R x (by rw [hX₁ τ]; exact Finset.mem_coe.1 hx))
   obtain ⟨hj1, hjk, hal, hpoly, hyX⟩ := hadm
   have hGkτ : NS.O.Gk τ = F.GkC (NS.O.jL τ) (y τ) (X τ) := hGk τ
   have hGjτ : NS.O.Gj τ = F.GjC (NS.O.jL τ) (y τ) (X τ) := hGj τ
@@ -181,8 +143,6 @@ theorem canon_hprem
     simp only [Finset.mem_filter, Finset.mem_univ, true_and] at h
     exact (mem_blockU_iff_unitBlock1 (SB) _ _).trans
       (h.trans (mem_blockU_iff_unitBlock1 (SA) _ _).symm)
-  have hX₁R : ∀ x ∈ NS.O.X₁f τ, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := fun x hx =>
-    hYR x (x1f_subset_of_mem_polyDom (NS.OS.hX₁ τ) ((NS.dom_iff _ _).1 hDom) (Finset.mem_coe.2 hx))
   exact termPairPremisesAt_of_data (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (τ := τ) (τ' := τ') (θ := θ) (θ' := θ') (Y := Y) (Φ := Φ) (Φ' := Φ') (u := u) (t₀ := t₀) (hK := hK) (hK' := hK') (ht := rfl) (hX := hX) (hm₀ := hm₀N) (hj := hj) (hθ := hθ) (hθ' := hθ') (hZX := (by rw [hX₁ τ]; exact hZcov)) (hBMZ := (by rw [hX₁ τ]; exact hBMZ)) (hGk := (by rw [hGkτ, hGk'τ]; exact hGkc)) (hGj := (by rw [hGjτ, hGj'τ]; exact hGjc)) (hiso := (by rw [hGkτ, hGk'τ]; exact hisoc)) (hblk := (by rw [hGkτ]; exact hblkc)) (hblk2 := (by rw [hGjτ, hGkτ]; exact hblk2c)) (hE := hEval) (hX₁R := hX₁R) (hYR := hYR) (hn := hn1) (hn' := hn1') (hnS := hnS) (hnS' := hnS') (hnF := hnF) (hnF' := hnF') (hΦan := hΦan τ) (hraw := hraw) (hR := hΦ) (hZm := hZm) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hρ := hρ) (hum := hum)
 
 end ClassCoeff

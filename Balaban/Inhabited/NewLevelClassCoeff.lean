@@ -130,25 +130,7 @@ theorem newLevel_coeff_twoTorus_of_class_of_cellTerms
     (hGB2 : (SB).G' = levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) le_rfl)
     (hnE : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hnE' : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (hgeom : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      (∀ x ∈ insert y₀ X₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      (∀ μ : Fin d, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1))
-        (y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)))) ∧
-      (∀ z ∈ box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j)) (L * cellSide L C.m₀ m₁ j), InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) z) ∧
-      ∃ Z : Set (CTorus d L N₁ m₁ (k + 1)), X₀ ⊆ Z ∧
-        (∀ μ : Fin d, y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)) ∈ Z) ∧
-        Z ⊆ ↑(F.X₁fC j y₀ X₀) ∧ BlockMargin (SA).G' (F.X₁fC j y₀ X₀) Z ∧
-        GSCorr (F.GkC j y₀ X₀) (F'.GkC j (bm y₀) (bm '' X₀)) bm Z ∧
-        GSCorr (F.GjC j y₀ X₀) (F'.GjC j (bm y₀) (bm '' X₀)) bm Z ∧
-        GSIso (compWeight L (SA).a₁) (SA).ν (F.GkC j y₀ X₀) (F'.GkC j (bm y₀) (bm '' X₀)) bm Z ∧
-        (∀ z ∈ Z, z ∈ (F.GkC j y₀ X₀).Ω 1 →
-          (∀ y ∈ (F.GkC j y₀ X₀).blk ((F.GkC j y₀ X₀).layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (SA).G'.blk ((SA).G'.layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (stepG d L N₁ m₁ k ϱ).blk ((stepG d L N₁ m₁ k ϱ).layerIndex z) z, y ∈ Z)) ∧
-        (∀ z ∈ Z, z ∈ (F.GjC j y₀ X₀).Ω 1 →
-          (∀ y ∈ (F.GjC j y₀ X₀).blk ((F.GjC j y₀ X₀).layerIndex z) z, y ∈ Z) ∧
-          (∀ y ∈ (F.GkC j y₀ X₀).blk ((F.GkC j y₀ X₀).layerIndex z) z, y ∈ Z)) ∧
-        CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z)
+    (hgeom : HGeom (SA) C C' F F' i₀ i₁ R)
     {K : NewLevelConsts} (hK : NS.HasConsts K) (hK' : NS'.HasConsts K)
     {oδc : ℝ} (oMX : cstarX d L * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     (omar : decDomMargin d L N NS.O.BG NS.O.κ (xiC1 d * t) < oδc)
