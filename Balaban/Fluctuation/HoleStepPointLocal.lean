@@ -9,9 +9,9 @@ public import Balaban.Fluctuation.HoleStepActComp
 public import Balaban.Fluctuation.HoleStep
 
 /-!
-# Locality of the composed field of the step on a region at one unit point (R12)
+# Locality of the composed field of the step on a region at one unit point (reading HS-1)
 
-Under the reading R12 of `notes/phase1/PLAN-B.md` the composed field of P5 (2.39) at a unit point
+Under the reading HS-1 of `notes/phase1/PLAN-B.md` the composed field of P5 (2.39) at a unit point
 `b` of `Ω_{k+1}` is built from the decoupled background, multiplier and covariance root of the one
 pair `(coverOf G′, G′)` at the localization vector of `b`.  For two vectors `v`, `v'` whose factors
 agree on the active closure (`actComp`) of a common larger vector, the decoupled objects agree on the
@@ -455,7 +455,7 @@ theorem psiLoc_eq_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
   · congr 2
     refine Finset.sum_congr rfl fun y hy => hsv y (hblk _ hG' y (GeneratingSet.mem_blk.1 hy)) i
 
-/-- **The composed field of P5 (2.39) agrees at a unit point of the hull** (R12, the locality of the
+/-- **The composed field of P5 (2.39) agrees at a unit point of the hull** (reading HS-1, the locality of the
 substitution at one point): under the hypotheses of `decBg_agree_of_hull` and the standing
 conditions of the covariance at the two localization vectors, with the representative of `b` in the
 hull and hat variables agreeing on the unit points of the hull,

@@ -717,7 +717,7 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   (Vmod) of each old term, conditional on OPEN-H7-MIXED, OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC and the
   common-cover I-4a theorem (VMOD.md §1.4, VMOD-39). P6 (4.33) is the localized interaction: the step's terms are at the
   cluster labels `Ŷ(S) ⊇ Y₀` of Theorem 3.4; the landed assignments are the `Y₀` layer.
-* **Status after W1154 pieces 2–3 (2026-10-21): the step with holes DEFINED with characterizations** (readings R12,
+* **Status after W1154 pieces 2–3 (2026-10-21): the step with holes DEFINED with characterizations** (readings HS-1,
   OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC, OPEN-H7-MIXED recorded in `PLAN-B.md`). Core (any
   `Fluctuation.HoleStep`, the whole-lattice `StepSetting` is the instance `toHole`, rfl lemmas): the composed field of P5
   (2.39) `HoleStep.composed` (decoupled background and covariance root of the pair (C, G′) at the localization vectors
@@ -730,7 +730,7 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `composedMulti`, `phiLF` (log of the integrand of (2.16): `logKernelC` + the holomorphic `𝒜_k + ℱ_k + ℛ^{(k)}`,
   `LargeField/Def7SmallFieldC`; `stepKernel_mul_sfFactor`), `oldDoms`, `oldLF`, `locSloc` (R_{k+1}(□′) = `locDomC`),
   `expWLF`, `oldTotalLF`, `oldCoefLF` (core: the `r`-collar of `X ∩ Ω_{k+1}`, `collarCoreC`). **(i) OPEN-P6-ACTIVE-
-  COMPOSITE-LOC under R12 PROVED** (`Fluctuation/HoleStepActComp`, `HoleStepPointLocal`, `HoleStepOldLocal`: the active
+  COMPOSITE-LOC under reading HS-1 PROVED** (`Fluctuation/HoleStepActComp`, `HoleStepPointLocal`, `HoleStepOldLocal`: the active
   closure and its block hull; the composed field at a unit point agrees for two localization vectors with the same factors on
   the closure, `composed_eq_of_hull`, from `Dec2.decBg_component_cross` and `Dec2.localLift_eq_localLift_on_component`
   for (`coverOf` G′, G′) with itself; (AE2) `oldInterp_localityAEOn`, `oldCoef_eq_zero_of_not_reached`,

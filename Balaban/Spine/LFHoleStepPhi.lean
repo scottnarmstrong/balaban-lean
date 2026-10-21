@@ -171,7 +171,7 @@ variable {k : ℕ} {ϱ ϱ' : ℝ}
   (St : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N ϱ ϱ')
 
 open Classical in
-/-- **The localization domains of P5 (2.18)** of the unit points (reading R12): the sites of the
+/-- **The localization domains of P5 (2.18)** of the unit points (reading HS-1): the sites of the
 cubes of `𝕋_{k+1}` within `ρ` cubes of the cube of the unit point (`locDomC`, `R_{k+1}(□′)`) whose
 `4 L^{k+1+m₁}`-ball lies in `Ω₁(G′)` (P3 (2.14): `X₁ ⊂ Ω₁`, with the margin of the cross lemmas). -/
 noncomputable def locDomsLF (ρ : ℕ) : St.U → Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=

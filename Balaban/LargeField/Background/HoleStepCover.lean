@@ -9,9 +9,9 @@ public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.Localization.SharpX0Distance
 
 /-!
-# The cover bases of the pair `(coverOf G′, G′)` of the step on a region (R12)
+# The cover bases of the pair `(coverOf G′, G′)` of the step on a region (reading HS-1)
 
-Under the reading R12 the decoupled objects of the step on a region are those of the one pair
+Under the reading HS-1 the decoupled objects of the step on a region are those of the one pair
 `(coverOf G′, G′)`, `G′` the set of P5 (2.17) (`p6TopC`).  Its cube alignment and sup-separation
 (`p6TopC_cubeAligned`, `p6TopC_supSep`) give the cover estimates of the landed development:
 

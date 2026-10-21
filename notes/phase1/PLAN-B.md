@@ -236,7 +236,7 @@ approved declaration.
 - **Amendment (W1146, 2026-10-21): the set must contain the sites read by the irrelevant part.** The inherited term of a label `(j, y, X)` is the irrelevant part `irrelTorus`, which reads the field on `X` and at the neighbours `y + L^j e_μ` of `y` (`irrelTorus_congr`); these may lie outside `X`. The chain identifies the term at the composed field with the class term at the whole-level composed field only on the top layer `j` of the composition set (`composeData_agree_on_X`, used through the chain's clause `GsSpecStrong j (XL τ) (Gj τ)`, `XL τ = X ∪ □(y)`). On `𝔹_j(X)` the neighbours outside `X` lie in a lower layer (or the collar, `j = 1`), where the composed field is a different object, so composing on `𝔹_j(X)` itself breaks that identification. The set to require is `𝔹_j(X⁺)`, `X⁺` the union of `X` and the `𝒞_j`-cubes of the neighbours `y + L^j e_μ` (`y ∈ X` aligned): the chain then composes on `Tm.gs j X` (top layer `X⁺ ⊇ X ∪ st₊(y)`), the inclusion of the composed data in the class domain is the room lemma (`d2raw_mem_birthXiDom_of_top`), and the settings construction takes `X_j = X⁺` with the cover set `XL τ ⊇ X⁺` (`settings_family_castLocalB_spec_gen`). The R13 definition change is held until this is settled.
 
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
-- **R12 of W1154 (the step on a region; named "R12" in the W1154 doc-strings, distinct from the approved Ruling R12 on removal histories above)** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
+- **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
   Sets: G = 𝔹_k(W_k) (`p6OldC`) ≺ G′ = (𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1} of (2.17) (`p6TopC`), datum ψ_k off Ω_{k+1}
   and θ = z ψ_{k+1} on it (`liftMixed`). (2.17) is the composed background of G′; (2.18) and C^{(k)1/2}_loc (2.35) are
   the decoupled background and covariance root of (C, G′), C = `coverOf` G′, at the vector equal to s on the cover cubes
@@ -249,17 +249,17 @@ approved declaration.
   component of X ∩ Ω_{k+1}". Reading: X₀ = A_X = X ∩ Ω_{k+1}, and the uncut core X₁ = the sites within r of A_X
   (`collarCoreC`), the pair condition X₀^{∼r₀} ⊂ X₁ of P3 (2.14) that P5 (2.18) uses for (□′, R_{k+1}(□′)) (without a
   collar the read sites at the edge of A_X are cut points of the decoupled problem); the parameters are the cover cubes
-  not inside X₁ (`parCubes`), set to 1 inside X₁; at □′ ⊂ Ω_{k+1} the vector is that of R12 (0 outside R_{k+1}(□′)).
+  not inside X₁ (`parCubes`), set to 1 inside X₁; at □′ ⊂ Ω_{k+1} the vector is that of reading HS-1 (0 outside R_{k+1}(□′)).
   Output domains by (4.44)[3] through the optimal covers of X (`assignOut`, `assignWt`). Needs: the cell count of X₁ by
   d_k(X) (`P6ActiveSeed`, times the collar factor), and the H7 validity of the extension (OPEN-H7-MIXED).
-- **OPEN-P6-ACTIVE-COMPOSITE-LOC.** Under R12 the "old operator" of the substitution is the operator of the one set G′
+- **OPEN-P6-ACTIVE-COMPOSITE-LOC.** Under reading HS-1 the "old operator" of the substitution is the operator of the one set G′
   (its layers off Ω_{k+1} are those of 𝔹_k(W_k)), with the one cover C = `coverOf` G′: background, covariance and
   covariance root at the vector s all belong to (C, G′), and the composition with G is a block average. Reading: the
   statement to prove is the AE locality (AE2) of s ↦ ℬ^{(k)}(X)(composed field) on the incidence component of X₁ ∪ J
   for the decoupled objects of the single pair (C, G′) — the same-set decoupling locality (`Decoupled2FpLocal`,
   `Dec2Covariance.decCovSqrt_BD_of_GsxBD`, `DecSqrtCutFactor.CovStanding.decCovSqrt_agree`), plus the spectator part
   (old spins on X ∩ Ω^c_{k+1}, h, g fixed: P5 (2.35), (2.39); proved by `composedMulti_out`, `composedMulti_of_lt`).
-  Status (W1154, 2026-10-21): PROVED under R12 (`Fluctuation/HoleStepOldLocal.lean`: `oldInterp_localityAEOn`,
+  Status (W1154, 2026-10-21): PROVED under reading HS-1 (`Fluctuation/HoleStepOldLocal.lean`: `oldInterp_localityAEOn`,
   `oldCoef_eq_zero_of_not_reached`, `oldCoef_congr_of_agreeReach`), given the standing analytic conditions of the pair at
   the localization vectors (domain of I-4b, `AdmPot`, units of `1 - 𝒦_x`, `M_x`: part of OPEN-H7-MIXED) and two geometric
   conditions on the localization domains (each read point covered by a centre with footprint in the core and in its
@@ -268,7 +268,7 @@ approved declaration.
   R_{k+1}(□′) ∩ (deep part of Ω₁(G′)) and the 6-cell collar of A_X; the standing conditions follow from the datum in the
   chart Ξ^c(G′; 1, ε) (`standing_of_xiCData`); (coverOf G′, G′) has `CoverBase`/`XCover` (`p6TopC_coverBase`). Remaining
   input: the datum in the chart (OPEN-H7-MIXED) and the (D7) field locality of the record's term.
-- **OPEN-H7-MIXED.** Reading: the image lemma for the composite of R12: for (θ, h, g) in the target H7 domain of
+- **OPEN-H7-MIXED.** Reading: the image lemma for the composite of reading HS-1: for (θ, h, g) in the target H7 domain of
   scale k+1 (P5 (1.36)–(1.37) at Ω_{k+1}), |ψ̂| < p₁(β_k) and |s_P| ≤ e^{κ₁}, the multiscale field `composedMulti` (the
   composed field on the unit points of Ω_{k+1}, the record's fields elsewhere) lies in the source H7 domain of scale k
   on which the record's ℬ^{(k)}(X) is analytic with its bound ((D7) `analytic`, `bound`). It is one statement about the

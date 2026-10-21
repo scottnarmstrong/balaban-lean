@@ -12,7 +12,7 @@ public import Balaban.LargeField.Background.HoleStepCover
 /-!
 # The locality of the re-expansion of an old boundary term of a history (OPEN-P6-ACTIVE-COMPOSITE-LOC)
 
-The history instance of `HoleStep.oldCoef_eq_zero_of_not_reached` (reading R12 of
+The history instance of `HoleStep.oldCoef_eq_zero_of_not_reached` (reading HS-1 of
 `notes/phase1/PLAN-B.md`): for the step on a region of a history (`holeStepLF`, the set `G′` of
 P5 (2.17) on the cover torus), the cover `coverOf G′`, the localization domains of (2.18)
 (`locDomsLF`) and the uncut core, the `r`-collar of `A_X = X ∩ Ω_{k+1}` (`collarCoreC`), the
@@ -119,7 +119,7 @@ theorem collarCoreC_ball (H : RegionHistory S n R k0 K) {k : ℕ} {ϱ ϱ' : ℝ}
   omega
 
 /-- **The coefficients of the re-expansion of an old term of a history are rooted at its read points**
-(OPEN-P6-ACTIVE-COMPOSITE-LOC under R12, history instance): `T(X, J) = 0` unless every cube of `J`
+(OPEN-P6-ACTIVE-COMPOSITE-LOC under reading HS-1, history instance): `T(X, J) = 0` unless every cube of `J`
 lies in the region `Y(J)` reached from the read unit points of `X` through chains of active centres.
 The inputs: the datum of the step in the domain `Ψ̃^c(δ, δ)` of Theorem I-4b (the background part of
 OPEN-H7-MIXED), the numerical conditions of Theorems I-4b and I-4c, the cover constants of the cube-aligned set `G′`, a collar radius

@@ -10,11 +10,11 @@ public import Balaban.Fluctuation.HoleStepOldCoef
 public import Balaban.Localization.I5Param
 
 /-!
-# The locality (AE2) of the re-expansion of an old boundary term (OPEN-P6-ACTIVE-COMPOSITE-LOC, R12)
+# The locality (AE2) of the re-expansion of an old boundary term (OPEN-P6-ACTIVE-COMPOSITE-LOC, reading HS-1)
 
 P6 p. 34: the old term `ℬ^{(k)}(X)` evaluated at the composed field with the localization vectors
 `v_b(w) = slocOf X₁loc (coreExt X₁ w) b` is expanded by Lemma AE in the parameters `w` of the cover
-cubes off the core `X₁`.  Under the reading R12 (`notes/phase1/PLAN-B.md`) the hypothesis (AE2) of
+cubes off the core `X₁`.  Under the reading HS-1 (`notes/phase1/PLAN-B.md`) the hypothesis (AE2) of
 Lemma AE is the statement OPEN-P6-ACTIVE-COMPOSITE-LOC; this file proves it from the single-pair
 locality of `Fluctuation/HoleStepPointLocal.lean`, for an old term that reads the composed field at
 the unit points of a finite set `Rd`, under the standing conditions of the decoupled objects of the
@@ -168,7 +168,7 @@ theorem norm_slocVec_le {C : DecCover d L N₁ m₁ (k + 1)}
   unfold slocOf coreExt
   split_ifs <;> simp [hR, hw, hR0]
 
-/-- **(AE2) for the interpolated old term** (OPEN-P6-ACTIVE-COMPOSITE-LOC under R12).  For an old
+/-- **(AE2) for the interpolated old term** (OPEN-P6-ACTIVE-COMPOSITE-LOC under reading HS-1).  For an old
 term `B` reading the composed field only at the unit points of `Rd`, the cover `coverOf G′`, the
 localization domains `X₁loc`, the core `X₁` and parameters in the polydisc of radius `R`
 (`1 ≤ R ≤ e^κ`): two parameter vectors supported on `J` that agree on the cubes of `J` inside the

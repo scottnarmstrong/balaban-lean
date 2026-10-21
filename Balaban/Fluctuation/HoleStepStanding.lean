@@ -155,7 +155,7 @@ theorem standing_of_inDomainC {Kc Cx Cx₂ c BG δ δc : ℝ} (hS : Dec2.DecSpec
   exact h1
 
 /-- **(AE2) for the interpolated old term, from the chart of the datum** (OPEN-P6-ACTIVE-COMPOSITE-LOC
-under R12, with the analytic hypotheses reduced to `S.D' ∈ Ξ^c(G′; 1, ε)` and the numerical conditions
+under reading HS-1, with the analytic hypotheses reduced to `S.D' ∈ Ξ^c(G′; 1, ε)` and the numerical conditions
 of Theorems I-4b, I-4c; parameters in the polydisc of radius `R`, `1 ≤ R < e^κ`). -/
 theorem oldInterp_localityAEOn_of_xiCData {Kc Cx Cx₂ c BG eps δc : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
@@ -198,7 +198,7 @@ theorem oldInterp_localityAEOn_of_xiCData {Kc Cx Cx₂ c BG eps δc : ℝ}
       hsm hD fun P => (hv P).trans_lt hRk) hcov hlocdeep
 
 /-- **(AE2) for the interpolated old term, from the background domain of the datum**
-(OPEN-P6-ACTIVE-COMPOSITE-LOC under R12, with the analytic hypotheses reduced to
+(OPEN-P6-ACTIVE-COMPOSITE-LOC under reading HS-1, with the analytic hypotheses reduced to
 `S.D' ∈ Ψ̃^c(δ, δ)` and the numerical conditions of Theorems I-4b, I-4c). -/
 theorem oldInterp_localityAEOn_of_inDomainC {Kc Cx Cx₂ c BG δ δc : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
