@@ -698,6 +698,49 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   transfer map (`transferLabel` with the optimal cover and the mark patches, a choice made covariantly).
   Then O1 is the estimate P6 (4.34) for `T`, which is analytic (the fluctuation machinery of `Fluctuation/StepActivity*`,
   `ClassOldTerm*`), and O5 is the counting above.
+* **Status after W1154 (2026-10-21): O2–O5 and the geometry of O1 PROVED** (`Spine/LFBdryOldEntropy.lean`,
+  `Spine/LFBdryOldAssign.lean`; axioms `propext, Classical.choice, Quot.sound`). Definitions: the assignments
+  `Def7.oldAssign F H k` (old post-`R` boundary domain `X` meeting `Ω_{k+1}`, an optimal cover `𝒦 ∈ optCovers`, rooted
+  patches `J`), the output label `assignOut` (= `transferCubes`, the transfer label of `𝒦 ∪ J`), the weight
+  `assignWt = 1/#optCovers` (covariant average over the optimal covers). Proved: `oldAssign_spec` (validity of `X` and of
+  the output, `X ⊆ Y`, patches, `d_{k+1}(Y) ≤ d_k(X)/L + c_G|J|`, O4 `d_k(X) ≥ L(⌊R_k⌋+2)`); O3 `assignOut_meets_Zpre`,
+  `assignOut_mem_bdryDomsAt_iff` (an output is a boundary domain at `k+1` iff it meets `(Z^pre_{k+1})^c`); O5
+  `sum_exp_oldIn_le`, `card_patchesIn_le`, `sum_exp_assign_le` (`assignEnt`), `assignEnt_le_exp`; and the per-label
+  bound `norm_sum_oldAssign_fiber_le`: for any coefficients `T` on the fiber of `Y` with
+  `‖T a‖ ≤ assignWt · C_re B₀ e^{-κ d_k(X)} e^{-κ_m |J|}` (hT), `‖∑ T‖ ≤ C_re · assignEnt(…) · e^{-κ_o d_{k+1}(Y)}`, the
+  other hypotheses being the constant conditions `κ/2 - κ_o/L ≥ a_ent + 1` and (Λ28).
+  **Open: O1 proper** — the coefficient `T(X, 𝒦, J)` and its bound hT. The old part of `ℬ^{(k+1)}` is FLUCTUATION
+  Theorem 3.1 (c) (P5 (2.48), (3.2)): `∫₀¹ du ⟨ℬ''^{(k)}(ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂)⟩''_u`, which needs
+  (1) the composed field (the map from the scale-`(k+1)` multiscale field to the scale-`k` one on `Ω_{k+1}`: at scale `k+1`
+  the H7 domain leaves `ψ_k` free on `Ω_{k+1}` away from the collar, so no identity transport is bounded), (2) the
+  measure of the step with holes (`Fluctuation.StepSetting` is the whole-lattice step; `Thm31cde.lean`), (3) the bound
+  (Vmod) of each old term, conditional on OPEN-H7-MIXED, OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC and the
+  common-cover I-4a theorem (VMOD.md §1.4, VMOD-39). P6 (4.33) is the localized interaction: the step's terms are at the
+  cluster labels `Ŷ(S) ⊇ Y₀` of Theorem 3.4; the landed assignments are the `Y₀` layer.
+* **Status after W1154 pieces 2–3 (2026-10-21): the step with holes DEFINED with characterizations** (readings HS-1,
+  OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC, OPEN-H7-MIXED recorded in `PLAN-B.md`). Core (any
+  `Fluctuation.HoleStep`, the whole-lattice `StepSetting` is the instance `toHole`, rfl lemmas): the composed field of P5
+  (2.39) `HoleStep.composed` (decoupled background and covariance root of the pair (C, G′) at the localization vectors
+  `slocOf`), the measure `nuIn`, the exponent `expW`, `avgOld`, `oldTotal` (= `∫₀¹ ⟨ℬ''⟩''_u`), `partFun_one_eq_mul_exp_oldTotal`
+  (`HoleStepMeasure`); the coefficient `T(X, J) = oldCoef` (Lemma AE `coef` of the interpolated old term `oldInterp`),
+  `sum_oldCoef_eq_of_analytic`, `oldCoef_eq_zero_of_core`, `oldCoef_eq_zero_of_far` (`HoleStepOldCoef`); the block
+  structure `prodSplit` and Theorem 3.1 (c) on a region `oldTotal_eq_sum_of_marks`, `oldBOut`, `oldTotal_eq_sum_oldBOut`,
+  `norm_oldBOut_le` (`HoleStepSplit`, through the region-general `Thm31cdeOn`: `ProdSplitOn`, `InterpMarksOn`,
+  `interpAvg_eq_sum_interpTermOn`). History instance (`Spine/LFHoleStep*`, `Spine/LFOldCoef`): `holeStepLF` (θ = z ψ_{k+1}),
+  `composedMulti`, `phiLF` (log of the integrand of (2.16): `logKernelC` + the holomorphic `𝒜_k + ℱ_k + ℛ^{(k)}`,
+  `LargeField/Def7SmallFieldC`; `stepKernel_mul_sfFactor`), `oldDoms`, `oldLF`, `locSloc` (R_{k+1}(□′) = `locDomC`),
+  `expWLF`, `oldTotalLF`, `oldCoefLF` (core: the `r`-collar of `X ∩ Ω_{k+1}`, `collarCoreC`). **(i) OPEN-P6-ACTIVE-
+  COMPOSITE-LOC under reading HS-1 PROVED** (`Fluctuation/HoleStepActComp`, `HoleStepPointLocal`, `HoleStepOldLocal`: the active
+  closure and its block hull; the composed field at a unit point agrees for two localization vectors with the same factors on
+  the closure, `composed_eq_of_hull`, from `Dec2.decBg_component_cross` and `Dec2.localLift_eq_localLift_on_component`
+  for (`coverOf` G′, G′) with itself; (AE2) `oldInterp_localityAEOn`, `oldCoef_eq_zero_of_not_reached`,
+  `oldCoef_congr_of_agreeReach`); history instance `Spine/LFOldLocal.lean` `oldCoefLF_eq_zero_of_not_reached` with every
+  geometric hypothesis proved and the standing conditions from the datum in the chart (`standing_of_xiCData`,
+  `p6TopC_coverBase`). **Remaining for O1:** (ii) OPEN-H7-MIXED (the
+  image of the target H7 domain and the polydisc in the source H7 domain; gives `hana` of `sum_oldCoef_eq_of_analytic`
+  and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
+  exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
+  (labels `Ŷ(S)` ↦ `Finset (Torus d n_{k+1})`) and the assembly of `old` as `BTerms`, then the (D7) clauses.
 
 ## LastIntegralInput sub-inputs (W1108)
 

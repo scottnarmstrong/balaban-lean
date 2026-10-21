@@ -15,6 +15,7 @@ public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RRawHoleComponent
 public import Balaban.LargeField.R.RGasCoreConn
+public import Balaban.LargeField.Region.StepMisses
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -736,11 +737,8 @@ theorem RegionHistory.cubeMap_succ_notMem_Omega (F : Def7.FineSizeFrame S n M K 
     (hk : k + 1 ≤ K) {x : Localization.CTorus S.d S.L F.N₁ m₁ K}
     (hx : cubeMap n S.L M K k (Localization.castT F.side x) ∈ (H.step k).Z) :
     cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∉ (H.step k).Omega := by
-  intro hxΩ
-  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
-      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hx, rfl⟩
-  rw [cubeMap_succ hnn hk] at hU
-  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hxΩ)
+  rw [← cubeMap_succ hnn hk]
+  exact (H.step k).blockMap_notMem_Omega hx
 
 /-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
 transfer of `Def7.exists_transfer_fineValidAt`; P5 (2.3): the opening of scale `k + 1` misses
