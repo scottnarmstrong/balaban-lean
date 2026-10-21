@@ -160,9 +160,10 @@ noncomputable def transferCubes (k : ℕ) (Om' : Set (Torus S.d (n (k + 1))))
 include hnn in
 /-- **The transfer with patches of a class label** (blocker 3 under ruling R11; P6 p. 34; P3
 (4.42)–(4.48)).  Let `X` be a valid label at the scale-`k` region `Om`, `(𝒦, W, E)` an admissible
-pair of its fine set of cost `d7SizeAt F k Om X` (an optimal cover), and `J` a family of
-`π'_{k+1}`-cubes with aligned bases each meeting the transfer label of `𝒦` in the new region `Om'`
-(patches rooted at active sites).  Then `Y = transferCubes F k Om' X 𝒦 J` has the transfer label
+pair of its fine set of cost `d7SizeAt F k Om X` (an optimal cover), and `J` a chain of
+`π'_{k+1}`-cubes rooted at the transfer label of `𝒦` in the new region `Om'` (`PatchChain`: each
+cube meets the label or an earlier cube there).  Then `Y = transferCubes F k Om' X 𝒦 J` has the
+transfer label
 of `𝒦 ∪ J` as fine set, contains `X`, is a valid label at `Om'`, has size at most
 `L⁻¹ d7SizeAt F k Om X + c_G |J|`, and `J` consists of patches of `Y`. -/
 theorem transferCubes_spec {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n k))}
@@ -173,9 +174,8 @@ theorem transferCubes_spec {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n
     (hA : ModAdmissible m₀ k (d7Pull F k Om) (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦 W E)
     (hc : bondCost (scaleW S.L m₀ m₁ k) E = d7SizeAt F k Om X)
     {J : Finset (Localization.CTorus S.d S.L F.N₁ m₁ K)}
-    (hJ : ∀ p ∈ J, Aligned (cellSide S.L m₀ m₁ (k + 1)) p ∧
-      (Localization.box p (S.L * cellSide S.L m₀ m₁ (k + 1)) ∩ (transferLabel m₀ k (d7Pull F (k + 1) Om')
-        (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦 ∩ d7Pull F (k + 1) Om')).Nonempty) :
+    (hJ : PatchChain m₀ (k + 1) (transferLabel m₀ k (d7Pull F (k + 1) Om')
+      (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦) (d7Pull F (k + 1) Om') J) :
     d7Pull F (k + 1) (transferCubes F k Om' X 𝒦 J : Set (Torus S.d (n (k + 1)))) =
         transferLabel m₀ k (d7Pull F (k + 1) Om') (d7Pull F k (X : Set (Torus S.d (n k))))
           (𝒦 ∪ (J : Set (Localization.CTorus S.d S.L F.N₁ m₁ K))) ∧
@@ -187,7 +187,7 @@ theorem transferCubes_spec {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n
       J ⊆ patchesIn m₀ (k + 1) (d7Pull F (k + 1) Om')
         (d7Pull F (k + 1) (transferCubes F k Om' X 𝒦 J : Set (Torus S.d (n (k + 1))))) := by
   classical
-  have hJal : ∀ p ∈ J, Aligned (cellSide S.L m₀ m₁ (k + 1)) p := fun p hp => (hJ p hp).1
+  have hJal : ∀ p ∈ J, Aligned (cellSide S.L m₀ m₁ (k + 1)) p := fun p hp => hJ.aligned hp
   have hcl := cellClosed_transferLabel F hnn hkK Om' hΩ
     (𝒦 := 𝒦 ∪ (J : Set (Localization.CTorus S.d S.L F.N₁ m₁ K)))
     (hA.2.1.trans (Set.biUnion_subset_biUnion_left Set.subset_union_left))
@@ -202,7 +202,7 @@ theorem transferCubes_spec {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n
     exact d7Pull_cubeIdx_image F hnn hkK hcl
   have hTU := transferLabel_union_patches F.divN₁ hkK (d7Pull F (k + 1) Om')
     (d7Pull F k (X : Set (Torus S.d (n k)))) 𝒦 hJal
-  obtain ⟨hD, hsz⟩ := transfer_patches hΩ hA hX.1 hX.2.1 J hJ
+  obtain ⟨hD, hsz⟩ := transfer_patches_chain hΩ hA hX.1 hX.2.1 hJ
   rw [← hTU] at hD hsz
   refine ⟨hYT, hYT ▸ subset_transferLabel _ _ _, ?_, ?_, fun p hp => ?_⟩
   · unfold FineValidAt; rw [hYT]; exact hD
@@ -213,10 +213,10 @@ theorem transferCubes_spec {k : ℕ} (hkK : k + 1 ≤ K) {Om : Set (Torus S.d (n
       unfold d7SizeAt d7SizeAtE; rw [hYT]; rfl
     rw [e, ← hc]
     exact hsz
-  · obtain ⟨hal, z, hzb, hzT, hzΩ⟩ := hJ p hp
-    refine mem_patchesIn.2 ⟨hal, z, hzb, ?_, hzΩ⟩
+  · obtain ⟨z, hzb, hzΩ⟩ := hJ.meets hp
+    refine mem_patchesIn.2 ⟨hJ.aligned hp, z, hzb, ?_, hzΩ⟩
     rw [hYT, hTU]
-    exact subset_holeClose _ _ (Or.inl hzT)
+    exact subset_holeClose _ _ (Or.inr (Set.mem_iUnion₂.2 ⟨p, hp, hzb⟩))
 
 open Classical in
 /-- **The optimal covers of a label**: the families `𝒦` of the admissible pairs `(𝒦, W, E)` of its
@@ -259,18 +259,16 @@ open Classical in
 /-- **The assignments of the old boundary terms of a history at the step `k → k + 1`** (P6 p. 34,
 LFR Lemma IV.1.5 (iii)): the triples `(X, 𝒦, J)` of a boundary domain `X` of the post-`R` class at
 scale `k` (`bdryDomsAt` at the region `Ω_k^post`, for `Z_k`) whose fine set meets the fine set of
-the new region `Ω_{k+1}`, an optimal cover `𝒦` of `X`, and a family `J` of patches
-(`π'_{k+1}`-cubes with aligned bases) each meeting the transfer label of `𝒦` inside `Ω_{k+1}`. -/
+the new region `Ω_{k+1}`, an optimal cover `𝒦` of `X`, and a chain `J` of patches
+(`π'_{k+1}`-cubes with aligned bases, `PatchChain`) rooted at the transfer label of `𝒦` inside
+`Ω_{k+1}`. -/
 noncomputable def oldAssign (H : RegionHistory S n R k0 K) (k : ℕ) : Finset (OldAssignIdx S n k F) :=
   Finset.univ.filter fun a =>
     a.1 ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z ∧
     (d7Pull F k (a.1 : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty ∧
     a.2.1 ∈ optCovers F k (H.omegaPost k) a.1 ∧
-    ∀ p ∈ a.2.2, Aligned (cellSide S.L m₀ m₁ (k + 1)) p ∧
-      (Localization.box p (S.L * cellSide S.L m₀ m₁ (k + 1)) ∩
-        (transferLabel m₀ k (d7Pull F (k + 1) (OmegaCube H (k + 1)))
-          (d7Pull F k (a.1 : Set (Torus S.d (n k)))) a.2.1 ∩
-            d7Pull F (k + 1) (OmegaCube H (k + 1)))).Nonempty
+    PatchChain m₀ (k + 1) (transferLabel m₀ k (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (d7Pull F k (a.1 : Set (Torus S.d (n k)))) a.2.1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) a.2.2
 
 /-- **The output label of an assignment**: the transfer of its old label with its optimal cover and
 its patches at the new region `Ω_{k+1}` (`transferCubes`). -/
@@ -288,11 +286,9 @@ theorem mem_oldAssign {H : RegionHistory S n R k0 K} {k : ℕ} {a : OldAssignIdx
       a.1 ∈ bdryDomsAt F k (H.omegaPost k) (H.step k).Z ∧
       (d7Pull F k (a.1 : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty ∧
       a.2.1 ∈ optCovers F k (H.omegaPost k) a.1 ∧
-      ∀ p ∈ a.2.2, Aligned (cellSide S.L m₀ m₁ (k + 1)) p ∧
-        (Localization.box p (S.L * cellSide S.L m₀ m₁ (k + 1)) ∩
-          (transferLabel m₀ k (d7Pull F (k + 1) (OmegaCube H (k + 1)))
-            (d7Pull F k (a.1 : Set (Torus S.d (n k)))) a.2.1 ∩
-              d7Pull F (k + 1) (OmegaCube H (k + 1)))).Nonempty := by
+      PatchChain m₀ (k + 1) (transferLabel m₀ k (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+        (d7Pull F k (a.1 : Set (Torus S.d (n k)))) a.2.1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+        a.2.2 := by
   classical
   simp [oldAssign]
 
