@@ -2991,6 +2991,9 @@ public import Balaban.Spine.FinalBoxLocal
 public import Balaban.Spine.FinalBoxCells
 public import Balaban.Spine.FinalBoxMeasure
 public import Balaban.Spine.FinalBoxGas
+public import Balaban.Spine.FinalBoxEven
+public import Balaban.Spine.FinalBoxHull
+public import Balaban.Spine.FinalBoxAct
 public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.BudgetSetupCore
 public import Balaban.Spine.KeptHalf

@@ -64,12 +64,13 @@ theorem val_sub_single_ne (x : Torus d ℓ) {μ ν : Fin d} (h : ν ≠ μ) :
     ((x - (Pi.single μ 1 : Torus d ℓ)) ν).val = (x ν).val := by
   simp [Pi.single_eq_of_ne h]
 
-/-- Two sites of the same `s'`-block are joined by a path of nearest-neighbour steps inside any set
-containing the block. -/
-theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ)
-    (hX : ∀ z : Torus d ℓ, (∀ μ, (z μ).val / s' = c μ) → z ∈ X) :
-    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, (x μ).val / s' = c μ) →
-      (∀ μ, (y μ).val / s' = c μ) → Relation.ReflTransGen (StepIn X) x y := by
+/-- **Two sites of the same level set of a monotone coordinate function** `f` (a product of
+intervals of the coordinates) are joined by a path of nearest-neighbour steps inside any set
+containing the level set. -/
+theorem block_connected_of_monotone (f : ℕ → ℕ) (hf : Monotone f) (X : Finset (Torus d ℓ))
+    (c : Fin d → ℕ) (hX : ∀ z : Torus d ℓ, (∀ μ, f (z μ).val = c μ) → z ∈ X) :
+    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, f (x μ).val = c μ) →
+      (∀ μ, f (y μ).val = c μ) → Relation.ReflTransGen (StepIn X) x y := by
   intro n
   induction n using Nat.strong_induction_on with
   | _ n ih =>
@@ -98,13 +99,13 @@ theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ
         set x' : Torus d ℓ := x + (Pi.single μ 1 : Torus d ℓ) with hx'
         have hx'μ := val_add_single_self x μ hv1
         have hx'ν : ∀ ν, ν ≠ μ → (x' ν).val = (x ν).val := fun ν hν => val_add_single_ne x hν
-        have hblk : ∀ ν, (x' ν).val / s' = c ν := by
+        have hblk : ∀ ν, f (x' ν).val = c ν := by
           intro ν
           by_cases hν : ν = μ
           · subst hν
             rw [hx'μ]
-            have h1 : ((x ν).val + 1) / s' ≤ (y ν).val / s' := Nat.div_le_div_right (by omega)
-            have h2 : (x ν).val / s' ≤ ((x ν).val + 1) / s' := Nat.div_le_div_right (by omega)
+            have h1 : f ((x ν).val + 1) ≤ f (y ν).val := hf (by omega)
+            have h2 : f (x ν).val ≤ f ((x ν).val + 1) := hf (by omega)
             omega
           · rw [hx'ν ν hν]; exact hx ν
         have hstep : StepIn X x x' := ⟨hX x hx, hX x' hblk, μ, Or.inl rfl⟩
@@ -115,18 +116,26 @@ theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ
         set x' : Torus d ℓ := x - (Pi.single μ 1 : Torus d ℓ) with hx'
         have hx'μ := val_sub_single_self x μ hv1
         have hx'ν : ∀ ν, ν ≠ μ → (x' ν).val = (x ν).val := fun ν hν => val_sub_single_ne x hν
-        have hblk : ∀ ν, (x' ν).val / s' = c ν := by
+        have hblk : ∀ ν, f (x' ν).val = c ν := by
           intro ν
           by_cases hν : ν = μ
           · subst hν
             rw [hx'μ]
-            have h1 : ((x ν).val - 1) / s' ≤ (x ν).val / s' := Nat.div_le_div_right (by omega)
-            have h2 : (y ν).val / s' ≤ ((x ν).val - 1) / s' := Nat.div_le_div_right (by omega)
+            have h1 : f ((x ν).val - 1) ≤ f (x ν).val := hf (by omega)
+            have h2 : f (y ν).val ≤ f ((x ν).val - 1) := hf (by omega)
             omega
           · rw [hx'ν ν hν]; exact hx ν
         have hstep : StepIn X x x' := ⟨hX x hx, hX x' hblk, μ, Or.inr (sub_add_cancel x _).symm⟩
         have hd : coordDist x' y < coordDist x y := hdist x' hx'ν (by rw [hx'μ]; omega)
         exact Relation.ReflTransGen.head hstep (ih _ (hn ▸ hd) x' y rfl hblk hy)
+
+/-- Two sites of the same `s'`-block are joined by a path of nearest-neighbour steps inside any set
+containing the block (the case `f = (· / s')` of `block_connected_of_monotone`). -/
+theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ)
+    (hX : ∀ z : Torus d ℓ, (∀ μ, (z μ).val / s' = c μ) → z ∈ X) :
+    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, (x μ).val / s' = c μ) →
+      (∀ μ, (y μ).val / s' = c μ) → Relation.ReflTransGen (StepIn X) x y :=
+  block_connected_of_monotone (· / s') (fun _ _ h => Nat.div_le_div_right h) X c hX
 
 omit [NeZero ℓ] in
 /-- Paths inside a subset are paths inside a larger set. -/
