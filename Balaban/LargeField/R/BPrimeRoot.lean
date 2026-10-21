@@ -39,18 +39,21 @@ variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ₁ ϱ₂ : ℝ}
 
 variable (H₁ H₂) in
 /-- **Agreement of two data points on a region** for the two pairs: the data of both generating sets
-agree on the dependency sets `resDep` of the sites of `A`, and the further agreement `AgΦ` of the
-root functional holds. -/
-def pairAgree (D₁ : U → BgData H₁ N) (D₂ : U → BgData H₂ N) (AgΦ : U → U → Prop)
-    (A : Set (CTorus d L N₁ m₁ K)) (u u' : U) : Prop :=
+agree on the dependency sets `resDep` of the sites of `A`, and the further agreement `AgΦ A` of the
+root functionals on `A` holds. -/
+def pairAgree (D₁ : U → BgData H₁ N) (D₂ : U → BgData H₂ N)
+    (AgΦ : Set (CTorus d L N₁ m₁ K) → U → U → Prop) (A : Set (CTorus d L N₁ m₁ K)) (u u' : U) :
+    Prop :=
   (∀ x ∈ A, x ∈ H₁.Ω 1 → ∀ y ∈ resDep H₁ x, (D₁ u).Ψ y = (D₁ u').Ψ y ∧ (D₁ u).h y = (D₁ u').h y) ∧
   (∀ x ∈ A, x ∈ H₂.Ω 1 → ∀ y ∈ resDep H₂ x, (D₂ u).Ψ y = (D₂ u').Ψ y ∧ (D₂ u).h y = (D₂ u').h y) ∧
-  AgΦ u u'
+  AgΦ A u u'
 
-theorem pairAgree_mono {D₁ : U → BgData H₁ N} {D₂ : U → BgData H₂ N} {AgΦ : U → U → Prop}
+theorem pairAgree_mono {D₁ : U → BgData H₁ N} {D₂ : U → BgData H₂ N}
+    {AgΦ : Set (CTorus d L N₁ m₁ K) → U → U → Prop}
+    (hmono : ∀ A A' u u', A ⊆ A' → AgΦ A' u u' → AgΦ A u u')
     {A A' : Set (CTorus d L N₁ m₁ K)} (hA : A ⊆ A') {u u' : U}
     (h : pairAgree H₁ H₂ D₁ D₂ AgΦ A' u u') : pairAgree H₁ H₂ D₁ D₂ AgΦ A u u' :=
-  ⟨fun x hx => h.1 x (hA hx), fun x hx => h.2.1 x (hA hx), h.2.2⟩
+  ⟨fun x hx => h.1 x (hA hx), fun x hx => h.2.1 x (hA hx), hmono A A' u u' hA h.2.2⟩
 
 /-- The fields within `r` of the approximate field of the datum `D` (the region of Theorem I-4b). -/
 def NearApprox (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁) (a : ℕ → ℝ) (ν : ℝ) (D : BgData H N)
@@ -94,7 +97,8 @@ variable {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ} 
 `e^{κ₁}`, the label maps `πᵢ` with `hπsubᵢ`, `hπparᵢ`.  Let the data maps `Dᵢ` be analytic on the
 open set `Su` with values in `Ψ̃^c(δ, ε)`.  If the root functional `Φ` is analytic and bounded by
 `Eb e^{-(κ-1) d^cov_j(X)}` where both fields are within `r = K₂' C₅₃ δ` of the approximate fields,
-and reads the fields only on `X₁` and the data only through `AgΦ`, then its decoupled extension
+and reads the fields only on `X₁` and the data only through `AgΦ X₁` (`AgΦ` reflexive and
+monotone in the region), then its decoupled extension
 satisfies `RootLocPremises` with the agreement `pairAgree` of the data on the regions. -/
 theorem rootLocPremises_pairExt {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c₀ BG)
     (S₁ : Dec2.CoverLocal C₁ H₁ a ν Kc Cx) (S₂ : Dec2.CoverLocal C₂ H₂ a ν Kc Cx)
@@ -132,11 +136,12 @@ theorem rootLocPremises_pairExt {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c�
       NearApprox (ϱ₁ := ϱ₂) H₂ a ν (D₂ u)
         (cK2' d L N (famConst d L BG κ₁) * (lemma53Const d L * δ)) φ₂ →
       ‖Φ u φ₁ φ₂‖ ≤ Eb * Real.exp (-(κ - 1) * treeLenCovOne m₀ j X))
-    {AgΦ : U → U → Prop} (hAgΦ : ∀ u, AgΦ u u)
+    {AgΦ : Set (CTorus d L N₁ m₁ K) → U → U → Prop} (hAgΦ : ∀ A u, AgΦ A u u)
+    (hAgmono : ∀ A A' u u', A ⊆ A' → AgΦ A' u u' → AgΦ A u u')
     (hΦloc : ∀ u u' φ₁ φ₁' φ₂ φ₂',
       (∀ y : H₁.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ X₁f → ∀ i, φ₁ (y, i) = φ₁' (y, i)) →
       (∀ y : H₂.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ X₁f → ∀ i, φ₂ (y, i) = φ₂' (y, i)) →
-      AgΦ u u' → Φ u φ₁ φ₂ = Φ u' φ₁' φ₂') :
+      AgΦ (↑X₁f) u u' → Φ u φ₁ φ₂ = Φ u' φ₁' φ₂') :
     RootLocPremises G m₀ lab j X 𝒦X κ κ₁ Eb Su
       (fun C u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ (compY lab (X1 G m₀ j 𝒦X) C) u u')
       (fun Y u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ Y u u')
@@ -190,8 +195,9 @@ theorem rootLocPremises_pairExt {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c�
       disj := hdisj
       opt := hopt
       Eb_nonneg := hEb
-      refl := fun C u _ => ⟨fun _ _ _ _ _ => ⟨rfl, rfl⟩, fun _ _ _ _ _ => ⟨rfl, rfl⟩, hAgΦ u⟩
-      link := fun C u u' h => pairAgree_mono (compY_subset_Ysites hcov.hU hcov.hN hmem _ C) h
+      refl := fun C u _ => ⟨fun _ _ _ _ _ => ⟨rfl, rfl⟩, fun _ _ _ _ _ => ⟨rfl, rfl⟩, hAgΦ _ u⟩
+      link := fun C u u' h =>
+        pairAgree_mono hAgmono (compY_subset_Ysites hcov.hU hcov.hN hmem _ C) h
       ana := ?_
       bd := ?_
       loc := ?_ }
@@ -226,8 +232,124 @@ theorem rootLocPremises_pairExt {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c�
       (Cf := C) (fun i hi => hs.1 i hi) (fun i hi => hs'.1 i hi) (fun i => (hs.2 i).le)
       (fun i => (hs'.2 i).le) hag' hδ0 hδε hε hδ hνε (hD₂ u hu) (hD₂ u' hu')
       (fun x hx => by rw [hY] at hx; exact hAg.2.1 x hx)
-    exact hΦloc u u' _ _ _ _ k₁ k₂ hAg.2.2
+    have hX₁sub : (↑X₁f : Set (CTorus d L N₁ m₁ K)) ⊆ compY lab (X1 G m₀ j 𝒦X) C := by
+      rw [← hY]; exact subset_compY _ _
+    exact hΦloc u u' _ _ _ _ k₁ k₂ (hAgmono _ _ u u' hX₁sub hAg.2.2)
 
 end Root
+
+/-! ### All roots: the aggregate identity for root functionals of two background fields -/
+
+section Roots
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱ₁ ϱ₂ : ℝ}
+  {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {m₀ : ℕ}
+  {C₁ C₂ : DecCover d L N₁ m₁ K} {H₁ : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁}
+  {H₂ : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₂} {a : ℕ → ℝ} {ν Kc Cx : ℝ}
+  {U : Type*} [NormedAddCommGroup U] [NormedSpace ℂ U]
+  {Rt : Type*} {ι : Rt → Type*} [∀ r, DecidableEq (ι r)] [∀ r, Fintype (ι r)] {Zt : Type*}
+
+/-- **The aggregate identity of P7 (3.22)–(3.25) for root functionals of two background fields.**
+For a finite set of roots `r` (each with its P3 geometry, cut labels and root functional `Φ r`
+satisfying the premises of `rootLocPremises_pairExt`), the sum of the root functionals at the
+background fields of Theorem 5.2 of the two generating sets is the sum over the final domains `Y`
+of `ℬ′_Y = ∑_r r4Fresh_r(Y)` of their decoupled extensions; `ℬ′_Y` depends on the data only through
+the agreement on `Y`, is bounded by `∑_r Eb_r e^{-κ₀ d^cov(X_r) - 2κ d̃^cov(Y)}` and is analytic. -/
+theorem bPrime_pairs_aggregate [DecidableEq (Set (CTorus d L N₁ m₁ K))] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    {κ κ₀ κ₁ : ℝ} (hκ₀ : 0 ≤ κ₀) (hκ : 3 * κ₀ + 3 ≤ κ)
+    (hκκ₁ : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κ ≤ κ₁) (h1 : 1 ≤ (κ₁ / 2 - 1) / 2)
+    (hlog : Real.log ((((2 * L + 1) ^ d : ℕ) : ℝ) *
+      (((L ^ m₀) ^ d : ℕ) : ℝ)) ≤ (κ₁ / 2 - 1) / 2)
+    {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c₀ BG)
+    (S₁ : Dec2.CoverLocal C₁ H₁ a ν Kc Cx) (S₂ : Dec2.CoverLocal C₂ H₂ a ν Kc Cx)
+    (hconn₁ : Dec2.HatConn C₁ H₁) (hconn₂ : Dec2.HatConn C₂ H₂)
+    (HB₁ : BgHyp d L K ϱ₁ a ν) (HB₂ : BgHyp d L K ϱ₂ a ν) (hκ₁ : 0 < κ₁)
+    (hM : c₀ * Real.exp (N0 d L * κ₁) ≤ (L : ℝ) ^ m₁)
+    {π₁ π₂ : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁ m₁ K}
+    (hπsub₁ : ∀ P ∈ C₁.cubeIdx, ∀ x ∈ cubeP P, x ∈ Pset m₁ (π₁ P))
+    (hπsub₂ : ∀ P ∈ C₂.cubeIdx, ∀ x ∈ cubeP P, x ∈ Pset m₁ (π₂ P))
+    {roots : Finset Rt} {lab : ∀ r, ι r → ℕ × CTorus d L N₁ m₁ K} {j : Rt → ℕ}
+    {X 𝒦X : Rt → Set (CTorus d L N₁ m₁ K)} {X₁f : Rt → Finset (CTorus d L N₁ m₁ K)}
+    (hcov : ∀ r ∈ roots, CovSetup G m₀ (j r) (X r) (𝒦X r))
+    (hopt : ∀ r ∈ roots, ∃ (W₀ : Finset (CTorus d L N₁ m₁ K))
+      (E₀ : Finset (CTorus d L N₁ m₁ K × CTorus d L N₁ m₁ K)),
+      ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ X r) ∧ MeetsOne m₀ (j r) (𝒦X r) W₀ ∧
+        bondCost (scaleW L m₀ m₁ (j r)) E₀ = treeLenCovOne m₀ (j r) (X r))
+    (hX₁ : ∀ r ∈ roots, (↑(X₁f r) : Set (CTorus d L N₁ m₁ K)) = X1 G m₀ (j r) (𝒦X r))
+    (hmem : ∀ r ∈ roots, ∀ i, lab r i ∈ cubeIdx G)
+    (hinj : ∀ r ∈ roots, Function.Injective (lab r))
+    (hdisj : ∀ r ∈ roots, ∀ i, Disjoint (Pset m₁ (lab r i)) (X1 G m₀ (j r) (𝒦X r)))
+    (hπpar₁ : ∀ r ∈ roots, ∀ P ∈ C₁.cubeIdx, ¬ cubeP P ⊆ X₁f r → ∃ i, lab r i = π₁ P)
+    (hπpar₂ : ∀ r ∈ roots, ∀ P ∈ C₂.cubeIdx, ¬ cubeP P ⊆ X₁f r → ∃ i, lab r i = π₂ P)
+    {Su : Set U} (hSu : IsOpen Su) {D₁ : U → BgData H₁ N} {D₂ : U → BgData H₂ N}
+    (hD₁an : AnalyticOnNhd ℂ (fun u => ((D₁ u).Ψ, (D₁ u).h)) Su)
+    (hD₂an : AnalyticOnNhd ℂ (fun u => ((D₂ u).Ψ, (D₂ u).h)) Su)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ₁)
+    (hνε : ν * ((L : ℝ) ^ K) ^ 2 * ε ^ 2 ≤ δ ^ 2)
+    (hD₁ : ∀ u ∈ Su, InDomainC H₁ ν δ ε (D₁ u)) (hD₂ : ∀ u ∈ Su, InDomainC H₂ ν δ ε (D₂ u))
+    {Φ : Rt → U → (H₁.Ω 1 × Fin N → ℂ) → (H₂.Ω 1 × Fin N → ℂ) → ℂ} {Eb : Rt → ℝ}
+    (hEb : ∀ r ∈ roots, 0 ≤ Eb r)
+    (hΦan : ∀ r ∈ roots, ∀ u ∈ Su, ∀ φ₁ φ₂,
+      NearApprox H₁ a ν (D₁ u) (cK2' d L N (famConst d L BG κ₁) * (lemma53Const d L * δ)) φ₁ →
+      NearApprox (ϱ₁ := ϱ₂) H₂ a ν (D₂ u)
+        (cK2' d L N (famConst d L BG κ₁) * (lemma53Const d L * δ)) φ₂ →
+      AnalyticAt ℂ (fun q : U × (H₁.Ω 1 × Fin N → ℂ) × (H₂.Ω 1 × Fin N → ℂ) =>
+        Φ r q.1 q.2.1 q.2.2) (u, φ₁, φ₂))
+    (hΦbd : ∀ r ∈ roots, ∀ u ∈ Su, ∀ φ₁ φ₂,
+      NearApprox H₁ a ν (D₁ u) (cK2' d L N (famConst d L BG κ₁) * (lemma53Const d L * δ)) φ₁ →
+      NearApprox (ϱ₁ := ϱ₂) H₂ a ν (D₂ u)
+        (cK2' d L N (famConst d L BG κ₁) * (lemma53Const d L * δ)) φ₂ →
+      ‖Φ r u φ₁ φ₂‖ ≤ Eb r * Real.exp (-(κ - 1) * treeLenCovOne m₀ (j r) (X r)))
+    {AgΦ : Set (CTorus d L N₁ m₁ K) → U → U → Prop} (hAgΦ : ∀ A u, AgΦ A u u)
+    (hAgmono : ∀ A A' u u', A ⊆ A' → AgΦ A' u u' → AgΦ A u u')
+    (hΦloc : ∀ r ∈ roots, ∀ u u' φ₁ φ₁' φ₂ φ₂',
+      (∀ y : H₁.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ X₁f r → ∀ i, φ₁ (y, i) = φ₁' (y, i)) →
+      (∀ y : H₂.Ω 1, (y : CTorus d L N₁ m₁ K) ∈ X₁f r → ∀ i, φ₂ (y, i) = φ₂' (y, i)) →
+      AgΦ (↑(X₁f r)) u u' → Φ r u φ₁ φ₂ = Φ r u' φ₁' φ₂')
+    (S : Finset Zt) :
+    (∀ u ∈ Su, ∑ r ∈ roots, Φ r u (bgFieldC H₁ a ν (bgC0 d L N) (D₁ u))
+        (bgFieldC H₂ a ν (bgC0 d L N) (D₂ u)) =
+      ∑ Y ∈ bPrimeDomains G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r)),
+        bPrime G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r))
+          (fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+            (Φ r)) S Y u) ∧
+    (∀ Y, ∀ u ∈ Su, ∀ u' ∈ Su, pairAgree H₁ H₂ D₁ D₂ AgΦ Y u u' →
+      bPrime G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r))
+          (fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+            (Φ r)) S Y u =
+        bPrime G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r))
+          (fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+            (Φ r)) S Y u') ∧
+    (∀ Y, ∀ u ∈ Su, ‖bPrime G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r))
+          (fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+            (Φ r)) S Y u‖ ≤
+      ∑ r ∈ roots, Eb r * Real.exp (-κ₀ * treeLenCovOne m₀ (j r) (X r) -
+        2 * κ * treeLenCov G m₀ Y)) ∧
+    (∀ Y, AnalyticOnNhd ℂ (bPrime G m₀ roots lab (fun r => X1 G m₀ (j r) (𝒦X r))
+          (fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+            (Φ r)) S Y) Su) := by
+  have hR : ∀ r ∈ roots, RootLocPremises G m₀ (lab r) (j r) (X r) (𝒦X r) κ κ₁ (Eb r) Su
+      (fun C u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ (compY (lab r) (X1 G m₀ (j r) (𝒦X r)) C) u u')
+      (fun Y u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ Y u u')
+      ((fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+        (Φ r)) r S) := fun r hr =>
+    rootLocPremises_pairExt hS S₁ S₂ hconn₁ hconn₂ HB₁ HB₂ hκ₁ hM (hcov r hr) (hopt r hr)
+      (hX₁ r hr) (hmem r hr) (hinj r hr) (hdisj r hr) hπsub₁ (hπpar₁ r hr) hπsub₂ (hπpar₂ r hr)
+      hSu hD₁an hD₂an hδ0 hδε hε hδ hνε hD₁ hD₂ (hEb r hr) (hΦan r hr) (hΦbd r hr) hAgΦ hAgmono
+      (hΦloc r hr)
+  obtain ⟨hsum, hloc, hbd, han⟩ := bPrime_aggregate_of_localization (G := G) (m₀ := m₀) hd hL hκ₀ hκ
+    hκκ₁ h1 hlog (S := S) (roots := roots) (c := lab) (j := j) (X := X) (𝒦X := 𝒦X) (Eb := Eb)
+    (Su := Su)
+    (Ag := fun r C u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ (compY (lab r) (X1 G m₀ (j r) (𝒦X r)) C) u u')
+    (AgY := fun Y u u' => pairAgree H₁ H₂ D₁ D₂ AgΦ Y u u')
+    (F := fun r (_ : Finset Zt) => pairExt C₁ C₂ H₁ H₂ a ν (rho4 d L N BG κ₁) π₁ π₂ (lab r) D₁ D₂
+      (Φ r)) hR
+  refine ⟨fun u hu => ?_, hloc, hbd, han⟩
+  rw [← hsum u hu]
+  refine Finset.sum_congr rfl fun r hr => ?_
+  exact (pairExt_one hS S₁.toCoverBase S₂.toCoverBase HB₁ HB₂ hκ₁.le hM π₁ π₂ (lab r) D₁ D₂ (Φ r)
+    ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD₁ u hu⟩ ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD₂ u hu⟩).symm
+
+end Roots
 
 end Balaban.LargeField
