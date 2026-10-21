@@ -10,6 +10,7 @@ public import Balaban.Inhabited.NewLevelCanonHE
 public import Balaban.Inhabited.NewLevelCanonHPrem
 public import Balaban.Inhabited.NewLevelClassCoeff
 public import Balaban.Inhabited.NewLevelCanonGeom
+public import Balaban.Spine.CanonMarginTie
 
 /-!
 # The coefficient of the new level on two tori for canonical covers from local generating sets
@@ -17,7 +18,7 @@ public import Balaban.Inhabited.NewLevelCanonGeom
 `newLevel_coeff_twoTorus_of_class_cells`: `newLevel_coeff_twoTorus_of_class_of_cellTerms` with the geometry
 hypothesis `hgeom` discharged by `hgeom_of_local` for canonical covers whose generating sets are local
 generating sets of polymers (`CanonCoverLocal`).  The hypotheses besides the class, the pins, the
-zero-source pins and `CellTermsAgree` are the cover requirements `hmarg`, `hcb` (the region `X₁` contains the `6 M`-neighbourhood of the margin and the cell box), the correspondence of the polymers, and size
+zero-source pins and `CellTermsAgree` are the cover property `hX1` (`CanonCoverIsX1`: the canonical cover is the region `X1` of a chosen family of the polymer) and the numeric tie `htie` (`CanonMarginTie`), the correspondence of the polymers, and size
 conditions.
 -/
 
@@ -68,7 +69,7 @@ attribute [local irreducible] NewLevelSystem.Dom
 
 /-- **The coefficient of the new level on two tori for canonical covers built from local generating
 sets.**  The geometry hypothesis of `newLevel_coeff_twoTorus_of_class_of_cellTerms` is discharged by
-`hgeom_of_local`; `hmarg` (the `6 M`-neighbourhood of the margin lies in `X₁`) and `hcb` are the cover requirements and `hcell` the agreement of the irrelevant term at
+`hgeom_of_local`; `hX1` is the cover property and `htie` the numeric tie and `hcell` the agreement of the irrelevant term at
 the distinguished cell. -/
 theorem newLevel_coeff_twoTorus_of_class_cells
     (hN2 : 2 ≤ N)
@@ -163,20 +164,13 @@ theorem newLevel_coeff_twoTorus_of_class_cells
     (hGB2 : (SB).G' = levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) le_rfl)
     (hnE : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hnE' : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (LC : CanonCoverLocal F F')
+    (LC : CanonCoverLocal C.m₀ F F')
     (SpG : DGSetting (SA).G' (compWeight L (SA).a₁) (SA).ν)
     (hbig : 2 * (R + 1 + 6 * (k + 1) * L ^ (k + 1 + m₁) + (5 * L + 2) * L ^ (k + 1 + m₁) +
       L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < N₁ * L ^ m₁ * L ^ (k + 1))
     (hbig' : 2 * (R + 1 + 6 * (k + 1) * L ^ (k + 1 + m₁) + (5 * L + 2) * L ^ (k + 1 + m₁) +
       L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < N₁' * L ^ m₁ * L ^ (k + 1))
-    (hmarg : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      ∀ x ∈ canonZ LC j y₀ X₀, ∀ w : Fin d → ℤ,
-        (∀ μ, |(w μ : ℝ)| < 6 * (L : ℝ) ^ ((k + 1) + m₁)) →
-        x + (intTorus w : CTorus d L N₁ m₁ (k + 1)) ∈
-          (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))))
-    (hcb : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      Localization.box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j))
-        (L * cellSide L C.m₀ m₁ j) ⊆ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))))
+    (hX1 : CanonCoverIsX1 (SA) C F) (htie : Balaban.Spine.CanonMarginTie L C.m₀) (hL3 : 3 ≤ L)
     (hPK : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
       (∀ x ∈ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))),
         InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
@@ -208,7 +202,10 @@ theorem newLevel_coeff_twoTorus_of_class_cells
     (hmE₁ : 8 * R + 3 * L ^ (k + 1) + L * cellSide L C.m₀ m₁ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hmE₂ : 8 * R + 3 * L ^ (k + 1) + L * cellSide L C.m₀ m₁ (k + 1) < (N₁' * L ^ m₁) * L ^ (k + 1)):
     NS'.coeff θ' (T.image (σc)) = NS.coeff θ T := by
-  exact newLevel_coeff_twoTorus_of_class_of_cellTerms (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hum := hum) (humB := humB) (hδc := hδc) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (i₀ := i₀) (i₁ := i₁) (hP := hP) (hP' := hP') (hCm := hCm) (hCT := hCT) (hCT' := hCT') (hTI := hTI) (hlocB := hlocB) (hM8 := hM8) (hcX := hcX) (hcX' := hcX') (hRR := hRR) (hcloc := hcloc) (hcov := hcov) (hGA2 := hGA2) (hGB2 := hGB2) (hnE := hnE) (hnE' := hnE') (hK := hK) (hK' := hK') (oMX := oMX) (omar := omar) (oαK := oαK) (osm := osm) (hρ := hρ) (hΦan := hΦan) (hn19 := hn19) (hn19' := hn19') (hmE₁ := hmE₁) (hmE₂ := hmE₂) (hgeom := hgeom_of_local LC NS.hL SpG hbig hbig' hmarg hcb hPK hPJ hcell)
+  have hN₁ : L ^ C.m₀ ∣ N₁ := by
+    have := NS.OS.hN
+    rwa [hP.1] at this
+  exact newLevel_coeff_twoTorus_of_class_of_cellTerms (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hum := hum) (humB := humB) (hδc := hδc) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (i₀ := i₀) (i₁ := i₁) (hP := hP) (hP' := hP') (hCm := hCm) (hCT := hCT) (hCT' := hCT') (hTI := hTI) (hlocB := hlocB) (hM8 := hM8) (hcX := hcX) (hcX' := hcX') (hRR := hRR) (hcloc := hcloc) (hcov := hcov) (hGA2 := hGA2) (hGB2 := hGB2) (hnE := hnE) (hnE' := hnE') (hK := hK) (hK' := hK') (oMX := oMX) (omar := omar) (oαK := oαK) (osm := osm) (hρ := hρ) (hΦan := hΦan) (hn19 := hn19) (hn19' := hn19') (hmE₁ := hmE₁) (hmE₂ := hmE₂) (hgeom := hgeom_of_local LC hL3 hm₁ htie SpG hbig hbig' (hfar_of_isX1 hX1 (by omega) hN₁) hPK hPJ hcell)
 
 end Final
 

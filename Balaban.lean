@@ -3221,3 +3221,4 @@ public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
 public import Balaban.Inhabited.NewLevelCanonMargin
 public import Balaban.Inhabited.NewLevelCanonProducer
 public import Balaban.Inhabited.NewLevelCanonX1
+public import Balaban.Spine.CanonMarginTie
