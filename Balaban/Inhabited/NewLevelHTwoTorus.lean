@@ -26,6 +26,66 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
 
 variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero L] [NeZero N₁] [NeZero N₁'] {ϱ : ℝ}
 
+/-- The old terms whose domains contain the label `Y`. -/
+def NewLevelSystem.Dom {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp}
+    (NS : NewLevelSystem S C z Jr) (Y : Set (CTorus d L N₁ m₁ (k + 1))) (τ : NS.O.ι) : Prop :=
+  Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)
+
+/-- **The localized old term `τ` of a system** at the mark `(u, t₀)`, the label `Y` and the
+parameter `θ` with the block variable `Φ`. -/
+noncomputable def NewLevelSystem.oldTermVal {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) (θ : physParam N S)
+    (Φ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b) (u t₀ : ℂ) (Y : Set (CTorus d L N₁ m₁ (k + 1)))
+    (τ : NS.O.ι) : ℂ :=
+  evDec (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) S.a₁ S.ν S.hG'
+    ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (NS.O.F₁L τ) (NS.O.SolL τ)
+    (eTermFun S.G' (NS.O.Gk τ) (NS.O.Gj τ) (stepG d L N₁ m₁ k ϱ)
+      (compWeight L S.a₁) (NS.O.FkL τ) (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r))
+    (S.blockU z) u t₀ Y ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 NS.O.ρ NS.hp Φ)
+
+open Classical in
+/-- **The explicit thick activities of two systems agree under a partial index bijection.** -/
+theorem NewLevelSystem.H_twoTorus_partial
+    {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp}
+    (NS : NewLevelSystem S C z Jr)
+    {S' : StepSetting d L N₁' m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
+    {z' : RootIdx d L N₁' m₁ (k + 1)} {t' pp' : ℝ} {Jr' : S'.JointRep t' pp'}
+    (NS' : NewLevelSystem S' C' z' Jr')
+    (θ : physParam N S) (θ' : physParam N S')
+    (Y : {Y // Y ∈ NS.𝒴C}) (Y' : {Y // Y ∈ NS'.𝒴C}) (u u' : ℂ)
+    (Φ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, (S'.blockSplit 1 NS'.hp).Ωb b)
+    (e : {τ // NS.Dom Y.1 τ} ≃ {τ' // NS'.Dom Y'.1 τ'})
+    (σ : ∀ τ, NS.Dom Y.1 τ → NS'.O.ι) (hσ : ∀ τ hτ, σ τ hτ = (e ⟨τ, hτ⟩).1)
+    (hcond : ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 t ∧ ‖u‖ < MarkBudgetAudit.corrU) ↔
+      ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
+        XiCRaw S'.G' (compWeight L S'.a₁) S'.ν (k + 1) 1 t' ∧ ‖u'‖ < MarkBudgetAudit.corrU))
+    (hβ : (S'.β : ℂ) = S.β)
+    (hu : ∀ τ (hτ : NS.Dom Y.1 τ),
+      NS'.oldTermVal θ' Φ' u' 0 Y'.1 (σ τ hτ) = NS.oldTermVal θ Φ u 0 Y.1 τ)
+    (h0 : ∀ τ (hτ : NS.Dom Y.1 τ),
+      NS'.oldTermVal θ' Φ' 0 0 Y'.1 (σ τ hτ) = NS.oldTermVal θ Φ 0 0 Y.1 τ) :
+    NS'.H θ' Y' u' Φ' = NS.H θ Y u Φ := by
+  obtain rfl : σ = fun τ hτ => (e ⟨τ, hτ⟩).1 := funext fun τ => funext fun hτ => hσ τ hτ
+  have := NS.O.fin
+  have := NS'.O.fin
+  rw [NS.hH, NS'.hH]
+  by_cases hc : ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 t ∧ ‖u‖ < MarkBudgetAudit.corrU)
+  · have hc' := hcond.1 hc
+    simp only [hc.1, hc.2, hc'.1, hc'.2, and_self, ite_true]
+    exact @sum_ite_sub_equiv_sub _ _ NS.O.fin NS'.O.fin (fun τ => Y.1 ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ))
+      (fun τ' => Y'.1 ∈ polyDom S'.G' (NS'.O.X₁f τ') NS'.O.m₀ (NS'.O.jL τ') (NS'.O.𝒦X τ')) _ _ e
+      (S.β : ℂ) (S'.β : ℂ) hβ (NS.oldTermVal θ Φ u 0 Y.1) (NS.oldTermVal θ Φ 0 0 Y.1)
+      (NS'.oldTermVal θ' Φ' u' 0 Y'.1) (NS'.oldTermVal θ' Φ' 0 0 Y'.1) hu h0
+  · have hc' : ¬ ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
+        XiCRaw S'.G' (compWeight L S'.a₁) S'.ν (k + 1) 1 t' ∧ ‖u'‖ < MarkBudgetAudit.corrU) :=
+      fun h => hc (hcond.2 h)
+    simp only [hc, hc', ite_false]
+
 open Classical in
 /-- **The explicit thick activities of two systems agree.** -/
 theorem NewLevelSystem.H_twoTorus
@@ -71,47 +131,8 @@ theorem NewLevelSystem.H_twoTorus
           (compWeight L S.a₁) (NS.O.FkL τ) (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r))
         (S.blockU z) 0 0 Y.1
         ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 NS.O.ρ NS.hp Φ)) :
-    NS'.H θ' Y' u' Φ' = NS.H θ Y u Φ := by
-  have := NS.O.fin
-  have := NS'.O.fin
-  rw [NS.hH, NS'.hH]
-  by_cases hc : ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S.G' (compWeight L S.a₁) S.ν (k + 1) 1 t ∧ ‖u‖ < MarkBudgetAudit.corrU)
-  · have hc' := hcond.1 hc
-    simp only [hc.1, hc.2, hc'.1, hc'.2, and_self, ite_true]
-    refine @sum_ite_sub_equiv _ _ NS.O.fin NS'.O.fin e
-      (fun τ => Y.1 ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ))
-      (fun τ' => Y'.1 ∈ polyDom S'.G' (NS'.O.X₁f τ') NS'.O.m₀ (NS'.O.jL τ') (NS'.O.𝒦X τ'))
-      _ _
-      (S.β : ℂ) (S'.β : ℂ) hβ
-      (fun τ => evDec (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) S.a₁ S.ν S.hG'
-        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (NS.O.F₁L τ) (NS.O.SolL τ)
-        (eTermFun S.G' (NS.O.Gk τ) (NS.O.Gj τ) (stepG d L N₁ m₁ k ϱ)
-          (compWeight L S.a₁) (NS.O.FkL τ) (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r))
-        (S.blockU z) u 0 Y.1
-        ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 NS.O.ρ NS.hp Φ))
-      (fun τ => evDec (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) S.a₁ S.ν S.hG'
-        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (NS.O.F₁L τ) (NS.O.SolL τ)
-        (eTermFun S.G' (NS.O.Gk τ) (NS.O.Gj τ) (stepG d L N₁ m₁ k ϱ)
-          (compWeight L S.a₁) (NS.O.FkL τ) (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r))
-        (S.blockU z) 0 0 Y.1
-        ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), S.hatOf 1 NS.O.ρ NS.hp Φ))
-      (fun τ' => evDec (NS'.O.X₁f τ') NS'.O.m₀ (NS'.O.jL τ') (NS'.O.𝒦X τ') S'.a₁ S'.ν S'.hG'
-        ((S'.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (NS'.O.F₁L τ') (NS'.O.SolL τ')
-        (eTermFun S'.G' (NS'.O.Gk τ') (NS'.O.Gj τ') (stepG d L N₁' m₁ k ϱ)
-          (compWeight L S'.a₁) (NS'.O.FkL τ') (fun r => (S'.β : ℂ)⁻¹ * NS'.O.Eτ τ' r))
-        (S'.blockU z') u' 0 Y'.1
-        ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N), S'.hatOf 1 NS'.O.ρ NS'.hp Φ'))
-      (fun τ' => evDec (NS'.O.X₁f τ') NS'.O.m₀ (NS'.O.jL τ') (NS'.O.𝒦X τ') S'.a₁ S'.ν S'.hG'
-        ((S'.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) (NS'.O.F₁L τ') (NS'.O.SolL τ')
-        (eTermFun S'.G' (NS'.O.Gk τ') (NS'.O.Gj τ') (stepG d L N₁' m₁ k ϱ)
-          (compWeight L S'.a₁) (NS'.O.FkL τ') (fun r => (S'.β : ℂ)⁻¹ * NS'.O.Eτ τ' r))
-        (S'.blockU z') 0 0 Y'.1
-        ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N), S'.hatOf 1 NS'.O.ρ NS'.hp Φ'))
-      hP hu h0
-  · have hc' : ¬ ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
-        XiCRaw S'.G' (compWeight L S'.a₁) S'.ν (k + 1) 1 t' ∧ ‖u'‖ < MarkBudgetAudit.corrU) :=
-      fun h => hc (hcond.2 h)
-    simp only [hc, hc', ite_false]
+    NS'.H θ' Y' u' Φ' = NS.H θ Y u Φ :=
+  NS.H_twoTorus_partial NS' θ θ' Y Y' u u' Φ Φ' (Equiv.subtypeEquiv e hP) (fun τ _ => e τ) (fun _ _ => rfl) hcond hβ
+    (fun τ _ => hu τ ‹_›) (fun τ _ => h0 τ ‹_›)
 
 end Balaban.Inhabited

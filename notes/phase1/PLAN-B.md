@@ -244,6 +244,14 @@ approved declaration.
   of (2.48)/(3.2) is the log of the integrand of (2.16) (kernel at z ψ_{k+1}, 𝒜_k + ℱ_k + ℛ^{(k)} on Z^c_k, holomorphic)
   at the composed field (2.39), plus ½|ψ̂|² + u ℬ''^{(k)}; χ_k is carried by T′^{(k)} and dμ′ ((2.44)–(2.47)); by (2.38)
   this is P5's exponent up to a constant. The pre-localized terms that (3.1) moves into ℬ'' stay in it (kind (i)).
+- **Reading HS-1′ (approved 2026-10-21), the coefficient on the local pair** (P5 (2.18)–(2.20), p. 505: the approximate
+  background "depends only on R_{k+1}(□′)"; P3 Prop. 2.3; P6 p. 33). What: the coefficient T(X, J) of an old term, its
+  average and `oldB` are computed on the local pair (C_V, G′_V), the restriction of (`coverOf` G′, G′) to V(X, J) = the
+  r-collar of A_X ∪ ⋃J (datum, decoupled background and covariance root of the local pair); new definitions beside those of
+  HS-1, tied by the comparison lemma (local = global when the global datum is in the I-4b domain). Why: under HS-1 the
+  composite is `Dec2.decBgField` of the global pair, a choice needing the whole datum on G′ in Ψ̃^c(G′), while (D7) quantifies
+  over all fields with H7(Y) constraining only the cubes of Y; so `loc_field` fails and `analytic` fails on H7(Y), and the
+  extension of local good data to global good data fails for N = 2 around a hole (R13).
 - **OPEN-P6-X1-INSTANTIATION.** P6 p. 34: "we consider this term as localized in X ∩ Ω_{k+1}, we introduce the same
   localization extension as before … the domains Y₁ may have several components, each of them containing at least one
   component of X ∩ Ω_{k+1}". Reading: X₀ = A_X = X ∩ Ω_{k+1}, and the uncut core X₁ = the sites within r of A_X

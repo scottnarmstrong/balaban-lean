@@ -1328,6 +1328,9 @@ public import Balaban.Fluctuation.HoleStepPointLocal
 public import Balaban.Fluctuation.HoleStepOldLocal
 public import Balaban.Fluctuation.HoleStepStanding
 public import Balaban.Fluctuation.HoleStepGeom
+public import Balaban.Fluctuation.HoleStepLocal
+public import Balaban.Fluctuation.HoleStepAnalytic
+public import Balaban.Fluctuation.HoleStepMarks
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.LargeField.Background.HoleStepCover
 public import Balaban.Fluctuation.StepIdentityQuad
@@ -3011,6 +3014,10 @@ public import Balaban.Inhabited.NewLevelHPairs
 public import Balaban.Inhabited.NewLevelGPairs
 public import Balaban.Polymer.NewLevelDetTwoTorus
 public import Balaban.Inhabited.NewLevelCoeffTwoTorus
+public import Balaban.Inhabited.NewLevelCanon
+public import Balaban.Inhabited.NewLevelCanonEquiv
+public import Balaban.Inhabited.NewLevelCanonPins
+public import Balaban.Polymer.PolyDomBoxMap
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
@@ -3034,6 +3041,13 @@ public import Balaban.Spine.LFHoleStepPhi
 public import Balaban.Spine.LFOldCoef
 public import Balaban.Spine.LFOldLocal
 public import Balaban.Spine.LFOldRead
+public import Balaban.Spine.LFOldH7
+public import Balaban.Spine.LFHoleStepLoc
+public import Balaban.Spine.LFOldLocCoef
+public import Balaban.Spine.LFOldH7Loc
+public import Balaban.Spine.LFOldMarkBound
+public import Balaban.Spine.LFOldCoefBound
+public import Balaban.Spine.LFOldMarks
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads

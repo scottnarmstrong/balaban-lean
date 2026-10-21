@@ -741,6 +741,32 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
   exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
   (labels `Ŷ(S)` ↦ `Finset (Torus d n_{k+1})`) and the assembly of `old` as `BTerms`, then the (D7) clauses.
+* **Status after W1154 pieces 4n–5 (2026-10-21): reading HS-1′ (the coefficient on the local pair, `PLAN-B.md`).**
+  Under HS-1 the composite is `Dec2.decBgField` of the global pair, so (D7) `loc_field`/`analytic` cannot hold for the
+  re-expanded terms (H7(Y) constrains only the cubes of Y); HS-1′ computes `T(X, J)` on the restriction of
+  (`coverOf` G′, G′) to `𝔹_{k+1}(V(X, J))`. Landed pieces: `Spine/LFOldRead` (`oldTermLF_congr_of_locField`: the field
+  locality `hB` of the old term from (D7) `loc_field`); `Spine/LFOldH7` (`deltaC_stencil`, `deltaPrimeC_stencil`,
+  `h7Domain_composedMulti_of_inner`: **the transfer part of OPEN-H7-MIXED PROVED** — every condition of the source H7 domain
+  at X that does not read the composed field near Ω_{k+1} follows from the target domain at Y ⊇ X);
+  `Fluctuation/HoleStepLocal` (`GeneratingSet.inter`, `HoleStep.restrict`); `Spine/LFHoleStepLoc` (`locB`, `holeStepLoc`,
+  cover bases of the local pair); `Spine/LFOldLocCoef` (`locSetXJ`, `oldCoefLoc`, the Cauchy bound `norm_oldCoefLoc_le`);
+  `Spine/LFOldH7Loc` (`h7Domain_composedMulti_loc`); `Spine/LFOldMarkBound` (`norm_oldInterp_loc_lt`: at every parameter
+  of the polydisc the interpolated old term of the local pair is below the record's `fac e^{-rate d^cov(X)}`, from the
+  record's (D7) and `H7MixedInnerLoc`); `Fluctuation/HoleStepAnalytic` (`Dec2.analyticOnNhd_decBg`,
+  `HoleStep.analyticAt_composed`, `HoleStep.analyticOnNhd_oldInterp`: the composed field and the interpolated old term are
+  analytic in the parameters, I-4b (i) and I-4c (iii)); `Spine/LFOldCoefBound` (**`norm_oldCoefLoc_le_of_inputs`: the
+  bound of P6 (4.34) at one coefficient, `|T(X, J)| ≤ fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|}`**, from the record's (D7),
+  the standing conditions of the local pair and the two named inputs). **Named inputs (open):**
+  - `H7MixedInnerLoc` — the composed field of the local pair lies in Δ^c_k(□; 1, ε_k) at the cubes □ ⊂ X near Ω_{k+1}
+    (P5 (2.39)–(2.43): composition identity, locality of the background between `genCube` and the local pair, the
+    fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
+  - `H7MixedDatumLoc` — the datum of the local pair lies in Ψ̃^c(G′_V; δ_b, δ_b) (patching the per-cube decompositions of
+    RegC into one real slowly varying field on V; size: medium);
+  - Proposition 3.3 on a region (the localized exponent of the measure of the step, `InterpMarksOn` minus the marks):
+    still to be stated.
+  Next: the marks (the coefficients as functions of the cube variables of the measure, with the bound above), Proposition
+  3.3 on a region as a named input, `oldB` as `BTerms` (grouped by output label, with the assignments of
+  `Spine/LFBdryOldAssign`) and its (D7) clauses, and the bound P6 (4.34) at one output label.
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -1581,3 +1607,29 @@ Residuals of the kept half, now exactly:
 5. **`euclid_I`, `euclid_K`, `euclid_b`** (covariance under lattice symmetries preserving the localized history): same as 4 with `symVar`, `RelOut`, `RelSub`, `RelG`; the weights are built from geometric data of the localized history. ≈ 250 lines.
 6. **`KeptDatumCohAt k` for `Ks`** (the datum clause of (D8) at the scale `k`): the transport of the pre-`R` kernel and of the weights along `boxMap` (`quietKernel_twoTorus`, `bgLocPiece_twoTorus`, `chiNew_corr`, the two-torus files; the weights depend on the cutoff functions `χ_q`, `χ'`, `chiNew` of corresponding histories). ≈ 400–600 lines (the same transport as `LFCoherenceInput` of the step, for the composed kernel).
 7. **`KeptScaleKernels` sign of `Ripe` and the old data:** none; `Ks.bound` is only asked at `1 ≤ k ≤ k₀` and `Ripe`, as in `KeptData.bound`.
+### Obstruction to `newLevel_coeff_twoTorus_of_class` (W1148r, 2026-10-21)
+
+The index bijection `e : NS.O.ι ≃ NS'.O.ι` (and so every premise of `H_twoTorus_of_pairs`,
+`G₁_twoTorus_of_pairs`, `coeff_twoTorus`) cannot be produced from class membership.  The inherited levels
+of a `NewLevelSystem` are existential data: `OldTermSystem.ι` is an arbitrary finite type, and the only
+constraints are `hEJ` (`∑ τ, Eτ τ = Jr.EJ C`, a constraint on the sum) and `OldTermsAreIrrel`
+(`Eτ τ = irrelTorus … (y τ) (X τ)`, with `y`, `X` arbitrary).  Neither says which pairs `(y, X)` occur or
+that `τ ↦ (y τ, X τ)` is injective and onto the admissible pairs, so two systems on the two tori need not
+correspond (duplicate, cancelling or missing terms give the same sum).  The same holds for the pinned
+fields `Gk`, `Gj`, `F₁L`, ... (existential beyond their pins; the pin uniqueness of `NewLevelPinUnique`
+only compares fields with the same index).
+Smallest repair: strengthen `OldTermsAreIrrel` with the canonical index clause
+`τ ↦ (jL τ, y τ, X τ)` is a bijection of `ι` onto the set of admissible irrelevant pairs of the class
+(determined by the class geometry); then `e` is `boxMap` on pairs on the quarter box, and the remaining
+premises are the D8 box form of `irrelTorus C.Tm` plus the landed `gsCorr_localB`/`gsIso_localB`.
+
+`OldTermsCanon` (Inhabited/NewLevelCanon.lean, W1148r): the chain's producer must prove it for the inherited levels (to be added after R13 lands).
+It pins the index set and `Eτ`; for `newLevel_coeff_twoTorus_of_class` it must also pin the other free fields of `OldTermSystem`
+(`X₁f τ`, `𝒦X τ`, `Gk τ`, `Gj τ`, `ρ`) as canonical functions of `(jL τ, y τ, X τ)` (they are existential, constrained only by
+`CovSetup`/`BgSetting`); the pinned decoupled fields `F₁L`, `SolL`, `FkL` are then unique by `NewLevelPinUnique`.
+Also needed: a partial index bijection (the full index types have different sizes on the two tori): only the `τ` with `Y ∈ polyDom τ` correspond.
+
+Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`, `G₁_twoTorus_at_of_pairs`, `PolyDomBoxMap.polyDom_boxMap_iff`,
+`OldTermsCanonPins` + `CanonCover` + `exists_domEquiv_of_canon` (NewLevelCanonPins) give the index bijection e from boxMap on pairs.
+Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
+per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
