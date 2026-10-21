@@ -660,6 +660,16 @@ theorem NewLevelFormula.toP {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClas
   obtain ⟨NS, hO, hK, h⟩ := h
   exact ⟨NS, hO, trivial, hK, h⟩
 
+theorem NewLevelFormulaP.mono {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} {Pr Pr' : OldTermSystem S t → Prop} {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormulaP S C z Jr Pr K e) (hPr : ∀ O, Pr O → Pr' O) :
+    NewLevelFormulaP S C z Jr Pr' K e := by
+  obtain ⟨NS, hO, hP, hK, h⟩ := h
+  exact ⟨NS, hO, hPr _ hP, hK, h⟩
+
 /-- `NewLevelFormulaP` from the formula for given inherited levels `O` with `Pr O` (core of
 `NewLevelFormula.of_for`). -/
 theorem NewLevelFormulaP.of_for {S : StepSetting d L N₁ m₁ k N ϱ}

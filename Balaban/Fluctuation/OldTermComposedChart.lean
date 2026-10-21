@@ -60,6 +60,13 @@ theorem composedChartP_subset {Pr : ∀ ϱ₁ : ℝ, GeneratingSet d L (N₁ * L
   rintro r ⟨ϱ₁, G, hq, hc, hB, -, D, h1, h2, rfl⟩
   exact ⟨ϱ₁, G, hq, hc, hB, D, h1, h2, rfl⟩
 
+/-- The composed chart lies in the composed chart with the trivial condition on the source. -/
+theorem composedChart_subset_P_true {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ}
+    {ν : ℝ} {j : ℕ} {b e : ℝ} :
+    composedChart (N := N) Gj a ν j b e ⊆ composedChartP (fun _ _ => True) Gj a ν j b e := by
+  rintro r ⟨ϱ₁, G, hq, hc, hB, D, h1, h2, rfl⟩
+  exact ⟨ϱ₁, G, hq, hc, hB, trivial, D, h1, h2, rfl⟩
+
 end ChartP
 
 section Read

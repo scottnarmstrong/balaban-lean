@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.NewLevelTies
 public import Balaban.Inhabited.NewLevelLabelData
 public import Balaban.Inhabited.StepTowerChainDomNbhd
+import Mathlib.Tactic.Peel
 
 /-!
 # The new level on the local generating sets from the ties (row (iii) of A4-1b)
@@ -231,8 +232,10 @@ chain (block exponent `m₁`), a label rate `κ_dec` and `β₀` such that at ev
 weights are those of the step and whose masses follow the flow at the rate and flow constant of the
 ties, with the bound of its irrelevant terms on their term domain with its decay in the level, the
 chain gives a coefficient family `e z` of every root with its rooted support and its value
-`E0locJ C z`, and on the cast local sets `𝔹_{k+1}(Ŷ⁺(T′))` local families with (A1)–(A5). -/
-theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [NeZero N] {P₀ : Consts}
+`E0locJ C z`, and on the cast local sets `𝔹_{k+1}(Ŷ⁺(T′))` local families with (A1)–(A5).
+(Core with the scale gap: the bound is asked only on the composed charts whose source has the
+scale gap `LabelGap` with the class generating set, `composedChartGap`.) -/
+theorem NewLevelTies.newLevel_localFamilies_composed_gap {d L N : ℕ} [NeZero L] [NeZero N] {P₀ : Consts}
     {m₁ : ℕ} {ϱ : ℝ} (H : NewLevelTies d N L P₀ m₁ ϱ) (hγ0 : 0 < P₀.γ) (hγ1 : P₀.γ < 1 / 2)
     (hα₀ : 0 < P₀.α₀) (hc₈ : 0 ≤ P₀.c₈) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
     (CI KL α₃ : ℝ) (n₁ : ℕ) (hCI : 0 ≤ CI) (hKL : 0 ≤ KL) (hα₃ : 0 < α₃) :
@@ -264,7 +267,7 @@ theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [N
       (_ : ∀ j y X, 0 ≤ Bl j y X)
       (_ : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ Tk.m₁ (k + 1))
         (X : Set (CTorus d L N₁ Tk.m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
-        ∀ r ∈ composedChart (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1 (P₀.eps d L k),
+        ∀ r ∈ composedChartGap (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1 (P₀.eps d L k),
         ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X r.1 r.2‖ ≤
           Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
       (_ : ∀ j y X, j + n₁ ≤ k →
@@ -296,7 +299,7 @@ theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [N
   have hK2 : 0 < xiK2 d L N := by
     have := cK2_pos d L N
     unfold xiK2; positivity
-  obtain ⟨β₀, hβ₀, HB⟩ := T₀.newLevel_localFamilies_birth_composed_of P₀.m₀ hA p hγ0 hγ1 hT rfl rfl rfl
+  obtain ⟨β₀, hβ₀, HB⟩ := T₀.newLevel_localFamilies_birth_composed_of_gap P₀.m₀ hA p hγ0 hγ1 hT rfl rfl rfl
     H.large_L hQ16 hNLN P₀ rfl hα₀ H.eps_quad CI KL α₃ n₁ hCI hKL hα₃
   refine ⟨κmin, T₀, κdec, β₀, hT, hTm, hβ₀, fun k hk => ?_⟩
   -- the room `λ = 17/16` of the step radii
@@ -402,6 +405,96 @@ theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [N
     hopt hNC (hm ▸ H.m₀_ge) hslt.le hidx hmin hm.symm hHat hAw hqf0.le hqf1 hc₈ H.c8_rate hξ
     hνflow hνS hτ hτr hrm hmass H.tau_K hsmε hc1ε hKε hζε).2 Bl hBl
     (fun i₀' i₁' j y X hj1 hjk hX hy r hr => hB i₀' i₁' j y X hj1 hjk hX hy r
-      (composedChart_mono zero_le_one (hroom k le_rfl) hr)) hEbI hEbL
+      (composedChartGap_mono zero_le_one (hroom k le_rfl) hr)) hEbI hEbL
+
+open Classical in
+/-- **The clauses (A1)–(A5) of the new level at every root, from the ties, with the bound of the
+irrelevant parts at the composed data** (row (iii) of A4-1b, route R-LOC; blocker 6; the bound is
+asked at the data composed into the class generating sets from the charts of radius `ε_k` of level
+`k + 1`, `composedChart`, the form of P1 (3.128) the step reads).  For the ties of the new level at `(L, P₀, m₁, ϱ)` and the constants
+`C_I, K_L, α₃, n₁` of the bound of the irrelevant parts there are a base tower `T₀` of the class
+chain (block exponent `m₁`), a label rate `κ_dec` and `β₀` such that at every scale `k`, for
+`β ≥ β₀`, every class `C` with the constants `P₀` (strong clauses on the birth-mass domain) whose
+weights are those of the step and whose masses follow the flow at the rate and flow constant of the
+ties, with the bound of its irrelevant terms on their term domain with its decay in the level, the
+chain gives a coefficient family `e z` of every root with its rooted support and its value
+`E0locJ C z`, and on the cast local sets `𝔹_{k+1}(Ŷ⁺(T′))` local families with (A1)–(A5).
+The instance of `newLevel_localFamilies_composed_gap` (the bound on the composed charts). -/
+theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [NeZero N] {P₀ : Consts}
+    {m₁ : ℕ} {ϱ : ℝ} (H : NewLevelTies d N L P₀ m₁ ϱ) (hγ0 : 0 < P₀.γ) (hγ1 : P₀.γ < 1 / 2)
+    (hα₀ : 0 < P₀.α₀) (hc₈ : 0 ≤ P₀.c₈) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ)
+    (CI KL α₃ : ℝ) (n₁ : ℕ) (hCI : 0 ≤ CI) (hKL : 0 ≤ KL) (hα₃ : 0 < α₃) :
+    ∃ (κmin : ℝ) (T₀ : StepTowerG d L N κmin) (κdec β₀ : ℝ),
+      CollarBase d L N P₀.m₀ ((L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - P₀.γ))) T₀ κdec ∧ T₀.m₁ = m₁ ∧
+      3 ≤ β₀ ∧
+    ∀ (k : ℕ) (hk : 1 ≤ k), ∃ Tk : StepTowerG d L N κmin,
+      Tk.t = 17 / 16 * P₀.eps d L (k + 1) ∧ Tk.m₁ = m₁ ∧
+    ∀ (N₁ : ℕ) [NeZero N₁] (_ : L ^ P₀.m₀ ∣ N₁), 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+    ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+    ∀ (S : StepSetting d L N₁ Tk.m₁ k N ϱ) (_ : S = hatStepKG Tk.hN k Tk.m₁ ϱ hk ν β p₁ Tk.δ),
+    ∃ Jr : S.JointRep Tk.t (2 * p₁),
+    ∀ (C : StepClass d L N₁ Tk.m₁ k N ϱ) (Rg : Regime L) (a : ℕ → ℝ)
+      (_ : P₀.m₀ = C.m₀) (_ : SFTermClausesStrong P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
+      (_ : 0 ≤ P₀.E₀)
+      -- the weights and the flow of the masses of the class
+      (_ : aIdeal L (k + 1) (a (k + 1)) = compWeight L S.a₁)
+      {ξ : ℕ → Fin 3 → ℂ} {ν₀ : ℝ}
+      (_ : ∀ n, ‖ξ n‖ ≤ P₀.c₈ / 4 * Flow.rate (L : ℝ) P₀.γ ^ (n + 1))
+      (_ : ∀ n, n ≤ k → ((Rg.ν n : ℝ) : ℂ) = Flow.nuSeq (L : ℝ) ξ (ν₀ : ℂ) n)
+      (_ : ν = physMass L k (Rg.ν k))
+      (_ : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (1 + 2 * (Real.exp (3 * (P₀.c₈ / 4 *
+        (Flow.rate (L : ℝ) P₀.γ ^ 2 / (1 - Flow.rate (L : ℝ) P₀.γ)))) - 1)) ≤ 1)
+      -- the bounds of the irrelevant parts in `d(X)` at the data composed into the class generating
+      -- sets from the charts of radius `ε_k` of level `k + 1`, with their decay in the level
+      -- (P1 (3.128) at the data of the step, the open input A4-1b (ii))
+      (Bl : ℕ → CTorus d L N₁ Tk.m₁ (k + 1) → Set (CTorus d L N₁ Tk.m₁ (k + 1)) → ℝ)
+      (_ : ∀ j y X, 0 ≤ Bl j y X)
+      (_ : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ Tk.m₁ (k + 1))
+        (X : Set (CTorus d L N₁ Tk.m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
+        ∀ r ∈ composedChart (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1 (P₀.eps d L k),
+        ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X r.1 r.2‖ ≤
+          Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
+      (_ : ∀ j y X, j + n₁ ≤ k →
+        Bl j y X ≤ CI * P₀.E₀ * ((((L : ℝ)⁻¹ ^ (k - j)) ^ ((d : ℝ) + α₃))))
+      (_ : ∀ j y X, k < j + n₁ → Bl j y X ≤ KL * P₀.E₀),
+    ∃ e : RootIdx d L N₁ Tk.m₁ (k + 1) → physParam N S →
+        Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+          ℂ,
+      (∀ z θ T', e z θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T')) ∧
+      (∀ z (D : BgData S.G' N), XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+        Jr.E0locJ C z (rawOf D) = ∑ T', e z ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ Tk.m₁ (k + 1) → Fin N → ℂ)) T') ∧
+      ∀ {N₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ (Tk.m₁ + hatScale L Tk.m₁ ϱ) = N₁ * L ^ Tk.m₁)
+        (hsep : ϱ ≤ Balaban.LargeField.minSep L (L ^ (Tk.m₁ + hatScale L Tk.m₁ ϱ)))
+        (π : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →L[ℂ] rawSub N S.G'),
+        (∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩) →
+      ∃ (f : RootIdx d L N₁ Tk.m₁ (k + 1) → Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+          (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
+            Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N → ℂ)
+        (b : RootIdx d L N₁ Tk.m₁ (k + 1) → Finset (CubeB (d := d) (L := L) (N₁ := N₁)
+          (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) → ℝ),
+        ∀ z, NewLevelLocalFamily S P₀ hc hsep
+          (fun Y => {x' : CTorus d L N₁' (Tk.m₁ + hatScale L Tk.m₁ ϱ) (k + 1) |
+            (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈ hatSet P₀.m₀ (k + 1) Y}) π (e z) (f z)
+          (b z) := by
+  have HC := NewLevelTies.newLevel_localFamilies_composed_gap H hγ0 hγ1 hα₀ hc₈ hA p CI KL α₃ n₁ hCI
+    hKL hα₃
+  repeat
+    first
+    | exact HC
+    | (refine ⟨HC.1, ?_⟩; replace HC := HC.2)
+    | peel HC with HC
+  -- the bound premise of the core is on the composed charts with the scale gap of the source
+  first
+  | (intro hB; replace HC := HC (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
+  | (intro Bl hBl hB; replace HC := HC Bl hBl (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
+  repeat
+    first
+    | exact HC
+    | (refine ⟨HC.1, ?_⟩; replace HC := HC.2)
+    | peel HC with HC
 
 end Balaban.RootFSpine
