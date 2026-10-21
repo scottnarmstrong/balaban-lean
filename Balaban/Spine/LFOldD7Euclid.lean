@@ -248,6 +248,55 @@ theorem composed_entry (H : StepAff S S' A) (ρ : ℝ)
   unfold HoleStep.composed
   rw [H.psiLoc_entry ρ hsl, H.shiftLoc_entry ρ hsl hψ]
 
+/-- The bijection of the cover cubes of the two steps. -/
+noncomputable def kappa (H : StepAff S S' A) :
+    (coverOf S.G').cubeIdx ≃ (coverOf S'.G').cubeIdx :=
+  (tau A).subtypeEquiv (fun q => (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' q).symm)
+
+theorem kappa_val (H : StepAff S S' A) (P : (coverOf S.G').cubeIdx) :
+    ((H.kappa P : (coverOf S'.G').cubeIdx) : ℕ × CTorus d L N₁ m₁ (k + 1)) = tau A P := rfl
+
+theorem cubeP_sub_iff (H : StepAff S S' A) {P : ℕ × CTorus d L N₁ m₁ (k + 1)}
+    (hP : P ∈ (coverOf S.G').cubeIdx) {Xp Xp' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX : ∀ x, A.toFun x ∈ Xp' ↔ x ∈ Xp) :
+    (cubeP (tau A P) ⊆ Xp') ↔ (cubeP P ⊆ Xp) := by
+  constructor
+  · intro h x hx
+    have := h ((cubeP_aff A H.hAl hP x).2 hx)
+    exact (hX x).1 this
+  · intro h y hy
+    obtain ⟨x, rfl⟩ := A.toEquiv.surjective y
+    have hy' : A.toFun x ∈ cubeP (tau A P) := hy
+    exact (hX x).2 (h ((cubeP_aff A H.hAl hP x).1 hy'))
+
+/-- **The localization vectors are transported.** -/
+theorem sloc_rel (H : StepAff S S' A) {X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁loc' : S'.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁ X₁' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX₁ : ∀ x, A.toFun x ∈ X₁' ↔ x ∈ X₁)
+    (hloc : ∀ b x, A.toFun x ∈ X₁loc' (H.u b) ↔ x ∈ X₁loc b)
+    {s : Dec2.DecParams (coverOf S.G')} {s' : Dec2.DecParams (coverOf S'.G')}
+    (hs : ∀ P, s' (H.kappa P) = s P) (b : S.U) (P : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    Dec2.extS (coverOf S'.G')
+        (S'.slocOf (coverOf S'.G') X₁loc' (HoleStep.coreExt (coverOf S'.G') X₁' s') (H.u b))
+        (tau A P) =
+      Dec2.extS (coverOf S.G') (S.slocOf (coverOf S.G') X₁loc (HoleStep.coreExt (coverOf S.G') X₁ s) b) P := by
+  classical
+  unfold Dec2.extS
+  by_cases hP : P ∈ (coverOf S.G').cubeIdx
+  · have hP' : tau A P ∈ (coverOf S'.G').cubeIdx := (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' P).2 hP
+    rw [dif_pos hP, dif_pos hP']
+    have e1 := H.cubeP_sub_iff hP hX₁
+    have e2 := H.cubeP_sub_iff hP (hloc b)
+    have hsP := hs ⟨P, hP⟩
+    unfold HoleStep.slocOf HoleStep.coreExt
+    simp only [e1, e2, kappa_val] at hsP ⊢
+    rw [← hsP]
+    rfl
+  · have hP' : tau A P ∉ (coverOf S'.G').cubeIdx := fun h =>
+      hP ((cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' P).1 h)
+    rw [dif_neg hP, dif_neg hP']
+
 end StepAff
 
 end Balaban.Fluctuation
