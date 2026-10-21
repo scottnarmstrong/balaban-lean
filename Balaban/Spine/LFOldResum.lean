@@ -275,6 +275,17 @@ theorem dataSites_inter_subset {N₀ k' : ℕ} [NeZero N₀] {ϱ : ℝ}
     · exact (Background.mem_dataSites _).2
         (Or.inr ((Background.mem_collar _).2 ⟨hxB, y, (Finset.mem_inter.1 hy).2, hyx⟩))
 
+
+
+/-- A site and the base of its cell lie in one cell (any torus). -/
+theorem sameCell_cbase_self {a : ℕ} (x : Torus d n) : SameCell a x (cbase a x) := by
+  intro μ
+  rcases Nat.eq_zero_or_pos a with rfl | ha0
+  · simp
+  have hlt : a * ((x μ).val / a) < n := lt_of_le_of_lt (Nat.mul_div_le _ _) (ZMod.val_lt _)
+  simp only [cbase]
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hlt, Nat.mul_div_cancel_left _ ha0]
+
 end Cells
 
 end Balaban.Fluctuation
@@ -542,6 +553,64 @@ theorem card_cells_markBase_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
     _ ≤ _ := by
         rw [hcast]
         exact Nat.add_le_add le_rfl (hNbc.trans (Nat.mul_le_mul_left _ hSbc))
+
+
+include hnn in
+open Classical in
+/-- **The cells of `X ∩ Ω_{k+1}`** (G1 at scale `k`): at most `c₁ (1 + d_k(X mod Ω_k^c))` for a valid
+old label `X`; a cell of scale `k + 1` meeting `X ∩ Ω_{k+1}` contains a cell of scale `k` of
+`X ∩ Ω_k^post`. -/
+theorem card_cells_inter_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) {X : Finset (Torus S.d (n k))}
+    (hX : FineValidAt F k (H.omegaPost k) X) :
+    (((d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).toFinset.image
+        (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ) ≤
+      c1 S.d S.L * (1 + d7SizeAt F k (H.omegaPost k) X) := by
+  set ck := cellSide S.L m₀ m₁ k with hck
+  have hck0 : 0 < ck := cellSide_pos m₀ m₁ k
+  have hkK : k ≤ K := Nat.le_of_succ_le hk
+  have hdk : ck ∣ cellSide S.L m₀ m₁ (k + 1) := by
+    rw [hck]; unfold cellSide; exact pow_dvd_pow _ (by omega)
+  have hcell : ∀ {Y : Set (Torus S.d (n k))} {x}, x ∈ d7Pull F k Y →
+      Localization.box (cbase ck x) ck ⊆ d7Pull F k Y := fun {Y x} hx => by
+    rcases cell_dichotomy F.divN₁ hkK (d7Pull_isPiUnion F hnn hkK Y)
+        (aligned_cbase (a := ck) x) with h | h
+    · exact h
+    · exact absurd hx (h (mem_box_cbase hck0 x))
+  have hsub : (d7Pull F k (X : Set (Torus S.d (n k))) ∩
+      d7Pull F (k + 1) (OmegaCube H (k + 1))).toFinset.image (cbase (cellSide S.L m₀ m₁ (k + 1))) ⊆
+      (cellsIn (L := S.L) m₀ k (d7Pull F k (X : Set (Torus S.d (n k))) ∩
+        d7Pull F k (H.omegaPost k))).image (cbase (cellSide S.L m₀ m₁ (k + 1))) := by
+    intro c hc
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hc
+    obtain ⟨hxX, hxΩ⟩ := Set.mem_toFinset.1 hx
+    have hxΩk := H.d7Pull_OmegaCube_succ_subset F hnn hk hxΩ
+    refine Finset.mem_image.2 ⟨cbase ck x, ?_, ?_⟩
+    · simp only [cellsIn, Finset.mem_filter, Finset.mem_univ, true_and]
+      exact ⟨aligned_cbase x, fun z hz => ⟨hcell hxX hz, hcell hxΩk hz⟩⟩
+    · exact cbase_eq_of_sameCell (SameCell.of_dvd hdk (sameCell_cbase_self x)).symm
+  have h1 := Finset.card_le_card hsub
+  have h2 := Finset.card_image_le (s := cellsIn (L := S.L) m₀ k (d7Pull F k
+    (X : Set (Torus S.d (n k))) ∩ d7Pull F k (H.omegaPost k)))
+    (f := cbase (cellSide S.L m₀ m₁ (k + 1)))
+  have h3 := hX.cellCount_le F.divN₁ hkK
+  rw [← card_cellsIn_eq_cellCount] at h3
+  calc _ ≤ ((cellsIn (L := S.L) m₀ k (d7Pull F k (X : Set (Torus S.d (n k))) ∩
+        d7Pull F k (H.omegaPost k))).card : ℝ) := by exact_mod_cast h1.trans h2
+    _ ≤ _ := h3
+
+omit [NeZero M] in
+/-- **The cells of the connecting structure of an optimal cover** (`card_image_cbase_le`): at most
+`3^d (d_k(X mod Ω_k^c) / L + 1)` cells of scale `k + 1`. -/
+theorem card_cells_optW_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) {X : Finset (Torus S.d (n k))}
+    (hX : FineValidAt F k (H.omegaPost k) X) :
+    (((optW F k (H.omegaPost k) X).image (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ) ≤
+      3 ^ S.d * ((S.L : ℝ)⁻¹ * d7SizeAt F k (H.omegaPost k) X + 1) := by
+  obtain ⟨𝒦, E, hadm, hcost⟩ := optW_spec F hX
+  have h := card_image_cbase_le F.divN₁ hk hadm.2.2.1
+  rw [bondCost_scaleW_succ (m₀ := m₀) (j := k) E, hcost] at h
+  exact h
 
 
 end Resum
