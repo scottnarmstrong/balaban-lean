@@ -24,6 +24,28 @@ open Balaban.LargeField Balaban.Flow Balaban.Multiscale Balaban.Background Balab
 
 variable {d L N : ℕ} [NeZero L]
 
+/-- **The constant `K_w` of the coefficient comparison may be replaced by a larger one in `K_coef`.** -/
+theorem coef_piece_le {d N : ℕ} {a Kwt Amax E Δ Cb Cg Cm μ Kc Kw Kcoef : ℝ} (hA : 0 ≤ Amax)
+    (hX : 0 ≤ Δ * (2 * E)) (hKc : 0 ≤ Kc) (hle : Kc ≤ Kw) (hCb : 0 ≤ Cb) (hCg : 0 ≤ Cg)
+    (hCm : 0 ≤ Cm) (hE : 0 ≤ E)
+    (hK : a + Kwt + Amax * (Kw * (Δ * (2 * E)) * (Real.sqrt (((4 * E ^ 2) * Cb) * (N * Cb)) +
+        Real.sqrt ((d * ((4 * E ^ 2) * Cg)) * (d * (N * Cg))) +
+        Real.sqrt (((4 * E ^ 2 / |μ|) * Cm) * (N * Cm))) +
+        (Kw * (Δ * (2 * E))) ^ 2 / 2 * (N * Cb + d * (N * Cg) + N * Cm)) ≤ Kcoef) :
+    a + Kwt + Amax * (Kc * (Δ * (2 * E)) * (Real.sqrt (((4 * E ^ 2) * Cb) * (N * Cb)) +
+        Real.sqrt ((d * ((4 * E ^ 2) * Cg)) * (d * (N * Cg))) +
+        Real.sqrt (((4 * E ^ 2 / |μ|) * Cm) * (N * Cm))) +
+        (Kc * (Δ * (2 * E))) ^ 2 / 2 * (N * Cb + d * (N * Cg) + N * Cm)) ≤ Kcoef := by
+  refine le_trans ?_ hK
+  have hS : 0 ≤ Real.sqrt (((4 * E ^ 2) * Cb) * (N * Cb)) +
+        Real.sqrt ((d * ((4 * E ^ 2) * Cg)) * (d * (N * Cg))) +
+        Real.sqrt (((4 * E ^ 2 / |μ|) * Cm) * (N * Cm)) := by positivity
+  have hT : 0 ≤ (N : ℝ) * Cb + d * (N * Cg) + N * Cm := by positivity
+  have h1 : Kc * (Δ * (2 * E)) ≤ Kw * (Δ * (2 * E)) := mul_le_mul_of_nonneg_right hle hX
+  have h0 : 0 ≤ Kc * (Δ * (2 * E)) := mul_nonneg hKc hX
+  gcongr
+
+
 theorem PieceWindowSetup.coef_piece_of_flow_consts (hd3 : 3 ≤ d) (hL3 : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧ ∀ {N₀ K : ℕ} [NeZero N₀] {U : Type*} {S : Set U} {ι : Type*} [Fintype ι]
     {sc : ι → ℕ} {k1 k : ℕ}
