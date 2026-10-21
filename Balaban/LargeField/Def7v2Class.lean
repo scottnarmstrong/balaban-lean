@@ -152,12 +152,12 @@ structure D7Bdry2 {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     AnalyticOnNhd ℂ
       (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
         rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
-      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLHPre A.H M k) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
   bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB hv,
     ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
-      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLHPre A.H M k) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
       ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <

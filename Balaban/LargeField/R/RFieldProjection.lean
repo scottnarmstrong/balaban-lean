@@ -136,9 +136,12 @@ theorem d7Bdry2Post_of_pre_of_rem_empty {κ Bst B0 : ℝ}
       loc_hist := fun A hA A' hA' X hX hX' =>
         hin.loc_hist A hA A' hA' X ((hmem A hA X).1 hX) ((hmem A' hA' X).1 hX')
       real := fun A hA X hX => hin.real A hA X ((hmem A hA X).1 hX)
-      analytic := fun A hA X hX => hin.analytic A hA X ((hmem A hA X).1 hX)
+      analytic := fun A hA X hX => by
+        rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)]
+        exact hin.analytic A hA X ((hmem A hA X).1 hX)
       bound := fun A hA X hX h' hh p hp => by
         rw [d7Size_eq_d7SizePre_of_rem_empty Fr X (hrem A hA)]
+        rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)] at hp
         refine (hin.bound A hA X ((hmem A hA X).1 hX) h' hh p hp).trans_le ?_
         have hs := d7SizePre_nonneg Fr A k X
         calc Bst * Real.exp (-(3 / 2 * κ) * d7SizePre Fr A k X)
