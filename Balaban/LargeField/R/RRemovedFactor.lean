@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Operators.KerBound
+public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.LargeField.Budget.Exponents
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -59,13 +60,13 @@ at `γ = 0` as `KerBound … (κ^pre - C_R λ^{2d+1})`. -/
 theorem removed_kerBound_logC_of_window {a : LocalHistory S n M K} {k : ℕ}
     {A : Set (InternalVars a k)}
     {T : LFKernel (OutT N R a k) (SubCfg N a k A) (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N)}
-    {P : BudgetConsts} {c : ℕ} {κpre logC Gp : ℝ}
+    {P : BudgetConsts} {c : ℕ} {κpre logC Gp : ℝ} {Hs : EuclideanSpace ℝ (Fin N) → Prop}
     (hG : Gp = P.budgetG S k κpre logC c)
     (hrip : 2 * S.A2 * S.lam k ^ S.p2 + 1 ≤ Gp)
     (hCR : S.CR * S.lam k ^ (2 * S.d + 1) ≤ S.A2 * S.lam k ^ S.p2)
-    (hwin : KerBound a k T (κpre - S.CR * S.lam k ^ (2 * S.d + 1))) :
-    KerBound a k T
-      (S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S c + 1 + logC) := by
+    (hwin : KerBoundOn a k T (κpre - S.CR * S.lam k ^ (2 * S.d + 1)) Hs) :
+    KerBoundOn a k T
+      (S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S c + 1 + logC) Hs := by
   refine hwin.mono ?_
   have h : Gp = κpre - logC - HRun P.H0 P.beta k * BudgetConsts.cubeVol S c := hG
   linarith

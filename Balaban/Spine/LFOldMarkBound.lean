@@ -68,6 +68,72 @@ theorem extK_truncK_composedMulti {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
   · simp only [extK, hj, ↓reduceDIte]
     exact (composedMulti_of_gt hk G' ψ comp (by omega) y).symm
 
+/-- **The bound of the interpolated old term of a local step at one parameter, from the source H7
+domain** (the core of `norm_oldInterp_loc_lt` for the readings `glob` of the datum): if the composed
+multiscale field of the local step `holeStepLocAt glob … V` at the parameter `s` and the fluctuation
+field `ψ̂` lies in the H7 domain of scale `k` at the old label `X`, the interpolated old term is below
+the record's `fac · e^{-rate · d^cov(X)}` (`D7BdryPost.bound`). -/
+theorem norm_oldInterp_locAt_lt (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (hk : k + 1 ≤ K)
+    {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N geo cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    (hgeo : geo = g)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ bdryDomsPost Fr A k (Zof A)) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ ρc : ℝ) (ρ r : ℕ)
+    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) {ψ : MultiFieldC S n M K N}
+    {q' : FinFieldC S n M K N} {gx : GIdx S n M K N → ℂ}
+    {ψhat : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U → Fin N → ℂ}
+    {s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      V).G')}
+    (hdom : H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+      (composedMulti g hnn hM1 hk (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          V).G' ψ
+        ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).composed
+          (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
+          ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).slocOf
+            (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
+            (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
+            (HoleStep.coreExt
+              (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
+              (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψhat))
+      (extK q') (fun x i => gx (x, i))) :
+    ‖(holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).oldInterp
+        (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
+        (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
+        (collarCoreC (c := g.c) (A.H.step k) hM1 r X) ∅ ψhat
+        (oldTermLF g hnn hM1 rep A X hk
+          (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ψ (extK q') hv gx)
+        (fun b => absurd b.2 (Finset.notMem_empty _)) s‖ <
+      fac * Real.exp (-rate * d7Size Fr A k X) := by
+  subst hgeo
+  have hfill : (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).fill ∅
+      (fun b => absurd b.2 (Finset.notMem_empty _)) ψhat = ψhat := by
+    funext b i
+    simp [HoleStep.fill]
+  unfold HoleStep.oldInterp oldTermLF
+  rw [hfill]
+  have hb := hrec.bound A hA X hX (hC hv) rfl
+    (truncK (composedMulti geo hnn hM1 hk
+      (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G'
+      ψ ((holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).composed
+        (coverOf (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
+        ((holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).slocOf
+          (coverOf (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
+          (locDomsLF geo hM1 (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
+          (HoleStep.coreExt
+            (coverOf (holeStepLocAt geo hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
+            (collarCoreC (c := geo.c) (A.H.step k) hM1 r X) s)) ψhat)), q', gx)
+    (by
+      simp only
+      rw [extK_truncK_composedMulti]
+      exact hdom)
+  simp only at hb
+  rwa [extK_truncK_composedMulti] at hb
+
 /-- **The bound of the interpolated old term of the local pair at one parameter** (P6 (4.34) before
 the Cauchy estimate): for an old label `X` of the record (a boundary domain of the post-`R` class of
 the history `A`, with (D7) `hrec`), a target field `(ψ, ψ', g)` of the H7 domain of scale `k + 1`
@@ -107,30 +173,9 @@ theorem norm_oldInterp_loc_lt {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁
         (fun b => absurd b.2 (Finset.notMem_empty _)) s‖ <
       fac * Real.exp (-rate * d7Size Fr A k X) := by
   subst hgeo
-  have hdom := h7Domain_composedMulti_loc geo hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ ρc ρ r aw μs ε
-    ε1 νs (hC hv) hL hIn V X htgt hXY hV hψhat hs
-  have hfill : (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).fill ∅
-      (fun b => absurd b.2 (Finset.notMem_empty _)) ψhat = ψhat := by
-    funext b i
-    simp [HoleStep.fill]
-  unfold HoleStep.oldInterp oldTermLF
-  rw [hfill]
-  have hb := hrec.bound A hA X hX (hC hv) rfl
-    (truncK (composedMulti geo hnn hM1 hk (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G'
-      ψ ((holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).composed
-        (coverOf (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
-        ((holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).slocOf
-          (coverOf (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
-          (locDomsLF geo hM1 (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
-          (HoleStep.coreExt
-            (coverOf (holeStepLoc geo hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')
-            (collarCoreC (c := geo.c) (A.H.step k) hM1 r X) s)) ψhat)), q', gx)
-    (by
-      simp only
-      rw [extK_truncK_composedMulti]
-      exact hdom)
-  simp only at hb
-  rwa [extK_truncK_composedMulti] at hb
+  exact norm_oldInterp_locAt_lt (glob := false) geo hnn hM1 hk hrec rfl hA hX hk1 hρ z h₀ a₁ ν β p₁ δ
+    ρc ρ r V (h7Domain_composedMulti_loc geo hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ ρc ρ r aw μs ε
+      ε1 νs (hC hv) hL hIn V X htgt hXY hV hψhat hs)
 
 end Bound
 

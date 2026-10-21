@@ -24,14 +24,15 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
 omit [NeZero M] in
-theorem holeStepLoc_congr_D' (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_congr_D' (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
-    (h : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V).D' =
-      (holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V).D') :
-    holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
-      holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V := by
-  unfold holeStepLoc at h ⊢
+    (h : (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V).D' =
+      (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V).D') :
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
+      holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V := by
+  unfold holeStepLocAt at h ⊢
   unfold HoleStep.restrict at h ⊢
   dsimp only at h ⊢
   congr 1
@@ -49,6 +50,16 @@ theorem liftMixed_congr_data {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ :
   by_cases hx : x ∈ dataSites G
   · simp only [hx, ↓reduceIte]; exact hag x hx
   · simp [hx]
+
+omit [NeZero M] in
+theorem holeStepLoc_congr_D' (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (h : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V).D' =
+      (holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V).D') :
+    holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
+      holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLocAt_congr_D' (glob := false) g hnn hM1 H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ V h
 
 /-- The block of scale `i ≤ k+1` of the history torus containing a site of the cover torus. -/
 noncomputable def coverBlk {k : ℕ} (hk : k + 1 ≤ K) (i : ℕ) (hi : i ≤ k + 1)
@@ -68,17 +79,18 @@ def StepReadsIn (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1
       BlockSub (k + 1) (coverBlk g hnn hM1 hk (k + 1) le_rfl x) Y
 
 omit [NeZero M] in
-theorem holeStepLoc_D'_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_D'_congr (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (Y : Set (Torus S.d (M * n K * S.L ^ K)))
     (hread : StepReadsIn g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V Y)
     (hψ : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j, BlockSub j y Y → ψ₁ j y = ψ₂ j y) :
-    holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
-      holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V := by
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
+      holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V := by
   classical
-  refine holeStepLoc_congr_D' g hnn hM1 H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ V ?_
-  unfold holeStepLoc
+  refine holeStepLocAt_congr_D' g hnn hM1 glob H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ V ?_
+  unfold holeStepLocAt
   unfold HoleStep.restrict
   dsimp only
   refine liftMixed_congr_data _ _ _ _ _ _ _ _ (fun x hx => ?_)
@@ -90,6 +102,17 @@ theorem holeStepLoc_D'_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 
     exact congrArg (fun w => (z : ℂ) * w i) (hψ (k + 1) hk _ h2)
   · unfold blockLift coverField
     exact hψ k (by omega) _ h1
+
+omit [NeZero M] in
+theorem holeStepLoc_D'_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (Y : Set (Torus S.d (M * n K * S.L ^ K)))
+    (hread : StepReadsIn g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V Y)
+    (hψ : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j, BlockSub j y Y → ψ₁ j y = ψ₂ j y) :
+    holeStepLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ V =
+      holeStepLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLocAt_D'_congr (glob := false) g hnn hM1 H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ V Y hread hψ
 
 variable {k : ℕ}
 
@@ -159,6 +182,53 @@ theorem oldTermLF_congr_fields {geo : Geo S n R M} {cs : OpConsts} {P : BudgetCo
   · exact h1
   · rfl
 
+/-- **The clause `loc_field` of (D7) for the coefficient of the re-expanded old term**:
+the coefficient `T(X, J)` on the local pair does not change when the multiscale fields `ψ`, `ψ'` and
+the external source `gx` are changed outside `Y`.  Inputs: the clause `loc_field` of the record at
+the old label `X` (`hloc`), `fineSet X ⊆ Y` (`hXY`) and that the datum of the local step reads only
+sites whose blocks lie in `Y` (`hsiteY`, `StepReadsIn`; for `Y` a fine set of the output label this
+is `markSite_holeClose_subset_outLabel`). Core for the readings of the local pair (the datum `glob`,
+the label `σ` of the local set). -/
+theorem oldCoefLocAt_congr_fields (glob : Bool) (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hloc : ∀ (ψ₁ ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (h : Fin N → ℂ)
+      (g₁ g₂ : GIdx S n M K N → ℂ),
+      (∀ j, j ≤ K → ∀ y : BlockAt S n M K j,
+        BlockSub (S := S) (n := n) (M := M) (K := K) j y
+          (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+          ψ₁ j y = ψ₂ j y ∧ ψ'₁ j y = ψ'₂ j y) →
+      (∀ x i, x ∈ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) →
+        g₁ (x, i) = g₂ (x, i)) →
+      rep.B A X ψ₁ ψ'₁ h g₁ = rep.B A X ψ₂ ψ'₂ h g₂)
+    (Y : Set (Torus S.d (M * n K * S.L ^ K)))
+    (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Y)
+    (ψ₁ ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (gx₁ gx₂ : GIdx S n M K N → ℂ)
+    (hsiteY : StepReadsIn g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 H r r' (σ X) J) Y)
+    (hψ : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j, BlockSub (S := S) (n := n) (M := M) (K := K) j y Y →
+      ψ₁ j y = ψ₂ j y)
+    (hψ' : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j,
+      BlockSub (S := S) (n := n) (M := M) (K := K) j y Y → ψ'₁ j y = ψ'₂ j y)
+    (hgx : ∀ x i, x ∈ Y → gx₁ (x, i) = gx₂ (x, i))
+    (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) :
+    oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ'₁ hv gx₁ J ψhat =
+      oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ'₂ hv gx₂ J ψhat := by
+  have e := holeStepLocAt_D'_congr g hnn hM1 glob H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ
+    (locSetXJ g hM1 H r r' (σ X) J) Y hsiteY hψ
+  unfold oldCoefLocAt
+  refine oldCoefLF_congr_step_data g hnn hM1 e H hk ρc ρ r rep A X ψ₁ ψ₂ ψ'₁ ψ'₂ hv gx₁ gx₂ J _ _ ?_ ?_
+  · intro b
+    unfold restrictU
+    congr 1
+    exact Subtype.ext (HoleStep.val_cast_eq (g := g) e b).symm
+  · intro comp
+    exact oldTermLF_congr_fields g hnn hM1 rep A X hk _ hloc Y hXY ψ₁ ψ₂ ψ'₁ ψ'₂ hv gx₁ gx₂
+      hψ hψ' hgx comp
+
 /-- **The clause `loc_field` of (D7) for the coefficient of the re-expanded old term**: the
 coefficient `T(X, J)` on the local pair does not change when the multiscale fields `ψ`, `ψ'` and the
 external source `gx` are changed outside `Y`.  Inputs: the clause `loc_field` of the record at the old
@@ -192,18 +262,9 @@ theorem oldCoefLoc_congr_fields (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K
     (hgx : ∀ x i, x ∈ Y → gx₁ (x, i) = gx₂ (x, i))
     (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) :
     oldCoefLoc g hnn hM1 H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ'₁ hv gx₁ J ψhat =
-      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ'₂ hv gx₂ J ψhat := by
-  have e := holeStepLoc_D'_congr g hnn hM1 H hk hk1 hρ ψ₁ ψ₂ z h₀ a₁ ν β p₁ δ
-    (locSetXJ g hM1 H r r' X J) Y hsiteY hψ
-  unfold oldCoefLoc
-  refine oldCoefLF_congr_step_data g hnn hM1 e H hk ρc ρ r rep A X ψ₁ ψ₂ ψ'₁ ψ'₂ hv gx₁ gx₂ J _ _ ?_ ?_
-  · intro b
-    unfold restrictU
-    congr 1
-    exact Subtype.ext (HoleStep.val_cast_eq (g := g) e b).symm
-  · intro comp
-    exact oldTermLF_congr_fields g hnn hM1 rep A X hk _ hloc Y hXY ψ₁ ψ₂ ψ'₁ ψ'₂ hv gx₁ gx₂
-      hψ hψ' hgx comp
+      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ'₂ hv gx₂ J ψhat :=
+  oldCoefLocAt_congr_fields (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ z h₀ a₁ ν β p₁
+    δ ρc ρ r r' rep A X hv J hloc Y hXY ψ₁ ψ₂ ψ'₁ ψ'₂ gx₁ gx₂ hsiteY hψ hψ' hgx ψhat
 
 /-- **The clause `loc_hist` of (D7) for the coefficient of the re-expanded old term**: two histories
 `(H, A)`, `(H', A')` whose records at the old label `X` agree (`hB`, the conclusion of the clause

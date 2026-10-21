@@ -64,17 +64,26 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
 omit [NeZero M] in
-theorem holeStepLoc_D'_isReal (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_D'_isReal (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (hψ : ∀ j y i, (ψ j y i).im = 0) :
-    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.IsReal := by
-  unfold holeStepLoc HoleStep.restrict
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.IsReal := by
+  unfold holeStepLocAt HoleStep.restrict
   dsimp only
   refine liftMixed_isReal _ _ _ _ _ _ (fun w i => ?_) (fun w i => ?_) (fun i => ?_)
   · exact hψ _ _ _
   · simp [scaleMulti, coverField, hψ]
   · simp
+
+omit [NeZero M] in
+theorem holeStepLoc_D'_isReal (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hψ : ∀ j y i, (ψ j y i).im = 0) :
+    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.IsReal :=
+  holeStepLocAt_D'_isReal (glob := false) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hψ
 
 omit [NeZero M] in
 theorem composedMulti_im {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
@@ -104,6 +113,48 @@ theorem oldTermLF_conj {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k
     (fun i => by simp [hC]) hgx
 
 variable {k : ℕ}
+
+/-- **The coefficient `T(X, J)` on the local pair is real** (the clause `real` of (D7) for
+the re-expanded old term, at the level of one coefficient).  Hypotheses: the clause `real` of the
+record at `X` (`hreal`), analyticity of the interpolated old term on a polydisc of radius `Rp >
+1` (`hana`), and reality of the multiscale field, of `ψ'`, of the external source and of the
+fluctuation field. Core for the readings of the local pair (the datum `glob`, the label `σ` of the
+local set). -/
+theorem oldCoefLocAt_im (glob : Bool) (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
+    (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hreal : ∀ (ψ₂ ψ₃ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₂ : GIdx S n M K N → ℂ),
+      (∀ j y i, (ψ₂ j y i).im = 0 ∧ (ψ₃ j y i).im = 0) → (∀ i, (h i).im = 0) →
+      (∀ p, (g₂ p).im = 0) → (rep.B A X ψ₂ ψ₃ h g₂).im = 0)
+    (hψ : ∀ j y i, (ψ j y i).im = 0) (hψ' : ∀ j y i, (ψ' j y i).im = 0)
+    (hgx : ∀ p, (gx p).im = 0) (hψhat : ∀ b i, (ψhat b i).im = 0) {Rp : ℝ} (hRp : 1 < Rp)
+    (hana : AnalyticOnNhd ℂ
+      ((holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)).oldInterp
+        (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G') ρc
+        (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)) ρ)
+        (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅
+        (restrictU _ _ _ _ _ _ _ ψhat)
+        (oldTermLF g hnn hM1 rep A X hk (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G' ψ ψ' hv gx)
+        (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc
+        (0 : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G')) fun _ => Rp)) :
+    (oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat).im
+      = 0 := by
+  unfold oldCoefLocAt oldCoefLF
+  rw [← Complex.conj_eq_iff_im]
+  refine HoleStep.oldCoef_conj _
+    (holeStepLocAt_D'_isReal g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ hψ) _ _ _ _ _ _
+    (fun q i => Complex.conj_eq_iff_im.2 (hψhat _ i)) _ (fun c hc => ?_) _ _ hRp hana
+  exact Complex.conj_eq_iff_im.2 (oldTermLF_conj g hnn hM1 rep A X hk _ ψ ψ' hv gx hreal hψ hψ'
+    hgx c fun u i => Complex.conj_eq_iff_im.1 (hc u i))
 
 /-- **The coefficient `T(X, J)` on the local pair is real** (the clause `real` of (D7) for the
 re-expanded old term, at the level of one coefficient).  Hypotheses: the clause `real` of the record
@@ -137,14 +188,9 @@ theorem oldCoefLoc_im (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K) (hk1 : 1
         (0 : Dec2.DecParams (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
           (locSetXJ g hM1 H r r' X J)).G')) fun _ => Rp)) :
     (oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat).im
-      = 0 := by
-  unfold oldCoefLoc oldCoefLF
-  rw [← Complex.conj_eq_iff_im]
-  refine HoleStep.oldCoef_conj _
-    (holeStepLoc_D'_isReal g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ hψ) _ _ _ _ _ _
-    (fun q i => Complex.conj_eq_iff_im.2 (hψhat _ i)) _ (fun c hc => ?_) _ _ hRp hana
-  exact Complex.conj_eq_iff_im.2 (oldTermLF_conj g hnn hM1 rep A X hk _ ψ ψ' hv gx hreal hψ hψ'
-    hgx c fun u i => Complex.conj_eq_iff_im.1 (hc u i))
+      = 0 :=
+  oldCoefLocAt_im (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r
+    r' rep A X ψ' hv gx J ψhat hreal hψ hψ' hgx hψhat hRp hana
 
 end LocReal
 
