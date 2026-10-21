@@ -3310,3 +3310,7 @@ public import Balaban.Green.FinalBoxLocTies
 public import Balaban.Green.FinalBoxLocK
 public import Balaban.Green.FinalBoxLocParam
 public import Balaban.Polymer.LocalGasClose
+public import Balaban.Polymer.LocalIsoOps
+public import Balaban.Polymer.LocalIsoCover
+public import Balaban.Polymer.LocalIsoDec2
+public import Balaban.Polymer.LocalIsoLocalB
