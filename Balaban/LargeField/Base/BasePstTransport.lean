@@ -7,7 +7,7 @@ module
 
 public import Balaban.Polymer.MayerTransport
 public import Balaban.Polymer.TwoTorusE1Coef
-public import Balaban.LargeField.Base.BaseSourceIncrement
+public import Balaban.Analysis.SourceRay
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -37,7 +37,7 @@ translated seeds are translated hulls (`labelSet`), and the measures correspond 
 
 namespace Balaban.LargeField.Base
 
-open Balaban Balaban.Localization Balaban.Fluctuation Balaban.Polymer Balaban.Polymer.TwoTorusStep
+open Balaban Balaban.Analysis Balaban.Localization Balaban.Fluctuation Balaban.Polymer Balaban.Polymer.TwoTorusStep
   MeasureTheory Finset
 
 open scoped Classical
