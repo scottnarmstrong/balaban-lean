@@ -114,6 +114,7 @@ public import Balaban.Analysis.ParamIntegralAnalytic
 public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
+public import Balaban.Background.DataPatch
 public import Balaban.Background.Calculus
 public import Balaban.Background.AbstractGreen
 public import Balaban.Background.ContractionCore
