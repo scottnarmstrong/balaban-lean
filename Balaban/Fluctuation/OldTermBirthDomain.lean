@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.SmallField.XiUnitWitness
+public import Balaban.Fluctuation.OldTermComposedChart
 
 /-!
 # The charts of the old terms lie in the class term domain at the birth mass (`OldTermBirthDomain`)
@@ -26,7 +27,10 @@ passage between them is the mass response at a unit real witness
   above `j` are empty;
 * `d2raw_mem_birthXiDom_of_class`: the chart premise `hchart` of the class chain on its formula path:
   the composed step data of a label whose term is composed on the class generating set
-  `Tm.gs j X` lie in the class term domain at the birth mass, with `Ψ(y)·Ψ(y)` in the slit plane.
+  `Tm.gs j X` lie in the class term domain at the birth mass, with `Ψ(y)·Ψ(y)` in the slit plane;
+* `composedChart_mem_birthXiDom`: the composed chart of a class generating set lies in the class
+  term domain at the birth mass (so a bound of the class on its term domain gives the bound at the
+  composed data the step reads).
 -/
 
 @[expose] public section
@@ -124,6 +128,36 @@ theorem d2raw_mem_birthXiDom_of_class [NeZero N] (P : Consts) (Rg : Regime L) (a
   simp only [one_pow, one_mul] at hmem
   have h := xiCRaw_mem_birthXiDom P Rg a hA H H' ((hcl.gs_spec j hj1 hjk X hX).2 (j + 1)
     (Nat.lt_succ_self j)) le_rfl he hμ ht hτr hr (by simpa using hDL) hsmε hc1ε hKε hζε _ hmem
+  exact ⟨h.1, h.2 y ((mem_dataSites (G := Tm.gs j X)).2
+    (Or.inl ((hcl.gs_spec j hj1 hjk X hX).1 hy)))⟩
+
+/-- **The composed chart of a class generating set lies in the class term domain at the birth
+mass** (from `composedChart_subset_xiCRaw` and `xiCRaw_mem_birthXiDom`), with `Ψ(y)·Ψ(y)` in the
+slit plane at `y ∈ X`: a bound of the class on its term domain gives the bound at the data composed
+from the charts of level `k + 1` (the form of P1 (3.128) the step reads). -/
+theorem composedChart_mem_birthXiDom [NeZero N] (P : Consts) (Rg : Regime L) (a : ℕ → ℝ)
+    {Tm : Terms d L N₁ m₁ (k + 1) N ϱ} (hcl : SFTermClauses P (birthXiDom P Rg a N₁) Tm)
+    {a₁ ν : ℝ} (hA : aIdeal L (k + 1) (a (k + 1)) = compWeight L a₁)
+    (H : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν)
+    {b e t τ r : ℝ} {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k + 1)
+    (H' : BgHyp d L (k + 1) ϱ (compWeight L a₁) (physMass L j (Rg.ν j)))
+    (hb : 1 ≤ b) (he : 0 < e)
+    (hμ : physMass L j (Rg.ν j) = ν * (1 + t)) (ht : |t| ≤ τ) (hτr : τ < r) (hr : r ≤ 1 / 16)
+    (hDL : (2 * (b ^ 2 * e) + 2 * ((N : ℝ) + 1) * (cK2 d L N * (b ^ 2 * e) ^ 2)) *
+      (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τ) ≤ P.eps d L j)
+    (hsmε : (4 * d + 6) * ((2 * d + 1) * P.eps d L j) ≤ 1)
+    (hc1ε : 4 * (xiC1 d * P.eps d L j) ≤ bgC1 d L N)
+    (hKε : bgK1 d L N * (xiC1 d * P.eps d L j) + 3 * r ≤ deltaStar d L N)
+    (hζε : 8 * P.eps d L j * r ≤ deltaStar d L N)
+    {X : Set (CTorus d L N₁ m₁ (k + 1))} {y : CTorus d L N₁ m₁ (k + 1)}
+    (hX : IsPolyDom P.m₀ j X) (hy : y ∈ X) :
+    ∀ q ∈ composedChart (N := N) (Tm.gs j X) (compWeight L a₁) ν j b e,
+      (birthXiDom P Rg a N₁ : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom j (Tm.gs j X) q.1 q.2 ∧
+        dot (q.1 y) (q.1 y) ∈ Complex.slitPlane := by
+  intro q hq
+  have h := xiCRaw_mem_birthXiDom P Rg a hA H H' ((hcl.gs_spec j hj1 hjk X hX).2 (j + 1)
+    (Nat.lt_succ_self j)) hb he hμ ht hτr hr hDL hsmε hc1ε hKε hζε q
+    (composedChart_subset_xiCRaw hq)
   exact ⟨h.1, h.2 y ((mem_dataSites (G := Tm.gs j X)).2
     (Or.inl ((hcl.gs_spec j hj1 hjk X hX).1 hy)))⟩
 
