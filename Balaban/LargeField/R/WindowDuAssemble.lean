@@ -71,7 +71,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 `Du` up to the mass term** (P7 (2.16)): `β A_X(a, ν, D^{ph}, φ) = β A_X(a, 0, Du, φ) + M`,
 `‖M‖ ≤ 2 C_m A_max ∑_i |X_i|_{mix}`, for a unit field `φ` and a datum `Du` with the same `Ψ` as
 `D^{ph}` on the balls around the pieces. -/
-theorem window_Du_mass_split (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+theorem window_Du_mass_splitP (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
     (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
     (hjK : ∀ i, jf i + 1 ≤ K)
@@ -87,25 +87,26 @@ theorem window_Du_mass_split (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
     (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
     (decomp : ∀ i, StepDecomp (Xc i))
+    (t : ι → ℕ) (ht2 : ∀ i, 2 ≤ t i)
     (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
     (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N)
-    (hDuball : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
+    (hDuball : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ (t i : ℝ) * ((S.L : ℝ) ^ jf i * M)) →
       Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x))
     (ak : ℕ → ℝ) (φ : (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))).Ω 1 × Fin N → ℂ)
     (hφ : ∀ x : (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))).Ω 1, ∑ j, ‖φ (x, j)‖ ^ 2 = 1)
-    (βc ν Cm Amax : ℝ) (hβc : 0 ≤ βc)
-    (hbud : ∀ i, βc * |ν| * ((Xc i).sites.card : ℝ) ≤ Cm * Amax * (decomp i).total) :
+    (βc ν : ℝ) (Bm : ι → ℝ) (hβc : 0 ≤ βc)
+    (hbud : ∀ i, βc * |ν| * ((Xc i).sites.card : ℝ) ≤ Bm i * (decomp i).total) :
     ∃ M : ℂ, (βc : ℂ) * actionRegionC Xwin ak ν (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)) φ =
         (βc : ℂ) * actionRegionC Xwin ak 0 Du φ + M ∧
-      ‖M‖ ≤ 2 * (Cm * Amax) * ∑ i, (decomp i).total := by
+      ‖M‖ ≤ 2 * ∑ i, Bm i * (decomp i).total := by
   classical
   have hsub := window_sites_subset hmK jf cf hjf hcov hW Xw hXw Xwin hXwin
   have hΨ : ∀ y, (y ∈ Xwin.sites ∨ ∃ μ : Fin S.d, y + Pi.single μ 1 ∈ Xwin.sites ∨
       y - Pi.single μ 1 ∈ Xwin.sites) → (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ y = Du.Ψ y := by
     intro y hy
     obtain ⟨i, z, hz, hzd⟩ := window_near_ball hmK jf cf hjf hjK hW Xw hXw Xwin hsub Xc hXc y hy
-    have := hDuball i _ ⟨z, hz, hzd⟩
+    have := hDuball i _ ⟨z, hz, hzd.trans (mul_le_mul_of_nonneg_right (by exact_mod_cast ht2 i) (by positivity))⟩
     rw [Equiv.symm_apply_apply] at this
     exact this.symm
   have e1 := actionRegionC_mass_sub Xwin ak ν (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)) φ
@@ -135,13 +136,51 @@ theorem window_Du_mass_split (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
       refine Finset.sum_congr rfl fun i _ => ?_
       exact_mod_cast window_card_sites_eq hmK jf cf hjf hjK hW Xw hXw Xc hXc i
     rw [hcard, abs_of_nonneg hβc]
-    have h6 : βc * |ν| * ∑ i, ((Xc i).sites.card : ℝ) ≤ Cm * Amax * ∑ i, (decomp i).total := by
-      rw [Finset.mul_sum, Finset.mul_sum]
+    have h6 : βc * |ν| * ∑ i, ((Xc i).sites.card : ℝ) ≤ ∑ i, Bm i * (decomp i).total := by
+      rw [Finset.mul_sum]
       exact Finset.sum_le_sum fun i _ => hbud i
     calc βc * |ν| / 2 * (4 * ∑ i, ((Xc i).sites.card : ℝ))
         = 2 * (βc * |ν| * ∑ i, ((Xc i).sites.card : ℝ)) := by ring
-      _ ≤ 2 * (Cm * Amax * ∑ i, (decomp i).total) := by linarith only [h6]
-      _ = 2 * (Cm * Amax) * ∑ i, (decomp i).total := by ring
+      _ ≤ 2 * ∑ i, Bm i * (decomp i).total := by linarith only [h6]
+
+/-- **The window action at mass `ν` and the physical datum is the window action at mass `0` and the datum
+`Du` up to the mass term** (P7 (2.16)): `β A_X(a, ν, D^{ph}, φ) = β A_X(a, 0, Du, φ) + M`,
+`‖M‖ ≤ 2 C_m A_max ∑_i |X_i|_{mix}`, for a unit field `φ` and a datum `Du` with the same `Ψ` as
+`D^{ph}` on the balls around the pieces. -/
+theorem window_Du_mass_split (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (hcov : ∀ j (c : H.Comp (j + 1)), S.k1 (m' + 1) ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
+      ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩)
+    (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXwin : ∀ x, x ∈ Xwin.sites ↔ ∃ j, ∃ hj : S.k1 (m' + 1) ≤ j ∧ j ≤ m', ∃ c : H.Comp (j + 1),
+      c ∈ H.ancFin (j + 1) (m' + 1) Z ∧
+        torusCast (piece_torus_eq g H.F.hnn hmK hj.2) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (decomp : ∀ i, StepDecomp (Xc i))
+    (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N)
+    (hDuball : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
+      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x))
+    (ak : ℕ → ℝ) (φ : (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))).Ω 1 × Fin N → ℂ)
+    (hφ : ∀ x : (((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))).Ω 1, ∑ j, ‖φ (x, j)‖ ^ 2 = 1)
+    (βc ν Cm Amax : ℝ) (hβc : 0 ≤ βc)
+    (hbud : ∀ i, βc * |ν| * ((Xc i).sites.card : ℝ) ≤ Cm * Amax * (decomp i).total) :
+    ∃ M : ℂ, (βc : ℂ) * actionRegionC Xwin ak ν (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)) φ =
+        (βc : ℂ) * actionRegionC Xwin ak 0 Du φ + M ∧
+      ‖M‖ ≤ 2 * (Cm * Amax) * ∑ i, (decomp i).total := by
+  obtain ⟨M, hM1, hM2⟩ := window_Du_mass_splitP hmK hW jf cf hjf hjK hcov Xw hXw Xwin hXwin Xc hXc
+    decomp (fun _ => 2) (fun _ => le_rfl) hv hunit ψ Du (by simpa using hDuball) ak φ hφ βc ν
+    (fun _ => Cm * Amax) hβc hbud
+  refine ⟨M, hM1, hM2.trans (le_of_eq ?_)⟩
+  rw [← Finset.mul_sum]
+  ring
 
 open Balaban.Flow in
 /-- **The sum of the main actions at the reference datum `Du`**: from the conversion at the physical datum
