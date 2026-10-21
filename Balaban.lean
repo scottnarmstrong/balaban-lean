@@ -2966,6 +2966,7 @@ public import Balaban.Spine.LFOldD7Support
 public import Balaban.Spine.LFOldD7Rot
 public import Balaban.Spine.LFOldD7RotLoc
 public import Balaban.Spine.LFOldD7Real
+public import Balaban.Spine.LFOldD7RealLoc
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
