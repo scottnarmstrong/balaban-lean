@@ -1495,3 +1495,9 @@ Smallest repair: strengthen `OldTermsAreIrrel` with the canonical index clause
 `τ ↦ (jL τ, y τ, X τ)` is a bijection of `ι` onto the set of admissible irrelevant pairs of the class
 (determined by the class geometry); then `e` is `boxMap` on pairs on the quarter box, and the remaining
 premises are the D8 box form of `irrelTorus C.Tm` plus the landed `gsCorr_localB`/`gsIso_localB`.
+
+`OldTermsCanon` (Inhabited/NewLevelCanon.lean, W1148r): the chain's producer must prove it for the inherited levels (to be added after R13 lands).
+It pins the index set and `Eτ`; for `newLevel_coeff_twoTorus_of_class` it must also pin the other free fields of `OldTermSystem`
+(`X₁f τ`, `𝒦X τ`, `Gk τ`, `Gj τ`, `ρ`) as canonical functions of `(jL τ, y τ, X τ)` (they are existential, constrained only by
+`CovSetup`/`BgSetting`); the pinned decoupled fields `F₁L`, `SolL`, `FkL` are then unique by `NewLevelPinUnique`.
+Also needed: a partial index bijection (the full index types have different sizes on the two tori): only the `τ` with `Y ∈ polyDom τ` correspond.
