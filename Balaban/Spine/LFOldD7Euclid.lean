@@ -297,6 +297,36 @@ theorem sloc_rel (H : StepAff S S' A) {X₁loc : S.U → Finset (CTorus d L N₁
       hP ((cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' P).1 h)
     rw [dif_neg hP, dif_neg hP']
 
+theorem fill_empty (S : HoleStep d L N₁ m₁ k N ϱ ϱ') (ψin : (∅ : Finset S.U) → Rn N)
+    (ψout : S.U → Fin N → ℂ) : S.fill ∅ ψin ψout = ψout := by
+  funext b i
+  simp [HoleStep.fill]
+
+/-- **The interpolated old term is transported**: with the relabelled old term (`hB`), the fixed
+values (`hψ`), the localization domains (`hX₁`, `hloc`) and the parameters (`hs`). -/
+theorem oldInterp_entry (H : StepAff S S' A) (ρ : ℝ)
+    {X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁loc' : S'.U → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {X₁ X₁' : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX₁ : ∀ x, A.toFun x ∈ X₁' ↔ x ∈ X₁)
+    (hloc : ∀ b x, A.toFun x ∈ X₁loc' (H.u b) ↔ x ∈ X₁loc b)
+    {ψout : S.U → Fin N → ℂ} {ψout' : S'.U → Fin N → ℂ}
+    (hψ : ∀ q i, ψout' (H.u q) i = ψout q i) {B : (S.U → Fin N → ℂ) → ℂ}
+    {B' : (S'.U → Fin N → ℂ) → ℂ}
+    (hB : ∀ c : S.U → Fin N → ℂ, B' (fun b' i => c (H.u.symm b') i) = B c)
+    (ψin : (∅ : Finset S.U) → Rn N) (ψin' : (∅ : Finset S'.U) → Rn N)
+    {s : Dec2.DecParams (coverOf S.G')} {s' : Dec2.DecParams (coverOf S'.G')}
+    (hs : ∀ P, s' (H.kappa P) = s P) :
+    S'.oldInterp (coverOf S'.G') ρ X₁loc' X₁' ∅ ψout' B' ψin' s' =
+      S.oldInterp (coverOf S.G') ρ X₁loc X₁ ∅ ψout B ψin s := by
+  unfold HoleStep.oldInterp
+  rw [fill_empty, fill_empty, ← hB]
+  congr 1
+  funext b' i
+  obtain ⟨b, rfl⟩ := H.u.surjective b'
+  rw [Equiv.symm_apply_apply]
+  exact H.composed_entry ρ (fun b P => H.sloc_rel hX₁ hloc hs b P) hψ b i
+
 end StepAff
 
 end Balaban.Fluctuation
