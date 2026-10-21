@@ -752,7 +752,11 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   cover bases of the local pair); `Spine/LFOldLocCoef` (`locSetXJ`, `oldCoefLoc`, the Cauchy bound `norm_oldCoefLoc_le`);
   `Spine/LFOldH7Loc` (`h7Domain_composedMulti_loc`); `Spine/LFOldMarkBound` (`norm_oldInterp_loc_lt`: at every parameter
   of the polydisc the interpolated old term of the local pair is below the record's `fac e^{-rate d^cov(X)}`, from the
-  record's (D7) and `H7MixedInnerLoc`). **Named inputs (open):**
+  record's (D7) and `H7MixedInnerLoc`); `Fluctuation/HoleStepAnalytic` (`Dec2.analyticOnNhd_decBg`,
+  `HoleStep.analyticAt_composed`, `HoleStep.analyticOnNhd_oldInterp`: the composed field and the interpolated old term are
+  analytic in the parameters, I-4b (i) and I-4c (iii)); `Spine/LFOldCoefBound` (**`norm_oldCoefLoc_le_of_inputs`: the
+  bound of P6 (4.34) at one coefficient, `|T(X, J)| ≤ fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|}`**, from the record's (D7),
+  the standing conditions of the local pair and the two named inputs). **Named inputs (open):**
   - `H7MixedInnerLoc` — the composed field of the local pair lies in Δ^c_k(□; 1, ε_k) at the cubes □ ⊂ X near Ω_{k+1}
     (P5 (2.39)–(2.43): composition identity, locality of the background between `genCube` and the local pair, the
     fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
@@ -760,9 +764,9 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
     RegC into one real slowly varying field on V; size: medium);
   - Proposition 3.3 on a region (the localized exponent of the measure of the step, `InterpMarksOn` minus the marks):
     still to be stated.
-  Next: the analyticity in `s` of the interpolated old term of the local pair (I-4b `i4b_analytic`,
-  `analyticOnNhd_decCovSqrt_entry`), the coefficient bound from the record's (D7) and the named inputs, then the marks,
-  `oldB` as `BTerms` and its (D7) clauses, and the bound P6 (4.34).
+  Next: the marks (the coefficients as functions of the cube variables of the measure, with the bound above), Proposition
+  3.3 on a region as a named input, `oldB` as `BTerms` (grouped by output label, with the assignments of
+  `Spine/LFBdryOldAssign`) and its (D7) clauses, and the bound P6 (4.34) at one output label.
 
 ## LastIntegralInput sub-inputs (W1108)
 
