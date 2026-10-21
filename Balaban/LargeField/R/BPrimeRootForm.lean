@@ -18,7 +18,7 @@ of `𝕋_k` of their anchor site.
 
 * `actionGWithCube`, `actionGWith_eq_sum_cube`; `starBondEWithCube`, `starBondEWith_eq_sum_cube`:
   the multiscale action and the star bond energy, for any partition of the sites and the blocks;
-* `SFCtx.cubeOfBg`, `SFCtx.blkBase`, `SFCtx.cubeOfBlk`: the cube of a site and of a block of the
+* `SFCtx.tCubeOfBg`, `SFCtx.blkBase`, `SFCtx.tCubeOfBlk`: the cube of a site and of a block of the
   level-`k` torus;
 * `SFCtx.actCube`, `SFCtx.actStarAt_eq_sum_actCube`: `A*_k(Y; ψ_k, φ)` is the sum over the cubes
   of `𝕋_k` of the action of the cube;
@@ -108,7 +108,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ)
 
 /-- The cube of `𝕋_k` of a site of the level-`k` torus (that of `bgSet`). -/
-def cubeOfBg (x : BgT C.geo k) : Torus S.d (n k) :=
+def tCubeOfBg (x : BgT C.geo k) : Torus S.d (n k) :=
   cubeMap n S.L M K k (bgToFine C.geo C.hnn C.hkK x)
 
 /-- The base site of an `m`-block of the level-`k` torus. -/
@@ -116,8 +116,8 @@ def blkBase (m : ℕ) (y : Blk S.d S.L (C.geo.M1 * (C.geo.c * n k)) k m) : BgT C
   fun ν => (((y ν).val * S.L ^ m : ℕ) : ZMod _)
 
 /-- The cube of `𝕋_k` of an `m`-block (that of its base site). -/
-def cubeOfBlk (m : ℕ) (y : Blk S.d S.L (C.geo.M1 * (C.geo.c * n k)) k m) : Torus S.d (n k) :=
-  C.cubeOfBg (C.blkBase m y)
+def tCubeOfBlk (m : ℕ) (y : Blk S.d S.L (C.geo.M1 * (C.geo.c * n k)) k m) : Torus S.d (n k) :=
+  C.tCubeOfBg (C.blkBase m y)
 
 variable (Y : Set (Torus S.d (n k))) (ψC : BlockAt S n M K k → Fin N → ℂ)
   (hv : EuclideanSpace ℝ (Fin N))
@@ -125,25 +125,25 @@ variable (Y : Set (Torus S.d (n k))) (ψC : BlockAt S n M K k → Fin N → ℂ)
 /-- **The action of the cube `c` of `𝕋_k`**: the block, bond, mass and star bond terms of
 `A*_k(Y; ψ_k, φ)` anchored in `c`, at a background field `φ` and an action mass `μ`. -/
 noncomputable def actCube (μ : ℝ) (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (c : Torus S.d (n k)) : ℂ :=
-  actionGWithCube C.cubeOfBg C.cubeOfBlk (fun v => SmallField.dot v v)
+  actionGWithCube C.tCubeOfBg C.tCubeOfBlk (fun v => SmallField.dot v v)
       (levelGen (ϱ := (1 : ℝ)) k) C.weights μ (hC hv) (C.bgSet Y) (C.psiLevelKOf ψC)
       (C.phiBarAt Y ψC hv φ) c +
-    1 / 4 * starBondEWithCube C.cubeOfBg (fun v => SmallField.dot v v) (C.bgSet Y)
+    1 / 4 * starBondEWithCube C.tCubeOfBg (fun v => SmallField.dot v v) (C.bgSet Y)
       (C.phiBarAt Y ψC hv φ) c
 
 /-- **`A*_k(Y; ψ_k, φ)` is the sum over the cubes of `𝕋_k` of the actions of the cubes.** -/
 theorem actStarAt_eq_sum_actCube (μ : ℝ) (φ : (C.genW Y).Ω 1 × Fin N → ℂ) :
     C.actStarAt Y ψC hv μ φ = ∑ c, C.actCube Y ψC hv μ φ c := by
   unfold actStarAt actCube actionGC starBondEC
-  rw [actionGWith_eq_sum_cube C.cubeOfBg C.cubeOfBlk, starBondEWith_eq_sum_cube C.cubeOfBg,
+  rw [actionGWith_eq_sum_cube C.tCubeOfBg C.tCubeOfBlk, starBondEWith_eq_sum_cube C.tCubeOfBg,
     Finset.mul_sum, ← Finset.sum_add_distrib]
 
 /-- The cube of `𝕋_k` of a site of the Def-6 torus (that of `sset`). -/
-def cubeOfC (x : Localization.CTorus S.d S.L C.N₁ m₁ k) : Torus S.d (n k) :=
-  C.cubeOfBg (sfToBg C.geo C.hT x)
+def tCubeOfC (x : Localization.CTorus S.d S.L C.N₁ m₁ k) : Torus S.d (n k) :=
+  C.tCubeOfBg (sfToBg C.geo C.hT x)
 
 theorem mem_sset_iff_cube (A : Set (Torus S.d (n k))) (x : Localization.CTorus S.d S.L C.N₁ m₁ k) :
-    x ∈ C.sset A ↔ C.cubeOfC x ∈ A := Iff.rfl
+    x ∈ C.sset A ↔ C.tCubeOfC x ∈ A := Iff.rfl
 
 end Def7.SFCtx
 
@@ -240,7 +240,7 @@ noncomputable def polyIdx (j : ℕ) : Finset (Set (Localization.CTorus S.d S.L C
 composed field of `φ`, over the sites of `c`. -/
 noncomputable def corrCube (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (j : ℕ) (c : Torus S.d (n k)) : ℂ :=
   ∑ s ∈ (Finset.univ : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)).filter
-      (fun s => C.cubeOfC s = c),
+      (fun s => C.tCubeOfC s = c),
     (1 / 2 * corrCoefSite (fun y x => vc.v1 j (unlift j (x - y))) (C.alignedIn j Y)
         (C.alignedIn j (thickY R Y)) s *
         dot (C.psiJAt Y ψC hv φ j s) (C.psiJAt Y ψC hv φ j s) +
@@ -250,7 +250,7 @@ noncomputable def corrCube (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (j : ℕ) (c 
 
 /-- **The source term `⟨χ_Y g, φ̄⟩` anchored in the cube `c`.** -/
 noncomputable def gCube (φ : (C.genW Y).Ω 1 × Fin N → ℂ) (c : Torus S.d (n k)) : ℂ :=
-  ∑ x ∈ (C.bgSet Y).filter (fun x => C.cubeOfBg x = c), ∑ i : Fin N,
+  ∑ x ∈ (C.bgSet Y).filter (fun x => C.tCubeOfBg x = c), ∑ i : Fin N,
     g (bgToFine C.geo C.hnn C.hkK x, i) * C.phiBarAt Y ψC hv φ x i
 
 /-- **The root of the cube `c`**: `-β A*` of the cube, the corrections of all levels at its sites and
@@ -356,10 +356,10 @@ theorem sfExp2At_eq_roots (φ : (C.genW Y).Ω 1 × Fin N → ℂ) :
         (C.alignedIn j (thickY R Y)) s *
         (((nuIdeal S.L k (C.sf.ν k) j : ℝ) : ℂ) * dot (hC hv) (unitDirC (C.psiJAt Y ψC hv φ j s))))) =
       ∑ c, corrCube C vc Y ψC hv φ j c := fun j =>
-    (Finset.sum_fiberwise _ C.cubeOfC _).symm
+    (Finset.sum_fiberwise _ C.tCubeOfC _).symm
   have hg : (∑ x ∈ C.bgSet Y, ∑ i : Fin N,
       g (bgToFine C.geo C.hnn C.hkK x, i) * C.phiBarAt Y ψC hv φ x i) =
-      ∑ c, gCube C Y ψC hv g φ c := (Finset.sum_fiberwise _ C.cubeOfBg _).symm
+      ∑ c, gCube C Y ψC hv g φ c := (Finset.sum_fiberwise _ C.tCubeOfBg _).symm
   simp only [hcorr, hg]
   unfold cubeRoot polyRoot
   simp only [ite_add_zero]
