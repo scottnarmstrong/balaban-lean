@@ -135,14 +135,15 @@ of the mark of `(X, J)` lie in `T` (the cluster term is zero otherwise), then th
 in `Ŷ(T)`, the fine set of the output label. -/
 theorem d7Pull_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo S n R M}
     (hM1 : g.M1 = S.L ^ m₁) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
-    {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))} (hX : FineValidAt F k Om X)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))}
+    (hX : FineValidAt F k Om X)
     (hXm : (d7Pull F k (X : Set (Torus S.d (n k))) ∩
       d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) (r r' : ℕ)
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
     (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
-      (markSite g hnn hM1 F H hk r r' X J) ⊆ T)
+      (markSite g hnn hM1 F H hk hρ r r' X J) ⊆ T)
     (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
     d7Pull F k (X : Set (Torus S.d (n k))) ⊆
       d7Pull F (k + 1) (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) := by
@@ -159,7 +160,7 @@ theorem d7Pull_subset_outLabel {R : ℕ → ℝ} {k0 : ℕ} [NeZero M] {g : Geo 
     have hmem : (⟨cbase (cellSide S.L m₀ m₁ (k + 1)) x, aligned_cbase x, hcell⟩ :
         CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
           (d7Pull F (k + 1) (OmegaCube H (k + 1)))) ∈ T := by
-      refine hT (mem_blocksOf.2 fun y hy => ⟨x, Or.inl ⟨hxX, hxΩ⟩, ?_⟩)
+      refine hT (mem_blocksOf.2 fun y hy => ⟨x, Or.inl (Or.inl (Or.inl ⟨hxX, hxΩ⟩)), ?_⟩)
       exact Localization.box_mono _ (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne S.L))) hy
     exact mem_sitesOf.2 ⟨_, hmem, mem_box_cbase ha0 x⟩
   obtain ⟨x, hx⟩ := hXm

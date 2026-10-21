@@ -26,10 +26,10 @@ the properties of its activities in the fields, are the named input Proposition 
   the interaction localizes the exponent of the measure, holomorphically in the parameter;
 * `toFrame`: the site of the frame torus of a site of the cover torus of the step;
 * `optW`, `optW_spec`: the connecting structure of an optimal cover of an old label;
-* `markSite`: **the site of the mark of `(X, J)`**: the `π'_{k+1}`-cubes based at the cells of
-  `X ∩ Ω_{k+1}`, of `optW` and of the local set `V(X, J)` (not the holes of `X`);
-  `isPiPrimeUnion_markSite`, `d7Pull_inter_subset_markSite`, `optW_subset_markSite`,
-  `toFrame_locSetXJ_subset_markSite`;
+* `locG'`: the set `G′_V` of the local pair (independent of the fields);
+* `markBase`, `markSite`: **the site of the mark of `(X, J)`**: the `π'_{k+1}`-cubes based at the
+  cells of `X ∩ Ω_{k+1}`, of `optW`, of the local set `V(X, J)` and of the data sites of `G′_V` (not
+  the holes of `X`); `markBase_subset_markSite`, `isPiPrimeUnion_markSite`;
 * `GoodJ`: the families `J` whose site is a set of `𝒟_{k+1}` meeting `Ω`;
 * `unitRep_mem_of_mem_locUnits`: the unit points of the local pair lie in the local set;
 * `oldMarkLF_depOn_markSite`: the mark depends only on the cubes inside its site;
@@ -117,19 +117,46 @@ theorem optW_spec {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ}
   simp only [h, ↓reduceDIte]
   exact ⟨h.choose, h.choose_spec.choose_spec.choose, h.choose_spec.choose_spec.choose_spec⟩
 
-/-- **The site of the mark of `(X, J)`**, on the frame torus (P6 p. 34, the domain `Y₁` of P3
-(4.42) completed as in (4.44)): the `π'_{k+1}`-cubes (side `L · cellSide`) based at the cells of the
-sites of `X ∩ Ω_{k+1}`, of the connecting structure `optW` of an optimal cover of `X` (which joins
-the components of `X ∩ Ω_{k+1}` through the holes of `X`), and of the local set `V(X, J)` of the
-coefficient.  The holes of `X` are not in the site: the size of the site is controlled by the
-modular size of `X`. -/
-noncomputable def markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+/-- **The set `G′_V` of the local pair** (reading HS-1′): the set of P5 (2.17) of the step on a region
+of the history (`p6TopC`) restricted to `𝔹_{k+1}(V)`; it does not depend on the fields
+(`holeStepLoc_G'_eq`). -/
+noncomputable def locG' (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) (minSep S.L g.M1) :=
+  (p6TopC (H.step k) hM1 (hnn k (by omega)) hρ (by have := g.hc; omega)).inter (locB g hM1 V)
+
+omit [NeZero M] in
+theorem holeStepLoc_G'_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' = locG' g hnn hM1 H hk hρ V :=
+  rfl
+
+/-- **The base sites of the mark of `(X, J)`**, on the frame torus (P6 p. 34, the domain `Y₁` of P3
+(4.42) completed as in (4.44)): the sites of `X ∩ Ω_{k+1}`, the connecting structure `optW` of an
+optimal cover of `X` (which joins the components of `X ∩ Ω_{k+1}` through the holes of `X`), the
+local set `V(X, J)` of the coefficient and the data sites of its local pair `G′_V`.  The holes of
+`X` are not base sites: the size of the site is controlled by the modular size of `X`. -/
+noncomputable def markBase {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (X : Finset (Torus S.d (n k)))
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     Set (CTorus S.d S.L F.N₁ m₁ K) :=
-  {x | ∃ y, (y ∈ d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ∨
-      y ∈ (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ∨
-      y ∈ toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J) ∧
+  d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ∪
+    (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ∪
+    toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J ∪
+    toFrame g hnn hM1 F hk ''
+      (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J)) :
+        Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+
+/-- **The site of the mark of `(X, J)`**, on the frame torus: the `π'_{k+1}`-cubes (side
+`L · cellSide`) based at the cells of the base sites `markBase`. -/
+noncomputable def markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Set (CTorus S.d S.L F.N₁ m₁ K) :=
+  {x | ∃ y ∈ markBase g hnn hM1 F H hk hρ r r' X J,
     x ∈ Localization.box (cbase (cellSide S.L m₀ m₁ (k + 1)) y)
       (S.L * cellSide S.L m₀ m₁ (k + 1))}
 
@@ -142,47 +169,32 @@ theorem mem_box_cbase_cellSide {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
     (mem_box_cbase (cellSide_pos m₀ m₁ (k + 1)) y)
 
 omit [NeZero M] in
-/-- The sites of `X ∩ Ω_{k+1}` lie in the site of the mark. -/
-theorem d7Pull_inter_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
-    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) ⊆
-      markSite g hnn hM1 F H hk r r' X J := fun y hy =>
-  ⟨y, Or.inl hy, mem_box_cbase_cellSide F y⟩
-
-omit [NeZero M] in
-/-- The connecting structure of an optimal cover of `X` lies in the site of the mark. -/
-theorem optW_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
-    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    (optW F k (H.omegaPost k) X : Set (CTorus S.d S.L F.N₁ m₁ K)) ⊆
-      markSite g hnn hM1 F H hk r r' X J := fun y hy =>
-  ⟨y, Or.inr (Or.inl hy), mem_box_cbase_cellSide F y⟩
-
-omit [NeZero M] in
-/-- The local set lies in the site of the mark. -/
-theorem toFrame_locSetXJ_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
-    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    toFrame g hnn hM1 F hk '' locSetXJ g hM1 H r r' X J ⊆ markSite g hnn hM1 F H hk r r' X J :=
-  fun y hy => ⟨y, Or.inr (Or.inr hy), mem_box_cbase_cellSide F y⟩
+/-- The base sites lie in the site of the mark. -/
+theorem markBase_subset_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    markBase g hnn hM1 F H hk hρ r r' X J ⊆ markSite g hnn hM1 F H hk hρ r r' X J := fun y hy =>
+  ⟨y, hy, mem_box_cbase_cellSide F y⟩
 
 omit [NeZero M] in
 /-- **The site of a mark is a union of `π'_{k+1}`-cubes.** -/
 theorem isPiPrimeUnion_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (r r' : ℕ)
-    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    IsPiPrimeUnion m₀ (k + 1) (markSite g hnn hM1 F H hk r r' X J) := by
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    IsPiPrimeUnion m₀ (k + 1) (markSite g hnn hM1 F H hk hρ r r' X J) := by
   rintro z ⟨y, hy, hz⟩
   exact ⟨cbase (cellSide S.L m₀ m₁ (k + 1)) y, aligned_cbase y, hz, fun z' hz' => ⟨y, hy, hz'⟩⟩
 
 /-- **A family `J` with a good site**: the site of the mark of `(X, J)` is a set of `𝒟_{k+1}`
 (nonempty, a union of `π'_{k+1}`-cubes, connected) meeting the region `Ω` of the cubes of the measure. -/
 def GoodJ {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K) {k : ℕ}
-    (hk : k + 1 ≤ K) (r r' : ℕ) (Ω : Set (CTorus S.d S.L F.N₁ m₁ K)) (X : Finset (Torus S.d (n k)))
-    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) : Prop :=
-  IsDj m₀ (k + 1) (markSite g hnn hM1 F H hk r r' X J) ∧
-    (markSite g hnn hM1 F H hk r r' X J ∩ Ω).Nonempty
+    (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (Ω : Set (CTorus S.d S.L F.N₁ m₁ K))
+    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Prop :=
+  IsDj m₀ (k + 1) (markSite g hnn hM1 F H hk hρ r r' X J) ∧
+    (markSite g hnn hM1 F H hk hρ r r' X J ∩ Ω).Nonempty
 
 omit [NeZero M] in
 /-- **The unit points of the local pair lie in the local set**: the representative of a unit point
@@ -223,12 +235,12 @@ theorem image_cb_subset_blocksOf_markSite {m₀ : ℕ} (F : FineSizeFrame S n M 
     (inner.attach.filter fun u : inner => (u : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁
         δ).U) ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
           (locSetXJ g hM1 H r r' X J)).image cb ⊆
-      blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 F H hk r r' X J) := by
+      blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 F H hk hρ r r' X J) := by
   intro b hb
   obtain ⟨u, hu, rfl⟩ := Finset.mem_image.1 hb
   have hV := unitRep_mem_of_mem_locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _
     (Finset.mem_filter.1 hu).2
-  refine mem_blocksOf.2 fun x hx => ⟨_, Or.inr (Or.inr ⟨_, hV, rfl⟩), ?_⟩
+  refine mem_blocksOf.2 fun x hx => ⟨_, Or.inl (Or.inr ⟨_, hV, rfl⟩), ?_⟩
   rw [cbase_eq_of_mem_box (cellSide_dvd F.divN₁ hk) (cb u).2.1 (hcb u)]
   exact Localization.box_mono _ (Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne S.L))) hx
 
@@ -247,7 +259,7 @@ theorem oldMarkLF_depOn_markSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m�
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    DepOn (blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 F H hk r r' X J))
+    DepOn (blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 F H hk hρ r r' X J))
       (oldMarkLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv
         gx J) :=
   (oldMarkLF_dep g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv
@@ -273,7 +285,7 @@ noncomputable def oldClusterLF {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
   haveI := (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).isProbabilityMeasure_cubeMeasure
     inner cb hp
   markTerm ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).cubeMeasure inner cb) I.A
-    (markSite g hnn hM1 F H hk r r' X J)
+    (markSite g hnn hM1 F H hk hρ r r' X J)
     (oldMarkLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv gx
       J) T
 
@@ -324,7 +336,7 @@ theorem oldClusterLF_spec {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k
         Localization.box (cb u).1 (cellSide S.L m₀ m₁ (k + 1)))
     (hp : 0 < p₁) (I : LocInteraction (fun b => {u : inner // cb u = b} → Rn N))
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
-    (hrψ : 0 < rψ) (hfac : 0 < fac) (hJ : GoodJ g hnn hM1 Fr A.H hk r r' Ω X J)
+    (hrψ : 0 < rψ) (hfac : 0 < fac) (hJ : GoodJ g hnn hM1 Fr A.H hk hρ r r' Ω X J)
     (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1) Ω)) :
     ‖oldClusterLF g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ
         (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J T‖ ≤
@@ -333,9 +345,9 @@ theorem oldClusterLF_spec {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k
           Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁
             ν β p₁ δ (locSetXJ g hM1 A.H r r' X J)).G') J).card)) *
         Real.exp ((I.κH - I.κ0) * treeLenCovOne (d := S.d) (L := S.L) (N₁ := Fr.N₁)
-          (m₁ := m₁) (K := K) m₀ (k + 1) (markSite g hnn hM1 Fr A.H hk r r' X J)) *
+          (m₁ := m₁) (K := K) m₀ (k + 1) (markSite g hnn hM1 Fr A.H hk hρ r r' X J)) *
         Real.exp (-I.κ' * dExt T) ∧
-      (¬ blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 Fr A.H hk r r' X J) ⊆ T →
+      (¬ blocksOf m₀ (k + 1) Ω (markSite g hnn hM1 Fr A.H hk hρ r r' X J) ⊆ T →
         oldClusterLF g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ
           (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J T = 0) := by
   obtain ⟨hVd, hm⟩ := hJ
