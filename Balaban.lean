@@ -3079,6 +3079,7 @@ public import Balaban.Spine.LFOldBBound
 public import Balaban.Spine.LFOldResum
 public import Balaban.Spine.LFOldH7Refute
 public import Balaban.Spine.LFOldHS2
+public import Balaban.Spine.LFOldHS2Chain
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads

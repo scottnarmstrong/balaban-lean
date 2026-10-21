@@ -26,8 +26,9 @@ landed ones (reading HS-2) and restates the two named inputs of OPEN-H7-MIXED wi
   pair); the cell count `card_cells_stencilCore_le` (`9^d c₁ (1 + d_k(X))`) and
   **`oldResumSite2_holds`**: the resummation at a mark site for these local sets
   (`oldResumSiteAt_holds` with `σ = stencilX`);
-* D1, the set `Y_f`: `CubesNearIn` (the cubes of `𝕋_j` within `3` cubes of the sites read lie in
-  `Y_f`), `subset_of_cubesNearIn`;
+* D1, the set `Y_f`: `CubesOfIn` (the cubes of `𝕋_{k+1}` of the sites read lie in `Y_f`; for `Y_f`
+  the fine set of a set of cubes this is the inclusion of the sites, `cubesOfIn_fineSet`),
+  `subset_of_cubesOfIn`;
 * the restated named inputs `H7MixedInnerLoc2`, `H7MixedDatumLoc2` (open; the second is false at zero
   sharp mass with the present cube domains, as `not_h7MixedDatumLoc` shows for its predecessor, and is
   meant for the cube domains of the ruling request on their complex radius), and
@@ -154,6 +155,14 @@ omit [NeZero S.L] in
 theorem subset_stencilX {k : ℕ} (X : Finset (Torus S.d (n k))) : X ⊆ stencilX X :=
   fun _ hu => mem_stencilX.2 (subset_nbhd 3 _ hu)
 
+omit [NeZero M] [NeZero S.L] in
+/-- The fine set of `X` lies in that of its stencil. -/
+theorem fineSet_mono_stencil {k : ℕ} {X : Finset (Torus S.d (n k))}
+    {x : Torus S.d (M * n K * S.L ^ K)}
+    (hx : x ∈ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) :
+    x ∈ fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) :=
+  subset_stencilX X hx
+
 /-- **The local set of reading HS-2** (repair D2): the sites within `r′` of the `r`-collar of the
 sites of `Ω_{k+1}` in the stencil of `X` (`Ω_{k+1} ∩ X^{∼3}`) or of a cube of `J`
 (`locSetXJ` at the stencil). -/
@@ -206,27 +215,39 @@ theorem mem_top_locG'_locSetXJ2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k
       ⟨mem_stencilX.2 hxk, hxΩ⟩, by rw [LargeField.supDist_self]; exact Nat.zero_le _⟩), ?_⟩
     exact (supDist_le_of_sameCell (pow_pos (Nat.pos_of_ne_zero (NeZero.ne S.L)) _) hw).trans hr'
 
-/-! ### D1: the set `Y_f` contains the cubes near the sites read -/
+/-! ### D1: the set `Y_f` contains the cubes of the sites read -/
 
-/-- **The cubes near a set lie in `Y_f`** (repair D1): every cube of `𝕋_j` within `3` cubes of the
-cube of a site of `S_f` lies in `Y_f` (the H7 domain at `Y_f` tests only the cubes inside `Y_f`). -/
-def CubesNearIn (j : ℕ) (Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))) : Prop :=
-  ∀ y : Torus S.d (n j), (∃ x ∈ Sf, LargeField.cubeMap n S.L M K j x ∈
-      nbhd 3 ({y} : Set (Torus S.d (n j)))) →
-    CubeSub (S := S) (n := n) M K j y Yf
+/-- **The cubes of a set of sites lie in `Y_f`** (repair D1): the cube of `𝕋_j` of every site of `S_f`
+lies in `Y_f` (the H7 domain at `Y_f` tests only the cubes inside `Y_f`; each test at a cube reads the
+field on the cube and its neighbours).  For `Y_f` the fine set of a set of cubes of `𝕋_j`, this is
+`S_f ⊆ Y_f` (`cubesOfIn_fineSet`). -/
+def CubesOfIn (j : ℕ) (Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))) : Prop :=
+  ∀ x ∈ Sf, CubeSub (S := S) (n := n) M K j (LargeField.cubeMap n S.L M K j x) Yf
 
-omit [NeZero M] [NeZero S.L] in
-/-- The sites of `S_f` lie in `Y_f` when the cubes near `S_f` do. -/
-theorem subset_of_cubesNearIn {j : ℕ} {Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))}
-    (h : CubesNearIn (S := S) (n := n) (M := M) (K := K) j Yf Sf) : Sf ⊆ Yf := fun x hx =>
-  h _ ⟨x, hx, subset_nbhd 3 _ rfl⟩ x rfl
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+/-- The sites of `S_f` lie in `Y_f` when their cubes do. -/
+theorem subset_of_cubesOfIn {j : ℕ} {Yf Sf : Set (Torus S.d (M * n K * S.L ^ K))}
+    (h : CubesOfIn (S := S) (n := n) (M := M) (K := K) j Yf Sf) : Sf ⊆ Yf := fun x hx =>
+  h x hx x rfl
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+/-- **The condition D1 at the fine set of a set of cubes**: the cubes of the sites of `S_f` lie in the
+fine set of `Y` when `S_f` does. -/
+theorem cubesOfIn_fineSet {j : ℕ} {Y : Set (Torus S.d (n j))}
+    {Sf : Set (Torus S.d (M * n K * S.L ^ K))}
+    (h : Sf ⊆ fineSet (S := S) (n := n) M K j Y) :
+    CubesOfIn (S := S) (n := n) (M := M) (K := K) j (fineSet (S := S) (n := n) M K j Y) Sf :=
+  fun x hx x' hx' => by
+    show LargeField.cubeMap n S.L M K j x' ∈ Y
+    rw [hx']
+    exact h hx
 
 /-! ### The two named inputs, restated (reading HS-2) -/
 
 /-- **OPEN-H7-MIXED, the remaining part, for the local pair of reading HS-2** (restatement of
 `H7MixedInnerLoc` with the repairs D1–D3; **open**): for an old label `X`, a family `J`, the local set
 `V = locSetXJ2 X J`, a field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of
-`𝕋_k` and `𝕋_{k+1}` within `3` cubes of `X` and of the data sites of `G′_V`, a fluctuation field
+`𝕋_{k+1}` of the sites of the stencil `X^{∼3}` and of the data sites of `G′_V`, a fluctuation field
 `|ψ̂| < r_ψ` and a parameter `|s_P| < R`: at every cube `□ ⊂ X` of `𝕋_k` outside `(Ω^c_k)^{∼3}` with a
 cube of `𝕋_{k+1}` in `Ω^{∼3}_{k+1}`, the composed multiscale field of the local composite lies in
 `Δ^c_k(□; 1, ε_k)`. -/
@@ -237,12 +258,8 @@ def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
     (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ),
     H7Domain g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
-    CubesNearIn (S := S) (n := n) (M := M) (K := K) k Yf
-      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∪
-        fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
-          Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
-    CubesNearIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
-      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∪
+    CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
+      (fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) ∪
         fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
           Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
     ∀ ψhat : (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
@@ -277,9 +294,9 @@ def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
 /-- **OPEN-H7-MIXED, the background part, for the local pair of reading HS-2** (restatement of
 `H7MixedDatumLoc` with the repairs D1, D3; **open**, false at zero sharp mass with the present cube
 domains, `not_h7MixedDatumLoc`, pending the ruling on their complex radius): for every set `V` and
-every field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of `𝕋_k` and
-`𝕋_{k+1}` within `3` cubes of the data sites of `G′_V`, the restricted global datum of the local pair
-(`holeStepLoc2`) lies in `Ψ̃^c(G′_V; δ_b, δ_b)`. -/
+every field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of `𝕋_{k+1}` of the
+data sites of `G′_V`, the restricted global datum of the local pair (`holeStepLoc2`) lies in
+`Ψ̃^c(G′_V; δ_b, δ_b)`. -/
 def H7MixedDatumLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
     (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
     (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (νb δb : ℝ) : Prop :=
@@ -287,10 +304,7 @@ def H7MixedDatumLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
     (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ),
     H7Domain g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
-    CubesNearIn (S := S) (n := n) (M := M) (K := K) k Yf
-      (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ V) :
-        Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
-    CubesNearIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
+    CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
       (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ V) :
         Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
     InDomainC (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' νb δb δb
@@ -307,12 +321,8 @@ theorem h7Domain_composedMulti_loc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk
     {Yf : Set (Torus S.d (M * n K * S.L ^ K))} {ψ ψ' : MultiFieldC S n M K N}
     {gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ}
     (htgt : H7Domain g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf)
-    (hY : CubesNearIn (S := S) (n := n) (M := M) (K := K) k Yf
-      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∪
-        fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
-          Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))))
-    (hY' : CubesNearIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
-      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∪
+    (hY : CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
+      (fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) ∪
         fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
           Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))))
     {ψhat : (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
@@ -341,8 +351,8 @@ theorem h7Domain_composedMulti_loc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk
   h7Domain_composedMulti_of_inner g hnn hM1 H hk (by omega) hL
     (fun b => cubeOfC_mem_of_unitPts_loc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
       (locSetXJ2 g hM1 H r r' X J) b) ψ _
-    ((Set.subset_union_left).trans (subset_of_cubesNearIn hY)) aw μs ε ε1 νs h ψ' gf htgt
-    fun y hyX hyC hnear => hIn X J Yf ψ ψ' gf htgt hY hY' ψhat hψhat s hs y hyX hyC hnear
+    (fun x hx => subset_of_cubesOfIn hY (Or.inl (fineSet_mono_stencil hx))) aw μs ε ε1 νs h ψ' gf htgt
+    fun y hyX hyC hnear => hIn X J Yf ψ ψ' gf htgt hY ψhat hψhat s hs y hyX hyC hnear
 
 /-! ### D2: the cell count of the stencil core -/
 
