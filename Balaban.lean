@@ -3238,6 +3238,9 @@ public import Balaban.Inhabited.NewLevelTowerFamily
 public import Balaban.Inhabited.NewLevelConstants
 public import Balaban.Inhabited.NewLevelLocalFamilyBirth
 public import Balaban.Inhabited.StepTowerRotChainBirth
+public import Balaban.Spine.LastScaleGeom
+public import Balaban.Spine.LastScaleCells
+public import Balaban.Spine.LastScaleAgree
 public import Balaban.LargeField.R.WindowDuBranch
 public import Balaban.LargeField.R.WindowDuFlowEst
 public import Balaban.LargeField.R.WindowDuBound

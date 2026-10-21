@@ -1000,9 +1000,37 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * (b) the source part `⟨g, φ̄_k⟩ − ⟨g, h⟩` together with the change of `ℳ^{(j)}(ψ^{(j)})` against `ℳ^{(j)}(h)`, as scale-`(k+1)`
        polymer terms (`ℳ^{(k+1)}_0`, the second-order remainder of the linear term; ROOTFFAM §3, row `⟨g, φ_k − h⟩`);
      * (c) the regrouping `Y ↦ Ȳ` and cells to fine sites (ROOTFFAM target 4);
-     * (d) the exact two-torus agreement of `a`. It needs the complete localization of the last integral, with the winding remainder
-       on winding polymers (SPINE-AUDIT-2 (d)); the landed results give closeness;
+     * (d) the exact two-torus agreement of `a`. REDUCED (A2, below) to the uniform two-torus closeness of the per-torus activities
+       `a_T` on quarter-box polymers (`LastScaleTwoTorusClose`); the agreement itself is proved;
      * (e) the amplitude `c₉/4`: the `ℳ^{(k+1)}_0` part is `≤ (c₉/2)e^{−(κ+1)|X|_#}` by the ties, the rest is small in `β`.
+   * **A2 (A6-3 (d), the agreement step; `Spine/LastScale{Geom,Cells,Agree}.lean`).** PROVED (axioms `propext, Classical.choice, Quot.sound`):
+     ```
+     theorem observableActivitiesAt_of_twoTorusClose {d N L M kf k : ℕ} (hd : 0 < d) (hk : k ≤ kf)
+         (hs4 : 4 ≤ M * L ^ (k + 1)) {κ c₉ δ κ' B a lam : ℝ} {t₀ : ℕ} (hB : 0 ≤ B) (ha : 0 ≤ a)
+         (hκ : 0 ≤ κ) (hκ' : κ + Real.log 2 ≤ κ') (hlam : κ' ≤ lam)
+         (hamp : B + a * Real.exp κ' + 2 * B * Real.exp (κ' * (t₀ : ℝ)) ≤
+           c₉ / 2 * (L : ℝ) ^ (-(((k + 1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))))
+         (aT : (ℓ : ℕ) → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+         (hT : LastScaleTorusClauses d N L M kf k κ' B aT)
+         (hC : LastScaleTwoTorusClose d N L M kf k κ' a lam t₀ aT) :
+         ∃ p, ObservableActivitiesAt d N L M κ c₉ δ (k + 1) kf p ∧
+           ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ → ∀ g, ∑ X, p ℓ (k + 1) X g = ∑ X, (aT ℓ X g - aT ℓ X 0)
+     ```
+     (namespace `Balaban.RootFSpine.LastScale`). The consumed form: A6-3 needs `ObservableActivitiesAt … κ (c₉/2) δ (k+1) kf a` and the
+     identity on every torus of the family; the theorem gives both from any per-torus family `a_T` with `Ξ_T = exp(E_T + Σ_X a_T)`, with
+     `E'_T = E_T + Σ_X a_T(X; 0)` (only increments are compared). Inputs, each a named Prop with its rule-10 witness (`…_zero`):
+     (i) `LastScaleTorusClauses` (on every admissible torus: increments vanish off polymers of side `M L^{k+1}`, analytic on the unit `ℓ¹` ball,
+     local, `‖a_T(X;g) − a_T(X;0)‖ ≤ B e^{−κ'|X|/(ML^{k+1})^d}`) — the per-torus expansion, B2's `a_T`;
+     (ii) `LastScaleTwoTorusClose` (for `ℓ ≤ ℓ'` and `A ⊂ ℤ^d` whose image in `𝕋_ℓ` is a polymer with cells in the cell box `|⌊y/s⌋| ≤ (ℓ/s)/4`
+     at margin `τ ≥ t₀` cells: the increments at `g ∘ valMinAbs` differ by `≤ a e^{−λτ} e^{−κ'|A|/s^d}` on `Σ_{y∈A}|g(y)| < 1`) — open, for B2's
+     `a_T` to be derived from the closeness of its per-term ingredients (tagged cut family, class terms on two tori).
+     Construction (TORUSLAST2 §3): `a` on a quarter-box polymer is `lim_n a_T` over the tori `M L^{kf+1}(n+2)` (Cauchy by (ii)); the defect
+     on each torus is moved to the polymer chained to the outside of the quarter box (`lastScale_chain`, `resum_lastScale_limit`); read on fine sites
+     through the cell-aligned lift (`liftZ`, `sitesT`, `extZ`). **What it needs of `M` against `κ` (item (3)):** `κ' ≥ κ + log 2` (fibres
+     `≤ 2^{|X|}`), `λ ≥ κ'` (closeness rate per cell at least the activity rate; for a closeness inherited from the final operators, rate
+     `2c₀M` per cell with `c₀ = c₀(d,L)` of `final_region_entry_close_unif` (W870), this is `M ≥ (κ + log 2)/(2c₀)`), and the amplitude `hamp`
+     (`κ'`, `t₀`, `a/B` absolute: the moved remainder costs the factor `1 + (a/B)e^{κ'} + 2e^{κ't₀}`, uniform in `kf`, `ℓ`). No floor on the torus:
+     tori with one block per side keep `a_T` (no quarter-box polymer there, `four_le_of_isPolymer_quarter`). Sizes: Geom 371, Cells 407, Agree 583 lines.
    * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
      `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
      every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
