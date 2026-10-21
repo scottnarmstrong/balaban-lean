@@ -1432,3 +1432,24 @@ sets, `innerCentres`, `cubeG`, and the margins have to be abstracted over a cube
 base sets, per-scale `intBox` radii), i.e. the port covers `TwoTorusCubeOps` as well (~3500 lines) before the
 collar.  Not started; needs a decision whether the localB cover of `Gk` can instead be handled through a
 single-scale statement (e.g. `Gk` with `t = k + 1` only) or the full multi-scale port is wanted.
+
+### Two-torus core for the localized old term: status (W1148r, 2026-10-21)
+
+Option 2 holds, in a stronger form than a single-scale port: `bgFieldC` of a localized set is
+exactly local (no estimate).  If `σ` carries `Ω₁(Gk)` bijectively onto `Ω₁(Gk')` preserving the spacing,
+the entries of the Dirichlet operator at `α = 0` and the source of data agreeing on the read region, the
+Euler-Lagrange systems are isomorphic and `bgFieldC`, `bgMultC` correspond (`GSIso`, `bgFieldC_of_gsIso`).
+So the multi-scale port of `TwoTorusGreenRows/SY/DecBg` is not needed for `Fk`.
+Landed (all build, 0 warnings): `Polymer/BgFieldTransport` (GSIso, transport), `ComposeFieldTransport`
+(`SiteCorr`, `GSCorr`, `composeField_corr`, `svec_corr`, `barField_corr`), `FlDatumTransport`
+(`flDatum_corr`, `composeData_corr`), `ETermFunTransport` (`eTermFun_twoTorus`), `LevelGSCorr`
+(`gsCorr_levelGS`), `TwoTorusEvOld` (`evDec_oldTerm_twoTorus`), and the `hΦ` cores in `TwoTorusEv`.
+Premises (typing/geometry data, not proof steps): `GSCorr Gk Gk'`, `GSCorr Gj Gj'`, `GSIso … Gk Gk'` on the
+label margin `Z` (the localized sets of corresponding polymers; the `localB` instance is still to be
+proved: spacing, `fullMatrix` entries and `source` of `localB t Yp` under `boxMap`), block closure of `Z`, and
+the old terms agree on raw data agreeing under `boxMap` on `Z` (box form of D8/`TorusIndep`, discharged by
+`sfSucc_core`'s inherited D8).
+Open: (4) `H`/`G₁` of two `NewLevelSystem`s from `evDec_oldTerm_twoTorus` (needs a bijection of the index
+types of the old terms and `hatOf_boxMap`); (5) `NS.coeff` from `gsumCoeff_transport` (generic, landed) with the
+label bijection `ψ` of `Lab1` (zero-source, thick and bridge labels) and the det part
+(`detExpansionLocC_term_twoTorus_fromTowerG` for the tower instance); (6) the `localB` instance of `GSIso`.
