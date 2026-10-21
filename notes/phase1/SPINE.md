@@ -1408,3 +1408,17 @@ datum on `Rθ ⊆ X₁f`); the three landed theorems are instances.  `Ev_twoToru
 `localB` or for two tori; `TwoTorusDecBg` (rows/component/value, ~900 lines) is `levelGS`-specific, so this is a
 port with the collar of `localB` (residual and rows near the collar), then `composeField`/`d1Triple`/`D2raw`
 on two tori, `hΦ` for `eTermFun`, `evDec` of the localized old term, `H`/`G₁`, `NS.coeff`.
+
+### (b) localB two-torus decoupled background: inventory (W1148r, 2026-10-21)
+
+The two-torus decoupled background is spread over `TwoTorusGreenRows` (845 lines), `TwoTorusSY` (624),
+`TwoTorusDecBg` (929), `TwoTorusEv` (reads).  They use the `levelGS` facts (counts of uses): `levelGS_mem_Ω_*` (36),
+`layerIndex_levelGS` (11), `approxField_`/`residual_levelGS_boxMap` (9), `spacing_levelGS` (5),
+`mem_cubeIdx_levelGS` (5), `isLevel_levelGS`, `SY_subset_levelGS`, `subI_levelGS_iff`, `row_SY_levelGS`,
+`mem_innerCentres_levelGS`, `inBox_of_mem_resSites_levelGS`, `not_mem_collar_levelGS`, `locSol_`/`interp_levelGS_boxMap`,
+`active_levelGS_image`, `resSites_levelGS_image`, `mem_blockIdx_levelGS`.  A core over a generating-set pair
+`(GA, GB)` needs these as a correspondence structure `GSCorr GA GB bm`.  `levelGS` is its instance; `localB`
+is not: it has a collar (`not_mem_collar_levelGS` fails), so the residual and the rows at the collar need the
+data agreement on the collar sites (new analysis, no landed `levelGS` analogue), and `Ω 1` is the polymer, so
+`levelGS_mem_Ω_one` becomes membership in the corresponding polymers.  Estimate: 2500+ lines (core
+generalization of three files plus the collar), then items 1-5.  Needs a design review before assigning.
