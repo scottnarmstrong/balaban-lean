@@ -85,16 +85,43 @@ section Exists
 
 variable {d L m₁ k N : ℕ} [NeZero L] {ϱ : ℝ}
 
-/-- **The coefficient data of a small-field family exist.**  Let `sf` be small-field data whose
-terms form a coefficient family at every level `1 ≤ j ≤ k` (for the constants `P` and the mass
-`ν_k`), and `h` a physical field of norm one.  Then the source form of the terms and the
-thermodynamic limits of the whole-torus coefficients exist: `D1CorrLim`. -/
-theorem exists_d1CorrLim {P : Consts} (sf : SFData d L m₁ k N ϱ)
+/-- **The source form of the terms of `sf`**: `Ẽ(Ψ, b) = E(Ψ, b / ν_j)` on every Def-6 torus
+(`sourceOf`). -/
+noncomputable def corrSrc (sf : SFData d L m₁ k N ϱ) :
+    ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d L N₁ m₁ k N :=
+  fun N₁ _ => sourceOf sf.ν (sf.Tm N₁)
+
+/-- The radial sequence of `v1T` along the tori `torusSeq L m₀ n` at the axis `e_0`. -/
+noncomputable def v1Rad (m₀ : ℕ) (sf : SFData d L m₁ k N ϱ) (j n : ℕ) (z : Fin d → ℤ) : ℂ :=
+  if h : 0 < N then
+    haveI : NeZero (torusSeq L m₀ n) := ⟨torusSeq_ne_zero m₀ n⟩
+    v1T m₀ (corrSrc sf (torusSeq L m₀ n)) j (nuIdeal L k (sf.ν k) j)
+      (Pi.single (⟨0, h⟩ : Fin N) 1) 0 (blockPt j z)
+  else 0
+
+/-- The radial sequence of `v2T` at the pair of axes `(e_0, e_1)`. -/
+noncomputable def v2Rad (m₀ : ℕ) (sf : SFData d L m₁ k N ϱ) (j n : ℕ) (z : Fin d → ℤ) : ℂ :=
+  if h : 1 < N then
+    haveI : NeZero (torusSeq L m₀ n) := ⟨torusSeq_ne_zero m₀ n⟩
+    v2T m₀ (corrSrc sf (torusSeq L m₀ n)) j (nuIdeal L k (sf.ν k) j)
+      (Pi.single (⟨0, by omega⟩ : Fin N) 1) (Pi.single (⟨1, h⟩ : Fin N) 1) 0 (blockPt j z)
+  else 0
+
+/-- **The coefficient data of `sf`**: the thermodynamic limits of the radial coefficients
+(P1 (3.110)); they do not depend on the physical field. -/
+noncomputable def corrVc (m₀ : ℕ) (sf : SFData d L m₁ k N ϱ) : CorrCoef d :=
+  ⟨fun j z => limUnder atTop (fun n => v1Rad m₀ sf j n z),
+    fun j z => limUnder atTop (fun n => v2Rad m₀ sf j n z)⟩
+
+/-- **The coefficient data of a small-field family exist, canonically.**  Let `sf` be small-field
+data whose terms form a coefficient family at every level `1 ≤ j ≤ k` (for the constants `P` and
+the mass `ν_k`), and `h` a physical field of norm one.  Then the source form `corrSrc sf` and the
+thermodynamic limits `corrVc` of the whole-torus coefficients form `D1CorrLim`. -/
+theorem d1CorrLim_of_fams {P : Consts} (sf : SFData d L m₁ k N ϱ)
     (Dom : ∀ (N₁ : ℕ) [NeZero N₁], FieldDom d L N₁ m₁ k N ϱ)
     (hv : EuclideanSpace ℝ (Fin N)) (hhv : ‖hv‖ = 1)
     (fams : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ, CoefFam P (sf.ν k) Dom sf.Tm j ρ) :
-    ∃ (St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d L N₁ m₁ k N) (vc : CorrCoef d),
-      D1CorrLim P.m₀ sf St hv vc := by
+    D1CorrLim P.m₀ sf (corrSrc sf) hv (corrVc P.m₀ sf) := by
   classical
   have hN : 0 < N := by
     by_contra h
@@ -104,62 +131,50 @@ theorem exists_d1CorrLim {P : Consts} (sf : SFData d L m₁ k N ϱ)
     rw [this] at hhv; simp at hhv
   set i₀ : Fin N := ⟨0, hN⟩ with hi₀
   obtain ⟨Q1, hQ1, hw1⟩ := exists_rot_axis i₀ hv hhv
-  let St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d L N₁ m₁ k N :=
-    fun N₁ _ => sourceOf sf.ν (sf.Tm N₁)
   have hsrc : ∀ j (N₁ : ℕ) [NeZero N₁] (y : Localization.CTorus d L N₁ m₁ k)
       (Y : Set (Localization.CTorus d L N₁ m₁ k)) (Ψ : Fld d L N₁ m₁ k N) (b : Fin N → ℂ),
-      (St N₁).E j y Y Ψ (constFld b) =
+      (corrSrc sf N₁).E j y Y Ψ (constFld b) =
         (sf.Tm N₁).E j y Y Ψ (constFld (((nuIdeal L k (sf.ν k) j : ℝ) : ℂ)⁻¹ • b)) :=
     fun j N₁ _ y Y Ψ b => rfl
-  -- the radial sequences
-  let v1r : ℕ → ℕ → (Fin d → ℤ) → ℂ := fun j n z =>
-    haveI : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
-    v1T P.m₀ (St (torusSeq L P.m₀ n)) j (nuIdeal L k (sf.ν k) j) (Pi.single i₀ 1) 0 (blockPt j z)
-  let v2r : ℕ → ℕ → (Fin d → ℤ) → ℂ := fun j n z =>
-    if h : ∃ i₁ : Fin N, i₁ ≠ i₀ then
-      haveI : NeZero (torusSeq L P.m₀ n) := ⟨torusSeq_ne_zero P.m₀ n⟩
-      v2T P.m₀ (St (torusSeq L P.m₀ n)) j (nuIdeal L k (sf.ν k) j) (Pi.single i₀ 1)
-        (Pi.single h.choose 1) 0 (blockPt j z)
-    else 0
-  refine ⟨St, ⟨fun j z => limUnder atTop (fun n => v1r j n z),
-    fun j z => limUnder atTop (fun n => v2r j n z)⟩, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_⟩
   · intro N₁ _ j _ _ _ y X Ψ b
     exact hsrc j N₁ y X Ψ b
   · intro j hj1 hjk z
     obtain ⟨ρ, fam⟩ := fams j hj1 hjk
-    have hex : ∃ ℓ, Tendsto (fun n => v1r j n z) atTop (nhds ℓ) := by
-      have := fam.exists_tendsto_v1T i₀ St (hsrc j) 0 z
-      simpa [v1r, blockPt_zero] using this
+    have hex : ∃ ℓ, Tendsto (fun n => v1Rad P.m₀ sf j n z) atTop (nhds ℓ) := by
+      have := fam.exists_tendsto_v1T i₀ (corrSrc sf) (hsrc j) 0 z
+      simpa [v1Rad, hN, blockPt_zero] using this
     have h := tendsto_nhds_limUnder hex
     refine h.congr fun n => ?_
-    simp only [v1r]
-    have := fam.v1T_axis_eq hQ1 St (hsrc j) hw1 n 0 (blockPt j z)
+    simp only [v1Rad, hN, dite_true]
+    have := fam.v1T_axis_eq hQ1 (corrSrc sf) (hsrc j) hw1 n 0 (blockPt j z)
     exact this.symm
   · intro j hj1 hjk e₂ he hort z
     obtain ⟨ρ, fam⟩ := fams j hj1 hjk
-    have hex2 : ∃ i₁ : Fin N, i₁ ≠ i₀ := by
+    have hN2 : 1 < N := by
       by_contra hno
-      push Not at hno
-      have h1 : ∀ i, i = i₀ := fun i => hno i
+      have hN1 : N = 1 := by omega
+      have h1 : ∀ i : Fin N, i = i₀ := fun i => Fin.ext (by have := i.2; simp [hi₀]; omega)
       have hv0 : hv i₀ ^ 2 = 1 := by
         have h2 : ∑ i, ‖hv i‖ ^ 2 = 1 := by
           have := hhv
           rw [EuclideanSpace.norm_eq, Real.sqrt_eq_one] at this
           exact this
-        rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (by simp)] at h2
+        rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (fun h => absurd (Finset.mem_univ _) h)] at h2
         simpa using h2
       have he0 : e₂ i₀ ^ 2 = 1 := by
-        rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (by simp)] at he
+        rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (fun h => absurd (Finset.mem_univ _) h)] at he
         exact he
-      rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (by simp)] at hort
+      rw [Finset.sum_eq_single i₀ (fun b _ hb => absurd (h1 b) hb) (fun h => absurd (Finset.mem_univ _) h)] at hort
       have : hv i₀ ≠ 0 := fun h => by rw [h] at hv0; norm_num at hv0
       have : e₂ i₀ = 0 := by
         rcases mul_eq_zero.1 hort with h | h
         · exact absurd h this
         · exact h
       rw [this] at he0; norm_num at he0
-    set i₁ := hex2.choose with hi₁
-    have hne : i₁ ≠ i₀ := hex2.choose_spec
+    set i₁ : Fin N := ⟨1, hN2⟩ with hi₁
+    have hne : i₀ ≠ i₁ := by
+      intro h; have := congrArg Fin.val h; simp [hi₀, hi₁] at this
     set b : EuclideanSpace ℝ (Fin N) := WithLp.toLp 2 e₂ with hb
     have hb1 : ‖b‖ = 1 := by
       rw [EuclideanSpace.norm_eq]
@@ -169,14 +184,14 @@ theorem exists_d1CorrLim {P : Consts} (sf : SFData d L m₁ k N ϱ)
       simp only [hb, PiLp.inner_apply, RCLike.inner_apply, conj_trivial]
       rw [← hort]
       exact Finset.sum_congr rfl fun i _ => by ring
-    obtain ⟨Q2, hQ2, hwa, hwb⟩ := exists_rot_pair i₀ i₁ hne.symm hv b hhv hb1 hab
-    have hex : ∃ ℓ, Tendsto (fun n => v2r j n z) atTop (nhds ℓ) := by
-      have := fam.exists_tendsto_v2T i₀ i₁ St (hsrc j) 0 z
-      simpa [v2r, blockPt_zero, hex2, hi₁] using this
+    obtain ⟨Q2, hQ2, hwa, hwb⟩ := exists_rot_pair i₀ i₁ hne hv b hhv hb1 hab
+    have hex : ∃ ℓ, Tendsto (fun n => v2Rad P.m₀ sf j n z) atTop (nhds ℓ) := by
+      have := fam.exists_tendsto_v2T i₀ i₁ (corrSrc sf) (hsrc j) 0 z
+      simpa [v2Rad, hN2, blockPt_zero, hi₀, hi₁] using this
     have h := tendsto_nhds_limUnder hex
     refine h.congr fun n => ?_
-    simp only [v2r, hex2, dite_true]
-    have := fam.v2T_axis_eq hQ2 St (hsrc j) hwa hwb n 0 (blockPt j z)
+    simp only [v2Rad, hN2, dite_true]
+    have := fam.v2T_axis_eq hQ2 (corrSrc sf) (hsrc j) hwa hwb n 0 (blockPt j z)
     exact this.symm
 
 end Exists
