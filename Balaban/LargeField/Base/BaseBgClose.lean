@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.Theorem42WireStep
 public import Balaban.Fluctuation.FarDecayUncond
+public import Balaban.Fluctuation.CubeActionBound
 
 /-!
 # Closeness of the global background and the background of a nested generating set
@@ -88,5 +89,104 @@ theorem bgField_close_nested {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hyE : y ∈ E := by simpa using hy
   funext i
   exact hΨE y hyE i
+
+section Transfer
+
+variable {N₁ m₁ K N : ℕ} [NeZero N₁] {ϱ : ℝ} {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+
+theorem vn_le_sqrt_mul (v : Fin N → ℂ) {C : ℝ} (hC : 0 ≤ C) (h : ∀ i, ‖v i‖ ≤ C) :
+    vn v ≤ Real.sqrt N * C := by
+  have h2 : vn v ^ 2 ≤ (Real.sqrt N * C) ^ 2 := by
+    rw [vn_sq, mul_pow, Real.sq_sqrt (Nat.cast_nonneg N)]
+    calc ∑ i, ‖v i‖ ^ 2 ≤ ∑ _i : Fin N, C ^ 2 :=
+          Finset.sum_le_sum fun i _ => pow_le_pow_left₀ (norm_nonneg _) (h i) 2
+      _ = N * C ^ 2 := by simp
+  exact le_of_sq_le_sq h2 (by positivity)
+
+/-- **The bond difference of the background of a nested set transfers to the perturbed one.**
+If `g - f` satisfies the far bounds (`FarBounds`) with decay constant `γ` and amplitude `B`,
+and `x`, `x + e_μ` lie in `Ω₁`, at path distance at least `Dist` from the set `W`, then
+`ℓ |∂_μ g(x)| ≤ ℓ |∂_μ f(x)| + √N B e^{-γ Dist}`. -/
+theorem bond_transfer {f g : G.Ω 1 × Fin N → ℂ} {δα : G.Ω 1 → ℂ}
+    {W : Finset (Balaban.Localization.CTorus d L N₁ m₁ K)} {γ B Dist : ℝ} (hγ : 0 ≤ γ)
+    (hB : 0 ≤ B) (hF : FarBounds G W γ B (g - f) δα) (x y : G.Ω 1) (μ : Fin d)
+    (hy : (y : Balaban.Localization.CTorus d L N₁ m₁ K) = (x : Balaban.Localization.CTorus d L N₁ m₁ K) + Pi.single μ 1)
+    (hD : ENNReal.ofReal Dist ≤ siteSetDist G W x) :
+    G.spacing (x : Balaban.Localization.CTorus d L N₁ m₁ K) * vn (fun i => g (y, i) - g (x, i)) ≤
+      G.spacing (x : Balaban.Localization.CTorus d L N₁ m₁ K) * vn (fun i => f (y, i) - f (x, i)) +
+        Real.sqrt N * (B * Real.exp (-(γ * Dist))) := by
+  have hL0 : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hsp : 0 < G.spacing (x : Balaban.Localization.CTorus d L N₁ m₁ K) := by
+    unfold GeneratingSet.spacing; positivity
+  have hdec := decay_le_exp_dist hγ hD
+  set sp := G.spacing (x : Balaban.Localization.CTorus d L N₁ m₁ K) with hsp'
+  set δφ := g - f with hδφ
+  have hcomp : ∀ i, ‖δφ (y, i) - δφ (x, i)‖ ≤ B * Real.exp (-(γ * Dist)) / sp := by
+    intro i
+    have h1 := hF.fwd (x : Balaban.Localization.CTorus d L N₁ m₁ K) x.2 μ i
+    rw [← hy, svec_of_mem, svec_of_mem] at h1
+    rw [le_div_iff₀ hsp, mul_comm]
+    refine h1.trans ?_
+    exact mul_le_mul_of_nonneg_left hdec hB
+  have hvn : vn (fun i => δφ (y, i) - δφ (x, i)) ≤ Real.sqrt N * (B * Real.exp (-(γ * Dist)) / sp) :=
+    vn_le_sqrt_mul _ (by positivity) hcomp
+  have hsplit : (fun i => g (y, i) - g (x, i)) = (fun i => f (y, i) - f (x, i)) +
+      (fun i => δφ (y, i) - δφ (x, i)) := by
+    funext i; simp [hδφ]; ring
+  have h2 := vn_add (fun i => f (y, i) - f (x, i)) (fun i => δφ (y, i) - δφ (x, i))
+  rw [← hsplit] at h2
+  calc sp * vn (fun i => g (y, i) - g (x, i))
+      ≤ sp * (vn (fun i => f (y, i) - f (x, i)) + vn (fun i => δφ (y, i) - δφ (x, i))) :=
+        mul_le_mul_of_nonneg_left h2 hsp.le
+    _ ≤ sp * (vn (fun i => f (y, i) - f (x, i)) +
+          Real.sqrt N * (B * Real.exp (-(γ * Dist)) / sp)) :=
+        mul_le_mul_of_nonneg_left (add_le_add le_rfl hvn) hsp.le
+    _ = sp * vn (fun i => f (y, i) - f (x, i)) + Real.sqrt N * (B * Real.exp (-(γ * Dist))) := by
+        field_simp
+
+theorem blockAvg_sub (f g : G.Ω 1 × Fin N → ℂ) (x : Balaban.Localization.CTorus d L N₁ m₁ K)
+    (i : Fin N) : blockAvg G g x i - blockAvg G f x i = blockAvg G (g - f) x i := by
+  unfold blockAvg
+  rw [← mul_sub, ← Finset.sum_sub_distrib]
+  congr 1
+  refine Finset.sum_congr rfl fun y _ => ?_
+  by_cases hy : y ∈ G.Ω 1
+  · simp [svec_of_mem G _ ⟨y, hy⟩]
+  · simp [svec_of_not_mem G _ hy]
+
+/-- **The block deviation transfers to the perturbed background.** If `g - f` satisfies the far
+bounds and the sites of the block of `x` in `Ω₁` are at distance at least `Dist` from `W`, then
+`|Ψ(x) - (Q g)(x)| ≤ |Ψ(x) - (Q f)(x)| + √N B e^{-γ Dist}`. -/
+theorem block_transfer {f g : G.Ω 1 × Fin N → ℂ} {δα : G.Ω 1 → ℂ}
+    {W : Finset (Balaban.Localization.CTorus d L N₁ m₁ K)} {γ B Dist : ℝ} (hγ : 0 ≤ γ)
+    (hB : 0 ≤ B) (hF : FarBounds G W γ B (g - f) δα)
+    (Ψ : Balaban.Localization.CTorus d L N₁ m₁ K → Fin N → ℂ)
+    {x : Balaban.Localization.CTorus d L N₁ m₁ K} (hx : x ∈ G.Ω 1)
+    (hD : ∀ y ∈ G.blk (G.layerIndex x) x, y ∈ G.Ω 1 → ENNReal.ofReal Dist ≤ siteSetDist G W y) :
+    vn (fun i => Ψ x i - blockAvg G g x i) ≤
+      vn (fun i => Ψ x i - blockAvg G f x i) + Real.sqrt N * (B * Real.exp (-(γ * Dist))) := by
+  have hT : ∀ i, ‖blockAvg G (g - f) x i‖ ≤ B * Real.exp (-(γ * Dist)) := by
+    intro i
+    refine blockAvg_norm_le (g - f) hx (fun y hy hyΩ j => ?_) i
+    refine (hF.val ⟨y, hyΩ⟩ j).trans ?_
+    exact mul_le_mul_of_nonneg_left (decay_le_exp_dist hγ (hD y hy hyΩ)) hB
+  have hv : vn (fun i => blockAvg G (g - f) x i) ≤ Real.sqrt N * (B * Real.exp (-(γ * Dist))) :=
+    vn_le_sqrt_mul _ (by positivity) hT
+  have hsplit : (fun i => Ψ x i - blockAvg G g x i) =
+      (fun i => Ψ x i - blockAvg G f x i) + (fun i => -(blockAvg G (g - f) x i)) := by
+    funext i
+    have := blockAvg_sub f g x i
+    simp only [Pi.add_apply]
+    linear_combination -this
+  have h2 := vn_add (fun i => Ψ x i - blockAvg G f x i) (fun i => -(blockAvg G (g - f) x i))
+  rw [← hsplit] at h2
+  have hneg : vn (fun i => -(blockAvg G (g - f) x i)) = vn (fun i => blockAvg G (g - f) x i) := by
+    unfold vn
+    have : (WithLp.toLp 2 fun i => -(blockAvg G (g - f) x i) : EuclideanSpace ℂ (Fin N)) =
+        -(WithLp.toLp 2 fun i => blockAvg G (g - f) x i) := rfl
+    rw [this, norm_neg]
+  linarith
+
+end Transfer
 
 end Balaban.LargeField.Base
