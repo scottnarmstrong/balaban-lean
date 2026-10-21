@@ -30,13 +30,13 @@ noncomputable section
 variable {d N L n : ℕ} [NeZero L] [NeZero n] {ϱ : ℝ} (G : GeneratingSet d L (1 * n) 1 ϱ)
 
 /-- A sum over the sites of `Ω` is the sum over the torus of the function cut off outside `Ω`. -/
-theorem sum_Ω_eq_ite (f : Torus d (1 * n * L ^ 1) → ℝ) :
+theorem sum_Ω_eq_ite {R : Type*} [AddCommMonoid R] (f : Torus d (1 * n * L ^ 1) → R) :
     ∑ x : G.Ω 1, f x = ∑ x, (if x ∈ G.Ω 1 then f x else 0) := by
   rw [Finset.sum_coe_sort (G.Ω 1) f, Finset.sum_ite_mem Finset.univ (G.Ω 1) f]
   simp
 
 /-- A sum over the torus splits into the sites of `Ω` and the others. -/
-theorem sum_split_Ω (f : Torus d (1 * n * L ^ 1) → ℝ) :
+theorem sum_split_Ω {R : Type*} [AddCommMonoid R] (f : Torus d (1 * n * L ^ 1) → R) :
     ∑ x, f x = ∑ x : G.Ω 1, f x + ∑ x, (if x ∈ G.Ω 1 then 0 else f x) := by
   rw [sum_Ω_eq_ite, ← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun x _ => ?_
@@ -134,6 +134,7 @@ theorem bond_bridge (φ : CfgT d N L n) (D : BgData G N)
 def blkOf (x : Torus d (1 * n * L ^ 1)) : Torus d n :=
   blockMap L n (baseSector_side L n ▸ x)
 
+omit [NeZero L] [NeZero n] in
 /-- The sites of the native torus with the same first block have the same physical block. -/
 theorem blkOf_eq_of_jBlock_eq {x y : Torus d (1 * n * L ^ 1)}
     (h : jBlock d L (1 * n) 1 1 x = jBlock d L (1 * n) 1 1 y) : blkOf x = blkOf y := by

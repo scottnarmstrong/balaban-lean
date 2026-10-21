@@ -121,8 +121,8 @@ theorem baseSector_blockAvg_eq_baseQ (ϱ : ℝ) (φ : CfgT d N L n)
   rw [hsum]
   simp [Finset.sum_apply, Complex.ofReal_mul]
 
-theorem sum_torus_cast {d ℓ ℓ' : ℕ} [NeZero ℓ] [NeZero ℓ'] (hℓ : ℓ = ℓ')
-    (f : Torus d ℓ' → ℝ) :
+theorem sum_torus_cast {d ℓ ℓ' : ℕ} [NeZero ℓ] [NeZero ℓ'] {R : Type*} [AddCommMonoid R]
+    (hℓ : ℓ = ℓ') (f : Torus d ℓ' → R) :
     ∑ x : Torus d ℓ, f (hℓ ▸ x) = ∑ x : Torus d ℓ', f x := by
   let e : Torus d ℓ ≃ Torus d ℓ' :=
     { toFun := fun x => hℓ ▸ x
