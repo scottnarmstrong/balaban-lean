@@ -728,6 +728,14 @@ theorem RegionHistory.compl_omegaPost_subset_Z (H : RegionHistory S n R k0 K) (k
 
 variable {M m₀ m₁ : ℕ} [NeZero S.L] [NeZero M]
 
+/-- **The new region misses the large-field region of the previous scale, cube form** (P5 (2.3):
+the opening of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): the
+coarse cube of a cube of `Z_k` is not in `Ω_{k+1}`. -/
+theorem _root_.Balaban.LargeField.RegionStep.blockMap_notMem_Omega {d L n0 n1 : ℕ} [NeZero n0] [NeZero n1]
+    {Rprev Rk : ℝ} (st : RegionStep d L n0 n1 Rprev Rk) {u : Torus d n0} (hu : u ∈ st.Z) :
+    blockMap L n1 u ∉ st.Omega := fun h =>
+  st.Uprime_subset_compl ⟨u, subset_nbhd _ _ hu, rfl⟩ (st.Omega_subset_OmegaPrime h)
+
 /-- **The new region misses the large-field region of the previous scale** (P5 (2.3): the opening
 of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): a fine site whose cube
 of `𝕋_k` lies in `Z_k` has its cube of `𝕋_{k+1}` outside `Ω_{k+1}`. -/
@@ -736,11 +744,8 @@ theorem RegionHistory.cubeMap_succ_notMem_Omega (F : Def7.FineSizeFrame S n M K 
     (hk : k + 1 ≤ K) {x : Localization.CTorus S.d S.L F.N₁ m₁ K}
     (hx : cubeMap n S.L M K k (Localization.castT F.side x) ∈ (H.step k).Z) :
     cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∉ (H.step k).Omega := by
-  intro hxΩ
-  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
-      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hx, rfl⟩
-  rw [cubeMap_succ hnn hk] at hU
-  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hxΩ)
+  rw [← cubeMap_succ hnn hk]
+  exact (H.step k).blockMap_notMem_Omega hx
 
 /-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
 transfer of `Def7.exists_transfer_fineValidAt`; P5 (2.3): the opening of scale `k + 1` misses
