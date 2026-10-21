@@ -2293,6 +2293,7 @@ public import Balaban.LargeField.R.RGasRepR4Fresh
 public import Balaban.LargeField.R.RGasRepR4Pointwise
 public import Balaban.LargeField.R.BPrimeSum
 public import Balaban.LargeField.R.BPrimeSumInhabited
+public import Balaban.LargeField.R.BPrimePair
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
