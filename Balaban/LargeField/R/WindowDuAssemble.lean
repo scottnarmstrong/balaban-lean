@@ -185,6 +185,83 @@ theorem window_Du_mass_split (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
 open Balaban.Flow in
 /-- **The sum of the main actions at the reference datum `Du`**: from the conversion at the physical datum
 (`T = Re(β_k A_X(a, ν, D^{ph}, φ)) - Re C`) to `T = Re(β_k A_X(a, 0, Du, φ)) - Re C'`. -/
+theorem window_Du_finishP (cs : OpConsts) (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (hcov : ∀ j (c : H.Comp (j + 1)), S.k1 (m' + 1) ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
+      ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩)
+    (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXw : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)))
+    (hXwin : ∀ x, x ∈ Xwin.sites ↔ ∃ j, ∃ hj : S.k1 (m' + 1) ≤ j ∧ j ≤ m', ∃ c : H.Comp (j + 1),
+      c ∈ H.ancFin (j + 1) (m' + 1) Z ∧
+        torusCast (piece_torus_eq g H.F.hnn hmK hj.2) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (decomp : ∀ i, StepDecomp (Xc i))
+    (hwt1 : ∀ i c, (decomp i).wt c = 1)
+    (t : ι → ℕ) (ht2 : ∀ i, 2 ≤ t i)
+    (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N)
+    (hDuball : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ (t i : ℝ) * ((S.L : ℝ) ^ jf i * M)) →
+      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x))
+    (ak : ℕ → ℝ) (β η α α₀ ν B0 : ℝ) (Amax Cm Kmass : ι → ℝ) (gf δ : ℕ → ℝ)
+    (p1 : 0 < β)
+    (p8 : ∀ m, cs.beta m = β * (S.L : ℝ) ^ ((S.d - 2) * m) * gf m)
+    (p9 : ∀ m, cs.muAct m = ν * δ m)
+    (p12 : ∀ m, Real.exp (-η) ≤ gf m ∧ gf m ≤ Real.exp η)
+    (p18 : ∀ i, cs.beta (jf i + 1) * epsSeq S.L α α₀ (jf i + 1) ^ 2 ≤ Amax i)
+    (hCm0 : ∀ i, 0 ≤ Cm i)
+    (hcm : ∀ i, ∀ c, β * gf (m' + 1) * ∑ _x ∈ ((decomp i).cube c).sites, |ν * δ (m' + 1)| ≤
+      Cm i * (cs.beta (jf i + 1) * epsSeq S.L α α₀ (jf i + 1) ^ 2 * (decomp i).wt c))
+    {δu : ℝ} (hHw0 : BgHyp S.d S.L (m' + 1) (winSep g) ak 0) (u1 : 0 < δu) (u2 : δu ≤ bgC1 S.d S.L N)
+    (u3 : InDomainR ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) 0 δu Du)
+    (tKm : ∀ i, 2 * (Cm i * Amax i) ≤ Kmass i)
+    {T : ℝ} {C : ℂ}
+    (hT : T = ((betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 : ℂ) *
+      actionRegionC Xwin ak (cs.muAct (m' + 1)) (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)) (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du)).re - C.re)
+    (hCb : ‖C‖ ≤ B0) :
+    ∃ C' : ℂ, T = ((betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 : ℂ) *
+        actionRegionC Xwin ak 0 Du (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du)).re - C'.re ∧
+      ‖C'‖ ≤ B0 + ∑ i, Kmass i * (decomp i).total := by
+  classical
+  have hj1 : ∀ i, jf i + 1 ≤ m' + 1 := fun i => Nat.succ_le_succ (hjf i).2
+  have hβ' : betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 = β * gf (m' + 1) :=
+    betaCanon_eq_of_flow cs S.d S.L β gf p8 (m' + 1)
+  have hgf0 : 0 < gf (m' + 1) := lt_of_lt_of_le (Real.exp_pos _) (p12 _).1
+  obtain ⟨φ₀, α₀', hs0, -, hu0, hunit0, -, -⟩ := bg_real hHw0 u1 u2 u3
+  have hφw : (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du) = φ₀ := (bgFieldC_eq hs0 hu0).1
+  have hbud : ∀ i, betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 * |cs.muAct (m' + 1)| *
+      ((Xc i).sites.card : ℝ) ≤ Cm i * Amax i * (decomp i).total := by
+    intro i
+    have h1 := piece_mass_card_leP (Xc i) (decomp i) (hwt1 i) (hCm0 i) (p18 i) (hcm i)
+    rw [← p9 (m' + 1), ← hβ'] at h1
+    exact h1
+  have hβc0 : 0 ≤ betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 := by
+    rw [hβ']; exact (mul_pos p1 hgf0).le
+  obtain ⟨M', hM1, hM2⟩ := window_Du_mass_splitP hmK hW jf cf hjf hjK hcov Xw hXw Xwin hXwin Xc hXc
+    decomp t ht2 hv hunit ψ Du hDuball ak (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du)
+    (by rw [hφw]; intro x; exact (hunit0 x).2)
+    (betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0) (cs.muAct (m' + 1)) (fun i => Cm i * Amax i) hβc0 hbud
+  have hT0 : 0 ≤ ∑ i, (decomp i).total := Finset.sum_nonneg fun i _ => (decomp i).total_nonneg
+  refine ⟨C - M', ?_, ?_⟩
+  · rw [hT, hM1]
+    simp only [Complex.add_re, Complex.sub_re]
+    ring
+  · refine (norm_sub_le _ _).trans ?_
+    have h7 : 2 * ∑ i, Cm i * Amax i * (decomp i).total ≤ ∑ i, Kmass i * (decomp i).total := by
+      rw [Finset.mul_sum]
+      exact Finset.sum_le_sum fun i _ => by
+        have := mul_le_mul_of_nonneg_right (tKm i) (decomp i).total_nonneg
+        linarith
+    linarith only [hCb, hM2, h7]
+
+open Balaban.Flow in
+/-- **The sum of the main actions at the reference datum `Du`**: from the conversion at the physical datum
+(`T = Re(β_k A_X(a, ν, D^{ph}, φ)) - Re C`) to `T = Re(β_k A_X(a, 0, Du, φ)) - Re C'`. -/
 theorem window_Du_finish (cs : OpConsts) (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
     (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m')
@@ -233,41 +310,28 @@ theorem window_Du_finish (cs : OpConsts) (hmK : m' + 1 ≤ K) (hW : H.RipeWindow
       ‖C'‖ ≤ (Bc + Kmass) * ∑ i, (decomp i).total := by
   classical
   have hj1 : ∀ i, jf i + 1 ≤ m' + 1 := fun i => Nat.succ_le_succ (hjf i).2
-  have hβ' : betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 = β * gf (m' + 1) :=
-    betaCanon_eq_of_flow cs S.d S.L β gf p8 (m' + 1)
   have hδk : |δ (m' + 1)| ≤ Dδ := by rw [abs_of_pos (p13 _)]; exact p14 _
-  have hgf0 : 0 < gf (m' + 1) := lt_of_lt_of_le (Real.exp_pos _) (p12 _).1
-  obtain ⟨φ₀, α₀', hs0, -, hu0, hunit0, -, -⟩ := bg_real hHw0 u1 u2 u3
-  have hφw : (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du) = φ₀ := (bgFieldC_eq hs0 hu0).1
-  have hbud : ∀ i, betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 * |cs.muAct (m' + 1)| *
-      ((Xc i).sites.card : ℝ) ≤ Cm * Amax * (decomp i).total := by
-    intro i
-    have hE2 : ε₀ ^ 2 ≤ epsSeq S.L α α₀ (jf i + 1) ^ 2 :=
-      (pow_le_pow_left₀ p25.le p26 2).trans (ActionConv.epsSeq_sq_ge S.L p5 p3 (hj1 i))
-    have hAmax : β * (S.L : ℝ) ^ ((S.d - 2) * (jf i + 1)) * gf (jf i + 1) *
-        epsSeq S.L α α₀ (jf i + 1) ^ 2 ≤ Amax := by
-      rw [← p8 (jf i + 1)]; exact p18 i
-    have h1 := piece_mass_card_le (Xc i) (decomp i) (by have := hHw0.hd; omega) (hj1 i) (hwt1 i)
-      (hcells i) ak (gk := gf (m' + 1)) (gj := gf (jf i + 1)) (δk := δ (m' + 1)) (ν := ν)
-      (E := epsSeq S.L α α₀ (jf i + 1)) p1 (p12 _).2 (p12 _).1 (p12 _).1 p25 hE2 p19 p24 hδk p40 p41
-      p42 hAmax
-    rw [← p9 (m' + 1), ← hβ'] at h1
-    exact h1
-  have hβc0 : 0 ≤ betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0 := by
-    rw [hβ']; exact (mul_pos p1 hgf0).le
-  obtain ⟨M', hM1, hM2⟩ := window_Du_mass_split hmK hW jf cf hjf hjK hcov Xw hXw Xwin hXwin Xc hXc
-    decomp hv hunit ψ Du hDuball ak (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du)
-    (by rw [hφw]; intro x; exact (hunit0 x).2)
-    (betaCanon S.d S.L (cs.beta (m' + 1)) (m' + 1) 0) (cs.muAct (m' + 1)) Cm Amax hβc0 hbud
-  have hT0 : 0 ≤ ∑ i, (decomp i).total := Finset.sum_nonneg fun i _ => (decomp i).total_nonneg
-  refine ⟨C - M', ?_, ?_⟩
-  · rw [hT, hM1]
-    simp only [Complex.add_re, Complex.sub_re]
-    ring
-  · refine (norm_sub_le _ _).trans ?_
-    have h7 : 2 * (Cm * Amax) * ∑ i, (decomp i).total ≤ Kmass * ∑ i, (decomp i).total :=
-      mul_le_mul_of_nonneg_right tKm hT0
-    linarith only [hCb, hM2, h7]
+  have hE2 : ∀ i, ε₀ ^ 2 ≤ epsSeq S.L α α₀ (jf i + 1) ^ 2 := fun i =>
+    (pow_le_pow_left₀ p25.le p26 2).trans (ActionConv.epsSeq_sq_ge S.L p5 p3 (hj1 i))
+  have hCm0 : ∀ _ : ι, 0 ≤ Cm := fun _ => le_trans (by
+    have : 0 ≤ Dδ := (abs_nonneg _).trans hδk
+    positivity) p42
+  have hcm' : ∀ i, ∀ c, β * gf (m' + 1) * ∑ _x ∈ ((decomp i).cube c).sites, |ν * δ (m' + 1)| ≤
+      Cm * (cs.beta (jf i + 1) * epsSeq S.L α α₀ (jf i + 1) ^ 2 * (decomp i).wt c) := fun i c => by
+    obtain ⟨-, -, hm⟩ := switch_cube_budgets (Xc i) (decomp i) (by have := hHw0.hd; omega) (hj1 i)
+      (hwt1 i) (hcells i) ak p1 (p12 (m' + 1)).2 (p12 (jf i + 1)).1 p25 (hE2 i) p19 p24 hδk p40
+      p41 p42
+    have := hm c
+    rw [p8 (jf i + 1)]
+    exact this
+  have hKa : 0 ≤ Ka := (abs_nonneg _).trans (p19 0)
+  obtain ⟨C', hT', hC'⟩ := window_Du_finishP cs hmK hW jf cf hjf hjK hcov Xw hXw Xwin hXwin Xc hXc
+    decomp hwt1 (fun _ => 2) (fun _ => le_rfl) hv hunit ψ Du (by simpa using hDuball) ak β η α α₀ ν
+    (Bc * ∑ i, (decomp i).total) (fun _ => Amax) (fun _ => Cm) (fun _ => Kmass) gf δ p1 p8 p9 p12
+    p18 hCm0 hcm' hHw0 u1 u2 u3 (fun _ => tKm) hT hCb
+  refine ⟨C', hT', hC'.trans (le_of_eq ?_)⟩
+  rw [← Finset.mul_sum]
+  ring
 
 end Split
 
