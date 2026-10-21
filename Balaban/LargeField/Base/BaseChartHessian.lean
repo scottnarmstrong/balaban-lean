@@ -295,7 +295,7 @@ private theorem baseSectorHessian_coeff_symm (ϱ : ℝ) (aw : ℕ → ℝ) (μ :
     rfl
   · simpa [hxy, Ne.symm hxy] using hfull
 
-private theorem cinner_components {ι : Type*} [Fintype ι]
+theorem cinner_components {ι : Type*} [Fintype ι]
     (u v : Config ι N) :
     cinner u v = ∑ x : ι, ∑ i : Fin N, (u x i : ℝ) * (v x i : ℝ) := by
   unfold cinner

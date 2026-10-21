@@ -18,6 +18,26 @@ namespace Balaban.LargeField
 open Balaban Balaban.Background Balaban.Multiscale Balaban.Green
 open Balaban.LargeField.Base Matrix Classical
 
+/-- **Record-supported data lie in the union domain of the background.**  The spin support of the
+selected record puts the lifted data in the domain `InUnionDomainR` of the existence theorem. -/
+theorem baseFirstCut_inUnionDomain
+    {d L N₀ N : ℕ} [NeZero N₀] [NeZero L] {ϱ ν δ₀ : ℝ}
+    (G : GeneratingSet d L N₀ 1 ϱ) (a : ℕ → ℝ)
+    (φ : Torus d (N₀ * L ^ 1) → Fin N → ℝ) (h : Fin N → ℝ)
+    (D : BgData G N) (H : BgHyp d L 1 ϱ a ν)
+    (S : BaseSpinSupport G ν δ₀ φ h D)
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) :
+    InUnionDomainR G (bgC1 d L N) ν D := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hsmall : 4 * d * L * δ₀ ≤ 1 / 1024 :=
+    (approxDelta_le d L (bgC1_facts d L N hd0 hΛ1).1).1
+  have hLpos : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have hdpos : (0 : ℝ) < d := by exact_mod_cast hd0
+  have hδpos : 0 < 4 * d * L * δ₀ := by
+    have := S.delta_pos
+    positivity
+  exact ⟨4 * d * L * δ₀, hδpos, hΛ1, inDomainR_base H S hsmall⟩
+
 /-- The local background multiplier satisfies the base resolvent threshold on record-supported
 data. -/
 theorem baseFirstCut_multiplier_bound
@@ -29,15 +49,7 @@ theorem baseFirstCut_multiplier_bound
     (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) (x : G.Ω 1) :
     ‖bgMult G a ν D x‖ ≤ 1 / (8 * (L : ℝ) ^ 2) := by
   have hd0 : 0 < d := by have := H.hd; omega
-  have hsmall : 4 * d * L * δ₀ ≤ 1 / 1024 :=
-    (approxDelta_le d L (bgC1_facts d L N hd0 hΛ1).1).1
-  have hLpos : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  have hdpos : (0 : ℝ) < d := by exact_mod_cast hd0
-  have hδpos : 0 < 4 * d * L * δ₀ := by
-    have := S.delta_pos
-    positivity
-  have hU : InUnionDomainR G (bgC1 d L N) ν D :=
-    ⟨4 * d * L * δ₀, hδpos, hΛ1, inDomainR_base H S hsmall⟩
+  have hU : InUnionDomainR G (bgC1 d L N) ν D := baseFirstCut_inUnionDomain G a φ h D H S hΛ1
   obtain ⟨δ, hδ0, hδc, hDδ⟩ := hU
   have hb := ((theorem71 (G := G) H ⟨δ, hδ0, hδc, hDδ⟩).2.2.2.2)
     δ hδ0 hδc hDδ
@@ -66,15 +78,7 @@ theorem baseFirstCut_multiplier_real
     (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) (x : G.Ω 1) :
     (bgMult G a ν D x).im = 0 := by
   have hd0 : 0 < d := by have := H.hd; omega
-  have hsmall : 4 * d * L * δ₀ ≤ 1 / 1024 :=
-    (approxDelta_le d L (bgC1_facts d L N hd0 hΛ1).1).1
-  have hLpos : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  have hdpos : (0 : ℝ) < d := by exact_mod_cast hd0
-  have hδpos : 0 < 4 * d * L * δ₀ := by
-    have := S.delta_pos
-    positivity
-  have hU : InUnionDomainR G (bgC1 d L N) ν D :=
-    ⟨4 * d * L * δ₀, hδpos, hΛ1, inDomainR_base H S hsmall⟩
+  have hU : InUnionDomainR G (bgC1 d L N) ν D := baseFirstCut_inUnionDomain G a φ h D H S hΛ1
   obtain ⟨δ, hδ0, hδc, hDδ⟩ := hU
   obtain ⟨φb, α, hs, _, hu, _, hmin, huniq⟩ := bg_real (G := G) H hδ0 hδc hDδ
   have hreal : D.IsReal := isReal_of_inDomainR hDδ
