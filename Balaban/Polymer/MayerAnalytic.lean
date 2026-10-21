@@ -143,9 +143,11 @@ theorem Bdd.mul_fun {F G : (∀ b, Ω b) → ℂ} (hF : Bdd F) (hG : Bdd G) :
   exact ⟨C1 * C2, fun x => by
     rw [norm_mul]; exact mul_le_mul (h1 x) (h2 x) (norm_nonneg _) ((norm_nonneg _).trans (h1 x))⟩
 
-/-- Integrals of polynomials in the marks are analytic in the marks. -/
-theorem LamPoly.analytic_integral [Fintype ι] {Q : (ι → ℂ) → (∀ b, Ω b) → ℂ}
-    (h : LamPoly ι Ω Q) (w : (∀ b, Ω b) → ℂ) (hw : Measurable w) (hwb : Bdd w) :
+omit [∀ b, IsProbabilityMeasure (μ b)] in
+/-- Integrals of polynomials in the marks against an integrable weight are analytic in the
+marks. -/
+theorem LamPoly.analytic_integral_of_integrable [Fintype ι] {Q : (ι → ℂ) → (∀ b, Ω b) → ℂ}
+    (h : LamPoly ι Ω Q) (w : (∀ b, Ω b) → ℂ) (hw : Integrable w (Measure.pi μ)) :
     AnalyticOnNhd ℂ (fun l => ∫ Φ, w Φ * Q l Φ ∂(Measure.pi μ)) Set.univ := by
   induction h generalizing w with
   | const a ha hab =>
@@ -155,23 +157,24 @@ theorem LamPoly.analytic_integral [Fintype ι] {Q : (ι → ℂ) → (∀ b, Ω 
     have e : ∀ l, ∫ Φ, w Φ * (Q1 l Φ + Q2 l Φ) ∂(Measure.pi μ) =
         ∫ Φ, w Φ * Q1 l Φ ∂(Measure.pi μ) + ∫ Φ, w Φ * Q2 l Φ ∂(Measure.pi μ) := by
       intro l
+      obtain ⟨C1, hC1⟩ := h1.bdd l
+      obtain ⟨C2, hC2⟩ := h2.bdd l
       have hi1 : Integrable (fun Φ => w Φ * Q1 l Φ) (Measure.pi μ) :=
-        integrable_of_bdd μ (F := fun Φ => w Φ * Q1 l Φ) (hw.mul (h1.measurable l))
-          (hwb.mul_fun (h1.bdd l))
+        hw.mul_bdd (h1.measurable l).aestronglyMeasurable (Eventually.of_forall hC1)
       have hi2 : Integrable (fun Φ => w Φ * Q2 l Φ) (Measure.pi μ) :=
-        integrable_of_bdd μ (F := fun Φ => w Φ * Q2 l Φ) (hw.mul (h2.measurable l))
-          (hwb.mul_fun (h2.bdd l))
+        hw.mul_bdd (h2.measurable l).aestronglyMeasurable (Eventually.of_forall hC2)
       rw [← integral_add hi1 hi2]
       exact integral_congr_ae (Eventually.of_forall (fun Φ => by simp only []; ring))
     simp_rw [e]
-    exact (ih1 w hw hwb).add (ih2 w hw hwb)
+    exact (ih1 w hw).add (ih2 w hw)
   | mulFun a ha hab hQ ih =>
     rename_i Q1
     have e : ∀ l, ∫ Φ, w Φ * (a Φ * Q1 l Φ) ∂(Measure.pi μ) =
         ∫ Φ, (w Φ * a Φ) * Q1 l Φ ∂(Measure.pi μ) := fun l =>
       integral_congr_ae (Eventually.of_forall (fun Φ => by simp only []; ring))
     simp_rw [e]
-    exact ih (fun Φ => w Φ * a Φ) (hw.mul ha) (hwb.mul_fun hab)
+    obtain ⟨C, hC⟩ := hab
+    exact ih (fun Φ => w Φ * a Φ) (hw.mul_bdd ha.aestronglyMeasurable (Eventually.of_forall hC))
   | mulVar j g hg hgb hQ ih =>
     rename_i Q1
     have e : ∀ l, ∫ Φ, w Φ * (l j * (g Φ * Q1 l Φ)) ∂(Measure.pi μ) =
@@ -182,7 +185,15 @@ theorem LamPoly.analytic_integral [Fintype ι] {Q : (ι → ℂ) → (∀ b, Ω 
     simp_rw [e]
     have hproj : AnalyticOnNhd ℂ (fun l : ι → ℂ => l j) Set.univ := fun l _ =>
       (ContinuousLinearMap.proj (R := ℂ) (φ := fun _ : ι => ℂ) j).analyticAt l
-    exact hproj.mul (ih (fun Φ => w Φ * g Φ) (hw.mul hg) (hwb.mul_fun hgb))
+    obtain ⟨C, hC⟩ := hgb
+    exact hproj.mul (ih (fun Φ => w Φ * g Φ)
+      (hw.mul_bdd hg.aestronglyMeasurable (Eventually.of_forall hC)))
+
+/-- Integrals of polynomials in the marks are analytic in the marks. -/
+theorem LamPoly.analytic_integral [Fintype ι] {Q : (ι → ℂ) → (∀ b, Ω b) → ℂ}
+    (h : LamPoly ι Ω Q) (w : (∀ b, Ω b) → ℂ) (hw : Measurable w) (hwb : Bdd w) :
+    AnalyticOnNhd ℂ (fun l => ∫ Φ, w Φ * Q l Φ ∂(Measure.pi μ)) Set.univ :=
+  h.analytic_integral_of_integrable μ w (integrable_of_bdd μ hw hwb)
 
 end Analytic
 

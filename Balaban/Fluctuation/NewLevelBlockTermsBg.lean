@@ -178,6 +178,31 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱb ϱb' ϱm ϱm
   {Zm : Finset (unitPts Gb)} {Zm' : Finset (unitPts Gb')} {Y : Set (CTorus d L N₁ m₁ (k + 1))}
   {ρ : ℝ} {hp : 0 < S.p₁} {Θ Θ' : RawData d L (N₁ * L ^ m₁) (k + 1) N}
 
+/-- **The block-level marks on two generating sets at two configurations agree when their terms
+do** on the radius set: if the terms `evDecBg` of `(Gb, T)` at `(Θ, T.res ψ̂(Φ))` and of `(Gb', T')`
+at `(Θ', T'.res ψ̂(Φ'))` agree at the first mark `um` and every second mark `t` with
+`(‖um‖ + ‖t‖) m_R < δ₁`, and `‖um‖ m_R < δ₁`, then the marks `∂_t|₀` agree. -/
+theorem decMarkGBg_eq_of_evDecBg_conf {mR δ₁ : ℝ} {um : ℂ}
+    {Φ Φ' : ∀ b, (S.blockSplit m₀ hp).Ωb b}
+    (h : ∀ t : ℂ, (‖um‖ + ‖t‖) * mR < δ₁ →
+      evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm um t Y
+          (Θ, T.res (S.hatOf m₀ ρ hp Φ)) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb' a₁ ν T' cc F₁' Sol' En' Zm' um t Y
+          (Θ', T'.res (S.hatOf m₀ ρ hp Φ')))
+    (hum : ‖um‖ * mR < δ₁) :
+    decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ =
+      decMarkGBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ' := by
+  unfold decMarkGBg
+  refine Filter.EventuallyEq.deriv_eq ?_
+  have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) * mR < δ₁} :=
+    isOpen_lt (by fun_prop) continuous_const
+  have h0 : (0 : ℂ) ∈ {t : ℂ | (‖um‖ + ‖t‖) * mR < δ₁} := by
+    show (‖um‖ + ‖(0 : ℂ)‖) * mR < δ₁
+    rw [norm_zero, add_zero]
+    exact hum
+  filter_upwards [hopen.mem_nhds h0] with t ht
+  exact h t ht
+
 /-- **The block-level marks on two generating sets agree when their terms do** on the radius set:
 if the terms `evDecBg` of `(Gb, T)` at `(Θ, T.res ψ̂(Φ))` and of `(Gb', T')` at `(Θ', T'.res ψ̂(Φ))`
 agree at the first mark `um` and every second mark `t` with `(‖um‖ + ‖t‖) m_R < δ₁`, and
@@ -190,17 +215,33 @@ theorem decMarkGBg_eq_of_evDecBg {mR δ₁ : ℝ} {um : ℂ} {Φ : ∀ b, (S.blo
           (Θ', T'.res (S.hatOf m₀ ρ hp Φ)))
     (hum : ‖um‖ * mR < δ₁) :
     decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ =
-      decMarkGBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ := by
-  unfold decMarkGBg
-  refine Filter.EventuallyEq.deriv_eq ?_
-  have hopen : IsOpen {t : ℂ | (‖um‖ + ‖t‖) * mR < δ₁} :=
-    isOpen_lt (by fun_prop) continuous_const
-  have h0 : (0 : ℂ) ∈ {t : ℂ | (‖um‖ + ‖t‖) * mR < δ₁} := by
-    show (‖um‖ + ‖(0 : ℂ)‖) * mR < δ₁
-    rw [norm_zero, add_zero]
-    exact hum
-  filter_upwards [hopen.mem_nhds h0] with t ht
-  exact h t ht
+      decMarkGBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ :=
+  decMarkGBg_eq_of_evDecBg_conf S h hum
+
+/-- **The corrected marks on two generating sets at two configurations agree when their terms
+do** on the radius set: if the terms at `(Θ, T.res ψ̂(Φ))` and `(Θ', T'.res ψ̂(Φ'))` agree at every
+pair of marks `(v, t)` with `(‖v‖ + ‖t‖) m_R < δ₁`, `‖um‖ m_R < δ₁` and `δ₁ > 0`, the Taylor
+remainders `f(um) − f(0) − um f′(0)` of the marks agree. -/
+theorem decMarkCorrBg_eq_of_evDecBg_conf {mR δ₁ : ℝ} {um : ℂ}
+    {Φ Φ' : ∀ b, (S.blockSplit m₀ hp).Ωb b}
+    (h : ∀ v t : ℂ, (‖v‖ + ‖t‖) * mR < δ₁ →
+      evDecBg S.G' X₁f m₀ j 𝒦X Gb a₁ ν T cc F₁ Sol En Zm v t Y
+          (Θ, T.res (S.hatOf m₀ ρ hp Φ)) =
+        evDecBg S.G' X₁f m₀ j 𝒦X Gb' a₁ ν T' cc F₁' Sol' En' Zm' v t Y
+          (Θ', T'.res (S.hatOf m₀ ρ hp Φ')))
+    (hum : ‖um‖ * mR < δ₁) (hδ : 0 < δ₁) :
+    decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ =
+      decMarkCorrBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ' := by
+  have h0 : ‖(0 : ℂ)‖ * mR < δ₁ := by rw [norm_zero, zero_mul]; exact hδ
+  have hopen : IsOpen {v : ℂ | ‖v‖ * mR < δ₁} := isOpen_lt (by fun_prop) continuous_const
+  have e3 : deriv (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ) 0 =
+      deriv (fun v : ℂ => decMarkGBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' v Φ')
+        0 := by
+    refine Filter.EventuallyEq.deriv_eq ?_
+    filter_upwards [hopen.mem_nhds h0] with v hv
+    exact decMarkGBg_eq_of_evDecBg_conf S (h v) hv
+  unfold decMarkCorrBg
+  rw [decMarkGBg_eq_of_evDecBg_conf S (h um) hum, decMarkGBg_eq_of_evDecBg_conf S (h 0) h0, e3]
 
 /-- **The corrected marks on two generating sets agree when their terms do** on the radius set:
 if the terms agree at every pair of marks `(v, t)` with `(‖v‖ + ‖t‖) m_R < δ₁`, `‖um‖ m_R < δ₁` and
@@ -213,17 +254,8 @@ theorem decMarkCorrBg_eq_of_evDecBg {mR δ₁ : ℝ} {um : ℂ} {Φ : ∀ b, (S.
           (Θ', T'.res (S.hatOf m₀ ρ hp Φ)))
     (hum : ‖um‖ * mR < δ₁) (hδ : 0 < δ₁) :
     decMarkCorrBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ um Φ =
-      decMarkCorrBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ := by
-  have h0 : ‖(0 : ℂ)‖ * mR < δ₁ := by rw [norm_zero, zero_mul]; exact hδ
-  have hopen : IsOpen {v : ℂ | ‖v‖ * mR < δ₁} := isOpen_lt (by fun_prop) continuous_const
-  have e3 : deriv (fun v : ℂ => decMarkGBg S Gb T X₁f m₀ j 𝒦X a₁ ν cc F₁ Sol En Zm Y ρ hp Θ v Φ) 0 =
-      deriv (fun v : ℂ => decMarkGBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' v Φ)
-        0 := by
-    refine Filter.EventuallyEq.deriv_eq ?_
-    filter_upwards [hopen.mem_nhds h0] with v hv
-    exact decMarkGBg_eq_of_evDecBg S (h v) hv
-  unfold decMarkCorrBg
-  rw [decMarkGBg_eq_of_evDecBg S (h um) hum, decMarkGBg_eq_of_evDecBg S (h 0) h0, e3]
+      decMarkCorrBg S Gb' T' X₁f m₀ j 𝒦X a₁ ν cc F₁' Sol' En' Zm' Y ρ hp Θ' um Φ :=
+  decMarkCorrBg_eq_of_evDecBg_conf S h hum hδ
 
 end Transfer
 

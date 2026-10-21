@@ -12,13 +12,13 @@ item numbers below refer to that file.
 
 The last section lists the problems that have been resolved since the project started.
 
-*Last updated: 2026-10-20.*
+*Last updated: 2026-10-21.*
 
 ## Summary
 
 | # | Issue | Where | Blocks | Status |
 |---|---|---|---|---|
-| 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | open; the Yang–Mills first step suggests a route for the base case (item 17 addendum); the case of no step remains; local pieces of the first component proved (W981); the no-step case now goes through the linked gas of blocker 5 |
+| 1 | Base case of the large-field induction; the case of no renormalization step | P5 (H.1), (1.1); P7 §4 | Root-F for large external field ν; start of the large-field induction | the case of no renormalization step (ν > 7/(8L²)) is proved in Lean (20 October): a direct one-scale route by finite-range whitening of the Gaussian chart and a polymer gas on blocks of side M·L, needing only that M·L exceed a threshold depending on d, N, L and κ; base case of the induction open; the Yang–Mills first step suggests a route for it (item 17 addendum); local pieces of the first component proved (W981) |
 | 2 | Switching from ν-free to complete backgrounds | P6 p. 11; P2 (1.11); P5 (1.4), (1.19) | small-field terms entering the large-field step | open; the route modelled on the Yang–Mills papers (source-free tests, source in the weight, direction tests extended over the collar) is adopted (ruling R2, approved 17 October) and formalized up to the physical kernels; remaining: the activity bound on the shrinking source radius (item 13 addendum) and the switch itself at the switching scale |
 | 3 | Old boundary terms across a new long hole | P6 p. 34; P5 (1.33)–(1.34); P3 (4.48) | localization for general classes; large-field boundary terms | cause located: our domains must be unions of cover cubes even inside the holes, and new holes need not be; the transfer of every domain across any new hole is proved once that requirement is limited to the small-field sites (ruling R11, approved and applied 19 October); the three earlier routes do not close it; R11 applied 19 October; what remains is to build the old boundary terms of the step and prove their bound (no open question) |
 | 4 | The gas of removed components and retained holes | P7 (3.26)–(3.28) | the large-field polymer gas | possible resolution (clusters on the core), formalized down to one physical input, the small factor of removed components (P7 (3.10)), which the large-field step still has to produce (the gas bound is derived from the window bound of each history; the window bound is being completed along P7 (exact Gaussian integral, the steps' actions summed into the window action, the cancellation identity), with the named source estimates of P7 (2.11)–(2.16) as inputs; the representation of R's output as this gas, the bounds of the kept components and the vacuum energy bound remain); author confirmation asked (item 16 addendum); the window conversion now rests on one design point, the window's field off the pieces; vacuum: the step's vacuum constant is bounded (proved), the vacuum region of one component is now restricted to the component (ruling R10, approved and applied 19 October); window domain conditions proved at the ancestor pieces, the removed component's own piece in progress |
@@ -34,10 +34,10 @@ not as a closed blocker. All statements below are in `Balaban/Spine/`.
 
 | # | Statement that closes it | Proved |
 |---|---|---|
-| 1 | `KfZeroInput` (the case with no renormalization step) and `BaseStepInput` (the first step) | no |
-| 2 | the switch at the scale k₀ inside `FrozenSFStepInput`, and `LFBdrySrcInput` (the source radius) | no |
-| 3 | `LFBdryOldInput` for the step's actual boundary terms | no |
-| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | no |
+| 1 | `KfZeroInput` (the case with no renormalization step) and `BaseStepInput` (the first step) | `KfZeroInput`: yes (20 October, `kfZeroInput_of_typing`; the one condition beyond the statement is a lower bound on the block side M·L by d, N, L, κ, a choice of the exponent of M = L^n); `BaseStepInput`: no |
+| 2 | `LFBdrySrcInput` (the activity bound on the shrinking source radius). The switch itself is no longer a separate statement: with ruling R2 both halves of a step use complete backgrounds, and the repaired switch at k₀ is an ordinary step; the frozen step's assembly `frozenSFStepInput_of_parts` is proved without it | no |
+| 3 | `LFBdryOldInput` for the step's actual boundary terms (needs the step with holes and the modular localization of the old terms) | no |
+| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | `RVacuumB0Input` yes (20 October); `RKeptGasInput` no |
 | 5 | `FinalSmallFieldInput` and `FinalLargeFieldInput` (the two halves of `LastIntegralInput`) | no |
 | 6 | the clauses (A1)–(A5) of the new level on the local generating sets, in `SFNewLevelInput` | no |
 | 7 | the two-torus clauses: exact agreement of the last-scale activities in `FinalSmallFieldInput`, and the agreement of each step's terms carried by the class | no |
@@ -102,6 +102,18 @@ cut, the exact first partition, and the count of records from an injective local
 (P5 (30)), the staged operator and the local code itself are the next round. For the case with no renormalization step,
 a general-scale component theorem was tried and refuted in the form we had proposed (see blocker 5, the example of
 `notes/phase1/astra/KF0B.md`, Theorem B.7); the case now goes through the same linked gas as the last integral.
+
+Update (20 October). The case with no renormalization step is proved in Lean (`kfZeroInput_of_typing`,
+`notes/phase1/KF0-FR.md`). The route does not separate the sectors. On each sheet of the sphere chart the
+Gaussian variables are whitened with a finite-range square root C_R of the covariance (range about M·L/4).
+The Gaussian weight becomes a product of one-site Gaussians times exp(−⟨ψ, Q_R ψ⟩/2), where the defect
+kernel Q_R = C_R K C_R − 1 has range 2R + 1 and row sums that decay exponentially in R/L². Every factor of
+the density, including the spins on the opposite hemisphere, is then a function of the variables in a ball
+of radius 2R + 1, and a polymer expansion on the torus of blocks of side M·L applies. Configurations with a
+large Gaussian variable or a spin on the opposite sheet are rare in measure; a product bound over marked
+sites controls them without a pointwise bound on each factor. The only condition beyond the statement is
+that M·L exceed a threshold depending on d, N, L and κ; M is a power of L, so this is a choice of the
+exponent. The sector split of the earlier attempt (all-good sector, bad sectors as a linked gas) is not used.
 
 ## 2. Switching from ν-free to complete backgrounds
 
@@ -187,6 +199,15 @@ the papers. The old boundary terms of the step have to be built as explicit obje
 sum over the old domains that carry over to it of the old term re-expanded at the new scale (P6 (4.32)–(4.33)).
 Then the bound P6 (4.34) and the count of domains finish this blocker. Until those objects are defined, the
 statement about the old part of the boundary terms says nothing about the actual step (W1148).
+
+Update (21 October, correction). Building the old boundary terms showed that more is missing than stated above
+(W1154). The assignment of each old domain to the new domains, the count of domains and the bound of the sum at
+each new domain are now proved, for any coefficients with the bound of P6 (4.34). The coefficients themselves are
+the old terms integrated in the fluctuation measure of the step with holes (P5 (2.48), (3.2)), and that step is not
+yet built: neither the field of the new scale composed into the old one on the large-field region nor the
+measure on the fluctuation fields with holes exists in Lean. The bound P6 (4.34) also rests on the modular
+localization of each old term, which has open points of its own (one of them is author question 14 (ii)); we
+choose readings for these and prove what they need. So this blocker is not purely Lean work, as said earlier.
 
 ## 4. The gas of removed components and retained holes
 

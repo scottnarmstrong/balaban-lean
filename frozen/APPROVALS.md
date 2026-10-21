@@ -83,3 +83,10 @@ Author (Scott Armstrong), 2026-10-19: "Yes on all five decisions." This approves
 horizon, `hsub` weakened), R-N₁ (the small-field clauses of `D2SF2`, `SFFlat2` on the tori the class reads), R10 (the
 first vacuum region of `stepVacuumTerm` localized to the component) and R11 (`FineValidAt := DjModFin` on the fine
 sets). Text in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Ruling R12 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "yes, approve R12". This approves, as recommended in
+`notes/phase1/REMOVAL-HIST.md` and `notes/phase1/PLAN-B.md`: in the post-`R` form `D1Form2`, the term of a history
+with a removal record at some scale `j ≤ k` is zero; the history set and `IsComplete` are unchanged. Text in
+`AGENTS.md` ("Author rulings"). No frozen declaration changes.

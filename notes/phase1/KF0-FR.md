@@ -91,41 +91,61 @@ most `(2/√3) K₀`, an ordinary site of `W'` at most `K₀ = e^{ap + θ_Q p²/
 `S_t`, `ε_t ∈ {ε_site, ε_bond}`, the multiplicity `k` and (H):
 `|∫ ∏_{t∈C} (F_t - 1) dμ| ≤ ∏_{t∈C} b_t`, `b_t = (1+√θ)^{|S_t|}(ε_t + θ^{1/(2k)} |S_t|)`.
 
-## B. The block gas (Lean: open)
+## B. The block gas (Lean: proved, `KF0FRBox`, `KF0FRBall`, `KF0FRGas`, `KF0FRPE`)
 
-The terms are regrouped by their block support `X = bsup t` (blocks meeting `S_t`):
-`f_X = ∏_{bsup t = X} F_t - 1`. Then `∫ ∏_t F_t dμ = ∫ ∏_X (1 + f_X) = Ξ(K)`
-(`mayerGen_integral_eq`), and from (M), expanding `∏_X f_X` into products over nonempty subfamilies,
-`|∫ ∏_{X∈𝒞} f_X| ≤ ∏_{X∈𝒞} (∏_{bsup t = X}(1+b_t) - 1)`. A block support lies in the `3^d` block box
-of the base site (`2R+1 < s/2`), so its Steiner size is at most `3^d` and it carries at most
-`(1+d) 3^d s^d` terms; hence the product bound of `mayerGen_activity_bound` holds with
-`H₀ = (1+d) 3^d s^d b_* e^{(κ₀+κ₁) 3^d}`, `b_* = max b_t`. The Steiner geometry of `KF0AllGoodGas`
-(G1–G3 with `c = 0`, `c₁ = 1`, `K₀ = 4e^{-κ₀}`) and `pe_size` give
-`Ξ = exp ∑_Y P(Y)`, `∑_{Y ∋ b} |P(Y)| e^{κ' |Y|_St} ≤ α`.
+The terms are regrouped by their block support `X = frBox R t` (the blocks meeting `S_t`; `S_t` is a
+torus ball, NN-connected, so `X` is a block animal, `isAnimal_frBox`):
+`f_X = ∏_{frKey t = X} F_t - 1` (`frFX`, `Polymer/Regroup.lean`: `keyWeight`). Then
+`∫ ∏_t F_t dμ = ∫ ∏_X (1 + f_X)` (`integral_prod_frF_eq_blocks`), and from (M), expanding `∏_X f_X`
+into products over nonempty subfamilies, `|∫ ∏_{X∈𝒞} f_X| ≤ ∏_{X∈𝒞} (∏_{frKey t = X}(1+b_t) - 1)`
+(`regroup_prod_bound`). A block support lies in the `3^d` block box of the base site
+(`frBox_subset_blockBox`, `2R+1 < s`), so its Steiner size is at most `3^d` and it carries at most
+`(1+d) 3^d s^d` terms; hence the domination and product clauses of the general block gas hold with
+`H₀ = (1+d) 3^d s^d b_* e^{(κ₀+κ₁) 3^d}` (`frFX_dom_prod`). The general-weight block gas
+(`blockGen_gas`, core of the landed `block_gas`; `mayerGen_pe`, core of `mayer_pe`) gives
+`Ξ = exp ∑_Y P(Y)`, `∑_{Y ∋ b} |P(Y)| e^{κ' |Y|_St} ≤ α = 64 e H₀ e^{-2κ₀}` (`frPE`).
 
-## A. Analyticity (Lean: open)
+## A. Analyticity (Lean: proved, `Polymer/LaplaceAnalytic`, `KF0FRAnalytic`)
 
 Every product `∏_{t∈A} F_t` is `P_A(ω) exp(∑_{x,i} g_{x,i} V_{x,i}(ω))` with `P_A` independent of `g`
-and `|V| ≤ 2`; `g ↦ ∫ P e^{⟨g,V⟩}` is entire when `P` is integrable (exponential series and
-Weierstrass). So `K(Y; ·)` is analytic on the ball `∑|g| < G`, with the uniform Kotecký–Preiss bound,
-and `P(Y; ·)` is analytic there (`pe_PY_analyticOnNhd`).
+and `|V| ≤ 2` (`prod_frF_eq_exp`); `g ↦ ∫ P e^{⟨g,V⟩}` is entire when `P` is integrable
+(`analyticOnNhd_integral_mul_exp`, from `LamPoly.analytic_integral_of_integrable`, core of the landed
+`LamPoly.analytic_integral`). So `K(Y; ·)` is analytic (`analyticOnNhd_frK`), the Kotecký–Preiss data
+are uniform on the ball `∑|g| < G` (`blockGen_kp`), and `P(Y; ·)` is analytic there
+(`pe_PY_analyticOnNhd`, in `frPE`).
 
-## S. Increments (Lean: open)
+## S. Increments (Lean: proved, `Analysis/SchwarzIncrement`)
 
-For `F` analytic on `{∑|g| < G}` with `|F| ≤ B`: `|F(g) - F(0)| ≤ 3B/G` on the unit ball (Schwarz on
-`λ ↦ F(λg)`). With `G = c_G √β` the increments carry `β^{-1/2}`, which pays `c₉`.
+For `F` analytic on `{∑|g| < G}`, `G > 1`, with `|F| ≤ B`: `|F(g) - F(0)| ≤ 2B/G` on the unit ball
+(`norm_sub_le_of_l1Ball`, Schwarz on `λ ↦ F(λg)`). With `G = c_G √β` the increments carry `β^{-1/2}`,
+which pays `c₉`.
 
-## T. Two-torus agreement (Lean: open)
+## T. Two-torus agreement (Lean: proved, `KF0FRKernelTorus`, `KF0FRLiftGeom`, `KF0FRLift`, `KF0FRLiftPY`)
 
-`C_R` and `Q_R` are polynomials of degree `≤ 2R+1` in `A`; on two tori of sides `> 4R+2` they agree at
-pairs with equal centred displacement (`kf0CR_torus_eq`). Polymers in the quarter box correspond
-(`polymer_lift`), the terms with block support inside them correspond and agree on related
-configurations, and the local terms agree (`PY_mayer_transport`, general weights).
+`Q_R` is a polynomial of degree `≤ 2R+1` in `A`; on two tori of sides `> 2(2R+1)` it agrees at pairs
+with equal centred displacement (`frQ_torus_eq`). The box map carries the balls of the quarter box
+onto balls (`torusBall_image_boxMap`), the terms correspond (`frTau`, `frF_frTau`), and so do the
+grouped weights (`frFX_lift`). The local terms agree (`frPY_agree`) by the general-weight transport
+`PY_mayerGen_transport`, core of the landed `PY_mayer_transport`.
 
-## P. Parameters (Lean: open)
+## P. Parameters (Lean: proved, `Spine/KfZeroFRTyping`, `KF0FRBeta`, `KF0FRCount`, `Spine/KfZeroFRMain`)
 
-`R = ⌊(s-3)/4⌋`, `k = (1+d)(4R+3)^d`, `p² = 8(2k log(9 s^d/b_*) + log(4^N e))`; `b_*` is fixed by the
-gas numerics at `κ' = κ` (`κ₀ = kf0K0 d`, `κ₁ = κ + κ₀ + 5/2`). The typing condition: `θ_Q p² k² s^d`
-small (`KF0FRTyping`), which holds for `s ≥ s₀(d, N, L, κ)` because `θ_Q ≤ C_d L³ e^{-7(R+1)/(8(2d+1)L²)}`
-decays exponentially in `s/L²` while `p² k² s^d` grows polynomially. Then `c_G` is fixed by
-`ap ≤ b_*/(32e)` and `ap k s^d ≤ 1/2`, and `β₀` by the `β`-small terms and by `3α/G ≤ (c₉/2) L^{-((d-2)/2+δ)}`.
+`R = ⌊(s-3)/4⌋`, `k = (1+d)(4R+3)^d`, `s₁ = (4R+3)^d`, `b_* = e^{-(κ₀+κ₁)3^d}/(16(1+d)3^d s^d)`
+(so `H₀ = 1/16`), `τ = b_*/(4 s₁)`, `η_* = τ^{2k}/(8^k e)`, `p² = 8 log(4·2^{N-1}/η_*)`
+(`2^{N-1} e^{-p²/8} = η_*/4`, `frP_tail`); `κ₀ = kf0K0 d`, `κ₁ = κ + κ₀ + 5/2`. The defect bound
+uniform in `ν ≥ ν_* = 7/(8L²)` is `θ_*(d,L,R)` (`frQ_rowAbs_le_star`). The typing condition
+`KF0FRTyping d N L κ s`: `s ≥ 6` and `θ_* ≤ min(1/4, b_*/(24p²), 1/(2p²k s₁))`. It holds for every
+`s ≥ kf0FRs0 d N L κ` (`exists_KF0FRTyping`, `kF0FRTyping_of_le`): `θ_*` decays exponentially in
+`s/L²`, the right side polynomially in `s`. It is a lower bound on `M L` only, compatible with
+`M = L^n` (`kf0FRs0_le_pow`). Then `c_G = min(b_*√ν_*/(96p), √ν_*/(8pks₁), p√ν_*/16)`, `ε = e^{-βν}`,
+`ρ = p/√(βν)`, and `β₀` comes from `frBeta_large` (the `β`-small terms and `2α/G ≤ (c₉/2) L^{-((d-2)/2+δ)}`).
+The conditions at large `β` are `frCG_facts` (the three constraints on `c_G`), `frOrd_facts`
+(`ρ ≤ 1/2`, the (O5) bracket `≤ 1`, every `ε_t ≤ b_*/4`), `frHeavy_facts` (the hypotheses `hJord`,
+`hη1`–`hη3` of (M), uniformly in `ν_* ≤ ν ≤ 1`) and `frK_facts` (`a ≤ p/8`, `K₀^{k s₁} ≤ e`).
+The weights are `b_t ≤ 2(b_*/4 + b_*/4) = b_*` (`frWeight_le`). Result: `kf0FR_fixed` (fixed `κ, c₉`) and
+
+```
+theorem kfZeroInput_of_typing (δ : ℝ) (T : ℝ → ℝ → LargeField.Typing) (hd : 1 ≤ d)
+    (hT : ∀ κ c₉ : ℝ, 0 < κ → 0 < c₉ → kf0FRs0 d N (T κ c₉).L κ ≤ (T κ c₉).M * (T κ c₉).L) :
+    KfZeroInput d N δ T
+```

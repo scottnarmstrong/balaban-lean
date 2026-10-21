@@ -728,6 +728,20 @@ theorem RegionHistory.compl_omegaPost_subset_Z (H : RegionHistory S n R k0 K) (k
 
 variable {M m₀ m₁ : ℕ} [NeZero S.L] [NeZero M]
 
+/-- **The new region misses the large-field region of the previous scale** (P5 (2.3): the opening
+of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): a fine site whose cube
+of `𝕋_k` lies in `Z_k` has its cube of `𝕋_{k+1}` outside `Ω_{k+1}`. -/
+theorem RegionHistory.cubeMap_succ_notMem_Omega (F : Def7.FineSizeFrame S n M K m₀ m₁)
+    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) {x : Localization.CTorus S.d S.L F.N₁ m₁ K}
+    (hx : cubeMap n S.L M K k (Localization.castT F.side x) ∈ (H.step k).Z) :
+    cubeMap n S.L M K (k + 1) (Localization.castT F.side x) ∉ (H.step k).Omega := by
+  intro hxΩ
+  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
+      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hx, rfl⟩
+  rw [cubeMap_succ hnn hk] at hU
+  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hxΩ)
+
 /-- **The fine new region lies in the fine post-`R` region** (the inclusion `Ω' ⊆ Ω` of the
 transfer of `Def7.exists_transfer_fineValidAt`; P5 (2.3): the opening of scale `k + 1` misses
 the coarsening `U'_k` of `Z_k`, and `(Ω_k^post)^c ⊆ Z_k`). -/
@@ -738,11 +752,7 @@ theorem RegionHistory.d7Pull_OmegaCube_succ_subset (F : Def7.FineSizeFrame S n M
   intro x hx
   rw [Def7.mem_d7Pull] at hx ⊢
   by_contra hy
-  have hZ := H.compl_omegaPost_subset_Z k hy
-  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
-      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hZ, rfl⟩
-  rw [cubeMap_succ hnn hk] at hU
-  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hx)
+  exact H.cubeMap_succ_notMem_Omega F hnn hk (H.compl_omegaPost_subset_Z k hy) hx
 
 end Region
 
