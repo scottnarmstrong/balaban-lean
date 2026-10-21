@@ -48,6 +48,17 @@ structure StepAff (S S' : HoleStep d L N₁ m₁ k N ϱ ϱ')
   hν : S'.ν = S.ν
   hβ : S'.β = S.β
 
+/-- A lattice symmetry between two generating sets from the layers (aligned affine isometry). -/
+def latSymmOfΩ (A : AffIso d ((N₁ * L ^ m₁) * L ^ (k + 1))) (hAl : A.Aligned (L ^ (k + 1)))
+    {G G' : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+    (hΩ : ∀ j x, A.toFun x ∈ G'.Ω j ↔ x ∈ G.Ω j) : LatSymm G G' A.toEquiv :=
+  A.latSymm hAl (fun m => by
+    ext x
+    rw [Finset.mem_map_equiv]
+    have := hΩ m (A.toEquiv.symm x)
+    have e : A.toFun (A.toEquiv.symm x) = x := A.toFun_invFun x
+    rwa [e] at this)
+
 namespace StepAff
 
 variable {S S' : HoleStep d L N₁ m₁ k N ϱ ϱ'} {A : AffIso d ((N₁ * L ^ m₁) * L ^ (k + 1))}

@@ -7,6 +7,7 @@ module
 
 public import Balaban.Spine.LFOldD7Euclid
 public import Balaban.Spine.LFOldD7Hist
+public import Balaban.Spine.LFOldD7Reads
 public import Balaban.LargeField.Region.SymmLevel
 
 /-!
@@ -27,7 +28,7 @@ namespace Balaban.RootFSpine
 
 set_option linter.unusedSectionVars false
 
-open Balaban.LargeField.RegionHistory
+open Balaban.LargeField.RegionHistory Balaban.LargeField.Def7
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {N m₁ : ℕ}
@@ -249,5 +250,22 @@ theorem locB_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
   exact h
 
 end LocB
+
+theorem coverBlk_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K) (i : ℕ) (hi : i ≤ k + 1)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    coverBlk g hnn hM1 hk i hi ((coverAff g hnn hM1 σ hk).toFun x) =
+      σ.eb i (coverBlk g hnn hM1 hk i hi x) := by
+  rw [← jBlock_fineOfC g hnn hM1 hk i hi, ← jBlock_fineOfC g hnn hM1 hk i hi,
+    fineOfC_coverAff, σ.jblock i (by omega)]
+
+theorem blockLift_coverField_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K) (i : ℕ)
+    (hi : i ≤ k + 1) (ψ : MultiFieldC S n M K N)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    blockLift i (coverField g hnn hM1 hk (symM σ ψ) i hi) ((coverAff g hnn hM1 σ hk).toFun x) =
+      blockLift i (coverField g hnn hM1 hk ψ i hi) x := by
+  show symM σ ψ i (coverBlk g hnn hM1 hk i hi ((coverAff g hnn hM1 σ hk).toFun x)) =
+    ψ i (coverBlk g hnn hM1 hk i hi x)
+  rw [coverBlk_aff, symM]
+  simp
 
 end Balaban.RootFSpine

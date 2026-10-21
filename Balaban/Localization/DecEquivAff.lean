@@ -54,7 +54,7 @@ theorem perN_neg' (r α : ℝ) : perN r (-α) = perN r α := by
 
 /-! ### Values of affine images -/
 
-theorem exists_val_eq {n : ℕ} [NeZero n] (z : ZMod n) (c : ℤ) (h : z = (c : ZMod n)) :
+theorem exists_val_eq_int {n : ℕ} [NeZero n] (z : ZMod n) (c : ℤ) (h : z = (c : ZMod n)) :
     ∃ e : ℤ, (z.val : ℤ) = c + n * e := by
   have h1 : ((z.val : ℤ) : ZMod n) = ((c : ℤ) : ZMod n) := by
     rw [← h]; simp
@@ -69,10 +69,10 @@ theorem perFac_core {n : ℕ} [NeZero n] (lam : ℕ) (hlam : 0 < lam) (s x y : Z
       perN ((n : ℝ) / lam) ((((x.val : ℕ) : ℝ) - (((y.val : ℕ) : ℝ) + ((lam : ℝ) - 1) / 2)) / lam) := by
   have hl : (0 : ℝ) < lam := by exact_mod_cast hlam
   have hl1 : 1 ≤ lam := hlam
-  obtain ⟨e1, h1⟩ := exists_val_eq (s + AffIso.sgn n b * x)
+  obtain ⟨e1, h1⟩ := exists_val_eq_int (s + AffIso.sgn n b * x)
     ((s.val : ℤ) + (if b then -1 else 1) * (x.val : ℤ)) (by
       cases b <;> simp [AffIso.sgn])
-  obtain ⟨e2, h2⟩ := exists_val_eq (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
+  obtain ⟨e2, h2⟩ := exists_val_eq_int (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
     ((s.val : ℤ) + (if b then -1 else 1) * (y.val : ℤ) - (if b then ((lam - 1 : ℕ) : ℤ) else 0)) (by
       cases b <;> simp [AffIso.sgn])
   cases b
@@ -165,10 +165,10 @@ theorem val_img_core {n : ℕ} [NeZero n] (lam : ℕ) (hlam : 0 < lam) (s x y : 
       (if b then (-1 : ℝ) else 1) * (((x.val : ℕ) : ℝ) - (((y.val : ℕ) : ℝ) + ((lam : ℝ) - 1) / 2)) +
         (n : ℝ) * e := by
   have hl1 : 1 ≤ lam := hlam
-  obtain ⟨e1, h1⟩ := exists_val_eq (s + AffIso.sgn n b * x)
+  obtain ⟨e1, h1⟩ := exists_val_eq_int (s + AffIso.sgn n b * x)
     ((s.val : ℤ) + (if b then -1 else 1) * (x.val : ℤ)) (by
       cases b <;> simp [AffIso.sgn])
-  obtain ⟨e2, h2⟩ := exists_val_eq (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
+  obtain ⟨e2, h2⟩ := exists_val_eq_int (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
     ((s.val : ℤ) + (if b then -1 else 1) * (y.val : ℤ) - (if b then ((lam - 1 : ℕ) : ℤ) else 0)) (by
       cases b <;> simp [AffIso.sgn])
   refine ⟨e1 - e2, ?_⟩
@@ -274,7 +274,7 @@ theorem baseCoord_dvd_iff {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : Z
     lam ∣ (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0)).val ↔
       lam ∣ y.val := by
   have hl1 : 1 ≤ lam := hlam
-  obtain ⟨e, he⟩ := exists_val_eq (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
+  obtain ⟨e, he⟩ := exists_val_eq_int (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
     ((s.val : ℤ) + (if b then -1 else 1) * (y.val : ℤ) - (if b then ((lam - 1 : ℕ) : ℤ) else 0)) (by
       cases b <;> simp [AffIso.sgn])
   have hnZ : (lam : ℤ) ∣ (n : ℤ) := Int.natCast_dvd_natCast.2 hn
@@ -307,7 +307,7 @@ theorem baseCoord_div {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : ZMod 
   · simp
   · simp only [↓reduceIte] at hs ⊢
     set w : ZMod n := s + AffIso.sgn n true * y with hw
-    obtain ⟨e, he⟩ := exists_val_eq w ((s.val : ℤ) + -1 * (y.val : ℤ)) (by
+    obtain ⟨e, he⟩ := exists_val_eq_int w ((s.val : ℤ) + -1 * (y.val : ℤ)) (by
       simp [hw, AffIso.sgn])
     have hnZ : (lam : ℤ) ∣ (n : ℤ) := Int.natCast_dvd_natCast.2 hn
     have hdv : (lam : ℤ) ∣ ((w.val + 1 : ℕ) : ℤ) := by
