@@ -1001,6 +1001,41 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * **Not done (genuine open point): A4-1i for the class (`FrozenIntegrableInput`) and any cut `Y = Z^c ≠ univ`.** The transport above uses that every site is over `Y`. For a cut,
        the chart of `𝔹_j(X)`, `X ⊂ Y^≈`, needs the regional statements of `Q13-COMPOSED.md` (`CanonicalPrecedes`, `RegionalLocalPairAgreement`, `ParentDomainFromFactors` for the retained
        components) and the integrability of the operator integrals `gOp` (PkgBound (1.26)).
+   * **B1 (box localization, PHYS-CUBIC; 2026-10-21).** Landed (no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+     * *Rooted Lemma AE, generic core* (`Green/FinalBoxLocCore.lean`; no centre and no cut family is fixed): `coef_congr_supported` (the coefficient
+       `coef f C` depends on `f` only on the parameters of the open polydisc of radius `R > 1` vanishing off `C`), `coef_eq_zero_of_eq_cutTo`,
+       `rootComp P S C` / `IsRootedFamily` (cells of `C` joined to the root set `S` by chains of overlapping patches), `coef_eq_zero_of_not_rooted`
+       (abstract: if on those parameters `f` only sees the rooted component, a non-rooted coefficient vanishes), `CutDecoupling P R T` (support of
+       `T(s)` in the region of `C`, splitting over separated parts; inhabited by `T = 0`), `ReadsOn S τ`, `linField φ₀ T s w = φ₀ + T(s) w`,
+       `rootedExpansion_linField`: for `τ` reading the field on `S`, analytic on a set containing the cut fields with increments `≤ b`,
+       `τ(Φ(1,w)) = τ(φ₀) + Σ_{C ≠ ∅ rooted} coef_C(w)`, non-rooted coefficients vanish, `coef_C(w)` depends on `w` only on the region of `C`
+       (for every `w, w'`), `‖coef_C‖ ≤ b e^{-(κ-1)|C|}`.
+     * *The cut family of the final Hessian* (`Green/FinalBoxLocCut.lean`): `boxCut(s) = a^{-1/2}(m(s)⊗1)P_h + (taggedCfin(s)⊗1)(1-P_h)` with the
+       parameter-weighted partition of unity `m(s)(x) = Σ_z s_z χ_z(x)` in the longitudinal part (an `s`-independent `a^{-1/2}P_h` would make every
+       coefficient read `w` on the whole torus); `boxCut_one` (`= sqrtMat (finalHessianC …)`), `cutDecoupling_boxCut`, `analyticOnNhd_boxCut`,
+       `boxCut_row_bound`, `rootedExpansion_boxCut` (the core at the field `φ₀ + c·boxCut(s)w`, `‖w‖_∞ ≤ ρ`, increment bound `M_τ m/(r-m)`,
+       `m = |c| B_box ρ`); core `taggedCfin_apply_split_of_separated` (`coef_taggedCfin_final_eq_zero_of_separated` is now its consumer).
+     * *PHYS-CUBIC, Cauchy route* (`Green/FinalBoxLocCubic.lean`): `norm_sub_taylorLine_le` (order-`n` Taylor remainder along the line through
+       `v` at a general centre: `≤ M q^n/(1-q)`, `q = ‖v‖/r`), `norm_cubicRemainder_le`, `norm_linRemainder_le`.
+     * **Design obstruction (L1)-(L3) for the background-dependent terms.** The rooted decomposition with exact locality needs each term to be a
+       function of the field `ψ_k` on a set `S` near its root (`ReadsOn S τ`). This holds for `ℛ^{(k)}` (`Rres` reads `sfLiftK ψ_k`), but not for
+       `-β_k A*_k`, `ℰ_k`, `ℱ_k`: they read the background `φ̄_k = barField(φ_k)`, `φ_k = bgSF … (W₂ univ) (lift ψ_k) = bgFieldC(𝔹_k(univ); lift ψ_k)`,
+       and the composed fields `ψ^{(j)}_k = composeField(𝔹_j, 𝔹_k; φ_k, lift ψ_k)`, i.e. the solution of the variational problem of the whole
+       torus; its response to `ψ_k` at a block `z` is `R(x, z)` with `R = (a_k/L^{2k}) Hr⁻¹(1-P_e)Q*` (`response_top_mat`), not of finite range
+       (already recorded in W920/W924: the lift is not strictly local, only `hnear` decay). At `s` vanishing off `C` the cut field deviates from
+       `h` only on the region of `C`, so `coef_C(w)` is still exactly local in `w` (`rootedCoef_congr` needs no `ReadsOn`), but the coefficient of
+       a family `C` not joined to the root, or with several separated components, does not vanish. With single-point decay `δ(n)` of the response
+       the best bound of a family with `m` separated components at distance `n` is `e^{-(κ-1)|C|} δ(n)`, while the connected hull that (W3)
+       requires has size `≍ m n`; `Σ_{m,n} e^{a m n - (κ-1) m - γ n}` diverges, so (W3)+(W5) cannot be met term by term. The source (P7 p. 530,
+       "exactly as in Sect. 3 [5]"; P3 §2) localizes the backgrounds themselves by the random-walk expansion of their Green's functions with
+       decoupling parameters. Route: one decoupled background suffices — `φ_k(s'; D)` of `𝔹_k(univ)` (Theorem I-4b, `Localization/DecoupledBackground`:
+       `decBgField`, `i4b_one` (`s' = 1` is `bgFieldC`), `i4b_analytic`, `i4b_local`), since the composed fields are affine in `φ_k` with the local
+       dependency set `composeDep` (`DecoupledCompose`) and `φ̄_k` is `barField φ_k`; the terms become functions of `(s, s')` (cut cells of `boxCut` and
+       the cubes of `DecParams`), to which the abstract `coef_eq_zero_of_not_rooted`, `coef_congr_supported` apply on `ι = MacIdx ⊕ cubes` once the
+       rooted property of the composite is proved from `i4b_local`. Decision for ORCH-B (two parameter families, `i4b_local` is stated in the
+       telescoping convention `s' = 1` off `parCubes X₁`).
+     * Open here: (L0) `χ_univ = 1` on the box; the count of rooted families (generic, `Polymer/Animals.card_animals_le` in the box-overlap graph);
+       the `ℛ^{(k)}` instance; (L4) after the decision above.
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
