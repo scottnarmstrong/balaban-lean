@@ -13,8 +13,8 @@ public import Balaban.Analysis.SourceRay
 * `srcMDir_add`, `srcMDir_smul`, `srcMDir_sum`: the ray integral `srcMDir F g v` is linear in the direction
   (the integrands are continuous on `[0, 1]`, `intervalIntegrable_fderiv_ray`).
 * `srcMDir_comp_of_mem`: `srcMDir (F ∘ T) g v = srcMDir F (T g) (T v)` for a continuous linear `T`, when
-  only `T g` lies in the `ℓ¹` ball (the ray `t T g` stays in it by convexity); the case of
-  `srcMDir_comp` with the premise "`T` maps the ball into the ball" weakened.
+  only `T g` lies in the `ℓ¹` ball (the ray `t T g` stays in it by convexity); `srcMDir_comp` is its
+  corollary with the premise "`T` maps the ball into the ball".
 * `srcM_rot`: for `Rᵀ R = 1`, `F' (R g) = F g` where `g` and `R g` lie in the ball, `F'` analytic on
   the ball of radius `G`: `ℳ_x(F', R g) = R ℳ_x(F, g)` whenever `g` and `R g` lie in the ball
   (the shape of `SFTermClauses.rotM`); the ball need not be invariant under `R`.
@@ -49,6 +49,16 @@ theorem srcMDir_comp_of_mem {F : (ι → J → ℂ) → ℂ} {G : ℝ}
       (fderiv ℂ F (T ((t : ℂ) • g))).comp T :=
     (hdiff.hasFDerivAt.comp ((t : ℂ) • g) T.hasFDerivAt).fderiv
   rw [hchain, ContinuousLinearMap.comp_apply, hTt]
+
+omit [DecidableEq ι] [DecidableEq J] in
+/-- **Covariance of the ray integral under a linear map of the sources**: for a continuous linear `T`
+that maps the ball into the ball, `srcMDir (F ∘ T) g v = srcMDir F (T g) (T v)`. -/
+theorem srcMDir_comp {F : (ι → J → ℂ) → ℂ} {G : ℝ}
+    (hF : AnalyticOnNhd ℂ F {g | l1src g < G}) (T : (ι → J → ℂ) →L[ℂ] (ι → J → ℂ))
+    (hT : ∀ g, l1src g < G → l1src (T g) < G) {g : ι → J → ℂ} (hg : l1src g < G)
+    (v : ι → J → ℂ) :
+    srcMDir (fun h => F (T h)) g v = srcMDir F (T g) (T v) :=
+  srcMDir_comp_of_mem hF T (hT g hg) v
 
 omit [DecidableEq ι] [DecidableEq J] in
 theorem intervalIntegrable_fderiv_ray {F : (ι → J → ℂ) → ℂ} {G : ℝ}
