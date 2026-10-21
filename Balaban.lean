@@ -2909,6 +2909,7 @@ public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
 public import Balaban.Spine.FinalRegroup
 public import Balaban.Spine.FinalRegroupAct
+public import Balaban.Spine.FinalRegroupAgree
 public import Balaban.Spine.FinalSfUniv
 public import Balaban.Spine.BaseStep
 public import Balaban.Spine.KfZero
