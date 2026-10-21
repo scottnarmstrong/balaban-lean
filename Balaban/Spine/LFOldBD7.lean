@@ -7,6 +7,7 @@ module
 
 public import Balaban.Spine.LFOldHS2D7
 public import Balaban.Fluctuation.MarkClusterFam
+public import Balaban.Fluctuation.MarkClusterReal
 
 /-!
 # The (D7) clauses of the re-expanded old boundary terms at an output label
@@ -22,12 +23,14 @@ proves the clauses of (D7) that hold for every interaction family with the corre
   valid at `Ω_{k+1}`;
 * `oldBAtAt_congr_fields` (clause `loc_field`): the old part at `Y` depends only on the fields on the
   blocks inside the fine set of `Y`, when the activities of the labels inside `Y` and the fixed values
-  at the unit points inside `Y` depend only on them.
+  at the unit points inside `Y` depend only on them;
+* `oldBAtAt_im` (clause `real`): the old part is real when the activities at real parameters, the
+  fixed values and the coefficients at real fluctuation fields are real.
 -/
 
 @[expose] public section
 
-open MeasureTheory Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.Multiscale
+open MeasureTheory ComplexConjugate Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.Multiscale
   Balaban.Localization Balaban.Fluctuation Balaban.LargeField.RegionHistory Balaban.Background
   Balaban.Polymer
 
@@ -219,6 +222,53 @@ theorem oldBAtAt_congr_fields (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n
   refine hact u y ?_
   rw [hYhat]
   exact ysite_subset_Yhat Fr.divN₁ hk hΩ' IF.Lab y hy
+
+
+open Classical in
+/-- **The clause `real` of (D7) for the old part at an output label** (any readings of the local
+pair): the old part is real when the activities of the interaction at real parameters are real, the
+fixed values are real and the coefficients of the marks are real at real fluctuation fields in the
+ball of the mark (`oldCoefLocAt_im`).  The cluster terms are then real (`markTerm_conj`). -/
+theorem oldBAtAt_im (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
+    (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1))))
+    (hp : 0 < p₁) (I : LocInteraction (fun b => {u : inner // cb u = b} → Rn N))
+    (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (Xs : Finset (Finset (Torus S.d (n k)))) (ψ' : MultiFieldC S n M K N)
+    (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ) (Y : Finset (Torus S.d (n (k + 1))))
+    (hI : ∀ (u : ℝ) y Φ, ((I.A (u : ℂ)).H y Φ).im = 0) (hout : ∀ b i, (ψout b i).im = 0)
+    (hcoef : ∀ X ∈ Xs, ∀ J, GoodJAt g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (σ X) X J → ∀ ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ,
+      (∀ b i, (ψhat b i).im = 0) →
+      (∀ b ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J),
+        vn (ψhat b) < rψ) →
+      (oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A
+        X ψ' hv gx J ψhat).im = 0) :
+    (oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout
+      rψ ρc ρ r r' rep A Xs ψ' hv gx Y).im = 0 := by
+  have := (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).isProbabilityMeasure_cubeMeasure
+    inner cb hp
+  rw [← Complex.conj_eq_iff_im]
+  unfold oldBAtAt
+  simp only [map_sum]
+  refine Finset.sum_congr rfl fun T _ => Finset.sum_congr rfl fun X hX =>
+    Finset.sum_congr rfl fun V _ => ?_
+  unfold oldClusterSiteAt
+  refine markTerm_conj _ _ _ _ _ (fun u y Φ => Complex.conj_eq_iff_im.2 (hI u y Φ)) fun Φ => ?_
+  unfold oldMarkSiteAt
+  simp only [map_sum]
+  refine Finset.sum_congr rfl fun J hJ => ?_
+  obtain ⟨-, hJg, -⟩ := (mem_famAtAt g hnn hM1).1 hJ
+  unfold oldMarkLFAt
+  exact HoleStep.markOf_conj _ inner cb _ rψ (fun b i => Complex.conj_eq_iff_im.2 (hout b i))
+    (fun ψhat hre hball => Complex.conj_eq_iff_im.2 (hcoef X hX J hJg ψhat
+      (fun b i => Complex.conj_eq_iff_im.1 (hre b i)) hball)) Φ
 
 end D7Old
 
