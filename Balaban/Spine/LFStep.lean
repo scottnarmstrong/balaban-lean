@@ -55,7 +55,6 @@ only asserts to exist is an existential inside the part):
 * `LFStepDataInput` (row (g1); Lemmas IV.1.3, IV.1.4, IV.1.6, Lemma II.5.14; R5, R5′): step data
   (S0)–(S2) with the kernels of the map, tied to the vacuum flow extended by `ΦE`;
 * `LFBdryInput` (row (g2); Lemma IV.1.5): (D7) of the boundary terms at the physical field;
-* `LFBdrySrcInput` (row (g5); blocker 2, leaf 5): (D7) at the other fields of the pinned ball;
 * `LFFormInput` (row (g3); P5 (1.8), (1.26), P5 §§2–3, P6 §§2–3): (D1) of the step density;
 * `LFOpBoundInput` (row (g3), (D5)): **proved** from `LFSignInput` (`z_j > 0`) by LFR Lemma
   II.6.3 (a) (`Rep.opBound_of_data`), `lfOpBoundInput_of_signs`;
@@ -68,8 +67,8 @@ The kept data (row (g1), (S3)) are not a part: `succKD` is proved to be kept dat
 
 **Proved in the assembly**: the existential package of `LFStepInput`; `cs'`, `P'` and their seven
 ties to the outer constants; `Coh` and `FieldClauses` at `k + 1` (`coh_succ`, `field_succ`); (D2),
-(D8), (D9) from the hypotheses on the image; (D7) of `IsRepPre2` from the physical-field and the
-pinned-ball parts (`D7Bdry.toD7Bdry2_of_ball`); the vacuum tie of the chosen step data with
+(D8), (D9) from the hypotheses on the image; (D7) of `IsRepPre2` from the physical-field part (`D7Bdry.toD7Bdry2`; row (g5), the pinned-ball
+part, removed under ruling R16, pending); the vacuum tie of the chosen step data with
 `vacExt rec.Ev k (ΦE …)`.
 
 **The SF→LF interface (watch item of W1096).** The step does not need the interface clause of
@@ -84,8 +83,7 @@ the vacuum tie of the input's step data at the old steps (in `LFStepDataInput`; 
 A4-2v, `VacuumB0Bound`, blocked on ruling R10: `norm_stepVacuumTerm_le_of_stepData`) and `z_j > 0` at
 the old scales (in `LFSignInput`).
 
-Rule 10: `LFStepRaw` is inhabited (`LFStepRaw.zero`), `Matches` (`LFStepRaw.matches_zero`) and
-`D7BdryBall` (`d7BdryBall_of_hist_eq_empty`) are satisfiable;
+Rule 10: `LFStepRaw` is inhabited (`LFStepRaw.zero`), `Matches` (`LFStepRaw.matches_zero`) are satisfiable;
 the parts and the combinators `LFImageInput`, `RepRec.SuccFams` need the exemption of the spine inputs.
 -/
 
@@ -393,73 +391,6 @@ noncomputable def _root_.Balaban.LargeField.KeptData.upTo {κ : ℕ → LocalHis
 end Kept
 
 /-!
-### (D7) at the pinned ball
--/
-
-section Ball
-
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
-  [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
-
-/-- **(D7) at the complex fields of the pinned ball** (the clauses `analytic`, `bound` of `D7Bdry2`
-at the fields `h ∈ hSetB2 hv rH` other than the physical field `hC hv`; blocker 2, leaf 5: the
-source enters the boundary terms through `ν_j h`, and the bound on a complex neighbourhood of the
-physical field is the activity bound on the transverse source radius). -/
-structure D7BdryBall {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
-    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
-    (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
-    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Prop where
-  analytic : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH, h ≠ hC hv →
-    AnalyticOnNhd ℂ
-      (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
-        rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
-      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
-        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
-        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
-  bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH, h ≠ hC hv →
-    ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
-      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
-        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
-        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
-      ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <
-        fac * Real.exp (-rate * d7SizePre Fr A k X)
-
-variable {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {hnn : ∀ i, i < K → n i = S.L * n (i + 1)}
-  {hkK : k ≤ K} {rep : Rep S n R k0 K M N geo cs P k}
-  {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
-  {hv : EuclideanSpace ℝ (Fin N)} {rH : ℝ}
-
-/-- `D7BdryBall` holds when there are no histories (rule 10). -/
-theorem d7BdryBall_of_hist_eq_empty (h : rep.hist = ∅) :
-    D7BdryBall Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH where
-  analytic := fun A hA => by simp [h] at hA
-  bound := fun A hA => by simp [h] at hA
-
-/-- **(D7) of the pre-`R` class, second version, from (D7) at the physical field and at the other
-fields of the pinned ball.** -/
-theorem _root_.Balaban.LargeField.Def7.D7Bdry.toD7Bdry2_of_ball (h : D7Bdry Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv)
-    (hb : D7BdryBall Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH) :
-    D7Bdry2 Fr hnn hkK rep Zof aw μs ε ε1 νs fac rate hv rH where
-  loc_field := h.loc_field
-  loc_hist := h.loc_hist
-  real := h.real
-  analytic := fun A hA X hX h' hh' => by
-    by_cases e : h' = hC hv
-    · subst e
-      exact h.analytic A hA X hX _ rfl
-    · exact hb.analytic A hA X hX h' hh' e
-  bound := fun A hA X hX h' hh' => by
-    by_cases e : h' = hC hv
-    · subst e
-      exact h.bound A hA X hX _ rfl
-    · exact hb.bound A hA X hX h' hh' e
-  rot := h.rot
-  euclid := h.euclid
-  support := h.support
-
-end Ball
-
-/-!
 ### The vacuum constants of step data
 -/
 
@@ -670,20 +601,6 @@ def LFBdryInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
         (epsOne 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (P6 κ c₉) (C7 κ c₉))
         (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).nu (C7 κ c₉).Bst (3 / 2 * (P6 κ c₉).κ) h
 
-/-- **The boundary terms at the other fields of the pinned ball (row (g5); blocker 2, leaf 5;
-`notes/phase1/Q13-YM.md` §§2, 5; ruling R2).** On every torus the boundary terms of the map are
-analytic on the H7 domain and bounded by `B_st e^{-(3κ/2) d^cov}` at every complex field `h'` of the
-pinned ball `‖h' - h‖ < r_h` other than `h` (`D7BdryBall`): the activity bound at a complex source. -/
-def LFBdrySrcInput (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
-  LFImageInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ fun κ c₉ β ν h kf _ _ k ρ νk rec hkK' =>
-    rec.SuccFams (Φ κ c₉ β ν k rec.F.sf) (Λ κ c₉ β ν h kf k ρ νk rec) fun F' =>
-      ∀ (nK : ℕ) [NeZero nK], D7BdryBall (fineFrame 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]
-          (sides (T κ c₉).L (kf + 1) nK) (kf + 1) rec.hM6) (sides_hnn (T κ c₉).L (kf + 1) nK)
-        hkK' (F'.lf nK) (fun A => A.H.F.Zpre (k + 1)) F'.weights
-        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).mu ((P6 κ c₉).eps d (T κ c₉).L)
-        (epsOne 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (P6 κ c₉) (C7 κ c₉))
-        (rec.succCs (Φ κ c₉ β ν k rec.F.sf)).nu (C7 κ c₉).Bst (3 / 2 * (P6 κ c₉).κ) h (rH κ c₉)
-
 /-- **The form of the step density (row (g3); LFR proof of Theorem IV.1.1 (c), (D1); P5 (2.1)–(2.14),
 (2.42)–(2.48), §3 (Propositions 3.1–3.4, (3.18)), P6 §2 ((2.11)–(2.33)), (3.3); P5 (1.8) for the
 correction).** On every torus the step density `ρ' = e^{-s|T^{(k+1)}_1|} z^{N|T^{(k+1)}|}(T^{(k)}ρ)(z·)`
@@ -795,16 +712,14 @@ record `rec` of `ℛ_k` and its image `Φ rec.F.sf`:
   `FieldClauses` at `k + 1` are `coh_succ`, `field_succ` (with the ties of the image at `j ≤ k`);
 * `IsRepPre2`: (D2), (D8), (D9) are the hypotheses on the image; completeness `LFHistInput`; (D1)
   `LFFormInput` for the coefficient data of `LFCorrInput`; (D4) `LFPinInput`; (D5) `LFOpBoundInput`;
-  (D6) `LFBudgetInput`; (D7) of the second version from `LFBdryInput` and `LFBdrySrcInput`
-  (`D7Bdry.toD7Bdry2_of_ball`);
+  (D6) `LFBudgetInput`; (D7) of the second version from `LFBdryInput` (`D7Bdry.toD7Bdry2`);
 * `LFCoherent` is `LFCoherenceInput`; the vacuum tie with `vacExt rec.Ev k (ΦE …)` is that of the
   chosen step data.
-The threshold is the largest of the ten thresholds. -/
+The threshold is the largest of the nine thresholds. -/
 theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
     (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
     (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
-    (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hO : LFOpBoundInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
@@ -816,18 +731,17 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
   obtain ⟨b₁, h₁⟩ := hH κ hκ c₉ hc₉
   obtain ⟨b₂, h₂⟩ := hS κ hκ c₉ hc₉
   obtain ⟨b₄, h₄⟩ := hB κ hκ c₉ hc₉
-  obtain ⟨b₅, h₅⟩ := hBs κ hκ c₉ hc₉
   obtain ⟨b₆, h₆⟩ := hF κ hκ c₉ hc₉
   obtain ⟨b₇, h₇⟩ := hO κ hκ c₉ hc₉
   obtain ⟨b₈, h₈⟩ := hP κ hκ c₉ hc₉
   obtain ⟨b₉, h₉⟩ := hG κ hκ c₉ hc₉
   obtain ⟨b₁₀, h₁₀⟩ := hC κ hκ c₉ hc₉
   obtain ⟨b₁₁, h₁₁⟩ := hc κ hκ c₉ hc₉
-  refine ⟨max (max (max b₁ b₂) (max b₄ b₅)) (max (max b₆ b₇) (max b₈ (max b₉ (max b₁₀ b₁₁)))),
+  refine ⟨max (max (max b₁ b₂) b₄) (max (max b₆ b₇) (max b₈ (max b₉ (max b₁₀ b₁₁)))),
     ?_⟩
   intro β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
   simp only [max_le_iff] at hβ
-  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₄, hb₅⟩, ⟨hb₆, hb₇⟩, hb₈, hb₉, hb₁₀, hb₁₁⟩ := hβ
+  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₄⟩, ⟨hb₆, hb₇⟩, hb₈, hb₉, hb₁₀, hb₁₁⟩ := hβ
   choose SD hSDker hSDtie using
     h₂ β hb₂ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK'
   have hM : (Λ κ c₉ β ν h kf k ρ νk rec).Matches SD := fun nK _ => hSDker nK
@@ -854,8 +768,7 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
       budget := h₉ β hb₉ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
       bdry := fun nK _ =>
         (h₄ β hb₄ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM
-          nK).toD7Bdry2_of_ball
-        (h₅ β hb₅ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM nK)
+          nK).toD7Bdry2
       coherent := hD8
       coeff := hD9 }
 
@@ -934,14 +847,13 @@ theorem lfStepInput_of_prefix {δ : ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs�
     (hH : LFHistInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hS : LFStepDataInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE Λ)
     (hB : LFBdryInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
-    (hBs : LFBdrySrcInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hF : LFFormInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hI : SFInheritInput d N T P6 C7 cs₀ ϱ Φ)
     (hP : LFPinInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hC : LFCoherenceInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ Λ)
     (hc : LFCorrInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ) :
     LFStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ Φ ΦE :=
-  lfStepInput_of_parts Λ hH hS hB hBs hF (lfOpBoundInput_of_signs Λ (lfSignInput_of_inherit d N T P6 C7 PB cs₀ M1 c rH ϱ Φ hI)) hP
+  lfStepInput_of_parts Λ hH hS hB hF (lfOpBoundInput_of_signs Λ (lfSignInput_of_inherit d N T P6 C7 PB cs₀ M1 c rH ϱ Φ hI)) hP
     (lfBudgetInput_of_pin hA1 Λ hP) hC hc
 
 end Assembly

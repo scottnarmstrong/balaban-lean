@@ -73,14 +73,14 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   {rin rout : Rep S n R k0 K M N geo cs P k}
 
 /-- **The `bound` field of `D7Bdry2Post`, as a statement about a record**: for every history of
-the record, every label of `bdryDomsPost` for the region `Zof A`, every external field in the
-pinned ball and every point of the domain `H7Domain`, the boundary term is bounded by
+the record, every label of `bdryDomsPost` for the region `Zof A`, the external field
+`hSetB hv` (the physical field) and every point of the domain `H7Domain`, the boundary term is bounded by
 `fac · e^{-rate · d7Size}`, strictly. -/
 def D7PostBound {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
-    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Prop :=
-  ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB2 hv rH,
+    (aw μs ε ε1 νs : ℕ → ℝ) (fac rate : ℝ) (hv : EuclideanSpace ℝ (Fin N)) (_rH : ℝ) : Prop :=
+  ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPost Fr A k (Zof A), ∀ h ∈ hSetB hv,
     ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
@@ -122,7 +122,7 @@ theorem d7Post_bound_of_avoid_of_gas {κ Bst B0 : ℝ}
       Y ∈ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k) → rout.B A Y = rin.B (π A) Y)
     (hyp_gas : ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z,
       ¬ Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) →
-      ∀ h ∈ hSetB2 hv rH, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
+      ∀ h ∈ hSetB hv, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
@@ -130,7 +130,7 @@ theorem d7Post_bound_of_avoid_of_gas {κ Bst B0 : ℝ}
     (hyp_split : ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z,
       Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) →
       Y ∉ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k) →
-      ∀ h ∈ hSetB2 hv rH, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
+      ∀ h ∈ hSetB hv, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
@@ -215,7 +215,7 @@ theorem analytic_of_avoid {fac rate : ℝ}
     (hin : D7Bdry2 Fr hnn hkK rin (fun A => A.H.F.Zpre k) aw μs ε ε1 νs fac rate hv rH)
     (hA' : Apre ∈ rin.hist) (hY : Y ∈ bdryDomsPre Fr Apre k (Apre.H.F.Zpre k))
     (hid : rout.B A Y = rin.B Apre Y) (hG : globalLH Apre.H M = globalLH A.H M) :
-    ∀ h ∈ hSetB2 hv rH, AnalyticOnNhd ℂ
+    ∀ h ∈ hSetB hv, AnalyticOnNhd ℂ
       (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
         rout.B A Y (extK p.1) (extK p.2.1) h p.2.2)
       {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
