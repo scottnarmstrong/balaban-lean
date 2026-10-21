@@ -70,23 +70,23 @@ variable (E : BgData G N) (hE : ∀ x, x ∉ G.Ω 1 → E.Ψ x = 0) (hEh : ∀ x
 
 include hE hEh
 
-/-- The block term of the quadratic form at the field `0`: `A(tE, 0) = t² A(E, 0)`. -/
-theorem actionC_zero_line_scale (t : ℂ) :
-    actionC G a ν ((bgZero G N).lineAt E t) 0 = t ^ 2 * actionC G a ν ((bgZero G N).lineAt E 1) 0 := by
-  have hz : ∀ s : ℂ, ∀ x, x ∉ G.Ω 1 → ((bgZero G N).lineAt E s).Ψ x = 0 := fun s x hx => by
-    simp [BgData.lineAt, bgZero, hE x hx]
-  have hb : ∀ s : ℂ, barField G ((bgZero G N).lineAt E s).Ψ (0 : G.Ω 1 × Fin N → ℂ) = 0 :=
-    fun s => by
-      rw [barField_line (bgZero G N) E hE s]
-      exact barField_zero _ (fun x _ => rfl)
-  have key : ∀ s : ℂ, actionC G a ν ((bgZero G N).lineAt E s) 0 =
+/-- **`A(sE, 0)` explicitly**: `½ ∑_x w_x ∑_i (s E_i(x))²`. -/
+theorem actionC_zero_line_eq (s : ℂ) :
+    actionC G a ν ((bgZero G N).lineAt E s) 0 =
       (1 / 2) * ∑ x : G.Ω 1, ((a (G.layerIndex (x : Torus d (N₀ * L ^ k))) /
         ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 : ℝ) : ℂ) *
         ∑ i, (s * E.Ψ x i) * (s * E.Ψ x i) := by
-    intro s
-    unfold actionC
-    rw [hb s, blockAvg_zero]
-    simp [BgData.lineAt, bgZero, hEh]
+  have hb : barField G ((bgZero G N).lineAt E s).Ψ (0 : G.Ω 1 × Fin N → ℂ) = 0 := by
+    rw [barField_line (bgZero G N) E hE s]
+    exact barField_zero _ (fun x _ => rfl)
+  unfold actionC
+  rw [hb, blockAvg_zero]
+  simp [BgData.lineAt, bgZero, hEh]
+
+/-- The block term of the quadratic form at the field `0`: `A(tE, 0) = t² A(E, 0)`. -/
+theorem actionC_zero_line_scale (t : ℂ) :
+    actionC G a ν ((bgZero G N).lineAt E t) 0 = t ^ 2 * actionC G a ν ((bgZero G N).lineAt E 1) 0 := by
+  have key := actionC_zero_line_eq (a := a) (ν := ν) E hE hEh
   rw [key t, key 1]
   simp only [Finset.mul_sum]
   refine Finset.sum_congr rfl fun x _ => ?_
@@ -182,12 +182,15 @@ omit hE hEh in
 /-- **The response data at the constant configuration**: the difference quotient of the background
 field converges to `φ̇ = (H⁻¹ − Π) Ṡ`, and `⟨φ̇, H φ̇⟩ = ⟨φ̇, Ṡ⟩`. -/
 theorem const_response (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) :
-    ∃ φd : G.Ω 1 × Fin N → ℂ,
+    ∃ (φd : G.Ω 1 × Fin N → ℂ) (αd : G.Ω 1 → ℂ),
       φd = (liftOp N (dirichletOperator G a ν 0)⁻¹ -
           constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E ∧
       Tendsto (fun t : ℂ => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
         ((constUnitBg G e).lineAt E t) - constUnitPhi G e)) (𝓝[≠] 0) (𝓝 φd) ∧
-      pair G φd (liftOp N (dirichletOperator G a ν 0) *ᵥ φd) = pair G φd (source G a ν E) := by
+      pair G φd (liftOp N (dirichletOperator G a ν 0) *ᵥ φd) = pair G φd (source G a ν E) ∧
+      liftOp N (dirichletOperator G a ν 0) *ᵥ φd + fieldMul (constVec G e) *ᵥ αd =
+        source G a ν E ∧
+      (fieldMul (constVec G e))ᵀ *ᵥ φd = 0 := by
   classical
   set D₀ := constUnitBg G e with hD₀
   have hD := constUnitBg_inUnionDomainC (G := G) (a := a) H he
@@ -237,7 +240,7 @@ theorem const_response (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he : ∑ i
     have := (hasDerivAt_iff_tendsto_slope_zero.1 h1')
     refine this.congr fun t => ?_
     simp only [hu, zero_add, BgData.lineAt_zero, hf0, sub_self, sub_zero]
-  exact ⟨φd, hφ, hlim, hH0⟩
+  exact ⟨φd, αd, hφ, hlim, hH0, E1, E2⟩
 
 /-- **The second variation of the variational function at the constant configuration.**
 For `D₀ = (e, e)`, `|e| = 1`, and a real tangent datum `E` vanishing off `Ω₁` with `h̃ = 0`, the value
@@ -252,7 +255,7 @@ theorem value_quadratic_limit (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ} (he 
           constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E)
           (source G a ν E))) := by
   classical
-  obtain ⟨φd, hφ, hlim, hH0⟩ := const_response E H he
+  obtain ⟨φd, -, hφ, hlim, hH0, -⟩ := const_response E H he
   set D₀ := constUnitBg G e with hD₀
   have hf0 : bgFieldC G a ν (bgC0 d L N) D₀ = constUnitPhi G e := bgFieldC_constUnitBg H he
   set u : ℂ → G.Ω 1 × Fin N → ℂ := fun t => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
@@ -310,7 +313,7 @@ theorem value_quadratic_limit_mass (H : BgHyp d L k ϱ a ν) {e : Fin N → ℝ}
           ((liftOp N (dirichletOperator G a ν 0)⁻¹ -
           constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E))) := by
   classical
-  obtain ⟨φd, hφ, hlim, -⟩ := const_response E H he
+  obtain ⟨φd, -, hφ, hlim, -⟩ := const_response E H he
   have main := value_quadratic_limit E hE hEh H he
   set u : ℂ → G.Ω 1 × Fin N → ℂ := fun t => t⁻¹ • (bgFieldC G a ν (bgC0 d L N)
     ((constUnitBg G e).lineAt E t) - constUnitPhi G e) with hu
