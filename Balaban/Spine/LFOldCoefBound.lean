@@ -88,7 +88,8 @@ theorem analyticAt_oldTermLF {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
 /-- **The bound of the coefficient of an old boundary term on its local pair** (P6 (4.33)–(4.34) at
 one coefficient; reading HS-1′): for an old label `X` of the record (with (D7) `hrec`), a family `J`
 of cover cubes, a target field of the H7 domain of scale `k + 1` at a set `Y_f` containing `X` and the
-data sites of the local pair, and a fluctuation field `|ψ̂| < r_ψ`,
+data sites of the local pair, and a fluctuation field with `|ψ̂_b| < r_ψ` at the unit points `b` of
+the local pair,
 `|T(X, J)| ≤ fac · e^{-rate · d^cov(X)} · e^{-(κ₁ - 1)|J_V|}`, `J_V` the cubes of the local cover with
 the labels of `J`; from the standing conditions of Theorems I-4b and I-4c for the local pair and the
 two named inputs of OPEN-H7-MIXED for the local pair. -/
@@ -125,7 +126,8 @@ theorem norm_oldCoefLoc_le_of_inputs {m₀ : ℕ} {Fr : FineSizeFrame S n M K m�
     (hV : ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
       (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
     {ψhat : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ}
-    (hψhat : ∀ b, vn (ψhat b) < rψ) :
+    (hψloc : ∀ b : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)).U, vn (restrictU _ _ _ _ _ _ _ ψhat b) < rψ) :
     ‖oldCoefLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r' rep A X
         (extK q') hv gx J ψhat‖ ≤
       fac * Real.exp (-rate * d7Size Fr A k X) *
@@ -146,9 +148,6 @@ theorem norm_oldCoefLoc_le_of_inputs {m₀ : ℕ} {Fr : FineSizeFrame S n M K m�
         (fun b => absurd b.2 (Finset.notMem_empty _)) ψo = ψo := fun ψo => by
     funext b i
     simp [HoleStep.fill]
-  have hψloc : ∀ b : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
-      (locSetXJ g hM1 A.H r r' X J)).U, vn (restrictU _ _ _ _ _ _ _ ψhat b) < rψ :=
-    fun b => hψhat _
   refine norm_oldCoefLoc_le g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r'
     rep A X (extK q') hv gx J ψhat hκ₁ ?_ ?_
   · refine (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
