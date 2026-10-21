@@ -762,11 +762,22 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
     fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
   - `H7MixedDatumLoc` — the datum of the local pair lies in Ψ̃^c(G′_V; δ_b, δ_b) (patching the per-cube decompositions of
     RegC into one real slowly varying field on V; size: medium);
-  - Proposition 3.3 on a region (the localized exponent of the measure of the step, `InterpMarksOn` minus the marks):
-    still to be stated.
-  Next: the marks (the coefficients as functions of the cube variables of the measure, with the bound above), Proposition
-  3.3 on a region as a named input, `oldB` as `BTerms` (grouped by output label, with the assignments of
-  `Spine/LFBdryOldAssign`) and its (D7) clauses, and the bound P6 (4.34) at one output label.
+  - **Proposition 3.3 on a region** (FLUCTUATION Prop. 3.3; P5 (3.2), P6 (4.32)) — the interaction package
+    `I : Fluctuation.LocInteraction` (data: labels `Lab` of the cubes of Ω, activities `A(u)`, the constants of
+    Theorem 3.4 with one mark, `Fluctuation/MarkCluster`) on the block structure `HoleStep.prodSplit` of the measure
+    of the step: its core at one field is `HoleStep.Prop33On` (`Spine/LFOldCluster`: `A(u)` holomorphic on an open
+    𝒰 ⊃ [0,1] and `W(s) = ∑_y H_y(s)` ν-a.e. for the exponent `expWLF`); the named Prop over the fields adds the
+    field properties of `H_y` (locality in the fields near the label's site, analyticity on the H7 domain, real,
+    rot, euclid, loc_hist) and is stated with (g2)(iii)-c, where the family of packages over the fields of `oldB`
+    is fixed. Size: large (the region analogue of `Fluctuation/Prop33*`, with the old terms of the exponent).
+  Landed for (g2)(iii)-a (W1154 piece 5i–5j): `Fluctuation/MarkCluster` (`markTerm`, `markTerm_spec`: the cluster
+  term `∫₀¹ G*(V, S) du` of one mark with the mark's site added as a label of zero activity; `LocInteraction`,
+  `markTerm_spec_of_norm_le`); `Spine/LFOldCluster` (`markSite`, `isPiPrimeUnion_markSite`, `GoodJ`,
+  `unitRep_mem_of_mem_locUnits`, `oldMarkLF_depOn_markSite`, `oldClusterLF`, **`oldClusterLF_spec`: the bound
+  `C_PE fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|} e^{(κ_H-κ₀) 𝗱(V)} e^{-κ' d_Ω(T)}` and the support of the cluster term
+  of the mark of (X, J)**, conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc`; the package enters only through its
+  constants). Next: (g2)(iii)-b (frame bridge, output labels), (g2)(iii)-c (`oldB` as `BTerms`, the named Prop 3.3
+  on a region over the fields, the bound at one output label).
 
 ## LastIntegralInput sub-inputs (W1108)
 
