@@ -2,6 +2,7 @@ module
 
 public import Balaban.Background.Theorem73
 public import Balaban.Fluctuation.CriticalPointGauss
+public import Balaban.Background.RestrictSvec
 public import Balaban.SmallField.Def6Terms
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -196,18 +197,25 @@ theorem top_blk {z : Torus d (N₀ * L ^ K)} (hz : z ∈ G'.Ω (n + 1)) {y : Tor
     (hy : y ∈ G'.blk (n + 1) z) : y ∈ G'.Ω (n + 1) :=
   (G'.blockUnion (n + 1) (by omega) P.hp y z (GeneratingSet.mem_blk.1 hy)).2 hz
 
-/-- The extensions of a field on `Ω'₁` and of its restriction to `Ω₁` agree. -/
+/-- The extensions of a field on `Ω'₁` and of its restriction to `Ω₁` agree (`Precedes.svec_restrictφ`
+on `Ω₁`, both vanish off it). -/
 theorem svec_restrictφ (φ' : G'.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
     svec G (P.hpre.restrictφ φ') y i = svec G' φ' y i := by
   by_cases hy : y ∈ G.Ω 1
-  · have hy' : y ∈ G'.Ω 1 := P.Ω_one ▸ hy
-    rw [show svec G (P.hpre.restrictφ φ') y i = (P.hpre.restrictφ φ') (⟨y, hy⟩, i) from
-      svec_of_mem G _ ⟨y, hy⟩ i, show svec G' φ' y i = φ' (⟨y, hy'⟩, i) from
-      svec_of_mem G' _ ⟨y, hy'⟩ i]
-    rfl
-  · have hy' : y ∉ G'.Ω 1 := P.Ω_one ▸ hy
-    rw [svec_of_not_mem G _ hy, svec_of_not_mem G' _ hy']
+  · exact P.hpre.svec_restrictφ φ' hy i
+  · rw [svec_of_not_mem G _ hy, svec_of_not_mem G' _ (P.Ω_one ▸ hy)]
 
+/-- The barred fields of a datum of `G` and of a datum of `G'` equal to it off the new region agree,
+at a field on `Ω'₁` and its restriction (`barField_eq_ite_svec`). -/
+theorem barField_restrictφ (D : BgData G N) (D' : BgData G' N)
+    (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) (φ' : G'.Ω 1 × Fin N → ℂ)
+    (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
+    barField G D.Ψ (P.hpre.restrictφ φ') y i = barField G' D'.Ψ φ' y i := by
+  rw [barField_eq_ite_svec, barField_eq_ite_svec, P.svec_restrictφ, P.Ω_one]
+  by_cases hy : y ∈ G.Ω 1
+  · simp only [hy, ↓reduceIte]
+  · simp only [hy, ↓reduceIte]
+    exact congrFun (hΨ y fun h => hy (P.top_subset h)) i
 
 /-- **The key identity for a region pair** (core of `coupling_add_action`; P5 (2.21) on the new region
 `R = Ω'_{n+1}`): for data `D` of `G` and `D'` of `G'` with the same `h̃` and equal off `R`,
@@ -225,15 +233,7 @@ theorem coupling_add_action_on {a₁ ν : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁)
     (fun z hz y hy => P.top_blk hz hy) D'.Ψ D.Ψ (svec G' φ')
   have hsv := P.svec_restrictφ φ'
   -- the barred fields agree
-  have hbar : ∀ y i, barField G D.Ψ (P.hpre.restrictφ φ') y i = barField G' D'.Ψ φ' y i := by
-    intro y i
-    by_cases hy : y ∈ G.Ω 1
-    · have hy' : y ∈ G'.Ω 1 := P.Ω_one ▸ hy
-      simp only [barField, hy, hy', ↓reduceDIte]
-      rfl
-    · have hy' : y ∉ G'.Ω 1 := P.Ω_one ▸ hy
-      simp only [barField, hy, hy', ↓reduceDIte]
-      exact congrFun (hΨ y fun h => hy (hRsub h)) i
+  have hbar := P.barField_restrictφ D D' hΨ φ'
   -- the block averages agree off the new region
   have havg : ∀ x i, x ∈ G.Ω 1 → x ∉ R →
       blockAvg G (P.hpre.restrictφ φ') x i = blockAvg G' φ' x i := by
