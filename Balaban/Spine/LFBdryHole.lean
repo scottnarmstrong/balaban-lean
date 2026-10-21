@@ -15,6 +15,7 @@ public import Balaban.Localization.TreeLengthDiam
 public import Balaban.LargeField.R.CoarseFineComponents
 public import Balaban.LargeField.R.RRawHoleComponent
 public import Balaban.LargeField.R.RGasCoreConn
+public import Balaban.LargeField.Region.StepMisses
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -727,14 +728,6 @@ theorem RegionHistory.compl_omegaPost_subset_Z (H : RegionHistory S n R k0 K) (k
   exact ⟨H.compl_OmegaCube_subset_Zpre k fun h => hx (Or.inl h), fun h => hx (Or.inr h)⟩
 
 variable {M m₀ m₁ : ℕ} [NeZero S.L] [NeZero M]
-
-/-- **The new region misses the large-field region of the previous scale, cube form** (P5 (2.3):
-the opening of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): the
-coarse cube of a cube of `Z_k` is not in `Ω_{k+1}`. -/
-theorem _root_.Balaban.LargeField.RegionStep.blockMap_notMem_Omega {d L n0 n1 : ℕ} [NeZero n0] [NeZero n1]
-    {Rprev Rk : ℝ} (st : RegionStep d L n0 n1 Rprev Rk) {u : Torus d n0} (hu : u ∈ st.Z) :
-    blockMap L n1 u ∉ st.Omega := fun h =>
-  st.Uprime_subset_compl ⟨u, subset_nbhd _ _ hu, rfl⟩ (st.Omega_subset_OmegaPrime h)
 
 /-- **The new region misses the large-field region of the previous scale** (P5 (2.3): the opening
 of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): a fine site whose cube

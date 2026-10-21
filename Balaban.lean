@@ -525,6 +525,7 @@ public import Balaban.LargeField.Counter.LF2
 public import Balaban.LargeField.Region.Hull
 public import Balaban.LargeField.Region.Step
 public import Balaban.LargeField.Region.Inclusions
+public import Balaban.LargeField.Region.StepMisses
 public import Balaban.LargeField.Region.Seeds
 public import Balaban.LargeField.Region.Locality
 public import Balaban.LargeField.Region.Generating
@@ -1316,6 +1317,7 @@ public import Balaban.Inhabited.V2EnergySource
 public import Balaban.Inhabited.V2EnergyD1
 public import Balaban.Fluctuation.StepObjects
 public import Balaban.Fluctuation.HoleStep
+public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
 public import Balaban.Fluctuation.StepIdentityInhabited
