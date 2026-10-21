@@ -1241,6 +1241,25 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        **`lastHistInt_eq_regional_of_integrable`**.
      Open (A64-DESIGN §2): `𝕋′` and (IV.4.1); the history factorization; the couplings and their bounds on B2's operator-gas core;
      the regional analysis on B1's local-pair whitening (B-1″); `LastStepTies` (separate side input); `CutSfDomInput`, `LFH7SupportInput`.
+   * **B3 (A6-4, the gluing of separated steps without a common witness; 2026-10-21).** The history factorization needs the steps of
+     histories of different components glued; the landed `glue_step` asks for a common witness at every point (one step of which all
+     members within `L + 2⌊R_k⌋ + 6` are restrictions), which members of different histories do not have, and `ω_{k+1} ≥ 2⌊R_k⌋ + L + 11`
+     allows two members within that radius of one point. **Not an obstruction:** every set read by the set functions near a point lies,
+     with a neighbourhood of its reading radius minus at most `L`, in the `Z^pre` of its member (Lemma I.3.5 margins), so two members
+     are never read at one point once `2L < ω` (`ω_j ≥ 9L + 51` under (RH)). Landed (no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/StepGlueMain.lean`: core **`glue_step_of_identities`** (the gluing from the four union identities and `3 < ω`); the
+       landed `glue_step` is its instance at the witness identities (statement unchanged, body a call of the core).
+     * `Spine/FinalLFGlue.lean`: the margins `nbhd_Uprime_subset_Zpre`, `nbhd_P_subset_Zpre`, `FDD_subset_Zpre`, `nbhd_Q_subset_Zpre`,
+       `nbhd_R_subset_Zpre`, `nbhd_OmegaDD_compl_subset_Zpre`, `nbhd_S_subset_Zpre`; `false_of_sep`; the empty data
+       (`PreStep.biUnion_empty_OmegaPrime`, `_Omega`, `_OmegaDD`, `_Z0`), `PreStep.biUnion_singleton`; the four identities
+       `compl_OmegaPrime_biUnion_of_sep`, `compl_Omega_biUnion_of_sep`, `compl_OmegaDD_biUnion_of_sep`, `eq_Z0_biUnion_of_sep`; and
+       **`glue_step_of_sep`** (`SepFam ω F Z^pre`, `2L < ω`, `2 ≤ L`: the union of the data is a step with `Z^{(0)}`, `Z^pre` the unions and
+       restrictions the members).
+     * `Spine/FinalLFLocalPair.lean` (reading B-1″, for B1): `minLayer_anti`, `genSF_top_subset`, `genSF_univ_Ω`,
+       **`genSF_inter_eq_univ_inter`** and **`Def7.SFCtx.genW_inter_eq`** (`genW Y ∩ B = genW univ ∩ B` for a generating set `B` whose
+       layers `m ≤ k` lie in the top layer of `genW Y = 𝔹_k(W₂(Y))`).
+     Next: the history-level factorization (induction over the scales with `glue_step_of_sep`, the labels, the representative in the
+     complete set), then `𝕋′` and (IV.4.1).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
