@@ -142,6 +142,23 @@ theorem u_spec (H : StepAff S S' A) (y : S.U) (x : CTorus d L N₁ m₁ (k + 1))
       unitBlock x = (y : UnitTorus d L N₁ m₁ k) :=
   (DetDecCov.exists_unitAct_pair H.latSymm' H.unitBlockPres).choose_spec y x
 
+theorem unitBlock_aff (A : AffIso d ((N₁ * L ^ m₁) * L ^ (k + 1))) (hA : A.Aligned (L ^ k))
+    (x : CTorus d L N₁ m₁ (k + 1)) :
+    unitBlock (A.toFun x) =
+      (A.coarse (L ^ k) ((N₁ * L ^ m₁) * L ^ (k + 1 - k))).toFun (unitBlock x) := by
+  have hpos : 0 < L ^ k := by have := NeZero.pos L; positivity
+  exact A.blockMap_toFun unitBlock_side hpos hA x
+
+/-- The bijection of the unit points is the coarsening of the isometry. -/
+theorem u_val (H : StepAff S S' A) (y : S.U) :
+    ((H.u y : S'.U) : UnitTorus d L N₁ m₁ k) =
+      (A.coarse (L ^ k) ((N₁ * L ^ m₁) * L ^ (k + 1 - k))).toFun (y : UnitTorus d L N₁ m₁ k) := by
+  obtain ⟨x, hx⟩ := unitBlock_surj (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k)
+    (y : UnitTorus d L N₁ m₁ k)
+  have h := (H.u_spec y x).2 hx
+  rw [← hx, ← unitBlock_aff A (H.aligned_pow (by omega)) x]
+  exact h.symm
+
 /-- **The covariance root of the step is transported**: the entries of `C^{1/2}(s)` of `S'` at the
 images of the unit points are those of `S`. -/
 theorem covSqrtAt_entry (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (coverOf S.G')}
