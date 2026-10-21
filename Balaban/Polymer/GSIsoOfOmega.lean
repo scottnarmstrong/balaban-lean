@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.BgFieldTransport
+public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.TwoTorusCubeOps
 
 /-!
@@ -214,5 +215,61 @@ theorem gsIso_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
       simp only [← ha, ← hb, hcol _ hpa, hcol _ hpb, ← (hD _ hpa).1, ← (hD _ hpb).1]
     rw [e1, ← hD0.1, ← hD0.2]
     simp only [hsum]
+
+
+/-- **`GSCorr` from the correspondence of the domains.** -/
+theorem gsCorr_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+    {H : GeneratingSet d L (N₁' * L ^ m₁) K ϱ'} {ρ : ℕ} (hK : 1 ≤ K)
+    (hn : 2 * (ρ + 1 + L ^ K) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ + 1 + L ^ K) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hGbox : ∀ x ∈ G.Ω 1, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    (hHbox : ∀ x ∈ H.Ω 1, InBox d ρ ((N₁' * L ^ m₁) * L ^ K) x)
+    (hΩ : ∀ x, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x → ∀ n, 1 ≤ n → n ≤ K →
+      (bm x ∈ H.Ω n ↔ x ∈ G.Ω n)) :
+    GSCorr G H bm {z | InBox d ρ ((N₁ * L ^ m₁) * L ^ K) z} := by
+  classical
+  have hK1 : 1 ≤ L ^ K := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hΩ1 : ∀ x, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x → (bm x ∈ H.Ω 1 ↔ x ∈ G.Ω 1) :=
+    fun x hx => hΩ x hx 1 le_rfl hK
+  have hlay : ∀ x, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x → ∀ n, 1 ≤ n → n ≤ K →
+      (bm x ∈ H.layer n ↔ x ∈ G.layer n) := fun x hx n h1 h2 =>
+    layer_corr_of_omega (fun m hm hmK => hΩ x hx m hm hmK) h1 h2
+  refine ⟨fun z hz => hΩ1 z (inBox_mono (Nat.le_succ ρ) hz), fun z hz => ?_, fun z hz => ?_⟩
+  · exact collar_corr_of_omega (by omega) (by omega) hGbox hHbox hΩ1 (inBox_mono (Nat.le_succ ρ) hz)
+  · have hz1 : InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) z := inBox_mono (Nat.le_succ ρ) hz
+    refine ⟨fun h => (hΩ1 z hz1).2 h, fun h => ?_, fun h => ?_, fun h => ?_⟩
+    · obtain ⟨h1, h2, h3⟩ := G.layerIndex_spec h
+      exact H.layerIndex_eq h1 h2 ((hlay z hz1 _ h1 h2).2 h3)
+    · obtain ⟨h1, h2, -⟩ := G.layerIndex_spec h
+      have hbox : ∀ x ∈ box (cbase (L ^ G.layerIndex z) z) (L ^ G.layerIndex z),
+          InBox d (ρ + L ^ G.layerIndex z) ((N₁ * L ^ m₁) * L ^ K) x :=
+        fun x hx => inBox_of_mem_cell (a := L ^ G.layerIndex z) (by
+          have := Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) h2
+          omega) hz hx
+      have hb := blk_image (r := ρ + L ^ G.layerIndex z) (j := G.layerIndex z)
+        (levelGS (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := K) (ϱ := 0) 1 hK)
+        (levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := K) (ϱ := 0) 1 hK) h2
+        (by
+          have := Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) h2
+          omega) z hbox
+      apply Finset.coe_injective
+      rw [Finset.coe_image]
+      exact hb
+    · obtain ⟨h1, h2, -⟩ := G.layerIndex_spec h
+      have hbox : ∀ x ∈ box (cbase (L ^ G.layerIndex z) z) (L ^ G.layerIndex z),
+          InBox d (ρ + L ^ G.layerIndex z) ((N₁ * L ^ m₁) * L ^ K) x :=
+        fun x hx => inBox_of_mem_cell (a := L ^ G.layerIndex z) (by
+          have := Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) h2
+          omega) hz hx
+      intro a ha b hb hab
+      have hbl : ∀ x ∈ G.blk (G.layerIndex z) z,
+          InBox d (ρ + L ^ G.layerIndex z) ((N₁ * L ^ m₁) * L ^ K) x := by
+        intro x hx
+        refine hbox x ?_
+        rw [← jBlock_eq_iff_mem_box h2]
+        exact GeneratingSet.mem_blk.1 hx
+      have := Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) h2
+      exact boxMap_inj (hm' := (by omega : 2 * (ρ + L ^ G.layerIndex z) + 1 <
+        (N₁' * L ^ m₁) * L ^ K)) (hbl a ha) (hbl b hb) hab
 
 end Balaban.Polymer.TwoTorusStep

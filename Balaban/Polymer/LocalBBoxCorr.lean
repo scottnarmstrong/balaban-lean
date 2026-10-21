@@ -517,4 +517,28 @@ theorem gsIso_localB {j : ℕ} (hj : j ≤ k) (hK : 1 ≤ k) {X : Set (CTorus d 
       have : ρ0 + 1 + 6 * j * L ^ (j + m₁) = ρ0 + 6 * j * L ^ (j + m₁) + 1 := by ring
       rwa [this])
 
+
+/-- **`GSCorr` for the local generating sets of corresponding polymers.** -/
+theorem gsCorr_localB {j : ℕ} (hj : j ≤ k) (hK : 1 ≤ k) {X : Set (CTorus d L N₁ m₁ k)}
+    {X' : Set (CTorus d L N₁' m₁ k)} {hsep : ϱ ≤ minSep L (L ^ m₁)} {hsep' : ϱ' ≤ minSep L (L ^ m₁)}
+    {ρ0 : ℕ} (hX : ∀ x ∈ X, InBox d ρ0 ((N₁ * L ^ m₁) * L ^ k) x) (hXX : X' = bm '' X)
+    (hmA : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m₁) + (5 * L + 2) * (L ^ n * L ^ m₁)) <
+      N₁ * L ^ m₁ * L ^ k)
+    (hmB : ∀ n ≤ j, 2 * (ρ0 + 1 + 6 * j * L ^ (j + m₁) + (5 * L + 2) * (L ^ n * L ^ m₁)) <
+      N₁' * L ^ m₁ * L ^ k)
+    (hn : 2 * (ρ0 + 6 * j * L ^ (j + m₁) + 1 + L ^ k) + 3 * L ^ k + 5 < (N₁ * L ^ m₁) * L ^ k)
+    (hn' : 2 * (ρ0 + 6 * j * L ^ (j + m₁) + 1 + L ^ k) + 3 * L ^ k + 5 < (N₁' * L ^ m₁) * L ^ k) :
+    GSCorr (localB j hj X hsep) (localB j hj X' hsep') bm
+      {z | InBox d (ρ0 + 6 * j * L ^ (j + m₁)) ((N₁ * L ^ m₁) * L ^ k) z} := by
+  obtain ⟨h1, h2, -⟩ := localB_omega_boxMap_all hj hX hXX
+    (fun n hn => by have := hmA n hn; omega) (fun n hn => by have := hmB n hn; omega)
+    (hsep := hsep) (hsep' := hsep')
+  obtain ⟨-, -, h3⟩ := localB_omega_boxMap_all hj (ρ0 := ρ0 + 1)
+    (fun x hx => inBox_mono (Nat.le_succ ρ0) (hX x hx)) hXX hmA hmB (hsep := hsep) (hsep' := hsep')
+  exact gsCorr_of_omega hK hn hn' (fun x hx => h1 1 x hx) (fun x hx => h2 1 x hx)
+    (fun x hx n _ _ => by
+      refine h3 x ?_ n
+      have : ρ0 + 1 + 6 * j * L ^ (j + m₁) = ρ0 + 6 * j * L ^ (j + m₁) + 1 := by ring
+      rwa [this])
+
 end Balaban.Polymer.TwoTorusStep
