@@ -73,11 +73,27 @@ end Abstract
 
 section Box
 
-variable {d : ℕ} {P q ℓ m' : ℕ} [NeZero ℓ] [NeZero q]
+variable {d : ℕ} {P q ℓ m' : ℕ} [NeZero ℓ] [NeZero q] {cc : Fin d → ℤ}
+
+/-- A set of cubes of side `P` all of whose sites have their box lift in the set `B` of lifts. -/
+def GBoxB (B : (Fin d → ℤ) → Prop) (P q ℓ : ℕ) (cc : Fin d → ℤ) [NeZero ℓ]
+    (A : Finset (Torus d q)) : Prop :=
+  ∀ y ∈ A, ∀ x : Torus d ℓ, blockMap P q x = y → B (liftNear cc x)
 
 /-- A set of cubes of side `P` whose sites all lie in the box. -/
-def GBox (P q ℓ m' : ℕ) (cc : Fin d → ℤ) [NeZero ℓ] (A : Finset (Torus d q)) : Prop :=
-  ∀ y ∈ A, ∀ x : Torus d ℓ, blockMap P q x = y → InBox ℓ m' cc (liftNear cc x)
+abbrev GBox (P q ℓ m' : ℕ) (cc : Fin d → ℤ) [NeZero ℓ] (A : Finset (Torus d q)) : Prop :=
+  GBoxB (InBox ℓ m' cc) P q ℓ cc A
+
+/-- A set of cubes of side `P` whose sites all lie in the box with the margin `K`. -/
+abbrev GBoxK (K P q ℓ m' : ℕ) (cc : Fin d → ℤ) [NeZero ℓ] (A : Finset (Torus d q)) : Prop :=
+  GBoxB (InBoxK K ℓ m' cc) P q ℓ cc A
+
+theorem GBoxK.toGBox {K P q ℓ m' : ℕ} [NeZero ℓ] {A : Finset (Torus d q)}
+    (h : GBoxK K P q ℓ m' cc A) : GBox P q ℓ m' cc A := fun y hy x hx => (h y hy x hx).inBox
+
+theorem GBoxK.mono {K K' P q ℓ m' : ℕ} [NeZero ℓ] {A : Finset (Torus d q)}
+    (h : GBoxK K P q ℓ m' cc A) (hK : K' ≤ K) : GBoxK K' P q ℓ m' cc A :=
+  fun y hy x hx => (h y hy x hx).mono hK
 
 theorem bidx_mul (hP : 0 < P) (u : Fin d → ℤ) : bidx P (fun μ => (P : ℤ) * u μ) = u := by
   funext μ
@@ -85,9 +101,10 @@ theorem bidx_mul (hP : 0 < P) (u : Fin d → ℤ) : bidx P (fun μ => (P : ℤ) 
   simp [bidx, Int.mul_ediv_cancel_left _ this]
 
 /-- The corner `P u` of a cube of a set in the box lies in the box. -/
-theorem GBox.lo (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d → ℤ} {A : Finset (Torus d q)}
-    (hA : GBox P q ℓ m' cc A) {y : Torus d q} (hy : y ∈ A) :
-    InBox ℓ m' cc (fun μ => (P : ℤ) * clift P cc y μ) := by
+theorem GBoxB.lo {B : (Fin d → ℤ) → Prop} (hB : ∀ w, B w → ∀ μ, 4 * |w μ - cc μ| < (ℓ : ℤ))
+    (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {A : Finset (Torus d q)}
+    (hA : GBoxB B P q ℓ cc A) {y : Torus d q} (hy : y ∈ A) :
+    B (fun μ => (P : ℤ) * clift P cc y μ) := by
   set u := clift P cc y with hu
   set x := zcast ℓ (fun μ => (P : ℤ) * u μ) with hx
   have hbm : blockMap P q x = y := by
@@ -98,7 +115,7 @@ theorem GBox.lo (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d →
   set w := liftNear cc x with hw
   have hcl : clift P cc y = bidx P w := by
     rw [← hbm]
-    exact clift_blockMap hP hℓ hq cc (fun μ => (hb μ).1)
+    exact clift_blockMap hP hℓ hq cc (fun μ => hB _ hb μ)
   have hdvd : ∀ μ, (ℓ : ℤ) ∣ w μ - (P : ℤ) * u μ := by
     have h1 : zcast ℓ w = x := zcast_liftNear x
     exact (zcast_eq_iff ℓ w _).1 h1
@@ -122,9 +139,10 @@ theorem GBox.lo (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d →
   rw [this]; exact hb
 
 /-- The opposite corner `P u + (P - 1)` of a cube of a set in the box lies in the box. -/
-theorem GBox.hi (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d → ℤ} {A : Finset (Torus d q)}
-    (hA : GBox P q ℓ m' cc A) {y : Torus d q} (hy : y ∈ A) :
-    InBox ℓ m' cc (fun μ => (P : ℤ) * clift P cc y μ + ((P : ℤ) - 1)) := by
+theorem GBoxB.hi {B : (Fin d → ℤ) → Prop} (hB : ∀ w, B w → ∀ μ, 4 * |w μ - cc μ| < (ℓ : ℤ))
+    (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {A : Finset (Torus d q)}
+    (hA : GBoxB B P q ℓ cc A) {y : Torus d q} (hy : y ∈ A) :
+    B (fun μ => (P : ℤ) * clift P cc y μ + ((P : ℤ) - 1)) := by
   set u := clift P cc y with hu
   set v : Fin d → ℤ := fun μ => (P : ℤ) * u μ + ((P : ℤ) - 1) with hv
   set x := zcast ℓ v with hx
@@ -143,7 +161,7 @@ theorem GBox.hi (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d →
   set w := liftNear cc x with hw
   have hcl : clift P cc y = bidx P w := by
     rw [← hbm]
-    exact clift_blockMap hP hℓ hq cc (fun μ => (hb μ).1)
+    exact clift_blockMap hP hℓ hq cc (fun μ => hB _ hb μ)
   have hdvd : ∀ μ, (ℓ : ℤ) ∣ w μ - v μ := by
     have h1 : zcast ℓ w = x := zcast_liftNear x
     exact (zcast_eq_iff ℓ w _).1 h1
@@ -166,26 +184,72 @@ theorem GBox.hi (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d →
   have : v = w := funext fun μ => (hmod μ).symm
   rw [this]; exact hb
 
+/-- **The core of the distance bound for the lifts of two cubes of a set in the box.**  If the
+corners of the cubes with lifts `u`, `u'` satisfy `2 |w - w'| + e < ℓ` then
+`2 (u - u' + 1) P + e < P q + 2` (for `u' ≤ u`). -/
+theorem GBoxB.pair_core {B : (Fin d → ℤ) → Prop} (hB : ∀ w, B w → ∀ μ, 4 * |w μ - cc μ| < (ℓ : ℤ))
+    (hP : 0 < P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {A : Finset (Torus d q)}
+    (hA : GBoxB B P q ℓ cc A) {e : ℤ}
+    (hBB : ∀ w w', B w → B w' → ∀ μ, 2 * |w μ - w' μ| + e < (ℓ : ℤ)) {y y' : Torus d q}
+    (hy : y ∈ A) (hy' : y' ∈ A) (μ : Fin d) (hge : clift P cc y μ - clift P cc y' μ ≥ 0) :
+    2 * (clift P cc y μ - clift P cc y' μ + 1) * P + e < (P : ℤ) * q + 2 := by
+  have h1 := GBoxB.hi hB hP hℓ hq hA hy
+  have h2 := GBoxB.lo hB hP hℓ hq hA hy'
+  have h3 := hBB _ _ h1 h2 μ
+  set D := clift P cc y μ - clift P cc y' μ with hD
+  have hℓz : (ℓ : ℤ) = (P : ℤ) * q := by rw [hℓ]; push_cast; ring
+  have ee : ((P : ℤ) * clift P cc y μ + ((P : ℤ) - 1)) - (P : ℤ) * clift P cc y' μ =
+      (P : ℤ) * D + ((P : ℤ) - 1) := by rw [hD]; ring
+  rw [ee, hℓz] at h3
+  have hPz : (0 : ℤ) < P := by exact_mod_cast hP
+  rw [abs_of_nonneg (by nlinarith)] at h3
+  nlinarith
+
 /-- **Two cubes of a set in the box have lifted indices at distance `≤ (q - 2)/2`.** -/
-theorem GBox.pair (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d → ℤ}
+theorem GBox.pair (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) 
     {A : Finset (Torus d q)} (hA : GBox P q ℓ m' cc A) {y y' : Torus d q} (hy : y ∈ A)
     (hy' : y' ∈ A) (μ : Fin d) : 2 * |clift P cc y μ - clift P cc y' μ| + 2 ≤ (q : ℤ) := by
   have hP0 : 0 < P := by omega
+  have hPz : (2 : ℤ) ≤ P := by exact_mod_cast hP
+  have hB : ∀ w, InBox ℓ m' cc w → ∀ μ, 4 * |w μ - cc μ| < (ℓ : ℤ) := fun w hw μ => (hw μ).1
+  have hBB : ∀ w w', InBox ℓ m' cc w → InBox ℓ m' cc w' → ∀ μ, 2 * |w μ - w' μ| + 0 < (ℓ : ℤ) :=
+    fun w w' hw hw' μ => by have := (two_abs_sub_lt hw hw' μ).1; omega
   have key : ∀ {y y' : Torus d q}, y ∈ A → y' ∈ A → clift P cc y μ - clift P cc y' μ ≥ 0 →
       2 * (clift P cc y μ - clift P cc y' μ) + 2 ≤ (q : ℤ) := by
     intro y y' hy hy' hge
-    have h1 := (GBox.hi hP0 hℓ hq hA hy)
-    have h2 := (GBox.lo hP0 hℓ hq hA hy')
-    have h3 := (two_abs_sub_lt h1 h2 μ).1
-    set D := clift P cc y μ - clift P cc y' μ with hD
-    have hPz : (2 : ℤ) ≤ P := by exact_mod_cast hP
-    have hℓz : (ℓ : ℤ) = (P : ℤ) * q := by rw [hℓ]; push_cast; ring
-    have e : ((P : ℤ) * clift P cc y μ + ((P : ℤ) - 1)) - (P : ℤ) * clift P cc y' μ =
-        (P : ℤ) * D + ((P : ℤ) - 1) := by rw [hD]; ring
-    rw [e, hℓz] at h3
-    rw [abs_of_nonneg (by nlinarith)] at h3
+    have := GBoxB.pair_core hB hP0 hℓ hq hA hBB hy hy' μ hge
     by_contra hc
-    have : (q : ℤ) + 1 ≤ 2 * D + 2 := by omega
+    have : (q : ℤ) + 1 ≤ 2 * (clift P cc y μ - clift P cc y' μ) + 2 := by omega
+    nlinarith
+  rcases le_total 0 (clift P cc y μ - clift P cc y' μ) with h | h
+  · rw [abs_of_nonneg h]; exact key hy hy' h
+  · rw [abs_of_nonpos h]
+    have := key hy' hy (by linarith)
+    linarith
+
+/-- **With a margin `P`: the lifted indices of two cubes are at distance `≤ (q - 6)/2`.** -/
+theorem GBoxK.pair (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) 
+    {A : Finset (Torus d q)} (hA : GBoxK P P q ℓ m' cc A) {y y' : Torus d q} (hy : y ∈ A)
+    (hy' : y' ∈ A) (μ : Fin d) : 2 * |clift P cc y μ - clift P cc y' μ| + 6 ≤ (q : ℤ) := by
+  have hP0 : 0 < P := by omega
+  have hPz : (2 : ℤ) ≤ P := by exact_mod_cast hP
+  have hB : ∀ w, InBoxK P ℓ m' cc w → ∀ μ, 4 * |w μ - cc μ| < (ℓ : ℤ) :=
+    fun w hw μ => by have := (hw μ).1; have := abs_nonneg (w μ - cc μ); nlinarith
+  have hBB : ∀ w w', InBoxK P ℓ m' cc w → InBoxK P ℓ m' cc w' → ∀ μ,
+      2 * |w μ - w' μ| + 4 * P < (ℓ : ℤ) := by
+    intro w w' hw hw' μ
+    have h1 := (hw μ).1
+    have h2 := (hw' μ).1
+    have h3 : |w μ - w' μ| ≤ |w μ - cc μ| + |w' μ - cc μ| := by
+      have := abs_sub_le (w μ) (cc μ) (w' μ)
+      simpa [abs_sub_comm] using this
+    nlinarith
+  have key : ∀ {y y' : Torus d q}, y ∈ A → y' ∈ A → clift P cc y μ - clift P cc y' μ ≥ 0 →
+      2 * (clift P cc y μ - clift P cc y' μ) + 6 ≤ (q : ℤ) := by
+    intro y y' hy hy' hge
+    have := GBoxB.pair_core hB hP0 hℓ hq hA hBB hy hy' μ hge
+    by_contra hc
+    have : (q : ℤ) + 1 ≤ 2 * (clift P cc y μ - clift P cc y' μ) + 6 := by omega
     nlinarith
   rcases le_total 0 (clift P cc y μ - clift P cc y' μ) with h | h
   · rw [abs_of_nonneg h]; exact key hy hy' h
@@ -194,7 +258,7 @@ theorem GBox.pair (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d
     linarith
 
 /-- On a set of cubes in the box, the index distance is the distance of the lifts. -/
-theorem GBox.supDist_lt (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) {cc : Fin d → ℤ}
+theorem GBox.supDist_lt (hP : 2 ≤ P) (hℓ : ℓ = P * q) (hq : 4 ≤ q) 
     {A : Finset (Torus d q)} (hA : GBox P q ℓ m' cc A) {y y' : Torus d q} (hy : y ∈ A)
     (hy' : y' ∈ A) {ω : ℕ} (hω : 0 < ω) :
     supDist y y' < ω ↔ ∀ μ, |clift P cc y μ - clift P cc y' μ| < ω := by
