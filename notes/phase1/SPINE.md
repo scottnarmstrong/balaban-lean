@@ -1479,3 +1479,19 @@ Landed: `OldTermPair` (premises structure), `TwoTorusEvOldGen`, `NewLevelTermPai
 Premises are typing/geometry data (labels, bijections `ψ`, `κ`, `e`, margins, `GSCorr/GSIso`,
 the D8 box form of the old terms).  What remains for the full A4-1f agreement: discharge those
 premises for the actual systems (label/mark bijections on `Lab1`, from the class), and the map Φ.
+
+### Obstruction to `newLevel_coeff_twoTorus_of_class` (W1148r, 2026-10-21)
+
+The index bijection `e : NS.O.ι ≃ NS'.O.ι` (and so every premise of `H_twoTorus_of_pairs`,
+`G₁_twoTorus_of_pairs`, `coeff_twoTorus`) cannot be produced from class membership.  The inherited levels
+of a `NewLevelSystem` are existential data: `OldTermSystem.ι` is an arbitrary finite type, and the only
+constraints are `hEJ` (`∑ τ, Eτ τ = Jr.EJ C`, a constraint on the sum) and `OldTermsAreIrrel`
+(`Eτ τ = irrelTorus … (y τ) (X τ)`, with `y`, `X` arbitrary).  Neither says which pairs `(y, X)` occur or
+that `τ ↦ (y τ, X τ)` is injective and onto the admissible pairs, so two systems on the two tori need not
+correspond (duplicate, cancelling or missing terms give the same sum).  The same holds for the pinned
+fields `Gk`, `Gj`, `F₁L`, ... (existential beyond their pins; the pin uniqueness of `NewLevelPinUnique`
+only compares fields with the same index).
+Smallest repair: strengthen `OldTermsAreIrrel` with the canonical index clause
+`τ ↦ (jL τ, y τ, X τ)` is a bijection of `ι` onto the set of admissible irrelevant pairs of the class
+(determined by the class geometry); then `e` is `boxMap` on pairs on the quarter box, and the remaining
+premises are the D8 box form of `irrelTorus C.Tm` plus the landed `gsCorr_localB`/`gsIso_localB`.
