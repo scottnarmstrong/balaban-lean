@@ -94,7 +94,7 @@ theorem lf4R_removed
     (hCR0 : S.CR ≤ S.A2 * S.lam k ^ (S.p2 - (2 * S.d + 1)))
     (hrip : ∀ z, ∀ a ∈ Hs z, 2 * S.A2 * S.lam k ^ S.p2 + 1 ≤
       P.budgetG S k (κpre z a) (a.logC k) (cz z).1.card)
-    (hwin : ∀ z, ∀ a ∈ Hs z, KerBound a k (Tr a) (κpre z a - S.CR * S.lam k ^ (2 * S.d + 1)))
+    (hwin : ∀ z, ∀ a ∈ Hs z, KerBoundAt a k (Tr a) hv (κpre z a - S.CR * S.lam k ^ (2 * S.d + 1)))
     (hh : fac * Real.exp fac * Real.exp (κ' * cG S.d S.L) *
         (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1)) +
       κ' * (1 + cG S.d S.L) + c1 S.d S.L + 3 +
