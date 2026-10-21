@@ -63,17 +63,23 @@ structure BaseRaw (d N : ℕ) (T : Typing) (C7 : Consts7) (ϱ β ν : ℝ) (kf :
   /-- the scale-indexed vacuum flow `E_j` (rulings R5, R5′) -/
   Ev : ℕ → ℝ
 
-/-- The family of representations of the first step: the canonical histories on every torus. -/
-noncomputable def BaseRaw.fam {d N : ℕ} {T : Typing} {C7 : Consts7} {ϱ β ν : ℝ} {kf : ℕ}
-    {aKer : ℝ} [NeZero T.L] [NeZero T.M] (Γ : BaseRaw d N T C7 ϱ β ν kf aKer) :
+/-- The family of representations of the first step: the canonical histories on every torus, complete
+up to the scale `1` with the `R`-records below `r` (`r = 1` before `R`, `r = 2` in the frozen class). -/
+noncomputable def BaseRaw.famR {d N : ℕ} {T : Typing} {C7 : Consts7} {ϱ β ν : ℝ} {kf : ℕ}
+    {aKer : ℝ} [NeZero T.L] [NeZero T.M] (Γ : BaseRaw d N T C7 ϱ β ν kf aKer) (r : ℕ) :
     RepFam 𝒮[d, T, β, aKer] Γ.R (kZero d T.L β ν) (kf + 1) T.M N Γ.geo Γ.cs Γ.P 1 C7.m₁ ϱ where
   sf := Γ.sf
   lf := fun nK _ =>
-    { hist := canonHist 𝒮[d, T, β, aKer] (sides T.L (kf + 1) nK) Γ.R (kZero d T.L β ν) (kf + 1) 1 1
+    { hist := canonHist 𝒮[d, T, β, aKer] (sides T.L (kf + 1) nK) Γ.R (kZero d T.L β ν) (kf + 1) 1 r
       κK := Γ.κK nK
       SD := Γ.SD nK
       KD := Γ.KD nK
       B := Γ.B nK }
+
+/-- The family of the pre-`R` class (`r = 1`). -/
+noncomputable abbrev BaseRaw.fam {d N : ℕ} {T : Typing} {C7 : Consts7} {ϱ β ν : ℝ} {kf : ℕ}
+    {aKer : ℝ} [NeZero T.L] [NeZero T.M] (Γ : BaseRaw d N T C7 ϱ β ν kf aKer) :=
+  Γ.famR 1
 
 section Inputs
 
@@ -87,8 +93,9 @@ abbrev BaseMap :=
     [NeZero (T κ c₉).M], BaseRaw d N (T κ c₉) (C7 κ c₉) (ϱ κ c₉) β ν kf (cs₀ κ c₉).aKer
 
 /-- **The form of the parts of the first step**: a property `Q` of the first-step record, for
-`β ≥ β₀(κ, c₉)`, `0 < ν ≤ 7/8 L⁻²`, every unit field and the horizon `kf`, in regime (A). -/
-def BaseImageInput (Γ : BaseMap d N T C7 cs₀ ϱ)
+`β ≥ β₀(κ, c₉)`, `0 < ν ≤ 7/8 L⁻²`, every unit field and the horizon `kf`, in the regime `Reg k₀`
+(`1 ≤ k₀` for (A), `k₀ = 0` for (B)). -/
+def BaseImageInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ)
     (Q : ∀ (κ c₉ β ν : ℝ) (_ : EuclideanSpace ℝ (Fin N)) (kf : ℕ) [NeZero (T κ c₉).L]
       [NeZero (T κ c₉).M], BaseRaw d N (T κ c₉) (C7 κ c₉) (ϱ κ c₉) β ν kf (cs₀ κ c₉).aKer →
         Prop) : Prop :=
@@ -96,13 +103,13 @@ def BaseImageInput (Γ : BaseMap d N T C7 cs₀ ϱ)
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
   ∀ h : EuclideanSpace ℝ (Fin N), ‖h‖ = 1 → ∀ kf : ℕ, IsHorizon (T κ c₉).L ν kf →
   ∀ [NeZero (T κ c₉).L] [NeZero (T κ c₉).M],
-  1 ≤ kZero d (T κ c₉).L β ν → Q κ c₉ β ν h kf (Γ κ c₉ β ν h kf)
+  Reg (kZero d (T κ c₉).L β ν) → Q κ c₉ β ν h kf (Γ κ c₉ β ν h kf)
 
 /-- **A3-1 (a), (g): the small-field data of the first step.** (D2) with the allowance `preFac`,
 (D8), (D9), the free flow of `a_1`, `β_0 = β`, `ν_0 = ν`, (I.2) at the scale `0`, `z₁ > 0` equal to
 `z_1`. Open: Proposition II.7.9 (the first fluctuation integral). -/
-def BaseSFInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ β ν _ _ _ _ Γ =>
+def BaseSFInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν _ _ _ _ Γ =>
     D2SF2 (P6 κ c₉) (kZero d (T κ c₉).L β ν) Γ.sf (preFac ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)) ∧
     D8SF (P6 κ c₉).m₀ Γ.sf ∧ D9Coeff (P6 κ c₉) (kZero d (T κ c₉).L β ν) Γ.sf ∧
     (∀ j, 1 ≤ j → j ≤ 1 → Γ.sf.a j = compWeight (T κ c₉).L (cs₀ κ c₉).aKer j) ∧
@@ -112,8 +119,8 @@ def BaseSFInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
 
 /-- **The constants of the first step**: the ties to the outer constants, the coherence `Coh` and
 the field clauses. -/
-def BaseConstsInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ β ν h _ _ _ Γ =>
+def BaseConstsInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν h _ _ _ Γ =>
     (∀ (nK : ℕ) [NeZero nK], (Γ.geo nK).M1 = M1 κ c₉ ∧ (Γ.geo nK).c = c κ c₉) ∧
     Γ.cs.aKer = (cs₀ κ c₉).aKer ∧ Γ.cs.Cpsi = (cs₀ κ c₉).Cpsi ∧ Γ.cs.Cb = (cs₀ κ c₉).Cb ∧
     Γ.cs.aw = (cs₀ κ c₉).aw ∧ Γ.P.c1 = (PB κ c₉).c1 ∧ Γ.P.c2 = (PB κ c₉).c2 ∧
@@ -124,8 +131,8 @@ def BaseConstsInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
 
 /-- **A3-1 (b): the step kernels of the first step are the base kernels.** On every torus there is a
 physical carrier whose base kernel `K_0` is the kernel of the step data at the scale `0`. -/
-def BaseKernelInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ β ν _ kf _ _ Γ =>
+def BaseKernelInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν _ kf _ _ Γ =>
     ∀ (nK : ℕ) [NeZero nK],
       ∃ inp : BaseSmallFieldInput (T κ c₉).M (kf + 1) (kZero d (T κ c₉).L β ν) (Γ.geo nK) Γ.cs N,
         ∀ (H : RegionHistory _ (sides (T κ c₉).L (kf + 1) nK) Γ.R (kZero d (T κ c₉).L β ν) (kf + 1))
@@ -136,28 +143,28 @@ def BaseKernelInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
 /-- **The vacuum flow of the first step** (R5, R5′; P4 (2.1), (2.41), (2.63)): the flow `E_j`,
 `j ≤ 1`, obeys `|E_j| ≤ C_b (log β_j + 1)` and the vacuum constants of the step data of every torus
 are those of the flow (`StepData.VacuumTie`). -/
-def BaseVacuumInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ _ _ _ _ _ _ Γ =>
+def BaseVacuumInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ _ _ _ _ _ _ Γ =>
     VacuumFlowTo (cs₀ κ c₉).Cb Γ.Ev Γ.sf.β 1 ∧
     ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, (Γ.SD nK).VacuumTie Set.univ Γ.Ev dpp dppp
 
 /-- **A3-1 (h): the coefficient data of the first step** (P1 (3.106)–(3.110), P5 (1.8)): the
 source-form terms `St` and the limits `vc` (`D1CorrLim`). -/
-def BaseCorrInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ _ _ h _ _ _ Γ =>
+def BaseCorrInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ _ _ h _ _ _ Γ =>
     D1CorrLim (P6 κ c₉).m₀ Γ.sf Γ.St h Γ.vc
 
 /-- **A3-1 (c): the transform relation.** On every torus the density of the first step is the sum
 over the histories of the pre-`R` terms (`D1PreForm2`). -/
-def BaseFormInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ β ν h kf _ _ Γ =>
+def BaseFormInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν h kf _ _ Γ =>
     ∀ (hM6 : (T κ c₉).M = (T κ c₉).L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)) (nK : ℕ) [NeZero nK],
       D1PreForm2 (Γ.fam.ctx hM6 (by omega) nK) Γ.vc (Γ.fam.lf nK) h
         (firstDensity d N (T κ c₉) β (cs₀ κ c₉).aKer Γ.z₁ ν h kf nK)
 
 /-- **A3-1 (a): the boundary terms `ℬ^{(1)}`** of rate `3κ/2` and constant `B_st` (D7). -/
-def BaseBdryInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun κ c₉ β _ h kf _ _ Γ =>
+def BaseBdryInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β _ h kf _ _ Γ =>
     ∀ (hM6 : (T κ c₉).M = (T κ c₉).L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)) (nK : ℕ) [NeZero nK],
       D7Bdry2 (fineFrame 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK)
           (kf + 1) hM6) (sides_hnn (T κ c₉).L (kf + 1) nK) (by omega) (Γ.fam.lf nK)
@@ -166,13 +173,13 @@ def BaseBdryInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
         (3 / 2 * (P6 κ c₉).κ) h (rH κ c₉)
 
 /-- **A3-1 (b): the operator bound at the scale `1`** ((D5) of the first step). -/
-def BaseOpBoundInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun _ _ _ _ _ _ _ _ Γ =>
-    ∀ (nK : ℕ) [NeZero nK], D5Bound 1 (by omega) (Γ.fam.lf nK)
+def BaseOpBoundInput (r : ℕ) (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun _ _ _ _ _ _ _ _ Γ =>
+    ∀ (nK : ℕ) [NeZero nK], D5Bound r (by omega) ((Γ.famR r).lf nK)
 
 /-- **A3-1 (f): the torus coherence (D8)** of the large-field half of the first step. -/
-def BaseCoherenceInput (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
-  BaseImageInput d N T C7 cs₀ ϱ Γ fun _ _ _ _ _ _ _ _ Γ => LFCoherent Γ.fam
+def BaseCoherenceInput (r : ℕ) (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun _ _ _ _ _ _ _ _ Γ => LFCoherent (Γ.famR r)
 
 end Inputs
 
@@ -188,11 +195,11 @@ the first-step map `Γ` and the parts: the record of `PreClassAt` is assembled w
 `1 ≤ j < 1`), the budget (H6′)^pre (LF-2 (i) on the budget setup of (I.2) up to the scale `1`, from
 (H.6) at `1` by the coefficient step and the facts of the prefix), the zero vacuum flow. -/
 theorem basePreStepInput_of_parts {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
-    (Γ : BaseMap d N T C7 cs₀ ϱ) (hS : BaseSFInput d N T P6 C7 cs₀ ϱ Γ)
-    (hC : BaseConstsInput d N T P6 C7 PB cs₀ M1 c ϱ Γ)
-    (hCo : BaseCorrInput d N T P6 C7 cs₀ ϱ Γ) (hF : BaseFormInput d N T P6 C7 cs₀ ϱ Γ)
-    (hB : BaseBdryInput d N T P6 C7 cs₀ rH ϱ Γ) (hO : BaseOpBoundInput d N T C7 cs₀ ϱ Γ)
-    (hCh : BaseCoherenceInput d N T C7 cs₀ ϱ Γ) (hV : BaseVacuumInput d N T C7 cs₀ ϱ Γ) :
+    (Γ : BaseMap d N T C7 cs₀ ϱ) (hS : BaseSFInput d N T P6 C7 cs₀ ϱ (fun k => 1 ≤ k) Γ)
+    (hC : BaseConstsInput d N T P6 C7 PB cs₀ M1 c ϱ (fun k => 1 ≤ k) Γ)
+    (hCo : BaseCorrInput d N T P6 C7 cs₀ ϱ (fun k => 1 ≤ k) Γ) (hF : BaseFormInput d N T P6 C7 cs₀ ϱ (fun k => 1 ≤ k) Γ)
+    (hB : BaseBdryInput d N T P6 C7 cs₀ rH ϱ (fun k => 1 ≤ k) Γ) (hO : BaseOpBoundInput d N T C7 cs₀ ϱ 1 (fun k => 1 ≤ k) Γ)
+    (hCh : BaseCoherenceInput d N T C7 cs₀ ϱ 1 (fun k => 1 ≤ k) Γ) (hV : BaseVacuumInput d N T C7 cs₀ ϱ (fun k => 1 ≤ k) Γ) :
     BasePreStepInput d N T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
   obtain ⟨b₁, h₁⟩ := hS κ hκ c₉ hc₉
