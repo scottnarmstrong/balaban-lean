@@ -2165,6 +2165,7 @@ public import Balaban.LargeField.Base.BaseTwoTorusGreen
 public import Balaban.LargeField.Base.BaseTwoTorusCov
 public import Balaban.LargeField.Base.BaseTwoTorusRows
 public import Balaban.LargeField.Base.BaseTwoTorusBackground
+public import Balaban.LargeField.Base.BaseXLogShiftOps
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
