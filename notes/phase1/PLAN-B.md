@@ -401,3 +401,27 @@ approved declaration.
   the cube set `G_k(□)` at the composed field with the background of the local pair, and room conditions on `r_ψ`, `R`
   and the tolerances (the named input has none, so it is a schematic statement to be proved under them).
   `H7MixedDatumLoc2` waits for R14.
+- **The (D7) clauses of the old part at an output label (W1154c, item (5)).** `Spine/LFOldBD7.lean`, generic in the
+  readings (`glob`, `σ`) and in the interaction: an interaction family `LocIntFam` (labels and constants of Theorem 3.4
+  fixed, activities over a parameter, `Fluctuation/MarkClusterFam`) so that the clauses comparing two values of the
+  fields compare one cluster expansion. PROVED: `support` (`oldBAtAt_eq_zero_of_not_valid`), `loc_field`
+  (`oldBAtAt_congr_fields`, from the record's clause through `oldCoefLocAt_congr_fields`), `real` (`oldBAtAt_im`), `rot`
+  (`oldBAtAt_rot`), `analytic` (`oldBAtAt_analyticOnNhd`); `bound` is `norm_oldBAtAt_le_of_dom` / `norm_oldB2_le`. Their
+  hypotheses are properties of the interaction family (locality, reality, covariance, analyticity in `(fields, u)`) and of
+  the coefficients on the balls of the marks (`oldCoefLocAt_im`, `oldCoefLocAt_rot`, analyticity of the marks in the
+  fields). Infrastructure: `Gst_conj`, `markTerm_conj` (`Fluctuation/MarkClusterReal`), `Gst_equiv`, `markTerm_equiv`,
+  `HoleStep.markOf_rot` (`Fluctuation/MarkClusterEquiv`), `markTerm_analyticOnNhd` (`Fluctuation/MarkClusterAnalytic`).
+  Open: `euclid` and `loc_hist` (transports between the cluster expansions of two regions, `Gst_transport`).
+  **Findings for the identity (4).** (i) *The external field.* `oldBOf` ignores the argument `h` of the boundary terms and
+  uses the fixed `h₀`, `hv`; the clause `rot` of (D7) rotates `h` with the fields but not `hv`, so for the step's terms the
+  old part must read `h`: proposal, `h₀ := Re h`, `hv := Re h` (equal to the physical field on `hSetB hv = {hv}`; `rot` by
+  `oldCoefLocAt_rot` since `Re (R h) = R (Re h)`; `real`, `loc_field` unchanged). (ii) *The histories.* The old part at a
+  history `𝔸′` of the successor reads the record's terms at its representative `pre 𝔸′ ∈ rep.hist` (`Agree k k`), not at
+  `𝔸′`; `oldBAtAt` already takes the region `H = 𝔸′.H` and the record history separately. (iii) *The families.* For the
+  clauses the unit points, cubes and interaction family must not depend on the fields (`oldBOf` lets them depend on `ψ`).
+  **Scope of (3) and (2).** The interaction of the measure of P5 (3.2) is the localization of P6 (4.29) + (4.32): the old
+  terms (their re-expansion is the coefficient machinery above) and the action part (P6 Lemma 4.2, the Taylor remainders
+  of (4.29) with the `δ₀` terms (4.30)–(4.31)). The landed engine of Proposition 3.3 (`Interaction*`, `Prop33*`, `FlCore`)
+  is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
+  `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
+  level pairs and real fields. Both need the non-level (region) forms of these files.

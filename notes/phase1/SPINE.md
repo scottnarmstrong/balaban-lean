@@ -855,6 +855,11 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
   3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
   `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+  **Update (W1154c, item (5)).** `Spine/LFOldBD7.lean`: the clauses `support`, `loc_field`, `real`, `rot`, `analytic` of the
+  old part at an output label are PROVED generically (`oldBAtAt_eq_zero_of_not_valid`, `oldBAtAt_congr_fields`, `oldBAtAt_im`,
+  `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at
+  the balls of the marks); `euclid`, `loc_hist` open. Findings for the identity (external field `h`, predecessor
+  histories, field-independent families) and the scope of (3) and (2): PLAN-B, "The (D7) clauses of the old part".
 
 ## LastIntegralInput sub-inputs (W1108)
 
