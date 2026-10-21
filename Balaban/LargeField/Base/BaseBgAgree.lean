@@ -131,20 +131,22 @@ section Agree
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (ν : ℝ) (D' : BgData G N)
 
-/-- **The decoupled backgrounds and multipliers of the pair `(coverOf G, G)` at two vectors agree
-on the hull of a seed**, which contains the seed (P3 (4.47), Theorem I-4b (iv), compared with
+/-- **With two data agreeing on `approxDep`: the decoupled backgrounds and multipliers of the pair
+`(coverOf G, G)` at two vectors agree on the hull of a seed**, which contains the seed (P3 (4.47), Theorem I-4b (iv), compared with
 itself).  Let `v`, `v'` be vectors with `|v_P|, |v'_P| ≤ e^κ`, whose active centres are active for
 `smax`, with the same factors on the active closure of `smax` from the seed.  For a datum of
 Theorem I-4b whose seed hull has depth `2 L^{k+1}` inside `Ω₁`, the multipliers agree on the seed
 hull and the fields on its `L^{k+1}`-neighbourhood. -/
-theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+theorem decBg_agree_of_seedHull_data (D₁ D₂ : BgData G N) {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx)
     (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
     {v v' smax : Dec2.DecParams (coverOf G)}
     (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
     {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
-    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC G ν δ ε D')
+    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD₁ : InDomainC G ν δ ε D₁)
+    {δ₂ ε₂ : ℝ} (hδ0' : 0 < δ₂) (hδε' : δ₂ ≤ ε₂) (hε' : ε₂ ≤ bgC0 d L N) (hδ' : δ₂ ≤ c7 d L N BG κ)
+    (hνε' : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε₂ ^ 2 ≤ δ₂ ^ 2) (hD₂ : InDomainC G ν δ₂ ε₂ D₂)
     {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D)
     (seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1)))
     (hsup : ∀ q, ActC (coverOf G) (Dec2.extS _ v) q → ActC (coverOf G) (Dec2.extS _ smax) q)
@@ -153,16 +155,18 @@ theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx
       (coverOf G).sProd (Dec2.extS _ v) q = (coverOf G).sProd (Dec2.extS _ v') q)
     (hdeep : ∀ y ∈ seedHull (coverOf G) D (Dec2.extS _ v) seed,
       ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1),
-        supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1) :
+        supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1)
+    (hdat : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) D (Dec2.extS _ v) seed),
+      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, D₁.Ψ z = D₂.Ψ z ∧ D₁.h z = D₂.h z) :
     (∀ (x : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hx : x ∈ G.Ω 1),
         x ∈ seedHull (coverOf G) D (Dec2.extS _ v) seed →
-        Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v' D' ⟨x, hx⟩ =
-          Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v D' ⟨x, hx⟩) ∧
+        Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v' D₂ ⟨x, hx⟩ =
+          Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v D₁ ⟨x, hx⟩) ∧
       ∀ (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ G.Ω 1),
         y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) D (Dec2.extS _ v) seed) →
         ∀ i : Fin N,
-        Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v' D' (⟨y, hy⟩, i) =
-          Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v D' (⟨y, hy⟩, i) := by
+        Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v' D₂ (⟨y, hy⟩, i) =
+          Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v D₁ (⟨y, hy⟩, i) := by
   classical
   set Th := seedHull (coverOf G) D (Dec2.extS _ v) seed with hTh
   have hTT' : seedHull (coverOf G) D (Dec2.extS _ v') seed = Th := by
@@ -217,8 +221,45 @@ theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx
     have hsub' : SubI G (intBox q) (seedHull (coverOf G) D (Dec2.extS _ v') seed) := by
       rw [hTT']; exact hsub
     exact ⟨hq, by rw [hcomp q (mem_actComp_of_inner_seed hD2 hsup' hqC hsub' hbase hne)]; exact hne⟩
-  exact decBg_agree_core G a ν D' hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD'
-    (subset_nbhdSup _ _) hdich hdich' hrow hrow' hin hin' hres
+  exact decBg_agree_core_data G a ν D₁ D₂ hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD₁ hδ0' hδε' hε' hδ' hνε'
+    hD₂ (subset_nbhdSup _ _) hdich hdich' hrow hrow' hin hin' hres hdat
+
+
+/-- **The decoupled backgrounds and multipliers of the pair `(coverOf G, G)` at two vectors agree
+on the hull of a seed**, which contains the seed (P3 (4.47), Theorem I-4b (iv), compared with
+itself).  Let `v`, `v'` be vectors with `|v_P|, |v'_P| ≤ e^κ`, whose active centres are active for
+`smax`, with the same factors on the active closure of `smax` from the seed.  For a datum of
+Theorem I-4b whose seed hull has depth `2 L^{k+1}` inside `Ω₁`, the multipliers agree on the seed
+hull and the fields on its `L^{k+1}`-neighbourhood. -/
+theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx)
+    (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v v' smax : Dec2.DecParams (coverOf G)}
+    (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC G ν δ ε D')
+    {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D)
+    (seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1)))
+    (hsup : ∀ q, ActC (coverOf G) (Dec2.extS _ v) q → ActC (coverOf G) (Dec2.extS _ smax) q)
+    (hsup' : ∀ q, ActC (coverOf G) (Dec2.extS _ v') q → ActC (coverOf G) (Dec2.extS _ smax) q)
+    (hcomp : ∀ q ∈ actComp (coverOf G) D (Dec2.extS _ smax) seed,
+      (coverOf G).sProd (Dec2.extS _ v) q = (coverOf G).sProd (Dec2.extS _ v') q)
+    (hdeep : ∀ y ∈ seedHull (coverOf G) D (Dec2.extS _ v) seed,
+      ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1),
+        supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1) :
+    (∀ (x : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hx : x ∈ G.Ω 1),
+        x ∈ seedHull (coverOf G) D (Dec2.extS _ v) seed →
+        Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v' D' ⟨x, hx⟩ =
+          Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v D' ⟨x, hx⟩) ∧
+      ∀ (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ G.Ω 1),
+        y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) D (Dec2.extS _ v) seed) →
+        ∀ i : Fin N,
+        Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v' D' (⟨y, hy⟩, i) =
+          Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v D' (⟨y, hy⟩, i) := by
+  exact decBg_agree_of_seedHull_data G a ν D' D' hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hδ0 hδε hε hδ hνε
+    hD' hDD seed hsup hsup' hcomp hdeep (fun _ _ _ _ _ => ⟨rfl, rfl⟩)
+
 
 end Agree
 
