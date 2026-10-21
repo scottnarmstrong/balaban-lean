@@ -38,7 +38,7 @@ adjacency and sends the block of `y` of its layer into the block of `t(x)` of ev
 `l_G(x) ≤ l ≤ q` (`hblk`).  For a site `x` of the chart (`In`: `t(x) ∈ Ω₁(G_c)`, the datum `D` at `x` is
 `f(x)` times the datum of the test at `t(x)`, the layer of `t(x)` is at least that of `x` and within one of
 `q`), the split `Φ = Ψ ∘ t`, `Φ' = Ψ' ∘ t` gives at `x`: layer constancy, the value `D(x) = f(x)(Φ + Φ')`,
-(R2), (C2a), (C2b) at tolerance `ε`, (R3) with `2ε²` for every mass `ν ≤ μ_c` (the mass of the test), and,
+(R2), (C2a), (C2b) at tolerance `ε`, (R3) with `2τε²` for every mass `ν ≤ τ μ_c` (`μ_c` the mass of the test),
 at every interface partner `x'` of `x` in the chart, the interface conditions (R1), (C1) and the conditions
 of `x'` for the split of `x`. -/
 theorem chartSplit_spec (D : BgData G N) (f : Torus d (N₀ * L ^ k) → ℝ) (h₀ : Fin N → ℝ)
@@ -63,8 +63,8 @@ theorem chartSplit_spec (D : BgData G N) (f : Torus d (N₀ * L ^ k) → ℝ) (h
     |∑ i, Φ x i ^ 2 - 1| < ε ∧
     vn (Φ' x) < ε + ε ∧
     ‖∑ i, ((Φ x i : ℂ) + Φ' x i) * ((Φ x i : ℂ) + Φ' x i) - ∑ i, (Φ x i : ℂ) * (Φ x i : ℂ)‖ < ε ∧
-    (∀ ν : ℝ, 0 ≤ ν → ν ≤ μc →
-      ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |1 - (∑ i, Φ x i * h₀ i) / rn (Φ x)| < 2 * ε ^ 2) ∧
+    (∀ ν τ : ℝ, 0 ≤ ν → 0 < τ → ν ≤ τ * μc →
+      ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |1 - (∑ i, Φ x i * h₀ i) / rn (Φ x)| < 2 * τ * ε ^ 2) ∧
     (∀ x', IsInterfacePair G x x' → In x' →
       rn (fun i => Φ x i - Φ x' i) < ε ∧ vn (Φ' x - Φ' x') < ε ∧
       (∀ i, D.Ψ x' i = (f x' : ℂ) * ((Φ x' i : ℂ) + Φ' x' i)) ∧
@@ -81,7 +81,7 @@ theorem chartSplit_spec (D : BgData G N) (f : Torus d (N₀ * L ^ k) → ℝ) (h
     unfold blockSet; simp only [hs, ↓reduceIte]
   refine ⟨fun j hj1 hjk hxj x' hx' => ?_, fun i => by rw [hdat i, hΨ _ h2 i],
     (hP.r2 _ h2).trans_le hεc, by have := hP.c2a _ h2; linarith, (hP.c2b _ h2).trans_le hεc,
-    fun ν hν hνμ => ?_, fun x' hp hx' => ?_⟩
+    fun ν τ hν hτ hνμ => ?_, fun x' hp hx' => ?_⟩
   · -- layer constancy
     have hx1 : x ∈ G.Ω 1 := G.Ω_antitone le_rfl hj1 (by omega) (G.mem_layer.1 hxj).1
     have hjx : G.layerIndex x = j := G.layerIndex_eq hj1 hjk hxj
@@ -95,10 +95,17 @@ theorem chartSplit_spec (D : BgData G N) (f : Torus d (N₀ * L ^ k) → ℝ) (h
       have e2 := hh0 _ h1 i
       push_cast
       linear_combination e2 - e1
-    have h3 := r3_of_large_mass hν hνμ (Nat.one_le_iff_ne_zero.2 (NeZero.ne L)) hlG _ hr h₀ _ hh'
-      (hP.r3 _ h2) (hP.c3b _ h1)
+    have hντ : ν / τ ≤ μc := by rw [div_le_iff₀ hτ]; linarith
+    have h3 := r3_of_large_mass (div_nonneg hν hτ.le) hντ (Nat.one_le_iff_ne_zero.2 (NeZero.ne L)) hlG
+      _ hr h₀ _ hh' (hP.r3 _ h2) (hP.c3b _ h1)
     have : εc ^ 2 ≤ ε ^ 2 := pow_le_pow_left₀ hεc0.le hεc 2
-    linarith
+    have e : ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * |1 - (∑ i, Ψr (t x) i * h₀ i) / rn (Ψr (t x))| =
+        τ * (ν / τ * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+          |1 - (∑ i, Ψr (t x) i * h₀ i) / rn (Ψr (t x))|) := by
+      field_simp
+    rw [e]
+    have := mul_lt_mul_of_pos_left h3 hτ
+    nlinarith
   · -- the interface pairs
     obtain ⟨h1', hdat', hlG', hq'⟩ := hIn x' hx'
     have h2' : t x' ∈ dataSites Gc := (mem_dataSites _).2 (Or.inl h1')

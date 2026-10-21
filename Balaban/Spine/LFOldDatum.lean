@@ -54,7 +54,7 @@ Each data site `x` is read by the test of its chart: `Δ'^c_{k+1}(□)` (the pai
 `Ψ̃^c(ε_k, ε_k)`) at its cube `□_k` of `𝕋_k` otherwise; each test reads every interface partner of `x`.
 The splits patch (`inDomainC_of_patch_scaled`, `θ = z ψ_{k+1}` on `Ω_{k+1}`, `|z - 1| ≤ η`) into
 `Ψ̃^c(3δ₁ + 2ε_k, 3δ₁ + 2ε_k)`, `δ₁ = scaledTol ε_k ε_k η`, under condition (R4) for `h₀` and the mass
-condition `hmass` (small mass, or `ν ≤ μ_{k+1}`, `ν ≤ μ_k` with `2 ε_k² ≤ δ₁²`). -/
+condition `hmass` (small mass, or `ν ≤ τ μ_{k+1}`, `ν ≤ τ μ_k` with `2 τ ε_k² ≤ δ₁²`). -/
 theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
@@ -74,7 +74,8 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
     {η : ℝ} (hη : 0 ≤ η) (hz : |z - 1| ≤ η) (hε0 : 0 < ε (k + 1)) (hεk : ε (k + 1) ≤ ε k)
     (hR4 : ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * |∑ i, h₀ i ^ 2 - 1| < scaledTol (ε k) (ε k) η ^ 2)
     (hmass : (0 ≤ ν ∧ ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * (1 + rn h₀) < scaledTol (ε k) (ε k) η ^ 2) ∨
-      (0 ≤ ν ∧ ν ≤ μs (k + 1) ∧ ν ≤ μs k ∧ 2 * ε k ^ 2 ≤ scaledTol (ε k) (ε k) η ^ 2)) :
+      (∃ τ : ℝ, 0 < τ ∧ 0 ≤ ν ∧ ν ≤ τ * μs (k + 1) ∧ ν ≤ τ * μs k ∧
+        2 * τ * ε k ^ 2 ≤ scaledTol (ε k) (ε k) η ^ 2)) :
     InDomainC (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ν
       (3 * scaledTol (ε k) (ε k) η + 2 * ε k) (3 * scaledTol (ε k) (ε k) η + 2 * ε k)
       (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D' := by
@@ -201,7 +202,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
     if cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ (H.step k).Omega then z else 1
   -- **the case analysis**: the chart of a data site and the conditions its split gives
   have key : ∀ x ∈ dataSites G, ∃ (μc : ℝ) (In : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Prop),
-      (∀ ν' : ℝ, ν' ≤ μs (k + 1) → ν' ≤ μs k → ν' ≤ μc) ∧
+      (∀ ν' τ : ℝ, ν' ≤ τ * μs (k + 1) → ν' ≤ τ * μs k → ν' ≤ τ * μc) ∧
       (∀ x', IsInterfacePair G x x' → In x') ∧
       (∀ j, 1 ≤ j → j ≤ k + 1 → x ∈ G.layer j → ∀ x' ∈ G.blk j x,
         Ψc (ch x) x' = Ψc (ch x) x ∧ Ψc' (ch x) x' = Ψc' (ch x) x) ∧
@@ -210,8 +211,8 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
       vn (Ψc' (ch x) x) < ε k + ε k ∧
       ‖∑ i, ((Ψc (ch x) x i : ℂ) + Ψc' (ch x) x i) * ((Ψc (ch x) x i : ℂ) + Ψc' (ch x) x i) -
         ∑ i, (Ψc (ch x) x i : ℂ) * (Ψc (ch x) x i : ℂ)‖ < ε k ∧
-      (∀ ν' : ℝ, 0 ≤ ν' → ν' ≤ μc → ν' * ((S.L : ℝ) ^ G.layerIndex x) ^ 2 *
-        |1 - (∑ i, Ψc (ch x) x i * h₀ i) / rn (Ψc (ch x) x)| < 2 * ε k ^ 2) ∧
+      (∀ ν' τ : ℝ, 0 ≤ ν' → 0 < τ → ν' ≤ τ * μc → ν' * ((S.L : ℝ) ^ G.layerIndex x) ^ 2 *
+        |1 - (∑ i, Ψc (ch x) x i * h₀ i) / rn (Ψc (ch x) x)| < 2 * τ * ε k ^ 2) ∧
       (∀ x', IsInterfacePair G x x' → In x' →
         rn (fun i => Ψc (ch x) x i - Ψc (ch x) x' i) < ε k ∧ vn (Ψc' (ch x) x - Ψc' (ch x) x') < ε k ∧
         (∀ i, D'.Ψ x' i = (f x' : ℂ) * ((Ψc (ch x) x' i : ℂ) + Ψc' (ch x) x' i)) ∧
@@ -237,7 +238,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
       · -- the mixed test `Δ'^c_{k+1}(□)`
         have hPM : PM Y := hMt x hx hYC hN
         have hsp := hPM.choose_spec.choose_spec.choose_spec.choose_spec
-        refine ⟨μs (k + 1), In, fun _ h _ => h, hpIn, ?_⟩
+        refine ⟨μs (k + 1), In, fun _ _ h _ => h, hpIn, ?_⟩
         refine chartSplit_spec D' f h₀ hsp.1 le_rfl hsp.2.1
           hsp.2.2 (fun s hs i => by unfold mixedDataC; rw [liftMixed_h _ _ _ _ _ _ hs])
           (toCube g hM1) (fun _ _ h => adj_toCube g hM1 h) (hblk1 _) In ?_ _ _
@@ -267,7 +268,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
         have hPT : PT Y := hT x hx hYC
         have hsp := hPT.choose_spec.choose_spec.choose_spec.choose_spec
         have hn : ¬ (Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y) := fun h => hYC h.1
-        refine ⟨μs (k + 1), In, fun _ h _ => h, hpIn, ?_⟩
+        refine ⟨μs (k + 1), In, fun _ _ h _ => h, hpIn, ?_⟩
         refine chartSplit_spec D' f h₀ hsp.1 hεk hsp.2.1
           hsp.2.2 (fun s hs i => by rw [liftSingle_h _ _ _ hs])
           (toCube g hM1) (fun _ _ h => adj_toCube g hM1 h) (hblk1 _) In ?_ _ _
@@ -303,7 +304,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
         exact cubeKOfC_near_of_pair g hnn hM1 H hk hρ V hp.2.2.2
           ((layerIndex_locG'_le g hnn hM1 H hk hρ V x).2 hxΩ)
           ((layerIndex_locG'_le g hnn hM1 H hk hρ V x').2 hx'Ω)
-      refine ⟨μs k, In, fun _ _ h => h, hpIn, ?_⟩
+      refine ⟨μs k, In, fun _ _ _ h => h, hpIn, ?_⟩
       refine chartSplit_spec D' f h₀ hsp.1 le_rfl hsp.2.1
         hsp.2.2 (fun s hs i => by rw [liftSingle_h _ _ _ hs])
         (toCubeK g hnn hM1 hk) (fun _ _ h => adj_toCubeK g hnn hM1 hk h)
@@ -351,9 +352,9 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
   -- (R3), in the two mass regimes
   · intro x hx
     obtain ⟨μc, -, hμc, -, -, -, -, -, -, hr3, -⟩ := key x hx
-    rcases hmass with ⟨hν, hsmall⟩ | ⟨hν, hνμ, hνμk, h2ε⟩
+    rcases hmass with ⟨hν, hsmall⟩ | ⟨τ, hτ, hν, hνμ, hνμk, h2ε⟩
     · exact r3_of_small_mass hν hL1 (layerIndex_locG'_le g hnn hM1 H hk hρ V x).1 h₀ hsmall _
-    · exact (hr3 ν hν (hμc ν hνμ hνμk)).trans_le h2ε
+    · exact (hr3 ν τ hν hτ (hμc ν τ hνμ hνμk)).trans_le h2ε
   -- (C2a)
   · intro x hx
     obtain ⟨-, -, -, -, -, -, -, hc2a, -⟩ := key x hx
