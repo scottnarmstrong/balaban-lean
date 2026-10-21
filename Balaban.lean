@@ -2169,6 +2169,7 @@ public import Balaban.LargeField.Base.BaseXLogShiftOps
 public import Balaban.LargeField.Base.BaseXLogShiftCube
 public import Balaban.LargeField.Base.BaseXLogShift
 public import Balaban.LargeField.Base.BaseXLogShiftInt
+public import Balaban.LargeField.Base.BaseXLogShiftPhys
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
