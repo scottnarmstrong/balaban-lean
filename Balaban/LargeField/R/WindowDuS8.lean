@@ -673,11 +673,12 @@ omit hnamedCU
 
 variable (hbr : br = MassBranch.complete)
 variable (hunitOK : ∀ hv, hvOK hv → ‖hv‖ = 1)
-variable (hbν : ∀ m, m ≤ k0 → cs.beta m * (cs.muAct m * (S.L : ℝ) ^ (2 * m)) ≤ 1)
+variable {E : ℝ} (hE0 : 0 ≤ E)
+variable (hbν : ∀ m, m ≤ k0 → cs.beta m * (cs.muAct m * (S.L : ℝ) ^ (2 * m)) ≤ E)
 variable (hbeta0 : ∀ (i : Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
         ↥(H.parts (j.1 + 1) P.1))) m,
       (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 2 ≤ m →
-      m ≤ m' + 1 → 2 / ((S.L : ℝ) ^ 2 * (bgC1 S.d S.L N) ^ 2) < cs.beta m)
+      m ≤ m' + 1 → 2 * E / ((S.L : ℝ) ^ 2 * (bgC1 S.d S.L N) ^ 2) < cs.beta m)
 variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
         OutIdx (K := K) (M := M) R C.2.1 ⊕
           ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
@@ -810,7 +811,7 @@ variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) 
           (‖Cnat0 a₁ (windowOfHistory_precedes geo hm hW) ψ0 (0 : Fin N → ℝ) Du Zb β0 (varpi (m' + 1) cs.z) aN ψk‖ ≤ Cnat * S.lam (m' + 1) ^ (2 * S.d + 1))))
 
 
-include hbr hunitOK hbν hbeta0 hnamedCUD
+include hbr hunitOK hE0 hbν hbeta0 hnamedCUD
 
 /-- **`removedKernel_kerBound_of_hid_action_cl` without the domain clauses `hS` among the named inputs**, on the
 external fields `hv` with `hvOK hv` (unit fields, `hunitOK`): the named input `hnamedCUD` takes `WindowHS` (both
@@ -835,7 +836,7 @@ theorem removedKernel_kerBound_of_hid_action_cl_hS :
             exact Finset.notMem_empty _ hrem
           intro i m h1 h2
           exact mass_size_lt (Nat.one_le_iff_ne_zero.mpr (NeZero.ne S.L)) h1 (bgC1_pos_of (by omega))
-            (hμ m) (hbeta0 i m h1 h2) (hbν m (by omega)))))
+            (hμ m) (hbeta0 i m h1 h2) (hbν m (by omega)) hE0)))
 
 end Core
 
