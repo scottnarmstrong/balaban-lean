@@ -41,6 +41,15 @@ def LabelGap (Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁)
     (L : ℝ) ^ j ≤ ((L : ℝ) ^ j / (L : ℝ) ^ k) * (L : ℝ) ^ k ∧
     0 < ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧ ((L : ℝ) ^ j / (L : ℝ) ^ k) ≤ 1
 
+/-- **The scale gap from the top layer of the source** (`hat_gap_of_top`): `Gj` with no layer above
+`j`, `Gk` with no layer above `k`, the data sites of `Gj` in `Ω_k(Gk)`. -/
+theorem labelGap_of_top (hL : 3 ≤ L) (hk1 : 1 ≤ k) {j : ℕ} (hjk : j ≤ k)
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    (hGj : Gj.Ω (j + 1) = ∅) (hGk : Gk.Ω (k + 1) = ∅)
+    (htop : ∀ z ∈ dataSites Gj, z ∈ Gk.Ω k) : LabelGap Gk Gj j :=
+  hat_gap_of_top hL hk1 hjk hGj hGk htop
+
 /-- **The scale gap for the settings of ruling R13** (`hat_gap`): `Gj = 𝔹_j(X)` and
 `Gk = 𝔹_k(castNbhd Y)` (cast) with `X ⊆ Y`. -/
 theorem labelGap_of_hat {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
