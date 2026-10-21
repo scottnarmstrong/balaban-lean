@@ -24,6 +24,15 @@ open Balaban.Multiscale Balaban.Background Finset
 
 variable {d L N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ K ϱ}
 
+theorem piece_mass_card_leP (X : Region G) (Dc : StepDecomp X) (hwt1 : ∀ c, Dc.wt c = 1)
+    {β gk ν δk Cm Amax A : ℝ} (hCm0 : 0 ≤ Cm) (hAmax : A ≤ Amax)
+    (hcm : ∀ c, β * gk * ∑ _x ∈ (Dc.cube c).sites, |ν * δk| ≤ Cm * (A * Dc.wt c)) :
+    β * gk * |ν * δk| * (X.sites.card : ℝ) ≤ Cm * Amax * Dc.total := by
+  refine (Dc.card_budget (β := β * gk) (κ := Cm * Amax) (ν * δk) (fun c => ?_))
+  refine (hcm c).trans ?_
+  rw [hwt1 c, mul_one, mul_one]
+  exact mul_le_mul_of_nonneg_left hAmax hCm0
+
 theorem piece_mass_card_le (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j k : ℕ}
     (hjk : j + 1 ≤ k) (hwt1 : ∀ c, Dc.wt c = 1)
     (hcells : ∀ c, ∃ x ∈ X.sites, (Dc.cube c).sites = G.blk (G.layerIndex x) x ∧
@@ -46,10 +55,7 @@ theorem piece_mass_card_le (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j 
   have hA0 : 0 ≤ β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 := by
     have := lt_of_lt_of_le (Real.exp_pos _) hgj
     positivity
-  refine (Dc.card_budget (β := β * gk) (κ := Cm * Amax) (ν * δk) (fun c => ?_))
-  refine (hcm c).trans ?_
-  rw [hwt1 c, mul_one, mul_one]
-  exact mul_le_mul_of_nonneg_left hAmax hCm0
+  exact piece_mass_card_leP X Dc hwt1 hCm0 hAmax hcm
 
 section Split
 
