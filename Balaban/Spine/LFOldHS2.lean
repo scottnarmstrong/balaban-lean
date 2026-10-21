@@ -29,9 +29,9 @@ landed ones (reading HS-2) and restates the two named inputs of OPEN-H7-MIXED wi
 * D1, the set `Y_f`: `CubesOfIn` (the cubes of `𝕋_{k+1}` of the sites read lie in `Y_f`; for `Y_f`
   the fine set of a set of cubes this is the inclusion of the sites, `cubesOfIn_fineSet`),
   `subset_of_cubesOfIn`;
-* the restated named inputs `H7MixedInnerLoc2`, `H7MixedDatumLoc2` (open; the second is false at zero
-  sharp mass with the present cube domains, as `not_h7MixedDatumLoc` shows for its predecessor, and is
-  meant for the cube domains of the ruling request on their complex radius), and
+* the restated named inputs `H7MixedInnerLoc2`, `H7MixedDatumLoc2` (open; with the cube domains of
+  ruling request R14, `Ψ̃^c(ε, ε)`, which exclude the complex rotations that refuted the predecessor
+  of the second, `not_mem_deltaC_of_im`), and
   `h7Domain_composedMulti_loc2` (the analogue of `h7Domain_composedMulti_loc`).
 -/
 
@@ -297,8 +297,8 @@ def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
         DeltaC (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) aw (μs k) (ε k) h g.c (n k) y
 
 /-- **OPEN-H7-MIXED, the background part, for the local pair of reading HS-2** (restatement of
-`H7MixedDatumLoc` with the repairs D1, D3; **open**, false at zero sharp mass with the present cube
-domains, `not_h7MixedDatumLoc`, pending the ruling on their complex radius): for every set `V` and
+`H7MixedDatumLoc` with the repairs D1, D3; **open**; with the cube domains of ruling request R14,
+which exclude the complex rotations of size `≥ 2 ε`, `not_mem_deltaC_of_im`): for every set `V` and
 every field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of `𝕋_{k+1}` of the
 data sites of `G′_V`, the restricted global datum of the local pair (`holeStepLoc2`) lies in
 `Ψ̃^c(G′_V; δ_b, δ_b)`. -/
