@@ -862,17 +862,25 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
   3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
   `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+  **Update (W1154c, item (5)).** `Spine/LFOldBD7.lean`: the clauses `support`, `loc_field`, `real`, `rot`, `analytic` of the
+  old part at an output label are PROVED generically (`oldBAtAt_eq_zero_of_not_valid`, `oldBAtAt_congr_fields`, `oldBAtAt_im`,
+  `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at
+  the balls of the marks); `euclid`, `loc_hist` open. Findings for the identity (external field `h`, predecessor
+  histories, field-independent families) and the scope of (3) and (2): PLAN-B, "The (D7) clauses of the old part".
 
 ## LastIntegralInput sub-inputs (W1108)
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
-theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
+theorem lastIntegralInput_of_parts (cut : ℝ → ℝ → ℝ → ℝ)
+    (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
     (hA : InheritedAgreeInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
+    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut)
+    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut) :
     LastIntegralInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ
 ```
+(Since B2, reading B-1 of `PLAN-B.md`: the two halves split at the box `|w| ≤ p₁ = cut κ c₉ β_k` of the Gaussian variable; see
+items 3 and 4.)
 It follows LFR Thm IV.4.1 with Def. IV.5.2 and Thm IV.5.3. For a member `ρ` of `ℛ♭_k` at the stopping scale with a
 representation `F`, the activities are `p = q + 1_{j=k+1}(a + b)`; `E` is the vacuum term of A6-3; the threshold is the largest of
 the four. The three families:
@@ -955,7 +963,28 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      steps; at `j ≤ k` A6 needs none, since `inhObs` is already per polymer on every torus.
 3. **`FinalSmallFieldInput` (A6-3, the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) with `Z = ∅` and (4.15)–(4.17);
    LFR Thm IV.4.1; blocker 5, small-field half).** There are `a, E` with `ObservableActivities … κ (c₉/2) δ (k+1) kf a` and, on every
-   torus of the family and the unit ball, `Ξ^sf = exp(E + ⟨g,h⟩ + Σ_{j≤k} Σ_X q_j + Σ_X a_{k+1})`.
+   torus of the family and the unit ball, `Ξ_box = exp(E + ⟨g,h⟩ + Σ_{j≤k} Σ_X q_j + Σ_X a_{k+1})` (since B2; before: `Ξ^sf`).
+   * **B2 (box split, reading B-1 of `PLAN-B.md`; 2026-10-21).** Why: P7 (4.9) — on `{χ_k ≠ 0}` outside the box of the whitened
+     fluctuation field the source creates the final large-field regions, so the integral of `sfFactor2` over the whole torus contains
+     a final large-field region (the tail) and is not the small-field term; the small-field term is P4 (6.6) with `χ({|ψ'| < p₁})`.
+     Landed statements changed (old → new):
+     * `FinalSmallFieldInput … ϱ` (`sfIntegral F hM6 hkK vc h nK g = exp(…)`) → `FinalSmallFieldInput … ϱ cut`
+       (`sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g = exp(…)`); the right side is unchanged.
+     * `lastIntegralInput_of_parts hB hA hS hL` → `lastIntegralInput_of_parts cut hB hA hS hL` (`hS`, `hL` at the same `cut`; proof unchanged).
+     * `FinalSfFluctInput … ϱ` (`∃ Kq, Kq.PosDef ∧ Z_Kq ∫ sfGaussIntegrand(Kq, h)·e^{-X₀} dγ = exp(E + Σa)`) → `FinalSfFluctInput … ϱ cut`
+       (`ctxFluctBoxIntegral (F.ctx hM6 hkK nK) vc h (cut κ c₉ (F.sf.β k)) g = exp(E + Σa)`: the box average at the fixed `K = sfFinalK`).
+     * `finalSmallFieldInput_of_fluctForm hPre hG` (old statements) → the same at `cut` (proof: `ctxBoxIntegral_eq_exp_mul`, no change of
+       variables; the measurability part of `measInt_sfFactor2_of_flatRep` is no longer used, its `BgHyp` part is).
+     * Deleted (superseded: `Ξ_box` is by definition the Gaussian average at the fixed form and centre): `FinalSfGaussInput`,
+       `finalSmallFieldInput_of_gaussForm` (`Spine/FinalSfAssemble.lean`, no other callers).
+     * Moved, unchanged: `sfGaussIntegrand` (`Spine/FinalSfGauss.lean` → `Spine/LastIntegral.lean`). Unchanged statements:
+       `integral_sfFactor2_gauss` (now the instance `χ = 1` of the weighted core `integral_mul_sfFactor2_gauss`), `sfIntegral_eq_gauss`,
+       `measInt_sfFactor2_of_flatRep`, `sfIntegral` (docstring: the weight of the empty region, `lastRegionWeight_empty_eq_sfIntegral`).
+     New: `gaussBox`, `sfBlockSite`, `sfFinalK` (`K = β_k D`), `ctxBoxIntegral`, `sfBoxIntegral` (`Spine/LastIntegral.lean`);
+     `constExponent`, `ctxFluctBoxIntegral`, `ctxBoxIntegral_eq_exp_mul(_of)` (`Spine/FinalSfFluct.lean`); `Spine/FinalBoxK.lean`:
+     `sfFinalHm` (`H = L^{k(d-2)} D`), `pdQuad_sfFinalK` (`Q_K(v) = β_k L^{-k(d-2)} ⟨v, H v⟩`, the hypothesis of `sfGaussIntegrand_cubic`),
+     `actStar2_univ_hessian_sfFinalHm` (`A*_k(h + t u)/t² → ½⟨v, H v⟩` under the field clauses: `K` is the Hessian of
+     `β_k L^{-k(d-2)} A*_k`, the masses being equal, `sfActMass2_eq_muBg`), `sfFinalK_posDef`.
    * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
      * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
        `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;
@@ -975,9 +1004,37 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * (b) the source part `⟨g, φ̄_k⟩ − ⟨g, h⟩` together with the change of `ℳ^{(j)}(ψ^{(j)})` against `ℳ^{(j)}(h)`, as scale-`(k+1)`
        polymer terms (`ℳ^{(k+1)}_0`, the second-order remainder of the linear term; ROOTFFAM §3, row `⟨g, φ_k − h⟩`);
      * (c) the regrouping `Y ↦ Ȳ` and cells to fine sites (ROOTFFAM target 4);
-     * (d) the exact two-torus agreement of `a`. It needs the complete localization of the last integral, with the winding remainder
-       on winding polymers (SPINE-AUDIT-2 (d)); the landed results give closeness;
+     * (d) the exact two-torus agreement of `a`. REDUCED (A2, below) to the uniform two-torus closeness of the per-torus activities
+       `a_T` on quarter-box polymers (`LastScaleTwoTorusClose`); the agreement itself is proved;
      * (e) the amplitude `c₉/4`: the `ℳ^{(k+1)}_0` part is `≤ (c₉/2)e^{−(κ+1)|X|_#}` by the ties, the rest is small in `β`.
+   * **A2 (A6-3 (d), the agreement step; `Spine/LastScale{Geom,Cells,Agree}.lean`).** PROVED (axioms `propext, Classical.choice, Quot.sound`):
+     ```
+     theorem observableActivitiesAt_of_twoTorusClose {d N L M kf k : ℕ} (hd : 0 < d) (hk : k ≤ kf)
+         (hs4 : 4 ≤ M * L ^ (k + 1)) {κ c₉ δ κ' B a lam : ℝ} {t₀ : ℕ} (hB : 0 ≤ B) (ha : 0 ≤ a)
+         (hκ : 0 ≤ κ) (hκ' : κ + Real.log 2 ≤ κ') (hlam : κ' ≤ lam)
+         (hamp : B + a * Real.exp κ' + 2 * B * Real.exp (κ' * (t₀ : ℝ)) ≤
+           c₉ / 2 * (L : ℝ) ^ (-(((k + 1 : ℕ) : ℝ) * (((d : ℝ) - 2) / 2 + δ))))
+         (aT : (ℓ : ℕ) → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+         (hT : LastScaleTorusClauses d N L M kf k κ' B aT)
+         (hC : LastScaleTwoTorusClose d N L M kf k κ' a lam t₀ aT) :
+         ∃ p, ObservableActivitiesAt d N L M κ c₉ δ (k + 1) kf p ∧
+           ∀ (ℓ : ℕ) [NeZero ℓ], M * L ^ (kf + 1) ∣ ℓ → ∀ g, ∑ X, p ℓ (k + 1) X g = ∑ X, (aT ℓ X g - aT ℓ X 0)
+     ```
+     (namespace `Balaban.RootFSpine.LastScale`). The consumed form: A6-3 needs `ObservableActivitiesAt … κ (c₉/2) δ (k+1) kf a` and the
+     identity on every torus of the family; the theorem gives both from any per-torus family `a_T` with `Ξ_T = exp(E_T + Σ_X a_T)`, with
+     `E'_T = E_T + Σ_X a_T(X; 0)` (only increments are compared). Inputs, each a named Prop with its rule-10 witness (`…_zero`):
+     (i) `LastScaleTorusClauses` (on every admissible torus: increments vanish off polymers of side `M L^{k+1}`, analytic on the unit `ℓ¹` ball,
+     local, `‖a_T(X;g) − a_T(X;0)‖ ≤ B e^{−κ'|X|/(ML^{k+1})^d}`) — the per-torus expansion, B2's `a_T`;
+     (ii) `LastScaleTwoTorusClose` (for `ℓ ≤ ℓ'` and `A ⊂ ℤ^d` whose image in `𝕋_ℓ` is a polymer with cells in the cell box `|⌊y/s⌋| ≤ (ℓ/s)/4`
+     at margin `τ ≥ t₀` cells: the increments at `g ∘ valMinAbs` differ by `≤ a e^{−λτ} e^{−κ'|A|/s^d}` on `Σ_{y∈A}|g(y)| < 1`) — open, for B2's
+     `a_T` to be derived from the closeness of its per-term ingredients (tagged cut family, class terms on two tori).
+     Construction (TORUSLAST2 §3): `a` on a quarter-box polymer is `lim_n a_T` over the tori `M L^{kf+1}(n+2)` (Cauchy by (ii)); the defect
+     on each torus is moved to the polymer chained to the outside of the quarter box (`lastScale_chain`, `resum_lastScale_limit`); read on fine sites
+     through the cell-aligned lift (`liftZ`, `sitesT`, `extZ`). **What it needs of `M` against `κ` (item (3)):** `κ' ≥ κ + log 2` (fibres
+     `≤ 2^{|X|}`), `λ ≥ κ'` (closeness rate per cell at least the activity rate; for a closeness inherited from the final operators, rate
+     `2c₀M` per cell with `c₀ = c₀(d,L)` of `final_region_entry_close_unif` (W870), this is `M ≥ (κ + log 2)/(2c₀)`), and the amplitude `hamp`
+     (`κ'`, `t₀`, `a/B` absolute: the moved remainder costs the factor `1 + (a/B)e^{κ'} + 2e^{κ't₀}`, uniform in `kf`, `ℓ`). No floor on the torus:
+     tori with one block per side keep `a_T` (no quarter-box polymer there, `four_le_of_isPolymer_quarter`). Sizes: Geom 371, Cells 407, Agree 583 lines.
    * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
      `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
      every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
@@ -1056,12 +1113,37 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        the cubes of `DecParams`), to which the abstract `coef_eq_zero_of_not_rooted`, `coef_congr_supported` apply on `ι = MacIdx ⊕ cubes` once the
        rooted property of the composite is proved from `i4b_local`. Decision for ORCH-B (two parameter families, `i4b_local` is stated in the
        telescoping convention `s' = 1` off `parCubes X₁`).
-     * Open here: (L0) `χ_univ = 1` on the box; the count of rooted families (generic, `Polymer/Animals.card_animals_le` in the box-overlap graph);
-       the `ℛ^{(k)}` instance; (L4) after the decision above.
+     * **Decision ORCH-B (item 4): decoupled-background route.** Landed since: *(L0)* `Spine/FinalBoxLocChi.lean` (`inDomainR_liftSingle_near`: a block field
+       within `m ≤ 1/2` of `h` lifts to `Ψ̃(𝔹_q; ν, δ')` at every mass, `3m < δ'`; `reg_of_inDomainR_near`: `Reg_q(G, D, δ; S, S)` at any mass from
+       `K₁δ' + m < δ`; `chiKLong_eq_one_of_near`, `chiY_eq_one_of_near`: `χ_k(Y) = 1` for a block field within `m` of `h`), core
+       `regParts_of_inDomainR` (any mass; `reg_of_inDomainR` its instance). *(L4, generic)* `Green/FinalBoxLocSum.lean`: `localFormOf` (the rooted
+       coefficients of a finite family of terms collected by the region `Y(a, C) = R_a ∪ ⋃_{i∈C} B_i`), `sum_localFormOf`, `localFormOf_congr` (W1),
+       `localFormOf_eq_zero_of_not_isAnimal` (W3, `isAnimal_rootRegion`), `sum_norm_localFormOf_le` (the W5 sum by pairs `(a, C)`),
+       `localFormOf_congr_param` (W2). `coef_congr_supported` is an instance of `I5Param.coef_congr_near`.
+     * **Stage 1 (background localization).** Sequential route: the background-dependent terms are first expanded in the block field by the landed
+       Theorem I-5 (`i5_background`: `E(X; ψ(𝔹_j(X), 𝔹_k(X); ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)))` = `∑_Y Ev_Y(Θ)`, `Ev_Y` exactly local on `thickSet Y`, bound
+       `E e^{-κ₀ d^cov_j(X) - 2κ d̃^cov(Y)}`), here with `Gp = 𝔹_k(univ)` at the torus level `K = k` (the Def-6 torus of the class) and `Θ = lift ψ_k`;
+       then every `Ev_Y` is a term reading the field on `thickSet Y` and the cut expansion (`rootedExpansion_boxCut`, `localFormOf`) applies. Needed
+       and OPEN: (i) `BgSetting` with a *local* `Gk = 𝔹_k(X⁺)` (the same construction the step needs, `ClassOldExpansionFromTower`: with `Gk` the whole
+       set `X₁` is the torus); (ii) the transport of `genW univ` (torus `M₁(cn_k)L^k`) to a generating set of the Def-6 torus (`hT`) and of
+       `psiJ`, `phiBar` to `composeField`/`bgFieldC` there; (iii) the top-level terms (action density, `⟨g, φ̄_k⟩`) read `φ̄_k` itself: an I-5 at
+       `j = k` (or I-4b directly with `localization_expansion`). Level-`k` terms (`ℛ^{(k)}`, and `ℰ^{(k)}`, `ℳ^{(k)}` if `composeField 𝔹_k 𝔹_k = Ψ`)
+       need no stage 1. Finding (C) (`corrSum`, symmetry of `vc`) is unchanged.
+     * **Design issue (W5 units).** The cut expansion gives `‖coef_C‖ ≤ b e^{-(κ-1)|C|}` per macro-cell, while the region of a coefficient contains the
+       boxes of its cells, `|Y| ≥ |C| (2M/7)^d` blocks, with the macro size `M ≥ 4 pdB e^{pdH κ}` (`pdH 3 = 13357`). So
+       `∑_{Y ∋ x} ‖W_Y‖ e^{a|Y|}` with `|Y|` counted in `k`-blocks is finite only for `a < (κ-1)(7/(2M))^d`, far below the per-block rate the gas
+       layer needs to regroup into Root-F's polymers (`≈ κ_F + d log(M_RG L)`). As in P3 (GM3, `κ₁ ≥ 4d log((2L+1)L^{m₀})`, decay per `M`-cube with
+       `M = L^{m₀} M₁`), the size of `Y` must be counted in cells (or RG cubes), with the macro cells not larger than the RG cubes (`M_cut ≤ M`,
+       e.g. `M_cut = M₁ = L^{m₁}`, which needs `L^{m₁} ≥ 4 pdB e^{pdH κ}`). Not changed here (`BoxLocalForm` is B2's).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
-   `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.
+   `∫ρ = Ξ_box · exp(Σ_X b_{k+1})` (since B2; before: `Ξ^sf`).
+   * **B2 (box split, reading B-1).** Landed statement changed: `FinalLargeFieldInput … ϱ` (`∫ρ = sfIntegral F hM6 hkK vc h nK g · exp(Σb)`)
+     → `FinalLargeFieldInput … ϱ cut` (`∫ρ = sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g · exp(Σb)`). Why: P7 (4.9) — the part
+     of the empty-region history outside the box (`sfIntegral - Ξ_box`, the integral of `sfFactor2` over `{χ_k ≠ 0}` with `|w_p| > p₁`
+     somewhere) is a final large-field region; it now belongs to `b`. The weight of the empty region is still `sfIntegral`
+     (`lastRegionWeight_empty_eq_sfIntegral_of_complete`, unchanged). The paragraphs below that write `Ξ^sf` predate B2.
    * Landed:
      * the linked gas (W990): `gasLinked_activity_bound`, `gasLinked_coverage_activity_bound`, `gasLinked_singleton_eq`;
      * the gas and the polymer expansion: `gas_eq`, `gas_activity_bound`, `pe_blockTorus`, `pe_PY_bound`, `pe_PY_analyticOnNhd`;
