@@ -8,6 +8,7 @@ module
 public import Balaban.Green.FinalBoxLocCut
 public import Balaban.Green.GaussianChangeGeneral
 public import Balaban.LargeField.Base.BaseChartCutSqrt
+public import Balaban.LargeField.Base.KF0Gaussian
 
 /-!
 # The Gaussian variable of the box integral is the cut field at `s = 1` (A6-3, the K-link)
@@ -128,6 +129,50 @@ theorem pdSqrtInv_smul_finalHessian_submatrix_map [NeZero N] {ℓ : ℕ} [NeZero
   simp only [Matrix.map_apply, Matrix.submatrix_apply, Matrix.smul_apply, smul_eq_mul]
   push_cast
   rfl
+
+/-- **The Gaussian displacement on the box is small**: for `K = (β • D).submatrix e e` and a
+variable with `|w_q| ≤ p₁`, every component of `K^{-1/2} w` is at most
+`√β⁻¹ · boxCutConst · p₁` (the row bound of the cut family at `s = 1`, `boxCut_row_bound`). -/
+theorem abs_matAct_pdSqrtInv_le [NeZero N] {ℓ : ℕ} [NeZero ℓ]
+    (hℓ : ℓ = N₀ * L ^ k) {ι : Type*} [Fintype ι] [DecidableEq ι]
+    (e : ι ≃ Torus d N₀ × Fin N) {β : ℝ} (hβ : 0 < β)
+    (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 < v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2)
+    (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) {p : ℝ}
+    (hp : ∀ i j, ‖spinProj (fun i => (h i : ℂ)) i j‖ ≤ p) {p₁ : ℝ} (hp₁ : 0 ≤ p₁)
+    {w : ι → ℝ} (hw : ∀ q, |w q| ≤ p₁) (x : ι) :
+    |LargeField.matAct (pdSqrtInv ((β • finalHessian d ℓ (L ^ k) N₀ v a h).submatrix e e)) w x| ≤
+      Real.sqrt β⁻¹ * boxCutConst d L N a κ p * p₁ := by
+  set S := pdSqrtInv ((β • finalHessian d ℓ (L ^ k) N₀ v a h).submatrix e e) with hS
+  have hlink := pdSqrtInv_smul_finalHessian_submatrix_map hℓ e hβ hd hk hv0 hv1 ha1 ha2 hmass hM
+    hκ hMB hMκ hh
+  have hentry : ∀ q, |S x q| = Real.sqrt β⁻¹ *
+      ‖boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1) (e x) (e q)‖ := by
+    intro q
+    have := congrFun (congrFun hlink x) q
+    simp only [Matrix.map_apply, Matrix.smul_apply, smul_eq_mul] at this
+    calc |S x q| = ‖((S x q : ℝ) : ℂ)‖ := by rw [Complex.norm_real, Real.norm_eq_abs]
+      _ = ‖(algebraMap ℝ ℂ) (S x q)‖ := rfl
+      _ = _ := by
+        rw [this, norm_mul, Complex.norm_real, Real.norm_of_nonneg (Real.sqrt_nonneg _)]
+        rfl
+  have hrow : ∑ q, ‖boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1) (e x) (e q)‖ ≤
+      boxCutConst d L N a κ p := by
+    rw [Equiv.sum_comp e (fun q' => ‖boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
+      (e x) q'‖)]
+    exact boxCut_row_bound hd hk hv0.le hv1 ha1 ha2 hmass hM hκ hMB hMκ hp
+      (fun _ => by simpa using (Real.one_le_exp_iff.2 hκ)) (e x)
+  unfold LargeField.matAct
+  calc |∑ q, S x q • w q| ≤ ∑ q, |S x q| * p₁ := by
+        refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun q _ => ?_)
+        rw [smul_eq_mul, abs_mul]
+        exact mul_le_mul_of_nonneg_left (hw q) (abs_nonneg _)
+    _ = Real.sqrt β⁻¹ * (∑ q, ‖boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
+          (e x) (e q)‖) * p₁ := by
+        simp only [hentry, ← Finset.sum_mul, ← Finset.mul_sum]
+    _ ≤ Real.sqrt β⁻¹ * boxCutConst d L N a κ p * p₁ := by
+        gcongr
 
 end Link
 
