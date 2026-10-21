@@ -87,4 +87,42 @@ theorem flDatum_corr {R : Set (Torus d ((N₁ * L ^ m₁) * L ^ K))}
     · have h' : σ z ∉ Gk'.Ω 1 := fun h2 => h ((hGk.mem_iff z hz).1 h2)
       simp only [h, h', ite_false]
 
+variable {ϱ₄ ϱ₄' : ℝ} {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₄}
+  {Gj' : GeneratingSet d L (N₁' * L ^ m₁) K ϱ₄'}
+
+/-- **The composed datum at corresponding sites.** -/
+theorem composeData_corr {R : Set (Torus d ((N₁ * L ^ m₁) * L ^ K))}
+    (hGj : GSCorr Gj Gj' σ R) (hGk : GSCorr Gk Gk' σ R)
+    (hq : Precedes Gj Gk) (hq' : Precedes Gj' Gk') (a : ℕ → ℝ)
+    {φ : Gk.Ω 1 × Fin N → ℂ} {φ₂ : Gk'.Ω 1 × Fin N → ℂ} {D : BgData Gk N} {D₂ : BgData Gk' N}
+    (hφ : ∀ y ∈ R, ∀ (hy : y ∈ Gk.Ω 1) (hy' : σ y ∈ Gk'.Ω 1) (i : Fin N),
+      φ₂ (⟨σ y, hy'⟩, i) = φ (⟨y, hy⟩, i))
+    (hD : ∀ y ∈ R, D₂.Ψ (σ y) = D.Ψ y ∧ D₂.h (σ y) = D.h y)
+    (hblk : ∀ z ∈ R, z ∈ Gj.Ω 1 →
+      (∀ y ∈ Gj.blk (Gj.layerIndex z) z, y ∈ R) ∧ (∀ y ∈ Gk.blk (Gk.layerIndex z) z, y ∈ R))
+    {z : Torus d ((N₁ * L ^ m₁) * L ^ K)} (hz : z ∈ R) (i : Fin N) :
+    (composeData hq' a φ₂ D₂).Ψ (σ z) i = (composeData hq a φ D).Ψ z i ∧
+      (composeData hq' a φ₂ D₂).h (σ z) i = (composeData hq a φ D).h z i := by
+  classical
+  have hzD := hD z hz
+  constructor
+  · simp only [composeData]
+    refine composeField_corr a hGj hGk hz (fun h => hq.mem_Ω1 h) ?_ ?_ hzD.1 ?_ i
+    · intro h y hy i
+      obtain ⟨-, hb⟩ := hblk z hz h
+      exact svec_corr (hGk.mem_iff y (hb y hy)) (fun hy1 hy2 j => hφ y (hb y hy) hy1 hy2 j) i
+    · intro h y hy i
+      obtain ⟨hb, -⟩ := hblk z hz h
+      exact svec_corr (hGk.mem_iff y (hb y hy)) (fun hy1 hy2 j => hφ y (hb y hy) hy1 hy2 j) i
+    · intro _ j
+      exact barField_corr (hGk.mem_iff z hz) j (fun h1 h2 => hφ z hz h1 h2 j)
+        (fun _ => (congrFun hzD.1 j))
+  · simp only [composeData]
+    by_cases h : z ∈ Gj.Ω 1
+    · have h' : σ z ∈ Gj'.Ω 1 := (hGj.mem_iff z hz).2 h
+      simp only [h, h', ite_true]
+      exact congrFun hzD.2 i
+    · have h' : σ z ∉ Gj'.Ω 1 := fun h2 => h ((hGj.mem_iff z hz).1 h2)
+      simp only [h, h', ite_false]
+
 end Balaban.Polymer.TwoTorusStep
