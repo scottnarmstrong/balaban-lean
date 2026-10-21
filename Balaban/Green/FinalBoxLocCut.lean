@@ -327,6 +327,45 @@ section Expansion
 
 variable {d N₀ M L k N : ℕ} [NeZero N₀] [NeZero L] {v a : ℝ}
 
+theorem boxCutConst_nonneg (hd : 0 < d) {p κ : ℝ} (hp0 : 0 ≤ p) :
+    0 ≤ boxCutConst d L N a κ p := by
+  have hB0 : 0 ≤ ballConst d (pdEps d L / 2) :=
+    ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
+  unfold boxCutConst
+  refine add_nonneg (by positivity) (mul_nonneg (div_nonneg (mul_nonneg (by norm_num)
+    (mul_nonneg (by positivity) hB0)) (Real.sqrt_nonneg _)) (by positivity))
+
+/-- **The cut fields of the box stay near the centre**: for `‖w‖_∞ ≤ ρ` and parameters of the
+polydisc of radius `e^κ`, `‖φ₀ + c · boxCut(s) w - φ₀‖_∞ ≤ |c| · boxCutConst · ρ`. -/
+theorem linField_boxCut_mem_closedBall (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ0 : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {h : Fin N → ℂ} {p : ℝ} (hp0 : 0 ≤ p) (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (c : ℂ)
+    (φ₀ : L1Torus d N₀ × Fin N → ℂ) {ρ : ℝ} (hρ : 0 ≤ ρ) {w : L1Torus d N₀ × Fin N → ℂ}
+    (hw : ∀ q, ‖w q‖ ≤ ρ) {s : MacIdx d N₀ M → ℂ}
+    (hs : s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) :
+    linField φ₀ (fun s q q' => c * boxCut d L N₀ k M v a h s q q') s w ∈
+      Metric.closedBall φ₀ (‖c‖ * boxCutConst d L N a κ p * ρ) := by
+  have hsb : ∀ z, ‖s z‖ ≤ Real.exp κ := fun z => by simpa using (hs z).le
+  have hm0 : 0 ≤ ‖c‖ * boxCutConst d L N a κ p * ρ :=
+    mul_nonneg (mul_nonneg (norm_nonneg _) (boxCutConst_nonneg hd hp0)) hρ
+  rw [Metric.mem_closedBall, dist_pi_le_iff hm0]
+  intro q
+  rw [dist_eq_norm]
+  simp only [linField, add_sub_cancel_left]
+  calc ‖∑ y, c * boxCut d L N₀ k M v a h s q y * w y‖
+      ≤ ∑ y, ‖c * boxCut d L N₀ k M v a h s q y * w y‖ := norm_sum_le _ _
+    _ ≤ ∑ y, ‖c‖ * ‖boxCut d L N₀ k M v a h s q y‖ * ρ := by
+        refine Finset.sum_le_sum fun y _ => ?_
+        simp only [norm_mul]
+        exact mul_le_mul_of_nonneg_left (hw y) (by positivity)
+    _ = ‖c‖ * (∑ y, ‖boxCut d L N₀ k M v a h s q y‖) * ρ := by
+        rw [← Finset.sum_mul, ← Finset.mul_sum]
+    _ ≤ ‖c‖ * boxCutConst d L N a κ p * ρ := by
+        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)) hρ
+        exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hp hsb q
+
 open Classical in
 /-- **The rooted Lemma AE for a term of the final cut field.**  Let `τ` read the field only on `S`,
 be analytic and bounded by `M_τ` on the sup-norm ball of radius `r` around a centre `φ₀`.  For
@@ -364,34 +403,14 @@ theorem rootedExpansion_boxCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
   have hTan : ∀ q q', AnalyticOnNhd ℂ (fun s => T s q q')
       (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) := fun q q' s hs =>
     analyticAt_const.mul (analyticOnNhd_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ h q q' s hs)
-  have hm0 : 0 ≤ m := by
-    have hB0 : 0 ≤ ballConst d (pdEps d L / 2) :=
-      ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
-    have : 0 ≤ boxCutConst d L N a κ p := by
-      unfold boxCutConst
-      refine add_nonneg (by positivity) (mul_nonneg (div_nonneg (mul_nonneg (by norm_num)
-        (mul_nonneg (by positivity) hB0)) (Real.sqrt_nonneg _)) (by positivity))
-    positivity
+  have hm0 : 0 ≤ m :=
+    mul_nonneg (mul_nonneg (norm_nonneg _) (boxCutConst_nonneg hd hp0)) hρ
   have hmr : m < r := hm
   have hMτ : 0 ≤ Mτ := (norm_nonneg _).trans (hτb φ₀ (Metric.mem_ball_self (hm0.trans_lt hmr)))
   have hsub : Metric.closedBall φ₀ m ⊆ Metric.ball φ₀ r := Metric.closedBall_subset_ball hmr
-  refine rootedExpansion_linField hκ hT hTan hτ (hτan.mono hsub) φ₀ w ?_ ?_
-  · intro s hs
-    have hsb : ∀ z, ‖s z‖ ≤ Real.exp κ := fun z => by simpa using (hs z).le
-    rw [Metric.mem_closedBall, dist_pi_le_iff hm0]
-    intro q
-    rw [dist_eq_norm]
-    simp only [linField, add_sub_cancel_left]
-    calc ‖∑ y, T s q y * w y‖ ≤ ∑ y, ‖T s q y * w y‖ := norm_sum_le _ _
-      _ ≤ ∑ y, ‖c‖ * ‖boxCut d L N₀ k M v a h s q y‖ * ρ := by
-          refine Finset.sum_le_sum fun y _ => ?_
-          simp only [T, norm_mul]
-          exact mul_le_mul_of_nonneg_left (hw y) (by positivity)
-      _ = ‖c‖ * (∑ y, ‖boxCut d L N₀ k M v a h s q y‖) * ρ := by
-          rw [← Finset.sum_mul, ← Finset.mul_sum]
-      _ ≤ m := by
-          refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)) hρ
-          exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hp hsb q
+  refine rootedExpansion_linField hκ hT hTan hτ (hτan.mono hsub) φ₀ w
+    (fun s hs => linField_boxCut_mem_closedBall hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hp0 hp c
+      φ₀ hρ hw hs) ?_
   · intro u hu
     have hu' : u ∈ Metric.ball φ₀ r := hsub hu
     have h1 := norm_sub_le_of_ball (hτan.differentiableOn) hτb hu'
