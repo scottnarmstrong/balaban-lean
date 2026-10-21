@@ -31,14 +31,21 @@ The local terms of the gas are the explicit `P_g(Y) = PY` of the Mayer activitie
 `K_g(X) = ∫ Σ_C ∏_{t ∈ C} (e^{W_t} - 1) dμ` (`localGasK`, `localGasP`). Under the numerical conditions of
 `steiner_gas` with `κ₀ + κ₁ ≤ a`, `ε ≤ log 2` and `ε · 4 e^{-κ₀} ≤ 1/4`:
 
-* `integral_exp_eq_gasP`: `∫ exp(Σ_Y W_Y(Φ, g)) dμ(Φ) = exp(Σ_Y P_g(Y))` for `g ∈ U`;
-* `gasP_kp_bound`: `Σ_{Y ∋ b} ‖P_g(Y)‖ e^{κ'|Y|_St} ≤ 64 e ε e^{-2κ₀}` for `g ∈ U`;
+* `integral_exp_eq_gasP`: `∫ exp(Σ_Y W_Y(Φ, g)) dμ(Φ) = exp(Σ_Y P_g(Y))` for `g ∈ U`, and the
+  Kotecký–Preiss bound `Σ_{Y ∋ b} ‖P_g(Y)‖ e^{κ'|Y|_St} ≤ 64 e ε e^{-2κ₀}` for `g ∈ U`;
 * `gasP_eq_zero_of_not_isAnimal`: `P_g(Y) = 0` unless `Y` is connected;
 * `gasP_congr_g`: `P_g(Y)` depends on `g` only at the indices of the sites of `Y`;
 * `analyticOnNhd_gasP`: `g ↦ P_g(Y)` is analytic on `U` (the Mayer activities are integrals over a
   compact carrier of jointly continuous functions analytic in `g`,
   `Analysis.analyticAt_integral_of_continuousOn`, and the cluster sum is analytic under the
   Kotecký–Preiss condition, `pe_PY_analyticOnNhd`).
+
+The parameter need not be a source: `LocalGasFormE` is the local form over an open set `U` of a
+complex normed space `E` of parameters (clauses (W1), (W3)–(W5)), and `LocalGasForm` adds (W2) for
+the sources `E = I → ℂ`. All the statements above except `gasP_congr_g` hold over `E` (with `E`
+finite-dimensional for the analyticity); `gasP_congr_param` is the locality in the parameter, and
+`localGasP_eq_zero_of_terms_zero` says that the local terms vanish at a parameter where all the
+terms vanish.
 -/
 
 @[expose] public section

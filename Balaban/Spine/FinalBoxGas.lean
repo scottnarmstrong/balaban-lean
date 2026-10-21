@@ -16,25 +16,30 @@ import Mathlib.Tactic.Positivity
 /-!
 # The gas of the box integral on the macro cells
 
-A6-3, gas layer, the box instance of `Polymer/LocalGas.lean` (P4 (6.6); P7 (4.9)–(4.14)). On one
-torus, with the local form `BoxLocalForm C vc hv p₁ G₀ M_c a ε W` of the fluctuation integrand:
+A6-3, gas layer, the box instance of `Polymer/LocalGas.lean` (P4 (6.6); P7 (4.9)–(4.14)), with
+the dilation `t` of the Gaussian variable as a parameter. On one torus, with the local form
+`BoxLocalForm C vc hv p₁ G₀ R_t M_c a ε W` of the fluctuation integrand:
 
 * the sites of the gas are the macro cells `z` of side `M_c` of the `k`-block torus (`cellOf`, the
   cells `Green.macZ` of the cut family), with the graph `macCellGraph` (degree `≤ 16^d`);
 * a cell configuration `Φ` carries the Gaussian variable on the blocks of the cell (`cellField`); the
   measure is the product over the blocks of the one-block Gaussian conditioned on the box
   (`boxSiteMeasure`), grouped by cells (`Polymer.qRef`);
-* the terms of the gas are the grouped terms `W_c(𝒳) = Σ_{cells(Y) = 𝒳} W_Y` at the field clamped
-  onto the box (`boxCellTerm`); the clamp `clampBox` is the identity on the box, which carries the
+* the terms of the gas at the parameter `q = (t, g)` (`BoxParam`) are the grouped terms
+  `W_c(𝒳; t, g) = Σ_{cells(Y) = 𝒳} W_Y(t w, g)` at the field `w` clamped onto the box
+  (`boxCellTerm`, `dilField`); the clamp `clampBox` is the identity on the box, which carries the
   measure, and makes the terms bounded and continuous for every configuration;
-* `boxLocalForm_toLocalGasForm`: the grouped terms have the local form of the generic core on the
-  cells, with the bound `(2M_c)^d ε` (a cell has at most `(2M_c)^d` blocks);
+* `boxLocalForm_toLocalGasFormE`: the grouped terms have the local form of the generic core on the
+  cells over the parameters `|t| < R_t`, `‖g‖₁ < G₀` (`boxParamSet`), with the bound `(2M_c)^d ε`
+  (a cell has at most `(2M_c)^d` blocks);
 * `ctxFluctBoxIntegral_eq_boxGas`: the box average of the fluctuation integrand is
-  `Z_K e^{E₀} γ₁(box₁)^{|Λ|} exp(Σ_𝒳 P(𝒳))` with the explicit local terms `boxCellP`, and the
-  local terms vanish off connected cell sets, depend on the source only at the fine sites of their
-  cells, are analytic on the source ball and obey the Kotecký–Preiss bound
-  (`boxCellP_kp_bound`, `boxCellP_eq_zero_of_not_isAnimal`, `boxCellP_congr_g`,
-  `analyticOnNhd_boxCellP`).
+  `Z_K e^{E₀ + ℛ^{(k)}(T; h, h, g)} γ₁(box₁)^{|Λ|} exp(Σ_𝒳 P(𝒳; 1, g))` with the explicit local
+  terms `boxCellP` (`boxCellAct` at `t = 1`); the local terms vanish off connected cell sets, depend
+  on the source only at the fine sites of their cells, are analytic on `boxParamSet` and obey the
+  Kotecký–Preiss bound (`boxCellP_kp_bound`, `boxCellP_eq_zero_of_not_isAnimal`, `boxCellP_congr_g`,
+  `analyticOnNhd_boxCellP`);
+* the parity: the box measure is symmetric under `w ↦ -w`, so `P(𝒳; -t, g) = P(𝒳; t, g)`
+  (`boxCellP_neg`), and `P(𝒳; 0, g) = 0` by the normalization (W0) (`boxCellP_zero_dil`).
 
 The numerical conditions: `a ≥ κ' + 12d + 21/2` and `(2M_c)^d ε ≤ 1/2` (`κ₀ = 4 + 6d`,
 `κ₁ = κ' + κ₀ + 5/2` in `Polymer.integral_exp_eq_gasP`, with `Δ = 16^d`).

@@ -135,7 +135,8 @@ structure BoxLocalForm (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
         Complex.exp (E₀ + ∑ Y, W Y (fun p => (w p : ℂ)) g)
 
 /-- **The box average of the fluctuation integrand in the local form**: under `BoxLocalForm`, for
-every source of the unit ball, `ctxFluctBoxIntegral = Z_K e^{E₀} ∫_{box} exp(Σ_Y W_Y(w, g)) dγ(w)`. -/
+every source of the unit ball,
+`ctxFluctBoxIntegral = Z_K e^{E₀ + ℛ^{(k)}(T; h, h, g)} ∫_{box} exp(Σ_Y W_Y(w, g)) dγ(w)`. -/
 theorem ctxFluctBoxIntegral_eq_of_boxLocalForm {C : SFCtx S n R M K N k m₁ ϱ} {vc : CorrCoef S.d}
     {hv : EuclideanSpace ℝ (Fin N)} {p1 G₀ Rt : ℝ} {Mc : ℕ} {a ε : ℝ}
     {W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℂ) → (GIdx S n M K N → ℂ) → ℂ}
