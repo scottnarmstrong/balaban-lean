@@ -90,3 +90,11 @@ Author (Scott Armstrong), 2026-10-21: "yes, approve R12". This approves, as reco
 `notes/phase1/REMOVAL-HIST.md` and `notes/phase1/PLAN-B.md`: in the post-`R` form `D1Form2`, the term of a history
 with a removal record at some scale `j ≤ k` is zero; the history set and `IsComplete` are unchanged. Text in
 `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Ruling R13 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R13" (the amended form presented the same day). This approves:
+the generating set of a level-`j` class term on `X` is the local set `𝔹_j(X⁺)` (`X⁺` = `X` with the cubes of the
+neighbours its irrelevant part reads), the chain composes on it with the cover set `X⁺ ∪ □(y)`, and the class
+domain uses the step's weights and background mass. Text in `AGENTS.md` ("Author rulings"). No frozen declaration
+changes.
