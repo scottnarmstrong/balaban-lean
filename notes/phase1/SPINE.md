@@ -1501,3 +1501,8 @@ It pins the index set and `Eτ`; for `newLevel_coeff_twoTorus_of_class` it must 
 (`X₁f τ`, `𝒦X τ`, `Gk τ`, `Gj τ`, `ρ`) as canonical functions of `(jL τ, y τ, X τ)` (they are existential, constrained only by
 `CovSetup`/`BgSetting`); the pinned decoupled fields `F₁L`, `SolL`, `FkL` are then unique by `NewLevelPinUnique`.
 Also needed: a partial index bijection (the full index types have different sizes on the two tori): only the `τ` with `Y ∈ polyDom τ` correspond.
+
+Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`, `G₁_twoTorus_at_of_pairs`, `PolyDomBoxMap.polyDom_boxMap_iff`,
+`OldTermsCanonPins` + `CanonCover` + `exists_domEquiv_of_canon` (NewLevelCanonPins) give the index bijection e from boxMap on pairs.
+Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
+per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
