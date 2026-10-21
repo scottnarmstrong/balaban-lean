@@ -1034,8 +1034,28 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        the cubes of `DecParams`), to which the abstract `coef_eq_zero_of_not_rooted`, `coef_congr_supported` apply on `ι = MacIdx ⊕ cubes` once the
        rooted property of the composite is proved from `i4b_local`. Decision for ORCH-B (two parameter families, `i4b_local` is stated in the
        telescoping convention `s' = 1` off `parCubes X₁`).
-     * Open here: (L0) `χ_univ = 1` on the box; the count of rooted families (generic, `Polymer/Animals.card_animals_le` in the box-overlap graph);
-       the `ℛ^{(k)}` instance; (L4) after the decision above.
+     * **Decision ORCH-B (item 4): decoupled-background route.** Landed since: *(L0)* `Spine/FinalBoxLocChi.lean` (`inDomainR_liftSingle_near`: a block field
+       within `m ≤ 1/2` of `h` lifts to `Ψ̃(𝔹_q; ν, δ')` at every mass, `3m < δ'`; `reg_of_inDomainR_near`: `Reg_q(G, D, δ; S, S)` at any mass from
+       `K₁δ' + m < δ`; `chiKLong_eq_one_of_near`, `chiY_eq_one_of_near`: `χ_k(Y) = 1` for a block field within `m` of `h`), core
+       `regParts_of_inDomainR` (any mass; `reg_of_inDomainR` its instance). *(L4, generic)* `Green/FinalBoxLocSum.lean`: `localFormOf` (the rooted
+       coefficients of a finite family of terms collected by the region `Y(a, C) = R_a ∪ ⋃_{i∈C} B_i`), `sum_localFormOf`, `localFormOf_congr` (W1),
+       `localFormOf_eq_zero_of_not_isAnimal` (W3, `isAnimal_rootRegion`), `sum_norm_localFormOf_le` (the W5 sum by pairs `(a, C)`),
+       `localFormOf_congr_param` (W2). `coef_congr_supported` is an instance of `I5Param.coef_congr_near`.
+     * **Stage 1 (background localization).** Sequential route: the background-dependent terms are first expanded in the block field by the landed
+       Theorem I-5 (`i5_background`: `E(X; ψ(𝔹_j(X), 𝔹_k(X); ψ(𝔹_k(X), 𝔹_{k+1}; Θ, s)))` = `∑_Y Ev_Y(Θ)`, `Ev_Y` exactly local on `thickSet Y`, bound
+       `E e^{-κ₀ d^cov_j(X) - 2κ d̃^cov(Y)}`), here with `Gp = 𝔹_k(univ)` at the torus level `K = k` (the Def-6 torus of the class) and `Θ = lift ψ_k`;
+       then every `Ev_Y` is a term reading the field on `thickSet Y` and the cut expansion (`rootedExpansion_boxCut`, `localFormOf`) applies. Needed
+       and OPEN: (i) `BgSetting` with a *local* `Gk = 𝔹_k(X⁺)` (the same construction the step needs, `ClassOldExpansionFromTower`: with `Gk` the whole
+       set `X₁` is the torus); (ii) the transport of `genW univ` (torus `M₁(cn_k)L^k`) to a generating set of the Def-6 torus (`hT`) and of
+       `psiJ`, `phiBar` to `composeField`/`bgFieldC` there; (iii) the top-level terms (action density, `⟨g, φ̄_k⟩`) read `φ̄_k` itself: an I-5 at
+       `j = k` (or I-4b directly with `localization_expansion`). Level-`k` terms (`ℛ^{(k)}`, and `ℰ^{(k)}`, `ℳ^{(k)}` if `composeField 𝔹_k 𝔹_k = Ψ`)
+       need no stage 1. Finding (C) (`corrSum`, symmetry of `vc`) is unchanged.
+     * **Design issue (W5 units).** The cut expansion gives `‖coef_C‖ ≤ b e^{-(κ-1)|C|}` per macro-cell, while the region of a coefficient contains the
+       boxes of its cells, `|Y| ≥ |C| (2M/7)^d` blocks, with the macro size `M ≥ 4 pdB e^{pdH κ}` (`pdH 3 = 13357`). So
+       `∑_{Y ∋ x} ‖W_Y‖ e^{a|Y|}` with `|Y|` counted in `k`-blocks is finite only for `a < (κ-1)(7/(2M))^d`, far below the per-block rate the gas
+       layer needs to regroup into Root-F's polymers (`≈ κ_F + d log(M_RG L)`). As in P3 (GM3, `κ₁ ≥ 4d log((2L+1)L^{m₀})`, decay per `M`-cube with
+       `M = L^{m₀} M₁`), the size of `Y` must be counted in cells (or RG cubes), with the macro cells not larger than the RG cubes (`M_cut ≤ M`,
+       e.g. `M_cut = M₁ = L^{m₁}`, which needs `L^{m₁} ≥ 4 pdB e^{pdH κ}`). Not changed here (`BoxLocalForm` is B2's).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
