@@ -1,15 +1,15 @@
 # Progress
 
-*Last updated: 2026-10-19.*
+*Last updated: 2026-10-21.*
 
 Neither main theorem is proved yet. Both are stated in Lean, and their proofs are the registered
 placeholders `sorry`; see the [README](../README.md).
 
-**Overall estimate: about 85% of the Lean by volume, and about 57% when weighted by difficulty and
+**Overall estimate: about 90% of the Lean by volume, and about 61% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 938,000 lines are written (the [size table](#size-of-the-lean-by-area)
-  below has the exact count by area). The finished formalization should need roughly 0.8–1.0
+- **By volume.** About 1,005,000 lines are written (the [size table](#size-of-the-lean-by-area)
+  below has the exact count by area). The finished formalization should need roughly 1.05–1.15
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
   estimates, and several depend on questions about the papers that are not yet answered; see
@@ -84,21 +84,22 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit a4b47d64 2026-10-18.
+Computed at commit 0fe3376a 2026-10-21.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 274 | 94,287 | 3,117 |
-| Green's functions and random walks | 143 | 45,434 | 1,959 |
-| Background fields and generating sets (P2) | 117 | 41,059 | 2,137 |
-| Localization expansions (P3, P6) | 243 | 77,335 | 3,612 |
-| Small-field class (P1, P4, P5) | 219 | 55,021 | 2,464 |
-| Fluctuation step and renormalization (P4-P6) | 599 | 201,216 | 6,087 |
-| Instantiated step at fixed parameters | 404 | 121,743 | 3,009 |
-| Large-field regions (P5-P7, E9-E10) | 803 | 194,027 | 8,702 |
-| Observables and correlations (P8, P9) | 75 | 17,302 | 681 |
-| **Total** | **2896** | **849,435** | **31,910** |
+| Lattice, analysis, Gaussian and polymer tools | 309 | 101,199 | 3,332 |
+| Green's functions and random walks | 155 | 48,244 | 2,115 |
+| Background fields and generating sets (P2) | 118 | 41,261 | 2,147 |
+| Localization expansions (P3, P6) | 245 | 78,880 | 3,717 |
+| Small-field class (P1, P4, P5) | 232 | 58,721 | 2,610 |
+| Fluctuation step and renormalization (P4-P6) | 664 | 223,386 | 6,785 |
+| Instantiated step at fixed parameters | 485 | 157,100 | 3,478 |
+| Large-field regions (P5-P7, E9-E10) | 950 | 230,284 | 10,082 |
+| Observables and correlations (P8, P9) | 75 | 17,301 | 681 |
+| Other | 161 | 43,535 | 1,854 |
+| **Total** | **3413** | **1,001,922** | **36,943** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -138,3 +139,5 @@ steps as bounded tasks with an estimated size.
 | 2026-10-19 | ~87% | ~57% | The no-step case now requires the block threshold to lie in (0, √2], the range its sector argument needs. Integrability of the class densities does not follow from the class conditions (they do not make the density measurable off its domains), so it stays an input proved for the actual construction. Extending the step chain to general d and N: the base settings of the step and the block-index condition are now general; the chain is being generalized from the bottom layer up, since its upper files depend on about 50 lower results still written at d = L = 3. |
 | 2026-10-19 (later) | ~88% | ~57% | The vacuum energy of one step: the new constant is the Gaussian increment of the step, bounded by C(log β + 1) (proved), the part proportional to the volume going into the normalization of the step. The vacuum term of one large-field component counted the whole torus outside it; a ruling to restrict it is asked. The objects of the step that are recomputed on the local generating set of each polymer (P3 (4.44)–(4.47)) now exist in generic form, with the step's own objects as the special case; an independent audit found no error and two gaps, both closed. About 25 more files of the step chain extended to general d, L, N. The window bound: the decomposition and the large-radius domain facts proved; the small radius away from the pieces remains. |
 | 2026-10-19 (evening) | ~88% | ~58% | Blocker 3 located exactly: a new large-field hole need not be a union of the cover cubes, so a domain that must contain it and be a union of cubes grows along the seam with nothing to pay for it; restricting the cube condition to the small-field sites of a domain (ruling R11, asked) closes it, and the transfer of old domains across new holes is proved under that reading. The large-field half of the step is split into named parts with the assembly proved; the vacuum region of a component needs ruling R10. The step chain is general in d, L, N for everything the spine uses. The pieces of the local generating sets are general and cast to the class tori; recomputing the new terms on them needs the chain's assembly at a local set (in progress). The threshold of the case with no renormalization step is defined and in range. |
+| 2026-10-20 | ~89% | ~59% | The case with no renormalization step proved (`kfZeroInput_of_typing`: Gaussian variables whitened with a finite-range square root of the covariance, a polymer expansion on blocks of side M·L); the vacuum bound of the large-field operation proved (`RVacuumB0Input`). The machine is limited to 6 Lean compiles at once. |
+| 2026-10-21 | ~90% | ~61% | Six changes to definitions approved by the author (R12–R16 and two details of R13); blocker 2 has no statement left (R16). Blocker 6: the new level's terms on local generating sets; of five gaps found between the papers' estimates and the local data, three are closed. Blocker 3: the old boundary terms across a hole defined, five of seven structural properties proved, the bound proved from two open estimates; the fluctuation machinery is being extended from levels to regions. Blocker 7: exact agreement of the cell term on two tori under R15; the last scale reduced to closeness of local terms. Blocker 5: the last integral split into a box and a tail. Blocker 1 is built as the scale-0 case of the general step. Three conditions were found false as first stated and replaced. |

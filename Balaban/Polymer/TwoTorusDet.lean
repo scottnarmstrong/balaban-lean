@@ -574,6 +574,50 @@ theorem vset_image_top {ρ : ℕ}
   refine Finset.biUnion_congr rfl fun P hP => ?_
   exact (cubeP_image_top (N₁' := N₁') hn (h𝒞 P hP).1 (h𝒞 P hP).2).symm
 
+/-- **The cut parameters on two tori.**  For corresponding sets `I`, `I'` of parameter cubes
+(`patches I' = Prod.map id bm '' patches I`) with the patches of `I` in the box of radius `R`, the
+extended cut parameters `extS (cutPt I)`, `extS (cutPt I')` agree at every cube of the first torus
+whose centre lies in the box of radius `R + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)`. -/
+theorem extS_cutPt_twoTorus {R : ℕ} (I : Finset (cubeIdx (GA))) (I' : Finset (cubeIdx (GB)))
+    (hI' : patches I' = (patches I).image (Prod.map id bm))
+    (h𝒞R : ∀ P ∈ patches I, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2)
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1)) :
+    ∀ P ∈ cubeIdx (GA),
+      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 →
+      extS (GB) (cutPt I') (Prod.map id bm P) = extS (GA) (cutPt I) P := by
+  classical
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hcs : L ^ (k + 1 + m₁) ≤ L * cellSide L 0 m₁ (k + 1) := by
+    unfold cellSide
+    rw [Nat.add_zero]
+    exact Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  intro P hPc hPR
+  obtain ⟨y0, rfl, hb0⟩ := exists_of_mem_cubeIdx (ϱ := ϱ) le_rfl hPc
+  have hPc' : Prod.map id bm ((k + 1, y0) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈ cubeIdx (GB) :=
+    (mem_cubeIdx_levelGS le_rfl _).2 ⟨rfl, hj1,
+      aligned_boxMap (pow_dvd_side le_rfl N₁) (pow_dvd_side le_rfl N₁') hb0⟩
+  have hiff : (⟨_, hPc'⟩ : cubeIdx (GB)) ∈ I' ↔ (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I := by
+    rw [← (mem_patches (G := GB)).trans (exists_prop_of_true hPc')]
+    rw [← (mem_patches (G := GA)).trans (exists_prop_of_true hPc)]
+    rw [hI', Finset.mem_image]
+    constructor
+    · rintro ⟨Q, hQ, hQe⟩
+      have hQR := h𝒞R Q hQ
+      have := injOn_idxMap (N₁' := N₁')
+        (ρ := R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        (by omega) (inBox_mono (by omega) hQR) hPR hQe
+      rw [← this]; exact hQ
+    · intro h; exact ⟨_, h, rfl⟩
+  simp only [extS, hPc, hPc', ↓reduceDIte, cutPt]
+  by_cases h : (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I
+  · rw [ite_eq_left_iff.2 (fun h' => absurd (hiff.2 h) h'), ite_eq_left_iff.2 (fun h' => absurd h h')]
+  · rw [ite_eq_right_iff.2 (fun h' => absurd h' (mt hiff.1 h)), ite_eq_right_iff.2 (fun h' => absurd h' h)]
+
 /-- **D3 (cut points): the rooted trace of one unit block with its background at a cut point, on
 two tori.**  Let `I` be a set of parameter cubes of the first torus and `I'` the corresponding set
 of the second torus (`patches I' = Prod.map id bm '' patches I`), with the cubes of `I` and the
@@ -668,31 +712,7 @@ theorem rootTraceBg_cutPt_twoTorus
     have hPI : (⟨P, hPc⟩ : cubeIdx (GB)) ∉ I' := fun h => hPC (by
       rw [h𝒞, ← hI']; exact mem_patches.2 ⟨hPc, h⟩)
     simp [extS, hPc, cutPt, hPI]
-  have hsP : ∀ P ∈ cubeIdx (GA),
-      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
-        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 →
-      extS (GB) (cutPt I') (Prod.map id bm P) = extS (GA) (cutPt I) P := by
-    intro P hPc hPR
-    obtain ⟨y0, rfl, hb0⟩ := exists_of_mem_cubeIdx (ϱ := ϱ) le_rfl hPc
-    have hPc' : Prod.map id bm ((k + 1, y0) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈ cubeIdx (GB) :=
-      (mem_cubeIdx_levelGS le_rfl _).2 ⟨rfl, hj1,
-        aligned_boxMap (pow_dvd_side le_rfl N₁) (pow_dvd_side le_rfl N₁') hb0⟩
-    have hiff : (⟨_, hPc'⟩ : cubeIdx (GB)) ∈ I' ↔ (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I := by
-      rw [← (mem_patches (G := GB)).trans (exists_prop_of_true hPc')]
-      rw [← (mem_patches (G := GA)).trans (exists_prop_of_true hPc)]
-      rw [hI', Finset.mem_image]
-      constructor
-      · rintro ⟨Q, hQ, hQe⟩
-        have hQR := h𝒞R Q hQ
-        have := injOn_idxMap (N₁' := N₁')
-          (ρ := R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
-          (by omega) (inBox_mono (by omega) hQR) hPR hQe
-        rw [← this]; exact hQ
-      · intro h; exact ⟨_, h, rfl⟩
-    simp only [extS, hPc, hPc', ↓reduceDIte, cutPt]
-    by_cases h : (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I
-    · rw [ite_eq_left_iff.2 (fun h' => absurd (hiff.2 h) h'), ite_eq_left_iff.2 (fun h' => absurd h h')]
-    · rw [ite_eq_right_iff.2 (fun h' => absurd h' (mt hiff.1 h)), ite_eq_right_iff.2 (fun h' => absurd h' h)]
+  have hsP := extS_cutPt_twoTorus I I' hI' h𝒞R hnS'
   have hB' := SY_image (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS' hXR h𝒞R hYR
   have hagree := hagree_boxMap (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS'
     (SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) hj1 le_rfl) hYR hsP
@@ -713,53 +733,24 @@ theorem card_patches_eq {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (J 
   unfold patches
   exact Finset.card_image_of_injective _ Subtype.val_injective
 
-/-- **D3 (mixed differences): the mixed differences of the rooted trace with its background, on two
-tori.**  For a set `J` of parameter cubes of the first torus with patches in the box of radius `R`
-and the corresponding set `J'` of the second torus (`patches J' = Prod.map id bm '' patches J`),
-`Δ_{J'} F' = Δ_J F` for `F = rootTraceBg {b} D`, `F' = rootTraceBg {ιu b} D'`, under the
-hypotheses of `rootTraceBg_cutPt_twoTorus`.  The subsets `I ⊆ J` correspond to the subsets
-`I' ⊆ J'` with `patches I' = Prod.map id bm '' patches I` (`Prod.map id bm` is injective on the
-box), with the same cardinalities. -/
-theorem mixDiff_rootTraceBg_twoTorus
-    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
-    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
-    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
-    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
-    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
-    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    {D : BgData (GA) N} {D' : BgData (GB) N}
-    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
-    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+/-- **Transport of mixed differences (core).**  For a set `J` of parameter cubes of the first torus
+with patches in the box of radius `R` and the corresponding set `J'` of the second torus
+(`patches J' = Prod.map id bm '' patches J`), `Δ_{J'} F' = Δ_J F` as soon as the trace functions
+agree at the cut points `1_I`, `1_{I'}` of corresponding subsets (`Prod.map id bm` is injective on
+the box, so the subsets `I ⊆ J` and `I' ⊆ J'` correspond with the same cardinalities). -/
+theorem mixDiff_twoTorus_of_cutPt {R : ℕ}
     (J : Finset (cubeIdx (GA))) (J' : Finset (cubeIdx (GB)))
     (hJ' : patches J' = (patches J).image (Prod.map id bm))
-    {b : unitPts (GA)} {R : ℕ}
-    (hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
-      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
-      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
-      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
-      (rawOf D) (rawOf D')) :
-    mixDiff J' (rootTraceBg (GB) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GB))
-        (unitP (GB)) {ιu b} D') =
-      mixDiff J (rootTraceBg (GA) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GA))
-        (unitP (GA)) {b} D) := by
+    (h2R : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hJbox : ∀ P ∈ patches J, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2)
+    {FA : DecParams (GA) → ℂ} {FB : DecParams (GB) → ℂ}
+    (hF : ∀ I ⊆ J, ∀ I' : Finset (cubeIdx (GB)),
+      patches I' = (patches I).image (Prod.map id bm) → FB (cutPt I') = FA (cutPt I)) :
+    mixDiff J' FB = mixDiff J FA := by
   classical
-  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
-    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
   set f : ℕ × CTorus d L N₁ m₁ (k + 1) → ℕ × CTorus d L N₁' m₁ (k + 1) := Prod.map id bm with hf
-  have hJbox : ∀ P ∈ patches J, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 := fun P hP =>
-    hJR P hP P.2 (mem_cubeP.2 (SameCell.refl _ _))
   have hinj : Set.InjOn f ↑(patches J) := fun P hP Q hQ h =>
-    injOn_idxMap (N₁' := N₁') (ρ := R) (by omega) (hJbox P hP) (hJbox Q hQ) h
+    injOn_idxMap (N₁' := N₁') (ρ := R) h2R (hJbox P hP) (hJbox Q hQ) h
   -- the correspondence of subsets
   let i : Finset (cubeIdx (GA)) → Finset (cubeIdx (GB)) := fun I =>
     J'.filter fun P' => ∃ P ∈ I, f P.1 = P'.1
@@ -816,9 +807,55 @@ theorem mixDiff_rootTraceBg_twoTorus
       obtain ⟨hQc, hQJ⟩ := mem_patches.1 hQ
       exact ⟨hIJ hP', ⟨Q, hQc⟩, ⟨hQJ, P', hP', hQe⟩, hQe⟩
   · have hIJ := Finset.mem_powerset.1 hI
-    rw [hJJ, hcard I hIJ, rootTraceBg_cutPt_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn
-      hconn' hD hD' I (i I) (hpatch I hIJ) hbR
-      (fun P hP => hJR P (Finset.image_subset_image hIJ hP)) hn hn' hnS hnS' hraw]
+    rw [hJJ, hcard I hIJ, hF I hIJ (i I) (hpatch I hIJ)]
+
+
+/-- **D3 (mixed differences): the mixed differences of the rooted trace with its background, on two
+tori.**  For a set `J` of parameter cubes of the first torus with patches in the box of radius `R`
+and the corresponding set `J'` of the second torus (`patches J' = Prod.map id bm '' patches J`),
+`Δ_{J'} F' = Δ_J F` for `F = rootTraceBg {b} D`, `F' = rootTraceBg {ιu b} D'`, under the
+hypotheses of `rootTraceBg_cutPt_twoTorus`.  The subsets `I ⊆ J` correspond to the subsets
+`I' ⊆ J'` with `patches I' = Prod.map id bm '' patches I` (`Prod.map id bm` is injective on the
+box), with the same cardinalities. -/
+theorem mixDiff_rootTraceBg_twoTorus
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (J : Finset (cubeIdx (GA))) (J' : Finset (cubeIdx (GB)))
+    (hJ' : patches J' = (patches J).image (Prod.map id bm))
+    {b : unitPts (GA)} {R : ℕ}
+    (hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (b : UnitTorus d L N₁ m₁ k) → InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    mixDiff J' (rootTraceBg (GB) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GB))
+        (unitP (GB)) {ιu b} D') =
+      mixDiff J (rootTraceBg (GA) (compWeight L a₁) a₁ ν (rho4 d L N BG κ) (unitQ (GA))
+        (unitP (GA)) {b} D) := by
+  classical
+  have hJbox : ∀ P ∈ patches J, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 := fun P hP =>
+    hJR P hP P.2 (mem_cubeP.2 (SameCell.refl _ _))
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  exact mixDiff_twoTorus_of_cutPt J J' hJ' (by omega) hJbox fun I hIJ I' hI' =>
+    rootTraceBg_cutPt_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' I I' hI' hbR
+      (fun P hP => hJR P (Finset.image_subset_image hIJ hP)) hn hn' hnS hnS' hraw
 
 end TraceBg
 
@@ -1029,56 +1066,34 @@ theorem hullOf_image_top (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {r 
   rw [hullSet_image_top hN hN' hn1 (by omega) hn3 y J J' hJ' hbox]
   exact piHull_boxMap hN hN' hnH hnH' hbox
 
-/-- **D3: the determinant activity of a polymer on two tori.**  Let `Y` be a set of level-`(k+1)`
+/-- **The determinant activity of a polymer on two tori (core).**  Let `Y` be a set of level-`(k+1)`
 cubes of the first torus with sites in the box of radius `r`, containing the root cube of the unit
-point `y`, and `Y' = cubeMap '' Y`.  Under the standing hypotheses of the charts on the two tori
-(`FlCore`, data `D`, `D'` of the charts) and if the raw data agree on the box of radius
-`r + 3 L^(k+1)`, the determinant activities agree:
-`detActivityBg D' (ιu y) Y' = detActivityBg D y Y`.  The sets `J` of parameter cubes with hull `Y`
-correspond to the sets `J'` with hull `Y'` (`hullOf_image_top`; the patches lie in the box because
-they lie in the sites of the hull), and the mixed differences agree
-(`mixDiff_rootTraceBg_twoTorus`).  Margins: `4 r + 12 L^(k+1+m₁) + 7 L^(k+1) + 5`,
-`2 r₁ + 5 L · cellSide L 0 m₁ (k+1)` (`r₁ = r + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)`) and
-`2 (r + 2 L a_K) + L a_K` below `N₁ L^m₁ L^(k+1)` and `N₁' L^m₁ L^(k+1)`. -/
-theorem detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
-    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
-    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
-    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
-    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
-    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
-    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
-    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
-    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
-    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
-    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
-    {D : BgData (GA) N} {D' : BgData (GB) N}
-    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
-    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+point `y`, and `Y' = cubeMap '' Y`.  If the trace functions `FA`, `FB` have corresponding mixed
+differences for the corresponding sets `J`, `J'` of parameter cubes (hull `Y`, resp. its image),
+the activities agree: `detActivityOf (ιu y) FB Y' = detActivityOf y FA Y`.  The sets `J` of
+parameter cubes with hull `Y` correspond to the sets `J'` with hull `Y'` (`hullOf_image_top`; the
+patches lie in the box because they lie in the sites of the hull). -/
+theorem detActivityOf_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {FA : DecParams (GA) → ℂ} {FB : DecParams (GB) → ℂ}
     (y : unitPts (GA))
     (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ))
     (hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y) {r : ℕ}
     (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
-    (hn : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hn' : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (hnS : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
-      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hnS' : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
-      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hn1 : 2 * r + 3 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn1' : 2 * r + 3 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hn3 : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn3' : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
     (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (hraw : RawBoxAgree {z | InBox d (r + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
-      (rawOf D) (rawOf D')) :
-    detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' (ιu y)
-        (Y.image (cubeMap hN hN' le_rfl)) =
-      detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y := by
+    (hmix : ∀ J : Finset (cubeIdx (GA)), hullOf m₀ (rootIdxOf y) (patches J) = Y →
+      ∀ J' : Finset (cubeIdx (GB)), patches J' = (patches J).image (Prod.map id bm) →
+        mixDiff J' FB = mixDiff J FA) :
+    detActivityOf m₀ (ιu y) FB (Y.image (cubeMap hN hN' le_rfl)) = detActivityOf m₀ y FA Y := by
   classical
   have hcs : aK ≤ L * aK := cellSide_le_mul
   have ha0 : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
   have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
-  have hn3 : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  have hn3' : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1) := by
-    omega
   set f : ℕ × CTorus d L N₁ m₁ (k + 1) → ℕ × CTorus d L N₁' m₁ (k + 1) := Prod.map id bm with hf
   set f' : ℕ × CTorus d L N₁' m₁ (k + 1) → ℕ × CTorus d L N₁ m₁ (k + 1) := Prod.map id bm'
     with hf'
@@ -1146,7 +1161,7 @@ theorem detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁
     · intro hP'
       exact ⟨⟨f' P'.1, mem_cubeIdx_image_top (N₁ := N₁') (N₁' := N₁) P'.2⟩, ⟨P', hP', rfl⟩,
         Prod.ext rfl (boxMap_boxMap (by omega) (hJ' P' hP'))⟩
-  unfold detActivityBg
+  unfold detActivityOf
   symm
   refine Finset.sum_nbij' i j (fun J hJ => ?_) (fun J' hJ' => ?_) (fun J hJ => ?_)
     (fun J' hJ' => ?_) (fun J hJ => ?_)
@@ -1188,24 +1203,104 @@ theorem detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁
     exact hleft J (hPA J hJY)
   · obtain ⟨-, hJY⟩ := Finset.mem_filter.1 hJ'
     exact hright J' fun P' hP' => hPB J' hJY P' hP' P'.1.2 (self_mem_Pset _)
-  · -- the mixed differences agree
-    obtain ⟨-, hJY⟩ := Finset.mem_filter.1 hJ
-    obtain ⟨x0, -, hx0⟩ := (mem_unitPts _).1 y.2
-    have hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
-        unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      intro x hx
-      refine hroot x ?_
-      have h : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x =
-          jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
-        rw [← unitBlock1_unitBlock x, ← unitBlock1_unitBlock x0, hx, hx0]
-      rw [rootIdxOf_eq hx0, ← blockIndex_eq_of_jBlock_eq h]
-      exact mem_rootSet_blockIndex x
-    have hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      intro P hP x hx
-      refine hboxA J hJY x (Or.inr (Set.mem_iUnion₂.2 ⟨P, hP, ?_⟩))
-      rw [← coe_cubeP_eq_Pset]; exact hx
-    exact (mixDiff_rootTraceBg_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' J
-      (i J) (hpi J) hbR hJR hn hn' hnS hnS' hraw).symm
+  · obtain ⟨-, hJY⟩ := Finset.mem_filter.1 hJ
+    exact (hmix J hJY (i J) (hpi J)).symm
+
+
+omit [NeZero N₁'] in
+/-- **The sites seen by a set of parameter cubes with hull `Y` lie in the box.**  If the sites of
+the polymer `Y` lie in the box of radius `r` and `Y` contains the root cube of the unit point `y`,
+then for every set `J` of parameter cubes with hull `Y` the sites of the `(k+1)`-block of `y` and
+the cubes of the patches of `J` lie in the box of radius `r`. -/
+theorem inBox_hull_facts (hN : L ^ m₀ ∣ N₁) (y : unitPts (GA))
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y) {r : ℕ}
+    (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (J : Finset (cubeIdx (GA))) (hJY : hullOf m₀ (rootIdxOf y) (patches J) = Y) :
+    (∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧
+    ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+  classical
+  obtain ⟨x0, -, hx0⟩ := (mem_unitPts _).1 y.2
+  have hroot : ∀ x ∈ rootSet m₀ (rootIdxOf y), InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => hYr x (mem_sitesOf.2 ⟨_, hyY, hx⟩)
+  have hboxA : ∀ x ∈ hullSet m₀ (rootIdxOf y) (patches J),
+      InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    refine hYr x ?_
+    rw [← hJY]
+    exact subset_sitesOf_piHull hN _ hx
+  have hbR : ∀ x : CTorus d L N₁ m₁ (k + 1), unitBlock1 (unitBlock x) =
+      unitBlock1 (y : UnitTorus d L N₁ m₁ k) → InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    refine hroot x ?_
+    have h : jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x =
+        jBlock d L (N₁ * L ^ m₁) (k + 1) (k + 1) x0 := by
+      rw [← unitBlock1_unitBlock x, ← unitBlock1_unitBlock x0, hx, hx0]
+    rw [rootIdxOf_eq hx0, ← blockIndex_eq_of_jBlock_eq h]
+    exact mem_rootSet_blockIndex x
+  have hJR : ∀ P ∈ patches J, ∀ x ∈ cubeP P, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro P hP x hx
+    refine hboxA x (Or.inr (Set.mem_iUnion₂.2 ⟨P, hP, ?_⟩))
+    rw [← coe_cubeP_eq_Pset]; exact hx
+  exact ⟨hbR, hJR⟩
+
+/-- **D3: the determinant activity of a polymer on two tori.**  Let `Y` be a set of level-`(k+1)`
+cubes of the first torus with sites in the box of radius `r`, containing the root cube of the unit
+point `y`, and `Y' = cubeMap '' Y`.  Under the standing hypotheses of the charts on the two tori
+(`FlCore`, data `D`, `D'` of the charts) and if the raw data agree on the box of radius
+`r + 3 L^(k+1)`, the determinant activities agree:
+`detActivityBg D' (ιu y) Y' = detActivityBg D y Y`.  The sets `J` of parameter cubes with hull `Y`
+correspond to the sets `J'` with hull `Y'` (`hullOf_image_top`; the patches lie in the box because
+they lie in the sites of the hull), and the mixed differences agree
+(`mixDiff_rootTraceBg_twoTorus`).  Margins: `4 r + 12 L^(k+1+m₁) + 7 L^(k+1) + 5`,
+`2 r₁ + 5 L · cellSide L 0 m₁ (k+1)` (`r₁ = r + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)`) and
+`2 (r + 2 L a_K) + L a_K` below `N₁ L^m₁ L^(k+1)` and `N₁' L^m₁ L^(k+1)`. -/
+theorem detActivityBg_twoTorus (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁')
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {Hm' : GeneratingSet d L (N₁' * L ^ m₁) (k + 1) ϱm'}
+    {a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N (GA) Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) Hm' a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁) (hk : 1 ≤ k) {δc : ℝ}
+    (hδc : 0 ≤ δc) (hcap : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hconn : HatConn (GA)) (hconn' : HatConn (GB))
+    {D : BgData (GA) N} {D' : BgData (GB) N}
+    (hD : XiCData (GA) (compWeight L a₁) ν (k + 1) 1 eps D)
+    (hD' : XiCData (GB) (compWeight L a₁) ν (k + 1) 1 eps D')
+    (y : unitPts (GA))
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ))
+    (hyY : rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y) {r : ℕ}
+    (hYr : ∀ x ∈ sitesOf Y, InBox d r ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    (hn : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * r + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnS : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnS' : 2 * (r + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hnH : 2 * (r + 2 * (L * aK)) + L * aK < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hnH' : 2 * (r + 2 * (L * aK)) + L * aK < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hraw : RawBoxAgree {z | InBox d (r + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (rawOf D) (rawOf D')) :
+    detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D' (ιu y)
+        (Y.image (cubeMap hN hN' le_rfl)) =
+      detActivityBg m₀ (compWeight L a₁) a₁ ν (rho4 d L N BG κ) D y Y := by
+  classical
+  have hcs : aK ≤ L * aK := cellSide_le_mul
+  have ha0 : 0 < L * aK := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L)) (cellSide_pos m₀ m₁ _)
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hn3 : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  have hn3' : 2 * r + 5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1) := by
+    omega
+  refine detActivityOf_twoTorus hN hN' y Y hyY hYr (by omega) (by omega) hn3 hn3' hnH hnH' ?_
+  intro J hJY J' hJ'
+  obtain ⟨hbR, hJR⟩ := inBox_hull_facts hN y Y hyY hYr J hJY
+  exact mixDiff_rootTraceBg_twoTorus hC hC' hk hδc hcap hsm hmar hαK hconn hconn' hD hD' J J' hJ'
+    hbR hJR hn hn' hnS hnS' hraw
 
 end Activity
 
