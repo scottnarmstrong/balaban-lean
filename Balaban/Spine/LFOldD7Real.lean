@@ -8,6 +8,8 @@ module
 public import Balaban.Fluctuation.Lemma25Real
 public import Balaban.Localization.Dec2Covariance
 public import Balaban.Localization.Decoupled2X
+public import Balaban.Localization.DecEquivReal
+public import Balaban.Fluctuation.HoleStepOldCoef
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -159,3 +161,59 @@ theorem decCovSqrt_isRealMat (hα : ∀ w, starRingEnd ℂ (α w) = α w)
     isRealMat_decCov (N := N) C H a aT x ν hα hs hφ hQ hP p q]
 
 end Balaban.Localization.Dec2
+
+namespace Balaban.Fluctuation
+
+open Balaban.Localization.DecEquiv
+
+section ComposedReal
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
+  (S : HoleStep d L N₁ m₁ k N ϱ ϱ')
+
+theorem svec_conj {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ'} (φ : G.Ω 1 × Fin N → ℂ)
+    (h : ∀ p, starRingEnd ℂ (φ p) = φ p) (y : CTorus d L N₁ m₁ (k + 1)) (i : Fin N) :
+    starRingEnd ℂ (svec G φ y i) = svec G φ y i := by
+  by_cases hy : y ∈ G.Ω 1
+  · rw [svec_of_mem' φ hy]; exact h _
+  · simp [svec, zeroExt, hy]
+
+theorem extS_conj (C : DecCover d L N₁ m₁ (k + 1)) {s : Dec2.DecParams C}
+    (hs : ∀ P, starRingEnd ℂ (s P) = s P) (P : ℕ × CTorus d L N₁ m₁ (k + 1)) :
+    starRingEnd ℂ (Dec2.extS C s P) = Dec2.extS C s P := by
+  unfold Dec2.extS
+  split_ifs with h
+  · exact hs _
+  · simp
+
+theorem HoleStep.covSqrtAt_isRealMat (hD : S.D'.IsReal) (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
+    {s : Dec2.DecParams C} (hs : ∀ P, starRingEnd ℂ (s P) = s P) :
+    IsRealMat (S.covSqrtAt C ρ s) := by
+  obtain ⟨hf, hm⟩ := decBg2_real (C := C) (H := S.G') (a := S.a) (ν := S.ν) (ρ := ρ) hs hD
+  exact Dec2.decCovSqrt_isRealMat C S.G' S.a S.a₁ S.ν hm (extS_conj C hs)
+    (fun y i => svec_conj _ hf y i) isRealMat_unitQ isRealMat_unitP
+
+theorem HoleStep.psiKdAt_isReal (hD : S.D'.IsReal) (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
+    {s : Dec2.DecParams C} (hs : ∀ P, starRingEnd ℂ (s P) = s P) :
+    (S.psiKdAt C ρ s).IsReal := by
+  obtain ⟨hf, -⟩ := decBg2_real (C := C) (H := S.G') (a := S.a) (ν := S.ν) (ρ := ρ) hs hD
+  exact composeData_isReal S.hpre S.a _ S.D' (fun z i => Complex.conj_eq_iff_im.1 (hf _)) hD
+
+/-- **The composed field is real** at real localization vectors and real fluctuation variables. -/
+theorem HoleStep.composed_conj (hD : S.D'.IsReal) (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
+    {sloc : S.U → Dec2.DecParams C} (hs : ∀ b P, starRingEnd ℂ (sloc b P) = sloc b P)
+    {ψhat : S.U → Fin N → ℂ} (hψ : ∀ q i, starRingEnd ℂ (ψhat q i) = ψhat q i) (b : S.U)
+    (i : Fin N) :
+    starRingEnd ℂ (S.composed C ρ sloc ψhat b i) = S.composed C ρ sloc ψhat b i := by
+  unfold HoleStep.composed HoleStep.psiLoc HoleStep.shiftLoc
+  rw [map_add, map_mul, Complex.conj_ofReal]
+  congr 1
+  · exact Complex.conj_eq_iff_im.2 ((S.psiKdAt_isReal hD C ρ (hs b)) _ i).1
+  · congr 1
+    simp only [map_sum, map_mul]
+    refine Finset.sum_congr rfl fun q _ => ?_
+    rw [S.covSqrtAt_isRealMat hD C ρ (hs b) _ _, hψ]
+
+end ComposedReal
+
+end Balaban.Fluctuation
