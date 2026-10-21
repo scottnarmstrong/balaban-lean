@@ -3011,6 +3011,7 @@ public import Balaban.Inhabited.NewLevelClassE
 public import Balaban.Inhabited.NewLevelCanonBox
 public import Balaban.Polymer.TwoTorusLabelBox
 public import Balaban.Inhabited.NewLevelZeroCorr
+public import Balaban.Inhabited.NewLevelThickCorr
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
