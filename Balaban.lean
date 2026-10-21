@@ -3005,6 +3005,7 @@ public import Balaban.Inhabited.NewLevelCanonPins
 public import Balaban.Polymer.PolyDomBoxMap
 public import Balaban.Polymer.FderivTransfer
 public import Balaban.Polymer.IrrelBoxTransfer
+public import Balaban.Polymer.IrrelTorusBox
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
