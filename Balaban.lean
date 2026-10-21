@@ -2164,6 +2164,7 @@ public import Balaban.LargeField.Base.BaseXLog
 public import Balaban.LargeField.Base.BaseTwoTorusGreen
 public import Balaban.LargeField.Base.BaseTwoTorusCov
 public import Balaban.LargeField.Base.BaseTwoTorusRows
+public import Balaban.LargeField.Base.BaseTwoTorusLogShift
 public import Balaban.LargeField.Base.BaseTwoTorusBackground
 public import Balaban.LargeField.Base.BaseXLogShiftOps
 public import Balaban.LargeField.Base.BaseXLogShiftCube
