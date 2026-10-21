@@ -574,6 +574,50 @@ theorem vset_image_top {ρ : ℕ}
   refine Finset.biUnion_congr rfl fun P hP => ?_
   exact (cubeP_image_top (N₁' := N₁') hn (h𝒞 P hP).1 (h𝒞 P hP).2).symm
 
+/-- **The cut parameters on two tori.**  For corresponding sets `I`, `I'` of parameter cubes
+(`patches I' = Prod.map id bm '' patches I`) with the patches of `I` in the box of radius `R`, the
+extended cut parameters `extS (cutPt I)`, `extS (cutPt I')` agree at every cube of the first torus
+whose centre lies in the box of radius `R + (3 L^(k+1+m₁) + 3 L^(k+3)) + L^(k+1+m₁)`. -/
+theorem extS_cutPt_twoTorus {R : ℕ} (I : Finset (cubeIdx (GA))) (I' : Finset (cubeIdx (GB)))
+    (hI' : patches I' = (patches I).image (Prod.map id bm))
+    (h𝒞R : ∀ P ∈ patches I, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2)
+    (hnS' : 2 * (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁)) +
+      5 * (L * cellSide L 0 m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1)) :
+    ∀ P ∈ cubeIdx (GA),
+      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 →
+      extS (GB) (cutPt I') (Prod.map id bm P) = extS (GA) (cutPt I) P := by
+  classical
+  have hj1 : 1 ≤ k + 1 := Nat.le_add_left 1 k
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hcs : L ^ (k + 1 + m₁) ≤ L * cellSide L 0 m₁ (k + 1) := by
+    unfold cellSide
+    rw [Nat.add_zero]
+    exact Nat.le_mul_of_pos_left _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  intro P hPc hPR
+  obtain ⟨y0, rfl, hb0⟩ := exists_of_mem_cubeIdx (ϱ := ϱ) le_rfl hPc
+  have hPc' : Prod.map id bm ((k + 1, y0) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈ cubeIdx (GB) :=
+    (mem_cubeIdx_levelGS le_rfl _).2 ⟨rfl, hj1,
+      aligned_boxMap (pow_dvd_side le_rfl N₁) (pow_dvd_side le_rfl N₁') hb0⟩
+  have hiff : (⟨_, hPc'⟩ : cubeIdx (GB)) ∈ I' ↔ (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I := by
+    rw [← (mem_patches (G := GB)).trans (exists_prop_of_true hPc')]
+    rw [← (mem_patches (G := GA)).trans (exists_prop_of_true hPc)]
+    rw [hI', Finset.mem_image]
+    constructor
+    · rintro ⟨Q, hQ, hQe⟩
+      have hQR := h𝒞R Q hQ
+      have := injOn_idxMap (N₁' := N₁')
+        (ρ := R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
+        (by omega) (inBox_mono (by omega) hQR) hPR hQe
+      rw [← this]; exact hQ
+    · intro h; exact ⟨_, h, rfl⟩
+  simp only [extS, hPc, hPc', ↓reduceDIte, cutPt]
+  by_cases h : (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I
+  · rw [ite_eq_left_iff.2 (fun h' => absurd (hiff.2 h) h'), ite_eq_left_iff.2 (fun h' => absurd h h')]
+  · rw [ite_eq_right_iff.2 (fun h' => absurd h' (mt hiff.1 h)), ite_eq_right_iff.2 (fun h' => absurd h' h)]
+
 /-- **D3 (cut points): the rooted trace of one unit block with its background at a cut point, on
 two tori.**  Let `I` be a set of parameter cubes of the first torus and `I'` the corresponding set
 of the second torus (`patches I' = Prod.map id bm '' patches I`), with the cubes of `I` and the
@@ -668,31 +712,7 @@ theorem rootTraceBg_cutPt_twoTorus
     have hPI : (⟨P, hPc⟩ : cubeIdx (GB)) ∉ I' := fun h => hPC (by
       rw [h𝒞, ← hI']; exact mem_patches.2 ⟨hPc, h⟩)
     simp [extS, hPc, cutPt, hPI]
-  have hsP : ∀ P ∈ cubeIdx (GA),
-      InBox d (R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
-        ((N₁ * L ^ m₁) * L ^ (k + 1)) P.2 →
-      extS (GB) (cutPt I') (Prod.map id bm P) = extS (GA) (cutPt I) P := by
-    intro P hPc hPR
-    obtain ⟨y0, rfl, hb0⟩ := exists_of_mem_cubeIdx (ϱ := ϱ) le_rfl hPc
-    have hPc' : Prod.map id bm ((k + 1, y0) : ℕ × CTorus d L N₁ m₁ (k + 1)) ∈ cubeIdx (GB) :=
-      (mem_cubeIdx_levelGS le_rfl _).2 ⟨rfl, hj1,
-        aligned_boxMap (pow_dvd_side le_rfl N₁) (pow_dvd_side le_rfl N₁') hb0⟩
-    have hiff : (⟨_, hPc'⟩ : cubeIdx (GB)) ∈ I' ↔ (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I := by
-      rw [← (mem_patches (G := GB)).trans (exists_prop_of_true hPc')]
-      rw [← (mem_patches (G := GA)).trans (exists_prop_of_true hPc)]
-      rw [hI', Finset.mem_image]
-      constructor
-      · rintro ⟨Q, hQ, hQe⟩
-        have hQR := h𝒞R Q hQ
-        have := injOn_idxMap (N₁' := N₁')
-          (ρ := R + (3 * L ^ (k + 1 + m₁) + 3 * L ^ (k + 1 + 2)) + L ^ (k + 1 + m₁))
-          (by omega) (inBox_mono (by omega) hQR) hPR hQe
-        rw [← this]; exact hQ
-      · intro h; exact ⟨_, h, rfl⟩
-    simp only [extS, hPc, hPc', ↓reduceDIte, cutPt]
-    by_cases h : (⟨_, hPc⟩ : cubeIdx (GA)) ∈ I
-    · rw [ite_eq_left_iff.2 (fun h' => absurd (hiff.2 h) h'), ite_eq_left_iff.2 (fun h' => absurd h h')]
-    · rw [ite_eq_right_iff.2 (fun h' => absurd h' (mt hiff.1 h)), ite_eq_right_iff.2 (fun h' => absurd h' h)]
+  have hsP := extS_cutPt_twoTorus I I' hI' h𝒞R hnS'
   have hB' := SY_image (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS' hXR h𝒞R hYR
   have hagree := hagree_boxMap (ϱ := ϱ) (N₁' := N₁') hj1 le_rfl hnS hnS'
     (SY_subset_levelGS (ϱ := ϱ) (X₁ := X₁) (𝒞 := 𝒞) hj1 le_rfl) hYR hsP
