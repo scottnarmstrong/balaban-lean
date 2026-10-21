@@ -1848,3 +1848,19 @@ Statements that changed (all in my own blocker-7 files, plus one core refactor):
   `canonOldTermSystemOf_pins : OldTermsCanonPinsAt`.  **Still open for a full `NewLevelSystem`:** the `OldTermSettings` of the canonical terms
   (`BgSetting`, `FlSetting`, `hopt` trees, `hcov`, `hX₁` for the `localB` sets `Gk = 𝔹_n(P)`), i.e. the geometry of `localB` against the step
   (Precedes, collar, `dsX₀`, `hN`, `dep`), which the chain takes as base premises (`StepTowerCollarStruct`: `hBs`, `hFs`).  That is new analysis, not an extraction.
+
+### A4-1f the settings of the canonical old terms (W1161, 2026-10-21)
+
+`Inhabited/NewLevelCanonSettings.exists_canonOldTermData`: in the regime `ClassHatCond C s r₀` (R13), from one reference `BgSetting`/`FlSetting`
+(`hB0`, `hF0`: the chain's typing data and numerics at the step) there are `O : OldTermSystem` indexed by `AdmPairs`, `OS : OldTermSettings S t O`
+(`BgSetting`, `FlSetting`, `CovSetup` of `XL = X ∪ □(y)` with a chosen family `𝒦X` taken from `exists_optimal_chosen`, `hX₁`, optimal trees, analytic
+`FkL` from `theorem72_analytic`), a canonical cover `F`, `OldTermsCanonPinsAt` and `OldTermsAreIrrel` (so `Gj = C.Tm.gs j X`).  The per-label settings are
+`settings_family_castLocalB_hat` (W1146's), the decoupled fields `exists_decFieldPin/SolPin` (`StepTowerBeta0OldFields`).  Nothing in `hBs`/`hFs` was found false for
+`localB`; they are derived from the reference setting.
+**What the geometry comparison (`CanonCoverLocal`) still needs from W1146's files.** `Gk τ = castG hc (localB k _ (Z' τ) hs₁)` with `Z' τ` the cube-index
+neighbourhood (`5L` cubes of side `L^{m₁+s} L^k`) of `XL τ ∪ X̂`, and `Gj τ = castG hc (localB j _ {x' | torusCast x' ∈ hatSet … } hs₂)`.  The statement of
+`settings_family_castLocalB_far/_hat/_spec_gen` exposes only `Gj`; the explicit `Gk` is inside the proof (last `exact ⟨fun τ => castG hc (localB k …), …⟩`).
+Request to the owner (one line each, proof unchanged): add `∀ τ, Gk τ = castG hc (localB k (Nat.le_succ k) {z' | ∃ y' ∈ Y' τ, supDist … ≤ 5 * L} hs₁)`
+to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same torus) must be generalized to the cast form over `(N₁', m₁ + s)` (the `boxMap` of the
+two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
+quotient description of `Z'`.
