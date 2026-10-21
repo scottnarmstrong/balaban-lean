@@ -2955,6 +2955,7 @@ public import Balaban.Spine.CorrKappa
 public import Balaban.Spine.CorrHist
 public import Balaban.Spine.CorrLoc
 public import Balaban.Spine.KeptPinned
+public import Balaban.Spine.KeptCoherence
 public import Balaban.Spine.KeptHalfRec
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField

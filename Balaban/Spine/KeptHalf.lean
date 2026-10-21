@@ -163,10 +163,16 @@ exponents `keptExpOut` whose costs `γ_i(ϰ)` below the scale `k` are those of `
 structure KeptScaleData (r₀ : Rep S n R k0 K M N geo cs P k) where
   KD : KeptData k0 geo cs N (keptExpOut r₀ (canonHist S n R k0 K k (k + 1)) k) S.lam
   gam_eq : ∀ i, i < k → ∀ l, KD.gam i l = r₀.KD.gam i l
-  /-- the kept costs do not depend on the label: `γ_i(ϰ) = log C_dec(ϰ) + A'₃ λ̂_i^{p_R}` with
-  `C_dec(ϰ) = 5` for every `ϰ` (LFR Definition III.5.2; `Σ C_dec⁻¹ = 1`).  `KeptData` itself allows
-  label-dependent `gam`; this clause is part of the construction of the kept data by the provider. -/
-  gam_indep : ∀ i (l l' : Fin 5), KD.gam i l = KD.gam i l'
+  /-- the kept costs are `γ_i(ϰ) = log C_dec(ϰ) + A'₃ λ̂_i^{p_R}` with `C_dec(ϰ) = 5` for every `ϰ`
+  (LFR Definition III.5.2; `Σ C_dec⁻¹ = 1`), a function of the scale only.  `KeptData` itself allows
+  label- and torus-dependent `gam` (with the lower bound `gam_ge`); this clause is part of the
+  construction of the kept data by the provider. -/
+  gam_val : ∀ i (l : Fin 5), KD.gam i l = Real.log 5 + S.A3' * S.lam i ^ S.pR
+
+/-- The kept costs do not depend on the label. -/
+theorem KeptScaleData.gam_indep {r₀ : Rep S n R k0 K M N geo cs P k} (D : KeptScaleData r₀) (i : ℕ)
+    (l l' : Fin 5) : D.KD.gam i l = D.KD.gam i l' := by
+  rw [D.gam_val, D.gam_val]
 
 /-- The kept costs of the input below the scale `k` do not depend on the label. -/
 theorem KeptScaleData.gam_indep_below {r₀ : Rep S n R k0 K M N geo cs P k} (D : KeptScaleData r₀)
