@@ -33,42 +33,6 @@ section Term
 
 variable {d M L N N' k : ℕ} [NeZero N] [NeZero N'] [NeZero L] {v a : ℝ}
 
-/-- The final cut field lies in the closed ball of radius `|c| B_box ρ` around its centre on the
-polydisc of radius `e^κ` (the row bound `boxCut_row_bound`). -/
-theorem linField_boxCut_mem_closedBall (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
-    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M)
-    {κ : ℝ} (hκ : 0 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
-    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) {Nf : ℕ} {h : Fin Nf → ℂ} {p : ℝ} (hp0 : 0 ≤ p)
-    (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (c : ℂ) (φ₀ : L1Torus d N × Fin Nf → ℂ) {ρ : ℝ}
-    (hρ : 0 ≤ ρ) {w : L1Torus d N × Fin Nf → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ)
-    {s : MacIdx d N M → ℂ} (hs : s ∈ polydisc (0 : MacIdx d N M → ℂ) (fun _ => Real.exp κ)) :
-    linField φ₀ (fun s q q' => c * boxCut d L N k M v a h s q q') s w ∈
-      Metric.closedBall φ₀ (‖c‖ * boxCutConst d L Nf a κ p * ρ) := by
-  have hsb : ∀ z, ‖s z‖ ≤ Real.exp κ := fun z => by simpa using (hs z).le
-  have hB0 : 0 ≤ ballConst d (pdEps d L / 2) :=
-    ballConst_decay_nonneg (by have := pdEps_pos (d := d) (L := L) hd; positivity)
-  have hm0 : 0 ≤ ‖c‖ * boxCutConst d L Nf a κ p * ρ := by
-    have : 0 ≤ boxCutConst d L Nf a κ p := by
-      unfold boxCutConst
-      refine add_nonneg (by positivity) (mul_nonneg (div_nonneg (mul_nonneg (by norm_num)
-        (mul_nonneg (by positivity) hB0)) (Real.sqrt_nonneg _)) (by positivity))
-    positivity
-  rw [Metric.mem_closedBall, dist_pi_le_iff hm0]
-  intro q
-  rw [dist_eq_norm]
-  simp only [linField, add_sub_cancel_left]
-  calc ‖∑ y, c * boxCut d L N k M v a h s q y * w y‖
-      ≤ ∑ y, ‖c * boxCut d L N k M v a h s q y * w y‖ := norm_sum_le _ _
-    _ ≤ ∑ y, ‖c‖ * ‖boxCut d L N k M v a h s q y‖ * ρ := by
-        refine Finset.sum_le_sum fun y _ => ?_
-        simp only [norm_mul]
-        exact mul_le_mul_of_nonneg_left (hw y) (by positivity)
-    _ = ‖c‖ * (∑ y, ‖boxCut d L N k M v a h s q y‖) * ρ := by
-        rw [← Finset.sum_mul, ← Finset.mul_sum]
-    _ ≤ ‖c‖ * boxCutConst d L Nf a κ p * ρ := by
-        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)) hρ
-        exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp hsb q
-
 /-- **The rooted coefficients of a term of the final cut field on two tori, core.** Two tori
 `N, N'`, a map of sites `f` carrying the region of `C` injectively onto the region of `e C`, `e`
 injective on `C`. The centres agree on the read set `S`, the variables agree on the region of `C`, the
