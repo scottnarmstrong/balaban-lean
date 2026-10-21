@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Operators.QuietLocalInput
 public import Balaban.LargeField.Operators.QuietStepData
 public import Balaban.LargeField.Def7Inhabited
+public import Balaban.LargeField.Def7Counts
 
 /-!
 # The step data of the first step as a splice (A3-1 (b), (d))
@@ -276,5 +277,78 @@ theorem quietStepData'_gauss_le [NeZero N] (inp : QuietStepInput' K k0 geo cs N)
     simp only [hr, ↓reduceIte]
 
 end QuietGauss
+
+
+section Kappa
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+  [NeZero S.L]
+
+/-- A quiet step creates no new cube of the component: `Z' ∩ 𝒩_994 = ∅` for the global new cubes
+(the local ones are the global ones in the lineage, `locRH_new`). -/
+theorem card_inter_newCubes_of_isQuiet (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (Z' : H.Comp (k + 1)) (hq : IsQuiet (H.locRH (k + 1) Z') k Z'.1) :
+    (Z'.1 ∩ H.newCubes (k + 1)).card = 0 := by
+  rw [Finset.card_eq_zero]
+  unfold IsQuiet at hq
+  obtain ⟨hP, hQ, hR, hS⟩ := H.locRH_new Z' (j := k) (Nat.lt_succ_self k) (by omega)
+  rw [H.lin_self] at hP hQ hR hS
+  rw [← hq]
+  ext x
+  simp only [RegionHistory.newCubes, Finset.mem_inter, mem_finOf, RegionStep.newCubes,
+    Region.newCubes, hP, hQ, hR, hS, Set.mem_union, Set.mem_inter_iff, Finset.mem_coe]
+  tauto
+
+/-- **The step exponent is nonpositive at the quiet steps**: with `c₁, c₂ ≥ 0` and `log β_k ≥ 0` the
+exponent `κ^{(k)} = A₃ (log β_k)^{2p₀} |𝒩_{k+1} ∩ Z'| - (c₁ log β_k + c₂) |Z^c_k ∩ Z'|_{k+1}` of a
+localized history of a quiet step is at most `0` (no new cube). -/
+theorem kappaStepLoc_nonpos_of_quietRealized (P : BudgetConsts) (hc1 : 0 ≤ P.c1) (hc2 : 0 ≤ P.c2)
+    (hlog : ∀ k, 0 ≤ Real.log (P.beta k)) {k : ℕ} {a : LocalHistory S n M K}
+    (h : QuietRealized R k0 k a) : Def7.kappaStepLoc S P M k a ≤ 0 := by
+  obtain ⟨H, -, Z', -, hk, hq, rfl⟩ := h
+  rw [Def7.kappaStepLoc_localHistory P H hk Z', card_inter_newCubes_of_isQuiet H hk Z' hq]
+  unfold BudgetConsts.kappaStep
+  have : 0 ≤ (P.c1 * Real.log (P.beta k) + P.c2) *
+      ((S.M : ℝ) ^ S.d / (S.L : ℝ) ^ S.d * ((H.outCubes k Z').card : ℝ)) := by
+    have := NeZero.pos S.L
+    have := hlog k
+    positivity
+  simpa using this
+
+end Kappa
+
+
+section OfSlice
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 : ℕ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+
+/-- **The step data of the first step**: a scale-`0` slice (the base kernel and boundary factor)
+spliced with the quiet step data of the scales `k ≥ 1` (`quietStepData'`, constants `c₁ = c₂ = 0`),
+at the step exponent `κ^{(k)}` of the budget `P` (`kappaStepLoc`). The quiet steps have no new
+cube, so `κ^{(k)} ≤ 0`, the exponent of the quiet step data with `c₁ = c₂ = 0`
+(`kappaStepLoc_nonpos_of_quietRealized`). -/
+noncomputable def StepData.ofZeroSliceQuiet [NeZero N] (P : BudgetConsts) (hP1 : 0 ≤ P.c1)
+    (hP2 : 0 ≤ P.c2) (hPlog : ∀ k, 0 ≤ Real.log (P.beta k))
+    (sl : StepSlice0 k0 geo cs N (kappaStepLoc (K := K) S P M 0))
+    (inp : QuietStepInput' K k0 geo cs N)
+    (hz : ∀ k, 0 ≤ cs.z (k + 1)) (hc : ∀ k, 0 ≤ cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (hβ : ∀ k, 0 ≤ cs.beta (k + 1)) (haw : ∀ n, 0 ≤ cs.aw n) (hμ : ∀ k, 0 ≤ cs.muAct (k + 1))
+    (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.mu q))
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L geo.M1) cs.aw (cs.muBg q))
+    (hN : 2 ≤ N) (hc1 : cs.Cb ≤ 0) (hc2 : cs.Cb * cs.B0 ≤ 0)
+    (hlog : ∀ k, 0 ≤ Real.log (cs.beta k))
+    (hcpos : ∀ k, 0 < cs.beta k * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
+    (hδ : ∀ k, 0 < cs.delta k) (hδ1 : ∀ k, 3 * S.d * S.L * cs.delta k ≤ 1 / 2)
+    (hΛ : ∀ k, 3 * S.d * S.L * cShell N * cs.delta k ≤ 1 / 2)
+    (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0) :
+    StepData k0 geo cs N (kappaStepLoc (K := K) S P M) :=
+  StepData.spliceZero sl
+    (quietStepData' inp hz hc hβ haw hμ hbg hbgB hN 0 0 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb hB0)
+    (quietStepData'_gauss_le inp hz hc hβ haw hμ hbg hbgB hN 0 0 hc1 hc2 hlog hcpos hδ hδ1 hΛ hCb
+      hB0 (fun k a hr => by
+        simpa [quietKappaStep] using kappaStepLoc_nonpos_of_quietRealized P hP1 hP2 hPlog hr))
+
+end OfSlice
 
 end Balaban.LargeField
