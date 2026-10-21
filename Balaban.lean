@@ -1370,6 +1370,7 @@ public import Balaban.Fluctuation.StepNorm
 public import Balaban.Fluctuation.StepIdentityReg
 public import Balaban.LargeField.Def7Hist
 public import Balaban.LargeField.Def7SmallField
+public import Balaban.LargeField.Def7SmallFieldC
 public import Balaban.LargeField.GlobalGenRegional
 public import Balaban.LargeField.Def7FineSize
 public import Balaban.LargeField.Def7
@@ -2919,6 +2920,7 @@ public import Balaban.Spine.LFBdry
 public import Balaban.Spine.LFBdryOldEntropy
 public import Balaban.Spine.LFBdryOldAssign
 public import Balaban.Spine.LFHoleStep
+public import Balaban.Spine.LFHoleStepPhi
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads

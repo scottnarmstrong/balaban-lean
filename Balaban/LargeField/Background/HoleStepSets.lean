@@ -26,7 +26,10 @@ set `(𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1}`: the same layers below `k + 1` a
 * `p6TopC`: the same on the cover torus (`castN`), next to `p6OldC`;
 * `holeStepOf`: **the step on a region of a region step** (`Fluctuation.HoleStep`), with the old set
   `p6OldC`, the set `p6TopC`, and the mixed datum `liftMixed` of the old field `ψ_k`, the block
-  variable `θ` and the field `h`.
+  variable `θ` and the field `h`;
+* `cubeOfC`, `locDomC`: the cube of `𝕋_{k+1}` of a site of the cover torus, and the localization
+  domain `X₁ = R_{k+1}(□')` of P5 (2.18) of a site: the sites of the cubes of `𝕋_{k+1}` within `ρ`
+  cubes of its cube (`mem_locDomC`; it contains the cube, `mem_locDomC_of_cube_eq`).
 -/
 
 @[expose] public section
@@ -139,5 +142,30 @@ noncomputable def holeStepOf (hM1 : M1 = L ^ m₁) (hn : n0 = L * n1) {ρ' : ℕ
   β := β
   p₁ := p₁
   δ := δ
+
+/-- **The cube of `𝕋_{k+1}` of a site of the cover torus** (`𝕋_{k+1} = Torus d n1`, cubes of side
+`c M₁ L^{k+1}`). -/
+def cubeOfC (hM1 : M1 = L ^ m₁) (x : Localization.CTorus d L (c * n1) m₁ (k + 1)) : Torus d n1 :=
+  blockMap (L ^ (k + 1) * (c * M1)) n1
+    ((congrArg (· * L ^ (k + 1)) (p6_side (c := c) (n1 := n1) hM1)).symm ▸ x :
+      Torus d (M1 * (c * n1) * L ^ (k + 1)))
+
+open Classical in
+/-- **The localization domain `X₁ = R_{k+1}(□')` of P5 (2.18)** of a site of the cover torus: the
+sites of the cubes of `𝕋_{k+1}` within `ρ` cubes (`thick ρ`) of the cube `□'` of the site (the pair
+`X₀ = □' ⊂ X₁` of the localization extension, P3 (2.14); `ρ = ⌊R_k⌋`). -/
+noncomputable def locDomC (hM1 : M1 = L ^ m₁) (ρ : ℕ) (b : Localization.CTorus d L (c * n1) m₁ (k + 1)) :
+    Finset (Localization.CTorus d L (c * n1) m₁ (k + 1)) :=
+  Finset.univ.filter fun x => cubeOfC hM1 x ∈ thick ρ ({cubeOfC hM1 b} : Set (Torus d n1))
+
+theorem mem_locDomC {hM1 : M1 = L ^ m₁} {ρ : ℕ} {b x : Localization.CTorus d L (c * n1) m₁ (k + 1)} :
+    x ∈ locDomC hM1 ρ b ↔ cubeOfC hM1 x ∈ thick ρ ({cubeOfC hM1 b} : Set (Torus d n1)) := by
+  classical
+  simp [locDomC]
+
+/-- The localization domain of a site contains the sites of its cube. -/
+theorem mem_locDomC_of_cube_eq {hM1 : M1 = L ^ m₁} (ρ : ℕ) {b x : Localization.CTorus d L (c * n1) m₁ (k + 1)}
+    (h : cubeOfC hM1 x = cubeOfC hM1 b) : x ∈ locDomC hM1 ρ b :=
+  mem_locDomC.2 (subset_nbhd _ _ (by rw [h]; rfl))
 
 end Balaban.LargeField

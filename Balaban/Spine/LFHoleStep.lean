@@ -16,14 +16,15 @@ import Mathlib.Tactic.Linarith
 The step `k → k + 1` of a history `H` (`RegionHistory`, horizon `K`, block sides `n`) on the
 multiscale fields `ψ` (`MultiFieldC`, the arguments of the boundary terms): the step on a region
 (`Fluctuation.HoleStep`, `LargeField.holeStepOf`) of the region step `H.step k` with the old field
-`ψ_k` and the block variable `θ = ψ_{k+1}` read from `ψ`, and the multiscale field of scale `k` at
+`ψ_k` and the block variable `θ = z ψ_{k+1}` read from `ψ` (`z = z_{k+1}` the field renormalization
+of the step, `stepDensity`), and the multiscale field of scale `k` at
 which the old boundary terms `ℬ^{(k)}(X)` are evaluated in the fluctuation integral (P5 (2.48),
 P6 (4.32)): `ψ_k` replaced on the blocks of `Ω_{k+1}` by the composed field of P5 (2.39).
 
 * `coverScale_eq`: the cover torus of the step (side `(c n_{k+1}) L^{m₁} L^{k+1}`, `M₁ = L^{m₁}`) is the
   fine torus of the history, in blocks of every side `L^i`, `i ≤ k + 1`;
 * `coverField`: the component `ψ_i` of a multiscale field as a field on the blocks of the cover torus;
-* `holeStepLF`: the step on a region of the history at the multiscale field `ψ`;
+* `scaleMulti`, `holeStepLF`: the step on a region of the history at the multiscale field `ψ`;
 * `unitOfBlock`, `composedMulti`: the multiscale field of scale `k` with the field `comp` on the
   unit points of `Ω_{k+1}` (the composed field, `Fluctuation.HoleStep.composed`), `ψ_j` at the
   scales `j < k`, `ψ_k` on the other blocks, `0` above `k`; `composedMulti_of_lt`,
@@ -58,17 +59,22 @@ def coverField (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1))
 
 variable (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
+/-- The multiscale field `z ψ` (the block variable of the kernel of `T^{(k)}` is `z ψ_{k+1}`). -/
+def scaleMulti (z : ℝ) (ψ : MultiFieldC S n M K N) : MultiFieldC S n M K N :=
+  fun j y i => (z : ℂ) * ψ j y i
+
 /-- **The step on a region of the history `H` at the multiscale field `ψ`** (P5 (2.16)–(2.20)): the
 step on a region of the region step `H.step k` (`holeStepOf`) with the old field `ψ_k` and the block
-variable `θ = ψ_{k+1}` of `ψ`, the field `h₀` and the constants `a₁, ν, β, p₁, δ`.  The premises are
-the separation `3 L ≤ ⌊R_{k-1}⌋` of the old operator set and `1 ≤ k`. -/
+variable `θ = z ψ_{k+1}` of `ψ` (the variable of the kernel `t_k(z ψ_{k+1}, Qψ_k)` of the step,
+`stepKernel`), the field `h₀` and the constants `a₁, ν, β, p₁, δ`.  The premises are the separation
+`3 L ≤ ⌊R_{k-1}⌋` of the old operator set and `1 ≤ k`. -/
 noncomputable def holeStepLF (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (h₀ : Fin N → ℝ)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
     (a₁ ν β p₁ δ : ℝ) :
     HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1) :=
   holeStepOf (H.step k) hM1 (hnn k (by omega)) hρ (by have := g.hc; omega) hk1
-    (coverField g hnn hM1 hk ψ k (Nat.le_succ k)) (coverField g hnn hM1 hk ψ (k + 1) le_rfl) h₀
-    a₁ ν β p₁ δ
+    (coverField g hnn hM1 hk ψ k (Nat.le_succ k))
+    (coverField g hnn hM1 hk (scaleMulti z ψ) (k + 1) le_rfl) h₀ a₁ ν β p₁ δ
 
 /-- The unit block (side `L^k` of the cover torus) of a block of side `L^k` of the history torus. -/
 def unitOfBlock {k : ℕ} (hk : k + 1 ≤ K) (y : Torus S.d (M * n K * S.L ^ (K - k))) :
