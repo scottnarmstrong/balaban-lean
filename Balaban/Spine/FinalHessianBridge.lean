@@ -334,4 +334,49 @@ theorem secondVariation_top (H : BgHyp d L k ϱ a ν)
 
 end Assembly
 
+section SFHessian
+
+open Balaban.LargeField.Def7 Balaban.LargeField.Def7v2
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ)
+  (hv : EuclideanSpace ℝ (Fin N))
+
+/-- **The Hessian of `A*_k(univ; ·)` at the constant configuration is the final Hessian**
+(A6-3 (a), P1d). For `ψ_k = h + t u` with `|h| = 1` and equal action and background masses,
+`A*_k(univ; ψ_t) / t² → ½ L^{k(d-2)} ⟨U, finalHessian_{νL^{2k}, a_k, h} U⟩`, `U` the block field
+`u`, `ν` the background mass of scale `k`. -/
+theorem actStar2_univ_hessian
+    (H : BgHyp S.d S.L k (minSep S.L C.geo.M1) C.weights (C.cs.muBg k))
+    (hm : sfActMass2 C.cs k = C.cs.muBg k)
+    (he : ∑ i, hv i ^ 2 = 1) (hk : 1 ≤ k) (hd2 : 2 ≤ S.d)
+    (u : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) :
+    Filter.Tendsto (fun t : ℝ => actStar2 C Set.univ (fun z => hv + t • u z) hv / t ^ 2)
+      (nhdsWithin 0 {0}ᶜ)
+      (nhds ((1 / 2) * (((S.L : ℝ) ^ k) ^ (S.d - 2) *
+        ((fun p : Torus S.d (C.geo.M1 * (C.geo.c * n k) * S.L ^ (k - k)) × Fin N =>
+            blockCfgOf C.geo C.hnn le_rfl C.hkK u p.1 p.2) ⬝ᵥ
+          (finalHessian S.d (C.geo.M1 * (C.geo.c * n k) * S.L ^ k) (S.L ^ k)
+            (C.geo.M1 * (C.geo.c * n k) * S.L ^ (k - k))
+            (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => hv i) *ᵥ
+          (fun p : Torus S.d (C.geo.M1 * (C.geo.c * n k) * S.L ^ (k - k)) × Fin N =>
+            blockCfgOf C.geo C.hnn le_rfl C.hkK u p.1 p.2)))))) := by
+  have h1 := actStar2_univ_second_variation C hv H he hk hd2 u
+  rw [hm] at h1
+  have hΩ : ∀ m, 1 ≤ m → m ≤ k → (C.genW (Set.univ : Set (Torus S.d (n k)))).Ω m = Finset.univ :=
+    fun m _ hmk => genW_Ω_univ_of_le C hmk
+  have h2 := secondVariation_top (G := C.genW (Set.univ : Set (Torus S.d (n k)))) H hΩ hk hd2
+    (e := fun i => hv i) he (tangentDatum C u)
+    (fun p => blockCfgOf C.geo C.hnn le_rfl C.hkK u p.1 p.2) ?_ ?_
+  · convert h1 using 2
+    linarith
+  · intro x i
+    have hxd : x ∈ dataSites (C.genW (Set.univ : Set (Torus S.d (n k)))) :=
+      (mem_dataSites _).2 (Or.inl (by rw [genW_Ω_univ C hk]; exact Finset.mem_univ x))
+    simp [tangentDatum, liftSingle_Ψ _ _ _ hxd, BlockCfg.toC, jBlock]
+  · intro x
+    simp [tangentDatum, liftSingle, BgData.clip]
+
+end SFHessian
+
 end Balaban.RootFSpine
