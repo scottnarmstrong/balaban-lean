@@ -199,7 +199,7 @@ lower bound for the path distance from the sites concerned to the shadow `shadow
 `G₀` for the datum `D`, `gl` the global background of `G₁` for `D'`. -/
 theorem bgField_nested_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
-      ∀ {N₀ N₁ m₁ k : ℕ} [NeZero N₁] (hN : N₀ = N₁ * L ^ m₁) [NeZero N₀] {ϱ0 ϱ1 : ℝ}
+      ∀ {N₀ N₁ m₁ k : ℕ} [NeZero N₁] (_hN : N₀ = N₁ * L ^ m₁) [NeZero N₀] {ϱ0 ϱ1 : ℝ}
         {G0 : GeneratingSet d L N₀ (k + 1) ϱ0} {G1 : GeneratingSet d L N₀ (k + 1) ϱ1}
         {a₁ ν δ ε δ' ε' : ℝ},
         0 < a₁ →
