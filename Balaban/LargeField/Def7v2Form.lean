@@ -186,8 +186,9 @@ noncomputable def integrand2 {ι : Type} [Fintype ι] (a : ι → LocalHistory S
     sfFactor2 C vc Zᶜ ψk hv g
 
 /-- The term `𝕋_k(Z_k(𝔸), 𝔸)[e^{ℬ^{(k)}(𝔸)} χ_k(Z^c_k) exp(𝒜₂ + ℱ_k + ℛ^{(k)})(Z^c_k)]` of (D1),
-second version, for the post-`R` class. -/
-noncomputable def postTerm2 {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+second version, for the post-`R` class, **before the ruling R12 case split**
+(`postTerm2` is this term for histories without removal records). -/
+noncomputable def postTerm2Raw {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
     (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
     (g : GIdx S n M K N → ℂ) : ℂ :=
@@ -197,6 +198,35 @@ noncomputable def postTerm2 {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m�
       (postOp geo cs rep.SD rep.KD A C.hkK)
       (fun c => fineSet (S := S) (n := n) M K k (c.1.1 : Set (Torus S.d (n k)))) C vc rep A
       (A.H.step k).Z ψk hv g)
+
+open Classical in
+/-- **The term of a history in (D1), second version (ruling R12)**: the term
+`𝕋_k(Z_k(𝔸), 𝔸)[e^{ℬ^{(k)}(𝔸)} χ_k(Z^c_k) exp(𝒜₂ + ℱ_k + ℛ^{(k)})(Z^c_k)]` for a history without
+removal records `Rem_j`, `j ≤ k`, and `0` for a history with a removal record (the removed components
+are accounted for in `ℬ′` and `ℛ″`, P7 (3.26)–(3.29); LFR D-III.8). -/
+noncomputable def postTerm2 {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) : ℂ :=
+  if ∀ j, j ≤ k → A.H.rem j = ∅ then postTerm2Raw C vc rep A ψk hv g else 0
+
+theorem postTerm2_of_remFree {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) (h : ∀ j, j ≤ k → A.H.rem j = ∅) :
+    postTerm2 C vc rep A ψk hv g = postTerm2Raw C vc rep A ψk hv g := by
+  unfold postTerm2
+  split_ifs
+  all_goals simp_all
+
+theorem postTerm2_of_rem {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) (h : ¬ ∀ j, j ≤ k → A.H.rem j = ∅) :
+    postTerm2 C vc rep A ψk hv g = 0 := by
+  unfold postTerm2
+  split_ifs
+  all_goals simp_all
 
 /-- The integral of the post-`R` term converges absolutely, second version. -/
 def PostConv2 {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)

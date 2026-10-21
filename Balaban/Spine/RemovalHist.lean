@@ -17,8 +17,8 @@ Evidence for the audit of the removal histories in `D1Form2`:
   restricted to histories without removals;
 * `exists_mem_rem_ne_empty`: if some admissible history removes a component at the scale `k`, a
   complete set contains a history that removes a component at the scale `k`;
-* `postTerm2_eq_of_region_empty`: two histories of a representation with empty region at the scale
-  `k` have the same term (no operator, no boundary term), whatever their removal records are.
+* `postTerm2Raw_eq_of_region_empty`: two histories of a representation with empty region at the scale
+  `k` have the same term before the case split of R12 (no operator, no boundary term), whatever their removal records are.
 -/
 
 @[expose] public section
@@ -50,12 +50,12 @@ section Term
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ} {M : ℕ} [NeZero M]
   [NeZero S.L] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
 
-theorem postTerm2_eq_of_region_empty {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ)
+theorem postTerm2Raw_eq_of_region_empty {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ)
     (vc : CorrCoef S.d) (rep : Rep S n R k0 K M N geo cs P k) {A B : LabHist S n R k0 K}
     (hA : (A.H.step k).Z = ∅) (hB : (B.H.step k).Z = ∅)
     (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
-    (g : GIdx S n M K N → ℂ) : postTerm2 C vc rep A ψk hv g = postTerm2 C vc rep B ψk hv g := by
-  rw [postTerm2_of_region_empty C vc rep A hA, postTerm2_of_region_empty C vc rep B hB]
+    (g : GIdx S n M K N → ℂ) : postTerm2Raw C vc rep A ψk hv g = postTerm2Raw C vc rep B ψk hv g := by
+  rw [postTerm2Raw_of_region_empty C vc rep A hA, postTerm2Raw_of_region_empty C vc rep B hB]
 
 end Term
 

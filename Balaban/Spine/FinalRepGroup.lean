@@ -74,21 +74,33 @@ theorem gOp_of_isEmpty {ι : Type} [Fintype ι] (a : ι → LocalHistory S n M K
   rw [Measure.pi_of_empty, integral_dirac' _ _ StronglyMeasurable.of_subsingleton_dom]
   simp [gWeight]
 
-/-- **The term of (D1) of a history with no large-field region** (P7 (4.1), the term `Z_k = ∅`):
-there is no operator and no boundary term, so it is the small-field factor on the whole torus. -/
-theorem postTerm2_of_region_empty {m₁ : ℕ} {ϱ : ℝ}
+/-- The term of (D1) before the case split of R12, for a history with no large-field region: there
+is no operator and no boundary term, so it is the small-field factor on the whole torus. -/
+theorem postTerm2Raw_of_region_empty {m₁ : ℕ} {ϱ : ℝ}
     (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
     (hZ : (A.H.step k).Z = ∅)
     (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
     (g : GIdx S n M K N → ℂ) :
-    postTerm2 C vc rep A ψk hv g = sfFactor2 C vc Set.univ ψk hv g := by
+    postTerm2Raw C vc rep A ψk hv g = sfFactor2 C vc Set.univ ψk hv g := by
   have := isEmpty_postComp_of_region_empty A k hZ
-  unfold postTerm2
+  unfold postTerm2Raw
   rw [gOp_of_isEmpty]
   unfold integrand2
   simp only [Rep.bdrySum, hZ, bdryDoms_empty_right, Finset.sum_empty, Complex.exp_zero, one_mul,
     Set.compl_empty]
+
+/-- **The term of (D1) of a history with no large-field region and no removal record** (P7 (4.1),
+the term `Z_k = ∅`; ruling R12): it is the small-field factor on the whole torus. -/
+theorem postTerm2_of_region_empty {m₁ : ℕ} {ϱ : ℝ}
+    (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (hZ : (A.H.step k).Z = ∅) (hrem : ∀ j, j ≤ k → A.H.rem j = ∅)
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) :
+    postTerm2 C vc rep A ψk hv g = sfFactor2 C vc Set.univ ψk hv g := by
+  rw [postTerm2_of_remFree C vc rep A ψk hv g hrem]
+  exact postTerm2Raw_of_region_empty C vc rep A hZ ψk hv g
 
 end Empty
 
@@ -144,29 +156,43 @@ theorem integral_eq_sum_lastRegionWeight
   unfold lastRegionWeight lastHistInt
   exact (Finset.sum_fiberwise rep.hist (fun A => lastRegion A k) _).symm
 
-/-- The last integral of a history with empty region is the integral of the small-field factor
-on the whole torus. -/
-theorem lastHistInt_of_region_empty (A : LabHist S n R k0 K) (hA : lastRegion A k = ∅) :
+/-- The last integral of a history with empty region and no removal record is the integral of the
+small-field factor on the whole torus. -/
+theorem lastHistInt_of_region_empty (A : LabHist S n R k0 K) (hA : lastRegion A k = ∅)
+    (hrem : ∀ j, j ≤ k → A.H.rem j = ∅) :
     lastHistInt C vc rep hv g A = ∫ ψk, sfFactor2 C vc Set.univ ψk hv g := by
   unfold lastHistInt
   refine integral_congr_ae (Filter.Eventually.of_forall fun ψk => ?_)
-  exact postTerm2_of_region_empty C vc rep A ((lastRegion_eq_empty_iff A k).1 hA) ψk hv g
+  exact postTerm2_of_region_empty C vc rep A ((lastRegion_eq_empty_iff A k).1 hA) hrem ψk hv g
 
-/-- **The weight of the empty region** (P7 (4.11), the term `1`): the number of histories of the
-representation with empty region, times the integral of the small-field factor on the whole
-torus. -/
+/-- The last integral of a history with a removal record is `0` (ruling R12). -/
+theorem lastHistInt_of_rem (A : LabHist S n R k0 K) (hrem : ¬ ∀ j, j ≤ k → A.H.rem j = ∅) :
+    lastHistInt C vc rep hv g A = 0 := by
+  unfold lastHistInt
+  simp [postTerm2_of_rem C vc rep A _ hv g hrem]
+
+/-- **The weight of the empty region** (P7 (4.11), the term `1`): the number `n₀` of histories of
+the representation with empty region and no removal record, times the integral of the small-field
+factor on the whole torus (the histories with a removal record carry the zero term, ruling R12). -/
 theorem lastRegionWeight_empty :
     lastRegionWeight C vc rep hv g ∅ =
-      (rep.hist.filter (fun A => lastRegion A k = ∅)).card •
+      (rep.hist.filter (fun A => lastRegion A k = ∅ ∧ ∀ j, j ≤ k → A.H.rem j = ∅)).card •
         ∫ ψk, sfFactor2 C vc Set.univ ψk hv g := by
   unfold lastRegionWeight
-  rw [Finset.sum_congr rfl (fun A hA =>
-    lastHistInt_of_region_empty C vc rep hv g A (Finset.mem_filter.1 hA).2), Finset.sum_const]
+  rw [← Finset.sum_filter_add_sum_filter_not (rep.hist.filter (fun A => lastRegion A k = ∅))
+    (fun A => ∀ j, j ≤ k → A.H.rem j = ∅) (lastHistInt C vc rep hv g)]
+  rw [Finset.sum_eq_zero (s := (rep.hist.filter (fun A => lastRegion A k = ∅)).filter
+      (fun A => ¬ ∀ j, j ≤ k → A.H.rem j = ∅)) (fun A hA =>
+    lastHistInt_of_rem C vc rep hv g A (Finset.mem_filter.1 hA).2), add_zero,
+    Finset.filter_filter, Finset.sum_congr rfl (fun A hA =>
+    lastHistInt_of_region_empty C vc rep hv g A (Finset.mem_filter.1 hA).2.1
+      (Finset.mem_filter.1 hA).2.2), Finset.sum_const]
 
-/-- If the representation has exactly one history with empty region, the weight of the empty
-region is the integral of the small-field factor on the whole torus. -/
+/-- If the representation has exactly one history with empty region and no removal record, the
+weight of the empty region is the integral of the small-field factor on the whole torus. -/
 theorem lastRegionWeight_empty_of_card_eq_one
-    (h1 : (rep.hist.filter (fun A => lastRegion A k = ∅)).card = 1) :
+    (h1 : (rep.hist.filter
+      (fun A => lastRegion A k = ∅ ∧ ∀ j, j ≤ k → A.H.rem j = ∅)).card = 1) :
     lastRegionWeight C vc rep hv g ∅ = ∫ ψk, sfFactor2 C vc Set.univ ψk hv g := by
   rw [lastRegionWeight_empty, h1, one_smul]
 
@@ -181,12 +207,13 @@ variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] 
   {P6 : Balaban.SmallField.Def6.Consts} {C7 : Consts7} {k : ℕ} {ϱ : ℝ}
 
 /-- **The weight of the empty region at the stopping scale is `Ξ^sf`** when the representation has
-exactly one history with empty region: the form of `Ξ^sf = sfIntegral` in P7 (4.11). -/
+exactly one history with empty region and no removal record: the form of `Ξ^sf = sfIntegral` in P7 (4.11). -/
 theorem lastRegionWeight_empty_eq_sfIntegral
     (F : RepFam S R k0 K M N geo cs P k C7.m₁ ϱ) (hM6 : M = S.L ^ (P6.m₀ + C7.m₁))
     (hkK : k ≤ K) (vc : CorrCoef S.d) (hv : EuclideanSpace ℝ (Fin N)) (nK : ℕ) [NeZero nK]
     (g : GIdx S (sides S.L K nK) M K N → ℂ)
-    (h1 : ((F.lf nK).hist.filter (fun A => lastRegion A k = ∅)).card = 1) :
+    (h1 : ((F.lf nK).hist.filter
+      (fun A => lastRegion A k = ∅ ∧ ∀ j, j ≤ k → A.H.rem j = ∅)).card = 1) :
     lastRegionWeight (F.ctx hM6 hkK nK) vc (F.lf nK) hv g ∅ = sfIntegral F hM6 hkK vc hv nK g :=
   lastRegionWeight_empty_of_card_eq_one _ _ _ _ _ h1
 

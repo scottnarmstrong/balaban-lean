@@ -154,14 +154,26 @@ noncomputable def postWeighted2 (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef
       (fun c => fineSet (S := S) (n := n) M K k (c.1.1 : Set (Torus S.d (n k)))) C vc rep A
       (A.H.step k).Z ψk hv g x
 
-/-- The second-version post term is the integral of its weighted integrand. -/
-theorem postTerm2_eq_integral_postWeighted2 (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+/-- The second-version post term before the case split of R12 is the integral of its weighted
+integrand. -/
+theorem postTerm2Raw_eq_integral_postWeighted2 (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
     (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
     (g : GIdx S n M K N → ℂ) :
-    postTerm2 C vc rep A ψk hv g = ∫ x, postWeighted2 C vc rep A ψk hv g x ∂(gMeasure
+    postTerm2Raw C vc rep A ψk hv g = ∫ x, postWeighted2 C vc rep A ψk hv g x ∂(gMeasure
       (fun c : PostComp A k => A.H.localHistory M K k c.1) k
       (postOp geo cs rep.SD rep.KD A C.hkK)) := rfl
+
+/-- The second-version post term of a history without removal records is the integral of its
+weighted integrand (ruling R12). -/
+theorem postTerm2_eq_integral_postWeighted2 (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (ψk : BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) (hrem : ∀ j, j ≤ k → A.H.rem j = ∅) :
+    postTerm2 C vc rep A ψk hv g = ∫ x, postWeighted2 C vc rep A ψk hv g x ∂(gMeasure
+      (fun c : PostComp A k => A.H.localHistory M K k c.1) k
+      (postOp geo cs rep.SD rep.KD A C.hkK)) := by
+  rw [postTerm2_of_remFree C vc rep A ψk hv g hrem]; rfl
 
 /-- **(a), second version.** -/
 theorem chiDomAt_of_postWeighted2_ne_zero (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
@@ -186,8 +198,10 @@ theorem exists_postWeighted2_ne_zero_of_postTerm2_ne_zero (C : SFCtx S n R M K N
   by_contra hx
   push Not at hx
   apply h
-  rw [postTerm2_eq_integral_postWeighted2]
-  simp [hx]
+  by_cases hrem : ∀ j, j ≤ k → A.H.rem j = ∅
+  · rw [postTerm2_eq_integral_postWeighted2 C vc rep A ψk hv g hrem]
+    simp [hx]
+  · exact postTerm2_of_rem C vc rep A ψk hv g hrem
 
 /-- **(c), second version.** -/
 theorem chiY_ne_zero_of_postWeighted2_ne_zero (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
