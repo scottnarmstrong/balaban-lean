@@ -100,7 +100,7 @@ theorem finalSmallFieldInput_of_gaussForm (hPre : PrefixInput d δ T P6 C7 PB cs
   refine ⟨a, E, hA, fun nK _ g hg => ?_⟩
   obtain ⟨Kq, ψ0, hK, heq⟩ := hid nK g hg
   have hm := (h₂ β ((le_max_right _ _).trans hβ) ν hν hνL h hh kf hkf k hk1 hkkf ρ νk hM6 hkK R geo
-    cs P F St vc hF hstop nK g hg).1
+    cs P F St vc hF hstop nK g hg).2.1
   rw [sfIntegral_eq_gauss F hM6 hkK vc h nK g hK ψ0 hm]
   exact heq
 

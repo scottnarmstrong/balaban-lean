@@ -187,6 +187,8 @@ theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ LargeField.l1Ball _ →
+        BgHyp d (T κ c₉).L k (minSep (T κ c₉).L (geo nK).M1) (F.ctx hM6 hkK nK).weights
+          (cs.muBg k) ∧
         Measurable (fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g) ∧
         Integrable fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g := by
   intro κ hκ c₉ hc₉
@@ -309,6 +311,7 @@ theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M
     exact Balaban.Fluctuation.epsSeq_anti (T κ c₉).L ((P6 κ c₉).alpha d) (P6 κ c₉).α₀ hadm.α₀_pos.le hα0 hj
   have hβpos : 0 < β := by linarith
   have hβk : 0 ≤ F.sf.β (j + 1) := by rw [hbk]; positivity
+  refine ⟨HB, ?_⟩
   exact measInt_sfFactor2_univ_of_delta_le (F.ctx hM6 hkK nK) h vc rfl hTm hRt g hg HB hL3
     hνs hh hμ hμBg hact hβk hBgJ hratioJ hBgR hratioR hnum hnumε
 
