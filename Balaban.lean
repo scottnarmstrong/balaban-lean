@@ -3229,3 +3229,4 @@ public import Balaban.Inhabited.NewLevelCastNbhd
 public import Balaban.Inhabited.NewLevelCubeImage
 public import Balaban.Inhabited.NewLevelCanonCast
 public import Balaban.Inhabited.NewLevelCanonCastGeom
+public import Balaban.Inhabited.NewLevelCanonReg
