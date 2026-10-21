@@ -161,7 +161,13 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
           (fun z i => baseSectorCenter ϱ aw regimeB ν h θ
             (baseSector_side L n ▸ z : Torus d (L * n)) i) y i) <
         δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
-          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) := by
+          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) ∧
+        (0 < (if regimeB then ν else 0) → ∀ z : Torus d (1 * n * L ^ 1),
+        Real.sqrt (if regimeB then ν else 0) * rn (fun i => baseSectorCenter ϱ aw regimeB ν h θ
+          (baseSector_side L n ▸ z : Torus d (L * n)) i - h i) <
+        δ₁ / L + Real.sqrt (if regimeB then ν else 0) * (Real.sqrt N * (Kw * (cF d L *
+          ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
+          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ)))))) := by
   obtain ⟨Kw, δw, hK, hδw, hcm⟩ := cube_margins (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
   intro n M1 N₁ m₁ c n' _ _ _ _ hn hM1 hm ϱ a₁ ν δ₀ δ₁ ha₁ aw hw regimeB hδ h hh H hΛ1 BG κ hΛ7 H0 hν0
@@ -199,12 +205,12 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
         (⟨z, hmemD z⟩, i) := fun z i => by
     rw [← hcast]
     exact bgFieldC_single_cast hn ϱ _ _ _ _ z (hmemD z) (hmem _) i
-  refine ⟨fun x μ => ?_, fun y => ?_⟩
+  refine ⟨fun x μ => ?_, fun y => ?_, fun hμpos z => ?_⟩
   ·   set x' := castSite hn x with hx'
       set y' := castSite hn (x + Pi.single μ 1) with hy'
       have hy'eq : y' = x' + Pi.single μ 1 := castSite_add_single hn x μ
       set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
-      obtain ⟨hbondC, -⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
+      obtain ⟨hbondC, -, -⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
         (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep hKs
         hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
       have hmem : ∀ z : Torus d (M1 * N₁ * L ^ 1), z ∈ G1.Ω 1 := fun z => by
@@ -259,7 +265,7 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
       exact Finset.card_pos.1 (by rw [this]; positivity)
     have hx'm : blockMap L (M1 * N₁ * L ^ (1 - 1)) x' = y' := mem_blockFibre.1 hx'
     set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
-    obtain ⟨-, hblockC⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
+    obtain ⟨-, hblockC, -⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
       (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep
       hKs hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
     have key := hblockC x' rfl (hmem x')
@@ -328,6 +334,28 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
       funext i
       rw [hspin i, hψy i, Complex.sub_re, Complex.ofReal_re]
     exact lt_of_le_of_lt hrn key
+  · set x' := castSite hn z with hx'
+    set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
+    obtain ⟨-, -, hsiteC⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
+      (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep
+      hKs hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
+    have key := hsiteC hμpos x' rfl (hmem x')
+    have e1z : (fun i => bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
+        (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨x', hmem x'⟩, i) - (h i : ℂ)) =
+        fun i => bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+          (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+          (⟨z, hmemD z⟩, i) - (h i : ℂ) := by
+      funext i; rw [hx', e1 z i]
+    rw [e1z] at key
+    have hu : (fun i => baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ
+        (baseSector_side L n ▸ z : Torus d (L * n)) i - h i) =
+        fun i => (bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+          (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+          (⟨z, hmemD z⟩, i) - (h i : ℂ)).re := by
+      funext i; rw [e2 z i, Complex.sub_re]; simp
+    rw [hu]
+    have hs0 : 0 ≤ Real.sqrt (if regimeB then ν else 0) := Real.sqrt_nonneg _
+    exact lt_of_le_of_lt (mul_le_mul_of_nonneg_left (rn_re_le_vn _) hs0) key
 
 
 

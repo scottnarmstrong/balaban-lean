@@ -187,6 +187,24 @@ theorem block_transfer {f g : G.Ω 1 × Fin N → ℂ} {δα : G.Ω 1 → ℂ}
     rw [this, norm_neg]
   linarith
 
+/-- **The values of the background transfer to the perturbed one.** -/
+theorem val_transfer {f g : G.Ω 1 × Fin N → ℂ} {δα : G.Ω 1 → ℂ}
+    {W : Finset (Balaban.Localization.CTorus d L N₁ m₁ K)} {γ B Dist : ℝ} (hγ : 0 ≤ γ)
+    (hB : 0 ≤ B) (hF : FarBounds G W γ B (g - f) δα) (hv : Fin N → ℂ) (x : G.Ω 1)
+    (hD : ENNReal.ofReal Dist ≤ siteSetDist G W x) :
+    vn (fun i => g (x, i) - hv i) ≤ vn (fun i => f (x, i) - hv i) +
+      Real.sqrt N * (B * Real.exp (-(γ * Dist))) := by
+  have hdec := decay_le_exp_dist hγ hD
+  have hcomp : ∀ i, ‖(g - f) (x, i)‖ ≤ B * Real.exp (-(γ * Dist)) := fun i =>
+    (hF.val x i).trans (mul_le_mul_of_nonneg_left hdec hB)
+  have hvn : vn (fun i => (g - f) (x, i)) ≤ Real.sqrt N * (B * Real.exp (-(γ * Dist))) :=
+    vn_le_sqrt_mul _ (by positivity) hcomp
+  have hsplit : (fun i => g (x, i) - hv i) = (fun i => f (x, i) - hv i) +
+      (fun i => (g - f) (x, i)) := by
+    funext i; simp
+  rw [hsplit]
+  exact (vn_add _ _).trans (by linarith)
+
 end Transfer
 
 section Gen
@@ -238,6 +256,13 @@ theorem bgField_nested_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
             vn (fun i => D.Ψ x i - blockAvg G0
               (bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D) x i) +
               Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ'))) *
+                Real.exp (-(gammaW d * Dist)))) ∧
+        (∀ (x : G0.Ω 1) (hv : Fin N → ℂ),
+          (∀ w ∈ shadowN G0 (Finset.univ.filter fun z => z ∉ E),
+            ENNReal.ofReal Dist ≤ G0.pathDist x w) →
+          vn (fun i => bgFieldC G1 (compWeight L a₁) ν (bgC0 d L N) D' (hprec.incl x, i) - hv i) ≤
+            vn (fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (x, i) - hv i) +
+              Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ'))) *
                 Real.exp (-(gammaW d * Dist)))) := by
   obtain ⟨Kw, δw, hK, hδw, hcl⟩ := bgField_close_nested (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
@@ -262,7 +287,7 @@ theorem bgField_nested_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have := bgK1_pos d L N
     have := cF_pos d L
     positivity
-  refine ⟨fun x y μ hy hD => ?_, fun x hx hD => ?_⟩
+  refine ⟨fun x y μ hy hD => ?_, fun x hx hD => ?_, fun x hv hD => ?_⟩
   · have hdist : ENNReal.ofReal Dist ≤ siteSetDist G0
         (shadow G0 (Finset.univ.filter fun z => z ∉ E)) (x : Torus d _) := by
       unfold siteSetDist
@@ -278,6 +303,12 @@ theorem bgField_nested_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have hrs : g = hprec.restrictφ (bgFieldC G1 (compWeight L a₁) ν (bgC0 d L N) D') := hfield
     rw [hrs] at this
     exact this
+  · have hdist : ENNReal.ofReal Dist ≤ siteSetDist G0
+        (shadow G0 (Finset.univ.filter fun z => z ∉ E)) (x : Torus d _) := by
+      unfold siteSetDist
+      exact le_iInf₂ fun w hw => hD w hw
+    have := val_transfer hγ hB hFar hv x hdist
+    simpa only [hgl] using this
 
 end Gen
 

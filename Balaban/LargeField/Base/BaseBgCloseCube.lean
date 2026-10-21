@@ -209,7 +209,17 @@ theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
               (liftSingle (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
                 ψ.toC (fun i => (h i : ℂ)))) x i) <
           δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * δ'))) *
-            Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) := by
+            Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) ∧
+        (0 < ν → ∀ (x : Torus d (M1 * N₁ * L ^ 1)),
+        blockMap (L ^ 1 * (c * M1)) n x = y0 →
+        ∀ (_hx : x ∈ (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1).Ω 1),
+        Real.sqrt ν * vn (fun i =>
+          bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
+            (compWeight L a₁) ν (bgC0 d L N)
+            (liftSingle (GeneratingSet.single (d := d) (L := L) (N₀ := M1 * N₁) (k := 1) ϱ1)
+              ψ.toC (fun i => (h i : ℂ))) (⟨x, _hx⟩, i) - (h i : ℂ)) <
+          δ₁ / L + Real.sqrt ν * (Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) *
+            (bgK1 d L N * δ'))) * Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ)))))) := by
   obtain ⟨Kw, δw, hK, hδw, hmar⟩ := bgField_nested_margins (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
   intro M1 N₁ m₁ c n _ _ _ hM1 hm ϱ1 a₁ ν δ' ε' δ₁ h ha₁ H0 H1 hν0 hνle hsep hKs hδ0' hδε' hε' hδc
@@ -246,7 +256,7 @@ theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     have : m = 1 := by omega
     subst this
     exact ⟨fun _ => by rw [hΩ1]; exact Finset.mem_univ z, fun _ => hz⟩
-  obtain ⟨hbond, hblock⟩ := hmar (N₁ := N₁) (m₁ := m₁) hN (G0 := G0) (G1 := G1) ha₁ H0 H1 hν0
+  obtain ⟨hbond, hblock, hsite⟩ := hmar (N₁ := N₁) (m₁ := m₁) hN (G0 := G0) (G1 := G1) ha₁ H0 H1 hν0
     (by simpa using hνle) hsep hprec hδ0' hδε' hε' hδc (by simpa using hνε') hD' hΨ hh hδR0 le_rfl
     hεR hδR1 hνεR hDC (hK1R.trans (min_le_left _ _)) (hK1R.trans (min_le_right _ _)) hK1' hKw' hE
     (Dist := ((c * M1 : ℕ) : ℝ))
@@ -261,7 +271,7 @@ theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hn : M1 * N₁ * L ^ 1 = (L ^ 1 * (c * M1)) * n := cube_fine_eq hm
   have hΩtop : G0.Ω 1 = cubePre M1 N₁ L 1 (L ^ 1 * (c * M1)) n (nbhd 2 {y0}) :=
     genCube_Omega_top hm y0
-  refine ⟨fun x y μ hx0 hy hx hy' => ?_, fun x hx0 hx => ?_⟩
+  refine ⟨fun x y μ hx0 hy hx hy' => ?_, fun x hx0 hx => ?_, fun hνpos x hx0 hx => ?_⟩
   ·   have hxΩ : x ∈ G0.Ω 1 := by
         rw [hΩtop, mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩
       have hyΩ : y ∈ G0.Ω 1 := by
@@ -340,6 +350,39 @@ theorem cube_margins {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
       have hΨi' : ∀ i, (cubeData h c n y0 ψ).Ψ x i = (ψ (jBlock d L (M1 * N₁) 1 1 x) i : ℂ) := hΨi
       simpa only [hΨi'] using this
     exact lt_of_le_of_lt key (by linarith)
+  · have hxΩ : x ∈ G0.Ω 1 := by
+      rw [hΩtop, mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩
+    have key := hsite ⟨x, hxΩ⟩ (fun i => (h i : ℂ)) (fun w hw => by
+      refine genCube_far (d := d) (M1 := M1) (N₁ := N₁) (L := L) (c := c) (n := n) hm y0
+        (x := x) (w := w) hx0 ?_ hw
+      intro z
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_coe]
+      exact Iff.rfl)
+    have hpos : 0 < ν * ((L : ℝ) ^ 1) ^ 2 := by
+      have : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+      positivity
+    have hF := (hχ.2.2.2 hpos ⟨x, hxΩ⟩ (by unfold cubeNbhd; rw [mem_cubePre, hx0, mem_nbhd]; exact ⟨y0, Set.mem_singleton _, by simp [supDist_self]⟩)).1
+    have hhx : ∀ i, D.h x i = (h i : ℂ) := fun i => by
+      rw [hDdef, cubeData, liftSingle_h _ _ _ hxΩ]
+    have hvfun : (fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨x, hxΩ⟩, i) - D.h x i) =
+        fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D (⟨x, hxΩ⟩, i) - (h i : ℂ) := by
+      funext i; rw [hhx i]
+    rw [hvfun] at hF
+    have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    have hsq : Real.sqrt (ν * ((L : ℝ) ^ 1) ^ 2) = Real.sqrt ν * L := by
+      rw [Real.sqrt_mul hνpos.le, pow_one, Real.sqrt_sq hL0.le]
+    rw [hsq] at hF
+    have hs0 : 0 < Real.sqrt ν := Real.sqrt_pos.2 hνpos
+    have h1 : Real.sqrt ν * vn (fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D
+        (⟨x, hxΩ⟩, i) - (h i : ℂ)) < δ₁ / L := by
+      have := mul_lt_mul_of_pos_left hF hs0
+      calc _ < Real.sqrt ν * (δ₁ / (Real.sqrt ν * L)) := this
+        _ = δ₁ / L := by field_simp
+    calc _ ≤ Real.sqrt ν * (vn (fun i => bgFieldC G0 (compWeight L a₁) ν (bgC0 d L N) D
+          (⟨x, hxΩ⟩, i) - (h i : ℂ)) + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) *
+            (bgK1 d L N * δ'))) * Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) :=
+          mul_le_mul_of_nonneg_left key hs0.le
+      _ < _ := by rw [mul_add]; linarith
 
 end Margins
 
