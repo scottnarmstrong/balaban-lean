@@ -1469,3 +1469,13 @@ statement, the same on both tori), whence `gsIso_localB` and `gsCorr_localB`.  M
 for `Gk = 𝔹_j(X)`.  Open: (4) `H`/`G₁` of two `NewLevelSystem`s (index bijection of the old terms, `polyDom`
 under `boxMap`, `hatOf_boxMap`, the per-term premises of `evDec_oldTerm_twoTorus` at the marks
 `(u,0)`, `(0,0)`); (5) `NS.coeff` via `gsumCoeff_transport`.
+
+### A4-1f two-torus agreement of the chain objects (W1148r, 2026-10-21)
+
+Landed: `OldTermPair` (premises structure), `TwoTorusEvOldGen`, `NewLevelTermPair`
+(`TermPairPremises`, `evTerm_twoTorus_of_premises`), `NewLevelHPairs` (`H_twoTorus_of_pairs`),
+`NewLevelGPairs` (`G₁_twoTorus_of_pairs`), `NewLevelDetTwoTorus`, `NewLevelCoeffTwoTorus`
+(`NewLevelSystem.coeff_twoTorus` for two systems of the tower steps `hatStepKG`, roots `z`, `bc z`).
+Premises are typing/geometry data (labels, bijections `ψ`, `κ`, `e`, margins, `GSCorr/GSIso`,
+the D8 box form of the old terms).  What remains for the full A4-1f agreement: discharge those
+premises for the actual systems (label/mark bijections on `Lab1`, from the class), and the map Φ.

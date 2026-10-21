@@ -2957,6 +2957,7 @@ public import Balaban.Inhabited.NewLevelTermPair
 public import Balaban.Inhabited.NewLevelHPairs
 public import Balaban.Inhabited.NewLevelGPairs
 public import Balaban.Polymer.NewLevelDetTwoTorus
+public import Balaban.Inhabited.NewLevelCoeffTwoTorus
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
