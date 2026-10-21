@@ -34,7 +34,8 @@ on a region of a history.
   `Ω_{k+1}` (through `composedMulti`), at `Y = Z^c_k` and `θ = z ψ_{k+1}`;
 * `oldDoms`, `oldLF`: the old boundary domains meeting `Ω_{k+1}` and the old boundary terms
   `ℬ''^{(k)} = ∑_{X ∩ Ω_{k+1} ≠ ∅} ℬ^{(k)}(X)` (P5 p. 512) at the composed multiscale field;
-* `locSloc`: the localization vectors of P5 (2.18) (`slocOf` with the domains `locDomC`, `ρ = ⌊R_k⌋`);
+* `locDomsLF`, `locSloc`: the localization domains of P5 (2.18) (`locDomC`, `ρ = ⌊R_k⌋`, in the deep
+  part of `Ω₁(G′)`) and the localization vectors (`slocOf`);
 * `expWLF`, `oldTotalLF`: the exponent of the measure of P5 (3.2) and
   `ℬ''^{(k+1)} = ∫₀¹ ⟨ℬ''^{(k)}⟩''_u du` (FLUCTUATION Theorem 3.1 (c)) for the step on a region of a
   history; `partFun_one_eq_mul_exp_oldTotalLF`: the fluctuation integral with the old terms is the
@@ -169,12 +170,21 @@ noncomputable def oldLF {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {
 variable {k : ℕ} {ϱ ϱ' : ℝ}
   (St : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N ϱ ϱ')
 
+open Classical in
+/-- **The localization domains of P5 (2.18)** of the unit points (reading R12): the sites of the
+cubes of `𝕋_{k+1}` within `ρ` cubes of the cube of the unit point (`locDomC`, `R_{k+1}(□′)`) whose
+`4 L^{k+1+m₁}`-ball lies in `Ω₁(G′)` (P3 (2.14): `X₁ ⊂ Ω₁`, with the margin of the cross lemmas). -/
+noncomputable def locDomsLF (ρ : ℕ) : St.U → Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
+  fun b => (locDomC (c := g.c) (n1 := n (k + 1)) hM1 ρ (unitRep b)).filter fun y =>
+    ∀ z : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1),
+      supDist y z ≤ 4 * S.L ^ (k + 1 + m₁) → z ∈ St.G'.Ω 1
+
 /-- **The localization vectors of P5 (2.18)** of the step on a region of a history: at the unit
 point `b`, the decoupling vector `s` vanishing on the cover cubes outside the localization domain
-`R_{k+1}(□')` of `b` (`locDomC`, `ρ` cubes of `𝕋_{k+1}`). -/
+of `b` (`locDomsLF`). -/
 noncomputable def locSloc (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρ : ℕ)
     (s : Dec2.DecParams Cv) : St.U → Dec2.DecParams Cv :=
-  St.slocOf Cv (fun b => locDomC (c := g.c) (n1 := n (k + 1)) hM1 ρ (unitRep b)) s
+  St.slocOf Cv (locDomsLF g hM1 St ρ) s
 
 /-- **The exponent of the measure of P5 (3.2)** for the step on a region of a history: `HoleStep.expW`
 with the logarithm `phiLF` of the integrand on `Y` and the old boundary terms `oldLF`. -/

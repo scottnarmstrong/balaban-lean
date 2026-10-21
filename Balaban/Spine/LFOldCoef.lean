@@ -17,8 +17,7 @@ and a boundary term `ℬ^{(k)}(X, 𝔸)` of the representation whose domain meet
 * `oldTermLF`: the old term as a function of the field on the unit points of `Ω_{k+1}` (at the
   multiscale field `composedMulti`); `oldLF_eq_sum`: `ℬ''^{(k)}` is the sum of these over the old
   domains;
-* `locDomsLF`: the localization domains `R_{k+1}(□′)` of the unit points (P5 (2.18), `locDomC`),
-  `locSloc_eq`;
+* `locSloc_eq`: the localization vectors are `slocOf` of the domains `locDomsLF`;
 * `oldCoefLF`: **the coefficient `T(X, J)`** of P6 (4.32)–(4.33) (`HoleStep.oldCoef`), with the uncut
   core `X₁` = the sites within `r` of `X ∩ Ω_{k+1}` (`collarCoreC`; P6 p. 34 with the pair condition of
   P3 (2.14), the reading of `notes/phase1/PLAN-B.md`, OPEN-P6-X1-INSTANTIATION) and the localization
@@ -65,11 +64,6 @@ theorem oldLF_eq_sum {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k :
       ∑ X ∈ Xs, oldTermLF g hnn hM1 rep A X hk G' ψ ψ' hv gx comp := rfl
 
 variable {k : ℕ} {ϱ ϱ' : ℝ} (St : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N ϱ ϱ')
-
-/-- **The localization domains `R_{k+1}(□′)` of the unit points** (P5 (2.18)): the sites of the cubes
-of `𝕋_{k+1}` within `ρ` cubes of the cube of the unit point (`locDomC`). -/
-noncomputable def locDomsLF (ρ : ℕ) : St.U → Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
-  fun b => locDomC (c := g.c) (n1 := n (k + 1)) hM1 ρ (unitRep b)
 
 omit [NeZero M] in
 theorem locSloc_eq (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρ : ℕ)
