@@ -3177,3 +3177,8 @@ public import Balaban.Inhabited.NewLevelLocalClauses
 public import Balaban.Inhabited.NewLevelLocalCast
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
+public import Balaban.Inhabited.NewLevelCanonGeomDef
+public import Balaban.Inhabited.NewLevelCanonCells
+public import Balaban.Inhabited.NewLevelCanonLocal
+public import Balaban.Inhabited.NewLevelCanonGeom
+public import Balaban.Inhabited.NewLevelClassCells

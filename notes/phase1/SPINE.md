@@ -1710,3 +1710,22 @@ covers (`hcX`, `hcloc`, `hcov`); margins; the typing data of the decoupled field
 Open for the producer: `hgeom` for the actual covers (instance `localB`, `gsCorr_localB`/`gsIso_localB` for `Gk`, `Gj`)
 and `CellTermsAgree` (the cell case).
 **`hγ` removed (W1158, 2026-10-21).** `GamConst rep` (`Spine/Coherence.lean`: `rep.KD.gam i l = log 5 + A'₃ λ̂_i^{p_R}` for all `i, l`, LFR Def. III.5.2) is a field `gamVal` of `PreRec` and `RepRec`. Producers: the base step (`BaseRaw.KDgam`, the provider's choice of kept data), the step `LFStepInput` (new conjunct `GamConst (lf' nK)`; `lfStepInput_of_parts`: the kept data of the successor are `KeptData.upTo`, which copies `gam`), `RKeptGasInput` (new conjunct `GamConst (lf₁ nK)`; the kept half gives it, `keptLF_gamConst`), the Rule-10 witnesses (`zeroKeptData` has `γ = A'₃ λ̂^{p_R} + log 5`). `keptOutput_of_kernels` no longer has `hγ` (`rec.gamVal`).
+
+### A4-1f the geometry hypothesis `hgeom` for canonical covers from local generating sets (W1161, 2026-10-21)
+
+Landed (all build, 0 warnings): `GSIsoOfOmega.gsIso_of_omega_on`, `LocalBBoxCorr.gsIso_localB_on` (GSIso on any region containing
+the sites of Omega_1 and their neighbours; the landed statements are instances), `NewLevelCanonCells` (`cellUnion`, blocks lie in
+one pi_{k+1}-cell, `blockMargin_cellUnion` from `LocalCover.blockMargin`, `cellBox_subset_nbhd`), `NewLevelCanonGeomDef`
+(`CellTermsAgree` moved here, `HGeom`), `NewLevelCanonLocal` (`CanonCoverLocal`: Gk, Gj of the canonical covers are `localB` of
+polymers, with `exists_canonCoverLocal`; `canonZ`, `zRad`), `NewLevelCanonGeom` (`hgeom_of_local`),
+`NewLevelClassCells.newLevel_coeff_twoTorus_of_class_cells`.
+Statement change in W1160's theorem: the antecedent of `hgeom` is now "X1fC j y0 X0 lies in the box of radius R" (was: `insert y0 X0`
+lies in the box); the neighbours y0 + L^j e_mu cannot be bounded from the polymer alone.
+Remaining non-typing hypotheses of the new theorem: class membership, the pins, the zero-source pins, `hcell` (= `CellTermsAgree`
+for `canonZ`), the cover requirement `hX1`, the correspondence `hPK`, `hPJ` of the polymers of Gk, Gj, size conditions `hbig`, `hbig'`.
+**Cover requirement `hX1` (for the chain owner).** For every admissible pair the region X1 must contain the cell neighbourhood
+`nbhd m0 x` (2L-1 pi_{k+1}-cells around the cell of x) of every site x within `zRad = 11 L^(m1+k+1) + 2` (sup distance) of the polymer,
+its neighbours and the polymers of Gk, Gj.  The landed single-cube cover reaches only (L-1) a_K = (L-1) L^(k+1+m0+m1) beyond the
+cell, which is below 11 L^(k+1+m1) when m0 = 1, L = 3; and `X1 = ⋃ Q0` of a general polymer does not contain the neighbourhood of the
+cells of sites that stick out of the cell of a chosen cube.  So the canonical cover family (XL, chosen family) must be chosen large
+enough, or m0 >= 3 (L = 3) used.  Also, the localB support bound used is `localB_dataSites_range` (11 L^(m1+j) + 1).
