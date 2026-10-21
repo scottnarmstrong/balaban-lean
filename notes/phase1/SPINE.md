@@ -1453,3 +1453,17 @@ Open: (4) `H`/`G₁` of two `NewLevelSystem`s from `evDec_oldTerm_twoTorus` (nee
 types of the old terms and `hatOf_boxMap`); (5) `NS.coeff` from `gsumCoeff_transport` (generic, landed) with the
 label bijection `ψ` of `Lab1` (zero-source, thick and bridge labels) and the det part
 (`detExpansionLocC_term_twoTorus_fromTowerG` for the tower instance); (6) the `localB` instance of `GSIso`.
+
+### (6) The localB instance of GSIso (W1148r, 2026-10-21)
+
+`Polymer/GSIsoOfOmega`: `gsIso_of_omega` and `gsCorr_of_omega` give `GSIso` and `GSCorr` from the correspondence of the
+domains `Ω_n` on the box (layers, layer indices, entries of `-Δ + ν + Q* a Q`, the collar and the source follow).
+`Polymer/LocalBBoxCorr`: for a polymer `X` in the box of radius `ρ0` and `X' = boxMap '' X`, the domains of
+`𝔹_j(X)` and `𝔹_j(X')` correspond on the box of radius `ρ0 + 6 j L^(j+m₁)` (`localB_omega_boxMap_all`; the
+cube index is the floor quotient of the centred coordinate, so the recursion `nearStep` is an integer
+statement, the same on both tori), whence `gsIso_localB` and `gsCorr_localB`.  Margins are the hypotheses
+`hmA`, `hmB` (`2 (ρ0 + 1 + 6 j L^(j+m₁) + (5L+2) L^(n+m₁)) < N L^m₁ L^k`).  The premises `GSCorr Gk Gk'`,
+`GSIso … Gk Gk'` (and `GSCorr Gj Gj'` for a localized `Gj`) of `evDec_oldTerm_twoTorus` are therefore proved
+for `Gk = 𝔹_j(X)`.  Open: (4) `H`/`G₁` of two `NewLevelSystem`s (index bijection of the old terms, `polyDom`
+under `boxMap`, `hatOf_boxMap`, the per-term premises of `evDec_oldTerm_twoTorus` at the marks
+`(u,0)`, `(0,0)`); (5) `NS.coeff` via `gsumCoeff_transport`.
