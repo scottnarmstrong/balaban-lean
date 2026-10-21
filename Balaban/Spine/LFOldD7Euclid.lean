@@ -40,7 +40,6 @@ structure StepAff (S S' : HoleStep d L N₁ m₁ k N ϱ ϱ')
   hAl : A.Aligned (L ^ (k + 1 + m₁))
   hΩ : ∀ j x, A.toFun x ∈ S'.G.Ω j ↔ x ∈ S.G.Ω j
   hΩ' : ∀ j x, A.toFun x ∈ S'.G'.Ω j ↔ x ∈ S.G'.Ω j
-  hca : CubeAligned S.G' m₁
   hca' : CubeAligned S'.G' m₁
   hΨ : ∀ x i, S'.D'.Ψ (A.toFun x) i = S.D'.Ψ x i
   hh : ∀ x i, S'.D'.h (A.toFun x) i = S.D'.h x i
@@ -123,9 +122,9 @@ theorem decBg (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (coverOf S.G')
         H.latSymm'.mul (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν ρ s S.D') := by
   have hB := decBg2_sym_pair (a := S.a) (ν := S.ν) H.latSymm'
     (τ := tau A) (τb := affBlocks A)
-    (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ') (cover_chi_aff A H.hAl H.hca H.hca' H.hΩ')
-    (cover_box_aff A) (cover_qset_aff A H.hAl H.hca H.hca' H.hΩ')
-    (block_idx_aff A H.hAl H.hca H.hca' H.hΩ') (fun _ => rfl) (block_bump_aff A)
+    (cover_idx_aff A H.hAl H.hca' H.hΩ') (cover_chi_aff A H.hAl H.hca' H.hΩ')
+    (cover_box_aff A) (cover_qset_aff A H.hAl H.hca' H.hΩ')
+    (block_idx_aff A H.hAl H.hca' H.hΩ') (fun _ => rfl) (block_bump_aff A)
     (fun q hq => by
       obtain ⟨hr, -, hb⟩ := (Background.mem_blockIdx S.G').1 hq
       exact block_base_aff A H.hAl q hr hb) hs ρ S.D'
@@ -169,9 +168,9 @@ theorem covSqrtAt_entry (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (cov
       S.covSqrtAt (coverOf S.G') ρ s p q := by
   have hB := H.decBg ρ hs
   have hrm := DetDecCov.decCovSqrt_rm_pair (a := S.a) H.latSymm' H.unitBlockPres
-    (τ := tau A) (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ')
-    (cover_chi_aff A H.hAl H.hca H.hca' H.hΩ') (cover_box_aff A)
-    (cover_qset_aff A H.hAl H.hca H.hca' H.hΩ') (u := H.u) H.u_spec (aT := S.a₁) (ν := S.ν)
+    (τ := tau A) (cover_idx_aff A H.hAl H.hca' H.hΩ')
+    (cover_chi_aff A H.hAl H.hca' H.hΩ') (cover_box_aff A)
+    (cover_qset_aff A H.hAl H.hca' H.hΩ') (u := H.u) H.u_spec (aT := S.a₁) (ν := S.ν)
     (N := N)
     (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν ρ s S.D')
     (s := Dec2.extS (coverOf S.G') s) (s' := Dec2.extS (coverOf S'.G') s') hs
@@ -279,7 +278,7 @@ theorem composed_entry (H : StepAff S S' A) (ρ : ℝ)
 /-- The bijection of the cover cubes of the two steps. -/
 noncomputable def kappa (H : StepAff S S' A) :
     (coverOf S.G').cubeIdx ≃ (coverOf S'.G').cubeIdx :=
-  (tau A).subtypeEquiv (fun q => (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' q).symm)
+  (tau A).subtypeEquiv (fun q => (cover_idx_aff A H.hAl H.hca' H.hΩ' q).symm)
 
 theorem kappa_val (H : StepAff S S' A) (P : (coverOf S.G').cubeIdx) :
     ((H.kappa P : (coverOf S'.G').cubeIdx) : ℕ × CTorus d L N₁ m₁ (k + 1)) = tau A P := rfl
@@ -312,18 +311,18 @@ theorem sloc_rel (H : StepAff S S' A) {X₁loc : S.U → Finset (CTorus d L N₁
   classical
   unfold Dec2.extS
   by_cases hP : P ∈ (coverOf S.G').cubeIdx
-  · have hP' : tau A P ∈ (coverOf S'.G').cubeIdx := (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' P).2 hP
-    rw [dif_pos hP, dif_pos hP']
+  · have hP' : tau A P ∈ (coverOf S'.G').cubeIdx := (cover_idx_aff A H.hAl H.hca' H.hΩ' P).2 hP
+    simp only [hP, hP', ↓reduceDIte]
     have e1 := H.cubeP_sub_iff hP hX₁
     have e2 := H.cubeP_sub_iff hP (hloc b)
     have hsP := hs ⟨P, hP⟩
     unfold HoleStep.slocOf HoleStep.coreExt
-    simp only [e1, e2, kappa_val] at hsP ⊢
+    simp only [e1, e2] at hsP ⊢
     rw [← hsP]
     rfl
   · have hP' : tau A P ∉ (coverOf S'.G').cubeIdx := fun h =>
-      hP ((cover_idx_aff A H.hAl H.hca H.hca' H.hΩ' P).1 h)
-    rw [dif_neg hP, dif_neg hP']
+      hP ((cover_idx_aff A H.hAl H.hca' H.hΩ' P).1 h)
+    simp only [hP, hP', ↓reduceDIte]
 
 theorem fill_empty (S : HoleStep d L N₁ m₁ k N ϱ ϱ') (ψin : (∅ : Finset S.U) → Rn N)
     (ψout : S.U → Fin N → ℂ) : S.fill ∅ ψin ψout = ψout := by

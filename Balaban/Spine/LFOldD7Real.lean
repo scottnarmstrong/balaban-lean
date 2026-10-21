@@ -62,6 +62,7 @@ theorem conj_sProd (hs : ∀ P, starRingEnd ℂ (s P) = s P) (q : ℕ × CTorus 
   rw [map_prod]
   exact Finset.prod_congr rfl fun P _ => hs P
 
+omit [NeZero N₁] [NeZero L] in
 theorem isRealMat_sum_smul {ι : Type*} [Fintype ι] (T : Finset (ℕ × CTorus d L N₁ m₁ (k + 1)))
     (c : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ) (M : ℕ × CTorus d L N₁ m₁ (k + 1) → Matrix ι ι ℂ)
     (hc : ∀ q, starRingEnd ℂ (c q) = c q) (hM : ∀ q, IsRealMat (M q)) :
@@ -91,7 +92,7 @@ theorem isRealMat_commK {ι : Type*} [Fintype ι] [DecidableEq ι] {Hm : Matrix 
     (hH.mul (isRealMat_fieldMul hψ).transpose)
 
 theorem isRealMat_restrictField (hφ : ∀ y i, starRingEnd ℂ (φ y i) = φ y i) :
-    ∀ y i, starRingEnd ℂ (restrictField H φ y i) = restrictField H φ y i := fun y i => hφ _ _
+    ∀ y i, starRingEnd ℂ (restrictField H φ y i) = restrictField H φ y i := fun _ _ => hφ _ _
 
 theorem isRealMat_decM (hα : ∀ w, starRingEnd ℂ (α w) = α w)
     (hs : ∀ P, starRingEnd ℂ (s P) = s P) (hφ : ∀ y i, starRingEnd ℂ (φ y i) = φ y i) :
@@ -180,6 +181,7 @@ theorem svec_conj {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ'} (φ : G.
   · rw [svec_of_mem' φ hy]; exact h _
   · simp [svec, zeroExt, hy]
 
+omit [NeZero L] [NeZero N₁] in
 theorem extS_conj (C : DecCover d L N₁ m₁ (k + 1)) {s : Dec2.DecParams C}
     (hs : ∀ P, starRingEnd ℂ (s P) = s P) (P : ℕ × CTorus d L N₁ m₁ (k + 1)) :
     starRingEnd ℂ (Dec2.extS C s P) = Dec2.extS C s P := by

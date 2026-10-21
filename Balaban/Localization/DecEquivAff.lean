@@ -178,12 +178,10 @@ theorem val_img_core {n : ℕ} [NeZero n] (lam : ℕ) (hlam : 0 < lam) (s x y : 
   have a2 := congrArg (fun z : ℤ => (z : ℝ)) h2
   cases b
   · simp only [Bool.false_eq_true, ↓reduceIte, Int.cast_add, Int.cast_mul, Int.cast_natCast,
-      Int.cast_one, Int.cast_sub, Int.cast_zero, sub_zero, one_mul] at a1 a2 ⊢
-    push_cast at a1 a2 ⊢
+      Int.cast_sub, sub_zero, one_mul] at a1 a2 ⊢
     linarith
   · simp only [↓reduceIte, Int.cast_add, Int.cast_mul, Int.cast_natCast, Int.cast_neg,
       Int.cast_one, Int.cast_sub, c1] at a1 a2 ⊢
-    push_cast at a1 a2 ⊢
     linarith
 
 theorem inBox_coord_aff (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (j : ℕ) (y0 x : CTorus d L N₁ m₁ K)
@@ -315,7 +313,7 @@ theorem baseCoord_div {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : ZMod 
       have h2 := Int.natCast_dvd_natCast.2 hy
       have h3 : (lam : ℤ) ∣ (n : ℤ) * e := dvd_mul_of_dvd_left hnZ e
       have e1 : ((w.val + 1 : ℕ) : ℤ) = (((s.val + 1 : ℕ) : ℤ) - (y.val : ℤ)) + n * e := by
-        push_cast; push_cast at he; linarith
+        push_cast; linarith
       rw [e1]
       exact dvd_add (dvd_sub h1 h2) h3
     obtain ⟨c, hc⟩ := Int.natCast_dvd_natCast.1 hdv
@@ -345,11 +343,13 @@ section Torus
 
 variable {d n : ℕ} [NeZero n]
 
+omit [NeZero n] in
 theorem baseImg_apply_perm (A : AffIso d n) (lam : ℕ) (y : Torus d n) (μ : Fin d) :
     baseImg A lam y (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn n (A.flip μ) * y μ -
       (if A.flip μ then ((lam - 1 : ℕ) : ZMod n) else 0) := by
   simp [baseImg, AffIso.toFun]
 
+omit [NeZero n] in
 theorem toFun_apply_perm (A : AffIso d n) (y : Torus d n) (μ : Fin d) :
     A.toFun y (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn n (A.flip μ) * y μ := by
   simp [AffIso.toFun]
@@ -403,6 +403,7 @@ def affCentres (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (m₁' : ℕ) :
   Equiv.prodShear (Equiv.refl ℕ) (fun j =>
     A.toEquiv.trans (Equiv.subRight (baseMask A (L ^ (j + m₁')))))
 
+omit [NeZero N₁] [NeZero L] in
 theorem affCentres_apply (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (m₁' : ℕ)
     (q : ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :
     affCentres (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) A m₁' q =
@@ -412,6 +413,7 @@ variable {G G' : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (A : AffIso d ((N₁ 
   (hAl : A.Aligned (L ^ (K + m₁))) (hG : CubeAligned G m₁) (hG' : CubeAligned G' m₁)
   (hΩ : ∀ j x, A.toFun x ∈ G'.Ω j ↔ x ∈ G.Ω j)
 
+omit [NeZero N₁] [NeZero L] in
 include hAl in
 theorem aligned_cube {j : ℕ} (hj : j ≤ K) : A.Aligned (L ^ (j + m₁)) :=
   fun i => dvd_trans (pow_dvd_pow L (by omega)) (hAl i)
@@ -421,7 +423,7 @@ theorem layer_aff (j : ℕ) (x : Torus d ((N₁ * L ^ m₁) * L ^ K)) :
     A.toFun x ∈ G'.layer j ↔ x ∈ G.layer j := by
   rw [GeneratingSet.mem_layer, GeneratingSet.mem_layer, hΩ j, hΩ (j + 1)]
 
-include hAl hG hG' hΩ in
+include hAl hG' hΩ in
 theorem cover_idx_aff (q : ℕ × CTorus d L N₁ m₁ K) :
     affCentres (m₁ := m₁) A m₁ q ∈ (coverOf G').cubeIdx ↔ q ∈ (coverOf G).cubeIdx := by
   show (q.1, baseImg A (L ^ (q.1 + m₁)) q.2) ∈ cubeIdx G' ↔ q ∈ cubeIdx G
@@ -444,21 +446,21 @@ theorem cover_idx_aff (q : ℕ × CTorus d L N₁ m₁ K) :
     refine ⟨hr, ?_, (baseImg_base_iff A hpos (dvd_side hr.2) hAj q.2).2 hb⟩
     exact (hG'.mem_layer_iff hr.1 hr.2 hc).2 ((layer_aff A hΩ q.1 q.2).2 hl)
 
-include hAl hG hG' hΩ in
+include hAl hG' hΩ in
 theorem coverDenom_aff (x : CTorus d L N₁ m₁ K) :
     coverDenom G' (A.toFun x) = coverDenom G x := by
   unfold coverDenom
   refine (Finset.sum_equiv (affCentres (m₁ := m₁) A m₁)
-    (fun q => (cover_idx_aff A hAl hG hG' hΩ q).symm) fun q _ => ?_).symm
+    (fun q => (cover_idx_aff A hAl hG' hΩ q).symm) fun q _ => ?_).symm
   rw [affCentres_apply]
   exact (cubeBump_aff A q.1 q.2 x).symm
 
-include hAl hG hG' hΩ in
+include hAl hG' hΩ in
 theorem cover_chi_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) :
     (coverOf G').chi (affCentres (m₁ := m₁) A m₁ q) (A.toFun x) = (coverOf G).chi q x := by
   show chi G' (q.1, baseImg A (L ^ (q.1 + m₁)) q.2) (A.toFun x) = chi G q x
   unfold chi
-  rw [coverDenom_aff A hAl hG hG' hΩ x]
+  rw [coverDenom_aff A hAl hG' hΩ x]
   exact congrArg (· / coverDenom G x) (cubeBump_aff A q.1 q.2 x)
 
 theorem cover_box_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) :
@@ -466,11 +468,11 @@ theorem cover_box_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m
   rw [mem_intBox, mem_intBox]
   exact inBox_aff_iff A q.1 q.2 x _
 
-include hAl hG hG' hΩ in
+include hAl hG' hΩ in
 theorem cover_qset_aff (q q' : ℕ × CTorus d L N₁ m₁ K) :
     affCentres (m₁ := m₁) A m₁ q' ∈ (coverOf G').Qset (affCentres (m₁ := m₁) A m₁ q) ↔
       q' ∈ (coverOf G).Qset q := by
-  rw [DecCover.mem_Qset, DecCover.mem_Qset, cover_idx_aff A hAl hG hG' hΩ q']
+  rw [DecCover.mem_Qset, DecCover.mem_Qset, cover_idx_aff A hAl hG' hΩ q']
   refine and_congr_right fun hq' => ?_
   have hr : 1 ≤ q'.1 ∧ q'.1 ≤ K := ((mem_cubeIdx G).1 hq').1
   obtain ⟨-, -, hb⟩ := (mem_cubeIdx G).1 hq'
@@ -506,7 +508,7 @@ theorem cubeP_aff {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) (x 
 
 /-! ### Compatibility with the blocks of two generating sets -/
 
-include hAl hG hG' hΩ in
+include hAl hG' hΩ in
 theorem block_idx_aff (q : ℕ × CTorus d L N₁ m₁ K) :
     (q.1, baseImg A (L ^ q.1) q.2) ∈ Background.blockIdx G' ↔ q ∈ Background.blockIdx G := by
   rw [Background.mem_blockIdx, Background.mem_blockIdx]
@@ -558,27 +560,28 @@ def affBlocks (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) :
   Equiv.prodShear (Equiv.refl ℕ) (fun j =>
     A.toEquiv.trans (Equiv.subRight (baseMask A (L ^ j))))
 
+omit [NeZero N₁] [NeZero L] in
 theorem affBlocks_apply (A : AffIso d ((N₁ * L ^ m₁) * L ^ K))
     (q : ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :
     affBlocks (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) A q = (q.1, baseImg A (L ^ q.1) q.2) := rfl
 
-include hAl hG hG' hΩ in
+include hAl in
 /-- **`CoverSymm.ofTranslate` generalized**: an aligned affine lattice isometry preserving the
 domains of a cube-aligned generating set is compatible with its cover. -/
 def CoverSymm.ofAff {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (hG : CubeAligned G m₁)
     (hΩ : ∀ j x, A.toFun x ∈ G.Ω j ↔ x ∈ G.Ω j) :
     CoverSymm (coverOf G) A.toEquiv where
   τ := affCentres (m₁ := m₁) A m₁
-  idx := cover_idx_aff A hAl hG hG hΩ
-  chi := cover_chi_aff A hAl hG hG hΩ
+  idx := cover_idx_aff A hAl hG hΩ
+  chi := cover_chi_aff A hAl hG hΩ
   box := cover_box_aff A
-  qset := cover_qset_aff A hAl hG hG hΩ
+  qset := cover_qset_aff A hAl hG hΩ
 
 /-- **`BlockSymm.ofTranslate` generalized.** -/
 def BlockSymm.ofAff {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (hG : CubeAligned G m₁)
     (hΩ : ∀ j x, A.toFun x ∈ G.Ω j ↔ x ∈ G.Ω j) : BlockSymm G A.toEquiv where
   τ := affBlocks A
-  idx := block_idx_aff A hAl hG hG hΩ
+  idx := block_idx_aff A hAl hG hΩ
   layer := fun _ => rfl
   bump := block_bump_aff A
   base := fun q hq => by

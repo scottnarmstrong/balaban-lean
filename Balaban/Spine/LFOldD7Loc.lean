@@ -23,6 +23,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N m₁ : ℕ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
+omit [NeZero M] in
 theorem holeStepLoc_congr_D' (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
@@ -66,6 +67,7 @@ def StepReadsIn (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1
     BlockSub k (coverBlk g hnn hM1 hk k (Nat.le_succ k) x) Y ∧
       BlockSub (k + 1) (coverBlk g hnn hM1 hk (k + 1) le_rfl x) Y
 
+omit [NeZero M] in
 theorem holeStepLoc_D'_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₁ ψ₂ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
@@ -115,6 +117,7 @@ theorem oldCoefLF_congr_step_data
   funext b
   exact hout b
 
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
 theorem BlockSub.mono {j : ℕ} {y : BlockAt S n M K j} {A B : Set (Torus S.d (M * n K * S.L ^ K))}
     (h : BlockSub (S := S) (n := n) (M := M) (K := K) j y A) (hAB : A ⊆ B) :
     BlockSub (S := S) (n := n) (M := M) (K := K) j y B := fun x hx => hAB (h x hx)

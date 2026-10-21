@@ -295,7 +295,7 @@ theorem holeStepLoc_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (
     locB_aff g hnn hM1 σ hk V]
 
 /-- **The datum of the local step is carried by the lattice symmetry.** -/
-theorem holeStepLoc_D'_aff_Ψ (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hρ' : 2 ≤ m₁)
+theorem holeStepLoc_D'_aff_Ψ (σ : LatTorusSym S n M K) (hI : RegionIso σ H H')
     (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (i : Fin N) :
     (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
       ((coverAff g hnn hM1 σ hk).toEquiv '' V)).D'.Ψ ((coverAff g hnn hM1 σ hk).toFun x) i =
@@ -323,20 +323,24 @@ theorem holeStepLoc_D'_aff_Ψ (σ : LatTorusSym S n M K) (hI : RegionIso σ H H'
   · have h2 : (coverAff g hnn hM1 σ hk).toFun x ∈
         dataSites ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
           (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))) := hdata.2 hx
-    rw [if_pos hx, if_pos h2]
+    simp only [hx, h2, ↓reduceIte]
     unfold mixedLift
     by_cases hΩ : x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
         (locB g hM1 V)).Ω (k + 1)
-    · rw [if_pos hΩ, if_pos (hΩt.2 hΩ)]
+    · simp only [hΩ, hΩt.2 hΩ, ↓reduceIte]
       have := blockLift_coverField_symM g hnn hM1 σ hk (k + 1) le_rfl (scaleMulti z ψ) x
       exact congrFun this i
-    · rw [if_neg hΩ, if_neg (fun h => hΩ (hΩt.1 h))]
+    · have hΩn : (coverAff g hnn hM1 σ hk).toFun x ∉
+          ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+            (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))).Ω (k + 1) :=
+        fun h => hΩ (hΩt.1 h)
+      simp only [hΩ, hΩn, ↓reduceIte]
       have := blockLift_coverField_symM g hnn hM1 σ hk k (Nat.le_succ k) ψ x
       exact congrFun this i
   · have h2 : (coverAff g hnn hM1 σ hk).toFun x ∉
         dataSites ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
           (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))) := fun h => hx (hdata.1 h)
-    rw [if_neg hx, if_neg h2]
+    simp only [hx, h2, ↓reduceIte]
 
 theorem holeStepLoc_D'_aff_h (σ : LatTorusSym S n M K) (hI : RegionIso σ H H')
     (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (i : Fin N) :
@@ -353,8 +357,11 @@ theorem holeStepLoc_D'_aff_h (σ : LatTorusSym S n M K) (hI : RegionIso σ H H')
   simp only [holeStepLoc_D'_eq, liftMixed, BgData.clip]
   by_cases hx : x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
       (locB g hM1 V)).Ω 1
-  · rw [if_pos hx, if_pos (hΩ1.2 hx)]
-  · rw [if_neg hx, if_neg (fun h => hx (hΩ1.1 h))]
+  · simp only [hx, hΩ1.2 hx, ↓reduceIte]
+  · have hxn : (coverAff g hnn hM1 σ hk).toFun x ∉
+        ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+          (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))).Ω 1 := fun h => hx (hΩ1.1 h)
+    simp only [hx, hxn, ↓reduceIte]
 
 /-- **The local steps of two histories related by a lattice symmetry are related by `StepAff`.** -/
 theorem holeStepLoc_stepAff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hm₁ : 2 ≤ m₁) :
@@ -364,9 +371,8 @@ theorem holeStepLoc_stepAff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') 
   hAl := coverAff_aligned g hnn hM1 σ hk
   hΩ := holeStepLoc_G_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI
   hΩ' := holeStepLoc_G'_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI
-  hca := holeStepLoc_cubeAligned g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hm₁
   hca' := holeStepLoc_cubeAligned g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _ hm₁
-  hΨ := holeStepLoc_D'_aff_Ψ g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁
+  hΨ := holeStepLoc_D'_aff_Ψ g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI
   hh := holeStepLoc_D'_aff_h g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI
   ha₁ := (holeStepLoc_consts g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ _).2.1.trans
     (holeStepLoc_consts g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).2.1.symm
@@ -604,7 +610,9 @@ theorem composedMulti_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ 
     simp only [lt_irrefl, ↓reduceIte, dite_true]
     by_cases hm : unitBlock x ∈ unitPts St.G'
     · have hm' := hmem.2 hm
-      rw [dif_pos (by rw [e1]; exact hm'), dif_pos (by rw [e2]; exact hm)]
+      simp only [show unitOfBlock g hnn hM1 hk y ∈ unitPts St'.G' by rw [e1]; exact hm',
+        show unitOfBlock g hnn hM1 hk ((σ.eb j).symm y) ∈ unitPts St.G' by rw [e2]; exact hm,
+        ↓reduceDIte]
       have := H0.u_spec ⟨unitBlock x, hm⟩ x
       have hu : (H0.u ⟨unitBlock x, hm⟩ : UnitTorus S.d S.L (g.c * n (j + 1)) m₁ j) =
           unitBlock ((coverAff g hnn hM1 σ hk).toFun x) := (this.2 rfl).symm
@@ -615,9 +623,11 @@ theorem composedMulti_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ 
       simp only [hs]
     · have hm' : unitBlock ((coverAff g hnn hM1 σ hk).toFun x) ∉ unitPts St'.G' :=
         fun h => hm (hmem.1 h)
-      rw [dif_neg (by rw [e1]; exact hm'), dif_neg (by rw [e2]; exact hm)]
+      simp only [show unitOfBlock g hnn hM1 hk y ∉ unitPts St'.G' by rw [e1]; exact hm',
+        show unitOfBlock g hnn hM1 hk ((σ.eb j).symm y) ∉ unitPts St.G' by rw [e2]; exact hm,
+        ↓reduceDIte]
       simp [symM]
-  · simp [composedMulti, not_lt.2 hjk.le, hjk.ne', symM]
+  · simp [composedMulti, not_lt.2 hjk.le, hjk.ne']
 
 /-- **The cover cubes with the labels of `J` under the lattice symmetry.** -/
 theorem locCubes_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
@@ -634,7 +644,7 @@ theorem locCubes_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
   · intro h
     obtain ⟨P, hP, hPQ⟩ := h
     have hPi : P ∈ (coverOf St.G').cubeIdx := by
-      refine (cover_idx_aff _ H0.hAl H0.hca H0.hca' H0.hΩ' P).1 ?_
+      refine (cover_idx_aff _ H0.hAl H0.hca' H0.hΩ' P).1 ?_
       have : affCentres (m₁ := m₁) (coverAff g hnn hM1 σ hk) m₁ P = Q'.1 := hPQ
       rw [this]; exact Q'.2
     refine ⟨⟨P, hPi⟩, hP, Subtype.ext ?_⟩
@@ -707,5 +717,78 @@ theorem oldCoefLF_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hm₁
   unfold oldTermLF
   rw [composedMulti_symM g hnn hM1 σ hk H0 ψ c]
   exact heuc _ _ _ _
+
+/-- **`oldCoefLF_aff` with the local set and the fixed values given by value-level relations**: the
+local set `V''` of the image step is the image of `V`, the fixed values and the cube families are
+related through the coarsening of the isometry on the unit points and the action `τ` on the centres.
+This is the form in which the coefficient on the local pair `oldCoefLoc` is compared. -/
+theorem oldCoefLF_aff' (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hm₁ : 2 ≤ m₁)
+    {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A A' : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ρc : ℝ) (ρ r : ℕ)
+    (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (V V'' : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hV'' : V'' = (coverAff g hnn hM1 σ hk).toEquiv '' V)
+    (heuc : ∀ (ψ₂ ψ₃ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₂ : GIdx S n M K N → ℂ),
+      rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ₂) (symM σ ψ₃) h (symG σ g₂) =
+        rep.B A X ψ₂ ψ₃ h g₂)
+    (ψout : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U → Fin N → ℂ)
+    (ψout' : (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').U →
+      Fin N → ℂ)
+    (hψ : ∀ (b : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U)
+      (b' : (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').U),
+      (b' : UnitTorus S.d S.L (g.c * n (k + 1)) m₁ k) =
+        ((coverAff g hnn hM1 σ hk).coarse (S.L ^ k)
+          ((g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1 - k))).toFun
+          (b : UnitTorus S.d S.L (g.c * n (k + 1)) m₁ k) → ∀ i, ψout' b' i = ψout b i)
+    {R₀ : ℝ} (hR : 1 < R₀)
+    (J₀ : Finset (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G').cubeIdx)
+    (J₀' : Finset (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+      V'').G').cubeIdx)
+    (hJ : ∀ Q', Q' ∈ J₀' ↔ ∃ Q ∈ J₀, (Q' : ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) =
+      DecEquiv.affCentres (m₁ := m₁) (coverAff g hnn hM1 σ hk) m₁ (Q : ℕ × CTorus S.d S.L
+        (g.c * n (k + 1)) m₁ (k + 1)))
+    (hana : AnalyticOnNhd ℂ ((holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).oldInterp
+      (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
+      (locDomsLF g hM1 (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
+      (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ ψout
+      (oldTermLF g hnn hM1 rep A X hk
+        (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ψ ψ' hv gx)
+      (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')) fun _ => R₀))
+    (hana' : AnalyticOnNhd ℂ ((holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').oldInterp
+      (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').G') ρc
+      (locDomsLF g hM1 (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'') ρ)
+      (collarCoreC (c := g.c) (H'.step k) hM1 r (X.map (σ.ec k).toEmbedding)) ∅ ψout'
+      (oldTermLF g hnn hM1 rep A' (X.map (σ.ec k).toEmbedding) hk
+        (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').G' (symM σ ψ)
+        (symM σ ψ') hv (symG σ gx))
+      (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').G')) fun _ => R₀)) :
+    oldCoefLF g hnn hM1 (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'') H' hk
+      (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ V'').G') ρc ρ r ∅
+      ψout' rep A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') hv (symG σ gx) J₀'
+      (fun b => absurd b.2 (Finset.notMem_empty _)) =
+    oldCoefLF g hnn hM1 (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) H hk
+      (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc ρ r ∅ ψout
+      rep A X ψ ψ' hv gx J₀ (fun b => absurd b.2 (Finset.notMem_empty _)) := by
+  subst hV''
+  set H0 := holeStepLoc_stepAff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁ with hH0
+  have hψ' : ψout' = fun b' i => ψout (H0.u.symm b') i := by
+    funext b' i
+    obtain ⟨b, rfl⟩ := H0.u.surjective b'
+    rw [Equiv.symm_apply_apply]
+    exact hψ b (H0.u b) (H0.u_val b) i
+  have hJ' : J₀' = J₀.map H0.kappa.toEmbedding := by
+    ext Q'
+    rw [hJ, Finset.mem_map]
+    constructor
+    · rintro ⟨Q, hQ, h⟩
+      exact ⟨Q, hQ, Subtype.ext h.symm⟩
+    · rintro ⟨Q, hQ, rfl⟩
+      exact ⟨Q, hQ, rfl⟩
+  subst hψ' hJ'
+  exact oldCoefLF_aff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ σ hI hm₁ rep A A' X ρc ρ r ψ' hv
+    gx V heuc ψout hR hana hana' J₀
 
 end Balaban.RootFSpine

@@ -63,6 +63,7 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N m₁ : ℕ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
+omit [NeZero M] in
 theorem holeStepLoc_D'_isReal (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
@@ -75,6 +76,7 @@ theorem holeStepLoc_D'_isReal (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k +
   · simp [scaleMulti, coverField, hψ]
   · simp
 
+omit [NeZero M] in
 theorem composedMulti_im {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
     (G' : GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) ϱ')
     (ψ : MultiFieldC S n M K N) (comp : unitPts G' → Fin N → ℂ)
