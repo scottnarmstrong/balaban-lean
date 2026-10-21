@@ -69,20 +69,22 @@ theorem linField_boxCut_mem_closedBall (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ 
         refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)) hρ
         exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp hsb q
 
-/-- **The rooted coefficients of a term of the final cut field on two tori** (window frame). The
-centres agree on the read set `S`, the variables agree on the region of `C`, the term `τ'` is within
-`η` of `τ` read through the residue lift on `S`, and the entries of the two cut families at
+/-- **The rooted coefficients of a term of the final cut field on two tori, core.** Two tori
+`N, N'`, a map of sites `f` carrying the region of `C` injectively onto the region of `e C`, `e`
+injective on `C`. The centres agree on the read set `S`, the variables agree on the region of `C`, the
+term `τ'` is within `η` of `τ` read through `f` on `S`, and the entries of the two cut families at
 corresponding parameters differ by at most `δ` on `S × reg C`; the cut fields stay in the ball of
 radius `r₁` (`|c| B_box ρ < r₁`), with room `ε = |c| |reg C| δ ρ < r - r₁`. -/
-theorem rootedCoef_boxCut_close_twoTorus (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
+theorem rootedCoef_boxCut_close_of_regions (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M)
     {κ : ℝ} (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
-    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) {J : ℕ} (hN : 2 * (J + 6) * M ≤ N)
-    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
-    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) {e : MacIdx d N M → MacIdx d N' M}
-    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
-    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
-    {Nf : ℕ} {h : Fin Nf → ℂ} {p : ℝ} (hp0 : 0 ≤ p) (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) {f : L1Torus d N → L1Torus d N'}
+    {e : MacIdx d N M → MacIdx d N' M} {C : Finset (MacIdx d N M)}
+    (heinj : Set.InjOn e (C : Set (MacIdx d N M))) {Nf : ℕ}
+    (hreg : patchReg (spinBoxPatch d N' M Nf) (C.image e) =
+      spinMap (Nf := Nf) f '' patchReg (spinBoxPatch d N M Nf) C)
+    (hinj : Set.InjOn (spinMap (Nf := Nf) f) (patchReg (spinBoxPatch d N M Nf) C))
+    {h : Fin Nf → ℂ} {p : ℝ} (hp0 : 0 ≤ p) (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
     (c : ℂ) (φ₀ : L1Torus d N × Fin Nf → ℂ) (φ₀' : L1Torus d N' × Fin Nf → ℂ)
     {S : Set (L1Torus d N × Fin Nf)} (hφ : ∀ q ∈ S, φ₀ q = φ₀' (spinMap f q))
     {τ : (L1Torus d N × Fin Nf → ℂ) → ℂ} {τ' : (L1Torus d N' × Fin Nf → ℂ) → ℂ} {r Mτ : ℝ}
@@ -143,8 +145,7 @@ theorem rootedCoef_boxCut_close_twoTorus (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 �
       (polydisc (0 : MacIdx d N' M → ℂ) (fun _ => Real.exp κ)) := fun s hs =>
     AnalyticAt.comp (g := τ') (f := fun s => linField φ₀' T' s w') (hτ'an _ (hball' s hs))
       (analyticOnNhd_linField hT'an φ₀' w' s hs)
-  obtain ⟨hreg, hinj⟩ := spinBoxPatch_image (Nf := Nf) hM hN hN' hf he hC
-  refine rootedCoef_close_relabel hR e (injOn_cellMap_window he hC) hg hg' ?_
+  refine rootedCoef_close_relabel hR e heinj hg hg' ?_
   intro s hs s' hs' hss
   have hspol : s ∈ polydisc (0 : MacIdx d N M → ℂ) (fun _ => Real.exp κ) := fun i => by
     simpa using hs.2 i
@@ -169,6 +170,44 @@ theorem rootedCoef_boxCut_close_twoTorus (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 �
   have h1 := norm_term_sub_le_of_transport (τ := τ) (τ' := τ') (spinMap f) hτan hτb hττ hε0 hr
     (hball s hspol) huu
   exact h1
+
+/-- **The rooted coefficients of a term of the final cut field on two tori** (window frame): the
+core `rootedCoef_boxCut_close_of_regions` with the residue lift and the cell map of the window. -/
+theorem rootedCoef_boxCut_close_twoTorus (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
+    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M)
+    {κ : ℝ} (hκ : 1 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) {J : ℕ} (hN : 2 * (J + 6) * M ≤ N)
+    (hN' : 2 * (J + 6) * M ≤ N') {f : L1Torus d N → L1Torus d N'}
+    (hf : ∀ x μ, f x μ = (((x μ).val : ℕ) : ZMod N')) {e : MacIdx d N M → MacIdx d N' M}
+    (he : ∀ z i, (z i : ℕ) ≤ J + 4 → ((e z i : Fin (macK N' M)) : ℕ) = z i)
+    {C : Finset (MacIdx d N M)} (hC : ∀ z ∈ C, ∀ i, 4 ≤ (z i : ℕ) ∧ (z i : ℕ) ≤ J)
+    {Nf : ℕ} {h : Fin Nf → ℂ} {p : ℝ} (hp0 : 0 ≤ p) (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
+    (c : ℂ) (φ₀ : L1Torus d N × Fin Nf → ℂ) (φ₀' : L1Torus d N' × Fin Nf → ℂ)
+    {S : Set (L1Torus d N × Fin Nf)} (hφ : ∀ q ∈ S, φ₀ q = φ₀' (spinMap f q))
+    {τ : (L1Torus d N × Fin Nf → ℂ) → ℂ} {τ' : (L1Torus d N' × Fin Nf → ℂ) → ℂ} {r Mτ : ℝ}
+    (hτan : AnalyticOnNhd ℂ τ (Metric.ball φ₀ r)) (hτb : ∀ u ∈ Metric.ball φ₀ r, ‖τ u‖ ≤ Mτ)
+    (hτ'an : AnalyticOnNhd ℂ τ' (Metric.ball φ₀' r)) {η : ℝ}
+    (hττ : ∀ (u' : L1Torus d N' × Fin Nf → ℂ) (u : L1Torus d N × Fin Nf → ℂ),
+      (∀ q ∈ S, u q = u' (spinMap f q)) → ‖τ' u' - τ u‖ ≤ η)
+    {ρ : ℝ} (hρ : 0 ≤ ρ) {w : L1Torus d N × Fin Nf → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ)
+    {w' : L1Torus d N' × Fin Nf → ℂ} (hw' : ∀ q, ‖w' q‖ ≤ ρ)
+    (hww : ∀ q ∈ patchReg (spinBoxPatch d N M Nf) C, w' (spinMap f q) = w q) {δ : ℝ}
+    (hδ0 : 0 ≤ δ)
+    (hδ : ∀ s ∈ supN C (Real.exp κ), ∀ s' ∈ supportedOn (C.image e), (∀ i ∈ C, s' (e i) = s i) →
+      ∀ q ∈ S, ∀ q' ∈ patchReg (spinBoxPatch d N M Nf) C,
+        ‖boxCut d L N k M v a h s q q' - boxCut d L N' k M v a h s' (spinMap f q) (spinMap f q')‖ ≤
+          δ)
+    {r₁ : ℝ} (hm : ‖c‖ * boxCutConst d L Nf a κ p * ρ < r₁)
+    (hr : r₁ + ‖c‖ * ((regFin (spinBoxPatch d N M Nf) C).card : ℝ) * δ * ρ < r) :
+    ‖rootedCoef τ φ₀ (fun s q q' => c * boxCut d L N k M v a h s q q') w C -
+        rootedCoef τ' φ₀' (fun s q q' => c * boxCut d L N' k M v a h s q q') w' (C.image e)‖ ≤
+      (η + Mτ * (‖c‖ * ((regFin (spinBoxPatch d N M Nf) C).card : ℝ) * δ * ρ) /
+          (r - r₁ - ‖c‖ * ((regFin (spinBoxPatch d N M Nf) C).card : ℝ) * δ * ρ)) /
+        (Real.exp κ - 1) ^ C.card := by
+  obtain ⟨hreg, hinj⟩ := spinBoxPatch_image (Nf := Nf) hM hN hN' hf he hC
+  exact rootedCoef_boxCut_close_of_regions hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ
+    (injOn_cellMap_window he hC) hreg hinj hp0 hp c φ₀ φ₀' hφ hτan hτb hτ'an hττ hρ hw hw' hww hδ0
+    hδ hm hr
 
 end Term
 
