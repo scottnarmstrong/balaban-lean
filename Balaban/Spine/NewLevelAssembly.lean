@@ -9,6 +9,7 @@ public import Balaban.Spine.SFStep
 public import Balaban.Inhabited.ClassHatWitness
 public import Balaban.Inhabited.StepTowerLocalChart
 public import Balaban.Inhabited.NewLevelLocalFamilyBirth
+public import Balaban.Inhabited.NewLevelHatLayer
 
 /-!
 # The assembly of A4-1b (`SFNewLevelInput`, blocker 6)
@@ -28,8 +29,8 @@ generating sets, and the torus independence of the new level.
   `NewLevelTies.newLevel_localFamilies_composed_gap`.
 * `NewLevelOpenAt`, **`sfNewLevelInput_of_open`**: `SFNewLevelInput` from the open inputs at every
   member of the class, each a named field: the generating sets of the new level of `Φ` (`gs_hat`),
-  their strong specification (`gs_strong`), the clauses with their reading on the class domain
-  (`clauses`), the torus independence (`torusIndep`).  The list of what remains open, with its
+  the clauses with their reading on the class domain (`clauses`), the torus independence
+  (`torusIndep`); the strong specification is `gsSpecStrong_hatGSOf`.  The list of what remains open, with its
   sources and builders, is in `notes/phase1/SPINE.md` (L5 note (7)).
 -/
 
@@ -384,7 +385,6 @@ theorem newLevelClausesAt_of_localFamilies {d L N₁ m₁ k N : ℕ} [NeZero L] 
 member at the scale `k` with the regime index `k₀`:
 * `gs_hat` — the generating sets of the new level of the step map are the cast local sets
   `𝔹_{k+1}(X̂)` of ruling R13 (`hatGSOf`; the definition of `Φ`);
-* `gs_strong` — the strong specification of these sets;
 * `clauses` — the clauses of the new level at the step's weights and mass
   (`NewLevelClausesAt`, from `newLevelClausesAt_of_localFamilies` at the families of the chain) and
   their reading as the term clauses of `newLevelTerms` on the class domain `sfDom` (bridge (i));
@@ -394,9 +394,6 @@ structure NewLevelOpenAt (d N L : ℕ) [NeZero L] (P6 : Def6.Consts) (m₁ : ℕ
   gs_hat : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
     ∀ X : Set (CTorus d L N₂ m₁ (k + 1)), IsPolyDom P6.m₀ (k + 1) X →
       (sf'.Tm N₂).gs (k + 1) X = hatGSOf (ϱ := ϱ) P6.m₀ (k + 1) le_rfl X
-  gs_strong : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
-    ∀ X : Set (CTorus d L N₂ m₁ (k + 1)), IsPolyDom P6.m₀ (k + 1) X →
-      GsSpecStrong (k + 1) le_rfl X (hatGSOf (ϱ := ϱ) P6.m₀ (k + 1) le_rfl X)
   clauses : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
     ∃ (a : ℕ → ℝ) (ν : ℝ)
       (Dz : CTorus d L N₂ m₁ (k + 1) → Fld d L N₂ m₁ (k + 1) N × Fld d L N₂ m₁ (k + 1) N → ℂ)
@@ -417,11 +414,13 @@ variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Con
 
 /-- **A4-1b from its open inputs** (blocker 6): if at every member `sf` of the class `ℛ_k`
 (`SFClassAt`), `1 ≤ k < k₀`, for `β ≥ β₀(κ, c₉)` and `0 < ν ≤ 7/8 L⁻²`, the image `Φ sf` has the
-open inputs `NewLevelOpenAt` (the generating sets `𝔹_{k+1}(X̂)` with their strong specification, the
-clauses of the new level read on the class domain, the torus independence), then
-`SFNewLevelInput` holds: the hat specification is `hatSpec_hatGSOf`, the other clauses are the
-inputs. -/
+open inputs `NewLevelOpenAt` (the generating sets `𝔹_{k+1}(X̂)`, the clauses of the new level read on
+the class domain, the torus independence), then `SFNewLevelInput` holds: the hat and the strong
+specification are `hatSpec_hatGSOf`, `gsSpecStrong_hatGSOf` (`L ≥ 3`, cube exponent below `m₀`: the
+ties), the other clauses are the inputs. -/
 theorem sfNewLevelInput_of_open
+    (hL3 : ∀ κ c₉, 3 ≤ (T κ c₉).L)
+    (hhat : ∀ κ c₉, hatScale (T κ c₉).L (C7 κ c₉).m₁ (ϱ κ c₉) < (P6 κ c₉).m₀)
     (hopen : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
       ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 → ∀ [NeZero (T κ c₉).L],
       ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
@@ -443,7 +442,7 @@ theorem sfNewLevelInput_of_open
     exact hbr hcl
   · intro N₂ _ hN₂ X hX
     rw [O.gs_hat N₂ hN₂ X hX]
-    exact O.gs_strong N₂ hN₂ X hX
+    exact gsSpecStrong_hatGSOf (hL3 κ c₉) (hhat κ c₉) X
   · intro N₂ _ hN₂ X hX
     rw [O.gs_hat N₂ hN₂ X hX]
     exact hatSpec_hatGSOf _ _ _ X
