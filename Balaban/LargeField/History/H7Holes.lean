@@ -24,7 +24,9 @@ The cube tests of the H7 domain (Definition II.3.5 (c); P5 (1.36)) are placed by
 * `omegaCNb_globalLHPre_of_ne`: below the top scale the two histories have the same holes;
 * `globalLHPre_congr`; `h7Domain_withZ_iff` (the H7 domain reads the regions only through its holes);
 * `h7Domain_globalLHPre_iff_of_far`: at a label `Y` whose `3`-neighbourhood misses the components
-  removed by `R^{(k)}`, the pre-`R` and the post-`R` H7 domains agree (the transport across `R`).
+  removed by `R^{(k)}`, the pre-`R` and the post-`R` H7 domains agree (the transport across `R`);
+* `mem_omegaPost_iff`, `fineSet_omegaPost_inter_eq`: `Ω_k^post = Ω_k ∪ (Z_k)ᶜ`, so two histories agreeing
+  on `Ω_k` and `Z_k` on a fine set agree on `Ω_k^post` there.
 -/
 
 @[expose] public section
@@ -118,6 +120,48 @@ theorem globalLHPre_congr {H H' : RegionHistory S n R k0 K} {k : ℕ}
     · exact hZj j
   unfold globalLHPre
   rw [hZf, hG]
+
+omit [NeZero M] [NeZero S.L] in
+/-- **A cube is in the post-`R` domain iff it is in the raw domain or off the region**:
+`Ω_k^post = Ω_k ∪ (Z_k)ᶜ` (the raw holes lie in `Z^pre_k`, and `Z_k = Z^pre_k ∖ ⋃ Rem_k`). -/
+theorem mem_omegaPost_iff (H : RegionHistory S n R k0 K) {k : ℕ} {x : Torus S.d (n k)} :
+    x ∈ H.omegaPost k ↔ x ∈ OmegaCube H k ∨ x ∉ (H.step k).Z := by
+  constructor
+  · rintro (hx | hx)
+    · exact Or.inl hx
+    · obtain ⟨c, hc, hxc⟩ := H.mem_removedSet_iff.mp hx
+      refine Or.inr fun hZ => ?_
+      rw [H.Z_eq k] at hZ
+      exact hZ.2 (Set.mem_biUnion hc hxc)
+  · rintro (hx | hx)
+    · exact H.OmegaCube_subset_omegaPost k hx
+    · by_contra h
+      exact hx (H.omegaPost_compl_subset_Z k h)
+
+omit [NeZero M] [NeZero S.L] in
+/-- **The post-`R` domain on a fine set is read from the raw domain and the region there**: two
+histories whose raw domains `Ω_k` and regions `Z_k` agree on the fine set of `X` have the same post-`R`
+domain `Ω_k^post` there (the agreement of `Ω_k^post` asked by the old part of the step follows from the
+premises of `loc_hist`). -/
+theorem fineSet_omegaPost_inter_eq (H H' : RegionHistory S n R k0 K) {k : ℕ}
+    (B : Set (Torus S.d (M * n K * S.L ^ K)))
+    (hΩ : fineSet (S := S) (n := n) M K k (OmegaCube H k) ∩ B =
+      fineSet (S := S) (n := n) M K k (OmegaCube H' k) ∩ B)
+    (hZ : (globalLH H M).Z k ∩ B = (globalLH H' M).Z k ∩ B) :
+    fineSet (S := S) (n := n) M K k (H.omegaPost k) ∩ B =
+      fineSet (S := S) (n := n) M K k (H'.omegaPost k) ∩ B := by
+  ext x
+  have e1 := congrArg (x ∈ ·) hΩ
+  have e2 := congrArg (x ∈ ·) hZ
+  simp only [eq_iff_iff, Set.mem_inter_iff, globalLH, fineSet, Set.mem_ofPred_eq] at e1 e2 ⊢
+  rw [mem_omegaPost_iff, mem_omegaPost_iff]
+  constructor
+  · rintro ⟨h1 | h1, hB⟩
+    · exact ⟨Or.inl (e1.1 ⟨h1, hB⟩).1, hB⟩
+    · exact ⟨Or.inr fun h => h1 (e2.2 ⟨h, hB⟩).1, hB⟩
+  · rintro ⟨h1 | h1, hB⟩
+    · exact ⟨Or.inl (e1.2 ⟨h1, hB⟩).1, hB⟩
+    · exact ⟨Or.inr fun h => h1 (e2.1 ⟨h, hB⟩).1, hB⟩
 
 section Domain
 

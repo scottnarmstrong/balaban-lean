@@ -524,7 +524,8 @@ approved declaration.
   the collar (a cube where `Ω_{k+1}` differs within `ρ + 13` of `Y` has its `⌊2R_k⌋ + 6`-ball in `Z^{(0)}`,
   Lemma I.3.5 (d), (e); a cube where `Z_k` differs within the read range has its coarse cube in `U′_k`, and
   `nbhd (ρ + 4) U′ ⊆ Z^{(0)}`; the localized records equal the global ones on the component, `locRH_derived`).
-  Finding 2 needs no hypothesis: `Ω^post_k ∩ X = (Ω_k ∩ X) ∪ (X ∖ Ω_k ∖ Z_k)`.  (c) for components removed by
+  Finding 2 needs no hypothesis: `Ω^post_k ∩ X = (Ω_k ∩ X) ∪ (X ∖ Ω_k ∖ Z_k)` (PROVED:
+  `Def7.mem_omegaPost_iff`, `Def7.fineSet_omegaPost_inter_eq`, `LargeField/History/H7Holes.lean`).  (c) for components removed by
   `R^{(k+1)}`: the pre-`R` records compared the post-`R` objects at the top scale; ruling R22 (approved) makes them
   compare `Z^pre_k` and all components of `Z^pre_k`.
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
