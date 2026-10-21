@@ -130,19 +130,27 @@ theorem inDomainR_liftSingle (G : GeneratingSet d L N₀ q ϱ)
   · intro x hx i; simp [liftSingle_h G _ _ hx]
 
 
-/-- **Regularity from small-field data** (BG Theorem 5.2 (3), massless): if the data lie in the real
-domain `Ψ̃(𝔹_q; δ')` with `K₁ δ' < δ`, the small solution satisfies `Reg_q(G, D, δ; S, S)` for every
-set `S` of sites of the top layer `Ω_q`. -/
-theorem reg_of_inDomainR {G : GeneratingSet d L N₀ q ϱ} {a : ℕ → ℝ} (H : BgHyp d L q ϱ a 0)
+/-- **The parts of the regularity predicate from the real domain, at any mass** (BG Theorem 5.2 (3)):
+if the data lie in `Ψ̃(𝔹_q; μ, δ')` with `K₁ δ' < δ`, the domain conjunct, `BlockClose` and
+`GradClose` of `Reg_q(G, D, δ; S, S)` hold for every set `S` of sites of the top layer `Ω_q`, and
+the background is within `K₁ δ'` of the data on `Ω₁`. -/
+theorem regParts_of_inDomainR {G : GeneratingSet d L N₀ q ϱ} {a : ℕ → ℝ} {μ : ℝ}
+    (H : BgHyp d L q ϱ a μ)
     {δ' δ : ℝ} (hδ'0 : 0 < δ') (hδ'1 : δ' ≤ bgC1 d L N) (hK : bgK1 d L N * δ' < δ)
-    {D : BgData G N} (hD : InDomainR G 0 δ' D) (hq : 1 ≤ q) (S : Finset (Torus d (N₀ * L ^ q)))
-    (hS : ∀ x ∈ S, x ∈ G.Ω q) : Reg G a 0 D δ S S := by
+    {D : BgData G N} (hD : InDomainR G μ δ' D) (hq : 1 ≤ q) (S : Finset (Torus d (N₀ * L ^ q)))
+    (hS : ∀ x ∈ S, x ∈ G.Ω q) :
+    InUnionDomainR G (bgC1 d L N) μ D ∧
+      BlockClose G D (bgFieldC G a μ (bgC0 d L N) D) S δ ∧
+      GradClose G D (bgFieldC G a μ (bgC0 d L N) D) (bgMultC G a μ (bgC0 d L N) D)
+        ((L : ℝ) ^ q) S δ ∧
+      ∀ x : G.Ω 1, vn (fun i => bgFieldC G a μ (bgC0 d L N) D (x, i) - D.Ψ x i) ≤
+        bgK1 d L N * δ' := by
   obtain ⟨φ, α, hsol, hb, hu, -⟩ := bg_real H hδ'0 hδ'1 hD
   obtain ⟨e1, e2⟩ := bgFieldC_eq hsol hu
   have hlay : ∀ x ∈ S, x ∈ G.layer q := fun x hx =>
     G.mem_layer.2 ⟨hS x hx, by rw [G.top]; exact Finset.notMem_empty _⟩
   have hlq : ∀ x ∈ S, G.layerIndex x = q := fun x hx => G.layerIndex_eq hq le_rfl (hlay x hx)
-  refine ⟨⟨δ', hδ'0, hδ'1, hD⟩, ?_, ?_, ?_⟩
+  refine ⟨⟨δ', hδ'0, hδ'1, hD⟩, ?_, ?_, fun x => by rw [e1]; exact hb.val x⟩
   · rw [e1]
     intro x hx
     have hx1 : x ∈ G.layer q := hlay x hx
@@ -195,8 +203,18 @@ theorem reg_of_inDomainR {G : GeneratingSet d L N₀ q ϱ} {a : ℕ → ℝ} (H 
     · have g := hb.alpha x
       rw [hsp] at g
       exact lt_of_le_of_lt g hK
-  · intro h0
-    simp at h0
+
+/-- **Regularity from small-field data** (BG Theorem 5.2 (3), massless): if the data lie in the real
+domain `Ψ̃(𝔹_q; δ')` with `K₁ δ' < δ`, the small solution satisfies `Reg_q(G, D, δ; S, S)` for every
+set `S` of sites of the top layer `Ω_q`. -/
+theorem reg_of_inDomainR {G : GeneratingSet d L N₀ q ϱ} {a : ℕ → ℝ} (H : BgHyp d L q ϱ a 0)
+    {δ' δ : ℝ} (hδ'0 : 0 < δ') (hδ'1 : δ' ≤ bgC1 d L N) (hK : bgK1 d L N * δ' < δ)
+    {D : BgData G N} (hD : InDomainR G 0 δ' D) (hq : 1 ≤ q) (S : Finset (Torus d (N₀ * L ^ q)))
+    (hS : ∀ x ∈ S, x ∈ G.Ω q) : Reg G a 0 D δ S S := by
+  obtain ⟨h1, h2, h3, -⟩ := regParts_of_inDomainR H hδ'0 hδ'1 hK hD hq S hS
+  refine ⟨h1, h2, h3, ?_⟩
+  intro h0
+  simp at h0
 
 end Blocks
 
