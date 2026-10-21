@@ -542,4 +542,11 @@ theorem locDomsLF_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
       rw [← (coverAff g hnn hM1 σ hk).supDist_eq]; exact hz'
     exact (H0.hΩ' 1 z).2 (h z hz)
 
+theorem unitOfBlock_coverBlk {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    unitOfBlock g hnn hM1 hk (coverBlk g hnn hM1 hk k (Nat.le_succ k) x) = unitBlock x := by
+  unfold unitOfBlock coverBlk
+  rw [torusCast_cancel']
+  rfl
+
 end Balaban.RootFSpine
