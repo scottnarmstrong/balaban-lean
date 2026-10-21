@@ -438,3 +438,10 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+
+## Reading B-1″ (ORCH-B, adopted 2026-10-21, accepted by the main orchestrator; blocker 5, the local-pair principle; `A64-DESIGN.md` §4)
+- Every piece of the last integral at a localization domain `X` (whitening row, centre, Gaussian mismatch piece, localized term, Jacobian piece) is computed on the local pair `𝔓(X)`: the generating set and the massive final operator restricted to `X^{+m}`, as in reading HS-1′. Source: P5 (2.18), (2.35), (2.39), the local pairs `(□′, R_{k+1}(□′))`; P7 (4.11), the completion keeps the terms whose domains meet `Z′` and `Z′^c`.
+- Why (obstruction O1): the rows of B-1′'s `boxCut` read the whole-torus `unconstrainedUnitOperator`, and its mismatch the whole-torus Hessian; the regional operators differ from them at every pair, so regional and whole-torus activities would differ everywhere by amounts depending on all of `Z′`, which are not couplings of a linked gas.
+- Whitening: row `p` is row `p` of the inverse square root of the final Hessian of the massive problem on `𝔓(locDom p)` (B1), with one comparison lemma: for any ambient generating set (whole torus or regional) the local-pair row is close to the row of the ambient Hessian's inverse square root when `locDom p` lies deep in the ambient region.
+- The three conditions of B-1′ stand: the whitening is a defined object fixed at the spine; the change of variables is exact, with the determinant and the mismatch in the integrand; the smallness of the mismatch is proved.
+- Consequence: for every history and every piece whose local pair lies deep in `Ω_A`, the regional piece is the whole-torus piece (exact completion); `Ξ_box` is the instance `Z = ∅`.
