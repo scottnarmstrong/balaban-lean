@@ -30,21 +30,38 @@ variable {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ 
   {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
 
 open Classical in
-/-- **The exact discrepancy identity for a selected label** (`sm y X`): the label functional is the
-termwise `Itw` of the label pulled back at its centre, plus the class term at the datum minus its
-tube extension there, plus the filed sum `Σ_{Z ∋ y, sm y Z} (T_Z + Φ_{y,Z})` when `X = □(y)`. -/
-theorem irrelTorusOn_eq_Itw_centred_add_discrepancy
-    (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+/-- **The label functional of a selection split into its parts**: the termwise part
+`ℰ(y,X) - (T_X + Φ_{y,X}) - A_{y,X}`, the relevant part `T_X + Φ_{y,X}` of an unselected polymer
+(kept), and the filed sum of the selection at the cell `□(y)`. -/
+theorem irrelTorusOn_eq_split (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ m₁ k)
+    (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) :
+    irrelTorusOn sm m₀ Tm i₀ i₁ j y X Ψ h =
+      (Tm.E j y X Ψ h - relPartTorus Tm i₀ i₁ j y Ψ h X - aTermTorus Tm i₀ j y Ψ X) +
+        (if sm y X then 0 else relPartTorus Tm i₀ i₁ j y Ψ h X) +
+        (if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
+            (L * cellSide L m₀ m₁ j) then
+          ∑ᶠ Z ∈ polysAt m₀ j y, (if sm y Z then relPartTorus Tm i₀ i₁ j y Ψ h Z else 0)
+          else 0) := by
+  unfold irrelTorusOn
+  split_ifs <;> ring
+
+open Classical in
+/-- **The exact discrepancy identity for the termwise part of a label**: `ℰ(y,X) - (T_X + Φ_{y,X})
+- A_{y,X}` is the termwise `Itw` of the label pulled back at its centre plus the class term at the
+datum minus its tube extension there. -/
+theorem termPart_eq_Itw_centred_add_discrepancy
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : sm y X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
       (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
     {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
     {Ψ : Fld d L N₁ m₁ k N}
     (hv : Fin N → ℂ) :
-    irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
+    Tm.E j y X Ψ (constFld hv) - relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X -
+        aTermTorus Tm i₀ j y Ψ X =
       Itw (⟨{S}, fun _ => sizeJ P.m₀ j X, fun S' c => trickFnA i₀ ν r (fun c' : Cfg d N S' =>
            Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S' c' (z - y))
              (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S' c')) c⟩ : TermFamily d N)
@@ -55,21 +72,7 @@ theorem irrelTorusOn_eq_Itw_centred_add_discrepancy
         Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c' (z - y))
           (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c'))
         (pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
-          ((ν : ℂ) • hv)) +
-      (if X = box (cbase (cellSide L P.m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L P.m₀ m₁ j)
-          (L * cellSide L P.m₀ m₁ j) then
-        ∑ᶠ Z ∈ polysAt P.m₀ j y,
-          (if sm y Z then relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z else 0) else 0) := by
-  have hsplit : irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
-      Tm.E j y X Ψ (constFld hv) - relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X -
-        aTermTorus Tm i₀ j y Ψ X +
-      (if X = box (cbase (cellSide L P.m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L P.m₀ m₁ j)
-          (L * cellSide L P.m₀ m₁ j) then
-        ∑ᶠ Z ∈ polysAt P.m₀ j y,
-          (if sm y Z then relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z else 0) else 0) := by
-    simp only [irrelTorusOn, hsm, ↓reduceIte]
-  rw [hsplit]
-  congr 1
+          ((ν : ℂ) • hv)) := by
   have hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S :=
     fun z hz => by rw [hSdef]; exact mem_placeSet hN hjk hy hX hz
   have hmS : ∀ x ∈ Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X),
@@ -202,6 +205,41 @@ theorem irrelTorusOn_eq_Itw_centred_add_discrepancy
   rw [hTtw, hAx, hPhi, hTterm]
   simp only [relPartTorus, aTermTorus, hcy, hψ]
   ring
+
+open Classical in
+/-- **The exact discrepancy identity for a selected label** (`sm y X`): the label functional is the
+termwise `Itw` of the label pulled back at its centre, plus the class term at the datum minus its
+tube extension there, plus the filed sum `Σ_{Z ∋ y, sm y Z} (T_Z + Φ_{y,Z})` when `X = □(y)`. -/
+theorem irrelTorusOn_eq_Itw_centred_add_discrepancy
+    (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+    (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
+    (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : sm y X)
+    (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
+      (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
+    {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
+    {Ψ : Fld d L N₁ m₁ k N}
+    (hv : Fin N → ℂ) :
+    irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) =
+      Itw (⟨{S}, fun _ => sizeJ P.m₀ j X, fun S' c => trickFnA i₀ ν r (fun c' : Cfg d N S' =>
+           Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S' c' (z - y))
+             (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S' c')) c⟩ : TermFamily d N)
+        i₀ i₁ ν S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
+        ((ν : ℂ) • hv) +
+      Tm.E j y X Ψ (constFld hv) -
+      trickFnA i₀ ν r (fun c' : Cfg d N S =>
+        Tm.E j y X (fun z => fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S c' (z - y))
+          (hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S c'))
+        (pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
+          ((ν : ℂ) • hv)) +
+      (if X = box (cbase (cellSide L P.m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L P.m₀ m₁ j)
+          (L * cellSide L P.m₀ m₁ j) then
+        ∑ᶠ Z ∈ polysAt P.m₀ j y,
+          (if sm y Z then relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) Z else 0) else 0) := by
+  rw [irrelTorusOn_eq_split, termPart_eq_Itw_centred_add_discrepancy hcl hBg hν hμν hνb hj1 hjk hN
+    hy hX hyX hSdef hne hrad hv]
+  simp only [hsm, ↓reduceIte, add_zero]
 
 open Classical in
 /-- The exact discrepancy identity for a non-special label. -/
