@@ -1,0 +1,470 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
+module
+
+public import Balaban.Spine.FinalBoxLocal
+public import Balaban.Spine.FinalBoxCells
+public import Balaban.Spine.FinalBoxMeasure
+public import Balaban.Polymer.LocalGas
+public import Balaban.LargeField.Base.KF0AllGoodGas
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+
+/-!
+# The gas of the box integral on the macro cells
+
+A6-3, gas layer, the box instance of `Polymer/LocalGas.lean` (P4 (6.6); P7 (4.9)–(4.14)). On one
+torus, with the local form `BoxLocalForm C vc hv p₁ G₀ M_c a ε W` of the fluctuation integrand:
+
+* the sites of the gas are the macro cells `z` of side `M_c` of the `k`-block torus (`cellOf`, the
+  cells `Green.macZ` of the cut family), with the graph `macCellGraph` (degree `≤ 16^d`);
+* a cell configuration `Φ` carries the Gaussian variable on the blocks of the cell (`cellField`); the
+  measure is the product over the blocks of the one-block Gaussian conditioned on the box
+  (`boxSiteMeasure`), grouped by cells (`Polymer.qRef`);
+* the terms of the gas are the grouped terms `W_c(𝒳) = Σ_{cells(Y) = 𝒳} W_Y` at the field clamped
+  onto the box (`boxCellTerm`); the clamp `clampBox` is the identity on the box, which carries the
+  measure, and makes the terms bounded and continuous for every configuration;
+* `boxLocalForm_toLocalGasForm`: the grouped terms have the local form of the generic core on the
+  cells, with the bound `(2M_c)^d ε` (a cell has at most `(2M_c)^d` blocks);
+* `ctxFluctBoxIntegral_eq_boxGas`: the box average of the fluctuation integrand is
+  `Z_K e^{E₀} γ₁(box₁)^{|Λ|} exp(Σ_𝒳 P(𝒳))` with the explicit local terms `boxCellP`, and the
+  local terms vanish off connected cell sets, depend on the source only at the fine sites of their
+  cells, are analytic on the source ball and obey the Kotecký–Preiss bound
+  (`boxCellP_kp_bound`, `boxCellP_eq_zero_of_not_isAnimal`, `boxCellP_congr_g`,
+  `analyticOnNhd_boxCellP`).
+
+The numerical conditions: `a ≥ κ' + 12d + 21/2` and `(2M_c)^d ε ≤ 1/2` (`κ₀ = 4 + 6d`,
+`κ₁ = κ' + κ₀ + 5/2` in `Polymer.integral_exp_eq_gasP`, with `Δ = 16^d`).
+-/
+
+@[expose] public section
+
+open MeasureTheory ProbabilityTheory Balaban Balaban.LargeField Balaban.LargeField.Def7
+  Balaban.LargeField.Def7v2 Balaban.Green Balaban.Polymer Finset
+
+namespace Balaban.RootFSpine
+
+section Clamp
+
+variable {ι : Type*}
+
+/-- The clamp of a real field onto the box `|w_p| ≤ p₁`. -/
+def clampBox (p1 : ℝ) (w : ι → ℝ) : ι → ℝ := fun p => max (-p1) (min p1 (w p))
+
+theorem clampBox_mem {p1 : ℝ} (hp1 : 0 ≤ p1) (w : ι → ℝ) : clampBox p1 w ∈ gaussBox ι p1 := by
+  intro p
+  simp only [clampBox, abs_le]
+  constructor
+  · exact le_max_left _ _
+  · exact max_le (by linarith) (min_le_left _ _)
+
+theorem clampBox_of_mem {p1 : ℝ} {w : ι → ℝ} (hw : w ∈ gaussBox ι p1) : clampBox p1 w = w := by
+  funext p
+  have h := abs_le.1 (hw p)
+  simp only [clampBox]
+  rw [min_eq_right h.2, max_eq_right h.1]
+
+theorem continuous_clampBox (p1 : ℝ) : Continuous (clampBox (ι := ι) p1) :=
+  continuous_pi fun p => continuous_const.max (continuous_const.min (continuous_apply p))
+
+end Clamp
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ}
+
+/-- The cell of a `k`-block. -/
+def cellOf (k Mc : ℕ) (x : BlockAt S n M K k) : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc :=
+  macZ Mc (x : L1Torus S.d (M * n K * S.L ^ (K - k)))
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem cellCount_eq (k Mc : ℕ) (Y : Finset (BlockAt S n M K k)) :
+    cellCount k Mc Y = (Y.image (cellOf k Mc)).card := rfl
+
+/-- The cell of an index of the source (the cell of the `k`-block of its fine site). -/
+def cellOfSrc (k Mc : ℕ) (i : GIdx S n M K N) : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc :=
+  cellOf k Mc (fineBlock k i.1)
+
+/-- The configurations of a cell: the Gaussian variables of the blocks of the cell. -/
+abbrev CellSpace (k Mc N : ℕ) (z : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc) : Type :=
+  QSpace (cellOf (S := S) (n := n) (M := M) (K := K) k Mc) (Fin N → ℝ) z
+
+/-- The Gaussian variable of a cell configuration. -/
+def cellField {k Mc : ℕ} (Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z) :
+    BlockAt S n M K k × Fin N → ℝ :=
+  fieldCurry (BlockAt S n M K k) N (qSites (cellOf k Mc) Φ)
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem cellField_apply {k Mc : ℕ} (Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z)
+    (x : BlockAt S n M K k) (i : Fin N) : cellField Φ (x, i) = Φ (cellOf k Mc x) ⟨x, rfl⟩ i := rfl
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem continuous_cellField (k Mc : ℕ) :
+    Continuous (cellField (S := S) (n := n) (M := M) (K := K) (N := N) (k := k) (Mc := Mc)) :=
+  continuous_pi fun p => (continuous_apply p.2).comp
+    ((continuous_apply (⟨p.1, rfl⟩ : QFibre (cellOf k Mc) (cellOf k Mc p.1))).comp
+      (continuous_apply (cellOf k Mc p.1)))
+
+/-- **The one-block measure of the box**: the standard Gaussian of `Fin N → ℝ` conditioned on the
+box `|v_i| ≤ p₁`. -/
+noncomputable def boxSiteMeasure (N : ℕ) (p1 : ℝ) : Measure (Fin N → ℝ) :=
+  cond (pdGaussian (Fin N) ℝ) (gaussBox (Fin N) p1)
+
+/-- **The terms of the gas of the cells**: `W_c(𝒳) = Σ_{cells(Y) = 𝒳} W_Y` at the field of the cell
+configuration clamped onto the box. -/
+def boxCellTerm (W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) →
+      (GIdx S n M K N → ℂ) → ℂ) (Mc : ℕ) (p1 : ℝ)
+    (𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))
+    (Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z) (g : GIdx S n M K N → ℂ) :
+    ℂ :=
+  ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+    (fun Y => Y.image (cellOf k Mc) = 𝒳), W Y (clampBox p1 (cellField Φ)) g
+
+/-- **The local terms of the box gas** on the sets of cells, at the source `g`: the local terms
+`localGasP` of the generic core for the grouped terms `boxCellTerm` and the product of the box
+measures. -/
+noncomputable def boxCellP (W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) →
+      (GIdx S n M K N → ℂ) → ℂ) (Mc : ℕ) (p1 : ℝ) (g : GIdx S n M K N → ℂ)
+    (𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc)) : ℂ :=
+  localGasP (qRef (cellOf k Mc) (boxSiteMeasure N p1)) (boxCellTerm W Mc p1) g 𝒳
+
+section Form
+
+variable {C : SFCtx S n R M K N k m₁ ϱ} {vc : CorrCoef S.d} {hv : EuclideanSpace ℝ (Fin N)}
+  {p1 G₀ : ℝ} {Mc : ℕ} {a ε : ℝ}
+  {W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) → (GIdx S n M K N → ℂ) → ℂ}
+
+/-- The sum over the cell sets containing a cell of the grouped weights is at most the sum over the
+blocks of the cell of the weights of the block sets containing the block. -/
+theorem sum_cellSets_le (f : Finset (BlockAt S n M K k) → ℝ) (hf : ∀ Y, 0 ≤ f Y)
+    (z : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc) :
+    ∑ 𝒳 ∈ (Finset.univ : Finset (Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))).filter
+        (fun 𝒳 => z ∈ 𝒳),
+      ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+        (fun Y => Y.image (cellOf k Mc) = 𝒳), f Y ≤
+      ∑ x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter (fun x => cellOf k Mc x = z),
+        ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter (fun Y => x ∈ Y), f Y := by
+  classical
+  set s := (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+    (fun Y => z ∈ Y.image (cellOf k Mc)) with hs
+  have h1 : ∑ 𝒳 ∈ (Finset.univ : Finset (Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))).filter
+        (fun 𝒳 => z ∈ 𝒳),
+      ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+        (fun Y => Y.image (cellOf k Mc) = 𝒳), f Y = ∑ Y ∈ s, f Y := by
+    rw [← Finset.sum_fiberwise_of_maps_to (g := fun Y : Finset (BlockAt S n M K k) =>
+      Y.image (cellOf k Mc)) (t := (Finset.univ : Finset (Finset (MacIdx S.d
+        (M * n K * S.L ^ (K - k)) Mc))).filter (fun 𝒳 => z ∈ 𝒳)) (s := s)
+      (fun Y hY => by simpa [hs] using hY)]
+    refine Finset.sum_congr rfl fun 𝒳 h𝒳 => Finset.sum_congr ?_ fun _ _ => rfl
+    ext Y
+    simp only [hs, Finset.mem_filter, Finset.mem_univ, true_and]
+    constructor
+    · intro hY; exact ⟨by rw [hY]; exact (Finset.mem_filter.1 h𝒳).2, hY⟩
+    · exact fun h => h.2
+  rw [h1, Finset.sum_filter]
+  have h2 : ∑ x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter (fun x => cellOf k Mc x = z),
+      ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter (fun Y => x ∈ Y), f Y =
+      ∑ Y : Finset (BlockAt S n M K k), ∑ x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter
+        (fun x => cellOf k Mc x = z), (if x ∈ Y then f Y else 0) := by
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [Finset.sum_filter]
+  rw [h2]
+  refine Finset.sum_le_sum fun Y _ => ?_
+  split_ifs with hz
+  · obtain ⟨x, hx, hxz⟩ := Finset.mem_image.1 hz
+    have hmem : x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter
+        (fun x => cellOf k Mc x = z) := Finset.mem_filter.2 ⟨Finset.mem_univ _, hxz⟩
+    calc f Y = (if x ∈ Y then f Y else 0) := by simp [hx]
+      _ ≤ _ := Finset.single_le_sum (f := fun x => if x ∈ Y then f Y else 0)
+          (fun x _ => by split_ifs <;> simp [hf Y]) hmem
+  · exact Finset.sum_nonneg fun x _ => by split_ifs <;> simp [hf Y]
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem clampBox_cellField_apply {p1 : ℝ}
+    (Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z) (x : BlockAt S n M K k)
+    (i : Fin N) : clampBox p1 (cellField Φ) (x, i) =
+      max (-p1) (min p1 (Φ (cellOf k Mc x) ⟨x, rfl⟩ i)) := rfl
+
+/-- **The grouped terms have the local form of the generic core on the cells**, with the bound
+`(2M_c)^d ε`. -/
+theorem boxLocalForm_toLocalGasForm (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 ≤ p1) :
+    LocalGasForm (Ω := CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N) (macCellGraph Mc)
+      (cellOfSrc k Mc) (l1BallR (GIdx S n M K N) G₀) a (((2 * Mc : ℕ) : ℝ) ^ S.d * ε)
+      (boxCellTerm W Mc p1) where
+  local_w 𝒳 g Φ Φ' hΦ := by
+    unfold boxCellTerm
+    refine Finset.sum_congr rfl fun Y hY => hW.local_w Y _ _ g fun x hx i => ?_
+    rw [clampBox_cellField_apply, clampBox_cellField_apply]
+    have hc : cellOf k Mc x ∈ 𝒳 := by
+      rw [← (Finset.mem_filter.1 hY).2]; exact Finset.mem_image_of_mem _ hx
+    rw [hΦ _ hc]
+  local_g 𝒳 Φ g g' hgg := by
+    unfold boxCellTerm
+    refine Finset.sum_congr rfl fun Y hY => hW.local_g Y _ g g' fun x hx i => hgg (x, i) ?_
+    show cellOf k Mc (fineBlock k x) ∈ 𝒳
+    rw [← (Finset.mem_filter.1 hY).2]; exact Finset.mem_image_of_mem _ hx
+  support 𝒳 h𝒳 Φ g := by
+    unfold boxCellTerm
+    refine Finset.sum_eq_zero fun Y hY => hW.support Y (fun hYa => h𝒳 ?_) _ _
+    rw [← (Finset.mem_filter.1 hY).2]
+    exact isAnimal_image_macZ hYa
+  analytic 𝒳 Φ := by
+    unfold boxCellTerm
+    exact Finset.analyticOnNhd_fun_sum _ fun Y _ => hW.analytic Y _ (clampBox_mem hp1 _)
+  cont 𝒳 := by
+    unfold boxCellTerm
+    refine continuousOn_finsetSum _ fun Y _ => ?_
+    refine (hW.cont Y).comp (f := fun q : (GIdx S n M K N → ℂ) ×
+        (∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z) =>
+        (q.1, clampBox p1 (cellField q.2)))
+      (Continuous.continuousOn (continuous_fst.prodMk
+        ((continuous_clampBox p1).comp ((continuous_cellField k Mc).comp continuous_snd))))
+      fun q hq => ⟨hq.1, clampBox_mem hp1 _⟩
+  bound Φ g hg z := by
+    set w := clampBox p1 (cellField Φ) with hw
+    have hwb : w ∈ gaussBox (BlockAt S n M K k × Fin N) p1 := clampBox_mem hp1 _
+    have hε : 0 ≤ ε := le_trans (Finset.sum_nonneg fun Y _ => by positivity) (hW.bound w hwb g hg 0)
+    have h1 : ∀ 𝒳 ∈ (Finset.univ : Finset (Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))).filter
+        (fun 𝒳 => z ∈ 𝒳), ‖boxCellTerm W Mc p1 𝒳 Φ g‖ * Real.exp (a * (𝒳.card : ℝ)) ≤
+        ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+          (fun Y => Y.image (cellOf k Mc) = 𝒳),
+          ‖W Y w g‖ * Real.exp (a * (cellCount k Mc Y : ℝ)) := by
+      intro 𝒳 _
+      unfold boxCellTerm
+      calc ‖∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+              (fun Y => Y.image (cellOf k Mc) = 𝒳), W Y w g‖ * Real.exp (a * (𝒳.card : ℝ))
+          ≤ (∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter
+              (fun Y => Y.image (cellOf k Mc) = 𝒳), ‖W Y w g‖) * Real.exp (a * (𝒳.card : ℝ)) :=
+            mul_le_mul_of_nonneg_right (norm_sum_le _ _) (Real.exp_pos _).le
+        _ = _ := by
+            rw [Finset.sum_mul]
+            refine Finset.sum_congr rfl fun Y hY => ?_
+            rw [cellCount_eq, (Finset.mem_filter.1 hY).2]
+    refine (Finset.sum_le_sum h1).trans ((sum_cellSets_le (fun Y =>
+      ‖W Y w g‖ * Real.exp (a * (cellCount k Mc Y : ℝ))) (fun Y => by positivity) z).trans ?_)
+    calc ∑ x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter (fun x => cellOf k Mc x = z),
+          ∑ Y ∈ (Finset.univ : Finset (Finset (BlockAt S n M K k))).filter (fun Y => x ∈ Y),
+            ‖W Y w g‖ * Real.exp (a * (cellCount k Mc Y : ℝ))
+        ≤ ∑ x ∈ (Finset.univ : Finset (BlockAt S n M K k)).filter (fun x => cellOf k Mc x = z),
+            ε := Finset.sum_le_sum fun x _ => hW.bound w hwb g hg x
+      _ = (((Finset.univ : Finset (BlockAt S n M K k)).filter
+            (fun x => cellOf k Mc x = z)).card : ℝ) * ε := by rw [Finset.sum_const, nsmul_eq_mul]
+      _ ≤ (((2 * Mc : ℕ) : ℝ) ^ S.d) * ε := by
+          refine mul_le_mul_of_nonneg_right ?_ hε
+          have := card_macZ_fibre_le (d := S.d) (m := M * n K * S.L ^ (K - k)) hMc z
+          have h2 : ((Finset.univ : Finset (BlockAt S n M K k)).filter
+              (fun x => cellOf k Mc x = z)).card ≤ (2 * Mc) ^ S.d := by
+            refine le_trans (Finset.card_le_card fun x hx => ?_) this
+            simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hx ⊢
+            exact hx
+          exact_mod_cast h2
+
+end Form
+
+/-! ### Numerics -/
+
+/-- The entropy rate of the cell gas: `κ₀ = 4 + 6d`. -/
+noncomputable def cellKappa0 (d : ℕ) : ℝ := 4 + 6 * d
+
+/-- **The numerical conditions of the cell gas** (`Δ = 16^d`, `κ₀ = 4 + 6d`,
+`κ₁ = κ' + κ₀ + 5/2`): from `a ≥ κ' + 12d + 21/2` and `ε_c ≤ 1/2`. -/
+theorem cellGas_numerics (d : ℕ) {κ' a εc : ℝ} (ha : κ' + 12 * d + 21 / 2 ≤ a) (hεc : εc ≤ 1 / 2) :
+    (((16 ^ d : ℕ) : ℝ)) ^ 2 * 2 * Real.exp (-cellKappa0 d) ≤ 1 / 2 ∧
+      Real.log 4 + 1 ≤ cellKappa0 d ∧
+      κ' + cellKappa0 d + 1 ≤ (κ' + cellKappa0 d + 5 / 2) - 3 / 2 ∧
+      cellKappa0 d + (κ' + cellKappa0 d + 5 / 2) ≤ a ∧ εc ≤ Real.log 2 ∧
+      εc * (4 * Real.exp (-cellKappa0 d)) ≤ 1 / 4 := by
+  have he1 : (2.7 : ℝ) < Real.exp 1 := lt_of_lt_of_le (by norm_num) Real.exp_one_gt_d9.le
+  have h4 : 4 * Real.exp (-4) ≤ 1 / 2 := by
+    have : (8 : ℝ) ≤ Real.exp 4 := by
+      have : Real.exp 4 = Real.exp 1 ^ 4 := by rw [← Real.exp_nat_mul]; norm_num
+      rw [this]; nlinarith [pow_le_pow_left₀ (by norm_num : (0:ℝ) ≤ 2.7) he1.le 4]
+    rw [Real.exp_neg]
+    rw [mul_inv_le_iff₀ (Real.exp_pos 4)]; linarith
+  have hκ0 : 4 ≤ cellKappa0 d := by unfold cellKappa0; have : (0 : ℝ) ≤ d := Nat.cast_nonneg d; linarith
+  have h4' : 4 * Real.exp (-cellKappa0 d) ≤ 1 / 2 :=
+    le_trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 (by linarith)) (by norm_num)) h4
+  refine ⟨?_, ?_, by linarith, ?_, ?_, ?_⟩
+  · have h256 : (256 : ℝ) ≤ Real.exp 6 := by
+      have : Real.exp 6 = Real.exp 1 ^ 6 := by rw [← Real.exp_nat_mul]; norm_num
+      rw [this]; nlinarith [pow_le_pow_left₀ (by norm_num : (0:ℝ) ≤ 2.7) he1.le 6]
+    have e1 : (((16 ^ d : ℕ) : ℝ)) ^ 2 * 2 * Real.exp (-cellKappa0 d) =
+        2 * Real.exp (-4) * ((256 : ℝ) * Real.exp (-6)) ^ d := by
+      unfold cellKappa0
+      rw [mul_pow, ← Real.exp_nat_mul, show -(4 + 6 * (d : ℝ)) = -4 + (d : ℝ) * (-6) by ring,
+        Real.exp_add]
+      push_cast
+      rw [← pow_mul, show (16 : ℝ) ^ (d * 2) = 256 ^ d by rw [pow_mul']; norm_num]
+      ring
+    rw [e1]
+    have h1 : (256 : ℝ) * Real.exp (-6) ≤ 1 := by
+      rw [Real.exp_neg, ← div_eq_mul_inv, div_le_one (Real.exp_pos 6)]; exact h256
+    have h2 : ((256 : ℝ) * Real.exp (-6)) ^ d ≤ 1 := pow_le_one₀ (by positivity) h1
+    nlinarith [Real.exp_pos (-4), pow_nonneg (by positivity : (0:ℝ) ≤ 256 * Real.exp (-6)) d]
+  · have := Balaban.LargeField.log_four_bounds; linarith
+  · unfold cellKappa0; linarith
+  · have := Real.log_two_gt_d9; linarith
+  · by_cases h0 : εc ≤ 0
+    · nlinarith [Real.exp_pos (-cellKappa0 d)]
+    · push Not at h0
+      nlinarith [Real.exp_pos (-cellKappa0 d)]
+
+/-! ### The gas of the box -/
+
+section Gas
+
+variable {C : SFCtx S n R M K N k m₁ ϱ} {vc : CorrCoef S.d} {hv : EuclideanSpace ℝ (Fin N)}
+  {p1 G₀ : ℝ} {Mc : ℕ} {a ε : ℝ}
+  {W : Finset (BlockAt S n M K k) → (BlockAt S n M K k × Fin N → ℝ) → (GIdx S n M K N → ℂ) → ℂ}
+
+theorem isProbabilityMeasure_boxSiteMeasure {p1 : ℝ} (hp1 : 0 < p1) :
+    IsProbabilityMeasure (boxSiteMeasure N p1) := by
+  have : IsProbabilityMeasure (pdGaussian (Fin N) ℝ) := ⟨pdGaussian_univ⟩
+  exact cond_isProbabilityMeasure (pdGaussian_gaussBox_pos hp1).ne'
+
+/-- The compact carrier of the cell measure: every block value in the box. -/
+def cellBoxSet (k Mc N : ℕ) (p1 : ℝ) :
+    Set (∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z) :=
+  Set.pi Set.univ fun _ => Set.pi Set.univ fun _ => gaussBox (Fin N) p1
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem isCompact_cellBoxSet (k Mc N : ℕ) (p1 : ℝ) :
+    IsCompact (cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1) := by
+  have hb : IsCompact (gaussBox (Fin N) p1) := by
+    have : gaussBox (Fin N) p1 = Set.pi Set.univ fun _ : Fin N => Set.Icc (-p1) p1 := by
+      ext v
+      simp only [gaussBox, Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ, true_implies, Set.mem_Icc,
+        abs_le]
+    rw [this]
+    exact isCompact_univ_pi fun _ => isCompact_Icc
+  exact isCompact_univ_pi fun _ => isCompact_univ_pi fun _ => hb
+
+theorem measurableSet_cellBoxSet (k Mc N : ℕ) (p1 : ℝ) :
+    MeasurableSet (cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1) :=
+  MeasurableSet.univ_pi fun _ => MeasurableSet.univ_pi fun _ => measurableSet_gaussBox _ p1
+
+theorem ae_cellBoxSet {p1 : ℝ} (hp1 : 0 < p1) :
+    ∀ᵐ Φ ∂(Measure.pi (qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1))), Φ ∈ cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1 := by
+  have : IsProbabilityMeasure (boxSiteMeasure N p1) := isProbabilityMeasure_boxSiteMeasure hp1
+  have hone : boxSiteMeasure N p1 (gaussBox (Fin N) p1) = 1 := by
+    have : IsProbabilityMeasure (pdGaussian (Fin N) ℝ) := ⟨pdGaussian_univ⟩
+    exact cond_apply_self (pdGaussian_gaussBox_pos hp1).ne' (measure_ne_top _ _)
+  have h1 : Measure.pi (qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1)) (cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1) = 1 := by
+    rw [cellBoxSet, Measure.pi_pi]
+    refine Finset.prod_eq_one fun z _ => ?_
+    simp only [qRef, Measure.pi_pi, hone, Finset.prod_const_one]
+  have hc : Measure.pi (qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1)) (cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1)ᶜ = 0 := by
+    rw [measure_compl (measurableSet_cellBoxSet _ _ _ _) (measure_ne_top _ _), h1, measure_univ,
+      tsub_self]
+  filter_upwards [mem_ae_iff.2 hc] with Φ hΦ using hΦ
+
+omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
+theorem cellField_mem_of_mem_cellBoxSet {p1 : ℝ}
+    {Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z}
+    (hΦ : Φ ∈ cellBoxSet (S := S) (n := n) (M := M) (K := K) k Mc N p1) :
+    cellField Φ ∈ gaussBox (BlockAt S n M K k × Fin N) p1 := fun p =>
+  hΦ (cellOf k Mc p.1) (Set.mem_univ _) ⟨p.1, rfl⟩ (Set.mem_univ _) p.2
+
+/-- The sum of the terms over the block sets is the sum over the cell sets of the grouped terms,
+at the clamped field. -/
+theorem sum_W_eq_sum_boxCellTerm (Φ : ∀ z, CellSpace (S := S) (n := n) (M := M) (K := K) k Mc N z)
+    (g : GIdx S n M K N → ℂ) :
+    ∑ Y : Finset (BlockAt S n M K k), W Y (clampBox p1 (cellField Φ)) g =
+      ∑ 𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc), boxCellTerm W Mc p1 𝒳 Φ g := by
+  unfold boxCellTerm
+  exact (Finset.sum_fiberwise _ _ _).symm
+
+/-- **The box average of the fluctuation integrand is a cell gas** (A6-3, gas layer): under the local
+form, for every source of the unit ball,
+`ctxFluctBoxIntegral = Z_K e^{E₀} γ₁(box₁)^{|Λ|} exp(Σ_𝒳 P(𝒳))` with the local terms `boxCellP`. -/
+theorem ctxFluctBoxIntegral_eq_boxGas (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 < p1) {κ' : ℝ} (hκ' : 0 ≤ κ') (ha : κ' + 12 * S.d + 21 / 2 ≤ a)
+    (hε : ((2 * Mc : ℕ) : ℝ) ^ S.d * ε ≤ 1 / 2) :
+    ∃ E₀ : ℂ, ∀ g ∈ l1Ball (GIdx S n M K N),
+      ctxFluctBoxIntegral C vc hv p1 g =
+        (pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) * Complex.exp E₀ *
+          (((pdGaussian (Fin N) ℝ (gaussBox (Fin N) p1)).toReal ^
+            Fintype.card (BlockAt S n M K k) : ℝ) : ℂ) *
+          Complex.exp (∑ 𝒳, boxCellP W Mc p1 g 𝒳) := by
+  have : IsProbabilityMeasure (boxSiteMeasure N p1) := isProbabilityMeasure_boxSiteMeasure hp1
+  obtain ⟨E₀, hE⟩ := ctxFluctBoxIntegral_eq_of_boxLocalForm hW
+  refine ⟨E₀, fun g hg => ?_⟩
+  have hgU : g ∈ l1BallR (GIdx S n M K N) G₀ := l1Ball_subset_l1BallR _ hW.one_lt_G₀.le hg
+  have hF := boxLocalForm_toLocalGasForm hW hMc hp1.le
+  obtain ⟨hq, hκ0, hκ, ha', hεlog, hεK⟩ := cellGas_numerics S.d (κ' := κ') ha hε
+  have hgas := integral_exp_eq_gasP (μ := qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1)) (macCellGraph_connected (KF0Gas.blockGraph_connected S.d _))
+    (macCellGraph_degree_le hMc) hq hκ0 hκ' hκ ha' hεlog hεK hF hgU
+  rw [hE g hg, setIntegral_gaussBox_eq hp1,
+    integral_pi_eq_qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)]
+  have hint : ∫ Φ, Complex.exp (∑ Y, W Y (fieldCurry (BlockAt S n M K k) N
+        (qSites (cellOf k Mc) Φ)) g)
+        ∂(Measure.pi (qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+          (boxSiteMeasure N p1))) =
+      ∫ Φ, Complex.exp (∑ 𝒳, boxCellTerm W Mc p1 𝒳 Φ g)
+        ∂(Measure.pi (qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+          (boxSiteMeasure N p1))) := by
+    refine integral_congr_ae ((ae_cellBoxSet hp1).mono fun Φ hΦ => ?_)
+    beta_reduce
+    rw [← sum_W_eq_sum_boxCellTerm, clampBox_of_mem (cellField_mem_of_mem_cellBoxSet hΦ)]
+    rfl
+  rw [show cond (pdGaussian (Fin N) ℝ) (gaussBox (Fin N) p1) = boxSiteMeasure N p1 from rfl,
+    hint, hgas.1]
+  unfold boxCellP
+  ring
+
+/-- **The Kotecký–Preiss bound of the box gas**: for sources of the ball of radius `G₀`,
+`Σ_{𝒳 ∋ z} ‖P_g(𝒳)‖ e^{κ' |𝒳|_St} ≤ 64 e (2M_c)^d ε e^{-2κ₀}`. -/
+theorem boxCellP_kp_bound (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 < p1) {κ' : ℝ} (hκ' : 0 ≤ κ') (ha : κ' + 12 * S.d + 21 / 2 ≤ a)
+    (hε : ((2 * Mc : ℕ) : ℝ) ^ S.d * ε ≤ 1 / 2) {g : GIdx S n M K N → ℂ}
+    (hg : g ∈ l1BallR (GIdx S n M K N) G₀) (z : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc) :
+    ∑ 𝒳 ∈ (Finset.univ : Finset (Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))).filter
+        (fun 𝒳 => z ∈ 𝒳), ‖boxCellP W Mc p1 g 𝒳‖ * Real.exp (κ' * stSizeG (macCellGraph Mc) 𝒳) ≤
+      64 * Real.exp 1 * (((2 * Mc : ℕ) : ℝ) ^ S.d * ε) * Real.exp (-(2 * cellKappa0 S.d)) := by
+  have : IsProbabilityMeasure (boxSiteMeasure N p1) := isProbabilityMeasure_boxSiteMeasure hp1
+  obtain ⟨hq, hκ0, hκ, ha', hεlog, hεK⟩ := cellGas_numerics S.d (κ' := κ') ha hε
+  exact (integral_exp_eq_gasP (μ := qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1)) (macCellGraph_connected (KF0Gas.blockGraph_connected S.d _))
+    (macCellGraph_degree_le hMc) hq hκ0 hκ' hκ ha' hεlog hεK
+    (boxLocalForm_toLocalGasForm hW hMc hp1.le) hg).2 z
+
+/-- **The local terms of the box gas vanish off connected cell sets.** -/
+theorem boxCellP_eq_zero_of_not_isAnimal (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 ≤ p1) (g : GIdx S n M K N → ℂ) (𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))
+    (h𝒳 : ¬ IsAnimal (macCellGraph Mc) 𝒳) : boxCellP W Mc p1 g 𝒳 = 0 :=
+  gasP_eq_zero_of_not_isAnimal (boxLocalForm_toLocalGasForm hW hMc hp1) g 𝒳 h𝒳
+
+/-- **The local terms of the box gas depend on the source only at the fine sites of their
+cells.** -/
+theorem boxCellP_congr_g (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 ≤ p1) (𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc))
+    {g g' : GIdx S n M K N → ℂ} (hgg : ∀ i, cellOfSrc k Mc i ∈ 𝒳 → g i = g' i) :
+    boxCellP W Mc p1 g 𝒳 = boxCellP W Mc p1 g' 𝒳 :=
+  gasP_congr_g (boxLocalForm_toLocalGasForm hW hMc hp1) 𝒳 hgg
+
+/-- **The local terms of the box gas are analytic in the source** on the ball of radius `G₀`. -/
+theorem analyticOnNhd_boxCellP (hW : BoxLocalForm C vc hv p1 G₀ Mc a ε W) (hMc : 0 < Mc)
+    (hp1 : 0 < p1) {κ' : ℝ} (hκ' : 0 ≤ κ') (ha : κ' + 12 * S.d + 21 / 2 ≤ a)
+    (hε : ((2 * Mc : ℕ) : ℝ) ^ S.d * ε ≤ 1 / 2)
+    (𝒳 : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc)) :
+    AnalyticOnNhd ℂ (fun g => boxCellP W Mc p1 g 𝒳) (l1BallR (GIdx S n M K N) G₀) := by
+  have : IsProbabilityMeasure (boxSiteMeasure N p1) := isProbabilityMeasure_boxSiteMeasure hp1
+  obtain ⟨hq, hκ0, hκ, ha', hεlog, hεK⟩ := cellGas_numerics S.d (κ' := κ') ha hε
+  exact analyticOnNhd_gasP (μ := qRef (cellOf (S := S) (n := n) (M := M) (K := K) k Mc)
+      (boxSiteMeasure N p1)) (macCellGraph_connected (KF0Gas.blockGraph_connected S.d _))
+    (macCellGraph_degree_le hMc) hq hκ0 hκ' hκ ha' hεlog hεK (isOpen_l1BallR _ _)
+    (isCompact_cellBoxSet k Mc N p1) (measurableSet_cellBoxSet k Mc N p1) (ae_cellBoxSet hp1)
+    (boxLocalForm_toLocalGasForm hW hMc hp1.le) 𝒳
+
+end Gas
+
+
+end Balaban.RootFSpine

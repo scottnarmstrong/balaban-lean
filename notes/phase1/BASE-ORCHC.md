@@ -96,6 +96,12 @@ are landed.
   shifted mass `ν + x`; it is re-proved for `Dec2.XCover` in `Base/BaseTwoTorus*.lean`, the landed lemmas to become its
   instances.
 
+- (C1, D4) **Ruling candidate: the carrier's `Kphys_bound`.** In product form `Kphys^w(g) = Kt^w e^{b(g)}` (`BaseProductData`,
+  D4 by construction, `Kphys_cross`), the relative bound `|Kphys(g)| ≤ Kphys(0) e^{‖g|_{Z'}‖₁}` holds iff
+  `Re(b(g) − b(0)) ≤ ‖g|_{Z'}‖₁`; true if the source enters only as `⟨g, φ⟩` with unit `φ`, false in general if the
+  small-field terms with domains in `Z'` (P6 p. 14 at `k = 0`) carry source parts `M̃` with `|M̃| ≤ c̄‖g‖₁`; then the forced
+  form is `e^{(1+c̄)‖g|_{Z'}‖₁}`. To be asked when the physical `b₀` is defined.
+
 ## 4b. Dependencies of row (a) on the other blockers
 Row (a) is A4-1b–f at `k = 0`. Its term construction meets the open problems of the general provider `Φ`: the terms of the
 new level on the local generating sets `𝔹_1(X̂)` (ruling R13; blocker 6 at `k = 0`), the RG extraction (A4-1c), the
@@ -110,6 +116,39 @@ are finite range, and the block gas of route FR (`KF0FRGas`, `mayerGen_pe`, `Pol
 determinant `log det C_R(e) = tr (log ∘ p_R)(A_e)` localizes exactly by telescoping Chebyshev approximants
 (`Σ_n tr (f_n − f_{n−1})(A_e)`, term `n` of range `O(n)` and size `O(ρ^n)`). The background `e(θ)` still needs the
 decoupled background and Lemma AE (or the local generating sets of blocker 6). Decide after C3's shifted logarithm.
+
+## 4c. The local substitution of the first step (design, ORCH-C 2026-10-21)
+P5 (2.20), (2.39) (pp. 505, 510): `ψ_k = ψ^{(k)}(□'; θ) + β_k^{-1/2} C^{(k)1/2}(□', □') ψ'` on each cube `□'` — a local background
+(the `s = 0` localization extension) plus a CUBE-LOCAL square root; the discrepancy `log det C_loc^{1/2} − log det C^{1/2}` is
+expanded in (2.41). At `k ≥ 1` this is harmless because the basic quadratic form `aL^{-2}Q*Q + 1^{(k)}` is ultra-local (block
+diagonal), so `C^{(k)}(□',□')` is exact. At `k = 0` it is not: the chord Hessian `A_e = Q_e(−Δ + aL^{-2}Q*Q + μ + α)Q_e + P_e`
+contains `−Δ`, and a cube-block restriction of `A_e^{-1/2}` leaves an `O(1)` defect `C_loc^{1/2} A_e C_loc^{1/2} − 1` on a
+layer of every cube face. "P5 (2.39) at `k = 0`" (LFR Def. II.7.6) therefore does not apply literally; this is the
+obligation (LC) of BASE-KERNEL-4 Prop. 4.1 and BASE-KERNEL §2.
+Proposal (route FR-1): whiten with a finite-range polynomial `W = p_R(A_e)` (`≈ A_e^{-1/2}`, range `R ≪` the collar widths
+`M L ρ`), so that the defect `D = W A_e W − 1` is uniformly small (`O(q^R)`), finite range, and every activity is finite
+range; `log det W = ½(log det(1 + D) − log det A_e)`, with `log det(1+D) = Σ_n (−1)^{n+1} tr D^n / n` local term by term and
+`log det A_e` localized by the shifted logarithm (C3) and Lemma AE; the background `e(θ)` by the decoupled background and
+Lemma AE; the cutoff on `ψ'` fixed (LF-BASE-KF0 (A.2)). The cutoff transfer (CT) across `∂Ω''`: on `|ψ'| < p₁` in the
+`R`-neighbourhood, `|φ_x − e_x| ≤ ‖W‖_row p₁ β^{-1/2}`, which is below the test margins `δ₀ ∝ p₀ β^{-1/2}` when
+`‖W‖_row A₁ ≪ A₀`; this is to be proved. Open analytic point: the row sums of `|p_R(A_e)|` (Chebyshev rather than Neumann
+coefficients; at constant background `kf0CR` has positive coefficients). C2's chart activities are stated for an abstract
+whitening `W` so that either choice instantiates them.
+**Decision (ORCH-C, 2026-10-21): route FR-1.** The decoupled square root `baseCovX_sqrt` has only an entry bound; its
+row sums would need a weighted (`ε > 0`) version of `baseCovX_vec_bound` (C2), whereas a finite-range `W` gets them from
+range × norm. Lemma AE is used only through the decoupled background `(e(s), α(s))` (C2, Q10); `W` itself is C1's
+`Base/BaseFRWhite.lean` (F1).
+
+## 4d. The all-good sector, end to end (plan after the FR-1 decision)
+`log ρ₁^{good}(θ) = −βA₁(e_θ;θ) + log|det W| − ½N|D| log β + c + log ∫ e^{H(ψ')} dμ_cut + log Z_cut`, where
+`log|det W| = ½ Σ_n (−1)^{n+1} tr D^n / n − ½ log det A_e` (first part local term by term, C1 Q12; second
+`Σ_y Σ_Y baseDetActivity`, C3, landed in orchC-det), `μ_cut = ⊗_x` the standard Gaussian restricted to `|ψ'_x| < p₁`
+(normalized; `Z_cut` its mass), `H = −Σ_x V_x − ½⟨ψ', Dψ'⟩` (finite range given `W`; chart Jacobian inside `V_x`).
+Steps: (T-A, C1) the integral identity in this product form; (T-B, C2) Lemma AE through `e(s)` → rooted coefficients →
+`LabelAct` → `marked_cubes_explicit`: `log ∫ e^{H} dμ_cut = Σ_Y Pst(Y)` and the source marks; (T-C) regroup the local
+terms onto the polymers `X ∈ 𝒟_1` and express them through the class field on `𝔹_1(X̂)` (the replacement identity
+`hc5` of `localFamily_of_coeff_gen` with the local background `localB` at `K = 1`) — the `k = 0` analogue of blocker 6's
+L1–L5; (T-D) the RG extraction at scale 1 (constants → `E₁`, relevant parts → `ξ^{(0)}` → `β₁, ν₁, z₁`), regime (B) first.
 
 ## 5. Queue
 - C1 (running): constants, `BaseConstsInput`, `BaseOpBoundInput`, assemblies without `hC`, `hO`.

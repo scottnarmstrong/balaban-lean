@@ -83,24 +83,45 @@ theorem rn_single (i₀ : Fin N) : rn (Pi.single i₀ (1 : ℝ) : Fin N → ℝ)
     simp [Pi.single_apply]
   rw [this]; simp
 
-/-- **The data domain of a configuration close to the constant `e_{i₀}`**: a field `Ψ` with
-`|Ψ - e| ≤ ρ` that is constant on the `j`-blocks, with a constant `h` with
-`ν L^{2j} |h - e| ≤ ρ`, is in the complex data domain `Ψ̃^c(𝔹; δ, δ)` over the real datum
-`(e, e)`, as soon as `N ρ < δ²`, `δ ≤ 1/16`. -/
-theorem inPsiTildeC_of_close (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {ν δ ρ : ℝ}
-    (hν : 0 ≤ ν) (i₀ : Fin N) (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 16) (hρ0 : 0 < ρ)
-    (hρ : (N : ℝ) * ρ < δ ^ 2) (Ψ : CTorus d L N₁ m₁ k → Fin N → ℂ) (c : Fin N → ℂ)
-    (hΨ : ∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ)
+omit [NeZero L] [NeZero N₁] in
+theorem rn_of_sum_sq {u : Fin N → ℝ} (hu : ∑ i, u i ^ 2 = 1) : rn u = 1 := by
+  unfold rn
+  rw [hu]
+  simp
+
+omit [NeZero L] [NeZero N₁] in
+theorem vn_ofReal_of_sum_sq {u : Fin N → ℝ} (hu : ∑ i, u i ^ 2 = 1) :
+    vn (fun i => (u i : ℂ)) = 1 := by
+  have h2 : vn (fun i => (u i : ℂ)) ^ 2 = 1 := by
+    rw [vn_sq, ← hu]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+  have h0 := vn_nonneg (fun i => (u i : ℂ))
+  nlinarith
+
+/-- **The data domain of a configuration close to a constant unit vector `u`** (core): a field
+`Ψ` with `|Ψ - u| ≤ ρ` that is constant on the `j`-blocks, with a constant `h = c` with
+`ν L^{2j} |c - u| ≤ ρ`, is in the complex data domain `Ψ̃^c(𝔹; δ, δ)` over the real datum `(u, u)`,
+as soon as `N ρ < δ²`, `δ ≤ 1/16`. -/
+theorem inPsiTildeC_of_close_unit (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {ν δ ρ : ℝ}
+    (hν : 0 ≤ ν) {u : Fin N → ℝ} (hu : ∑ i, u i ^ 2 = 1) (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 16)
+    (hρ0 : 0 < ρ) (hρ : (N : ℝ) * ρ < δ ^ 2) (Ψ : CTorus d L N₁ m₁ k → Fin N → ℂ) (c : Fin N → ℂ)
+    (hΨ : ∀ x i, ‖Ψ x i - (u i : ℂ)‖ ≤ ρ)
     (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
-    (hc : ∀ i, ν * ((L : ℝ) ^ j) ^ 2 * ‖c i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) :
-    InPsiTildeC G ν δ δ (fun _ => Pi.single i₀ 1) (Pi.single i₀ 1)
-      (fun x i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i)
-      (fun _ i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) := by
-  have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast Fin.pos i₀
+    (hc : ∀ i, ν * ((L : ℝ) ^ j) ^ 2 * ‖c i - (u i : ℂ)‖ ≤ ρ) :
+    InPsiTildeC G ν δ δ (fun _ => u) u (fun x i => Ψ x i - (u i : ℂ))
+      (fun _ i => c i - (u i : ℂ)) := by
+  have hNpos : 0 < N := by
+    rcases Nat.eq_zero_or_pos N with h | h
+    · subst h; simp at hu
+    · exact h
+  have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast hNpos
   have hNρ2 : (N : ℝ) * ρ < δ := by nlinarith
   have hδ2 : δ ^ 2 ≤ δ := by nlinarith
-  have hvn : ∀ x, vn (fun i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i) ≤ N * ρ :=
+  have hvn : ∀ x, vn (fun i => Ψ x i - (u i : ℂ)) ≤ N * ρ :=
     fun x => vn_le_card_mul hρ0.le (hΨ x)
+  have hvu := vn_ofReal_of_sum_sq hu
+  have hru := rn_of_sum_sq hu
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
   have hlayer : ∀ x ∈ G.Ω 1, G.layerIndex x ≤ j := by
     intro x hx
@@ -113,19 +134,19 @@ theorem inPsiTildeC_of_close (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ 
     intro x hx
     refine mul_le_mul_of_nonneg_left ?_ hν
     exact pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 (hlayer x hx)) 2
-  have hhs : vn (fun i => ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) *
-      (c i - (Pi.single i₀ 1 : Fin N → ℂ) i)) ≤ N * ρ := by
+  have hhs : vn (fun i => ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) * (c i - (u i : ℂ))) ≤ N * ρ := by
     refine vn_le_card_mul hρ0.le fun i => ?_
     rw [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by positivity)]
     exact hc i
   have hhx : ∀ x ∈ G.Ω 1, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
-      vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) ≤ N * ρ := by
+      vn (fun i => c i - (u i : ℂ)) ≤ N * ρ := by
     intro x hx
-    have e := vn_smul_real (ν * ((L : ℝ) ^ j) ^ 2) (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i)
+    have e := vn_smul_real (ν * ((L : ℝ) ^ j) ^ 2) (fun i => c i - (u i : ℂ))
     rw [abs_of_nonneg (by positivity)] at e
-    calc _ ≤ ν * ((L : ℝ) ^ j) ^ 2 * vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) :=
+    calc _ ≤ ν * ((L : ℝ) ^ j) ^ 2 * vn (fun i => c i - (u i : ℂ)) :=
           mul_le_mul_of_nonneg_right (hw x hx) (vn_nonneg _)
       _ ≤ _ := e ▸ hhs
+  have huu : ∑ i, u i * u i = 1 := by rw [← hu]; exact Finset.sum_congr rfl fun i _ => by ring
   refine
     { layerConst := isLayerConstant_of_jBlock hjk hΩ (fun _ _ _ => rfl)
       r1 := fun x x' _ => ?_
@@ -142,51 +163,36 @@ theorem inPsiTildeC_of_close (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ 
       c3a := fun x hx => ?_
       c3b := fun x hx => ?_ }
   · simp [rn]; exact hδ0
-  · simp [Pi.single_apply]; exact hδ0
-  · rw [rn_single]
-    have : ∑ i, (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i * (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i = 1 := by
-      simp [Pi.single_apply]
-    simp only [this, div_one, sub_self, abs_zero, mul_zero]
+  · rw [hu]; simp; exact hδ0
+  · simp only [huu, hru, div_one, sub_self, abs_zero, mul_zero]
     positivity
-  · have : ∑ i, (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i ^ 2 = 1 := by simp [Pi.single_apply]
-    rw [this]; simp; positivity
-  · have h1 : vn ((fun i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i) -
-        fun i => Ψ x' i - (Pi.single i₀ 1 : Fin N → ℂ) i) ≤ N * (2 * ρ) := by
+  · rw [hu]; simp; positivity
+  · have h1 : vn ((fun i => Ψ x i - (u i : ℂ)) - fun i => Ψ x' i - (u i : ℂ)) ≤ N * (2 * ρ) := by
       refine vn_le_card_mul (by positivity) fun i => ?_
       have a1 := hΨ x i
       have a2 := hΨ x' i
-      have : ((fun i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i) -
-          fun i => Ψ x' i - (Pi.single i₀ 1 : Fin N → ℂ) i) i =
-          (Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i) - (Ψ x' i - (Pi.single i₀ 1 : Fin N → ℂ) i) := rfl
+      have : ((fun i => Ψ x i - (u i : ℂ)) - fun i => Ψ x' i - (u i : ℂ)) i =
+          (Ψ x i - (u i : ℂ)) - (Ψ x' i - (u i : ℂ)) := rfl
       rw [this]
       exact (norm_sub_le _ _).trans (by linarith)
     nlinarith
   · have := hvn x
     nlinarith
-  · have hu : ∀ i, (((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℝ) : ℂ) = (Pi.single i₀ 1 : Fin N → ℂ) i := by
-      intro i; by_cases h : i = i₀ <;> simp [h]
-    simp only [hu]
-    set u : Fin N → ℂ := fun i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i with hu'
-    have e1 : ∑ i, ((Pi.single i₀ 1 : Fin N → ℂ) i + u i) * ((Pi.single i₀ 1 : Fin N → ℂ) i + u i) -
-        ∑ i, (Pi.single i₀ 1 : Fin N → ℂ) i * (Pi.single i₀ 1 : Fin N → ℂ) i =
-        2 * u i₀ + ∑ i, u i * u i := by
-      rw [← Finset.sum_sub_distrib]
-      have : ∀ i, ((Pi.single i₀ 1 : Fin N → ℂ) i + u i) * ((Pi.single i₀ 1 : Fin N → ℂ) i + u i) -
-          (Pi.single i₀ 1 : Fin N → ℂ) i * (Pi.single i₀ 1 : Fin N → ℂ) i =
-          2 * ((Pi.single i₀ 1 : Fin N → ℂ) i * u i) + u i * u i := fun i => by ring
-      simp_rw [this]
-      rw [Finset.sum_add_distrib, ← Finset.mul_sum]
-      congr 2
-      simp [Pi.single_apply]
+  · set v : Fin N → ℂ := fun i => Ψ x i - (u i : ℂ) with hv'
+    have e1 : ∑ i, (((u i : ℝ) : ℂ) + v i) * (((u i : ℝ) : ℂ) + v i) -
+        ∑ i, ((u i : ℝ) : ℂ) * ((u i : ℝ) : ℂ) =
+        2 * ∑ i, ((u i : ℝ) : ℂ) * v i + ∑ i, v i * v i := by
+      rw [← Finset.sum_sub_distrib, Finset.mul_sum, ← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun i _ => by ring
     rw [e1]
-    have b1 : ‖u i₀‖ ≤ ρ := hΨ x i₀
-    have b2 : ‖∑ i, u i * u i‖ ≤ (N * ρ) * (N * ρ) :=
-      (norm_dot_le u u).trans (mul_le_mul (hvn x) (hvn x) (vn_nonneg _) (by positivity))
-    calc _ ≤ ‖2 * u i₀‖ + ‖∑ i, u i * u i‖ := norm_add_le _ _
-      _ ≤ 2 * ρ + (N * ρ) * (N * ρ) := by
+    have b1 : ‖∑ i, ((u i : ℝ) : ℂ) * v i‖ ≤ N * ρ :=
+      (norm_dot_le _ v).trans (by rw [hvu, one_mul]; exact hvn x)
+    have b2 : ‖∑ i, v i * v i‖ ≤ (N * ρ) * (N * ρ) :=
+      (norm_dot_le v v).trans (mul_le_mul (hvn x) (hvn x) (vn_nonneg _) (by positivity))
+    calc _ ≤ ‖2 * ∑ i, ((u i : ℝ) : ℂ) * v i‖ + ‖∑ i, v i * v i‖ := norm_add_le _ _
+      _ ≤ 2 * (N * ρ) + (N * ρ) * (N * ρ) := by
           rw [norm_mul]; norm_num; linarith
       _ < δ := by
-          have h1 : ρ ≤ N * ρ := by nlinarith
           have h2 : (N : ℝ) * ρ * (N * ρ) ≤ N * ρ := by
             have : (N : ℝ) * ρ ≤ 1 := by nlinarith
             nlinarith [mul_pos (by linarith : (0:ℝ) < N) hρ0]
@@ -194,27 +200,72 @@ theorem inPsiTildeC_of_close (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ 
   · have e : δ ^ 2 / δ = δ := by field_simp
     rw [e]
     nlinarith [hhx x hx]
-  · have hu : ∀ i, ((((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i) / rn (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) : ℝ) : ℂ) =
-        (Pi.single i₀ 1 : Fin N → ℂ) i := by
-      intro i; rw [rn_single]; by_cases h : i = i₀ <;> simp [h]
-    simp only [hu]
-    have e : ∑ i, (Pi.single i₀ 1 : Fin N → ℂ) i * (c i - (Pi.single i₀ 1 : Fin N → ℂ) i) =
-        c i₀ - (Pi.single i₀ 1 : Fin N → ℂ) i₀ := by
-      simp [Pi.single_apply]
-    rw [e]
-    have h1 : ‖c i₀ - (Pi.single i₀ 1 : Fin N → ℂ) i₀‖ ≤ vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) :=
-      norm_le_vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) i₀
-    calc _ ≤ ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * vn (fun i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) :=
+  · simp only [hru, div_one]
+    have h1 : ‖∑ i, ((u i : ℝ) : ℂ) * (c i - (u i : ℂ))‖ ≤ vn (fun i => c i - (u i : ℂ)) :=
+      (norm_dot_le _ _).trans (by rw [hvu, one_mul])
+    calc _ ≤ ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * vn (fun i => c i - (u i : ℂ)) :=
           mul_le_mul_of_nonneg_left h1 (by positivity)
       _ ≤ N * ρ := hhx x hx
       _ < δ ^ 2 := hρ
 
+omit [NeZero L] [NeZero N₁] in
+theorem ofReal_single (i₀ : Fin N) (i : Fin N) :
+    (((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℝ) : ℂ) = (Pi.single i₀ 1 : Fin N → ℂ) i := by
+  by_cases h : i = i₀ <;> simp [h]
+
+omit [NeZero L] [NeZero N₁] in
+theorem sum_sq_single (i₀ : Fin N) : ∑ i, (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i ^ 2 = 1 := by
+  simp [Pi.single_apply]
+
+/-- **The data domain of a configuration close to the constant `e_{i₀}`**: a field `Ψ` with
+`|Ψ - e| ≤ ρ` that is constant on the `j`-blocks, with a constant `h` with
+`ν L^{2j} |h - e| ≤ ρ`, is in the complex data domain `Ψ̃^c(𝔹; δ, δ)` over the real datum
+`(e, e)`, as soon as `N ρ < δ²`, `δ ≤ 1/16` (the instance `u = e_{i₀}` of
+`inPsiTildeC_of_close_unit`). -/
+theorem inPsiTildeC_of_close (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {ν δ ρ : ℝ}
+    (hν : 0 ≤ ν) (i₀ : Fin N) (hδ0 : 0 < δ) (hδ1 : δ ≤ 1 / 16) (hρ0 : 0 < ρ)
+    (hρ : (N : ℝ) * ρ < δ ^ 2) (Ψ : CTorus d L N₁ m₁ k → Fin N → ℂ) (c : Fin N → ℂ)
+    (hΨ : ∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ)
+    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
+    (hc : ∀ i, ν * ((L : ℝ) ^ j) ^ 2 * ‖c i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) :
+    InPsiTildeC G ν δ δ (fun _ => Pi.single i₀ 1) (Pi.single i₀ 1)
+      (fun x i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i)
+      (fun _ i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i) := by
+  have h := inPsiTildeC_of_close_unit (G := G) hΩ hjk hν (sum_sq_single i₀) hδ0 hδ1 hρ0 hρ Ψ c
+    (fun x i => by rw [ofReal_single]; exact hΨ x i) hΨb
+    (fun i => by rw [ofReal_single]; exact hc i)
+  simp only [ofReal_single] at h
+  exact h
+
+/-- **The ball around a constant unit vector `u` lies in `Ξ^c_j(𝔹; 1, ε)`** (core): a field `Ψ`,
+constant on the `j`-blocks, with `|Ψ - u| ≤ ρ`, and a constant `h = c` with `ν L^{2j} |c - u| ≤ ρ`
+lie in `XiDom` whenever `N ρ < δ²` for some `0 < δ ≤ min (c₀, c₁)` with `(2 K₁ + 2) δ ≤ ε`. -/
+theorem xiDom_of_close_unit {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
+    (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {δ ρ ε : ℝ} {u : Fin N → ℝ}
+    (hu : ∑ i, u i ^ 2 = 1) (hδ0 : 0 < δ) (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N)
+    (hρ0 : 0 < ρ) (hρ : (N : ℝ) * ρ < δ ^ 2) (hε : (2 * bgK1 d L N + 2) * δ ≤ ε)
+    (Ψ : CTorus d L N₁ m₁ k → Fin N → ℂ) (c : Fin N → ℂ)
+    (hΨ : ∀ x i, ‖Ψ x i - (u i : ℂ)‖ ≤ ρ)
+    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
+    (hc : ∀ i, ν * ((L : ℝ) ^ j) ^ 2 * ‖c i - (u i : ℂ)‖ ≤ ρ) :
+    XiDom G a ν j ε Ψ (fun _ => c) := by
+  have hP := inPsiTildeC_of_close_unit (G := G) hΩ hjk H.mass hu hδ0
+    (hδc0.trans (bgC0_le d L N)) hρ0 hρ Ψ c hΨ hΨb hc
+  have hK := bgK1_pos d L N
+  have hX := psiTildeC_subset_xiC (G := G) (a := a) H hδ0 le_rfl hδc0 hδc1
+    (by
+      have := H.massLe
+      nlinarith [sq_nonneg δ]) hP (εb := ε) (by nlinarith)
+  have hX' := xiC_level_irrel (n' := j) hu hX
+  exact ⟨fun _ => u, u, fun x i => Ψ x i - (u i : ℂ), fun _ i => c i - (u i : ℂ),
+    fun x i => by simp, fun x i => by simp, hX'⟩
 
 /-- **The ball around the constant `e_{i₀}` lies in `Ξ^c_j(𝔹; 1, ε)`** (the domain inclusion of the
 bridge, torus side): a field `Ψ`, constant on the `j`-blocks, with `|Ψ - e| ≤ ρ`, and a constant
 `h = c` with `ν L^{2j} |c - e| ≤ ρ` lie in `XiDom` whenever `N ρ < δ²` for some
 `0 < δ ≤ min (c₀, c₁)` with `(2 K₁ + 2) δ ≤ ε`.  So the radius is `ρ ≍ ε²`:
-`ρ = ε² / (2 N (2 K₁ + 2)²)` is admissible when `ε ≤ (2 K₁ + 2) min (c₀, c₁)`.  -/
+`ρ = ε² / (2 N (2 K₁ + 2)²)` is admissible when `ε ≤ (2 K₁ + 2) min (c₀, c₁)` (the instance
+`u = e_{i₀}` of `xiDom_of_close_unit`). -/
 theorem xiDom_of_close {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
     (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {δ ρ ε : ℝ} (i₀ : Fin N) (hδ0 : 0 < δ)
     (hδc0 : δ ≤ bgC0 d L N) (hδc1 : δ ≤ bgC1 d L N) (hρ0 : 0 < ρ)
@@ -223,23 +274,10 @@ theorem xiDom_of_close {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
     (hΨ : ∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ)
     (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
     (hc : ∀ i, ν * ((L : ℝ) ^ j) ^ 2 * ‖c i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) :
-    XiDom G a ν j ε Ψ (fun _ => c) := by
-  have hP := inPsiTildeC_of_close (G := G) hΩ hjk H.mass i₀ hδ0 (hδc0.trans (bgC0_le d L N)) hρ0 hρ
-    Ψ c hΨ hΨb hc
-  have hK := bgK1_pos d L N
-  have hX := psiTildeC_subset_xiC (G := G) (a := a) H hδ0 le_rfl hδc0 hδc1
-    (by
-      have := H.massLe
-      nlinarith [sq_nonneg δ]) hP (εb := ε) (by nlinarith)
-  have hX' := xiC_level_irrel (n' := j) (by simp [Pi.single_apply]) hX
-  refine ⟨fun _ => Pi.single i₀ 1, Pi.single i₀ 1, fun x i => Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i,
-    fun _ i => c i - (Pi.single i₀ 1 : Fin N → ℂ) i, fun x i => ?_, fun x i => ?_, hX'⟩
-  · have hu : (((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℝ) : ℂ) = (Pi.single i₀ 1 : Fin N → ℂ) i := by
-      by_cases h : i = i₀ <;> simp [h]
-    rw [hu]; ring
-  · have hu : (((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℝ) : ℂ) = (Pi.single i₀ 1 : Fin N → ℂ) i := by
-      by_cases h : i = i₀ <;> simp [h]
-    rw [hu]; ring
+    XiDom G a ν j ε Ψ (fun _ => c) :=
+  xiDom_of_close_unit H hΩ hjk (sum_sq_single i₀) hδ0 hδc0 hδc1 hρ0 hρ hε Ψ c
+    (fun x i => by rw [ofReal_single]; exact hΨ x i) hΨb
+    (fun i => by rw [ofReal_single]; exact hc i)
 
 end Close
 

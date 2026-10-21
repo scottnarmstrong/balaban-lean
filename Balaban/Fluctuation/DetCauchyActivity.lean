@@ -254,11 +254,37 @@ theorem rootConnected_of_rootChain (S : DGSetting G a ν) (hconn : HatConn G)
 
 end Bridge
 
-section Activity
+section ActivityCore
 
 variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
 
 open Classical in
+/-- **The activity of the polymer `Y` for the root block `y` of a trace function `F`** (core): the
+sum of the mixed differences `Δ_J F` over the sets `J` of parameter cubes whose hull (assigned to
+the root index of `y` and the patches of `J`) is `Y`. -/
+noncomputable def detActivityOf (m₀ : ℕ) (y : unitPts G) (F : DecParams G → ℂ)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) : ℂ :=
+  ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+      (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y), mixDiff J F
+
+open Classical in
+/-- **T2. Resummation** (core): if `F 1` is the sum of its mixed differences, it is the sum of the
+activities. -/
+theorem sum_detActivityOf_eq (m₀ : ℕ) (y : unitPts G) {F : DecParams G → ℂ}
+    (hsum : F (fun _ => 1) = ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset, mixDiff J F) :
+    F (fun _ => 1) = ∑ Y, detActivityOf m₀ y F Y := by
+  rw [hsum]
+  unfold detActivityOf
+  exact (Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
+    (fun J => hullOf m₀ (rootIdxOf y) (patches J)) (fun J => mixDiff J F)).symm
+
+end ActivityCore
+
+section Activity
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+
 /-- **The activity of the polymer `Y` for the root block `y`** (fixed fields `φ`, `α`): the sum of
 the mixed differences `Δ_J` of the rooted trace of `{y}` over the sets `J` of parameter cubes whose
 hull (assigned to the root index of `y` and the patches of `J`) is `Y`. -/
@@ -266,9 +292,20 @@ noncomputable def detActivity (m₀ : ℕ) (a : ℕ → ℝ) (aT ν : ℝ)
     (φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (α : G.Ω 1 → ℂ) (y : unitPts G)
     (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ)) : ℂ :=
-  ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-      (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-    mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)
+  detActivityOf m₀ y (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) Y
+
+open Classical in
+/-- **The meaning of `detActivity` is unchanged.**  The definition was refactored through the
+core `detActivityOf`; this records that it equals its former body, the sum of the mixed
+differences `Δ_J` of the rooted trace of `{y}` over the sets `J` of parameter cubes with hull `Y`. -/
+theorem detActivity_eq_old (m₀ : ℕ) (a : ℕ → ℝ) (aT ν : ℝ)
+    (φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (α : G.Ω 1 → ℂ) (y : unitPts G)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    detActivity m₀ a aT ν φ α y Y =
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) := rfl
 
 variable {a : ℕ → ℝ} {aT ν : ℝ}
   {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {α : G.Ω 1 → ℂ}
@@ -285,13 +322,239 @@ theorem sum_detActivity_eq (S : XSetting G a aT ν) {κ : ℝ} (hκ : 0 < κ)
       ∑ Y, detActivity m₀ a aT ν φ α y Y := by
   have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
   obtain ⟨hsum, -⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
-  rw [hsum]
-  unfold detActivity
-  exact (Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
-    (fun J => hullOf m₀ (rootIdxOf y) (patches J))
-    (fun J => mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α))).symm
+  exact sum_detActivityOf_eq m₀ y (F := fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) hsum
 
 end Activity
+
+
+section DecayCore
+
+variable {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} {a : ℕ → ℝ} {ν : ℝ}
+variable (hdg : DGSetting G a ν) {κ : ℝ} {F : DecParams G → ℂ} {Mc : ℝ}
+
+include hdg
+
+/-- **The hull of a cut set with non-zero mixed difference.**  If `Δ_J` of the rooted trace of
+`{y}` is non-zero, the hull of the root index of `y` and the patches of `J` contains the root cube,
+is a polymer, and has size at most `2 d L |J|`. -/
+theorem hull_facts_of_rootSupported (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁)
+    {y : unitPts G} {J : Finset (cubeIdx G)} (hsupp : RootSupported {y} F)
+    (hne : mixDiff J F ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ hullOf m₀ (rootIdxOf y) (patches J) ∧
+      IsPolyDom m₀ (k + 1) (sitesOf (hullOf m₀ (rootIdxOf y) (patches J))) ∧
+      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card := by
+  obtain ⟨y', hy', hJ⟩ := hsupp J hne
+  rw [Finset.mem_singleton] at hy'
+  subst hy'
+  have hRC := rootConnected_of_rootChain (m₀ := m₀) hdg hconn hJ
+  have hL : 2 ≤ L := by have := hdg.hL; omega
+  refine ⟨rootCube_mem_hullOf _ _, isPolyDom_hullOf hN hL _ _ layer_le_of_mem_patches hRC, ?_⟩
+  have h1 := dExt_hullOf_le hN hL (rootIdxOf y') (patches J) layer_le_of_mem_patches hRC
+  have h2 : ((patches J).card : ℝ) ≤ J.card := by exact_mod_cast card_patches_le J
+  have h3 : (0 : ℝ) ≤ 2 * d * L := by positivity
+  nlinarith
+
+open Classical in
+/-- **T3. Support.**  A non-zero activity is supported on a polymer containing the root cube. -/
+theorem detActivityOf_ne_zero_imp (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) {y : unitPts G}
+    (hsupp : RootSupported {y} F)
+    {Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)}
+    (h : detActivityOf m₀ y F Y ≠ 0) :
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) := by
+  unfold detActivityOf at h
+  obtain ⟨J, hJ, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  have hY := (Finset.mem_filter.1 hJ).2
+  obtain ⟨h1, h2, -⟩ := hull_facts_of_rootSupported (m₀ := m₀) hdg hconn hN hsupp hne
+  rw [hY] at h1 h2
+  exact ⟨h1, h2⟩
+
+open Classical in
+/-- **T4. Exponential decay of the activity in the size of the polymer.**  With
+`Δ = detDeg d L + 1`, `z = Δ² · 2 / e^κ < 1` (that is, `e^κ > 2 Δ²`) and the rate
+`λ = κ - log 2 - 2 log Δ = -log z`:
+`‖detActivityOf y Y‖ ≤ M / (1 - z) · exp(-(λ / (2 d L)) dExt Y)` (core).
+The slope is `a = 2 d L` and the constant `b₀ = 0` of `dExt_hullOf_le`. -/
+theorem norm_detActivityOf_le (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) (y : unitPts G)
+    (hsupp : RootSupported {y} F)
+    (hbound : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ Mc * (2 / Real.exp κ) ^ J.card)
+    (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ) < 1)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    ‖detActivityOf m₀ y F Y‖ ≤
+      Mc / (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
+      Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
+        (2 * d * L)) * dExt Y) := by
+  set Δ : ℝ := ((detDeg d L + 1 : ℕ) : ℝ) with hΔ
+  set zz : ℝ := Δ ^ 2 * (2 / Real.exp κ) with hzz
+  have hΔ1 : (1 : ℝ) ≤ Δ := by rw [hΔ]; exact_mod_cast Nat.le_add_left 1 _
+  have hzz0 : 0 < zz := by positivity
+  have hd : (0 : ℝ) < 2 * d * L := by
+    have h1 := hdg.hd; have h2 := hdg.hL
+    have : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
+    have : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+    positivity
+  set x : ℝ := dExt Y / (2 * d * L) with hx
+  set n : ℕ := ⌈x⌉₊ with hn
+  -- the log of z
+  have hlog : Real.log zz = -(κ - Real.log 2 - 2 * Real.log Δ) := by
+    rw [hzz, Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_div (by norm_num)
+      (by positivity), Real.log_exp]
+    push_cast; ring
+  have hlt0 : Real.log zz < 0 := Real.log_neg hzz0 hz
+  -- sum over the fibre
+  have hmax : max (detDeg d L + 1) ({y} : Finset (unitPts G)).card = detDeg d L + 1 := by
+    rw [Finset.card_singleton]; exact max_eq_left (by omega)
+  have hz' : ((max (detDeg d L + 1) ({y} : Finset (unitPts G)).card : ℕ) : ℝ) ^ 2 *
+      (2 / Real.exp κ) < 1 := by rw [hmax]; exact hz
+  have htail := tail_norm_mixDiff_le_of hdg hsupp hbound n hz'
+  rw [hmax] at htail
+  have hstep1 : ‖detActivityOf m₀ y F Y‖ ≤
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J F‖ :=
+    norm_sum_le _ _
+  have hstep2 : ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J F‖ ≤
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card),
+        ‖mixDiff J F‖ := by
+    rw [← Finset.sum_filter_ne_zero]
+    refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun _ _ _ => norm_nonneg _)
+    intro J hJ
+    obtain ⟨hJ1, hJ2⟩ := Finset.mem_filter.1 hJ
+    have hne : mixDiff J F ≠ 0 :=
+      norm_ne_zero_iff.1 hJ2
+    obtain ⟨-, -, hd'⟩ := hull_facts_of_rootSupported (m₀ := m₀) hdg hconn hN hsupp hne
+    rw [(Finset.mem_filter.1 hJ1).2] at hd'
+    refine Finset.mem_filter.2 ⟨Finset.mem_powerset.2 (Finset.subset_univ _), ?_⟩
+    rw [hn]
+    refine Nat.ceil_le.2 ?_
+    rw [hx, div_le_iff₀ hd]
+    linarith
+  -- z ^ n ≤ exp (x log z)
+  have hpow : zz ^ n ≤ Real.exp (x * Real.log zz) := by
+    rw [← Real.exp_log hzz0, ← Real.exp_nat_mul, Real.exp_log hzz0]
+    refine Real.exp_le_exp.2 ?_
+    have hxn : x ≤ n := Nat.le_ceil x
+    nlinarith
+  have hxl : x * Real.log zz =
+      -((κ - Real.log 2 - 2 * Real.log Δ) / (2 * d * L)) * dExt Y := by
+    rw [hlog, hx]; field_simp
+  have h1z : 0 < 1 - zz := by linarith
+  have hMc : 0 ≤ Mc := by
+    have := hbound ∅
+    simp only [Finset.card_empty, pow_zero, mul_one] at this
+    exact (norm_nonneg _).trans this
+  refine hstep1.trans (hstep2.trans (htail.trans ?_))
+  rw [← hxl]
+  calc Mc * (zz ^ n / (1 - zz))
+      ≤ Mc * (Real.exp (x * Real.log zz) / (1 - zz)) :=
+        mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hpow h1z.le) hMc
+    _ = _ := by ring
+
+open Classical in
+/-- **T5. Summed form.**  For `0 ≤ κ''` with `κ'' · 2 d L < λ = κ - log 2 - 2 log Δ` (that is,
+`κ'' < λ / (2 d L)`), the sum over all polymers of `‖detActivity y Y‖ · exp(κ'' dExt Y)` is at most
+`M / (1 - Δ² · (2 / e^κ) · e^{2 d L κ''})` (core). -/
+theorem sum_norm_detActivityOf_le (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) (y : unitPts G)
+    (hsupp : RootSupported {y} F)
+    (hbound' : ∀ J : Finset (cubeIdx G), ‖mixDiff J F‖ ≤ Mc * (2 / Real.exp κ) ^ J.card)
+    {κ'' : ℝ} (hκ0 : 0 ≤ κ'')
+    (hκ'' : κ'' * (2 * d * L) < κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) :
+    ∑ Y, ‖detActivityOf m₀ y F Y‖ * Real.exp (κ'' * dExt Y) ≤
+      Mc /
+        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ * Real.exp (κ'' * (2 * d * L)))) := by
+  set Δ : ℝ := ((detDeg d L + 1 : ℕ) : ℝ) with hΔ
+  set E : ℝ := Real.exp (κ'' * (2 * d * L)) with hE
+  set t : ℝ := 2 / Real.exp κ * E with ht
+  have hΔ1 : (1 : ℝ) ≤ Δ := by rw [hΔ]; exact_mod_cast Nat.le_add_left 1 _
+  have ht0 : 0 ≤ t := by positivity
+  have hE1 : 0 < E := Real.exp_pos _
+  have hzt : Δ ^ 2 * t < 1 := by
+    have h0 : 0 < Δ ^ 2 * t := by positivity
+    have hl : Real.log (Δ ^ 2 * t) = 2 * Real.log Δ + (Real.log 2 - κ) + κ'' * (2 * d * L) := by
+      rw [ht, hE, Real.log_mul (by positivity) (by positivity), Real.log_pow,
+        Real.log_mul (by positivity) (by positivity), Real.log_div (by norm_num) (by positivity),
+        Real.log_exp, Real.log_exp]
+      push_cast; ring
+    have : Real.log (Δ ^ 2 * t) < 0 := by rw [hl]; linarith
+    exact (Real.log_neg_iff h0).1 this
+  have hM0 : 0 ≤ Mc := by
+    have := hbound' ∅
+    simp only [Finset.card_empty, pow_zero, mul_one] at this
+    exact (norm_nonneg _).trans this
+  -- per-polymer bound
+  have hY : ∀ Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ), ‖detActivityOf m₀ y F Y‖ * Real.exp (κ'' * dExt Y) ≤
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J F‖ * E ^ J.card := by
+    intro Y
+    calc _ ≤ (∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+          ‖mixDiff J F‖) *
+          Real.exp (κ'' * dExt Y) :=
+          mul_le_mul_of_nonneg_right (norm_sum_le _ _) (Real.exp_pos _).le
+      _ = ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+          ‖mixDiff J F‖ *
+            Real.exp (κ'' * dExt Y) := Finset.sum_mul _ _ _
+      _ ≤ _ := by
+        refine Finset.sum_le_sum fun J hJ => ?_
+        by_cases hne : mixDiff J F = 0
+        · rw [hne]; simp
+        · obtain ⟨-, -, hd'⟩ :=
+            hull_facts_of_rootSupported (m₀ := m₀) hdg hconn hN hsupp hne
+          rw [(Finset.mem_filter.1 hJ).2] at hd'
+          refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
+          rw [hE, ← Real.exp_nat_mul]
+          refine Real.exp_le_exp.2 ?_
+          nlinarith
+  -- resum over the polymers
+  have hfib := Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
+    (fun J => hullOf m₀ (rootIdxOf y) (patches J))
+    (fun J => ‖mixDiff J F‖ * E ^ J.card)
+  have hdeg := fun P => paramGraph_degree_le (G := G) hdg.aligned hdg.cover_sep hdg.hM
+    (by have := hdg.hL; omega) P
+  have hmax : max (detDeg d L + 1) 1 = detDeg d L + 1 := max_eq_left (by omega)
+  have hfam := Polymer.sum_rooted_le_one (G := paramGraph G) (b := detDeg d L) (b_root := 1) hdeg
+    (rootParam G y) (card_rootParam_le hdg.aligned y) ht0 (by rw [hmax]; exact hzt)
+  rw [hmax] at hfam
+  set R := Polymer.rootedSets (G := paramGraph G)
+    ((rootParam G y : Finset (cubeIdx G)) : Set (cubeIdx G)) with hR
+  have hRsub : R ⊆ (Finset.univ : Finset (cubeIdx G)).powerset :=
+    fun J _ => Finset.mem_powerset.2 (Finset.subset_univ _)
+  have hzero : ∀ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset, J ∉ R →
+      ‖mixDiff J F‖ * E ^ J.card = 0 := by
+    intro J _ hJR
+    by_contra hne
+    apply hJR
+    have hne' : mixDiff J F ≠ 0 := by
+      intro h0; apply hne; rw [h0]; simp
+    obtain ⟨y', hy', hJ⟩ := hsupp _ hne'
+    rw [Finset.mem_singleton] at hy'
+    subst hy'
+    exact Polymer.mem_rootedSets.2 (rooted_of_rootChain hdg.aligned hJ)
+  calc _ ≤ ∑ Y, ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        ‖mixDiff J F‖ * E ^ J.card :=
+        Finset.sum_le_sum fun Y _ => hY Y
+    _ = ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset,
+        ‖mixDiff J F‖ * E ^ J.card :=
+        hfib
+    _ = ∑ J ∈ R, ‖mixDiff J F‖ *
+        E ^ J.card := (Finset.sum_subset hRsub hzero).symm
+    _ ≤ ∑ J ∈ R, Mc * t ^ J.card := by
+        refine Finset.sum_le_sum fun J _ => ?_
+        calc _ ≤ Mc * (2 / Real.exp κ) ^ J.card * E ^ J.card :=
+              mul_le_mul_of_nonneg_right (hbound' J) (by positivity)
+          _ = Mc * t ^ J.card := by rw [ht, mul_pow]; ring
+    _ = Mc * ∑ J ∈ R, t ^ J.card := by rw [Finset.mul_sum]
+    _ ≤ Mc * (1 / (1 - Δ ^ 2 * t)) := mul_le_mul_of_nonneg_left hfam hM0
+    _ = _ := by rw [mul_one_div]
+
+end DecayCore
 
 section Decay
 
@@ -313,17 +576,9 @@ theorem hull_facts_of_mixDiff_ne_zero (hconn : HatConn G) (hN : L ^ m₀ ∣ N�
     (hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) ≠ 0) :
     rootCube (m₀ := m₀) (rootIdxOf y) ∈ hullOf m₀ (rootIdxOf y) (patches J) ∧
       IsPolyDom m₀ (k + 1) (sitesOf (hullOf m₀ (rootIdxOf y) (patches J))) ∧
-      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card := by
-  obtain ⟨y', hy', hJ⟩ := exists_rootChain_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn {y} hne
-  rw [Finset.mem_singleton] at hy'
-  subst hy'
-  have hRC := rootConnected_of_rootChain (m₀ := m₀) S.dg hconn hJ
-  have hL : 2 ≤ L := by have := S.dg.hL; omega
-  refine ⟨rootCube_mem_hullOf _ _, isPolyDom_hullOf hN hL _ _ layer_le_of_mem_patches hRC, ?_⟩
-  have h1 := dExt_hullOf_le hN hL (rootIdxOf y') (patches J) layer_le_of_mem_patches hRC
-  have h2 : ((patches J).card : ℝ) ≤ J.card := by exact_mod_cast card_patches_le J
-  have h3 : (0 : ℝ) ≤ 2 * d * L := by positivity
-  nlinarith
+      dExt (hullOf m₀ (rootIdxOf y) (patches J)) ≤ (2 * d * L : ℝ) * J.card :=
+  hull_facts_of_rootSupported (m₀ := m₀) S.dg hconn hN
+    (rootSupported_rootTrace S hκ hM hδ hsm hφ hα hconn {y}) hne
 
 open Classical in
 /-- **T3. Support.**  A non-zero activity is supported on a polymer containing the root cube. -/
@@ -331,13 +586,18 @@ theorem detActivity_ne_zero_imp (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) {y 
     {Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
       Set.univ)}
     (h : detActivity m₀ a aT ν φ α y Y ≠ 0) :
-    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) := by
-  unfold detActivity at h
-  obtain ⟨J, hJ, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
-  have hY := (Finset.mem_filter.1 hJ).2
-  obtain ⟨h1, h2, -⟩ := hull_facts_of_mixDiff_ne_zero (m₀ := m₀) S hκ hM hδ hsm hφ hα hconn hN hne
-  rw [hY] at h1 h2
-  exact ⟨h1, h2⟩
+    rootCube (m₀ := m₀) (rootIdxOf y) ∈ Y ∧ IsPolyDom m₀ (k + 1) (sitesOf Y) :=
+  detActivityOf_ne_zero_imp (m₀ := m₀) S.dg hconn hN
+    (rootSupported_rootTrace S hκ hM hδ hsm hφ hα hconn {y}) h
+
+/-- The one-block bound of the mixed differences of the rooted trace. -/
+theorem mixDiff_rootTrace_single_le (y : unitPts G) (J : Finset (cubeIdx G)) :
+    ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ ≤
+      ((1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ) *
+        (2 / Real.exp κ) ^ J.card := by
+  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
+  obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
+  simpa only [Finset.card_singleton, Nat.cast_one, mul_one] using hbound J
 
 open Classical in
 /-- **T4. Exponential decay of the activity in the size of the polymer.**  With
@@ -353,77 +613,10 @@ theorem norm_detActivity_le (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) (y : un
       (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ /
         (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ)) *
       Real.exp (-((κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) /
-        (2 * d * L)) * dExt Y) := by
-  set Δ : ℝ := ((detDeg d L + 1 : ℕ) : ℝ) with hΔ
-  set zz : ℝ := Δ ^ 2 * (2 / Real.exp κ) with hzz
-  have hΔ1 : (1 : ℝ) ≤ Δ := by rw [hΔ]; exact_mod_cast Nat.le_add_left 1 _
-  have hzz0 : 0 < zz := by positivity
-  have hd : (0 : ℝ) < 2 * d * L := by
-    have h1 := S.dg.hd; have h2 := S.dg.hL
-    have : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
-    have : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
-    positivity
-  set x : ℝ := dExt Y / (2 * d * L) with hx
-  set n : ℕ := ⌈x⌉₊ with hn
-  -- the log of z
-  have hlog : Real.log zz = -(κ - Real.log 2 - 2 * Real.log Δ) := by
-    rw [hzz, Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_div (by norm_num)
-      (by positivity), Real.log_exp]
-    push_cast; ring
-  have hlt0 : Real.log zz < 0 := Real.log_neg hzz0 hz
-  -- sum over the fibre
-  have hmax : max (detDeg d L + 1) ({y} : Finset (unitPts G)).card = detDeg d L + 1 := by
-    rw [Finset.card_singleton]; exact max_eq_left (by omega)
-  have hz' : ((max (detDeg d L + 1) ({y} : Finset (unitPts G)).card : ℕ) : ℝ) ^ 2 *
-      (2 / Real.exp κ) < 1 := by rw [hmax]; exact hz
-  have htail := tail_norm_mixDiff_le S hκ hM hδ hsm hφ hα hconn {y} n hz'
-  rw [hmax, Finset.card_singleton, Nat.cast_one, mul_one] at htail
-  have hstep1 : ‖detActivity m₀ a aT ν φ α y Y‖ ≤
-      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ :=
-    norm_sum_le _ _
-  have hstep2 : ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ ≤
-      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter (fun J => n ≤ J.card),
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ := by
-    rw [← Finset.sum_filter_ne_zero]
-    refine Finset.sum_le_sum_of_subset_of_nonneg ?_ (fun _ _ _ => norm_nonneg _)
-    intro J hJ
-    obtain ⟨hJ1, hJ2⟩ := Finset.mem_filter.1 hJ
-    have hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) ≠ 0 :=
-      norm_ne_zero_iff.1 hJ2
-    obtain ⟨-, -, hd'⟩ := hull_facts_of_mixDiff_ne_zero (m₀ := m₀) S hκ hM hδ hsm hφ hα hconn hN hne
-    rw [(Finset.mem_filter.1 hJ1).2] at hd'
-    refine Finset.mem_filter.2 ⟨Finset.mem_powerset.2 (Finset.subset_univ _), ?_⟩
-    rw [hn]
-    refine Nat.ceil_le.2 ?_
-    rw [hx, div_le_iff₀ hd]
-    linarith
-  -- z ^ n ≤ exp (x log z)
-  have hpow : zz ^ n ≤ Real.exp (x * Real.log zz) := by
-    rw [← Real.exp_log hzz0, ← Real.exp_nat_mul, Real.exp_log hzz0]
-    refine Real.exp_le_exp.2 ?_
-    have hxn : x ≤ n := Nat.le_ceil x
-    nlinarith
-  have hxl : x * Real.log zz =
-      -((κ - Real.log 2 - 2 * Real.log Δ) / (2 * d * L)) * dExt Y := by
-    rw [hlog, hx]; field_simp
-  have h1z : 0 < 1 - zz := by linarith
-  have hMc : 0 ≤ (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ := by
-    have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
-    obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
-    have := hbound ∅
-    simp only [Finset.card_empty, pow_zero, mul_one, Finset.card_singleton, Nat.cast_one] at this
-    exact (norm_nonneg _).trans this
-  refine hstep1.trans (hstep2.trans (htail.trans ?_))
-  rw [← hxl]
-  calc (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ * (zz ^ n / (1 - zz))
-      ≤ (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ *
-        (Real.exp (x * Real.log zz) / (1 - zz)) :=
-        mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hpow h1z.le) hMc
-    _ = _ := by ring
+        (2 * d * L)) * dExt Y) :=
+  norm_detActivityOf_le (m₀ := m₀) S.dg hconn hN y
+    (rootSupported_rootTrace S hκ hM hδ hsm hφ hα hconn {y})
+    (mixDiff_rootTrace_single_le S hκ hM hδ hsm hφ hα y) hz Y
 
 open Classical in
 /-- **T5. Summed form.**  For `0 ≤ κ''` with `κ'' · 2 d L < λ = κ - log 2 - 2 log Δ` (that is,
@@ -434,105 +627,12 @@ theorem sum_norm_detActivity_le (hconn : HatConn G) (hN : L ^ m₀ ∣ N₁) (y 
     (hκ'' : κ'' * (2 * d * L) < κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) :
     ∑ Y, ‖detActivity m₀ a aT ν φ α y Y‖ * Real.exp (κ'' * dExt Y) ≤
       (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ /
-        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ * Real.exp (κ'' * (2 * d * L)))) := by
-  set Δ : ℝ := ((detDeg d L + 1 : ℕ) : ℝ) with hΔ
-  set E : ℝ := Real.exp (κ'' * (2 * d * L)) with hE
-  set t : ℝ := 2 / Real.exp κ * E with ht
-  set Mc : ℝ := (1 / 2 : ℝ) * N * covBLog d L (a k) (aT / (L : ℝ) ^ 2) κ with hMc
-  have hΔ1 : (1 : ℝ) ≤ Δ := by rw [hΔ]; exact_mod_cast Nat.le_add_left 1 _
-  have ht0 : 0 ≤ t := by positivity
-  have hE1 : 0 < E := Real.exp_pos _
-  have hzt : Δ ^ 2 * t < 1 := by
-    have h0 : 0 < Δ ^ 2 * t := by positivity
-    have hl : Real.log (Δ ^ 2 * t) = 2 * Real.log Δ + (Real.log 2 - κ) + κ'' * (2 * d * L) := by
-      rw [ht, hE, Real.log_mul (by positivity) (by positivity), Real.log_pow,
-        Real.log_mul (by positivity) (by positivity), Real.log_div (by norm_num) (by positivity),
-        Real.log_exp, Real.log_exp]
-      push_cast; ring
-    have : Real.log (Δ ^ 2 * t) < 0 := by rw [hl]; linarith
-    exact (Real.log_neg_iff h0).1 this
-  have hU := (isUnitLatticeB_unit (G := G)).toIsUnitLattice
-  obtain ⟨-, hbound⟩ := rootTrace_cut_expansion (N := N) S hκ hM hδ hsm hU {y} hφ hα
-  have hbound' : ∀ J : Finset (cubeIdx G),
-      ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ ≤
-        Mc * (2 / Real.exp κ) ^ J.card := by
-    intro J
-    have := hbound J
-    simpa only [Finset.card_singleton, Nat.cast_one, mul_one, hMc] using this
-  have hM0 : 0 ≤ Mc := by
-    have := hbound' ∅
-    simp only [Finset.card_empty, pow_zero, mul_one] at this
-    exact (norm_nonneg _).trans this
-  -- per-polymer bound
-  have hY : ∀ Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
-      Set.univ), ‖detActivity m₀ a aT ν φ α y Y‖ * Real.exp (κ'' * dExt Y) ≤
-      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ * E ^ J.card := by
-    intro Y
-    calc _ ≤ (∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-          ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖) *
-          Real.exp (κ'' * dExt Y) :=
-          mul_le_mul_of_nonneg_right (norm_sum_le _ _) (Real.exp_pos _).le
-      _ = ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-          ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ *
-            Real.exp (κ'' * dExt Y) := Finset.sum_mul _ _ _
-      _ ≤ _ := by
-        refine Finset.sum_le_sum fun J hJ => ?_
-        by_cases hne : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) = 0
-        · rw [hne]; simp
-        · obtain ⟨-, -, hd'⟩ :=
-            hull_facts_of_mixDiff_ne_zero (m₀ := m₀) S hκ hM hδ hsm hφ hα hconn hN hne
-          rw [(Finset.mem_filter.1 hJ).2] at hd'
-          refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
-          rw [hE, ← Real.exp_nat_mul]
-          refine Real.exp_le_exp.2 ?_
-          nlinarith
-  -- resum over the polymers
-  have hfib := Finset.sum_fiberwise (Finset.univ : Finset (cubeIdx G)).powerset
-    (fun J => hullOf m₀ (rootIdxOf y) (patches J))
-    (fun J => ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ * E ^ J.card)
-  have hdeg := fun P => paramGraph_degree_le (G := G) S.dg.aligned S.dg.cover_sep S.dg.hM
-    (by have := S.dg.hL; omega) P
-  have hmax : max (detDeg d L + 1) 1 = detDeg d L + 1 := max_eq_left (by omega)
-  have hfam := Polymer.sum_rooted_le_one (G := paramGraph G) (b := detDeg d L) (b_root := 1) hdeg
-    (rootParam G y) (card_rootParam_le S.dg.aligned y) ht0 (by rw [hmax]; exact hzt)
-  rw [hmax] at hfam
-  set R := Polymer.rootedSets (G := paramGraph G)
-    ((rootParam G y : Finset (cubeIdx G)) : Set (cubeIdx G)) with hR
-  have hRsub : R ⊆ (Finset.univ : Finset (cubeIdx G)).powerset :=
-    fun J _ => Finset.mem_powerset.2 (Finset.subset_univ _)
-  have hzero : ∀ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset, J ∉ R →
-      ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ * E ^ J.card = 0 := by
-    intro J _ hJR
-    by_contra hne
-    apply hJR
-    have hne' : mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) ≠ 0 := by
-      intro h0; apply hne; rw [h0]; simp
-    obtain ⟨y', hy', hJ⟩ := exists_rootChain_of_mixDiff_ne_zero S hκ hM hδ hsm hφ hα hconn {y} hne'
-    rw [Finset.mem_singleton] at hy'
-    subst hy'
-    exact Polymer.mem_rootedSets.2 (rooted_of_rootChain S.dg.aligned hJ)
-  calc _ ≤ ∑ Y, ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
-        (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ * E ^ J.card :=
-        Finset.sum_le_sum fun Y _ => hY Y
-    _ = ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset,
-        ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ * E ^ J.card :=
-        hfib
-    _ = ∑ J ∈ R, ‖mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α)‖ *
-        E ^ J.card := (Finset.sum_subset hRsub hzero).symm
-    _ ≤ ∑ J ∈ R, Mc * t ^ J.card := by
-        refine Finset.sum_le_sum fun J _ => ?_
-        calc _ ≤ Mc * (2 / Real.exp κ) ^ J.card * E ^ J.card :=
-              mul_le_mul_of_nonneg_right (hbound' J) (by positivity)
-          _ = Mc * t ^ J.card := by rw [ht, mul_pow]; ring
-    _ = Mc * ∑ J ∈ R, t ^ J.card := by rw [Finset.mul_sum]
-    _ ≤ Mc * (1 / (1 - Δ ^ 2 * t)) := mul_le_mul_of_nonneg_left hfam hM0
-    _ = _ := by rw [mul_one_div]
+        (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp κ * Real.exp (κ'' * (2 * d * L)))) :=
+  sum_norm_detActivityOf_le (m₀ := m₀) S.dg hconn hN y
+    (rootSupported_rootTrace S hκ hM hδ hsm hφ hα hconn {y})
+    (mixDiff_rootTrace_single_le S hκ hM hδ hsm hφ hα y) hκ0 hκ''
 
 end Decay
+
 
 end Balaban.Fluctuation
