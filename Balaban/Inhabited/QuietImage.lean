@@ -166,3 +166,55 @@ theorem real_euclid_sides {S : Setting} [NeZero S.L] {nK : ℕ} [NeZero nK] {R :
 end Realized
 
 end Balaban.LargeField
+
+namespace Balaban.LargeField
+
+open Balaban
+
+section Zero
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
+  [NeZero S.L]
+
+/-- **`QuietStepInput'` on any tori that are points above the horizon** (`n j = 1` for `j > K`),
+for `k₀ ≤ K`: `real_euclid` is `quietRealized_iff_of_histImage`, and the boundary exponent is the zero
+function, allowed by the bound (S0) for `C_b ≥ 0`, `B_0 ≥ 0`, `log β_k ≥ 0`. -/
+theorem quietStepInput'_nonempty_of_hsub (hsub : ∀ j, K < j → n j = 1) (hk0 : k0 ≤ K)
+    (geo : Geo S n R M) (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0)
+    (hlog : ∀ k, 0 ≤ Real.log (cs.beta k)) : Nonempty (QuietStepInput' K k0 geo cs N) := by
+  refine ⟨{
+    real_euclid := fun k σ a a' hI => quietRealized_iff_of_histImage hsub hk0 hI
+    b := fun _ _ _ _ _ _ => 0
+    b_meas := fun _ _ _ _ _ => measurable_const
+    b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
+    b_real := fun _ _ _ _ _ _ _ _ _ => by simp
+    b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
+    b_rot := fun _ _ _ _ _ _ _ _ => rfl
+    b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+    vacE := fun _ _ => 0
+    vacEpp := fun _ _ => 0
+    vacEppp := fun _ _ => 0
+    b0 := fun _ _ _ _ _ _ => 0
+    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
+    b0_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
+      simp only [norm_zero]
+      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
+      unfold volScale
+      positivity
+    b_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
+      simp only [norm_zero]
+      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
+      unfold volScale
+      positivity }⟩
+
+/-- **`QuietStepInput'` on the tori of the family `sides L K nK`**, for every `K` and every number
+`nK` of top cubes (ruling R9), `k₀ ≤ K`. -/
+theorem quietStepInput'_nonempty_sides {nK : ℕ} [NeZero nK] (hk0 : k0 ≤ K)
+    (geo : Geo S (Def7.sides S.L K nK) R M) (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.Cb)
+    (hB0 : 0 ≤ cs.B0) (hlog : ∀ k, 0 ≤ Real.log (cs.beta k)) :
+    Nonempty (QuietStepInput' K k0 geo cs N) :=
+  quietStepInput'_nonempty_of_hsub (fun _ hj => Def7.sides_of_gt hj) hk0 geo cs N hCb hB0 hlog
+
+end Zero
+
+end Balaban.LargeField

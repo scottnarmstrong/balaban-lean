@@ -1742,3 +1742,6 @@ Statements that changed: `sides` itself; `hsub : ∀ j, K < j → n j = 1` (was 
 The other fields of `QuietStepInput'` are not affected by R9.
 Also: the W1160 lemma `inBox_of_blocksOf_subset` of `Polymer/TwoTorusLabelBox` clashed with the same name in `TwoTorusObsKernel`
 (main); it is renamed `inBox_of_dom_blocksOf_subset`.
+
+R9 follow-up (W1161): `QuietImage.quietStepInput'_nonempty_of_hsub` (full `QuietStepInput'` on any tori that are points above `K`, `k₀ ≤ K`; zero
+boundary exponent, as in `QuietWitness`) and `quietStepInput'_nonempty_sides` (the family `sides L K nK`, every `K`, `nK`).
