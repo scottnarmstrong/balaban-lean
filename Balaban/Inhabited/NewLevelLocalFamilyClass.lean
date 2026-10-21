@@ -111,8 +111,11 @@ theorem localFamily_of_class [NeZero N] (hO : OldTermsAreIrrel S C NS.O)
     (hεt : P.eps d L (k + 1) ≤ t)
     {c c₂ : ℝ} (hS : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c NS.BG)
     {ϱf : ℝ} {Hf : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱf}
-    (hCs : FlCore N S.G' Hf S.a₁ S.ν c NS.BG NS.κ t (Dec2.mixedKc d L) (Cchi d L) c₂ NS.BG₂ t)
-    (hCs' : FlCore N S.G' Hf S.a₁ S.ν c NS.BG NS.κ eps' (Dec2.mixedKc d L) (Cchi d L) c₂ NS.BG₂ t)
+    {Kc₀ Cx₀ c₂₀ : ℝ}
+    (hCs : FlCore N S.G' Hf S.a₁ S.ν c NS.BG NS.κ t Kc₀ Cx₀ c₂₀ NS.BG₂ t)
+    (hCs' : FlCore N S.G' Hf S.a₁ S.ν c NS.BG NS.κ eps' Kc₀ Cx₀ c₂₀ NS.BG₂ t)
+    (hS2m : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c₂ NS.BG₂)
+    (hM2m : c₂ * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁)
     (hMXd : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁)
     (hMXn : cstarX d L * Real.exp (N0 d L * NS.κ) ≤ (L : ℝ) ^ m₁)
     {δc : ℝ} (hδc : 0 ≤ δc)
@@ -134,10 +137,12 @@ theorem localFamily_of_class [NeZero N] (hO : OldTermsAreIrrel S C NS.O)
     {c₂L : ℝ}
     (hSL : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) NS.OS.cB NS.O.BG)
     {ϱfL : ℝ} {HfL : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱfL}
-    (hCLs : FlCore N S.G' HfL S.a₁ S.ν NS.OS.cB NS.O.BG NS.O.κ t (Dec2.mixedKc d L) (Cchi d L)
-      c₂L NS.O.BG₂ NS.O.δ₁)
-    (hCLs' : FlCore N S.G' HfL S.a₁ S.ν NS.OS.cB NS.O.BG NS.O.κ eps' (Dec2.mixedKc d L)
-      (Cchi d L) c₂L NS.O.BG₂ NS.O.δ₁)
+    {KcL₀ CxL₀ c₂L₀ : ℝ}
+    (hCLs : FlCore N S.G' HfL S.a₁ S.ν NS.OS.cB NS.O.BG NS.O.κ t KcL₀ CxL₀ c₂L₀ NS.O.BG₂ NS.O.δ₁)
+    (hCLs' : FlCore N S.G' HfL S.a₁ S.ν NS.OS.cB NS.O.BG NS.O.κ eps' KcL₀ CxL₀ c₂L₀ NS.O.BG₂
+      NS.O.δ₁)
+    (hS2mL : Dec2.DecSpecs d L (Dec2.mixedKc d L) (Cchi d L) c₂L NS.O.BG₂)
+    (hM2mL : c₂L * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     (hMXLd : Dec2.cstarX d L (Cchi d L) * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     (hMXLn : cstarX d L * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     {δcL : ℝ}
@@ -371,9 +376,9 @@ theorem localFamily_of_class [NeZero N] (hO : OldTermsAreIrrel S C NS.O)
     have h3 := mul_le_mul_of_nonneg_right hsmO
       (Real.exp_pos (-κH * treeLenCovOne 1 (k + 1) Y)).le
     linarith [h2, h3]
-  exact NS.localFamily_castLocal_of hS1 SpG hc hm hsep hNP Yp hmarg hle hεr hεt hS hCs hCs' hMXd
+  exact NS.localFamily_castLocal_of hS1 SpG hc hm hsep hNP Yp hmarg hle hεr hεt hS hCs hCs' hS2m hM2m hMXd
     (Cchi_nonneg d L) hMXn hδc hdm hα hdm' hα' hsm hcψ hρ₀c hρp hRu hBG₂ hκ₀ hκdec hκκ h1 hlog
-    hR₁ hr hrays hR hRR hUR hU hSL hCLs hCLs' hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L
+    hR₁ hr hrays hR hRR hUR hU hSL hCLs hCLs' hS2mL hM2mL hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L
     hlogL hρL hρcL hρpL hRuL hca haL ht₀ hRt hN NS.OS.hcov NS.OS.hX₁ NS.OS.hopt hEb le_rfl
     (one_le_scaledC0 d) (X₀ := NS.OS.X₀) NS.OS.hB NS.OS.hF hCN' hFN' S.hG hrb NS.OS.hFkan hEan
     hEbd hEr hκH hsmZ hεo hFb hFo hεpos hι hF0 hκ' hκ le_rfl hz hS3 hM3 hc0 hN1
