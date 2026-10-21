@@ -10,6 +10,8 @@ public import Balaban.Localization.Dec2Covariance
 public import Balaban.Localization.Decoupled2X
 public import Balaban.Localization.DecEquivReal
 public import Balaban.Fluctuation.HoleStepOldCoef
+public import Balaban.Localization.DecEquivRelabel
+public import Balaban.Polymer.TwoTorusEv
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -215,5 +217,60 @@ theorem HoleStep.composed_conj (hD : S.D'.IsReal) (C : DecCover d L N₁ m₁ (k
     rw [S.covSqrtAt_isRealMat hD C ρ (hs b) _ _, hψ]
 
 end ComposedReal
+
+section CoefReal
+
+open Balaban.Analysis Balaban.Localization
+
+theorem coef_conj_of_real_unit {ι : Type*} [Fintype ι] [DecidableEq ι] {R : ℝ} (hR : 1 < R)
+    {f : (ι → ℂ) → ℂ} (hf : AnalyticOnNhd ℂ f (polydisc (0 : ι → ℂ) (fun _ => R)))
+    (h : ∀ A : Finset ι, starRingEnd ℂ (f (indic A)) = f (indic A)) (C : Finset ι) :
+    starRingEnd ℂ (coef f C) = coef f C := by
+  refine Balaban.Polymer.TwoTorusStep.eq_of_sum_powerset_eq_of_subset
+    (g := fun C => starRingEnd ℂ (coef f C)) (h := coef f) (C := C) ?_ C Finset.Subset.rfl
+  intro A _
+  rw [← map_sum, ← sum_coef_unit hR hf A, h A]
+
+theorem indic_conj {ι : Type*} [DecidableEq ι] (A : Finset ι) (j : ι) :
+    starRingEnd ℂ (indic A j) = indic A j := by
+  unfold indic; split_ifs <;> simp
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
+  (S : HoleStep d L N₁ m₁ k N ϱ ϱ')
+
+theorem HoleStep.slocOf_coreExt_conj (C : DecCover d L N₁ m₁ (k + 1)) (X₁loc : S.U → Finset _)
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) {s : Dec2.DecParams C}
+    (hs : ∀ P, starRingEnd ℂ (s P) = s P) (b : S.U) (P : C.cubeIdx) :
+    starRingEnd ℂ (S.slocOf C X₁loc (coreExt C X₁ s) b P) = S.slocOf C X₁loc (coreExt C X₁ s) b P := by
+  classical
+  unfold HoleStep.slocOf coreExt
+  split_ifs <;> simp [hs]
+
+/-- **The coefficient `T(X, J)` is real** for a real old term, real outer fixed values and real
+datum: it is determined by the values of the interpolated old term at the vertices `1_A` of the unit
+cube, where the composed field is real. -/
+theorem HoleStep.oldCoef_conj (hD : S.D'.IsReal) (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
+    (X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (X₁ : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (inner : Finset S.U) (ψout : S.U → Fin N → ℂ)
+    (hout : ∀ q i, starRingEnd ℂ (ψout q i) = ψout q i) (B : (S.U → Fin N → ℂ) → ℂ)
+    (hB : ∀ c : S.U → Fin N → ℂ, (∀ q i, starRingEnd ℂ (c q i) = c q i) →
+      starRingEnd ℂ (B c) = B c)
+    (ψin : inner → Rn N) (J : Finset C.cubeIdx) {Rp : ℝ} (hRp : 1 < Rp)
+    (hana : AnalyticOnNhd ℂ (S.oldInterp C ρ X₁loc X₁ inner ψout B ψin)
+      (polydisc (0 : Dec2.DecParams C) fun _ => Rp)) :
+    starRingEnd ℂ (S.oldCoef C ρ X₁loc X₁ inner ψout B J ψin) =
+      S.oldCoef C ρ X₁loc X₁ inner ψout B J ψin := by
+  unfold HoleStep.oldCoef
+  refine coef_conj_of_real_unit hRp hana (fun A => ?_) J
+  unfold HoleStep.oldInterp
+  refine hB _ fun q i => ?_
+  refine S.composed_conj hD C ρ (fun b P => ?_) (fun q i => ?_) q i
+  · exact S.slocOf_coreExt_conj C X₁loc X₁ (indic_conj A) b P
+  · unfold HoleStep.fill
+    split_ifs
+    · simp
+    · exact hout _ _
+
+end CoefReal
 
 end Balaban.Fluctuation
