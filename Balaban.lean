@@ -3258,3 +3258,5 @@ public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
 public import Balaban.LargeField.R.WindowDuRunning
 public import Balaban.Spine.FinalBoxLocChi
 public import Balaban.Green.FinalBoxLocSum
+public import Balaban.Polymer.ClusterRelabel
+public import Balaban.Fluctuation.MarkClusterTransport
