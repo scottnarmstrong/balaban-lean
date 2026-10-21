@@ -151,6 +151,12 @@ R7′ and R9 are with Scott; R-N₁ should be asked now. Wave 1 starts as W1126 
   gas, (c)–(f): milestone `ClassStepInput` at general `d, N`; 23–26 A6-3 (a), (b), (c), (e), A6-4 (a)(b), (d); 27–30 ★ A4f-1 (2), (4), A7-1 (b)–(e),
   A7-2 (d).
 
+**Scheduled for the next full rebuild (W1146t, 2026-10-21).** Two deduplications that touch files low in the import graph, to be done as their own piece when a
+full rebuild is acceptable: (1) the neighbour-pair construction of `SmallField/PolyDomOpt.lean` (`connStruct_nbrPairs`, `admissible_of_isPolyDom`) repeats the
+one inside `Def6BridgeInfDict.sizeJ_le_ncard_sq`: move it to a low file and make both its instances (≈ 1,440 reverse dependencies); (2) the bounds
+`eTermFun_bound_of_bg`, `eTermFun_bound_of_one_le` (`Fluctuation/InteractionHatE.lean`, ≈ 990 reverse dependencies) become instances of the composed-chart bound
+`eTermFun_bound_composed` (`Fluctuation/OldTermComposedChart.lean`) once `composedChart` sits below `InteractionHatE`.
+
 **Re-estimate (2026-10-19, evening).** Landed today ≈ 14,000 net Lean lines (G for everything the spine cites, ≈ 6,000; R8 parts 1–2; `ΦE`/A4-1g; the LFStep and LFBdry sub-spines; signs and `thr`; window pieces). A4-1b grew from 3,150 to ≈ 8,850 (W1144: the chain proves its coefficients exist, so the route returns them as a formula); rulings R10 and R11 add ≈ 900 of repairs. Net remaining: **≈ 47,000 lines (range 40,000–75,000)**, of which the new mathematics is unchanged at ≈ 10,000.
 
 **Overall estimate.** The tree: ≈ 38,500 lines; cross-cutting: G 6,000, `Φ`/`ΦE` 1,400, witnesses 1,200, R9 repairs ≈ 500: ≈ 9,100. Total
