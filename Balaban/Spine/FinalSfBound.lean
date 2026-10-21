@@ -119,6 +119,16 @@ theorem norm_corrPair_le {c₁ c₂ : ℂ} {νj : ℝ} {ψ : Def6.Fld d L N₁ m
     exact (norm_sub_le _ _).trans (by linarith)
   linarith
 
+/-- The bilinear square of a real vector of positive norm is in the slit plane. -/
+theorem dot_real_mem_slitPlane (v : Fin N → ℝ) (hpos : 0 < rn v) :
+    dot (fun i => (v i : ℂ)) (fun i => (v i : ℂ)) ∈ Complex.slitPlane := by
+  have h1 : dot (fun i => (v i : ℂ)) (fun i => (v i : ℂ)) = ((∑ i, v i ^ 2 : ℝ) : ℂ) := by
+    unfold dot; push_cast; exact Finset.sum_congr rfl fun i _ => by ring
+  rw [h1]
+  refine Or.inl ?_
+  rw [Complex.ofReal_re, ← rn_sq]
+  positivity
+
 end Corr
 
 /-- `Function.Injective` of the identification of tori of equal side. -/
@@ -325,7 +335,7 @@ theorem exists_bound_sum' {α ι : Type*} {A : Set α} (T : Finset ι) {f : ι �
   exact ⟨∑ i ∈ T, B i, fun a ha => (norm_sum_le _ _).trans
     (Finset.sum_le_sum fun i hi => hB i hi a ha)⟩
 
-variable (hpsiR : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+variable {r : ℝ} (hpsiR : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
     ∀ x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1), ∃ v : Fin N → ℝ,
       (∀ i, C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x i = (v i : ℂ)) ∧
         0 < rn v ∧ rn v ≤ 2)
@@ -469,6 +479,48 @@ theorem exists_bound_sfFactor2 (g : GIdx S n M K N → ℂ)
       by_contra hne; exact hψ hne
     unfold sfFactor2
     rw [h0]; simp
+
+include hm0 hTm hdomJ hpsiR in
+/-- **`sfFactor2` of the whole torus is integrable** (A6-3 (a), item 1; the premise of the Gaussian
+reduction `integral_sfFactor2_gauss` and of the expansion): measurable, bounded, and supported in a
+bounded set of block fields. -/
+theorem integrable_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
+    (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hL : 2 ≤ S.L) (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))
+    (hAD : Asupp C hv ⊆ DomSet C hv (C.cs.muBg (j + 1)))
+    (hphi : ∀ ψk ∈ Asupp C hv, ∀ z i,
+      |(C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv z) i| ≤ 1)
+    (hsupp : ∀ ψk ∈ Asupp C hv, ∀ b, ‖ψk b‖ ≤ r)
+    {fac : ℕ → ℝ} (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
+    (hdomR : ∀ ψk ∈ Asupp C hv, Def6.XiDom (Def6.topGS S.d S.L C.N₁ m₁ (j + 1) ϱ)
+      (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)))
+      (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
+      (P6.eps S.d S.L (j + 1)) (sfLiftK C.geo C.hnn C.hkK C.hT ψk) (Def6.constFld (hC hv)))
+    (hmu : C.cs.mu (j + 1) = C.cs.muBg (j + 1)) :
+    Integrable fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g := by
+  have hg := l1_sfG_lt_one C g hgl
+  have hslit : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ x,
+      dot (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)
+        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x) ∈ Complex.slitPlane := by
+    intro ψk hψ jj hj1 hj x
+    obtain ⟨v, hv1, hv0, -⟩ := hpsiR ψk hψ jj hj1 hj x
+    have : C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x = fun i => (v i : ℂ) :=
+      funext hv1
+    rw [this]
+    exact dot_real_mem_slitPlane v hv0
+  obtain ⟨Mb, hMb⟩ := exists_bound_sfFactor2 C hv vc hm0 hTm hdomJ hpsiR g hgl HB hL hact hβ hphi
+    hRt hdomR
+  refine integrable_of_bdd_support
+    (measurable_sfFactor2_univ_of_dom C hv vc hm0 HB hTm hAD hdomJ hslit g hg hRt hdomR hmu)
+    r Mb ?_ hMb
+  intro ψk hne b
+  refine hsupp ψk ?_ b
+  intro h0
+  apply hne
+  unfold sfFactor2
+  rw [h0]; simp
 
 end Ctx
 

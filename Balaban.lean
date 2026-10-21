@@ -2913,6 +2913,7 @@ public import Balaban.Spine.FinalDomPsiJ
 public import Balaban.Spine.FinalSfCont
 public import Balaban.Spine.FinalSfChi
 public import Balaban.Spine.FinalSfMeas
+public import Balaban.Spine.FinalSfBound
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
