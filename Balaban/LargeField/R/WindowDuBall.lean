@@ -138,6 +138,55 @@ theorem window_hread_of_lift (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     hXc ou xu hv ψ hψ φw a ν i
 
 /-- **The datum of a piece is the physical datum on the ball around its region** (`δψ = 0`, P7 (2.14)). -/
+theorem window_ball_data_eqT (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (jf : ι → ℕ)
+    {t : ι → ℕ} (hR : ∀ i, BallRadiusOK R m' (jf i) (t i)) (cf : ∀ i, H.Comp (jf i + 1))
+    (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
+    (hjK : ∀ i, jf i + 1 ≤ K)
+    (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+    (hXc : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1)
+    (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1))
+    (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i))
+    (hv : EuclideanSpace ℝ (Fin N))
+    (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N))
+    (hlift : ∀ i (y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))),
+      torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈ dataSites (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)) →
+      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv).Ψ (torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y) =
+        fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
+          (if torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈
+              fineK1 g.M1 g.c (n (jf i + 1)) S.L (jf i) ((H.locRH (jf i + 1) (cf i)).step (jf i)).Omega
+            then jf i + 1 else jf i) y) q : ℝ) : ℂ)) :
+    ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d
+        (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ (t i : ℝ) * ((S.L : ℝ) ^ jf i * M)) →
+      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv).Ψ x = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) := by
+  classical
+  intro i x hx
+  obtain ⟨z, hz, hzx⟩ := hx
+  set hT := piece_torus_eq g H.F.hnn hmK (hjf i).2 with hhT
+  set e := Equiv.cast (congrArg (Torus S.d) hT) with he
+  have hex : torusCast hT (e.symm x) = x := by
+    rw [← torusCast_equivCast_apply]; exact e.apply_symm_apply x
+  have hez : torusCast hT (e.symm z) = z := by
+    rw [← torusCast_equivCast_apply]; exact e.apply_symm_apply z
+  have hzX : torusCast hT (e.symm z) ∈ Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 := by
+    rw [hez, ← hXc i]; exact hz
+  have hd : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) (e.symm x) (e.symm z) ≤
+      (t i : ℝ) * ((S.L : ℝ) ^ jf i * M) := by
+    rw [torusDist_equivCast_symm hT x z, Green.torusDist_comm_gen]; exact hzx
+  have hsup : supDist (e.symm x) (e.symm z) ≤ t i * (S.L ^ jf i * M) := by
+    have := supDist_le_torusDist (e.symm x) (e.symm z)
+    have h2 : (supDist (e.symm x) (e.symm z) : ℝ) ≤ ((t i * (S.L ^ jf i * M) : ℕ) : ℝ) := by
+      push_cast; linarith
+    exact_mod_cast h2
+  have hl := hlift i (e.symm x)
+    (ball_dist_mem_dataSitesT (hR := hR i) hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i) (z := z) (by
+      rw [hXc i] at hz; exact hz) (by rw [hex]; exact hzx))
+  have key := piece_window_Ψ_eq_of_liftT hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i) hzX (hR i) hsup ψ
+    (fun q => hv q) _ hl
+  rw [hex] at key
+  exact key
+
+/-- **The datum of a piece is the physical datum on the ball around its region** (`δψ = 0`, P7 (2.14)). -/
 theorem window_ball_data_eq (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1))
     (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (hcf : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z)
@@ -157,33 +206,9 @@ theorem window_ball_data_eq (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
             then jf i + 1 else jf i) y) q : ℝ) : ℂ)) :
     ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d
         (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
-      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv).Ψ x = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) := by
-  classical
-  intro i x hx
-  obtain ⟨z, hz, hzx⟩ := hx
-  set hT := piece_torus_eq g H.F.hnn hmK (hjf i).2 with hhT
-  set e := Equiv.cast (congrArg (Torus S.d) hT) with he
-  have hex : torusCast hT (e.symm x) = x := by
-    rw [← torusCast_equivCast_apply]; exact e.apply_symm_apply x
-  have hez : torusCast hT (e.symm z) = z := by
-    rw [← torusCast_equivCast_apply]; exact e.apply_symm_apply z
-  have hzX : torusCast hT (e.symm z) ∈ Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 := by
-    rw [hez, ← hXc i]; exact hz
-  have hd : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) (e.symm x) (e.symm z) ≤
-      2 * ((S.L : ℝ) ^ jf i * M) := by
-    rw [torusDist_equivCast_symm hT x z, Green.torusDist_comm_gen]; exact hzx
-  have hsup : supDist (e.symm x) (e.symm z) ≤ 2 * (S.L ^ jf i * M) := by
-    have := supDist_le_torusDist (e.symm x) (e.symm z)
-    have h2 : (supDist (e.symm x) (e.symm z) : ℝ) ≤ ((2 * (S.L ^ jf i * M) : ℕ) : ℝ) := by
-      push_cast; linarith
-    exact_mod_cast h2
-  have hl := hlift i (e.symm x)
-    (ball_dist_mem_dataSites hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i) (z := z) (by
-      rw [hXc i] at hz; exact hz) (by rw [hex]; exact hzx))
-  have key := piece_window_Ψ_eq_of_lift hmK hW (hjf i).2 (hjf i).1 (hjK i) (hcf i) hzX hsup ψ
-    (fun q => hv q) _ hl
-  rw [hex] at key
-  exact key
+      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv).Ψ x = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) :=
+  window_ball_data_eqT (hmK := hmK) (hW := hW) (jf := jf) (cf := cf) (hjf := hjf) (hcf := hcf) (hjK := hjK) (Xc := Xc) (hXc := hXc) (ou := ou) (xu := xu) (hv := hv) (ψ := ψ) (hlift := hlift)
+    (t := fun _ => 2) (hR := fun i => ballRadiusOK_two H g m' (jf i))
 
 /-- **Equal layers on the ball** (wrapper of `piece_window_layers_switch`). -/
 theorem window_ball_layers (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
