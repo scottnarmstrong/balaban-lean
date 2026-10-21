@@ -1794,3 +1794,21 @@ Landed in `Spine/`: `LFOldD7Reads.lean` (`stepReadsIn_outLabel`, `fineSet_subset
 
 * d4 (euclid): `Localization/DecEquivAff.lean` (core: bump, cube bump, `InBox`, cells and bases under aligned affine lattice isometries; `CoverSymm.ofAff`, `BlockSymm.ofAff` generalize `ofTranslate`; pair versions `cover_idx_aff`, `cover_chi_aff`, `cover_box_aff`, `cover_qset_aff`, `block_idx_aff`), `Localization/LatPairDecBg.lean` (`decBg2_sym_pair`), `Spine/LFOldD7Euclid.lean` (`StepAff`: transport of `decBg`, `covSqrtAt`, `composed`, `oldInterp`, `oldCoef` between two steps), `Spine/LFOldD7EuclidLoc.lean` (the local step of `σH` is `StepAff`-related to that of `H`; `oldCoefLF_aff`, `oldCoefLoc_euclid`). Inputs of `oldCoefLoc_euclid`: the record's `euclid` clause at `X`, `J` ⊆ cover cubes, analyticity of the two interpolated old terms.
 * d2 hB: `LFOldD7AnalyticRec.lean`; d6 from `Z_k`: `LFOldD7Hist.lean` (`holeStepLoc_congr_hist_Z`); `hsiteY`: `LFOldD7Reads.lean`.
+
+### A4-1f `OldTermsCanonPinsAt` and the cover requirement `hX1` after R13 (W1161, 2026-10-21)
+
+`NewLevelCanonPinsOfIrrel.oldTermsCanonPinsAt_of_irrel` assembles `OldTermsCanonPinsAt` from the labels of `OldTermsAreIrrel`
+(`AdmPairs` membership, injectivity), `Eτ`, **surjectivity onto `AdmPairs`** and the covering data as functions `F` of the label.
+The last two are not consequences of `OldTermsAreIrrel`: `∑ τ, Eτ τ = Jr.EJ C` constrains only the sum, and `Gk`, `X₁f`, `𝒦X`, `ρ`
+are existential fields of `OldTermSystem`.  They must come from the producer (index type := the subtype `AdmPairs`, fields := `F` of
+the label); that is part of the chain's construction of `NS`, in W1146t's files.
+**`hX1` is false as stated, for every `m₀`.**  `O.X₁f τ = X1 S.G' m₀ (jL τ) (𝒦X τ)` (`OS.hX₁`) and the chosen family `𝒦X` is forced
+to lie in the polymer (`ChosenOne`, `XL = X ∪ cell box` in `OldTermsAreIrrel`), so `X₁` is the union of the aligned `L a_K`-cubes
+containing a cube of `𝒦X`, i.e. the `(L-1)`-cell neighbourhood of the cells met by the polymer; it cannot be enlarged by choosing a
+larger cover.  `hX1` asks `nbhd m₀ x ⊆ X₁` for sites `x` at sup-distance `≤ zRad` of the polymer; for a polymer in one cell `C₀` and
+`x` in the adjacent cell (distance 1 from a boundary site), `nbhd x` reaches `L` cells from `C₀`, `X₁` only `L-1`.
+Repair (not yet done): do not take `Z = cellUnion` of whole cells.  Take `Z` = the sites within `r = 11 L^(m₁+k) + L^(k+1) + 2` of
+the polymer (data sites of `Gk` are within `11 L^(m₁+j)+1`), closed under blocks, and prove `BlockMargin` for it from the distance of
+its sites to the complement of `X₁` (`(L-2) a_K - 6 L^(k+1+m₁) > 0` for `L^{m₀}(L-2) ≥ 6`), a generalization of
+`LocalCover.blockMargin` from "Zα in one cell" to "Zα within `a_K` of the cell".  `hgeom_of_local` then needs `hX1` replaced by
+this distance condition.
