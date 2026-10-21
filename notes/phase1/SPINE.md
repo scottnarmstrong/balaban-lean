@@ -795,9 +795,11 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
     Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
     per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
     cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.
-  Remaining for (iii)-c: `oldB` as `BTerms` (the family over the fields and histories) and the (D7) `bound` clause
-  in the form `fac' e^{-rate' d}` from `norm_oldBAt_le` (constants: `κ' ≥ rate' + c₁ log 2 + 2`), the named Prop 3.3
-  on a region over the fields.
+  `oldB` as `BTerms` (`Spine/LFOldBBound`: `oldB`, the old labels `oldDoms`, the families `inner`, `cb`, `I` over the
+  histories and fields) and **`norm_oldB_le`: its (D7) bound `2^{c₁} C_PE fac C_res L^d c₁ K₀ c₁ K₀ e^{-rate' d^pre_{k+1}(Y)}`
+  at a field of the H7 domain of `Y`, for `κ' ≥ rate' + c₁ log 2 + 2`** (`exp_poly_le_exp`). Remaining for (iii)-c:
+  the named Prop 3.3 on a region over the fields (with the field properties of `H_y` for (iii)-d), the uniformity of the
+  constants of `I` over the fields, and `OldResumSite` (W1154 next).
 
 ## LastIntegralInput sub-inputs (W1108)
 

@@ -23,7 +23,10 @@ sums are controlled by entropy bounds whose roots are the cubes of `Y ∩ Ω_{k+
   of `T` is at most `|T| K₀`;
 * `blocksOf_nonempty_of_isDj`;
 * `norm_oldBAt_le`: **the bound of `oldBAt` at an output label** (P6 (4.34)), conditional on the named
-  inputs `H7MixedInnerLoc`, `H7MixedDatumLoc` and `OldResumSite`.
+  inputs `H7MixedInnerLoc`, `H7MixedDatumLoc` and `OldResumSite`;
+* `exp_poly_le_exp`, `oldB`, `norm_oldB_le`: **the re-expanded old boundary terms as boundary terms of
+  scale `k + 1`** (`BTerms`) and their (D7) bound `C e^{-rate' d^pre_{k+1}(Y)}` for
+  `κ' ≥ rate' + c₁ log 2 + 2`.
 -/
 
 @[expose] public section
@@ -473,6 +476,137 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
           refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right
             (mul_le_mul_of_nonneg_left hSXle hCst0) (by positivity)) (Real.exp_pos _).le
       _ = _ := by rw [hCst]; ring
+
+/-- **A polynomial times `2^{c₁(1+D)}` is absorbed by the rate** (`1 + D ≤ e^D`): for `D ≥ 0` and
+`κ' ≥ rate' + c₁ log 2 + 2`, the bound of `norm_oldBAt_le` is at most
+`2^{c₁} C L^d c₁ K₁ c₁ K₂ e^{-rate' D}`. -/
+theorem exp_poly_le_exp {a C B K₁ K₂ κ' rate' D : ℝ} (ha : 0 ≤ a) (hC : 0 ≤ C) (hB : 0 ≤ B)
+    (hK₁ : 0 ≤ K₁) (hK₂ : 0 ≤ K₂) (hD : 0 ≤ D) (hκ' : rate' + Real.log 2 * a + 2 ≤ κ') :
+    Real.exp (Real.log 2 * (a * (1 + D))) * C * (B * (a * (1 + D)) * K₁) * (a * (1 + D) * K₂) *
+        Real.exp (-κ' * D) ≤
+      Real.exp (Real.log 2 * a) * C * (B * a * K₁) * (a * K₂) * Real.exp (-rate' * D) := by
+  have hl2 : 0 ≤ Real.log 2 := Real.log_nonneg (by norm_num)
+  have h1D : 1 + D ≤ Real.exp D := by linarith [Real.add_one_le_exp D]
+  have h1D0 : 0 ≤ 1 + D := by linarith
+  have hsq : (1 + D) * (1 + D) ≤ Real.exp D * Real.exp D :=
+    mul_le_mul h1D h1D h1D0 (Real.exp_pos _).le
+  have hexp : Real.exp (Real.log 2 * (a * (1 + D))) * (Real.exp D * Real.exp D) *
+      Real.exp (-κ' * D) ≤ Real.exp (Real.log 2 * a) * Real.exp (-rate' * D) := by
+    rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add, ← Real.exp_add]
+    exact Real.exp_le_exp.2 (by nlinarith)
+  have hP : 0 ≤ C * (B * a * K₁) * (a * K₂) := by positivity
+  calc Real.exp (Real.log 2 * (a * (1 + D))) * C * (B * (a * (1 + D)) * K₁) * (a * (1 + D) * K₂) *
+        Real.exp (-κ' * D)
+      = (C * (B * a * K₁) * (a * K₂)) * (Real.exp (Real.log 2 * (a * (1 + D))) *
+          ((1 + D) * (1 + D)) * Real.exp (-κ' * D)) := by ring
+    _ ≤ (C * (B * a * K₁) * (a * K₂)) * (Real.exp (Real.log 2 * (a * (1 + D))) *
+          (Real.exp D * Real.exp D) * Real.exp (-κ' * D)) := by
+        refine mul_le_mul_of_nonneg_left ?_ hP
+        exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hsq (Real.exp_pos _).le)
+          (Real.exp_pos _).le
+    _ ≤ (C * (B * a * K₁) * (a * K₂)) * (Real.exp (Real.log 2 * a) * Real.exp (-rate' * D)) :=
+        mul_le_mul_of_nonneg_left hexp hP
+    _ = _ := by ring
+
+/-- **The re-expanded old boundary terms as boundary terms of scale `k + 1`** (P6 (4.32)–(4.34);
+LFR Lemma IV.1.5 (iii)): at a history `𝔸`, an output label `Y` and fields `(ψ, ψ', h, g)`, the old
+part `oldBAt` of the step on the region history of `𝔸` at the field `ψ`, with the old labels
+`oldDoms` of the record, the second field `ψ'`, the external field `g`, the assignment `cb 𝔸 ψ` of the
+cubes of `Ω_{k+1}` to the integration variables and the interaction `I 𝔸 ψ ψ' g` of the measure
+(the field `h` enters through `hv`, the external field of (D7), `hSetB hv = {hC hv}`). -/
+noncomputable def oldB {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ)
+    (inner : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N), inner A ψ →
+      CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull F (k + 1) (OmegaCube A.H (k + 1))))
+    (hp : 0 < p₁)
+    (I : ∀ (A : LabHist S n R k0 K) (ψ _ : MultiFieldC S n M K N) (_ : GIdx S n M K N → ℂ),
+      LocInteraction (fun b => {u : inner A ψ // cb A ψ u = b} → Rn N))
+    (ψout : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (hv : EuclideanSpace ℝ (Fin N)) :
+    BTerms S n R k0 K M N (k + 1) :=
+  fun A Y ψ ψ' _ gx => oldBAt g hnn hM1 F A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (inner A ψ) (cb A ψ)
+    hp (I A ψ ψ' gx) (ψout A ψ) rψ ρc ρ r r' rep A (oldDoms F A.H k) ψ' hv gx Y
+
+/-- **The (D7) bound of the re-expanded old boundary terms** (P6 (4.34); LFR Lemma IV.1.5 (iii)): at a
+history `𝔸` of the record, an output label `Y` and a field `p` in the H7 domain of scale `k + 1` at the
+fine set of `Y`, with `κ' ≥ rate' + c₁ log 2 + 2`,
+`|oldB(𝔸, Y)| ≤ 2^{c₁} C_PE fac C_res L^d c₁ K₀(rate-κ_X) c₁ K₀(κ₀) e^{-rate' d^pre_{k+1}(Y)}`.
+Conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc`, `OldResumSite`. -/
+theorem norm_oldB_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    (hIn : H7MixedInnerLoc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r aw μs
+      ε ε1 νs (hC hv) (Real.exp κ₁) rψ)
+    (hDat : H7MixedDatumLoc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs (hC hv) ν δb)
+    (hXs : ∀ X ∈ oldDoms Fr A.H k, X ∈ bdryDomsPost Fr A k (Zof A))
+    (Y : Finset (Torus S.d (n (k + 1)))) (p : FinFieldC S n M K N × FinFieldC S n M K N ×
+      (GIdx S n M K N → ℂ))
+    (htgt : H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) (k + 1) hk
+      (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1))))) aw μs ε ε1 νs
+      (hC hv) (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)))
+    (inner : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    (cb : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N), inner A ψ →
+      CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))
+    (hcb : ∀ u : inner A (extK p.1), toFrame g hnn hM1 Fr hk
+      (unitRep (u : (holeStepLF g hnn hM1 A.H hk hk1 hρ (extK p.1) z h₀ a₁ ν β p₁ δ).U)) ∈
+        Localization.box (cb A (extK p.1) u).1 (cellSide S.L m₀ m₁ (k + 1)))
+    (hp : 0 < p₁)
+    (I : ∀ (A : LabHist S n R k0 K) (ψ _ : MultiFieldC S n M K N) (_ : GIdx S n M K N → ℂ),
+      LocInteraction (fun b => {u : inner A ψ // cb A ψ u = b} → Rn N))
+    (ψout : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
+      (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres rate' : ℝ}
+    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hκV : (I A (extK p.1) (extK p.2.1) p.2.2).κH ≤ κV) (hαX : aEnt S.d S.L + 1 ≤ rate - κX)
+    (hκ' : rate' + Real.log 2 * c1 S.d S.L + 2 ≤ (I A (extK p.1) (extK p.2.1) p.2.2).κ') :
+    ‖oldB g hnn hM1 Fr hk hk1 hρ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ
+        (rho4 S.d S.L N BG κ) ρ r r' rep hv A Y (extK p.1) (extK p.2.1) (hC hv) p.2.2‖ ≤
+      Real.exp (Real.log 2 * c1 S.d S.L) *
+        (CPE S.d S.L ((I A (extK p.1) (extK p.2.1) p.2.2).Kc + 1)
+          (I A (extK p.1) (extK p.2.1) p.2.2).κH (I A (extK p.1) (extK p.2.1) p.2.2).κ0
+          (I A (extK p.1) (extK p.2.1) p.2.2).κ' * (fac * Cres)) *
+        ((S.L : ℝ) ^ S.d * c1 S.d S.L * K0 S.d S.L (rate - κX)) *
+        (c1 S.d S.L * K0 S.d S.L (I A (extK p.1) (extK p.2.1) p.2.2).κ0) *
+        Real.exp (-rate' * d7SizePre Fr A (k + 1) Y) := by
+  have h := norm_oldBAt_le g hnn hM1 hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hIn hDat (Xs := oldDoms Fr A.H k)
+    (fun X hX => ⟨hXs X hX, hX⟩) Y htgt (inner A (extK p.1)) (cb A (extK p.1)) hcb hp
+    (I A (extK p.1) (extK p.2.1) p.2.2) (ψout A (extK p.1)) hrψ hfac hres hCres hκV hαX
+  have hCPE : 0 ≤ CPE S.d S.L ((I A (extK p.1) (extK p.2.1) p.2.2).Kc + 1)
+      (I A (extK p.1) (extK p.2.1) p.2.2).κH (I A (extK p.1) (extK p.2.1) p.2.2).κ0
+      (I A (extK p.1) (extK p.2.1) p.2.2).κ' := by
+    have := one_le_c1 S.d S.L
+    unfold CPE
+    exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg _)) (by linarith))
+      (Real.exp_pos _).le
+  refine h.trans ?_
+  exact exp_poly_le_exp (by linarith [one_le_c1 S.d S.L]) (mul_nonneg hCPE (by positivity))
+    (by positivity) (K0_pos _ _ _).le (K0_pos _ _ _).le
+    (d7SizeAt_nonneg Fr (k + 1) (OmegaCube A.H (k + 1)) Y) hκ'
 
 end Bound
 
