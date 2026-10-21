@@ -241,4 +241,104 @@ theorem inBox_aff_iff (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (j : ℕ) (y0 x
 
 end Cube
 
+/-! ### Cells and bases -/
+
+section Cells
+
+variable {d n : ℕ} [NeZero n]
+
+theorem sameCell_iff_blockMap {a m : ℕ} (hm : n = a * m) (x y : Torus d n) :
+    SameCell a x y ↔ blockMap a m x = blockMap a m y := by
+  constructor
+  · intro h
+    funext μ
+    simp only [blockMap_apply, blockCoord, h μ]
+  · intro h μ
+    have := congrArg (fun z : Torus d m => (z μ).val) h
+    simpa only [blockMap_apply, blockCoord_val hm] using this
+
+/-- **Cells are mapped onto cells**: an aligned affine lattice isometry preserves the relation of
+lying in the same cell of side `lam`. -/
+theorem sameCell_aff_iff (A : AffIso d n) {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n)
+    (hA : A.Aligned lam) (x y : Torus d n) :
+    SameCell lam (A.toFun x) (A.toFun y) ↔ SameCell lam x y := by
+  obtain ⟨m, hm⟩ := hn
+  have hm0 : NeZero m := ⟨fun h => NeZero.ne n (by rw [hm, h, mul_zero])⟩
+  rw [sameCell_iff_blockMap hm, sameCell_iff_blockMap hm, A.blockMap_toFun hm hlam hA,
+    A.blockMap_toFun hm hlam hA]
+  exact ⟨fun h => by simpa [AffIso.invFun_toFun] using congrArg (A.coarse lam m).invFun h,
+    fun h => by rw [h]⟩
+
+theorem baseCoord_dvd_iff {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : ZMod n) (b : Bool)
+    (hs : lam ∣ s.val + (if b then 1 else 0)) :
+    lam ∣ (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0)).val ↔
+      lam ∣ y.val := by
+  have hl1 : 1 ≤ lam := hlam
+  obtain ⟨e, he⟩ := exists_val_eq (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
+    ((s.val : ℤ) + (if b then -1 else 1) * (y.val : ℤ) - (if b then ((lam - 1 : ℕ) : ℤ) else 0)) (by
+      cases b <;> simp [AffIso.sgn])
+  have hnZ : (lam : ℤ) ∣ (n : ℤ) := Int.natCast_dvd_natCast.2 hn
+  have hsZ : (lam : ℤ) ∣ ((s.val : ℤ) + (if b then 1 else 0)) := by
+    have := Int.natCast_dvd_natCast.2 hs
+    cases b <;> simpa using this
+  rw [← Int.natCast_dvd_natCast]
+  cases b
+  · simp only [Bool.false_eq_true, ↓reduceIte, one_mul, sub_zero] at he hsZ ⊢
+    rw [he]
+    have hs' : (lam : ℤ) ∣ (s.val : ℤ) := by simpa using hsZ
+    have h3 : (lam : ℤ) ∣ (n : ℤ) * e := dvd_mul_of_dvd_left hnZ e
+    rw [add_assoc, Int.dvd_add_right hs', Int.dvd_add_left h3]
+    exact Int.natCast_dvd_natCast
+  · simp only [↓reduceIte] at he hsZ ⊢
+    rw [he]
+    have h3 : (lam : ℤ) ∣ (n : ℤ) * e := dvd_mul_of_dvd_left hnZ e
+    have hc : ((lam - 1 : ℕ) : ℤ) = (lam : ℤ) - 1 := by push_cast [Nat.cast_sub hl1]; ring
+    rw [hc]
+    have e1 : (s.val : ℤ) + -1 * (y.val : ℤ) - ((lam : ℤ) - 1) + n * e =
+        (((s.val : ℤ) + 1) - lam + n * e) + (-(y.val : ℤ)) := by ring
+    rw [e1, Int.dvd_add_right (dvd_add (dvd_sub hsZ dvd_rfl) h3), dvd_neg]
+    exact Int.natCast_dvd_natCast
+
+theorem baseCoord_div {lam : ℕ} (hlam : 0 < lam) (hn : lam ∣ n) (s y : ZMod n) (b : Bool)
+    (hs : lam ∣ s.val + (if b then 1 else 0)) (hy : lam ∣ y.val) :
+    (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0)).val / lam =
+      (s + AffIso.sgn n b * y).val / lam := by
+  cases b
+  · simp
+  · simp only [↓reduceIte] at hs ⊢
+    set w : ZMod n := s + AffIso.sgn n true * y with hw
+    obtain ⟨e, he⟩ := exists_val_eq w ((s.val : ℤ) + -1 * (y.val : ℤ)) (by
+      simp [hw, AffIso.sgn])
+    have hnZ : (lam : ℤ) ∣ (n : ℤ) := Int.natCast_dvd_natCast.2 hn
+    have hdv : (lam : ℤ) ∣ ((w.val + 1 : ℕ) : ℤ) := by
+      have h1 := Int.natCast_dvd_natCast.2 hs
+      have h2 := Int.natCast_dvd_natCast.2 hy
+      have h3 : (lam : ℤ) ∣ (n : ℤ) * e := dvd_mul_of_dvd_left hnZ e
+      have e1 : ((w.val + 1 : ℕ) : ℤ) = (((s.val + 1 : ℕ) : ℤ) - (y.val : ℤ)) + n * e := by
+        push_cast; push_cast at he; linarith
+      rw [e1]
+      exact dvd_add (dvd_sub h1 h2) h3
+    obtain ⟨c, hc⟩ := Int.natCast_dvd_natCast.1 hdv
+    have hc1 : 1 ≤ c := by
+      rcases Nat.eq_zero_or_pos c with h0 | h0
+      · rw [h0] at hc; omega
+      · exact h0
+    have hlam1 : 1 ≤ lam := hlam
+    have hwv : w.val = lam * (c - 1) + (lam - 1) := by
+      have : lam * c = lam * (c - 1) + lam := by
+        rw [← Nat.mul_succ]; congr 1; omega
+      omega
+    have hlt : lam - 1 < n := by
+      have := Nat.le_of_dvd (NeZero.pos n) hn
+      omega
+    have hsub : (w - ((lam - 1 : ℕ) : ZMod n)).val = w.val - (lam - 1) := by
+      rw [ZMod.val_sub (by rw [ZMod.val_natCast_of_lt hlt]; omega), ZMod.val_natCast_of_lt hlt]
+    rw [hsub, hwv]
+    have h1 : lam * (c - 1) + (lam - 1) - (lam - 1) = lam * (c - 1) := by omega
+    rw [h1, Nat.mul_div_cancel_left _ hlam]
+    rw [Nat.mul_add_div hlam, Nat.div_eq_of_lt (by omega)]
+    simp
+
+end Cells
+
 end Balaban.Localization.DecEquiv
