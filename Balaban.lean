@@ -385,6 +385,8 @@ public import Balaban.Localization.DecEquivLat
 public import Balaban.Localization.DecEquivLatBg
 public import Balaban.Localization.DecEquivTerms
 public import Balaban.Localization.DecEquivTranslate
+public import Balaban.Localization.DecEquivAff
+public import Balaban.Localization.LatPairDecBg
 public import Balaban.Localization.DecEquivTranslatePolymer
 public import Balaban.Localization.DecEquivTranslateStep
 public import Balaban.Localization.DecEquivPermute
@@ -2969,6 +2971,17 @@ public import Balaban.Spine.KeptHalfRec
 public import Balaban.Spine.KeptHalfKernels
 public import Balaban.Spine.LFOldD7Support
 public import Balaban.Spine.LFOldD7Rot
+public import Balaban.Spine.LFOldD7RotLoc
+public import Balaban.Spine.LFOldD7Real
+public import Balaban.Spine.LFOldD7RealLoc
+public import Balaban.Spine.LFOldD7Loc
+public import Balaban.Spine.LFOldD7Hist
+public import Balaban.Spine.LFOldD7Reads
+public import Balaban.Spine.LFOldD7Euclid
+public import Balaban.Spine.LFOldD7EuclidLoc
+public import Balaban.Spine.LFOldD7Analytic
+public import Balaban.Spine.LFOldD7AnalyticLoc
+public import Balaban.Spine.LFOldD7AnalyticRec
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
