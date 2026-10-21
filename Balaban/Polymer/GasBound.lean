@@ -9,6 +9,17 @@ With `|β Y| ≤ B₀ e^{-κ'' d(Y)}`, `|τ Z| ≤ e^{-p - h |Z|}` and the entro
 `X` with `|X| ≤ c₁ (1 + d(X))` has `|K(X)| ≤ 3 c₁ e^{-p} e^{-(κ' - 2) d(X)}`
 (`gas_activity_bound`; POLYMER.md §2.6, §3.9 with the corrected constants: the threshold for the
 volume decay `h` is `C + κ'(c₂ + c) + c₁ + 3 + ln K₀''`).
+
+The statements are instances of the bound for the general activation rules of `Gas.lean`
+(`actGasK_activity_bound`), with the summed counts `∑_{Z ∋ b, |Z| = v} a(Z) ≤ K₀''^v e^{-p - h v}`
+of heavy majorants and the entropy of the couplings active for each compatible family:
+
+* `heavy_entropy_weighted`: the heavy entropy from weighted counts (`heavy_entropy` for `ω = 1`);
+* `exp_le_prod_of_mem_cfam`, `exp_mul_prod_le_of_mem_cfam`: the size of a connected admissible
+  family distributed over its members (`gas_family_bound`);
+* `sum_cfam_actGas_le`, `prod_actGas_le`, `cfam_actGas_majorant_le`: the combinatorial part
+  (`sum_cfam_le`, `gas_prod_le`);
+* `sum_cfam_actGas_le_of_counts`, `actGasK_activity_bound` (`gas_activity_bound`).
 -/
 
 @[expose] public section
@@ -25,13 +36,15 @@ section Entropy
 
 variable {B Zt : Type*} [Fintype B] [Fintype Zt] {zs : Zt → Finset B}
 
-/-- The entropy sum of the heavy objects through a block. -/
-theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
-    (hz : ∀ z, (zs z).Nonempty)
+/-- **Heavy entropy from weighted counts.**  If the weights `ω Z` of the heavy objects through
+a block with `v` blocks sum to at most `K₀^v`, then `∑_{Z ∋ b} ω Z e^{-λ |Z|} ≤ e^{-(c₁+2)}` for
+`λ ≥ c₁ + 3 + ln K₀` (`heavy_entropy` is the case `ω = 1`). -/
+theorem heavy_entropy_weighted {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
+    (hz : ∀ z, (zs z).Nonempty) (ω : Zt → ℝ)
     (hcount : ∀ (b : B) (v : ℕ),
-      ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0 ^ v)
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), ω z ≤ K0 ^ v)
     (hlam : c1 + 3 + Real.log K0 ≤ lam) (b : B) :
-    ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), Real.exp (-lam * (zs z).card) ≤
+    ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), ω z * Real.exp (-lam * (zs z).card) ≤
       Real.exp (-(c1 + 2)) := by
   set x : ℝ := K0 * Real.exp (-lam) with hx
   have hK0pos : 0 < K0 := by linarith
@@ -44,7 +57,8 @@ theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
       _ ≤ Real.exp (-(c1 + 3)) := Real.exp_le_exp.mpr (by linarith)
   have he3 : Real.exp (-3) ≤ 1 / 2 := by
     have h3 : (2 : ℝ) ≤ Real.exp 3 := by
-      have := Real.add_one_le_exp (3 : ℝ); linarith
+      have := Real.add_one_le_exp (3 : ℝ)
+      linarith
     rw [Real.exp_neg, ← one_div]
     exact one_div_le_one_div_of_le (by norm_num) h3
   have hx12 : x ≤ 1 / 2 :=
@@ -61,7 +75,7 @@ theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
   rw [← Finset.sum_fiberwise_of_maps_to hg]
   have hinner : ∀ j ∈ Finset.range (Fintype.card B),
       ∑ z ∈ (Finset.univ.filter (fun z => b ∈ zs z)).filter (fun z => (zs z).card - 1 = j),
-        Real.exp (-lam * (zs z).card) ≤ x ^ (j + 1) := by
+        ω z * Real.exp (-lam * (zs z).card) ≤ x ^ (j + 1) := by
     intro j _
     have hset : (Finset.univ.filter (fun z => b ∈ zs z)).filter (fun z => (zs z).card - 1 = j) =
         Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = j + 1) := by
@@ -69,23 +83,28 @@ theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       have := (hz z).card_pos
       constructor
-      · rintro ⟨hb, hj⟩; exact ⟨hb, by omega⟩
-      · rintro ⟨hb, hj⟩; exact ⟨hb, by omega⟩
+      · rintro ⟨hb, hj⟩
+        exact ⟨hb, by omega⟩
+      · rintro ⟨hb, hj⟩
+        exact ⟨hb, by omega⟩
     rw [hset]
     have : ∀ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = j + 1),
-        Real.exp (-lam * (zs z).card) = Real.exp (-lam) ^ (j + 1) := by
+        ω z * Real.exp (-lam * (zs z).card) = ω z * Real.exp (-lam) ^ (j + 1) := by
       intro z hzz
       rw [Finset.mem_filter] at hzz
       rw [hzz.2.2, ← Real.exp_nat_mul]
-      congr 1; push_cast; ring
-    rw [Finset.sum_congr rfl this, Finset.sum_const, nsmul_eq_mul, hx, mul_pow]
+      congr 2
+      push_cast
+      ring
+    rw [Finset.sum_congr rfl this, ← Finset.sum_mul, hx, mul_pow]
     exact mul_le_mul_of_nonneg_right (hcount b (j + 1)) (by positivity)
   refine (Finset.sum_le_sum hinner).trans ?_
   have hgeo : ∑ j ∈ Finset.range (Fintype.card B), x ^ j ≤ (1 - x)⁻¹ :=
     sum_le_hasSum _ (fun i _ => by positivity) (hasSum_geometric_of_lt_one hx0 (by linarith))
   calc ∑ j ∈ Finset.range (Fintype.card B), x ^ (j + 1)
       = x * ∑ j ∈ Finset.range (Fintype.card B), x ^ j := by
-        rw [Finset.mul_sum]; exact Finset.sum_congr rfl (fun j _ => by ring)
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl (fun j _ => by ring)
     _ ≤ x * (1 - x)⁻¹ := mul_le_mul_of_nonneg_left hgeo hx0
     _ ≤ x * 2 := by
         refine mul_le_mul_of_nonneg_left ?_ hx0
@@ -94,11 +113,24 @@ theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
     _ ≤ 2 * Real.exp (-(c1 + 3)) := by linarith
     _ ≤ Real.exp (-(c1 + 2)) := by
         have h1 : Real.exp (-(c1 + 2)) = Real.exp 1 * Real.exp (-(c1 + 3)) := by
-          rw [← Real.exp_add]; congr 1; ring
+          rw [← Real.exp_add]
+          congr 1
+          ring
         rw [h1]
         have := Real.exp_one_gt_d9
         have hp := Real.exp_pos (-(c1 + 3))
         nlinarith
+
+/-- The entropy sum of the heavy objects through a block. -/
+theorem heavy_entropy {K0 c1 lam : ℝ} (hc1 : 0 ≤ c1) (hK0 : 1 ≤ K0)
+    (hz : ∀ z, (zs z).Nonempty)
+    (hcount : ∀ (b : B) (v : ℕ),
+      ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0 ^ v)
+    (hlam : c1 + 3 + Real.log K0 ≤ lam) (b : B) :
+    ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), Real.exp (-lam * (zs z).card) ≤
+      Real.exp (-(c1 + 2)) := by
+  simpa using heavy_entropy_weighted hc1 hK0 hz (fun _ => (1 : ℝ))
+    (fun b v => by simpa using hcount b v) hlam b
 
 end Entropy
 
@@ -226,6 +258,111 @@ theorem sum_gasCs (C : Finset (Yt ⊕ Zt)) (F : Yt ⊕ Zt → ℝ) :
   conv_lhs => rw [← Finset.toLeft_disjSum_toRight (u := C)]
   rw [Finset.sum_disjSum]
 
+end Family
+
+section ActFamily
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {act : Yt → Finset Zt → Prop} {cy : Yt → Finset B} {zs : Zt → Finset B}
+
+omit [Fintype B] in
+/-- **The size of a connected admissible family distributed over its members.**  If the size `d`
+is subadditive over connected admissible families up to `c` per member and `d(Z) ≤ c₂ |Z|`, then
+`e^{κ' d(X)} ≤ ∏_Y e^{κ' (d(Y) + c)} ∏_Z e^{κ' (c₂ + c) |Z|}` for a family with union `X`. -/
+theorem exp_le_prod_of_mem_cfam {A : Finset (Yt ⊕ Zt) → Prop} {d : Finset B → ℝ}
+    {κ' c c2 : ℝ} (hκ' : 0 ≤ κ') (hc : 0 ≤ c) (hz : ∀ z, (zs z).Nonempty)
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → A C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    {X : Finset B} {C : Finset (Yt ⊕ Zt)} (hC : C ∈ Cfam (gasCs cy zs) A X) :
+    Real.exp (κ' * d X) ≤
+      (∏ y ∈ C.toLeft, Real.exp (κ' * (d (cy y) + c))) *
+        ∏ z ∈ C.toRight, Real.exp (κ' * ((c2 + c) * (zs z).card)) := by
+  obtain ⟨hconn, hA, hU⟩ := mem_Cfam.mp hC
+  have h3 := hG3 C hconn hA
+  rw [hU, sum_gasCs] at h3
+  have hcard : (C.card : ℝ) = C.toLeft.card + C.toRight.card := by
+    rw [← Finset.card_toLeft_add_card_toRight (u := C)]
+    push_cast
+    ring
+  rw [hcard] at h3
+  have hc2 : ∀ z, d (zs z) + c ≤ (c2 + c) * (zs z).card := by
+    intro z
+    have h1 : (1 : ℝ) ≤ (zs z).card := by exact_mod_cast (hz z).card_pos
+    have := hzd z
+    nlinarith
+  have hdX : d X ≤ ∑ y ∈ C.toLeft, (d (cy y) + c) +
+      ∑ z ∈ C.toRight, (c2 + c) * (zs z).card := by
+    have e1 : ∑ y ∈ C.toLeft, (d (cy y) + c) = ∑ y ∈ C.toLeft, d (cy y) + C.toLeft.card * c := by
+      rw [Finset.sum_add_distrib]
+      simp
+    have e2 : ∑ z ∈ C.toRight, d (zs z) ≤ ∑ z ∈ C.toRight, ((c2 + c) * (zs z).card - c) :=
+      Finset.sum_le_sum (fun z _ => by linarith [hc2 z])
+    have e3 : ∑ z ∈ C.toRight, ((c2 + c) * (zs z).card - c) =
+        ∑ z ∈ C.toRight, (c2 + c) * (zs z).card - C.toRight.card * c := by
+      rw [Finset.sum_sub_distrib]
+      simp
+    simp only [gasCs_inl, gasCs_inr] at h3
+    nlinarith
+  rw [← Real.exp_sum, ← Real.exp_sum, ← Real.exp_add, ← Finset.mul_sum, ← Finset.mul_sum,
+    ← mul_add]
+  exact Real.exp_le_exp.mpr (mul_le_mul_of_nonneg_left hdX hκ')
+
+omit [Fintype B] in
+/-- **The size distributed over the members of a family, with the coupling majorants**:
+`e^{κ' d(X)} ∏_Y B₀ e^{B₀} e^{-κ'' d(Y)} ∏_Z a(Z) ≤ ∏_Y gasG(Y) ∏_Z e^{κ' (c₂ + c) |Z|} a(Z)` for a
+connected admissible family with union `X`. -/
+theorem exp_mul_prod_le_of_mem_cfam {A : Finset (Yt ⊕ Zt) → Prop} {d : Finset B → ℝ}
+    {B0 κ' κ'' c c2 : ℝ} (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c) (hz : ∀ z, (zs z).Nonempty)
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → A C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    {a : Zt → ℝ} (ha : ∀ z, 0 ≤ a z) {X : Finset B} {C : Finset (Yt ⊕ Zt)}
+    (hC : C ∈ Cfam (gasCs cy zs) A X) :
+    Real.exp (κ' * d X) *
+        ((∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) *
+          ∏ z ∈ C.toRight, a z) ≤
+      (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) *
+        ∏ z ∈ C.toRight, (Real.exp (κ' * ((c2 + c) * (zs z).card)) * a z) := by
+  have hgas : ∀ y, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)) *
+      Real.exp (κ' * (d (cy y) + c)) = gasG cy d B0 κ' κ'' c y := by
+    intro y
+    simp only [gasG]
+    have : Real.exp (-κ'' * d (cy y)) * Real.exp (κ' * (d (cy y) + c)) =
+        Real.exp (κ' * c) * Real.exp (-(κ'' - κ') * d (cy y)) := by
+      rw [← Real.exp_add, ← Real.exp_add]
+      congr 1
+      ring
+    calc B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)) * Real.exp (κ' * (d (cy y) + c))
+        = B0 * Real.exp B0 * (Real.exp (-κ'' * d (cy y)) * Real.exp (κ' * (d (cy y) + c))) := by
+          ring
+      _ = _ := by rw [this]; ring
+  have h1 := exp_le_prod_of_mem_cfam hκ' hc hz hzd hG3 hC
+  calc Real.exp (κ' * d X) *
+        ((∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) *
+          ∏ z ∈ C.toRight, a z)
+      ≤ ((∏ y ∈ C.toLeft, Real.exp (κ' * (d (cy y) + c))) *
+          ∏ z ∈ C.toRight, Real.exp (κ' * ((c2 + c) * (zs z).card))) *
+        ((∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) *
+          ∏ z ∈ C.toRight, a z) :=
+        mul_le_mul_of_nonneg_right h1
+          (mul_nonneg (Finset.prod_nonneg (fun y _ => by positivity))
+            (Finset.prod_nonneg (fun z _ => ha z)))
+    _ = (∏ y ∈ C.toLeft, (B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)) *
+          Real.exp (κ' * (d (cy y) + c)))) *
+          ∏ z ∈ C.toRight, (Real.exp (κ' * ((c2 + c) * (zs z).card)) * a z) := by
+        simp only [Finset.prod_mul_distrib]
+        ring
+    _ = _ := by simp only [hgas]
+
+end ActFamily
+
+section FamilyBound
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {cy : Yt → Finset B} {zs cr : Zt → Finset B} {β : Yt → ℂ} {τ : Zt → ℂ}
+  {d : Finset B → ℝ} {B0 κ' κ'' c c2 p h : ℝ}
+
 omit [Fintype B] in
 theorem gas_family_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c)
     (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
@@ -238,69 +375,26 @@ theorem gas_family_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ
     (hC : C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X) :
     Real.exp (κ' * d X) * ‖∏ t ∈ C, gasW β τ t‖ ≤
       (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, gasAz zs κ' c c2 p h z := by
-  obtain ⟨hconn, hA, hU⟩ := mem_Cfam.mp hC
-  have h3 := hG3 C hconn hA
-  rw [hU, sum_gasCs] at h3
-  have hcard : (C.card : ℝ) = C.toLeft.card + C.toRight.card := by
-    rw [← Finset.card_toLeft_add_card_toRight (u := C)]; push_cast; ring
-  rw [hcard] at h3
-  have hc2 : ∀ z, d (zs z) + c ≤ (c2 + c) * (zs z).card := by
-    intro z
-    have h1 : (1 : ℝ) ≤ (zs z).card := by exact_mod_cast (hz z).card_pos
-    have := hzd z
-    nlinarith
-  have hdX : d X ≤ ∑ y ∈ C.toLeft, (d (cy y) + c) +
-      ∑ z ∈ C.toRight, (c2 + c) * (zs z).card := by
-    have e1 : ∑ y ∈ C.toLeft, (d (cy y) + c) = ∑ y ∈ C.toLeft, d (cy y) + C.toLeft.card * c := by
-      rw [Finset.sum_add_distrib]; simp
-    have e2 : ∑ z ∈ C.toRight, d (zs z) ≤ ∑ z ∈ C.toRight, ((c2 + c) * (zs z).card - c) :=
-      Finset.sum_le_sum (fun z _ => by linarith [hc2 z])
-    have e3 : ∑ z ∈ C.toRight, ((c2 + c) * (zs z).card - c) =
-        ∑ z ∈ C.toRight, (c2 + c) * (zs z).card - C.toRight.card * c := by
-      rw [Finset.sum_sub_distrib]; simp
-    simp only [gasCs_inl, gasCs_inr] at h3
-    nlinarith
-  have hexp : Real.exp (κ' * d X) ≤
-      (∏ y ∈ C.toLeft, Real.exp (κ' * (d (cy y) + c))) *
-        ∏ z ∈ C.toRight, Real.exp (κ' * ((c2 + c) * (zs z).card)) := by
-    rw [← Real.exp_sum, ← Real.exp_sum, ← Real.exp_add, ← Finset.mul_sum, ← Finset.mul_sum,
-      ← mul_add]
-    exact Real.exp_le_exp.mpr (mul_le_mul_of_nonneg_left hdX hκ')
-  rw [prod_gasW, norm_mul, norm_prod, norm_prod]
-  calc Real.exp (κ' * d X) * ((∏ y ∈ C.toLeft, ‖Complex.exp (β y) - 1‖) *
-        ∏ z ∈ C.toRight, ‖τ z‖)
-      ≤ ((∏ y ∈ C.toLeft, Real.exp (κ' * (d (cy y) + c))) *
-        ∏ z ∈ C.toRight, Real.exp (κ' * ((c2 + c) * (zs z).card))) *
-        ((∏ y ∈ C.toLeft, ‖Complex.exp (β y) - 1‖) * ∏ z ∈ C.toRight, ‖τ z‖) := by
-        gcongr
-    _ = (∏ y ∈ C.toLeft, (Real.exp (κ' * (d (cy y) + c)) * ‖Complex.exp (β y) - 1‖)) *
-        ∏ z ∈ C.toRight, (Real.exp (κ' * ((c2 + c) * (zs z).card)) * ‖τ z‖) := by
-        rw [Finset.prod_mul_distrib, Finset.prod_mul_distrib]; ring
-    _ ≤ _ := by
-        refine mul_le_mul (Finset.prod_le_prod₀ (fun y _ => by positivity) (fun y _ => ?_))
-          (Finset.prod_le_prod₀ (fun z _ => by positivity) (fun z _ => ?_))
-          (Finset.prod_nonneg (fun z _ => by positivity))
-          (Finset.prod_nonneg (fun y _ => gasG_nonneg hB0 y))
-        · have := norm_expm1_le hB0 (hκ'.trans hκ'') hd y (hB y)
-          unfold gasG
-          calc Real.exp (κ' * (d (cy y) + c)) * ‖Complex.exp (β y) - 1‖
-              ≤ Real.exp (κ' * (d (cy y) + c)) *
-                (B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) := by gcongr
-            _ = _ := by
-              have : Real.exp (κ' * (d (cy y) + c)) * Real.exp (-κ'' * d (cy y)) =
-                  Real.exp (κ' * c) * Real.exp (-(κ'' - κ') * d (cy y)) := by
-                rw [← Real.exp_add, ← Real.exp_add]; congr 1; ring
-              calc Real.exp (κ' * (d (cy y) + c)) * (B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)))
-                  = B0 * Real.exp B0 * (Real.exp (κ' * (d (cy y) + c)) *
-                      Real.exp (-κ'' * d (cy y))) := by ring
-                _ = _ := by rw [this]; ring
-        · unfold gasAz
-          calc Real.exp (κ' * ((c2 + c) * (zs z).card)) * ‖τ z‖
-              ≤ Real.exp (κ' * ((c2 + c) * (zs z).card)) * Real.exp (-p - h * (zs z).card) := by
-                gcongr; exact hτ z
-            _ = _ := by rw [← Real.exp_add]; congr 1; ring
+  have h1 : ‖∏ t ∈ C, gasW β τ t‖ ≤
+      (∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) *
+        ∏ z ∈ C.toRight, Real.exp (-p - h * (zs z).card) := by
+    rw [prod_gasW, norm_mul, norm_prod, norm_prod]
+    exact mul_le_mul (Finset.prod_le_prod₀ (fun y _ => norm_nonneg _)
+        (fun y _ => norm_expm1_le hB0 (hκ'.trans hκ'') hd y (hB y)))
+      (Finset.prod_le_prod₀ (fun z _ => norm_nonneg _) (fun z _ => hτ z))
+      (Finset.prod_nonneg (fun z _ => norm_nonneg _))
+      (Finset.prod_nonneg (fun y _ => by positivity))
+  refine (mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le).trans ?_
+  refine (exp_mul_prod_le_of_mem_cfam hB0 hκ' hc hz hzd hG3 (fun _ => (Real.exp_pos _).le)
+    hC).trans_eq ?_
+  congr 1
+  refine Finset.prod_congr rfl (fun z _ => ?_)
+  unfold gasAz
+  rw [← Real.exp_add]
+  congr 1
+  ring
 
-end Family
+end FamilyBound
 
 section Cover
 
@@ -340,30 +434,46 @@ variable (zs) in
 /-- The heavy objects supported in `X`. -/
 def gasZsub (X : Finset B) : Finset Zt := Finset.univ.filter (fun z => zs z ⊆ X)
 
+end Sum
+
+section ActSum
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {act : Yt → Finset Zt → Prop} {cy : Yt → Finset B} {zs : Zt → Finset B}
+
 omit [Fintype B] in
-theorem sum_cfam_le (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (ha : ∀ z, 0 ≤ a z)
-    (X : Finset B) :
-    ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z ≤
-      ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅,
-        (∏ z ∈ Γ, a z) * ∏ y ∈ gasYm cy cr Γ, (1 + g y) := by
+/-- The sum over the connected admissible families with union `X` of products of nonnegative
+majorants is at most the sum over the nonempty compatible families `Γ` of heavy objects inside `X`
+of `∏_Γ a` times the product of `1 + g` over the couplings active for `Γ`. -/
+theorem sum_cfam_actGas_le (hne : ∀ y Γ, act y Γ → Γ.Nonempty)
+    (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (ha : ∀ z, 0 ≤ a z) (X : Finset B) :
+    ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z ≤
+      ∑ Γ ∈ (((gasZsub zs X).powerset).erase ∅).filter
+          (fun Γ => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')),
+        (∏ z ∈ Γ, a z) * ∏ y ∈ Finset.univ.filter (fun y => act y Γ), (1 + g y) := by
   set 𝒮 : Finset (Σ _ : Finset Zt, Finset Yt) :=
-    (((gasZsub zs X).powerset).erase ∅).sigma (fun Γ => (gasYm cy cr Γ).powerset) with h𝒮
+    ((((gasZsub zs X).powerset).erase ∅).filter
+      (fun Γ => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z'))).sigma
+      (fun Γ => (Finset.univ.filter (fun y => act y Γ)).powerset) with h𝒮
   set ψ : (Σ _ : Finset Zt, Finset Yt) → Finset (Yt ⊕ Zt) := fun x => x.2.disjSum x.1 with hψ
-  have hsub : Cfam (gasCs cy zs) (gasA cy zs cr) X ⊆ 𝒮.image ψ := by
+  have hsub : Cfam (gasCs cy zs) (actGasA act zs) X ⊆ 𝒮.image ψ := by
     intro C hC
     obtain ⟨hconn, hA, hU⟩ := mem_Cfam.mp hC
     rw [Finset.mem_image]
     refine ⟨⟨C.toRight, C.toLeft⟩, ?_, ?_⟩
-    · rw [h𝒮, Finset.mem_sigma, Finset.mem_erase, Finset.mem_powerset, Finset.mem_powerset]
-      refine ⟨⟨?_, ?_⟩, ?_⟩
+    · rw [h𝒮, Finset.mem_sigma, Finset.mem_filter, Finset.mem_erase, Finset.mem_powerset,
+        Finset.mem_powerset]
+      refine ⟨⟨⟨?_, ?_⟩, hA.1⟩, ?_⟩
       · intro hR0
         have hR : C.toRight = ∅ := hR0
         have hL : C.toLeft = ∅ := by
           refine Finset.eq_empty_of_forall_notMem (fun y hy => ?_)
-          obtain ⟨z, hz, _⟩ := hA.2 y hy
-          rw [hR] at hz; simp at hz
+          obtain ⟨z, hz⟩ := hne y _ (hA.2 y hy)
+          rw [hR] at hz
+          simp at hz
         have : C = ∅ := by
-          rw [← Finset.toLeft_disjSum_toRight (u := C), hL, hR]; rfl
+          rw [← Finset.toLeft_disjSum_toRight (u := C), hL, hR]
+          rfl
         exact Finset.not_nonempty_empty (this ▸ hconn.1)
       · intro z hz
         simp only [gasZsub, Finset.mem_filter, Finset.mem_univ, true_and]
@@ -371,18 +481,17 @@ theorem sum_cfam_le (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (h
         have := Finset.subset_biUnion_of_mem (gasCs cy zs) (Finset.mem_toRight.mp hz)
         simpa [unionCs] using this
       · intro y hy
-        obtain ⟨z, hz, hnd⟩ := hA.2 y hy
-        simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and]
-        exact fun hd => hnd (Finset.disjoint_of_subset_right
-          (Finset.subset_biUnion_of_mem cr hz) hd)
+        exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hA.2 y hy⟩
     · simp [hψ, Finset.toLeft_disjSum_toRight]
   have hinj : Set.InjOn ψ (𝒮 : Set _) := by
     rintro ⟨Γ, Dy⟩ _ ⟨Γ', Dy'⟩ _ hxy
     have h1 := congrArg Finset.toLeft hxy
     have h2 := congrArg Finset.toRight hxy
     simp only [hψ, Finset.toLeft_disjSum, Finset.toRight_disjSum] at h1 h2
-    subst h1; subst h2; rfl
-  calc ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z
+    subst h1
+    subst h2
+    rfl
+  calc ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z
       ≤ ∑ C ∈ 𝒮.image ψ, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z :=
         Finset.sum_le_sum_of_subset_of_nonneg hsub (fun C _ _ =>
           mul_nonneg (Finset.prod_nonneg (fun y _ => hg y)) (Finset.prod_nonneg (fun z _ => ha z)))
@@ -390,14 +499,314 @@ theorem sum_cfam_le (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (h
         rw [Finset.sum_image hinj]
         refine Finset.sum_congr rfl (fun x _ => ?_)
         simp [hψ]
-    _ = ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅, ∑ Dy ∈ (gasYm cy cr Γ).powerset,
-          (∏ y ∈ Dy, g y) * ∏ z ∈ Γ, a z := by
+    _ = ∑ Γ ∈ (((gasZsub zs X).powerset).erase ∅).filter
+          (fun Γ => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')),
+          ∑ Dy ∈ (Finset.univ.filter (fun y => act y Γ)).powerset,
+            (∏ y ∈ Dy, g y) * ∏ z ∈ Γ, a z := by
         rw [h𝒮, Finset.sum_sigma']
     _ = _ := by
         refine Finset.sum_congr rfl (fun Γ _ => ?_)
         rw [← Finset.sum_mul, ← Finset.prod_one_add, mul_comm]
 
-end Sum
+omit [Fintype B] [Fintype Zt] in
+/-- The product of `1 + g` over the couplings active for `Γ` is at most `e^{Cc ∑_Γ |Z|}` when the
+active couplings through every block have entropy `Cc`. -/
+theorem prod_actGas_le (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (g : Yt → ℝ) (hg : ∀ y, 0 ≤ g y) {Cc : ℝ} (hCc : 0 ≤ Cc) (Γ : Finset Zt)
+    (hent : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y), g y ≤ Cc) :
+    ∏ y ∈ Finset.univ.filter (fun y => act y Γ), (1 + g y) ≤
+      Real.exp (Cc * ∑ z ∈ Γ, ((zs z).card : ℝ)) := by
+  refine (Real.prod_one_add_le_exp_sum _ hg).trans (Real.exp_le_exp.mpr ?_)
+  set f : Yt → ℝ := fun y => if act y Γ then g y else 0 with hf
+  have hf0 : ∀ y, 0 ≤ f y := fun y => by
+    simp only [hf]
+    split_ifs
+    · exact hg y
+    · exact le_rfl
+  have hcov := sum_le_sum_cover (Finset.univ.filter (fun y => act y Γ)) cy (Γ.biUnion zs) f hf0
+    (fun y hy => by
+      obtain ⟨z, hz, hnd⟩ := hmeet y Γ (Finset.mem_filter.mp hy).2
+      obtain ⟨b, hb1, hb2⟩ := Finset.not_disjoint_iff.mp hnd
+      exact ⟨b, Finset.mem_biUnion.mpr ⟨z, hz, hb2⟩, hb1⟩)
+  have hfs : ∑ y ∈ Finset.univ.filter (fun y => act y Γ), g y =
+      ∑ y ∈ Finset.univ.filter (fun y => act y Γ), f y :=
+    Finset.sum_congr rfl (fun y hy => by
+      simp [hf, (Finset.mem_filter.mp hy).2])
+  have hin : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), f y ≤ Cc := by
+    intro b
+    refine le_of_eq_of_le ?_ (hent b)
+    rw [Finset.sum_filter, Finset.sum_filter]
+    refine Finset.sum_congr rfl (fun y _ => ?_)
+    by_cases h1 : act y Γ <;> by_cases h2 : b ∈ cy y <;> simp [hf, h1, h2]
+  calc ∑ y ∈ Finset.univ.filter (fun y => act y Γ), g y
+      ≤ ∑ b ∈ Γ.biUnion zs, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), f y := hfs ▸ hcov
+    _ ≤ ∑ _b ∈ Γ.biUnion zs, Cc := Finset.sum_le_sum (fun b _ => hin b)
+    _ = ((Γ.biUnion zs).card : ℝ) * Cc := by rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ (∑ z ∈ Γ, ((zs z).card : ℝ)) * Cc := by
+        refine mul_le_mul_of_nonneg_right ?_ hCc
+        exact_mod_cast Finset.card_biUnion_le
+    _ = Cc * ∑ z ∈ Γ, ((zs z).card : ℝ) := mul_comm _ _
+
+omit [Fintype B] in
+/-- **The combinatorial part of the activity bound.**  For nonnegative majorants `g` of the
+couplings and `a` of the heavy objects, if the couplings active for every compatible family have
+entropy `Cc` through every block and the heavy objects through every block satisfy
+`∑ a e^{Cc |Z|} ≤ η`, the sum over the connected admissible families with union `X` of `∏ g ∏ a`
+is at most `exp(|X| η) - 1`. -/
+theorem cfam_actGas_majorant_le (hz : ∀ z, (zs z).Nonempty)
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (ha : ∀ z, 0 ≤ a z) {Cc η : ℝ}
+    (hCc : 0 ≤ Cc)
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y), g y ≤ Cc)
+    (hheavy : ∀ b : B, ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z),
+      a z * Real.exp (Cc * (zs z).card) ≤ η)
+    (X : Finset B) :
+    ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z ≤
+      Real.exp (X.card * η) - 1 := by
+  set ζ : Zt → ℝ := fun z => a z * Real.exp (Cc * (zs z).card) with hζ
+  have hζ0 : ∀ z, 0 ≤ ζ z := fun z => mul_nonneg (ha z) (Real.exp_pos _).le
+  have h1 := sum_cfam_actGas_le (cy := cy) (zs := zs)
+    (fun y Γ h => (hmeet y Γ h).elim fun z hz => ⟨z, hz.1⟩) g a hg ha X
+  have h2 : ∀ Γ ∈ (((gasZsub zs X).powerset).erase ∅).filter
+      (fun Γ => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')),
+      (∏ z ∈ Γ, a z) * ∏ y ∈ Finset.univ.filter (fun y => act y Γ), (1 + g y) ≤
+        ∏ z ∈ Γ, ζ z := by
+    intro Γ hΓ
+    calc (∏ z ∈ Γ, a z) * ∏ y ∈ Finset.univ.filter (fun y => act y Γ), (1 + g y)
+        ≤ (∏ z ∈ Γ, a z) * Real.exp (Cc * ∑ z ∈ Γ, ((zs z).card : ℝ)) :=
+          mul_le_mul_of_nonneg_left
+            (prod_actGas_le hmeet g hg hCc Γ (hent Γ (Finset.mem_filter.mp hΓ).2))
+            (Finset.prod_nonneg (fun z _ => ha z))
+      _ = ∏ z ∈ Γ, ζ z := by
+          rw [Finset.mul_sum, Real.exp_sum, ← Finset.prod_mul_distrib]
+  have h3 : ∑ Γ ∈ (((gasZsub zs X).powerset).erase ∅).filter
+      (fun Γ => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')), ∏ z ∈ Γ, ζ z ≤
+        ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅, ∏ z ∈ Γ, ζ z :=
+    Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
+      (fun Γ _ _ => Finset.prod_nonneg (fun z _ => hζ0 z))
+  have h4 := sum_powerset_erase_le ζ hζ0 (gasZsub zs X)
+  have h5 : ∑ z ∈ gasZsub zs X, ζ z ≤ X.card * η := by
+    refine (sum_le_sum_cover (gasZsub zs X) zs X ζ hζ0 (fun z hz' => ?_)).trans ?_
+    · obtain ⟨b, hb⟩ := hz z
+      simp only [gasZsub, Finset.mem_filter, Finset.mem_univ, true_and] at hz'
+      exact ⟨b, hz' hb, hb⟩
+    · calc ∑ b ∈ X, ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), ζ z
+          ≤ ∑ _b ∈ X, η := Finset.sum_le_sum (fun b _ => hheavy b)
+        _ = X.card * η := by rw [Finset.sum_const, nsmul_eq_mul]
+  have h6 := Real.exp_le_exp.mpr h5
+  linarith [(Finset.sum_le_sum h2).trans h3]
+
+end ActSum
+
+section SumLe
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {cy : Yt → Finset B} {zs cr : Zt → Finset B}
+
+omit [Fintype B] in
+theorem sum_cfam_le (g : Yt → ℝ) (a : Zt → ℝ) (hg : ∀ y, 0 ≤ g y) (ha : ∀ z, 0 ≤ a z)
+    (X : Finset B) :
+    ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X, (∏ y ∈ C.toLeft, g y) * ∏ z ∈ C.toRight, a z ≤
+      ∑ Γ ∈ ((gasZsub zs X).powerset).erase ∅,
+        (∏ z ∈ Γ, a z) * ∏ y ∈ gasYm cy cr Γ, (1 + g y) := by
+  have hset : ∀ Γ : Finset Zt,
+      Finset.univ.filter (fun y => coreAct cy cr y Γ) = gasYm cy cr Γ := by
+    intro Γ
+    ext y
+    simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and]
+    simp [coreAct, Finset.disjoint_biUnion_right]
+  refine (sum_cfam_actGas_le (act := coreAct cy cr) (fun y Γ h => ?_) g a hg ha X).trans ?_
+  · obtain ⟨z, hz, _⟩ := h
+    exact ⟨z, hz⟩
+  · simp only [hset]
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) (fun Γ _ _ =>
+      mul_nonneg (Finset.prod_nonneg (fun z _ => ha z))
+        (Finset.prod_nonneg (fun y _ => by linarith [hg y])))
+
+end SumLe
+
+section ActMain
+
+variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
+  {act : Yt → Finset Zt → Prop} {cy : Yt → Finset B} {zs : Zt → Finset B}
+
+omit [Fintype B] [Fintype Zt] in
+/-- The entropy of all the couplings through a block bounds that of the active ones. -/
+theorem sum_filter_act_le {f : Yt → ℝ} {K : ℝ} (hf : ∀ y, 0 ≤ f y)
+    (hent : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), f y ≤ K)
+    (Γ : Finset Zt) (b : B) :
+    ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y), f y ≤ K :=
+  le_trans (Finset.sum_le_sum_of_subset_of_nonneg
+    (fun _ hy => Finset.mem_filter.mpr ⟨Finset.mem_univ _, (Finset.mem_filter.mp hy).2.2⟩)
+    (fun y _ _ => hf y)) (hent b)
+
+omit [Fintype B] [Fintype Yt] in
+/-- Unweighted counts with a uniform bound give the summed counts. -/
+theorem sum_filter_le_of_count {a : Zt → ℝ} {p h K0 : ℝ}
+    (ha : ∀ z, a z ≤ Real.exp (-p - h * (zs z).card))
+    (hcount : ∀ (b : B) (v : ℕ),
+      ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0 ^ v)
+    (b : B) (v : ℕ) :
+    ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), a z ≤
+      K0 ^ v * Real.exp (-p - h * v) := by
+  calc ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), a z
+      ≤ ∑ _z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v),
+          Real.exp (-p - h * v) := by
+        refine Finset.sum_le_sum (fun z hz => ?_)
+        have := (Finset.mem_filter.mp hz).2.2
+        exact (ha z).trans_eq (by rw [this])
+    _ = ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) *
+          Real.exp (-p - h * v) := by rw [Finset.sum_const, nsmul_eq_mul]
+    _ ≤ K0 ^ v * Real.exp (-p - h * v) :=
+        mul_le_mul_of_nonneg_right (hcount b v) (Real.exp_pos _).le
+
+/-- **The activity bound with weighted counts (scalar core).**  For heavy majorants `a ≥ 0` whose
+sums over the heavy objects through a block with `v` blocks are at most `K₀''^v e^{-p - h v}`, if the
+couplings active for every compatible family satisfy `∑_{Y ∋ b} e^{-(κ'' - κ') d(Y)} ≤ K₀'`, then
+`∑_{C ∈ Cfam X} ∏_Y B₀ e^{B₀} e^{-κ'' d(Y)} ∏_Z a(Z) ≤ 3 c₁ e^{-p} e^{-(κ' - 2) d(X)}` for
+`|X| ≤ c₁ (1 + d(X))`, provided `h ≥ B₀ e^{B₀} e^{κ' c} K₀' + κ' (c₂ + c) + c₁ + 3 + ln K₀''`. -/
+theorem sum_cfam_actGas_le_of_counts {d : Finset B → ℝ} {B0 κ' κ'' c c1 c2 p h K0' K0'' : ℝ}
+    (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c) (hc1 : 0 ≤ c1) (hp : 0 ≤ p)
+    (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (a : Zt → ℝ) (ha : ∀ z, 0 ≤ a z)
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → actGasA act zs C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    (hK0' : 0 ≤ K0')
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0')
+    (hK1 : 1 ≤ K0'')
+    (hcount : ∀ (b : B) (v : ℕ),
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), a z ≤
+        K0'' ^ v * Real.exp (-p - h * v))
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 +
+      Real.log K0'' ≤ h)
+    (X : Finset B) (hG1 : (X.card : ℝ) ≤ c1 * (1 + d X)) :
+    ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X,
+        (∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) * ∏ z ∈ C.toRight, a z ≤
+      3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X) := by
+  set Cc : ℝ := B0 * Real.exp B0 * Real.exp (κ' * c) * K0' with hCc
+  set lam : ℝ := h - κ' * (c2 + c) - Cc with hlam
+  have hlam' : c1 + 3 + Real.log K0'' ≤ lam := by
+    rw [hlam]
+    linarith
+  have hCc0 : 0 ≤ Cc := by positivity
+  set a' : Zt → ℝ := fun z => Real.exp (κ' * ((c2 + c) * (zs z).card)) * a z with ha'
+  -- the size distributed over the members of each family
+  have hterm : ∀ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X,
+      Real.exp (κ' * d X) *
+          ((∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) *
+            ∏ z ∈ C.toRight, a z) ≤
+        (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, a' z :=
+    fun C hC => exp_mul_prod_le_of_mem_cfam hB0 hκ' hc hz hzd hG3 ha hC
+  -- the entropy of the couplings
+  have hent' : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        gasG cy d B0 κ' κ'' c y ≤ Cc := by
+    intro Γ hΓ b
+    simp only [gasG]
+    rw [← Finset.mul_sum]
+    exact mul_le_mul_of_nonneg_left (hent Γ hΓ b) (by positivity)
+  -- the entropy of the heavy objects
+  have hcountω : ∀ (b : B) (v : ℕ), ∑ z ∈ Finset.univ.filter
+      (fun z => b ∈ zs z ∧ (zs z).card = v), Real.exp (p + h * (zs z).card) * a z ≤ K0'' ^ v := by
+    intro b v
+    calc ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v),
+          Real.exp (p + h * (zs z).card) * a z
+        = Real.exp (p + h * v) *
+            ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), a z := by
+          rw [Finset.mul_sum]
+          refine Finset.sum_congr rfl (fun z hz => ?_)
+          rw [(Finset.mem_filter.mp hz).2.2]
+      _ ≤ Real.exp (p + h * v) * (K0'' ^ v * Real.exp (-p - h * v)) :=
+          mul_le_mul_of_nonneg_left (hcount b v) (Real.exp_pos _).le
+      _ = K0'' ^ v := by
+          rw [mul_comm, mul_assoc, ← Real.exp_add]
+          simp
+  have hheavy : ∀ b : B, ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z),
+      a' z * Real.exp (Cc * (zs z).card) ≤ Real.exp (-p) * Real.exp (-(c1 + 2)) := by
+    intro b
+    calc ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), a' z * Real.exp (Cc * (zs z).card)
+        = Real.exp (-p) * ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z),
+            Real.exp (p + h * (zs z).card) * a z * Real.exp (-lam * (zs z).card) := by
+          rw [Finset.mul_sum]
+          refine Finset.sum_congr rfl (fun z _ => ?_)
+          simp only [ha']
+          have : Real.exp (κ' * ((c2 + c) * (zs z).card)) * Real.exp (Cc * (zs z).card) =
+              Real.exp (-p) * Real.exp (p + h * (zs z).card) * Real.exp (-lam * (zs z).card) := by
+            rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add]
+            congr 1
+            rw [hlam]
+            ring
+          calc Real.exp (κ' * ((c2 + c) * (zs z).card)) * a z * Real.exp (Cc * (zs z).card)
+              = (Real.exp (κ' * ((c2 + c) * (zs z).card)) * Real.exp (Cc * (zs z).card)) * a z := by
+                ring
+            _ = _ := by rw [this]; ring
+      _ ≤ Real.exp (-p) * Real.exp (-(c1 + 2)) :=
+          mul_le_mul_of_nonneg_left (heavy_entropy_weighted hc1 hK1 hz _ hcountω hlam' b)
+            (Real.exp_pos _).le
+  have h2 := cfam_actGas_majorant_le hz hmeet (gasG cy d B0 κ' κ'' c) a' (gasG_nonneg hB0)
+    (fun z => mul_nonneg (Real.exp_pos _).le (ha z)) hCc0 hent' hheavy X
+  have h3 := gas_real_bound (p := p) (c1 := c1) (D := d X) (n := (X.card : ℝ)) hp hc1 (hd _)
+    (Nat.cast_nonneg _) hG1
+  set S := ∑ C ∈ Cfam (gasCs cy zs) (actGasA act zs) X,
+    (∏ y ∈ C.toLeft, B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y))) * ∏ z ∈ C.toRight, a z
+    with hS
+  have h4 : Real.exp (κ' * d X) * S ≤ 3 * c1 * Real.exp (-p) * Real.exp (2 * d X) := by
+    rw [hS, Finset.mul_sum]
+    exact ((Finset.sum_le_sum hterm).trans h2).trans (by linarith)
+  have e : Real.exp (-κ' * d X) * Real.exp (κ' * d X) = 1 := by
+    rw [← Real.exp_add]
+    simp
+  calc S = Real.exp (-κ' * d X) * (Real.exp (κ' * d X) * S) := by rw [← mul_assoc, e, one_mul]
+    _ ≤ Real.exp (-κ' * d X) * (3 * c1 * Real.exp (-p) * Real.exp (2 * d X)) :=
+        mul_le_mul_of_nonneg_left h4 (Real.exp_pos _).le
+    _ = 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X) := by
+        have : Real.exp (-κ' * d X) * Real.exp (2 * d X) = Real.exp (-(κ' - 2) * d X) := by
+          rw [← Real.exp_add]
+          congr 1
+          ring
+        rw [← this]
+        ring
+
+/-- **GAS with a general activation rule (activity bound)**: with couplings bounded by
+`B₀ e^{-κ'' d(Y)}` and heavy weights with the summed counts
+`∑_{Z ∋ b, |Z| = v} |τ Z| ≤ K₀''^v e^{-p - h v}`, the activities satisfy
+`|K(X)| ≤ 3 c₁ e^{-p} e^{-(κ' - 2) d(X)}` for `|X| ≤ c₁ (1 + d(X))`. -/
+theorem actGasK_activity_bound {β : Yt → ℂ} {τ : Zt → ℂ} {d : Finset B → ℝ}
+    {B0 κ' κ'' c c1 c2 p h K0' K0'' : ℝ}
+    (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c) (hc1 : 0 ≤ c1) (hp : 0 ≤ p)
+    (hd : ∀ Y, 0 ≤ d Y) (hz : ∀ z, (zs z).Nonempty)
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (zs z))
+    (hB : ∀ y, ‖β y‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
+    (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → actGasA act zs C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    (hK0' : 0 ≤ K0')
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0')
+    (hK1 : 1 ≤ K0'')
+    (hcount : ∀ (b : B) (v : ℕ),
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v), ‖τ z‖ ≤
+        K0'' ^ v * Real.exp (-p - h * v))
+    (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 +
+      Real.log K0'' ≤ h)
+    (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
+    ‖actGasK act cy zs β τ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) := by
+  refine le_trans ?_ (sum_cfam_actGas_le_of_counts hB0 hκ' hc hc1 hp hd hz hmeet (fun z => ‖τ z‖)
+    (fun z => norm_nonneg _) hzd hG3 hK0' hent hK1 hcount hh X.1 hG1)
+  unfold actGasK polyAct
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum (fun C _ => ?_))
+  rw [prod_gasW, norm_mul, norm_prod, norm_prod]
+  exact mul_le_mul_of_nonneg_right (Finset.prod_le_prod₀ (fun y _ => norm_nonneg _)
+    (fun y _ => norm_expm1_le hB0 (hκ'.trans hκ'') hd y (hB y)))
+    (Finset.prod_nonneg (fun z _ => norm_nonneg _))
+
+end ActMain
 
 section Main
 
@@ -411,32 +820,17 @@ theorem gas_prod_le (hB0 : 0 ≤ B0) {K0' : ℝ} (hK0' : 0 ≤ K0') (hcr : ∀ z
       Real.exp (-(κ'' - κ') * d (cy y)) ≤ K0') (Γ : Finset Zt) :
     ∏ y ∈ gasYm cy cr Γ, (1 + gasG cy d B0 κ' κ'' c y) ≤
       Real.exp (B0 * Real.exp B0 * Real.exp (κ' * c) * K0' * ∑ z ∈ Γ, ((zs z).card : ℝ)) := by
-  refine (Real.prod_one_add_le_exp_sum _ (gasG_nonneg hB0)).trans (Real.exp_le_exp.mpr ?_)
-  have hcov := sum_le_sum_cover (gasYm cy cr Γ) cy (Γ.biUnion cr) (gasG cy d B0 κ' κ'' c)
-    (gasG_nonneg hB0) (fun y hy => by
-      simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and] at hy
-      obtain ⟨b, hb1, hb2⟩ := Finset.not_disjoint_iff.mp hy
-      exact ⟨b, hb2, hb1⟩)
-  refine hcov.trans ?_
-  have hCc : 0 ≤ B0 * Real.exp B0 * Real.exp (κ' * c) * K0' := by positivity
-  have hin : ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), gasG cy d B0 κ' κ'' c y ≤
-      B0 * Real.exp B0 * Real.exp (κ' * c) * K0' := by
-    intro b
-    unfold gasG
-    rw [← Finset.mul_sum]
-    exact mul_le_mul_of_nonneg_left (hent b) (by positivity)
-  calc ∑ b ∈ Γ.biUnion cr, ∑ y ∈ Finset.univ.filter (fun y => b ∈ cy y), gasG cy d B0 κ' κ'' c y
-      ≤ ∑ b ∈ Γ.biUnion cr, B0 * Real.exp B0 * Real.exp (κ' * c) * K0' :=
-        Finset.sum_le_sum (fun b _ => hin b)
-    _ = ((Γ.biUnion cr).card : ℝ) * (B0 * Real.exp B0 * Real.exp (κ' * c) * K0') := by
-        rw [Finset.sum_const, nsmul_eq_mul]
-    _ ≤ (∑ z ∈ Γ, ((zs z).card : ℝ)) * (B0 * Real.exp B0 * Real.exp (κ' * c) * K0') := by
-        refine mul_le_mul_of_nonneg_right ?_ hCc
-        have h1 : (Γ.biUnion cr).card ≤ ∑ z ∈ Γ, (cr z).card := Finset.card_biUnion_le
-        have h2 : ∑ z ∈ Γ, (cr z).card ≤ ∑ z ∈ Γ, (zs z).card :=
-          Finset.sum_le_sum (fun z _ => Finset.card_le_card (hcr z))
-        exact_mod_cast h1.trans h2
-    _ = _ := by ring
+  have hset : gasYm cy cr Γ = Finset.univ.filter (fun y => coreAct cy cr y Γ) := by
+    ext y
+    simp only [gasYm, Finset.mem_filter, Finset.mem_univ, true_and]
+    simp [coreAct, Finset.disjoint_biUnion_right]
+  rw [hset]
+  refine prod_actGas_le (coreAct_meets (fun _ => Finset.Subset.rfl) hcr) _ (gasG_nonneg hB0)
+    (by positivity) Γ (fun b => ?_)
+  simp only [gasG]
+  rw [← Finset.mul_sum]
+  exact mul_le_mul_of_nonneg_left (sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b)
+    (by positivity)
 
 /-- **GAS (activity bound)**.  The activities of the polymer gas of `gas_eq` satisfy
 `|K(X)| ≤ 3 c₁ e^{-p} e^{-(κ' - 2) d(X)}` for the polymers with `|X| ≤ c₁ (1 + d(X))`, provided the
@@ -458,78 +852,11 @@ theorem gas_activity_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ 
       ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0'' ^ v)
     (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 + Real.log K0'' ≤ h)
     (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
-    ‖gasK cy zs cr β τ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) := by
-  set Cc : ℝ := B0 * Real.exp B0 * Real.exp (κ' * c) * K0' with hCc
-  set lam : ℝ := h - κ' * (c2 + c) - Cc with hlam
-  have hlam' : c1 + 3 + Real.log K0'' ≤ lam := by rw [hlam]; linarith
-  have hCc0 : 0 ≤ Cc := by positivity
-  set ζ : Zt → ℝ := fun z => Real.exp (-p) * Real.exp (-lam * (zs z).card) with hζ
-  have hζ0 : ∀ z, 0 ≤ ζ z := fun z => by positivity
-  -- the family bound
-  have hfam : ∀ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-      Real.exp (κ' * d X.1) * ‖∏ t ∈ C, gasW β τ t‖ ≤
-        (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, gasAz zs κ' c c2 p h z :=
-    fun C hC => gas_family_bound hB0 hκ' hκ'' hc hd hz hB hτ hzd hG3 hC
-  have h1 : Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖ ≤
-      ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-        (∏ y ∈ C.toLeft, gasG cy d B0 κ' κ'' c y) * ∏ z ∈ C.toRight, gasAz zs κ' c c2 p h z := by
-    unfold gasK polyAct
-    calc Real.exp (κ' * d X.1) * ‖∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-          ∏ t ∈ C, gasW β τ t‖
-        ≤ Real.exp (κ' * d X.1) * ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-          ‖∏ t ∈ C, gasW β τ t‖ :=
-          mul_le_mul_of_nonneg_left (norm_sum_le _ _) (Real.exp_pos _).le
-      _ = ∑ C ∈ Cfam (gasCs cy zs) (gasA cy zs cr) X.1,
-          Real.exp (κ' * d X.1) * ‖∏ t ∈ C, gasW β τ t‖ := by rw [Finset.mul_sum]
-      _ ≤ _ := Finset.sum_le_sum hfam
-  have h2 := sum_cfam_le (cy := cy) (zs := zs) (cr := cr) (gasG cy d B0 κ' κ'' c)
-    (gasAz zs κ' c c2 p h) (gasG_nonneg hB0) gasAz_nonneg X.1
-  have h3 : ∀ Γ ∈ ((gasZsub zs X.1).powerset).erase ∅,
-      (∏ z ∈ Γ, gasAz zs κ' c c2 p h z) * ∏ y ∈ gasYm cy cr Γ, (1 + gasG cy d B0 κ' κ'' c y) ≤
-        ∏ z ∈ Γ, ζ z := by
-    intro Γ _
-    calc _ ≤ (∏ z ∈ Γ, gasAz zs κ' c c2 p h z) * Real.exp (Cc * ∑ z ∈ Γ, ((zs z).card : ℝ)) :=
-          mul_le_mul_of_nonneg_left (gas_prod_le hB0 hK0' hcr hent Γ)
-            (Finset.prod_nonneg (fun z _ => gasAz_nonneg z))
-      _ = ∏ z ∈ Γ, (gasAz zs κ' c c2 p h z * Real.exp (Cc * (zs z).card)) := by
-          rw [Finset.prod_mul_distrib, Finset.mul_sum, Real.exp_sum]
-      _ = ∏ z ∈ Γ, ζ z := by
-          refine Finset.prod_congr rfl (fun z _ => ?_)
-          simp only [gasAz, hζ, hlam]
-          rw [← Real.exp_add, ← Real.exp_add]; congr 1; ring
-  have h4 := (Finset.sum_le_sum h3).trans (sum_powerset_erase_le ζ hζ0 (gasZsub zs X.1))
-  have h5 : ∑ z ∈ gasZsub zs X.1, ζ z ≤ X.1.card * (Real.exp (-p) * Real.exp (-(c1 + 2))) := by
-    refine (sum_le_sum_cover (gasZsub zs X.1) zs X.1 ζ hζ0 (fun z hz' => ?_)).trans ?_
-    · obtain ⟨b, hb⟩ := hz z
-      simp only [gasZsub, Finset.mem_filter, Finset.mem_univ, true_and] at hz'
-      exact ⟨b, hz' hb, hb⟩
-    · calc ∑ b ∈ X.1, ∑ z ∈ Finset.univ.filter (fun z => b ∈ zs z), ζ z
-          ≤ ∑ b ∈ X.1, Real.exp (-p) * Real.exp (-(c1 + 2)) := by
-            refine Finset.sum_le_sum (fun b _ => ?_)
-            rw [hζ, ← Finset.mul_sum]
-            exact mul_le_mul_of_nonneg_left
-              (heavy_entropy hc1 hK1 hz hcount hlam' b) (Real.exp_pos _).le
-        _ = _ := by rw [Finset.sum_const, nsmul_eq_mul]
-  have h6 := gas_real_bound (p := p) (c1 := c1) (D := d X.1) (n := (X.1.card : ℝ)) hp hc1 (hd _)
-    (Nat.cast_nonneg _) hG1
-  have h7 : Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖ ≤
-      3 * c1 * Real.exp (-p) * Real.exp (2 * d X.1) := by
-    refine h1.trans (h2.trans (h4.trans ?_))
-    have := Real.exp_le_exp.mpr h5
-    linarith
-  have h8 : ‖gasK cy zs cr β τ X‖ ≤
-      Real.exp (-κ' * d X.1) * (3 * c1 * Real.exp (-p) * Real.exp (2 * d X.1)) := by
-    have hpos : 0 < Real.exp (κ' * d X.1) := Real.exp_pos _
-    have e : Real.exp (-κ' * d X.1) * Real.exp (κ' * d X.1) = 1 := by
-      rw [← Real.exp_add]; simp
-    calc ‖gasK cy zs cr β τ X‖ = Real.exp (-κ' * d X.1) *
-          (Real.exp (κ' * d X.1) * ‖gasK cy zs cr β τ X‖) := by
-          rw [← mul_assoc, e, one_mul]
-      _ ≤ _ := mul_le_mul_of_nonneg_left h7 (Real.exp_pos _).le
-  refine h8.trans (le_of_eq ?_)
-  have : Real.exp (-κ' * d X.1) * Real.exp (2 * d X.1) = Real.exp (-(κ' - 2) * d X.1) := by
-    rw [← Real.exp_add]; congr 1; ring
-  rw [← this]; ring
+    ‖gasK cy zs cr β τ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) :=
+  actGasK_activity_bound (act := coreAct cy cr) hB0 hκ' hκ'' hc hc1 hp hd hz
+    (coreAct_meets (fun _ => Finset.Subset.rfl) hcr) hB hzd hG3 hK0'
+    (fun Γ _ b => sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
+    (sum_filter_le_of_count hτ hcount) hh X hG1
 
 end Main
 

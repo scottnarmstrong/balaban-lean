@@ -21,7 +21,7 @@ elementary object is.
 * `gasOp_pe_hole`: `E Ξ = Ξ_hole(holeKOp)` and `pe_hole` for these activities, under the bounds of
   `gasOp_activity_bound` (with the Steiner size).
 
-The general form is for the activation rules of `GasOpCore.lean`, integrable heavy weights
+The general form is for the activation rules of `Gas.lean`, integrable heavy weights
 (a reference measure written as a density times a probability measure, the density inside the
 heavy weights), couplings bounded where the heavy weights activating them do not vanish, and the
 weighted counts `∑_{Z ∋ b, |Z| = v} E|τ Z| ≤ K₀^v e^{-p - h v}`: `actGasHoleKOp`,

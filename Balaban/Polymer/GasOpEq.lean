@@ -5,14 +5,14 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Polymer.GasOpCore
+public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Mayer
 
 /-!
 # GAS with a general activation rule, for weights that are functions of the configuration
 
-The operator-valued gas of `GasOperator.lean` (Lean item P10) with the activation rule of
-`GasOpCore.lean`.  The configuration `Φ ∈ ∏_b Ω_b` carries a product `⨂_b μ_b` of probability
+The operator-valued gas of `GasOperator.lean` (Lean item P10) with the general activation rules
+of `Gas.lean`.  The configuration `Φ ∈ ∏_b Ω_b` carries a product `⨂_b μ_b` of probability
 measures; a heavy weight `τ Z` is the kernel of an operator acting on the variables of the blocks
 `zs Z` (it depends on `Φ` only through them), and a coupling `β Y` depends on `Φ` through `cy Y`,
 which may meet the supports of the heavy objects: the couplings read the variables that the heavy
@@ -27,7 +27,7 @@ that activate them do not vanish.
   integrable.
 * `actGasXiOp_eq`: the expectation of the partition function is the partition function of the
   polymer gas whose activities are the expectations of the cluster activities (pointwise this is
-  `actGasXi_eq`).
+  `actGasXi_eq`, `Gas.lean`).
 -/
 
 @[expose] public section

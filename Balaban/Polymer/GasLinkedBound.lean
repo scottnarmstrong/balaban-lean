@@ -12,7 +12,7 @@ public import Balaban.Polymer.GasLinkedEq
 
 An activated linked family is a landed admissible family when activation is contained in the
 charged footprint, so the size hypothesis may be stated for landed families. The estimate is the
-instance of `actGasK_activity_bound` (`GasOpCore.lean`) for the linked activation, with no loss in
+instance of `actGasK_activity_bound` (`GasBound.lean`) for the linked activation, with no loss in
 the numerical constants.
 -/
 

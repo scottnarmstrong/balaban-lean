@@ -100,7 +100,6 @@ public import Balaban.Polymer.Gas
 public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Size
 public import Balaban.Polymer.MayerPE
-public import Balaban.Polymer.GasOpCore
 public import Balaban.Polymer.GasOpEq
 public import Balaban.Polymer.GasOpBound
 public import Balaban.Polymer.GasOperator
