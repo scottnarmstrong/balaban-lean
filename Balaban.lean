@@ -2917,6 +2917,7 @@ public import Balaban.Spine.FinalSfBound
 public import Balaban.Spine.FinalNumerics
 public import Balaban.Spine.FinalSfDomain
 public import Balaban.Spine.FinalSfIntegrable
+public import Balaban.Spine.FinalSfAssemble
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
