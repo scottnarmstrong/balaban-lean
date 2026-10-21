@@ -488,7 +488,7 @@ include hm0 hTm hdomJ hpsiR in
 /-- **`sfFactor2` of the whole torus is integrable** (A6-3 (a), item 1; the premise of the Gaussian
 reduction `integral_sfFactor2_gauss` and of the expansion): measurable, bounded, and supported in a
 bounded set of block fields. -/
-theorem integrable_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
+theorem measInt_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
     (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
     (hL : 2 ≤ S.L) (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))
@@ -502,6 +502,8 @@ theorem integrable_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
       (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
       (P6.eps S.d S.L (j + 1)) (sfLiftK C.geo C.hnn C.hkK C.hT ψk) (Def6.constFld (hC hv)))
     (hmu : C.cs.mu (j + 1) = C.cs.muBg (j + 1)) :
+    Measurable (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g) ∧
     Integrable fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
       sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g := by
   have hg := l1_sfG_lt_one C g hgl
@@ -516,9 +518,8 @@ theorem integrable_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
     exact dot_real_mem_slitPlane v hv0
   obtain ⟨Mb, hMb⟩ := exists_bound_sfFactor2 C hv vc hm0 hTm hdomJ hpsiR g hgl HB hL hact hβ hphi
     hRt hdomR
-  refine integrable_of_bdd_support
-    (measurable_sfFactor2_univ_of_dom C hv vc hm0 HB hTm hAD hdomJ hslit g hg hRt hdomR hmu)
-    r Mb ?_ hMb
+  have hmeas := measurable_sfFactor2_univ_of_dom C hv vc hm0 HB hTm hAD hdomJ hslit g hg hRt hdomR hmu
+  refine ⟨hmeas, integrable_of_bdd_support hmeas r Mb ?_ hMb⟩
   intro ψk hne b
   refine hsupp ψk ?_ b
   intro h0

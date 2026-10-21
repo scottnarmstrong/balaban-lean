@@ -18,7 +18,7 @@ import Mathlib.Tactic.Positivity
 A6-3 (a), item 1 (A4-1i for the cut `Y = univ`): at the stopping scale (`ν_k L² > 7/8`) of a
 member of `ℛ♭_k`, on every torus of the family and for every source of the unit `ℓ¹` ball, the
 small-field factor `sfFactor2 C vc univ` is integrable in the block field `ψ_k`
-(`integrable_sfFactor2_of_flatRep`), for `β` large. The proof is the transport of the domains of
+(`measInt_sfFactor2_of_flatRep`), for `β` large. The proof is the transport of the domains of
 the inherited terms on the support of `χ_k(univ)` (`Spine/FinalDomPsiJ.lean`) together with the
 smallness of the tolerance `δ_k` against the radii `ε_j` (`Spine/FinalNumerics.lean`). The
 separation of the cube generating sets, `R₀(d, L) ≤ 5 L M₁` (`minSep`), is a typing premise.
@@ -172,7 +172,7 @@ variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ �
 
 /-- **The small-field factor of the whole torus is integrable at the stopping scale** (A6-3 (a),
 item 1). -/
-theorem integrable_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
+theorem measInt_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ)
     (hsep : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
       bgR0 d (T κ c₉).L ≤ minSep (T κ c₉).L (M1 κ c₉)) :
     ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
@@ -187,6 +187,7 @@ theorem integrable_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs�
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ LargeField.l1Ball _ →
+        Measurable (fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g) ∧
         Integrable fun ψ => sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ h g := by
   intro κ hκ c₉ hc₉
   obtain ⟨hL3, haKer1, haKer2, -, -, -, -, hMpow, hadm, hc9pos, -, -, hδγ, hκf, hc9f, hTy, hϱ, -⟩ :=
@@ -308,7 +309,7 @@ theorem integrable_sfFactor2_of_flatRep (hPre : PrefixInput d δ T P6 C7 PB cs�
     exact Balaban.Fluctuation.epsSeq_anti (T κ c₉).L ((P6 κ c₉).alpha d) (P6 κ c₉).α₀ hadm.α₀_pos.le hα0 hj
   have hβpos : 0 < β := by linarith
   have hβk : 0 ≤ F.sf.β (j + 1) := by rw [hbk]; positivity
-  exact integrable_sfFactor2_univ_of_delta_le (F.ctx hM6 hkK nK) h vc rfl hTm hRt g hg HB hL3
+  exact measInt_sfFactor2_univ_of_delta_le (F.ctx hM6 hkK nK) h vc rfl hTm hRt g hg HB hL3
     hνs hh hμ hμBg hact hβk hBgJ hratioJ hBgR hratioR hnum hnumε
 
 end Inputs

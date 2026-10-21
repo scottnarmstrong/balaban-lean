@@ -164,7 +164,7 @@ variable {P6 : Def6.Consts} {k0 : ℕ}
 clauses `hRt`), the standing hypotheses `BgHyp` of the background theory at the cube level and at the
 birth masses of the inherited levels, the cube mass equal to the physical mass at the scale `k`,
 and the smallness of the tolerance `δ_k` against the radii (`hη`, `hc0`, `h1`, `hε`). -/
-theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
+theorem measInt_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
     (hm0 : P6.m₀ = C.m₀) (hTm : SFTermClauses P6 (sfDom P6 k0 C.sf C.N₁) (C.sf.Tm C.N₁))
     {fac : ℕ → ℝ} (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
     (g : GIdx S n M K N → ℂ) (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
@@ -190,6 +190,8 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
     (hε : ∀ jj, 1 ≤ jj → jj ≤ j + 1 → (2 * bgK1 S.d S.L N + 2) *
       (2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))))) ≤
         P6.eps S.d S.L jj) :
+    Measurable (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g) ∧
     Integrable fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
       sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g := by
   classical
@@ -197,7 +199,7 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
   by_cases hpos : 0 < C.cs.delta (j + 1)
   swap
   · rw [sfFactor2_univ_eq_zero_of_not_pos C hv vc g hL2 hν hμ hpos]
-    exact integrable_zero _ _ _
+    exact ⟨measurable_const, integrable_zero _ _ _⟩
   have hd0 : 0 < S.d := by have := HB.hd; omega
   have hK1 := bgK1_ge_one S.d S.L N
   have hC4 := compC4_ge S.d
@@ -255,7 +257,7 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
       (Def6.topGS S.d S.L C.N₁ m₁ (j + 1) ϱ) (fun i hi => ?_) hratioR (by linarith) (by linarith)
       ((mul_le_mul_of_nonneg_left (by linarith) (by positivity)).trans (hε (j + 1) (by omega) le_rfl))
     simp [Def6.topGS, levelGS, show ¬ i ≤ j + 1 by omega]
-  exact integrable_sfFactor2_univ_of_dom C hv vc hm0 hTm hdomJ hpsiR g hgl HB hL2 hact hβ hAD
+  exact measInt_sfFactor2_univ_of_dom C hv vc hm0 hTm hdomJ hpsiR g hgl HB hL2 hact hβ hAD
     (fun ψ hψ z i => abs_phiBar_le_one C hv ψ HB (hAD hψ) z i)
     (fun ψ hψ b => norm_le_two_of_inPsiTilde C hv ψ (htη.trans (by linarith)) (hparent ψ hψ) b)
     hRt hdomR (hμ.trans hμBg.symm)
@@ -263,7 +265,7 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
 /-- **`sfFactor2` of the whole torus is integrable, from `Γ δ_k ≤ min (c, ε_j)`** (A6-3 (a), item 1;
 `gammaConst`, `deltaCap`): the single smallness condition on the tolerance against the radii
 `ε_j`, `1 ≤ j ≤ k`. -/
-theorem integrable_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
+theorem measInt_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
     (hm0 : P6.m₀ = C.m₀) (hTm : SFTermClauses P6 (sfDom P6 k0 C.sf C.N₁) (C.sf.Tm C.N₁))
     {fac : ℕ → ℝ} (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
     (g : GIdx S n M K N → ℂ) (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
@@ -284,6 +286,8 @@ theorem integrable_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
     (hnum : gammaConst S.d S.L N * C.cs.delta (j + 1) ≤ deltaCap S.d S.L N)
     (hnumε : ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
       gammaConst S.d S.L N * C.cs.delta (j + 1) ≤ P6.eps S.d S.L jj) :
+    Measurable (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g) ∧
     Integrable fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
       sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g := by
   have hd0 : 0 < S.d := by have := HB.hd; omega
@@ -319,7 +323,7 @@ theorem integrable_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
       have h0 : 0 ≤ 2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1)))) := by
         positivity
       nlinarith
-    refine integrable_sfFactor2_univ_of_numerics C hv vc hm0 hTm hRt g hgl HB hL hν hunit hμ hμBg
+    refine measInt_sfFactor2_univ_of_numerics C hv vc hm0 hTm hRt g hgl HB hL hν hunit hμ hμBg
       hact hβ hBgJ hratioJ hBgR hratioR ?_ ?_ ?_ ?_ ?_
     · have : (S.d + 1) * C.cs.delta (j + 1) ≤ 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) := by
         nlinarith [mul_pos hd0r hpos]
@@ -330,7 +334,7 @@ theorem integrable_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
     · intro jj hj1 hj
       rw [← hΓ]; exact hnumε jj hj1 hj
   · rw [sfFactor2_univ_eq_zero_of_not_pos C hv vc g (by omega) hν hμ hpos]
-    exact integrable_zero _ _ _
+    exact ⟨measurable_const, integrable_zero _ _ _⟩
 
 end Ctx
 
