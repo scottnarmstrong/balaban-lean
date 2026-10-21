@@ -294,6 +294,19 @@ noncomputable def detActivity (m₀ : ℕ) (a : ℕ → ℝ) (aT ν : ℝ)
       Set.univ)) : ℂ :=
   detActivityOf m₀ y (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) Y
 
+open Classical in
+/-- **The meaning of `detActivity` is unchanged.**  The definition was refactored through the
+core `detActivityOf`; this records that it equals its former body, the sum of the mixed
+differences `Δ_J` of the rooted trace of `{y}` over the sets `J` of parameter cubes with hull `Y`. -/
+theorem detActivity_eq_old (m₀ : ℕ) (a : ℕ → ℝ) (aT ν : ℝ)
+    (φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (α : G.Ω 1 → ℂ) (y : unitPts G)
+    (Y : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1)
+      Set.univ)) :
+    detActivity m₀ a aT ν φ α y Y =
+      ∑ J ∈ (Finset.univ : Finset (cubeIdx G)).powerset.filter
+          (fun J => hullOf m₀ (rootIdxOf y) (patches J) = Y),
+        mixDiff J (fun s => rootTrace G a aT ν (unitQ G) (unitP G) {y} s φ α) := rfl
+
 variable {a : ℕ → ℝ} {aT ν : ℝ}
   {φ : CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ} {α : G.Ω 1 → ℂ}
 
