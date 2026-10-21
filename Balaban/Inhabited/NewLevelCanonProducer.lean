@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
+public import Balaban.Inhabited.StepTowerBeta0OldFields
 
 /-!
 # The canonically indexed system of inherited levels
@@ -85,5 +86,27 @@ theorem canonOldTermSystem_pins (S : StepSetting d L N₁ m₁ k N ϱ)
   refine ⟨rfl, fun p => p.1.2.1, fun p => p.1.2.2, fun _ _ => rfl, ⟨fun p _ => p.2, fun a _ b _ h => ?_,
     fun p hp => ⟨⟨p, hp⟩, Set.mem_univ _, rfl⟩⟩, fun _ => ⟨rfl, rfl, rfl, rfl, rfl⟩⟩
   exact Subtype.ext h
+
+/-- **The canonically indexed system with the pinned fields chosen** (`exists_decFieldPin`,
+`exists_decSolPin`, `exists_fkPin`): the inputs are the core hypotheses `FlCore` of the step and the
+background hypothesis `BgHyp` of the generating sets `Gk` of the canonical cover. -/
+noncomputable def canonOldTermSystemOf (S : StepSetting d L N₁ m₁ k N ϱ)
+    (C : StepClass d L N₁ m₁ k N ϱ) (t : ℝ) {ϱ₁ : ℝ} (F : CanonCover d L N₁ m₁ k ϱ ϱ₁)
+    (i₀ i₁ : Fin N) {c BG κ Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ t Kc Cx c₂ BG₂ δ₁)
+    (HBk : BgHyp d L (k + 1) ϱ₁ (compWeight L S.a₁) S.ν) : OldTermSystem S t :=
+  canonOldTermSystem S C t F i₀ i₁ κ BG BG₂ δ₁ (fun _ => (exists_decFieldPin S hC).choose)
+    (fun _ => (exists_decSolPin S hC).choose)
+    (fun p => (exists_fkPin (N := N) S (F.GkC p.1.1 p.1.2.1 p.1.2.2) HBk).choose)
+    (fun _ => (exists_decFieldPin S hC).choose_spec) (fun _ => (exists_decSolPin S hC).choose_spec)
+    (fun p => (exists_fkPin (N := N) S (F.GkC p.1.1 p.1.2.1 p.1.2.2) HBk).choose_spec)
+
+/-- The canonical pins of `canonOldTermSystemOf`. -/
+theorem canonOldTermSystemOf_pins (S : StepSetting d L N₁ m₁ k N ϱ)
+    (C : StepClass d L N₁ m₁ k N ϱ) (t : ℝ) {ϱ₁ : ℝ} (F : CanonCover d L N₁ m₁ k ϱ ϱ₁)
+    (i₀ i₁ : Fin N) {c BG κ Kc Cx c₂ BG₂ δ₁ : ℝ}
+    (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ t Kc Cx c₂ BG₂ δ₁) HBk :
+    OldTermsCanonPinsAt S C (canonOldTermSystemOf S C t F i₀ i₁ hC HBk) F i₀ i₁ :=
+  canonOldTermSystem_pins S C t F i₀ i₁ κ BG BG₂ δ₁ _ _ _ _ _ _
 
 end Balaban.Inhabited

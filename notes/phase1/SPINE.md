@@ -1831,3 +1831,20 @@ Statements that changed (all in my own blocker-7 files, plus one core refactor):
   `F₁L`, `SolL`, `FkL` and their pins `DecFieldPin`, `DecSolPin`, `FkPin` per admissible pair, and the `OldTermSettings`/`NewLevelSystem` fields on
   top (BgSetting, FlSetting, trees).  No standalone lemma produces them: they are obtained inside `StepTowerBeta0Families` (the two
   `OldTermSystem.mk` applications, ~lines 346 and 519), where the index type and the fields are universally quantified inputs of the layer.
+
+### A4-1f margin, tie, fields (W1161, 2026-10-21, continued)
+
+- `Spine/CanonMarginTie`: `CanonMarginTie L m₀ := 18 ≤ (L-2) L^{m₀}` (the region `X1` of a chosen family contains only the `(L-2)`-cell
+  neighbourhood of the polymer, `Inhabited/NewLevelCanonX1.X1_far`, because a cube of the family may straddle two cells; margin radius `12 M`
+  plus `6 M`); `canonMarginTie_of_three_le` (`L ≥ 3`, `m₀ ≥ 3`), `canonMarginTie_of_four_le` (`L ≥ 4`, `m₀ ≥ 2`), `canonMarginTie_nonempty` (`L = m₀ = 3`).
+  `L = 3, m₀ = 2` gives 9 < 18: the constants need `m₀ ≥ 3` there.  (Corrects my earlier remark: the constant is `(L-2)`, not `(L-1)`.)
+- `hgeom_of_local` / `newLevel_coeff_twoTorus_of_class_cells`: premises `hX1 : CanonCoverIsX1 S C F` (the canonical cover is the `X1` of a chosen family of
+  the polymer `X ∪ □(y)`; from `OS.hX₁`, `OS.hcov` and `XL = X ∪ □(y)` of `OldTermsAreIrrel`) and `htie : CanonMarginTie L C.m₀`, `3 ≤ L`, `1 ≤ m₁`.
+  `CanonCoverLocal` now carries `m₀` and the fields `hPK_sub`, `hPJ_sub` (the polymers of `Gk`, `Gj` lie in `polySet`).
+- `Inhabited/StepTowerBeta0OldFields.lean` (new name; `StepTowerBeta0Fields` was taken): `exists_decFieldPin`, `exists_decSolPin`, `exists_fkPin`.  The
+  two `OldTermSystem.mk` sites of `StepTowerBeta0Families` only take these fields as hypotheses; the constructors are the landed `i4b_analytic`,
+  `Dec2.i4a_analytic`, `theorem72_analytic` (used in `StepTowerCollarStruct`), so nothing needed extraction and `StepTowerBeta0Families` is untouched.
+- `canonOldTermSystemOf` (producer file): index `AdmPairs`, fields from `F`, decoupled fields chosen by the three lemmas; inputs are `FlCore` and `BgHyp` only;
+  `canonOldTermSystemOf_pins : OldTermsCanonPinsAt`.  **Still open for a full `NewLevelSystem`:** the `OldTermSettings` of the canonical terms
+  (`BgSetting`, `FlSetting`, `hopt` trees, `hcov`, `hX₁` for the `localB` sets `Gk = 𝔹_n(P)`), i.e. the geometry of `localB` against the step
+  (Precedes, collar, `dsX₀`, `hN`, `dep`), which the chain takes as base premises (`StepTowerCollarStruct`: `hBs`, `hFs`).  That is new analysis, not an extraction.
