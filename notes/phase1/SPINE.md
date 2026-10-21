@@ -797,7 +797,15 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
     so their number per cell is bounded; the parameters of the other cubes do not enter the localization vectors.
     Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
     per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
-    cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.
+    cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines.
+    **PROVED (W1154, `Spine/LFOldResum.lean`, `oldResumSite_holds`)**, for `L ≥ 2`, `L^{m₀} ∣ c n_{k+1}`,
+    `r' ≥ L^{k+1+m₁}` and any `β < κ₁ - 1`, with `κ_V = γ - e^{-β} C_P`, `κ_X = γ c_T ((1+N₀) c₁ + 3^d/L)`,
+    `C_res = exp(e^{-β} C_P + γ c_T ((1+N₀) c₁ + 3^d))`, `γ = (κ₁-1-β)/(c_T N₀)` (`c_T = resumTree`, `N₀ = resumNbhd`
+    — bounded when `r, r' ≤ C a_{k+1}` —, `C_P = resumCubes`): the cubes of a family are cubes of its local cover
+    (`|J_V| = |J|`), the size of a mark site is at most `c_T` times its base cells, these are bounded by `d_k(X)`
+    and `|J|`, and the families with a site are sets of the `≤ C_P (1 + 𝗱(V))` cover cubes inside it (only the
+    cubes of levels `k`, `k+1` in the localization range enter, `allJ`; that no cube of lower level lies there
+    is a fact for the identity of `ℬ''^{(k+1)}` with `∑ oldB`, not for the bound).
   `oldB` as `BTerms` (`Spine/LFOldBBound`: `oldB`, the old labels `oldDoms`, the families `inner`, `cb`, `I` over the
   histories and fields) and **`norm_oldB_le`: its (D7) bound `2^{c₁} C_PE fac C_res L^d c₁ K₀ c₁ K₀ e^{-rate' d^pre_{k+1}(Y)}`
   at a field of the H7 domain of `Y`, for `κ' ≥ rate' + c₁ log 2 + 2`** (`exp_poly_le_exp`). Remaining for (iii)-c:

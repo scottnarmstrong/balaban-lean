@@ -13,12 +13,22 @@ public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
 /-!
 # The resummation over the decoupling families at a mark site (P3 (4.45)–(4.49); P6 p. 34)
 
-This file proves the named input `OldResumSite`.
+This file proves the named input `OldResumSite` (`oldResumSite_holds`), with explicit constants.
 
-* `subset_cubeIdx_locG'`: **the cubes of a family are cubes of the cover of its local pair** when the
-  collar `r'` of the local set is at least the side `L^{k+1+m₁}` of the cells of the top layer (the
-  layers of `G′ ∩ 𝔹_{k+1}(V)` are those of `G′` on the cells inside `V`); hence `|J_V| = |J|`
-  (`card_locCubes_eq`).
+* `boxUnion`, `treeLenCovOne_boxUnion_le`: **the size of a connected union of `π'_j`-cubes is at most
+  `c_T` times the number of its base cells** (P3 (4.48));
+* `near_cbase_of_supDist_le`, `card_cbase_nbhd_le`: the cells of a neighbourhood;
+  `dataSites_inter_subset`, `sum_powerset_exp_le`, `SameCell.of_dvd`, `cbase_eq_of_sameCell`,
+  `sameCell_cbase_self`;
+* `subset_cubeIdx_locG'`, `card_locCubes_eq`: **the cubes of a family are cubes of the cover of its
+  local pair**, so `|J_V| = |J|` (when `r' ≥ L^{k+1+m₁}`);
+* `cubeMap_fineOfC_k`, `cubeMap_fineOfC_succ`, `toFrame_mem_d7Pull_iff`, `toFrame_activeCoreC_subset`,
+  `toFrame_val`, `toFrame_cbase`, `toFrame_injective`: the cells of the cover torus and of the frame;
+* `card_cells_markBase_le`, `card_cells_inter_le`, `card_cells_optW_le`: **the base cells of a mark
+  site** are at most `c₁ (1 + d_k(X))`, `3^d (d_k(X)/L + 1)` and `N₀` times these and `|J|`;
+* `cubesIn`, `subset_cubesIn_of_mem_famAt`, `card_cubesIn_level_le`, `card_cubesIn_le`: **the cover
+  cubes inside a site** are at most `C_P (1 + d^cov_{k+1}(V))` (P3 (4.49));
+* `resumTree`, `resumNbhd`, `resumCubes`, **`oldResumSite_holds`**.
 -/
 
 @[expose] public section
@@ -754,6 +764,133 @@ theorem card_cubesIn_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
         hcR.trans (by nlinarith [mul_le_mul_of_nonneg_left hpow hc0])
     _ = 2 * ((S.L : ℝ) ^ (m₀ + 1)) ^ S.d * (cellCount (cellSide S.L m₀ m₁ (k + 1)) V : ℝ) := by ring
     _ ≤ _ := mul_le_mul_of_nonneg_left hcc (by positivity)
+
+
+/-- The constant `4 d L + 1 + 2 d L^{d+1}` of the size of a union of `π'`-cubes by its base cells. -/
+noncomputable def resumTree (d L : ℕ) : ℝ := 4 * d * L + 1 + 2 * d * L * (L : ℝ) ^ d
+
+/-- The neighbourhood factor `(2 ((r + r' + 11 L^{m₁} L^{k+1} + 1) / a_{k+1} + 1) + 1)^d` of the
+cells of the local set and of its data sites. -/
+def resumNbhd (d L m₀ m₁ k r r' : ℕ) : ℕ :=
+  (2 * ((r + r' + (11 * L ^ m₁ * L ^ (k + 1) + 1)) / cellSide L m₀ m₁ (k + 1) + 1) + 1) ^ d
+
+/-- The constant `2 L^{d (m₀ + 1)} c₁` of the number of cover cubes of a site. -/
+noncomputable def resumCubes (d L m₀ : ℕ) : ℝ := 2 * ((L : ℝ) ^ (m₀ + 1)) ^ d * c1 d L
+
+/-- **The named input `OldResumSite` holds** (P3 (4.45)–(4.49), P6 p. 34), with the explicit constants
+`κ_V = γ - e^{-β} C_P`, `κ_X = γ c_T ((1 + N₀) c₁ + 3^d / L)`,
+`C_res = exp(e^{-β} C_P + γ c_T ((1 + N₀) c₁ + 3^d))`, `γ = (κ₁ - 1 - β) / (c_T N₀)`, for any
+`β < κ₁ - 1` (`c_T = resumTree`, `N₀ = resumNbhd`, `C_P = resumCubes`): for a family `J` with the
+site `V`, `|J_V| = |J|` (`card_locCubes_eq`), the size of `V` is at most
+`c_T (#cells(X ∩ Ω_{k+1}) + #cells(optW) + N₀ (#cells(X ∩ Ω_{k+1}) + |J|))`
+(`treeLenCovOne_boxUnion_le`, `card_cells_markBase_le`, `card_cells_inter_le`, `card_cells_optW_le`),
+so `e^{-(κ₁-1)|J|} ≤ e^{γ c_T Q(d) - γ 𝗱(V)} e^{-β |J|}`; and the families with the site `V` are sets
+of the at most `C_P (1 + 𝗱(V))` cover cubes inside `V` (`card_cubesIn_le`, `sum_powerset_exp_le`). -/
+theorem oldResumSite_holds {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    {ρ r r' : ℕ} (hL2 : 2 ≤ S.L) (hgc : S.L ^ m₀ ∣ g.c * n (k + 1))
+    (hr' : S.L ^ (k + 1 + m₁) ≤ r') {κ₁ β : ℝ} (hβκ : β < κ₁ - 1) :
+    OldResumSite g hnn hM1 F H hk hρ ρ r r' κ₁
+      ((κ₁ - 1 - β) / (resumTree S.d S.L * resumNbhd S.d S.L m₀ m₁ k r r') * resumTree S.d S.L *
+        ((1 + resumNbhd S.d S.L m₀ m₁ k r r') * c1 S.d S.L + 3 ^ S.d / S.L))
+      ((κ₁ - 1 - β) / (resumTree S.d S.L * resumNbhd S.d S.L m₀ m₁ k r r') -
+        Real.exp (-β) * resumCubes S.d S.L m₀)
+      (Real.exp (Real.exp (-β) * resumCubes S.d S.L m₀ +
+        (κ₁ - 1 - β) / (resumTree S.d S.L * resumNbhd S.d S.L m₀ m₁ k r r') * resumTree S.d S.L *
+          ((1 + resumNbhd S.d S.L m₀ m₁ k r r') * c1 S.d S.L + 3 ^ S.d))) := by
+  classical
+  intro X hXd V
+  have hX : FineValidAt F k (H.omegaPost k) X := (mem_bdryDomsAt.1 (Finset.mem_filter.1 hXd).1).2
+  set cT := resumTree S.d S.L with hcT
+  set N₀ : ℝ := (resumNbhd S.d S.L m₀ m₁ k r r' : ℝ) with hN₀
+  set CP := resumCubes S.d S.L m₀ with hCP
+  set γ := (κ₁ - 1 - β) / (cT * N₀) with hγ
+  set dX := d7SizeAt F k (H.omegaPost k) X with hdX
+  set t := treeLenCovOne (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1) V
+    with ht
+  have hc1 := one_le_c1 S.d S.L
+  have hL1 : (1 : ℝ) ≤ S.L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  have hcT1 : 1 ≤ cT := by
+    rw [hcT]; unfold resumTree
+    have : 0 ≤ 4 * (S.d : ℝ) * S.L + 2 * S.d * S.L * (S.L : ℝ) ^ S.d := by positivity
+    linarith
+  have hN₀1 : 1 ≤ N₀ := by
+    rw [hN₀]; unfold resumNbhd
+    exact_mod_cast Nat.one_le_pow _ _ (by omega)
+  have hγ0 : 0 ≤ γ := div_nonneg (by linarith) (mul_pos (by linarith) (by linarith)).le
+  have hγe : γ * (cT * N₀) = κ₁ - 1 - β := by
+    rw [hγ]; field_simp [(mul_pos (by linarith : (0 : ℝ) < cT) (by linarith : (0 : ℝ) < N₀)).ne']
+  have hd0 : 0 ≤ dX := d7SizeAt_nonneg F k (H.omegaPost k) X
+  have ht0 : 0 ≤ t := treeLenCovOne_nonneg _ _ _
+  have hCP0 : 0 ≤ CP := by rw [hCP]; unfold resumCubes; positivity
+  rcases (famAt g hnn hM1 F H hk hρ ρ r r' X V).eq_empty_or_nonempty with he | ⟨J₀, hJ₀⟩
+  · rw [he, Finset.sum_empty]; positivity
+  obtain ⟨-, hJ₀g, hJ₀V⟩ := (mem_famAt g hnn hM1).1 hJ₀
+  have hVd : IsDj m₀ (k + 1) V := hJ₀V ▸ hJ₀g.1
+  -- the cells of `X ∩ Ω_{k+1}` and of `optW`
+  set nA : ℝ := (((d7Pull F k (X : Set (Torus S.d (n k))) ∩
+    d7Pull F (k + 1) (OmegaCube H (k + 1))).toFinset.image
+      (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ) with hnA
+  set nW : ℝ := (((optW F k (H.omegaPost k) X).image (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ)
+    with hnW
+  have hnA' : nA ≤ c1 S.d S.L * (1 + dX) := card_cells_inter_le hnn F H hk hX
+  have hnW' : nW ≤ 3 ^ S.d * ((S.L : ℝ)⁻¹ * dX + 1) := card_cells_optW_le F H hk hX
+  set Q : ℝ := (1 + N₀) * (c1 S.d S.L * (1 + dX)) + 3 ^ S.d * ((S.L : ℝ)⁻¹ * dX + 1) with hQ
+  -- the bound of one family
+  have hJ : ∀ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V,
+      Real.exp (-(κ₁ - 1) *
+          (locCubes g (coverOf (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J))) J).card) ≤
+        Real.exp (γ * cT * Q - γ * t) * Real.exp (-β * J.card) := by
+    intro J hJf
+    obtain ⟨hJa, hJg, hJV⟩ := (mem_famAt g hnn hM1).1 hJf
+    rw [card_locCubes_eq g hnn hM1 H hk hρ hr' X hJa]
+    have hbu : boxUnion m₀ (k + 1) (markBase g hnn hM1 F H hk hρ r r' X J) = V := hJV
+    have htree := treeLenCovOne_boxUnion_le F.divN₁ hk (markBase g hnn hM1 F H hk hρ r r' X J)
+      (hbu ▸ hVd)
+    rw [hbu] at htree
+    have htree' : t ≤ cT * (((markBase g hnn hM1 F H hk hρ r r' X J).toFinset.image
+        (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ) := by
+      rw [hcT]; unfold resumTree; exact htree
+    have hcells := card_cells_markBase_le g hnn hM1 F H hk hρ hL2 hgc (r := r) (r' := r') X hJa
+    have hcellsR : (((markBase g hnn hM1 F H hk hρ r r' X J).toFinset.image
+        (cbase (cellSide S.L m₀ m₁ (k + 1)))).card : ℝ) ≤ nA + nW + N₀ * (nA + J.card) := by
+      rw [hnA, hnW, hN₀]; unfold resumNbhd; exact_mod_cast hcells
+    have htJ : t ≤ cT * Q + cT * N₀ * J.card := by
+      calc t ≤ cT * (nA + nW + N₀ * (nA + J.card)) := htree'.trans
+            (mul_le_mul_of_nonneg_left hcellsR (by linarith))
+        _ = cT * ((1 + N₀) * nA + nW) + cT * N₀ * J.card := by ring
+        _ ≤ cT * Q + cT * N₀ * J.card := by
+            refine add_le_add (mul_le_mul_of_nonneg_left ?_ (by linarith)) le_rfl
+            rw [hQ]
+            exact add_le_add (mul_le_mul_of_nonneg_left hnA' (by linarith)) hnW'
+    rw [← Real.exp_add]
+    refine Real.exp_le_exp.2 ?_
+    have h1 : γ * t ≤ γ * (cT * Q) + (κ₁ - 1 - β) * J.card := by
+      rw [← hγe]; nlinarith [mul_le_mul_of_nonneg_left htJ hγ0]
+    nlinarith
+  calc ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V, Real.exp (-(κ₁ - 1) *
+          (locCubes g (coverOf (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J))) J).card)
+      ≤ ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V,
+          Real.exp (γ * cT * Q - γ * t) * Real.exp (-β * J.card) := Finset.sum_le_sum hJ
+    _ = Real.exp (γ * cT * Q - γ * t) *
+          ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V, Real.exp (-β * J.card) := by
+        rw [Finset.mul_sum]
+    _ ≤ Real.exp (γ * cT * Q - γ * t) *
+          ∑ J ∈ (cubesIn g hnn hM1 F H hk hρ ρ V).powerset, Real.exp (-β * J.card) := by
+        refine mul_le_mul_of_nonneg_left (Finset.sum_le_sum_of_subset_of_nonneg (fun J hJf => ?_)
+          (fun _ _ _ => (Real.exp_pos _).le)) (Real.exp_pos _).le
+        exact Finset.mem_powerset.2 (subset_cubesIn_of_mem_famAt g hnn hM1 F H hk hρ hJf)
+    _ ≤ Real.exp (γ * cT * Q - γ * t) * Real.exp (Real.exp (-β) * (CP * (1 + t))) := by
+        refine mul_le_mul_of_nonneg_left ((sum_powerset_exp_le _ β).trans
+          (Real.exp_le_exp.2 (mul_le_mul_of_nonneg_left ?_ (Real.exp_pos _).le)))
+          (Real.exp_pos _).le
+        have := card_cubesIn_le g hnn hM1 F H hk hρ ρ hVd
+        rw [hCP]; unfold resumCubes
+        linarith
+    _ = _ := by
+        rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add, hQ]
+        congr 1
+        ring
 
 
 end Resum
