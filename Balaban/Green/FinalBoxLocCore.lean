@@ -293,6 +293,25 @@ theorem ReadsOn.mono {S S' : Set Ω} {τ : (Ω → ℂ) → ℂ} (h : ReadsOn S 
 variable {P : ι → Set Ω} {R : ℝ} {T : (ι → ℂ) → Ω → Ω → ℂ}
 
 omit [Fintype ι] [Fintype Ω] in
+/-- A constant multiple of a decoupled family is decoupled. -/
+theorem CutDecoupling.const_mul (hT : CutDecoupling P R T) (c : ℂ) :
+    CutDecoupling P R (fun s x y => c * T s x y) where
+  supp C s hs hsC x y h := hT.supp C s hs hsC x y (right_ne_zero_of_mul h)
+  split C A s hs hsC hAC hd x y := by rw [hT.split C A s hs hsC hAC hd x y]; ring
+
+omit [Fintype ι] [Fintype Ω] in
+/-- The sum of two decoupled families is decoupled. -/
+theorem CutDecoupling.add {T' : (ι → ℂ) → Ω → Ω → ℂ} (hT : CutDecoupling P R T)
+    (hT' : CutDecoupling P R T') : CutDecoupling P R (fun s x y => T s x y + T' s x y) where
+  supp C s hs hsC x y h := by
+    by_cases h1 : T s x y = 0
+    · rw [h1, zero_add] at h
+      exact hT'.supp C s hs hsC x y h
+    · exact hT.supp C s hs hsC x y h1
+  split C A s hs hsC hAC hd x y := by
+    rw [hT.split C A s hs hsC hAC hd x y, hT'.split C A s hs hsC hAC hd x y]; ring
+
+omit [Fintype ι] [Fintype Ω] in
 /-- At `s = 0` the cut family vanishes (the case `C = ∅` of `supp`). -/
 theorem CutDecoupling.zero_apply (hT : CutDecoupling P R T) (hR : 0 < R) (x y : Ω) :
     T 0 x y = 0 := by
