@@ -280,6 +280,24 @@ theorem baseRecord_physical_chartGaussian {Rk : ℝ}
   obtain ⟨R, h1, h2, h3, h4⟩ := this
   exact ⟨R, h1, h2, h3, h4⟩
 
+variable {G} in
+/-- **The integral over the spins of the good region vanishes when the good-cube factor does.**
+If the good-cube factor `∏_{c ∉ P} χ'_c` is zero at every merged configuration, the weighted
+physical density integrates to zero. -/
+theorem baseRecord_integral_eq_zero (P : Finset (Torus d n)) (regimeB : Prop) (ν δ₀ β a₀ : ℝ)
+    (h : EuclideanSpace ℝ (Fin N)) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (φ₀ : CfgT d N L n)
+    (hz : ∀ ψ, recordWeightOut P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ) = 0) :
+    ∫ ψ, ((recordWeightIn P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ) *
+            recordWeightOut P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ) : ℝ) : ℂ) *
+          (((baseKernel d N L n β a₀ θ (baseMerge G φ₀ ψ) : ℝ) : ℂ) *
+            Complex.exp (-((β * energy d N (L * n) ν h (baseMerge G φ₀ ψ) : ℝ) : ℂ) +
+              ∑ x : Torus d (L * n), ∑ i : Fin N,
+                g x i * (((baseMerge G φ₀ ψ x : EuclideanSpace ℝ (Fin N)) i : ℝ) : ℂ)))
+          ∂(Measure.pi fun _ : G.Ω 1 => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere)
+        = 0 := by
+  simp [hz]
+
 end
 
 end Balaban.LargeField
