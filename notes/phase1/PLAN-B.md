@@ -465,3 +465,16 @@ approved declaration.
   kernel (`quietA2`–`quietA4`) and of `R/HgeoDischarge` (localized histories, where the plain complement would contain
   every cube outside the component), so ruling request R17 as briefed (`omegaCNb` := `(𝕋_j ∖ Ω_j)^{∼3}`) would change
   those objects too; not prepared, pending the orchestrator (options in the W1154d handoff).
+
+## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
+- The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
+  integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
+  `sfFactor2` over the whole torus (`sfIntegral`, cutoff χ_k) is not that term: on {χ_k ≠ 0} ∖ box the source creates new
+  large-field regions (P7 pp. 530–531, the fluctuation integral as in P5 §3), and χ_k is a product of cube functions of ψ_k,
+  not local in the whitened variable, so it cannot enter a polymer expansion over the product measure.
+- Restated (`Spine/LastIntegral.lean`, names kept): `Ξ_box = Z_K ∫ 1_{box(p₁)} sfGaussIntegrand(centre h, K) dγ`
+  (`sfBoxIntegral`), `K = β_k D` (`sfFinalK`, D the final Hessian; `pdQuad_sfFinalK`, `actStar2_univ_hessian_sfFinalHm`),
+  box(p₁) = {w : |w_p| ≤ p₁ ∀ p}; `FinalSmallFieldInput`: Ξ_box = exp(E + ⟨g,h⟩ + Σ_j Σ_X q_j + Σ_X a); `FinalLargeFieldInput`:
+  ∫ρ = Ξ_box exp(Σ_X b) (the tail joins the large-field half). Both take the cutoff `cut κ c₉ β_k = p₁` as a parameter and
+  `lastIntegralInput_of_parts` combines them at the same cutoff. Constraints on p₁: χ_k = 1 on the box (B p₁ ≪ β_k^{1/2} δ_k),
+  analyticity room (B(κ) β_k^{-1/2} p₁ < c ε_k), the tail (p₂ < 2p); p₁ = A₁ (log β_k)^{p₀}, A₁ ≪ A₀, meets all three.

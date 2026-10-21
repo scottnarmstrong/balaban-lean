@@ -9,13 +9,14 @@ public import Balaban.LargeField.Operators.QuietLocalIso
 public import Balaban.LargeField.Operators.QuietLocalInput
 public import Balaban.LargeField.Region.SymmLoc
 public import Balaban.LargeField.History.ImageHistBook
+public import Balaban.LargeField.Def7
 
 
 /-!
 # Quiet realizability is closed under lattice symmetries
 
 For a lattice symmetry `σ : LatTorusSym` and an admissible region history `H` on tori that are
-points above the horizon (`n j = 1` for `j ≥ K`), with `k₀ ≤ K`, the image history `imgHist σ H`
+points above the horizon (`n j = 1` for `j > K`), with `k₀ ≤ K`, the image history `imgHist σ H`
 (`History/ImageHist.lean`; admissible by `admissible_imgHist_iff`, `History/ImageHistBook.lean`)
 realizes the `σ`-image of every quiet realizable localized history.  Consequently the quiet
 realizable localized histories are closed under `HistImage` (`quietRealized_iff_of_histImage`):
@@ -34,7 +35,7 @@ section Hist
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
   [NeZero S.L] (σ : LatTorusSym S n M K) (H : RegionHistory S n R k0 K)
-  (hsub : ∀ j, K ≤ j → n j = 1)
+  (hsub : ∀ j, K < j → n j = 1)
 
 
 local notation "Hi" => imgHist σ H hsub
@@ -56,7 +57,7 @@ end Hist
 section Realized
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
-  [NeZero S.L] (σ : LatTorusSym S n M K) (hsub : ∀ j, K ≤ j → n j = 1) (hk0 : k0 ≤ K)
+  [NeZero S.L] (σ : LatTorusSym S n M K) (hsub : ∀ j, K < j → n j = 1) (hk0 : k0 ≤ K)
 
 include hsub hk0 in
 /-- Quiet realizability is stable under lattice symmetries (for `k₀ ≤ K` and tori that are points
@@ -153,6 +154,67 @@ theorem quietRealized_iff_of_histImage {k : ℕ} (hI : HistImage σ.toTorusSym a
     rw [← pow_succ, Nat.sub_add_cancel hm, hfm] at hcomp
     rwa [← LocalHistory.ImgBy.one (S := S) (n := n) (M := M) (K := K) hcomp]
 
+/-- **`real_euclid` on the tori of the family** (ruling R9): for the side sequence `sides L K nK`
+(a point above the horizon) and `k₀ ≤ K`, the quiet realizable localized histories are closed under
+lattice symmetries, for every number `nK` of top cubes. -/
+theorem real_euclid_sides {S : Setting} [NeZero S.L] {nK : ℕ} [NeZero nK] {R : ℕ → ℝ}
+    {k0 M K : ℕ} [NeZero M] (hk0 : k0 ≤ K) (k : ℕ) (σ : LatTorusSym S (Def7.sides S.L K nK) M K)
+    (a a' : LocalHistory S (Def7.sides S.L K nK) M K) (hI : HistImage σ.toTorusSym a a') :
+    QuietRealized R k0 k a ↔ QuietRealized R k0 k a' :=
+  quietRealized_iff_of_histImage (fun _ hj => Def7.sides_of_gt hj) hk0 hI
+
 end Realized
+
+end Balaban.LargeField
+
+namespace Balaban.LargeField
+
+open Balaban
+
+section Zero
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
+  [NeZero S.L]
+
+/-- **`QuietStepInput'` on any tori that are points above the horizon** (`n j = 1` for `j > K`),
+for `k₀ ≤ K`: `real_euclid` is `quietRealized_iff_of_histImage`, and the boundary exponent is the zero
+function, allowed by the bound (S0) for `C_b ≥ 0`, `B_0 ≥ 0`, `log β_k ≥ 0`. -/
+theorem quietStepInput'_nonempty_of_hsub (hsub : ∀ j, K < j → n j = 1) (hk0 : k0 ≤ K)
+    (geo : Geo S n R M) (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0)
+    (hlog : ∀ k, 0 ≤ Real.log (cs.beta k)) : Nonempty (QuietStepInput' K k0 geo cs N) := by
+  refine ⟨{
+    real_euclid := fun k σ a a' hI => quietRealized_iff_of_histImage hsub hk0 hI
+    b := fun _ _ _ _ _ _ => 0
+    b_meas := fun _ _ _ _ _ => measurable_const
+    b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
+    b_real := fun _ _ _ _ _ _ _ _ _ => by simp
+    b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
+    b_rot := fun _ _ _ _ _ _ _ _ => rfl
+    b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+    vacE := fun _ _ => 0
+    vacEpp := fun _ _ => 0
+    vacEppp := fun _ _ => 0
+    b0 := fun _ _ _ _ _ _ => 0
+    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
+    b0_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
+      simp only [norm_zero]
+      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
+      unfold volScale
+      positivity
+    b_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
+      simp only [norm_zero]
+      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
+      unfold volScale
+      positivity }⟩
+
+/-- **`QuietStepInput'` on the tori of the family `sides L K nK`**, for every `K` and every number
+`nK` of top cubes (ruling R9), `k₀ ≤ K`. -/
+theorem quietStepInput'_nonempty_sides {nK : ℕ} [NeZero nK] (hk0 : k0 ≤ K)
+    (geo : Geo S (Def7.sides S.L K nK) R M) (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.Cb)
+    (hB0 : 0 ≤ cs.B0) (hlog : ∀ k, 0 ≤ Real.log (cs.beta k)) :
+    Nonempty (QuietStepInput' K k0 geo cs N) :=
+  quietStepInput'_nonempty_of_hsub (fun _ hj => Def7.sides_of_gt hj) hk0 geo cs N hCb hB0 hlog
+
+end Zero
 
 end Balaban.LargeField

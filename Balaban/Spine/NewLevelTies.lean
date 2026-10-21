@@ -23,7 +23,8 @@ prefix (LFR §I.1.4), before `β₀`; they depend on the number `N` of component
 parameter of `PrefixInput`, so they form a separate input `NewLevelTiesInput` beside it.
 
 * `NewLevelTies`, `NewLevelTiesInput`;
-* `exists_hatScale_bound`: the cube exponent of `rhoSepG d L m₁` is bounded independently of `m₁`;
+* `exists_rhoSepG_le_minSep`, `exists_hatScale_bound`: the cube exponent of `rhoSepG d L m₁` is
+  bounded independently of `m₁`;
 * `prefixInput_newLevelTies_exists`: `PrefixInput` and `NewLevelTiesInput` hold together for every
   `L ≥ 3` with `L^{(d-2)/2-γ} ≥ 16` (the witness of `prefixInput_exists_of` with `m₀` large, the
   base tower of `exists_collarBase_newLevel`, `m₁` its block exponent, `ϱ = rhoSepG d L m₁`, `α₀` and
@@ -76,6 +77,8 @@ structure NewLevelTies (d N L : ℕ) [NeZero L] (P : Def6.Consts) (m₁ : ℕ) (
   /-- (T3) `c₈` small: the mass factor of the (DL-gap) -/
   tau_K : (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * (2 * (Real.exp (3 * (P.c₈ / 4 *
     (Flow.rate (L : ℝ) P.γ ^ 2 / (1 - Flow.rate (L : ℝ) P.γ)))) - 1)) ≤ 1 / 9
+  /-- `c₈` small: the rate condition `c₈ q ≤ 1 - q` of the flow of the birth masses -/
+  c8_rate : P.c₈ * Flow.rate (L : ℝ) P.γ ≤ 1 - Flow.rate (L : ℝ) P.γ
   /-- the radius of the mass response at the unit witness -/
   rm : ∃ rm : ℝ, 2 * (Real.exp (3 * (P.c₈ / 4 * (Flow.rate (L : ℝ) P.γ ^ 2 /
       (1 - Flow.rate (L : ℝ) P.γ)))) - 1) < rm ∧ rm ≤ 1 / 16 ∧
@@ -94,15 +97,16 @@ theorem NewLevelTies.congr_L {d N L L' : ℕ} [NeZero L] [NeZero L'] (h : L = L'
     NewLevelTies d N L' P m₁ ϱ := by
   subst h; exact H
 
-/-- **The cube exponent of the chain's separation is bounded uniformly in the block exponent**:
-`rhoSepG d L m₁ ≤ L^{m₁} C(d, L)`, so one exponent `s` with `5 L^{s+1} ≥ C(d, L)` serves every `m₁`. -/
-theorem exists_hatScale_bound {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
-    ∃ s₀ : ℕ, ∀ m₁ : ℕ, hatScale L m₁ (rhoSepG d L m₁) ≤ s₀ := by
+/-- **The chain's separation is below the minimal separation at one cube exponent, uniformly in
+the block exponent**: `rhoSepG d L m₁ ≤ L^{m₁} C(d, L)`, so one exponent `s` with
+`5 L^{s+1} ≥ C(d, L)` serves every `m₁`. -/
+theorem exists_rhoSepG_le_minSep {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ s₀ : ℕ, ∀ m₁ : ℕ, rhoSepG d L m₁ ≤ LargeField.minSep L (L ^ (m₁ + s₀)) := by
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
   set C : ℝ := bgR0 d L + 4 * d * L + 4 * d * (L : ℝ) ^ 3 + 1 +
     2 * d * Real.log L / (agmonRate d / 16) with hC
   obtain ⟨s₀, hs₀⟩ := pow_unbounded_of_one_lt C hL1
-  refine ⟨s₀, fun m₁ => hatScale_le ?_⟩
+  refine ⟨s₀, fun m₁ => ?_⟩
   have ht := rhoSepG_tail_nonneg (d := d) hd hL
   have hb := bgR0_nonneg_G (d := d) (L := L)
   have hLm : (1 : ℝ) ≤ (L : ℝ) ^ m₁ := one_le_pow₀ hL1.le
@@ -126,6 +130,13 @@ theorem exists_hatScale_bound {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
   calc rhoSepG d L m₁ ≤ C * (L : ℝ) ^ m₁ := hrho
     _ ≤ (L : ℝ) ^ s₀ * (L : ℝ) ^ m₁ := mul_le_mul_of_nonneg_right hs₀.le h0
     _ ≤ 5 * (L : ℝ) * ((L : ℝ) ^ m₁ * (L : ℝ) ^ s₀) := by nlinarith
+
+/-- **The cube exponent of the chain's separation is bounded uniformly in the block exponent**
+(`exists_rhoSepG_le_minSep`). -/
+theorem exists_hatScale_bound {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
+    ∃ s₀ : ℕ, ∀ m₁ : ℕ, hatScale L m₁ (rhoSepG d L m₁) ≤ s₀ := by
+  obtain ⟨s₀, hs₀⟩ := exists_rhoSepG_le_minSep hd hL
+  exact ⟨s₀, fun m₁ => hatScale_le (hs₀ m₁)⟩
 
 /-- `exp x - 1 ≤ 2 x` for `0 ≤ x ≤ 1`. -/
 theorem exp_sub_one_le_two_mul {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) : Real.exp x - 1 ≤ 2 * x := by
@@ -283,7 +294,7 @@ theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤
     rw [hc', hγ']
   rw [hm1', hϱ']
   have hhat := hs₀ m₁
-  refine ⟨?_, ?_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · rw [hγ']; exact hLq
   · refine ⟨κmin, T₀, κdec, ?_, hQ16, hNLN, rfl, ?_⟩
     · rw [hm0', hγ']; exact hT
@@ -339,6 +350,7 @@ theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤
             (2 * (1 / (18 * (1 + 16 * ((N : ℝ) + 1) * cK2 d L N)))) :=
           mul_le_mul_of_nonneg_left (by linarith only [hτ, hτs2]) hKm.le
       _ = 1 / 9 := by field_simp; norm_num
+  · rw [hc', hγ']; linarith only [hc₈q, hqf1]
   · refine ⟨rm, ?_, min_le_left _ _, ?_, ?_⟩
     · rw [hPτ]; linarith only [hτ, hτs3, hrm0]
     · rw [hPε]

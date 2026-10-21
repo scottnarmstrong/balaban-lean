@@ -25,7 +25,7 @@ section Book
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
   [NeZero S.L] (σ : LatTorusSym S n M K) (H : RegionHistory S n R k0 K)
-  (hsub : ∀ j, K ≤ j → n j = 1)
+  (hsub : ∀ j, K < j → n j = 1)
 
 theorem newCubes_img (k : ℕ) :
     (imgHist σ H hsub).newCubes (k + 1) = (H.newCubes (k + 1)).map (σ.ec (k + 1)).toEmbedding := by
