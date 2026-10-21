@@ -2198,6 +2198,7 @@ public import Balaban.LargeField.Base.BaseCoeffBounds
 public import Balaban.LargeField.Base.BaseFirstRDecomp
 public import Balaban.LargeField.Base.BaseFirstAction
 public import Balaban.LargeField.Base.BaseFirstActionClass
+public import Balaban.LargeField.Base.BaseFirstLemma35
 public import Balaban.LargeField.Base.BaseChartCore
 public import Balaban.LargeField.Base.BaseChartNative
 public import Balaban.LargeField.Base.BaseRecordBridge
