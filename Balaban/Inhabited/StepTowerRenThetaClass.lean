@@ -22,7 +22,8 @@ renormalized datum of a class datum at radius `ε_{k+1}` for `‖ξ‖ < r₀`
 `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi` at the sequence `λ ε_j`; one
 threshold `β₀` serves every `r₀` (the lower bound `α₀ 3^{-α j} ≤ ε_j` is used at `λ ≥ 1`).  The
 cover `ε_{k+1} ≤ t_k` holds, and the room `t_k + K₂ δ₃ + K₂ δ_fl ≤ ε_j` (`j ≤ k`) is against the
-class radii `ε_j`, for `K₂ (3/2) r₀ (3 + q) ≤ 1 - q`, `q = 3^{-(1/2 - γ)}` (`ren_room`).
+class radii `ε_j`, for `K₂ (3/2) r₀ (3 + q) ≤ 1 - q`, `q = 3^{-(1/2 - γ)}` (`ren_room`).  The
+formula form has the core `…_classEps_ren_phi_formula_of` at a given base tower (`CollarBase`).
 -/
 
 @[expose] public section
@@ -34,6 +35,229 @@ open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.L
   Balaban.SmallField Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep Matrix Metric Set
   MeasureTheory Balaban.Inhabited.MarkBudgetAudit Balaban.SmallField.Def6v2
   Balaban.SmallField.GsSpec Balaban.Analysis
+
+open Classical in
+/-- **Core of `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_phi_formula`: the class chain at the step radii `λ ε_{k+1}` with the formula of its family, at a given base tower.**  For a base tower `T₀` of the chain (`CollarBase` at the ratio `q = L^{-α}`) and the constants `Q`, `F`, `η` of the chain at `T₀`, the statement of the landed theorem after its constants. -/
+theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_phi_formula_of
+    {d L N : ℕ} [NeZero L] (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ)
+    (hγ1 : γ < 1 / 2) {κmin : ℝ} (T₀ : StepTowerG d L N κmin) {κdec : ℝ}
+    (hT : CollarBase d L N m₀ ((L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) T₀ κdec) {Q F η : ℝ}
+    (hQdef : Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+    (hFdef : F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))
+    (hηdef : η = (1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / (4 * xiK2 d L N * F)) :
+    ∀ P₀ : Consts, P₀.γ = γ → 0 < P₀.α₀ → ∃ β₀ : ℝ, 3 ≤ β₀ ∧
+    ∀ r₀ lam : ℝ, 0 < r₀ → lam = 1 + xiK2 d L N * ((3 / 2 : ℝ) * r₀) →
+    xiK2 d L N * ((3 / 2 : ℝ) * r₀) * (3 + (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) ≤
+      1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) → lam * P₀.eps d L 1 ≤ T₀.t →
+    ∀ (k : ℕ) (hk : 1 ≤ k), ∃ Tk : StepTowerG d L N κmin, Tk.t = lam * P₀.eps d L (k + 1) ∧
+      Tk.m₁ = T₀.m₁ ∧ Tk.c = T₀.c ∧ Tk.BG = T₀.BG ∧ Tk.κ = T₀.κ ∧ Tk.c₂ = T₀.c₂ ∧
+      Tk.BG₂ = T₀.BG₂ ∧ Tk.δc = T₀.δc ∧ Tk.δ = T₀.δ ∧ Tk.δ' = T₀.δ' ∧ Tk.κ0 = T₀.κ0 ∧ Tk.m₀ = T₀.m₀ ∧
+      ChainNum d L N Tk.m₁ Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) ∧
+      FlNum d L N Tk.BG Tk.BG₂ Tk.κ Tk.t (Q * Tk.t) (min Tk.t (η * (lam * P₀.eps d L k)))
+        (F * min Tk.t (η * (lam * P₀.eps d L k))) ∧
+      -- the cover: the radius premise of `newLabels_castInputs` at `eps = Tk.t`
+      P₀.eps d L (k + 1) ≤ Tk.t ∧
+      -- the room of the inherited labels at every level `j ≤ k`
+      (∀ j ≤ k, Tk.t + xiK2 d L N * (Q * Tk.t) +
+        xiK2 d L N * (F * min Tk.t (η * (lam * P₀.eps d L k))) ≤ P₀.eps d L j) ∧
+    ∀ (N₁ : ℕ) [NeZero N₁] (_ : L ^ Tk.m₀ ∣ N₁), 5 < N₁ →
+    ∀ ν : ℝ, 0 < ν → ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1 → ∀ β : ℝ, β₀ ≤ β →
+    ∀ p₁ : ℝ, 0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+    ∀ {ϱ : ℝ} (_ : ϱ = rhoSepG d L Tk.m₁) (S : StepSetting d L N₁ Tk.m₁ k N ϱ)
+      (_ : S = hatStepKG Tk.hN k Tk.m₁ ϱ hk ν β p₁ Tk.δ),
+    ∃ Jr : S.JointRep Tk.t (2 * p₁),
+    ∀ (C : StepClass d L N₁ Tk.m₁ k N ϱ) (z : RootIdx d L N₁ Tk.m₁ (k + 1))
+      (𝒯E : Finset (ℕ × CTorus d L N₁ Tk.m₁ (k + 1) × Set (CTorus d L N₁ Tk.m₁ (k + 1))))
+      (_ : 𝒯E = ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ Tk.m₁ (k + 1) ×
+          Set (CTorus d L N₁ Tk.m₁ (k + 1))))).filter
+        (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
+      {P : Consts} {Dom : FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ}
+      (_ : P.m₀ = C.m₀) (_ : SFTermClauses P Dom C.Tm)
+      (_ : 0 ≤ P.E₀) (i₀ i₁ : Fin N)
+      (_ : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1)
+          ϱ, (∀ i, j < i → G.Ω i = ∅) →
+        ∀ Ψ : Fld d L N₁ Tk.m₁ (k + 1) N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+        (∀ x x', jBlock d L (N₁ * L ^ Tk.m₁) (k + 1) j x = jBlock d L (N₁ * L ^ Tk.m₁) (k + 1) j x' →
+          Ψ x = Ψ x') →
+        Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
+      (XL 𝒦X : {τ // τ ∈ 𝒯E} → Set (CTorus d L N₁ Tk.m₁ (k + 1)))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, XL τ = τ.1.2.2 ∪ box (cbase (cellSide L C.m₀ Tk.m₁ τ.1.1) τ.1.2.1 -
+        natT fun _ => L / 2 * cellSide L C.m₀ Tk.m₁ τ.1.1) (L * cellSide L C.m₀ Tk.m₁ τ.1.1))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ChosenOne C.m₀ τ.1.1 (XL τ) (𝒦X τ))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∃ (W₀ : Finset (CTorus d L N₁ Tk.m₁ (k + 1)))
+        (E₀ : Finset (CTorus d L N₁ Tk.m₁ (k + 1) × CTorus d L N₁ Tk.m₁ (k + 1))),
+        ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne C.m₀ τ.1.1 (𝒦X τ) W₀ ∧
+          bondCost (scaleW L C.m₀ Tk.m₁ τ.1.1) E₀ = treeLenCovOne C.m₀ τ.1.1 (XL τ))
+      (_ : L ^ C.m₀ ∣ N₁) (_ : d ≤ C.m₀) {s : ℕ} (_ : s ≤ C.m₀)
+      (_ : (((5 * L + 13) * L ^ s : ℕ) : ℝ) + (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) * (L : ℝ) ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (C.m₀ + 1))
+      (_ : rhoSepG d L Tk.m₁ ≤ Balaban.LargeField.minSep L (L ^ (Tk.m₁ + s))) (_ : C.m₀ = m₀),
+    ∃ (Gk : {τ // τ ∈ 𝒯E} → GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1) ϱ)
+      (Gj : {τ // τ ∈ 𝒯E} → GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1) ϱ)
+      (X₀ X₁f : {τ // τ ∈ 𝒯E} → Finset (CTorus d L N₁ Tk.m₁ (k + 1))),
+      (∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ Tk.m₁ (k + 1))) = X1 S.G' C.m₀ τ.1.1 (𝒦X τ)) ∧
+      (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν Tk.c Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) (X₀ τ) (X₁f τ) τ.1.1) ∧
+      (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.κ Tk.BG Tk.t (Q * Tk.t)
+        (levelKc d L) (Cchi d L) Tk.c₂ Tk.BG₂ (min Tk.t (η * (lam * P₀.eps d L k))) (F * min Tk.t (η * (lam * P₀.eps d L k))) (X₁f τ)) ∧
+      (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
+      ∀
+      -- the composed step data of the labels lie in the term domain, `Ψ(y)·Ψ(y)` in the slit plane
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ (Fk : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →
+          ((Gk τ).Ω 1 × Fin N → ℂ) × ((Gk τ).Ω 1 → ℂ)),
+        (∀ D : BgData (Gk τ) N, InUnionDomainC (Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D →
+          Fk (rawOf D) = (bgFieldC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D,
+            bgMultC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D)) →
+        ∀ t ∈ FlRealLC S.G' (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.BG Tk.κ Tk.t
+          (X₁f τ) Tk.BG₂ (min Tk.t (η * (lam * P₀.eps d L k))),
+        ∀ r, r = D2raw (Gk τ) (Gj τ) (compWeight L S.a₁) Fk
+          (d1Triple S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) (compWeight L S.a₁) t.1.1
+            t.2.1 t.2.2) →
+        Dom.dom τ.1.1 (C.Tm.gs τ.1.1 τ.1.2.2) r.1 r.2 ∧
+          dot (r.1 τ.1.2.1) (r.1 τ.1.2.1) ∈ Complex.slitPlane)
+      -- the per-label bounds of the irrelevant parts in `d(X)` at the composed step data
+      -- (P1 (3.128), open)
+      (Bτ : {τ // τ ∈ 𝒯E} → ℝ) (_ : ∀ τ, 0 ≤ Bτ τ)
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ (Fk : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →
+          ((Gk τ).Ω 1 × Fin N → ℂ) × ((Gk τ).Ω 1 → ℂ)),
+        (∀ D : BgData (Gk τ) N, InUnionDomainC (Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D →
+          Fk (rawOf D) = (bgFieldC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D,
+            bgMultC (Gk τ) (compWeight L S.a₁) S.ν (bgC0 d L N) D)) →
+        ∀ t ∈ FlRealLC S.G' (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.BG Tk.κ Tk.t
+          (X₁f τ) Tk.BG₂ (min Tk.t (η * (lam * P₀.eps d L k))),
+        ∀ r, r = D2raw (Gk τ) (Gj τ) (compWeight L S.a₁) Fk
+          (d1Triple S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) (compWeight L S.a₁) t.1.1
+            t.2.1 t.2.2) →
+        ‖irrelTorus C.m₀ C.Tm i₀ i₁ τ.1.1 τ.1.2.1 τ.1.2.2 r.1 r.2‖ ≤
+          Bτ τ * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ τ.1.1 τ.1.2.2))
+      {CI KL α₃ : ℝ} (n₁ : ℕ) (_ : 0 ≤ CI) (_ : 0 ≤ KL) (_ : 0 < α₃)
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, τ.1.1 + n₁ ≤ k →
+        Bτ τ ≤ CI * P.E₀ * ((((L : ℝ)⁻¹ ^ (k - τ.1.1)) ^ ((d : ℝ) + α₃))))
+      (_ : ∀ τ : {τ // τ ∈ 𝒯E}, k < τ.1.1 + n₁ → Bτ τ ≤ KL * P.E₀),
+    -- the old densities are analytic along the path
+    (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+      ∀ s ∈ Set.Icc (0 : ℝ) 1, ∀ x : S.E, ‖x‖ ≤ S.p₁ → ∀ j ∈ Finset.Icc 1 k,
+      AnalyticAt ℂ
+        (fun q : Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N =>
+          Edens C.m₀ C.Tm j q.1 q.2)
+        (Jr.PJ j (rawOf D, (s : ℂ) • Balaban.Fluctuation.yhat x))) →
+    -- the smallness of the class constants against the marked radius
+    (corrU / ((min Tk.t (η * (lam * P₀.eps d L k))) / (2 * markedRad d L N k S.a₁ Tk.κ p₁
+            ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
+        (((2 ^ L ^ d : ℕ) : ℝ) * (c1 d L * ((((L : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ d) * P.E₀ *
+        (2 * K0 d L Tk.κ0 * (CI * Real.exp ((κdec - 1) * cG d L) * (1 - (L : ℝ) ^ (-α₃))⁻¹ +
+          n₁ * (KL * Real.exp ((κdec - 1) * cG d L)) * ((((L : ℝ) ^ (n₁ - 1)) ^ d))))) *
+        Real.exp ((2 * Tk.κdec - 1) * (2 * (d : ℝ) * (L : ℝ) ^ C.m₀ *
+          ((((L ^ (C.m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L)))) ≤
+        1 / (8 * (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
+          rootUnionK d L 1 Tk.m₁ Tk.κ0) ^ 3 * c1 d L *
+          Real.exp (((2 * Tk.κdec - 1) - 2 * Tk.κ0) * cG d L + c1 d L + Tk.κ' * cG d L))) →
+    (Φ : (physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁)
+        (K := k + 1) 1 (k + 1) Set.univ) → ℂ) → ℝ → Prop) →
+    (∀ (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁)
+        (K := k + 1) 1 (k + 1) Set.univ) → ℂ) (B : ℝ),
+      -- the spin covariance of `e`
+      (∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
+        ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
+        (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
+          rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
+        ∀ T', e θ' T' = e θ T') →
+      (NewLevelFormulaW S C z Jr
+        ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+          Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+          F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+        ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+          Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+          F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e)) →
+      B ≤ CPE d L (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
+        rootUnionK d L 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
+        (corrF0G Tk k β p₁ * K0 d L Tk.κ0 +
+          (((2 ^ L ^ d : ℕ) : ℝ) * (c1 d L * ((((L : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ d) * P.E₀ *
+        (2 * K0 d L Tk.κ0 * (CI * Real.exp ((κdec - 1) * cG d L) * (1 - (L : ℝ) ^ (-α₃))⁻¹ +
+          n₁ * (KL * Real.exp ((κdec - 1) * cG d L)) * ((((L : ℝ) ^ (n₁ - 1)) ^ d))))) *
+        Real.exp ((2 * Tk.κdec - 1) * (2 * (d : ℝ) * (L : ℝ) ^ C.m₀ *
+          ((((L ^ (C.m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L)))) / (2 * (min Tk.t (η * (lam * P₀.eps d L k)) / (4 * decMRG Tk k (β * (L : ℝ) ^ (k * (d - 2))) p₁))) *
+            (((nFibre d L : ℕ) : ℝ) * Real.exp ((2 * Tk.κdec - 1) * cBr d L)) * K0 d L Tk.κ0 +
+          ((nFibre d L : ℕ) : ℝ) * Real.exp (Tk.κ0 * cBr d L) * K0 d L Tk.κ0) → Φ e B) →
+    ∃ e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁)
+        (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
+      Φ e B ∧
+      (∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
+          Set.univ),
+        AnalyticOnNhd ℂ (fun θ => e θ T') (physV S S.a₁ S.ν Tk.t) ∧
+        (∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
+          physRestrict (N := N) (thickSet S.G' (Yhat Set.univ (sitesOf T')))
+              (physIncl N S θ) =
+            physRestrict (thickSet S.G' (Yhat Set.univ (sitesOf T'))) (physIncl N S θ') →
+          e θ T' = e θ' T') ∧
+        (∀ θ ∈ physV S S.a₁ S.ν Tk.t, ‖e θ T'‖ ≤
+          (L : ℝ) ^ d * ((1 / 2 : ℝ) * N * covBLogMax d L Tk.κ /
+              (1 - ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp Tk.κ))) *
+              Real.exp (-((Tk.κ - Real.log 2 - 2 * Real.log ((detDeg d L + 1 : ℕ) : ℝ)) / (2 * d * L)) *
+                dExt T') +
+            B * Real.exp (-Tk.κ' * dExt T')) ∧
+        (∀ θ, e θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T'))) ∧
+      (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
+        Jr.E0locJ C z (rawOf D) = ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ : rawSub N S.G'),
+          (0 : CTorus d L N₁ Tk.m₁ (k + 1) → Fin N → ℂ)) T' ∧
+        (S.withDatumH D).E0locH C z = ∑ T', e ((⟨rawOf D, rawOf_mem_rawSub _⟩ :
+          rawSub N S.G'), (0 : CTorus d L N₁ Tk.m₁ (k + 1) → Fin N → ℂ)) T') ∧
+      ∀ ε : ℝ, ε ≤ Tk.t → ∀ q : Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N,
+        XiDom S.G' S.a S.ν (k + 1) ε q.1 q.2 →
+        Jr.densE0 C (rootSite z) q = ∑ T',
+          (if h : clipRaw S.G' q ∈ rawSub N S.G' then
+            e ((⟨clipRaw S.G' q, h⟩ : rawSub N S.G'), 0) T' else 0) := by
+  have hd := T₀.hd
+  have hL := T₀.hL
+  have h3d : (3 : ℝ) ≤ d := by exact_mod_cast hd
+  have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have hq0 : 0 < (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) := Real.rpow_pos_of_pos hLpos _
+  have hq1 : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) < 1 :=
+    Real.rpow_lt_one_of_one_lt_of_neg (by exact_mod_cast (by omega : 1 < L)) (by linarith)
+  have hαd : 2 * (((d : ℝ) - 2) / 2 - γ) < ((d - 2 : ℕ) : ℝ) := by
+    rw [Nat.cast_sub (by omega)]; push_cast; linarith
+  have hQθ : xiK2 d L N * Q ≤ (1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) /
+      (2 * (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) := by
+    rw [hQdef]; exact hT.close
+  obtain ⟨hQ, hF, hη⟩ := T₀.collar_consts_pos hq1 hQdef hFdef hηdef
+  have H := StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi_formula_of m₀ hA p hq0 hq1 hαd T₀ hT hQdef hFdef hηdef
+  intro P₀ hγ hα₀
+  have hαP : P₀.alpha d = ((d : ℝ) - 2) / 2 - γ := by
+    unfold Consts.alpha
+    rw [hγ]
+  obtain ⟨β₀, hβ₀, HC⟩ := H P₀.α₀ hα₀
+  refine ⟨β₀, hβ₀, fun r₀ lam hr hlam hrr hε1 k hk => ?_⟩
+  have hpos : ∀ j, 0 < P₀.eps d L j := fun j => by
+    have := epsTail_pos j
+    unfold Consts.eps epsSeq
+    positivity
+  have hgap : ∀ j, P₀.eps d L (j + 1) ≤ (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) * P₀.eps d L j := fun j => by
+    have := classEpsG_gap (d := d) (L := L) hα₀.le j
+    rwa [hαP] at this
+  have hlow : ∀ j : ℕ, P₀.α₀ * (L : ℝ) ^ (-((((d : ℝ) - 2) / 2 - γ) * (j : ℝ))) ≤ P₀.eps d L j :=
+    fun j => by
+      have := classEpsG_lower (d := d) (L := L) hα₀.le j
+      rwa [hαP] at this
+  have hanti : Antitone (P₀.eps d L) :=
+    classEpsG_antitone (d := d) (L := L) hα₀.le (by rw [hαP]; linarith)
+  have hK : 0 < xiK2 d L N := by
+    have := cK2_pos d L N
+    unfold xiK2; positivity
+  have hl1 : 1 ≤ lam := by rw [hlam]; nlinarith
+  have hl0 : 0 < lam := by linarith
+  have hlq := ren_lam_le hrr hlam
+  obtain ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, -, Hk⟩ :=
+    HC (fun j => lam * P₀.eps d L j) (fun i j hij => mul_le_mul_of_nonneg_left (hanti hij) hl0.le)
+      (fun j => mul_pos hl0 (hpos j))
+      (fun j => by
+        have := mul_le_mul_of_nonneg_left (hgap j) hl0.le
+        linarith)
+      (fun j => (hlow j).trans (le_mul_of_one_le_left (hpos j).le hl1)) hε1 k hk
+  have hroom := ren_room hq0 hq1 hK hQ hF hQθ hηdef hanti hpos hgap hl1 hlq k
+  refine ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, ?_, ?_, Hk⟩
+  · rw [hTt]; exact le_mul_of_one_le_left (hpos _).le hl1
+  · rw [hTt]; exact hroom
+
 
 open Classical in
 /-- **The class chain at the collar of a general tower at the step radii `λ ε_{k+1}`, one threshold
@@ -105,6 +329,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν Tk.c Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.κ Tk.BG Tk.t (Q * Tk.t)
           (levelKc d L) (Cchi d L) Tk.c₂ Tk.BG₂ (min Tk.t (η * (lam * P₀.eps d L k))) (F * min Tk.t (η * (lam * P₀.eps d L k))) (X₁f τ)) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀
         -- the composed step data of the labels lie in the term domain, `Ψ(y)·Ψ(y)` in the slit plane
         (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ (Fk : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →
@@ -166,10 +391,14 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
           (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
+        (NewLevelFormulaW S C z Jr
           ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
             Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
-            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e →
+            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e ∧
+          (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e)) →
         B ≤ CPE d L (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
           rootUnionK d L 1 Tk.m₁ Tk.κ0) (2 * Tk.κdec - 1) Tk.κ0 Tk.κ' *
           (corrF0G Tk k β p₁ * K0 d L Tk.κ0 +
@@ -213,47 +442,10 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   have hq0 : 0 < (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) := Real.rpow_pos_of_pos hLpos _
   have hq1 : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) < 1 :=
     Real.rpow_lt_one_of_one_lt_of_neg (by exact_mod_cast (by omega : 1 < L)) (by linarith)
-  have hαd : 2 * (((d : ℝ) - 2) / 2 - γ) < ((d - 2 : ℕ) : ℝ) := by
-    rw [Nat.cast_sub (by omega)]; push_cast; linarith
-  obtain ⟨κmin, hlo, T₀, κdec, Q, F, η, hm0, hk0, hκ₀, hrate₀, hQdef, hQθ, hFdef, hηdef, hQ, hF,
-    hη, H⟩ := StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi_formula d L N hd hL hN m₀ hA p hq0 hq1 (α := ((d : ℝ) - 2) / 2 - γ) hαd
-  refine ⟨κmin, hlo, T₀, κdec, Q, F, η, hm0, hk0, hκ₀, hrate₀, hQdef, hQθ, hFdef, hηdef, hQ, hF, hη,
-    fun P₀ hγ hα₀ => ?_⟩
-  have hαP : P₀.alpha d = ((d : ℝ) - 2) / 2 - γ := by
-    unfold Consts.alpha
-    rw [hγ]
-  obtain ⟨β₀, hβ₀, HC⟩ := H P₀.α₀ hα₀
-  refine ⟨β₀, hβ₀, fun r₀ lam hr hlam hrr hε1 k hk => ?_⟩
-  have hpos : ∀ j, 0 < P₀.eps d L j := fun j => by
-    have := epsTail_pos j
-    unfold Consts.eps epsSeq
-    positivity
-  have hgap : ∀ j, P₀.eps d L (j + 1) ≤ (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) * P₀.eps d L j := fun j => by
-    have := classEpsG_gap (d := d) (L := L) hα₀.le j
-    rwa [hαP] at this
-  have hlow : ∀ j : ℕ, P₀.α₀ * (L : ℝ) ^ (-((((d : ℝ) - 2) / 2 - γ) * (j : ℝ))) ≤ P₀.eps d L j :=
-    fun j => by
-      have := classEpsG_lower (d := d) (L := L) hα₀.le j
-      rwa [hαP] at this
-  have hanti : Antitone (P₀.eps d L) :=
-    classEpsG_antitone (d := d) (L := L) hα₀.le (by rw [hαP]; linarith)
-  have hK : 0 < xiK2 d L N := by
-    have := cK2_pos d L N
-    unfold xiK2; positivity
-  have hl1 : 1 ≤ lam := by rw [hlam]; nlinarith
-  have hl0 : 0 < lam := by linarith
-  have hlq := ren_lam_le hrr hlam
-  obtain ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, -, Hk⟩ :=
-    HC (fun j => lam * P₀.eps d L j) (fun i j hij => mul_le_mul_of_nonneg_left (hanti hij) hl0.le)
-      (fun j => mul_pos hl0 (hpos j))
-      (fun j => by
-        have := mul_le_mul_of_nonneg_left (hgap j) hl0.le
-        linarith)
-      (fun j => (hlow j).trans (le_mul_of_one_le_left (hpos j).le hl1)) hε1 k hk
-  have hroom := ren_room hq0 hq1 hK hQ hF hQθ hηdef hanti hpos hgap hl1 hlq k
-  refine ⟨Tk, hTt, hTm, hTc, hTB, hTκ, hTc₂, hTB₂, hTδc, hTδ, hTδ', hTk0, hTm0, hC, hFl, ?_, ?_, Hk⟩
-  · rw [hTt]; exact le_mul_of_one_le_left (hpos _).le hl1
-  · rw [hTt]; exact hroom
+  obtain ⟨κmin, T₀, κdec, hT⟩ := exists_collarBase d L N hd hL hN m₀ hq0 hq1
+  obtain ⟨hQ, hF, hη⟩ := T₀.collar_consts_pos hq1 rfl rfl rfl
+  exact ⟨κmin, hT.hull, T₀, κdec, _, _, _, hT.m₀_eq, hT.κ0_eq, hT.rate, hT.rate', rfl, hT.close, rfl,
+    rfl, hQ, hF, hη, StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_phi_formula_of m₀ hA p hγ0 hγ1 T₀ hT rfl rfl rfl⟩
 
 open Classical in
 /-- The class chain at the collar of a general tower at the step radii `λ ε_{k+1}`, one threshold `β₀`. -/
@@ -471,7 +663,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
     obtain ⟨Jr, H'⟩ := Hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ hϱ S hS
     refine ⟨Jr, ?_⟩
     intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-    obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @H' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL
+    obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @H' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL
       𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
     refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
     intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum Φ hΦ

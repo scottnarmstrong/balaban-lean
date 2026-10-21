@@ -66,20 +66,8 @@ theorem aligned_cubeAt_base {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j ≤
 
 theorem mem_cubeAt {m₀ j : ℕ} (y : CTorus d L N₁ m₁ k) :
     y ∈ box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-      (L * cellSide L m₀ m₁ j) := by
-  have hcs : 0 < cellSide L m₀ m₁ j := cellSide_pos m₀ m₁ j
-  refine ⟨fun μ => L / 2 * cellSide L m₀ m₁ j + (y μ).val % cellSide L m₀ m₁ j,
-    fun μ => ?_, ?_⟩
-  · have h1 : (y μ).val % cellSide L m₀ m₁ j < cellSide L m₀ m₁ j := Nat.mod_lt _ hcs
-    have h2 : L / 2 + 1 ≤ L := by have := NeZero.pos L; omega
-    calc L / 2 * cellSide L m₀ m₁ j + (y μ).val % cellSide L m₀ m₁ j
-        < L / 2 * cellSide L m₀ m₁ j + cellSide L m₀ m₁ j := by omega
-      _ = (L / 2 + 1) * cellSide L m₀ m₁ j := by ring
-      _ ≤ L * cellSide L m₀ m₁ j := Nat.mul_le_mul_right _ h2
-  · have e : (fun μ => L / 2 * cellSide L m₀ m₁ j + (y μ).val % cellSide L m₀ m₁ j) =
-        (fun _ => L / 2 * cellSide L m₀ m₁ j) + fun μ => (y μ).val % cellSide L m₀ m₁ j := rfl
-    rw [e, natT_add, cbase_eq_sub]
-    abel
+      (L * cellSide L m₀ m₁ j) :=
+  GsSpec.self_mem_cubeAt y
 
 /-- **`□(y)` is a polymer of `𝒟_j`**: a single `π'_j`-cube. -/
 theorem isPolyDom_cubeAt {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j ≤ k) (y : CTorus d L N₁ m₁ k) :

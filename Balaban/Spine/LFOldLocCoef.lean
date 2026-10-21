@@ -79,6 +79,28 @@ def restrictU {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
     (ψhat : St.U → Fin N → ℂ) : (St.restrict B B' hBB hBtop D'' hh).U → Fin N → ℂ :=
   fun b => ψhat ⟨b.1, HoleStep.unitPts_restrict_subset St B B' hBB hBtop D'' hh b.2⟩
 
+/-- **The coefficient `T(X, J)` of an old boundary term on its local pair** (reading HS-1′; P6
+(4.32)–(4.33), P3 (4.43)): the coefficient of Lemma AE of the interpolated old term of the
+step restricted to `𝔹_{k+1}(V(X, J))` (`holeStepLoc`), at the cubes of its cover with the labels of
+`J`, as a function of the fluctuation field `ψ̂` on the unit points of `Ω_{k+1}`. Core of
+`oldCoefLoc` for the readings of the local pair: the datum `holeStepLocAt glob` and the local set
+`V(σ X, J)` (reading HS-1′: `glob = false`, `σ = id`; reading HS-2: `glob = true`, `σ = stencilX`).
+-/
+noncomputable def oldCoefLocAt (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
+    (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) : ℂ :=
+  oldCoefLF g hnn hM1 (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J))
+    H hk (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 H r r' (σ X) J)).G') ρc ρ r ∅
+    (restrictU _ _ _ _ _ _ _ ψhat) rep A X ψ ψ' hv gx
+    (locCubes g (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 H r r' (σ X) J)).G') J)
+    (fun b => absurd b.2 (Finset.notMem_empty _))
+
 /-- **The coefficient `T(X, J)` of an old boundary term on its local pair** (reading HS-1′;
 P6 (4.32)–(4.33), P3 (4.43)): the coefficient of Lemma AE of the interpolated old term of the step
 restricted to `𝔹_{k+1}(V(X, J))` (`holeStepLoc`), at the cubes of its cover with the labels of `J`,
@@ -90,13 +112,48 @@ noncomputable def oldCoefLoc (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 
     (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
     (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) : ℂ :=
-  oldCoefLF g hnn hM1 (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J))
-    H hk (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
-      (locSetXJ g hM1 H r r' X J)).G') ρc ρ r ∅
-    (restrictU _ _ _ _ _ _ _ ψhat) rep A X ψ ψ' hv gx
-    (locCubes g (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
-      (locSetXJ g hM1 H r r' X J)).G') J)
-    (fun b => absurd b.2 (Finset.notMem_empty _))
+  oldCoefLocAt (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r'
+    rep A X ψ' hv gx J ψhat
+
+/-- **The Cauchy bound of the coefficient on the local pair** (Lemma AE; P6 (4.33)–(4.34) at
+the level of one coefficient): if the interpolated old term of the local pair is analytic and
+bounded by `B` on the polydisc of radius `e^{κ₁}`, `κ₁ ≥ 1`, then `|T(X, J)| ≤ B e^{-(κ₁ -
+1)|J_V|}`, `J_V` the cubes of the local cover with the labels of `J`. Core for the readings of the
+local pair (`oldCoefLocAt`). -/
+theorem norm_oldCoefLocAt_le (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
+    (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) {κ₁ Bd : ℝ}
+    (hκ₁ : 1 ≤ κ₁)
+    (hana : AnalyticOnNhd ℂ
+      ((holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)).oldInterp
+        (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G') ρc
+        (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)) ρ)
+        (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ (restrictU _ _ _ _ _ _ _ ψhat)
+        (oldTermLF g hnn hM1 rep A X hk (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G' ψ ψ' hv gx)
+        (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc 0 fun _ => Real.exp κ₁))
+    (hB : ∀ s ∈ Analysis.polydisc (0 : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ
+        z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)).G')) (fun _ => Real.exp κ₁),
+      ‖(holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)).oldInterp
+        (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G') ρc
+        (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)) ρ)
+        (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ (restrictU _ _ _ _ _ _ _ ψhat)
+        (oldTermLF g hnn hM1 rep A X hk (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).G' ψ ψ' hv gx)
+        (fun b => absurd b.2 (Finset.notMem_empty _)) s‖ ≤ Bd) :
+    ‖oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat‖ ≤
+      Bd * Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁
+        ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)).G') J).card) :=
+  norm_coef_le_exp hκ₁ hana hB _
 
 /-- **The Cauchy bound of the coefficient on the local pair** (Lemma AE; P6 (4.33)–(4.34) at the
 level of one coefficient): if the interpolated old term of the local pair is analytic and bounded by
@@ -135,7 +192,8 @@ theorem norm_oldCoefLoc_le (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 
     ‖oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat‖ ≤
       Bd * Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁
         ν β p₁ δ (locSetXJ g hM1 H r r' X J)).G') J).card) :=
-  norm_coef_le_exp hκ₁ hana hB _
+  norm_oldCoefLocAt_le (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+    ρc ρ r r' rep A X ψ' hv gx J ψhat hκ₁ hana hB
 
 end LocCoef
 

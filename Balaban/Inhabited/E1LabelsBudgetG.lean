@@ -58,15 +58,18 @@ theorem e1DomG_isDj {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N
     T.hd (hV b).2.2.1 hY
 
 open Classical in
-/-- **The bridge family of every root is nonempty.** -/
-theorem e1DomG_bridgeFamily_nonempty {d L N : ℕ} [NeZero L] {κmin : ℝ}
+/-- **Core of `e1DomG_bridgeFamily_nonempty`: the bridge family of every root is nonempty for the
+step of any level pair with the covers.** -/
+theorem e1DomG_bridgeFamily_nonempty_of_covers {d L N : ℕ} [NeZero L] {κmin : ℝ}
     (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ} {hk : 1 ≤ k}
-    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁)
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} {ϱm : ℝ} {Hm : GeneratingSet d L (N₁ * L ^ T.m₁) (k + 1) ϱm}
+    (hcov : LevelCoversG d L N N₁ T.m₁ k (rhoSepG d L T.m₁) ϱm
+      (lvTopG d L N₁ T.m₁ k (rhoSepG d L T.m₁)) Hm T.m₀)
     {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (z : RootIdx d L N₁ T.m₁ (k + 1)) :
     (bridgeFamily 1 (fun _ => Set.univ)
       (e1DomG (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)) z).Nonempty := by
   subst hϱ
-  obtain ⟨hV, -⟩ := D.covers
+  obtain ⟨hV, -⟩ := hcov
   rw [hm₀] at hV
   obtain ⟨-, hX, -, -, -, -, hbs⟩ := hV z
   set X := X1 (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ (rhoSepG d L T.m₁) hk ν β p₁ T.δ).G' 1 k
@@ -87,6 +90,16 @@ theorem e1DomG_bridgeFamily_nonempty {d L N : ℕ} [NeZero L] {κmin : ℝ}
     exact h
   exact ⟨bridge 1 z X, mem_bridgeFamily.2 ⟨z, X, hY, ⟨rootSite z, Set.mem_univ _, blockIndex_rootSite z⟩,
     ⟨rootSite z, Or.inl hxX, blockIndex_rootSite z⟩, rfl⟩⟩
+
+open Classical in
+/-- **The bridge family of every root is nonempty.** -/
+theorem e1DomG_bridgeFamily_nonempty {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T : StepTowerG d L N κmin) (hm₀ : T.m₀ = 1) {k : ℕ} {hk : 1 ≤ k}
+    {N₁ : ℕ} [NeZero N₁] {ν β p₁ : ℝ} (D : StepScaleDataG T k hk N₁ ν β p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L T.m₁) (z : RootIdx d L N₁ T.m₁ (k + 1)) :
+    (bridgeFamily 1 (fun _ => Set.univ)
+      (e1DomG (hatStepKG (d := d) (L := L) (N₁ := N₁) T.hN k T.m₁ ϱ hk ν β p₁ T.δ)) z).Nonempty :=
+  e1DomG_bridgeFamily_nonempty_of_covers T hm₀ D.covers hϱ z
 
 /-- The per-root constant of the corrected marks is positive. -/
 theorem corrF0G_pos {d L N : ℕ} [NeZero L] {κmin : ℝ} (T : StepTowerG d L N κmin) {k : ℕ}

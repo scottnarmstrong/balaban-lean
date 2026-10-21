@@ -99,6 +99,8 @@ theorem sfFlatSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
       IsPolyDom P6.m₀ (k + 1) X → GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X))
+    (hhatnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
+      IsPolyDom P6.m₀ (k + 1) X → GsSpec.HatSpec P6.m₀ (k + 1) X ((sf'.Tm N₂).gs (k + 1) X))
     (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
     (hC' : CoeffBounds d L (k + 1) (massOne P6) sf'.β sf'.ν sf'.a)
     (hR' : RenormCondAlong P6.m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1) (torusSeq L P6.m₀)
@@ -120,7 +122,7 @@ theorem sfFlatSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
     (hadm := hcl.admissible) (hC := hcl.coeff) (hνk910 := hνk910)
     (htorOld := fun N₂ _ hN => hρsf N₂ hN) (hTIold := hcl.torusIndep)
     (hrenOld := hcl.renorm) (hD8 := hD8) (hfree := hfree) (hrun := hrun) (hcst := hcst)
-    (hfree' := hfree') (hTm := hTm) (hnew := hnew) (hgsnew := hgsnew) (hTInew := hTInew)
+    (hfree' := hfree') (hTm := hTm) (hnew := hnew) (hgsnew := hgsnew) (hhatnew := hhatnew) (hTInew := hTInew)
     (hR' := hR') (hreal := hreal) (hD8new := hD8new)
   exact ⟨⟨hcl.admissible, hC', ⟨ρ', hρ'⟩, hTI, hren, hRt⟩, hD8',
     ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le⟩⟩
