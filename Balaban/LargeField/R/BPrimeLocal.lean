@@ -74,7 +74,11 @@ section Local
 
 variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
   {C : DecCover d L N₁ m₁ K} {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ}
-  {Kc Cx : ℝ} {ι : Type*}
+  {Kc Cx : ℝ}
+
+section Lab
+
+variable {ι : Type*}
 
 open Classical in
 /-- The cubes of the cover `C` whose label (through `π`) is a label of the family `𝒞`. -/
@@ -191,6 +195,8 @@ theorem labParams_locality_facts
     show labS lab s (π P) = labS lab s' (π P)
     rw [← hi, labS_of_eq hinj, labS_of_eq hinj, hsi]
 
+end Lab
+
 /-- **(AE2) for the decoupled background field at labelled cut parameters, comparison form.**
 Let `𝒞` be a family of labels, `s, s'` supported on `𝒞` with `|s_i|, |s'_i| ≤ e^κ`, agreeing on the
 labels whose cell lies in `Y(𝒞) = compY lab X₁ 𝒞`, and `D, D'` two data of `Ψ̃^c(δ, ε)` agreeing on
@@ -200,7 +206,7 @@ the root region `X₁`. -/
 theorem decBgField_lab_local {c₀ BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c₀ BG)
     (S : Dec2.CoverLocal C H a ν Kc Cx) (hconn : Dec2.HatConn C H) (HB : BgHyp d L K ϱ a ν)
     {κ : ℝ} (hκ : 0 ≤ κ) (hM : c₀ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
-    {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
+    {ι : Type*} {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
     (hlabK : ∀ i, (lab i).1 ≤ K) {X₁ : Finset (CTorus d L N₁ m₁ K)}
     (hoff : ∀ i, Disjoint (Pset m₁ (lab i)) (↑X₁ : Set (CTorus d L N₁ m₁ K)))
     {π : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁ m₁ K}
@@ -248,7 +254,7 @@ theorem decBgField_lab_local_adm {c₀ BG : ℝ}
     (hS : Dec2.DecSpecs d L (Dec2.selfKc d L) (Cchi d L) c₀ BG) (S : DGSetting H a ν)
     (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : c₀ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
-    {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
+    {ι : Type*} {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
     (hlabK : ∀ i, (lab i).1 ≤ K) {X₁ : Finset (CTorus d L N₁ m₁ K)}
     (hoff : ∀ i, Disjoint (Pset m₁ (lab i)) (↑X₁ : Set (CTorus d L N₁ m₁ K)))
     {π : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁ m₁ K}
@@ -312,7 +318,7 @@ theorem decBgField_lab_local_self {c₀ BG : ℝ}
     (hconn : Balaban.Localization.HatConn H)
     (HB : BgHyp d L K ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
     (hM : c₀ * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
-    {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
+    {ι : Type*} {lab : ι → ℕ × CTorus d L N₁ m₁ K} (hinj : Function.Injective lab)
     (hlabK : ∀ i, (lab i).1 ≤ K) {X₁ : Finset (CTorus d L N₁ m₁ K)}
     (hoff : ∀ i, Disjoint (Pset m₁ (lab i)) (↑X₁ : Set (CTorus d L N₁ m₁ K)))
     {π : ℕ × CTorus d L N₁ m₁ K → ℕ × CTorus d L N₁ m₁ K}
