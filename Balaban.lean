@@ -3008,3 +3008,6 @@ public import Balaban.Inhabited.NewLevelSystemRead
 public import Balaban.Inhabited.NewLevelSystemLocality
 public import Balaban.Inhabited.NewLevelSystemRot
 public import Balaban.Inhabited.NewLevelSystemAnalytic
+public import Balaban.Fluctuation.NewLevelOldTermsBgLocal
+public import Balaban.Inhabited.NewLevelOldTermsBgRot
+public import Balaban.Inhabited.NewLevelLocalSetFacts

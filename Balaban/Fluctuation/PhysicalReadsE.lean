@@ -116,12 +116,14 @@ variable {Gk : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁} {Gj : GeneratingSet 
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) K ϱm}
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ K)} {j : ℕ}
 
-/-- **The read set of the approximate field at a nearby site lies in `X₁`.**  For a data site `x`
-of `Gk` and a site `u` at lift distance `≤ ℓ - 1` from `x` in every coordinate (`ℓ = L ^ n`,
-`Gp` of level `n`), every site read by the approximate field of `Gp` at `u` lies in `X₁`. -/
-theorem approxDep_subset_X1_of_near
-    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {n : ℕ} (hG : IsLevel Gp n)
-    {x : CTorus d L N₁ m₁ K} (hx : x ∈ dataSites Gk) {u : CTorus d L N₁ m₁ K}
+/-- **Core of `approxDep_subset_X1_of_near`**, for any generating set `Gp`: the data site `x` of
+`Gk` lies in `Ω₁` of `Gp` with the layer index `n`, and the blocks of `Gp` active at `u` have the
+layer `n` (`hact`). -/
+theorem approxDep_subset_X1_of_near_of
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {n : ℕ}
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ dataSites Gk) (hxΩ : x ∈ Gp.Ω 1)
+    (hxn : Gp.layerIndex x = n) {u : CTorus d L N₁ m₁ K}
+    (hact : ∀ q ∈ active Gp u, q.1 = n)
     (hu : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n - 1) (u μ) (x μ)) :
     approxDep Gp u ⊆ X₁f := by
   intro v hv
@@ -131,14 +133,13 @@ theorem approxDep_subset_X1_of_near
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
   have hl : (1 : ℝ) ≤ (L : ℝ) ^ n := one_le_pow₀ hL1
   have hx0 : x ∈ X₀ := hB.dsX₀ x hx
-  have hxΩ : x ∈ Gp.Ω 1 := (hG x).1
   refine hB.hN x hx0 hxΩ v ?_
   have hsp : Gp.spacing x = (L : ℝ) ^ n := by
-    unfold GeneratingSet.spacing; rw [(hG x).2]
+    unfold GeneratingSet.spacing; rw [hxn]
   rw [hsp]
   have hcoord : ∀ μ, ((Green.cycRep (x μ - v μ)).natAbs : ℝ) ≤ 3 * (L : ℝ) ^ n - 2 := by
     intro μ
-    have h := ((approxDep_coord_bound hG hv μ).symm.trans (hu μ)).symm
+    have h := ((approxDep_coord_bound_of hact hv μ).symm.trans (hu μ)).symm
     have h' := h.mono (r' := 3 * (L : ℝ) ^ n - 2) (by linarith)
     exact natAbs_cycRep_le_of_coordNear h'
   have hsum : Green.torusDist d (N₁ * L ^ m₁ * L ^ K) x v ≤ d * (3 * (L : ℝ) ^ n - 2) := by
@@ -147,18 +148,39 @@ theorem approxDep_subset_X1_of_near
       _ = _ := by simp; ring
   exact lt_of_le_of_lt hsum (radius_lt hd hL1 hl hB.hr₀)
 
+/-- **The read set of the approximate field at a nearby site lies in `X₁`.**  For a data site `x`
+of `Gk` and a site `u` at lift distance `≤ ℓ - 1` from `x` in every coordinate (`ℓ = L ^ n`,
+`Gp` of level `n`), every site read by the approximate field of `Gp` at `u` lies in `X₁`. -/
+theorem approxDep_subset_X1_of_near
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {n : ℕ} (hG : IsLevel Gp n)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ dataSites Gk) {u : CTorus d L N₁ m₁ K}
+    (hu : ∀ μ, CoordNear (N₁ * L ^ m₁ * L ^ K) ((L : ℝ) ^ n - 1) (u μ) (x μ)) :
+    approxDep Gp u ⊆ X₁f :=
+  approxDep_subset_X1_of_near_of hB hx (hG x).1 (hG x).2
+    (fun _ hq => active_layer_of_isLevel hG hq) hu
+
+/-- **Core of `approxDep_composeDep_subset_X1`**, for any generating set `Gp`: the data site `x`
+lies in `Ω₁` of `Gp` with the layer index `n ≤ K`, and the blocks of `Gp` active at the composite
+site `u` have the layer `n` (`hact`). -/
+theorem approxDep_composeDep_subset_X1_of
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {n : ℕ} (hnK : n ≤ K)
+    {x : CTorus d L N₁ m₁ K} (hx : x ∈ dataSites Gk) (hxΩ : x ∈ Gp.Ω 1)
+    (hxn : Gp.layerIndex x = n) {u : CTorus d L N₁ m₁ K}
+    (hact : ∀ q ∈ active Gp u, q.1 = n) (hu : u ∈ composeDep Gk Gp x) :
+    approxDep Gp u ⊆ X₁f :=
+  approxDep_subset_X1_of_near_of hB hx hxΩ hxn hact fun μ =>
+    composeDep_coord_bound hnK hu (fun hxk => (hB.hP.layerIndex_le hxk).trans hxn.le)
+      (fun _ => hxn.le) μ
+
 /-- **(E-read).**  For `Gp` of level `n` and a data site `x` of `Gk`, every site `u` of the
 composite dependency set `composeDep Gk Gp x` has all its approximate-field reads
 `approxDep Gp u` in `X₁`. -/
 theorem approxDep_composeDep_subset_X1
     (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) {n : ℕ} (hG : IsLevel Gp n)
     {x : CTorus d L N₁ m₁ K} (hx : x ∈ dataSites Gk) {u : CTorus d L N₁ m₁ K}
-    (hu : u ∈ composeDep Gk Gp x) : approxDep Gp u ⊆ X₁f := by
-  refine approxDep_subset_X1_of_near hB hG hx fun μ => ?_
-  refine composeDep_coord_bound hG.bounds.2 hu (fun hxk => ?_) (fun _ => ?_) μ
-  · have := hB.hP.layerIndex_le hxk
-    rwa [(hG x).2] at this
-  · exact (hG x).2.le
+    (hu : u ∈ composeDep Gk Gp x) : approxDep Gp u ⊆ X₁f :=
+  approxDep_composeDep_subset_X1_of hB hG.bounds.2 hx (hG x).1 (hG x).2
+    (fun _ hq => active_layer_of_isLevel hG hq) hu
 
 /-- **(E-read) for the fluctuation composite sites** `composeDep Gk Hm x` (`FlSetting`). -/
 theorem approxDep_composeDep_hm_subset_X1
@@ -173,6 +195,15 @@ theorem approxDep_composeDep_hm_subset_X1
   refine composeDep_coord_bound hG.bounds.2 hu (fun hxk => ?_) (fun hxk => hHm hxk) μ
   exact (hF.hPm.layerIndex_le hxk).trans (hHm hxk)
 
+/-- **Core of `approxField_composeDep_congr`**: two background data sets (`Ψ`, `h`) that agree on
+`X₁` give the same approximate field of `Gp` at every site whose approximate-field reads lie in
+`X₁`. -/
+theorem approxField_congr_of_reads {a : ℕ → ℝ} {Ψ Ψ₂ h h₂ : CTorus d L N₁ m₁ K → Fin N → ℂ}
+    (hag : ∀ y ∈ X₁f, Ψ y = Ψ₂ y ∧ h y = h₂ y) {u : CTorus d L N₁ m₁ K}
+    (hread : approxDep Gp u ⊆ X₁f) :
+    approxField Gp a ν Ψ h u = approxField Gp a ν Ψ₂ h₂ u :=
+  approxField_congr fun y hy => ⟨(hag y (hread hy)).1, fun _ => (hag y (hread hy)).2⟩
+
 /-- Two background data sets (`Ψ`, `h`) that agree on `X₁` give the same approximate field of
 `Gp` at every composite site `u ∈ composeDep Gk Gp x` of a data site `x`. -/
 theorem approxField_composeDep_congr
@@ -181,9 +212,7 @@ theorem approxField_composeDep_congr
     (hag : ∀ y ∈ X₁f, Ψ y = Ψ₂ y ∧ h y = h₂ y) {x : CTorus d L N₁ m₁ K}
     (hx : x ∈ dataSites Gk) {u : CTorus d L N₁ m₁ K} (hu : u ∈ composeDep Gk Gp x) :
     approxField Gp a ν Ψ h u = approxField Gp a ν Ψ₂ h₂ u :=
-  approxField_congr fun y hy =>
-    ⟨(hag y (approxDep_composeDep_subset_X1 hB hG hx hu hy)).1,
-      fun _ => (hag y (approxDep_composeDep_subset_X1 hB hG hx hu hy)).2⟩
+  approxField_congr_of_reads hag (approxDep_composeDep_subset_X1 hB hG hx hu)
 
 /-- The same for the composite sites `composeDep Gk Hm x` of the fluctuation. -/
 theorem approxField_composeDep_hm_congr
