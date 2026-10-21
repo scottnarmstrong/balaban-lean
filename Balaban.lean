@@ -2191,6 +2191,7 @@ public import Balaban.LargeField.Base.BaseRecordRetained
 public import Balaban.LargeField.Base.BaseFirstRetained
 public import Balaban.LargeField.Base.BaseGenCanon
 public import Balaban.LargeField.Base.BaseHistRecords
+public import Balaban.LargeField.Base.BaseHistExists
 public import Balaban.LargeField.Base.BaseDetTwoTorus
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
