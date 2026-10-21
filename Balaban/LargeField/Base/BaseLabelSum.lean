@@ -15,7 +15,7 @@ import Mathlib.Tactic.Positivity
 # The coefficients of the rooted families with a given label
 
 For coefficients `c x Cs` of the finite families `Cs` of cells of a decoupling cover (one family per
-site `x`), non-zero only for the non-empty families rooted at a set of sites within `ρs` of `x`
+site `x`), non-zero only for the families rooted at a set of sites within `ρs` of `x`
 (`IsRootedFamily (cellPatch C D)`), with `‖c x Cs‖ ≤ B e^{-(κ-1)|Cs|}`, the label of `(x, Cs)` is
 the set `labelSet` of the hull of the root cube of `x` and the patches `labelJ` of the family.  The
 sum of the coefficients with a given label `Y` is at most `labelAmp · e^{-labelRate · d^cov(Y)}`
@@ -70,7 +70,7 @@ theorem labelZ_pos (d L k ρs : ℕ) (κ : ℝ) : 0 < labelZ d L k ρs κ := by
 open Classical in
 /-- **The sum of the rooted coefficients with a given label decays in the size of the label.**
 Let `c x Cs` be coefficients of the finite families `Cs` of cells of a decoupling cover, non-zero
-only for the non-empty families rooted at a set `S x` of sites within `ρs` of the site `pos x`, with
+only for the families rooted at a set `S x` of sites within `ρs` of the site `pos x`, with
 `‖c x Cs‖ ≤ B e^{-(κ-1)|Cs|}`.  If `Δ² e^{-(κ-1)} < 1` (`Δ = labelDelta`), then for every set `Y` the
 sum, over the sites `x` and the families `Cs` whose label (the hull of the root cube and of the
 patches of the family) is `Y`, of `c x Cs` is bounded by `labelAmp · e^{-labelRate · d^cov(Y)}`. -/
@@ -83,7 +83,7 @@ theorem norm_labelSum_le {ι : Type*} [Fintype ι] (hd : 0 < d)
     (S : ι → Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1)))
     (hS : ∀ x, ∀ y ∈ S x, supDist (pos x) y ≤ ρs) (c : ι → Finset ↥C.cubeIdx → ℂ) {B κ : ℝ}
     (hB : 0 ≤ B) (hz : labelZ d L k ρs κ < 1)
-    (hroot : ∀ x Cs, c x Cs ≠ 0 → Cs.Nonempty ∧ Green.IsRootedFamily (cellPatch C D) (S x) Cs)
+    (hroot : ∀ x Cs, c x Cs ≠ 0 → Green.IsRootedFamily (cellPatch C D) (S x) Cs)
     (hbd : ∀ x Cs, ‖c x Cs‖ ≤ B * Real.exp (-(κ - 1)) ^ Cs.card)
     (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))) :
     ‖∑ x, ∑ Cs ∈ Finset.univ.filter (fun Cs : Finset ↥C.cubeIdx => labelSet C m₀ (pos x) ρs Cs = Y),
@@ -119,7 +119,7 @@ theorem norm_labelSum_le {ι : Type*} [Fintype ι] (hd : 0 < d)
       (∀ y, supDist (pos x) y ≤ ρs → y ∈ labelSet C m₀ (pos x) ρs Cs) ∧
       sizeJ m₀ (k + 1) (labelSet C m₀ (pos x) ρs Cs) ≤ (2 * d * L : ℝ) * (A + (Cs.card * 20 ^ d : ℕ)) :=
     fun x Cs h => labelHull_spec hN hL hD hm (fun q hq => (hlay q hq).2) (pos x) (hS x)
-      (hroot x Cs h).2
+      (hroot x Cs h)
   have hY : IsPolyDom m₀ (k + 1) Y := hl0 ▸ (hspec x0 Cs0 hc0).1
   have hYDj : IsDj m₀ (k + 1) Y := isDj_of_isPolyDom hY
   set σ : ℝ := treeLenCovOne m₀ (k + 1) Y with hσ
@@ -132,7 +132,7 @@ theorem norm_labelSum_le {ι : Type*} [Fintype ι] (hd : 0 < d)
     (fun x => card_rootCells_le hD hm hlay hal (pos x) (hS x))
     (t := Real.exp (-(κ - 1))) (Real.exp_pos _).le hz c hB
     (fun x Cs => labelSet C m₀ (pos x) ρs Cs) Y n Xs
-    (fun x Cs h => Polymer.mem_rootedSets.2 (rooted_cellGraph (hroot x Cs h).2)) hbd
+    (fun x Cs h => Polymer.mem_rootedSets.2 (rooted_cellGraph (hroot x Cs h))) hbd
     (fun x Cs h hl => by
       refine Nat.ceil_le.2 ?_
       have h3 := (hspec x Cs h).2.2
