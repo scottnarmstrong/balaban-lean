@@ -101,4 +101,39 @@ theorem exists_preimage_label (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁'
 
 end LabelBox
 
+section MarkedPair
+
+variable {d L N₁ N₁' m₁ k : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L] {β β' : Type*} [Fintype β] [Fintype β']
+
+set_option hygiene false in
+local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
+set_option hygiene false in
+local notation "bc" => boxMap (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+  (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1)))
+
+/-- **The contributing pairs of a root correspond on two tori, given the correspondence of the
+domains.**  For a family of domains `dom b` of the first torus and `dom' b'` of the second (all
+blocks read), and a domain `Y` of the box: `(b', bm '' Y)` is a contributing pair of the root `bc z`
+iff `(b, Y)` is one of `z`, as soon as `bm '' Y ∈ dom' b' ↔ Y ∈ dom b`. -/
+theorem markedIdx_boxMap_iff {R rc : ℕ}
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))))
+    (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ R)
+    {dom : β → Finset (Set (CTorus d L N₁ m₁ (k + 1)))}
+    {dom' : β' → Finset (Set (CTorus d L N₁' m₁ (k + 1)))} {b : β} {b' : β'}
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    (hD : bm '' Y ∈ dom' b' ↔ Y ∈ dom b) :
+    (b', bm '' Y) ∈ markedIdx (fun _ : β' => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1)))) dom'
+        (bc z) ↔
+      (b, Y) ∈ markedIdx (fun _ : β => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) dom z := by
+  have hreads : ∀ {M : ℕ} [NeZero M] (w : Torus d (M * L ^ m₁ * L ^ (k + 1 - (k + 1)))),
+      ((Set.univ : Set (CTorus d L M m₁ (k + 1))) ∩ fineBlock (m₁ := m₁) (K := k + 1) w).Nonempty :=
+    fun w => ⟨rootSite w, trivial, rootSite_mem_fineBlock w⟩
+  rw [mem_markedIdx, mem_markedIdx, hD, psiThick_fineBlock_iff (N₁' := N₁') hn hn' z hz hrc hYR]
+  simp only [hreads, true_and]
+
+end MarkedPair
+
 end Balaban.Polymer.TwoTorusStep
