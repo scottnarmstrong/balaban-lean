@@ -619,4 +619,93 @@ theorem composedMulti_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ 
       simp [symM]
   · simp [composedMulti, not_lt.2 hjk.le, hjk.ne', symM]
 
+/-- **The cover cubes with the labels of `J` under the lattice symmetry.** -/
+theorem locCubes_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    {St St' : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1)}
+    (H0 : StepAff St St' (coverAff g hnn hM1 σ hk))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    locCubes g (coverOf St'.G') (J.map (affCentres (m₁ := m₁) (coverAff g hnn hM1 σ hk) m₁).toEmbedding) =
+      (locCubes g (coverOf St.G') J).map H0.kappa.toEmbedding := by
+  classical
+  ext Q'
+  unfold locCubes
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_map]
+  constructor
+  · intro h
+    obtain ⟨P, hP, hPQ⟩ := h
+    have hPi : P ∈ (coverOf St.G').cubeIdx := by
+      refine (cover_idx_aff _ H0.hAl H0.hca H0.hca' H0.hΩ' P).1 ?_
+      have : affCentres (m₁ := m₁) (coverAff g hnn hM1 σ hk) m₁ P = Q'.1 := hPQ
+      rw [this]; exact Q'.2
+    refine ⟨⟨P, hPi⟩, hP, Subtype.ext ?_⟩
+    exact hPQ
+  · rintro ⟨Q, hQ, rfl⟩
+    exact ⟨Q.1, hQ, rfl⟩
+
+/-- **The coefficient `T(X, J)` of the re-expanded old term is invariant under the lattice
+symmetries of the history** (the clause `euclid` of (D7), at the level of one coefficient).  `σ`
+maps the history `H` to `H'` (`RegionIso`), `X` to `X' = σ X`, the local set `V` to `σ V`, the
+cubes `J` to `τ J`, and the fixed values of the fluctuation field by `ψ̂ ∘ u⁻¹`; the multiscale
+fields and the source are carried by `symM`, `symG`.  Inputs: the clause `euclid` of the record at `X`
+(`heuc`) and the analyticity of the interpolated old terms (`hana`, `hana'`). -/
+theorem oldCoefLF_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hm₁ : 2 ≤ m₁)
+    {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A A' : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ρc : ℝ) (ρ r : ℕ)
+    (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (heuc : ∀ (ψ₂ ψ₃ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₂ : GIdx S n M K N → ℂ),
+      rep.B A' (X.map (σ.ec k).toEmbedding) (symM σ ψ₂) (symM σ ψ₃) h (symG σ g₂) =
+        rep.B A X ψ₂ ψ₃ h g₂)
+    (ψout : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U → Fin N → ℂ)
+    {R₀ : ℝ} (hR : 1 < R₀)
+    (hana : AnalyticOnNhd ℂ ((holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).oldInterp
+      (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc
+      (locDomsLF g hM1 (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) ρ)
+      (collarCoreC (c := g.c) (H.step k) hM1 r X) ∅ ψout
+      (oldTermLF g hnn hM1 rep A X hk
+        (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ψ ψ' hv gx)
+      (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G')) fun _ => R₀))
+    (hana' : AnalyticOnNhd ℂ ((holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).oldInterp
+      (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G') ρc
+      (locDomsLF g hM1 (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)) ρ)
+      (collarCoreC (c := g.c) (H'.step k) hM1 r (X.map (σ.ec k).toEmbedding)) ∅
+      (fun b' i => ψout ((holeStepLoc_stepAff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁).u.symm b') i)
+      (oldTermLF g hnn hM1 rep A' (X.map (σ.ec k).toEmbedding) hk
+        (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+          ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G' (symM σ ψ) (symM σ ψ') hv (symG σ gx))
+      (fun b => absurd b.2 (Finset.notMem_empty _)))
+      (Analysis.polydisc (0 : Dec2.DecParams (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G')) fun _ => R₀))
+    (J₀ : Finset (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G').cubeIdx) :
+    oldCoefLF g hnn hM1 (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)) H' hk
+      (coverOf (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G') ρc ρ r ∅
+      (fun b' i => ψout ((holeStepLoc_stepAff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁).u.symm b') i)
+      rep A' (X.map (σ.ec k).toEmbedding) (symM σ ψ) (symM σ ψ') hv (symG σ gx)
+      (J₀.map (holeStepLoc_stepAff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁).kappa.toEmbedding)
+      (fun b => absurd b.2 (Finset.notMem_empty _)) =
+    oldCoefLF g hnn hM1 (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V) H hk
+      (coverOf (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G') ρc ρ r ∅ ψout
+      rep A X ψ ψ' hv gx J₀ (fun b => absurd b.2 (Finset.notMem_empty _)) := by
+  set H0 := holeStepLoc_stepAff g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V σ hI hm₁ with hH0
+  unfold oldCoefLF
+  refine H0.oldCoef_entry ρc
+    (fun x => mem_collarCoreC_aff g hnn hM1 σ hI hk r X x)
+    (fun b x => locDomsLF_aff g hnn hM1 σ hk H0 ρ b x)
+    (fun q i => by simp) (B := oldTermLF g hnn hM1 rep A X hk
+      (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ψ ψ' hv gx)
+    (B' := oldTermLF g hnn hM1 rep A' (X.map (σ.ec k).toEmbedding) hk
+      (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G' (symM σ ψ) (symM σ ψ') hv (symG σ gx))
+    (fun c => ?_) _ _ hR hana hana' J₀
+  unfold oldTermLF
+  rw [composedMulti_symM g hnn hM1 σ hk H0 ψ c]
+  exact heuc _ _ _ _
+
 end Balaban.RootFSpine
