@@ -216,3 +216,33 @@ approved declaration.
   read `FineValidAt` through `bdryDomsPre`/`bdryDomsPost`), the history clauses, the H7 domain, the halos of R
   (`isDj_d7Pull_halo`), `RGasCore*`. The R11 side is landed (`Spine/LFBdryHole.lean`).
 - **Recommendation: approve.**
+
+## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
+- **R12, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
+  Sets: G = 𝔹_k(W_k) (`p6OldC`) ≺ G′ = (𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1} of (2.17) (`p6TopC`), datum ψ_k off Ω_{k+1}
+  and θ = z ψ_{k+1} on it (`liftMixed`). (2.17) is the composed background of G′; (2.18) and C^{(k)1/2}_loc (2.35) are
+  the decoupled background and covariance root of (C, G′), C = `coverOf` G′, at the vector equal to s on the cover cubes
+  inside R_{k+1}(□′) and 0 outside (`slocOf`), R_{k+1}(□′) = cubes of 𝕋_{k+1} within ⌊R_k⌋ of □′ (`locDomC`). The exponent
+  of (2.48)/(3.2) is the log of the integrand of (2.16) (kernel at z ψ_{k+1}, 𝒜_k + ℱ_k + ℛ^{(k)} on Z^c_k, holomorphic)
+  at the composed field (2.39), plus ½|ψ̂|² + u ℬ''^{(k)}; χ_k is carried by T′^{(k)} and dμ′ ((2.44)–(2.47)); by (2.38)
+  this is P5's exponent up to a constant. The pre-localized terms that (3.1) moves into ℬ'' stay in it (kind (i)).
+- **OPEN-P6-X1-INSTANTIATION.** P6 p. 34: "we consider this term as localized in X ∩ Ω_{k+1}, we introduce the same
+  localization extension as before … the domains Y₁ may have several components, each of them containing at least one
+  component of X ∩ Ω_{k+1}". Reading: the uncut core of the expansion of ℬ^{(k)}(X) is X₁ = the fine sites of
+  A_X = X ∩ Ω_{k+1} (no collar); the parameters are the cover cubes not inside X₁ (`parCubes`), set to 1 inside X₁; at
+  □′ ⊂ Ω_{k+1} the vector is that of R12 (0 outside R_{k+1}(□′)). The output domains are assigned by (4.44)[3] through
+  the optimal covers of X (`assignOut`, weights `assignWt`). Needs: the cell count of A_X by d_k(X) (`P6ActiveSeed`),
+  and the H7 validity of the extension, which is OPEN-H7-MIXED.
+- **OPEN-P6-ACTIVE-COMPOSITE-LOC.** Under R12 the "old operator" of the substitution is the operator of the one set G′
+  (its layers off Ω_{k+1} are those of 𝔹_k(W_k)), with the one cover C = `coverOf` G′: background, covariance and
+  covariance root at the vector s all belong to (C, G′), and the composition with G is a block average. Reading: the
+  statement to prove is the AE locality (AE2) of s ↦ ℬ^{(k)}(X)(composed field) on the incidence component of X₁ ∪ J
+  for the decoupled objects of the single pair (C, G′) — the same-set decoupling locality (`Decoupled2FpLocal`,
+  `Dec2Covariance.decCovSqrt_BD_of_GsxBD`, `DecSqrtCutFactor.CovStanding.decCovSqrt_agree`), plus the spectator part
+  (old spins on X ∩ Ω^c_{k+1}, h, g fixed: P5 (2.35), (2.39); proved by `composedMulti_out`, `composedMulti_of_lt`).
+- **OPEN-H7-MIXED.** Reading: the image lemma for the composite of R12: for (θ, h, g) in the target H7 domain of
+  scale k+1 (P5 (1.36)–(1.37) at Ω_{k+1}), |ψ̂| < p₁(β_k) and |s_P| ≤ e^{κ₁}, the multiscale field `composedMulti` (the
+  composed field on the unit points of Ω_{k+1}, the record's fields elsewhere) lies in the source H7 domain of scale k
+  on which the record's ℬ^{(k)}(X) is analytic with its bound ((D7) `analytic`, `bound`). It is one statement about the
+  single pair (C, G′) (the background and covariance-root bounds of the decoupled objects, `Decoupled2XBounds`,
+  `CovSqrtSupComplexDec`), not two mixed generating sets.
