@@ -12,6 +12,7 @@ public import Balaban.Polymer.Bridge
 public import Balaban.Polymer.Hole
 public import Balaban.Fluctuation.ClusterUnion
 public import Balaban.Polymer.SteinerGas
+public import Balaban.Polymer.FibreProduct
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -104,10 +105,10 @@ open Balaban Balaban.Polymer
 variable (d s m' : ℕ) [NeZero s] [NeZero m']
 
 /-- The sites of the block `b` of side `s` of the torus of side `s m'`. -/
-abbrev Fibre (b : Balaban.Torus d m') : Type := {x : Balaban.Torus d (s * m') // blockOf d s m' x = b}
+abbrev Fibre (b : Balaban.Torus d m') : Type := QFibre (blockOf d s m') b
 
 /-- The block configuration space: on the block `b`, one value in `W` for each site of `b`. -/
-abbrev BlockSpace (W : Type*) : Balaban.Torus d m' → Type _ := fun b => Fibre d s m' b → W
+abbrev BlockSpace (W : Type*) : Balaban.Torus d m' → Type _ := QSpace (blockOf d s m') W
 
 variable {d s m'}
 
@@ -117,12 +118,12 @@ variable {W : Type*} [MeasurableSpace W]
 
 /-- The site configuration of a block configuration. -/
 def toSites (Φ : ∀ b, BlockSpace d s m' W b) : Balaban.Torus d (s * m') → W :=
-  fun x => Φ (blockOf d s m' x) ⟨x, rfl⟩
+  qSites (blockOf d s m') Φ
 
 /-- The product reference on blocks: on each block the product of the one-site measure `γ` over
 the sites of the block. -/
 def blockRef (γ : Measure W) : ∀ b, Measure (BlockSpace d s m' W b) :=
-  fun _ => Measure.pi fun _ => γ
+  qRef (blockOf d s m') γ
 
 instance blockRef_sigmaFinite (γ : Measure W) [SigmaFinite γ] (b : Balaban.Torus d m') :
     SigmaFinite (blockRef (d := d) (s := s) (m' := m') γ b) :=
@@ -133,33 +134,15 @@ instance blockRef_isProbabilityMeasure (γ : Measure W) [IsProbabilityMeasure γ
   inferInstanceAs (IsProbabilityMeasure (Measure.pi fun _ : Fibre d s m' b => γ))
 
 omit [NeZero s] [NeZero m'] in
-theorem measurable_toSites : Measurable (toSites (d := d) (s := s) (m' := m') (W := W)) := by
-  refine Measurable.of_eval fun x => ?_
-  exact (measurable_pi_apply (⟨x, rfl⟩ : Fibre d s m' (blockOf d s m' x))).comp
-    (measurable_pi_apply (blockOf d s m' x))
+theorem measurable_toSites : Measurable (toSites (d := d) (s := s) (m' := m') (W := W)) :=
+  measurable_qSites
 
 /-- The image of the block product measure under the restriction map is the site product
 measure. -/
 theorem map_toSites_pi (γ : Measure W) [SigmaFinite γ] :
     (Measure.pi (blockRef (d := d) (s := s) (m' := m') γ)).map toSites =
-      Measure.pi fun _ : Balaban.Torus d (s * m') => γ := by
-  symm
-  refine Measure.pi_eq fun t ht => ?_
-  rw [Measure.map_apply measurable_toSites (MeasurableSet.univ_pi ht)]
-  have hpre : toSites ⁻¹' (Set.pi Set.univ t) = Set.pi Set.univ
-      (fun b : Balaban.Torus d m' => Set.pi Set.univ (fun x : Fibre d s m' b => t x.1)) := by
-    ext Φ
-    simp only [Set.mem_preimage, Set.mem_pi, Set.mem_univ, true_implies, toSites]
-    constructor
-    · intro h b x
-      obtain ⟨x, hb⟩ := x
-      subst hb
-      exact h x
-    · intro h x
-      exact h _ ⟨x, rfl⟩
-  rw [hpre, Measure.pi_pi]
-  simp only [blockRef, Measure.pi_pi]
-  exact Fintype.prod_fiberwise (blockOf d s m') (fun x => γ (t x))
+      Measure.pi fun _ : Balaban.Torus d (s * m') => γ :=
+  map_qSites_pi γ
 
 omit [NeZero s] [NeZero m'] [MeasurableSpace W] in
 /-- A function of the sites in `H` composed with the restriction map depends only on the blocks
@@ -167,10 +150,8 @@ meeting `H`. -/
 theorem depOn_comp_toSites {H : Finset (Balaban.Torus d (s * m'))}
     {F : (Balaban.Torus d (s * m') → W) → ℂ}
     (hF : ∀ ψ ψ' : Balaban.Torus d (s * m') → W, (∀ x ∈ H, ψ x = ψ' x) → F ψ = F ψ') :
-    DepOn (H.image (blockOf d s m')) (fun Φ : ∀ b, BlockSpace d s m' W b => F (toSites Φ)) := by
-  intro Φ Φ' h
-  refine hF _ _ fun x hx => ?_
-  exact congrFun (h _ (Finset.mem_image_of_mem _ hx)) ⟨x, rfl⟩
+    DepOn (H.image (blockOf d s m')) (fun Φ : ∀ b, BlockSpace d s m' W b => F (toSites Φ)) :=
+  depOn_comp_qSites hF
 
 end Space
 
