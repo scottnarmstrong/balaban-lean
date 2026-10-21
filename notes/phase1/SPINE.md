@@ -1378,3 +1378,24 @@ Open: two-torus agreement of `NS.coeff`. (i) the old terms `Eτ` are fixed only 
 `evDec` of a localized old term (needs `composeField`/`d1Triple`/`D2raw` on two tori and the
 `StepTowerG` form of `FlCore`/`BgSetting`/`FlSetting`); the `coreE0_twoTorus` development is
 stated for the tower `StepTowerG`, not for a bare `StepSetting`.
+
+### A4-1f two-torus core for the localized old term: scoping (W1148r, 2026-10-21)
+
+Premise 1 (old terms on two tori) is taken as the box form of the input class's D8/`TorusIndep`
+clause: `RawBoxAgree R r r' → E r = E' r'` for the old terms; discharged by `sfSucc_core`'s inherited D8.
+Landed tool: `Polymer/TwoTorusEv.lean` `evDec_twoTorus` (any `Φ`, `Φ'`), via `FFmarked_twoTorus`
+(single use of `hΦ`, line ~964). Two gaps stop `Φ = eTermFun Gp Gk Gj Hm a Fk E`:
+1. `hΦ` compares only the multiplier `t.1.2` (on `Rα`), the fluctuation field `t.2.1` (on `Rδ`) and
+   the tangent (on `Rψ`).  `eTermFun` also reads the decoupled background field `t.1.1`
+   (`composeField Gk Gp a φ …`) and the raw datum `t.2.2.1` (`d1Triple`, `D2raw`).  Both are available
+   at the use of `hΦ` (`decBg_value_twoTorus` returns the `φ` correspondence; `hraw` the raw one), so
+   `hΦ` must get two more antecedents.  `hΦ` is a binder of `FFmarked_twoTorus`, `coef_FFmarked_twoTorus`,
+   `evDec_twoTorus`, `evDec_blockEnergy_twoTorus`, `Ev_twoTorus`, `Ev_blockEnergy_twoTorus` and is passed by
+   `TwoTorusObsKernel` (`siteEv_twoTorus`), `TwoTorusGapClose`, `TwoTorusCoef` (3 sites): changing it in place
+   rebuilds all of these modules.
+2. `GA`, `HA` are `levelGS` on both tori.  In the chain `Gk`, `Gj` are `localB` sets of a polymer
+   (`OldTermSystem.Gk : GeneratingSet … ϱ₁`, arbitrary), so a statement on two tori needs a correspondence
+   of `Gk` with `Gk'` under `boxMap` (cells, layers, collar) plus the union-domain pin `FkPin` on
+   both (a two-torus version of `decBg_value_twoTorus` for `bgFieldC Gk`, not landed).
+Decision needed from the coordinator: (a) allow editing the `hΦ` binder in place across the modules
+above, and (b) the form of the `Gk`/`Gk'` correspondence (`localB` of corresponding polymers).
