@@ -713,6 +713,25 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   (Vmod) of each old term, conditional on OPEN-H7-MIXED, OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC and the
   common-cover I-4a theorem (VMOD.md §1.4, VMOD-39). P6 (4.33) is the localized interaction: the step's terms are at the
   cluster labels `Ŷ(S) ⊇ Y₀` of Theorem 3.4; the landed assignments are the `Y₀` layer.
+* **Status after W1154 pieces 2–3 (2026-10-21): the step with holes DEFINED with characterizations** (readings R12,
+  OPEN-P6-X1-INSTANTIATION, OPEN-P6-ACTIVE-COMPOSITE-LOC, OPEN-H7-MIXED recorded in `PLAN-B.md`). Core (any
+  `Fluctuation.HoleStep`, the whole-lattice `StepSetting` is the instance `toHole`, rfl lemmas): the composed field of P5
+  (2.39) `HoleStep.composed` (decoupled background and covariance root of the pair (C, G′) at the localization vectors
+  `slocOf`), the measure `nuIn`, the exponent `expW`, `avgOld`, `oldTotal` (= `∫₀¹ ⟨ℬ''⟩''_u`), `partFun_one_eq_mul_exp_oldTotal`
+  (`HoleStepMeasure`); the coefficient `T(X, J) = oldCoef` (Lemma AE `coef` of the interpolated old term `oldInterp`),
+  `sum_oldCoef_eq_of_analytic`, `oldCoef_eq_zero_of_core`, `oldCoef_eq_zero_of_far` (`HoleStepOldCoef`); the block
+  structure `prodSplit` and Theorem 3.1 (c) on a region `oldTotal_eq_sum_of_marks`, `oldBOut`, `oldTotal_eq_sum_oldBOut`,
+  `norm_oldBOut_le` (`HoleStepSplit`, through the region-general `Thm31cdeOn`: `ProdSplitOn`, `InterpMarksOn`,
+  `interpAvg_eq_sum_interpTermOn`). History instance (`Spine/LFHoleStep*`, `Spine/LFOldCoef`): `holeStepLF` (θ = z ψ_{k+1}),
+  `composedMulti`, `phiLF` (log of the integrand of (2.16): `logKernelC` + the holomorphic `𝒜_k + ℱ_k + ℛ^{(k)}`,
+  `LargeField/Def7SmallFieldC`; `stepKernel_mul_sfFactor`), `oldDoms`, `oldLF`, `locSloc` (R_{k+1}(□′) = `locDomC`),
+  `expWLF`, `oldTotalLF`, `oldCoefLF` (core `X ∩ Ω_{k+1}` = `activeCoreC`). **Remaining for O1:** (i) OPEN-P6-ACTIVE-
+  COMPOSITE-LOC under R12 = `LocalityAEOn` of `oldInterp` from the single-pair locality of (`coverOf` G′, G′)
+  (`Dec2.decBg_component_cross` self-comparison, `CovStanding.decCovSqrt_mulVec_eq_unit`); (ii) OPEN-H7-MIXED (the
+  image of the target H7 domain and the polydisc in the source H7 domain; gives `hana` of `sum_oldCoef_eq_of_analytic`
+  and the standing bounds); (iii) Proposition 3.3 on the region (`InterpMarksOn` for `expWLF`: the localization of the
+  exponent, as for the whole lattice); (iv) the frame bridge between the cover torus of the step and the D7 frame
+  (labels `Ŷ(S)` ↦ `Finset (Torus d n_{k+1})`) and the assembly of `old` as `BTerms`, then the (D7) clauses.
 
 ## LastIntegralInput sub-inputs (W1108)
 
