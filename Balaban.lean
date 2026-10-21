@@ -2177,6 +2177,7 @@ public import Balaban.LargeField.Base.BaseDetTrace
 public import Balaban.LargeField.Base.BaseDetActivity
 public import Balaban.LargeField.Base.BaseDefectLogDet
 public import Balaban.LargeField.Base.BaseDefectWalks
+public import Balaban.LargeField.Base.BaseDefectWalkTransport
 public import Balaban.LargeField.Base.BaseDetTwoTorus
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
