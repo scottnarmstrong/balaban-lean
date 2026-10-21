@@ -492,6 +492,18 @@ theorem cover_qset_aff (q q' : ℕ × CTorus d L N₁ m₁ K) :
     refine ⟨A.toFun y, ?_, (inBox_aff_iff A q.1 q.2 y _).2 h2⟩
     exact ((sameCell_aff_iff A hpos (dvd_side hr.2) hAj y q'.2).2 h1).trans hc.symm
 
+include hAl in
+theorem cubeP_aff {q : ℕ × CTorus d L N₁ m₁ K} (hq : q ∈ cubeIdx G) (x : CTorus d L N₁ m₁ K) :
+    A.toFun x ∈ cubeP (affCentres (m₁ := m₁) A m₁ q) ↔ x ∈ cubeP q := by
+  obtain ⟨hr, -, hb⟩ := (mem_cubeIdx G).1 hq
+  have hAj := aligned_cube A hAl hr.2
+  have hpos : 0 < L ^ (q.1 + m₁) := by have := NeZero.pos L; positivity
+  have hc := sameCell_baseImg A hpos (dvd_side hr.2) hAj q.2 hb
+  rw [mem_cubeP, mem_cubeP]
+  show SameCell (L ^ (q.1 + m₁)) (A.toFun x) (baseImg A (L ^ (q.1 + m₁)) q.2) ↔ _
+  exact ⟨fun h => (sameCell_aff_iff A hpos (dvd_side hr.2) hAj _ _).1 (h.trans hc),
+    fun h => ((sameCell_aff_iff A hpos (dvd_side hr.2) hAj _ _).2 h).trans hc.symm⟩
+
 /-! ### Compatibility with the blocks of two generating sets -/
 
 include hAl hG hG' hΩ in
