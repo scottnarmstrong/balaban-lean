@@ -1357,3 +1357,115 @@ Proved inside: completeness of the histories (`canonHist_complete`); the pins `D
 (`nu_succ_le_of_coeffBounds`); `hM6` and the flow rate from `PrefixInput`. (g) `β_0 = β`, `ν_0 = ν`: clauses of `BaseSFInput`/`BaseFlatSFInput` (they say that the flow of the first step starts from the bare couplings; `sf` cannot be redefined
 at `0`, the flow `CoeffBounds.flow` starts there). Open: (a) the small-field data and boundary terms, (b) the kernels, (c) the transform relation (`Σ_records ∏ K_0 = ρ_1`, BASECARRIER item T), (f) the coherence, the coefficient limits `D1CorrLim` (see the
 coefficient-limit entry above). Rule 10: the parts need the exemption of the seven inputs; the assembled class members are inhabited by `preClassAt_witness`/`flatClassAt_witness`.
+
+**A4-1f `SFCoherenceInput`: blocked on the map `Φ` (W1148, 2026-10-21).** `SFCoherenceQ` is a clause on `D8SF` of `{ Φ sf with Tm := newLevelTerms … }`, i.e. on the `M^{(k+1)}` and `ℛ^{(k+1)}` terms of the image `Φ sf` as functions of the
+fields `(ψ, h, g)` on the Def-6 tori. No definition turns the output of the fluctuation chain (`NewLevelFormula`, `newLevelCoeffBg`, a coefficient family indexed by `physParam`/`physV` and the polymer `T′`) into `Terms d L N₁ m₁ (k+1) N ϱ`:
+`Terms` is only produced by the witnesses (`Inhabited/GeneralClassWitness`, `V2*`) and by the splice `newLevelTerms`; the spine's `Φ` is a parameter (rows ★ `Φ`, A4-1b (iii)). Until `Φ` is built (the evaluation of the chain's coefficient at the
+physical parameter of a field datum, with the background solves), `SFCoherenceInput` has no object to be proved about; `sfSucc_core` already consumes it as the hypothesis `hD8new`, and the inherited levels are `liftOldTermsFam_M_eq_of_d8`.
+What the proof will need, in the chain's terms (to be proved for `Φ` once defined): for two tori `N₁, N₁'` the coefficient `NS.coeff θ T′ = newLevelDetBg … + gsumCoeff μ Lab (A θ) y0 (G θ) T′` agrees at corresponding arguments when its objects do:
+`A = commonAct (A₀, AC)`: `A₀` (zero-class, `StepTowerG.e0CoeffFamily_value_fromTowerG_core_twoTorus`, `coreE0_unique`); `AC` and `G₁` from the inherited terms `Eτ` (D8 of the inherited levels) via `evDec` (`explicit_evDec_of_core`);
+the bridge marks `G` via `decSol` (`decSol_value_twoTorus`, `decSol_value_twoTorus_of_decBg`); the determinant part `newLevelDetBg` (`newLevelDetBg_eq_of_agree`). The difficulty is not these ingredients but that the pins `F₁`, `Sol` are returned
+existentially per torus: the agreement needs the value-uniqueness statements of W1089 for the bridge marks of the formula (as `coreE0_unique` for the core), not yet stated for `AC`, `G₁`.
+
+## A4-1f chain-side value uniqueness (W1148r, 2026-10-21)
+
+Landed: `NewLevelPinUnique` (pins unique on their domains), `NewLevelValueUnique.eTermFun_unique`
+(the old-term functional reads `Fk` only through the union-domain pin, via `eTerm_chain_of_one_le`),
+`fnOfDec_unique`/`evDec_unique` generalized to two functionals agreeing on `FlRealLC`,
+`NewLevelMarkUnique.oldTermEvDec_unique` and `oldTermEvDec_deriv_unique` (the inherited terms of
+`H` and `G₁` do not depend on `F₁L`, `SolL`, `FkL`; FlCore/BgSetting/FlSetting as typing premises).
+Open: two-torus agreement of `NS.coeff`. (i) the old terms `Eτ` are fixed only by `hEJ` and
+`OldTermsAreIrrel` (they are `irrelTorus` of `C.Tm`), so their two-torus agreement is a spine fact
+(Agree-transport of `C.Tm`) and must enter as a premise; (ii) no two-torus statement exists for
+`evDec` of a localized old term (needs `composeField`/`d1Triple`/`D2raw` on two tori and the
+`StepTowerG` form of `FlCore`/`BgSetting`/`FlSetting`); the `coreE0_twoTorus` development is
+stated for the tower `StepTowerG`, not for a bare `StepSetting`.
+
+### A4-1f two-torus core for the localized old term: scoping (W1148r, 2026-10-21)
+
+Premise 1 (old terms on two tori) is taken as the box form of the input class's D8/`TorusIndep`
+clause: `RawBoxAgree R r r' → E r = E' r'` for the old terms; discharged by `sfSucc_core`'s inherited D8.
+Landed tool: `Polymer/TwoTorusEv.lean` `evDec_twoTorus` (any `Φ`, `Φ'`), via `FFmarked_twoTorus`
+(single use of `hΦ`, line ~964). Two gaps stop `Φ = eTermFun Gp Gk Gj Hm a Fk E`:
+1. `hΦ` compares only the multiplier `t.1.2` (on `Rα`), the fluctuation field `t.2.1` (on `Rδ`) and
+   the tangent (on `Rψ`).  `eTermFun` also reads the decoupled background field `t.1.1`
+   (`composeField Gk Gp a φ …`) and the raw datum `t.2.2.1` (`d1Triple`, `D2raw`).  Both are available
+   at the use of `hΦ` (`decBg_value_twoTorus` returns the `φ` correspondence; `hraw` the raw one), so
+   `hΦ` must get two more antecedents.  `hΦ` is a binder of `FFmarked_twoTorus`, `coef_FFmarked_twoTorus`,
+   `evDec_twoTorus`, `evDec_blockEnergy_twoTorus`, `Ev_twoTorus`, `Ev_blockEnergy_twoTorus` and is passed by
+   `TwoTorusObsKernel` (`siteEv_twoTorus`), `TwoTorusGapClose`, `TwoTorusCoef` (3 sites): changing it in place
+   rebuilds all of these modules.
+2. `GA`, `HA` are `levelGS` on both tori.  In the chain `Gk`, `Gj` are `localB` sets of a polymer
+   (`OldTermSystem.Gk : GeneratingSet … ϱ₁`, arbitrary), so a statement on two tori needs a correspondence
+   of `Gk` with `Gk'` under `boxMap` (cells, layers, collar) plus the union-domain pin `FkPin` on
+   both (a two-torus version of `decBg_value_twoTorus` for `bgFieldC Gk`, not landed).
+Decision needed from the coordinator: (a) allow editing the `hΦ` binder in place across the modules
+above, and (b) the form of the `Gk`/`Gk'` correspondence (`localB` of corresponding polymers).
+
+Update (W1148r, f93e3771): the `hΦ` core is done: `FFmarked_twoTorus_core`, `coef_FFmarked_twoTorus_core`,
+`evDec_twoTorus_core` (extra antecedents: the decoupled background `φ` on `Rφ` with `BlockMargin`, the raw
+datum on `Rθ ⊆ X₁f`); the three landed theorems are instances.  `Ev_twoTorus`, `evDec_blockEnergy_twoTorus`,
+`Ev_blockEnergy_twoTorus` are unchanged (not needed for the old term).  Next: the two-torus lemma for
+`bgFieldC Gk` under `FkPin`, `Gk = localB` of corresponding polymers: there is no `bgFieldC` lemma for
+`localB` or for two tori; `TwoTorusDecBg` (rows/component/value, ~900 lines) is `levelGS`-specific, so this is a
+port with the collar of `localB` (residual and rows near the collar), then `composeField`/`d1Triple`/`D2raw`
+on two tori, `hΦ` for `eTermFun`, `evDec` of the localized old term, `H`/`G₁`, `NS.coeff`.
+
+### (b) localB two-torus decoupled background: inventory (W1148r, 2026-10-21)
+
+The two-torus decoupled background is spread over `TwoTorusGreenRows` (845 lines), `TwoTorusSY` (624),
+`TwoTorusDecBg` (929), `TwoTorusEv` (reads).  They use the `levelGS` facts (counts of uses): `levelGS_mem_Ω_*` (36),
+`layerIndex_levelGS` (11), `approxField_`/`residual_levelGS_boxMap` (9), `spacing_levelGS` (5),
+`mem_cubeIdx_levelGS` (5), `isLevel_levelGS`, `SY_subset_levelGS`, `subI_levelGS_iff`, `row_SY_levelGS`,
+`mem_innerCentres_levelGS`, `inBox_of_mem_resSites_levelGS`, `not_mem_collar_levelGS`, `locSol_`/`interp_levelGS_boxMap`,
+`active_levelGS_image`, `resSites_levelGS_image`, `mem_blockIdx_levelGS`.  A core over a generating-set pair
+`(GA, GB)` needs these as a correspondence structure `GSCorr GA GB bm`.  `levelGS` is its instance; `localB`
+is not: it has a collar (`not_mem_collar_levelGS` fails), so the residual and the rows at the collar need the
+data agreement on the collar sites (new analysis, no landed `levelGS` analogue), and `Ω 1` is the polymer, so
+`levelGS_mem_Ω_one` becomes membership in the corresponding polymers.  Estimate: 2500+ lines (core
+generalization of three files plus the collar), then items 1-5.  Needs a design review before assigning.
+
+Design finding for `GSCorr` (W1148r, 2026-10-21): the `levelGS` two-torus files are single-scale.  Every
+cube of `levelGS j` is `(j, y0)` with `CubeBase`; `inner_base_mem`, `innerCentres_mapsTo`,
+`sum_innerCentres_boxMap`, `cubeG_boxMap_inner` and the margins (`4R + 12 L^(j+m₁) + …`) use this, and
+`TwoTorusCubeOps` (915 lines, 97 uses of `levelGS`) is the same.  `localB t` has layers `1..t` and so cubes at
+every scale (and a collar).  A `GSCorr` that "bundles the levelGS facts" is therefore not enough: the cube index
+sets, `innerCentres`, `cubeG`, and the margins have to be abstracted over a cube-scale structure (per-scale
+base sets, per-scale `intBox` radii), i.e. the port covers `TwoTorusCubeOps` as well (~3500 lines) before the
+collar.  Not started; needs a decision whether the localB cover of `Gk` can instead be handled through a
+single-scale statement (e.g. `Gk` with `t = k + 1` only) or the full multi-scale port is wanted.
+
+### Two-torus core for the localized old term: status (W1148r, 2026-10-21)
+
+Option 2 holds, in a stronger form than a single-scale port: `bgFieldC` of a localized set is
+exactly local (no estimate).  If `σ` carries `Ω₁(Gk)` bijectively onto `Ω₁(Gk')` preserving the spacing,
+the entries of the Dirichlet operator at `α = 0` and the source of data agreeing on the read region, the
+Euler-Lagrange systems are isomorphic and `bgFieldC`, `bgMultC` correspond (`GSIso`, `bgFieldC_of_gsIso`).
+So the multi-scale port of `TwoTorusGreenRows/SY/DecBg` is not needed for `Fk`.
+Landed (all build, 0 warnings): `Polymer/BgFieldTransport` (GSIso, transport), `ComposeFieldTransport`
+(`SiteCorr`, `GSCorr`, `composeField_corr`, `svec_corr`, `barField_corr`), `FlDatumTransport`
+(`flDatum_corr`, `composeData_corr`), `ETermFunTransport` (`eTermFun_twoTorus`), `LevelGSCorr`
+(`gsCorr_levelGS`), `TwoTorusEvOld` (`evDec_oldTerm_twoTorus`), and the `hΦ` cores in `TwoTorusEv`.
+Premises (typing/geometry data, not proof steps): `GSCorr Gk Gk'`, `GSCorr Gj Gj'`, `GSIso … Gk Gk'` on the
+label margin `Z` (the localized sets of corresponding polymers; the `localB` instance is still to be
+proved: spacing, `fullMatrix` entries and `source` of `localB t Yp` under `boxMap`), block closure of `Z`, and
+the old terms agree on raw data agreeing under `boxMap` on `Z` (box form of D8/`TorusIndep`, discharged by
+`sfSucc_core`'s inherited D8).
+Open: (4) `H`/`G₁` of two `NewLevelSystem`s from `evDec_oldTerm_twoTorus` (needs a bijection of the index
+types of the old terms and `hatOf_boxMap`); (5) `NS.coeff` from `gsumCoeff_transport` (generic, landed) with the
+label bijection `ψ` of `Lab1` (zero-source, thick and bridge labels) and the det part
+(`detExpansionLocC_term_twoTorus_fromTowerG` for the tower instance); (6) the `localB` instance of `GSIso`.
+
+### (6) The localB instance of GSIso (W1148r, 2026-10-21)
+
+`Polymer/GSIsoOfOmega`: `gsIso_of_omega` and `gsCorr_of_omega` give `GSIso` and `GSCorr` from the correspondence of the
+domains `Ω_n` on the box (layers, layer indices, entries of `-Δ + ν + Q* a Q`, the collar and the source follow).
+`Polymer/LocalBBoxCorr`: for a polymer `X` in the box of radius `ρ0` and `X' = boxMap '' X`, the domains of
+`𝔹_j(X)` and `𝔹_j(X')` correspond on the box of radius `ρ0 + 6 j L^(j+m₁)` (`localB_omega_boxMap_all`; the
+cube index is the floor quotient of the centred coordinate, so the recursion `nearStep` is an integer
+statement, the same on both tori), whence `gsIso_localB` and `gsCorr_localB`.  Margins are the hypotheses
+`hmA`, `hmB` (`2 (ρ0 + 1 + 6 j L^(j+m₁) + (5L+2) L^(n+m₁)) < N L^m₁ L^k`).  The premises `GSCorr Gk Gk'`,
+`GSIso … Gk Gk'` (and `GSCorr Gj Gj'` for a localized `Gj`) of `evDec_oldTerm_twoTorus` are therefore proved
+for `Gk = 𝔹_j(X)`.  Open: (4) `H`/`G₁` of two `NewLevelSystem`s (index bijection of the old terms, `polyDom`
+under `boxMap`, `hatOf_boxMap`, the per-term premises of `evDec_oldTerm_twoTorus` at the marks
+`(u,0)`, `(0,0)`); (5) `NS.coeff` via `gsumCoeff_transport`.
