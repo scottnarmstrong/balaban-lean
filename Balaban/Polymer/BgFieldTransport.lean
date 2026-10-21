@@ -169,4 +169,51 @@ theorem bgFieldC_transport (e : G.Ω 1 ≃ G'.Ω 1)
     · rw [dite_eq_right_of_eq_false (eq_false H), dite_eq_right_of_eq_false (eq_false H')]; rfl
     · rw [dite_eq_right_of_eq_false (eq_false H), dite_eq_right_of_eq_false (eq_false H')]; rfl
 
+/-- **A site map identifying the localized data of two generating sets** (the localized set of a
+polymer and of its image under a box map).  `σ` carries `Ω₁(G)` bijectively onto `Ω₁(G')`, preserves
+the spacing and the entries of the Dirichlet operator at `α = 0`, and the source of data that agree
+under `σ` on the read region `R` agree.  `GSIso` is the geometric input of the two-torus statements
+for localized generating sets; it is satisfied by the localized sets of corresponding polymers. -/
+structure GSIso (a : ℕ → ℝ) (ν : ℝ) (G : GeneratingSet d L N₀ k ϱ) (G' : GeneratingSet d L N₀' k' ϱ')
+    (σ : Torus d (N₀ * L ^ k) → Torus d (N₀' * L ^ k')) (R : Set (Torus d (N₀ * L ^ k))) :
+    Prop where
+  mapsTo : ∀ x ∈ G.Ω 1, σ x ∈ G'.Ω 1
+  injOn : ∀ x ∈ G.Ω 1, ∀ y ∈ G.Ω 1, σ x = σ y → x = y
+  surjOn : ∀ x' ∈ G'.Ω 1, ∃ x ∈ G.Ω 1, σ x = x'
+  spacing : ∀ x ∈ G.Ω 1, G'.spacing (σ x) = G.spacing x
+  op : ∀ (x y : G.Ω 1) (hx : σ x ∈ G'.Ω 1) (hy : σ y ∈ G'.Ω 1),
+    dirichletOperator G' a ν 0 ⟨σ x, hx⟩ ⟨σ y, hy⟩ = dirichletOperator G a ν 0 x y
+  source : ∀ (N : ℕ) (D : BgData G N) (D' : BgData G' N),
+    (∀ z ∈ R, D.Ψ z = D'.Ψ (σ z) ∧ D.h z = D'.h (σ z)) →
+    ∀ (x : G.Ω 1) (hx : σ x ∈ G'.Ω 1) (i : Fin N),
+      source G' a ν D' (⟨σ x, hx⟩, i) = source G a ν D (x, i)
+
+/-- The bijection of the sites of `Ω₁` induced by a `GSIso`. -/
+noncomputable def GSIso.equiv {a ν} {σ} {R} (h : GSIso a ν G G' σ R) : G.Ω 1 ≃ G'.Ω 1 :=
+  Equiv.ofBijective (fun x => ⟨σ x, h.mapsTo x x.2⟩)
+    ⟨fun x y hxy => Subtype.ext (h.injOn x x.2 y y.2 (congrArg Subtype.val hxy)),
+      fun x' => by
+        obtain ⟨x, hx, hxx⟩ := h.surjOn x' x'.2
+        exact ⟨⟨x, hx⟩, Subtype.ext hxx⟩⟩
+
+/-- **The background field of corresponding localized sets.**  For data that agree under `σ` on the
+read region, `bgFieldC` and `bgMultC` of the two sets correspond at corresponding sites. -/
+theorem bgFieldC_of_gsIso {σ : Torus d (N₀ * L ^ k) → Torus d (N₀' * L ^ k')}
+    {R : Set (Torus d (N₀ * L ^ k))} (h : GSIso a ν G G' σ R)
+    (hD : ∀ z ∈ R, D.Ψ z = D'.Ψ (σ z) ∧ D.h z = D'.h (σ z)) (c₀ : ℝ) :
+    (∀ (x : G.Ω 1) (hx : σ x ∈ G'.Ω 1) (i : Fin N),
+      bgFieldC G' a ν c₀ D' (⟨σ x, hx⟩, i) = bgFieldC G a ν c₀ D (x, i)) ∧
+    (∀ (x : G.Ω 1) (hx : σ x ∈ G'.Ω 1),
+      bgMultC G' a ν c₀ D' ⟨σ x, hx⟩ = bgMultC G a ν c₀ D x) := by
+  have hT := bgFieldC_transport (D := D) (D' := D') h.equiv
+    (fun x y => h.op x y _ _) (fun x i => h.source N D D' hD x _ i)
+    (fun x => h.spacing x x.2) c₀
+  refine ⟨fun x hx i => ?_, fun x hx => ?_⟩
+  · have := congrFun hT.1 (h.equiv x, i)
+    rw [show (⟨σ x, hx⟩ : G'.Ω 1) = h.equiv x from rfl]
+    simpa [transFld] using this
+  · have := congrFun hT.2 (h.equiv x)
+    rw [show (⟨σ x, hx⟩ : G'.Ω 1) = h.equiv x from rfl]
+    simpa [transMult] using this
+
 end Balaban.Background
