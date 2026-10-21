@@ -2303,6 +2303,7 @@ public import Balaban.LargeField.R.BPrimeDomain
 public import Balaban.LargeField.R.BPrimeCast
 public import Balaban.LargeField.R.BPrimeDomainR
 public import Balaban.LargeField.R.CoefDecay
+public import Balaban.LargeField.R.BPrimeRootForm
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
