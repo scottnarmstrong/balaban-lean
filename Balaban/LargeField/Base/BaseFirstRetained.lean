@@ -46,7 +46,7 @@ def firstWeight (P : Finset (Torus d n)) (regimeB : Prop) (ν δ₀ : ℝ)
   recordWeightIn P regimeB ν δ₀ h θ φ * recordWeightOut P regimeB ν δ₀ h θ φ
 
 /-- **The physical first-step density** `baseKernel · exp(-β energy + ⟨g, ·⟩)`. -/
-def firstDensity (β a ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (g : Torus d (L * n) → Fin N → ℂ)
+def firstPhysDensity (β a ν : ℝ) (h : EuclideanSpace ℝ (Fin N)) (g : Torus d (L * n) → Fin N → ℂ)
     (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n) : ℂ :=
   ((baseKernel d N L n β a θ φ : ℝ) : ℂ) *
     Complex.exp (-((β * energy d N (L * n) ν h φ : ℝ) : ℂ) +
@@ -72,21 +72,21 @@ theorem baseRho1_eq_sum_retained [NeZero N] (β a z ν : ℝ) (regimeB : Prop) (
             ∫ ψ' : (Gf P).Ω 1 → Metric.sphere (0 : EuclideanSpace ℝ (Fin N)) 1,
               ((firstWeight P regimeB ν δ₀ h (z • ψ)
                   (baseMerge (Gf P) (retExtend (Gf P) σ ε₀) ψ') : ℝ) : ℂ) *
-                firstDensity β a ν h g (z • ψ) (baseMerge (Gf P) (retExtend (Gf P) σ ε₀) ψ')
+                firstPhysDensity β a ν h g (z • ψ) (baseMerge (Gf P) (retExtend (Gf P) σ ε₀) ψ')
               ∂(Measure.pi fun _ : (Gf P).Ω 1 =>
                 (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere)
             ∂(Measure.pi fun _ : ↥(retSet (Gf P)) =>
               (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere)) +
         ∑ P ∈ (Finset.univ : Finset (Torus d n)).powerset.filter (· ∉ fam),
           ∫ φ, ((firstWeight P regimeB ν δ₀ h (z • ψ) φ : ℝ) : ℂ) *
-            firstDensity β a ν h g (z • ψ) φ ∂aprioriMeasure d N (L * n)) := by
+            firstPhysDensity β a ν h g (z • ψ) φ ∂aprioriMeasure d N (L * n)) := by
   have hpart := baseRho1_eq_sum_firstP (d := d) (N := N) (L := L) (n := n) β a z ν regimeB δ₀ h g ψ
-  have hFint : Integrable (firstDensity β a ν h g (z • ψ) : CfgT d N L n → ℂ)
+  have hFint : Integrable (firstPhysDensity β a ν h g (z • ψ) : CfgT d N L n → ℂ)
       (aprioriMeasure d N (L * n)) := baseRho1_spinIntegrand_integrable β a z ν h ψ g
   change baseRho1 d N L n β a z ν h ψ g = ((z ^ (N * Fintype.card (Torus d n)) : ℝ) : ℂ) *
     ∑ P ∈ (Finset.univ : Finset (Torus d n)).powerset,
       ∫ φ, ((firstWeight P regimeB ν δ₀ h (z • ψ) φ : ℝ) : ℂ) *
-        firstDensity β a ν h g (z • ψ) φ ∂aprioriMeasure d N (L * n) at hpart
+        firstPhysDensity β a ν h g (z • ψ) φ ∂aprioriMeasure d N (L * n) at hpart
   rw [hpart, ← Finset.sum_filter_add_sum_filter_not _ (· ∈ fam)]
   congr 2
   refine Finset.sum_congr rfl fun P _ => ?_
@@ -96,11 +96,11 @@ theorem baseRho1_eq_sum_retained [NeZero N] (β a z ν : ℝ) (regimeB : Prop) (
     (fun φ => (abs_of_nonneg (hw0 φ)).trans_le (hw1 φ))
   have hdis := baseRetained_disintegrate d N L n (retSet (Gf P))
     (fun φ : CfgT d N L n => ((firstWeight P regimeB ν δ₀ h (z • ψ) φ : ℝ) : ℂ) *
-      firstDensity β a ν h g (z • ψ) φ) hInt
+      firstPhysDensity β a ν h g (z • ψ) φ) hInt
   rw [hdis]
   refine integral_congr_ae (Filter.Eventually.of_forall fun σ => ?_)
   exact integral_interior_eq_merge (Gf P) (fun φ => ((firstWeight P regimeB ν δ₀ h (z • ψ) φ : ℝ) : ℂ) *
-    firstDensity β a ν h g (z • ψ) φ) σ ε₀
+    firstPhysDensity β a ν h g (z • ψ) φ) σ ε₀
 
 /-- **The interior integral at fixed retained spins.**  For a base record `br` with failed cubes `P`
 and good region the sites of the generating set `G`, the integral over the spins of the good region
@@ -119,7 +119,7 @@ theorem baseRetained_inner_eval {Rk : ℝ} (G : GeneratingSet d L (1 * n) 1 ϱ)
     (hΛ2 : (d + 2 + 4 * d * bgK1 d L N) * L * δ₀ ≤ 1 / 4)
     (φ₀ : CfgT d N L n) :
     (∫ ψ', ((firstWeight P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ') : ℝ) : ℂ) *
-        firstDensity β a₀ ν h g θ (baseMerge G φ₀ ψ')
+        firstPhysDensity β a₀ ν h g θ (baseMerge G φ₀ ψ')
         ∂(Measure.pi fun _ : G.Ω 1 => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere)
       = 0) ∨
     ∃ D : BgData G N,
@@ -136,7 +136,7 @@ theorem baseRetained_inner_eval {Rk : ℝ} (G : GeneratingSet d L (1 * n) 1 ϱ)
             Real.sqrt (LinearMap.det (gaussForm (bgCenter G a (if regimeB then ν else 0) D)
               (bgHess G a (if regimeB then ν else 0) D)))⁻¹ ∧
           ∫ ψ', ((firstWeight P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ') : ℝ) : ℂ) *
-              firstDensity β a₀ ν h g θ (baseMerge G φ₀ ψ')
+              firstPhysDensity β a₀ ν h g θ (baseMerge G φ₀ ψ')
               ∂(Measure.pi fun _ : G.Ω 1 =>
                 (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere) =
             recordGaussRHS (G := G) P regimeB β a₀ ν δ₀ a h θ g φ₀ D he R := by
