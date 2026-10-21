@@ -14,8 +14,8 @@ public import Balaban.Spine.KeptParts
 `keptOutput_of_kernels` is `keptOutput_of_scaleData` with the kept data of the output built from the
 kernels of the five outcomes at the scale `k` (`KeptScaleData.ofKernels`).  The residuals of the
 kept half are then the structure `KeptScaleKernels` at the scale `k` (the five kernels and their
-bound (1.26) at the pinned exponent, the covariances), its datum coherence, and the class
-invariant that the kept costs of the input below `k` are the constants `γ_i`.
+bound (1.26) at the pinned exponent, the covariances) and its datum coherence; the kept costs of
+the input are the constants `γ_i` by the class invariant `PreRec.gamVal`.
 -/
 
 @[expose] public section
@@ -39,26 +39,22 @@ theorem keptOutput_of_kernels {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB cs₀
       ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ)
       (rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
         (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk)
-      (hγ : ∀ (nK : ℕ) [NeZero nK] (i : ℕ), i < k → ∀ l,
-        (rec.F.lf nK).KD.gam i l =
-          Real.log 5 + (𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]).A3' *
-            (𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]).lam i ^ (𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer]).pR)
       (Ks : ∀ (nK : ℕ) [NeZero nK], KeptScaleKernels (rec.F.lf nK)),
       KeptDatumCohAt (K := kf + 1) (M := (T κ c₉).M) (R := rec.R) (k0 := kZero d (T κ c₉).L β ν)
         k (fun nK _ a ϰ => (Ks nK).datum a ϰ) →
       (∀ (nK : ℕ) [NeZero nK], IsComplete k (k + 1)
           (keptLF d N T P6 C7 PB cs₀ M1 c rH ϱ rec
-            (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (hγ nK) (Ks nK)) nK).hist ∧
+            (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (fun i _ l => rec.gamVal nK i l) (Ks nK)) nK).hist ∧
         (keptLF d N T P6 C7 PB cs₀ M1 c rH ϱ rec
-          (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (hγ nK) (Ks nK)) nK).SD =
+          (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (fun i _ l => rec.gamVal nK i l) (Ks nK)) nK).SD =
             (rec.F.lf nK).SD) ∧
       KeptOutput rec.hkK rec.F (keptLF d N T P6 C7 PB cs₀ M1 c rH ϱ rec
-        (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (hγ nK) (Ks nK))) := by
+        (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (fun i _ l => rec.gamVal nK i l) (Ks nK))) := by
   obtain ⟨b, hb⟩ := keptOutput_of_scaleData hP hκ hc₉
-  refine ⟨b, fun β hβ ν h kf _ _ k hk1 hk0 ρ νk rec hγ Ks hKs => ?_⟩
+  refine ⟨b, fun β hβ ν h kf _ _ k hk1 hk0 ρ νk rec Ks hKs => ?_⟩
   exact hb β hβ ν h kf k hk1 hk0 ρ νk rec
-    (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (hγ nK) (Ks nK))
-    (keptDatumCoh_of_kernels rec.coh hγ Ks hKs)
+    (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (fun i _ l => rec.gamVal nK i l) (Ks nK))
+    (keptDatumCoh_of_kernels rec.coh (fun nK _ i _ l => rec.gamVal nK i l) Ks hKs)
 
 end Rec
 

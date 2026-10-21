@@ -839,7 +839,7 @@ theorem lfStepInput_of_parts (Λ : LFStepMap d N T P6 C7 PB cs₀ M1 c rH ϱ)
     (Λ κ c₉ β ν h kf k ρ νk rec).s, rec.tie_aKer, rec.tie_Cpsi, rec.tie_Cb, rec.tie_aw, rec.tie_c1,
     rec.tie_c2, rec.tie_H0, ?_,
     h₁₀ β hb₁₀ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec hD2 hD8 hD9 hafree hcst hkK' SD hM,
-    fun nK _ => hSDtie nK⟩
+    fun nK _ => hSDtie nK, fun nK _ i l => rec.gamVal nK i l⟩
   exact
     { coh := coh_succ rec.rep.coh (fun j hj => (hcst j hj).1) (fun j hj => (hcst j hj).2.1)
         (fun j hj => (hcst j hj).2.2) fun j hj1 hj => (hafree j hj1 hj).trans (by rw [rec.tie_aKer])

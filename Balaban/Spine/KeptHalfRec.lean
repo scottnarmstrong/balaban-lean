@@ -52,6 +52,17 @@ noncomputable abbrev keptLF {κ c₉ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N
 
 variable {d N T P6 C7 PB cs₀ M1 c rH ϱ}
 
+/-- **The kept half keeps the invariant**: the kept costs of the output are the constants `γ_i`
+(`KeptScaleData.gam_val`), so `GamConst (keptLF …)`, the clause that `RKeptGasInput` asks of `lf₁`. -/
+theorem keptLF_gamConst {κ c₉ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)} {kf k : ℕ}
+    [NeZero (T κ c₉).L] [NeZero (T κ c₉).M]
+    {ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]} {νk : ℝ}
+    (rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
+      (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk)
+    (data : ∀ (nK : ℕ) [NeZero nK], KeptScaleData (rec.F.lf nK)) (nK : ℕ) [NeZero nK] :
+    GamConst (keptLF d N T P6 C7 PB cs₀ M1 c rH ϱ rec data nK) :=
+  fun i l => (data nK).gam_val i l
+
 /-- **The kept half of `RKeptGasInput` from its residuals.** For `β` large (the budget setup of the
 prefix), a record `rec` of `ℛ^pre_k`, `1 ≤ k ≤ k₀`, kept data `data` of the five outcomes at the
 scale `k` (on every torus) and their torus coherence (`KeptDatumCoh`):
