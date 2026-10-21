@@ -389,6 +389,122 @@ theorem shiftLoc_eq_of_hull {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L Kc 
   simp only [Pi.smul_apply, smul_eq_mul, Matrix.mulVec, dotProduct] at key
   exact key.symm
 
+/-- **The background part of the composed field agrees at a unit point of the hull**: under the
+hypotheses of `decBg_agree_of_hull` and with the representative of `b` in the hull,
+`ψ^{(k)}_loc(θ)(b)` is the same at the localization vectors `v` and `v'` (the composed datum reads
+the background on the blocks of `G` and `G′` of the representative, inside its `(k+1)`-block). -/
+theorem psiLoc_eq_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf S.G') S.G' S.a S.ν Kc Cx)
+    (HB : BgHyp d L (k + 1) ϱ' S.a S.ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v v' smax : Dec2.DecParams (coverOf S.G')}
+    (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC S.G' S.ν δ ε S.D')
+    {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D) (seed : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (hsup : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v) q → ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hsup' : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v') q →
+      ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hcomp : ∀ q ∈ actComp (coverOf S.G') D (Dec2.extS _ smax) seed,
+      (coverOf S.G').sProd (Dec2.extS _ v) q = (coverOf S.G').sProd (Dec2.extS _ v') q)
+    (hdeep : ∀ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed, ∀ z : CTorus d L N₁ m₁ (k + 1),
+      supDist y z ≤ 2 * L ^ (k + 1) → z ∈ S.G'.Ω 1)
+    {sloc sloc' : S.U → Dec2.DecParams (coverOf S.G')} {b : S.U} (hb : sloc b = v)
+    (hb' : sloc' b = v')
+    (hbT : (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed) :
+    S.psiLoc (coverOf S.G') (rho4 d L N BG κ) sloc b =
+      S.psiLoc (coverOf S.G') (rho4 d L N BG κ) sloc' b := by
+  classical
+  obtain ⟨-, hφY⟩ := S.decBg_agree_of_hull hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hDD
+    seed hsup hsup' hcomp hdeep
+  set x := (unitRep b : CTorus d L N₁ m₁ (k + 1)) with hxdef
+  have hx1 : x ∈ S.G.Ω 1 := by
+    have h1 : x ∈ S.G'.Ω (k + 1) := ((S.G'.mem_layer).1 (S.unitRep_mem_top b)).1
+    have h2 : x ∈ S.G.Ω k := S.topIn h1
+    exact S.G.Ω_antitone le_rfl S.hk1 (by omega) h2
+  -- the blocks read by the composition lie in the `(k+1)`-block of `x`, hence in the hull
+  have hblk : ∀ (n : ℕ), n ≤ k + 1 → ∀ y, jBlock d L (N₁ * L ^ m₁) (k + 1) n y =
+      jBlock d L (N₁ * L ^ m₁) (k + 1) n x → y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed := by
+    intro n hn y hy
+    have h := jBlock_eq_of_le hn le_rfl hy
+    exact (isBlockUnion_actHull D (Dec2.extS _ v) seed y x h).2 hbT
+  have hsv : ∀ y, y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed → ∀ i : Fin N,
+      svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') y i =
+        svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') y i := by
+    intro y hyT i
+    by_cases hy : y ∈ S.G'.Ω 1
+    · have h1 := svec_of_mem S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v'
+        S.D') ⟨y, hy⟩ i
+      have h2 := svec_of_mem S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v
+        S.D') ⟨y, hy⟩ i
+      simp only at h1 h2
+      rw [h1, h2]
+      exact (hφY y hy (subset_nbhdSup _ _ hyT) i).symm
+    · rw [svec_of_not_mem _ _ hy, svec_of_not_mem _ _ hy]
+  have hG : S.G.layerIndex x ≤ k + 1 := layerIndex_le_of_Ω_empty S.G S.G.top x
+  have hG' : S.G'.layerIndex x ≤ k + 1 := layerIndex_le_of_Ω_empty S.G' S.G'.top x
+  unfold psiLoc psiKdAt
+  rw [hb, hb']
+  funext i
+  show composeField S.G S.G' S.a _ S.D'.Ψ x i = composeField S.G S.G' S.a _ S.D'.Ψ x i
+  unfold composeField
+  simp only [hx1, ↓reduceIte]
+  unfold blockMean
+  congr 2
+  · refine Finset.sum_congr rfl fun y hy => hsv y (hblk _ hG y (GeneratingSet.mem_blk.1 hy)) i
+  · congr 2
+    refine Finset.sum_congr rfl fun y hy => hsv y (hblk _ hG' y (GeneratingSet.mem_blk.1 hy)) i
+
+/-- **The composed field of P5 (2.39) agrees at a unit point of the hull** (R12, the locality of the
+substitution at one point): under the hypotheses of `decBg_agree_of_hull` and the standing
+conditions of the covariance at the two localization vectors, with the representative of `b` in the
+hull and hat variables agreeing on the unit points of the hull,
+`ψ_k(b) = ψ^{(k)}_loc(θ)(b) + β_k^{-1/2} (C^{(k)1/2}_loc ψ̂)(b)` is the same at `sloc` and `sloc'`. -/
+theorem composed_eq_of_hull {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf S.G') S.G' S.a S.ν Kc Cx)
+    (SX : Dec2.XCover (coverOf S.G') S.G' S.a S.a₁ S.ν Cx₂)
+    (HB : BgHyp d L (k + 1) ϱ' S.a S.ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v v' smax : Dec2.DecParams (coverOf S.G')}
+    (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC S.G' S.ν δ ε S.D')
+    {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D) (seed : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (hsup : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v) q → ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hsup' : ∀ q, ActC (coverOf S.G') (Dec2.extS _ v') q →
+      ActC (coverOf S.G') (Dec2.extS _ smax) q)
+    (hcomp : ∀ q ∈ actComp (coverOf S.G') D (Dec2.extS _ smax) seed,
+      (coverOf S.G').sProd (Dec2.extS _ v) q = (coverOf S.G').sProd (Dec2.extS _ v') q)
+    (hdeep : ∀ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed, ∀ z : CTorus d L N₁ m₁ (k + 1),
+      supDist y z ≤ 2 * L ^ (k + 1) → z ∈ S.G'.Ω 1)
+    (hadm : AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D'))
+    (hadm' : AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D'))
+    (hU : ∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)))
+    (hU' : ∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') (Dec2.extS _ v')))
+    (hMu : ∀ x : ℝ, 0 < x → IsUnit (Dec2.decM (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)
+      (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D'))))
+    (hMu' : ∀ x : ℝ, 0 < x → IsUnit (Dec2.decM (coverOf S.G') S.G' S.a S.a₁ x S.ν
+      (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D') (Dec2.extS _ v')
+      (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D'))))
+    {sloc sloc' : S.U → Dec2.DecParams (coverOf S.G')} {b : S.U} (hb : sloc b = v)
+    (hb' : sloc' b = v')
+    (hbT : (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed)
+    {ψhat ψhat' : S.U → Fin N → ℂ}
+    (hψ : ∀ b' : S.U, (∃ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v) seed,
+      y ∈ S.G'.layer (k + 1) ∧ unitBlock y = (b' : UnitTorus d L N₁ m₁ k)) → ψhat b' = ψhat' b') :
+    S.composed (coverOf S.G') (rho4 d L N BG κ) sloc ψhat b =
+      S.composed (coverOf S.G') (rho4 d L N BG κ) sloc' ψhat' b := by
+  have h1 := S.psiLoc_eq_of_hull hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hDD seed hsup hsup'
+    hcomp hdeep hb hb' hbT
+  have h2 := S.shiftLoc_eq_of_hull hS Sb SX HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hDD seed hsup
+    hsup' hcomp hdeep hadm hadm' hU hU' hMu hMu' hb hb' hbT hψ
+  funext i
+  unfold composed
+  rw [h1, h2]
+
 end HoleStep
 
 end Balaban.Fluctuation
