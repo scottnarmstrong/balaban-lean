@@ -3180,4 +3180,6 @@ public import Balaban.Fluctuation.BirthMassFlow
 public import Balaban.Inhabited.NewLevelTowerFamily
 public import Balaban.Inhabited.NewLevelConstants
 public import Balaban.Inhabited.NewLevelLocalFamilyBirth
+public import Balaban.Inhabited.NewLevelPathDomain
+public import Balaban.Inhabited.NewLevelLabelData
 public import Balaban.Inhabited.StepTowerRotChainBirth
