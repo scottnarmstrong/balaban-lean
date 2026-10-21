@@ -18,7 +18,9 @@ path point `s β_k^{-1/2} C^{(k)1/2} ψ̂` the old datum `dataUCH (ψ^{(k)}(D) +
 `flDatumOne_stepG_liftC`), for the fluctuation `ψ' = liftC w` in the ball of radius `δ₁`
 (`hatLift_mem_flBallLC`).  The chain places its composition into `𝔹_j` in `Ξ^c_j(𝔹_j; 1,
 ε + K₂δ₃ + K₂δ_fl)` (`eTerm_chain_of_one_le`), hence in `Ξ_j(𝔹_j; ε'_j)` as soon as the room
-`ε + K₂δ₃ + K₂δ_fl ≤ ε'_j` holds.
+`ε + K₂δ₃ + K₂δ_fl ≤ ε'_j` holds.  The composition holds into any term generator `Gj` with the
+settings of the chain (`pathDatum_xiCData_of_room`, the core; `pathMem_of_room` is its instance at
+`Gj = 𝔹_j`).
 -/
 
 @[expose] public section
@@ -88,12 +90,59 @@ variable (hC : FlCore N S.G' (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν c BG κ eps 
     (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁)
 
 include Jr hC hMX hdm hα hsm hδ₁ in
+/-- **The composition of the old datum of a bounded hat variable into a term generator lies in the
+chart** (the core of `pathMem_of_room`, at any term generator `Gj`).  For a datum `D` of the chart
+and `‖ψ̂‖ ≤ pp`, the old datum `dataUCH (ψ^{(k)}(D) + β_k^{-1/2} C^{1/2} ψ̂)` composed into a term
+generator `Gj` with the settings of the chain of the old terms (`BgSetting` for `(𝔹_k, Gj)`,
+`FlSetting` for the fluctuation of `𝔹_k`) lies in `Ξ^c_j(Gj; 1, ε + K₂δ₃ + K₂δ_fl)`
+(`eTerm_chain_of_one_le` at `b = 1`, for the fluctuation `liftC (C^{1/2} ψ̂)` in the ball of
+radius `δ₁`, `hatLift_mem_flBallLC`). -/
+theorem pathDatum_xiCData_of_room (hβ : 0 < S.β) {ϱ₂ : ℝ}
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂} {j : ℕ}
+    (hBj : BgSetting N S.G' (stepG d L N₁ m₁ k ϱ) Gj S.a₁ S.ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N S.G' (stepG d L N₁ m₁ k ϱ) (stepG d L N₁ m₁ k ϱ) S.a₁ S.ν κ BG eps δ₃ Kc Cx
+      c₂ BG₂ δ₁ δfl X₁f)
+    {D : BgData S.G' N} (hD : XiCData S.G' S.a S.ν (k + 1) 1 eps D) {ψh : S.EC}
+    (hψh : ∀ p, ‖ψh p‖ ≤ pp) :
+    XiCData Gj (compWeight L S.a₁) S.ν j 1 (eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
+      (composeData hBj.hq (compWeight L S.a₁)
+        (bgFieldC (stepG d L N₁ m₁ k ϱ) (compWeight L S.a₁) S.ν (bgC0 d L N)
+          ((S.withDatumH D).dataUCH ((S.withDatumH D).psi0H +
+            S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ψh)))
+        ((S.withDatumH D).dataUCH ((S.withDatumH D).psi0H +
+          S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ψh))) := by
+  have hδ' : Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
+      (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁ := by
+    rw [S.norm_betaU_rpow hβ.le]; exact hδ₁
+  have hmem := hatLift_mem_flBallLC hC S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
+    Jr.hpp hMX hdm hα hsm hδ' hD hψh
+  have hmem' : liftC S.hG' (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ψh) ∈
+      FlBallLC (stepG d L N₁ m₁ k ϱ) δ₁ := hmem
+  have ht := triple_one_mem (X₁f := X₁f) hC hD hmem'
+  obtain ⟨Fk, -, hFk⟩ := theorem72_analytic (G := stepG d L N₁ m₁ k ϱ) (a := S.a) (ν := S.ν)
+    (N := N) hBj.HBk
+  obtain ⟨D', ψ'', hlc, ht22, -, -, -, hX2⟩ :=
+    eTerm_chain_of_one_le (b := 1) le_rfl (one_le_scaledC0 d) hBj hF hFk ht
+  have ht22' : ((rawOf D, liftC S.hG' (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ψh)) :
+      RawData d L (N₁ * L ^ m₁) (k + 1) N × _) = (rawOf D', ψ'') := ht22
+  have hD'eq : D' = D := BgData.eq_of_raw (congrArg Prod.fst ht22').symm
+  have hψeq := (congrArg Prod.snd ht22').symm
+  have hD'eq' := hD'eq.symm
+  subst hD'eq' hψeq
+  have ha : S.a k ≠ 0 :=
+    (compWeight_pos (by have := hBj.HBp.hL; omega) hBj.ha₁ S.hk1).ne'
+  have hfl := flDatumOne_stepG_liftC_H (S.withDatumH D) ha BG₂ κ hBj.hP hF.hPm
+    (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ψh) hlc
+  rw [one_pow, one_mul] at hX2
+  exact hfl ▸ hX2
+
+include Jr hC hMX hdm hα hsm hδ₁ in
 /-- **The old composed pairs at the real path points lie in the old domain**: the hypothesis
 `hpath` of `hdom_of_pathMem`.  For a datum `D` of the chart, `s ∈ [0,1]`, `‖ψ̂‖ < p₁ ≤ pp` and an
 old level `1 ≤ j ≤ k`, the composed pair of `ψ^{(k)}(D) + s β_k^{-1/2} C^{1/2} ψ̂` lies in
 `Ξ_j(𝔹_j; ε'_j)` when the chain of the old terms is set up at the level (`BgSetting` for
 `𝔹_j`, `FlSetting` for the fluctuation of `𝔹_k`, the data of `eTerm_chain_of_one_le`) and the
-room `ε + K₂ δ₃ + K₂ δ_fl ≤ ε'_j` holds. -/
+room `ε + K₂ δ₃ + K₂ δ_fl ≤ ε'_j` holds (`pathDatum_xiCData_of_room` at `Gj = 𝔹_j`). -/
 theorem pathMem_of_room (hβ : 0 < S.β) (hle : S.p₁ ≤ pp)
     (ha' : a' = S.a) (hμ' : μ' = S.ν)
     (hB : ∀ j ∈ Finset.Icc 1 k, ∀ hjk : j ≤ k + 1,
@@ -116,7 +165,6 @@ theorem pathMem_of_room (hβ : 0 < S.β) (hle : S.p₁ ≤ pp)
   subst ha' hμ'
   intro s hs x hx j hj hjk
   obtain ⟨-, hjk0⟩ := Finset.mem_Icc.1 hj
-  have hBj := hB j hj hjk
   have hs1 : |s| ≤ 1 := by rw [abs_of_nonneg hs.1]; exact hs.2
   have hψ₀ : ‖(s : ℂ) • yhat x‖ < pp :=
     calc ‖(s : ℂ) • yhat x‖ ≤ |s| * ‖x‖ := StepSetting.JointRep.norm_smul_yhat_le (S := S) s x
@@ -124,35 +172,14 @@ theorem pathMem_of_room (hβ : 0 < S.β) (hle : S.p₁ ≤ pp)
       _ < pp := by rw [one_mul]; exact hx.trans_le hle
   have hψh : ∀ p, ‖((s : ℂ) • yhat x) p‖ ≤ pp := fun p =>
     (norm_le_pi_norm _ p).trans hψ₀.le
-  have hδ' : Real.sqrt N * (‖((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)‖ *
-      (covSupConstC d L N (compWeight L S.a₁ k) κ * pp)) < δ₁ := by
-    rw [S.norm_betaU_rpow hβ.le]; exact hδ₁
-  have hmem := hatLift_mem_flBallLC hC S.hk1 S.hG S.hG' ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)
-    Jr.hpp hMX hdm hα hsm hδ' hD hψh
   have hv : S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ((s : ℂ) • yhat x) =
       (s : ℂ) • S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) (yhat x) := S.hatField_smul' _ _ _
-  rw [← hv]
-  have hmem' : liftC S.hG' (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ((s : ℂ) • yhat x)) ∈
-      FlBallLC (stepG d L N₁ m₁ k ϱ) δ₁ := hmem
-  have ht := triple_one_mem (X₁f := X₁f) hC hD hmem'
-  obtain ⟨Fk, -, hFk⟩ := theorem72_analytic (G := stepG d L N₁ m₁ k ϱ) (a := S.a) (ν := S.ν)
-    (N := N) hBj.HBk
-  obtain ⟨D', ψ'', hlc, ht22, -, -, -, hX2⟩ :=
-    eTerm_chain_of_one_le (b := 1) le_rfl (one_le_scaledC0 d) hBj hF hFk ht
-  have ht22' : ((rawOf D, liftC S.hG' (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D)
-      ((s : ℂ) • yhat x))) : RawData d L (N₁ * L ^ m₁) (k + 1) N × _) = (rawOf D', ψ'') := ht22
-  have hD'eq : D' = D := BgData.eq_of_raw (congrArg Prod.fst ht22').symm
-  have hψeq := (congrArg Prod.snd ht22').symm
-  have hD'eq' := hD'eq.symm
-  subst hD'eq' hψeq
-  have ha : S.a k ≠ 0 :=
-    (compWeight_pos (by have := hBj.HBp.hL; omega) hBj.ha₁ S.hk1).ne'
-  have hfl := flDatumOne_stepG_liftC_H (S.withDatumH D) ha BG₂ κ hBj.hP hF.hPm
-    (S.hatField (hatCovSqrt S.G' S.a₁ S.ν D) ((s : ℂ) • yhat x)) hlc
+  have hX2 := pathDatum_xiCData_of_room Jr hC hMX hdm hα hsm hδ₁ hβ (hB j hj hjk) hF hD hψh
+  rw [hv] at hX2
   have hdom := xiDom_of_xiCData_of_one_le (σ := 1) (ε' := ε' j) le_rfl
-    (by have := hroom j hj; nlinarith) hX2
+    (by rw [one_pow, one_mul]; exact hroom j hj) hX2
   simp only [composedPairAtC, hjk0, ↓reduceDIte]
-  exact hfl ▸ hdom
+  exact hdom
 
 end RoomB
 
