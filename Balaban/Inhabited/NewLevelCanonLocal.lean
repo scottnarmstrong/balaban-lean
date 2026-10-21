@@ -14,10 +14,9 @@ public import Balaban.Polymer.LocalBBoxCorr
 
 `CanonCoverLocal F F'`: the generating sets `Gk`, `Gj` of the canonical covers of two tori are the local
 generating sets `𝔹_n(P)` of polymers `P` (`localB`).  `hgeom_of_local` proves `HGeom` for them: the margin
-`Z` is the union of the `π_{k+1}`-cells of the sites within `zRad` of the polymer, the neighbours and the
+`Z` is the union of the `L^{k+1}`-cells of the sites within `zRad` of the polymer, the neighbours and the
 polymers of `Gk`, `Gj`; the correspondence of the generating sets is `gsCorr_localB` and
-`gsIso_localB_on`.  The cover requirement is the explicit hypothesis `hX1`: the region `X₁` contains the
-cell neighbourhood of every site of `Z`'s generating set.
+`gsIso_localB_on`.
 -/
 
 @[expose] public section
@@ -36,8 +35,24 @@ variable {d L N₁ N₁' m₁ k N : ℕ} [NeZero N₁] [NeZero N₁'] [NeZero L]
 set_option hygiene false in
 local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))
 
+/-- **The polymer of an inherited term**: `X ∪ □(y)`, the polymer `XL` of `OldTermsAreIrrel`. -/
+def polySet (m₀ j : ℕ) (y : CTorus d L N₁ m₁ (k + 1)) (X : Set (CTorus d L N₁ m₁ (k + 1))) :
+    Set (CTorus d L N₁ m₁ (k + 1)) :=
+  X ∪ Localization.box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
+    (L * cellSide L m₀ m₁ j)
+
+/-- **The canonical cover is the region `X₁` of a chosen family of the polymer**: for every admissible
+pair there is a chosen family `𝒦` of the polymer `X ∪ □(y)` at the scale `j` with `X₁ = X1 𝒦` (P1
+(2.30)-(2.31); the field `hX₁` of `OldTermSettings` with `hcov`). -/
+def CanonCoverIsX1 (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
+    {ϱ₁ : ℝ} (F : CanonCover d L N₁ m₁ k ϱ ϱ₁) : Prop :=
+  ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
+    ∃ 𝒦, ChosenOne C.m₀ j (polySet C.m₀ j y₀ X₀) 𝒦 ∧
+      (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 S.G' C.m₀ j 𝒦
+
 /-- **Canonical covers whose generating sets are local generating sets of polymers.** -/
-structure CanonCoverLocal (F : CanonCover d L N₁ m₁ k ϱ ϱ₁) (F' : CanonCover d L N₁' m₁ k ϱ ϱ₁') where
+structure CanonCoverLocal (m₀ : ℕ) (F : CanonCover d L N₁ m₁ k ϱ ϱ₁)
+    (F' : CanonCover d L N₁' m₁ k ϱ ϱ₁') where
   nK : ℕ → ℕ
   nJ : ℕ → ℕ
   hnK : ∀ j, nK j ≤ k + 1
@@ -57,19 +72,23 @@ structure CanonCoverLocal (F : CanonCover d L N₁ m₁ k ϱ ϱ₁) (F' : CanonC
   hGj : ∀ j y X, F.GjC j y X = localB (nJ j) (hnJ j) (PJ j y X) hsepJ
   hGk' : ∀ j y X, F'.GkC j y X = localB (nK j) (hnK j) (PK' j y X) hsepK'
   hGj' : ∀ j y X, F'.GjC j y X = localB (nJ j) (hnJ j) (PJ' j y X) hsepJ
+  /-- the polymers of `Gk`, `Gj` lie in the polymer `X ∪ □(y)` of the term -/
+  hPK_sub : ∀ j y X, PK j y X ⊆ polySet m₀ j y X
+  hPJ_sub : ∀ j y X, PJ j y X ⊆ polySet m₀ j y X
 
 /-- **Non-vacuity**: for admissible separations there are canonical covers with local generating sets. -/
-theorem exists_canonCoverLocal (hsepK : ϱ₁ ≤ minSep L (L ^ m₁)) (hsepK' : ϱ₁' ≤ minSep L (L ^ m₁))
+theorem exists_canonCoverLocal (m₀ : ℕ) (hsepK : ϱ₁ ≤ minSep L (L ^ m₁)) (hsepK' : ϱ₁' ≤ minSep L (L ^ m₁))
     (hsepJ : ϱ ≤ minSep L (L ^ m₁)) :
     ∃ (F : CanonCover d L N₁ m₁ k ϱ ϱ₁) (F' : CanonCover d L N₁' m₁ k ϱ ϱ₁'),
-      Nonempty (CanonCoverLocal F F') := by
+      Nonempty (CanonCoverLocal m₀ F F') := by
   refine ⟨⟨fun _ _ _ => ∅, fun _ _ _ => ∅,
     fun _ _ _ => localB 0 (Nat.zero_le _) ∅ hsepK, fun _ _ _ => localB 0 (Nat.zero_le _) ∅ hsepJ, 0⟩,
     ⟨fun _ _ _ => ∅, fun _ _ _ => ∅,
     fun _ _ _ => localB 0 (Nat.zero_le _) ∅ hsepK', fun _ _ _ => localB 0 (Nat.zero_le _) ∅ hsepJ, 0⟩,
     ⟨⟨fun _ => 0, fun _ => 0, fun _ => Nat.zero_le _, fun _ => Nat.zero_le _, hsepK, hsepK', hsepJ,
       fun _ _ _ => ∅, fun _ _ _ => ∅, fun _ _ _ => ∅, fun _ _ _ => ∅,
-      fun _ _ _ => rfl, fun _ _ _ => rfl, fun _ _ _ => rfl, fun _ _ _ => rfl⟩⟩⟩
+      fun _ _ _ => rfl, fun _ _ _ => rfl, fun _ _ _ => rfl, fun _ _ _ => rfl,
+      fun _ _ _ => Set.empty_subset _, fun _ _ _ => Set.empty_subset _⟩⟩⟩
 
 /-- The radius of the margin: the support radius of the data of `𝔹_n(P)`, `n ≤ k + 1`, plus one. -/
 def zRad (L m₁ k : ℕ) : ℕ := 11 * L ^ (m₁ + (k + 1)) + 2
@@ -79,17 +98,17 @@ def nearSet (r : ℕ) (P : Set (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L
   {x | ∃ w ∈ P, supDist x w ≤ r}
 
 /-- The sites of a pair and of its generating-set polymers. -/
-def canonPts {F : CanonCover d L N₁ m₁ k ϱ ϱ₁} {F' : CanonCover d L N₁' m₁ k ϱ ϱ₁'}
-    (LC : CanonCoverLocal F F') (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
+def canonPts {m₀ : ℕ} {F : CanonCover d L N₁ m₁ k ϱ ϱ₁} {F' : CanonCover d L N₁' m₁ k ϱ ϱ₁'}
+    (LC : CanonCoverLocal m₀ F F') (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
     (X₀ : Set (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L N₁ m₁ (k + 1)) :=
-  insert y₀ X₀ ∪ {y | ∃ μ : Fin d, y = y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1))} ∪
-    LC.PK j y₀ X₀ ∪ LC.PJ j y₀ X₀
+  insert y₀ X₀ ∪ LC.PK j y₀ X₀ ∪ LC.PJ j y₀ X₀
 
-/-- **The margin of a pair.** -/
+/-- **The margin of a pair**: the union of the `L^{k+1}`-cells of the sites within `zRad` of its
+points; it is closed under the blocks of every generating set (sides at most `L^{k+1}`, nested). -/
 def canonZ {F : CanonCover d L N₁ m₁ k ϱ ϱ₁} {F' : CanonCover d L N₁' m₁ k ϱ ϱ₁'}
-    (LC : CanonCoverLocal F F') (m₀ j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
+    {m₀ : ℕ} (LC : CanonCoverLocal m₀ F F') (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
     (X₀ : Set (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L N₁ m₁ (k + 1)) :=
-  cellUnion m₀ (nearSet (zRad L m₁ k) (canonPts LC j y₀ X₀))
+  {y | ∃ x ∈ nearSet (zRad L m₁ k) (canonPts LC j y₀ X₀), SameCell (L ^ (k + 1)) y x}
 
 omit [NeZero N₁] [NeZero L] in
 theorem layerIndex_le_top {N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ' : ℝ}
