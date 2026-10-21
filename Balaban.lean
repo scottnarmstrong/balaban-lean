@@ -639,6 +639,7 @@ public import Balaban.LargeField.History.GainClock
 public import Balaban.LargeField.History.RipeWindow
 public import Balaban.LargeField.History.RegionGrow
 public import Balaban.LargeField.History.OmegaPost
+public import Balaban.LargeField.History.H7Holes
 public import Balaban.LargeField.History.LocalUnion
 public import Balaban.LargeField.History.LocalRegion
 public import Balaban.LargeField.History.Merges
