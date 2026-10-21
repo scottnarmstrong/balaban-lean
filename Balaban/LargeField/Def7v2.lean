@@ -34,13 +34,12 @@ import Mathlib.Tactic.Positivity
   witness: the terms `ℰ` vanish, so `v₁ = v₂ = 0` and `corr = 0`).
 * `FieldClauses.regime`: the masses of the landed Def-7 are those of the regime record
   `(k₀, ν)` of `Def6v2` (`cs.mu k = lfBgMassAt(k₀, k, ν_k)`, `cs.muAct k = ν_k L^{-2k}`), with the a
-  priori `k₀` of D-IV.11 (`Coh.k0_eq`); `sfActMass2`, `hDomR2`, `hSetB2`: the mass of the
-  small-field action and the pinned field ball that a full second version of (D1), (D2), (D7)
-  would use (items 1, 4).
+  priori `k₀` of D-IV.11 (`Coh.k0_eq`); `sfActMass2`: the mass of the
+  small-field action that a full second version of (D1), (D2) would use (item 1).
 
 **Not done** (recorded for the handoff): the full second version of `IsRep` — (D1) with the
 physical mass `sfActMass2` in `A*_k` and the P5 (1.8) sum in place of `corr`, (D2) with
-`Def6v2.IsSFFamily2` on the pinned domain, (D7) with `hSetB2` — requires new versions of
+`Def6v2.IsSFFamily2` on the pinned domain — requires new versions of
 `SFCtx.actStar … D1Form` and of the witnesses of `Def7Inhabited`.
 
 **Reading recorded.**  P5 (1.8) does not say how the infinite-volume coefficient `v^{(j)}(y, x)`
@@ -162,25 +161,6 @@ theorem sfActMass2_eq (h : FieldClauses S k0 k cs sf hv) :
 /-- The landed small-field action mass is the LF solver mass of the regime. -/
 theorem sfActMass_eq (h : FieldClauses S k0 k cs sf hv) :
     sfActMass cs k = (⟨k0, sf.ν⟩ : Regime S.L).lfBgMass k := h.regime.1
-
-/-- **The pinned field ball** `‖h - h_*‖ < r_h` around the physical field (CLASS-RULINGS-2
-item 4): the complex `h`-domain of the terms `ℛ^{(k)}_n` (D2) and of the boundary terms (D7) in the
-second version, replacing `Def7.hDomR` (`Set.univ`) and `Def7.hSetB` (`{h}`). -/
-def hDomR2 (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Set (Fin N → ℂ) :=
-  {h | vn (fun i => h i - hC hv i) < rH}
-
-/-- The external fields of the boundary terms in the second version: the pinned ball. -/
-def hSetB2 (hv : EuclideanSpace ℝ (Fin N)) (rH : ℝ) : Set (Fin N → ℂ) := hDomR2 hv rH
-
-omit [NeZero S.L] in
-/-- The physical field lies in the pinned ball, which lies in the landed (unrestricted) domain. -/
-theorem hSetB_subset_hSetB2 {rH : ℝ} (hr : 0 < rH) :
-    hSetB hv ⊆ hSetB2 hv rH ∧ hDomR2 hv rH ⊆ hDomR N := by
-  refine ⟨?_, fun _ _ => Set.mem_univ _⟩
-  rintro h rfl
-  show vn (fun i => hC hv i - hC hv i) < rH
-  have : (fun i => hC hv i - hC hv i) = 0 := by funext i; simp
-  rw [this, vn_zero]; exact hr
 
 end Field
 
