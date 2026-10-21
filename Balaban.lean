@@ -3088,3 +3088,5 @@ public import Balaban.Inhabited.NewLevelLocalClauses
 public import Balaban.Inhabited.NewLevelLocalCast
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
+public import Balaban.SmallField.GsSpecHat
+public import Balaban.Fluctuation.OldTermsLiftHat

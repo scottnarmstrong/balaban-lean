@@ -124,7 +124,7 @@ theorem isSF2_witClass :
       (boundedFieldDom 3 3 6 m₁ (1 + 1) 2 (rhoSep m₁)) (witTerms m₁)
       (rho2 witConsts witRegime (fun _ => 1) (compWeight 3 1) (witTerms m₁) 0) 0 := by
   refine isSF2_qTerms (by norm_num [witConsts]) (by norm_num [witConsts]) (fun _ => le_rfl)
-    (fun j => ?_) (fun j => ?_) (fun j _ _ Ψ h hd => hd) (bgHyp_wit m₁)
+    (fun j => ?_) (fun j => ?_) (fun j _ _ Ψ h hd => hd) (bgHyp_wit m₁) (by simp [witConsts])
   · simp only [mul_zero, witConsts, one_mul]
     positivity
   · simp only [witConsts, one_mul]

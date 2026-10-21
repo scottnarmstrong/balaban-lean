@@ -23,7 +23,8 @@ open Balaban Balaban.Localization Balaban.Multiscale Balaban.SmallField.Def6
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
-private theorem gs_eq_of_Ω_eq {N₀ K : ℕ} [NeZero N₀]
+/-- Two generating sets with the same layers are equal. -/
+theorem gs_eq_of_Ω_eq {N₀ K : ℕ} [NeZero N₀]
     {G H : GeneratingSet d L N₀ K ϱ} (hΩ : G.Ω = H.Ω) : G = H := by
   cases G with
   | mk Ω top subset blockUnion separation =>
