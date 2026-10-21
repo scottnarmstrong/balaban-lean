@@ -2976,6 +2976,7 @@ public import Balaban.Spine.FinalNumerics
 public import Balaban.Spine.FinalSfDomain
 public import Balaban.Spine.FinalCutSfDomPsi
 public import Balaban.Spine.FinalCutSfDomNum
+public import Balaban.Spine.FinalCutSfDomH7
 public import Balaban.Spine.FinalSfIntegrable
 public import Balaban.Spine.FinalSfConstTerm
 public import Balaban.Spine.FinalSfFluct

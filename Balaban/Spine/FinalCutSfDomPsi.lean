@@ -174,6 +174,43 @@ theorem allSitesBounds_of_near {jj : ℕ} (hjq : jj ≤ q) {m t : ℝ} (hm : 0 �
 
 end Sites
 
+section Data
+
+variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ}
+
+/-- **The real data domain from the distance to a unit vector**: a layer-constant real field within
+`e ≤ 1` of the unit vector `h` at every data site of `𝔹`, and a mass `m ≥ 0` with `m L^{2k} ≤ 1`,
+lies in `Ψ̃(𝔹; m, 3 e)` at `h`. -/
+theorem inPsiTilde_of_near {Ψ : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    (hh₀ : ∑ i, h₀ i ^ 2 = 1) (hLC : IsLayerConstant G Ψ) {m e : ℝ} (hm : 0 ≤ m)
+    (hmL : m * ((L : ℝ) ^ k) ^ 2 ≤ 1) (he0 : 0 < e) (he1 : e ≤ 1)
+    (hnear : ∀ s ∈ dataSites G, rn (fun i => Ψ s i - h₀ i) < e) :
+    InPsiTilde G m (3 * e) Ψ h₀ := by
+  have hL1 : 1 ≤ L := Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  refine ⟨hLC, fun x x' hp => ?_, fun x hx => ?_, fun x hx => ?_, ?_⟩
+  · have h1 := hnear x hp.1
+    have h2 := hnear x' hp.2.1
+    rw [rn_sub_comm] at h2
+    have := rn_triangle (Ψ x) h₀ (Ψ x')
+    linarith
+  · have h1 := abs_sum_sq_sub_one_le (Ψ x) h₀ hh₀ le_rfl
+    have h2 := hnear x hx
+    have h0 := rn_nonneg (fun i => Ψ x i - h₀ i)
+    nlinarith
+  · refine lt_of_le_of_lt (r3_of_dir hL1 (layerIndex_le_k _ x) (Ψ x) h₀ hh₀ hm) ?_
+    have h1 := hnear x hx
+    have h0 := rn_nonneg (fun i => Ψ x i - h₀ i)
+    have h2 : rn (fun i => Ψ x i - h₀ i) ^ 2 < e ^ 2 := pow_lt_pow_left₀ h1 h0 two_ne_zero
+    have h3 : m * ((L : ℝ) ^ k) ^ 2 * rn (fun i => Ψ x i - h₀ i) ^ 2 ≤
+        rn (fun i => Ψ x i - h₀ i) ^ 2 := by
+      have := mul_le_mul_of_nonneg_right hmL (sq_nonneg (rn (fun i => Ψ x i - h₀ i)))
+      linarith
+    nlinarith
+  · simp only [hh₀, sub_self, abs_zero, mul_zero]
+    positivity
+
+end Data
+
 section Geom
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
@@ -263,35 +300,14 @@ theorem inPsiTilde_genW_late (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν) (hν1 : 
     (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν) (hχ : C.chiY Y ψk hv ≠ 0) :
     InPsiTilde (C.genW Y) (sfBgMassAt S.L (j + 1) ν) (3 * (C.cs.delta (j + 1) / Real.sqrt ν))
       (parentPsi C ψk) (fun i => hv i) := by
-  set e : ℝ := C.cs.delta (j + 1) / Real.sqrt ν with he
-  have hsq : 0 < Real.sqrt ν := Real.sqrt_pos.2 hν
-  have he0 : 0 < e := div_pos hδ hsq
   have hsum : ∑ i, hv i ^ 2 = 1 := by rw [parent_sum_sq_eq_norm_sq, hunit]; norm_num
-  have hdir : ∀ s ∈ dataSites (C.genW Y), rn (fun i => parentPsi C ψk s i - hv i) < e :=
-    fun s hs => parentPsi_dir_of_chiY_ne_zero C hL Y ψk hv hχ hν hμ hs
   have hm0 : 0 ≤ sfBgMassAt S.L (j + 1) ν := by unfold sfBgMassAt physMass; positivity
-  have hL1 : 1 ≤ S.L := by omega
-  refine ⟨parentPsi_layerConst C Y ψk, fun x x' hp => ?_, fun x hx => ?_, fun x hx => ?_, ?_⟩
-  · have h1 := hdir x hp.1
-    have h2 := hdir x' hp.2.1
-    rw [rn_sub_comm] at h2
-    have := rn_triangle (parentPsi C ψk x) (fun i => hv i) (parentPsi C ψk x')
-    linarith
-  · have h1 := abs_sum_sq_sub_one_le (parentPsi C ψk x) (fun i => hv i) hsum le_rfl
-    have h2 := hdir x hx
-    have h0 := rn_nonneg (fun i => parentPsi C ψk x i - hv i)
-    nlinarith
-  · have hmL : sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 = ν := physMass_mul_sq _ _
-    refine lt_of_le_of_lt (r3_of_dir hL1 (layerIndex_le_k _ x) (parentPsi C ψk x)
-      (fun i => hv i) hsum hm0) ?_
-    rw [hmL]
-    have h1 := hdir x hx
-    have h0 := rn_nonneg (fun i => parentPsi C ψk x i - hv i)
-    have h2 : rn (fun i => parentPsi C ψk x i - hv i) ^ 2 < e ^ 2 :=
-      pow_lt_pow_left₀ h1 h0 two_ne_zero
-    nlinarith
-  · simp only [hsum, sub_self, abs_zero, mul_zero]
-    positivity
+  have hmL : sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 ≤ 1 := by
+    rw [show sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2 = ν from physMass_mul_sq _ _]
+    exact hν1
+  exact inPsiTilde_of_near hsum (parentPsi_layerConst C Y ψk) hm0 hmL
+    (div_pos hδ (Real.sqrt_pos.2 hν)) he1
+    (fun s hs => parentPsi_dir_of_chiY_ne_zero C hL Y ψk hv hχ hν hμ hs)
 
 /-- The datum of the cut, as `BgData`, realizes `parentPsi` on the data sites and `h` on `Ω₁`. -/
 theorem inDomainR_genW_late (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν) (hν1 : ν ≤ 1) (hunit : ‖hv‖ = 1)
