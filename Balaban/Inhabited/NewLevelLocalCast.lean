@@ -243,6 +243,8 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (hρpL : S.p₁ ≤ NS.O.ρ)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
       NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     {t₀ : ℝ}
     (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
@@ -283,7 +285,7 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
         (b ^ 2 * t + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
         (S.β : ℂ)⁻¹ * NS.O.Eτ τ (rotRaw (cmat Q) r) = (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
     -- the bounds of the recomputed activities and marks
-    {εH κ' : ℝ}
+    {εH κH κ' : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -291,10 +293,10 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -310,10 +312,10 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
         (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}))
     (hF0 : ∀ i, 0 < F0 i)
     (hκ' : 0 ≤ κ')
-    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1)
+    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 +
       rootUnionK d L 1 m₁ NS.Z.κ0) + rootUnionK d L 1 m₁ NS.Z.κ0) ^ 3 * c1 d L *
-      Real.exp ((2 * κdec - 1 - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
+      Real.exp ((κH - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp NS.κ) < 1)
     -- the determinant part on the cast local set
     {c₃ : ℝ} (hS3 : Dec2.DecSpecs d L (Dec2.selfKc d L) (Cchi d L) c₃ NS.BG)
@@ -418,11 +420,11 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
       hS1 SpG HB HB hd hN hm₁ hM hag hag hag hle hεr hεt hεloc hAl hSS hPd hdk hdtop hHmtop
       hrow Sb hS hCz hCz' hMXd hCx hMXn hδc hdm hα hdm' hα' hsm hcψ hρ₀c hρp hRu hBG₂ hκ₀
       hκdec hκκ h1 hlog hR₁ hr hrays hR hRR hUR hU hSL hCo hCo' hMXLd hMXLn hdmL hαL hdmL'
-      hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm hcovL hX₁L hoptL hEb
+      hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL hca haL ht₀ hRt hNm hcovL hX₁L hoptL hEb
       hb₁ hbC hBo hFLo hCN' hFN' hGs hrb hFkan hEan hEbd hEr (fun _ => hFzan)
       (fun _ => hFz) (fun _ => hSzan) (fun _ => hSz) (fun _ => hFzan) (fun _ => hFz)
       (fun _ => hSzan) (fun _ => hSz) (fun _ => hFLan) (fun _ => hFL) (fun _ => hSLan)
-      (fun _ => hSLs) hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz Φ₀ hΦ₀ T hTm hYpl e he π hπ πb
+      (fun _ => hSLs) hκH hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz Φ₀ hΦ₀ T hTm hYpl e he π hπ πb
       hπb hdetT
   exact ⟨πb, hπb, _, bT, hbT, hA1, hA2, hA3, hA4, hA5⟩
 
@@ -519,6 +521,8 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
     (hρpL : S.p₁ ≤ NS.O.ρ)
     (hRuL : corrU * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) <
       NS.O.δ₁)
+    {a : ℝ} (hca : corrU ≤ a)
+    (haL : a * markedRad d L N k S.a₁ NS.O.κ cψL ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < NS.O.δ₁)
     {t₀ : ℝ}
     (ht₀ : 0 < t₀)
     (hRt : (corrU + t₀) *
@@ -557,7 +561,7 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
       ∀ r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b
         (b ^ 2 * t + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
         (S.β : ℂ)⁻¹ * NS.O.Eτ τ (rotRaw (cmat Q) r) = (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
-    {εH κ' : ℝ}
+    {εH κH κ' : ℝ} (hκH : κH ≤ 2 * κdec - 1)
     {F0 : ({Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG S) z} ⊕
       {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
@@ -565,10 +569,10 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
     (hεz : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
       ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t
         (rho4 d L N NS.BG NS.κ)‖ / r ^ 3)) ≤ εH)
-    (hεo : ∀ Y ∈ NS.𝒴C, |S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ)
-        (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ) -
-          2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0) ≤
-      εH * Real.exp (-(2 * κdec - 1) * treeLenCovOne 1 (k + 1) Y))
+    (hεo : ∀ Y ∈ NS.𝒴C, corrU / a * (|S.β| * (∑ τ, if Y ∈ polyDom S.G' (NS.O.X₁f τ) NS.O.m₀
+        (NS.O.jL τ) (NS.O.𝒦X τ) then 2 * (Eb τ * Real.exp (-κ₀ * treeLenCovOne NS.O.m₀ (NS.O.jL τ)
+          (XL τ) - 2 * κdec * treeLenCov S.G' NS.O.m₀ Y)) else 0)) ≤
+      εH * Real.exp (-κH * treeLenCovOne 1 (k + 1) Y))
     (hFb : ∀ i, ‖(S.β : ℂ)‖ * 4 * ‖energyBdScaled d L N (compWeight L S.a₁) k
           (cK2' d L N (famConst d L NS.BG₂ NS.κ) * t) t (rho4 d L N NS.BG NS.κ)‖ * U ^ 2 / R ^ 3 *
           (c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d) *
@@ -584,10 +588,10 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
         (fun τ => polyDom S.G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z}))
     (hF0 : ∀ i, 0 < F0 i)
     (hκ' : 0 ≤ κ')
-    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ 2 * κdec - 1)
+    (hκ : κ' + 3 * NS.Z.κ0 + c1 d L + 3 / 2 ≤ κH)
     (hε : εH ≤ 1 / (8 * (2 * (K0 d L NS.Z.κ0 + 1) + (K0 d L NS.Z.κ0 +
       rootUnionK d L 1 m₁ NS.Z.κ0) + rootUnionK d L 1 m₁ NS.Z.κ0) ^ 3 * c1 d L *
-      Real.exp ((2 * κdec - 1 - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
+      Real.exp ((κH - 2 * NS.Z.κ0) * cG d L + c1 d L + κ' * cG d L)))
     (hz : ((detDeg d L + 1 : ℕ) : ℝ) ^ 2 * (2 / Real.exp NS.κ) < 1)
     {c₃ : ℝ}
     (hS3 : Dec2.DecSpecs d L (Dec2.selfKc d L) (Cchi d L) c₃ NS.BG)
@@ -720,9 +724,9 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
         NS.clauses_castLocal_of hS1 SpG hc hm hsep hle hεr hεt hεloc hS hCs hCs' hMXd hCx hMXn hδc
             hdm hα hdm' hα' hsm
           hcψ hρ₀c hρp hRu hBG₂ hκ₀ hκdec hκκ h1 hlog hR₁ hr hrays hR hRR hUR hU hSL hCLs hCLs'
-          hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm
+          hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL hca haL ht₀ hRt hNm
           hcovL hX₁L hoptL hEb hb₁ hbC hBo hFLo hCN' hFN' hGs hrb hFkan hEan hEbd hEr
-          hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz hS3 hM3 hc0 hN1 Φ₀ hΦ₀ T hzT (hmarg T)
+          hκH hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz hS3 hM3 hc0 hN1 Φ₀ hΦ₀ T hzT (hmarg T)
           (hYpl T) e (fun θ hθ => he θ hθ T) π hπ
       exact ⟨πb, hπb, cT, bT, hbT, fun _ => ⟨h1, h2, h3, h4, h5⟩⟩
     · obtain ⟨πb, hπb⟩ := exists_rawSub_proj (N := N)
