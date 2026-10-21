@@ -3226,3 +3226,4 @@ public import Balaban.Inhabited.StepTowerBeta0OldFields
 public import Balaban.Inhabited.NewLevelCanonSettings
 public import Balaban.Polymer.CastLocalBCorr
 public import Balaban.Inhabited.NewLevelCastNbhd
+public import Balaban.Inhabited.NewLevelCubeImage
