@@ -338,6 +338,24 @@ theorem holeStepLoc_D'_aff_Ψ (σ : LatTorusSym S n M K) (hI : RegionIso σ H H'
           (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))) := fun h => hx (hdata.1 h)
     rw [if_neg hx, if_neg h2]
 
+theorem holeStepLoc_D'_aff_h (σ : LatTorusSym S n M K) (hI : RegionIso σ H H')
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (i : Fin N) :
+    (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+      ((coverAff g hnn hM1 σ hk).toEquiv '' V)).D'.h ((coverAff g hnn hM1 σ hk).toFun x) i =
+    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.h x i := by
+  classical
+  have hΩ1 : (coverAff g hnn hM1 σ hk).toFun x ∈
+      ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))).Ω 1 ↔
+      x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 V)).Ω 1 :=
+    holeStepLoc_G'_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI 1 x
+  simp only [holeStepLoc_D'_eq, liftMixed, BgData.clip]
+  by_cases hx : x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+      (locB g hM1 V)).Ω 1
+  · rw [if_pos hx, if_pos (hΩ1.2 hx)]
+  · rw [if_neg hx, if_neg (fun h => hx (hΩ1.1 h))]
+
 end LocStep
 
 end Balaban.RootFSpine
