@@ -781,8 +781,23 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `HoleStep.cubeMeasure`); the output label of `(X, J, T)` is `Ŷ(T)` (FLUCTUATION Theorem 3.1 (c), P6 p. 34–35;
   `Spine/LFOldOut`: `outLabel`, `outLabel_spec` valid at `Ω_{k+1}` with size `d_Ω(T)`, `d7Pull_subset_outLabel` the old
   label inside the output label). Not the assignments of `oldAssign` with the cubes of `T` as patches: the cubes of `T`
-  may be joined only through holes of `Ω_{k+1}`, so they need not form a `PatchChain` inside `Ω_{k+1}`. Next:
-  (g2)(iii)-c (`oldB` as `BTerms`, the named Prop 3.3 on a region over the fields, the bound at one output label).
+  may be joined only through holes of `Ω_{k+1}`, so they need not form a `PatchChain` inside `Ω_{k+1}`.
+  Piece 5m–5p ((g2)(iii)-c, approved design): the site of a mark is `markSite` = the `π'_{k+1}`-cubes at the cells of
+  `markBase` = `X ∩ Ω_{k+1}`, the connecting structure `optW` of an optimal cover of `X`, `V(X, J)` and the data sites
+  of the local pair `G′_V` (`locG'`) — not the holes of `X`; `markSite_holeClose_subset_outLabel`,
+  `markSite_subset_outLabel` (the site and its hole closure lie in `Ŷ(T)`); the marks are grouped by `(X, V)` as in
+  P3 (4.45) (`Spine/LFOldB`: `famAt`, `sitesX`, `oldMarkSite`, `oldClusterSite`, `norm_oldClusterSite_le`, `oldBAt`);
+  **`norm_oldBAt_le` (`Spine/LFOldBBound`): the bound of the old part at an output label `Y`,
+  `≤ 2^{c₁(1+D)} C_PE fac C_res · L^d c₁(1+D) K₀(rate-κ_X) · c₁(1+D) K₀(κ₀) · e^{-κ' D}`, `D = d_{k+1}(Y mod Ω^c)`**,
+  conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc` and the third named input:
+  - **`OldResumSite`** (named input, **open**; P3 (4.45)–(4.49), P6 p. 34; approved 2026-10-21) — for every old label
+    `X` meeting `Ω_{k+1}` and every site `V`, `∑_{J with site V} e^{-(κ₁-1)|J_V|} ≤ C_res e^{κ_X d_k(X)} e^{-κ_V 𝗱(V)}`.
+    Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
+    per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
+    cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.
+  Remaining for (iii)-c: `oldB` as `BTerms` (the family over the fields and histories) and the (D7) `bound` clause
+  in the form `fac' e^{-rate' d}` from `norm_oldBAt_le` (constants: `κ' ≥ rate' + c₁ log 2 + 2`), the named Prop 3.3
+  on a region over the fields.
 
 ## LastIntegralInput sub-inputs (W1108)
 
