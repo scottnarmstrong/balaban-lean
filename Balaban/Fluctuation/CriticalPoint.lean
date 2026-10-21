@@ -122,11 +122,7 @@ theorem levelTerm_eq {n : ℕ} (hG : IsLevel G n) (a : ℕ → ℝ) {N : ℕ} (D
 theorem barField_eq_svec {n : ℕ} (hG : IsLevel G n) {N : ℕ} (Ψ : Torus d (N₀ * L ^ K) → Fin N → ℂ)
     (φ : G.Ω 1 × Fin N → ℂ) (x : Torus d (N₀ * L ^ K)) (i : Fin N) :
     barField G Ψ φ x i = svec G φ x i := by
-  have hx := (hG x).1
-  have := svec_of_mem G φ ⟨x, hx⟩ i
-  simp only at this
-  rw [this]
-  simp [barField, hx]
+  rw [barField_eq_ite_svec, ite_eq_left (hG x).1]
 
 theorem restTerm_eq {n : ℕ} (hG : IsLevel G n) (ν : ℝ) {N : ℕ} (D : BgData G N)
     (φ : G.Ω 1 × Fin N → ℂ) :
@@ -147,13 +143,8 @@ theorem restTerm_eq {n : ℕ} (hG : IsLevel G n) (ν : ℝ) {N : ℕ} (D : BgDat
 
 theorem svec_restrict {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)) (hp : n + 1 ≤ K)
     {N : ℕ} (φ' : G'.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
-    svec G ((hG.precedes hG' hp).restrictφ φ') y i = svec G' φ' y i := by
-  have hy := (hG y).1
-  have hy' := (hG' y).1
-  rw [show svec G ((hG.precedes hG' hp).restrictφ φ') y i =
-    ((hG.precedes hG' hp).restrictφ φ') (⟨y, hy⟩, i) from svec_of_mem G _ ⟨y, hy⟩ i,
-    show svec G' φ' y i = φ' (⟨y, hy'⟩, i) from svec_of_mem G' _ ⟨y, hy'⟩ i]
-  rfl
+    svec G ((hG.precedes hG' hp).restrictφ φ') y i = svec G' φ' y i :=
+  (hG.precedes hG' hp).svec_restrictφ φ' (hG y).1 i
 
 /-- **A region pair** (P5 (2.17); FLUCTUATION §2.7): `G ≺ G'` with the same support `Ω₁`, the top
 layer `R = Ω'_{n+1}` of `G'` (the new region) lies in the layer `n` of `G`, and off `R` the two sets
