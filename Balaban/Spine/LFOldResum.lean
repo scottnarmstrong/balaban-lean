@@ -258,6 +258,23 @@ theorem cbase_eq_of_sameCell {a : ℕ} {x y : Torus d n} (h : SameCell a x y) : 
   funext μ
   simp only [cbase, h μ]
 
+
+omit [NeZero N₁] in
+/-- The data sites of the intersection of two generating sets lie in the data sites of the second. -/
+theorem dataSites_inter_subset {N₀ k' : ℕ} [NeZero N₀] {ϱ : ℝ}
+    (G B : Multiscale.GeneratingSet d L N₀ k' ϱ) :
+    Background.dataSites (G.inter B) ⊆ Background.dataSites B := by
+  intro x hx
+  rcases (Background.mem_dataSites _).1 hx with h | h
+  · rw [Multiscale.GeneratingSet.inter_Ω] at h
+    exact (Background.mem_dataSites _).2 (Or.inl (Finset.mem_inter.1 h).2)
+  · obtain ⟨-, y, hy, hyx⟩ := (Background.mem_collar _).1 h
+    rw [Multiscale.GeneratingSet.inter_Ω] at hy
+    by_cases hxB : x ∈ B.Ω 1
+    · exact (Background.mem_dataSites _).2 (Or.inl hxB)
+    · exact (Background.mem_dataSites _).2
+        (Or.inr ((Background.mem_collar _).2 ⟨hxB, y, (Finset.mem_inter.1 hy).2, hyx⟩))
+
 end Cells
 
 end Balaban.Fluctuation
@@ -406,6 +423,125 @@ theorem toFrame_injective {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k 
   funext μ
   apply ZMod.val_injective
   rw [← toFrame_val g hnn hM1 F hk x μ, ← toFrame_val g hnn hM1 F hk y μ, h]
+
+
+omit [NeZero M] in
+open Classical in
+/-- **The cells of the base sites of a mark** (P3 (4.48)): the cells of scale `k + 1` of `markBase`
+are at most those of `X ∩ Ω_{k+1}`, of the connecting structure `optW`, and `N₀` times those of
+`X ∩ Ω_{k+1}` and the cubes of `J`, `N₀ = (2 ((r + r' + 11 L^{m₁} L^{k+1} + 1) / a_{k+1} + 1) + 1)^d`
+(the local set lies within `r + r'` of `A_X` and the cubes of `J`, its data sites within
+`11 L^{m₁} L^{k+1} + 1` of the local set, `localB_dataSites_range`). -/
+theorem card_cells_markBase_le {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (hL2 : 2 ≤ S.L) (hgc : S.L ^ m₀ ∣ g.c * n (k + 1)) {ρ r r' : ℕ}
+    (X : Finset (Torus S.d (n k))) {J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
+    (hJ : J ∈ allJ g hnn hM1 H hk hρ ρ) :
+    ((markBase g hnn hM1 F H hk hρ r r' X J).toFinset.image
+        (cbase (cellSide S.L m₀ m₁ (k + 1)))).card ≤
+      ((d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).toFinset.image
+          (cbase (cellSide S.L m₀ m₁ (k + 1)))).card +
+        ((optW F k (H.omegaPost k) X).image (cbase (cellSide S.L m₀ m₁ (k + 1)))).card +
+        (2 * ((r + r' + (11 * S.L ^ m₁ * S.L ^ (k + 1) + 1)) / cellSide S.L m₀ m₁ (k + 1) + 1) + 1) ^
+            S.d *
+          (((d7Pull F k (X : Set (Torus S.d (n k))) ∩
+              d7Pull F (k + 1) (OmegaCube H (k + 1))).toFinset.image
+            (cbase (cellSide S.L m₀ m₁ (k + 1)))).card + J.card) := by
+  set cs := cellSide S.L m₀ m₁ (k + 1) with hcs
+  have hcs0 : 0 < cs := cellSide_pos m₀ m₁ (k + 1)
+  have hdvdC : cs ∣ (g.c * n (k + 1) * S.L ^ m₁) * S.L ^ (k + 1) := cellSide_dvd hgc le_rfl
+  set A := d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) with hA
+  set Vc := locSetXJ g hM1 H r r' X J with hVc
+  set R₀ := r + r' + (11 * S.L ^ m₁ * S.L ^ (k + 1) + 1) with hR₀
+  set Sb : Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
+    activeCoreC (c := g.c) (n1 := n (k + 1)) (n0 := n k) (k := k) (H.step k) hM1 X ∪
+      J.biUnion cubeP with hSb
+  set Nb : Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
+    Finset.univ.filter fun x => ∃ y ∈ Sb, LargeField.supDist x y ≤ R₀ with hNb
+  -- the local set and its data sites lie in the neighbourhood
+  have hV0 : ∀ x ∈ Vc, ∃ y ∈ Sb, LargeField.supDist x y ≤ r + r' := by
+    rintro x ⟨y, hy, hxy⟩
+    rcases hy with hy | ⟨P, hP, hyP⟩
+    · obtain ⟨y', hy', hyy'⟩ := (mem_collarCoreC _).1 hy
+      refine ⟨y', Finset.mem_union_left _ hy', ?_⟩
+      calc LargeField.supDist x y' ≤ LargeField.supDist x y + LargeField.supDist y y' :=
+            LargeField.supDist_triangle _ _ _
+        _ ≤ r' + r := add_le_add hxy hyy'
+        _ = r + r' := by ring
+    · exact ⟨y, Finset.mem_union_right _ (Finset.mem_biUnion.2 ⟨P, hP, hyP⟩), by omega⟩
+  have hVN : ∀ x ∈ Vc, x ∈ Nb := fun x hx => by
+    obtain ⟨y, hy, hxy⟩ := hV0 x hx
+    exact Finset.mem_filter.2 ⟨Finset.mem_univ _, y, hy, by omega⟩
+  have hDN : ∀ x ∈ Background.dataSites (locG' g hnn hM1 H hk hρ Vc), x ∈ Nb := by
+    intro x hx
+    have hx' := dataSites_inter_subset _ _ hx
+    obtain ⟨v, hv, hxv⟩ := SmallField.GsSpec.localB_dataSites_range hL2 hx'
+    obtain ⟨y, hySb, hvy⟩ := hV0 v hv
+    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, y, hySb, ?_⟩
+    calc LargeField.supDist x y ≤ LargeField.supDist x v + LargeField.supDist v y :=
+          LargeField.supDist_triangle _ _ _
+      _ ≤ (11 * S.L ^ m₁ * S.L ^ (k + 1) + 1) + (r + r') := add_le_add hxv hvy
+      _ = R₀ := by rw [hR₀]; ring
+  have hsub : (markBase g hnn hM1 F H hk hρ r r' X J).toFinset.image (cbase cs) ⊆
+      (A.toFinset.image (cbase cs) ∪ (optW F k (H.omegaPost k) X).image (cbase cs)) ∪
+        (Nb.image (toFrame g hnn hM1 F hk)).image (cbase cs) := by
+    intro c hc
+    obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hc
+    rcases Set.mem_toFinset.1 hy with ((hyA | hyW) | ⟨x, hx, rfl⟩) | ⟨x, hx, rfl⟩
+    · exact Finset.mem_union_left _ (Finset.mem_union_left _
+        (Finset.mem_image_of_mem _ (Set.mem_toFinset.2 hyA)))
+    · exact Finset.mem_union_left _ (Finset.mem_union_right _
+        (Finset.mem_image_of_mem _ (Finset.mem_coe.1 hyW)))
+    · exact Finset.mem_union_right _ (Finset.mem_image_of_mem _
+        (Finset.mem_image_of_mem _ (hVN x hx)))
+    · exact Finset.mem_union_right _ (Finset.mem_image_of_mem _
+        (Finset.mem_image_of_mem _ (hDN x (Finset.mem_coe.1 hx))))
+  -- the cells of the frame sites of a set of the cover torus
+  have hcast : ∀ T : Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
+      ((T.image (toFrame g hnn hM1 F hk)).image (cbase cs)).card = (T.image (cbase cs)).card := by
+    intro T
+    have e : (T.image (toFrame g hnn hM1 F hk)).image (cbase cs) =
+        (T.image (cbase cs)).image (toFrame g hnn hM1 F hk) := by
+      rw [Finset.image_image, Finset.image_image]
+      congr 1
+      funext x
+      exact (toFrame_cbase g hnn hM1 F hk cs x).symm
+    rw [e, Finset.card_image_of_injective _ (toFrame_injective g hnn hM1 F hk)]
+  -- the cells of `A_X` on the cover torus
+  have hAX : ((activeCoreC (c := g.c) (n1 := n (k + 1)) (n0 := n k) (k := k) (H.step k) hM1 X).image
+      (cbase cs)).card ≤ (A.toFinset.image (cbase cs)).card := by
+    rw [← hcast]
+    refine Finset.card_le_card fun c hc => ?_
+    obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hc
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hy
+    exact Finset.mem_image_of_mem _ (Set.mem_toFinset.2 (toFrame_activeCoreC_subset g hnn hM1 F H hk X hx))
+  -- the cells of the cubes of `J`
+  have hJc : ((J.biUnion cubeP).image (cbase cs)).card ≤ J.card := by
+    refine (Finset.card_le_card (t := J.image fun P => cbase cs P.2) fun c hc => ?_).trans
+      Finset.card_image_le
+    obtain ⟨y, hy, rfl⟩ := Finset.mem_image.1 hc
+    obtain ⟨P, hP, hyP⟩ := Finset.mem_biUnion.1 hy
+    have hPl : P.1 ≤ k + 1 := by
+      have hPg : P ∈ (coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx :=
+        (Finset.mem_filter.1 (Finset.mem_powerset.1 hJ hP)).1
+      exact ((mem_cubeIdx _).1 hPg).1.2
+    have hdv : S.L ^ (P.1 + m₁) ∣ cs := by
+      rw [hcs]; unfold cellSide; exact pow_dvd_pow _ (by omega)
+    refine Finset.mem_image.2 ⟨P, hP, ?_⟩
+    exact (cbase_eq_of_sameCell (SameCell.of_dvd hdv ((mem_cubeP).1 hyP))).symm
+  have hSbc : (Sb.image (cbase cs)).card ≤ (A.toFinset.image (cbase cs)).card + J.card := by
+    rw [hSb, Finset.image_union]
+    exact (Finset.card_union_le _ _).trans (add_le_add hAX hJc)
+  have hNbc := card_cbase_nbhd_le hdvdC hcs0 Sb R₀
+  calc ((markBase g hnn hM1 F H hk hρ r r' X J).toFinset.image (cbase cs)).card
+      ≤ ((A.toFinset.image (cbase cs) ∪ (optW F k (H.omegaPost k) X).image (cbase cs)) ∪
+          (Nb.image (toFrame g hnn hM1 F hk)).image (cbase cs)).card := Finset.card_le_card hsub
+    _ ≤ (A.toFinset.image (cbase cs)).card + ((optW F k (H.omegaPost k) X).image (cbase cs)).card +
+          ((Nb.image (toFrame g hnn hM1 F hk)).image (cbase cs)).card :=
+        (Finset.card_union_le _ _).trans (Nat.add_le_add (Finset.card_union_le _ _) le_rfl)
+    _ ≤ _ := by
+        rw [hcast]
+        exact Nat.add_le_add le_rfl (hNbc.trans (Nat.mul_le_mul_left _ hSbc))
 
 
 end Resum
