@@ -8,6 +8,7 @@ module
 public import Balaban.Inhabited.NewLevelConstants
 public import Balaban.Inhabited.StepTowerRotChainBirth
 public import Balaban.Inhabited.StepTowerLocalChart
+public import Balaban.Inhabited.NewLevelPathDomain
 
 /-!
 # The clauses (A1)–(A5) of the new level along the class chain (route R-LOC, L5; blocker 6)
@@ -25,12 +26,14 @@ with the conditions on constants of L5 discharged (`NewLevelConstants`):
   class constant `P₀` with `α₀` small there is `β₀` such that, at every scale and for every class in
   the regime of ruling R13 with the flow constant small, the family `e` of the chain has a local
   family `f` with (A1)–(A5) on the cast local sets `𝔹_{k+1}(Ŷ⁺(T′))`.  The premises are the class
-  (its clauses on the birth-mass domain, its generating sets, its weights, its flow), the bound of its
-  irrelevant terms on their term domain with its decay in the level (the open input A4-1b (ii)), the
-  analyticity of the old densities along the path (a premise of the chain), and the conditions on
+  (its clauses on the birth-mass domain with the strong specification of its generating sets, its
+  weights, its flow), the bound of its irrelevant terms on their term domain with its decay in the
+  level (the open input A4-1b (ii)), and the conditions on
   constants `L^{-α} ≤ 1/16`, `(N + 1) K₂ ε₁ ≤ 1/8`, `2 K_m τ₁ ≤ 1/9` (`L` large, `α₀` and the flow
   constant small: ties of the prefix); the radii of the marks, `hca`, `hsmO`, the (DL-gap) and the
-  numerics of the new level are no longer premises;
+  numerics of the new level are no longer premises, nor is the analyticity of the old densities
+  along the path (the premise `hE` of the chain, from the local charts of the class,
+  `JointRep.analyticAt_Edens_path_of_birth`);
 * `StepTowerG.newLevel_localFamilies_birth_of` (row (iii) of A4-1b): the same for the families of
   all roots at once — the premises `hsupp`, `hval`, `hfan`, `hfbd`, `hfloc`, `hfrot`, `hfval` of
   `newLabels_castInputs_of_localFamily` (the provider of the label inputs of
@@ -126,8 +129,11 @@ class chain (`CollarBase` at `q = L^{-α}`, `α = (d-2)/2 - γ`) with the closen
 `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth_of`
 holds for the classes with constants `P₀` (with `λ ≤ 17/16` and, in place of the (DL-gap), the
 smallness `2 K_m τ₁ ≤ 1/9` of the flow constant; the smallness of the class constants against the
-marked radius is no longer a premise), and the family `e` of the chain has, on the cast local sets
-`𝔹_{k+1}(Ŷ⁺(T′))`, a local family `f` with bounds `b` and (A1)–(A5) (`NewLevelLocalFamily`). -/
+marked radius is no longer a premise, nor is the analyticity of the old densities along the path,
+which follows from the local charts of a class with the strong specification of its generating
+sets, `JointRep.analyticAt_Edens_path_of_birth`), and the family `e` of the chain has, on the cast
+local sets `𝔹_{k+1}(Ŷ⁺(T′))`, a local family `f` with bounds `b` and (A1)–(A5)
+(`NewLevelLocalFamily`). -/
 theorem StepTowerG.newLevel_localFamily_birth_of
     {d L N : ℕ} [NeZero L] (m₀ : ℕ) {A₁ : ℝ} (hA : 0 < A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ)
     (hγ1 : γ < 1 / 2) {κmin : ℝ} (T₀ : StepTowerG d L N κmin) {κdec : ℝ}
@@ -170,7 +176,7 @@ theorem StepTowerG.newLevel_localFamily_birth_of
           Set (CTorus d L N₁ Tk.m₁ (k + 1))))).filter
         (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
       (Rg : Regime L) (a : ℕ → ℝ)
-      (_ : P₀.m₀ = C.m₀) (_ : SFTermClauses P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
+      (_ : P₀.m₀ = C.m₀) (_ : SFTermClausesStrong P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
       (_ : 0 ≤ P₀.E₀) (i₀ : Fin N)
       (_ : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1)
           ϱ, (∀ i, j < i → G.Ω i = ∅) →
@@ -228,13 +234,6 @@ theorem StepTowerG.newLevel_localFamily_birth_of
       (_ : ∀ j y X, j + n₁ ≤ k →
         Bl j y X ≤ CI * P₀.E₀ * ((((L : ℝ)⁻¹ ^ (k - j)) ^ ((d : ℝ) + α₃))))
       (_ : ∀ j y X, k < j + n₁ → Bl j y X ≤ KL * P₀.E₀),
-    -- the old densities are analytic along the path
-    (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
-      ∀ s ∈ Set.Icc (0 : ℝ) 1, ∀ x : S.E, ‖x‖ ≤ S.p₁ → ∀ j ∈ Finset.Icc 1 k,
-      AnalyticAt ℂ
-        (fun q : Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N =>
-          Edens C.m₀ C.Tm j q.1 q.2)
-        (Jr.PJ j (rawOf D, (s : ℂ) • Balaban.Fluctuation.yhat x))) →
     ∃ e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁)
         (K := k + 1) 1 (k + 1) Set.univ) → ℂ, ∃ B : ℝ,
       (∀ T' : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
@@ -357,11 +356,12 @@ theorem StepTowerG.newLevel_localFamily_birth_of
   have hρ := dlGap_factor_le hq0.le hLq (mul_nonneg hK.le hQ) hQ16 hlam17
   have hDL := newLevel_dlGap (N := N) hanti hpos hk hgap hK.le hQ hF.le hη.le
     (zero_le_one.trans hlam1) hTt hKFη hρ (cK2_pos d L N).le hquad hτK
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGj, HG⟩ := @Hφ' C z 𝒯E h𝒯 P₀ Rg a hm hcl hE₀ i₀ i₀ hdom
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGj, HG⟩ := @Hφ' C z 𝒯E h𝒯 P₀ Rg a hm
+    hcl.toSFTermClauses hE₀ i₀ i₀ hdom
     XL 𝒦X hXL h𝒦 hopt hNC hm7 s hs hidx hmin hCm hHat hAw ξ q c₈ ν₀ hq0' hq1' hc₈ hc₈q hξ hνflow
     hνS rm hτ hτr hrm hmass hDL hsmε hc1ε hKε hζε
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGj, ?_⟩
-  intro Bl hBl hB hEbI hEbL hE
+  intro Bl hBl hB hEbI hEbL
   -- the step
   have hSa : S.a₁ = 1 := by subst hS; rfl
   have hSβ : S.β = β := by subst hS; rfl
@@ -405,12 +405,53 @@ theorem StepTowerG.newLevel_localFamily_birth_of
     refine le_trans ?_ hsmO
     refine mul_le_mul_of_nonneg_left (le_max_left KO 0) ?_
     exact div_nonneg corrU_pos.le (div_nonneg hδ0.le (mul_pos two_pos hmr).le)
+  -- the old densities are analytic along the path, from the local charts of the class
+  have hSν : S.ν = ν := by subst hS; rfl
+  have hSp : S.p₁ = p₁ := by subst hS; rfl
+  have hSβ0 : 0 < S.β := by rw [hSβ]; exact hβ0
+  have hM0 : 0 < markedRad d L N k S.a₁ Tk.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) := by
+    rw [hSa, hSb, hTκ]; exact hmr
+  have hMc : corrU ≤ min Tk.t (η * (lam * P₀.eps d L k)) /
+      (2 * markedRad d L N k S.a₁ Tk.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) := by
+    rw [hSa, hSb, hTκ]; exact hca
+  have hδfl : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+      (covSupConstC d L N (compWeight L S.a₁ k) Tk.κ * (2 * p₁))) <
+      min Tk.t (η * (lam * P₀.eps d L k)) := by
+    set M := markedRad d L N k S.a₁ Tk.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) with hMdef
+    have hMe : Real.sqrt N * (S.betaU ^ (-(1 / 2 : ℝ)) *
+        (covSupConstC d L N (compWeight L S.a₁ k) Tk.κ * (2 * p₁))) = 2 * M := by
+      rw [hMdef, markedRad, S.norm_betaU_rpow hSβ0.le]; ring
+    rw [hMe]
+    have h2 : corrU * (2 * M) ≤ min Tk.t (η * (lam * P₀.eps d L k)) :=
+      (le_div_iff₀ (mul_pos two_pos hM0)).1 hMc
+    have hc : (1 : ℝ) < corrU := by unfold corrU; norm_num
+    exact (lt_mul_of_one_lt_left (mul_pos two_pos hM0) hc).trans_le h2
+  have he : 0 < Tk.t + xiK2 d L N * (Q * Tk.t) +
+      xiK2 d L N * (F * min Tk.t (η * (lam * P₀.eps d L k))) := by
+    have h1 := Tk.t_pos
+    have h2 : 0 ≤ xiK2 d L N * (Q * Tk.t) := mul_nonneg hK.le (mul_nonneg hQ h1.le)
+    have h3 : 0 ≤ xiK2 d L N * (F * min Tk.t (η * (lam * P₀.eps d L k))) :=
+      mul_nonneg hK.le (mul_nonneg hF.le hδ0.le)
+    linarith
+  have hE := Jr.analyticAt_Edens_path_of_birth C Rg a hcl hm Tk.large_block Tk.dom_margin
+    Tk.coer_margin Tk.δc_small hδfl hSβ0
+    (fun j hj1 hjk y X hyA hX hyX => by
+      have hτ𝒯 : (j, y, X) ∈ 𝒯E := by
+        rw [h𝒯]; simp [Finset.mem_filter, Finset.mem_product, hj1, hjk, hyA, hX, hyX]
+      exact settings_stepG_gs S hcl hj1 hjk (hm ▸ hX) (hBs ⟨_, hτ𝒯⟩) (hFs ⟨_, hτ𝒯⟩))
+    hAw (fun HB => birthMass_bgHyp_of_flow HB hq0' hq1' hc₈ hc₈q hξ hτ hνflow (hSν.trans hνS)
+      (by rw [hSν]; exact hmass))
+    (fun j hj1 hjk => by
+      obtain ⟨t', ht', htb⟩ := birthMass_defect_of_flow hq0' hq1' hc₈ hc₈q hξ hτ hνflow j hj1 hjk
+      exact ⟨t', by rw [ht', hSν, hνS], htb⟩)
+    hτr hrm he hDL hsmε hc1ε hKε hζε
   obtain ⟨e, B, h1, h2, h3, h4, hnl⟩ := HG (fun τ => Bl τ.1.1 τ.1.2.1 τ.1.2.2)
     (fun τ => hBl _ _ _)
     (fun τ Ψ h hΨ hdot => by
       obtain ⟨hj1, hjk, -, hX, hy⟩ := classLabel_mem h𝒯 τ
       exact hB i₀ i₀ _ _ _ hj1 hjk hX hy Ψ h hΨ hdot)
-    n₁ hCI hKL hα₃ (fun τ hτ => hEbI _ _ _ hτ) (fun τ hτ => hEbL _ _ _ hτ) hE hεnum
+    n₁ hCI hKL hα₃ (fun τ hτ => hEbI _ _ _ hτ) (fun τ hτ => hEbL _ _ _ hτ)
+    (fun D hD s hs x hx j hj => hE D hD s hs x (hx.trans (by rw [hSp]; linarith)) j hj) hεnum
   refine ⟨e, B, h1, h2, h3, h4, hnl, ?_⟩
   intro N₁' _ hc hsep π hπ
   -- the numerics of the new level at the step radius `Tk.t`
@@ -435,7 +476,7 @@ theorem StepTowerG.newLevel_localFamily_birth_of
   obtain ⟨f, b, hf⟩ := Tk.newLevel_localFamily_of_class (hTm0.trans hT.m₀_eq) hk hN₁ h5 hν0 hν hβ0
     hp0 hϱ S hS Jr C z hδ0 (min_le_left _ _) (mul_nonneg hQ Tk.t_pos.le)
     (mul_nonneg hF.le hδ0.le) hm7 (by rw [hTκ]; exact hT.rate)
-    (by rw [hκdecT, hCm]; exact hT.rate') e (fun θ T' => (h1 T').2.2.2 θ) hHat hnl hm Rg a hcl hAw
+    (by rw [hκdecT, hCm]; exact hT.rate') e (fun θ T' => (h1 T').2.2.2 θ) hHat hnl hm Rg a hcl.toSFTermClauses hAw
     hq0' hq1' hc₈ hc₈q hξ hνflow hνS hτ hτr hrm hmass hDL hsmε hc1ε hKε hζε Bl hBl hB n₁ hCI hKL
     hα₃ hE₀ hEbI hEbL hcov hNLNk hcψ hρ₀c (by rw [hSa, hSb, hTκ]; exact hRu) hR₁ hr hrays hR
     (by rw [hSa, hSb, hTκ]; exact hRR) hUR hU
@@ -499,7 +540,7 @@ theorem StepTowerG.newLevel_localFamilies_birth_of
           Set (CTorus d L N₁ Tk.m₁ (k + 1))))).filter
         (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2))
       (Rg : Regime L) (a : ℕ → ℝ)
-      (_ : P₀.m₀ = C.m₀) (_ : SFTermClauses P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
+      (_ : P₀.m₀ = C.m₀) (_ : SFTermClausesStrong P₀ (birthXiDom P₀ Rg a N₁) C.Tm)
       (_ : 0 ≤ P₀.E₀) (i₀ : Fin N)
       (_ : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1)
           ϱ, (∀ i, j < i → G.Ω i = ∅) →
@@ -548,13 +589,6 @@ theorem StepTowerG.newLevel_localFamilies_birth_of
       (_ : ∀ j y X, j + n₁ ≤ k →
         Bl j y X ≤ CI * P₀.E₀ * ((((L : ℝ)⁻¹ ^ (k - j)) ^ ((d : ℝ) + α₃))))
       (_ : ∀ j y X, k < j + n₁ → Bl j y X ≤ KL * P₀.E₀),
-    -- the old densities are analytic along the path
-    (∀ D : BgData S.G' N, XiCData S.G' S.a S.ν (k + 1) 1 Tk.t D →
-      ∀ s ∈ Set.Icc (0 : ℝ) 1, ∀ x : S.E, ‖x‖ ≤ S.p₁ → ∀ j ∈ Finset.Icc 1 k,
-      AnalyticAt ℂ
-        (fun q : Fld d L N₁ Tk.m₁ (k + 1) N × Fld d L N₁ Tk.m₁ (k + 1) N =>
-          Edens C.m₀ C.Tm j q.1 q.2)
-        (Jr.PJ j (rawOf D, (s : ℂ) • Balaban.Fluctuation.yhat x))) →
     ∃ e : RootIdx d L N₁ Tk.m₁ (k + 1) → physParam N S →
         Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
           ℂ,
@@ -591,7 +625,7 @@ theorem StepTowerG.newLevel_localFamilies_birth_of
   refine ⟨Jr, ?_⟩
   intro C 𝒯E h𝒯 Rg a hm hcl hE₀ i₀ hdom XL 𝒦X hXL h𝒦 hopt hNC hm7 s hs hidx hmin hCm hHat
     hAw ξ q c₈ ν₀ hq0 hq1 hc₈ hc₈q hξ hνflow hνS rm hτ hτr hrm hmass hτK hsmε hc1ε hKε hζε
-    Bl hBl hB hEbI hEbL hE
+    Bl hBl hB hEbI hEbL
   -- the family of every root
   have Hz : ∀ z : RootIdx d L N₁ Tk.m₁ (k + 1), ∃ e : physParam N S →
       Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1) Set.univ) →
@@ -615,7 +649,7 @@ theorem StepTowerG.newLevel_localFamilies_birth_of
     obtain ⟨-, -, -, -, -, -, -, -, HG⟩ := @HJ C z 𝒯E h𝒯 Rg a hm hcl hE₀ i₀ hdom XL 𝒦X hXL h𝒦
       hopt hNC hm7 s hs hidx hmin hCm hHat hAw ξ q c₈ ν₀ hq0 hq1 hc₈ hc₈q hξ hνflow hνS rm hτ hτr
       hrm hmass hτK hsmε hc1ε hKε hζε
-    obtain ⟨e, _B, h1, h2, -, -, -, hloc⟩ := HG Bl hBl hB hEbI hEbL hE
+    obtain ⟨e, _B, h1, h2, -, -, -, hloc⟩ := HG Bl hBl hB hEbI hEbL
     exact ⟨e, fun θ T' => (h1 T').2.2.2 θ, fun D hD => (h2 D hD).1, hloc⟩
   choose e he using Hz
   refine ⟨e, fun z => (he z).1, fun z => (he z).2.1, ?_⟩
