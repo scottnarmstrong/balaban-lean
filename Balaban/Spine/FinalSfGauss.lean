@@ -19,9 +19,10 @@ into the average over the standard Gaussian `w` of
 
 `sfGaussIntegrand = sfFactor2 C vc Y (ψ₀ + K^{-1/2} w) · exp(½ Q_K(K^{-1/2} w))`
 
-times the normalizer `Z_K = (2π)^{n/2} det K^{-1/2}` (`integral_sfFactor2_gauss`). The cut `Y`
-enters only through the integrand, so the statement is the same for every cut; `Y = univ`
-is `sfIntegral` (`sfIntegral_eq_gauss`). The form `K` is a parameter: in the source it is the
+(`Spine/LastIntegral.lean`) times the normalizer `Z_K = (2π)^{n/2} det K^{-1/2}`, also with a
+weight `χ(ψ)` of the fields (`integral_mul_sfFactor2_gauss`; `χ = 1` is `integral_sfFactor2_gauss`).
+The cut `Y` enters only through the integrand, so the statement is the same for every cut;
+`Y = univ` is `sfIntegral` (`sfIntegral_eq_gauss`). The form `K` is a parameter: in the source it is the
 Hessian of the main action at the constant saddle (`finalHessian`), and the factor
 `exp(½ Q_K)` cancels the Gaussian part of the exponent of `sfFactor2`, so that what remains under
 the Gaussian average is the interaction.
@@ -80,20 +81,29 @@ section Sf
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ}
 
-/-- **The integrand of the small-field factor in the Gaussian variable** (cut `Y`, form `Kq`,
-centre `ψ₀`): `sfFactor2 C vc Y (ψ₀ + Kq^{-1/2} w) · exp(½ Q_{Kq}(Kq^{-1/2} w))`. -/
-noncomputable def sfGaussIntegrand (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+/-- **The Gaussian reduction of the last integral over a cut `Y`, with a weight** (A6-3 (a),
+P7 (4.3)-(4.7)): for every measurable weight `χ` of the fields `ψ_k`,
+`∫ χ(ψ) sfFactor2 C vc Y ψ dψ_k = Z_K ∫ χ(ψ₀ + Kq^{-1/2} w) sfGaussIntegrand(w) dγ(w)`, for every
+positive definite form `Kq` and centre `ψ₀`. -/
+theorem integral_mul_sfFactor2_gauss (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (Y : Set (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
-    (Kq : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ)
+    {Kq : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ} (hK : Kq.PosDef)
     (ψ0 : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
-    (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
-  sfFactor2 C vc Y ((spinField (BlockAt S n M K k) N).symm
-      (spinField (BlockAt S n M K k) N ψ0 + matAct (pdSqrtInv Kq) w)) hv g *
-    ((Real.exp ((1 / 2) * pdQuad Kq (matAct (pdSqrtInv Kq) w)) : ℝ) : ℂ)
+    {χ : (BlockAt S n M K k → EuclideanSpace ℝ (Fin N)) → ℂ} (hχ : Measurable χ)
+    (hmeas : Measurable fun ψ => sfFactor2 C vc Y ψ hv g) :
+    ∫ ψ, χ ψ * sfFactor2 C vc Y ψ hv g =
+      (pdGaussNorm (BlockAt S n M K k × Fin N) ℝ Kq : ℂ) *
+        ∫ w, χ ((spinField (BlockAt S n M K k) N).symm
+            (spinField (BlockAt S n M K k) N ψ0 + matAct (pdSqrtInv Kq) w)) *
+          sfGaussIntegrand C vc Y hv g Kq ψ0 w ∂(pdGaussian (BlockAt S n M K k × Fin N) ℝ) := by
+  rw [integral_spin_gaussian hK ψ0 (f := fun ψ => χ ψ * sfFactor2 C vc Y ψ hv g) (hχ.mul hmeas)]
+  congr 1
+  refine integral_congr_ae (Filter.Eventually.of_forall fun w => ?_)
+  simp only [sfGaussIntegrand, mul_assoc]
 
 /-- **The Gaussian reduction of the last integral over a cut `Y`** (A6-3 (a), P7 (4.3)-(4.7)):
 `∫ sfFactor2 C vc Y dψ_k = Z_K ∫ sfGaussIntegrand dγ`, for every positive definite form `Kq`
-and centre `ψ₀`. -/
+and centre `ψ₀` (the weight `χ = 1` of `integral_mul_sfFactor2_gauss`). -/
 theorem integral_sfFactor2_gauss (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (Y : Set (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
     {Kq : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ} (hK : Kq.PosDef)
@@ -101,8 +111,9 @@ theorem integral_sfFactor2_gauss (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoe
     (hmeas : Measurable fun ψ => sfFactor2 C vc Y ψ hv g) :
     ∫ ψ, sfFactor2 C vc Y ψ hv g =
       (pdGaussNorm (BlockAt S n M K k × Fin N) ℝ Kq : ℂ) *
-        ∫ w, sfGaussIntegrand C vc Y hv g Kq ψ0 w ∂(pdGaussian (BlockAt S n M K k × Fin N) ℝ) :=
-  integral_spin_gaussian hK ψ0 hmeas
+        ∫ w, sfGaussIntegrand C vc Y hv g Kq ψ0 w ∂(pdGaussian (BlockAt S n M K k × Fin N) ℝ) := by
+  simpa using integral_mul_sfFactor2_gauss C vc Y hv g hK ψ0 (χ := fun _ => 1) measurable_const
+    hmeas
 
 /-- **`Ξ^sf` as a Gaussian average** (the empty cut `Y = univ`). -/
 theorem sfIntegral_eq_gauss {P : BudgetConsts} {cs : OpConsts} {k0 : ℕ}

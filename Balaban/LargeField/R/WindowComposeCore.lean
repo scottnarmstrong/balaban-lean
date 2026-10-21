@@ -208,7 +208,8 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
     (Pp : OutT N R (H.localHistory M K (m' + 1) Z) (m' + 1) → Prop) (hc0P : ∀ o, c0 o ≠ 0 → Pp o)
     (hPloc : ∀ o o', (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 o).2 =
       (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 o').2 → (Pp o ↔ Pp o'))
-    (hbG : ∀ (hv : EuclideanSpace ℝ (Fin N)) (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
+    (hvOK : EuclideanSpace ℝ (Fin N) → Prop)
+    (hbG : ∀ (hv : EuclideanSpace ℝ (Fin N)) (_hok : hvOK hv) (par : OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1))
       (wd : (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin)))) (cc : (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A)) (ro : (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3))) (sh : (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin))
       (a : OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)) (nd' : ∀ t : ↥Nd, VarVal N t.1.1.isSpin)
       (w' : OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0)
@@ -295,7 +296,7 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
         ((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod
           ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod
             (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) ≤ Qtot)) :
-    (∀ hv g par w c, ∫⁻ j, F hv g par (Φ (w, c, j)) ∂
+    (∀ hv, hvOK hv → ∀ g par w c, ∫⁻ j, F hv g par (Φ (w, c, j)) ∂
           (((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3))).prod
               (((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod
                 (Measure.pi fun t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd} => varMeasure N t.1.1.isSpin)).prod
@@ -388,9 +389,9 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
                   (desc_of_parts c.2 (mem_ancFin.mp P.2)) (Φ (wd, cc, ((a, ro), ((nd, sh), w')))).2.1)) hv))) else 0
   let Qf : EuclideanSpace ℝ (Fin N) → (GIdx S n M K N → ℂ) → OutPar N R (H.localHistory M K (m' + 1) Z) (m' + 1) → (OutZero N R (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 × (OutPart N V2 P2 × (∀ t : ↥T, VarVal N t.1.1.isSpin))) → (∀ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)), OutZ N R (H.localHistory M K k1 C.2.1) k1 × SubCfg N (H.localHistory M K k1 C.2.1) k1 (locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
       (OutPart N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (fun y => ZBlk (H.localHistory M K (m' + 1) Z) (m' + 1) y ∧ y ∉ Z0 ∧ ¬ (y ∈ V2 ∧ P2 y) ∧ y ∉ G3)) → (∀ t : {p : ↥(locOp geo cs SD KD hH lab (m' + 1) hm Z).A // p ∉ Set.range κc ∧ p ∉ T ∧ p ∉ Nd}, VarVal N t.1.1.isSpin) → ℝ≥0∞ := fun hv _ par wd cc ro sh => ⨆ a, ⨆ nd, ⨆ w', brk hv par wd cc ro sh a nd w'
-  exact window_hid_core_glue geo cs SD KD (hk1p := hk1p) (hk1 := hk1) (hm := hm) (hk1K := hk1K) (hk1K1 := hk1K1) (hmk := hmk) (hq := hq) (hz0 := hz0) (hc := hc) (r := r) (TB := TB) (bw0 := bw0) (ρ := ρ) (hρ := hρ) (Z0 := Z0) (V2 := V2) (G3 := G3) (P2 := P2) (T := T) (Nd := Nd) (nd := nd) (hNd := hNd) (κc := κc) (jS := jS) (hjS := hjS) (hTnr := hTnr) (hNT := hNT) (hN2 := hN2) (hrad := hrad) (hκ2 := hκ2) (parC := parC) (hparC := hparC) (F := F) (Ewin := Ewin) (Φ := Φ) (φ3 := φ3) (φ4 := φ4) (φ5 := φ5) (hFpt2 := hFpt2)
+  exact window_hid_core_glue (hvOK := hvOK) geo cs SD KD (hk1p := hk1p) (hk1 := hk1) (hm := hm) (hk1K := hk1K) (hk1K1 := hk1K1) (hmk := hmk) (hq := hq) (hz0 := hz0) (hc := hc) (r := r) (TB := TB) (bw0 := bw0) (ρ := ρ) (hρ := hρ) (Z0 := Z0) (V2 := V2) (G3 := G3) (P2 := P2) (T := T) (Nd := Nd) (nd := nd) (hNd := hNd) (κc := κc) (jS := jS) (hjS := hjS) (hTnr := hTnr) (hNT := hNT) (hN2 := hN2) (hrad := hrad) (hκ2 := hκ2) (parC := parC) (hparC := hparC) (F := F) (Ewin := Ewin) (Φ := Φ) (φ3 := φ3) (φ4 := φ4) (φ5 := φ5) (hFpt2 := hFpt2)
     (Qf := Qf) (P := Qtot) (hP0 := hQtot.ne')
-    (hFpt1 := fun hv g par wd cc j o' x hx ho' hg hw => by
+    (hFpt1 := fun hv _hok g par wd cc j o' x hx ho' hg hw => by
       subst hx ho'
       by_cases hF0 : F hv g par (Φ (wd, cc, j)) = 0
       · rw [hF0]; exact bot_le
@@ -413,7 +414,7 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
       have e : brk hv par wd cc j.1.2 j.2.1.2 j.1.1 j.2.1.1 j.2.2 = _ :=
         ite_eq_left_iff.mpr (fun hn => absurd ⟨hT, hK⟩ hn)
       exact e.symm.le.trans (le_iSup_of_le j.1.1 (le_iSup_of_le j.2.1.1 (le_iSup_of_le j.2.2 le_rfl))))
-    (hG := fun hv g par wd cc ro sh hg hw fld ft hfld hft => by
+    (hG := fun hv hok g par wd cc ro sh hg hw fld ft hfld hft => by
       have hfld' : fld = fun v s y => subVarField N (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y :=
         funext fun v => funext fun s => funext fun y => hfld v s y
       have hft' : ft = fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
@@ -443,7 +444,7 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
         intro a' nd' w'
         simp only [brk]
         split_ifs with hT'
-        · exact (hbG hv par wd cc ro sh a' nd' w' (fun v s y => subVarField N
+        · exact (hbG hv hok par wd cc ro sh a' nd' w' (fun v s y => subVarField N
             (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y)
             (fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
               ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,
@@ -464,7 +465,7 @@ theorem window_hid_core_action {k1 m' : ℕ} (hk1p : 1 ≤ k1) (hk1 : k1 ≤ m')
         have hIpos : 0 < (∫⁻ x, ENNReal.ofReal (Gint (fun s y => subVarField N (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.1 s y) (fun y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 ((Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).2.2, (remZeroSplit (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (mergeOut (H.localHistory M K (m' + 1) Z) (m' + 1) (Φ (wd, cc, ((x.1, ro), ((x.2.1, sh), x.2.2)))).1 par)).2)) y)) ∂((outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ G3)).prod ((Measure.pi fun t : ↥Nd => varMeasure N t.1.1.isSpin).prod (outPartMeasure N (Vblk R (H.localHistory M K (m' + 1) Z) (m' + 1)) (· ∈ Z0))))) := by
           simp only [brk] at hne
           split_ifs at hne with hT'
-          · exact (hbG hv par wd cc ro sh a nd w' (fun v s y => subVarField N
+          · exact (hbG hv hok par wd cc ro sh a nd w' (fun v s y => subVarField N
               (Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.1 s y)
               (fun v y => outField N (remZeroMerge (H.localHistory M K (m' + 1) Z) (m' + 1) Z0
                 ((Φ (wd, cc, ((v.1, ro), ((v.2.1, sh), v.2.2)))).2.2,

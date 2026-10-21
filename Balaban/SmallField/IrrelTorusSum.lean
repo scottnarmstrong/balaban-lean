@@ -83,6 +83,32 @@ theorem isPolyDom_cubeAt {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j ≤ k)
 /-! ### The cancellation of the filed local parts at each centre -/
 
 open Classical in
+/-- **At each centre the filed local parts cancel, for every selection** (P1 (3.126)–(3.127)): with
+the cube `□(y)` a polymer containing `y`,
+`Σ_{X ∋ y} ℰ^{sm}_{irrel}(y, X) = ℰ^{(j)}(y) - Σ_{X ∋ y} A_{y,X}`: the parts subtracted from the
+selected polymers are those filed at `□(y)`. -/
+theorem finsum_irrelTorusOn_eq (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j ≤ k)
+    (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (y : CTorus d L N₁ m₁ k)
+    (Ψ h : Fld d L N₁ m₁ k N) :
+    ∑ᶠ X ∈ polysAt m₀ j y, irrelTorusOn sm m₀ Tm i₀ i₁ j y X Ψ h =
+      Eloc m₀ Tm j y Ψ h - ∑ᶠ X ∈ polysAt m₀ j y, (1 / 2 : ℂ) *
+        ∑ x ∈ Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X),
+          fderiv ℂ (fun Ψ' => Tm.E j y X Ψ' (constFld (Pi.single i₀ 1)))
+            (constFld (Pi.single i₀ 1)) (blockDir L j x i₀) *
+            (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y)) := by
+  have hfin := Set.toFinite (polysAt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j y)
+  have hmem : box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
+      (L * cellSide L m₀ m₁ j) ∈ hfin.toFinset :=
+    hfin.mem_toFinset.2 ⟨isPolyDom_cubeAt hN hjk y, mem_cubeAt y⟩
+  unfold Eloc irrelTorusOn
+  rw [finsum_mem_eq_finite_toFinset_sum _ hfin, finsum_mem_eq_finite_toFinset_sum _ hfin,
+    finsum_mem_eq_finite_toFinset_sum _ hfin, finsum_mem_eq_finite_toFinset_sum _ hfin,
+    Finset.sum_add_distrib, Finset.sum_sub_distrib, Finset.sum_sub_distrib, Finset.sum_ite_eq']
+  simp only [hmem, ↓reduceIte, aTermTorus]
+  ring
+
+open Classical in
 /-- **At each centre the filed local parts cancel** (P1 (3.126)–(3.127)): with the cube `□(y)` a
 polymer containing `y`, `Σ_{X ∋ y} ℰ_{irrel}(y, X) = ℰ^{(j)}(y) - Σ_{X ∋ y} A_{y,X}`. -/
 theorem finsum_irrelTorus_eq {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j ≤ k)
@@ -94,26 +120,8 @@ theorem finsum_irrelTorus_eq {m₀ j : ℕ} (hN : L ^ m₀ ∣ N₁) (hjk : j �
           fderiv ℂ (fun Ψ' => Tm.E j y X Ψ' (constFld (Pi.single i₀ 1)))
             (constFld (Pi.single i₀ 1)) (blockDir L j x i₀) *
             (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y)) := by
-  obtain ⟨F, hF⟩ : ∃ F : Set (CTorus d L N₁ m₁ k) → ℂ, ∀ X, irrelTorus m₀ Tm i₀ i₁ j y X Ψ h =
-      Tm.E j y X Ψ h - F X - (1 / 2 : ℂ) *
-        ∑ x ∈ Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X),
-          fderiv ℂ (fun Ψ' => Tm.E j y X Ψ' (constFld (Pi.single i₀ 1)))
-            (constFld (Pi.single i₀ 1)) (blockDir L j x i₀) *
-            (dot (Ψ x) (Ψ x) - dot (Ψ y) (Ψ y)) +
-        if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-            (L * cellSide L m₀ m₁ j) then ∑ᶠ Z ∈ polysAt m₀ j y, F Z else 0 :=
-    ⟨_, fun X => rfl⟩
-  have hfin := Set.toFinite (polysAt (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j y)
-  have hmem : box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-      (L * cellSide L m₀ m₁ j) ∈ hfin.toFinset :=
-    hfin.mem_toFinset.2 ⟨isPolyDom_cubeAt hN hjk y, mem_cubeAt y⟩
-  unfold Eloc
-  simp only [hF]
-  rw [finsum_mem_eq_finite_toFinset_sum _ hfin, finsum_mem_eq_finite_toFinset_sum _ hfin,
-    finsum_mem_eq_finite_toFinset_sum _ hfin, finsum_mem_eq_finite_toFinset_sum _ hfin,
-    Finset.sum_add_distrib, Finset.sum_sub_distrib, Finset.sum_sub_distrib, Finset.sum_ite_eq']
-  simp only [hmem, ↓reduceIte]
-  ring
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact finsum_irrelTorusOn_eq _ hN hjk Tm i₀ i₁ y Ψ h
 
 /-! ### `Σ_y Σ_X A_{y,X} = 0` on the torus -/
 
@@ -308,6 +316,26 @@ theorem sum_Aterm_irrelTorus_eq_zero {P : Consts} {Dom : FieldDom d L N₁ m₁ 
 /-! ### The representation (3.127) -/
 
 open Classical in
+/-- **P1 (3.127) on the torus, for every selection** of the renormalized polymers: for a class whose
+level-`j` domain contains the block-constant fields near the reference field (`hdom`),
+`Σ_{y ∈ Λ_j} Σ_{X ∈ 𝒟_j, X ∋ y} ℰ^{sm}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for **all** fields
+`(Ψ, h)`. -/
+theorem sum_irrelTorusOn_eq_Edens (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    {P : Consts} {Dom : FieldDom d L N₁ m₁ k N ϱ}
+    {Tm : Terms d L N₁ m₁ k N ϱ} (hcl : SFTermClauses P Dom Tm) (hN : L ^ P.m₀ ∣ N₁) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k) (i₀ i₁ : Fin N)
+    (hdom : ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ, (∀ i, j < i → G.Ω i = ∅) →
+      ∀ Ψ : Fld d L N₁ m₁ k N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+      (∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x') →
+      Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
+    (Ψ h : Fld d L N₁ m₁ k N) :
+    ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
+      irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ h = Edens P.m₀ Tm j Ψ h := by
+  rw [Finset.sum_congr rfl fun y _ => finsum_irrelTorusOn_eq sm hN hjk Tm i₀ i₁ y Ψ h,
+    Finset.sum_sub_distrib, sum_Aterm_irrelTorus_eq_zero hcl hN hj1 hjk i₀ hdom Ψ, sub_zero]
+  rfl
+
+open Classical in
 /-- **P1 (3.127) on the torus**: for a class whose level-`j` domain contains the block-constant
 fields near the reference field (`hdom`),
 `Σ_{y ∈ Λ_j} Σ_{X ∈ 𝒟_j, X ∋ y} ℰ^{(j)}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for **all** fields
@@ -322,9 +350,8 @@ theorem sum_irrelTorus_eq_Edens {P : Consts} {Dom : FieldDom d L N₁ m₁ k N �
     (Ψ h : Fld d L N₁ m₁ k N) :
     ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
       irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ h = Edens P.m₀ Tm j Ψ h := by
-  rw [Finset.sum_congr rfl fun y _ => finsum_irrelTorus_eq hN hjk Tm i₀ i₁ y Ψ h,
-    Finset.sum_sub_distrib, sum_Aterm_irrelTorus_eq_zero hcl hN hj1 hjk i₀ hdom Ψ, sub_zero]
-  rfl
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact sum_irrelTorusOn_eq_Edens _ hcl hN hj1 hjk i₀ i₁ hdom Ψ h
 
 /-- **The domain hypothesis on the main instance `xiFieldDom`**: under the background hypotheses
 `BgHyp` at the mass `μ` and P1's smallness `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)` (`xiDom_of_close`), the
@@ -352,6 +379,21 @@ theorem xiFieldDom_near_ref {a : ℕ → ℝ} {μ : ℝ} {ε : ℕ → ℝ} (hBg
     (fun i => by simp only [sub_self, norm_zero, mul_zero]; positivity)
 
 open Classical in
+/-- **P1 (3.127) on the main instance of the class, for every selection**: for term clauses on
+`xiFieldDom a μ ε`, the background hypotheses `BgHyp` at the mass `μ` and
+`0 < ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
+`Σ_{y ∈ Λ_j} Σ_{X ∋ y} ℰ^{sm}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for all fields `(Ψ, h)`. -/
+theorem sum_irrelTorusOn_eq_Edens_xi (sm : CTorus d L N₁ m₁ k → Set (CTorus d L N₁ m₁ k) → Prop)
+    {P : Consts} {a : ℕ → ℝ} {μ : ℝ} {ε : ℕ → ℝ}
+    {Tm : Terms d L N₁ m₁ k N ϱ} (hcl : SFTermClauses P (xiFieldDom a μ ε) Tm)
+    (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hε : 0 < ε j) (hsmall : ε j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
+    (i₀ i₁ : Fin N) (Ψ h : Fld d L N₁ m₁ k N) :
+    ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
+      irrelTorusOn sm P.m₀ Tm i₀ i₁ j y X Ψ h = Edens P.m₀ Tm j Ψ h :=
+  sum_irrelTorusOn_eq_Edens sm hcl hN hj1 hjk i₀ i₁ (xiFieldDom_near_ref hBg hjk hε hsmall i₀) Ψ h
+
+open Classical in
 /-- **P1 (3.127) on the main instance of the class**: for term clauses on `xiFieldDom a μ ε`, the
 background hypotheses `BgHyp` at the mass `μ` and `0 < ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
 `Σ_{y ∈ Λ_j} Σ_{X ∋ y} ℰ^{(j)}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for all fields `(Ψ, h)`. -/
@@ -361,8 +403,38 @@ theorem sum_irrelTorus_eq_Edens_xi {P : Consts} {a : ℕ → ℝ} {μ : ℝ} {ε
     (hε : 0 < ε j) (hsmall : ε j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     (i₀ i₁ : Fin N) (Ψ h : Fld d L N₁ m₁ k N) :
     ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
-      irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ h = Edens P.m₀ Tm j Ψ h :=
-  sum_irrelTorus_eq_Edens hcl hN hj1 hjk i₀ i₁ (xiFieldDom_near_ref hBg hjk hε hsmall i₀) Ψ h
+      irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ h = Edens P.m₀ Tm j Ψ h := by
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact sum_irrelTorusOn_eq_Edens_xi _ hcl hBg hN hj1 hjk hε hsmall i₀ i₁ Ψ h
+
+open Classical in
+/-- **P1 (3.127) over the labels of the step, for every selection** (the label set `𝒯E` of
+`sum_classLabels_E_eq_Edens`): `Σ_τ ℰ^{sm}_{irrel}(τ; ψ_j, h_j) = Σ_{j=1}^k ℰ^{(j)}(ψ_j, h_j)` for
+all families of fields. -/
+theorem sum_classLabels_irrelTorusOn_eq_Edens
+    (sm : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → Prop)
+    {P : Consts} {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ}
+    {Tm : Terms d L N₁ m₁ (k + 1) N ϱ} (hcl : SFTermClauses P Dom Tm) (hN : L ^ P.m₀ ∣ N₁)
+    (i₀ i₁ : Fin N)
+    (hdom : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ,
+      (∀ i, j < i → G.Ω i = ∅) →
+      ∀ Ψ : Fld d L N₁ m₁ (k + 1) N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+      (∀ x x', jBlock d L (N₁ * L ^ m₁) (k + 1) j x = jBlock d L (N₁ * L ^ m₁) (k + 1) j x' →
+        Ψ x = Ψ x') →
+      Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
+    (ψ h : ℕ → Fld d L N₁ m₁ (k + 1) N) :
+    ∑ τ ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom P.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2),
+      irrelTorusOn sm P.m₀ Tm i₀ i₁ τ.1 τ.2.1 τ.2.2 (ψ τ.1) (h τ.1) =
+    ∑ j ∈ Finset.Icc 1 k, Edens P.m₀ Tm j (ψ j) (h j) := by
+  rw [sum_classLabels_E_eq_Edens P.m₀
+    ({ E := irrelTorusOn sm P.m₀ Tm i₀ i₁, M := Tm.M, gs := Tm.gs } :
+      Terms d L N₁ m₁ (k + 1) N ϱ) ψ h]
+  refine Finset.sum_congr rfl fun j hj => ?_
+  obtain ⟨hj1, hjk⟩ := Finset.mem_Icc.1 hj
+  exact sum_irrelTorusOn_eq_Edens sm hcl hN hj1 (hjk.trans (Nat.le_succ k)) i₀ i₁
+    (hdom j hj1 hjk) (ψ j) (h j)
 
 open Classical in
 /-- **P1 (3.127) over the labels of the step** (the label set `𝒯E` of `sum_classLabels_E_eq_Edens`
@@ -384,12 +456,29 @@ theorem sum_classLabels_irrelTorus_eq_Edens {P : Consts} {Dom : FieldDom d L N�
       (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom P.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2),
       irrelTorus P.m₀ Tm i₀ i₁ τ.1 τ.2.1 τ.2.2 (ψ τ.1) (h τ.1) =
     ∑ j ∈ Finset.Icc 1 k, Edens P.m₀ Tm j (ψ j) (h j) := by
-  rw [sum_classLabels_E_eq_Edens P.m₀
-    ({ E := irrelTorus P.m₀ Tm i₀ i₁, M := Tm.M, gs := Tm.gs } : Terms d L N₁ m₁ (k + 1) N ϱ) ψ h]
-  refine Finset.sum_congr rfl fun j hj => ?_
-  obtain ⟨hj1, hjk⟩ := Finset.mem_Icc.1 hj
-  exact sum_irrelTorus_eq_Edens hcl hN hj1 (hjk.trans (Nat.le_succ k)) i₀ i₁
-    (hdom j hj1 hjk) (ψ j) (h j)
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact sum_classLabels_irrelTorusOn_eq_Edens _ hcl hN i₀ i₁ hdom ψ h
+
+open Classical in
+/-- **P1 (3.127) for the members of the class, for every selection** (P-6): for a member of
+`IsSFFamily2` on the main field domain `completeXiDom`, on every torus `N₂` with `L^{m₀} ∣ N₂` and
+at every level `1 ≤ j ≤ k` with P1's smallness `ε_j ≤ (2 K₁ + 2) min (c₀, c₁)`,
+`Σ_{y ∈ Λ_j} Σ_{X ∋ y} ℰ^{sm}_{irrel}(y, X; Ψ, h) = ℰ^{(j)}(Ψ, h)` for all fields. -/
+theorem IsSFFamily2.sum_irrelTorusOn_eq_Edens {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
+    {Ek : ℕ → ℝ} {Tm : ∀ (N₁ : ℕ) [NeZero N₁], Terms d L N₁ m₁ k N ϱ}
+    {ρd : ∀ (N₁ : ℕ) [NeZero N₁], (CTorus d L N₁ m₁ k → Fin N → ℝ) → (Fin N → ℝ) →
+      (CTorus d L N₁ m₁ k → Fin N → ℝ) → ℝ}
+    (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek) (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (hϱ : bgR0 d L ≤ ϱ) (N₂ : ℕ) [NeZero N₂]
+    (sm : CTorus d L N₂ m₁ k → Set (CTorus d L N₂ m₁ k) → Prop) (hN : L ^ P.m₀ ∣ N₂) {j : ℕ}
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
+    (i₀ i₁ : Fin N) (Ψ h : Fld d L N₂ m₁ k N) :
+    ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
+      irrelTorusOn sm P.m₀ (Tm N₂) i₀ i₁ j y X Ψ h = Edens P.m₀ (Tm N₂) j Ψ h :=
+  sum_irrelTorusOn_eq_Edens_xi sm (hF.torus N₂).terms
+    (bgHyp_of_class2 hF.admissible hF.coeff hd hL hϱ) hN hj1 hjk
+    (eps_pos hF.admissible.α₀_pos j) hsmall i₀ i₁ Ψ h
 
 open Classical in
 /-- **P1 (3.127) for the members of the class** (P-6): for a member of `IsSFFamily2` on the main
@@ -407,10 +496,34 @@ theorem IsSFFamily2.sum_irrelTorus_eq_Edens {P : Consts} {Rg : Regime L} {β a :
     (hjk : j ≤ k) (hsmall : P.eps d L j ≤ (2 * bgK1 d L N + 2) * min (bgC0 d L N) (bgC1 d L N))
     (i₀ i₁ : Fin N) (Ψ h : Fld d L N₂ m₁ k N) :
     ∑ y ∈ Finset.univ.filter (Aligned (L ^ j)), ∑ᶠ X ∈ polysAt P.m₀ j y,
-      irrelTorus P.m₀ (Tm N₂) i₀ i₁ j y X Ψ h = Edens P.m₀ (Tm N₂) j Ψ h :=
-  sum_irrelTorus_eq_Edens_xi (hF.torus N₂).terms
-    (bgHyp_of_class2 hF.admissible hF.coeff hd hL hϱ) hN hj1 hjk
-    (eps_pos hF.admissible.α₀_pos j) hsmall i₀ i₁ Ψ h
+      irrelTorus P.m₀ (Tm N₂) i₀ i₁ j y X Ψ h = Edens P.m₀ (Tm N₂) j Ψ h := by
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact hF.sum_irrelTorusOn_eq_Edens hd hL hϱ N₂ _ hN hj1 hjk hsmall i₀ i₁ Ψ h
+
+open Classical in
+/-- **P1 (3.127) over the labels of a step, for its class, for every selection** (`StepClass`):
+with `P.m₀ = C.m₀` and the term clauses of `C.Tm` on a field domain containing the block-constant
+fields near the reference field at every level `1 ≤ j ≤ k`,
+`Σ_{(j,y,X) ∈ 𝒯E} ℰ^{sm}_{irrel}(y, X; ψ_j, h_j) = Σ_{j=1}^k ℰ^{(j)}(ψ_j, h_j)`. -/
+theorem _root_.Balaban.Fluctuation.StepClass.sum_classLabels_irrelTorusOn_eq_Edens {P : Consts}
+    {Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ} (C : Balaban.Fluctuation.StepClass d L N₁ m₁ k N ϱ)
+    (sm : CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → Prop)
+    (hm : P.m₀ = C.m₀) (hcl : SFTermClauses P Dom C.Tm) (hN : L ^ C.m₀ ∣ N₁) (i₀ i₁ : Fin N)
+    (hdom : ∀ j, 1 ≤ j → j ≤ k → ∃ ρ > 0, ∀ G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ,
+      (∀ i, j < i → G.Ω i = ∅) →
+      ∀ Ψ : Fld d L N₁ m₁ (k + 1) N, (∀ x i, ‖Ψ x i - (Pi.single i₀ 1 : Fin N → ℂ) i‖ ≤ ρ) →
+      (∀ x x', jBlock d L (N₁ * L ^ m₁) (k + 1) j x = jBlock d L (N₁ * L ^ m₁) (k + 1) j x' →
+        Ψ x = Ψ x') →
+      Dom.dom j G Ψ (constFld (Pi.single i₀ 1)))
+    (ψ h : ℕ → Fld d L N₁ m₁ (k + 1) N) :
+    ∑ τ ∈ ((Finset.Icc 1 k) ×ˢ (Finset.univ : Finset (CTorus d L N₁ m₁ (k + 1) ×
+        Set (CTorus d L N₁ m₁ (k + 1))))).filter
+      (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2),
+      irrelTorusOn sm C.m₀ C.Tm i₀ i₁ τ.1 τ.2.1 τ.2.2 (ψ τ.1) (h τ.1) =
+    ∑ j ∈ Finset.Icc 1 k, Edens C.m₀ C.Tm j (ψ j) (h j) := by
+  rw [← hm]
+  exact Balaban.SmallField.Def6v2.sum_classLabels_irrelTorusOn_eq_Edens sm hcl
+    (by rw [hm]; exact hN) i₀ i₁ hdom ψ h
 
 open Classical in
 /-- **P1 (3.127) over the labels of a step, for its class** (`StepClass`; the labels `𝒯E` of
@@ -432,8 +545,7 @@ theorem _root_.Balaban.Fluctuation.StepClass.sum_classLabels_irrelTorus_eq_Edens
       (fun τ => Aligned (L ^ τ.1) τ.2.1 ∧ IsPolyDom C.m₀ τ.1 τ.2.2 ∧ τ.2.1 ∈ τ.2.2),
       irrelTorus C.m₀ C.Tm i₀ i₁ τ.1 τ.2.1 τ.2.2 (ψ τ.1) (h τ.1) =
     ∑ j ∈ Finset.Icc 1 k, Edens C.m₀ C.Tm j (ψ j) (h j) := by
-  rw [← hm]
-  exact Balaban.SmallField.Def6v2.sum_classLabels_irrelTorus_eq_Edens hcl (by rw [hm]; exact hN) i₀
-    i₁ hdom ψ h
+  simp only [irrelTorus_eq_irrelTorusOn]
+  exact C.sum_classLabels_irrelTorusOn_eq_Edens _ hm hcl hN i₀ i₁ hdom ψ h
 
 end Balaban.SmallField.Def6v2
