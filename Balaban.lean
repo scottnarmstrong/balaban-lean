@@ -1564,8 +1564,10 @@ public import Balaban.LargeField.R.RadialCoefficientLimit
 public import Balaban.LargeField.R.CoefCtx
 public import Balaban.LargeField.R.CoefCtxV1
 public import Balaban.LargeField.R.CoefCtxV2
+public import Balaban.LargeField.R.CoefRotPair
 public import Balaban.LargeField.R.CoefLimitV1
 public import Balaban.LargeField.R.CoefLimitV2
+public import Balaban.LargeField.R.CoefD1Corr
 public import Balaban.LargeField.R.RadialCoefficientLimitEres
 public import Balaban.LargeField.R.RadialCoefficientLimitInhab
 public import Balaban.LargeField.R.PositiveMassFacts
