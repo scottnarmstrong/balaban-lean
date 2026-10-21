@@ -208,6 +208,17 @@ theorem keptRep_pin_below (r₀ : Rep S n R k0 K M N geo cs P k) (D : KeptScaleD
     obtain ⟨B, ⟨hB, hAB⟩, -⟩ := hcomp A
     exact ⟨B, hB, agree_mono_left hAB (by omega)⟩
 
+/-- The exponents `κ^pre_k` of the input and of the output agree: they read the kept exponents and
+costs below `k` only, and these are those of the input. -/
+theorem kappaPreH_keptRep (r₀ : Rep S n R k0 K M N geo cs P k) (D : KeptScaleData r₀)
+    (A : LabHist S n R k0 K) (Z : A.H.Comp k) :
+    r₀.kappaPreH A k Z = (keptRep r₀ D).kappaPreH A k Z := by
+  refine kappaPreH_congr r₀ (keptRep r₀ D) A k (fun i hi => ?_) (fun i hi l => (D.gam_eq i hi l).symm) Z
+  funext a
+  show _ = keptExpOut r₀ _ k i a
+  unfold keptExpOut
+  simp only [show i ≠ k by omega, ite_false]
+
 /-- **`D4Pin (k+1)` of the output**: the pins below `k` and the pin at the scale `k`, which is the
 definition of the pinned exponent on the locality `KappaPreLocal`. -/
 theorem keptRep_pin (r₀ : Rep S n R k0 K M N geo cs P k) (D : KeptScaleData r₀)
@@ -221,11 +232,7 @@ theorem keptRep_pin (r₀ : Rep S n R k0 K M N geo cs P k) (D : KeptScaleData r�
     simp only [ite_true]
     exact pinnedExp_spec hloc hA Z hK hr
   rw [h1]
-  refine (kappaPreH_congr r₀ (keptRep r₀ D) A k (fun i hi => ?_) (fun i hi l => (D.gam_eq i hi l).symm) Z)
-  funext a
-  show _ = keptExpOut r₀ _ k i a
-  unfold keptExpOut
-  simp only [show i ≠ k by omega, ite_false]
+  exact kappaPreH_keptRep r₀ D A Z
 
 /-- **`D5Bound (k+1)` of the output** (LFR Lemma II.6.3 (a): (D4) implies (D5)): the localized
 operators of the scales `≤ k`, with the kept operators of `D.KD` at the ripe components. The signs
