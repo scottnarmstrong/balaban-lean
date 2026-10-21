@@ -125,6 +125,27 @@ provider, and nothing may import a root, until the root is sealed.
   fields with the step's weights and background mass (`Def6.bgMass`). Source: P3 (4.4)–(4.6), P5 (2.10)–(2.11).
   Without it the class's own bound says nothing at the composed data and blocker 6's (A1)–(A5) cannot be
   derived (W1146, `notes/phase1/PLAN-B.md` "Ruling R13", `Fluctuation/OldTermClassDomain.lean`).
+- **Ruling R13, implementation (2026-10-21, Scott: "approve all").** Two details of W1146s's implementation of R13
+  are approved: the local set is `X̂ = hatSet m₀ j X`, `X` thickened by `⌊L/2⌋` cells of `𝒟_j` (it contains `X⁺`, is a
+  union of cells and is invariant under the paving symmetries, which `X⁺` is not for even `L`); and the class term
+  domain stays the birth-mass domain `birthXiDom` of ruling R6, the step's charts being put into it by the mass
+  response, in place of the step's background mass (`notes/phase1/SPINE.md` "L5 R13 (W1146s)").
+- **Ruling R14 (2026-10-21, Scott: "approve all").** The complex H7 cube domains `DeltaC`, `DeltaPrimeC`
+  (`LargeField/Characteristic/Analytic.lean`) ask the lifted datum in `Ψ̃^c(ε, ε)` (`InDomainC G μ ε ε`) in place of
+  the background theorem's union domain. As landed, the old-term datum input was false: a complex rotation of size
+  `≥ 2ε` lies in the union domain (W1154b, `LFOldH7Refute`); the reader `deltaC_inUnionDomainC` is kept through
+  `Ψ̃^c(ε, ε) ⊆ D` for `0 < ε ≤ c₁`, `μ L^{2q} ≤ 1`.
+- **Ruling R15 (2026-10-21, Scott: "approve all").** At the cell `X = □(y)`, `irrelTorus` renormalizes only the
+  polymers inside the box `B(y)` of radius `r_k = ⌊L^{m₀+m₁+k}/8⌋` fine sites around `y`:
+  `ℰ_irrel(y,X) = ℰ(y,X) − A_{y,X} − 1[X ⊆ B(y)](T_X + Φ_{y,X}) + 1[X = □(y)] Σ_{X'∋y, X'⊆B(y)} (T_{X'} + Φ_{y,X'})`.
+  Polymers in `B(y)` do not wind on any torus of the family, so the cell term agrees exactly between two tori; larger
+  polymers keep their relevant parts and are small by size. The identity `Σ ℰ_irrel = ℰ`, the class and the
+  infinite-volume renormalization conditions are unchanged (ORCH-A; `notes/phase1/PLAN-B.md` "Ruling R15 asked").
+- **Ruling R16 (2026-10-21, Scott: "approve all").** In `D7Bdry2`, `D7Bdry2Post` the clauses `analytic` and `bound`
+  of the large-field boundary terms are asked at the physical external field only (`hSetB hv`, as in the first
+  version), not on the pinned ball `‖h' − h‖ < r_h`; the other (D7) clauses and the small-field domains (which keep
+  the ball) are unchanged. Every reader uses (D7) at the physical field, and the whole build without the ball passes
+  (ORCH-A, branch `orchA-r16`). `D7BdryBall` and `LFBdrySrcInput` are deleted; `lfStepInput_of_parts` loses `hBs`.
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
