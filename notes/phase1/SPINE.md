@@ -1935,3 +1935,72 @@ the polymer (data sites of `Gk` are within `11 L^(m₁+j)+1`), closed under bloc
 its sites to the complement of `X₁` (`(L-2) a_K - 6 L^(k+1+m₁) > 0` for `L^{m₀}(L-2) ≥ 6`), a generalization of
 `LocalCover.blockMargin` from "Zα in one cell" to "Zα within `a_K` of the cell".  `hgeom_of_local` then needs `hX1` replaced by
 this distance condition.
+
+### A4-1f the margin and the canonical producer (W1161, 2026-10-21)
+
+Statements that changed (all in my own blocker-7 files, plus one core refactor):
+- `LocalCover.blockMargin` (LevelLocalCover.lean) is now an instance of the core `blockMargin_core` (margin against any region `X₁`
+  from: the sites of `Zα`, moved by an integer vector of sup norm `< 6 M`, stay in `X₁`); new `hatRad_add_le_six`, `six_le_cells`
+  (`hatRad_add_le` is their consequence); landed statements unchanged.
+- `hgeom_of_local` / `newLevel_coeff_twoTorus_of_class_cells`: the hypotheses `hX1`, `hm₀1` are replaced by `hmarg` (the `6 M`-neighbourhood
+  of the margin `canonZ` lies in `X₁fC`, `M = L^(k+1+m₁)`) and `hcb` (the cell box of `y₀` lies in `X₁fC`).  `canonZ` (no `m₀` argument) is
+  the union of the `L^(k+1)`-cells of the sites within `zRad` of the points of the pair (block-closed: the cells are nested).
+- `NewLevelCanonMargin.mem_nbhd_of_supDist`: if `r + 6 M ≤ (L-1) a_K`, the `6M`-neighbourhood of the sup-ball of radius `r` around `p` lies in
+  `nbhd m₀ p`.  Margin radius is about `zRad + L^(k+1) ≈ 11 M + M`, so with `p` in a cell met by the polymer `hmarg` follows from
+  `12 M + 6 M ≤ (L-1) L^{m₀} M`, i.e. `(L-1) L^{m₀} ≥ 18` (L = 3: m₀ ≥ 3; L = 3, m₀ = 2 gives 18, borderline-ok).  The class constants
+  (`hM8 : 8 ≤ L^(m₀+m₁)`) do not give it; `m₀` large enough is a requirement on the class.
+- `NewLevelCanonProducer`: `canonOldTermSystem` (index type `AdmPairs`, `Eτ = irrelTorus`, cover fields from `F`, `XL` as in `OldTermsAreIrrel`) and
+  `canonOldTermSystem_pins` (`OldTermsCanonPinsAt`: surjectivity and the cover pins by construction).  Inputs it cannot supply: the decoupled fields
+  `F₁L`, `SolL`, `FkL` and their pins `DecFieldPin`, `DecSolPin`, `FkPin` per admissible pair, and the `OldTermSettings`/`NewLevelSystem` fields on
+  top (BgSetting, FlSetting, trees).  No standalone lemma produces them: they are obtained inside `StepTowerBeta0Families` (the two
+  `OldTermSystem.mk` applications, ~lines 346 and 519), where the index type and the fields are universally quantified inputs of the layer.
+
+### A4-1f margin, tie, fields (W1161, 2026-10-21, continued)
+
+- `Spine/CanonMarginTie`: `CanonMarginTie L m₀ := 18 ≤ (L-2) L^{m₀}` (the region `X1` of a chosen family contains only the `(L-2)`-cell
+  neighbourhood of the polymer, `Inhabited/NewLevelCanonX1.X1_far`, because a cube of the family may straddle two cells; margin radius `12 M`
+  plus `6 M`); `canonMarginTie_of_three_le` (`L ≥ 3`, `m₀ ≥ 3`), `canonMarginTie_of_four_le` (`L ≥ 4`, `m₀ ≥ 2`), `canonMarginTie_nonempty` (`L = m₀ = 3`).
+  `L = 3, m₀ = 2` gives 9 < 18: the constants need `m₀ ≥ 3` there.  (Corrects my earlier remark: the constant is `(L-2)`, not `(L-1)`.)
+- `hgeom_of_local` / `newLevel_coeff_twoTorus_of_class_cells`: premises `hX1 : CanonCoverIsX1 S C F` (the canonical cover is the `X1` of a chosen family of
+  the polymer `X ∪ □(y)`; from `OS.hX₁`, `OS.hcov` and `XL = X ∪ □(y)` of `OldTermsAreIrrel`) and `htie : CanonMarginTie L C.m₀`, `3 ≤ L`, `1 ≤ m₁`.
+  `CanonCoverLocal` now carries `m₀` and the fields `hPK_sub`, `hPJ_sub` (the polymers of `Gk`, `Gj` lie in `polySet`).
+- `Inhabited/StepTowerBeta0OldFields.lean` (new name; `StepTowerBeta0Fields` was taken): `exists_decFieldPin`, `exists_decSolPin`, `exists_fkPin`.  The
+  two `OldTermSystem.mk` sites of `StepTowerBeta0Families` only take these fields as hypotheses; the constructors are the landed `i4b_analytic`,
+  `Dec2.i4a_analytic`, `theorem72_analytic` (used in `StepTowerCollarStruct`), so nothing needed extraction and `StepTowerBeta0Families` is untouched.
+- `canonOldTermSystemOf` (producer file): index `AdmPairs`, fields from `F`, decoupled fields chosen by the three lemmas; inputs are `FlCore` and `BgHyp` only;
+  `canonOldTermSystemOf_pins : OldTermsCanonPinsAt`.  **Still open for a full `NewLevelSystem`:** the `OldTermSettings` of the canonical terms
+  (`BgSetting`, `FlSetting`, `hopt` trees, `hcov`, `hX₁` for the `localB` sets `Gk = 𝔹_n(P)`), i.e. the geometry of `localB` against the step
+  (Precedes, collar, `dsX₀`, `hN`, `dep`), which the chain takes as base premises (`StepTowerCollarStruct`: `hBs`, `hFs`).  That is new analysis, not an extraction.
+
+### A4-1f the settings of the canonical old terms (W1161, 2026-10-21)
+
+`Inhabited/NewLevelCanonSettings.exists_canonOldTermData`: in the regime `ClassHatCond C s r₀` (R13), from one reference `BgSetting`/`FlSetting`
+(`hB0`, `hF0`: the chain's typing data and numerics at the step) there are `O : OldTermSystem` indexed by `AdmPairs`, `OS : OldTermSettings S t O`
+(`BgSetting`, `FlSetting`, `CovSetup` of `XL = X ∪ □(y)` with a chosen family `𝒦X` taken from `exists_optimal_chosen`, `hX₁`, optimal trees, analytic
+`FkL` from `theorem72_analytic`), a canonical cover `F`, `OldTermsCanonPinsAt` and `OldTermsAreIrrel` (so `Gj = C.Tm.gs j X`).  The per-label settings are
+`settings_family_castLocalB_hat` (W1146's), the decoupled fields `exists_decFieldPin/SolPin` (`StepTowerBeta0OldFields`).  Nothing in `hBs`/`hFs` was found false for
+`localB`; they are derived from the reference setting.
+**What the geometry comparison (`CanonCoverLocal`) still needs from W1146's files.** `Gk τ = castG hc (localB k _ (Z' τ) hs₁)` with `Z' τ` the cube-index
+neighbourhood (`5L` cubes of side `L^{m₁+s} L^k`) of `XL τ ∪ X̂`, and `Gj τ = castG hc (localB j _ {x' | torusCast x' ∈ hatSet … } hs₂)`.  The statement of
+`settings_family_castLocalB_far/_hat/_spec_gen` exposes only `Gj`; the explicit `Gk` is inside the proof (last `exact ⟨fun τ => castG hc (localB k …), …⟩`).
+Request to the owner (one line each, proof unchanged): add `∀ τ, Gk τ = castG hc (localB k (Nat.le_succ k) {z' | ∃ y' ∈ Y' τ, supDist … ≤ 5 * L} hs₁)`
+to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same torus) must be generalized to the cast form over `(N₁', m₁ + s)` (the `boxMap` of the
+two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
+quotient description of `Z'`.
+
+### Blocker 7, step clause: state after the cast comparison (W1161, 2026-10-21)
+
+Landed on the branch (all modules build, 0 warnings, axioms `propext`, `Classical.choice`, `Quot.sound`): `Gk` cores `settings_family_castLocalB_far_Gk/_hat_Gk`
+(explicit `Gk = castG (localB k (castNbhd Y))`); `Inhabited/NewLevelHatTop` (`dataSites_subset_top`, `hat_gap`: top layer, `θ = L^j/L^k`, collar);
+`CastLocalBCorr`, `NewLevelCastNbhd`, `NewLevelCubeImage`, `NewLevelCanonCast`, `NewLevelCanonCastGeom` (`hgeom_of_cast`), `NewLevelCanonReg` (`reg_of_hN`),
+`NewLevelCanonBigRad` (`hbig_of_size`), `NewLevelCanonX1` (`X1_far`).  Removed as dead: `CanonCoverLocal`, `hgeom_of_local`, `canonPts`, `canonZ`,
+`CanonCoverIsX1`, `hfar_of_isX1`, `margin_in_region`, `NewLevelCanonCells`, `Spine/CanonMarginTie` (the margin now comes from `BgSetting.hN`, no tie).
+`polySet` moved to `NewLevelCanonPins`; `OldTermsCanonPins(At)` gained the clause `O.XL τ = polySet …` (from `OldTermsAreIrrel`); producers adapted.
+`newLevel_coeff_twoTorus_of_class_cells` premises beyond typing data: `LC : CanonCoverCast` (the canonical covers are the cast local sets of the settings; produced by
+`exists_canonOldTermData` + `settings_family_castLocalB_hat_Gk`), `SpG`, `hL3`, `hs : s < m₀`, the torus-size bounds `hsz`, `hsz'`
+(`2R + (4(k+1)+36) L^{k+1+m₀+m₁} + 8 ≤ size`), and **`hcell`** (`CellTermsAgree` for `castZ`).  Derived inside: `hXLsub` (X1_far with the pinned `XL`), `hreg`
+(`reg_of_hN`), `hbigA/B` (`hbig_of_size`).
+**Open:** (1) `hcell`/`CellTermsAgree` — the irrelevant term at the distinguished cell on two tori (P4 (H.4) `hcellcase`; the relevant parts of the polymers that wrap
+around the torus enter): a property of the class's `irrelTorus`, a design question; (2) the producer of the zero-source/bridge part of `NewLevelSystem`
+(the rest of the fields besides `O`, `OS`) is the chain's (W1146t); (3) `hsz` are size conditions on the torus relative to the box radius `R` (as `hn19`, `hnE`, …), supplied
+by the caller.
