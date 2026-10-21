@@ -197,7 +197,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
     (hp : 0 < p₁) (I : LocInteraction (fun b => {u : inner // cb u = b} → Rn N))
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
     (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres : ℝ}
-    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ ρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
     (hκV : I.κH ≤ κV) (hαX : aEnt S.d S.L + 1 ≤ rate - κX) :
     ‖oldBAt g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A Xs (extK q') hv gx Y‖ ≤
       Real.exp (Real.log 2 * (c1 S.d S.L * (1 + d7SizeAt Fr (k + 1) (OmegaCube A.H (k + 1)) Y))) *
@@ -228,14 +228,14 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
     obtain ⟨hb, hm⟩ := Finset.mem_filter.1 (hXs X hX).2
     exact ⟨(mem_bdryDomsAt.1 hb).2, hm⟩
   -- a good site: a family with this site, the site is in `𝒟_{k+1}` and meets `Ω_{k+1}`
-  have hsite : ∀ X V, V ∈ sitesX g hnn hM1 Fr A.H hk hρ r r' X →
-      ∃ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V, IsDj m₀ (k + 1) V ∧
+  have hsite : ∀ X V, V ∈ sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X →
+      ∃ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V, IsDj m₀ (k + 1) V ∧
         (V ∩ d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))).Nonempty := fun X V hV => exists_of_mem_sitesX g hnn hM1 hV
   -- the terms of a set `T` that is empty or of infinite size vanish
   have hbad : ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))),
       ¬ (T.Nonempty ∧ dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤) →
-      ∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+      ∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
         (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
         oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T = 0 := by
     intro T hT
@@ -253,7 +253,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
   have hgood : ∀ T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))), outLabel Fr k (OmegaCube A.H (k + 1)) T = Y →
       T.Nonempty → dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ →
-      ‖∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+      ‖∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
         (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
         oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤ Cst * SX * (T.card * K0 S.d S.L I.κ0) *
           Real.exp (-I.κ' * D) := by
@@ -261,7 +261,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
     have hspec := outLabel_spec Fr hnn hk (OmegaCube A.H (k + 1)) T hTne hfin
     rw [hTY] at hspec
     obtain ⟨hYd, -, hYD⟩ := hspec
-    have hX : ∀ X ∈ Xs, ‖∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+    have hX : ∀ X ∈ Xs, ‖∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
         (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
         oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤
         if d7Pull Fr k (X : Set (Torus S.d (n k))) ⊆ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1))))
@@ -273,9 +273,9 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
       · simp only [hsub, ↓reduceIte]
         have hXY := fineSet_subset_of_d7Pull_subset Fr hsub
         -- the sites of the terms lie in `Y`
-        have hVY : ∀ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+        have hVY : ∀ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
-            ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+            ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
               markSite g hnn hM1 Fr A.H hk hρ r r' X J ⊆
                 d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) := by
           intro V hV J hJ
@@ -283,14 +283,14 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
           have h := markSite_subset_outLabel Fr hnn hM1 A.H hk hρ r r' X J hJg T
             (hJV ▸ (Finset.mem_filter.1 hV).2) hfin
           rwa [hTY] at h
-        have hterm : ∀ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+        have hterm : ∀ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
             ‖oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤
               Cst * Real.exp (-(rate - κX) * d7Size Fr A k X) * Real.exp (-I.κ' * D) *
                 Real.exp (-I.κ0 * treeLenCovOne (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁)
                   (K := K) m₀ (k + 1) V) := by
           intro V hV
-          have hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+          have hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
               ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
                 (locSetXJ g hM1 A.H r r' X J)).G',
               fineOfC g hnn hM1 hk x ∈ fineSet (S := S) (n := n) M K (k + 1)
@@ -306,7 +306,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
           rw [hCst]
           ring
         have hroot := sum_exp_treeLen_le_of_roots Fr.divN₁ hk T
-          ((sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+          ((sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
             (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T)) (fun V hV => by
             obtain ⟨hVs, hVT⟩ := Finset.mem_filter.1 hV
             obtain ⟨-, -, hVd, hm⟩ := hsite X V hVs
@@ -317,7 +317,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
         refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hterm).trans ?_)
         rw [← Finset.mul_sum]
         calc Cst * Real.exp (-(rate - κX) * d7Size Fr A k X) * Real.exp (-I.κ' * D) *
-              ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+              ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
                 (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
               Real.exp (-I.κ0 * treeLenCovOne (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁)
                 (K := K) m₀ (k + 1) V)
@@ -342,7 +342,7 @@ theorem norm_oldBAt_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : 
   have hT : ∀ T ∈ Finset.univ.filter (fun T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1)))) =>
       outLabel Fr k (OmegaCube A.H (k + 1)) T = Y),
-      ‖∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ r r' X).filter
+      ‖∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X).filter
         (fun V => blocksOf m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) V ⊆ T),
         oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V T‖ ≤
       if T.Nonempty ∧ dOmega m₀ (k + 1) (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))) (sitesOf T) ≠ ⊤ then
@@ -581,7 +581,7 @@ theorem norm_oldB_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : �
     (ψout : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N),
       (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
     (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres rate' : ℝ}
-    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ ρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
     (hκV : (I A (extK p.1) (extK p.2.1) p.2.2).κH ≤ κV) (hαX : aEnt S.d S.L + 1 ≤ rate - κX)
     (hκ' : rate' + Real.log 2 * c1 S.d S.L + 2 ≤ (I A (extK p.1) (extK p.2.1) p.2.2).κ') :
     ‖oldB g hnn hM1 Fr hk hk1 hρ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ

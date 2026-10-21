@@ -791,7 +791,10 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `≤ 2^{c₁(1+D)} C_PE fac C_res · L^d c₁(1+D) K₀(rate-κ_X) · c₁(1+D) K₀(κ₀) · e^{-κ' D}`, `D = d_{k+1}(Y mod Ω^c)`**,
   conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc` and the third named input:
   - **`OldResumSite`** (named input, **open**; P3 (4.45)–(4.49), P6 p. 34; approved 2026-10-21) — for every old label
-    `X` meeting `Ω_{k+1}` and every site `V`, `∑_{J with site V} e^{-(κ₁-1)|J_V|} ≤ C_res e^{κ_X d_k(X)} e^{-κ_V 𝗱(V)}`.
+    `X` meeting `Ω_{k+1}` and every site `V`, `∑_{J with site V} e^{-(κ₁-1)|J_V|} ≤ C_res e^{κ_X d_k(X)} e^{-κ_V 𝗱(V)}`,
+    `J` ranging over the families of cover cubes inside the localization range `locRange` (the sites within `ρ` cubes
+    of `Ω_{k+1}`; `allJ`): there the cover cubes are of levels `k`, `k+1` (`Ω_{k+1} ⊂ Ω'_{k+1}`, far from `W_k^c`),
+    so their number per cell is bounded; the parameters of the other cubes do not enter the localization vectors.
     Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
     per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
     cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.

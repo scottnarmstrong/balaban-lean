@@ -17,7 +17,8 @@ of the mark of `(X, V)` at `T`.  The mark of `(X, V)` is the sum of the marks `o
 decoupling families `J` of `X` whose site is `V` (P3 (4.45): "we do a partial resummation of the terms
 over the domains `Y₁` determining a fixed `Y`").
 
-* `stepG'`, `allJ`: the set of P5 (2.17) of the step and the families of cubes of its cover;
+* `stepG'`, `locRange`, `allJ`: the set of P5 (2.17) of the step, the localization range, and the
+  families of cubes of its cover inside the localization range;
 * `famAt`, `sitesX`: the families of `X` with good site `V`, and the good sites of the marks of `X`;
 * `OldResumSite`: **the resummation over the decoupling families at a mark site** (named input,
   open; P3 (4.45)–(4.49), P6 p. 34);
@@ -55,39 +56,51 @@ theorem holeStepLF_G'_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 �
     (a₁ ν β p₁ δ : ℝ) :
     (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G' = stepG' g hnn hM1 H hk hρ := rfl
 
-/-- **The families of decoupling cubes of the step**: the sets of cubes of the cover of `G′`. -/
+/-- **The localization range of the step** (P5 (2.18), reading HS-1): the sites of the cubes of
+`𝕋_{k+1}` within `ρ` cubes of a cube of `Ω_{k+1}` (the union of the localization domains `locDomC` of
+the sites of `Ω_{k+1}`). -/
+def locRange (H : RegionHistory S n R k0 K) {k : ℕ} (ρ : ℕ) :
+    Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :=
+  {y | ∃ x, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ (H.step k).Omega ∧
+    y ∈ locDomC (c := g.c) (n1 := n (k + 1)) hM1 ρ x}
+
+open Classical in
+/-- **The families of decoupling cubes of the step**: the sets of cubes of the cover of `G′` inside
+the localization range (the parameters of the other cubes do not enter the localization vectors of
+the unit points, `slocOf`, `locDomsLF`). -/
 noncomputable def allJ (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) :
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ : ℕ) :
     Finset (Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :=
-  (coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx.powerset
+  ((coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx.filter fun P =>
+    (cubeP P : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆ locRange g hM1 H ρ).powerset
 
 open Classical in
 /-- **The families of an old label `X` with the good site `V`** (P3 (4.45): the domains `Y₁`
 determining a fixed site). -/
 noncomputable def famAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
-    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ)
+    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ)
     (X : Finset (Torus S.d (n k))) (V : Set (CTorus S.d S.L F.N₁ m₁ K)) :
     Finset (Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :=
-  (allJ g hnn hM1 H hk hρ).filter fun J =>
+  (allJ g hnn hM1 H hk hρ ρ).filter fun J =>
     GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J ∧
       markSite g hnn hM1 F H hk hρ r r' X J = V
 
 open Classical in
 /-- **The good sites of the marks of an old label `X`.** -/
 noncomputable def sitesX {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K)
-    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ)
+    {k : ℕ} (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ)
     (X : Finset (Torus S.d (n k))) : Finset (Set (CTorus S.d S.L F.N₁ m₁ K)) :=
-  ((allJ g hnn hM1 H hk hρ).filter fun J =>
+  ((allJ g hnn hM1 H hk hρ ρ).filter fun J =>
     GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J).image
       (markSite g hnn hM1 F H hk hρ r r' X)
 
 omit [NeZero M] in
 /-- A family with the site `V` has the site `V` and a good site. -/
 theorem mem_famAt {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁} {H : RegionHistory S n R k0 K}
-    {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊} {r r' : ℕ}
+    {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊} {ρ r r' : ℕ}
     {X : Finset (Torus S.d (n k))} {V : Set (CTorus S.d S.L F.N₁ m₁ K)}
     {J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))} :
-    J ∈ famAt g hnn hM1 F H hk hρ r r' X V ↔ J ∈ allJ g hnn hM1 H hk hρ ∧
+    J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V ↔ J ∈ allJ g hnn hM1 H hk hρ ρ ∧
       GoodJ g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) X J ∧
         markSite g hnn hM1 F H hk hρ r r' X J = V := by
   classical
@@ -96,10 +109,10 @@ theorem mem_famAt {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁} {H : Region
 omit [NeZero M] in
 /-- **A good site of a mark is a set of `𝒟_{k+1}` meeting `Ω_{k+1}`**, the site of a good family. -/
 theorem exists_of_mem_sitesX {m₀ : ℕ} {F : FineSizeFrame S n M K m₀ m₁}
-    {H : RegionHistory S n R k0 K} {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊} {r r' : ℕ}
-    {X : Finset (Torus S.d (n k))} {V : Set (CTorus S.d S.L F.N₁ m₁ K)}
-    (hV : V ∈ sitesX g hnn hM1 F H hk hρ r r' X) :
-    ∃ J ∈ famAt g hnn hM1 F H hk hρ r r' X V, IsDj m₀ (k + 1) V ∧
+    {H : RegionHistory S n R k0 K} {k : ℕ} {hk : k + 1 ≤ K} {hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊}
+    {ρ r r' : ℕ} {X : Finset (Torus S.d (n k))} {V : Set (CTorus S.d S.L F.N₁ m₁ K)}
+    (hV : V ∈ sitesX g hnn hM1 F H hk hρ ρ r r' X) :
+    ∃ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V, IsDj m₀ (k + 1) V ∧
       (V ∩ d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty := by
   classical
   obtain ⟨J, hJ, rfl⟩ := Finset.mem_image.1 hV
@@ -115,9 +128,9 @@ the local pair).  The proof needs the levels of the cover cubes in the localizat
 `Ω_{k+1}` (a bounded number of cubes per cell), the size of the site by `d_k(X)` and `|J_V|`
 (P3 (4.48)) and the count of the reached families of cover cubes from one cube (P3 (4.49)). -/
 def OldResumSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H : RegionHistory S n R k0 K) {k : ℕ}
-    (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (r r' : ℕ) (κ₁ κX κV Cres : ℝ) : Prop :=
+    (hk : k + 1 ≤ K) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ r r' : ℕ) (κ₁ κX κV Cres : ℝ) : Prop :=
   ∀ X ∈ oldDoms F H k, ∀ V : Set (CTorus S.d S.L F.N₁ m₁ K),
-    ∑ J ∈ famAt g hnn hM1 F H hk hρ r r' X V,
+    ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V,
         Real.exp (-(κ₁ - 1) *
           (locCubes g (coverOf (locG' g hnn hM1 H hk hρ (locSetXJ g hM1 H r r' X J))) J).card) ≤
       Cres * Real.exp (κX * d7SizeAt F k (H.omegaPost k) X) *
@@ -136,7 +149,7 @@ noncomputable def oldMarkSite {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     (V : Set (CTorus S.d S.L F.N₁ m₁ K)) (Φ : ∀ b, {u : inner // cb u = b} → Rn N) : ℂ :=
-  ∑ J ∈ famAt g hnn hM1 F H hk hρ r r' X V,
+  ∑ J ∈ famAt g hnn hM1 F H hk hρ ρ r r' X V,
     oldMarkLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv gx J
       Φ
 
@@ -198,7 +211,7 @@ theorem measurable_oldMarkSite {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m�
     {X : Finset (Torus S.d (n k))} (hX : X ∈ bdryDomsPost Fr A k (Zof A))
     (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
     (V : Set (CTorus S.d S.L Fr.N₁ m₁ K))
-    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
       ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
         (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
     (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
@@ -242,7 +255,7 @@ theorem norm_oldMarkSite_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} 
     {X : Finset (Torus S.d (n k))} (hX : X ∈ bdryDomsPost Fr A k (Zof A))
     (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
     (V : Set (CTorus S.d S.L Fr.N₁ m₁ K))
-    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
       ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
         (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
     (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
@@ -252,7 +265,7 @@ theorem norm_oldMarkSite_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} 
     ‖oldMarkSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ
         (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V Φ‖ ≤
       fac * Real.exp (-rate * d7Size Fr A k X) *
-        ∑ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V, Real.exp (-(κ₁ - 1) *
+        ∑ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V, Real.exp (-(κ₁ - 1) *
           (locCubes g (coverOf (locG' g hnn hM1 A.H hk hρ (locSetXJ g hM1 A.H r r' X J))) J).card) := by
   unfold oldMarkSite
   rw [Finset.mul_sum]
@@ -318,10 +331,10 @@ theorem norm_oldClusterSite_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m�
     {X : Finset (Torus S.d (n k))} (hX : X ∈ bdryDomsPost Fr A k (Zof A))
     (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
     (V : Set (CTorus S.d S.L Fr.N₁ m₁ K))
-    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+    (hVJ : ∀ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
       ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
         (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
-    (hXd : X ∈ oldDoms Fr A.H k) (hVs : V ∈ sitesX g hnn hM1 Fr A.H hk hρ r r' X)
+    (hXd : X ∈ oldDoms Fr A.H k) (hVs : V ∈ sitesX g hnn hM1 Fr A.H hk hρ ρ r r' X)
     (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
     (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))
@@ -331,7 +344,7 @@ theorem norm_oldClusterSite_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m�
     (hp : 0 < p₁) (I : LocInteraction (fun b => {u : inner // cb u = b} → Rn N))
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
     (hrψ : 0 < rψ) (hfac : 0 < fac) {κX κV Cres : ℝ}
-    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
+    (hres : OldResumSite g hnn hM1 Fr A.H hk hρ ρ r r' κ₁ κX κV Cres) (hCres : 0 < Cres)
     (hκV : I.κH ≤ κV) (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
       (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))) :
     ‖oldClusterSite g hnn hM1 Fr A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ
@@ -352,7 +365,7 @@ theorem norm_oldClusterSite_le {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m�
       (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx V Φ‖ ≤
       fac * Cres * Real.exp (-(rate - κX) * D) * Real.exp (-κV * t) := fun Φ => by
     refine (norm_oldMarkSite_le g hnn hM1 hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hIn hDat htgt hX hXY V hVJ inner cb ψout hrψ Φ).trans ?_
-    calc fac * Real.exp (-rate * D) * ∑ J ∈ famAt g hnn hM1 Fr A.H hk hρ r r' X V,
+    calc fac * Real.exp (-rate * D) * ∑ J ∈ famAt g hnn hM1 Fr A.H hk hρ ρ r r' X V,
           Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (locG' g hnn hM1 A.H hk hρ
             (locSetXJ g hM1 A.H r r' X J))) J).card)
         ≤ fac * Real.exp (-rate * D) * (Cres * Real.exp (κX * D) * Real.exp (-κV * t)) :=
@@ -405,7 +418,7 @@ noncomputable def oldBAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) (H :
     (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ) (Y : Finset (Torus S.d (n (k + 1)))) :
     ℂ :=
   ∑ T ∈ Finset.univ.filter (fun T => outLabel F k (OmegaCube H (k + 1)) T = Y),
-    ∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 F H hk hρ r r' X).filter
+    ∑ X ∈ Xs, ∑ V ∈ (sitesX g hnn hM1 F H hk hρ ρ r r' X).filter
         (fun V => blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) V ⊆ T),
       oldClusterSite g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb hp I ψout rψ ρc ρ r r' rep A
         X ψ' hv gx V T
