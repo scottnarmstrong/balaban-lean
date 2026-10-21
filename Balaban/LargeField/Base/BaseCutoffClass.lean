@@ -128,4 +128,37 @@ theorem tangent_condition_of_ratio {N mr B a p₀ p₁ β δ₀ : ℝ} (hβ : 0 
   rw [h1]
   linarith
 
+/-- **What the class puts on `M₁`.** `5 L M₁ ≥ R₀(d, L)` (the separation of `BgHyp`, the only
+constraint on `M₁` in the radii witness) gives only
+`γ_w c M₁ ≥ (c/(5L)) (d log L + agmonRate/8)`. The condition of `exp_term_small`,
+`γ_w c M₁ ≥ log (32 √N K_w c_F (2d+2) K₁ d L)`, is therefore not implied: it constrains `M₁` by the
+constants `K_w, c_F, K₁` (a further lower bound on `M₁`). -/
+theorem gammaW_cM1_ge {d L M1 c : ℕ} (hd : 0 < d) (hL : 0 < L)
+    (hR : Balaban.Background.bgR0 d L ≤ ((5 * L * M1 : ℕ) : ℝ)) :
+    ((c : ℝ) / (5 * L)) * (d * Real.log L + Balaban.Multiscale.agmonRate d / 8) ≤
+      Balaban.Localization.gammaW d * (c * M1) := by
+  have hag := Balaban.Multiscale.agmonRate_pos (d := d) hd
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast hL
+  have h1 : 1 + 2 * d * Real.log L / (Balaban.Multiscale.agmonRate d / 2 / 2) ≤
+      ((5 * L * M1 : ℕ) : ℝ) :=
+    (le_max_right _ _).trans (by unfold Balaban.Background.bgR0 at hR; exact hR)
+  have h2 : 1 + 8 * d * Real.log L / Balaban.Multiscale.agmonRate d ≤ 5 * L * M1 := by
+    have : 2 * d * Real.log L / (Balaban.Multiscale.agmonRate d / 2 / 2) =
+        8 * d * Real.log L / Balaban.Multiscale.agmonRate d := by field_simp; ring
+    push_cast at h1
+    linarith
+  unfold Balaban.Localization.gammaW
+  have h3 : Balaban.Multiscale.agmonRate d / 8 * (1 + 8 * d * Real.log L /
+      Balaban.Multiscale.agmonRate d) ≤ Balaban.Multiscale.agmonRate d / 8 * (5 * L * M1) :=
+    mul_le_mul_of_nonneg_left h2 (by positivity)
+  have h4 : Balaban.Multiscale.agmonRate d / 8 * (1 + 8 * d * Real.log L /
+      Balaban.Multiscale.agmonRate d) = Balaban.Multiscale.agmonRate d / 8 + d * Real.log L := by
+    field_simp
+  rw [h4] at h3
+  have hc : (0 : ℝ) ≤ c := Nat.cast_nonneg c
+  calc ((c : ℝ) / (5 * L)) * (d * Real.log L + Balaban.Multiscale.agmonRate d / 8)
+      ≤ ((c : ℝ) / (5 * L)) * (Balaban.Multiscale.agmonRate d / 8 * (5 * L * M1)) :=
+        mul_le_mul_of_nonneg_left (by linarith) (by positivity)
+    _ = Balaban.Multiscale.agmonRate d / 8 * (c * M1) := by field_simp
+
 end Balaban.LargeField.Base
