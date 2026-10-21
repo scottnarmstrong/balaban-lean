@@ -1605,3 +1605,23 @@ Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`
 `OldTermsCanonPins` + `CanonCover` + `exists_domEquiv_of_canon` (NewLevelCanonPins) give the index bijection e from boxMap on pairs.
 Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
 per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
+
+### A4-1f two-torus agreement of the new-level coefficient from the canonical pins (W1160, 2026-10-21)
+
+Landed (all build, 0 warnings): `NewLevelCanonBox` (`domEquiv_of_canon_box`: the partial index bijection of the old
+terms in the box, split into small lemmas), `TwoTorusLabelBox`, `NewLevelZeroCorr`, `NewLevelThickCorr`,
+`NewLevelAnchorCorr`, `NewLevelAnchorG`, `NewLevelPsiData`, `NewLevelKappaData`, `NewLevelCoeffPairs`
+(`newLevel_coeff_twoTorus_of_pairs`: `NewLevelSystem.coeff_twoTorus` with `ψ`, `κ`, `hA`, `hG` discharged from
+`hE` (index bijections of the old terms, with the relation `Q` of the canonical pairs) and `hprem` (premises of the
+comparison of corresponding old terms)), `NewLevelCanonHE` (`canon_hE`), `NewLevelCanonHPrem` (`canon_hprem`:
+`termPairPremisesAt_of_data` with the agreement of the old terms from `oldTerm_E_agree`), and
+`NewLevelClassCoeff.newLevel_coeff_twoTorus_of_class_of_cellTerms`.  Refactors (statements unchanged): the label and
+activity correspondence of the direct terms is the core `directTerms_labelCorr_twoTorus` of
+`gsumCoeff_e1_twoTorus_of_directTerms`; `psiThick_fineBlock_iff` is extracted from `markedPair_boxMap_iff`.
+
+Hypotheses of the main theorem: the pins `OldTermsCanonPinsAt` of both systems; the class (`TorusIndep`, `hlocB`);
+the zero-source label pin `hI𝒴`; the per-pair geometry `hgeom` of the canonical covers (a margin `Z` with
+`GSCorr`/`GSIso` of the localized generating sets, `BlockMargin`, and `CellTermsAgree` for the cell case); the
+covers (`hcX`, `hcloc`, `hcov`); margins; the typing data of the decoupled fields (`FlCore`, `XiCData`, `HatConn`, radii).
+Open for the producer: `hgeom` for the actual covers (instance `localB`, `gsCorr_localB`/`gsIso_localB` for `Gk`, `Gj`)
+and `CellTermsAgree` (the cell case).
