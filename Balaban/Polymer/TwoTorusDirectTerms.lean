@@ -774,7 +774,7 @@ theorem directTerms_labelCorr_twoTorus
   -- the labels with blocks in `T` lie in the box
   have hyR : ∀ y : {Y // Y ∈ I.𝒴}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
       ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun y hy => inBox_of_blocksOf_subset hN (I.dom y.1 y.2) hT hy
+    fun y hy => inBox_of_dom_blocksOf_subset hN (I.dom y.1 y.2) hT hy
   -- the domains of the box correspond
   have hmem𝒴 : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ I'.𝒴 ↔ Y ∈ I.𝒴) := by

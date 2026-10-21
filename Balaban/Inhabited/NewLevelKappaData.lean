@@ -115,7 +115,7 @@ theorem newLevel_kappa_data
   have hbox : ∀ a : {Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG (SA)) z},
       blocksOf 1 (k + 1) Set.univ a.1 ⊆ T → ∀ x ∈ a.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun a hi => inBox_of_blocksOf_subset (Y := a.1) hN
+    fun a hi => inBox_of_dom_blocksOf_subset (Y := a.1) hN
       (bridgeFamily_isDj hN NS.hL NS.hdomE z a.1 a.2) hT hi
   refine ⟨fun i => match i with
     | Sum.inl a => fun hi => Sum.inl (φ a hi)

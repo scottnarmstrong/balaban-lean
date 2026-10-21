@@ -180,7 +180,7 @@ theorem thick_labelCorr
   classical
   have hYR1 : ∀ y : {Y // Y ∈ NS.𝒴C}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
       ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun y hy => inBox_of_blocksOf_subset hN (NS.h𝒴dj y.1 y.2) hT hy
+    fun y hy => inBox_of_dom_blocksOf_subset hN (NS.h𝒴dj y.1 y.2) hT hy
   have hmem : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
       (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ NS'.𝒴C ↔ Y ∈ NS.𝒴C) := by
     intro Y hY

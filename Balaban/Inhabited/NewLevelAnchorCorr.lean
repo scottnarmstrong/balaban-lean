@@ -116,11 +116,11 @@ theorem anchor_inl_corr
       bm '' a.1 ∈ bridgeFamily 1 (fun _ : Torus d (N₁' * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
         (Set.univ : Set (CTorus d L N₁' m₁ (k + 1)))) (e1DomG (SB)) (bc z) :=
     fun a hi => (mem_bridgeFamily_boxMap_iff (ϱ := ϱ) hN hN' hn1 hn1' hnF hnF' hnH hnH' z hz hrc
-      hroot (inBox_of_blocksOf_subset (Y := a.1) hN (bridgeFamily_isDj hN NS.hL NS.hdomE z a.1 a.2) hT hi)).2 a.2
+      hroot (inBox_of_dom_blocksOf_subset (Y := a.1) hN (bridgeFamily_isDj hN NS.hL NS.hdomE z a.1 a.2) hT hi)).2 a.2
   have hbox : ∀ a : {Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
       (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (e1DomG (SA)) z},
       blocksOf 1 (k + 1) Set.univ a.1 ⊆ T → ∀ x ∈ a.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun a hi => inBox_of_blocksOf_subset (Y := a.1) hN
+    fun a hi => inBox_of_dom_blocksOf_subset (Y := a.1) hN
       (bridgeFamily_isDj hN NS.hL NS.hdomE z a.1 a.2) hT hi
   obtain ⟨φ, hφr, hφinj, hφsurj⟩ := kappa_of_rel
     (fun a : {Y' // Y' ∈ bridgeFamily 1 (fun _ : Torus d (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) =>
@@ -154,7 +154,7 @@ theorem anchor_inr_box
     (q : {q // q ∈ markedIdx (fun _ : NS.O.ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1)))) (fun τ => polyDom (SA).G' (NS.O.X₁f τ) NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ)) z})
     (h : blocksOf 1 (k + 1) Set.univ (bridge 1 z q.1.2) ⊆ T) :
     ∀ x ∈ bridge 1 z q.1.2, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-  inBox_of_blocksOf_subset hN (bridge_isDj hN z (NS.hdomC q.1.1 q.1.2 (mem_markedIdx.1 q.2).1)) hT h
+  inBox_of_dom_blocksOf_subset hN (bridge_isDj hN z (NS.hdomC q.1.1 q.1.2 (mem_markedIdx.1 q.2).1)) hT h
 
 /-- Likewise on the second torus. -/
 theorem anchor_inr_box'

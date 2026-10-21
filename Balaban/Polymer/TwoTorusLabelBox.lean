@@ -10,7 +10,7 @@ public import Balaban.Polymer.TwoTorusE1Coef
 /-!
 # Domains whose blocks lie in a set of blocks of the box
 
-`inBox_of_blocksOf_subset`: a domain whose blocks lie in a set `T` of blocks of the box lies in the
+`inBox_of_dom_blocksOf_subset`: a domain whose blocks lie in a set `T` of blocks of the box lies in the
 box.  `exists_preimage_label`: a domain of the second torus whose blocks lie in `cubeMap '' T` has a
 preimage domain of the box whose blocks lie in `T`.
 -/
@@ -32,7 +32,7 @@ local notation "bm'" => boxMap ((N₁' * L ^ m₁) * L ^ (k + 1)) ((N₁ * L ^ m
 
 omit [NeZero N₁'] in
 /-- **A domain whose blocks lie in a set `T` of blocks of the box lies in the box.** -/
-theorem inBox_of_blocksOf_subset (hN : L ^ m₀ ∣ N₁) {R : ℕ}
+theorem inBox_of_dom_blocksOf_subset (hN : L ^ m₀ ∣ N₁) {R : ℕ}
     {Y : Set (CTorus d L N₁ m₁ (k + 1))} (hDj : IsDj m₀ (k + 1) Y)
     {T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ)}
     (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
