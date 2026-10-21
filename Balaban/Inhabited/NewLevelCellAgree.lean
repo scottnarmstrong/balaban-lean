@@ -16,13 +16,17 @@ parts of the polymers in the box of half-side `r_K = ⌊L^{m₀+m₁+K}/8⌋` ar
 at the cell is the same on two tori (`irrelTorus_cell_boxAgree`):
 
 * `cellTermsAgree_of_class`: **`CellTermsAgree` holds** for classes whose terms are the members
-  `Tm N₁`, `Tm N₁'` of a family with `TorusIndep`, the locality of the terms of the second torus,
-  `L^{m₀} ∣ N₁, N₁'`, the margin `8 (R + r_K) + 3 L^K + L · cellSide < n` on both tori, and a set `Z`
-  in the box of radius `R` containing the polymer and the stencil `y₀ + L^j e_μ`;
+  `Tm N₁`, `Tm N₁'` of a family with `TorusIndep`, with the locality of the terms of the second torus,
+  `L^{m₀} ∣ N₁, N₁'`, the margin `8 (R + r_K) + 3 L^K + L · cellSide < n` on both tori, the cell
+  `□(y₀)` and the stencil `y₀ + L^j e_μ` in the centred box of radius `R`, and a set `Z` containing
+  them;
+* `polySet_subset_dataSites_GkC`, `cellStencil_subset_castZ`: the polymer `X ∪ □(y)` of a pair lies in
+  the data sites of its cast generating set `Gk`, so `X ∪ □(y)` and the stencil lie in the margin
+  `castZ Gk`;
 * `newLevel_coeff_twoTorus_of_class_cells_R15`: `newLevel_coeff_twoTorus_of_class_cells` with its
-  premise `hcell` discharged (the margins at the cell side of level `k + 1` added): the coefficient of
-  the new level is the same on two tori, the remaining premises being those of
-  `newLevel_coeff_twoTorus_of_class_cells` other than `hcell`.
+  premise `hcell` (`CellTermsAgree` on `castZ`) discharged; the margins `hmarC`, `hmarC'` (box radius
+  `R + L^{k+1}`, which contains the stencil of every pair) replace it; every other premise is one of
+  `newLevel_coeff_twoTorus_of_class_cells`.
 -/
 
 @[expose] public section
@@ -33,8 +37,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fl
   Balaban.Localization Balaban.Localization.LevelPair Balaban.Localization.I5Inhabited
   Balaban.Polymer Balaban.SmallField.Def6 Balaban.Inhabited.LevelStep
   Balaban.Inhabited.MarkBudgetAudit Matrix Metric Set MeasureTheory Balaban.Polymer.TwoTorusStep
-  Balaban.SmallField.Def6v2
-
+  Balaban.SmallField.Def6v2 Balaban.SmallField.GsSpec
 
 section Cell
 
@@ -47,8 +50,8 @@ local notation "bm" => boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m�
 hypothesis `hcellcase` of `oldTerm_E_agree`): for classes `C`, `C'` whose terms are the members
 `Tm N₁`, `Tm N₁'` of a family with `TorusIndep`, with the locality of the terms on the second torus,
 `L^{m₀} ∣ N₁, N₁'`, `8 ≤ L^{m₀+m₁}`, the margin `8 (R + r_K) + 3 L^{k+1} + L · cellSide < n` on both
-tori, an aligned `y₀` and a set `Z` in the centred box of radius `R` containing `X₀` and the stencil
-`y₀ + L^j e_μ`, `CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z`. -/
+tori, an aligned `y₀` whose cell `X₀ = □(y₀)` and stencil `y₀ + L^j e_μ` lie in the centred box of
+radius `R`, and a set `Z` containing `X₀` and the stencil, `CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z`. -/
 theorem cellTermsAgree_of_class {C : StepClass d L N₁ m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
     {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m₁ (k + 1) N ϱ}
     (hCm : C'.m₀ = C.m₀) (hCT : C.Tm = Tm N₁) (hCT' : C'.Tm = Tm N₁')
@@ -63,18 +66,80 @@ theorem cellTermsAgree_of_class {C : StepClass d L N₁ m₁ k N ϱ} {C' : StepC
       L * cellSide L C.m₀ m₁ j < (N₁' * L ^ m₁) * L ^ (k + 1))
     {y₀ : CTorus d L N₁ m₁ (k + 1)} (hy₀ : Aligned (L ^ j) y₀)
     {X₀ Z : Set (CTorus d L N₁ m₁ (k + 1))}
-    (hZbox : ∀ z ∈ Z, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) z) (hXZ : X₀ ⊆ Z)
+    (hX₀box : ∀ z ∈ X₀, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) z)
+    (hstbox : ∀ μ : Fin d, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1))
+      (y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1))))
+    (hXZ : X₀ ⊆ Z)
     (hstZ : ∀ μ : Fin d, y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)) ∈ Z) :
     CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z := by
   intro hX₀ r r' hr
   rw [hCm, hCT, hCT']
   subst hX₀
   exact irrelTorus_cell_boxAgree (Tm := Tm) (m₀ := C.m₀) hj1 hjk hTI hlocB hN₁ hN₁' hM8 hmar hmar'
-    hy₀ (fun μ => hZbox _ (hstZ μ)) (fun z hz => hZbox z (hXZ hz)) i₀ i₁ r.1 r.2 r'.1 r'.2
+    hy₀ hstbox hX₀box i₀ i₁ r.1 r.2 r'.1 r'.2
     (fun x hx => (hr x (hXZ hx)).1.symm) (fun μ => (hr _ (hstZ μ)).1.symm)
     (fun x hx => (hr x (hXZ hx)).2.symm)
 
+omit [NeZero N₁] [NeZero L] in
+/-- A multiple `a e_μ` of a coordinate vector, `a ≤ r`, lies in the centred box of radius `r`. -/
+theorem inBox_nsmul_single {n r a : ℕ} (hn : 2 * r + 1 < n) (har : a ≤ r) (μ : Fin d) :
+    InBox d r n (a • (Pi.single μ 1 : Torus d n)) := by
+  intro ν
+  have e : (a • (Pi.single μ 1 : Torus d n)) ν = (((if ν = μ then (a : ℤ) else 0 : ℤ)) : ZMod n) := by
+    by_cases h : ν = μ
+    · subst h; simp
+    · simp [h]
+  rw [e, valMinAbs_intCast_of_abs_le hn]
+  · split_ifs <;> simp [har]
+  · split_ifs <;> simp [har]
+
 end Cell
+
+section CastCell
+
+variable {d L N₁ N₂ NA NB m₁ k N s : ℕ} [NeZero N₁] [NeZero N₂] [NeZero NA] [NeZero NB] [NeZero L]
+  {ϱ ϱ₁ ϱ₁' : ℝ}
+
+open Balaban.LargeField in
+/-- **The polymer `X ∪ □(y)` of a pair lies in the data sites of its cast generating set** (the
+kernel set of `CanonCoverCast.hGk`, `mem_dataSites_kernel`). -/
+theorem polySet_subset_dataSites_GkC {m₀ : ℕ} {F : CanonCover d L N₁ m₁ k ϱ ϱ₁}
+    {F' : CanonCover d L N₂ m₁ k ϱ ϱ₁'} {hcA : NA * L ^ (m₁ + s) = N₁ * L ^ m₁}
+    {hcB : NB * L ^ (m₁ + s) = N₂ * L ^ m₁} (LC : CanonCoverCast m₀ s hcA hcB F F') (hk1 : 1 ≤ k)
+    {j : ℕ} {y₀ : CTorus d L N₁ m₁ (k + 1)} {X₀ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hadm : (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d m₀ k) :
+    ∀ x ∈ polySet m₀ j y₀ X₀, x ∈ dataSites (F.GkC j y₀ X₀) := by
+  have hA : NA * L ^ (m₁ + s) * L ^ (k + 1) = N₁ * L ^ m₁ * L ^ (k + 1) := by rw [hcA]
+  intro x hx
+  have hxf : (torusCast x : CTorus d L NA (m₁ + s) (k + 1)) ∈ kernelSet (NA := NA) m₀ s j y₀ X₀ := by
+    show (torusCast (torusCast x : CTorus d L NA (m₁ + s) (k + 1)) :
+      CTorus d L N₁ m₁ (k + 1)) ∈ polySet m₀ j y₀ X₀ ∪ hatSet m₀ j X₀
+    rw [torusCast_torusCast hA.symm]
+    exact Or.inl hx
+  have := mem_dataSites_kernel (N₀ := N₁ * L ^ m₁) hcA hk1 (hs := LC.hs₁) hxf
+  rw [torusCast_torusCast hA.symm] at this
+  rw [LC.hGk j y₀ X₀ hadm]
+  exact this
+
+open Balaban.LargeField in
+/-- **The polymer and the stencil of a pair lie in its margin `castZ`.** -/
+theorem cellStencil_subset_castZ {m₀ : ℕ} {F : CanonCover d L N₁ m₁ k ϱ ϱ₁}
+    {F' : CanonCover d L N₂ m₁ k ϱ ϱ₁'} {hcA : NA * L ^ (m₁ + s) = N₁ * L ^ m₁}
+    {hcB : NB * L ^ (m₁ + s) = N₂ * L ^ m₁} (LC : CanonCoverCast m₀ s hcA hcB F F') (hk1 : 1 ≤ k)
+    {j : ℕ} {y₀ : CTorus d L N₁ m₁ (k + 1)} {X₀ : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hadm : (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d m₀ k) :
+    polySet m₀ j y₀ X₀ ⊆ castZ (F.GkC j y₀ X₀) ∧
+      ∀ μ : Fin d, y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1)) ∈
+        castZ (F.GkC j y₀ X₀) := by
+  have hD := polySet_subset_dataSites_GkC LC hk1 hadm
+  have hjk : j ≤ k := hadm.2.1
+  refine ⟨fun x hx => ⟨x, ⟨x, Finset.mem_coe.2 (hD x hx), by simp [supDist_self]⟩,
+    SameCell.refl _ _⟩, fun μ => ?_⟩
+  refine ⟨_, ⟨y₀, Finset.mem_coe.2 (hD y₀ (Or.inl hadm.2.2.2.2)),
+    (supDist_nsmul_single _ _ μ).trans ?_⟩, SameCell.refl _ _⟩
+  exact Nat.pow_le_pow_right (NeZero.pos L) (by omega)
+
+end CastCell
 
 section Final
 
@@ -115,9 +180,10 @@ attribute [local irreducible] NewLevelSystem.Dom
 
 /-- **The coefficient of the new level on two tori, with the cell case discharged** (blocker 7, the
 step clause; ruling R15): `newLevel_coeff_twoTorus_of_class_cells` with its premise `hcell`
-proved by `cellTermsAgree_of_class` on the margins `canonZ` of the canonical covers (which lie in the
-regions `X₁` by the cover requirement `hX1`), under the margins `hmarC`, `hmarC'` at the cell side of
-level `k + 1` on both tori.  All other premises are those of `newLevel_coeff_twoTorus_of_class_cells`. -/
+(`CellTermsAgree` on the margins `castZ`) proved by `cellTermsAgree_of_class`, under the margins
+`hmarC`, `hmarC'` of the box of radius `R + L^{k+1}` (which contains the cell and the stencil of every
+pair whose region lies in the box of radius `R`) at the cell side of level `k + 1` on both tori.
+All other premises are those of `newLevel_coeff_twoTorus_of_class_cells`. -/
 theorem newLevel_coeff_twoTorus_of_class_cells_R15
     (hN2 : 2 ≤ N)
     (hk : 1 ≤ k)
@@ -211,26 +277,16 @@ theorem newLevel_coeff_twoTorus_of_class_cells_R15
     (hGB2 : (SB).G' = levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) (k := k + 1) (ϱ := ϱ) (k + 1) le_rfl)
     (hnE : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁ * L ^ m₁) * L ^ (k + 1))
     (hnE' : 2 * R₂ + 5 * (L * cellSide L NS.O.m₀ m₁ (k + 1)) < (N₁' * L ^ m₁) * L ^ (k + 1))
-    (LC : CanonCoverLocal F F')
-    (SpG : DGSetting (SA).G' (compWeight L (SA).a₁) (SA).ν) (hm₀1 : 1 ≤ C.m₀)
-    (hbig : 2 * (R + 1 + 6 * (k + 1) * L ^ (k + 1 + m₁) + (5 * L + 2) * L ^ (k + 1 + m₁) +
-      L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < N₁ * L ^ m₁ * L ^ (k + 1))
-    (hbig' : 2 * (R + 1 + 6 * (k + 1) * L ^ (k + 1 + m₁) + (5 * L + 2) * L ^ (k + 1 + m₁) +
-      L ^ (k + 1)) + 3 * L ^ (k + 1) + 5 < N₁' * L ^ m₁ * L ^ (k + 1))
-    (hX1 : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      ∀ x ∈ nearSet (zRad L m₁ k) (canonPts LC j y₀ X₀),
-        LocalCover.nbhd C.m₀ x ⊆ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))))
-    (hPK : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      (∀ x ∈ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))),
-        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      LC.PK' j (bm y₀) (bm '' X₀) = bm '' LC.PK j y₀ X₀)
-    (hPJ : ∀ j y₀ X₀, (j, y₀, X₀) ∈ AdmPairs L N₁ m₁ k d C.m₀ k →
-      (∀ x ∈ (↑(F.X₁fC j y₀ X₀) : Set (CTorus d L N₁ m₁ (k + 1))),
-        InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) →
-      LC.PJ' j (bm y₀) (bm '' X₀) = bm '' LC.PJ j y₀ X₀)
-    (hmarC : 8 * (R + L ^ (C.m₀ + m₁ + (k + 1)) / 8) + 3 * L ^ (k + 1) +
+    {NA NB s : ℕ} [NeZero NA] [NeZero NB] {hcA : NA * L ^ (m₁ + s) = N₁ * L ^ m₁}
+    {hcB : NB * L ^ (m₁ + s) = N₁' * L ^ m₁} (LC : CanonCoverCast C.m₀ s hcA hcB F F')
+    (SpG : DGSetting (SA).G' (compWeight L (SA).a₁) (SA).ν)
+    (hs : s < C.m₀)
+    (hsz : 2 * R + (4 * (k + 1) + 36) * L ^ (k + 1 + C.m₀ + m₁) + 8 ≤ N₁ * L ^ m₁ * L ^ (k + 1))
+    (hsz' : 2 * R + (4 * (k + 1) + 36) * L ^ (k + 1 + C.m₀ + m₁) + 8 ≤ N₁' * L ^ m₁ * L ^ (k + 1))
+    (hL3 : 3 ≤ L)
+    (hmarC : 8 * (R + L ^ (k + 1) + L ^ (C.m₀ + m₁ + (k + 1)) / 8) + 3 * L ^ (k + 1) +
       L * cellSide L C.m₀ m₁ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1))
-    (hmarC' : 8 * (R + L ^ (C.m₀ + m₁ + (k + 1)) / 8) + 3 * L ^ (k + 1) +
+    (hmarC' : 8 * (R + L ^ (k + 1) + L ^ (C.m₀ + m₁ + (k + 1)) / 8) + 3 * L ^ (k + 1) +
       L * cellSide L C.m₀ m₁ (k + 1) < (N₁' * L ^ m₁) * L ^ (k + 1))
     {K : NewLevelConsts}
     (hK : NS.HasConsts K)
@@ -257,7 +313,7 @@ theorem newLevel_coeff_twoTorus_of_class_cells_R15
   have hN₁' : L ^ C.m₀ ∣ N₁' := by
     have := NS'.OS.hN
     rwa [hP'.1, hCm] at this
-  refine newLevel_coeff_twoTorus_of_class_cells (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hum := hum) (humB := humB) (hδc := hδc) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (i₀ := i₀) (i₁ := i₁) (hP := hP) (hP' := hP') (hCm := hCm) (hCT := hCT) (hCT' := hCT') (hTI := hTI) (hlocB := hlocB) (hM8 := hM8) (hcX := hcX) (hcX' := hcX') (hRR := hRR) (hcloc := hcloc) (hcov := hcov) (hGA2 := hGA2) (hGB2 := hGB2) (hnE := hnE) (hnE' := hnE') (LC := LC) (SpG := SpG) (hm₀1 := hm₀1) (hbig := hbig) (hbig' := hbig') (hX1 := hX1) (hPK := hPK) (hPJ := hPJ) (hK := hK) (hK' := hK') (oMX := oMX) (omar := omar) (oαK := oαK) (osm := osm) (hρ := hρ) (hΦan := hΦan) (hn19 := hn19) (hn19' := hn19') (hmE₁ := hmE₁) (hmE₂ := hmE₂) (hcell := ?_)
+  refine newLevel_coeff_twoTorus_of_class_cells (hN2 := hN2) (hk := hk) (νS := νS) (β := β) (p₁ := p₁) (δ := δ) (NS := NS) (NS' := NS') (hN := hN) (hN' := hN') (hm₁ := hm₁) (hz := hz) (hrc := hrc) (hroot := hroot) (hn := hn) (hn' := hn') (T := T) (hT := hT) (hC := hC) (hC' := hC') (hκ := hκ) (hBG := hBG) (hBG₂ := hBG₂) (hp₁ := hp₁) (hεU := hεU) (hκH := hκH) (hκ0 := hκ0) (hGA := hGA) (hGB := hGB) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hcψ := hcψ) (hρc := hρc) (hrad := hrad) (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hum := hum) (humB := humB) (hδc := hδc) (hconn := hconn) (hconn' := hconn') (hD := hD) (hD' := hD') (i₀ := i₀) (i₁ := i₁) (hP := hP) (hP' := hP') (hCm := hCm) (hCT := hCT) (hCT' := hCT') (hTI := hTI) (hlocB := hlocB) (hM8 := hM8) (hcX := hcX) (hcX' := hcX') (hRR := hRR) (hcloc := hcloc) (hcov := hcov) (hGA2 := hGA2) (hGB2 := hGB2) (hnE := hnE) (hnE' := hnE') (LC := LC) (SpG := SpG) (hs := hs) (hsz := hsz) (hsz' := hsz') (hL3 := hL3) (hK := hK) (hK' := hK') (oMX := oMX) (omar := omar) (oαK := oαK) (osm := osm) (hρ := hρ) (hΦan := hΦan) (hn19 := hn19) (hn19' := hn19') (hmE₁ := hmE₁) (hmE₂ := hmE₂) (hcell := ?_)
   intro j y₀ X₀ hadm hbox
   have hjk : j ≤ k := hadm.2.1
   have hcs : cellSide L C.m₀ m₁ j ≤ cellSide L C.m₀ m₁ (k + 1) := by
@@ -265,13 +321,20 @@ theorem newLevel_coeff_twoTorus_of_class_cells_R15
     exact Nat.pow_le_pow_right (NeZero.pos L) (by omega)
   have hLcs : L * cellSide L C.m₀ m₁ j ≤ L * cellSide L C.m₀ m₁ (k + 1) :=
     Nat.mul_le_mul_left _ hcs
-  have hsub : ∀ w ∈ canonPts LC j y₀ X₀, w ∈ canonZ LC C.m₀ j y₀ X₀ := fun w hw =>
-    subset_cellUnion _ _ ⟨w, hw, by simp [Balaban.LargeField.supDist_self]⟩
-  have hZX : canonZ LC C.m₀ j y₀ X₀ ⊆ ↑(F.X₁fC j y₀ X₀) := cellUnion_subset _ (hX1 j y₀ X₀ hadm)
-  exact cellTermsAgree_of_class (j := j) (R := R) hCm hCT hCT' hTI hlocB hN₁ hN₁' hM8 i₀ i₁ hadm.1 (by omega)
-    (by omega) (by omega) hadm.2.2.1 (fun z hz => hbox z (hZX hz))
-    (fun x hx => hsub x (Or.inl (Or.inl (Or.inl (Set.mem_insert_of_mem _ hx)))))
-    (fun μ => hsub _ (Or.inl (Or.inl (Or.inr ⟨μ, rfl⟩))))
+  have hLj : L ^ j ≤ L ^ (k + 1) := Nat.pow_le_pow_right (NeZero.pos L) (by omega)
+  have hLK : 0 < L ^ (k + 1) := pow_pos (NeZero.pos L) _
+  have hin : ∀ x ∈ insert y₀ X₀, InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx μ => ((hbox x (hcX j y₀ X₀ hadm hx)) μ).trans
+      (by exact_mod_cast Nat.le_add_right R (L ^ (k + 1)))
+  obtain ⟨hZp, hZs⟩ := cellStencil_subset_castZ LC (by omega) hadm
+  exact cellTermsAgree_of_class (j := j) (R := R + L ^ (k + 1)) hCm hCT hCT' hTI hlocB hN₁ hN₁'
+    hM8 i₀ i₁ hadm.1 (by omega) (by omega) (by omega) hadm.2.2.1
+    (fun z hz => hin z (Set.mem_insert_of_mem _ hz))
+    (fun μ => by
+      have hy₀R : InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y₀ :=
+        hbox y₀ (hcX j y₀ X₀ hadm (Set.mem_insert _ _))
+      exact inBox_add_of_box (by omega) hy₀R (inBox_nsmul_single (by omega) hLj μ))
+    (fun x hx => hZp (Or.inl hx)) hZs
 
 end Final
 
