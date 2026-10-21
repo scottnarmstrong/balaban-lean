@@ -71,6 +71,25 @@ theorem image_cubeAt_boxMap {a h s R : ℕ} (ha0 : 0 < a) (hdn : a ∣ n) (hdn' 
   rw [hcbμ] at this
   linear_combination -this
 
+/-- The site lies in the box through its own cell base (`h + a ≤ s`). -/
+theorem mem_cubeAt_box {a h s : ℕ} (ha0 : 0 < a) (hh : h + a ≤ s) (y : Torus d n) :
+    y ∈ box (cbase a y - natT fun _ => h) s := by
+  refine ⟨fun μ => h + (y μ).val % a, fun μ => ?_, ?_⟩
+  · have := Nat.mod_lt (y μ).val ha0
+    show h + (y μ).val % a < s
+    omega
+  · funext μ
+    simp only [Pi.add_apply, Pi.sub_apply, natT_apply, cbase_eq_sub]
+    push_cast
+    ring
+
+/-- **The box through a site of the box of radius `R` lies in the box of radius `R + 2 s`.** -/
+theorem inBox_of_cubeAt {a h s R : ℕ} (ha0 : 0 < a) (hh : h + a ≤ s)
+    (hn : 2 * (R + 2 * s) + 1 < n) {y z : Torus d n} (hy : InBox d R n y)
+    (hz : z ∈ box (cbase a y - natT fun _ => h) s) : InBox d (R + s + s) n z :=
+  inBox_of_mem_box_right (by omega)
+    (inBox_of_mem_box_left (by omega) hy (mem_cubeAt_box ha0 hh y)) hz
+
 end Img
 
 section Sets
