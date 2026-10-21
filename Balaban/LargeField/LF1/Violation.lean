@@ -5,14 +5,15 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.R.SmallFactorAction
+public import Balaban.LargeField.LF1
+public import Balaban.LargeField.R.SmallFactorTilde
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
 # LF-1 for a violation in the top layer of an arbitrary generating set (P6 (3.5)-(3.6))
 
-`R/SmallFactorAction.lean` proves the cost of a violation of `Ψ̃` for the *single-scale* generating
+`R/SmallFactorAction.lean` uses these statements (as instances) for the cost of a violation of `Ψ̃` for the *single-scale* generating
 set (`Ω_n = 𝕋` for `n ≤ k`, so that `Λ_k = 𝕋`).  The base step of Lemma II.7.8 needs the same
 statement for the history's generating set at level `1`, whose top layer `Λ_1 = Ω_1` is a proper
 subset of the torus.  The statements here are for an arbitrary generating set and the blocks of the
@@ -30,11 +31,67 @@ top layer `lam G q ∩ X`:
 
 namespace Balaban.LargeField
 
-open Balaban Balaban.Multiscale Balaban.Background Finset
+open Balaban Balaban.Multiscale Finset
 
 section Top
 
 variable {d L N₀ q : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {Nspin : ℕ}
+
+theorem pairSumT_nonneg {m : ℕ} (T : Finset (Torus d m))
+    (f : Torus d m → EuclideanSpace ℝ (Fin Nspin)) : 0 ≤ pairSumT T f := by
+  classical
+  unfold pairSumT
+  refine mul_nonneg (by norm_num) (Finset.sum_nonneg fun y _ => Finset.sum_nonneg fun y' _ => ?_)
+  split_ifs
+  · positivity
+  · exact le_rfl
+
+theorem le_pairSumT {m : ℕ} (T : Finset (Torus d m)) (f : Torus d m → EuclideanSpace ℝ (Fin Nspin))
+    {y y' : Torus d m} (hy : y ∈ T) (hy' : y' ∈ T) (hadj : AdjT y y') :
+    ‖f y - f y'‖ ^ 2 ≤ pairSumT T f := by
+  classical
+  have hadj' : AdjT y' y := by
+    obtain ⟨hne, μ, hμ⟩ := hadj
+    exact ⟨hne.symm, μ, hμ.symm⟩
+  unfold pairSumT
+  have hnn : ∀ u ∈ T, ∀ u' ∈ T, 0 ≤ (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) :=
+    fun u _ u' _ => by split_ifs <;> positivity
+  have h1 : (if AdjT y y' then ‖f y - f y'‖ ^ 2 else 0) +
+      (if AdjT y' y then ‖f y' - f y‖ ^ 2 else 0) ≤
+      ∑ u ∈ T, ∑ u' ∈ T, if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0 := by
+    have hne : y ≠ y' := hadj.1
+    calc _ = ∑ u ∈ ({y, y'} : Finset _), ∑ u' ∈ ({y, y'} : Finset _),
+          (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) := by
+          rw [Finset.sum_pair hne, Finset.sum_pair hne, Finset.sum_pair hne]
+          have h00 : ¬ AdjT y y := fun h => h.1 rfl
+          have h11 : ¬ AdjT y' y' := fun h => h.1 rfl
+          simp [h00, h11]
+      _ ≤ ∑ u ∈ ({y, y'} : Finset _), ∑ u' ∈ T, (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) := by
+          refine Finset.sum_le_sum fun u hu => ?_
+          have hu' : u ∈ T := by
+            simp only [Finset.mem_insert, Finset.mem_singleton] at hu
+            rcases hu with rfl | rfl <;> assumption
+          refine Finset.sum_le_sum_of_subset_of_nonneg ?_ fun u' hu'' _ => hnn u hu' u' hu''
+          intro u' hu''
+          simp only [Finset.mem_insert, Finset.mem_singleton] at hu''
+          rcases hu'' with rfl | rfl <;> assumption
+      _ ≤ _ := by
+          refine Finset.sum_le_sum_of_subset_of_nonneg ?_ fun u hu _ =>
+            Finset.sum_nonneg fun u' hu' => hnn u hu u' hu'
+          intro u hu
+          simp only [Finset.mem_insert, Finset.mem_singleton] at hu
+          rcases hu with rfl | rfl <;> assumption
+  have e : ‖f y' - f y‖ = ‖f y - f y'‖ := norm_sub_rev _ _
+  simp only [hadj, hadj', ite_true] at h1
+  rw [e] at h1
+  linarith
+
+theorem crossSumP_nonneg (G : GeneratingSet d L N₀ q ϱ) (n : ℕ) (X : Finset (Site d L N₀ q))
+    (ψ : (m : ℕ) → Blk d L N₀ q m → EuclideanSpace ℝ (Fin Nspin)) : 0 ≤ crossSumP G n X ψ := by
+  classical
+  unfold crossSumP
+  exact Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by split_ifs <;> positivity
+
 
 /-- For `n ≥ 1` the layer `Λ_n` is `Ω_n ∖ Ω_{n+1}`. -/
 theorem lam_of_pos (G : GeneratingSet d L N₀ q ϱ) {n : ℕ} (hn : 1 ≤ n) : lam G n = G.layer n := by

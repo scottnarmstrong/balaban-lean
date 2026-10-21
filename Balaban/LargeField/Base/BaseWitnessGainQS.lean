@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Base.BaseMainAction
-public import Balaban.LargeField.Base.BaseWitnessGainViolation
+public import Balaban.LargeField.LF1.Violation
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 

@@ -945,7 +945,7 @@ public import Balaban.LargeField.Base.BaseMainAction
 public import Balaban.LargeField.Base.BaseWitnessGain
 public import Balaban.LargeField.Base.BaseWitnessGainQRS
 public import Balaban.LargeField.Base.BaseWitnessGainQS
-public import Balaban.LargeField.Base.BaseWitnessGainViolation
+public import Balaban.LargeField.LF1.Violation
 public import Balaban.LargeField.Base.BaseCarrierData
 public import Balaban.LargeField.Base.BaseSmallField
 public import Balaban.LargeField.Base.BaseChartAction
