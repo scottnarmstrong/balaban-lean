@@ -13,9 +13,7 @@ public import Balaban.Fluctuation.SizeModCore
 /-!
 # The named constraints on the constants of the box localization (A6-3, item (L4))
 
-* `BoxCutConsts d L k M_c v a κ α`: the hypotheses of the cut family `boxCut` of the final Hessian
-  at the level `k` (mass `v`, weight `a`, macro side `M_c`, cut radius `κ`) and the constraint
-  `BoxCutTies` at the cell rate `α`; `boxCutConsts_exists`.
+* `BoxCutConsts` (FinalBoxLocTies): the hypotheses of the cut family and `BoxCutTies`.
 * `RDomConsts d L N ε δ r`: the radius `r` of the sup ball around a constant unit configuration
   inside the domain `Ξ^c(1, ε)` of the class terms (`xiDom_of_close_unit`: `N r < δ²`,
   `0 < δ ≤ min (c₀, c₁)`, `(2K₁ + 2) δ ≤ ε`); `rDomConsts_exists` (`exists_close_radius`).
@@ -32,37 +30,6 @@ public import Balaban.Fluctuation.SizeModCore
 @[expose] public section
 
 namespace Balaban.Green
-
-/-- **The constants of the cut family** at the level `k`. -/
-structure BoxCutConsts (d L k Mc : ℕ) [NeZero L] (v a κ α : ℝ) : Prop where
-  hd : 0 < d
-  hk : 1 ≤ k
-  hv0 : 0 ≤ v
-  hv1 : v ≤ 1
-  ha1 : 1 / 2 ≤ a
-  ha2 : a ≤ 2
-  hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v
-  hM : 0 < Mc
-  ties : BoxCutTies d L Mc κ α
-
-/-- **`BoxCutConsts` is satisfiable** (rule 10): `v = a = 1`, the radius `κ` of
-`boxCutTies_exists` and every macro side above its bounds. -/
-theorem boxCutConsts_exists (d L k : ℕ) [NeZero L] (hd : 0 < d) (hk : 1 ≤ k) {α : ℝ}
-    (hα : 0 ≤ α) :
-    ∃ κ : ℝ, ∀ Mc : ℕ, 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ Mc →
-      8 * κ * 7 ^ d ≤ pdEps d L * Mc → BoxCutConsts d L k Mc 1 1 κ α := by
-  obtain ⟨κ, hκ⟩ := boxCutTies_exists d L hα
-  refine ⟨κ, fun Mc h1 h2 => ?_⟩
-  have hT := hκ Mc h1 h2
-  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
-  have hinv : ((L : ℝ) ^ 2)⁻¹ ≤ 1 := inv_le_one_of_one_le₀ (by nlinarith)
-  have hMc : 0 < Mc := by
-    have hε := pdEps_pos (d := d) (L := L) hd
-    have h7 : (0 : ℝ) < 7 ^ d := by positivity
-    have : (0 : ℝ) < pdEps d L * Mc := lt_of_lt_of_le (by nlinarith [hT.1]) h2
-    have : (0 : ℝ) < Mc := pos_of_mul_pos_right this hε.le
-    exact_mod_cast this
-  exact ⟨hd, hk, zero_le_one, le_rfl, by norm_num, by norm_num, by linarith, hMc, hT⟩
 
 /-- **The radius of the domain ball** of the class terms. -/
 structure RDomConsts (d L N : ℕ) [NeZero L] (ε δ r : ℝ) : Prop where
