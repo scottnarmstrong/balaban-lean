@@ -90,7 +90,7 @@ theorem baseSectorCenter_eq_re {n : ℕ} [NeZero n] (ϱ : ℝ) (a : ℕ → ℝ)
   have hC := (theorem72_real (G := GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
     H hD).1
   unfold baseSectorCenter
-  rw [if_pos hD]
+  simp only [hD, ↓reduceIte]
   have hz : (baseSector_side L n).symm ▸ ((baseSector_side L n) ▸ z : Torus d (L * n)) = z :=
     torus_cast_symm_cast (baseSector_side L n) z
   rw [hC]
@@ -131,24 +131,24 @@ open Classical in
 theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
       ∀ {n M1 N₁ m₁ c n' : ℕ} [NeZero n] [NeZero M1] [NeZero N₁] [NeZero n']
-        (hn : 1 * n = M1 * N₁) (hM1 : M1 = L ^ m₁) (hm : N₁ * L ^ (1 - 1) = c * n')
-        {ϱ a₁ ν δ₀ δ₁ : ℝ} (ha₁ : 0 < a₁) (aw : ℕ → ℝ) (hw : aw = compWeight L a₁) (regimeB : Prop)
-        (hδ : 0 < δ₀) (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
-        (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
-        (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) {BG κ : ℝ}
-        (hΛ7 : 4 * d * L * δ₀ ≤ c7 d L N BG κ)
-        (H0 : BgHyp d L 1 (minSep L M1) (compWeight L a₁) (if regimeB then ν else 0))
-        (hν0 : 0 ≤ (if regimeB then ν else 0))
-        (hνle : (if regimeB then ν else 0) * ((L : ℝ) ^ 1) ^ 2 ≤ 1)
-        (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
-        (hKs : bgK1 d L N * bgC1 d L N ≤ min (deltaStar d L N) δw)
-        (hδc : 4 * d * L * δ₀ ≤ thm73C1 d L N)
-        (hε' : 4 * d * L * δ₀ ≤ bgC0 d L N)
-        (hK1' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ deltaStar d L N)
-        (hKw' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ δw)
+        (hn : 1 * n = M1 * N₁) (_hM1 : M1 = L ^ m₁) (_hm : N₁ * L ^ (1 - 1) = c * n')
+        {ϱ a₁ ν δ₀ δ₁ : ℝ} (_ha₁ : 0 < a₁) (aw : ℕ → ℝ) (_hw : aw = compWeight L a₁) (regimeB : Prop)
+        (_hδ : 0 < δ₀) (h : EuclideanSpace ℝ (Fin N)) (_hh : ‖h‖ = 1)
+        (_H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+        (_hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) {BG κ : ℝ}
+        (_hΛ7 : 4 * d * L * δ₀ ≤ c7 d L N BG κ)
+        (_H0 : BgHyp d L 1 (minSep L M1) (compWeight L a₁) (if regimeB then ν else 0))
+        (_hν0 : 0 ≤ (if regimeB then ν else 0))
+        (_hνle : (if regimeB then ν else 0) * ((L : ℝ) ^ 1) ^ 2 ≤ 1)
+        (_hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
+        (_hKs : bgK1 d L N * bgC1 d L N ≤ min (deltaStar d L N) δw)
+        (_hδc : 4 * d * L * δ₀ ≤ thm73C1 d L N)
+        (_hε' : 4 * d * L * δ₀ ≤ bgC0 d L N)
+        (_hK1' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ deltaStar d L N)
+        (_hKw' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ δw)
         (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
-        (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
-        (hχ : ∀ y0 : Torus d n', ChiKProp (compWeight L a₁) (if regimeB then ν else 0) δ₁
+        (_hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
+        (_hχ : ∀ y0 : Torus d n', ChiKProp (compWeight L a₁) (if regimeB then ν else 0) δ₁
           (fun i => h i) c n' y0
           (show BlockCfg d (M1 * N₁) L 1 1 N from fun y i => baseSectorTheta θ (castCoarse hn y) i)),
         (∀ (x : Torus d (1 * n * L ^ 1)) (μ : Fin d),
