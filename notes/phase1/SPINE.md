@@ -1286,6 +1286,20 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        and the labels glued at the kept positions); **`mem_image_lfRecs_iff`** (`Γ ∈ lfRecs '' lfHist ↔ Γ ≠ ∅ ∧ realized ∧ RecSep`, the
        representative in the complete set); `lfAllRecs`, `mem_lfAllRecs_iff`; **`sum_lfHist_eq_sum_sep`**
        (`Σ_{𝔸 ∈ lfHist} f(lfRecs 𝔸) = Σ_{Γ ⊆ lfAllRecs, Γ ≠ ∅, RecSep Γ} f(Γ)`).
+   * **B3 (A6-4, the gas supports and the kernel locality; 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFDouble.lean`: `zDouble`, `tDouble`, `supDist_tDouble_le_iff` (`d(2x,2y) ≤ 2m ↔ d(x,y) ≤ m`), `dblNbhd ω c` (the
+       `(ω-1)`-neighbourhood of `2·c` in `𝕋_{2n}`), **`disjoint_dblNbhd_iff`** (`ω ≥ 1`: disjoint ↔ `d(c,c') ≥ ω`),
+       `disjoint_disjSum_iff`, `disjoint_supp_iff_sep`, **`recSep_iff_disjoint`** (gas supports `A_r ⊔ dblNbhd ω_k r.1` with block parts
+       disjoint for separated records: pairwise disjoint ↔ `RecSep`; any parity of `ω_k`).
+     * `LargeField/Operators/Invariance.lean`: cores `HistIso.partsEquiv`, `symVar_ancInc_of`, `relOut_ancOut_of`, `relVal_anc_of`,
+       `preVars_corr_fwd_of`, `preVars_corr_bwd_of`, `preOp_euclid_of` (one step, any matching of the old parts), **`locOp_euclid_of_corr`**
+       (Lemma II.5.10 for any relation `C` of components compatible with localized histories, kept components, kept labels and parts);
+       the landed `symVar_ancInc`, `relOut_ancOut`, `relVal_anc`, `preVars_corr_fwd`, `preVars_corr_bwd`, `preOp_euclid`,
+       `locOp_euclid_invariant` are their instances.
+     * `Spine/FinalLFKerLocal.lean`: `val_mem_comps_old`, `mem_parts_of_mem_comps_old`, `mk_mem_parts`, `partsMapOfOld`,
+       `partsEquivOfOld`; `RecCorr`, `recCorr_parts`; **`locOp_corr_of_compRec_eq`** (components with the same record have
+       corresponding operators: `SubCorr` and equal `K`, `b` at corresponding arguments, `σ = LatTorusSym.refl`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the

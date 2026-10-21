@@ -3298,3 +3298,4 @@ public import Balaban.Spine.FinalLFHistGlue
 public import Balaban.Spine.FinalLFHistFactor
 public import Balaban.Spine.FinalLFHistFactorSurj
 public import Balaban.Spine.FinalLFDouble
+public import Balaban.Spine.FinalLFKerLocal
