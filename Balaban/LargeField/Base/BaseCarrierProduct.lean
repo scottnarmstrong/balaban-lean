@@ -122,6 +122,12 @@ structure BaseProductData (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts) (N : �
     (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     (∀ i : GIdx S n M K N, i.1 ∈ baseZsites M H Z' → g i = g' i) →
       b (H.localHistory M K 1 Z') g o x hv = b (H.localHistory M K 1 Z') g' o x hv
+  /-- `b` reads the source only on the sites of `V` of the localized history (the form of (S0) for
+  the step data; for the localized history of a component it follows from `b_supp`, since the
+  sites of `Z'` are among those of `V`) -/
+  b_suppV : ∀ (a : LocalHistory S n M K) (g g' : GIdx S n M K N → ℂ) (o : OutT N R a 1)
+    (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ i : GIdx S n M K N, i.1 ∈ Vsites R a (0 + 1) → g i = g' i) → b a g o x hv = b a g' o x hv
   b_rot : ∀ (a : LocalHistory S n M K) (g : GIdx S n M K N → ℂ) (ρ : OrthN N) (o : OutT N R a 1)
     (x : NewCfg N a 0) (hv : EuclideanSpace ℝ (Fin N)),
     b a (rotG ρ g) (rotOut ρ o) (rotSub ρ x) (ρ hv) = b a g o x hv
@@ -159,6 +165,7 @@ def zeroBaseProductData : BaseProductData M K k0 geo cs N where
   b_zero_real := fun _ _ _ _ => rfl
   b_real := fun _ _ _ _ _ _ _ => rfl
   b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
+  b_suppV := fun _ _ _ _ _ _ _ => rfl
   b_rot := fun _ _ _ _ _ _ => rfl
   b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
   b_bound := by
