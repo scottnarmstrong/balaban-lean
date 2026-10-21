@@ -3294,3 +3294,4 @@ public import Balaban.Spine.FinalLFAssembly
 public import Balaban.Spine.FinalLFSplit
 public import Balaban.Spine.FinalLFGlue
 public import Balaban.Spine.FinalLFLocalPair
+public import Balaban.Spine.FinalLFHistGlue
