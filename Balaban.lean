@@ -3009,6 +3009,7 @@ public import Balaban.Polymer.IrrelTorusBox
 public import Balaban.Inhabited.NewLevelClassPair
 public import Balaban.Inhabited.NewLevelClassE
 public import Balaban.Inhabited.NewLevelCanonBox
+public import Balaban.Inhabited.NewLevelZeroCorr
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport

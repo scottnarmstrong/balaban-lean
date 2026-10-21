@@ -653,19 +653,23 @@ theorem directTerms_labelCorr_twoTorus
     (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
 
     -- the direct terms of the two steps and their relative families
-    {ρI Rσ εU a κ0 KcL : ℝ} {Θ₀ : ΛA} {Θ₀' : ΛB} {SΛ : Set ΛA} {SΛ' : Set ΛB}
+    {ρI Rσ εU a κ0 KcL ρI' Rσ' εU' a' κ0' KcL' : ℝ} {Θ₀ : ΛA} {Θ₀' : ΛB} {SΛ : Set ΛA} {SΛ' : Set ΛB}
     {XW : Set (FA × FA)} {XW' : Set (FB × FB)} {val : FA → FA → ℂ → ΛA → ℂ}
     {val' : FB → FB → ℂ → ΛB → ℂ} {AgΘ : Set (CTorus d L N₁ m₁ (k + 1)) → ΛA → ΛA → Prop}
     {AgΘ' : Set (CTorus d L N₁' m₁ (k + 1)) → ΛB → ΛB → Prop}
     {AgF : Set (CTorus d L N₁ m₁ (k + 1)) → FA → FA → Prop}
     {AgF' : Set (CTorus d L N₁' m₁ (k + 1)) → FB → FB → Prop}
     (I : DirectTerms (SA) 1 hp (fun ψ => (ψ, ψ)) ρI Rσ εU a Θ₀ SΛ XW val AgΘ AgF)
-    (I' : DirectTerms (SB) 1 hp' (fun ψ => (ψ, ψ)) ρI Rσ εU a Θ₀' SΛ' XW' val' AgΘ' AgF')
+    (I' : DirectTerms (SB) 1 hp' (fun ψ => (ψ, ψ)) ρI' Rσ' εU' a' Θ₀' SΛ' XW' val' AgΘ' AgF')
     {cJ cJ' : ℂ} {V : Set (physParam N (SA))} {V' : Set (physParam N (SB))}
     (hF : DirectTermsFamilyOn (SA) 1 (physInclScaled N (SA) cJ) I V)
     (hF' : DirectTermsFamilyOn (SB) 1 (physInclScaled N (SB) cJ') I' V')
     (hρI : 0 < ρI) (hRσ : 1 < Rσ) (hεU : 0 ≤ εU) (hκ0 : aEnt d L + 2 ≤ κ0)
     (hKc : K0 d L κ0 ≤ KcL)
+    (hρI' : 0 < ρI') (hRσ' : 1 < Rσ') (hεU' : 0 ≤ εU') (hκ0' : aEnt d L + 2 ≤ κ0')
+    (hKc' : K0 d L κ0' ≤ KcL')
+    (hρe : ρI = ρI') (hRσe : Rσ = Rσ') (hεUe : εU = εU') (hae : a = a') (hκ0e : κ0 = κ0')
+    (hKce : KcL = KcL')
     (hV : ((θ.1, 0) : physParam N (SA)) ∈ V) (hV' : ((θ'.1, 0) : physParam N (SB)) ∈ V')
     -- the explicit form of the direct terms at the zero source
     (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ) (hρc : 2 * ρI ≤ cψ)
@@ -756,10 +760,11 @@ theorem directTerms_labelCorr_twoTorus
           Φ' ((SB).cellOf 1 (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
             Φ ((SA).cellOf 1 (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
         ((zeroSourceAct (labelActFamilyOn (SB) 1 (physInclScaled N (SB) cJ') I' hF' hN'
-            hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) θ' (s : ℂ)).H (ψ₀ y hy) Φ' =
+            hρI' (by linarith) hεU' (by linarith) hKc') 2 (by norm_num)) θ' (s : ℂ)).H (ψ₀ y hy) Φ' =
           ((zeroSourceAct (labelActFamilyOn (SA) 1 (physInclScaled N (SA) cJ) I hF hN
             hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) θ (s : ℂ)).H y Φ) := by
   classical
+  subst hρe hRσe hεUe hae hκ0e hKce
   obtain ⟨⟨hn1, hnS, hnF, -, -⟩, ⟨hn1', hnS', hnF', -, -⟩⟩ :=
     twoTorus_margins_of_lt_min (R := R) (k := k) (m₀ := 1) (m₁ := m₁) hm₁ (lt_min hn hn')
   have hcs : cellSide L 1 m₁ (k + 1) ≤ L * cellSide L 1 m₁ (k + 1) := cellSide_le_mul
@@ -1068,7 +1073,9 @@ theorem gsumCoeff_e1_twoTorus_of_directTerms
     (hmar := hmar) (hαK := hαK) (hsm := hsm) (hN := hN) (hN' := hN') (hm₁ := hm₁) (hn := hn)
     (hn' := hn') (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hp := hp)
     (hp' := hp') (I := I) (I' := I') (hF := hF) (hF' := hF') (hρI := hρI) (hRσ := hRσ)
-    (hεU := hεU) (hκ0 := hκ0) (hKc := hKc) (hV := hV) (hV' := hV') (cc := cc) (hcψ := hcψ)
+    (hεU := hεU) (hκ0 := hκ0) (hKc := hKc) (hρI' := hρI) (hRσ' := hRσ) (hεU' := hεU)
+    (hκ0' := hκ0) (hKc' := hKc) (hρe := rfl) (hRσe := rfl) (hεUe := rfl) (hae := rfl)
+    (hκ0e := rfl) (hKce := rfl) (hV := hV) (hV' := hV') (cc := cc) (hcψ := hcψ)
     (hρc := hρc) (hrad := hrad) (hF₂ := hF₂) (hF₂' := hF₂') (hSol₂ := hSol₂)
     (hSol₂' := hSol₂') (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hIT := hIT) (hIT' := hIT') (T := T)
     (hT := hT)
