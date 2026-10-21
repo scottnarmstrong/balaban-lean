@@ -14,7 +14,8 @@ public import Balaban.Localization.DecoupledCovAnalyticFull
 A function `T` of the fluctuation field `ψ̂` on the unit points of `Ω_{k+1}` (the coefficient of an
 old boundary term, `RootFSpine.oldCoefLoc`) becomes a mark of the cluster expansion of the measure of
 the step (`InterpMarksOn`, `marked_cubes_explicit`): a function of the variables of the cubes of the
-block structure `HoleStep.prodSplit`, cut off outside the ball `|ψ̂_b| < r` of the unit points `b` it
+block structure `HoleStep.prodSplit` (for any assignment `cb` of cubes, of any torus, to the unit
+points), cut off outside the ball `|ψ̂_b| < r` of the unit points `b` it
 reads (the measure lives on `|ψ̂_b| < p₁`, so the cutoff is inactive almost everywhere for `p₁ ≤ r`).
 
 * `ungroup`, `ungroup_regroup`, `continuous_ungroup`, `measurable_ungroup`, `ungroup_congr`: the
@@ -67,21 +68,21 @@ namespace HoleStep
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
   (S : HoleStep d L N₁ m₁ k N ϱ ϱ')
 
-variable {m₀ : ℕ} {Ω : Set (CTorus d L N₁ m₁ (k + 1))}
+variable {Cb : Type*}
 
 open Classical in
 /-- **The cut-off mark of a function of the fluctuation field**: the function `T` at the fluctuation
 field `fill inner ψin ψout` of the variables `ψin` of the cubes (`ungroup`), where the field lies in
 the ball `|ψ̂_b| < r` at the unit points `b ∈ U₀`, and `0` elsewhere. -/
 noncomputable def markOf (inner : Finset S.U)
-    (cb : inner → CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω)
+    (cb : inner → Cb)
     (ψout : S.U → Fin N → ℂ) (U₀ : Finset S.U) (r : ℝ) (T : (S.U → Fin N → ℂ) → ℂ)
     (Φ : ∀ b, {u : inner // cb u = b} → Rn N) : ℂ :=
   if ∀ b ∈ U₀, vn (S.fill inner (ungroup cb Φ) ψout b) < r then
     T (S.fill inner (ungroup cb Φ) ψout) else 0
 
 variable (inner : Finset S.U)
-  (cb : inner → CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω)
+  (cb : inner → Cb)
   (ψout : S.U → Fin N → ℂ) (U₀ : Finset S.U) (r : ℝ) (T : (S.U → Fin N → ℂ) → ℂ)
 
 theorem markOf_eq_of_mem (Φ : ∀ b, {u : inner // cb u = b} → Rn N)
@@ -95,7 +96,8 @@ theorem markOf_eq_of_mem (Φ : ∀ b, {u : inner // cb u = b} → Rn N)
 open Classical in
 /-- **The mark depends only on the cubes of the unit points read by `T`**: if `T` reads the field only
 at the unit points of `U₀`, the mark depends only on the cubes of the integration variables of `U₀`. -/
-theorem markOf_dep (hT : ∀ ψ ψ' : S.U → Fin N → ℂ, (∀ b ∈ U₀, ψ b = ψ' b) → T ψ = T ψ') :
+theorem markOf_dep [DecidableEq Cb]
+    (hT : ∀ ψ ψ' : S.U → Fin N → ℂ, (∀ b ∈ U₀, ψ b = ψ' b) → T ψ = T ψ') :
     Polymer.DepOn ((inner.attach.filter fun u : inner => (u : S.U) ∈ U₀).image cb)
       (S.markOf inner cb ψout U₀ r T) := by
   intro Φ Φ' h

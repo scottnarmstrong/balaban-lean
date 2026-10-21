@@ -14,8 +14,8 @@ public import Balaban.Fluctuation.HoleStepMarks
 For the step on a region of a history and an old label `X` with a family `J` of cover cubes, the
 mark of the cluster expansion of the measure of the step is the coefficient `T(X, J)` of the local
 pair (reading HS-1′, `oldCoefLoc`), as a function of the variables of the cubes of the block structure
-of the measure, cut off outside the ball `|ψ̂_b| < r_ψ` of the unit points of the local pair
-(`HoleStep.markOf`):
+of the measure (for any assignment `cb` of cubes to the unit points), cut off outside the ball
+`|ψ̂_b| < r_ψ` of the unit points of the local pair (`HoleStep.markOf`):
 
 * `locUnits`: the unit points of the local pair, as unit points of the step;
 * `oldCoefLoc_congr`: the coefficient reads the fluctuation field only there;
@@ -90,10 +90,8 @@ local pair as a function of the variables of the cubes of the block structure of
 of the unit points of the local pair. -/
 noncomputable def oldMarkLF (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
     (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
-    (a₁ ν β p₁ δ : ℝ) {m₀ : ℕ} {Ω : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
-    (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
-    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := g.c * n (k + 1)) (m₁ := m₁) (K := k + 1) m₀
-      (k + 1) Ω)
+    (a₁ ν β p₁ δ : ℝ) (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} (cb : inner → Cb)
     (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
     (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
@@ -108,10 +106,8 @@ open Classical in
 /-- **The mark depends only on the cubes of the integration variables of the local pair.** -/
 theorem oldMarkLF_dep (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
     (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
-    (a₁ ν β p₁ δ : ℝ) {m₀ : ℕ} {Ω : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
-    (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
-    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := g.c * n (k + 1)) (m₁ := m₁) (K := k + 1) m₀
-      (k + 1) Ω)
+    (a₁ ν β p₁ δ : ℝ) (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} [DecidableEq Cb] (cb : inner → Cb)
     (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
     (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
@@ -161,10 +157,8 @@ theorem norm_oldMarkLF_le {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m₁} 
     (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
     (hV : ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
       (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
-    {m₀ : ℕ} {Ω : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
     (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
-    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := g.c * n (k + 1)) (m₁ := m₁) (K := k + 1) m₀
-      (k + 1) Ω)
+    {Cb : Type*} (cb : inner → Cb)
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
     (hrψ : 0 < rψ) (Φ : ∀ b, {u : inner // cb u = b} → Rn N) :
     ‖oldMarkLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ (rho4 S.d S.L N BG κ) ρ r
@@ -219,10 +213,8 @@ theorem measurable_oldMarkLF {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m�
     (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
     (hV : ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
       (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
-    {m₀ : ℕ} {Ω : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))}
     (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
-    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := g.c * n (k + 1)) (m₁ := m₁) (K := k + 1) m₀
-      (k + 1) Ω)
+    {Cb : Type*} (cb : inner → Cb)
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) :
     Measurable (oldMarkLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ
       (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J) := by
