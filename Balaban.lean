@@ -1323,6 +1323,7 @@ public import Balaban.Fluctuation.HoleStepSplit
 public import Balaban.Fluctuation.HoleStepActComp
 public import Balaban.Fluctuation.HoleStepPointLocal
 public import Balaban.Fluctuation.HoleStepOldLocal
+public import Balaban.Fluctuation.HoleStepStanding
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity

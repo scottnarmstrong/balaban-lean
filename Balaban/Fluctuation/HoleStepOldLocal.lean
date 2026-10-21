@@ -173,8 +173,8 @@ term `B` reading the composed field only at the unit points of `Rd`, the cover `
 localization domains `X₁loc`, the core `X₁` and parameters in the polydisc of radius `R`
 (`1 ≤ R ≤ e^κ`): two parameter vectors supported on `J` that agree on the cubes of `J` inside the
 reached region `Y(J)` give the same value of `F_X`.  Hypotheses beyond those of
-`composed_eq_of_hull`: the standing conditions of the covariance at every vector of the polydisc of
-radius `e^κ` (`hstand`), a centre covering each read point with its footprint in the core and in its
+`composed_eq_of_hull`: the standing conditions of the covariance at every vector of the closed
+polydisc of radius `R` (`hstand`), a centre covering each read point with its footprint in the core and in its
 localization domain (`hcov`), and interaction boxes of centres with footprint in a localization domain
 at distance `4 L^{k+1}` from the complement of `Ω₁(G′)` (`hlocdeep`). -/
 theorem oldInterp_localityAEOn {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
@@ -189,7 +189,7 @@ theorem oldInterp_localityAEOn {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L 
     (inner : Finset S.U) (ψout : S.U → Fin N → ℂ) {B : (S.U → Fin N → ℂ) → ℂ} {Rd : Finset S.U}
     (hB : ∀ c c' : S.U → Fin N → ℂ, (∀ b ∈ Rd, c b = c' b) → B c = B c')
     {R : ℝ} (hR1 : 1 ≤ R) (hRk : R ≤ Real.exp κ)
-    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ Real.exp κ) →
+    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ R) →
       AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') ∧
       (∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
         (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v))) ∧
@@ -218,8 +218,8 @@ theorem oldInterp_localityAEOn {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L 
   set v' := S.slocOf (coverOf S.G') X₁loc (coreExt (coverOf S.G') X₁ w') b with hv'def
   have hv : ∀ P, ‖v P‖ ≤ Real.exp κ := fun P => (norm_slocVec_le hR1 hwle b P).trans hRk
   have hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ := fun P => (norm_slocVec_le hR1 hwle' b P).trans hRk
-  obtain ⟨hadm, hU, hMu⟩ := hstand v hv
-  obtain ⟨hadm', hU', hMu'⟩ := hstand v' hv'
+  obtain ⟨hadm, hU, hMu⟩ := hstand v fun P => norm_slocVec_le hR1 hwle b P
+  obtain ⟨hadm', hU', hMu'⟩ := hstand v' fun P => norm_slocVec_le hR1 hwle' b P
   have hsup := actC_slocVec_mono (X₁loc := X₁loc) (X₁ := X₁) hw.1 b
   have hsup' := actC_slocVec_mono (X₁loc := X₁loc) (X₁ := X₁) hw'.1 b
   have hcomp : ∀ q ∈ actComp (coverOf S.G') D (Dec2.extS _ (S.slocOf (coverOf S.G') X₁loc
@@ -283,7 +283,7 @@ theorem oldCoef_eq_zero_of_not_reached {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSp
     (inner : Finset S.U) (ψout : S.U → Fin N → ℂ) {B : (S.U → Fin N → ℂ) → ℂ} {Rd : Finset S.U}
     (hB : ∀ c c' : S.U → Fin N → ℂ, (∀ b ∈ Rd, c b = c' b) → B c = B c')
     {R : ℝ} (hR1 : 1 < R) (hRk : R ≤ Real.exp κ)
-    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ Real.exp κ) →
+    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ R) →
       AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') ∧
       (∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
         (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v))) ∧
@@ -321,7 +321,7 @@ theorem oldCoef_congr_of_agreeReach {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs
     (inner : Finset S.U) (ψout : S.U → Fin N → ℂ) {B : (S.U → Fin N → ℂ) → ℂ} {Rd : Finset S.U}
     (hB : ∀ c c' : S.U → Fin N → ℂ, (∀ b ∈ Rd, c b = c' b) → B c = B c')
     {R : ℝ} (hR1 : 1 < R) (hRk : R ≤ Real.exp κ)
-    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ Real.exp κ) →
+    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ R) →
       AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') ∧
       (∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
         (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v))) ∧
