@@ -96,7 +96,8 @@ theorem clause_local_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ eps' δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃ KcL CxL c₂L
+    {Kf Cf c₂f : ℝ}
+    (hFo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ)) (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hF₁L' : ∀ τ (s : Dec2.DecParams (coverOf Gl)) (D : BgData Gl N),
@@ -227,7 +228,8 @@ theorem clause_rot_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cB NS.O.BG NS.O.κ r₀ eps δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kc Cx c₂L
+    {Kf Cf c₂f : ℝ}
+    (hFo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ)) (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hEr : ∀ τ (Q : Matrix (Fin N) (Fin N) ℝ), Qᵀ * Q = 1 →
@@ -335,7 +337,8 @@ theorem oldFun_fields_of {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (compWeight L 
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ eps δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ KcL CxL c₂L
+    {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ)) (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
@@ -358,9 +361,9 @@ theorem oldFun_fields_of {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (compWeight L 
         ‖eTermFun Gl (NS.O.Gk τ) (NS.O.Gj τ) Gd (compWeight L S.a₁) (NS.O.FkL τ)
           (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) t'.1 t'.2.1 t'.2.2‖ ≤
           Eb τ * Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ)) :=
-  fun τ htop => eTermFun_analytic_bound_of_top hb₁ hbC (hBo τ) S.hG' (hFLo τ) hGs S.hk1 hCL.Sp HB'
-    hrb hCL hdk hHm (fun x hx => htop x ((hBo τ).dep x hx x (self_mem_composeDep x))) (hFkan τ)
-    (NS.O.hFkL τ) (hEan τ) (hEbd τ)
+  fun τ htop => eTermFun_analytic_bound_of_top_gen hb₁ hbC (hBo τ) S.hG' (hFLo τ) hGs S.hk1
+    hCL.Sp HB' hrb hCL hdk hHm (fun x hx => htop x ((hBo τ).dep x hx x (self_mem_composeDep x)))
+    (hFkan τ) (NS.O.hFkL τ) (hEan τ) (hEbd τ)
 
 open Classical in
 /-- **The clauses (A1), (A2) of the recomputed family** (P3 (4.46), (4.47) and Lemma 4.2 at `Gl`):
@@ -495,7 +498,8 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ eps δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ KcL CxL c₂L
+    {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ)) (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
@@ -699,7 +703,8 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ eps δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
     {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kc Cx c₂L
+    {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ)) (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
@@ -861,22 +866,18 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
       (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
       ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) W₀ ∧
         bondCost (scaleW L NS.O.m₀ m₁ (NS.O.jL τ)) E₀ = treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ))
-    (hkX : ∀ τ, ∀ x ∈ dataSites (NS.O.Gk τ), x ∈ X1 S.G' NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ))
     {Eb : NS.O.ι → ℝ} (hEb : ∀ τ, 0 ≤ Eb τ) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
-    {r₀ δ₃ δfl r₀' δ₃' δfl' ϱs : ℝ} {X₀ X₀' : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {r₀ δ₃ δfl δ₃' δfl' ϱs : ℝ} {X₀ : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ t δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    (hBo' : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀' eps' δ₃'
-      (X₀' τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ (Dec2.mixedKc d L)
-        (Cchi d L) c₂L
+    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs} {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ))
-    (hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃'
-        (Dec2.mixedKc d L) (Cchi d L) c₂L
-      NS.O.BG₂ NS.O.δ₁ δfl' (NS.O.X₁f τ))
+    -- the numerical conditions of the settings of the old terms at the gate radius
+    (hCN' : ChainNum d L N m₁ NS.O.BG NS.O.κ r₀ eps' δ₃')
+    (hFN' : FlNum d L N NS.O.BG NS.O.BG₂ NS.O.κ eps' δ₃' NS.O.δ₁ δfl')
     (hGs : IsLevel Hs k)
-    (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1) (hrb' : r₀' * (L : ℝ) ^ m₁ ≤ ϱl - 1)
+    (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱl - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
       InUnionDomainC (NS.O.Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)})
     (hEan : ∀ τ, AnalyticOnNhd ℂ (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
@@ -1043,6 +1044,15 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
         NS.coeffLoc F₂' Sol₂' F₁L' SolL' F₁b' Solb' eps' (maskPre S.hG' Gl (S.blockU z)) Φ₀
             (πb (clipRaw Gl q), 0) T = e (π (clipRaw S.G' q), 0) T) := by
   have hk1 := S.hk1
+  -- the settings of the old terms at the gate radius and the read condition of their data sites
+  have hBo' : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ eps' δ₃'
+      (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ) := fun τ => { hBo τ with num := hCN' }
+  have hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃' Kf Cf c₂f
+      NS.O.BG₂ NS.O.δ₁ δfl' (NS.O.X₁f τ) := fun τ => { hFLo τ with num := hFN' }
+  have hkX : ∀ τ, ∀ x ∈ dataSites (NS.O.Gk τ), x ∈ X1 S.G' NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) :=
+    fun τ x hx => by
+      rw [← hX₁L τ]
+      exact Finset.mem_coe.2 ((hBo τ).dep x hx x (self_mem_composeDep x))
   have hd0 : 0 < d := by omega
   have ha₁ : 1 / 2 ≤ S.a₁ := by rw [hS1]; norm_num
   have ha₂ : S.a₁ ≤ 2 := by rw [hS1]; norm_num
@@ -1083,7 +1093,7 @@ theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁
   refine ⟨bT, hbT, han, hbd, ?_, ?_, ?_⟩
   · exact NS.clause_local_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1 SpG hCz' hdtop hHmtop hrow hcψ hMXn
       hδc hdm' hα' hsm hρ₀c hRu hCo' hρL hρcL ht₀ hRt hMXLn hdmL' hαL' hsmL hcψL HB' hdk hcovL hX₁L
-      hBo' hFLo' hGs hrb' hF₁L' hSolL' hF₂s' hSol₂' hF₁b' hSolb' (maskPre S.hG' Gl (S.blockU z)) Φ₀
+      hBo' hFLo' hGs hrb hF₁L' hSolL' hF₂s' hSol₂' hF₁b' hSolb' (maskPre S.hG' Gl (S.blockU z)) Φ₀
       T hTm hYpl hεloc
   · exact NS.clause_rot_full_of F₂' Sol₂' F₁L' SolL' F₁b' Solb' hS1 hle HB' hd SpG
       hS Sb hCz hMXd hCx hMXn hδc hdm hα hsm hcψ hBG₂ hdk hdtop hHmtop hrow hκ₀ hκdec hκκ h1 hlog

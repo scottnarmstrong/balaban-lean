@@ -259,28 +259,18 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
       (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
       ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) W₀ ∧
         bondCost (scaleW L NS.O.m₀ m₁ (NS.O.jL τ)) E₀ = treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ))
-    (hkX : ∀ τ, ∀ x ∈ dataSites (NS.O.Gk τ), x ∈ X1 S.G' NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ))
-    {Eb : NS.O.ι → ℝ}
-    (hEb : ∀ τ, 0 ≤ Eb τ)
-    {b : ℝ}
-    (hb₁ : 1 ≤ b)
-    (hbC : b ≤ scaledC0 d)
-    {r₀ δ₃ δfl r₀' δ₃' δfl' ϱs : ℝ}
-    {X₀ X₀' : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {Eb : NS.O.ι → ℝ} (hEb : ∀ τ, 0 ≤ Eb τ) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    {r₀ δ₃ δfl δ₃' δfl' ϱs : ℝ} {X₀ : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ t δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    (hBo' : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀' eps' δ₃'
-      (X₀' τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ (Dec2.mixedKc d L)
-        (Cchi d L) c₂L
+    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs} {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ))
-    (hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃'
-        (Dec2.mixedKc d L) (Cchi d L) c₂L
-      NS.O.BG₂ NS.O.δ₁ δfl' (NS.O.X₁f τ))
+    -- the numerical conditions of the settings of the old terms at the gate radius
+    (hCN' : ChainNum d L N m₁ NS.O.BG NS.O.κ r₀ eps' δ₃')
+    (hFN' : FlNum d L N NS.O.BG NS.O.BG₂ NS.O.κ eps' δ₃' NS.O.δ₁ δfl')
     (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1)
-    (hrb' : r₀' * (L : ℝ) ^ m₁ ≤ ϱ - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
       InUnionDomainC (NS.O.Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)})
     (hEan : ∀ τ, AnalyticOnNhd ℂ (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
@@ -433,8 +423,8 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
       hS1 SpG HB HB hd hN hm₁ hM hag hag hag hle hεr hεt hεloc hAl hSS hPd hdk hdtop hHmtop
       hrow Sb hS hCz hCz' hMXd hCx hMXn hδc hdm hα hdm' hα' hsm hcψ hρ₀c hρp hRu hBG₂ hκ₀
       hκdec hκκ h1 hlog hR₁ hr hrays hR hRR hUR hU hSL hCo hCo' hMXLd hMXLn hdmL hαL hdmL'
-      hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm hcovL hX₁L hoptL hkX hEb
-      hb₁ hbC hBo hBo' hFLo hFLo' hGs hrb hrb' hFkan hEan hEbd hEr (fun _ => hFzan)
+      hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm hcovL hX₁L hoptL hEb
+      hb₁ hbC hBo hFLo hCN' hFN' hGs hrb hFkan hEan hEbd hEr (fun _ => hFzan)
       (fun _ => hFz) (fun _ => hSzan) (fun _ => hSz) (fun _ => hFzan) (fun _ => hFz)
       (fun _ => hSzan) (fun _ => hSz) (fun _ => hFLan) (fun _ => hFL) (fun _ => hSLan)
       (fun _ => hSLs) hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz Φ₀ hΦ₀ T hTm hYpl e he π hπ πb
@@ -548,28 +538,18 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
       (E₀ : Finset (CTorus d L N₁ m₁ (k + 1) × CTorus d L N₁ m₁ (k + 1))),
       ConnStruct W₀ E₀ ∧ (↑W₀ ⊆ XL τ) ∧ MeetsOne NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ) W₀ ∧
         bondCost (scaleW L NS.O.m₀ m₁ (NS.O.jL τ)) E₀ = treeLenCovOne NS.O.m₀ (NS.O.jL τ) (XL τ))
-    (hkX : ∀ τ, ∀ x ∈ dataSites (NS.O.Gk τ), x ∈ X1 S.G' NS.O.m₀ (NS.O.jL τ) (NS.O.𝒦X τ))
-    {Eb : NS.O.ι → ℝ}
-    (hEb : ∀ τ, 0 ≤ Eb τ)
-    {b : ℝ}
-    (hb₁ : 1 ≤ b)
-    (hbC : b ≤ scaledC0 d)
-    {r₀ δ₃ δfl r₀' δ₃' δfl' ϱs : ℝ}
-    {X₀ X₀' : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
+    {Eb : NS.O.ι → ℝ} (hEb : ∀ τ, 0 ≤ Eb τ) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    {r₀ δ₃ δfl δ₃' δfl' ϱs : ℝ} {X₀ : NS.O.ι → Finset (CTorus d L N₁ m₁ (k + 1))}
     (hBo : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀ t δ₃
       (X₀ τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    (hBo' : ∀ τ, BgSetting N S.G' (NS.O.Gk τ) (NS.O.Gj τ) S.a₁ S.ν cL NS.O.BG NS.O.κ r₀' eps' δ₃'
-      (X₀' τ) (NS.O.X₁f τ) (NS.O.jL τ))
-    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ (Dec2.mixedKc d L)
-        (Cchi d L) c₂L
+    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs} {Kf Cf c₂f : ℝ}
+    (hFLo : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG t δ₃ Kf Cf c₂f
       NS.O.BG₂ NS.O.δ₁ δfl (NS.O.X₁f τ))
-    (hFLo' : ∀ τ, FlSetting N S.G' (NS.O.Gk τ) Hs S.a₁ S.ν NS.O.κ NS.O.BG eps' δ₃'
-        (Dec2.mixedKc d L) (Cchi d L) c₂L
-      NS.O.BG₂ NS.O.δ₁ δfl' (NS.O.X₁f τ))
+    -- the numerical conditions of the settings of the old terms at the gate radius
+    (hCN' : ChainNum d L N m₁ NS.O.BG NS.O.κ r₀ eps' δ₃')
+    (hFN' : FlNum d L N NS.O.BG NS.O.BG₂ NS.O.κ eps' δ₃' NS.O.δ₁ δfl')
     (hGs : IsLevel Hs k)
     (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱ - 1)
-    (hrb' : r₀' * (L : ℝ) ^ m₁ ≤ ϱ - 1)
     (hFkan : ∀ τ, AnalyticOnNhd ℂ (NS.O.FkL τ) {p | ∃ D : BgData (NS.O.Gk τ) N,
       InUnionDomainC (NS.O.Gk τ) (bgC0 d L N) (bgC1 d L N) S.ν D ∧ p = (D.Ψ, D.h)})
     (hEan : ∀ τ, AnalyticOnNhd ℂ (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
@@ -750,7 +730,7 @@ theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
             hdm hα hdm' hα' hsm
           hcψ hρ₀c hρp hRu hBG₂ hκ₀ hκdec hκκ h1 hlog hR₁ hr hrays hR hRR hUR hU hSL hCLs hCLs'
           hMXLd hMXLn hdmL hαL hdmL' hαL' hsmL hcψL hκκL h1L hlogL hρL hρcL hρpL hRuL ht₀ hRt hNm
-          hcovL hX₁L hoptL hkX hEb hb₁ hbC hBo hBo' hFLo hFLo' hGs hrb hrb' hFkan hEan hEbd hEr
+          hcovL hX₁L hoptL hEb hb₁ hbC hBo hFLo hCN' hFN' hGs hrb hFkan hEan hEbd hEr
           hεz hεo hFb hFo hεpos hι hF0 hκ' hκ hε hz hS3 hM3 hc0 hN1 Φ₀ hΦ₀ T hzT (hTY T) (hYp _)
           (hYpl T) e (fun θ hθ => he θ hθ T) π hπ
       exact ⟨πb, hπb, cT, bT, hbT, fun _ => ⟨h1, h2, h3, h4, h5⟩⟩

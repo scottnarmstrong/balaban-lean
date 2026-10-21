@@ -37,18 +37,19 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱb ϱm ϱs ϱ�
   (S : StepSetting d L N₁ m₁ k N ϱ) {Gb : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱb}
   {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
   {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs}
-  {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁} {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
+  {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+  {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
   {a₁ ν Kc Cx : ℝ}
 
 open Classical in
 /-- **Spin covariance of the terms of an old term recomputed on `Gb`** (P3 pp. 78-79; the form of
 (A4) for the old labels).  Let `(Gb, H⁻)` carry a cover base, the fluctuation core with the old
 term's constants, `Gb` cube aligned and sup-separated, and let the old term have the step's settings
-`BgSetting N S.G' Gk Gj`, `FlSetting N S.G' Gk H_s` (`H_s` of level `k`), its functional
-`eTermFun Gb Gk Gj H⁻ … Fk E` recomputed on `Gb`, and `E` invariant under the real rotation `Q` on
-its chart.  For every label `Y` with the margin in `Gb`, a datum `D` of the chart of `Gb` and a hat
-variable with `|ψ̂| ≤ c_ψ`, the term at the rotated datum and hat variable equals the term at `D`,
-`ψ̂`. -/
+`BgSetting N S.G' Gk Gj`, `FlSetting N S.G' Gk H_s` (`H_s` of level `k`, any constants of its
+cover), its functional `eTermFun Gb Gk Gj H⁻ … Fk E` recomputed on `Gb`, and `E` invariant under
+the real rotation `Q` on its chart.  For every label `Y` with the margin in `Gb`, a datum `D` of
+the chart of `Gb` and a hat variable with `|ψ̂| ≤ c_ψ`, the term at the rotated datum and hat
+variable equals the term at `D`, `ψ̂`. -/
 theorem evDecBg_canon_rot_eTerm {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) {c BG : ℝ}
     (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (Sb : Dec2.CoverBase (coverOf Gb) Gb (compWeight L a₁) ν Kc Cx)
@@ -81,9 +82,9 @@ theorem evDecBg_canon_rot_eTerm {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC
         (∀ δα' : Hm.Ω 1 → ℂ, Small Hm δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
           Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
-    {cB r₀ δ₃ δfl : ℝ} {X₀ : Finset (CTorus d L N₁ m₁ (k + 1))}
+    {cB r₀ δ₃ δfl Kf Cf c₂f : ℝ} {X₀ : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hB : BgSetting N S.G' Gk Gj a₁ ν cB BG κ r₀ eps δ₃ X₀ X₁f j)
-    (hF : FlSetting N S.G' Gk Hs a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f) (hGs : IsLevel Hs k)
+    (hF : FlSetting N S.G' Gk Hs a₁ ν κ BG eps δ₃ Kf Cf c₂f BG₂ δ₁ δfl X₁f) (hGs : IsLevel Hs k)
     (HBb : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱb - 1)
     {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
     (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
@@ -109,7 +110,7 @@ theorem evDecBg_canon_rot_eTerm {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC
     have hdsTop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1) := fun x hx =>
       htop x (hB.dep x hx x (self_mem_composeDep x))
     have hB' := bgSetting_of_top hB S.hG' hC.Sp HBb hrb hdsTop
-    have hF' := flSetting_of_top hF hGs hk hC hdk hHm hdsTop
+    have hF' := flSetting_of_top_gen hF hGs hk hC hdk hHm hdsTop
     have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
     have hT : (r₀ - 4 * d * (L : ℝ) ^ 3) * (L : ℝ) ^ m₁ / L ≤ ϱb - 1 := by
       have h0 : 0 ≤ 4 * d * (L : ℝ) ^ 3 := by positivity

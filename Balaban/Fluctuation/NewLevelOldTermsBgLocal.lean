@@ -47,9 +47,10 @@ variable {m₀ : ℕ} {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))}
 /-- **(AE2) of Lemma 4.2 at `Gb` for the old terms**: under the hypotheses of
 `evDecBg_canon_local_of` (the standing hypotheses of the pair `(Gb, H⁻)`, `H⁻` with
 `Ω_k(H⁻) = Ω_k(Gb)` and without layer `k + 1`), for the old term with the step's settings
-`BgSetting N Gp Gk Gj`, `FlSetting N Gp Gk H_s` (`H_s` the level-`k` set of the step) and its
-functional `eTermFun Gb Gk Gj H⁻ … Fk E` recomputed on `Gb`, the terms of every label `Y` with
-`LabelMargin Gb Y` agree at two data of the chart of `Gb` with `AgHatDir Y`. -/
+`BgSetting N Gp Gk Gj`, `FlSetting N Gp Gk H_s` (`H_s` the level-`k` set of the step, any constants
+of its cover) and its functional `eTermFun Gb Gk Gj H⁻ … Fk E` recomputed on `Gb`, the terms of
+every label `Y` with `LabelMargin Gb Y` agree at two data of the chart of `Gb` with
+`AgHatDir Y`. -/
 theorem evDecBg_canon_local_eTerm (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
     (hk : 1 ≤ k) (hG' : IsLevel Gp (k + 1)) (hHm : Hm.Ω (k + 1) = ∅)
     (hHmtop : ∀ y ∈ Gb.Ω (k + 1), y ∈ Hm.Ω 1) (hdk : Hm.Ω k = Gb.Ω k)
@@ -81,10 +82,10 @@ theorem evDecBg_canon_local_eTerm (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx
             (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol p).2))
     {ϱ₁ ϱ₂ ϱs : ℝ} {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
     {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
-    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs} {r₀ δ₃ δfl : ℝ}
+    {Hs : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱs} {r₀ δ₃ δfl Kf Cf c₂f : ℝ}
     {X₀ : Finset (CTorus d L N₁ m₁ (k + 1))}
     (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
-    (hF : FlSetting N Gp Gk Hs a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f) (hGs : IsLevel Hs k)
+    (hF : FlSetting N Gp Gk Hs a₁ ν κ BG eps δ₃ Kf Cf c₂f BG₂ δ₁ δfl X₁f) (hGs : IsLevel Hs k)
     (HBb : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱb - 1)
     (Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ))
     (E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ) (Zb : Finset (unitPts Gb)) :
@@ -111,7 +112,7 @@ theorem evDecBg_canon_local_eTerm (hC : FlCore N Gb Hm a₁ ν c BG κ eps Kc Cx
     have hdsX : ∀ x ∈ dataSites Gk, x ∈ X₁f := fun x hx => hB.dep x hx x (self_mem_composeDep x)
     have hdsTop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1) := fun x hx => htop x (hdsX x hx)
     have hB' := bgSetting_of_top hB hG' hC.Sp HBb hrb hdsTop
-    have hF' := flSetting_of_top hF hGs hk hC hdk hHm hdsTop
+    have hF' := flSetting_of_top_gen hF hGs hk hC hdk hHm hdsTop
     have hΩ1 : ∀ x ∈ X₁f, x ∈ Gb.Ω 1 := fun x hx =>
       Gb.Ω_antitone le_rfl (by omega) (by omega) (htop x hx)
     have hread : ∀ x ∈ dataSites Gk, ∀ w ∈ composeDep Gk Gb x, approxDep Gb w ⊆ X₁f := by
