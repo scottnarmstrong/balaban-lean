@@ -1056,6 +1056,25 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        layer needs to regroup into Root-F's polymers (`≈ κ_F + d log(M_RG L)`). As in P3 (GM3, `κ₁ ≥ 4d log((2L+1)L^{m₀})`, decay per `M`-cube with
        `M = L^{m₀} M₁`), the size of `Y` must be counted in cells (or RG cubes), with the macro cells not larger than the RG cubes (`M_cut ≤ M`,
        e.g. `M_cut = M₁ = L^{m₁}`, which needs `L^{m₁} ≥ 4 pdB e^{pdH κ}`). Not changed here (`BoxLocalForm` is B2's).
+     * **B1 piece 3 (2026-10-21).** *Finding (C) settled* (`Spine/FinalBoxLocCorr.lean`): on the whole torus `corrSum` vanishes for every
+       translation-invariant coefficient (the pair term is a difference over the subgroup of `L^j`-aligned sites; no symmetry of `vc` needed),
+       `EresJ2_univ_eq_Edens`, `EresK2_univ_eq_sum_Edens`. *Counts and (W5)* (`Green/FinalBoxLocCount`, `FinalBoxLocW5`): the cell graph of a patch
+       family, components, leaders, `sum_rooted_mem_prod_le` (rooted and anchored sums of products), `sum_norm_localFormOf_le_of_coef` ((W5) from
+       coefficient bounds `b_a e^{-(κ-1)|C|}` and a weight with `ω(R ∪ ⋃_C B) ≤ ω(R) θ^{|C|}`). *Cells* (`FinalBoxLocTies`, ORCH-B decision: (W5)
+       counts macro cells): `cellGraph_degree_le` (`16^d`), `card_boxes_mem_le` (`7^d`), `macCellCount` (B2's `cellCount` on the general torus),
+       `exp_macCellCount_rootRegion_le` (`θ = e^{a 16^d}`), the named constraint `BoxCutTies d L M_cut κ a` with `boxCutTies_exists`; PrefixInput
+       check: `M = c M₁ = L^{m₀+m₁}`, no upper bound on `M`, so `M_cut = M` is compatible (needs `m₀ + m₁` large). *K-link* (`FinalBoxLocK`):
+       `finalHessian_posDef`, `pdSqrtInv_finalHessian_map` (`(D^{-1/2}).map ofReal = boxCut(1)`), `pdSqrtInv_smul_finalHessian_submatrix_map`
+       (`K = (β • D).submatrix e e`: `K^{-1/2} = β^{-1/2} boxCut(1)`), `abs_matAct_pdSqrtInv_le` (`|K^{-1/2} w| ≤ β^{-1/2} B_box p₁` on the box).
+       *Complex fields* (`FinalBoxLocParam`, ORCH-B: second-order g-increments by parity): `analyticOnNhd_localFormOf_param` (the local form is
+       analytic in `(g, w)`, `w` complex, on every set of data whose cut fields lie in the domain of the terms), `normAt`, `localFormOf_zero_var`
+       (`Ŵ_Y(0, g) = 0` for terms normalized at the centre), `sum_localFormOf_normAt`, `analyticOnNhd_comp_dilation`, `continuousOn_comp_ofReal`.
+       Core `xiDom_of_close_unit` (`SmallField/Def6BridgeDomain`: the ball around any constant unit vector in `Ξ^c_j`; `xiDom_of_close` its
+       instance). **Findings for `BoxLocalForm`:** (i) (W4) on `‖g‖₁ < G₀` with `G₀ > 1` is not available from the class: `RTermsH4.analytic`
+       (`ℛ^{(k)}`) and the `ℳ^{(j)}` clauses of Def-6 give analyticity only on `l1 g < 1` (`l1 = Σ_x vn(g x) ≤ Σ_{x,i} |g x i|`), so the
+       local terms are analytic on the unit ball only; the increment bound needs Schwarz at `G = 1` (`‖F g - F 0‖ ≤ 2B‖g‖₁`). (ii) With
+       `Ŵ_Y(0, g) = 0`, (W6) at `w = 0` reads `exp(ℛ^{(k)}(T; h, h, g)) = exp(E₀)`: `ℛ^{(k)}` at the constant configuration depends on `g` and
+       is not in `constExponent`, so it must join the constant exponent (or `E₀` depend on `g`).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
