@@ -130,6 +130,57 @@ section Agree
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (ν : ℝ) (D' : BgData G N)
 
+/-- **Core: the decoupled backgrounds and multipliers of one pair at two vectors agree on `T`/`Y`.**
+For an arbitrary set `T ⊆ Y` satisfying the dichotomy, row, inner-centre and residue hypotheses of
+`Dec2.decBg_component_cross` for the pair compared with itself, the multipliers at `v` and `v'`
+agree on `T` and the fields on `Y`.  `decBg_agree_of_seedHull` is the instance `T = seedHull`. -/
+theorem decBg_agree_core {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx)
+    (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v v' : Dec2.DecParams (coverOf G)}
+    (hv : ∀ P, ‖v P‖ ≤ Real.exp κ) (hv' : ∀ P, ‖v' P‖ ≤ Real.exp κ)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC G ν δ ε D')
+    {T Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hTY : T ⊆ Y)
+    (hdich : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd (Dec2.extS _ v) q ≠ 0 →
+      SubI G (intBox q) T ∨ DisjI G (intBox q) T)
+    (hdich' : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd (Dec2.extS _ v') q ≠ 0 →
+      SubI G (intBox q) T ∨ DisjI G (intBox q) T)
+    (hrow : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd (Dec2.extS _ v) q ≠ 0 →
+      ∀ x ∈ Y, x ∈ intBox q → x ∈ T)
+    (hrow' : ∀ q ∈ (coverOf G).cubeIdx, (coverOf G).sProd (Dec2.extS _ v') q ≠ 0 →
+      ∀ x ∈ Y, x ∈ intBox q → x ∈ T)
+    (hin : ∀ q ∈ Dec2.innerCentres (coverOf G) G T, (coverOf G).sProd (Dec2.extS _ v) q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf G) G T ∧
+        (coverOf G).sProd (Dec2.extS _ v') q = (coverOf G).sProd (Dec2.extS _ v) q ∧
+        (∀ x ∈ intBox q, ∀ y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1),
+          (y = x ∨ ∃ μ : Fin d, y = x + Pi.single μ 1 ∨ y = x - Pi.single μ 1) →
+            ∀ n, 1 ≤ n → n ≤ k + 1 → (y ∈ G.layer n ↔ y ∈ G.layer n)) ∧
+        (∀ x ∈ intBox q, (coverOf G).chi q x = (coverOf G).chi q x))
+    (hin' : ∀ q ∈ Dec2.innerCentres (coverOf G) G T, (coverOf G).sProd (Dec2.extS _ v') q ≠ 0 →
+      q ∈ Dec2.innerCentres (coverOf G) G T ∧ (coverOf G).sProd (Dec2.extS _ v) q ≠ 0)
+    (hres : ∀ x ∈ T, x ∈ G.Ω 1 → ∀ y ∈ resSites G x, y ∈ G.Ω 1 ∧ y ∈ Y) :
+    (∀ (x : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hx : x ∈ G.Ω 1), x ∈ T →
+        Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v' D' ⟨x, hx⟩ =
+          Dec2.decBgMult (coverOf G) G a ν (rho4 d L N BG κ) v D' ⟨x, hx⟩) ∧
+      ∀ (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) (hy : y ∈ G.Ω 1), y ∈ Y → ∀ i : Fin N,
+        Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v' D' (⟨y, hy⟩, i) =
+          Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v D' (⟨y, hy⟩, i) := by
+  classical
+  obtain ⟨φ, α, hsol, huniq, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM hv hδ0 hδε hε hδ hνε hD'
+  obtain ⟨φ', α', hsol', huniq', -⟩ :=
+    Dec2.i4b_exists_unique hS Sb HB hκ hM hv' hδ0 hδε hε hδ hνε hD'
+  obtain ⟨hφ, hα⟩ := Dec2.decBg_eq hsol huniq
+  obtain ⟨hφ', hα'⟩ := Dec2.decBg_eq hsol' huniq'
+  rw [hφ, hα, hφ', hα']
+  have h := Dec2.decBg_component_cross (C := coverOf G) (C' := coverOf G) (H := G)
+    (H' := G) (s := v) (s' := v') (D := D') (D' := D') (T := T) (Y := Y)
+    hS Sb Sb HB HB hκ hM hv hv' hδ0 hδε hε hδ hνε hδ0 hδε hε hδ hνε hD' hD' hTY
+    (fun _ _ _ _ _ => Iff.rfl) hdich hdich' hrow hrow' hin hin' hres
+    (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) (fun _ _ _ _ _ => ⟨rfl, rfl⟩) hsol hsol'
+  exact ⟨fun x hx hxT => h.1 x hx hx hxT, fun y hy hyY i => h.2 y hy hy hyY i⟩
+
 /-- **The decoupled backgrounds and multipliers of the pair `(coverOf G, G)` at two vectors agree
 on the hull of a seed**, which contains the seed (P3 (4.47), Theorem I-4b (iv), compared with
 itself).  Let `v`, `v'` be vectors with `|v_P|, |v'_P| ≤ e^κ`, whose active centres are active for
@@ -163,12 +214,6 @@ theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx
         Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v' D' (⟨y, hy⟩, i) =
           Dec2.decBgField (coverOf G) G a ν (rho4 d L N BG κ) v D' (⟨y, hy⟩, i) := by
   classical
-  obtain ⟨φ, α, hsol, huniq, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM hv hδ0 hδε hε hδ hνε hD'
-  obtain ⟨φ', α', hsol', huniq', -⟩ :=
-    Dec2.i4b_exists_unique hS Sb HB hκ hM hv' hδ0 hδε hε hδ hνε hD'
-  obtain ⟨hφ, hα⟩ := Dec2.decBg_eq hsol huniq
-  obtain ⟨hφ', hα'⟩ := Dec2.decBg_eq hsol' huniq'
-  rw [hφ, hα, hφ', hα']
   set Th := seedHull (coverOf G) D (Dec2.extS _ v) seed with hTh
   have hTT' : seedHull (coverOf G) D (Dec2.extS _ v') seed = Th := by
     have := actHull_eq_of_sProd_eq hsup hsup' hcomp (D := D) (seed := seed)
@@ -222,13 +267,8 @@ theorem decBg_agree_of_seedHull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx
     have hsub' : SubI G (intBox q) (seedHull (coverOf G) D (Dec2.extS _ v') seed) := by
       rw [hTT']; exact hsub
     exact ⟨hq, by rw [hcomp q (mem_actComp_of_inner_seed hD2 hsup' hqC hsub' hbase hne)]; exact hne⟩
-  have h := Dec2.decBg_component_cross (C := coverOf G) (C' := coverOf G) (H := G)
-    (H' := G) (s := v) (s' := v') (D := D') (D' := D')
-    (T := Th) (Y := nbhdSup (L ^ (k + 1)) Th)
-    hS Sb Sb HB HB hκ hM hv hv' hδ0 hδε hε hδ hνε hδ0 hδε hε hδ hνε hD' hD' (subset_nbhdSup _ _)
-    (fun _ _ _ _ _ => Iff.rfl) hdich hdich' hrow hrow' hin hin' hres
-    (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) (fun _ _ _ _ _ => ⟨rfl, rfl⟩) hsol hsol'
-  exact ⟨fun x hx hxT => h.1 x hx hx hxT, fun y hy hyY i => h.2 y hy hy hyY i⟩
+  exact decBg_agree_core G a ν D' hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD'
+    (subset_nbhdSup _ _) hdich hdich' hrow hrow' hin hin' hres
 
 end Agree
 
