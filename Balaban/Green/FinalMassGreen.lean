@@ -142,17 +142,28 @@ theorem finalMass_isCoercive (hd : 0 < d) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v �
   rw [e, mul_add]
   exact add_le_add hre him
 
+omit [NeZero L] in
+/-- Entry decay of the complexification of a real coarse matrix in the `L1Torus` form of
+`combesThomas`, from the entry decay of the real matrix (shared core). -/
+theorem map_entry_decay_of_abs {U : Matrix (Torus d N₀) (Torus d N₀) ℝ}
+    (h : ∀ y y', |U y y'| ≤
+      (2 + 4 * blockDecayConst d L) * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')))
+    (x y : L1Torus d N₀) :
+    ‖(U.map (algebraMap ℝ ℂ) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) x y‖ ≤
+      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) := by
+  have h := h x y
+  rw [dist_L1Torus, neg_mul]
+  have e : (U.map (algebraMap ℝ ℂ) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) x y =
+      ((U x y : ℝ) : ℂ) := rfl
+  rw [e, Complex.norm_real, Real.norm_eq_abs]
+  simpa [finalDecayC] using h
+
 /-- The shared entry-decay and ball-sum hypotheses of `combesThomas` for the final operator. -/
 theorem finalMass_entry_decay (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (x y : L1Torus d N₀) :
     ‖finalOp d L N₀ k v a x y‖ ≤
-      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) := by
-  have h := unconstrainedUnitOperator_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 ha1 ha2 x y
-  rw [dist_L1Torus, neg_mul]
-  have e : finalOp d L N₀ k v a x y =
-      ((unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a x y : ℝ) : ℂ) := rfl
-  rw [e, Complex.norm_real, Real.norm_eq_abs]
-  simpa [finalDecayC] using h
+      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) :=
+  map_entry_decay_of_abs (unconstrainedUnitOperator_decay hd hk hv0 ha1 ha2) x y
 
 /-- **Resolvent decay (F.4)** (T3): for `k ≥ 1`, `0 ≤ v ≤ 1`, `1/2 ≤ a ≤ 2`,
 `7/(8L²) < v` and every `t ≥ 0`, `U + t` is invertible and

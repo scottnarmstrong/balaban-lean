@@ -85,38 +85,48 @@ section Entries
 
 variable {d ℓ N m L M : ℕ} [NeZero ℓ] [NeZero m]
 
-/-- Entry decay of `Δ_tr`. -/
-theorem unconstrainedUnitOperator_decay {N₀ k : ℕ} [NeZero N₀] [NeZero L] (hd : 0 < d)
-    (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (y y' : Torus d N₀) :
-    |unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ ν a y y'| ≤
+/-- Entry decay of a Schur-complement form `a - a² K` from the decay of the coarse kernel `K`
+(shared core): `|K(y, y')| ≤ C₀ e^{-δ₀ dist(y, y')}` gives
+`|(a - a² K)(y, y')| ≤ (2 + 4 C₀) e^{-δ₀ dist(y, y')}` for `a ∈ [1/2, 2]`. -/
+theorem schurEntry_decay {N₀ : ℕ} [NeZero N₀] [NeZero L] (hd : 0 < d) {a : ℝ} (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) {K : Matrix (Torus d N₀) (Torus d N₀) ℝ}
+    (hK : ∀ y y', |K y y'| ≤
+      blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')))
+    (y y' : Torus d N₀) :
+    |(a • (1 : Matrix (Torus d N₀) (Torus d N₀) ℝ) - (a ^ 2) • K) y y'| ≤
       (2 + 4 * blockDecayConst d L) * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) := by
-  have hK := blockGreenKernel_decay (L := L) hd hk hν ha1 ha2 y y'
+  have hK := hK y y'
   have hC := blockDecayConst_pos (L := L) hd
   have hE : 0 < Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) := Real.exp_pos _
-  have e : unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ ν a y y' =
-      (if y = y' then a else 0) - a ^ 2 *
-        blockGreenKernel d (N₀ * L ^ k) (L ^ k) N₀ ν a y y' := by
-    simp only [unconstrainedUnitOperator, blockGreenKernel, Matrix.sub_apply, Matrix.smul_apply,
-      Matrix.one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero]
+  have e : (a • (1 : Matrix (Torus d N₀) (Torus d N₀) ℝ) - (a ^ 2) • K) y y' =
+      (if y = y' then a else 0) - a ^ 2 * K y y' := by
+    simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.one_apply, smul_eq_mul, mul_ite,
+      mul_one, mul_zero]
   rw [e]
   have ha0 : 0 ≤ a := by linarith
-  have hKa : a ^ 2 * |blockGreenKernel d (N₀ * L ^ k) (L ^ k) N₀ ν a y y'| ≤
+  have hKa : a ^ 2 * |K y y'| ≤
       4 * (blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y'))) := by
     have : a ^ 2 ≤ 4 := by nlinarith
-    calc _ ≤ 4 * |blockGreenKernel d (N₀ * L ^ k) (L ^ k) N₀ ν a y y'| :=
-          mul_le_mul this le_rfl (abs_nonneg _) (by norm_num)
+    calc _ ≤ 4 * |K y y'| := mul_le_mul this le_rfl (abs_nonneg _) (by norm_num)
       _ ≤ _ := mul_le_mul_of_nonneg_left hK (by norm_num)
   by_cases h : y = y'
   · subst h
     rw [torusDist_self_eq_zero] at *
     simp only [mul_zero, neg_zero, Real.exp_zero, mul_one, ite_true] at *
-    calc _ ≤ |a| + |a ^ 2 * blockGreenKernel d (N₀ * L ^ k) (L ^ k) N₀ ν a y y| := abs_sub _ _
+    calc _ ≤ |a| + |a ^ 2 * K y y| := abs_sub _ _
       _ ≤ 2 + 4 * blockDecayConst d L := by
         rw [abs_mul, abs_of_nonneg ha0, abs_of_nonneg (sq_nonneg a)]
         linarith
   · simp only [h, ite_false, zero_sub, abs_neg]
     rw [abs_mul, abs_of_nonneg (sq_nonneg a)]
     nlinarith
+
+/-- Entry decay of `Δ_tr`. -/
+theorem unconstrainedUnitOperator_decay {N₀ k : ℕ} [NeZero N₀] [NeZero L] (hd : 0 < d)
+    (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (y y' : Torus d N₀) :
+    |unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ ν a y y'| ≤
+      (2 + 4 * blockDecayConst d L) * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) :=
+  schurEntry_decay hd ha1 ha2 (blockGreenKernel_decay hd hk hν ha1 ha2) y y'
 
 /-- Entry decay of the next-scale averaging term. -/
 theorem blockProj_entry_decay [NeZero M] [NeZero L] (hd : 0 < d) (hm : m = L * M) {a' : ℝ} (ha'0 : 0 ≤ a')

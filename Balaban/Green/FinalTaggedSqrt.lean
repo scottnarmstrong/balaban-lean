@@ -7,6 +7,7 @@ module
 
 public import Balaban.Green.FinalTaggedRow
 public import Balaban.Localization.DecoupledCovPrincipal
+public import Balaban.Green.OneScaleDirichlet
 
 /-!
 # The Stieltjes square root of the tagged parametrix family (FINALFAM2, T4)
@@ -366,6 +367,17 @@ theorem analyticOnNhd_taggedCfinU (h : CutOpHyp d N₀ M U g A δ ε κ) (x y : 
 
 end Generic
 
+/-- **`CutOpHyp` with the constants of the final operator** (shared core): any `U` with gap
+`finalGap`, entry decay `finalDecayC e^{-blockDecayRate · dist}`, and `ε = pdEps`. -/
+theorem cutOpHyp_of_final (hd : 0 < d) {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hcoer : IsCoercive U (finalGap d L))
+    (hdec : ∀ x y, ‖U x y‖ ≤ finalDecayC d L * Real.exp (-blockDecayRate d * dist x y))
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ) (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M)
+    (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M) :
+    CutOpHyp d N₀ M U (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ :=
+  ⟨(finalDecayC_pos hd).le, blockDecayRate_pos hd, finalGap_pos (Nat.pos_of_ne_zero (NeZero.ne L)),
+    hcoer, hdec, pdEps_pos hd, min_le_left _ _, min_le_right _ _, hM, hκ, hMB, hMκ⟩
+
 variable (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2)
   (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
   (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
@@ -376,9 +388,16 @@ include hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ
 theorem cutOpHyp_finalOp :
     CutOpHyp d N₀ M (finalOp d L N₀ k v a) (finalGap d L) (finalDecayC d L) (blockDecayRate d)
       (pdEps d L) κ :=
-  ⟨(finalDecayC_pos hd).le, blockDecayRate_pos hd, finalGap_pos (Nat.pos_of_ne_zero (NeZero.ne L)),
-    finalMass_isCoercive hd hv0 hv1 ha1 hmass, finalMass_entry_decay hd hk hv0 ha1 ha2,
-    pdEps_pos hd, min_le_left _ _, min_le_right _ _, hM, hκ, hMB, hMκ⟩
+  cutOpHyp_of_final hd (finalMass_isCoercive hd hv0 hv1 ha1 hmass)
+    (finalMass_entry_decay hd hk hv0 ha1 ha2) hM hκ hMB hMκ
+
+/-- **`CutOpHyp` holds at the Dirichlet Schur complement** on any set `V` of fine sites, with the
+constants of `finalOp` (gap from `U_V ⪰ Δ_tr`, decay from the Dirichlet block decay). -/
+theorem cutOpHyp_dirichletFinalOp (V : Finset (Torus d (N₀ * L ^ k))) :
+    CutOpHyp d N₀ M (dirichletFinalOp d L N₀ k V v a) (finalGap d L) (finalDecayC d L)
+      (blockDecayRate d) (pdEps d L) κ :=
+  cutOpHyp_of_final hd (dirichletFinalOp_isCoercive hd hv0 hv1 ha1 hmass V)
+    (dirichletFinalOp_entry_decay hd hk hv0 ha1 ha2 V) hM hκ hMB hMκ
 
 /-- Pointwise domination of the integrand: for `t > 0`,
 `‖t^{-1/2} G_fin(s,t) x y‖ ≤ (4/3) · 2 e^{Hκ} B₀ · (t^{-1/2} (g + t)⁻¹)`. -/

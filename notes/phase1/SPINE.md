@@ -1154,6 +1154,46 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        local terms are analytic on the unit ball only; the increment bound needs Schwarz at `G = 1` (`‖F g - F 0‖ ≤ 2B‖g‖₁`). (ii) With
        `Ŵ_Y(0, g) = 0`, (W6) at `w = 0` reads `exp(ℛ^{(k)}(T; h, h, g)) = exp(E₀)`: `ℛ^{(k)}` at the constant configuration depends on `g` and
        is not in `constExponent`, so it must join the constant exponent (or `E₀` depend on `g`).
+     * **B1 piece 4 (2026-10-21).** *The level-`k` instances of the local form* (ORCH-B: complex fields, `Ŵ_Y(0, g) = 0`, bound linear
+       in the dilated radius). Core `Spine/FinalBoxLocPoly.lean`: `PolyTerms C hv r κ_R A` (a finite family of terms reading the block field on the
+       blocks of polymers `X_a ∈ 𝒟_k`, the source at the fine sites of those blocks, analytic on `‖g‖₁ < 1` × the sup ball of radius `r` around
+       `h`, bounded by `amp(g)_a e^{-κ_R d_k(X_a)}`; `PolyTerms.empty`, `.sum`, `.mono`, `.sum_count`), `blockCut` (`c · boxCut(s)` on the
+       blocks), `polyLocal` with (W1) `polyLocal_congr_w`, (W2) `polyLocal_congr_g`, (W3) `polyLocal_eq_zero_of_not_isAnimal`,
+       `analyticOnNhd_polyLocal` (joint in `(g, w)`, `w` complex, `‖w‖_∞ ≤ ρ`), `polyLocal_zero_var`, `sum_polyLocal`, and (W5, macro side
+       `L^{m₀+m₁}`) `polyLocal_bound`: `∑_{Y ∋ x} ‖W_Y‖ e^{α #cells(Y)} ≤ polyBoundConst F m r κ_R λ κ α` when the labels of each `X` carry
+       `∑ amp ≤ F e^{λ d_k(X)}`; `m = |c| B_box ρ`, the bound is `F (m/(r-m)) e^{γ c₁} K₀ (1 + 7^d 16^d B₃)`. Instances: `ℛ^{(k)}`
+       (`Spine/FinalBoxLocRForm`: `rPolyTerms`, `sum_rLocal`, `rLocal_bound`, λ = 0), `ℰ^{(k)}` (`Spine/FinalBoxLocE`: `psiJC_univ_top`
+       (`ψ^{(k)}_k = lift ψ_k`), `ePolyTerms`, `sum_eTerm` = `EresJ2 univ k`, λ = 1), `ℳ^{(k)}` (`Spine/FinalBoxLocM`: `mPolyTerms` with
+       amplitude `|g(x)|₁ c₉ L^{-k(…)}`, `sum_mTerm`, λ = 0). Supporting: `Green/FinalBoxLocRootSum` ((W5) from root sums, `card_rootCells_le`),
+       `Green/FinalBoxLocBoxConn` (`isAnimal_macBoxF`: the macro boxes are connected), `Spine/FinalBoxLocRGeom` (blocks and cells of the
+       polymers: `isAnimal_blocksOf`, `macCellCount_blocksOf_le`, `cellBase_mem_of_mem_blocksOf`, `card_cellBases_macBoxF_le`),
+       `Green/FinalBoxLocConsts` (named constraints `BoxCutConsts`, `RDomConsts`, `PolyTies` with existence lemmas; `PrefixInput` bounds
+       `P6.κ` from below only, so `PolyTies` is compatible, but its witness `κ_flow` lacks the term `c₁ γ + λ`), core
+       `linField_boxCut_mem_closedBall` (`rootedExpansion_boxCut` its consumer), core `sum_animalsAt_weight_le`
+       (`sum_animalsAt_exp_le` its instance). **Stage 1 (search done).** No local `BgSetting` exists in `Inhabited/NewLevel*`, `StepTower*`,
+       `Fluctuation/Local*`, `Spine/NewLevel*` (the base settings take `X₁f` = the torus; `OldTermSettings` is an assumed field). The
+       remaining terms (`ℰ^{(j)}`, `ℳ^{(j)}` for `j < k`, `⟨g, φ̄_k⟩`, and the action density of PHYS-CUBIC) read the global background;
+       their exact localization is `OPEN-PHYSICAL-FOOTPRINT-LOCAL` + `OPEN-PAPER-REPLACEMENT` of `TRUE-LOCAL.md` (packages 2, 3, 5, background
+       half; the final box needs no hat/square-root package), plus a parallel `X₁` for the top-level terms (`CovSetup` asks `j < K`).
+     * **B1 piece 5, decision B-1″ steps (1)–(3) (2026-10-21).** Row `p` of the whitening is to be the row of the inverse square root
+       of the final Hessian of the massive problem on the local pair of `p`, i.e. on the fine sites `V` of `B(p)^{+m}`. (1) The cut family
+       is generic in `U` (`Green/FinalBoxLocCutU`: `boxCutU`, `cutDecoupling_boxCutU`, `boxCutU_one`, `boxCutU_row_bound`; `Green/FinalTaggedSqrt`:
+       `taggedCfinU`, the hypothesis bundle `CutOpHyp` with core `cutOpHyp_of_final`; `boxCut` is `boxCutU` at `finalOp`). (2) Comparison
+       core `Green/FinalSqrtCompare` (`norm_sqrtMat_sub_le_of_resolvent`, `norm_sqrtMat_sub_le`). (3) The single-scale Dirichlet problem,
+       shared (`Green/OneScaleDirichlet`): `dirichletSol`, the Schur complement `dirichletUnitOperator V = a - a² Q_V (H_V)⁻¹ Q_V*`
+       (`dirichletUnitOperator_univ`: `V = univ` gives `Δ_tr`), `dirichletFinalOp` (complex, `dirichletFinalOp_univ` = `finalOp`), block decay
+       with the constants of the whole torus (`dirichletBlockKernel_decay`, `dirichletUnitOperator_decay`, `dirichletFinalOp_entry_decay`),
+       monotonicity `dirichletUnitOperator_quad_mono` (`U_W ⪯ U_V` for `V ⊆ W`), gap `dirichletUnitOperator_lower` /
+       `dirichletFinalOp_isCoercive` (`finalGap`), `cutOpHyp_dirichletFinalOp`, and the deep comparison `dirichletBlockKernel_sub_le` (any
+       `V ⊆ W`) with its block-union form `dirichletUnitOperator_sub_le` / `dirichletFinalOp_sub_le`: for `V` the blocks of `Bc` and `W ⊇ V`,
+       `|U_V(y,y') - U_W(y,y')| ≤ a² C e^{-(δ₀/2)(d(y, Bcᶜ) + d(y', Bcᶜ))}`. The block decay rests on the Agmon chain in function form
+       (fields vanishing off `Ω₁`, equation only where the field is nonzero): `agmon_energy_fun`, `agmon_block_fun`, `green_G2i_fun`,
+       `oneScale_core_fun`, `oneScale_blockDecay_fun`, `abs_blockAvg_le_of_eq`, with the landed statements as instances (the separation
+       field of `GeneratingSet` excludes `Ω₁ = … = Ω_k = V`). Route of the deep comparison: pair identity
+       `(z_f - y_f)·H(z_g - y_g) = f·z_g - f·y_g`, Cauchy–Schwarz of the form, Dirichlet principle with the cutoff
+       `θ = max 0 (1 - dist(·, Vᶜ)/N)`, energy of `θ z` from the gradient block decay. The flux form of `greenFn_resolvent_identity` loses
+       `N^{1/2}` against block `L²` bounds and is not used. Open: the new body of `finalWhiten`, its cut family, the error bounds from
+       `norm_sqrtMat_sub_le` and `dirichletFinalOp_sub_le`, and the update of `sfWhiten`.
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
