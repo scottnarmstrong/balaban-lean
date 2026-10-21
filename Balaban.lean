@@ -63,6 +63,7 @@ public import Balaban.Polymer.TwoTorusDecBg
 public import Balaban.Polymer.TwoTorusSY
 public import Balaban.Polymer.TwoTorusSYF
 public import Balaban.Polymer.TwoTorusDecSol
+public import Balaban.Polymer.TwoTorusXOps
 public import Balaban.Polymer.TwoTorusXGreen
 public import Balaban.Polymer.TwoTorusDecCov
 public import Balaban.Polymer.TwoTorusDet
@@ -2165,6 +2166,10 @@ public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
 public import Balaban.LargeField.Base.BaseXLog
+public import Balaban.LargeField.Base.BaseTwoTorusGreen
+public import Balaban.LargeField.Base.BaseTwoTorusCov
+public import Balaban.LargeField.Base.BaseTwoTorusRows
+public import Balaban.LargeField.Base.BaseTwoTorusBackground
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
 public import Balaban.Fluctuation.LocalBlockEnergyBound
