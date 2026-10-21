@@ -158,6 +158,87 @@ theorem cubeBump_aff (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (j : ℕ) (y0 x 
   push_cast at h ⊢
   exact h
 
+theorem val_img_core {n : ℕ} [NeZero n] (lam : ℕ) (hlam : 0 < lam) (s x y : ZMod n) (b : Bool) :
+    ∃ e : ℤ, ((((s + AffIso.sgn n b * x).val : ℕ) : ℝ) -
+        ((((s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0)).val : ℕ) : ℝ) +
+          ((lam : ℝ) - 1) / 2)) =
+      (if b then (-1 : ℝ) else 1) * (((x.val : ℕ) : ℝ) - (((y.val : ℕ) : ℝ) + ((lam : ℝ) - 1) / 2)) +
+        (n : ℝ) * e := by
+  have hl1 : 1 ≤ lam := hlam
+  obtain ⟨e1, h1⟩ := exists_val_eq (s + AffIso.sgn n b * x)
+    ((s.val : ℤ) + (if b then -1 else 1) * (x.val : ℤ)) (by
+      cases b <;> simp [AffIso.sgn])
+  obtain ⟨e2, h2⟩ := exists_val_eq (s + AffIso.sgn n b * y - (if b then ((lam - 1 : ℕ) : ZMod n) else 0))
+    ((s.val : ℤ) + (if b then -1 else 1) * (y.val : ℤ) - (if b then ((lam - 1 : ℕ) : ℤ) else 0)) (by
+      cases b <;> simp [AffIso.sgn])
+  refine ⟨e1 - e2, ?_⟩
+  have c1 : ((((lam - 1 : ℕ) : ℤ)) : ℝ) = (lam : ℝ) - 1 := by
+    rw [Int.cast_natCast, Nat.cast_sub hl1]; simp
+  have a1 := congrArg (fun z : ℤ => (z : ℝ)) h1
+  have a2 := congrArg (fun z : ℤ => (z : ℝ)) h2
+  cases b
+  · simp only [Bool.false_eq_true, ↓reduceIte, Int.cast_add, Int.cast_mul, Int.cast_natCast,
+      Int.cast_one, Int.cast_sub, Int.cast_zero, sub_zero, one_mul] at a1 a2 ⊢
+    push_cast at a1 a2 ⊢
+    linarith
+  · simp only [↓reduceIte, Int.cast_add, Int.cast_mul, Int.cast_natCast, Int.cast_neg,
+      Int.cast_one, Int.cast_sub, c1] at a1 a2 ⊢
+    push_cast at a1 a2 ⊢
+    linarith
+
+theorem inBox_coord_aff (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (j : ℕ) (y0 x : CTorus d L N₁ m₁ K)
+    (R : ℝ) (μ : Fin d) :
+    (∃ p : ℤ, |(((A.toFun x (A.perm μ)).val : ℕ) : ℝ) + p * (((N₁ * L ^ m₁) * L ^ K : ℕ) : ℝ) -
+      ((((baseImg A (L ^ (j + m₁)) y0 (A.perm μ)).val : ℕ) : ℝ) + ((L : ℝ) ^ (j + m₁) - 1) / 2)| < R) ↔
+    ∃ p : ℤ, |(((x μ).val : ℕ) : ℝ) + p * (((N₁ * L ^ m₁) * L ^ K : ℕ) : ℝ) -
+      ((((y0 μ).val : ℕ) : ℝ) + ((L : ℝ) ^ (j + m₁) - 1) / 2)| < R := by
+  have hL : 0 < L ^ (j + m₁) := by have := NeZero.pos L; positivity
+  obtain ⟨e, he⟩ := val_img_core (n := (N₁ * L ^ m₁) * L ^ K) (L ^ (j + m₁)) hL
+    (A.shift (A.perm μ)) (x μ) (y0 μ) (A.flip μ)
+  have hx : (A.toFun x) (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn _ (A.flip μ) * x μ := by
+    simp [AffIso.toFun]
+  have hy : baseImg A (L ^ (j + m₁)) y0 (A.perm μ) = A.shift (A.perm μ) + AffIso.sgn _ (A.flip μ) * y0 μ -
+      (if A.flip μ then ((L ^ (j + m₁) - 1 : ℕ) : ZMod _) else 0) := by
+    simp [baseImg, AffIso.toFun]
+  rw [hx, hy]
+  have hlam : ((L ^ (j + m₁) : ℕ) : ℝ) = (L : ℝ) ^ (j + m₁) := by push_cast; ring
+  rw [hlam] at he
+  generalize (((N₁ * L ^ m₁) * L ^ K : ℕ) : ℝ) = Nn at he ⊢
+  cases hb : A.flip μ
+  · simp only [hb, Bool.false_eq_true, ↓reduceIte, one_mul] at he ⊢
+    constructor
+    · rintro ⟨p, hp⟩
+      refine ⟨p + e, ?_⟩
+      convert hp using 2
+      push_cast; linarith
+    · rintro ⟨p, hp⟩
+      refine ⟨p - e, ?_⟩
+      convert hp using 2
+      push_cast; linarith
+  · simp only [hb, ↓reduceIte] at he ⊢
+    constructor
+    · rintro ⟨p, hp⟩
+      refine ⟨-(p + e), ?_⟩
+      rw [← abs_neg] at hp
+      convert hp using 2
+      push_cast; linarith
+    · rintro ⟨p, hp⟩
+      refine ⟨-(p + e), ?_⟩
+      rw [← abs_neg]
+      convert hp using 2
+      push_cast; linarith
+
+theorem inBox_aff_iff (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) (j : ℕ) (y0 x : CTorus d L N₁ m₁ K)
+    (R : ℝ) :
+    InBox m₁ j (baseImg A (L ^ (j + m₁)) y0) R (A.toFun x) ↔ InBox m₁ j y0 R x := by
+  unfold InBox
+  constructor
+  · intro h μ
+    exact (inBox_coord_aff A j y0 x R μ).1 (h (A.perm μ))
+  · intro h i
+    have := (inBox_coord_aff A j y0 x R (A.perm.symm i)).2 (h _)
+    simpa using this
+
 end Cube
 
 end Balaban.Localization.DecEquiv
