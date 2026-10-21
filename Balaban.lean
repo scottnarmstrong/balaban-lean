@@ -3089,6 +3089,7 @@ public import Balaban.LargeField.Base.BaseBgCloseCube
 public import Balaban.LargeField.Base.BaseBgCloseSector
 public import Balaban.LargeField.Base.BaseCutoffChi1
 public import Balaban.LargeField.Base.BaseCutoffClass
+public import Balaban.LargeField.Base.BaseFirstChi1
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
