@@ -65,13 +65,14 @@ def locRange (H : RegionHistory S n R k0 K) {k : ℕ} (ρ : ℕ) :
     y ∈ locDomC (c := g.c) (n1 := n (k + 1)) hM1 ρ x}
 
 open Classical in
-/-- **The families of decoupling cubes of the step**: the sets of cubes of the cover of `G′` inside
-the localization range (the parameters of the other cubes do not enter the localization vectors of
-the unit points, `slocOf`, `locDomsLF`). -/
+/-- **The families of decoupling cubes of the step**: the sets of cubes of the cover of `G′` of levels
+`k`, `k + 1` inside the localization range (the parameters of the other cubes do not enter the
+localization vectors of the unit points, `slocOf`, `locDomsLF`; the localization range lies in the
+layers `k`, `k + 1` of `G′` when `ρ ≤ ⌊R_k⌋`, since `Ω_{k+1} ⊂ Ω'_{k+1}` is far from `W_k^c`). -/
 noncomputable def allJ (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ρ : ℕ) :
     Finset (Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :=
-  ((coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx.filter fun P =>
+  ((coverOf (stepG' g hnn hM1 H hk hρ)).cubeIdx.filter fun P => k ≤ P.1 ∧
     (cubeP P : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) ⊆ locRange g hM1 H ρ).powerset
 
 open Classical in
