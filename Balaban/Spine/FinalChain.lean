@@ -46,7 +46,7 @@ theorem sfGaussIntegrand_eq (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d
           C.Rres Y ((spinField (BlockAt S n M K k) N).symm
             (spinField (BlockAt S n M K k) N ψ0 + matAct (pdSqrtInv Kq) w)) hv g +
           (((1 / 2) * pdQuad Kq (matAct (pdSqrtInv Kq) w) : ℝ) : ℂ)) := by
-  unfold sfGaussIntegrand sfFactor2
+  unfold sfGaussIntegrand sfGaussIntegrandL sfFactor2
   rw [mul_assoc, Complex.ofReal_exp (1 / 2 * pdQuad Kq (matAct (pdSqrtInv Kq) w)), ← Complex.exp_add]
 
 /-- **The cancellation of the quadratic part** (`Y` arbitrary, `K = β_k H`): the Gaussian

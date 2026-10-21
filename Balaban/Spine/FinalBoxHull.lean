@@ -120,12 +120,12 @@ theorem stepIn_fineCells_of_cell {k : ℕ} (hk : k ≤ K) {Mc : ℕ}
   exact ⟨Finset.mem_univ _, ((fineCellOf_eq_iff hk Mc y z).2 hy).symm ▸ hx⟩
 
 /-- The fine site with block coordinates `b` and offsets `o` inside the block. -/
-def blockSite {k : ℕ} (b : BlockAt S n M K k) (o : Fin S.d → ℕ) : Torus S.d (M * n K * S.L ^ K) :=
+def blockOffsetSite {k : ℕ} (b : BlockAt S n M K k) (o : Fin S.d → ℕ) : Torus S.d (M * n K * S.L ^ K) :=
   fun ν => (((b ν).val * S.L ^ k + o ν : ℕ) : ZMod (M * n K * S.L ^ K))
 
-theorem fineBlock_blockSite {k : ℕ} (hk : k ≤ K) (b : BlockAt S n M K k) {o : Fin S.d → ℕ}
+theorem fineBlock_blockOffsetSite {k : ℕ} (hk : k ≤ K) (b : BlockAt S n M K k) {o : Fin S.d → ℕ}
     (ho : ∀ ν, o ν < S.L ^ k) :
-    fineBlock (S := S) (n := n) (M := M) (K := K) k (blockSite b o) = b := by
+    fineBlock (S := S) (n := n) (M := M) (K := K) k (blockOffsetSite b o) = b := by
   have hL : 0 < S.L ^ k := pow_pos (Nat.pos_of_ne_zero (NeZero.ne S.L)) k
   funext ν
   apply ZMod.val_injective
@@ -136,7 +136,7 @@ theorem fineBlock_blockSite {k : ℕ} (hk : k ≤ K) (b : BlockAt S n M K k) {o 
     have := ho ν
     have h2 : (b ν).val + 1 ≤ M * n K * S.L ^ (K - k) := hb
     nlinarith
-  unfold blockSite
+  unfold blockOffsetSite
   rw [ZMod.val_natCast, Nat.mod_eq_of_lt hlt, Nat.add_comm, Nat.add_mul_div_right _ _ hL,
     Nat.div_eq_of_lt (ho ν), zero_add]
 
@@ -150,13 +150,13 @@ theorem exists_fine_adj_of_add_single {k : ℕ} (hk : k ≤ K) (b : BlockAt S n 
   set o : Fin S.d → ℕ := fun ν => if ν = μ then S.L ^ k - 1 else 0 with ho
   have ho' : ∀ ν, o ν < S.L ^ k := fun ν => by simp only [ho]; split_ifs <;> omega
   have hoμ : o μ = S.L ^ k - 1 := by simp [ho]
-  refine ⟨blockSite b o, blockSite b o + Pi.single μ 1, fineBlock_blockSite hk b ho', ?_, rfl⟩
+  refine ⟨blockOffsetSite b o, blockOffsetSite b o + Pi.single μ 1, fineBlock_blockOffsetSite hk b ho', ?_, rfl⟩
   funext ν
   by_cases hν : ν = μ
   · subst hν
     unfold fineBlock jBlock
     rw [blockMap_apply]
-    unfold blockCoord blockSite
+    unfold blockCoord blockOffsetSite
     simp only [Pi.add_apply, Pi.single_eq_same]
     rw [hoμ]
     have e : (((b ν).val * S.L ^ k + (S.L ^ k - 1) : ℕ) : ZMod (M * n K * S.L ^ K)) + 1 =
@@ -169,12 +169,12 @@ theorem exists_fine_adj_of_add_single {k : ℕ} (hk : k ≤ K) (b : BlockAt S n 
       (M * n K * S.L ^ (K - k)), Nat.mul_mod_mul_right, Nat.mul_div_cancel _ hL, ZMod.natCast_mod]
     push_cast
     rw [ZMod.natCast_zmod_val]
-  · have e1 : (blockSite b o + Pi.single μ 1 : Torus S.d (M * n K * S.L ^ K)) ν =
-        blockSite b o ν := by
+  · have e1 : (blockOffsetSite b o + Pi.single μ 1 : Torus S.d (M * n K * S.L ^ K)) ν =
+        blockOffsetSite b o ν := by
       simp [Pi.single_eq_of_ne hν]
     have e2 : (b + Pi.single μ 1 : BlockAt S n M K k) ν = b ν := by simp [Pi.single_eq_of_ne hν]
     rw [e2]
-    have := congrFun (fineBlock_blockSite (S := S) (n := n) (M := M) (K := K) hk b ho') ν
+    have := congrFun (fineBlock_blockOffsetSite (S := S) (n := n) (M := M) (K := K) hk b ho') ν
     unfold fineBlock jBlock at this ⊢
     rw [blockMap_apply] at this ⊢
     rw [e1]
@@ -223,8 +223,8 @@ theorem isPolymer_fineCells {k : ℕ} (hk : k ≤ K) {Mc : ℕ}
     have hbz : cellOf (S := S) (n := n) (M := M) (K := K) k Mc b = z :=
       (eq_macZ_of_mem_macCore hb).symm
     have hL : 0 < S.L ^ k := pow_pos (Nat.pos_of_ne_zero (NeZero.ne S.L)) k
-    refine ⟨blockSite b (fun _ => 0), Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩⟩
-    rw [fineCellOf, fineBlock_blockSite hk b (fun _ => hL), hbz]
+    refine ⟨blockOffsetSite b (fun _ => 0), Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_⟩⟩
+    rw [fineCellOf, fineBlock_blockOffsetSite hk b (fun _ => hL), hbz]
     exact hz
   · intro x hx y hxy
     have : x = y := funext fun μ => ZMod.val_injective _ (by simpa using hxy μ)
