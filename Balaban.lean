@@ -700,6 +700,7 @@ public import Balaban.SmallField.XiCompose
 public import Balaban.SmallField.XiComposeField
 public import Balaban.SmallField.XiFour
 public import Balaban.SmallField.XiFourData
+public import Balaban.SmallField.XiComposedData
 public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6ContInhabited
