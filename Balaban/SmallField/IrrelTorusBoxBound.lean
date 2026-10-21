@@ -31,6 +31,9 @@ relevant part of an unselected polymer and, at the cell `□(y)`, by the filed s
   `C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`;
 * `norm_sum_not_relBox_le_power`: so is the sum over the large polymers through `y` of their
   relevant parts (without the factor `e^{-(κ-1) d_j}`);
+* `norm_E_sub_aTermTorus_le_of_not_relBox`: for a large label, `ℰ(y,X) - A_{y,X}` (the label
+  functional of `irrelTorusB` away from the cell) is bounded by
+  `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`;
 * `irrelTorusB_bound_of_dataHyp_of_threshold`: **the label bound of `irrelTorusB`** at every
   polymer `X ∋ y`: `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`
   plus, at the cell, the filed sum of the selection.
@@ -441,6 +444,67 @@ section Label
 
 variable {P : Consts} {a : ℕ → ℝ} {μ ν : ℝ} {Tm : Terms d L N₁ m₁ k N ϱ} {j : ℕ}
   {y : CTorus d L N₁ m₁ k} {X : Set (CTorus d L N₁ m₁ k)} {S : Finset (Site d)}
+
+open Classical in
+/-- **A large label: `ℰ(y,X) - A_{y,X}`** (blocker 6, the labels kept unrenormalized by the
+selection `relBox`): for a polymer `X ∋ y` leaving the box of half-side `r_k` around `y`,
+`|ℰ(y,X) - A_{y,X}| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`,
+`C = relBoxLargeConst`: the termwise part plus the relevant part of a large polymer. -/
+theorem norm_E_sub_aTermTorus_le_of_not_relBox
+    (hP : P.Admissible d L)
+    (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
+    (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
+    (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
+    (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hrel : ¬ relBox P.m₀ y X)
+    (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
+      (fun x => unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x - y)))
+    {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀) {r : ℝ} (hrad : AnisoRadiusOK d L N P j r)
+    {Ψ : Fld d L N₁ m₁ k N} {hv : Fin N → ℂ}
+    (hΨb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x =
+      jBlock d L (N₁ * L ^ m₁) k j x' → Ψ x = Ψ x')
+    {Λ Ksig γ C₀ KR s σ ε K₂ q ρ Cρ : ℝ}
+    (hΛ : 1 ≤ Λ) (hKsig : 0 ≤ Ksig) (hC₀ : 0 < C₀)
+    (dat : DataHypAniso {p | ∃ Ψ' h' : Fld d L N₁ m₁ k N,
+        (∀ z ∈ X, Ψ' z = fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
+            (pack S p.1 p.2) (z - y) ∧
+          h' z = hOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) ν S
+            (pack S p.1 p.2) z) ∧
+        XiDom (Tm.gs j X) a μ j (P.eps d L j) Ψ' h'} ν σ ε K₂
+      (fun v => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j v))
+      ((ν : ℂ) • hv))
+    (hs : 0 < s) (hσs : σ = C₀ * s)
+    (hR : ε / r ≤ KR * s ^ (((d : ℝ) - 2) / 2 - γ))
+    (hε : 0 < ε) (hεΛ : ε ≤ Λ * r) (hσ1 : σ ≤ 1)
+    (hτ : σ ^ 2 * ε ≤ 1 / 4) (hνσ : ν ≤ σ ^ 2)
+    (hK : K₂ ≤ Ksig * σ ^ (2 - P.α₁) * ε)
+    (hcentre : ∀ i, ‖Ψ y i - (Pi.single i₀ 1 : Spin N) i‖ ≤ q)
+    (hb : ∀ i, ‖((ν : ℂ) • hv) i -
+      (ν : ℂ) * (Pi.single i₀ 1 : Spin N) i‖ ≤ r)
+    (hbl : ‖((ν : ℂ) • hv) i₀ - (ν : ℂ)‖ < r ^ 2)
+    (hρ : 0 < ρ)
+    (hbase : q + diamA d L P.m₀ m₁ * (σ * ε) / ρ ≤ r)
+    (hCρ : 0 ≤ Cρ)
+    (hρpow : ρ ^ 3 ≤ Cρ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁))) :
+    ∃ CI : ℝ, 0 ≤ CI ∧
+      ‖Tm.E j y X Ψ (constFld hv) - aTermTorus Tm i₀ j y Ψ X‖ ≤
+        CI * P.E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)) *
+          Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) +
+        relBoxLargeConst d L N P m₁ Λ * P.E₀ *
+          ((L : ℝ) ^ (k - j)) ^ (-((d : ℝ) + (1 - 2 * P.γ - P.α₁))) *
+          Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) := by
+  obtain ⟨CI, hCI0, hCI⟩ := norm_termPart_le_of_dataHyp_of_threshold hP hcl hBg hN hν hμν hνb hj1
+    hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl
+    hρ hbase hCρ hρpow
+  refine ⟨CI, hCI0, ?_⟩
+  have hσ : 0 < σ := by rw [hσs]; positivity
+  have e : Tm.E j y X Ψ (constFld hv) - aTermTorus Tm i₀ j y Ψ X =
+      (Tm.E j y X Ψ (constFld hv) - relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X -
+        aTermTorus Tm i₀ j y Ψ X) + relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X := by ring
+  rw [e]
+  exact (norm_add_le _ _).trans (add_le_add hCI (norm_relPartTorus_le_of_not_relBox hP hcl hBg hν
+    hμν hνb hj1 hjk hN hy hX hyX hrel hne hrad Ψ hv dat hσ hσ1 hε hεΛ hτ))
 
 open Classical in
 /-- **The label bound of the box-renormalized functional** (P1 Corollary 3.11, (3.128), for
