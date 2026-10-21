@@ -17,9 +17,11 @@ fields only through the blocks inside the fine set of `X`) gives the hypothesis 
 `oldCoefLF_eq_zero_of_not_reached`: the old term at the composed multiscale field reads the field on
 the unit points of `Ω_{k+1}` only at the read points `readPts` (the unit points of `A_X`).
 
+* `exists_fine_of_unitOfBlock`: the representative of the unit point of a block, transported to the
+  history torus, lies in the block, with its cubes of `𝕋_k` and `𝕋_{k+1}` (the cover torus and the
+  fine torus of the history are the same torus, `coverScale_eq`);
 * `cubeKOfC_mem_of_blockSub`: the representative of the unit point of a block inside the fine set of
-  `X` has its cube of `𝕋_k` in `X` (the cover torus and the fine torus of the history are the same
-  torus, `coverScale_eq`);
+  `X` has its cube of `𝕋_k` in `X`;
 * `cubeOfC_mem_of_unitPts`: the representative of a unit point of the set of (2.17) lies in
   `Ω_{k+1}`;
 * `oldTermLF_congr_of_locField`: **the old term reads the composed field only at the read points**,
@@ -40,6 +42,42 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
 omit [NeZero M] in
+/-- **The site of the history torus of the representative of a unit point**: for the unit point `b`
+of a `k`-block `y` (`b = unitOfBlock y`), the representative of `b` transported to the history torus
+lies in the block `y`, and its cubes of `𝕋_k` and `𝕋_{k+1}` are the cubes `cubeKOfC` and `cubeOfC`
+of the representative (the cover torus and the fine torus of the history are the same torus,
+`coverScale_eq`). -/
+theorem exists_fine_of_unitOfBlock {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
+    {G' : GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) ϱ'}
+    (b : unitPts G') {y : Torus S.d (M * n K * S.L ^ (K - k))}
+    (hb : (b : UnitTorus S.d S.L (g.c * n (k + 1)) m₁ k) = unitOfBlock g hnn hM1 hk y) :
+    ∃ x : Torus S.d (M * n K * S.L ^ K), jBlock S.d S.L (M * n K) K k x = y ∧
+      LargeField.cubeMap n S.L M K k x =
+        cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 (unitRep b) ∧
+      LargeField.cubeMap n S.L M K (k + 1) x =
+        cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 (unitRep b) := by
+  have hside : (g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1) = M * n K * S.L ^ K := by
+    simpa using coverScale_eq g hnn hM1 (Nat.zero_le (k + 1)) hk
+  refine ⟨LargeField.torusCast hside (unitRep b), ?_, ?_, ?_⟩
+  · have h1 : unitBlock (unitRep b) = unitOfBlock g hnn hM1 hk y := by
+      rw [unitBlock_unitRep, hb]
+    unfold unitBlock unitOfBlock at h1
+    unfold jBlock
+    rw [blockMap_torusCast,
+      ← torusCast_blockMap_right (coverScale_eq g hnn hM1 (Nat.le_succ k) hk), h1]
+    exact torusCast_symm_cast _ y
+  · have e : S.L ^ k * M = S.L ^ k * (g.c * g.M1) := congrArg _ g.hM
+    unfold LargeField.cubeMap cubeKOfC
+    show _ = blockMap _ _ (LargeField.torusCast
+      (congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm (unitRep b))
+    rw [blockMap_torusCast, blockMap_torusCast, e]
+  · have e : S.L ^ (k + 1) * M = S.L ^ (k + 1) * (g.c * g.M1) := congrArg _ g.hM
+    unfold LargeField.cubeMap cubeOfC
+    show _ = blockMap _ _ (LargeField.torusCast
+      (congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm (unitRep b))
+    rw [blockMap_torusCast, blockMap_torusCast, e]
+
+omit [NeZero M] in
 /-- **The cube of `𝕋_k` of the representative of the unit point of a block inside the fine set of
 `X` lies in `X`.** -/
 theorem cubeKOfC_mem_of_blockSub {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
@@ -50,27 +88,9 @@ theorem cubeKOfC_mem_of_blockSub {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
     (hy : BlockSub (S := S) (n := n) (M := M) (K := K) k y
       (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))))) :
     cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 (unitRep b) ∈ X := by
-  have hside : (g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1) = M * n K * S.L ^ K := by
-    simpa using coverScale_eq g hnn hM1 (Nat.zero_le (k + 1)) hk
-  -- the block of the transported site is `y`
-  have hblk : jBlock S.d S.L (M * n K) K k (LargeField.torusCast hside (unitRep b)) = y := by
-    have h1 : unitBlock (unitRep b) = unitOfBlock g hnn hM1 hk y := by
-      rw [unitBlock_unitRep, hb]
-    unfold unitBlock unitOfBlock at h1
-    unfold jBlock
-    rw [blockMap_torusCast,
-      ← torusCast_blockMap_right (coverScale_eq g hnn hM1 (Nat.le_succ k) hk), h1]
-    exact torusCast_symm_cast _ y
-  have hcube : LargeField.cubeMap n S.L M K k (LargeField.torusCast hside (unitRep b)) =
-      cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 (unitRep b) := by
-    have e : S.L ^ k * M = S.L ^ k * (g.c * g.M1) := congrArg _ g.hM
-    unfold LargeField.cubeMap cubeKOfC
-    show _ = blockMap _ _ (LargeField.torusCast
-      (congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm (unitRep b))
-    rw [blockMap_torusCast, blockMap_torusCast, e]
-  have hmem : LargeField.cubeMap n S.L M K k (LargeField.torusCast hside (unitRep b)) ∈
-      (X : Set (Torus S.d (n k))) := hy _ hblk
-  rwa [hcube] at hmem
+  obtain ⟨x, hx, hxk, -⟩ := exists_fine_of_unitOfBlock g hnn hM1 hk b hb
+  have hmem : LargeField.cubeMap n S.L M K k x ∈ (X : Set (Torus S.d (n k))) := hy x hx
+  rwa [hxk] at hmem
 
 omit [NeZero M] in
 /-- **The representative of a unit point of the set of (2.17) lies in `Ω_{k+1}`.** -/
