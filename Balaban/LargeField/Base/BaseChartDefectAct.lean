@@ -18,7 +18,8 @@ radius `r` (`labelSet … r ∅`, of size at most `2 d L (2r/L^{1+m₁}+2)^d`). 
 `defAmp · e^{-κ d(Y)}` for every `κ ≥ 0` (`defTerm_norm_le`, `ncard_le_of_isDj`), depends on the blocks
 of `Y` only (`defTerm_depOn`), and is measurable.  `chartDefectActivity_LabelAct` puts the chart
 and the defect activities into one `LabelAct` on the union of the two label sets, of amplitude the sum
-of the amplitudes.
+of the amplitudes.  The activities are continuous in the block variables when the assembled field is
+(`chartTerm_continuous`, `defTerm_continuous`), which feeds `Pst_Gst_analyticOnNhd`.
 -/
 
 @[expose] public section
@@ -428,6 +429,42 @@ theorem chartDefectActivity_LabelAct {κ0 Kent : ℝ} (hκ0 : aEnt d L + 1 ≤ �
       defTerm_eq_zero_of_not_mem (G := G) (Dm := Dm) (m₀ := m₀) (rD := rD) hY _).symm
   rw [hc, hd2, chartTerm_sum hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD g ρ W hWloc hWan hE hBW hp hU hg
     hsmall hmemAll hVS he (hfld_bd Φ), defTerm_sum, Finset.sum_add_distrib]
+
+open Classical in
+include hFan hWan hE hU hsmall hmemAll hβ hκ hVS hfld_bd in
+/-- **The chart activity is continuous in the block variables** when the assembled field is. -/
+theorem chartTerm_continuous [∀ b, TopologicalSpace (Ωb b)] (hfld_cont : Continuous fld)
+    (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1)) {e : RawData d L (N₁ * L ^ m₁) 1 N}
+    (he : e ∈ V) : Continuous (fun Φ => chartTerm G a ν β g W F m₀ (ρ + L) Y e (fld Φ)) := by
+  have hcont : ∀ (x : G.Ω 1) (Cs : Finset ↥(coverOf G).cubeIdx), ContinuousOn
+      (fun ψ : G.Ω 1 × Fin N → ℂ => coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs)
+      {ψ | ∀ r, ‖ψ r‖ ≤ p₁} := by
+    intro x Cs
+    have h1 := (chartCoef_analyticOnNhd (BG := BG) G a ν β hβ (by linarith) hFan g x W hWan hE
+      (fun u hu => ⟨(hU u hu).1, (hU u hu).2.1⟩) hsmall hmemAll Cs).continuousOn
+    have h2 : ContinuousOn (fun ψ : G.Ω 1 × Fin N → ℂ => (e, ψ)) {ψ | ∀ r, ‖ψ r‖ ≤ p₁} :=
+      (continuous_const.prodMk continuous_id).continuousOn
+    have h3 := h1.comp h2 (fun ψ hψ => ⟨hVS he, hψ⟩)
+    exact h3.congr (fun ψ _ => rfl)
+  unfold chartTerm
+  refine continuous_finsetSum _ fun x _ => continuous_finsetSum _ fun Cs _ => ?_
+  exact (hcont x Cs).comp_continuous hfld_cont hfld_bd
+
+open Classical in
+theorem defTerm_continuous [∀ b, TopologicalSpace (Ωb b)] (hfld_cont : Continuous fld)
+    (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1)) :
+    Continuous (fun Φ => defTerm G Dm m₀ rD Y (fld Φ)) := by
+  have hco : ∀ q : G.Ω 1 × Fin N, Continuous (fun Φ => fld Φ q) := fun q =>
+    (continuous_apply q).comp hfld_cont
+  unfold defTerm
+  refine continuous_finsetSum _ fun x _ => ?_
+  by_cases hl : labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) rD ∅ = Y
+  · simp only [hl, ite_true]
+    unfold defPt
+    refine continuous_finsetSum _ fun i _ => continuous_finsetSum _ fun q _ => ?_
+    exact ((hco (x, i)).mul continuous_const).mul (hco q)
+  · simp only [hl, ite_false]
+    exact continuous_const
 
 end Union
 
