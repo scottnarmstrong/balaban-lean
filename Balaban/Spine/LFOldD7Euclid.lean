@@ -82,6 +82,46 @@ theorem unitBlockPres (H : StepAff S S' A) : UnitBlockPres A.toEquiv := by
   rw [unitBlock_eq_iff, unitBlock_eq_iff]
   exact sameCell_aff_iff A hpos hdv (H.aligned_pow (by omega)) x y
 
+/-- The centres of the covers of `G'` of the two steps. -/
+noncomputable def tau (A : AffIso d ((N₁ * L ^ m₁) * L ^ (k + 1))) :
+    Equiv.Perm (ℕ × CTorus d L N₁ m₁ (k + 1)) := affCentres (m₁ := m₁) A m₁
+
+theorem sym_D (H : StepAff S S' A) : H.latSymm'.sym S.D' = S'.D' := by
+  refine Background.BgData.ext' ?_ ?_
+  · funext y i
+    have := H.hΨ (A.toEquiv.symm y) i
+    have e : A.toFun (A.toEquiv.symm y) = y := A.toFun_invFun y
+    rw [e] at this
+    exact this.symm
+  · funext y i
+    have := H.hh (A.toEquiv.symm y) i
+    have e : A.toFun (A.toEquiv.symm y) = y := A.toFun_invFun y
+    rw [e] at this
+    exact this.symm
+
+theorem a_eq (H : StepAff S S' A) : S'.a = S.a := by
+  simp [HoleStep.a, H.ha₁]
+
+/-- **The decoupled background of the step is transported.** -/
+theorem decBg (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (coverOf S.G')}
+    {s' : Dec2.DecParams (coverOf S'.G')}
+    (hs : ∀ P, Dec2.extS (coverOf S'.G') s' (tau A P) = Dec2.extS (coverOf S.G') s P) :
+    Dec2.decBgField (coverOf S'.G') S'.G' S'.a S'.ν ρ s' S'.D' =
+        H.latSymm'.fld (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ s S.D') ∧
+      Dec2.decBgMult (coverOf S'.G') S'.G' S'.a S'.ν ρ s' S'.D' =
+        H.latSymm'.mul (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν ρ s S.D') := by
+  have hB := decBg2_sym_pair (a := S.a) (ν := S.ν) H.latSymm'
+    (τ := tau A) (τb := affBlocks A)
+    (cover_idx_aff A H.hAl H.hca H.hca' H.hΩ') (cover_chi_aff A H.hAl H.hca H.hca' H.hΩ')
+    (cover_box_aff A) (cover_qset_aff A H.hAl H.hca H.hca' H.hΩ')
+    (block_idx_aff A H.hAl H.hca H.hca' H.hΩ') (fun _ => rfl) (block_bump_aff A)
+    (fun q hq => by
+      obtain ⟨hr, -, hb⟩ := (Background.mem_blockIdx S.G').1 hq
+      exact block_base_aff A H.hAl q hr hb) hs ρ S.D'
+  rw [sym_D H] at hB
+  rw [H.a_eq, H.hν]
+  exact hB
+
 end StepAff
 
 end Balaban.Fluctuation
