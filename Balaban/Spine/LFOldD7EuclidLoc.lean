@@ -294,6 +294,50 @@ theorem holeStepLoc_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (
     holeStepLF_G'_aff g hnn hM1 H H' hk hk1 hρ ψ ψ₁ z h₀ a₁ ν β p₁ δ σ hI,
     locB_aff g hnn hM1 σ hk V]
 
+/-- **The datum of the local step is carried by the lattice symmetry.** -/
+theorem holeStepLoc_D'_aff_Ψ (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (hρ' : 2 ≤ m₁)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (i : Fin N) :
+    (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+      ((coverAff g hnn hM1 σ hk).toEquiv '' V)).D'.Ψ ((coverAff g hnn hM1 σ hk).toFun x) i =
+    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.Ψ x i := by
+  classical
+  have hal1 : (coverAff g hnn hM1 σ hk).Aligned (S.L ^ (k + 1)) :=
+    fun i => dvd_trans (pow_dvd_pow S.L (by omega)) (coverAff_aligned g hnn hM1 σ hk i)
+  set T := Balaban.Fluctuation.latSymmOfΩ (coverAff g hnn hM1 σ hk) hal1
+    (holeStepLoc_G'_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI) with hT
+  have hdata : (coverAff g hnn hM1 σ hk).toFun x ∈
+      dataSites (holeStepLoc g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ
+        ((coverAff g hnn hM1 σ hk).toEquiv '' V)).G' ↔
+      x ∈ dataSites (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' := by
+    rw [mem_dataSites, mem_dataSites]
+    exact or_congr (T.mem_Ω1 x) (T.mem_collar x)
+  have hΩt : (coverAff g hnn hM1 σ hk).toFun x ∈
+      ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))).Ω (k + 1) ↔
+      x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 V)).Ω (k + 1) :=
+    holeStepLoc_G'_aff g hnn hM1 H H' hk hk1 hρ ψ (symM σ ψ) z h₀ a₁ ν β p₁ δ V σ hI (k + 1) x
+  simp only [holeStepLoc_D'_eq, liftMixed, BgData.clip]
+  by_cases hx : x ∈ dataSites ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+      (locB g hM1 V))
+  · have h2 : (coverAff g hnn hM1 σ hk).toFun x ∈
+        dataSites ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+          (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))) := hdata.2 hx
+    rw [if_pos hx, if_pos h2]
+    unfold mixedLift
+    by_cases hΩ : x ∈ ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 V)).Ω (k + 1)
+    · rw [if_pos hΩ, if_pos (hΩt.2 hΩ)]
+      have := blockLift_coverField_symM g hnn hM1 σ hk (k + 1) le_rfl (scaleMulti z ψ) x
+      exact congrFun this i
+    · rw [if_neg hΩ, if_neg (fun h => hΩ (hΩt.1 h))]
+      have := blockLift_coverField_symM g hnn hM1 σ hk k (Nat.le_succ k) ψ x
+      exact congrFun this i
+  · have h2 : (coverAff g hnn hM1 σ hk).toFun x ∉
+        dataSites ((holeStepLF g hnn hM1 H' hk hk1 hρ (symM σ ψ) z h₀ a₁ ν β p₁ δ).G'.inter
+          (locB g hM1 ((coverAff g hnn hM1 σ hk).toEquiv '' V))) := fun h => hx (hdata.1 h)
+    rw [if_neg hx, if_neg h2]
+
 end LocStep
 
 end Balaban.RootFSpine
