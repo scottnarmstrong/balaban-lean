@@ -3331,3 +3331,5 @@ public import Balaban.Green.FinalBoxCloseCoef
 public import Balaban.Green.FinalBoxCloseCut
 public import Balaban.Green.FinalBoxCloseTerm
 public import Balaban.Green.FinalBoxCloseQuarter
+public import Balaban.LargeField.R.WindowSingle
+public import Balaban.LargeField.R.WindowConvPhysCoefPiece

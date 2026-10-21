@@ -43,14 +43,15 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 `genSet_stability`): on the `ℓ¹` ball of radius `2 L^j M` around a set of sites of the piece region,
 the layers `Ω_q`, `1 ≤ q ≤ j + 2`, of the piece's generating set and of the window's agree through
 the identification of the tori. -/
-theorem piece_window_layers_switch (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+theorem piece_window_layers_switchT 
+    {t : ℕ} (hR : BallRadiusOK R m' j t)(hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
     (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
     (Xs : Finset (Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))))
     (hXs : ∀ z ∈ Xs, z ∈ Xfine g (H.locRH (j + 1) c) j c.1)
     (x : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)))
     (hx : ∃ z ∈ Xs, Green.torusDist S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)) z x ≤
-      2 * ((S.L : ℝ) ^ j * M))
+      (t : ℝ) * ((S.L : ℝ) ^ j * M))
     (q : ℕ) (hq1 : 1 ≤ q) (hq : q ≤ j + 1 + 1) :
     x ∈ (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω q ↔
       (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hkK hj))).symm x ∈
@@ -65,24 +66,19 @@ theorem piece_window_layers_switch (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' +
   have hzX : torusCast hT (e.symm z) ∈ Xfine g (H.locRH (j + 1) c) j c.1 := by
     rw [hez]; exact hXs z hz
   have hd : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) (e.symm x) (e.symm z) ≤
-      2 * ((S.L : ℝ) ^ j * M) := by
+      (t : ℝ) * ((S.L : ℝ) ^ j * M) := by
     rw [torusDist_equivCast_symm hT x z, Green.torusDist_comm_gen]; exact hzx
   by_cases hqj : q ≤ j + 1
-  · have := piece_window_layers_iff_ball_two_torusDist hkK hW hj hk1j hK hc hzX hd hq1 hqj
+  · have := piece_window_layers_iff_ball_torusDistT hR hkK hW hj hk1j hK hc hzX hd hq1 hqj
     rwa [hey] at this
   · have hq2 : q = j + 1 + 1 := by omega
     subst hq2
     rcases lt_or_eq_of_le hj with hjm | hjm
     · have hL := H.F.ok.two_le_L
-      have ht : 2 ≤ ⌊R (j + 1)⌋₊ := by
-        refine Nat.le_floor ?_
-        have := g.hRlow (j + 1)
-        have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
-        have : (2 : ℝ) ≤ S.L := by exact_mod_cast hL
-        push_cast; linarith
-      have hsup : supDist (e.symm x) (e.symm z) ≤ 2 * (S.L ^ j * M) := by
+      have ht : t ≤ ⌊R (j + 1)⌋₊ := hR.2.2.2
+      have hsup : supDist (e.symm x) (e.symm z) ≤ t * (S.L ^ j * M) := by
         have := supDist_le_torusDist (e.symm x) (e.symm z)
-        have h2 : (supDist (e.symm x) (e.symm z) : ℝ) ≤ ((2 * (S.L ^ j * M) : ℕ) : ℝ) := by
+        have h2 : (supDist (e.symm x) (e.symm z) : ℝ) ≤ ((t * (S.L ^ j * M) : ℕ) : ℝ) := by
           push_cast; linarith
         exact_mod_cast h2
       obtain ⟨h1, h2⟩ := piece_window_layers_empty_above_ball hkK hW hjm hk1j hK hc hzX ht hsup
@@ -98,5 +94,24 @@ theorem piece_window_layers_switch (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' +
         rw [((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).top]
         exact Finset.notMem_empty _
       exact iff_of_false h1 h2
+
+/-- **The layer agreement of the switch** (P7 (2.14), geometric half, in the form of
+`genSet_stability`): on the `ℓ¹` ball of radius `2 L^j M` around a set of sites of the piece region,
+the layers `Ω_q`, `1 ≤ q ≤ j + 2`, of the piece's generating set and of the window's agree through
+the identification of the tori. -/
+theorem piece_window_layers_switch (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    (Xs : Finset (Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))))
+    (hXs : ∀ z ∈ Xs, z ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (x : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)))
+    (hx : ∃ z ∈ Xs, Green.torusDist S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)) z x ≤
+      2 * ((S.L : ℝ) ^ j * M))
+    (q : ℕ) (hq1 : 1 ≤ q) (hq : q ≤ j + 1 + 1) :
+    x ∈ (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω q ↔
+      (Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hkK hj))).symm x ∈
+        ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω q :=
+  piece_window_layers_switchT (hkK := hkK) (hW := hW) (hj := hj) (hk1j := hk1j) (hK := hK) (hc := hc) (Xs := Xs) (hXs := hXs) (x := x) (hx := hx) (q := q) (hq1 := hq1) (hq := hq)
+    (t := 2) (hR := ballRadiusOK_two H g m' j)
 
 end Balaban.LargeField
