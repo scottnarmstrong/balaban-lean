@@ -8,6 +8,9 @@ module
 public import Balaban.Inhabited.NewLevelSystem
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Fluctuation.LocalClassDensityIrrelChainX
+public import Balaban.Fluctuation.OldTermBirthDomain
+public import Balaban.Fluctuation.ClassOldCoverBirth
+public import Balaban.Fluctuation.LocalClassDensityIrrelSuppLen
 
 /-!
 # The fields of the inherited terms from the class (route R-LOC, L5; ruling R13)
@@ -23,7 +26,13 @@ ruling R2) and the bound is given on the term domain (the open input A4-1b (ii),
 * `irrelTorus_fields_of_class`: analyticity and spin covariance of the irrelevant term of a label
   on any rotation-invariant set of its term domain (with `Ψ(y)·Ψ(y)` in the slit plane);
 * `irrelTorus_bound_of_class`: the bound of the irrelevant term on such a set, in the size of a
-  cover `XL ⊇ X` with `d(XL) ≤ d(X) + c`, from its bound on the term domain.
+  cover `XL ⊇ X` with `d(XL) ≤ d(X) + c`, from its bound on the term domain;
+* `NewLevelSystem.oldTerm_charts_of_class`: for a system whose old terms are the irrelevant terms of
+  a class on the birth-mass domain (`OldTermsAreIrrel`, ruling R13), the analyticity, the bound and
+  the spin covariance of `β⁻¹ Eτ` on the chart `Ξ^c_j(Gj τ; b, e)` of the step, in the size of the
+  polymer `O.XL τ = X ∪ □(y)`, from the class clauses and the bound of the class on its term domain
+  (the open input A4-1b (ii), P1 (3.128)), through the inclusion of the chart in the term domain
+  (`xiCRaw_mem_birthXiDom`).
 -/
 
 @[expose] public section
@@ -99,5 +108,102 @@ theorem irrelTorus_bound_of_class {m₀ : ℕ} {Tm : Terms d L N₁ m₁ (k + 1)
     _ = _ := by ring
 
 end Fields
+
+section Charts
+
+variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
+
+/-- **The fields of the old terms of a system of the class on the step's charts** (route R-LOC, L5;
+rulings R2, R6, R13).  Let the old terms of `NS` be the irrelevant terms of the class `C`, composed on
+its generating sets (`OldTermsAreIrrel`), the class terms satisfy the clauses on the birth-mass
+domain `birthXiDom P Rg a` (`hcl`), the class weights be the step's (`hA`), the birth mass of every
+level `j ≤ k` be `ν (1 + t_j)` with `|t_j| ≤ τm < r ≤ 1/16` (`hμ`), and let the (DL-gap) and the
+smallness of `ε_j` of `xiCRaw_mem_birthXiDom` hold at every level `j ≤ k`.  If the irrelevant term
+of every label is bounded by `B_l(j, y, X) e^{-(κ_dec - 1) d(X)}` on its term domain (`hB`, the open
+input A4-1b (ii), P1 (3.128)), then on the chart `Ξ^c_j(Gj τ; b, e)` of the step the function
+`β⁻¹ Eτ` is analytic, bounded by `|β|⁻¹ B_l e^{(κ_dec - 1) c_G} e^{-(κ_dec - 1) d(O.XL τ)}` and
+invariant under the real rotations, where `(jL τ, y τ, X τ)` is the label of `τ`. -/
+theorem NewLevelSystem.oldTerm_charts_of_class [NeZero N] {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr) (hO : OldTermsAreIrrel S C NS.O)
+    {P : Consts} (Rg : Regime L) (a : ℕ → ℝ) (hPm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P (birthXiDom P Rg a N₁) C.Tm)
+    (hA : aIdeal L (k + 1) (a (k + 1)) = compWeight L S.a₁)
+    (H : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν)
+    (H' : ∀ j, 1 ≤ j → j ≤ k → BgHyp d L (k + 1) ϱ (compWeight L S.a₁) (physMass L j (Rg.ν j)))
+    {b e τm r : ℝ} (hb : 1 ≤ b) (he : 0 < e)
+    (hμ : ∀ j, 1 ≤ j → j ≤ k → ∃ tm, physMass L j (Rg.ν j) = S.ν * (1 + tm) ∧ |tm| ≤ τm)
+    (hτr : τm < r) (hr : r ≤ 1 / 16)
+    (hDL : ∀ j, 1 ≤ j → j ≤ k →
+      (2 * (b ^ 2 * e) + 2 * ((N : ℝ) + 1) * (cK2 d L N * (b ^ 2 * e) ^ 2)) *
+        (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τm) ≤ P.eps d L j)
+    (hsmε : ∀ j, 1 ≤ j → j ≤ k → (4 * d + 6) * ((2 * d + 1) * P.eps d L j) ≤ 1)
+    (hc1ε : ∀ j, 1 ≤ j → j ≤ k → 4 * (xiC1 d * P.eps d L j) ≤ bgC1 d L N)
+    (hKε : ∀ j, 1 ≤ j → j ≤ k → bgK1 d L N * (xiC1 d * P.eps d L j) + 3 * r ≤ deltaStar d L N)
+    (hζε : ∀ j, 1 ≤ j → j ≤ k → 8 * P.eps d L j * r ≤ deltaStar d L N)
+    {κdec : ℝ} (hκ : 1 ≤ κdec)
+    (Bl : ℕ → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → ℝ)
+    (hBl : ∀ j y X, 0 ≤ Bl j y X)
+    (hB : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ m₁ (k + 1))
+      (X : Set (CTorus d L N₁ m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
+      ∀ Ψ h : Fld d L N₁ m₁ (k + 1) N, (birthXiDom P Rg a N₁).dom j (C.Tm.gs j X) Ψ h →
+      dot (Ψ y) (Ψ y) ∈ Complex.slitPlane →
+      ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X Ψ h‖ ≤
+        Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X)) :
+    ∃ (y : NS.O.ι → CTorus d L N₁ m₁ (k + 1)) (X : NS.O.ι → Set (CTorus d L N₁ m₁ (k + 1))),
+      (∀ τ, 1 ≤ NS.O.jL τ ∧ NS.O.jL τ ≤ k ∧ IsPolyDom C.m₀ (NS.O.jL τ) (X τ) ∧ y τ ∈ X τ) ∧
+      (∀ τ, AnalyticOnNhd ℂ (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
+        (XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e)) ∧
+      (∀ τ, ∀ r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e,
+        ‖(S.β : ℂ)⁻¹ * NS.O.Eτ τ r‖ ≤
+          |S.β|⁻¹ * Bl (NS.O.jL τ) (y τ) (X τ) * Real.exp ((κdec - 1) * cG d L) *
+            Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (NS.O.XL τ))) ∧
+      (∀ τ (Q : Matrix (Fin N) (Fin N) ℝ), Qᵀ * Q = 1 →
+        ∀ r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e,
+          (S.β : ℂ)⁻¹ * NS.O.Eτ τ (rotRaw (cmat Q) r) = (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) := by
+  obtain ⟨hm, i₀, i₁, y, X, hE, hlab⟩ := hO
+  have hN : L ^ C.m₀ ∣ N₁ := hm ▸ NS.OS.hN
+  -- the chart of the step lies in the term domain of the class
+  have hdom : ∀ τ, ∀ r : RawData d L (N₁ * L ^ m₁) (k + 1) N,
+      r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e →
+      (birthXiDom P Rg a N₁).dom (NS.O.jL τ) (C.Tm.gs (NS.O.jL τ) (X τ)) r.1 r.2 ∧
+        dot (r.1 (y τ)) (r.1 (y τ)) ∈ Complex.slitPlane := by
+    intro τ q hq
+    obtain ⟨hGj, hj1, hjk, -, hX, hy, -⟩ := hlab τ
+    rw [hGj] at hq
+    have hXP : IsPolyDom P.m₀ (NS.O.jL τ) (X τ) := hPm ▸ hX
+    obtain ⟨tm, hmeq, htm⟩ := hμ _ hj1 hjk
+    have h := xiCRaw_mem_birthXiDom P Rg a hA H (H' _ hj1 hjk)
+      (gs_top_layer_empty_of_clauses hcl hj1 (hjk.trans (Nat.le_succ k)) hXP) hb he hmeq htm hτr
+      hr (hDL _ hj1 hjk) (hsmε _ hj1 hjk) (hc1ε _ hj1 hjk) (hKε _ hj1 hjk) (hζε _ hj1 hjk) q hq
+    refine ⟨h.1, h.2 _ ?_⟩
+    exact (mem_dataSites (G := C.Tm.gs (NS.O.jL τ) (X τ))).2
+      (Or.inl ((hcl.gs_spec _ hj1 (hjk.trans (Nat.le_succ k)) _ hXP).1 hy))
+  refine ⟨y, X, fun τ => ⟨(hlab τ).2.1, (hlab τ).2.2.1, (hlab τ).2.2.2.2.1,
+    (hlab τ).2.2.2.2.2.1⟩, fun τ => ?_, fun τ => ?_, fun τ Q hQ => ?_⟩
+  · obtain ⟨-, hj1, hjk, -, hX, hy, -⟩ := hlab τ
+    have hf := (irrelTorus_fields_of_class hcl C.m₀ i₀ i₁ hj1 (hjk.trans (Nat.le_succ k))
+      (hPm ▸ hX) hy (hdom τ) S.β).1
+    exact fun r hr => by
+      rw [show (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) = fun r =>
+        (S.β : ℂ)⁻¹ * irrelTorus C.m₀ C.Tm i₀ i₁ (NS.O.jL τ) (y τ) (X τ) r.1 r.2 from
+        funext fun r => by rw [hE τ r]]
+      exact hf r hr
+  · obtain ⟨-, hj1, hjk, -, hX, hy, hXL⟩ := hlab τ
+    have hle : treeLenCovOne C.m₀ (NS.O.jL τ) (NS.O.XL τ) ≤
+        treeLenCovOne C.m₀ (NS.O.jL τ) (X τ) + cG d L := by
+      rw [hXL]
+      exact treeLenCovOne_support_le hN (hjk.trans (Nat.le_succ k)) hX hy
+    intro r hr
+    rw [hE τ r, hm]
+    exact irrelTorus_bound_of_class (Dom := birthXiDom P Rg a N₁) (hBl _ _ _) hκ hle
+      (fun Ψ h hD hs => hB i₀ i₁ _ _ _ hj1 hjk hX hy Ψ h hD hs) (hdom τ) S.β r hr
+  · obtain ⟨-, hj1, hjk, -, hX, hy, -⟩ := hlab τ
+    intro r hr
+    rw [hE τ r, hE τ]
+    exact (irrelTorus_fields_of_class hcl C.m₀ i₀ i₁ hj1 (hjk.trans (Nat.le_succ k))
+      (hPm ▸ hX) hy (hdom τ) S.β).2 Q hQ r hr (rotRaw_mem_xiCRaw hQ hr)
+
+end Charts
 
 end Balaban.Inhabited
