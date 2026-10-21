@@ -22,7 +22,9 @@ import Mathlib.Tactic.Linarith
 `θ_± = (d-2) log L`, `α = 1`, `p₀ = d + 2`, `p₂ = 2d + 3`, `p_R = 4d + 4`, `c_v = 5 M^d`,
 `c_H = d² log L`, `c₀ = 10`), the budget constants are `c₁ = c₂ = 0`, `H₀ = 2` and `ϱ = R₀(d, L)`
 (`bgR0`). The clauses of `PrefixInput` are jointly satisfiable at every
-`L ≥ 3`; no clause forces `L = 7`.
+`L ≥ 3`; no clause forces `L = 7`.  The core `prefixInput_exists_of` takes the radius constant
+`α₀` and the flow constant `c₈` as parameters (the ties of the new level, `Spine/NewLevelTies.lean`,
+ask both small).
 -/
 
 @[expose] public section
@@ -119,12 +121,17 @@ theorem prefixTyping_ok {d L m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) : (prefix
   c0_sP := by show 5 + 1 ≤ 10; norm_num
   Cr_le := le_refl _
 
-/-- **`PrefixInput` is satisfiable** at every `d ≥ 3`, every `L ≥ 3` and every `0 < δ < 1/2`. -/
-theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
-    (hδ' : δ < 1 / 2) :
+/-- **Core of `prefixInput_exists`: the witness at any radius constant `α₀ > 0` and any flow
+constant `0 < c₈` with `c₈ q ≤ (1 - q)/20`, `q = L^{-2γ}`, `γ = (1 + 2δ)/4`.**  The constants of the
+witness have `L` as block size, `γ = (1 + 2δ)/4`, and the given `α₀`, `c₈`. -/
+theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
+    (hδ' : δ < 1 / 2) {α₀ c₈ : ℝ} (hα₀ : 0 < α₀) (hc₈ : 0 < c₈)
+    (hc₈q : c₈ * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
+      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))) :
     ∃ (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
       (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
-      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ := by
+      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧
+        (P6 κ c₉).γ = (1 + 2 * δ) / 4 ∧ (P6 κ c₉).α₀ = α₀ ∧ (P6 κ c₉).c₈ = c₈ := by
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hL2 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
   have hLpos : (0 : ℝ) < (L : ℝ) ^ 2 := by linarith
@@ -147,18 +154,17 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
     Flow.rate_pos (by linarith) _
   have hq1 : Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) < 1 :=
     Flow.rate_lt_one (by linarith) (by linarith)
-  have hc8 : 0 < (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) /
-      (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) := div_pos (by linarith) (by positivity)
   refine ⟨fun _ _ => prefixTyping d L (2 + s),
     fun κ c₉ => ⟨(1 + 2 * δ) / 4, (1 - 2 * δ) / 4,
       ((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2), 0,
-      (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) / (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)),
-      c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2)), 1, 1,
+      c₈,
+      c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2)), α₀, 1,
       7 / 8 * ((L : ℝ) ^ 2)⁻¹, fun _ => 1, 1⟩,
     fun _ _ => ⟨2 + s, 1, 0, 1, 0⟩, fun _ _ => ⟨0, 0, 2, fun _ => 1⟩,
     fun _ _ => ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, 0,
       fun _ => 0, fun _ => 0, 5 / 4, 0, 1⟩,
-    fun _ _ => L ^ s, fun _ _ => L ^ 3, fun _ _ => Background.bgR0 d L, ?_⟩
+    fun _ _ => L ^ s, fun _ _ => L ^ 3, fun _ _ => Background.bgR0 d L, ?_,
+    fun _ _ => ⟨rfl, rfl, rfl, rfl⟩⟩
   intro κ hκ c₉ hc₉
   have : NeZero L := ⟨by omega⟩
   have haE := Balaban.Fluctuation.aEnt_nonneg d L
@@ -170,7 +176,7 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
     have h2 : (64 : ℝ) / 81 ≤ (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2 := by nlinarith
     show (9 : ℝ) / 10 ≤ 5 / 4 * (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2
     nlinarith
-  · refine ⟨?_, ?_, ?_, ?_, by norm_num, hκf, mul_pos (by norm_num) hinv0, ?_, hc8, le_rfl⟩ <;>
+  · refine ⟨?_, ?_, ?_, ?_, hα₀, hκf, mul_pos (by norm_num) hinv0, ?_, hc₈, le_rfl⟩ <;>
       (try simp only [prefixTyping_L]) <;> linarith
   · show 0 < c₉ / 2 * Real.exp _
     positivity
@@ -191,12 +197,24 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
         _ ≤ L ^ (1 + (2 + s)) := Nat.pow_le_pow_right (by omega) (by omega)
     · show ((L ^ (1 + (2 + s)) : ℕ) : ℝ) ^ d * (2 + 0 + 3) ≤ ((L ^ (1 + (2 + s)) : ℕ) : ℝ) ^ d * 5
       norm_num
-  · show (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) / (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) *
-        Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
-      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))
-    refine le_of_eq ?_
-    field_simp
+  · exact hc₈q
   · show Balaban.Fluctuation.aEnt d L + 1 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) +
       Balaban.Fluctuation.aEnt d L + 2
     have : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by positivity
     linarith
+
+/-- **`PrefixInput` is satisfiable** at every `d ≥ 3`, every `L ≥ 3` and every `0 < δ < 1/2`. -/
+theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
+    (hδ' : δ < 1 / 2) :
+    ∃ (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
+      (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
+      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ := by
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hq0 : 0 < Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) := Flow.rate_pos (by linarith) _
+  have hq1 : Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) < 1 :=
+    Flow.rate_lt_one (by linarith) (by linarith)
+  obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h, -⟩ := prefixInput_exists_of d L hd hL hδ hδ'
+    (α₀ := 1) (c₈ := (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) /
+      (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))) one_pos (div_pos (by linarith) (by positivity))
+    (le_of_eq (by field_simp))
+  exact ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h⟩
