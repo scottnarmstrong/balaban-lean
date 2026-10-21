@@ -240,6 +240,53 @@ theorem psiJ_xiDom {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 ≤ S
   rw [hpsi]
   exact hxi
 
+/-- **The level-`k` lift of `ψ_k` in the analyticity domain of the terms `ℛ^{(k)}_n`, on the
+`χ`-support.** For a generating set with empty layers above `j + 1`, standing hypotheses `BgHyp` at a
+mass `ν_R` with `ν_R L^{2(j+1)} ≤ 4 ν L^{-2(j+1)} L^{2(j+1)}`, and radius `2 · 4 (d+1) δ_k` below
+`min (c₀, c₁)` and `(2 K₁ + 2)` times it at most `ε`: the lift `sfLiftK ψ_k` of the block field to the
+Def-6 torus lies in `Ξ^c_{j+1}(𝔹; 1, ε)`. -/
+theorem sfLiftK_xiDom (hL : 3 ≤ S.L) {ν : ℝ}
+    (hν : 0 < ν) (hunit : ‖hv‖ = 1) (hδ : 0 < C.cs.delta (j + 1))
+    (hδ1 : (S.d + 1) * C.cs.delta (j + 1) ≤ 1)
+    (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hμBg : C.cs.muBg (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hχ : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv ≠ 0)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    {a : ℕ → ℝ} {νR : ℝ} (Hb : BgHyp S.d S.L (j + 1) ϱ a νR)
+    (gs : GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) (j + 1) ϱ)
+    (hΩ : ∀ i, j + 1 < i → gs.Ω i = ∅)
+    (hmm : νR * ((S.L : ℝ) ^ (j + 1)) ^ 2 ≤
+      4 * (sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2))
+    {ε : ℝ}
+    (hc0 : 2 * (4 * (S.d + 1) * C.cs.delta (j + 1)) ≤ bgC0 S.d S.L N)
+    (hc1 : 2 * (4 * (S.d + 1) * C.cs.delta (j + 1)) ≤ bgC1 S.d S.L N)
+    (hε : (2 * bgK1 S.d S.L N + 2) * (2 * (4 * (S.d + 1) * C.cs.delta (j + 1))) ≤ ε) :
+    Def6.XiDom gs a νR (j + 1) ε (sfLiftK C.geo C.hnn C.hkK C.hT ψk) (Def6.constFld (hC hv)) := by
+  have hL2 : 2 ≤ S.L := by omega
+  have hHBmu : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.mu (j + 1)) := by
+    rw [hμ, ← hμBg]; exact HB
+  have hP := inPsiTilde_genW_univ_late C ψk hv hL2 hν hunit hδ hδ1 hμ hχ hHBmu
+  have hA := allSitesBounds_of_inPsiTilde (G := C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+    (jj := j + 1) (by omega) le_rfl (fun x => by
+      rw [genW_Ω_univ_of_le C le_rfl]; exact Finset.mem_univ _)
+    (C.genW (Set.univ : Set (Torus S.d (n (j + 1))))).top hP
+  have hηpos : 0 < 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) := by positivity
+  have hA2 := hA.weaken hηpos hmm
+  have hNN : C.N₁ * S.L ^ m₁ = C.geo.M1 * (C.geo.c * n (j + 1)) := by
+    have hpos : 0 < S.L ^ (j + 1) := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne S.L))
+    exact Nat.eq_of_mul_eq_mul_right hpos C.hT
+  have hA3 := AllSitesBounds.cast (N₀ := C.N₁ * S.L ^ m₁) hNN C.hT hA2
+  have hxi := xiDom_of_allSites (G := gs) Hb hΩ le_rfl (by linarith) hc0 hc1 hε
+    (fun x => parentPsi C ψk (torusCast C.hT x)) (fun i => hv i)
+    ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
+  have hlift : sfLiftK C.geo C.hnn C.hkK C.hT ψk =
+      fun x i => ((parentPsi C ψk (torusCast C.hT x) i : ℝ) : ℂ) := by
+    funext x i
+    unfold sfLiftK parentPsi sfToBg
+    rw [jBlock_bgToFine C]
+  rw [hlift]
+  exact hxi
+
 end Ctx
 
 end Balaban.RootFSpine
