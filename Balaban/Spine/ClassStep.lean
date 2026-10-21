@@ -378,7 +378,7 @@ def FlowRateInput : Prop :=
 theorem flowRateInput_of_prefix {d : ℕ} {δ : ℝ} {T : ℝ → ℝ → Typing} {P6 : ℝ → ℝ → Def6.Consts}
     {C7 : ℝ → ℝ → Consts7} {PB : ℝ → ℝ → BudgetConsts} {cs₀ : ℝ → ℝ → OpConsts}
     {M1 c : ℝ → ℝ → ℕ} {ϱ : ℝ → ℝ → ℝ} (hA1 : PrefixInput d δ T P6 C7 PB cs₀ M1 c ϱ) :
-    FlowRateInput T P6 := fun κ hκ c₉ hc₉ => (hA1 κ hκ c₉ hc₉).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+    FlowRateInput T P6 := fun κ hκ c₉ hc₉ => (hA1 κ hκ c₉ hc₉).2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
 
 /-- **The class step from its sub-inputs** (LFR Theorem IV.3.2 (a)–(d) for `1 ≤ k < k₀`): LF-3
 (`SFStepInput`) gives `ρ' ∈ ℛ^pre_{k+1}` with `∫ ρ' = c ∫ ρ`; the coefficient step

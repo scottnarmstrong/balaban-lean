@@ -348,7 +348,13 @@ and the constant conditions of the typing and of the background theory (`TypingC
 is `Typing.Ok` in dimension `d`, the windows of (H-λ), the conditions of Lemma B on `H₀, c₁, M, c_v`;
 and `R₀(d, L) ≤ ϱ`, the separation of the generating sets, `bgR0`);
 
-and the coefficient rate (row 10, `c₈ ∈ (0, c₈′]`): `FlowRateAt`, `c₈ q ≤ (1 - q)/20`). -/
+and the coefficient rate (row 10, `c₈ ∈ (0, c₈′]`): `FlowRateAt`, `c₈ q ≤ (1 - q)/20`;
+
+and the two choices of constants of the source: `A₀ > 0` (Definition II.1.1: `δ_j = A₀ β_j^{-1/2}
+(log β_j)^{p₀}` is a positive tolerance, so that the characteristic functions `χ_j` are not
+identically zero) and `M₁` large, namely the separation `ϱ₃ = 5 L M₁` of the minimal generating sets
+(P3 (4.4)–(4.6)) is at least `R₀(d, L)` (`bgR0`), the separation that the background theory needs;
+`M = c M₁` with `c ≥ 14` leaves `M₁` free, since `m₁` is free). -/
 def PrefixInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ →
     3 ≤ (T κ c₉).L ∧
@@ -362,7 +368,8 @@ def PrefixInput : Prop :=
     (3 : ℝ) ^ (d + 1) * ((T κ c₉).L : ℝ) ^ (2 * d + 1) * (κ + 1) ≤ (P6 κ c₉).κ ∧
     (P6 κ c₉).c₉ ≤ c₉ / 2 * Real.exp (-(P6 κ c₉).κ) ∧
     TypingClauses d T PB κ c₉ ∧ Background.bgR0 d (T κ c₉).L ≤ ϱ κ c₉ ∧
-    FlowRateAt T P6 κ c₉
+    FlowRateAt T P6 κ c₉ ∧
+    0 < (C7 κ c₉).A0 ∧ Background.bgR0 d (T κ c₉).L ≤ minSep (T κ c₉).L (M1 κ c₉)
 
 /-- **A3 (the base step, LF-6; LFR Theorem II.7.10 (a), (b); P4 (2.42)–(2.54), pp. 691–694; P5 p.
 487).** For `β ≥ β₀`, `0 < ν ≤ 7/8 L⁻²` (so that `k_f ≥ 1`), every unit field `h` and the horizon
