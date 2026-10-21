@@ -812,6 +812,18 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   the named Prop 3.3 on a region over the fields (with the field properties of `H_y` for (iii)-d), the uniformity of the
   constants of `I` over the fields, and `OldResumSite` (W1154 next).
 
+* **Status after W1154b (2026-10-21): the named input `H7MixedDatumLoc` is FALSE as stated** (`Spine/LFOldH7Refute.lean`:
+  `not_h7MixedDatumLoc`, `not_h7MixedDatumLoc_of_le_c7`; axioms `propext, Classical.choice, Quot.sound`). At zero sharp
+  mass the H7 cube tests (`DeltaC`: BG's union domain, complex radius `c₀`) admit the complex rotation
+  `cosh t e_{i₀} - i sinh t e_{i₁}` of a constant unit field (`h7Domain_rotConst`), whose datum is outside
+  `Ψ̃^c(δ_b, δ_b)`, `δ_b ≤ c₇ ≤ c₀/8`. So the theorems of pieces 5c–5q that take `hDat` (`norm_oldCoefLoc_le_of_inputs`,
+  `norm_oldMarkLF_le`, `oldClusterLF_spec`, `norm_oldBAt_le`, `norm_oldB_le`, …) say nothing below `k₀`. Further defects
+  of reading HS-1′ (independent of the radius): the quantification over `Y_f` (D1), the stencil of the H7 domain of `X`
+  not covered by `V(X, J)` (D2, `H7MixedInnerLoc` fails when `X` touches `Ω_{k+1}` far from `A_X`), and the datum of the
+  local pair reading `ψ_k` on `Ω_{k+1}` (D3; reading HS-2 proposed: restrict the global mixed lift). Ruling request and
+  repairs: `notes/phase1/PLAN-B.md`, "Obstruction (W1154b, 2026-10-21)". Blocker 3 (`LFBdryOldInput`) waits for the
+  ruling on the complex radius of the H7 domain.
+
 ## LastIntegralInput sub-inputs (W1108)
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
