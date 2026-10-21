@@ -2182,6 +2182,7 @@ public import Balaban.LargeField.Base.BaseHull
 public import Balaban.LargeField.Base.BaseHullTwoTorus
 public import Balaban.LargeField.Base.BaseDefectPoly
 public import Balaban.LargeField.Base.BaseFirstRDecomp
+public import Balaban.LargeField.Base.BaseChartCore
 public import Balaban.LargeField.Base.BaseDetTwoTorus
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
