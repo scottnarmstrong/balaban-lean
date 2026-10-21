@@ -32,6 +32,36 @@ variable {d L N₀ N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} (G : GeneratingS
 variable {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ} {η : ℝ} {s : FineBond d L N₀ → ℂ}
   (e : G.Ω 1 → Fin N → ℝ)
 
+/-- The number of indices within distance `ρ` (a natural number) of a given one is at most
+`N (2ρ + 1)^d`. -/
+theorem card_indexDist_le (p : G.Ω 1 × Fin N) (ρ : ℕ) :
+    ((Finset.univ.filter fun q : G.Ω 1 × Fin N => indexDist (N := N) G p q ≤ (ρ : ℝ)).card : ℝ) ≤
+      N * (2 * ρ + 1) ^ d := by
+  classical
+  set B : Finset (G.Ω 1) := Finset.univ.filter fun y : G.Ω 1 => siteDist G p.1 y ≤ (ρ : ℝ) with hB
+  have hsub : (Finset.univ.filter fun q : G.Ω 1 × Fin N =>
+      indexDist (N := N) G p q ≤ (ρ : ℝ)) ⊆ B ×ˢ (Finset.univ : Finset (Fin N)) := by
+    intro q hq
+    rw [Finset.mem_filter] at hq
+    simp only [Finset.mem_product, hB, Finset.mem_filter, Finset.mem_univ, true_and, and_true]
+    exact hq.2
+  have hBcard : B.card ≤ (2 * ρ + 1) ^ d := by
+    have hmaps : Set.MapsTo (fun y : G.Ω 1 => y.1) (B : Set (G.Ω 1))
+        (↑(Finset.univ.filter fun z : Torus d (N₀ * L ^ 1) => torusDist d (N₀ * L ^ 1) p.1.1 z ≤ ρ)) := by
+      intro y hy
+      simp only [hB, Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq] at hy
+      simpa [siteDist] using hy
+    exact (Finset.card_le_card_of_injOn _ hmaps Subtype.val_injective.injOn).trans
+      (card_ball_le _ ρ)
+  calc ((Finset.univ.filter fun q : G.Ω 1 × Fin N =>
+        indexDist (N := N) G p q ≤ (ρ : ℝ)).card : ℝ)
+      ≤ ((B ×ˢ (Finset.univ : Finset (Fin N))).card : ℝ) := by exact_mod_cast Finset.card_le_card hsub
+    _ = B.card * N := by simp
+    _ ≤ (2 * ρ + 1) ^ d * N := by
+        gcongr
+        exact_mod_cast hBcard
+    _ = N * (2 * ρ + 1) ^ d := by ring
+
 /-- **The row sums of the whitening.** -/
 theorem matRowSum_baseWhiteW_le [Nonempty (G.Ω 1)] [NeZero N] (hν : 0 ≤ ν)
     (ha : IsAdmissibleWeights 1 a) (hα : ∀ z, ‖α z‖ ≤ 1 / (8 * (L : ℝ) ^ 2)) (hη0 : 0 ≤ η)
@@ -62,32 +92,10 @@ theorem matRowSum_baseWhiteW_le [Nonempty (G.Ω 1)] [NeZero N] (hν : 0 ≤ ν)
         indexDist (N := N) G p q ≤ (R : ℝ) * baseRange d L).card : ℝ) ≤
         N * (2 * (R * (d * L + 1)) + 1) ^ d := by
     intro p
-    have hρ : (R : ℝ) * baseRange d L = ((R * (d * L + 1) : ℕ) : ℝ) := by
-      unfold baseRange; push_cast; ring
-    set Rn : ℕ := R * (d * L + 1) with hRn
-    set B : Finset (G.Ω 1) := Finset.univ.filter fun y : G.Ω 1 => siteDist G p.1 y ≤ (Rn : ℝ) with hB
-    have hsub : (Finset.univ.filter fun q : G.Ω 1 × Fin N =>
-        indexDist (N := N) G p q ≤ (R : ℝ) * baseRange d L) ⊆ B ×ˢ (Finset.univ : Finset (Fin N)) := by
-      intro q hq
-      rw [Finset.mem_filter, hρ] at hq
-      simp only [Finset.mem_product, hB, Finset.mem_filter, Finset.mem_univ, true_and, and_true]
-      exact hq.2
-    have hBcard : B.card ≤ (2 * Rn + 1) ^ d := by
-      have hmaps : Set.MapsTo (fun y : G.Ω 1 => y.1) (B : Set (G.Ω 1))
-          (↑(Finset.univ.filter fun z : Torus d (N₀ * L ^ 1) => torusDist d (N₀ * L ^ 1) p.1.1 z ≤ Rn)) := by
-        intro y hy
-        simp only [hB, Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq] at hy
-        simpa [siteDist] using hy
-      exact (Finset.card_le_card_of_injOn _ hmaps Subtype.val_injective.injOn).trans
-        (card_ball_le _ Rn)
-    calc ((Finset.univ.filter fun q : G.Ω 1 × Fin N =>
-          indexDist (N := N) G p q ≤ (R : ℝ) * baseRange d L).card : ℝ)
-        ≤ ((B ×ˢ (Finset.univ : Finset (Fin N))).card : ℝ) := by exact_mod_cast Finset.card_le_card hsub
-      _ = B.card * N := by simp
-      _ ≤ (2 * Rn + 1) ^ d * N := by
-          gcongr
-          exact_mod_cast hBcard
-      _ = N * (2 * (R * (d * L + 1)) + 1) ^ d := by push_cast [hRn]; ring
+    have := card_indexDist_le G p (R * (d * L + 1))
+    push_cast at this
+    unfold baseRange
+    exact this
   have hrow : ∀ p : G.Ω 1 × Fin N, ∑ q, ‖baseWhiteW G a ν α s e R p q‖ ≤
       N * (2 * (R * (d * L + 1)) + 1) ^ d *
         (c * Real.sqrt (1 - Real.sqrt (1 - ((baseCoercivity L / 2) / baseJ d ν) ^ 2))⁻¹) := by
