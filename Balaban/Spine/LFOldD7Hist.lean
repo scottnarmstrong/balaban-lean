@@ -243,4 +243,50 @@ theorem holeStepLoc_congr_hist (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk :
   obtain ⟨hG, hG'⟩ := holeStepLF_inter_congr g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL hWag hOm
   exact holeStepLoc_congr_sets g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hG hG'
 
+/-- **Locality of `W_k = (Z_k^c)^{≈2}`**: a site `y` is in `stepW Z` iff in `stepW Z'` when `Z`, `Z'`
+agree on the cubes within `2 (ρ' + 1)` of the cube of `y`. -/
+theorem mem_stepW_congr {d M1 c n1 L k n0 : ℕ} [NeZero L] [NeZero M1] [NeZero c] [NeZero n1] [NeZero n0]
+    {ρ' : ℕ} {Z Z' : Set (Torus d n0)}
+    (y : Torus d (M1 * (c * n1) * L ^ (k + 1)))
+    (h : ∀ w : Torus d n0, supDist (blockMap (L ^ k * (c * M1)) n0 y) w ≤ 2 * (ρ' + 1) →
+      (w ∈ Z ↔ w ∈ Z')) :
+    y ∈ stepW M1 c n1 L k ρ' Z ↔ y ∈ stepW M1 c n1 L k ρ' Z' := by
+  have key : ∀ {Z Z' : Set (Torus d n0)}, (∀ w : Torus d n0,
+      supDist (blockMap (L ^ k * (c * M1)) n0 y) w ≤ 2 * (ρ' + 1) → (w ∈ Z ↔ w ∈ Z')) →
+      y ∈ stepW M1 c n1 L k ρ' Z → y ∈ stepW M1 c n1 L k ρ' Z' := by
+    intro Z Z' h hy
+    unfold stepW fineK at hy ⊢
+    rw [mem_cubePre] at hy ⊢
+    unfold thick2 thick at hy ⊢
+    obtain ⟨v, hv, huv⟩ := mem_nbhd.1 hy
+    obtain ⟨w, hw, hvw⟩ := mem_nbhd.1 hv
+    refine mem_nbhd.2 ⟨v, mem_nbhd.2 ⟨w, ?_, hvw⟩, huv⟩
+    have hd : supDist (blockMap (L ^ k * (c * M1)) n0 y) w ≤ 2 * (ρ' + 1) := by
+      have := supDist_triangle (blockMap (L ^ k * (c * M1)) n0 y) v w
+      omega
+    intro hwZ'
+    exact hw ((h w hd).2 hwZ')
+  exact ⟨key h, key (fun w hw => (h w hw).symm)⟩
+
+/-- **The local steps of two histories agree when `Z_k` agrees near `V`** (from
+`holeStepLoc_congr_hist` and the locality of `W_k`, `mem_stepW_congr`): `Z_k`, `Z'_k` agree on the
+cubes within `2 (⌊R_{k-1}⌋ + 1)` of the cube of every site within `12 M₁ L^k` of a site of a layer
+of `𝔹_{k+1}(V)`, and `Ω_{k+1}` agrees on the cubes of those sites. -/
+theorem holeStepLoc_congr_hist_Z (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hL : 2 ≤ S.L)
+    (hZag : ∀ j, j ≤ k → ∀ x ∈ (locB g hM1 V).Ω j,
+      ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+      supDist ((congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm ▸ x :
+        Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1))) y ≤ 12 * g.M1 * S.L ^ k →
+      ∀ w : Torus S.d (n k), supDist (blockMap (S.L ^ k * (g.c * g.M1)) (n k) y) w ≤
+        2 * (⌊R (k - 1)⌋₊ + 1) → (w ∈ (H.step k).Z ↔ w ∈ (H'.step k).Z))
+    (hOm : ∀ x ∈ (locB g hM1 V).Ω (k + 1),
+      (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega)) :
+    holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
+      holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLoc_congr_hist g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL
+    (fun j hj x hx y hxy => mem_stepW_congr y (hZag j hj x hx y hxy)) hOm
+
 end Balaban.RootFSpine
