@@ -20,7 +20,9 @@ factor `1 ± τ₁`, `τ₁ = exp (3 (c₈/4) q²/(1 - q)) - 1` for `j ≥ 1`
 (`norm_ratio_prod_sub_one_le_geom`); hence the birth mass is the step mass times `1 + t_j` with
 `|t_j| ≤ 2 τ₁` when `τ₁ ≤ 1/2`.
 
-* `birthMass_defect_of_flow`.
+* `birthMass_defect_of_flow`;
+* `birthMass_bgHyp_of_flow`: the background hypotheses at the birth masses, from those at the step
+  mass and the margin `ν L^{2K} (1 + 2τ₁) ≤ 1`.
 -/
 
 @[expose] public section
@@ -94,5 +96,34 @@ theorem birthMass_defect_of_flow {ξ : ℕ → Fin 3 → ℂ} {q c₈ ν₀ : �
   have e : P⁻¹ - 1 = (1 - P) / P := by field_simp
   rw [e, norm_div, ← norm_neg, neg_sub, div_le_iff₀ hnP0]
   nlinarith
+
+open Balaban.Background in
+/-- **The background hypotheses at the birth masses**: from those at the step mass
+`ν = ν_k L^{-2k}` and the margin `ν L^{2K} (1 + 2 τ₁) ≤ 1`, along the flow of
+`birthMass_defect_of_flow`. -/
+theorem birthMass_bgHyp_of_flow {d K : ℕ} {ϱ : ℝ} {A : ℕ → ℝ} {ν : ℝ}
+    (H : BgHyp d L K ϱ A ν) {ξ : ℕ → Fin 3 → ℂ} {q c₈ ν₀ : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1)
+    (hc : 0 ≤ c₈) (hs : c₈ * q ≤ 1 - q) (hξ : ∀ n, ‖ξ n‖ ≤ c₈ / 4 * q ^ (n + 1))
+    (hτ : Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1 ≤ 1 / 2)
+    {νs : ℕ → ℝ} {k : ℕ} (hν : ∀ n, n ≤ k → ((νs n : ℝ) : ℂ) = nuSeq (L : ℝ) ξ (ν₀ : ℂ) n)
+    (hνS : ν = Def6v2.physMass L k (νs k))
+    (hmass : ν * ((L : ℝ) ^ K) ^ 2 *
+      (1 + 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1)) ≤ 1) :
+    ∀ j, 1 ≤ j → j ≤ k → BgHyp d L K ϱ A (Def6v2.physMass L j (νs j)) := by
+  intro j hj1 hjk
+  obtain ⟨t', ht', htb⟩ := birthMass_defect_of_flow hq0 hq1 hc hs hξ hτ hν j hj1 hjk
+  have hν0 := H.mass
+  have ht1 : -1 ≤ t' := by linarith [neg_abs_le t']
+  have ht2 : t' ≤ 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1) :=
+    (le_abs_self t').trans htb
+  have hLk : (0 : ℝ) ≤ ((L : ℝ) ^ K) ^ 2 := by positivity
+  refine ⟨H.hd, H.hL, H.hϱ, H.weights, ?_, ?_⟩
+  · rw [ht', ← hνS]
+    exact mul_nonneg hν0 (by linarith)
+  · rw [ht', ← hνS]
+    calc ν * (1 + t') * ((L : ℝ) ^ K) ^ 2 = ν * ((L : ℝ) ^ K) ^ 2 * (1 + t') := by ring
+      _ ≤ ν * ((L : ℝ) ^ K) ^ 2 * (1 + 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1)) :=
+        mul_le_mul_of_nonneg_left (by linarith) (mul_nonneg hν0 hLk)
+      _ ≤ 1 := hmass
 
 end Balaban.Fluctuation

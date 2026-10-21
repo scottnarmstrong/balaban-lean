@@ -254,31 +254,8 @@ theorem StepTowerG.newLevel_localFamily_of_class {d L N : ℕ} [NeZero L] [NeZer
   -- the birth masses
   have hμ := birthMass_defect_of_flow hq0 hq1 hc₈ hc₈q hξ hτ hνflow
   set τ₁ := Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1 with hτ₁
-  have hτ0 : 0 ≤ τ₁ := by
-    rw [hτ₁]
-    have : 0 ≤ 3 * (c₈ / 4 * (q ^ 2 / (1 - q))) := by
-      have : 0 < 1 - q := by linarith
-      positivity
-    linarith [Real.add_one_le_exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q))))]
   have hH := hCs.HBp
-  have H' : ∀ j, 1 ≤ j → j ≤ k → BgHyp d L (k + 1) (rhoSepG d L Tk.m₁) (compWeight L 1)
-      (physMass L j (Rg.ν j)) := by
-    intro j hj1 hjk
-    obtain ⟨t', ht', htb⟩ := hμ j hj1 hjk
-    obtain ⟨-, -, hϱ0, hw, -, -⟩ := hH
-    have htb' : |t'| ≤ 1 := by linarith
-    have ht1 : -1 ≤ t' := by linarith [neg_abs_le t']
-    have ht2 : t' ≤ 2 * τ₁ := (le_abs_self t').trans htb
-    have hLk : (0 : ℝ) ≤ ((L : ℝ) ^ (k + 1)) ^ 2 := by positivity
-    refine bgHyp_of_mass hd hL hϱ0 hw ?_ ?_
-    · rw [ht', ← hνS]
-      exact mul_nonneg hν0.le (by linarith)
-    · rw [ht', ← hνS]
-      calc ν * (1 + t') * ((L : ℝ) ^ (k + 1)) ^ 2 =
-          ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (1 + t') := by ring
-        _ ≤ ν * ((L : ℝ) ^ (k + 1)) ^ 2 * (1 + 2 * τ₁) :=
-          mul_le_mul_of_nonneg_left (by linarith) (mul_nonneg hν0.le hLk)
-        _ ≤ 1 := hmass
+  have H' := birthMass_bgHyp_of_flow hH hq0 hq1 hc₈ hc₈q hξ hτ hνflow hνS hmass
   have hμ' : ∀ j, 1 ≤ j → j ≤ k → ∃ tm, physMass L j (Rg.ν j) =
       (hatStepKG (d := d) (L := L) (N₁ := N₁) Tk.hN k Tk.m₁ (rhoSepG d L Tk.m₁) hk ν β p₁
         Tk.δ).ν * (1 + tm) ∧ |tm| ≤ 2 * τ₁ := by
