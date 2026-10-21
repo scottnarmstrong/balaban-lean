@@ -55,7 +55,7 @@ theorem chartCoef_analyticOnNhd_eg {BG : ℝ} (G : GeneratingSet d L (N₁ * L ^
     · simp
     · intro b _ hb
       have : (x, b) ≠ (x, i) := fun h => hb (Prod.mk.inj h).2
-      simp [Pi.single_apply, this]
+      simp [this]
     · simp
   have h0 : ∑ i', ‖(0 : G.Ω 1 × Fin N → ℂ) (x, i')‖ ≤ 1 := by simp
   refine analyticOnNhd_coef_of_analyticOnNhd (R := Real.exp κ) hR
