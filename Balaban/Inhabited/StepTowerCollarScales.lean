@@ -33,6 +33,11 @@ of `k`, so that `K₂ Q ≤ (1 - q) / (2 q)` (`exists_stepTower_collar`), and `�
 `q (1 + K₂ Q) + K₂ F η ≤ q + (1 - q) / 2 + (1 - q) / 4 ≤ 1`); the cover `ε_{k+1} ≤ t_k` holds
 with equality.  `classEps_antitone`, `classEps_gap`, `classEps_lower` give the hypotheses on `ε`
 for the class sequence `ε_j = P.eps 3 3 j` with `q = 3^{-α}`.
+
+`CollarBase` bundles the properties of the base tower `T₀` that the chain reads (inhabited:
+`exists_collarBase`); `StepTowerG.collar_scales_of` is the core of `exists_collar_scales` at a given
+base tower, so that the chain can be run at a base tower with further properties (W1146t: the
+numerics of the new level and a smaller closeness ratio, `exists_collarBase_newLevel`).
 -/
 
 @[expose] public section

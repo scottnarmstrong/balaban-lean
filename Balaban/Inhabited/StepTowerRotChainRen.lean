@@ -13,7 +13,8 @@ import Mathlib.Tactic.Positivity
 # The class chain with renormalized step radii and per-label spin covariance (`StepTowerRotChainRen`)
 
 `e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot`: the covariant form of
-`…_classEps_ren_phi` (see `StepTowerRotChain`).
+`…_classEps_ren_phi` (see `StepTowerRotChain`).  The formula form has the core
+`…_classEps_ren_rot_formula_of` at a given base tower (`CollarBase`).
 -/
 
 @[expose] public section

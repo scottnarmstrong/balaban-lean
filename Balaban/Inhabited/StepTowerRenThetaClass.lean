@@ -22,7 +22,8 @@ renormalized datum of a class datum at radius `ε_{k+1}` for `‖ξ‖ < r₀`
 `e0CoeffFamily_class_exists_tower_struct_step_collar_uniform_phi` at the sequence `λ ε_j`; one
 threshold `β₀` serves every `r₀` (the lower bound `α₀ 3^{-α j} ≤ ε_j` is used at `λ ≥ 1`).  The
 cover `ε_{k+1} ≤ t_k` holds, and the room `t_k + K₂ δ₃ + K₂ δ_fl ≤ ε_j` (`j ≤ k`) is against the
-class radii `ε_j`, for `K₂ (3/2) r₀ (3 + q) ≤ 1 - q`, `q = 3^{-(1/2 - γ)}` (`ren_room`).
+class radii `ε_j`, for `K₂ (3/2) r₀ (3 + q) ≤ 1 - q`, `q = 3^{-(1/2 - γ)}` (`ren_room`).  The
+formula form has the core `…_classEps_ren_phi_formula_of` at a given base tower (`CollarBase`).
 -/
 
 @[expose] public section

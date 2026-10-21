@@ -22,7 +22,8 @@ chosen once, `exists_stepTower_collar_scales`) and, for every lower constant `c�
 room `t_k + K₂ δ₃ + K₂ δ_fl ≤ ε_j` at every `j ≤ k`, and the class chain of
 `e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar` at these radii.  The threshold is
 that of the chain for the towers agreeing with `T₀` and the lower bound
-`δ₁ ≥ min(1, η) ε_{k+1} ≥ min(1, η) c₁ 3^{-α(k+1)}`.
+`δ₁ ≥ min(1, η) ε_{k+1} ≥ min(1, η) c₁ 3^{-α(k+1)}`.  The formula form has the core
+`…_uniform_phi_formula_of` at a given base tower (`CollarBase`).
 -/
 
 @[expose] public section
