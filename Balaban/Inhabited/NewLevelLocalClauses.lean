@@ -323,7 +323,8 @@ theorem clause_rot_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     hαL hsmL (hX₁L τ) (hF₁Ln τ) (hSolL' τ) (hBo τ) (hFo τ) hGs HB' hrb
     (fun D hD => NS.O.hFkL τ D hD) hQ (hEr τ Q hQ) (maskPre S.hG' Gl (S.blockU z)) hW hYm hD hψh
 
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The functionals of the old terms on the realizable triples of `Gl`** (the hypotheses `hΦ`,
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The functionals of the old terms on the realizable triples of `Gl`** (the hypotheses `hΦ`,
 `hΦbd` of `coeffLoc_analytic_bound_of`): for an old term whose frozen region lies in the top layer
 of `Gl`, with the step's settings at the radius `ε` and the old term analytic and bounded on its
 chart, the functional `eTermFun Gl …` is analytic and bounded on the realizable triples of `Gl`
@@ -369,7 +370,8 @@ theorem oldFun_fields_of_composed {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (comp
 `hΦbd` of `coeffLoc_analytic_bound_of`): for an old term whose frozen region lies in the top layer
 of `Gl`, with the step's settings at the radius `ε` and the old term analytic and bounded on its
 chart, the functional `eTermFun Gl …` is analytic and bounded on the realizable triples of `Gl`
-(`eTermFun_analytic_bound_of_top`). The instance of `oldFun_fields_of_composed` with the bound on the whole chart. -/
+(`eTermFun_analytic_bound_of_top`).
+The instance of `oldFun_fields_of_composed` with the bound on the whole chart. -/
 theorem oldFun_fields_of {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)
     (hdk : Gd.Ω k = Gl.Ω k) (hHm : Gd.Ω (k + 1) = ∅)
     {cL c₂L KcL CxL : ℝ}
@@ -409,7 +411,8 @@ theorem oldFun_fields_of {eps : ℝ} (HB' : BgHyp d L (k + 1) ϱl (compWeight L 
     (hEbd := fun τ r hr => hEbd τ r (composedChart_subset_xiCRaw hr))
 
 open Classical in
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The clauses (A1), (A2) of the recomputed family** (P3 (4.46), (4.47) and Lemma 4.2 at `Gl`):
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The clauses (A1), (A2) of the recomputed family** (P3 (4.46), (4.47) and Lemma 4.2 at `Gl`):
 under the hypotheses of `coeffLoc_analytic_bound_of` with the functionals of the old terms analytic
 and bounded on the realizable triples of `Gl` by their settings at the analyticity radius `ε`
 (`eTermFun_analytic_bound_of_top`, the old terms analytic and bounded on their charts), the
@@ -623,7 +626,8 @@ under the hypotheses of `coeffLoc_analytic_bound_of` with the functionals of the
 and bounded on the realizable triples of `Gl` by their settings at the analyticity radius `ε`
 (`eTermFun_analytic_bound_of_top`, the old terms analytic and bounded on their charts), the
 coefficient recomputed from the labels inside `T` is analytic on `physVBg Gl ε` and bounded there by
-a nonnegative constant. The instance of `clause_analytic_of_composed` with the bound on the whole chart. -/
+a nonnegative constant.
+The instance of `clause_analytic_of_composed` with the bound on the whole chart. -/
 theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν) (hd : 3 ≤ d)
     (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
@@ -828,7 +832,8 @@ theorem clause_analytic_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hEbd := fun τ r hr => hEbd τ r (composedChart_subset_xiCRaw hr))
 
 open Classical in
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The clause (A4) of the recomputed family from the fields of its parts**: under the
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The clause (A4) of the recomputed family from the fields of its parts**: under the
 hypotheses of `clause_analytic_of` (with the old pairs on the same cover base) and the covariance of
 the old terms on their charts, the coefficient recomputed from the labels inside `T` (reference
 configuration `0`) is invariant under the real rotations on `physVBg Gl ε`; the bundled family of
@@ -1048,7 +1053,8 @@ hypotheses of `clause_analytic_of` (with the old pairs on the same cover base) a
 the old terms on their charts, the coefficient recomputed from the labels inside `T` (reference
 configuration `0`) is invariant under the real rotations on `physVBg Gl ε`; the bundled family of
 `clause_rot_of` is `exists_bundled_actBg_of_parts` of the fields of `zeroAct_fields_of`,
-`oldAct_fields_of`, `marks_fields_of`. The instance of `clause_rot_full_of_composed` with the bound on the whole chart. -/
+`oldAct_fields_of`, `marks_fields_of`.
+The instance of `clause_rot_full_of_composed` with the bound on the whole chart. -/
 theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ eps')
     (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν) (hd : 3 ≤ d)
     (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
@@ -1252,7 +1258,8 @@ theorem clause_rot_full_of (hS1 : S.a₁ = 1) {eps eps' : ℝ} (hle : eps ≤ ep
     (hEbd := fun τ r hr => hEbd τ r (composedChart_subset_xiCRaw hr))
 
 open Classical in
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The five clauses of the recomputed family on a local pair** (route R-LOC, L5): under the
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The five clauses of the recomputed family on a local pair** (route R-LOC, L5): under the
 hypotheses of `clause_analytic_of`, `clause_rot_full_of`, `clause_local_of` and `coeffLoc_read_of`
 (the cover constants `mixedKc`, `Cchi`; the fluctuation cores of `(Gl, Gd)` at the analyticity
 radius `t` and at the gate radius `ε′`, with the constants of the system and of the old terms; the
@@ -1596,7 +1603,8 @@ the gate radius), the coefficient recomputed on `Gl` from the labels inside `T` 
 of the root, reference configuration `0`) has the clauses of `localFamily_of_coeff` for the polymer
 `T`: analyticity and a nonnegative bound on `physVBg Gl t`, locality on the chart of radius
 `ε_loc` with respect to `Y⁺ ⊇ thickSet S.G' (sitesOf T)`, invariance under the real rotations, and
-the replacement identity at the pairs of the step chart of radius `ε ≤ t`. The instance of `clauses_of_composed` with the bound on the whole chart. -/
+the replacement identity at the pairs of the step chart of radius `ε ≤ t`.
+The instance of `clauses_of_composed` with the bound on the whole chart. -/
 theorem clauses_of (hS1 : S.a₁ = 1) (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
     (HB : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν)
         (HB' : BgHyp d L (k + 1) ϱl (compWeight L S.a₁) S.ν)

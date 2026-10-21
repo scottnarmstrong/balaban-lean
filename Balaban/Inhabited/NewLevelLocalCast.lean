@@ -174,7 +174,8 @@ variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   (NS : NewLevelSystem S C z Jr)
 
 open Classical in
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The clauses of the recomputed family on the cast local set of a polymer** (route R-LOC, L5):
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The clauses of the recomputed family on the cast local set of a polymer** (route R-LOC, L5):
 for the polymer `T` whose root cube is that of `z` and a set `Yp'` whose cast local set has every
 site within `2 L^{k+1+m₁'}` of `sitesOf T` in its top layer (`m₁ + 2 ≤ m₁'`), under the hypotheses
 of `clauses_of` that do not
@@ -459,7 +460,8 @@ concern the local pair, with the step's `FlCore` at the cover constants at the r
 for the constants of the system and of the old terms, there are a retraction `π_b` onto the data
 of `Gb = castG hc (𝔹_{k+1}(Yp'))` and a function `c_T` of the parameters of `Gb` (the coefficient
 recomputed on `Gb` from the labels inside `T`) with the clauses (A1)–(A5) of
-`localFamily_of_coeff`. The instance of `clauses_castLocal_of_composed` with the bound on the whole chart. -/
+`localFamily_of_coeff`.
+The instance of `clauses_castLocal_of_composed` with the bound on the whole chart. -/
 theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
     -- the local pair: the cast local set of a set `Yp'` with the margin of `sitesOf T`
@@ -685,7 +687,8 @@ theorem clauses_castLocal_of (hS1 : S.a₁ = 1)
     (hEbd := fun τ r hr => hEbd τ r (composedChart_subset_xiCRaw hr))
 
 open Classical in
-/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.) **The family of the new level recomputed on the local generating sets** (route R-LOC, L5; the
+/-- (Core, with the bound of the old terms on their composed charts, `composedChart`.)
+**The family of the new level recomputed on the local generating sets** (route R-LOC, L5; the
 forms `hfan`, `hfbd`, `hfloc`, `hfrot`, `hfval` of `newLabels_castInputs_of_localFamily` at the root
 `z`).  For the coefficient `e` of the system `NS` on the step chart (`he`), supported on the
 polymers rooted at `z` (`hsupp`), sets `Yp Y` whose cast local sets have every site within
@@ -1017,7 +1020,8 @@ polymers rooted at `z` (`hsupp`), sets `Yp Y` whose cast local sets have every s
 and the class radius `ε_{k+1} = P.eps d L (k + 1) ≤ t`, under the hypotheses of
 `clauses_castLocal_of` that do not concern the polymer, there are a family `f T` of the pair of
 fields and bounds `b T` with (A1)–(A5) on the local generating sets
-`castG hc (𝔹_{k+1}(Yp Y⁺(T)))`, `Y⁺(T) = sitesOf (piHull m₀ (thickSet S.G' (sitesOf T)))`. The instance of `localFamily_castLocal_of_composed` with the bound on the whole chart. -/
+`castG hc (𝔹_{k+1}(Yp Y⁺(T)))`, `Y⁺(T) = sitesOf (piHull m₀ (thickSet S.G' (sitesOf T)))`.
+The instance of `localFamily_castLocal_of_composed` with the bound on the whole chart. -/
 theorem localFamily_castLocal_of (hS1 : S.a₁ = 1)
     (SpG : DGSetting S.G' (compWeight L S.a₁) S.ν)
     {N₁' m₁' : ℕ}
