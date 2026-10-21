@@ -673,12 +673,11 @@ omit hnamedCU
 
 variable (hbr : br = MassBranch.complete)
 variable (hunitOK : ∀ hv, hvOK hv → ‖hv‖ = 1)
-variable (hmassC : ∀ (i : Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
+variable (hbν : ∀ m, m ≤ k0 → cs.beta m * (cs.muAct m * (S.L : ℝ) ^ (2 * m)) ≤ 1)
+variable (hbeta0 : ∀ (i : Option (Σ j : ↥(Finset.Ico k1 m'), Σ P : ↥(H.ancFin (j.1 + 1 + 1) (m' + 1) Z),
         ↥(H.parts (j.1 + 1) P.1))) m,
       (Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1)) fun s => ⟨s.1.1, s.2.2.1⟩).1 + 2 ≤ m →
-      m ≤ m' + 1 → 2 * cs.muAct m *
-        ((S.L : ℝ) ^ ((Option.elim i (⟨m', Z⟩ : Σ j, H.Comp (j + 1))
-          fun s => ⟨s.1.1, s.2.2.1⟩).1 + 1)) ^ 2 < (bgC1 S.d S.L N) ^ 2)
+      m ≤ m' + 1 → 2 / ((S.L : ℝ) ^ 2 * (bgC1 S.d S.L N) ^ 2) < cs.beta m)
 variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) Z), ↥(H.parts k1 P.1)),
         OutIdx (K := K) (M := M) R C.2.1 ⊕
           ↥(locOp geo cs SD KD hH lab k1 hk1K C.2.1).A) →
@@ -811,12 +810,12 @@ variable (hnamedCUD : ∀ (κc : (Σ C : (Σ P : ↥(H.ancFin (k1 + 1) (m' + 1) 
           (‖Cnat0 a₁ (windowOfHistory_precedes geo hm hW) ψ0 (0 : Fin N → ℝ) Du Zb β0 (varpi (m' + 1) cs.z) aN ψk‖ ≤ Cnat * S.lam (m' + 1) ^ (2 * S.d + 1))))
 
 
-include hbr hunitOK hmassC hnamedCUD
+include hbr hunitOK hbν hbeta0 hnamedCUD
 
 /-- **`removedKernel_kerBound_of_hid_action_cl` without the domain clauses `hS` among the named inputs**, on the
 external fields `hv` with `hvOK hv` (unit fields, `hunitOK`): the named input `hnamedCUD` takes `WindowHS` (both
 clauses of `hS` at the window point, complete branch `hbr`: `μ_Bg = μ_act = ν_j L^{-2j}`, ruling R2) as a premise,
-proved from `K ≠ 0`, `‖hv‖ = 1` and the mass size `2 μ_act(m) L^{2(j_i+1)} < c₁²` (`windowHS_of_kernel_complete`). -/
+proved from `K ≠ 0`, `‖hv‖ = 1` and the mass size, derived from `β_m ν_m ≤ 1` at the scales `m ≤ m'+1 ≤ k₀` of a removed window (`hbν`, P5 (1.9)) and `β_m > 2/(L² c₁²)` (`hbeta0`, i.e. `β₀ = 2/(L² c₁²)`) by `mass_size_lt`. -/
 theorem removedKernel_kerBound_of_hid_action_cl_hS :
     KerBoundOn (H.localHistory M K (m' + 1) Z) (m' + 1) (removedKernel (H.localHistory M K (m' + 1) Z) (m' + 1) Z0 (locOp geo cs SD KD hH lab (m' + 1) hm Z) t s z w u c0 rr EZ
       (fun o x => (ht o x).1) (fun o x => (hs o x).1) (fun o x => (hz o x).1)
@@ -828,7 +827,15 @@ theorem removedKernel_kerBound_of_hid_action_cl_hS :
     hv hok par wd cc ro sh a nd' w' fld ft hfld hft hw hTBp hK =>
     hnamedCUD κc jS hjS Φ φ1 φ2 φ3 φ4 φ5 φ7 φ9 φ8 φ10 hv hok par wd cc ro sh a nd' w' fld ft hfld hft hw
       hTBp hK (windowHS_of_kernel_complete geo cs SD KD hk1 hm hmk hq ρ hW hk1def hρ _ _ hv
-        (left_ne_zero_of_mul hK) (by omega) (hunitOK hv hok) hμ hmassC))
+        (left_ne_zero_of_mul hK) (by omega) (hunitOK hv hok) hμ (by
+          have hle : m' + 1 ≤ k0 := by
+            by_contra hlt
+            have := H.rem_empty (m' + 1) (Or.inr (by omega))
+            rw [this] at hrem
+            exact Finset.notMem_empty _ hrem
+          intro i m h1 h2
+          exact mass_size_lt (Nat.one_le_iff_ne_zero.mpr (NeZero.ne S.L)) h1 (bgC1_pos_of (by omega))
+            (hμ m) (hbeta0 i m h1 h2) (hbν m (by omega)))))
 
 end Core
 

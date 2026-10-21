@@ -99,4 +99,31 @@ theorem windowHS_of_kernel_complete (hW : H.RipeWindow (m' + 1) Z) (hk1def : S.k
 
 end HS
 
+
+section MassSize
+
+/-- **The mass-size condition from `β_m ν_m ≤ 1`.**  If `β_m μ_m L^{2m} ≤ 1` (`μ_m = ν_m L^{-2m}`, P5 (1.9)
+below the switch) and `β_m > 2/(L² c²)` for some `m ≥ j + 2`, then `2 μ_m L^{2(j+1)} < c²`. -/
+theorem mass_size_lt {L : ℕ} (hL : 1 ≤ L) {j m : ℕ} (hjm : j + 2 ≤ m) {c μ b : ℝ} (hc : 0 < c)
+    (hμ : 0 ≤ μ) (hb : 2 / ((L : ℝ) ^ 2 * c ^ 2) < b) (hbν : b * (μ * (L : ℝ) ^ (2 * m)) ≤ 1) :
+    2 * μ * ((L : ℝ) ^ (j + 1)) ^ 2 < c ^ 2 := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast hL
+  have hL0 : (0 : ℝ) < L := by linarith
+  have hb0 : 0 < b := lt_trans (by positivity) hb
+  have hpow : (L : ℝ) ^ 2 * ((L : ℝ) ^ (j + 1)) ^ 2 ≤ (L : ℝ) ^ (2 * m) := by
+    rw [← pow_mul, ← pow_add]
+    exact pow_le_pow_right₀ hL1 (by omega)
+  have h1 : b * (μ * ((L : ℝ) ^ 2 * ((L : ℝ) ^ (j + 1)) ^ 2)) ≤ 1 :=
+    le_trans (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hpow hμ) hb0.le) hbν
+  have hc2 : 0 < (L : ℝ) ^ 2 * c ^ 2 := by positivity
+  have h2 : 2 < b * ((L : ℝ) ^ 2 * c ^ 2) := by
+    rwa [div_lt_iff₀ hc2] at hb
+  by_contra hcon
+  push Not at hcon
+  have h3 : b * (L : ℝ) ^ 2 * (c ^ 2) ≤ b * (L : ℝ) ^ 2 * (2 * μ * ((L : ℝ) ^ (j + 1)) ^ 2) :=
+    mul_le_mul_of_nonneg_left hcon (by positivity)
+  nlinarith
+
+end MassSize
+
 end Balaban.LargeField
