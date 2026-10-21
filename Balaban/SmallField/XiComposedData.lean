@@ -13,8 +13,8 @@ public import Balaban.Localization.I5Chain
 
 `composeData_scaledPsiC_of_xiCData`: for a datum `D` of a member of `Ξ^c_K(𝔹'; 1, ε₀)` and
 `𝔹 ≺ 𝔹'` with the hypotheses of `HypSle` (`L^j ≤ θ L^K`, the layers of `𝔹` at most `j`, the scale
-gap and the collar condition), the field and the external field of the composed datum
-`composeData 𝔹 𝔹' D` on `Ω₁(𝔹)` are `p + z` and `h₀ + h''` for a witness `(p, h₀, z, h'')` of
+gap and the collar condition), the field of the composed datum `composeData 𝔹 𝔹' D` is `p + z`
+and its external field on `Ω₁(𝔹)` is `h₀ + h''` for a witness `(p, h₀, z, h'')` of
 `ScaledPsiC 𝔹 ν (C₀ θ) (C₁ ε₀) j` with the sharp square bound
 (`xiC_scaledComposition_square_sharp_le_at` at the realization `D`, `BgData.eq_of_realizesC`).
 These are the inputs of `ScaledPsiC.dataHypAnisoOn_of_pullback` at the composed data of a label.
@@ -31,8 +31,8 @@ variable {d L : ℕ} [NeZero L]
 /-- **The composed datum in scaled coordinates.**  For a datum `D` of a member of
 `Ξ^c_K(𝔹'; 1, ε₀)` and `𝔹 ≺ 𝔹'` with `L^j ≤ θ L^K`, the layers of `𝔹` at most `j`, the scale gap
 `θ ∈ (0, 1]` and the collar condition, there is a witness `(p, h₀, z, h'')` of
-`ScaledPsiC 𝔹 ν (C₀ θ) (C₁ ε₀) j` whose fields are those of the composed datum on `Ω₁(𝔹)`
-(`Ψ = p + z`, `h = h₀ + h''`), with the sharp square bound `‖(p + z)² - p²‖ < (C₀ θ)² C₁ ε₀`. -/
+`ScaledPsiC 𝔹 ν (C₀ θ) (C₁ ε₀) j` whose fields are those of the composed datum (`Ψ = p + z`
+everywhere, by the collar condition; `h = h₀ + h''` on `Ω₁(𝔹)`), with the sharp square bound `‖(p + z)² - p²‖ < (C₀ θ)² C₁ ε₀`. -/
 theorem composeData_scaledPsiC_of_xiCData {N₁ m₁ K N : ℕ} [NeZero N₁] {ϱ ϱ' : ℝ}
     {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {G' : GeneratingSet d L (N₁ * L ^ m₁) K ϱ'}
     {a₁ ν ε₀ θ : ℝ} {j : ℕ} (H' : BgHyp d L K ϱ' (compWeight L a₁) ν)
@@ -45,7 +45,7 @@ theorem composeData_scaledPsiC_of_xiCData {N₁ m₁ K N : ℕ} [NeZero N₁] {�
     ∃ (p : Torus d ((N₁ * L ^ m₁) * L ^ K) → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (z h'' : Torus d ((N₁ * L ^ m₁) * L ^ K) → Fin N → ℂ),
       ScaledPsiC G ν (scaledC0 d * θ) (xiC1 d * ε₀) j p h₀ z h'' ∧
-      (∀ x ∈ G.Ω 1, ∀ i,
+      (∀ x i,
         (composeData hq (compWeight L a₁) (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D) D).Ψ
           x i = (p x i : ℂ) + z x i) ∧
       (∀ x ∈ G.Ω 1, ∀ i,
@@ -59,15 +59,21 @@ theorem composeData_scaledPsiC_of_xiCData {N₁ m₁ K N : ℕ} [NeZero N₁] {�
   obtain rfl := BgData.eq_of_realizesC hDc hR
   refine ⟨reR G G' a₁ φr Ψ0, h0,
     dPsi G G' a₁ φr (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) Dc) Ψ0 Ψ'', hRes G h'', hS,
-    fun x hx i => ?_, fun x hx i => ?_, hsq⟩
-  · have hx' : x ∈ dataSites G' := (mem_dataSites G').2 (Or.inl (hq.mem_Ω1 hx))
-    have e1 : ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+    fun x i => ?_, fun x hx i => ?_, hsq⟩
+  · have e1 : ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
         dPsi G G' a₁ φr (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) Dc) Ψ0 Ψ'' x i =
         ccv G G' a₁ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) Dc) Ψ0 Ψ'' x i := by
       rw [← hre x i]
       simp [dPsi]
     rw [e1]
-    simp only [composeData, ccv, compVec, composeField, hx, ↓reduceIte, psiC, hDc.1 x hx' i]
+    simp only [composeData, ccv, compVec]
+    unfold composeField barField
+    by_cases hx : x ∈ G.Ω 1
+    · have hx' : x ∈ dataSites G' := (mem_dataSites G').2 (Or.inl (hq.mem_Ω1 hx))
+      simp only [hx, ↓reduceIte, psiC, hDc.1 x hx' i]
+    · by_cases hc : x ∈ collar G
+      · simp only [hx, hc, (hcol x hc).1, ↓reduceIte, ↓reduceDIte]
+      · simp only [hx, hc, ↓reduceIte]
   · have hx' : x ∈ G'.Ω 1 := hq.mem_Ω1 hx
     simp only [composeData, hx, ↓reduceIte, hRes_of_mem h'' hx, hDc.2 x hx' i]
 
