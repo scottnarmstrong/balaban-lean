@@ -3260,3 +3260,4 @@ public import Balaban.Spine.FinalBoxLocChi
 public import Balaban.Green.FinalBoxLocSum
 public import Balaban.Polymer.ClusterRelabel
 public import Balaban.Fluctuation.MarkClusterTransport
+public import Balaban.Fluctuation.CubeVarEquiv

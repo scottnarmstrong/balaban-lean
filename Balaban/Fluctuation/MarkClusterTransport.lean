@@ -19,8 +19,8 @@ measure-preserving equivalence `T` of the configuration spaces that carries the 
 mark of the first system to those of the second, leave the local term unchanged.
 
 * `Gst_transport`: **the core**, `G₂*(e Y₀, e S) = G₁*(Y₀, S)`;
-* `Gst_equiv_of_transport`: the invariance under a change of the variables of one system
-  (`Gst_equiv` of `MarkClusterEquiv.lean`) as the instance `e = id`, `σ = id`;
+* `Gst_equiv` of `MarkClusterEquiv.lean`, the invariance under a change of the variables of one
+  system, is the instance `e = id`, `σ = id`;
 * `blocksOf_map_of_siteEquiv`: the compatibility of `e` and `σ` with the supports of the labels,
   from a bijection `f` of the sites carrying the cubes of one region to those of the other.
 -/
@@ -102,29 +102,5 @@ theorem blocksOf_map_of_siteEquiv (e : 𝔅 ≃ 𝔅') (f : CTorus d L N₁ m₁
   exact Set.image_subset_image_iff f.injective
 
 end Transport
-
-section Instance
-
-variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {m₀ j : ℕ} {Ω : Set (CTorus d L N₁ m₁ K)}
-  {Lb : Type*} [Fintype Lb]
-
-local notation "𝔅" => CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ j Ω
-
-/-- **`Gst_equiv` as the instance of `Gst_transport`** with the identity of the cubes and of the
-labels and the product `T` of the coordinatewise measure-preserving equivalences. -/
-theorem Gst_equiv_of_transport {Ωb : 𝔅 → Type*} [∀ b, MeasurableSpace (Ωb b)]
-    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)] (Lab : CubeLabels m₀ j Ω Lb)
-    (E : ∀ b, Ωb b ≃ᵐ Ωb b) (hE : ∀ b, MeasurePreserving (E b) (μ b) (μ b))
-    {Q : Set (∀ b, Ωb b)} (hQ : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Q)
-    (H₁ H₂ : Lb → (∀ b, Ωb b) → ℂ) (S₀ : Finset 𝔅) (G₁ G₂ : (∀ b, Ωb b) → ℂ) (S : Finset 𝔅)
-    (hH : ∀ y, ∀ Φ ∈ Q, H₂ y (fun b => E b (Φ b)) = H₁ y Φ)
-    (hG : ∀ Φ ∈ Q, G₂ (fun b => E b (Φ b)) = G₁ Φ) :
-    Gst μ Lab H₂ S₀ G₂ S = Gst μ Lab H₁ S₀ G₁ S := by
-  have := Gst_transport μ μ Lab Lab (Equiv.refl 𝔅) (Equiv.refl Lb) (fun y => by simp)
-    (MeasurableEquiv.piCongrRight E) (measurePreserving_pi μ μ hE) hQ H₁ H₂ S₀ G₁ G₂ S
-    (fun y Φ hΦ => hH y Φ hΦ) hG
-  simpa using this
-
-end Instance
 
 end Balaban.Fluctuation
