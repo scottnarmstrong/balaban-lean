@@ -36,6 +36,10 @@ the parameters, which the rooted expansion of the entries `s ↦ boxCut(s)(p, q)
 * `finalWhiten_eq_zero_of_not_mem` (finite range): `L(p, q) = 0` unless `q` lies in the region
   of the localization domain of `p`;
 * `finalWhiten_row_bound`: the row sums of `L` are at most `boxCutConst`;
+* `whitenCut`: the cut family of `L` (row `p` of `boxCut(s|_{locDom p})`, `whitenCut_one`), with
+  the decoupling property (`cutDecoupling_whitenCut`, core `CutDecoupling.rowCut`), analytic
+  entries and the row bound `boxCutConst` on the polydisc: the rooted expansion
+  (`rootedExpansion_of_row_bound`) localizes the terms at the field `h + c L w`;
 * `norm_finalWhiten_sub_le` (row error, entrywise): `‖L(p, q) - D^{-1/2}(p, q)‖ ≤
   boxCutConst(N = 1) e^{-r |p - q|} 7^d whitenTail (16^d) (κ - 1) D`; weighted row and column sums
   `sum_finalWhiten_sub_row_le`, `sum_finalWhiten_sub_col_le` (`whitenErr`);
@@ -324,6 +328,64 @@ theorem norm_cutTo_locDom_sub_le {Δ : ℕ} (hΔ : ∀ v, (cellGraph P).degree v
 
 end Entry
 
+section RowCut
+
+variable {ι Ω : Type*} [Fintype ι] [DecidableEq ι] {P : ι → Set Ω}
+  {T : (ι → ℂ) → Ω → Ω → ℂ}
+
+omit [Fintype ι] in
+theorem cutTo_mem_supportedOn_inter {C B : Finset ι} {s : ι → ℂ} (hsC : s ∈ supportedOn C) :
+    cutTo B s ∈ supportedOn (C ∩ B) := by
+  intro i hi
+  by_cases hiB : i ∈ B
+  · have hiC : i ∉ C := fun h => hi (Finset.mem_inter.2 ⟨h, hiB⟩)
+    simp [cutTo, hiB, hsC i hiC]
+  · simp [cutTo, hiB]
+
+omit [Fintype ι] in
+theorem cutTo_cutTo_comm (A B : Finset ι) (s : ι → ℂ) :
+    cutTo (A ∩ B) (cutTo B s) = cutTo B (cutTo A s) := by
+  funext i
+  by_cases hiA : i ∈ A <;> by_cases hiB : i ∈ B <;> simp [cutTo, hiA, hiB]
+
+omit [Fintype ι] in
+theorem cutTo_sdiff_inter (C A B : Finset ι) (s : ι → ℂ) :
+    cutTo ((C ∩ B) \ (A ∩ B)) (cutTo B s) = cutTo B (cutTo (C \ A) s) := by
+  funext i
+  by_cases hiA : i ∈ A <;> by_cases hiB : i ∈ B <;> by_cases hiC : i ∈ C <;>
+    simp [cutTo, hiA, hiB, hiC]
+
+omit [Fintype ι] in
+/-- **The row cut of a decoupled family is decoupled** (core): restricting the parameters of row
+`p` to a set `B p` of cells preserves the decoupling property. -/
+theorem CutDecoupling.rowCut {R : ℝ} (hR : 0 < R) (hT : CutDecoupling P R T)
+    (B : Ω → Finset ι) : CutDecoupling P R (fun s p q => T (cutTo (B p) s) p q) where
+  supp C s hs hsC p q hne := by
+    have h := hT.supp (C ∩ B p) (cutTo (B p) s) (cutTo_mem_polydisc hR _ hs)
+      (cutTo_mem_supportedOn_inter hsC) p q hne
+    exact ⟨patchReg_mono Finset.inter_subset_left h.1, patchReg_mono Finset.inter_subset_left h.2⟩
+  split C A s hs hsC hAC hd p q := by
+    have hA' : A ∩ B p ⊆ C ∩ B p := Finset.inter_subset_inter_right hAC
+    have hd' : Disjoint (patchReg P (A ∩ B p)) (patchReg P ((C ∩ B p) \ (A ∩ B p))) := by
+      refine Set.disjoint_of_subset (patchReg_mono Finset.inter_subset_left)
+        (patchReg_mono fun i hi => ?_) hd
+      obtain ⟨hiCB, hiAB⟩ := Finset.mem_sdiff.1 hi
+      exact Finset.mem_sdiff.2 ⟨(Finset.mem_inter.1 hiCB).1,
+        fun hiA => hiAB (Finset.mem_inter.2 ⟨hiA, (Finset.mem_inter.1 hiCB).2⟩)⟩
+    have h := hT.split (C ∩ B p) (A ∩ B p) (cutTo (B p) s) (cutTo_mem_polydisc hR _ hs)
+      (cutTo_mem_supportedOn_inter hsC) hA' hd' p q
+    rw [cutTo_cutTo_comm, cutTo_sdiff_inter] at h
+    exact h
+
+omit [DecidableEq ι] in
+theorem analyticOnNhd_rowCut [DecidableEq ι] {R : ℝ} (hR : 0 < R)
+    (hTan : ∀ p q, AnalyticOnNhd ℂ (fun s => T s p q) (polydisc (0 : ι → ℂ) (fun _ => R)))
+    (B : Ω → Finset ι) (p q : Ω) :
+    AnalyticOnNhd ℂ (fun s => T (cutTo (B p) s) p q) (polydisc (0 : ι → ℂ) (fun _ => R)) :=
+  fun s hs => (hTan p q _ (cutTo_mem_polydisc hR _ hs)).comp (analyticAt_cutTo (B p) s)
+
+end RowCut
+
 section Weighted
 
 variable {d N₀ N : ℕ} [NeZero N₀]
@@ -394,6 +456,17 @@ noncomputable def finalWhitenMismatch (d L N₀ k M : ℕ) [NeZero N₀] [NeZero
 noncomputable def finalWhitenR (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
     (h : Fin N → ℂ) (D : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℝ :=
   Matrix.of fun p q => (finalWhiten d L N₀ k M v a h D p q).re
+
+/-- **The cut family of the localized square root**: row `p` of `boxCut(s|_{locDom p})`;
+at `s = 1` it is `finalWhiten` (`whitenCut_one`). -/
+noncomputable def whitenCut (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
+    (h : Fin N → ℂ) (D : ℕ) (s : MacIdx d N₀ M → ℂ) :
+    Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
+  Matrix.of fun p q =>
+    boxCut d L N₀ k M v a h (cutTo (locDom (spinBoxPatch d N₀ M N) D p) s) p q
+
+theorem whitenCut_one (h : Fin N → ℂ) (D : ℕ) :
+    whitenCut d L N₀ k M v a h D (fun _ => 1) = finalWhiten d L N₀ k M v a h D := rfl
 
 theorem finalWhiten_apply (h : Fin N → ℂ) (D : ℕ) (p q : L1Torus d N₀ × Fin N) :
     finalWhiten d L N₀ k M v a h D p q =
@@ -481,6 +554,43 @@ theorem finalWhiten_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     ∑ Q, ‖finalWhiten d L N₀ k M v a h D P Q‖ ≤ boxCutConst d L N a κ p :=
   boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp
     (norm_cutTo_one_le hκ (locDom (spinBoxPatch d N₀ M N) D P)) P
+
+/-- **The cut family of the localized square root is decoupled** on the polydisc of radius
+`e^κ` (`CutDecoupling.rowCut` of `cutDecoupling_boxCut`). -/
+theorem cutDecoupling_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    (h : Fin N → ℂ) (D : ℕ) :
+    CutDecoupling (spinBoxPatch d N₀ M N) (Real.exp κ)
+      (fun s p q => whitenCut d L N₀ k M v a h D s p q) :=
+  (cutDecoupling_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ h).rowCut (Real.exp_pos κ)
+    (fun p => locDom (spinBoxPatch d N₀ M N) D p)
+
+theorem analyticOnNhd_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    (h : Fin N → ℂ) (D : ℕ) (p q : L1Torus d N₀ × Fin N) :
+    AnalyticOnNhd ℂ (fun s => whitenCut d L N₀ k M v a h D s p q)
+      (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) :=
+  analyticOnNhd_rowCut (Real.exp_pos κ)
+    (analyticOnNhd_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ h)
+    (fun p => locDom (spinBoxPatch d N₀ M N) D p) p q
+
+/-- **Row sums of the cut family of the localized square root** on the polydisc of radius
+`e^κ`: at most `boxCutConst`. -/
+theorem whitenCut_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D : ℕ)
+    {s : MacIdx d N₀ M → ℂ} (hs : s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ))
+    (P : L1Torus d N₀ × Fin N) :
+    ∑ Q, ‖whitenCut d L N₀ k M v a h D s P Q‖ ≤ boxCutConst d L N a κ p := by
+  have hs' := cutTo_mem_polydisc (Real.exp_pos κ) (locDom (spinBoxPatch d N₀ M N) D P) hs
+  exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp
+    (fun z => by simpa using (hs' z).le) P
 
 /-- The root cells of a site-spin index: at most `7^d` boxes contain a site. -/
 theorem card_rootCells_spinBoxPatch_le (hM : 0 < M) (P : L1Torus d N₀ × Fin N) :
