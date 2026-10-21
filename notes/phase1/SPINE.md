@@ -1757,8 +1757,61 @@ Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`
 Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
 per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
 
+### A4-1f two-torus agreement of the new-level coefficient from the canonical pins (W1160, 2026-10-21)
+
+Landed (all build, 0 warnings): `NewLevelCanonBox` (`domEquiv_of_canon_box`: the partial index bijection of the old
+terms in the box, split into small lemmas), `TwoTorusLabelBox`, `NewLevelZeroCorr`, `NewLevelThickCorr`,
+`NewLevelAnchorCorr`, `NewLevelAnchorG`, `NewLevelPsiData`, `NewLevelKappaData`, `NewLevelCoeffPairs`
+(`newLevel_coeff_twoTorus_of_pairs`: `NewLevelSystem.coeff_twoTorus` with `ψ`, `κ`, `hA`, `hG` discharged from
+`hE` (index bijections of the old terms, with the relation `Q` of the canonical pairs) and `hprem` (premises of the
+comparison of corresponding old terms)), `NewLevelCanonHE` (`canon_hE`), `NewLevelCanonHPrem` (`canon_hprem`:
+`termPairPremisesAt_of_data` with the agreement of the old terms from `oldTerm_E_agree`), and
+`NewLevelClassCoeff.newLevel_coeff_twoTorus_of_class_of_cellTerms`.  Refactors (statements unchanged): the label and
+activity correspondence of the direct terms is the core `directTerms_labelCorr_twoTorus` of
+`gsumCoeff_e1_twoTorus_of_directTerms`; `psiThick_fineBlock_iff` is extracted from `markedPair_boxMap_iff`.
+
+Hypotheses of the main theorem: the pins `OldTermsCanonPinsAt` of both systems; the class (`TorusIndep`, `hlocB`);
+the zero-source label pin `hI𝒴`; the per-pair geometry `hgeom` of the canonical covers (a margin `Z` with
+`GSCorr`/`GSIso` of the localized generating sets, `BlockMargin`, and `CellTermsAgree` for the cell case); the
+covers (`hcX`, `hcloc`, `hcov`); margins; the typing data of the decoupled fields (`FlCore`, `XiCData`, `HatConn`, radii).
+Open for the producer: `hgeom` for the actual covers (instance `localB`, `gsCorr_localB`/`gsIso_localB` for `Gk`, `Gj`)
+and `CellTermsAgree` (the cell case).
 **`hγ` removed (W1158, 2026-10-21).** `GamConst rep` (`Spine/Coherence.lean`: `rep.KD.gam i l = log 5 + A'₃ λ̂_i^{p_R}` for all `i, l`, LFR Def. III.5.2) is a field `gamVal` of `PreRec` and `RepRec`. Producers: the base step (`BaseRaw.KDgam`, the provider's choice of kept data), the step `LFStepInput` (new conjunct `GamConst (lf' nK)`; `lfStepInput_of_parts`: the kept data of the successor are `KeptData.upTo`, which copies `gam`), `RKeptGasInput` (new conjunct `GamConst (lf₁ nK)`; the kept half gives it, `keptLF_gamConst`), the Rule-10 witnesses (`zeroKeptData` has `γ = A'₃ λ̂^{p_R} + log 5`). `keptOutput_of_kernels` no longer has `hγ` (`rec.gamVal`).
 
+### A4-1f the geometry hypothesis `hgeom` for canonical covers from local generating sets (W1161, 2026-10-21)
+
+Landed (all build, 0 warnings): `GSIsoOfOmega.gsIso_of_omega_on`, `LocalBBoxCorr.gsIso_localB_on` (GSIso on any region containing
+the sites of Omega_1 and their neighbours; the landed statements are instances), `NewLevelCanonCells` (`cellUnion`, blocks lie in
+one pi_{k+1}-cell, `blockMargin_cellUnion` from `LocalCover.blockMargin`, `cellBox_subset_nbhd`), `NewLevelCanonGeomDef`
+(`CellTermsAgree` moved here, `HGeom`), `NewLevelCanonLocal` (`CanonCoverLocal`: Gk, Gj of the canonical covers are `localB` of
+polymers, with `exists_canonCoverLocal`; `canonZ`, `zRad`), `NewLevelCanonGeom` (`hgeom_of_local`),
+`NewLevelClassCells.newLevel_coeff_twoTorus_of_class_cells`.
+Statement change in W1160's theorem: the antecedent of `hgeom` is now "X1fC j y0 X0 lies in the box of radius R" (was: `insert y0 X0`
+lies in the box); the neighbours y0 + L^j e_mu cannot be bounded from the polymer alone.
+Remaining non-typing hypotheses of the new theorem: class membership, the pins, the zero-source pins, `hcell` (= `CellTermsAgree`
+for `canonZ`), the cover requirement `hX1`, the correspondence `hPK`, `hPJ` of the polymers of Gk, Gj, size conditions `hbig`, `hbig'`.
+**Cover requirement `hX1` (for the chain owner).** For every admissible pair the region X1 must contain the cell neighbourhood
+`nbhd m0 x` (2L-1 pi_{k+1}-cells around the cell of x) of every site x within `zRad = 11 L^(m1+k+1) + 2` (sup distance) of the polymer,
+its neighbours and the polymers of Gk, Gj.  The landed single-cube cover reaches only (L-1) a_K = (L-1) L^(k+1+m0+m1) beyond the
+cell, which is below 11 L^(k+1+m1) when m0 = 1, L = 3; and `X1 = ⋃ Q0` of a general polymer does not contain the neighbourhood of the
+cells of sites that stick out of the cell of a chosen cube.  So the canonical cover family (XL, chosen family) must be chosen large
+enough, or m0 >= 3 (L = 3) used.  Also, the localB support bound used is `localB_dataSites_range` (11 L^(m1+j) + 1).
+
+### Ruling R9 landed: `sides` above the torus horizon (W1161, 2026-10-21)
+
+`sides L K nK j := if j ≤ K then nK * L^(K-j) else 1` (`LargeField/Def7.lean`), with `sides_of_le`, `sides_of_gt`, `sides_self`; `sides_hnn`
+and the `NeZero` instance reproved.  The whole library builds; only two proofs broke (`Spine/LastIntegral.sideDiv_eq_sfIdx`,
+`Spine/RootF.sideOf_eq`, repaired with `sides_self`/`sides_of_le`); no theorem statement using only `j ≤ K` changed.
+Statements that changed: `sides` itself; `hsub : ∀ j, K < j → n j = 1` (was `K ≤ j`) in `ImageHist`, `ImageHistBook`, `QuietImage`
+(`torus_subsingleton` now takes `K < j`; the proofs already split at `j ≤ K`); `QuietWitness` adapted (`wn_top (by omega)`).
+`real_euclid`: `QuietImage.real_euclid_sides` proves the field of `QuietStepInput'` for the torus sequence `sides L K nK`, every `nK`
+(and `k₀ ≤ K`): quiet realizability is closed under `HistImage` (`quietRealized_iff_of_histImage` with `hsub` from `sides_of_gt`).
+The other fields of `QuietStepInput'` are not affected by R9.
+Also: the W1160 lemma `inBox_of_blocksOf_subset` of `Polymer/TwoTorusLabelBox` clashed with the same name in `TwoTorusObsKernel`
+(main); it is renamed `inBox_of_dom_blocksOf_subset`.
+
+R9 follow-up (W1161): `QuietImage.quietStepInput'_nonempty_of_hsub` (full `QuietStepInput'` on any tori that are points above `K`, `k₀ ≤ K`; zero
+boundary exponent, as in `QuietWitness`) and `quietStepInput'_nonempty_sides` (the family `sides L K nK`, every `K`, `nK`).
 ## D7 clause rows at coefficient level (W1158)
 
 * **Done** (`Spine/LFOldD7Support.lean`, `LFOldD7Rot.lean`, `LFOldD7RotLoc.lean`): support row (`oldFiber` empty/zero-sum lifts by summation); rot row (d5) for `oldCoef` (`oldCoef_rotBy`) and for the local pair (`oldCoefLoc_rot`, hypotheses packaged in `OldCoefRotHyp`).
@@ -1776,3 +1829,21 @@ Landed in `Spine/`: `LFOldD7Reads.lean` (`stepReadsIn_outLabel`, `fineSet_subset
 
 * d4 (euclid): `Localization/DecEquivAff.lean` (core: bump, cube bump, `InBox`, cells and bases under aligned affine lattice isometries; `CoverSymm.ofAff`, `BlockSymm.ofAff` generalize `ofTranslate`; pair versions `cover_idx_aff`, `cover_chi_aff`, `cover_box_aff`, `cover_qset_aff`, `block_idx_aff`), `Localization/LatPairDecBg.lean` (`decBg2_sym_pair`), `Spine/LFOldD7Euclid.lean` (`StepAff`: transport of `decBg`, `covSqrtAt`, `composed`, `oldInterp`, `oldCoef` between two steps), `Spine/LFOldD7EuclidLoc.lean` (the local step of `σH` is `StepAff`-related to that of `H`; `oldCoefLF_aff`, `oldCoefLoc_euclid`). Inputs of `oldCoefLoc_euclid`: the record's `euclid` clause at `X`, `J` ⊆ cover cubes, analyticity of the two interpolated old terms.
 * d2 hB: `LFOldD7AnalyticRec.lean`; d6 from `Z_k`: `LFOldD7Hist.lean` (`holeStepLoc_congr_hist_Z`); `hsiteY`: `LFOldD7Reads.lean`.
+
+### A4-1f `OldTermsCanonPinsAt` and the cover requirement `hX1` after R13 (W1161, 2026-10-21)
+
+`NewLevelCanonPinsOfIrrel.oldTermsCanonPinsAt_of_irrel` assembles `OldTermsCanonPinsAt` from the labels of `OldTermsAreIrrel`
+(`AdmPairs` membership, injectivity), `Eτ`, **surjectivity onto `AdmPairs`** and the covering data as functions `F` of the label.
+The last two are not consequences of `OldTermsAreIrrel`: `∑ τ, Eτ τ = Jr.EJ C` constrains only the sum, and `Gk`, `X₁f`, `𝒦X`, `ρ`
+are existential fields of `OldTermSystem`.  They must come from the producer (index type := the subtype `AdmPairs`, fields := `F` of
+the label); that is part of the chain's construction of `NS`, in W1146t's files.
+**`hX1` is false as stated, for every `m₀`.**  `O.X₁f τ = X1 S.G' m₀ (jL τ) (𝒦X τ)` (`OS.hX₁`) and the chosen family `𝒦X` is forced
+to lie in the polymer (`ChosenOne`, `XL = X ∪ cell box` in `OldTermsAreIrrel`), so `X₁` is the union of the aligned `L a_K`-cubes
+containing a cube of `𝒦X`, i.e. the `(L-1)`-cell neighbourhood of the cells met by the polymer; it cannot be enlarged by choosing a
+larger cover.  `hX1` asks `nbhd m₀ x ⊆ X₁` for sites `x` at sup-distance `≤ zRad` of the polymer; for a polymer in one cell `C₀` and
+`x` in the adjacent cell (distance 1 from a boundary site), `nbhd x` reaches `L` cells from `C₀`, `X₁` only `L-1`.
+Repair (not yet done): do not take `Z = cellUnion` of whole cells.  Take `Z` = the sites within `r = 11 L^(m₁+k) + L^(k+1) + 2` of
+the polymer (data sites of `Gk` are within `11 L^(m₁+j)+1`), closed under blocks, and prove `BlockMargin` for it from the distance of
+its sites to the complement of `X₁` (`(L-2) a_K - 6 L^(k+1+m₁) > 0` for `L^{m₀}(L-2) ≥ 6`), a generalization of
+`LocalCover.blockMargin` from "Zα in one cell" to "Zα within `a_K` of the cell".  `hgeom_of_local` then needs `hX1` replaced by
+this distance condition.

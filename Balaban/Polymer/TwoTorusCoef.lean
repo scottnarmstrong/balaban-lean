@@ -1835,6 +1835,40 @@ set_option hygiene false in
 local notation "domB" => fun b : TB => polyDom (GB) (LocalCover.nbhdF m₀ (LocalCover.blockSite k b))
   m₀ k (LocalCover.fam m₀ (LocalCover.blockSite k b))
 
+/-- **The neighbourhood of a domain of the box meets the fine block of a root iff the
+neighbourhood of its image meets the fine block of the image root** (the clause of `markedIdx`
+on `psiThick`). -/
+theorem psiThick_fineBlock_iff {R rc : ℕ}
+    (hn : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 12 * L ^ (k + 1 + m₁) + 7 * L ^ (k + 1) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (z : TA) (hz : InBox d rc (N₁ * L ^ m₁ * L ^ (k + 1 - (k + 1))) z) (hrc : L ^ (k + 1) * rc ≤ R)
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y) :
+    (psiThick (bm '' Y) ∩ fineBlock (m₁ := m₁) (K := k + 1) (bc z)).Nonempty ↔
+      (psiThick Y ∩ fineBlock (m₁ := m₁) (K := k + 1) z).Nonempty := by
+  have hK1 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hKm : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (Nat.le_add_right _ _)
+  have hfine := fineBlock_image (N₁' := N₁') (ρ := R) (by omega) z hz hrc
+  have hpsi := psiThick_image (N₁' := N₁') (by omega) (by omega) hYR
+  have hpsiR : ∀ x ∈ psiThick Y, InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+    fun x hx => inBox_mono (by omega) (inBox_of_mem_psiThick (by omega) hYR hx)
+  have hfineR : ∀ x ∈ fineBlock (m₁ := m₁) (K := k + 1) z,
+      InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    rw [fineBlock_eq_box] at hx
+    exact inBox_of_mem_cell (by omega) (blockSite_inBox (N₁ := N₁) (by omega) z hz hrc) hx
+  rw [hpsi, ← hfine]
+  constructor
+  · rintro ⟨_, ⟨x, hx, rfl⟩, ⟨w, hw, hwx⟩⟩
+    have := boxMap_inj
+      (hm' := (by omega : 2 * (R + L ^ (k + 1)) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)))
+      (hfineR w hw) (hpsiR x hx) hwx
+    exact ⟨x, hx, this ▸ hw⟩
+  · rintro ⟨x, hx, hx'⟩
+    exact ⟨bm x, ⟨x, hx, rfl⟩, ⟨x, hx', rfl⟩⟩
+
+
 /-- **The pairs (block, domain) of a label on two tori.**  For a block `b` whose region `X₁` lies in
 the box of radius `R` and a domain `Y` of the box, `(bc b, bm '' Y)` is a marked pair of the root
 `bc z` with bridge `bm '' Y'` iff `(b, Y)` is a marked pair of `z` with bridge `Y'` (domains
@@ -1883,26 +1917,7 @@ theorem markedPair_boxMap_iff {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m
     rw [hbs, ← hF]
     exact mem_polyDom_boxMap_iff hcov hX₁ hcov' hX₁' hXR hnF hnF' Y hYR
   -- the fine blocks and the neighbours
-  have hfine := fineBlock_image (N₁' := N₁') (ρ := R) (by omega) z hz hrc
-  have hpsi := psiThick_image (N₁' := N₁') (by omega) (by omega) hYR
-  have hpsiR : ∀ x ∈ psiThick Y, InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
-    fun x hx => inBox_mono (by omega) (inBox_of_mem_psiThick (by omega) hYR hx)
-  have hfineR : ∀ x ∈ fineBlock (m₁ := m₁) (K := k + 1) z,
-      InBox d (R + L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro x hx
-    rw [fineBlock_eq_box] at hx
-    exact inBox_of_mem_cell (by omega) (blockSite_inBox (N₁ := N₁) (by omega) z hz hrc) hx
-  have hthick : (psiThick (bm '' Y) ∩ fineBlock (m₁ := m₁) (K := k + 1) (bc z)).Nonempty ↔
-      (psiThick Y ∩ fineBlock (m₁ := m₁) (K := k + 1) z).Nonempty := by
-    rw [hpsi, ← hfine]
-    constructor
-    · rintro ⟨_, ⟨x, hx, rfl⟩, ⟨w, hw, hwx⟩⟩
-      have := boxMap_inj
-        (hm' := (by omega : 2 * (R + L ^ (k + 1)) + 1 < (N₁' * L ^ m₁) * L ^ (k + 1)))
-        (hfineR w hw) (hpsiR x hx) hwx
-      exact ⟨x, hx, this ▸ hw⟩
-    · rintro ⟨x, hx, hx'⟩
-      exact ⟨bm x, ⟨x, hx, rfl⟩, ⟨x, hx', rfl⟩⟩
+  have hthick := psiThick_fineBlock_iff (N₁' := N₁') hn hn' z hz hrc hYR
   have hreads : ∀ {M : ℕ} [NeZero M] (w : Torus d (M * L ^ m₁ * L ^ (k + 1 - (k + 1)))),
       ((Set.univ : Set (CTorus d L M m₁ (k + 1))) ∩ fineBlock (m₁ := m₁) (K := k + 1) w).Nonempty :=
     fun w => ⟨rootSite w, trivial, rootSite_mem_fineBlock w⟩

@@ -68,15 +68,29 @@ structure Consts7 where
   Bst : ℝ
 
 /-- The cube tori `n_j = n_K L^{K - j}` of the admissible torus with `n_K` top cubes (side
-`ℓ = M n_K L^K`; v1.2 (A-IV.3): `M L^{k̂_f + 1} ∣ ℓ` with `K = k̂_f + 1`). -/
-def sides (L K nK : ℕ) : ℕ → ℕ := fun j => nK * L ^ (K - j)
+`ℓ = M n_K L^K`; v1.2 (A-IV.3): `M L^{k̂_f + 1} ∣ ℓ` with `K = k̂_f + 1`); above the torus horizon
+(`K < j`) the torus is a point (ruling R9). -/
+def sides (L K nK : ℕ) : ℕ → ℕ := fun j => if j ≤ K then nK * L ^ (K - j) else 1
 
-instance sides.neZero (L K nK j : ℕ) [NeZero L] [NeZero nK] : NeZero (sides L K nK j) :=
-  ⟨Nat.mul_ne_zero (NeZero.ne nK) (pow_ne_zero _ (NeZero.ne L))⟩
+theorem sides_of_le {L K nK j : ℕ} (h : j ≤ K) : sides L K nK j = nK * L ^ (K - j) := by
+  simp [sides, h]
+
+theorem sides_of_gt {L K nK j : ℕ} (h : K < j) : sides L K nK j = 1 := by
+  simp [sides, not_le.2 h]
+
+theorem sides_self (L K nK : ℕ) : sides L K nK K = nK := by
+  rw [sides_of_le le_rfl]; simp
+
+instance sides.neZero (L K nK j : ℕ) [NeZero L] [NeZero nK] : NeZero (sides L K nK j) := by
+  by_cases h : j ≤ K
+  · rw [sides_of_le h]
+    exact ⟨Nat.mul_ne_zero (NeZero.ne nK) (pow_ne_zero _ (NeZero.ne L))⟩
+  · rw [sides_of_gt (not_le.1 h)]
+    exact ⟨one_ne_zero⟩
 
 theorem sides_hnn (L K nK : ℕ) : ∀ i, i < K → sides L K nK i = L * sides L K nK (i + 1) := by
   intro i hi
-  unfold sides
+  rw [sides_of_le hi.le, sides_of_le (by omega : i + 1 ≤ K)]
   rw [show K - i = (K - (i + 1)) + 1 by omega, pow_succ]
   ring
 
