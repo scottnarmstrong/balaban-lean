@@ -123,18 +123,13 @@ section Region
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M m₀ m₁ : ℕ}
   [NeZero S.L] [NeZero M]
 
-/-- **The new region misses the large-field region of the previous scale** (P5 (2.3): the opening
-of scale `k + 1` misses the coarsening `U'_k` of `Z_k`; LFR Lemma I.3.5 (e)): a fine site whose cube
-of `𝕋_k` lies in `Z_k` has its cube of `𝕋_{k+1}` outside `Ω_{k+1}`, hence in `Z^pre_{k+1}`. -/
+/-- **The cubes of `𝕋_{k+1}` over `Z_k` lie in `Z^pre_{k+1}`**: they lie outside `Ω_{k+1}`
+(`RegionHistory.cubeMap_succ_notMem_Omega`; P5 (2.3)), and `Ω_{k+1}^c ⊆ Z^pre_{k+1}`. -/
 theorem RegionHistory.cubeIdx_succ_mem_Zpre (F : Def7.FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (H : RegionHistory S n R k0 K) {k : ℕ}
     (hk : k + 1 ≤ K) {x : Localization.CTorus S.d S.L F.N₁ m₁ K}
-    (hx : cubeIdx F k x ∈ (H.step k).Z) : cubeIdx F (k + 1) x ∈ H.F.Zpre (k + 1) := by
-  refine H.compl_OmegaCube_subset_Zpre (k + 1) fun hxΩ => ?_
-  have hU : blockMap S.L (n (k + 1)) (cubeMap n S.L M K k (Localization.castT F.side x)) ∈
-      (H.step k).Uprime := ⟨_, subset_nbhd _ _ hx, rfl⟩
-  rw [cubeMap_succ hnn hk] at hU
-  exact (H.step k).Uprime_subset_compl hU ((H.step k).Omega_subset_OmegaPrime hxΩ)
+    (hx : cubeIdx F k x ∈ (H.step k).Z) : cubeIdx F (k + 1) x ∈ H.F.Zpre (k + 1) :=
+  H.compl_OmegaCube_subset_Zpre (k + 1) (H.cubeMap_succ_notMem_Omega F hnn hk hx)
 
 end Region
 
