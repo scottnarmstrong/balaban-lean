@@ -95,8 +95,8 @@ theorem switch_piece_massZeroP (N : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hgj0 : 0 < gj := lt_of_lt_of_le (Real.exp_pos _) hgj
   have hβc0 : 0 ≤ βc := by rw [hβc]; exact (mul_pos hβ hgk0).le
   have hKa0 : 0 ≤ Ka := (abs_nonneg _).trans (hKa 0)
-  obtain ⟨hcb, hcg, hcm⟩ := switch_cube_budgetsP X Dc hd2 hjk hwt1 hcells a hβ hgk hgj hε₀ hE hKa
-    hCb hCg hCm0 hCm
+  obtain ⟨hcb, hcg, hcm⟩ := switch_cube_budgetsP X Dc hd2 hwt1 hcells a hβ hgk hgj hε₀ hE hKa
+    hCb hCg hCm
   rw [← hνk, ← hβc] at hcm
   rw [← hβc] at hcb hcg
   have hA0 : 0 ≤ β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 := by positivity
