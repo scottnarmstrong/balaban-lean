@@ -326,6 +326,88 @@ theorem card_locCubes_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 �
   · intro hP
     exact ⟨⟨P, hsub hP⟩, hP, rfl⟩
 
+omit [NeZero M] in
+/-- The cube of `𝕋_k` of a site of the cover torus is that of its site of the history torus. -/
+theorem cubeMap_fineOfC_k {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    LargeField.cubeMap n S.L M K k (fineOfC g hnn hM1 hk x) =
+      cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x := by
+  have e : S.L ^ k * M = S.L ^ k * (g.c * g.M1) := congrArg _ g.hM
+  unfold LargeField.cubeMap cubeKOfC fineOfC
+  show _ = blockMap _ _ (LargeField.torusCast
+    (congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm x)
+  rw [LargeField.blockMap_torusCast, LargeField.blockMap_torusCast, e]
+
+omit [NeZero M] in
+/-- The cube of `𝕋_{k+1}` of a site of the cover torus is that of its site of the history torus. -/
+theorem cubeMap_fineOfC_succ {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    LargeField.cubeMap n S.L M K (k + 1) (fineOfC g hnn hM1 hk x) =
+      cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x := by
+  have e : S.L ^ (k + 1) * M = S.L ^ (k + 1) * (g.c * g.M1) := congrArg _ g.hM
+  unfold LargeField.cubeMap cubeOfC fineOfC
+  show _ = blockMap _ _ (LargeField.torusCast
+    (congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm x)
+  rw [LargeField.blockMap_torusCast, LargeField.blockMap_torusCast, e]
+
+omit [NeZero M] in
+/-- The frame site of a site of the cover torus lies in a fine lift iff its cube does. -/
+theorem toFrame_mem_d7Pull_iff {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k + 1 ≤ K)
+    {j : ℕ} {A : Set (Torus S.d (n j))} (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    toFrame g hnn hM1 F hk x ∈ d7Pull F j A ↔
+      LargeField.cubeMap n S.L M K j (fineOfC g hnn hM1 hk x) ∈ A := by
+  show castT F.side (castT F.side.symm (fineOfC g hnn hM1 hk x)) ∈
+    fineSet (S := S) (n := n) M K j A ↔ _
+  rw [castT_castT_symm]
+  rfl
+
+omit [NeZero M] in
+/-- **The frame sites of `A_X` are the sites of `X ∩ Ω_{k+1}`.** -/
+theorem toFrame_activeCoreC_subset {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (X : Finset (Torus S.d (n k)))
+    {x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)}
+    (hx : x ∈ activeCoreC (c := g.c) (n1 := n (k + 1)) (n0 := n k) (k := k) (H.step k) hM1 X) :
+    toFrame g hnn hM1 F hk x ∈
+      d7Pull F k (X : Set (Torus S.d (n k))) ∩ d7Pull F (k + 1) (OmegaCube H (k + 1)) := by
+  obtain ⟨hX, hΩ⟩ := (mem_activeCoreC _).1 hx
+  refine ⟨(toFrame_mem_d7Pull_iff g hnn hM1 F hk x).2 ?_, (toFrame_mem_d7Pull_iff g hnn hM1 F hk x).2 ?_⟩
+  · rw [cubeMap_fineOfC_k]; exact hX
+  · rw [cubeMap_fineOfC_succ]; exact hΩ
+
+omit [NeZero M] in
+/-- The frame site of a site has the same coordinates. -/
+theorem toFrame_val {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k + 1 ≤ K)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (μ : Fin S.d) :
+    ((toFrame g hnn hM1 F hk x) μ).val = (x μ).val := by
+  unfold toFrame fineOfC
+  rw [castT_val, LargeField.torusCast_val]
+
+omit [NeZero M] in
+/-- **`toFrame` maps cells to cells**: the frame site of the base of a cell is the base of the cell of
+the frame site. -/
+theorem toFrame_cbase {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k + 1 ≤ K)
+    (a : ℕ) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    toFrame g hnn hM1 F hk (cbase a x) = cbase a (toFrame g hnn hM1 F hk x) := by
+  funext μ
+  apply ZMod.val_injective
+  rw [toFrame_val]
+  simp only [cbase]
+  rw [toFrame_val]
+  have hlt : a * ((x μ).val / a) < (g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1) :=
+    lt_of_le_of_lt (Nat.mul_div_le _ _) (ZMod.val_lt _)
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hlt, ZMod.val_natCast, Nat.mod_eq_of_lt]
+  calc a * ((x μ).val / a) ≤ (x μ).val := Nat.mul_div_le _ _
+    _ < _ := by rw [← toFrame_val g hnn hM1 F hk x μ]; exact ZMod.val_lt _
+
+omit [NeZero M] in
+/-- `toFrame` is injective. -/
+theorem toFrame_injective {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ} (hk : k + 1 ≤ K) :
+    Function.Injective (toFrame g hnn hM1 F hk) := fun x y h => by
+  funext μ
+  apply ZMod.val_injective
+  rw [← toFrame_val g hnn hM1 F hk x μ, ← toFrame_val g hnn hM1 F hk y μ, h]
+
+
 end Resum
 
 end Balaban.RootFSpine
