@@ -669,6 +669,15 @@ threshold β₀ for both tori (from the two-torus identities of the decoupled ba
 It is being carried from the step to the class of the next scale; the induction over scales, the source term
 ⟨g, φ_k − h⟩ at later scales and general d, N remain.
 
+Update (21 October). The agreement on two tori of the coefficient of each step's new terms is proved from the
+agreement of its ingredients (inherited terms, marks, determinant part); deriving those ingredients from the class
+needs the step to index and cover its inherited terms canonically (the same rule on every torus; the step chain is
+being changed to do so), and the matching of the labels is in progress. One point is new and open: at the distinguished cell of an inherited
+term, the term contains the sum of the relevant parts over all polymers through that cell, and on a finite torus
+this sum includes polymers that wrap around it. The class renormalizes these parts only in the limit of large tori,
+so the cell term differs slightly between two tori. The intended repair is the one already used at the last scale:
+keep the non-wrapping polymers in the cell term and move the remainder onto polymers that wrap the torus.
+
 ## Large pieces of work that are not blockers
 
 These have no known mathematical gap, but they are substantial and not yet done.

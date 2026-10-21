@@ -762,11 +762,47 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
     fluctuation bound and the room ε_{k+1} → ε_k; size: the large-field analogue of W1146's `d2raw_*_mem_xiDom` chain);
   - `H7MixedDatumLoc` — the datum of the local pair lies in Ψ̃^c(G′_V; δ_b, δ_b) (patching the per-cube decompositions of
     RegC into one real slowly varying field on V; size: medium);
-  - Proposition 3.3 on a region (the localized exponent of the measure of the step, `InterpMarksOn` minus the marks):
-    still to be stated.
-  Next: the marks (the coefficients as functions of the cube variables of the measure, with the bound above), Proposition
-  3.3 on a region as a named input, `oldB` as `BTerms` (grouped by output label, with the assignments of
-  `Spine/LFBdryOldAssign`) and its (D7) clauses, and the bound P6 (4.34) at one output label.
+  - **Proposition 3.3 on a region** (FLUCTUATION Prop. 3.3; P5 (3.2), P6 (4.32)) — the interaction package
+    `I : Fluctuation.LocInteraction` (data: labels `Lab` of the cubes of Ω, activities `A(u)`, the constants of
+    Theorem 3.4 with one mark, `Fluctuation/MarkCluster`) on the block structure `HoleStep.prodSplit` of the measure
+    of the step: its core at one field is `HoleStep.Prop33On` (`Spine/LFOldCluster`: `A(u)` holomorphic on an open
+    𝒰 ⊃ [0,1] and `W(s) = ∑_y H_y(s)` ν-a.e. for the exponent `expWLF`); the named Prop over the fields adds the
+    field properties of `H_y` (locality in the fields near the label's site, analyticity on the H7 domain, real,
+    rot, euclid, loc_hist) and is stated with (g2)(iii)-c, where the family of packages over the fields of `oldB`
+    is fixed. Size: large (the region analogue of `Fluctuation/Prop33*`, with the old terms of the exponent).
+  Landed for (g2)(iii)-a (W1154 piece 5i–5j): `Fluctuation/MarkCluster` (`markTerm`, `markTerm_spec`: the cluster
+  term `∫₀¹ G*(V, S) du` of one mark with the mark's site added as a label of zero activity; `LocInteraction`,
+  `markTerm_spec_of_norm_le`); `Spine/LFOldCluster` (`markSite`, `isPiPrimeUnion_markSite`, `GoodJ`,
+  `unitRep_mem_of_mem_locUnits`, `oldMarkLF_depOn_markSite`, `oldClusterLF`, **`oldClusterLF_spec`: the bound
+  `C_PE fac e^{-rate d^cov(X)} e^{-(κ₁-1)|J_V|} e^{(κ_H-κ₀) 𝗱(V)} e^{-κ' d_Ω(T)}` and the support of the cluster term
+  of the mark of (X, J)**, conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc`; the package enters only through its
+  constants). Piece 5k–5l: the cluster expansion runs on the cells of scale `k+1` of `Ω_{k+1}` on the frame torus of
+  (D7) (`toFrame`, `markSite`, `oldClusterLF` on the frame; `HoleStep.markOf`/`oldMarkLF` take cubes of any type,
+  `HoleStep.cubeMeasure`); the output label of `(X, J, T)` is `Ŷ(T)` (FLUCTUATION Theorem 3.1 (c), P6 p. 34–35;
+  `Spine/LFOldOut`: `outLabel`, `outLabel_spec` valid at `Ω_{k+1}` with size `d_Ω(T)`, `d7Pull_subset_outLabel` the old
+  label inside the output label). Not the assignments of `oldAssign` with the cubes of `T` as patches: the cubes of `T`
+  may be joined only through holes of `Ω_{k+1}`, so they need not form a `PatchChain` inside `Ω_{k+1}`.
+  Piece 5m–5p ((g2)(iii)-c, approved design): the site of a mark is `markSite` = the `π'_{k+1}`-cubes at the cells of
+  `markBase` = `X ∩ Ω_{k+1}`, the connecting structure `optW` of an optimal cover of `X`, `V(X, J)` and the data sites
+  of the local pair `G′_V` (`locG'`) — not the holes of `X`; `markSite_holeClose_subset_outLabel`,
+  `markSite_subset_outLabel` (the site and its hole closure lie in `Ŷ(T)`); the marks are grouped by `(X, V)` as in
+  P3 (4.45) (`Spine/LFOldB`: `famAt`, `sitesX`, `oldMarkSite`, `oldClusterSite`, `norm_oldClusterSite_le`, `oldBAt`);
+  **`norm_oldBAt_le` (`Spine/LFOldBBound`): the bound of the old part at an output label `Y`,
+  `≤ 2^{c₁(1+D)} C_PE fac C_res · L^d c₁(1+D) K₀(rate-κ_X) · c₁(1+D) K₀(κ₀) · e^{-κ' D}`, `D = d_{k+1}(Y mod Ω^c)`**,
+  conditional on `H7MixedInnerLoc`, `H7MixedDatumLoc` and the third named input:
+  - **`OldResumSite`** (named input, **open**; P3 (4.45)–(4.49), P6 p. 34; approved 2026-10-21) — for every old label
+    `X` meeting `Ω_{k+1}` and every site `V`, `∑_{J with site V} e^{-(κ₁-1)|J_V|} ≤ C_res e^{κ_X d_k(X)} e^{-κ_V 𝗱(V)}`,
+    `J` ranging over the families of cover cubes inside the localization range `locRange` (the sites within `ρ` cubes
+    of `Ω_{k+1}`; `allJ`): there the cover cubes are of levels `k`, `k+1` (`Ω_{k+1} ⊂ Ω'_{k+1}`, far from `W_k^c`),
+    so their number per cell is bounded; the parameters of the other cubes do not enter the localization vectors.
+    Proof needs: the levels of the cover cubes in the localization domains near `Ω_{k+1}` (a bounded number of cubes
+    per cell), the size of the site by `d_k(X)` and `|J_V|` (P3 (4.48)), and the count of the reached families of cover
+    cubes from one cube (P3 (4.49), `oldCoef_eq_zero_of_not_reached`). Size: 800–1,200 lines. W1154 next.
+  `oldB` as `BTerms` (`Spine/LFOldBBound`: `oldB`, the old labels `oldDoms`, the families `inner`, `cb`, `I` over the
+  histories and fields) and **`norm_oldB_le`: its (D7) bound `2^{c₁} C_PE fac C_res L^d c₁ K₀ c₁ K₀ e^{-rate' d^pre_{k+1}(Y)}`
+  at a field of the H7 domain of `Y`, for `κ' ≥ rate' + c₁ log 2 + 2`** (`exp_poly_le_exp`). Remaining for (iii)-c:
+  the named Prop 3.3 on a region over the fields (with the field properties of `H_y` for (iii)-d), the uniformity of the
+  constants of `I` over the fields, and `OldResumSite` (W1154 next).
 
 ## LastIntegralInput sub-inputs (W1108)
 

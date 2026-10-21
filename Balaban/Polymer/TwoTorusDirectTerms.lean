@@ -624,6 +624,240 @@ local notation "FA" => ((SA).U × Fin N → ℂ) × ((SA).U × Fin N → ℂ)
 set_option hygiene false in
 local notation "FB" => ((SB).U × Fin N → ℂ) × ((SB).U × Fin N → ℂ)
 
+/-- **The labels of the direct terms and their activities correspond on two tori** (the content of
+`gsumCoeff_e1_twoTorus_of_directTerms` that concerns the labels and the zero-source activity): for
+`DirectTerms` instances `I`, `I'` of the explicit form (`hI𝒴`, `hIT`), the labels `y` of the first
+torus with blocks in `T` correspond injectively and onto the labels with blocks in `cubeMap '' T` of the
+second (`blocks (ψ₀ y) = cubeMap '' blocks y`), and the zero-source activities `zeroSourceAct`
+of the relative families agree at corresponding labels and block variables. -/
+theorem directTerms_labelCorr_twoTorus
+    {c BG κ eps Kc Cx c₂ BG₂ δ₁ : ℝ} (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
+    (hC : FlCore N (GA) (HA) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hC' : FlCore N (GB) (HB) 1 νS c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hGA : IsLevel (GA) (k + 1)) (hGB : IsLevel (GB) (k + 1))
+    (hMX : cstarX d L * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δc : ℝ}
+    (hmar : decDomMargin d L N BG κ (xiC1 d * eps) < δc)
+    (hαK : K4 d L N BG κ * (xiC1 d * eps) < coerciveConst d / 2)
+    (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4)
+    (hN : L ^ 1 ∣ N₁) (hN' : L ^ 1 ∣ N₁') (hm₁ : 1 ≤ m₁)
+    {R : ℕ}
+    (hn : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (hn' : 4 * R + 19 * L ^ (k + 2 + 1 + m₁) + 5 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (θ : physParam N (SA)) (θ' : physParam N (SB))
+    (hθ : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GA) (compWeight L 1) νS (k + 1) 1 eps)
+    (hθ' : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
+      XiCRaw (GB) (compWeight L 1) νS (k + 1) 1 eps)
+    (hraw : RawBoxAgree {z | InBox d (R + 3 * L ^ (k + 1)) ((N₁ * L ^ m₁) * L ^ (k + 1)) z}
+      (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N))
+    (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+
+    -- the direct terms of the two steps and their relative families
+    {ρI Rσ εU a κ0 KcL : ℝ} {Θ₀ : ΛA} {Θ₀' : ΛB} {SΛ : Set ΛA} {SΛ' : Set ΛB}
+    {XW : Set (FA × FA)} {XW' : Set (FB × FB)} {val : FA → FA → ℂ → ΛA → ℂ}
+    {val' : FB → FB → ℂ → ΛB → ℂ} {AgΘ : Set (CTorus d L N₁ m₁ (k + 1)) → ΛA → ΛA → Prop}
+    {AgΘ' : Set (CTorus d L N₁' m₁ (k + 1)) → ΛB → ΛB → Prop}
+    {AgF : Set (CTorus d L N₁ m₁ (k + 1)) → FA → FA → Prop}
+    {AgF' : Set (CTorus d L N₁' m₁ (k + 1)) → FB → FB → Prop}
+    (I : DirectTerms (SA) 1 hp (fun ψ => (ψ, ψ)) ρI Rσ εU a Θ₀ SΛ XW val AgΘ AgF)
+    (I' : DirectTerms (SB) 1 hp' (fun ψ => (ψ, ψ)) ρI Rσ εU a Θ₀' SΛ' XW' val' AgΘ' AgF')
+    {cJ cJ' : ℂ} {V : Set (physParam N (SA))} {V' : Set (physParam N (SB))}
+    (hF : DirectTermsFamilyOn (SA) 1 (physInclScaled N (SA) cJ) I V)
+    (hF' : DirectTermsFamilyOn (SB) 1 (physInclScaled N (SB) cJ') I' V')
+    (hρI : 0 < ρI) (hRσ : 1 < Rσ) (hεU : 0 ≤ εU) (hκ0 : aEnt d L + 2 ≤ κ0)
+    (hKc : K0 d L κ0 ≤ KcL)
+    (hV : ((θ.1, 0) : physParam N (SA)) ∈ V) (hV' : ((θ'.1, 0) : physParam N (SB)) ∈ V')
+    -- the explicit form of the direct terms at the zero source
+    (cc : ℂ) {cψ : ℝ} (hcψ : 0 ≤ cψ) (hρc : 2 * ρI ≤ cψ)
+    (hrad : markedRad d L N k 1 κ cψ cc < δ₁)
+    {F₂ : TA → DecParams (GA) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      ((GA).Ω 1 × Fin N → ℂ) × ((GA).Ω 1 → ℂ)}
+    {F₂' : TB → DecParams (GB) × RawData d L (N₁' * L ^ m₁) (k + 1) N →
+      ((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)}
+    (hF₂ : ∀ (b : TA) (s : DecParams (GA)) (D : BgData (GA) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GA) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GA).Ω 1 × Fin N → ℂ)
+        (α : (GA).Ω 1 → ℂ), IsDecBg (GA) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₂ b (s, rawOf D) = (φ, α))
+    (hF₂' : ∀ (b : TB) (s : DecParams (GB)) (D : BgData (GB) N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC (GB) (bgC0 d L N) (c7 d L N BG κ) νS D → ∀ (φ : (GB).Ω 1 × Fin N → ℂ)
+        (α : (GB).Ω 1 → ℂ), IsDecBg (GB) (compWeight L 1) νS (rho4 d L N BG κ) s D φ α →
+        F₂' b (s, rawOf D) = (φ, α))
+    {Sol₂ : TA →
+      Dec2.DecParams (coverOf (GA)) × Edat (HA) N →
+      ((HA).Ω 1 × Fin N → ℂ) × ((HA).Ω 1 → ℂ)}
+    {Sol₂' : TB →
+      Dec2.DecParams (coverOf (GB)) × Edat (HB) N →
+      ((HB).Ω 1 × Fin N → ℂ) × ((HB).Ω 1 → ℂ)}
+    (hSol₂ : ∀ (b : TA) (p : Dec2.DecParams (coverOf (GA)) × Edat (HA) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HA) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol₂ b p).1 = dphi (HA) (Dec2.decG (coverOf (GA)) (HA) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂ b p).2 ∧
+        Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂ b p).2 ∧
+        Small (HA) (Sol₂ b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HA) (Sol₂ b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HA) (Sol₂ b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HA).Ω 1 → ℂ, Small (HA) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GA)) (HA) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HA) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂ b p).2))
+    (hSol₂' : ∀ (b : TB) (p : Dec2.DecParams (coverOf (GB)) × Edat (HB) N),
+      (∀ P, ‖p.1 P‖ < Real.exp κ) →
+      StrictDataM (HB) N false (2 * (K4 d L N BG κ * (xiC1 d * eps))) δ₁ p.2 →
+        (Sol₂' b p).1 = dphi (HB) (Dec2.decG (coverOf (GB)) (HB) (compWeight L 1) νS p.1) p.2.2.1
+          p.2.1 (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂' b p).2 ∧
+        Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+          (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) (Sol₂' b p).2 ∧
+        Small (HB) (Sol₂' b p).2 (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) ∧
+        Small (HB) (Sol₂' b p).2 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        SupBounds (HB) (Sol₂' b p).1 (cK2' d L N (famConst d L BG₂ κ) * δ₁) ∧
+        (∀ δα' : (HB).Ω 1 → ℂ, Small (HB) δα' (c6' d L N (famConst d L BG₂ κ) (gamma1 d / 8)) →
+          Dec2.DecFixed (coverOf (GB)) (HB) (compWeight L 1) νS p.1 false p.2.2.1 p.2.1
+            (pertSource (HB) (compWeight L 1) p.2.2.2.1 p.2.2.2.2) δα' → δα' = (Sol₂' b p).2))
+    (hI𝒴 : I.𝒴 = (Finset.univ.biUnion fun z : TA =>
+        polyDom (GA) (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+          (LocalCover.fam 1 (LocalCover.blockSite k z))) ∪
+      Finset.univ.biUnion fun s : CTorus d L N₁ m₁ (k + 1) × Fin N =>
+        polyDom (GA) (LocalCover.nbhdF 1 s.1) 1 k (LocalCover.fam 1 s.1))
+    (hI𝒴' : I'.𝒴 = (Finset.univ.biUnion fun z : TB =>
+        polyDom (GB) (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+          (LocalCover.fam 1 (LocalCover.blockSite k z))) ∪
+      Finset.univ.biUnion fun s : CTorus d L N₁' m₁ (k + 1) × Fin N =>
+        polyDom (GB) (LocalCover.nbhdF 1 s.1) 1 k (LocalCover.fam 1 s.1))
+    (hIT : ∀ (Y : Set (CTorus d L N₁ m₁ (k + 1))) (x w : FA) (σ : ℂ)
+        (Θ : RawData d L (N₁ * L ^ m₁) (k + 1) N),
+      I.T Y x w σ (Θ, 0) = -(((SA).β : ℝ) : ℂ) * ∑ z : TA,
+        if Y ∈ polyDom (GA) (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k z)) then
+          rayTerm (dl3 (evDec (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k z)) 1 νS hGA cc (F₂ z) (Sol₂ z)
+            (blockEnergyFun (GA) (HA) (compWeight L 1) νS k z) ∅ 1 0 Y) w.1) taylorWeight x.1 σ Θ
+        else 0)
+    (hIT' : ∀ (Y : Set (CTorus d L N₁' m₁ (k + 1))) (x w : FB) (σ : ℂ)
+        (Θ : RawData d L (N₁' * L ^ m₁) (k + 1) N),
+      I'.T Y x w σ (Θ, 0) = -(((SB).β : ℝ) : ℂ) * ∑ z : TB,
+        if Y ∈ polyDom (GB) (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k z)) then
+          rayTerm (dl3 (evDec (LocalCover.nbhdF 1 (LocalCover.blockSite k z)) 1 k
+            (LocalCover.fam 1 (LocalCover.blockSite k z)) 1 νS hGB cc (F₂' z) (Sol₂' z)
+            (blockEnergyFun (GB) (HB) (compWeight L 1) νS k z) ∅ 1 0 Y) w.1) taylorWeight x.1 σ Θ
+        else 0)
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1 (k + 1) Set.univ))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L 1 m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) :
+    ∃ ψ₀ : (∀ y : {Y // Y ∈ I.𝒴}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T → {Y // Y ∈ I'.𝒴}),
+      (∀ y hy, blocksOf 1 (k + 1) Set.univ (ψ₀ y hy).1 =
+        (blocksOf 1 (k + 1) Set.univ y.1).image (σc)) ∧
+      (∀ y₁ hy₁ y₂ hy₂, ψ₀ y₁ hy₁ = ψ₀ y₂ hy₂ → y₁ = y₂) ∧
+      (∀ y' : {Y // Y ∈ I'.𝒴}, blocksOf 1 (k + 1) Set.univ y'.1 ⊆ T.image (σc) →
+        ∃ y hy, ψ₀ y hy = y') ∧
+      (∀ s : ℝ, s ∈ Set.Icc (0 : ℝ) 1 → ∀ y hy,
+        ∀ Φ Φ', (∀ x, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
+          Φ' ((SB).cellOf 1 (unitPt hGB (bm x))) ⟨unitPt hGB (bm x), rfl⟩ =
+            Φ ((SA).cellOf 1 (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩) →
+        ((zeroSourceAct (labelActFamilyOn (SB) 1 (physInclScaled N (SB) cJ') I' hF' hN'
+            hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) θ' (s : ℂ)).H (ψ₀ y hy) Φ' =
+          ((zeroSourceAct (labelActFamilyOn (SA) 1 (physInclScaled N (SA) cJ) I hF hN
+            hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) θ (s : ℂ)).H y Φ) := by
+  classical
+  obtain ⟨⟨hn1, hnS, hnF, -, -⟩, ⟨hn1', hnS', hnF', -, -⟩⟩ :=
+    twoTorus_margins_of_lt_min (R := R) (k := k) (m₀ := 1) (m₁ := m₁) hm₁ (lt_min hn hn')
+  have hcs : cellSide L 1 m₁ (k + 1) ≤ L * cellSide L 1 m₁ (k + 1) := cellSide_le_mul
+  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
+  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
+  -- the labels with blocks in `T` lie in the box
+  have hyR : ∀ y : {Y // Y ∈ I.𝒴}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
+      ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro y hy x hx
+    have hDj := I.dom y.1 y.2
+    have hs := sitesOf_blocksOf hN (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
+    have hx' : x ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y.1) := by rw [hs]; exact ⟨hx, trivial⟩
+    obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx'
+    exact hT b (hy hb) x hxb
+  -- the domains of the box correspond
+  have hmem𝒴 : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
+      (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ I'.𝒴 ↔ Y ∈ I.𝒴) := by
+    intro Y hY
+    rw [hI𝒴, hI𝒴', Finset.mem_union, Finset.mem_union,
+      mem_vDomains_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' hY,
+      mem_fDomains_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' hY]
+  refine ⟨fun y hy => ⟨bm '' y.1, (hmem𝒴 y.1 (hyR y hy)).2 y.2⟩, ?_, ?_, ?_, ?_⟩
+  · intro y hy
+    exact blocksOf_image_boxMap hN hN' (by omega) (by omega) (hyR y hy)
+  · intro y₁ hy₁ y₂ hy₂ h
+    exact Subtype.ext (image_boxMap_inj (N₁' := N₁') hm' (hyR y₁ hy₁) (hyR y₂ hy₂)
+      (congrArg Subtype.val h))
+  · intro y' hy'
+    change blocksOf 1 (k + 1) Set.univ y'.1 ⊆ T.image (σc) at hy'
+    have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+      intro x hx
+      obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
+      exact hT b hb x hxb
+    have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T hT'
+    have hDj' := I'.dom y'.1 y'.2
+    have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
+    have hy'R : ∀ x' ∈ y'.1, InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
+      intro x' hx'
+      have h1 : x' ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y'.1) := by
+        rw [hs']; exact ⟨hx', trivial⟩
+      obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
+      have h2 : x' ∈ sitesOf (T.image (σc)) := mem_sitesOf.2 ⟨b', hy' hb', hxb'⟩
+      rw [hsT] at h2
+      obtain ⟨w, hw, rfl⟩ := h2
+      exact inBox_boxMap hm' (hT' w hw)
+    have hYR : ∀ x ∈ bm' '' y'.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+      rintro _ ⟨x', hx', rfl⟩
+      exact inBox_boxMap hm (hy'R x' hx')
+    have hYimg : bm '' (bm' '' y'.1) = y'.1 :=
+      image_image_boxMap (n' := (N₁ * L ^ m₁) * L ^ (k + 1)) hm hy'R
+    have hYmem : bm' '' y'.1 ∈ I.𝒴 := (hmem𝒴 _ hYR).1 (by rw [hYimg]; exact y'.2)
+    have hYT : blocksOf 1 (k + 1) Set.univ (bm' '' y'.1) ⊆ T := by
+      intro b hb
+      have hbimg : σc b ∈ blocksOf 1 (k + 1) Set.univ (bm '' (bm' '' y'.1)) := by
+        rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
+        exact Finset.mem_image_of_mem _ hb
+      rw [hYimg] at hbimg
+      obtain ⟨b₂, hb₂, he⟩ := Finset.mem_image.1 (hy' hbimg)
+      have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos 1 m₁ (k + 1)))
+      have hbR := hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ (cellSide_pos 1 m₁ (k + 1))))
+      have h1 := congrArg Subtype.val he
+      rw [cubeMap_val, cubeMap_val] at h1
+      have h2 : b₂ = b := Subtype.ext (boxMap_inj (hm' := hm') hb₂R hbR h1)
+      exact h2 ▸ hb₂
+    exact ⟨⟨_, hYmem⟩, hYT, Subtype.ext hYimg⟩
+  · intro s hs y hy Φ Φ' hR
+    have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
+    have hsR : ‖(s : ℂ)‖ < Rσ := lt_of_le_of_lt hs1 hRσ
+    rw [zeroSourceAct_H, zeroSourceAct_H]
+    congr 1
+    rw [labelActFamilyOn_H (SB) 1 _ hF' hN' hρI _ hεU _ hKc hV' hsR,
+      labelActFamilyOn_H (SA) 1 _ hF hN hρI _ hεU _ hKc hV hsR]
+    have hJ : physInclScaled N (SA) cJ ((θ.1, 0) : physParam N (SA)) =
+        ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), 0) := by
+      rw [physInclScaled_apply]
+      refine Prod.ext rfl ?_
+      funext x i
+      simp
+    have hJ' : physInclScaled N (SB) cJ' ((θ'.1, 0) : physParam N (SB)) =
+        ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N), 0) := by
+      rw [physInclScaled_apply]
+      refine Prod.ext rfl ?_
+      funext x i
+      simp
+    rw [hJ, hJ', hIT, hIT']
+    congr 1
+    obtain ⟨D, hD, hDe⟩ := hθ
+    obtain ⟨D', hD', hDe'⟩ := hθ'
+    rw [hDe, hDe'] at hraw ⊢
+    have hhat := hatOf_boxMap hGA hGB hN2 hk νS β p₁ δ 1 ρI hp hp' Φ Φ' hR
+    exact vpartTerm_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₂ hF₂' hSol₂ hSol₂' le_rfl
+      hN hN' (hyR y hy) hn1 hn1' hnS hnS' hnF hnF' hD hD' hraw
+      (fun p => (SA).hatOf_mem 1 hρI hp Φ p) (fun p => (SA).hatOf_mem 1 hρI hp Φ p)
+      (fun p => (SB).hatOf_mem 1 hρI hp' Φ' p) (fun p => (SB).hatOf_mem 1 hρI hp' Φ' p) hρc
+      hhat hhat hrad taylorWeight hs1
+
+
 /-- **D3: the energy coefficient of the zero class on two tori, for direct terms of the explicit
 form.**  The hypotheses of `gsumCoeff_e1_twoTorus_of_domainLabels` without the domain labels and
 their activities, which are now those of the landed construction: the labels are the domains of
@@ -829,28 +1063,16 @@ theorem gsumCoeff_e1_twoTorus_of_directTerms
         (fun i => commonAnchor {Y // Y ∈ I.𝒴} (fun _ => Set.univ) (e1DomG (SA)) z i)
         (fun i u Φ => e1MarkGParamG (SA) F₁ Sol ρ hp z eps θ i u Φ) T := by
   classical
-  obtain ⟨⟨hn1, hnS, hnF, -, -⟩, ⟨hn1', hnS', hnF', -, -⟩⟩ :=
-    twoTorus_margins_of_lt_min (R := R) (k := k) (m₀ := 1) (m₁ := m₁) hm₁ (lt_min hn hn')
-  have hcs : cellSide L 1 m₁ (k + 1) ≤ L * cellSide L 1 m₁ (k + 1) := cellSide_le_mul
-  have hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1) := by omega
-  have hm : 2 * R + 1 < (N₁ * L ^ m₁) * L ^ (k + 1) := by omega
-  -- the labels with blocks in `T` lie in the box
-  have hyR : ∀ y : {Y // Y ∈ I.𝒴}, blocksOf 1 (k + 1) Set.univ y.1 ⊆ T →
-      ∀ x ∈ y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro y hy x hx
-    have hDj := I.dom y.1 y.2
-    have hs := sitesOf_blocksOf hN (le_refl (k + 1)) isPiUnion_univ_aux hDj.2.1
-    have hx' : x ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y.1) := by rw [hs]; exact ⟨hx, trivial⟩
-    obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx'
-    exact hT b (hy hb) x hxb
-  -- the domains of the box correspond
-  have hmem𝒴 : ∀ Y : Set (CTorus d L N₁ m₁ (k + 1)),
-      (∀ x ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) → (bm '' Y ∈ I'.𝒴 ↔ Y ∈ I.𝒴) := by
-    intro Y hY
-    rw [hI𝒴, hI𝒴', Finset.mem_union, Finset.mem_union,
-      mem_vDomains_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' hY,
-      mem_fDomains_boxMap_iff (ϱ := ϱ) hN hN' hnF hnF' hY]
-  refine gsumCoeff_e1_twoTorus_of_domainLabels hN2 hk νS β p₁ δ hC hC' hGA hGB hMX hmar hαK hsm
+  obtain ⟨ψ₀, h1, h2, h3, h4⟩ := directTerms_labelCorr_twoTorus (hN2 := hN2) (hk := hk) (νS := νS)
+    (β := β) (p₁ := p₁) (δ := δ) (hC := hC) (hC' := hC') (hGA := hGA) (hGB := hGB) (hMX := hMX)
+    (hmar := hmar) (hαK := hαK) (hsm := hsm) (hN := hN) (hN' := hN') (hm₁ := hm₁) (hn := hn)
+    (hn' := hn') (θ := θ) (θ' := θ') (hθ := hθ) (hθ' := hθ') (hraw := hraw) (hp := hp)
+    (hp' := hp') (I := I) (I' := I') (hF := hF) (hF' := hF') (hρI := hρI) (hRσ := hRσ)
+    (hεU := hεU) (hκ0 := hκ0) (hKc := hKc) (hV := hV) (hV' := hV') (cc := cc) (hcψ := hcψ)
+    (hρc := hρc) (hrad := hrad) (hF₂ := hF₂) (hF₂' := hF₂') (hSol₂ := hSol₂)
+    (hSol₂' := hSol₂') (hI𝒴 := hI𝒴) (hI𝒴' := hI𝒴') (hIT := hIT) (hIT' := hIT') (T := T)
+    (hT := hT)
+  exact gsumCoeff_e1_twoTorus_of_domainLabels hN2 hk νS β p₁ δ hC hC' hGA hGB hMX hmar hαK hsm
     hF₁ hF₁' hSol hSol' hN hN' hm₁ z hz hrc hroot hn hn' θ θ' hθ hθ' hraw hρ hp hp' hum hGdep
     hL2 hdom hdom' (thickLabels I.𝒴 I.dom) (thickLabels I'.𝒴 I'.dom)
     (mul_nonneg (by norm_num) (mul_nonneg (by linarith) hεU)) hκ0
@@ -858,83 +1080,7 @@ theorem gsumCoeff_e1_twoTorus_of_directTerms
     (zeroSourceAct (labelActFamilyOn (SA) 1 (physInclScaled N (SA) cJ) I hF hN
       hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num))
     (zeroSourceAct (labelActFamilyOn (SB) 1 (physInclScaled N (SB) cJ') I' hF' hN'
-      hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) T hT
-    (fun y hy => ⟨bm '' y.1, (hmem𝒴 y.1 (hyR y hy)).2 y.2⟩) ?_ ?_ ?_ ?_
-  · intro y hy
-    exact blocksOf_image_boxMap hN hN' (by omega) (by omega) (hyR y hy)
-  · intro y₁ hy₁ y₂ hy₂ h
-    exact Subtype.ext (image_boxMap_inj (N₁' := N₁') hm' (hyR y₁ hy₁) (hyR y₂ hy₂)
-      (congrArg Subtype.val h))
-  · intro y' hy'
-    change blocksOf 1 (k + 1) Set.univ y'.1 ⊆ T.image (σc) at hy'
-    have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      intro x hx
-      obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
-      exact hT b hb x hxb
-    have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) (by omega) T hT'
-    have hDj' := I'.dom y'.1 y'.2
-    have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
-    have hy'R : ∀ x' ∈ y'.1, InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
-      intro x' hx'
-      have h1 : x' ∈ sitesOf (blocksOf 1 (k + 1) Set.univ y'.1) := by
-        rw [hs']; exact ⟨hx', trivial⟩
-      obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
-      have h2 : x' ∈ sitesOf (T.image (σc)) := mem_sitesOf.2 ⟨b', hy' hb', hxb'⟩
-      rw [hsT] at h2
-      obtain ⟨w, hw, rfl⟩ := h2
-      exact inBox_boxMap hm' (hT' w hw)
-    have hYR : ∀ x ∈ bm' '' y'.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-      rintro _ ⟨x', hx', rfl⟩
-      exact inBox_boxMap hm (hy'R x' hx')
-    have hYimg : bm '' (bm' '' y'.1) = y'.1 :=
-      image_image_boxMap (n' := (N₁ * L ^ m₁) * L ^ (k + 1)) hm hy'R
-    have hYmem : bm' '' y'.1 ∈ I.𝒴 := (hmem𝒴 _ hYR).1 (by rw [hYimg]; exact y'.2)
-    have hYT : blocksOf 1 (k + 1) Set.univ (bm' '' y'.1) ⊆ T := by
-      intro b hb
-      have hbimg : σc b ∈ blocksOf 1 (k + 1) Set.univ (bm '' (bm' '' y'.1)) := by
-        rw [blocksOf_image_boxMap hN hN' (by omega) (by omega) hYR]
-        exact Finset.mem_image_of_mem _ hb
-      rw [hYimg] at hbimg
-      obtain ⟨b₂, hb₂, he⟩ := Finset.mem_image.1 (hy' hbimg)
-      have hb₂R := hT b₂ hb₂ b₂.1 (mem_box_self _ (cellSide_pos 1 m₁ (k + 1)))
-      have hbR := hYR b.1 ((mem_blocksOf.1 hb) (mem_box_self _ (cellSide_pos 1 m₁ (k + 1))))
-      have h1 := congrArg Subtype.val he
-      rw [cubeMap_val, cubeMap_val] at h1
-      have h2 : b₂ = b := Subtype.ext (boxMap_inj (hm' := hm') hb₂R hbR h1)
-      exact h2 ▸ hb₂
-    exact ⟨⟨_, hYmem⟩, hYT, Subtype.ext hYimg⟩
-  · intro s hs y hy Φ Φ' hR
-    have hs1 : ‖(s : ℂ)‖ ≤ 1 := by
-      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hs.1]; exact hs.2
-    have hsR : ‖(s : ℂ)‖ < Rσ := lt_of_le_of_lt hs1 hRσ
-    rw [zeroSourceAct_H, zeroSourceAct_H]
-    congr 1
-    rw [labelActFamilyOn_H (SB) 1 _ hF' hN' hρI _ hεU _ hKc hV' hsR,
-      labelActFamilyOn_H (SA) 1 _ hF hN hρI _ hεU _ hKc hV hsR]
-    have hJ : physInclScaled N (SA) cJ ((θ.1, 0) : physParam N (SA)) =
-        ((θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N), 0) := by
-      rw [physInclScaled_apply]
-      refine Prod.ext rfl ?_
-      funext x i
-      simp
-    have hJ' : physInclScaled N (SB) cJ' ((θ'.1, 0) : physParam N (SB)) =
-        ((θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N), 0) := by
-      rw [physInclScaled_apply]
-      refine Prod.ext rfl ?_
-      funext x i
-      simp
-    rw [hJ, hJ', hIT, hIT']
-    congr 1
-    obtain ⟨D, hD, hDe⟩ := hθ
-    obtain ⟨D', hD', hDe'⟩ := hθ'
-    rw [hDe, hDe'] at hraw ⊢
-    have hhat := hatOf_boxMap hGA hGB hN2 hk νS β p₁ δ 1 ρI hp hp' Φ Φ' hR
-    exact vpartTerm_twoTorus hC hC' hk hGA hGB cc hcψ hMX hmar hαK hsm hF₂ hF₂' hSol₂ hSol₂' le_rfl
-      hN hN' (hyR y hy) hn1 hn1' hnS hnS' hnF hnF' hD hD' hraw
-      (fun p => (SA).hatOf_mem 1 hρI hp Φ p) (fun p => (SA).hatOf_mem 1 hρI hp Φ p)
-      (fun p => (SB).hatOf_mem 1 hρI hp' Φ' p) (fun p => (SB).hatOf_mem 1 hρI hp' Φ' p) hρc
-      hhat hhat hrad taylorWeight hs1
-
+      hρI (by linarith) hεU (by linarith) hKc) 2 (by norm_num)) T hT ψ₀ h1 h2 h3 h4
 end E1Coef
 
 end Balaban.Polymer.TwoTorusStep
