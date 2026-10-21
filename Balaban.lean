@@ -1335,6 +1335,7 @@ public import Balaban.Fluctuation.HoleStepLocal
 public import Balaban.Fluctuation.HoleStepAnalytic
 public import Balaban.Fluctuation.HoleStepMarks
 public import Balaban.Fluctuation.MarkCluster
+public import Balaban.Fluctuation.MarkClusterAnalytic
 public import Balaban.Fluctuation.MarkClusterEquiv
 public import Balaban.Fluctuation.MarkClusterFam
 public import Balaban.Fluctuation.MarkClusterReal

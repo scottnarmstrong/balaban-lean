@@ -9,6 +9,7 @@ public import Balaban.Spine.LFOldHS2D7
 public import Balaban.Fluctuation.MarkClusterFam
 public import Balaban.Fluctuation.MarkClusterReal
 public import Balaban.Fluctuation.MarkClusterEquiv
+public import Balaban.Fluctuation.MarkClusterAnalytic
 
 /-!
 # The (D7) clauses of the re-expanded old boundary terms at an output label
@@ -28,14 +29,16 @@ proves the clauses of (D7) that hold for every interaction family with the corre
 * `oldBAtAt_im` (clause `real`): the old part is real when the activities at real parameters, the
   fixed values and the coefficients at real fluctuation fields are real;
 * `oldBAtAt_rot` (clause `rot`): the old part is `O(N)`-invariant when the interaction family and the
-  coefficients are covariant.
+  coefficients are covariant;
+* `oldBAtAt_analyticOnNhd` (clause `analytic`): the old part is analytic in a parameter of the fields
+  when the activities and the marks are.
 -/
 
 @[expose] public section
 
 open MeasureTheory ComplexConjugate Balaban Balaban.LargeField Balaban.LargeField.Def7 Balaban.Multiscale
   Balaban.Localization Balaban.Fluctuation Balaban.LargeField.RegionHistory Balaban.Background
-  Balaban.Polymer Balaban.Localization.DecEquiv Matrix
+  Balaban.Polymer Balaban.Localization.DecEquiv Matrix Set
 
 
 namespace Balaban.Fluctuation.HoleStep
@@ -342,6 +345,67 @@ theorem oldBAtAt_rot (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ 
   unfold oldMarkLFAt
   exact HoleStep.markOf_rot (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ) inner cb _ rψ ρo
     (rotCMat ρo) (rotCMat_mulVec_ofReal ρo) hRv rfl (hcoef X hX J hJg) Φ
+
+open Classical in
+/-- **The clause `analytic` of (D7) for the old part at an output label** (any readings of the
+local pair): for fields, sources, fixed values and interaction parameters depending on `e ∈ P` (open,
+finite-dimensional), with activities analytic in `(e, u)` on `P × 𝒰` and continuous on a compact set
+`Q` carrying the cube measure, and marks of the old labels measurable, analytic in `e`, continuous on
+`Q` and bounded on `P`, the old part is analytic on `P` (`markTerm_analyticOnNhd`). -/
+theorem oldBAtAt_analyticOnNhd (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ₀ : MultiFieldC S n M K N)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
+    (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).U)
+    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1))))
+    (hcb : ∀ u : inner, toFrame g hnn hM1 F hk
+      (unitRep (u : (holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).U)) ∈
+        Localization.box (cb u).1 (cellSide S.L m₀ m₁ (k + 1)))
+    (hp : 0 < p₁) {Prm : Type*} (IF : LocIntFam (fun b => {u : inner // cb u = b} → Rn N) Prm)
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [FiniteDimensional ℂ E]
+    (prm : E → Prm) (ψE ψ'E : E → MultiFieldC S n M K N) (gxE : E → GIdx S n M K N → ℂ)
+    (ψoutE : E → (holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (Xs : Finset (Finset (Torus S.d (n k)))) (hv : EuclideanSpace ℝ (Fin N))
+    (Y : Finset (Torus S.d (n (k + 1)))) {Pset : Set E} (hP : IsOpen Pset)
+    {𝒰 : Set ℂ} (h𝒰 : IsOpen 𝒰) (hseg : ∀ s : ℝ, s ∈ Icc (0 : ℝ) 1 → (s : ℂ) ∈ 𝒰)
+    {Q : Set (∀ b, {u : inner // cb u = b} → Rn N)} (hQ : IsCompact Q) (hQm : MeasurableSet Q)
+    (hμQ : ∀ᵐ Φ ∂(Measure.pi
+      ((holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).cubeMeasure inner cb)), Φ ∈ Q)
+    (hAhol : ∀ y, ∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun q : E × ℂ => (IF.A (prm q.1) q.2).H y Φ)
+      (Pset ×ˢ 𝒰))
+    (hAcont : ∀ y, ∀ e ∈ Pset, ∀ w ∈ 𝒰, ContinuousOn ((IF.A (prm e) w).H y) Q)
+    (hmark : ∀ X ∈ Xs, ∀ V ∈ sitesXAt (σ := σ) g hnn hM1 F H hk hρ ρ r r' X,
+      (∀ e ∈ Pset, Measurable (oldMarkSiteAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ (ψE e) z
+        h₀ a₁ ν β p₁ δ inner cb (ψoutE e) rψ ρc ρ r r' rep A X (ψ'E e) hv (gxE e) V)) ∧
+      (∀ Φ ∈ Q, AnalyticOnNhd ℂ (fun e => oldMarkSiteAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1
+        hρ (ψE e) z h₀ a₁ ν β p₁ δ inner cb (ψoutE e) rψ ρc ρ r r' rep A X (ψ'E e) hv (gxE e) V Φ)
+        Pset) ∧
+      (∀ e ∈ Pset, ContinuousOn (oldMarkSiteAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ
+        (ψE e) z h₀ a₁ ν β p₁ δ inner cb (ψoutE e) rψ ρc ρ r r' rep A X (ψ'E e) hv (gxE e) V) Q) ∧
+      ∃ B > 0, ∀ e ∈ Pset, ∀ Φ, ‖oldMarkSiteAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ
+        (ψE e) z h₀ a₁ ν β p₁ δ inner cb (ψoutE e) rψ ρc ρ r r' rep A X (ψ'E e) hv (gxE e) V Φ‖ ≤ B) :
+    AnalyticOnNhd ℂ (fun e => oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ (ψE e) z h₀
+      a₁ ν β p₁ δ inner cb hp (IF.at (prm e)) (ψoutE e) rψ ρc ρ r r' rep A Xs (ψ'E e) hv (gxE e) Y)
+      Pset := by
+  have hΩ' := d7Pull_isPiUnion F hnn hk (OmegaCube H (k + 1))
+  have := (holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).isProbabilityMeasure_cubeMeasure
+    inner cb hp
+  unfold oldBAtAt
+  refine Finset.analyticOnNhd_fun_sum _ fun T _ => Finset.analyticOnNhd_fun_sum _ fun X hX =>
+    Finset.analyticOnNhd_fun_sum _ fun V hV => ?_
+  obtain ⟨hVs, -⟩ := Finset.mem_filter.1 hV
+  obtain ⟨-, -, hVd, hm⟩ := exists_of_mem_sitesXAt (σ := σ) g hnn hM1 hVs
+  obtain ⟨hGm, hGhol, hGcont, B, hB, hGb⟩ := hmark X hX V hVs
+  unfold oldClusterSiteAt
+  exact markTerm_analyticOnNhd
+    ((holeStepLF g hnn hM1 H hk hk1 hρ ψ₀ z h₀ a₁ ν β p₁ δ).cubeMeasure inner cb)
+    F.divN₁ hk hΩ' (fun e => (IF.at (prm e)).A) V hVd hm _ hP h𝒰 hseg hQ hQm hμQ hGm
+    (fun e _ => oldMarkSiteAt_dep (glob := glob) (σ := σ) g hnn hM1 F H hk hk1 hρ (ψE e) z h₀ a₁ ν β
+      p₁ δ inner cb hcb (ψoutE e) rψ ρc ρ r r' rep A X (ψ'E e) hv (gxE e) V) hB hGb hAhol hGhol
+    hAcont hGcont IF.hκ0 IF.hKc IF.hεpos IF.hκ' IF.hκ IF.hε T
 
 end D7Old
 
