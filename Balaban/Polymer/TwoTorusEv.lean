@@ -718,6 +718,8 @@ theorem FFmarked_twoTorus_core
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
+      t ∈ FlRealLC (GA) (HA) a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      t' ∈ FlRealLC (GB) (HB) a₁ ν BG κ eps (X₁f.image bm) BG₂ δ₁ →
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
         (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
           t'.1.2 y' = t.1.2 y) →
@@ -886,9 +888,9 @@ theorem FFmarked_twoTorus_core
   have hψb := markedHatPsiF_mem_flBallLC hC hk hHA hGA cc hcψ hMX hmar hαK hsm hF₁ hσb hD hψh Zm hum
   have hψb' := markedHatPsiF_mem_flBallLC hC' hk hHB hGB cc hcψ hMX hmar hαK hsm hF₁' hσb' hD' hψh'
     Zm' hum
-  obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, -⟩ :=
+  obtain ⟨φ, α, δφ, δα, hI, hFeq, hstrict, hSeq, hmemR⟩ :=
     point_facts_core hC hF₁ hSol hσb (extParams_hs1 s) hD hψb.1
-  obtain ⟨φ', α', δφ', δα', hI', hFeq', hstrict', hSeq', -⟩ :=
+  obtain ⟨φ', α', δφ', δα', hI', hFeq', hstrict', hSeq', hmemR'⟩ :=
     point_facts_core hC' hF₁' hSol' hσb' (extParams_hs1 s') hD' hψb'.1
   have hU := inUnionDomainC_of_xiCData hC hD
   have hU' := inUnionDomainC_of_xiCData hC' hD'
@@ -967,12 +969,32 @@ theorem FFmarked_twoTorus_core
       (Sol (σ, flEdat (GA) (HA) (F₁ (σ, rawOf D)) D.Ψ
         (markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh))).1
       (rawOf D, markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh)
+  have htLC : (F₁ (σ, rawOf D), (Sol (σ, flEdat (GA) (HA) (F₁ (σ, rawOf D)) D.Ψ
+      (markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh))).1,
+      (rawOf D, markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh)) ∈
+      FlRealLC (GA) (HA) a₁ ν BG κ eps X₁f BG₂ δ₁ := by
+    refine ⟨?_, hψb.2⟩
+    have hS1 : Sol (σ, flEdat (GA) (HA) (F₁ (σ, rawOf D)) D.Ψ
+        (markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh)) = (δφ, δα) := by
+      rw [hFeq]; exact hSeq
+    rw [hS1, hFeq]
+    exact hmemR
+  have htLC' : (F₁' (σ', rawOf D'), (Sol' (σ', flEdat (GB) (HB) (F₁' (σ', rawOf D')) D'.Ψ
+      (markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh'))).1,
+      (rawOf D', markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh')) ∈
+      FlRealLC (GB) (HB) a₁ ν BG κ eps (X₁f.image bm) BG₂ δ₁ := by
+    refine ⟨?_, hψb'.2⟩
+    have hS1 : Sol' (σ', flEdat (GB) (HB) (F₁' (σ', rawOf D')) D'.Ψ
+        (markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh')) = (δφ', δα') := by
+      rw [hFeq']; exact hSeq'
+    rw [hS1, hFeq']
+    exact hmemR'
   refine hΦ (F₁ (σ, rawOf D), (Sol (σ, flEdat (GA) (HA) (F₁ (σ, rawOf D)) D.Ψ
       (markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh))).1,
       (rawOf D, markedHatPsiF a₁ ν hGA cc F₁ Zm um tm σ (rawOf D) ψh))
     (F₁' (σ', rawOf D'), (Sol' (σ', flEdat (GB) (HB) (F₁' (σ', rawOf D')) D'.Ψ
       (markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh'))).1,
-      (rawOf D', markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh'))
+      (rawOf D', markedHatPsiF a₁ ν hGB cc F₁' Zm' um tm σ' (rawOf D') ψh')) htLC htLC'
     (fun y y' hy hy' => ?_) (fun w w' hw hw' i => ?_) (fun x hx => hψeq x (hXY x (hRψ hx)))
     (fun y y' hy hy' i => ?_)
     (fun x hx => ⟨((hraw x (inBox_mono (Nat.le_add_right _ _) (hXR x (Finset.mem_coe.1 (hRθ hx))))).1).symm,
@@ -1091,7 +1113,7 @@ theorem FFmarked_twoTorus
     {um tm : ℂ} (hum : (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁) :
     FFmarked (X₁f.image bm) a₁ ν hGB cc F₁' Sol' Φ' Zm' um tm (rawOf D', ψh') s' =
       FFmarked X₁f a₁ ν hGA cc F₁ Sol Φ Zm um tm (rawOf D, ψh) s := FFmarked_twoTorus_core (Rφ := Rα) (Rθ := ∅) (hBMφ := hBM) (hRθ := Set.empty_subset _)
-    (hΦ := fun t t' h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hXR := hXR) (C := C) (hCR := hCR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hs := hs) (hs'0 := hs'0) (hss' := hss') (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum)
+    (hΦ := fun t t' _ _ h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hXR := hXR) (C := C) (hCR := hCR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hs := hs) (hs'0 := hs'0) (hss' := hss') (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum)
 
 
 end Slice
@@ -1386,6 +1408,8 @@ theorem coef_FFmarked_twoTorus_core
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
+      t ∈ FlRealLC (GA) (HA) a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      t' ∈ FlRealLC (GB) (HB) a₁ ν BG κ eps (X₁f.image bm) BG₂ δ₁ →
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
         (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
           t'.1.2 y' = t.1.2 y) →
@@ -1595,7 +1619,7 @@ theorem coef_FFmarked_twoTorus
         (∀ i' ∈ C', ∃ i ∈ C, i'.1.1 = Prod.map id bm i.1.1) →
         coef (FFmarked (X₁f.image bm) a₁ ν hGB cc F₁' Sol' Φ' Zm' um tm (rawOf D', ψh')) C' =
           coef (FFmarked X₁f a₁ ν hGA cc F₁ Sol Φ Zm um tm (rawOf D, ψh)) C := coef_FFmarked_twoTorus_core (Rφ := Rα) (Rθ := ∅) (hBMφ := hBM) (hRθ := Set.empty_subset _)
-    (hΦ := fun t t' h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hX₁R := hX₁R) (hYR := hYR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum) (hFan := hFan)
+    (hΦ := fun t t' _ _ h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hX₁R := hX₁R) (hYR := hYR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum) (hFan := hFan)
 
 
 /-- **D3: the marked energy coefficient on two tori.**  Under the hypotheses of
@@ -1674,6 +1698,8 @@ theorem evDec_twoTorus_core
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
       (t' : (((GB).Ω 1 × Fin N → ℂ) × ((GB).Ω 1 → ℂ)) × ((HB).Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
+      t ∈ FlRealLC (GA) (HA) a₁ ν BG κ eps X₁f BG₂ δ₁ →
+      t' ∈ FlRealLC (GB) (HB) a₁ ν BG κ eps (X₁f.image bm) BG₂ δ₁ →
       (∀ (y : (GA).Ω 1) (y' : (GB).Ω 1), (y : CTorus d L N₁ m₁ (k + 1)) ∈ Rα →
         (y' : CTorus d L N₁' m₁ (k + 1)) = bm (y : CTorus d L N₁ m₁ (k + 1)) →
           t'.1.2 y' = t.1.2 y) →
@@ -1837,7 +1863,7 @@ theorem evDec_twoTorus
     {um tm : ℂ} (hum : (‖um‖ + ‖tm‖) * markedRad d L N k a₁ κ cψ cc < δ₁) :
     evDec (X₁f.image bm) m₀ j 𝒦X' a₁ ν hGB cc F₁' Sol' Φ' Zm' um tm (bm '' Y) (rawOf D', ψh') =
       evDec X₁f m₀ j 𝒦X a₁ ν hGA cc F₁ Sol Φ Zm um tm Y (rawOf D, ψh) := evDec_twoTorus_core (Rφ := Rα) (Rθ := ∅) (hBMφ := hBM) (hRθ := Set.empty_subset _)
-    (hΦ := fun t t' h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hX₁R := hX₁R) (hYR := hYR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hnF := hnF) (hnF' := hnF') (hΦan := hΦan) (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum)
+    (hΦ := fun t t' _ _ h1 h2 h3 _ _ => hΦ t t' h1 h2 h3) (hC := hC) (hC' := hC') (hk := hk) (hGA := hGA) (hGB := hGB) (cc := cc) (hcψ := hcψ) (hMX := hMX) (hmar := hmar) (hαK := hαK) (hsm := hsm) (hF₁ := hF₁) (hF₁' := hF₁') (hSol := hSol) (hSol' := hSol') (hcov := hcov) (hX₁ := hX₁) (hcov' := hcov') (hX₁' := hX₁') (hBM := hBM) (hRδ := hRδ) (hRψ := hRψ) (hX₁R := hX₁R) (hYR := hYR) (hn := hn) (hn' := hn') (hnS := hnS) (hnS' := hnS') (hnF := hnF) (hnF' := hnF') (hΦan := hΦan) (hD := hD) (hD' := hD') (hraw := hraw) (hψh := hψh) (hψh' := hψh') (hhat := hhat) (hZm := hZm) (hum := hum)
 
 
 /-- **D3 for the block energy** (`Φ = blockEnergyFun … k z`, the `V`-part of the localized
