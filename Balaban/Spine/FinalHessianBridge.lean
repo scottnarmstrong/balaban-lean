@@ -241,6 +241,52 @@ theorem cplxLift_sub (hmem : ∀ x, x ∈ G.Ω 1) (v w : Torus d (N₀ * L ^ k) 
     cplxLift hmem (v - w) = cplxLift hmem v - cplxLift hmem w := by
   funext p; simp [cplxLift]
 
+/-- **The linear response of the background field at the constant configuration** (top layer):
+`φ̇ = (H⁻¹ − Π) Ṡ` is the transported field `Hr⁻¹ (1 − P_e) (a_k/L^{2k}) U*`. -/
+theorem response_top (H : BgHyp d L k ϱ a ν)
+    (hΩ : ∀ n, 1 ≤ n → n ≤ k → G.Ω n = Finset.univ) (hk : 1 ≤ k) (hd2 : 2 ≤ d)
+    {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1) (E : BgData G N) (hmem : ∀ x, x ∈ G.Ω 1)
+    (Ustar : Torus d (N₀ * L ^ k) × Fin N → ℝ)
+    (hEΨ : ∀ x i, E.Ψ x i = ((Ustar (x, i) : ℝ) : ℂ)) (hEh : ∀ x, E.h x = 0) :
+    (liftOp N (dirichletOperator G a ν 0)⁻¹ -
+        constrainedOp (dirichletOperator G a ν 0)⁻¹ (constVec G e)) *ᵥ source G a ν E =
+      cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ ((1 - projH (ι := Torus d (N₀ * L ^ k)) e) *ᵥ
+        ((a k / ((L : ℝ) ^ k) ^ 2) • Ustar))) := by
+  classical
+  have hd0 : 0 < d := by omega
+  have hapos : 0 < a k := by
+    have := (H.weights k hk le_rfl).1; linarith
+  have hν : 0 ≤ ν := H.mass
+  set c : ℝ := a k / ((L : ℝ) ^ k) ^ 2 with hc
+  have hS : source G a ν E = cplxLift hmem (c • Ustar) :=
+    source_top hΩ hk hmem a ν E Ustar hEΨ hEh
+  obtain ⟨φd, αd, hφ, -, -, E1, E2⟩ := const_response E H he
+  have hα := response_alpha_of_system he E1 E2
+  have hHr : fullMatrix G a ν * (fullMatrix G a ν)⁻¹ = 1 :=
+    fullMatrix_mul_inv hΩ hk hd0 a hapos hν
+  have hHrU : IsUnit (fullMatrix G a ν) := (fullMatrix_top_posDef hΩ hk hd0 a hapos hν).isUnit
+  have hHc := dirichletOperator_zero_eq hmem a ν
+  have hHu : IsUnit (dirichletOperator G a ν 0) := by
+    rw [hHc, Matrix.isUnit_submatrix_equiv]
+    exact hHrU.map (algebraMap ℝ ℂ).mapMatrix
+  have hLg : ∀ z, liftOp N ((dirichletOperator G a ν 0)⁻¹) *ᵥ cplxLift hmem z =
+      cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ z) := by
+    intro z
+    rw [hHc]
+    exact liftOp_inv_cplxLift hmem hHr (by rw [← hHc]; exact hHu) z
+  set Pf := projH (ι := Torus d (N₀ * L ^ k)) e with hPf
+  have hφ2 : φd = cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ ((1 - Pf) *ᵥ (c • Ustar))) := by
+    have h1 : liftOp N (dirichletOperator G a ν 0) *ᵥ φd =
+        source G a ν E - fieldMul (constVec G e) *ᵥ αd := by
+      rw [eq_sub_iff_add_eq]; exact E1
+    have h2 : φd = liftOp N ((dirichletOperator G a ν 0)⁻¹) *ᵥ
+        (liftOp N (dirichletOperator G a ν 0) *ᵥ φd) :=
+      (Balaban.Background.liftOp_inv_mulVec hHu φd).symm
+    have hcv : constVec G e = fun _ i => (e i : ℂ) := rfl
+    rw [h2, h1, hcv, hα, hS, fieldMul_fieldMul_transpose_cplxLift hmem e (c • Ustar),
+      ← cplxLift_sub, hLg, Matrix.sub_mulVec, Matrix.one_mulVec]
+  rw [← hφ]; exact hφ2
+
 /-- **The second variation at the constant configuration is the final Hessian** (A6-3 (a), P1d):
 for the single top layer (`Ω_n = univ`), a tangent datum that is the block lift of `U`, and equal
 action and background masses,
@@ -272,30 +318,9 @@ theorem secondVariation_top (H : BgHyp d L k ϱ a ν)
   have hS : source G a ν E = cplxLift hmem (c • Ustar) :=
     source_top hΩ hk hmem a ν E Ustar hEΨ hEh
   obtain ⟨φd, αd, hφ, -, -, E1, E2⟩ := const_response E H he
-  have hα := response_alpha_of_system he E1 E2
-  have hHr : fullMatrix G a ν * (fullMatrix G a ν)⁻¹ = 1 :=
-    fullMatrix_mul_inv hΩ hk hd0 a hapos hν
-  have hHrU : IsUnit (fullMatrix G a ν) := (fullMatrix_top_posDef hΩ hk hd0 a hapos hν).isUnit
-  have hHc := dirichletOperator_zero_eq hmem a ν
-  have hHu : IsUnit (dirichletOperator G a ν 0) := by
-    rw [hHc, Matrix.isUnit_submatrix_equiv]
-    exact hHrU.map (algebraMap ℝ ℂ).mapMatrix
-  have hLg : ∀ z, liftOp N ((dirichletOperator G a ν 0)⁻¹) *ᵥ cplxLift hmem z =
-      cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ z) := by
-    intro z
-    rw [hHc]
-    exact liftOp_inv_cplxLift hmem hHr (by rw [← hHc]; exact hHu) z
   set Pf := projH (ι := Torus d (N₀ * L ^ k)) e with hPf
-  have hφ2 : φd = cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ ((1 - Pf) *ᵥ (c • Ustar))) := by
-    have h1 : liftOp N (dirichletOperator G a ν 0) *ᵥ φd =
-        source G a ν E - fieldMul (constVec G e) *ᵥ αd := by
-      rw [eq_sub_iff_add_eq]; exact E1
-    have h2 : φd = liftOp N ((dirichletOperator G a ν 0)⁻¹) *ᵥ
-        (liftOp N (dirichletOperator G a ν 0) *ᵥ φd) :=
-      (Balaban.Background.liftOp_inv_mulVec hHu φd).symm
-    have hcv : constVec G e = fun _ i => (e i : ℂ) := rfl
-    rw [h2, h1, hcv, hα, hS, fieldMul_fieldMul_transpose_cplxLift hmem e (c • Ustar),
-      ← cplxLift_sub, hLg, Matrix.sub_mulVec, Matrix.one_mulVec]
+  have hφ2 : φd = cplxLift hmem (spinLift N (fullMatrix G a ν)⁻¹ *ᵥ ((1 - Pf) *ᵥ (c • Ustar))) :=
+    hφ.trans (response_top H hΩ hk hd2 he E hmem Ustar hEΨ hEh)
   have hE : ∀ x, x ∉ G.Ω 1 → E.Ψ x = 0 := fun x hx => absurd (hmem x) hx
   have hW : actionC G a ν ((bgZero G N).lineAt E 1) 0 =
       (((1 / 2) * c * (Ustar ⬝ᵥ Ustar) : ℝ) : ℂ) := by
