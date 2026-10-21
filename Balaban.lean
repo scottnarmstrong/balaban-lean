@@ -2186,6 +2186,7 @@ public import Balaban.LargeField.Base.BaseChartCore
 public import Balaban.LargeField.Base.BaseChartNative
 public import Balaban.LargeField.Base.BaseRecordBridge
 public import Balaban.LargeField.Base.BaseRecordGaussian
+public import Balaban.LargeField.Base.BaseRecordInstance
 public import Balaban.LargeField.Base.BaseDetTwoTorus
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
