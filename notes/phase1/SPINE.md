@@ -1266,3 +1266,53 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 * `r4Fresh_aggregate_of_localization` gives `Σ_Y r4Fresh = F S u 1` only under the P3 §4 premises (`Localization.localization_expansion`): `F` analytic in the cut parameters on the P3 polydisc, bounded, and cut-local (`hcut`: it depends on the removed members only through those meeting `Y`).
 * `F` is not definable now: the residual is analytic and local only on the global H7 domain, and "analytic and local on the global domain" does not give a local analytic extension to cut-open parameters (`GENERATOR.md`, REFUTED, counterexample `1/(z - 3/2)`); an `h`-independent canonical extension off the fibre is also refuted (`OFFFIBRE.md`).
 * Needed: a construction of `F` from the old kernels and the removed operators with its analyticity polydisc and cut-locality proved, then the tie `r4Coupling = Rep.B` (`r4Coupling_empty` is not a consequence of the aggregate identity, `AUDIT-DEFS-1018.md`). Rows (d)(e) depend on this: the integral identity `∫ρ' = ∫ρ` of `GasOutput` is about the `ρ'` it produces.
+
+## FrozenSFStepInput split (W1148, 2026-10-20)
+
+**PROVED** (`Spine/FrozenSFStep.lean`; axioms `propext, Classical.choice, Quot.sound`): `frozenSFStepInput_of_parts` from the frozen sub-inputs and `FrozenLFStepInput`
+(parameters `hP : PrefixInput`, `hQ : FlowRateInput`, the map `Φ♭`). Pieces:
+1. **Sub-spine core** (proved): `sfSucc_core` (`Spine/SFStepClauses.lean`) is the class-independent core of `sfSucc_clauses` (which is its instance for `D2SF2`); `sfFlatSucc_clauses`
+   (`Spine/FrozenSFClauses.lean`) is its instance for `SFFlat2`/`D9Flat` at `massOne P6` and the allowance `1`. `SFFlatClassAt`, `FlatRep.sfFlatClassAt`, `sfFlatClassAt_witness` (rule 10).
+2. **A4-1a–f, i at complete backgrounds** (`Spine/FrozenSFImage.lean`): `FrozenInheritInput`, `FrozenNewLevelInput`, `FrozenRenormInput` (`massOne P6`), `FrozenDensityInput`,
+   `FrozenRemainderInput` (allowance 1), `FrozenCoherenceInput`, `FrozenIntegrableInput`: the landed properties `SFInheritQ`, … (extracted from `Spine/SFStep.lean`, body-only refactor,
+   `SFImageInputGen`, `StepIntegrableInputGen`) over the scales `max(k₀,1) ≤ k < k̂_f` and the class `SFFlatClassAt` with `ν_k L² ≤ 7/8`. No copies. A4-1g has no frozen analogue (no vacuum flow in `ℛ♭`, no `R`).
+   Status: open, same as the pre-`R` inputs (they need the exemption of the seven inputs).
+3. **The switch at `k = k₀`.** FLUCT-A withdraws the two-stage switch: at `k = k₀` one complete small-field step, like every other scale. What remains is the SF/LF interface
+   (`OPEN-SF-LF-INTERFACE`): `FrozenSwitchInput ifc` states `SFtoLFInterface` for the data of a member of `ℛ♭_{k₀}` (open); `frozenSwitch_of_lt` proves it for `k > k₀` (zero kernel data).
+4. **Frozen large-field data**: `FrozenLFStepInput` (open): the data `lf'` of the successor (no hull, no `R`) with `D4Pin (k+2)`, `Coh`, `LFCoherent`, and `IsRepFlat2` **given** (H6♭).
+   (H6♭) is proved: `frozenBudget_of_pin` (`Spine/FrozenSFBudget.lean`: `Rep.budgetFlat_of_LF2_trunc` on `budgetSetupToOfRun` (`Spine/BudgetSetupOfRun.lean`, extracted from the transfer)
+   and `prefixBudgetFacts` (`Spine/PrefixBudget.lean`, extracted from `transferInput_of_prefix`)).
+Refactors of landed proofs: `transferInput_of_prefix` now uses `prefixBudgetFacts` and `budgetSetupToOfRun`; `SFStep.lean` definitions `SFImageInput`, `StepIntegrableInput` and the six
+sub-inputs are built from the new generic forms (definitionally the same statements).
+
+## SF→LF interface at `k = k₀` (`FrozenSwitchInput ifc`; W1148, 2026-10-20)
+
+`ifc` must provide, for the data `sf` of a member of `ℛ♭_{k₀}` and every Def-6 torus, `SFtoLFData` `X` with: `Σ_Y X.D_Y = chordD`, `Σ_Y X.E_Y = ΔE`, `Σ_Y X.F_Y(g) = ΔF(g)` on the overlap of the two background domains
+(exact, by `sfToLF_identity`'s definitions); `F_Y` analytic on `‖g‖₁ < 1`; the polymer bounds `|D_Y| ≤ C_D β_k m_k² e^{-κ_D d(Y)}`, `‖E_Y‖ ≤ C_E E₀(m_k/ε_k) e^{-κ_E d(Y)}`, `‖F_Y‖ ≤ C_F(m_k + E₀ m_k/ε_k) e^{-κ_F d(Y)}`;
+`β_{k₀} m_{k₀} ≤ C₀` and the reserve `C_int[C₀²/β + C₀E₀/(βε)] < η`. Landed that gives parts: `sfToLFInterface_complete` (`k > k₀`, trivial); `chordD` identity `(1.1)` of INTERFACE-A
+(`chord_identity`, `expansion_chord`); the regime bound `β_{k₀}ν_{k₀} ≤ e^{1/10}` from (I.2) and `β ν L^{k₀ d} ≤ 1` (`beta_nu_kZero_le`, `Spine/FrozenSwitchMass.lean`, proved). The class members come from the transfer
+(`transferInput_of_prefix`, `IsRep2.toFlat`), the budget setup from `budgetSetupToOfRun`/`prefixBudgetFacts`, but none of them gives the localized bounds.
+**Obstruction (precise).** The three polymer bounds are estimates, not identities: for the full-torus action the chord is `½⟨w,(H_m+α^m)w⟩` with `w = φ⁰ - φ^m`, which localizes to blocks only through the weighted mass response
+`‖w‖_loc ≤ 2K₂B_h m` (BG Prop. 5.1: `WeightedProp51S` under `Prop51Hyp`, which the overlap `InUnionDomainR` does not supply: OPEN common-collar BG application) and the Hessian bound `C_H n ‖w‖²`;
+`E_Y`, `F_Y` need the Cauchy estimate (2.2) with the anisotropic I-6 bound uniformly on the complex segment (hypotheses "to be verified for the revised class", INTERFACE-A §2). For P7's regional half-bond action
+the localized chord is false without a wall term (INTERFACE-A (1.4)); `SFtoLFInterface` has no wall field. So `FrozenSwitchInput` is not provable from landed results; it is not consumed by `frozenSFStepInput_of_parts`.
+
+**`FrozenLFStepInput` split (W1148, 2026-10-20; `Spine/FrozenLFStep.lean`).** `frozenLFStepInput_of_parts` (PROVED, axioms `propext, Classical.choice, Quot.sound`) from the frozen step map
+`Λ♭ : FrozenLFStepMap` (`LFStepRaw` for every `FlatRep`) and eight parts, as `lfStepInput_of_parts` with `IsRepFlat2` for `IsRepPre2`: `FrozenHistInput` (`IsComplete (k+1) (k+2)`), `FrozenStepDataInput`
+((S0)–(S2) at the constants of the successor with the kernels of `Λ♭`), `FrozenBdryInput` (`D7Bdry2Post`, no hull, no `R`, `B_st ≤ B₀ - 1`), `FrozenFormInput` (`D1Form2` of `stepDensity`),
+`FrozenOpBoundInput` (`D5Bound (k+2)`), `FrozenPinInput` (`D4Pin (k+2)`), `FrozenLFCoherenceInput` (`LFCoherent`), `FrozenCorrInput` (`D1CorrLim`). Proved inside: the constants (`succOpConsts`, `succBudgetConsts`),
+`Coh` and `FieldClauses` of the successor (`coh_succ`, `field_succ`), the kept data (`KeptData.upTo`, (S3)), the assembly of `IsRepFlat2` with (H6♭) as the premise discharged by `frozenBudget_of_pin`.
+All eight parts are open (same status as the pre-`R` parts (g1)–(g5), (h): they need the exemption of the seven inputs); there is no vacuum flow and no removal record in a frozen step, so neither A4-2v nor the removal-history ruling touches them.
+`FrozenSwitchInput` is not provable from landed results (obstruction above) and is consumed by none of these.
+
+**Generic parts of the large-field halves (W1148, 2026-10-20).**
+* (c) histories: PROVED once, generically. `canonHist` (`Spine/HistCanon.lean`) is a fixed complete set (`exists_isComplete`; `IsComplete k r` refers to the setting only, D-III.8); `LFHistInput_of_canon`
+  (`IsComplete (k+1) (k+1)`) and `FrozenHistInput_of_canon` (`IsComplete (k+1) (k+2)`) hold for every step map whose histories are the canonical ones (a constraint on the provider's map, not a premise on the analysis).
+* (h′) coefficient data `LFCorrInput` / `FrozenCorrInput` (`∃ St' vc', D1CorrLim`): BLOCKED, not provable from landed results. `D1CorrLim` asks the thermodynamic limits `v1T`, `v2T` along the tori `torusSeq L m₀ n`
+  of the image at every level `j ≤ k+1` with the normalization `nuIdeal L (k+1) ν_{k+1}`. Landed: only the radial limit `tendsto_v1T_aInfC` (`R/RadialCoefficientLimit.lean`) for `IsSFFamily` on all tori with the numeric premises `MomNum`,
+  and the witnesses `wD1Corr`, `wD1CorrLim`. Missing: (i) the `v2` limit (transverse coefficient) for a class member, not landed at all; (ii) the same chain for the read-torus class `IsSFFamily2On` (R-N₁); (iii) for the inherited levels, the transfer of the old limits
+  to the rescaled source (`nuIdeal L (k+1) ν_{k+1} j` against `nuIdeal L k ν_k j`, factor `ν_{k+1}/(L² ν_k)`) along `oldSideSeq`; (iv) the new level `k+1`. About 600 lines of new analysis; one generic statement (over a class `IsSFFamily2On` + `MomNum`)
+  serves both the pre-`R` and the frozen part.
+* (g4) pins `LFPinInput` / `FrozenPinInput` (`D4Pin`): reduces to a transport lemma that is not landed: for `A, B` with `A.Agree k (k+1) B`, the local histories and `kappaPreH A j Z`, `kappaH`, `keptExp` at the scales `j ≤ k` coincide
+  (`RegionHistory.kappaPre` reads `H.parts`, `newCubes`, `outCubes` of the scales `< j` and `P.kappaStep`; the components of `A` and `B` live in different dependent types `Comp j`, equal only through `comps_zp_eq_of_agree`). With it, `D4Pin (k+1)`
+  of the successor is `D4Pin (k+1)` of the input pulled along `Agree`; for the frozen part the new scale `k+1 > k₀` has no kept event (`IsKeptEvent` needs `k ≤ k₀`), so `D4Pin (k+2)` is the same statement. About 300–400 lines.
