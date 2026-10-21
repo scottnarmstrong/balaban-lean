@@ -1578,3 +1578,30 @@ Landed: `OldTermPair` (premises structure), `TwoTorusEvOldGen`, `NewLevelTermPai
 Premises are typing/geometry data (labels, bijections `ψ`, `κ`, `e`, margins, `GSCorr/GSIso`,
 the D8 box form of the old terms).  What remains for the full A4-1f agreement: discharge those
 premises for the actual systems (label/mark bijections on `Lab1`, from the class), and the map Φ.
+
+### Obstruction to `newLevel_coeff_twoTorus_of_class` (W1148r, 2026-10-21)
+
+The index bijection `e : NS.O.ι ≃ NS'.O.ι` (and so every premise of `H_twoTorus_of_pairs`,
+`G₁_twoTorus_of_pairs`, `coeff_twoTorus`) cannot be produced from class membership.  The inherited levels
+of a `NewLevelSystem` are existential data: `OldTermSystem.ι` is an arbitrary finite type, and the only
+constraints are `hEJ` (`∑ τ, Eτ τ = Jr.EJ C`, a constraint on the sum) and `OldTermsAreIrrel`
+(`Eτ τ = irrelTorus … (y τ) (X τ)`, with `y`, `X` arbitrary).  Neither says which pairs `(y, X)` occur or
+that `τ ↦ (y τ, X τ)` is injective and onto the admissible pairs, so two systems on the two tori need not
+correspond (duplicate, cancelling or missing terms give the same sum).  The same holds for the pinned
+fields `Gk`, `Gj`, `F₁L`, ... (existential beyond their pins; the pin uniqueness of `NewLevelPinUnique`
+only compares fields with the same index).
+Smallest repair: strengthen `OldTermsAreIrrel` with the canonical index clause
+`τ ↦ (jL τ, y τ, X τ)` is a bijection of `ι` onto the set of admissible irrelevant pairs of the class
+(determined by the class geometry); then `e` is `boxMap` on pairs on the quarter box, and the remaining
+premises are the D8 box form of `irrelTorus C.Tm` plus the landed `gsCorr_localB`/`gsIso_localB`.
+
+`OldTermsCanon` (Inhabited/NewLevelCanon.lean, W1148r): the chain's producer must prove it for the inherited levels (to be added after R13 lands).
+It pins the index set and `Eτ`; for `newLevel_coeff_twoTorus_of_class` it must also pin the other free fields of `OldTermSystem`
+(`X₁f τ`, `𝒦X τ`, `Gk τ`, `Gj τ`, `ρ`) as canonical functions of `(jL τ, y τ, X τ)` (they are existential, constrained only by
+`CovSetup`/`BgSetting`); the pinned decoupled fields `F₁L`, `SolL`, `FkL` are then unique by `NewLevelPinUnique`.
+Also needed: a partial index bijection (the full index types have different sizes on the two tori): only the `τ` with `Y ∈ polyDom τ` correspond.
+
+Partial-bijection layer (W1148r): `NewLevelSystem.H_twoTorus_partial(_of_pairs)`, `G₁_twoTorus_at_of_pairs`, `PolyDomBoxMap.polyDom_boxMap_iff`,
+`OldTermsCanonPins` + `CanonCover` + `exists_domEquiv_of_canon` (NewLevelCanonPins) give the index bijection e from boxMap on pairs.
+Still open for `newLevel_coeff_twoTorus_of_class`: discharge `hAdm/hAdm'/hbox/hcov/hdom` (geometry of the canonical covers), the ~60 premises of `OldTermPair`
+per old term (typing + D8 box form of `irrelTorus C.Tm`), the label/mark bijections `ψ, κ` on `Lab1`, the zero-source activities, and the tower-only restriction of `coeff_twoTorus`.
