@@ -96,6 +96,33 @@ theorem baseSectorCenter_eq_re {n : ℕ} [NeZero n] (ϱ : ℝ) (a : ℕ → ℝ)
   rw [hC]
   simp only [hz]
 
+theorem blockMap_pow_one' {ℓ : ℕ} (m : ℕ) (x : Torus d ℓ) :
+    blockMap (L ^ 1) m x = blockMap L m x := by rw [pow_one]
+
+theorem castSite_cancel {a b : ℕ} (e : a = b) (z : Torus d (b * L ^ 1)) :
+    castSite e (castSite e.symm z) = z := by
+  subst e
+  rfl
+
+/-- The coarse block of the torus of side `a L^0` corresponding to one of side `b L^0`. -/
+def castC {a b : ℕ} (e : a = b) (y : Torus d (a * L ^ (1 - 1))) : Torus d (b * L ^ (1 - 1)) :=
+  (congrArg (fun m => Torus d (m * L ^ (1 - 1))) e) ▸ y
+
+theorem castCoarse_castC {a b : ℕ} (e : a = b) (y : Torus d (a * L ^ (1 - 1))) :
+    castCoarse (L := L) e (castC e y) = y := by
+  subst e
+  rfl
+
+/-- **Sums over a block are transported along `a = b`.** -/
+theorem sum_fibre_cast {a b : ℕ} [NeZero a] [NeZero b] (e : a = b)
+    (y : Torus d (a * L ^ (1 - 1))) (f : Torus d (a * L ^ 1) → ℂ) :
+    ∑ z ∈ Finset.univ.filter (fun z : Torus d (a * L ^ 1) =>
+        blockMap L (a * L ^ (1 - 1)) z = y), f z =
+      ∑ z' ∈ Finset.univ.filter (fun z' : Torus d (b * L ^ 1) =>
+        blockMap L (b * L ^ (1 - 1)) z' = castC e y), f (castSite e.symm z') := by
+  subst e
+  rfl
+
 open Classical in
 /-- **Bond margin of the sector background from the cube tests** (first step): for the sector with
 `n = M₁ N₁`, `M₁ = L^{m₁}`, `N₁ = c n'`, if the coarse field passes the cube test `χ₁` at tolerance
@@ -123,16 +150,22 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
         (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0)
         (hχ : ∀ y0 : Torus d n', ChiKProp (compWeight L a₁) (if regimeB then ν else 0) δ₁
           (fun i => h i) c n' y0
-          (show BlockCfg d (M1 * N₁) L 1 1 N from fun y i => baseSectorTheta θ (castCoarse hn y) i))
-        (x : Torus d (1 * n * L ^ 1)) (μ : Fin d),
+          (show BlockCfg d (M1 * N₁) L 1 1 N from fun y i => baseSectorTheta θ (castCoarse hn y) i)),
+        (∀ (x : Torus d (1 * n * L ^ 1)) (μ : Fin d),
         rn (fun i => baseSectorCenter ϱ aw regimeB ν h θ (baseSector_side L n ▸ (x + Pi.single μ 1) : Torus d (L * n)) i -
           baseSectorCenter ϱ aw regimeB ν h θ (baseSector_side L n ▸ x : Torus d (L * n)) i) <
         (δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
-          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) / L := by
+          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) / L) ∧
+        (∀ y : Torus d (1 * n * L ^ (1 - 1)),
+        rn (fun i => baseSectorTheta θ y i - spinAverage (baseSectorN L n) L 1 1
+          (fun z i => baseSectorCenter ϱ aw regimeB ν h θ
+            (baseSector_side L n ▸ z : Torus d (L * n)) i) y i) <
+        δ₁ + Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
+          Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ))))) := by
   obtain ⟨Kw, δw, hK, hδw, hcm⟩ := cube_margins (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
   intro n M1 N₁ m₁ c n' _ _ _ _ hn hM1 hm ϱ a₁ ν δ₀ δ₁ ha₁ aw hw regimeB hδ h hh H hΛ1 BG κ hΛ7 H0 hν0
-    hνle hsep hKs hδc hε' hK1' hKw' θ φ hp hχ x μ
+    hνle hsep hKs hδc hε' hK1' hKw' θ φ hp hχ
   subst hw
   have hd0 : 0 < d := by omega
   have hδ' : 0 < 4 * (d : ℝ) * L * δ₀ := by positivity
@@ -152,18 +185,12 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hνε' : (if regimeB then ν else 0) * ((L : ℝ) ^ 1) ^ 2 * (4 * d * L * δ₀) ^ 2 ≤
       (4 * d * L * δ₀) ^ 2 := by nlinarith [sq_nonneg (4 * (d : ℝ) * L * δ₀)]
   have H1 : BgHyp d L 1 ϱ (compWeight L a₁) (if regimeB then ν else 0) := H
-  set x' := castSite hn x with hx'
-  set y' := castSite hn (x + Pi.single μ 1) with hy'
-  have hy'eq : y' = x' + Pi.single μ 1 := castSite_add_single hn x μ
-  set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
-  obtain ⟨hbondC, -⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
-    (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep hKs
-    hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
   have hmem : ∀ z : Torus d (M1 * N₁ * L ^ 1), z ∈ G1.Ω 1 := fun z => by
     rw [hG1, single_Ω_one le_rfl]; exact Finset.mem_univ z
-  have key := hbondC x' y' μ rfl hy'eq (hmem x') (hmem y')
   have hmemD : ∀ z : Torus d (1 * n * L ^ 1), z ∈ (GeneratingSet.single (d := d) (L := L)
       (N₀ := 1 * n) (k := 1) ϱ).Ω 1 := fun z => baseSector_mem_single ϱ z
+  have e2 := fun (z : Torus d (1 * n * L ^ 1)) (i : Fin N) =>
+    baseSectorCenter_eq_re (n := n) ϱ (compWeight L a₁) regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp z i
   have e1 : ∀ (z : Torus d (1 * n * L ^ 1)) (i : Fin N),
       bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
         (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨castSite hn z, hmem _⟩, i) =
@@ -172,36 +199,136 @@ theorem sector_bond_margin {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
         (⟨z, hmemD z⟩, i) := fun z i => by
     rw [← hcast]
     exact bgFieldC_single_cast hn ϱ _ _ _ _ z (hmemD z) (hmem _) i
-  have e2 := fun (z : Torus d (1 * n * L ^ 1)) (i : Fin N) =>
-    baseSectorCenter_eq_re (n := n) ϱ (compWeight L a₁) regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp z i
-  have hvn : (fun i => bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
-        (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨y', hmem y'⟩, i) -
-      bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
-        (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨x', hmem x'⟩, i)) =
-      fun i => bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
-        (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
-        (⟨x + Pi.single μ 1, hmemD _⟩, i) -
+  refine ⟨fun x μ => ?_, fun y => ?_⟩
+  ·   set x' := castSite hn x with hx'
+      set y' := castSite hn (x + Pi.single μ 1) with hy'
+      have hy'eq : y' = x' + Pi.single μ 1 := castSite_add_single hn x μ
+      set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
+      obtain ⟨hbondC, -⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
+        (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep hKs
+        hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
+      have hmem : ∀ z : Torus d (M1 * N₁ * L ^ 1), z ∈ G1.Ω 1 := fun z => by
+        rw [hG1, single_Ω_one le_rfl]; exact Finset.mem_univ z
+      have key := hbondC x' y' μ rfl hy'eq (hmem x') (hmem y')
+      have hmemD : ∀ z : Torus d (1 * n * L ^ 1), z ∈ (GeneratingSet.single (d := d) (L := L)
+          (N₀ := 1 * n) (k := 1) ϱ).Ω 1 := fun z => baseSector_mem_single ϱ z
+      have e1 : ∀ (z : Torus d (1 * n * L ^ 1)) (i : Fin N),
+          bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
+            (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨castSite hn z, hmem _⟩, i) =
+          bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨z, hmemD z⟩, i) := fun z i => by
+        rw [← hcast]
+        exact bgFieldC_single_cast hn ϱ _ _ _ _ z (hmemD z) (hmem _) i
+      have e2 := fun (z : Torus d (1 * n * L ^ 1)) (i : Fin N) =>
+        baseSectorCenter_eq_re (n := n) ϱ (compWeight L a₁) regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp z i
+      have hvn : (fun i => bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
+            (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨y', hmem y'⟩, i) -
+          bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
+            (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨x', hmem x'⟩, i)) =
+          fun i => bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨x + Pi.single μ 1, hmemD _⟩, i) -
+            bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨x, hmemD _⟩, i) := by
+        funext i
+        exact congrArg₂ (· - ·) (e1 (x + Pi.single μ 1) i) (e1 x i)
+      rw [hvn] at key
+      have hu : (fun i => baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ
+            (baseSector_side L n ▸ (x + Pi.single μ 1) : Torus d (L * n)) i -
+          baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ (baseSector_side L n ▸ x : Torus d (L * n)) i) =
+          fun i => ((bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨x + Pi.single μ 1, hmemD _⟩, i) -
+            bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨x, hmemD _⟩, i))).re := by
+        funext i
+        rw [e2, e2, Complex.sub_re]
+      rw [hu]
+      refine lt_of_le_of_lt (rn_re_le_vn _) ?_
+      have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+      rw [lt_div_iff₀ hL0, mul_comm]
+      exact key
+  · set y' := castC hn y with hy'
+    have hm0 : M1 * N₁ * L ^ 1 = L * (M1 * N₁ * L ^ (1 - 1)) := by simp [pow_one]; ring
+    obtain ⟨x', hx'⟩ : ∃ x', x' ∈ blockFibre (ℓ := M1 * N₁ * L ^ 1) L (M1 * N₁ * L ^ (1 - 1)) y' := by
+      have := card_blockFibre (d := d) (ℓ := M1 * N₁ * L ^ 1) (N := L)
+        (m := M1 * N₁ * L ^ (1 - 1)) hm0 y'
+      exact Finset.card_pos.1 (by rw [this]; positivity)
+    have hx'm : blockMap L (M1 * N₁ * L ^ (1 - 1)) x' = y' := mem_blockFibre.1 hx'
+    set y0 : Torus d n' := blockMap (L ^ 1 * (c * M1)) n' x' with hy0
+    obtain ⟨-, hblockC⟩ := hcm hM1 hm (ϱ1 := ϱ) (a₁ := a₁) (ν := if regimeB then ν else 0)
+      (δ' := 4 * d * L * δ₀) (ε' := 4 * d * L * δ₀) (δ₁ := δ₁) (fun i => h i) ha₁ H0 H1 hν0 hνle hsep
+      hKs hδ' le_rfl hε' hδc hνε' hK1' hKw' ψ y0 hDC (hχ y0)
+    have key := hblockC x' rfl (hmem x')
+    have hjb : jBlock d L (M1 * N₁) 1 1 x' = y' := by
+      unfold jBlock; rw [blockMap_pow_one']; exact hx'm
+    have hψy : ∀ i, ψ (jBlock d L (M1 * N₁) 1 1 x') i = baseSectorTheta θ y i := by
+      intro i
+      rw [hjb]
+      simp only [hψ, hy', castCoarse_castC]
+    have e1' : ∀ (z' : Torus d (M1 * N₁ * L ^ 1)) (i : Fin N),
+        bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N)
+          (liftSingle G1 ψ.toC (fun i => (h i : ℂ))) (⟨z', hmem z'⟩, i) =
         bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+          (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+          (⟨castSite hn.symm z', hmemD _⟩, i) := fun z' i => by
+      have := e1 (castSite hn.symm z') i
+      have hs : (⟨castSite hn (castSite hn.symm z'), hmem _⟩ : G1.Ω 1) = ⟨z', hmem z'⟩ :=
+        Subtype.ext (castSite_cancel hn z')
+      rw [hs] at this
+      exact this
+    have hbavg : ∀ i, blockAvg G1 (bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0)
+        (bgC0 d L N) (liftSingle G1 ψ.toC (fun i => (h i : ℂ)))) x' i =
+        ((L : ℝ) ^ d)⁻¹ * ∑ z' ∈ Finset.univ.filter (fun z' : Torus d (M1 * N₁ * L ^ 1) =>
+          blockMap L (M1 * N₁ * L ^ (1 - 1)) z' = y'),
+          bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
+            (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
+            (⟨castSite hn.symm z', hmemD _⟩, i) := by
+      intro i
+      unfold blockAvg
+      rw [hG1, layerIndex_single le_rfl, pow_one, blk_eq_fibre]
+      have hset : blockFibre (ℓ := M1 * N₁ * L ^ 1) (L ^ 1) (M1 * N₁ * L ^ (1 - 1))
+          (jBlock d L (M1 * N₁) 1 1 x') = Finset.univ.filter (fun z' : Torus d (M1 * N₁ * L ^ 1) =>
+          blockMap L (M1 * N₁ * L ^ (1 - 1)) z' = y') := by
+        ext z'
+        rw [mem_blockFibre, hjb, blockMap_pow_one']
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      rw [hset]
+      congr 1
+      refine Finset.sum_congr rfl fun z' _ => ?_
+      rw [svec_of_mem G1 _ ⟨z', hmem z'⟩]
+      exact e1' z' i
+    have hspin : ∀ i, spinAverage (baseSectorN L n) L 1 1 (fun z i => baseSectorCenter ϱ
+        (compWeight L a₁) regimeB ν h θ (baseSector_side L n ▸ z : Torus d (L * n)) i) y i =
+        (blockAvg G1 (bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0)
+          (bgC0 d L N) (liftSingle G1 ψ.toC (fun i => (h i : ℂ)))) x' i).re := by
+      intro i
+      rw [hbavg i, Complex.re_ofReal_mul]
+      unfold spinAverage
+      congr 1
+      have hsf := sum_fibre_cast hn y (fun z => bgFieldC
+        (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
         (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
-        (⟨x, hmemD _⟩, i) := by
-    funext i
-    exact congrArg₂ (· - ·) (e1 (x + Pi.single μ 1) i) (e1 x i)
-  rw [hvn] at key
-  have hu : (fun i => baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ
-        (baseSector_side L n ▸ (x + Pi.single μ 1) : Torus d (L * n)) i -
-      baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ (baseSector_side L n ▸ x : Torus d (L * n)) i) =
-      fun i => ((bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
-        (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
-        (⟨x + Pi.single μ 1, hmemD _⟩, i) -
-        bgFieldC (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ)
-        (compWeight L a₁) (if regimeB then ν else 0) (bgC0 d L N) (baseSectorDatum ϱ θ h)
-        (⟨x, hmemD _⟩, i))).re := by
-    funext i
-    rw [e2, e2, Complex.sub_re]
-  rw [hu]
-  refine lt_of_le_of_lt (rn_re_le_vn _) ?_
-  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-  rw [lt_div_iff₀ hL0, mul_comm]
-  exact key
+        (⟨z, hmemD z⟩, i))
+      rw [← hy'] at hsf
+      rw [← hsf, Complex.re_sum]
+      refine Finset.sum_congr rfl fun z _ => ?_
+      exact e2 z i
+    have hrn : rn (fun i => baseSectorTheta θ y i - spinAverage (baseSectorN L n) L 1 1
+        (fun z i => baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ
+          (baseSector_side L n ▸ z : Torus d (L * n)) i) y i) ≤
+        vn (fun i => (ψ (jBlock d L (M1 * N₁) 1 1 x') i : ℂ) -
+          blockAvg G1 (bgFieldC G1 (compWeight L a₁) (if regimeB then ν else 0)
+            (bgC0 d L N) (liftSingle G1 ψ.toC (fun i => (h i : ℂ)))) x' i) := by
+      refine le_trans (le_of_eq ?_) (rn_re_le_vn _)
+      congr 1
+      funext i
+      rw [hspin i, hψy i, Complex.sub_re, Complex.ofReal_re]
+    exact lt_of_le_of_lt hrn key
+
+
 
 end Balaban.LargeField.Base
