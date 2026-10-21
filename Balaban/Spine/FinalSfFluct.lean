@@ -124,6 +124,28 @@ theorem ctxBoxIntegral_eq_exp_mul (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCo
       Complex.exp (constExponent C vc hv g) * ctxFluctBoxIntegral C vc hv p1 g :=
   ctxBoxIntegralL_eq_exp_mul C vc hv _ p1 g
 
+/-- **The box integral from the box average of the fluctuation integrand** on one torus, at every
+whitening `A`: if `ctxFluctBoxIntegralL = exp(E' + S')`, then `Ξ_box(A)` is the exponential of
+`E' +` the vacuum term `+ ⟨g, h⟩ +` the inherited activities `+ S'` (`ctxBoxIntegralL_eq_exp_mul`,
+`const_exponent`). -/
+theorem ctxBoxIntegralL_eq_exp_of_fluct (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (H : BgHyp S.d S.L k (minSep S.L C.geo.M1) C.weights (C.cs.muBg k))
+    (he : ∑ i, hv i ^ 2 = 1) (hk : 1 ≤ k)
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) {E' S' : ℂ}
+    (hfl : ctxFluctBoxIntegralL C vc hv A p1 g = Complex.exp (E' + S')) :
+    ctxBoxIntegralL C vc hv A p1 g = Complex.exp ((E' + fluctVacConst C vc hv) +
+      (∑ y : Torus S.d (M * n K * S.L ^ K), ∑ i : Fin N, g (y, i) * (hv i : ℂ)) +
+      ∑ j ∈ Finset.Icc 1 k, ∑ X : Finset (Torus S.d (M * n K * S.L ^ K)),
+        inhObs C.sf C.m₀ hv (M * n K * S.L ^ K) j X (fun x i => g (x, i)) + S') := by
+  rw [ctxBoxIntegralL_eq_exp_mul, hfl, ← Complex.exp_add]
+  unfold constExponent
+  rw [const_exponent C hv vc H he hk g]
+  unfold fluctVacConst
+  congr 1
+  ring
+
 end Vac
 
 section Inputs
@@ -178,18 +200,11 @@ theorem finalSmallFieldInput_of_fluctForm (hPre : PrefixInput d δ T P6 C7 PB cs
   obtain ⟨HB, -, -⟩ := h₂ β ((le_max_right _ _).trans hβ) ν hν hνL h hh kf hkf k hk1 hkkf ρ νk hM6
     hkK R geo cs P F St vc hF hstop nK g hg
   have he : ∑ i, h i ^ 2 = 1 := sum_sq_eq_one_of_norm_eq_one h hh
-  have hX : constExponent (F.ctx hM6 hkK nK) vc h g = fluctVacConst (F.ctx hM6 hkK nK) vc h +
-      (∑ y : Torus d ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
-          (T κ c₉).L ^ (kf + 1)), ∑ i : Fin N, g (y, i) * (h i : ℂ)) +
-      ∑ j ∈ Finset.Icc 1 k, ∑ X : Finset (Torus d ((T κ c₉).M *
-          sides (T κ c₉).L (kf + 1) nK (kf + 1) * (T κ c₉).L ^ (kf + 1))),
-        inhObs F.sf (P6 κ c₉).m₀ h ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
-          (T κ c₉).L ^ (kf + 1)) j X (fun x i => g (x, i)) :=
-    const_exponent (F.ctx hM6 hkK nK) h vc HB he hk1 g
-  rw [sfBoxIntegral, ctxBoxIntegral_eq_exp_mul, hid nK g hg, ← Complex.exp_add, hX]
+  rw [sfBoxIntegral, ctxBoxIntegral, ctxBoxIntegralL_eq_exp_of_fluct (F.ctx hM6 hkK nK) vc h HB he
+    hk1 _ _ g (E' := E nK) (S' := ∑ X, a ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
+      (T κ c₉).L ^ (kf + 1)) (k + 1) X (fun x i => g (x, i))) (hid nK g hg)]
   simp only [ne_eq, hnK, not_false_eq_true, ↓reduceDIte]
-  congr 1
-  ring
+  rfl
 
 end Inputs
 
