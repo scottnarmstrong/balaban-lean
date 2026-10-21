@@ -5,29 +5,32 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Fluctuation.Thm31Inhab
+public import Balaban.Fluctuation.Thm31Avg
+public import Balaban.Fluctuation.MeasureInterp
 
 /-!
 # The interpolation averages on a region (FLUCTUATION.md §3.5, P5 (3.2), P6 §4)
 
-`Fluctuation/Thm31cde.lean` states Theorem 3.1 (c), (d), (e) for measures that are products over
-the cubes of the whole torus (`ProdSplit`, `InterpMarks` over `CubeB m₀ K Set.univ`).  In the step on
-a region the fluctuation variables live on the unit points of `Ω''_{k+1}` (P5 (2.48)), and the
-measure is a product over the `π'_{k+1}`-cubes of `Ω''_{k+1}`; the cluster expansion of Theorem 3.4
+Theorem 3.1 (c), (d), (e) are statements about interpolation averages `∫₀¹ ⟨f(u)⟩_u du` in measures
+`Z_u⁻¹ e^{W(u)} dν` that are products over the cubes of a `π'`-union `Ω`.  In the step on a region the
+fluctuation variables live on the unit points of `Ω''_{k+1}` (P5 (2.48)), and the measure is a
+product over the `π'_{k+1}`-cubes of `Ω''_{k+1}`; the cluster expansion of Theorem 3.4
 (`marked_cubes_explicit`, `avg_integral_expansion`) is stated for the cubes of any `π'`-union `Ω`.
-This file is the region-general form, with the whole-torus objects as the instance `Ω = univ`:
+This file is the region-general core; the whole-torus forms of `Fluctuation/Thm31cde.lean`
+(`ProdSplit`, `InterpMarks`, `avgFun_eq_avgPi_gen`, `interpAvg_expansion_of_input`) are its instances
+at `Ω = univ` (`ProdSplit.toOn`, `InterpMarks.toOn`).
 
+* `interpAvg`: the interpolation average `∫₀¹ ⟨f(u)⟩_u du`;
 * `ProdSplitOn ν Ω`: the measure `ν` is the product of probability measures on the cubes of `Ω`;
-  `ProdSplit.toOn`: the whole-torus split is the instance `Ω = univ`;
 * `avgFun_eq_avgPi_on`: the expectation in `Z_s⁻¹ e^{W(s)} dν` is that of the product measure,
   when `W(s)` and the integrand are sums of terms of the cube variables;
 * `InterpMarksOn`: Proposition 3.3 for an interpolation average on `Ω` (the localized exponent and
-  marks with the hypotheses of Theorem 3.4); `InterpMarks.toOn`; `nonempty_interpMarksOn`;
+  marks with the hypotheses of Theorem 3.4);
 * `interpTermOn`: the term `∫₀¹ ∑_i G*(Y₀ᵢ, S) du` of a set `S` of cubes of `Ω`;
 * `interpAvg_eq_sum_interpTermOn`: **the localization expansion of the interpolation average**
   `∫₀¹ ⟨f(u)⟩_u du = ∑_S interpTermOn S`, with
   `|interpTermOn S| ≤ C_PE (∑_i F₀ᵢ e^{-κ₀ 𝗱(Y₀ᵢ)}) e^{-κ' d_Ω(S)}` (the common core of
-  Theorem 3.1 (a), (c), (d), (e) on a region).
+  Theorem 3.1 (a), (c), (d), (e)).
 -/
 
 @[expose] public section
@@ -39,6 +42,10 @@ open Balaban Balaban.Localization Balaban.Polymer MeasureTheory
 section Generic
 
 variable {d L N₁ m₁ K : ℕ} [NeZero L] [NeZero N₁] {X : Type*} [MeasurableSpace X]
+
+/-- The interpolation average `∫₀¹ ⟨f(u)⟩_u du` for the measures `Z_u⁻¹ e^{W(u)} dν`. -/
+noncomputable def interpAvg (ν : Measure X) (W : ℝ → X → ℂ) (f : ℝ → X → ℂ) : ℂ :=
+  ∫ u in (0 : ℝ)..1, avgFun ν W (f u) u
 
 /-- **The block structure of `ν` on a region**: the variable is the family of its restrictions to
 the cubes (side `cellSide L m₀ m₁ K`) of `Ω`, and `ν` is the product of probability measures `ν_b`. -/
@@ -56,15 +63,6 @@ structure ProdSplitOn (ν : Measure X) (d L N₁ m₁ K m₀ : ℕ) [NeZero L] [
   map_eq : Measure.map restr ν = Measure.pi μ
 
 attribute [instance] ProdSplitOn.ms ProdSplitOn.prob
-
-/-- The whole-torus split is the instance `Ω = univ`. -/
-def ProdSplit.toOn {ν : Measure X} {m₀ : ℕ} (BS : ProdSplit ν d L N₁ m₁ K m₀) :
-    ProdSplitOn ν d L N₁ m₁ K m₀ Set.univ where
-  Ωb := BS.Ωb
-  μ := BS.μ
-  restr := BS.restr
-  meas := BS.meas
-  map_eq := BS.map_eq
 
 /-- The expectation in `Z_s⁻¹ e^{W(s)} dν` is the expectation `avgPi` of the product measure, when
 `W(s)` and the integrand are `ν`-a.e. sums of functions of the cube variables. -/
@@ -144,52 +142,6 @@ structure InterpMarksOn (ν : Measure X) {m₀ : ℕ} {Ω : Set (CTorus d L N₁
     f s x = ∑ i, G i (s : ℂ) (BS.restr x)
 
 attribute [instance] InterpMarksOn.fin InterpMarksOn.finι
-
-/-- The whole-torus data are the instance `Ω = univ`. -/
-def InterpMarks.toOn {ν : Measure X} {m₀ : ℕ} {BS : ProdSplit ν d L N₁ m₁ K m₀}
-    {W : ℝ → X → ℂ} {f : ℝ → X → ℂ} (I : InterpMarks ν BS W f) :
-    InterpMarksOn ν BS.toOn W f where
-  Lb := I.Lb
-  Lab := I.Lab
-  ι := I.ι
-  nonempty := I.nonempty
-  εH := I.εH
-  κH := I.κH
-  κG := I.κG
-  κ0 := I.κ0
-  κ' := I.κ'
-  Kc := I.Kc
-  F0 := I.F0
-  hN := I.hN
-  𝒰 := I.𝒰
-  isOpen := I.isOpen
-  seg := I.seg
-  A := I.A
-  y0 := I.y0
-  G := I.G
-  meas := I.meas
-  dep := I.dep
-  bound := I.bound
-  holA := I.holA
-  holG := I.holG
-  hκ0 := I.hκ0
-  hKc := I.hKc
-  hεpos := I.hεpos
-  hF0 := I.hF0
-  hκ' := I.hκ'
-  hκG := I.hκG
-  hκ := I.hκ
-  hε := I.hε
-  hW := I.hW
-  hF := I.hF
-
-/-- `InterpMarksOn` is inhabited (rule 10): the whole-torus witness `nonempty_interpMarks`. -/
-theorem nonempty_interpMarksOn (d L N₁ m₁ K : ℕ) [NeZero L] [NeZero N₁] :
-    ∃ (ν : Measure (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) 0 K Set.univ → Unit))
-      (BS : ProdSplitOn ν d L N₁ m₁ K 0 Set.univ) (W f : ℝ → _ → ℂ),
-        Nonempty (InterpMarksOn ν BS W f) := by
-  obtain ⟨ν, BS, W, f, ⟨I⟩⟩ := nonempty_interpMarks (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K)
-  exact ⟨ν, BS.toOn, W, f, ⟨I.toOn⟩⟩
 
 /-- **The term of a set `S` of cubes** of the localization expansion of an interpolation average:
 `∫₀¹ ∑_i G*(Y₀ᵢ, S) du` (Theorem 3.4 at each `u`). -/
