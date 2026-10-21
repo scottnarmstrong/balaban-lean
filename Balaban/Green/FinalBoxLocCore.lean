@@ -79,14 +79,8 @@ theorem cutTo_cutTo_of_subset {A C : Finset ι} (hAC : A ⊆ C) (s : ι → ℂ)
 off `C`.** -/
 theorem coef_congr_supported {R : ℝ} (hR : 1 < R) {f g : (ι → ℂ) → ℂ} {C : Finset ι}
     (h : ∀ s ∈ polydisc (0 : ι → ℂ) (fun _ => R), s ∈ supportedOn C → f s = g s) :
-    coef f C = coef g C := by
-  have hR0 : 0 < R := by linarith
-  calc coef f C = coef (fun s => f (cutTo C s)) C :=
-        coef_congr fun w hw => by rw [cutTo_eq_self hw]
-    _ = coef (fun s => g (cutTo C s)) C :=
-        coef_congr_polydisc hR (fun s hs => h _ (cutTo_mem_polydisc hR0 C hs)
-          (cutTo_mem_supportedOn C s)) C
-    _ = coef g C := coef_congr fun w hw => by rw [cutTo_eq_self hw]
+    coef f C = coef g C :=
+  coef_congr_near hR fun w hw => h w (fun i => by simpa using hw.2 i) hw.1
 
 /-- **A coefficient vanishes when the function forgets a parameter of `C`.**  If on the parameters
 of the polydisc of radius `R > 1` vanishing off `C` the function only sees the parameters of
