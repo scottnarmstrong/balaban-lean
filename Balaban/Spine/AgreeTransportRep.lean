@@ -48,10 +48,11 @@ theorem lab_eq_of_agree {m : ℕ} {A B : LabHist S n R k0 K} (hAB : A.Agree m (m
 
 variable {M N : ℕ} [NeZero M] [NeZero S.L] {geo : Geo S n R M}
 
-/-- **Transport of the pin along `Agree`.** -/
-theorem d4Pin_of_agree {cs₁ cs₂ : OpConsts} {P₁ P₂ : BudgetConsts} {k₁ k₂ : ℕ}
+/-- **Transport of the pin along `Agree`, with the exponents compared up to the scale `m`.** -/
+theorem d4Pin_of_agree_le {cs₁ cs₂ : OpConsts} {P₁ P₂ : BudgetConsts} {k₁ k₂ : ℕ}
     (rep₁ : Rep S n R k0 K M N geo cs₁ P₁ k₁) (rep₂ : Rep S n R k0 K M N geo cs₂ P₂ k₂) (m : ℕ)
-    (hκ : rep₂.κK = rep₁.κK) (hgam : ∀ j l, rep₂.KD.gam j l = rep₁.KD.gam j l)
+    (hκ : ∀ i, i ≤ m → rep₂.κK i = rep₁.κK i)
+    (hgam : ∀ j, j ≤ m → ∀ l, rep₂.KD.gam j l = rep₁.KD.gam j l)
     (hc1 : P₂.c1 = P₁.c1) (hc2 : P₂.c2 = P₁.c2) (hβ : ∀ i, i < m → P₂.beta i = P₁.beta i)
     (hpin : D4Pin (m + 1) rep₁)
     (hcomp : ∀ A ∈ rep₂.hist, ∃ B ∈ rep₁.hist, A.Agree m (m + 1) B) : D4Pin (m + 1) rep₂ := by
@@ -71,7 +72,7 @@ theorem d4Pin_of_agree {cs₁ cs₂ : OpConsts} {P₁ P₂ : BudgetConsts} {k₁
       rep₁.keptExp B i (h.cmap hi c) = rep₂.keptExp A i c := by
     intro i hi c hrc hkc
     unfold Rep.keptExp
-    rw [h.localHistory_eq hi M K c, ← congrFun (congrFun hκ i) _, hgam,
+    rw [h.localHistory_eq hi M K c, ← congrFun (hκ i hi) _, hgam i hi,
       lab_eq_of_agree hAB hi c hkc hrc, h.cmap_val]
   have hkp : rep₁.kappaPreH B (j' + 1) (h.cmap hjm Z) = rep₂.kappaPreH A (j' + 1) Z := by
     show B.H.kappaPre P₁ j' (rep₁.kappaH B j') _ = A.H.kappaPre P₂ j' (rep₂.kappaH A j') Z
@@ -79,6 +80,16 @@ theorem d4Pin_of_agree {cs₁ cs₂ : OpConsts} {P₁ P₂ : BudgetConsts} {k₁
     intro c hc
     have hrc := ((A.H.mem_parts j' c Z).1 hc).1
     exact h.kappa_eq P₂ P₁ hP (rep₂.keptExp A) (rep₁.keptExp B) hke j' (by omega) c hrc
-  rw [← hkp, ← hp, ← congrFun (congrFun hκ (j' + 1)) _, h.localHistory_eq hjm M K Z]
+  rw [← hkp, ← hp, ← congrFun (hκ (j' + 1) hjm) _, h.localHistory_eq hjm M K Z]
+
+/-- **Transport of the pin along `Agree`.** -/
+theorem d4Pin_of_agree {cs₁ cs₂ : OpConsts} {P₁ P₂ : BudgetConsts} {k₁ k₂ : ℕ}
+    (rep₁ : Rep S n R k0 K M N geo cs₁ P₁ k₁) (rep₂ : Rep S n R k0 K M N geo cs₂ P₂ k₂) (m : ℕ)
+    (hκ : rep₂.κK = rep₁.κK) (hgam : ∀ j l, rep₂.KD.gam j l = rep₁.KD.gam j l)
+    (hc1 : P₂.c1 = P₁.c1) (hc2 : P₂.c2 = P₁.c2) (hβ : ∀ i, i < m → P₂.beta i = P₁.beta i)
+    (hpin : D4Pin (m + 1) rep₁)
+    (hcomp : ∀ A ∈ rep₂.hist, ∃ B ∈ rep₁.hist, A.Agree m (m + 1) B) : D4Pin (m + 1) rep₂ :=
+  d4Pin_of_agree_le rep₁ rep₂ m (fun i _ => by rw [hκ]) (fun j _ l => hgam j l) hc1 hc2 hβ hpin
+    hcomp
 
 end Balaban.RootFSpine

@@ -193,4 +193,18 @@ def LFCoherent (F : RepFam S R k0 K M N geo cs P k m₁ ϱ) : Prop :=
 
 end Coherent
 
+section GamConst
+
+variable {S : Setting} [NeZero S.L] {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ}
+  [NeZero M] {N : ℕ} {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts} {k : ℕ}
+
+/-- **The kept costs are the constants of LFR Definition III.5.2**:
+`γ_i(ϰ) = log C_dec + A'₃ λ̂_i^{p_R}` with `C_dec = 5`, a function of the scale only.  It is an
+invariant of the class (the kept data of every step are built with it, `KeptScaleData.gam_val`);
+it makes the pinned exponents torus coherent. -/
+def GamConst (rep : Rep S n R k0 K M N geo cs P k) : Prop :=
+  ∀ i l, rep.KD.gam i l = Real.log 5 + S.A3' * S.lam i ^ S.pR
+
+end GamConst
+
 end Balaban.RootFSpine

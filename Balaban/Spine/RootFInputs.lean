@@ -248,6 +248,8 @@ structure RepRec (d N : ℕ) (T : Typing) (P6 : Def6.Consts) (C7 : Consts7) (PB 
   /-- the field renormalizations are positive, `z_j > 0` for `1 ≤ j ≤ k` (P1 (1.11), P4 (4.1)): the
   class clauses do not carry their sign -/
   zpos : ∀ j, 1 ≤ j → j ≤ k → 0 < F.sf.z j
+  /-- the kept costs below `k` are the constants `γ_i` (`GamConst`, at every scale) -/
+  gamVal : ∀ (nK : ℕ) [NeZero nK], GamConst (F.lf nK)
 
 /-- **The class `ℛ_k` at the constants of the prefix**: the existence of a record `RepRec` (the body,
 with its witnesses as fields so that the step inputs can speak about them; as `PreClassAt` and
