@@ -2973,6 +2973,7 @@ public import Balaban.Spine.LFOldD7Hist
 public import Balaban.Spine.LFOldD7Reads
 public import Balaban.Spine.LFOldD7Analytic
 public import Balaban.Spine.LFOldD7AnalyticLoc
+public import Balaban.Spine.LFOldD7AnalyticRec
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
