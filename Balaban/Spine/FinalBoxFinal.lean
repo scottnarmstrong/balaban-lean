@@ -423,6 +423,60 @@ theorem lastScaleAmp_of_beta {d L k : ℕ} {β0 c₉ δ p D CR κ' aC Bbox BR : 
     _ ≤ c₉ / 8 * Λ + c₉ / 8 * Λ + c₉ / 4 * Λ := add_le_add (add_le_add hbox hRT) haC
     _ ≤ c₉ / 2 * Λ := by nlinarith
 
+
+/-- **The rate tie of the remainder activities from the prefix tie**: for `L ≥ 3` and `κ > 0`,
+`c₁ (κ + log 2 + d log L + 2) ≤ 3^{d+1} L^{2d+1} (κ + 1)`, so the tie
+`3^{d+1} L^{2d+1} (κ + 1) ≤ κ_flow` of `PrefixInput` gives the hypothesis `hκf` of
+`lastScaleTorusClauses_lastSfAct` (`c₁ = (3(2L-1))^d ≤ (6L)^d`, and
+`log 2 + d log L + 2 ≤ 3L + 3dL/2 ≤ 3L(L/2)^d`). -/
+theorem c1_mul_rate_le {d L : ℕ} (hL : 3 ≤ L) {κ : ℝ} (hκ : 0 < κ) :
+    Fluctuation.c1 d L * (κ + Real.log 2 + d * Real.log L + 2) ≤
+      (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by
+  have hL3 : (3 : ℝ) ≤ L := by exact_mod_cast hL
+  have hL0 : (0 : ℝ) < L := by linarith
+  have hc1 : Fluctuation.c1 d L ≤ (6 * (L : ℝ)) ^ d := by
+    unfold Fluctuation.c1
+    refine pow_le_pow_left₀ (by positivity) ?_ d
+    have : ((3 * (2 * L - 1) : ℕ) : ℝ) ≤ 6 * L := by
+      have h1 : 3 * (2 * L - 1) ≤ 6 * L := by omega
+      exact_mod_cast h1
+    exact this
+  have hlogL : Real.log L ≤ L := by linarith [Real.log_le_sub_one_of_pos hL0]
+  have hlog2 : Real.log 2 < 1 := by linarith [Real.log_two_lt_d9]
+  have hbern : 1 + (d : ℝ) * (1 / 2) ≤ (1 + 1 / 2) ^ d :=
+    one_add_mul_le_pow (by norm_num) d
+  have hpow : ((3 : ℝ) / 2) ^ d ≤ ((L : ℝ) / 2) ^ d :=
+    pow_le_pow_left₀ (by norm_num) (by linarith) d
+  have hX : Real.log 2 + d * Real.log L + 2 ≤ 3 * L * ((L : ℝ) / 2) ^ d := by
+    have h1 : (d : ℝ) * Real.log L ≤ d * L := mul_le_mul_of_nonneg_left hlogL (Nat.cast_nonneg d)
+    have h2 : 3 * (L : ℝ) * (1 + d * (1 / 2)) ≤ 3 * L * ((L : ℝ) / 2) ^ d := by
+      refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+      calc 1 + (d : ℝ) * (1 / 2) ≤ (1 + 1 / 2) ^ d := hbern
+        _ = ((3 : ℝ) / 2) ^ d := by norm_num
+        _ ≤ ((L : ℝ) / 2) ^ d := hpow
+    nlinarith [Nat.cast_nonneg (α := ℝ) d]
+  have hsplit : (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) =
+      (6 * (L : ℝ)) ^ d * (3 * L * ((L : ℝ) / 2) ^ d) := by
+    rw [mul_pow, div_pow, pow_succ, show 2 * d + 1 = d + d + 1 by ring, pow_succ, pow_add]
+    field_simp
+    rw [show (6 : ℝ) ^ d = 2 ^ d * 3 ^ d by rw [← mul_pow]; norm_num]
+    ring
+  have hY : 1 ≤ 3 * (L : ℝ) * ((L : ℝ) / 2) ^ d := by
+    have : (1 : ℝ) ≤ ((L : ℝ) / 2) ^ d := one_le_pow₀ (by linarith)
+    nlinarith
+  have hc1n : 0 ≤ Fluctuation.c1 d L := by unfold Fluctuation.c1; positivity
+  have hlogn : 0 ≤ Real.log 2 + d * Real.log L + 2 := by
+    have : 0 ≤ Real.log (L : ℝ) := Real.log_nonneg (by linarith)
+    have : 0 < Real.log 2 := Real.log_pos (by norm_num)
+    positivity
+  calc Fluctuation.c1 d L * (κ + Real.log 2 + d * Real.log L + 2)
+      ≤ (6 * (L : ℝ)) ^ d * (κ + Real.log 2 + d * Real.log L + 2) :=
+        mul_le_mul_of_nonneg_right hc1 (by linarith)
+    _ ≤ (6 * (L : ℝ)) ^ d * ((3 * L * ((L : ℝ) / 2) ^ d) * (κ + 1)) := by
+        refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+        nlinarith
+    _ = _ := by rw [hsplit]; ring
+
 end Amp
 
 end Balaban.RootFSpine
