@@ -17,29 +17,29 @@ open Balaban Balaban.Background Balaban.Multiscale Matrix Classical
 
 variable {d N L n : ℕ}
 
-private theorem cast_roundtrip_fwd {α : Type*} {F : α → Type*} {a b : α}
+theorem cast_roundtrip_fwd {α : Type*} {F : α → Type*} {a b : α}
     (e : a = b) (x : F b) : e ▸ (e.symm ▸ x) = x := by cases e; rfl
 
-private theorem cast_roundtrip_rev {α : Type*} {F : α → Type*} {a b : α}
+theorem cast_roundtrip_rev {α : Type*} {F : α → Type*} {a b : α}
     (e : a = b) (x : F a) : e.symm ▸ (e ▸ x) = x := by cases e; rfl
 
-private theorem torus_cast_add {d ℓ ℓ' : ℕ} (e : ℓ = ℓ')
+theorem torus_cast_add {d ℓ ℓ' : ℕ} (e : ℓ = ℓ')
     (x y : Torus d ℓ) : e ▸ (x + y) = (e ▸ x) + (e ▸ y) := by
   cases e
   rfl
 
-private theorem torus_cast_single {d ℓ ℓ' : ℕ} (e : ℓ = ℓ')
+theorem torus_cast_single {d ℓ ℓ' : ℕ} (e : ℓ = ℓ')
     (j : Fin d) : e ▸ (Pi.single j (1 : ZMod ℓ) : Torus d ℓ) =
       (Pi.single j (1 : ZMod ℓ') : Torus d ℓ') := by
   cases e
   rfl
 
-private theorem blockMap_congr {d ℓ ℓ' m m' K K' : ℕ}
+theorem blockMap_congr {d ℓ ℓ' m m' K K' : ℕ}
     (hℓ : ℓ = ℓ') (hm : m = m') (hK : K = K') (x : Torus d ℓ) :
     hm ▸ blockMap K m x = blockMap K' m' (hℓ ▸ x) := by
   cases hℓ; cases hm; cases hK; rfl
 
-private theorem sum_fibre_cast {d ℓ ℓ' m m' K K' : ℕ} [NeZero ℓ] [NeZero ℓ']
+theorem sum_fibre_cast {d ℓ ℓ' m m' K K' : ℕ} [NeZero ℓ] [NeZero ℓ']
     (hℓ : ℓ = ℓ') (hm : m = m') (hK : K = K')
     (y : Torus d m) (f : Torus d ℓ' → ℝ) :
     ∑ x ∈ blockFibre (ℓ := ℓ) K m y, f (hℓ ▸ x) =
@@ -121,7 +121,7 @@ theorem baseSector_blockAvg_eq_baseQ (ϱ : ℝ) (φ : CfgT d N L n)
   rw [hsum]
   simp [Finset.sum_apply, Complex.ofReal_mul]
 
-private theorem sum_torus_cast {d ℓ ℓ' : ℕ} [NeZero ℓ] [NeZero ℓ'] (hℓ : ℓ = ℓ')
+theorem sum_torus_cast {d ℓ ℓ' : ℕ} [NeZero ℓ] [NeZero ℓ'] (hℓ : ℓ = ℓ')
     (f : Torus d ℓ' → ℝ) :
     ∑ x : Torus d ℓ, f (hℓ ▸ x) = ∑ x : Torus d ℓ', f x := by
   let e : Torus d ℓ ≃ Torus d ℓ' :=
@@ -185,7 +185,7 @@ theorem baseSector_sum_single_blocks (ϱ : ℝ) (f : Torus d n → ℝ) :
         (fun x : Torus d (L * n) => f (blockMap L n x))
     _ = _ := baseSector_sum_over_blocks f
 
-private theorem sum_coord_norm_sq (u v : EuclideanSpace ℝ (Fin N)) :
+theorem sum_coord_norm_sq (u v : EuclideanSpace ℝ (Fin N)) :
     (∑ i : Fin N, ‖((u i : ℝ) : ℂ) - ((v i : ℝ) : ℂ)‖ ^ 2) =
       ‖u - v‖ ^ 2 := by
   rw [EuclideanSpace.norm_sq_eq]
@@ -296,7 +296,7 @@ private theorem baseSector_bond_site_eq (ϱ : ℝ)
             baseSector_barField_physical ϱ θ h φ x i, hcast]
     _ = _ := sum_coord_norm_sq u v
 
-private theorem baseSector_bond_sum_cast (φ : CfgT d N L n) :
+theorem baseSector_bond_sum_cast (φ : CfgT d N L n) :
     (∑ x : Torus d (1 * n * L ^ 1), ∑ j : Fin d,
       ‖(φ ((baseSector_side L n ▸ x) + Pi.single j 1) : EuclideanSpace ℝ (Fin N)) -
         φ (baseSector_side L n ▸ x)‖ ^ 2) =
