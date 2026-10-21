@@ -124,14 +124,16 @@ theorem composeField_corr (a : ℕ → ℝ) {R : Set (Torus d (N₀ * L ^ k))}
     (hG : GSCorr G H σ R) (hG' : GSCorr G' H' σ R) {z : Torus d (N₀ * L ^ k)} (hz : z ∈ R)
     (hprec : z ∈ G.Ω 1 → z ∈ G'.Ω 1)
     {φ' : G'.Ω 1 × Fin N → ℂ} {φ'' : H'.Ω 1 × Fin N → ℂ}
-    (hφ : ∀ y ∈ G'.blk (G'.layerIndex z) z, ∀ i, svec H' φ'' (σ y) i = svec G' φ' y i)
-    (hφG : ∀ y ∈ G.blk (G.layerIndex z) z, ∀ i, svec H' φ'' (σ y) i = svec G' φ' y i)
+    (hφ : z ∈ G.Ω 1 → ∀ y ∈ G'.blk (G'.layerIndex z) z, ∀ i,
+      svec H' φ'' (σ y) i = svec G' φ' y i)
+    (hφG : z ∈ G.Ω 1 → ∀ y ∈ G.blk (G.layerIndex z) z, ∀ i,
+      svec H' φ'' (σ y) i = svec G' φ' y i)
     {Ψ' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {Ψ'' : Torus d (N₀' * L ^ k) → Fin N → ℂ}
     (hΨ : Ψ'' (σ z) = Ψ' z)
     (hbar : z ∈ collar G → ∀ i, barField H' Ψ'' φ'' (σ z) i = barField G' Ψ' φ' z i) (i : Fin N) :
     composeField H H' a φ'' Ψ'' (σ z) i = composeField G G' a φ' Ψ' z i := by
   by_cases h1 : z ∈ G.Ω 1
-  · exact composeField_corr_mem a h1 (hG.site z hz) (hG'.site z hz) (hprec h1) hφ hφG hΨ i
+  · exact composeField_corr_mem a h1 (hG.site z hz) (hG'.site z hz) (hprec h1) (hφ h1) (hφG h1) hΨ i
   · by_cases h2 : z ∈ collar G
     · exact composeField_corr_collar a h1 h2 (fun h => h1 ((hG.mem_iff z hz).1 h))
         ((hG.collar_iff z hz).2 h2) i (hbar h2 i)
