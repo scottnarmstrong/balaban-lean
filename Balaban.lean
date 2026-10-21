@@ -2182,6 +2182,8 @@ public import Balaban.LargeField.Base.BaseHull
 public import Balaban.LargeField.Base.BaseHullTwoTorus
 public import Balaban.LargeField.Base.BaseDefectPoly
 public import Balaban.LargeField.Base.BaseFirstRDecomp
+public import Balaban.LargeField.Base.BaseFirstAction
+public import Balaban.LargeField.Base.BaseFirstActionClass
 public import Balaban.LargeField.Base.BaseChartCore
 public import Balaban.LargeField.Base.BaseChartNative
 public import Balaban.LargeField.Base.BaseRecordBridge
