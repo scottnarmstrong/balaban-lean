@@ -95,4 +95,30 @@ theorem beta_epsSq_le_pow (L d : ℕ) [NeZero L] (hd : 2 ≤ d) {β η α α₀ 
     _ ≤ (9 * β * Real.exp η * α₀ ^ 2) * ((L : ℝ) ^ (2 * γ)) ^ J := by
         gcongr
 
+/-- **The mass constant of the window conversion grows like `L^{(d-2)(m'+1)}`.**  Any constants with
+`C_m ≥ e^{2η} D_δ/(β ε₀²)`, `ε₀ ≤ P := α₀ (L^{-α})^{m'+1}`, `A_max ≥ b P²` for the top coupling
+`b = β_{m'+1} ≥ β X e^{-η}` (`X = L^{(d-2)(m'+1)}`) and `K_mass ≥ 2 C_m A_max` satisfy
+`K_mass ≥ 2 e^η D_δ X`. -/
+theorem kmass_growth {β Dδ η ε₀ P Cm Amax Kmass b X : ℝ} (hβ : 0 < β) (hD : 0 < Dδ) (hP : 0 < P)
+    (hε : 0 < ε₀) (hεP : ε₀ ≤ P) (hCm : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm)
+    (hA : b * P ^ 2 ≤ Amax) (hb : β * X * Real.exp (-η) ≤ b) (hX : 0 ≤ X)
+    (hK : 2 * (Cm * Amax) ≤ Kmass) : 2 * Real.exp η * Dδ * X ≤ Kmass := by
+  have hP2 : ε₀ ^ 2 ≤ P ^ 2 := pow_le_pow_left₀ hε.le hεP 2
+  have hc0 : Real.exp (2 * η) * Dδ / (β * P ^ 2) ≤ Cm := by
+    refine le_trans ?_ hCm
+    exact div_le_div_of_nonneg_left (by positivity) (by positivity)
+      (mul_le_mul_of_nonneg_left hP2 hβ.le)
+  have hA' : β * X * Real.exp (-η) * P ^ 2 ≤ Amax :=
+    le_trans (mul_le_mul_of_nonneg_right hb (by positivity)) hA
+  have h1 : Real.exp (2 * η) * Dδ / (β * P ^ 2) * (β * X * Real.exp (-η) * P ^ 2) ≤ Cm * Amax :=
+    mul_le_mul hc0 hA' (by positivity) (le_trans (by positivity) hc0)
+  have h2 : Real.exp (2 * η) * Dδ / (β * P ^ 2) * (β * X * Real.exp (-η) * P ^ 2) =
+      Real.exp η * Dδ * X := by
+    have e : Real.exp (2 * η) = Real.exp η * Real.exp η := by
+      rw [← Real.exp_add]; ring_nf
+    rw [e, Real.exp_neg]
+    have := Real.exp_pos η
+    field_simp
+  linarith
+
 end Balaban.LargeField
