@@ -2927,6 +2927,14 @@ public import Balaban.Spine.FrozenSFStep
 public import Balaban.Spine.FrozenSwitchMass
 public import Balaban.Spine.FrozenLFStep
 public import Balaban.Spine.HistCanon
+public import Balaban.Spine.BookMap
+public import Balaban.Spine.AgreeTransport
+public import Balaban.Spine.AgreeTransportSpine
+public import Balaban.Spine.AgreeTransportKappa
+public import Balaban.Spine.AgreeTransportLocal
+public import Balaban.Spine.AgreeTransportRep
+public import Balaban.Spine.PinParts
+public import Balaban.Spine.BaseCarrier
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep

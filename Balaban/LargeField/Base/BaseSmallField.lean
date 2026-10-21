@@ -25,7 +25,7 @@ Proposition II.7.9), which is open.
 `Kphys`, the complex remainder on the history `H`, the component `Z'`, the complex source on the
 physical torus, the witness `w`, the output, the new internal variables and the field `h`
 (`notes/phase1/BASECARRIER.md`; the base record is `H.baseRecord`).  The local history is
-`H.localHistory 1 1 1 Z'` (`M = K = 1`).  Everything else is a property of `Kphys`.
+`H.localHistory M K 1 Z'` (`M = K = 1`).  Everything else is a property of `Kphys`.
 
 The source-free real factor `K̃^w_0(0)` (`baseKt0`) is the real part of `Kphys` at source `0`, and
 the factorization `K̃^w_0(g) = K̃^w_0(0) e^{b_w(g)}` is a theorem on its nonvanishing domain
@@ -75,6 +75,7 @@ end Input
 section Carrier
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
+  {M K : ℕ} [NeZero M]
 
 /-- **The physical base carrier** (BASE-KERNEL §§1-3, §5, §6 tasks 1-3 = Proposition II.7.9; P5
 (2.20), (2.47); the conditional integral of `notes/phase1/BASECARRIER.md`).
@@ -87,38 +88,39 @@ admissible history `H` and the component `Z'` of `Z^pre_1`: the source kernel of
 field `h` (`hv`) and the source `g` on the physical torus `Torus d (L n_1)`; it reads no raw spin:
 the spins outside `Z'` enter the source only through `o`, `h` and `g` (Lemma II.7.7 (b)), and the
 spins on `Z' ∖ Ω_1` are held by `x` and not given a second time.  The base record of the history is
-`H.baseRecord`; the history enters through the local history `a = H.localHistory 1 1 1 Z'`. -/
-structure BaseSmallFieldInput (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) where
+`H.baseRecord`; the history enters through the local history `a = H.localHistory M K 1 Z'`. -/
+structure BaseSmallFieldInput (M K : ℕ) [NeZero M] (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts)
+    (N : ℕ) where
   /-- the complex remainder `K̃^w_0` -/
-  Kphys : ∀ (H : RegionHistory S n R k0 1), H.Admissible → ∀ (Z' : H.Comp 1),
-    (Torus S.d (S.L * n 1) → Fin N → ℂ) →
-    BaseW (H.localHistory 1 1 1 Z') 0 → OutT N R (H.localHistory 1 1 1 Z') 1 →
-    NewCfg N (H.localHistory 1 1 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℂ
+  Kphys : ∀ (H : RegionHistory S n R k0 K), H.Admissible → ∀ (Z' : H.Comp 1),
+    (GIdx S n M K N → ℂ) →
+    BaseW (H.localHistory M K 1 Z') 0 → OutT N R (H.localHistory M K 1 Z') 1 →
+    NewCfg N (H.localHistory M K 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℂ
   /-- `K̃^w_0` is Borel in the output and the internal variables (§5) -/
-  Kphys_meas : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    Measurable fun p : OutT N R (H.localHistory 1 1 1 Z') 1 × NewCfg N (H.localHistory 1 1 1 Z') 0 =>
+  Kphys_meas : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    Measurable fun p : OutT N R (H.localHistory M K 1 Z') 1 × NewCfg N (H.localHistory M K 1 Z') 0 =>
       Kphys H hH Z' g w p.1 p.2 hv
   /-- `K̃^w_0` is independent of `ψ_1` on `Ω^c`: only `A_c(u)` reads it (§5, first paragraph) -/
-  Kphys_outside : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o o' : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    (∀ y : Vblk R (H.localHistory 1 1 1 Z') (0 + 1),
-      y.1 ∉ gaussBlocks (H.localHistory 1 1 1 Z') 0 → o y = o' y) →
+  Kphys_outside : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o o' : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ y : Vblk R (H.localHistory M K 1 Z') (0 + 1),
+      y.1 ∉ gaussBlocks (H.localHistory M K 1 Z') 0 → o y = o' y) →
       Kphys H hH Z' g w o x hv = Kphys H hH Z' g w o' x hv
   /-- `K̃^w_0` vanishes off `χ^new_0` (§1 last paragraph: `chiNew` supplies the support condition) -/
-  Kphys_dom : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+  Kphys_dom : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
     ¬ ChiNewAt geo cs H 0 Z' o x → Kphys H hH Z' g w o x hv = 0
   /-- the source-free sector is real and nonnegative (§1 (1.1), §5 "all real factors are
   nonnegative Borel"): the integrand is positive when `g = 0` -/
-  Kphys_zero_sector : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-     (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+  Kphys_zero_sector : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+     (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)),
     (Kphys H hH Z' 0 w o x hv).im = 0 ∧ 0 ≤ (Kphys H hH Z' 0 w o x hv).re
   /-- the modulus bound relative to the source-free sector (Lemma II.7.7 (b)): on the `ℓ¹` unit
@@ -127,133 +129,134 @@ structure BaseSmallFieldInput (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N 
   `|e^{⟨g,φ⟩}| ≤ e^{‖g|_{Z'}‖_1}` (the proof of (b)); the absolute bound
   `|b_0| ≤ (C_b log β + C_b)|Z'|_1` follows from it where `|Z'|_1 ≥ 1` (no typing constant is
   needed in this form) -/
-  Kphys_bound : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    g ∈ l1Ball (GIdx S n 1 1 N) → ChiNewAt geo cs H 0 Z' o x →
-    ‖Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+  Kphys_bound : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    g ∈ l1Ball (GIdx S n M K N) → ChiNewAt geo cs H 0 Z' o x →
+    ‖Kphys H hH Z' g w o x hv‖ ≤
       (Kphys H hH Z' 0 w o x hv).re *
-        Real.exp (baseSourceNorm H Z' g)
+        Real.exp (baseSourceNorm M H Z' g)
   /-- `K̃^w_0` is analytic in the source on the `ℓ¹` unit ball (§3, joint H7 analyticity) -/
-  Kphys_analytic : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-     (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+  Kphys_analytic : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+     (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)),
-    AnalyticOnNhd ℂ (fun g : GIdx S n 1 1 N → ℂ =>
-      Kphys H hH Z' (baseSource S n N g) w o x hv) (l1Ball (GIdx S n 1 1 N))
+    AnalyticOnNhd ℂ (fun g : GIdx S n M K N → ℂ =>
+      Kphys H hH Z' g w o x hv) (l1Ball (GIdx S n M K N))
   /-- `K̃^w_0` is real for real sources (§3) -/
-  Kphys_real : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    g ∈ l1Ball (GIdx S n 1 1 N) → (∀ i, (g i).im = 0) →
-      (Kphys H hH Z' (baseSource S n N g) w o x hv).im = 0
+  Kphys_real : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    g ∈ l1Ball (GIdx S n M K N) → (∀ i, (g i).im = 0) →
+      (Kphys H hH Z' g w o x hv).im = 0
   /-- `K̃^w_0` depends on the source only through its restriction to the sites of `Z'` (Lemma II.7.7
   (b), "`g|_V`"; the source term is counted once on `Z'`, not on the overlapping collars) -/
-  Kphys_supp : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-     (g g' : GIdx S n 1 1 N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
-    (∀ i : GIdx S n 1 1 N, i.1 ∈ baseZsites H Z' → g i = g' i) →
-      Kphys H hH Z' (baseSource S n N g) w o x hv =
-        Kphys H hH Z' (baseSource S n N g') w o x hv
+  Kphys_supp : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+     (g g' : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)),
+    (∀ i : GIdx S n M K N, i.1 ∈ baseZsites M H Z' → g i = g' i) →
+      Kphys H hH Z' g w o x hv =
+        Kphys H hH Z' g' w o x hv
   /-- `O(N)`-covariance of `K̃^w_0`: rotate the source, the output, the internal
   variables and the field (§5 (S5)(i)) -/
-  Kphys_rot : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : Torus S.d (S.L * n 1) → Fin N → ℂ)
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (ρ : OrthN N)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+  Kphys_rot : ∀ (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ)
+    (w : BaseW (H.localHistory M K 1 Z') 0) (ρ : OrthN N)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)),
-    Kphys H hH Z' (baseRotSrc ρ g) w (rotOut ρ o) (rotSub ρ x) (ρ hv) =
+    Kphys H hH Z' (rotG ρ g) w (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       Kphys H hH Z' g w o x hv
   /-- Euclidean covariance of the kernel `K_0 = ∏ z_1^N t_0 · ∑_w F^w_0 K̃^w_0` (§5: Lemma I.3.9
   and the local-covariance core equality give (S4)), between the localized histories of two
   components that correspond under a torus symmetry `σ` -/
-  euclid_K : ∀ (σ : TorusSym S n 1 1)
-    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (H' : RegionHistory S n R k0 1) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
-    (hI : HistImage σ (H.localHistory 1 1 1 Z') (H'.localHistory 1 1 1 Z''))
-    (hk : 0 + 1 ≤ 1) (g g' : GIdx S n 1 1 N → ℂ)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (o' : OutT N R (H'.localHistory 1 1 1 Z'') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (x' : NewCfg N (H'.localHistory 1 1 1 Z'') 0)
+  euclid_K : ∀ (σ : TorusSym S n M K)
+    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (H' : RegionHistory S n R k0 K) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
+    (hI : HistImage σ (H.localHistory M K 1 Z') (H'.localHistory M K 1 Z''))
+    (hk : 0 + 1 ≤ K) (g g' : GIdx S n M K N → ℂ)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (o' : OutT N R (H'.localHistory M K 1 Z'') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (x' : NewCfg N (H'.localHistory M K 1 Z'') 0)
     (hv : EuclideanSpace ℝ (Fin N)),
     RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
-      gaussProd N (H'.localHistory 1 1 1 Z'') 0 cs o' x' *
-          baseSumC cs (H'.localHistory 1 1 1 Z'')
-            (fun w => Kphys H' hH' Z'' (baseSource S n N g') w) o' x' hv =
-        gaussProd N (H.localHistory 1 1 1 Z') 0 cs o x *
-          baseSumC cs (H.localHistory 1 1 1 Z')
-            (fun w => Kphys H hH Z' (baseSource S n N g) w) o x hv
+      gaussProd N (H'.localHistory M K 1 Z'') 0 cs o' x' *
+          baseSumC cs (H'.localHistory M K 1 Z'')
+            (fun w => Kphys H' hH' Z'' g' w) o' x' hv =
+        gaussProd N (H.localHistory M K 1 Z') 0 cs o x *
+          baseSumC cs (H.localHistory M K 1 Z')
+            (fun w => Kphys H hH Z' g w) o x hv
 
 end Carrier
 
 section Derived
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
-  {k0 : ℕ} {geo : Geo S n R 1} {cs : OpConsts}
-  (inp : BaseSmallFieldInput k0 geo cs N)
-  (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  {M K : ℕ} [NeZero M] {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+  (inp : BaseSmallFieldInput M K k0 geo cs N)
+  (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
 
 /-- **The source-free real factor** `K̃^w_0(0)`: the real part of `Kphys` at source `0`. -/
-noncomputable def baseKt0 (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+noncomputable def baseKt0 (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
   (inp.Kphys H hH Z' 0 w o x hv).re
 
-theorem Kphys_zero_eq (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem Kphys_zero_eq (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
     inp.Kphys H hH Z' 0 w o x hv = (baseKt0 inp H hH Z' w o x hv : ℂ) :=
   Complex.ext (by simp [baseKt0]) (by simpa using (inp.Kphys_zero_sector H hH Z' w o x hv).1)
 
-theorem baseKt0_nonneg (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKt0_nonneg (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) : 0 ≤ baseKt0 inp H hH Z' w o x hv :=
   (inp.Kphys_zero_sector H hH Z' w o x hv).2
 
-theorem measurable_baseKt0 (w : BaseW (H.localHistory 1 1 1 Z') 0)
+theorem measurable_baseKt0 (w : BaseW (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
-    Measurable fun p : OutT N R (H.localHistory 1 1 1 Z') 1 ×
-        NewCfg N (H.localHistory 1 1 1 Z') 0 => baseKt0 inp H hH Z' w p.1 p.2 hv :=
+    Measurable fun p : OutT N R (H.localHistory M K 1 Z') 1 ×
+        NewCfg N (H.localHistory M K 1 Z') 0 => baseKt0 inp H hH Z' w p.1 p.2 hv :=
   Complex.measurable_re.comp (inp.Kphys_meas H hH Z' 0 w hv)
 
-theorem baseKt0_outside (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o o' : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKt0_outside (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o o' : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N))
-    (h : ∀ y : Vblk R (H.localHistory 1 1 1 Z') (0 + 1),
-      y.1 ∉ gaussBlocks (H.localHistory 1 1 1 Z') 0 → o y = o' y) :
+    (h : ∀ y : Vblk R (H.localHistory M K 1 Z') (0 + 1),
+      y.1 ∉ gaussBlocks (H.localHistory M K 1 Z') 0 → o y = o' y) :
     baseKt0 inp H hH Z' w o x hv = baseKt0 inp H hH Z' w o' x hv := by
   unfold baseKt0
   rw [inp.Kphys_outside H hH Z' 0 w o o' x hv h]
 
-theorem baseKt0_dom (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKt0_dom (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) (h : ¬ ChiNewAt geo cs H 0 Z' o x) :
     baseKt0 inp H hH Z' w o x hv = 0 := by
   unfold baseKt0
   rw [inp.Kphys_dom H hH Z' 0 w o x hv h]; rfl
 
-theorem baseKt0_rot (w : BaseW (H.localHistory 1 1 1 Z') 0) (ρ : OrthN N)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKt0_rot (w : BaseW (H.localHistory M K 1 Z') 0) (ρ : OrthN N)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
     baseKt0 inp H hH Z' w (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       baseKt0 inp H hH Z' w o x hv := by
   unfold baseKt0
   have := inp.Kphys_rot H hH Z' 0 w ρ o x hv
-  rw [baseRotSrc_zero] at this
+  have h0 : rotG ρ (0 : GIdx S n M K N → ℂ) = 0 := by funext p; simp [rotG]
+  rw [h0] at this
   rw [this]
 
 /-! ### The modulus bound and the factorization on the nonvanishing domain -/
 
 /-- The modulus bound of `Kphys_bound` without the support hypothesis: off `χ^new_0` the value is
 `0` (`Kphys_dom`). -/
-theorem baseKphys_norm_le (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx S n 1 1 N))
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
-    ‖inp.Kphys H hH Z' (baseSource S n N g) w o x hv‖ ≤
+theorem baseKphys_norm_le (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N))
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
+    ‖inp.Kphys H hH Z' g w o x hv‖ ≤
       baseKt0 inp H hH Z' w o x hv *
-        Real.exp (baseSourceNorm H Z' g) := by
+        Real.exp (baseSourceNorm M H Z' g) := by
   by_cases hc : ChiNewAt geo cs H 0 Z' o x
   · exact inp.Kphys_bound H hH Z' g w o x hv hg hc
   · rw [inp.Kphys_dom H hH Z' _ w o x hv hc, norm_zero,
@@ -261,11 +264,11 @@ theorem baseKphys_norm_le (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx 
 
 /-- A vanishing source-free sector has vanishing source-dependent sector: the complex-source
 integral of a nonnegative integrand supported in a null set is zero. -/
-theorem baseKphys_eq_zero_of_baseKt0_eq_zero (g : GIdx S n 1 1 N → ℂ)
-    (hg : g ∈ l1Ball (GIdx S n 1 1 N)) (w : BaseW (H.localHistory 1 1 1 Z') 0)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKphys_eq_zero_of_baseKt0_eq_zero (g : GIdx S n M K N → ℂ)
+    (hg : g ∈ l1Ball (GIdx S n M K N)) (w : BaseW (H.localHistory M K 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) (h0 : baseKt0 inp H hH Z' w o x hv = 0) :
-    inp.Kphys H hH Z' (baseSource S n N g) w o x hv = 0 := by
+    inp.Kphys H hH Z' g w o x hv = 0 := by
   have := baseKphys_norm_le inp H hH Z' g hg w o x hv
   rw [h0, zero_mul] at this
   exact norm_le_zero_iff.mp this
@@ -273,14 +276,14 @@ theorem baseKphys_eq_zero_of_baseKt0_eq_zero (g : GIdx S n 1 1 N → ℂ)
 /-- **The per-witness complex factorization** `K̃^w_0(g) = K̃^w_0(0) e^{b_w(g)}` on the
 nonvanishing domain: where `K̃^w_0(g) ≠ 0` the source-free sector is positive and
 `b_w(g) = log (K̃^w_0(g) / K̃^w_0(0))` (a branch of the logarithm). -/
-theorem baseKphys_eq_Kt0_mul_exp (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx S n 1 1 N))
-    (w : BaseW (H.localHistory 1 1 1 Z') 0) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
-    (hne : inp.Kphys H hH Z' (baseSource S n N g) w o x hv ≠ 0) :
+theorem baseKphys_eq_Kt0_mul_exp (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N))
+    (w : BaseW (H.localHistory M K 1 Z') 0) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
+    (hne : inp.Kphys H hH Z' g w o x hv ≠ 0) :
     0 < baseKt0 inp H hH Z' w o x hv ∧
-      inp.Kphys H hH Z' (baseSource S n N g) w o x hv =
+      inp.Kphys H hH Z' g w o x hv =
         (baseKt0 inp H hH Z' w o x hv : ℂ) *
-          Complex.exp (Complex.log (inp.Kphys H hH Z' (baseSource S n N g) w o x hv /
+          Complex.exp (Complex.log (inp.Kphys H hH Z' g w o x hv /
             (baseKt0 inp H hH Z' w o x hv : ℂ))) := by
   have hpos : 0 < baseKt0 inp H hH Z' w o x hv :=
     lt_of_le_of_ne (baseKt0_nonneg inp H hH Z' w o x hv) fun h =>
@@ -364,36 +367,37 @@ end SumLemmas
 section Kernel
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
-  {k0 : ℕ} {geo : Geo S n R 1} {cs : OpConsts}
-  (inp : BaseSmallFieldInput k0 geo cs N)
-  (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  {M K : ℕ} [NeZero M]
+  {M K : ℕ} [NeZero M] {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
+  (inp : BaseSmallFieldInput M K k0 geo cs N)
+  (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
 
 /-- **The base kernel** `K_0 = ∏_y z_1^N t_0 · ∑_w F^w_0(u) K̃^w_0(0)` of BASE-KERNEL §1 (1.1), at
 the source-free sector, for the component `Z'` of the history `H`. -/
-noncomputable def baseK0 (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
-  gaussProd N (H.localHistory 1 1 1 Z') 0 cs o x *
-    baseSumOf cs (H.localHistory 1 1 1 Z') (fun w => baseKt0 inp H hH Z' w) o x hv
+noncomputable def baseK0 (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) : ℝ :=
+  gaussProd N (H.localHistory M K 1 Z') 0 cs o x *
+    baseSumOf cs (H.localHistory M K 1 Z') (fun w => baseKt0 inp H hH Z' w) o x hv
 
 /-- **The complex base kernel** `K_0(g) = ∏_y z_1^N t_0 · ∑_w F^w_0(u) K̃^w_0(g)` with the complex
 source `g` of the large-field layer. -/
-noncomputable def baseKC (g : GIdx S n 1 1 N → ℂ) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) : ℂ :=
-  (gaussProd N (H.localHistory 1 1 1 Z') 0 cs o x : ℂ) *
-    baseSumC cs (H.localHistory 1 1 1 Z')
-      (fun w => inp.Kphys H hH Z' (baseSource S n N g) w) o x hv
+noncomputable def baseKC (g : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) : ℂ :=
+  (gaussProd N (H.localHistory M K 1 Z') 0 cs o x : ℂ) *
+    baseSumC cs (H.localHistory M K 1 Z')
+      (fun w => inp.Kphys H hH Z' g w) o x hv
 
 /-- The remainder family of the Gaussian witnesses of (S1) at `k = 0`: `W = {blk, bd}^{P_1 ∩ Z'}`,
 `F^w_0 = baseF`, `K̃^w_0` the source-free sector of the input. -/
-noncomputable def baseWit (cs : OpConsts) : GaussWit N R (H.localHistory 1 1 1 Z') 0 :=
+noncomputable def baseWit (cs : OpConsts) : GaussWit N R (H.localHistory M K 1 Z') 0 :=
   open Classical in
-  { W := BaseW (H.localHistory 1 1 1 Z') 0
-    F := fun w u => baseF (H.localHistory 1 1 1 Z') 0 (cs.delta 0) w u
+  { W := BaseW (H.localHistory M K 1 Z') 0
+    F := fun w u => baseF (H.localHistory M K 1 Z') 0 (cs.delta 0) w u
     Kt := fun w o x hv => baseKt0 inp H hH Z' w o x hv }
 
-theorem baseK0_eq (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
-    baseK0 inp H hH Z' o x hv = gaussProd N (H.localHistory 1 1 1 Z') 0 cs o x *
+theorem baseK0_eq (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
+    baseK0 inp H hH Z' o x hv = gaussProd N (H.localHistory M K 1 Z') 0 cs o x *
       ∑ w, (baseWit inp H hH Z' cs).F w
         (fun y => gaussArg N (cs.z (0 + 1)) o x y.1) * (baseWit inp H hH Z' cs).Kt w o x hv := by
   classical
@@ -401,19 +405,19 @@ theorem baseK0_eq (o : OutT N R (H.localHistory 1 1 1 Z') 1)
 
 theorem baseK0_nonneg (hz : 0 ≤ cs.z (0 + 1))
     (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) : 0 ≤ baseK0 inp H hH Z' o x hv :=
   mul_nonneg (gaussProd_nonneg N _ 0 cs hz hc o x)
     (baseSumOf_nonneg cs _ (fun w o x hv => baseKt0_nonneg inp H hH Z' w o x hv) o x hv)
 
 theorem measurable_baseK0 (hv : EuclideanSpace ℝ (Fin N)) :
-    Measurable fun p : OutT N R (H.localHistory 1 1 1 Z') 1 × NewCfg N (H.localHistory 1 1 1 Z') 0 =>
+    Measurable fun p : OutT N R (H.localHistory M K 1 Z') 1 × NewCfg N (H.localHistory M K 1 Z') 0 =>
       baseK0 inp H hH Z' p.1 p.2 hv :=
-  (measurable_gaussProd_pair (H.localHistory 1 1 1 Z') 0 cs).mul
+  (measurable_gaussProd_pair (H.localHistory M K 1 Z') 0 cs).mul
     (measurable_baseSumOf cs _ (fun w hv => measurable_baseKt0 inp H hH Z' w hv) hv)
 
-theorem baseK0_rot (ρ : OrthN N) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
+theorem baseK0_rot (ρ : OrthN N) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
     baseK0 inp H hH Z' (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       baseK0 inp H hH Z' o x hv := by
   unfold baseK0
@@ -422,12 +426,12 @@ theorem baseK0_rot (ρ : OrthN N) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
     (Kt' := fun w => baseKt0 inp H hH Z' w) ρ
     (fun w o x hv => baseKt0_rot inp H hH Z' w ρ o x hv)]
 
-theorem baseK0_dom (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
+theorem baseK0_dom (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
     (hn : ¬ ChiNewAt geo cs H 0 Z' o x) : baseK0 inp H hH Z' o x hv = 0 := by
   classical
   unfold baseK0
-  have : baseSumOf cs (H.localHistory 1 1 1 Z') (fun w => baseKt0 inp H hH Z' w) o x hv = 0 := by
+  have : baseSumOf cs (H.localHistory M K 1 Z') (fun w => baseKt0 inp H hH Z' w) o x hv = 0 := by
     unfold baseSumOf
     exact Finset.sum_eq_zero fun w _ => by
       dsimp only
@@ -435,11 +439,10 @@ theorem baseK0_dom (o : OutT N R (H.localHistory 1 1 1 Z') 1)
   rw [this, mul_zero]
 
 /-- At source `0` the complex kernel is the real kernel. -/
-theorem baseKC_zero (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
+theorem baseKC_zero (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N)) :
     baseKC inp H hH Z' 0 o x hv = (baseK0 inp H hH Z' o x hv : ℂ) := by
   unfold baseKC baseK0
-  rw [baseSource_zero]
   have : (fun w => inp.Kphys H hH Z' 0 w) =
       fun w o x hv => (baseKt0 inp H hH Z' w o x hv : ℂ) := by
     funext w o x hv; exact Kphys_zero_eq inp H hH Z' w o x hv
@@ -447,22 +450,22 @@ theorem baseKC_zero (o : OutT N R (H.localHistory 1 1 1 Z') 1)
 
 /-- **The modulus bound of the complex kernel**:
 `|K_0(g)| ≤ K_0(0) e^{‖g|_{Z'}‖_1}` on the `ℓ¹` unit ball. -/
-theorem norm_baseKC_le (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx S n 1 1 N))
+theorem norm_baseKC_le (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N))
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
     ‖baseKC inp H hH Z' g o x hv‖ ≤
       baseK0 inp H hH Z' o x hv *
-        Real.exp (baseSourceNorm H Z' g) := by
+        Real.exp (baseSourceNorm M H Z' g) := by
   classical
   unfold baseKC baseK0
   rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (gaussProd_nonneg N _ 0 cs hz hc o x),
     mul_assoc]
   refine mul_le_mul_of_nonneg_left ?_ (gaussProd_nonneg N _ 0 cs hz hc o x)
-  have hb := norm_baseSumC_le cs (H.localHistory 1 1 1 Z')
-    (fun w => inp.Kphys H hH Z' (baseSource S n N g) w)
+  have hb := norm_baseSumC_le cs (H.localHistory M K 1 Z')
+    (fun w => inp.Kphys H hH Z' g w)
     (fun w o x hv => baseKt0 inp H hH Z' w o x hv *
-      Real.exp (baseSourceNorm H Z' g)) o x hv
+      Real.exp (baseSourceNorm M H Z' g)) o x hv
     (fun w => baseKphys_norm_le inp H hH Z' g hg w o x hv)
   refine hb.trans (le_of_eq ?_)
   unfold baseSumOf
@@ -470,10 +473,10 @@ theorem norm_baseKC_le (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx S n
   exact Finset.sum_congr rfl fun w _ => by ring
 
 /-- A vanishing source-free kernel has a vanishing complex kernel. -/
-theorem baseKC_eq_zero_of_baseK0_eq_zero (g : GIdx S n 1 1 N → ℂ)
-    (hg : g ∈ l1Ball (GIdx S n 1 1 N)) (hz : 0 ≤ cs.z (0 + 1))
+theorem baseKC_eq_zero_of_baseK0_eq_zero (g : GIdx S n M K N → ℂ)
+    (hg : g ∈ l1Ball (GIdx S n M K N)) (hz : 0 ≤ cs.z (0 + 1))
     (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) (h0 : baseK0 inp H hH Z' o x hv = 0) :
     baseKC inp H hH Z' g o x hv = 0 := by
   have := norm_baseKC_le inp H hH Z' g hg hz hc o x hv
@@ -483,9 +486,9 @@ theorem baseKC_eq_zero_of_baseK0_eq_zero (g : GIdx S n 1 1 N → ℂ)
 /-- **The complex factorization of the base kernel** `K_0(g) = K_0(0) e^{b_0(g)}` on the
 nonvanishing domain (after the witness sum): where `K_0(g) ≠ 0` the source-free kernel is positive
 and `b_0(g) = log (K_0(g) / K_0(0))` (a branch of the logarithm). -/
-theorem baseKC_eq_baseK0_mul_exp (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball (GIdx S n 1 1 N))
+theorem baseKC_eq_baseK0_mul_exp (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N))
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2))
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) (hne : baseKC inp H hH Z' g o x hv ≠ 0) :
     0 < baseK0 inp H hH Z' o x hv ∧
       baseKC inp H hH Z' g o x hv =
@@ -499,21 +502,21 @@ theorem baseKC_eq_baseK0_mul_exp (g : GIdx S n 1 1 N → ℂ) (hg : g ∈ l1Ball
   have hc' : (baseK0 inp H hH Z' o x hv : ℂ) ≠ 0 := by exact_mod_cast hpos.ne'
   rw [Complex.exp_log (div_ne_zero hne hc'), mul_div_cancel₀ _ hc']
 
-theorem baseKC_rot (ρ : OrthN N) (g : GIdx S n 1 1 N → ℂ)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKC_rot (ρ : OrthN N) (g : GIdx S n M K N → ℂ)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
     baseKC inp H hH Z' (rotG ρ g) (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       baseKC inp H hH Z' g o x hv := by
   classical
   unfold baseKC
-  rw [gaussProd_rot, ← baseRotSrc_baseSource]
+  rw [gaussProd_rot]
   congr 1
   unfold baseSumC
   refine Finset.sum_congr rfl fun w _ => ?_
   dsimp only
-  rw [inp.Kphys_rot H hH Z' (baseSource S n N g) w ρ o x hv]
+  rw [inp.Kphys_rot H hH Z' g w ρ o x hv]
   congr 2
-  have : (fun y : ↥(gaussBlocks (H.localHistory 1 1 1 Z') 0) =>
+  have : (fun y : ↥(gaussBlocks (H.localHistory M K 1 Z') 0) =>
       gaussArg N (cs.z (0 + 1)) (rotOut ρ o) (rotSub ρ x) y.1) =
       fun y => ρ (gaussArg N (cs.z (0 + 1)) o x y.1) := by
     funext y
@@ -553,77 +556,79 @@ end Gauss
 section StepData
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
+  {M K : ℕ} [NeZero M]
 
 /-- The base step data: the `k = 0` slice of `StepData` (Definition II.5.7 (S0), (S1), (S4)),
 for every admissible history `H` and component `Z'`.  `K` is the source-free kernel
 `K_0`, `KC` the complex kernel with the source of the large-field layer; (S4) is `euclid_K`
 between the localized histories of two components.  The one-step bound (S2) and the rotation form
 (S5) are separate targets. -/
-structure BaseStepData (k0 : ℕ) (geo : Geo S n R 1) (cs : OpConsts) (N : ℕ) where
+structure BaseStepData (M Kh : ℕ) [NeZero M] (k0 : ℕ) (geo : Geo S n R M) (cs : OpConsts)
+    (N : ℕ) where
   /-- the source-free step kernel `K_0(Z', a)` -/
-  K : ∀ (H : RegionHistory S n R k0 1), H.Admissible → ∀ (Z' : H.Comp 1),
-    OutT N R (H.localHistory 1 1 1 Z') 1 → NewCfg N (H.localHistory 1 1 1 Z') 0 →
+  K : ∀ (H : RegionHistory S n R k0 Kh), H.Admissible → ∀ (Z' : H.Comp 1),
+    OutT N R (H.localHistory M Kh 1 Z') 1 → NewCfg N (H.localHistory M Kh 1 Z') 0 →
     EuclideanSpace ℝ (Fin N) → ℝ
   /-- the complex step kernel at the source `g` -/
-  KC : ∀ (H : RegionHistory S n R k0 1), H.Admissible → ∀ (Z' : H.Comp 1),
-    (GIdx S n 1 1 N → ℂ) → OutT N R (H.localHistory 1 1 1 Z') 1 →
-    NewCfg N (H.localHistory 1 1 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℂ
+  KC : ∀ (H : RegionHistory S n R k0 Kh), H.Admissible → ∀ (Z' : H.Comp 1),
+    (GIdx S n M Kh N → ℂ) → OutT N R (H.localHistory M Kh 1 Z') 1 →
+    NewCfg N (H.localHistory M Kh 1 Z') 0 → EuclideanSpace ℝ (Fin N) → ℂ
   /-- the Gaussian witnesses of (S1) -/
-  wit : ∀ (H : RegionHistory S n R k0 1), H.Admissible → ∀ (Z' : H.Comp 1),
-    GaussWit N R (H.localHistory 1 1 1 Z') 0
+  wit : ∀ (H : RegionHistory S n R k0 Kh), H.Admissible → ∀ (Z' : H.Comp 1),
+    GaussWit N R (H.localHistory M Kh 1 Z') 0
   /-- `K_0 ≥ 0` -/
-  K_nonneg : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  K_nonneg : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     o x hv, 0 ≤ K H hH Z' o x hv
   /-- `K_0` is Borel in the output and the internal variables -/
-  measurable_K : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  measurable_K : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     hv,
-    Measurable fun p : OutT N R (H.localHistory 1 1 1 Z') 1 × NewCfg N (H.localHistory 1 1 1 Z') 0 =>
+    Measurable fun p : OutT N R (H.localHistory M Kh 1 Z') 1 × NewCfg N (H.localHistory M Kh 1 Z') 0 =>
       K H hH Z' p.1 p.2 hv
   /-- (S0)/(S1) `O(N)`-covariance of the kernel -/
-  rot_K : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  rot_K : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     (ρ : OrthN N) o x hv,
     K H hH Z' (rotOut ρ o) (rotSub ρ x) (ρ hv) = K H hH Z' o x hv
   /-- (S1) the kernel vanishes off the new part `χ^new_0` of the domain -/
-  dom : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  dom : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     o x hv, ¬ ChiNewAt geo cs H 0 Z' o x → K H hH Z' o x hv = 0
   /-- (S1) the Gaussian structure -/
-  gauss1 : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1),
-    GaussStructureFn cs (H.localHistory 1 1 1 Z') 0 (K H hH Z') (wit H hH Z')
+  gauss1 : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1),
+    GaussStructureFn cs (H.localHistory M Kh 1 Z') 0 (K H hH Z') (wit H hH Z')
   /-- the complex kernel at source `0` is the real kernel -/
-  KC_zero : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  KC_zero : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     o x hv, KC H hH Z' 0 o x hv = (K H hH Z' o x hv : ℂ)
   /-- the modulus bound `|K_0(g)| ≤ K_0(0) e^{‖g|_{Z'}‖_1}` on the `ℓ¹` ball -/
-  KC_bound : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ) o x hv, g ∈ l1Ball (GIdx S n 1 1 N) →
+  KC_bound : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M Kh N → ℂ) o x hv, g ∈ l1Ball (GIdx S n M Kh N) →
     ‖KC H hH Z' g o x hv‖ ≤
-      K H hH Z' o x hv * Real.exp (baseSourceNorm H Z' g)
+      K H hH Z' o x hv * Real.exp (baseSourceNorm M H Z' g)
   /-- (S0) the complex kernel is analytic in the source on the `ℓ¹` ball (after the witness sum
   the sum of the analytic functions `K̃^w_0`) -/
-  KC_analytic : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  KC_analytic : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     o x hv,
-    AnalyticOnNhd ℂ (fun g => KC H hH Z' g o x hv) (l1Ball (GIdx S n 1 1 N))
+    AnalyticOnNhd ℂ (fun g => KC H hH Z' g o x hv) (l1Ball (GIdx S n M Kh N))
   /-- the complex kernel is real for real sources -/
-  KC_real : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ) o x hv, g ∈ l1Ball (GIdx S n 1 1 N) →
+  KC_real : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M Kh N → ℂ) o x hv, g ∈ l1Ball (GIdx S n M Kh N) →
     (∀ i, (g i).im = 0) → (KC H hH Z' g o x hv).im = 0
   /-- (S0) the complex kernel depends on the source only through `g|_V` -/
-  KC_supp : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g g' : GIdx S n 1 1 N → ℂ) o x hv,
-    (∀ i : GIdx S n 1 1 N, i.1 ∈ baseZsites H Z' → g i = g' i) →
+  KC_supp : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g g' : GIdx S n M Kh N → ℂ) o x hv,
+    (∀ i : GIdx S n M Kh N, i.1 ∈ baseZsites M H Z' → g i = g' i) →
       KC H hH Z' g o x hv = KC H hH Z' g' o x hv
   /-- (S0) `O(N)`-covariance of the complex kernel -/
-  KC_rot : ∀ (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
+  KC_rot : ∀ (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
     (ρ : OrthN N) g o x hv,
     KC H hH Z' (rotG ρ g) (rotOut ρ o) (rotSub ρ x) (ρ hv) =
       KC H hH Z' g o x hv
   /-- (S4) Euclidean covariance of the complex kernel (the source is transported) -/
-  euclid_KC : ∀ (σ : TorusSym S n 1 1)
-    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (H' : RegionHistory S n R k0 1) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
-    (hI : HistImage σ (H.localHistory 1 1 1 Z') (H'.localHistory 1 1 1 Z''))
-    (hk : 0 + 1 ≤ 1) (g g' : GIdx S n 1 1 N → ℂ)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (o' : OutT N R (H'.localHistory 1 1 1 Z'') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (x' : NewCfg N (H'.localHistory 1 1 1 Z'') 0)
+  euclid_KC : ∀ (σ : TorusSym S n M Kh)
+    (H : RegionHistory S n R k0 Kh) (hH : H.Admissible) (Z' : H.Comp 1)
+    (H' : RegionHistory S n R k0 Kh) (hH' : H'.Admissible) (Z'' : H'.Comp 1)
+    (hI : HistImage σ (H.localHistory M Kh 1 Z') (H'.localHistory M Kh 1 Z''))
+    (hk : 0 + 1 ≤ Kh) (g g' : GIdx S n M Kh N → ℂ)
+    (o : OutT N R (H.localHistory M Kh 1 Z') 1) (o' : OutT N R (H'.localHistory M Kh 1 Z'') 1)
+    (x : NewCfg N (H.localHistory M Kh 1 Z') 0) (x' : NewCfg N (H'.localHistory M Kh 1 Z'') 0)
     (hv : EuclideanSpace ℝ (Fin N)),
     RelOut σ o o' → RelSub hI hk x x' → RelG σ g g' →
       KC H' hH' Z'' g' o' x' hv = KC H hH Z' g o x hv
@@ -633,24 +638,25 @@ end StepData
 section StepOfInput
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} [NeZero S.L] {N : ℕ}
-  {k0 : ℕ} {geo : Geo S n R 1} {cs : OpConsts}
+  {M K : ℕ} [NeZero M]
+  {k0 : ℕ} {geo : Geo S n R M} {cs : OpConsts}
 
-theorem baseKC_analytic (inp : BaseSmallFieldInput k0 geo cs N)
-    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (o : OutT N R (H.localHistory 1 1 1 Z') 1) (x : NewCfg N (H.localHistory 1 1 1 Z') 0)
+theorem baseKC_analytic (inp : BaseSmallFieldInput M K k0 geo cs N)
+    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (o : OutT N R (H.localHistory M K 1 Z') 1) (x : NewCfg N (H.localHistory M K 1 Z') 0)
     (hv : EuclideanSpace ℝ (Fin N)) :
-    AnalyticOnNhd ℂ (fun g => baseKC inp H hH Z' g o x hv) (l1Ball (GIdx S n 1 1 N)) := by
+    AnalyticOnNhd ℂ (fun g => baseKC inp H hH Z' g o x hv) (l1Ball (GIdx S n M K N)) := by
   classical
   unfold baseKC baseSumC
   intro g hg
   refine analyticAt_const.fun_mul (Finset.analyticAt_fun_sum _ fun w _ => ?_)
   exact analyticAt_const.fun_mul (inp.Kphys_analytic H hH Z' w o x hv g hg)
 
-theorem baseKC_real (inp : BaseSmallFieldInput k0 geo cs N)
-    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g : GIdx S n 1 1 N → ℂ) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
-    (hg : g ∈ l1Ball (GIdx S n 1 1 N)) (hr : ∀ i, (g i).im = 0) :
+theorem baseKC_real (inp : BaseSmallFieldInput M K k0 geo cs N)
+    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
+    (hg : g ∈ l1Ball (GIdx S n M K N)) (hr : ∀ i, (g i).im = 0) :
     (baseKC inp H hH Z' g o x hv).im = 0 := by
   classical
   unfold baseKC baseSumC
@@ -658,11 +664,11 @@ theorem baseKC_real (inp : BaseSmallFieldInput k0 geo cs N)
   refine mul_eq_zero_of_right _ (Finset.sum_eq_zero fun w _ => ?_)
   rw [Complex.im_ofReal_mul, inp.Kphys_real H hH Z' g w o x hv hg hr, mul_zero]
 
-theorem baseKC_supp (inp : BaseSmallFieldInput k0 geo cs N)
-    (H : RegionHistory S n R k0 1) (hH : H.Admissible) (Z' : H.Comp 1)
-    (g g' : GIdx S n 1 1 N → ℂ) (o : OutT N R (H.localHistory 1 1 1 Z') 1)
-    (x : NewCfg N (H.localHistory 1 1 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
-    (h : ∀ i : GIdx S n 1 1 N, i.1 ∈ baseZsites H Z' → g i = g' i) :
+theorem baseKC_supp (inp : BaseSmallFieldInput M K k0 geo cs N)
+    (H : RegionHistory S n R k0 K) (hH : H.Admissible) (Z' : H.Comp 1)
+    (g g' : GIdx S n M K N → ℂ) (o : OutT N R (H.localHistory M K 1 Z') 1)
+    (x : NewCfg N (H.localHistory M K 1 Z') 0) (hv : EuclideanSpace ℝ (Fin N))
+    (h : ∀ i : GIdx S n M K N, i.1 ∈ baseZsites M H Z' → g i = g' i) :
     baseKC inp H hH Z' g o x hv = baseKC inp H hH Z' g' o x hv := by
   classical
   unfold baseKC baseSumC
@@ -673,9 +679,9 @@ theorem baseKC_supp (inp : BaseSmallFieldInput k0 geo cs N)
 
 /-- **The base step data** (BASE-KERNEL §§1-3, §5): (S0), (S1), (S4) at `k = 0`, conditional on the
 small-field input. -/
-noncomputable def baseStepData_of_input (inp : BaseSmallFieldInput k0 geo cs N)
+noncomputable def baseStepData_of_input (inp : BaseSmallFieldInput M K k0 geo cs N)
     (hz : 0 ≤ cs.z (0 + 1)) (hc : 0 ≤ cs.beta 0 * cs.aKer * (S.L : ℝ) ^ (S.d - 2)) :
-    BaseStepData k0 geo cs N where
+    BaseStepData M K k0 geo cs N where
   K := fun H hH Z' => baseK0 inp H hH Z'
   KC := fun H hH Z' => baseKC inp H hH Z'
   wit := fun H hH Z' => baseWit inp H hH Z' cs
@@ -704,8 +710,8 @@ noncomputable def baseStepData_of_input (inp : BaseSmallFieldInput k0 geo cs N)
 
 /-- The zero `BaseSmallFieldInput`: the remainder `K̃^w_0 ≡ 0` (BASE-KERNEL-4 (3.1)).  It satisfies
 every field; it is degenerate (`zero_input_kernel_eq_zero`). -/
-noncomputable def zeroBaseSmallFieldInput (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ) :
-    BaseSmallFieldInput k0 geo cs N where
+noncomputable def zeroBaseSmallFieldInput (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ) :
+    BaseSmallFieldInput M K k0 geo cs N where
   Kphys := fun _ _ _ _ _ _ _ _ => 0
   Kphys_meas := by intros; exact measurable_const
   Kphys_outside := by intros; rfl
@@ -724,8 +730,8 @@ noncomputable def zeroBaseSmallFieldInput (geo : Geo S n R 1) (cs : OpConsts) (N
 /-- **Inhabitation of `BaseSmallFieldInput`** (rule 10): the zero remainder satisfies every field.
 The member is degenerate (`zero_input_kernel_eq_zero`); the physical datum is the conditional
 integral of `notes/phase1/BASECARRIER.md`. -/
-theorem baseSmallFieldInput_nonempty (geo : Geo S n R 1) (cs : OpConsts) (N k0 : ℕ) :
-    Nonempty (BaseSmallFieldInput k0 geo cs N) :=
+theorem baseSmallFieldInput_nonempty (geo : Geo S n R M) (cs : OpConsts) (N k0 : ℕ) :
+    Nonempty (BaseSmallFieldInput M K k0 geo cs N) :=
   ⟨zeroBaseSmallFieldInput geo cs N k0⟩
 
 end StepOfInput
