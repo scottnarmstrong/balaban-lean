@@ -492,6 +492,54 @@ theorem cover_qset_aff (q q' : ℕ × CTorus d L N₁ m₁ K) :
     refine ⟨A.toFun y, ?_, (inBox_aff_iff A q.1 q.2 y _).2 h2⟩
     exact ((sameCell_aff_iff A hpos (dvd_side hr.2) hAj y q'.2).2 h1).trans hc.symm
 
+/-! ### Compatibility with the blocks of two generating sets -/
+
+include hAl hG hG' hΩ in
+theorem block_idx_aff (q : ℕ × CTorus d L N₁ m₁ K) :
+    (q.1, baseImg A (L ^ q.1) q.2) ∈ Background.blockIdx G' ↔ q ∈ Background.blockIdx G := by
+  rw [Background.mem_blockIdx, Background.mem_blockIdx]
+  have hAj : ∀ {j : ℕ}, j ≤ K → A.Aligned (L ^ j) := fun {j} hj i =>
+    dvd_trans (pow_dvd_pow L (by omega)) (hAl i)
+  have hdv : ∀ {j : ℕ}, j ≤ K → L ^ j ∣ (N₁ * L ^ m₁) * L ^ K := fun {j} hj =>
+    dvd_side' hj
+  constructor
+  · rintro ⟨hr, hl, hb⟩
+    have hr' : 1 ≤ q.1 ∧ q.1 ≤ K := hr
+    have hpos : 0 < L ^ q.1 := by have := NeZero.pos L; positivity
+    have hb' : Background.IsBase q.1 q.2 :=
+      (baseImg_base_iff A hpos (hdv hr'.2) (hAj hr'.2) q.2).1 hb
+    have hc := sameCell_baseImg A hpos (hdv hr'.2) (hAj hr'.2) q.2 hb'
+    refine ⟨hr', ?_, hb'⟩
+    have hl' : baseImg A (L ^ q.1) q.2 ∈ G'.layer q.1 := hl
+    have hc' : SameCell (L ^ (q.1 + m₁)) (baseImg A (L ^ q.1) q.2) (A.toFun q.2) :=
+      hc.mono (pow_dvd_pow L (Nat.le_add_right _ _))
+    exact (layer_aff A hΩ q.1 q.2).1 ((hG'.mem_layer_iff hr'.1 hr'.2 hc').1 hl')
+  · rintro ⟨hr, hl, hb⟩
+    have hpos : 0 < L ^ q.1 := by have := NeZero.pos L; positivity
+    have hc := sameCell_baseImg A hpos (hdv hr.2) (hAj hr.2) q.2 hb
+    have hc' : SameCell (L ^ (q.1 + m₁)) (baseImg A (L ^ q.1) q.2) (A.toFun q.2) :=
+      hc.mono (pow_dvd_pow L (Nat.le_add_right _ _))
+    refine ⟨hr, ?_, (baseImg_base_iff A hpos (hdv hr.2) (hAj hr.2) q.2).2 hb⟩
+    exact (hG'.mem_layer_iff hr.1 hr.2 hc').2 ((layer_aff A hΩ q.1 q.2).2 hl)
+
+theorem block_bump_aff (q : ℕ × CTorus d L N₁ m₁ K) (x : CTorus d L N₁ m₁ K) :
+    Background.bump q.1 (baseImg A (L ^ q.1) q.2) (A.toFun x) = Background.bump q.1 q.2 x :=
+  bump_aff A q.1 q.2 x
+
+include hAl in
+theorem block_base_aff (q : ℕ × CTorus d L N₁ m₁ K) (hr : 1 ≤ q.1 ∧ q.1 ≤ K)
+    (hb : Background.IsBase q.1 q.2) :
+    jBlock d L (N₁ * L ^ m₁) K q.1 (A.invFun (baseImg A (L ^ q.1) q.2)) =
+      jBlock d L (N₁ * L ^ m₁) K q.1 q.2 := by
+  have hAj : A.Aligned (L ^ q.1) := fun i => dvd_trans (pow_dvd_pow L (by omega)) (hAl i)
+  have hdv : L ^ q.1 ∣ (N₁ * L ^ m₁) * L ^ K := dvd_side' hr.2
+  have hpos : 0 < L ^ q.1 := by have := NeZero.pos L; positivity
+  have hc := sameCell_baseImg A hpos hdv hAj q.2 hb
+  have h1 : SameCell (L ^ q.1) (A.invFun (baseImg A (L ^ q.1) q.2)) q.2 := by
+    refine (sameCell_aff_iff A hpos hdv hAj _ _).1 ?_
+    rw [AffIso.toFun_invFun]; exact hc
+  exact jBlock_eq_of_sameCell h1
+
 end CoverAff
 
 end Balaban.Localization.DecEquiv
