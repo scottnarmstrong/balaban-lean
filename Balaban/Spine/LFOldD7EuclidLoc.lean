@@ -188,4 +188,37 @@ theorem holeStepLF_G'_aff (σ : LatTorusSym S n M K) (hI : RegionIso σ H H') (j
       rw [e]
     exact key _
 
+section LocB
+
+open Balaban.SmallField.GsSpec in
+theorem fineCubeIdx_eq_blockMap {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {n : ℕ}
+    (x : CTorus d L N₁ m₁ k) :
+    fineCubeIdx (L ^ m₁) N₁ L k n (torusCast x : Torus d (L ^ m₁ * N₁ * L ^ k)) =
+      blockMap (L ^ n * L ^ m₁) (N₁ * L ^ (k - n)) x := by
+  funext ν
+  rw [fineCubeIdx_torusCast_coord, blockMap_apply]
+
+open Balaban.SmallField.GsSpec in
+/-- An aligned affine isometry preserves the distances of the cube indices. -/
+theorem localCube_aff {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁]
+    (A : AffIso d ((N₁ * L ^ m₁) * L ^ k)) {j : ℕ} (hj : j ≤ k) (hA : A.Aligned (L ^ (j + m₁)))
+    {n : ℕ} (hn : n ≤ j) (x y : CTorus d L N₁ m₁ k) :
+    supDist (fineCubeIdx (L ^ m₁) N₁ L k n
+        (torusCast (A.toEquiv x) : Torus d (L ^ m₁ * N₁ * L ^ k)))
+      (fineCubeIdx (L ^ m₁) N₁ L k n
+        (torusCast (A.toEquiv y) : Torus d (L ^ m₁ * N₁ * L ^ k))) =
+    supDist (fineCubeIdx (L ^ m₁) N₁ L k n (torusCast x : Torus d (L ^ m₁ * N₁ * L ^ k)))
+      (fineCubeIdx (L ^ m₁) N₁ L k n (torusCast y : Torus d (L ^ m₁ * N₁ * L ^ k))) := by
+  rw [fineCubeIdx_eq_blockMap, fineCubeIdx_eq_blockMap, fineCubeIdx_eq_blockMap,
+    fineCubeIdx_eq_blockMap]
+  have hpos : 0 < L ^ n * L ^ m₁ := by have := NeZero.pos L; positivity
+  have hℓ : N₁ * L ^ m₁ * L ^ k = (L ^ n * L ^ m₁) * (N₁ * L ^ (k - n)) :=
+    side_eq_localCube (by omega)
+  have hal : A.Aligned (L ^ n * L ^ m₁) := fun i =>
+    dvd_trans (by rw [← pow_add]; exact pow_dvd_pow L (by omega)) (hA i)
+  show supDist (blockMap _ _ (A.toFun x)) (blockMap _ _ (A.toFun y)) = _
+  rw [A.blockMap_toFun hℓ hpos hal, A.blockMap_toFun hℓ hpos hal, AffIso.supDist_eq]
+
+end LocB
+
 end Balaban.RootFSpine
