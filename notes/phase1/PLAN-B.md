@@ -282,3 +282,56 @@ approved declaration.
   on which the record's ℬ^{(k)}(X) is analytic with its bound ((D7) `analytic`, `bound`). It is one statement about the
   single pair (C, G′) (the background and covariance-root bounds of the decoupled objects, `Decoupled2XBounds`,
   `CovSqrtSupComplexDec`), not two mixed generating sets.
+
+## Obstruction (W1154b, 2026-10-21): OPEN-H7-MIXED for the local pair — the named inputs are false as stated; ruling request
+- **Proved false** (`Balaban/Spine/LFOldH7Refute.lean`, axioms `propext, Classical.choice, Quot.sound`):
+  `not_h7MixedDatumLoc` — at zero sharp masses (`μ_j = 0`, the scales below `k₀`), for every set `V` whose local set
+  `G′_V` (`locG'`) has a data site and every `Y_f` containing the fine images of its data sites on which the mixed cube
+  tests are void (e.g. `V` one `𝒞_1`-cube of the old operator set and `Y_f` the image of the data sites of `G′_V`, which
+  contains no cube of `𝕋_{i+1}`), `H7MixedDatumLoc` fails whenever `2 δ_b ≤ min(1, |z|) sinh t` and `2 sinh t ≤ c₀`;
+  `not_h7MixedDatumLoc_of_le_c7` — the instance at the constants of its use (`δ_b ≤ c₇`, `0 ≤ BG`, `|z| ≥ 1/2`;
+  `c7_le_bgC0_div_eight`: `c₇ ≤ c₀/8`). Consequence: the hypothesis `hDat` of `norm_oldCoefLoc_le_of_inputs`,
+  `analyticOnNhd_oldCoefLoc_fluct`, `norm_oldMarkLF_le`, `measurable_oldMarkLF`, `oldClusterLF_spec`, `norm_oldClusterSite_le`,
+  `norm_oldBAt_le`, `norm_oldB_le` cannot be met at zero sharp mass: these theorems say nothing there.
+- **Mechanism.** The cube tests `Δ^c_q(□; 1, ε)` of the H7 domain (Definition II.3.5 (a); `DeltaC` = `RegC` with the
+  domain conjunct `InUnionDomainC G c₀ c₁ μ` of BG Theorem 5.2) admit lifted data whose complex part has modulus up to
+  `c₀ + c₁`, and at zero mass no inequality of `RegIneq` bounds a complex rotation of a constant field: the boost
+  `w = cosh t e_{i₀} - i sinh t e_{i₁}` (`boostMat`, `Rᵀ R = 1`) has background `w` (`bgFieldC_rot`), multiplier `0`, and
+  passes every cube test for every `ε > 0` (`deltaC_rotConst`, `h7Domain_rotConst`). The chain of the local pair (Theorems
+  I-4b, I-4c as used in `analyticOnNhd_oldInterp`, `decDom_of_bgBounds`) needs the datum in `Ψ̃^c(δ_b, δ_b)`, complex part
+  `< 2 δ_b ≤ 2 c₇ ≤ c₀/4` (`not_inDomainC_of_im`). Generalizing that chain to `Ψ̃^c(δ, ε)` (`δ ≤ c₇`, `ε ≤ c₀`; I-4b
+  `i4b_exists_unique` already allows it, `DecDom` allows `|φ| < 3/2`) leaves the complex parts in `(c₀ + c₇, c₀ + c₁)`
+  uncovered when `c₇ < c₁`, and gives no room across the step: the target and the source H7 domains have the same complex
+  radius, while the composite adds `O(β_k^{-1/2} r_ψ)` and the change of background to the complex part.
+- **Three further defects of reading HS-1′ and of the two named inputs** (independent of the ruling below):
+  (D1) *the set `Y_f`*: the named inputs quantify over every `Y_f ⊇` data sites of `G′_V` (and `X`); the H7 domain at
+  `Y_f` tests only the cubes contained in `Y_f`, so for a small `Y_f` the field is free. Repair: `Y_f` contains the cubes
+  of `𝕋_k`, `𝕋_{k+1}` within 3 cubes of those sites (in the application `Y_f` is the fine set of the output label, which
+  contains the `π′_{k+1}`-cubes of the mark site).
+  (D2) *the stencil* (`H7MixedInnerLoc`): the source H7 domain at `X` reads the composed field on the cubes within 3
+  cubes of the cubes of `X` (`deltaC_stencil`); the sites of `Ω_{k+1}` there need not lie within `r + r′` of
+  `A_X = X ∩ Ω_{k+1}` (`X` may meet `Ω_{k+1}` far from a place where it only touches it), and at those sites the composed
+  multiscale field is `ψ_k`, which the H7 domain of scale `k + 1` does not constrain on `Ω_{k+1}`. Repair: the core of
+  `V(X, J)` is the `r`-collar of `Ω_{k+1} ∩ X^{∼3}` (the sites of `Ω_{k+1}` in the cubes of `𝕋_k` within 3 cubes of `X`);
+  the cell count of `OldResumSite` changes by a factor depending on `d` only.
+  (D3) *the datum of the local pair* (`holeStepLoc`): it is the mixed lift with `Ω` = the top layer of `G′_V`; at the
+  sites of `Ω_{k+1}` in the lower layers of `G′_V` (where `V` cuts a `𝒞_{k+1}`-cube of `Ω_{k+1}`) and in its collar it reads
+  `ψ_k`, which is not a variable of the density of scale `k + 1` (it is integrated). So `T(X, J)` depends on `ψ_k` on
+  `Ω_{k+1}`, the identity with the old part of the step fails, and no domain condition on the target field controls the
+  datum there. **Reading HS-2 (proposed):** the datum of the local pair is the restriction of the global mixed lift
+  (`Ω` = the blocks of `Ω_{k+1}`): `θ = z ψ_{k+1}` at every site of `Ω_{k+1}`, `ψ_k` elsewhere (layer constant on `G′_V`).
+- **Ruling request (proposed; for the author).** (a) *Recommended:* the complex radius of the H7 cube domains is of the
+  order of their tolerance, as in P5 (1.36) (complex neighbourhoods of radius `ε_j`): in `DeltaC`, `DeltaPrimeC`
+  (`LargeField/Characteristic/Analytic.lean`) the domain conjunct `InUnionDomainC G c₀ c₁ μ` becomes membership of the
+  lifted datum in `Ψ̃^c(G; K ε, K ε)` (`InDomainC G μ (K ε) (K ε)`, `K` fixed, `K ε_j ≤ c₇`). Then the datum of the local
+  pair (repaired by D1–D3) lies in `Ψ̃^c(δ_b, δ_b)` with `δ_b = K′ ε_{k+1}` by patching the per-cube data, and the
+  room `ε_{k+1} → ε_k` pays the composite. Cost: the two definitions; the readers of the domain conjunct
+  (`H7BridgeCube.deltaC_inUnionDomainC` and its users in `Theorem42*`, `CubeActionBound`) keep it through the inclusion
+  `Ψ̃^c(Kε, Kε) ⊆ 𝒟` for `Kε ≤ c₁`; `h7Domain_composedMulti_of_inner` and the users of `H7Domain` as a whole
+  (`LargeField/R/*`, `Def7*`) are generic in the cube tests.
+  (b) Keep the BG radius, cap the complex part (`InUnionDomainC G (c₀/2) c₁`), and generalize the chain of the local pair
+  to `Ψ̃^c(δ, ε)`: closes the margin but leaves no room across scales; not recommended. (c) `O(N, ℂ)`-covariance of the
+  step (rotate the datum to near-real): fails for fields whose complex part varies over the local set (`V` is unbounded);
+  not recommended.
+- **Status of blocker 3 after W1154b.** Items (1)–(4) of the W1154b brief are blocked by this obstruction: (1) is false as
+  stated and needs the ruling and D1–D3; the bound of (2)–(4) rests on (1); the identity (3) needs D3.
