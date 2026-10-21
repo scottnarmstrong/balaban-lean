@@ -202,6 +202,42 @@ theorem oldCoefLoc_congr_fields (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K
     exact oldTermLF_congr_fields g hnn hM1 rep A X hk _ hloc Y hXY ψ₁ ψ₂ ψ'₁ ψ'₂ hv gx₁ gx₂
       hψ hψ' hgx comp
 
+/-- **The clause `loc_hist` of (D7) for the coefficient of the re-expanded old term**: two histories
+`(H, A)`, `(H', A')` whose records at the old label `X` agree (`hB`, the conclusion of the clause
+`loc_hist` of the record), whose local steps agree (`e`, with the fixed values `ψout` related by it)
+and whose collar cores agree (`hcore`) give the same coefficient.  The inputs `e`, `hcore` are the
+geometric consequences of the agreement of the histories in `Y` (as `hsiteY`); the coefficient on the
+local pair `oldCoefLoc` is this with `St = holeStepLoc …`, `ψout = restrictU … ψhat`. -/
+theorem oldCoefLF_congr_hist
+    {St₁ St₂ : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1)}
+    (e : St₁ = St₂) (H H' : RegionHistory S n R k0 K) (hk : k + 1 ≤ K) (ρc : ℝ) (ρ r : ℕ)
+    {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A A' : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
+    (ψ ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψout₁ : St₁.U → Fin N → ℂ) (ψout₂ : St₂.U → Fin N → ℂ)
+    (hout : ∀ b, ψout₁ b = ψout₂ (e ▸ b))
+    (hcore : (collarCoreC (c := g.c) (H.step k) hM1 r X :
+        Finset (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) =
+      collarCoreC (c := g.c) (H'.step k) hM1 r X)
+    (hB : ∀ (ψ₂ ψ₃ : MultiFieldC S n M K N) (h : Fin N → ℂ) (g₂ : GIdx S n M K N → ℂ),
+      rep.B A X ψ₂ ψ₃ h g₂ = rep.B A' X ψ₂ ψ₃ h g₂) :
+    oldCoefLF g hnn hM1 St₁ H hk (coverOf St₁.G') ρc ρ r ∅ ψout₁ rep A X ψ ψ' hv gx
+      (locCubes g (coverOf St₁.G') J) (fun b => absurd b.2 (Finset.notMem_empty _)) =
+    oldCoefLF g hnn hM1 St₂ H' hk (coverOf St₂.G') ρc ρ r ∅ ψout₂ rep A' X ψ ψ' hv gx
+      (locCubes g (coverOf St₂.G') J) (fun b => absurd b.2 (Finset.notMem_empty _)) := by
+  subst e
+  unfold oldCoefLF
+  have h1 : oldTermLF g hnn hM1 rep A X hk St₁.G' ψ ψ' hv gx =
+      oldTermLF g hnn hM1 rep A' X hk St₁.G' ψ ψ' hv gx := by
+    funext comp
+    unfold oldTermLF
+    exact hB _ _ _ _
+  rw [h1, hcore]
+  congr 2
+  funext b
+  exact hout b
+
 end Loc
 
 
