@@ -7,6 +7,8 @@ module
 
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.FrozenSFClauses
+public import Balaban.Spine.BasePre
+public import Balaban.Spine.BaseFlat
 
 /-!
 # The small-field part of the first step as the general step at `k = 0` (A3-1 (a), (g))
@@ -127,11 +129,9 @@ are those of the bare density (none), whose new level satisfies the term clauses
 specification of its generating sets and torus independence, whose density exponent is real and
 which is torus coherent, the scale `1` has the term clauses `IsSF2` on the read tori, torus
 independence, the renormalization conditions and (D8). -/
-theorem sfBase_core {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
-    (hTm : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ 0 →
-      (sf'.Tm N₂).E j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).E j ∧
-        (sf'.Tm N₂).M j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).M j ∧
-        (sf'.Tm N₂).gs j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).gs j)
+theorem sfBase_core {P6 : Def6.Consts} {k0 : ℕ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
+    (hE0 : ∀ (N₂ : ℕ) [NeZero N₂] y X Ψ h', (sf'.Tm N₂).E 0 y X Ψ h' = 0)
+    (hM0 : ∀ (N₂ : ℕ) [NeZero N₂] x X Ψ h' g, (sf'.Tm N₂).M 0 x X Ψ h' g = 0)
     (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
@@ -160,14 +160,6 @@ theorem sfBase_core {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d 
         RenormCondAlong (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) P6.m₀ (0 + 1)
           ((⟨k0, sf'.ν⟩ : Regime L).ν (0 + 1)) sf'.Tm j (torusSeq L P6.m₀)
           (fun n => torusSeq_ne_zero P6.m₀ n)) ∧ D8SF P6.m₀ sf' := by
-  have hE0 : ∀ (N₂ : ℕ) [NeZero N₂] y X Ψ h', (sf'.Tm N₂).E 0 y X Ψ h' = 0 := by
-    intro N₂ _ y X Ψ h'
-    rw [(hTm N₂ 0 le_rfl).1]
-    simp [liftOldTermsFam_apply, liftOldTerms_E, bareSF]
-  have hM0 : ∀ (N₂ : ℕ) [NeZero N₂] x X Ψ h' g, (sf'.Tm N₂).M 0 x X Ψ h' g = 0 := by
-    intro N₂ _ x X Ψ h' g
-    rw [(hTm N₂ 0 le_rfl).2.1]
-    simp [liftOldTermsFam_apply, liftOldTerms_M, bareSF]
   have hterms : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (sf'.Tm N₂) := fun N₂ _ hN =>
     sfTermClauses_zero_of_newLevel (hnew N₂ hN) (hE0 N₂) (hM0 N₂)
@@ -207,12 +199,10 @@ Theorem II.7.10, P4 Theorem 1 at the scale `1`): (D2) of `IsRepPre2` with the al
 (D8) and (D9) at the scale `1`, from the clauses of the new level, the coefficient bounds (H.6) and
 the renormalization (H.5) at `1`, the reality of the density exponent, P5 H4 for `ℛ^{(1)}` and the
 coherence of the new level. -/
-theorem sfBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
+theorem sfBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
     (hadm : P6.Admissible d L) (hk0 : 0 + 1 ≤ k0)
-    (hTm : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ 0 →
-      (sf'.Tm N₂).E j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).E j ∧
-        (sf'.Tm N₂).M j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).M j ∧
-        (sf'.Tm N₂).gs j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).gs j)
+    (hE0 : ∀ (N₂ : ℕ) [NeZero N₂] y X Ψ h', (sf'.Tm N₂).E 0 y X Ψ h' = 0)
+    (hM0 : ∀ (N₂ : ℕ) [NeZero N₂] x X Ψ h' g, (sf'.Tm N₂).M 0 x X Ψ h' g = 0)
     (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
@@ -235,19 +225,17 @@ theorem sfBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData
       RTermsH4 (ϱ := ϱ) P6 sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂) (preFac (P6.m₀ + m₁)))
     (hD8new : D8SF P6.m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }) :
     D2SF2 P6 k0 sf' (preFac (P6.m₀ + m₁)) ∧ D8SF P6.m₀ sf' ∧ D9Coeff P6 k0 sf' := by
-  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core (β := β) (ν := ν) hTm hnew hgsnew hhatnew
+  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core hE0 hM0 hnew hgsnew hhatnew
     hTInew hR' hreal hD8new
   exact ⟨⟨⟨ρ', ⟨hadm, hC', hρ', hTI, hren⟩⟩, hRt⟩, hD8',
     ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le, hk0⟩⟩
 
 /-- **The small-field clauses of the first step in regime (B)** (complete backgrounds; the `k = 0`
 analogue of `sfFlatSucc_clauses`): (D2♭), (D8), (D9♭) at the scale `1`. -/
-theorem sfFlatBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
+theorem sfFlatBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {sf' : SFData d L m₁ (0 + 1) N ϱ}
     (hadm : P6.Admissible d L)
-    (hTm : ∀ (N₂ : ℕ) [NeZero N₂] (j : ℕ), j ≤ 0 →
-      (sf'.Tm N₂).E j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).E j ∧
-        (sf'.Tm N₂).M j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).M j ∧
-        (sf'.Tm N₂).gs j = (liftOldTermsFam (bareSF (d := d) (L := L) (m₁ := m₁) (N := N) (ϱ := ϱ) β ν).Tm N₂).gs j)
+    (hE0 : ∀ (N₂ : ℕ) [NeZero N₂] y X Ψ h', (sf'.Tm N₂).E 0 y X Ψ h' = 0)
+    (hM0 : ∀ (N₂ : ℕ) [NeZero N₂] x X Ψ h' g, (sf'.Tm N₂).M 0 x X Ψ h' g = 0)
     (hnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ →
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (0 + 1))),
@@ -270,10 +258,151 @@ theorem sfFlatBase_clauses {P6 : Def6.Consts} {k0 : ℕ} {β ν : ℝ} {sf' : SF
       RTermsH4 (ϱ := ϱ) P6 sf'.β sf'.ν sf'.a N₂ (sf'.Rt N₂) (fun _ => 1))
     (hD8new : D8SF P6.m₀ { sf' with Tm := fun N₂ _ => newLevelTerms (sf'.Tm N₂) }) :
     SFFlat2 P6 k0 sf' ∧ D8SF P6.m₀ sf' ∧ D9Flat P6 sf' := by
-  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core (β := β) (ν := ν) hTm hnew hgsnew hhatnew
+  obtain ⟨⟨ρ', hρ'⟩, hTI, hren, hD8'⟩ := sfBase_core hE0 hM0 hnew hgsnew hhatnew
     hTInew hR' hreal hD8new
   exact ⟨⟨hadm, hC', ⟨ρ', hρ'⟩, hTI, hren, hRt⟩, hD8', ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le⟩⟩
 
 end Base
+
+section Inputs
+
+variable (d N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
+  (C7 : ℝ → ℝ → Consts7) (cs₀ : ℝ → ℝ → OpConsts) (ϱ : ℝ → ℝ → ℝ)
+
+/-- **The form of the base sub-inputs of the small-field part**: a property `Q` of the pair
+`(bareSF β ν, Γ.sf)` of the small-field data of scale `0` and `1` of the first step, in the shape of
+the predicates of the general step (`SFNewLevelQ`, `SFRenormQ`, …) at `k = 0`. -/
+def BaseSFImageInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ)
+    (Q : ∀ (κ c₉ _ _ : ℝ) (k : ℕ) [NeZero (T κ c₉).L],
+      SFData d (T κ c₉).L (C7 κ c₉).m₁ k N (ϱ κ c₉) →
+        SFData d (T κ c₉).L (C7 κ c₉).m₁ (k + 1) N (ϱ κ c₉) → Prop) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν _ _ _ _ Γ =>
+    Q κ c₉ β ν 0 (bareSF β ν) Γ.sf
+
+/-- **A3-1 (a), the new level at `k = 0`** (`SFNewLevelQ`). -/
+def BaseSFNewLevelInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseSFImageInput d N T C7 cs₀ ϱ Reg Γ (SFNewLevelQ d N T P6 C7 ϱ)
+
+/-- **A3-1 (a), the renormalization at `k = 0`** (`SFRenormQ` at the constants `Pc`: `P6` in regime
+(A), `massOne P6` in regime (B)). -/
+def BaseSFRenormInput (Pc : ℝ → ℝ → Def6.Consts) (Reg : ℕ → Prop)
+    (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseSFImageInput d N T C7 cs₀ ϱ Reg Γ (SFRenormQ d N T P6 C7 ϱ Pc)
+
+/-- **A3-1 (a), the density at `k = 0`** (`SFDensityQ`). -/
+def BaseSFDensityInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseSFImageInput d N T C7 cs₀ ϱ Reg Γ (SFDensityQ d N T P6 C7 ϱ)
+
+/-- **A3-1 (a), the remainders at `k = 0`** (`SFRemainderQ`; `fac = preFac …` in regime (A),
+`fun _ _ _ => 1` in regime (B)). -/
+def BaseSFRemainderInput (fac : ℝ → ℝ → ℕ → ℝ) (Reg : ℕ → Prop)
+    (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseSFImageInput d N T C7 cs₀ ϱ Reg Γ (SFRemainderQ d N T P6 ϱ C7 fac)
+
+/-- **A3-1 (a), the coherence at `k = 0`** (`SFCoherenceQ`). -/
+def BaseSFCoherenceInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseSFImageInput d N T C7 cs₀ ϱ Reg Γ (SFCoherenceQ d N T P6 C7 ϱ)
+
+/-- **A3-1 (a), the facts of the bare density**: the level-`0` terms of `Γ.sf` vanish, its kernel
+coefficient follows the free flow, `β_0 = β`, `ν_0 = ν`, and `z_1 = Γ.z₁ > 0`. -/
+def BaseSFBareInput (Reg : ℕ → Prop) (Γ : BaseMap d N T C7 cs₀ ϱ) : Prop :=
+  BaseImageInput d N T C7 cs₀ ϱ Reg Γ fun κ c₉ β ν _ _ _ _ Γ =>
+    (∀ (N₂ : ℕ) [NeZero N₂] y X Ψ h', (Γ.sf.Tm N₂).E 0 y X Ψ h' = 0) ∧
+    (∀ (N₂ : ℕ) [NeZero N₂] x X Ψ h' g, (Γ.sf.Tm N₂).M 0 x X Ψ h' g = 0) ∧
+    (∀ j, 1 ≤ j → j ≤ 1 → Γ.sf.a j = compWeight (T κ c₉).L (cs₀ κ c₉).aKer j) ∧
+    Γ.sf.β 0 = β ∧ Γ.sf.ν 0 = ν ∧ 0 < Γ.z₁ ∧ Γ.sf.z 1 = Γ.z₁
+
+variable {d N T P6 C7 cs₀ ϱ}
+
+/-- (I.2) at the scale `0` from `β_0 = β`, `ν_0 = ν` and the typing facts. -/
+theorem runningHypTo_zero {L : ℕ} {β ν a : ℝ} {βs νs : ℕ → ℝ} (hd : 2 ≤ d) (hL : 2 ≤ L)
+    (hβ : 0 < β) (hν : 0 < ν) (ha1 : 1 < a) (ha2 : a < 3 / 2) (h0 : βs 0 = β) (h1 : νs 0 = ν) :
+    RunningHypTo d L β ν a (1 / 20) βs νs 0 :=
+  ⟨hd, hL, hβ, hν, ha1, ha2, by norm_num, by norm_num,
+    fun j hj => by
+      obtain rfl : j = 0 := by omega
+      exact ⟨1, one_pos, by simp, by simp [h0]⟩,
+    fun j hj => by
+      obtain rfl : j = 0 := by omega
+      exact ⟨1, one_pos, by simp, by simp [h1]⟩⟩
+
+/-- **`BaseSFInput` from its parts** (regime (A)): the small-field part of the first step is the
+general small-field step at `k = 0` (`sfBase_clauses`) together with the facts of the bare density. -/
+theorem baseSFInput_of_parts {Reg : ℕ → Prop} (hReg : ∀ k, Reg k → 1 ≤ k) (hd : 3 ≤ d)
+    (hL : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → 3 ≤ (T κ c₉).L)
+    (ha1 : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → 1 < (cs₀ κ c₉).aKer)
+    (ha2 : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → (cs₀ κ c₉).aKer < 3 / 2)
+    (hadm : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → (P6 κ c₉).Admissible d (T κ c₉).L)
+    (Γ : BaseMap d N T C7 cs₀ ϱ)
+    (hNw : BaseSFNewLevelInput d N T P6 C7 cs₀ ϱ Reg Γ)
+    (hRn : BaseSFRenormInput d N T P6 C7 cs₀ ϱ P6 Reg Γ)
+    (hDn : BaseSFDensityInput d N T P6 C7 cs₀ ϱ Reg Γ)
+    (hRt : BaseSFRemainderInput d N T P6 C7 cs₀ ϱ
+      (fun κ c₉ => preFac ((P6 κ c₉).m₀ + (C7 κ c₉).m₁)) Reg Γ)
+    (hCo : BaseSFCoherenceInput d N T P6 C7 cs₀ ϱ Reg Γ)
+    (hBr : BaseSFBareInput d N T C7 cs₀ ϱ Reg Γ) :
+    BaseSFInput d N T P6 C7 cs₀ ϱ Reg Γ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨b₁, h₁⟩ := hNw κ hκ c₉ hc₉
+  obtain ⟨b₂, h₂⟩ := hRn κ hκ c₉ hc₉
+  obtain ⟨b₃, h₃⟩ := hDn κ hκ c₉ hc₉
+  obtain ⟨b₄, h₄⟩ := hRt κ hκ c₉ hc₉
+  obtain ⟨b₅, h₅⟩ := hCo κ hκ c₉ hc₉
+  obtain ⟨b₆, h₆⟩ := hBr κ hκ c₉ hc₉
+  refine ⟨max (max (max b₁ b₂) (max b₃ b₄)) (max (max b₅ b₆) 1), ?_⟩
+  intro β hβ ν hν hνL h hh kf hkf _ _ hRg
+  simp only [max_le_iff] at hβ
+  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₃, hb₄⟩, ⟨hb₅, hb₆⟩, hb1⟩ := hβ
+  obtain ⟨hnew, hgsnew, hhatnew, hTInew⟩ := h₁ β hb₁ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hC', hR'⟩ := h₂ β hb₂ ν hν hνL h hh kf hkf hRg
+  have hreal := h₃ β hb₃ ν hν hνL h hh kf hkf hRg
+  have hRtm := h₄ β hb₄ ν hν hνL h hh kf hkf hRg
+  have hD8n := h₅ β hb₅ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hE0, hM0, hfree, hβ0, hν0, hz, hz1⟩ := h₆ β hb₆ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hD2, hD8, hD9⟩ := sfBase_clauses (hadm κ hκ c₉ hc₉) (hReg _ hRg) hE0 hM0 hnew hgsnew
+    hhatnew hTInew hR' hreal hC' hRtm hD8n
+  exact ⟨hD2, hD8, hD9, hfree, hβ0, hν0,
+    runningHypTo_zero (by omega) (by have := hL κ hκ c₉ hc₉; omega) (by linarith) hν
+      (ha1 κ hκ c₉ hc₉) (ha2 κ hκ c₉ hc₉) hβ0 hν0, hz, hz1⟩
+
+/-- **`BaseFlatSFInput` from its parts** (regime (B)): `sfFlatBase_clauses` at the constants
+`massOne P6` and the allowance `1`. -/
+theorem baseFlatSFInput_of_parts (hd : 3 ≤ d)
+    (hL : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → 3 ≤ (T κ c₉).L)
+    (ha1 : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → 1 < (cs₀ κ c₉).aKer)
+    (ha2 : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → (cs₀ κ c₉).aKer < 3 / 2)
+    (hadm : ∀ κ, 0 < κ → ∀ c₉, 0 < c₉ → (P6 κ c₉).Admissible d (T κ c₉).L)
+    (Γ : BaseMap d N T C7 cs₀ ϱ)
+    (hNw : BaseSFNewLevelInput d N T P6 C7 cs₀ ϱ (fun k => k = 0) Γ)
+    (hRn : BaseSFRenormInput d N T P6 C7 cs₀ ϱ (fun κ c₉ => massOne (P6 κ c₉)) (fun k => k = 0) Γ)
+    (hDn : BaseSFDensityInput d N T P6 C7 cs₀ ϱ (fun k => k = 0) Γ)
+    (hRt : BaseSFRemainderInput d N T P6 C7 cs₀ ϱ (fun _ _ _ => 1) (fun k => k = 0) Γ)
+    (hCo : BaseSFCoherenceInput d N T P6 C7 cs₀ ϱ (fun k => k = 0) Γ)
+    (hBr : BaseSFBareInput d N T C7 cs₀ ϱ (fun k => k = 0) Γ) :
+    BaseFlatSFInput d N T P6 C7 cs₀ ϱ Γ := by
+  intro κ hκ c₉ hc₉
+  obtain ⟨b₁, h₁⟩ := hNw κ hκ c₉ hc₉
+  obtain ⟨b₂, h₂⟩ := hRn κ hκ c₉ hc₉
+  obtain ⟨b₃, h₃⟩ := hDn κ hκ c₉ hc₉
+  obtain ⟨b₄, h₄⟩ := hRt κ hκ c₉ hc₉
+  obtain ⟨b₅, h₅⟩ := hCo κ hκ c₉ hc₉
+  obtain ⟨b₆, h₆⟩ := hBr κ hκ c₉ hc₉
+  refine ⟨max (max (max b₁ b₂) (max b₃ b₄)) (max (max b₅ b₆) 1), ?_⟩
+  intro β hβ ν hν hνL h hh kf hkf _ _ hRg
+  simp only [max_le_iff] at hβ
+  obtain ⟨⟨⟨hb₁, hb₂⟩, hb₃, hb₄⟩, ⟨hb₅, hb₆⟩, hb1⟩ := hβ
+  obtain ⟨hnew, hgsnew, hhatnew, hTInew⟩ := h₁ β hb₁ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hC', hR'⟩ := h₂ β hb₂ ν hν hνL h hh kf hkf hRg
+  have hreal := h₃ β hb₃ ν hν hνL h hh kf hkf hRg
+  have hRtm := h₄ β hb₄ ν hν hνL h hh kf hkf hRg
+  have hD8n := h₅ β hb₅ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hE0, hM0, hfree, hβ0, hν0, hz, hz1⟩ := h₆ β hb₆ ν hν hνL h hh kf hkf hRg
+  obtain ⟨hD2, hD8, hD9⟩ := sfFlatBase_clauses (hadm κ hκ c₉ hc₉) hE0 hM0 hnew hgsnew
+    hhatnew hTInew hR' hreal hC' hRtm hD8n
+  exact ⟨hD2, hD8, hD9, hfree, hβ0, hν0,
+    runningHypTo_zero (by omega) (by have := hL κ hκ c₉ hc₉; omega) (by linarith) hν
+      (ha1 κ hκ c₉ hc₉) (ha2 κ hκ c₉ hc₉) hβ0 hν0, hz, hz1⟩
+
+end Inputs
 
 end Balaban.RootFSpine
