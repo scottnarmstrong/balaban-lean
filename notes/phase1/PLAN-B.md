@@ -464,8 +464,21 @@ approved declaration.
   fails at such histories. The convention `Ω^c_j := Z_j ∖ Ω_j` is also the localized complement `Ω^c ∩ Z′` of the quiet
   kernel (`quietA2`–`quietA4`) and of `R/HgeoDischarge` (localized histories, where the plain complement would contain
   every cube outside the component), so ruling request R17 as briefed (`omegaCNb` := `(𝕋_j ∖ Ω_j)^{∼3}`) would change
-  those objects too; not prepared, pending the orchestrator (options in the W1154d handoff).
+  those objects too; the narrow form (the pre-`R` records only) was asked and approved as R17 (below).
 
+- **Ruling R17, APPROVED (Scott, 2026-10-21, "approve R17"; W1154d, merged into `w1154-oldbdry`).** In the pre-`R`
+  boundary-term records `D7Bdry`, `D7Bdry2` (clauses `analytic`, `bound`) the H7 domain is taken at `globalLHPre A.H M k`
+  (`LargeField/Def7Hist.lean`): the global records with the pre-`R` region `Z^pre_k` in place of `Z_k` at the top scale.
+  Its top-scale holes are `(𝕋_k ∖ Ω_k)^{∼3}`, the printed `Ω^c_k` of P5 (1.36) (`omegaCNb_globalLHPre_top`,
+  `LargeField/History/H7Holes.lean`; `Z^pre_k ⊇ Ω^c_k`, Lemma I.3.5 (e)); the post-`R` records keep `globalLH`, whose holes
+  are the complement of `Ω^post_k = Ω_k ∪ ⋃ Rem_k` (`omegaCNb_globalLH_succ`, Definition I.3.11); `omegaCNb` and the
+  localized-history users are unchanged; without a removal the records coincide (`globalLHPre_eq_of_rem_empty`).
+  Transport across `R` (`R/D7BoundTransport`): the two domains agree at labels whose `3`-neighbourhood misses the removed
+  set (`h7Domain_globalLHPre_iff_of_far`), so `d7Post_bound_of_avoid_of_gas` splits on `Disjoint (Y^{∼3}) Rem` (labels
+  within `3` cubes of a removed component go to `hyp_gas`) and `analytic_of_avoid` takes `hZ`, `hfar`. Without R17,
+  `H7MixedDatumLoc2` is false at histories with a component removed at scale `k + 1` (`not_h7MixedDatumLoc2_of_site`,
+  `rem_ne_empty_of_far`). Target (3) of W1154d is proved under this reading (the step's terms are pre-`R` records at
+  `k + 1`, H7 domain at `globalLHPre H M (k + 1)`).
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
 - The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
   integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
