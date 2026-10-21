@@ -191,6 +191,21 @@ theorem psiJ_allSites {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 �
       unfold psiJRe
       rw [hpsi x i]
 
+/-- The inherited field of the Def-6 torus is the real part of the composed field, when the
+composed field is real. -/
+theorem psiJ_eq_ofReal {jj : ℕ} (ψk' : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N))
+    (hj : jj ≤ j + 1)
+    (hreal : ∀ x i, psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
+      (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
+      (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))) (C.liftData ψk') (hC hv) x i =
+        ((psiJRe C ψk' hv hj x i : ℝ) : ℂ)) (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1))
+    (i : Fin N) :
+    C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk' hv jj x i =
+      ((psiJRe C ψk' hv hj (torusCast C.hT x) i : ℝ) : ℂ) := by
+  unfold SFCtx.psiJ
+  simp only [hj, ↓reduceDIte]
+  exact hreal _ i
+
 /-- **The inherited field in the analyticity domain of the terms, on the `χ`-support.** For a
 generating set `𝔹` of the Def-6 torus with empty layers above `j'` (the `𝔹_{j'}(X)` of a polymer),
 the standing hypotheses `BgHyp` at the birth mass `ν_b` (with `ν_b L^{2j'} ≤ 4 ν L^{-2k} L^{2j'}`)
@@ -233,10 +248,8 @@ theorem psiJ_xiDom {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 ≤ S
     (fun x => psiJRe C ψk hv hj (torusCast C.hT x)) (fun i => hv i)
     ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
   have hpsi : C.psiJ Set.univ ψk hv jj = fun x i => ((psiJRe C ψk hv hj (torusCast C.hT x) i : ℝ) : ℂ) := by
-    unfold SFCtx.psiJ
-    simp only [hj, ↓reduceDIte]
     funext x i
-    exact hreal _ i
+    exact psiJ_eq_ofReal C hv ψk hj hreal x i
   rw [hpsi]
   exact hxi
 
