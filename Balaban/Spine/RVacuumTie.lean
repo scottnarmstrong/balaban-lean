@@ -212,21 +212,22 @@ variable {d N : ℕ} {T : Typing} {P6 : Def6.Consts} {C7 : Consts7} {PB : Budget
   {cs₀ : OpConsts} {M1 c : ℕ} {rH ϱ β ν : ℝ} {h : EuclideanSpace ℝ (Fin N)} {kf k r : ℕ}
   [NeZero T.M] [NeZero T.L] {ρ : 𝒟[d, N, T, β, cs₀.aKer, kf + 1, k]} {νk : ℝ}
 
-/-- **The estimate of `b⁰_k` for the flow of a record, with offsets** `δ″, δ‴` that do not depend on
-the torus: `VacuumB0Bound` of the step data of every torus. -/
-def RecB0Bound (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk)
-    (dpp dppp : ℕ → ℝ) : Prop :=
-  ∀ (nK : ℕ) [NeZero nK], VacuumB0Bound (rec.F.lf nK).SD rec.Ev dpp dppp
+/-- **The estimate of `b⁰_k` for the flow of a record, with offsets** `δ″, δ‴` (chosen per torus, not
+depending on `E_k`): `VacuumB0Bound` of the step data of every torus. -/
+def RecB0Bound (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk) : Prop :=
+  ∀ (nK : ℕ) [NeZero nK], ∃ dpp dppp : ℕ → ℝ, VacuumB0Bound (rec.F.lf nK).SD rec.Ev dpp dppp
 
 /-- **The retied record**: the step data of every torus are replaced by `StepData.retie` with the
 flow `rec.Ev`; kernels, boundary factors, kept data and boundary terms are those of `rec`. -/
 noncomputable def PreRec.retie (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk)
-    (dpp dppp : ℕ → ℝ) (hb : RecB0Bound rec dpp dppp) :
+    (hb : RecB0Bound rec) :
     PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β ν h kf k r ρ νk :=
-  have hker : ∀ (nK : ℕ) [NeZero nK], ((rec.F.lf nK).SD.retie rec.Ev dpp dppp (hb nK)).ker =
-      (rec.F.lf nK).SD.ker := fun _ _ => rfl
+  have hker : ∀ (nK : ℕ) [NeZero nK], ((rec.F.lf nK).SD.retie rec.Ev (hb nK).choose
+      (hb nK).choose_spec.choose (hb nK).choose_spec.choose_spec).ker = (rec.F.lf nK).SD.ker :=
+    fun _ _ => rfl
   { rec with
-    F := ⟨rec.F.sf, fun nK _ => (rec.F.lf nK).withSD ((rec.F.lf nK).SD.retie rec.Ev dpp dppp (hb nK))⟩
+    F := ⟨rec.F.sf, fun nK _ => (rec.F.lf nK).withSD ((rec.F.lf nK).SD.retie rec.Ev (hb nK).choose
+      (hb nK).choose_spec.choose (hb nK).choose_spec.choose_spec)⟩
     pre :=
       { coh := rec.pre.coh
         field := rec.pre.field
@@ -241,7 +242,9 @@ noncomputable def PreRec.retie (rec : PreRec d N T P6 C7 PB cs₀ M1 c rH ϱ β 
         coherent := rec.pre.coherent
         coeff := rec.pre.coeff }
     coh := rec.coh
-    vac := rec.vac }
+    vac := rec.vac
+    vacTie := fun nK _ => ⟨(hb nK).choose, (hb nK).choose_spec.choose,
+      StepData.retie_tie _ _ _ _ _⟩ }
 
 end Record
 
@@ -258,7 +261,9 @@ for which the boundary factor plus the vacuum term of the creating step is bound
 `(C_b log β_k + C_b B₀)|Z_{k+1} ∖ Z_k|_{k+1}` (`RecB0Bound`). The bound of the vacuum term uses the
 flow bound, the offsets `δ″_k = -½ N L^{-d} log (c/2π) + ½ N log β_k`, `δ‴_k = δ″_k - e(N, p₁) - ½ N log 2π`
 (`O(log β_k)`), and the volumes of the three vacuum regions against `|Z_{k+1} ∖ Z_k|_{k+1}`
-(`stepVacuumVolume_eq_add_excess`); the estimate is a physical input. -/
+(`stepVacuumVolume_eq_add_excess`). It is proved (`rVacuumB0Input`, `Spine/RVacuumRetieBound.lean`) from
+the vacuum tie `PreRec.vacTie`: the flow constant is the vacuum constant of the creating step, so the
+retie changes nothing. -/
 def RVacuumB0Input : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -268,7 +273,7 @@ def RVacuumB0Input : Prop :=
   ∀ (ρ : 𝒟[d, N, T κ c₉, β, (cs₀ κ c₉).aKer, kf + 1, k]) (νk : ℝ),
   ∀ rec : PreRec d N (T κ c₉) (P6 κ c₉) (C7 κ c₉) (PB κ c₉) (cs₀ κ c₉) (M1 κ c₉) (c κ c₉)
       (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk,
-    ∃ dpp dppp : ℕ → ℝ, RecB0Bound rec dpp dppp
+    RecB0Bound rec
 
 /-- **`RVacuumInput` from the estimate of `b⁰_k`**: the record with the step data retied to its flow
 (`PreRec.retie`) has the same density and is `VacuumTied`. -/
@@ -277,8 +282,8 @@ theorem rVacuumInput_of_b0 (hb : RVacuumB0Input d N T P6 C7 PB cs₀ M1 c rH ϱ)
   intro κ hκ c₉ hc₉
   obtain ⟨β₀, hβ₀⟩ := hb κ hκ c₉ hc₉
   refine ⟨β₀, fun β hβ ν hν hνL h hh kf hkf _ _ k hk1 hk ρ νk rec => ?_⟩
-  obtain ⟨dpp, dppp, hr⟩ := hβ₀ β hβ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
-  exact ⟨rec.retie dpp dppp hr, fun nK _ => ⟨dpp, dppp, StepData.retie_tie _ _ _ _ _⟩⟩
+  have hr := hβ₀ β hβ ν hν hνL h hh kf hkf k hk1 hk ρ νk rec
+  exact ⟨rec.retie hr, fun nK _ => ⟨_, _, StepData.retie_tie _ _ _ _ _⟩⟩
 
 end Input
 

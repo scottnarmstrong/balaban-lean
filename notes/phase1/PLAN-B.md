@@ -217,6 +217,15 @@ approved declaration.
   (`isDj_d7Pull_halo`), `RGasCore*`. The R11 side is landed (`Spine/LFBdryHole.lean`).
 - **Recommendation: approve.**
 
+## Ruling R12 asked (2026-10-21, W1151, audit W1148) — APPROVED 2026-10-21: removal histories contribute nothing to the post-R sum
+- **What changes.** `postTerm2` (`LargeField/Def7v2Form.lean`) is zero for a history with `Rem_j ≠ ∅` at some `j ≤ k`;
+  its 7 direct users are adjusted. The history set and its completeness are unchanged.
+- **Why.** `IsComplete k (k+1)` keeps one history per pattern of removals; a history whose removed components lie
+  away from every kept component has the same term as the history without them, so the post-R sum counted the
+  all-small-field term n₀ ≥ 2 times (`two_le_card_empty_region`, `postTerm2_eq_of_region_empty`). The source
+  (P7 (3.26)–(3.29)) has one term, with the removed components in `ℬ′` and `ℛ″`; LFR D-III.8 intended these terms
+  to vanish. Evidence and options: `notes/phase1/REMOVAL-HIST.md`.
+
 ## Ruling R13 asked (2026-10-21, W1146) — the generating set of an inherited class term is the local set 𝔹_j(X)
 - **What changes.** In the small-field class (`IsSF2`, `SFTermClausesStrong`, and the generating-set clause of `SFNewLevelInput`) the generating set `Tm.gs j X` attached to a level-`j` polymer `X` must be the local set `𝔹_j(X)` itself, not merely a set having `X` in its top layer `j` (which the present clause `GsSpecStrong` allows: the whole-level set satisfies it). The chain then composes the fields of each inherited term on that set. The class domain must also read the fields with the step's weights and background mass (they agree when the step's kernel coefficient is the class's `a_ker`, and, level by level, along the ideal flow of `ν_j`; otherwise the class domain is to use the step's background mass, as `Def6.bgMass` does).
 - **Why the source has it.** P3 (4.4)–(4.6) and P5 (2.10)–(2.11): the term `E_j(X)` is a function of the fields composed on `𝔹_j(X)`, a set within a bounded distance of `X`, and its domain `Ξ_j(𝔹_j(X); ε_j)` only tests fields near `X`.

@@ -812,6 +812,26 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * (d) the exact two-torus agreement of `a`. It needs the complete localization of the last integral, with the winding remainder
        on winding polymers (SPINE-AUDIT-2 (d)); the landed results give closeness;
      * (e) the amplitude `c₉/4`: the `ℳ^{(k+1)}_0` part is `≤ (c₉/2)e^{−(κ+1)|X|_#}` by the ties, the rest is small in `β`.
+   * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
+     `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
+     every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
+     `blocks × Fin N`, measure preserving, `integral_spinField`); `Spine/FinalSfGauss.lean` (`integral_sfFactor2_gauss`: for every cut `Y`, every positive
+     definite `Kq` on `blocks × Fin N` and centre `ψ₀`, `∫ sfFactor2 C vc Y = Z_Kq ∫ sfGaussIntegrand dγ`, `sfGaussIntegrand = sfFactor2(ψ₀ + Kq^{-1/2}w)·e^{Q_Kq(Kq^{-1/2}w)/2}`;
+     `sfIntegral_eq_gauss` is `Y = univ`; measurability of `ψ ↦ sfFactor2` is a hypothesis); `Spine/FinalSfUniv.lean` (`EresJ2_univ`, `EresK2_univ`: `F_{k_f} = Σ_{j≤k} Edens` of
+     Def-6 at `ψ^{(j)}_k`, minus the full double sum `corrSum`; `Fres_univ`: `⟨g,φ̄⟩ + Σ_j Floc`; `Rres_univ`).
+     **Landed (P1, `Spine/FinalSfConst.lean`).** `phiK_const`, `phiBar_const_univ` (`φ̄_k ≡ h` on the torus for `ψ_k ≡ h`, `|h| = 1`), `actStar2_const_univ` (`A*_k(univ; h) = 0`, i.e. `V(h·1) = 0`). Edens at the constant field is not shown to vanish (no translation covariance of `E` on a finite torus in `Def6`); per the coordinator the constant value `Σ_j Edens(ψ ≡ h)` is field-independent and is carried into the vacuum term `E` of `Ξ^sf`.
+     **Landed (P1b-P1d).** `Spine/FinalValue.lean`: `value_quadratic_limit(_mass)` (exact Lagrangian expansion `actionC_const_line`, `theorem72_linearResponse`; `V(t)/t² → A(E,0) − ½⟨φ̇,Ṡ⟩ [+ ½(ν'−ν)⟨φ̇,φ̇⟩]`). `Spine/FinalValueBridge.lean`: `actStar2_univ_eq_actionC`, `actStar2_univ_second_variation` (real part of `secondVariation` along `ψ_k = h + t u`). `Spine/FinalHessianAlg.lean`, `FinalHessianBridge.lean`: `second_variation_quad`, `secondVariation_top`, `actStar2_univ_hessian`: for equal action/background masses, `A*_k(univ; h + t u)/t² → ½ L^{k(d−2)} ⟨U, finalHessian_{ν L^{2k}, a_k, h} U⟩`. Open: the cubic remainder as an analytic function on a polydisc (PHYS-CUBIC localization), `muAct = muBg` at the final scale (otherwise the extra term `½(ν'−ν)|φ̇|²`).
+     **Landed (P1e, P2, P3).** `Spine/FinalChart.lean`: `constUnitBg_xiCData` (`hθ` at the physical point: the constant unit datum is in `Ξ^c_n(𝔹; σ, ε)` for all `n`, `σ, ε > 0`; the late-scale parent-domain lemma for `χ_Y ≠ 0` already exists as `LateParentR3.inPsiTilde_genW_of_late_chiY_local`). `Spine/FinalConstField.lean`: `composeField_const`, `psiJ_const_univ` (`ψ^{(j)}_k ≡ h`), `Fres_const_univ` (`ℱ_k = ⟨g,h⟩ + Σ_j Floc` at the constant field), `EresK2_const_univ`. `Spine/FinalChain.lean`: `sfGaussIntegrand_eq` (for every cut `Y`), `sfGaussIntegrand_cubic` (for `K = β_k H`: exponent `= −β_k V³ + ℰ_k − E_k|Y| + ℱ_k + ℛ^{(k)}`, `V³ = A*_k − ½⟨v,Hv⟩`). **Open for A6-3 (a):** (i) the cubic remainder `V³ = O(|δ|³)` uniformly in the volume (PHYS-CUBIC localization; a per-torus analytic statement is available in principle from the analyticity of `bgFieldC` but has constants growing with the number of blocks); (ii) the polymer expansion of `exp(−β V³ + …)` over the box with the cut (the landed `cutoffInteraction_final_*`); (iii) the source part: the first-order response `φ̇ = (H⁻¹−Π)Ṡ` of `φ̄_k` is `const_response`, the Gaussian average of `exp⟨g, φ̇ δ⟩` gives the quadratic-in-`g` scale-`(k+1)` term; (iv) (c), (e).
+     **Findings.** (C) `corrSum` vanishes on the whole torus only for symmetric coefficients (`EresJ2_univ_of_symm`; `corrSum_self_eq_zero`); `CorrCoef`/`D1CorrLim` do not
+     state `vc.v1 j (-z) = vc.v1 j z` (same for `v2`), and without it `Ares2` at `Y = univ` carries the extra term `-corrSum`, a nonzero translation-invariant quadratic form in `ψ`
+     (it would shift the Hessian). (D) The cutoff: `chiY` is the product of `Reg` conditions (`|ψ_y − ψ_{y'}| < δ`, `||ψ_y|²−1| < δ`, directional clauses) — a region in the
+     `ψ`-space, sandwiched between `w`-boxes but not a `w`-box; the landed pipeline (`cutoffInteraction_final_*`, `norm_coef_cutoff_class_le_levels`) integrates over the box
+     `∀ y, |ψ' y| ≤ pLog` of the Gaussian variable, so `sfIntegral` equals the model integral only up to `∫_{Reg ∖ box}`, which is a tail of Gaussian size but not a localized
+     analytic term (decision needed: define the small-field class by the box in the Gaussian variable, or treat `Reg ∖ box` as tail gas as in `FinalTail*`). (E) The main action
+     `−β₀ actStar` is not quadratic in `ψ_k`: `φ̄` is the unit-sphere minimizer. The Hessian at `ψ ≡ h` is `finalHessian` by `linearResponse` (`Background/LinearResponse`) and
+     the envelope formula `V' = ⟨ψ − Qφ̄, aδ⟩`, `V'' = a − aQ(G − Π)Q*a`; the cubic part `V³` of the value function (analytic by `theorem52_analytic`) belongs to the interaction
+     (DAPHYS PHYS-CUBIC), it is not in `F_{k_f} = Σ Edens`. Next pieces, in order: (P1) `V(h1) = 0`, `φ̄(h1) = h` (`bgFieldC_eq`, `ConstantConfig`), `Hess V = finalHessian` and
+     `V³ = O(|δ|³)` on a polydisc; (P2) `hθ`/the datum lemma beyond `k₀`; (P3) the chain `sfFactor2 → ∫ over box of exp(F∘Λ)` with the cut `Y`.
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
    `∫ρ = Ξ^sf · exp(Σ_X b_{k+1})`.
@@ -863,6 +883,8 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      that do not meet `Z_k` (merge histories with the same post region and the same surviving records; their weights go into `ℛ''`); or (ii) multiply
      `postTerm2 A` by the removed-gas weight `∏_{c removed at scales ≤ k} τ_A(c)` (decorated by the removed members, R4) so that the removed alternatives are not copies of
      `sfFactor2 univ`. Not changed here (rule 3 of the brief); `FinalLargeFieldInput` as stated is false in a parameter range where a ripe removal with `Z_k = ∅` exists.
+     **R12 landed (W1151).** `postTerm2` is `0` for a history with a removal record `Rem_j ≠ ∅`, `j ≤ k`, and `postTerm2Raw` (the old term) otherwise (`postTerm2_of_remFree`, `postTerm2_of_rem`). `Spine/FinalRepOne.lean`: `card_remFree_empty_eq_one` (**n₀ = 1**: a complete set of histories has exactly one history with empty region and no removal record; without removal a nonempty region has a nonempty successor, the new cubes lie in `Z^pre`, so removal-free histories with `Z_k = ∅` agree, and the trivial history exists) and `lastRegionWeight_empty_eq_sfIntegral_of_complete` (the weight of the empty region is exactly `sfIntegral = Ξ^sf`). The finding of `n₀ ≥ 2` below is the pre-R12 situation.
+     **Landed (W1151, later).** `Green/GaussianMgf.lean`: `pdGaussian_integral_exp_lin` (`∫ e^{Σ a_x w_x} dγ = e^{½Σ a_x²}`), `pdGaussian_integral_exp_lin_sqrtInv` (in `v = K^{-1/2}w`: `e^{½ Jᵀ K⁻¹ J}`). `Spine/FinalSource.lean`: `response_top_mat` (`φ̇ = R u`, `R = (a_k/L^{2k}) Hr⁻¹(1−P_e)Q*`, `responseMat`), `gauss_source_linear` (Gaussian average of the linear part of `⟨g, φ̄_k − h⟩`: `exp(½⟨Rᵀg, K⁻¹ Rᵀg⟩)`, the quadratic-in-`g` scale-`(k+1)` term). `Spine/FinalAmplitude.lean` (amplitude `c₉/4`), `FinalRegroup*.lean` (Y ↦ Ȳ, two-torus agreement), `FinalRepOne.lean` (n₀ = 1, R12). **A4-1i is blocked** at `measurable_sfFactor2`/integrability: on the `χ`-support the composed fields `ψ^{(j)}_k` must lie in `XiDom (Tm.gs j X)` (analyticity of `Tm.E`, `Tm.M`, `Rt` is stated only there, `IsSF.analyticE/M`, `sfDom`); that membership is the birth-domain statement of R6 (`InheritedBound.birthXiDom`), not derivable from the landed clauses, and the `PkgBound` product bound needs it too.
      **Why `𝕋'_{k+1}` is not defined (design obstruction).** In the source `𝕋'_{k+1}(Z_{k+1}, 𝔸')` is not a datum of the class: it is produced by
      (4.2)–(4.9): the decomposition of unity on the layer, the Gaussian integral over the fluctuation of the exterior `Z_{k+1}^c` around the
      `Z_{k+1}`-dependent saddle `ψ_0^{(k)} = Q_k φ_{k,0}` ((4.3)–(4.8), massive problem), leaving an integration over the variables of `Z_{k+1}` only with
@@ -1018,6 +1040,20 @@ A3-2. Each becomes a theorem once the first step's representation is defined at 
 `notes/phase1/KF0-FR.md`) under the typing condition `kf0FRs0 d N L κ ≤ M L`. The sector split below (A7-1
 `KF0GoodSectorInput` with `KF0ThresholdInput`, A7-2 `KF0BadSectorInput`, the threshold premise) is no longer on the path to
 Root-F; the text is kept as the record of that route.
+
+Files left without use by route FR (W1149, 20 October; computed from the constants that `kfZeroInput_of_typing` uses
+transitively, and from the import graph). No declaration of the following is used by `kfZeroInput_of_typing`, and no
+module outside the sector route imports them: `Spine/KfZero`, `Spine/KfZeroGood`; `LargeField/Base/KF0AllPlusComplex`,
+`KF0AllPlusGas`, `KF0AllPlusGasC`, `KF0BadCharge`, `KF0BlockSplit`, `KF0BoundarySquare`, `KF0CollarBudget`,
+`KF0CollarClosure`, `KF0F1Assembly`, `KF0GoodChart`, `KF0HaloAffine`, `KF0MeanShell`, `KF0SectorCharge`, `KF0SectorSum`,
+`KF0ShiftedSector`, `KF0SmallUniform`, `KF0SqrtReal`, `KF0TaylorMajorant`; `Green/KF0CovarianceAtoms`,
+`KF0CovarianceNoise`, `KF0DetWalks`, `KF0HoleWalk`, `KF0HoleWalkTorus`, `KF0KilledWalks`. They are still imported along
+route FR's chain only through `Spine/KfZeroAct` (imports `Spine/KfZero`, needs only `RootFInputs`) and
+`Spine/KfZeroGoodParts` (route FR uses only `kf0K0`, `kf0K0_ge_log`, `kf0K0_sq` from it). Used by route FR from the
+earlier KF0 work: `KfZeroGoodParts` (those three), `KfZeroAct`, `KF0AllGoodGas`, `KF0Gaussian`, `KF0CutoffSplit`,
+`KF0PolymerLift`, `KF0BlockLift`, `KF0BoxLift`, `Green/KF0Reference`, `KF0WalkHalo`, `KF0WalkSeries`, `KF0WalkTorus`,
+`KF0WalkTruncation`. `KF0GoodGaussian`, `KF0WalkOrdinary` are unused by route FR but imported elsewhere
+(`Green/GaussianChangeGeneral`, `Green/KernelSeriesGeneral`).
 
 **PROVED** (`Balaban/Spine/KfZero.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
 ```
@@ -1211,3 +1247,115 @@ for fixed `Z'`; the offsets `δ″, δ‴` multiply the other two regions and ca
 (ruling R10, edits `StepData.lean`, `StepVacuumR5/Volume`): region 1 := `(Z_k)ᶜ ∩ Z_{k+1} ∖ Ω` (P6 (3.2) localized to `Z'`; `a.Z (k+1) = fineSet Z'`
 by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; excesses 2, 3 are `Ω∖Ω″` and `Ω″` inside `Z_k`, needing a geometric bound
 `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` from the definition of `Ω`.
+
+**Settlement of the constants (W1148, 2026-10-20).**
+* Consumer: only `StepData.b_ref_bound` (`StepVacuumR5.lean`) and the removed-weight cancellation read `b0_bound`; both already carry the slack `D·V`
+  (`‖b + E_ref V‖ ≤ (C_b log β + C_b B₀)|Z_{k+1}∖Z_k| + D V`, `D = C(log β + 1)`, `V = stepVacuumVolume`). `b_bound` is consumed only as the bound of `b` itself.
+* The vacuum term is not absorbed by the normalization `s` for an input record: `s` and the vacuum map `vacMap` fix the *new* constant `E_{k+1}` of the
+  step (tie by construction, inside `LFStepDataInput`); for a record of `ℛ^pre_k` the data `rec.F.lf.SD` already have their own constants `vacE, vacEpp, vacEppp`
+  with `b0_bound`, and `rec.Ev` is a separate flow constrained only by `|E_j| ≤ C_b(log β_j + 1)` (`PreRec.vac`).
+* Exact cost of retying to the flow (`norm_b_add_flowVacuumTerm_le`, `Spine/RVacuumRetieBound.lean`, proved): `‖b + vac(E, E+δ″, E+δ‴)‖ ≤ (C_b log β + C_b B₀)|Z_{k+1}∖Z_k| + D V`,
+  `D ≥` the three differences to `vacE, vacEpp, vacEppp`. `VacuumB0Bound` asks the same bound with `D V` removed, which is a cancellation: it holds in general only when the
+  constants of `SD` already equal the flow (up to `D V ≤ ` the slack in `C_b B₀`). It is not a consequence of the geometry `V ≲ |Z_{k+1}∖Z_k|`
+  (which would give `D V ≲ C(log β + 1)|Z_{k+1}∖Z_k|`, exceeding the constant by `C(log β + 1)`).
+* Consequence: `RVacuumB0Input` as stated (for an arbitrary `PreRec` and flow) is not provable: there is no inequality in P4 (2.1), (2.41), (2.63), (4.21) that gives
+  it; in the source the flow `E_k` *is* the vacuum constant of the step that created the component (Lemma II.5.14, (S0) with the constants of the step), so the
+  tie is a clause of the construction. Repair: put the tie into the record (`PreRec` carries `SD.vacE = Ev`, `VacuumTie` as a field, as `LFStepDataInput` already does
+  for the successor) or weaken `VacuumB0Bound` to the bound with slack `D V` and give `StepData` a `b0_bound'` with that slack. Both change a landed statement:
+  needs the orchestrator. The geometry `|Ω_{k+1} ∩ Z_k| ≲ |Z_{k+1}∖Z_k|` is then only needed for the slack form and is not attempted here.
+
+**Resolved (W1148, 2026-10-20).** `PreRec` carries the field `vacTie` (the step data of every torus are tied to the flow `Ev`, offsets per torus), as the source's construction gives it
+(P4 (2.1), (2.41), (2.63)); `SFStep` supplies it from `LFStepDataInput`, the rule-10 witness has the zero flow. `vacuumB0Bound_of_tie` (D = 0 in `norm_b_add_flowVacuumTerm_le`) proves
+`VacuumB0Bound`, `rVacuumB0Input` proves `RVacuumB0Input` (`RecB0Bound` now has offsets per torus).
+
+**Row (c) of A4-2ab, `ℬ′`: what blocks it (W1148, 2026-10-20; for the Opus queue).**
+* `r4Fresh` (`LargeField/R/RGasRepR4Fresh.lean`) is the P3 mixed-derivative coefficient of a given decoupled extension `F S u : (ι → ℂ) → ℂ` of the P7 (3.23)–(3.25) exponent residual (old minus new exponent); `F` is an argument, not supplied (`AUDIT-DEFS-1018.md`).
+* `r4Fresh_aggregate_of_localization` gives `Σ_Y r4Fresh = F S u 1` only under the P3 §4 premises (`Localization.localization_expansion`): `F` analytic in the cut parameters on the P3 polydisc, bounded, and cut-local (`hcut`: it depends on the removed members only through those meeting `Y`).
+* `F` is not definable now: the residual is analytic and local only on the global H7 domain, and "analytic and local on the global domain" does not give a local analytic extension to cut-open parameters (`GENERATOR.md`, REFUTED, counterexample `1/(z - 3/2)`); an `h`-independent canonical extension off the fibre is also refuted (`OFFFIBRE.md`).
+* Needed: a construction of `F` from the old kernels and the removed operators with its analyticity polydisc and cut-locality proved, then the tie `r4Coupling = Rep.B` (`r4Coupling_empty` is not a consequence of the aggregate identity, `AUDIT-DEFS-1018.md`). Rows (d)(e) depend on this: the integral identity `∫ρ' = ∫ρ` of `GasOutput` is about the `ρ'` it produces.
+
+## FrozenSFStepInput split (W1148, 2026-10-20)
+
+**PROVED** (`Spine/FrozenSFStep.lean`; axioms `propext, Classical.choice, Quot.sound`): `frozenSFStepInput_of_parts` from the frozen sub-inputs and `FrozenLFStepInput`
+(parameters `hP : PrefixInput`, `hQ : FlowRateInput`, the map `Φ♭`). Pieces:
+1. **Sub-spine core** (proved): `sfSucc_core` (`Spine/SFStepClauses.lean`) is the class-independent core of `sfSucc_clauses` (which is its instance for `D2SF2`); `sfFlatSucc_clauses`
+   (`Spine/FrozenSFClauses.lean`) is its instance for `SFFlat2`/`D9Flat` at `massOne P6` and the allowance `1`. `SFFlatClassAt`, `FlatRep.sfFlatClassAt`, `sfFlatClassAt_witness` (rule 10).
+2. **A4-1a–f, i at complete backgrounds** (`Spine/FrozenSFImage.lean`): `FrozenInheritInput`, `FrozenNewLevelInput`, `FrozenRenormInput` (`massOne P6`), `FrozenDensityInput`,
+   `FrozenRemainderInput` (allowance 1), `FrozenCoherenceInput`, `FrozenIntegrableInput`: the landed properties `SFInheritQ`, … (extracted from `Spine/SFStep.lean`, body-only refactor,
+   `SFImageInputGen`, `StepIntegrableInputGen`) over the scales `max(k₀,1) ≤ k < k̂_f` and the class `SFFlatClassAt` with `ν_k L² ≤ 7/8`. No copies. A4-1g has no frozen analogue (no vacuum flow in `ℛ♭`, no `R`).
+   Status: open, same as the pre-`R` inputs (they need the exemption of the seven inputs).
+3. **The switch at `k = k₀`.** FLUCT-A withdraws the two-stage switch: at `k = k₀` one complete small-field step, like every other scale. What remains is the SF/LF interface
+   (`OPEN-SF-LF-INTERFACE`): `FrozenSwitchInput ifc` states `SFtoLFInterface` for the data of a member of `ℛ♭_{k₀}` (open); `frozenSwitch_of_lt` proves it for `k > k₀` (zero kernel data).
+4. **Frozen large-field data**: `FrozenLFStepInput` (open): the data `lf'` of the successor (no hull, no `R`) with `D4Pin (k+2)`, `Coh`, `LFCoherent`, and `IsRepFlat2` **given** (H6♭).
+   (H6♭) is proved: `frozenBudget_of_pin` (`Spine/FrozenSFBudget.lean`: `Rep.budgetFlat_of_LF2_trunc` on `budgetSetupToOfRun` (`Spine/BudgetSetupOfRun.lean`, extracted from the transfer)
+   and `prefixBudgetFacts` (`Spine/PrefixBudget.lean`, extracted from `transferInput_of_prefix`)).
+Refactors of landed proofs: `transferInput_of_prefix` now uses `prefixBudgetFacts` and `budgetSetupToOfRun`; `SFStep.lean` definitions `SFImageInput`, `StepIntegrableInput` and the six
+sub-inputs are built from the new generic forms (definitionally the same statements).
+
+## SF→LF interface at `k = k₀` (`FrozenSwitchInput ifc`; W1148, 2026-10-20)
+
+`ifc` must provide, for the data `sf` of a member of `ℛ♭_{k₀}` and every Def-6 torus, `SFtoLFData` `X` with: `Σ_Y X.D_Y = chordD`, `Σ_Y X.E_Y = ΔE`, `Σ_Y X.F_Y(g) = ΔF(g)` on the overlap of the two background domains
+(exact, by `sfToLF_identity`'s definitions); `F_Y` analytic on `‖g‖₁ < 1`; the polymer bounds `|D_Y| ≤ C_D β_k m_k² e^{-κ_D d(Y)}`, `‖E_Y‖ ≤ C_E E₀(m_k/ε_k) e^{-κ_E d(Y)}`, `‖F_Y‖ ≤ C_F(m_k + E₀ m_k/ε_k) e^{-κ_F d(Y)}`;
+`β_{k₀} m_{k₀} ≤ C₀` and the reserve `C_int[C₀²/β + C₀E₀/(βε)] < η`. Landed that gives parts: `sfToLFInterface_complete` (`k > k₀`, trivial); `chordD` identity `(1.1)` of INTERFACE-A
+(`chord_identity`, `expansion_chord`); the regime bound `β_{k₀}ν_{k₀} ≤ e^{1/10}` from (I.2) and `β ν L^{k₀ d} ≤ 1` (`beta_nu_kZero_le`, `Spine/FrozenSwitchMass.lean`, proved). The class members come from the transfer
+(`transferInput_of_prefix`, `IsRep2.toFlat`), the budget setup from `budgetSetupToOfRun`/`prefixBudgetFacts`, but none of them gives the localized bounds.
+**Obstruction (precise).** The three polymer bounds are estimates, not identities: for the full-torus action the chord is `½⟨w,(H_m+α^m)w⟩` with `w = φ⁰ - φ^m`, which localizes to blocks only through the weighted mass response
+`‖w‖_loc ≤ 2K₂B_h m` (BG Prop. 5.1: `WeightedProp51S` under `Prop51Hyp`, which the overlap `InUnionDomainR` does not supply: OPEN common-collar BG application) and the Hessian bound `C_H n ‖w‖²`;
+`E_Y`, `F_Y` need the Cauchy estimate (2.2) with the anisotropic I-6 bound uniformly on the complex segment (hypotheses "to be verified for the revised class", INTERFACE-A §2). For P7's regional half-bond action
+the localized chord is false without a wall term (INTERFACE-A (1.4)); `SFtoLFInterface` has no wall field. So `FrozenSwitchInput` is not provable from landed results; it is not consumed by `frozenSFStepInput_of_parts`.
+
+**`FrozenLFStepInput` split (W1148, 2026-10-20; `Spine/FrozenLFStep.lean`).** `frozenLFStepInput_of_parts` (PROVED, axioms `propext, Classical.choice, Quot.sound`) from the frozen step map
+`Λ♭ : FrozenLFStepMap` (`LFStepRaw` for every `FlatRep`) and eight parts, as `lfStepInput_of_parts` with `IsRepFlat2` for `IsRepPre2`: `FrozenHistInput` (`IsComplete (k+1) (k+2)`), `FrozenStepDataInput`
+((S0)–(S2) at the constants of the successor with the kernels of `Λ♭`), `FrozenBdryInput` (`D7Bdry2Post`, no hull, no `R`, `B_st ≤ B₀ - 1`), `FrozenFormInput` (`D1Form2` of `stepDensity`),
+`FrozenOpBoundInput` (`D5Bound (k+2)`), `FrozenPinInput` (`D4Pin (k+2)`), `FrozenLFCoherenceInput` (`LFCoherent`), `FrozenCorrInput` (`D1CorrLim`). Proved inside: the constants (`succOpConsts`, `succBudgetConsts`),
+`Coh` and `FieldClauses` of the successor (`coh_succ`, `field_succ`), the kept data (`KeptData.upTo`, (S3)), the assembly of `IsRepFlat2` with (H6♭) as the premise discharged by `frozenBudget_of_pin`.
+All eight parts are open (same status as the pre-`R` parts (g1)–(g5), (h): they need the exemption of the seven inputs); there is no vacuum flow and no removal record in a frozen step, so neither A4-2v nor the removal-history ruling touches them.
+`FrozenSwitchInput` is not provable from landed results (obstruction above) and is consumed by none of these.
+
+**Generic parts of the large-field halves (W1148, 2026-10-20).**
+* (c) histories: PROVED once, generically. `canonHist` (`Spine/HistCanon.lean`) is a fixed complete set (`exists_isComplete`; `IsComplete k r` refers to the setting only, D-III.8); `LFHistInput_of_canon`
+  (`IsComplete (k+1) (k+1)`) and `FrozenHistInput_of_canon` (`IsComplete (k+1) (k+2)`) hold for every step map whose histories are the canonical ones (a constraint on the provider's map, not a premise on the analysis).
+* (h′) coefficient data `LFCorrInput` / `FrozenCorrInput` (`∃ St' vc', D1CorrLim`): BLOCKED, not provable from landed results. `D1CorrLim` asks the thermodynamic limits `v1T`, `v2T` along the tori `torusSeq L m₀ n`
+  of the image at every level `j ≤ k+1` with the normalization `nuIdeal L (k+1) ν_{k+1}`. Landed: only the radial limit `tendsto_v1T_aInfC` (`R/RadialCoefficientLimit.lean`) for `IsSFFamily` on all tori with the numeric premises `MomNum`,
+  and the witnesses `wD1Corr`, `wD1CorrLim`. Missing: (i) the `v2` limit (transverse coefficient) for a class member, not landed at all; (ii) the same chain for the read-torus class `IsSFFamily2On` (R-N₁); (iii) for the inherited levels, the transfer of the old limits
+  to the rescaled source (`nuIdeal L (k+1) ν_{k+1} j` against `nuIdeal L k ν_k j`, factor `ν_{k+1}/(L² ν_k)`) along `oldSideSeq`; (iv) the new level `k+1`. About 600 lines of new analysis; one generic statement (over a class `IsSFFamily2On` + `MomNum`)
+  serves both the pre-`R` and the frozen part.
+* (g4) pins `LFPinInput` / `FrozenPinInput` (`D4Pin`): reduces to a transport lemma that is not landed: for `A, B` with `A.Agree k (k+1) B`, the local histories and `kappaPreH A j Z`, `kappaH`, `keptExp` at the scales `j ≤ k` coincide
+  (`RegionHistory.kappaPre` reads `H.parts`, `newCubes`, `outCubes` of the scales `< j` and `P.kappaStep`; the components of `A` and `B` live in different dependent types `Comp j`, equal only through `comps_zp_eq_of_agree`). With it, `D4Pin (k+1)`
+  of the successor is `D4Pin (k+1)` of the input pulled along `Agree`; for the frozen part the new scale `k+1 > k₀` has no kept event (`IsKeptEvent` needs `k ≤ k₀`), so `D4Pin (k+2)` is the same statement. About 300–400 lines.
+
+**Update (W1148, 2026-10-21): pins PROVED for both halves; the coefficient data scoped.**
+* (g4) `lfPinInput` and `frozenPinInput` (`Spine/PinParts.lean`) hold for every step map `Λ` (no hypothesis on `Λ`). The transport lemma is `d4Pin_of_agree` (`Spine/AgreeTransportRep.lean`), built from
+  `HAgr m H₁ H₂` (same steps `j < m`, same `Rem_j`, `j ≤ m`; `HAgr.of_agree` from `Agree m (m+1)`) and the transports `cequiv` (components), `parts_eq`, `newCubes_eq`, `outCubes_eq`
+  (`AgreeTransport.lean`), `spineOK_iff`, `spineTarget_eq`, `nextSpine_eq`, `spine_eq`, `bk_eq` (`AgreeTransportSpine.lean`, with `nextBook_map`, `Spine/BookMap.lean`), `kappa_eq`, `kappaPre_eq`, `isKept_iff`
+  (`AgreeTransportKappa.lean`), `desc_map`, `lin_eq`, `tailZ_eq`, `locStep_eq`, `localHistory_eq` (`AgreeTransportLocal.lean`) and the equality of the labels of non-removed kept components along `Agree`
+  (`lab_eq_of_agree`). In the frozen step the new scale `k+1 > k₀` has no kept component, so `D4Pin (k+2)` is the transported `D4Pin (k+1)` (`d4Pin_succ_iff`).
+* (h′) `LFCorrInput` / `FrozenCorrInput`: NOT done, and the estimate in the previous entry (≈ 600 lines) is too small. `D1CorrLim` needs the thermodynamic limits of `v1T` and `v2T` for the image at every level, for the class
+  `IsSFFamily2On` (complete backgrounds, `IsSF2`). The landed limit theory (`tendsto_v1T_aInfC` and its chain: `Def6Avg*`, `Def6Inf*`, `Def6Bridge*`, `RadialCoefficient*`, ≈ 13,000 lines) is stated for the first-version class `IsSFFamily`
+  (`IsSF`, massless domain) and only for the radial coordinate `Pi.single i₀ 1`; there is no `v2` limit, no rotation to a general unit field `hv`, and no version for `IsSF2`. Inherited levels would follow from the old limits
+  (source rescaling and `oldSideSeq`), but the new level `k+1` needs the full theory for the second-version class. This is a campaign, not a lemma.
+
+**R7′ implemented (W1148, 2026-10-21; A3-1 (d)).** The physical base carrier is stated at the class's block constant `M` and torus horizon `K`: `BaseSmallFieldInput M K k₀ geo cs N` with `geo : Geo S n R M`, histories
+`RegionHistory S n R k₀ K`, local histories `H.localHistory M K 1 Z'` and the source `g : GIdx S n M K N → ℂ` on the fine sites of the torus (so `baseSource` is the identity); `Kphys` itself, its fields and the content
+of the corrected carrier are unchanged. `BaseStepData M K`, `baseK0`, `baseKC`, `baseWit`, `baseStepData_of_input`, `baseSmallFieldInput_nonempty` are generalized in place (`Base/BaseSmallField.lean`, `BaseCarrierData.lean`:
+`baseZsites M`, `baseSourceNorm M`); `Prop279Phys`, `Prop279Input`, `prop279Phys_nonempty` and `Inhabited/BaseStep.lean` are the instances at `M = K = 1` (the only textual changes: the extra arguments `1 1` and the source `g` for
+`baseSource S n N g`). `Spine/BaseCarrier.lean`: `KphysT` (the remainder as a function of the source on `Torus d (L n₁)`, with `KphysT_baseSource`), `baseSmallFieldInput_class_nonempty` (rule 10 at every geometry of the class),
+`baseStepData_at_class` (a family of carriers over the tori `sides L K n_K` gives the base step data on every torus). Changed statements: `BaseSmallFieldInput`, `BaseStepData` (parameters `M K`; the structure `BaseStepData` names its horizon
+`Kh` because its field `K` is the kernel), and the theorems of `BaseSmallField.lean` and `Prop279.lean` that mention them.
+Remaining in A3-1 (SPINE-PLAN): (a) small-field part at scale 1 (1,800, H, B2); (b) the base kernels `K̃⁰e^{b₀}` in the carrier and (II.7.5) (1,000, H, B1); (c) `D1PreForm2` for `firstDensity` (800, M); (e) (H6′)^pre at 1
+(300, L; `Rep.budgetPre_of_LF2`/`budgetSetupToOfRun`); (f) (D8) of `K₀, b₀, ℬ^{(1)}` (400, M); (g) `β₀ = β`, `ν₀ = ν` (20, L); and the assembly of `BasePreStepInput` from them (not yet split: histories complete via `canonHist`, the pin `D4Pin 1` is
+vacuous, the budget as in `lfBudgetInput_of_pin`). A3-2 (`BaseFlatStepInput`) needs the same at complete backgrounds.
+
+**A3-1 / A3-2 assembly (W1148, 2026-10-21; `Spine/BasePre.lean`, `Spine/BaseFlat.lean`).** `basePreStepInput_of_parts`, `baseFlatStepInput_of_parts` and `baseStepInput_of_maps` (axioms `propext, Classical.choice, Quot.sound`)
+prove `BasePreStepInput`, `BaseFlatStepInput` and `BaseStepInput` from the first-step map `Γ : BaseMap` (the record `BaseRaw`: `z₁`, `R`, `geo`, `cs`, `P`, `sf`, `κK`, `SD`, `KD`, `B`, `St`, `vc`, `Ev`; the histories
+are the canonical complete sets `canonHist`, `BaseRaw.famR r`, `r = 1` before `R`, `r = 2` frozen) and the parts, which are generic in the regime (`BaseImageInput Reg`):
+* shared by (A) and (B): `BaseConstsInput` (ties, `Coh`, `FieldClauses`), `BaseCorrInput` (`D1CorrLim`), `BaseOpBoundInput r` (`D5Bound r`), `BaseCoherenceInput r` (`LFCoherent`, A3-1 (f)), `BaseKernelInput` (A3-1 (b): the kernels of
+  `SD` at the scale `0` are the base kernels `baseK0` of a carrier at the class geometry; documentation of what `Γ.SD` must satisfy, not consumed by the assembly);
+* regime (A): `BaseSFInput` ((a), (g): (D2) `preFac`, (D8), (D9), `a_1` free flow, `β_0 = β`, `ν_0 = ν`, (I.2) at `0`, `z₁ > 0 = z_1`), `BaseFormInput` ((c): `D1PreForm2`), `BaseBdryInput` ((a): `D7Bdry2`), `BaseVacuumInput`
+  (the flow `E_j`, `|E_j| ≤ C_b (log β_j + 1)`, and the tie of `SD`);
+* regime (B): `BaseFlatSFInput` (`SFFlat2`, `D9Flat`), `BaseFlatFormInput` (`D1Form2`), `BaseFlatBdryInput` (`D7Bdry2Post`).
+Proved inside: completeness of the histories (`canonHist_complete`); the pins `D4Pin 1` (A) and `D4Pin 2` (B: nothing is kept above `k₀ = 0`) — vacuous; the budget (H6′)^pre at the scale `1` (A3-1 (e); `budgetSetupToOfRun`,
+`prefixBudgetFacts`, `Rep.budgetPre_of_LF2_trunc`, (I.2) at `1` from (H.6) by `runningHypTo_succ_of_coeffBounds`) and (H6♭) at the scale `1` (A3-2; `frozenBudget_of_pin`); (I.2) at the scale `1` and the mass bound `ν₁ ≤ (81/79)(7/8) ≤ 9/10`
+(`nu_succ_le_of_coeffBounds`); `hM6` and the flow rate from `PrefixInput`. (g) `β_0 = β`, `ν_0 = ν`: clauses of `BaseSFInput`/`BaseFlatSFInput` (they say that the flow of the first step starts from the bare couplings; `sf` cannot be redefined
+at `0`, the flow `CoeffBounds.flow` starts there). Open: (a) the small-field data and boundary terms, (b) the kernels, (c) the transform relation (`Σ_records ∏ K_0 = ρ_1`, BASECARRIER item T), (f) the coherence, the coefficient limits `D1CorrLim` (see the
+coefficient-limit entry above). Rule 10: the parts need the exemption of the seven inputs; the assembled class members are inhabited by `preClassAt_witness`/`flatClassAt_witness`.

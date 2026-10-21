@@ -12,7 +12,7 @@ item numbers below refer to that file.
 
 The last section lists the problems that have been resolved since the project started.
 
-*Last updated: 2026-10-20.*
+*Last updated: 2026-10-21.*
 
 ## Summary
 
@@ -35,9 +35,9 @@ not as a closed blocker. All statements below are in `Balaban/Spine/`.
 | # | Statement that closes it | Proved |
 |---|---|---|
 | 1 | `KfZeroInput` (the case with no renormalization step) and `BaseStepInput` (the first step) | `KfZeroInput`: yes (20 October, `kfZeroInput_of_typing`; the one condition beyond the statement is a lower bound on the block side M·L by d, N, L, κ, a choice of the exponent of M = L^n); `BaseStepInput`: no |
-| 2 | the switch at the scale k₀ inside `FrozenSFStepInput`, and `LFBdrySrcInput` (the source radius) | no |
-| 3 | `LFBdryOldInput` for the step's actual boundary terms | no |
-| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | no |
+| 2 | `LFBdrySrcInput` (the activity bound on the shrinking source radius). The switch itself is no longer a separate statement: with ruling R2 both halves of a step use complete backgrounds, and the repaired switch at k₀ is an ordinary step; the frozen step's assembly `frozenSFStepInput_of_parts` is proved without it | no |
+| 3 | `LFBdryOldInput` for the step's actual boundary terms (needs the step with holes and the modular localization of the old terms) | no |
+| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | `RVacuumB0Input` yes (20 October); `RKeptGasInput` no |
 | 5 | `FinalSmallFieldInput` and `FinalLargeFieldInput` (the two halves of `LastIntegralInput`) | no |
 | 6 | the clauses (A1)–(A5) of the new level on the local generating sets, in `SFNewLevelInput` | no |
 | 7 | the two-torus clauses: exact agreement of the last-scale activities in `FinalSmallFieldInput`, and the agreement of each step's terms carried by the class | no |
@@ -199,6 +199,15 @@ the papers. The old boundary terms of the step have to be built as explicit obje
 sum over the old domains that carry over to it of the old term re-expanded at the new scale (P6 (4.32)–(4.33)).
 Then the bound P6 (4.34) and the count of domains finish this blocker. Until those objects are defined, the
 statement about the old part of the boundary terms says nothing about the actual step (W1148).
+
+Update (21 October, correction). Building the old boundary terms showed that more is missing than stated above
+(W1154). The assignment of each old domain to the new domains, the count of domains and the bound of the sum at
+each new domain are now proved, for any coefficients with the bound of P6 (4.34). The coefficients themselves are
+the old terms integrated in the fluctuation measure of the step with holes (P5 (2.48), (3.2)), and that step is not
+yet built: neither the field of the new scale composed into the old one on the large-field region nor the
+measure on the fluctuation fields with holes exists in Lean. The bound P6 (4.34) also rests on the modular
+localization of each old term, which has open points of its own (one of them is author question 14 (ii)); we
+choose readings for these and prove what they need. So this blocker is not purely Lean work, as said earlier.
 
 ## 4. The gas of removed components and retained holes
 
