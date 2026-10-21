@@ -148,7 +148,9 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar
           (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr e →
+        NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, p₁, C.m₀, T.c, r₀, δ₃, levelKc d L,
+            Cchi d L, T.c₂, δfl⟩ e →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +

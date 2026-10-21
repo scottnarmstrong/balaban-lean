@@ -3086,3 +3086,5 @@ public import Balaban.Inhabited.NewLevelOldTermsBgRot
 public import Balaban.Inhabited.NewLevelLocalSetFacts
 public import Balaban.Inhabited.NewLevelLocalClauses
 public import Balaban.Inhabited.NewLevelLocalCast
+public import Balaban.Fluctuation.OldTermClassDomain
+public import Balaban.Inhabited.NewLevelNumerics

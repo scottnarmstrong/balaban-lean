@@ -182,7 +182,10 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
           ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
           (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
-          ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr e := by
+          ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e := by
   have h3d : (3 : ℝ) ≤ d := by exact_mod_cast hd
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
   have hq0 : 0 < (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) := Real.rpow_pos_of_pos hLpos _
@@ -212,7 +215,10 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
       ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
       (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
         rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
-      ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr e) (fun _ _ hc hnl _ => ⟨hc, hnl⟩)
+      ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * (lam * P₀.eps d L k)), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * (lam * P₀.eps d L k))⟩ e) (fun _ _ hc hnl _ => ⟨hc, hnl⟩)
   exact ⟨e, B, h.1, h.2.1, h.2.2, hcovE.1, hcovE.2⟩
 
 open Classical in

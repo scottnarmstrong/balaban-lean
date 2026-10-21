@@ -232,7 +232,8 @@ theorem StepTowerG.e0CoeffFamily_class_of_families_red_onSet_agree_phi_formula {
             ∀ T', e θ' T' = e θ T') →
         NewLevelFormulaFor S C z Jr
           (OldTermSystem.mk (S := S) (t := T.t) ι inferInstance m₀ jL X₁f 𝒦X ϱ₁ Gk Gj Eτ F₁L SolL
-            FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁pin τ) (fun τ => hSolpin τ) (fun τ => hFkpin τ)) e →
+            FkL ρ κ BG BG₂ δ₁ (fun τ => hF₁pin τ) (fun τ => hSolpin τ) (fun τ => hFkpin τ))
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, κ, BG, BG₂, δ₁, ρ, m₀, cB, r₀, δ₃, KcL, Cx, c₂, δfl⟩ e →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +
