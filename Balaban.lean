@@ -2943,6 +2943,7 @@ public import Balaban.Inhabited.NewLevelMarkUnique
 public import Balaban.Polymer.BgFieldTransport
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
+public import Balaban.Polymer.ETermFunTransport
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
