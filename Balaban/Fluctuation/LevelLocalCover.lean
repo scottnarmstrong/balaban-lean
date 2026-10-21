@@ -310,16 +310,27 @@ theorem exists_int_of_inBox {j : ℕ} {y0 x y : CTorus d L N₁ m₁ K} {R R' : 
     constructor <;> linarith
 
 omit [NeZero N₁] [NeZero L] in
-/-- **The margin arithmetic.**  For `L ≥ 3`, `4 L² ≤ L^{m₁}` and `m₀ ≥ 1`: the half-width of a
+/-- **The margin arithmetic, absolute form.**  For `L ≥ 3` and `4 L² ≤ L^{m₁}`: the half-width of a
 thickened interaction cube of the top layer, plus the half-width `3/2 M` of the support of a
-partition function, plus one cube side `M = L^{K+m₁}`, is at most `L - 1` cells of `π_K`. -/
-theorem hatRad_add_le {m₀ : ℕ} (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hm₀ : 1 ≤ m₀) (K : ℕ) :
+partition function, plus one cube side `M = L^{K+m₁}`, is at most `6 M`. -/
+theorem hatRad_add_le_six (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (K : ℕ) :
     hatRad L m₁ K + 3 / 2 * (L : ℝ) ^ (K + m₁) + (L : ℝ) ^ (K + m₁) ≤
-      (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) := by
+      6 * (L : ℝ) ^ (K + m₁) := by
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hM' : (4 : ℝ) * (L : ℝ) ^ 2 ≤ (L : ℝ) ^ m₁ := by exact_mod_cast hM
   have hK0 : (0 : ℝ) < (L : ℝ) ^ K := by positivity
   have hMK : (L : ℝ) ^ (K + m₁) = (L : ℝ) ^ K * (L : ℝ) ^ m₁ := pow_add _ _ _
+  unfold hatRad
+  have hMpos : 0 < (L : ℝ) ^ (K + m₁) := by positivity
+  have h3 : 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ K ≤ 3 / 4 * (L : ℝ) ^ (K + m₁) := by
+    rw [hMK]; nlinarith
+  linarith
+
+omit [NeZero N₁] [NeZero L] in
+/-- Six cube sides are at most `L - 1` cells of `π_K` (`L ≥ 3`, `m₀ ≥ 1`). -/
+theorem six_le_cells (hL : 3 ≤ L) {m₀ : ℕ} (hm₀ : 1 ≤ m₀) (K : ℕ) :
+    6 * (L : ℝ) ^ (K + m₁) ≤ (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) := by
+  have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hc : ((cellSide L m₀ m₁ K : ℕ) : ℝ) = (L : ℝ) ^ m₀ * (L : ℝ) ^ (K + m₁) := by
     unfold cellSide
     push_cast
@@ -332,15 +343,18 @@ theorem hatRad_add_le {m₀ : ℕ} (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) 
   have hL1 : (((L - 1 : ℕ)) : ℝ) = (L : ℝ) - 1 := by
     rw [Nat.cast_sub (by omega)]; simp
   rw [Nat.cast_mul, hL1, hc]
-  unfold hatRad
   have hMpos : 0 < (L : ℝ) ^ (K + m₁) := by positivity
-  have h3 : 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ K ≤ 3 / 4 * (L : ℝ) ^ (K + m₁) := by
-    rw [hMK]; nlinarith
-  have h4 : 3 * (L : ℝ) ^ (K + m₁) ≤ (L : ℝ) ^ m₀ * (L : ℝ) ^ (K + m₁) := by nlinarith
-  have h5 : 6 * (L : ℝ) ^ (K + m₁) ≤ ((L : ℝ) - 1) * ((L : ℝ) ^ m₀ * (L : ℝ) ^ (K + m₁)) := by
-    have h2 : (2 : ℝ) ≤ (L : ℝ) - 1 := by linarith
-    nlinarith
-  linarith
+  have h2 : (2 : ℝ) ≤ (L : ℝ) - 1 := by linarith
+  nlinarith
+
+omit [NeZero N₁] [NeZero L] in
+/-- **The margin arithmetic.**  For `L ≥ 3`, `4 L² ≤ L^{m₁}` and `m₀ ≥ 1`: the half-width of a
+thickened interaction cube of the top layer, plus the half-width `3/2 M` of the support of a
+partition function, plus one cube side `M = L^{K+m₁}`, is at most `L - 1` cells of `π_K`. -/
+theorem hatRad_add_le {m₀ : ℕ} (hL : 3 ≤ L) (hM : 4 * L ^ 2 ≤ L ^ m₁) (hm₀ : 1 ≤ m₀) (K : ℕ) :
+    hatRad L m₁ K + 3 / 2 * (L : ℝ) ^ (K + m₁) + (L : ℝ) ^ (K + m₁) ≤
+      (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) :=
+  (hatRad_add_le_six hL hM K).trans (six_le_cells hL hm₀ K)
 
 end Shift
 
@@ -518,14 +532,16 @@ theorem treeLen_eq_zero (m₀ : ℕ) {j : ℕ} (hj : j ≤ K) (x : CTorus d L N�
     treeLenCovOne m₀ j (cube m₀ j x) = 0 :=
   Balaban.Fluctuation.treeLenCovOne_box (corner m₀ x) (aligned_corner_of_le m₀ hj x)
 
-/-- **`BlockMargin` for the local region.**  Let `G` be a whole-lattice set of the top level with
-`DGSetting`, and `m₀ ≥ 1`.  Every set `Zα` of sites contained in one `π_K`-cell has the margin
-against the cover in the region `X₁` of that cell: each site lies in an interaction cube whose
-thickened cube, and all cover cubes meeting it, lie in `X₁`. -/
-theorem blockMargin {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting G a ν) (hG : IsLevel G K) {m₀ : ℕ}
-    (hm₀ : 1 ≤ m₀) (x₀ : CTorus d L N₁ m₁ K) {Zα : Set (CTorus d L N₁ m₁ K)}
-    (hZ : Zα ⊆ box (corner m₀ x₀) (cellSide L m₀ m₁ K)) :
-    BlockMargin G (nbhdF m₀ x₀) Zα := by
+/-- **`BlockMargin` for the local region, core.**  Let `G` be a whole-lattice set of the top level
+with `DGSetting`.  If the sites of `Zα`, moved by any integer vector of sup norm below `6 M`
+(`M = L^{K+m₁}`), stay in the region `X₁`, then `Zα` has the margin against the cover
+in `X₁`: each site lies in an interaction cube whose thickened cube, and all cover cubes meeting
+it, lie in `X₁`.  (The sum of the half-widths involved is at most `6 M`, `hatRad_add_le_six`.) -/
+theorem blockMargin_core {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting G a ν) (hG : IsLevel G K)
+    (X₁ : Finset (CTorus d L N₁ m₁ K)) {Zα : Set (CTorus d L N₁ m₁ K)}
+    (hZ : ∀ x ∈ Zα, ∀ w : Fin d → ℤ, (∀ μ, |(w μ : ℝ)| < 6 * (L : ℝ) ^ (K + m₁)) →
+      x + (intTorus w : CTorus d L N₁ m₁ K) ∈ (↑X₁ : Set (CTorus d L N₁ m₁ K))) :
+    BlockMargin G X₁ Zα := by
   classical
   intro x hx hxΩ
   have hL1 : 1 ≤ L := by have := S.hL; omega
@@ -534,23 +550,19 @@ theorem blockMargin {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting G a ν) (hG : Is
     (f := fun q => chi G q x) (by rw [hs]; norm_num)
   have hin := inBox_of_chi_ne_zero hne
   have hqK : q.1 = K := level_eq_of_mem_cubeIdx hG hq
-  have hnum := hatRad_add_le (m₀ := m₀) S.hL S.hM hm₀ K
+  have hnum := hatRad_add_le_six S.hL S.hM K
   have hMpos : (0 : ℝ) < (L : ℝ) ^ (K + m₁) := by
     have : (0 : ℝ) < L := by exact_mod_cast hL1
     positivity
   have key : ∀ (y : CTorus d L N₁ m₁ K) (R : ℝ), InBox m₁ q.1 q.2 R y →
-      R ≤ hatRad L m₁ K + (L : ℝ) ^ (K + m₁) → y ∈ nbhdF m₀ x₀ := by
+      R ≤ hatRad L m₁ K + (L : ℝ) ^ (K + m₁) → y ∈ X₁ := by
     intro y R hy hR
     obtain ⟨w, rfl, hw⟩ := exists_int_of_inBox hin hy
-    rw [← Finset.mem_coe, coe_nbhdF]
-    refine add_intTorus_mem_cellNbhd hL1 (hZ hx) w (fun μ => ?_)
+    rw [← Finset.mem_coe]
+    refine hZ x hx w (fun μ => ?_)
     have h1 := hw μ
     rw [hqK] at h1
-    have h2 : |(w μ : ℝ)| < (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) := by linarith
-    have h3 : ((|w μ| : ℤ) : ℝ) < (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) := by
-      rw [Int.cast_abs]; exact h2
-    have h4 : |w μ| < (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℤ) := by exact_mod_cast h3
-    exact h4.le
+    linarith
   refine ⟨q, hq, mem_intBox.2 (hin.mono ?_), fun P hP hpar => ?_, fun y hy => ?_⟩
   · have : (0 : ℝ) ≤ (L : ℝ) ^ (q.1 + m₁) := by positivity
     linarith
@@ -571,6 +583,22 @@ theorem blockMargin {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting G a ν) (hG : Is
   · refine key y _ (mem_boxSet.1 hy) ?_
     rw [hqK]
     linarith
+
+/-- **`BlockMargin` for the local region.**  Let `G` be a whole-lattice set of the top level with
+`DGSetting`, and `m₀ ≥ 1`.  Every set `Zα` of sites contained in one `π_K`-cell has the margin
+against the cover in the region `X₁` of that cell: each site lies in an interaction cube whose
+thickened cube, and all cover cubes meeting it, lie in `X₁`. -/
+theorem blockMargin {a : ℕ → ℝ} {ν : ℝ} (S : DGSetting G a ν) (hG : IsLevel G K) {m₀ : ℕ}
+    (hm₀ : 1 ≤ m₀) (x₀ : CTorus d L N₁ m₁ K) {Zα : Set (CTorus d L N₁ m₁ K)}
+    (hZ : Zα ⊆ box (corner m₀ x₀) (cellSide L m₀ m₁ K)) :
+    BlockMargin G (nbhdF m₀ x₀) Zα :=
+  blockMargin_core S hG (nbhdF m₀ x₀) fun x hx w hw => by
+    rw [Finset.mem_coe, ← Finset.mem_coe, coe_nbhdF]
+    exact add_intTorus_mem_cellNbhd (Nat.pos_of_ne_zero (NeZero.ne L)) (hZ hx) w fun μ => by
+      have h1 := (six_le_cells (m₀ := m₀) (m₁ := m₁) S.hL hm₀ K)
+      have h2 : ((|w μ| : ℤ) : ℝ) < (((L - 1) * cellSide L m₀ m₁ K : ℕ) : ℝ) := by
+        rw [Int.cast_abs]; exact (hw μ).trans_le h1
+      exact_mod_cast h2.le
 
 end LocalCover
 

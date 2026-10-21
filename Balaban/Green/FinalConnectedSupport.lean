@@ -713,6 +713,55 @@ theorem coef_taggedGfin_final_eq_zero_of_not_connected (hd : 0 < d) (hk : 1 ≤ 
   exact coef_taggedGfin_final_eq_zero_of_separated hd hk hv0 hv1 ha1 ha2 hmass ht hM hκ hMB hMκ
     x y hAC hA hB hsep
 
+/-- **The Stieltjes square-root family splits over a separated decomposition of the support.**
+For `s` in the closed polydisc of radius `e^κ`, supported on `C = A ⊔ (C \ A)` with the boxes of
+`A` disjoint from the boxes of `C \ A`, every entry of `taggedCfin s` is the sum of the entries at
+the restrictions of `s` to `A` and to `C \ A`. -/
+theorem taggedCfin_apply_split_of_separated (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    {C A : Finset (MacIdx d N₀ M)} (hAC : A ⊆ C)
+    (hsep : Disjoint (macRegion d N₀ M A) (macRegion d N₀ M (C \ A)))
+    {s : MacIdx d N₀ M → ℂ} (hsb : ∀ p, ‖s p‖ ≤ Real.exp κ) (hsC : s ∈ supportedOn C)
+    (x y : L1Torus d N₀) :
+    taggedCfin d L N₀ k M v a s x y =
+      taggedCfin d L N₀ k M v a (fun i => if i ∈ A then s i else 0) x y +
+        taggedCfin d L N₀ k M v a (fun i => if i ∈ C \ A then s i else 0) x y := by
+  classical
+  have hentry : ∀ s' : MacIdx d N₀ M → ℂ, taggedCfin d L N₀ k M v a s' x y =
+      ((1 / Real.pi : ℝ) : ℂ) * ∫ t in Ioi (0 : ℝ), ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) (finalOp d L N₀ k v a) t s' x y := fun s' => by
+    simp [taggedCfin, Localization.intMat, Matrix.smul_apply]
+  have hproj : ∀ X : Finset (MacIdx d N₀ M), ∀ p, ‖(fun i => if i ∈ X then s i else 0) p‖ ≤
+      Real.exp κ := fun X p => by
+    by_cases hp : p ∈ X
+    · simpa [hp] using hsb p
+    · simpa [hp] using (Real.exp_pos κ).le
+  have hint : ∀ X : Finset (MacIdx d N₀ M), Integrable (fun t : ℝ =>
+      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
+        (fun i => if i ∈ X then s i else 0) x y) (volume.restrict (Ioi (0 : ℝ))) := fun X =>
+    taggedCfin_integrable hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ (hproj X) x y
+  have pt : ∀ t ∈ Ioi (0 : ℝ), ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
+        taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
+          (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y =
+      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
+        (fun i => if i ∈ A then s i else 0) x y +
+      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
+        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
+        (fun i => if i ∈ C \ A then s i else 0) x y := fun t ht => by
+    have hfin := taggedGfin_final (N₀ := N₀) (k := k) (L := L) hd hk hv0 hv1 ha1 ha2 hmass
+      (le_of_lt (mem_Ioi.1 ht)) hM hκ hMB hMκ
+    rw [taggedGfin_split_of_separated hM hd _ t hAC hsep hsC (hfin.2.1 s hsb), Matrix.add_apply,
+      mul_add]
+  rw [hentry s, hentry, hentry, ← mul_add]
+  congr 1
+  rw [setIntegral_congr_fun measurableSet_Ioi pt]
+  exact integral_add (hint A) (hint (C \ A))
+
 /-- **Connected supports, `C_fin`.**  The Stieltjes square-root family `s ↦ taggedCfin s` of the
 final operator has vanishing coefficient at every set `C` of cells that is not connected in the
 macro-cell adjacency. -/
@@ -726,43 +775,12 @@ theorem coef_taggedCfin_final_eq_zero_of_separated (hd : 0 < d) (hk : 1 ≤ k) (
     coef (fun s => taggedCfin d L N₀ k M v a s x y) C = 0 := by
   classical
   have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
-  have hentry : ∀ s' : MacIdx d N₀ M → ℂ, taggedCfin d L N₀ k M v a s' x y =
-      ((1 / Real.pi : ℝ) : ℂ) * ∫ t in Ioi (0 : ℝ), ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-        taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-          (macTags d N₀ M) (finalOp d L N₀ k v a) t s' x y := fun s' => by
-    simp [taggedCfin, Localization.intMat, Matrix.smul_apply]
   refine coef_eq_zero_of_split hR ((taggedCfin_analyticOnNhd (N₀ := N₀) (k := k) (L := L)
     (v := v) (a := a) (M := M) hd hk hv0 hv1 ha1 ha2 hmass hM (by linarith) hMB hMκ x y).mono
     fun s hs p => by simpa using hs p) Finset.disjoint_sdiff hAC Finset.sdiff_subset hA hB
     (fun s hs hsC => ?_)
-  have hsb : ∀ p, ‖s p‖ ≤ Real.exp κ := fun p => by simpa using (hs p).le
-  have hproj : ∀ X : Finset (MacIdx d N₀ M), ∀ p, ‖(fun i => if i ∈ X then s i else 0) p‖ ≤
-      Real.exp κ := fun X p => by
-    by_cases hp : p ∈ X
-    · simpa [hp] using hsb p
-    · simpa [hp] using (Real.exp_pos κ).le
-  have hint : ∀ X : Finset (MacIdx d N₀ M), Integrable (fun t : ℝ =>
-      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
-        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
-        (fun i => if i ∈ X then s i else 0) x y) (volume.restrict (Ioi (0 : ℝ))) := fun X =>
-    taggedCfin_integrable hd hk hv0 hv1 ha1 ha2 hmass hM (by linarith) hMB hMκ (hproj X) x y
-  have pt : ∀ t ∈ Ioi (0 : ℝ), ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) *
-        taggedGfin Finset.univ (macBoxF d N₀ M) (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ))
-          (macTags d N₀ M) (finalOp d L N₀ k v a) t s x y =
-      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
-        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
-        (fun i => if i ∈ A then s i else 0) x y +
-      ((t ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) * taggedGfin Finset.univ (macBoxF d N₀ M)
-        (fun z u => ((macChi d N₀ M z u : ℝ) : ℂ)) (macTags d N₀ M) (finalOp d L N₀ k v a) t
-        (fun i => if i ∈ C \ A then s i else 0) x y := fun t ht => by
-    have hfin := taggedGfin_final (N₀ := N₀) (k := k) (L := L) hd hk hv0 hv1 ha1 ha2 hmass
-      (le_of_lt (mem_Ioi.1 ht)) hM (by linarith) hMB hMκ
-    rw [taggedGfin_split_of_separated hM hd _ t hAC hsep hsC (hfin.2.1 s hsb), Matrix.add_apply,
-      mul_add]
-  rw [hentry s, hentry, hentry, ← mul_add]
-  congr 1
-  rw [setIntegral_congr_fun measurableSet_Ioi pt]
-  exact integral_add (hint A) (hint (C \ A))
+  exact taggedCfin_apply_split_of_separated hd hk hv0 hv1 ha1 ha2 hmass hM (by linarith) hMB hMκ
+    hAC hsep (fun p => by simpa using (hs p).le) hsC x y
 
 end Final
 

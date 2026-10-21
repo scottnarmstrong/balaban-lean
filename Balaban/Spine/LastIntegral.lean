@@ -299,7 +299,7 @@ theorem sideDiv_eq_sfIdx {M m₀ K : ℕ} (hM : M = L ^ (m₀ + m₁)) (hk : k �
     Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
   have e : M * sides L K nK K * L ^ K = sfIdx L m₀ (sides L K nK) k * (L ^ m₁ * L ^ k) := by
     have hK : L ^ K = L ^ (K - k) * L ^ k := by rw [← pow_add]; congr 1; omega
-    simp only [sides, sfIdx, Nat.sub_self, pow_zero, mul_one]
+    rw [sides_self, sfIdx, sides_of_le hk]
     rw [hM, hK, pow_add]
     ring
   rw [e, Nat.mul_div_cancel _ hpos]
