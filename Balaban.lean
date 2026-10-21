@@ -672,6 +672,8 @@ public import Balaban.SmallField.RenormTermwiseSub
 public import Balaban.SmallField.RenormAnisoDefs
 public import Balaban.SmallField.RenormAnisoLocal
 public import Balaban.SmallField.RenormAnisoCtx
+public import Balaban.SmallField.RenormAnisoPath
+public import Balaban.SmallField.RenormAnisoPathExists
 public import Balaban.SmallField.RenormAnisoIrrel
 public import Balaban.SmallField.RenormAnisoInhabited
 public import Balaban.SmallField.RenormAnisoDomain
@@ -2584,6 +2586,7 @@ public import Balaban.SmallField.IrrelTorusOn
 public import Balaban.SmallField.IrrelTorus
 public import Balaban.SmallField.IrrelTorusSum
 public import Balaban.SmallField.IrrelTorusBoundTube
+public import Balaban.SmallField.IrrelTorusXidomConstChart
 public import Balaban.SmallField.IrrelTorusBoundId
 public import Balaban.SmallField.IrrelTorusBound
 public import Balaban.LargeField.R.WindowCompose
@@ -2650,6 +2653,7 @@ public import Balaban.SmallField.IrrelTorusXidomSmallSource
 public import Balaban.SmallField.IrrelTorusXidomThreshold
 public import Balaban.SmallField.IrrelTorusXidomSplit
 public import Balaban.SmallField.IrrelTorusXidomBound
+public import Balaban.SmallField.IrrelTorusXidomBirth
 public import Balaban.SmallField.IrrelTorusBoxBound
 public import Balaban.SmallField.IrrelTorusBoxBoundClass
 public import Balaban.SmallField.IrrelTorusBoxBoundBirth
@@ -2721,6 +2725,7 @@ public import Balaban.SmallField.IrrelTorusDefectFiledPower
 public import Balaban.SmallField.IrrelTorusDefectDensity
 public import Balaban.SmallField.IrrelTorusDefectDensitySum
 public import Balaban.SmallField.IrrelTorusDefectFiledAll
+public import Balaban.SmallField.IrrelTorusDefectStar
 public import Balaban.SmallField.IrrelTorusDefectBirthNu
 public import Balaban.SmallField.IrrelTorusDefectBirthTerms
 public import Balaban.SmallField.IrrelTorusDefectBirthSurrogate
