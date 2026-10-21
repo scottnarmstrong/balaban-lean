@@ -49,4 +49,20 @@ theorem sum_ite_sub_equiv {ι ι' : Type*} {_ : Fintype ι} {_ : Fintype ι'} (e
   sum_ite_equiv e P P' (fun τ => c * (g τ - h τ)) (fun τ' => c' * (g' τ' - h' τ')) hP
     fun τ hτ => by rw [hg τ hτ, hh τ hτ, hc]
 
+/-- **A conditional sum of differences under a bijection of the subtypes.** -/
+theorem sum_ite_sub_equiv_sub {ι ι' : Type*} {_ : Fintype ι} {_ : Fintype ι'} (P : ι → Prop)
+    (P' : ι' → Prop) {_ : DecidablePred P} {_ : DecidablePred P'} (e : {τ // P τ} ≃ {τ' // P' τ'})
+    (c c' : ℂ) (hc : c' = c) (g h : ι → ℂ) (g' h' : ι' → ℂ)
+    (hg : ∀ τ (hτ : P τ), g' (e ⟨τ, hτ⟩).1 = g τ) (hh : ∀ τ (hτ : P τ), h' (e ⟨τ, hτ⟩).1 = h τ) :
+    ∑ τ', (if P' τ' then c' * (g' τ' - h' τ') else 0) =
+      ∑ τ, (if P τ then c * (g τ - h τ) else 0) := by
+  rw [← Finset.sum_filter, ← Finset.sum_filter,
+    Finset.sum_subtype (Finset.univ.filter P) (p := P) (by simp),
+    Finset.sum_subtype (Finset.univ.filter P') (p := P') (by simp)]
+  rw [← Equiv.sum_comp e]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  obtain ⟨τ, hτ⟩ := x
+  simp only [hg τ hτ, hh τ hτ, hc]
+
+
 end Balaban.Inhabited
