@@ -174,6 +174,157 @@ def NewLevelClausesAt (P : Consts) (a : ℕ → ℝ) (ν : ℝ) (Tm : Terms d L 
 end Clauses
 
 open Classical in
+/-- **Bridge (i): the clauses of the new level read as the term clauses of `newLevelTerms`** on a
+class field domain `Dom` contained, at the level `k + 1`, in the domain `xiFieldDom a ν` of the
+clauses (`hdom`; for `Dom = sfDom` of the image, the birth domain at the new mass and weight, this is
+the mass response of the domain).  The levels `j ≤ k` of `newLevelTerms` are zero with the
+whole-level sets; the level `k + 1` is `NewLevelClausesAt` read through `hdom`.  The rotation clause
+of the source terms is asked for the complex rotations (`hrotM`; the expansion gives the real
+ones), the levels above `k + 1` vanish (`htop`), and the constants have `E₀ ≥ 0`, `c₉ > 0`. -/
+theorem sfTermClauses_newLevelTerms_of_clauses {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁]
+    {ϱ : ℝ} {P : Consts} {a : ℕ → ℝ} {ν : ℝ} {Tm : Terms d L N₁ m₁ (k + 1) N ϱ}
+    {Dz : CTorus d L N₁ m₁ (k + 1) → Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N → ℂ}
+    {DM : CTorus d L N₁ m₁ (k + 1) →
+      (Fld d L N₁ m₁ (k + 1) N × Fld d L N₁ m₁ (k + 1) N) × Fld d L N₁ m₁ (k + 1) N → Fin N → ℂ}
+    (Dom : FieldDom d L N₁ m₁ (k + 1) N ϱ) (hE₀ : 0 ≤ P.E₀) (hc₉ : 0 < P.c₉)
+    (hdom : ∀ (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) Ψ h, Dom.dom (k + 1) G Ψ h →
+      (xiFieldDom a ν (P.eps d L) : FieldDom d L N₁ m₁ (k + 1) N ϱ).dom (k + 1) G Ψ h)
+    (htop : ∀ j, k + 1 < j → Tm.E j = 0 ∧ Tm.M j = 0)
+    (hrotM : ∀ x X, IsPolyDom P.m₀ (k + 1) X → x ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
+      IsRot R → ∀ Ψ h g, Def6.l1 g < 1 → Def6.l1 (rotField R g) < 1 →
+      Dom.dom (k + 1) (Tm.gs (k + 1) X) Ψ h →
+      Dom.dom (k + 1) (Tm.gs (k + 1) X) (rotField R Ψ) (rotField R h) →
+      Tm.M (k + 1) x X (rotField R Ψ) (rotField R h) (rotField R g) =
+        R.mulVec (Tm.M (k + 1) x X Ψ h g))
+    (H : NewLevelClausesAt P a ν Tm Dz DM) :
+    SFTermClauses P Dom (newLevelTerms Tm) := by
+  obtain ⟨hgs, -, hpav, hanE, hrotE, heucE, hlocE, hbdE, heucEloc, -, hanM, -, heucM, hlocM, hbdM,
+    heucMloc, -⟩ := H
+  have hlt : ∀ {j : ℕ}, j ≤ k + 1 → ¬ j ≤ k → j = k + 1 := fun h1 h2 => by omega
+  have hEj : ∀ j, ¬ j ≤ k + 1 → (newLevelTerms Tm).E j = 0 := fun j hj => by
+    rw [newLevelTerms_E Tm (by omega)]; exact (htop j (by omega)).1
+  have hMj : ∀ j, ¬ j ≤ k + 1 → (newLevelTerms Tm).M j = 0 := fun j hj => by
+    rw [newLevelTerms_M Tm (by omega)]; exact (htop j (by omega)).2
+  have hElocz : ∀ j, j ≤ k → ∀ y Ψ h, Eloc P.m₀ (newLevelTerms Tm) j y Ψ h = 0 :=
+    fun j hj y Ψ h => by simp [Eloc, newLevelTerms_E_le Tm hj]
+  have hMlocz : ∀ j, j ≤ k → ∀ x Ψ h g, Mloc P.m₀ (newLevelTerms Tm) j x Ψ h g = 0 :=
+    fun j hj x Ψ h g => by simp [Mloc, newLevelTerms_M_le Tm hj]
+  refine
+    { gs_spec := ?_, analyticE := ?_, analyticM := ?_, rotE := ?_, pavingGS := ?_, eucE := ?_,
+      eucEloc := ?_, rotM := ?_, eucM := ?_, eucMloc := ?_, localE := ?_, localM := ?_,
+      boundE := ?_, boundM := ?_ }
+  · intro j hj1 hjk X hX
+    by_cases hk : j ≤ k
+    · rw [newLevelTerms_gs_le Tm hk X]
+      exact ⟨(levelGS_strong hj1 _ X).subset, (levelGS_strong hj1 _ X).noAbove⟩
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk]
+      exact hgs X hX
+  · intro j hj1 hjk y X hX hy
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_E_le Tm hk, Pi.zero_apply]
+      exact analyticOnNhd_const
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_E Tm hk, newLevelTerms_gs Tm hk]
+      exact (hanE y X hX hy).mono fun p hp => hdom _ _ _ hp
+  · intro j hj1 hjk x X hX hx
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_M_le Tm hk, Pi.zero_apply]
+      exact analyticOnNhd_const
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_M Tm hk, newLevelTerms_gs Tm hk]
+      exact (hanM x X hX hx).mono fun p hp => ⟨hdom _ _ _ hp.1, hp.2⟩
+  · intro j hj1 hjk y X hX hy R hR Ψ h h1 h2
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_E_le Tm hk, Pi.zero_apply]
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1 h2
+      rw [newLevelTerms_E Tm hk]
+      exact hrotE y X hX hy R hR Ψ h (hdom _ _ _ h1) (hdom _ _ _ h2)
+  · intro j hj1 hjk X hX r hr i
+    by_cases hk : j ≤ k
+    · rw [newLevelTerms_gs_le Tm hk, newLevelTerms_gs_le Tm hk]
+      by_cases hi : i ≤ j
+      · simp only [levelGS, hi, ↓reduceIte, Finset.coe_univ, Set.image_univ]
+        exact (Equiv.range_eq_univ _).symm
+      · simp [levelGS, hi]
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk]
+      exact hpav X hX r hr i
+  · intro j hj1 hjk y X hX hy r hr Ψ h h1 h2
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_E_le Tm hk, Pi.zero_apply]
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1 h2
+      rw [newLevelTerms_E Tm hk]
+      exact heucE y X hX hy r hr Ψ h (hdom _ _ _ h1) (hdom _ _ _ h2)
+  · intro j hj1 hjk y r hr Ψ h h1 h2
+    by_cases hk : j ≤ k
+    · rw [hElocz j hk, hElocz j hk]
+    · obtain rfl := hlt hjk hk
+      have e : ∀ y' Ψ' h', Eloc P.m₀ (newLevelTerms Tm) (k + 1) y' Ψ' h' =
+          Eloc P.m₀ Tm (k + 1) y' Ψ' h' := fun _ _ _ => by simp [Eloc, newLevelTerms_E Tm hk]
+      rw [e, e]
+      exact heucEloc hjk y r hr Ψ h (hdom _ _ _ h1) (hdom _ _ _ h2)
+  · intro j hj1 hjk x X hX hx R hR Ψ h g hg hg' h1 h2
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_M_le Tm hk, Pi.zero_apply, Matrix.mulVec_zero]
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1 h2
+      rw [newLevelTerms_M Tm hk]
+      exact hrotM x X hX hx R hR Ψ h g hg hg' h1 h2
+  · intro j hj1 hjk x X hX hx r hr Ψ h g h1 h2
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_M_le Tm hk, Pi.zero_apply]
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1 h2
+      rw [newLevelTerms_M Tm hk]
+      exact heucM x X hX hx r hr Ψ h g (hdom _ _ _ h1) (hdom _ _ _ h2)
+  · intro j hj1 hjk x r hr Ψ h g h1 h2
+    by_cases hk : j ≤ k
+    · rw [hMlocz j hk, hMlocz j hk]
+    · obtain rfl := hlt hjk hk
+      have e : ∀ x' Ψ' h' g', Mloc P.m₀ (newLevelTerms Tm) (k + 1) x' Ψ' h' g' =
+          Mloc P.m₀ Tm (k + 1) x' Ψ' h' g' := fun _ _ _ _ => by simp [Mloc, newLevelTerms_M Tm hk]
+      rw [e, e]
+      exact heucMloc hjk x r hr Ψ h g (hdom _ _ _ h1) (hdom _ _ _ h2)
+  · intro j y X Ψ Ψ' h h' hag
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_E_le Tm hk, Pi.zero_apply]
+    · by_cases hk1 : j ≤ k + 1
+      · obtain rfl := hlt hk1 hk
+        rw [newLevelTerms_E Tm hk]
+        exact hlocE y X Ψ Ψ' h h' hag
+      · simp only [hEj j hk1, Pi.zero_apply]
+  · intro j x X Ψ Ψ' h h' g g' hag
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_M_le Tm hk, Pi.zero_apply]
+    · by_cases hk1 : j ≤ k + 1
+      · obtain rfl := hlt hk1 hk
+        rw [newLevelTerms_M Tm hk]
+        exact hlocM x X Ψ Ψ' h h' g g' hag
+      · simp only [hMj j hk1, Pi.zero_apply]
+  · intro j hj1 hjk y X hX hy Ψ h h1
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_E_le Tm hk, Pi.zero_apply, norm_zero]
+      positivity
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1
+      rw [newLevelTerms_E Tm hk]
+      exact hbdE y X hX hy Ψ h (hdom _ _ _ h1)
+  · intro j hj1 hjk x X hX hx Ψ h g h1 hg
+    by_cases hk : j ≤ k
+    · simp only [newLevelTerms_M_le Tm hk, Pi.zero_apply]
+      have h0 : vn (0 : Fin N → ℂ) = 0 := by simp [vn]
+      rw [h0]
+      have hLpos : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+      positivity
+    · obtain rfl := hlt hjk hk
+      rw [newLevelTerms_gs Tm hk] at h1
+      rw [newLevelTerms_M Tm hk]
+      exact hbdM x X hX hx Ψ h g (hdom _ _ _ h1) hg
+
+open Classical in
 /-- **The clauses of the new level at one torus from local families with (A1)–(A5)** (route R-LOC):
 the label inputs `hTlblock`, `hTlan`, `hTlloc`, `hTlbd`, `hTlrot`, `hDz` of
 `localClass_newLevel_of_expansion_cast` from the families `f z` of the step chain's coefficient
@@ -386,8 +537,12 @@ member at the scale `k` with the regime index `k₀`:
 * `gs_hat` — the generating sets of the new level of the step map are the cast local sets
   `𝔹_{k+1}(X̂)` of ruling R13 (`hatGSOf`; the definition of `Φ`);
 * `clauses` — the clauses of the new level at the step's weights and mass
-  (`NewLevelClausesAt`, from `newLevelClausesAt_of_localFamilies` at the families of the chain) and
-  their reading as the term clauses of `newLevelTerms` on the class domain `sfDom` (bridge (i));
+  (`NewLevelClausesAt`, from `newLevelClausesAt_of_localFamilies` at the families of the chain), the
+  inclusion of the class domain `sfDom` of the image at the level `k + 1` in their domain (the mass
+  response from the step mass to the new birth mass) and the complex rotations of the source terms,
+  which bridge (i) (`sfTermClauses_newLevelTerms_of_clauses`) turns into the term clauses of
+  `newLevelTerms` on `sfDom`;
+* `top` — the levels above `k + 1` vanish;
 * `torusIndep` — the torus independence of the new level. -/
 structure NewLevelOpenAt (d N L : ℕ) [NeZero L] (P6 : Def6.Consts) (m₁ : ℕ) (ϱ : ℝ) (k₀ k : ℕ)
     (sf' : SFData d L m₁ (k + 1) N ϱ) : Prop where
@@ -400,8 +555,16 @@ structure NewLevelOpenAt (d N L : ℕ) [NeZero L] (P6 : Def6.Consts) (m₁ : ℕ
       (DM : CTorus d L N₂ m₁ (k + 1) →
         (Fld d L N₂ m₁ (k + 1) N × Fld d L N₂ m₁ (k + 1) N) × Fld d L N₂ m₁ (k + 1) N → Fin N → ℂ),
       NewLevelClausesAt P6 a ν (sf'.Tm N₂) Dz DM ∧
-      (NewLevelClausesAt P6 a ν (sf'.Tm N₂) Dz DM →
-        SFTermClauses P6 (sfDom P6 k₀ sf' N₂) (newLevelTerms (sf'.Tm N₂)))
+      (∀ (G : GeneratingSet d L (N₂ * L ^ m₁) (k + 1) ϱ) Ψ h,
+        (sfDom P6 k₀ sf' N₂).dom (k + 1) G Ψ h →
+          (xiFieldDom a ν (P6.eps d L) : FieldDom d L N₂ m₁ (k + 1) N ϱ).dom (k + 1) G Ψ h) ∧
+      (∀ x X, IsPolyDom P6.m₀ (k + 1) X → x ∈ X → ∀ R : Matrix (Fin N) (Fin N) ℂ,
+        IsRot R → ∀ Ψ h g, Def6.l1 g < 1 → Def6.l1 (rotField R g) < 1 →
+        (sfDom P6 k₀ sf' N₂).dom (k + 1) ((sf'.Tm N₂).gs (k + 1) X) Ψ h →
+        (sfDom P6 k₀ sf' N₂).dom (k + 1) ((sf'.Tm N₂).gs (k + 1) X) (rotField R Ψ) (rotField R h) →
+        (sf'.Tm N₂).M (k + 1) x X (rotField R Ψ) (rotField R h) (rotField R g) =
+          R.mulVec ((sf'.Tm N₂).M (k + 1) x X Ψ h g))
+  top : ∀ (N₂ : ℕ) [NeZero N₂], ∀ j, k + 1 < j → (sf'.Tm N₂).E j = 0 ∧ (sf'.Tm N₂).M j = 0
   torusIndep : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂))
 
 section Input
@@ -421,6 +584,7 @@ ties), the other clauses are the inputs. -/
 theorem sfNewLevelInput_of_open
     (hL3 : ∀ κ c₉, 3 ≤ (T κ c₉).L)
     (hhat : ∀ κ c₉, hatScale (T κ c₉).L (C7 κ c₉).m₁ (ϱ κ c₉) < (P6 κ c₉).m₀)
+    (hE₀ : ∀ κ c₉, 0 ≤ (P6 κ c₉).E₀) (hc₉' : ∀ κ c₉, 0 < (P6 κ c₉).c₉)
     (hopen : ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
       ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 → ∀ [NeZero (T κ c₉).L],
       ∀ k : ℕ, 1 ≤ k → k < kZero d (T κ c₉).L β ν →
@@ -438,8 +602,9 @@ theorem sfNewLevelInput_of_open
   dsimp only [SFNewLevelQ]
   refine ⟨?_, ?_, ?_, O.torusIndep⟩
   · intro N₂ _ hN₂
-    obtain ⟨_, _, _, _, hcl, hbr⟩ := O.clauses N₂ hN₂
-    exact hbr hcl
+    obtain ⟨_, _, _, _, hcl, hdom, hrotM⟩ := O.clauses N₂ hN₂
+    exact sfTermClauses_newLevelTerms_of_clauses _ (hE₀ κ c₉) (hc₉' κ c₉) hdom (O.top N₂) hrotM
+      hcl
   · intro N₂ _ hN₂ X hX
     rw [O.gs_hat N₂ hN₂ X hX]
     exact gsSpecStrong_hatGSOf (hL3 κ c₉) (hhat κ c₉) X
