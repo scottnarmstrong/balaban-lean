@@ -1325,6 +1325,7 @@ public import Balaban.Fluctuation.HoleStepPointLocal
 public import Balaban.Fluctuation.HoleStepOldLocal
 public import Balaban.Fluctuation.HoleStepStanding
 public import Balaban.LargeField.Background.HoleStepSets
+public import Balaban.LargeField.Background.HoleStepCover
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
 public import Balaban.Fluctuation.StepIdentityInhabited
