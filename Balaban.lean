@@ -1896,6 +1896,8 @@ public import Balaban.LargeField.Base.KF0BoxLift
 public import Balaban.Polymer.MayerTransport
 public import Balaban.LargeField.Base.KF0AllPlusGasC
 public import Balaban.Polymer.MayerSupport
+public import Balaban.Polymer.SteinerGas
+public import Balaban.Polymer.LocalGas
 public import Balaban.Polymer.MayerMarksPY
 public import Balaban.LargeField.Base.KF0AllPlusComplex
 public import Balaban.LargeField.Base.KF0HaloAffine
