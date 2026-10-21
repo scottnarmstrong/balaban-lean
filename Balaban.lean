@@ -116,6 +116,7 @@ public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
 public import Balaban.Background.DataPatch
+public import Balaban.Background.DataPatchScaled
 public import Balaban.Background.RestrictSvec
 public import Balaban.Background.Calculus
 public import Balaban.Background.AbstractGreen
