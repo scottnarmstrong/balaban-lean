@@ -138,6 +138,31 @@ theorem jBlock_eq_of_blkOf_eq {x y : Torus d (1 * n * L ^ 1)} (h : blkOf x = blk
   have := congrArg (fun z : Torus d n => (baseSector_coarse L n).symm ▸ z) h3
   simpa only [cast_roundtrip_rev (F := fun m : ℕ => Torus d m) (baseSector_coarse L n)] using this
 
+/-- **The Gaussian side of the integral over the spins of the good region of a base record**:
+the failed-cube factor at the retained spins times the Gaussian prefactor times the standard
+Gaussian integral of the remainder, for the transport `R` of the Gaussian form. -/
+def recordGaussRHS (P : Finset (Torus d n)) (regimeB : Prop) (β a₀ ν δ₀ : ℝ)
+    (a : ℕ → ℝ) (h : EuclideanSpace ℝ (Fin N)) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (φ₀ : CfgT d N L n) (D : BgData G N)
+    (he : ∀ x, ‖bgCenter G a (if regimeB then ν else 0) D x‖ = 1)
+    (R : Config (G.Ω 1) N ≃ₗ[ℝ] Config (G.Ω 1) N) : ℂ :=
+  (recordWeightIn P regimeB ν δ₀ h θ φ₀ : ℂ) *
+    (((Real.sqrt β)⁻¹ ^ (Fintype.card (G.Ω 1) * (N - 1))) •
+      ((((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card (G.Ω 1) / 2) *
+        Real.sqrt (LinearMap.det (gaussForm (bgCenter G a (if regimeB then ν else 0) D)
+          (bgHess G a (if regimeB then ν else 0) D)))⁻¹ : ℝ) : ℂ) *
+        ∫ ψ, chartGaussRem β (β * (ν - (if regimeB then ν else 0)) / 2)
+          (bgCenter G a (if regimeB then ν else 0) D) he
+          (bgHess G a (if regimeB then ν else 0) D) h (sourceΩ G g)
+          (baseExtConst G β a₀ (if regimeB then ν else 0)
+            (β * (ν - (if regimeB then ν else 0)) / 2) h θ g φ₀)
+          (fun ψ => recordWeightOut P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ))
+          (action G a (if regimeB then ν else 0) D
+            (fun p : G.Ω 1 × Fin N => ((bgCenter G a (if regimeB then ν else 0) D p.1 p.2 :
+              ℝ) : ℂ)))
+          (tangentProj (bgCenter G a (if regimeB then ν else 0) D) he (R ψ))
+          ∂(stdGaussian (G.Ω 1) N))) 
+
 variable {G} in
 /-- **The integral over the spins of the good region of a base record.**  Let `br` be a base
 record with failed cubes `P` and good region `Ω`, `G` the generating set with `G.Ω 1` the fine set
@@ -176,22 +201,7 @@ theorem baseRecord_physical_chartGaussian {Rk : ℝ}
               ∑ x : Torus d (L * n), ∑ i : Fin N,
                 g x i * (((baseMerge G φ₀ ψ x : EuclideanSpace ℝ (Fin N)) i : ℝ) : ℂ)))
           ∂(Measure.pi fun _ : G.Ω 1 => (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere) =
-        (recordWeightIn P regimeB ν δ₀ h θ φ₀ : ℂ) *
-          (((Real.sqrt β)⁻¹ ^ (Fintype.card (G.Ω 1) * (N - 1))) •
-            ((((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card (G.Ω 1) / 2) *
-              Real.sqrt (LinearMap.det (gaussForm (bgCenter G a (if regimeB then ν else 0) D)
-                (bgHess G a (if regimeB then ν else 0) D)))⁻¹ : ℝ) : ℂ) *
-              ∫ ψ, chartGaussRem β (β * (ν - (if regimeB then ν else 0)) / 2)
-                (bgCenter G a (if regimeB then ν else 0) D) he
-                (bgHess G a (if regimeB then ν else 0) D) h (sourceΩ G g)
-                (baseExtConst G β a₀ (if regimeB then ν else 0)
-                  (β * (ν - (if regimeB then ν else 0)) / 2) h θ g φ₀)
-                (fun ψ => recordWeightOut P regimeB ν δ₀ h θ (baseMerge G φ₀ ψ))
-                (action G a (if regimeB then ν else 0) D
-                  (fun p : G.Ω 1 × Fin N => ((bgCenter G a (if regimeB then ν else 0) D p.1 p.2 :
-                    ℝ) : ℂ)))
-                (tangentProj (bgCenter G a (if regimeB then ν else 0) D) he (R ψ))
-                ∂(stdGaussian (G.Ω 1) N))) := by
+        recordGaussRHS (G := G) P regimeB β a₀ ν δ₀ a h θ g φ₀ D he R := by
   intro he
   obtain ⟨ψ₀, hψ₀⟩ := hex
   have hnn : ∀ i, i < 1 → baseSectorN L n i = L * baseSectorN L n (i + 1) :=
