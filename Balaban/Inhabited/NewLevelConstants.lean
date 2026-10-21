@@ -537,4 +537,190 @@ theorem exists_collarBase_newLevel (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL :
 
 end Tower
 
+section Combined
+
+/-- **The β-dependent conditions of L5 for `β ≥ β₀`, uniformly in the scale.**  At the constants
+`κ, B_G, B_{G₂}, m₁` of a tower, for every `α₀, m, cap > 0` and `K_O ≥ 0` there is `β₀ ≥ 1` such
+that for `β ≥ β₀`, every scale `k ≥ 1`, every step radius `t ≥ α₀ L^{-α(k+1)}`, every fluctuation
+radius `δ₁ ≥ m t` and every `0 < p₁ ≤ A₁ (log β_k)^p`, `β_k = β L^{k(d-2)}`: the radii of the
+zero-source and bridge marks exist with `hsmZ` against `cap` (`newLevel_radii_of`), and the marked
+radius of the old terms satisfies `hmr`, `hca` and `hsmO` with `K_O` against `cap`
+(`newLevel_markedRad_of`). -/
+theorem newLevel_beta_of {d L N : ℕ} [NeZero L] [NeZero N] (hd : 3 ≤ d) (hL : 3 ≤ L) {A₁ : ℝ}
+    (hA : 0 ≤ A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ) (hγ1 : γ < 1 / 2) (m₁ : ℕ)
+    {κ BG BG₂ α₀ m cap KO : ℝ} (hBG₂ : 0 ≤ famConst d L BG₂ κ) (hρ : 0 ≤ rho4 d L N BG κ)
+    (hα₀ : 0 < α₀) (hm : 0 < m) (hcap : 0 < cap) (hKO : 0 ≤ KO) :
+    ∃ β₀ : ℝ, 1 ≤ β₀ ∧ ∀ β : ℝ, β₀ ≤ β → ∀ k : ℕ, 1 ≤ k → ∀ t δ₁ p₁ : ℝ,
+      α₀ * (L : ℝ) ^ (-((((d : ℝ) - 2) / 2 - γ) * ((k : ℝ) + 1))) ≤ t → m * t ≤ δ₁ → 0 < p₁ →
+      p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+      (∃ cψ r R₁ R U : ℝ, 0 ≤ cψ ∧ 2 * p₁ ≤ cψ ∧
+        corrU * markedRad d L N k 1 κ cψ
+          ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < t ∧ 1 < R₁ ∧ 0 < r ∧
+        (2 * R₁ + r) * p₁ ≤ cψ ∧ 0 < R ∧
+        (R + R) * markedRad d L N k 1 κ cψ
+          ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < t ∧ 2 * U ≤ R ∧
+        17 / 16 ≤ U ∧
+        8 * (|β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + m₁)) ^ d *
+          ‖energyBdScaled d L N (compWeight L 1) k (cK2' d L N (famConst d L BG₂ κ) * t) t
+            (rho4 d L N BG κ)‖ / r ^ 3)) ≤ cap) ∧
+      0 < markedRad d L N k 1 κ p₁ ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) ∧
+      corrU ≤ δ₁ / (2 * markedRad d L N k 1 κ p₁
+        ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
+      corrU / (δ₁ / (2 * markedRad d L N k 1 κ p₁
+        ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)))) * KO ≤ cap := by
+  have hd0 : 0 < d := by omega
+  have hL1 : 1 ≤ L := by omega
+  have hsN : 0 ≤ Real.sqrt (N : ℝ) := Real.sqrt_nonneg _
+  have hC : 0 ≤ covSupMaxC d L N κ + 1 := by
+    have := covSupMaxC_nonneg_general (N := N) hd0 hL κ; linarith
+  have hc0 : 0 ≤ cK2' d L N (famConst d L BG₂ κ) := cK2'_nonneg hBG₂
+  have hKZ := zeroSourceConst_nonneg (N := N) (m₁ := m₁) (κ := κ) hc0 hρ hd0 hL
+  obtain ⟨β₁, hβ₁, H₁⟩ := exists_beta_pLog_pow_le hd hL1 hA p 1 hγ0 hγ1
+    (K := 64 * Real.sqrt N * (covSupMaxC d L N κ + 1)) (by positivity) hα₀
+  obtain ⟨β₂, -, H₂⟩ := exists_beta_pLog_pow_le hd hL1 hA p 1 hγ0 hγ1
+    (K := 64 * Real.sqrt N * (covSupMaxC d L N κ + 1)) (by positivity) (mul_pos hm hα₀)
+  obtain ⟨β₃, -, H₃⟩ := exists_beta_pLog_pow_le hd hL1 hA p 1 hγ0 hγ1
+    (K := 3 * Real.sqrt N * (covSupMaxC d L N κ + 1) * KO) (by positivity)
+    (mul_pos hcap (mul_pos hm hα₀))
+  obtain ⟨β₄, -, H₄⟩ := exists_beta_pLog_pow_le hd hL1 hA p 3 hγ0 hγ1
+    (K := zeroSourceConst d L N m₁ κ (cK2' d L N (famConst d L BG₂ κ)) (rho4 d L N BG κ)) hKZ
+    (mul_pos hcap hα₀)
+  refine ⟨max (max β₁ β₂) (max β₃ β₄), le_max_of_le_left (le_max_of_le_left hβ₁),
+    fun β hβ k hk t δ₁ p₁ ht hδ hp hpL => ?_⟩
+  have hβ1 : β₁ ≤ β := le_trans (le_max_left _ _) ((le_max_left _ _).trans hβ)
+  have hβ2 : β₂ ≤ β := le_trans (le_max_right _ _) ((le_max_left _ _).trans hβ)
+  have hβ3 : β₃ ≤ β := le_trans (le_max_left _ _) ((le_max_right _ _).trans hβ)
+  have hβ4 : β₄ ≤ β := le_trans (le_max_right _ _) ((le_max_right _ _).trans hβ)
+  have hβ0 : 0 < β := by linarith
+  set b : ℝ := β * (L : ℝ) ^ (k * (d - 2)) with hb
+  have hb0 : 0 < b := by rw [hb]; positivity
+  set u : ℝ := (L : ℝ) ^ (-((((d : ℝ) - 2) / 2 - γ) * ((k : ℝ) + 1))) with hu
+  have hsb : 0 ≤ Real.sqrt b := Real.sqrt_nonneg _
+  have ht' : α₀ * u * Real.sqrt b ≤ t * Real.sqrt b := mul_le_mul_of_nonneg_right ht hsb
+  have ht0 : 0 < t := lt_of_lt_of_le (by positivity) ht
+  have e1 : ∀ c : ℝ, c * α₀ * (u * Real.sqrt b) = c * (α₀ * u * Real.sqrt b) := fun c => by ring
+  have h1 : 64 * Real.sqrt N * (covSupMaxC d L N κ + 1) * p₁ ≤ t * Real.sqrt b := by
+    have := H₁ β hβ1 k p₁ hp.le hpL
+    rw [pow_one] at this
+    linarith
+  have h1' : 64 * Real.sqrt N * (covSupMaxC d L N κ + 1) * p₁ ≤ m * (t * Real.sqrt b) := by
+    have := H₂ β hβ2 k p₁ hp.le hpL
+    rw [pow_one, e1] at this
+    exact this.trans (mul_le_mul_of_nonneg_left ht' hm.le)
+  have h2' : 3 * Real.sqrt N * (covSupMaxC d L N κ + 1) * KO * p₁ ≤
+      cap * (m * (t * Real.sqrt b)) := by
+    have := H₃ β hβ3 k p₁ hp.le hpL
+    rw [pow_one] at this
+    have e3 : cap * (m * α₀) * (u * Real.sqrt b) = cap * (m * (α₀ * u * Real.sqrt b)) := by ring
+    rw [e3] at this
+    exact this.trans (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left ht' hm.le) hcap.le)
+  have h3 : zeroSourceConst d L N m₁ κ (cK2' d L N (famConst d L BG₂ κ)) (rho4 d L N BG κ) *
+      p₁ ^ 3 ≤ cap * (t * Real.sqrt b) := by
+    have := H₄ β hβ4 k p₁ hp.le hpL
+    rw [e1] at this
+    exact this.trans (mul_le_mul_of_nonneg_left ht' hcap.le)
+  exact ⟨newLevel_radii_of hd hL hk ht0 hβ0 rfl hp hBG₂ hρ h1 h3,
+    newLevel_markedRad_of hd hL hk ht0 hb0 hp hm hδ hcap hKO h1' h2'⟩
+
+/-- **The conditions on constants of L5 hold together with the constants of the class chain**
+(the satisfiability of the premises of `StepTowerG.newLevel_localFamily_of_class` that are
+conditions on constants, hard rule 10).  For `L^{-α} ≤ 1/16`, `α = (d-2)/2 - γ` (`L` large), there
+are `κ_min`, a base tower `T₀` of the chain (`CollarBase` at `q = L^{-α}`) and a label rate with
+the closeness ratio `K₂ Q ≤ 1/16` and `NewLevelNumerics`, such that
+* for every `α₀, m, cap > 0`, `K_O ≥ 0` there is `β₀ ≥ 1` with the radii of the marks (`hsmZ`) and
+  `hmr`, `hca`, `hsmO` for `β ≥ β₀` at every scale `k ≥ 1`, every step radius
+  `t ≥ α₀ L^{-α(k+1)}` and fluctuation radius `δ₁ ≥ m t` (`newLevel_beta_of`);
+* for the class constants `P₀` with `(N + 1) K₂ ε₁ ≤ 1/8` (`α₀` small), every `λ ≤ 17/16` and every
+  `τ` with `2 K_m τ ≤ 1/9` (the flow constant small), the (DL-gap) holds at the chain's radii
+  `t = λ ε_{k+1}`, `δ₃ = Q t`, `δ_fl = F min(t, η λ ε_k)` at every `1 ≤ j ≤ k`
+  (`newLevel_dlGap`). -/
+theorem exists_newLevelConstants (d L N : ℕ) [NeZero L] [NeZero N] (hd : 3 ≤ d) (hL : 3 ≤ L)
+    (hN : 2 ≤ N) (m₀ : ℕ) {A₁ : ℝ} (hA : 0 ≤ A₁) (p : ℕ) {γ : ℝ} (hγ0 : 0 < γ)
+    (hγ1 : γ < 1 / 2) (hLq : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) ≤ 1 / 16) :
+    ∃ (κmin : ℝ) (T₀ : StepTowerG d L N κmin) (κdec : ℝ),
+      CollarBase d L N m₀ ((L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) T₀ κdec ∧
+      xiK2 d L N * ((N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+        (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤ 1 / 16 ∧
+      Nonempty (NewLevelNumerics d L N T₀.m₁ T₀.c T₀.BG T₀.κ T₀.t T₀.c₂ T₀.BG₂ T₀.δc
+        (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) ((2 * bgK1 d L N + 2) * xiC1 d * T₀.t)) ∧
+      (∀ α₀ m cap KO : ℝ, 0 < α₀ → 0 < m → 0 < cap → 0 ≤ KO → ∃ β₀ : ℝ, 1 ≤ β₀ ∧
+        ∀ β : ℝ, β₀ ≤ β → ∀ k : ℕ, 1 ≤ k → ∀ t δ₁ p₁ : ℝ,
+          α₀ * (L : ℝ) ^ (-((((d : ℝ) - 2) / 2 - γ) * ((k : ℝ) + 1))) ≤ t → m * t ≤ δ₁ →
+          0 < p₁ → p₁ ≤ pLog A₁ p (β * (L : ℝ) ^ (k * (d - 2))) →
+          (∃ cψ r R₁ R U : ℝ, 0 ≤ cψ ∧ 2 * p₁ ≤ cψ ∧
+            corrU * markedRad d L N k 1 T₀.κ cψ
+              ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < t ∧ 1 < R₁ ∧
+            0 < r ∧ (2 * R₁ + r) * p₁ ≤ cψ ∧ 0 < R ∧
+            (R + R) * markedRad d L N k 1 T₀.κ cψ
+              ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) < t ∧ 2 * U ≤ R ∧
+            17 / 16 ≤ U ∧
+            8 * (|β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + T₀.m₁)) ^ d *
+              ‖energyBdScaled d L N (compWeight L 1) k
+                (cK2' d L N (famConst d L T₀.BG₂ T₀.κ) * t) t (rho4 d L N T₀.BG T₀.κ)‖ /
+                r ^ 3)) ≤ cap) ∧
+          0 < markedRad d L N k 1 T₀.κ p₁
+            ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)) ∧
+          corrU ≤ δ₁ / (2 * markedRad d L N k 1 T₀.κ p₁
+            ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) ∧
+          corrU / (δ₁ / (2 * markedRad d L N k 1 T₀.κ p₁
+            ((((β * (L : ℝ) ^ (k * (d - 2))) ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)))) * KO ≤ cap) ∧
+      (∀ P₀ : Consts, P₀.γ = γ → 0 < P₀.α₀ →
+        ((N : ℝ) + 1) * cK2 d L N * P₀.eps d L 1 ≤ 1 / 8 →
+        ∀ lam : ℝ, 0 ≤ lam → lam ≤ 17 / 16 → ∀ τ : ℝ,
+        (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * (2 * τ) ≤ 1 / 9 →
+        ∀ k : ℕ, 1 ≤ k → ∀ j, 1 ≤ j → j ≤ k →
+          (2 * (lam * P₀.eps d L (k + 1) +
+              xiK2 d L N * ((N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+                (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) * (lam * P₀.eps d L (k + 1))) +
+              xiK2 d L N * ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1) *
+                min (lam * P₀.eps d L (k + 1))
+                  ((1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / (4 * xiK2 d L N *
+                    ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))) *
+                    (lam * P₀.eps d L k)))) +
+            2 * ((N : ℝ) + 1) * (cK2 d L N * (lam * P₀.eps d L (k + 1) +
+              xiK2 d L N * ((N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+                (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) * (lam * P₀.eps d L (k + 1))) +
+              xiK2 d L N * ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1) *
+                min (lam * P₀.eps d L (k + 1))
+                  ((1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / (4 * xiK2 d L N *
+                    ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))) *
+                    (lam * P₀.eps d L k)))) ^ 2)) *
+            (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * (2 * τ)) ≤ P₀.eps d L j) := by
+  have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
+  have h3d : (3 : ℝ) ≤ d := by exact_mod_cast hd
+  have hq0 : 0 < (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) := Real.rpow_pos_of_pos hLpos _
+  have hq1 : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) < 1 :=
+    Real.rpow_lt_one_of_one_lt_of_neg (by exact_mod_cast (by omega : 1 < L)) (by linarith)
+  obtain ⟨κmin, T₀, κdec, hT, hQ16, hNLN⟩ :=
+    exists_collarBase_newLevel d L N hd hL hN m₀ hq0 hq1 (by norm_num : (0 : ℝ) < 1 / 16)
+  refine ⟨κmin, T₀, κdec, hT, hQ16, hNLN, fun α₀ m cap KO hα₀ hm hcap hKO =>
+    newLevel_beta_of hd hL hA p hγ0 hγ1 T₀.m₁ T₀.fam_nonneg T₀.rho_nonneg hα₀ hm hcap hKO, ?_⟩
+  intro P₀ hγ hα₀ hquad lam hlam0 hlam τ hτ k hk j hj1 hjk
+  have hαP : P₀.alpha d = ((d : ℝ) - 2) / 2 - γ := by unfold Consts.alpha; rw [hγ]
+  obtain ⟨hQ, hF, hη⟩ := T₀.collar_consts_pos hq1 rfl rfl rfl
+  have hK : 0 < xiK2 d L N := by
+    have := cK2_pos d L N
+    unfold xiK2; positivity
+  have hKFη : xiK2 d L N * ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1)) *
+      ((1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / (4 * xiK2 d L N *
+        ((N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1)))) =
+      (1 - (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ))) / 4 := by
+    have hc5 : 5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1 ≠ 0 := by
+      have := Localization.cK2'_nonneg (d := d) (L := L) (N := N) T₀.fam_nonneg; linarith
+    have hN0 : (N : ℝ) ≠ 0 := by exact_mod_cast (by omega : N ≠ 0)
+    field_simp
+  have hgap := classEpsG_gap (d := d) (L := L) hα₀.le k
+  rw [hαP] at hgap
+  have hρ := dlGap_factor_le hq0.le hLq (mul_nonneg hK.le hQ) (mul_comm (xiK2 d L N) _ ▸
+    (by rw [mul_comm]; exact hQ16) : xiK2 d L N * _ ≤ 1 / 16) hlam
+  have hpos : ∀ j, 0 < P₀.eps d L j := fun j => by
+    have := epsTail_pos j
+    unfold Consts.eps epsSeq
+    positivity
+  exact newLevel_dlGap (N := N) (classEpsG_antitone (d := d) (L := L) hα₀.le
+      (by rw [hαP]; linarith)) hpos hk hgap hK.le hQ hF.le hη.le hlam0 rfl hKFη hρ
+      (cK2_pos d L N).le (by linarith) hτ j hj1 hjk
+
+end Combined
+
 end Balaban.Inhabited
