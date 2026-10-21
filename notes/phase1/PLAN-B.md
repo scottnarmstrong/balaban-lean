@@ -235,6 +235,23 @@ approved declaration.
 - **Recommendation (coordinator): approve (a).**
 - **Amendment (W1146, 2026-10-21): the set must contain the sites read by the irrelevant part.** The inherited term of a label `(j, y, X)` is the irrelevant part `irrelTorus`, which reads the field on `X` and at the neighbours `y + L^j e_μ` of `y` (`irrelTorus_congr`); these may lie outside `X`. The chain identifies the term at the composed field with the class term at the whole-level composed field only on the top layer `j` of the composition set (`composeData_agree_on_X`, used through the chain's clause `GsSpecStrong j (XL τ) (Gj τ)`, `XL τ = X ∪ □(y)`). On `𝔹_j(X)` the neighbours outside `X` lie in a lower layer (or the collar, `j = 1`), where the composed field is a different object, so composing on `𝔹_j(X)` itself breaks that identification. The set to require is `𝔹_j(X⁺)`, `X⁺` the union of `X` and the `𝒞_j`-cubes of the neighbours `y + L^j e_μ` (`y ∈ X` aligned): the chain then composes on `Tm.gs j X` (top layer `X⁺ ⊇ X ∪ st₊(y)`), the inclusion of the composed data in the class domain is the room lemma (`d2raw_mem_birthXiDom_of_top`), and the settings construction takes `X_j = X⁺` with the cover set `XL τ ⊇ X⁺` (`settings_family_castLocalB_spec_gen`). The R13 definition change is held until this is settled.
 
+## Ruling R15 asked (2026-10-21, ORCH-A): the cell term of `irrelTorus` — renormalize only polymers inside a fixed box
+- **Problem.** At the cell `X = □(y)`, `irrelTorus` adds `Σ_{X'∋y}(T_{X'} + Φ_{y,X'})` over every polymer through `y`,
+  wrapping ones included. The flow's couplings are common to all tori, so the renormalization conditions hold only in
+  infinite volume (`RenormCondAlong`), not on each torus (P1 (H.6)); the sum is a small nonzero defect that differs
+  between two tori, and the exact two-torus agreement at the cell (`CellTermsAgree`, blocker 7's step clause) is false.
+- **Proposal.** With `B(y)` the box of radius `r_k = ⌊L^{m₀+m₁+k}/8⌋` fine sites around `y` (1/8 of the side of the
+  smallest torus with `L^{m₀} ∣ N₁`; polymers in it do not wind on any torus of the family):
+  `ℰ_irrel(y,X) = ℰ(y,X) − A_{y,X} − 1[X ⊆ B(y)](T_X + Φ_{y,X}) + 1[X = □(y)] Σ_{X'∋y, X'⊆B(y)} (T_{X'} + Φ_{y,X'})`.
+  Larger polymers keep their relevant parts and are small by size (`d_j(X) ≳ L^{k−j}`). Only the body of `irrelTorus`
+  changes; the torus identity `Σ ℰ_irrel = ℰ`, the class and the infinite-volume conditions are unchanged; the top one or
+  two levels get no extraction (the chain treats the top `n₁` levels separately).
+- **Blocker 6 (the bound at the cell label).** No torus form of the conditions is needed, under either definition: the
+  landed `norm_filed_le_power` (W980) bounds the full torus filed sum by `C E₀ L^{−(k−j)(d+α₃)}` on every torus with
+  `L^{m₀} ∣ N₁`; under R15 the large shapes add a tail of the same order.
+- **Work (ORCH-A, worker A1, branch `orchA-cellterm`).** The core `irrelTorusOn` (the landed `irrelTorus` its instance),
+  its identity, bounds and two-torus agreement at the box instance; after approval, the body switch.
+
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
 - **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
   Sets: G = 𝔹_k(W_k) (`p6OldC`) ≺ G′ = (𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1} of (2.17) (`p6TopC`), datum ψ_k off Ω_{k+1}
