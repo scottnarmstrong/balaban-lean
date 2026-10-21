@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.Polymer.TwoTorusXGreen
+public import Balaban.Polymer.TwoTorusXOps
 public import Balaban.Localization.Decoupled2XLocal
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
