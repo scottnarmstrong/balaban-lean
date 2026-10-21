@@ -27,6 +27,34 @@ open MeasureTheory Balaban Balaban.Multiscale Balaban.Background Balaban.LargeFi
 
 namespace Balaban.RootFSpine
 
+section Consts
+
+variable (d L N : ℕ) [NeZero L]
+
+/-- The constant `Γ = (2 K₁ + 2) · 2 C₄ K₁ · 4 (d + 1)`: the radii of the domain transport are
+`Γ δ_k` times fixed numbers. -/
+noncomputable def gammaConst : ℝ :=
+  (2 * bgK1 d L N + 2) * 2 * compC4 d * bgK1 d L N * 4 * ((d : ℝ) + 1)
+
+/-- The cap `min (1, thm73C1, c₀)` on the radii. -/
+noncomputable def deltaCap : ℝ := min (min 1 (thm73C1 d L N)) (bgC0 d L N)
+
+theorem gammaConst_pos : 0 < gammaConst d L N := by
+  unfold gammaConst
+  have := bgK1_ge_one d L N
+  have := compC4_ge d
+  positivity
+
+theorem deltaCap_pos (hd : 0 < d) : 0 < deltaCap d L N := by
+  unfold deltaCap thm73C1
+  have h1 := bgC1_pos_of (L := L) (N := N) hd
+  have h2 := bgC0_pos (L := L) (N := N) d hd
+  have h3 := bgK1_ge_one d L N
+  have h4 := compC4_ge d
+  exact lt_min (lt_min one_pos (by positivity)) h2
+
+end Consts
+
 section Ctx
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
@@ -116,6 +144,19 @@ theorem delta_pos_of_mem_Asupp (hL : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν)
   have h0 : 0 < C.cs.delta (j + 1) / Real.sqrt ν := lt_of_le_of_lt (rn_nonneg _) hdir
   exact (div_pos_iff_of_pos_right (Real.sqrt_pos.2 hν)).1 h0
 
+/-- If the tolerance is not positive, the small-field factor of the whole torus vanishes. -/
+theorem sfFactor2_univ_eq_zero_of_not_pos (vc : CorrCoef S.d) (g : GIdx S n M K N → ℂ)
+    (hL2 : 2 ≤ S.L) {ν : ℝ} (hν : 0 < ν)
+    (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν) (hpos : ¬ 0 < C.cs.delta (j + 1)) :
+    (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g) = fun _ => 0 := by
+  funext ψk
+  have h0 : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv = 0 := by
+    by_contra hne
+    exact hpos (delta_pos_of_mem_Asupp C hv ψk hL2 hν hμ hne)
+  unfold sfFactor2
+  rw [h0]; simp
+
 variable {P6 : Def6.Consts} {k0 : ℕ}
 
 /-- **`sfFactor2` of the whole torus is integrable, from the numerical smallness of the tolerance**
@@ -155,15 +196,7 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
   have hL2 : 2 ≤ S.L := by omega
   by_cases hpos : 0 < C.cs.delta (j + 1)
   swap
-  · have hzero : (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
-        sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g) = fun _ => 0 := by
-      funext ψk
-      have h0 : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv = 0 := by
-        by_contra hne
-        exact hpos (delta_pos_of_mem_Asupp C hv ψk hL2 hν hμ hne)
-      unfold sfFactor2
-      rw [h0]; simp
-    rw [hzero]
+  · rw [sfFactor2_univ_eq_zero_of_not_pos C hv vc g hL2 hν hμ hpos]
     exact integrable_zero _ _ _
   have hd0 : 0 < S.d := by have := HB.hd; omega
   have hK1 := bgK1_ge_one S.d S.L N
@@ -226,6 +259,78 @@ theorem integrable_sfFactor2_univ_of_numerics (vc : CorrCoef S.d)
     (fun ψ hψ z i => abs_phiBar_le_one C hv ψ HB (hAD hψ) z i)
     (fun ψ hψ b => norm_le_two_of_inPsiTilde C hv ψ (htη.trans (by linarith)) (hparent ψ hψ) b)
     hRt hdomR (hμ.trans hμBg.symm)
+
+/-- **`sfFactor2` of the whole torus is integrable, from `Γ δ_k ≤ min (c, ε_j)`** (A6-3 (a), item 1;
+`gammaConst`, `deltaCap`): the single smallness condition on the tolerance against the radii
+`ε_j`, `1 ≤ j ≤ k`. -/
+theorem integrable_sfFactor2_univ_of_delta_le (vc : CorrCoef S.d)
+    (hm0 : P6.m₀ = C.m₀) (hTm : SFTermClauses P6 (sfDom P6 k0 C.sf C.N₁) (C.sf.Tm C.N₁))
+    {fac : ℕ → ℝ} (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
+    (g : GIdx S n M K N → ℂ) (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hL : 3 ≤ S.L) {ν : ℝ} (hν : 0 < ν) (hunit : ‖hv‖ = 1)
+    (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hμBg : C.cs.muBg (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))
+    (hBgJ : ∀ jj, 1 ≤ jj → jj ≤ j + 1 → BgHyp S.d S.L (j + 1) ϱ
+      (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1))) (physMass S.L jj (C.sf.ν jj)))
+    (hratioJ : ∀ jj, 1 ≤ jj → jj ≤ j + 1 → physMass S.L jj (C.sf.ν jj) * ((S.L : ℝ) ^ jj) ^ 2 ≤
+      4 * (sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ jj) ^ 2))
+    (hBgR : BgHyp S.d S.L (j + 1) ϱ (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)))
+      (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))))
+    (hratioR : Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1)) *
+        ((S.L : ℝ) ^ (j + 1)) ^ 2 ≤
+      4 * (sfBgMassAt S.L (j + 1) ν * ((S.L : ℝ) ^ (j + 1)) ^ 2))
+    (hnum : gammaConst S.d S.L N * C.cs.delta (j + 1) ≤ deltaCap S.d S.L N)
+    (hnumε : ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+      gammaConst S.d S.L N * C.cs.delta (j + 1) ≤ P6.eps S.d S.L jj) :
+    Integrable fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g := by
+  have hd0 : 0 < S.d := by have := HB.hd; omega
+  have hK1 := bgK1_ge_one S.d S.L N
+  have hC4 := compC4_ge S.d
+  have hd0r : (0 : ℝ) < S.d := by exact_mod_cast hd0
+  have hΓ : gammaConst S.d S.L N * C.cs.delta (j + 1) =
+      (2 * bgK1 S.d S.L N + 2) *
+        (2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))))) := by
+    unfold gammaConst; ring
+  have hcap1 : deltaCap S.d S.L N ≤ 1 :=
+    (min_le_left _ _).trans (min_le_left _ _)
+  have hcapη : deltaCap S.d S.L N ≤ thm73C1 S.d S.L N :=
+    (min_le_left _ _).trans (min_le_right _ _)
+  have hcap0 : deltaCap S.d S.L N ≤ bgC0 S.d S.L N := min_le_right _ _
+  by_cases hpos : 0 < C.cs.delta (j + 1)
+  · have hΓpos := gammaConst_pos S.d S.L N
+    have hone : 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) ≤
+        gammaConst S.d S.L N * C.cs.delta (j + 1) := by
+      refine mul_le_mul_of_nonneg_right ?_ hpos.le
+      unfold gammaConst
+      have : 1 ≤ (2 * bgK1 S.d S.L N + 2) * 2 * compC4 S.d * bgK1 S.d S.L N := by
+        have h1 : 1 ≤ 2 * bgK1 S.d S.L N + 2 := by linarith
+        have h2 : 1 ≤ compC4 S.d := by linarith
+        have : 1 ≤ (2 * bgK1 S.d S.L N + 2) * 2 := by linarith
+        have := mul_le_mul this h2 zero_le_one (by linarith)
+        have := mul_le_mul this hK1 zero_le_one (by positivity)
+        nlinarith
+      nlinarith [mul_pos hd0r hd0r]
+    have h2η : 2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1)))) ≤
+        gammaConst S.d S.L N * C.cs.delta (j + 1) := by
+      rw [hΓ]
+      have h0 : 0 ≤ 2 * (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1)))) := by
+        positivity
+      nlinarith
+    refine integrable_sfFactor2_univ_of_numerics C hv vc hm0 hTm hRt g hgl HB hL hν hunit hμ hμBg
+      hact hβ hBgJ hratioJ hBgR hratioR ?_ ?_ ?_ ?_ ?_
+    · have : (S.d + 1) * C.cs.delta (j + 1) ≤ 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) := by
+        nlinarith [mul_pos hd0r hpos]
+      linarith
+    · linarith
+    · linarith
+    · linarith
+    · intro jj hj1 hj
+      rw [← hΓ]; exact hnumε jj hj1 hj
+  · rw [sfFactor2_univ_eq_zero_of_not_pos C hv vc g (by omega) hν hμ hpos]
+    exact integrable_zero _ _ _
 
 end Ctx
 
