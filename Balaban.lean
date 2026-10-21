@@ -3019,6 +3019,7 @@ public import Balaban.Inhabited.NewLevelKappaData
 public import Balaban.Inhabited.NewLevelCoeffPairs
 public import Balaban.Inhabited.NewLevelCanonHE
 public import Balaban.Inhabited.NewLevelCanonHPrem
+public import Balaban.Inhabited.NewLevelClassCoeff
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport

@@ -15,8 +15,8 @@ public import Balaban.Inhabited.NewLevelClassE
 
 `canon_hprem`: the premises `TermPairPremisesAt` of two corresponding old terms (`termPairPremisesAt_of_data`),
 with the agreement of the old terms on the margin from `oldTerm_E_agree` (the torus independence of the
-small-field terms away from the distinguished cell and the cell case `hcellcase` of the geometry data) and
-the geometry of the canonical covers (`hgeom`).
+small-field terms away from the distinguished cell and the cell case `CellTermsAgree`) and the geometry of
+the canonical covers (`hgeom`).
 -/
 
 @[expose] public section
@@ -50,6 +50,29 @@ local notation "GB" => levelGS (d := d) (L := L) (N₁ := N₁') (m₁ := m₁) 
   (k + 1) le_rfl
 
 attribute [local irreducible] NewLevelSystem.Dom
+
+/-- **The agreement of the irrelevant term at the distinguished cell** (the named hypothesis
+`hcellcase` of `oldTerm_E_agree`): for the term of level `j` at `y₀` whose polymer `X₀` is the cell
+of `y₀` (the case that `irrelTorus_boxAgree` does not cover: there the relevant parts of all polymers
+at `y₀`, among them those wrapping around the torus, enter), the irrelevant terms of the classes `C`,
+`C'` at `(j, y₀, X₀)` and `(j, bm y₀, bm '' X₀)` agree on fields that agree on `Z` under `bm`. -/
+def CellTermsAgree (C : StepClass d L N₁ m₁ k N ϱ) (C' : StepClass d L N₁' m₁ k N ϱ)
+    (i₀ i₁ : Fin N) (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1)) (X₀ Z : Set (CTorus d L N₁ m₁ (k + 1))) :
+    Prop :=
+  X₀ = box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j))
+      (L * cellSide L C.m₀ m₁ j) →
+    ∀ (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) (r' : RawData d L (N₁' * L ^ m₁) (k + 1) N),
+      (∀ z ∈ Z, r.1 z = r'.1 (bm z) ∧ r.2 z = r'.2 (bm z)) →
+      irrelTorus C'.m₀ C'.Tm i₀ i₁ j (bm y₀) (bm '' X₀) r'.1 r'.2 =
+        irrelTorus C.m₀ C.Tm i₀ i₁ j y₀ X₀ r.1 r.2
+
+/-- The cell case holds vacuously when the polymer is not the cell of `y₀` (non-vacuity of
+`CellTermsAgree`). -/
+theorem CellTermsAgree.of_ne {C : StepClass d L N₁ m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
+    {i₀ i₁ : Fin N} {j : ℕ} {y₀ : CTorus d L N₁ m₁ (k + 1)} {X₀ Z : Set (CTorus d L N₁ m₁ (k + 1))}
+    (h : X₀ ≠ box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j))
+      (L * cellSide L C.m₀ m₁ j)) : CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z :=
+  fun hc => absurd hc h
 
 /-- **The premises of the comparison of corresponding old terms of two canonically pinned
 systems.** -/
@@ -94,11 +117,7 @@ theorem canon_hprem
         (∀ z ∈ Z, z ∈ (F.GjC j y₀ X₀).Ω 1 →
           (∀ y ∈ (F.GjC j y₀ X₀).blk ((F.GjC j y₀ X₀).layerIndex z) z, y ∈ Z) ∧
           (∀ y ∈ (F.GkC j y₀ X₀).blk ((F.GkC j y₀ X₀).layerIndex z) z, y ∈ Z)) ∧
-        (X₀ = box (cbase (cellSide L C.m₀ m₁ j) y₀ - natT (fun _ => L / 2 * cellSide L C.m₀ m₁ j)) (L * cellSide L C.m₀ m₁ j) →
-          ∀ (r : RawData d L (N₁ * L ^ m₁) (k + 1) N) (r' : RawData d L (N₁' * L ^ m₁) (k + 1) N),
-            (∀ z ∈ Z, r.1 z = r'.1 (bm z) ∧ r.2 z = r'.2 (bm z)) →
-            irrelTorus C'.m₀ C'.Tm i₀ i₁ j (bm y₀) (bm '' X₀) r'.1 r'.2 =
-              irrelTorus C.m₀ C.Tm i₀ i₁ j y₀ X₀ r.1 r.2))
+        CellTermsAgree C C' i₀ i₁ j y₀ X₀ Z)
     {K : NewLevelConsts} (hK : NS.HasConsts K) (hK' : NS'.HasConsts K)
     {δc : ℝ} (hMX : cstarX d L * Real.exp (N0 d L * NS.O.κ) ≤ (L : ℝ) ^ m₁)
     (hmar : decDomMargin d L N NS.O.BG NS.O.κ (xiC1 d * t) < δc)
