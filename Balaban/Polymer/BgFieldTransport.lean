@@ -52,7 +52,7 @@ theorem liftOp_mulVec_apply {ι : Type*} [Fintype ι] (A : Matrix ι ι ℂ) (φ
 
 variable (a : ℕ → ℝ) (ν : ℝ)
 
-theorem dirichletOperator_apply (α : G.Ω 1 → ℂ) (x y : G.Ω 1) :
+theorem dirichletOperator_apply_zero_add (α : G.Ω 1 → ℂ) (x y : G.Ω 1) :
     dirichletOperator G a ν α x y = dirichletOperator G a ν 0 x y + if x = y then α x else 0 := by
   simp [dirichletOperator, Matrix.diagonal_apply]
 
@@ -67,8 +67,8 @@ theorem dirichletOp_mulVec_transport (e : G.Ω 1 ≃ G'.Ω 1)
   rw [liftOp_mulVec_apply, liftOp_mulVec_apply]
   rw [← e.sum_comp]
   refine Finset.sum_congr rfl fun y _ => ?_
-  rw [dirichletOperator_apply (G := G') a ν (transMult e α) (e x) (e y),
-    dirichletOperator_apply (G := G) a ν α x y, hop]
+  rw [dirichletOperator_apply_zero_add (G := G') a ν (transMult e α) (e x) (e y),
+    dirichletOperator_apply_zero_add (G := G) a ν α x y, hop]
   simp [transFld, transMult, e.injective.eq_iff]
 
 variable {D : BgData G N} {D' : BgData G' N}
