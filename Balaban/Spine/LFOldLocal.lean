@@ -18,8 +18,9 @@ P5 (2.17) on the cover torus), the cover `coverOf G′`, the localization domain
 (`locDomsLF`) and the uncut core, the `r`-collar of `A_X = X ∩ Ω_{k+1}` (`collarCoreC`), the
 coefficient `T(X, J)` vanishes unless every cube of `J` lies in the region reached from the read unit
 points.  Every geometric hypothesis is proved here; the remaining inputs are the datum of the step in
-the chart `Ξ^c(G′; 1, ε)` (OPEN-H7-MIXED), the numerical conditions of Theorems I-4b, I-4c, and the
-locality of the record's term in the field (its (D7) clause, `hB`).
+the domain `Ψ̃^c(δ, δ)` of Theorem I-4b (implied by the chart `Ξ^c(G′; 1, ε)`; the background part of
+OPEN-H7-MIXED), the numerical conditions of Theorems I-4b, I-4c, and the locality of the record's
+term in the field (its (D7) clause, `hB`).
 
 * `readPts`: the read unit points of an old term (the unit points of `A_X`);
 * `locDomsLF_deep`, `locDomsLF_ball`, `collarCoreC_ball`: the domains lie in the deep part of
@@ -120,12 +121,12 @@ theorem collarCoreC_ball (H : RegionHistory S n R k0 K) {k : ℕ} {ϱ ϱ' : ℝ}
 /-- **The coefficients of the re-expansion of an old term of a history are rooted at its read points**
 (OPEN-P6-ACTIVE-COMPOSITE-LOC under R12, history instance): `T(X, J) = 0` unless every cube of `J`
 lies in the region `Y(J)` reached from the read unit points of `X` through chains of active centres.
-The inputs: the datum of the step in the chart `Ξ^c(G′; 1, ε)` (OPEN-H7-MIXED), the numerical
-conditions of Theorems I-4b and I-4c, the cover constants of the cube-aligned set `G′`, a collar radius
+The inputs: the datum of the step in the domain `Ψ̃^c(δ, δ)` of Theorem I-4b (the background part of
+OPEN-H7-MIXED), the numerical conditions of Theorems I-4b and I-4c, the cover constants of the cube-aligned set `G′`, a collar radius
 `r ≥ 6 L^{k+1+m₁}`, and the locality of the old term in the field (`hB`, the (D7) clause). -/
 theorem oldCoefLF_eq_zero_of_not_reached (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z₀ : ℝ)
-    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG eps δc κ : ℝ}
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ : ℝ}
     (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
     (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
     (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
@@ -133,14 +134,14 @@ theorem oldCoefLF_eq_zero_of_not_reached (H : RegionHistory S n R k0 K) {k : ℕ
     (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 ≤ κ)
     (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
     (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
-    (heps : 0 < eps) (hsmall : (4 * S.d + 6) * ((2 * S.d + 1) * eps) ≤ 1)
-    (hc7 : xiC1 S.d * eps ≤ c7 S.d S.L N BG κ)
-    (hphi : (3 + K4 S.d S.L N BG κ) * (xiC1 S.d * eps) < 1 / 2)
-    (hmarD : decDomMargin S.d S.L N BG κ (xiC1 S.d * eps) < δc)
-    (hαD : K4 S.d S.L N BG κ * (xiC1 S.d * eps) < coerciveConst S.d / 2)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
     (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4)
-    (hD : XiCData (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).G' (compWeight S.L a₁) ν
-      (k + 1) 1 eps (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).D')
+    (hD : InDomainC (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).G' ν δb δb
+      (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).D')
     {D : ℕ} (hDD : S.L ^ (k + 1) + 2 * S.L ^ (k + 1) ≤ D) (ρ : ℕ) {r : ℕ}
     (hr : 6 * S.L ^ (k + 1 + m₁) ≤ r)
     (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).U)
@@ -190,8 +191,9 @@ theorem oldCoefLF_eq_zero_of_not_reached (H : RegionHistory S n R k0 K) {k : ℕ
     (Rd := readPts g hM1 H (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ) X)
     (X₁loc := locDomsLF g hM1 (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ) ρ)
     (fun b _ => locDomsLF_deep g hM1 (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ) ρ b)
-  have hloc := (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).oldInterp_localityAEOn_of_xiCData
-    hS Sb SX (Cchi_nonneg S.d S.L) HB hκ hMc hMX heps hsmall hc7 hphi hmarD hαD hsm HB.massLe hD hDD
+  have hloc :=
+    (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ).oldInterp_localityAEOn_of_inDomainC
+    hS Sb SX (Cchi_nonneg S.d S.L) HB hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm HB.massLe hD hDD
     (locDomsLF g hM1 (holeStepLF g hnn hM1 H hk hk1 hρ ψ z₀ h₀ a₁ ν β p₁ δ) ρ)
     (collarCoreC (c := g.c) (H.step k) hM1 r X) inner ψout hB hR1.le hRk hcov hdeep
   exact coef_eq_zero_of_not_connected_on hR1 hloc (fun _ _ _ _ _ => rfl) (Set.mem_univ ψin) hJ
