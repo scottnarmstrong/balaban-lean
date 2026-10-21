@@ -5,6 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
+public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.LargeField.R.RRemovedFactor
 public import Balaban.LargeField.R.RGasCoreFinal
 public import Balaban.LargeField.Budget.Summability
@@ -81,7 +82,8 @@ internal variables, at fixed parameters). -/
 theorem norm_integral_le_of_kerBound {a : LocalHistory S n M K} {k : ℕ}
     {A : Set (InternalVars a k)}
     {T : LFKernel (OutT N R a k) (SubCfg N a k A) (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N)}
-    {κ : ℝ} (hT : KerBound a k T κ) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
+    {κ : ℝ} {Hs : EuclideanSpace ℝ (Fin N) → Prop} (hT : KerBoundOn a k T κ Hs)
+    (hv : EuclideanSpace ℝ (Fin N)) (hH : Hs hv) (g : GIdx S n M K N → ℂ)
     (hg : g ∈ l1Ball (GIdx S n M K N)) (par : OutPar N R a k)
     (F : OutT N R a k → SubCfg N a k A → ℂ) (hF : ∀ o x, ‖F o x‖ ≤ 1) :
     ‖∫ oz, ∫ x, T.w (mergeOut a k oz par) x hv g * F (mergeOut a k oz par) x
@@ -105,7 +107,7 @@ theorem norm_integral_le_of_kerBound {a : LocalHistory S n M K} {k : ℕ}
           rw [← ofReal_norm]
           exact ENNReal.ofReal_le_one.2 (hF _ _)
       _ = _ := mul_one _
-  have h3 := h1.trans ((lintegral_mono h2).trans (hT hv g hg par))
+  have h3 := h1.trans ((lintegral_mono h2).trans (hT hv hH g hg par))
   rw [← ofReal_norm] at h3
   exact (ENNReal.ofReal_le_ofReal_iff (Real.exp_pos _).le).1 h3
 
@@ -131,13 +133,14 @@ theorem norm_tau_le_of_removed_kernels (hLd : 8 ≤ S.L ^ S.d) {k : ℕ} (hkK : 
       (EuclideanSpace ℝ (Fin N)) (GIdx S n M K N))
     (F : Zt → ∀ a : LocalHistory S n M K, OutT N R a k → SubCfg N a k (Aint a) → ℂ)
     (hF : ∀ z a o x, ‖F z a o x‖ ≤ 1) (hv : EuclideanSpace ℝ (Fin N))
+    {Hs : EuclideanSpace ℝ (Fin N) → Prop} (hH : Hs hv)
     (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N))
     (par : Zt → ∀ a : LocalHistory S n M K, OutPar N R a k)
     (hτ : ∀ z, τ z = ∑ a ∈ As z, ∫ oz, ∫ x, (T a).w (mergeOut a k oz (par z a)) x hv g *
         F z a (mergeOut a k oz (par z a)) x ∂(subMeasure N a k (Aint a))
         ∂(outPartMeasure N (Vblk R a k) (ZBlk a k)))
     {p H : ℝ} (c : Zt → ℕ)
-    (hker : ∀ z, ∀ a ∈ As z, KerBound a k (T a) (p + H * (c z : ℝ) + 1 + a.logC k)) (z : Zt) :
+    (hker : ∀ z, ∀ a ∈ As z, KerBoundOn a k (T a) (p + H * (c z : ℝ) + 1 + a.logC k) Hs) (z : Zt) :
     ‖τ z‖ ≤ Real.exp (-p - H * (c z : ℝ)) := by
   classical
   rw [hτ z]
@@ -145,7 +148,7 @@ theorem norm_tau_le_of_removed_kernels (hLd : 8 ≤ S.L ^ S.d) {k : ℕ} (hkK : 
         F z a (mergeOut a k oz (par z a)) x ∂(subMeasure N a k (Aint a))
         ∂(outPartMeasure N (Vblk R a k) (ZBlk a k))‖ ≤
       Real.exp (-(p + H * (c z : ℝ) + 1)) * Real.exp (-(a.logC k)) := fun a ha => by
-    refine (norm_integral_le_of_kerBound (hker z a ha) hv g hg (par z a) (F z a)
+    refine (norm_integral_le_of_kerBound (hker z a ha) hv hH g hg (par z a) (F z a)
       (hF z a)).trans (le_of_eq ?_)
     rw [← Real.exp_add]; congr 1; ring
   refine (norm_sum_le _ _).trans ((Finset.sum_le_sum h1).trans ?_)
@@ -226,7 +229,7 @@ theorem gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run_of_
     (hτ : ∀ z, τ z = ∑ a ∈ Hs z, ∫ oz, ∫ x, (Tr a).w (mergeOut a k oz (parK z a)) x hv gk *
         Fa z a (mergeOut a k oz (parK z a)) x ∂(subMeasure N a k (Aint a))
         ∂(outPartMeasure N (Vblk R a k) (ZBlk a k)))
-    (hker : ∀ z, ∀ a ∈ Hs z, KerBound a k (Tr a) (S.A2 * S.lam k ^ S.p2 +
+    (hker : ∀ z, ∀ a ∈ Hs z, KerBoundAt a k (Tr a) hv (S.A2 * S.lam k ^ S.p2 +
       HRun P.H0 P.beta k * BudgetConsts.cubeVol S (cz z).1.card + 1 + a.logC k))
     (hh : fac * Real.exp fac * Real.exp (κ' * cG S.d S.L) *
         (1 * (K0 S.d S.L (aEnt S.d S.L + 1) + 1)) +
@@ -240,7 +243,7 @@ theorem gas_activity_bound_physical_of_D7BdryPost_halo_of_removed_factor_run_of_
   have hrem : ∀ z, ‖τ z‖ ≤ Real.exp (-p2Run S.A2 S.p2 b k - H * ((cz z).1.card : ℝ)) := by
     intro z
     have h1 := norm_tau_le_of_removed_kernels (k0 := k0) hLd hkK (fun z => (cz z).1) Hs hHs Tr Fa
-      hFa hv gk hgk parK hτ (p := S.A2 * S.lam k ^ S.p2) (H := H) (fun z => (cz z).1.card)
+      hFa hv (Hs := fun h => h = hv) rfl gk hgk parK hτ (p := S.A2 * S.lam k ^ S.p2) (H := H) (fun z => (cz z).1.card)
       (fun z a ha => by
         have e : S.A2 * S.lam k ^ S.p2 + H * (((cz z).1.card : ℕ) : ℝ) + 1 + a.logC k =
             S.A2 * S.lam k ^ S.p2 + HRun P.H0 P.beta k *

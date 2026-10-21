@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.RootFInputs
+public import Balaban.Green.FinalSpinCurry
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Ring
 
@@ -22,11 +23,15 @@ two parts of the last integral of P7 §4:
   `q_j(X; g) = ∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩` (`inhObs`): the terms (H.7) of the
   small-field datum `𝔰 = F.sf` at the constant configuration, read on Root-F's torus (LFR Definition
   IV.5.2, first item; P4 (H.7), P7 (4.17); they are not changed after their creation, P4 (1.8));
-* at the scale `k + 1`, the activities of the small-field part `Ξ^sf` of the last integral
-  (`sfIntegral`: the integral of the small-field factor `χ_k(T) exp(𝒜_k + ℱ_k + ℛ^{(k)})(T)` of
-  (D1) on the whole torus, the term of P7 (4.1)–(4.9) with no large-field region), which collect
+* at the scale `k + 1`, the activities of the small-field part `Ξ_box` of the last integral
+  (`sfBoxIntegral`: the fluctuation integral of the small-field factor
+  `χ_k(T) exp(𝒜_k + ℱ_k + ℛ^{(k)})(T)` of (D1) on the whole torus around the constant saddle, in the
+  variable `w = K^{1/2}(ψ_k - h)` of the final Hessian `K = β_k D`, with the cutoff `|w| ≤ p₁` of
+  P4 (6.6): the term of P7 (4.9)–(4.11) with no final large-field region), which collect
   `ℳ^{(k+1)}_0` and the polymer terms `ℛ^{(k+1)}_n` (P7 (4.9), (4.15)–(4.17)), plus the
-  activities `𝒫^{(k+1)}` of the large-field part `∫ ρ / Ξ^sf` (the linked gas of P7 (4.11)–(4.14)).
+  activities `𝒫^{(k+1)}` of the large-field part `∫ ρ / Ξ_box` (the linked gas of P7 (4.11)–(4.14);
+  it contains the part of `{χ_k ≠ 0}` outside the box, where P7 (4.9) creates the final large-field
+  regions).
 
 The sub-inputs:
 
@@ -41,12 +46,15 @@ The sub-inputs:
   transported to Root-F's quarter box.
 * `FinalSmallFieldInput` (the small-field last integral; P4 §6 (6.1)–(6.7), P7 (4.1)–(4.9) and
   (4.15)–(4.17), LFR Theorem IV.4.1; blocker 5, small-field half):
-  `Ξ^sf = exp(E + ⟨g, h⟩ + ∑_{j ≤ k} ∑_X q_j(X; g) + ∑_X a(X; g))` with scale-`(k+1)` activities
+  `Ξ_box = exp(E + ⟨g, h⟩ + ∑_{j ≤ k} ∑_X q_j(X; g) + ∑_X a(X; g))` with scale-`(k+1)` activities
   `a` in Root-F's form at half the amplitude.
 * `FinalLargeFieldInput` (the large-field part: the final-scale fluctuation representation and the
   linked gas; P7 (4.9)–(4.14), P5 (3.18), LFR Lemma IV.4.2 and the proof of Theorem IV.4.1;
-  blocker 5, item 18): `∫ ρ = Ξ^sf exp(∑_X b(X; g))` with scale-`(k+1)` activities `b` in Root-F's
+  blocker 5, item 18): `∫ ρ = Ξ_box exp(∑_X b(X; g))` with scale-`(k+1)` activities `b` in Root-F's
   form at half the amplitude.
+
+Both halves take the cutoff `p₁ = cut κ c₉ β_k` of the box as a parameter, and
+`lastIntegralInput_of_parts` combines them at the same cutoff.
 
 The clause of locality in `g` of the inherited activities is proved here from the clause `localM`
 of the class (`inhObs_actLocal`). The assembly (`lastIntegralInput_of_parts`) builds the activities
@@ -299,7 +307,7 @@ theorem sideDiv_eq_sfIdx {M m₀ K : ℕ} (hM : M = L ^ (m₀ + m₁)) (hk : k �
     Nat.pos_of_ne_zero (mul_ne_zero (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L)))
   have e : M * sides L K nK K * L ^ K = sfIdx L m₀ (sides L K nK) k * (L ^ m₁ * L ^ k) := by
     have hK : L ^ K = L ^ (K - k) * L ^ k := by rw [← pow_add]; congr 1; omega
-    simp only [sides, sfIdx, Nat.sub_self, pow_zero, mul_one]
+    rw [sides_self, sfIdx, sides_of_le hk]
     rw [hM, hK, pow_add]
     ring
   rw [e, Nat.mul_div_cancel _ hpos]
@@ -361,22 +369,99 @@ end Inherited
 ### The small-field part of the last integral
 -/
 
+section Gauss
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ}
+
+/-- **The integrand of the small-field factor in the Gaussian variable** (cut `Y`, form `Kq`,
+centre `ψ₀`): `sfFactor2 C vc Y (ψ₀ + Kq^{-1/2} w) · exp(½ Q_{Kq}(Kq^{-1/2} w))`. Its average
+against the standard Gaussian `γ`, times `Z_{Kq}`, is the integral of the small-field factor over
+the fields `ψ_k` (`integral_sfFactor2_gauss`). -/
+noncomputable def sfGaussIntegrand (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (Y : Set (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
+    (Kq : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ)
+    (ψ0 : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
+  sfFactor2 C vc Y ((Green.spinField (BlockAt S n M K k) N).symm
+      (Green.spinField (BlockAt S n M K k) N ψ0 + matAct (Green.pdSqrtInv Kq) w)) hv g *
+    ((Real.exp ((1 / 2) * Green.pdQuad Kq (matAct (Green.pdSqrtInv Kq) w)) : ℝ) : ℂ)
+
+/-- **The box of the Gaussian variable**: `{w | |w_p| ≤ p₁}` for every index `p` (every block and
+spin component). In P4 (6.6) this is the characteristic function `χ({|ψ| < p₁(β_k)})` of the
+fluctuation field after the change of variables `ψ' = β_k^{-1/2} C^{1/2} ψ`. -/
+def gaussBox (ι : Type*) (p1 : ℝ) : Set (ι → ℝ) := {w | ∀ p, |w p| ≤ p1}
+
+/-- A `k`-block of the fine torus as a site of the unit-lattice torus
+`𝕋_{M₁ (c n_k)} = Torus d (M₁ (c n_k) L^{k-k})` of the final Hessian: the inverse of the
+identification of `blockCfgOf` at `q = i = k` (`histScale_eq`). -/
+def sfBlockSite (C : SFCtx S n R M K N k m₁ ϱ) (y : BlockAt S n M K k) :
+    Torus S.d (C.geo.M1 * (C.geo.c * n k) * S.L ^ (k - k)) :=
+  torusCast (histScale_eq C.geo.hM C.hnn le_rfl C.hkK).symm y
+
+/-- **The quadratic form of the last integral** (P4 (6.4)–(6.6), P7 (4.3)–(4.7)): `K = β_k D` on
+`k`-blocks and spin components, with `D` the final Hessian (`finalHessian`;
+`D = a_k - a_k² Q G Q* + a_k² Q G h (h* G h)⁻¹ h* G Q*`, P4 (2.23) at the constant saddle `h`, with
+no next-scale averaging term) on the unit lattice, at the background mass `ν_k = μ_k L^{2k}` and the
+weight `a_k` of the class, read on the `k`-blocks through `sfBlockSite`. The coupling `β_k` is the
+class's (`C.sf.β k`). In the exponent of the small-field factor the action enters as
+`-β_k L^{-k(d-2)} A*_k` (`Ares2`), and `A*_k(h + v) = ½ L^{k(d-2)} ⟨v, D v⟩ + O(v³)` at equal action
+and background masses (`actStar2_univ_hessian`; the masses are equal for the members of the class,
+`sfActMass2_eq_muBg`): `½ Q_K(v)` is the quadratic part of `β_k L^{-k(d-2)} A*_k(h + v)`
+(`sfFinalK_hessian`). -/
+noncomputable def sfFinalK (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N)) :
+    Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ :=
+  Matrix.submatrix (C.sf.β k • finalHessian S.d (C.geo.M1 * (C.geo.c * n k) * S.L ^ k) (S.L ^ k)
+      (C.geo.M1 * (C.geo.c * n k) * S.L ^ (k - k)) (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+      (C.weights k) (fun i => hv i))
+    (fun p => (sfBlockSite C p.1, p.2)) (fun p => (sfBlockSite C p.1, p.2))
+
+/-- **The box integral of one torus** (P4 (6.6); P7 (4.9) with no final large-field region):
+`Z_K ∫ 1_{box(p₁)}(w) sfGaussIntegrand(w) dγ(w)`, the Gaussian average over the box `|w| ≤ p₁` of
+the integrand of the small-field factor of the whole torus (`Y = univ`), at the form `K = β_k D`
+(`sfFinalK`) and the centre `ψ₀ ≡ h`. -/
+noncomputable def ctxBoxIntegral (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) : ℂ :=
+  (Green.pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) *
+    ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
+      sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w
+        ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)
+
+end Gauss
+
 section SmallField
 
 variable {S : Setting} {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] [NeZero S.L] {N : ℕ}
   {geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M} {cs : OpConsts} {P : BudgetConsts}
   {P6 : Def6.Consts} {C7 : Consts7} {k : ℕ} {ϱ : ℝ}
 
-/-- **The small-field part of the last integral** on the torus `n_K` (P7 (4.1)–(4.9) with no
-large-field region; P4 §6 (6.1)–(6.7)): `Ξ^sf(g) = ∫ χ_k(T) exp(𝒜_k + ℱ_k + ℛ^{(k)})(T; ψ_k, h, g)
-dψ_k`, the integral over the fields of the `k`-blocks of the small-field factor of (D1) (second
-version, `sfFactor2`) on the whole torus, for the representation `F`, the correction coefficients
-`vc` and the physical field `hv`. -/
+/-- **The integral of the small-field factor over the whole torus** on the torus `n_K`:
+`∫ χ_k(T) exp(𝒜_k + ℱ_k + ℛ^{(k)})(T; ψ_k, h, g) dψ_k`, the integral over the fields of the
+`k`-blocks of the small-field factor of (D1) (second version, `sfFactor2`) on the whole torus, for
+the representation `F`, the correction coefficients `vc` and the physical field `hv`. It is the
+weight of the histories with no large-field region (`lastRegionWeight_empty_eq_sfIntegral`). It is
+not the small-field part of the last integral: on `{χ_k ≠ 0}` outside the box `|w| ≤ p₁` of the
+Gaussian variable (`sfBoxIntegral`) the source creates new large-field regions (P7 (4.9): the
+fluctuation integral is analyzed as in P5 §3, whose cutoff failures are the final large-field
+regions). -/
 noncomputable def sfIntegral (F : RepFam S R k0 K M N geo cs P k C7.m₁ ϱ)
     (hM6 : M = S.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ K) (vc : CorrCoef S.d)
     (hv : EuclideanSpace ℝ (Fin N)) (nK : ℕ) [NeZero nK] (g : GIdx S (sides S.L K nK) M K N → ℂ) :
     ℂ :=
   ∫ ψ, sfFactor2 (F.ctx hM6 hkK nK) vc Set.univ ψ hv g
+
+/-- **The small-field part of the last integral** on the torus `n_K` (P7 (4.9)–(4.11): the term
+with no final large-field region; P4 §6 (6.6)): `Ξ_box(g) = Z_K ∫ 1_{box(p₁)}(w) sfGaussIntegrand(w)
+dγ(w)`, the fluctuation integral of the small-field factor of the whole torus around the constant
+saddle `ψ_k ≡ h`, in the variable `w = K^{1/2}(ψ_k - h)` with `K = β_k D` the final Hessian of the
+class (`sfFinalK`), with the cutoff `|w| ≤ p₁` on every block and component (`gaussBox`), for the
+representation `F`, the correction coefficients `vc` and the physical field `hv`
+(`ctxBoxIntegral` of the context `F.ctx` of the torus). -/
+noncomputable def sfBoxIntegral (F : RepFam S R k0 K M N geo cs P k C7.m₁ ϱ)
+    (hM6 : M = S.L ^ (P6.m₀ + C7.m₁)) (hkK : k ≤ K) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (nK : ℕ) [NeZero nK]
+    (g : GIdx S (sides S.L K nK) M K N → ℂ) : ℂ :=
+  ctxBoxIntegral (F.ctx hM6 hkK nK) vc hv p1 g
 
 end SmallField
 
@@ -406,7 +491,7 @@ section Inputs
 
 variable (d N : ℕ) (δ : ℝ) (T : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts)
   (C7 : ℝ → ℝ → Consts7) (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts)
-  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ)
+  (M1 c : ℝ → ℝ → ℕ) (rH ϱ : ℝ → ℝ → ℝ) (cut : ℝ → ℝ → ℝ → ℝ)
 
 /-- **A6-1, the inherited observable terms in Root-F's form (the conversion; LFR Theorem IV.5.3
 items 2, 4, 5 for `j ≤ k_f`; P4 (H.7); FLUCTUATION Lemma 1.2 (G1)).** For a member `ρ` of `ℛ♭_k`
@@ -454,18 +539,25 @@ def InheritedAgreeInput : Prop :=
     7 / 8 < νk * ((T κ c₉).L : ℝ) ^ 2 →
     ActAgree d N (T κ c₉).L (T κ c₉).M kf (inhObs F.sf (P6 κ c₉).m₀ h)
 
-/-- **A6-3, the small-field part of the last integral (P4 §6 (6.1)–(6.7); P7 (4.1)–(4.9) with no
-large-field region and (4.15)–(4.17); LFR Theorem IV.4.1; blocker 5, small-field half).** For a
-member `ρ` of `ℛ♭_k` at the stopping scale (`ν_k > 7/8 L⁻²`, so the variational problem of the last
-integral is massive), with a representation `F`: on every torus of the family and every source of
-the unit `ℓ¹` ball, the integral `Ξ^sf` of the small-field factor on the whole torus (`sfIntegral`)
-is `exp(E + ⟨g, h⟩ + ∑_{j=1}^{k} ∑_X q_j(X; g) + ∑_X a(X; g))`, where `q_j` are the inherited
-observable activities (`inhObs`; the terms `⟨g, ℳ^{(j)}(·; h, h, g)⟩` of `ℱ_{k+1,0}`, P7 (4.17); they are created at the scales `j ≤ k` and not changed afterwards, LFR Definition IV.5.2 first item, so the pin `q = inhObs` is the source's) and
-`a` are activities of the scale `k + 1` in Root-F's form (`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top
-scale `k + 1` and half the amplitude `c₉`, at the scale `k + 1` only): the term `ℳ^{(k+1)}_0` and the polymer terms `ℛ^{(k+1)}_n`
-(P7 (4.9)), regrouped by the scale-`(k+1)` polymer `Ȳ` of their localization domain (LFR Definition
-IV.5.2). The agreement clause of `a` (`ActAgree` of `actAt (k + 1) a`, the one agreement obligation) comes from (D8) of the class and the locality of the last
-integral (LFR Theorem IV.5.3 item 7). -/
+/-- **A6-3, the small-field part of the last integral (P4 §6 (6.1)–(6.7); P7 (4.1)–(4.11), the
+term with no final large-field region, and (4.15)–(4.17); LFR Theorem IV.4.1; blocker 5, small-field
+half).** For a member `ρ` of `ℛ♭_k` at the stopping scale (`ν_k > 7/8 L⁻²`, so the variational problem
+of the last integral is massive), with a representation `F`: on every torus of the family and every
+source of the unit `ℓ¹` ball, the box integral `Ξ_box` (`sfBoxIntegral`: the fluctuation integral of
+the small-field factor of the whole torus in the variable `w = K^{1/2}(ψ_k - h)`, `K = β_k D` the final
+Hessian, with the cutoff `|w| ≤ p₁` of P4 (6.6), at the cutoff `p₁ = cut κ c₉ β_k`) is
+`exp(E + ⟨g, h⟩ + ∑_{j=1}^{k} ∑_X q_j(X; g) + ∑_X a(X; g))`, where `q_j` are the inherited
+observable activities (`inhObs`; the terms `⟨g, ℳ^{(j)}(·; h, h, g)⟩` of `ℱ_{k+1,0}`, P7 (4.17); they
+are created at the scales `j ≤ k` and not changed afterwards, LFR Definition IV.5.2 first item, so the
+pin `q = inhObs` is the source's) and `a` are activities of the scale `k + 1` in Root-F's form
+(`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top scale `k + 1` and half the
+amplitude `c₉`, at the scale `k + 1` only): the term `ℳ^{(k+1)}_0` and the polymer terms
+`ℛ^{(k+1)}_n` (P7 (4.9)), regrouped by the scale-`(k+1)` polymer `Ȳ` of their localization domain
+(LFR Definition IV.5.2). The agreement clause of `a` (`ActAgree` of `actAt (k + 1) a`, the one
+agreement obligation) comes from (D8) of the class and the locality of the last integral (LFR Theorem
+IV.5.3 item 7). The part of `{χ_k ≠ 0}` outside the box is not here: there the source creates new
+large-field regions (P7 (4.9)), and it belongs to the large-field half (`FinalLargeFieldInput`, at the
+same cutoff). -/
 def FinalSmallFieldInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -481,7 +573,8 @@ def FinalSmallFieldInput : Prop :=
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ l1Ball _ →
-        sfIntegral F hM6 hkK vc h nK g = Complex.exp (E nK + ∑ x, ∑ i, g (x, i) * (h i : ℂ)
+        sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g =
+          Complex.exp (E nK + ∑ x, ∑ i, g (x, i) * (h i : ℂ)
           + ∑ j ∈ Finset.Icc 1 k, ∑ X,
             inhObs F.sf (P6 κ c₉).m₀ h
               ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) * (T κ c₉).L ^ (kf + 1)) j X
@@ -493,14 +586,17 @@ def FinalSmallFieldInput : Prop :=
 and the linked gas; P7 (4.9)–(4.14), P5 (3.18); LFR Lemma IV.4.2 and the proof of Theorem IV.4.1;
 blocker 5, item 18).** For a member `ρ` of `ℛ♭_k` at the stopping scale, with a representation `F`:
 on every torus of the family and every source of the unit `ℓ¹` ball,
-`∫ ρ dψ_k = Ξ^sf exp(∑_X b(X; g))`, where `Ξ^sf` is the small-field part (`sfIntegral`) and `b`
-are activities of the scale `k + 1` in Root-F's form (`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top
-scale `k + 1` and half the amplitude `c₉`, at the scale `k + 1` only). In the source: the last integral of every history (P7 (4.1)–(4.9):
-the operators `𝕋'_{k+1}(Z', 𝔸')` with no free variable), the completion of the small-field functions
-to the whole torus (P7 (4.11): the term with no large-field region is `Ξ^sf`), the gas of the heavy
-objects `Z'` with weights bounded by (IV.4.1) `e^{-p₂(β_{k₀})/2 - H^{fin}|Z'|}` and the couplings
-`ℬ''` (linked: activating set and footprint), and its exponentiation (PE-L; P7 (4.12)–(4.14)) into
-`𝒫^{(k+1)}`, regrouped by scale-`(k+1)` polymers. -/
+`∫ ρ dψ_k = Ξ_box exp(∑_X b(X; g))`, where `Ξ_box` is the small-field part (`sfBoxIntegral`, at the
+cutoff `p₁ = cut κ c₉ β_k` of `FinalSmallFieldInput`) and `b` are activities of the scale `k + 1` in
+Root-F's form (`ObservableActivitiesAt`: the clauses of `ObservableActivities` with top scale `k + 1`
+and half the amplitude `c₉`, at the scale `k + 1` only). In the source: the last integral of every
+history (P7 (4.1)–(4.9): the operators `𝕋'_{k+1}(Z', 𝔸')` with no free variable), including the
+histories with no large-field region outside the box of the Gaussian variable (the part of
+`{χ_k ≠ 0}` where the fluctuation field exceeds `p₁` creates the final large-field regions, P7 (4.9)),
+the completion of the small-field functions to the whole torus (P7 (4.11): the term with no final
+large-field region is `Ξ_box`), the gas of the heavy objects `Z'` with weights bounded by (IV.4.1)
+`e^{-p₂(β_{k₀})/2 - H^{fin}|Z'|}` and the couplings `ℬ''` (linked: activating set and footprint), and
+its exponentiation (PE-L; P7 (4.12)–(4.14)) into `𝒫^{(k+1)}`, regrouped by scale-`(k+1)` polymers. -/
 def FinalLargeFieldInput : Prop :=
   ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ∃ β₀ : ℝ, ∀ β : ℝ, β₀ ≤ β →
   ∀ ν : ℝ, 0 < ν → ν * ((T κ c₉).L : ℝ) ^ 2 ≤ 7 / 8 →
@@ -516,20 +612,21 @@ def FinalLargeFieldInput : Prop :=
       ∀ (nK : ℕ) [NeZero nK]
         (g : GIdx 𝒮[d, T κ c₉, β, (cs₀ κ c₉).aKer] (sides (T κ c₉).L (kf + 1) nK) (T κ c₉).M
           (kf + 1) N → ℂ), g ∈ l1Ball _ →
-        ∫ ψ, ρ nK ψ g = sfIntegral F hM6 hkK vc h nK g *
+        ∫ ψ, ρ nK ψ g = sfBoxIntegral F hM6 hkK vc h (cut κ c₉ (F.sf.β k)) nK g *
           Complex.exp (∑ X, b ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
             (T κ c₉).L ^ (kf + 1)) (k + 1) X (fun x i => g (x, i)))
 
 /-- **The last integral from its sub-inputs** (LFR Theorem IV.4.1 with Definition IV.5.2 and Theorem
 IV.5.3): the activities are `p = q + 1_{j = k+1} (a + b)`, with `q` the inherited observable
 activities (`inhObs`; A6-1, A6-2, and locality from the class, `inhObs_actLocal`), `a` the
-activities of the small-field part `Ξ^sf` (A6-3) and `b` those of the large-field part `∫ ρ / Ξ^sf`
-(A6-4); `E` is the vacuum term of A6-3. The bounds: `q` at the scales `≤ k`, `a + b` at the scale
-`k + 1` with the amplitudes `c₉/4 + c₉/4`. The threshold is the largest of the four thresholds. -/
+activities of the small-field part `Ξ_box` (A6-3) and `b` those of the large-field part `∫ ρ / Ξ_box`
+(A6-4), the two halves at the same cutoff `cut`; `E` is the vacuum term of A6-3. The bounds: `q` at
+the scales `≤ k`, `a + b` at the scale `k + 1` with the amplitudes `c₉/4 + c₉/4`. The threshold is the
+largest of the four thresholds. -/
 theorem lastIntegralInput_of_parts (hB : InheritedBoundInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
     (hA : InheritedAgreeInput d N T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ)
-    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ) :
+    (hS : FinalSmallFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut)
+    (hL : FinalLargeFieldInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ cut) :
     LastIntegralInput d N δ T P6 C7 PB cs₀ M1 c rH ϱ := by
   intro κ hκ c₉ hc₉
   obtain ⟨β₁, h₁⟩ := hB κ hκ c₉ hc₉
