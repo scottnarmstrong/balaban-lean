@@ -219,7 +219,7 @@ theorem ratio_eq_exp {d N ℓ : ℕ} [NeZero ℓ] {Z I : (Torus d ℓ → Fin N 
 /-- The torus of the family with `n_K = q` top cubes is the admissible torus `M L^{kf+1} q`. -/
 theorem sideOf_eq (M L kf q : ℕ) :
     M * sides L (kf + 1) q (kf + 1) * L ^ (kf + 1) = M * L ^ (kf + 1) * q := by
-  simp only [sides, Nat.sub_self, pow_zero, mul_one]
+  rw [sides_self]
   ring
 
 /-!

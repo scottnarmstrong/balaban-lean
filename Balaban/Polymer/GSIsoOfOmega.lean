@@ -130,16 +130,21 @@ theorem collar_corr_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
     refine ⟨fun h => h1 ((hΩ x hx).1 h), bm w, (hΩ w hwA).2 hw, ?_⟩
     exact (adj_boxMap_iff (r := ρ + 1) hn hn' hwA hx).1 hadj
 
-/-- **`GSIso` from the correspondence of the domains.** -/
-theorem gsIso_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+/-- **`GSIso` from the correspondence of the domains, on a region `R` containing the sites of
+`Ω₁(G)` and their neighbours.**  The region `R` is only the set on which the data are compared: the
+source at a site of `Ω₁(G)` reads the data at the site and its neighbours. -/
+theorem gsIso_of_omega_on {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
     {H : GeneratingSet d L (N₁' * L ^ m₁) K ϱ'} (a : ℕ → ℝ) (ν : ℝ) {ρ : ℕ} (hK : 1 ≤ K)
     (hn : 2 * (ρ + 1) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
     (hn' : 2 * (ρ + 1) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
     (hGbox : ∀ x ∈ G.Ω 1, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
     (hHbox : ∀ x ∈ H.Ω 1, InBox d ρ ((N₁' * L ^ m₁) * L ^ K) x)
     (hΩ : ∀ x, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x → ∀ n, 1 ≤ n → n ≤ K →
-      (bm x ∈ H.Ω n ↔ x ∈ G.Ω n)) :
-    GSIso a ν G H bm {z | InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) z} := by
+      (bm x ∈ H.Ω n ↔ x ∈ G.Ω n))
+    (R : Set (CTorus d L N₁ m₁ K))
+    (hR : ∀ x ∈ G.Ω 1, x ∈ R ∧ ∀ μ : Fin d,
+      x + Pi.single μ 1 ∈ R ∧ x - Pi.single μ 1 ∈ R) :
+    GSIso a ν G H bm R := by
   classical
   have hGρ : ∀ x ∈ G.Ω 1, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x :=
     fun x hx => inBox_mono (Nat.le_succ ρ) (hGbox x hx)
@@ -184,14 +189,13 @@ theorem gsIso_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
         (fun n h1 h2 => hlay x (hGρ x x.2) n h1 h2) (fun n h1 h2 => hlay y (hGρ y y.2) n h1 h2)]
   · intro N D D' hD x hx i
     have hxb := hGbox x x.2
-    have hxR : InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) (x : CTorus d L N₁ m₁ K) := hGρ x x.2
     have hcol : ∀ z, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) z → (bm z ∈ collar H ↔ z ∈ collar G) :=
       fun z hz => collar_corr_of_omega (by omega) (by omega) hGbox hHbox hΩ1 hz
     unfold source qStar boundaryTerm
     dsimp only
     have e1 : H.layerIndex (bm (x : CTorus d L N₁ m₁ K)) = G.layerIndex (x : CTorus d L N₁ m₁ K) :=
       hidx x x.2
-    have hD0 := hD x hxR
+    have hD0 := hD x (hR x x.2).1
     have hsum : ∀ μ : Fin d,
         ((if bm (x : CTorus d L N₁ m₁ K) + Pi.single μ 1 ∈ collar H then
             D'.Ψ (bm (x : CTorus d L N₁ m₁ K) + Pi.single μ 1) i else 0) +
@@ -212,10 +216,24 @@ theorem gsIso_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
         inBox_add_single (by omega) hxb μ
       have hpb : InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) ((x : CTorus d L N₁ m₁ K) - Pi.single μ 1) :=
         inBox_sub_single (by omega) hxb μ
-      simp only [← ha, ← hb, hcol _ hpa, hcol _ hpb, ← (hD _ hpa).1, ← (hD _ hpb).1]
+      simp only [← ha, ← hb, hcol _ hpa, hcol _ hpb, ← (hD _ ((hR x x.2).2 μ).1).1, ← (hD _ ((hR x x.2).2 μ).2).1]
     rw [e1, ← hD0.1, ← hD0.2]
     simp only [hsum]
 
+
+/-- **`GSIso` from the correspondence of the domains.** -/
+theorem gsIso_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}
+    {H : GeneratingSet d L (N₁' * L ^ m₁) K ϱ'} (a : ℕ → ℝ) (ν : ℝ) {ρ : ℕ} (hK : 1 ≤ K)
+    (hn : 2 * (ρ + 1) + 3 * L ^ K + 5 < (N₁ * L ^ m₁) * L ^ K)
+    (hn' : 2 * (ρ + 1) + 3 * L ^ K + 5 < (N₁' * L ^ m₁) * L ^ K)
+    (hGbox : ∀ x ∈ G.Ω 1, InBox d ρ ((N₁ * L ^ m₁) * L ^ K) x)
+    (hHbox : ∀ x ∈ H.Ω 1, InBox d ρ ((N₁' * L ^ m₁) * L ^ K) x)
+    (hΩ : ∀ x, InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) x → ∀ n, 1 ≤ n → n ≤ K →
+      (bm x ∈ H.Ω n ↔ x ∈ G.Ω n)) :
+    GSIso a ν G H bm {z | InBox d (ρ + 1) ((N₁ * L ^ m₁) * L ^ K) z} :=
+  gsIso_of_omega_on a ν hK hn hn' hGbox hHbox hΩ _ fun x hx =>
+    ⟨inBox_mono (Nat.le_succ ρ) (hGbox x hx), fun μ =>
+      ⟨inBox_add_single (by omega) (hGbox x hx) μ, inBox_sub_single (by omega) (hGbox x hx) μ⟩⟩
 
 /-- **`GSCorr` from the correspondence of the domains.** -/
 theorem gsCorr_of_omega {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ}

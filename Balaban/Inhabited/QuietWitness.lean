@@ -90,32 +90,9 @@ for `C_b ≥ 0`, `B_0 ≥ 0`, `log β_k ≥ 0`).  The quiet step `1 → 2` of `w
 (`wa_realized`), so the fields are not vacuous. -/
 theorem quietStepInput'_nonempty_pos (cs : OpConsts) (N : ℕ) (hCb : 0 ≤ cs.Cb) (hB0 : 0 ≤ cs.B0)
     (hlog : ∀ k, 0 ≤ Real.log (cs.beta k)) :
-    Nonempty (QuietStepInput' 2 0 (wGeo wn) cs N) := by
-  refine ⟨{
-    real_euclid := fun k σ a a' hI =>
-      quietRealized_iff_of_histImage (fun j hj => wn_top hj) (Nat.zero_le _) hI
-    b := fun _ _ _ _ _ _ => 0
-    b_meas := fun _ _ _ _ _ => measurable_const
-    b_analytic := fun _ _ _ _ _ _ => analyticOnNhd_const
-    b_real := fun _ _ _ _ _ _ _ _ _ => by simp
-    b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
-    b_rot := fun _ _ _ _ _ _ _ _ => rfl
-    b_euclid := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
-    vacE := fun _ _ => 0
-    vacEpp := fun _ _ => 0
-    vacEppp := fun _ _ => 0
-    b0 := fun _ _ _ _ _ _ => 0
-    b_vac := fun _ _ _ _ _ _ _ => by simp [stepVacuumTerm]
-    b0_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
-      simp only [norm_zero]
-      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
-      unfold volScale
-      positivity
-    b_bound := fun H _ k _ _ Z' _ o x hv g _ _ => by
-      simp only [norm_zero]
-      refine mul_nonneg (add_nonneg (mul_nonneg hCb (hlog k)) (mul_nonneg hCb hB0)) ?_
-      unfold volScale
-      positivity }⟩
+    Nonempty (QuietStepInput' 2 0 (wGeo wn) cs N) :=
+  quietStepInput'_nonempty_of_hsub (fun j hj => wn_top (by omega)) (Nat.zero_le _) (wGeo wn) cs N
+    hCb hB0 hlog
 
 
 /-- With `k₀ = 0` no component of `wH` is kept (kept events need `1 ≤ k ≤ k₀`). -/

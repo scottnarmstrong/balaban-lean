@@ -79,7 +79,7 @@ source question. deps: ids below, rulings R7′/R9, Bn = blocker n of `docs/BLOC
 | A6 | `LastIntegralInput` | Rd | Thms IV.4.1, IV.5.3 | `lastIntegralInput_of_parts` | – | – | A6-1–4 |
 | A6-1/2 | `InheritedBoundInput`, `InheritedAgreeInput` | P | Thm IV.5.3 items 2, 4, 5, 7 | `inheritedBoundInput_of_prefix`, `inheritedAgreeInput` | 0 | – | – |
 | A6-3 | `FinalSmallFieldInput` | O | P4 §6; P7 (4.1)–(4.9), (4.15)–(4.17) | 45% (rows below) | 3,000 | H | B5, B7 |
-| (a) | `sfIntegral` as the cut expansion: massive final problem, Gaussian change of variables, `det(U+E)/det(U)·J`, `F_{k_f} = Σ_{j ≤ k} Edens`, the block datum in the class chart (`hθ`), the datum lemma beyond `k₀` | O | P7 (4.3)–(4.6); FINALPHYS3 §8 | 50% — `cutoffInteraction_final_class_polydisc_local`, `norm_coef_cutoff_class_le_levels_of_large`, `abstract_expansion_taggedCfin_final`, `finalSelectedDatum_inDomainR` (`k ≤ k₀`) | 1,200 | M | – |
+| (a) | `sfIntegral` as the cut expansion: massive final problem, Gaussian change of variables, `det(U+E)/det(U)·J`, `F_{k_f} = Σ_{j ≤ k} Edens`, the block datum in the class chart (`hθ`), the datum lemma beyond `k₀` | O | P7 (4.3)–(4.6); FINALPHYS3 §8 | 50% — `cutoffInteraction_final_class_polydisc_local`, `norm_coef_cutoff_class_le_levels_of_large`, `abstract_expansion_taggedCfin_final`, `finalSelectedDatum_inDomainR` (`k ≤ k₀`); B1 (box localization): the rooted Lemma AE core for a term of a cut field (`Green/FinalBoxLocCore`: `rootedExpansion_linField`, generic centre and cut family), the cut family `boxCut` of the final Hessian with its decoupling (`Green/FinalBoxLocCut`: `boxCut_one`, `cutDecoupling_boxCut`, `rootedExpansion_boxCut`), Cauchy Taylor remainders at a general centre (`Green/FinalBoxLocCubic`); design obstruction: the terms `A*_k`, `ℰ_k`, `ℱ_k` read the global background `φ_k`, so per-term rooted locality needs the decoupled background (I-4b) — SPINE.md item 3, B1 | 1,200 | M | – |
 | (b) | the source part `⟨g, φ̄_k⟩ − ⟨g, h⟩` and the change of `ℳ^{(j)}` as scale-`(k+1)` terms | O | ROOTFFAM §3 | 30% — `Green/FinalCrossTerm`, `Green/FinalHessian` | 500 | M | (a) |
 | (c) | regrouping `Y ↦ Ȳ`; cells to fine sites | O | ROOTFFAM target 4 | 50% — `rootF_sites_of_cellClause`, `sitesOf_isPolymer` | 300 | L | – |
 | (d) | exact two-torus agreement of `a`: complete localization, the winding remainder on winding polymers | O | P6 p. 3; SPINE-AUDIT-2 (d) | 25% — closeness only: `finalCoef_close_quarterBox_weighted`, `resum_lastScale_limit` | 800 | H | B7 |
@@ -150,6 +150,12 @@ R7′ and R9 are with Scott; R-N₁ should be asked now. Wave 1 starts as W1126 
   W1128; 7–16 ★ the rest of G, A4-1b (i), (ii), (v) unless R-N₁, then (after `Φ`) A4-1a, c, d, e, f, (g4), and A4-1i, `thr` if wave 1 did not; 17–22 ★ (g1), (g3), (h), A4-2ab kept,
   gas, (c)–(f): milestone `ClassStepInput` at general `d, N`; 23–26 A6-3 (a), (b), (c), (e), A6-4 (a)(b), (d); 27–30 ★ A4f-1 (2), (4), A7-1 (b)–(e),
   A7-2 (d).
+
+**Scheduled for the next full rebuild (W1146t, 2026-10-21).** Two deduplications that touch files low in the import graph, to be done as their own piece when a
+full rebuild is acceptable: (1) the neighbour-pair construction of `SmallField/PolyDomOpt.lean` (`connStruct_nbrPairs`, `admissible_of_isPolyDom`) repeats the
+one inside `Def6BridgeInfDict.sizeJ_le_ncard_sq`: move it to a low file and make both its instances (≈ 1,440 reverse dependencies); (2) the bounds
+`eTermFun_bound_of_bg`, `eTermFun_bound_of_one_le` (`Fluctuation/InteractionHatE.lean`, ≈ 990 reverse dependencies) become instances of the composed-chart bound
+`eTermFun_bound_composed` (`Fluctuation/OldTermComposedChart.lean`) once `composedChart` sits below `InteractionHatE`.
 
 **Re-estimate (2026-10-19, evening).** Landed today ≈ 14,000 net Lean lines (G for everything the spine cites, ≈ 6,000; R8 parts 1–2; `ΦE`/A4-1g; the LFStep and LFBdry sub-spines; signs and `thr`; window pieces). A4-1b grew from 3,150 to ≈ 8,850 (W1144: the chain proves its coefficients exist, so the route returns them as a formula); rulings R10 and R11 add ≈ 900 of repairs. Net remaining: **≈ 47,000 lines (range 40,000–75,000)**, of which the new mathematics is unchanged at ≈ 10,000.
 
