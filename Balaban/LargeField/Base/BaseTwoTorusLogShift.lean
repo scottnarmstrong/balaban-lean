@@ -151,22 +151,13 @@ variable (hCx : 0 ≤ Cx) (hκ : 0 ≤ κ)
       (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
         (GA).blk ((GA).layerIndex (p : Balaban.Localization.CTorus d L N₁ m₁ 1)) p) →
     (q : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈ Y)
-  (hnbr' : ∀ p q : (GB).Ω 1, (p : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Sr.image bm →
-    ((q : Balaban.Localization.CTorus d L N₁' m₁ 1) = p ∨
-      (∃ μ : Fin d, (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
-          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) + Pi.single μ 1 ∨
-        (q : Balaban.Localization.CTorus d L N₁' m₁ 1) =
-          (p : Balaban.Localization.CTorus d L N₁' m₁ 1) - Pi.single μ 1) ∨
-      (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈
-        (GB).blk ((GB).layerIndex (p : Balaban.Localization.CTorus d L N₁' m₁ 1)) p) →
-    (q : Balaban.Localization.CTorus d L N₁' m₁ 1) ∈ Y.image bm)
   (hagree : ∀ q ∈ innerCentres (GA) Sr,
     (coverOf (GB)).sProd s' (Prod.map id bm q) = (coverOf (GA)).sProd s q)
   (hφ : ∀ u ∈ Y, φ' (bm u) = φ u)
-include hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hSY hYR hn hn' hα hdich hdich' hnbr hnbr'
+include hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hSY hYR hn hn' hα hdich hdich' hnbr
   hagree hφ
 
-omit hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hα hnbr hnbr' in
+omit hCx hκ hM hδ hsm hαA hαB hs hs' hφA hφB hα hnbr in
 /-- **The entries of the large-`x` coefficient correspond on two tori.** -/
 theorem baseCovXCoef_rows_twoTorus (SA : Dec2.XCover (coverOf (GA)) (GA) a aT ν Cx)
     (SB : Dec2.XCover (coverOf (GB)) (GB) a aT ν Cx) (y z : (GA).Ω 1)
@@ -211,7 +202,7 @@ theorem baseCovXLogShift_rows_twoTorus (SA : Dec2.XCover (coverOf (GA)) (GA) a a
       (hCx := hCx) (hκ := hκ) (hM := hM) (hδ := hδ) (hsm := hsm) (hαA := hαA) (hαB := hαB)
       (hs := hs) (hs' := hs') (hφA := hφA) (hφB := hφB) (hSY := hSY) (hYR := hYR) (hn := hn)
       (hn' := hn') (hα := hα) (hdich := hdich) (hdich' := hdich') (hnbr := hnbr)
-      (hnbr' := hnbr') (hagree := hagree) (hφ := hφ) y z hy hz i j
+      (hagree := hagree) (hφ := hφ) y z hy hz i j
     have hc := baseCovXCoef_rows_twoTorus hSY hYR hn hn' hdich hdich' hagree hφ SA SB y z hy hz i j
     unfold baseCovXShiftIntegrand
     simp only [Matrix.sub_apply, Matrix.smul_apply, smul_eq_mul] at h ⊢
