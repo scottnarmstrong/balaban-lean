@@ -5,7 +5,7 @@ Authors: Scott Armstrong
 -/
 module
 
-public import Balaban.LargeField.Base.BaseSourceIncrement
+public import Balaban.Analysis.SourceRay
 public import Balaban.Fluctuation.Thm31CoeffAnalytic
 import Mathlib.Tactic.Linarith
 
@@ -24,7 +24,7 @@ sites `x` outside `Ŷ(Y)` (`Pst_ext_congr`).
 
 namespace Balaban.LargeField.Base
 
-open Balaban Balaban.Localization Balaban.Polymer Balaban.Fluctuation MeasureTheory
+open Balaban Balaban.Localization Balaban.Polymer Balaban.Fluctuation Balaban.Analysis MeasureTheory
 
 section SrcPst
 

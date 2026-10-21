@@ -12,19 +12,20 @@ public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 import Mathlib.Tactic.Linarith
 
 /-!
-# The source increment `F(g) = F(0) + ⟨g, ℳ(g)⟩₁`
+# The source ray: the increment `F(g) = F(0) + ⟨g, ℳ(g)⟩₁`
 
 For `F` analytic on the `ℓ¹` ball `{g : ∑ |g_{x,i}| < G}` of sources,
 `F(g) - F(0) = ∑_{x,i} g_{x,i} ℳ_{x,i}(g)` with `ℳ_{x,i}(g) = ∫₀¹ ∂_{x,i} F (t g) dt`
 (`sub_eq_sum_srcM`, from the fundamental theorem of calculus along the segment `t ↦ t g`).  If `F` is
 bounded by `B` on the ball of radius `G > 1`, then `|ℳ_{x,i}(g)| ≤ B / (G - 1)` for `‖g‖₁ < 1`
 (`norm_srcM_le`, the Cauchy estimate for the derivative in the direction of the unit source), and
-`ℳ_{x,i} = 0` if `F` does not depend on the source at `x` (`srcM_eq_zero`).
+`ℳ_{x,i} = 0` if `F` does not depend on the source at `x` (`srcM_eq_zero`).  `srcMVec` is the vector
+`ℳ_x`; `srcMDir_comp` is the covariance of the ray integral under a linear map of the sources.
 -/
 
 @[expose] public section
 
-namespace Balaban.LargeField.Base
+namespace Balaban.Analysis
 
 open Metric Set MeasureTheory intervalIntegral
 
@@ -262,5 +263,36 @@ theorem srcM_eq_zero {F : (ι → J → ℂ) → ℂ} {G : ℝ}
   rw [intervalIntegral.integral_congr this]
   simp
 
-end Balaban.LargeField.Base
+/-- **The vector `ℳ_x(Y)`**: the components `ℳ_{x,i}(g)`, `i ∈ J`, of the source coefficient at the
+site `x`. -/
+noncomputable def srcMVec (F : (ι → J → ℂ) → ℂ) (g : ι → J → ℂ) (x : ι) : J → ℂ :=
+  fun i => srcM F g x i
+
+/-- The ray integral of the derivative in an arbitrary direction `v`. -/
+noncomputable def srcMDir (F : (ι → J → ℂ) → ℂ) (g v : ι → J → ℂ) : ℂ :=
+  ∫ t in (0 : ℝ)..1, fderiv ℂ F ((t : ℂ) • g) v
+
+omit [Fintype ι] [Fintype J] in
+theorem srcM_eq_srcMDir (F : (ι → J → ℂ) → ℂ) (g : ι → J → ℂ) (x : ι) (i : J) :
+    srcM F g x i = srcMDir F g (unitSrc x i) := rfl
+
+/-- **Covariance of the ray integral under a linear map of the sources**: for a continuous linear
+`T` that maps the ball into the ball, `srcMDir (F ∘ T) g v = srcMDir F (T g) (T v)`. -/
+omit [DecidableEq ι] [DecidableEq J] in
+theorem srcMDir_comp {F : (ι → J → ℂ) → ℂ} {G : ℝ}
+    (hF : AnalyticOnNhd ℂ F {g | l1src g < G}) (T : (ι → J → ℂ) →L[ℂ] (ι → J → ℂ))
+    (hT : ∀ g, l1src g < G → l1src (T g) < G) {g : ι → J → ℂ} (hg : l1src g < G)
+    (v : ι → J → ℂ) :
+    srcMDir (fun h => F (T h)) g v = srcMDir F (T g) (T v) := by
+  unfold srcMDir
+  refine intervalIntegral.integral_congr fun t ht => ?_
+  rw [Set.uIcc_of_le zero_le_one] at ht
+  have hh : l1src ((t : ℂ) • g) < G := l1_smul_lt hg ht.1 ht.2
+  have hdiff : DifferentiableAt ℂ F (T ((t : ℂ) • g)) := (hF _ (hT _ hh)).differentiableAt
+  have hchain : fderiv ℂ (fun h => F (T h)) ((t : ℂ) • g) =
+      (fderiv ℂ F (T ((t : ℂ) • g))).comp T :=
+    (hdiff.hasFDerivAt.comp ((t : ℂ) • g) T.hasFDerivAt).fderiv
+  rw [hchain, ContinuousLinearMap.comp_apply, map_smul]
+
+end Balaban.Analysis
 

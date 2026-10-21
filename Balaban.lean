@@ -2189,7 +2189,7 @@ public import Balaban.LargeField.Base.BaseChartTerms
 public import Balaban.LargeField.Base.BaseChartLabelAct
 public import Balaban.LargeField.Base.BaseChartDefectAct
 public import Balaban.LargeField.Base.BaseUnionNumerics
-public import Balaban.LargeField.Base.BaseSourceIncrement
+public import Balaban.Analysis.SourceRay
 public import Balaban.LargeField.Base.BaseSourcePst
 public import Balaban.LargeField.Base.BaseChartSource
 public import Balaban.LargeField.Base.BaseBackgroundIdent
