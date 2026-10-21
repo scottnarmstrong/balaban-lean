@@ -3033,6 +3033,7 @@ public import Balaban.LargeField.Base.BaseFirstPartitionQ
 public import Balaban.LargeField.Base.BaseFRWhite
 public import Balaban.LargeField.Base.BaseFRWhiteFirst
 public import Balaban.LargeField.Base.BaseFRWhiteSymm
+public import Balaban.LargeField.Base.BaseFRWhiteChange
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
 public import Balaban.Inhabited.NewLevelMarkUnique
