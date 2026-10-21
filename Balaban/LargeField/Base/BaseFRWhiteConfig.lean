@@ -68,6 +68,23 @@ local notation "𝔅" => configBasis ι N
 
 variable {κ : Type*} [Fintype κ] [DecidableEq κ]
 
+/-- The maximal absolute row sum of a matrix (the `ℓ^∞` operator norm). -/
+noncomputable def matRowSum {κ : Type*} [Fintype κ] (M : Matrix κ κ ℂ) : ℝ :=
+  ((Finset.univ.sup fun p => ∑ q, ‖M p q‖₊ : NNReal) : ℝ)
+
+theorem sum_norm_le_matRowSum {κ : Type*} [Fintype κ] (M : Matrix κ κ ℂ) (p : κ) :
+    ∑ q, ‖M p q‖ ≤ matRowSum M := by
+  unfold matRowSum
+  have := Finset.le_sup (f := fun p => ∑ q, ‖M p q‖₊) (Finset.mem_univ p)
+  have h2 := NNReal.coe_le_coe.2 this
+  simpa [NNReal.coe_sum] using h2
+
+theorem euclid_norm_le_sum_abs {N : ℕ} (v : EuclideanSpace ℝ (Fin N)) : ‖v‖ ≤ ∑ i, |v i| := by
+  rw [EuclideanSpace.norm_eq]
+  refine Real.sqrt_le_iff.2 ⟨Finset.sum_nonneg fun _ _ => abs_nonneg _, ?_⟩
+  simpa only [Real.norm_eq_abs] using
+    Finset.sum_sq_le_sq_sum_of_nonneg (s := Finset.univ) (f := fun i => |v i|) (fun _ _ => abs_nonneg _)
+
 /-- **The whitening matrix as a linear equivalence of the configuration space.** -/
 theorem exists_config_whitening (e : Config ι N) (Hα : Config ι N →ₗ[ℝ] Config ι N)
     (c : κ ≃ (Σ _ : ι, Fin N)) (Wc Dc Ac : Matrix κ κ ℂ)
@@ -78,10 +95,11 @@ theorem exists_config_whitening (e : Config ι N) (Hα : Config ι N →ₗ[ℝ]
     (hbil : ∀ ψ : κ → ℂ, (Wc *ᵥ ψ) ⬝ᵥ (Ac *ᵥ (Wc *ᵥ ψ)) = ψ ⬝ᵥ ψ + ψ ⬝ᵥ (Dc *ᵥ ψ)) :
     ∃ W : Config ι N ≃ₗ[ℝ] Config ι N,
       |LinearMap.det (W : Config ι N →ₗ[ℝ] Config ι N)| = ‖Wc.det‖ ∧
-      ∀ φ : Config ι N,
+      (∀ φ : Config ι N,
         cinner (W φ) (gaussForm e Hα (W φ)) = cinner φ φ +
           ((fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ)) ⬝ᵥ
-            (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re := by
+            (Dc *ᵥ fun p => ((φ (c p).1 (c p).2 : ℝ) : ℂ))).re) ∧
+      ∀ (φ : Config ι N) (x : ι), ‖W φ x‖ ≤ N * matRowSum Wc * ‖φ‖ := by
   classical
   set K := LinearMap.toMatrix 𝔅 𝔅 (gaussForm e Hα) with hK
   let Wr : Matrix (Σ _ : ι, Fin N) (Σ _ : ι, Fin N) ℝ := fun a b =>
@@ -104,7 +122,7 @@ theorem exists_config_whitening (e : Config ι N) (Hα : Config ι N →ₗ[ℝ]
     intro h0
     apply hdet
     rw [← hdetR, h0]; simp
-  refine ⟨LinearEquiv.ofIsUnitDet hunit, ?_, ?_⟩
+  refine ⟨LinearEquiv.ofIsUnitDet hunit, ?_, ?_, ?_⟩
   · rw [LinearEquiv.coe_ofIsUnitDet, LinearMap.det_toLin, ← hdetR, Complex.norm_real,
       Real.norm_eq_abs]
   · intro φ
@@ -152,6 +170,38 @@ theorem exists_config_whitening (e : Config ι N) (Hα : Config ι N →ₗ[ℝ]
     rw [Complex.add_re, Complex.ofReal_re, Complex.ofReal_re] at hre
     rw [hq, hxx]
     exact hre
+  · intro φ x
+    have hW : ∀ u, (LinearEquiv.ofIsUnitDet hunit) u = Matrix.toLin 𝔅 𝔅 Wr u := fun u => rfl
+    have hcomp : ∀ i : Fin N, ((LinearEquiv.ofIsUnitDet hunit) φ x) i =
+        ∑ b, Wr ⟨x, i⟩ b * φ b.1 b.2 := by
+      intro i
+      have h1 := congrFun (repr_toLin Wr φ) ⟨x, i⟩
+      rw [← hW] at h1
+      simp only [configBasis_repr, Matrix.mulVec, dotProduct] at h1
+      exact h1
+    have hrow : ∀ a : Σ _ : ι, Fin N, ∑ b, |Wr a b| ≤ matRowSum Wc := by
+      intro a
+      refine le_trans (le_of_eq ?_) (sum_norm_le_matRowSum Wc (c.symm a))
+      rw [← Equiv.sum_comp c (fun b => |Wr a b|)]
+      refine Finset.sum_congr rfl fun q _ => ?_
+      rw [hWc, Complex.norm_real, Real.norm_eq_abs, Equiv.apply_symm_apply]
+    have hcoord : ∀ b : Σ _ : ι, Fin N, |φ b.1 b.2| ≤ ‖φ‖ := fun b =>
+      (by simpa using PiLp.norm_apply_le (φ b.1) b.2 : |φ b.1 b.2| ≤ ‖φ b.1‖).trans
+        (norm_le_pi_norm φ b.1)
+    have hi : ∀ i : Fin N, |((LinearEquiv.ofIsUnitDet hunit) φ x) i| ≤ matRowSum Wc * ‖φ‖ := by
+      intro i
+      rw [hcomp i]
+      calc |∑ b, Wr ⟨x, i⟩ b * φ b.1 b.2| ≤ ∑ b, |Wr ⟨x, i⟩ b * φ b.1 b.2| :=
+            Finset.abs_sum_le_sum_abs _ _
+        _ ≤ ∑ b, |Wr ⟨x, i⟩ b| * ‖φ‖ := Finset.sum_le_sum fun b _ => by
+            rw [abs_mul]
+            exact mul_le_mul_of_nonneg_left (hcoord b) (abs_nonneg _)
+        _ = (∑ b, |Wr ⟨x, i⟩ b|) * ‖φ‖ := by rw [Finset.sum_mul]
+        _ ≤ matRowSum Wc * ‖φ‖ := mul_le_mul_of_nonneg_right (hrow _) (norm_nonneg _)
+    calc ‖(LinearEquiv.ofIsUnitDet hunit) φ x‖ ≤ ∑ i, |((LinearEquiv.ofIsUnitDet hunit) φ x) i| :=
+          euclid_norm_le_sum_abs _
+      _ ≤ ∑ _i : Fin N, matRowSum Wc * ‖φ‖ := Finset.sum_le_sum fun i _ => hi i
+      _ = N * matRowSum Wc * ‖φ‖ := by simp [mul_assoc]
 
 end Transport
 

@@ -334,7 +334,7 @@ theorem torus_cast_symm_cast {a b : ℕ} (h : a = b) (x : Torus d a) : h.symm �
 
 /-- The identification of the fine sites of the first sector with the physical torus
 `𝕋_{Ln}` (the transport of `baseSector_side`). -/
-def baseSiteEquiv (ϱ : ℝ) : (GeneratingSet.single (d := d) (L := L)
+def baseSectorSiteEquiv (ϱ : ℝ) : (GeneratingSet.single (d := d) (L := L)
     (N₀ := 1 * n) (k := 1) ϱ).Ω 1 ≃ Torus d (L * n) where
   toFun z := baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))
   invFun x := ⟨(baseSector_side L n).symm ▸ x,
@@ -360,10 +360,10 @@ theorem baseSector_gaussForm_map_eq_reindex
     let B := Pi.basis (fun _ : Torus d (L * n) =>
       (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
     let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
-      (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+      (Equiv.prodCongr (baseSectorSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
         (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
     (LinearMap.toMatrix B B (gaussForm e Hα)).map (algebraMap ℝ ℂ) =
-      Matrix.reindex c c (baseOp N (fun z i => ((e (baseSiteEquiv ϱ z) i : ℝ) : ℂ))
+      Matrix.reindex c c (baseOp N (fun z i => ((e (baseSectorSiteEquiv ϱ z) i : ℝ) : ℂ))
         (baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1))) := by
   dsimp only
   let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
@@ -374,7 +374,7 @@ theorem baseSector_gaussForm_map_eq_reindex
   let B := Pi.basis (fun _ : Torus d (L * n) =>
     (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
   let K := LinearMap.toMatrix B B (gaussForm e Hα)
-  let t := baseSiteEquiv (d := d) (L := L) (n := n) ϱ
+  let t := baseSectorSiteEquiv (d := d) (L := L) (n := n) ϱ
   let site : Torus d (L * n) → G.Ω 1 := fun x =>
     ⟨(baseSector_side L n).symm ▸ x,
       baseSector_mem_single ϱ ((baseSector_side L n).symm ▸ x)⟩
@@ -451,7 +451,7 @@ theorem baseSector_gaussForm_posDef_of_product_ne_zero
     (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
   let K := LinearMap.toMatrix B B (gaussForm e Hα)
   let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
-    (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+    (Equiv.prodCongr (baseSectorSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
       (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
   have hmap := baseSector_gaussForm_map_eq_reindex ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
   have hnat := baseSector_baseOp_coercive_of_product_ne_zero

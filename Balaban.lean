@@ -3118,6 +3118,9 @@ public import Balaban.LargeField.Base.BaseFRWhiteConfig
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhiteInst
 public import Balaban.LargeField.Base.BaseChartIntegrability
 public import Balaban.LargeField.Base.BaseFirstFIntegrable
+public import Balaban.LargeField.Base.BaseGaussCut
+public import Balaban.LargeField.Base.BaseFirstSiteSum
+public import Balaban.LargeField.Base.BaseFirstProductForm
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
