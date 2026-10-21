@@ -1260,6 +1260,18 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        layers `m ≤ k` lie in the top layer of `genW Y = 𝔹_k(W₂(Y))`).
      Next: the history-level factorization (induction over the scales with `glue_step_of_sep`, the labels, the representative in the
      complete set), then `𝕋′` and (IV.4.1).
+   * **B3 (A6-4, the assembly of a history from separated components without a common witness; 2026-10-21).** The landed
+     `exists_assembled` (Lemma III.10.2 core) asks `hW` (every clique of the family in one history with the same localized histories)
+     only for the witnesses of `glue_step`; with `glue_step_of_sep` it is not needed. No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/ConfigAssemble.lean`: cores **`sep_locSt_of_sepZ`** (the lineages of `ω_k`-separated components are
+       `ω_{j+1}`-separated at every `j < k`, from the separation alone), `asmStep_spec_of_glue`, `asmStep_Z_of_glue`, `asmF_Zpre_of_glue`,
+       `asmStep_Zpre_eq_of_glue`, `lin_asm_eq_of_sepZ`, **`exists_assembled_of_glue`** (glued steps at every `j < k` given as a hypothesis);
+       the landed `sep_locSt`, `asmStep_spec`, `asmStep_Z`, `asmF_Zpre`, `asmStep_Zpre_eq`, `lin_asm_eq`, `exists_assembled` are their
+       instances (bodies calls of the cores).
+     * `Spine/FinalLFHistGlue.lean`: `two_mul_L_lt_omega_succ` (`2L < ω_{j+1}` from `R_base ≥ 4L + 20`, `λ_j ≥ 1`),
+       `exists_glue_of_sepZ`, **`exists_assembled_of_sepZ`** (components of scale `k` of arbitrary histories, pairwise at distance
+       `≥ ω_k`, occur in one removal-free history with the same localized histories; no `hW`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
