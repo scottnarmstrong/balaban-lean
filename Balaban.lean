@@ -1315,6 +1315,7 @@ public import Balaban.Inhabited.V2Energy
 public import Balaban.Inhabited.V2EnergySource
 public import Balaban.Inhabited.V2EnergyD1
 public import Balaban.Fluctuation.StepObjects
+public import Balaban.Fluctuation.HoleStep
 public import Balaban.Fluctuation.StepIdentityQuad
 public import Balaban.Fluctuation.StepIdentity
 public import Balaban.Fluctuation.StepIdentityInhabited
