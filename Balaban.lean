@@ -3295,3 +3295,5 @@ public import Balaban.Spine.FinalLFSplit
 public import Balaban.Spine.FinalLFGlue
 public import Balaban.Spine.FinalLFLocalPair
 public import Balaban.Spine.FinalLFHistGlue
+public import Balaban.Spine.FinalLFHistFactor
+public import Balaban.Spine.FinalLFHistFactorSurj
