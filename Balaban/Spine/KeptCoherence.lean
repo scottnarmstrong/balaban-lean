@@ -33,29 +33,32 @@ variable {S : Setting} [NeZero S.L] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] 
   {geo : ∀ (nK : ℕ) [NeZero nK], Geo S (sides S.L K nK) R M} {cs : OpConsts} {P : BudgetConsts}
   {k m₁ : ℕ} {ϱ : ℝ}
 
-/-- **The datum clause of (D8) for the kept data of a family of tori**: the kept variable sets
+/-- **The datum clause of (D8) at the scale `j` for a family of kept data**: the kept variable sets
 `I''` and the kept kernels and boundary factors at corresponding localized histories, variables,
 outputs, configurations and sources agree (LFR Definition II.6.2 (D8), D-IV.9). -/
-def KeptDatumCoh
-    (κ : ∀ (nK : ℕ) [NeZero nK], ℕ → LocalHistory S (sides S.L K nK) M K → ℝ)
-    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (κ nK) S.lam) : Prop :=
+def KeptDatumCohAt (j : ℕ)
+    (D : ∀ (nK : ℕ) [NeZero nK] (a : LocalHistory S (sides S.L K nK) M K), Fin 5 →
+      KeptDatum (S := S) N R a j) : Prop :=
   ∀ (nK₁ nK₂ : ℕ) [NeZero nK₁] [NeZero nK₂] (c : Fin S.d → ℤ)
     (H₁ : RegionHistory S (sides S.L K nK₁) R k0 K) (H₂ : RegionHistory S (sides S.L K nK₂) R k0 K),
-    H₁.Admissible → H₂.Admissible →
-    ∀ (j : ℕ) (Z₁ : H₁.Comp j) (Z₂ : H₂.Comp j),
+    H₁.Admissible → H₂.Admissible → ∀ (Z₁ : H₁.Comp j) (Z₂ : H₂.Comp j),
       HistCorr c (H₁.localHistory M K j Z₁) (H₂.localHistory M K j Z₂) →
       SetCorr c (Vsites R (H₁.localHistory M K j Z₁) j) (Vsites R (H₂.localHistory M K j Z₂) j) →
       ∀ ϰ : Fin 5,
         (∀ p₁ p₂, VarCorr c p₁ p₂ →
-          (p₁ ∈ ((KD nK₁).datum j (H₁.localHistory M K j Z₁) ϰ).Ikeep ↔
-            p₂ ∈ ((KD nK₂).datum j (H₂.localHistory M K j Z₂) ϰ).Ikeep)) ∧
+          (p₁ ∈ (D nK₁ (H₁.localHistory M K j Z₁) ϰ).Ikeep ↔
+            p₂ ∈ (D nK₂ (H₂.localHistory M K j Z₂) ϰ).Ikeep)) ∧
         ∀ o₁ o₂ x₁ x₂ hv g₁ g₂, OutCorr c j o₁ o₂ → CfgCorr c x₁ x₂ → GCorr c g₁ g₂ →
-          ((KD nK₂).datum j (H₂.localHistory M K j Z₂) ϰ).ker.K o₂ x₂ hv =
-              ((KD nK₁).datum j (H₁.localHistory M K j Z₁) ϰ).ker.K o₁ x₁ hv ∧
-            ((KD nK₂).datum j (H₂.localHistory M K j Z₂) ϰ).ker.b o₂ x₂ hv g₂ =
-              ((KD nK₁).datum j (H₁.localHistory M K j Z₁) ϰ).ker.b o₁ x₁ hv g₁
+          (D nK₂ (H₂.localHistory M K j Z₂) ϰ).ker.K o₂ x₂ hv =
+              (D nK₁ (H₁.localHistory M K j Z₁) ϰ).ker.K o₁ x₁ hv ∧
+            (D nK₂ (H₂.localHistory M K j Z₂) ϰ).ker.b o₂ x₂ hv g₂ =
+              (D nK₁ (H₁.localHistory M K j Z₁) ϰ).ker.b o₁ x₁ hv g₁
 
-
+/-- **The datum clause of (D8) for the kept data of a family of tori**, at every scale. -/
+def KeptDatumCoh
+    (κ : ∀ (nK : ℕ) [NeZero nK], ℕ → LocalHistory S (sides S.L K nK) M K → ℝ)
+    (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (κ nK) S.lam) : Prop :=
+  ∀ j, KeptDatumCohAt (K := K) (M := M) (R := R) (k0 := k0) j (fun nK _ a ϰ => (KD nK).datum j a ϰ)
 
 /-- **`LFCoherent` of the output of the kept half of `R`.**  The family with the large-field parts
 `keptRep (F.lf nK) (D nK)` (the pinned exponents `κ_k = κ^pre_k` at the scale `k`, the kept data of
@@ -75,7 +78,7 @@ theorem lfCoherent_post {F : RepFam S R k0 K M N geo cs P k m₁ ϱ} (hin : LFCo
   obtain ⟨c1, c2, c3⟩ := hin nK₁ nK₂ c
   refine ⟨c1, ?_, ?_⟩
   · intro H₁ H₂ ad₁ ad₂ j Z₁ Z₂ hH hV
-    refine ⟨?_, hdat nK₁ nK₂ c H₁ H₂ ad₁ ad₂ j Z₁ Z₂ hH hV⟩
+    refine ⟨?_, hdat j nK₁ nK₂ c H₁ H₂ ad₁ ad₂ Z₁ Z₂ hH hV⟩
     by_cases hjk : j = k
     · subst hjk
       obtain ⟨j', hj'⟩ : ∃ j', j = j' + 1 := ⟨j - 1, by omega⟩
