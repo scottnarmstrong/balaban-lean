@@ -2951,6 +2951,7 @@ public import Balaban.Inhabited.NewLevelMarkUnique
 public import Balaban.Polymer.BgFieldTransport
 public import Balaban.Polymer.GSIsoOfOmega
 public import Balaban.Polymer.LocalBBoxCorr
+public import Balaban.Inhabited.NewLevelHTransport
 public import Balaban.Polymer.ComposeFieldTransport
 public import Balaban.Polymer.FlDatumTransport
 public import Balaban.Polymer.ETermFunTransport
