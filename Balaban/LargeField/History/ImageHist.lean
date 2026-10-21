@@ -107,10 +107,10 @@ section Hist
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 M K : ℕ} [NeZero M]
   [NeZero S.L] (σ : LatTorusSym S n M K) (H : RegionHistory S n R k0 K)
-  (hsub : ∀ j, K ≤ j → n j = 1)
+  (hsub : ∀ j, K < j → n j = 1)
 
 include hsub in
-theorem torus_subsingleton {j : ℕ} (hj : K ≤ j) : Subsingleton (Torus S.d (n j)) := by
+theorem torus_subsingleton {j : ℕ} (hj : K < j) : Subsingleton (Torus S.d (n j)) := by
   have h := hsub j hj
   have : Subsingleton (ZMod (n j)) := by rw [h]; infer_instance
   infer_instance
@@ -119,7 +119,7 @@ include hsub in
 theorem isAff_ec_all (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (j : ℕ) : IsAff (σ.ec j) := by
   rcases le_or_gt j K with h | h
   · exact σ.isAff_ec hnn h
-  · have := torus_subsingleton (S := S) hsub h.le
+  · have := torus_subsingleton (S := S) hsub h
     exact ⟨⟨1, fun _ => false, 0⟩, fun x => Subsingleton.elim _ _⟩
 
 include hsub in
@@ -127,7 +127,7 @@ theorem ec_blockMap_all (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (j : ℕ)
     blockMap S.L (n (j + 1)) (σ.ec j x) = σ.ec (j + 1) (blockMap S.L (n (j + 1)) x) := by
   rcases le_or_gt (j + 1) K with h | h
   · exact (σ.ec_blockMap hnn h x).symm
-  · have := torus_subsingleton (S := S) hsub h.le
+  · have := torus_subsingleton (S := S) hsub h
     exact Subsingleton.elim _ _
 
 /-- The image of the steps of `H` under `σ`. -/
@@ -314,7 +314,7 @@ theorem fineSet_img_all (i : ℕ) (A : Set (Torus S.d (n i))) :
     σ.ef '' fineSet (S := S) (n := n) M K i A = fineSet (S := S) (n := n) M K i (σ.ec i '' A) := by
   rcases le_or_gt i K with h | h
   · exact σ.toTorusSym.fineSet_image h A
-  · have := torus_subsingleton (S := S) hsub h.le
+  · have := torus_subsingleton (S := S) hsub h
     rcases Set.eq_empty_or_nonempty A with rfl | ⟨a, ha⟩
     · simp [fineSet]
     · have hA : A = Set.univ := Set.eq_univ_of_forall fun x => by

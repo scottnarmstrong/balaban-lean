@@ -1,6 +1,7 @@
 module
 
 public import Balaban.LargeField.LF1
+public import Balaban.LargeField.LF1.Violation
 public import Balaban.LargeField.R.WindowGenCompose
 public import Balaban.LargeField.R.SmallFactorTilde
 import Mathlib.Tactic.Linarith
@@ -29,61 +30,6 @@ section Single
 
 variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {Nspin : ℕ}
 
-theorem pairSumT_nonneg {m : ℕ} (T : Finset (Torus d m))
-    (f : Torus d m → EuclideanSpace ℝ (Fin Nspin)) : 0 ≤ pairSumT T f := by
-  classical
-  unfold pairSumT
-  refine mul_nonneg (by norm_num) (Finset.sum_nonneg fun y _ => Finset.sum_nonneg fun y' _ => ?_)
-  split_ifs
-  · positivity
-  · exact le_rfl
-
-theorem le_pairSumT {m : ℕ} (T : Finset (Torus d m)) (f : Torus d m → EuclideanSpace ℝ (Fin Nspin))
-    {y y' : Torus d m} (hy : y ∈ T) (hy' : y' ∈ T) (hadj : AdjT y y') :
-    ‖f y - f y'‖ ^ 2 ≤ pairSumT T f := by
-  classical
-  have hadj' : AdjT y' y := by
-    obtain ⟨hne, μ, hμ⟩ := hadj
-    exact ⟨hne.symm, μ, hμ.symm⟩
-  unfold pairSumT
-  have hnn : ∀ u ∈ T, ∀ u' ∈ T, 0 ≤ (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) :=
-    fun u _ u' _ => by split_ifs <;> positivity
-  have h1 : (if AdjT y y' then ‖f y - f y'‖ ^ 2 else 0) +
-      (if AdjT y' y then ‖f y' - f y‖ ^ 2 else 0) ≤
-      ∑ u ∈ T, ∑ u' ∈ T, if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0 := by
-    have hne : y ≠ y' := hadj.1
-    calc _ = ∑ u ∈ ({y, y'} : Finset _), ∑ u' ∈ ({y, y'} : Finset _),
-          (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) := by
-          rw [Finset.sum_pair hne, Finset.sum_pair hne, Finset.sum_pair hne]
-          have h00 : ¬ AdjT y y := fun h => h.1 rfl
-          have h11 : ¬ AdjT y' y' := fun h => h.1 rfl
-          simp [h00, h11]
-      _ ≤ ∑ u ∈ ({y, y'} : Finset _), ∑ u' ∈ T, (if AdjT u u' then ‖f u - f u'‖ ^ 2 else 0) := by
-          refine Finset.sum_le_sum fun u hu => ?_
-          have hu' : u ∈ T := by
-            simp only [Finset.mem_insert, Finset.mem_singleton] at hu
-            rcases hu with rfl | rfl <;> assumption
-          refine Finset.sum_le_sum_of_subset_of_nonneg ?_ fun u' hu'' _ => hnn u hu' u' hu''
-          intro u' hu''
-          simp only [Finset.mem_insert, Finset.mem_singleton] at hu''
-          rcases hu'' with rfl | rfl <;> assumption
-      _ ≤ _ := by
-          refine Finset.sum_le_sum_of_subset_of_nonneg ?_ fun u hu _ =>
-            Finset.sum_nonneg fun u' hu' => hnn u hu u' hu'
-          intro u hu
-          simp only [Finset.mem_insert, Finset.mem_singleton] at hu
-          rcases hu with rfl | rfl <;> assumption
-  have e : ‖f y' - f y‖ = ‖f y - f y'‖ := norm_sub_rev _ _
-  simp only [hadj, hadj', ite_true] at h1
-  rw [e] at h1
-  linarith
-
-theorem crossSumP_nonneg (G : GeneratingSet d L N₀ k ϱ) (n : ℕ) (X : Finset (Site d L N₀ k))
-    (ψ : (m : ℕ) → Blk d L N₀ k m → EuclideanSpace ℝ (Fin Nspin)) : 0 ≤ crossSumP G n X ψ := by
-  classical
-  unfold crossSumP
-  exact Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => by split_ifs <;> positivity
-
 /-- For the single-scale generating set `X ∩ Λ_n` is a union of `n`-blocks as soon as `X` is a
 union of `k`-blocks. -/
 theorem single_hX (hk : 1 ≤ k) {X : Finset (Site d L N₀ k)} (hXk : IsBlockUnion L N₀ k k X) :
@@ -111,24 +57,12 @@ theorem single_gradient_bound (hk : 1 ≤ k) (hd : 2 ≤ d) (hL : 2 ≤ L) (hϱ 
     (hy : y ∈ tBlocks d L N₀ k k X) (hy' : y' ∈ tBlocks d L N₀ k k X) (hadj : AdjT y y') :
     gamma0 d * ((L : ℝ) ^ (k * (d - 2)) / 2 * ‖ψ k y - ψ k y'‖ ^ 2) ≤
       actionG (singleGen d L N₀ k ϱ) a μ h X ψ φ := by
-  refine le_trans ?_ (lf1_gradient (singleGen d L N₀ k ϱ) hd hL hϱ ha hμ h X (single_hX hk hXk) ψ φ)
-  have hg : 0 ≤ gamma0 d := by unfold gamma0; positivity
-  refine mul_le_mul_of_nonneg_left ?_ hg
-  have hnn : ∀ n ∈ Finset.range (k + 1), 0 ≤ ((L : ℝ) ^ (n * (d - 2)) / 2) *
-      pairSumT (tBlocks d L N₀ k n (lam (singleGen d L N₀ k ϱ) n ∩ X))
-        (psiFull φ ψ n) := fun n _ =>
-    mul_nonneg (by positivity) (pairSumT_nonneg _ _)
-  have hcr : 0 ≤ ∑ n ∈ Finset.range k, ((L : ℝ) ^ ((n + 1) * (d - 2)) / 2) *
-      crossSumP (singleGen d L N₀ k ϱ) n X (psiFull φ ψ) :=
-    Finset.sum_nonneg fun n _ => mul_nonneg (by positivity) (crossSumP_nonneg _ _ _ _)
-  have h1 := Finset.single_le_sum hnn (Finset.mem_range.2 (Nat.lt_succ_self k))
-  have e : tBlocks d L N₀ k k (lam (singleGen d L N₀ k ϱ) k ∩ X) = tBlocks d L N₀ k k X := by
-    rw [lam_single_self hk, Finset.univ_inter]
-  rw [e, psiFull_of_pos φ ψ hk] at h1
-  have h2 := le_pairSumT (tBlocks d L N₀ k k X) (ψ k) hy hy' hadj
-  have hL0 : (0 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) / 2 := by positivity
-  have := mul_le_mul_of_nonneg_left h2 hL0
-  linarith
+  have hlam : lam (singleGen d L N₀ k ϱ) k = Finset.univ := lam_single_self hk
+  have hmem : ∀ z : Blk d L N₀ k k, z ∈ tBlocks d L N₀ k k X →
+      z ∈ tBlocks d L N₀ k k (lam (singleGen d L N₀ k ϱ) k ∩ X) := fun z hz => by
+    rwa [hlam, Finset.univ_inter]
+  exact lf1_pair_gain (singleGen d L N₀ k ϱ) hk hd hL hϱ ha hμ h (single_hX hk hXk) ψ φ
+    (hmem y hy) (hmem y' hy') hadj
 
 /-- **A point violation costs** `γ₀ L^{k(d-2)} (|ψ_k(y)| - 1)²/2` in the single-scale action when
 `φ` is a unit field on the block (LF-1 (b), without the condition `ψ_k(y) ≠ 0`). -/
@@ -139,71 +73,9 @@ theorem single_point_bound (hk : 1 ≤ k) (hd : 2 ≤ d) {a : ℕ → ℝ} (ha :
     (hy : y ∈ tBlocks d L N₀ k k X) (hφ : ∀ x ∈ fib d L N₀ k k y, ‖φ x‖ = 1) :
     gamma0 d * ((L : ℝ) ^ (k * (d - 2)) * (1 / 2 * (‖ψ k y‖ - 1) ^ 2)) ≤
       actionG (singleGen d L N₀ k ϱ) a μ h X ψ φ := by
-  have hL0 : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hLr : (0 : ℝ) < L := by exact_mod_cast hL0
-  set Q := bavgL d L N₀ k k φ y with hQ
-  set ε := bondE (fib d L N₀ k k y) φ with hε
-  have hε0 : 0 ≤ ε := bondE_nonneg _ _
-  set Lk : ℝ := (L : ℝ) ^ (k * (d - 2)) with hLk
-  have hLkpos : 0 < Lk := by positivity
-  set w : ℝ := ((L : ℝ) ^ k) ^ 2 * (((L : ℝ) ^ k) ^ d)⁻¹ with hw
-  have hw0 : 0 ≤ w := by rw [hw]; positivity
-  have hWw : Lk * w = 1 := weight_mul_c hd hL0 k
-  have hcast : ((L ^ k : ℕ) : ℝ) = (L : ℝ) ^ k := by push_cast; ring
-  have h1 : 1 - ‖Q‖ ^ 2 ≤ (w * ε) / 2 := by
-    have := hardSpin_one_sub_sq_le (sideEq (L := L) (N₀ := N₀) (le_refl k)) φ y
-      (fun x hx => hφ x (by rw [fib_eq_blockFibre]; exact hx))
-    rw [← fib_eq_blockFibre, hcast] at this
-    rw [hQ, bavgL_eq, hε, hw]
-    linarith
-  have hQ1 : ‖Q‖ ≤ 1 := norm_bavg_le_one le_rfl φ y hφ
-  set Δ := ‖ψ k y - Q‖ ^ 2 with hΔ
-  set P := (‖ψ k y‖ - 1) ^ 2 with hP
-  have hQ0 : 0 ≤ ‖Q‖ := norm_nonneg _
-  have hP1 : P ≤ 2 * Δ + 2 * (1 - ‖Q‖ ^ 2) := by
-    have h2 : |‖ψ k y‖ - ‖Q‖| ≤ ‖ψ k y - Q‖ := abs_norm_sub_norm_le _ _
-    have ha2 : (‖ψ k y‖ - ‖Q‖) ^ 2 ≤ Δ := by
-      calc (‖ψ k y‖ - ‖Q‖) ^ 2 = |‖ψ k y‖ - ‖Q‖| ^ 2 := (sq_abs _).symm
-        _ ≤ ‖ψ k y - Q‖ ^ 2 := pow_le_pow_left₀ (abs_nonneg _) h2 2
-    have hb : (1 - ‖Q‖) ^ 2 ≤ 1 - ‖Q‖ ^ 2 := by nlinarith
-    have : P = ((‖ψ k y‖ - ‖Q‖) - (1 - ‖Q‖)) ^ 2 := by rw [hP]; ring
-    rw [this]
-    nlinarith [sq_nonneg ((‖ψ k y‖ - ‖Q‖) + (1 - ‖Q‖))]
-  -- lower bound for the action
-  have hak := (ha k hk le_rfl).1
-  have hsingle := actionG_single (ϱ := ϱ) hk a μ h X ψ φ
-  have hblock : a k * Lk * Δ ≤ ∑ y' ∈ tBlocks d L N₀ k k X,
-      a k * Lk * ‖ψ k y' - bavgL d L N₀ k k φ y'‖ ^ 2 :=
-    Finset.single_le_sum (f := fun y' => a k * Lk * ‖ψ k y' - bavgL d L N₀ k k φ y'‖ ^ 2)
-      (fun y' _ => by positivity) hy
-  have hbond : ε ≤ bondE X φ := bondE_mono (fib_subset_of_mem_tBlocks hXk hy) φ
-  have hmass : 0 ≤ μ / 2 * ∑ x ∈ X, ‖φ x - h‖ ^ 2 :=
-    mul_nonneg (by positivity) (Finset.sum_nonneg fun _ _ => by positivity)
-  have hact : 1 / 4 * (Lk * Δ) + 1 / 2 * ε ≤ actionG (singleGen d L N₀ k ϱ) a μ h X ψ φ := by
-    rw [hsingle]
-    have hΔ0 : 0 ≤ Δ := by positivity
-    have : 1 / 4 * (Lk * Δ) ≤ 1 / 2 * (a k * Lk * Δ) := by
-      have := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right
-        (show (1 / 2 : ℝ) ≤ a k from (ha k hk le_rfl).1) hLkpos.le) hΔ0
-      linarith
-    linarith
-  have hr : Lk * (1 - ‖Q‖ ^ 2) ≤ ε / 2 := by
-    calc Lk * (1 - ‖Q‖ ^ 2) ≤ Lk * ((w * ε) / 2) := mul_le_mul_of_nonneg_left h1 hLkpos.le
-      _ = (Lk * w) * ε / 2 := by ring
-      _ = ε / 2 := by rw [hWw]; ring
-  have hg : gamma0 d ≤ 1 / 4 := by
-    unfold gamma0
-    have : (4 : ℝ) ≤ 28 * d := by
-      have : (2 : ℝ) ≤ d := by exact_mod_cast hd
-      linarith
-    rw [div_le_div_iff₀ (by positivity) (by norm_num)]
-    linarith
-  have hPnn : 0 ≤ Lk * (1 / 2 * P) := by positivity
-  have hkey : Lk * (1 / 2 * P) ≤ Lk * Δ + ε / 2 := by nlinarith
-  calc gamma0 d * (Lk * (1 / 2 * P)) ≤ 1 / 4 * (Lk * (1 / 2 * P)) :=
-        mul_le_mul_of_nonneg_right hg hPnn
-    _ ≤ 1 / 4 * (Lk * Δ + ε / 2) := by linarith
-    _ ≤ _ := by linarith
+  have hlam : lam (singleGen d L N₀ k ϱ) k = Finset.univ := lam_single_self hk
+  exact lf1_point_gain (singleGen d L N₀ k ϱ) hk hd ha hμ h (single_hX hk hXk) ψ φ
+    (by rwa [hlam, Finset.univ_inter]) hφ
 
 end Single
 
@@ -304,29 +176,9 @@ theorem single_violation_bound (hk : 1 ≤ k) (hd : 2 ≤ d) (hL : 2 ≤ L)
     (hθ : 0 ≤ θ) (hviol : ¬ PsiTildeSet {y : Blk d L N₀ k k | fib d L N₀ k k y ⊆ X} (ψ k) θ) :
     gamma0 d * ((L : ℝ) ^ (k * (d - 2)) * (θ ^ 2 / 2)) ≤
       actionG (singleGen d L N₀ k ϱ) a μ h X ψ φ := by
-  have hg0 : 0 ≤ gamma0 d := by unfold gamma0; positivity
-  have hmem : ∀ y : Blk d L N₀ k k, fib d L N₀ k k y ⊆ X → y ∈ tBlocks d L N₀ k k X := fun y hy =>
-    (mem_tBlocks_iff_fib_subset hXk le_rfl).2 hy
-  unfold PsiTildeSet at hviol
-  rw [not_and_or] at hviol
-  rcases hviol with hb | hp
-  · push Not at hb
-    obtain ⟨y, hy, y', hy', hadj, hbig⟩ := hb
-    have := single_gradient_bound hk hd hL hϱ ha hμ h hXk ψ φ (hmem y hy) (hmem y' hy') hadj
-    refine le_trans ?_ this
-    have h9 : θ ^ 2 ≤ ‖ψ k y - ψ k y'‖ ^ 2 := pow_le_pow_left₀ hθ hbig 2
-    have := mul_le_mul_of_nonneg_left h9 (by positivity : 0 ≤ (L : ℝ) ^ (k * (d - 2)) / 2)
-    exact mul_le_mul_of_nonneg_left (by nlinarith) hg0
-  · push Not at hp
-    obtain ⟨y, hy, hbig⟩ := hp
-    have := single_point_bound (ϱ := ϱ) hk hd ha hμ h hXk ψ φ (hmem y hy)
-      (fun x hx => hφ x (hy hx))
-    refine le_trans ?_ this
-    have h9 : θ ^ 2 ≤ (‖ψ k y‖ - 1) ^ 2 := by
-      have : θ ^ 2 ≤ |‖ψ k y‖ - 1| ^ 2 := pow_le_pow_left₀ hθ hbig 2
-      rwa [sq_abs] at this
-    have hL0 : (0 : ℝ) ≤ (L : ℝ) ^ (k * (d - 2)) := by positivity
-    exact mul_le_mul_of_nonneg_left (by nlinarith) hg0
+  have hlam : lam (singleGen d L N₀ k ϱ) k = Finset.univ := lam_single_self hk
+  exact lf1_violation_gain (singleGen d L N₀ k ϱ) hk hd hL hϱ ha hμ h (single_hX hk hXk)
+    (by rw [hlam, Finset.univ_inter]) ψ φ hφ hθ hviol
 
 /-- **The single-scale small factor** (Lemma III.5.3 (e), `ϰ₅`, level-torus form): a violation of
 `Ψ̃(·; θ)` on `X` costs `β_kA^*_k(X; ψ_k, φ) ≥ ½ γ₀ β_k θ²` (with `θ = δ_k/(6K₁)` this is
