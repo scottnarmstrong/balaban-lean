@@ -1328,6 +1328,7 @@ public import Balaban.Fluctuation.HoleStepPointLocal
 public import Balaban.Fluctuation.HoleStepOldLocal
 public import Balaban.Fluctuation.HoleStepStanding
 public import Balaban.Fluctuation.HoleStepGeom
+public import Balaban.Fluctuation.HoleStepLocal
 public import Balaban.LargeField.Background.HoleStepSets
 public import Balaban.LargeField.Background.HoleStepCover
 public import Balaban.Fluctuation.StepIdentityQuad
@@ -3009,6 +3010,7 @@ public import Balaban.Spine.LFHoleStepPhi
 public import Balaban.Spine.LFOldCoef
 public import Balaban.Spine.LFOldLocal
 public import Balaban.Spine.LFOldRead
+public import Balaban.Spine.LFOldH7
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
 public import Balaban.Fluctuation.BgTransportReads
