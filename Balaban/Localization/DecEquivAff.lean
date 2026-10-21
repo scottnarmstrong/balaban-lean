@@ -540,6 +540,39 @@ theorem block_base_aff (q : ℕ × CTorus d L N₁ m₁ K) (hr : 1 ≤ q.1 ∧ q
     rw [AffIso.toFun_invFun]; exact hc
   exact jBlock_eq_of_sameCell h1
 
+/-- The action of `A` on the centres of blocks: `(j, y₀) ↦ (j, base of the image block)`. -/
+def affBlocks (A : AffIso d ((N₁ * L ^ m₁) * L ^ K)) :
+    Equiv.Perm (ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :=
+  Equiv.prodShear (Equiv.refl ℕ) (fun j =>
+    A.toEquiv.trans (Equiv.subRight (baseMask A (L ^ j))))
+
+theorem affBlocks_apply (A : AffIso d ((N₁ * L ^ m₁) * L ^ K))
+    (q : ℕ × Torus d ((N₁ * L ^ m₁) * L ^ K)) :
+    affBlocks (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) A q = (q.1, baseImg A (L ^ q.1) q.2) := rfl
+
+include hAl hG hG' hΩ in
+/-- **`CoverSymm.ofTranslate` generalized**: an aligned affine lattice isometry preserving the
+domains of a cube-aligned generating set is compatible with its cover. -/
+def CoverSymm.ofAff {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (hG : CubeAligned G m₁)
+    (hΩ : ∀ j x, A.toFun x ∈ G.Ω j ↔ x ∈ G.Ω j) :
+    CoverSymm (coverOf G) A.toEquiv where
+  τ := affCentres (m₁ := m₁) A m₁
+  idx := cover_idx_aff A hAl hG hG hΩ
+  chi := cover_chi_aff A hAl hG hG hΩ
+  box := cover_box_aff A
+  qset := cover_qset_aff A hAl hG hG hΩ
+
+/-- **`BlockSymm.ofTranslate` generalized.** -/
+def BlockSymm.ofAff {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (hG : CubeAligned G m₁)
+    (hΩ : ∀ j x, A.toFun x ∈ G.Ω j ↔ x ∈ G.Ω j) : BlockSymm G A.toEquiv where
+  τ := affBlocks A
+  idx := block_idx_aff A hAl hG hG hΩ
+  layer := fun _ => rfl
+  bump := block_bump_aff A
+  base := fun q hq => by
+    obtain ⟨hr, -, hb⟩ := (Background.mem_blockIdx G).1 hq
+    exact block_base_aff A hAl q hr hb
+
 end CoverAff
 
 end Balaban.Localization.DecEquiv
