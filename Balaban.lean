@@ -2161,6 +2161,13 @@ public import Balaban.LargeField.Base.BaseChartActAnalytic
 public import Balaban.LargeField.Base.BaseChartActAlg
 public import Balaban.LargeField.Base.BaseChartActBound
 public import Balaban.LargeField.Base.BaseHessianRows
+public import Balaban.LargeField.Base.BaseChartActExpansion
+public import Balaban.LargeField.Base.BaseChartActReads
+public import Balaban.LargeField.Base.BaseChartActLocal
+public import Balaban.LargeField.Base.BaseBgFunctional
+public import Balaban.LargeField.Base.BaseBgExpansion
+public import Balaban.LargeField.Base.BaseBgAgree
+public import Balaban.LargeField.Base.BaseBgLocalityAlg
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
