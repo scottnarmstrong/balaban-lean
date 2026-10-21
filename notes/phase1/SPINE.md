@@ -841,6 +841,21 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   lifted datum in `Ψ̃^c(ε, ε)`) is prepared on the branch `w1154-r14` (not merged). Next after R14: the chain of
   pieces 5c–5q on `holeStepLoc2` and `V₂`.
 
+* **Status after W1154c (2026-10-21): the chain of pieces 5c–5q and the D7 coefficient clauses on the HS-2 objects.**
+  Cores over the readings of the local pair (the datum `glob` of `holeStepLocAt`, the label map `σ` of the local sets
+  `V(σ X, J)`): `oldCoefLocAt`, `norm_oldCoefLocAt_le_of_dom`, `analyticOnNhd_oldCoefLocAt_fluct`, `oldMarkLFAt`,
+  `norm_oldMarkLFAt_le_of_dom`, `oldClusterLFAt_spec_of_dom`, `sitesXAt`, `oldMarkSiteAt`, `norm_oldClusterSiteAt_le_of_dom`,
+  `oldBAtAt`, `norm_oldBAtAt_le_of_dom`, `oldBOf`, `norm_oldBOf_le_of_dom` (local conditions `hD`, `hdom`, `hloc` in place
+  of the named inputs) and W1158's `oldCoefLocAt_rot`, `_im`, `_congr_fields`, `_analytic_family(_LF)`, `_euclid`,
+  `holeStepLocAt_congr_hist(_Z)`; the landed HS-1′ declarations are their instances (statements unchanged). HS-2
+  instances: `Spine/LFOldHS2Chain` (`oldCoefLoc2`, `oldB2`, **`norm_oldB2_le`**, `locConds_of_h7MixedLoc2`, the stencil at
+  an output label `d7Pull_stencilX_subset_outLabel`) and `Spine/LFOldHS2D7` (`oldCoefLoc2_rot`, `_im`, `_congr_fields`,
+  `_analytic_family(_LF)`, `_euclid` with `stencilX_map_ec`, `holeStepLoc2_congr_hist_Z`, `stepReadsIn_outLabel2`). The
+  condition D1 of the HS-2 named inputs is `CubesOfIn` (the cubes of the sites read; PLAN-B, "Amendment of D1").
+  Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
+  3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
+  `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+
 ## LastIntegralInput sub-inputs (W1108)
 
 **PROVED** (`Balaban/Spine/LastIntegral.lean`; no `sorry`; axioms `propext, Classical.choice, Quot.sound`):

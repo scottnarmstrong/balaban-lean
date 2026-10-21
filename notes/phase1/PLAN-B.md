@@ -372,3 +372,32 @@ approved declaration.
   stated for the cube domains of the ruling request R14), with `h7Domain_composedMulti_loc2`. Not yet done: the
   chain of pieces 5c–5q (coefficient, marks, cluster terms, `oldB` and its bound) on `holeStepLoc2` and `V₂`; it
   waits for the decision on R14, which changes its domain hypotheses.
+- **Reading HS-2, the chain on the local pairs (W1154c, 2026-10-21).** Pieces 5c–5q and W1158's coefficient clauses are
+  cores over the readings of the local pair (`Spine/LFHoleStepLoc` … `Spine/LFOldBBound`, `Spine/LFOldD7*Loc`): the
+  datum is a parameter `glob` of `holeStepLocAt` (`locTop`: the top set of the mixed lift is the global top layer
+  `Ω_{k+1}` for `glob = true`, the top layer of the restricted set for `glob = false`), the local set of a label `X` is
+  `V(σ X, J)`; the landed HS-1′ objects are the instances `glob = false`, `σ = id` (statements unchanged, bodies calls
+  of the cores; `holeStepLoc` is now an `abbrev`). The cores take, in place of the named inputs, the two local
+  conditions they use (`hD`: the datum in `Ψ̃^c(δ_b, δ_b)`; `hdom`: the composed multiscale field in the source H7
+  domain at `X`), and at an output label `Y` the conditions for the old labels and families whose mark sites lie in
+  `T` with `Ŷ(T) = Y` (`hloc`). Instances for HS-2 (`glob = true`, `σ = stencilX`): `oldCoefLoc2`,
+  `norm_oldCoefLoc2_le_of_inputs`, `oldB2`, **`norm_oldB2_le`** (`Spine/LFOldHS2Chain`; conditional on
+  `H7MixedInnerLoc2`, `H7MixedDatumLoc2`, with `OldResumSiteAt stencilX` proved by `oldResumSite2_holds`) and the
+  coefficient clauses `oldCoefLoc2_rot`, `_im`, `_congr_fields`, `_analytic_family(_LF)`, `_euclid`,
+  `holeStepLoc2_congr_hist_Z`, `stepReadsIn_outLabel2` (`Spine/LFOldHS2D7`).
+  **Amendment of D1 (W1154c).** The named inputs of HS-2 ask the cubes of `𝕋_{k+1}` *of* the sites read to lie in `Y_f`
+  (`CubesOfIn`; for `H7MixedInnerLoc2` the sites of the stencil `X^{∼3}` and the data sites of `G′_V`, for
+  `H7MixedDatumLoc2` the data sites), not the cubes *within 3 cubes* of them (`CubesNearIn`, removed): the output label
+  `Ŷ(T)` has no margin around the mark site (its `π′`-cubes start at the cells of the base sites), so the 3-neighbourhoods
+  do not lie in it, while every site of `Ŷ(T)` has its cube there (`cubesOfIn_fineSet`); every site read is still read
+  by the test at its own cube, which also reads its neighbours. The stencil of an old label lies in `Ŷ(T)`
+  (`d7Pull_stencilX_subset_outLabel`: it is connected, `siteConnected_d7Pull_stencilX`, and its sites in `Ω_{k+1}` are
+  sites of the core of `V₂(X, J)`, hence of the mark site). With this the conditions of the cores at an output label
+  follow from the two named inputs (`locConds_of_h7MixedLoc2`).
+  **The remaining inputs (open).** `H7MixedInnerLoc2` is P5 Lemma 2.1 in the complex domains (Balaban: "we will have to
+  prove a more general statement in Sect. 2 of the third paper"): for the cubes of `𝕋_k` near `Ω_{k+1}` the composed field
+  `ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂` passes the scale-`k` cube tests; its proof needs the datum of the local
+  pair in the domain of I-4b (the background bounds; without it `decBgField` is `0`), the comparison of the background of
+  the cube set `G_k(□)` at the composed field with the background of the local pair, and room conditions on `r_ψ`, `R`
+  and the tolerances (the named input has none, so it is a schematic statement to be proved under them).
+  `H7MixedDatumLoc2` waits for R14.
