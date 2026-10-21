@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Base.BaseChartLabelAct
+public import Balaban.LargeField.Base.BaseUnionNumerics
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -465,6 +466,57 @@ theorem defTerm_continuous [∀ b, TopologicalSpace (Ωb b)] (hfld_cont : Contin
     exact ((hco (x, i)).mul continuous_const).mul (hco q)
   · simp only [hl, ite_false]
     exact continuous_const
+
+open Classical in
+include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hd
+  hVS hA hG hWr hfld_meas hfld_bd hfld_loc hV hDB hDrow hDrange in
+/-- **The union `LabelAct`, relaxed to a common amplitude `ε*`.**  For `κ` large (`labelRate_ge`) and
+`ε*` with `chart amplitude + defect amplitude ≤ ε* ≤ ε_max`, `0 < ε*`: the family of
+`chartDefectActivity_LabelAct` is a family of `LabelAct` of amplitude `ε*`, rate `labelRate`, `κ0 = a_ent + 1`
+and `Kc = K₀ + 1`, i.e. with exactly the constants of the hypotheses of `marked_cubes_explicit`. -/
+theorem union_labelAct_eps {κ' εs : ℝ} (hκ'0 : 0 ≤ κ')
+    (hκlarge : 1 + 2 * Real.log (labelDelta d L 0 (ρ + L) : ℕ) +
+      4 * d * L * 20 ^ d * (κ' + 3 * (aEnt d L + 1) + c1 d L + 3 / 2) ≤ κ)
+    (hεpos : 0 < εs)
+    (hεs : εs ≤ epsMax d L (K0 d L (aEnt d L + 1) + 1) (labelRate d L 0 (ρ + L) κ) (aEnt d L + 1) κ')
+    (hεtot : labelAmp d L m₀ m₁ 0 (ρ + L) κ (2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg) +
+      defAmp d L m₀ m₁ N rD DB p₁ (labelRate d L 0 (ρ + L) κ) ≤ εs) :
+    0 < εs ∧ εs ≤ epsMax d L (K0 d L (aEnt d L + 1) + 1) (labelRate d L 0 (ρ + L) κ) (aEnt d L + 1) κ' ∧
+    ∃ (hdom : ∀ Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD, IsDj m₀ 1 Y)
+      (A : RawData d L (N₁ * L ^ m₁) 1 N → LabelAct
+        (thickLabels (m₀ := m₀) (j := 1) (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom) Ωb
+        εs (labelRate d L 0 (ρ + L) κ) (aEnt d L + 1) (K0 d L (aEnt d L + 1) + 1)),
+      (∀ e ∈ V, ∀ (y : {Y // Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD}) Φ,
+        (A e).H y Φ = chartTerm G a ν β g W F m₀ (ρ + L) y.1 e (fld Φ) +
+          defTerm G Dm m₀ rD y.1 (fld Φ)) ∧
+      (∀ (y : {Y // Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD}) Φ,
+        AnalyticOnNhd ℂ (fun e => (A e).H y Φ) V) ∧
+      (∀ e ∈ V, ∀ Φ, ∑ Y ∈ chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD,
+          (chartTerm G a ν β g W F m₀ (ρ + L) Y e (fld Φ) + defTerm G Dm m₀ rD Y (fld Φ)) =
+        ∑ x : G.Ω 1, (chartFe G a ν β g (fld Φ) W x (F (fun _ => 1, e)) +
+          defPt G Dm (fld Φ) x)) := by
+  have hc1 := one_le_c1 d L
+  have haent := aEnt_nonneg d L
+  have hT : 0 < κ' + 3 * (aEnt d L + 1) + c1 d L + 3 / 2 := by linarith
+  obtain ⟨hz, -⟩ := labelRate_ge d L 0 (ρ + L) hd hT hκlarge
+  obtain ⟨hdom, A, hA1, hA2, hA3⟩ := chartDefectActivity_LabelAct hS G a ν β hβ Sb HB hκ hM hF hFan hΩ
+    hDD hDr hm4 hd hL2 g ρ W hWloc hWr hWan hE hBW hp hA hG hU hg hsmall hmemAll hN fld hfld_meas
+    hfld_bd hfld_loc hV hVS Dm rD hDB hDrow hDrange (κ0 := aEnt d L + 1)
+    (Kent := K0 d L (aEnt d L + 1) + 1) (le_refl (aEnt d L + 1)) (by linarith) hz
+  have hB0 : 0 ≤ 2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg := by
+    have := chartBound_nonneg d L N (a 1) ν β Aα Ee BW p₁ Gg hβ hA hE hBW hp hG
+    linarith
+  have hε1 := labelAmp_nonneg d L m₀ m₁ 0 (ρ + L) κ hB0 hz
+  have hκH : 0 ≤ labelRate d L 0 (ρ + L) κ := by
+    have hz0 := labelZ_pos d L 0 (ρ + L) κ
+    have hlam : 0 < -Real.log (labelZ d L 0 (ρ + L) κ) := by
+      have := Real.log_neg hz0 hz; linarith
+    unfold labelRate; positivity
+  have hε2 : 0 ≤ defAmp d L m₀ m₁ N rD DB p₁ (labelRate d L 0 (ρ + L) κ) := by
+    unfold defAmp
+    have hc1' : 0 ≤ c1 d L := by unfold c1; positivity
+    positivity
+  exact ⟨hεpos, hεs, hdom, fun e => (A e).mono (add_nonneg hε1 hε2) hεtot le_rfl le_rfl le_rfl, hA1, hA2, hA3⟩
 
 end Union
 
