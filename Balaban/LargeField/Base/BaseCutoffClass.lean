@@ -107,4 +107,25 @@ theorem sqrt_mul_delta {β a p : ℝ} (hβ : 0 < β) (ha : 0 < a) :
   rw [Real.sqrt_eq_rpow, ← Real.rpow_add hβ]
   norm_num
 
+/-- **The third condition from the ratio `p₁/p₀`**: with `δ₀ = (β a)^{-1/2} p₀`, a row-sum bound
+`‖W‖_row ≤ B` and `12 N B √a p₁ ≤ p₀` (i.e. `A₁/A₀ ≤ 1/(12 N B √a)`, `p₁ = A₁ λ^{p₀}`,
+`p₀ = A₀ λ^{p₀}`) one has `N ‖W‖_row p₁ ≤ √β δ₀/12`. -/
+theorem tangent_condition_of_ratio {N mr B a p₀ p₁ β δ₀ : ℝ} (hβ : 0 < β) (ha : 0 < a)
+    (hδ : δ₀ = (β * a) ^ (-(1 / 2 : ℝ)) * p₀) (hN : 0 ≤ N) (hmr : mr ≤ B) (hp₁ : 0 ≤ p₁)
+    (hp : 12 * N * B * Real.sqrt a * p₁ ≤ p₀) : N * mr * p₁ ≤ Real.sqrt β * δ₀ / 12 := by
+  have hs : 0 < Real.sqrt a := Real.sqrt_pos.2 ha
+  have h1 : Real.sqrt β * δ₀ = a ^ (-(1 / 2 : ℝ)) * p₀ := by rw [hδ]; exact sqrt_mul_delta hβ ha
+  have h2 : a ^ (-(1 / 2 : ℝ)) * Real.sqrt a = 1 := by
+    rw [Real.sqrt_eq_rpow, ← Real.rpow_add ha]; norm_num
+  have h3 : a ^ (-(1 / 2 : ℝ)) * (12 * N * B * Real.sqrt a * p₁) ≤ a ^ (-(1 / 2 : ℝ)) * p₀ :=
+    mul_le_mul_of_nonneg_left hp (Real.rpow_nonneg ha.le _)
+  have h4 : a ^ (-(1 / 2 : ℝ)) * (12 * N * B * Real.sqrt a * p₁) = 12 * N * B * p₁ := by
+    calc _ = (a ^ (-(1 / 2 : ℝ)) * Real.sqrt a) * (12 * N * B * p₁) := by ring
+      _ = _ := by rw [h2, one_mul]
+  have h5 : N * mr * p₁ ≤ N * B * p₁ := by
+    have := mul_le_mul_of_nonneg_left hmr hN
+    exact mul_le_mul_of_nonneg_right this hp₁
+  rw [h1]
+  linarith
+
 end Balaban.LargeField.Base

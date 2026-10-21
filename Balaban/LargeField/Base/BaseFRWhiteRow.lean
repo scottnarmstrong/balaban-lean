@@ -76,7 +76,7 @@ theorem matRowSum_baseWhiteW_le [Nonempty (G.Ω 1)] [NeZero N] (hν : 0 ≤ ν)
       have hmaps : Set.MapsTo (fun y : G.Ω 1 => y.1) (B : Set (G.Ω 1))
           (↑(Finset.univ.filter fun z : Torus d (N₀ * L ^ 1) => torusDist d (N₀ * L ^ 1) p.1.1 z ≤ Rn)) := by
         intro y hy
-        simp only [hB, Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_setOf_eq] at hy
+        simp only [hB, Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq] at hy
         simpa [siteDist] using hy
       exact (Finset.card_le_card_of_injOn _ hmaps Subtype.val_injective.injOn).trans
         (card_ball_le _ Rn)
