@@ -153,9 +153,8 @@ open Classical in
 /-- **The all-good sector split along the `𝖱₁` test** (LFR Definition II.7.1, P5 (2.43) at `k = 0`):
 the whitened all-good term of `baseRho1_allGood_whitened` is the sum of the small-fluctuation term
 (`∏_x 1[|φ_x| < p₁]`) and its complement, provided the whitened integrand is integrable
-(`hint`; the chart integrand is integrable because the spin integrand is bounded on the compact
-sphere configuration space, `integral_sphere_pi_hemisphere_complex`; the transfer of this
-integrability to the whitened Gaussian variable is not proved here). -/
+(`hint`; it holds for the first-sector chart integrand, see `baseRho1_allGood_baseWhite_split`
+in `BaseFirstAllGoodWhiteInst.lean`). -/
 theorem integral_whitened_allGood_split {ι : Type*} [Fintype ι] {N : ℕ} (p₁ : ℝ)
     (qD : Config ι N → ℝ) (Ψ : Config ι N → ℂ)
     (hint : Integrable fun φ : Config ι N =>

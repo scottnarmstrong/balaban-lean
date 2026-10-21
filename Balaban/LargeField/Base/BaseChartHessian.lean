@@ -601,6 +601,24 @@ theorem baseSectorHessian_cut_core_one_of_product_ne_zero (ϱ : ℝ)
   exact baseSectorHessian_pair_eq_cinner_of_product_ne_zero ϱ aw regimeB
     ν δ₀ hδ h hh H hΛ1 θ φ hp u v
 
+/-- The sector centre is a unit vector at every fine site of the first sector. -/
+theorem baseSector_center_sq_sum (ϱ : ℝ) (aw : ℕ → ℝ)
+    (regimeB : Prop) (ν : ℝ)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (z : (GeneratingSet.single (d := d) (L := L) (N₀ := 1 * n) (k := 1) ϱ).Ω 1) :
+    ∑ i, (baseSectorCenter ϱ aw regimeB ν h θ
+      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ) ^ 2 = 1 := by
+  have hn := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
+    (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1)))
+  have hs := EuclideanSpace.norm_sq_eq
+    (baseSectorCenter ϱ aw regimeB ν h θ
+      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))))
+  simp only [Real.norm_eq_abs, sq_abs] at hs
+  rw [← hs, hn]
+  norm_num
+
 /-- The landed base cut/core coercivity at its uncut parameter, for the physical
 background centre and the multiplier smallness premise of the base resolvent. -/
 theorem baseSector_baseOp_coercive_of_mult_bound (ϱ : ℝ) (aw : ℕ → ℝ)
@@ -630,17 +648,8 @@ theorem baseSector_baseOp_coercive_of_mult_bound (ϱ : ℝ) (aw : ℕ → ℝ)
   let e : G.Ω 1 → Fin N → ℝ := fun z i =>
     (baseSectorCenter ϱ aw regimeB ν h θ
       (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ)
-  have he (z : G.Ω 1) : ∑ i, e z i ^ 2 = 1 := by
-    have hn := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
-      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1)))
-    have hs := EuclideanSpace.norm_sq_eq
-      (baseSectorCenter ϱ aw regimeB ν h θ
-        (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))))
-    simp only [Real.norm_eq_abs, sq_abs] at hs
-    change ∑ i, (baseSectorCenter ϱ aw regimeB ν h θ
-      (baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))) i : ℝ) ^ 2 = 1
-    rw [← hs, hn]
-    norm_num
+  have he (z : G.Ω 1) : ∑ i, e z i ^ 2 = 1 :=
+    baseSector_center_sq_sum ϱ aw regimeB ν h hh H θ z
   exact baseOp_isCoercive_real G hμ ha hα (fun _ => 1)
     (fun _ _ => ⟨zero_le_one, le_rfl⟩) e he
 

@@ -324,6 +324,102 @@ theorem baseSector_gaussForm_toMatrix_baseOp (ϱ : ℝ) (aw : ℕ → ℝ) (μ :
   rw [hA] at hK
   exact hK
 
+theorem torus_cast_cast_symm {a b : ℕ} (h : a = b) (x : Torus d b) : h ▸ (h.symm ▸ x) = x := by
+  cases h
+  rfl
+
+theorem torus_cast_symm_cast {a b : ℕ} (h : a = b) (x : Torus d a) : h.symm ▸ (h ▸ x) = x := by
+  cases h
+  rfl
+
+/-- The identification of the fine sites of the first sector with the physical torus
+`𝕋_{Ln}` (the transport of `baseSector_side`). -/
+def baseSiteEquiv (ϱ : ℝ) : (GeneratingSet.single (d := d) (L := L)
+    (N₀ := 1 * n) (k := 1) ϱ).Ω 1 ≃ Torus d (L * n) where
+  toFun z := baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))
+  invFun x := ⟨(baseSector_side L n).symm ▸ x,
+    baseSector_mem_single ϱ ((baseSector_side L n).symm ▸ x)⟩
+  left_inv z := Subtype.ext (torus_cast_symm_cast (baseSector_side L n) z.1)
+  right_inv x := torus_cast_cast_symm (baseSector_side L n) x
+
+/-- **The chart matrix as a reindexed base operator.** At the physical parameter `s = 1`, the
+real coordinate matrix of the chart form `gaussForm e Hα` (complexified) is the base operator
+`baseOp` of the first-step cut Hamiltonian, reindexed from `G.Ω 1 × Fin N` to the coordinates of
+`Config (𝕋_{Ln}) N`. -/
+theorem baseSector_gaussForm_map_eq_reindex
+    (ϱ : ℝ) (aw : ℕ → ℝ) (regimeB : Prop) (ν δ₀ : ℝ)
+    (hδ : 0 < δ₀) (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ : CfgT d N L n)
+    (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ ≠ 0) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+    let Hα := baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
+    let B := Pi.basis (fun _ : Torus d (L * n) =>
+      (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
+    let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
+      (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+        (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
+    (LinearMap.toMatrix B B (gaussForm e Hα)).map (algebraMap ℝ ℂ) =
+      Matrix.reindex c c (baseOp N (fun z i => ((e (baseSiteEquiv ϱ z) i : ℝ) : ℂ))
+        (baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1))) := by
+  dsimp only
+  let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+  let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+  let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+  let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
+    baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
+  let B := Pi.basis (fun _ : Torus d (L * n) =>
+    (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
+  let K := LinearMap.toMatrix B B (gaussForm e Hα)
+  let t := baseSiteEquiv (d := d) (L := L) (n := n) ϱ
+  let site : Torus d (L * n) → G.Ω 1 := fun x =>
+    ⟨(baseSector_side L n).symm ▸ x,
+      baseSector_mem_single ϱ ((baseSector_side L n).symm ▸ x)⟩
+  let ρ := Equiv.prodCongr t (Equiv.refl (Fin N))
+  let σ := Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)
+  let a : G.Ω 1 → Fin N → ℝ := fun z i => (e (t z) i : ℝ)
+  let D := dirichletOperator G aw (if regimeB then ν else 0)
+    (fun z => ((α z).re : ℂ))
+  let A := baseOp N (fun z i => (a z i : ℂ)) D
+  let Aphys := baseOp N (fun x i => (e x i : ℂ))
+    (fun x y => D (site x) (site y))
+  have hα (z : G.Ω 1) : α z = ((α z).re : ℂ) := by
+    apply Complex.ext
+    · simp
+    · simpa using baseSector_bgMult_real_of_product_ne_zero
+        ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp z
+  have hD : baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1) = D := by
+    rw [baseHamiltonian_one]
+    congr 1
+    funext z
+    exact hα z
+  have htrans : Matrix.reindex ρ ρ A = Aphys := by
+    have hr := baseOp_reindex_real t a D
+    change Matrix.reindex ρ ρ A =
+      baseOp N (fun x i => (a (t.symm x) i : ℂ))
+        (Matrix.reindex t t D) at hr
+    rw [hr]
+    unfold Aphys
+    congr 1
+    · funext x i
+      simp [a, t]
+  have hK : (Matrix.reindex σ σ K).map (algebraMap ℝ ℂ) = Aphys := by
+    have hk := baseSector_gaussForm_toMatrix_baseOp ϱ aw
+      (if regimeB then ν else 0) (fun z => (α z).re) e
+    exact hk
+  have hKC : K.map (algebraMap ℝ ℂ) = Matrix.reindex σ.symm σ.symm Aphys := by
+    ext p q
+    have hpq := congrArg (fun M : Matrix (Torus d (L * n) × Fin N)
+      (Torus d (L * n) × Fin N) ℂ => M (σ p) (σ q)) hK
+    simpa [Matrix.reindex_apply] using hpq
+  rw [hD, hKC, ← htrans]
+  ext p q
+  simp only [Matrix.reindex_apply, Matrix.submatrix_apply]
+  rfl
+
 /-- On nonzero first-sector support, the physical P4 (2.44) chart matrix is
 positive definite. The estimate comes from the uncut BASE-KERNEL-3 (1.5)
 base-operator coercivity after transport of the fine sites. -/
@@ -354,82 +450,16 @@ theorem baseSector_gaussForm_posDef_of_product_ne_zero
   let B := Pi.basis (fun _ : Torus d (L * n) =>
     (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
   let K := LinearMap.toMatrix B B (gaussForm e Hα)
-  let site : Torus d (L * n) → G.Ω 1 := fun x =>
-    ⟨(baseSector_side L n).symm ▸ x,
-      baseSector_mem_single ϱ ((baseSector_side L n).symm ▸ x)⟩
-  have castF {a b : ℕ} (h : a = b) (x : Torus d b) :
-      h ▸ (h.symm ▸ x) = x := by
-    cases h
-    rfl
-  have castR {a b : ℕ} (h : a = b) (x : Torus d a) :
-      h.symm ▸ (h ▸ x) = x := by
-    cases h
-    rfl
-  have hcastF (x : Torus d (L * n)) :
-      baseSector_side L n ▸ ((baseSector_side L n).symm ▸ x) = x := by
-    exact castF (baseSector_side L n) x
-  have hcastR (x : Torus d (1 * n * L ^ 1)) :
-      (baseSector_side L n).symm ▸ (baseSector_side L n ▸ x) = x := by
-    exact castR (baseSector_side L n) x
-  let t : G.Ω 1 ≃ Torus d (L * n) :=
-    { toFun := fun z => baseSector_side L n ▸ (z : Torus d (1 * n * L ^ 1))
-      invFun := site
-      left_inv := by intro z; apply Subtype.ext; exact hcastR z.1
-      right_inv := hcastF }
-  let ρ := Equiv.prodCongr t (Equiv.refl (Fin N))
-  let σ := Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)
-  let a : G.Ω 1 → Fin N → ℝ := fun z i => (e (t z) i : ℝ)
-  let D := dirichletOperator G aw (if regimeB then ν else 0)
-    (fun z => ((α z).re : ℂ))
-  let A := baseOp N (fun z i => (a z i : ℂ)) D
-  let Aphys := baseOp N (fun x i => (e x i : ℂ))
-    (fun x y => D (site x) (site y))
-  have hα (z : G.Ω 1) : α z = ((α z).re : ℂ) := by
-    apply Complex.ext
-    · simp
-    · simpa using baseSector_bgMult_real_of_product_ne_zero
-        ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp z
-  have hD : baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1) = D := by
-    rw [baseHamiltonian_one]
-    congr 1
-    funext z
-    exact hα z
-  have hnat : Balaban.Green.IsCoercive A (baseCoercivity L) := by
-    have hc := baseSector_baseOp_coercive_of_product_ne_zero
-      ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
-    change Balaban.Green.IsCoercive
-      (baseOp N (fun z i => (a z i : ℂ))
-        (baseHamiltonian G aw (if regimeB then ν else 0) α (fun _ => 1)))
-      (baseCoercivity L) at hc
-    rw [hD] at hc
-    exact hc
-  have htrans : Matrix.reindex ρ ρ A = Aphys := by
-    have hr := baseOp_reindex_real t a D
-    change Matrix.reindex ρ ρ A =
-      baseOp N (fun x i => (a (t.symm x) i : ℂ))
-        (Matrix.reindex t t D) at hr
-    rw [hr]
-    unfold Aphys
-    congr 1
-    · funext x i
-      simp [a]
-  have hphys : Balaban.Green.IsCoercive Aphys (baseCoercivity L) := by
-    rw [← htrans]
-    exact isCoercive_reindex A (baseCoercivity L) hnat ρ
-  have hK : (Matrix.reindex σ σ K).map (algebraMap ℝ ℂ) = Aphys := by
-    have hk := baseSector_gaussForm_toMatrix_baseOp ϱ aw
-      (if regimeB then ν else 0) (fun z => (α z).re) e
-    simpa only [K, B, σ, Aphys, D, site] using hk
-  have hKC : K.map (algebraMap ℝ ℂ) =
-      Matrix.reindex σ.symm σ.symm Aphys := by
-    ext p q
-    have hpq := congrArg (fun M : Matrix (Torus d (L * n) × Fin N)
-      (Torus d (L * n) × Fin N) ℂ => M (σ p) (σ q)) hK
-    simpa [Matrix.reindex_apply] using hpq
+  let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
+    (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+      (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
+  have hmap := baseSector_gaussForm_map_eq_reindex ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
+  have hnat := baseSector_baseOp_coercive_of_product_ne_zero
+    ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ hp
   have hcoerK : Balaban.Green.IsCoercive (K.map (algebraMap ℝ ℂ))
       (baseCoercivity L) := by
-    rw [hKC]
-    exact isCoercive_reindex Aphys (baseCoercivity L) hphys σ.symm
+    rw [hmap]
+    exact isCoercive_reindex _ (baseCoercivity L) hnat c
   have hsym : K.IsSymm :=
     toMatrix_isSymm_of_cinner (gaussForm e Hα)
       (gaussForm_cinner_symmetric e Hα
