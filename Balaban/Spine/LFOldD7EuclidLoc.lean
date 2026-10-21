@@ -572,4 +572,51 @@ theorem mem_unitPts_iff_layer {ϱ₀ : ℝ} {k : ℕ}
   · intro hx
     exact ⟨x, hx, rfl⟩
 
+/-- **The composed multiscale field is carried by the lattice symmetry.** -/
+theorem composedMulti_symM (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    {St St' : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1)}
+    (H0 : StepAff St St' (coverAff g hnn hM1 σ hk)) (ψ : MultiFieldC S n M K N)
+    (c : St.U → Fin N → ℂ) :
+    composedMulti g hnn hM1 hk St'.G' (symM σ ψ) (fun b' i => c (H0.u.symm b') i) =
+      symM σ (composedMulti g hnn hM1 hk St.G' ψ c) := by
+  classical
+  funext j y
+  show composedMulti g hnn hM1 hk St'.G' (symM σ ψ) _ j y =
+    composedMulti g hnn hM1 hk St.G' ψ c j ((σ.eb j).symm y)
+  rcases lt_trichotomy j k with hjk | rfl | hjk
+  · simp [composedMulti, hjk, symM]
+  · obtain ⟨x, hx⟩ := exists_coverBlk_eq g hnn hM1 hk ((σ.eb j).symm y)
+    have hy : y = coverBlk g hnn hM1 hk j (Nat.le_succ j) ((coverAff g hnn hM1 σ hk).toFun x) := by
+      rw [coverBlk_aff, hx]; simp
+    have e1 : unitOfBlock g hnn hM1 hk y = unitBlock ((coverAff g hnn hM1 σ hk).toFun x) := by
+      rw [hy, unitOfBlock_coverBlk]
+    have e2 : unitOfBlock g hnn hM1 hk ((σ.eb j).symm y) = unitBlock x := by
+      rw [← hx, unitOfBlock_coverBlk]
+    have hmem : unitBlock ((coverAff g hnn hM1 σ hk).toFun x) ∈ unitPts St'.G' ↔
+        unitBlock x ∈ unitPts St.G' := by
+      rw [mem_unitPts_iff_layer, mem_unitPts_iff_layer]
+      have hl : ∀ (G : GeneratingSet S.d S.L ((g.c * n (j + 1)) * S.L ^ m₁) (j + 1) (minSep S.L g.M1)),
+          G.layer (j + 1) = G.Ω (j + 1) := fun G => by
+        unfold GeneratingSet.layer; rw [G.top, Finset.sdiff_empty]
+      rw [hl, hl]
+      exact H0.hΩ' (j + 1) x
+    unfold composedMulti
+    simp only [lt_irrefl, ↓reduceIte, dite_true]
+    by_cases hm : unitBlock x ∈ unitPts St.G'
+    · have hm' := hmem.2 hm
+      rw [dif_pos (by rw [e1]; exact hm'), dif_pos (by rw [e2]; exact hm)]
+      have := H0.u_spec ⟨unitBlock x, hm⟩ x
+      have hu : (H0.u ⟨unitBlock x, hm⟩ : UnitTorus S.d S.L (g.c * n (j + 1)) m₁ j) =
+          unitBlock ((coverAff g hnn hM1 σ hk).toFun x) := (this.2 rfl).symm
+      have hs : H0.u.symm ⟨unitOfBlock g hnn hM1 hk y, by rw [e1]; exact hm'⟩ =
+          ⟨unitOfBlock g hnn hM1 hk ((σ.eb j).symm y), by rw [e2]; exact hm⟩ := by
+        rw [Equiv.symm_apply_eq]
+        exact Subtype.ext (by simp only [e1, e2]; exact hu.symm)
+      simp only [hs]
+    · have hm' : unitBlock ((coverAff g hnn hM1 σ hk).toFun x) ∉ unitPts St'.G' :=
+        fun h => hm (hmem.1 h)
+      rw [dif_neg (by rw [e1]; exact hm'), dif_neg (by rw [e2]; exact hm)]
+      simp [symM]
+  · simp [composedMulti, not_lt.2 hjk.le, hjk.ne', symM]
+
 end Balaban.RootFSpine
