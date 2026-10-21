@@ -1003,6 +1003,10 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `2c₀M` per cell with `c₀ = c₀(d,L)` of `final_region_entry_close_unif` (W870), this is `M ≥ (κ + log 2)/(2c₀)`), and the amplitude `hamp`
      (`κ'`, `t₀`, `a/B` absolute: the moved remainder costs the factor `1 + (a/B)e^{κ'} + 2e^{κ't₀}`, uniform in `kf`, `ℓ`). No floor on the torus:
      tori with one block per side keep `a_T` (no quarter-box polymer there, `four_le_of_isPolymer_quarter`). Sizes: Geom 371, Cells 407, Agree 583 lines.
+     **A2 closeness layers (toward (ii) for B2's `a_T`; `Polymer/{PYClose,MayerClose,MayerPYClose,MayerPYTransport}.lean`).** PROVED: `pe_PY_sub_bound` (margin
+     closeness of the local terms `PY` of a cluster sum, doubled weights; cores `term_bound_core`, `pe_PYGen_bound` in `Polymer/Local`, `pe_PY_bound` their instance),
+     `mayerK_sub_bound(_margin)`, `pe_size_sub_bound`, `mayer_PY_sub_bound(_single)`, `PY_mayer_close_transport` (two gases related by a block map: `|P'(σY) − P(Y)| ≤ C e^{−κ'(d(Y)+c_P) − λ m(Y)}`
+     from the margin closeness of the terms). Next: `localGasP` instances (after B2p3a), then the regrouping into `LastScaleTwoTorusClose` (after B2 3b/3c).
    * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
      `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
      every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
