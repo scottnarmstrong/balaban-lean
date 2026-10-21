@@ -498,89 +498,53 @@ def WindowDuClaim (g : Geo S n R M) (cs : OpConsts) {m' : ℕ} {Z : H.Comp (m' +
             (1 - (S.L : ℝ) ^ (-(2 * γ))) + (Kpair + Kcoef + Kswitch + Kmass)) *
           ∑ i, (decomp i).total
 
-/-- **sum_mainActionLoc_eq_gen_of_flow_window_Du with the constants first**: the constants are produced before the window point and all the data and depend only on `(d, L, N)`.  The landed `sum_mainActionLoc_eq_gen_of_flow_window_Du` is this theorem at the data. -/
-theorem sum_mainActionLoc_eq_gen_of_flow_window_Du_consts (S : Setting) [NeZero S.L] (N : ℕ) (hd3 : 3 ≤ S.d) (hL3 : 3 ≤ S.L) :
-    ∃ Kw δw Ks δs Kw' δm : ℝ, 0 < Kw ∧ 0 < δw ∧ 0 < Ks ∧ 0 < δs ∧ 0 < Kw' ∧ 0 < δm ∧ ∀ {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
-    {H : RegionHistory S n R k0 K}
-    (g : Geo S n R M) (cs : OpConsts) {m' : ℕ} {Z : H.Comp (m' + 1)} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) {ι : Type u} [Fintype ι] (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1)) (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (_ : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z) (_ : Function.Injective fun i => (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1))) (_ : ∀ j (c : H.Comp (j + 1)), S.k1 (m' + 1) ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
-      ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩) (hjK : ∀ i, jf i + 1 ≤ K) (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))) (_ : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
-      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))) (_ : ∀ x, x ∈ Xwin.sites ↔ ∃ j, ∃ hj : S.k1 (m' + 1) ≤ j ∧ j ≤ m', ∃ c : H.Comp (j + 1),
-      c ∈ H.ancFin (j + 1) (m' + 1) Z ∧
-        torusCast (piece_torus_eq g H.F.hnn hmK hj.2) x ∈ Xfine g (H.locRH (j + 1) c) j c.1) (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (_ : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) (decomp : ∀ i, StepDecomp (Xc i)) (_ : ∀ i c, (decomp i).wt c = 1) (_ : ∀ i c, ∃ x ∈ (Xc i).sites,
-      ((decomp i).cube c).sites = ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).blk (((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).layerIndex x) x ∧
-        ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).layerIndex x ≤ jf i + 1) (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1)) (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i)) (hv : EuclideanSpace ℝ (Fin N)) (hβ : ∀ i m, jf i + 1 ≤ m → m ≤ m' + 1 → cs.beta m ≠ 0) (hμ : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → cs.muAct m ≠ 0) (hB0 : ∀ i, BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1) cs.aw (cs.muBg (jf i + 1))) (hBn : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1)
-      (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (jf i + 1)) (jf i + 1) 0 /
-        betaCanon S.d S.L (cs.beta m) m 0)) (cs.muAct m)) (hS : ∀ i, InUnionDomainR ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (bgC1 S.d S.L N) (cs.muBg (jf i + 1))
-        (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
-          (hjK i) (ou i) (xu i) hv) ∧
-      ∀ m, jf i + 2 ≤ m → m ≤ m' + 1 →
-        InUnionDomainR ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (bgC1 S.d S.L N) (cs.muAct m)
-          (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
-            (hjK i) (ou i) (xu i) hv)) (chain : ∀ i, ConvChain (Set.univ : Set Unit) (jf i) (m' + 1) ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
-      (Xc i) MassBranch.complete N) (_ : ∀ i, chain i = pieceChain g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-      (locComp_mem H (hjK i) (cf i)) (hjK i) cs Set.univ (m' + 1) MassBranch.complete (Xc i)
-      (fun _ => ou i) (fun _ => xu i) (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i) (fun _ _ => hS i)) {k0' k' m₁ N' : ℕ} {ϱ' : ℝ} {sf : Def7.SFData S.d S.L m₁ k' N' ϱ'} {hv' : EuclideanSpace ℝ (Fin N')} (_ : Def7.FieldClauses S k0' k' cs sf hv') (_ : m' + 1 ≤ k') (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N)) (_ : ‖hv‖ = 1) (_ : ∀ i (y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))),
-      torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈
-        dataSites (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
-          (locComp_mem H (hjK i) (cf i)) (hjK i)) →
-      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
-        (hjK i) (ou i) (xu i) hv).Ψ (torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y) =
-        fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
-          (if torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈
-              fineK1 g.M1 g.c (n (jf i + 1)) S.L (jf i) ((H.locRH (jf i + 1) (cf i)).step (jf i)).Omega
-            then jf i + 1 else jf i) y) q : ℝ) : ℂ)) (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N) (_ : ∀ x i, Du.h x i = 0) (_ : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d
-        (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
-      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x)),
+/-- The landed claim is the per-piece claim at constant constants and radius `2`. -/
+theorem WindowDuClaim.of_P (g : Geo S n R M) (cs : OpConsts) {m' : ℕ} {Z : H.Comp (m' + 1)} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) {ι : Type u} [Fintype ι] (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1)) (hjK : ∀ i, jf i + 1 ≤ K) (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))) (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (decomp : ∀ i, StepDecomp (Xc i)) (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1)) (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i)) (hv : EuclideanSpace ℝ (Fin N)) (chain : ∀ i, ConvChain (Set.univ : Set Unit) (jf i) (m' + 1) ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+      (Xc i) MassBranch.complete N) (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N)
+    (Kw δw Ks δs Kw' δm : ℝ) (hjf : ∀ i, jf i ≤ m')
+    (hP : WindowDuClaimP g cs hmK hW jf cf hjK Xwin Xc decomp ou xu hv chain Du (fun _ => 2) Kw δw Ks δs Kw' δm) :
     WindowDuClaim g cs hmK hW jf cf hjK Xwin Xc decomp ou xu hv chain Du Kw δw Ks δs Kw' δm := by
   classical
-  obtain ⟨Ks, δs, Kw', δm, hKs, hδs, hKw', hδm, hsw0⟩ := window_Du_hswitch_consts S N hd3 hL3
-  obtain ⟨Kw, δw, hKw, hδw, hmain0⟩ := sum_mainActionLoc_eq_gen_of_flow_of_read_consts S N hd3 hL3
-  refine ⟨Kw, δw, Ks, δs, Kw', δm, hKw, hδw, hKs, hδs, hKw', hδm, ?_⟩
-  intro n _ R k0 K M _ H g cs m' Z hmK hW ι _ jf cf hjf hcf hinj hcov hjK Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain k0' k' m₁ N' ϱ' sf hv' hF hk' ψ hunit hlift Du hDuh hDuball
-  have hsw := hsw0 g cs hmK hW jf cf hjf hcf hjK Xc hXc decomp hwt1 hcells ou xu hv ψ hunit hlift Du hDuh hDuball
-  have hread := window_hread_of_lift hmK hW jf cf hjf hcf hjK Xw hXw Xc hXc ou xu hv ψ hlift
-  have hmain := hmain0 g cs hmK
-    (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW)
-    (windowOfHistory_parentRefines H Z g hmK hW) jf cf hjf hcf hinj hcov hjK (hW.k1_pos hmK) Xw hXw
-    Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain
-    (fun i => by have := (hjf i).2; rw [hF.muBg_eq _ (by omega), hF.muAct_eq _ (by omega)]) ψ hread
   unfold WindowDuClaim
   intro ak β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch gf δ ξ
     p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20 p21 p22 p23 p24 p25 p26 p27 p28 p29 p30 p31 p32 p33 p34 p35 p36 p37 p38 p39 p40 p41 p42 p43 p44 p45 p46 p47 p48 p49 p50
     ϱB δl δu V Kmass m hak hcν1 s2 s3 s4 hconst s7 s8 s9 u1 u2 u3 t16 mA mB mC mD tV tK tKm
-  have hRb : (2 : ℝ) ≤ S.Rb := by
-    have hb := H.F.RH.base
-    have h0 : (0 : ℝ) ≤ S.L := Nat.cast_nonneg _
-    linarith only [hb, h0]
-  have hνk : 0 < cs.muAct (m' + 1) := by rw [p9]; exact mul_pos p2 (p13 _)
-  have hνL : cs.muAct (m' + 1) * ((S.L : ℝ) ^ (m' + 1)) ^ 2 ≤ 1 := by
-    rw [p9]; exact mass_le_one_of_flow p2 (p14 _) (Nat.cast_nonneg _) p22 hcν1 p23
-  have s1 : BgHyp S.d S.L (m' + 1) (winSep g) ak (cs.muAct (m' + 1)) :=
-    bgHyp_winSep_of_const g hd3 hL3 hRb (s2.trans s4) hak hνk.le hνL
-  have hHw0 : BgHyp S.d S.L (m' + 1) (winSep g) ak 0 := BgHyp.of_mass_zero s1
-  have hm2 := hmain ak (bgFieldC ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) ak 0 (bgC0 S.d S.L N) Du) β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair
-    Kcoef Kswitch gf δ ξ p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20
-    p21 p22 p23 p24 p25 p26 p27 p28 p29 p30 p31 p32 p33 p34 p35 p36 p37 p38 p39 p40 p41 p42 p43
-    p44 p45 p46 p47 p48 p49 p50
-  obtain ⟨C, hC, hCb⟩ := hm2 (fun i => by
-    have hdat' : (chain i).Dat () (m' + 1) = (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i) (ou i) (xu i) hv) := by
-      rw [hchain i]; rfl
-    have hXi := p35 i
-    rw [hdat'] at hXi
-    have hAmax : β * (S.L : ℝ) ^ ((S.d - 2) * (jf i + 1)) * gf (jf i + 1) *
-        epsSeq S.L α α₀ (jf i + 1) ^ 2 ≤ Amax := by
-      rw [← p8 (jf i + 1)]; exact p18 i
-    exact hsw i ak β ν η Ka Dδ ε₀ α α₀ Emax Amax Cb Cg Cm V Kswitch ϱB δl δu m gf δ p1 p3 p5 p8 p9
-      p12 p13 p14 hAmax p19 p24 p25 p26 (p27 i) (p29 i) (p31 i) (p32 i) hXi (p39 i) p40 p41 p42 hνk
-      hHw0 s2 s3 s4 hconst s7 s8 (s9 i) u1 u2 u3 t16 mA mB mC (mD i) (tV i) tK)
-  obtain ⟨C', hC'1, hC'2⟩ := window_Du_finish cs hmK hW jf cf hjf hjK hcov Xw hXw Xwin hXwin Xc hXc
-    decomp hwt1 hcells hv hunit ψ Du hDuball ak β η Ka Dδ ε₀ α α₀ Amax Cb Cg Cm Kmass ν
-    (9 * Real.exp (2 * η) * (9 * Ksrc * Cξ * α₀ ^ 2 * Real.exp η) /
-      (1 - (S.L : ℝ) ^ (-(2 * γ))) + (Kpair + Kcoef + Kswitch + 0)) gf δ p1 p3 p5 p8 p9 p12 p13 p14
-    p18 p19 p24 p25 p26 p40 p41 p42 hHw0 u1 u2 u3 tKm hC hCb
-  refine ⟨C', hC'1, hC'2.trans (le_of_eq ?_)⟩
+  have hL1 : (1 : ℝ) ≤ S.L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  have hj1 : ∀ i, jf i + 1 ≤ m' + 1 := fun i => Nat.succ_le_succ (hjf i)
+  have hE2 : ∀ i, ε₀ ^ 2 ≤ epsSeq S.L α α₀ (jf i + 1) ^ 2 := fun i =>
+    (pow_le_pow_left₀ p25.le p26 2).trans (ActionConv.epsSeq_sq_ge S.L p5 p3 (hj1 i))
+  have hδk : |δ (m' + 1)| ≤ Dδ := by rw [abs_of_pos (p13 _)]; exact p14 _
+  have hCmB : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm := by assumption
+  have hCm0 : 0 ≤ Cm := le_trans (by
+    have : 0 ≤ Dδ := (abs_nonneg _).trans hδk
+    have := p1
+    positivity) hCmB
+  have hCmb : ∀ i, β * Real.exp η * (((S.L : ℝ) ^ (jf i + 1)) ^ S.d * (|ν| * |δ (m' + 1)|)) ≤
+      Cm * (cs.beta (jf i + 1) * epsSeq S.L α α₀ (jf i + 1) ^ 2) := fun i => by
+    rw [p8 (jf i + 1)]
+    exact mass_budget_of_regime p1 (hj1 i) p25 (hE2 i) (p12 _).1 p24 hδk hCmB
+  have hKwt : ∀ i, (4 * Emax ^ 2) * (β * Real.exp η * (S.L : ℝ) ^ ((S.d - 2) * (jf i + 1)) * Δ) / 2 ≤ Kwt := fun i => by
+    refine le_trans ?_ (by assumption : (4 * Emax ^ 2) * (β * Real.exp η * (S.L : ℝ) ^ ((S.d - 2) * (m' + 1)) * Δ) / 2 ≤ Kwt)
+    have hΔ : 0 ≤ Δ := (abs_nonneg _).trans (p21 0)
+    have hpow : (S.L : ℝ) ^ ((S.d - 2) * (jf i + 1)) ≤ (S.L : ℝ) ^ ((S.d - 2) * (m' + 1)) :=
+      pow_le_pow_right₀ hL1 (Nat.mul_le_mul_left _ (hj1 i))
+    have := p1
+    gcongr
+  obtain ⟨C, hC, hCb⟩ := hP ak β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Kpair (fun _ => Δ) (fun _ => Kwt)
+    (fun _ => Cb) (fun _ => Cg) (fun _ => Cm) (fun _ => Amax) (fun _ => Emax) (fun _ => ε₀)
+    (fun _ => Kcoef) (fun _ => Kswitch) gf δ ξ p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 p19 p20
+    (fun _ _ => p21 _) p22 p23 (fun _ => p25) hE2 (by assumption) (by assumption) (by assumption)
+    (by assumption) (by assumption) (by assumption) (by assumption) (by assumption)
+    (by assumption) (by assumption) (by assumption) (by assumption) (by assumption)
+    (fun _ => by assumption) (fun _ => by assumption) (fun _ => hCm0) hCmb hKwt
+    (by assumption) (by assumption) (by assumption) (fun _ => by assumption) (by assumption)
+    (fun _ => by assumption) (fun _ => by assumption) ϱB δu (fun _ => δl) (fun _ => V)
+    (fun _ => Kmass) (fun _ => m) hak hcν1 s2 s3 s4 hconst (fun _ => s7) (fun _ => s8) s9 u1 u2 u3
+    (fun _ => t16) (fun _ => mA) (fun _ => mB) (fun _ => mC) mD (fun i => by simpa using tV i)
+    (fun _ => tK) (fun _ => tKm)
+  refine ⟨C, hC, hCb.trans (le_of_eq ?_)⟩
+  rw [← Finset.mul_sum]
   ring
-
 
 /-- **sum_mainActionLoc_eq_gen_of_flow_window_Du with the constants first**: the constants are produced before the window point and all the data and depend only on `(d, L, N)`.  The landed `sum_mainActionLoc_eq_gen_of_flow_window_Du` is this theorem at the data. -/
 theorem sum_mainActionLoc_eq_gen_of_flow_window_Du_constsP (S : Setting) [NeZero S.L] (N : ℕ) (hd3 : 3 ≤ S.d) (hL3 : 3 ≤ S.L) :
@@ -676,6 +640,51 @@ theorem sum_mainActionLoc_eq_gen_of_flow_window_Du_constsP (S : Setting) [NeZero
   rw [add_assoc, ← Finset.sum_add_distrib]
   congr 1
   exact Finset.sum_congr rfl fun i _ => by ring
+
+/-- **sum_mainActionLoc_eq_gen_of_flow_window_Du with the constants first**: the constants are produced before the window point and all the data and depend only on `(d, L, N)`.  The landed `sum_mainActionLoc_eq_gen_of_flow_window_Du` is this theorem at the data. -/
+theorem sum_mainActionLoc_eq_gen_of_flow_window_Du_consts (S : Setting) [NeZero S.L] (N : ℕ) (hd3 : 3 ≤ S.d) (hL3 : 3 ≤ S.L) :
+    ∃ Kw δw Ks δs Kw' δm : ℝ, 0 < Kw ∧ 0 < δw ∧ 0 < Ks ∧ 0 < δs ∧ 0 < Kw' ∧ 0 < δm ∧ ∀ {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
+    {H : RegionHistory S n R k0 K}
+    (g : Geo S n R M) (cs : OpConsts) {m' : ℕ} {Z : H.Comp (m' + 1)} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) {ι : Type u} [Fintype ι] (jf : ι → ℕ) (cf : ∀ i, H.Comp (jf i + 1)) (hjf : ∀ i, S.k1 (m' + 1) ≤ jf i ∧ jf i ≤ m') (_ : ∀ i, cf i ∈ H.ancFin (jf i + 1) (m' + 1) Z) (_ : Function.Injective fun i => (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1))) (_ : ∀ j (c : H.Comp (j + 1)), S.k1 (m' + 1) ≤ j → j ≤ m' → c ∈ H.ancFin (j + 1) (m' + 1) Z →
+      ∃ i, (⟨jf i, cf i⟩ : Σ j, H.Comp (j + 1)) = ⟨j, c⟩) (hjK : ∀ i, jf i + 1 ≤ K) (Xw : ι → Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))) (_ : ∀ i x, x ∈ (Xw i).sites ↔ torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) x ∈
+      Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) (Xwin : Region ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW))) (_ : ∀ x, x ∈ Xwin.sites ↔ ∃ j, ∃ hj : S.k1 (m' + 1) ≤ j ∧ j ≤ m', ∃ c : H.Comp (j + 1),
+      c ∈ H.ancFin (j + 1) (m' + 1) Z ∧
+        torusCast (piece_torus_eq g H.F.hnn hmK hj.2) x ∈ Xfine g (H.locRH (j + 1) c) j c.1) (Xc : ∀ i, Region (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (_ : ∀ i, (Xc i).sites = Xfine g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1) (decomp : ∀ i, StepDecomp (Xc i)) (_ : ∀ i c, (decomp i).wt c = 1) (_ : ∀ i c, ∃ x ∈ (Xc i).sites,
+      ((decomp i).cube c).sites = ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).blk (((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).layerIndex x) x ∧
+        ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))).layerIndex x ≤ jf i + 1) (ou : ∀ i, OutT N R (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i + 1)) (xu : ∀ i, NewCfg N (locHist (H.locRH (jf i + 1) (cf i)) M K (jf i + 1) (cf i).1) (jf i)) (hv : EuclideanSpace ℝ (Fin N)) (hβ : ∀ i m, jf i + 1 ≤ m → m ≤ m' + 1 → cs.beta m ≠ 0) (hμ : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → cs.muAct m ≠ 0) (hB0 : ∀ i, BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1) cs.aw (cs.muBg (jf i + 1))) (hBn : ∀ i m, jf i + 2 ≤ m → m ≤ m' + 1 → BgHyp S.d S.L (jf i + 1) (minSep S.L g.M1)
+      (fun l => cs.aw l * (betaCanon S.d S.L (cs.beta (jf i + 1)) (jf i + 1) 0 /
+        betaCanon S.d S.L (cs.beta m) m 0)) (cs.muAct m)) (hS : ∀ i, InUnionDomainR ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (bgC1 S.d S.L N) (cs.muBg (jf i + 1))
+        (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+          (hjK i) (ou i) (xu i) hv) ∧
+      ∀ m, jf i + 2 ≤ m → m ≤ m' + 1 →
+        InUnionDomainR ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i))) (bgC1 S.d S.L N) (cs.muAct m)
+          (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+            (hjK i) (ou i) (xu i) hv)) (chain : ∀ i, ConvChain (Set.univ : Set Unit) (jf i) (m' + 1) ((locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i)) (hjK i)))
+      (Xc i) MassBranch.complete N) (_ : ∀ i, chain i = pieceChain g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+      (locComp_mem H (hjK i) (cf i)) (hjK i) cs Set.univ (m' + 1) MassBranch.complete (Xc i)
+      (fun _ => ou i) (fun _ => xu i) (fun _ => hv) (hβ i) (hμ i) (hB0 i) (hBn i) (fun _ _ => hS i)) {k0' k' m₁ N' : ℕ} {ϱ' : ℝ} {sf : Def7.SFData S.d S.L m₁ k' N' ϱ'} {hv' : EuclideanSpace ℝ (Fin N')} (_ : Def7.FieldClauses S k0' k' cs sf hv') (_ : m' + 1 ≤ k') (ψ : BlockV S.d S.L (M * n (m' + 1)) (m' + 1) → EuclideanSpace ℝ (Fin N)) (_ : ‖hv‖ = 1) (_ : ∀ i (y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))),
+      torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈
+        dataSites (locGen g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1
+          (locComp_mem H (hjK i) (cf i)) (hjK i)) →
+      (locData g (H.locRH (jf i + 1) (cf i)) (jf i) (cf i).1 (locComp_mem H (hjK i) (cf i))
+        (hjK i) (ou i) (xu i) hv).Ψ (torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y) =
+        fun q => ((ψ (blockOf S.d S.L (M * n (m' + 1)) (m' + 1)
+          (if torusCast (piece_torus_eq g H.F.hnn hmK (hjf i).2) y ∈
+              fineK1 g.M1 g.c (n (jf i + 1)) S.L (jf i) ((H.locRH (jf i + 1) (cf i)).step (jf i)).Omega
+            then jf i + 1 else jf i) y) q : ℝ) : ℂ)) (Du : BgData ((windowOfHistory H Z g hmK hW).windowGenSet (windowOfHistory_hyp hmK hW)) N) (_ : ∀ x i, Du.h x i = 0) (_ : ∀ i x, (∃ z ∈ (Xc i).sites, Green.torusDist S.d
+        (g.M1 * (g.c * n (jf i + 1)) * S.L ^ (jf i + 1)) z x ≤ 2 * ((S.L : ℝ) ^ jf i * M)) →
+      Du.Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x) = (physicalWindowData (windowOfHistory H Z g hmK hW) (windowOfHistory_hyp hmK hW) (windowOfHistory_parentRefines H Z g hmK hW) ψ (fun q => hv q)).Ψ ((Equiv.cast (congrArg (Torus S.d) (piece_torus_eq g H.F.hnn hmK (hjf i).2))).symm x)),
+    WindowDuClaim g cs hmK hW jf cf hjK Xwin Xc decomp ou xu hv chain Du Kw δw Ks δs Kw' δm := by
+  classical
+  obtain ⟨Kw, δw, Ks, δs, Kw', δm, hKw, hδw, hKs, hδs, hKw', hδm, Hc⟩ :=
+    sum_mainActionLoc_eq_gen_of_flow_window_Du_constsP S N hd3 hL3
+  refine ⟨Kw, δw, Ks, δs, Kw', δm, hKw, hδw, hKs, hδs, hKw', hδm, ?_⟩
+  intro n _ R k0 K M _ H g cs m' Z hmK hW ι _ jf cf hjf hcf hinj hcov hjK Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain k0' k' m₁ N' ϱ' sf hv' hF hk' ψ hunit hlift Du hDuh hDuball
+  exact WindowDuClaim.of_P g cs hmK hW jf cf hjK Xwin Xc decomp ou xu hv chain Du Kw δw Ks δs Kw' δm
+    (fun i => (hjf i).2)
+    (Hc g cs hmK hW jf cf hjf hcf hinj hcov hjK Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv
+      hβ hμ hB0 hBn hS chain hchain hF hk' ψ hunit hlift (fun _ => 2)
+      (fun i => ballRadiusOK_two H g m' (jf i)) (fun _ => le_rfl) Du hDuh (by simpa using hDuball))
 
 /-- **The window conversion at the reference datum `Du` of mass `0`**. -/
 theorem sum_mainActionLoc_eq_gen_of_flow_window_Du (g : Geo S n R M) (cs : OpConsts) {m' : ℕ}
