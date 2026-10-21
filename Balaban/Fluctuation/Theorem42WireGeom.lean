@@ -349,10 +349,10 @@ theorem regIneq_locGen_of_deltaC (hd : 3 ≤ S.d) (hL : 3 ≤ S.L) :
   classical
   have hprec := genCubeLoc_precedes g Hl k Zc hZc hk hy0 hΩ
   obtain ⟨hΨ, hh⟩ := cube_locData_agree g Hl k Zc hZc hk hy0 hΩ ψ ϑ hC
-  have hΔreg := (show RegC (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
+  have hΔreg : RegIneq (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
       (liftSingle (genCubeLoc g k y0) ϑ hC) r
       (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0)
-      (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0) from hΔ).2
+      (cubeNbhd g.M1 (g.c * n (k + 1)) S.L (k + 1) g.c (n (k + 1)) 1 y0) := hΔ.2
   have hReg : RegIneq (genCubeLoc g k y0) (compWeight S.L a₁) (ν)
       (liftSingle (genCubeLoc g k y0) ϑ hC) r
       (stepNearSites (M1 := g.M1) (c := g.c) (L := S.L) k ({y0} : Set (Torus S.d (n (k + 1)))))

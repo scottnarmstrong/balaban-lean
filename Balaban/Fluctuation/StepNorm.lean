@@ -89,7 +89,7 @@ theorem coupling_eq (θ : BlockLat d L N₁ m₁ k → Rn N) (ψ : S.E) :
     coupling S.G' S.a₁ (k + 1) (liftθ θ) (S.dataU ψ).Ψ =
       (1 / 2) * (S.a₁ / ((L : ℝ) ^ (k + 1)) ^ 2) *
         ((((L : ℝ) ^ (k + 1)) ^ d) * ∑ z, ‖θ z - S.qpsi ψ z‖ ^ 2) := by
-  unfold coupling
+  unfold coupling couplingOn
   congr 1
   have hx : ∀ x : CTorus d L N₁ m₁ (k + 1), ∑ i : Fin N,
       ‖liftθ θ x i - blockMean S.G' (k + 1) (fun y => (S.dataU ψ).Ψ y i) x‖ ^ 2 =

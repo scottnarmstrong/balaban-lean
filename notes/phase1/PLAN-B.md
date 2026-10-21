@@ -414,6 +414,7 @@ approved declaration.
   ∫ρ = Ξ_box exp(Σ_X b) (the tail joins the large-field half). Both take the cutoff `cut κ c₉ β_k = p₁` as a parameter and
   `lastIntegralInput_of_parts` combines them at the same cutoff. Constraints on p₁: χ_k = 1 on the box (B p₁ ≪ β_k^{1/2} δ_k),
   analyticity room (B(κ) β_k^{-1/2} p₁ < c ε_k), the tail (p₂ < 2p); p₁ = A₁ (log β_k)^{p₀}, A₁ ≪ A₀, meets all three.
+  `H7MixedDatumLoc2` is stated for the cube domains of R14 (approved, below).
 - **The (D7) clauses of the old part at an output label (W1154c, item (5)).** `Spine/LFOldBD7.lean`, generic in the
   readings (`glob`, `σ`) and in the interaction: an interaction family `LocIntFam` (labels and constants of Theorem 3.4
   fixed, activities over a parameter, `Fluctuation/MarkClusterFam`) so that the clauses comparing two values of the
@@ -438,3 +439,11 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+- **Ruling request R14, APPROVED (Scott, 2026-10-21, "approve all"; W1154b, applied by W1154c).** In
+  `DeltaC`, `DeltaPrimeC` (`LargeField/Characteristic/Analytic.lean`) the domain conjunct `InUnionDomainC G c₀ c₁ μ`
+  becomes `InDomainC G μ ε ε` (the lifted datum, resp. pair, in `Ψ̃^c(ε, ε)`, `K = 1`); the reader of the domain conjunct
+  keeps it through `inUnionDomainC_of_inDomainC_eps` (`Ψ̃^c(ε, ε) ⊆ 𝒟` for `0 < ε ≤ c₁`, `μ L^{2q} ≤ 1`):
+  `H7BridgeCube.deltaC_inUnionDomainC` takes these three hypotheses; `Theorem42WireGeom` reads the regularity part
+  directly. In `Spine/LFOldH7Refute.lean` the refutation (`deltaC_rotConst`, `h7Domain_rotConst`,
+  `not_h7MixedDatumLoc`, `not_h7MixedDatumLoc_of_le_c7`) no longer holds and is replaced by `not_mem_deltaC_of_im`:
+  the new cube domains exclude constant fields with a coordinate of imaginary part `≥ 2 ε`.
