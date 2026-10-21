@@ -1399,3 +1399,12 @@ Landed tool: `Polymer/TwoTorusEv.lean` `evDec_twoTorus` (any `Φ`, `Φ'`), via `
    both (a two-torus version of `decBg_value_twoTorus` for `bgFieldC Gk`, not landed).
 Decision needed from the coordinator: (a) allow editing the `hΦ` binder in place across the modules
 above, and (b) the form of the `Gk`/`Gk'` correspondence (`localB` of corresponding polymers).
+
+Update (W1148r, f93e3771): the `hΦ` core is done: `FFmarked_twoTorus_core`, `coef_FFmarked_twoTorus_core`,
+`evDec_twoTorus_core` (extra antecedents: the decoupled background `φ` on `Rφ` with `BlockMargin`, the raw
+datum on `Rθ ⊆ X₁f`); the three landed theorems are instances.  `Ev_twoTorus`, `evDec_blockEnergy_twoTorus`,
+`Ev_blockEnergy_twoTorus` are unchanged (not needed for the old term).  Next: the two-torus lemma for
+`bgFieldC Gk` under `FkPin`, `Gk = localB` of corresponding polymers: there is no `bgFieldC` lemma for
+`localB` or for two tori; `TwoTorusDecBg` (rows/component/value, ~900 lines) is `levelGS`-specific, so this is a
+port with the collar of `localB` (residual and rows near the collar), then `composeField`/`d1Triple`/`D2raw`
+on two tori, `hΦ` for `eTermFun`, `evDec` of the localized old term, `H`/`G₁`, `NS.coeff`.
