@@ -3017,6 +3017,7 @@ public import Balaban.Spine.FinalBoxAct
 public import Balaban.Spine.FinalBoxTorus
 public import Balaban.Spine.FinalBoxRTerm
 public import Balaban.Spine.FinalBoxFinal
+public import Balaban.Spine.FinalBoxSpine
 public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.BudgetSetupCore
 public import Balaban.Spine.KeptHalf

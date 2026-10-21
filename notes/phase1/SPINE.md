@@ -1018,9 +1018,17 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        interface with A2 are `lastSfAct` (`lastScaleTorusClauses_lastSfAct`);
      * the amplitude condition from `β₀` (`lastScaleAmp_of_beta`): with the box amplitude `≤ D β_k^{-p}`, `(d-2)/2 + δ ≤ p(d-2)`
        (for `ε/R_t² ≈ β_k^{-1} p₁²`, `p₁ ≈ β_k^{α}`: `δ ≤ (d-2)(1/2 - 2α)`), the remainder amplitude `≤ C_R β_k^{-2}` and `β₀` large.
-     Open in the gas layer: the spine instance (`FinalSfFluctInput` and `FinalSmallFieldInput` at B1's whitening, the class data of
-     the remainder terms from `FlatRep`: `RTermsH4` from `SFFlat2.rTerms`, `BgHyp` at the scale `k` as in `measInt_sfFactor2_univ_of_numerics`,
-     `1 ≤ β_k`, `β_k ≥ e^{-1/20} β L^{k(d-2)}` from `RunningHypTo`).
+     * **`finalSmallFieldInput_of_localForm`** (`Spine/FinalBoxSpine.lean`): the statement of `FinalSmallFieldInput` at the box
+       integral `ctxBoxIntegralL` of a whitening `A` (a parameter of the theorem), from `PrefixInput`, `0 ≤ δ ≤ (d-2)/2`, the local
+       form `hW` (B1: for every `η > 0` and `β` large, `BoxLocalForm` at `p₁ = cut κ c₉ β_k` with the cell-gas numerics and
+       `boxAmp ≤ η L^{-(k+1)θ}`) and the closeness `hC` (A2: `LastScaleTwoTorusClose` of `lastSfAct` at the rate `κ + log 2`, `λ`
+       and `t₀` fixed before `β`, `a_C e^{κ+log 2} ≤ (c₉/8) L^{-(k+1)θ}`); the class data of the remainder terms come from
+       `FlatRep` (`SFFlat2.rTerms`, `BgHyp` at the scale `k` by `bgHyp_of_ideal`, `β_k ≥ e^{-1/20} β L^{k(d-2)}` from
+       `RunningHypTo`, `inv_sq_le_of_running`), the remainder amplitude from `rest_small_in_beta`, the rate tie from `c1_mul_rate_le`.
+       The per-torus step `Ξ_box(A) = exp(vac + ⟨g,h⟩ + Σ q + fluct)` is `ctxBoxIntegralL_eq_exp_of_fluct` (`finalSmallFieldInput_of_fluctForm`
+       is now through it).
+     Open in the gas layer: the spine restatement at B1's whitening `sfWhiten` (B1p4b): `sfBoxIntegral` (and the two halves,
+     `lastIntegralInput_of_parts`) at `A = sfWhiten`, and `FinalSmallFieldInput` as the instance of `finalSmallFieldInput_of_localForm`.
    * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
      * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
        `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;
