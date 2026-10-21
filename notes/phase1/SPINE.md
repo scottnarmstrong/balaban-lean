@@ -1299,3 +1299,17 @@ of the corrected carrier are unchanged. `BaseStepData M K`, `baseK0`, `baseKC`, 
 Remaining in A3-1 (SPINE-PLAN): (a) small-field part at scale 1 (1,800, H, B2); (b) the base kernels `K̃⁰e^{b₀}` in the carrier and (II.7.5) (1,000, H, B1); (c) `D1PreForm2` for `firstDensity` (800, M); (e) (H6′)^pre at 1
 (300, L; `Rep.budgetPre_of_LF2`/`budgetSetupToOfRun`); (f) (D8) of `K₀, b₀, ℬ^{(1)}` (400, M); (g) `β₀ = β`, `ν₀ = ν` (20, L); and the assembly of `BasePreStepInput` from them (not yet split: histories complete via `canonHist`, the pin `D4Pin 1` is
 vacuous, the budget as in `lfBudgetInput_of_pin`). A3-2 (`BaseFlatStepInput`) needs the same at complete backgrounds.
+
+**A3-1 / A3-2 assembly (W1148, 2026-10-21; `Spine/BasePre.lean`, `Spine/BaseFlat.lean`).** `basePreStepInput_of_parts`, `baseFlatStepInput_of_parts` and `baseStepInput_of_maps` (axioms `propext, Classical.choice, Quot.sound`)
+prove `BasePreStepInput`, `BaseFlatStepInput` and `BaseStepInput` from the first-step map `Γ : BaseMap` (the record `BaseRaw`: `z₁`, `R`, `geo`, `cs`, `P`, `sf`, `κK`, `SD`, `KD`, `B`, `St`, `vc`, `Ev`; the histories
+are the canonical complete sets `canonHist`, `BaseRaw.famR r`, `r = 1` before `R`, `r = 2` frozen) and the parts, which are generic in the regime (`BaseImageInput Reg`):
+* shared by (A) and (B): `BaseConstsInput` (ties, `Coh`, `FieldClauses`), `BaseCorrInput` (`D1CorrLim`), `BaseOpBoundInput r` (`D5Bound r`), `BaseCoherenceInput r` (`LFCoherent`, A3-1 (f)), `BaseKernelInput` (A3-1 (b): the kernels of
+  `SD` at the scale `0` are the base kernels `baseK0` of a carrier at the class geometry; documentation of what `Γ.SD` must satisfy, not consumed by the assembly);
+* regime (A): `BaseSFInput` ((a), (g): (D2) `preFac`, (D8), (D9), `a_1` free flow, `β_0 = β`, `ν_0 = ν`, (I.2) at `0`, `z₁ > 0 = z_1`), `BaseFormInput` ((c): `D1PreForm2`), `BaseBdryInput` ((a): `D7Bdry2`), `BaseVacuumInput`
+  (the flow `E_j`, `|E_j| ≤ C_b (log β_j + 1)`, and the tie of `SD`);
+* regime (B): `BaseFlatSFInput` (`SFFlat2`, `D9Flat`), `BaseFlatFormInput` (`D1Form2`), `BaseFlatBdryInput` (`D7Bdry2Post`).
+Proved inside: completeness of the histories (`canonHist_complete`); the pins `D4Pin 1` (A) and `D4Pin 2` (B: nothing is kept above `k₀ = 0`) — vacuous; the budget (H6′)^pre at the scale `1` (A3-1 (e); `budgetSetupToOfRun`,
+`prefixBudgetFacts`, `Rep.budgetPre_of_LF2_trunc`, (I.2) at `1` from (H.6) by `runningHypTo_succ_of_coeffBounds`) and (H6♭) at the scale `1` (A3-2; `frozenBudget_of_pin`); (I.2) at the scale `1` and the mass bound `ν₁ ≤ (81/79)(7/8) ≤ 9/10`
+(`nu_succ_le_of_coeffBounds`); `hM6` and the flow rate from `PrefixInput`. (g) `β_0 = β`, `ν_0 = ν`: clauses of `BaseSFInput`/`BaseFlatSFInput` (they say that the flow of the first step starts from the bare couplings; `sf` cannot be redefined
+at `0`, the flow `CoeffBounds.flow` starts there). Open: (a) the small-field data and boundary terms, (b) the kernels, (c) the transform relation (`Σ_records ∏ K_0 = ρ_1`, BASECARRIER item T), (f) the coherence, the coefficient limits `D1CorrLim` (see the
+coefficient-limit entry above). Rule 10: the parts need the exemption of the seven inputs; the assembled class members are inhabited by `preClassAt_witness`/`flatClassAt_witness`.
