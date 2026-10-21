@@ -121,17 +121,23 @@ theorem prefixTyping_ok {d L m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) : (prefix
   c0_sP := by show 5 + 1 ≤ 10; norm_num
   Cr_le := le_refl _
 
-/-- **Core of `prefixInput_exists`: the witness at any radius constant `α₀ > 0` and any flow
-constant `0 < c₈` with `c₈ q ≤ (1 - q)/20`, `q = L^{-2γ}`, `γ = (1 + 2δ)/4`.**  The constants of the
-witness have `L` as block size, `γ = (1 + 2δ)/4`, and the given `α₀`, `c₈`. -/
+/-- **Core of `prefixInput_exists`: the witness at any radius constant `α₀ > 0`, any flow
+constant `0 < c₈` with `c₈ q ≤ (1 - q)/20` (`q = L^{-2γ}`, `γ = (1 + 2δ)/4`), any exponents
+`m₀, m₁` with `m₀ + m₁ ≥ 3` and `R₀(d, L) ≤ minSep L (L^{m₀+m₁-3})`, and any separation
+`ϱ ≥ R₀(d, L)`.**  The constants of the witness have `L` as block size, `γ = (1 + 2δ)/4`, the given
+`α₀`, `c₈`, `m₀`, `m₁` and `ϱ`, `M = L^{m₀+m₁}`, `c = L³`, `M₁ = L^{m₀+m₁-3}`. -/
 theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
     (hδ' : δ < 1 / 2) {α₀ c₈ : ℝ} (hα₀ : 0 < α₀) (hc₈ : 0 < c₈)
     (hc₈q : c₈ * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
-      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))) :
+      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)))
+    {m₀ m₁ : ℕ} (hm : 3 ≤ m₀ + m₁)
+    (hsep : Background.bgR0 d L ≤ minSep L (L ^ (m₀ + m₁ - 3))) {ϱ₀ : ℝ}
+    (hϱ : Background.bgR0 d L ≤ ϱ₀) :
     ∃ (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
       (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
       PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧
-        (P6 κ c₉).γ = (1 + 2 * δ) / 4 ∧ (P6 κ c₉).α₀ = α₀ ∧ (P6 κ c₉).c₈ = c₈ := by
+        (P6 κ c₉).γ = (1 + 2 * δ) / 4 ∧ (P6 κ c₉).α₀ = α₀ ∧ (P6 κ c₉).c₈ = c₈ ∧
+        (P6 κ c₉).m₀ = m₀ ∧ (C7 κ c₉).m₁ = m₁ ∧ ϱ κ c₉ = ϱ₀ := by
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hL2 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
   have hLpos : (0 : ℝ) < (L : ℝ) ^ 2 := by linarith
@@ -141,37 +147,31 @@ theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : �
   have h14 : 14 ≤ L ^ 3 := by
     calc 14 ≤ 3 ^ 3 := by norm_num
       _ ≤ L ^ 3 := Nat.pow_le_pow_left hL _
-  obtain ⟨s, hs⟩ := pow_unbounded_of_one_lt (Background.bgR0 d L) (by linarith : (1 : ℝ) < L)
-  have hMs : L ^ (1 + (2 + s)) = L ^ 3 * L ^ s := by
+  have hMs : L ^ (1 + (m₀ + m₁ - 1)) = L ^ 3 * L ^ (m₀ + m₁ - 3) := by
     rw [← pow_add]; congr 1; omega
-  have hsep : Background.bgR0 d L ≤ minSep L (L ^ s) := by
-    have h1 : (1 : ℝ) ≤ 5 * L := by linarith
-    have h2 : (0 : ℝ) ≤ (L : ℝ) ^ s := by positivity
-    unfold minSep
-    push_cast
-    nlinarith
   have hq0 : 0 < Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) :=
     Flow.rate_pos (by linarith) _
   have hq1 : Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) < 1 :=
     Flow.rate_lt_one (by linarith) (by linarith)
-  refine ⟨fun _ _ => prefixTyping d L (2 + s),
+  refine ⟨fun _ _ => prefixTyping d L (m₀ + m₁ - 1),
     fun κ c₉ => ⟨(1 + 2 * δ) / 4, (1 - 2 * δ) / 4,
       ((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2), 0,
       c₈,
       c₉ / 2 * Real.exp (-((3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) + Balaban.Fluctuation.aEnt d L + 2)), α₀, 1,
-      7 / 8 * ((L : ℝ) ^ 2)⁻¹, fun _ => 1, 1⟩,
-    fun _ _ => ⟨2 + s, 1, 0, 1, 0⟩, fun _ _ => ⟨0, 0, 2, fun _ => 1⟩,
+      7 / 8 * ((L : ℝ) ^ 2)⁻¹, fun _ => 1, m₀⟩,
+    fun _ _ => ⟨m₁, 1, 0, 1, 0⟩, fun _ _ => ⟨0, 0, 2, fun _ => 1⟩,
     fun _ _ => ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, 0,
       fun _ => 0, fun _ => 0, 5 / 4, 0, 1⟩,
-    fun _ _ => L ^ s, fun _ _ => L ^ 3, fun _ _ => Background.bgR0 d L, ?_,
-    fun _ _ => ⟨rfl, rfl, rfl, rfl⟩⟩
+    fun _ _ => L ^ (m₀ + m₁ - 3), fun _ _ => L ^ 3, fun _ _ => ϱ₀, ?_,
+    fun _ _ => ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩⟩
   intro κ hκ c₉ hc₉
   have : NeZero L := ⟨by omega⟩
   have haE := Balaban.Fluctuation.aEnt_nonneg d L
   have hκf : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) +
       Balaban.Fluctuation.aEnt d L + 2 := by positivity
-  refine ⟨hL, by norm_num, by norm_num, ?_, hMs, h14, Nat.one_le_pow _ _ (by omega), rfl, ?_, ?_, by norm_num,
-    le_rfl, ?_, ?_, ?_, ?_, le_rfl, ?_, by norm_num, hsep, ?_⟩
+  refine ⟨hL, by norm_num, by norm_num, ?_, hMs, h14, Nat.one_le_pow _ _ (by omega),
+    by show L ^ (1 + (m₀ + m₁ - 1)) = L ^ (m₀ + m₁); congr 1; omega, ?_, ?_, by norm_num,
+    le_rfl, ?_, ?_, ?_, ?_, hϱ, ?_, by norm_num, hsep, ?_⟩
   · have h1 : (8 : ℝ) / 9 ≤ 1 - ((L : ℝ) ^ 2)⁻¹ := by linarith
     have h2 : (64 : ℝ) / 81 ≤ (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2 := by nlinarith
     show (9 : ℝ) / 10 ≤ 5 / 4 * (1 - ((L : ℝ) ^ 2)⁻¹) ^ 2
@@ -192,10 +192,11 @@ theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : �
     · show (d : ℝ) * ((d : ℝ) - 2) / 2 * Real.log L ≤ (d : ℝ) ^ 2 * Real.log L
       apply mul_le_mul_of_nonneg_right _ hlog
       nlinarith
-    · show L ≤ L ^ (1 + (2 + s))
+    · show L ≤ L ^ (1 + (m₀ + m₁ - 1))
       calc L = L ^ 1 := (pow_one L).symm
-        _ ≤ L ^ (1 + (2 + s)) := Nat.pow_le_pow_right (by omega) (by omega)
-    · show ((L ^ (1 + (2 + s)) : ℕ) : ℝ) ^ d * (2 + 0 + 3) ≤ ((L ^ (1 + (2 + s)) : ℕ) : ℝ) ^ d * 5
+        _ ≤ L ^ (1 + (m₀ + m₁ - 1)) := Nat.pow_le_pow_right (by omega) (by omega)
+    · show ((L ^ (1 + (m₀ + m₁ - 1)) : ℕ) : ℝ) ^ d * (2 + 0 + 3) ≤
+        ((L ^ (1 + (m₀ + m₁ - 1)) : ℕ) : ℝ) ^ d * 5
       norm_num
   · exact hc₈q
   · show Balaban.Fluctuation.aEnt d L + 1 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) +
@@ -213,8 +214,17 @@ theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} 
   have hq0 : 0 < Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) := Flow.rate_pos (by linarith) _
   have hq1 : Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) < 1 :=
     Flow.rate_lt_one (by linarith) (by linarith)
+  obtain ⟨s, hs⟩ := pow_unbounded_of_one_lt (Background.bgR0 d L) (by linarith : (1 : ℝ) < L)
+  have hsep : Background.bgR0 d L ≤ minSep L (L ^ (1 + (2 + s) - 3)) := by
+    have e : 1 + (2 + s) - 3 = s := by omega
+    rw [e]
+    have h1 : (1 : ℝ) ≤ 5 * L := by linarith
+    have h2 : (0 : ℝ) ≤ (L : ℝ) ^ s := by positivity
+    unfold minSep
+    push_cast
+    nlinarith
   obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h, -⟩ := prefixInput_exists_of d L hd hL hδ hδ'
     (α₀ := 1) (c₈ := (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)) /
       (20 * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4))) one_pos (div_pos (by linarith) (by positivity))
-    (le_of_eq (by field_simp))
+    (le_of_eq (by field_simp)) (m₀ := 1) (m₁ := 2 + s) (by omega) hsep le_rfl
   exact ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h⟩
