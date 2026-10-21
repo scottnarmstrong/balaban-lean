@@ -64,9 +64,9 @@ theorem baseRho1_allGood_baseWhite
       ((β * a * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
         ((N : ℝ) / 2) : ℝ) : ℂ)
     let F := baseSectorF β a ν regimeB h g θ e he Hα χ κ
-    let ea : G.Ω 1 → Fin N → ℝ := fun z i => e (baseSiteEquiv ϱ z) i
+    let ea : G.Ω 1 → Fin N → ℝ := fun z i => e (baseSectorSiteEquiv ϱ z) i
     let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
-      (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+      (Equiv.prodCongr (baseSectorSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
         (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
     let Wc := baseWhiteW G aw (if regimeB then ν else 0) α (fun _ => 1) ea R
     let Dc := whiteDefect (baseWhiteK G aw (if regimeB then ν else 0) α (fun _ => 1) ea) R
@@ -97,7 +97,7 @@ theorem baseRho1_allGood_baseWhite
   have hη : (0 : ℝ) ≤ baseCoercivity L / (8 * d) := by
     have := baseCoercivity_pos hL
     positivity
-  have : Nonempty (G.Ω 1) := ⟨(baseSiteEquiv ϱ).symm (Classical.arbitrary _)⟩
+  have : Nonempty (G.Ω 1) := ⟨(baseSectorSiteEquiv ϱ).symm (Classical.arbitrary _)⟩
   obtain ⟨-, -, -, hnorm⟩ := baseWhite G ea hμ H.weights hαn le_rfl hη hs hune R
   have hU : IsUnit Wc :=
     whiteW_isUnit (half_pos (baseCoercivity_pos hL)) (baseJ_pos hμ) _ R (hnorm.trans_lt hR)
@@ -161,9 +161,9 @@ theorem baseRho1_allGood_baseWhite_split
       ((β * a * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
         ((N : ℝ) / 2) : ℝ) : ℂ)
     let F := baseSectorF β a ν regimeB h g θ e he Hα χ κ
-    let ea : G.Ω 1 → Fin N → ℝ := fun z i => e (baseSiteEquiv ϱ z) i
+    let ea : G.Ω 1 → Fin N → ℝ := fun z i => e (baseSectorSiteEquiv ϱ z) i
     let c : G.Ω 1 × Fin N ≃ (Σ _ : Torus d (L * n), Fin N) :=
-      (Equiv.prodCongr (baseSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
+      (Equiv.prodCongr (baseSectorSiteEquiv ϱ) (Equiv.refl (Fin N))).trans
         (Equiv.sigmaEquivProd (Torus d (L * n)) (Fin N)).symm
     let Wc := baseWhiteW G aw (if regimeB then ν else 0) α (fun _ => 1) ea R
     let Dc := whiteDefect (baseWhiteK G aw (if regimeB then ν else 0) α (fun _ => 1) ea) R
