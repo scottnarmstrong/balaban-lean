@@ -28,6 +28,22 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.
 
 namespace Balaban.RootFSpine
 
+section Bounds
+
+variable {d L N₀ q N : ℕ}
+
+/-- **The bounds of the data domain at every site**: a real field `f` on the torus of side
+`N₀ L^q`, constant on the `j`-blocks, with `rn (f x - f x') < η` for neighbours,
+`|f x · f x - 1| < η` and `m L^{2j} |1 - f x · h / rn (f x)| < η²` at every site. -/
+structure AllSitesBounds (j : ℕ) (m η : ℝ) (f : Torus d (N₀ * L ^ q) → Fin N → ℝ)
+    (h₀ : Fin N → ℝ) : Prop where
+  block : ∀ x x', jBlock d L N₀ q j x = jBlock d L N₀ q j x' → f x = f x'
+  adj : ∀ x x', Adj x x' → rn (fun i => f x i - f x' i) < η
+  sphere : ∀ x, |∑ i, f x i ^ 2 - 1| < η
+  dir : ∀ x, m * ((L : ℝ) ^ j) ^ 2 * |1 - (∑ i, f x i * h₀ i) / rn (f x)| < η ^ 2
+
+end Bounds
+
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
   {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ} {j : ℕ}
 
@@ -47,12 +63,9 @@ theorem layerIndex_le_of_empty (hΩ : ∀ i, j < i → G.Ω i = ∅)
 `Ψ̃(𝔹; η)` for every generating set `𝔹` with empty layers above `j` (and `ν ≥ 0`). -/
 theorem inPsiTilde_of_allSites (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {ν η : ℝ}
     (hν : 0 ≤ ν) (hη : 0 < η) (f : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
-    (hh₀ : ∑ i, h₀ i ^ 2 = 1)
-    (hb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → f x = f x')
-    (h1 : ∀ x x', Adj x x' → rn (fun i => f x i - f x' i) < η)
-    (h2 : ∀ x, |∑ i, f x i ^ 2 - 1| < η)
-    (h3 : ∀ x, ν * ((L : ℝ) ^ j) ^ 2 * |1 - (∑ i, f x i * h₀ i) / rn (f x)| < η ^ 2) :
+    (hh₀ : ∑ i, h₀ i ^ 2 = 1) (hA : AllSitesBounds (N₀ := N₁ * L ^ m₁) (q := k) j ν η f h₀) :
     InPsiTilde G ν η f h₀ := by
+  obtain ⟨hb, h1, h2, h3⟩ := hA
   have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
   have hLC : IsLayerConstant G f := isLayerConstant_of_jBlock hjk hΩ hb
   have hsame : ∀ x y, y ∈ blockSet G x → f y = f x := by
@@ -120,12 +133,9 @@ theorem xiDom_of_allSites {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
     (hΩ : ∀ i, j < i → G.Ω i = ∅) (hjk : j ≤ k) {η ε : ℝ} (hη : 0 < η)
     (hηc0 : η ≤ bgC0 d L N) (hηc1 : η ≤ bgC1 d L N) (hε : (2 * bgK1 d L N + 2) * η ≤ ε)
     (f : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ) (hh₀ : ∑ i, h₀ i ^ 2 = 1)
-    (hb : ∀ x x', jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j x' → f x = f x')
-    (h1 : ∀ x x', Adj x x' → rn (fun i => f x i - f x' i) < η)
-    (h2 : ∀ x, |∑ i, f x i ^ 2 - 1| < η)
-    (h3 : ∀ x, ν * ((L : ℝ) ^ j) ^ 2 * |1 - (∑ i, f x i * h₀ i) / rn (f x)| < η ^ 2) :
+    (hA : AllSitesBounds (N₀ := N₁ * L ^ m₁) (q := k) j ν η f h₀) :
     XiDom G a ν j ε (fun x i => (f x i : ℂ)) (fun _ i => (h₀ i : ℂ)) := by
-  have hP := inPsiTilde_of_allSites (G := G) hΩ hjk H.mass hη f h₀ hh₀ hb h1 h2 h3
+  have hP := inPsiTilde_of_allSites (G := G) hΩ hjk H.mass hη f h₀ hh₀ hA
   have hPC := inPsiTildeC_of_inPsiTilde hη hP
   have hK := bgK1_pos d L N
   have hX := psiTildeC_subset_xiC (G := G) (a := a) H hη le_rfl hηc0 hηc1

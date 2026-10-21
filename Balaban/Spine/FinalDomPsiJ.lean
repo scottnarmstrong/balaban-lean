@@ -1,0 +1,177 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
+module
+
+public import Balaban.Spine.FinalDomCore
+public import Balaban.Spine.FinalDomLevel
+public import Balaban.Spine.FinalDomCompose
+public import Balaban.Spine.FinalSfConst
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+
+/-!
+# The inherited fields `ψ^{(j)}_k` on the whole torus: bounds at every site
+
+A6-3 (a), item 1. -/
+
+@[expose] public section
+
+open Balaban Balaban.Multiscale Balaban.Background Balaban.LargeField Balaban.LargeField.Def7
+  Balaban.SmallField.Def6v2 Balaban.Localization
+
+namespace Balaban.RootFSpine
+
+open Balaban.SmallField
+
+section Generic
+
+variable {d L N₀ q N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+/-- **The bounds at every site from the real domain of a generating set with a single layer**:
+if every site lies in the layer `jj` of `G` (that is `Ω_jj = univ` and `Ω_{jj+1} = ∅`), the real
+domain `Ψ̃(G; m, η)` gives the bounds at every site. -/
+theorem allSitesBounds_of_inPsiTilde {G : GeneratingSet d L N₀ q ϱ} {jj : ℕ} (hjj : 1 ≤ jj)
+    (hjq : jj ≤ q) (hall : ∀ x, x ∈ G.Ω jj) (htop : G.Ω (jj + 1) = ∅) {m η : ℝ}
+    {f : Torus d (N₀ * L ^ q) → Fin N → ℝ} {h₀ : Fin N → ℝ} (hP : InPsiTilde G m η f h₀) :
+    AllSitesBounds jj m η f h₀ := by
+  have hl : ∀ x, x ∈ G.layer jj := fun x => G.mem_layer.2 ⟨hall x, by rw [htop]; simp⟩
+  have hidx : ∀ x, G.layerIndex x = jj := fun x => G.layerIndex_eq hjj hjq (hl x)
+  have h1 : ∀ x, x ∈ G.Ω 1 := fun x => G.Ω_antitone le_rfl hjj (by omega) (hall x)
+  have hd : ∀ x, x ∈ dataSites G := fun x => (mem_dataSites G).2 (Or.inl (h1 x))
+  refine ⟨fun x x' hb => ?_, fun x x' hadj => hP.r1 x x' ?_, fun x => hP.r2 x (hd x),
+    fun x => ?_⟩
+  · exact (hP.layerConst jj hjj hjq x (hl x) x' (G.mem_blk.2 hb.symm)).symm
+  · refine ⟨hd x, hd x', Or.inl (by rw [hidx, hidx]), x, ?_, x', ?_, hadj⟩
+    · unfold blockSet; simp only [h1 x, ↓reduceIte, hidx]; exact G.mem_blk.2 rfl
+    · unfold blockSet; simp only [h1 x', ↓reduceIte, hidx]; exact G.mem_blk.2 rfl
+  · have := hP.r3 x (hd x)
+    rwa [hidx] at this
+
+omit [NeZero N₀] [NeZero L] in
+/-- **The bounds at every site are invariant under the identification of tori of equal side.** -/
+theorem AllSitesBounds.cast {N₀' : ℕ} (hN : N₀ = N₀') (e : N₀ * L ^ q = N₀' * L ^ q) {jj : ℕ}
+    {m η : ℝ} {f : Torus d (N₀' * L ^ q) → Fin N → ℝ} {h₀ : Fin N → ℝ}
+    (hf : AllSitesBounds jj m η f h₀) :
+    AllSitesBounds (N₀ := N₀) jj m η (fun x => f (torusCast e x)) h₀ := by
+  subst hN
+  exact hf
+
+end Generic
+
+section Weights
+
+variable {L : ℕ}
+
+/-- The weights `a_n = a_k (1 - L^{-2k})/(1 - L^{-2n})` of the ideal flow are the weights
+`compWeight L a₁` of the composition theorem with `a₁ = a_1`. -/
+theorem aIdeal_eq_compWeight (hL : 2 ≤ L) (k : ℕ) (ak : ℝ) (r : ℕ) :
+    Def6.aIdeal L k ak r = compWeight L (Def6.aIdeal L k ak 1) r := by
+  have hL2 : (2 : ℝ) ≤ L := by exact_mod_cast hL
+  have h4 : (4 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
+  have hne : (1 - (((L : ℝ)) ^ 2)⁻¹) ≠ 0 := by
+    have : (((L : ℝ)) ^ 2)⁻¹ ≤ 1 / 4 := by
+      rw [inv_le_comm₀ (by positivity) (by norm_num)]; linarith
+    linarith
+  have hQ : (1 - ((L : ℝ) ^ 1)⁻¹ ^ 2) = 1 - (((L : ℝ)) ^ 2)⁻¹ := by rw [pow_one, inv_pow]
+  have e : ∀ n : ℕ, (((L : ℝ) ^ n) ^ 2)⁻¹ = ((L : ℝ) ^ n)⁻¹ ^ 2 := fun n => (inv_pow _ _).symm
+  unfold Def6.aIdeal compWeight
+  rw [hQ, e r, div_mul_cancel₀ _ hne]
+
+end Weights
+
+section Ctx
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N (j + 1) m₁ ϱ)
+  (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
+
+/-- **The inherited field `ψ^{(j')}_k` of the whole torus, real part**, on the background torus. -/
+noncomputable def psiJRe {jj : ℕ} (hj : jj ≤ j + 1) : BgT C.geo (j + 1) → Fin N → ℝ :=
+  fun x i => (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
+    (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
+    (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))) (C.liftData ψk) (hC hv) x i).re
+
+/-- **The inherited fields on the `χ`-support, at every site.** On the support of the small-field
+characteristic function of the whole torus (late scale `j + 1`, cube mass equal to the background
+mass `ν L^{-2(j+1)}`), the inherited field `ψ^{(j')}_k`, `1 ≤ j' ≤ j + 1`, is real and satisfies the
+bounds of the real data domain at every site, with radius `C₄ K₁ · 4 (d+1) δ_k`. -/
+theorem psiJ_allSites {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 ≤ S.L) {ν : ℝ}
+    (hν : 0 < ν) (hunit : ‖hv‖ = 1) (hδ : 0 < C.cs.delta (j + 1))
+    (hδ1 : (S.d + 1) * C.cs.delta (j + 1) ≤ 1)
+    (hμ : C.cs.mu (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hμBg : C.cs.muBg (j + 1) = sfBgMassAt S.L (j + 1) ν)
+    (hχ : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv ≠ 0)
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hη : 4 * (S.d + 1) * C.cs.delta (j + 1) ≤ thm73C1 S.d S.L N) :
+    (∀ x i, psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
+      (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
+      (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))) (C.liftData ψk) (hC hv) x i =
+        ((psiJRe C ψk hv hj x i : ℝ) : ℂ)) ∧
+    AllSitesBounds (N₀ := C.geo.M1 * (C.geo.c * n (j + 1))) (q := j + 1) jj
+      (sfBgMassAt S.L (j + 1) ν)
+      (compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))))
+      (psiJRe C ψk hv hj) (fun i => hv i) := by
+  classical
+  have hL2 : 2 ≤ S.L := by omega
+  have hHBmu : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.mu (j + 1)) := by
+    rw [hμ, ← hμBg]; exact HB
+  have hP := inPsiTilde_genW_univ_late C ψk hv hL2 hν hunit hδ hδ1 hμ hχ hHBmu
+  have ha₁ : 0 < Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)) 1 := by
+    have := (HB.weights 1 le_rfl (by omega)).1
+    exact lt_of_lt_of_le (by norm_num) this
+  have hw : C.weights = compWeight S.L (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)) 1) :=
+    funext fun r => aIdeal_eq_compWeight hL2 (j + 1) (C.sf.a (j + 1)) r
+  have HBc : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1)
+      (compWeight S.L (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)) 1)) (sfBgMassAt S.L (j + 1) ν) := by
+    rw [← hw, ← hμBg]; exact HB
+  have hm : C.geo.c * n (j + 1) * S.L ^ (j + 1 - (j + 1)) = C.geo.c * n (j + 1) := by simp
+  have hprec := genSF_precedes (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L)
+    (c := C.geo.c) (n := n (j + 1)) hj hm (W2 R (Set.univ : Set (Torus S.d (n (j + 1)))))
+  have hδ0 : 0 < 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) := by positivity
+  obtain ⟨hreal, hchild⟩ := inPsiTilde_composeField_bgFieldC ha₁ HBc HBc hprec
+    (D' := liftSingle (C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+      (C.liftData ψk) (hC hv)) hδ0 hη hP
+    (fun x hx i => liftSingle_Ψ_eq_parentPsi C _ ψk hv hx i)
+    (fun x hx i => by rw [liftSingle_h _ _ _ hx]; rfl)
+  have hpsi : ∀ x i, psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L)
+      (c := C.geo.c) (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
+      (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))) (C.liftData ψk) (hC hv) x i =
+      composeField (genSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L)
+        (c := C.geo.c) (n := n (j + 1)) hj (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))))
+        (C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+        (compWeight S.L (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)) 1))
+        (bgFieldC (C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+          (compWeight S.L (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)) 1))
+          (sfBgMassAt S.L (j + 1) ν) (bgC0 S.d S.L N)
+          (liftSingle (C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+            (C.liftData ψk) (hC hv)))
+        (liftSingle (C.genW (Set.univ : Set (Torus S.d (n (j + 1)))))
+          (C.liftData ψk) (hC hv)).Ψ x i := by
+    intro x i
+    unfold psiSF bgSF
+    rw [hw, hμBg]
+  refine ⟨fun x i => ?_, ?_⟩
+  · have h3 : psiJRe C ψk hv hj x i = (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1))
+        (L := S.L) (c := C.geo.c) (n := n (j + 1)) C.weights (C.cs.muBg (j + 1))
+        (bgC0 S.d S.L N) hj (W2 R (Set.univ : Set (Torus S.d (n (j + 1)))))
+        (C.liftData ψk) (hC hv) x i).re := rfl
+    rw [h3, hpsi x i]
+    exact hreal x i
+  · refine allSitesBounds_of_inPsiTilde
+      (G := genSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
+        (n := n (j + 1)) hj (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))))
+      hj1 hj (fun x => ?_) ?_ ?_
+    · rw [genSF_Ω_univ_of_le C hj le_rfl]; exact Finset.mem_univ _
+    · exact minLayer_of_gt _ (Nat.lt_succ_self _)
+    · convert hchild using 2
+      rename_i x
+      funext i
+      unfold psiJRe
+      rw [hpsi x i]
+
+end Ctx
+
+end Balaban.RootFSpine

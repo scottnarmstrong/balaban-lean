@@ -2909,6 +2909,7 @@ public import Balaban.Spine.FinalChart
 public import Balaban.Spine.FinalDomCore
 public import Balaban.Spine.FinalDomLevel
 public import Balaban.Spine.FinalDomCompose
+public import Balaban.Spine.FinalDomPsiJ
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
