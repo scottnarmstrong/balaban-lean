@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Base.BaseBgHull
 public import Balaban.Green.FinalBoxLocCount
+public import Balaban.Polymer.TwoTorusThickSets
 public import Balaban.Polymer.RootedAnimals
 import Mathlib.Tactic.Linarith
 
@@ -32,12 +33,6 @@ section Graph
 
 variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] (C : DecCover d L N₁ m₁ (k + 1))
 
-
-omit [NeZero N₁] [NeZero L] in
-theorem pow_dvd_cover_side {n : ℕ} (hn : n ≤ k + 1) : L ^ (n + m₁) ∣ N₁ * L ^ m₁ * L ^ (k + 1) := by
-  obtain ⟨t, ht⟩ := Nat.exists_eq_add_of_le hn
-  rw [ht]
-  exact ⟨N₁ * L ^ t, by ring⟩
 
 theorem two_mul_div_side {n : ℕ} (hn : n ≤ k + 1) (c : ℕ) :
     2 * (c * L ^ (k + 1 + m₁)) / L ^ (n + m₁) = 2 * c * L ^ (k + 1 - n) := by
@@ -77,11 +72,11 @@ theorem card_cells_near_le_aux
     obtain ⟨h1, h2⟩ := hlay q hqI
     refine Finset.mem_biUnion.2 ⟨q.1, Finset.mem_Icc.2 ⟨h1, h2⟩, Finset.mem_image.2 ⟨q.2, ?_, rfl⟩⟩
     refine mem_ballCells.2 ⟨q.2, hqd, ?_⟩
-    exact cbase_eq_self_of_aligned' (pow_dvd_cover_side h2) (pow_pos hL0 _) (hal q hqI)
+    exact cbase_eq_self_of_aligned' (Polymer.TwoTorusStep.pow_dvd_side h2 N₁) (pow_pos hL0 _) (hal q hqI)
   refine (Finset.card_le_card hsub).trans (Finset.card_biUnion_le.trans ?_)
   refine Finset.sum_le_sum fun n hn => ?_
   have hn2 := (Finset.mem_Icc.1 hn).2
-  have hdvd := pow_dvd_cover_side (L := L) (N₁ := N₁) (m₁ := m₁) hn2
+  have hdvd := Polymer.TwoTorusStep.pow_dvd_side (L := L) (m₁ := m₁) hn2 N₁
   exact Finset.card_image_le.trans (card_ballCells_le hdvd (pow_pos hL0 _) z _)
 
 theorem card_cells_near_le
