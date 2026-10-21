@@ -1,0 +1,184 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
+module
+
+public import Balaban.Spine.FinalSfChi
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+
+/-!
+# Measurability of the small-field factor on the whole torus
+
+A6-3 (a), item 1. On the `χ`-support `A = {χ_k(univ) ≠ 0}` all the building blocks of
+`sfFactor2 C vc univ` are continuous in the block field (the terms `ℰ^{(j)}`, `ℳ^{(j)}`, `ℛ^{(k)}_n`
+are analytic on the domains in which the fields lie, `Spine/FinalDomPsiJ.lean`), and off `A` the
+factor is `0`; so it is Borel (`measurable_sfFactor2_univ`).
+-/
+
+@[expose] public section
+
+open MeasureTheory Balaban Balaban.Multiscale Balaban.Background Balaban.LargeField
+  Balaban.LargeField.Def7 Balaban.LargeField.Def7v2 Balaban.SmallField Balaban.SmallField.Def6
+  Balaban.SmallField.Def6v2 Balaban.Localization
+
+namespace Balaban.RootFSpine
+
+section Generic
+
+/-- A finite sum over a finite index set of continuous functions. -/
+theorem continuousOn_finsum_mem {α ι : Type*} [TopologicalSpace α] {E : Set α} {s : Set ι}
+    (hs : s.Finite) {F : ι → α → ℂ} (hF : ∀ i ∈ s, ContinuousOn (F i) E) :
+    ContinuousOn (fun a => ∑ᶠ i ∈ s, F i a) E := by
+  classical
+  have : (fun a => ∑ᶠ i ∈ s, F i a) = fun a => ∑ i ∈ hs.toFinset, F i a := by
+    funext a; exact finsum_mem_eq_finite_toFinset_sum _ hs
+  rw [this]
+  exact continuousOn_finsetSum _ fun i hi => hF i (hs.mem_toFinset.1 hi)
+
+/-- Composition with a function that is continuous at the points reached. -/
+theorem continuousOn_comp_of_continuousAt {α β γ : Type*} [TopologicalSpace α] [TopologicalSpace β]
+    [TopologicalSpace γ] {f : α → β} {g : β → γ} {s : Set α} (hf : ContinuousOn f s)
+    (hg : ∀ a ∈ s, ContinuousAt g (f a)) : ContinuousOn (fun a => g (f a)) s :=
+  fun a ha => (hg a ha).comp_continuousWithinAt (hf a ha)
+
+end Generic
+
+section Ctx
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
+  [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N (j + 1) m₁ ϱ)
+  (hv : EuclideanSpace ℝ (Fin N)) (vc : CorrCoef S.d)
+  {P6 : Def6.Consts} {k0 : ℕ} (hm0 : P6.m₀ = C.m₀)
+  (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+  (hTm : SFTermClauses P6 (sfDom P6 k0 C.sf C.N₁) (C.sf.Tm C.N₁))
+
+/-- The support of the characteristic function of the whole torus. -/
+def Asupp : Set (BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) :=
+  {ψk | C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv ≠ 0}
+
+variable (hAD : Asupp C hv ⊆ DomSet C hv (C.cs.muBg (j + 1)))
+  (hdomJ : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ X, Def6.IsPolyDom C.m₀ jj X →
+    (sfDom P6 k0 C.sf C.N₁).dom jj ((C.sf.Tm C.N₁).gs jj X)
+      (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (Def6.constFld (hC hv)))
+  (hslit : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+    ∀ x, dot (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)
+      (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x) ∈ Complex.slitPlane)
+
+include hm0 HB hTm hAD hdomJ in
+/-- The localized terms `ℰ^{(j')}` at the inherited field are continuous on the support. -/
+theorem continuousOn_EresJ2_terms {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      ∑ y ∈ C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))),
+        ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
+          Def6.IsPolyDom C.m₀ jj X ∧ y ∈ X ∧ X ⊆ C.sset (thickY R (Set.univ : Set (Torus S.d (n (j + 1)))))},
+          (C.sf.Tm C.N₁).E jj y X (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj)
+            (Def6.constFld (hC hv))) (Asupp C hv) := by
+  refine continuousOn_finsetSum _ fun y _ => continuousOn_finsum_mem (Set.toFinite _) fun X hX => ?_
+  obtain ⟨hXp, hyX, -⟩ := hX
+  have hXp' : Def6.IsPolyDom P6.m₀ jj X := by rw [hm0]; exact hXp
+  have hAn := (hTm.analyticE jj hj1 hj y X hXp' hyX).continuousOn
+  exact hAn.comp (((continuousOn_psiJ C hv HB hj1 hj).mono hAD).prodMk continuousOn_const)
+    fun ψ hψ => hdomJ ψ hψ jj hj1 hj X hXp
+
+include HB hAD in
+/-- The inherited field at a site is continuous on the support. -/
+theorem continuousOn_psiJ_site {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1)
+    (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x) (Asupp C hv) :=
+  (continuousOn_pi.2 fun i => (continuousOn_psiJ_coord C hv HB hj1 hj x i).mono hAD)
+
+include HB hAD in
+theorem continuousOn_dot_psiJ {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1)
+    (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      dot (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)
+        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)) (Asupp C hv) := by
+  unfold dot
+  exact continuousOn_finsetSum _ fun i _ =>
+    (continuousOn_psiJ_coord C hv HB hj1 hj x i).mono hAD |>.mul
+      ((continuousOn_psiJ_coord C hv HB hj1 hj x i).mono hAD)
+
+include HB hAD hslit in
+theorem continuousOn_dot_unitDir {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1)
+    (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      dot (hC hv) (unitDirC (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)))
+      (Asupp C hv) := by
+  have hu : ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      unitDirC (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x)) (Asupp C hv) :=
+    continuousOn_comp_of_continuousAt (continuousOn_psiJ_site C hv HB hAD hj1 hj x)
+      fun ψ hψ => (unitDirC_analyticAt (hslit ψ hψ jj hj1 hj x)).continuousAt
+  unfold dot
+  exact continuousOn_finsetSum _ fun i _ =>
+    continuousOn_const.mul ((continuousOn_pi.1 hu) i)
+
+include HB hAD hslit in
+/-- The correction `corrSum` of P5 (1.8) at the inherited field is continuous on the support. -/
+theorem continuousOn_corrSum {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      corrSum (fun y x => vc.v1 jj (unlift jj (x - y))) (fun y x => vc.v2 jj (unlift jj (x - y)))
+        (nuIdeal S.L (j + 1) (C.sf.ν (j + 1)) jj)
+        (C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))))
+        (C.alignedIn jj (thickY R (Set.univ : Set (Torus S.d (n (j + 1))))))
+        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (hC hv)) (Asupp C hv) := by
+  unfold corrSum corrPair
+  refine continuousOn_finsetSum _ fun y _ => continuousOn_finsetSum _ fun x _ => ?_
+  exact (continuousOn_const.mul ((continuousOn_dot_psiJ C hv HB hAD hj1 hj x).sub
+      (continuousOn_dot_psiJ C hv HB hAD hj1 hj y))).add
+    (continuousOn_const.mul (continuousOn_const.mul
+      ((continuousOn_dot_unitDir C hv HB hAD hslit hj1 hj x).sub
+        (continuousOn_dot_unitDir C hv HB hAD hslit hj1 hj y))))
+
+include hm0 HB hTm hAD hdomJ hslit in
+/-- `ℰ^{(j')}` of the whole torus is continuous on the support. -/
+theorem continuousOn_EresJ2 {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      EresJ2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (Asupp C hv) := by
+  unfold EresJ2
+  exact (continuousOn_EresJ2_terms C hv hm0 HB hTm hAD hdomJ hj1 hj).sub
+    (continuousOn_corrSum C hv vc HB hAD hslit hj1 hj)
+
+include hm0 HB hTm hAD hdomJ hslit in
+theorem continuousOn_EresK2 :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      EresK2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv) (Asupp C hv) := by
+  unfold EresK2
+  exact continuousOn_finsetSum _ fun jj hjj =>
+    continuousOn_EresJ2 C hv vc hm0 HB hTm hAD hdomJ hslit (Finset.mem_Icc.1 hjj).1
+      (Finset.mem_Icc.1 hjj).2
+
+theorem continuous_psiLevelK :
+    Continuous fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) => C.psiLevelK ψk := by
+  refine continuous_pi fun m => continuous_pi fun y => ?_
+  unfold SFCtx.psiLevelK
+  by_cases hm : m ≤ j + 1
+  · simp only [hm, ↓reduceDIte]
+    unfold singleScale
+    by_cases hmk : m = j + 1
+    · simp only [hmk, ↓reduceDIte]
+      exact continuous_apply _
+    · simp only [hmk, ↓reduceDIte]
+      exact continuous_const
+  · simp only [hm, ↓reduceDIte]
+    exact continuous_const
+
+include HB hAD in
+/-- The single-scale action `A*_k` of the whole torus is continuous on the support. -/
+theorem continuousOn_actStar2 :
+    ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      actStar2 C (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv) (Asupp C hv) := by
+  unfold actStar2
+  have hφ := (continuousOn_phiBar C hv HB).mono hAD
+  have hpair : ContinuousOn (fun ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N) =>
+      (C.psiLevelK ψk, C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv)) (Asupp C hv) :=
+    (continuous_psiLevelK C).continuousOn.prodMk hφ
+  exact ((continuous_actionG _ _ _ _ _).comp_continuousOn hpair).add
+    (((continuous_starBondE _).comp_continuousOn hφ).const_mul _)
+
+end Ctx
+
+end Balaban.RootFSpine
