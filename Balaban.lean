@@ -2918,6 +2918,7 @@ public import Balaban.Spine.BookMap
 public import Balaban.Spine.AgreeTransport
 public import Balaban.Spine.AgreeTransportSpine
 public import Balaban.Spine.AgreeTransportKappa
+public import Balaban.Spine.AgreeTransportLocal
 public import Balaban.Spine.SFVacuumRatio
 public import Balaban.Spine.SFVacuum
 public import Balaban.Spine.RStep
