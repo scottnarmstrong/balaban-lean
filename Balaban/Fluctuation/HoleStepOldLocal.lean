@@ -27,10 +27,14 @@ OPEN-H7-MIXED) and two geometric conditions on the localization domains.
 * `extS_slocVec`, `slocVec_ne_zero`, `actC_slocVec_mono`, `sProd_slocVec_eq`, `norm_slocVec_le`:
   the localization vectors of two parameter vectors supported on `J` and agreeing on the cubes of
   `J` inside `Y(J)` have the same factors on the closures;
+* `reachHull`, `AgreeReach`: the data region of a family and the agreement of two values of the
+  integration variables on its unit points;
 * `oldInterp_localityAEOn`: **(AE2) for the interpolated old term**: `LocalityAEOn` of
-  `w ↦ oldInterp … w` with the connectivity region `reachSet`;
+  `w ↦ oldInterp … w` with the connectivity region `reachSet` and the data agreement `AgreeReach`;
 * `oldCoef_eq_zero_of_not_reached`: `T(X, J) = 0` unless every cube of `J` lies in `Y(J)` (the
-  coefficients are rooted at the read set through chains of active centres).
+  coefficients are rooted at the read set through chains of active centres);
+* `oldCoef_congr_of_agreeReach`: `T(X, J)` reads the integration variables only at the unit points
+  of its data region.
 -/
 
 @[expose] public section
@@ -60,6 +64,22 @@ def reachSet (C : DecCover d L N₁ m₁ (k + 1)) (X₁loc : S.U → Finset (CTo
     Set (CTorus d L N₁ m₁ (k + 1)) :=
   {x | ∃ b ∈ Rd, ∃ q ∈ actComp C D (Dec2.extS C (S.slocOf C X₁loc (coreExt C X₁ (famInd J)) b))
     {(unitRep b : CTorus d L N₁ m₁ (k + 1))}, ∃ P ∈ C.Qset q, x ∈ cubeP P}
+
+/-- **The data region reached by a family `J`**: the hulls of the active closures of the seeds
+`{b}`, `b ∈ Rd`, at the localization vectors of `famInd J` (the integration variables read by the
+coefficient `T(X, J)` lie at the unit points of this region). -/
+def reachHull (C : DecCover d L N₁ m₁ (k + 1)) (X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1)))
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) (D : ℕ) (Rd : Finset S.U) (J : Finset C.cubeIdx) :
+    Set (CTorus d L N₁ m₁ (k + 1)) :=
+  {y | ∃ b ∈ Rd, y ∈ actHull C D (Dec2.extS C (S.slocOf C X₁loc (coreExt C X₁ (famInd J)) b))
+    {(unitRep b : CTorus d L N₁ m₁ (k + 1))}}
+
+/-- Two values of the integration variables agree at the unit points of the data region of `J`. -/
+def AgreeReach (C : DecCover d L N₁ m₁ (k + 1)) (X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1)))
+    (X₁ : Finset (CTorus d L N₁ m₁ (k + 1))) (D : ℕ) (Rd : Finset S.U) (inner : Finset S.U)
+    (J : Finset C.cubeIdx) (u u' : inner → Rn N) : Prop :=
+  ∀ b' : inner, (∃ y ∈ S.reachHull C X₁loc X₁ D Rd J,
+    unitBlock y = ((b' : S.U) : UnitTorus d L N₁ m₁ k)) → u b' = u' b'
 
 variable {S}
 
@@ -185,11 +205,10 @@ theorem oldInterp_localityAEOn {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L 
     LocalityAEOn R Set.univ
       (fun P : (coverOf S.G').cubeIdx =>
         (cubeP (P : ℕ × CTorus d L N₁ m₁ (k + 1)) : Set (CTorus d L N₁ m₁ (k + 1))))
-      (S.reachSet (coverOf S.G') X₁loc X₁ D Rd) (fun _ u u' => u = u')
+      (S.reachSet (coverOf S.G') X₁loc X₁ D Rd) (S.AgreeReach (coverOf S.G') X₁loc X₁ D Rd inner)
       (fun ψin w => S.oldInterp (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner ψout B ψin w) := by
   classical
   intro J u u' _ _ w w' hw hw' hag huu
-  subst huu
   have hE1 : (1 : ℝ) ≤ Real.exp κ := Real.one_le_exp_iff.2 hκ
   have hwle : ∀ P, ‖w P‖ ≤ R := fun P => (hw.2 P).le
   have hwle' : ∀ P, ‖w' P‖ ≤ R := fun P => (hw'.2 P).le
@@ -232,8 +251,22 @@ theorem oldInterp_localityAEOn {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L 
       actHull (coverOf S.G') D (Dec2.extS _ v) {(unitRep b : CTorus d L N₁ m₁ (k + 1))} :=
     seed_subset_actHull (fun y hy => ⟨q₀, hq₀act, by rw [Finset.mem_singleton.1 hy]; exact hbq₀⟩)
       _ (Finset.mem_singleton_self _)
+  -- the integration variables agree on the unit points of the hull
+  have hψ : ∀ b' : S.U, (∃ y ∈ actHull (coverOf S.G') D (Dec2.extS _ v)
+      {(unitRep b : CTorus d L N₁ m₁ (k + 1))},
+      y ∈ S.G'.layer (k + 1) ∧ unitBlock y = (b' : UnitTorus d L N₁ m₁ k)) →
+      S.fill inner u ψout b' = S.fill inner u' ψout b' := by
+    rintro b' ⟨y, hyT, -, hyb⟩
+    have hyR : y ∈ S.reachHull (coverOf S.G') X₁loc X₁ D Rd J :=
+      ⟨b, hb, actHull_mono hsup _ hyT⟩
+    funext i
+    unfold fill
+    by_cases hb' : b' ∈ inner
+    · simp only [hb', ↓reduceDIte]
+      rw [huu ⟨b', hb'⟩ ⟨y, hyR, hyb⟩]
+    · simp only [hb', ↓reduceDIte]
   exact S.composed_eq_of_hull hS Sb SX HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD' hDD _ hsup hsup'
-    hcomp hdeep hadm hadm' hU hU' hMu hMu' rfl rfl hbT (fun _ _ => rfl)
+    hcomp hdeep hadm hadm' hU hU' hMu hMu' rfl rfl hbT hψ
 
 /-- **The coefficients of the re-expansion are rooted at the read set** (Lemma AE with (AE2)
 `oldInterp_localityAEOn`): `T(X, J) = 0` unless every cube of `J` lies in the region `Y(J)` reached
@@ -271,7 +304,43 @@ theorem oldCoef_eq_zero_of_not_reached {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSp
     S.oldCoef (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner ψout B J ψin = 0 :=
   coef_eq_zero_of_not_connected_on hR1
     (oldInterp_localityAEOn hS Sb SX HB hκ hM hδ0 hδε hε hδ hνε hD' hDD X₁loc X₁ inner ψout hB
-      hR1.le hRk hstand hcov hlocdeep) (fun _ _ _ => rfl) (Set.mem_univ ψin) hJ
+      hR1.le hRk hstand hcov hlocdeep) (fun _ _ _ _ _ => rfl) (Set.mem_univ ψin) hJ
+
+/-- **The coefficient `T(X, J)` reads the integration variables only on its data region**: two values
+of the integration variables agreeing at the unit points of `reachHull J` give the same
+coefficient (Lemma AE, `coef_congr_of_agree_on`). -/
+theorem oldCoef_congr_of_agreeReach {Kc Cx Cx₂ c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf S.G') S.G' S.a S.ν Kc Cx)
+    (SX : Dec2.XCover (coverOf S.G') S.G' S.a S.a₁ S.ν Cx₂)
+    (HB : BgHyp d L (k + 1) ϱ' S.a S.ν) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {δ ε : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : S.ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hD' : InDomainC S.G' S.ν δ ε S.D')
+    {D : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ D)
+    (X₁loc : S.U → Finset (CTorus d L N₁ m₁ (k + 1))) (X₁ : Finset (CTorus d L N₁ m₁ (k + 1)))
+    (inner : Finset S.U) (ψout : S.U → Fin N → ℂ) {B : (S.U → Fin N → ℂ) → ℂ} {Rd : Finset S.U}
+    (hB : ∀ c c' : S.U → Fin N → ℂ, (∀ b ∈ Rd, c b = c' b) → B c = B c')
+    {R : ℝ} (hR1 : 1 < R) (hRk : R ≤ Real.exp κ)
+    (hstand : ∀ v : Dec2.DecParams (coverOf S.G'), (∀ P, ‖v P‖ ≤ Real.exp κ) →
+      AdmPot S.G' (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') ∧
+      (∀ x : ℝ, 0 < x → IsUnit (1 - Dec2.Kcalx (coverOf S.G') S.G' S.a S.a₁ x S.ν
+        (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v))) ∧
+      (∀ x : ℝ, 0 < x → IsUnit (Dec2.decM (coverOf S.G') S.G' S.a S.a₁ x S.ν
+        (Dec2.decBgMult (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D') (Dec2.extS _ v)
+        (svec S.G' (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D')))))
+    (hcov : ∀ b ∈ Rd, ∃ q ∈ (coverOf S.G').cubeIdx,
+      (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ intBox q ∧
+        ∀ P ∈ (coverOf S.G').Qset q, cubeP P ⊆ X₁ ∧ cubeP P ⊆ X₁loc b)
+    (hlocdeep : ∀ b ∈ Rd, ∀ q ∈ (coverOf S.G').cubeIdx,
+      (∀ P ∈ (coverOf S.G').Qset q, cubeP P ⊆ X₁loc b) → ∀ x ∈ intBox q,
+        ∀ z : CTorus d L N₁ m₁ (k + 1), supDist x z ≤ 4 * L ^ (k + 1) → z ∈ S.G'.Ω 1)
+    (J : Finset (coverOf S.G').cubeIdx) {ψin ψin' : inner → Rn N}
+    (hag : S.AgreeReach (coverOf S.G') X₁loc X₁ D Rd inner J ψin ψin') :
+    S.oldCoef (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner ψout B J ψin =
+      S.oldCoef (coverOf S.G') (rho4 d L N BG κ) X₁loc X₁ inner ψout B J ψin' :=
+  coef_congr_of_agree_on hR1
+    (oldInterp_localityAEOn hS Sb SX HB hκ hM hδ0 hδε hε hδ hνε hD' hDD X₁loc X₁ inner ψout hB
+      hR1.le hRk hstand hcov hlocdeep) J (Set.mem_univ ψin) (Set.mem_univ ψin') hag
 
 end HoleStep
 

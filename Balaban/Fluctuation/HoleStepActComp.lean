@@ -25,7 +25,7 @@ their interaction boxes.  These are the sets `T ⊂ Y` of the cross lemmas
   `exists_of_mem_actHull`;
 * `mem_actComp_of_near`, `actC_dich`: **the dichotomy**: an active centre whose interaction box comes
   within `r` of the hull, `r + 2 L^{k+1} ≤ D`, belongs to the closure (so its box lies in the hull);
-* `actComp_mono`, `actComp_eq_of_sProd_eq`, `actHull_eq_of_sProd_eq`: the closure only grows with the
+* `actComp_mono`, `actHull_mono`, `actComp_eq_of_sProd_eq`, `actHull_eq_of_sProd_eq`: the closure only grows with the
   active set, and two vectors with the same factors on the closure of a common larger vector have the
   same closure and hull;
 * `seed_subset_actHull`: a seed covered by interaction boxes of active centres lies in the hull;
@@ -178,6 +178,14 @@ theorem actComp_mono {D : ℕ} {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → �
   refine mem_actComp.2 ⟨hqC, q₀, hss q₀ h₀, hseed, ?_⟩
   have hle : ActAdj C D s ≤ ActAdj C D s' := fun a b hab => ⟨hss a hab.1, hss b hab.2.1, hab.2.2⟩
   exact Relation.ReflTransGen.mono hle _ _ hch
+
+/-- The hull only grows with the active set. -/
+theorem actHull_mono {D : ℕ} {s s' : ℕ × CTorus d L N₁ m₁ (k + 1) → ℂ}
+    (hss : ∀ q, ActC C s q → ActC C s' q) (seed : Finset (CTorus d L N₁ m₁ (k + 1))) :
+    actHull C D s seed ⊆ actHull C D s' seed := by
+  intro y hy
+  obtain ⟨z, hz, q, hq, x, hx, hxz⟩ := mem_actHull.1 hy
+  exact mem_actHull.2 ⟨z, hz, q, actComp_mono hss seed hq, x, hx, hxz⟩
 
 /-- **Two vectors with the same factors on the closure of a common larger vector have the same
 closure.** -/
