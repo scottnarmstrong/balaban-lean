@@ -1007,6 +1007,13 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      closeness of the local terms `PY` of a cluster sum, doubled weights; cores `term_bound_core`, `pe_PYGen_bound` in `Polymer/Local`, `pe_PY_bound` their instance),
      `mayerK_sub_bound(_margin)`, `pe_size_sub_bound`, `mayer_PY_sub_bound(_single)`, `PY_mayer_close_transport` (two gases related by a block map: `|P'(σY) − P(Y)| ≤ C e^{−κ'(d(Y)+c_P) − λ m(Y)}`
      from the margin closeness of the terms). Next: `localGasP` instances (after B2p3a), then the regrouping into `LastScaleTwoTorusClose` (after B2 3b/3c).
+     **A2 closeness of the box local terms (`Green/FinalBoxClose{Coef,Cut,Term,Quarter}.lean`).** PROVED: generic `linField_close`, `rootedCoef_close_relabel`,
+     `norm_term_sub_le_of_transport`; the cut family on two tori `boxCut_close_twoTorus(_margin)` (window frame, from `final_taggedCfinU_close_weighted`,
+     `final_region_entry_close_unif`) and `boxCut_close_quarterBox` (quarter box: entries within `P (n_C²+n_C⁴) √(C₀ e^{−c₀ M (2t−7)}) / √g (1+p)`, `t` the margin in
+     macro cells; `boxCut_translate`); the rooted coefficients `rootedCoef_boxCut_close_of_regions` (core), `rootedCoef_boxCut_close_twoTorus`, `rootedCoef_boxCut_close_quarterBox`:
+     `|coef_C(τ) − coef_{eC}(τ')| ≤ (η + M_τ ε/(r − r₁ − ε))/(e^κ − 1)^{|C|}`, `ε = |c| |reg C| δ ρ` (`η` the closeness of the terms read through the lift).
+     M against κ: the margin rate is `c₀ M` per macro cell (`c₀ = c₀(d, L)`, W870), against the activity rate per macro cell of the gas; `|c| = β_k^{−1/2}` makes `ε` small.
+     Next (after B1's `localFormOf` and B2's `boxCellTerm` land): the closeness of `W_Y = localFormOf …` in the form of `PY_mayer_close_transport`, with the closeness of the terms `τ_a` as the named input.
    * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
      `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
      every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
