@@ -36,7 +36,7 @@ open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.
 variable {d L : ℕ} [NeZero L]
 
 /-- The numerical inequalities of the margins. -/
-theorem margins_arith {δ₀ δ₁ E s ρβ ν L' : ℝ} (hδ : 0 < δ₀) (hL : 3 ≤ L') (hδ₁0 : 0 ≤ δ₁)
+theorem margins_arith {δ₀ δ₁ E s ρβ ν L' : ℝ} (hδ : 0 < δ₀) (hL : 3 ≤ L') (_hδ₁0 : 0 ≤ δ₁)
     (hδ₁ : δ₁ ≤ δ₀ / 2) (hE0 : 0 ≤ E) (hE : s * E ≤ δ₀ / 8) (hs0 : 0 ≤ s) (hρ0 : 0 ≤ ρβ)
     (hρ : 3 * ρβ ≤ δ₀ / 4) (hν0 : 0 ≤ ν) (hν : ν * L' ^ 2 ≤ 1) :
     (δ₁ + s * E) / L' < δ₀ - 2 * (3 / 2 * ρβ) ∧
@@ -72,34 +72,34 @@ test** (BASE-KERNEL-4 Lemma 2.2 with margins from `Reg`). -/
 theorem baseSectorCubeProduct_eq_one_of_chi1 {N : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) :
     ∃ Kw δw : ℝ, 0 < Kw ∧ 0 < δw ∧
       ∀ {n M1 N₁ m₁ c n' : ℕ} [NeZero n] [NeZero M1] [NeZero N₁] [NeZero n']
-        (hn : 1 * n = M1 * N₁) (hM1 : M1 = L ^ m₁) (hm : N₁ * L ^ (1 - 1) = c * n')
-        {ϱ a₁ ν δ₀ δ₁ β ρ : ℝ} (ha₁ : 0 < a₁)
+        (hn : 1 * n = M1 * N₁) (_hM1 : M1 = L ^ m₁) (_hm : N₁ * L ^ (1 - 1) = c * n')
+        {ϱ a₁ ν δ₀ δ₁ β ρ : ℝ} (_ha₁ : 0 < a₁)
         (regimeB : Prop)
-        (hδ : 0 < δ₀) (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
-        (H : BgHyp d L 1 ϱ (compWeight L a₁) (if regimeB then ν else 0))
-        (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) {BG κ : ℝ}
-        (hΛ7 : 4 * d * L * δ₀ ≤ c7 d L N BG κ)
-        (H0 : BgHyp d L 1 (minSep L M1) (compWeight L a₁) (if regimeB then ν else 0))
-        (hν : 0 ≤ ν) (hνle : (if regimeB then ν else 0) * ((L : ℝ) ^ 1) ^ 2 ≤ 1)
-        (hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
-        (hKs : bgK1 d L N * bgC1 d L N ≤ min (deltaStar d L N) δw)
-        (hδc : 4 * d * L * δ₀ ≤ thm73C1 d L N)
-        (hε' : 4 * d * L * δ₀ ≤ bgC0 d L N)
-        (hK1' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ deltaStar d L N)
-        (hKw' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ δw)
+        (_hδ : 0 < δ₀) (h : EuclideanSpace ℝ (Fin N)) (_hh : ‖h‖ = 1)
+        (_H : BgHyp d L 1 ϱ (compWeight L a₁) (if regimeB then ν else 0))
+        (_hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N) {BG κ : ℝ}
+        (_hΛ7 : 4 * d * L * δ₀ ≤ c7 d L N BG κ)
+        (_H0 : BgHyp d L 1 (minSep L M1) (compWeight L a₁) (if regimeB then ν else 0))
+        (_hν : 0 ≤ ν) (_hνle : (if regimeB then ν else 0) * ((L : ℝ) ^ 1) ^ 2 ≤ 1)
+        (_hsep : 2 * d * Real.log L ≤ agmonRate d / 16 * (minSep L M1 - 1))
+        (_hKs : bgK1 d L N * bgC1 d L N ≤ min (deltaStar d L N) δw)
+        (_hδc : 4 * d * L * δ₀ ≤ thm73C1 d L N)
+        (_hε' : 4 * d * L * δ₀ ≤ bgC0 d L N)
+        (_hK1' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ deltaStar d L N)
+        (_hKw' : (2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)) ≤ δw)
         (θ : Torus d n → EuclideanSpace ℝ (Fin N)) (φ₀ φ : CfgT d N L n)
-        (hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ₀ ≠ 0)
-        (hχ : ∀ y0 : Torus d n', ChiKProp (compWeight L a₁) (if regimeB then ν else 0) δ₁
+        (_hp : baseSectorCubeProduct regimeB ν δ₀ h θ φ₀ ≠ 0)
+        (_hχ : ∀ y0 : Torus d n', ChiKProp (compWeight L a₁) (if regimeB then ν else 0) δ₁
           (fun i => h i) c n' y0
           (show BlockCfg d (M1 * N₁) L 1 1 N from fun y i => baseSectorTheta θ (castCoarse hn y) i))
-        (hβ : 0 < β) (w : Config (Torus d (L * n)) N) (hρ0 : 0 ≤ ρ) (hρ : ρ ≤ Real.sqrt β / 2)
-        (hwρ : ∀ x, ‖w x‖ ≤ ρ)
-        (hφ : ∀ y, (φ y : EuclideanSpace ℝ (Fin N)) =
+        (_hβ : 0 < β) (w : Config (Torus d (L * n)) N) (_hρ0 : 0 ≤ ρ) (_hρ : ρ ≤ Real.sqrt β / 2)
+        (_hwρ : ∀ x, ‖w x‖ ≤ ρ)
+        (_hφ : ∀ y, (φ y : EuclideanSpace ℝ (Fin N)) =
           chartPoint β (baseSectorCenter ϱ (compWeight L a₁) regimeB ν h θ) w y)
-        (hδ₁0 : 0 ≤ δ₁) (hδ₁ : δ₁ ≤ δ₀ / 2)
-        (hE : Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
+        (_hδ₁0 : 0 ≤ δ₁) (_hδ₁ : δ₁ ≤ δ₀ / 2)
+        (_hE : Real.sqrt N * (Kw * (cF d L * ((2 * d + 2) * (bgK1 d L N * (4 * d * L * δ₀)))) *
           Real.exp (-(gammaW d * ((c * M1 : ℕ) : ℝ)))) ≤ δ₀ / 8)
-        (hρ' : 3 * (ρ / Real.sqrt β) ≤ δ₀ / 4),
+        (_hρ' : 3 * (ρ / Real.sqrt β) ≤ δ₀ / 4),
         baseSectorCubeProduct regimeB ν δ₀ h θ φ = 1 := by
   obtain ⟨Kw, δw, hK, hδw, hsm⟩ := sector_bond_margin (N := N) hd hL
   refine ⟨Kw, δw, hK, hδw, ?_⟩
@@ -124,13 +124,13 @@ theorem baseSectorCubeProduct_eq_one_of_chi1 {N : ℕ} (hd : 3 ≤ d) (hL : 3 �
   · intro hB x
     by_cases hνpos : 0 < ν
     · have := hsite (by simpa [hB] using hνpos) x
-      have hμ : (if regimeB then ν else 0) = ν := if_pos hB
+      have hμ : (if regimeB then ν else 0) = ν := by simp [hB]
       obtain ⟨-, -, ha3⟩ := ha
       rw [hμ] at this ha3
       exact lt_of_lt_of_le this ha3.le
     · have hν0 : ν = 0 := le_antisymm (not_lt.1 hνpos) hν
       subst hν0
-      simp only [Real.sqrt_zero, zero_mul, zero_sub, mul_zero, sub_zero]
+      simp only [Real.sqrt_zero, zero_mul, sub_zero]
       exact hδ
 
 end Balaban.LargeField.Base
