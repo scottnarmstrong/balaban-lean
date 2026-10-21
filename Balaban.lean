@@ -3021,6 +3021,7 @@ public import Balaban.Spine.BaseCarrier
 public import Balaban.Spine.BasePre
 public import Balaban.Spine.BaseFlat
 public import Balaban.Spine.BaseConsts
+public import Balaban.Spine.BaseConstsWitness
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
 public import Balaban.Inhabited.NewLevelMarkUnique
