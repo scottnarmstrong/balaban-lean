@@ -3253,6 +3253,7 @@ public import Balaban.LargeField.R.WindowDuBound
 public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.Green.FinalBoxLocCore
 public import Balaban.Green.FinalBoxLocCutU
+public import Balaban.Green.FinalSqrtCompare
 public import Balaban.Green.FinalBoxLocCut
 public import Balaban.Green.FinalBoxLocCubic
 public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
