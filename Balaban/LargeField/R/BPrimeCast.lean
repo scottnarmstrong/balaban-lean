@@ -67,6 +67,12 @@ theorem castData_Ψ {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] (h : N₀' =
     (castData h G D).Ψ = castTField h D.Ψ := by
   subst h; rfl
 
+/-- The data of the transported data are the transported data (the field `h̃`). -/
+theorem castData_h {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] (h : N₀' = N₀)
+    (G : GeneratingSet d L N₀' k ϱ) (D : BgData G N) :
+    (castData h G D).h = castTField h D.h := by
+  subst h; rfl
+
 /-- **The composed field commutes with the transport.** -/
 theorem composeField_castG {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] (h : N₀' = N₀) {ϱ' : ℝ}
     (G : GeneratingSet d L N₀' k ϱ) (G' : GeneratingSet d L N₀' k ϱ') (a : ℕ → ℝ)
