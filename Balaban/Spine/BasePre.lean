@@ -56,6 +56,10 @@ structure BaseRaw (d N : ℕ) (T : Typing) (C7 : Consts7) (ϱ β ν : ℝ) (kf :
     (kappaStepLoc (K := kf + 1) 𝒮[d, T, β, aKer] P T.M)
   KD : ∀ (nK : ℕ) [NeZero nK], KeptData (kZero d T.L β ν) (geo nK) cs N (κK nK)
     (Setting.lam 𝒮[d, T, β, aKer])
+  /-- the kept costs are the constants `γ_i` of LFR Definition III.5.2 (`GamConst`): the provider's
+  choice of kept data -/
+  KDgam : ∀ (nK : ℕ) [NeZero nK] (i : ℕ) (l : Fin 5), (KD nK).gam i l =
+    Real.log 5 + (𝒮[d, T, β, aKer]).A3' * (𝒮[d, T, β, aKer]).lam i ^ (𝒮[d, T, β, aKer]).pR
   B : ∀ (nK : ℕ) [NeZero nK], BTerms 𝒮[d, T, β, aKer] (sides T.L (kf + 1) nK) R
     (kZero d T.L β ν) (kf + 1) T.M N 1
   St : ∀ (N₁ : ℕ) [NeZero N₁], SourceTerms d T.L N₁ C7.m₁ 1 N
@@ -281,7 +285,8 @@ theorem basePreStepInput_of_parts {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB c
         obtain rfl : j = 1 := by omega
         show 0 < G.sf.z 1
         rw [hz]; exact hz1
-      vacTie := fun nK _ => hvt nK }
+      vacTie := fun nK _ => hvt nK
+      gamVal := fun nK _ => G.KDgam nK }
 
 end Assembly
 

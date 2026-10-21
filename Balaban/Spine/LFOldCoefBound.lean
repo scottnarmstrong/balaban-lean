@@ -88,7 +88,8 @@ theorem analyticAt_oldTermLF {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁}
 /-- **The bound of the coefficient of an old boundary term on its local pair** (P6 (4.33)–(4.34) at
 one coefficient; reading HS-1′): for an old label `X` of the record (with (D7) `hrec`), a family `J`
 of cover cubes, a target field of the H7 domain of scale `k + 1` at a set `Y_f` containing `X` and the
-data sites of the local pair, and a fluctuation field `|ψ̂| < r_ψ`,
+data sites of the local pair, and a fluctuation field with `|ψ̂_b| < r_ψ` at the unit points `b` of
+the local pair,
 `|T(X, J)| ≤ fac · e^{-rate · d^cov(X)} · e^{-(κ₁ - 1)|J_V|}`, `J_V` the cubes of the local cover with
 the labels of `J`; from the standing conditions of Theorems I-4b and I-4c for the local pair and the
 two named inputs of OPEN-H7-MIXED for the local pair. -/
@@ -125,7 +126,8 @@ theorem norm_oldCoefLoc_le_of_inputs {m₀ : ℕ} {Fr : FineSizeFrame S n M K m�
     (hV : ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
       (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf)
     {ψhat : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ}
-    (hψhat : ∀ b, vn (ψhat b) < rψ) :
+    (hψloc : ∀ b : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)).U, vn (restrictU _ _ _ _ _ _ _ ψhat b) < rψ) :
     ‖oldCoefLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r' rep A X
         (extK q') hv gx J ψhat‖ ≤
       fac * Real.exp (-rate * d7Size Fr A k X) *
@@ -146,9 +148,6 @@ theorem norm_oldCoefLoc_le_of_inputs {m₀ : ℕ} {Fr : FineSizeFrame S n M K m�
         (fun b => absurd b.2 (Finset.notMem_empty _)) ψo = ψo := fun ψo => by
     funext b i
     simp [HoleStep.fill]
-  have hψloc : ∀ b : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
-      (locSetXJ g hM1 A.H r r' X J)).U, vn (restrictU _ _ _ _ _ _ _ ψhat b) < rψ :=
-    fun b => hψhat _
   refine norm_oldCoefLoc_le g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r'
     rep A X (extK q') hv gx J ψhat hκ₁ ?_ ?_
   · refine (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
@@ -163,6 +162,90 @@ theorem norm_oldCoefLoc_le_of_inputs {m₀ : ℕ} {Fr : FineSizeFrame S n M K m�
     exact (norm_oldInterp_loc_lt g hnn hM1 hk hrec rfl hA hX hk1 hρ z h₀ a₁ ν β p₁ δ
       (rho4 S.d S.L N BG κ) ρ r hL hIn (locSetXJ g hM1 A.H r r' X J) htgt hXY hV hψloc
       (fun P => by simpa using hs P)).le
+
+/-- **The coefficient of an old boundary term on its local pair is analytic in the fluctuation
+field** (Lemma AE with parameters, `analyticOnNhd_coef_of_analyticOnNhd`; the joint analyticity
+`HoleStep.analyticOnNhd_oldInterp_out`): under the hypotheses of `norm_oldCoefLoc_le_of_inputs`, the
+coefficient at the cubes `J_V` is analytic in the fluctuation field `ψ̂` of the local pair on the ball
+`|ψ̂| < r_ψ`. -/
+theorem analyticOnNhd_oldCoefLoc_fluct {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ bdryDomsPost Fr A k (Zof A)) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    (hIn : H7MixedInnerLoc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r aw μs
+      ε ε1 νs (hC hv) (Real.exp κ₁) rψ)
+    (hDat : H7MixedDatumLoc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs (hC hv) ν δb)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {Yf : Set (Torus S.d (M * n K * S.L ^ K))} {ψ : MultiFieldC S n M K N}
+    {q' : FinFieldC S n M K N} {gx : GIdx S n M K N → ℂ}
+    (htgt : H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) (k + 1) hk Yf aw μs ε ε1 νs (hC hv) ψ
+      (extK q') (fun x i => gx (x, i)))
+    (hXY : fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆ Yf)
+    (hV : ∀ x ∈ dataSites (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)).G', fineOfC g hnn hM1 hk x ∈ Yf) :
+    AnalyticOnNhd ℂ (fun ψo : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+        (locSetXJ g hM1 A.H r r' X J)).U → Fin N → ℂ =>
+      coef ((holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+        (locSetXJ g hM1 A.H r r' X J)).oldInterp
+        (coverOf (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 A.H r r' X J)).G') (rho4 S.d S.L N BG κ)
+        (locDomsLF g hM1 (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 A.H r r' X J)) ρ)
+        (collarCoreC (c := g.c) (A.H.step k) hM1 r X) ∅ ψo
+        (oldTermLF g hnn hM1 rep A X hk (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 A.H r r' X J)).G' ψ (extK q') hv gx)
+        (fun b => absurd b.2 (Finset.notMem_empty _)))
+        (locCubes g (coverOf (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 A.H r r' X J)).G') J))
+      {ψo | ∀ b, vn (ψo b) < rψ} := by
+  have hc := g.hc
+  have hL : 2 ≤ S.L := by have := HB.hL; omega
+  have Sb := holeStepLoc_coverBase g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+    (locSetXJ g hM1 A.H r r' X J) hm₁ hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag
+  have SX := holeStepLoc_xCover g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+    (locSetXJ g hM1 A.H r r' X J) hm₁ hN hM HB.hd HB.hL HB.mass HB.massLe HB.weights hag ha₁ ha₂
+  have hD := hDat (locSetXJ g hM1 A.H r r' X J) Yf ψ (extK q') (fun x i => gx (x, i)) htgt hV
+  have hνε : ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * δb ^ 2 ≤ δb ^ 2 :=
+    mul_le_of_le_one_left (sq_nonneg _) HB.massLe
+  have hfill : ∀ ψo : (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)).U → Fin N → ℂ,
+      (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' X J)).fill ∅
+        (fun b => absurd b.2 (Finset.notMem_empty _)) ψo = ψo := fun ψo => by
+    funext b i
+    simp [HoleStep.fill]
+  have hR : 1 < Real.exp κ₁ := Real.one_lt_exp_iff.2 (by linarith)
+  have hΦ := (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+    (locSetXJ g hM1 A.H r r' X J)).analyticOnNhd_oldInterp_out hS Sb SX (Cchi_nonneg S.d S.L) HB hκ
+    hMc hMX hδ0 hε hδ hνε hphi hmarD hαD hsm hD hκ₁κ
+    (locDomsLF g hM1 (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)) ρ) (collarCoreC (c := g.c) (A.H.step k) hM1 r X) ∅
+    (oldTermLF g hnn hM1 rep A X hk (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ g hM1 A.H r r' X J)).G' ψ (extK q') hv gx)
+    (fun b => absurd b.2 (Finset.notMem_empty _)) {ψo | ∀ b, vn (ψo b) < rψ}
+    (fun ψo hψo s hs => by
+      erw [hfill]
+      exact analyticAt_oldTermLF g hnn hM1 hk hrec rfl hA hX _ ψ q' gx _
+        (h7Domain_composedMulti_loc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ)
+          ρ r aw μs ε ε1 νs (hC hv) hL hIn (locSetXJ g hM1 A.H r r' X J) X htgt hXY hV hψo
+          (fun P => by simpa using hs P)))
+  exact analyticOnNhd_coef_of_analyticOnNhd hR hΦ _
 
 end CoefBound
 

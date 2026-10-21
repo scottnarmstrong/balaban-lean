@@ -20,6 +20,7 @@ structure (`ProdSplitOn`) on which the cluster expansion of Theorem 3.4 runs.
 * `regroup`, `measurable_regroup`, `map_regroup_pi`: for a finite index set grouped by a map `c`, the
   product of a probability measure is carried by the regrouping to the product over the groups of
   the products over their members (`infinitePi_map_piCongrLeft`, `infinitePi_map_piCurry`);
+* `HoleStep.cubeMeasure`: the product measure of the variables of a cube;
 * `HoleStep.prodSplit`: the block structure of `nuIn inner` on the cubes of `Ω`, for an assignment
   `cb` of a cube of `Ω` to every unit point of `inner` (`0 < p₁`);
 * `HoleStep.oldTotal_eq_sum_of_marks`: **Theorem 3.1 (c) for the step on a region**: with the
@@ -83,19 +84,34 @@ namespace HoleStep
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ' : ℝ}
   (S : HoleStep d L N₁ m₁ k N ϱ ϱ')
 
+/-- **The measure of the variables of a cube** for an assignment `cb` of cubes (of any type) to the
+unit points of `inner`: the product of the measures `ν_{p₁}` of its unit points. -/
+noncomputable def cubeMeasure (inner : Finset S.U) {Cb : Type*} [DecidableEq Cb] (cb : inner → Cb)
+    (b : Cb) : Measure ({u : inner // cb u = b} → Rn N) :=
+  Measure.pi fun _ : {u : inner // cb u = b} => fluctMeasure1 N S.p₁
+
+theorem isProbabilityMeasure_cubeMeasure (inner : Finset S.U) {Cb : Type*} [DecidableEq Cb]
+    (cb : inner → Cb) (hp : 0 < S.p₁) (b : Cb) : IsProbabilityMeasure (S.cubeMeasure inner cb b) := by
+  have := isProbabilityMeasure_fluctMeasure1 N hp
+  unfold cubeMeasure
+  infer_instance
+
 /-- **The block structure of the fluctuation measure on the cubes of a region** `Ω` (side
 `cellSide L m₀ m₁ (k + 1)`): for an assignment `cb` of a cube of `Ω` to every unit point of `inner`,
-the variables of a cube are the variables of its unit points, with the product measure. -/
+the variables of a cube are the variables of its unit points, with the product measure
+(`cubeMeasure`). -/
 noncomputable def prodSplit (inner : Finset S.U) {m₀ : ℕ}
     (Ω : Set (CTorus d L N₁ m₁ (k + 1)))
     (cb : inner → CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω)
-    (hp : 0 < S.p₁) : ProdSplitOn (S.nuIn inner) d L N₁ m₁ (k + 1) m₀ Ω :=
-  have := isProbabilityMeasure_fluctMeasure1 N hp
-  { Ωb := fun b => {u : inner // cb u = b} → Rn N
-    μ := fun b => Measure.pi fun _ : {u : inner // cb u = b} => fluctMeasure1 N S.p₁
-    restr := regroup cb
-    meas := measurable_regroup cb
-    map_eq := map_regroup_pi cb (fluctMeasure1 N S.p₁) }
+    (hp : 0 < S.p₁) : ProdSplitOn (S.nuIn inner) d L N₁ m₁ (k + 1) m₀ Ω where
+  Ωb := fun b => {u : inner // cb u = b} → Rn N
+  μ := S.cubeMeasure inner cb
+  prob := S.isProbabilityMeasure_cubeMeasure inner cb hp
+  restr := regroup cb
+  meas := measurable_regroup cb
+  map_eq := by
+    have := isProbabilityMeasure_fluctMeasure1 N hp
+    exact map_regroup_pi cb (fluctMeasure1 N S.p₁)
 
 /-- **Theorem 3.1 (c) for the step on a region** (P5 (3.2), Proposition 3.1; P6 (4.32)–(4.34),
 FLUCTUATION Theorem 3.1 (c)): if the exponent of the measure of P5 (3.2) and the old boundary terms
