@@ -26,7 +26,7 @@ the potentials on `Sr`, the fields on `Y`, and the sources on `Sr`; the outputs 
 
 * `dich_of_subDisj`: the dichotomy for `(Sr, Y)` gives that for `Sr` and the reading of the rows;
 * `Gsx_lift_rows_Sr`, `commKx_rows_Sr`, `decN_rows_Sr`, `decM_rows_Sr`, `decM_apply_eq_zero_Sr`,
-  `decM_inv_rows_Sr`, `decZ_rows_Sr`: the rows on `Sr` (resp. `Y`) correspond.
+  `decM_inv_rows_Sr`, `decZ_rows_Sr`, `decPi_rows_Sr`: the rows on `Sr` (resp. `Y`) correspond.
 -/
 
 @[expose] public section
@@ -363,6 +363,30 @@ theorem decZ_rows_Sr (hφ : ∀ u ∈ Y, φ' (bm u) = φ u)
   have e1 : φ' (bm (z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1))) = φ z := hφ _ (hSY hz)
   simp only [restrictField]
   rw [e1]
+
+/-- **The rows of `Π_{x,s} w` on `Y`, on two tori**: `Π_{x,s} = Ĝ_{k,x,s} - Z_{x,s}`, so for `w`
+corresponding on `Sr` the rows of `Π_{x,s} w` correspond at every site of `Y`
+(`Gsx_lift_rows_Sr` and `decZ_rows_Sr`). -/
+theorem decPi_rows_Sr (hφ : ∀ u ∈ Y, φ' (bm u) = φ u)
+    (hM : IsUnit (decM (GA) a aT x₀ ν α s φ)) (hM' : IsUnit (decM (GB) a aT x₀ ν α' s' φ'))
+    {w : (GA).Ω 1 × Fin N → ℂ} {w' : (GB).Ω 1 × Fin N → ℂ}
+    (hw : ∀ y : (GA).Ω 1, (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Sr → ∀ i,
+      w' (ιb y, i) = w (y, i))
+    (y : (GA).Ω 1) (hy : (y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1)) ∈ Y) (i : Fin N) :
+    (decPi (GB) a aT x₀ ν α' s' φ' *ᵥ w') (ιb y, i) = (decPi (GA) a aT x₀ ν α s φ *ᵥ w) (y, i) := by
+  have e : ∀ {N₁ : ℕ} [NeZero N₁] {G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ}
+      (β : G.Ω 1 → ℂ) (σ : ℕ × Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → ℂ)
+      (ψ : Balaban.Localization.CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ) (u : G.Ω 1 × Fin N → ℂ),
+      decPi G a aT x₀ ν β σ ψ *ᵥ u =
+        liftOp N (Gsx G a aT x₀ ν β σ) *ᵥ u - decZ G a aT x₀ ν β σ ψ *ᵥ u := by
+    intro N₁ _ G β σ ψ u
+    unfold decZ
+    rw [Matrix.sub_mulVec]
+    abel
+  rw [e, e, Pi.sub_apply, Pi.sub_apply,
+    Gsx_lift_rows_Sr SA SB hx₀ hSY hYR hn hn' hαA hαB hα hU hU' hdich hdich' hagree hw y hy i,
+    decZ_rows_Sr SA SB hx₀ hSY hYR hn hn' hαA hαB hα hU hU' hdich hdich' hrow hrow' hagree hφ hM
+      hM' hw y hy i]
 
 end TwoTori
 
