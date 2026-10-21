@@ -43,9 +43,73 @@ theorem integral_comp_linearEquiv_abs_det {E : Type*} [NormedAddCommGroup E] [No
   rw [abs_inv, ENNReal.toReal_ofReal (by positivity)]
 
 
+/-- Lebesgue-integrability is preserved by composition with a linear equivalence. -/
+theorem integrable_comp_linearEquiv {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] {F : Type*} [NormedAddCommGroup F]
+    (μ : Measure E) [μ.IsAddHaarMeasure] (T : E ≃ₗ[ℝ] E) {g : E → F} (hg : Integrable g μ) :
+    Integrable (fun φ => g (T φ)) μ := by
+  have hdet : LinearMap.det (T : E →ₗ[ℝ] E) ≠ 0 := by
+    rw [← LinearEquiv.coe_det]; exact Units.ne_zero _
+  have hemb : MeasurableEmbedding T := (T.toContinuousLinearEquiv.toHomeomorph).measurableEmbedding
+  have hmap := Measure.map_linearMap_addHaar_eq_smul_addHaar μ hdet
+  have h : Integrable g (Measure.map T μ) := by
+    rw [show (T : E → E) = (T : E →ₗ[ℝ] E) from rfl, hmap]
+    exact hg.smul_measure ENNReal.ofReal_ne_top
+  exact (hemb.integrable_map_iff).1 h
+
+
 section Whitened
 
 open Balaban.LargeField.Base
+
+/-- A positive definite chart form has an exact square root `R` with
+`⟨Rψ, gaussForm(Rψ)⟩ = ⟨ψ, ψ⟩`. -/
+theorem exists_sqrt_equiv_cinner {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hK : (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)).PosDef) :
+    ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ := by
+  obtain ⟨R, hRR, hRs, -⟩ := gaussForm_sqrt_equiv_of_posDef e H hK
+  refine ⟨R, fun ψ => ?_⟩
+  have h1 : gaussForm e H (R ψ) = R.symm ψ := by
+    have h2 := hRR (R.symm ψ)
+    rwa [LinearEquiv.apply_symm_apply] at h2
+  rw [h1, hRs, LinearEquiv.apply_symm_apply]
+
+theorem measurable_stdGaussian_density (ι : Type*) [Fintype ι] (N : ℕ) :
+    Measurable fun ψ : Config ι N => ENNReal.ofReal
+      ((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
+        Real.exp (-(1 / 2) * cinner ψ ψ)) := by
+  refine ENNReal.measurable_ofReal.comp ?_
+  unfold cinner
+  fun_prop
+
+/-- The integral against the standard Gaussian is the Lebesgue integral against its density. -/
+theorem integral_stdGaussian_eq {ι : Type*} [Fintype ι] {N : ℕ} (g : Config ι N → ℂ) :
+    ∫ ψ, g ψ ∂(stdGaussian ι N) =
+      ∫ ψ, (((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
+        Real.exp (-(1 / 2) * cinner ψ ψ) : ℝ) : ℂ) * g ψ := by
+  unfold stdGaussian
+  rw [integral_withDensity_eq_integral_toReal_smul₀ (measurable_stdGaussian_density ι N).aemeasurable
+    (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top)]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun ψ => ?_)
+  simp only [Complex.real_smul]
+  rw [ENNReal.toReal_ofReal (by positivity)]
+
+/-- Integrability against the standard Gaussian is Lebesgue integrability against its density. -/
+theorem integrable_stdGaussian_iff {ι : Type*} [Fintype ι] {N : ℕ} (g : Config ι N → ℂ) :
+    Integrable g (stdGaussian ι N) ↔
+      Integrable (fun ψ => (((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
+        Real.exp (-(1 / 2) * cinner ψ ψ) : ℝ) : ℂ) * g ψ) := by
+  unfold stdGaussian
+  rw [integrable_withDensity_iff_integrable_smul' (measurable_stdGaussian_density ι N)
+    (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top)]
+  refine integrable_congr (Filter.Eventually.of_forall fun ψ => ?_)
+  simp only [Complex.real_smul]
+  rw [ENNReal.toReal_ofReal (by positivity)]
 
 /-- **The whitened change of variables** (LF-BASE-KF0 (A.3), Lemma II.7.4 (b)) with an approximate
 square root: for a linear equivalence `W` of `ℝ^{N|ι|}` with
@@ -69,13 +133,7 @@ theorem integral_tangent_gaussian_whitened {ι : Type*} [Fintype ι] [DecidableE
         ∫ φ : Config ι N, (((Real.exp (-(1 / 2) * (cinner φ φ + qD φ))) : ℝ) : ℂ) *
           f (tangentProj e he (W φ)) := by
   classical
-  obtain ⟨R, hRR, hRs, hdetR⟩ := gaussForm_sqrt_equiv_of_posDef e H hK
-  have hR : ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ := by
-    intro ψ
-    have h1 : gaussForm e H (R ψ) = R.symm ψ := by
-      have h2 := hRR (R.symm ψ)
-      rwa [LinearEquiv.apply_symm_apply] at h2
-    rw [h1, hRs, LinearEquiv.apply_symm_apply]
+  obtain ⟨R, hR⟩ := exists_sqrt_equiv_cinner e H hK
   rw [integral_tangent_gaussian_complex e he H R hR f hf]
   set T : Config ι N ≃ₗ[ℝ] Config ι N := W.trans R.symm with hT
   have hRT : ∀ φ, R (T φ) = W φ := fun φ => by simp [hT]
@@ -85,27 +143,10 @@ theorem integral_tangent_gaussian_whitened {ι : Type*} [Fintype ι] [DecidableE
     rw [← LinearMap.det_comp]
     congr 1
     exact LinearMap.ext fun φ => hRT φ
-  have hdens : ∀ g : Config ι N → ℂ, Measurable g →
-      ∫ ψ, g ψ ∂(stdGaussian ι N) =
-        ∫ ψ, (((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
-          Real.exp (-(1 / 2) * cinner ψ ψ) : ℝ) : ℂ) * g ψ := by
-    intro g hg
-    unfold stdGaussian
-    have hd : Measurable fun ψ : Config ι N => ENNReal.ofReal
-        ((2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) *
-          Real.exp (-(1 / 2) * cinner ψ ψ)) := by
-      refine ENNReal.measurable_ofReal.comp ?_
-      unfold cinner
-      fun_prop
-    rw [integral_withDensity_eq_integral_toReal_smul₀ hd.aemeasurable
-      (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top)]
-    refine integral_congr_ae (Filter.Eventually.of_forall fun ψ => ?_)
-    simp only [Complex.real_smul]
-    rw [ENNReal.toReal_ofReal (by positivity)]
   have hmf : Measurable fun ψ : Config ι N => f (tangentProj e he (R ψ)) :=
     hf.comp ((measurable_tangentProj e he).comp
       (LinearMap.continuous_of_finiteDimensional (R : Config ι N →ₗ[ℝ] Config ι N)).measurable)
-  rw [hdens _ hmf]
+  rw [integral_stdGaussian_eq]
   set c : ℝ := (2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) with hc
   have hcv := integral_comp_linearEquiv_abs_det (volume : Measure (Config ι N)) T
     (fun ψ => (((c * Real.exp (-(1 / 2) * cinner ψ ψ) : ℝ) : ℂ)) * f (tangentProj e he (R ψ)))
@@ -152,6 +193,80 @@ theorem integral_tangent_gaussian_whitened {ι : Type*} [Fintype ι] [DecidableE
     f (tangentProj e he (W φ))) = I
   push_cast at key' ⊢
   linear_combination I * key'
+
+/-- **Integrability for the whitened change of variables**: if the tangent Gaussian integrand
+`e^{-½⟨v, Hv⟩} f(v)` is integrable on the tangent space, then the whitened integrand
+`e^{-½(|φ|² + q_D(φ))} f(P(Wφ))` is Lebesgue integrable on `ℝ^{N|ι|}` (the measure form of
+`integral_tangent_gaussian_whitened`). -/
+theorem integrable_tangent_gaussian_whitened {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (he : ∀ x, ‖e x‖ = 1) (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hK : (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)).PosDef)
+    (W : Config ι N ≃ₗ[ℝ] Config ι N) (qD : Config ι N → ℝ)
+    (hW : ∀ φ, cinner (W φ) (gaussForm e H (W φ)) = cinner φ φ + qD φ)
+    (f : ((x : ι) → perp (e x)) → ℂ) (hf : Measurable f)
+    (hint : Integrable (fun v : (x : ι) → perp (e x) =>
+      (((Real.exp (-(1 / 2) * cinner (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+        (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))) : ℝ) : ℂ) * f v)
+      (Measure.pi fun x => (volume : Measure (perp (e x))))) :
+    Integrable (fun φ : Config ι N =>
+      (((Real.exp (-(1 / 2) * (cinner φ φ + qD φ))) : ℝ) : ℂ) *
+        f (tangentProj e he (W φ))) := by
+  classical
+  obtain ⟨R, hR⟩ := exists_sqrt_equiv_cinner e H hK
+  set T : Config ι N ≃ₗ[ℝ] Config ι N := W.trans R.symm with hT
+  have hRT : ∀ φ, R (T φ) = W φ := fun φ => by simp [hT]
+  let μ : Measure ((x : ι) → perp (e x)) := Measure.pi fun x => volume
+  let q : ((x : ι) → perp (e x)) → ℝ := fun v =>
+    Real.exp (-(1 / 2) * cinner (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+      (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))
+  let t : Config ι N → ((x : ι) → perp (e x)) := fun ψ => tangentProj e he (R ψ)
+  let C : ℝ := (2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+    |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|
+  have hdetR : LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) ≠ 0 := by
+    rw [← LinearEquiv.coe_det]; exact Units.ne_zero _
+  have hCpos : 0 < C := by
+    have : 0 < |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)| := abs_pos.2 hdetR
+    positivity
+  have hq : Measurable q := by
+    have hc : Continuous H := LinearMap.continuous_of_finiteDimensional H
+    have hv : Measurable fun v : (x : ι) → perp (e x) =>
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)) : Config ι N) :=
+      measurable_pi_iff.2 fun x => measurable_subtype_coe.comp (measurable_pi_apply x)
+    dsimp [q, cinner]
+    fun_prop
+  have ht : Measurable t :=
+    (measurable_tangentProj e he).comp
+      (LinearMap.continuous_of_finiteDimensional
+        (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
+  have hmeas : μ.withDensity (fun v => ENNReal.ofReal (q v)) =
+      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) :=
+    withDensity_tangent_gaussian_eq e he H R hR
+  have h1 : Integrable f (μ.withDensity (fun v => ENNReal.ofReal (q v))) := by
+    have hmd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
+    rw [integrable_withDensity_iff_integrable_smul' hmd
+      (Filter.Eventually.of_forall fun v => ENNReal.ofReal_lt_top)]
+    refine hint.congr (Filter.Eventually.of_forall fun v => ?_)
+    simp only [Complex.real_smul]
+    rw [ENNReal.toReal_ofReal (Real.exp_pos _).le]
+  rw [hmeas, integrable_smul_measure (by simpa using hCpos) ENNReal.ofReal_ne_top] at h1
+  have h2 : Integrable (fun ψ => f (t ψ)) (stdGaussian ι N) :=
+    (integrable_map_measure hf.aestronglyMeasurable ht.aemeasurable).1 h1
+  have h3 := (integrable_stdGaussian_iff _).1 h2
+  have h4 := integrable_comp_linearEquiv (volume : Measure (Config ι N)) T h3
+  set c : ℝ := (2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) with hc
+  have hc0 : (c : ℂ) ≠ 0 := by
+    rw [hc]; exact_mod_cast (by positivity : (2 * Real.pi) ^ (-((N * Fintype.card ι : ℕ) : ℝ) / 2) ≠ 0)
+  refine (h4.const_mul ((c : ℂ)⁻¹)).congr (Filter.Eventually.of_forall fun φ => ?_)
+  have h5 : cinner (T φ) (T φ) = cinner φ φ + qD φ := by
+    rw [← hR (T φ), hRT, hW]
+  show (c : ℂ)⁻¹ * ((((c * Real.exp (-(1 / 2) * cinner (T φ) (T φ)) : ℝ)) : ℂ) *
+      f (tangentProj e he (R (T φ)))) = _
+  rw [h5, hRT]
+  push_cast
+  field_simp
 
 end Whitened
 
