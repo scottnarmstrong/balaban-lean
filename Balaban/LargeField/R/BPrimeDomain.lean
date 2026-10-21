@@ -10,7 +10,7 @@ public import Balaban.Spine.FinalDomCompose
 public import Balaban.SmallField.XiPerturb
 public import Balaban.Localization.I5Xi
 public import Balaban.Localization.Decoupled2Background
-public import Balaban.LargeField.R.BPrimePair
+public import Balaban.LargeField.R.BPrimeRoot
 
 /-!
 # The data domain on a generating set lying in one layer of another
@@ -27,8 +27,8 @@ the real data domain `Ψ̃(𝔹_j(W); δ)` give those of `Ψ̃(𝔹_j(X̂); δ)`
 * `isLayerConstant_restrict`: constancy on the blocks of every layer passes to the finer set;
 * `inPsiTilde_restrict`: `Ψ̃(G₁; ν, δ) ⊆ Ψ̃(G; ν, δ)` for the fields, when the data sites of `G` lie in
   the layer `j` of `G₁` and the layers of `G` above `j` are empty;
-* `decDomRad`, `decCompose_xiDom`: **the composed decoupled data lie in the chart `Ξ^c_j` of the finer
-  set.**  For data `D` of a top set `H` within `τ` of real data of `Ψ̃(H; δ)` (with the real constant
+* `decDomRad`, `nearCompose_xiDom`, `decCompose_xiDom`: **the composed decoupled data lie in the
+  chart `Ξ^c_j` of the finer set** (the core: every field near the approximate field).  For data `D` of a top set `H` within `τ` of real data of `Ψ̃(H; δ)` (with the real constant
   field `h₀`), every decoupled background field `φ(s)` of `H`, `|s_P| ≤ e^{κ}` (Theorem I-4b),
   composed onto `G₁ ≺ H` and read on `G`, lies in `Ξ^c_j(G; 1, (2 K₁ + 2) r)`,
   `r = decDomRad … δ τ = O(δ + τ)`.  The real part is the composed field of the real background
@@ -146,16 +146,11 @@ section Decoupled
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱ₂ : ℝ}
 
-/-- **The composed decoupled data lie in the chart `Ξ^c_j` of a finer set.**  Let `H` be a
-generating set with a decoupling cover `C` (Theorem I-4b: `DecSpecs`, `CoverBase`, `BgHyp`, `hM`),
-`G₁ ≺ H` with the standing hypotheses `BgHyp`, and `G` a generating set with no layer above `j`
-whose data sites lie in the layer `j` of `G₁` (all with the weights `compWeight L a₁` and the mass
-`ν`).  Let the data `D` of `H` be within `τ` of real data `Ψ₀ ∈ Ψ̃(H; ν, δ)` on the data sites,
-with `D.h = h₀` on `Ω₁`.  Then for every label vector `|s_P| ≤ e^κ` the composed field
-`composeField(G₁, H; φ(s), D.Ψ)` of the decoupled background field `φ(s)`, with the constant field
-`h₀`, lies in `Ξ^c_j(G; 1, (2 K₁ + 2) r)`, `r = decDomRad d L N BG κ δ τ`, under the smallness
-`δ ≤ c_{7.3}`, `δ + 5 τ ≤ c₇` and `r ≤ c₁`. -/
-theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+/-- **The composed data of a field near the approximate field lie in the chart `Ξ^c_j` of a finer
+set** (the core of `decCompose_xiDom`).  As `decCompose_xiDom`, for every field `φ` of `H` within
+`K₂' C₃ (δ + 5 τ)` of the approximate field of `D` (`NearApprox`, the range of the decoupled
+background fields of Theorem I-4b). -/
+theorem nearCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
     {G₁ : GeneratingSet d L (N₁ * L ^ m₁) k ϱ₁} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ₂}
     {a₁ ν Kc Cx c BG κ : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
     (Sb : Dec2.CoverBase C H (compWeight L a₁) ν Kc Cx) (HB : BgHyp d L k ϱ (compWeight L a₁) ν)
@@ -168,10 +163,11 @@ theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (
     {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ} (hP : InPsiTilde H ν δ Ψ₀ h₀)
     {D : BgData H N} (hDh : ∀ x ∈ H.Ω 1, ∀ i, D.h x i = (h₀ i : ℂ))
     (hDΨ : ∀ x ∈ dataSites H, vn (fun i => D.Ψ x i - (Ψ₀ x i : ℂ)) ≤ τ)
-    {s : Dec2.DecParams C} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) :
+    {φs : H.Ω 1 × Fin N → ℂ}
+    (hsups : NearApprox H (compWeight L a₁) ν D
+      (cK2' d L N (famConst d L BG κ) * (lemma53Const d L * (δ + 5 * τ))) φs) :
     Def6.XiDom G (compWeight L a₁) ν j ((2 * bgK1 d L N + 2) * decDomRad d L N BG κ δ τ)
-      (fun x i => composeField G₁ H (compWeight L a₁)
-        (Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) s D) D.Ψ x i)
+      (fun x i => composeField G₁ H (compWeight L a₁) φs D.Ψ x i)
       (fun _ i => (h₀ i : ℂ)) := by
   have hd0 : 0 < d := by have := HB.hd; omega
   have hL2 : 2 ≤ L := by have := HB.hL; omega
@@ -217,12 +213,8 @@ theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (
   have hW : InDomainC H ν δc δc D :=
     ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ], fun x hx i => by simp [hDh x hx i]⟩
   -- the decoupled fields at `s` and at `1`, the complex and the real backgrounds
-  obtain ⟨φs, αs, hIs, hus, -, hsups, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM hs hδc0 le_rfl
-    hδc0' hδc hνε hW
   obtain ⟨φ1, α1, hI1, hu1, -, hsup1, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM
     (s := fun _ => 1) (fun P => by simpa using Real.one_le_exp hκ) hδc0 le_rfl hδc0' hδc hνε hW
-  have hφs : Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) s D = φs :=
-    (Dec2.decBg_eq hIs hus).1
   have hφ1 : Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D = φ1 :=
     (Dec2.decBg_eq hI1 hu1).1
   have hUD : InUnionDomainC H (bgC0 d L N) (c7 d L N BG κ) ν D :=
@@ -318,7 +310,6 @@ theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (
   have e1 := composeField_sub (G := G₁) (G' := H) (compWeight L a₁) φr (φs - φr) Dr.Ψ D.Ψ x i
   rw [add_sub_cancel] at e1
   have e2 := hreal x i
-  rw [hφs]
   show composeField G₁ H (compWeight L a₁) φs D.Ψ x i = (f x i : ℂ) + (0 + Δ x i)
   have e3 : (f x i : ℂ) = composeField G₁ H (compWeight L a₁) φr Dr.Ψ x i := by
     show ((composeField G₁ H (compWeight L a₁)
@@ -328,6 +319,64 @@ theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (
   show _ = _ + composeField G₁ H (compWeight L a₁) (φs - φr) (D.Ψ - Dr.Ψ) x i
   rw [← e1]
   ring
+
+/-- **The composed decoupled data lie in the chart `Ξ^c_j` of a finer set.**  Let `H` be a
+generating set with a decoupling cover `C` (Theorem I-4b: `DecSpecs`, `CoverBase`, `BgHyp`, `hM`),
+`G₁ ≺ H` with the standing hypotheses `BgHyp`, and `G` a generating set with no layer above `j`
+whose data sites lie in the layer `j` of `G₁` (all with the weights `compWeight L a₁` and the mass
+`ν`).  Let the data `D` of `H` be within `τ` of real data `Ψ₀ ∈ Ψ̃(H; ν, δ)` on the data sites,
+with `D.h = h₀` on `Ω₁`.  Then for every label vector `|s_P| ≤ e^κ` the composed field
+`composeField(G₁, H; φ(s), D.Ψ)` of the decoupled background field `φ(s)`, with the constant field
+`h₀`, lies in `Ξ^c_j(G; 1, (2 K₁ + 2) r)`, `r = decDomRad d L N BG κ δ τ`, under the smallness
+`δ ≤ c_{7.3}`, `δ + 5 τ ≤ c₇` and `r ≤ c₁` (the instance of `nearCompose_xiDom`). -/
+theorem decCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {G₁ : GeneratingSet d L (N₁ * L ^ m₁) k ϱ₁} {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ₂}
+    {a₁ ν Kc Cx c BG κ : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase C H (compWeight L a₁) ν Kc Cx) (HB : BgHyp d L k ϱ (compWeight L a₁) ν)
+    (HB₁ : BgHyp d L k ϱ₁ (compWeight L a₁) ν) (HBG : BgHyp d L k ϱ₂ (compWeight L a₁) ν)
+    (ha₁ : 0 < a₁) (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    (hP₁ : Precedes G₁ H) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (hΩ : ∀ i, j < i → G.Ω i = ∅)
+    (hlay : ∀ x ∈ dataSites G, x ∈ G₁.layer j) {δ τ : ℝ} (hδ0 : 0 < δ) (hτ0 : 0 ≤ τ)
+    (hδ73 : δ ≤ thm73C1 d L N) (hδc : δ + 5 * τ ≤ c7 d L N BG κ)
+    (hrad : decDomRad d L N BG κ δ τ ≤ bgC1 d L N)
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ} (hP : InPsiTilde H ν δ Ψ₀ h₀)
+    {D : BgData H N} (hDh : ∀ x ∈ H.Ω 1, ∀ i, D.h x i = (h₀ i : ℂ))
+    (hDΨ : ∀ x ∈ dataSites H, vn (fun i => D.Ψ x i - (Ψ₀ x i : ℂ)) ≤ τ)
+    {s : Dec2.DecParams C} (hs : ∀ P, ‖s P‖ ≤ Real.exp κ) :
+    Def6.XiDom G (compWeight L a₁) ν j ((2 * bgK1 d L N + 2) * decDomRad d L N BG κ δ τ)
+      (fun x i => composeField G₁ H (compWeight L a₁)
+        (Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) s D) D.Ψ x i)
+      (fun _ i => (h₀ i : ℂ)) := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hBG : 0 ≤ BG := hS.fam.2.1
+  set δc := δ + 5 * τ with hδcdef
+  have hδc0 : 0 < δc := by positivity
+  obtain ⟨hδc1, -, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδc0.le hδc
+  have hδc0' : δc ≤ bgC0 d L N := hδc1.trans (bgC1_le_bgC0 d L N hd0)
+  have hνε : ν * ((L : ℝ) ^ k) ^ 2 * δc ^ 2 ≤ δc ^ 2 := by
+    have := HB.massLe; nlinarith [sq_nonneg δc]
+  have hδ14 : δ ≤ 1 / 4 := by
+    have := (approxDelta_le d L (bgC1_facts d L N hd0
+      (thm73_small (L := L) (N := N) hd0 hδ0 hδ73).1).1).1
+    linarith
+  have hτ1 : τ ≤ 1 := by
+    have := (approxDelta_le d L (bgC1_facts d L N hd0 hδc1).1).1
+    linarith
+  set δΨ : CTorus d L N₁ m₁ k → Fin N → ℂ := fun x i => D.Ψ x i - (Ψ₀ x i : ℂ) with hδΨ
+  have hδΨc : IsLayerConstant H δΨ := by
+    intro n hn1 hnk x hx x' hx'
+    funext i
+    show D.Ψ x' i - (Ψ₀ x' i : ℂ) = D.Ψ x i - (Ψ₀ x i : ℂ)
+    rw [congrFun (D.Ψ_layerConst n hn1 hnk x hx x' hx') i,
+      congrFun (hP.layerConst n hn1 hnk x hx x' hx') i]
+  have hPC := perturb_inPsiTildeC hδ14 hτ0 hτ1 (inPsiTildeC_of_inPsiTilde hδ0 hP) hδΨc hDΨ
+  have hW : InDomainC H ν δc δc D :=
+    ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ], fun x hx i => by simp [hDh x hx i]⟩
+  obtain ⟨φs, αs, hIs, hus, -, hsups, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM hs hδc0 le_rfl
+    hδc0' hδc hνε hW
+  rw [(Dec2.decBg_eq hIs hus).1]
+  exact nearCompose_xiDom hS Sb HB HB₁ HBG ha₁ hκ hM hP₁ hj1 hjk hΩ hlay hδ0 hτ0 hδ73 hδc hrad hP
+    hDh hDΨ hsups
 
 end Decoupled
 

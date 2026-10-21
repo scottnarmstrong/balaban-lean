@@ -2300,6 +2300,8 @@ public import Balaban.LargeField.R.BPrimeRoot
 public import Balaban.LargeField.R.BPrimeGenW
 public import Balaban.LargeField.R.BPrimeBgSetting
 public import Balaban.LargeField.R.BPrimeDomain
+public import Balaban.LargeField.R.BPrimeCast
+public import Balaban.LargeField.R.BPrimeDomainR
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
