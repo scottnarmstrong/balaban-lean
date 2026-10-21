@@ -493,4 +493,53 @@ theorem locSetXJ_aff (σ : LatTorusSym S n M K) {H H' : RegionHistory S n R k0 K
       · show supDist ((coverAff g hnn hM1 σ hk).toFun x) ((coverAff g hnn hM1 σ hk).toFun y) ≤ r'
         rw [(coverAff g hnn hM1 σ hk).supDist_eq]; exact hd
 
+theorem cubeOfC_eq_of_unitBlock {k : ℕ} (x y : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))
+    (h : unitBlock x = unitBlock y) : cubeOfC hM1 x = cubeOfC hM1 y := by
+  have h1 := (unitBlock_eq_iff x y).1 h
+  unfold cubeOfC
+  refine blockMap_eq_of_sameCell (a := S.L ^ k) ?_ ?_
+  · intro μ
+    have e := LargeField.torusCast_val (d := S.d) (congrArg (· * S.L ^ (k + 1))
+      (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm
+    change ((LargeField.torusCast _ x : Torus S.d _) μ).val / S.L ^ k =
+      ((LargeField.torusCast _ y : Torus S.d _) μ).val / S.L ^ k
+    rw [e x μ, e y μ]
+    exact h1 μ
+  · exact ⟨S.L * (g.c * g.M1), by ring⟩
+
+theorem mem_thick_singleton_aff {d ℓ : ℕ} [NeZero ℓ] (A : AffIso d ℓ) (r : ℕ) (c y : Torus d ℓ) :
+    A.toFun y ∈ thick r ({A.toFun c} : Set (Torus d ℓ)) ↔ y ∈ thick r ({c} : Set (Torus d ℓ)) := by
+  have h := AffIso.image_thick A r ({c} : Set (Torus d ℓ))
+  rw [Set.image_singleton] at h
+  rw [← h]
+  exact A.toFun_injective.mem_set_image
+
+/-- **The localization domains of the unit points under the lattice symmetry.** -/
+theorem locDomsLF_aff (σ : LatTorusSym S n M K) {k : ℕ} (hk : k + 1 ≤ K)
+    {St St' : HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1)}
+    (H0 : StepAff St St' (coverAff g hnn hM1 σ hk)) (ρ : ℕ) (b : St.U)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    (coverAff g hnn hM1 σ hk).toFun x ∈ locDomsLF g hM1 St' ρ (H0.u b) ↔
+      x ∈ locDomsLF g hM1 St ρ b := by
+  unfold locDomsLF
+  rw [Finset.mem_filter, Finset.mem_filter, mem_locDomC, mem_locDomC]
+  have hu : cubeOfC hM1 (unitRep (H0.u b)) =
+      cubeOfC hM1 ((coverAff g hnn hM1 σ hk).toFun (unitRep b)) := by
+    refine cubeOfC_eq_of_unitBlock g hM1 _ _ ?_
+    rw [unitBlock_unitRep]
+    exact ((H0.u_spec b (unitRep b)).2 (unitBlock_unitRep b)).symm
+  rw [hu, cubeOfC_aff g hnn hM1 σ hk, cubeOfC_aff g hnn hM1 σ hk]
+  refine and_congr (mem_thick_singleton_aff _ ρ _ _) ?_
+  constructor
+  · intro h z hz
+    have hz' : supDist ((coverAff g hnn hM1 σ hk).toFun x) ((coverAff g hnn hM1 σ hk).toFun z) ≤
+        4 * S.L ^ (k + 1 + m₁) := by
+      rw [(coverAff g hnn hM1 σ hk).supDist_eq]; exact hz
+    exact (H0.hΩ' 1 z).1 (h _ hz')
+  · intro h z' hz'
+    obtain ⟨z, rfl⟩ := (coverAff g hnn hM1 σ hk).toEquiv.surjective z'
+    have hz : supDist x z ≤ 4 * S.L ^ (k + 1 + m₁) := by
+      rw [← (coverAff g hnn hM1 σ hk).supDist_eq]; exact hz'
+    exact (H0.hΩ' 1 z).2 (h z hz)
+
 end Balaban.RootFSpine
