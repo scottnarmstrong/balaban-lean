@@ -76,6 +76,29 @@ theorem stepReadsIn_of_toFrame {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁
     rw [← this]; exact hxO
   exact ⟨key k (Nat.le_succ k), key (k + 1) le_rfl⟩
 
+/-- **`hsiteY` of `oldCoefLoc_congr_fields`, for the fine set of the output label**: for a family
+`J` with a good site (`GoodJ`) and a set `T` of cubes of `Ω_{k+1}` with `d_Ω(T) < ∞` containing the
+cubes of `Ω_{k+1}` inside the site of the mark, the datum of the local step of `V(X, J)` reads only
+blocks inside the fine set of the output label of `T`. Core for the local sets `V(σ X, J)` of a map
+`σ` of labels (`markSiteAt`). -/
+theorem stepReadsIn_outLabelAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (r r' : ℕ) (X : Finset (Torus S.d (n k)))
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hJ : GoodJAt g hnn hM1 F H hk hρ r r' (d7Pull F (k + 1) (OmegaCube H (k + 1))) (σ X) X J)
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
+    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSiteAt g hnn hM1 F H hk hρ r r' (σ X) X J) ⊆ T)
+    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
+    StepReadsIn g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)
+      (fineSet (S := S) (n := n) M K (k + 1)
+        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1))))) := by
+  refine stepReadsIn_of_toFrame g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ _ (fun x hx => ?_)
+  refine markSiteAt_subset_outLabel (σ := σ) F hnn hM1 H hk hρ r r' X J hJ T hT hfin ?_
+  exact markBaseAt_subset_markSiteAt g hnn hM1 F H hk hρ r r' (σ X) X J (Or.inr ⟨x, hx, rfl⟩)
+
 /-- **`hsiteY` of `oldCoefLoc_congr_fields`, for the fine set of the output label**: for a family `J`
 with a good site (`GoodJ`) and a set `T` of cubes of `Ω_{k+1}` with `d_Ω(T) < ∞` containing the cubes
 of `Ω_{k+1}` inside the site of the mark, the datum of the local step of `V(X, J)` reads only blocks
@@ -93,10 +116,34 @@ theorem stepReadsIn_outLabel {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
     (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
     StepReadsIn g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J)
       (fineSet (S := S) (n := n) M K (k + 1)
-        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1))))) := by
-  refine stepReadsIn_of_toFrame g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ _ (fun x hx => ?_)
-  refine markSite_subset_outLabel F hnn hM1 H hk hρ r r' X J hJ T hT hfin ?_
-  exact markBase_subset_markSite g hnn hM1 F H hk hρ r r' X J (Or.inr ⟨x, hx, rfl⟩)
+        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1))))) :=
+  stepReadsIn_outLabelAt (σ := fun X => X) g hnn hM1 F H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ r r' X J hJ T
+    hT hfin
+
+/-- **`hXY` of `oldCoefLoc_congr_fields`, for the fine set of the output label**: the fine set of
+the old label `X` lies in the fine set of the output label (`d7Pull_subset_outLabel`). Core for the
+local sets `V(σ X, J)` of a map `σ` of labels (`markSiteAt`). -/
+theorem fineSet_subset_outLabelAt {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁)
+    (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) {Om : Set (Torus S.d (n k))} {X : Finset (Torus S.d (n k))}
+    (hX : FineValidAt F k Om X)
+    (hXm : (d7Pull F k (X : Set (Torus S.d (n k))) ∩
+      d7Pull F (k + 1) (OmegaCube H (k + 1))).Nonempty) (r r' : ℕ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (T : Finset (CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull F (k + 1) (OmegaCube H (k + 1)))))
+    (hT : blocksOf m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1)))
+      (markSiteAt g hnn hM1 F H hk hρ r r' (σ X) X J) ⊆ T)
+    (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
+    fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆
+      fineSet (S := S) (n := n) M K (k + 1)
+        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) := by
+  intro x hx
+  have h := d7Pull_subset_outLabelAt (σ := σ) F hnn hM1 H hk hρ hX hXm r r' J T hT hfin
+    (show castT F.side.symm x ∈ d7Pull F k (X : Set (Torus S.d (n k))) from by
+      rw [mem_d7Pull, castT_castT_symm]; exact hx)
+  rw [mem_d7Pull, castT_castT_symm] at h
+  exact h
 
 /-- **`hXY` of `oldCoefLoc_congr_fields`, for the fine set of the output label**: the fine set of the old
 label `X` lies in the fine set of the output label (`d7Pull_subset_outLabel`). -/
@@ -114,12 +161,7 @@ theorem fineSet_subset_outLabel {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m�
     (hfin : dOmega m₀ (k + 1) (d7Pull F (k + 1) (OmegaCube H (k + 1))) (sitesOf T) ≠ ⊤) :
     fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ⊆
       fineSet (S := S) (n := n) M K (k + 1)
-        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) := by
-  intro x hx
-  have h := d7Pull_subset_outLabel F hnn hM1 H hk hρ hX hXm r r' J T hT hfin
-    (show castT F.side.symm x ∈ d7Pull F k (X : Set (Torus S.d (n k))) from by
-      rw [mem_d7Pull, castT_castT_symm]; exact hx)
-  rw [mem_d7Pull, castT_castT_symm] at h
-  exact h
+        (outLabel F k (OmegaCube H (k + 1)) T : Set (Torus S.d (n (k + 1)))) :=
+  fineSet_subset_outLabelAt (σ := fun X => X) g hnn hM1 F H hk hρ hX hXm r r' J T hT hfin
 
 end Balaban.RootFSpine

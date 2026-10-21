@@ -102,6 +102,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν T.c T.BG T.κ r₀ T.t δ₃ (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ T.m₁ k ϱ) S.a₁ S.ν T.κ T.BG T.t δ₃
           (levelKc d L) (Cchi d L) T.c₂ T.BG₂ δ₁ δfl (X₁f τ)) ∧
+        (ClassHatCond C s r₀ → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀
         -- the sets `𝒮 τ` (containing the composed step data) lie in the term domain, `Ψ(y)·Ψ(y)` in
         -- the slit plane
@@ -157,9 +158,12 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
           (θ'.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ T.m₁) (k + 1) N) →
           ∀ T', e θ' T' = e θ T') →
-        NewLevelFormula S C z Jr
+        (NewLevelFormulaW S C z Jr
           ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, p₁, C.m₀, T.c, r₀, δ₃, levelKc d L,
-            Cchi d L, T.c₂, δfl⟩ e →
+            Cchi d L, T.c₂, δfl⟩ e ∧
+          (ClassHatCond C s r₀ → NewLevelFormula S C z Jr
+          ⟨T.κ, T.BG, T.BG₂, p₁, T.κ0, T.κ, T.BG, T.BG₂, δ₁, p₁, C.m₀, T.c, r₀, δ₃, levelKc d L,
+            Cchi d L, T.c₂, δfl⟩ e)) →
         B ≤ CPE d L (2 * (K0 d L T.κ0 + 1) + (K0 d L T.κ0 + rootUnionK d L 1 T.m₁ T.κ0) +
           rootUnionK d L 1 T.m₁ T.κ0) (2 * T.κdec - 1) T.κ0 T.κ' *
           (corrF0G T k β p₁ * K0 d L T.κ0 +
@@ -231,9 +235,9 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
     HC T hm₀T hm₁ hBG hBG₂ hκT hk0 hk' hδ k hk N₁ h3N hN₁ ν hν0 hν β hβb' hct p₁ hp0 hp₁ Dt rfl _ rfl hp
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, HG⟩ := @HC' C z 𝒯E h𝒯 P Dom r₀ δ₃ δ₁ δfl bL hb₁ hbC
     hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hr₁ hr₂ hnB hnF hδ₁T
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
+  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, ?_⟩
   intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum Φ hΦ
   have hC := Dt.core
   have hd0 : 0 < d := by have := T.hd; omega
@@ -464,7 +468,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_onSet_dec_agree_colla
     N₁ h3N hN₁ ν hν0 hν β hβ hcδ p₁ hp0 hp₁ hϱ S hS
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom bL hb₁ hbC hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @H' C z 𝒯E h𝒯 P Dom bL hb₁ hbC hm hcl hE₀ i₀ i₁
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @H' C z 𝒯E h𝒯 P Dom bL hb₁ hbC hm hcl hE₀ i₀ i₁
     hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro 𝒮 hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL h𝒮 hE hεnum Φ hΦ

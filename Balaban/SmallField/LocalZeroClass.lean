@@ -61,10 +61,12 @@ theorem Mloc_localBZeroTerms (m₀ j : ℕ) (x : CTorus d L N₁ m₁ k) (ψ h g
   simp [Mloc, localBZeroTerms]
 
 /-- **All clauses of `SFTermClausesStrong` for the zero terms with the sets `𝔹_j(X)`**, on every
-field domain at the index `R₀(d, L)`, when `L^{m₀} ∣ N₁`. -/
+field domain at the index `R₀(d, L)`, when `L^{m₀} ∣ N₁` and the cubes of the sets `𝔹_j(X̂)` of
+`HatSpec` are not finer than the cells (`m₀ ≤ hatScale`). -/
 theorem sfTermClausesStrong_localBZeroTerms {P : Consts} (hE₀ : 0 ≤ P.E₀)
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (hN : L ^ P.m₀ ∣ N₁) (Dom : FieldDom d L N₁ m₁ k N (bgR0 d L)) :
+    (hN : L ^ P.m₀ ∣ N₁) (hm : P.m₀ ≤ hatScale L m₁ (bgR0 d L))
+    (Dom : FieldDom d L N₁ m₁ k N (bgR0 d L)) :
     SFTermClausesStrong P Dom (localBZeroTerms d L N₁ m₁ k N hsep) where
   gs_spec := fun j hj1 hjk X hX => by
     rw [localBZeroTerms_gs hjk]
@@ -103,6 +105,7 @@ theorem sfTermClausesStrong_localBZeroTerms {P : Consts} (hE₀ : 0 ≤ P.E₀)
   gsStrong := fun j hj1 hjk X hX => by
     rw [localBZeroTerms_gs hjk]
     exact gsSpecStrong_localB_of_isPolyDom hN hj1 hX
+  hat := fun _ _ _ _ _ => hatSpec_of_le hm
 
 /-- The strong term clauses with the local generating sets `𝔹_j(X)` at the low index are inhabited
 (hard rule 10): the zero terms, every field domain, the constants `witnessConsts` (`m₀ = 0`). -/
@@ -110,7 +113,7 @@ theorem sfTermClausesStrong_localBZeroTerms_nonempty
     (Dom : FieldDom d L N₁ m₁ k N (bgR0 d L)) :
     Nonempty (SFTermClausesStrong witnessConsts Dom (localBZeroTerms d L N₁ m₁ k N hsep)) := by
   refine ⟨sfTermClausesStrong_localBZeroTerms (by simp [witnessConsts]) (fun j => ?_)
-    (by simp [witnessConsts]) Dom⟩
+    (by simp [witnessConsts]) (by simp [witnessConsts]) Dom⟩
   have hL : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   simp only [witnessConsts, one_mul]
   positivity
@@ -130,12 +133,12 @@ index for the regime. -/
 theorem isSF2_localBZeroTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
     {Dom : FieldDom d L N₁ m₁ k N (bgR0 d L)} (hE₀ : 0 ≤ P.E₀)
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
-    (hN : L ^ P.m₀ ∣ N₁)
+    (hN : L ^ P.m₀ ∣ N₁) (hm : P.m₀ ≤ hatScale L m₁ (bgR0 d L))
     (H : BgHyp d L k (bgR0 d L) (aIdeal L k (a k)) (Rg.sfBgMass k)) :
     IsSF2 P Rg β a Dom (localBZeroTerms d L N₁ m₁ k N hsep)
       (rho2 P Rg β a (localBZeroTerms d L N₁ m₁ k N hsep) 0) 0 := by
-  have hT := sfTermClausesStrong_localBZeroTerms (hsep := hsep) (N := N) hE₀ hc9 hN Dom
-  refine isSF2_rho2 hT.toSFTermClauses hT.gsStrong ?_
+  have hT := sfTermClausesStrong_localBZeroTerms (hsep := hsep) (N := N) hE₀ hc9 hN hm Dom
+  refine isSF2_rho2 hT.toSFTermClauses hT.gsStrong hT.hat ?_
   intro Ψ₀ h₀ g D hD
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
   rw [← Fcomp_localBZeroTerms (hsep := hsep)] at h1

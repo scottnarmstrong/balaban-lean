@@ -150,6 +150,9 @@ def SFNewLevelQ (d : ℕ) (N : ℕ) (T : ℝ → ℝ → Typing) (P6 : ℝ → �
     (∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ → ∀ (X : Set (CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1))),
       IsPolyDom (P6 κ c₉).m₀ (k + 1) X →
         GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X)) ∧
+    (∀ (N₂ : ℕ) [NeZero N₂], ReadTorus (T κ c₉).L (P6 κ c₉).m₀ N₂ → ∀ (X : Set (CTorus d (T κ c₉).L N₂ (C7 κ c₉).m₁ (k + 1))),
+      IsPolyDom (P6 κ c₉).m₀ (k + 1) X →
+        GsSpec.HatSpec (P6 κ c₉).m₀ (k + 1) X ((sf'.Tm N₂).gs (k + 1) X)) ∧
     TorusIndep (P6 κ c₉).m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂))
 
 /-- The property `SFRenormQ` asserts of the image of the small-field data (see `SFRenormInput`): the
@@ -258,8 +261,8 @@ def SFInheritInput : Prop :=
 /-- **A4-1b, the new level (the fluctuation integral on the local generating set of each polymer;
 P3 (4.44)–(4.47), P4 Proposition 4.1, ruling R8).** On every Def-6 torus the terms of the new level
 `k + 1` (`newLevelTerms`) satisfy the term clauses (H.2)–(H.4), (H.7) on the birth domain of the
-level, their generating sets satisfy the strong specification `𝔹_{k+1}(X)`, and they are torus
-independent (P4 (H.4)). -/
+level, their generating sets satisfy the strong specification `𝔹_{k+1}(X)` and are the local sets
+`𝔹_{k+1}(X̂)` (ruling R13, `GsSpec.HatSpec`), and they are torus independent (P4 (H.4)). -/
 def SFNewLevelInput : Prop :=
   SFImageInput d N T P6 C7 cs₀ ϱ Φ (SFNewLevelQ d N T P6 C7 ϱ)
 
@@ -447,14 +450,14 @@ theorem sfStepInput_of_parts (hd : 3 ≤ d) (hL : ∀ κ, 0 < κ → ∀ c₉, 0
   obtain ⟨⟨⟨hb₁, hb₂⟩, hb₃, hb₄⟩, ⟨hb₅, hb₆⟩, ⟨hb₇, hb₈⟩, hb₉, hb2⟩ := hβ
   have hsf := rec.sfClassAt
   obtain ⟨hcst, hfree', hz, hTm⟩ := h₁ β hb₁ ν hν hνL k hk1 hk rec.F.sf hsf
-  obtain ⟨hnew, hgsnew, hTInew⟩ := h₂ β hb₂ ν hν hνL k hk1 hk rec.F.sf hsf
+  obtain ⟨hnew, hgsnew, hhatnew, hTInew⟩ := h₂ β hb₂ ν hν hνL k hk1 hk rec.F.sf hsf
   obtain ⟨hC', hR'⟩ := h₃ β hb₃ ν hν hνL k hk1 hk rec.F.sf hsf
   have hreal := h₄ β hb₄ ν hν hνL k hk1 hk rec.F.sf hsf
   have hRtm := h₅ β hb₅ ν hν hνL k hk1 hk rec.F.sf hsf
   have hD8n := h₆ β hb₆ ν hν hνL k hk1 hk rec.F.sf hsf
   have hEv := h₇ β hb₇ ν hν hνL k hk1 hk rec.F.sf hsf rec.Ev rec.vac
   obtain ⟨hD2', hD8', hD9'⟩ := sfSucc_clauses hd (hL κ hκ c₉ hc₉) (hϱ κ hκ c₉ hc₉) hk1 hk rec.rep.sfData
-    rec.rep.coherent hsf.2.2.2.1 rec.run hcst hfree' hTm hnew hgsnew hTInew hC' hR' hreal hRtm hD8n
+    rec.rep.coherent hsf.2.2.2.1 rec.run hcst hfree' hTm hnew hgsnew hhatnew hTInew hC' hR' hreal hRtm hD8n
   have hkK' : k + 1 ≤ kf + 1 := by
     have h1 : (1 : ℝ) < β := by linarith
     have := kZero_le_of_isHorizon (d := d) (L := (T κ c₉).L) (by omega)

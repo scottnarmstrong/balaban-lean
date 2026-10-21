@@ -335,3 +335,23 @@ approved declaration.
   not recommended.
 - **Status of blocker 3 after W1154b.** Items (1)–(4) of the W1154b brief are blocked by this obstruction: (1) is false as
   stated and needs the ruling and D1–D3; the bound of (2)–(4) rests on (1); the identity (3) needs D3.
+- **Reading HS-2 (W1154b, 2026-10-21; the repairs D1–D3 of reading HS-1′, beside the landed objects;
+  `Spine/LFOldHS2.lean`).** (D3) the datum of the local pair is the restriction of the global mixed lift
+  (`holeStepLoc2`: `θ = z ψ_{k+1}` on every block of `Ω_{k+1}`, `ψ_k` elsewhere; `holeStepLoc2_D'_Ψ_eq`: it is the
+  datum of the step at the common data sites; `holeStepLoc2_D'_Ψ_congr`: it does not read `ψ_k` on `Ω_{k+1}`).
+  (D2) the local set `V₂(X, J) = locSetXJ (X^{∼3}) J` (`stencilX`, `locSetXJ2`): its core is the `r`-collar of
+  `Ω_{k+1} ∩ X^{∼3}`, so for `r′ ≥ L^{k+1+m₁}` the sites of `Ω_{k+1}` read by the cube tests of the H7 domain of `X`
+  are unit points of the local pair (`mem_top_locG'_locSetXJ2`); the parameter core `X₁` (the `r`-collar of `A_X`,
+  where the decoupling parameters are `1`) is unchanged. The resummation at a mark site holds for these local sets:
+  `oldResumSite2_holds` (`OldResumSiteAt stencilX`), from the core `oldResumSiteAt_holds` with the cell count
+  `card_cells_stencilCore_le` (`#cells_{k+1}(Ω_{k+1} ∩ X^{∼3}) ≤ 9^d c₁ (1 + d_k(X))`: a cube within 3 cubes of
+  `u ∈ X` whose coarse cube is in `Ω_{k+1}` forces `u ∉ Z_k`, P5 (2.3)); the landed `oldResumSite_holds` is the
+  instance `σ = id`, `c_S = c₁` of the same core (the bodies of `markBase`, `markSite`, `GoodJ`, `famAt`,
+  `OldResumSite` are now built from `markBaseAt`, `markSiteAt`, `GoodJAt`, `famAtAt`, `OldResumSiteAt`,
+  definitionally equal; landed statements unchanged). (D1) the named inputs ask the H7 domain at a set `Y_f`
+  containing the cubes of `𝕋_k` and `𝕋_{k+1}` within 3 cubes of the sites read (`CubesNearIn`).
+  Restated named inputs: `H7MixedInnerLoc2` (for every `X`, `J`, with `V = V₂(X, J)`; open) and `H7MixedDatumLoc2`
+  (for every `V`; open, and false at zero sharp mass with the present cube domains, as for its predecessor; it is
+  stated for the cube domains of the ruling request R14), with `h7Domain_composedMulti_loc2`. Not yet done: the
+  chain of pieces 5c–5q (coefficient, marks, cluster terms, `oldB` and its bound) on `holeStepLoc2` and `V₂`; it
+  waits for the decision on R14, which changes its domain hypotheses.

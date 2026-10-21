@@ -13,7 +13,8 @@ public import Balaban.Fluctuation.LocalClassDensityIrrelSupport
 /-!
 # Specification of the cast local generators of the labels (`LocalClassDensityIrrelSuppSpec`)
 
-* `gsSpecStrong_castLocalB`: for a polymer `X` of `𝒟_j`, the local generating set `𝔹_j(X')` of the
+* `gsSpecStrong_castLocalB` (core `gsSpecStrong_castLocalB_of_cells`: a union of cells `X`, every
+  subset `A ⊆ X`): for a polymer `X` of `𝒟_j`, the local generating set `𝔹_j(X')` of the
   set `X'` of sites of a finer cube torus `(N₁', m₁')`, `N₁' L^{m₁'} = N₁ L^{m₁}`,
   `m₁' ≤ m₀ + m₁`, lying over `X`, and transported by `castG`, satisfies `GsSpecStrong j X`;
 * `exists_optimal_chosen`: a polymer has a chosen family and a connected structure attaining
@@ -33,11 +34,12 @@ section Spec
 
 variable {d L N₁ m₁ : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
-/-- A polymer of `𝒟_j` read on a finer cube torus is a union of the `𝒞'_j`-cubes of side
-`L^{m₁'} L^j` there. -/
-theorem castLocal_cubeUnion {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
+/-- A union of cells of `𝒟_j` read on a finer cube torus is a union of the `𝒞'_j`-cubes of side
+`L^{m₁'} L^j` there (the core of `castLocal_cubeUnion`). -/
+theorem castLocal_cubeUnion_of_cells {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
     (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hN : L ^ m₀ ∣ N₁) (hm : m₁' ≤ m₀ + m₁) (hjk : j ≤ k)
-    {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X) :
+    {X : Set (CTorus d L N₁ m₁ k)}
+    (hcell : ∀ z ∈ X, Localization.box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ X) :
     ∀ x' ∈ {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X},
       ∀ y' : CTorus d L N₁' m₁' k,
       fineCubeIdx (L ^ m₁') N₁' L k j (torusCast y' : Torus d (L ^ m₁' * N₁' * L ^ k)) =
@@ -83,7 +85,19 @@ theorem castLocal_cubeUnion {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
   have hz : (torusCast y' : CTorus d L N₁ m₁ k) ∈
       Localization.box (cbase (cellSide L m₀ m₁ j) (torusCast x' : CTorus d L N₁ m₁ k)) (cellSide L m₀ m₁ j) := by
     rw [← hcb]; exact mem_box_cbase hpos _
-  exact cell_subset_of_isPolyDom hN hjk hX _ hx' hz
+  exact hcell _ hx' hz
+
+/-- A polymer of `𝒟_j` read on a finer cube torus is a union of the `𝒞'_j`-cubes of side
+`L^{m₁'} L^j` there. -/
+theorem castLocal_cubeUnion {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
+    (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hN : L ^ m₀ ∣ N₁) (hm : m₁' ≤ m₀ + m₁) (hjk : j ≤ k)
+    {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X) :
+    ∀ x' ∈ {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X},
+      ∀ y' : CTorus d L N₁' m₁' k,
+      fineCubeIdx (L ^ m₁') N₁' L k j (torusCast y' : Torus d (L ^ m₁' * N₁' * L ^ k)) =
+        fineCubeIdx (L ^ m₁') N₁' L k j (torusCast x' : Torus d (L ^ m₁' * N₁' * L ^ k)) →
+      y' ∈ {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X} :=
+  castLocal_cubeUnion_of_cells hc hN hm hjk (cell_subset_of_isPolyDom hN hjk hX)
 
 theorem castG_noAbove {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] {k j : ℕ} (h : N₀' = N₀)
     {G : GeneratingSet d L N₀' k ϱ} (hG : ∀ i, j < i → G.Ω i = ∅) :
@@ -93,20 +107,25 @@ theorem castG_noAbove {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] {k j : ℕ
   rw [mem_castG_Ω, hG i hi]
   simp
 
-/-- **The strong specification of the cast local generator.** -/
-theorem gsSpecStrong_castLocalB {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
+/-- **The strong specification of the cast local generator of a union of cells, on every subset**
+(the core of `gsSpecStrong_castLocalB`): for `X` a union of cells of `𝒟_j` and `A ⊆ X`,
+`GsSpecStrong j A` holds for `castG hc (𝔹_j(X'))`. -/
+theorem gsSpecStrong_castLocalB_of_cells {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
     (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hN : L ^ m₀ ∣ N₁) (hm : m₁' ≤ m₀ + m₁) (hj1 : 1 ≤ j)
-    (hjk : j ≤ k) {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X)
-    (hs : ϱ ≤ minSep L (L ^ m₁')) :
-    GsSpecStrong j hjk X (castG hc (localB j hjk
+    (hjk : j ≤ k) {X A : Set (CTorus d L N₁ m₁ k)}
+    (hcell : ∀ z ∈ X, Localization.box (cbase (cellSide L m₀ m₁ j) z) (cellSide L m₀ m₁ j) ⊆ X)
+    (hA : A ⊆ X) (hs : ϱ ≤ minSep L (L ^ m₁')) :
+    GsSpecStrong j hjk A (castG hc (localB j hjk
       {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X} hs)) := by
   have hcc : N₁' * L ^ m₁' * L ^ k = N₁ * L ^ m₁ * L ^ k := by rw [hc]
-  have hcore := gsSpecCore_localB (hj := hjk) (hsep := hs) hj1 (castLocal_cubeUnion hc hN hm hjk hX)
-  have hrt : ∀ z : CTorus d L N₁ m₁ k, z ∈ X →
+  have hcore := gsSpecCore_localB (hj := hjk) (hsep := hs) hj1
+    (castLocal_cubeUnion_of_cells hc hN hm hjk hcell)
+  have hrt : ∀ z : CTorus d L N₁ m₁ k, z ∈ A →
       (torusCast z : CTorus d L N₁' m₁' k) ∈
         {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X} := fun z hz => by
     show (torusCast (torusCast z : CTorus d L N₁' m₁' k) : CTorus d L N₁ m₁ k) ∈ X
-    rwa [torusCast_torusCast hcc.symm]
+    rw [torusCast_torusCast hcc.symm]
+    exact hA hz
   refine GsSpecCore.toStrong hj1 hjk
     { subset := fun z hz => ?_
       noAbove := castG_noAbove hc hcore.noAbove
@@ -117,6 +136,16 @@ theorem gsSpecStrong_castLocalB {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
     rw [GeneratingSet.mem_layer] at h ⊢
     rw [mem_castG_Ω, mem_castG_Ω]
     exact h
+
+/-- **The strong specification of the cast local generator.** -/
+theorem gsSpecStrong_castLocalB {N₁' m₁' k m₀ j : ℕ} [NeZero N₁']
+    (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁) (hN : L ^ m₀ ∣ N₁) (hm : m₁' ≤ m₀ + m₁) (hj1 : 1 ≤ j)
+    (hjk : j ≤ k) {X : Set (CTorus d L N₁ m₁ k)} (hX : IsPolyDom m₀ j X)
+    (hs : ϱ ≤ minSep L (L ^ m₁')) :
+    GsSpecStrong j hjk X (castG hc (localB j hjk
+      {x' : CTorus d L N₁' m₁' k | (torusCast x' : CTorus d L N₁ m₁ k) ∈ X} hs)) :=
+  gsSpecStrong_castLocalB_of_cells hc hN hm hj1 hjk (cell_subset_of_isPolyDom hN hjk hX)
+    subset_rfl hs
 
 end Spec
 
