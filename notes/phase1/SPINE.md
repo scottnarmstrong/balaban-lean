@@ -372,6 +372,8 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) (A1)–(A5) on the local sets: route R-LOC (section "A4-1b (iii)", W1144; ~7,000);
    (iv) the castG gap (closed, W1141); (v) `TorusIndep` of the new level of a general class (only the core family is two-torus exact,
    W1089/W1090; after R-LOC L2 it is the two-torus agreement of the objects of `NewLevelFormula`). ~8,850.
+   **A1 (2026-10-21), (ii) at the cell label (blocker 6):** core `irrelTorusOn sm` (`SmallField/IrrelTorusOn.lean`; `irrelTorus` its instance `sm = ⊤`, all landed theorems instances); `norm_termPart_le_of_dataHyp_of_threshold` bounds `ℰ − (T+Φ) − A` at every `X ∋ y`, the cell included; `irrelTorus_bound_cell_of_dataHyp`: the cell label of the landed `irrelTorus` satisfies (3.128) with the infinite-volume conditions only (via `norm_filed_le_power`); for `irrelTorusB = irrelTorusOn (relBox m₀)`, `irrelTorusB_bound_of_class` gives (3.128) at every label (termwise part + `relBoxLargeConst E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1)d_j}` for the large polymers + at the cell `(filedPowerConst + relBoxTailConst) E₀ L^{-(k-j)(d+α₃)}`; `SmallField/IrrelTorusBoxBound*.lean`). P-2 stays a premise.
+   After R15 (`irrelTorus := irrelTorusOn (relBox m₀)`): the non-cell bound takes `relBox y X` or the large-polymer term of `irrelTorusB_bound_of_dataHyp_of_threshold`; the identity (3.127) and congr/analytic/rot are unchanged (they hold for every `sm`).
 3. **A4-1c `SFRenormInput`** (P4 (4.14)–(4.22), (5.28), (H.5), (H.6)). `CoeffBounds (k+1)` and `RenormCond (k+1)` of `Φ sf`.
    Landed: `rg_step_infty` (general), `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at` (3, 3, 2). Bridges: (H.6) at `k + 1`
    from (H.6) at `k` and the bound of `ξ^{(k)}` (the flow is extended by one entry; ~150, not landed); (H.5) for the renormalized new level,
@@ -386,6 +388,7 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    Landed: `e0CoeffFamily_value_fromTowerG_core_twoTorus` (W1089, `StepTowerG d L N`, `m₀ = 1`), `coreE0_unique` (W1090). Open: the
    chain's `e` of a general class is not a core family (open (c) of A4-1); `R_eq` of `ℛ^{(k+1)}`. The inherited levels are proved
    (`liftOldTermsFam_M_eq_of_d8`). ~800.
+   **A1 (2026-10-21), cell case of the two-torus step clause (blocker 7):** `CellTermsAgree` is false for the landed `irrelTorus` (its filed sum runs over winding polymers); the replacement `irrelTorusB_cell_boxAgree` (`Polymer/IrrelTorusBCell.lean`) is proved: exact agreement of `irrelTorusB` at `□(y)` on two tori with `TorusIndep`, margin `8(R + r_K) + 3L^K + L·cellSide < n` on both, fields agreeing on `□(y) ∪ st₊(y)`; away from the cell `irrelTorusOn_boxAgree` (selections corresponding under `boxMap`; `irrelTorus_boxAgree` its instance `sm = ⊤`). After R15 it discharges the cell input of `newLevel_coeff_twoTorus_of_class_cells`.
 7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). **ΦE defined and the bound proved (W1132, `Spine/SFVacuum.lean`,
    `Spine/SFVacuumRatio.lean`).** The map is `vacMap` = `vacIncrement d L N aKer β_k (p(β_k))`, the Gaussian increment
    `Γ_k = L^d(E‴_k − E_k) = ½N(L^d−1) log β_k − ½N log(a₁L^{d−2}/2π) − L^d log Z₁(p₁)` (`vacIncrement_eq_step`, from `step_increment_eq`).
