@@ -823,6 +823,17 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   local pair reading `ψ_k` on `Ω_{k+1}` (D3; reading HS-2 proposed: restrict the global mixed lift). Ruling request and
   repairs: `notes/phase1/PLAN-B.md`, "Obstruction (W1154b, 2026-10-21)". Blocker 3 (`LFBdryOldInput`) waits for the
   ruling on the complex radius of the H7 domain.
+* **Reading HS-2 (W1154b, 2026-10-21; `Spine/LFOldHS2.lean`): the repairs D1–D3 beside the landed objects.**
+  `holeStepLoc2` (the datum of the local pair is the restricted global mixed lift; `holeStepLoc2_D'_Ψ_eq`,
+  `holeStepLoc2_D'_Ψ_congr`), `stencilX`, `locSetXJ2` (core: the `r`-collar of `Ω_{k+1} ∩ X^{∼3}`;
+  `mem_top_locG'_locSetXJ2`), `CubesNearIn` (the set `Y_f`), the restated named inputs `H7MixedInnerLoc2`,
+  `H7MixedDatumLoc2` (open; the second for the cube domains of R14) with `h7Domain_composedMulti_loc2`, and
+  **`oldResumSite2_holds`** (the resummation at a mark site for the local sets `V₂`, from the core
+  `oldResumSiteAt_holds` with `card_cells_stencilCore_le`: `9^d c₁ (1 + d_k(X))` cells). The landed
+  `markBase`, `markSite`, `GoodJ`, `famAt`, `OldResumSite`, `card_cells_markBase_le`, `subset_cubesIn_of_mem_famAt`,
+  `oldResumSite_holds` are instances of the new cores (`…At`, `σ = id`). Ruling request R14 (the cube domains ask the
+  lifted datum in `Ψ̃^c(ε, ε)`) is prepared on the branch `w1154-r14` (not merged). Next after R14: the chain of
+  pieces 5c–5q on `holeStepLoc2` and `V₂`.
 
 ## LastIntegralInput sub-inputs (W1108)
 
