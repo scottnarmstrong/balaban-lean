@@ -42,23 +42,77 @@ namespace Balaban.Inhabited
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
   Balaban.Localization Balaban.Localization.I5Inhabited Balaban.SmallField.Def6
 
-/-- **Towers at every scale with cover and room at the collar `(4 * (d : ℝ) * (L : ℝ) ^ 3 + L)`.**  See the module
-doc-string.  `T₀` carries the label rate at `m₀`; for every `ε` with `ε_{j+1} ≤ q ε_j`, `ε > 0`,
-`ε` antitone and `ε_1 ≤ T₀.t`, and every `k`, the tower `T_k` has the constants of `T₀` except the
-step radius `T_k.t = ε_{k+1}`, `ChainNum` at `(4 * (d : ℝ) * (L : ℝ) ^ 3 + L)` with `δ₃ = Q T_k.t`, `FlNum` with
-`δ₁ = min(T_k.t, η ε_k)` and `δ_fl = F δ₁`, and the room at every `j ≤ k`. -/
-theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
-    (m₀ : ℕ) (κlo : ℝ) {q : ℝ} (hq0 : 0 < q) (hq1 : q < 1) :
-    ∃ (κmin : ℝ) (_ : κlo ≤ κmin) (T₀ : StepTowerG d L N κmin) (κdec Q F η : ℝ),
-      T₀.m₀ = 1 ∧ T₀.κ0 = aEnt d L + 2 ∧
-      4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ T₀.κ ∧
-      (2 * T₀.κdec - 1) * ((L : ℝ) ^ (m₀ - 1) + 2 * (d : ℝ) *
-        (L : ℝ) ^ m₀ * ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L) + 1 ≤ 2 * κdec ∧
-      Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) ∧
-      xiK2 d L N * Q ≤ (1 - q) / (2 * q) ∧
-      F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1) ∧
-      η = (1 - q) / (4 * xiK2 d L N * F) ∧ 0 ≤ Q ∧ 0 < F ∧ 0 < η ∧
-      ∀ ε : ℕ → ℝ, Antitone ε → (∀ j, 0 < ε j) → (∀ j, ε (j + 1) ≤ q * ε j) → ε 1 ≤ T₀.t →
+/-- **The base tower of the class chain** at the cover index `m₀` and the ratio `q` of the class
+radii (the properties of the tower `T₀` that the chain reads, `exists_collar_scales`): the hull
+threshold `stepHullMinG d L ≤ κmin`, `m₀ = 1`, `κ₀ = a_Ent + 2`, the label rate `κ_dec` at `m₀`,
+`ChainNum` and `FlNum` at the collar `4 d L³ + L` and the step radius `T₀.t`, and the closeness ratio
+`K₂ Q ≤ (1 - q)/(2 q)`, `Q = N · composedCloseBound(…, C_{Ξ1}, 4 d L³ + L)`.  Inhabited:
+`exists_collarBase`. -/
+structure CollarBase (d L N : ℕ) [NeZero L] (m₀ : ℕ) (q : ℝ) {κmin : ℝ}
+    (T₀ : StepTowerG d L N κmin) (κdec : ℝ) : Prop where
+  hull : stepHullMinG d L ≤ κmin
+  m₀_eq : T₀.m₀ = 1
+  κ0_eq : T₀.κ0 = aEnt d L + 2
+  rate : 4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ T₀.κ
+  rate' : (2 * T₀.κdec - 1) * ((L : ℝ) ^ (m₀ - 1) + 2 * (d : ℝ) *
+    (L : ℝ) ^ m₀ * ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L) + 1 ≤ 2 * κdec
+  num : ∃ δ₃ δfl : ℝ,
+    ChainNum d L N T₀.m₁ T₀.BG T₀.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) T₀.t δ₃ ∧
+      FlNum d L N T₀.BG T₀.BG₂ T₀.κ T₀.t δ₃ T₀.t δfl
+  close : xiK2 d L N * ((N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+    (4 * (d : ℝ) * (L : ℝ) ^ 3 + L)) ≤ (1 - q) / (2 * q)
+
+/-- **`CollarBase` is inhabited** (rule 10): for every cover index `m₀` and `0 < q < 1` there are
+`κmin`, a tower `T₀ : StepTowerG d L N κmin` and a label rate `κ_dec` with `CollarBase`
+(`StepTowerG.exists_collar` at `κlo = stepHullMinG d L`, `θ = (1 - q)/(2 q)`). -/
+theorem exists_collarBase (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
+    (m₀ : ℕ) {q : ℝ} (hq0 : 0 < q) (hq1 : q < 1) :
+    ∃ (κmin : ℝ) (T₀ : StepTowerG d L N κmin) (κdec : ℝ), CollarBase d L N m₀ q T₀ κdec := by
+  have hθ : 0 < (1 - q) / (2 * q) := div_pos (by linarith) (by positivity)
+  obtain ⟨κmin, hlo, T₀, δ₃, δfl, κdec, hm0, hk0, hC0, hF0, hκ, hr, hQθ⟩ :=
+    StepTowerG.exists_collar d L N hd hL hN m₀ (stepHullMinG d L) hθ
+  exact ⟨κmin, T₀, κdec, ⟨hlo, hm0, hk0, hκ, hr, ⟨δ₃, δfl, hC0, hF0⟩, hQθ⟩⟩
+
+/-- The constants `Q ≥ 0`, `F > 0`, `η > 0` of the class chain at a tower `T₀` and a ratio
+`q < 1`. -/
+theorem StepTowerG.collar_consts_pos {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T₀ : StepTowerG d L N κmin) {q : ℝ} (hq1 : q < 1) {Q F η : ℝ}
+    (hQdef : Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+    (hFdef : F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))
+    (hηdef : η = (1 - q) / (4 * xiK2 d L N * F)) : 0 ≤ Q ∧ 0 < F ∧ 0 < η := by
+  obtain ⟨hC⟩ := T₀.core
+  have hBG : 0 ≤ T₀.BG := hC.hS.fam.2.1
+  have hd := T₀.hd
+  have hN : (0 : ℝ) < N := by exact_mod_cast (by have := T₀.hN; omega : 0 < N)
+  have hK : 0 < xiK2 d L N := by
+    have := cK2_pos d L N
+    unfold xiK2; positivity
+  have hX : 0 ≤ xiC1 d := le_trans zero_le_one (one_le_xiC1 d)
+  have hQ : 0 ≤ Q := by
+    rw [hQdef]
+    exact mul_nonneg hN.le (composedCloseBound_nonneg hBG hX (by omega))
+  have hc' : 0 ≤ cK2' d L N (famConst d L T₀.BG₂ T₀.κ) := cK2'_nonneg T₀.fam_nonneg
+  have hF : 0 < F := by rw [hFdef]; positivity
+  exact ⟨hQ, hF, by rw [hηdef]; exact div_pos (by linarith) (by positivity)⟩
+
+/-- **Core of `exists_collar_scales`: the towers at every scale of a given base tower.**  For a
+tower `T₀` with `ChainNum` at the collar `4 d L³ + L` and `FlNum` at its step radius, the closeness
+ratio `K₂ Q ≤ (1 - q)/(2 q)` and `F`, `η` as in `exists_collar_scales`: for every `ε` with
+`ε_{j+1} ≤ q ε_j`, `ε > 0`, `ε` antitone and `ε_1 ≤ T₀.t`, and every `k`, the tower `T_k` has the
+constants of `T₀` except the step radius `T_k.t = ε_{k+1}`, `ChainNum` at the collar with
+`δ₃ = Q T_k.t`, `FlNum` with `δ₁ = min(T_k.t, η ε_k)` and `δ_fl = F δ₁`, and the room at every
+`j ≤ k`. -/
+theorem StepTowerG.collar_scales_of {d L N : ℕ} [NeZero L] {κmin : ℝ}
+    (T₀ : StepTowerG d L N κmin) {q : ℝ} (hq0 : 0 < q) (hq1 : q < 1) {δ₃ δfl : ℝ}
+    (hC0 : ChainNum d L N T₀.m₁ T₀.BG T₀.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) T₀.t δ₃)
+    (hF0 : FlNum d L N T₀.BG T₀.BG₂ T₀.κ T₀.t δ₃ T₀.t δfl) {Q F η : ℝ}
+    (hQdef : Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d)
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+    (hQθ : xiK2 d L N * Q ≤ (1 - q) / (2 * q))
+    (hFdef : F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1))
+    (hηdef : η = (1 - q) / (4 * xiK2 d L N * F)) :
+    ∀ ε : ℕ → ℝ, Antitone ε → (∀ j, 0 < ε j) → (∀ j, ε (j + 1) ≤ q * ε j) → ε 1 ≤ T₀.t →
       ∀ k : ℕ, ∃ Tk : StepTowerG d L N κmin, Tk.t = ε (k + 1) ∧ Tk.m₁ = T₀.m₁ ∧ Tk.c = T₀.c ∧
         Tk.BG = T₀.BG ∧ Tk.κ = T₀.κ ∧ Tk.c₂ = T₀.c₂ ∧ Tk.BG₂ = T₀.BG₂ ∧ Tk.δc = T₀.δc ∧
         Tk.δ = T₀.δ ∧ Tk.δ' = T₀.δ' ∧ Tk.κ0 = T₀.κ0 ∧ Tk.m₀ = T₀.m₀ ∧
@@ -67,23 +121,14 @@ theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) 
           (F * min Tk.t (η * ε k)) ∧
         ∀ j ≤ k, Tk.t + xiK2 d L N * (Q * Tk.t) + xiK2 d L N * (F * min Tk.t (η * ε k)) ≤
           ε j := by
-  have hθ : 0 < (1 - q) / (2 * q) := div_pos (by linarith) (by positivity)
-  obtain ⟨κmin, hlo, T₀, δ₃, δfl, κdec, hm0, hk0, hC0, hF0, hκ, hr, hQθ⟩ :=
-    StepTowerG.exists_collar d L N hd hL hN m₀ κlo hθ
+  have hd := T₀.hd
   obtain ⟨hC⟩ := T₀.core
   have hBG : 0 ≤ T₀.BG := hC.hS.fam.2.1
   have hBG₂ : 0 ≤ T₀.BG₂ := hC.hS2.fam.2.1
   have hK : 0 < xiK2 d L N := by
     have := cK2_pos d L N
     unfold xiK2; positivity
-  have hX : 0 ≤ xiC1 d := le_trans zero_le_one (one_le_xiC1 d)
-  set Q : ℝ := (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) with hQdef
-  have hQ : 0 ≤ Q := mul_nonneg (Nat.cast_nonneg N) (composedCloseBound_nonneg hBG hX (by omega))
-  have hc' : 0 ≤ cK2' d L N (famConst d L T₀.BG₂ T₀.κ) := cK2'_nonneg T₀.fam_nonneg
-  set F : ℝ := (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1) with hFdef
-  have hF : 0 < F := by positivity
-  set η : ℝ := (1 - q) / (4 * xiK2 d L N * F) with hηdef
-  have hη : 0 < η := div_pos (by linarith) (by positivity)
+  obtain ⟨hQ, hF, hη⟩ := T₀.collar_consts_pos hq1 hQdef hFdef hηdef
   have hKFη : xiK2 d L N * F * η = (1 - q) / 4 := by
     rw [hηdef]; field_simp
   have hqKQ : q * (xiK2 d L N * Q) ≤ (1 - q) / 2 := by
@@ -92,8 +137,7 @@ theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) 
     linarith
   have hsum : q * (1 + xiK2 d L N * Q) + xiK2 d L N * F * η ≤ 1 := by
     rw [hKFη]; nlinarith
-  refine ⟨κmin, hlo, T₀, κdec, Q, F, η, hm0, hk0, hκ, hr, rfl, hQθ, rfl, rfl, hQ, hF, hη,
-    fun ε hε hpos hgap h1 k => ?_⟩
+  intro ε hε hpos hgap h1 k
   have ht0 := T₀.t_pos
   have htk : ε (k + 1) ≤ T₀.t := (hε (by omega : 1 ≤ k + 1)).trans h1
   set l : ℝ := ε (k + 1) / T₀.t with hldef
@@ -129,6 +173,38 @@ theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) 
   · rw [hTm, hTB, hTκ, hTt, ← hδeq]; exact hCk
   · rw [hTB, hTB₂, hTκ, hTt]; exact hFk
   · rw [hTt]; exact hroom
+
+/-- **Towers at every scale with cover and room at the collar `(4 * (d : ℝ) * (L : ℝ) ^ 3 + L)`.**  See the module
+doc-string.  `T₀` carries the label rate at `m₀`; for every `ε` with `ε_{j+1} ≤ q ε_j`, `ε > 0`,
+`ε` antitone and `ε_1 ≤ T₀.t`, and every `k`, the tower `T_k` has the constants of `T₀` except the
+step radius `T_k.t = ε_{k+1}`, `ChainNum` at `(4 * (d : ℝ) * (L : ℝ) ^ 3 + L)` with `δ₃ = Q T_k.t`, `FlNum` with
+`δ₁ = min(T_k.t, η ε_k)` and `δ_fl = F δ₁`, and the room at every `j ≤ k`. -/
+theorem StepTowerG.exists_collar_scales (d L N : ℕ) [NeZero L] (hd : 3 ≤ d) (hL : 3 ≤ L) (hN : 2 ≤ N)
+    (m₀ : ℕ) (κlo : ℝ) {q : ℝ} (hq0 : 0 < q) (hq1 : q < 1) :
+    ∃ (κmin : ℝ) (_ : κlo ≤ κmin) (T₀ : StepTowerG d L N κmin) (κdec Q F η : ℝ),
+      T₀.m₀ = 1 ∧ T₀.κ0 = aEnt d L + 2 ∧
+      4 * (d : ℝ) * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ T₀.κ ∧
+      (2 * T₀.κdec - 1) * ((L : ℝ) ^ (m₀ - 1) + 2 * (d : ℝ) *
+        (L : ℝ) ^ m₀ * ((((L ^ (m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L) + 1 ≤ 2 * κdec ∧
+      Q = (N : ℝ) * composedCloseBound d L N T₀.m₁ T₀.BG T₀.κ (xiC1 d) (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) ∧
+      xiK2 d L N * Q ≤ (1 - q) / (2 * q) ∧
+      F = (N : ℝ) * (5 * cK2' d L N (famConst d L T₀.BG₂ T₀.κ) + 1) ∧
+      η = (1 - q) / (4 * xiK2 d L N * F) ∧ 0 ≤ Q ∧ 0 < F ∧ 0 < η ∧
+      ∀ ε : ℕ → ℝ, Antitone ε → (∀ j, 0 < ε j) → (∀ j, ε (j + 1) ≤ q * ε j) → ε 1 ≤ T₀.t →
+      ∀ k : ℕ, ∃ Tk : StepTowerG d L N κmin, Tk.t = ε (k + 1) ∧ Tk.m₁ = T₀.m₁ ∧ Tk.c = T₀.c ∧
+        Tk.BG = T₀.BG ∧ Tk.κ = T₀.κ ∧ Tk.c₂ = T₀.c₂ ∧ Tk.BG₂ = T₀.BG₂ ∧ Tk.δc = T₀.δc ∧
+        Tk.δ = T₀.δ ∧ Tk.δ' = T₀.δ' ∧ Tk.κ0 = T₀.κ0 ∧ Tk.m₀ = T₀.m₀ ∧
+        ChainNum d L N Tk.m₁ Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) ∧
+        FlNum d L N Tk.BG Tk.BG₂ Tk.κ Tk.t (Q * Tk.t) (min Tk.t (η * ε k))
+          (F * min Tk.t (η * ε k)) ∧
+        ∀ j ≤ k, Tk.t + xiK2 d L N * (Q * Tk.t) + xiK2 d L N * (F * min Tk.t (η * ε k)) ≤
+          ε j := by
+  have hθ : 0 < (1 - q) / (2 * q) := div_pos (by linarith) (by positivity)
+  obtain ⟨κmin, hlo, T₀, δ₃, δfl, κdec, hm0, hk0, hC0, hF0, hκ, hr, hQθ⟩ :=
+    StepTowerG.exists_collar d L N hd hL hN m₀ κlo hθ
+  obtain ⟨hQ, hF, hη⟩ := T₀.collar_consts_pos hq1 rfl rfl rfl
+  exact ⟨κmin, hlo, T₀, κdec, _, _, _, hm0, hk0, hκ, hr, rfl, hQθ, rfl, rfl, hQ, hF, hη,
+    T₀.collar_scales_of hq0 hq1 hC0 hF0 rfl hQθ rfl rfl⟩
 
 /-- **Towers at every scale with cover and room at the collar `327`.**  See the module
 doc-string.  `T₀` carries the label rate at `m₀`; for every `ε` with `ε_{j+1} ≤ q ε_j`, `ε > 0`,
