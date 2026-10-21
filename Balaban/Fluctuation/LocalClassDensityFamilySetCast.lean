@@ -148,6 +148,99 @@ section Bundle
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱ₂ ϱ₀ ϱ₃ ϱm : ℝ}
 
+/-- **`BgSetting` and `FlSetting` for a term generating set reaching beyond the cover** (the core
+of `bgFlSetting_castLocalB_gen`).  The set `Z'` of `Gk = 𝔹_k(Z')` is built around a set `Y'` of the
+finer cube torus whose sites lie within the distance `D_h` of the cover `X`, and the generating set
+`Gj = 𝔹_j(X_j')` of the term is built on `X_j' ⊆ Y'`; the margin pays `D_h ≤ L^{m₁+k} c_D`:
+`(5 L + 13) c₁ + c_D + r₀ L ≤ (L - 2) L^{m₀+1}`. -/
+theorem bgFlSetting_castLocalB_far {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    {Gk0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
+    {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₃}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {a₁ ν c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ m₁ (k + 1))} {j₁ : ℕ}
+    (hB0 : BgSetting N Gp Gk0 Gj0 a₁ ν c BG κ r₀ eps δ₃ X₀' X₁f' j₁)
+    (hF0 : FlSetting N Gp Gk0 Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f'')
+    (hG : IsLevel Hm k) (hL : 2 ≤ L) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) {m₀ : ℕ}
+    {X 𝒦X : Set (CTorus d L N₁ m₁ (k + 1))} (hcov : CovSetup Gp m₀ j X 𝒦X)
+    {Y' Z' : Set (CTorus d L N₁' m₁' (k + 1))} {Dh : ℕ}
+    (hY' : ∀ y' ∈ Y', ∃ w ∈ X, supDist (torusCast y' : CTorus d L N₁ m₁ (k + 1)) w ≤ Dh)
+    {Xj' : Set (CTorus d L N₁' m₁' (k + 1))} (hXj' : Xj' ⊆ Y')
+    (hZ' : ∀ z' : CTorus d L N₁' m₁' (k + 1), z' ∈ Z' ↔ ∃ y' ∈ Y',
+      supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast z' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
+        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast y' : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L)
+    (hϱ₁ : bgR0 d L ≤ ϱ₁) (hϱ₂ : bgR0 d L ≤ ϱ₂) (hs₁ : ϱ₁ ≤ minSep L (L ^ m₁'))
+    (hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')) {c₁ cD : ℕ} (hm1 : L ^ m₁' ≤ L ^ m₁ * c₁)
+    (hD : Dh ≤ L ^ (m₁ + k) * cD)
+    (hm : (((5 * L + 13) * c₁ + cD : ℕ) : ℝ) + r₀ * L ≤ (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (m₀ + 1))
+    {X₁f : Finset (CTorus d L N₁ m₁ (k + 1))}
+    (hX₁ : (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ j 𝒦X) :
+    BgSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁))
+        (castG hc (localB j (by omega) Xj' hs₂)) a₁ ν c BG κ r₀ eps δ₃
+        (dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁))) X₁f j ∧
+      FlSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁)) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂
+        BG₂ δ₁ δfl X₁f := by
+  have hceq : N₁' * L ^ m₁' * L ^ (k + 1) = N₁ * L ^ m₁ * L ^ (k + 1) := by rw [hc]
+  have hZtop := Zset_hZ (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k + 1) (ϱ₂ := ϱ₁)
+    (Nat.le_succ k) hZ' (h₂ := hs₁)
+  have hZtopj : ∀ x : CTorus d L N₁' m₁' (k + 1), (∃ y ∈ Xj',
+      supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
+        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
+          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L) →
+      x ∈ (localB k (Nat.le_succ k) Z' hs₁).Ω k := fun x ⟨y, hy, hd⟩ => hZtop x ⟨y, hXj' hy, hd⟩
+  have hq' := localB_precedes_localB hL hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
+    (h₁ := hs₂)
+  have hcol' := localB_collar_subset hL hj1 hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
+    (h₁ := hs₂)
+  have hmar : ∀ x ∈ dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁)),
+      ∀ y : CTorus d L N₁ m₁ (k + 1),
+      Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y <
+        r₀ * (L : ℝ) ^ m₁ * (L : ℝ) ^ (k + 1) → y ∈ X₁f := by
+    intro x hx y hy
+    obtain ⟨y', hy'Z, hxy'⟩ := dataSites_castG_range hc (localB k (Nat.le_succ k) Z' hs₁) Z'
+      (11 * L ^ m₁' * L ^ k + 1) (fun x hx => localB_dataSites_range hL hx) hx
+    obtain ⟨w', hw'Y, hz'w'⟩ := Zset_dist_le (Nat.le_succ k) hZ' y' hy'Z
+    obtain ⟨w, hwX, hww⟩ := hY' w' hw'Y
+    have hsd : supDist (torusCast y' : CTorus d L N₁ m₁ (k + 1)) w ≤
+        (5 * L + 1) * (L ^ m₁' * L ^ k) + Dh := by
+      refine (supDist_triangle _ (torusCast w' : CTorus d L N₁ m₁ (k + 1)) _).trans ?_
+      rw [supDist_torusCast_val hceq]
+      exact Nat.add_le_add hz'w' hww
+    have hpos : 1 ≤ L ^ m₁' * L ^ k :=
+      Nat.mul_pos (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
+        (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
+    have hnat : (5 * L + 1) * (L ^ m₁' * L ^ k) + Dh + (11 * L ^ m₁' * L ^ k + 1) ≤
+        L ^ (m₁ + k) * ((5 * L + 13) * c₁ + cD) := by
+      have h1 : (5 * L + 13) * (L ^ m₁' * L ^ k) ≤ (5 * L + 13) * ((L ^ m₁ * c₁) * L ^ k) :=
+        Nat.mul_le_mul_left _ (Nat.mul_le_mul_right _ hm1)
+      have h2 : (5 * L + 1) * (L ^ m₁' * L ^ k) + (11 * L ^ m₁' * L ^ k + 1) ≤
+          (5 * L + 13) * (L ^ m₁' * L ^ k) := by
+        have : (5 * L + 13) * (L ^ m₁' * L ^ k) =
+            (5 * L + 1) * (L ^ m₁' * L ^ k) + 12 * (L ^ m₁' * L ^ k) := by ring
+        rw [this, show 11 * L ^ m₁' * L ^ k = 11 * (L ^ m₁' * L ^ k) by ring]
+        omega
+      have h3 : (5 * L + 13) * ((L ^ m₁ * c₁) * L ^ k) = L ^ (m₁ + k) * ((5 * L + 13) * c₁) := by
+        rw [pow_add]; ring
+      have h4 : L ^ (m₁ + k) * ((5 * L + 13) * c₁ + cD) =
+          L ^ (m₁ + k) * ((5 * L + 13) * c₁) + L ^ (m₁ + k) * cD := by ring
+      rw [h4]
+      omega
+    have hr := margin_arith_gen (L := L) (m₁ := m₁) (k := k) (m₀ := m₀) hL hnat hm
+    have hy1 := mem_X1_of_chain hG' hL hcov hxy' hsd hwX hy (by push_cast at hr ⊢; linarith)
+    rw [← Finset.mem_coe, hX₁]
+    exact hy1
+  have hB := bgSetting_of_data hB0 hG' hϱ₁ hϱ₂ (precedes_castG hc hq')
+    (collar_castG_subset hc hcol') (by omega : j ≤ k + 1) hmar
+  refine ⟨hB, flSetting_localGk hB hF0 hG' hG ?_⟩
+  ext x
+  simp only [Finset.notMem_empty, iff_false]
+  rw [mem_castG_Ω, localB_Ω_of_gt (Nat.lt_succ_self k)]
+  exact Finset.notMem_empty _
+
 /-- **`BgSetting` and `FlSetting` for `Gk = 𝔹_k(Z)` and `Gj = 𝔹_j(X_j)`, `X_j ⊆ X`, on the finer
 cube torus.**  The statement of `bgFlSetting_castLocalB` with the generating set `Gj` of the term
 built on a subset `X_j' ⊆ X'` (the cover and the set `Z'` stay those of `X`): `Gj ≺ Gk` and the
@@ -187,59 +280,10 @@ theorem bgFlSetting_castLocalB_gen {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁
         (castG hc (localB j (by omega) Xj' hs₂)) a₁ ν c BG κ r₀ eps δ₃
         (dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁))) X₁f j ∧
       FlSetting N Gp (castG hc (localB k (Nat.le_succ k) Z' hs₁)) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂
-        BG₂ δ₁ δfl X₁f := by
-  have hceq : N₁' * L ^ m₁' * L ^ (k + 1) = N₁ * L ^ m₁ * L ^ (k + 1) := by rw [hc]
-  have hZtop := Zset_hZ (d := d) (L := L) (N₁ := N₁') (m₁ := m₁') (k := k + 1) (ϱ₂ := ϱ₁)
-    (Nat.le_succ k) hZ' (h₂ := hs₁)
-  have hZtopj : ∀ x : CTorus d L N₁' m₁' (k + 1), (∃ y ∈ Xj',
-      supDist (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
-          (torusCast x : Torus d (L ^ m₁' * N₁' * L ^ (k + 1))))
-        (fineCubeIdx (L ^ m₁') N₁' L (k + 1) k
-          (torusCast y : Torus d (L ^ m₁' * N₁' * L ^ (k + 1)))) ≤ 5 * L) →
-      x ∈ (localB k (Nat.le_succ k) Z' hs₁).Ω k := fun x ⟨y, hy, hd⟩ => hZtop x ⟨y, hXj' hy, hd⟩
-  have hq' := localB_precedes_localB hL hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
-    (h₁ := hs₂)
-  have hcol' := localB_collar_subset hL hj1 hjk (Nat.le_succ k) (by omega : j ≤ k + 1) hZtopj
-    (h₁ := hs₂)
-  have hmar : ∀ x ∈ dataSites (castG hc (localB k (Nat.le_succ k) Z' hs₁)),
-      ∀ y : CTorus d L N₁ m₁ (k + 1),
-      Green.torusDist d ((N₁ * L ^ m₁) * L ^ (k + 1)) x y <
-        r₀ * (L : ℝ) ^ m₁ * (L : ℝ) ^ (k + 1) → y ∈ X₁f := by
-    intro x hx y hy
-    obtain ⟨y', hy'Z, hxy'⟩ := dataSites_castG_range hc (localB k (Nat.le_succ k) Z' hs₁) Z'
-      (11 * L ^ m₁' * L ^ k + 1) (fun x hx => localB_dataSites_range hL hx) hx
-    obtain ⟨w', hw'X, hz'w'⟩ := Zset_dist_le (Nat.le_succ k) hZ' y' hy'Z
-    have hw := (hX' w').1 hw'X
-    have hsd : supDist (torusCast y' : CTorus d L N₁ m₁ (k + 1)) (torusCast w') ≤
-        (5 * L + 1) * (L ^ m₁' * L ^ k) := by
-      rw [supDist_torusCast_val hceq]; exact hz'w'
-    have hpos : 1 ≤ L ^ m₁' * L ^ k :=
-      Nat.mul_pos (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
-        (pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) _)
-    have hnat : (5 * L + 1) * (L ^ m₁' * L ^ k) + (11 * L ^ m₁' * L ^ k + 1) ≤
-        L ^ (m₁ + k) * ((5 * L + 13) * c₁) := by
-      have h1 : (5 * L + 13) * (L ^ m₁' * L ^ k) ≤ (5 * L + 13) * ((L ^ m₁ * c₁) * L ^ k) :=
-        Nat.mul_le_mul_left _ (Nat.mul_le_mul_right _ hm1)
-      have h2 : (5 * L + 1) * (L ^ m₁' * L ^ k) + (11 * L ^ m₁' * L ^ k + 1) ≤
-          (5 * L + 13) * (L ^ m₁' * L ^ k) := by
-        have : (5 * L + 13) * (L ^ m₁' * L ^ k) =
-            (5 * L + 1) * (L ^ m₁' * L ^ k) + 12 * (L ^ m₁' * L ^ k) := by ring
-        rw [this, show 11 * L ^ m₁' * L ^ k = 11 * (L ^ m₁' * L ^ k) by ring]
-        omega
-      calc _ ≤ _ := h2
-        _ ≤ _ := h1
-        _ = _ := by rw [pow_add]; ring
-    have hr := margin_arith_gen (L := L) (m₁ := m₁) (k := k) (m₀ := m₀) hL hnat hm
-    have hy1 := mem_X1_of_chain hG' hL hcov hxy' hsd hw hy hr
-    rw [← Finset.mem_coe, hX₁]
-    exact hy1
-  have hB := bgSetting_of_data hB0 hG' hϱ₁ hϱ₂ (precedes_castG hc hq')
-    (collar_castG_subset hc hcol') (by omega : j ≤ k + 1) hmar
-  refine ⟨hB, flSetting_localGk hB hF0 hG' hG ?_⟩
-  ext x
-  simp only [Finset.notMem_empty, iff_false]
-  rw [mem_castG_Ω, localB_Ω_of_gt (Nat.lt_succ_self k)]
-  exact Finset.notMem_empty _
+        BG₂ δ₁ δfl X₁f :=
+  bgFlSetting_castLocalB_far hc hG' hB0 hF0 hG hL hj1 hjk hcov (Y' := X') (Dh := 0)
+    (fun y' hy' => ⟨_, (hX' y').1 hy', (supDist_self _).le⟩) hXj' hZ' hϱ₁ hϱ₂ hs₁ hs₂ (cD := 0) hm1
+    (by simp) (by simpa using hm) hX₁
 
 /-- **`BgSetting` and `FlSetting` for `Gk = 𝔹_k(Z)` and `Gj = 𝔹_j(X)` on the finer cube torus.**
 Let `N₁' L^{m₁'} = N₁ L^{m₁}` (`m₁' ≥ m₁` with `L^{m₁'} ≤ L^{m₁} c₁`), `X'` the set `X` and `Z'`

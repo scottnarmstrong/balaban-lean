@@ -98,6 +98,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
         (∀ τ, BgSetting N S.G' (Gk τ) (Gj τ) S.a₁ S.ν Tk.c Tk.BG Tk.κ (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) Tk.t (Q * Tk.t) (X₀ τ) (X₁f τ) τ.1.1) ∧
         (∀ τ, FlSetting N S.G' (Gk τ) (stepG d L N₁ Tk.m₁ k ϱ) S.a₁ S.ν Tk.κ Tk.BG Tk.t (Q * Tk.t)
           (levelKc d L) (Cchi d L) Tk.c₂ Tk.BG₂ (min Tk.t (η * P₀.eps d L k)) (F * min Tk.t (η * P₀.eps d L k)) (X₁f τ)) ∧
+        (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → ∀ τ : {τ // τ ∈ 𝒯E}, Gj τ = C.Tm.gs τ.1.1 τ.1.2.2) ∧
         ∀
         -- the composed step data of the labels lie in the term domain, `Ψ(y)·Ψ(y)` in the slit plane
         (_ : ∀ τ : {τ // τ ∈ 𝒯E}, ∀ (Fk : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →
@@ -181,10 +182,14 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
           ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
           (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
             rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
-          ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr
+          ∀ T', e θ' T' = e θ T') ∧ (NewLevelFormulaW S C z Jr
           ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * P₀.eps d L k), p₁, C.m₀,
             Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
-            F * min Tk.t (η * P₀.eps d L k)⟩ e := by
+            F * min Tk.t (η * P₀.eps d L k)⟩ e ∧
+          (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * P₀.eps d L k), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * P₀.eps d L k)⟩ e)) := by
   have h3d : (3 : ℝ) ≤ d := by exact_mod_cast hd
   have hLpos : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
   have hq0 : 0 < (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - γ)) := Real.rpow_pos_of_pos hLpos _
@@ -205,19 +210,23 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   obtain ⟨Jr, Hφ'⟩ := Hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ hϱ S hS
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
     hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
+  refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, hGjC, ?_⟩
   intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum
   obtain ⟨e, B, hcovE, h⟩ := @HG hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum
     (fun e _ => (∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
       ∀ θ ∈ physV S S.a₁ S.ν Tk.t, ∀ θ' ∈ physV S S.a₁ S.ν Tk.t,
       (θ'.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) =
         rotRaw (cmat Q) (θ.1 : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N) →
-      ∀ T', e θ' T' = e θ T') ∧ NewLevelFormula S C z Jr
+      ∀ T', e θ' T' = e θ T') ∧ (NewLevelFormulaW S C z Jr
           ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * P₀.eps d L k), p₁, C.m₀,
             Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
-            F * min Tk.t (η * P₀.eps d L k)⟩ e) (fun _ _ hc hnl _ => ⟨hc, hnl⟩)
+            F * min Tk.t (η * P₀.eps d L k)⟩ e ∧
+          (ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) → NewLevelFormula S C z Jr
+          ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, min Tk.t (η * P₀.eps d L k), p₁, C.m₀,
+            Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, Q * Tk.t, levelKc d L, Cchi d L, Tk.c₂,
+            F * min Tk.t (η * P₀.eps d L k)⟩ e))) (fun _ _ hc hnl _ => ⟨hc, hnl⟩)
   exact ⟨e, B, h.1, h.2.1, h.2.2, hcovE.1, hcovE.2⟩
 
 open Classical in
@@ -381,7 +390,7 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   obtain ⟨Jr, Hφ'⟩ := Hk N₁ h3N hN₁ ν hν0 hν β hβ p₁ hp0 hp₁ hϱ S hS
   refine ⟨Jr, ?_⟩
   intro C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
-  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
+  obtain ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, -, HG⟩ := @Hφ' C z 𝒯E h𝒯 P Dom hm hcl hE₀ i₀ i₁ hdom XL 𝒦X
     hXL h𝒦 hopt hN hm7 s hs hidx hmin hCm
   refine ⟨Gk, Gj, X₀, X₁f, hX₁, hBs, hFs, ?_⟩
   intro hchart Bτ hBτ hEbd CI KL α₃ n₁ hCI hKL hα₃ hEbI hEbL hE hεnum

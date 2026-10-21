@@ -700,6 +700,7 @@ public import Balaban.SmallField.RealizesUnique
 public import Balaban.SmallField.Def6Inhabited
 public import Balaban.SmallField.Def6ContInhabited
 public import Balaban.SmallField.Def6Terms
+public import Balaban.SmallField.PolyDomOpt
 public import Balaban.SmallField.Def6
 public import Balaban.SmallField.Def6BridgeDomain
 public import Balaban.SmallField.Def6BridgeLift
@@ -2915,6 +2916,7 @@ public import Balaban.Inhabited.StepTowerCoreFamUnique
 public import Balaban.Spine.Coherence
 public import Balaban.Spine.RootFInputs
 public import Balaban.Spine.Prefix
+public import Balaban.Spine.NewLevelTies
 public import Balaban.Spine.Activities
 public import Balaban.Spine.RootF
 public import Balaban.Spine.RootC
@@ -3179,3 +3181,16 @@ public import Balaban.Inhabited.NewLevelLocalClauses
 public import Balaban.Inhabited.NewLevelLocalCast
 public import Balaban.Fluctuation.OldTermClassDomain
 public import Balaban.Inhabited.NewLevelNumerics
+public import Balaban.SmallField.GsSpecHat
+public import Balaban.Fluctuation.OldTermsLiftHat
+public import Balaban.Fluctuation.HatSetGeom
+public import Balaban.Inhabited.ClassHatWitness
+public import Balaban.Inhabited.NewLevelOldTermsClass
+public import Balaban.Fluctuation.OldTermBirthDomain
+public import Balaban.Inhabited.NewLevelLocalFamilyClass
+public import Balaban.Inhabited.NewLevelHatLocal
+public import Balaban.Fluctuation.BirthMassFlow
+public import Balaban.Inhabited.NewLevelTowerFamily
+public import Balaban.Inhabited.NewLevelConstants
+public import Balaban.Inhabited.NewLevelLocalFamilyBirth
+public import Balaban.Inhabited.StepTowerRotChainBirth

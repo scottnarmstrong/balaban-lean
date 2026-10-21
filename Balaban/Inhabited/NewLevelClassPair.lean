@@ -147,7 +147,7 @@ theorem termPairPremisesAt_of_data
   rw [hX] at hX₁'
   have hhat := hatOf_boxMap (SA).hG' (SB).hG' hN2 hk νS β p₁ δ 1 NS.O.ρ NS.hp NS'.hp Φ Φ' hR
   refine ⟨NS.OS.cB, NS.O.BG, NS.O.κ, t', NS.OS.Kc, NS.OS.Cx, NS.OS.c₂, NS.O.BG₂, NS.O.δ₁,
-    NS.O.ρ, δc, NS.OS.XL τ, NS'.OS.XL τ', NS.OS.r₀, NS.OS.δ₃, NS.OS.δfl, NS.O.jL τ,
+    NS.O.ρ, δc, NS.O.XL τ, NS'.O.XL τ', NS.OS.r₀, NS.OS.δ₃, NS.OS.δfl, NS.O.jL τ,
     NS.OS.X₀ τ, NS'.OS.X₀ τ', R, Z, D, D', hDe, hDe', ⟨?_⟩⟩
   exact
     { eGA := rfl, eGB := rfl, eHA := rfl, eHB := rfl

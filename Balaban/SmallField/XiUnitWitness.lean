@@ -621,6 +621,41 @@ theorem xiDom_birth_of_realization [NeZero N] {G : GeneratingSet d L (N₁ * L ^
     hEpos
     hsm hc1 hμ ht1 htr hr hK hζ hee ⟨Ψ₀, h₀', _, h''', hxE, hRe D hR', hu⟩
 
+/-- **Core of `xiDom_birth_chart_unitfree`: a chart point of any scale and radius lies in the
+birth-mass domain.**  `D` realizes a member of `Ξ^c_j(𝔹; C₀, e)` at the step mass `ν`
+(`C₀ ≥ 1`, `e > 0`), with a possibly non-unit real witness; the layers above `j` are empty.  With
+`E₁ = C₀² e` the (DL-gap) is `(2 E₁ + 2 (N + 1) K₂ E₁²) (1 + K_m τ) ≤ ε_j`,
+`K_m = 1 + 16 (N + 1) K₂`, and the smallness conditions are stated at `ε_j`. -/
+theorem xiDom_birth_chart_unitfree_gen [NeZero N] {G : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {A : ℕ → ℝ} {ν μ C₀ e εj τ r t : ℝ} {j : ℕ} (H : BgHyp d L k ϱ A ν)
+    (H' : BgHyp d L k ϱ A μ) (hΩ : G.Ω (j + 1) = ∅) (hσ : 1 ≤ C₀) (he : 0 < e)
+    (hμ : μ = ν * (1 + t)) (ht : |t| ≤ τ) (hτr : τ < r) (hr : r ≤ 1 / 16)
+    (hDL : (2 * (C₀ ^ 2 * e) + 2 * ((N : ℝ) + 1) * (cK2 d L N * (C₀ ^ 2 * e) ^ 2)) *
+      (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τ) ≤ εj)
+    (hsmε : (4 * d + 6) * ((2 * d + 1) * εj) ≤ 1) (hc1ε : 4 * (xiC1 d * εj) ≤ bgC1 d L N)
+    (hKε : bgK1 d L N * (xiC1 d * εj) + 3 * r ≤ deltaStar d L N)
+    (hζε : 8 * εj * r ≤ deltaStar d L N)
+    {D : BgData G N} (hD : Localization.XiCData G A ν j C₀ e D) :
+    Def6.XiDom G A μ j εj D.Ψ D.h := by
+  have hd : 0 < d := by have := H.hd; omega
+  have hC : 0 < scaledC0 d := by unfold scaledC0; positivity
+  have hQ := cK2_pos d L N
+  have hC₀ : 0 < C₀ := by linarith
+  have hE₁ : 0 < C₀ ^ 2 * e := by positivity
+  set E₁ := C₀ ^ 2 * e with hE₁def
+  set E := 2 * E₁ + 2 * ((N : ℝ) + 1) * (cK2 d L N * E₁ ^ 2) with hEdef
+  have hEq : scaledC0 d ^ 2 * (scaledC0 d ^ 2 * (E / scaledC0 d ^ 4) + xiK2 d L N * 0 +
+      xiK2 d L N * 0) = E := by
+    have : scaledC0 d ≠ 0 := hC.ne'
+    field_simp
+    ring
+  obtain ⟨n0, n1, n2, n3, n4, n5, n6, n7⟩ := chart_numerics (L := L) (N := N) hd
+    (eps := E / scaledC0 d ^ 4) (δ₃ := 0) (δfl := 0) (by positivity) le_rfl le_rfl ht hτr hr
+    (by rw [hEq]; exact hDL) hsmε hc1ε hKε hζε
+  rw [hEq] at n1 n2 n5 n6 n7
+  exact xiDom_birth_of_realization (C₀ := C₀) (e₁ := E₁) (E := E) H H' hΩ hσ le_rfl hE₁ rfl
+    n1 n2 hμ n3 n4 hr n5 n6 n7 hD
+
 /-- **The chart point lies in the birth-mass domain, without the unit-witness hypothesis**
 (decision D2(b)).  The chart data of `ClassOldCover.hchart`: `D` realizes a member of
 `Ξ^c_j(𝔹; C₀, e)` at the step mass `ν`, `C₀ = scaledC0 d`, `e = C₀² ε′ + K₂ δ₃ + K₂ δfl`, with
@@ -648,23 +683,13 @@ theorem xiDom_birth_chart_unitfree [NeZero N] {G : GeneratingSet d L (N₁ * L ^
   have hC : 0 < scaledC0 d := by unfold scaledC0; positivity
   have hQ := cK2_pos d L N
   have hK2 : 0 < xiK2 d L N := by unfold xiK2; positivity
-  have hE₁ : 0 < scaledC0 d ^ 2 *
-      (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) := by positivity
-  set E₁ := scaledC0 d ^ 2 * (scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)
-    with hE₁def
-  set E := 2 * E₁ + 2 * ((N : ℝ) + 1) * (cK2 d L N * E₁ ^ 2) with hEdef
-  have hE0 : 0 < E := by rw [hEdef]; positivity
-  have hEq : scaledC0 d ^ 2 * (scaledC0 d ^ 2 * (E / scaledC0 d ^ 4) + xiK2 d L N * 0 +
-      xiK2 d L N * 0) = E := by
-    have : scaledC0 d ≠ 0 := hC.ne'
-    field_simp
-    ring
-  obtain ⟨n0, n1, n2, n3, n4, n5, n6, n7⟩ := chart_numerics (L := L) (N := N) hd
-    (eps := E / scaledC0 d ^ 4) (δ₃ := 0) (δfl := 0) (by positivity) le_rfl le_rfl ht hτr hr
-    (by rw [hEq]; exact hDL) hsmε hc1ε hKε hζε
-  rw [hEq] at n1 n2 n5 n6 n7
-  exact xiDom_birth_of_realization (C₀ := scaledC0 d) (e₁ := E₁) (E := E) H H' hΩ
-    (one_le_scaledC0 d) le_rfl hE₁ rfl n1 n2 hμ n3 n4 hr n5 n6 n7 hD
+  have he : 0 < scaledC0 d ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl := by
+    have := mul_nonneg hK2.le hδ₃
+    have := mul_nonneg hK2.le hδfl
+    have := mul_pos (pow_pos hC 2) heps
+    linarith
+  exact xiDom_birth_chart_unitfree_gen H H' hΩ (one_le_scaledC0 d) he hμ ht hτr hr
+    hDL hsmε hc1ε hKε hζε hD
 
 /-- **`hchart` at the birth mass, without the unit-witness hypothesis.**  The raw data of the chart
 `Ξ^c_j(𝔹; C₀, e)` at the step mass `ν` lie in `xiFieldDom A μ ε`, under the (DL-gap) of

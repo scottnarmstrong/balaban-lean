@@ -443,12 +443,14 @@ theorem isSF2_eTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : ℕ
     (hc : ∀ j, 20 * cj j ≤ P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hB : ∀ j, 1 ≤ j → ∀ (hjk : j ≤ k) Ψ h, Dom.dom j (levelGS j hjk) Ψ h → ∀ x, vn (h x) ≤ 2)
-    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
+    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k))
+    (hm : P.m₀ ≤ GsSpec.hatScale L m₁ ϱ) :
     IsSF2 P Rg β a Dom (eTerms d L N₁ m₁ k N ϱ P cj)
       (rho2 P Rg β a (eTerms d L N₁ m₁ k N ϱ P cj) 0) 0 := by
   refine isSF2_rho2 (eTerms_clauses hE₀ hκ hc0 hc hc9 hB)
     (fun j hj1 hjk X _ => by
-      rw [eTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X) ?_
+      rw [eTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X)
+    (fun _ _ _ _ _ => GsSpec.hatSpec_of_le hm) ?_
   intro Ψ₀ h₀ g D hD
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
@@ -554,6 +556,7 @@ theorem isSFFamily2_xi_witness_E (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 
         (wide_eps_le k j) (fun x => ?_) (hd : XiDom _ _ _ _ _ Ψ h) x
       simp [levelGS, hj1])
     (bgHyp_of_class2 (eConsts_admissible (wideα₀_pos k)) (eConsts_coeff k) le_rfl le_rfl hϱ)
+    (by simp [eConsts, witnessConsts])
   torusIndep := torusIndep_eTerms (by norm_num) (by norm_num) _ _
   renorm := fun _ _ _ => renormCond_eTerms _ _ _ _ _
 

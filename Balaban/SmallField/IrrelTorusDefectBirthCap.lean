@@ -143,7 +143,8 @@ theorem IsSFFamily2.exists_levelOnly_cap
     · refine
         { density := ?_
           terms := hclauses N₁
-          gsStrong := ?_ }
+          gsStrong := ?_
+          hat := ?_ }
       · intro Ψ₀ h₀ g D _ _ _
         have hX : ¬ Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg'.sfBgMass k) k 1
             ({ P with p := fun _ => 0, c₉ := |P.c₉| + 1, νbar := Real.exp 2 * P.νbar }.p
@@ -157,6 +158,9 @@ theorem IsSFFamily2.exists_levelOnly_cap
         simp
       · intro i hi1 hik X hX
         have := (hF.torus N₁).gsStrong i hi1 hik X hX
+        rwa [← hgs N₁] at this
+      · intro i hi1 hik X hX
+        have := (hF.torus N₁).hat i hi1 hik X hX
         rwa [← hgs N₁] at this
     · exact TorusIndep.levelOnly hF.torusIndep hE hE0
     · by_cases hij : i = j

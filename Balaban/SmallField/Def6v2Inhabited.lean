@@ -368,12 +368,14 @@ noncomputable def rho2 (P : Consts) (Rg : Regime L) (β a : ℕ → ℝ) (Tm : T
   then Real.exp (expo2 P Rg β a Tm Ek (Classical.choose hX.2.2) (fun x i => (g x i : ℂ))).re
   else 0
 
-/-- Terms satisfying the term clauses and whose exponent is real at the real data of the support
-of `χ_k` form a member of `IsSF2`, with the density `rho2`. -/
+/-- Terms satisfying the term clauses, the specifications `GsSpecStrong` and `HatSpec` of their
+generating sets, and whose exponent is real at the real data of the support of `χ_k` form a member
+of `IsSF2`, with the density `rho2`. -/
 theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : FieldDom d L N₁ m₁ k N ϱ}
     {Tm : Terms d L N₁ m₁ k N ϱ} {Ek : ℝ} (hT : SFTermClauses P Dom Tm)
     (hS : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
       GsSpec.GsSpecStrong j hjk X (Tm.gs j X))
+    (hH : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X → GsSpec.HatSpec P.m₀ j X (Tm.gs j X))
     (hreal : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (g : CTorus d L N₁ m₁ k → Fin N → ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N),
       XiAt (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
@@ -382,6 +384,7 @@ theorem isSF2_rho2 {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {Dom : Fiel
     IsSF2 P Rg β a Dom Tm (rho2 P Rg β a Tm Ek) Ek where
   terms := hT
   gsStrong := hS
+  hat := hH
   density := by
     intro Ψ₀ h₀ g D _ hD _
     classical
@@ -420,18 +423,21 @@ theorem composedPair_h_im {a : ℕ → ℝ} {ν : ℝ} {D : BgData (topGS d L N�
   · simp
 
 /-- **The field-dependent terms form a member of `IsSF2`** on every field domain on which the
-field is bounded by `2`, for every regime, with the density `rho2`. -/
+field is bounded by `2`, for every regime, with the density `rho2`, when the cubes of the local sets
+are not finer than the cells (`m₀ ≤ hatScale`; the whole-level generating sets). -/
 theorem isSF2_pinTerms {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ} {cj : ℕ → ℝ}
     {Dom : FieldDom d L N₁ m₁ k N ϱ} (hE₀ : 0 ≤ P.E₀) (hκ : 0 ≤ P.κ) (hc0 : ∀ j, 0 ≤ cj j)
     (hc : ∀ j, 20 * cj j ≤ P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hc9 : ∀ j, 0 < P.c₉ * ((L : ℝ) ^ j)⁻¹ ^ (((d : ℝ) - 2) / 2 + P.γ - P.α₁))
     (hB : ∀ j, cj j ≠ 0 → ∀ G Ψ h, Dom.dom j G Ψ h → ∀ x, vn (h x) ≤ 2)
-    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k)) :
+    (H : BgHyp d L k ϱ (aIdeal L k (a k)) (Rg.sfBgMass k))
+    (hm : P.m₀ ≤ GsSpec.hatScale L m₁ ϱ) :
     IsSF2 P Rg β a Dom (pinTerms d L N₁ m₁ k N ϱ P.κ cj)
       (rho2 P Rg β a (pinTerms d L N₁ m₁ k N ϱ P.κ cj) 0) 0 := by
   refine isSF2_rho2 (pinTerms_clauses hE₀ hκ hc0 hc hc9 hB)
     (fun j hj1 hjk X _ => by
-      rw [pinTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X) ?_
+      rw [pinTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X)
+    (fun _ _ _ _ _ => GsSpec.hatSpec_of_le hm) ?_
   intro Ψ₀ h₀ g D hD
   have hDh : ∀ x i, (D.h x i).im = 0 := realizes_h_im hD.1
   have h1 := im_Fcomp_zero H hD.2.1 P.m₀ g
@@ -551,6 +557,7 @@ theorem isSFFamily2_xi_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 �
     (fun _ => le_rfl) (fun j => by simpa using (witness_c9_pos α₀ j).le) (witness_c9_pos α₀)
     (fun j hj => absurd rfl hj)
     (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
+    (by simp [witnessConsts])
   torusIndep := torusIndep_pinTerms _ _ _
   renorm := fun _ _ _ => renormCond_pinTerms _ _ _ _ _ _
 
@@ -576,6 +583,7 @@ theorem isSFFamily2_pin_witness (m₁ k k₀ : ℕ) (ϱ : ℝ) (hϱ : bgR0 3 3 �
           (physMass 3 k (witnessν k k)) j ((witnessConsts α₀).eps 3 3 j) Ψ h := hd
       linarith [hp.vn_lt x])
     (bgHyp_of_class2 (witnessConsts_admissible hα) (witness_coeff k) le_rfl le_rfl hϱ)
+    (by simp [witnessConsts])
   torusIndep := torusIndep_pinTerms _ _ _
   renorm := fun _ _ _ => renormCond_pinTerms _ _ _ _ _ _
 
@@ -602,6 +610,7 @@ theorem isSFFamily2_of_landed_witness (m₁ k j k₀ : ℕ) (ϱ : ℝ) (hϱ : bg
   exact ⟨_, (isSFFamily_witness m₁ k j ϱ hϱ).toXi k₀
     (fun N₁ _ j hj1 hjk X _ => by
       rw [Def6.zeroTerms_gs hjk]; exact GsSpec.levelGS_strong hj1 hjk X)
+    (fun _ _ _ _ _ _ _ => GsSpec.hatSpec_of_le (by simp [witnessConsts]))
     (physMass_eq_bgMass_of_lt hβν)⟩
 
 /-- **The source form of the field-dependent member** (`ν_j > 0`): the reparametrized source

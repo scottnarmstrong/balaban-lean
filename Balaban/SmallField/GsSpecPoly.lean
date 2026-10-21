@@ -13,7 +13,7 @@ public import Balaban.SmallField.GsSpecStrong
 * `isPolyDom_blockUnion`: a set with a chosen family of `π'_j`-cubes (`ChosenOne`, in particular
   every polymer of `𝒟_j`, P1 (2.26)) is a union of `j`-blocks (`cellSide L m₀ m₁ j = L ^ (j + m₀ + m₁)`
   is a multiple of `L ^ j`, `L_pow_dvd_cellSide`);
-* `torusCast`, `castG`: the identification of the fine torus `Torus d (1 * (N₁ L ^ m₁) * L ^ k)` of
+* `castG` (with `torusCast`, `GsSpecHat`): the identification of the fine torus `Torus d (1 * (N₁ L ^ m₁) * L ^ k)` of
   P3's minimal set (`M1 = 1`, `N₁' = N₁ L ^ m₁`, `q = k`) with `CTorus d L N₁ m₁ k`;
 * `polyGS`: the minimal generating set `𝔹_j(X)` (P3 (4.4)-(4.6)) of a set `X` of `CTorus`;
 * `gsSpecCore_polyGS`, `gsSpecStrong_polyGS`: for a polymer `X ∈ 𝒟_j` it satisfies the core and
@@ -79,20 +79,6 @@ end Block
 section Cast
 
 variable {d L k : ℕ} [NeZero L]
-
-/-- The identification of two tori with equal side (`ZMod` coordinates through their values). -/
-def torusCast {a b : ℕ} (y : Torus d a) : Torus d b := fun μ => (((y μ).val : ℕ) : ZMod b)
-
-theorem torusCast_torusCast {a b : ℕ} [NeZero a] [NeZero b] (h : a = b) (y : Torus d a) :
-    (torusCast (torusCast y : Torus d b) : Torus d a) = y := by
-  subst h
-  funext μ
-  simp [torusCast]
-
-theorem torusCast_val {a b : ℕ} [NeZero a] (h : a = b) (y : Torus d a) (μ : Fin d) :
-    ((torusCast y : Torus d b) μ).val = (y μ).val := by
-  subst h
-  simp [torusCast]
 
 /-- Transport of a generating set along an equality of coarse sides `N₀' = N₀`. -/
 def castG {N₀' N₀ : ℕ} [NeZero N₀'] [NeZero N₀] {ϱ : ℝ} (h : N₀' = N₀)

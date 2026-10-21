@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.InheritedBound
 public import Balaban.Fluctuation.OldTermsLiftDomBirthFamily
 public import Balaban.Fluctuation.LocalClassInherit
+public import Balaban.Fluctuation.OldTermsLiftHat
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -107,6 +108,7 @@ theorem exists_isSF2_of_real {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
     (hterms : SFTermClauses P Dom Tm)
     (hgs : ∀ j, 1 ≤ j → ∀ hjk : j ≤ k, ∀ X, IsPolyDom P.m₀ j X →
       GsSpec.GsSpecStrong j hjk X (Tm.gs j X))
+    (hhat : ∀ j, 1 ≤ j → j ≤ k → ∀ X, IsPolyDom P.m₀ j X → GsSpec.HatSpec P.m₀ j X (Tm.gs j X))
     (hreal : ∀ (Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ) (h₀ : Fin N → ℝ)
       (g : CTorus d L N₁ m₁ k → Fin N → ℝ) (D : BgData (topGS d L N₁ m₁ k ϱ) N),
       h₀ ∈ Dom.phys → Realizes D Ψ₀ h₀ → Def6.l1 (fun x i => (g x i : ℂ)) < 1 →
@@ -119,7 +121,7 @@ theorem exists_isSF2_of_real {P : Consts} {Rg : Regime L} {β a : ℕ → ℝ}
       (if Xi (topGS d L N₁ m₁ k ϱ) (aIdeal L k (a k)) (Rg.sfBgMass k) k 1
           (P.p (β k) / Real.sqrt (β k)) Ψ₀ h₀ then
         (Complex.exp (expo2 P Rg β a Tm Ek hD.choose (fun x i => (g x i : ℂ)))).re else 0)
-      else 0, ⟨fun Ψ₀ h₀ g D hph hR hg => ?_, hterms, hgs⟩⟩
+      else 0, ⟨fun Ψ₀ h₀ g D hph hR hg => ?_, hterms, hgs, hhat⟩⟩
   have hD : ∃ D : BgData (topGS d L N₁ m₁ k ϱ) N, Realizes D Ψ₀ h₀ := ⟨D, hR⟩
   have hDc : hD.choose = D := realizes_unique hD.choose_spec hR
   simp only [hD, dite_eq_left, hDc]
@@ -218,6 +220,8 @@ theorem sfSucc_core {P6 Pc : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
       IsPolyDom P6.m₀ (k + 1) X → GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X))
+    (hhatnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
+      IsPolyDom P6.m₀ (k + 1) X → GsSpec.HatSpec P6.m₀ (k + 1) X ((sf'.Tm N₂).gs (k + 1) X))
     (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
     (hR' : RenormCondAlong P6.m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1) (torusSeq L P6.m₀)
       (fun n => torusSeq_ne_zero P6.m₀ n))
@@ -278,11 +282,16 @@ theorem sfSucc_core {P6 Pc : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
           rw [newLevelTerms_gs _ h]
           exact hgsnew N₂ hN X hX)
       (fun j hj => (hTm N₂ j hj).2.2) (fun j hj => (newLevelTerms_gs _ hj).symm)
+  have hhat : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ j, 1 ≤ j → j ≤ k + 1 → ∀ X,
+      IsPolyDom P6.m₀ j X → GsSpec.HatSpec P6.m₀ j X ((sf'.Tm N₂).gs j X) := fun N₂ _ hN =>
+    hatSpec_splice (Tm := sf.Tm (L * N₂)) (Tnew := sf'.Tm N₂)
+      (htorOld (L * N₂) (readTorus_mul hN)).hat (hhatnew N₂ hN)
+      (fun j hj => (hTm N₂ j hj).2.2) rfl
   have htor : ∀ (N₂ : ℕ) [NeZero N₂], ∃ ρ, ReadTorus L P6.m₀ N₂ →
       IsSF2 P6 ⟨k0, sf'.ν⟩ sf'.β sf'.a (sfDom P6 k0 sf' N₂) (sf'.Tm N₂) ρ (sf'.E N₂) := by
     intro N₂ _
     by_cases hN : ReadTorus L P6.m₀ N₂
-    · obtain ⟨ρ, hρ⟩ := exists_isSF2_of_real (hterms N₂ hN) (hgs N₂ hN)
+    · obtain ⟨ρ, hρ⟩ := exists_isSF2_of_real (hterms N₂ hN) (hgs N₂ hN) (hhat N₂ hN)
         fun Ψ₀ h₀ g D _ hR hg hX => hreal N₂ hN Ψ₀ h₀ g D hR hg hX
       exact ⟨ρ, fun _ => hρ⟩
     · exact ⟨fun _ _ _ => 0, fun h => absurd h hN⟩
@@ -359,6 +368,8 @@ theorem sfSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
       SFTermClauses P6 (sfDom P6 k0 sf' N₂) (newLevelTerms (sf'.Tm N₂)))
     (hgsnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
       IsPolyDom P6.m₀ (k + 1) X → GsSpec.GsSpecStrong (k + 1) le_rfl X ((sf'.Tm N₂).gs (k + 1) X))
+    (hhatnew : ∀ (N₂ : ℕ) [NeZero N₂], ReadTorus L P6.m₀ N₂ → ∀ (X : Set (CTorus d L N₂ m₁ (k + 1))),
+      IsPolyDom P6.m₀ (k + 1) X → GsSpec.HatSpec P6.m₀ (k + 1) X ((sf'.Tm N₂).gs (k + 1) X))
     (hTInew : TorusIndep P6.m₀ (fun N₂ _ => newLevelTerms (sf'.Tm N₂)))
     (hC' : CoeffBounds d L (k + 1) P6 sf'.β sf'.ν sf'.a)
     (hR' : RenormCondAlong P6.m₀ (k + 1) (sf'.ν (k + 1)) sf'.Tm (k + 1) (torusSeq L P6.m₀)
@@ -386,7 +397,7 @@ theorem sfSucc_clauses {P6 : Def6.Consts} {k0 : ℕ} {a β ν : ℝ}
     (hadm := hfam.admissible) (hC := hfam.coeff) (hνk910 := h910)
     (htorOld := fun N₂ _ hN => hfam.torus N₂ hN) (hTIold := hfam.torusIndep)
     (hrenOld := hfam.renorm) (hD8 := hD8) (hfree := hfree) (hrun := hrun) (hcst := hcst)
-    (hfree' := hfree') (hTm := hTm) (hnew := hnew) (hgsnew := hgsnew) (hTInew := hTInew)
+    (hfree' := hfree') (hTm := hTm) (hnew := hnew) (hgsnew := hgsnew) (hhatnew := hhatnew) (hTInew := hTInew)
     (hR' := hR') (hreal := hreal) (hD8new := hD8new)
   exact ⟨⟨⟨ρ', ⟨hfam.admissible, hC', hρ', hTI, hren⟩⟩, hRt⟩, hD8',
     ⟨hC'.beta_gt, hC'.nu_pos, hC'.nu_le, hk0⟩⟩
