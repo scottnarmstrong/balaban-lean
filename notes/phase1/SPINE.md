@@ -855,6 +855,11 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
   3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
   `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+  **`SFZInput` (W1154c, 2026-10-21; `Spine/SFZ.lean`).** Spine-local named input of the form `SFImageInput`: the image of
+  the small-field data has `|z_{k+1} − 1| ≤ c₁₀ ε_{k+1}` (P4 (4.1), (5.2), p. 698: `z_{k+1} = 1 + ζ`, `ξ₁ = ζ/ε_{k+1}`,
+  `|ξ₁| < ε ≤ c₁₀`); inhabited (`sfZInput_of_z_eq_one`, `exists_sfZInput`). It is part of the output of the
+  renormalization and **joins A4-1c (`SFRenormInput`) when the renormalization provider is built**. It discharges the
+  premise `|z − 1| ≤ ε/3` of `H7MixedDatumLoc2` with `ε_{k+1} ≤ ε/(3c₁₀)` from the constants.
   **Update (W1154c, item (5)).** `Spine/LFOldBD7.lean`: the clauses `support`, `loc_field`, `real`, `rot`, `analytic` of the
   old part at an output label are PROVED generically (`oldBAtAt_eq_zero_of_not_valid`, `oldBAtAt_congr_fields`, `oldBAtAt_im`,
   `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at

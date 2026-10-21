@@ -3008,6 +3008,7 @@ public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
+public import Balaban.Spine.SFZ
 public import Balaban.Spine.FrozenSFClauses
 public import Balaban.Spine.FrozenSFBudget
 public import Balaban.Spine.FrozenSFImage
