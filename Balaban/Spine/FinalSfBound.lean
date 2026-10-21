@@ -136,6 +136,10 @@ theorem torusCast_injective' {d a b : ℕ} (h : a = b) :
     Function.Injective (torusCast (d := d) h) := by
   subst h; exact fun _ _ hxy => hxy
 
+theorem torusCast_surjective' {d a b : ℕ} (h : a = b) :
+    Function.Surjective (torusCast (d := d) h) := by
+  subst h; exact fun y => ⟨y, rfl⟩
+
 /-- A finite sum of nonnegative terms over the image of an injective map is at most the full sum. -/
 theorem sum_comp_injective_le {α β : Type*} [Fintype α] [Fintype β] [DecidableEq β] {φ : α → β}
     (hφ : Function.Injective φ) (F : β → ℝ) (hF : ∀ b, 0 ≤ F b) :
