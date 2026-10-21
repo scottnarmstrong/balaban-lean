@@ -1306,6 +1306,15 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `kappaH_ge_of_D6Flat` (`κ ≥ A₂λ_{k₀}^{p₂} + H_k|Z|_k + log C_k(a) + Σ log C_dec(ϰ)`), `pkgBound_lfSrc` ((1.26) for the source operator,
      `D5Bound`), **`sum_exp_neg_kappa_lfSrc_le`** (`Σ_{r : r.1 = Y} e^{-κ(r)} ≤ e^{-A₂λ_{k₀}^{p₂} - H_k|Y|_k}`, `D6Flat` and Lemma II.5.15 with
      labels, `sum_inv_logC_labelled_canonical`).
+   * **B3 (A6-4, the product form of the operators over the records; 2026-10-21).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFProduct.lean`: the global variables `GVar` (scale `j < k`, kind,
+     `j`-block), `gIsSpin`, `GCfgOn`, `gcfgMeasure`; `gImage`, `subCfgEquiv`, `measurePreserving_subCfgEquiv`, `restrictOn`; `famEquiv`,
+     `measurePreserving_famEquiv`, `famEquiv_symm_apply` (disjoint variable images: the configurations of a family are those of the
+     union); **`gOp_eq_integral_gcfg`**; `varSet_localHistory_subset`, `gImage_disjoint` (Lemma II.5.9 (b)); `symVar_refl_val`,
+     `relVal_refl_subCfgEquiv`, `relOut_refl_outOf`, `relG_refl`; `recPkg`, `recVars`, `recW` (operator, variables and weight of a
+     realized record); `gImage_postOp_eq`, `postOp_w_eq_recW` (kernel locality); `compRec_mem_lfAllRecs`, `recOfComp`,
+     `recOfComp_injective`, `pairwise_disjoint_postOp`, `recVars_recOfComp_subset`; **`gOp_postOp_eq_prod_recW`** (for a history of the
+     large-field half, `𝕋[F] = ∫ dz Π_c recW(r_c)(ψ_k, z|_{r_c}) F(z)` over the configurations of the union of the component variables).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
