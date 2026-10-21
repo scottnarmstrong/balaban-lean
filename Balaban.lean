@@ -2953,6 +2953,7 @@ public import Balaban.Spine.RootFInputs
 public import Balaban.Spine.Prefix
 public import Balaban.Spine.NewLevelTies
 public import Balaban.Spine.NewLevelTiesFamilies
+public import Balaban.Spine.NewLevelAssembly
 public import Balaban.Spine.Activities
 public import Balaban.Spine.RootF
 public import Balaban.Spine.RootC
