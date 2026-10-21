@@ -6,15 +6,25 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Spine.LFOldDatumGeo
+public import Balaban.Background.DataPatchChart
 
 /-!
-# The datum of the local pair from the cube tests of the target H7 domain (target (3) of W1154d)
+# The datum of the local pair from the cube tests of the target H7 domain (target (3) of W1154d, (3a) of W1154e)
 
-`inDomainC_holeStepLoc2_of_h7Near`: **the case analysis and proof of `H7MixedDatumLoc2`** for local
-sets whose data sites lie over cubes of `Ω^{∼3}_{k+1}`, at a target history `a` whose holes at scale
-`k + 1` contain every cube off `Ω_{k+1}` (ruling R17: the pre-`R` records `globalLHPre`; or `globalLH`
-without a removal at scale `k + 1`).  Each data site is read by the cube test at its cube of `𝕋_{k+1}`
-(`Δ'^c_{k+1}` near a hole, `Δ^c_{k+1}` otherwise); the splits patch by `inDomainC_of_patch_scaled`.
+`inDomainC_holeStepLoc2_of_h7`: **the case analysis and proof of `H7MixedDatumLoc2`** for any local set
+`V`, at a target history `a` whose holes at scale `k + 1` contain every cube off `Ω_{k+1}` (ruling R17:
+the pre-`R` records `globalLHPre`; or `globalLH` without a removal at scale `k + 1`), provided the data
+sites of `G′_V` farther than `3` cubes from `Ω_{k+1}` lie over cubes of `𝕋_k` outside the holes of
+scale `k` (`hfar`).  Each data site is read by one cube test, its *chart*:
+
+* over a cube `□` of `𝕋_{k+1}` in `Ω^{∼3}_{k+1}`: `Δ'^c_{k+1}(□)` when `□` is within `3` cubes of a hole,
+  `Δ^c_{k+1}(□)` otherwise (then `□^{∼3} ⊂ Ω_{k+1}`);
+* over a cube of `𝕋_{k+1}` outside `Ω^{∼3}_{k+1}`: `Δ^c_k(□_k)` at its cube `□_k` of `𝕋_k` (a cube set of
+  `𝕋_k` on the torus of scale `k`, read through `toCubeK`); the site and its interface partners lie off
+  `Ω_{k+1}`, where the datum is `ψ_k`.
+
+The splits of the charts patch by `inDomainC_of_patch_scaled`; the conditions at one chart are
+`Background.chartSplit_spec`.
 -/
 
 @[expose] public section
@@ -33,18 +43,19 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (g : Geo S n R M) (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
 
 /-- **The datum of the local pair of reading HS-2 from the cube tests of the target H7 domain** (the
-case analysis of `H7MixedDatumLoc2`, for local sets whose data sites lie over cubes of `Ω^{∼3}_{k+1}`):
-the target H7 domain of scale `k + 1` at a history `a` whose top region is `Ω_{k+1}` and whose holes at
-scale `k + 1` contain every cube off `Ω_{k+1}` (`hholes`: the pre-`R` records of ruling R17,
-`globalLHPre`, or `globalLH` without a removal at `k + 1`), at a set `Y_f` containing the cubes of the data
-sites (`CubesOfIn`).  Each data site `x` of `G′_V` is read by the test at its cube `□ = □(x)` of `𝕋_{k+1}`:
-`Δ'^c_{k+1}(□)` (the pair `(ψ_k, ψ_{k+1})`, `Ψ̃^c(ε_k, ε_k)`) when `□` is within `3` cubes of a hole,
-`Δ^c_{k+1}(□)` (`ψ_{k+1}`, `Ψ̃^c(ε_{k+1}, ε_{k+1})`) otherwise, where `□ ⊂ Ω_{k+1}`; the test reads every
-interface partner of `x` (their cubes are within one cube).  The splits patch
-(`inDomainC_of_patch_scaled`, `θ = z ψ_{k+1}` on `Ω_{k+1}`, `|z - 1| ≤ η`) into
+case analysis of `H7MixedDatumLoc2`): the target H7 domain of scale `k + 1` at a history `a` whose top
+region is `Ω_{k+1}` and whose holes at scale `k + 1` contain every cube off `Ω_{k+1}` (`hholes`: the
+pre-`R` records of ruling R17, `globalLHPre`, or `globalLH` without a removal at `k + 1`), at a set `Y_f`
+containing the cubes of the data sites (`CubesOfIn`), with the data sites of `G′_V` over cubes of `𝕋_{k+1}`
+outside `Ω^{∼3}_{k+1}` lying over cubes of `𝕋_k` outside the holes `(Ω^c_k)^{∼3}` of scale `k` (`hfar`).
+Each data site `x` is read by the test of its chart: `Δ'^c_{k+1}(□)` (the pair `(ψ_k, ψ_{k+1})`,
+`Ψ̃^c(ε_k, ε_k)`) or `Δ^c_{k+1}(□)` (`ψ_{k+1}`, `Ψ̃^c(ε_{k+1}, ε_{k+1})`) at its cube `□` of `𝕋_{k+1}` when
+`□ ∈ Ω^{∼3}_{k+1}` (according as `□` is within `3` cubes of a hole or not), `Δ^c_k(□_k)` (`ψ_k`,
+`Ψ̃^c(ε_k, ε_k)`) at its cube `□_k` of `𝕋_k` otherwise; each test reads every interface partner of `x`.
+The splits patch (`inDomainC_of_patch_scaled`, `θ = z ψ_{k+1}` on `Ω_{k+1}`, `|z - 1| ≤ η`) into
 `Ψ̃^c(3δ₁ + 2ε_k, 3δ₁ + 2ε_k)`, `δ₁ = scaledTol ε_k ε_k η`, under condition (R4) for `h₀` and the mass
-condition `hmass` (small mass, or `ν ≤ μ_{k+1}` with `2 ε_k² ≤ δ₁²`). -/
-theorem inDomainC_holeStepLoc2_of_h7Near (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+condition `hmass` (small mass, or `ν ≤ μ_{k+1}`, `ν ≤ μ_k` with `2 ε_k² ≤ δ₁²`). -/
+theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
     (a : LocalHistory S n M K)
@@ -57,12 +68,13 @@ theorem inDomainC_holeStepLoc2_of_h7Near (H : RegionHistory S n R k0 K) {k : ℕ
     (hY : CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
       (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ V) :
         Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))))
-    (hroom : ∀ x ∈ dataSites (locG' g hnn hM1 H hk hρ V),
-      cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaNb a (k + 1) 3 (k + 1))
+    (hfar : ∀ x ∈ dataSites (locG' g hnn hM1 H hk hρ V),
+      cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaNb a (k + 1) 3 (k + 1) →
+        cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x ∉ omegaCNb a 3 k)
     {η : ℝ} (hη : 0 ≤ η) (hz : |z - 1| ≤ η) (hε0 : 0 < ε (k + 1)) (hεk : ε (k + 1) ≤ ε k)
     (hR4 : ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * |∑ i, h₀ i ^ 2 - 1| < scaledTol (ε k) (ε k) η ^ 2)
     (hmass : (0 ≤ ν ∧ ν * ((S.L : ℝ) ^ (k + 1)) ^ 2 * (1 + rn h₀) < scaledTol (ε k) (ε k) η ^ 2) ∨
-      (0 ≤ ν ∧ ν ≤ μs (k + 1) ∧ 2 * ε k ^ 2 ≤ scaledTol (ε k) (ε k) η ^ 2)) :
+      (0 ≤ ν ∧ ν ≤ μs (k + 1) ∧ ν ≤ μs k ∧ 2 * ε k ^ 2 ≤ scaledTol (ε k) (ε k) η ^ 2)) :
     InDomainC (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' ν
       (3 * scaledTol (ε k) (ε k) η + 2 * ε k) (3 * scaledTol (ε k) (ε k) η + 2 * ε k)
       (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D' := by
@@ -70,9 +82,19 @@ theorem inDomainC_holeStepLoc2_of_h7Near (H : RegionHistory S n R k0 K) {k : ℕ
   have hc := g.hc
   have hkK : k ≤ K := Nat.le_of_succ_le hk
   set G := locG' g hnn hM1 H hk hρ V with hG
-  set δ₁ := scaledTol (ε k) (ε k) η with hδ₁
+  set D' := (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D' with hD'
   have hεk0 : 0 < ε k := hε0.trans_le hεk
-  -- the cubes within `3` cubes of a cube away from the holes lie in `Ω_{k+1}`
+  have hL1 : 1 ≤ S.L := Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  -- `Ω^{∼3}_{k+1}` and the cubes away from the holes
+  have hΩ3 : ∀ Y Y' : Torus S.d (n (k + 1)), Y' ∈ (H.step k).Omega → LargeField.supDist Y Y' ≤ 3 →
+      Y ∈ omegaNb a (k + 1) 3 (k + 1) := by
+    intro Y Y' hY' hd
+    unfold omegaNb
+    simp only [show k + 1 ≠ k + 1 + 1 by omega, ↓reduceIte]
+    refine mem_nbhd.2 ⟨Y', ?_, hd⟩
+    show CubeSub (S := S) (n := n) M K (k + 1) Y' (a.Omega k)
+    rw [haΩ]
+    exact (cubeSub_fineSet_iff hnn hk _ _).2 hY'
   have hfarΩ : ∀ Y : Torus S.d (n (k + 1)), Y ∉ omegaCNb a 3 (k + 1) →
       ∀ Y', LargeField.supDist Y Y' ≤ 3 → Y' ∈ (H.step k).Omega := by
     intro Y hY Y' hd
@@ -91,13 +113,12 @@ theorem inDomainC_holeStepLoc2_of_h7Near (H : RegionHistory S n R k0 K) {k : ℕ
     rw [haΩ]
     exact cubeSub_fineSet_iff hnn hk _ _
   -- the datum of the local pair at a data site
-  have hdat : ∀ x ∈ dataSites G, ∀ i,
-      (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.Ψ x i =
+  have hdat : ∀ x ∈ dataSites G, ∀ i, D'.Ψ x i =
         if cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ (H.step k).Omega then
           (z : ℂ) * ψ (k + 1) (coverBlk g hnn hM1 hk (k + 1) le_rfl x) i
         else ψ k (coverBlk g hnn hM1 hk k (Nat.le_succ k) x) i := by
     intro x hx i
-    rw [holeStepLoc2_D'_Ψ g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hx]
+    rw [hD', holeStepLoc2_D'_Ψ g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hx]
     unfold mixedLift blockLift
     by_cases hΩ : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ (H.step k).Omega
     · have h1 : x ∈ (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.Ω (k + 1) :=
@@ -114,222 +135,237 @@ theorem inDomainC_holeStepLoc2_of_h7Near (H : RegionHistory S n R k0 K) {k : ℕ
     intro x hx
     have := hY (fineOfC g hnn hM1 hk x) ⟨x, hx, rfl⟩
     rwa [cubeMap_fineOfC_succ] at this
+  -- the sites of the cube of `𝕋_k` of a site lie in its cube of `𝕋_{k+1}`
+  have hsucc : ∀ (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (x' : Torus S.d (M * n K * S.L ^ K)),
+      LargeField.cubeMap n S.L M K k x' = cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x →
+      LargeField.cubeMap n S.L M K (k + 1) x' = cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x := by
+    intro x x' hx'
+    rw [← cubeMap_succ hnn hk x', hx', blockMap_cubeKOfC g hnn hM1 hk x]
   have hOmB := omegaLevel_blockUnion (S := S) (n := n) g.M1 g.c (k + 1)
     {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}
   have hm : g.c * n (k + 1) * S.L ^ (k + 1 - (k + 1)) = g.c * n (k + 1) := by simp
+  have hm0 : g.c * n k * S.L ^ (k - k) = g.c * n k := by simp
   set ψT : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - (k + 1))) → Fin N → ℂ :=
     fun w => ψ (k + 1) (LargeField.torusCast (histScale_eq g.hM hnn le_rfl hk) w) with hψT
   set ψK : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1 - k)) → Fin N → ℂ :=
     fun w => ψ k (LargeField.torusCast (histScale_eq g.hM hnn (q := k + 1) (Nat.le_succ k) hk) w)
     with hψK
+  set ψK0 : Torus S.d (g.M1 * (g.c * n k) * S.L ^ (k - k)) → Fin N → ℂ :=
+    fun w => ψ k (LargeField.torusCast (histScale_eq g.hM hnn le_rfl hkK) w) with hψK0
   set hh : Fin N → ℂ := fun i => (h₀ i : ℂ) with hhh
-  -- the single test of a cube away from the holes, the mixed test near them
-  have hT : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaCNb a 3 (k + 1) →
-      InDomainC (genCube (M1 := g.M1) (N₁ := g.c * n (k + 1)) (L := S.L) (q := k + 1) g.c (n (k + 1))
-        (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x)) (μs (k + 1)) (ε (k + 1)) (ε (k + 1))
-        (liftSingle (genCube (M1 := g.M1) (N₁ := g.c * n (k + 1)) (L := S.L) (q := k + 1) g.c
-          (n (k + 1)) (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x)) ψT hh) :=
-    fun x hx hC => (htgt.1 (k + 1) le_rfl _ (hsub x hx) (fun _ _ => by simp [omegaNb]) hC).1
-  have hMt : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaCNb a 3 (k + 1) →
-      InDomainC (genCubeMixed hm (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) hOmB) (μs (k + 1))
-        (ε k) (ε k) (mixedDataC hh hm (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) hOmB ψK ψT) :=
-    fun x hx hC => (htgt.2.1 k le_rfl _ (hsub x hx) (hroom x hx) hC).1
-  -- the splits of the charts (a chart is a cube of `𝕋_{k+1}`)
-  set T1 := Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1))
-  let spR : ∀ {Gc : GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) (minSep S.L g.M1)}
-      {μc εc : ℝ} {Dc : BgData Gc N}, InDomainC Gc μc εc εc Dc → T1 → Fin N → ℝ :=
-    fun h => h.choose
-  let spC : ∀ {Gc : GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) (minSep S.L g.M1)}
-      {μc εc : ℝ} {Dc : BgData Gc N}, InDomainC Gc μc εc εc Dc → T1 → Fin N → ℂ :=
-    fun h => h.choose_spec.choose_spec.choose
+  set Om := omegaLevel (S := S) (n := n) g.M1 g.c (k + 1)
+    {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)} with hOm
+  -- the three cube tests
   let PT : Torus S.d (n (k + 1)) → Prop := fun Y =>
     InDomainC (genCube (M1 := g.M1) (N₁ := g.c * n (k + 1)) (L := S.L) (q := k + 1) g.c (n (k + 1)) Y)
       (μs (k + 1)) (ε (k + 1)) (ε (k + 1))
       (liftSingle (genCube (M1 := g.M1) (N₁ := g.c * n (k + 1)) (L := S.L) (q := k + 1) g.c
         (n (k + 1)) Y) ψT hh)
   let PM : Torus S.d (n (k + 1)) → Prop := fun Y =>
-    InDomainC (genCubeMixed hm Y (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) hOmB) (μs (k + 1)) (ε k) (ε k)
-      (mixedDataC hh hm Y (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) hOmB ψK ψT)
-  let Ψc : Torus S.d (n (k + 1)) → CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Fin N → ℝ :=
-    fun Y x => if h : Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y then spR h.2 (toCube g hM1 x)
-      else if h : PT Y then spR h (toCube g hM1 x) else 0
-  let Ψc' : Torus S.d (n (k + 1)) → CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Fin N → ℂ :=
-    fun Y x => if h : Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y then spC h.2 (toCube g hM1 x)
-      else if h : PT Y then spC h (toCube g hM1 x) else 0
+    InDomainC (genCubeMixed hm Y Om hOmB) (μs (k + 1)) (ε k) (ε k) (mixedDataC hh hm Y Om hOmB ψK ψT)
+  let PK : Torus S.d (n k) → Prop := fun y =>
+    InDomainC (genCube (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) g.c (n k) y)
+      (μs k) (ε k) (ε k)
+      (liftSingle (genCube (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) g.c (n k) y) ψK0 hh)
+  have hT : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaCNb a 3 (k + 1) →
+      PT (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) :=
+    fun x hx hC => (htgt.1 (k + 1) le_rfl _ (hsub x hx) (fun _ _ => by simp [omegaNb]) hC).1
+  have hMt : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaCNb a 3 (k + 1) →
+      cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaNb a (k + 1) 3 (k + 1) →
+      PM (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) :=
+    fun x hx hC hN => (htgt.2.1 k le_rfl _ (hsub x hx) hN hC).1
+  have hKt : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaNb a (k + 1) 3 (k + 1) →
+      PK (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x) := by
+    intro x hx hN
+    refine (htgt.1 k (Nat.le_succ k) _ (fun x' hx' => hsub x hx x' (hsucc x x' hx'))
+      (fun x' hx' => by rw [hsucc x x' hx']; exact hN) (hfar x hx hN)).1
+  -- the charts and their splits
+  let ch : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Torus S.d (n (k + 1)) ⊕ Torus S.d (n k) :=
+    fun x => if cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaNb a (k + 1) 3 (k + 1) then
+      Sum.inl (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x)
+      else Sum.inr (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x)
+  let Ψc : Torus S.d (n (k + 1)) ⊕ Torus S.d (n k) → CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) →
+      Fin N → ℝ :=
+    Sum.elim
+      (fun Y x => if h : Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y then h.2.choose (toCube g hM1 x)
+        else if h : PT Y then h.choose (toCube g hM1 x) else 0)
+      (fun y x => if h : PK y then h.choose (toCubeK g hnn hM1 hk x) else 0)
+  let Ψc' : Torus S.d (n (k + 1)) ⊕ Torus S.d (n k) → CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) →
+      Fin N → ℂ :=
+    Sum.elim
+      (fun Y x => if h : Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y then
+          h.2.choose_spec.choose_spec.choose (toCube g hM1 x)
+        else if h : PT Y then h.choose_spec.choose_spec.choose (toCube g hM1 x) else 0)
+      (fun y x => if h : PK y then h.choose_spec.choose_spec.choose (toCubeK g hnn hM1 hk x) else 0)
   let f : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → ℝ := fun x =>
     if cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ (H.step k).Omega then z else 1
-  -- **the case analysis**: the split of the chart of a data site and its properties at the sites over
-  -- cubes within one cube of its cube
-  have key : ∀ x ∈ dataSites G,
-      ∃ (Gc : GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) (minSep S.L g.M1))
-        (Dc : BgData Gc N) (εc : ℝ) (Ψr : T1 → Fin N → ℝ) (hr : Fin N → ℝ) (Ψ' h' : T1 → Fin N → ℂ),
-        0 < εc ∧ εc ≤ ε k ∧ InPsiTildeC Gc (μs (k + 1)) εc εc Ψr hr Ψ' h' ∧
-        (∀ s ∈ dataSites Gc, ∀ i, Dc.Ψ s i = (Ψr s i : ℂ) + Ψ' s i) ∧
-        (∀ s ∈ Gc.Ω 1, ∀ i, Dc.h s i = (hr i : ℂ) + h' s i) ∧
-        (∀ s ∈ Gc.Ω 1, ∀ i, Dc.h s i = (h₀ i : ℂ)) ∧
-        (∀ y, Ψc (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) y = Ψr (toCube g hM1 y) ∧
-          Ψc' (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) y = Ψ' (toCube g hM1 y)) ∧
-        (∀ x' ∈ dataSites G, LargeField.supDist (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x')
-            (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) ≤ 1 →
-          toCube g hM1 x' ∈ Gc.Ω 1 ∧ toCube g hM1 x' ∈ dataSites Gc ∧
-          (∀ i, (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'.Ψ x' i =
-            (f x' : ℂ) * Dc.Ψ (toCube g hM1 x') i) ∧
-          G.layerIndex x' ≤ Gc.layerIndex (toCube g hM1 x') ∧
-          toCube g hM1 x' ∈ Gc.layer (Gc.layerIndex (toCube g hM1 x')) ∧
-          (Gc.layerIndex (toCube g hM1 x') = k ∨ Gc.layerIndex (toCube g hM1 x') = k + 1)) := by
+  -- **the case analysis**: the chart of a data site and the conditions its split gives
+  have key : ∀ x ∈ dataSites G, ∃ (μc : ℝ) (In : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Prop),
+      (∀ ν' : ℝ, ν' ≤ μs (k + 1) → ν' ≤ μs k → ν' ≤ μc) ∧
+      (∀ x', IsInterfacePair G x x' → In x') ∧
+      (∀ j, 1 ≤ j → j ≤ k + 1 → x ∈ G.layer j → ∀ x' ∈ G.blk j x,
+        Ψc (ch x) x' = Ψc (ch x) x ∧ Ψc' (ch x) x' = Ψc' (ch x) x) ∧
+      (∀ i, D'.Ψ x i = (f x : ℂ) * ((Ψc (ch x) x i : ℂ) + Ψc' (ch x) x i)) ∧
+      |∑ i, Ψc (ch x) x i ^ 2 - 1| < ε k ∧
+      vn (Ψc' (ch x) x) < ε k + ε k ∧
+      ‖∑ i, ((Ψc (ch x) x i : ℂ) + Ψc' (ch x) x i) * ((Ψc (ch x) x i : ℂ) + Ψc' (ch x) x i) -
+        ∑ i, (Ψc (ch x) x i : ℂ) * (Ψc (ch x) x i : ℂ)‖ < ε k ∧
+      (∀ ν' : ℝ, 0 ≤ ν' → ν' ≤ μc → ν' * ((S.L : ℝ) ^ G.layerIndex x) ^ 2 *
+        |1 - (∑ i, Ψc (ch x) x i * h₀ i) / rn (Ψc (ch x) x)| < 2 * ε k ^ 2) ∧
+      (∀ x', IsInterfacePair G x x' → In x' →
+        rn (fun i => Ψc (ch x) x i - Ψc (ch x) x' i) < ε k ∧ vn (Ψc' (ch x) x - Ψc' (ch x) x') < ε k ∧
+        (∀ i, D'.Ψ x' i = (f x' : ℂ) * ((Ψc (ch x) x' i : ℂ) + Ψc' (ch x) x' i)) ∧
+        vn (Ψc' (ch x) x') < ε k + ε k ∧ |∑ i, Ψc (ch x) x' i ^ 2 - 1| < ε k) := by
     intro x hx
     set Y := cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x with hYdef
-    have hnear : ∀ x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1),
-        LargeField.supDist (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x') Y ≤ 1 →
-        blockMap (S.L ^ (k + 1) * (g.c * g.M1)) (n (k + 1)) (toCube g hM1 x') ∈ nbhd 2 {Y} :=
-      fun x' h => mem_nbhd.2 ⟨Y, rfl, by rw [← cubeOfC_eq_toCube]; omega⟩
-    by_cases hYC : Y ∈ omegaCNb a 3 (k + 1)
-    · -- the mixed test `Δ'^c_{k+1}(□)`
-      have hPM : PM Y := hMt x hx hYC
-      have hsp := hPM.choose_spec.choose_spec.choose_spec.choose_spec
-      refine ⟨_, _, ε k, hPM.choose, hPM.choose_spec.choose, hPM.choose_spec.choose_spec.choose,
-        hPM.choose_spec.choose_spec.choose_spec.choose, hεk0, le_rfl, hsp.1, hsp.2.1, hsp.2.2,
-        fun s hs i => ?_, fun y => ?_, fun x' hx' hd => ?_⟩
-      · unfold mixedDataC; rw [liftMixed_h _ _ _ _ _ _ hs]
-      · simp only [Ψc, Ψc', hYC, hPM, and_self, dite_true]
-        exact ⟨rfl, rfl⟩
-      · obtain ⟨h1, h2, h3, h4⟩ := genCubeMixed_site_spec hm hk1 Y (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) hOmB (hnear x' hd)
+    by_cases hN : Y ∈ omegaNb a (k + 1) 3 (k + 1)
+    · -- a chart of `𝕋_{k+1}`: the sites over cubes within one cube of `□`
+      have hch : ch x = Sum.inl Y := by simp only [ch, ← hYdef, hN, ↓reduceIte]
+      let In : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Prop := fun x' =>
+        x' ∈ dataSites G ∧ LargeField.supDist (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x') Y ≤ 1
+      have hnear : ∀ x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1), In x' →
+          blockMap (S.L ^ (k + 1) * (g.c * g.M1)) (n (k + 1)) (toCube g hM1 x') ∈ nbhd 2 {Y} :=
+        fun x' h => mem_nbhd.2 ⟨Y, rfl, by rw [← cubeOfC_eq_toCube]; have := h.2; omega⟩
+      have hpIn : ∀ x', IsInterfacePair G x x' → In x' := fun x' hp => ⟨hp.2.1, by
+        rw [LargeField.supDist_comm]; exact cubeOfC_near_of_pair g hnn hM1 H hk hρ V hp.2.2.2⟩
+      have hIn0 : In x := ⟨hx, by rw [LargeField.supDist_self]; omega⟩
+      have hblk1 : ∀ {ϱ' : ℝ} (Gc : GeneratingSet S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) ϱ')
+          (x₁ y₁ : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)), y₁ ∈ blockSet G x₁ →
+          ∀ l, G.layerIndex x₁ ≤ l → l ≤ k + 1 → toCube g hM1 y₁ ∈ Gc.blk l (toCube g hM1 x₁) :=
+        fun Gc _ _ hy l hl hlq => toCube_mem_blk_of_blockSet g hnn hM1 H hk hρ V hy hl hlq Gc
+      by_cases hYC : Y ∈ omegaCNb a 3 (k + 1)
+      · -- the mixed test `Δ'^c_{k+1}(□)`
+        have hPM : PM Y := hMt x hx hYC hN
+        have hsp := hPM.choose_spec.choose_spec.choose_spec.choose_spec
+        refine ⟨μs (k + 1), In, fun _ h _ => h, hpIn, ?_⟩
+        refine chartSplit_spec D' f h₀ hsp.1 le_rfl hsp.2.1
+          hsp.2.2 (fun s hs i => by unfold mixedDataC; rw [liftMixed_h _ _ _ _ _ _ hs])
+          (toCube g hM1) (fun _ _ h => adj_toCube g hM1 h) (hblk1 _) In ?_ _ _
+          (fun y => by constructor <;> simp only [Ψc, Ψc', hch, Sum.elim_inl, hYC, hPM, and_self, dite_true])
+          hIn0
+        intro x' hx'
+        obtain ⟨h1, h2, h3, h4⟩ := genCubeMixed_site_spec hm hk1 Y Om hOmB (hnear x' hx')
         have hlG := layerIndex_locG'_le g hnn hM1 H hk hρ V x'
-        refine ⟨h1, h2, fun i => ?_, ?_⟩
-        · rw [hdat x' hx' i]
+        refine ⟨h1, fun i => ?_, ?_⟩
+        · rw [hdat x' hx'.1 i]
           unfold mixedDataC
           rw [liftMixed_Ψ _ _ _ _ _ _ h2]
           unfold mixedLift blockLift
           by_cases hΩ : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x' ∈ (H.step k).Omega
-          · have hO : toCube g hM1 x' ∈ (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) := (hOmem x').2 hΩ
+          · have hO : toCube g hM1 x' ∈ Om := (hOmem x').2 hΩ
             simp only [hΩ, hO, ↓reduceIte, f, hψT]
             rw [jBlock_toCube g hnn hM1 hk le_rfl x']
-          · have hO : toCube g hM1 x' ∉ (omegaLevel (S := S) (n := n) g.M1 g.c (k + 1) {y | CubeSub (S := S) (n := n) M K (k + 1) y (a.Omega k)}) := fun h => hΩ ((hOmem x').1 h)
+          · have hO : toCube g hM1 x' ∉ Om := fun h => hΩ ((hOmem x').1 h)
             simp only [hΩ, hO, ↓reduceIte, f, hψK, Complex.ofReal_one, one_mul]
             rw [jBlock_toCube g hnn hM1 hk (Nat.le_succ k) x']
         · by_cases hΩ : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x' ∈ (H.step k).Omega
-          · obtain ⟨e, hl⟩ := h3 ((hOmem x').2 hΩ)
-            rw [e]; exact ⟨hlG.1, hl, Or.inr rfl⟩
-          · obtain ⟨e, hl⟩ := h4 (fun h => hΩ ((hOmem x').1 h))
-            rw [e]; exact ⟨hlG.2 hΩ, hl, Or.inl rfl⟩
-    · -- the single test `Δ^c_{k+1}(□)`
-      have hPT : PT Y := hT x hx hYC
-      have hsp := hPT.choose_spec.choose_spec.choose_spec.choose_spec
-      refine ⟨_, _, ε (k + 1), hPT.choose, hPT.choose_spec.choose, hPT.choose_spec.choose_spec.choose,
-        hPT.choose_spec.choose_spec.choose_spec.choose, hε0, hεk, hsp.1, hsp.2.1, hsp.2.2,
-        fun s hs i => ?_, fun y => ?_, fun x' hx' hd => ?_⟩
-      · rw [liftSingle_h _ _ _ hs]
-      · have hn : ¬ (Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y) := fun h => hYC h.1
-        simp only [Ψc, Ψc', hYC, hPT, false_and, dite_false, dite_true]
-        exact ⟨rfl, rfl⟩
-      · obtain ⟨h1, h2, h3, h4⟩ := genCube_site_spec hm (by omega) Y (hnear x' hd)
+          · obtain ⟨e, -⟩ := h3 ((hOmem x').2 hΩ)
+            rw [e]; exact ⟨hlG.1, by omega⟩
+          · obtain ⟨e, -⟩ := h4 (fun h => hΩ ((hOmem x').1 h))
+            rw [e]; exact ⟨hlG.2 hΩ, by omega⟩
+      · -- the single test `Δ^c_{k+1}(□)`
+        have hPT : PT Y := hT x hx hYC
+        have hsp := hPT.choose_spec.choose_spec.choose_spec.choose_spec
+        have hn : ¬ (Y ∈ omegaCNb a 3 (k + 1) ∧ PM Y) := fun h => hYC h.1
+        refine ⟨μs (k + 1), In, fun _ h _ => h, hpIn, ?_⟩
+        refine chartSplit_spec D' f h₀ hsp.1 hεk hsp.2.1
+          hsp.2.2 (fun s hs i => by rw [liftSingle_h _ _ _ hs])
+          (toCube g hM1) (fun _ _ h => adj_toCube g hM1 h) (hblk1 _) In ?_ _ _
+          (fun y => by
+            constructor <;> simp only [Ψc, Ψc', hch, Sum.elim_inl, hn, hPT, dite_false, dite_true])
+          hIn0
+        intro x' hx'
+        obtain ⟨h1, h2, h3, -⟩ := genCube_site_spec hm (by omega) Y (hnear x' hx')
         have hΩ : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x' ∈ (H.step k).Omega :=
-          hfarΩ Y hYC _ (by rw [LargeField.supDist_comm]; omega)
-        refine ⟨h1, h2, fun i => ?_, by rw [h3]; exact (layerIndex_locG'_le g hnn hM1 H hk hρ V x').1,
-          by rw [h3]; exact h4, Or.inr h3⟩
-        rw [hdat x' hx' i, liftSingle_Ψ _ _ _ h2]
+          hfarΩ Y hYC _ (by rw [LargeField.supDist_comm]; have := hx'.2; omega)
+        refine ⟨h1, fun i => ?_, by rw [h3]; exact (layerIndex_locG'_le g hnn hM1 H hk hρ V x').1,
+          by rw [h3]; omega⟩
+        rw [hdat x' hx'.1 i, liftSingle_Ψ _ _ _ h2]
         simp only [hΩ, ↓reduceIte, f, hψT]
         rw [jBlock_toCube g hnn hM1 hk le_rfl x']
+    · -- far from `Ω_{k+1}`: the test `Δ^c_k(□_k)` at the cube of `𝕋_k`
+      set y := cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x with hydef
+      have hch : ch x = Sum.inr y := by simp only [ch, ← hYdef, hN, ↓reduceIte]; rfl
+      have hPK : PK y := hKt x hx hN
+      have hsp := hPK.choose_spec.choose_spec.choose_spec.choose_spec
+      have hxΩ : Y ∉ (H.step k).Omega := fun h => hN (hΩ3 Y Y h (by rw [LargeField.supDist_self]; omega))
+      let In : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Prop := fun x' =>
+        x' ∈ dataSites G ∧
+          LargeField.supDist (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x') y ≤ 1 ∧
+          cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x' ∉ (H.step k).Omega
+      have hpIn : ∀ x', IsInterfacePair G x x' → In x' := by
+        intro x' hp
+        have hd := cubeOfC_near_of_pair g hnn hM1 H hk hρ V hp.2.2.2
+        have hx'Ω : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x' ∉ (H.step k).Omega :=
+          fun h => hN (hΩ3 Y _ h (hd.trans (by norm_num)))
+        refine ⟨hp.2.1, ?_, hx'Ω⟩
+        rw [LargeField.supDist_comm]
+        exact cubeKOfC_near_of_pair g hnn hM1 H hk hρ V hp.2.2.2
+          ((layerIndex_locG'_le g hnn hM1 H hk hρ V x).2 hxΩ)
+          ((layerIndex_locG'_le g hnn hM1 H hk hρ V x').2 hx'Ω)
+      refine ⟨μs k, In, fun _ _ h => h, hpIn, ?_⟩
+      refine chartSplit_spec D' f h₀ hsp.1 le_rfl hsp.2.1
+        hsp.2.2 (fun s hs i => by rw [liftSingle_h _ _ _ hs])
+        (toCubeK g hnn hM1 hk) (fun _ _ h => adj_toCubeK g hnn hM1 hk h)
+        (fun _ _ hy l hl hlq => toCubeK_mem_blk_of_blockSet g hnn hM1 H hk hρ V hy hl hlq _) In ?_ _ _
+        (fun y' => by constructor <;> simp only [Ψc, Ψc', hch, Sum.elim_inr, hPK, dite_true])
+        ⟨hx, by rw [LargeField.supDist_self]; omega, hxΩ⟩
+      intro x' hx'
+      have hs : blockMap (S.L ^ k * (g.c * g.M1)) (n k) (toCubeK g hnn hM1 hk x') ∈ nbhd 2 {y} :=
+        mem_nbhd.2 ⟨y, rfl, by rw [← cubeKOfC_eq_toCubeK]; have := hx'.2.1; omega⟩
+      obtain ⟨h1, h2, h3, -⟩ := genCube_site_spec hm0 hk1 y hs
+      refine ⟨h1, fun i => ?_, by rw [h3]; exact (layerIndex_locG'_le g hnn hM1 H hk hρ V x').2 hx'.2.2,
+        by rw [h3]; omega⟩
+      rw [hdat x' hx'.1 i, liftSingle_Ψ _ _ _ h2]
+      simp only [hx'.2.2, ↓reduceIte, f, hψK0, Complex.ofReal_one, one_mul]
+      rw [coverBlk_eq_toCubeK g hnn hM1 hk le_rfl x']
   -- the patching
-  have hL1 : 1 ≤ S.L := Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
-  refine inDomainC_of_patch_scaled (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'
-    hεk0 hεk0 hη hz f (fun x => by simp only [f]; split_ifs <;> simp) h₀
+  refine inDomainC_of_patch_scaled D' hεk0 hεk0 hη hz f (fun x => by simp only [f]; split_ifs <;> simp) h₀
     (fun x hx i => (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).hh₀ x hx i)
-    hR4 (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1) Ψc Ψc'
-    (fun j hj1 hjk x hx x' hx' => cubeOfC_eq_of_jBlock g hnn hM1 hk hjk (GeneratingSet.mem_blk.1 hx'))
-    ?_ ?_ ?_ ?_ ?_ ?_ ?_
+    hR4 ch Ψc Ψc' ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+  -- the chart is constant on the blocks of `G′_V`
+  · intro j hj1 hjk x hx x' hx'
+    have hcube := cubeOfC_eq_of_jBlock g hnn hM1 hk hjk (GeneratingSet.mem_blk.1 hx')
+    simp only [ch, hcube]
+    split_ifs with hN
+    · rfl
+    · have hxΩ : cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ (H.step k).Omega :=
+        fun h => hN (hΩ3 _ _ h (by rw [LargeField.supDist_self]; omega))
+      have hjx : G.layerIndex x = j := G.layerIndex_eq hj1 hjk hx
+      have hjk' : j ≤ k := hjx ▸ (layerIndex_locG'_le g hnn hM1 H hk hρ V x).2 hxΩ
+      rw [cubeKOfC_eq_of_jBlock g hnn hM1 hk hjk' (GeneratingSet.mem_blk.1 hx')]
   -- the layer constancy of the splits on the blocks of `G′_V`
   · intro j hj1 hjk x hx x' hx'
     have hxd : x ∈ dataSites G := (mem_dataSites _).2 (Or.inl (G.layer_subset hj1 hjk hx))
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, -, hP, -, -, -, hsp, hsite⟩ := key x hxd
+    obtain ⟨-, -, -, -, hlc, -⟩ := key x hxd
     have hcube := cubeOfC_eq_of_jBlock g hnn hM1 hk hjk (GeneratingSet.mem_blk.1 hx')
-    obtain ⟨-, -, -, hlG, hlay, hkx⟩ := hsite x hxd (by rw [LargeField.supDist_self]; omega)
-    have hjx : G.layerIndex x = j := G.layerIndex_eq hj1 hjk hx
-    have hl1 : 1 ≤ Gc.layerIndex (toCube g hM1 x) := by omega
-    have hlk : Gc.layerIndex (toCube g hM1 x) ≤ k + 1 := by omega
-    have hb := toCube_mem_blk g hM1 (hjx ▸ hlG) hlk hx' Gc
-    rw [(hsp x').1, (hsp x).1, (hsp x').2, (hsp x).2]
-    exact ⟨hP.layerConst _ hl1 hlk _ hlay _ hb, hP.layerConst' _ hl1 hlk _ hlay _ hb,
-      by simp only [f, hcube]⟩
+    exact ⟨(hlc j hj1 hjk hx x' hx').1, (hlc j hj1 hjk hx x' hx').2, by simp only [f, hcube]⟩
   -- the datum is the scaled value of the split of its chart
   · intro x hx i
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, -, hP, hΨ, -, -, hsp, hsite⟩ := key x hx
-    obtain ⟨-, h2, hdat', -⟩ := hsite x hx (by rw [LargeField.supDist_self]; omega)
-    rw [hdat' i, hΨ _ h2 i, (hsp x).1, (hsp x).2]
+    obtain ⟨-, -, -, -, -, hsplit, -⟩ := key x hx
+    exact hsplit i
   -- (R2)
   · intro x hx
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, hεc, hP, -, -, -, hsp, hsite⟩ := key x hx
-    obtain ⟨-, h2, -⟩ := hsite x hx (by rw [LargeField.supDist_self]; omega)
-    simp only [(hsp x).1]
-    exact (hP.r2 _ h2).trans_le hεc
+    obtain ⟨-, -, -, -, -, -, hr2, -⟩ := key x hx
+    exact hr2
   -- (R3), in the two mass regimes
   · intro x hx
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', hε0', hεc, hP, -, hhr, hh0, hsp, hsite⟩ := key x hx
-    obtain ⟨h1, h2, -, hlG, -⟩ := hsite x hx (by rw [LargeField.supDist_self]; omega)
-    simp only [(hsp x).1]
-    rcases hmass with ⟨hν, hsmall⟩ | ⟨hν, hνμ, h2ε⟩
+    obtain ⟨μc, -, hμc, -, -, -, -, -, -, hr3, -⟩ := key x hx
+    rcases hmass with ⟨hν, hsmall⟩ | ⟨hν, hνμ, hνμk, h2ε⟩
     · exact r3_of_small_mass hν hL1 (layerIndex_locG'_le g hnn hM1 H hk hρ V x).1 h₀ hsmall _
-    · have hh' : ∀ i, h' (toCube g hM1 x) i = ((h₀ i - hr i : ℝ) : ℂ) := fun i => by
-        have e1 := hhr _ h1 i
-        have e2 := hh0 _ h1 i
-        push_cast
-        linear_combination e2 - e1
-      have h3 := r3_of_large_mass hν hνμ hL1 hlG _ hr h₀ _ hh' (hP.r3 _ h2) (hP.c3b _ h1)
-      refine h3.trans_le (le_trans ?_ h2ε)
-      have : εc ^ 2 ≤ ε k ^ 2 := pow_le_pow_left₀ hε0'.le hεc 2
-      linarith
+    · exact (hr3 ν hν (hμc ν hνμ hνμk)).trans_le h2ε
   -- (C2a)
   · intro x hx
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, hεc, hP, -, -, -, hsp, hsite⟩ := key x hx
-    obtain ⟨-, h2, -⟩ := hsite x hx (by rw [LargeField.supDist_self]; omega)
-    rw [show Ψc' (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) x = Ψ' (toCube g hM1 x) from (hsp x).2]
-    have := hP.c2a _ h2
-    linarith
+    obtain ⟨-, -, -, -, -, -, -, hc2a, -⟩ := key x hx
+    exact hc2a
   -- (C2b)
   · intro x hx
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, hεc, hP, -, -, -, hsp, hsite⟩ := key x hx
-    obtain ⟨-, h2, -⟩ := hsite x hx (by rw [LargeField.supDist_self]; omega)
-    rw [(hsp x).1, (hsp x).2]
-    exact (hP.c2b _ h2).trans_le hεc
+    obtain ⟨-, -, -, -, -, -, -, -, hc2b, -⟩ := key x hx
+    exact hc2b
   -- the interface pairs, read by the test of the chart of the first site
   · intro x x' hp
-    obtain ⟨hxd, hx'd, -, hba⟩ := hp
-    obtain ⟨Gc, Dc, εc, Ψr, hr, Ψ', h', -, hεc, hP, hΨ, -, -, hsp, hsite⟩ := key x hxd
-    have hd : LargeField.supDist (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x')
-        (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) ≤ 1 := by
-      rw [LargeField.supDist_comm]; exact cubeOfC_near_of_pair g hnn hM1 H hk hρ V hba
-    obtain ⟨h1', h2', hdat', hlG', -, hk'⟩ := hsite x' hx'd hd
-    obtain ⟨h1, h2, -, hlG, -, hkx⟩ := hsite x hxd (by rw [LargeField.supDist_self]; omega)
-    obtain ⟨y₀, hy₀, y₀', hy₀', hadj⟩ := hba
-    have hbs : ∀ s, s ∈ Gc.Ω 1 → blockSet Gc s = Gc.blk (Gc.layerIndex s) s := fun s hs => by
-      classical
-      unfold blockSet; simp only [hs, ↓reduceIte]
-    have hy₀c : toCube g hM1 y₀ ∈ blockSet Gc (toCube g hM1 x) := by
-      rw [hbs _ h1]; exact toCube_mem_blk_of_blockSet g hnn hM1 H hk hρ V hy₀ hlG (by omega) Gc
-    have hy₀c' : toCube g hM1 y₀' ∈ blockSet Gc (toCube g hM1 x') := by
-      rw [hbs _ h1']; exact toCube_mem_blk_of_blockSet g hnn hM1 H hk hρ V hy₀' hlG' (by omega) Gc
-    have hadjc := adj_toCube g hM1 hadj
-    have hpair : rn (fun i => Ψr (toCube g hM1 x) i - Ψr (toCube g hM1 x') i) < εc ∧
-        vn (Ψ' (toCube g hM1 x) - Ψ' (toCube g hM1 x')) < εc := by
-      by_cases hlay : Gc.layerIndex (toCube g hM1 x') = Gc.layerIndex (toCube g hM1 x) ∨
-          Gc.layerIndex (toCube g hM1 x') + 1 = Gc.layerIndex (toCube g hM1 x)
-      · have hI : IsInterfacePair Gc (toCube g hM1 x) (toCube g hM1 x') :=
-          ⟨h2, h2', hlay, _, hy₀c, _, hy₀c', hadjc⟩
-        exact ⟨hP.r1 _ _ hI, hP.c1 _ _ hI⟩
-      · have hlay' : Gc.layerIndex (toCube g hM1 x) + 1 = Gc.layerIndex (toCube g hM1 x') := by omega
-        have hI : IsInterfacePair Gc (toCube g hM1 x') (toCube g hM1 x) :=
-          ⟨h2', h2, Or.inr hlay', _, hy₀c', _, hy₀c, hadjc.symm⟩
-        refine ⟨?_, ?_⟩
-        · have e : rn (fun i => Ψr (toCube g hM1 x) i - Ψr (toCube g hM1 x') i) =
-              rn (fun i => Ψr (toCube g hM1 x') i - Ψr (toCube g hM1 x) i) := by
-            unfold rn; congr 1; exact Finset.sum_congr rfl fun i _ => by ring
-          rw [e]; exact hP.r1 _ _ hI
-        · rw [vn_sub_comm]; exact hP.c1 _ _ hI
-    rw [(hsp x).1, (hsp x').1, (hsp x).2, (hsp x').2]
-    refine ⟨hpair.1.trans_le hεc, hpair.2.trans_le hεc, fun i => by rw [hdat' i, hΨ _ h2' i], ?_,
-      (hP.r2 _ h2').trans_le hεc⟩
-    have := hP.c2a _ h2'
-    linarith
+    obtain ⟨-, In, -, hpIn, -, -, -, -, -, -, hpair⟩ := key x hp.1
+    exact hpair x' hp (hpIn x' hp)
 
 end Datum
 

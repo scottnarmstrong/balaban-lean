@@ -101,6 +101,74 @@ theorem adj_toCube {k : ℕ} {x x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 
     Adj (toCube g hM1 x) (toCube g hM1 x') :=
   adj_castSide (p6_side (c := g.c) (n1 := n (k + 1)) hM1).symm h
 
+/-- Adjacency is preserved by the cast of tori along an equality of their sizes. -/
+theorem adj_torusCast_sides {d L L' N₀ N₀' j j' : ℕ} (h : N₀ * L ^ j = N₀' * L' ^ j')
+    {x x' : Torus d (N₀ * L ^ j)} (hx : Adj x x') :
+    Adj (LargeField.torusCast h x : Torus d (N₀' * L' ^ j')) (LargeField.torusCast h x') := by
+  obtain ⟨μ, e | e⟩ := hx
+  · exact ⟨μ, Or.inl (by rw [e, LargeField.torusCast_add_single])⟩
+  · exact ⟨μ, Or.inr (by rw [e, LargeField.torusCast_add_single])⟩
+
+/-! ### The cube torus of scale `k` -/
+
+/-- **The site of the cube torus of scale `k`** (the torus of the cube tests `G_k(□)` of `𝕋_k`) of a
+site of the cover torus: both are the fine torus of the history. -/
+def toCubeK {k : ℕ} (hk : k + 1 ≤ K) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    Torus S.d (g.M1 * (g.c * n k) * S.L ^ k) :=
+  LargeField.torusCast
+    ((coverSide g hnn hM1 hk).trans (histScale_top g.hM hnn (Nat.le_of_succ_le hk)).symm) x
+
+/-- The history site of the cube-torus site of scale `k` of a site of the cover torus is its history
+site. -/
+theorem torusCast_toCubeK {k : ℕ} (hk : k + 1 ≤ K) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    LargeField.torusCast (histScale_top g.hM hnn (Nat.le_of_succ_le hk)) (toCubeK g hnn hM1 hk x) =
+      fineOfC g hnn hM1 hk x := by
+  unfold toCubeK fineOfC
+  rw [LargeField.torusCast_torusCast_comp]
+
+/-- The cube of `𝕋_k` of a site of the cover torus, read at its cube-torus site of scale `k`. -/
+theorem cubeKOfC_eq_toCubeK {k : ℕ} (hk : k + 1 ≤ K) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x =
+      blockMap (S.L ^ k * (g.c * g.M1)) (n k) (toCubeK g hnn hM1 hk x) := by
+  rw [← cubeMap_fineOfC_k g hnn hM1 hk x, ← torusCast_toCubeK g hnn hM1 hk x,
+    cubeMap_torusCast_top g.hM hnn (Nat.le_of_succ_le hk)]
+
+/-- **The `j`-blocks (`j ≤ k`) of a cover-torus site and of its cube-torus site of scale `k` agree**
+(read on the history torus). -/
+theorem coverBlk_eq_toCubeK {k j : ℕ} (hk : k + 1 ≤ K) (hj : j ≤ k)
+    (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    LargeField.torusCast (histScale_eq g.hM hnn hj (Nat.le_of_succ_le hk))
+        (jBlock S.d S.L (g.M1 * (g.c * n k)) k j (toCubeK g hnn hM1 hk x)) =
+      coverBlk g hnn hM1 hk j (hj.trans (Nat.le_succ k)) x := by
+  rw [← jBlock_torusCast_top g.hM hnn hj (Nat.le_of_succ_le hk), torusCast_toCubeK g hnn hM1 hk x,
+    jBlock_fineOfC g hnn hM1 hk j]
+
+/-- Two cover-torus sites in one `j`-block (`j ≤ k`) have their cube-torus sites of scale `k` in one
+`j`-block. -/
+theorem jBlock_toCubeK_eq {k j : ℕ} (hk : k + 1 ≤ K) (hj : j ≤ k)
+    {x x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)}
+    (h : jBlock S.d S.L (g.c * n (k + 1) * S.L ^ m₁) (k + 1) j x =
+      jBlock S.d S.L (g.c * n (k + 1) * S.L ^ m₁) (k + 1) j x') :
+    jBlock S.d S.L (g.M1 * (g.c * n k)) k j (toCubeK g hnn hM1 hk x) =
+      jBlock S.d S.L (g.M1 * (g.c * n k)) k j (toCubeK g hnn hM1 hk x') := by
+  have hb : coverBlk g hnn hM1 hk j (hj.trans (Nat.le_succ k)) x =
+      coverBlk g hnn hM1 hk j (hj.trans (Nat.le_succ k)) x' := by
+    unfold coverBlk; rw [h]
+  rw [← coverBlk_eq_toCubeK g hnn hM1 hk hj x, ← coverBlk_eq_toCubeK g hnn hM1 hk hj x'] at hb
+  have := congrArg (LargeField.torusCast (histScale_eq g.hM hnn hj (Nat.le_of_succ_le hk)).symm) hb
+  rwa [LargeField.torusCast_torusCast_comp, LargeField.torusCast_torusCast_comp] at this
+
+theorem adj_toCubeK {k : ℕ} (hk : k + 1 ≤ K) {x x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)}
+    (h : Adj x x') : Adj (toCubeK g hnn hM1 hk x) (toCubeK g hnn hM1 hk x') :=
+  adj_torusCast_sides _ h
+
+include hnn in
+/-- The cube of `𝕋_{k+1}` of a site of the cover torus is the coarse cube of its cube of `𝕋_k`. -/
+theorem blockMap_cubeKOfC {k : ℕ} (hk : k + 1 ≤ K) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
+    blockMap S.L (n (k + 1)) (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x) =
+      cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x := by
+  rw [← cubeMap_fineOfC_k g hnn hM1 hk x, ← cubeMap_fineOfC_succ g hnn hM1 hk x, cubeMap_succ hnn hk]
+
 /-! ### The local set `G′_V` -/
 
 include hnn in
@@ -208,6 +276,36 @@ theorem toCube_mem_blk {k : ℕ} {x y : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k
     toCube g hM1 y ∈ Gc.blk l (toCube g hM1 x) :=
   GeneratingSet.mem_blk.2 (Background.jBlock_mono hjl hlk (jBlock_toCube_eq g hM1
     (GeneratingSet.mem_blk.1 hy)))
+
+/-- A site of the block of a site `x` of `G′_V` goes to the block of layer `l` (`l(x) ≤ l ≤ k`) of
+`toCubeK x`. -/
+theorem toCubeK_mem_blk_of_blockSet (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {x y : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)}
+    (hy : y ∈ blockSet (locG' g hnn hM1 H hk hρ V) x) {l : ℕ}
+    (hl : (locG' g hnn hM1 H hk hρ V).layerIndex x ≤ l) (hlk : l ≤ k)
+    {ϱ' : ℝ} (Gc : GeneratingSet S.d S.L (g.M1 * (g.c * n k)) k ϱ') :
+    toCubeK g hnn hM1 hk y ∈ Gc.blk l (toCubeK g hnn hM1 hk x) :=
+  GeneratingSet.mem_blk.2 (Background.jBlock_mono hl hlk (jBlock_toCubeK_eq g hnn hM1 hk (hl.trans hlk)
+    (jBlock_of_mem_blockSet g hnn hM1 H hk hρ V hy)))
+
+/-- **The two sites of an interface pair of `G′_V` off `Ω_{k+1}` lie over cubes of `𝕋_k` within one
+cube** (their blocks, of layers `≤ k`, lie in one cube of `𝕋_k` each). -/
+theorem cubeKOfC_near_of_pair (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {x x' : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)}
+    (h : BlocksAdjacent (locG' g hnn hM1 H hk hρ V) x x')
+    (hx : (locG' g hnn hM1 H hk hρ V).layerIndex x ≤ k)
+    (hx' : (locG' g hnn hM1 H hk hρ V).layerIndex x' ≤ k) :
+    LargeField.supDist (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x)
+      (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x') ≤ 1 := by
+  obtain ⟨y₀, hy₀, y₀', hy₀', hadj⟩ := h
+  have e1 := cubeKOfC_eq_of_jBlock g hnn hM1 hk hx (jBlock_of_mem_blockSet g hnn hM1 H hk hρ V hy₀)
+  have e2 := cubeKOfC_eq_of_jBlock g hnn hM1 hk hx' (jBlock_of_mem_blockSet g hnn hM1 H hk hρ V hy₀')
+  rw [← e1, ← e2, cubeKOfC_eq_toCubeK g hnn hM1 hk, cubeKOfC_eq_toCubeK g hnn hM1 hk]
+  have hc := g.hc
+  exact cube_adj_near (M1 := g.M1) (N₁ := g.c * n k) (q := k) (by simp)
+    (Nat.mul_pos (by omega) (Nat.pos_of_ne_zero (NeZero.ne g.M1))) (adj_toCubeK g hnn hM1 hk hadj)
 
 end Geo
 
