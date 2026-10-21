@@ -228,11 +228,12 @@ approved declaration.
   this is P5's exponent up to a constant. The pre-localized terms that (3.1) moves into ℬ'' stay in it (kind (i)).
 - **OPEN-P6-X1-INSTANTIATION.** P6 p. 34: "we consider this term as localized in X ∩ Ω_{k+1}, we introduce the same
   localization extension as before … the domains Y₁ may have several components, each of them containing at least one
-  component of X ∩ Ω_{k+1}". Reading: the uncut core of the expansion of ℬ^{(k)}(X) is X₁ = the fine sites of
-  A_X = X ∩ Ω_{k+1} (no collar); the parameters are the cover cubes not inside X₁ (`parCubes`), set to 1 inside X₁; at
-  □′ ⊂ Ω_{k+1} the vector is that of R12 (0 outside R_{k+1}(□′)). The output domains are assigned by (4.44)[3] through
-  the optimal covers of X (`assignOut`, weights `assignWt`). Needs: the cell count of A_X by d_k(X) (`P6ActiveSeed`),
-  and the H7 validity of the extension, which is OPEN-H7-MIXED.
+  component of X ∩ Ω_{k+1}". Reading: X₀ = A_X = X ∩ Ω_{k+1}, and the uncut core X₁ = the sites within r of A_X
+  (`collarCoreC`), the pair condition X₀^{∼r₀} ⊂ X₁ of P3 (2.14) that P5 (2.18) uses for (□′, R_{k+1}(□′)) (without a
+  collar the read sites at the edge of A_X are cut points of the decoupled problem); the parameters are the cover cubes
+  not inside X₁ (`parCubes`), set to 1 inside X₁; at □′ ⊂ Ω_{k+1} the vector is that of R12 (0 outside R_{k+1}(□′)).
+  Output domains by (4.44)[3] through the optimal covers of X (`assignOut`, `assignWt`). Needs: the cell count of X₁ by
+  d_k(X) (`P6ActiveSeed`, times the collar factor), and the H7 validity of the extension (OPEN-H7-MIXED).
 - **OPEN-P6-ACTIVE-COMPOSITE-LOC.** Under R12 the "old operator" of the substitution is the operator of the one set G′
   (its layers off Ω_{k+1} are those of 𝔹_k(W_k)), with the one cover C = `coverOf` G′: background, covariance and
   covariance root at the vector s all belong to (C, G′), and the composition with G is a block average. Reading: the

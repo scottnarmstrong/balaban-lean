@@ -32,7 +32,10 @@ set `(𝔹_k(W_k) ∩ Ω^c_{k+1}) ∪ Λ_{k+1}`: the same layers below `k + 1` a
   cubes of its cube (`mem_locDomC`; it contains the cube, `mem_locDomC_of_cube_eq`);
 * `cubeKOfC`, `activeCoreC`: the cube of `𝕋_k` of a site of the cover torus, and the sites of
   `A_X = X ∩ Ω_{k+1}` of a set `X` of cubes of `𝕋_k` (the uncut core of the re-expansion of an old
-  boundary term, P6 p. 34; `mem_activeCoreC`).
+  boundary term, P6 p. 34; `mem_activeCoreC`);
+* `collarCoreC`: the sites within sup-distance `r` of `A_X` (the uncut core of the re-expansion, with
+  the collar of the pair condition `X₀^{∼r₀} ⊂ X₁` of P3 (2.14); `mem_collarCoreC`,
+  `activeCoreC_subset_collarCoreC`).
 -/
 
 @[expose] public section
@@ -191,5 +194,26 @@ theorem mem_activeCoreC {hM1 : M1 = L ^ m₁} {X : Finset (Torus d n0)}
     x ∈ activeCoreC st hM1 X ↔ cubeKOfC (n0 := n0) hM1 x ∈ X ∧ cubeOfC hM1 x ∈ st.Omega := by
   classical
   simp [activeCoreC]
+
+open Classical in
+/-- **The uncut core of the re-expansion of an old boundary term** (P6 p. 34 with the pair
+condition `X₀^{∼r₀} ⊂ X₁` of P3 (2.14), the condition that P5 (2.18) uses for `(□′, R_{k+1}(□′))`):
+the sites within sup-distance `r` of `A_X = X ∩ Ω_{k+1}` (`activeCoreC`). -/
+noncomputable def collarCoreC (hM1 : M1 = L ^ m₁) (r : ℕ) (X : Finset (Torus d n0)) :
+    Finset (Localization.CTorus d L (c * n1) m₁ (k + 1)) :=
+  Finset.univ.filter fun x => ∃ y ∈ activeCoreC st hM1 X, supDist x y ≤ r
+
+theorem mem_collarCoreC {hM1 : M1 = L ^ m₁} {r : ℕ} {X : Finset (Torus d n0)}
+    {x : Localization.CTorus d L (c * n1) m₁ (k + 1)} :
+    x ∈ collarCoreC st hM1 r X ↔ ∃ y ∈ activeCoreC st hM1 X, supDist x y ≤ r := by
+  classical
+  simp [collarCoreC]
+
+/-- `A_X` lies in its collar. -/
+theorem activeCoreC_subset_collarCoreC (hM1 : M1 = L ^ m₁) (r : ℕ) (X : Finset (Torus d n0)) :
+    activeCoreC (c := c) (k := k) st hM1 X ⊆ collarCoreC (c := c) (k := k) st hM1 r X := by
+  intro x hx
+  rw [mem_collarCoreC]
+  exact ⟨x, hx, by rw [supDist_self]; exact Nat.zero_le _⟩
 
 end Balaban.LargeField

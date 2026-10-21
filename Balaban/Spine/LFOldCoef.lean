@@ -20,11 +20,12 @@ and a boundary term `ℬ^{(k)}(X, 𝔸)` of the representation whose domain meet
 * `locDomsLF`: the localization domains `R_{k+1}(□′)` of the unit points (P5 (2.18), `locDomC`),
   `locSloc_eq`;
 * `oldCoefLF`: **the coefficient `T(X, J)`** of P6 (4.32)–(4.33) (`HoleStep.oldCoef`), with the uncut
-  core `X₁ = X ∩ Ω_{k+1}` (`activeCoreC`, the reading of `notes/phase1/PLAN-B.md`,
-  OPEN-P6-X1-INSTANTIATION) and the localization domains `locDomsLF`;
+  core `X₁` = the sites within `r` of `X ∩ Ω_{k+1}` (`collarCoreC`; P6 p. 34 with the pair condition of
+  P3 (2.14), the reading of `notes/phase1/PLAN-B.md`, OPEN-P6-X1-INSTANTIATION) and the localization
+  domains `locDomsLF`;
 * `sum_oldCoefLF_eq_of_analytic`: at the composed field of the measure the old term is `∑_J T(X, J)`
   when its interpolation is analytic on a polydisc of radius `> 1`;
-* `oldCoefLF_eq_zero_of_core`: no cube inside `X ∩ Ω_{k+1}` carries a parameter;
+* `oldCoefLF_eq_zero_of_core`: no cube inside the core carries a parameter;
 * `oldCoefLF_eq_zero_of_far`: if the old term reads only the unit points of `Rd`, the families with a
   cube in no domain `R_{k+1}(□′)`, `□′ ∈ Rd`, have coefficient `0`.
 -/
@@ -77,53 +78,54 @@ theorem locSloc_eq (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρ : 
 
 /-- **The coefficient `T(X, J)` of the re-expansion of an old boundary term of a history** (P6 (4.32)–
 (4.33), P3 (4.43)): `HoleStep.oldCoef` of the old term `oldTermLF` with the localization domains
-`R_{k+1}(□′)` (`locDomsLF`, radius `ρ = ⌊R_k⌋`) and the uncut core `X ∩ Ω_{k+1}` (`activeCoreC`). -/
+`R_{k+1}(□′)` (`locDomsLF`, radius `ρ = ⌊R_k⌋`) and the uncut core, the sites within `r` of
+`X ∩ Ω_{k+1}` (`collarCoreC`). -/
 noncomputable def oldCoefLF (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K)
-    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ : ℕ) (inner : Finset St.U)
+    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ r : ℕ) (inner : Finset St.U)
     (ψout : St.U → Fin N → ℂ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     (J : Finset Cv.cubeIdx) (ψin : inner → Rn N) : ℂ :=
-  St.oldCoef Cv ρc (locDomsLF g hM1 St ρ) (activeCoreC (c := g.c) (H.step k) hM1 X) inner ψout
+  St.oldCoef Cv ρc (locDomsLF g hM1 St ρ) (collarCoreC (c := g.c) (H.step k) hM1 r X) inner ψout
     (oldTermLF g hnn hM1 rep A X hk St.G' ψ ψ' hv gx) J ψin
 
 /-- **An old term of a history is the sum of its coefficients** (P6 (4.33) before the resummation):
 at the composed field of the measure (`locSloc` at `s = 1`), `ℬ^{(k)}(X) = ∑_J T(X, J)`, when the
 interpolated old term is analytic on a polydisc of radius `R > 1`. -/
 theorem sum_oldCoefLF_eq_of_analytic (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K)
-    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ : ℕ) (inner : Finset St.U)
+    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ r : ℕ) (inner : Finset St.U)
     (ψout : St.U → Fin N → ℂ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     (ψin : inner → Rn N) {Rp : ℝ} (hR : 1 < Rp)
     (hana : AnalyticOnNhd ℂ (St.oldInterp Cv ρc (locDomsLF g hM1 St ρ)
-      (activeCoreC (c := g.c) (H.step k) hM1 X) inner ψout
+      (collarCoreC (c := g.c) (H.step k) hM1 r X) inner ψout
       (oldTermLF g hnn hM1 rep A X hk St.G' ψ ψ' hv gx) ψin)
       (Analysis.polydisc (0 : Dec2.DecParams Cv) fun _ => Rp)) :
     St.oldAt Cv ρc (locSloc g hM1 St Cv ρ 1) inner ψout
         (oldTermLF g hnn hM1 rep A X hk St.G' ψ ψ' hv gx) ψin =
       ∑ J : Finset Cv.cubeIdx,
-        oldCoefLF g hnn hM1 St H hk Cv ρc ρ inner ψout rep A X ψ ψ' hv gx J ψin :=
+        oldCoefLF g hnn hM1 St H hk Cv ρc ρ r inner ψout rep A X ψ ψ' hv gx J ψin :=
   St.sum_oldCoef_eq_of_analytic Cv ρc _ _ inner ψout _ ψin hR hana
 
-/-- **No cube of `X ∩ Ω_{k+1}` carries a parameter**: `T(X, J) = 0` when `J` contains a cover cube
-inside the uncut core. -/
+/-- **No cube of the uncut core carries a parameter**: `T(X, J) = 0` when `J` contains a cover cube
+inside the core. -/
 theorem oldCoefLF_eq_zero_of_core (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K)
-    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ : ℕ) (inner : Finset St.U)
+    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ r : ℕ) (inner : Finset St.U)
     (ψout : St.U → Fin N → ℂ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     {J : Finset Cv.cubeIdx} {Q : Cv.cubeIdx} (hQJ : Q ∈ J)
     (hQ : cubeP (Q : ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) ⊆
-      activeCoreC (c := g.c) (H.step k) hM1 X) (ψin : inner → Rn N) :
-    oldCoefLF g hnn hM1 St H hk Cv ρc ρ inner ψout rep A X ψ ψ' hv gx J ψin = 0 :=
+      collarCoreC (c := g.c) (H.step k) hM1 r X) (ψin : inner → Rn N) :
+    oldCoefLF g hnn hM1 St H hk Cv ρc ρ r inner ψout rep A X ψ ψ' hv gx J ψin = 0 :=
   St.oldCoef_eq_zero_of_core Cv ρc _ _ inner ψout _ hQJ hQ ψin
 
 /-- **The parameters are read through the localization domains of the read unit points**: if the old
 term reads only the unit points of `Rd`, then `T(X, J) = 0` when `J` contains a cover cube inside no
 domain `R_{k+1}(□′)` of a point of `Rd`. -/
 theorem oldCoefLF_eq_zero_of_far (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K)
-    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ : ℕ) (inner : Finset St.U)
+    (Cv : DecCover S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) (ρc : ℝ) (ρ r : ℕ) (inner : Finset St.U)
     (ψout : St.U → Fin N → ℂ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
     (ψ ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
@@ -134,7 +136,7 @@ theorem oldCoefLF_eq_zero_of_far (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ 
     {J : Finset Cv.cubeIdx} {Q : Cv.cubeIdx} (hQJ : Q ∈ J)
     (hfar : ∀ b ∈ Rd, ¬ cubeP (Q : ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) ⊆
       locDomsLF g hM1 St ρ b) (ψin : inner → Rn N) :
-    oldCoefLF g hnn hM1 St H hk Cv ρc ρ inner ψout rep A X ψ ψ' hv gx J ψin = 0 :=
+    oldCoefLF g hnn hM1 St H hk Cv ρc ρ r inner ψout rep A X ψ ψ' hv gx J ψin = 0 :=
   St.oldCoef_eq_zero_of_far Cv ρc _ _ inner ψout hB hQJ hfar ψin
 
 end History
