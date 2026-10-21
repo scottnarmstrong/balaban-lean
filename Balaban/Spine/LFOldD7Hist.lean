@@ -49,11 +49,30 @@ theorem liftMixed_heq {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
       (liftMixed G₂ (G₂.blockUnion (k + 1) h1 le_rfl) subset_rfl ψ ϑ h) := by
   subst e; rfl
 
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_G (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G =
+      (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.inter (locB g hM1 V) := rfl
+
 theorem holeStepLoc_G (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G =
-      (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.inter (locB g hM1 V) := rfl
+      (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.inter (locB g hM1 V) :=
+  holeStepLocAt_G (glob := false) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
+
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_consts (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).h₀ = h₀ ∧
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).a₁ = a₁ ∧
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).ν = ν ∧
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).β = β ∧
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).p₁ = p₁ ∧
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).δ = δ := ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
 
 theorem holeStepLoc_consts (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
@@ -63,7 +82,67 @@ theorem holeStepLoc_consts (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 
     (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).ν = ν ∧
     (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).β = β ∧
     (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).p₁ = p₁ ∧
-    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).δ = δ := ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+    (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).δ = δ :=
+  holeStepLocAt_consts (glob := false) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
+
+/-- **Two mixed lifts on equal sets whose top sets agree at the data sites are equal** (the datum is
+clipped to the data sites). -/
+theorem liftMixed_heq_of_agree {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+    {G₁ G₂ : GeneratingSet d L N₀ (k + 1) ϱ} (e : G₁ = G₂)
+    {Ω₁ Ω₂ : Finset (Torus d (N₀ * L ^ (k + 1)))} (hΩ₁ : IsBlockUnion L N₀ (k + 1) (k + 1) Ω₁)
+    (hG₁ : G₁.Ω (k + 1) ⊆ Ω₁) (hΩ₂ : IsBlockUnion L N₀ (k + 1) (k + 1) Ω₂)
+    (hG₂ : G₂.Ω (k + 1) ⊆ Ω₂) (hag : ∀ x ∈ dataSites G₁, (x ∈ Ω₁ ↔ x ∈ Ω₂))
+    (ψ : Torus d (N₀ * L ^ (k + 1 - k)) → Fin N → ℂ)
+    (ϑ : Torus d (N₀ * L ^ (k + 1 - (k + 1))) → Fin N → ℂ) (h : Fin N → ℂ) :
+    HEq (liftMixed G₁ hΩ₁ hG₁ ψ ϑ h) (liftMixed G₂ hΩ₂ hG₂ ψ ϑ h) := by
+  classical
+  subst e
+  refine heq_of_eq (Background.BgData.ext' ?_ rfl)
+  funext x
+  simp only [liftMixed, BgData.clip]
+  by_cases hx : x ∈ dataSites G₁
+  · simp only [hx, ↓reduceIte]
+    unfold mixedLift
+    by_cases h1 : x ∈ Ω₁
+    · simp [h1, (hag x hx).1 h1]
+    · simp [h1, show x ∉ Ω₂ from fun h2 => h1 ((hag x hx).2 h2)]
+  · simp [hx]
+
+theorem holeStepLocAt_D'_eq (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D' =
+      liftMixed ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V))
+      (locTop_blockUnion g hM1 glob (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G' V)
+      (inter_top_subset_locTop g hM1 glob (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G' V)
+      (coverField g hnn hM1 hk ψ k (Nat.le_succ k))
+      (coverField g hnn hM1 hk (scaleMulti z ψ) (k + 1) le_rfl) (fun i => (h₀ i : ℂ)) := rfl
+
+/-- **The local steps of two histories with the same sets agree** (the core of
+`holeStepLoc_congr_sets` for the readings `glob` of the datum): equal restricted sets and top sets of
+the mixed lift that agree at the data sites. -/
+theorem holeStepLocAt_congr_sets (glob : Bool) (H H' : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
+    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hG : ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.inter (locB g hM1 V)) =
+      ((holeStepLF g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G.inter (locB g hM1 V)))
+    (hG' : ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V)) =
+      ((holeStepLF g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V)))
+    (hTop : ∀ x ∈ dataSites ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter
+        (locB g hM1 V)),
+      (x ∈ locTop g hM1 glob (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G' V ↔
+        x ∈ locTop g hM1 glob (holeStepLF g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G' V)) :
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
+      holeStepLocAt g hnn hM1 glob H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
+  obtain ⟨c1, c2, c3, c4, c5, c6⟩ := holeStepLocAt_consts g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
+  obtain ⟨d1, d2, d3, d4, d5, d6⟩ := holeStepLocAt_consts g hnn hM1 glob H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+    V
+  refine HoleStep.ext_of (by rw [holeStepLocAt_G, holeStepLocAt_G]; exact hG) hG' ?_
+    (c1.trans d1.symm) (c2.trans d2.symm) (c3.trans d3.symm) (c4.trans d4.symm) (c5.trans d5.symm)
+    (c6.trans d6.symm)
+  rw [holeStepLocAt_D'_eq, holeStepLocAt_D'_eq]
+  exact liftMixed_heq_of_agree hG' _ _ _ _ hTop _ _ _
 
 theorem holeStepLoc_D'_eq (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
@@ -83,14 +162,12 @@ theorem holeStepLoc_congr_sets (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk :
     (hG' : ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V)) =
       ((holeStepLF g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V))) :
     holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
-      holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
-  obtain ⟨c1, c2, c3, c4, c5, c6⟩ := holeStepLoc_consts g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
-  obtain ⟨d1, d2, d3, d4, d5, d6⟩ := holeStepLoc_consts g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
-  refine HoleStep.ext_of (by rw [holeStepLoc_G, holeStepLoc_G]; exact hG) hG' ?_
-    (c1.trans d1.symm) (c2.trans d2.symm) (c3.trans d3.symm) (c4.trans d4.symm) (c5.trans d5.symm)
-    (c6.trans d6.symm)
-  rw [holeStepLoc_D'_eq, holeStepLoc_D'_eq]
-  exact liftMixed_heq hG' _ _ _ (by omega)
+      holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLocAt_congr_sets g hnn hM1 false H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hG hG'
+    (fun x _ => by
+      change x ∈ (_ : GeneratingSet _ _ _ _ _).Ω (k + 1) ↔ x ∈ (_ : GeneratingSet _ _ _ _ _).Ω (k + 1)
+      rw [hG'])
+
 theorem holeStepLF_G_Ω (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (j : ℕ) (x : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)) :
@@ -225,6 +302,37 @@ theorem locSetXJ_congr (H H' : RegionHistory S n R k0 K) {k : ℕ} (r r' : ℕ)
   unfold locSetXJ
   rw [hc]
 
+/-- **The local steps of two histories agree** (the core of `holeStepLoc_congr_hist` for the readings
+`glob` of the datum; for `glob = true`, reading HS-2, `Ω_{k+1}` also agrees on the cubes of the data
+sites of the local pair, `hOmD`). -/
+theorem holeStepLocAt_congr_hist (glob : Bool) (H H' : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hL : 2 ≤ S.L)
+    (hWag : ∀ j, j ≤ k → ∀ x ∈ (locB g hM1 V).Ω j, ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+      supDist ((congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm ▸ x :
+        Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1))) y ≤ 12 * g.M1 * S.L ^ k →
+        (y ∈ stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H.step k).Z ↔
+          y ∈ stepW g.M1 g.c (n (k + 1)) S.L k ⌊R (k - 1)⌋₊ (H'.step k).Z))
+    (hOm : ∀ x ∈ (locB g hM1 V).Ω (k + 1),
+      (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega))
+    (hOmD : glob = true → ∀ x ∈ dataSites
+        ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V)),
+      (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega)) :
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
+      holeStepLocAt g hnn hM1 glob H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
+  obtain ⟨hG, hG'⟩ := holeStepLF_inter_congr g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL hWag hOm
+  refine holeStepLocAt_congr_sets g hnn hM1 glob H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hG hG'
+    (fun x hx => ?_)
+  cases glob
+  · change x ∈ (_ : GeneratingSet _ _ _ _ _).Ω (k + 1) ↔ x ∈ (_ : GeneratingSet _ _ _ _ _).Ω (k + 1)
+    rw [hG']
+  · change x ∈ (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.Ω (k + 1) ↔
+      x ∈ (holeStepLF g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.Ω (k + 1)
+    rw [holeStepLF_G'_Ω_top, holeStepLF_G'_Ω_top]
+    exact hOmD rfl x hx
+
 /-- **The local steps of two histories agree** when `W_k` agrees within `12 M₁ L^k` of the sites of
 the layers of `𝔹_{k+1}(V)` and `Ω_{k+1}` agrees on the cubes of those sites. -/
 theorem holeStepLoc_congr_hist (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
@@ -239,9 +347,9 @@ theorem holeStepLoc_congr_hist (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk :
     (hOm : ∀ x ∈ (locB g hM1 V).Ω (k + 1),
       (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega)) :
     holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
-      holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
-  obtain ⟨hG, hG'⟩ := holeStepLF_inter_congr g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL hWag hOm
-  exact holeStepLoc_congr_sets g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hG hG'
+      holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLocAt_congr_hist g hnn hM1 false H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL hWag hOm
+    (fun h => absurd h Bool.false_ne_true)
 
 /-- **Locality of `W_k = (Z_k^c)^{≈2}`**: a site `y` is in `stepW Z` iff in `stepW Z'` when `Z`, `Z'`
 agree on the cubes within `2 (ρ' + 1)` of the cube of `y`. -/
@@ -268,6 +376,29 @@ theorem mem_stepW_congr {d M1 c n1 L k n0 : ℕ} [NeZero L] [NeZero M1] [NeZero 
     exact hw ((h w hd).2 hwZ')
   exact ⟨key h, key (fun w hw => (h w hw).symm)⟩
 
+/-- **The local steps of two histories agree when `Z_k` agrees near `V`** (the core of
+`holeStepLoc_congr_hist_Z` for the readings `glob` of the datum). -/
+theorem holeStepLocAt_congr_hist_Z (glob : Bool) (H H' : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hL : 2 ≤ S.L)
+    (hZag : ∀ j, j ≤ k → ∀ x ∈ (locB g hM1 V).Ω j,
+      ∀ y : Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1)),
+      supDist ((congrArg (· * S.L ^ (k + 1)) (p6_side (c := g.c) (n1 := n (k + 1)) hM1)).symm ▸ x :
+        Torus S.d (g.M1 * (g.c * n (k + 1)) * S.L ^ (k + 1))) y ≤ 12 * g.M1 * S.L ^ k →
+      ∀ w : Torus S.d (n k), supDist (blockMap (S.L ^ k * (g.c * g.M1)) (n k) y) w ≤
+        2 * (⌊R (k - 1)⌋₊ + 1) → (w ∈ (H.step k).Z ↔ w ∈ (H'.step k).Z))
+    (hOm : ∀ x ∈ (locB g hM1 V).Ω (k + 1),
+      (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega))
+    (hOmD : glob = true → ∀ x ∈ dataSites
+        ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V)),
+      (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega)) :
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
+      holeStepLocAt g hnn hM1 glob H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
+  holeStepLocAt_congr_hist g hnn hM1 glob H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL
+    (fun j hj x hx y hxy => mem_stepW_congr y (hZag j hj x hx y hxy)) hOm hOmD
+
 /-- **The local steps of two histories agree when `Z_k` agrees near `V`** (from
 `holeStepLoc_congr_hist` and the locality of `W_k`, `mem_stepW_congr`): `Z_k`, `Z'_k` agree on the
 cubes within `2 (⌊R_{k-1}⌋ + 1)` of the cube of every site within `12 M₁ L^k` of a site of a layer
@@ -286,7 +417,7 @@ theorem holeStepLoc_congr_hist_Z (H H' : RegionHistory S n R k0 K) {k : ℕ} (hk
       (cubeOfC hM1 x ∈ (H.step k).Omega ↔ cubeOfC hM1 x ∈ (H'.step k).Omega)) :
     holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V =
       holeStepLoc g hnn hM1 H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
-  holeStepLoc_congr_hist g hnn hM1 H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL
-    (fun j hj x hx y hxy => mem_stepW_congr y (hZag j hj x hx y hxy)) hOm
+  holeStepLocAt_congr_hist_Z g hnn hM1 false H H' hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V hL hZag hOm
+    (fun h => absurd h Bool.false_ne_true)
 
 end Balaban.RootFSpine

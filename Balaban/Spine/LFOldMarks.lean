@@ -55,6 +55,19 @@ noncomputable def locUnits (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 
       unitPts (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G'
 
 omit [NeZero M] in
+/-- A unit point of the local pair is in `locUnits`. Any datum `glob`. -/
+theorem mem_locUnitsAt (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (b : (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U) :
+    (⟨b.1, HoleStep.unitPts_restrict_subset _ _ _ _ _ _ _ b.2⟩ :
+      (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U) ∈
+      locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
+  classical
+  simp only [locUnits, Finset.mem_filter, Finset.mem_univ, true_and]
+  exact b.2
+
+omit [NeZero M] in
 /-- A unit point of the local pair is in `locUnits`. -/
 theorem mem_locUnits (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
     (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
@@ -62,10 +75,26 @@ theorem mem_locUnits (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (b : (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).U) :
     (⟨b.1, HoleStep.unitPts_restrict_subset _ _ _ _ _ _ _ b.2⟩ :
       (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U) ∈
-      locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V := by
-  classical
-  simp only [locUnits, Finset.mem_filter, Finset.mem_univ, true_and]
-  exact b.2
+      locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V :=
+  mem_locUnitsAt (glob := false) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V b
+
+/-- **The coefficient reads the fluctuation field only at the unit points of the local pair.** Core
+for the readings of the local pair (the datum `glob`, the label `σ` of the local set). -/
+theorem oldCoefLocAt_congr (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
+    (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψ₁ ψ₂ : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (h : ∀ b ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J),
+      ψ₁ b = ψ₂ b) :
+    oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψ₁ =
+      oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψ₂ := by
+  unfold oldCoefLocAt
+  congr 1
+  funext b
+  exact h _ (mem_locUnitsAt (glob := glob) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b)
 
 /-- **The coefficient reads the fluctuation field only at the unit points of the local pair.** -/
 theorem oldCoefLoc_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
@@ -78,11 +107,28 @@ theorem oldCoefLoc_congr (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 �
     (h : ∀ b ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J),
       ψ₁ b = ψ₂ b) :
     oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψ₁ =
-      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψ₂ := by
-  unfold oldCoefLoc
-  congr 1
-  funext b
-  exact h _ (mem_locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b)
+      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψ₂ :=
+  oldCoefLocAt_congr (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc
+    ρ r r' rep A X ψ' hv gx J ψ₁ ψ₂ h
+
+/-- **The mark of the re-expanded old term `(X, J)`** (P6 (4.32)–(4.33)): the coefficient on
+the local pair as a function of the variables of the cubes of the block structure of the
+measure (`inner`, the cube assignment `cb`, the fixed values `ψout`), cut off outside the ball
+`|ψ̂_b| < r_ψ` of the unit points of the local pair. Core for the readings of the local pair (the
+datum `glob`, the label `σ` of the local set). -/
+noncomputable def oldMarkLFAt (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} (cb : inner → Cb)
+    (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
+    (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    (∀ b, {u : inner // cb u = b} → Rn N) → ℂ :=
+  (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).markOf inner cb ψout
+    (locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)) rψ
+    (oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J)
 
 /-- **The mark of the re-expanded old term `(X, J)`** (P6 (4.32)–(4.33)): the coefficient on the
 local pair as a function of the variables of the cubes of the block structure of the measure
@@ -98,9 +144,28 @@ noncomputable def oldMarkLF (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1
     (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
     (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     (∀ b, {u : inner // cb u = b} → Rn N) → ℂ :=
-  (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).markOf inner cb ψout
-    (locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J)) rψ
-    (oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J)
+  oldMarkLFAt (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb
+    ψout rψ ρc ρ r r' rep A X ψ' hv gx J
+
+open Classical in
+/-- **The mark depends only on the cubes of the integration variables of the local pair.** Core for
+the readings of the local pair (the datum `glob`, the label `σ` of the local set). -/
+theorem oldMarkLFAt_dep (glob : Bool) (H : RegionHistory S n R k0 K) {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (inner : Finset (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} [DecidableEq Cb] (cb : inner → Cb)
+    (ψout : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K) (X : Finset (Torus S.d (n k)))
+    (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N)) (gx : GIdx S n M K N → ℂ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Polymer.DepOn ((inner.attach.filter fun u : inner => (u : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z
+        h₀ a₁ ν β p₁ δ).U) ∈ locUnits g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)).image cb)
+      (oldMarkLFAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv
+        gx J) :=
+  HoleStep.markOf_dep _ inner cb ψout _ rψ _
+    (oldCoefLocAt_congr (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J)
 
 open Classical in
 /-- **The mark depends only on the cubes of the integration variables of the local pair.** -/
@@ -118,8 +183,72 @@ theorem oldMarkLF_dep (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K
           (locSetXJ g hM1 H r r' X J)).image cb)
       (oldMarkLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ ρc ρ r r' rep A X ψ' hv
         gx J) :=
-  HoleStep.markOf_dep _ inner cb ψout _ rψ _
-    (oldCoefLoc_congr g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J)
+  oldMarkLFAt_dep (glob := false) (σ := fun X => X) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner
+    cb ψout rψ ρc ρ r r' rep A X ψ' hv gx J
+
+/-- **The bound of P6 (4.34) for the mark of `(X, J)` on a local pair, from the datum and the
+source H7 domain** (the core of `norm_oldMarkLF_le` for the readings of the local pair; the
+hypotheses `hD`, `hdom` of `norm_oldCoefLocAt_le_of_dom`). -/
+theorem norm_oldMarkLFAt_le_of_dom (glob : Bool) {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m₁}
+    {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ bdryDomsPost Fr A k (Zof A)) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {ψ : MultiFieldC S n M K N} {q' : FinFieldC S n M K N} {gx : GIdx S n M K N → ℂ}
+    (hD : InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb
+      (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D')
+    (hdom : ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
+      ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
+      (∀ P, ‖s P‖ < Real.exp κ₁) →
+      H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+        (composedMulti g hnn hM1 hk (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ψ
+          ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).composed
+            (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') (rho4 S.d S.L N BG κ)
+            ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).slocOf
+              (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+              (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)) ρ)
+              (HoleStep.coreExt (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
+        (extK q') (fun x i => gx (x, i)))
+    (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} (cb : inner → Cb)
+    (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hrψ : 0 < rψ) (Φ : ∀ b, {u : inner // cb u = b} → Rn N) :
+    ‖oldMarkLFAt (glob := glob) (σ := σ) g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ
+        (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J Φ‖ ≤
+      fac * Real.exp (-rate * d7Size Fr A k X) *
+        Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') J).card) := by
+  have hT : ∀ ψh : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ,
+      (∀ b ∈ locUnits g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J),
+        vn (ψh b) < rψ) →
+      ‖oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+          (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J ψh‖ ≤
+        fac * Real.exp (-rate * d7Size Fr A k X) *
+          Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') J).card) :=
+    fun ψh hψh => norm_oldCoefLocAt_le_of_dom g hnn hM1 glob σ hk hrec hA hX hk1 hρ z h₀ a₁ ν β p₁ δ
+      hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' J hD hdom
+      (fun b => hψh _ (mem_locUnitsAt (glob := glob) g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b))
+  have hB0 := (norm_nonneg _).trans (hT 0 fun b _ => by simpa [vn] using hrψ)
+  exact HoleStep.markOf_bound _ inner cb ψout _ rψ _ hB0 hT Φ
 
 /-- **The bound of P6 (4.34) for the mark of `(X, J)`**: under the hypotheses of
 `norm_oldCoefLoc_le_of_inputs` and `r_ψ > 0`, `|G_{X,J}(Φ)| ≤ fac e^{-rate d^cov(X)}
@@ -166,18 +295,68 @@ theorem norm_oldMarkLF_le {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m₁} 
       fac * Real.exp (-rate * d7Size Fr A k X) *
         Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν
           β p₁ δ (locSetXJ g hM1 A.H r r' X J)).G') J).card) := by
-  have hT : ∀ ψh : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ,
-      (∀ b ∈ locUnits g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' X J),
-        vn (ψh b) < rψ) →
-      ‖oldCoefLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (rho4 S.d S.L N BG κ) ρ r r' rep A X
-          (extK q') hv gx J ψh‖ ≤
-        fac * Real.exp (-rate * d7Size Fr A k X) *
-          Real.exp (-(κ₁ - 1) * (locCubes g (coverOf (holeStepLoc g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁
-            ν β p₁ δ (locSetXJ g hM1 A.H r r' X J)).G') J).card) :=
-    fun ψh hψh => norm_oldCoefLoc_le_of_inputs g hnn hM1 hk hrec hA hX hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hIn hDat J htgt hXY hV
-      (fun b => hψh _ (mem_locUnits g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b))
-  have hB0 := (norm_nonneg _).trans (hT 0 fun b _ => by simpa [vn] using hrψ)
-  exact HoleStep.markOf_bound _ inner cb ψout _ rψ _ hB0 hT Φ
+  have hL : 2 ≤ S.L := by have := HB.hL; omega
+  exact norm_oldMarkLFAt_le_of_dom g hnn hM1 false (fun X => X) hk hrec hA hX hk1 hρ z h₀ a₁ ν β p₁ δ
+    hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' J
+    (hDat (locSetXJ g hM1 A.H r r' X J) Yf ψ (extK q') (fun x i => gx (x, i)) htgt hV)
+    (fun ψo hψo s hs => h7Domain_composedMulti_loc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ
+      (rho4 S.d S.L N BG κ) ρ r aw μs ε ε1 νs (hC hv) hL hIn (locSetXJ g hM1 A.H r r' X J) X htgt
+      hXY hV hψo hs) inner cb ψout hrψ Φ
+
+/-- **The mark of `(X, J)` on a local pair is measurable** (the core of `measurable_oldMarkLF` for
+the readings of the local pair, from `analyticOnNhd_oldCoefLocAt_fluct`). -/
+theorem measurable_oldMarkLFAt_of_dom (glob : Bool) {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m₁}
+    {k : ℕ} (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k)))
+    (hk : k + 1 ≤ K) {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) {X : Finset (Torus S.d (n k))}
+    (hX : X ∈ bdryDomsPost Fr A k (Zof A)) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {c BG δb δc κ κ₁ rψ : ℝ}
+    (hS : Dec2.DecSpecs S.d S.L (Dec2.mixedKc S.d S.L) (Cchi S.d S.L) c BG)
+    (HB : BgHyp S.d S.L (k + 1) (minSep S.L g.M1) (compWeight S.L a₁) ν)
+    (hm₁ : 2 ≤ m₁) (hN : 5 < g.c * n (k + 1)) (hM : 4 * S.L ^ 2 ≤ S.L ^ m₁)
+    (hag : 2 * S.d * Real.log S.L ≤ agmonRate S.d / 16 * (minSep S.L g.M1 - 1))
+    (ha₁ : 1 / 2 ≤ a₁) (ha₂ : a₁ ≤ 2) (hκ : 0 < κ)
+    (hMc : c * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hMX : Dec2.cstarX S.d S.L (Cchi S.d S.L) * Real.exp (N0 S.d S.L * κ) ≤ (S.L : ℝ) ^ m₁)
+    (hδ0 : 0 < δb) (hε : δb ≤ bgC0 S.d S.L N) (hδ : δb ≤ c7 S.d S.L N BG κ)
+    (hphi : 3 * δb + K4 S.d S.L N BG κ * δb < 1 / 2)
+    (hmarD : K4 S.d S.L N BG κ * δb + 2 * δb +
+      K4 S.d S.L N BG κ * δb * (K4 S.d S.L N BG κ * δb + 2 * (1 + 3 * δb)) < δc)
+    (hαD : K4 S.d S.L N BG κ * δb < coerciveConst S.d / 2)
+    (hsm : δc ^ 2 * smallConstX S.d S.L κ ≤ 1 / 4) (hκ₁ : 1 ≤ κ₁) (hκ₁κ : κ₁ ≤ κ) (ρ r r' : ℕ)
+    (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    {ψ : MultiFieldC S n M K N} {q' : FinFieldC S n M K N} {gx : GIdx S n M K N → ℂ}
+    (hD : InDomainC (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ν δb δb
+      (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).D')
+    (hdom : ∀ ψo : (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).U → Fin N → ℂ, (∀ b, vn (ψo b) < rψ) →
+      ∀ s : Dec2.DecParams (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G'),
+      (∀ P, ‖s P‖ < Real.exp κ₁) →
+      H7Domain g.M1 g.c g.hM hnn (globalLH A.H M) k (Nat.le_of_succ_le hk)
+        (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs (hC hv)
+        (composedMulti g hnn hM1 hk (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G' ψ
+          ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).composed
+            (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G') (rho4 S.d S.L N BG κ)
+            ((holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).slocOf
+              (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+              (locDomsLF g hM1 (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)) ρ)
+              (HoleStep.coreExt (coverOf (holeStepLocAt g hnn hM1 glob A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 A.H r r' (σ X) J)).G')
+                (collarCoreC (c := g.c) (A.H.step k) hM1 r X) s)) ψo))
+        (extK q') (fun x i => gx (x, i)))
+    (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U)
+    {Cb : Type*} (cb : inner → Cb)
+    (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) :
+    Measurable (oldMarkLFAt (glob := glob) (σ := σ) g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner
+      cb ψout rψ (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J) := by
+  have han := analyticOnNhd_oldCoefLocAt_fluct g hnn hM1 glob σ hk hrec hA hX hk1 hρ z h₀ a₁ ν β p₁ δ
+    hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' J hD hdom
+  refine HoleStep.measurable_markOf _ inner cb ψout _ rψ _ ?_
+  refine han.continuousOn.comp (f := fun ψh => restrictU _ _ _ _ _ _ _ ψh) ?_ ?_
+  · exact (continuous_pi fun b => continuous_apply _).continuousOn
+  · intro ψh hψh b
+    exact hψh _ (mem_locUnitsAt (glob := glob) g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b)
 
 /-- **The mark of `(X, J)` is measurable** (the coefficient is analytic in the fluctuation field on
 the ball, `analyticOnNhd_oldCoefLoc_fluct`). -/
@@ -218,12 +397,13 @@ theorem measurable_oldMarkLF {m₀' : ℕ} {Fr : FineSizeFrame S n M K m₀' m�
     (ψout : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) :
     Measurable (oldMarkLF g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ inner cb ψout rψ
       (rho4 S.d S.L N BG κ) ρ r r' rep A X (extK q') hv gx J) := by
-  have han := analyticOnNhd_oldCoefLoc_fluct g hnn hM1 hk hrec hA hX hk1 hρ z h₀ a₁ ν β p₁ δ hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' hIn hDat J htgt hXY hV
-  refine HoleStep.measurable_markOf _ inner cb ψout _ rψ _ ?_
-  refine han.continuousOn.comp (f := fun ψh => restrictU _ _ _ _ _ _ _ ψh) ?_ ?_
-  · exact (continuous_pi fun b => continuous_apply _).continuousOn
-  · intro ψh hψh b
-    exact hψh _ (mem_locUnits g hnn hM1 A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ _ b)
+  have hL : 2 ≤ S.L := by have := HB.hL; omega
+  exact measurable_oldMarkLFAt_of_dom g hnn hM1 false (fun X => X) hk hrec hA hX hk1 hρ z h₀ a₁ ν β
+    p₁ δ hS HB hm₁ hN hM hag ha₁ ha₂ hκ hMc hMX hδ0 hε hδ hphi hmarD hαD hsm hκ₁ hκ₁κ ρ r r' J
+    (hDat (locSetXJ g hM1 A.H r r' X J) Yf ψ (extK q') (fun x i => gx (x, i)) htgt hV)
+    (fun ψo hψo s hs => h7Domain_composedMulti_loc g hnn hM1 A.H hk hk1 hρ z h₀ a₁ ν β p₁ δ
+      (rho4 S.d S.L N BG κ) ρ r aw μs ε ε1 νs (hC hv) hL hIn (locSetXJ g hM1 A.H r r' X J) X htgt
+      hXY hV hψo hs) inner cb ψout
 
 end Marks
 

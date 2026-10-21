@@ -52,20 +52,13 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
 /-- **The step on a region restricted to `𝔹_{k+1}(V)` with the restricted global datum** (reading
 HS-2, repair D3): the sets of `holeStepLoc`, and the datum the mixed lift of `ψ_k` and
 `θ = z ψ_{k+1}` with `θ` on every block of the global top layer `Ω_{k+1}` (not only on the top layer
-of the restricted set): at every site of `Ω_{k+1}` the datum is a value of `θ`. -/
-noncomputable def holeStepLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+of the restricted set): at every site of `Ω_{k+1}` the datum is a value of `θ` (`holeStepLocAt` at
+`glob = true`). -/
+noncomputable abbrev holeStepLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
     HoleStep S.d S.L (g.c * n (k + 1)) m₁ k N (minSep S.L g.M1) (minSep S.L g.M1) :=
-  (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).restrict (locB g hM1 V) (locB g hM1 V)
-    (SmallField.precedes_refl _) ((locB g hM1 V).subset k hk1 (Nat.le_succ k))
-    (liftMixed ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.inter (locB g hM1 V))
-      ((holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).G'.blockUnion (k + 1) (by omega)
-        le_rfl)
-      (GeneratingSet.inter_Ω_subset_left _ _ (k + 1))
-      (coverField g hnn hM1 hk ψ k (Nat.le_succ k))
-      (coverField g hnn hM1 hk (scaleMulti z ψ) (k + 1) le_rfl) (fun i => (h₀ i : ℂ)))
-    (fun _ hx _ => by rw [liftMixed_h _ _ _ _ _ _ hx]; rfl)
+  holeStepLocAt g hnn hM1 true H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
 
 omit [NeZero M] in
 /-- The sets of `holeStepLoc2` are those of `holeStepLoc`. -/

@@ -117,19 +117,28 @@ theorem scaleMulti_rotM (ρ : OrthN N) (z : ℝ) (ψ : MultiFieldC S n M K N) :
   simp only [scaleMulti, rotM, rotC, Finset.mul_sum]
   exact Finset.sum_congr rfl fun l _ => by ring
 
-theorem holeStepLoc_rot (ρo : OrthN N) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+/-- Any datum `glob`. -/
+theorem holeStepLocAt_rot (glob : Bool) (ρo : OrthN N) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
     (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
-    holeStepLoc g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ V =
-      (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).rotBy (rotCMat ρo) (rotH0 ρo h₀)
+    holeStepLocAt g hnn hM1 glob H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ V =
+      (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).rotBy (rotCMat ρo) (rotH0 ρo h₀)
         (rotCMat_h0 ρo h₀) := by
-  unfold holeStepLoc HoleStep.restrict HoleStep.rotBy
+  unfold holeStepLocAt HoleStep.restrict HoleStep.rotBy
   congr 1
   dsimp only
   rw [liftMixed_rot]
   congr 1
   · rw [scaleMulti_rotM, coverField_rotM g hnn hM1 ρo hk _ (k + 1)]
   · exact (rotCMat_h0 ρo h₀).symm
+
+theorem holeStepLoc_rot (ρo : OrthN N) (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ)
+    (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    holeStepLoc g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ V =
+      (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).rotBy (rotCMat ρo) (rotH0 ρo h₀)
+        (rotCMat_h0 ρo h₀) :=
+  holeStepLocAt_rot (glob := false) g hnn hM1 ρo H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V
 
 theorem composedMulti_rot (ρo : OrthN N) {k : ℕ} (hk : k + 1 ≤ K) {ϱ' : ℝ}
     (G' : GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) ϱ')
@@ -276,6 +285,47 @@ theorem HoleStep.val_cast_eq {St₁ St₂ : HoleStep S.d S.L (g.c * n (k + 1)) m
     (minSep S.L g.M1)} (e : St₁ = St₂) (b : St₁.U) : (e ▸ b : St₂.U).1 = b.1 := by
   subst e; rfl
 
+/-- **The coefficient `T(X, J)` on the local pair is `O(N)`-covariant** (the clause `rot` of (D7)
+for the re-expanded old term, at the level of one coefficient): rotating the multiscale field `ψ`,
+the field `h₀`, the second field `ψ'`, the physical field `hv`, the external source `gx` and
+the fluctuation field `ψ̂` by `ρ ∈ O(N)` leaves the coefficient unchanged.  Hypotheses: the clause
+`rot` of the record at `X`, analyticity of the interpolated old terms, the standing
+conditions (`OldCoefRotHyp`). Core for the readings of the local pair (the datum `glob`, the label
+`σ` of the local set). -/
+theorem oldCoefLocAt_rot (glob : Bool) (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (ρo : OrthN N) (H : RegionHistory S n R k0 K) (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (ψ : MultiFieldC S n M K N) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts}
+    {P : BudgetConsts} (rep : Rep S n R k0 K M N geo cs P k) (A : LabHist S n R k0 K)
+    (X : Finset (Torus S.d (n k))) (ψ' : MultiFieldC S n M K N) (hv : EuclideanSpace ℝ (Fin N))
+    (gx : GIdx S n M K N → ℂ) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (ψhat : (holeStepLF g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ) {Rp κ δs : ℝ}
+    (hyp : OldCoefRotHyp g hnn hM1 H hk
+      (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)) ρo
+      (rotH0 ρo h₀) (rotCMat_h0 ρo h₀) ρc ρ r rep A X ψ ψ' hv gx
+      (restrictU _ _ _ _ _ _ _ ψhat) Rp κ δs) :
+    oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ ρc ρ r r' rep A X
+        (rotM ρo ψ') (ρo hv) (rotG ρo gx) J (rotSite (rotCMat ρo) ψhat) =
+      oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat := by
+  have e := holeStepLocAt_rot g hnn hM1 glob ρo H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)
+  have h1 : oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ ρc ρ r r' rep A X
+        (rotM ρo ψ') (ρo hv) (rotG ρo gx) J (rotSite (rotCMat ρo) ψhat) =
+      oldCoefAt g hnn hM1 H hk
+        (holeStepLocAt g hnn hM1 glob H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ
+          (locSetXJ g hM1 H r r' (σ X) J)) ρc ρ r rep A X (rotM ρo ψ) (rotM ρo ψ') (ρo hv) (rotG ρo gx) J
+        (restrictU _ _ _ _ _ _ _ (rotSite (rotCMat ρo) ψhat)) := rfl
+  have h2 : oldCoefLocAt (glob := glob) (σ := σ) g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat =
+      oldCoefAt g hnn hM1 H hk
+        (holeStepLocAt g hnn hM1 glob H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' (σ X) J)) ρc ρ r
+        rep A X ψ ψ' hv gx J (restrictU _ _ _ _ _ _ _ ψhat) := rfl
+  rw [h1, h2, ← oldCoefAt_rotBy g hnn hM1 H hk _ ρo _ (rotCMat_h0 ρo h₀) ρc ρ r rep A X ψ ψ' hv gx J _
+    hyp]
+  refine oldCoefAt_congr_step g hnn hM1 H hk e ρc ρ r rep A X (rotM ρo ψ) (rotM ρo ψ') (ρo hv)
+    (rotG ρo gx) J _ _ ?_
+  intro b
+  simp only [restrictU, rotSite]
+  congr 2
+  exact Subtype.ext (HoleStep.val_cast_eq g e b).symm
+
 /-- **The coefficient `T(X, J)` on the local pair is `O(N)`-covariant** (the clause `rot` of (D7) for
 the re-expanded old term, at the level of one coefficient): rotating the multiscale field `ψ`, the
 field `h₀`, the second field `ψ'`, the physical field `hv`, the external source `gx` and the
@@ -295,26 +345,9 @@ theorem oldCoefLoc_rot (ρo : OrthN N) (H : RegionHistory S n R k0 K) (hk : k + 
       (restrictU _ _ _ _ _ _ _ ψhat) Rp κ δs) :
     oldCoefLoc g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ ρc ρ r r' rep A X
         (rotM ρo ψ') (ρo hv) (rotG ρo gx) J (rotSite (rotCMat ρo) ψhat) =
-      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat := by
-  have e := holeStepLoc_rot g hnn hM1 ρo H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J)
-  have h1 : oldCoefLoc g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ ρc ρ r r' rep A X
-        (rotM ρo ψ') (ρo hv) (rotG ρo gx) J (rotSite (rotCMat ρo) ψhat) =
-      oldCoefAt g hnn hM1 H hk
-        (holeStepLoc g hnn hM1 H hk hk1 hρ (rotM ρo ψ) z (rotH0 ρo h₀) a₁ ν β p₁ δ
-          (locSetXJ g hM1 H r r' X J)) ρc ρ r rep A X (rotM ρo ψ) (rotM ρo ψ') (ρo hv) (rotG ρo gx) J
-        (restrictU _ _ _ _ _ _ _ (rotSite (rotCMat ρo) ψhat)) := rfl
-  have h2 : oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat =
-      oldCoefAt g hnn hM1 H hk
-        (holeStepLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ g hM1 H r r' X J)) ρc ρ r
-        rep A X ψ ψ' hv gx J (restrictU _ _ _ _ _ _ _ ψhat) := rfl
-  rw [h1, h2, ← oldCoefAt_rotBy g hnn hM1 H hk _ ρo _ (rotCMat_h0 ρo h₀) ρc ρ r rep A X ψ ψ' hv gx J _
-    hyp]
-  refine oldCoefAt_congr_step g hnn hM1 H hk e ρc ρ r rep A X (rotM ρo ψ) (rotM ρo ψ') (ρo hv)
-    (rotG ρo gx) J _ _ ?_
-  intro b
-  simp only [restrictU, rotSite]
-  congr 2
-  exact Subtype.ext (HoleStep.val_cast_eq g e b).symm
+      oldCoefLoc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc ρ r r' rep A X ψ' hv gx J ψhat :=
+  oldCoefLocAt_rot (glob := false) (σ := fun X => X) g hnn hM1 ρo H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ ρc
+    ρ r r' rep A X ψ' hv gx J ψhat hyp
 
 end LocRot
 
