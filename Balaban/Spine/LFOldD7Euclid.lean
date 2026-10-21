@@ -170,4 +170,25 @@ theorem covSqrtAt_entry (H : StepAff S S' A) (ρ : ℝ) {s : Dec2.DecParams (cov
 
 end StepAff
 
+/-- **The datum of a step is constant on the unit blocks of its unit points.** -/
+theorem bgData_unit_const (S : HoleStep d L N₁ m₁ k N ϱ ϱ') (D : BgData S.G N) (b : S.U)
+    (x : CTorus d L N₁ m₁ (k + 1)) (hx : unitBlock x = (b : UnitTorus d L N₁ m₁ k)) :
+    D.Ψ x = D.Ψ (unitRep b) := by
+  have hx0 : (unitRep b : CTorus d L N₁ m₁ (k + 1)) ∈ S.G.layer k := by
+    have h1 := S.unitRep_mem_top b
+    have hlay : S.G'.layer (k + 1) = S.G'.Ω (k + 1) := by
+      unfold GeneratingSet.layer
+      rw [S.G'.top, Finset.sdiff_empty]
+    rw [hlay] at h1
+    have h2 := S.topIn h1
+    rw [GeneratingSet.mem_layer]
+    refine ⟨h2, ?_⟩
+    rw [S.topG]; simp
+  have hblk : x ∈ S.G.blk k (unitRep b) := by
+    refine GeneratingSet.mem_blk.2 ?_
+    have : unitBlock x = unitBlock (unitRep b) := by rw [hx, unitBlock_unitRep]
+    exact this
+  have hk1 : 1 ≤ k := S.hk1
+  exact D.Ψ_layerConst k hk1 (by omega) _ hx0 x hblk
+
 end Balaban.Fluctuation
