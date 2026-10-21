@@ -2929,6 +2929,7 @@ public import Balaban.Spine.FinalSfIntegrable
 public import Balaban.Spine.FinalSfAssemble
 public import Balaban.Spine.FinalSfConstTerm
 public import Balaban.Spine.FinalSfFluct
+public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.FinalChain
 public import Balaban.Spine.FinalConstField
 public import Balaban.Spine.FinalMass
