@@ -238,6 +238,58 @@ theorem PieceWindowSetup.hcoef_of_response_flow_cubesP
     Cξ q g δ ξ hβpos hCξ hq0 hq1 hβ hμ hg hδ hμne hgenv hξ hchj hchk hAq hwt hcb hcg hcm hval hfwd
     hbwd hrB hrGf hrGb hrM hresp
 
+/-- **The mass budget of a piece from the a priori regime**: `β_k |ν_k| (L^{sc+1})^d ≤ C_m A` for
+`C_m ≥ e^{2η} D_δ/(β ε₀²)`, `A = β L^{(d-2)(sc+1)} g_{sc+1} ε_{sc+1}²`, `ε₀ ≤ ε_{sc+1}`. -/
+theorem mass_budget_of_regime {L d sc k : ℕ} [NeZero L] {β ν η Dδ ε₀ Cm E gj δk : ℝ} (hβ : 0 < β)
+    (hsc : sc + 1 ≤ k) (hε₀ : 0 < ε₀) (hE2 : ε₀ ^ 2 ≤ E ^ 2) (hgj : Real.exp (-η) ≤ gj)
+    (hreg : β * |ν| * (L : ℝ) ^ (k * d) ≤ 1) (hδk : |δk| ≤ Dδ)
+    (hCm : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm) :
+    β * Real.exp η * (((L : ℝ) ^ (sc + 1)) ^ d * (|ν| * |δk|)) ≤
+      Cm * (β * (L : ℝ) ^ ((d - 2) * (sc + 1)) * gj * E ^ 2) := by
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne L)
+  have hDδ0 : 0 ≤ Dδ := (abs_nonneg _).trans hδk
+  have hAi : β * Real.exp (-η) * ε₀ ^ 2 ≤ β * (L : ℝ) ^ ((d - 2) * (sc + 1)) * gj * E ^ 2 := by
+    have hP : 1 ≤ (L : ℝ) ^ ((d - 2) * (sc + 1)) := one_le_pow₀ hL1
+    have hgjE : Real.exp (-η) * ε₀ ^ 2 ≤ gj * E ^ 2 :=
+      mul_le_mul hgj hE2 (by positivity) ((Real.exp_pos _).le.trans hgj)
+    calc β * Real.exp (-η) * ε₀ ^ 2 = β * (1 * (Real.exp (-η) * ε₀ ^ 2)) := by ring
+      _ ≤ β * ((L : ℝ) ^ ((d - 2) * (sc + 1)) * (gj * E ^ 2)) :=
+        mul_le_mul_of_nonneg_left ((mul_le_mul_of_nonneg_right hP (by positivity)).trans
+          (mul_le_mul_of_nonneg_left hgjE (by linarith))) hβ.le
+      _ = _ := by ring
+  have hLk : ((L : ℝ) ^ (sc + 1)) ^ d ≤ (L : ℝ) ^ (k * d) := by
+    rw [← pow_mul]
+    exact pow_le_pow_right₀ hL1 (by nlinarith)
+  have e2 : Real.exp (2 * η) * Real.exp (-η) = Real.exp η := by
+    rw [← Real.exp_add]; ring_nf
+  calc β * Real.exp η * (((L : ℝ) ^ (sc + 1)) ^ d * (|ν| * |δk|))
+      ≤ β * Real.exp η * ((L : ℝ) ^ (k * d) * (|ν| * Dδ)) := by
+        apply mul_le_mul_of_nonneg_left _ (by positivity)
+        exact mul_le_mul hLk (mul_le_mul_of_nonneg_left hδk (abs_nonneg _)) (by positivity)
+          (by positivity)
+    _ = Real.exp η * Dδ * (β * |ν| * (L : ℝ) ^ (k * d)) := by ring
+    _ ≤ Real.exp η * Dδ * 1 := mul_le_mul_of_nonneg_left hreg (by positivity)
+    _ = (Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2)) * (β * Real.exp (-η) * ε₀ ^ 2) := by
+        rw [← e2]; field_simp
+    _ ≤ Cm * _ := mul_le_mul hCm hAi (by positivity) (le_trans (by positivity) hCm)
+
+/-- `K_wt` at the layer `sc + 1` from `K_wt` at the top scale `k`. -/
+theorem kwt_of_top {L d sc k : ℕ} [NeZero L] {β η Δ Sb Kwt : ℝ} (hβ : 0 < β) (hΔ0 : 0 ≤ Δ)
+    (hSb : 0 ≤ Sb) (hsc : sc + 1 ≤ k)
+    (hKwt : Sb * (β * Real.exp η * (L : ℝ) ^ ((d - 2) * k) * Δ) / 2 ≤ Kwt) :
+    Sb * (β * Real.exp η * (L : ℝ) ^ ((d - 2) * (sc + 1)) * Δ) / 2 ≤ Kwt := by
+  refine le_trans ?_ hKwt
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne L)
+  have h1 : (L : ℝ) ^ ((d - 2) * (sc + 1)) ≤ (L : ℝ) ^ ((d - 2) * k) :=
+    pow_le_pow_right₀ hL1 (Nat.mul_le_mul_left _ hsc)
+  have h3 : 0 ≤ β * Real.exp η * Δ := by positivity
+  have h4 : β * Real.exp η * (L : ℝ) ^ ((d - 2) * (sc + 1)) * Δ ≤
+      β * Real.exp η * (L : ℝ) ^ ((d - 2) * k) * Δ := by
+    calc _ = (β * Real.exp η * Δ) * (L : ℝ) ^ ((d - 2) * (sc + 1)) := by ring
+      _ ≤ (β * Real.exp η * Δ) * (L : ℝ) ^ ((d - 2) * k) := mul_le_mul_of_nonneg_left h1 h3
+      _ = _ := by ring
+  exact div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left h4 hSb) (by norm_num)
+
 /-- **`hcoef` with the cube budgets `C_b, C_g, C_m` and the target weight budget discharged.**
 `hcells` says that the cells of the decomposition of the piece are layer blocks of weight one of
 layer `ℓ ≤ sc i + 1` (`exists_piece_stepDecomp_total_le_cells`, with `ℓ ∈ {j, j + 1}`). -/
