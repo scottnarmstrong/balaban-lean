@@ -45,6 +45,35 @@ theorem inBox_of_blocksOf_subset (hN : L ^ m₀ ∣ N₁) {R : ℕ}
   obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx'
   exact hT b (hY hb) x hxb
 
+/-- **A domain of the second torus whose blocks lie in the image of `T` lies in the box.** -/
+theorem inBox_of_blocksOf_subset_image (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {R : ℕ}
+    (hm' : 2 * R + 1 < (N₁' * L ^ m₁) * L ^ (k + 1))
+    (hr : 2 * R + L * cellSide L m₀ m₁ (k + 1) < (N₁ * L ^ m₁) * L ^ (k + 1))
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Set.univ))
+    (hT : ∀ b ∈ T, ∀ x ∈ box b.1 (cellSide L m₀ m₁ (k + 1)),
+      InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x)
+    {Y' : Set (CTorus d L N₁' m₁ (k + 1))} (hDj' : IsDj m₀ (k + 1) Y')
+    (hY' : blocksOf m₀ (k + 1) Set.univ Y' ⊆ T.image
+      (cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1) hN hN'
+        (le_refl (k + 1)))) :
+    ∀ x' ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
+  have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
+    intro x hx
+    obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
+    exact hT b hb x hxb
+  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) hr T hT'
+  have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
+  intro x' hx'
+  have h1 : x' ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by
+    rw [hs']; exact ⟨hx', trivial⟩
+  obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
+  have h2 : x' ∈ sitesOf (T.image
+    (cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1) hN hN'
+      (le_refl (k + 1)))) := mem_sitesOf.2 ⟨b', hY' hb', hxb'⟩
+  rw [hsT] at h2
+  obtain ⟨w, hw, rfl⟩ := h2
+  exact inBox_boxMap hm' (hT' w hw)
+
 /-- **A domain of the second torus whose blocks lie in the image of `T` has a preimage domain of
 the box with the blocks in `T`.** -/
 theorem exists_preimage_label (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁') {R : ℕ}
@@ -62,23 +91,7 @@ theorem exists_preimage_label (hN : L ^ m₀ ∣ N₁) (hN' : L ^ m₀ ∣ N₁'
         (le_refl (k + 1)))) :
     (∀ x ∈ bm' '' Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x) ∧
       blocksOf m₀ (k + 1) Set.univ (bm' '' Y') ⊆ T ∧ bm '' (bm' '' Y') = Y' := by
-  have hT' : ∀ x ∈ sitesOf T, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
-    intro x hx
-    obtain ⟨b, hb, hxb⟩ := mem_sitesOf.1 hx
-    exact hT b hb x hxb
-  have hsT := sitesOf_image_cubeMap hN hN' (le_refl (k + 1)) (r := R) hr T hT'
-  have hs' := sitesOf_blocksOf hN' (le_refl (k + 1)) isPiUnion_univ_aux hDj'.2.1
-  have hy'R : ∀ x' ∈ Y', InBox d R ((N₁' * L ^ m₁) * L ^ (k + 1)) x' := by
-    intro x' hx'
-    have h1 : x' ∈ sitesOf (blocksOf m₀ (k + 1) Set.univ Y') := by
-      rw [hs']; exact ⟨hx', trivial⟩
-    obtain ⟨b', hb', hxb'⟩ := mem_sitesOf.1 h1
-    have h2 : x' ∈ sitesOf (T.image
-      (cubeMap (d := d) (L := L) (N₁ := N₁) (N₁' := N₁') (m₁ := m₁) (K := k + 1) hN hN'
-        (le_refl (k + 1)))) := mem_sitesOf.2 ⟨b', hY' hb', hxb'⟩
-    rw [hsT] at h2
-    obtain ⟨w, hw, rfl⟩ := h2
-    exact inBox_boxMap hm' (hT' w hw)
+  have hy'R := inBox_of_blocksOf_subset_image hN hN' hm' hr T hT hDj' hY'
   have hYR : ∀ x ∈ bm' '' Y', InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x := by
     rintro _ ⟨x', hx', rfl⟩
     exact inBox_boxMap hm (hy'R x' hx')
