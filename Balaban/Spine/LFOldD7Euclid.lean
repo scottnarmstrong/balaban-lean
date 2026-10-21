@@ -191,4 +191,29 @@ theorem bgData_unit_const (S : HoleStep d L N₁ m₁ k N ϱ ϱ') (D : BgData S.
   have hk1 : 1 ≤ k := S.hk1
   exact D.Ψ_layerConst k hk1 (by omega) _ hx0 x hblk
 
+namespace StepAff
+
+variable {S S' : HoleStep d L N₁ m₁ k N ϱ ϱ'} {A : AffIso d ((N₁ * L ^ m₁) * L ^ (k + 1))}
+
+/-- **The localized approximate minimum is transported**: `ψ^{(k)}_loc` of `S'` at the image of a
+unit point is that of `S`. -/
+theorem psiLoc_entry (H : StepAff S S' A) (ρ : ℝ)
+    {sloc : S.U → Dec2.DecParams (coverOf S.G')} {sloc' : S'.U → Dec2.DecParams (coverOf S'.G')}
+    (hsl : ∀ b P, Dec2.extS (coverOf S'.G') (sloc' (H.u b)) (tau A P) =
+      Dec2.extS (coverOf S.G') (sloc b) P) (b : S.U) (i : Fin N) :
+    S'.psiLoc (coverOf S'.G') ρ sloc' (H.u b) i = S.psiLoc (coverOf S.G') ρ sloc b i := by
+  have hB := H.decBg ρ (hsl b)
+  unfold HoleStep.psiLoc HoleStep.psiKdAt
+  rw [hB.1, ← sym_D H, H.a_eq]
+  have hc := composeData_sym_pair H.latSymm H.latSymm' S.hpre S'.hpre S.a
+    (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ (sloc b) S.D') S.D'
+  rw [hc]
+  have hx : unitBlock (A.toEquiv.symm (unitRep (H.u b))) = (b : UnitTorus d L N₁ m₁ k) := by
+    refine (H.u_spec b _).1 ?_
+    rw [Equiv.apply_symm_apply, unitBlock_unitRep]
+  exact congrFun (bgData_unit_const S (composeData S.hpre S.a
+    (Dec2.decBgField (coverOf S.G') S.G' S.a S.ν ρ (sloc b) S.D') S.D') b _ hx) i
+
+end StepAff
+
 end Balaban.Fluctuation
