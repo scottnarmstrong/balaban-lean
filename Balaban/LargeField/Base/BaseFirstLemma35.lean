@@ -2,6 +2,7 @@ module
 
 public import Balaban.LargeField.Base.BaseFirstActionClass
 public import Balaban.Fluctuation.RenormIdentity
+public import Balaban.Fluctuation.RenormExpLemma35
 
 /-!
 # Lemma 3.5 (i) at the first step
@@ -120,6 +121,42 @@ theorem baseFirst_physical_eq_class_add (aw : ℕ → ℝ) (a₀ : ℝ) (ha : aw
           ∑ y : Torus d n, ‖((1 + ζ) • θ) y - baseQ d N L n ecu y‖ ^ 2 := hA
   rw [← hA']
   exact baseFirst_lemma35 (β := β) (ξ₂ := ξ₂) (ξ₃ := ξ₃) aw hν hc H Hu h θ hD hDu
+
+omit [NeZero n] in
+/-- **Lemma 3.5 (ii) at the first step: the bound for `δφ = φu - φ`.**  On the top generating set at
+scale `1`, for the solution map `F` of the perturbed system (`exists_isRenSol`, parameters of
+Proposition 5.1 for the class radius `ε` and polydisc radius `r`), the datum `D(θ)` of the class domain
+`Ξ^c_1(𝔹; 1, ε)` and the real parameter `t = (t₁, t₂, t₃)`, `‖t‖ < r`: if `(φu, αu)` is the small
+solution of the renormalized datum `D((1 + ε t₁) θ)` at the mass `ν(1+t₂)/(1+t₃)`, then
+`F(D, t) = (φu − φ, αu − α)` with `(φ, α) = (bgFieldC, bgMultC)` of `D(θ)`, and
+`‖φu − φ‖_*, |αu − α|₂ ≤ 8 K₂ ε ‖t‖`. -/
+theorem baseFirst_deltaPhi (aw : ℕ → ℝ) {ν ε r : ℝ} (H : BgHyp d L 1 ϱ aw ν) (hε : 0 < ε)
+    (hr : r ≤ 1 / 16) (hsm : (4 * d + 6) * ((2 * d + 1) * ε) ≤ 1)
+    (hc1 : xiC1 d * ε ≤ bgC1 d L N)
+    (hK : bgK1 d L N * (xiC1 d * ε) + 3 * r ≤ deltaStar d L N)
+    (hζ : 8 * ε * r ≤ deltaStar d L N) :
+    ∃ F, IsRenSol (N := N) (topGS d L N₁ m₁ 1 ϱ) aw ν ε ε r (8 * ε) F ∧
+      ∀ (hc : N₁ * L ^ m₁ * L ^ (1 - 1) = n) (h : EuclideanSpace ℝ (Fin N))
+        (θ : Torus d n → EuclideanSpace ℝ (Fin N)),
+        XiCOne (topGS d L N₁ m₁ 1 ϱ) aw ν ε (firstDatum ϱ hc θ h) →
+        ∀ (t : Fin 3 → ℝ), ‖(fun i => ((t i : ℝ) : ℂ))‖ < r →
+        ∀ {φu : (topGS d L N₁ m₁ 1 ϱ).Ω 1 × Fin N → ℂ} {αu : (topGS d L N₁ m₁ 1 ϱ).Ω 1 → ℂ},
+        IsSmallSolution (topGS d L N₁ m₁ 1 ϱ) aw (ν * (1 + t 1) / (1 + t 2)) (c6 d L N / 2)
+          (firstDatum ϱ hc ((1 + ε * t 0) • θ) h) φu αu →
+        SupBounds (topGS d L N₁ m₁ 1 ϱ)
+            (φu - bgFieldC (topGS d L N₁ m₁ 1 ϱ) aw ν (bgC0 d L N) (firstDatum ϱ hc θ h))
+            (cK2 d L N * (8 * ε * ‖(fun i => ((t i : ℝ) : ℂ))‖)) ∧
+          Small (topGS d L N₁ m₁ 1 ϱ)
+            (αu - bgMultC (topGS d L N₁ m₁ 1 ϱ) aw ν (bgC0 d L N) (firstDatum ϱ hc θ h))
+            (cK2 d L N * (8 * ε * ‖(fun i => ((t i : ℝ) : ℂ))‖)) := by
+  obtain ⟨F, hF⟩ := exists_isRenSol (G := topGS d L N₁ m₁ 1 ϱ) (N := N) H hε hr hsm hc1 hK hζ
+  refine ⟨F, hF, fun hc h θ hD t ht φu αu hs => ?_⟩
+  obtain ⟨hΨ, hh⟩ := firstDatum_scale ϱ hc (ε * t 0) θ h
+  have heq := hF.eq_bg H hε hsm hc1 hD (t := t) ht hΨ hh (c₀ := c6 d L N / 2) (by linarith) hs
+  have hsup := hF.sup _ hD _ ht
+  have hsmall := hF.small _ hD _ ht
+  rw [heq] at hsup hsmall
+  exact ⟨hsup, hsmall⟩
 
 end Class
 
