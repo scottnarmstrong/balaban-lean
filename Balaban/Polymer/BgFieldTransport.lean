@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Background.Def5
+public import Balaban.Background.BgFieldTwoTorusEquiv
 
 /-!
 # The background field under an isomorphism of the Euler-Lagrange systems
@@ -39,16 +40,6 @@ def transFld (e : G.Ω 1 ≃ G'.Ω 1) (φ : G.Ω 1 × Fin N → ℂ) : G'.Ω 1 �
 /-- The transport of a multiplier on `Ω₁(G)` to `Ω₁(G')`. -/
 def transMult (e : G.Ω 1 ≃ G'.Ω 1) (α : G.Ω 1 → ℂ) : G'.Ω 1 → ℂ :=
   fun x => α (e.symm x)
-
-theorem liftOp_mulVec_apply {ι : Type*} [Fintype ι] (A : Matrix ι ι ℂ) (φ : ι × Fin N → ℂ)
-    (x : ι) (i : Fin N) :
-    (liftOp N A *ᵥ φ) (x, i) = ∑ y, A x y * φ (y, i) := by
-  simp only [Matrix.mulVec, dotProduct, liftOp, Fintype.sum_prod_type]
-  refine Finset.sum_congr rfl fun y _ => ?_
-  rw [Finset.sum_eq_single i]
-  · simp
-  · intro j _ hj; simp [Ne.symm hj]
-  · simp
 
 variable (a : ℕ → ℝ) (ν : ℝ)
 
