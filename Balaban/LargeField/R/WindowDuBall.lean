@@ -37,16 +37,17 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N : ℕ} {H : RegionHistory S n R k0 K} {m' : ℕ} {Z : H.Comp (m' + 1)}
   {g : Geo S n R M}
 
-/-- A site within `2 L^j M` (in the local torus) of the region of the piece `(j, c)` is, in the local
+/-- A site within `t L^j M` (in the local torus) of the region of the piece `(j, c)` is, in the local
 torus, a data site of the local generating set. -/
-theorem ball_dist_mem_dataSites {j : ℕ} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+theorem ball_dist_mem_dataSitesT {j : ℕ} {t : ℕ} (hR : BallRadiusOK R m' j t)
+    (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
     (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
     {y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
     {z : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))}
     (hz : z ∈ Xfine g (H.locRH (j + 1) c) j c.1)
     (hzy : Green.torusDist S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)) z
-      (torusCast (piece_torus_eq g H.F.hnn hmK hj) y) ≤ 2 * ((S.L : ℝ) ^ j * M)) :
+      (torusCast (piece_torus_eq g H.F.hnn hmK hj) y) ≤ (t : ℝ) * ((S.L : ℝ) ^ j * M)) :
     torusCast (piece_torus_eq g H.F.hnn hmK hj) y ∈
       dataSites (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK) := by
   set hT := piece_torus_eq g H.F.hnn hmK hj with hhT
@@ -58,16 +59,31 @@ theorem ball_dist_mem_dataSites {j : ℕ} (hmK : m' + 1 ≤ K) (hW : H.RipeWindo
   have hzX : torusCast hT (e.symm z) ∈ Xfine g (H.locRH (j + 1) c) j c.1 := by
     rw [hez]; exact hz
   have hd : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) y (e.symm z) ≤
-      2 * ((S.L : ℝ) ^ j * M) := by
+      (t : ℝ) * ((S.L : ℝ) ^ j * M) := by
     have h1 := torusDist_equivCast_symm hT (torusCast hT y) z
     rw [hey] at h1
     rw [h1, Green.torusDist_comm_gen]; exact hzy
-  have hsup : supDist y (e.symm z) ≤ 2 * (S.L ^ j * M) := by
+  have hsup : supDist y (e.symm z) ≤ t * (S.L ^ j * M) := by
     have := supDist_le_torusDist y (e.symm z)
-    have h2 : (supDist y (e.symm z) : ℝ) ≤ ((2 * (S.L ^ j * M) : ℕ) : ℝ) := by
+    have h2 : (supDist y (e.symm z) : ℝ) ≤ ((t * (S.L ^ j * M) : ℕ) : ℝ) := by
       push_cast; linarith
     exact_mod_cast h2
-  exact ball_cast_mem_dataSites hmK hW hj hk1j hK hc hzX hsup
+  exact ball_cast_mem_dataSitesT hmK hW hj hk1j hK hc hzX hR hsup
+
+/-- A site within `2 L^j M` (in the local torus) of the region of the piece `(j, c)` is, in the local
+torus, a data site of the local generating set. -/
+theorem ball_dist_mem_dataSites {j : ℕ} (hmK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
+    (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    {z : Torus S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1))}
+    (hz : z ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hzy : Green.torusDist S.d (g.M1 * (g.c * n (j + 1)) * S.L ^ (j + 1)) z
+      (torusCast (piece_torus_eq g H.F.hnn hmK hj) y) ≤ 2 * ((S.L : ℝ) ^ j * M)) :
+    torusCast (piece_torus_eq g H.F.hnn hmK hj) y ∈
+      dataSites (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK) :=
+  ball_dist_mem_dataSitesT (hmK := hmK) (hW := hW) (hj := hj) (hk1j := hk1j) (hK := hK) (hc := hc) (hz := hz) (hzy := hzy)
+    (t := 2) (hR := ballRadiusOK_two H g m' j)
 
 variable {ι : Type u} [Fintype ι]
 
