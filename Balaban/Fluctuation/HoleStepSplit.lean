@@ -25,7 +25,10 @@ structure (`ProdSplitOn`) on which the cluster expansion of Theorem 3.4 runs.
 * `HoleStep.oldTotal_eq_sum_of_marks`: **Theorem 3.1 (c) for the step on a region**: with the
   localized exponent and marks of the measure of P5 (3.2) on this block structure
   (`InterpMarksOn`), `ℬ''^{(k+1)} = ∑_S interpTermOn S` over the sets `S` of cubes of `Ω`, with the
-  bound of Theorem 3.4.
+  bound of Theorem 3.4;
+* `HoleStep.oldBOut`, `HoleStep.oldTotal_eq_sum_oldBOut`, `HoleStep.norm_oldBOut_le`: the terms of
+  `ℬ''^{(k+1)}` grouped by a label map `lab` of the sets of cubes (the output domains `Ŷ(S)` of
+  FLUCTUATION Theorem 3.1 (c)), their sum and their bound.
 -/
 
 @[expose] public section
@@ -109,6 +112,55 @@ theorem oldTotal_eq_sum_of_marks (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
       ∀ T, ‖interpTermOn I T‖ ≤ CPE d L I.Kc I.κH I.κ0 I.κ' *
           (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) * Real.exp (-I.κ' * dExt T) :=
   interpAvg_eq_sum_interpTermOn hΩ I
+
+variable {m₀ : ℕ} {Ω : Set (CTorus d L N₁ m₁ (k + 1))} {X : Type*} [MeasurableSpace X]
+  {ν : Measure X} {BS : ProdSplitOn ν d L N₁ m₁ (k + 1) m₀ Ω} {W : ℝ → X → ℂ} {f : ℝ → X → ℂ}
+
+open Classical in
+/-- **The output terms of an interpolation average grouped by a label map** `lab` of the sets of
+cubes (for `ℬ''^{(k+1)}`, the output domains `Ŷ(S)` of FLUCTUATION Theorem 3.1 (c)): the sum of the
+terms `interpTermOn S` of the sets `S` with label `Y`. -/
+noncomputable def oldBOut (I : InterpMarksOn ν BS W f) {Lbl : Type*} [DecidableEq Lbl]
+    (lab : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω) → Lbl)
+    (Y : Lbl) : ℂ :=
+  ∑ T ∈ Finset.univ.filter (fun T => lab T = Y), interpTermOn I T
+
+/-- The interpolation average is the sum of its grouped output terms. -/
+theorem interpAvg_eq_sum_oldBOut (hΩ : IsPiUnion m₀ (k + 1) Ω) (I : InterpMarksOn ν BS W f)
+    {Lbl : Type*} [Fintype Lbl] [DecidableEq Lbl]
+    (lab : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω) → Lbl) :
+    interpAvg ν W f = ∑ Y, oldBOut I lab Y := by
+  classical
+  rw [(interpAvg_eq_sum_interpTermOn hΩ I).1]
+  unfold oldBOut
+  exact (Finset.sum_fiberwise Finset.univ lab (interpTermOn I)).symm
+
+/-- **`ℬ''^{(k+1)}` is the sum of its grouped output terms** (FLUCTUATION Theorem 3.1 (c) for the
+step on a region). -/
+theorem oldTotal_eq_sum_oldBOut (C : DecCover d L N₁ m₁ (k + 1)) (ρ : ℝ)
+    (sloc : S.U → Dec2.DecParams C) (inner : Finset S.U) (ψout : S.U → Fin N → ℂ)
+    (Φ B : (S.U → Fin N → ℂ) → ℂ) (hΩ : IsPiUnion m₀ (k + 1) Ω)
+    {BS' : ProdSplitOn (S.nuIn inner) d L N₁ m₁ (k + 1) m₀ Ω}
+    (I : InterpMarksOn (S.nuIn inner) BS' (S.expW C ρ sloc inner ψout Φ B)
+      (fun _ => S.oldAt C ρ sloc inner ψout B))
+    {Lbl : Type*} [Fintype Lbl] [DecidableEq Lbl]
+    (lab : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω) → Lbl) :
+    S.oldTotal C ρ sloc inner ψout Φ B = ∑ Y, oldBOut I lab Y :=
+  interpAvg_eq_sum_oldBOut hΩ I lab
+
+/-- **The bound of a grouped output term**: the sum over the sets of cubes with label `Y` of the bound
+`C_PE (∑_i F₀ᵢ e^{-κ₀ 𝗱(Y₀ᵢ)}) e^{-κ' d_Ω(S)}` of Theorem 3.4. -/
+theorem norm_oldBOut_le (hΩ : IsPiUnion m₀ (k + 1) Ω) (I : InterpMarksOn ν BS W f)
+    {Lbl : Type*} [DecidableEq Lbl]
+    (lab : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) m₀ (k + 1) Ω) → Lbl)
+    (Y : Lbl) :
+    ‖oldBOut I lab Y‖ ≤ ∑ T ∈ Finset.univ.filter (fun T => lab T = Y),
+      CPE d L I.Kc I.κH I.κ0 I.κ' * (∑ i, I.F0 i * Real.exp (-I.κ0 * I.Lab.dl (I.y0 i))) *
+        Real.exp (-I.κ' * dExt T) := by
+  classical
+  unfold oldBOut
+  exact (norm_sum_le _ _).trans
+    (Finset.sum_le_sum fun T _ => (interpAvg_eq_sum_interpTermOn hΩ I).2 T)
 
 end HoleStep
 
