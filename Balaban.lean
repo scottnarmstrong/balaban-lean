@@ -3218,3 +3218,5 @@ public import Balaban.LargeField.R.WindowDuFlowEst
 public import Balaban.LargeField.R.WindowDuBound
 public import Balaban.LargeField.Operators.KerBoundOn
 public import Balaban.Inhabited.NewLevelCanonPinsOfIrrel
+public import Balaban.Inhabited.NewLevelCanonMargin
+public import Balaban.Inhabited.NewLevelCanonProducer

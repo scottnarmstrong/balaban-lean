@@ -14,10 +14,9 @@ public import Balaban.Polymer.LocalBBoxCorr
 
 `CanonCoverLocal F F'`: the generating sets `Gk`, `Gj` of the canonical covers of two tori are the local
 generating sets `𝔹_n(P)` of polymers `P` (`localB`).  `hgeom_of_local` proves `HGeom` for them: the margin
-`Z` is the union of the `π_{k+1}`-cells of the sites within `zRad` of the polymer, the neighbours and the
+`Z` is the union of the `L^{k+1}`-cells of the sites within `zRad` of the polymer, the neighbours and the
 polymers of `Gk`, `Gj`; the correspondence of the generating sets is `gsCorr_localB` and
-`gsIso_localB_on`.  The cover requirement is the explicit hypothesis `hX1`: the region `X₁` contains the
-cell neighbourhood of every site of `Z`'s generating set.
+`gsIso_localB_on`.
 -/
 
 @[expose] public section
@@ -85,11 +84,12 @@ def canonPts {F : CanonCover d L N₁ m₁ k ϱ ϱ₁} {F' : CanonCover d L N₁
   insert y₀ X₀ ∪ {y | ∃ μ : Fin d, y = y₀ + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ (k + 1))} ∪
     LC.PK j y₀ X₀ ∪ LC.PJ j y₀ X₀
 
-/-- **The margin of a pair.** -/
+/-- **The margin of a pair**: the union of the `L^{k+1}`-cells of the sites within `zRad` of its
+points; it is closed under the blocks of every generating set (sides at most `L^{k+1}`, nested). -/
 def canonZ {F : CanonCover d L N₁ m₁ k ϱ ϱ₁} {F' : CanonCover d L N₁' m₁ k ϱ ϱ₁'}
-    (LC : CanonCoverLocal F F') (m₀ j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
+    (LC : CanonCoverLocal F F') (j : ℕ) (y₀ : CTorus d L N₁ m₁ (k + 1))
     (X₀ : Set (CTorus d L N₁ m₁ (k + 1))) : Set (CTorus d L N₁ m₁ (k + 1)) :=
-  cellUnion m₀ (nearSet (zRad L m₁ k) (canonPts LC j y₀ X₀))
+  {y | ∃ x ∈ nearSet (zRad L m₁ k) (canonPts LC j y₀ X₀), SameCell (L ^ (k + 1)) y x}
 
 omit [NeZero N₁] [NeZero L] in
 theorem layerIndex_le_top {N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ' : ℝ}

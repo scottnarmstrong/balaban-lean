@@ -1812,3 +1812,22 @@ the polymer (data sites of `Gk` are within `11 L^(m₁+j)+1`), closed under bloc
 its sites to the complement of `X₁` (`(L-2) a_K - 6 L^(k+1+m₁) > 0` for `L^{m₀}(L-2) ≥ 6`), a generalization of
 `LocalCover.blockMargin` from "Zα in one cell" to "Zα within `a_K` of the cell".  `hgeom_of_local` then needs `hX1` replaced by
 this distance condition.
+
+### A4-1f the margin and the canonical producer (W1161, 2026-10-21)
+
+Statements that changed (all in my own blocker-7 files, plus one core refactor):
+- `LocalCover.blockMargin` (LevelLocalCover.lean) is now an instance of the core `blockMargin_core` (margin against any region `X₁`
+  from: the sites of `Zα`, moved by an integer vector of sup norm `< 6 M`, stay in `X₁`); new `hatRad_add_le_six`, `six_le_cells`
+  (`hatRad_add_le` is their consequence); landed statements unchanged.
+- `hgeom_of_local` / `newLevel_coeff_twoTorus_of_class_cells`: the hypotheses `hX1`, `hm₀1` are replaced by `hmarg` (the `6 M`-neighbourhood
+  of the margin `canonZ` lies in `X₁fC`, `M = L^(k+1+m₁)`) and `hcb` (the cell box of `y₀` lies in `X₁fC`).  `canonZ` (no `m₀` argument) is
+  the union of the `L^(k+1)`-cells of the sites within `zRad` of the points of the pair (block-closed: the cells are nested).
+- `NewLevelCanonMargin.mem_nbhd_of_supDist`: if `r + 6 M ≤ (L-1) a_K`, the `6M`-neighbourhood of the sup-ball of radius `r` around `p` lies in
+  `nbhd m₀ p`.  Margin radius is about `zRad + L^(k+1) ≈ 11 M + M`, so with `p` in a cell met by the polymer `hmarg` follows from
+  `12 M + 6 M ≤ (L-1) L^{m₀} M`, i.e. `(L-1) L^{m₀} ≥ 18` (L = 3: m₀ ≥ 3; L = 3, m₀ = 2 gives 18, borderline-ok).  The class constants
+  (`hM8 : 8 ≤ L^(m₀+m₁)`) do not give it; `m₀` large enough is a requirement on the class.
+- `NewLevelCanonProducer`: `canonOldTermSystem` (index type `AdmPairs`, `Eτ = irrelTorus`, cover fields from `F`, `XL` as in `OldTermsAreIrrel`) and
+  `canonOldTermSystem_pins` (`OldTermsCanonPinsAt`: surjectivity and the cover pins by construction).  Inputs it cannot supply: the decoupled fields
+  `F₁L`, `SolL`, `FkL` and their pins `DecFieldPin`, `DecSolPin`, `FkPin` per admissible pair, and the `OldTermSettings`/`NewLevelSystem` fields on
+  top (BgSetting, FlSetting, trees).  No standalone lemma produces them: they are obtained inside `StepTowerBeta0Families` (the two
+  `OldTermSystem.mk` applications, ~lines 346 and 519), where the index type and the fields are universally quantified inputs of the layer.
