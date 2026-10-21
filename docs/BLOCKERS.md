@@ -35,9 +35,9 @@ not as a closed blocker. All statements below are in `Balaban/Spine/`.
 | # | Statement that closes it | Proved |
 |---|---|---|
 | 1 | `KfZeroInput` (the case with no renormalization step) and `BaseStepInput` (the first step) | `KfZeroInput`: yes (20 October, `kfZeroInput_of_typing`; the one condition beyond the statement is a lower bound on the block side M·L by d, N, L, κ, a choice of the exponent of M = L^n); `BaseStepInput`: no |
-| 2 | the switch at the scale k₀ inside `FrozenSFStepInput`, and `LFBdrySrcInput` (the source radius) | no |
+| 2 | `LFBdrySrcInput` (the activity bound on the shrinking source radius). The switch itself is no longer a separate statement: with ruling R2 both halves of a step use complete backgrounds, and the repaired switch at k₀ is an ordinary step; the frozen step's assembly `frozenSFStepInput_of_parts` is proved without it | no |
 | 3 | `LFBdryOldInput` for the step's actual boundary terms | no |
-| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | no |
+| 4 | `RKeptGasInput`, with the vacuum bound `RVacuumB0Input` | `RVacuumB0Input` yes (20 October); `RKeptGasInput` no |
 | 5 | `FinalSmallFieldInput` and `FinalLargeFieldInput` (the two halves of `LastIntegralInput`) | no |
 | 6 | the clauses (A1)–(A5) of the new level on the local generating sets, in `SFNewLevelInput` | no |
 | 7 | the two-torus clauses: exact agreement of the last-scale activities in `FinalSmallFieldInput`, and the agreement of each step's terms carried by the class | no |
