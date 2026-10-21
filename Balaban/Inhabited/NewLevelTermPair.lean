@@ -184,6 +184,27 @@ theorem evTerm_twoTorus_of_premisesAt
     hθ, hθ', ⟨P⟩⟩ := hP
   exact evTerm_twoTorus_of_pairAt NS NS' τ τ' θ θ' Y Y' Φ Φ' u t₀ haS hνS hβ hbU hX hm₀ hj hY hθ hθ' P
 
+/-- **The localized old terms of two systems agree, from the premises (as `oldTermVal`).** -/
+theorem oldTermVal_twoTorus_of_premisesAt
+    {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp}
+    (NS : NewLevelSystem S C z Jr)
+    {S' : StepSetting d L N₁' m₁ k N ϱ} {C' : StepClass d L N₁' m₁ k N ϱ}
+    {z' : RootIdx d L N₁' m₁ (k + 1)} {t' pp' : ℝ} {Jr' : S'.JointRep t' pp'}
+    (NS' : NewLevelSystem S' C' z' Jr')
+    (τ : NS.O.ι) (τ' : NS'.O.ι) (θ : physParam N S) (θ' : physParam N S')
+    (Y : Set (CTorus d L N₁ m₁ (k + 1))) (Y' : Set (CTorus d L N₁' m₁ (k + 1)))
+    (Φ : ∀ b, (S.blockSplit 1 NS.hp).Ωb b) (Φ' : ∀ b, (S'.blockSplit 1 NS'.hp).Ωb b)
+    (u t₀ : ℂ)
+    (haS : S'.a₁ = S.a₁) (hνS : S'.ν = S.ν) (hβ : S'.β = S.β) (hbU : S'.betaU = S.betaU)
+    (hX : NS'.O.X₁f τ' = (NS.O.X₁f τ).image
+      (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))))
+    (hm₀ : NS'.O.m₀ = NS.O.m₀) (hj : NS'.O.jL τ' = NS.O.jL τ)
+    (hY : Y' = (boxMap ((N₁ * L ^ m₁) * L ^ (k + 1)) ((N₁' * L ^ m₁) * L ^ (k + 1))) '' Y)
+    (hP : TermPairPremisesAt NS NS' τ τ' θ θ' Y Φ Φ' u t₀) :
+    NS'.oldTermVal θ' Φ' u t₀ Y' τ' = NS.oldTermVal θ Φ u t₀ Y τ :=
+  evTerm_twoTorus_of_premisesAt NS NS' τ τ' θ θ' Y Y' Φ Φ' u t₀ haS hνS hβ hbU hX hm₀ hj hY hP
+
 /-- **The premises of the comparison of the old term `τ` of `NS` with the old term `e τ` of `NS'`
 at the mark `(u, t₀)`**: some constants, a box radius, a label margin `Z`, data `D`, `D'` with raw
 parts `θ`, `θ'`, and the premises structure `OldTermPair` of these data. -/
