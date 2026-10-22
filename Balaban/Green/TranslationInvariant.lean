@@ -68,11 +68,6 @@ end Inverse
 
 /-! ### Block decay for the unit-lattice Green's function -/
 
-theorem fineHamiltonian_isUnit (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < a) :
-    IsUnit (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a) :=
-  (fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
-    hd hν ha).isUnit
-
 theorem norm_ofReal_sub_sq (r s : ℝ) : ‖(r : ℂ) - (s : ℂ)‖ ^ 2 = (r - s) ^ 2 := by
   rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs, sq_abs]
 
@@ -155,7 +150,8 @@ theorem oneScale_blockDecay (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 �
     blockL2 (L ^ k) N₀ y ((fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ *ᵥ F) ≤
       blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) *
         blockL2 (L ^ k) N₀ y' F := by
-  have hU := fineHamiltonian_isUnit (L := L) (N₀ := N₀) (k := k) hd hν (by linarith : 0 < a)
+  have hU := (fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
+    hd hν (by linarith : 0 < a)).isUnit
   have h := oneScale_blockDecay_fun hd hk hν ha1 ha2
     (w := (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ *ᵥ F) (fun x _ => by
       rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
@@ -270,7 +266,8 @@ theorem blockGreenKernel_decay (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (y y' : Torus d N₀) :
     |blockGreenKernel d (N₀ * L ^ k) (L ^ k) N₀ ν a y y'| ≤
       blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) := by
-  have hU := fineHamiltonian_isUnit (L := L) (N₀ := N₀) (k := k) hd hν (by linarith : 0 < a)
+  have hU := (fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
+    hd hν (by linarith : 0 < a)).isUnit
   rw [blockGreenKernel_apply]
   have e : (fun x => ((fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ *
       blockPullbackMatrix d (N₀ * L ^ k) (L ^ k) N₀) x y') =

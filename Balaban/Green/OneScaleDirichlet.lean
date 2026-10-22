@@ -341,7 +341,8 @@ theorem fineDirichlet_univ (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < 
     (F : Torus d (N₀ * L ^ k) → ℝ) :
     dirichletSol (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a) Finset.univ F =
       (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a)⁻¹ *ᵥ F := by
-  have hU := fineHamiltonian_isUnit (L := L) (N₀ := N₀) (k := k) hd hν ha
+  have hU := (fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
+    hd hν ha).isUnit
   refine (eq_dirichletSol _ Finset.univ F (fineHamiltonian_submatrix_isUnit hd hν ha _)
     (fun x hx => absurd (Finset.mem_univ x) hx) (fun x _ => ?_)).symm
   rw [Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv _ ((Matrix.isUnit_iff_isUnit_det _).1 hU),
