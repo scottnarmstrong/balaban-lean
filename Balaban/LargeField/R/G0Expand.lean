@@ -66,7 +66,20 @@ def decCyF (czF : Zt → Finset B) (cxF : Xt → Finset B) (near : Xt → Zt →
     Finset B :=
   cxF y.1.1 ∪ y.1.2.biUnion czF
 
+/-- The charged support of a decorated light object (full support minus the hole). -/
+def decCy (S₀ : Finset B) (czF : Zt → Finset B) (cxF : Xt → Finset B) (near : Xt → Zt → Prop)
+    (y : DecObj near) : Finset B :=
+  decCyF czF cxF near y \ S₀
+
+/-- The charged support of a heavy object (full support minus the hole). -/
+def decZs (S₀ : Finset B) (czF : Zt → Finset B) (m : Zt) : Finset B := czF m \ S₀
+
 variable {Ω : B → Type*} [∀ b, MeasurableSpace (Ω b)]
+
+/-- The coupling of a decorated light object `(X, S)`: `b_X(S)`. -/
+def decβ (near : Xt → Zt → Prop) (b : Xt → Finset Zt → (∀ b, Ω b) → ℂ) (y : DecObj near)
+    (Φ : ∀ b, Ω b) : ℂ :=
+  b y.1.1 y.1.2 Φ
 
 /-- **The activity of a hole polymer** (P7 (3.27); LFR Lemma III.10.5): the expectation, under the
 product reference measure `⨂_b μ_b`, of the sum over the connected (through charged contacts)
@@ -75,8 +88,8 @@ weights `τ_m(Φ)`, `e^{b_X(S)(Φ)} - 1`. -/
 def decHoleK (H : SimpleGraph B) (S₀ : Finset B) (czF : Zt → Finset B) (cxF : Xt → Finset B)
     (near : Xt → Zt → Prop) (τ : Zt → (∀ b, Ω b) → ℂ) (b : Xt → Finset Zt → (∀ b, Ω b) → ℂ)
     (μ : ∀ b, Measure (Ω b)) (X : HolePolymer H S₀) : ℂ :=
-  actGasHoleKOp H S₀ (decCyF czF cxF near) czF (decAct near)
-    (fun y => decCyF czF cxF near y \ S₀) (fun m => czF m \ S₀) (fun y Φ => b y.1.1 y.1.2 Φ) τ μ X
+  actGasHoleKOp H S₀ (decCyF czF cxF near) czF (decAct near) (decCy S₀ czF cxF near)
+    (decZs S₀ czF) (decβ near b) τ μ X
 
 /-- **The local term `P(X)` of the cluster expansion** (P7 (3.28); LFR Lemma III.10.5): the sum over
 the clusters of hole polymers (with their Ursell function, `PY`) whose union of full supports is
