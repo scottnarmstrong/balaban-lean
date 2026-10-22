@@ -26,8 +26,6 @@ the centre is rotated and the Hamiltonian commutes with the rotation.
 
 @[expose] public section
 
-set_option linter.unusedSectionVars false
-
 namespace Balaban.LargeField
 
 open Matrix Balaban.Green MeasureTheory
@@ -71,25 +69,30 @@ noncomputable def rotConfig (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] Eucl
     Config ι N →ₗ[ℝ] Config ι N :=
   LinearMap.pi fun x => ρ.toLinearEquiv.toLinearMap ∘ₗ LinearMap.proj x
 
+omit [Fintype ι] [DecidableEq ι] in
 @[simp] theorem rotConfig_apply (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin N))
     (u : Config ι N) (x : ι) : rotConfig ρ u x = ρ (u x) := rfl
 
+omit [DecidableEq ι] in
 theorem cinner_rotConfig (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin N))
     (u v : Config ι N) : cinner (rotConfig ρ u) (rotConfig ρ v) = cinner u v := by
   simp [cinner]
 
+omit [Fintype ι] [DecidableEq ι] in
 theorem tangentOp_rot (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin N))
     (e u : Config ι N) :
     tangentOp (rotConfig ρ e) (rotConfig ρ u) = rotConfig ρ (tangentOp e u) := by
   funext x
   simp [tangentOp_apply, map_sub, map_smul]
 
+omit [Fintype ι] [DecidableEq ι] in
 theorem normalProj_rot (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin N))
     (e u : Config ι N) :
     normalProj (rotConfig ρ e) (rotConfig ρ u) = rotConfig ρ (normalProj e u) := by
   funext x
   simp [normalProj_apply, map_smul]
 
+omit [Fintype ι] [DecidableEq ι] in
 /-- The form `gaussForm` is equivariant when the Hamiltonian commutes with the rotation. -/
 theorem gaussForm_rot (ρ : EuclideanSpace ℝ (Fin N) ≃ₗᵢ[ℝ] EuclideanSpace ℝ (Fin N))
     (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
