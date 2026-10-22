@@ -64,12 +64,13 @@ theorem val_sub_single_ne (x : Torus d ℓ) {μ ν : Fin d} (h : ν ≠ μ) :
     ((x - (Pi.single μ 1 : Torus d ℓ)) ν).val = (x ν).val := by
   simp [Pi.single_eq_of_ne h]
 
-/-- Two sites of the same `s'`-block are joined by a path of nearest-neighbour steps inside any set
-containing the block. -/
-theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ)
-    (hX : ∀ z : Torus d ℓ, (∀ μ, (z μ).val / s' = c μ) → z ∈ X) :
-    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, (x μ).val / s' = c μ) →
-      (∀ μ, (y μ).val / s' = c μ) → Relation.ReflTransGen (StepIn X) x y := by
+/-- **Two sites of the same level set of a monotone coordinate function** `f` (a product of
+intervals of the coordinates) are joined by a path of nearest-neighbour steps inside any set
+containing the level set. -/
+theorem block_connected_of_monotone (f : ℕ → ℕ) (hf : Monotone f) (X : Finset (Torus d ℓ))
+    (c : Fin d → ℕ) (hX : ∀ z : Torus d ℓ, (∀ μ, f (z μ).val = c μ) → z ∈ X) :
+    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, f (x μ).val = c μ) →
+      (∀ μ, f (y μ).val = c μ) → Relation.ReflTransGen (StepIn X) x y := by
   intro n
   induction n using Nat.strong_induction_on with
   | _ n ih =>
@@ -98,13 +99,13 @@ theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ
         set x' : Torus d ℓ := x + (Pi.single μ 1 : Torus d ℓ) with hx'
         have hx'μ := val_add_single_self x μ hv1
         have hx'ν : ∀ ν, ν ≠ μ → (x' ν).val = (x ν).val := fun ν hν => val_add_single_ne x hν
-        have hblk : ∀ ν, (x' ν).val / s' = c ν := by
+        have hblk : ∀ ν, f (x' ν).val = c ν := by
           intro ν
           by_cases hν : ν = μ
           · subst hν
             rw [hx'μ]
-            have h1 : ((x ν).val + 1) / s' ≤ (y ν).val / s' := Nat.div_le_div_right (by omega)
-            have h2 : (x ν).val / s' ≤ ((x ν).val + 1) / s' := Nat.div_le_div_right (by omega)
+            have h1 : f ((x ν).val + 1) ≤ f (y ν).val := hf (by omega)
+            have h2 : f (x ν).val ≤ f ((x ν).val + 1) := hf (by omega)
             omega
           · rw [hx'ν ν hν]; exact hx ν
         have hstep : StepIn X x x' := ⟨hX x hx, hX x' hblk, μ, Or.inl rfl⟩
@@ -115,18 +116,26 @@ theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ
         set x' : Torus d ℓ := x - (Pi.single μ 1 : Torus d ℓ) with hx'
         have hx'μ := val_sub_single_self x μ hv1
         have hx'ν : ∀ ν, ν ≠ μ → (x' ν).val = (x ν).val := fun ν hν => val_sub_single_ne x hν
-        have hblk : ∀ ν, (x' ν).val / s' = c ν := by
+        have hblk : ∀ ν, f (x' ν).val = c ν := by
           intro ν
           by_cases hν : ν = μ
           · subst hν
             rw [hx'μ]
-            have h1 : ((x ν).val - 1) / s' ≤ (x ν).val / s' := Nat.div_le_div_right (by omega)
-            have h2 : (y ν).val / s' ≤ ((x ν).val - 1) / s' := Nat.div_le_div_right (by omega)
+            have h1 : f ((x ν).val - 1) ≤ f (x ν).val := hf (by omega)
+            have h2 : f (y ν).val ≤ f ((x ν).val - 1) := hf (by omega)
             omega
           · rw [hx'ν ν hν]; exact hx ν
         have hstep : StepIn X x x' := ⟨hX x hx, hX x' hblk, μ, Or.inr (sub_add_cancel x _).symm⟩
         have hd : coordDist x' y < coordDist x y := hdist x' hx'ν (by rw [hx'μ]; omega)
         exact Relation.ReflTransGen.head hstep (ih _ (hn ▸ hd) x' y rfl hblk hy)
+
+/-- Two sites of the same `s'`-block are joined by a path of nearest-neighbour steps inside any set
+containing the block (the case `f = (· / s')` of `block_connected_of_monotone`). -/
+theorem block_connected {s' : ℕ} (X : Finset (Torus d ℓ)) (c : Fin d → ℕ)
+    (hX : ∀ z : Torus d ℓ, (∀ μ, (z μ).val / s' = c μ) → z ∈ X) :
+    ∀ n : ℕ, ∀ x y : Torus d ℓ, coordDist x y = n → (∀ μ, (x μ).val / s' = c μ) →
+      (∀ μ, (y μ).val / s' = c μ) → Relation.ReflTransGen (StepIn X) x y :=
+  block_connected_of_monotone (· / s') (fun _ _ h => Nat.div_le_div_right h) X c hX
 
 omit [NeZero ℓ] in
 /-- Paths inside a subset are paths inside a larger set. -/
@@ -234,6 +243,21 @@ theorem hull_cells_card_le {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')] (hℓ : 
   rw [blockMap_comp hℓ rfl]
   exact ((cell_eq_iff hℓ').2 hxy).symm
 
+/-- A block-closed set is determined by its blocks. -/
+theorem eq_of_image_blockMap_eq [NeZero m] (hℓ : ℓ = s * m) {A B : Finset (Torus d ℓ)}
+    (hA : ∀ x ∈ A, ∀ z : Torus d ℓ, (∀ μ, (x μ).val / s = (z μ).val / s) → z ∈ A)
+    (hB : ∀ x ∈ B, ∀ z : Torus d ℓ, (∀ μ, (x μ).val / s = (z μ).val / s) → z ∈ B)
+    (hAB : A.image (blockMap s m) = B.image (blockMap s m)) : A = B := by
+  classical
+  have key : ∀ A B : Finset (Torus d ℓ),
+      (∀ x ∈ B, ∀ z : Torus d ℓ, (∀ μ, (x μ).val / s = (z μ).val / s) → z ∈ B) →
+      A.image (blockMap s m) = B.image (blockMap s m) → A ⊆ B := by
+    intro A B hB hAB x hx
+    have : blockMap s m x ∈ B.image (blockMap s m) := hAB ▸ Finset.mem_image_of_mem _ hx
+    obtain ⟨y', hy', hyx⟩ := Finset.mem_image.1 this
+    exact hB y' hy' x ((cell_eq_iff hℓ).1 hyx)
+  exact Finset.Subset.antisymm (key A B hB hAB) (key B A hA hAB.symm)
+
 /-- The number of block-closed subsets of `X` is at most `2^{#cells of X}`. -/
 theorem card_closedSubsets_le [NeZero m] (hℓ : ℓ = s * m) (X : Finset (Torus d ℓ)) :
     ((Finset.univ : Finset (Finset (Torus d ℓ))).filter fun Y => Y ⊆ X ∧
@@ -248,26 +272,21 @@ theorem card_closedSubsets_le [NeZero m] (hℓ : ℓ = s * m) (X : Finset (Torus
   · intro Y hY Y' hY' hYY'
     have hY := (Finset.mem_filter.1 (Finset.mem_coe.1 hY)).2
     have hY' := (Finset.mem_filter.1 (Finset.mem_coe.1 hY')).2
-    have key : ∀ A B : Finset (Torus d ℓ),
-        (∀ x ∈ A, ∀ z : Torus d ℓ, (∀ μ, (x μ).val / s = (z μ).val / s) → z ∈ A) →
-        (∀ x ∈ B, ∀ z : Torus d ℓ, (∀ μ, (x μ).val / s = (z μ).val / s) → z ∈ B) →
-        A.image (blockMap s m) = B.image (blockMap s m) → A ⊆ B := by
-      intro A B hA hB hAB x hx
-      have : blockMap s m x ∈ B.image (blockMap s m) := hAB ▸ Finset.mem_image_of_mem _ hx
-      obtain ⟨y', hy', hyx⟩ := Finset.mem_image.1 this
-      exact hB y' hy' x ((cell_eq_iff hℓ).1 hyx)
-    exact Finset.Subset.antisymm (key Y Y' hY.2 hY'.2 hYY') (key Y' Y hY'.2 hY.2 hYY'.symm)
+    exact eq_of_image_blockMap_eq hℓ hY.2 hY'.2 hYY'
 
 open Classical in
-/-- **The counting estimate of the regrouping.** The polymers `Y` of block side `s` with hull `X` in
-blocks of side `s L'` carry the weights `exp(-κ' |Y|/s^d)`; their sum is at most
-`exp(-(κ' - L'^d log 2) |X|/(s L')^d)`. -/
-theorem regroup_sum_bound {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')] (hℓ : ℓ = s * (L' * m'))
-    (hs : 0 < s) (X : Finset (Torus d ℓ)) {κ' : ℝ} (hκ : 0 ≤ κ') :
+/-- **The counting estimate of the regrouping, with a split rate.** The polymers `Y` of block side
+`s` with hull `X` in blocks of side `s L'` carry the weights `exp(-κ' |Y|/s^d)`; for `λ ≤ κ'`
+their sum is at most `exp(-(κ' - λ - L'^d log(1 + e^{-λ})) |X|/(s L')^d)`: the factor `e^{-(κ'-λ) n}`
+of a set of `n ≥ r` blocks is at most `e^{-(κ'-λ) r}` (`r` the number of blocks of side `s L'` of
+`X`), and the sets of blocks of `X` weighted by `e^{-λ n}` sum to `(1 + e^{-λ})^{L'^d r}`. -/
+theorem regroup_sum_bound_split {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')]
+    (hℓ : ℓ = s * (L' * m')) (hs : 0 < s) (X : Finset (Torus d ℓ)) {κ' lam : ℝ} (hlk : lam ≤ κ') :
     ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d ℓ))).filter
         (fun Y => hullT (s * L') Y = X ∧ IsPolymer d ℓ s Y),
       Real.exp (-κ' * (Y.card : ℝ) / (s : ℝ) ^ d) ≤
-      Real.exp (-(κ' - (L' : ℝ) ^ d * Real.log 2) * (X.card : ℝ) / ((s * L' : ℕ) : ℝ) ^ d) := by
+      Real.exp (-(κ' - lam - (L' : ℝ) ^ d * Real.log (1 + Real.exp (-lam))) * (X.card : ℝ) /
+        ((s * L' : ℕ) : ℝ) ^ d) := by
   classical
   set 𝒴 := (Finset.univ : Finset (Finset (Torus d ℓ))).filter
     (fun Y => hullT (s * L') Y = X ∧ IsPolymer d ℓ s Y) with h𝒴
@@ -291,7 +310,10 @@ theorem regroup_sum_bound {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')] (hℓ : �
     have : s ^ d * (X.image (blockMap s (L' * m'))).card = s ^ d * (L' ^ d * r) := by
       rw [← hcardXs, hcardX, mul_pow]; ring
     exact Nat.eq_of_mul_eq_mul_left (pow_pos hs d) this
-  have hterm : ∀ Y ∈ 𝒴, Real.exp (-κ' * (Y.card : ℝ) / (s : ℝ) ^ d) ≤ Real.exp (-κ' * r) := by
+  set q : ℝ := Real.exp (-lam) with hq
+  have hq0 : 0 ≤ q := (Real.exp_pos _).le
+  have hterm : ∀ Y ∈ 𝒴, Real.exp (-κ' * (Y.card : ℝ) / (s : ℝ) ^ d) ≤
+      Real.exp (-(κ' - lam) * r) * q ^ (Y.image (blockMap s (L' * m'))).card := by
     intro Y hY
     have hY' := Finset.mem_filter.1 hY
     have hYcard : Y.card = s ^ d * (Y.image (blockMap s (L' * m'))).card :=
@@ -300,44 +322,76 @@ theorem regroup_sum_bound {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')] (hℓ : �
       have := hull_cells_card_le (s := s) (L' := L') (m' := m') hℓ Y
       rw [hY'.2.1] at this
       exact this
-    refine Real.exp_le_exp.2 ?_
+    set n := (Y.image (blockMap s (L' * m'))).card with hn
     have hsd : (0 : ℝ) < (s : ℝ) ^ d := by positivity
-    rw [hYcard]
-    push_cast
-    rw [mul_div_assoc, mul_div_cancel_left₀ _ hsd.ne']
-    have : (r : ℝ) ≤ ((Y.image (blockMap s (L' * m'))).card : ℝ) := by exact_mod_cast hle
+    have e1 : -κ' * (Y.card : ℝ) / (s : ℝ) ^ d = -κ' * n := by
+      rw [hYcard]; push_cast; rw [mul_div_assoc, mul_div_cancel_left₀ _ hsd.ne']
+    have e2 : q ^ n = Real.exp (-lam * n) := by
+      rw [hq, ← Real.exp_nat_mul]; congr 1; ring
+    rw [e1, e2, ← Real.exp_add]
+    refine Real.exp_le_exp.2 ?_
+    have : (r : ℝ) ≤ (n : ℝ) := by exact_mod_cast hle
     nlinarith
-  have hcount : 𝒴.card ≤ 2 ^ (L' ^ d * r) := by
-    refine le_trans (Finset.card_le_card ?_) (hcs ▸ card_closedSubsets_le hℓ X)
-    intro Y hY
+  have hinj : Set.InjOn (fun Y : Finset (Torus d ℓ) => Y.image (blockMap s (L' * m'))) 𝒴 := by
+    intro Y hY Y' hY' hYY'
+    exact eq_of_image_blockMap_eq hℓ (Finset.mem_filter.1 (Finset.mem_coe.1 hY)).2.2.2.1
+      (Finset.mem_filter.1 (Finset.mem_coe.1 hY')).2.2.2.1 hYY'
+  have hsub : 𝒴.image (fun Y : Finset (Torus d ℓ) => Y.image (blockMap s (L' * m'))) ⊆
+      (X.image (blockMap s (L' * m'))).powerset := by
+    intro S hS
+    obtain ⟨Y, hY, rfl⟩ := Finset.mem_image.1 hS
     have hY' := Finset.mem_filter.1 hY
-    refine Finset.mem_filter.2 ⟨Finset.mem_univ _, ?_, hY'.2.2.2.1⟩
+    refine Finset.mem_powerset.2 (Finset.image_subset_image ?_)
     rw [← hY'.2.1]
     exact subset_hullT _ Y
+  have hpow : ∑ Y ∈ 𝒴, q ^ (Y.image (blockMap s (L' * m'))).card ≤ (q + 1) ^ (L' ^ d * r) := by
+    rw [← Finset.sum_image (f := fun S : Finset (Torus d (L' * m')) => q ^ S.card) hinj]
+    calc ∑ S ∈ 𝒴.image (fun Y : Finset (Torus d ℓ) => Y.image (blockMap s (L' * m'))), q ^ S.card
+        ≤ ∑ S ∈ (X.image (blockMap s (L' * m'))).powerset, q ^ S.card :=
+          Finset.sum_le_sum_of_subset_of_nonneg hsub fun S _ _ => pow_nonneg hq0 _
+      _ = ∑ S ∈ (X.image (blockMap s (L' * m'))).powerset,
+            q ^ S.card * 1 ^ ((X.image (blockMap s (L' * m'))).card - S.card) := by simp
+      _ = (q + 1) ^ (L' ^ d * r) := by rw [Finset.sum_pow_mul_eq_add_pow, hcs]
+  have hsd : (0 : ℝ) < ((s * L' : ℕ) : ℝ) ^ d := by
+    have : 0 < s * L' := by
+      rcases Nat.eq_zero_or_pos L' with h0 | h0
+      · exfalso; subst h0; simp at hℓ; exact NeZero.ne ℓ hℓ
+      · exact Nat.mul_pos hs h0
+    positivity
   calc ∑ Y ∈ 𝒴, Real.exp (-κ' * (Y.card : ℝ) / (s : ℝ) ^ d)
-      ≤ ∑ Y ∈ 𝒴, Real.exp (-κ' * r) := Finset.sum_le_sum hterm
-    _ = (𝒴.card : ℝ) * Real.exp (-κ' * r) := by rw [Finset.sum_const, nsmul_eq_mul]
-    _ ≤ (2 : ℝ) ^ (L' ^ d * r) * Real.exp (-κ' * r) := by
-        gcongr
-        exact_mod_cast hcount
-    _ = Real.exp (-(κ' - (L' : ℝ) ^ d * Real.log 2) * (X.card : ℝ) / ((s * L' : ℕ) : ℝ) ^ d) := by
-        have h2 : (2 : ℝ) ^ (L' ^ d * r) = Real.exp (((L' ^ d * r : ℕ) : ℝ) * Real.log 2) := by
-          rw [Real.exp_nat_mul, Real.exp_log (by norm_num)]
-        have hsd : (0 : ℝ) < ((s * L' : ℕ) : ℝ) ^ d := by
-          have : 0 < s * L' := by
-            rcases Nat.eq_zero_or_pos L' with h0 | h0
-            · exfalso; subst h0; simp at hℓ; exact NeZero.ne ℓ hℓ
-            · exact Nat.mul_pos hs h0
-          positivity
+      ≤ ∑ Y ∈ 𝒴, Real.exp (-(κ' - lam) * r) * q ^ (Y.image (blockMap s (L' * m'))).card :=
+        Finset.sum_le_sum hterm
+    _ = Real.exp (-(κ' - lam) * r) * ∑ Y ∈ 𝒴, q ^ (Y.image (blockMap s (L' * m'))).card := by
+        rw [Finset.mul_sum]
+    _ ≤ Real.exp (-(κ' - lam) * r) * (q + 1) ^ (L' ^ d * r) :=
+        mul_le_mul_of_nonneg_left hpow (Real.exp_pos _).le
+    _ = _ := by
+        have h2 : (q + 1) ^ (L' ^ d * r) =
+            Real.exp (((L' ^ d * r : ℕ) : ℝ) * Real.log (1 + Real.exp (-lam))) := by
+          rw [Real.exp_nat_mul, add_comm, hq, Real.exp_log (by positivity)]
         have hX' : (X.card : ℝ) = ((s * L' : ℕ) : ℝ) ^ d * r := by exact_mod_cast hcardX
         rw [h2, ← Real.exp_add, hX']
         congr 1
         generalize ((s * L' : ℕ) : ℝ) ^ d = P at hsd ⊢
-        have e : -(κ' - (L' : ℝ) ^ d * Real.log 2) * (P * r) / P =
-            -(κ' - (L' : ℝ) ^ d * Real.log 2) * r := by field_simp
+        have e : -(κ' - lam - (L' : ℝ) ^ d * Real.log (1 + Real.exp (-lam))) * (P * r) / P =
+            -(κ' - lam - (L' : ℝ) ^ d * Real.log (1 + Real.exp (-lam))) * r := by field_simp
         rw [e]
         push_cast
         ring
+
+open Classical in
+/-- **The counting estimate of the regrouping.** The polymers `Y` of block side `s` with hull `X` in
+blocks of side `s L'` carry the weights `exp(-κ' |Y|/s^d)`; their sum is at most
+`exp(-(κ' - L'^d log 2) |X|/(s L')^d)`. -/
+theorem regroup_sum_bound {L' m' : ℕ} [NeZero m'] [NeZero (L' * m')] (hℓ : ℓ = s * (L' * m'))
+    (hs : 0 < s) (X : Finset (Torus d ℓ)) {κ' : ℝ} (hκ : 0 ≤ κ') :
+    ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d ℓ))).filter
+        (fun Y => hullT (s * L') Y = X ∧ IsPolymer d ℓ s Y),
+      Real.exp (-κ' * (Y.card : ℝ) / (s : ℝ) ^ d) ≤
+      Real.exp (-(κ' - (L' : ℝ) ^ d * Real.log 2) * (X.card : ℝ) / ((s * L' : ℕ) : ℝ) ^ d) := by
+  have h := regroup_sum_bound_split (lam := 0) hℓ hs X hκ
+  rw [neg_zero, Real.exp_zero, sub_zero, show (1 : ℝ) + 1 = 2 by norm_num] at h
+  exact h
 
 end Count
 

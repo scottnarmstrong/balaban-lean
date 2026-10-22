@@ -8,6 +8,7 @@ module
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseResolventRange
 public import Balaban.LargeField.Base.BaseResolventAbs
+public import Balaban.Localization.DecCovCutSupport
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -277,23 +278,6 @@ section Comm
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
 
-/-- The entries of the commutator `K(φ₀)`. -/
-theorem commK_apply (H : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) (z y : ι) (i : Fin N) :
-    commK H φ z (y, i) = H z y * (φ z i - φ y i) := by
-  have h := commK_mulVec H φ (Pi.single (y, i) 1) z
-  have e : (commK H φ *ᵥ (Pi.single (y, i) 1 : ι × Fin N → ℂ)) z = commK H φ z (y, i) := by
-    simp [Matrix.mulVec, dotProduct, Pi.single_apply]
-  rw [e] at h
-  rw [h, Finset.sum_eq_single y]
-  · rw [Finset.sum_eq_single i]
-    · simp
-    · intro j _ hj; simp [hj]
-    · simp
-  · intro y' _ hy'
-    refine Finset.sum_eq_zero fun j _ => ?_
-    simp [hy']
-  · simp
-
 /-- **The commutator `K(φ₀)` is bounded by the off-diagonal sums of `H`.**  If the off-diagonal
 row and column sums of `H` are at most `P` and `‖φ₀(y)_i‖ ≤ 3/2`, then
 `‖K(φ₀)‖ ≤ 3 P √N`. -/
@@ -311,7 +295,7 @@ theorem opNorm_commK_le (H : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) {P : 
       nlinarith [norm_nonneg (H z y), norm_nonneg (φ z i - φ y i)]
   refine l2_opNorm_le_of_rowcol _ (by positivity) (by positivity) (fun z => ?_) (fun p => ?_)
   · rw [Fintype.sum_prod_type]
-    simp only [commK_apply]
+    simp only [Localization.commK_apply]
     calc ∑ y, ∑ i, ‖H z y * (φ z i - φ y i)‖ ≤ ∑ y, ∑ _i : Fin N,
           3 * (if y = z then 0 else ‖H z y‖) :=
           Finset.sum_le_sum fun y _ => Finset.sum_le_sum fun i _ => hd z y i
@@ -321,7 +305,7 @@ theorem opNorm_commK_le (H : Matrix ι ι ℂ) (φ : ι → Fin N → ℂ) {P : 
           exact Finset.sum_congr rfl fun y _ => by ring
       _ ≤ (3 * N) * P := mul_le_mul_of_nonneg_left (hr z) (by positivity)
   · obtain ⟨y, i⟩ := p
-    simp only [commK_apply]
+    simp only [Localization.commK_apply]
     calc ∑ z, ‖H z y * (φ z i - φ y i)‖ ≤ ∑ z, 3 * (if y = z then 0 else ‖H z y‖) :=
           Finset.sum_le_sum fun z _ => hd z y i
       _ = 3 * ∑ z, (if y = z then 0 else ‖H z y‖) := by rw [Finset.mul_sum]

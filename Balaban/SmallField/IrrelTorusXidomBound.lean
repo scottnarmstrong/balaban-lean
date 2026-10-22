@@ -19,7 +19,7 @@ by the termwise part `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}` plus, at the cell
 the selection, the pulled-back datum entering through `DataHypAnisoOn` on the polymer only (M1);
 `irrelTorusOn_bound_of_dataHyp_of_threshold` is its instance with the datum hypothesis
 `DataHypAniso`; `irrelTorus_bound_of_dataOn_of_threshold` and `irrelTorus_bound_of_dataHyp_of_threshold`
-are the instances at a non-special label of `irrelTorus`.
+are the instances at a non-special label of `irrelTorus` (selected by `relBox`, ruling R15).
 -/
 
 @[expose] public section
@@ -203,17 +203,18 @@ theorem irrelTorusOn_bound_of_dataOn_of_threshold
 
 open Classical in
 /-- **The non-special label estimate from the data on the polymer** (the instance of
-`irrelTorusOn_bound_of_dataOn_of_threshold` at the selection of `irrelTorus`):
-for a polymer `X ≠ □(y)`, the pulled-back datum enters only through
+`irrelTorusOn_bound_of_dataOn_of_threshold` at the selection `relBox` of `irrelTorus`, ruling R15):
+for a polymer `X ≠ □(y)` of the box around `y` (`relBox`), the pulled-back datum enters only through
 `DataHypAnisoOn` on the polymer `S` with the length `A (1 + d_j(X))`, `A ≥ diamA` a path constant,
-and `Ψ` is constant on the `j`-blocks of the sites of `X` only. -/
+and `Ψ` is constant on the `j`-blocks of the sites of `X` only.  The polymers leaving the box are
+`norm_E_sub_aTermTorus_le_of_not_relBox`. -/
 theorem irrelTorus_bound_of_dataOn_of_threshold
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -250,8 +251,8 @@ theorem irrelTorus_bound_of_dataOn_of_threshold
       ‖irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv)‖ ≤
         CI * P.E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)) *
           Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) := by
-  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusOn_bound_of_dataOn_of_threshold (fun _ _ => True) hP hcl hBg
-    hN hν hμν hνb hj1 hjk hy hX hyX trivial hSdef hne hrad hΨb hAd hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
+  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusOn_bound_of_dataOn_of_threshold (relBox P.m₀) hP hcl hBg hN
+    hν hμν hνb hj1 hjk hy hX hyX hsm hSdef hne hrad hΨb hAd hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
     hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
   refine ⟨CI, hCI0, ?_⟩
   rw [irrelTorus_eq_irrelTorusOn]
@@ -325,15 +326,16 @@ theorem irrelTorusOn_bound_of_dataHyp_of_threshold
 
 open Classical in
 /-- The termwise anisotropic bound and the tube discrepancy yield the non-special
-label estimate without a polydisc-or-tube-exterior premise. The threshold and source-frame
-coordinate bounds are explicit quantitative hypotheses. -/
+label estimate without a polydisc-or-tube-exterior premise, for a polymer of the box around the
+centre (`relBox`, ruling R15). The threshold and source-frame coordinate bounds are explicit
+quantitative hypotheses. -/
 theorem irrelTorus_bound_of_dataHyp_of_threshold
     (hP : P.Admissible d L)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -380,7 +382,7 @@ theorem irrelTorus_bound_of_dataHyp_of_threshold
     intro z hz
     rw [hSdef]
     exact mem_placeSet hN hjk hy hX hz
-  exact irrelTorus_bound_of_dataOn_of_threshold hP hcl hBg hN hν hμν hνb hj1 hjk hy hX hyX hXne
+  exact irrelTorus_bound_of_dataOn_of_threshold hP hcl hBg hN hν hμν hνb hj1 hjk hy hX hyX hsm hXne
     hSdef hne hrad (fun z _ x hx => hΨb x z hx) le_rfl hΛ hKsig hC₀
     (dat.toOn (premisesTermAniso_centred hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hS' hne
       hrad).diam hσε) hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl hρ hbase hCρ hρpow

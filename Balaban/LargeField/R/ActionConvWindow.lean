@@ -289,14 +289,14 @@ theorem ActionConvInput.cost_le (I : ActionConvInput W Kconv Kbg γw M M₁ cC c
   rw [W.mcount_eq]
   exact key
 
-/-- **The shared core of the window action theorem** (P631 (8)-(10)): for a finite family `s` of
+/-- **The shared core of the window action theorem with per-piece background constants `K_b,i`** (P631 (8)-(10)): for a finite family `s` of
 chains of conversions (chain `i` of the step of scale `sc i < k`, on its own generating set) and
 scale-`k` actions `Wa i`, conditional on the named source estimates of `ActionConvInput` for the
 family (`analytic_T`, `p7_first` with the couplings `βs i` of P7 (2.11), `window_decay` with
 `bgRem` = `T_{i,k} - Wa i`, `analytic_win`), `∑_i Wa i = ∑_i T_{i, sc i + 1} + C` with `C` analytic
 and `|C| ≤ C₁₅ ∑_i m_i`.  Used by `window_conversion` (steps `j ∈ [k₁, k)`, `βs` the couplings of
 the chains) and `window_conversion_pieces` (pieces of the window). -/
-theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (hsc : ∀ i ∈ s, sc i < k)
+theorem window_conversion_coreP {ι : Type*} (Kb : ι → ℝ) (s : Finset ι) (sc : ι → ℕ) (hsc : ∀ i ∈ s, sc i < k)
     {N₀c Kc : ι → ℕ} [∀ i, NeZero (N₀c i)] {ϱc : ι → ℝ}
     {Gc : (i : ι) → GeneratingSet d L (N₀c i) (Kc i) (ϱc i)} {Xc : (i : ι) → Region (Gc i)}
     {br : ι → MassBranch} (chain : (i : ι) → ConvChain S (sc i) k (Gc i) (Xc i) (br i) N)
@@ -308,19 +308,19 @@ theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (h
         ((βs i (sc i + 1) * ε (sc i + 1) ^ 2) / (βs i n * ε n ^ 2)) * mc i)
     (window_decay : ∀ i ∈ s, ∀ u ∈ S,
       ‖(chain i).T u k - Wa i u‖ ≤
-        Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i)
+        Kb i * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i)
     (analytic_win : ∀ i ∈ s, AnalyticOnNhd ℂ (Wa i) S)
     {γ η α α₀ : ℝ} (hd : 2 ≤ d) (hL : 1 < L) (hγ : 0 < γ) (hα₀ : 0 < α₀)
     (hε : ε = epsSeq L α α₀) (hγα : (d : ℝ) - 2 - 2 * α = 2 * γ)
     (hflow : ∀ i ∈ s, ∃ B : ℝ, 0 < B ∧ ∃ g : ℕ → ℝ,
       (∀ m, Real.exp (-η) ≤ g m ∧ g m ≤ Real.exp η) ∧
       ∀ n, sc i + 1 ≤ n → n ≤ k → βs i n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
-    (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
+    (hKc : 0 ≤ Kconv) (hKb : ∀ i ∈ s, 0 ≤ Kb i) (hγw : 0 ≤ γw)
     (hsep : ∀ i ∈ s, 0 ≤ M * (Rhat (sc i - 1) - 1) - 2 * M₁) :
     ∃ C : U → ℂ, (∀ u ∈ S, ∑ i ∈ s, Wa i u = ∑ i ∈ s, (chain i).T u (sc i + 1) + C u) ∧
       AnalyticOnNhd ℂ C S ∧
-      ∀ u ∈ S, ‖C u‖ ≤ (9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
-        ∑ i ∈ s, mc i := by
+      ∀ u ∈ S, ‖C u‖ ≤ 9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) * ∑ i ∈ s, mc i +
+        ∑ i ∈ s, Kb i * mc i := by
   set q : ℝ := (L : ℝ) ^ (-(2 * γ)) with hq
   have hL1 : (1 : ℝ) < L := by exact_mod_cast hL
   have hq0 : 0 < q := Real.rpow_pos_of_pos (by linarith) _
@@ -355,7 +355,7 @@ theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (h
       exact Finset.sum_congr rfl hstep
     have hnorm : ∀ i ∈ s,
         ‖∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n + ((chain i).T u k - Wa i u)‖ ≤
-          (9 * Real.exp (2 * η) * Kconv / (1 - q) + Kbg) * mc i := by
+          (9 * Real.exp (2 * η) * Kconv / (1 - q)) * mc i + Kb i * mc i := by
       intro i hi
       have hik := hsc i hi
       have hm := hmc i hi
@@ -390,24 +390,62 @@ theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (h
             ≤ (9 * Real.exp (2 * η) * Kconv) * mc i * (1 / (1 - q)) :=
               mul_le_mul_of_nonneg_left hg (mul_nonneg hKc' hm)
           _ = (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i := by ring
-      have h2 : ‖(chain i).T u k - Wa i u‖ ≤ Kbg * mc i := by
+      have h2 : ‖(chain i).T u k - Wa i u‖ ≤ Kb i * mc i := by
         refine (window_decay i hi u hu).trans ?_
         have : Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) ≤ 1 := by
           rw [Real.exp_le_one_iff]
           nlinarith [hsep i hi]
-        calc Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i
-            ≤ Kbg * 1 * mc i := by
+        calc Kb i * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i
+            ≤ Kb i * 1 * mc i := by
               apply mul_le_mul_of_nonneg_right _ hm
-              exact mul_le_mul_of_nonneg_left this hKb
-          _ = Kbg * mc i := by ring
+              exact mul_le_mul_of_nonneg_left this (hKb i hi)
+          _ = Kb i * mc i := by ring
       calc _ ≤ ‖∑ n ∈ Finset.Ioc (sc i + 1) k, (chain i).cost u n‖ +
             ‖(chain i).T u k - Wa i u‖ := norm_add_le _ _
-        _ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i + Kbg * mc i := add_le_add h1 h2
+        _ ≤ (9 * Real.exp (2 * η) * Kconv) / (1 - q) * mc i + Kb i * mc i := add_le_add h1 h2
         _ = _ := by ring
     show ‖∑ i ∈ s, Wa i u - ∑ i ∈ s, (chain i).T u (sc i + 1)‖ ≤ _
     rw [hsum, norm_neg]
     refine (norm_sum_le _ _).trans ((Finset.sum_le_sum hnorm).trans ?_)
-    rw [Finset.mul_sum]
+    rw [Finset.sum_add_distrib, Finset.mul_sum]
+
+/-- **The shared core of the window action theorem** (P631 (8)-(10)): for a finite family `s` of
+chains of conversions (chain `i` of the step of scale `sc i < k`, on its own generating set) and
+scale-`k` actions `Wa i`, conditional on the named source estimates of `ActionConvInput` for the
+family (`analytic_T`, `p7_first` with the couplings `βs i` of P7 (2.11), `window_decay` with
+`bgRem` = `T_{i,k} - Wa i`, `analytic_win`), `∑_i Wa i = ∑_i T_{i, sc i + 1} + C` with `C` analytic
+and `|C| ≤ C₁₅ ∑_i m_i`.  Used by `window_conversion` (steps `j ∈ [k₁, k)`, `βs` the couplings of
+the chains) and `window_conversion_pieces` (pieces of the window). -/
+theorem window_conversion_core {ι : Type*} (s : Finset ι) (sc : ι → ℕ) (hsc : ∀ i ∈ s, sc i < k)
+    {N₀c Kc : ι → ℕ} [∀ i, NeZero (N₀c i)] {ϱc : ι → ℝ}
+    {Gc : (i : ι) → GeneratingSet d L (N₀c i) (Kc i) (ϱc i)} {Xc : (i : ι) → Region (Gc i)}
+    {br : ι → MassBranch} (chain : (i : ι) → ConvChain S (sc i) k (Gc i) (Xc i) (br i) N)
+    (Wa : ι → U → ℂ) (mc : ι → ℝ) (hmc : ∀ i ∈ s, 0 ≤ mc i) (βs : ι → ℕ → ℝ)
+    (analytic_T : ∀ i ∈ s, ∀ n, sc i + 1 ≤ n → n ≤ k →
+      AnalyticOnNhd ℂ (fun u => (chain i).T u n) S)
+    (p7_first : ∀ i ∈ s, ∀ n, sc i + 2 ≤ n → n ≤ k → ∀ u ∈ S,
+      ‖(chain i).cost u n‖ ≤ Kconv *
+        ((βs i (sc i + 1) * ε (sc i + 1) ^ 2) / (βs i n * ε n ^ 2)) * mc i)
+    (window_decay : ∀ i ∈ s, ∀ u ∈ S,
+      ‖(chain i).T u k - Wa i u‖ ≤
+        Kbg * Real.exp (-γw * (M * (Rhat (sc i - 1) - 1) - 2 * M₁)) * mc i)
+    (analytic_win : ∀ i ∈ s, AnalyticOnNhd ℂ (Wa i) S)
+    {γ η α α₀ : ℝ} (hd : 2 ≤ d) (hL : 1 < L) (hγ : 0 < γ) (hα₀ : 0 < α₀)
+    (hε : ε = epsSeq L α α₀) (hγα : (d : ℝ) - 2 - 2 * α = 2 * γ)
+    (hflow : ∀ i ∈ s, ∃ B : ℝ, 0 < B ∧ ∃ g : ℕ → ℝ,
+      (∀ m, Real.exp (-η) ≤ g m ∧ g m ≤ Real.exp η) ∧
+      ∀ n, sc i + 1 ≤ n → n ≤ k → βs i n = B * (L : ℝ) ^ ((d - 2) * n) * g n)
+    (hKc : 0 ≤ Kconv) (hKb : 0 ≤ Kbg) (hγw : 0 ≤ γw)
+    (hsep : ∀ i ∈ s, 0 ≤ M * (Rhat (sc i - 1) - 1) - 2 * M₁) :
+    ∃ C : U → ℂ, (∀ u ∈ S, ∑ i ∈ s, Wa i u = ∑ i ∈ s, (chain i).T u (sc i + 1) + C u) ∧
+      AnalyticOnNhd ℂ C S ∧
+      ∀ u ∈ S, ‖C u‖ ≤ (9 * Real.exp (2 * η) * Kconv / (1 - (L : ℝ) ^ (-(2 * γ))) + Kbg) *
+        ∑ i ∈ s, mc i := by
+  obtain ⟨C, hC, hCa, hCb⟩ := window_conversion_coreP (fun _ => Kbg) s sc hsc chain Wa mc hmc βs
+    analytic_T p7_first window_decay analytic_win hd hL hγ hα₀ hε hγα hflow hKc (fun _ _ => hKb)
+    hγw hsep
+  refine ⟨C, hC, hCa, fun u hu => (hCb u hu).trans (le_of_eq ?_)⟩
+  rw [← Finset.mul_sum]; ring
 
 /-- **The window action theorem** (P631 (8)-(9); LFR (2.15′)): conditional on the input
 `ActionConvInput`, on the window configurations in the complex domain `S`,

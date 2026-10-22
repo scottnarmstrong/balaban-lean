@@ -8,6 +8,8 @@ module
 public import Balaban.Spine.BaseConstsWitness
 public import Balaban.Spine.BaseStepDataSplice
 public import Balaban.Inhabited.QuietImage
+public import Balaban.Inhabited.RadiiSetting
+public import Balaban.Inhabited.RadiiWitnessOps
 
 /-!
 # `BaseRawC` is inhabited at the horizon `kf = 1` (rule 10)
@@ -80,17 +82,10 @@ end General
 
 namespace BaseWitK
 
-/-- `M₁ = ⌈R₀(3,3)⌉ + 1`. -/
-noncomputable def M1 : ℕ := ⌈bgR0 3 3⌉₊ + 1
+/-- `M₁ = ⌈R₀(3,3)/15⌉ + 1` (landed, `Inhabited/RadiiSetting.lean`). -/
+noncomputable abbrev M1 : ℕ := Balaban.Inhabited.RadiiSet.M1
 
-instance : NeZero M1 := ⟨Nat.succ_ne_zero _⟩
-
-theorem bgR0_le_minSep : bgR0 3 3 ≤ minSep 3 M1 := by
-  unfold minSep M1
-  have h1 : bgR0 3 3 ≤ (⌈bgR0 3 3⌉₊ : ℝ) := Nat.le_ceil _
-  push_cast
-  have : (0 : ℝ) ≤ (⌈bgR0 3 3⌉₊ : ℝ) := Nat.cast_nonneg _
-  nlinarith
+instance : NeZero M1 := ⟨(Balaban.Inhabited.RadiiSet.M1_pos).ne'⟩
 
 /-- The typing of the witness with the block constant `M = 27 M₁`. -/
 noncomputable def typ : Typing := { typing with M := 27 * M1 }
@@ -106,13 +101,8 @@ theorem cs0_aKer : cs0.aKer = 5 / 4 := rfl
 /-- `δ₀ = 1/(54 (1 + c_shell))`. -/
 noncomputable def δ0 : ℝ := 1 / (54 * (1 + cShell 2))
 
-theorem cShell_nonneg (N : ℕ) : 0 ≤ cShell N := by
-  unfold cShell
-  have := ENNReal.toReal_nonneg (a := volume (Metric.ball (0 : EuclideanSpace ℝ (Fin N)) 1))
-  positivity
-
 theorem δ0_pos : 0 < δ0 := by
-  have := cShell_nonneg 2
+  have := Balaban.Inhabited.RadiiWit.cShell_nonneg 2
   unfold δ0; positivity
 
 /-- The constant `K_c` with `δ_j = A₀ K_c` at the couplings `β_j = 1`. -/
@@ -158,7 +148,7 @@ theorem haw : ∀ j, cs0.aw j ∈ Set.Icc (1 / 2 : ℝ) 2 := fun _ => ⟨by show
 
 theorem δ0_le : 3 * ((S.d : ℕ) : ℝ) * ((S.L : ℕ) : ℝ) * δ0 ≤ 1 / 2 := by
   show 3 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) * δ0 ≤ 1 / 2
-  have := cShell_nonneg 2
+  have := Balaban.Inhabited.RadiiWit.cShell_nonneg 2
   unfold δ0
   rw [mul_one_div, div_le_iff₀ (by positivity)]
   push_cast
@@ -166,7 +156,7 @@ theorem δ0_le : 3 * ((S.d : ℕ) : ℝ) * ((S.L : ℕ) : ℝ) * δ0 ≤ 1 / 2 :
 
 theorem δ0_le' : 3 * ((S.d : ℕ) : ℝ) * ((S.L : ℕ) : ℝ) * cShell 2 * δ0 ≤ 1 / 2 := by
   show 3 * ((3 : ℕ) : ℝ) * ((3 : ℕ) : ℝ) * cShell 2 * δ0 ≤ 1 / 2
-  have := cShell_nonneg 2
+  have := Balaban.Inhabited.RadiiWit.cShell_nonneg 2
   unfold δ0
   rw [mul_one_div, div_le_iff₀ (by positivity)]
   push_cast
@@ -193,9 +183,19 @@ noncomputable def SD (nK : ℕ) [NeZero nK] :
     (fun _ => by show (0 : ℝ) ≤ 1; norm_num)
     (fun k => by show (0 : ℝ) ≤ 1 / 2 / ((3 : ℕ) : ℝ) ^ (2 * (k + 1)); positivity)
     (baseOpConsts_bgHyp_mu _ _ _ _ _ (fun _ => by show (0 : ℝ) ≤ 1 / 2; norm_num) (fun _ => by show (1 / 2 : ℝ) ≤ 1; norm_num)
-      le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
+      le_rfl (by show 3 ≤ 3; norm_num) M1 (by
+        show bgR0 3 3 ≤ minSep 3 M1
+        have h := Balaban.Inhabited.RadiiSet.bgR0_le_minSep
+        unfold minSep
+        push_cast at h ⊢
+        linarith) haw)
     (baseOpConsts_bgHyp_muBg _ _ _ _ _ (fun _ => by show (0 : ℝ) ≤ 1 / 2; norm_num) (fun _ => by show (1 / 2 : ℝ) ≤ 1; norm_num)
-      le_rfl (by show 3 ≤ 3; norm_num) M1 bgR0_le_minSep haw)
+      le_rfl (by show 3 ≤ 3; norm_num) M1 (by
+        show bgR0 3 3 ≤ minSep 3 M1
+        have h := Balaban.Inhabited.RadiiSet.bgR0_le_minSep
+        unfold minSep
+        push_cast at h ⊢
+        linarith) haw)
     le_rfl (le_of_eq hCb) (by show (0 : ℝ) * 1 ≤ 0; norm_num)
     (fun k => by show (0 : ℝ) < 1 * (5 / 4) * ((3 : ℕ) : ℝ) ^ (3 - 2); norm_num)
     (fun k => by rw [cs_delta]; exact δ0_pos) (fun k => by rw [cs_delta]; exact δ0_le)

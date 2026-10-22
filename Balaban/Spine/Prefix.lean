@@ -121,12 +121,13 @@ theorem prefixTyping_ok {d L m₁ : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) : (prefix
   c0_sP := by show 5 + 1 ≤ 10; norm_num
   Cr_le := le_refl _
 
-/-- **Core of `prefixInput_exists`: the witness at any radius constant `α₀ > 0`, any flow
-constant `0 < c₈` with `c₈ q ≤ (1 - q)/20` (`q = L^{-2γ}`, `γ = (1 + 2δ)/4`), any exponents
-`m₀, m₁` with `m₀ + m₁ ≥ 3` and `R₀(d, L) ≤ minSep L (L^{m₀+m₁-3})`, and any separation
-`ϱ ≥ R₀(d, L)`.**  The constants of the witness have `L` as block size, `γ = (1 + 2δ)/4`, the given
-`α₀`, `c₈`, `m₀`, `m₁` and `ϱ`, `M = L^{m₀+m₁}`, `c = L³`, `M₁ = L^{m₀+m₁-3}`. -/
-theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
+/-- **Core of `prefixInput_exists_of`, with the choice of `M₁` and `c` exposed: the witness at
+any radius constant `α₀ > 0`, any flow constant `0 < c₈` with `c₈ q ≤ (1 - q)/20`
+(`q = L^{-2γ}`, `γ = (1 + 2δ)/4`), any exponents `m₀, m₁` with `m₀ + m₁ ≥ 3` and
+`R₀(d, L) ≤ minSep L (L^{m₀+m₁-3})`, and any separation `ϱ ≥ R₀(d, L)`.**  The constants of the
+witness have `L` as block size, `γ = (1 + 2δ)/4`, the given `α₀`, `c₈`, `m₀`, `m₁` and `ϱ`,
+`M = L^{m₀+m₁}`, `c = L³`, `M₁ = L^{m₀+m₁-3}` (the last two in the conclusion). -/
+theorem prefixInput_exists_of_pow (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
     (hδ' : δ < 1 / 2) {α₀ c₈ : ℝ} (hα₀ : 0 < α₀) (hc₈ : 0 < c₈)
     (hc₈q : c₈ * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
       1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)))
@@ -137,7 +138,8 @@ theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : �
       (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
       PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧
         (P6 κ c₉).γ = (1 + 2 * δ) / 4 ∧ (P6 κ c₉).α₀ = α₀ ∧ (P6 κ c₉).c₈ = c₈ ∧
-        (P6 κ c₉).m₀ = m₀ ∧ (C7 κ c₉).m₁ = m₁ ∧ ϱ κ c₉ = ϱ₀ := by
+        (P6 κ c₉).m₀ = m₀ ∧ (C7 κ c₉).m₁ = m₁ ∧ ϱ κ c₉ = ϱ₀ ∧
+        M1 κ c₉ = L ^ (m₀ + m₁ - 3) ∧ c κ c₉ = L ^ 3 := by
   have hLr : (3 : ℝ) ≤ L := by exact_mod_cast hL
   have hL2 : (9 : ℝ) ≤ (L : ℝ) ^ 2 := by nlinarith
   have hLpos : (0 : ℝ) < (L : ℝ) ^ 2 := by linarith
@@ -163,7 +165,7 @@ theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : �
     fun _ _ => ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, fun _ => 0, 0,
       fun _ => 0, fun _ => 0, 5 / 4, 0, 1⟩,
     fun _ _ => L ^ (m₀ + m₁ - 3), fun _ _ => L ^ 3, fun _ _ => ϱ₀, ?_,
-    fun _ _ => ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩⟩
+    fun _ _ => ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩⟩
   intro κ hκ c₉ hc₉
   have : NeZero L := ⟨by omega⟩
   have haE := Balaban.Fluctuation.aEnt_nonneg d L
@@ -203,6 +205,29 @@ theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : �
       Balaban.Fluctuation.aEnt d L + 2
     have : 0 < (3 : ℝ) ^ (d + 1) * (L : ℝ) ^ (2 * d + 1) * (κ + 1) := by positivity
     linarith
+
+/-- **Core of `prefixInput_exists`: the witness at any radius constant `α₀ > 0`, any flow
+constant `0 < c₈` with `c₈ q ≤ (1 - q)/20` (`q = L^{-2γ}`, `γ = (1 + 2δ)/4`), any exponents
+`m₀, m₁` with `m₀ + m₁ ≥ 3` and `R₀(d, L) ≤ minSep L (L^{m₀+m₁-3})`, and any separation
+`ϱ ≥ R₀(d, L)`.**  The constants of the witness have `L` as block size, `γ = (1 + 2δ)/4`, the given
+`α₀`, `c₈`, `m₀`, `m₁` and `ϱ`, `M = L^{m₀+m₁}`, `c = L³`, `M₁ = L^{m₀+m₁-3}`. -/
+theorem prefixInput_exists_of (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)
+    (hδ' : δ < 1 / 2) {α₀ c₈ : ℝ} (hα₀ : 0 < α₀) (hc₈ : 0 < c₈)
+    (hc₈q : c₈ * Flow.rate (L : ℝ) ((1 + 2 * δ) / 4) ≤
+      1 / 20 * (1 - Flow.rate (L : ℝ) ((1 + 2 * δ) / 4)))
+    {m₀ m₁ : ℕ} (hm : 3 ≤ m₀ + m₁)
+    (hsep : Background.bgR0 d L ≤ minSep L (L ^ (m₀ + m₁ - 3))) {ϱ₀ : ℝ}
+    (hϱ : Background.bgR0 d L ≤ ϱ₀) :
+    ∃ (Ty : ℝ → ℝ → Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
+      (PB : ℝ → ℝ → BudgetConsts) (cs₀ : ℝ → ℝ → OpConsts) (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
+      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧
+        (P6 κ c₉).γ = (1 + 2 * δ) / 4 ∧ (P6 κ c₉).α₀ = α₀ ∧ (P6 κ c₉).c₈ = c₈ ∧
+        (P6 κ c₉).m₀ = m₀ ∧ (C7 κ c₉).m₁ = m₁ ∧ ϱ κ c₉ = ϱ₀ := by
+  obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h, hid⟩ :=
+    prefixInput_exists_of_pow d L hd hL hδ hδ' hα₀ hc₈ hc₈q hm hsep hϱ
+  refine ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, h, fun κ c₉ => ?_⟩
+  obtain ⟨h1, h2, h3, h4, h5, h6, h7, -, -⟩ := hid κ c₉
+  exact ⟨h1, h2, h3, h4, h5, h6, h7⟩
 
 /-- **`PrefixInput` is satisfiable** at every `d ≥ 3`, every `L ≥ 3` and every `0 < δ < 1/2`. -/
 theorem prefixInput_exists (d L : ℕ) (hd : 3 ≤ d) (hL : 3 ≤ L) {δ : ℝ} (hδ : 0 < δ)

@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Fluctuation.MarkClusterReal
+public import Balaban.Fluctuation.MarkClusterTransport
 public import Balaban.Inhabited.E0CoeffFamilyRotBlock
 public import Balaban.Localization.DecEquivRot
 
@@ -45,21 +46,10 @@ theorem Gst_equiv {Lb : Type*} [Fintype Lb] {Ωb : 𝔅 → Type*} [∀ b, Measu
     (hH : ∀ y, ∀ Φ ∈ Q, H₂ y (fun b => E b (Φ b)) = H₁ y Φ)
     (hG : ∀ Φ ∈ Q, G₂ (fun b => E b (Φ b)) = G₁ Φ) :
     Gst μ Lab H₂ S₀ G₂ S = Gst μ Lab H₁ S₀ G₁ S := by
-  have hF : Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
-      (marksK μ Subtype.val (presum Lab H₂) (gMark S₀ G₂)) S =
-      Ff (shareBlock (Subtype.val : NePoly 𝔅 → Finset 𝔅)) Subtype.val
-      (marksK μ Subtype.val (presum Lab H₁) (gMark S₀ G₁)) S := by
-    funext l
-    unfold Ff
-    refine PY_congr _ _ S fun Z _ => ?_
-    unfold marksK mayerK
-    refine integral_comp_of_pi_equiv μ E hE hQ fun Φ hΦ => ?_
-    unfold mayerAct polyAct
-    refine Finset.sum_congr rfl fun C _ => Finset.prod_congr rfl fun t _ => ?_
-    unfold Hlam presum gMark
-    simp only [hH _ Φ hΦ, hG Φ hΦ]
-  unfold Gst
-  rw [hF]
+  have := Gst_transport μ μ Lab Lab (Equiv.refl 𝔅) (Equiv.refl Lb) (fun y => by simp)
+    (MeasurableEquiv.piCongrRight E) (measurePreserving_pi μ μ hE) hQ H₁ H₂ S₀ G₁ G₂ S
+    (fun y Φ hΦ => hH y Φ hΦ) hG
+  simpa using this
 
 variable {Lb : Type*} [Fintype Lb]
   {Lab : CubeLabels (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := K) m₀ j Ω Lb}

@@ -16,7 +16,9 @@ the small-field factor of the whole torus (`constExponent`) is the vacuum term, 
 `⟨g, h⟩` and the inherited observable activities (`const_exponent`). Dividing the Gaussian integrand
 `sfGaussIntegrand` (form `K = β_k D`, centre `ψ₀ ≡ h`) by `exp(X₀)` leaves the *fluctuation
 integrand*; its box average is `ctxFluctBoxIntegral`, and the box integral `Ξ_box` of the torus is
-`exp(X₀)` times it (`ctxBoxIntegral_eq_exp_mul`, for every complex `X₀`). `FinalSmallFieldInput`
+`exp(X₀)` times it (`ctxBoxIntegral_eq_exp_mul`, for every complex `X₀`). Both are stated at every
+whitening `A` of the Gaussian variable (`ctxFluctBoxIntegralL`, `ctxBoxIntegralL_eq_exp_mul`; P5
+(2.39)), the exact whitening `K^{-1/2}` being the instance. `FinalSmallFieldInput`
 reduces to the statement `FinalSfFluctInput` that the box average of the fluctuation integrand is the
 exponential of a vacuum term and of the sum of scale-`(k+1)` activities
 (`finalSmallFieldInput_of_fluctForm`).
@@ -57,47 +59,92 @@ noncomputable def constExponent (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef
     (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ) : ℂ :=
   Ares2 C vc Set.univ (fun _ => hv) hv + C.Fres Set.univ (fun _ => hv) hv g
 
-/-- **The box average of the fluctuation integrand** of one torus:
-`Z_K ∫_{box(p₁)} sfGaussIntegrand(w) exp(-X₀(g)) dγ(w)`, at the form `K = β_k D` (`sfFinalK`) and the
-centre `ψ₀ ≡ h`. -/
-noncomputable def ctxFluctBoxIntegral (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
-    (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) : ℂ :=
-  (Green.pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) *
+/-- **The box average of the fluctuation integrand of one torus at a whitening** `A`:
+`|det A| (2π)^{n/2} ∫_{box(p₁)} sfGaussIntegrandL(w) mismatch(w) exp(-X₀(g)) dγ(w)`, at the form
+`K = β_k D` (`sfFinalK`) and the centre `ψ₀ ≡ h`. -/
+noncomputable def ctxFluctBoxIntegralL (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) : ℂ :=
+  (whitenNorm A : ℂ) *
     ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
-      sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w *
-        Complex.exp (-constExponent C vc hv g)
+      sfGaussIntegrandL C vc Set.univ hv g (sfFinalK C hv) A (fun _ => hv) w *
+        (mismatchFactor (sfFinalK C hv) A w : ℂ) * Complex.exp (-constExponent C vc hv g)
       ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)
 
+/-- **The box average of the fluctuation integrand** of one torus at the exact whitening
+`K^{-1/2}`, `K = β_k D` (`sfFinalK`), centre `ψ₀ ≡ h` (`ctxFluctBoxIntegralL`). -/
+noncomputable def ctxFluctBoxIntegral (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) : ℂ :=
+  ctxFluctBoxIntegralL C vc hv (Green.pdSqrtInv (sfFinalK C hv)) p1 g
+
 /-- **The box integral is `exp(X₀)` times the box average of the integrand divided by `exp(X₀)`**,
-for every complex `X₀`. -/
-theorem ctxBoxIntegral_eq_exp_mul_of (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
-    (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) (X₀ : ℂ) :
-    ctxBoxIntegral C vc hv p1 g = Complex.exp X₀ *
-      ((Green.pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) *
+at every whitening and for every complex `X₀`. -/
+theorem ctxBoxIntegralL_eq_exp_mul_of (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) (X₀ : ℂ) :
+    ctxBoxIntegralL C vc hv A p1 g = Complex.exp X₀ *
+      ((whitenNorm A : ℂ) *
         ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
-          sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w *
-            Complex.exp (-X₀) ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)) := by
+          sfGaussIntegrandL C vc Set.univ hv g (sfFinalK C hv) A (fun _ => hv) w *
+            (mismatchFactor (sfFinalK C hv) A w : ℂ) * Complex.exp (-X₀)
+            ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)) := by
   have e : ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
-        sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w
+        sfGaussIntegrandL C vc Set.univ hv g (sfFinalK C hv) A (fun _ => hv) w *
+          (mismatchFactor (sfFinalK C hv) A w : ℂ)
         ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ) =
       Complex.exp X₀ * ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
-        sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w *
-          Complex.exp (-X₀) ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ) := by
+        sfGaussIntegrandL C vc Set.univ hv g (sfFinalK C hv) A (fun _ => hv) w *
+          (mismatchFactor (sfFinalK C hv) A w : ℂ) * Complex.exp (-X₀)
+          ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ) := by
     rw [← integral_const_mul]
     congr 1
     funext w
     rw [mul_left_comm, ← Complex.exp_add, add_neg_cancel, Complex.exp_zero, mul_one]
-  unfold ctxBoxIntegral
+  unfold ctxBoxIntegralL
   rw [e]
   ring
 
 /-- **`Ξ_box = exp(X₀) · (box average of the fluctuation integrand)`** at the constant-configuration
-exponent `X₀ = constExponent`. -/
+exponent `X₀ = constExponent`, at every whitening. -/
+theorem ctxBoxIntegralL_eq_exp_mul (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) :
+    ctxBoxIntegralL C vc hv A p1 g =
+      Complex.exp (constExponent C vc hv g) * ctxFluctBoxIntegralL C vc hv A p1 g :=
+  ctxBoxIntegralL_eq_exp_mul_of C vc hv A p1 g _
+
+/-- **`Ξ_box = exp(X₀) · (box average of the fluctuation integrand)`** at the exact whitening (the
+instance of `ctxBoxIntegralL_eq_exp_mul`). -/
 theorem ctxBoxIntegral_eq_exp_mul (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) :
     ctxBoxIntegral C vc hv p1 g =
       Complex.exp (constExponent C vc hv g) * ctxFluctBoxIntegral C vc hv p1 g :=
-  ctxBoxIntegral_eq_exp_mul_of C vc hv p1 g _
+  ctxBoxIntegralL_eq_exp_mul C vc hv _ p1 g
+
+/-- **The box integral from the box average of the fluctuation integrand** on one torus, at every
+whitening `A`: if `ctxFluctBoxIntegralL = exp(E' + S')`, then `Ξ_box(A)` is the exponential of
+`E' +` the vacuum term `+ ⟨g, h⟩ +` the inherited activities `+ S'` (`ctxBoxIntegralL_eq_exp_mul`,
+`const_exponent`). -/
+theorem ctxBoxIntegralL_eq_exp_of_fluct (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (H : BgHyp S.d S.L k (minSep S.L C.geo.M1) C.weights (C.cs.muBg k))
+    (he : ∑ i, hv i ^ 2 = 1) (hk : 1 ≤ k)
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) {E' S' : ℂ}
+    (hfl : ctxFluctBoxIntegralL C vc hv A p1 g = Complex.exp (E' + S')) :
+    ctxBoxIntegralL C vc hv A p1 g = Complex.exp ((E' + fluctVacConst C vc hv) +
+      (∑ y : Torus S.d (M * n K * S.L ^ K), ∑ i : Fin N, g (y, i) * (hv i : ℂ)) +
+      ∑ j ∈ Finset.Icc 1 k, ∑ X : Finset (Torus S.d (M * n K * S.L ^ K)),
+        inhObs C.sf C.m₀ hv (M * n K * S.L ^ K) j X (fun x i => g (x, i)) + S') := by
+  rw [ctxBoxIntegralL_eq_exp_mul, hfl, ← Complex.exp_add]
+  unfold constExponent
+  rw [const_exponent C hv vc H he hk g]
+  unfold fluctVacConst
+  congr 1
+  ring
 
 end Vac
 
@@ -153,18 +200,11 @@ theorem finalSmallFieldInput_of_fluctForm (hPre : PrefixInput d δ T P6 C7 PB cs
   obtain ⟨HB, -, -⟩ := h₂ β ((le_max_right _ _).trans hβ) ν hν hνL h hh kf hkf k hk1 hkkf ρ νk hM6
     hkK R geo cs P F St vc hF hstop nK g hg
   have he : ∑ i, h i ^ 2 = 1 := sum_sq_eq_one_of_norm_eq_one h hh
-  have hX : constExponent (F.ctx hM6 hkK nK) vc h g = fluctVacConst (F.ctx hM6 hkK nK) vc h +
-      (∑ y : Torus d ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
-          (T κ c₉).L ^ (kf + 1)), ∑ i : Fin N, g (y, i) * (h i : ℂ)) +
-      ∑ j ∈ Finset.Icc 1 k, ∑ X : Finset (Torus d ((T κ c₉).M *
-          sides (T κ c₉).L (kf + 1) nK (kf + 1) * (T κ c₉).L ^ (kf + 1))),
-        inhObs F.sf (P6 κ c₉).m₀ h ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
-          (T κ c₉).L ^ (kf + 1)) j X (fun x i => g (x, i)) :=
-    const_exponent (F.ctx hM6 hkK nK) h vc HB he hk1 g
-  rw [sfBoxIntegral, ctxBoxIntegral_eq_exp_mul, hid nK g hg, ← Complex.exp_add, hX]
+  rw [sfBoxIntegral, ctxBoxIntegral, ctxBoxIntegralL_eq_exp_of_fluct (F.ctx hM6 hkK nK) vc h HB he
+    hk1 _ _ g (E' := E nK) (S' := ∑ X, a ((T κ c₉).M * sides (T κ c₉).L (kf + 1) nK (kf + 1) *
+      (T κ c₉).L ^ (kf + 1)) (k + 1) X (fun x i => g (x, i))) (hid nK g hg)]
   simp only [ne_eq, hnK, not_false_eq_true, ↓reduceDIte]
-  congr 1
-  ring
+  rfl
 
 end Inputs
 

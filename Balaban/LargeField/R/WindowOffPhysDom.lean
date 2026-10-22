@@ -37,6 +37,30 @@ section Ball
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {H : RegionHistory S n R k0 K} {m' j : ℕ} {Z : H.Comp (m' + 1)} {g : Geo S n R M}
 
+/-- The sites of the ball `t L^j M` around the region of a piece are data sites of its local
+generating set. -/
+theorem ball_cast_mem_dataSitesT (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m')
+    (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
+    (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z) {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    {t : ℕ} (hR : BallRadiusOK R m' j t) (hxy : supDist y x ≤ t * (S.L ^ j * M)) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
+      dataSites (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK) := by
+  have hk1 := hW.k1_pos hkK
+  obtain ⟨hyj, -⟩ := full_layerIndex_ballT hkK hW hj hk1j hK hc hx hR hxy
+  obtain ⟨hx1, hx2⟩ := (mem_Xfine_cast_iff g hkK hj c hK x).1 hx
+  have hRm : 1 ≤ ⌊R m'⌋₊ := by
+    refine Nat.le_floor ?_
+    have := g.hRlow m'
+    have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
+    push_cast; linarith
+  have hy1 : y ∈ (windowOfHistory H Z g hkK hW).full.Ω 1 :=
+    (windowOfHistory H Z g hkK hW).full.Ω_antitone le_rfl (by omega) (by omega) hyj
+  have hyw := (windowGenSet_Ω_ball hkK hW hj hk1j hc hx1 hx2 (t := t) hR.1 (by have := hR.2.1; omega) hxy
+    le_rfl (by omega)).2 hy1
+  exact (mem_dataSites _).2 (Or.inl ((piece_window_layers_iff_ball hkK hW hj hk1j hK hc hx (t := t) hR.1 (by have := hR.2.1; omega)
+    hR.2.2.1 hxy le_rfl (by omega)).2 hyw))
+
 /-- The sites of the ball `2 L^j M` around the region of a piece are data sites of its local
 generating set. -/
 theorem ball_cast_mem_dataSites (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m')
@@ -46,20 +70,7 @@ theorem ball_cast_mem_dataSites (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1)
     (hxy : supDist y x ≤ 2 * (S.L ^ j * M)) :
     torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
       dataSites (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK) := by
-  have hk1 := hW.k1_pos hkK
-  obtain ⟨hyj, -⟩ := full_layerIndex_ball hkK hW hj hk1j hK hc hx hxy
-  obtain ⟨hx1, hx2⟩ := (mem_Xfine_cast_iff g hkK hj c hK x).1 hx
-  have hRm : 1 ≤ ⌊R m'⌋₊ := by
-    refine Nat.le_floor ?_
-    have := g.hRlow m'
-    have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
-    push_cast; linarith
-  have hy1 : y ∈ (windowOfHistory H Z g hkK hW).full.Ω 1 :=
-    (windowOfHistory H Z g hkK hW).full.Ω_antitone le_rfl (by omega) (by omega) hyj
-  have hyw := (windowGenSet_Ω_ball hkK hW hj hk1j hc hx1 hx2 (t := 2) (by omega) (by omega) hxy
-    le_rfl (by omega)).2 hy1
-  exact (mem_dataSites _).2 (Or.inl ((piece_window_layers_iff_ball_two hkK hW hj hk1j hK hc hx hxy
-    le_rfl (by omega)).2 hyw))
+  exact ball_cast_mem_dataSitesT hkK hW hj hk1j hK hc hx (ballRadiusOK_two H g m' j) hxy
 
 /-- **The constant condition `2 L + 1 ≤ M`** follows from the radius condition
 `(ϱ_B + 3d) L + 2 ≤ 2 c M₁` with `ϱ_B ≥ R₀(d, L) ≥ 0` and `d ≥ 3`. -/
