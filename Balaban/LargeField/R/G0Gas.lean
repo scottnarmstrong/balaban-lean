@@ -24,7 +24,8 @@ members `Kc` (the components of `Y_k` with their localized histories), the regio
 hole `S₀ = Ω^c_k ∩ Y_k`, and the kept boundary terms `keptT X = ℬ̂(X; 𝔸′)` (on `𝒳(𝔸′)`).
 * heavy objects: the **removed clusters** `𝒞` of `Kc` (`RemCluster`, Definition III.10.3) built from
   the ripe members `(Z, 𝔞)` of the configurations of the pre-`R` histories (`remMembers`); their
-  compatibility support is `S(𝒞) = ⋃ Z^{∼2ω_k}`, their full support its closure under the hole;
+  full support is `S(𝒞) = ⋃ Z^{∼2ω_k}` closed under the hole (compatibility and contact through the
+  charged supports `S(𝒞) ∖ S₀`, which is `S(𝒞)` when `S(𝒞)` misses the hole, the (H-op) geometry);
   weight `τ_𝒞 = a(𝒞; 𝔸′) ∏_{(Z,𝔞) ∈ 𝒞} T^rem(Z) e^{E_k|Z|_k}` (`admFactor`, the removed weights
   `pres.w`);
 * light objects: the domains `X` (sets of cubes of `𝕋_k`) decorated by the nonempty set `S` of
@@ -34,7 +35,7 @@ hole `S₀ = Ω^c_k ∩ Y_k`, and the kept boundary terms `keptT X = ℬ̂(X; �
   configuration is `Kc ∪ S`, at its fields `pres.fld`; `ℬ̂(X; 𝔸′)` for `S = ∅`),
   `kept X = ℬ̂(X; 𝔸′)`, `fresh X S = ℬ′_X(S)` (A4's `rFresh`, P7 (3.22)–(3.25), old small-field
   region `(Y ∪ ⋃_{𝒞 ∈ S} c(𝒞))ᶜ`, new region `Yᶜ`);
-* internal variables and reference measure: `pres.Ξ`, `pres.μ` ((H-op)).
+* internal variables and reference measure: `∏_b pres.Ω b`, `⨂_b pres.μ b` ((H-op)).
 `gasP X e` is the local term `P^{(k)}(X; 𝔸′)` of its cluster expansion (`decP`, P7 (3.28)) at the
 external variables `e = (ψ, ψ′, h, g)`.
 
@@ -138,23 +139,24 @@ def holeCl (S₀ X : Finset (Torus S.d (n k))) : Finset (Torus S.d (n k)) :=
 
 variable (rep) in
 /-- **The operator form of the removed members** ((H-op); W2's export, not constructed here): the
-internal variables of all removed members as one measurable space `Ξ` with the reference
-probability measure `μ`; the removed weight `T^rem(Z) e^{E_k|Z|_k}` of each member as a function of
-the external variables and `Ξ` (P7 (3.26), LFR (3.26′): the removed operator without front
-functions, acting on the internal variables of `Z`); the multiscale and fluctuation fields
+internal variables of the removed members as a product over the cubes `b` of `𝕋_k` of measurable
+spaces `Ω b` with reference probability measures `μ b`; the removed weight `T^rem(Z) e^{E_k|Z|_k}`
+of each member as a function of the external variables and the internal configuration
+`Φ ∈ ∏_b Ω b` (P7 (3.26), LFR (3.26′): the removed operator without front functions, acting on the
+internal variables of `Z`); the multiscale and fluctuation fields
 `(ψ̃, ψ̃′)` of the pre-`R` history `𝔸′ ∪ S` (the kept fields with the fields of the removed members
 of `S`), at which its boundary terms are evaluated; and the constants `a₁`, `ν`, `rho` of the
 re-expansion `ℬ′` (`rBPrime`). -/
 structure RemPres where
-  /-- the internal variables of the removed members -/
-  Ξ : Type
-  [ms : MeasurableSpace Ξ]
-  /-- the reference probability measure of (H-op) -/
-  μ : Measure Ξ
+  /-- the internal variables of the removed members on a cube -/
+  Ω : Torus S.d (n k) → Type
+  [ms : ∀ b, MeasurableSpace (Ω b)]
+  /-- the reference probability measures of (H-op) -/
+  μ : ∀ b, Measure (Ω b)
   /-- the removed weight `T^rem(Z) e^{E_k|Z|_k}` of a member -/
-  w : RemMem rep → BExt S n M K N → Ξ → ℂ
+  w : RemMem rep → BExt S n M K N → (∀ b, Ω b) → ℂ
   /-- the fields `(ψ̃, ψ̃′)` of the pre-`R` history with the removed members `S` -/
-  fld : Finset (ConfigPair S n M K k) → BExt S n M K N → Ξ →
+  fld : Finset (ConfigPair S n M K k) → BExt S n M K N → (∀ b, Ω b) →
     MultiFieldC S n M K N × MultiFieldC S n M K N
   /-- the coefficient constant of the backgrounds of `ℬ′` -/
   a₁ : ℝ
@@ -167,7 +169,8 @@ attribute [instance] RemPres.ms
 
 /-- `RemPres` is inhabited (the trivial presentation: one point, no weight). -/
 instance : Nonempty (RemPres rep) :=
-  ⟨{ Ξ := Unit, μ := Measure.dirac (), w := fun _ _ _ => 0, fld := fun _ e _ => (e.1, e.2.1),
+  ⟨{ Ω := fun _ => Unit, μ := fun _ => Measure.dirac (), w := fun _ _ _ => 0,
+     fld := fun _ e _ => (e.1, e.2.1),
      a₁ := 0, ν := 0, rho := 0 }⟩
 
 /-! ### The gas of a kept configuration and its local terms -/
@@ -181,7 +184,7 @@ variable {m₁ : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N k m₁ ϱ) (hv : Euclide
 variable (Kc) in
 /-- **The heavy weight of a removed cluster** (LFR (3.26′)): the admissibility factor
 `a(𝒞; 𝔸′)` times the product of the removed weights of its members. -/
-def gasTau (Cl : RemCl rep Kc) (e : BExt S n M K N) (Φ : pres.Ξ) : ℂ :=
+def gasTau (Cl : RemCl rep Kc) (e : BExt S n M K N) (Φ : ∀ b, pres.Ω b) : ℂ :=
   (admFactor Kc (memPairs Cl.1) : ℂ) * ∏ m ∈ Cl.1, pres.w m e Φ
 
 variable (Kc) in
@@ -189,7 +192,7 @@ variable (Kc) in
 of the pre-`R` history whose scale-`k` configuration is `Kc ∪ S` (on its boundary domains), at the
 fields of that history, and `0` if there is no such history. -/
 def gasOld (X : Finset (Torus S.d (n k))) (Sc : Finset (RemCl rep Kc)) (e : BExt S n M K N)
-    (Φ : pres.Ξ) : ℂ :=
+    (Φ : ∀ b, pres.Ω b) : ℂ :=
   if Sc = ∅ then keptT X e
   else if h : ∃ A ∈ rep.hist, configMembers M k A = Kc.members ∪ remSet Sc then
     if X ∈ bdryDoms (OmegaCube h.choose.H k) (h.choose.H.F.Zpre k) then
@@ -211,19 +214,18 @@ variable (Kc) in
 /-- **The decorated coupling** `b_X(S) = ℬ(X, 𝔸′ ∪ S) - ℬ̂(X; 𝔸′) + ℬ′_X(S)` (ruling R4,
 `r4Coupling`). -/
 def gasCoupling (X : Finset (Torus S.d (n k))) (Sc : Finset (RemCl rep Kc)) (e : BExt S n M K N)
-    (Φ : pres.Ξ) : ℂ :=
+    (Φ : ∀ b, pres.Ω b) : ℂ :=
   r4Coupling (fun X' Sc' => gasOld Kc pres keptT X' Sc' e Φ)
     (fun X' Sc' => gasFresh Kc C hv vc pres Y X' Sc' e) (fun X' => keptT X' e) X Sc
 
 variable (Kc) in
 /-- **The local term `P^{(k)}(X)` of the gas of the kept configuration** (P7 (3.27)–(3.28); LFR
 Lemma III.10.5): `decP` on the cube graph of `𝕋_k` with the hole `S₀`, the removed clusters as
-heavy objects (compatibility support `S(𝒞)`, full support its hole closure, weight `gasTau`), the
+heavy objects (support `S(𝒞)` closed under the hole, weight `gasTau`), the
 domains decorated by the clusters they meet as light objects (full support the hole closure of
 the domain, weight `e^{b_X(S)} - 1`), and the reference measure `pres.μ`. -/
 def gasP (X : Finset (Torus S.d (n k))) (e : BExt S n M K N) : ℂ :=
-  decP (Localization.latGraph S.d (n k)) S₀ (fun Cl : RemCl rep Kc => clSupp Cl)
-    (fun Cl => holeCl S₀ (clSupp Cl)) (fun X' => holeCl S₀ X') (gasNear rep Kc)
+  decP (Localization.latGraph S.d (n k)) S₀ (fun Cl : RemCl rep Kc => holeCl S₀ (clSupp Cl)) (fun X' => holeCl S₀ X') (gasNear rep Kc)
     (fun Cl Φ => gasTau Kc pres Cl e Φ)
     (fun X' Sc Φ => gasCoupling Kc C hv vc pres Y keptT X' Sc e Φ)
     pres.μ X
