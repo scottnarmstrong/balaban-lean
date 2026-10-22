@@ -28,8 +28,8 @@ hole `S₀ = Ω^c_k ∩ Y_k`, and the kept boundary terms `keptT X = ℬ̂(X; �
   charged supports `S(𝒞) ∖ S₀`, which is `S(𝒞)` when `S(𝒞)` misses the hole, the (H-op) geometry);
   weight `τ_𝒞 = a(𝒞; 𝔸′) ∏_{(Z,𝔞) ∈ 𝒞} T^rem(Z) e^{E_k|Z|_k}` (`admFactor`, the removed weights
   `pres.w`);
-* light objects: the domains `X` (sets of cubes of `𝕋_k`) decorated by the nonempty set `S` of
-  clusters whose core `X` meets (`gasNear`), with the coupling of ruling R4
+* light objects: the connected domains `X` (sets of cubes of `𝕋_k`, `LDom`) decorated by the
+  nonempty set `S` of clusters whose core `X` meets (`gasNear`), with the coupling of ruling R4
   `b_X(S) = r4Coupling old fresh kept X S`:
   `old X S = ℬ^{(k)}(X, 𝔸′ ∪ S)` (the pre-`R` boundary term of the pre-`R` history whose scale-`k`
   configuration is `Kc ∪ S`, at its fields `pres.fld`; `ℬ̂(X; 𝔸′)` for `S = ∅`),
@@ -130,6 +130,10 @@ p. 527; LFR §III.10.3, "the `X` that meet a removed component"). -/
 def gasNear (X : Finset (Torus S.d (n k))) (Cl : RemCl rep Kc) : Prop :=
   ¬ Disjoint X (clCore Cl)
 
+/-- The light domains of the gas: the connected sets of cubes of `𝕋_k` (the domains `𝒟_k`). -/
+abbrev LDom (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)] (k : ℕ) : Type :=
+  {X : Finset (Torus S.d (n k)) // IsAnimal (Localization.latGraph S.d (n k)) X}
+
 /-- The closure of a set of cubes under the nearest-neighbour components of the hole `S₀` that it
 meets (the full support of an object of the gas). -/
 def holeCl (S₀ X : Finset (Torus S.d (n k))) : Finset (Torus S.d (n k)) :=
@@ -221,14 +225,15 @@ def gasCoupling (X : Finset (Torus S.d (n k))) (Sc : Finset (RemCl rep Kc)) (e :
 variable (Kc) in
 /-- **The local term `P^{(k)}(X)` of the gas of the kept configuration** (P7 (3.27)–(3.28); LFR
 Lemma III.10.5): `decP` on the cube graph of `𝕋_k` with the hole `S₀`, the removed clusters as
-heavy objects (support `S(𝒞)` closed under the hole, weight `gasTau`), the
-domains decorated by the clusters they meet as light objects (full support the hole closure of
-the domain, weight `e^{b_X(S)} - 1`), and the reference measures `pres.μ`. -/
+heavy objects (support `S(𝒞)` closed under the hole, weight `gasTau`), the connected domains
+(`LDom`, the domains `𝒟_k` of the boundary terms) decorated by the clusters they meet as light
+objects (full support the hole closure of the domain, weight `e^{b_X(S)} - 1`), and the reference
+measures `pres.μ`. -/
 def gasP (X : Finset (Torus S.d (n k))) (e : BExt S n M K N) : ℂ :=
   decP (Localization.latGraph S.d (n k)) S₀ (fun Cl : RemCl rep Kc => holeCl S₀ (clSupp Cl))
-    (fun X' => holeCl S₀ X') (gasNear rep Kc)
+    (fun X' : LDom S n k => holeCl S₀ X'.1) (fun X' Cl => gasNear rep Kc X'.1 Cl)
     (fun Cl Φ => gasTau Kc pres Cl e Φ)
-    (fun X' Sc Φ => gasCoupling Kc C hv vc pres Y keptT X' Sc e Φ)
+    (fun X' Sc Φ => gasCoupling Kc C hv vc pres Y keptT X'.1 Sc e Φ)
     pres.μ X
 
 end Gas
