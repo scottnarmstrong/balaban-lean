@@ -3325,3 +3325,6 @@ public import Balaban.Polymer.LocalIsoFF
 public import Balaban.Polymer.LocalIsoEv
 public import Balaban.Polymer.LocalIsoEvPrem
 public import Balaban.Polymer.LocalIsoEnergy
+public import Balaban.Polymer.LocalIsoEvStd
+public import Balaban.Polymer.LocalIsoZero
+public import Balaban.Polymer.LocalIsoOld

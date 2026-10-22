@@ -23,8 +23,9 @@ cut points is the exact local transport `OmegaIso.FFmarkedBg_canon_eq`.
 
 * `OmegaIso.resZ_eq`: the restrictions of corresponding hat variables to the unit points;
 * `OmegaIso.evDecBg_canon_twoTorus_core`: the terms on two tori, from the analyticity of the first
-  functional in the cut parameters (`hFan`) and the premises of the decoupling pairs at every
-  transported parameter of the polydisc (`hF`, `hF'`, `hex`, `hv`, `hv'`; all one-torus facts).
+  functional in the cut parameters (`hFan`) and the premises of the decoupling pairs on sets of
+  parameters containing the transported parameters of the polydisc (`hF`, `hF'`, `hex`, `hv`, `hv'`;
+  all one-torus facts).
 -/
 
 @[expose] public section
@@ -86,9 +87,10 @@ the box map (`OmegaIso` with the radius `ρ ≤ R`); the step's covering setups 
 `X₁` and its image (in the box of radius `R`), the label `Y` in that box; data `D`, `D'`
 corresponding on the box of radius `ρ + 1`, hat variables corresponding at the sites of the box
 of radius `ρ` (`hhat`), the mask `Zm` and its image.  Let the first marked functional be analytic in
-the cut parameters on the polydisc of radius `e^κ` (`hFan`), and at every transported parameter of
-modulus `< e^κ` let the decoupling pairs have their properties (`hF`, `hF'`, `hex`, `hv`, `hv'`),
-and `Φ'`, `Φ` agree on corresponding inputs (`hΦ`).  Then the terms `evDecBg` of `bm '' Y` on the
+the cut parameters on the polydisc of radius `e^κ` (`hFan`), and at every parameter of sets `Sg`, `Sg'`
+containing the transported parameters of the polydisc (`hSg`, `hSg'`) let the decoupling pairs have
+their properties (`hF`, `hF'`, `hex`, `hv`, `hv'`; the point triples lie in the realizable sets `Rl`,
+`Rl'`), and `Φ'`, `Φ` agree on corresponding realizable inputs (`hΦ`).  Then the terms `evDecBg` of `bm '' Y` on the
 second torus and of `Y` on the first agree.  Margins: those of `evTerm_boxMap_of_eq` (`hnF`) and of
 `extS_extParams_boxMap_of_eq` (`hnS`). -/
 theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm Hm' ρ)
@@ -125,20 +127,29 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
       Zm um tm (rawOf D, (BgTransport.canon (GA) Gb N).res ψh))
       (polydisc (0 : ParIdx (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
         (fun _ => Real.exp κ)))
-    (hF : ∀ σ : DecParams Gb, (∀ P, ‖σ P‖ < Real.exp κ) →
+    {Sg : Set (DecParams Gb)} {Sg' : Set (DecParams Gb')}
+    (hSg : ∀ w ∈ polydisc (0 : ParIdx (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) → ℂ)
+        (fun _ => Real.exp κ),
+      (BgTransport.canon (GA) Gb N).par
+        (extParams (GA) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) w) ∈ Sg)
+    (hSg' : ∀ w ∈ polydisc (0 : ParIdx (GB) (↑(X₁f.image bk) : Set (CTorus d L N₁' m₁ (k + 1))) → ℂ)
+        (fun _ => Real.exp κ),
+      (BgTransport.canon (GB) Gb' N).par
+        (extParams (GB) (↑(X₁f.image bk) : Set (CTorus d L N₁' m₁ (k + 1))) w) ∈ Sg')
+    (hF : ∀ σ ∈ Sg,
       ∀ φ α, Dec2.IsDecBg (coverOf Gb) Gb (compWeight L a₁) ν ρb σ D φ α →
         F₁ (σ, rawOf D) = (φ, α))
-    (hF' : ∀ σ : DecParams Gb', (∀ P, ‖σ P‖ < Real.exp κ) →
+    (hF' : ∀ σ ∈ Sg',
       ∀ φ α, Dec2.IsDecBg (coverOf Gb') Gb' (compWeight L a₁) ν ρb σ D' φ α →
         F₁' (σ, rawOf D') = (φ, α))
-    (hex : ∀ σ : DecParams Gb, (∀ P, ‖σ P‖ < Real.exp κ) →
+    (hex : ∀ σ ∈ Sg,
       ∃ φ α, Dec2.IsDecBg (coverOf Gb) Gb (compWeight L a₁) ν ρb σ D φ α)
     {r : ℝ}
     {Rl : Set (((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
     {Rl' : Set (((Gb'.Ω 1 × Fin N → ℂ) × (Gb'.Ω 1 → ℂ)) × (Hm'.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ)))}
-    (hv : ∀ σ : DecParams Gb, (∀ P, ‖σ P‖ < Real.exp κ) →
+    (hv : ∀ σ ∈ Sg,
       let p : Dec2.DecParams (coverOf Gb) × Edat Hm N :=
         (σ, flEdat Gb Hm (F₁ (σ, rawOf D)) D.Ψ
           (markedHatPsiFBg Gb a₁ ν (liftZ Gb) cc F₁ Zm um tm σ (rawOf D) (resZ (GA) Gb ψh)))
@@ -147,7 +158,7 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
         Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
           (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
         Small Hm (Sol p).2 r ∧ (F₁ (σ, rawOf D), (Sol p).1, (rawOf D, p.2.2.2.1)) ∈ Rl)
-    (hv' : ∀ σ' : DecParams Gb', (∀ P, ‖σ' P‖ < Real.exp κ) →
+    (hv' : ∀ σ' ∈ Sg',
       let p' : Dec2.DecParams (coverOf Gb') × Edat Hm' N :=
         (σ', flEdat Gb' Hm' (F₁' (σ', rawOf D')) D'.Ψ
           (markedHatPsiFBg Gb' a₁ ν (liftZ Gb') cc F₁' (Zm.map hI.unitEquiv.toEmbedding) um tm σ'
@@ -229,9 +240,8 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
       · simp only [not_exists, not_and] at h
         rw [hs0' i' h, norm_zero]
         exact Real.exp_pos κ
-    have hσκ := tauExt_norm_lt (Gl := Gb) (↑X₁f : Set (CTorus d L N₁ m₁ (k + 1))) hκ s hsp
-    have hσκ' := tauExt_norm_lt (Gl := Gb') (↑(X₁f.image bk) : Set (CTorus d L N₁' m₁ (k + 1)))
-      hκ s' hsp'
+    have hσκ := hSg s hsp
+    have hσκ' := hSg' s' hsp'
     exact hI.FFmarkedBg_canon_eq ν hH a₁ ρb cc s s' hS Zm um tm hΨ hh hψ rfl rfl
       (hF _ hσκ) (hF' _ hσκ') (hex _ hσκ) (hv _ hσκ) (hv' _ hσκ') hΦ
   unfold evDecBg
