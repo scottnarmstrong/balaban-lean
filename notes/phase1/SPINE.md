@@ -863,11 +863,32 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
   3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
   `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+  **`SFZInput` (W1154c, 2026-10-21; `Spine/SFZ.lean`).** Spine-local named input of the form `SFImageInput`: the image of
+  the small-field data has `|z_{k+1} − 1| ≤ c₁₀ ε_{k+1}` (P4 (4.1), (5.2), p. 698: `z_{k+1} = 1 + ζ`, `ξ₁ = ζ/ε_{k+1}`,
+  `|ξ₁| < ε ≤ c₁₀`); inhabited (`sfZInput_of_z_eq_one`, `exists_sfZInput`). It is part of the output of the
+  renormalization and **joins A4-1c (`SFRenormInput`) when the renormalization provider is built**. It discharges the
+  premise `|z − 1| ≤ ε/3` of `H7MixedDatumLoc2` with `ε_{k+1} ≤ ε/(3c₁₀)` from the constants.
   **Update (W1154c, item (5)).** `Spine/LFOldBD7.lean`: the clauses `support`, `loc_field`, `real`, `rot`, `analytic` of the
   old part at an output label are PROVED generically (`oldBAtAt_eq_zero_of_not_valid`, `oldBAtAt_congr_fields`, `oldBAtAt_im`,
   `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at
   the balls of the marks); `euclid`, `loc_hist` open. Findings for the identity (external field `h`, predecessor
   histories, field-independent families) and the scope of (3) and (2): PLAN-B, "The (D7) clauses of the old part".
+  **W1154d (2026-10-21), the band outside `Ω_{k+1}`.** `Spine/LFOldDatumFree.lean`: `h7Domain_succ_congr_k` (the H7 domain
+  of scale `k + 1` does not read `ψ_k` on blocks near `Ω_{k+1}` away from the holes of the H7 domain),
+  `not_h7MixedDatumLoc2_of_site` (a data site of `G′_V` there refutes `H7MixedDatumLoc2`), and the correction
+  `mem_omegaCNb_of_notMem_omega`, `rem_ne_empty_of_far`: without a removal at scale `k + 1` the holes of the H7 domain
+  are exactly `(𝕋_{k+1} ∖ Ω_{k+1})^{∼3}` and such sites do not exist; the issue is confined to the holes of `Ω_{k+1}` in
+  components removed by `R^{(k+1)}` (PLAN-B, "The band outside `Ω_{k+1}`").
+
+  **W1154e (2026-10-21).** (3a)–(3c): `H7MixedDatumLoc2Pre` (the datum input at `V₂(X, J)`, `J ∈ allJ ρ`, for the
+  pre-`R` records `globalLHPre`, R17) **PROVED** (`Spine/LFOldDatumPre`: `h7MixedDatumLoc2Pre_holds`, `_of_sfz`, `_zero`,
+  `massRegime_of_bgMass`; the case analysis `inDomainC_holeStepLoc2_of_h7` with the third chart `Δ^c_k` at the cube of
+  `𝕋_k`, `Background/DataPatchChart.chartSplit_spec`); the chain at `globalLHPre`: `Spine/LFOldHS2Pre`
+  (`H7MixedInnerLoc2Pre` open, `locConds_of_h7MixedLoc2Pre`, `norm_oldB2Pre_le`), through cores with landed instances
+  (`norm_oldBOf_le_of_dom_allJ`, `h7Domain_composedMulti_of_inner_withZ`, `H7MixedInnerLocXJ`, `H7MixedDatumLocV`,
+  `locConds_of_h7MixedLoc2_withZ`).  Open for blocker 3: `H7MixedInnerLoc2Pre` (P5 Lemma 2.1 in the complex domains),
+  Proposition 3.3 on a region (the interaction of `oldB2`), the identity of the old part with `∑ oldB2`, the clauses
+  `euclid` and `loc_hist` (W1162/W1163; evaluation of the collar finding in PLAN-B, ruling R22).
 
 ## LastIntegralInput sub-inputs (W1108)
 

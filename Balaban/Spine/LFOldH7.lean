@@ -207,6 +207,92 @@ theorem cubeMap_succ_notMem_Omega_of_nearZ (H : RegionHistory S n R k0 K) {k : �
   have := supDist_triangle (LargeField.cubeMap n S.L M K k x') z y'
   omega
 
+/-- **The transfer of the H7 domain to the composed multiscale field, for a target record with the
+regions `Z'`** (the core of `h7Domain_composedMulti_of_inner`): the target H7 domain of scale `k + 1` is
+taken at the global records with the regions `Z'` (ruling R17: the pre-`R` records `globalLHPre`, whose
+regions differ from those of `globalLH` at the top scale only), whose holes agree with those of the global
+records at the scales `j ≤ k` (`hZ'`); the source domain of scale `k` is that of the global records.  If `(ψ, ψ', g)` lies in the H7 domain of scale
+`k + 1` at `Y ⊇ X`, then `(composedMulti ψ comp, ψ', g)` lies in the H7 domain of scale `k` at `X`,
+given `hin`: at the cubes `□ ⊂ X` of `𝕋_k` outside `(Ω^c_k)^{∼3}` with a cube of `𝕋_{k+1}` in
+`Ω^{∼3}_{k+1}`, the composed field lies in `Δ^c_k(□; 1, ε_k)`.  The other conditions are those of
+the target: below the scale `k` the fields are the record's, at the scale `k` away from `Ω^{∼3}_{k+1}`
+and on the pairs at `(Ω^c_k)^{∼3}` the cube tests read only blocks off `Ω_{k+1}`
+(`cubeMap_succ_notMem_Omega_of_far`, `cubeMap_succ_notMem_Omega_of_nearZ`), and the fluctuation field
+and `g` are unchanged. -/
+theorem h7Domain_composedMulti_of_inner_withZ (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hρ : 5 ≤ ⌊R (k - 1)⌋₊) (hL : 2 ≤ S.L) (Z' : ℕ → Set (Torus S.d (M * n K * S.L ^ K)))
+    (hZ' : ∀ j, j ≤ k → omegaCNb { globalLH H M with Z := Z' } 3 j = omegaCNb (globalLH H M) 3 j)
+    {ϱ' : ℝ}
+    {G' : GeneratingSet S.d S.L ((g.c * n (k + 1)) * S.L ^ m₁) (k + 1) ϱ'}
+    (hG' : ∀ b : unitPts G', cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 (unitRep b) ∈ (H.step k).Omega)
+    (ψ : MultiFieldC S n M K N) (comp : unitPts G' → Fin N → ℂ)
+    {Xf Yf : Set (Torus S.d (M * n K * S.L ^ K))} (hXY : Xf ⊆ Yf) (aw μs ε ε1 νs : ℕ → ℝ)
+    (h : Fin N → ℂ) (ψ' : MultiFieldC S n M K N) (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ)
+    (htgt : H7Domain g.M1 g.c g.hM hnn { globalLH H M with Z := Z' } (k + 1) hk Yf aw μs ε ε1 νs h ψ
+      ψ' gf)
+    (hin : ∀ y : Torus S.d (n k), CubeSub (S := S) (n := n) M K k y Xf →
+      y ∉ omegaCNb (globalLH H M) 3 k →
+      (¬ ∀ x, LargeField.cubeMap n S.L M K k x = y →
+        LargeField.cubeMap n S.L M K (k + 1) x ∉ omegaNb (globalLH H M) (k + 1) 3 (k + 1)) →
+      (fun z => composedMulti g hnn hM1 hk G' ψ comp k
+          (LargeField.torusCast (histScale_eq g.hM hnn le_rfl (Nat.le_of_succ_le hk)) z)) ∈
+        DeltaC (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) aw (μs k) (ε k) h g.c (n k) y) :
+    H7Domain g.M1 g.c g.hM hnn (globalLH H M) k (Nat.le_of_succ_le hk) Xf aw μs ε ε1 νs h
+      (composedMulti g hnn hM1 hk G' ψ comp) ψ' gf := by
+  have hc := g.hc
+  have eNb : ∀ k' r j', omegaNb { globalLH H M with Z := Z' } k' r j' = omegaNb (globalLH H M) k' r j' :=
+    fun _ _ _ => rfl
+  obtain ⟨h1, h2, h3, h4⟩ := htgt
+  refine ⟨?_, ?_, ?_, h4⟩
+  · intro j hjk y hyX hfar hyC
+    rcases Nat.lt_or_ge j k with hj | hj
+    · simp only [composedMulti_of_lt hk _ ψ comp hj]
+      refine h1 j (by omega) y (fun x hx => hXY (hyX x hx)) (fun x hx => ?_)
+        (by rw [hZ' j hjk]; exact hyC)
+      rw [eNb, ← omegaNb_eq_succ (globalLH H M) (k := k) (r := 3) (j := j + 1) (by omega) (by omega)]
+      exact hfar x hx
+    · have hjk' : j = k := le_antisymm hjk hj
+      subst hjk'
+      by_cases hnear : ∀ x, LargeField.cubeMap n S.L M K j x = y →
+          LargeField.cubeMap n S.L M K (j + 1) x ∉ omegaNb (globalLH H M) (j + 1) 3 (j + 1)
+      · have ht := h1 j (Nat.le_succ j) y (fun x hx => hXY (hyX x hx)) hnear
+          (by rw [hZ' j le_rfl]; exact hyC)
+        refine (deltaC_stencil aw (μs j) (ε j) h hL (by omega) (by simp) y fun x hx => ?_).2 ht
+        show composedMulti g hnn hM1 hk G' ψ comp j (LargeField.torusCast _ _) =
+          ψ j (LargeField.torusCast _ _)
+        rw [← jBlock_torusCast_top g.hM hnn le_rfl (Nat.le_of_succ_le hk) x]
+        refine composedMulti_eq_of_notMem g hnn hM1 H hk hG' ψ comp ?_
+        refine cubeMap_succ_notMem_Omega_of_far hnn H hk hnear ?_
+        rw [cubeMap_torusCast_top g.hM hnn (Nat.le_of_succ_le hk)]
+        exact hx
+      · exact hin y hyX hyC hnear
+  · intro i hik y hyX hyΩ hyC
+    rcases Nat.lt_or_ge (i + 1) k with hi | hi
+    · simp only [composedMulti_of_lt hk _ ψ comp hi, composedMulti_of_lt hk _ ψ comp (by omega : i < k)]
+      refine h2 i (by omega) y (fun x hx => hXY (hyX x hx)) ?_ (by rw [hZ' (i + 1) hik]; exact hyC)
+      rw [eNb, ← omegaNb_eq_succ (globalLH H M) (k := k) (r := 3) (j := i + 1) (by omega) (by omega)]
+      exact hyΩ
+    · obtain rfl : i + 1 = k := le_antisymm hik hi
+      have ht := h2 i (by omega) y (fun x hx => hXY (hyX x hx))
+        (by
+          rw [eNb, ← omegaNb_eq_succ (globalLH H M) (k := i + 1) (r := 3) (j := i + 1) (by omega)
+            (by omega)]
+          exact hyΩ) (by rw [hZ' (i + 1) hik]; exact hyC)
+      refine (deltaPrimeC_stencil aw (μs (i + 1)) (ε i) (νs i) h hL (by omega) (by simp) y _ _
+        (fun x _ => ?_) (fun x hx => ?_)).2 ht
+      · show composedMulti g hnn hM1 hk G' ψ comp i (LargeField.torusCast _ _) =
+          ψ i (LargeField.torusCast _ _)
+        exact composedMulti_of_lt hk _ ψ comp (by omega) _
+      · show composedMulti g hnn hM1 hk G' ψ comp (i + 1) (LargeField.torusCast _ _) =
+          ψ (i + 1) (LargeField.torusCast _ _)
+        rw [← jBlock_torusCast_top g.hM hnn le_rfl (Nat.le_of_succ_le hk) x]
+        refine composedMulti_eq_of_notMem g hnn hM1 H hk hG' ψ comp ?_
+        refine cubeMap_succ_notMem_Omega_of_nearZ hnn H hk hρ hyC ?_
+        rw [cubeMap_torusCast_top g.hM hnn (Nat.le_of_succ_le hk)]
+        exact hx
+  · intro j hj y hy
+    exact h3 j (by omega) y fun x hx => ⟨hXY (hy x hx).1, (hy x hx).2⟩
+
 /-- **The transfer of the H7 domain to the composed multiscale field** (OPEN-H7-MIXED, all but the
 cubes near `Ω_{k+1}`; Definition II.3.5 (c), (d)): if `(ψ, ψ', g)` lies in the H7 domain of scale
 `k + 1` at `Y ⊇ X`, then `(composedMulti ψ comp, ψ', g)` lies in the H7 domain of scale `k` at `X`,
@@ -232,56 +318,9 @@ theorem h7Domain_composedMulti_of_inner (H : RegionHistory S n R k0 K) {k : ℕ}
           (LargeField.torusCast (histScale_eq g.hM hnn le_rfl (Nat.le_of_succ_le hk)) z)) ∈
         DeltaC (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) aw (μs k) (ε k) h g.c (n k) y) :
     H7Domain g.M1 g.c g.hM hnn (globalLH H M) k (Nat.le_of_succ_le hk) Xf aw μs ε ε1 νs h
-      (composedMulti g hnn hM1 hk G' ψ comp) ψ' gf := by
-  have hc := g.hc
-  obtain ⟨h1, h2, h3, h4⟩ := htgt
-  refine ⟨?_, ?_, ?_, h4⟩
-  · intro j hjk y hyX hfar hyC
-    rcases Nat.lt_or_ge j k with hj | hj
-    · simp only [composedMulti_of_lt hk _ ψ comp hj]
-      refine h1 j (by omega) y (fun x hx => hXY (hyX x hx)) (fun x hx => ?_) hyC
-      rw [← omegaNb_eq_succ (globalLH H M) (k := k) (r := 3) (j := j + 1) (by omega) (by omega)]
-      exact hfar x hx
-    · have hjk' : j = k := le_antisymm hjk hj
-      subst hjk'
-      by_cases hnear : ∀ x, LargeField.cubeMap n S.L M K j x = y →
-          LargeField.cubeMap n S.L M K (j + 1) x ∉ omegaNb (globalLH H M) (j + 1) 3 (j + 1)
-      · have ht := h1 j (Nat.le_succ j) y (fun x hx => hXY (hyX x hx)) hnear hyC
-        refine (deltaC_stencil aw (μs j) (ε j) h hL (by omega) (by simp) y fun x hx => ?_).2 ht
-        show composedMulti g hnn hM1 hk G' ψ comp j (LargeField.torusCast _ _) =
-          ψ j (LargeField.torusCast _ _)
-        rw [← jBlock_torusCast_top g.hM hnn le_rfl (Nat.le_of_succ_le hk) x]
-        refine composedMulti_eq_of_notMem g hnn hM1 H hk hG' ψ comp ?_
-        refine cubeMap_succ_notMem_Omega_of_far hnn H hk hnear ?_
-        rw [cubeMap_torusCast_top g.hM hnn (Nat.le_of_succ_le hk)]
-        exact hx
-      · exact hin y hyX hyC hnear
-  · intro i hik y hyX hyΩ hyC
-    rcases Nat.lt_or_ge (i + 1) k with hi | hi
-    · simp only [composedMulti_of_lt hk _ ψ comp hi, composedMulti_of_lt hk _ ψ comp (by omega : i < k)]
-      refine h2 i (by omega) y (fun x hx => hXY (hyX x hx)) ?_ hyC
-      rw [← omegaNb_eq_succ (globalLH H M) (k := k) (r := 3) (j := i + 1) (by omega) (by omega)]
-      exact hyΩ
-    · obtain rfl : i + 1 = k := le_antisymm hik hi
-      have ht := h2 i (by omega) y (fun x hx => hXY (hyX x hx))
-        (by
-          rw [← omegaNb_eq_succ (globalLH H M) (k := i + 1) (r := 3) (j := i + 1) (by omega)
-            (by omega)]
-          exact hyΩ) hyC
-      refine (deltaPrimeC_stencil aw (μs (i + 1)) (ε i) (νs i) h hL (by omega) (by simp) y _ _
-        (fun x _ => ?_) (fun x hx => ?_)).2 ht
-      · show composedMulti g hnn hM1 hk G' ψ comp i (LargeField.torusCast _ _) =
-          ψ i (LargeField.torusCast _ _)
-        exact composedMulti_of_lt hk _ ψ comp (by omega) _
-      · show composedMulti g hnn hM1 hk G' ψ comp (i + 1) (LargeField.torusCast _ _) =
-          ψ (i + 1) (LargeField.torusCast _ _)
-        rw [← jBlock_torusCast_top g.hM hnn le_rfl (Nat.le_of_succ_le hk) x]
-        refine composedMulti_eq_of_notMem g hnn hM1 H hk hG' ψ comp ?_
-        refine cubeMap_succ_notMem_Omega_of_nearZ hnn H hk hρ hyC ?_
-        rw [cubeMap_torusCast_top g.hM hnn (Nat.le_of_succ_le hk)]
-        exact hx
-  · intro j hj y hy
-    exact h3 j (by omega) y fun x hx => ⟨hXY (hy x hx).1, (hy x hx).2⟩
+      (composedMulti g hnn hM1 hk G' ψ comp) ψ' gf :=
+  h7Domain_composedMulti_of_inner_withZ g hnn hM1 H hk hρ hL (globalLH H M).Z (fun _ _ => rfl) hG'
+    ψ comp hXY aw μs ε ε1 νs h ψ' gf htgt hin
 
 end History
 

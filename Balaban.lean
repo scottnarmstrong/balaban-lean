@@ -120,6 +120,9 @@ public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
 public import Balaban.Background.DataPatch
+public import Balaban.Background.DataPatchScaled
+public import Balaban.Background.DataPatchChart
+public import Balaban.Background.RestrictSvec
 public import Balaban.Background.Calculus
 public import Balaban.Background.AbstractGreen
 public import Balaban.Background.ContractionCore
@@ -641,6 +644,7 @@ public import Balaban.LargeField.History.GainClock
 public import Balaban.LargeField.History.RipeWindow
 public import Balaban.LargeField.History.RegionGrow
 public import Balaban.LargeField.History.OmegaPost
+public import Balaban.LargeField.History.H7Holes
 public import Balaban.LargeField.History.LocalUnion
 public import Balaban.LargeField.History.LocalRegion
 public import Balaban.LargeField.History.Merges
@@ -3106,6 +3110,7 @@ public import Balaban.Gaussian.StepKernelIntegral
 public import Balaban.Spine.StepDensity
 public import Balaban.Spine.SFStepClauses
 public import Balaban.Spine.SFStep
+public import Balaban.Spine.SFZ
 public import Balaban.Spine.FrozenSFClauses
 public import Balaban.Spine.FrozenSFBudget
 public import Balaban.Spine.FrozenSFImage
@@ -3236,7 +3241,12 @@ public import Balaban.Spine.LFOldResum
 public import Balaban.Spine.LFOldH7Refute
 public import Balaban.Spine.LFOldHS2
 public import Balaban.Spine.LFOldHS2Chain
+public import Balaban.Spine.LFOldHS2Pre
 public import Balaban.Spine.LFOldHS2D7
+public import Balaban.Spine.LFOldDatumFree
+public import Balaban.Spine.LFOldDatumGeo
+public import Balaban.Spine.LFOldDatum
+public import Balaban.Spine.LFOldDatumPre
 public import Balaban.Spine.LFOldBD7
 public import Balaban.LargeField.R.WindowDuNamed
 public import Balaban.Fluctuation.BgTransport
