@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Def7v2Class
 public import Balaban.LargeField.R.D7AvoidGeometry
+public import Balaban.LargeField.History.H7Holes
 
 /-!
 # Transport of the bound field of the boundary terms across `R`, on labels avoiding removal
@@ -33,11 +34,14 @@ mechanism (VMOD-40 §1): a coefficient whose label meets a removed component is 
 gas of removed components, and the estimate needed concerns the sum of all gas clusters assigned
 to each new boundary label.
 
-**The three cases of a post label `Y`.**  (i) `Y` meets the removed set: `hyp_gas`.  (ii) `Y`
-avoids the removed set and is a pre label at cube level (`Y ∈ bdryDoms Ω^pre Z^pre`): the output
+**The three cases of a post label `Y`.**  (i) `Y^{∼3}` meets the removed set: `hyp_gas` (ruling
+request R17: the H7 domain of the pre record has the holes of `Ω_k^pre`, that of the post record the
+holes of `Ω_k^post`; they agree at the cubes of `Y` only when `Y^{∼3}` misses the removed set,
+`h7Domain_globalLHPre_iff_of_far`).  (ii) `Y^{∼3}` avoids the removed set and `Y` is a pre label at
+cube level (`Y ∈ bdryDoms Ω^pre Z^pre`): the output
 coefficient is the input one (`hyp_avoid`); then if `Y` is `FineValidPre` the pre bound with rate
 `3κ/2` and the equal sizes give the post bound, and otherwise the input coefficient vanishes by
-the pre `support`.  (iii) `Y` avoids the removed set but is not a pre label at cube level (the
+the pre `support`.  (iii) `Y^{∼3}` avoids the removed set but `Y` is not a pre label at cube level (the
 nearest-neighbour components of the cube-level complement of `Ω^pre` are joined through removed
 cells, so the cube-level domain condition `DmodOmega` fails before `R`): the pre record says
 nothing; `hyp_split` supplies the bound.  This case is the cube-level form of the failure of the
@@ -118,17 +122,17 @@ theorem d7Post_bound_of_avoid_of_gas {κ Bst B0 : ℝ}
     (hπ : ∀ A ∈ rout.hist, π A ∈ rin.hist ∧ OmegaCube (π A).H k = OmegaCube A.H k ∧
       (π A).H.F.Zpre k = A.H.F.Zpre k ∧ globalLH (π A).H M = globalLH A.H M)
     (hyp_avoid : ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z,
-      Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) →
+      Disjoint (nbhd 3 (Y : Set (Torus S.d (n k)))) (A.H.removedSet k) →
       Y ∈ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k) → rout.B A Y = rin.B (π A) Y)
     (hyp_gas : ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z,
-      ¬ Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) →
+      ¬ Disjoint (nbhd 3 (Y : Set (Torus S.d (n k)))) (A.H.removedSet k) →
       ∀ h ∈ hSetB hv, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
         (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
       ‖rout.B A Y (extK p.1) (extK p.2.1) h p.2.2‖ < B0 * Real.exp (-κ * d7Size Fr A k Y))
     (hyp_split : ∀ A ∈ rout.hist, ∀ Y ∈ bdryDomsPost Fr A k (A.H.step k).Z,
-      Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) →
+      Disjoint (nbhd 3 (Y : Set (Torus S.d (n k)))) (A.H.removedSet k) →
       Y ∉ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k) →
       ∀ h ∈ hSetB hv, ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
       H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
@@ -137,19 +141,23 @@ theorem d7Post_bound_of_avoid_of_gas {κ Bst B0 : ℝ}
       ‖rout.B A Y (extK p.1) (extK p.2.1) h p.2.2‖ < B0 * Real.exp (-κ * d7Size Fr A k Y)) :
     D7PostBound Fr hnn hkK rout (fun A => (A.H.step k).Z) aw μs ε ε1 νs B0 κ hv rH := by
   intro A hA Y hY h hh p hp
-  by_cases hd : Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k)
+  by_cases hd3 : Disjoint (nbhd 3 (Y : Set (Torus S.d (n k)))) (A.H.removedSet k)
   swap
-  · exact hyp_gas A hA Y hY hd h hh p hp
+  · exact hyp_gas A hA Y hY hd3 h hh p hp
+  have hd : Disjoint (Y : Set (Torus S.d (n k))) (A.H.removedSet k) :=
+    hd3.mono_left (subset_nbhd 3 _)
   by_cases hcube : Y ∈ bdryDoms (OmegaCube A.H k) (A.H.F.Zpre k)
   swap
-  · exact hyp_split A hA Y hY hd hcube h hh p hp
+  · exact hyp_split A hA Y hY hd3 hcube h hh p hp
   obtain ⟨hπin, hΩ, hZ, hG⟩ := hπ A hA
-  have hid := hyp_avoid A hA Y hY hd hcube
+  have hid := hyp_avoid A hA Y hY hd3 hcube
   have hcube' : Y ∈ bdryDoms (OmegaCube (π A).H k) ((π A).H.F.Zpre k) := by
     rw [hΩ, hZ]; exact hcube
   by_cases hvp : FineValidPre Fr (π A) k Y
   · have hYpre : Y ∈ bdryDomsPre Fr (π A) k ((π A).H.F.Zpre k) := mem_bdryDomsPre.2 ⟨hcube', hvp⟩
-    have hb := hin.bound (π A) hπin Y hYpre h hh p (by rw [hG]; exact hp)
+    have hp' := (h7Domain_globalLHPre_iff_of_far geo.M1 geo.c geo.hM hnn A.H hkK hd3 aw μs ε ε1 νs h
+      _ _ _).1 hp
+    have hb := hin.bound (π A) hπin Y hYpre h hh p (by rw [globalLHPre_congr hG hZ]; exact hp')
     rw [hid]
     have hsz : d7SizePre Fr (π A) k Y = d7Size Fr A k Y := by
       have : d7SizePre Fr (π A) k Y = d7SizePre Fr A k Y := by
@@ -210,11 +218,14 @@ theorem loc_field_of_avoid {fac rate : ℝ}
   rw [hid]; exact hin.loc_field Apre hA' Y hY ψ₁ ψ₂ ψ'₁ ψ'₂ h g₁ g₂ h1 h2
 
 /-- **`analytic`** at a label with the input coefficient, when the two histories have the same
-global localized history. -/
+global localized history and the same pre-`R` region, and `Y^{∼3}` misses the removed set (ruling
+request R17: there the pre-`R` and the post-`R` H7 domains agree, `h7Domain_globalLHPre_iff_of_far`). -/
 theorem analytic_of_avoid {fac rate : ℝ}
     (hin : D7Bdry2 Fr hnn hkK rin (fun A => A.H.F.Zpre k) aw μs ε ε1 νs fac rate hv rH)
     (hA' : Apre ∈ rin.hist) (hY : Y ∈ bdryDomsPre Fr Apre k (Apre.H.F.Zpre k))
-    (hid : rout.B A Y = rin.B Apre Y) (hG : globalLH Apre.H M = globalLH A.H M) :
+    (hid : rout.B A Y = rin.B Apre Y) (hG : globalLH Apre.H M = globalLH A.H M)
+    (hZ : Apre.H.F.Zpre k = A.H.F.Zpre k)
+    (hfar : Disjoint (nbhd 3 (Y : Set (Torus S.d (n k)))) (A.H.removedSet k)) :
     ∀ h ∈ hSetB hv, AnalyticOnNhd ℂ
       (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
         rout.B A Y (extK p.1) (extK p.2.1) h p.2.2)
@@ -222,7 +233,17 @@ theorem analytic_of_avoid {fac rate : ℝ}
         (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))} := by
   intro h hh
-  rw [hid, ← hG]
+  have hset : {p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) |
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+        (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))} =
+      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLHPre Apre.H M k) k hkK
+        (fineSet (S := S) (n := n) M K k (Y : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+        (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))} := by
+    ext p
+    rw [globalLHPre_congr hG hZ]
+    exact h7Domain_globalLHPre_iff_of_far geo.M1 geo.c geo.hM hnn A.H hkK hfar aw μs ε ε1 νs h _ _ _
+  rw [hid, hset]
   exact hin.analytic Apre hA' Y hY h hh
 
 /-- A label with vanishing output coefficient satisfies the fields `real`, `rot`, `loc_field`

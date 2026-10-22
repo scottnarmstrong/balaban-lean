@@ -40,6 +40,20 @@ theorem mem_slitPlane_of_norm_le {t : ℂ} (h : ‖t‖ ≤ 1 / 4) : 1 - t ∈ C
   simp only [Complex.sub_re, Complex.one_re]
   linarith
 
+/-- **The factor `t_y` of the chart is `≤ 1/4`** for a background `e` with entries `≤ E_e`, a whitening
+matrix with `ℓ¹` rows `≤ B_W` and a field `≤ p₁`, under the smallness condition. -/
+theorem chartT_whitened_le {ι : Type*} [Fintype ι] [DecidableEq ι] {β : ℝ} (hβ : 0 < β) {e : ι → Fin N → ℂ}
+    {M : Matrix (ι × Fin N) (ι × Fin N) ℂ} {ψ : ι × Fin N → ℂ} {Ee BW p₁ : ℝ} (hE : 0 ≤ Ee)
+    (he : ∀ y i, ‖e y i‖ ≤ Ee) (hW : ∀ p, ∑ r, ‖M p r‖ ≤ BW) (hψ : ∀ r, ‖ψ r‖ ≤ p₁)
+    (hsmall : (N : ℝ) * ((1 + N * Ee ^ 2) * BW * p₁) ^ 2 / β ≤ 1 / 4) (y : ι) :
+    ‖chartT β (chartTangent e (M *ᵥ ψ)) y‖ ≤ 1 / 4 := by
+  have hv : ∀ i, ‖chartTangent e (M *ᵥ ψ) (y, i)‖ ≤ (1 + N * Ee ^ 2) * BW * p₁ := by
+    intro i
+    have hw : ∀ y i, ‖(M *ᵥ ψ) (y, i)‖ ≤ BW * p₁ := fun y i => norm_mulVec_le hW hψ (y, i)
+    have := norm_chartTangent_le (e := e) hE he hw y i
+    simpa [mul_assoc] using this
+  exact (norm_chartT_le hβ y hv).trans hsmall
+
 /-- **The chart functional is analytic and bounded on `U`.** -/
 theorem chartFunctional_analytic_bdd (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (a : ℕ → ℝ)
     (ν β : ℝ) (hβ : 0 < β) (g ψ : G.Ω 1 × Fin N → ℂ) (x : G.Ω 1)
@@ -64,16 +78,8 @@ theorem chartFunctional_analytic_bdd (G : GeneratingSet d L (N₁ * L ^ m₁) 1 
           (3 / 2 * ((N : ℝ) * ((1 + N * Ee ^ 2) * BW * p₁) ^ 2 / β)) * Ee)) := by
   classical
   have hτ2 : (N : ℝ) * ((1 + N * Ee ^ 2) * BW * p₁) ^ 2 / β ≤ 1 / 2 := by linarith
-  -- the tangent and the factor `t` at a point of `U`
-  have hv : ∀ u ∈ U, ∀ y i, ‖chartTangent (fun y i => u.1 (y, i)) (W u *ᵥ ψ) (y, i)‖ ≤
-      (1 + N * Ee ^ 2) * BW * p₁ := by
-    intro u hu y i
-    obtain ⟨he, hW, -⟩ := hU u hu
-    have hw : ∀ y i, ‖(W u *ᵥ ψ) (y, i)‖ ≤ BW * p₁ := fun y i => norm_mulVec_le hW hψ (y, i)
-    have := norm_chartTangent_le (e := fun y i => u.1 (y, i)) hE he hw y i
-    simpa [mul_assoc] using this
   have hT : ∀ u ∈ U, ∀ y, ‖chartT β (chartTangent (fun y i => u.1 (y, i)) (W u *ᵥ ψ)) y‖ ≤ 1 / 4 :=
-    fun u hu y => (norm_chartT_le hβ y fun i => hv u hu y i).trans hsmall
+    fun u hu y => chartT_whitened_le hβ hE (fun y i => (hU u hu).1 y i) (hU u hu).2.1 hψ hsmall y
   refine ⟨fun u hu => ?_, fun u hu => ?_⟩
   · -- analyticity
     have hcoord : ∀ y i, AnalyticAt ℂ (fun q : (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ) => q.1 (y, i)) u := by

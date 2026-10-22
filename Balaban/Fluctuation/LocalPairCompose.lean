@@ -10,6 +10,7 @@ public import Balaban.Fluctuation.InteractionHatE
 public import Balaban.Fluctuation.InteractionVBlock
 public import Balaban.Fluctuation.InteractionFPart
 public import Balaban.Fluctuation.Prop33Nu
+public import Balaban.Background.RestrictSvec
 
 /-!
 # CrossCompose: the compositions of a term at two generating sets
@@ -90,12 +91,8 @@ variable {G₁ : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁} {G₂ : Generating
 /-- The extension `φ̄` of a field by the data is `svec` on `Ω₁` and the data off `Ω₁`. -/
 theorem barField_eq_svec (Ψ : CTorus d L N₁ m₁ K → Fin N → ℂ) (φ : G₁.Ω 1 × Fin N → ℂ)
     (x : CTorus d L N₁ m₁ K) (i : Fin N) :
-    barField G₁ Ψ φ x i = if x ∈ G₁.Ω 1 then svec G₁ φ x i else Ψ x i := by
-  classical
-  unfold barField
-  by_cases h : x ∈ G₁.Ω 1
-  · rw [dite_eq_left h, ite_eq_left h, svec_of_mem G₁ φ ⟨x, h⟩ i]
-  · rw [dite_eq_right h, ite_eq_right h]
+    barField G₁ Ψ φ x i = if x ∈ G₁.Ω 1 then svec G₁ φ x i else Ψ x i :=
+  barField_eq_ite_svec G₁ Ψ φ x i
 
 variable (G) in
 /-- **CrossCompose, the composed field (6.2).**  The composed fields `ψ(𝔹, 𝔹₁; Ψ)` and

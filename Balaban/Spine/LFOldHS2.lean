@@ -249,20 +249,21 @@ theorem cubesOfIn_fineSet {j : ℕ} {Y : Set (Torus S.d (n j))}
 
 /-! ### The two named inputs, restated (reading HS-2) -/
 
-/-- **OPEN-H7-MIXED, the remaining part, for the local pair of reading HS-2** (restatement of
-`H7MixedInnerLoc` with the repairs D1–D3; **open**): for an old label `X`, a family `J`, the local set
-`V = locSetXJ2 X J`, a field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of
-`𝕋_{k+1}` of the sites of the stencil `X^{∼3}` and of the data sites of `G′_V`, a fluctuation field
-`|ψ̂| < r_ψ` and a parameter `|s_P| < R`: at every cube `□ ⊂ X` of `𝕋_k` outside `(Ω^c_k)^{∼3}` with a
-cube of `𝕋_{k+1}` in `Ω^{∼3}_{k+1}`, the composed multiscale field of the local composite lies in
-`Δ^c_k(□; 1, ε_k)`. -/
-def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ ρc : ℝ) (ρ r r' : ℕ)
-    (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (Rp rψ : ℝ) : Prop :=
-  ∀ (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
-    (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
+/-- **The condition of OPEN-H7-MIXED (remaining part) at one old label `X` and one family `J`**, for the
+target H7 domain of scale `k + 1` at a record `a` (the core of `H7MixedInnerLoc2`, `a = globalLH H M`, and of
+`H7MixedInnerLoc2Pre`, `a = globalLHPre H M (k + 1)`, ruling R17): for every field of the target domain at
+a set `Y_f` containing the cubes of `𝕋_{k+1}` of the sites of the stencil `X^{∼3}` and of the data sites of
+`G′_V`, `V = locSetXJ2 X J`, every fluctuation field `|ψ̂| < r_ψ` and every parameter `|s_P| < R`: at every
+cube `□ ⊂ X` of `𝕋_k` outside `(Ω^c_k)^{∼3}` with a cube of `𝕋_{k+1}` in `Ω^{∼3}_{k+1}`, the composed
+multiscale field of the local composite lies in `Δ^c_k(□; 1, ε_k)`. -/
+def H7MixedInnerLocXJ (a : LocalHistory S n M K) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ ρc : ℝ) (ρ r r' : ℕ) (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (Rp rψ : ℝ)
+    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) :
+    Prop :=
+  ∀ (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
     (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ),
-    H7Domain g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
+    H7Domain g.M1 g.c g.hM hnn a (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
     CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
       (fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) ∪
         fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
@@ -296,24 +297,99 @@ def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
           (LargeField.torusCast (histScale_eq g.hM hnn le_rfl (Nat.le_of_succ_le hk)) z')) ∈
         DeltaC (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) aw (μs k) (ε k) h g.c (n k) y
 
-/-- **OPEN-H7-MIXED, the background part, for the local pair of reading HS-2** (restatement of
-`H7MixedDatumLoc` with the repairs D1, D3; **open**; with the cube domains of ruling request R14,
-which exclude the complex rotations of size `≥ 2 ε`, `not_mem_deltaC_of_im`): for every set `V` and
-every field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of `𝕋_{k+1}` of the
-data sites of `G′_V`, the restricted global datum of the local pair (`holeStepLoc2`) lies in
-`Ψ̃^c(G′_V; δ_b, δ_b)`. -/
-def H7MixedDatumLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
-    (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (νb δb : ℝ) : Prop :=
-  ∀ (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
-    (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
+/-- **OPEN-H7-MIXED, the remaining part, for the local pair of reading HS-2** (restatement of
+`H7MixedInnerLoc` with the repairs D1–D3; **open**): for an old label `X`, a family `J`, the local set
+`V = locSetXJ2 X J`, a field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of
+`𝕋_{k+1}` of the sites of the stencil `X^{∼3}` and of the data sites of `G′_V`, a fluctuation field
+`|ψ̂| < r_ψ` and a parameter `|s_P| < R`: at every cube `□ ⊂ X` of `𝕋_k` outside `(Ω^c_k)^{∼3}` with a
+cube of `𝕋_{k+1}` in `Ω^{∼3}_{k+1}`, the composed multiscale field of the local composite lies in
+`Δ^c_k(□; 1, ε_k)` (`H7MixedInnerLocXJ` at the global records). -/
+def H7MixedInnerLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ ρc : ℝ) (ρ r r' : ℕ)
+    (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (Rp rψ : ℝ) : Prop :=
+  ∀ (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))),
+    H7MixedInnerLocXJ g hnn hM1 (globalLH H M) H hk hk1 hρ z h₀ a₁ ν β p₁ δ ρc ρ r r' aw μs ε ε1 νs h
+      Rp rψ X J
+
+/-- **The condition of OPEN-H7-MIXED (background part) at one local set `V`**, for the target H7 domain
+of scale `k + 1` at a record `a` (the core of `H7MixedDatumLoc2`, `a = globalLH H M`, and of
+`H7MixedDatumLoc2Pre`, `a = globalLHPre H M (k + 1)`, ruling R17): for every field of the target domain
+at a set `Y_f` containing the cubes of `𝕋_{k+1}` of the data sites of `G′_V`, the restricted global datum
+of the local pair lies in `Ψ̃^c(G′_V; δ_b, δ_b)`. -/
+def H7MixedDatumLocV (a : LocalHistory S n M K) (H : RegionHistory S n R k0 K) {k : ℕ}
+    (hk : k + 1 ≤ K) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (νb δb : ℝ)
+    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1))) : Prop :=
+  ∀ (Yf : Set (Torus S.d (M * n K * S.L ^ K))) (ψ ψ' : MultiFieldC S n M K N)
     (gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ),
-    H7Domain g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
+    H7Domain g.M1 g.c g.hM hnn a (k + 1) hk Yf aw μs ε ε1 νs h ψ ψ' gf →
     CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
       (fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ V) :
         Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))) →
     InDomainC (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).G' νb δb δb
       (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ V).D'
+
+/-- **OPEN-H7-MIXED, the background part, for the local pair of reading HS-2** (restatement of
+`H7MixedDatumLoc` with the repairs D1, D3; **open**; with the cube domains of ruling request R14,
+which exclude the complex rotations of size `≥ 2 ε`, `not_mem_deltaC_of_im`): for every set `V` and
+every field of the H7 domain of scale `k + 1` at a set `Y_f` containing the cubes of `𝕋_{k+1}` of the
+data sites of `G′_V`, the restricted global datum of the local pair (`holeStepLoc2`) lies in
+`Ψ̃^c(G′_V; δ_b, δ_b)` (`H7MixedDatumLocV` at the global records).  As stated it is false at some `V`
+(`not_h7MixedDatumLoc2_of_site`); the form at the local sets of its use, for the pre-`R` records, is
+`H7MixedDatumLoc2Pre`, proved by `h7MixedDatumLoc2Pre_holds`. -/
+def H7MixedDatumLoc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
+    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
+    (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) (νb δb : ℝ) : Prop :=
+  ∀ V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)),
+    H7MixedDatumLocV g hnn hM1 (globalLH H M) H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs h νb δb V
+
+/-- **The composite of the local pair of reading HS-2 lies in the source H7 domain, for a target record
+with the regions `Z'`** (the core of `h7Domain_composedMulti_loc2`: the transfer
+`h7Domain_composedMulti_of_inner_withZ` and the condition `H7MixedInnerLocXJ` at `X`, `J`). -/
+theorem h7Domain_composedMulti_loc2_withZ (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ ρc : ℝ)
+    (ρ r r' : ℕ) (aw μs ε ε1 νs : ℕ → ℝ) (h : Fin N → ℂ) {Rp rψ : ℝ} (hL : 2 ≤ S.L)
+    (Z' : ℕ → Set (Torus S.d (M * n K * S.L ^ K)))
+    (hZ' : ∀ j, j ≤ k → omegaCNb { globalLH H M with Z := Z' } 3 j = omegaCNb (globalLH H M) 3 j)
+    (X : Finset (Torus S.d (n k))) (J : Finset (ℕ × CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
+    (hin : H7MixedInnerLocXJ g hnn hM1 { globalLH H M with Z := Z' } H hk hk1 hρ z h₀ a₁ ν β p₁ δ ρc ρ
+      r r' aw μs ε ε1 νs h Rp rψ X J)
+    {Yf : Set (Torus S.d (M * n K * S.L ^ K))} {ψ ψ' : MultiFieldC S n M K N}
+    {gf : Torus S.d (M * n K * S.L ^ K) → Fin N → ℂ}
+    (htgt : H7Domain g.M1 g.c g.hM hnn { globalLH H M with Z := Z' } (k + 1) hk Yf aw μs ε ε1 νs h ψ
+      ψ' gf)
+    (hY : CubesOfIn (S := S) (n := n) (M := M) (K := K) (k + 1) Yf
+      (fineSet (S := S) (n := n) M K k (stencilX X : Set (Torus S.d (n k))) ∪
+        fineOfC g hnn hM1 hk '' (dataSites (locG' g hnn hM1 H hk hρ (locSetXJ2 g hM1 H r r' X J)) :
+          Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))))
+    {ψhat : (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ2 g hM1 H r r' X J)).U → Fin N → ℂ}
+    (hψhat : ∀ b, vn (ψhat b) < rψ)
+    {s : Dec2.DecParams (coverOf (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ2 g hM1 H r r' X J)).G')}
+    (hs : ∀ P, ‖s P‖ < Rp) :
+    H7Domain g.M1 g.c g.hM hnn (globalLH H M) k (Nat.le_of_succ_le hk)
+      (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
+      (composedMulti g hnn hM1 hk
+        (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 H r r' X J)).G' ψ
+        ((holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 H r r' X J)).composed
+          (coverOf (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+            (locSetXJ2 g hM1 H r r' X J)).G') ρc
+          ((holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (locSetXJ2 g hM1 H r r' X J)).slocOf
+            (coverOf (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+              (locSetXJ2 g hM1 H r r' X J)).G')
+            (locDomsLF g hM1 (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+              (locSetXJ2 g hM1 H r r' X J)) ρ)
+            (HoleStep.coreExt
+              (coverOf (holeStepLoc2 g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+                (locSetXJ2 g hM1 H r r' X J)).G')
+              (collarCoreC (c := g.c) (H.step k) hM1 r X) s)) ψhat))
+      ψ' gf :=
+  h7Domain_composedMulti_of_inner_withZ g hnn hM1 H hk (by omega) hL Z' hZ'
+    (fun b => cubeOfC_mem_of_unitPts_loc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
+      (locSetXJ2 g hM1 H r r' X J) b) ψ _
+    (fun x hx => subset_of_cubesOfIn hY (Or.inl (fineSet_mono_stencil hx))) aw μs ε ε1 νs h ψ' gf htgt
+    fun y hyX hyC hnear => hin Yf ψ ψ' gf htgt hY ψhat hψhat s hs y hyX hyC hnear
 
 /-- **The composite of the local pair of reading HS-2 lies in the source H7 domain** (from the
 transfer `h7Domain_composedMulti_of_inner` and `H7MixedInnerLoc2`; the analogue of
@@ -353,11 +429,8 @@ theorem h7Domain_composedMulti_loc2 (H : RegionHistory S n R k0 K) {k : ℕ} (hk
                 (locSetXJ2 g hM1 H r r' X J)).G')
               (collarCoreC (c := g.c) (H.step k) hM1 r X) s)) ψhat))
       ψ' gf :=
-  h7Domain_composedMulti_of_inner g hnn hM1 H hk (by omega) hL
-    (fun b => cubeOfC_mem_of_unitPts_loc g hnn hM1 H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ
-      (locSetXJ2 g hM1 H r r' X J) b) ψ _
-    (fun x hx => subset_of_cubesOfIn hY (Or.inl (fineSet_mono_stencil hx))) aw μs ε ε1 νs h ψ' gf htgt
-    fun y hyX hyC hnear => hIn X J Yf ψ ψ' gf htgt hY ψhat hψhat s hs y hyX hyC hnear
+  h7Domain_composedMulti_loc2_withZ g hnn hM1 H hk hk1 hρ z h₀ a₁ ν β p₁ δ ρc ρ r r' aw μs ε ε1 νs h hL
+    (globalLH H M).Z (fun _ _ => rfl) X J (hIn X J) htgt hY hψhat hs
 
 /-! ### D2: the cell count of the stencil core -/
 

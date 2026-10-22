@@ -33,6 +33,7 @@ variable {B T Y Zt : Type*} [Fintype B] [Fintype T] [Fintype Y] [Fintype Zt]
   (marks footprint : T → Finset B)
   {zs cr : Zt → Finset B} {β : Y → ℂ} {τ : Zt → ℂ}
 
+omit [Fintype B] in
 /-- The coverage gas has the landed large-boundary estimate after paying the
 \`2^|marks|\` label count from footprint decay. No smallness of \`B0\` is required. -/
 theorem gasLinked_coverage_activity_bound {d : Finset B → ℝ}

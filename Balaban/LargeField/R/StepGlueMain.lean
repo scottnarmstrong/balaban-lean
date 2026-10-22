@@ -305,22 +305,22 @@ theorem inter_iUnion_eq_of_sep {A : ι → Set (Torus d n1)}
   · intro hy
     exact ⟨⟨i0, hi0, hy⟩, hA i0 hi0 hy⟩
 
-/-- **Gluing local steps** (the step-level core of Lemma III.10.2).  The union of the data of
-steps whose `Z^pre` are pairwise `ω`-separated is a step, provided that near every point the
-members are witnessed by one step.  Its `Z^{(0)}` and `Z^pre` are the unions, and it restricts to
-each member on the `Z^pre` of the member. -/
-theorem glue_step (hsep : SepFam ω F (fun i => (st i).Zpre ω crit)) :
+omit hn rad hwit in
+/-- **Gluing local steps from the union identities** (the core of `glue_step`): if the `Z^pre` of
+the members are pairwise `ω`-separated (`ω > 3`) and the complements of `Ω'`, `Ω`, `Ω''` and the set
+`Z^{(0)}` of the union of the data are the unions of those of the members, then the union of the data
+is a step, its `Z^{(0)}` and `Z^pre` are the unions, and it restricts to each member on the `Z^pre`
+of the member. The witnesses of `glue_step` are used only for the four identities. -/
+theorem glue_step_of_identities (hsep : SepFam ω F (fun i => (st i).Zpre ω crit)) (h3 : 3 < ω)
+    (hG1 : (PreStep.biUnion F (fun i => (st i).toPre)).OmegaPrimeᶜ = ⋃ i ∈ F, (st i).OmegaPrimeᶜ)
+    (hG2 : (PreStep.biUnion F (fun i => (st i).toPre)).Omegaᶜ = ⋃ i ∈ F, (st i).Omegaᶜ)
+    (hG3 : (PreStep.biUnion F (fun i => (st i).toPre)).OmegaDDᶜ = ⋃ i ∈ F, (st i).OmegaDDᶜ)
+    (hG4 : (PreStep.biUnion F (fun i => (st i).toPre)).Z0 = ⋃ i ∈ F, (st i).Z0) :
     ∃ u : RegionStep d L n0 n1 Rprev Rk,
       u.Z = ⋃ i ∈ F, (st i).Z ∧ u.P = ⋃ i ∈ F, (st i).P ∧ u.Q = ⋃ i ∈ F, (st i).Q ∧
       u.R = ⋃ i ∈ F, (st i).R ∧ u.S = ⋃ i ∈ F, (st i).S ∧
       u.Z0 = ⋃ i ∈ F, (st i).Z0 ∧ u.Zpre ω crit = ⋃ i ∈ F, (st i).Zpre ω crit ∧
       ∀ i ∈ F, u.restrict ((st i).Zpre ω crit) = st i := by
-  have hL : 1 ≤ L := by have := rad.L_two; omega
-  have h3 : 3 < ω := by have := rad.L_two; have := rad.omega_rho; omega
-  have hG1 := compl_OmegaPrime_biUnion hn rad hwit hL
-  have hG2 := compl_Omega_biUnion hn rad hwit hL
-  have hG3 := compl_OmegaDD_biUnion hn rad hwit hL
-  have hG4 := eq_Z0_biUnion hn rad hwit hL
   -- validity
   have hP : (⋃ i ∈ F, (st i).P) ⊆ (PreStep.biUnion F (fun i => (st i).toPre)).OmegaPrime := by
     intro p hp
@@ -397,6 +397,22 @@ theorem glue_step (hsep : SepFam ω F (fun i => (st i).Zpre ω crit)) :
         (fun i _ => (st i).R_subset_Zpre ω crit) hsep h1 hi0
     · exact inter_iUnion_eq_of_sep (A := fun i => (st i).S)
         (fun i _ => (st i).S_subset_Zpre ω crit) hsep h1 hi0
+
+/-- **Gluing local steps** (the step-level core of Lemma III.10.2).  The union of the data of
+steps whose `Z^pre` are pairwise `ω`-separated is a step, provided that near every point the
+members are witnessed by one step.  Its `Z^{(0)}` and `Z^pre` are the unions, and it restricts to
+each member on the `Z^pre` of the member. -/
+theorem glue_step (hsep : SepFam ω F (fun i => (st i).Zpre ω crit)) :
+    ∃ u : RegionStep d L n0 n1 Rprev Rk,
+      u.Z = ⋃ i ∈ F, (st i).Z ∧ u.P = ⋃ i ∈ F, (st i).P ∧ u.Q = ⋃ i ∈ F, (st i).Q ∧
+      u.R = ⋃ i ∈ F, (st i).R ∧ u.S = ⋃ i ∈ F, (st i).S ∧
+      u.Z0 = ⋃ i ∈ F, (st i).Z0 ∧ u.Zpre ω crit = ⋃ i ∈ F, (st i).Zpre ω crit ∧
+      ∀ i ∈ F, u.restrict ((st i).Zpre ω crit) = st i := by
+  have hL : 1 ≤ L := by have := rad.L_two; omega
+  have h3 : 3 < ω := by have := rad.L_two; have := rad.omega_rho; omega
+  exact glue_step_of_identities hsep h3 (compl_OmegaPrime_biUnion hn rad hwit hL)
+    (compl_Omega_biUnion hn rad hwit hL) (compl_OmegaDD_biUnion hn rad hwit hL)
+    (eq_Z0_biUnion hn rad hwit hL)
 
 end Global
 

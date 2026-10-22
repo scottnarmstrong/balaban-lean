@@ -331,7 +331,7 @@ theorem energyBlock_sum (hG : IsLevel Hm n) (ν : ℝ) (α : Gp.Ω 1 → ℂ)
   rw [Finset.sum_fiberwise (Finset.univ : Finset (CTorus d L N₁ m₁ K))
     (fun x : CTorus d L N₁ m₁ K => jBlock d L (N₁ * L ^ m₁) K (n + 1) x)
     (fun x => energyDensity Gp Hm a ν n α δφ ψ' x)]
-  unfold energyDensity levelEnergyC hessForm
+  unfold energyDensity levelEnergyC levelEnergyCOn hessForm
   simp only [Finset.sum_add_distrib, ← Finset.mul_sum]
   have hΩ : ∀ x : CTorus d L N₁ m₁ K, x ∈ Hm.Ω 1 := fun x => (hG x).1
   simp only [hΩ, ite_true]

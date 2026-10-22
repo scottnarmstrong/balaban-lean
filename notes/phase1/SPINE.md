@@ -863,11 +863,32 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   Open for blocker 3: `H7MixedInnerLoc2` (P5 Lemma 2.1 in the complex domains), `H7MixedDatumLoc2` (R14), Proposition
   3.3 on a region over the fields (the interaction `I` of `oldB2`), the identity of the old part of `ℬ^{(k+1)}` with
   `∑ oldB2`, and the (D7) clauses of `oldB2` at the level of the boundary terms.
+  **`SFZInput` (W1154c, 2026-10-21; `Spine/SFZ.lean`).** Spine-local named input of the form `SFImageInput`: the image of
+  the small-field data has `|z_{k+1} − 1| ≤ c₁₀ ε_{k+1}` (P4 (4.1), (5.2), p. 698: `z_{k+1} = 1 + ζ`, `ξ₁ = ζ/ε_{k+1}`,
+  `|ξ₁| < ε ≤ c₁₀`); inhabited (`sfZInput_of_z_eq_one`, `exists_sfZInput`). It is part of the output of the
+  renormalization and **joins A4-1c (`SFRenormInput`) when the renormalization provider is built**. It discharges the
+  premise `|z − 1| ≤ ε/3` of `H7MixedDatumLoc2` with `ε_{k+1} ≤ ε/(3c₁₀)` from the constants.
   **Update (W1154c, item (5)).** `Spine/LFOldBD7.lean`: the clauses `support`, `loc_field`, `real`, `rot`, `analytic` of the
   old part at an output label are PROVED generically (`oldBAtAt_eq_zero_of_not_valid`, `oldBAtAt_congr_fields`, `oldBAtAt_im`,
   `oldBAtAt_rot`, `oldBAtAt_analyticOnNhd`; hypotheses on the interaction family `LocIntFam` and on the coefficients at
   the balls of the marks); `euclid`, `loc_hist` open. Findings for the identity (external field `h`, predecessor
   histories, field-independent families) and the scope of (3) and (2): PLAN-B, "The (D7) clauses of the old part".
+  **W1154d (2026-10-21), the band outside `Ω_{k+1}`.** `Spine/LFOldDatumFree.lean`: `h7Domain_succ_congr_k` (the H7 domain
+  of scale `k + 1` does not read `ψ_k` on blocks near `Ω_{k+1}` away from the holes of the H7 domain),
+  `not_h7MixedDatumLoc2_of_site` (a data site of `G′_V` there refutes `H7MixedDatumLoc2`), and the correction
+  `mem_omegaCNb_of_notMem_omega`, `rem_ne_empty_of_far`: without a removal at scale `k + 1` the holes of the H7 domain
+  are exactly `(𝕋_{k+1} ∖ Ω_{k+1})^{∼3}` and such sites do not exist; the issue is confined to the holes of `Ω_{k+1}` in
+  components removed by `R^{(k+1)}` (PLAN-B, "The band outside `Ω_{k+1}`").
+
+  **W1154e (2026-10-21).** (3a)–(3c): `H7MixedDatumLoc2Pre` (the datum input at `V₂(X, J)`, `J ∈ allJ ρ`, for the
+  pre-`R` records `globalLHPre`, R17) **PROVED** (`Spine/LFOldDatumPre`: `h7MixedDatumLoc2Pre_holds`, `_of_sfz`, `_zero`,
+  `massRegime_of_bgMass`; the case analysis `inDomainC_holeStepLoc2_of_h7` with the third chart `Δ^c_k` at the cube of
+  `𝕋_k`, `Background/DataPatchChart.chartSplit_spec`); the chain at `globalLHPre`: `Spine/LFOldHS2Pre`
+  (`H7MixedInnerLoc2Pre` open, `locConds_of_h7MixedLoc2Pre`, `norm_oldB2Pre_le`), through cores with landed instances
+  (`norm_oldBOf_le_of_dom_allJ`, `h7Domain_composedMulti_of_inner_withZ`, `H7MixedInnerLocXJ`, `H7MixedDatumLocV`,
+  `locConds_of_h7MixedLoc2_withZ`).  Open for blocker 3: `H7MixedInnerLoc2Pre` (P5 Lemma 2.1 in the complex domains),
+  Proposition 3.3 on a region (the interaction of `oldB2`), the identity of the old part with `∑ oldB2`, the clauses
+  `euclid` and `loc_hist` (W1162/W1163; evaluation of the collar finding in PLAN-B, ruling R22).
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -1210,6 +1231,55 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        local terms are analytic on the unit ball only; the increment bound needs Schwarz at `G = 1` (`‖F g - F 0‖ ≤ 2B‖g‖₁`). (ii) With
        `Ŵ_Y(0, g) = 0`, (W6) at `w = 0` reads `exp(ℛ^{(k)}(T; h, h, g)) = exp(E₀)`: `ℛ^{(k)}` at the constant configuration depends on `g` and
        is not in `constExponent`, so it must join the constant exponent (or `E₀` depend on `g`).
+     * **B1 piece 4 (2026-10-21).** *The level-`k` instances of the local form* (ORCH-B: complex fields, `Ŵ_Y(0, g) = 0`, bound linear
+       in the dilated radius). Core `Spine/FinalBoxLocPoly.lean`: `PolyTerms C hv r κ_R A` (a finite family of terms reading the block field on the
+       blocks of polymers `X_a ∈ 𝒟_k`, the source at the fine sites of those blocks, analytic on `‖g‖₁ < 1` × the sup ball of radius `r` around
+       `h`, bounded by `amp(g)_a e^{-κ_R d_k(X_a)}`; `PolyTerms.empty`, `.sum`, `.mono`, `.sum_count`), `blockCut` (`c · boxCut(s)` on the
+       blocks), `polyLocal` with (W1) `polyLocal_congr_w`, (W2) `polyLocal_congr_g`, (W3) `polyLocal_eq_zero_of_not_isAnimal`,
+       `analyticOnNhd_polyLocal` (joint in `(g, w)`, `w` complex, `‖w‖_∞ ≤ ρ`), `polyLocal_zero_var`, `sum_polyLocal`, and (W5, macro side
+       `L^{m₀+m₁}`) `polyLocal_bound`: `∑_{Y ∋ x} ‖W_Y‖ e^{α #cells(Y)} ≤ polyBoundConst F m r κ_R λ κ α` when the labels of each `X` carry
+       `∑ amp ≤ F e^{λ d_k(X)}`; `m = |c| B_box ρ`, the bound is `F (m/(r-m)) e^{γ c₁} K₀ (1 + 7^d 16^d B₃)`. Instances: `ℛ^{(k)}`
+       (`Spine/FinalBoxLocRForm`: `rPolyTerms`, `sum_rLocal`, `rLocal_bound`, λ = 0), `ℰ^{(k)}` (`Spine/FinalBoxLocE`: `psiJC_univ_top`
+       (`ψ^{(k)}_k = lift ψ_k`), `ePolyTerms`, `sum_eTerm` = `EresJ2 univ k`, λ = 1), `ℳ^{(k)}` (`Spine/FinalBoxLocM`: `mPolyTerms` with
+       amplitude `|g(x)|₁ c₉ L^{-k(…)}`, `sum_mTerm`, λ = 0). Supporting: `Green/FinalBoxLocRootSum` ((W5) from root sums, `card_rootCells_le`),
+       `Green/FinalBoxLocBoxConn` (`isAnimal_macBoxF`: the macro boxes are connected), `Spine/FinalBoxLocRGeom` (blocks and cells of the
+       polymers: `isAnimal_blocksOf`, `macCellCount_blocksOf_le`, `cellBase_mem_of_mem_blocksOf`, `card_cellBases_macBoxF_le`),
+       `Green/FinalBoxLocConsts` (named constraints `BoxCutConsts`, `RDomConsts`, `PolyTies` with existence lemmas; `PrefixInput` bounds
+       `P6.κ` from below only, so `PolyTies` is compatible, but its witness `κ_flow` lacks the term `c₁ γ + λ`), core
+       `linField_boxCut_mem_closedBall` (`rootedExpansion_boxCut` its consumer), core `sum_animalsAt_weight_le`
+       (`sum_animalsAt_exp_le` its instance). **Stage 1 (search done).** No local `BgSetting` exists in `Inhabited/NewLevel*`, `StepTower*`,
+       `Fluctuation/Local*`, `Spine/NewLevel*` (the base settings take `X₁f` = the torus; `OldTermSettings` is an assumed field). The
+       remaining terms (`ℰ^{(j)}`, `ℳ^{(j)}` for `j < k`, `⟨g, φ̄_k⟩`, and the action density of PHYS-CUBIC) read the global background;
+       their exact localization is `OPEN-PHYSICAL-FOOTPRINT-LOCAL` + `OPEN-PAPER-REPLACEMENT` of `TRUE-LOCAL.md` (packages 2, 3, 5, background
+       half; the final box needs no hat/square-root package), plus a parallel `X₁` for the top-level terms (`CovSetup` asks `j < K`).
+     * **B1 piece 5, decision B-1″ steps (1)–(3) (2026-10-21).** Row `p` of the whitening is to be the row of the inverse square root
+       of the final Hessian of the massive problem on the local pair of `p`, i.e. on the fine sites `V` of `B(p)^{+m}`. (1) The cut family
+       is generic in `U` (`Green/FinalBoxLocCutU`: `boxCutU`, `cutDecoupling_boxCutU`, `boxCutU_one`, `boxCutU_row_bound`; `Green/FinalTaggedSqrt`:
+       `taggedCfinU`, the hypothesis bundle `CutOpHyp` with core `cutOpHyp_of_final`; `boxCut` is `boxCutU` at `finalOp`). (2) Comparison
+       core `Green/FinalSqrtCompare` (`norm_sqrtMat_sub_le_of_resolvent`, `norm_sqrtMat_sub_le`). (3) The single-scale Dirichlet problem,
+       shared (`Green/OneScaleDirichlet`): `dirichletSol`, the Schur complement `dirichletUnitOperator V = a - a² Q_V (H_V)⁻¹ Q_V*`
+       (`dirichletUnitOperator_univ`: `V = univ` gives `Δ_tr`), `dirichletFinalOp` (complex, `dirichletFinalOp_univ` = `finalOp`), block decay
+       with the constants of the whole torus (`dirichletBlockKernel_decay`, `dirichletUnitOperator_decay`, `dirichletFinalOp_entry_decay`),
+       monotonicity `dirichletUnitOperator_quad_mono` (`U_W ⪯ U_V` for `V ⊆ W`), gap `dirichletUnitOperator_lower` /
+       `dirichletFinalOp_isCoercive` (`finalGap`), `cutOpHyp_dirichletFinalOp`, and the deep comparison `dirichletBlockKernel_sub_le` (any
+       `V ⊆ W`) with its block-union form `dirichletUnitOperator_sub_le` / `dirichletFinalOp_sub_le`: for `V` the blocks of `Bc` and `W ⊇ V`,
+       `|U_V(y,y') - U_W(y,y')| ≤ a² C e^{-(δ₀/2)(d(y, Bcᶜ) + d(y', Bcᶜ))}`. The block decay rests on the Agmon chain in function form
+       (fields vanishing off `Ω₁`, equation only where the field is nonzero): `agmon_energy_fun`, `agmon_block_fun`, `green_G2i_fun`,
+       `oneScale_core_fun`, `oneScale_blockDecay_fun`, `abs_blockAvg_le_of_eq`, with the landed statements as instances (the separation
+       field of `GeneratingSet` excludes `Ω₁ = … = Ω_k = V`). Route of the deep comparison: pair identity
+       `(z_f - y_f)·H(z_g - y_g) = f·z_g - f·y_g`, Cauchy–Schwarz of the form, Dirichlet principle with the cutoff
+       `θ = max 0 (1 - dist(·, Vᶜ)/N)`, energy of `θ z` from the gradient block decay. The flux form of `greenFn_resolvent_identity` loses
+       `N^{1/2}` against block `L²` bounds and is not used. Open: the new body of `finalWhiten`, its cut family, the error bounds from
+       `norm_sqrtMat_sub_le` and `dirichletFinalOp_sub_le`, and the update of `sfWhiten`.
+     * **B1 piece 6, decision B-1″ (a) (2026-10-22): the local-pair whitening.** `Green/FinalBoxLocWhiten`: `pairCoarse D m p` (the
+       coarse sites within `m` of the macro region of `locDom p`), `pairSites`, `pairOp = dirichletFinalOp (pairSites)`; `finalWhiten d L
+       N₀ k M v a h D m` has row `p` = row `p` of `boxCutU a (pairOp p) h (cutTo (locDom p) 1)` (`whitenCut` its cut family, decoupled by
+       the new core `CutDecoupling.diag`). Error bounds: cut part `norm_boxCutU_cutTo_sub_le` (generic `U` with `CutOpHyp`), pair part
+       `norm_pairCut_sub_le` from `norm_pairOp_sub_finalOp_le` (`dirichletFinalOp_sub_le` at `W = univ`) and the new shared core
+       `norm_sqrtMat_sub_le_of_deep` (`Green/FinalSqrtCompare`: comparison of the inverse square roots below a centre of depth `m`,
+       `e^{-(ε/4) m} e^{-(ε/4)|x - y|}`); `norm_finalWhiten_sub_le`, `whitenErr` (with `+ pairErrConst e^{-(ε/4) m}`), mismatch bound,
+       `exists_whitenRadius` and `exists_isUnit_finalWhiten` for all `D, m ≥ D₀`. `sfWhiten C hv Mc D mp` and the Spine files carry the
+       margin. Moved: `fineHamiltonian_posDef`, `fineHamiltonian_isUnit_det` (verbatim, `Green/FinalHessian` → `Green/FineHamiltonianPosDef`).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
@@ -1297,6 +1367,150 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        **`lastHistInt_eq_regional_of_integrable`**.
      Open (A64-DESIGN §2): `𝕋′` and (IV.4.1); the history factorization; the couplings and their bounds on B2's operator-gas core;
      the regional analysis on B1's local-pair whitening (B-1″); `LastStepTies` (separate side input); `CutSfDomInput`, `LFH7SupportInput`.
+   * **B3 (A6-4, the gluing of separated steps without a common witness; 2026-10-21).** The history factorization needs the steps of
+     histories of different components glued; the landed `glue_step` asks for a common witness at every point (one step of which all
+     members within `L + 2⌊R_k⌋ + 6` are restrictions), which members of different histories do not have, and `ω_{k+1} ≥ 2⌊R_k⌋ + L + 11`
+     allows two members within that radius of one point. **Not an obstruction:** every set read by the set functions near a point lies,
+     with a neighbourhood of its reading radius minus at most `L`, in the `Z^pre` of its member (Lemma I.3.5 margins), so two members
+     are never read at one point once `2L < ω` (`ω_j ≥ 9L + 51` under (RH)). Landed (no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/StepGlueMain.lean`: core **`glue_step_of_identities`** (the gluing from the four union identities and `3 < ω`); the
+       landed `glue_step` is its instance at the witness identities (statement unchanged, body a call of the core).
+     * `Spine/FinalLFGlue.lean`: the margins `nbhd_Uprime_subset_Zpre`, `nbhd_P_subset_Zpre`, `FDD_subset_Zpre`, `nbhd_Q_subset_Zpre`,
+       `nbhd_R_subset_Zpre`, `nbhd_OmegaDD_compl_subset_Zpre`, `nbhd_S_subset_Zpre`; `false_of_sep`; the empty data
+       (`PreStep.biUnion_empty_OmegaPrime`, `_Omega`, `_OmegaDD`, `_Z0`), `PreStep.biUnion_singleton`; the four identities
+       `compl_OmegaPrime_biUnion_of_sep`, `compl_Omega_biUnion_of_sep`, `compl_OmegaDD_biUnion_of_sep`, `eq_Z0_biUnion_of_sep`; and
+       **`glue_step_of_sep`** (`SepFam ω F Z^pre`, `2L < ω`, `2 ≤ L`: the union of the data is a step with `Z^{(0)}`, `Z^pre` the unions and
+       restrictions the members).
+     * `Spine/FinalLFLocalPair.lean` (reading B-1″, for B1): `minLayer_anti`, `genSF_top_subset`, `genSF_univ_Ω`,
+       **`genSF_inter_eq_univ_inter`** and **`Def7.SFCtx.genW_inter_eq`** (`genW Y ∩ B = genW univ ∩ B` for a generating set `B` whose
+       layers `m ≤ k` lie in the top layer of `genW Y = 𝔹_k(W₂(Y))`).
+     Next: the history-level factorization (induction over the scales with `glue_step_of_sep`, the labels, the representative in the
+     complete set), then `𝕋′` and (IV.4.1).
+   * **B3 (A6-4, the assembly of a history from separated components without a common witness; 2026-10-21).** The landed
+     `exists_assembled` (Lemma III.10.2 core) asks `hW` (every clique of the family in one history with the same localized histories)
+     only for the witnesses of `glue_step`; with `glue_step_of_sep` it is not needed. No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/ConfigAssemble.lean`: cores **`sep_locSt_of_sepZ`** (the lineages of `ω_k`-separated components are
+       `ω_{j+1}`-separated at every `j < k`, from the separation alone), `asmStep_spec_of_glue`, `asmStep_Z_of_glue`, `asmF_Zpre_of_glue`,
+       `asmStep_Zpre_eq_of_glue`, `lin_asm_eq_of_sepZ`, **`exists_assembled_of_glue`** (glued steps at every `j < k` given as a hypothesis);
+       the landed `sep_locSt`, `asmStep_spec`, `asmStep_Z`, `asmF_Zpre`, `asmStep_Zpre_eq`, `lin_asm_eq`, `exists_assembled` are their
+       instances (bodies calls of the cores).
+     * `Spine/FinalLFHistGlue.lean`: `two_mul_L_lt_omega_succ` (`2L < ω_{j+1}` from `R_base ≥ 4L + 20`, `λ_j ≥ 1`),
+       `exists_glue_of_sepZ`, **`exists_assembled_of_sepZ`** (components of scale `k` of arbitrary histories, pairwise at distance
+       `≥ ω_k`, occur in one removal-free history with the same localized histories; no `hW`).
+   * **B3 (A6-4, the history factorization; 2026-10-21).** The histories of the large-field half of a complete set are the nonempty
+     pairwise `ω_k`-separated families of realized component records. No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFHistFactor.lean`: `exists_desc_of_rem` (without removals every component has a descendant of scale `k`),
+       `exists_of_mem_keptPos`, `mem_keptPos_of_desc` (kept positions = kept ripe events of the ancestors), `keptLab_eq_of_rem` (the kept
+       labels are the labels at the kept positions of the components of scale `k`), `new_eq_iUnion_locRH` (the new cubes of a step are the
+       unions over the localization steps), `iUnion_eq_of_forall_exists`; the record `CRec` = (cubes, localized history, labelled kept
+       positions `labSet`, the form of Lemma II.5.15), `compRec`, `lfRecs`, `mem_lfRecs`; **`agree_of_lfRecs_eq`** (equal records ⇒
+       `Agree k (k+1)`), **`lfRecs_eq_of_agree`** (via `HAgr`), **`lfRecs_injOn`** (on `lfHist` of a complete set).
+     * `Spine/FinalLFHistFactorSurj.lean`: `Realized`, `RecSep`, `recSep_singleton`; `exists_labHist_of_src`, `exists_labHist_of_sep`
+       (a nonempty separated family of realized records is the family of records of a removal-free history: `exists_assembled_of_sepZ`
+       and the labels glued at the kept positions); **`mem_image_lfRecs_iff`** (`Γ ∈ lfRecs '' lfHist ↔ Γ ≠ ∅ ∧ realized ∧ RecSep`, the
+       representative in the complete set); `lfAllRecs`, `mem_lfAllRecs_iff`; **`sum_lfHist_eq_sum_sep`**
+       (`Σ_{𝔸 ∈ lfHist} f(lfRecs 𝔸) = Σ_{Γ ⊆ lfAllRecs, Γ ≠ ∅, RecSep Γ} f(Γ)`).
+   * **B3 (A6-4, the gas supports and the kernel locality; 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFDouble.lean`: `zDouble`, `tDouble`, `supDist_tDouble_le_iff` (`d(2x,2y) ≤ 2m ↔ d(x,y) ≤ m`), `dblNbhd ω c` (the
+       `(ω-1)`-neighbourhood of `2·c` in `𝕋_{2n}`), **`disjoint_dblNbhd_iff`** (`ω ≥ 1`: disjoint ↔ `d(c,c') ≥ ω`),
+       `disjoint_disjSum_iff`, `disjoint_supp_iff_sep`, **`recSep_iff_disjoint`** (gas supports `A_r ⊔ dblNbhd ω_k r.1` with block parts
+       disjoint for separated records: pairwise disjoint ↔ `RecSep`; any parity of `ω_k`).
+     * `LargeField/Operators/Invariance.lean`: cores `HistIso.partsEquiv`, `symVar_ancInc_of`, `relOut_ancOut_of`, `relVal_anc_of`,
+       `preVars_corr_fwd_of`, `preVars_corr_bwd_of`, `preOp_euclid_of` (one step, any matching of the old parts), **`locOp_euclid_of_corr`**
+       (Lemma II.5.10 for any relation `C` of components compatible with localized histories, kept components, kept labels and parts);
+       the landed `symVar_ancInc`, `relOut_ancOut`, `relVal_anc`, `preVars_corr_fwd`, `preVars_corr_bwd`, `preOp_euclid`,
+       `locOp_euclid_invariant` are their instances.
+     * `Spine/FinalLFKerLocal.lean`: `val_mem_comps_old`, `mem_parts_of_mem_comps_old`, `mk_mem_parts`, `partsMapOfOld`,
+       `partsEquivOfOld`; `RecCorr`, `recCorr_parts`; **`locOp_corr_of_compRec_eq`** (components with the same record have
+       corresponding operators: `SubCorr` and equal `K`, `b` at corresponding arguments, `σ = LatTorusSym.refl`).
+   * **B3 (A6-4, the inherited part of (IV.4.1); 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFWeight.lean`: `keptSum_eq_sum_keptPos`, `image_fst_labSet`, `sum_labSet`;
+     `exists_src_of_mem_lfAllRecs`, `lfSrc`, `lfSrc_mem`, `compRec_lfSrc` (the source of a realized record in `lfHist`);
+     `kappaH_ge_of_D6Flat` (`κ ≥ A₂λ_{k₀}^{p₂} + H_k|Z|_k + log C_k(a) + Σ log C_dec(ϰ)`), `pkgBound_lfSrc` ((1.26) for the source operator,
+     `D5Bound`), **`sum_exp_neg_kappa_lfSrc_le`** (`Σ_{r : r.1 = Y} e^{-κ(r)} ≤ e^{-A₂λ_{k₀}^{p₂} - H_k|Y|_k}`, `D6Flat` and Lemma II.5.15 with
+     labels, `sum_inv_logC_labelled_canonical`).
+   * **B3 (A6-4, the product form of the operators over the records; 2026-10-21).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFProduct.lean`: the global variables `GVar` (scale `j < k`, kind,
+     `j`-block), `gIsSpin`, `GCfgOn`, `gcfgMeasure`; `gImage`, `subCfgEquiv`, `measurePreserving_subCfgEquiv`, `restrictOn`; `famEquiv`,
+     `measurePreserving_famEquiv`, `famEquiv_symm_apply` (disjoint variable images: the configurations of a family are those of the
+     union); **`gOp_eq_integral_gcfg`**; `varSet_localHistory_subset`, `gImage_disjoint` (Lemma II.5.9 (b)); `symVar_refl_val`,
+     `relVal_refl_subCfgEquiv`, `relOut_refl_outOf`, `relG_refl`; `recPkg`, `recVars`, `recW` (operator, variables and weight of a
+     realized record); `gImage_postOp_eq`, `postOp_w_eq_recW` (kernel locality); `compRec_mem_lfAllRecs`, `recOfComp`,
+     `recOfComp_injective`, `pairwise_disjoint_postOp`, `recVars_recOfComp_subset`; **`gOp_postOp_eq_prod_recW`** (for a history of the
+     large-field half, `𝕋[F] = ∫ dz Π_c recW(r_c)(ψ_k, z|_{r_c}) F(z)` over the configurations of the union of the component variables).
+   * **B3 (A6-4, locality of the region data near a set of cubes; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`): `LargeField/R/LocalLemmas.lean`: cores `cubeMap_mem_Zpre_of_rem_between`,
+     `mem_lin_iff_of_rem_between` (removals excluded only between the scales `j` and `k`; the landed `cubeMap_mem_Zpre_of_rem`,
+     `mem_lin_iff_of_rem` their instances). `Spine/FinalLFRegionLocal.lean`: `mem_Zpre_iff_mem_lin_of_rem`, `not_mem_Zpre_of_not_mem_Zp`,
+     `mem_lin_of_mem_Z0`, `mem_Omega_iff_loc`, `mem_OmegaDD_iff_loc`, `mem_Z_iff_loc` (over a component the region data are those of
+     its localized history), `mem_Omega_of_not_mem_Zp`, `mem_OmegaDD_of_not_mem_Zp`, `not_mem_Z_of_not_mem_Zp` (off `Z_k`),
+     `cases_of_corr`, **`regionData_eq_on_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond have
+     the same `Ω_j`, `Z_j` (`j ≤ k`) and `Ω''_{j+1}` (`j < k`) on the fine set of `X`). Finding: the `loc_hist` clauses of
+     `D7Bdry`, `D7BdryPost`, `D7Bdry2`, `D7Bdry2Post` compare `(globalLH A.H M).OmegaDD j = Ω''_{j+1}` for `j ≤ k`; at `j = k` this is
+     the record of the step `k → k+1`, not constrained by `Agree k (k+1)` (reported to ORCH-B).
+   * **B3 (A6-4, Möbius inversion and locality of the boundary domains; 2026-10-22).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFMobius.lean`: `powMobius`, `sum_neg_one_pow_card_sdiff`,
+     **`sum_powMobius`** (`∑_{T ⊆ S} μf(T) = f(S)`), `norm_powMobius_le`. `Spine/FinalLFBdryLocal.lean`: `nnComp_subset_of_agree`;
+     `omegaCube_iff_of_comp`, `omegaCube_of_not_mem_Zp`, `not_mem_Zp_of_corr`, `omegaCube_iff_on_of_corr`, `nnComp_eq_of_corr`,
+     `dmodOmega_of_corr`, `inter_Z_eq_of_corr`, **`mem_bdryDoms_iff_of_corr`**; the fine level `supDist_castT`,
+     `supDist_cubeMap_le_one`, `cube_supDist_le_one_of_nbr`, `omegaPost_eq_of_rem`, `omegaComp_subset_over`, `omegaComp_eq_of_corr`,
+     `d7Pull_inter_eq_of_corr`, `fineValidAt_of_corr`, **`fineValidAt_iff_of_corr`**, **`d7SizeAt_eq_of_corr`**,
+     **`mem_bdryDomsAt_iff_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond: the same cube-level
+     and valid boundary domains at `X`, the same size `d7Size` of `X`).
+   * **B3 (A6-4, locality of the global fields; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFFieldLocal.lean`: `subMultiscaleField_transport`, `subFluctField_transport`,
+     `restrictOn_restrictOn`; `eq_of_blockSub_car`, `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gMulti_top`,
+     `gMulti_eq_zero_of_gt`, `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`; `postComp_eq_of_mem_fineSet`,
+     `exists_corr_of_blockSub`, `subFields_eq_of_compRec`, **`fields_eq_on_of_corr`** (two histories of the large-field half whose
+     components meeting `X` have the same records: at the configurations read off one configuration `z` of the global variables
+     (`famEquiv`), `gMulti` and `gFluct` agree on every block of scale `j ≤ K` in the fine set of `X`, the field hypothesis of `D7`
+     `loc_field`).
+   * **B3 (A6-4, the reference measures as densities times probability measures; 2026-10-22).** No landed statement changed. Landed
+     (no `sorry`; axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean`: `sphereMass`, `varProb` (normalized
+     surface measure of the sphere for a spin, `oneSiteGaussian` on `ℝ^N`), `varDens` (`|S^{N-1}|`, `(2π)^{N/2} e^{‖x‖²/2}`),
+     `isProbabilityMeasure_varProb` (`1 ≤ N`), **`varMeasure_eq_withDensity`** (`1 ≤ N`); `gcfgProb`, `gDens`,
+     **`gcfgMeasure_eq_withDensity`**, `integral_gcfgMeasure`, `integrable_gcfgMeasure_iff`, `prod_iUnion_eq`, `gDens_iUnion`; the
+     configurations of all the global variables `GCfgAll`, `gProbAll`, `restrictAll`, **`integral_restrictAll`**,
+     `integrable_restrictAll_iff`; `recTau` (the weight of a realized record with its density), `depOn_recTau`,
+     **`gOp_postOp_eq_integral_recTau`** (the operator of a history of the large-field half is the `gProbAll`-expectation of the
+     product of the `recTau` of its records times the integrand: the form of B2's operator gas, `1 ≤ N` the only premise).
+   * **B3 (A6-4, the record gas: configuration space, a history in its variables, the heavy objects; 2026-10-22).** No landed statement
+     changed (B2's operator-gas core merged from `orchB-sfgas` `a4c24ac4`, authorized by ORCH-B). Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean` additions: `gaussInvDens` (the `ℝ^N` density, now the `false` branch of
+     `varDens`), `volume_eq_withDensity_gauss`, `varMeasure_false_eq_withDensity` (every `N`), the cores `integral_withDensity_ofReal`,
+     `integrable_withDensity_ofReal_iff`, `integral_comp_restrict_pi`, `integrable_comp_restrict_pi_iff` (`integral_gcfgMeasure`,
+     `integrable_gcfgMeasure_iff`, `integral_restrictAll`, `integrable_restrictAll_iff` their instances). `Spine/FinalLFGasCfg.lean`:
+     `gaussPi`, `psiDens`, **`volume_pi_eq_withDensity`**, `integral_volume_pi`, `integrable_volume_pi_iff`; the variables of the gas
+     `PVar = GVar ⊕ BlockAt k` (`ψ_k` on the `k`-blocks), `pIsSpin`, `PCfg`, `pProb`, `gPart`, `psiPart`, `measurePreserving_pSplit`,
+     `measurableEmbedding_pSplit`, `integral_pProb_eq_of_integrable`; the sites (doubled torus) `gSite`, `pCell`, `CellCfg`, `cellProb`,
+     `isProbabilityMeasure_cellProb`, `regroup`, **`measurePreserving_regroup`**, `regroup_apply`, `PDepOn`, **`depOn_comp_regroup`**.
+     `Spine/FinalLFGasHist.lean`: `collarR` (`r₀ = ⌊R_{k-1}⌋ + 2`), `recBlk`, `Vblk_subset_recBlk`, `two_mul_collarR_lt_omega`
+     (`2 r₀ < ω_k`, `k ≥ 1`), `disjoint_recBlk`, `lfSrc_cubes`, `Vblk_lfSrc_subset_recBlk`, `recW_congr_psi`, `cubeMap_gSite_mem`,
+     `blkDens`, `recTauG` (the weight of a record in the gas variables: kernel times the densities of its own variables), **`pDepOn_recTauG`**,
+     **`depOn_recTauG`** (support `dblNbhd ω_k Y`), `lfOmega` (the deep region `Ω_𝔸`), `collarDens`, `psiDens_compl_lfOmega`,
+     **`lastHistInt_eq_iterated_of_integrable`** (`∫ρ_𝔸 = E_ψ E_x ∏_Z (ρ_ψ(Z) τ_Z) · ρ_ψ(C_𝔸) I_𝔸`, premise: the integrability of the
+     Fubini split, as `lastHistInt_eq_regional_of_integrable`). `Spine/FinalLFGasWeight.lean`: `LFKernel.enorm_w`,
+     `lintegral_comp_restrict_pi`, `measurable_recW`, `lintegral_inner_recW`, `parOf`, `outOf_eq_mergeOut`, `measurable_mergeOut_parOf`,
+     `measurable_blkDens`, `blkDens_nonneg`, `blkDens_eq_psiDens_ZBlk`, `lintegral_outer_le`, `measurable_recTauG`,
+     **`lintegral_enorm_recTauG_le`** (`E|τ_r| ≤ e^{-κ}` from (1.26), `D5Bound`), `integrable_recTauG`, `integral_norm_recTauG_le`.
+     `Spine/FinalLFGasGeom.lean`: `kingGraph` (degree `≤ 3^d`, `kingGraph_degree_le`), `card_ball_le`, `reach_ball`,
+     **`isAnimal_dblNbhd`**, `card_dblNbhd_le`. `Spine/FinalLFGasCount.lean` (restated in cubes at ORCH-B's request): `tDouble_injective`, `omegaGraph`
+     (index distance `< ω`), `omegaGraph_degree_le`, `isAnimal_of_mem_comps`, **`card_comps_through_le`**, `lfSrc_mem_comps`,
+     **`sum_integral_norm_recTauG_le`** (over the records whose support contains a site `b` and whose cubes number `v`:
+     `Σ E|τ_r| ≤ m · m^{2(v-1)} e^{-A₂λ_{k₀}^{p₂} - H_k |Y|_k}`, `m = (2ω_k - 1)^d`, under `D5Bound`, `D6Flat`; the per-cube decay is
+     `H_k M^d`, the separation range enters the prefactor and the logarithmic entropy only).
+     L4 (cell-measure versions and coupling supports): `Spine/FinalLFGasCfg.lean` `integral_comp_regroup`,
+     `integrable_comp_regroup_iff`; `Spine/FinalLFGasCount.lean` `integrable_recTauG_cells` (`hτi`),
+     `sum_integral_norm_recTauG_cells_le` (`hcount` in cubes, on the site measure); `Spine/FinalLFGasGeom.lean`
+     `mem_comps_two_of_isAnimal`, `isAnimal_dblNbhd_two`, `card_dblNbhd_two_le`; `Spine/FinalLFGasCpl.lean` `castT_castT_symm`,
+     **`isAnimal_king_of_fineValidAt`** (a valid boundary domain is king-connected), `isAnimal_cplSupp` (its gas support
+     `dblNbhd 2 X` is connected, `≤ 3^d|X|` sites), `not_disjoint_dblNbhd_of_inter`.
+     `Spine/FinalLFDouble.lean`: `one_le_omega` (core of the step in `recSep_iff_disjoint`). Finding: the densities of `ψ_k` on the collar
+     cannot be part of a record's heavy weight (Lebesgue measure on the collar is not finite against the kernel alone: (1.26) integrates
+     `ψ_k` on `Z` only, the collar values are its parameters); they stay with `χ_k` in the regional part (`collarDens`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the

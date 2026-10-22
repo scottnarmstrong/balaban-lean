@@ -257,7 +257,7 @@ theorem couplingC_unit (hG' : IsLevel G' (k + 1)) (a₁ : ℝ) (y : unitPts G' �
       ((((1 / 2) * (a₁ / (L : ℝ) ^ 2) * (((L : ℝ) ^ k) ^ d / ((L : ℝ) ^ k) ^ 2) : ℝ)) : ℂ) *
         (yhat y ⬝ᵥ (liftOp N (unitP G') *ᵥ yhat y)) := by
   classical
-  unfold couplingC
+  unfold couplingC couplingCOn
   -- the function of the unit block
   set g : Fin N → UnitTorus d L N₁ m₁ k → ℂ := fun i b =>
     if h : b ∈ unitPts G' then ((y ⟨b, h⟩ i : ℝ) : ℂ) else 0 with hg
