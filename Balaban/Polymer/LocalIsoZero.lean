@@ -467,24 +467,27 @@ theorem zeroActBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).1)
     (hraw₂ : FieldCorr (ρ + 1) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).2)
-    {ρh : ℝ} (hρh : 0 < ρh) (hρc : 2 * ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {ρh ρh' : ℝ} (hρh' : ρh' = ρh) (hρh : 0 < ρh) (hρc : 2 * ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
     (Φ : ∀ b, ((SA).blockSplit m₀ hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit m₀ hp').Ωb b)
     (hΦ : ∀ x, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
       Φ' ((SB).cellOf m₀ (unitPt hGB (bk x))) ⟨unitPt hGB (bk x), rfl⟩ =
         Φ ((SA).cellOf m₀ (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩)
-    (ω : ℂ → ℂ) {u : ℂ} (hu : ‖u‖ ≤ 1) :
+    (ω : ℂ → ℂ) {u : ℂ} (hu : ‖u‖ ≤ 1) {epsG : ℝ} (hleG : eps ≤ epsG) :
     zeroActBg (SB) Gb' (BgTransport.canon (SB).G' Gb' N)
         (fun b => LocalCover.nbhdF m₀ (LocalCover.blockSite k b)) (fun _ => k)
-        (fun b => LocalCover.fam m₀ (LocalCover.blockSite k b)) m₀ F₂' Sol₂' ω ρh hp' eps θ' u
-        (bk '' Y) Φ' =
+        (fun b => LocalCover.fam m₀ (LocalCover.blockSite k b)) m₀ F₂' Sol₂' ω ρh' hp' epsG θ'
+        u (bk '' Y) Φ' =
       zeroActBg (SA) Gb (BgTransport.canon (SA).G' Gb N)
         (fun b => LocalCover.nbhdF m₀ (LocalCover.blockSite k b)) (fun _ => k)
-        (fun b => LocalCover.fam m₀ (LocalCover.blockSite k b)) m₀ F₂ Sol₂ ω ρh hp eps θ u Y Φ := by
+        (fun b => LocalCover.fam m₀ (LocalCover.blockSite k b)) m₀ F₂ Sol₂ ω ρh hp epsG θ u Y Φ := by
+  subst ρh'
   have hu2 : ‖u‖ < 2 := by linarith
   have hc1 : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 eps ∧ ‖u‖ < 2 := ⟨hθ, hu2⟩
+      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 epsG ∧ ‖u‖ < 2 :=
+    ⟨xiCRaw_mono_radius hleG hθ, hu2⟩
   have hc2 : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 eps ∧ ‖u‖ < 2 := ⟨hθ', hu2⟩
+      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 epsG ∧ ‖u‖ < 2 :=
+    ⟨xiCRaw_mono_radius hleG hθ', hu2⟩
   obtain ⟨D, hD, hDe⟩ := hθ
   obtain ⟨D', hD', hDe'⟩ := hθ'
   unfold zeroActBg
