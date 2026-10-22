@@ -1434,6 +1434,13 @@ small-field factor is not unique. (D8) and `β_0 = β` are likewise properties o
 representations of `ρ₁` they fail (audit D1: rescale the boundary terms on one torus). So (a)–(g) are sub-sub-inputs of A3-1 and
 A3-2. Each becomes a theorem once the first step's representation is defined at the class's `M, K`.
 
+**Named rows (F0, ORCH-C, 2026-10-22).** `baseSteps_of_named` (`Spine/BaseClose.lean`; proved, axioms `propext, Classical.choice,
+Quot.sound`) gives `BasePreStepInput ∧ BaseFlatStepInput` from `PrefixInput`, a first-step map `Γ : BaseMapC` and `BaseOpenRows Γ`,
+a `Prop` structure of 21 fields, each a landed base sub-input on `Γ.toMap` in one regime (`BaseSF{NewLevel,Renorm,Density,Remainder,
+Coherence,Bare}Input`, `BaseFormInput`/`BaseFlatFormInput`, `BaseBdryInput`/`BaseFlatBdryInput`, `BaseCorrInput`, `BaseCoherenceInput`,
+the hypothesis of `baseVacuumInput_of_constants`). `BaseOpenRows` needs the exemption of the spine inputs (rule 10; granted by the
+main orchestrator, 2026-10-22): it bundles sub-inputs each already exempt; no zero instance (the sub-inputs have none).
+
 ## KfZeroInput sub-inputs (W1110)
 
 **Superseded by route FR (W1149).** `KfZeroInput` is proved directly by `kfZeroInput_of_typing` (`Spine/KfZeroFRMain.lean`,
