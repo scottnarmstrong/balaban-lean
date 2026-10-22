@@ -13,8 +13,8 @@ public import Balaban.Spine.FinalLFGasGeom
 
 The weighted counts of the heavy objects of the record gas, with the size of a record measured by
 its number `v` of `k`-cubes: the sum of the expectations `E |τ_r|` over the realized records whose
-support `dblNbhd ω_k Y` contains a site `b` of the doubled torus and whose cubes `Y` number `v` is at
-most `m · K^{v-1} · e^{-A₂ λ_{k₀}^{p₂} - H_k |Y|_k}` (`sum_integral_norm_recTauG_le`), with
+support `dblNbhd ω_k Y` contains a site `b` of the doubled torus and whose cubes `Y` number `v` is
+at most `m · K^{v-1} · e^{-A₂ λ_{k₀}^{p₂} - H_k |Y|_k}` (`sum_integral_norm_recTauG_le`), with
 `m = (2ω_k - 1)^d` (the cubes whose doubled image lies within `ω_k - 1` of `b`) and
 `K = m^2`. The per-cube decay is `H_k M^d` itself; the separation range enters only through the
 prefactor `m` and the entropy `K` of the `ω_k`-connected sets (logarithmic in `ω_k`).
