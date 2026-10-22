@@ -40,7 +40,7 @@ namespace Balaban.RootFSpine
 
 open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.Localization
   Balaban.SmallField Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Balaban.SmallField.GsSpec
-  Balaban.LargeField Balaban.Inhabited Matrix
+  Balaban.LargeField Balaban.LargeField.Def7 Balaban.LargeField.Def7v2 Balaban.Inhabited Matrix
 
 section Clauses
 

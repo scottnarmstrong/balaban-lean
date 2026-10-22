@@ -801,20 +801,20 @@ theorem StepTowerG.newLevel_localFamily_birth_composed_of
     hηdef hLq hQ16 hNLN
   repeat
     first
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
   -- the bound premise of the core is on the composed charts with the scale gap of the source
-  first
-  | (intro hB; replace H := H (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
-  | (intro Bl hBl hB; replace H := H Bl hBl (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
+  intro hB
+  replace H := @H (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+    hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr))
   repeat
     first
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
 
 open Classical in
 /-- **The clauses (A1)–(A5) of the new level along the class chain, with the conditions on constants
@@ -1361,20 +1361,20 @@ theorem StepTowerG.newLevel_localFamilies_birth_composed_of
     hηdef hLq hQ16 hNLN
   repeat
     first
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
   -- the bound premise of the core is on the composed charts with the scale gap of the source
-  first
-  | (intro hB; replace H := H (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
-  | (intro Bl hBl hB; replace H := H Bl hBl (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
+  intro hB
+  replace H := @H (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+    hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr))
   repeat
     first
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
 
 open Classical in
 /-- **The clauses (A1)–(A5) of the new level at every root along the class chain** (row (iii) of

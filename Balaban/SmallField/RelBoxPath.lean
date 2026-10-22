@@ -26,7 +26,7 @@ is a unit step or no step of the placed sites, and the connectivity of `X` passe
 namespace Balaban.SmallField.Def6v2
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.SmallField
-  Balaban.Polymer Balaban.Polymer.TwoTorusStep
+  Balaban.SmallField.Def6 Balaban.Polymer Balaban.Polymer.TwoTorusStep
 
 variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {j : ℕ}
 
@@ -40,6 +40,7 @@ theorem int_add_one_ediv_cases {q : ℤ} (hq : 0 < q) (v : ℤ) :
     nlinarith
   omega
 
+open Classical in
 /-- **The paths of the placed polymer in the box of ruling R15**: for a polymer `X ∈ 𝒟_j` with an
 aligned centre `y ∈ X` and `X` inside the box of `relBox` around `y`, every site `s` of the placed
 polymer `S = {unlift_j (x - y) : x ∈ X aligned}` is joined to the origin by a lattice path inside
@@ -127,7 +128,7 @@ theorem exists_latPath_of_relBox {m₀ : ℕ} (hL : 3 ≤ L) (hm₀ : 2 ≤ m₀
   obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hs'
   have hxX : x ∈ X := (Finset.mem_filter.1 hx).2.2
   have hcon : Relation.ReflTransGen (fun s t => s ∈ S ∧ t ∈ S ∧ LatAdj s t) (u y) (u x) :=
-    Relation.ReflTransGen.lift' u hlift (hX.2.2 y hyX x hxX)
+    Relation.ReflTransGen.lift' u hlift y x (hX.2.2 y hyX x hxX)
   have hu0 : u y = 0 := by rw [hu]; simp only [sub_self]; exact unlift_zero j
   rw [hu0] at hcon
   exact exists_latPath_of_reflTransGen (hu0 ▸ hmem y hyX) hcon

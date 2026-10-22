@@ -79,7 +79,7 @@ theorem composedChartGap_second_diff (hd : 3 ≤ d) (hL : 3 ≤ L) :
           xiSigma d L N B θh * ((L : ℝ) ^ j / (L : ℝ) ^ k) ^ (2 - θh) * ε := by
   obtain ⟨B, hB0, hB⟩ := composedChartP_second_diff (d := d) (L := L) hd hL
   refine ⟨B, hB0, ?_⟩
-  intro θh hθh0 hθh1 N₁ m₁ k N _ ϱ Gj a₁ ν j b ε ha₁ hsm hc1 r hr
+  intro θh hθh0 hθh1 N₁ m₁ k N _ ϱ Gj a₁ ν j b ε ha₁ hsm hc1 r hr n
   have hP : ∀ (ϱ₁ : ℝ) (G : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁), LabelGap G Gj j →
       ScaleGap Gj G ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧ 0 < (L : ℝ) ^ j / (L : ℝ) ^ k ∧
         (L : ℝ) ^ j / (L : ℝ) ^ k ≤ 1 :=

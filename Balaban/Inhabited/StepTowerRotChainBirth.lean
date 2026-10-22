@@ -459,21 +459,22 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_
   have H := StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth_composed_of_gap m₀ hA p hγ0 hγ1 T₀ hT hQdef hFdef hηdef
   repeat
     first
+    | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := @And.right _ _ H)
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
     | exact H.1
-    | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
   -- the bound premise of the core is on the composed charts with the scale gap of the source
-  first
-  | (intro hB; replace H := H (fun τ r hr => hB τ r (composedChartGap_subset hr)))
-  | (intro Bτ hBτ hB; replace H := H Bτ hBτ (fun τ r hr => hB τ r (composedChartGap_subset hr)))
+  intro hB
+  replace H := @H (fun τ r hr => hB τ r (composedChartGap_subset hr))
   repeat
     first
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
     | exact H.1
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
 
 open Classical in
 /-- **Core of `StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_collar_classEps_ren_rot_formula_birth`: the class chain on its formula path with the chart premise replaced by the inclusion, at a given base tower.**  For a base tower `T₀` of the chain (`CollarBase` at the ratio `q = L^{-α}`) and the constants `Q`, `F`, `η` of the chain at `T₀`, the statement of the landed theorem after its constants (the instance of `…_birth_composed_of`: the

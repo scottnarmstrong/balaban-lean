@@ -96,7 +96,7 @@ theorem gsSpecStrong_hatGSOf {m₀ : ℕ} (hL : 3 ≤ L) (hlt : hatScale L m₁ 
     GsSpecStrong (k + 1) le_rfl X (hatGSOf (ϱ := ϱ) m₀ (k + 1) le_rfl X) := by
   unfold hatGSOf
   split_ifs with h
-  · haveI := (exists_finer_torusG (L := L) m₁ _ h.1).choose_spec.choose
+  · have := (exists_finer_torusG (L := L) m₁ _ h.1).choose_spec.choose
     exact gsSpecStrong_castG_hat hlt hL _ h.2 X
   · exact levelGS_strong (by omega) le_rfl X
 

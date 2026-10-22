@@ -26,7 +26,7 @@ the step reads, at which `HypSle` applies).
 namespace Balaban.Inhabited
 
 open Balaban Balaban.Fluctuation Balaban.Localization Balaban.Multiscale Balaban.Background
-  Balaban.SmallField
+  Balaban.SmallField Balaban.SmallField.GsSpec Balaban.LargeField
 
 variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ₁ ϱ₂ : ℝ}
 

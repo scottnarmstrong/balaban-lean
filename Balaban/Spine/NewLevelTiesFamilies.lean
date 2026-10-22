@@ -482,19 +482,19 @@ theorem NewLevelTies.newLevel_localFamilies_composed {d L N : ℕ} [NeZero L] [N
     hKL hα₃
   repeat
     first
+    | (refine ⟨HC.1, ?_⟩; replace HC := @And.right _ _ HC)
+    | (intro x; specialize @HC x)
+    | (obtain ⟨w, HC⟩ := HC; refine ⟨w, ?_⟩)
     | exact HC
-    | (refine ⟨HC.1, ?_⟩; replace HC := HC.2)
-    | peel HC with HC
   -- the bound premise of the core is on the composed charts with the scale gap of the source
-  first
-  | (intro hB; replace HC := HC (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
-  | (intro Bl hBl hB; replace HC := HC Bl hBl (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
-      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr)))
+  intro hB
+  replace HC := @HC (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+    hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartGap_subset hr))
   repeat
     first
+    | (refine ⟨HC.1, ?_⟩; replace HC := @And.right _ _ HC)
+    | (intro x; specialize @HC x)
+    | (obtain ⟨w, HC⟩ := HC; refine ⟨w, ?_⟩)
     | exact HC
-    | (refine ⟨HC.1, ?_⟩; replace HC := HC.2)
-    | peel HC with HC
 
 end Balaban.RootFSpine

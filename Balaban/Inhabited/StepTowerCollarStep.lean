@@ -392,11 +392,11 @@ theorem StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar
   have H := StepTowerG.e0CoeffFamily_class_exists_tower_struct_step_dec_agree_collar_phi_formula_gap m₀ T₀ hm₀ hhull hκ₀ hrate₀ hA p hcR hαR
   repeat
     first
+    | (refine ⟨fun hh τ => (H.1 hh τ).1, ?_⟩; replace H := @And.right _ _ H)
+    | (refine ⟨H.1, ?_⟩; replace H := @And.right _ _ H)
+    | (intro x; specialize @H x)
+    | (obtain ⟨w, H⟩ := H; refine ⟨w, ?_⟩)
     | exact H
-    | (refine ⟨fun hh τ => (H.1 hh τ).1, ?_⟩; replace H := H.2)
-    | (refine ⟨fun τ => (H.1 τ).1, ?_⟩; replace H := H.2)
-    | (refine ⟨H.1, ?_⟩; replace H := H.2)
-    | peel H with H
   intro hΦ
   exact H (fun e B hc hnl hB => hΦ e B hc ⟨hnl.1, hnl.2.1⟩ hB)
 

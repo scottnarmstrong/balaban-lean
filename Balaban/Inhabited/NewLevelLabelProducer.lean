@@ -11,6 +11,7 @@ public import Balaban.SmallField.XiComposedPullback
 public import Balaban.SmallField.RelBoxPath
 public import Balaban.LargeField.R.RegionalAligned
 public import Balaban.Fluctuation.LocalClassDensityFamilyNumA
+public import Balaban.SmallField.IrrelTorusXidomGeometry
 
 /-!
 # The data hypothesis at the composed data of a label (the producer)
@@ -37,6 +38,7 @@ namespace Balaban.Inhabited
 
 open Balaban Balaban.Fluctuation Balaban.Multiscale Balaban.Background Balaban.Localization
   Balaban.SmallField Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Balaban.SmallField.GsSpec
+  Balaban.LargeField
 
 variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁]
 
@@ -70,6 +72,7 @@ theorem supDist_add_ibase_le (j : ℕ) (x : CTorus d L N₁ m₁ k) (w : Site d)
   rw [mul_comm]
   exact Nat.mul_le_mul_right _ (hw μ)
 
+open Classical in
 /-- **`DataHypAnisoOn` at the composed data of a label** (the producer of the data hypothesis of
 `irrelTorus_bound_of_dataOn_of_threshold(_birth)` at the data the step reads).  For a label
 `(j, y, X)`, `1 ≤ j ≤ k`, with `X ∈ 𝒟_j` selected by ruling R15 (`relBox m₀ y X`), a generating
@@ -171,7 +174,7 @@ theorem composedChartGap_dataHypAnisoOn (hd : 3 ≤ d) (hL : 3 ≤ L) :
         ∀ i ≤ n, StarIn {v | f v ∈ Gj.layer j} (q i) := by
     intro X' hX' x hx
     rw [Set.mem_singleton_iff] at hX'
-    subst hX'
+    rw [hX'] at hx
     obtain ⟨q, n, hq0, hqn, hn, hqp, hqS⟩ :=
       exists_latPath_of_relBox hL hm₀ hN (by omega) hy hX hyX hbox hSdef x hx
     exact ⟨q, n, hq0, hqn, by exact_mod_cast (by omega : n ≤ S.card), hqp,
@@ -239,6 +242,7 @@ theorem card_placeSet_le {K j m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hjK : j ≤ 
     _ ≤ _ := h2
     _ ≤ _ := by rw [mul_assoc]; exact mul_le_mul_of_nonneg_left h3 hq
 
+open Classical in
 /-- **`DataHypAnisoOn` at the composed data of a label, with the path length of the consumers**:
 the statement of `composedChartGap_dataHypAnisoOn` with the length `A (1 + d_j(X))` for every
 `A ≥ L^{(m₀+m₁)d} c₁` (`card_placeSet_le`, `dataHypAnisoOn_mono_len`). -/
@@ -283,7 +287,7 @@ theorem composedChartGap_dataHypAnisoOn_size (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hs0 : (0 : ℝ) ≤ 1 + sizeJ m₀ j X := by
     have h0 : (0 : ℝ) ≤ (S.card : ℝ) := Nat.cast_nonneg _
     by_contra hneg
-    push_neg at hneg
+    push Not at hneg
     nlinarith
   have hσε : 0 ≤ scaledC0 d * ((L : ℝ) ^ j / (L : ℝ) ^ k) * (10 * (xiC1 d * ε)) :=
     (norm_nonneg _).trans (H.grad0 ⟨0, by omega⟩)
@@ -291,5 +295,26 @@ theorem composedChartGap_dataHypAnisoOn_size (hd : 3 ≤ d) (hL : 3 ≤ L) :
   rw [Set.mem_singleton_iff] at hX'
   subst hX'
   exact hcard.trans (mul_le_mul_of_nonneg_right hA hs0)
+
+/-- **(M3) The chart membership of the composed data of a label**: for every datum `r` of the
+composed chart of `Gj` whose source has the scale gap (`composedChartGap`, radius `ε`), the
+pulled-back field `v ↦ r.1 (y + L^j v)` with the external field `ν L^{2j} r.2(y)`, and its constant
+configuration `v ↦ r.1 y`, lie in the chart domain `Dom` of the label bound (the premises of
+`composedChartGap_dataHypAnisoOn(_size)` that give the fields `mem`, `mem_const` of
+`DataHypAnisoOn`).  The class's label bound takes `Dom` the domain of the terms read through
+`fieldOf`/`hOf` (`irrelTorus_bound_of_dataOn_of_threshold`). -/
+def ComposedLabelMem {N : ℕ} {ϱ : ℝ} (Dom : Set ((Site d → Spin N) × Spin N))
+    (Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ) (a : ℕ → ℝ) (ν : ℝ) (j : ℕ) (ε : ℝ)
+    (y : CTorus d L N₁ m₁ (k + 1)) : Prop :=
+  ∀ r ∈ composedChartGap (N := N) Gj a ν j 1 ε,
+    ((fun v => r.1 (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k + 1) j v)),
+      ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) • r.2 y) ∈ Dom ∧
+    ((fun _ => r.1 y), ((ν * ((L : ℝ) ^ j) ^ 2 : ℝ) : ℂ) • r.2 y) ∈ Dom
+
+/-- **`ComposedLabelMem` is inhabited** (rule 10): every composed datum lies in the whole space. -/
+theorem composedLabelMem_univ {N : ℕ} {ϱ : ℝ} (Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ)
+    (a : ℕ → ℝ) (ν : ℝ) (j : ℕ) (ε : ℝ) (y : CTorus d L N₁ m₁ (k + 1)) :
+    ComposedLabelMem (N := N) Set.univ Gj a ν j ε y :=
+  fun _ _ => ⟨Set.mem_univ _, Set.mem_univ _⟩
 
 end Balaban.Inhabited
