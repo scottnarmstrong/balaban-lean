@@ -9,6 +9,7 @@ public import Balaban.Green.FinalBoxLocTies
 public import Balaban.Green.FinalBoxLocK
 public import Balaban.Green.FinalBoxLocConj
 public import Balaban.Green.FinalSqrtCompare
+public import Balaban.Green.FinalBoxLocRegion
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NoncommRing
@@ -441,6 +442,264 @@ theorem expWeight_sub (r' : ℝ) (hr' : 0 ≤ r') (p u q : L1Torus d N₀ × Fin
 
 end Weighted
 
+section WhitenOf
+
+variable {d L N₀ M N : ℕ} [NeZero N₀] [NeZero L] {a : ℝ}
+
+omit [NeZero N₀] [NeZero L] in
+theorem cutTo_one_mem_polydisc {κ : ℝ} (hκ : 0 < κ) (B : Finset (MacIdx d N₀ M)) :
+    cutTo B (fun _ => 1) ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ) := by
+  refine cutTo_mem_polydisc (Real.exp_pos κ) B fun _ => ?_
+  simpa using Real.one_lt_exp_iff.2 hκ
+
+omit [NeZero N₀] [NeZero L] in
+theorem norm_cutTo_le {κ : ℝ} {s : MacIdx d N₀ M → ℂ} (hs : ∀ z, ‖s z‖ ≤ Real.exp κ)
+    (B : Finset (MacIdx d N₀ M)) (z : MacIdx d N₀ M) : ‖cutTo B s z‖ ≤ Real.exp κ := by
+  by_cases hz : z ∈ B <;> simp [cutTo, hz, hs z, (Real.exp_pos κ).le]
+
+omit [NeZero N₀] [NeZero L] in
+theorem norm_one_le_exp {κ : ℝ} (hκ : 0 ≤ κ) (z : MacIdx d N₀ M) :
+    ‖(fun _ => (1 : ℂ)) z‖ ≤ Real.exp κ := by
+  simpa using Real.one_le_exp_iff.2 hκ
+
+omit [NeZero L] in
+/-- The root cells of a site-spin index: at most `7^d` boxes contain a site. -/
+theorem card_rootCells_spinBoxPatch_le (hM : 0 < M) (P : L1Torus d N₀ × Fin N) :
+    (rootCells (spinBoxPatch d N₀ M N) {P}).card ≤ 7 ^ d := by
+  classical
+  refine (Finset.card_le_card fun z hz => ?_).trans (card_boxes_mem_le hM P.1)
+  obtain ⟨u, hu, hu'⟩ := mem_rootCells.1 hz
+  have hP : u = P := hu'
+  rw [hP] at hu
+  exact Finset.mem_filter.2 ⟨Finset.mem_univ _, mem_macBoxF.2 hu⟩
+
+omit [NeZero L] in
+open Classical in
+theorem cellGraph_spinBoxPatch_degree_le (hM : 0 < M) (z : MacIdx d N₀ M) :
+    (cellGraph (spinBoxPatch d N₀ M N)).degree z ≤ 16 ^ d := by
+  have := cellGraph_degree_le (N := N) hM z
+  rwa [blockPatch_macBoxF] at this
+
+omit [NeZero L] in
+/-- The site of a row lies in the macro region of its localization domain. -/
+theorem mem_macRegion_locDom (hM : 0 < M) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
+    P.1 ∈ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D P) := by
+  have hbox := mem_macBox_of_mem_macCore hM (mem_macCore_macZ (M := M) P.1)
+  exact mem_macRegion.2 ⟨_, mem_locDom_of_mem (P := spinBoxPatch d N₀ M N) (D := D) hbox, hbox⟩
+
+/-- **The localized square root from row-wise operators** (shared core): row `p` is row `p` of the
+cut family `boxCutU (U_p)` of the Hessian of the operator `U_p` of the row, at the parameters `s`
+on the cells of the localization domain `locDom p` of radius `D` and `0` elsewhere. -/
+noncomputable def whitenOf (d N₀ M : ℕ) [NeZero N₀] {N : ℕ} (a : ℝ)
+    (Up : L1Torus d N₀ × Fin N → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) (h : Fin N → ℂ) (D : ℕ)
+    (s : MacIdx d N₀ M → ℂ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
+  Matrix.of fun p q => boxCutU d N₀ M a (Up p) h (cutTo (locDom (spinBoxPatch d N₀ M N) D p) s) p q
+
+variable {Up : L1Torus d N₀ × Fin N → Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+
+omit [NeZero L] in
+/-- **Finite range** (shared core): `L(p, q) = 0` unless `q` lies in the region of the
+localization domain of `p`. -/
+theorem whitenOf_eq_zero_of_not_mem (hd : 0 < d) {κ : ℝ} (hκ : 0 < κ) {g A δ ε : ℝ}
+    (hUp : ∀ p, CutOpHyp d N₀ M (Up p) g A δ ε κ) (h : Fin N → ℂ) (D : ℕ)
+    {p q : L1Torus d N₀ × Fin N}
+    (hq : q.1 ∉ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D p)) :
+    whitenOf d N₀ M a Up h D (fun _ => 1) p q = 0 := by
+  by_contra hne
+  have := ((cutDecoupling_boxCutU hd (hUp p) h).supp (locDom (spinBoxPatch d N₀ M N) D p)
+    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) (cutTo_one_mem_polydisc hκ _)
+    (cutTo_mem_supportedOn _ _) p q hne).2
+  exact hq (mem_patchReg_spinBoxPatch.1 this)
+
+omit [NeZero L] in
+/-- **Row sums** (shared core): at most `boxCutConst` for parameters of modulus `≤ e^κ`. -/
+theorem whitenOf_row_bound {κ : ℝ}
+    (hUp : ∀ p, CutOpHyp d N₀ M (Up p) (finalGap d L) (finalDecayC d L) (blockDecayRate d)
+      (pdEps d L) κ)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D : ℕ)
+    {s : MacIdx d N₀ M → ℂ} (hs : ∀ z, ‖s z‖ ≤ Real.exp κ) (P : L1Torus d N₀ × Fin N) :
+    ∑ Q, ‖whitenOf d N₀ M a Up h D s P Q‖ ≤ boxCutConst d L N a κ p :=
+  boxCutU_row_bound (hUp P) hp (norm_cutTo_le hs (locDom (spinBoxPatch d N₀ M N) D P)) P
+
+omit [NeZero L] in
+/-- **Decoupling** (shared core): the family `s ↦ whitenOf s` is decoupled on the polydisc of
+radius `e^κ` (`CutDecoupling.rowCut` of the row-wise family `CutDecoupling.diag`). -/
+theorem cutDecoupling_whitenOf (hd : 0 < d) {κ g A δ ε : ℝ}
+    (hUp : ∀ p, CutOpHyp d N₀ M (Up p) g A δ ε κ) (h : Fin N → ℂ) (D : ℕ) :
+    CutDecoupling (spinBoxPatch d N₀ M N) (Real.exp κ)
+      (fun s p q => whitenOf d N₀ M a Up h D s p q) :=
+  (CutDecoupling.diag fun r => cutDecoupling_boxCutU hd (hUp r) h).rowCut (Real.exp_pos κ)
+    (fun p => locDom (spinBoxPatch d N₀ M N) D p)
+
+omit [NeZero L] in
+theorem analyticOnNhd_whitenOf {κ g A δ ε : ℝ} (hUp : ∀ p, CutOpHyp d N₀ M (Up p) g A δ ε κ)
+    (h : Fin N → ℂ) (D : ℕ) (p q : L1Torus d N₀ × Fin N) :
+    AnalyticOnNhd ℂ (fun s => whitenOf d N₀ M a Up h D s p q)
+      (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) :=
+  analyticOnNhd_rowCut (Real.exp_pos κ) (analyticOnNhd_boxCutU (hUp p) h)
+    (fun p => locDom (spinBoxPatch d N₀ M N) D p) p q
+
+omit [NeZero L] in
+/-- **Reality** (shared core): for real operators and a real `h`, the entries are real. -/
+theorem whitenOf_real (hUp : ∀ p, conjM (Up p) = Up p) (h : Fin N → ℝ) (D : ℕ)
+    (P Q : L1Torus d N₀ × Fin N) :
+    (starRingEnd ℂ) (whitenOf d N₀ M a Up (fun i => (h i : ℂ)) D (fun _ => 1) P Q) =
+      whitenOf d N₀ M a Up (fun i => (h i : ℂ)) D (fun _ => 1) P Q := by
+  have e1 : (fun i => (starRingEnd ℂ) ((h i : ℝ) : ℂ)) = fun i => (h i : ℂ) :=
+    funext fun i => Complex.conj_ofReal _
+  have e2 : (fun z => (starRingEnd ℂ)
+      (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => (1 : ℂ)) z)) =
+      cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1) := by
+    funext z
+    by_cases hz : z ∈ locDom (spinBoxPatch d N₀ M N) D P <;> simp [cutTo, hz]
+  have hc := congrFun (congrFun (conjM_boxCutU (a := a) (M := M) (hUp P)
+    (fun i => (h i : ℂ)) (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1))) P) Q
+  rw [e1, e2] at hc
+  exact hc
+
+/-- **The cut part of the row error, entrywise** (shared core, any `U` with `CutOpHyp` at the
+constants of `finalOp`): for `0 ≤ r ≤ ε/8`,
+`‖boxCutU U (1|_{locDom P}) (P, Q) - boxCutU U 1 (P, Q)‖
+  ≤ boxCutConst(N = 1) e^{-r |P - Q|} · 7^d whitenTail (16^d) (κ - 1) D`. -/
+theorem norm_boxCutU_cutTo_sub_le (hd : 0 < d) (hM : 0 < M)
+    {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} {κ : ℝ}
+    (hU : CutOpHyp d N₀ M U (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
+    (hκ : 1 ≤ κ) (hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (D : ℕ) (P Q : L1Torus d N₀ × Fin N) :
+    ‖boxCutU d N₀ M a U h (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
+        boxCutU d N₀ M a U h (fun _ => 1) P Q‖ ≤
+      boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) *
+        (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) := by
+  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
+  have hb : ∀ s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ),
+      ‖boxCutU d N₀ M a U h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
+    fun s hs => (norm_boxCutU_apply_le hU hp (fun z => by simpa using (hs z).le) hr0 hr P Q).trans
+      (le_of_eq (by unfold boxCutConst; push_cast; ring))
+  have hmain := norm_cutTo_locDom_sub_le (Δ := 16 ^ d) (cellGraph_spinBoxPatch_degree_le hM) hκ hq
+    (cutDecoupling_boxCutU hd hU h) (fun p q => analyticOnNhd_boxCutU hU h p q) hb D
+  have hb0 : 0 ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
+    mul_nonneg (boxCutConst_nonneg hd hp0) (Real.exp_pos _).le
+  refine hmain.trans (mul_le_mul_of_nonneg_left ?_ hb0)
+  refine mul_le_mul_of_nonneg_right ?_ (whitenTail_nonneg hq D)
+  exact_mod_cast card_rootCells_spinBoxPatch_le hM P
+
+/-- The constant of the deep comparison of the cut families at `s = 1`:
+`4/(g √g) (2 B C_U)^{1/2} B(r_*/4) B(δ₀/4) (1 + p)`. -/
+noncomputable def pairErrConstB (d L : ℕ) (B p : ℝ) : ℝ :=
+  4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+    (Real.sqrt (2 * B * finalDecayC d L) *
+      ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) * (1 + p)
+
+omit [NeZero N₀] in
+theorem pairErrConstB_nonneg (hd : 0 < d) {B p : ℝ} (hp0 : 0 ≤ p) : 0 ≤ pairErrConstB d L B p := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have := finalGap_pos (d := d) hL
+  have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4)
+    (by have := finalRate_pos (L := L) hd; positivity)
+  have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4)
+    (by have := blockDecayRate_pos hd; positivity)
+  unfold pairErrConstB
+  positivity
+
+/-- **The deep comparison of the cut families at `s = 1`** (shared core): if `U₁ = U₂` up to
+`B e^{-(δ₀/2)(τ(u) + τ(v))}`, `τ(u) = max 0 (m - |P - u|)` the depth below the site of the row
+`P`, then `‖boxCutU U₁ 1 (P, Q) - boxCutU U₂ 1 (P, Q)‖ ≤ pairErrConstB e^{-(ε/4) m} e^{-r |P - Q|}`
+for `0 ≤ r ≤ ε/8`. -/
+theorem norm_boxCutU_one_sub_le (hd : 0 < d) {κ : ℝ} {U₁ U₂ : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hU₁ : CutOpHyp d N₀ M U₁ (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
+    (hU₂ : CutOpHyp d N₀ M U₂ (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
+    {B : ℝ} (hB : 0 ≤ B) (m : ℝ) (P : L1Torus d N₀ × Fin N)
+    (hη : ∀ u w, ‖U₁ u w - U₂ u w‖ ≤ B * Real.exp (-(blockDecayRate d / 2 *
+      (max 0 (m - dist P.1 u) + max 0 (m - dist P.1 w)))))
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (Q : L1Torus d N₀ × Fin N) :
+    ‖boxCutU d N₀ M a U₁ h (fun _ => 1) P Q - boxCutU d N₀ M a U₂ h (fun _ => 1) P Q‖ ≤
+      pairErrConstB d L B p * Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist P.1 Q.1) := by
+  have hδ := blockDecayRate_pos hd
+  have hε := pdEps_pos (L := L) hd
+  have hρ := finalRate_pos (L := L) hd
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
+  obtain ⟨x, i⟩ := P
+  obtain ⟨y, j⟩ := Q
+  have e : boxCutU d N₀ M a U₁ h (fun _ => 1) (x, i) (y, j) -
+      boxCutU d N₀ M a U₂ h (fun _ => 1) (x, i) (y, j) =
+      (Localization.sqrtMat U₁ x y - Localization.sqrtMat U₂ x y) *
+        ((if i = j then 1 else 0) - spinProj h i j) := by
+    rw [boxCutU_apply, boxCutU_apply, taggedCfinU_one hU₁, taggedCfinU_one hU₂]
+    ring
+  have hspin : ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤ 1 + p := by
+    refine (norm_sub_le _ _).trans (add_le_add ?_ (hp i j))
+    by_cases hij : i = j <;> simp [hij]
+  have hK : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(blockDecayRate d / 4) * dist z w) ≤
+      ballConst d (blockDecayRate d / 4) := fun z =>
+    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
+  have hK₁ : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(finalRate d L / 4) * dist z w) ≤
+      ballConst d (finalRate d L / 4) := fun z =>
+    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
+  have : Nonempty (L1Torus d N₀) := ⟨(0 : Torus d N₀)⟩
+  have hsq := norm_sqrtMat_sub_le_of_deep (U₁ := U₁) (U₂ := U₂) (finalDecayC_pos hd).le hδ
+    (finalGap_pos hL) (ballConst_decay_nonneg (by positivity)) hK hK₁ hU₁.decay hU₂.decay
+    hU₁.coercive hU₂.coercive hB x m hη hε (min_le_right _ _) (min_le_left _ _) y
+  rw [e, norm_mul]
+  have hexp : Real.exp (-(pdEps d L / 4 * dist x y)) ≤ Real.exp (-r * dist (x, i).1 (y, j).1) :=
+    Real.exp_le_exp.2 (by
+      have := dist_nonneg (x := x) (y := y)
+      show -(pdEps d L / 4 * dist x y) ≤ -r * dist x y
+      nlinarith)
+  have hK0 : 0 ≤ 4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+      (Real.sqrt (2 * B * finalDecayC d L) *
+        ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) := by
+    have := finalGap_pos (d := d) hL
+    have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4) (by positivity)
+    have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4) (by positivity)
+    positivity
+  calc ‖Localization.sqrtMat U₁ x y - Localization.sqrtMat U₂ x y‖ *
+        ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖
+      ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+          (Real.sqrt (2 * B * finalDecayC d L) *
+            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
+          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-(pdEps d L / 4 * dist x y)))) *
+          (1 + p) := mul_le_mul hsq hspin (norm_nonneg _) (by positivity)
+    _ ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+          (Real.sqrt (2 * B * finalDecayC d L) *
+            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
+          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist (x, i).1 (y, j).1))) *
+          (1 + p) := by
+        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left
+          (mul_le_mul_of_nonneg_left hexp (Real.exp_pos _).le) hK0) (by positivity)
+    _ = _ := by unfold pairErrConstB; ring
+
+/-- **The row error, entrywise** (shared core): with the ambient `U₀` and the deep comparison
+`hη` of each row operator with it, for `0 ≤ r ≤ ε/8`,
+`‖L(P, Q) - boxCutU U₀ 1 (P, Q)‖
+  ≤ (boxCutConst(N = 1) 7^d whitenTail (16^d) (κ - 1) D + pairErrConstB e^{-(ε/4) m}) e^{-r|P - Q|}`. -/
+theorem norm_whitenOf_sub_le (hd : 0 < d) (hM : 0 < M) {κ : ℝ}
+    (hUp : ∀ p, CutOpHyp d N₀ M (Up p) (finalGap d L) (finalDecayC d L) (blockDecayRate d)
+      (pdEps d L) κ)
+    {U₀ : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hU₀ : CutOpHyp d N₀ M U₀ (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
+    (hκ : 1 ≤ κ) (hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1) {B : ℝ} (hB : 0 ≤ B)
+    (m : ℝ) (hη : ∀ P u w, ‖Up P u w - U₀ u w‖ ≤ B * Real.exp (-(blockDecayRate d / 2 *
+      (max 0 (m - dist P.1 u) + max 0 (m - dist P.1 w)))))
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (D : ℕ) (P Q : L1Torus d N₀ × Fin N) :
+    ‖whitenOf d N₀ M a Up h D (fun _ => 1) P Q - boxCutU d N₀ M a U₀ h (fun _ => 1) P Q‖ ≤
+      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+        pairErrConstB d L B p * Real.exp (-(pdEps d L / 4 * m))) *
+        Real.exp (-r * dist P.1 Q.1) := by
+  have h1 := norm_boxCutU_cutTo_sub_le (a := a) hd hM (hUp P) hκ hq hp hr0 hr D P Q
+  have h2 := norm_boxCutU_one_sub_le (a := a) hd (hUp P) hU₀ hB m P (hη P) hp hr0 hr Q
+  calc _ ≤ ‖boxCutU d N₀ M a (Up P) h
+          (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
+          boxCutU d N₀ M a (Up P) h (fun _ => 1) P Q‖ +
+        ‖boxCutU d N₀ M a (Up P) h (fun _ => 1) P Q -
+          boxCutU d N₀ M a U₀ h (fun _ => 1) P Q‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+    _ ≤ _ := by linarith
+
+end WhitenOf
+
 section Whiten
 
 variable {d L N₀ k M N : ℕ} [NeZero N₀] [NeZero L] {v a : ℝ}
@@ -471,8 +730,7 @@ Schur complement `pairOp` on the fine sites within distance `m` of the macro reg
 radius `D` and `0` elsewhere. -/
 noncomputable def finalWhiten (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
     (h : Fin N → ℂ) (D m : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
-  Matrix.of fun p q => boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m p) h
-    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) p q
+  whitenOf d N₀ M a (pairOp d L N₀ k M N v a D m) h D (fun _ => 1)
 
 /-- **The Gaussian mismatch of the localized square root**: `Q = Lᵀ D L - 1`, `D` the final
 Hessian. -/
@@ -492,8 +750,7 @@ noncomputable def finalWhitenR (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N 
 noncomputable def whitenCut (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
     (h : Fin N → ℂ) (D m : ℕ) (s : MacIdx d N₀ M → ℂ) :
     Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
-  Matrix.of fun p q => boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m p) h
-    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) s) p q
+  whitenOf d N₀ M a (pairOp d L N₀ k M N v a D m) h D s
 
 theorem whitenCut_one (h : Fin N → ℂ) (D m : ℕ) :
     whitenCut d L N₀ k M v a h D m (fun _ => 1) = finalWhiten d L N₀ k M v a h D m := rfl
@@ -513,18 +770,6 @@ theorem cutOpHyp_pairOp (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     CutOpHyp d N₀ M (pairOp d L N₀ k M N v a D m p) (finalGap d L) (finalDecayC d L)
       (blockDecayRate d) (pdEps d L) κ :=
   cutOpHyp_dirichletFinalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ _
-
-omit [NeZero N₀] [NeZero L] in
-theorem cutTo_one_mem_polydisc {κ : ℝ} (hκ : 0 < κ) (B : Finset (MacIdx d N₀ M)) :
-    cutTo B (fun _ => 1) ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ) := by
-  refine cutTo_mem_polydisc (Real.exp_pos κ) B fun _ => ?_
-  simpa using Real.one_lt_exp_iff.2 hκ
-
-omit [NeZero N₀] [NeZero L] in
-theorem norm_cutTo_one_le {κ : ℝ} (hκ : 0 ≤ κ) (B : Finset (MacIdx d N₀ M)) (z : MacIdx d N₀ M) :
-    ‖cutTo B (fun _ => (1 : ℂ)) z‖ ≤ Real.exp κ := by
-  have := Real.one_le_exp_iff.2 hκ
-  by_cases hz : z ∈ B <;> simp [cutTo, hz, this, (Real.exp_pos κ).le]
 
 /-- **The entry bound of the cut family** on the polydisc of radius `e^κ`:
 `‖boxCut(s)(p, q)‖ ≤ boxCutConst(N = 1) e^{-r |p - q|}` for `0 ≤ r ≤ ε/8`. -/
@@ -547,13 +792,9 @@ theorem finalWhiten_eq_zero_of_not_mem (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ 
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
     (h : Fin N → ℂ) (D m : ℕ) {p q : L1Torus d N₀ × Fin N}
     (hq : q.1 ∉ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D p)) :
-    finalWhiten d L N₀ k M v a h D m p q = 0 := by
-  by_contra hne
-  have := ((cutDecoupling_boxCutU hd (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ.le hMB
-    hMκ D m p) h).supp (locDom (spinBoxPatch d N₀ M N) D p)
-    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) (cutTo_one_mem_polydisc hκ _)
-    (cutTo_mem_supportedOn _ _) p q hne).2
-  exact hq (mem_patchReg_spinBoxPatch.1 this)
+    finalWhiten d L N₀ k M v a h D m p q = 0 :=
+  whitenOf_eq_zero_of_not_mem hd hκ
+    (fun p => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ.le hMB hMκ D m p) h D hq
 
 /-- **Row sums of the localized square root**: `∑_q ‖L(p, q)‖ ≤ boxCutConst`. -/
 theorem finalWhiten_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
@@ -563,8 +804,8 @@ theorem finalWhiten_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D m : ℕ)
     (P : L1Torus d N₀ × Fin N) :
     ∑ Q, ‖finalWhiten d L N₀ k M v a h D m P Q‖ ≤ boxCutConst d L N a κ p :=
-  boxCutU_row_bound (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P) hp
-    (norm_cutTo_one_le hκ (locDom (spinBoxPatch d N₀ M N) D P)) P
+  whitenOf_row_bound (fun P => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P)
+    hp D (norm_one_le_exp hκ) P
 
 /-- **The cut family of the localized square root is decoupled** on the polydisc of radius
 `e^κ` (`CutDecoupling.rowCut` of the row-wise family `CutDecoupling.diag`). -/
@@ -575,9 +816,8 @@ theorem cutDecoupling_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (h : Fin N → ℂ) (D m : ℕ) :
     CutDecoupling (spinBoxPatch d N₀ M N) (Real.exp κ)
       (fun s p q => whitenCut d L N₀ k M v a h D m s p q) :=
-  (CutDecoupling.diag fun r => cutDecoupling_boxCutU hd
-    (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m r) h).rowCut (Real.exp_pos κ)
-    (fun p => locDom (spinBoxPatch d N₀ M N) D p)
+  cutDecoupling_whitenOf hd
+    (fun r => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m r) h D
 
 theorem analyticOnNhd_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
@@ -586,9 +826,8 @@ theorem analyticOnNhd_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (h : Fin N → ℂ) (D m : ℕ) (p q : L1Torus d N₀ × Fin N) :
     AnalyticOnNhd ℂ (fun s => whitenCut d L N₀ k M v a h D m s p q)
       (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) :=
-  analyticOnNhd_rowCut (Real.exp_pos κ)
-    (analyticOnNhd_boxCutU (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m p) h)
-    (fun p => locDom (spinBoxPatch d N₀ M N) D p) p q
+  analyticOnNhd_whitenOf
+    (fun p => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m p) h D p q
 
 /-- **Row sums of the cut family of the localized square root** on the polydisc of radius
 `e^κ`: at most `boxCutConst`. -/
@@ -599,26 +838,9 @@ theorem whitenCut_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D m : ℕ)
     {s : MacIdx d N₀ M → ℂ} (hs : s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ))
     (P : L1Torus d N₀ × Fin N) :
-    ∑ Q, ‖whitenCut d L N₀ k M v a h D m s P Q‖ ≤ boxCutConst d L N a κ p := by
-  have hs' := cutTo_mem_polydisc (Real.exp_pos κ) (locDom (spinBoxPatch d N₀ M N) D P) hs
-  exact boxCutU_row_bound (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P) hp
-    (fun z => by simpa using (hs' z).le) P
-
-/-- The root cells of a site-spin index: at most `7^d` boxes contain a site. -/
-theorem card_rootCells_spinBoxPatch_le (hM : 0 < M) (P : L1Torus d N₀ × Fin N) :
-    (rootCells (spinBoxPatch d N₀ M N) {P}).card ≤ 7 ^ d := by
-  classical
-  refine (Finset.card_le_card fun z hz => ?_).trans (card_boxes_mem_le hM P.1)
-  obtain ⟨u, hu, hu'⟩ := mem_rootCells.1 hz
-  have hP : u = P := hu'
-  rw [hP] at hu
-  exact Finset.mem_filter.2 ⟨Finset.mem_univ _, mem_macBoxF.2 hu⟩
-
-open Classical in
-theorem cellGraph_spinBoxPatch_degree_le (hM : 0 < M) (z : MacIdx d N₀ M) :
-    (cellGraph (spinBoxPatch d N₀ M N)).degree z ≤ 16 ^ d := by
-  have := cellGraph_degree_le (N := N) hM z
-  rwa [blockPatch_macBoxF] at this
+    ∑ Q, ‖whitenCut d L N₀ k M v a h D m s P Q‖ ≤ boxCutConst d L N a κ p :=
+  whitenOf_row_bound (fun P => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P)
+    hp D (fun z => by simpa using (hs z).le) P
 
 omit [NeZero L] in
 /-- The ratio of the count under `BoxCutTies`: `(16^d)² e^{-(κ-1)} ≤ 1/2`. -/
@@ -648,39 +870,6 @@ theorem whitenTail_le_of_ties {Mc : ℕ} {κ α : ℝ} (ht : BoxCutTies d L Mc �
         mul_le_mul he hpow (pow_nonneg hq0 _) zero_le_one
     _ = (1 / 2) ^ D * (1 / 2) := by rw [one_mul, pow_succ]
     _ ≤ (1 / 2) ^ D * (1 - q) := mul_le_mul_of_nonneg_left h1q (by positivity)
-
-/-- **The cut part of the row error, entrywise** (shared core, any `U` with `CutOpHyp` at the
-constants of `finalOp`): for `0 ≤ r ≤ ε/8`,
-`‖boxCutU U (1|_{locDom P}) (P, Q) - boxCutU U 1 (P, Q)‖
-  ≤ boxCutConst(N = 1) e^{-r |P - Q|} · 7^d whitenTail (16^d) (κ - 1) D`. -/
-theorem norm_boxCutU_cutTo_sub_le (hd : 0 < d) (hM : 0 < M)
-    {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} {κ : ℝ}
-    (hU : CutOpHyp d N₀ M U (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
-    (hκ : 1 ≤ κ) (hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1)
-    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
-    (hr : r ≤ pdEps d L / 8) (D : ℕ) (P Q : L1Torus d N₀ × Fin N) :
-    ‖boxCutU d N₀ M a U h (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
-        boxCutU d N₀ M a U h (fun _ => 1) P Q‖ ≤
-      boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) *
-        (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) := by
-  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
-  have hb : ∀ s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ),
-      ‖boxCutU d N₀ M a U h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
-    fun s hs => (norm_boxCutU_apply_le hU hp (fun z => by simpa using (hs z).le) hr0 hr P Q).trans
-      (le_of_eq (by unfold boxCutConst; push_cast; ring))
-  have hmain := norm_cutTo_locDom_sub_le (Δ := 16 ^ d) (cellGraph_spinBoxPatch_degree_le hM) hκ hq
-    (cutDecoupling_boxCutU hd hU h) (fun p q => analyticOnNhd_boxCutU hU h p q) hb D
-  have hb0 : 0 ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
-    mul_nonneg (boxCutConst_nonneg hd hp0) (Real.exp_pos _).le
-  refine hmain.trans (mul_le_mul_of_nonneg_left ?_ hb0)
-  refine mul_le_mul_of_nonneg_right ?_ (whitenTail_nonneg hq D)
-  exact_mod_cast card_rootCells_spinBoxPatch_le hM P
-
-/-- The site of a row lies in the macro region of its localization domain. -/
-theorem mem_macRegion_locDom (hM : 0 < M) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
-    P.1 ∈ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D P) := by
-  have hbox := mem_macBox_of_mem_macCore hM (mem_macCore_macZ (M := M) P.1)
-  exact mem_macRegion.2 ⟨_, mem_locDom_of_mem (P := spinBoxPatch d N₀ M N) (D := D) hbox, hbox⟩
 
 /-- **The local pair agrees with the whole torus deep inside**: the entries of `pairOp P - finalOp`
 are at most `a² C e^{-(δ₀/2)(τ(u) + τ(v))}`, `τ(u) = max 0 (m - |P - u|)` the depth below the
@@ -736,9 +925,7 @@ theorem norm_pairOp_sub_finalOp_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (
 /-- The constant of the pair part of the row error:
 `4/(g √g) (2 a² C C_U)^{1/2} B(r_*/4) B(δ₀/4) (1 + p)`. -/
 noncomputable def pairErrConst (d L : ℕ) (v a p : ℝ) : ℝ :=
-  4 / (finalGap d L * Real.sqrt (finalGap d L)) *
-    (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
-      ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) * (1 + p)
+  pairErrConstB d L (a ^ 2 * dirichletCompConst d L v a) p
 
 /-- **The pair part of the row error, entrywise**: for `0 ≤ r ≤ ε/8`,
 `‖boxCutU (pairOp P) 1 (P, Q) - D^{-1/2}(P, Q)‖ ≤ pairErrConst e^{-(ε/4) m} e^{-r |P - Q|}`
@@ -751,73 +938,13 @@ theorem norm_pairCut_sub_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
       pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist P.1 Q.1) := by
   obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC
   have hκ0 : 0 ≤ κ := by linarith [ht.1]
-  have hMB := ht.2.1
-  have hMκ := ht.2.2.1
   have hδ := blockDecayRate_pos hd
-  have hε := pdEps_pos (L := L) hd
-  have hρ := finalRate_pos (L := L) hd
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have hU₁ := cutOpHyp_pairOp (N₀ := N₀) hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ D m P
-  have hU₂ := cutOpHyp_finalOp (N₀ := N₀) (k := k) (v := v) (a := a) hd hk hv0 hv1 ha1 ha2 hmass
-    hM hκ0 hMB hMκ
-  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
-  obtain ⟨x, i⟩ := P
-  obtain ⟨y, j⟩ := Q
-  have e : boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m (x, i)) h (fun _ => 1) (x, i) (y, j) -
-      boxCut d L N₀ k M v a h (fun _ => 1) (x, i) (y, j) =
-      (Localization.sqrtMat (pairOp d L N₀ k M N v a D m (x, i)) x y -
-        Localization.sqrtMat (finalOp d L N₀ k v a) x y) *
-        ((if i = j then 1 else 0) - spinProj h i j) := by
-    show boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m (x, i)) h (fun _ => 1) (x, i) (y, j) -
-      boxCutU d N₀ M a (finalOp d L N₀ k v a) h (fun _ => 1) (x, i) (y, j) = _
-    rw [boxCutU_apply, boxCutU_apply, taggedCfinU_one hU₁, taggedCfinU_one hU₂]
-    ring
-  have hspin : ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤ 1 + p := by
-    refine (norm_sub_le _ _).trans (add_le_add ?_ (hp i j))
-    by_cases hij : i = j <;> simp [hij]
-  have hK : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(blockDecayRate d / 4) * dist z w) ≤
-      ballConst d (blockDecayRate d / 4) := fun z =>
-    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
-  have hK₁ : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(finalRate d L / 4) * dist z w) ≤
-      ballConst d (finalRate d L / 4) := fun z =>
-    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
-  have : Nonempty (L1Torus d N₀) := ⟨(0 : Torus d N₀)⟩
-  have hsq := norm_sqrtMat_sub_le_of_deep (U₁ := pairOp d L N₀ k M N v a D m (x, i))
-    (U₂ := finalOp d L N₀ k v a) (finalDecayC_pos hd).le hδ (finalGap_pos hL)
-    (ballConst_decay_nonneg (by positivity)) hK hK₁ hU₁.decay hU₂.decay hU₁.coercive
-    hU₂.coercive (B := a ^ 2 * dirichletCompConst d L v a)
+  exact norm_boxCutU_one_sub_le hd
+    (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 ht.2.1 ht.2.2.1 D m P)
+    (cutOpHyp_finalOp (N₀ := N₀) (k := k) (v := v) (a := a) hd hk hv0 hv1 ha1 ha2 hmass hM hκ0
+      ht.2.1 ht.2.2.1)
     (by unfold dirichletCompConst; have := ballConst_decay_nonneg (d := d) hδ; positivity)
-    x (m : ℝ) (fun u w => norm_pairOp_sub_finalOp_le hd hk hv0 ha1 ha2 hM D m (x, i) u w)
-    hε (min_le_right _ _) (min_le_left _ _) y
-  rw [e, norm_mul]
-  have hexp : Real.exp (-(pdEps d L / 4 * dist x y)) ≤ Real.exp (-r * dist (x, i).1 (y, j).1) :=
-    Real.exp_le_exp.2 (by
-      have := dist_nonneg (x := x) (y := y)
-      show -(pdEps d L / 4 * dist x y) ≤ -r * dist x y
-      nlinarith)
-  have hK0 : 0 ≤ 4 / (finalGap d L * Real.sqrt (finalGap d L)) *
-      (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
-        ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) := by
-    have := finalGap_pos (d := d) hL
-    have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4) (by positivity)
-    have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4) (by positivity)
-    positivity
-  calc ‖Localization.sqrtMat (pairOp d L N₀ k M N v a D m (x, i)) x y -
-        Localization.sqrtMat (finalOp d L N₀ k v a) x y‖ *
-        ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖
-      ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
-          (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
-            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
-          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-(pdEps d L / 4 * dist x y)))) *
-          (1 + p) := mul_le_mul hsq hspin (norm_nonneg _) (by positivity)
-    _ ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
-          (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
-            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
-          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist (x, i).1 (y, j).1))) *
-          (1 + p) := by
-        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left
-          (mul_le_mul_of_nonneg_left hexp (Real.exp_pos _).le) hK0) (by positivity)
-    _ = _ := by unfold pairErrConst; ring
+    (m : ℝ) P (fun u w => norm_pairOp_sub_finalOp_le hd hk hv0 ha1 ha2 hM D m P u w) hp hr0 hr Q
 
 /-- **The row error of the localized square root, entrywise**: for `0 ≤ r ≤ ε/8`,
 `‖L(P, Q) - D^{-1/2}(P, Q)‖
@@ -830,21 +957,18 @@ theorem norm_finalWhiten_sub_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ 
       (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
         pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) *
         Real.exp (-r * dist P.1 Q.1) := by
-  have hC' := hC
-  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC'
+  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC
   have hκ : 1 ≤ κ := ht.1
+  have hκ0 : 0 ≤ κ := by linarith
+  have hδ := blockDecayRate_pos hd
   have hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1 := by
     linarith [ratio_le_of_ties ht]
-  have h1 := norm_boxCutU_cutTo_sub_le (a := a) hd hM (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM
-    (by linarith) ht.2.1 ht.2.2.1 D m P) hκ hq hp hr0 hr D P Q
-  have h2 := norm_pairCut_sub_le hC hp hr0 hr D m P Q
-  rw [finalWhiten_apply]
-  calc _ ≤ ‖boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h
-          (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
-          boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h (fun _ => 1) P Q‖ +
-        ‖boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h (fun _ => 1) P Q -
-          boxCut d L N₀ k M v a h (fun _ => 1) P Q‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
-    _ ≤ _ := by linarith
+  exact norm_whitenOf_sub_le hd hM
+    (fun P => cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 ht.2.1 ht.2.2.1 D m P)
+    (cutOpHyp_finalOp (N₀ := N₀) (k := k) (v := v) (a := a) hd hk hv0 hv1 ha1 ha2 hmass hM hκ0
+      ht.2.1 ht.2.2.1) hκ hq
+    (by unfold dirichletCompConst; have := ballConst_decay_nonneg (d := d) hδ; positivity)
+    (m : ℝ) (fun P u w => norm_pairOp_sub_finalOp_le hd hk hv0 ha1 ha2 hM D m P u w) hp hr0 hr D P Q
 
 /-- The weighted row constant of the row error:
 `whitenErr = (boxCutConst(N = 1) 7^d whitenTail (16^d) (κ - 1) D + pairErrConst e^{-(ε/4) m})
@@ -890,19 +1014,9 @@ theorem sum_finalWhiten_sub_col_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
 /-- **The localized square root is real at a real `h`.** -/
 theorem finalWhiten_real (h : Fin N → ℝ) (D m : ℕ) (P Q : L1Torus d N₀ × Fin N) :
     conj (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q) =
-      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q := by
-  have e1 : (fun i => conj ((h i : ℝ) : ℂ)) = fun i => (h i : ℂ) :=
-    funext fun i => Complex.conj_ofReal _
-  have e2 : (fun z => conj (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => (1 : ℂ)) z)) =
-      cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1) := by
-    funext z
-    by_cases hz : z ∈ locDom (spinBoxPatch d N₀ M N) D P <;> simp [cutTo, hz]
-  have hc := congrFun (congrFun (conjM_boxCutU (a := a) (M := M)
-    (conjM_map_ofReal (ι := L1Torus d N₀)
-      (dirichletUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ (pairSites d L N₀ k M N D m P) v a))
-    (fun i => (h i : ℂ)) (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1))) P) Q
-  rw [e1, e2] at hc
-  exact hc
+      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q :=
+  whitenOf_real (fun p => conjM_map_ofReal (ι := L1Torus d N₀)
+    (dirichletUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ (pairSites d L N₀ k M N D m p) v a)) h D P Q
 
 /-- **The real localized square root**: at a real `h`, `finalWhitenR` complexifies to
 `finalWhiten`. -/
@@ -922,34 +1036,26 @@ variable {d L N₀ k M N : ℕ} [NeZero N₀] [NeZero L] {v a : ℝ}
 /-- The entry constant of the final Hessian: `a p + C_U (1 + p)`. -/
 noncomputable def hessEntryConst (d L : ℕ) (a p : ℝ) : ℝ := a * p + finalDecayC d L * (1 + p)
 
-/-- **The entry bound of the final Hessian**:
-`‖D(p, q)‖ ≤ hessEntryConst e^{-δ₀ |p - q|}`, `δ₀ = blockDecayRate d`. -/
-theorem norm_finalHessianC_apply_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
-    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) {h : Fin N → ℂ} {p : ℝ}
-    (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (P Q : L1Torus d N₀ × Fin N) :
-    ‖finalHessianC d L N₀ k v a h P Q‖ ≤
+omit [NeZero L] in
+/-- **The entry bound of the Hessian of a decaying operator** (shared core):
+`‖hessC a U h (p, q)‖ ≤ hessEntryConst e^{-δ₀ |p - q|}` when `‖U x y‖ ≤ C_U e^{-δ₀ |x - y|}`. -/
+theorem norm_hessC_apply_le {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    (hU : ∀ x y, ‖U x y‖ ≤ finalDecayC d L * Real.exp (-blockDecayRate d * dist x y))
+    (ha0 : 0 ≤ a) {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p)
+    (P Q : L1Torus d N₀ × Fin N) :
+    ‖hessC N (a : ℂ) U h P Q‖ ≤
       hessEntryConst d L a p * Real.exp (-blockDecayRate d * dist P.1 Q.1) := by
   obtain ⟨x, i⟩ := P
   obtain ⟨y, j⟩ := Q
   have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp i i)
-  have ha0 : 0 ≤ a := by linarith
-  have hU := finalMass_entry_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 ha1 ha2 x y
   have hspin : ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤ 1 + p := by
     refine (norm_sub_le _ _).trans (add_le_add ?_ (hp i j))
     by_cases hij : i = j <;> simp [hij]
-  have happ : finalHessianC d L N₀ k v a h (x, i) (y, j) =
-      (a : ℂ) * (if x = y then spinProj h i j else 0) +
-        finalOp d L N₀ k v a x y * ((if i = j then 1 else 0) - spinProj h i j) := by
-    unfold finalHessianC hessC
-    rw [Matrix.add_apply, Matrix.smul_apply, one_sub_projHC_eq_idKron, liftOp_mul_idKron_apply,
-      projHC_apply]
-    simp only [smul_eq_mul, Matrix.sub_apply, Matrix.one_apply]
-    rfl
-  have h2 : ‖finalOp d L N₀ k v a x y * ((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤
+  have h2 : ‖U x y * ((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤
       finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) * (1 + p) := by
     rw [norm_mul]
-    exact mul_le_mul hU hspin (norm_nonneg _) ((norm_nonneg _).trans hU)
-  rw [happ]
+    exact mul_le_mul (hU x y) hspin (norm_nonneg _) ((norm_nonneg _).trans (hU x y))
+  rw [hessC_apply]
   unfold hessEntryConst
   refine (norm_add_le _ _).trans ?_
   by_cases hxy : x = y
@@ -962,6 +1068,123 @@ theorem norm_finalHessianC_apply_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
   · simp only [hxy, ↓reduceIte, mul_zero, norm_zero, zero_add]
     have : 0 ≤ a * p * Real.exp (-blockDecayRate d * dist x y) := by positivity
     nlinarith
+
+/-- The transpose of the complex Hessian. -/
+theorem hessC_transpose (a : ℝ) (U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) (h : Fin N → ℂ) :
+    (hessC N (a : ℂ) U h)ᵀ = hessC N (a : ℂ) Uᵀ h := by
+  ext ⟨x, i⟩ ⟨y, j⟩
+  rw [Matrix.transpose_apply, hessC_apply, hessC_apply, Matrix.transpose_apply]
+  have hs : spinProj h j i = spinProj h i j := by unfold spinProj; ring
+  rw [hs]
+  by_cases hxy : x = y
+  · subst hxy
+    by_cases hij : i = j
+    · subst hij; rfl
+    · simp [hij, Ne.symm hij]
+  · by_cases hij : i = j
+    · subst hij; simp [hxy, Ne.symm hxy]
+    · simp [hxy, Ne.symm hxy, hij, Ne.symm hij]
+
+/-- **`G₀ᵀ D₀ G₀ = 1`** for a symmetric `U₀` (shared core): `G₀ = boxCutU U₀ 1 = D₀^{-1/2}`,
+`D₀ = hessC a U₀ h`. -/
+theorem boxCutU_one_transpose_mul_mul [NeZero N] {U₀ : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ}
+    {g A δ ε κ : ℝ} (hU₀ : CutOpHyp d N₀ M U₀ g A δ ε κ) (hT : U₀ᵀ = U₀) (ha : 0 < a)
+    {h : Fin N → ℂ} (hs : ∑ i, h i ^ 2 ≠ 0) :
+    (boxCutU d N₀ M a U₀ h (fun _ => 1))ᵀ * hessC N (a : ℂ) U₀ h *
+        boxCutU d N₀ M a U₀ h (fun _ => 1) = 1 := by
+  have : Nonempty (L1Torus d N₀) := ⟨(0 : Torus d N₀)⟩
+  rw [boxCutU_one hU₀ ha hs]
+  have hres := (sqrtMat_hessC ha (resOK_of_isCoercive hU₀.hg hU₀.coercive) hs).1
+  exact Localization.sqrtMat_transpose_mul hres (by rw [hessC_transpose, hT])
+
+/-- **The mismatch in terms of the row error** (algebra): if `Gᵀ D G = 1` then
+`Wᵀ D W - 1 = Gᵀ D E + Eᵀ D G + Eᵀ D E`, `E = W - G`. -/
+theorem mismatch_eq_of {ι : Type*} [Fintype ι] [DecidableEq ι] (W G D₀ : Matrix ι ι ℂ)
+    (hGDG : Gᵀ * D₀ * G = 1) :
+    Wᵀ * D₀ * W - 1 = Gᵀ * D₀ * (W - G) + (W - G)ᵀ * D₀ * G + (W - G)ᵀ * D₀ * (W - G) := by
+  rw [← hGDG, Matrix.transpose_sub]
+  noncomm_ring
+
+/-- **Smallness of the mismatch from the row error** (shared core): with `Gᵀ D₀ G = 1`, entry
+bounds `cG e^{-r|p-q|}` of `G` and `cD e^{-δ|p-q|}` of `D₀`, and weighted row and column sums of
+`E = W - G` at most `eE` (`0 ≤ r' < r`, `r' < δ`), the weighted row sums of `Wᵀ D₀ W - 1` are at
+most `eE (cD N B(δ - r')) (2 cG N B(r - r') + eE)`. -/
+theorem sum_mismatch_le_of {W G D₀ : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ}
+    (hGDG : Gᵀ * D₀ * G = 1) {cG cD r δ r' eE : ℝ} (hr'0 : 0 ≤ r') (hr' : r' < r)
+    (hrδ : r' < δ) (hGe : ∀ P Q, ‖G P Q‖ ≤ cG * Real.exp (-r * dist P.1 Q.1))
+    (hDe : ∀ P Q, ‖D₀ P Q‖ ≤ cD * Real.exp (-δ * dist P.1 Q.1))
+    (hEr : ∀ P, ∑ Q, Real.exp (r' * dist P.1 Q.1) * ‖(W - G) P Q‖ ≤ eE)
+    (hET : ∀ P, ∑ Q, Real.exp (r' * dist P.1 Q.1) * ‖(W - G)ᵀ P Q‖ ≤ eE)
+    (P : L1Torus d N₀ × Fin N) :
+    ∑ Q, Real.exp (r' * dist P.1 Q.1) * ‖(Wᵀ * D₀ * W - 1) P Q‖ ≤
+      eE * (cD * (N * ballConst d (δ - r')) * (2 * (cG * (N * ballConst d (r - r'))) + eE)) := by
+  rw [mismatch_eq_of W G D₀ hGDG]
+  set E := W - G
+  set w : L1Torus d N₀ × Fin N → L1Torus d N₀ × Fin N → ℝ :=
+    fun P Q => Real.exp (r' * dist P.1 Q.1)
+  have hw0 : ∀ P Q, 0 ≤ w P Q := fun _ _ => (Real.exp_pos _).le
+  have hsub : ∀ P U Q, w P Q ≤ w P U * w U Q := fun P U Q => expWeight_sub r' hr'0 P U Q
+  set gG := cG * (N * ballConst d (r - r')) with hgG
+  set gD := cD * (N * ballConst d (δ - r')) with hgD
+  have hGT : ∀ P, ∑ Q, w P Q * ‖Gᵀ P Q‖ ≤ gG := fun P =>
+    sum_exp_mul_le_of_entry (transpose_entry_le hGe) hr' P
+  have hGr : ∀ P, ∑ Q, w P Q * ‖G P Q‖ ≤ gG := fun P => sum_exp_mul_le_of_entry hGe hr' P
+  have hDr : ∀ P, ∑ Q, w P Q * ‖D₀ P Q‖ ≤ gD := fun P => sum_exp_mul_le_of_entry hDe hrδ P
+  have hgG0 : 0 ≤ gG := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
+    (hGr P)
+  have hgD0 : 0 ≤ gD := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
+    (hDr P)
+  have heE0 : 0 ≤ eE := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
+    (hEr P)
+  have hGD : ∀ P, ∑ Q, w P Q * ‖(Gᵀ * D₀) P Q‖ ≤ gG * gD :=
+    weightedRow_mul_le w hw0 hsub _ _ hgD0 hGT hDr
+  have hED : ∀ P, ∑ Q, w P Q * ‖(Eᵀ * D₀) P Q‖ ≤ eE * gD :=
+    weightedRow_mul_le w hw0 hsub _ _ hgD0 hET hDr
+  have h1 := weightedRow_mul_le w hw0 hsub (Gᵀ * D₀) E heE0 hGD hEr P
+  have h2 := weightedRow_mul_le w hw0 hsub (Eᵀ * D₀) G hgG0 hED hGr P
+  have h3 := weightedRow_mul_le w hw0 hsub (Eᵀ * D₀) E heE0 hED hEr P
+  calc ∑ Q, w P Q * ‖(Gᵀ * D₀ * E + Eᵀ * D₀ * G + Eᵀ * D₀ * E) P Q‖
+      ≤ ∑ Q, (w P Q * ‖(Gᵀ * D₀ * E) P Q‖ + w P Q * ‖(Eᵀ * D₀ * G) P Q‖ +
+          w P Q * ‖(Eᵀ * D₀ * E) P Q‖) := by
+        refine Finset.sum_le_sum fun Q _ => ?_
+        rw [Matrix.add_apply, Matrix.add_apply, ← mul_add, ← mul_add]
+        refine mul_le_mul_of_nonneg_left ((norm_add_le _ _).trans ?_) (hw0 P Q)
+        exact add_le_add (norm_add_le _ _) le_rfl
+    _ = ∑ Q, w P Q * ‖(Gᵀ * D₀ * E) P Q‖ + ∑ Q, w P Q * ‖(Eᵀ * D₀ * G) P Q‖ +
+          ∑ Q, w P Q * ‖(Eᵀ * D₀ * E) P Q‖ := by
+        rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+    _ ≤ gG * gD * eE + eE * gD * gG + eE * gD * eE := add_le_add (add_le_add h1 h2) h3
+    _ = _ := by ring
+
+/-- **Invertibility from a small mismatch** (shared core): if the weighted row sums of
+`Wᵀ D₀ W - 1` are at most `b < 1`, then `W` is invertible. -/
+theorem isUnit_of_mismatch_le {W D₀ : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ}
+    {r' b : ℝ} (hr'0 : 0 ≤ r')
+    (hrow : ∀ P, ∑ Q, Real.exp (r' * dist P.1 Q.1) * ‖(Wᵀ * D₀ * W - 1) P Q‖ ≤ b)
+    (hb : b < 1) : IsUnit W := by
+  have hrow' : ∀ P, ∑ P', (fun _ => (1 : ℝ)) P * ‖(-(Wᵀ * D₀ * W - 1)) P P'‖ /
+      (fun _ => (1 : ℝ)) P' ≤ b := by
+    intro P
+    refine le_trans (Finset.sum_le_sum fun P' _ => ?_) (hrow P)
+    simp only [one_mul, div_one, Matrix.neg_apply, norm_neg]
+    exact le_mul_of_one_le_left (norm_nonneg _)
+      (Real.one_le_exp_iff.2 (mul_nonneg hr'0 dist_nonneg))
+  have hu : IsUnit (1 - -(Wᵀ * D₀ * W - 1)) :=
+    isUnit_one_sub_of_weighted_row_sum (fun _ => one_pos) hb hrow'
+  rw [sub_neg_eq_add, add_sub_cancel] at hu
+  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hu
+  rw [Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose] at hdet
+  refine (Matrix.isUnit_iff_isUnit_det _).2 ?_
+  exact isUnit_of_mul_isUnit_left (isUnit_of_mul_isUnit_left hdet)
+
+/-- **The entry bound of the final Hessian**:
+`‖D(p, q)‖ ≤ hessEntryConst e^{-δ₀ |p - q|}`, `δ₀ = blockDecayRate d`. -/
+theorem norm_finalHessianC_apply_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) {h : Fin N → ℂ} {p : ℝ}
+    (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (P Q : L1Torus d N₀ × Fin N) :
+    ‖finalHessianC d L N₀ k v a h P Q‖ ≤
+      hessEntryConst d L a p * Real.exp (-blockDecayRate d * dist P.1 Q.1) :=
+  norm_hessC_apply_le (finalMass_entry_decay hd hk hv0 ha1 ha2) (by linarith) hp P Q
 
 /-- The bound of the mismatch: `whitenErr · g_D (2 g_G + whitenErr)`, with
 `g_G = boxCutConst(N = 1) N ballConst(r - r')` and `g_D = hessEntryConst N ballConst(δ₀ - r')`
@@ -1035,14 +1258,9 @@ theorem finalWhitenMismatch_eq (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 < v)
           finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) *
           (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m -
             boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)) := by
-  have hGDG := boxCut_one_transpose_mul_mul (N₀ := N₀) (L := L) (k := k) (M := M) (v := v) (a := a)
-    hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hh
   unfold finalWhitenMismatch
-  set G := boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
-  set W := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m
-  set Dm := finalHessianC d L N₀ k v a (fun i => (h i : ℂ))
-  rw [← hGDG, Matrix.transpose_sub]
-  noncomm_ring
+  exact mismatch_eq_of _ _ _ (boxCut_one_transpose_mul_mul (N₀ := N₀) (L := L) (k := k) (M := M)
+    (v := v) (a := a) hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hh)
 
 omit [NeZero N] in
 /-- **The mismatch is symmetric** (`Qᵀ = Q`) for a real unit `h`. -/
@@ -1074,76 +1292,19 @@ theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
     ∑ Q, Real.exp (r' * dist P.1 Q.1) *
         ‖finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q‖ ≤
       whitenMismatchBound d L N v a κ p r r' D m := by
-  have hd := hC.hd
-  have hk := hC.hk
-  have hv0 := hC.hv0
-  have hv1 := hC.hv1
-  have ha1 := hC.ha1
-  have ha2 := hC.ha2
-  have hmass := hC.hmass
-  have hM := hC.hM
-  have ht := hC.ties
-  have hκ : 1 ≤ κ := ht.1
-  have hκ0 : 0 ≤ κ := by linarith
-  have hMB := ht.2.1
-  have hMκ := ht.2.2.1
+  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC
+  have hκ0 : 0 ≤ κ := by linarith [ht.1]
   have hr0 : 0 ≤ r := by linarith
   have hεδ : pdEps d L ≤ blockDecayRate d := min_le_left _ _
-  have hε0 : 0 < pdEps d L := pdEps_pos hd
   have hrδ : r' < blockDecayRate d := by linarith
-  rw [finalWhitenMismatch_eq hd hk hv hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hh D m]
-  set G := boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
-  set E := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m - G
-  set Dm := finalHessianC d L N₀ k v a (fun i => (h i : ℂ))
-  set w : L1Torus d N₀ × Fin N → L1Torus d N₀ × Fin N → ℝ :=
-    fun P Q => Real.exp (r' * dist P.1 Q.1)
-  have hw0 : ∀ P Q, 0 ≤ w P Q := fun _ _ => (Real.exp_pos _).le
-  have hsub : ∀ P U Q, w P Q ≤ w P U * w U Q := fun P U Q => expWeight_sub r' hr'0 P U Q
-  set gG := boxCutConst d L 1 a κ p * (N * ballConst d (r - r')) with hgG
-  set gD := hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) with hgD
-  set eE := whitenErr d L N v a κ p r r' D m with heE
-  have hG1 : ∀ z : MacIdx d N₀ M, ‖(fun _ => (1 : ℂ)) z‖ ≤ Real.exp κ := fun _ => by
-    simpa using Real.one_le_exp_iff.2 hκ0
-  have hGe : ∀ P Q, ‖G P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
-    fun P Q => norm_boxCut_apply_le hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hp hG1 hr0 hr P Q
-  have hDe : ∀ P Q, ‖Dm P Q‖ ≤
-      hessEntryConst d L a p * Real.exp (-blockDecayRate d * dist P.1 Q.1) :=
-    fun P Q => norm_finalHessianC_apply_le hd hk hv0 ha1 ha2 hp P Q
-  have hGT : ∀ P, ∑ Q, w P Q * ‖Gᵀ P Q‖ ≤ gG := fun P =>
-    sum_exp_mul_le_of_entry (transpose_entry_le hGe) hr' P
-  have hGr : ∀ P, ∑ Q, w P Q * ‖G P Q‖ ≤ gG := fun P => sum_exp_mul_le_of_entry hGe hr' P
-  have hDr : ∀ P, ∑ Q, w P Q * ‖Dm P Q‖ ≤ gD := fun P => sum_exp_mul_le_of_entry hDe hrδ P
-  have hEr : ∀ P, ∑ Q, w P Q * ‖E P Q‖ ≤ eE := fun P =>
-    sum_finalWhiten_sub_row_le hC hp hr' hr0 hr D m P
-  have hET : ∀ P, ∑ Q, w P Q * ‖Eᵀ P Q‖ ≤ eE := fun P =>
-    sum_finalWhiten_sub_col_le hC hp hr' hr0 hr D m P
-  have hgG0 : 0 ≤ gG := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
-    (hGr P)
-  have hgD0 : 0 ≤ gD := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
-    (hDr P)
-  have heE0 : 0 ≤ eE := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
-    (hEr P)
-  have hGD : ∀ P, ∑ Q, w P Q * ‖(Gᵀ * Dm) P Q‖ ≤ gG * gD :=
-    weightedRow_mul_le w hw0 hsub _ _ hgD0 hGT hDr
-  have hED : ∀ P, ∑ Q, w P Q * ‖(Eᵀ * Dm) P Q‖ ≤ eE * gD :=
-    weightedRow_mul_le w hw0 hsub _ _ hgD0 hET hDr
-  have h1 := weightedRow_mul_le w hw0 hsub (Gᵀ * Dm) E heE0 hGD hEr P
-  have h2 := weightedRow_mul_le w hw0 hsub (Eᵀ * Dm) G hgG0 hED hGr P
-  have h3 := weightedRow_mul_le w hw0 hsub (Eᵀ * Dm) E heE0 hED hEr P
-  calc ∑ Q, w P Q * ‖(Gᵀ * Dm * E + Eᵀ * Dm * G + Eᵀ * Dm * E) P Q‖
-      ≤ ∑ Q, (w P Q * ‖(Gᵀ * Dm * E) P Q‖ + w P Q * ‖(Eᵀ * Dm * G) P Q‖ +
-          w P Q * ‖(Eᵀ * Dm * E) P Q‖) := by
-        refine Finset.sum_le_sum fun Q _ => ?_
-        rw [Matrix.add_apply, Matrix.add_apply, ← mul_add, ← mul_add]
-        refine mul_le_mul_of_nonneg_left ((norm_add_le _ _).trans ?_) (hw0 P Q)
-        exact add_le_add (norm_add_le _ _) le_rfl
-    _ = ∑ Q, w P Q * ‖(Gᵀ * Dm * E) P Q‖ + ∑ Q, w P Q * ‖(Eᵀ * Dm * G) P Q‖ +
-          ∑ Q, w P Q * ‖(Eᵀ * Dm * E) P Q‖ := by
-        rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
-    _ ≤ gG * gD * eE + eE * gD * gG + eE * gD * eE := add_le_add (add_le_add h1 h2) h3
-    _ = whitenMismatchBound d L N v a κ p r r' D m := by
-        simp only [whitenMismatchBound, ← hgG, ← hgD, ← heE]
-        ring
+  have hC' : BoxCutConsts d L k M v a κ α := ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩
+  exact sum_mismatch_le_of (boxCut_one_transpose_mul_mul (N₀ := N₀) (L := L) (k := k) (M := M)
+      (v := v) (a := a) hd hk hv hv1 ha1 ha2 hmass hM hκ0 ht.2.1 ht.2.2.1 hh) hr'0 hr' hrδ
+    (fun P Q => norm_boxCut_apply_le hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 ht.2.1 ht.2.2.1 hp
+      (norm_one_le_exp hκ0) hr0 hr P Q)
+    (fun P Q => norm_finalHessianC_apply_le hd hk hv0 ha1 ha2 hp P Q)
+    (fun P => sum_finalWhiten_sub_row_le hC' hp hr' hr0 hr D m P)
+    (fun P => sum_finalWhiten_sub_col_le hC' hp hr' hr0 hr D m P) P
 
 omit [NeZero N] in
 /-- The entries of the spin projection of a real unit vector are at most `1`. -/
@@ -1169,15 +1330,8 @@ noncomputable def whitenQConst (d L N : ℕ) (v a κ p r r' : ℝ) : ℝ :=
         2 * whitenErrConst d L N v a κ p r r'))
 
 omit [NeZero N] in
-theorem pairErrConst_nonneg (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p) : 0 ≤ pairErrConst d L v a p := by
-  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
-  have := finalGap_pos (d := d) hL
-  have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4)
-    (by have := finalRate_pos (L := L) hd; positivity)
-  have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4)
-    (by have := blockDecayRate_pos hd; positivity)
-  unfold pairErrConst
-  positivity
+theorem pairErrConst_nonneg (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p) : 0 ≤ pairErrConst d L v a p :=
+  pairErrConstB_nonneg hd hp0
 
 omit [NeZero N] in
 theorem whitenErrConst_nonneg (hd : 0 < d) {κ p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r) :
@@ -1314,25 +1468,9 @@ theorem isUnit_finalWhiten_of_lt_one {κ α : ℝ} (hC : BoxCutConsts d L k M v 
     (hp : ∀ i j, ‖spinProj (fun i => (h i : ℂ)) i j‖ ≤ p) {r r' : ℝ} (hr'0 : 0 ≤ r')
     (hr' : r' < r) (hr : r ≤ pdEps d L / 8) (D m : ℕ)
     (hsmall : whitenMismatchBound d L N v a κ p r r' D m < 1) :
-    IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m) := by
-  have hrow : ∀ P, ∑ P', (fun _ => (1 : ℝ)) P *
-      ‖(-finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m) P P'‖ /
-        (fun _ => (1 : ℝ)) P' ≤ whitenMismatchBound d L N v a κ p r r' D m := by
-    intro P
-    refine le_trans (Finset.sum_le_sum fun P' _ => ?_)
-      (sum_finalWhitenMismatch_le hC hv hh hp hr'0 hr' hr D m P)
-    simp only [one_mul, div_one, Matrix.neg_apply, norm_neg]
-    exact le_mul_of_one_le_left (norm_nonneg _)
-      (Real.one_le_exp_iff.2 (mul_nonneg hr'0 dist_nonneg))
-  have hu : IsUnit (1 - -finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m) :=
-    isUnit_one_sub_of_weighted_row_sum (fun _ => one_pos) hsmall hrow
-  rw [sub_neg_eq_add] at hu
-  have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hu
-  rw [← det_finalWhiten_sq] at hdet
-  refine (Matrix.isUnit_iff_isUnit_det _).2 ?_
-  have h1 := isUnit_of_mul_isUnit_left hdet
-  rw [pow_two] at h1
-  exact isUnit_of_mul_isUnit_left h1
+    IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m) :=
+  isUnit_of_mismatch_le hr'0 (fun P => sum_finalWhitenMismatch_le hC hv hh hp hr'0 hr' hr D m P)
+    hsmall
 
 /-- **Invertibility of the localized square root**: for a real unit `h` and `0 ≤ r' < r ≤ ε/8`,
 `L` is invertible for every radius `D` and margin `m` beyond some `D₀`. -/

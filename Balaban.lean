@@ -3286,6 +3286,8 @@ public import Balaban.Green.FinalBoxLocCore
 public import Balaban.Green.FinalBoxLocCutU
 public import Balaban.Green.FinalSqrtCompare
 public import Balaban.Green.OneScaleDirichlet
+public import Balaban.Green.FinalBoxLocRegion
+public import Balaban.Green.FinalBoxLocWhitenReg
 public import Balaban.Green.FinalBoxLocCut
 public import Balaban.Green.FinalBoxLocCubic
 public import Balaban.Polymer.PYClose

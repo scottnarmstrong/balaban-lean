@@ -8,6 +8,7 @@ module
 public import Balaban.Spine.FinalBoxLocChi
 public import Balaban.Spine.LastIntegral
 public import Balaban.Green.FinalBoxLocWhiten
+public import Balaban.Green.FinalBoxLocWhitenReg
 public import Balaban.Spine.InheritedBound
 
 /-!
@@ -102,6 +103,19 @@ theorem chiY_eq_one_of_row_bound (C : SFCtx S n R M K N k m₁ ϱ) (Y : Set (Tor
   rw [spinField_symm_add_apply, add_sub_cancel_left]
   exact abs_matAct_le_of_row_bound hB hp1 hw (y, i)
 
+/-- A real matrix whose complexification is invertible, scaled by `c ≠ 0`, has nonzero
+determinant. -/
+theorem det_smul_ne_zero_of_isUnit_map {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {R : Matrix ι ι ℝ} (hR : IsUnit (R.map (algebraMap ℝ ℂ))) {c : ℝ} (hc : c ≠ 0) :
+    (c • R).det ≠ 0 := by
+  have hdetC := (Matrix.isUnit_iff_isUnit_det _).1 hR
+  rw [← RingHom.mapMatrix_apply, ← RingHom.map_det] at hdetC
+  have hR0 : R.det ≠ 0 := fun h0 => by
+    rw [h0, map_zero] at hdetC
+    exact not_isUnit_zero hdetC
+  rw [Matrix.det_smul]
+  exact mul_ne_zero (pow_ne_zero _ hc) hR0
+
 /-- **The whitening of the box integral** (Amendment B-1″): `A = β_k^{-1/2} L`, `L` the localized
 square root of the final Hessian of `sfFinalK` (background mass `μ_k L^{2k}`, weight `a_k`), with
 macro cells of side `M_c`, localization radius `D` and pair margin `mp` (row `p` from the Dirichlet
@@ -163,19 +177,71 @@ theorem sfWhiten_det_ne_zero_of_lt_one (C : SFCtx S n R M K N k m₁ ϱ)
   have hh := sum_sq_eq_one_of_norm_eq_one hv hunit
   have hu := isUnit_finalWhiten_of_lt_one (N₀ := M * n K * S.L ^ (K - k)) hBC hv0 hh
     (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D mp hsmall
-  have hdetC := (Matrix.isUnit_iff_isUnit_det _).1 hu
-  rw [← finalWhitenR_map, ← RingHom.mapMatrix_apply, ← RingHom.map_det] at hdetC
-  have hR : (finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
-          (fun i => ((hv i : ℝ) : ℂ)) D mp).det ≠ 0 := by
-    intro h0
-    rw [h0, map_zero] at hdetC
-    exact not_isUnit_zero hdetC
-  have key : (Real.sqrt (C.sf.β k)⁻¹ • finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
-          (fun i => ((hv i : ℝ) : ℂ)) D mp).det ≠ 0 := by
-    rw [Matrix.det_smul]
-    exact mul_ne_zero (pow_ne_zero _ (Real.sqrt_pos.2 (inv_pos.2 hβ)).ne') hR
+  have key := det_smul_ne_zero_of_isUnit_map (R := finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k
+    Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp)
+    (by rw [finalWhitenR_map]; exact hu) (Real.sqrt_pos.2 (inv_pos.2 hβ)).ne'
+  exact key
+
+/-- **The regional whitening of the box integral** (`D_{B,Ω}`, B-1″): `A_Ω = β_k^{-1/2} L_Ω`, row
+`p` of `L_Ω` from the block-diagonal extension of the principal block on `Ω` of the operator of the
+local pair of `p` (`finalWhitenRegR`), read on the `k`-blocks; `Ω = univ` gives `sfWhiten`. -/
+noncomputable def sfWhitenReg (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
+    (Mc D mp : ℕ) (Ω : Finset (BlockAt S n M K k)) :
+    Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ :=
+  Real.sqrt (C.sf.β k)⁻¹ • finalWhitenRegR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
+    (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) Ω (fun i => ((hv i : ℝ) : ℂ)) D mp
+
+/-- The regional whitening on the subtype `Ω × Fin N` (the matrix of the regional change of
+variables). -/
+noncomputable def sfWhitenRegBlock (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
+    (Mc D mp : ℕ) (Ω : Finset (BlockAt S n M K k)) : Matrix (Ω × Fin N) (Ω × Fin N) ℝ :=
+  (sfWhitenReg C hv Mc D mp Ω).submatrix (regIdx Ω N) (regIdx Ω N)
+
+theorem sfWhitenReg_univ (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
+    (Mc D mp : ℕ) : sfWhitenReg C hv Mc D mp Finset.univ = sfWhiten C hv Mc D mp := by
+  unfold sfWhitenReg sfWhiten
+  exact congrArg (Real.sqrt (C.sf.β k)⁻¹ • ·) (finalWhitenRegR_univ (d := S.d) (L := S.L)
+    (N₀ := M * n K * S.L ^ (K - k)) (k := k) (M := Mc) (v := C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+    (a := C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp)
+
+/-- **Block diagonality of the regional whitening**: the rows in `Ω` do not read the complement,
+and conversely. -/
+theorem sfWhitenReg_eq_zero_of_mixed (C : SFCtx S n R M K N k m₁ ϱ)
+    (hv : EuclideanSpace ℝ (Fin N)) (Mc D mp : ℕ) (Ω : Finset (BlockAt S n M K k))
+    {p q : BlockAt S n M K k × Fin N} (hpq : (p.1 ∈ Ω ∧ q.1 ∉ Ω) ∨ (p.1 ∉ Ω ∧ q.1 ∈ Ω)) :
+    sfWhitenReg C hv Mc D mp Ω p q = 0 := by
+  show Real.sqrt (C.sf.β k)⁻¹ * (finalWhitenReg S.d S.L (M * n K * S.L ^ (K - k)) k Mc
+    (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) Ω (fun i => ((hv i : ℝ) : ℂ)) D mp p q).re = 0
+  rw [finalWhitenReg_eq_zero_of_mixed Ω _ D mp hpq, Complex.zero_re, mul_zero]
+
+/-- **The regional whitening block is invertible** when the mismatch bound is below `1` (the
+bound of `sfWhiten`, for every region `Ω`). -/
+theorem sfWhitenRegBlock_det_ne_zero_of_lt_one (C : SFCtx S n R M K N k m₁ ϱ)
+    (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) (hβ : 0 < C.sf.β k) {Mc : ℕ} {κ α : ℝ}
+    (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α)
+    [NeZero N] {r r' : ℝ} (hr'0 : 0 ≤ r') (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D mp : ℕ)
+    (Ω : Finset (BlockAt S n M K k))
+    (hsmall : whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+        (C.weights k) κ 1 r r' D mp < 1) :
+    (sfWhitenRegBlock C hv Mc D mp Ω).det ≠ 0 := by
+  have hh := sum_sq_eq_one_of_norm_eq_one hv hunit
+  have hu := (isUnit_finalWhitenReg_of_lt_one (N₀ := M * n K * S.L ^ (K - k)) hBC hh
+    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr (Ω : Finset (L1Torus S.d (M * n K * S.L ^ (K - k))))
+    D mp hsmall).2
+  let Ω' : Finset (L1Torus S.d (M * n K * S.L ^ (K - k))) := Ω
+  have hmap : ((finalWhitenRegR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
+      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) Ω' (fun i => ((hv i : ℝ) : ℂ)) D
+        mp).submatrix (regIdx Ω' N) (regIdx Ω' N)).map (algebraMap ℝ ℂ) =
+      finalWhitenRegBlock S.d S.L (M * n K * S.L ^ (K - k)) k Mc
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) Ω' (fun i => ((hv i : ℝ) : ℂ)) D mp := by
+    ext a b
+    exact congrFun (congrFun (finalWhitenRegR_map (d := S.d) (L := S.L)
+      (N₀ := M * n K * S.L ^ (K - k)) (k := k) (M := Mc) (v := C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+      (a := C.weights k) Ω' (fun i => hv i) D mp) (regIdx Ω' N a)) (regIdx Ω' N b)
+  have key := det_smul_ne_zero_of_isUnit_map (R := (finalWhitenRegR S.d S.L
+    (M * n K * S.L ^ (K - k)) k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) Ω'
+    (fun i => ((hv i : ℝ) : ℂ)) D mp).submatrix (regIdx Ω' N) (regIdx Ω' N))
+    (by rw [hmap]; exact hu) (Real.sqrt_pos.2 (inv_pos.2 hβ)).ne'
   exact key
 
 end Box
