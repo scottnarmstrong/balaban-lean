@@ -1392,6 +1392,16 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      realized record); `gImage_postOp_eq`, `postOp_w_eq_recW` (kernel locality); `compRec_mem_lfAllRecs`, `recOfComp`,
      `recOfComp_injective`, `pairwise_disjoint_postOp`, `recVars_recOfComp_subset`; **`gOp_postOp_eq_prod_recW`** (for a history of the
      large-field half, `𝕋[F] = ∫ dz Π_c recW(r_c)(ψ_k, z|_{r_c}) F(z)` over the configurations of the union of the component variables).
+   * **B3 (A6-4, locality of the region data near a set of cubes; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`): `LargeField/R/LocalLemmas.lean`: cores `cubeMap_mem_Zpre_of_rem_between`,
+     `mem_lin_iff_of_rem_between` (removals excluded only between the scales `j` and `k`; the landed `cubeMap_mem_Zpre_of_rem`,
+     `mem_lin_iff_of_rem` their instances). `Spine/FinalLFRegionLocal.lean`: `mem_Zpre_iff_mem_lin_of_rem`, `not_mem_Zpre_of_not_mem_Zp`,
+     `mem_lin_of_mem_Z0`, `mem_Omega_iff_loc`, `mem_OmegaDD_iff_loc`, `mem_Z_iff_loc` (over a component the region data are those of
+     its localized history), `mem_Omega_of_not_mem_Zp`, `mem_OmegaDD_of_not_mem_Zp`, `not_mem_Z_of_not_mem_Zp` (off `Z_k`),
+     `cases_of_corr`, **`regionData_eq_on_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond have
+     the same `Ω_j`, `Z_j` (`j ≤ k`) and `Ω''_{j+1}` (`j < k`) on the fine set of `X`). Finding: the `loc_hist` clauses of
+     `D7Bdry`, `D7BdryPost`, `D7Bdry2`, `D7Bdry2Post` compare `(globalLH A.H M).OmegaDD j = Ω''_{j+1}` for `j ≤ k`; at `j = k` this is
+     the record of the step `k → k+1`, not constrained by `Agree k (k+1)` (reported to ORCH-B).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
