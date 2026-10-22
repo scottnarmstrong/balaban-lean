@@ -53,10 +53,26 @@ theorem inhObs_eq_of_div (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : Euclid
         ∑ x : Localization.CTorus d L N₁ m₁ k, if sfSite ℓ x ∈ X then
           ∑ i, g (sfSite ℓ x) i * (sf.Tm N₁).M j x (sfPre N₁ ℓ X)
             (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) i else 0
+      else 0 :=
+  polyObs_eq_of_div m₀ _ e j X g
+
+open Classical in
+/-- **The activities of a family of terms on the torus `ℓ = N₁ L^{m₁} L^k`**: the term of `X` when
+`X` is a polymer of `𝒟_j`, `0` otherwise. -/
+theorem polyObs_eq_explicit (m₀ : ℕ)
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+    {N₁ : ℕ} [NeZero N₁] (j : ℕ) (X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k)))
+    (g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ) :
+    polyObs (L := L) (m₁ := m₁) (k := k) m₀ T (N₁ * L ^ m₁ * L ^ k) j X g =
+      if 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+          (X : Set (Localization.CTorus d L N₁ m₁ k)) then
+        T (N₁ * L ^ m₁ * L ^ k) N₁ j X g
       else 0 := by
-  subst e
-  unfold inhObs
-  simp only [NeZero.ne _, ↓reduceDIte]
+  have e : N₁ * L ^ m₁ * L ^ k / (L ^ m₁ * L ^ k) = N₁ := by
+    rw [Nat.mul_assoc, Nat.mul_div_cancel _ (Nat.pos_of_ne_zero (mul_ne_zero
+      (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L))))]
+  rw [polyObs_eq_of_div m₀ T e]
+  simp only [sfPre_eq_coe]
 
 open Classical in
 /-- **The inherited activities on the torus `ℓ = N₁ L^{m₁} L^k`**, written on the sites of the
@@ -71,10 +87,9 @@ theorem inhObs_eq_explicit (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : Eucl
           ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
             (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0
       else 0 := by
-  have e : N₁ * L ^ m₁ * L ^ k / (L ^ m₁ * L ^ k) = N₁ := by
-    rw [Nat.mul_assoc, Nat.mul_div_cancel _ (Nat.pos_of_ne_zero (mul_ne_zero
-      (pow_ne_zero _ (NeZero.ne L)) (pow_ne_zero _ (NeZero.ne L))))]
-  rw [inhObs_eq_of_div sf m₀ hv e]
+  unfold inhObs
+  rw [polyObs_eq_explicit]
+  unfold inhTerm
   simp only [sfPre_eq_coe, sfSite_eq_self]
 
 /-- Two sites in the same cell of side `a` of a box of side `L a` based at an aligned point lie in
@@ -121,6 +136,47 @@ theorem isPolymer_of_isPolyDom {N₁ m₀ j : ℕ} [NeZero N₁] (hN : L ^ m₀ 
   obtain ⟨b, hb𝒦, hxb⟩ := hK2 x hx
   obtain ⟨hba, hbs⟩ := hK1 b hb𝒦
   exact hbs (mem_box_of_sameCell hdvd hba hxb hxy)
+
+/-- **Support of the activities of a family of terms**: they vanish off the scale-`j` polymers of
+Root-F (`isPolymer_of_isPolyDom`), `M = L^{m₀ + m₁}`. -/
+theorem polyObs_eq_zero_of_not_isPolymer {N₁ m₀ M : ℕ} [NeZero N₁] (hN : L ^ m₀ ∣ N₁)
+    (hM : M = L ^ (m₀ + m₁))
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+    {j : ℕ} {X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k))}
+    (hX : ¬ (j ∈ Finset.Icc 1 k ∧ IsPolymer d (N₁ * L ^ m₁ * L ^ k) (M * L ^ j) X))
+    (g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ) :
+    polyObs (L := L) (m₁ := m₁) (k := k) m₀ T (N₁ * L ^ m₁ * L ^ k) j X g = 0 := by
+  classical
+  rw [polyObs_eq_explicit]
+  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k))
+  · exact absurd ⟨Finset.mem_Icc.2 ⟨hc.1, hc.2.1⟩, by
+      rw [hM]; exact isPolymer_of_isPolyDom hN hc.2.1 hc.2.2⟩ hX
+  · simp only [hc, ↓reduceIte]
+
+/-- **Analyticity of the activities of a family of terms**: analytic on a set where the terms of
+the polymers of `𝒟_j` are. -/
+theorem polyObs_analytic {m₀ : ℕ}
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+    {N₁ : ℕ} [NeZero N₁] (j : ℕ) (X : Finset (Torus d (N₁ * L ^ m₁ * L ^ k)))
+    (s : Set (Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ))
+    (hT : 1 ≤ j → j ≤ k → Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k)) →
+        AnalyticOnNhd ℂ (T (N₁ * L ^ m₁ * L ^ k) N₁ j X) s) :
+    AnalyticOnNhd ℂ (polyObs (L := L) (m₁ := m₁) (k := k) m₀ T (N₁ * L ^ m₁ * L ^ k) j X) s := by
+  classical
+  have e : polyObs (L := L) (m₁ := m₁) (k := k) m₀ T (N₁ * L ^ m₁ * L ^ k) j X = fun g =>
+      if 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+          (X : Set (Localization.CTorus d L N₁ m₁ k)) then
+        T (N₁ * L ^ m₁ * L ^ k) N₁ j X g
+      else 0 := funext fun g => polyObs_eq_explicit m₀ T j X g
+  rw [e]
+  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+      (X : Set (Localization.CTorus d L N₁ m₁ k))
+  · simp only [hc, and_self, ↓reduceIte]
+    exact hT hc.1 hc.2.1 hc.2.2
+  · simp only [hc, ↓reduceIte]
+    exact analyticOnNhd_const
 
 end Explicit
 
@@ -403,64 +459,54 @@ theorem inhObs_analytic {P6 : Def6.Consts} {k0 : ℕ} {sf : SFData d L m₁ k N 
     AnalyticOnNhd ℂ (inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X)
       {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
   classical
-  have e : inhObs sf P6.m₀ hv (N₁ * L ^ m₁ * L ^ k) j X = fun g =>
-      if 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
-          (X : Set (Localization.CTorus d L N₁ m₁ k)) then
-        ∑ x : Localization.CTorus d L N₁ m₁ k, if x ∈ X then
-          ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
-            (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0
-      else 0 := funext fun g => inhObs_eq_explicit sf P6.m₀ hv j X g
+  refine polyObs_analytic _ j X _ fun hj1 hjk hpoly => ?_
+  have e : inhTerm sf hv (N₁ * L ^ m₁ * L ^ k) N₁ j X = fun g =>
+      ∑ x : Localization.CTorus d L N₁ m₁ k, if x ∈ X then
+        ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+          (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0 := by
+    funext g
+    unfold inhTerm
+    simp only [sfPre_eq_coe, sfSite_eq_self]
   rw [e]
-  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
-      (X : Set (Localization.CTorus d L N₁ m₁ k))
-  · obtain ⟨hj1, hjk, hpoly⟩ := hc
-    simp only [hj1, hjk, hpoly, and_self, ↓reduceIte]
-    have key : ∀ x ∈ (Finset.univ : Finset (Localization.CTorus d L N₁ m₁ k)),
-        AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
-          if x ∈ X then ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
-            (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0)
-          {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
-      intro x _
-      by_cases hx : x ∈ X
-      · simp only [hx, ↓reduceIte]
-        have key2 : ∀ i ∈ (Finset.univ : Finset (Fin N)),
-            AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
-              g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
-                (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i)
-              {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
-          intro i _
-          refine (analyticOnNhd_coord x i _).mul ?_
-          obtain ⟨ρsf, hρ⟩ := hsf.torus
-          have hM := (hρ N₁ hN).terms.analyticM j hj1 hjk x _ hpoly hx
-          have hΦ : AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
-              ((Def6.constFld (hC hv) : Fld d L N₁ m₁ k N),
-                (Def6.constFld (hC hv) : Fld d L N₁ m₁ k N), g))
-              {g | ∑ y, ∑ i, ‖g y i‖ < 1} :=
-            analyticOnNhd_const.prod (analyticOnNhd_const.prod analyticOnNhd_id)
-          have hcomp := hM.comp hΦ (fun g hg => ⟨inhObs_constDom hsf hBg hN hv hunit hj1 hjk hpoly,
-            (l1_le_sum g).trans_lt hg⟩)
-          intro g hg
-          exact (analyticAt_pi_coord i _).comp (hcomp g hg)
-        exact Finset.analyticOnNhd_fun_sum _ key2
-      · simp only [hx, ↓reduceIte]
-        exact analyticOnNhd_const
-    exact Finset.analyticOnNhd_fun_sum _ key
-  · simp only [hc, ↓reduceIte]
-    exact analyticOnNhd_const
+  have key : ∀ x ∈ (Finset.univ : Finset (Localization.CTorus d L N₁ m₁ k)),
+      AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+        if x ∈ X then ∑ i, g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+          (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i else 0)
+        {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
+    intro x _
+    by_cases hx : x ∈ X
+    · simp only [hx, ↓reduceIte]
+      have key2 : ∀ i ∈ (Finset.univ : Finset (Fin N)),
+          AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+            g x i * (sf.Tm N₁).M j x (X : Set (Localization.CTorus d L N₁ m₁ k))
+              (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) g i)
+            {g | ∑ y, ∑ i, ‖g y i‖ < 1} := by
+        intro i _
+        refine (analyticOnNhd_coord x i _).mul ?_
+        obtain ⟨ρsf, hρ⟩ := hsf.torus
+        have hM := (hρ N₁ hN).terms.analyticM j hj1 hjk x _ hpoly hx
+        have hΦ : AnalyticOnNhd ℂ (fun g : Torus d (N₁ * L ^ m₁ * L ^ k) → Fin N → ℂ =>
+            ((Def6.constFld (hC hv) : Fld d L N₁ m₁ k N),
+              (Def6.constFld (hC hv) : Fld d L N₁ m₁ k N), g))
+            {g | ∑ y, ∑ i, ‖g y i‖ < 1} :=
+          analyticOnNhd_const.prod (analyticOnNhd_const.prod analyticOnNhd_id)
+        have hcomp := hM.comp hΦ (fun g hg => ⟨inhObs_constDom hsf hBg hN hv hunit hj1 hjk hpoly,
+          (l1_le_sum g).trans_lt hg⟩)
+        intro g hg
+        exact (analyticAt_pi_coord i _).comp (hcomp g hg)
+      exact Finset.analyticOnNhd_fun_sum _ key2
+    · simp only [hx, ↓reduceIte]
+      exact analyticOnNhd_const
+  exact Finset.analyticOnNhd_fun_sum _ key
 
 /-- **Support** of the inherited activities: they vanish off the scale-`j` polymers of Root-F. -/
 theorem actSupportAt_inhObs {P6 : Def6.Consts} {sf : SFData d L m₁ k N ϱ} {N₁ M : ℕ}
     [NeZero N₁] (hN : L ^ P6.m₀ ∣ N₁) (hM : M = L ^ (P6.m₀ + m₁))
     (hv : EuclideanSpace ℝ (Fin N)) :
     ActSupportAt d N L M k (N₁ * L ^ m₁ * L ^ k) (inhObs sf P6.m₀ hv) := by
-  classical
   intro j X hnot g
-  rw [inhObs_zero, inhObs_eq_explicit]
-  by_cases hc : 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) P6.m₀ j
-      (X : Set (Localization.CTorus d L N₁ m₁ k))
-  · exact absurd ⟨Finset.mem_Icc.2 ⟨hc.1, hc.2.1⟩, by
-      rw [hM]; exact isPolymer_of_isPolyDom hN hc.2.1 hc.2.2⟩ hnot
-  · simp only [hc, ↓reduceIte]
+  rw [inhObs_zero]
+  exact polyObs_eq_zero_of_not_isPolymer hN hM _ hnot g
 
 omit [NeZero L] in
 /-- A set of `𝒟_j` in the sense of the class is a set of `𝒟_j` in the sense of the size estimate

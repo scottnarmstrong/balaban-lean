@@ -259,43 +259,101 @@ def sfPre (N₁ ℓ : ℕ) (X : Finset (Torus d ℓ)) : Set (Localization.CTorus
   {x | sfSite ℓ x ∈ X}
 
 open Classical in
-/-- **The inherited observable activities** (LFR Definition IV.5.2, first item; P4 (H.7);
-P7 (4.17)) of a small-field datum `𝔰` at the scale `k`, on the torus `𝕋_ℓ`:
-`q_j(X; g) = ∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩` for `1 ≤ j ≤ k` and `X` a polymer of `𝒟_j`
-(`IsPolyDom`), and `0` otherwise. The terms `ℳ^{(j)}(x, X; ψ, h, g)` of (H.7) are those of `𝔰` on
-the Def-6 torus `N₁ = ℓ/(L^{m₁} L^k)` (whose sites are those of `𝕋_ℓ` when `L^{m₁} L^k ∣ ℓ`), at the
-constant configuration `ψ^{(j)} = h` with the constant external field `h`; `m₀` is the polymer
-exponent of Def-6. On a torus with `ℓ < L^{m₁} L^k` the activities are `0`. -/
-noncomputable def inhObs (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
+/-- **The activities of a family of polymer terms read on the torus `𝕋_ℓ`**: for a family `T` of
+terms on the sets `X` of sites of `𝕋_ℓ` and the Def-6 tori `N₁` (`T ℓ N₁ j X g`), the activity of
+the scale `1 ≤ j ≤ k` of `X` is `T ℓ N₁ j X g` on the Def-6 torus `N₁ = ℓ/(L^{m₁} L^k)` when the
+sites of that torus in `X` form a polymer of `𝒟_j` (`IsPolyDom`), and `0` otherwise (and `0` on a
+torus with `ℓ < L^{m₁} L^k`). The inherited observable activities `inhObs` and the remainder
+activities of the last scale are instances. -/
+noncomputable def polyObs (m₀ : ℕ)
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
     (ℓ j : ℕ) (X : Finset (Torus d ℓ)) (g : Torus d ℓ → Fin N → ℂ) : ℂ :=
   if hN : ℓ / (L ^ m₁ * L ^ k) = 0 then 0 else
     haveI : NeZero (ℓ / (L ^ m₁ * L ^ k)) := ⟨hN⟩
     if 1 ≤ j ∧ j ≤ k ∧
         Def6.IsPolyDom (L := L) (N₁ := ℓ / (L ^ m₁ * L ^ k)) (m₁ := m₁) (k := k) m₀ j
           (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X) then
-      ∑ x : Localization.CTorus d L (ℓ / (L ^ m₁ * L ^ k)) m₁ k,
-        if sfSite ℓ x ∈ X then
-          ∑ i, g (sfSite ℓ x) i * (sf.Tm (ℓ / (L ^ m₁ * L ^ k))).M j x
-            (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X) (Def6.constFld (hC hv))
-            (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) i
-        else 0
+      T ℓ (ℓ / (L ^ m₁ * L ^ k)) j X g
     else 0
 
-/-- The inherited activities vanish above the scale `k`. -/
-theorem inhObs_of_lt (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
+open Classical in
+/-- The term of the inherited observable activities: `∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩`
+on the Def-6 torus `N₁`, at the constant configuration. -/
+noncomputable def inhTerm (sf : SFData d L m₁ k N ϱ) (hv : EuclideanSpace ℝ (Fin N))
+    (ℓ N₁ : ℕ) [NeZero N₁] (j : ℕ) (X : Finset (Torus d ℓ)) (g : Torus d ℓ → Fin N → ℂ) : ℂ :=
+  ∑ x : Localization.CTorus d L N₁ m₁ k,
+    if sfSite ℓ x ∈ X then
+      ∑ i, g (sfSite ℓ x) i * (sf.Tm N₁).M j x (sfPre N₁ ℓ X) (Def6.constFld (hC hv))
+        (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) i
+    else 0
+
+/-- **The inherited observable activities** (LFR Definition IV.5.2, first item; P4 (H.7);
+P7 (4.17)) of a small-field datum `𝔰` at the scale `k`, on the torus `𝕋_ℓ`:
+`q_j(X; g) = ∑_{x ∈ X} ⟨g(x), ℳ^{(j)}(x, X; h, h, g)⟩` for `1 ≤ j ≤ k` and `X` a polymer of `𝒟_j`
+(`IsPolyDom`), and `0` otherwise (`polyObs` of the terms `inhTerm`). The terms
+`ℳ^{(j)}(x, X; ψ, h, g)` of (H.7) are those of `𝔰` on the Def-6 torus `N₁ = ℓ/(L^{m₁} L^k)` (whose
+sites are those of `𝕋_ℓ` when `L^{m₁} L^k ∣ ℓ`), at the constant configuration `ψ^{(j)} = h` with
+the constant external field `h`; `m₀` is the polymer exponent of Def-6. On a torus with
+`ℓ < L^{m₁} L^k` the activities are `0`. -/
+noncomputable def inhObs (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
+    (ℓ j : ℕ) (X : Finset (Torus d ℓ)) (g : Torus d ℓ → Fin N → ℂ) : ℂ :=
+  polyObs (L := L) (m₁ := m₁) (k := k) m₀ (fun ℓ N₁ _ => inhTerm sf hv ℓ N₁) ℓ j X g
+
+omit [NeZero L] in
+/-- The activities of a family of terms vanish above the scale `k`. -/
+theorem polyObs_of_lt (m₀ : ℕ)
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
     {ℓ j : ℕ} (hj : k < j) (X : Finset (Torus d ℓ)) (g : Torus d ℓ → Fin N → ℂ) :
-    inhObs sf m₀ hv ℓ j X g = 0 := by
-  unfold inhObs
+    polyObs (L := L) (m₁ := m₁) (k := k) m₀ T ℓ j X g = 0 := by
+  unfold polyObs
   split_ifs with hN hc
   · rfl
   · exact absurd hc.2.1 (by omega)
   · rfl
 
+omit [NeZero L] in
+open Classical in
+/-- **The activities of a family of terms when `ℓ / (L^{m₁} L^k) = N₁`**, with the `ℓ`-dependent
+case split resolved. -/
+theorem polyObs_eq_of_div (m₀ : ℕ)
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+    {ℓ N₁ : ℕ} [NeZero N₁] (e : ℓ / (L ^ m₁ * L ^ k) = N₁) (j : ℕ) (X : Finset (Torus d ℓ))
+    (g : Torus d ℓ → Fin N → ℂ) :
+    polyObs (L := L) (m₁ := m₁) (k := k) m₀ T ℓ j X g =
+      if 1 ≤ j ∧ j ≤ k ∧ Def6.IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j
+          (sfPre N₁ ℓ X) then T ℓ N₁ j X g else 0 := by
+  subst e
+  unfold polyObs
+  simp only [NeZero.ne _, ↓reduceDIte]
+
+omit [NeZero L] in
+/-- **Locality of the activities of a family of terms**: if the terms on the torus of the
+activities depend on `g|_X` only, so do the activities. -/
+theorem polyObs_local (m₀ : ℕ)
+    (T : (ℓ N₁ : ℕ) → [NeZero N₁] → ℕ → Finset (Torus d ℓ) → (Torus d ℓ → Fin N → ℂ) → ℂ)
+    {ℓ j : ℕ} (X : Finset (Torus d ℓ)) {g g' : Torus d ℓ → Fin N → ℂ}
+    (hT : ∀ (hN : ℓ / (L ^ m₁ * L ^ k) ≠ 0),
+      haveI : NeZero (ℓ / (L ^ m₁ * L ^ k)) := ⟨hN⟩
+      T ℓ (ℓ / (L ^ m₁ * L ^ k)) j X g = T ℓ (ℓ / (L ^ m₁ * L ^ k)) j X g') :
+    polyObs (L := L) (m₁ := m₁) (k := k) m₀ T ℓ j X g =
+      polyObs (L := L) (m₁ := m₁) (k := k) m₀ T ℓ j X g' := by
+  unfold polyObs
+  split_ifs with hN hc
+  · rfl
+  · exact hT hN
+  · rfl
+
+/-- The inherited activities vanish above the scale `k`. -/
+theorem inhObs_of_lt (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
+    {ℓ j : ℕ} (hj : k < j) (X : Finset (Torus d ℓ)) (g : Torus d ℓ → Fin N → ℂ) :
+    inhObs sf m₀ hv ℓ j X g = 0 :=
+  polyObs_of_lt m₀ _ hj X g
+
 /-- The inherited activities vanish at the source `g = 0` (every term carries a factor `g`), so
 their increments are their values. -/
 theorem inhObs_zero (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanSpace ℝ (Fin N))
     {ℓ j : ℕ} (X : Finset (Torus d ℓ)) : inhObs sf m₀ hv ℓ j X 0 = 0 := by
-  unfold inhObs
+  unfold inhObs polyObs inhTerm
   split_ifs <;> simp
 
 /-- **The Def-6 torus of the inherited activities on the torus `n_K` of the family** is the Def-6
@@ -321,17 +379,15 @@ theorem inhObs_local (sf : SFData d L m₁ k N ϱ) (m₀ : ℕ) (hv : EuclideanS
       (sf.Tm N₁).M j x X Ψ h g = (sf.Tm N₁).M j x X Ψ' h' g')
     {ℓ : ℕ} (hℓ : Sel (ℓ / (L ^ m₁ * L ^ k))) {j : ℕ} (X : Finset (Torus d ℓ)) (g g' : Torus d ℓ → Fin N → ℂ)
     (hgg : ∀ y ∈ X, g y = g' y) : inhObs sf m₀ hv ℓ j X g = inhObs sf m₀ hv ℓ j X g' := by
-  unfold inhObs
-  split_ifs with hN hc
-  · rfl
-  · have : NeZero (ℓ / (L ^ m₁ * L ^ k)) := ⟨hN⟩
-    refine Finset.sum_congr rfl fun x _ => ?_
-    split_ifs with hx
-    · rw [hloc (ℓ / (L ^ m₁ * L ^ k)) hℓ j x (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X)
-        (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) (Def6.constFld (hC hv))
-        (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) (fun y => g' (sfSite ℓ y))
-        fun z hz => ⟨rfl, rfl, hgg _ hz⟩, hgg _ hx]
-    · rfl
+  refine polyObs_local m₀ _ X fun hN => ?_
+  have : NeZero (ℓ / (L ^ m₁ * L ^ k)) := ⟨hN⟩
+  unfold inhTerm
+  refine Finset.sum_congr rfl fun x _ => ?_
+  split_ifs with hx
+  · rw [hloc (ℓ / (L ^ m₁ * L ^ k)) hℓ j x (sfPre (ℓ / (L ^ m₁ * L ^ k)) ℓ X)
+      (Def6.constFld (hC hv)) (Def6.constFld (hC hv)) (Def6.constFld (hC hv))
+      (Def6.constFld (hC hv)) (fun y => g (sfSite ℓ y)) (fun y => g' (sfSite ℓ y))
+      fun z hz => ⟨rfl, rfl, hgg _ hz⟩, hgg _ hx]
   · rfl
 
 /-- **The locality clause of the inherited activities** from (D2♭) of the class: the clause
@@ -369,13 +425,51 @@ end Inherited
 ### The small-field part of the last integral
 -/
 
+section Whiten
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+
+/-- **The normalizer of a whitening** `A` of fields of `N`-vectors on `ι`: `|det A| (2π)^{n/2}`,
+`n = |ι| N` (the Jacobian of `ψ = ψ₀ + A w` times the normalizer of the standard Gaussian). -/
+noncomputable def whitenNorm (A : Matrix (ι × Fin N) (ι × Fin N) ℝ) : ℝ :=
+  |A.det| * (2 * Real.pi) ^ ((Green.pdDim (ι × Fin N) ℝ : ℝ) / 2)
+
+/-- **The mismatch of a whitening** `A` against a form `Kq`: `Aᵀ Kq A - 1` (zero for
+`A = Kq^{-1/2}`). -/
+noncomputable def whitenMismatch {κ : Type*} [Fintype κ] [DecidableEq κ] (Kq A : Matrix κ κ ℝ) :
+    Matrix κ κ ℝ :=
+  A.transpose * Kq * A - 1
+
+/-- **The mismatch factor** `exp(-½ ⟨w, (Aᵀ Kq A - 1) w⟩)` of the whitening `A` against `Kq`: with
+it, `exp(½ Q_{Kq}(A w)) · mismatch(w) = exp(½ |w|²)`. -/
+noncomputable def mismatchFactor {κ : Type*} [Fintype κ] [DecidableEq κ] (Kq A : Matrix κ κ ℝ)
+    (w : κ → ℝ) : ℝ :=
+  Real.exp (-(1 / 2) * Green.pdQuad (whitenMismatch Kq A) w)
+
+end Whiten
+
 section Gauss
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ}
 
+/-- **The integrand of the small-field factor at a whitening** `A` (cut `Y`, form `Kq`, centre
+`ψ₀`): `sfFactor2 C vc Y (ψ₀ + A w) · exp(½ Q_{Kq}(A w))`, the small-field factor at the field
+`ψ = ψ₀ + A w` with the Gaussian part of the form `Kq` divided out. Times the mismatch factor
+`mismatchFactor Kq A` and the normalizer `whitenNorm A`, its average against the standard Gaussian
+is the integral of the small-field factor over the fields `ψ_k` (`integral_mul_sfFactor2_whiten`). -/
+noncomputable def sfGaussIntegrandL (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (Y : Set (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
+    (Kq A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ)
+    (ψ0 : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
+    (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
+  sfFactor2 C vc Y ((Green.spinField (BlockAt S n M K k) N).symm
+      (Green.spinField (BlockAt S n M K k) N ψ0 + matAct A w)) hv g *
+    ((Real.exp ((1 / 2) * Green.pdQuad Kq (matAct A w)) : ℝ) : ℂ)
+
 /-- **The integrand of the small-field factor in the Gaussian variable** (cut `Y`, form `Kq`,
-centre `ψ₀`): `sfFactor2 C vc Y (ψ₀ + Kq^{-1/2} w) · exp(½ Q_{Kq}(Kq^{-1/2} w))`. Its average
+centre `ψ₀`): `sfFactor2 C vc Y (ψ₀ + Kq^{-1/2} w) · exp(½ Q_{Kq}(Kq^{-1/2} w))`, the integrand at
+the whitening `A = Kq^{-1/2}` (`sfGaussIntegrandL`; the mismatch vanishes). Its average
 against the standard Gaussian `γ`, times `Z_{Kq}`, is the integral of the small-field factor over
 the fields `ψ_k` (`integral_sfFactor2_gauss`). -/
 noncomputable def sfGaussIntegrand (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
@@ -383,9 +477,7 @@ noncomputable def sfGaussIntegrand (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrC
     (Kq : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ)
     (ψ0 : BlockAt S n M K k → EuclideanSpace ℝ (Fin N))
     (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
-  sfFactor2 C vc Y ((Green.spinField (BlockAt S n M K k) N).symm
-      (Green.spinField (BlockAt S n M K k) N ψ0 + matAct (Green.pdSqrtInv Kq) w)) hv g *
-    ((Real.exp ((1 / 2) * Green.pdQuad Kq (matAct (Green.pdSqrtInv Kq) w)) : ℝ) : ℂ)
+  sfGaussIntegrandL C vc Y hv g Kq (Green.pdSqrtInv Kq) ψ0 w
 
 /-- **The box of the Gaussian variable**: `{w | |w_p| ≤ p₁}` for every index `p` (every block and
 spin component). In P4 (6.6) this is the characteristic function `χ({|ψ| < p₁(β_k)})` of the
@@ -416,16 +508,29 @@ noncomputable def sfFinalK (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpac
       (C.weights k) (fun i => hv i))
     (fun p => (sfBlockSite C p.1, p.2)) (fun p => (sfBlockSite C p.1, p.2))
 
-/-- **The box integral of one torus** (P4 (6.6); P7 (4.9) with no final large-field region):
-`Z_K ∫ 1_{box(p₁)}(w) sfGaussIntegrand(w) dγ(w)`, the Gaussian average over the box `|w| ≤ p₁` of
-the integrand of the small-field factor of the whole torus (`Y = univ`), at the form `K = β_k D`
-(`sfFinalK`) and the centre `ψ₀ ≡ h`. -/
+/-- **The box integral of one torus at a whitening** `A` (P4 (6.6); P7 (4.9) with no final
+large-field region; P5 (2.39)): `|det A| (2π)^{n/2} ∫ 1_{box(p₁)}(w) sfGaussIntegrandL(w) mismatch(w)
+dγ(w)`, the Gaussian average over the box `|w| ≤ p₁` of the whitened variable `w` of
+`ψ_k = h + A w` of the integrand of the small-field factor of the whole torus (`Y = univ`), with the
+Gaussian part of the form `K = β_k D` (`sfFinalK`) divided out and the mismatch factor
+`exp(-½⟨w, (Aᵀ K A - 1) w⟩)` (`mismatchFactor`). In the source `A = β_k^{-1/2} L` with `L` the
+localized square root of the covariance (P5 (2.39), P7 §4). -/
+noncomputable def ctxBoxIntegralL (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
+    (hv : EuclideanSpace ℝ (Fin N))
+    (A : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ) (p1 : ℝ)
+    (g : GIdx S n M K N → ℂ) : ℂ :=
+  (whitenNorm A : ℂ) *
+    ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
+      sfGaussIntegrandL C vc Set.univ hv g (sfFinalK C hv) A (fun _ => hv) w *
+        (mismatchFactor (sfFinalK C hv) A w : ℂ)
+        ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)
+
+/-- **The box integral of one torus** (P4 (6.6); P7 (4.9) with no final large-field region): the
+box integral at the exact whitening `A = K^{-1/2}`, `K = β_k D` (`sfFinalK`), centre `ψ₀ ≡ h`
+(`ctxBoxIntegralL`; equal to `Z_K ∫ 1_{box(p₁)} sfGaussIntegrand dγ`). -/
 noncomputable def ctxBoxIntegral (C : SFCtx S n R M K N k m₁ ϱ) (vc : CorrCoef S.d)
     (hv : EuclideanSpace ℝ (Fin N)) (p1 : ℝ) (g : GIdx S n M K N → ℂ) : ℂ :=
-  (Green.pdGaussNorm (BlockAt S n M K k × Fin N) ℝ (sfFinalK C hv) : ℂ) *
-    ∫ w in gaussBox (BlockAt S n M K k × Fin N) p1,
-      sfGaussIntegrand C vc Set.univ hv g (sfFinalK C hv) (fun _ => hv) w
-        ∂(Green.pdGaussian (BlockAt S n M K k × Fin N) ℝ)
+  ctxBoxIntegralL C vc hv (Green.pdSqrtInv (sfFinalK C hv)) p1 g
 
 end Gauss
 

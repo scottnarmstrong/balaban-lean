@@ -354,6 +354,33 @@ theorem eTerm_chain (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X�
 
 end ChainE
 
+section ComposedChart
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+
+/-- **The composed chart of a term generator** `Gj` (level `j`, composition constant `b`, radius
+`e`): the raw data `ψ(Gj, G; φ_G(D), D)` composed into `Gj` from a datum `D` of the chart
+`Ξ^c_K(G; 1, e)` of a generating set `G` that `Gj` precedes, with the collar of `Gj` in `Ω₁(G)` and
+the standing hypotheses of the background theory at `G`, which lie in the chart
+`Ξ^c_j(Gj; b, e)`. -/
+def composedChart (Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) (j : ℕ)
+    (b e : ℝ) : Set (RawData d L (N₁ * L ^ m₁) K N) :=
+  {r | ∃ (ϱ₁ : ℝ) (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁) (hq : Precedes Gj G),
+    (∀ z ∈ collar Gj, z ∈ G.Ω 1) ∧ BgHyp d L K ϱ₁ a ν ∧
+    ∃ D : BgData G N, XiCData G a ν K 1 e D ∧
+      XiCData Gj a ν j b e (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D) ∧
+      r = rawOf (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D)}
+
+variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {j : ℕ} {b e : ℝ}
+
+/-- The composed chart lies in the chart `Ξ^c_j(Gj; b, e)`. -/
+theorem composedChart_subset_xiCRaw :
+    (composedChart (N := N) Gj a ν j b e) ⊆ XiCRaw Gj a ν j b e := by
+  rintro r ⟨ϱ₁, G, hq, _, _, D, _, hX, rfl⟩
+  exact ⟨_, hX, rfl⟩
+
+end ComposedChart
+
 section Props
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱ₁ ϱ₂ ϱm : ℝ}
@@ -448,6 +475,44 @@ theorem eTermFun_analytic_of_bg {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC
   rw [hD1, hD2]
   exact ⟨_, hX2, rfl⟩
 
+/-- **The bound of the old-term functional on the realizable triples from the bound of the term
+on its composed chart** (core of `eTermFun_bound_of_bg`): the composed datum of a realizable triple
+lies in `composedChart Gj …` (its source chart `Ξ^c_{k+1}(Gk; 1, e)` and its composition into
+`Ξ^c_j(Gj; b, e)`). -/
+theorem eTermFun_bound_of_bg_composed {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d) (hBG : 0 ≤ BG)
+    (ha₁ : 0 < a₁) (HBp : BgHyp d L (k + 1) ϱ (compWeight L a₁) ν)
+    (HBk : BgHyp d L (k + 1) ϱ₁ (compWeight L a₁) ν) (HBj : BgHyp d L (k + 1) ϱ₂ (compWeight L a₁) ν)
+    (hP : Precedes Gk Gp) (hq : Precedes Gj Gk) (colj : ∀ z ∈ collar Gj, z ∈ Gk.Ω 1)
+    (hnum : ChainNum d L N m₁ BG κ r₀ eps δ₃) (hj : j ≤ k + 1) (hκ : 0 < κ)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    (hbg : ∀ s : DecParams Gp, (∀ P, ‖s P‖ < Real.exp κ) →
+      (∀ (P : ℕ × CTorus d L N₁ m₁ (k + 1)) (hP : P ∈ cubeIdx Gp), P ∉ parCubes Gp X₁f →
+        s ⟨P, hP⟩ = 1) →
+      ∀ D : BgData Gp N, XiCData Gp (compWeight L a₁) ν (k + 1) 1 eps D →
+      ∀ (φ : Gp.Ω 1 × Fin N → ℂ) (α : Gp.Ω 1 → ℂ),
+        IsDecBg Gp (compWeight L a₁) ν (rho4 d L N BG κ) s D φ α →
+        BgBounds Gp D φ α (K4 d L N BG κ * (xiC1 d * eps)) ∧
+        XiCData Gk (compWeight L a₁) ν (k + 1) 1 (b ^ 2 * eps + xiK2 d L N * δ₃)
+          (composeData hP (compWeight L a₁) φ D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hEb : ∀ r ∈ composedChart Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
+  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain_of_bg hb₁ hbC hBG ha₁ HBp HBk HBj
+    hP hq colj hnum hj hκ hF hFk hbg ht
+  show ‖E (D2raw Gk Gj (compWeight L a₁) Fk
+    (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2))‖ ≤ B
+  rw [hD1, hD2]
+  exact hEb _ ⟨ϱ₁, Gk, hq, colj, HBk, _, hX3, hX2, rfl⟩
+
+
 /-- **The bound of the old-term functional on the realizable triples, at given background
 stages** (the common step of `eTermFun_bound_of_one_le` and of its cover form
 `eTermFun_bound_cover_of_one_le`). -/
@@ -476,13 +541,9 @@ theorem eTermFun_bound_of_bg {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d
     {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
     (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
-    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
-  obtain ⟨D, ψ', hlc, ht22, hX3, hD1, hD2, hX2⟩ := eTerm_chain_of_bg hb₁ hbC hBG ha₁ HBp HBk HBj
-    hP hq colj hnum hj hκ hF hFk hbg ht
-  show ‖E (D2raw Gk Gj (compWeight L a₁) Fk
-    (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2))‖ ≤ B
-  rw [hD1, hD2]
-  exact hEb _ ⟨_, hX2, rfl⟩
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  eTermFun_bound_of_bg_composed hb₁ hbC hBG ha₁ HBp HBk HBj hP hq colj hnum hj hκ hF hFk hbg
+    (fun r hr => hEb r (composedChart_subset_xiCRaw hr)) ht
 
 /-- **Analyticity of the old-term functional on the realizable triples.** -/
 theorem eTermFun_analytic_of_one_le {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)

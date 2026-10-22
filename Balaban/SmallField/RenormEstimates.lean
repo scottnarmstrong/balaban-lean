@@ -98,17 +98,13 @@ def rotDiff (R : Matrix (Fin N) (Fin N) ℂ) (ψ : Site d → Spin N) (y : Site 
 def gradTensor (i₀ : Fin N) (R : Matrix (Fin N) (Fin N) ℂ) (ψ : Site d → Spin N) :
     Fin d → Fin d → ℂ := fun μ μ' => dotT i₀ (rotDiff R ψ (eU μ)) (rotDiff R ψ (eU μ'))
 
-theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k‖ ≤ 40)
-    {ψ : Site d → Spin N} {σ ε K₂ : ℝ}
-    (hadj : ∀ x μ, ‖ψ (x + Pi.single μ 1) - ψ x‖ ≤ σ * ε)
+/-- **The frozen Taylor remainder**: for `l1 x, l1 x' ≤ L`, with the second differences bounded by
+`K₂`, `‖ψ(x) - ψ(x') - Σ_μ (x - x')_μ ∂_μ ψ(0)‖ ≤ 6 L² K₂`. -/
+theorem norm_taylor_frozen_le {ψ : Site d → Spin N} {K₂ : ℝ}
     (hsec : ∀ x μ μ', ‖ψ (x + Pi.single μ 1 + Pi.single μ' 1) - ψ (x + Pi.single μ 1)
       - ψ (x + Pi.single μ' 1) + ψ x‖ ≤ K₂)
-    (x x' : Site d) {L : ℝ} (hx : (l1 x : ℝ) ≤ L) (hx' : (l1 x' : ℝ) ≤ L) (hL : 0 ≤ L)
-    (i₀ : Fin N) (hε : 0 ≤ σ * ε) (hK0 : 0 ≤ K₂) :
-    ‖dotT i₀ (rotDiff R ψ x - rotDiff R ψ x') (rotDiff R ψ x - rotDiff R ψ x') -
-        wquad (gradTensor i₀ R ψ) x x'‖ ≤
-      2 * N * (2 * L * (N * 40 * (σ * ε))) * (N * 40 * (6 * L ^ 2 * K₂)) +
-        N * (N * 40 * (6 * L ^ 2 * K₂)) ^ 2 := by
+    (x x' : Site d) {L : ℝ} (hx : (l1 x : ℝ) ≤ L) (hx' : (l1 x' : ℝ) ≤ L) (hK0 : 0 ≤ K₂) :
+    ‖ψ x - ψ x' - ∑ μ, ((((x - x') μ : ℤ)) : ℂ) • fdiff ψ μ 0‖ ≤ 6 * L ^ 2 * K₂ := by
   classical
   set w : Site d := x - x' with hw
   have hlw : (l1 w : ℝ) ≤ 2 * L := by
@@ -135,13 +131,37 @@ theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k
   set r2 : Spin N := ∑ μ, ((w μ : ℤ) : ℂ) • (fdiff ψ μ x' - fdiff ψ μ 0) with hr2
   have hr2b : ‖r2‖ ≤ (l1 w : ℝ) * ((l1 x' : ℝ) * K₂) :=
     norm_sum_smul_le w (fun μ => fdiff ψ μ x' - fdiff ψ μ 0) hgr
-  set r : Spin N := r1 + r2 with hr
-  have hrb : ‖r‖ ≤ ((l1 w : ℝ) ^ 2 + (l1 w : ℝ) * (l1 x' : ℝ)) * K₂ := by
+  have hrb : ‖r1 + r2‖ ≤ ((l1 w : ℝ) ^ 2 + (l1 w : ℝ) * (l1 x' : ℝ)) * K₂ := by
     refine (norm_add_le _ _).trans ?_
     have := hT
     nlinarith
+  have hdecomp : ψ x - ψ x' - ∑ μ, ((w μ : ℤ) : ℂ) • fdiff ψ μ 0 = r1 + r2 := by
+    simp only [hr1, hr2, smul_sub, Finset.sum_sub_distrib]; abel
+  rw [hdecomp]
+  have hl0 : (0 : ℝ) ≤ l1 w := Nat.cast_nonneg _
+  have hl1 : (0 : ℝ) ≤ l1 x' := Nat.cast_nonneg _
+  have : ((l1 w : ℝ) ^ 2 + (l1 w : ℝ) * (l1 x' : ℝ)) ≤ 6 * L ^ 2 := by nlinarith
+  exact hrb.trans (mul_le_mul_of_nonneg_right this hK0)
+
+/-- **The transverse second-order expansion from the Taylor input** (core of `dotT_diff_bound`):
+with the first differences at `0` bounded by `σ ε`, `l1 (x - x') ≤ 2 L`, and the frozen Taylor
+remainder `‖ψ(x) - ψ(x') - Σ_μ (x - x')_μ ∂_μ ψ(0)‖ ≤ 6 L² K₂`. The field is read only at
+`x`, `x'`, `0` and the `e_μ`. -/
+theorem dotT_diff_bound_of_taylor {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k‖ ≤ 40)
+    {ψ : Site d → Spin N} {σ ε K₂ : ℝ}
+    (hadj0 : ∀ μ, ‖ψ (Pi.single μ 1) - ψ 0‖ ≤ σ * ε)
+    (x x' : Site d) {L : ℝ} (hw : (l1 (x - x') : ℝ) ≤ 2 * L) (hL : 0 ≤ L)
+    (htay : ‖ψ x - ψ x' - ∑ μ, ((((x - x') μ : ℤ)) : ℂ) • fdiff ψ μ 0‖ ≤ 6 * L ^ 2 * K₂)
+    (i₀ : Fin N) (hε : 0 ≤ σ * ε) (hK0 : 0 ≤ K₂) :
+    ‖dotT i₀ (rotDiff R ψ x - rotDiff R ψ x') (rotDiff R ψ x - rotDiff R ψ x') -
+        wquad (gradTensor i₀ R ψ) x x'‖ ≤
+      2 * N * (2 * L * (N * 40 * (σ * ε))) * (N * 40 * (6 * L ^ 2 * K₂)) +
+        N * (N * 40 * (6 * L ^ 2 * K₂)) ^ 2 := by
+  classical
+  set w : Site d := x - x' with hw'
+  set r : Spin N := ψ x - ψ x' - ∑ μ, ((w μ : ℤ) : ℂ) • fdiff ψ μ 0 with hr
   have hdecomp : ψ x - ψ x' = (∑ μ, ((w μ : ℤ) : ℂ) • fdiff ψ μ 0) + r := by
-    simp only [hr, hr1, hr2, smul_sub, Finset.sum_sub_distrib]; abel
+    rw [hr]; abel
   set a : Spin N := ∑ μ, ((w μ : ℤ) : ℂ) • rotDiff R ψ (eU μ) with ha
   set b : Spin N := R.mulVec r with hb
   have hΔ : rotDiff R ψ x - rotDiff R ψ x' = a + b := by
@@ -165,13 +185,12 @@ theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k
       refine Finset.sum_congr rfl fun μ' _ => ?_
       rw [dotT_smul_right]; ring
     rw [h1]
-    simp [wquad, gradTensor, hw]
+    simp [wquad, gradTensor, hw']
   have haN : ‖a‖ ≤ 2 * L * (N * 40 * (σ * ε)) := by
     have h1 : ‖a‖ ≤ (l1 w : ℝ) * (N * 40 * (σ * ε)) := by
       refine norm_sum_smul_le w (fun μ => rotDiff R ψ (eU μ)) fun μ => ?_
       have := norm_mulVec_le (R := R) (B := 40) (by norm_num) hR (ψ (eU μ) - ψ 0)
-      have h3 := hadj 0 μ
-      simp only [zero_add] at h3
+      have h3 := hadj0 μ
       calc ‖rotDiff R ψ (eU μ)‖ ≤ N * 40 * ‖ψ (eU μ) - ψ 0‖ := this
         _ ≤ N * 40 * (σ * ε) := by
           exact mul_le_mul_of_nonneg_left (by simpa [eU] using h3) (by positivity)
@@ -180,12 +199,7 @@ theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k
     nlinarith
   have hbN : ‖b‖ ≤ N * 40 * (6 * L ^ 2 * K₂) := by
     have h1 := norm_mulVec_le (R := R) (B := 40) (by norm_num) hR r
-    refine h1.trans ?_
-    have hl0 : (0 : ℝ) ≤ l1 w := Nat.cast_nonneg _
-    have hl1 : (0 : ℝ) ≤ l1 x' := Nat.cast_nonneg _
-    have : ((l1 w : ℝ) ^ 2 + (l1 w : ℝ) * (l1 x' : ℝ)) ≤ 6 * L ^ 2 := by nlinarith
-    have h2 : ‖r‖ ≤ 6 * L ^ 2 * K₂ := hrb.trans (mul_le_mul_of_nonneg_right this hK0)
-    exact mul_le_mul_of_nonneg_left h2 (by positivity)
+    exact h1.trans (mul_le_mul_of_nonneg_left htay (by positivity))
   rw [hΔ, ← hq]
   have e : dotT i₀ (a + b) (a + b) - dotT i₀ a a = 2 * dotT i₀ a b + dotT i₀ b b := by
     simp only [dotT_add_left, dotT_add_right, dotT_comm i₀ b a]; ring
@@ -205,5 +219,23 @@ theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k
           rw [sq]; exact mul_le_mul hbN hbN hb0 (by positivity)
         have hN0 : (0 : ℝ) ≤ N := Nat.cast_nonneg _
         nlinarith [mul_le_mul_of_nonneg_left h1 hN0, mul_le_mul_of_nonneg_left h2 hN0]
+
+theorem dotT_diff_bound {R : Matrix (Fin N) (Fin N) ℂ} (hR : ∀ i k, ‖R i k‖ ≤ 40)
+    {ψ : Site d → Spin N} {σ ε K₂ : ℝ}
+    (hadj : ∀ x μ, ‖ψ (x + Pi.single μ 1) - ψ x‖ ≤ σ * ε)
+    (hsec : ∀ x μ μ', ‖ψ (x + Pi.single μ 1 + Pi.single μ' 1) - ψ (x + Pi.single μ 1)
+      - ψ (x + Pi.single μ' 1) + ψ x‖ ≤ K₂)
+    (x x' : Site d) {L : ℝ} (hx : (l1 x : ℝ) ≤ L) (hx' : (l1 x' : ℝ) ≤ L) (hL : 0 ≤ L)
+    (i₀ : Fin N) (hε : 0 ≤ σ * ε) (hK0 : 0 ≤ K₂) :
+    ‖dotT i₀ (rotDiff R ψ x - rotDiff R ψ x') (rotDiff R ψ x - rotDiff R ψ x') -
+        wquad (gradTensor i₀ R ψ) x x'‖ ≤
+      2 * N * (2 * L * (N * 40 * (σ * ε))) * (N * 40 * (6 * L ^ 2 * K₂)) +
+        N * (N * 40 * (6 * L ^ 2 * K₂)) ^ 2 := by
+  have hlw : (l1 (x - x') : ℝ) ≤ 2 * L := by
+    have := l1_sub_le x x'
+    have : (l1 (x - x') : ℝ) ≤ l1 x + l1 x' := by exact_mod_cast this
+    linarith
+  exact dotT_diff_bound_of_taylor hR (fun μ => by simpa using hadj 0 μ) x x' hlw hL
+    (norm_taylor_frozen_le hsec x x' hx hx' hK0) i₀ hε hK0
 
 end Balaban.SmallField

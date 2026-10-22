@@ -21,8 +21,9 @@ and the local expression of `y` is assigned to the term of `(y, □)`).
 
 * `irrelTorus`: the label functional `ℰ^{(j)}_{irrel}(y, X; Ψ, h)` on the fine torus, built from the
   relevant local part `relPartTorus` and the term `aTermTorus` (`IrrelTorusOn.lean`);
-* `irrelTorus_eq_irrelTorusOn`: it is the functional `irrelTorusOn` of the selection of all
-  polymers; the properties below are the instances of those of `irrelTorusOn`;
+* `irrelTorus_eq_irrelTorusOn`: it is the functional `irrelTorusOn` of the selection `relBox` of
+  the polymers in the box of half-side `r_k` around the centre (ruling R15); the properties below are
+  the instances of those of `irrelTorusOn`;
 * `irrelTorus_congr`: it depends on `(Ψ, h)` only through `Ψ` on `X^⋆ = X ∪ st₊(y)` and `h` on
   `X` (`y ∈ X`), `st₊(y) = {y + L^j e_μ}` (FLUCTUATION (3.0), Lemma 3.2 (ii));
 * `irrelTorus_analyticOnNhd`: it is analytic on the domain of the term where
@@ -49,8 +50,11 @@ single term `ℰ(y, X)` at `P₀`:
 `a_X(x) = ∂ℰ(y,X)/∂ψ_{i₀}(x)`, `B_X(x,x') = ∂²ℰ(y,X)/∂ψ_{i₁}(x)∂ψ_{i₁}(x')`,
 `S_X^{μν} = Σ_{x,x'} B_X(x,x') (x-x')_μ (x-x')_ν`, the blocks placed in `ℤ^d` relative to the
 centre `y` (`x ↦ unlift (x - y)`, the centred form of the term pulled back at `y`),
-`ℰ_{irrel}(y,X) = ℰ(y,X) - T_X - Φ_{y,X} - A_{y,X} + 1_{X = □(y)} Σ_{X' ∋ y} (T_{X'} + Φ_{y,X'})`,
-where
+`ℰ_{irrel}(y,X) = ℰ(y,X) - 1_{X ∈ B(y)} (T_X + Φ_{y,X}) - A_{y,X}
+  + 1_{X = □(y)} Σ_{X' ∋ y, X' ⊆ B(y)} (T_{X'} + Φ_{y,X'})`
+(ruling R15: the relevant parts are subtracted from, and filed at the cell for, the polymers inside
+the box `B(y)` of half-side `r_k = ⌊L^{m₀+m₁+k}/8⌋` around `y` only, `relBox`; the large polymers
+keep their relevant parts, small by their size), where
 * `T_X = f_X(P₀) + ∂_u f_X(P₀) (u - 1) + ∂_v f_X(P₀) (v - ν_j)`, `u = √(Ψ(y)·Ψ(y))`,
   `v = Ψ(y)·b(y)/u`, `∂_u f_X(P₀) = Σ_x a_X(x)`, `∂_v f_X(P₀) = ∂_b ℰ(y,X)(P₀)·e_{i₀}`; with
   `b = ν_j h` the last term is `(Ψ(y)·h(y)/u - 1) ∂_h ℰ(y,X)(P₀)·e_{i₀}`;
@@ -61,20 +65,18 @@ where
   `π_j`-cube (offset `⌊L/2⌋` cells in every direction) is the cell of `y` (P1 p. 152).
 The relevant local parts `T_{X'} + Φ_{y,X'}` vanish after the resummation over `X'` in infinite
 volume (`Ttw_tsum_zero`, `Phitw_tsum_zero`); `Σ_y Σ_X A_{y,X} = 0` on the torus by the Euclidean
-covariance of the density (P1 (3.112)–(3.113)). -/
+covariance of the density (P1 (3.112)–(3.113)).  It is the functional `irrelTorusOn (relBox m₀)`
+(`IrrelTorusOn.lean`), the same on two tori at the cell (`irrelTorus_cell_boxAgree`). -/
 noncomputable def irrelTorus (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ)
     (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) : ℂ :=
-  Tm.E j y X Ψ h - relPartTorus Tm i₀ i₁ j y Ψ h X - aTermTorus Tm i₀ j y Ψ X
-    + if X = box (cbase (cellSide L m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L m₀ m₁ j)
-        (L * cellSide L m₀ m₁ j) then ∑ᶠ Z ∈ polysAt m₀ j y, relPartTorus Tm i₀ i₁ j y Ψ h Z else 0
+  irrelTorusOn (relBox m₀) m₀ Tm i₀ i₁ j y X Ψ h
 
 open Classical in
-/-- **`irrelTorus` is the label functional of the selection of all polymers**
-(`irrelTorusOn` with `sm = ⊤`). -/
+/-- **`irrelTorus` is the label functional of the selection `relBox`** (ruling R15). -/
 theorem irrelTorus_eq_irrelTorusOn (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ)
     (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) :
-    irrelTorus m₀ Tm i₀ i₁ j y X Ψ h = irrelTorusOn (fun _ _ => True) m₀ Tm i₀ i₁ j y X Ψ h := by
-  simp only [irrelTorus, irrelTorusOn, ite_true]
+    irrelTorus m₀ Tm i₀ i₁ j y X Ψ h = irrelTorusOn (relBox m₀) m₀ Tm i₀ i₁ j y X Ψ h :=
+  rfl
 
 section API
 
