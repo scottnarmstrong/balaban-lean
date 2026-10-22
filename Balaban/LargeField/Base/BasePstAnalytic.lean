@@ -64,6 +64,30 @@ theorem labelAct_Pst_analyticOnNhd {Lb : Type*} [Fintype Lb]
     (hκ := hrate) (hε := hεs) (Y := Y)
   exact this.1
 
+/-- **The cluster-expansion coefficient of a `LabelAct` is bounded** (`marked_cubes_explicit` with the mark
+`G = 1`): `‖P(T)‖ ≤ ε_H K_c C_PE e^{-κ' d(T)}` for non-empty `T`, at the constants of `labelAct_Pst_analyticOnNhd`. -/
+theorem labelAct_Pst_bound {Lb : Type*} [Fintype Lb]
+    {Ωb : CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := 1) m₀ 1 Set.univ → Type*}
+    [∀ b, MeasurableSpace (Ωb b)]
+    (μ : ∀ b, Measure (Ωb b)) [∀ b, IsProbabilityMeasure (μ b)] (hN : L ^ m₀ ∣ N₁)
+    {Lab : CubeLabels m₀ 1 Set.univ Lb} {εs κH κ' : ℝ}
+    (A : LabelAct Lab Ωb εs κH (aEnt d L + 1) (K0 d L (aEnt d L + 1) + 1)) (y0 : Lb)
+    (hκ'0 : 0 ≤ κ') (hεpos : 0 < εs)
+    (hrate : κ' + 3 * (aEnt d L + 1) + c1 d L + 3 / 2 ≤ κH)
+    (hεs : εs ≤ epsMax d L (K0 d L (aEnt d L + 1) + 1) κH (aEnt d L + 1) κ')
+    (T : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := 1) m₀ 1 Set.univ))
+    (hT : T.Nonempty) :
+    ‖Pst μ Lab A.H T‖ ≤ εs * (K0 d L (aEnt d L + 1) + 1) *
+      CPE d L (K0 d L (aEnt d L + 1) + 1) κH (aEnt d L + 1) κ' * Real.exp (-κ' * dExt T) := by
+  have := marked_cubes_explicit (μ := μ) (hN := hN) (hj := le_refl 1) (hΩ := isPiUnion_univ_K)
+    (Lab := Lab) (εH := εs) (κH := κH) (κG := κH) (κ0 := aEnt d L + 1) (κ' := κ')
+    (Kc := K0 d L (aEnt d L + 1) + 1) (F0 := Real.exp (κH * Lab.dl y0)) A y0 (fun _ => 1)
+    measurable_const (fun _ _ _ => rfl) (fun Φ => by
+      simp only [norm_one]
+      rw [← Real.exp_add]; simp)
+    (le_refl _) (le_refl _) hεpos (Real.exp_pos _) hκ'0 (le_refl _) hrate hεs
+  exact this.2.1.2 T hT
+
 end PstAnalytic
 
 end Balaban.LargeField.Base

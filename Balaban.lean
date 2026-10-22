@@ -2208,6 +2208,9 @@ public import Balaban.LargeField.Base.BaseDefectCross
 public import Balaban.LargeField.Base.BaseChartLocalSpec
 public import Balaban.LargeField.Base.BaseLocalActivity
 public import Balaban.LargeField.Base.BasePstAnalytic
+public import Balaban.LargeField.Base.BaseLocalCongr
+public import Balaban.LargeField.Base.BaseLocalCross
+public import Balaban.LargeField.Base.BaseLocalRot
 public import Balaban.LargeField.Base.BasePstTransport
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt

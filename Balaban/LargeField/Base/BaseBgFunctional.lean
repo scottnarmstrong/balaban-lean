@@ -143,6 +143,31 @@ theorem bgFunctional_cutTo_invariant {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L 
       Fe (F (cutTo (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs) s, (Dd.Ψ, Dd.h))) :=
   bgFunctional_cutTo_invariant_deep G a ν hS Sb HB hκ hM hF hDu hDD hFe hsC (fun _ _ z _ => hΩ z) hs
 
+/-- **A functional of the decoupled background is analytic in the parameters on the polydisc.**  The background
+map `F` is analytic on the open polydisc for the data of `Dd`, and `Fe` is analytic on a set `U` containing the
+backgrounds of the polydisc. -/
+theorem bgFunctional_fan {κ : ℝ}
+    {F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    {Dd : BgData G N} {c7' bgC0' : ℝ} (hDu : InUnionDomainC G bgC0' c7' ν Dd)
+    (hFan : AnalyticOnNhd ℂ F {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧
+      ∃ D : BgData G N, InUnionDomainC G bgC0' c7' ν D ∧ q.2 = (D.Ψ, D.h)})
+    {Fe : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → ℂ}
+    {U : Set ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ))} (hFeU : AnalyticOnNhd ℂ Fe U)
+    (hmem : ∀ s : Dec2.DecParams (coverOf G), (∀ P, ‖s P‖ < Real.exp κ) →
+      F (s, (Dd.Ψ, Dd.h)) ∈ U) :
+    AnalyticOnNhd ℂ (fun s => Fe (F (s, (Dd.Ψ, Dd.h))))
+      (polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ)) := by
+  classical
+  have hpoly : ∀ s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ),
+      ∀ P, ‖s P‖ < Real.exp κ := fun s hs P => by simpa using hs P
+  intro s hs
+  have hq : AnalyticAt ℂ (fun s : Dec2.DecParams (coverOf G) => (s, (Dd.Ψ, Dd.h))) s := by
+    fun_prop
+  have h1 : AnalyticAt ℂ F (s, (Dd.Ψ, Dd.h)) := hFan _ ⟨hpoly s hs, Dd, hDu, rfl⟩
+  exact AnalyticAt.comp (g := Fe) (f := fun s => F (s, (Dd.Ψ, Dd.h)))
+    (hFeU _ (hmem s (hpoly s hs))) (AnalyticAt.comp (g := F) (f := fun s => (s, (Dd.Ψ, Dd.h))) h1 hq)
+
 open Classical in
 /-- **Lemma AE through the decoupled background (item 3).**  Let `F` be the background map, analytic
 on the open polydisc of parameters for the data of `Dd`, `Fe` a function of the decoupled background
@@ -180,14 +205,7 @@ theorem bgFunctional_expansion {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx 
   classical
   have hpoly : ∀ s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ),
       ∀ P, ‖s P‖ < Real.exp κ := fun s hs P => by simpa using hs P
-  have hfan : AnalyticOnNhd ℂ (fun s => Fe (F (s, (Dd.Ψ, Dd.h))))
-      (polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ)) := by
-    intro s hs
-    have hq : AnalyticAt ℂ (fun s : Dec2.DecParams (coverOf G) => (s, (Dd.Ψ, Dd.h))) s := by
-      fun_prop
-    have h1 : AnalyticAt ℂ F (s, (Dd.Ψ, Dd.h)) := hFan _ ⟨hpoly s hs, Dd, hDu, rfl⟩
-    exact AnalyticAt.comp (g := Fe) (f := fun s => F (s, (Dd.Ψ, Dd.h)))
-      (hFeU _ (hmem s (hpoly s hs))) (AnalyticAt.comp (g := F) (f := fun s => (s, (Dd.Ψ, Dd.h))) h1 hq)
+  have hfan := bgFunctional_fan G ν hDu hFan hFeU hmem
   have hcut : ∀ (Cs : Finset ↥(coverOf G).cubeIdx) (s : Dec2.DecParams (coverOf G)),
       s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ) → s ∈ supportedOn Cs →
       Fe (F (s, (Dd.Ψ, Dd.h))) =
@@ -362,14 +380,7 @@ theorem bgFunctional_pair_spec {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx 
   have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
   have hpoly : ∀ s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ),
       ∀ P, ‖s P‖ < Real.exp κ := fun s hs P => by simpa using hs P
-  have hfan : AnalyticOnNhd ℂ (fun s => Fe (F (s, (Dd.Ψ, Dd.h))))
-      (polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ)) := by
-    intro s hs
-    have hq : AnalyticAt ℂ (fun s : Dec2.DecParams (coverOf G) => (s, (Dd.Ψ, Dd.h))) s := by
-      fun_prop
-    have h1 : AnalyticAt ℂ F (s, (Dd.Ψ, Dd.h)) := hFan _ ⟨hpoly s hs, Dd, hDu, rfl⟩
-    exact AnalyticAt.comp (g := Fe) (f := fun s => F (s, (Dd.Ψ, Dd.h)))
-      (hFeU _ (hmem s (hpoly s hs))) (AnalyticAt.comp (g := F) (f := fun s => (s, (Dd.Ψ, Dd.h))) h1 hq)
+  have hfan := bgFunctional_fan G ν hDu hFan hFeU hmem
   have h0 : (0 : Dec2.DecParams (coverOf G)) ∈
       polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ) := fun P => by
     simpa using Real.exp_pos κ
