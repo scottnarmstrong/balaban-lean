@@ -21,7 +21,7 @@ has size at most `2 d L (2r+1)^d (m + 1)` (`dExt_hullOf_le`).
 
 * `ball_chain`, `ball_chain_at`: a point of the box of radius `r` about `s` is joined to `s` by
   nearest-neighbour steps inside the box;
-* `card_ball_le`: the ball has at most `(2r+1)^d` points.
+* `card_torusBall_le`: the ball has at most `(2r+1)^d` points.
 -/
 
 @[expose] public section
@@ -116,7 +116,7 @@ theorem ball_chain_at {r : ℕ} (hn : 2 * r + 1 < n) (s t : Torus d n)
 
 open scoped Classical in
 /-- **The ball of radius `r` has at most `(2r+1)^d` points.** -/
-theorem card_ball_le {r : ℕ} (s : Torus d n) :
+theorem card_torusBall_le {r : ℕ} (s : Torus d n) :
     (Finset.univ.filter fun y : Torus d n => InBox d r n (y - s)).card ≤ (2 * r + 1) ^ d := by
   classical
   have hcard : (Fintype.piFinset fun _ : Fin d => Finset.Icc (-(r : ℤ)) r).card =
@@ -182,7 +182,7 @@ theorem card_ballNbhd_le (r : ℕ) (A : Finset (Balaban.Localization.CTorus d L 
   refine (Finset.card_le_card h).trans (Finset.card_biUnion_le.trans ?_)
   calc ∑ a ∈ A, (Finset.univ.filter fun y : Balaban.Localization.CTorus d L N₁ m₁ K =>
         InBox d r ((N₁ * L ^ m₁) * L ^ K) (y - a)).card ≤ ∑ _a ∈ A, (2 * r + 1) ^ d :=
-      Finset.sum_le_sum fun a _ => card_ball_le a
+      Finset.sum_le_sum fun a _ => card_torusBall_le a
     _ = A.card * (2 * r + 1) ^ d := by simp
 
 theorem card_walkJ_le (r : ℕ) (A : Finset (Balaban.Localization.CTorus d L N₁ m₁ K)) :

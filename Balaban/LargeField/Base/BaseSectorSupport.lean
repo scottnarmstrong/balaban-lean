@@ -44,7 +44,7 @@ instance baseSectorN_neZero (L n : ℕ) [NeZero L] [NeZero n] (j : ℕ) :
   unfold baseSectorN
   split_ifs <;> infer_instance
 
-private theorem baseSectorN_step (L n : ℕ) :
+theorem baseSectorN_step (L n : ℕ) :
     ∀ j, j < 1 → baseSectorN L n j = L * baseSectorN L n (j + 1) := by
   intro j hj
   have : j = 0 := by omega
