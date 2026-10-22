@@ -251,6 +251,11 @@ approved declaration.
   `L^{m₀} ∣ N₁`; under R15 the large shapes add a tail of the same order.
 - **Work (ORCH-A, worker A1, branch `orchA-cellterm`).** The core `irrelTorusOn` (the landed `irrelTorus` its instance),
   its identity, bounds and two-torus agreement at the box instance; after approval, the body switch.
+- **Implemented (A1, 9ca0652e, branch `orchA-r15`; approved by Scott 2026-10-21).** `irrelTorus := irrelTorusOn (relBox m₀)`;
+  the identity and congr/analytic/rot unchanged; the non-cell bounds take `relBox P.m₀ y X` (M1 form kept); the large
+  labels `norm_E_sub_aTermTorus_le_of_not_relBox`; every label `irrelTorus_label_bound_of_class(_birth_cap)`; the cell
+  agreement `irrelTorus_cell_boxAgree`, `CellTermsAgree` by `cellTermsAgree_of_class`, the step clause with `hcell`
+  discharged `newLevel_coeff_twoTorus_of_class_cells_R15`.
 
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
 - **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
@@ -414,6 +419,7 @@ approved declaration.
   ∫ρ = Ξ_box exp(Σ_X b) (the tail joins the large-field half). Both take the cutoff `cut κ c₉ β_k = p₁` as a parameter and
   `lastIntegralInput_of_parts` combines them at the same cutoff. Constraints on p₁: χ_k = 1 on the box (B p₁ ≪ β_k^{1/2} δ_k),
   analyticity room (B(κ) β_k^{-1/2} p₁ < c ε_k), the tail (p₂ < 2p); p₁ = A₁ (log β_k)^{p₀}, A₁ ≪ A₀, meets all three.
+  `H7MixedDatumLoc2` is stated for the cube domains of R14 (approved, below).
 - **The (D7) clauses of the old part at an output label (W1154c, item (5)).** `Spine/LFOldBD7.lean`, generic in the
   readings (`glob`, `σ`) and in the interaction: an interaction family `LocIntFam` (labels and constants of Theorem 3.4
   fixed, activities over a parameter, `Fluctuation/MarkClusterFam`) so that the clauses comparing two values of the
@@ -438,3 +444,24 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+- **Ruling request R14, APPROVED (Scott, 2026-10-21, "approve all"; W1154b, applied by W1154c).** In
+  `DeltaC`, `DeltaPrimeC` (`LargeField/Characteristic/Analytic.lean`) the domain conjunct `InUnionDomainC G c₀ c₁ μ`
+  becomes `InDomainC G μ ε ε` (the lifted datum, resp. pair, in `Ψ̃^c(ε, ε)`, `K = 1`); the reader of the domain conjunct
+  keeps it through `inUnionDomainC_of_inDomainC_eps` (`Ψ̃^c(ε, ε) ⊆ 𝒟` for `0 < ε ≤ c₁`, `μ L^{2q} ≤ 1`):
+  `H7BridgeCube.deltaC_inUnionDomainC` takes these three hypotheses; `Theorem42WireGeom` reads the regularity part
+  directly. In `Spine/LFOldH7Refute.lean` the refutation (`deltaC_rotConst`, `h7Domain_rotConst`,
+  `not_h7MixedDatumLoc`, `not_h7MixedDatumLoc_of_le_c7`) no longer holds and is replaced by `not_mem_deltaC_of_im`:
+  the new cube domains exclude constant fields with a coordinate of imaginary part `≥ 2 ε`.
+
+## Reading B-1′ (ORCH-B, accepted 2026-10-21 by the main orchestrator with conditions; blocker 5, the whitening of the box)
+- The last fluctuation integral is whitened with the localized square root, as in the source (P7 §4, pp. 530–531, "exactly as in Sect. 3 [5]"; P5 (2.39)): `ψ_k = h + β_k^{-1/2} L ψ̂`, ψ̂ standard Gaussian, the box in ψ̂, `L` the rows of `boxCut` at the localized parameters (B1's definition). With the exact `K^{-1/2}` the class cutoff χ_k is not local in the Gaussian variable.
+- The change of variables is exact, at every invertible `A = β_k^{-1/2} L`: `∫ F dψ = |det A| (2π)^{n/2} ∫ F(h + Aψ̂) e^{|ψ̂|²/2} dγ(ψ̂)` (`integral_spin_whiten`); the Jacobian (`whitenNorm`) and the mismatch `exp(-½⟨ψ̂, (AᵀKA − 1)ψ̂⟩)` (`mismatchFactor`) are defined factors of the integrand (`integral_mul_sfFactor2_whiten`, `ctxBoxIntegralL`, `ctxFluctBoxIntegralL`); at `A = K^{-1/2}` the mismatch is 1 and the landed forms are the instances.
+- The local form (`BoxLocalForm … A … ε_U W U`) carries the mismatch as an undilated even part `U` (pair terms; smallness and evenness proved by B1 from the row bounds); the parity argument dilates `W` only.
+- Spine level: `sfBoxIntegral` (and so `FinalSmallFieldInput`, `FinalLargeFieldInput`, `lastIntegralInput_of_parts`) moves to B1's `L` when it lands, the same in both halves, never to a free whitening; until then the spine stays at the instance `K^{-1/2}` (`ctxBoxIntegral`).
+
+## Reading B-1″ (ORCH-B, adopted 2026-10-21, accepted by the main orchestrator; blocker 5, the local-pair principle; `A64-DESIGN.md` §4)
+- Every piece of the last integral at a localization domain `X` (whitening row, centre, Gaussian mismatch piece, localized term, Jacobian piece) is computed on the local pair `𝔓(X)`: the generating set and the massive final operator restricted to `X^{+m}`, as in reading HS-1′. Source: P5 (2.18), (2.35), (2.39), the local pairs `(□′, R_{k+1}(□′))`; P7 (4.11), the completion keeps the terms whose domains meet `Z′` and `Z′^c`.
+- Why (obstruction O1): the rows of B-1′'s `boxCut` read the whole-torus `unconstrainedUnitOperator`, and its mismatch the whole-torus Hessian; the regional operators differ from them at every pair, so regional and whole-torus activities would differ everywhere by amounts depending on all of `Z′`, which are not couplings of a linked gas.
+- Whitening: row `p` is row `p` of the inverse square root of the final Hessian of the massive problem on `𝔓(locDom p)` (B1), with one comparison lemma: for any ambient generating set (whole torus or regional) the local-pair row is close to the row of the ambient Hessian's inverse square root when `locDom p` lies deep in the ambient region.
+- The three conditions of B-1′ stand: the whitening is a defined object fixed at the spine; the change of variables is exact, with the determinant and the mismatch in the integrand; the smallness of the mismatch is proved.
+- Consequence: for every history and every piece whose local pair lies deep in `Ω_A`, the regional piece is the whole-torus piece (exact completion); `Ξ_box` is the instance `Z = ∅`.

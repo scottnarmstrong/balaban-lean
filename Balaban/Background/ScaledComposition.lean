@@ -143,11 +143,49 @@ structure HypS (G : GeneratingSet d L N₀ k ϱ) (G' : GeneratingSet d L N₀ k 
   hbc : FieldBounds G' η (psiC Ψ0 Ψ'') φc
   hdiff : ∀ z : G'.Ω 1, vn (fun i => φc (z, i) - φr (z, i)) ≤ ε
 
-namespace HypS
+/-- **The hypotheses of (R-S) at a source level `n ≤ k`**: `HypS` with the scale ratio
+`L^j ≤ θ L^k` in place of `L^j = θ L^k`.  For a source `𝔹'` whose top layer on `Ω₁ ∪ C(Ω₁)` of
+`𝔹_j` is `n ≤ k` (a level-`n` local set on the torus of level `k`), `θ = L^{j-n}` gives the scale
+gap and the collar condition, and `L^j = θ L^n ≤ θ L^k`; the source chart is at the level `k` of
+the torus. -/
+structure HypSle (G : GeneratingSet d L N₀ k ϱ) (G' : GeneratingSet d L N₀ k ϱ') (a₁ ν δ ε η θ : ℝ)
+    (j : ℕ) (Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ) (h0 : Fin N → ℝ)
+    (Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ) (φr φc : G'.Ω 1 × Fin N → ℂ) : Prop where
+  prec : Precedes G G'
+  hL : 2 ≤ L
+  ha₁ : 0 < a₁
+  hθ0 : 0 < θ
+  hθ1 : θ ≤ 1
+  hjθ : (L : ℝ) ^ j ≤ θ * (L : ℝ) ^ k
+  hnj : ∀ x ∈ G.Ω 1, G.layerIndex x ≤ j
+  gap : ScaleGap G G' θ
+  hcol : ∀ z ∈ collar G, z ∈ G'.Ω 1 ∧ 1 ≤ θ * G'.spacing z
+  hδ : 0 < δ
+  hδη : δ ≤ η
+  hηε : η ≤ ε
+  hε1 : ε ≤ 1
+  hsmall : (4 * d + 6) * η ≤ 1
+  hν : 0 ≤ ν
+  hνk : ν * ((L : ℝ) ^ k) ^ 2 ≤ 1
+  hPC : InPsiTildeC G' ν δ ε Ψ0 h0 Ψ'' h''
+  hφr : ∀ z i, (φr (z, i)).im = 0
+  hbr : FieldBounds G' η (psiR Ψ0) φr
+  hmass : ∀ z : G'.Ω 1, Real.sqrt ν * G'.spacing z * vn (fun i => φr (z, i) - (h0 i : ℂ)) ≤ η
+  hbc : FieldBounds G' η (psiC Ψ0 Ψ'') φc
+  hdiff : ∀ z : G'.Ω 1, vn (fun i => φc (z, i) - φr (z, i)) ≤ ε
+
+theorem HypS.toLe {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+    {a₁ ν δ ε η θ : ℝ} {j : ℕ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
+    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G'.Ω 1 × Fin N → ℂ}
+    (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc) :
+    HypSle G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc :=
+  { H with hjθ := H.hjθ.le }
+
+namespace HypSle
 
 variable {a₁ ν δ ε η θ : ℝ} {j : ℕ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
   {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G'.Ω 1 × Fin N → ℂ}
-  (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+  (H : HypSle G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
 
 include H
 
@@ -278,13 +316,18 @@ theorem hh_of {n : ℕ} (hn : n ≤ j) :
     mul_le_mul_of_nonneg_left (pow_le_pow_left₀ (by positivity)
       (pow_le_pow_right₀ hL1 hn) 2) H.hν
   have h2 := H.hPC.toInPsiTilde.r4
-  have e : ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h0 i ^ 2 - 1| =
+  have hj2 : ((L : ℝ) ^ j) ^ 2 ≤ (θ * (L : ℝ) ^ k) ^ 2 :=
+    pow_le_pow_left₀ (by positivity) H.hjθ 2
+  have e : ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h0 i ^ 2 - 1| ≤
       θ ^ 2 * (ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, h0 i ^ 2 - 1|) := by
-    rw [H.hjθ]; ring
+    calc ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h0 i ^ 2 - 1|
+        ≤ ν * (θ * (L : ℝ) ^ k) ^ 2 * |∑ i, h0 i ^ 2 - 1| :=
+          mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hj2 H.hν) (abs_nonneg _)
+      _ = θ ^ 2 * (ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, h0 i ^ 2 - 1|) := by ring
   calc ν * ((L : ℝ) ^ n) ^ 2 * |∑ i, h0 i ^ 2 - 1|
       ≤ ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h0 i ^ 2 - 1| :=
         mul_le_mul_of_nonneg_right h1 (abs_nonneg _)
-    _ = θ ^ 2 * (ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, h0 i ^ 2 - 1|) := e
+    _ ≤ θ ^ 2 * (ν * ((L : ℝ) ^ k) ^ 2 * |∑ i, h0 i ^ 2 - 1|) := e
     _ < θ ^ 2 * δ ^ 2 := mul_lt_mul_of_pos_left h2 (by have := H.hθ0; positivity)
     _ = (θ * δ) ^ 2 := by ring
 
@@ -710,7 +753,143 @@ theorem scaledPsiC : ScaledPsiC G ν (scaledC0 d * θ) ε j (reR G G' a₁ φr �
     c3a := H.c3a
     c3b := H.c3b }
 
+end HypSle
+
+namespace HypS
+
+variable {a₁ ν δ ε η θ : ℝ} {j : ℕ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
+  {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G'.Ω 1 × Fin N → ℂ}
+  (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+
+include H
+
+theorem ηpos : 0 < η :=
+  H.toLe.ηpos
+
+theorem εpos : 0 < ε :=
+  H.toLe.εpos
+
+theorem psiR_const : IsLayerConstant G' (psiR Ψ0) :=
+  H.toLe.psiR_const
+
+theorem psiC_const : IsLayerConstant G' (psiC Ψ0 Ψ'') :=
+  H.toLe.psiC_const
+
+theorem hr : CompHyp G G' (compWeight L a₁) θ η (psiR Ψ0) φr :=
+  H.toLe.hr
+
+theorem hc : CompHyp G G' (compWeight L a₁) θ η (psiC Ψ0 Ψ'') φc :=
+  H.toLe.hc
+
+theorem real_crv (x : Torus d (N₀ * L ^ k)) : IsRealCVec (crv G G' a₁ φr Ψ0 x) :=
+  H.toLe.real_crv x
+
+/-- All sites of `Ω₁ ∪ C(Ω₁)` are in `Ω'₁` with `1 ≤ θ ℓ'`. -/
+theorem data_gap {z : Torus d (N₀ * L ^ k)} (hz : z ∈ dataSites G) :
+    z ∈ G'.Ω 1 ∧ 1 ≤ θ * G'.spacing z :=
+  H.toLe.data_gap hz
+
+/-- The bonds of `φ̄'` at sites of `Ω₁ ∪ C(Ω₁)`: `|∂φ̄'| ≤ θ η`. -/
+theorem bond_data {Ψx : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φx : G'.Ω 1 × Fin N → ℂ}
+    (Hx : FieldBounds G' η Ψx φx) {z z' : Torus d (N₀ * L ^ k)} (hz : z ∈ dataSites G)
+    (hadj : Adj z z') : vn (barVec G' Ψx φx z' - barVec G' Ψx φx z) ≤ θ * η :=
+  H.toLe.bond_data Hx hz hadj
+
+theorem layerConst : IsLayerConstant G (reR G G' a₁ φr Ψ0) :=
+  H.toLe.layerConst
+
+theorem hB {Ψx : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φx : G'.Ω 1 × Fin N → ℂ}
+    (Hx : FieldBounds G' η Ψx φx) : ∀ z z', z ∈ dataSites G → z' ∈ dataSites G → Adj z z' →
+      vn (barVec G' Ψx φx z - barVec G' Ψx φx z') ≤ θ * η :=
+  H.toLe.hB Hx
+
+theorem r1 : ∀ x x', IsInterfacePair G x x' →
+    rn (fun i => reR G G' a₁ φr Ψ0 x i - reR G G' a₁ φr Ψ0 x' i) < scaledC0 d * θ * ε :=
+  H.toLe.r1
+
+theorem unit_collar {x : Torus d (N₀ * L ^ k)} (hx : x ∈ collar G) :
+    rn (reR G G' a₁ φr Ψ0 x) = 1 :=
+  H.toLe.unit_collar hx
+
+theorem r2 : ∀ x ∈ dataSites G, |∑ i, reR G G' a₁ φr Ψ0 x i ^ 2 - 1| <
+    (scaledC0 d * θ) ^ 2 * ε :=
+  H.toLe.r2
+
+theorem hh_of {n : ℕ} (hn : n ≤ j) :
+    ν * ((L : ℝ) ^ n) ^ 2 * |∑ i, h0 i ^ 2 - 1| < (θ * δ) ^ 2 :=
+  H.toLe.hh_of hn
+
+theorem r4 : ν * ((L : ℝ) ^ j) ^ 2 * |∑ i, h0 i ^ 2 - 1| < (scaledC0 d * θ * ε) ^ 2 :=
+  H.toLe.r4
+
+theorem r3 : ∀ x ∈ dataSites G, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+    |1 - (∑ i, reR G G' a₁ φr Ψ0 x i * h0 i) / rn (reR G G' a₁ φr Ψ0 x)| <
+      (scaledC0 d * θ * ε) ^ 2 :=
+  H.toLe.r3
+
+theorem layerConst' : IsLayerConstant G (dPsi G G' a₁ φr φc Ψ0 Ψ'') :=
+  H.toLe.layerConst'
+
+theorem hLayerConst' : IsLayerConstant G (hRes G h'') :=
+  H.toLe.hLayerConst'
+
+theorem c1 : ∀ x x', IsInterfacePair G x x' →
+    vn (dPsi G G' a₁ φr φc Ψ0 Ψ'' x - dPsi G G' a₁ φr φc Ψ0 Ψ'' x') <
+      scaledC0 d * θ * ε :=
+  H.toLe.c1
+
+theorem c2a : ∀ x ∈ dataSites G, vn (dPsi G G' a₁ φr φc Ψ0 Ψ'' x) <
+    ε + scaledC0 d * θ * ε :=
+  H.toLe.c2a
+
+theorem c2b : ∀ x ∈ dataSites G,
+    ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) + dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
+        (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) + dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) -
+      ∑ i, ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) * ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ)‖ <
+      scaledC0 d * θ * ε :=
+  H.toLe.c2b
+
+theorem c3a : ∀ x ∈ G.Ω 1, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 * vn (hRes G h'' x) <
+    (scaledC0 d * θ * ε) ^ 2 / ε :=
+  H.toLe.c3a
+
+theorem rn_lower {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
+    2 / 3 ≤ rn (reR G G' a₁ φr Ψ0 x) :=
+  H.toLe.rn_lower hx
+
+theorem dist_bound {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
+    rn (fun i => reR G G' a₁ φr Ψ0 x i - Ψ0 x i) ≤ (2 * d + 2) * η :=
+  H.toLe.dist_bound hx
+
+theorem c3b : ∀ x ∈ G.Ω 1, ν * ((L : ℝ) ^ G.layerIndex x) ^ 2 *
+    ‖∑ i, ((reR G G' a₁ φr Ψ0 x i / rn (reR G G' a₁ φr Ψ0 x) : ℝ) : ℂ) * hRes G h'' x i‖ <
+      (scaledC0 d * θ * ε) ^ 2 :=
+  H.toLe.c3b
+
+/-- **(R-S), the scaled composition**: see `scaledComposition`. -/
+theorem scaledPsiC : ScaledPsiC G ν (scaledC0 d * θ) ε j (reR G G' a₁ φr Ψ0) h0
+    (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') :=
+  H.toLe.scaledPsiC
+
 end HypS
+
+/-- **(R-S) the scaled composition at a source level `n ≤ k`** (core of `scaledComposition`;
+SMALLFIELD.md §1.7; review S-02), with `L^j ≤ θ L^k` (`HypSle`).  Under `HypS` -- `𝔹_j ≺ 𝔹'_k`
+with the scale gap `ℓ ≤ θ ℓ'`, `θ = L^{j-k}`, the data `(Ψ0 + Ψ'', h0 + h'') ∈ Ψ̃^c(𝔹'_k; δ, ε)` and
+the fields `φr`, `φc` with the bounds of Theorem 5.2 (3) of size `η ≤ ε` -- the composed data
+(formula (6.2)) satisfy, with `σ = C₀ θ` (`C₀ = 8 d + 12`):
+(i) `|Ψ(y) - Ψ(y')| < σ ε` and `|Ψ'(y) - Ψ'(y')| < σ ε` for adjacent blocks;
+(ii) the second-order condition `| |Ψ|² - 1 | < σ² ε` (R2'), `|Ψ'| < ε + σ ε`,
+`|(Ψ + Ψ')·(Ψ + Ψ') - Ψ·Ψ| < σ ε`;
+(iii) `ν L^{2n} |1 - Ψ₀·h| < (σ ε)²`, `ν L^{2j} |h·h - 1| < (σ ε)²` (`ν_j = ν L^{2j}`), `ν L^{2n} |h'| <
+σ² ε`, `ν L^{2n} |Ψ₀·h'| < (σ ε)²`. -/
+theorem scaledComposition_le {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet d L N₀ k ϱ'}
+    {a₁ ν δ ε η θ : ℝ} {j : ℕ} {Ψ0 : Torus d (N₀ * L ^ k) → Fin N → ℝ} {h0 : Fin N → ℝ}
+    {Ψ'' h'' : Torus d (N₀ * L ^ k) → Fin N → ℂ} {φr φc : G'.Ω 1 × Fin N → ℂ}
+    (H : HypSle G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc) :
+    ScaledPsiC G ν (scaledC0 d * θ) ε j (reR G G' a₁ φr Ψ0) h0
+      (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') :=
+  H.scaledPsiC
 
 /-- **(R-S) the scaled composition** (SMALLFIELD.md §1.7; review S-02).  Under `HypS` -- `𝔹_j ≺ 𝔹'_k`
 with the scale gap `ℓ ≤ θ ℓ'`, `θ = L^{j-k}`, the data `(Ψ0 + Ψ'', h0 + h'') ∈ Ψ̃^c(𝔹'_k; δ, ε)` and
@@ -727,7 +906,7 @@ theorem scaledComposition {G : GeneratingSet d L N₀ k ϱ} {G' : GeneratingSet 
     (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc) :
     ScaledPsiC G ν (scaledC0 d * θ) ε j (reR G G' a₁ φr Ψ0) h0
       (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') :=
-  H.scaledPsiC
+  scaledComposition_le H.toLe
 
 end ScaledDomain
 

@@ -157,6 +157,24 @@ theorem hOf_pack_smul {ν : ℝ} (hν : ν ≠ 0) (ψ : Site d → Spin N) (hv :
   simp only [hOf, pack, Sum.elim_inr, Pi.smul_apply, smul_eq_mul, constFld]
   field_simp
 
+/-- **The pulled-back field of the pulled-back configuration, with `Ψ` constant on the blocks of
+the sites of `X` only** (core of `shiftField_pack`). -/
+theorem shiftField_pack_of_mem (hjk : j ≤ k) {y : CTorus d L N₁ m₁ k} (hy : Aligned (L ^ j) y)
+    {X : Set (CTorus d L N₁ m₁ k)}
+    (hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S)
+    {Ψ : Fld d L N₁ m₁ k N}
+    (hΨb : ∀ z ∈ X, ∀ x, jBlock d L (N₁ * L ^ m₁) k j x = jBlock d L (N₁ * L ^ m₁) k j z →
+      Ψ x = Ψ z)
+    (b : Spin N) {z : CTorus d L N₁ m₁ k} (hz : z ∈ X) :
+    fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
+        (pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s)) b)
+        (z - y) = Ψ z := by
+  have hm := hS z hz
+  funext i
+  simp only [fieldOf, hm, ↓reduceDIte, pack, Sum.elim_inl]
+  rw [add_ibase_unlift_sub hjk hy z]
+  exact congrFun (hΨb z hz _ (jBlock_cbase z)) i
+
 /-- **The pulled-back field of the pulled-back configuration**: on `X`, the field of the
 configuration `pack S ψ_y b`, `ψ_y(s) = Ψ(y + ibase s)`, placed at `y`, is `Ψ` (for `Ψ` constant on
 the `j`-blocks and `S` containing the placements of the sites of `X`). -/
@@ -168,12 +186,8 @@ theorem shiftField_pack (hjk : j ≤ k) {y : CTorus d L N₁ m₁ k} (hy : Align
     (b : Spin N) {z : CTorus d L N₁ m₁ k} (hz : z ∈ X) :
     fieldOf (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j i₀ S
         (pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s)) b)
-        (z - y) = Ψ z := by
-  have hm := hS z hz
-  funext i
-  simp only [fieldOf, hm, ↓reduceDIte, pack, Sum.elim_inl]
-  rw [add_ibase_unlift_sub hjk hy z]
-  exact congrFun (hΨb _ _ (jBlock_cbase z)) i
+        (z - y) = Ψ z :=
+  shiftField_pack_of_mem hjk hy hS (fun z _ x hx => hΨb x z hx) b hz
 
 /-- **Adding a spin coordinate**: for `s = unlift (x - y)`, `x` aligned, the field placed at `y` of
 the configuration `c + t δ_{(s, i)}` is that of `c` plus `t δ_{(x, i)}` (`blockDir`). -/

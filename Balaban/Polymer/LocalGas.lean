@@ -31,14 +31,21 @@ The local terms of the gas are the explicit `P_g(Y) = PY` of the Mayer activitie
 `K_g(X) = ∫ Σ_C ∏_{t ∈ C} (e^{W_t} - 1) dμ` (`localGasK`, `localGasP`). Under the numerical conditions of
 `steiner_gas` with `κ₀ + κ₁ ≤ a`, `ε ≤ log 2` and `ε · 4 e^{-κ₀} ≤ 1/4`:
 
-* `integral_exp_eq_gasP`: `∫ exp(Σ_Y W_Y(Φ, g)) dμ(Φ) = exp(Σ_Y P_g(Y))` for `g ∈ U`;
-* `gasP_kp_bound`: `Σ_{Y ∋ b} ‖P_g(Y)‖ e^{κ'|Y|_St} ≤ 64 e ε e^{-2κ₀}` for `g ∈ U`;
+* `integral_exp_eq_gasP`: `∫ exp(Σ_Y W_Y(Φ, g)) dμ(Φ) = exp(Σ_Y P_g(Y))` for `g ∈ U`, and the
+  Kotecký–Preiss bound `Σ_{Y ∋ b} ‖P_g(Y)‖ e^{κ'|Y|_St} ≤ 64 e ε e^{-2κ₀}` for `g ∈ U`;
 * `gasP_eq_zero_of_not_isAnimal`: `P_g(Y) = 0` unless `Y` is connected;
 * `gasP_congr_g`: `P_g(Y)` depends on `g` only at the indices of the sites of `Y`;
 * `analyticOnNhd_gasP`: `g ↦ P_g(Y)` is analytic on `U` (the Mayer activities are integrals over a
   compact carrier of jointly continuous functions analytic in `g`,
   `Analysis.analyticAt_integral_of_continuousOn`, and the cluster sum is analytic under the
   Kotecký–Preiss condition, `pe_PY_analyticOnNhd`).
+
+The parameter need not be a source: `LocalGasFormE` is the local form over an open set `U` of a
+complex normed space `E` of parameters (clauses (W1), (W3)–(W5)), and `LocalGasForm` adds (W2) for
+the sources `E = I → ℂ`. All the statements above except `gasP_congr_g` hold over `E` (with `E`
+finite-dimensional for the analyticity); `gasP_congr_param` is the locality in the parameter, and
+`localGasP_eq_zero_of_terms_zero` says that the local terms vanish at a parameter where all the
+terms vanish.
 -/
 
 @[expose] public section
@@ -53,60 +60,71 @@ namespace Balaban.Polymer
 
 variable {B : Type*} [Fintype B] [DecidableEq B] {H : SimpleGraph B}
   {Ω : B → Type*} [∀ b, TopologicalSpace (Ω b)] [∀ b, MeasurableSpace (Ω b)]
-  {I : Type*} [Fintype I]
+  {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] {I : Type*} [Fintype I]
 
-/-- **The local form of a family of terms** on the sets of sites (clauses (W1)–(W5) of the module
-docstring), on the open set `U` of sources, with the decay rate `a` and the bound `ε`. -/
-structure LocalGasForm (H : SimpleGraph B) (σ : I → B) (U : Set (I → ℂ)) (a ε : ℝ)
-    (W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ) : Prop where
+/-- **The local form of a family of terms with a parameter** on the sets of sites (clauses (W1),
+(W3)–(W5) of the module docstring), on an open set `U` of a complex normed space of parameters, with
+the decay rate `a` and the bound `ε`. -/
+structure LocalGasFormE (H : SimpleGraph B) (U : Set E) (a ε : ℝ)
+    (W : Finset B → (∀ b, Ω b) → E → ℂ) : Prop where
   /-- (W1) -/
-  local_w : ∀ Y g, DepOn Y (fun Φ => W Y Φ g)
-  /-- (W2) -/
-  local_g : ∀ Y Φ g g', (∀ i, σ i ∈ Y → g i = g' i) → W Y Φ g = W Y Φ g'
+  local_w : ∀ Y e, DepOn Y (fun Φ => W Y Φ e)
   /-- (W3) -/
-  support : ∀ Y, ¬ IsAnimal H Y → ∀ Φ g, W Y Φ g = 0
-  /-- (W4) analyticity in the source -/
+  support : ∀ Y, ¬ IsAnimal H Y → ∀ Φ e, W Y Φ e = 0
+  /-- (W4) analyticity in the parameter -/
   analytic : ∀ Y Φ, AnalyticOnNhd ℂ (W Y Φ) U
   /-- (W4) joint continuity -/
-  cont : ∀ Y, ContinuousOn (fun q : (I → ℂ) × (∀ b, Ω b) => W Y q.2 q.1) (U ×ˢ Set.univ)
+  cont : ∀ Y, ContinuousOn (fun q : E × (∀ b, Ω b) => W Y q.2 q.1) (U ×ˢ Set.univ)
   /-- (W5) -/
-  bound : ∀ Φ, ∀ g ∈ U, ∀ b : B,
-    ∑ Y ∈ Finset.univ.filter (fun Y : Finset B => b ∈ Y), ‖W Y Φ g‖ * Real.exp (a * (Y.card : ℝ)) ≤ ε
+  bound : ∀ Φ, ∀ e ∈ U, ∀ b : B,
+    ∑ Y ∈ Finset.univ.filter (fun Y : Finset B => b ∈ Y), ‖W Y Φ e‖ * Real.exp (a * (Y.card : ℝ)) ≤ ε
+
+/-- **The local form of a family of terms** on the sets of sites (clauses (W1)–(W5) of the module
+docstring), on the open set `U` of sources, with the decay rate `a` and the bound `ε`: the local
+form with the sources as parameters (`LocalGasFormE`) and the locality (W2) in the source. -/
+structure LocalGasForm (H : SimpleGraph B) (σ : I → B) (U : Set (I → ℂ)) (a ε : ℝ)
+    (W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ) : Prop extends LocalGasFormE H U a ε W where
+  /-- (W2) -/
+  local_g : ∀ Y Φ g g', (∀ i, σ i ∈ Y → g i = g' i) → W Y Φ g = W Y Φ g'
 
 omit [∀ b, MeasurableSpace (Ω b)] in
 /-- **Rule 10: the zero family has the local form** (every graph, set of sources, rate and bound
 `ε ≥ 0`). -/
 theorem localGasForm_zero (H : SimpleGraph B) (σ : I → B) (U : Set (I → ℂ)) (a : ℝ) {ε : ℝ}
-    (hε : 0 ≤ ε) : LocalGasForm (Ω := Ω) H σ U a ε (fun _ _ _ => 0) :=
-  ⟨fun _ _ _ _ _ => rfl, fun _ _ _ _ _ => rfl, fun _ _ _ _ => rfl, fun _ _ => analyticOnNhd_const,
-    fun _ => continuousOn_const, fun _ _ _ _ => by simpa using hε⟩
+    (hε : 0 ≤ ε) : LocalGasForm (Ω := Ω) H σ U a ε (fun _ _ _ => 0) where
+  local_w _ _ _ _ _ := rfl
+  support _ _ _ _ := rfl
+  analytic _ _ := analyticOnNhd_const
+  cont _ := continuousOn_const
+  bound _ _ _ _ := by simpa using hε
+  local_g _ _ _ _ _ := rfl
 
 variable (μ : ∀ b, Measure (Ω b))
 
 /-- The local terms at the source `g`, on the nonempty sets of sites. -/
-def localGasTerm (W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ) (g : I → ℂ) :
+def localGasTerm (W : Finset B → (∀ b, Ω b) → E → ℂ) (g : E) :
     NePoly B → (∀ b, Ω b) → ℂ :=
   fun X Φ => W X.1 Φ g
 
 /-- **The Mayer activities of the gas** at the source `g`:
 `K_g(X) = ∫ Σ_{C connected, ∪C = X} ∏_{t ∈ C} (e^{W_t(Φ, g)} - 1) dμ(Φ)`. -/
-def localGasK (W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ) (g : I → ℂ) : NePoly B → ℂ :=
+def localGasK (W : Finset B → (∀ b, Ω b) → E → ℂ) (g : E) : NePoly B → ℂ :=
   mayerK μ (fun X : NePoly B => X.1) (localGasTerm W g)
 
 /-- **The local terms of the gas** at the source `g`: `P_g(Y)`, the clusters of activities
 `localGasK` with union `Y`. -/
-def localGasP (W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ) (g : I → ℂ) (Y : Finset B) : ℂ :=
+def localGasP (W : Finset B → (∀ b, Ω b) → E → ℂ) (g : E) (Y : Finset B) : ℂ :=
   PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val (localGasK μ W g) Y
 
 variable {μ}
 
 section Basic
 
-variable {σ : I → B} {U : Set (I → ℂ)} {a ε : ℝ} {W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ}
+variable {U : Set E} {a ε : ℝ} {W : Finset B → (∀ b, Ω b) → E → ℂ}
 
 omit [∀ b, MeasurableSpace (Ω b)] in
 /-- The sum over all sets of sites is the sum over the nonempty ones (`W_∅ = 0`). -/
-theorem sum_finset_eq_sum_nePoly (hW : LocalGasForm H σ U a ε W) (Φ : ∀ b, Ω b) (g : I → ℂ) :
+theorem sum_finset_eq_sum_nePoly (hW : LocalGasFormE H U a ε W) (Φ : ∀ b, Ω b) (g : E) :
     ∑ Y : Finset B, W Y Φ g = ∑ X : NePoly B, localGasTerm W g X Φ := by
   have h0 : W ∅ Φ g = 0 := hW.support ∅ (fun h => by simpa using h.1) Φ g
   have h1 : ∑ X : NePoly B, localGasTerm W g X Φ =
@@ -120,7 +138,7 @@ theorem sum_finset_eq_sum_nePoly (hW : LocalGasForm H σ U a ε W) (Φ : ∀ b, 
 
 omit [∀ b, MeasurableSpace (Ω b)] in
 /-- The per-term bound from (W5): `‖W_X(Φ, g)‖ ≤ ε e^{-a |X|_St}` for `g ∈ U`. -/
-theorem norm_gasTerm_le (hconn : H.Connected) (hW : LocalGasForm H σ U a ε W) {g : I → ℂ}
+theorem norm_gasTerm_le (hconn : H.Connected) (hW : LocalGasFormE H U a ε W) {g : E}
     (hg : g ∈ U) (X : NePoly B) (Φ : ∀ b, Ω b) :
     ‖localGasTerm W g X Φ‖ ≤ ε * Real.exp (-a * stSizeG H X.1) := by
   have hε : 0 ≤ ε := by
@@ -147,10 +165,10 @@ section Gas
 
 variable [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
   [∀ b, IsProbabilityMeasure (μ b)]
-  {σ : I → B} {U : Set (I → ℂ)} {a ε : ℝ} {W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ}
+  {U : Set E} {a ε : ℝ} {W : Finset B → (∀ b, Ω b) → E → ℂ}
 
 omit [∀ b, IsProbabilityMeasure (μ b)] in
-theorem measurable_gasTerm (hW : LocalGasForm H σ U a ε W) {g : I → ℂ} (hg : g ∈ U)
+theorem measurable_gasTerm (hW : LocalGasFormE H U a ε W) {g : E} (hg : g ∈ U)
     (X : NePoly B) : Measurable (localGasTerm W g X) := by
   have hc : Continuous fun Φ : ∀ b, Ω b => W X.1 Φ g := by
     rw [← continuousOn_univ]
@@ -164,7 +182,7 @@ theorem integral_exp_eq_gasP (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v, H.d
     {κ0 κ1 κ' : ℝ} (hq : (Δ : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
     (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκ : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
     (ha : κ0 + κ1 ≤ a) (hεlog : ε ≤ Real.log 2) (hεK : ε * (4 * Real.exp (-κ0)) ≤ 1 / 4)
-    (hW : LocalGasForm H σ U a ε W) {g : I → ℂ} (hg : g ∈ U) :
+    (hW : LocalGasFormE H U a ε W) {g : E} (hg : g ∈ U) :
     ∫ Φ, Complex.exp (∑ Y : Finset B, W Y Φ g) ∂(Measure.pi μ) =
         Complex.exp (∑ Y : Finset B, localGasP μ W g Y) ∧
       ∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
@@ -193,30 +211,66 @@ theorem integral_exp_eq_gasP (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v, H.d
 omit [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
   [∀ b, IsProbabilityMeasure (μ b)] in
 /-- **The local terms vanish off connected sets** (W3). -/
-theorem gasP_eq_zero_of_not_isAnimal (hW : LocalGasForm H σ U a ε W) (g : I → ℂ)
+theorem gasP_eq_zero_of_not_isAnimal (hW : LocalGasFormE H U a ε W) (g : E)
     (Y : Finset B) (hY : ¬ IsAnimal H Y) : localGasP μ W g Y = 0 :=
   PY_shareBlock_eq_zero_of_not_isAnimal H _ (fun Z hZ =>
     mayerK_eq_zero_of_not_isAnimal H μ (fun X : NePoly B => X.1) (localGasTerm W g)
       (fun X hX Φ => hW.support X.1 hX Φ g) Z hZ) Y hY
 
-omit [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
+omit [DecidableEq B] [∀ b, TopologicalSpace (Ω b)] [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
   [∀ b, IsProbabilityMeasure (μ b)] in
-/-- **Locality of the local terms in the source** (W2): `P_g(Y)` depends on `g` only at the
-indices of the sites of `Y`. -/
-theorem gasP_congr_g (hW : LocalGasForm H σ U a ε W) (Y : Finset B) {g g' : I → ℂ}
-    (hgg : ∀ i, σ i ∈ Y → g i = g' i) : localGasP μ W g Y = localGasP μ W g' Y := by
+/-- **The gas of vanishing terms is trivial**: if every term vanishes at the parameter `e`, every
+local term `P(Y)` vanishes there. -/
+theorem localGasP_eq_zero_of_terms_zero {e : E} (h : ∀ X Φ, W X Φ e = 0) (Y : Finset B) :
+    localGasP μ W e Y = 0 := by
+  have hK : localGasK μ W e = 0 := by
+    funext Z
+    unfold localGasK mayerK
+    refine (integral_congr_ae (g := fun _ => (0 : ℂ)) (Filter.Eventually.of_forall fun Φ => ?_)).trans
+      (integral_zero _ _)
+    unfold mayerAct polyAct
+    refine Finset.sum_eq_zero fun C hC => ?_
+    obtain ⟨t, ht⟩ := (mem_Cfam.1 hC).1.1
+    refine Finset.prod_eq_zero ht ?_
+    show Complex.exp (W t.1 Φ e) - 1 = 0
+    rw [h, Complex.exp_zero, sub_self]
+  unfold localGasP PY
+  rw [hK]
+  refine (tsum_congr fun n => ?_).trans tsum_zero
+  unfold Pterm
+  refine mul_eq_zero_of_right _ (Finset.sum_eq_zero fun X _ => ?_)
+  exact mul_eq_zero_of_right _ (Finset.prod_eq_zero (Finset.mem_univ 0) rfl)
+
+omit [DecidableEq B] [∀ b, TopologicalSpace (Ω b)] [NormedAddCommGroup E] [NormedSpace ℂ E]
+  [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
+  [∀ b, IsProbabilityMeasure (μ b)] in
+/-- **Locality of the local terms in the parameter**: if the terms supported in `Y` agree at the
+parameters `e`, `e'`, so do the local terms `P(Y)`. -/
+theorem gasP_congr_param (Y : Finset B) {e e' : E}
+    (hee : ∀ X : Finset B, X ⊆ Y → ∀ Φ, W X Φ e = W X Φ e') :
+    localGasP μ W e Y = localGasP μ W e' Y := by
   unfold localGasP
   refine PY_congr _ _ Y fun Z hZ => ?_
   unfold localGasK mayerK mayerAct polyAct
   refine integral_congr_ae (Filter.Eventually.of_forall fun Φ => ?_)
   refine Finset.sum_congr rfl fun C hC => Finset.prod_congr rfl fun X hX => ?_
-  show Complex.exp (W X.1 Φ g) - 1 = Complex.exp (W X.1 Φ g') - 1
-  rw [hW.local_g X.1 Φ g g' fun i hi => hgg i (hZ (sub_of_mem_Cfam hC hX hi))]
+  show Complex.exp (W X.1 Φ e) - 1 = Complex.exp (W X.1 Φ e') - 1
+  rw [hee X.1 ((sub_of_mem_Cfam hC hX).trans hZ) Φ]
 
-/-- **The Mayer activities are analytic in the source** on `U`, when `μ` is carried by a compact
+omit [∀ b, BorelSpace (Ω b)] [∀ b, SecondCountableTopology (Ω b)]
+  [∀ b, IsProbabilityMeasure (μ b)] in
+/-- **Locality of the local terms in the source** (W2): `P_g(Y)` depends on `g` only at the
+indices of the sites of `Y`. -/
+theorem gasP_congr_g {σ : I → B} {U : Set (I → ℂ)} {W : Finset B → (∀ b, Ω b) → (I → ℂ) → ℂ}
+    (hW : LocalGasForm H σ U a ε W) (Y : Finset B) {g g' : I → ℂ}
+    (hgg : ∀ i, σ i ∈ Y → g i = g' i) : localGasP μ W g Y = localGasP μ W g' Y :=
+  gasP_congr_param Y fun X hX Φ => hW.local_g X Φ g g' fun i hi => hgg i (hX hi)
+
+/-- **The Mayer activities are analytic in the parameter** on `U`, when `μ` is carried by a compact
 set (`Analysis.analyticAt_integral_of_continuousOn`). -/
-theorem analyticOnNhd_gasK (hU : IsOpen U) {Kc : Set (∀ b, Ω b)} (hKc : IsCompact Kc)
-    (hKm : MeasurableSet Kc) (hμK : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Kc) (hW : LocalGasForm H σ U a ε W)
+theorem analyticOnNhd_gasK [FiniteDimensional ℂ E] (hU : IsOpen U) {Kc : Set (∀ b, Ω b)} (hKc : IsCompact Kc)
+    (hKm : MeasurableSet Kc) (hμK : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Kc) (hW : LocalGasFormE H U a ε W)
     (Z : NePoly B) : AnalyticOnNhd ℂ (fun g => localGasK μ W g Z) U := by
   intro g0 hg0
   unfold localGasK mayerK
@@ -230,14 +284,14 @@ theorem analyticOnNhd_gasK (hU : IsOpen U) {Kc : Set (∀ b, Ω b)} (hKc : IsCom
     have h := (hW.cont X.1).mono (Set.prod_mono (subset_refl U) (Set.subset_univ Kc))
     exact (Complex.continuous_exp.comp_continuousOn h).sub continuousOn_const
 
-/-- **The local terms are analytic in the source** on `U` (`pe_PY_analyticOnNhd`, with the
+/-- **The local terms are analytic in the parameter** on `U` (`pe_PY_analyticOnNhd`, with the
 Kotecký–Preiss data of `steinerGen_kp`). -/
-theorem analyticOnNhd_gasP (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ)
+theorem analyticOnNhd_gasP [FiniteDimensional ℂ E] (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ)
     {κ0 κ1 κ' : ℝ} (hq : (Δ : ℝ) ^ 2 * 2 * Real.exp (-κ0) ≤ 1 / 2)
     (hκ0 : Real.log 4 + 1 ≤ κ0) (hκ' : 0 ≤ κ') (hκ : κ' + κ0 + 1 ≤ κ1 - 3 / 2)
     (ha : κ0 + κ1 ≤ a) (hεlog : ε ≤ Real.log 2) (hεK : ε * (4 * Real.exp (-κ0)) ≤ 1 / 4)
     (hU : IsOpen U) {Kc : Set (∀ b, Ω b)} (hKc : IsCompact Kc) (hKm : MeasurableSet Kc)
-    (hμK : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Kc) (hW : LocalGasForm H σ U a ε W) (Y : Finset B) :
+    (hμK : ∀ᵐ Φ ∂(Measure.pi μ), Φ ∈ Kc) (hW : LocalGasFormE H U a ε W) (Y : Finset B) :
     AnalyticOnNhd ℂ (fun g => localGasP μ W g Y) U := by
   intro g0 hg0
   have hε : 0 ≤ ε := by

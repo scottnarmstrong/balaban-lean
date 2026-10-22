@@ -27,7 +27,7 @@ polymer of `𝒟_j` in the centred box and the fields agree under `boxMap`:
   `fderiv_E_boxAgree_h`, `D2_E_boxAgree`, and the integer positions of the blocks);
 * `aTermTorus_boxAgree`: the term `A_{y,X}` agrees when the fields agree on `X`;
 * `irrelTorusOn_boxAgree`: away from the cell `□(y)`, the label functionals of two selections that
-  correspond under `boxMap` agree (the instance `sm = ⊤` is `irrelTorus_boxAgree`).
+  correspond under `boxMap` agree (the instance `sm = relBox` is `irrelTorus_boxAgree`).
 -/
 
 @[expose] public section

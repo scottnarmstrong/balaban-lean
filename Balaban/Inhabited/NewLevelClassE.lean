@@ -46,7 +46,8 @@ def OldTermsCanonPinsAt (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d 
     (∀ τ r, O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (O.jL τ) (y τ) (X τ) r.1 r.2) ∧
     Set.BijOn (fun τ => (O.jL τ, y τ, X τ)) Set.univ (AdmPairs L N₁ m₁ k d C.m₀ k) ∧
     ∀ τ, O.X₁f τ = F.X₁fC (O.jL τ) (y τ) (X τ) ∧ O.𝒦X τ = F.𝒦XC (O.jL τ) (y τ) (X τ) ∧
-      O.Gk τ = F.GkC (O.jL τ) (y τ) (X τ) ∧ O.Gj τ = F.GjC (O.jL τ) (y τ) (X τ) ∧ O.ρ = F.ρC
+      O.Gk τ = F.GkC (O.jL τ) (y τ) (X τ) ∧ O.Gj τ = F.GjC (O.jL τ) (y τ) (X τ) ∧ O.ρ = F.ρC ∧
+      O.XL τ = polySet C.m₀ (O.jL τ) (y τ) (X τ)
 
 theorem oldTermsCanonPins_iff {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
     {t : ℝ} {O : OldTermSystem S t} {F : CanonCover d L N₁ m₁ k ϱ O.ϱ₁} :

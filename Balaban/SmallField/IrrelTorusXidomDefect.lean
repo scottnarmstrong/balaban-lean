@@ -204,11 +204,12 @@ theorem irrelTorusOn_eq_Itw_centred_add_discrepancy
   ring
 
 open Classical in
-/-- The exact discrepancy identity for a non-special label. -/
+/-- The exact discrepancy identity for a non-special label of the box around the centre (`relBox`,
+ruling R15). -/
 theorem irrelTorus_eq_Itw_centred_add_discrepancy (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -229,7 +230,7 @@ theorem irrelTorus_eq_Itw_centred_add_discrepancy (hcl : SFTermClauses P (xiFiel
         (pack S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
           ((ν : ℂ) • hv)) := by
   rw [irrelTorus_eq_irrelTorusOn, irrelTorusOn_eq_Itw_centred_add_discrepancy _ hcl hBg hν hμν hνb
-    hj1 hjk hN hy hX hyX trivial hSdef hne hrad hv]
+    hj1 hjk hN hy hX hyX hsm hSdef hne hrad hv]
   simp only [hXne, ↓reduceIte, add_zero]
 
 

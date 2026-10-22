@@ -17,15 +17,16 @@ public import Balaban.Fluctuation.LocalClassLabels
 torus `N₁` (`irrelTorus`) and the one of the image label `(j, boxMap y, boxMap '' X)` on the torus
 `N₂` agree, when `X` is a polymer of `𝒟_j` in the centred box, away from the distinguished cell
 `□(y)`, and the fields agree under `boxMap` on `X` and on the stencil `y + L^j e_μ`.  It is the
-instance `sm = ⊤` of `irrelTorusOn_boxAgree` (`IrrelTorusOnBox.lean`), which transports every
+instance `sm = relBox` of `irrelTorusOn_boxAgree` (`IrrelTorusOnBox.lean`; the selection is the same
+on the two tori, `relBox_image_boxMap_iff`), which transports every
 ingredient: the term itself (`E_boxAgree`, the clause `TorusIndep`), its first and second
 derivatives at the constant field (`fderiv_E_boxAgree`, `D2_E_boxAgree`), the sums over the
 aligned sites of `X` (`sum_blk_boxMap`), the directions `δ_{(block x)} e_i` (`blockDir_boxMap`) and
 the integer positions of the blocks (`unlift_sub_of_box`).
 
-For `X = □(y)` the term contains the sum over *all* polymers of `𝒟_j` at `y` of the relevant
-parts, which on a finite torus includes the polymers that wrap around it; that sum is not controlled
-by the clause `TorusIndep` and is excluded here (`image_eq_cellBox_iff` identifies the case on the two
+For `X = □(y)` the term contains the sum over the polymers of the box around `y` of the relevant
+parts; its agreement on the two tori is `irrelTorus_cell_boxAgree` (`IrrelTorusBCell.lean`, with the
+margin `8 (R + r_K) + 3 L^K + L · cellSide`; `image_eq_cellBox_iff` identifies the case on the two
 tori).
 -/
 
@@ -73,9 +74,10 @@ theorem irrelTorus_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m₁ K N
       Ψ (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ K)))
     (hh : ∀ x ∈ X, h' (bm x) = h x) :
     irrelTorus m₀ (Tm N₂) i₀ i₁ j (bm y) (bm '' X) Ψ' h' = irrelTorus m₀ (Tm N₁) i₀ i₁ j y X Ψ h := by
+  have hLK : 0 < L ^ K := pow_pos (NeZero.pos L) K
   rw [irrelTorus_eq_irrelTorusOn, irrelTorus_eq_irrelTorusOn]
   exact irrelTorusOn_boxAgree _ _ hj1 hjK hT hlocB hN₁ hN₂ hM8 hmar₁ hmar₂ hy hyX hX hXR hstep hcell
-    hne Iff.rfl i₀ i₁ Ψ h Ψ' h' hΨ hΨst hh
+    hne (relBox_image_boxMap_iff (by omega) (by omega) (hXR y hyX) hXR) i₀ i₁ Ψ h Ψ' h' hΨ hΨst hh
 
 end Main
 

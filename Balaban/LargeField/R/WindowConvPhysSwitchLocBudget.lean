@@ -29,16 +29,47 @@ open Balaban.Multiscale Balaban.Background Finset
 
 variable {d L N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ K ϱ}
 
-/-- **The three per-cube budgets of the switch.** -/
-theorem switch_cube_budgets (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j k : ℕ}
-    (hjk : j + 1 ≤ k) (hwt1 : ∀ c, Dc.wt c = 1)
+/-- **The per-cube budget of the mass term of the switch** from the budget `hCm` of the mass cost. -/
+theorem switch_mass_cube_budget (X : Region G) (Dc : StepDecomp X) {j : ℕ}
+    (hwt1 : ∀ c, Dc.wt c = 1)
     (hcells : ∀ c, ∃ x ∈ X.sites, (Dc.cube c).sites = G.blk (G.layerIndex x) x ∧
       G.layerIndex x ≤ j + 1)
-    (a : ℕ → ℝ) {β η gk gj Ka Dδ ε₀ E ν δk Cb Cg Cm : ℝ} (hβ : 0 < β)
+    {β η gk gj ν δk Cm E : ℝ} (hβ : 0 < β) (hgk : gk ≤ Real.exp η)
+    (hCm : β * Real.exp η * (((L : ℝ) ^ (j + 1)) ^ d * (|ν| * |δk|)) ≤
+      Cm * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2)) :
+    ∀ c, β * gk * ∑ _x ∈ (Dc.cube c).sites, |ν * δk| ≤
+      Cm * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 * Dc.wt c) := by
+  intro c
+  obtain ⟨x, hx, hs, hl⟩ := hcells c
+  rw [hs, X.layerBlock_sum_const hx, hwt1, mul_one, abs_mul]
+  set ℓ := G.layerIndex x
+  have hL1 : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne L)
+  have hLk : ((L : ℝ) ^ ℓ) ^ d ≤ ((L : ℝ) ^ (j + 1)) ^ d :=
+    pow_le_pow_left₀ (by positivity) (pow_le_pow_right₀ hL1 hl) d
+  have hgk0 : 0 ≤ gk ∨ gk < 0 := le_or_gt 0 gk
+  have hstep : β * gk * (((L : ℝ) ^ ℓ) ^ d * (|ν| * |δk|)) ≤
+      β * Real.exp η * (((L : ℝ) ^ (j + 1)) ^ d * (|ν| * |δk|)) := by
+    rcases hgk0 with hg | hg
+    · exact mul_le_mul (mul_le_mul_of_nonneg_left hgk hβ.le)
+        (mul_le_mul_of_nonneg_right hLk (by positivity)) (by positivity) (by positivity)
+    · have h1 : β * gk * (((L : ℝ) ^ ℓ) ^ d * (|ν| * |δk|)) ≤ 0 :=
+        mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonneg_of_nonpos hβ.le hg.le)
+          (by positivity)
+      have h2 : 0 ≤ β * Real.exp η * (((L : ℝ) ^ (j + 1)) ^ d * (|ν| * |δk|)) := by positivity
+      linarith
+  exact hstep.trans (by simpa using hCm)
+
+/-- **The three per-cube budgets of the switch.** -/
+theorem switch_cube_budgetsP (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j : ℕ}
+    (hwt1 : ∀ c, Dc.wt c = 1)
+    (hcells : ∀ c, ∃ x ∈ X.sites, (Dc.cube c).sites = G.blk (G.layerIndex x) x ∧
+      G.layerIndex x ≤ j + 1)
+    (a : ℕ → ℝ) {β η gk gj Ka ε₀ E ν δk Cb Cg Cm : ℝ} (hβ : 0 < β)
     (hgk : gk ≤ Real.exp η) (hgj : Real.exp (-η) ≤ gj) (hε₀ : 0 < ε₀) (hE : ε₀ ^ 2 ≤ E ^ 2)
-    (hKa : ∀ ℓ, |a ℓ| ≤ Ka) (hreg : β * |ν| * (L : ℝ) ^ (k * d) ≤ 1) (hδk : |δk| ≤ Dδ)
+    (hKa : ∀ ℓ, |a ℓ| ≤ Ka)
     (hCb : Real.exp (2 * η) * Ka / ε₀ ^ 2 ≤ Cb) (hCg : Real.exp (2 * η) / ε₀ ^ 2 ≤ Cg)
-    (hCm : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm) :
+    (hCm : β * Real.exp η * (((L : ℝ) ^ (j + 1)) ^ d * (|ν| * |δk|)) ≤
+      Cm * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2)) :
     (∀ c, β * gk * ∑ x ∈ (Dc.cube c).sites, ‖levelCoeff G a x‖ ≤
       Cb * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 * Dc.wt c)) ∧
     (∀ c, β * gk * ∑ x ∈ (Dc.cube c).sites, ((G.spacing x) ^ 2)⁻¹ ≤
@@ -48,11 +79,9 @@ theorem switch_cube_budgets (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j
   have hε2 : 0 < ε₀ ^ 2 := by positivity
   have hgj0 : 0 < gj := lt_of_lt_of_le (Real.exp_pos _) hgj
   have hKa0 : 0 ≤ Ka := (abs_nonneg _).trans (hKa 0)
-  have hDδ0 : 0 ≤ Dδ := (abs_nonneg _).trans hδk
   have hA0 : 0 ≤ β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 := by positivity
   have hCb0 : 0 ≤ Cb := le_trans (by positivity) hCb
   have hCg0 : 0 ≤ Cg := le_trans (by positivity) hCg
-  have hCm0 : 0 ≤ Cm := le_trans (by positivity) hCm
   refine ⟨fun c => ?_, fun c => ?_, fun c => ?_⟩
   · obtain ⟨x, hx, hs, hl⟩ := hcells c
     rw [hs, X.layerBlock_sum_levelCoeff hx, pow_layer_mul hd, hwt1, mul_one]
@@ -76,41 +105,29 @@ theorem switch_cube_budgets (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j
       _ ≤ Cg * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2) := by
           apply mul_le_mul_of_nonneg_right _ hA0
           rw [mul_one]; exact hCg
-  · obtain ⟨x, hx, hs, hl⟩ := hcells c
-    rw [hs, X.layerBlock_sum_const hx, hwt1, mul_one, abs_mul]
-    set ℓ := G.layerIndex x
-    have hLk : ((L : ℝ) ^ ℓ) ^ d ≤ (L : ℝ) ^ (k * d) := by
-      rw [← pow_mul]; exact pow_L_mono (Nat.mul_le_mul_right _ (hl.trans hjk))
-    have hP : 1 ≤ (L : ℝ) ^ ((d - 2) * (j + 1)) := one_le_pow_L _
-    have e2 : Real.exp (2 * η) * Real.exp (-η) = Real.exp η := by
-      rw [← Real.exp_add]; ring_nf
-    have hgjE : Real.exp (-η) * ε₀ ^ 2 ≤ gj * E ^ 2 :=
-      mul_le_mul hgj hE hε2.le hgj0.le
-    have hgk0 : 0 ≤ gk ∨ gk < 0 := le_or_gt 0 gk
-    have hstep : β * gk * (((L : ℝ) ^ ℓ) ^ d * (|ν| * |δk|)) ≤
-        β * Real.exp η * ((L : ℝ) ^ (k * d) * (|ν| * Dδ)) := by
-      rcases hgk0 with hg | hg
-      · apply mul_le_mul (mul_le_mul_of_nonneg_left hgk hβ.le)
-          (mul_le_mul hLk (mul_le_mul_of_nonneg_left hδk (abs_nonneg _)) (by positivity)
-            (by positivity)) (by positivity) (by positivity)
-      · have h1 : β * gk * (((L : ℝ) ^ ℓ) ^ d * (|ν| * |δk|)) ≤ 0 :=
-          mul_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonneg_of_nonpos hβ.le hg.le)
-            (by positivity)
-        have h2 : 0 ≤ β * Real.exp η * ((L : ℝ) ^ (k * d) * (|ν| * Dδ)) := by positivity
-        linarith
-    calc β * gk * (((L : ℝ) ^ ℓ) ^ d * (|ν| * |δk|))
-        ≤ β * Real.exp η * ((L : ℝ) ^ (k * d) * (|ν| * Dδ)) := hstep
-      _ = Real.exp η * Dδ * (β * |ν| * (L : ℝ) ^ (k * d)) := by ring
-      _ ≤ Real.exp η * Dδ * 1 := mul_le_mul_of_nonneg_left hreg (by positivity)
-      _ = (Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2)) * (β * 1 * (Real.exp (-η) * ε₀ ^ 2)) := by
-          rw [← e2]; field_simp
-      _ ≤ (Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2)) *
-          (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2) := by
-          apply mul_le_mul_of_nonneg_left _ (by positivity)
-          have h1 : 1 * (Real.exp (-η) * ε₀ ^ 2) ≤ (L : ℝ) ^ ((d - 2) * (j + 1)) * (gj * E ^ 2) :=
-            mul_le_mul hP hgjE (by positivity) (by linarith)
-          nlinarith
-      _ ≤ Cm * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2) :=
-          mul_le_mul_of_nonneg_right hCm hA0
+  · exact switch_mass_cube_budget X Dc hwt1 hcells hβ hgk hCm c
+
+/-- **The three per-cube budgets of the switch.** -/
+theorem switch_cube_budgets (X : Region G) (Dc : StepDecomp X) (hd : 2 ≤ d) {j k : ℕ}
+    (hjk : j + 1 ≤ k) (hwt1 : ∀ c, Dc.wt c = 1)
+    (hcells : ∀ c, ∃ x ∈ X.sites, (Dc.cube c).sites = G.blk (G.layerIndex x) x ∧
+      G.layerIndex x ≤ j + 1)
+    (a : ℕ → ℝ) {β η gk gj Ka Dδ ε₀ E ν δk Cb Cg Cm : ℝ} (hβ : 0 < β)
+    (hgk : gk ≤ Real.exp η) (hgj : Real.exp (-η) ≤ gj) (hε₀ : 0 < ε₀) (hE : ε₀ ^ 2 ≤ E ^ 2)
+    (hKa : ∀ ℓ, |a ℓ| ≤ Ka) (hreg : β * |ν| * (L : ℝ) ^ (k * d) ≤ 1) (hδk : |δk| ≤ Dδ)
+    (hCb : Real.exp (2 * η) * Ka / ε₀ ^ 2 ≤ Cb) (hCg : Real.exp (2 * η) / ε₀ ^ 2 ≤ Cg)
+    (hCm : Real.exp (2 * η) * Dδ / (β * ε₀ ^ 2) ≤ Cm) :
+    (∀ c, β * gk * ∑ x ∈ (Dc.cube c).sites, ‖levelCoeff G a x‖ ≤
+      Cb * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 * Dc.wt c)) ∧
+    (∀ c, β * gk * ∑ x ∈ (Dc.cube c).sites, ((G.spacing x) ^ 2)⁻¹ ≤
+      Cg * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 * Dc.wt c)) ∧
+    (∀ c, β * gk * ∑ _x ∈ (Dc.cube c).sites, |ν * δk| ≤
+      Cm * (β * (L : ℝ) ^ ((d - 2) * (j + 1)) * gj * E ^ 2 * Dc.wt c)) := by
+  have hε2 : 0 < ε₀ ^ 2 := by positivity
+  have hDδ0 : 0 ≤ Dδ := (abs_nonneg _).trans hδk
+  have hgj0 : 0 < gj := lt_of_lt_of_le (Real.exp_pos _) hgj
+  have hCm0 : 0 ≤ Cm := le_trans (by positivity) hCm
+  exact switch_cube_budgetsP X Dc hd hwt1 hcells a hβ hgk hgj hε₀ hE hKa hCb hCg
+    (mass_budget_of_regime hβ hjk hε₀ hE hgj hreg hδk hCm)
 
 end Balaban.LargeField.ActionConv
