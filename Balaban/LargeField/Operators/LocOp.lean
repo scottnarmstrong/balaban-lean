@@ -132,13 +132,15 @@ noncomputable def preOp (hH : H.Admissible) {k : ℕ} (hK : k + 1 ≤ K) (Z' : H
         (ancRestrict hK Y.2 (preVars_anc hK Z' sub Y.1 Y.2) x)
   vanish := fun o x hv hnd => preKernel_vanish geo cs SD hH hK Z' sub o x hv hnd
 
-/-- The kept operator of a ripe kept component with label `ϰ` (Definition II.5.7 (S3)). -/
-noncomputable def keptOp (hH : H.Admissible) {k : ℕ} (Z : H.Comp k) (hk1 : 1 ≤ k) (hk0 : k ≤ k0)
-    (hrip : S.Ripe k (H.bk k Z)) (ϰ : Fin 5) : OpPkg N R (H.localHistory M K k Z) k where
-  A := (KD.datum k (H.localHistory M K k Z) ϰ).Ikeep
-  T := (KD.datum k (H.localHistory M K k Z) ϰ).ker
+/-- The kept operator of a ripe kept component with label `ϰ` (Definition II.5.7 (S3)), at its
+labelled localized history (the kept labels `lab` of its lineage, ruling R28). -/
+noncomputable def keptOp (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5) {k : ℕ} (Z : H.Comp k)
+    (hk1 : 1 ≤ k) (hk0 : k ≤ k0) (hrip : S.Ripe k (H.bk k Z)) (ϰ : Fin 5) :
+    OpPkg N R (H.localHistory M K k Z) k where
+  A := (KD.datum k (H.localHistory M K k Z) (H.locLab M lab k Z) ϰ).Ikeep
+  T := (KD.datum k (H.localHistory M K k Z) (H.locLab M lab k Z) ϰ).ker
   dom := fun o x => ChiDomAt geo cs H k Z o x
-  vanish := fun o x hv hd => (KD.bound H hH k Z hk1 hk0 hrip ϰ).1 o x hv hd
+  vanish := fun o x hv hd => (KD.bound H hH lab k Z hk1 hk0 hrip ϰ).1 o x hv hd
 
 /-- A component is *kept* if it is ripe at a scale `1 ≤ k ≤ k₀` (removed components do not occur
 in the lineage, so every ripe component of `Z_k` is kept; Definition II.5.8). -/
@@ -153,7 +155,7 @@ noncomputable def locOp (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5) :
   | 0, _, Z => (H.F.isEmpty_comp_zero.false Z).elim
   | k + 1, hk, Z' =>
     if hc : IsKept H (k + 1) Z' then
-      keptOp geo cs KD hH Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z')
+      keptOp geo cs KD hH lab Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z')
     else
       preOp geo cs SD hH hk Z' (fun Y _ => locOp hH lab k (by omega) Y)
 
@@ -173,7 +175,7 @@ theorem locOp_level {k : ℕ} (hk : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (h : ¬ I
 /-- The operator of a ripe component is the kept operator. -/
 theorem locOp_kept {k : ℕ} (hk : k + 1 ≤ K) {Z' : H.Comp (k + 1)} (h : IsKept H (k + 1) Z') :
     locOp geo cs SD KD hH lab (k + 1) hk Z' =
-      keptOp geo cs KD hH Z' h.1 h.2.1 h.2.2 (lab (k + 1) Z') := by
+      keptOp geo cs KD hH lab Z' h.1 h.2.1 h.2.2 (lab (k + 1) Z') := by
   rw [locOp]; simp only [h, ↓reduceDIte]
 
 /-- **Lemma II.5.9 (d)** (domain; P5 (1.24)-(1.25)): the kernel of the operator vanishes off its
@@ -303,13 +305,13 @@ theorem locOp_b_supp (k : ℕ) : ∀ (hk : k ≤ K) (Z : H.Comp k)
     by_cases hc : IsKept H (k + 1) Z'
     · have e := locOp_kept geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),
-          P = keptOp geo cs KD hH Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
+          P = keptOp geo cs KD hH lab Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
           ∀ (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A),
             P.T.b o x hv g = P.T.b o x hv g' := by
         intro P hP
         subst hP
         intro x
-        exact KD.b_supp (k + 1) _ _ o x hv g g' hg
+        exact KD.b_supp (k + 1) _ _ _ o x hv g g' hg
       exact key _ e x
     · have e := locOp_level geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),

@@ -51,7 +51,8 @@ theorem wFam2_lfCoherent (ν : ℝ) (k0 r : ℕ) : LFCoherent (wFam2 ν k0 r) :=
   · intros
     exact ⟨rfl, rfl⟩
   · intros
-    refine ⟨rfl, fun _ => ⟨fun _ _ _ => ⟨fun _ => Set.mem_univ _, fun _ => Set.mem_univ _⟩, ?_⟩⟩
+    refine ⟨rfl, fun _ _ _ _ => ⟨fun _ _ _ => ⟨fun _ => Set.mem_univ _, fun _ => Set.mem_univ _⟩,
+      ?_⟩⟩
     intros
     exact ⟨rfl, rfl⟩
   · intros

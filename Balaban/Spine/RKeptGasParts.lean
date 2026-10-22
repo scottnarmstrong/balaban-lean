@@ -159,7 +159,7 @@ the bound (1.26) of the physical kernels (a field of `KeptScaleKernels`) is W115
 def RKeptKernelsCoh (Ks : KeptKernelsFam d N T P6 C7 PB cs₀ M1 c rH ϱ) : Prop :=
   ForRecords d N T P6 C7 PB cs₀ M1 c rH ϱ fun κ c₉ β ν h kf _ _ k ρ νk rec =>
     KeptDatumCohAt (K := kf + 1) (M := (T κ c₉).M) (R := rec.R) (k0 := kZero d (T κ c₉).L β ν)
-      k (fun nK _ a ϰ => (Ks κ c₉ β ν h kf k ρ νk rec nK).datum a ϰ)
+      k (fun nK _ a ℓ ϰ => (Ks κ c₉ β ν h kf k ρ νk rec nK).datum a ℓ ϰ)
 
 /-- **(G1) OPEN: the bounds of (D2) of `ℛ''`** with the allowance `1/2` at the index `m₀ + m₁`
 (OPEN-R-RM-H4; P7 (3.26)–(3.29)).  Owner A4. -/

@@ -339,49 +339,49 @@ noncomputable def _root_.Balaban.LargeField.KeptData.upTo {κ : ℕ → LocalHis
     {lamHat : ℕ → ℝ} (KD : KeptData k0 geo cs N κ lamHat) (k : ℕ) (cs' : OpConsts)
     (hδ : ∀ i, i ≤ k → cs'.delta i = cs.delta i) (hp : ∀ i, i ≤ k → cs'.p0 i = cs.p0 i)
     (hC : cs'.Cpsi = cs.Cpsi) : KeptData k0 geo cs' N κ lamHat where
-  datum := fun j a ϰ =>
-    { Ikeep := (KD.datum j a ϰ).Ikeep
-      contains := (KD.datum j a ϰ).contains
-      ker := if j ≤ k then (KD.datum j a ϰ).ker else zeroKer _ _ _ _ }
+  datum := fun j a ℓ ϰ =>
+    { Ikeep := (KD.datum j a ℓ ϰ).Ikeep
+      contains := (KD.datum j a ℓ ϰ).contains
+      ker := if j ≤ k then (KD.datum j a ℓ ϰ).ker else zeroKer _ _ _ _ }
   Cdec := KD.Cdec
   gam := KD.gam
   one_le_Cdec := KD.one_le_Cdec
   sum_inv_Cdec := KD.sum_inv_Cdec
   gam_ge := KD.gam_ge
-  b_supp := fun j a ϰ o x hv g g' hg => by
+  b_supp := fun j a ℓ ϰ o x hv g g' hg => by
     by_cases hj : j ≤ k
     · simp only [hj, ↓reduceIte]
-      exact KD.b_supp j a ϰ o x hv g g' hg
+      exact KD.b_supp j a ℓ ϰ o x hv g g' hg
     · simp only [hj, ↓reduceIte]
       rfl
-  rot_K := fun j a ϰ ρ o x hv => by
+  rot_K := fun j a ℓ ϰ ρ o x hv => by
     by_cases hj : j ≤ k
     · simp only [hj, ↓reduceIte]
-      exact KD.rot_K j a ϰ ρ o x hv
+      exact KD.rot_K j a ℓ ϰ ρ o x hv
     · simp only [hj, ↓reduceIte]
       rfl
-  rot_b := fun j a ϰ ρ o x hv g => by
+  rot_b := fun j a ℓ ϰ ρ o x hv g => by
     by_cases hj : j ≤ k
     · simp only [hj, ↓reduceIte]
-      exact KD.rot_b j a ϰ ρ o x hv g
+      exact KD.rot_b j a ℓ ϰ ρ o x hv g
     · simp only [hj, ↓reduceIte]
       rfl
-  euclid_I := fun j σ a a' hI hk ϰ p => KD.euclid_I j σ a a' hI hk ϰ p
-  euclid_K := fun j σ a a' hI hk ϰ o o' x x' hv ho hx => by
+  euclid_I := fun j σ a a' ℓ ℓ' hI hℓ hk ϰ p => KD.euclid_I j σ a a' ℓ ℓ' hI hℓ hk ϰ p
+  euclid_K := fun j σ a a' ℓ ℓ' hI hℓ hk ϰ o o' x x' hv ho hx => by
     by_cases hj : j ≤ k
     · simp only [hj, ↓reduceIte]
-      exact KD.euclid_K j σ a a' hI hk ϰ o o' x x' hv ho hx
+      exact KD.euclid_K j σ a a' ℓ ℓ' hI hℓ hk ϰ o o' x x' hv ho hx
     · simp only [hj, ↓reduceIte]
       rfl
-  euclid_b := fun j σ a a' hI hk ϰ o o' x x' hv g g' ho hx hg => by
+  euclid_b := fun j σ a a' ℓ ℓ' hI hℓ hk ϰ o o' x x' hv g g' ho hx hg => by
     by_cases hj : j ≤ k
     · simp only [hj, ↓reduceIte]
-      exact KD.euclid_b j σ a a' hI hk ϰ o o' x x' hv g g' ho hx hg
+      exact KD.euclid_b j σ a a' ℓ ℓ' hI hℓ hk ϰ o o' x x' hv g g' ho hx hg
     · simp only [hj, ↓reduceIte]
       rfl
-  bound := fun H hH j Z hj1 hj0 hrip ϰ => by
+  bound := fun H hH lab j Z hj1 hj0 hrip ϰ => by
     by_cases hj : j ≤ k
-    · obtain ⟨hvan, hb⟩ := KD.bound H hH j Z hj1 hj0 hrip ϰ
+    · obtain ⟨hvan, hb⟩ := KD.bound H hH lab j Z hj1 hj0 hrip ϰ
       simp only [hj, ↓reduceIte]
       exact ⟨fun o x hv hd => hvan o x hv fun h' => hd ((chiDomAt_congr
         (fun i hi => hδ i (hi.trans hj)) (fun i hi => hp i (hi.le.trans hj)) hC H Z o x).2 h'), hb⟩
