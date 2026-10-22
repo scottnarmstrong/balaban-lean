@@ -1334,6 +1334,14 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `d7Pull_inter_eq_of_corr`, `fineValidAt_of_corr`, **`fineValidAt_iff_of_corr`**, **`d7SizeAt_eq_of_corr`**,
      **`mem_bdryDomsAt_iff_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond: the same cube-level
      and valid boundary domains at `X`, the same size `d7Size` of `X`).
+   * **B3 (A6-4, locality of the global fields; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFFieldLocal.lean`: `subMultiscaleField_transport`, `subFluctField_transport`,
+     `restrictOn_restrictOn`; `eq_of_blockSub_car`, `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gMulti_top`,
+     `gMulti_eq_zero_of_gt`, `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`; `postComp_eq_of_mem_fineSet`,
+     `exists_corr_of_blockSub`, `subFields_eq_of_compRec`, **`fields_eq_on_of_corr`** (two histories of the large-field half whose
+     components meeting `X` have the same records: at the configurations read off one configuration `z` of the global variables
+     (`famEquiv`), `gMulti` and `gFluct` agree on every block of scale `j ≤ K` in the fine set of `X`, the field hypothesis of `D7`
+     `loc_field`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
