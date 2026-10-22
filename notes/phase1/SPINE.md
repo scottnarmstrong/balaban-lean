@@ -1402,6 +1402,15 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      the same `Ω_j`, `Z_j` (`j ≤ k`) and `Ω''_{j+1}` (`j < k`) on the fine set of `X`). Finding: the `loc_hist` clauses of
      `D7Bdry`, `D7BdryPost`, `D7Bdry2`, `D7Bdry2Post` compare `(globalLH A.H M).OmegaDD j = Ω''_{j+1}` for `j ≤ k`; at `j = k` this is
      the record of the step `k → k+1`, not constrained by `Agree k (k+1)` (reported to ORCH-B).
+   * **B3 (A6-4, Möbius inversion and locality of the boundary domains; 2026-10-22).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFMobius.lean`: `powMobius`, `sum_neg_one_pow_card_sdiff`,
+     **`sum_powMobius`** (`∑_{T ⊆ S} μf(T) = f(S)`), `norm_powMobius_le`. `Spine/FinalLFBdryLocal.lean`: `nnComp_subset_of_agree`;
+     `omegaCube_iff_of_comp`, `omegaCube_of_not_mem_Zp`, `not_mem_Zp_of_corr`, `omegaCube_iff_on_of_corr`, `nnComp_eq_of_corr`,
+     `dmodOmega_of_corr`, `inter_Z_eq_of_corr`, **`mem_bdryDoms_iff_of_corr`**; the fine level `supDist_castT`,
+     `supDist_cubeMap_le_one`, `cube_supDist_le_one_of_nbr`, `omegaPost_eq_of_rem`, `omegaComp_subset_over`, `omegaComp_eq_of_corr`,
+     `d7Pull_inter_eq_of_corr`, `fineValidAt_of_corr`, **`fineValidAt_iff_of_corr`**, **`d7SizeAt_eq_of_corr`**,
+     **`mem_bdryDomsAt_iff_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond: the same cube-level
+     and valid boundary domains at `X`, the same size `d7Size` of `X`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
