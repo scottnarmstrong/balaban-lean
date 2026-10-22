@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.R.G0Engine
 public import Balaban.LargeField.R.G0GasGeom
+public import Balaban.LargeField.R.G0Config
 
 /-!
 # G0: the convergence of the expansion of the gas of a kept configuration
@@ -193,6 +194,21 @@ theorem gasP_pe {Kc : HistConfig S n R k0 K M k} (C : SFCtx S n R M K N k m₁ �
     (fun X Φ => gasCoupling_empty C hv vc pres Y keptT X.1 e Φ) gas_hSx gas_hSz gas_hclx gas_hclz
     hop.hβd hop.hτd hop.hβm hop.hτm hop.hτi hop.hB hzd hG3 hop.hK0g hop.hent hop.hK1 hop.hcount
     hop.hh hop.hq hop.hcond
+
+omit [NeZero S.L] in
+/-- **The hole of a removal-free kept history lies in its kept region** (the hypothesis `hS₀` of
+`gasP_pe` for `Kc = keptConfig 𝔸′`, `S₀ = holeOf 𝔸′`): a cube of `Y_k = Z^pre_k` lies in a component
+of `Z^pre_k`, a member of the configuration. -/
+theorem holeOf_sub_kept (hkK : k ≤ K) (A : LabHist S n R k0 K) (hrem : A.H.rem k = ∅) :
+    ∀ b ∈ holeOf A, ∃ m ∈ (keptConfig M k A).members, b ∈ m.1 := by
+  intro b hb
+  rw [keptConfig_members hkK]
+  have hbZ : b ∈ (A.H.step k).Z := (Finset.mem_filter.mp hb).2.2
+  rw [A.H.Z_eq k, hrem] at hbZ
+  simp only [Finset.notMem_empty, Set.iUnion_of_empty, Set.iUnion_empty, Set.sdiff_empty] at hbZ
+  have hbZp : b ∈ A.H.F.Zp k := by rw [← Finset.mem_coe, coe_finOf]; exact hbZ
+  obtain ⟨Y, hY, hbY⟩ := mem_comp_self (ω := S.omega k) hbZp
+  exact ⟨(Y, A.H.localHistory M K k ⟨Y, hY⟩), mem_configMembers.mpr ⟨⟨Y, hY⟩, rfl⟩, hbY⟩
 
 /-! ### Inhabitation of `GasHop` -/
 
