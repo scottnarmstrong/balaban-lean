@@ -78,6 +78,7 @@ localized history of the lineage localization, an admissible history with the si
 component `Z`. -/
 theorem localHistory_mem_localizedHistories (M : ℕ) [NeZero M] (hkK : k ≤ K) (Z : H.Comp k) :
     H.localHistory M K k Z ∈ localizedHistories (S := S) (n := n) R k0 K M k Z.1 := by
+  have := H.neZero_L
   refine ⟨H.locRH k Z, ⟨locRH_admissible Z, locRH_Zp hkK Z, ?_⟩, locComp hkK Z,
     locComp_val hkK Z, localHistory_locRH (M := M) hkK Z⟩
   have := locRH_comps hkK Z
