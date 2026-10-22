@@ -345,16 +345,21 @@ theorem centre_mem_coreBox {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L]
     one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
   linarith
 
-/-- A centre of the cover lies in its own `𝒬`-set. -/
-theorem self_mem_Qset {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-    {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {z : ℕ × CTorus d L N₁ m₁ K}
-    (hz : z ∈ (coverOf G).cubeIdx) : z ∈ (coverOf G).Qset z := by
-  refine (coverOf G).mem_Qset.2 ⟨hz, z.2, SameCell.refl _ _, inBox_centre _ _ ?_⟩
+/-- A centre of a decoupling cover lies in its own `𝒬`-set. -/
+theorem self_mem_Qset_cover {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] (C : DecCover d L N₁ m₁ K)
+    {z : ℕ × CTorus d L N₁ m₁ K} (hz : z ∈ C.cubeIdx) : z ∈ C.Qset z := by
+  refine C.mem_Qset.2 ⟨hz, z.2, SameCell.refl _ _, inBox_centre _ _ ?_⟩
   unfold hatRad
   have hB : (1 : ℝ) ≤ (L : ℝ) ^ (z.1 + m₁) :=
     one_le_pow₀ (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
   have : (0 : ℝ) ≤ 3 * (L : ℝ) ^ 2 * (L : ℝ) ^ z.1 := by positivity
   linarith
+
+/-- A centre of the cover lies in its own `𝒬`-set. -/
+theorem self_mem_Qset {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {z : ℕ × CTorus d L N₁ m₁ K}
+    (hz : z ∈ (coverOf G).cubeIdx) : z ∈ (coverOf G).Qset z :=
+  self_mem_Qset_cover (coverOf G) hz
 
 /-- **Both branches of the dichotomy occur** on the concrete level pair `LevelPair.Gp`,
 `LevelPair.Hm` (`d = L = 3`, `K = 2`, `m₁ ≥ 4`, `a = compWeight 3 1`, `ν = 0`), with `X₁` the

@@ -139,7 +139,7 @@ theorem exists_canonOldTermData (S : StepSetting d L N₁ m₁ k N ϱ) (C : Step
       hFkan := fun τ => hFkan τ, hN := hN }
   refine ⟨O, OS, F, ⟨rfl, fun τ => τ.1.2.1, fun τ => τ.1.2.2, fun _ _ => rfl,
     ⟨fun τ _ => τ.2, fun a _ b _ h => ?_, fun p hp => ⟨⟨p, hp⟩, Set.mem_univ _, rfl⟩⟩,
-    fun τ => ⟨(hXFe τ).symm, (hKe τ).symm, (hGke τ).symm, (hGje τ).symm, rfl⟩⟩, ?_,
+    fun τ => ⟨(hXFe τ).symm, (hKe τ).symm, (hGke τ).symm, (hGje τ).symm, rfl, rfl⟩⟩, ?_,
     rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
   · simp only [Prod.mk.injEq] at h
     exact hinj a b h.1 h.2.1 h.2.2

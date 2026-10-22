@@ -44,6 +44,173 @@ omit [NeZero L] [NeZero n] in
   refine measurable_pi_iff.mpr fun x => ?_
   fun_prop
 
+/-- **The first-sector chart integrand** `F(v)` without the Gaussian factor: for the tangent
+coordinate `v` (rescaled by `β^{-1/2}`), the chart Jacobian `J_β(w)`, the all-good cutoff `χ(φ)`, the
+Gaussian-kernel normalization `κ`, and the exponent of the action at the background `e`
+(`-β(H(e) + (a₀ L^d/2L²) ∑_y |θ_y - (Qe)_y|²)`), the source terms `⟨g, e⟩ + β^{-1/2} ⟨g, w + z⟩`,
+the mixed/normal remainder `-⟨w, H z⟩ - ½⟨z, H z⟩` and the mass difference `-M`
+(P4 (2.47)–(2.50); LF-BASE-KF0 (A.3)). -/
+noncomputable def baseSectorF (β a₀ ν : ℝ) (regimeB : Prop) (h : EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (e : Config (Torus d (L * n)) N) (he : ∀ x, ‖e x‖ = 1)
+    (Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N)
+    (χ : CfgT d N L n → ℝ) (κ : ℂ) : ((x : Torus d (L * n)) → perp (e x)) → ℂ := fun v =>
+  let ec : CfgT d N L n := fun x => ⟨e x, mem_sphere_zero_iff_norm.mpr (he x)⟩
+  let φ := chartMapPi e he ((Real.sqrt β)⁻¹ • v)
+  let w : Config (Torus d (L * n)) N := fun x => (v x : EuclideanSpace ℝ (Fin N))
+  let z := chartShift β e w
+  let M := β * (ν - (if regimeB then ν else 0)) / 2 *
+    ∑ x : Torus d (L * n), ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
+  ((chartJac β w : ℝ) : ℂ) * ((χ φ : ℂ) * κ *
+    Complex.exp (
+      -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
+        (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
+          ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ) +
+      (∑ x : Torus d (L * n), ∑ i : Fin N,
+        g x i * (((e x) i : ℝ) : ℂ)) +
+      (((Real.sqrt β)⁻¹ : ℝ) : ℂ) *
+        (∑ x : Torus d (L * n), ∑ i : Fin N,
+          g x i * (((w x + z x) i : ℝ) : ℂ)) -
+      ((cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + M : ℝ) : ℂ)))
+
+/-- The first-sector chart integrand is measurable (for a measurable cutoff). -/
+theorem measurable_baseSectorF (β a₀ ν : ℝ) (regimeB : Prop) (h : EuclideanSpace ℝ (Fin N))
+    (g : Torus d (L * n) → Fin N → ℂ) (θ : Torus d n → EuclideanSpace ℝ (Fin N))
+    (e : Config (Torus d (L * n)) N) (he : ∀ x, ‖e x‖ = 1)
+    (Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N)
+    (χ : CfgT d N L n → ℝ) (hχ : Measurable χ) (κ : ℂ) :
+    Measurable (baseSectorF β a₀ ν regimeB h g θ e he Hα χ κ) := by
+  let ec : CfgT d N L n := fun x => ⟨e x, mem_sphere_zero_iff_norm.mpr (he x)⟩
+  unfold baseSectorF
+  let V := (x : Torus d (L * n)) → perp (e x)
+  let W : V → Config (Torus d (L * n)) N := fun v x => (v x : EuclideanSpace ℝ (Fin N))
+  let Φ : V → CfgT d N L n := fun v => chartMapPi e he ((Real.sqrt β)⁻¹ • v)
+  let Z : V → Config (Torus d (L * n)) N := fun v => chartShift β e (W v)
+  let Mass : V → ℝ := fun v => β * (ν - (if regimeB then ν else 0)) / 2 *
+    ∑ x : Torus d (L * n), ‖(Φ v x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
+  let Source : V → ℂ := fun v => ∑ x : Torus d (L * n), ∑ i : Fin N,
+    g x i * (((W v x + Z v x) i : ℝ) : ℂ)
+  let Cross : V → ℝ := fun v => cinner (W v) (Hα (Z v))
+  let Zquad : V → ℝ := fun v => cinner (Z v) (Hα (Z v))
+  have hHα : Measurable Hα :=
+    (LinearMap.continuous_of_finiteDimensional Hα).measurable
+  have hW : Measurable W := by
+    refine measurable_pi_iff.mpr fun x => ?_
+    fun_prop
+  have hΦ : Measurable Φ := by fun_prop
+  have hZ : Measurable Z := (measurable_chartShift β e).comp hW
+  have hMass : Measurable Mass := by
+    dsimp only [Mass]
+    fun_prop
+  have hSource : Measurable Source := by
+    dsimp only [Source]
+    fun_prop
+  have hCross : Measurable Cross := by
+    dsimp only [Cross, cinner]
+    fun_prop
+  have hZquad : Measurable Zquad := by
+    dsimp only [Zquad, cinner]
+    fun_prop
+  change Measurable (fun v : V =>
+    ((chartJac β (W v) : ℝ) : ℂ) *
+      ((χ (Φ v) : ℂ) * κ * Complex.exp (
+        -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
+          (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
+            ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ) +
+        (∑ x : Torus d (L * n), ∑ i : Fin N,
+          g x i * (((e x) i : ℝ) : ℂ)) +
+        (((Real.sqrt β)⁻¹ : ℝ) : ℂ) * Source v -
+        ((Cross v + (1 / 2) * Zquad v + Mass v : ℝ) : ℂ))))
+  refine (Complex.measurable_ofReal.comp ((measurable_chartJac β).comp hW)).mul ?_
+  refine ((Complex.measurable_ofReal.comp (hχ.comp hΦ)).mul measurable_const).mul ?_
+  apply Complex.measurable_exp.comp
+  fun_prop
+
+
+/-- **The first-sector chart integral as a tangent Gaussian integral**: the all-good hemisphere
+chart integral is `(√β)^{-(N-1)|𝕋_{Ln}|}` times the tangent integral of `e^{-½⟨w, H_α w⟩} F(v)`
+(P4 (2.47)–(2.50)); the Gaussian is evaluated by `integral_tangent_gaussian_of_posDef` (exact square
+root, `baseSectorChartIntegral_eq_normalized`) or by an approximate one
+(`integral_tangent_gaussian_whitened`). -/
+theorem baseSectorChartIntegral_eq_tangent
+    {β : ℝ} (hβ : 0 < β) (a₀ ν δ₀ : ℝ)
+    (ϱ : ℝ) (aw : ℕ → ℝ) (ha : aw 1 = a₀)
+    (regimeB : Prop) (hδ : 0 < δ₀)
+    (h : EuclideanSpace ℝ (Fin N)) (hh : ‖h‖ = 1)
+    (H : BgHyp d L 1 ϱ aw (if regimeB then ν else 0))
+    (hΛ1 : 4 * d * L * δ₀ ≤ bgC1 d L N)
+    (g : Torus d (L * n) → Fin N → ℂ)
+    (θ : Torus d n → EuclideanSpace ℝ (Fin N)) :
+    let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+    let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+    let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+    let he := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
+    let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
+      baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
+    let χ := baseSectorCubeProduct regimeB ν δ₀ h θ
+    let κ : ℂ := ((∏ _y : Torus d n,
+      ((β * a₀ * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
+        ((N : ℝ) / 2) : ℝ) : ℂ)
+    let F := baseSectorF β a₀ ν regimeB h g θ e he Hα χ κ
+    baseChartIntegral d N L n β a₀ ν h g θ χ e he =
+      ((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) •
+        ∫ v : (x : Torus d (L * n)) → perp (e x),
+          (((Real.exp (-(1 / 2) * cinner
+            (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+            (Hα (fun x => (v x : EuclideanSpace ℝ (Fin N)))))) : ℝ) : ℂ) * F v
+          ∂(Measure.pi fun x => (volume : Measure (perp (e x)))) := by
+  dsimp only
+  let G : GeneratingSet d L (1 * n) 1 ϱ := GeneratingSet.single ϱ
+  let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
+  let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
+  let he := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
+  let ec : CfgT d N L n := fun x => ⟨e x, mem_sphere_zero_iff_norm.mpr (he x)⟩
+  let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
+    baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
+  let χ : CfgT d N L n → ℝ := baseSectorCubeProduct regimeB ν δ₀ h θ
+  let κ : ℂ := ((∏ _y : Torus d n,
+    ((β * a₀ * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
+      ((N : ℝ) / 2) : ℝ) : ℂ)
+  let F := baseSectorF β a₀ ν regimeB h g θ e he Hα χ κ
+  rw [baseSectorChartIntegral_eq_gaussian hβ a₀ ν δ₀ ϱ aw ha regimeB hδ
+    h hh H hΛ1 g θ]
+  apply congrArg (fun z : ℂ =>
+    ((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) • z)
+  apply integral_congr_ae
+  filter_upwards [] with v
+  dsimp only [F]
+  rw [Complex.ofReal_exp]
+  let φ := chartMapPi e he ((Real.sqrt β)⁻¹ • v)
+  let w : Config (Torus d (L * n)) N := fun x => (v x : EuclideanSpace ℝ (Fin N))
+  let z := chartShift β e w
+  let q : ℝ := (1 / 2) * cinner w (Hα w)
+  let b : ℂ := -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
+    (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
+      ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ)
+  let s₀ : ℂ := ∑ x : Torus d (L * n), ∑ i : Fin N,
+    g x i * (((e x) i : ℝ) : ℂ)
+  let s₁ : ℂ := (((Real.sqrt β)⁻¹ : ℝ) : ℂ) *
+    (∑ x : Torus d (L * n), ∑ i : Fin N,
+      g x i * (((w x + z x) i : ℝ) : ℂ))
+  let m : ℝ := β * (ν - (if regimeB then ν else 0)) / 2 *
+    ∑ x : Torus d (L * n), ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
+  let r : ℝ := cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + m
+  change ((chartJac β w : ℝ) : ℂ) *
+      ((χ φ : ℂ) * κ * Complex.exp (b - (q : ℂ) + s₀ + s₁ - (r : ℂ))) =
+    Complex.exp (((-(1 / 2) * cinner w (Hα w) : ℝ)) : ℂ) *
+      (((chartJac β w : ℝ) : ℂ) *
+        ((χ φ : ℂ) * κ * Complex.exp (b + s₀ + s₁ - (r : ℂ))))
+  have hexp : Complex.exp (b - (q : ℂ) + s₀ + s₁ - (r : ℂ)) =
+      Complex.exp (((-(1 / 2) * cinner w (Hα w) : ℝ)) : ℂ) *
+        Complex.exp (b + s₀ + s₁ - (r : ℂ)) := by
+    rw [← Complex.exp_add]
+    dsimp [q]
+    push_cast
+    ring_nf
+  rw [hexp]
+  ring
+
+
 /-- The full uncut P5 first-sector chart integral has the canonical real
 Gaussian determinant normalization on nonzero all-good support. -/
 theorem baseSectorChartIntegral_eq_normalized
@@ -61,30 +228,13 @@ theorem baseSectorChartIntegral_eq_normalized
     let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
     let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
     let he := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
-    let ec : CfgT d N L n := fun x => ⟨e x, mem_sphere_zero_iff_norm.mpr (he x)⟩
     let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
       baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
     let χ := baseSectorCubeProduct regimeB ν δ₀ h θ
     let κ : ℂ := ((∏ _y : Torus d n,
       ((β * a₀ * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
         ((N : ℝ) / 2) : ℝ) : ℂ)
-    let F : ((x : Torus d (L * n)) → perp (e x)) → ℂ := fun v =>
-      let φ := chartMapPi e he ((Real.sqrt β)⁻¹ • v)
-      let w : Config (Torus d (L * n)) N := fun x => (v x : EuclideanSpace ℝ (Fin N))
-      let z := chartShift β e w
-      let M := β * (ν - (if regimeB then ν else 0)) / 2 *
-        ∑ x : Torus d (L * n), ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
-      ((chartJac β w : ℝ) : ℂ) * ((χ φ : ℂ) * κ *
-        Complex.exp (
-          -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
-            (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
-              ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ) +
-          (∑ x : Torus d (L * n), ∑ i : Fin N,
-            g x i * (((e x) i : ℝ) : ℂ)) +
-          (((Real.sqrt β)⁻¹ : ℝ) : ℂ) *
-            (∑ x : Torus d (L * n), ∑ i : Fin N,
-              g x i * (((w x + z x) i : ℝ) : ℂ)) -
-          ((cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + M : ℝ) : ℂ)))
+    let F := baseSectorF β a₀ ν regimeB h g θ e he Hα χ κ
     ∃ R : Config (Torus d (L * n)) N ≃ₗ[ℝ] Config (Torus d (L * n)) N,
       (∀ w, gaussForm e Hα (R (R w)) = w) ∧
       (∀ u v, cinner (R u) v = cinner u (R v)) ∧
@@ -128,91 +278,14 @@ theorem baseSectorChartIntegral_eq_normalized
         ((cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + M : ℝ) : ℂ)))
   have hK := baseSector_gaussForm_posDef_of_product_ne_zero
     ϱ aw regimeB ν δ₀ hδ h hh H hΛ1 θ φ₀ hp
-  have hF : Measurable F := by
-    let V := (x : Torus d (L * n)) → perp (e x)
-    let W : V → Config (Torus d (L * n)) N := fun v x => (v x : EuclideanSpace ℝ (Fin N))
-    let Φ : V → CfgT d N L n := fun v => chartMapPi e he ((Real.sqrt β)⁻¹ • v)
-    let Z : V → Config (Torus d (L * n)) N := fun v => chartShift β e (W v)
-    let Mass : V → ℝ := fun v => β * (ν - (if regimeB then ν else 0)) / 2 *
-      ∑ x : Torus d (L * n), ‖(Φ v x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
-    let Source : V → ℂ := fun v => ∑ x : Torus d (L * n), ∑ i : Fin N,
-      g x i * (((W v x + Z v x) i : ℝ) : ℂ)
-    let Cross : V → ℝ := fun v => cinner (W v) (Hα (Z v))
-    let Zquad : V → ℝ := fun v => cinner (Z v) (Hα (Z v))
-    have hχ : Measurable χ := measurable_baseSectorCubeProduct regimeB ν δ₀ h θ
-    have hHα : Measurable Hα :=
-      (LinearMap.continuous_of_finiteDimensional Hα).measurable
-    have hW : Measurable W := by
-      refine measurable_pi_iff.mpr fun x => ?_
-      fun_prop
-    have hΦ : Measurable Φ := by fun_prop
-    have hZ : Measurable Z := (measurable_chartShift β e).comp hW
-    have hMass : Measurable Mass := by
-      dsimp only [Mass]
-      fun_prop
-    have hSource : Measurable Source := by
-      dsimp only [Source]
-      fun_prop
-    have hCross : Measurable Cross := by
-      dsimp only [Cross, cinner]
-      fun_prop
-    have hZquad : Measurable Zquad := by
-      dsimp only [Zquad, cinner]
-      fun_prop
-    change Measurable (fun v : V =>
-      ((chartJac β (W v) : ℝ) : ℂ) *
-        ((χ (Φ v) : ℂ) * κ * Complex.exp (
-          -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
-            (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
-              ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ) +
-          (∑ x : Torus d (L * n), ∑ i : Fin N,
-            g x i * (((e x) i : ℝ) : ℂ)) +
-          (((Real.sqrt β)⁻¹ : ℝ) : ℂ) * Source v -
-          ((Cross v + (1 / 2) * Zquad v + Mass v : ℝ) : ℂ))))
-    refine (Complex.measurable_ofReal.comp ((measurable_chartJac β).comp hW)).mul ?_
-    refine ((Complex.measurable_ofReal.comp (hχ.comp hΦ)).mul measurable_const).mul ?_
-    apply Complex.measurable_exp.comp
-    fun_prop
+  have hF : Measurable F :=
+    measurable_baseSectorF β a₀ ν regimeB h g θ e he Hα χ (measurable_baseSectorCubeProduct regimeB ν δ₀ h θ) κ
   obtain ⟨R, hRR, hRs, hdet, hnorm⟩ :=
     integral_tangent_gaussian_of_posDef e he Hα hK F hF
   refine ⟨R, hRR, hRs, hdet, ?_⟩
-  rw [baseSectorChartIntegral_eq_gaussian hβ a₀ ν δ₀ ϱ aw ha regimeB hδ
-    h hh H hΛ1 g θ]
+  rw [baseSectorChartIntegral_eq_tangent hβ a₀ ν δ₀ ϱ aw ha regimeB hδ h hh H hΛ1 g θ]
   apply congrArg (fun z : ℂ =>
     ((Real.sqrt β)⁻¹ ^ (Fintype.card (Torus d (L * n)) * (N - 1))) • z)
-  rw [← hnorm]
-  apply integral_congr_ae
-  filter_upwards [] with v
-  dsimp only [F]
-  rw [Complex.ofReal_exp]
-  let φ := chartMapPi e he ((Real.sqrt β)⁻¹ • v)
-  let w : Config (Torus d (L * n)) N := fun x => (v x : EuclideanSpace ℝ (Fin N))
-  let z := chartShift β e w
-  let q : ℝ := (1 / 2) * cinner w (Hα w)
-  let b : ℂ := -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
-    (a₀ * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
-      ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ)
-  let s₀ : ℂ := ∑ x : Torus d (L * n), ∑ i : Fin N,
-    g x i * (((e x) i : ℝ) : ℂ)
-  let s₁ : ℂ := (((Real.sqrt β)⁻¹ : ℝ) : ℂ) *
-    (∑ x : Torus d (L * n), ∑ i : Fin N,
-      g x i * (((w x + z x) i : ℝ) : ℂ))
-  let m : ℝ := β * (ν - (if regimeB then ν else 0)) / 2 *
-    ∑ x : Torus d (L * n), ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
-  let r : ℝ := cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + m
-  change ((chartJac β w : ℝ) : ℂ) *
-      ((χ φ : ℂ) * κ * Complex.exp (b - (q : ℂ) + s₀ + s₁ - (r : ℂ))) =
-    Complex.exp (((-(1 / 2) * cinner w (Hα w) : ℝ)) : ℂ) *
-      (((chartJac β w : ℝ) : ℂ) *
-        ((χ φ : ℂ) * κ * Complex.exp (b + s₀ + s₁ - (r : ℂ))))
-  have hexp : Complex.exp (b - (q : ℂ) + s₀ + s₁ - (r : ℂ)) =
-      Complex.exp (((-(1 / 2) * cinner w (Hα w) : ℝ)) : ℂ) *
-        Complex.exp (b + s₀ + s₁ - (r : ℂ)) := by
-    rw [← Complex.exp_add]
-    dsimp [q]
-    push_cast
-    ring_nf
-  rw [hexp]
-  ring
+  exact hnorm
 
 end Balaban.LargeField

@@ -12,17 +12,14 @@ public import Balaban.Fluctuation.LocalClassDensityH
 public import Balaban.Fluctuation.ClassOldTermInputM
 
 /-!
-# The named input `H7MixedDatumLoc` is false as stated (complex rotations of the H7 domain)
+# Complex rotations and the H7 cube domains (ruling request R14)
 
-`H7MixedDatumLoc` (`Spine/LFOldH7Loc.lean`, OPEN-H7-MIXED for the local pair, reading HS-1′) asks
-that for every field of the H7 domain of scale `k + 1` the datum of the local pair lie in
-`Ψ̃^c(G′_V; δ_b, δ_b)`, the domain of Theorems I-4b, I-4c used by the coefficient bound
-(`norm_oldCoefLoc_le_of_inputs`, with `δ_b ≤ c₇`).  The cube tests `Δ^c_q(□; 1, ε)` of the H7 domain
-(Definition II.3.5 (a)) put the lifted datum in the union domain `𝒟(G_q(□))` of Theorem 5.2, whose
-complex part may have size up to `c₀ + c₁` (`InUnionDomainC`, `ε ≤ c₀`), and at zero sharp mass
-(the scales below `k₀`) no regularity inequality bounds the imaginary part of a constant field:
-a complex rotation `R e` of a real unit vector passes every cube test.  Since `2 c₇ < c₀`, its
-datum is outside `Ψ̃^c(δ_b, δ_b)`.
+With the cube tests `Δ^c_q(□; 1, ε)` of Definition II.3.5 (a) built on the union domain `𝒟(G_q(□))`
+of Theorem 5.2 (complex radius `c₀`), a complex rotation of a constant unit field passes every cube
+test at zero sharp mass, while the chain of the local pair (Theorems I-4b, I-4c) needs data in
+`Ψ̃^c(δ_b, δ_b)`, `δ_b ≤ c₇ ≤ c₀/8`: the named input `H7MixedDatumLoc` was false (W1154b, landed
+refutation `not_h7MixedDatumLoc` before R14).  Ruling request R14 asks the lifted datum of a cube test
+in `Ψ̃^c(G_q(□); ε, ε)`; then the counterexample is excluded (`not_mem_deltaC_of_im`).
 
 * `inUnionDomainC_of_const`, `bgFieldC_of_rotConst`, `regIneq_of_rotConst`,
   `regIneq_of_Ω_one_eq_empty`: a datum equal to `R e` on the data sites (`Rᵀ R = 1`, `e` real
@@ -33,20 +30,10 @@ datum is outside `Ψ̃^c(δ_b, δ_b)`.
   outside `Ψ̃^c(δ, ε)`;
 * `boostMat`, `boostMat_orth`, `boostMat_mulVec_single`: the complex rotation by the imaginary angle
   `i t` in a coordinate plane (`e_{i₀} ↦ cosh t e_{i₀} - i sinh t e_{i₁}`);
-* `deltaC_rotConst`, `h7Domain_rotConst`: the constant field `R e` lies in every cube domain
-  `Δ^c_q(□; 1, ε)`, `ε > 0`, at zero mass, and in the H7 domain at every set on which the mixed
-  cube tests are void;
-* `not_h7MixedDatumLoc`: **`H7MixedDatumLoc` is false** for every set `V` whose local set `G′_V`
-  has a data site, at zero sharp masses, whenever `2 δ_b ≤ min(1, |z|) sinh t`, `2 sinh t ≤ c₀`;
-* `c7_le_bgC0_div_eight`, `not_h7MixedDatumLoc_of_le_c7`: the instance at the constants of its use
-  (`δ_b ≤ c₇ ≤ c₀ / 8`, `|z| ≥ 1/2`).
-
-Consequence: at zero sharp masses the hypothesis `H7MixedDatumLoc` of `norm_oldCoefLoc_le_of_inputs`,
-`norm_oldMarkLF_le`, `oldClusterLF_spec`, `norm_oldBAt_le`, `norm_oldB_le` fails for every history with
-a set `V` and a set `Y_f` as in `not_h7MixedDatumLoc` (for instance `V` one `𝒞_1`-cube of the old
-operator set and `Y_f` the fine image of the data sites of `G′_V`, which contains no cube of `𝕋_{i+1}`,
-so that the mixed tests are void).  The repair needs a ruling on the complex radius of the H7 domain (`notes/phase1/PLAN-B.md`,
-"Obstruction (W1154b, 2026-10-21)").
+* `not_mem_deltaC_of_im`: the cube domains of R14 exclude constant fields with a coordinate of
+  imaginary part `≥ 2 ε`;
+* `vn_boost_sub_lt`, `holeStepLoc_D'_const`, `cosh_mul_cosh_sub_sinh_mul_sinh_complex`,
+  `c7_le_bgC0_div_eight` (`c₇ ≤ c₀ / 8`).
 -/
 
 @[expose] public section
@@ -335,67 +322,18 @@ end Boost
 
 section Cube
 
-variable {d M1 N₁ L N q c n : ℕ} [NeZero L] [NeZero M1] [NeZero N₁] [NeZero n]
+variable {d M1 N₁ L N q c n : ℕ} [NeZero L] [NeZero M1] [NeZero N₁]
 
-/-- **The constant complex rotation `R e` of a real unit field passes the cube test
-`Δ^c_q(□; 1, ε)` at zero mass for every `ε > 0`** (Definition II.3.5 (a)): its lift lies in the union
-domain `𝒟(G_q(□))` when `|R e - e| < c₀`, and the regularity inequalities hold with deviation `0`. -/
-theorem deltaC_rotConst {a : ℕ → ℝ} (hd : 0 < d) (H : 1 ≤ q → BgHyp d L q (minSep L M1) a 0)
-    (hm : N₁ * L ^ (q - q) = c * n) {R : Matrix (Fin N) (Fin N) ℂ} (hR : Rᵀ * R = 1)
-    {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1)
-    (hwe : vn ((R *ᵥ fun i => (e i : ℂ)) - fun i => (e i : ℂ)) < bgC0 d L N) (hr : Fin N → ℝ)
-    {ε : ℝ} (hε : 0 < ε) (y0 : Torus d n) :
-    (fun _ => R *ᵥ fun i => (e i : ℂ)) ∈
-      DeltaC (M1 := M1) (N₁ := N₁) (L := L) (q := q) a 0 ε (fun i => (hr i : ℂ)) c n y0 := by
-  set G := genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0 with hG
-  have hΨ : ∀ x ∈ dataSites G,
-      (liftSingle G (fun _ => R *ᵥ fun i => (e i : ℂ)) (fun i => (hr i : ℂ))).Ψ x =
-        R *ᵥ fun i => (e i : ℂ) := fun x hx => liftSingle_Ψ G _ _ hx
-  have hh : ∀ x ∈ G.Ω 1, ∀ i,
-      (liftSingle G (fun _ => R *ᵥ fun i => (e i : ℂ)) (fun i => (hr i : ℂ))).h x i = (hr i : ℂ) :=
-    fun x hx i => by rw [liftSingle_h G _ _ hx]
-  refine ⟨inUnionDomainC_of_const hd he (sum_mulVec_mul_mulVec_of_orth hR he) hΨ hh hwe, ?_⟩
-  rcases Nat.eq_zero_or_pos q with hq | hq
-  · subst hq
-    exact regIneq_of_Ω_one_eq_empty G.top _ _ _ hε _ _
-  · exact regIneq_of_rotConst (H hq) hR he hΨ hε fun x hx =>
-      G.Ω_antitone le_rfl hq (by omega) (cubeNbhd_one_subset hm y0 x hx)
+/-- **The cube domains of ruling request R14 exclude complex rotations of size `≥ 2 ε`**: a constant
+field `w` with a coordinate of imaginary part `≥ 2 ε` is not in `Δ^c_q(□; 1, ε)` when the cube
+generating set has a data site (its lifted datum is outside `Ψ̃^c(ε, ε)`, `not_inDomainC_of_im`). -/
+theorem not_mem_deltaC_of_im {a : ℕ → ℝ} {μ ε : ℝ} {h : Fin N → ℂ} {y0 : Torus d n}
+    {w : Fin N → ℂ} {i : Fin N} (him : 2 * ε ≤ |(w i).im|) {x : Torus d (M1 * N₁ * L ^ q)}
+    (hx : x ∈ dataSites (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0)) :
+    (fun _ => w) ∉ DeltaC (M1 := M1) (N₁ := N₁) (L := L) (q := q) a μ ε h c n y0 := fun hψ =>
+  not_inDomainC_of_im hx (i := i) (by rw [liftSingle_Ψ _ _ _ hx]; linarith) hψ.1
 
 end Cube
-
-section H7
-
-variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K N : ℕ} [NeZero M] [NeZero S.L]
-
-/-- **The constant complex rotation `R e` of a real unit field lies in the H7 domain** (Definition
-II.3.5 (d)) at zero sharp masses, with zero fluctuation field and zero external field, at every set
-`X_f` on which the mixed tests (1.36), second kind, are void (no cube of `X_f` of `𝕋_{i+1}` lies in
-`Ω^{∼3}_{i+1} ∩ (Ω^c_{i+1})^{∼3}`), when `|R e - e| < c₀`. -/
-theorem h7Domain_rotConst (M1 c : ℕ) [NeZero M1] [NeZero c] (hM : M = c * M1)
-    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (a : RegionHistory.LocalHistory S n M K) (k : ℕ) (hkK : k ≤ K)
-    (Xf : Set (Torus S.d (M * n K * S.L ^ K))) (aw μs ε ε1 νs : ℕ → ℝ) (hr : Fin N → ℝ)
-    (hd : 0 < S.d) (hμ : ∀ j ≤ k, μs j = 0)
-    (hBG : ∀ j, 1 ≤ j → j ≤ k → BgHyp S.d S.L j (minSep S.L M1) aw 0)
-    (hε : ∀ j ≤ k, 0 < ε j) (hε1 : ∀ j < k, 0 < ε1 j)
-    (hnomix : ∀ i, i + 1 ≤ k → ∀ y : Torus S.d (n (i + 1)),
-      CubeSub (S := S) (n := n) M K (i + 1) y Xf → y ∈ omegaNb a k 3 (i + 1) →
-        y ∉ omegaCNb a 3 (i + 1))
-    {R : Matrix (Fin N) (Fin N) ℂ} (hR : Rᵀ * R = 1) {e : Fin N → ℝ} (he : ∑ i, e i ^ 2 = 1)
-    (hwe : vn ((R *ᵥ fun i => (e i : ℂ)) - fun i => (e i : ℂ)) < bgC0 S.d S.L N) :
-    H7Domain M1 c hM hnn a k hkK Xf aw μs ε ε1 νs (fun i => (hr i : ℂ))
-      (fun _ _ => R *ᵥ fun i => (e i : ℂ)) 0 0 := by
-  refine ⟨?_, ?_, ?_, ?_⟩
-  · intro j hjk y _ _ _
-    rw [hμ j hjk]
-    exact deltaC_rotConst hd (fun hj => hBG j hj hjk) (by simp) hR he hwe hr (hε j hjk) y
-  · intro i hik y hyX hyΩ hyC
-    exact absurd hyC (hnomix i hik y hyX hyΩ)
-  · intro j hj y _
-    simp only [Pi.zero_apply, vn_zero]
-    exact hε1 j hj
-  · simp
-
-end H7
 
 end Balaban.LargeField
 
@@ -479,62 +417,6 @@ theorem cosh_mul_cosh_sub_sinh_mul_sinh_complex (t : ℝ) :
     show Real.cosh t * Real.cosh t - Real.sinh t * Real.sinh t = 1 by
       nlinarith [Real.cosh_sq_sub_sinh_sq t], Complex.ofReal_one]
 
-/-- **OPEN-H7-MIXED, the background part (`H7MixedDatumLoc`), is false as stated** (complex
-rotations).  At zero sharp masses (the scales below `k₀`), the constant complex rotation
-`w = cosh t e_{i₀} - i sinh t e_{i₁}` of a real unit vector lies in the H7 domain of scale `k + 1`
-at every set `Y_f` on which the mixed cube tests are void (`h7Domain_rotConst`, for
-`2 sinh t ≤ c₀`), with zero fluctuation and external fields; at a data site of the local set
-`G′_V` the datum of the local pair is `w` or `z w`, whose `i₁`-th coordinate has imaginary part of
-modulus `sinh t` or `|z| sinh t`.  When this is at least `2 δ_b`, the datum is outside
-`Ψ̃^c(G′_V; δ_b, δ_b)`, whose complex part has modulus `< 2 δ_b` (`not_inDomainC_of_im`).  Since
-`δ_b ≤ c₇ < c₀ / 2` at the use of the named input, such `t` exist. -/
-theorem not_h7MixedDatumLoc {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
-    {k0 K M : ℕ} [NeZero M] [NeZero S.L] {m₁ : ℕ} (g : Geo S n R M)
-    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
-    (aw μs ε ε1 νs : ℕ → ℝ) (hv : EuclideanSpace ℝ (Fin N)) (νb δb : ℝ) (hd : 0 < S.d)
-    (hμ : ∀ j ≤ k + 1, μs j = 0)
-    (hBG : ∀ j, 1 ≤ j → j ≤ k + 1 → BgHyp S.d S.L j (minSep S.L g.M1) aw 0)
-    (hε : ∀ j ≤ k + 1, 0 < ε j) (hε1 : ∀ j < k + 1, 0 < ε1 j)
-    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
-    {x₀ : Torus S.d ((g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))}
-    (hx₀ : x₀ ∈ dataSites (locG' g hnn hM1 H hk hρ V))
-    (Yf : Set (Torus S.d (M * n K * S.L ^ K)))
-    (hYf : ∀ x ∈ dataSites (locG' g hnn hM1 H hk hρ V), fineOfC g hnn hM1 hk x ∈ Yf)
-    (hnomix : ∀ i, i + 1 ≤ k + 1 → ∀ y : Torus S.d (n (i + 1)),
-      CubeSub (S := S) (n := n) M K (i + 1) y Yf →
-        y ∈ omegaNb (globalLH H M) (k + 1) 3 (i + 1) → y ∉ omegaCNb (globalLH H M) 3 (i + 1))
-    {i₀ i₁ : Fin N} (hi : i₀ ≠ i₁) {t : ℝ} (ht0 : 0 ≤ t) (ht : 2 * Real.sinh t ≤ bgC0 S.d S.L N)
-    (hδb : 2 * δb ≤ Real.sinh t) (hz : 2 * δb ≤ |z| * Real.sinh t) :
-    ¬ H7MixedDatumLoc g hnn hM1 H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs (hC hv) νb δb := by
-  intro hDat
-  have hR := boostMat_orth hi (cosh_mul_cosh_sub_sinh_mul_sinh_complex t)
-  have he : ∑ i, (Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i ^ 2 = 1 := by
-    rw [Finset.sum_eq_single i₀ (fun b _ hb => by simp [hb]) (by simp)]
-    simp
-  have hdom := h7Domain_rotConst g.M1 g.c g.hM hnn (globalLH H M) (k + 1) hk Yf aw μs ε ε1 νs
-    (fun i => hv i) hd hμ hBG hε hε1 hnomix hR he (vn_boost_sub_lt hd ht0 ht)
-  have hin := hDat V Yf (fun _ _ => boostMat i₀ i₁ (Real.cosh t) (Real.sinh t) *ᵥ
-    fun i => ((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℂ)) 0 0 hdom hYf
-  have hw : (boostMat i₀ i₁ (Real.cosh t) (Real.sinh t) *ᵥ
-      fun i => ((Pi.single i₀ (1 : ℝ) : Fin N → ℝ) i : ℂ)) i₁ = -(Complex.I * Real.sinh t) := by
-    rw [boostMat_mulVec_single]
-    simp [Ne.symm hi]
-  have hs0 : 0 ≤ Real.sinh t := Real.sinh_nonneg_iff.2 ht0
-  have him : (-(Complex.I * (Real.sinh t : ℂ))).im = -Real.sinh t := by
-    simp only [Complex.neg_im, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_re,
-      Complex.ofReal_im, zero_mul, one_mul, zero_add]
-  rcases holeStepLoc_D'_const g hnn hM1 H hk hk1 hρ _ z h₀ a₁ ν β p₁ δ V hx₀ with hD | hD
-  · refine not_inDomainC_of_im hx₀ (i := i₁) ?_ hin
-    rw [hD, hw, him, abs_neg, abs_of_nonneg hs0]
-    linarith
-  · refine not_inDomainC_of_im hx₀ (i := i₁) ?_ hin
-    rw [hD]
-    show δb + δb ≤ |((z : ℂ) * _).im|
-    rw [hw, Complex.im_ofReal_mul, him, abs_mul, abs_neg, abs_of_nonneg hs0]
-    linarith
-
 /-- `c₇ ≤ c₀ / 8`: the smallness of `δ` in Theorem I-4b is far below the complex radius `c₀` of the
 data domain of Theorem 5.2 (`c₇ ≤ c₀ / (2 (K₂' C₃ + 1))`, `K₂' ≥ c_F ≥ 3`, `C₃ ≥ 500`). -/
 theorem c7_le_bgC0_div_eight {d L : ℕ} [NeZero L] {BG κ : ℝ} (hBG : 0 ≤ BG) (hd : 0 < d) :
@@ -558,39 +440,6 @@ theorem c7_le_bgC0_div_eight {d L : ℕ} [NeZero L] {BG κ : ℝ} (hBG : 0 ≤ B
   have hX : (3 : ℝ) * 500 ≤ cK2' d L N (famConst d L BG κ) * lemma53Const d L :=
     mul_le_mul hK hC (by norm_num) (by linarith)
   rw [div_le_div_iff₀ (by positivity) (by norm_num)]
-  nlinarith
-
-/-- **`H7MixedDatumLoc` is false at the constants of its use** (`norm_oldCoefLoc_le_of_inputs`:
-`δ_b ≤ c₇`, `0 ≤ BG`), for a field renormalization `|z| ≥ 1/2`: the instance of
-`not_h7MixedDatumLoc` with `sinh t = c₀ / 2`. -/
-theorem not_h7MixedDatumLoc_of_le_c7 {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
-    {k0 K M : ℕ} [NeZero M] [NeZero S.L] {m₁ : ℕ} (g : Geo S n R M)
-    (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hM1 : g.M1 = S.L ^ m₁)
-    (H : RegionHistory S n R k0 K) {k : ℕ} (hk : k + 1 ≤ K) (hk1 : 1 ≤ k)
-    (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ)
-    (aw μs ε ε1 νs : ℕ → ℝ) (hv : EuclideanSpace ℝ (Fin N)) (νb δb : ℝ) (hd : 0 < S.d)
-    (hμ : ∀ j ≤ k + 1, μs j = 0)
-    (hBG : ∀ j, 1 ≤ j → j ≤ k + 1 → BgHyp S.d S.L j (minSep S.L g.M1) aw 0)
-    (hε : ∀ j ≤ k + 1, 0 < ε j) (hε1 : ∀ j < k + 1, 0 < ε1 j)
-    (V : Set (CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1)))
-    {x₀ : Torus S.d ((g.c * n (k + 1)) * S.L ^ m₁ * S.L ^ (k + 1))}
-    (hx₀ : x₀ ∈ dataSites (locG' g hnn hM1 H hk hρ V))
-    (Yf : Set (Torus S.d (M * n K * S.L ^ K)))
-    (hYf : ∀ x ∈ dataSites (locG' g hnn hM1 H hk hρ V), fineOfC g hnn hM1 hk x ∈ Yf)
-    (hnomix : ∀ i, i + 1 ≤ k + 1 → ∀ y : Torus S.d (n (i + 1)),
-      CubeSub (S := S) (n := n) M K (i + 1) y Yf →
-        y ∈ omegaNb (globalLH H M) (k + 1) 3 (i + 1) → y ∉ omegaCNb (globalLH H M) 3 (i + 1))
-    {i₀ i₁ : Fin N} (hi : i₀ ≠ i₁) {BG κ : ℝ} (hBG0 : 0 ≤ BG) (hδ : δb ≤ c7 S.d S.L N BG κ)
-    (hz : 1 / 2 ≤ |z|) :
-    ¬ H7MixedDatumLoc g hnn hM1 H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs (hC hv) νb δb := by
-  have hc0 := bgC0_pos S.d S.L N hd
-  have h8 := c7_le_bgC0_div_eight (N := N) (L := S.L) (κ := κ) hBG0 hd
-  have hs : Real.sinh (Real.arsinh (bgC0 S.d S.L N / 2)) = bgC0 S.d S.L N / 2 := Real.sinh_arsinh _
-  refine not_h7MixedDatumLoc g hnn hM1 H hk hk1 hρ z h₀ a₁ ν β p₁ δ aw μs ε ε1 νs hv νb δb hd hμ hBG
-    hε hε1 V hx₀ Yf hYf hnomix hi (t := Real.arsinh (bgC0 S.d S.L N / 2))
-    (Real.arsinh_nonneg_iff.2 (by positivity)) (by rw [hs]; linarith)
-    (by rw [hs]; linarith) ?_
-  rw [hs]
   nlinarith
 
 end Refute

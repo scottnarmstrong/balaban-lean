@@ -33,7 +33,7 @@ theorem irrelTorus_bound_of_dataHyp_of_scale_ratio
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -75,7 +75,7 @@ theorem irrelTorus_bound_of_dataHyp_of_scale_ratio
       (α := P.α₁) (diamA_nonneg d L P.m₀ m₁) hC₀ hs hσs hσ1
       hε hrad.1 hεr hR hq hP.α₁_pos.le hα1
   exact irrelTorus_bound_of_dataHyp_of_threshold hP hcl hBg hN hν hμν hνb
-    hj1 hjk hy hX hyX hXne hSdef hne hrad hΨb hΛ hKsig hC₀ dat
+    hj1 hjk hy hX hyX hsm hXne hSdef hne hrad hΨb hΛ hKsig hC₀ dat
     hs hσs hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
 
 end Balaban.SmallField.Def6v2

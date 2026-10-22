@@ -11,10 +11,14 @@ Characteristic functions are indicator functions of real configurations and are 
 what is continued analytically is the integrand on the *domains* below, which are sets of complex
 fields (the integration variables continued to complex values).
 
-* `DeltaC` is `Δ^c_j(□; 1, ε)` (a): complex fields `ψ_j` whose lift lies in `𝒟(G_j(□))` and whose
-  complex small solution satisfies the inequalities of Definition II.3.1 with `ε` (`RegC`);
+* `DeltaC` is `Δ^c_j(□; 1, ε)` (a): complex fields `ψ_j` whose lift lies in the complex data domain
+  `Ψ̃^c(G_j(□); ε, ε)` (ruling request R14: the complex radius of the cube domains is their tolerance,
+  as the complex neighbourhoods of radius `ε_j` of P5 (1.36); formerly BG's union domain `𝒟(G_j(□))`,
+  whose complex radius `c₀` admits complex rotations outside the domain of Theorem I-4b) and whose
+  complex small solution satisfies the inequalities of Definition II.3.1 with `ε` (`RegIneq`);
+  `inUnionDomainC_of_inDomainC_eps`: for `0 < ε ≤ c₁` and `μ L^{2q} ≤ 1` the lifted datum lies in `𝒟`;
 * `DeltaPrimeC` is `Δ'^c_j(□; (¾, 5/4), ε_{j-1})` (b): the complexification of item 3 of
-  Definition II.3.2 (`RegMixedIneq` on `𝒟(G_{k+1}(□'))`);
+  Definition II.3.2 (`RegMixedIneq`, the lifted pair in `Ψ̃^c(G_{k+1}(□'); ε, ε)`, ruling request R14);
 * `H7Domain` is the product of (1.36), (1.37) and the polydisc `‖g‖_{ℓ¹} < 1` (d).
 
 The generating set `G_j(□)` is a level-`j` object (`genCube` with `q = j`, cubes of `𝕋_j`
@@ -59,13 +63,16 @@ section Single
 variable {q : ℕ} (a : ℕ → ℝ) (μ ε : ℝ) (h : Fin N → ℂ) (c n : ℕ)
 
 /-- **Definition II.3.5 (a)**: `Δ^c_q(□; 1, ε)`, the complex fields `ψ_q` (only their values on
-the blocks of `□^{∼3}` matter, by the stencil lemma) whose lift `D^c` lies in the open complex
-domain `𝒟(G_q(□))` and for which the complex small solution `bg(G_q(□); D^c)` satisfies the
-inequalities of Definition II.3.1 with `ε` in place of `δ`. -/
+the blocks of `□^{∼3}` matter, by the stencil lemma) whose lift `D^c` lies in the complex data
+domain `Ψ̃^c(G_q(□); ε, ε)` (ruling request R14: complex neighbourhoods of radius `ε`, as in P5
+(1.36)) and for which the complex small solution `bg(G_q(□); D^c)` satisfies the inequalities of
+Definition II.3.1 with `ε` in place of `δ`. -/
 def DeltaC (y0 : Torus d n) : Set (Torus d (M1 * N₁ * L ^ (q - q)) → Fin N → ℂ) :=
-  {ψ | RegC (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) a μ
-    (liftSingle (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) ψ h) ε
-    (cubeNbhd M1 N₁ L q c n 1 y0) (cubeNbhd M1 N₁ L q c n 1 y0)}
+  {ψ | InDomainC (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) μ ε ε
+      (liftSingle (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) ψ h) ∧
+    RegIneq (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) a μ
+      (liftSingle (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) ψ h) ε
+      (cubeNbhd M1 N₁ L q c n 1 y0) (cubeNbhd M1 N₁ L q c n 1 y0)}
 
 end Single
 
@@ -84,12 +91,11 @@ noncomputable def mixedDataC (ψ : Torus d (M1 * N₁ * L ^ (k + 1 - k)) → Fin
 
 /-- **Definition II.3.5 (b)**: `Δ'^c_{k+1}(□'; (¾, 5/4), ε)`, the complexification of item 3 of
 Definition II.3.2 at the step `k → k + 1`: pairs `(ψ_k, θ)` of complex fields whose lift lies in
-`𝒟(G_{k+1}(□'))` and whose complex small solution satisfies `RegMixedIneq` with `ε` in place
-of `δ_k`. -/
+`Ψ̃^c(G_{k+1}(□'); ε, ε)` (ruling request R14) and whose complex small solution satisfies
+`RegMixedIneq` with `ε` in place of `δ_k`. -/
 def DeltaPrimeC : Set ((Torus d (M1 * N₁ * L ^ (k + 1 - k)) → Fin N → ℂ) ×
     (Torus d (M1 * N₁ * L ^ (k + 1 - (k + 1))) → Fin N → ℂ)) :=
-  {p | InUnionDomainC (genCubeMixed hm y0 Om hOm) (bgC0 d L N) (bgC1 d L N) μ
-      (mixedDataC h hm y0 Om hOm p.1 p.2) ∧
+  {p | InDomainC (genCubeMixed hm y0 Om hOm) μ ε ε (mixedDataC h hm y0 Om hOm p.1 p.2) ∧
     RegMixedIneq (genCubeMixed hm y0 Om hOm) a μ (mixedDataC h hm y0 Om hOm p.1 p.2)
       ((L : ℝ) ^ k) νk ε (cubeNbhd M1 N₁ L (k + 1) c n 1 y0 \ Om)
       (cubeNbhd M1 N₁ L (k + 1) c n 1 y0 ∩ Om) (cubeNbhd M1 N₁ L (k + 1) c n 1 y0)}
@@ -97,6 +103,19 @@ def DeltaPrimeC : Set ((Torus d (M1 * N₁ * L ^ (k + 1 - k)) → Fin N → ℂ)
 end Mixed
 
 end DeltaC
+
+section Inclusion
+
+variable {d L N₀ q N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
+
+/-- **The complex data domain of radius `ε` lies in BG's union domain** `𝒟` for `0 < ε ≤ c₁` and
+`μ L^{2q} ≤ 1` (the readers of the domain conjunct of the cube tests, ruling request R14). -/
+theorem inUnionDomainC_of_inDomainC_eps (G : GeneratingSet d L N₀ q ϱ) {μ ε : ℝ} {D : BgData G N}
+    (hd : 0 < d) (hε0 : 0 < ε) (hε : ε ≤ bgC1 d L N) (hμ : μ * ((L : ℝ) ^ q) ^ 2 ≤ 1)
+    (hD : InDomainC G μ ε ε D) : InUnionDomainC G (bgC0 d L N) (bgC1 d L N) μ D :=
+  ⟨ε, ε, hε0, le_rfl, hε.trans (bgC1_le_bgC0 d L N hd), hε, by nlinarith [sq_nonneg ε], hD⟩
+
+end Inclusion
 
 /-! ### The H7 domain -/
 

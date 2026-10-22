@@ -21,6 +21,11 @@ public import Balaban.SmallField.RenormTermwiseBound
   `‖vInv ψ b - ν‖ ≤ σ² ε²`.
 * `CtxAniso`: the context of the local analysis (premises, data, a frame, numerical conditions,
   and the scale comparison `ε ≤ Λ r`).
+* `DataHypAnisoOn`, `CtxAnisoOn`: the data read on the polymers only — the point properties at the
+  origin, (Σ1) on the polymers, the first differences at the origin, the increments
+  `‖ψ(x) - ψ(0)‖ ≤ ℓ(X) σ ε` and the frozen Taylor remainders `≤ 6 ℓ(X)² K₂`.  The estimates are
+  proved for `CtxAnisoOn`; those of `CtxAniso` are their instances (`CtxAniso.toOn`, the lengths
+  being the `ℓ¹` radii `A (1 + d_j(X))`).
 
 The per-term estimates of `CtxTw` are re-proved: the rotated constant displacement `zcfg` has
 gauge `≤ (C₁ + Λ) σ² ε / r` (`CtxAniso.zc_gauge_le`; its longitudinal field component is
@@ -77,6 +82,91 @@ structure DataHypAniso (Dom : Set ((Site d → Spin N) × Spin N)) (ν σ ε K�
     (ψ : Site d → Spin N) (b : Spin N) : Prop extends DataHyp Dom ν σ ε K₂ ψ b where
   /-- P1 (3.13)–(3.14): the component of `b` along `ψ̂(y)` is `ν` up to `σ² ε²` -/
   b_long : ‖vInv ψ b - ν‖ ≤ σ ^ 2 * ε ^ 2
+
+/-- **The data on the polymers** (the path form of `DataHypAniso`): the point properties at the
+origin, (Σ1) on the polymers, the first differences at the origin, and the two consequences of
+(Σ1), (Σ2) that the local analysis reads, with a length `ℓ X` for each polymer: the increment
+`‖ψ(x) - ψ(0)‖ ≤ ℓ(X) σ ε` and the frozen Taylor remainder
+`‖ψ(x) - ψ(x') - Σ_μ (x - x')_μ ∂_μ ψ(0)‖ ≤ 6 ℓ(X)² K₂` for `x, x' ∈ X`.  The field is read only
+on the polymers, at the origin and at the `e_μ`.  For data on all of `ℤ^d` the lengths are the
+`ℓ¹` radii (`DataHypAniso.toOn`); for data on the polymer only they are path lengths inside it
+(the `ℓ¹` form fails for non-convex polymers). -/
+structure DataHypAnisoOn (polys : Set (Finset (Site d))) (ℓ : Finset (Site d) → ℝ)
+    (Dom : Set ((Site d → Spin N) × Spin N)) (ν σ ε K₂ : ℝ)
+    (ψ : Site d → Spin N) (b : Spin N) : Prop where
+  K2_nonneg : 0 ≤ K₂
+  sq0 : ‖dot (ψ 0) (ψ 0) - 1‖ ≤ σ ^ 2 * ε
+  sq : ∀ X ∈ polys, ∀ x ∈ X, ‖dot (ψ x) (ψ x) - 1‖ ≤ σ ^ 2 * ε
+  bdd0 : ‖ψ 0‖ ≤ 2
+  grad0 : ∀ μ, ‖ψ (Pi.single μ 1) - ψ 0‖ ≤ σ * ε
+  incr : ∀ X ∈ polys, ∀ x ∈ X, ‖ψ x - ψ 0‖ ≤ ℓ X * (σ * ε)
+  taylor : ∀ X ∈ polys, ∀ x ∈ X, ∀ x' ∈ X,
+    ‖ψ x - ψ x' - ∑ μ, ((((x - x') μ : ℤ)) : ℂ) • fdiff ψ μ 0‖ ≤ 6 * ℓ X ^ 2 * K₂
+  b_close : ‖b - (ν : ℂ) • ψ 0‖ ≤ σ ^ 2 * ε
+  b_long : ‖vInv ψ b - ν‖ ≤ σ ^ 2 * ε ^ 2
+  mem : (ψ, b) ∈ Dom
+  mem_const : ((fun _ => ψ 0), b) ∈ Dom
+
+/-- Data on all of `ℤ^d` give the data on the polymers, with the lengths bounding the `ℓ¹`
+radii. -/
+theorem DataHypAniso.toOn {Dom : Set ((Site d → Spin N) × Spin N)} {ν σ ε K₂ : ℝ}
+    {ψ : Site d → Spin N} {b : Spin N} (dat : DataHypAniso Dom ν σ ε K₂ ψ b)
+    {polys : Set (Finset (Site d))} {ℓ : Finset (Site d) → ℝ}
+    (hdiam : ∀ X ∈ polys, ∀ x ∈ X, ((∑ μ, |x μ| : ℤ) : ℝ) ≤ ℓ X) (hσε : 0 ≤ σ * ε) :
+    DataHypAnisoOn polys ℓ Dom ν σ ε K₂ ψ b where
+  K2_nonneg := dat.K2_nonneg
+  sq0 := dat.sq 0
+  sq _ _ x _ := dat.sq x
+  bdd0 := dat.bdd0
+  grad0 μ := by simpa using dat.adj 0 μ
+  incr X hX x hx := by
+    have h := norm_sub_le_l1 (ψ := ψ) (δ := σ * ε) dat.adj 0 x
+    simp only [zero_add] at h
+    refine h.trans (mul_le_mul_of_nonneg_right ?_ hσε)
+    rw [l1_cast]; exact hdiam X hX x hx
+  taylor X hX x hx x' hx' :=
+    norm_taylor_frozen_le dat.sec x x' (by rw [l1_cast]; exact hdiam X hX x hx)
+      (by rw [l1_cast]; exact hdiam X hX x' hx') dat.K2_nonneg
+  b_close := dat.b_close
+  b_long := dat.b_long
+  mem := dat.mem
+  mem_const := dat.mem_const
+
+/-- The point properties at the origin are those of the constant field `ψ(0)`, whose data hold
+on all of `ℤ^d`. -/
+theorem DataHypAnisoOn.constData {polys : Set (Finset (Site d))} {ℓ : Finset (Site d) → ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)} {ν σ ε K₂ : ℝ}
+    {ψ : Site d → Spin N} {b : Spin N} (dat : DataHypAnisoOn polys ℓ Dom ν σ ε K₂ ψ b)
+    (hσε : 0 ≤ σ * ε) : DataHyp Set.univ ν σ ε K₂ (fun _ : Site d => ψ 0) b where
+  K2_nonneg := dat.K2_nonneg
+  sq _ := dat.sq0
+  bdd0 := dat.bdd0
+  adj _ _ := by simpa using hσε
+  b_close := dat.b_close
+  sec _ _ _ := by simpa using dat.K2_nonneg
+  mem := Set.mem_univ _
+  mem_const := Set.mem_univ _
+
+/-- A frame reads the field at the origin only. -/
+theorem Frame.const {i₀ : Fin N} {σ ε : ℝ} {ψ : Site d → Spin N} {u : ℂ}
+    {R : Matrix (Fin N) (Fin N) ℂ} (fr : Frame i₀ σ ε ψ u R) :
+    Frame i₀ σ ε (fun _ : Site d => ψ 0) u R :=
+  ⟨fr.orth, fr.bd, fr.u_sq, fr.u_close, fr.rot0⟩
+
+/-- A frame of the constant field `ψ(0)` is a frame of `ψ`. -/
+theorem Frame.ofConst {i₀ : Fin N} {σ ε : ℝ} {ψ : Site d → Spin N} {u : ℂ}
+    {R : Matrix (Fin N) (Fin N) ℂ} (fr : Frame i₀ σ ε (fun _ : Site d => ψ 0) u R) :
+    Frame i₀ σ ε ψ u R :=
+  ⟨fr.orth, fr.bd, fr.u_sq, fr.u_close, fr.rot0⟩
+
+/-- A frame from the data on the polymers (the point properties at the origin). -/
+theorem DataHypAnisoOn.exists_frame {polys : Set (Finset (Site d))} {ℓ : Finset (Site d) → ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)} {ν σ ε K₂ : ℝ}
+    {ψ : Site d → Spin N} {b : Spin N} (dat : DataHypAnisoOn polys ℓ Dom ν σ ε K₂ ψ b)
+    (i₀ : Fin N) (hσε : 0 ≤ σ * ε) (hτ : σ ^ 2 * ε ≤ 1 / 4) :
+    ∃ (u : ℂ) (R : Matrix (Fin N) (Fin N) ℂ), Frame i₀ σ ε ψ u R := by
+  obtain ⟨u, R, hF⟩ := Balaban.SmallField.exists_frame i₀ (dat.constData hσε) hτ
+  exact ⟨u, R, hF.ofConst⟩
 
 /-- The isotropic premises at radius `r ≤ 1` give the anisotropic ones at the same `r`. -/
 theorem PremisesTerm.toAniso {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ : ℝ}
@@ -236,13 +326,44 @@ structure CtxAniso (T : TermFamily d N) (i₀ i₁ : Fin N) (ν r E₀ κ A K₀
   Ann : 0 ≤ A
   τle : σ ^ 2 * ε ≤ 1 / 4
 
-section CtxAniso
+/-- The context of the anisotropic local analysis with the data on the polymers
+(`DataHypAnisoOn` with the lengths `A (1 + d_j(X))`): the context `CtxAniso` reads its data only
+through these (`CtxAniso.toOn`). -/
+structure CtxAnisoOn (T : TermFamily d N) (i₀ i₁ : Fin N) (ν r E₀ κ A K₀ Λ : ℝ)
+    (Dom : Set ((Site d → Spin N) × Spin N)) (ψ : Site d → Spin N) (b : Spin N)
+    (σ ε K₂ : ℝ) (u : ℂ) (R : Matrix (Fin N) (Fin N) ℂ) : Prop where
+  hyp : PremisesTermAniso T i₀ i₁ ν r E₀ κ A K₀ Dom
+  dat : DataHypAnisoOn T.polys (fun X => A * (1 + T.dist X)) Dom ν σ ε K₂ ψ b
+  frame : Frame i₀ σ ε ψ u R
+  σpos : 0 < σ
+  σle : σ ≤ 1
+  εpos : 0 < ε
+  εle : ε ≤ Λ * r
+  rpos : 0 < r
+  rle : r ≤ 1
+  ν0 : 0 ≤ ν
+  νσ : ν ≤ σ ^ 2
+  E0nn : 0 ≤ E₀
+  Ann : 0 ≤ A
+  τle : σ ^ 2 * ε ≤ 1 / 4
+
+/-- The context with the data on all of `ℤ^d` gives the context with the data on the
+polymers. -/
+theorem CtxAniso.toOn {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
+    {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
+    {σ ε K₂ : ℝ} {u : ℂ} {R : Matrix (Fin N) (Fin N) ℂ}
+    (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+    CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R :=
+  ⟨c.hyp, c.dat.toOn c.hyp.diam (mul_pos c.σpos c.εpos).le, c.frame, c.σpos, c.σle, c.εpos,
+    c.εle, c.rpos, c.rle, c.ν0, c.νσ, c.E0nn, c.Ann, c.τle⟩
+
+section CtxAnisoOn
 
 variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
   {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
   {σ ε K₂ : ℝ} {u : ℂ} {R : Matrix (Fin N) (Fin N) ℂ}
 
-theorem CtxAniso.Λnn (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) : 0 ≤ Λ := by
+theorem CtxAnisoOn.Λnn (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) : 0 ≤ Λ := by
   have h1 := c.εle
   have h2 := c.εpos
   have h3 := c.rpos
@@ -250,41 +371,47 @@ theorem CtxAniso.Λnn (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b 
   push Not at h
   nlinarith
 
-theorem CtxAniso.l1_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.l1_le (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) {x : Site d} (hx : x ∈ X) :
     (l1 x : ℝ) ≤ A * (1 + T.dist X) := by
   rw [l1_cast]; exact c.hyp.diam X hX x hx
 
-theorem CtxAniso.rotDiff_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
-    (x : Site d) : ‖rotDiff R ψ x‖ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := by
+theorem CtxAnisoOn.rotDiff_le_mem (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) {x : Site d} (hx : x ∈ X) :
+    ‖rotDiff R ψ x‖ ≤ N * 40 * (A * (1 + T.dist X) * (σ * ε)) := by
   have h := norm_mulVec_le (R := R) (B := 40) (by norm_num) (fun i k => by
     have := c.frame.bd i k; simpa [rotBound] using this) (ψ x - ψ 0)
-  have h2 := norm_sub_le_l1 (ψ := ψ) (δ := σ * ε) c.dat.adj 0 x
-  simp only [zero_add] at h2
   unfold rotDiff
-  calc ‖R.mulVec (ψ x - ψ 0)‖ ≤ N * 40 * ‖ψ x - ψ 0‖ := h
-    _ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := mul_le_mul_of_nonneg_left h2 (by positivity)
+  exact h.trans (mul_le_mul_of_nonneg_left (c.dat.incr X hX x hx) (by positivity))
 
-theorem CtxAniso.ga_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) (x : Site d) :
+theorem CtxAnisoOn.rotDiff_eU_le (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    (μ : Fin d) : ‖rotDiff R ψ (eU μ)‖ ≤ N * 40 * (σ * ε) := by
+  have h := norm_mulVec_le (R := R) (B := 40) (by norm_num) (fun i k => by
+    have := c.frame.bd i k; simpa [rotBound] using this) (ψ (eU μ) - ψ 0)
+  unfold rotDiff
+  exact h.trans (mul_le_mul_of_nonneg_left (by simpa [eU] using c.dat.grad0 μ) (by positivity))
+
+theorem CtxAnisoOn.ga_le_mem (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) {x : Site d} (hx : x ∈ X) :
     ‖dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)‖ ≤ 2 * (σ ^ 2 * ε) := by
-  have h1 := c.dat.sq x
-  have h2 := c.dat.sq 0
+  have h1 := c.dat.sq X hX x hx
+  have h2 := c.dat.sq0
   calc ‖dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)‖
       = ‖(dot (ψ x) (ψ x) - 1) - (dot (ψ 0) (ψ 0) - 1)‖ := by ring_nf
     _ ≤ ‖dot (ψ x) (ψ x) - 1‖ + ‖dot (ψ 0) (ψ 0) - 1‖ := norm_sub_le _ _
     _ ≤ 2 * (σ ^ 2 * ε) := by linarith
 
-theorem CtxAniso.uInv_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+theorem CtxAnisoOn.uInv_eq (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
     uInv ψ = u :=
   c.frame.uInv_eq c.τle
 
-theorem CtxAniso.alpha_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+theorem CtxAnisoOn.alpha_eq (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
     ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) = uInv ψ - 1 := by
   rw [c.uInv_eq, c.frame.rot0]
   simp
 
 /-- The longitudinal component of the rotated field is `vInv ψ b`. -/
-theorem CtxAniso.beta_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+theorem CtxAnisoOn.beta_eq (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
     ((R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) i₀) = vInv ψ b - ν := by
   have hu := c.frame.u_ne c.τle
   unfold vInv
@@ -294,7 +421,7 @@ theorem CtxAniso.beta_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ
 /-- **The gauge of the constant displacement**: `g(z_c) ≤ (C₁ + Λ) σ² ε / r`.  Its spin and
 transverse field components are `O(σ² ε)` against the radius `r`; its longitudinal field
 component `vInv ψ b - ν` is `O(σ² ε²)` against the radius `r²`. -/
-theorem CtxAniso.zc_gauge_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.zc_gauge_le (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     (X : Finset (Site d)) : anisoGauge i₀ r X (zcfg X i₀ ν ψ b R) ≤ sZ0A N Λ σ ε / r := by
   have hr := c.rpos
   have hσ := c.σpos
@@ -338,7 +465,8 @@ theorem CtxAniso.zc_gauge_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Do
         _ = r * (cZA N Λ * (σ ^ 2 * ε)) := by ring
     · -- the transverse field part, against `r`
       rw [anisoWt_inr_ne hj, mul_div_cancel₀ _ hr.ne']
-      have h1 := c.frame.norm_mulVec_b_sub_le c.dat.toDataHyp hσ c.σle hε c.ν0 c.νσ c.τle
+      have h1 := c.frame.const.norm_mulVec_b_sub_le (c.dat.constData (mul_pos hσ hε).le) hσ
+        c.σle hε c.ν0 c.νσ c.τle
       have h2 := norm_le_pi_norm (R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) j
       unfold sZ0A
       calc ‖(R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) j‖
@@ -346,22 +474,22 @@ theorem CtxAniso.zc_gauge_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Do
         _ = cC1 N * (σ ^ 2 * ε) := by unfold cC1; ring
         _ ≤ cZA N Λ * (σ ^ 2 * ε) := mul_le_mul_of_nonneg_right hC1 hτ0
 
-theorem CtxAniso.termOK (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.termOK (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) : TermOK i₀ ν (r ^ 2) X (T.term X) :=
   termOK_of_tubeAniso c.rpos c.rle (c.hyp.analytic X hX) (c.hyp.rot_inv X hX)
 
-theorem CtxAniso.analytic_poly (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.analytic_poly (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     AnalyticOnNhd ℂ (T.term X) (polyAniso i₀ ν r X) :=
   (c.hyp.analytic X hX).mono polyAniso_subset_tubeAniso
 
-theorem CtxAniso.hM (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.hM (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     ∀ y ∈ polyAniso i₀ ν r X, ‖T.term X y‖ ≤ E₀ * Real.exp (-κ * T.dist X) :=
   fun y hy => c.hyp.bdd_tube X hX y (polyAniso_subset_tubeAniso hy)
 
 /-- Rotation invariance for the configuration of a polymer. -/
-theorem CtxAniso.term_rot (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.term_rot (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) {ψ' : Site d → Spin N} {b' : Spin N}
     (hpoly : rotCfgL R X (pack X ψ' b') ∈ polyAniso i₀ ν r X) :
     T.term X (pack X ψ' b') = T.term X (rotCfgL R X (pack X ψ' b')) := by
@@ -369,12 +497,12 @@ theorem CtxAniso.term_rot (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom �
   exact (c.hyp.rot_inv X hX _ hmem R c.frame.orth c.frame.bd
     (polyAniso_subset_tubeAniso hpoly)).symm
 
-theorem CtxAniso.card_pos (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.card_pos (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) : 1 ≤ X.card :=
   Finset.card_pos.mpr ⟨0, c.hyp.zero_mem X hX⟩
 
 /-- **The local estimate** for a polymer with `(C₁ + Λ + κ₁)(1 + d_j(X)) σ ε ≤ r/2`. -/
-theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.small_case (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys)
     (hs : (cZA N Λ + cK1 N A) * (1 + T.dist X) * σ * ε ≤ r / 2) :
     ‖T.term X (pack X ψ b) - T.term X (pack X (fun _ => ψ 0) b)
@@ -402,14 +530,9 @@ theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom
   have hZ0n : 0 ≤ sZ0A N Λ σ ε := by unfold sZ0A; positivity
   have hDφ : ∀ x ∈ X, ‖rotDiff R ψ x‖ ≤ sD N A σ ε t := by
     intro x hx
-    refine (c.rotDiff_le x).trans ?_
+    refine (c.rotDiff_le_mem hX hx).trans (le_of_eq ?_)
     unfold sD cK1
-    have := c.l1_le hX hx
-    have h2 : 0 ≤ σ * ε := by positivity
-    calc (N : ℝ) * 40 * ((l1 x : ℝ) * (σ * ε)) ≤ N * 40 * (A * t * (σ * ε)) := by
-          refine mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right ?_ h2) (by positivity)
-          simpa [ht] using this
-      _ = _ := by ring
+    rw [ht]; ring
   have hpk : anisoGauge i₀ r X (pack X (rotDiff R ψ) 0) ≤ sD N A σ ε t / r :=
     anisoGauge_pack_zero_le hr _ hD0 hDφ
   have hzc : anisoGauge i₀ r X (zcfg X i₀ ν ψ b R) ≤ sZ0A N Λ σ ε / r := c.zc_gauge_le X
@@ -450,7 +573,7 @@ theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom
       have := c.rle; linarith
     exact long_bounds (u := u) (φ0 := rotDiff R ψ x i₀)
       (θ := dotT i₀ (rotDiff R ψ x) (rotDiff R ψ x))
-      (g := dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)) c.frame.u_close c.τle (c.ga_le x) hθ hφ
+      (g := dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)) c.frame.u_close c.τle (c.ga_le_mem hX hx) hθ hφ
       (c.frame.long_identity x)
   have hEb : ∀ x ∈ X, ∀ x' ∈ X, ‖dotT i₀ (rotDiff R ψ x - rotDiff R ψ x')
       (rotDiff R ψ x - rotDiff R ψ x') - wquad (gradTensor i₀ R ψ) x x'‖ ≤
@@ -458,9 +581,15 @@ theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom
     intro x hx x' hx'
     have hR : ∀ i k, ‖R i k‖ ≤ 40 := fun i k => by
       have := c.frame.bd i k; simpa [rotBound] using this
-    exact dotT_diff_bound hR c.dat.adj c.dat.sec x x' (L := A * t)
-      (by simpa [ht] using c.l1_le hX hx) (by simpa [ht] using c.l1_le hX hx')
-      (by have := c.Ann; positivity) i₀ (by positivity) c.dat.K2_nonneg
+    have hw : (l1 (x - x') : ℝ) ≤ 2 * (A * t) := by
+      have h1 := l1_sub_le x x'
+      have h2 : (l1 (x - x') : ℝ) ≤ l1 x + l1 x' := by exact_mod_cast h1
+      have h3 := c.l1_le hX hx
+      have h4 := c.l1_le hX hx'
+      rw [ht]; linarith
+    exact dotT_diff_bound_of_taylor hR c.dat.grad0 x x' (L := A * t) hw
+      (by have := c.Ann; positivity) (by simpa [ht] using c.dat.taylor X hX x hx x' hx') i₀
+      (by positivity) c.dat.K2_nonneg
   have key := hok.local_bound_aniso hne hr han hM c.ν0 (rotDiff R ψ)
     (fun y => dot (ψ y) (ψ y) - dot (ψ 0) (ψ 0)) (gradTensor i₀ R ψ) (zcfg X i₀ ν ψ b R)
     (Z := (sZ0A N Λ σ ε + sD N A σ ε t) / r) (Z0 := sZ0A N Λ σ ε / r) (D := sD N A σ ε t)
@@ -470,7 +599,7 @@ theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom
   exact key
 
 /-- Bound for the first-order term `A_X`. -/
-theorem CtxAniso.A_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.A_le (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     ‖(1 / 2 : ℂ) * ∑ x : ↥X, tensA i₀ ν X (T.term X) x *
       (dot (ψ x.1) (ψ x.1) - dot (ψ 0) (ψ 0))‖ ≤
@@ -487,7 +616,7 @@ theorem CtxAniso.A_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b 
       (Fintype.card ↥X : ℝ) * (M / r * (2 * (σ ^ 2 * ε))) := by
     refine norm_sum_le_card _ fun x => ?_
     rw [norm_mul]
-    exact mul_le_mul (aniso_norm_tensA_le hr han hM x) (c.ga_le x.1) (norm_nonneg _) hcr
+    exact mul_le_mul (aniso_norm_tensA_le hr han hM x) (c.ga_le_mem hX x.2) (norm_nonneg _) hcr
   have h2 : ‖(1 / 2 : ℂ)‖ = 1 / 2 := by simp
   rw [h2, hcard] at *
   calc 1 / 2 * ‖∑ x : ↥X, tensA i₀ ν X (T.term X) x * (dot (ψ x.1) (ψ x.1) - dot (ψ 0) (ψ 0))‖
@@ -496,7 +625,7 @@ theorem CtxAniso.A_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b 
     _ = _ := by ring
 
 /-- Bound for the quadratic term `L_X`. -/
-theorem CtxAniso.Lq_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.Lq_le (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     ‖(1 / 4 : ℂ) * ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
       wquad (gradTensor i₀ R ψ) x.1 x'.1‖ ≤
@@ -517,9 +646,7 @@ theorem CtxAniso.Lq_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b
   have hcr2 : 0 ≤ 4 * M / r ^ 2 := by positivity
   have hGm : ∀ μ μ', ‖gradTensor i₀ R ψ μ μ'‖ ≤ N * (N * 40 * (σ * ε)) ^ 2 := by
     intro μ μ'
-    have hφ : ∀ ν', ‖rotDiff R ψ (eU ν')‖ ≤ N * 40 * (σ * ε) := fun ν' => by
-      have := c.rotDiff_le (eU ν')
-      rwa [l1_eU, Nat.cast_one, one_mul] at this
+    have hφ : ∀ ν', ‖rotDiff R ψ (eU ν')‖ ≤ N * 40 * (σ * ε) := fun ν' => c.rotDiff_eU_le ν'
     refine (norm_dotT_le i₀ _ _).trans ?_
     rw [sq]
     exact mul_le_mul_of_nonneg_left (mul_le_mul (hφ μ) (hφ μ') (norm_nonneg _) (by positivity)) hN
@@ -553,7 +680,7 @@ theorem CtxAniso.Lq_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b
     _ = _ := by ring
 
 /-- The crude bound for the polymers with large `d_j(X)`. -/
-theorem CtxAniso.tail_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.tail_case (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     ‖T.term X (pack X ψ b) - T.term X (pack X (fun _ => ψ 0) b)
         - (1 / 2 : ℂ) * ∑ x : ↥X, tensA i₀ ν X (T.term X) x *
@@ -587,7 +714,7 @@ theorem CtxAniso.tail_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom 
 
 /-- The expansion of the term at the constant configuration around the reference point:
 first-order Taylor in the gauge. -/
-theorem CtxAniso.potential_term (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.potential_term (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) (hZ0 : sZ0A N Λ σ ε / r ≤ 1 / 2) :
     ‖T.term X (pack X (fun _ => ψ 0) b) - T.term X (refPt i₀ ν X) -
         ((∑ x : ↥X, tensA i₀ ν X (T.term X) x) * ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) +
@@ -617,7 +744,7 @@ theorem CtxAniso.potential_term (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ
     pow_le_pow_left₀ (anisoGauge_nonneg _) hzc 2
   nlinarith
 
-theorem CtxAniso.ttw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.ttw_eq (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     (X : Finset (Site d)) :
     Ttw T i₀ ν X ψ b = T.term X (refPt i₀ ν X) +
       ((∑ x : ↥X, tensA i₀ ν X (T.term X) x) * ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) +
@@ -627,7 +754,7 @@ theorem CtxAniso.ttw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ 
   unfold Ttw
   ring
 
-theorem CtxAniso.itw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.itw_eq (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     (X : Finset (Site d)) :
     Itw T i₀ i₁ ν X ψ b = Dlt T i₀ i₁ ν R ψ b X +
       (T.term X (pack X (fun _ => ψ 0) b) - Ttw T i₀ ν X ψ b) := by
@@ -637,8 +764,8 @@ theorem CtxAniso.itw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ 
 
 /-- **The constant-field potential of a single term**: the first-order invariant Taylor
 polynomial `T_X` approximates `𝓔(y, X; ψ(y), b)` to `12 |X| M (C₁ + Λ)² σ⁴ (ε/r)²`. -/
-theorem CtxAniso.constant_potential_aniso
-    (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.constant_potential_aniso
+    (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {X : Finset (Site d)} (hX : X ∈ T.polys) :
     ‖T.term X (pack X (fun _ => ψ 0) b) - Ttw T i₀ ν X ψ b‖ ≤
       12 * (X.card : ℝ) * (E₀ * Real.exp (-κ * T.dist X)) * cZA N Λ ^ 2 *
@@ -730,6 +857,161 @@ theorem CtxAniso.constant_potential_aniso
         ≤ 4 * M * q ^ 2 + (4 * M * q ^ 2 + (X.card : ℝ) * M * (2 * q ^ 2) + M * (2 * q ^ 2)) := by
           gcongr <;> nlinarith [mul_nonneg hM0 hq0]
       _ ≤ 12 * (X.card : ℝ) * M * q ^ 2 := by nlinarith [mul_nonneg hM0 (sq_nonneg q)]
+
+end CtxAnisoOn
+
+section CtxAniso
+
+variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
+  {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
+  {σ ε K₂ : ℝ} {u : ℂ} {R : Matrix (Fin N) (Fin N) ℂ}
+
+theorem CtxAniso.rotDiff_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    (x : Site d) : ‖rotDiff R ψ x‖ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := by
+  have h := norm_mulVec_le (R := R) (B := 40) (by norm_num) (fun i k => by
+    have := c.frame.bd i k; simpa [rotBound] using this) (ψ x - ψ 0)
+  have h2 := norm_sub_le_l1 (ψ := ψ) (δ := σ * ε) c.dat.adj 0 x
+  simp only [zero_add] at h2
+  unfold rotDiff
+  calc ‖R.mulVec (ψ x - ψ 0)‖ ≤ N * 40 * ‖ψ x - ψ 0‖ := h
+    _ ≤ N * 40 * ((l1 x : ℝ) * (σ * ε)) := mul_le_mul_of_nonneg_left h2 (by positivity)
+
+theorem CtxAniso.ga_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) (x : Site d) :
+    ‖dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)‖ ≤ 2 * (σ ^ 2 * ε) := by
+  have h1 := c.dat.sq x
+  have h2 := c.dat.sq 0
+  calc ‖dot (ψ x) (ψ x) - dot (ψ 0) (ψ 0)‖
+      = ‖(dot (ψ x) (ψ x) - 1) - (dot (ψ 0) (ψ 0) - 1)‖ := by ring_nf
+    _ ≤ ‖dot (ψ x) (ψ x) - 1‖ + ‖dot (ψ 0) (ψ 0) - 1‖ := norm_sub_le _ _
+    _ ≤ 2 * (σ ^ 2 * ε) := by linarith
+
+theorem CtxAniso.Λnn (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) : 0 ≤ Λ :=
+  c.toOn.Λnn
+
+theorem CtxAniso.l1_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) {x : Site d} (hx : x ∈ X) :
+    (l1 x : ℝ) ≤ A * (1 + T.dist X) :=
+  c.toOn.l1_le hX hx
+
+theorem CtxAniso.uInv_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+    uInv ψ = u :=
+  c.toOn.uInv_eq
+
+theorem CtxAniso.alpha_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+    ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) = uInv ψ - 1 :=
+  c.toOn.alpha_eq
+
+/-- The longitudinal component of the rotated field is `vInv ψ b`. -/
+theorem CtxAniso.beta_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R) :
+    ((R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) i₀) = vInv ψ b - ν :=
+  c.toOn.beta_eq
+
+/-- **The gauge of the constant displacement**: `g(z_c) ≤ (C₁ + Λ) σ² ε / r`.  Its spin and
+transverse field components are `O(σ² ε)` against the radius `r`; its longitudinal field
+component `vInv ψ b - ν` is `O(σ² ε²)` against the radius `r²`. -/
+theorem CtxAniso.zc_gauge_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    (X : Finset (Site d)) : anisoGauge i₀ r X (zcfg X i₀ ν ψ b R) ≤ sZ0A N Λ σ ε / r :=
+  c.toOn.zc_gauge_le X
+
+theorem CtxAniso.termOK (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) : TermOK i₀ ν (r ^ 2) X (T.term X) :=
+  c.toOn.termOK hX
+
+theorem CtxAniso.analytic_poly (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    AnalyticOnNhd ℂ (T.term X) (polyAniso i₀ ν r X) :=
+  c.toOn.analytic_poly hX
+
+theorem CtxAniso.hM (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ∀ y ∈ polyAniso i₀ ν r X, ‖T.term X y‖ ≤ E₀ * Real.exp (-κ * T.dist X) :=
+  c.toOn.hM hX
+
+/-- Rotation invariance for the configuration of a polymer. -/
+theorem CtxAniso.term_rot (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) {ψ' : Site d → Spin N} {b' : Spin N}
+    (hpoly : rotCfgL R X (pack X ψ' b') ∈ polyAniso i₀ ν r X) :
+    T.term X (pack X ψ' b') = T.term X (rotCfgL R X (pack X ψ' b')) :=
+  c.toOn.term_rot hX hpoly
+
+theorem CtxAniso.card_pos (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) : 1 ≤ X.card :=
+  c.toOn.card_pos hX
+
+/-- **The local estimate** for a polymer with `(C₁ + Λ + κ₁)(1 + d_j(X)) σ ε ≤ r/2`. -/
+theorem CtxAniso.small_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys)
+    (hs : (cZA N Λ + cK1 N A) * (1 + T.dist X) * σ * ε ≤ r / 2) :
+    ‖T.term X (pack X ψ b) - T.term X (pack X (fun _ => ψ 0) b)
+        - (1 / 2 : ℂ) * ∑ x : ↥X, tensA i₀ ν X (T.term X) x *
+            (dot (ψ x.1) (ψ x.1) - dot (ψ 0) (ψ 0))
+        + (1 / 4 : ℂ) * ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+            wquad (gradTensor i₀ R ψ) x.1 x'.1‖ ≤
+      smallBndA N A Λ (E₀ * Real.exp (-κ * T.dist X)) r ν σ ε K₂ (1 + T.dist X) X.card :=
+  c.toOn.small_case hX hs
+
+/-- Bound for the first-order term `A_X`. -/
+theorem CtxAniso.A_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖(1 / 2 : ℂ) * ∑ x : ↥X, tensA i₀ ν X (T.term X) x *
+      (dot (ψ x.1) (ψ x.1) - dot (ψ 0) (ψ 0))‖ ≤
+      X.card * (E₀ * Real.exp (-κ * T.dist X) / r * (σ ^ 2 * ε)) :=
+  c.toOn.A_le hX
+
+/-- Bound for the quadratic term `L_X`. -/
+theorem CtxAniso.Lq_le (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖(1 / 4 : ℂ) * ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+      wquad (gradTensor i₀ R ψ) x.1 x'.1‖ ≤
+      (X.card : ℝ) ^ 2 * (E₀ * Real.exp (-κ * T.dist X) / r ^ 2) *
+        ((2 * (A * (1 + T.dist X))) ^ 2 * (N * (N * 40 * (σ * ε)) ^ 2)) :=
+  c.toOn.Lq_le hX
+
+/-- The crude bound for the polymers with large `d_j(X)`. -/
+theorem CtxAniso.tail_case (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖T.term X (pack X ψ b) - T.term X (pack X (fun _ => ψ 0) b)
+        - (1 / 2 : ℂ) * ∑ x : ↥X, tensA i₀ ν X (T.term X) x *
+            (dot (ψ x.1) (ψ x.1) - dot (ψ 0) (ψ 0))
+        + (1 / 4 : ℂ) * ∑ x : ↥X, ∑ x' : ↥X, tensB i₀ i₁ ν X (T.term X) x x' *
+            wquad (gradTensor i₀ R ψ) x.1 x'.1‖ ≤
+      tailBnd N A (E₀ * Real.exp (-κ * T.dist X)) r σ ε (1 + T.dist X) X.card :=
+  c.toOn.tail_case hX
+
+/-- The expansion of the term at the constant configuration around the reference point:
+first-order Taylor in the gauge. -/
+theorem CtxAniso.potential_term (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) (hZ0 : sZ0A N Λ σ ε / r ≤ 1 / 2) :
+    ‖T.term X (pack X (fun _ => ψ 0) b) - T.term X (refPt i₀ ν X) -
+        ((∑ x : ↥X, tensA i₀ ν X (T.term X) x) * ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) +
+          ((R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) i₀) *
+            fderiv ℂ (T.term X) (refPt i₀ ν X) (Pi.single (Sum.inr i₀) 1))‖ ≤
+      2 * (E₀ * Real.exp (-κ * T.dist X)) * (sZ0A N Λ σ ε / r) ^ 2 :=
+  c.toOn.potential_term hX hZ0
+
+theorem CtxAniso.ttw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    (X : Finset (Site d)) :
+    Ttw T i₀ ν X ψ b = T.term X (refPt i₀ ν X) +
+      ((∑ x : ↥X, tensA i₀ ν X (T.term X) x) * ((R.mulVec (ψ 0) - Pi.single i₀ 1 : Spin N) i₀) +
+        ((R.mulVec b - (ν : ℂ) • Pi.single i₀ 1 : Spin N) i₀) *
+          fderiv ℂ (T.term X) (refPt i₀ ν X) (Pi.single (Sum.inr i₀) 1)) :=
+  c.toOn.ttw_eq X
+
+theorem CtxAniso.itw_eq (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    (X : Finset (Site d)) :
+    Itw T i₀ i₁ ν X ψ b = Dlt T i₀ i₁ ν R ψ b X +
+      (T.term X (pack X (fun _ => ψ 0) b) - Ttw T i₀ ν X ψ b) :=
+  c.toOn.itw_eq X
+
+/-- **The constant-field potential of a single term**: the first-order invariant Taylor
+polynomial `T_X` approximates `𝓔(y, X; ψ(y), b)` to `12 |X| M (C₁ + Λ)² σ⁴ (ε/r)²`. -/
+theorem CtxAniso.constant_potential_aniso
+    (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖T.term X (pack X (fun _ => ψ 0) b) - Ttw T i₀ ν X ψ b‖ ≤
+      12 * (X.card : ℝ) * (E₀ * Real.exp (-κ * T.dist X)) * cZA N Λ ^ 2 *
+        (σ ^ 4 * (ε / r) ^ 2) :=
+  c.toOn.constant_potential_aniso hX
 
 end CtxAniso
 

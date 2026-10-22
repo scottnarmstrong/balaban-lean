@@ -25,7 +25,10 @@ The geometry of the macro cover gives the constants of the count of rooted famil
 
 **The constraint (`BoxCutTies`).**  At the cut radius `κ` and the cell rate `a`: `1 ≤ κ`, the macro
 size `M_cut` large (`4 pdB e^{pdH κ} ≤ M_cut`, `8 κ 7^d ≤ pdEps M_cut`, the hypotheses of the tagged
-family), and `(16^d)² e^{a 16^d} e^{-(κ - 1)} ≤ 1/2` (the count converges with ratio `1/2`).  With
+family), and `(16^d)² e^{a 16^d} e^{-(κ - 1)} ≤ 1/2` (the count converges with ratio `1/2`).
+`BoxCutConsts d L k M_c v a κ α` bundles the hypotheses of the cut family `boxCut` at the level `k`
+(mass `v`, weight `a`, macro side `M_c`, cut radius `κ`) with `BoxCutTies` at the cell rate `α`;
+`boxCutConsts_exists`.  With
 `M_cut = M`, the cube side of the class at the scale `k` in `k`-blocks, the cells are the cubes of
 the scale `k` (`M ∣ N₀ = M n_k`) and lie inside the cubes of the scale `k + 1` (side `M L`).
 `PrefixInput` fixes `M = c M₁ = L^{m₀ + m₁}` with `c ≥ 14`, `M₁ ≥ 1`, `L ≤ M`, `R₀(d, L) ≤ 5 L M₁` and
@@ -151,5 +154,36 @@ theorem boxCutTies_exists (d L : ℕ) [NeZero L] {a : ℝ} (ha : 0 ≤ a) :
       -(1 + a * 16 ^ d + 2 * d * Real.log 16 + Real.log 2 - 1)) = -Real.log 2 := by ring
   rw [this, Real.exp_neg, Real.exp_log (by norm_num)]
   norm_num
+
+/-- **The constants of the cut family** at the level `k`. -/
+structure BoxCutConsts (d L k Mc : ℕ) [NeZero L] (v a κ α : ℝ) : Prop where
+  hd : 0 < d
+  hk : 1 ≤ k
+  hv0 : 0 ≤ v
+  hv1 : v ≤ 1
+  ha1 : 1 / 2 ≤ a
+  ha2 : a ≤ 2
+  hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v
+  hM : 0 < Mc
+  ties : BoxCutTies d L Mc κ α
+
+/-- **`BoxCutConsts` is satisfiable** (rule 10): `v = a = 1`, the radius `κ` of
+`boxCutTies_exists` and every macro side above its bounds. -/
+theorem boxCutConsts_exists (d L k : ℕ) [NeZero L] (hd : 0 < d) (hk : 1 ≤ k) {α : ℝ}
+    (hα : 0 ≤ α) :
+    ∃ κ : ℝ, ∀ Mc : ℕ, 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ Mc →
+      8 * κ * 7 ^ d ≤ pdEps d L * Mc → BoxCutConsts d L k Mc 1 1 κ α := by
+  obtain ⟨κ, hκ⟩ := boxCutTies_exists d L hα
+  refine ⟨κ, fun Mc h1 h2 => ?_⟩
+  have hT := hκ Mc h1 h2
+  have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
+  have hinv : ((L : ℝ) ^ 2)⁻¹ ≤ 1 := inv_le_one_of_one_le₀ (by nlinarith)
+  have hMc : 0 < Mc := by
+    have hε := pdEps_pos (d := d) (L := L) hd
+    have h7 : (0 : ℝ) < 7 ^ d := by positivity
+    have : (0 : ℝ) < pdEps d L * Mc := lt_of_lt_of_le (by nlinarith [hT.1]) h2
+    have : (0 : ℝ) < Mc := pos_of_mul_pos_right this hε.le
+    exact_mod_cast this
+  exact ⟨hd, hk, zero_le_one, le_rfl, by norm_num, by norm_num, by linarith, hMc, hT⟩
 
 end Balaban.Green
