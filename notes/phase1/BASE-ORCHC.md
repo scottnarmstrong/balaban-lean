@@ -102,6 +102,15 @@ are landed.
   small-field terms with domains in `Z'` (P6 p. 14 at `k = 0`) carry source parts `M̃` with `|M̃| ≤ c̄‖g‖₁`; then the forced
   form is `e^{(1+c̄)‖g|_{Z'}‖₁}`. To be asked when the physical `b₀` is defined.
 
+- (C3) **The window of `a₁` (A1′).** `CoeffBounds` at scale 1 asks `9/10 (1 − L⁻²)⁻¹ ≤ a₁ < 3/2` and the free flow gives
+  `a₁ = compWeight L a 1 = a`; the prefix's `a ∈ (1, 3/2)` is not enough (`81/80 > 1` at `L = 3`). The prefix must choose the
+  kernel constant `a ∈ [9/10 (1 − L⁻²)⁻¹, 3/2)`.
+- (C3, BASE-RG1) The renormalization at scale 1: the counterterm system at `k = 0` (`baseRg_step`) and `CoeffBounds` at 1
+  (`baseCoeffBounds`) are proved given the system's nonlinearities; Lemma 3.5 (i) at the first step (`baseFirst_lemma35`,
+  `baseFirst_physical_eq_class_add`) gives the exact difference of the renormalized and unrenormalized actions
+  (`renormC1 − renormC2`); the missing large piece, shared with the general step, is `RenormCondAlong` at `k + 1` from a
+  solution of the system (`notes/phase1/BASE-RG1.md`).
+
 ## 4b. Dependencies of row (a) on the other blockers
 Row (a) is A4-1b–f at `k = 0`. Its term construction meets the open problems of the general provider `Φ`: the terms of the
 new level on the local generating sets `𝔹_1(X̂)` (ruling R13; blocker 6 at `k = 0`), the RG extraction (A4-1c), the
