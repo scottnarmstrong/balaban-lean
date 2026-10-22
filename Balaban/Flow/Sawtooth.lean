@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Flow.TorusLift
+public import Balaban.Green.BallSums
 
 /-!
 # The sawtooth periodization of a cell polynomial on the circle of `N m` sites
@@ -376,5 +377,92 @@ theorem norm_sawErr_le (F₂ F₁ F₀ : ZMod N → ℂ) (s : ZMod ℓ) :
         gcongr <;> exact norm_sub_le _ _
     _ ≤ _ := by
         have := hsaw (s + 1); have := hsaw (s - 1); linarith
+
+omit [NeZero N] in
+theorem slift_cast (hℓ : ℓ = N * m) (s : ZMod ℓ) : ((slift N m s : ℤ) : ZMod ℓ) = s := by
+  have hq : ((sb N m s : ℤ) : ZMod m) = ((s.val / N : ℕ) : ZMod m) := by
+    unfold sb blockCoord; exact ZMod.coe_valMinAbs _
+  have h2 : (m : ℤ) ∣ (sb N m s - ((s.val / N : ℕ) : ℤ)) := by
+    rw [← ZMod.intCast_eq_intCast_iff_dvd_sub, hq]; exact Int.cast_natCast (R := ZMod m) (s.val / N)
+  obtain ⟨c, hc⟩ := h2
+  have hd : (N : ℤ) * ((s.val / N : ℕ) : ℤ) + ((s.val % N : ℕ) : ℤ) = (s.val : ℤ) := by
+    exact_mod_cast Nat.div_add_mod s.val N
+  have hmain : slift N m s = (s.val : ℤ) + ((N * m : ℕ) : ℤ) * c := by
+    unfold slift sc
+    simp only [Nat.cast_mul]
+    have : (sb N m s : ℤ) = ((s.val / N : ℕ) : ℤ) + m * c := by linarith
+    rw [this]
+    linear_combination hd
+  rw [hmain]
+  have h3 : ((N * m : ℕ) : ZMod ℓ) = 0 := by rw [← hℓ]; exact ZMod.natCast_self ℓ
+  push_cast at h3 ⊢
+  rw [h3]; simp
+
+theorem cycRep_two_abs_le (a : ZMod ℓ) : |2 * Green.cycRep a| ≤ ℓ := by
+  unfold Green.cycRep
+  split_ifs with h
+  · rw [abs_le]; constructor <;> omega
+  · have := ZMod.val_lt a
+    rw [abs_le]; constructor <;> omega
+
+omit [NeZero N] in
+theorem dist_seam (hℓ : ℓ = N * m) (s a : ZMod ℓ) (ha : a.val < N)
+    (hs : (m : ℤ) - 2 ≤ |2 * sb N m s|) :
+    (N : ℤ) * ((m : ℤ) - 4) ≤ 2 * |Green.cycRep (s - a)| := by
+  have hκ := cycRep_two_abs_le (s - a)
+  set κ := Green.cycRep (s - a) with hκdef
+  have hcast : ((κ : ℤ) : ZMod ℓ) = (((slift N m s - (a.val : ℤ) : ℤ)) : ZMod ℓ) := by
+    rw [hκdef, Green.cast_cycRep]
+    push_cast
+    rw [slift_cast hℓ, ZMod.natCast_zmod_val]
+  rw [ZMod.intCast_eq_intCast_iff_dvd_sub] at hcast
+  obtain ⟨t, ht⟩ := hcast
+  have hN : (0 : ℤ) ≤ N := Nat.cast_nonneg N
+  have hsc : (sc N s : ℤ) < N := by
+    unfold sc; exact_mod_cast Nat.mod_lt _ (by omega : 0 < N)
+  have hsc0 : (0 : ℤ) ≤ sc N s := Nat.cast_nonneg _
+  have hav : (a.val : ℤ) < N := by exact_mod_cast ha
+  have hav0 : (0 : ℤ) ≤ a.val := Nat.cast_nonneg _
+  have hsb2 : |2 * sb N m s| ≤ m := by
+    have h := ZMod.valMinAbs_mem_Ioc (blockCoord N m s)
+    simp only [Set.mem_Ioc] at h
+    unfold sb
+    rw [abs_le]; constructor <;> linarith [h.1, h.2]
+  have hP1 : (N : ℤ) * ((m : ℤ) - 2) ≤ |2 * ((N : ℤ) * sb N m s)| := by
+    have : |2 * ((N : ℤ) * sb N m s)| = (N : ℤ) * |2 * sb N m s| := by
+      rw [show 2 * ((N : ℤ) * sb N m s) = (N : ℤ) * (2 * sb N m s) by ring, abs_mul,
+        abs_of_nonneg hN]
+    rw [this]; exact mul_le_mul_of_nonneg_left hs hN
+  have hP2 : |2 * ((N : ℤ) * sb N m s)| ≤ (N : ℤ) * m := by
+    have : |2 * ((N : ℤ) * sb N m s)| = (N : ℤ) * |2 * sb N m s| := by
+      rw [show 2 * ((N : ℤ) * sb N m s) = (N : ℤ) * (2 * sb N m s) by ring, abs_mul,
+        abs_of_nonneg hN]
+    rw [this]; exact mul_le_mul_of_nonneg_left hsb2 hN
+  have hℓz : (ℓ : ℤ) = (N : ℤ) * m := by rw [hℓ]; push_cast; ring
+  have hD : slift N m s - (a.val : ℤ) = (N : ℤ) * sb N m s + ((sc N s : ℤ) - a.val) := by
+    unfold slift; ring
+  have hdiff : |2 * ((sc N s : ℤ) - a.val)| ≤ 2 * ((N : ℤ) - 1) := by
+    rw [abs_le]; constructor <;> linarith
+  rw [hD] at ht
+  have hκ2 : 2 * |κ| = |2 * κ| := by rw [abs_mul]; simp
+  rw [hκ2]
+  by_cases h0 : t = 0
+  · subst h0
+    have hκeq : 2 * κ = 2 * ((N : ℤ) * sb N m s) + 2 * ((sc N s : ℤ) - a.val) := by linarith
+    have := abs_sub_abs_le_abs_sub (2 * ((N : ℤ) * sb N m s)) (-(2 * ((sc N s : ℤ) - a.val)))
+    rw [abs_neg, sub_neg_eq_add, ← hκeq] at this
+    nlinarith
+  · have ht1 : (ℓ : ℤ) ≤ |(ℓ : ℤ) * t| := by
+      rw [abs_mul, abs_of_nonneg (Nat.cast_nonneg ℓ)]
+      exact le_mul_of_one_le_right (Nat.cast_nonneg ℓ) (Int.one_le_abs h0)
+    set X : ℤ := 2 * ((N : ℤ) * sb N m s) + 2 * ((sc N s : ℤ) - a.val) with hX
+    have hκeq : 2 * ((ℓ : ℤ) * t) - X = -(2 * κ) := by rw [hX]; linarith
+    have h1 := abs_sub_abs_le_abs_sub (2 * ((ℓ : ℤ) * t)) X
+    rw [hκeq, abs_neg] at h1
+    have h2 : |2 * ((ℓ : ℤ) * t)| = 2 * |(ℓ : ℤ) * t| := by
+      rw [abs_mul]; simp
+    have h3 := abs_add_le (2 * ((N : ℤ) * sb N m s)) (2 * ((sc N s : ℤ) - a.val))
+    rw [← hX] at h3
+    nlinarith
 
 end Balaban.Flow
