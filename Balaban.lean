@@ -2200,6 +2200,9 @@ public import Balaban.LargeField.Base.BaseChartEG
 public import Balaban.LargeField.Base.BaseCrossAgree
 public import Balaban.LargeField.Base.BaseCrossValue
 public import Balaban.LargeField.Base.BaseChartCross
+public import Balaban.LargeField.Base.BaseCrossCoef
+public import Balaban.LargeField.Base.BaseLabelCross
+public import Balaban.LargeField.Base.BaseChartTermCross
 public import Balaban.LargeField.Base.BasePstTransport
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
