@@ -126,3 +126,10 @@ Author (Scott Armstrong), 2026-10-21: "approve R19 and R20". This approves: (R19
 first-order term, the variation of the external field, with zero sum over the torus; (R20) the class's torus
 independence is asked on pairs of read tori, for polymers with a non-winding thickening, at fields in the class domain.
 Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R21, R22 and R23 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R21, R22 and R23". This approves: (R21) the large-field boundary terms
+read the rescaled fluctuation `(β_j a)^{-1/2} ψ′`; (R22) the pre-`R` records' `loc_hist` compares the pre-`R` region and
+its components; (R23) the first family of the support tests (1.24) includes the collar from `j = 0`. Texts in
+`AGENTS.md` ("Author rulings"). No frozen declaration changes.

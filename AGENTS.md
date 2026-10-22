@@ -171,6 +171,19 @@ provider, and nothing may import a root, until the root is sealed.
   `c·L^{k+1+m₁'}`-thickening does not wind (the new terms read that thickening), and at fields in the class domain only
   (off it the step's choices are torus dependent). Root-F's quarter-box two-torus clause still follows under a constant
   condition recorded with the joint ties (ORCH-A, A1).
+- **Ruling R21 (2026-10-21, Scott: "approve R21, R22 and R23").** The large-field boundary terms read the rescaled
+  fluctuation, the field displacement `(β_j a)^{-1/2} ψ′`, not the raw Gaussian variable: P5 (1.25) bounds the raw
+  variable on the kernels' support by `C_ψ p₀(β_j) ≫ 1`, while the analyticity domain (1.37) is `ε_{1,j} ≪ 1`, so read
+  literally on the same variable the support leaves the domain where (D7) bounds the terms. With the rescaling the
+  support gives `C_ψ δ_j`, and `C_ψ δ_j < ε_{1,j}` is a condition on the constants (ORCH-B, B3).
+- **Ruling R22 (2026-10-21, Scott: "approve R21, R22 and R23").** In the pre-`R` records `D7Bdry`, `D7Bdry2` the
+  top-scale `loc_hist` clause compares the pre-`R` objects, consistent with R17: agreement of `Z^pre_k ∩ X` and of the
+  localized histories of all components of `Z^pre_k` meeting `X` (not only the post-`R` components). Without it a
+  component removed by `R^{(k+1)}` can differ next to a label while every listed premise holds (W1154e, W1162).
+- **Ruling R23 (2026-10-21, Scott: "approve R21, R22 and R23").** The first family of the support tests P5 (1.24)
+  (`ChiDomProp`, `ChiNewProp`) includes the collar sites and collar bonds from `j = 0`, as P2's `Ψ̃` and `InPsiTilde`
+  do; the Lean transcription had lost the collar, so the first step's mixed test (1.36) read the unit-lattice field
+  on collar sites that no support clause constrained (exact counterexample by ORCH-B, B3).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
