@@ -146,6 +146,113 @@ section Decoupled
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero L] [NeZero N₁] {ϱ ϱ₁ ϱ₂ : ℝ}
 
+/-- **A field near the approximate field is close to the real background** (the first part of
+`nearCompose_xiDom`): for data `D` of `H` within `τ` of real data `Ψ₀ ∈ Ψ̃(H; ν, δ)` with the field
+`h₀`, and a field `φ` within `K₂' C₃ (δ + 5 τ)` of the approximate field of `D`, the real background
+`φ_r` of the real datum is a real unit field and `|φ - φ_r| ≤ 2 N K₂' C₃ (δ + 5 τ) + (1 + K₁)(δ + 5 τ)`
+at every site. -/
+theorem nearField_close_real {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L (N₁ * L ^ m₁) k ϱ}
+    {a₁ ν Kc Cx c BG κ : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase C H (compWeight L a₁) ν Kc Cx) (HB : BgHyp d L k ϱ (compWeight L a₁) ν)
+    (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁) {δ τ : ℝ} (hδ0 : 0 < δ)
+    (hτ0 : 0 ≤ τ) (hδ73 : δ ≤ thm73C1 d L N) (hδc : δ + 5 * τ ≤ c7 d L N BG κ)
+    {Ψ₀ : CTorus d L N₁ m₁ k → Fin N → ℝ} {h₀ : Fin N → ℝ} (hP : InPsiTilde H ν δ Ψ₀ h₀)
+    {D : BgData H N} (hDh : ∀ x ∈ H.Ω 1, ∀ i, D.h x i = (h₀ i : ℂ))
+    (hDΨ : ∀ x ∈ dataSites H, vn (fun i => D.Ψ x i - (Ψ₀ x i : ℂ)) ≤ τ)
+    {φs : H.Ω 1 × Fin N → ℂ}
+    (hsups : NearApprox H (compWeight L a₁) ν D
+      (cK2' d L N (famConst d L BG κ) * (lemma53Const d L * (δ + 5 * τ))) φs) :
+    IsRealUnitField H (bgFieldC H (compWeight L a₁) ν (bgC0 d L N)
+        (SmallField.realData H Ψ₀ h₀ hP.layerConst)) ∧
+      ∀ y, vn (svec H (φs - bgFieldC H (compWeight L a₁) ν (bgC0 d L N)
+        (SmallField.realData H Ψ₀ h₀ hP.layerConst)) y) ≤
+        (N : ℝ) * (2 * (cK2' d L N (famConst d L BG κ) * (lemma53Const d L * (δ + 5 * τ)))) +
+          (δ + 5 * τ) + bgK1 d L N * (δ + 5 * τ) := by
+  have hd0 : 0 < d := by have := HB.hd; omega
+  have hK1 := bgK1_ge_one d L N
+  have hC3 := lemma53Const_pos d L
+  have hBG : 0 ≤ BG := hS.fam.2.1
+  have hfam : 0 ≤ famConst d L BG κ := by
+    have := famConst_ge_one (L := L) hBG κ hd0; linarith
+  have hK2 := cK2'_nonneg (d := d) (L := L) (N := N) hfam
+  set δc := δ + 5 * τ with hδcdef
+  have hδc0 : 0 < δc := by positivity
+  obtain ⟨hδc1, -, -⟩ := c7_facts (L := L) (N := N) hd0 hBG hδc0.le hδc
+  have hδc0' : δc ≤ bgC0 d L N := hδc1.trans (bgC1_le_bgC0 d L N hd0)
+  have hνε : ν * ((L : ℝ) ^ k) ^ 2 * δc ^ 2 ≤ δc ^ 2 := by
+    have := HB.massLe; nlinarith [sq_nonneg δc]
+  set Dr : BgData H N := SmallField.realData H Ψ₀ h₀ hP.layerConst with hDrdef
+  have hRr := SmallField.realData_realizes (h₀ := h₀) hP.layerConst
+  -- the data `D` lie in `Ψ̃^c(H; δ_c, δ_c)`
+  have hδ14 : δ ≤ 1 / 4 := by
+    have := (approxDelta_le d L (bgC1_facts d L N hd0
+      (thm73_small (L := L) (N := N) hd0 hδ0 hδ73).1).1).1
+    linarith
+  have hτ1 : τ ≤ 1 := by
+    have := (approxDelta_le d L (bgC1_facts d L N hd0 hδc1).1).1
+    linarith
+  set δΨ : CTorus d L N₁ m₁ k → Fin N → ℂ := fun x i => D.Ψ x i - (Ψ₀ x i : ℂ) with hδΨ
+  have hδΨc : IsLayerConstant H δΨ := by
+    intro n hn1 hnk x hx x' hx'
+    funext i
+    show D.Ψ x' i - (Ψ₀ x' i : ℂ) = D.Ψ x i - (Ψ₀ x i : ℂ)
+    rw [congrFun (D.Ψ_layerConst n hn1 hnk x hx x' hx') i,
+      congrFun (hP.layerConst n hn1 hnk x hx x' hx') i]
+  have hPC := perturb_inPsiTildeC hδ14 hτ0 hτ1 (inPsiTildeC_of_inPsiTilde hδ0 hP) hδΨc hDΨ
+  have hW : InDomainC H ν δc δc D :=
+    ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ], fun x hx i => by simp [hDh x hx i]⟩
+  -- the decoupled fields at `s` and at `1`, the complex and the real backgrounds
+  obtain ⟨φ1, α1, hI1, hu1, -, hsup1, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM
+    (s := fun _ => 1) (fun P => by simpa using Real.one_le_exp hκ) hδc0 le_rfl hδc0' hδc hνε hW
+  have hφ1 : Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D = φ1 :=
+    (Dec2.decBg_eq hI1 hu1).1
+  have hUD : InUnionDomainC H (bgC0 d L N) (c7 d L N BG κ) ν D :=
+    ⟨δc, δc, hδc0, le_rfl, hδc0', hδc, hνε, hW⟩
+  have hφ1c : φ1 = bgFieldC H (compWeight L a₁) ν (bgC0 d L N) D := by
+    rw [← hφ1]; exact decBgField_one_eq hS Sb HB hκ hM hUD
+  obtain ⟨φc, αc, hsc, -, huc⟩ := theorem52_exists HB hδc0 le_rfl hδc0' hδc1 hνε hW
+  have hφcC := (bgFieldC_eq hsc huc).1
+  have hDrR : InDomainR H ν δ Dr := ⟨Ψ₀, h₀, hP, hRr.1, hRr.2⟩
+  obtain ⟨φr, αr, hsr, -, hur, hunit, -⟩ := bg_real HB hδ0
+    (thm73_small (L := L) (N := N) hd0 hδ0 hδ73).1 hDrR
+  have hφrC := (bgFieldC_eq hsr hur).1
+  let Wd : DataWit H ν δc δc D := ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ],
+    fun x hx i => by simp [hDh x hx i]⟩
+  have hcmp : ∀ z : H.Ω 1, vn (fun i => φc (z, i) - φr (z, i)) ≤ δc + bgK1 d L N * δc :=
+    fun z => theorem52_compare HB hδc0 le_rfl hδc0' hδc1 hνε Wd Dr hRr.1 hRr.2 hsc hsr z
+  refine ⟨by rw [hφrC]; exact hunit, ?_⟩
+  rw [hφrC]
+  -- the bound of `φ(s) - φ_r`
+  set V := cK2' d L N (famConst d L BG κ) * (lemma53Const d L * δc) with hV
+  have hV0 : 0 ≤ V := by positivity
+  set cb := (N : ℝ) * (2 * V) + δc + bgK1 d L N * δc with hcb
+  have hcb0 : 0 ≤ cb := by positivity
+  intro y
+  by_cases hy : y ∈ H.Ω 1
+  · have hs' : ∀ i, ‖φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)‖ ≤ 2 * V := fun i => by
+      have h1 := hsups.val y i
+      have h2 := hsup1.val y i
+      simp only [svec, zeroExt, hy, ↓reduceDIte] at h1 h2
+      calc ‖φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)‖
+          ≤ ‖φs (⟨y, hy⟩, i) - approxField H (compWeight L a₁) ν D.Ψ D.h y i‖ +
+            ‖φ1 (⟨y, hy⟩, i) - approxField H (compWeight L a₁) ν D.Ψ D.h y i‖ := by
+              rw [← norm_neg (φ1 (⟨y, hy⟩, i) - _)]
+              refine (norm_add_le _ _).trans_eq' ?_
+              ring_nf
+        _ ≤ 2 * V := by linarith
+    have h1 : vn (fun i => φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)) ≤ N * (2 * V) :=
+      vn_le_card_mul (by positivity) hs'
+    have h2 : vn (fun i => φ1 (⟨y, hy⟩, i) - φr (⟨y, hy⟩, i)) ≤ δc + bgK1 d L N * δc := by
+      rw [hφ1c, hφcC]; exact hcmp ⟨y, hy⟩
+    have e : svec H (φs - φr) y =
+        fun i => (φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)) + (φ1 (⟨y, hy⟩, i) - φr (⟨y, hy⟩, i)) := by
+      funext i; simp [svec, zeroExt, hy]
+    rw [e]
+    refine (vn_add' _ _).trans ?_
+    rw [hcb]; linarith
+  · have e : svec H (φs - φr) y = 0 := by funext i; simp [svec, zeroExt, hy]
+    rw [e, vn_zero]; exact hcb0
+
 /-- **The composed data of a field near the approximate field lie in the chart `Ξ^c_j` of a finer
 set** (the core of `decCompose_xiDom`).  As `decCompose_xiDom`, for every field `φ` of `H` within
 `K₂' C₃ (δ + 5 τ)` of the approximate field of `D` (`NearApprox`, the range of the decoupled
@@ -196,72 +303,13 @@ theorem nearCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L 
     (bgFieldC H (compWeight L a₁) ν (bgC0 d L N) Dr) Dr.Ψ x i).re with hf
   have hPG : InPsiTilde G ν (compC4 d * (bgK1 d L N * δ)) f h₀ :=
     inPsiTilde_restrict hj1 hjk hΩ hlay HB.mass hPG₁
-  -- the data `D` lie in `Ψ̃^c(H; δ_c, δ_c)`
-  have hδ14 : δ ≤ 1 / 4 := by
-    have := (approxDelta_le d L (bgC1_facts d L N hd0
-      (thm73_small (L := L) (N := N) hd0 hδ0 hδ73).1).1).1
-    linarith
-  have hτ1 : τ ≤ 1 := by linarith
-  set δΨ : CTorus d L N₁ m₁ k → Fin N → ℂ := fun x i => D.Ψ x i - (Ψ₀ x i : ℂ) with hδΨ
-  have hδΨc : IsLayerConstant H δΨ := by
-    intro n hn1 hnk x hx x' hx'
-    funext i
-    show D.Ψ x' i - (Ψ₀ x' i : ℂ) = D.Ψ x i - (Ψ₀ x i : ℂ)
-    rw [congrFun (D.Ψ_layerConst n hn1 hnk x hx x' hx') i,
-      congrFun (hP.layerConst n hn1 hnk x hx x' hx') i]
-  have hPC := perturb_inPsiTildeC hδ14 hτ0 hτ1 (inPsiTildeC_of_inPsiTilde hδ0 hP) hδΨc hDΨ
-  have hW : InDomainC H ν δc δc D :=
-    ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ], fun x hx i => by simp [hDh x hx i]⟩
-  -- the decoupled fields at `s` and at `1`, the complex and the real backgrounds
-  obtain ⟨φ1, α1, hI1, hu1, -, hsup1, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM
-    (s := fun _ => 1) (fun P => by simpa using Real.one_le_exp hκ) hδc0 le_rfl hδc0' hδc hνε hW
-  have hφ1 : Dec2.decBgField C H (compWeight L a₁) ν (rho4 d L N BG κ) (fun _ => 1) D = φ1 :=
-    (Dec2.decBg_eq hI1 hu1).1
-  have hUD : InUnionDomainC H (bgC0 d L N) (c7 d L N BG κ) ν D :=
-    ⟨δc, δc, hδc0, le_rfl, hδc0', hδc, hνε, hW⟩
-  have hφ1c : φ1 = bgFieldC H (compWeight L a₁) ν (bgC0 d L N) D := by
-    rw [← hφ1]; exact decBgField_one_eq hS Sb HB hκ hM hUD
-  obtain ⟨φc, αc, hsc, -, huc⟩ := theorem52_exists HB hδc0 le_rfl hδc0' hδc1 hνε hW
-  have hφcC := (bgFieldC_eq hsc huc).1
-  have hDrR : InDomainR H ν δ Dr := ⟨Ψ₀, h₀, hP, hRr.1, hRr.2⟩
-  obtain ⟨φr, αr, hsr, -, hur, -⟩ := bg_real HB hδ0
-    (thm73_small (L := L) (N := N) hd0 hδ0 hδ73).1 hDrR
-  have hφrC := (bgFieldC_eq hsr hur).1
-  let Wd : DataWit H ν δc δc D := ⟨Ψ₀, h₀, _, _, hPC, fun x _ i => by simp [hδΨ],
-    fun x hx i => by simp [hDh x hx i]⟩
-  have hcmp : ∀ z : H.Ω 1, vn (fun i => φc (z, i) - φr (z, i)) ≤ δc + bgK1 d L N * δc :=
-    fun z => theorem52_compare HB hδc0 le_rfl hδc0' hδc1 hνε Wd Dr hRr.1 hRr.2 hsc hsr z
   -- the bound of `φ(s) - φ_r`
+  obtain ⟨-, hΔφ⟩ := nearField_close_real hS Sb HB hκ hM hδ0 hτ0 hδ73 hδc hP hDh hDΨ hsups
+  set φr := bgFieldC H (compWeight L a₁) ν (bgC0 d L N) Dr with hφrdef
   set V := cK2' d L N (famConst d L BG κ) * (lemma53Const d L * δc) with hV
   have hV0 : 0 ≤ V := by positivity
   set cb := (N : ℝ) * (2 * V) + δc + bgK1 d L N * δc with hcb
   have hcb0 : 0 ≤ cb := by positivity
-  have hΔφ : ∀ y, vn (svec H (φs - φr) y) ≤ cb := by
-    intro y
-    by_cases hy : y ∈ H.Ω 1
-    · have hs' : ∀ i, ‖φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)‖ ≤ 2 * V := fun i => by
-        have h1 := hsups.val y i
-        have h2 := hsup1.val y i
-        simp only [svec, zeroExt, hy, ↓reduceDIte] at h1 h2
-        calc ‖φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)‖
-            ≤ ‖φs (⟨y, hy⟩, i) - approxField H (compWeight L a₁) ν D.Ψ D.h y i‖ +
-              ‖φ1 (⟨y, hy⟩, i) - approxField H (compWeight L a₁) ν D.Ψ D.h y i‖ := by
-                rw [← norm_neg (φ1 (⟨y, hy⟩, i) - _)]
-                refine (norm_add_le _ _).trans_eq' ?_
-                ring_nf
-          _ ≤ 2 * V := by linarith
-      have h1 : vn (fun i => φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)) ≤ N * (2 * V) :=
-        vn_le_card_mul (by positivity) hs'
-      have h2 : vn (fun i => φ1 (⟨y, hy⟩, i) - φr (⟨y, hy⟩, i)) ≤ δc + bgK1 d L N * δc := by
-        rw [hφ1c, hφcC]; exact hcmp ⟨y, hy⟩
-      have e : svec H (φs - φr) y =
-          fun i => (φs (⟨y, hy⟩, i) - φ1 (⟨y, hy⟩, i)) + (φ1 (⟨y, hy⟩, i) - φr (⟨y, hy⟩, i)) := by
-        funext i; simp [svec, zeroExt, hy]
-      rw [e]
-      refine (vn_add' _ _).trans ?_
-      rw [hcb]; linarith
-    · have e : svec H (φs - φr) y = 0 := by funext i; simp [svec, zeroExt, hy]
-      rw [e, vn_zero]; exact hcb0
   -- the complex part of the composed field and its bound on `G`
   set Δ : CTorus d L N₁ m₁ k → Fin N → ℂ := fun x i =>
     composeField G₁ H (compWeight L a₁) (φs - φr) (D.Ψ - Dr.Ψ) x i with hΔdef
@@ -314,7 +362,7 @@ theorem nearCompose_xiDom {C : DecCover d L N₁ m₁ k} {H : GeneratingSet d L 
   have e3 : (f x i : ℂ) = composeField G₁ H (compWeight L a₁) φr Dr.Ψ x i := by
     show ((composeField G₁ H (compWeight L a₁)
       (bgFieldC H (compWeight L a₁) ν (bgC0 d L N) Dr) Dr.Ψ x i).re : ℂ) = _
-    rw [← e2, hφrC]
+    rw [← e2]
   rw [zero_add, e3]
   show _ = _ + composeField G₁ H (compWeight L a₁) (φs - φr) (D.Ψ - Dr.Ψ) x i
   rw [← e1]

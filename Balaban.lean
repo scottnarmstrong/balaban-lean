@@ -2301,12 +2301,16 @@ public import Balaban.LargeField.R.BPrimeGenW
 public import Balaban.LargeField.R.BPrimeBgSetting
 public import Balaban.LargeField.R.BPrimeDomain
 public import Balaban.LargeField.R.BPrimeCast
+public import Balaban.LargeField.R.BPrimeCubeBound
 public import Balaban.LargeField.R.BPrimeCubeLoc
+public import Balaban.LargeField.R.BPrimeCubeRegion
 public import Balaban.LargeField.R.BPrimeCubeRoot
 public import Balaban.LargeField.R.BPrimeDomainR
 public import Balaban.LargeField.R.CoefDecay
 public import Balaban.LargeField.R.BPrimePolyRoot
+public import Balaban.LargeField.R.BPrimeRAggregate
 public import Balaban.LargeField.R.BPrimeRPair
+public import Balaban.LargeField.R.BPrimeRRoots
 public import Balaban.LargeField.R.BPrimeRootForm
 public import Balaban.LargeField.R.BPrimeRootGeom
 public import Balaban.LargeField.R.RRemovedFinalRip
