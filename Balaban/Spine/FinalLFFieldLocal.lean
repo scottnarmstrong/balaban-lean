@@ -11,19 +11,20 @@ public import Balaban.Spine.FinalLFRegionLocal
 /-!
 # The fields of the boundary terms on a set of cubes are those of the records there (A6-4)
 
-The boundary term `ℬ^{(k)}(X, 𝔸)` of a history reads the global multiscale field `gMulti` and the
-global fluctuation field `gFluct` only on the blocks of the fine set of `X` (`D7` `loc_field`). For a
-history of the large-field half, the configuration of its internal variables is read off one
-configuration `z` of the global variables (`famEquiv`, `Spine/FinalLFProduct.lean`). This file proves
-that on the blocks of the fine set of `X` these fields depend only on the records of the components
-meeting `X`: two histories whose components meeting `X` have the same records have the same fields
-there, at the configurations read off the same `z` (`gMulti_eq_on_of_corr`, `gFluct_eq_on_of_corr`).
+The boundary term `ℬ^{(k)}(X, 𝔸)` of a history reads the global multiscale field `gMulti` and
+the global fluctuation field `gFluct` only on the blocks of the fine set of `X` (`D7`
+`loc_field`). For a history of the large-field half, the configuration of its internal variables
+is read off one configuration `z` of the global variables (`famEquiv`,
+`Spine/FinalLFProduct.lean`). This file proves that on the blocks of the fine set of `X` these
+fields depend only on the records of the components meeting `X`: two histories whose components
+meeting `X` have the same records have the same fields there, at the configurations read off the
+same `z` (`fields_eq_on_of_corr`).
 
-* `subMultiscaleField_transport`, `subFluctField_transport`: the fields of a component read off `z`
-  depend only on its localized history and the global image of its variables;
-* `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`:
-  the global fields on a block of a component;
-* **`gMulti_eq_on_of_corr`**, **`gFluct_eq_on_of_corr`**.
+* `subMultiscaleField_transport`, `subFluctField_transport`: the fields of a component read off
+  `z` depend only on its localized history and the global image of its variables;
+* `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gMulti_top`, `gMulti_eq_zero_of_gt`,
+  `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`: the global fields on a block;
+* `exists_corr_of_blockSub`, `subFields_eq_of_compRec`, **`fields_eq_on_of_corr`**.
 -/
 
 @[expose] public section

@@ -143,7 +143,8 @@ theorem varMeasure_eq_withDensity (hN : 1 ≤ N) (b : Bool) :
     conv_lhs => rw [← withDensity_one (μ := (volume : Measure (EuclideanSpace ℝ (Fin N))))]
     congr 1
     funext x
-    rw [Pi.mul_apply, Pi.one_apply, ← ENNReal.ofReal_mul (by positivity), finrank_euclideanSpace_fin]
+    rw [Pi.mul_apply, Pi.one_apply, ← ENNReal.ofReal_mul (by positivity),
+      finrank_euclideanSpace_fin]
     rw [show (2 * Real.pi) ^ (-(N : ℝ) / 2) * Real.exp (-(1 / 2) * ‖x‖ ^ 2) *
         ((2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)) =
         ((2 * Real.pi) ^ (-(N : ℝ) / 2) * (2 * Real.pi) ^ ((N : ℝ) / 2)) *
@@ -378,7 +379,8 @@ theorem gOp_postOp_eq_integral_recTau (hN : 1 ≤ N) {A : LabHist S n R k0 K}
   refine integral_congr_ae (Filter.Eventually.of_forall fun Φ => ?_)
   have hD : (gDens N (⋃ c : PostComp A k, gImage (postOp geo cs rep.SD rep.KD A hkK c).A)
         (restrictAll _ Φ) : ℂ) =
-      ∏ c : PostComp A k, (gDens N (recVars rep hkK (recOfComp rep hA c)) (restrictAll _ Φ) : ℂ) := by
+      ∏ c : PostComp A k,
+        (gDens N (recVars rep hkK (recOfComp rep hA c)) (restrictAll _ Φ) : ℂ) := by
     rw [gDens_iUnion (pairwise_disjoint_postOp rep hkK A), Complex.ofReal_prod]
     refine Finset.prod_congr rfl fun c _ => ?_
     exact congrArg (fun x : ℝ => (x : ℂ))
