@@ -26,7 +26,8 @@ namespace Balaban.Fluctuation
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Flow Finset Matrix
 
-variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable {ι : Type*} [Fintype ι]
+
 
 theorem dot_mulVec_symm (A : Matrix ι ι ℂ) (hA : Aᵀ = A) (f g : ι → ℂ) :
     f ⬝ᵥ (A *ᵥ g) = (A *ᵥ f) ⬝ᵥ g := by
