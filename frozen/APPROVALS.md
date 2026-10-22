@@ -141,3 +141,10 @@ the new level from the counterterm with P4's linear mass term, and the class dom
 unit sphere; (R25) the first step's source factor `exp((1+c̄)‖g‖₁)`; (R26) the `Ω''` conjunct of `loc_hist` at scales
 `j < k`; (R27) `*`-adjacency for the localization expansion's connected domains; (R28) kept data indexed by labelled
 localized histories. Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Ruling R29 (2026-10-22)
+
+Author (Scott Armstrong), 2026-10-22: "approve R29". The (D8) torus coherence of the small-field data (`D8SF.M_eq`,
+`D8SF.R_eq`) is asked on read tori, for non-winding thickenings, at data in the terms' domain, as R20 did for
+`TorusIndep`; the conversion to Root-F cuts the activities off outside the ℓ¹ ball on `X`. Text in `AGENTS.md`. No
+frozen declaration changes.

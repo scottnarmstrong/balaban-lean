@@ -397,8 +397,9 @@ clause (D7) of the pre-`R` class `IsRepPre` (`Zof 𝔸 = Z^pre_k(𝔸)`); the po
   `FineValidPre` (the papers' boundary terms are indexed by `𝒟_k(mod Ω^c_k)`; the cube-level
   `bdryDoms` contains sets that are not unions of `π'_k`-cubes).
 `Fr` is the typing frame of the fine size; `fac` and `rate` are `B_st`, `3κ/2` for `IsRepPre`.
-The regions `OmegaCube` inside `loc_hist` and the history `globalLH` of the H7 domain are the raw
-ones. -/
+The regions `OmegaCube` inside `loc_hist` are the raw ones; the history of the H7 domain is
+`globalLHPre` (ruling request R17: at the top scale the holes of the H7 domain are the complement of
+the raw `Ω_k`, the pre-`R` region `Z^pre_k` in place of `Z_k`). -/
 structure D7Bdry {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     (hnn : ∀ i, i < K → n i = S.L * n (i + 1)) (hkK : k ≤ K)
     (rep : Rep S n R k0 K M N geo cs P k) (Zof : LabHist S n R k0 K → Set (Torus S.d (n k)))
@@ -436,12 +437,12 @@ structure D7Bdry {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
     AnalyticOnNhd ℂ
       (fun p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ) =>
         rep.B A X (extK p.1) (extK p.2.1) h p.2.2)
-      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+      {p | H7Domain geo.M1 geo.c geo.hM hnn (globalLHPre A.H M k) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i))}
   bound : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A), ∀ h ∈ hSetB hv,
     ∀ p : FinFieldC S n M K N × FinFieldC S n M K N × (GIdx S n M K N → ℂ),
-      H7Domain geo.M1 geo.c geo.hM hnn (globalLH A.H M) k hkK
+      H7Domain geo.M1 geo.c geo.hM hnn (globalLHPre A.H M k) k hkK
         (fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) aw μs ε ε1 νs h
         (extK p.1) (extK p.2.1) (fun x i => p.2.2 (x, i)) →
       ‖rep.B A X (extK p.1) (extK p.2.1) h p.2.2‖ <
@@ -641,9 +642,12 @@ theorem d7Bdry_iff_d7BdryPost_of_rem_empty {m₀ m₁ : ℕ} {Fr : FineSizeFrame
         loc_hist := fun A hA A' hA' X hX hX' =>
           h.loc_hist A hA A' hA' X ((hmem A hA _ X).1 hX) ((hmem A' hA' _ X).1 hX')
         real := fun A hA X hX => h.real A hA X ((hmem A hA _ X).1 hX)
-        analytic := fun A hA X hX => h.analytic A hA X ((hmem A hA _ X).1 hX)
+        analytic := fun A hA X hX => by
+          rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)]
+          exact h.analytic A hA X ((hmem A hA _ X).1 hX)
         bound := fun A hA X hX h' hh p hp => by
           rw [hsz A hA X]
+          rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)] at hp
           exact h.bound A hA X ((hmem A hA _ X).1 hX) h' hh p hp
         rot := fun A hA X hX => h.rot A hA X ((hmem A hA _ X).1 hX)
         euclid := fun A hA A' hA' σ hσ hlab X hX =>
@@ -656,9 +660,12 @@ theorem d7Bdry_iff_d7BdryPost_of_rem_empty {m₀ m₁ : ℕ} {Fr : FineSizeFrame
         loc_hist := fun A hA A' hA' X hX hX' =>
           h.loc_hist A hA A' hA' X ((hmem A hA _ X).2 hX) ((hmem A' hA' _ X).2 hX')
         real := fun A hA X hX => h.real A hA X ((hmem A hA _ X).2 hX)
-        analytic := fun A hA X hX => h.analytic A hA X ((hmem A hA _ X).2 hX)
+        analytic := fun A hA X hX => by
+          rw [globalLHPre_eq_of_rem_empty A.H (hrem A hA)]
+          exact h.analytic A hA X ((hmem A hA _ X).2 hX)
         bound := fun A hA X hX h' hh p hp => by
           rw [← hsz A hA X]
+          rw [globalLHPre_eq_of_rem_empty A.H (hrem A hA)] at hp
           exact h.bound A hA X ((hmem A hA _ X).2 hX) h' hh p hp
         rot := fun A hA X hX => h.rot A hA X ((hmem A hA _ X).2 hX)
         euclid := fun A hA A' hA' σ hσ hlab X hX =>

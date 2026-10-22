@@ -34,7 +34,7 @@ section RForm
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} {C : SFCtx S n R M K N k m₁ ϱ}
-  {hv : EuclideanSpace ℝ (Fin N)} {fac : ℕ → ℝ} {P6 : Def6.Consts} {δ r : ℝ} {D : ℕ}
+  {hv : EuclideanSpace ℝ (Fin N)} {fac : ℕ → ℝ} {P6 : Def6.Consts} {δ r : ℝ} {D mp : ℕ}
 
 /-- **The terms `ℛ^{(k)}_n(X)` as a family of polymer terms of the block field.** -/
 noncomputable def rPolyTerms
@@ -64,9 +64,9 @@ noncomputable def rLocal
     (H : BgHyp S.d S.L k ϱ (Def6.aIdeal S.L k (C.sf.a k))
       (Def6.bgMass S.L k (C.sf.β k) (C.sf.ν k)))
     (hunit : ‖hv‖ = 1) (hD : RDomConsts S.d S.L N (P6.eps S.d S.L k) δ r)
-    (c : ℂ) (Mc : ℕ) (v a : ℝ) (D : ℕ) (g : GIdx S n M K N → ℂ) (Y : Finset (BlockAt S n M K k))
+    (c : ℂ) (Mc : ℕ) (v a : ℝ) (D mp : ℕ) (g : GIdx S n M K N → ℂ) (Y : Finset (BlockAt S n M K k))
     (w : BlockAt S n M K k × Fin N → ℂ) : ℂ :=
-  polyLocal (rPolyTerms hR hm₀ H hunit hD) c Mc v a D g Y w
+  polyLocal (rPolyTerms hR hm₀ H hunit hD) c Mc v a D mp g Y w
 
 /-- **The sum of the local form is the change of `ℛ^{(k)}`**:
 `∑_Y W_Y(w, g) = ℛ^{(k)}(T; h + T(1) w, h, g) - ℛ^{(k)}(T; h, h, g)`. -/
@@ -79,8 +79,8 @@ theorem sum_rLocal
     {v a κ α : ℝ} (hBC : BoxCutConsts S.d S.L k Mc v a κ α) {c : ℂ} {ρ : ℝ} (hρ : 0 ≤ ρ)
     (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ < r) {g : GIdx S n M K N → ℂ}
     (hg : ∑ q, ‖g q‖ < 1) {w : BlockAt S n M K k × Fin N → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ) :
-    ∑ Y, rLocal hR hm₀ H hunit hD c Mc v a D g Y w =
-      C.RresC Set.univ (fun b i => linField (hvField hv) (blockCut hv c Mc v a D) (fun _ => 1) w
+    ∑ Y, rLocal hR hm₀ H hunit hD c Mc v a D mp g Y w =
+      C.RresC Set.univ (fun b i => linField (hvField hv) (blockCut hv c Mc v a D mp) (fun _ => 1) w
         (b, i)) hv g - C.RresC Set.univ (fun _ i => ((hv i : ℝ) : ℂ)) hv g := by
   unfold rLocal
   rw [sum_polyLocal _ hunit hBC hρ hm hg hw, Finset.sum_sub_distrib]
@@ -132,7 +132,7 @@ theorem rLocal_bound
     {g : GIdx S n M K N → ℂ} (hg : ∑ q, ‖g q‖ < 1) {w : BlockAt S n M K k × Fin N → ℂ}
     (hw : ∀ q, ‖w q‖ ≤ ρ) (x : BlockAt S n M K k) :
     ∑ Y ∈ Finset.univ.filter (fun Y : Finset (BlockAt S n M K k) => x ∈ Y),
-        ‖rLocal hR hm₀ H hunit hD c (S.L ^ (C.m₀ + m₁)) v a D g Y w‖ *
+        ‖rLocal hR hm₀ H hunit hD c (S.L ^ (C.m₀ + m₁)) v a D mp g Y w‖ *
           Real.exp (α * (macCellCount S.d (M * n K * S.L ^ (K - k)) (S.L ^ (C.m₀ + m₁)) Y : ℝ)) ≤
       polyBoundConst S.d S.L
         (∑ nn ∈ Finset.Icc 1 (C.m₀ + m₁), max 0 (fac nn * (C.sf.β k)⁻¹ ^ (nn + 1)))

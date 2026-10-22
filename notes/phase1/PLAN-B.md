@@ -444,6 +444,19 @@ approved declaration.
   is stated for level pairs (`IsLevel Hm k`, `IsLevel Gp (k+1)`, used in 26 files); the hole step's `G′` is not a level set.
   `H7MixedInnerLoc2` likewise: the landed real-domain P5 Lemma 2.1 (`Fluctuation/Lemma25`, `lemma25_field`) is stated for
   level pairs and real fields. Both need the non-level (region) forms of these files.
+- **H7MixedDatumLoc2 on the R14 domains (W1154c, in progress).** Piece 1 landed: `Background/DataPatch.lean`,
+  `inDomainC_of_patch` (splits of the datum attached to the sites by a chart map constant on the layer blocks, each
+  satisfying `Ψ̃^c(δ, ε)` at its sites and interface pairs, patch into `Ψ̃^c(3δ + 2ε, 3δ + 2ε)`). The three premises and
+  their sources: (h) `h = h₀` is the identity at the physical field (R16, reading `h₀ := Re h = hv`); (z) `|z_{k+1} − 1| ≤
+  ε_{k+1}/3`: the datum's top values are `z ψ_{k+1}` while the cube tests read `ψ_{k+1}`; **no Lean source bounds
+  `z_{k+1} − 1`** (`SFData.z` is free; the class and A4-1a give only `z_j > 0`; `Flow` has no `z`), so the discharge
+  needs a clause of the small-field step's image (P4 (4.1); LF-RECONSTRUCTION: `z_{k+1} = 1 + O(ε_{k+1})`); (ν) the
+  step's background mass is `muBg = ν_j L^{-2j}` (`FieldClauses.muBg_eq`) while the cutoff mass of the cube tests is
+  `μ_j = bgMass = 0` for `j ≤ k₀` (`mu_eq`), so `ν_b ≤ μ_s` fails below `k₀`; the premise there is the small-mass form
+  `ν_b L^{2(k+1)} ≤ δ_b²/2` (condition (R3) then holds for every split), `ν_b ≤ μ_s` above `k₀`. Open: the case analysis
+  over the data sites of `G′_V` (which cube test reads each site: `DeltaC_{k+1}`, `DeltaPrimeC`, `DeltaC_k`); for `V`
+  arbitrary the sites of `G′_V` off `Ω_{k+1}` in the lower layers carry `ψ_k` (the mixed lift), which no test of the
+  scale-`(k+1)` domain need constrain, so the input is to be restated for `V = V₂(X, J)` (its use) with a room premise.
 - **Ruling request R14, APPROVED (Scott, 2026-10-21, "approve all"; W1154b, applied by W1154c).** In
   `DeltaC`, `DeltaPrimeC` (`LargeField/Characteristic/Analytic.lean`) the domain conjunct `InUnionDomainC G c₀ c₁ μ`
   becomes `InDomainC G μ ε ε` (the lifted datum, resp. pair, in `Ψ̃^c(ε, ε)`, `K = 1`); the reader of the domain conjunct
@@ -465,3 +478,102 @@ approved declaration.
 - Whitening: row `p` is row `p` of the inverse square root of the final Hessian of the massive problem on `𝔓(locDom p)` (B1), with one comparison lemma: for any ambient generating set (whole torus or regional) the local-pair row is close to the row of the ambient Hessian's inverse square root when `locDom p` lies deep in the ambient region.
 - The three conditions of B-1′ stand: the whitening is a defined object fixed at the spine; the change of variables is exact, with the determinant and the mismatch in the integrand; the smallness of the mismatch is proved.
 - Consequence: for every history and every piece whose local pair lies deep in `Ω_A`, the regional piece is the whole-torus piece (exact completion); `Ξ_box` is the instance `Z = ∅`.
+- **The band outside `Ω_{k+1}` and the holes of the H7 domain (W1154d, 2026-10-21; `Spine/LFOldDatumFree.lean`).**
+  PROVED: `h7Domain_succ_congr_k` — the H7 domain of scale `k + 1` does not read `ψ_k` on the `k`-blocks whose cube of
+  `𝕋_{k+1}` lies within `2` cubes of `Ω_{k+1}` and farther than `3` cubes from `(Ω^c_{k+1})^{∼3}`, and whose cube of `𝕋_k`
+  lies farther than `3` cubes from `(Ω^c_k)^{∼3}` (`L ≥ 3`; from `deltaC_stencil`, `deltaPrimeC_stencil`);
+  `exists_h7Domain_not_inDomainC_of_site`, `not_h7MixedDatumLoc2_of_site` — a data site of `G′_V` off `Ω_{k+1}` in such a
+  block refutes `H7MixedDatumLoc2` (`ψ_k` at its block set to `i(2|δ_b| + 1)(1, …, 1)`; the site is a hypothesis).
+  **Correction of the W1154c finding.** `mem_omegaCNb_of_notMem_omega`: when `R^{(k+1)}` removes no component
+  (`Rem_{k+1} = ∅`, in particular for `k + 1 > k₀`), every cube of `𝕋_{k+1}` off `Ω_{k+1}` lies in `Z_{k+1} ∖ Ω_{k+1}`
+  (`Ω^c_{k+1} ⊆ Z^{(0)}_{k+1} ⊆ Z^pre_{k+1}`, Lemma I.3.5 (e), `Omega_compl_subset_Z0`), so `omegaCNb` is the printed
+  `(Ω^c_{k+1})^{∼3}` and the band just outside `Ω_{k+1}` is read by `Δ'^c_{k+1}`; `rem_ne_empty_of_far`: the hypotheses of the
+  failure lemma force `Rem_{k+1} ≠ ∅`. The claim "by (R6) `Z_{k+1}` lies in the deep interior of `Ω''_{k+1}`" is false:
+  `opening L m F` is the union of the blocks at distance `≥ m` from `F`, so (R6) gives
+  `Z^{(0)} = Op(F^Z)^c ⊇ F^Z ⊇ (Ω''^c)^{∼4}` (`nbhd_six_Omega_compl_subset_Z0`). The two readings of `Ω^c_j` differ only at
+  the holes of `Ω_j` inside a component of `Z^pre_j` removed by `R^{(j)}` (`Z_j = Z^pre_j ∖ ⋃ Rem_j`): there the pre-`R`
+  boundary terms of a history with that removal record read `ψ_k` in the band around them through no cube test, and `H7MixedDatumLoc2`
+  fails at such histories. The convention `Ω^c_j := Z_j ∖ Ω_j` is also the localized complement `Ω^c ∩ Z′` of the quiet
+  kernel (`quietA2`–`quietA4`) and of `R/HgeoDischarge` (localized histories, where the plain complement would contain
+  every cube outside the component), so ruling request R17 as briefed (`omegaCNb` := `(𝕋_j ∖ Ω_j)^{∼3}`) would change
+  those objects too; the narrow form (the pre-`R` records only) was asked and approved as R17 (below).
+
+- **Ruling R17, APPROVED (Scott, 2026-10-21, "approve R17"; W1154d, merged into `w1154-oldbdry`).** In the pre-`R`
+  boundary-term records `D7Bdry`, `D7Bdry2` (clauses `analytic`, `bound`) the H7 domain is taken at `globalLHPre A.H M k`
+  (`LargeField/Def7Hist.lean`): the global records with the pre-`R` region `Z^pre_k` in place of `Z_k` at the top scale.
+  Its top-scale holes are `(𝕋_k ∖ Ω_k)^{∼3}`, the printed `Ω^c_k` of P5 (1.36) (`omegaCNb_globalLHPre_top`,
+  `LargeField/History/H7Holes.lean`; `Z^pre_k ⊇ Ω^c_k`, Lemma I.3.5 (e)); the post-`R` records keep `globalLH`, whose holes
+  are the complement of `Ω^post_k = Ω_k ∪ ⋃ Rem_k` (`omegaCNb_globalLH_succ`, Definition I.3.11); `omegaCNb` and the
+  localized-history users are unchanged; without a removal the records coincide (`globalLHPre_eq_of_rem_empty`).
+  Transport across `R` (`R/D7BoundTransport`): the two domains agree at labels whose `3`-neighbourhood misses the removed
+  set (`h7Domain_globalLHPre_iff_of_far`), so `d7Post_bound_of_avoid_of_gas` splits on `Disjoint (Y^{∼3}) Rem` (labels
+  within `3` cubes of a removed component go to `hyp_gas`) and `analytic_of_avoid` takes `hZ`, `hfar`. Without R17,
+  `H7MixedDatumLoc2` is false at histories with a component removed at scale `k + 1` (`not_h7MixedDatumLoc2_of_site`,
+  `rem_ne_empty_of_far`). Target (3) of W1154d is proved under this reading (the step's terms are pre-`R` records at
+  `k + 1`, H7 domain at `globalLHPre H M (k + 1)`).
+- **Target (3) of W1154d: the datum of the local pair from the cube tests (2026-10-21; `Spine/LFOldDatum*`,
+  `Background/DataPatchScaled`).** PROVED: `inDomainC_holeStepLoc2_of_h7Near` — for a target H7 domain of scale
+  `k + 1` at a history `a` with top region `Ω_{k+1}` whose holes at scale `k + 1` contain every cube off `Ω_{k+1}`
+  (`hholes`; R17: `globalLHPre H M (k+1)`, unconditional by `mem_Zpre_of_notMem_omega`; `globalLH` needs
+  `Rem_{k+1} = ∅`), at `Y_f` with `CubesOfIn` of the data sites, and for local sets whose data sites lie over cubes of
+  `Ω^{∼3}_{k+1}` (`hroom`), the datum of `holeStepLoc2` lies in `Ψ̃^c(3δ₁ + 2ε_k, 3δ₁ + 2ε_k)`,
+  `δ₁ = scaledTol ε_k ε_k η`, `|z − 1| ≤ η`, `ε_{k+1} ≤ ε_k`, (R4) for `h₀`, and the mass condition in either regime
+  (small: `ν L^{2(k+1)} (1 + |h₀|) < δ₁²`; large: `ν ≤ μ_{k+1}`, `2ε_k² ≤ δ₁²`; `r3_of_small_mass`, `r3_of_large_mass`);
+  the H7 field is `h = h₀` (R16, `h₀ := Re h = hv`). **Case analysis:** a data site over a cube `□` is read by
+  `Δ'^c_{k+1}(□)` when `□ ∈ (Ω^c_{k+1})^{∼3}`, by `Δ^c_{k+1}(□)` otherwise (then `□^{∼3} ⊂ Ω_{k+1}`); the test reads
+  every interface partner (cubes within one cube, `cubeOfC_near_of_pair`) at layers `k`, `k + 1 ≥` its layer in
+  `G′_V`; the splits patch by `inDomainC_of_patch_scaled` (`θ = z ψ_{k+1}` against tests reading `ψ_{k+1}`).
+  **Open for (3):** sites over cubes farther than `3` cubes from `Ω_{k+1}` (`V₂(X, J)` reaches `ρ` cubes through `J`):
+  there the test is `Δ^c_k` at the cube of `𝕋_k` (a level-`k` cube set on the torus of level `k`; the transport of its
+  split, `cubeKOfC_eq_of_jBlock` ready); the restatement of `H7MixedDatumLoc2` at `V₂(X, J)` with the target
+  `globalLHPre` (R17) and the room premise; `δ_b ≥ 3δ₁ + 2ε_k` via `InDomainC.mono_diag`.
+- **W1154e (2026-10-21): `H7MixedDatumLoc2` proved at the local sets of its use, for the pre-`R` records; the chain
+  of reading HS-2 at `globalLHPre`.** (3a) `inDomainC_holeStepLoc2_of_h7` (`Spine/LFOldDatum`, replaces the near-only
+  version; `hroom` removed): three charts — `Δ'^c_{k+1}(□)`, `Δ^c_{k+1}(□)` at the cube of `𝕋_{k+1}` when it lies in
+  `Ω^{∼3}_{k+1}`, and `Δ^c_k(□_k)` at the cube of `𝕋_k` farther out (read through `toCubeK`, `Spine/LFOldDatumGeo`);
+  each chart's conditions come from `Background.chartSplit_spec` (`Background/DataPatchChart`).  Premise `hfar`: the
+  far data sites lie over cubes of `𝕋_k` outside the holes of scale `k`.  The large-mass regime carries a factor `τ`
+  (`ν ≤ τ μ_{k+1}`, `ν ≤ τ μ_k`, `2τε_k² ≤ δ₁²`): the far test has the cutoff mass of scale `k`.
+  (3b) `Spine/LFOldDatumPre`: the data sites of `G′_{V₂(X,J)}`, `J ∈ allJ ρ`, lie over cubes within `ρ + 3` cubes of
+  `Ω_{k+1}` when `r + r′ ≤ c M₁ L^{k+1}` (`near_omega_of_mem_dataSites_locSetXJ2`, from `localB_dataSites_range`);
+  such cubes are at distance `≥ ⌊R_{k-1}⌋ + 3` from `Z_k` for `ρ ≤ ⌊R_k⌋` (`le_supDist_Z_of_near_omega`,
+  `RegionStep.fine_far`), so `hfar` holds; `hholes` holds for `globalLHPre` (`cubeSub_holes_globalLHPre`).
+  **`H7MixedDatumLoc2Pre`** (the named input at `V₂(X, J)`, `J ∈ allJ ρ`, target `globalLHPre H M (k+1)`, external
+  field `h₀`) is PROVED: `h7MixedDatumLoc2Pre_holds` (`|z − 1| ≤ η`, (R4), mass in either regime,
+  `3δ₁ + 2ε_k ≤ δ_b`), `h7MixedDatumLoc2Pre_of_sfz` (`η = c₁₀ ε_{k+1}`, `SFZInput`), `massRegime_of_bgMass` (the
+  regimes from `μ_j = bgMass(k₀, j)`: small-mass form for `k ≤ k₀`, large-mass form with `τ` for `k > k₀`),
+  `h7MixedDatumLoc2Pre_zero` (rule 10).  (3c) cores with landed instances: `h7Domain_composedMulti_of_inner_withZ`
+  (target at the global records with the regions `Z′`), `norm_oldBAtAt_le_of_dom_allJ`, `norm_oldBOf_le_of_dom_allJ`
+  (`hloc` for `J ∈ allJ ρ` only), `H7MixedInnerLocXJ`, `H7MixedDatumLocV` (the old named inputs are built from them,
+  bodies definitionally equal), `h7Domain_composedMulti_loc2_withZ`, `cubesOfIn_of_mark2`,
+  `locConds_of_h7MixedLoc2_withZ`; `Spine/LFOldHS2Pre`: `H7MixedInnerLoc2Pre` (open), `locConds_of_h7MixedLoc2Pre`,
+  **`norm_oldB2Pre_le`** (the (D7) bound at a field of the H7 domain of `globalLHPre`, from `H7MixedInnerLoc2Pre` and
+  the proved `H7MixedDatumLoc2Pre`, with `h₀ = hv`, ruling R16).  The provider still fixes the step's mass `ν`, `η`
+  and `δ_b` and discharges the mass regime from the flow.
+- **W1162's `loc_hist` finding, evaluated (W1154e, 2026-10-21).** Not (a): enlarging the output labels by the collar
+  `⌊R_k⌋ + 13` cubes costs a factor `(2⌊R_k⌋ + 27)^d` in the size, growing with `k`.  (b) holds for components kept
+  by `R^{(k+1)}`: the clause's premise on the localized histories of the components of `Z_{k+1}` meeting `Y` covers
+  the collar (a cube where `Ω_{k+1}` differs within `ρ + 13` of `Y` has its `⌊2R_k⌋ + 6`-ball in `Z^{(0)}`,
+  Lemma I.3.5 (d), (e); a cube where `Z_k` differs within the read range has its coarse cube in `U′_k`, and
+  `nbhd (ρ + 4) U′ ⊆ Z^{(0)}`; the localized records equal the global ones on the component, `locRH_derived`).
+  Finding 2 needs no hypothesis: `Ω^post_k ∩ X = (Ω_k ∩ X) ∪ (X ∖ Ω_k ∖ Z_k)` (PROVED:
+  `Def7.mem_omegaPost_iff`, `Def7.fineSet_omegaPost_inter_eq`, `LargeField/History/H7Holes.lean`).  (c) for components removed by
+  `R^{(k+1)}`: the pre-`R` records compared the post-`R` objects at the top scale; ruling R22 (approved) makes them
+  compare `Z^pre_k` and all components of `Z^pre_k`.
+
+## Finding B-2 (ORCH-B, 2026-10-22; blocker 5, stage S1 of the small-field half): no irrelevant bound at the decoupled composed fields
+- **False in general, do not retry:** P-2 (`DataHypAnisoOn` at σ = C₀L^{j−k}) for the fields ψ^{(j)}_k composed from the
+  decoupled background φ_k(s) (`decBgField`, |s_P| < e^{κ₁}), i.e. the decoupled-family form of S1's input `LastSfDataHyp`
+  (found by B3 before any of it was built).
+- **Why.** For s ≠ 1 the decoupled background satisfies no constraint. `IsDecBg` (`Localization/DecoupledBackground.lean`)
+  has only the clauses `small`, `fixed`, `field`, and the constraint is proved only at s = 1 (`isPerturbed_of_decFixed_one`).
+  P3 p. 57 (after Prop. 2.1, on the extensions (2.58)): "They do not satisfy Eqs. (1.14) [3], in particular the relation
+  α = λ(φ² − 1) does not hold for them". `LOCALIZATION.md` §3.3 (I-4b) says the same: for s ≠ 1, "neither φ·φ = 1 nor the
+  Euler–Lagrange equation". The defect of ψ^{(j)}_k(s)·ψ^{(j)}_k(s) − 1 is O(K₄δ) near the cubes with s_P ≠ 1, far above the
+  σ²ε of `DataHypAnisoOn.sq` (P1 (3.13)–(3.15)) for deep labels. Only the first-order bound E₀ survives there, on ℰ's data
+  domain Ψ̃^c_j(Kε_j, Kε_j); the decay L^{−(k−j)(d+α₃)} of P1 (3.128) does not, and S1 needs that decay.
+- **Route used instead, the source's:** P3 Lemma 4.2 = `LOCALIZATION.md` Lemma DL (§4.3), landed as
+  `Localization/DomainLemma.lean` (`fan_analytic`, `fan_bound`, `point_facts`) with the I-5 machinery. ℰ is evaluated only at
+  the genuine minimiser of the local problem 𝔹_k(X), at data built from the decoupled background, composed down to 𝔹_j(X).
+  That field lies in Ξ^c_j(σ, ε_k) at every s, and at s = 1 the composition identity (P3 (4.16)) returns ℰ^{(j)}(ψ^{(j)}_k).
+  P-2 is then needed only at genuine composed data.

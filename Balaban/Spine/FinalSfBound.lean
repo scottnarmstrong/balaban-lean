@@ -12,9 +12,14 @@ import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
 /-!
-# Boundedness and integrability of the small-field factor on the whole torus
+# Boundedness and integrability of the small-field factor of a cut
 
-A6-3 (a), item 1. -/
+A6-3 (a), item 1, and its cut version (A6-4, `CutSfDomInput`): `sfFactor2 C vc Y` is bounded when,
+on the support of `χ_k(Y)`, replacement fields equal to the inherited field on `Y^≈` (resp. to
+the lift of the block field on `Y`) lie in the domains of the terms, the inherited field is real
+with norm in `(0, 2]` on `Y^≈` and the real background is a unit field on the sites of `Y`
+(`exists_bound_sfFactor2_of_dom`).  For the whole torus the replacement fields are the fields
+themselves (`exists_bound_sfFactor2`, `measInt_sfFactor2_univ_of_dom`). -/
 
 @[expose] public section
 
@@ -156,33 +161,35 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   (hv : EuclideanSpace ℝ (Fin N)) (vc : CorrCoef S.d)
   {P6 : Def6.Consts} {k0 : ℕ} (hm0 : P6.m₀ = C.m₀)
   (hTm : SFTermClauses P6 (sfDom P6 k0 C.sf C.N₁) (C.sf.Tm C.N₁))
-  (hdomJ : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ X, Def6.IsPolyDom C.m₀ jj X →
-    (sfDom P6 k0 C.sf C.N₁).dom jj ((C.sf.Tm C.N₁).gs jj X)
-      (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (Def6.constFld (hC hv)))
+  (Y : Set (Torus S.d (n (j + 1))))
+  (hrepJ : ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ ψk ∈ AsuppY C hv Y,
+    ∃ Ψe : Def6.Fld S.d S.L C.N₁ m₁ (j + 1) N,
+      (∀ x ∈ C.sset (thickY R Y), Ψe x = C.psiJ Y ψk hv jj x) ∧
+      ∀ X, Def6.IsPolyDom C.m₀ jj X → X ⊆ C.sset (thickY R Y) →
+        (sfDom P6 k0 C.sf C.N₁).dom jj ((C.sf.Tm C.N₁).gs jj X) Ψe (Def6.constFld (hC hv)))
 
-include hm0 hTm hdomJ in
-/-- The localized terms `ℰ^{(j')}` of the whole torus are bounded on the support. -/
+include hm0 hTm hrepJ in
+/-- The localized terms `ℰ^{(j')}` of the cut are bounded on the support. -/
 theorem exists_bound_Eterms {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
-      ‖∑ y ∈ C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))),
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y,
+      ‖∑ y ∈ C.alignedIn jj Y,
         ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
-          Def6.IsPolyDom C.m₀ jj X ∧ y ∈ X ∧
-            X ⊆ C.sset (thickY R (Set.univ : Set (Torus S.d (n (j + 1)))))},
-          (C.sf.Tm C.N₁).E jj y X (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj)
-            (Def6.constFld (hC hv))‖ ≤ B := by
+          Def6.IsPolyDom C.m₀ jj X ∧ y ∈ X ∧ X ⊆ C.sset (thickY R Y)},
+          (C.sf.Tm C.N₁).E jj y X (C.psiJ Y ψk hv jj) (Def6.constFld (hC hv))‖ ≤ B := by
   classical
   set Fp := (Set.toFinite {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
     Def6.IsPolyDom C.m₀ jj X}).toFinset with hFp
-  refine ⟨∑ y ∈ C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))),
+  refine ⟨∑ y ∈ C.alignedIn jj Y,
     ∑ X ∈ Fp, |P6.E₀ * Real.exp (-P6.κ * sizeJ P6.m₀ jj X)|, fun ψk hψ => ?_⟩
+  obtain ⟨Ψe, hag, hdom⟩ := hrepJ jj hj1 hj ψk hψ
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun y _ => ?_)
   refine norm_finsum_mem_le (Set.toFinite _)
     (b := fun X => |P6.E₀ * Real.exp (-P6.κ * sizeJ P6.m₀ jj X)|) ?_ (fun _ => abs_nonneg _) Fp ?_
   · intro X hX
-    obtain ⟨hXp, hyX, -⟩ := hX
+    obtain ⟨hXp, hyX, hXY⟩ := hX
     have hXp' : Def6.IsPolyDom P6.m₀ jj X := by rw [hm0]; exact hXp
-    exact (hTm.boundE jj hj1 hj y X hXp' hyX _ _ (hdomJ ψk hψ jj hj1 hj X hXp)).trans
-      (le_abs_self _)
+    rw [hTm.localE jj y X _ Ψe _ _ fun x hx => ⟨(hag x (hXY hx)).symm, rfl⟩]
+    exact (hTm.boundE jj hj1 hj y X hXp' hyX _ _ (hdom X hXp hXY)).trans (le_abs_self _)
   · intro X hX
     exact (Set.Finite.mem_toFinset _).2 hX.1
 
@@ -207,25 +214,26 @@ theorem l1_sfG_lt_one (g : GIdx S n M K N → ℂ) (hg : g ∈ LargeField.l1Ball
           (fun _ => Finset.sum_nonneg fun _ _ => norm_nonneg _)
     _ < 1 := hsum
 
-include hm0 hTm hdomJ in
-/-- The aggregated terms `ℳ^{(j')}` of the whole torus are bounded on the support. -/
+include hm0 hTm hrepJ in
+/-- The aggregated terms `ℳ^{(j')}` of the cut are bounded on the support. -/
 theorem exists_bound_MresJ (g : GIdx S n M K N → ℂ)
     (hg : Def6.l1 (sfG C.geo C.hnn C.hkK C.hT g) < 1) {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv, ∀ (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) (i : Fin N),
-      ‖C.MresJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g jj x i‖ ≤ B := by
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y, ∀ (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) (i : Fin N),
+      ‖C.MresJ Y ψk hv g jj x i‖ ≤ B := by
   classical
   set Fp := (Set.toFinite {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
     Def6.IsPolyDom C.m₀ jj X}).toFinset with hFp
   refine ⟨∑ X ∈ Fp, |P6.c₉ * ((S.L : ℝ) ^ jj)⁻¹ ^ (((S.d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
       Real.exp (-P6.κ * sizeJ P6.m₀ jj X)|, fun ψk hψ x i => ?_⟩
+  obtain ⟨Ψe, hag, hdom⟩ := hrepJ jj hj1 hj ψk hψ
   unfold SFCtx.MresJ
   have hcoord : (∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
-        Def6.IsPolyDom C.m₀ jj X ∧ x ∈ X ∧ X ⊆ C.sset (thickY R (Set.univ : Set (Torus S.d (n (j + 1)))))},
-      (C.sf.Tm C.N₁).M jj x X (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj)
+        Def6.IsPolyDom C.m₀ jj X ∧ x ∈ X ∧ X ⊆ C.sset (thickY R Y)},
+      (C.sf.Tm C.N₁).M jj x X (C.psiJ Y ψk hv jj)
         (Def6.constFld (hC hv)) (sfG C.geo C.hnn C.hkK C.hT g)) i =
       ∑ᶠ X ∈ {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
-        Def6.IsPolyDom C.m₀ jj X ∧ x ∈ X ∧ X ⊆ C.sset (thickY R (Set.univ : Set (Torus S.d (n (j + 1)))))},
-      (C.sf.Tm C.N₁).M jj x X (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj)
+        Def6.IsPolyDom C.m₀ jj X ∧ x ∈ X ∧ X ⊆ C.sset (thickY R Y)},
+      (C.sf.Tm C.N₁).M jj x X (C.psiJ Y ψk hv jj)
         (Def6.constFld (hC hv)) (sfG C.geo C.hnn C.hkK C.hT g) i := by
     rw [finsum_mem_eq_finite_toFinset_sum _ (Set.toFinite _),
       finsum_mem_eq_finite_toFinset_sum _ (Set.toFinite _), Finset.sum_apply]
@@ -234,10 +242,11 @@ theorem exists_bound_MresJ (g : GIdx S n M K N → ℂ)
     (b := fun X => |P6.c₉ * ((S.L : ℝ) ^ jj)⁻¹ ^ (((S.d : ℝ) - 2) / 2 + P6.γ - P6.α₁) *
       Real.exp (-P6.κ * sizeJ P6.m₀ jj X)|) ?_ (fun _ => abs_nonneg _) Fp ?_
   · intro X hX
-    obtain ⟨hXp, hxX, -⟩ := hX
+    obtain ⟨hXp, hxX, hXY⟩ := hX
     have hXp' : Def6.IsPolyDom P6.m₀ jj X := by rw [hm0]; exact hXp
+    rw [hTm.localM jj x X _ Ψe _ _ _ _ fun z hz => ⟨(hag z (hXY hz)).symm, rfl, rfl⟩]
     exact ((norm_le_vn _ i).trans
-      (hTm.boundM jj hj1 hj x X hXp' hxX _ _ _ (hdomJ ψk hψ jj hj1 hj X hXp) hg).le).trans
+      (hTm.boundM jj hj1 hj x X hXp' hxX _ _ _ (hdom X hXp hXY) hg).le).trans
       (le_abs_self _)
   · intro X hX
     exact (Set.Finite.mem_toFinset _).2 hX.1
@@ -253,37 +262,35 @@ theorem norm_entry_le_one (g : GIdx S n M K N → ℂ) (hg : g ∈ LargeField.l1
   exact ((Finset.single_le_sum (f := fun p : GIdx S n M K N => ‖g p‖) (fun _ _ => norm_nonneg _)
     (Finset.mem_univ (y, i))).trans h1.le)
 
-include hm0 hTm hdomJ in
-/-- **The source term `ℱ_k` of the whole torus is bounded on the support.** -/
+include hm0 hTm hrepJ in
+/-- **The source term `ℱ_k` of the cut is bounded on the support.** -/
 theorem exists_bound_Fres (g : GIdx S n M K N → ℂ)
     (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
-    (hphi : ∀ ψk ∈ Asupp C hv, ∀ z i,
-      |(C.phiBar (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv z) i| ≤ 1) :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
-      ‖C.Fres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g‖ ≤ B := by
+    (hphi : ∀ ψk ∈ AsuppY C hv Y, ∀ z ∈ C.bgSet Y, ∀ i, |(C.phiBar Y ψk hv z) i| ≤ 1) :
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y, ‖C.Fres Y ψk hv g‖ ≤ B := by
   classical
   have hg := l1_sfG_lt_one C g hgl
-  have hM : ∀ jj ∈ Finset.Icc 1 (j + 1), ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
+  have hM : ∀ jj ∈ Finset.Icc 1 (j + 1), ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y,
       ∀ (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) (i : Fin N),
-      ‖C.MresJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g jj x i‖ ≤ B :=
-    fun jj hjj => exists_bound_MresJ C hv hm0 hTm hdomJ g hg (Finset.mem_Icc.1 hjj).1
+      ‖C.MresJ Y ψk hv g jj x i‖ ≤ B :=
+    fun jj hjj => exists_bound_MresJ C hv hm0 hTm Y hrepJ g hg (Finset.mem_Icc.1 hjj).1
       (Finset.mem_Icc.1 hjj).2
   choose! BM hBM using hM
-  refine ⟨(∑ x ∈ C.bgSet (Set.univ : Set (Torus S.d (n (j + 1)))), ∑ _i : Fin N, (1 : ℝ)) +
+  refine ⟨(∑ x ∈ C.bgSet Y, ∑ _i : Fin N, (1 : ℝ)) +
     ∑ jj ∈ Finset.Icc 1 (j + 1), ∑ _x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1),
       ∑ _i : Fin N, |BM jj|, fun ψk hψ => ?_⟩
   unfold SFCtx.Fres
   refine (norm_add_le _ _).trans (add_le_add ?_ ?_)
-  · refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
+  · refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x hx => ?_)
     refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun i _ => ?_)
     rw [norm_mul, Complex.norm_real, Real.norm_eq_abs]
     have := norm_entry_le_one g hgl (bgToFine C.geo C.hnn C.hkK x) i
-    have h2 := hphi ψk hψ x i
+    have h2 := hphi ψk hψ x hx i
     nlinarith [norm_nonneg (g (bgToFine C.geo C.hnn C.hkK x, i)), abs_nonneg ((C.phiBar
-      (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv x) i)]
+      Y ψk hv x) i)]
   · refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun jj hjj => ?_)
     refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
-    by_cases hx : x ∈ C.sset (Set.univ : Set (Torus S.d (n (j + 1))))
+    by_cases hx : x ∈ C.sset Y
     · simp only [hx, ↓reduceIte]
       refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun i _ => ?_)
       rw [norm_mul]
@@ -294,28 +301,29 @@ theorem exists_bound_Fres (g : GIdx S n M K N → ℂ)
           (fun _ _ => vn_nonneg _) (Finset.mem_univ x)
       have h2 := hBM jj hjj ψk hψ x i
       nlinarith [norm_nonneg (sfG C.geo C.hnn C.hkK C.hT g x i),
-        norm_nonneg (C.MresJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g jj x i),
-        le_abs_self (BM jj)]
+        norm_nonneg (C.MresJ Y ψk hv g jj x i), le_abs_self (BM jj)]
     · simp only [hx, ↓reduceIte, norm_zero]
       exact Finset.sum_nonneg fun _ _ => abs_nonneg _
 
 include hm0 in
-/-- **The remainders `ℛ^{(k)}_n` of the whole torus are bounded on the support.** -/
+/-- **The remainders `ℛ^{(k)}_n` of the cut are bounded on the support.** -/
 theorem exists_bound_Rres (g : GIdx S n M K N → ℂ)
     (hg : Def6.l1 (sfG C.geo C.hnn C.hkK C.hT g) < 1) {fac : ℕ → ℝ}
     (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
-    (hdomR : ∀ ψk ∈ Asupp C hv, Def6.XiDom (Def6.topGS S.d S.L C.N₁ m₁ (j + 1) ϱ)
-      (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)))
-      (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
-      (P6.eps S.d S.L (j + 1)) (sfLiftK C.geo C.hnn C.hkK C.hT ψk) (Def6.constFld (hC hv))) :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
-      ‖C.Rres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g‖ ≤ B := by
+    (hrepR : ∀ ψk ∈ AsuppY C hv Y, ∃ Ψr : Def6.Fld S.d S.L C.N₁ m₁ (j + 1) N,
+      (∀ x ∈ C.sset Y, Ψr x = sfLiftK C.geo C.hnn C.hkK C.hT ψk x) ∧
+      Def6.XiDom (Def6.topGS S.d S.L C.N₁ m₁ (j + 1) ϱ)
+        (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)))
+        (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
+        (P6.eps S.d S.L (j + 1)) Ψr (Def6.constFld (hC hv))) :
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y, ‖C.Rres Y ψk hv g‖ ≤ B := by
   classical
   set Fp := (Set.toFinite {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ (j + 1)) |
     Def6.IsPolyDom C.m₀ (j + 1) X}).toFinset with hFp
   refine ⟨∑ nn ∈ Finset.Icc 1 (C.m₀ + m₁), ∑ X ∈ Fp,
     |fac nn * (C.sf.β (j + 1))⁻¹ ^ (nn + 1) * Real.exp (-P6.κ * sizeJ P6.m₀ (j + 1) X)|,
     fun ψk hψ => ?_⟩
+  obtain ⟨Ψr, hag, hdom⟩ := hrepR ψk hψ
   unfold SFCtx.Rres
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun nn hnn => ?_)
   have hnn' := Finset.mem_Icc.1 hnn
@@ -323,9 +331,10 @@ theorem exists_bound_Rres (g : GIdx S n M K N → ℂ)
     (b := fun X => |fac nn * (C.sf.β (j + 1))⁻¹ ^ (nn + 1) *
       Real.exp (-P6.κ * sizeJ P6.m₀ (j + 1) X)|) ?_ (fun _ => abs_nonneg _) Fp ?_
   · intro X hX
-    obtain ⟨hXp, -⟩ := hX
+    obtain ⟨hXp, hXY⟩ := hX
     have hXp' : Def6.IsPolyDom P6.m₀ (j + 1) X := by rw [hm0]; exact hXp
-    exact (hRt.bound nn hnn'.1 (by rw [hm0]; exact hnn'.2) X hXp' _ _ _ (hdomR ψk hψ)
+    rw [hRt.loc nn X _ Ψr _ _ _ _ fun z hz => ⟨(hag z (hXY hz)).symm, rfl, rfl⟩]
+    exact (hRt.bound nn hnn'.1 (by rw [hm0]; exact hnn'.2) X hXp' _ _ _ hdom
       (fun _ => Set.mem_univ _) hg).trans (le_abs_self _)
   · intro X hX
     exact (Set.Finite.mem_toFinset _).2 hX.1
@@ -339,43 +348,40 @@ theorem exists_bound_sum' {α ι : Type*} {A : Set α} (T : Finset ι) {f : ι �
   exact ⟨∑ i ∈ T, B i, fun a ha => (norm_sum_le _ _).trans
     (Finset.sum_le_sum fun i hi => hB i hi a ha)⟩
 
-variable {r : ℝ} (hpsiR : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
-    ∀ x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1), ∃ v : Fin N → ℝ,
-      (∀ i, C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x i = (v i : ℂ)) ∧
-        0 < rn v ∧ rn v ≤ 2)
+variable (hpsiR : ∀ ψk ∈ AsuppY C hv Y, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+    ∀ x ∈ C.sset (thickY R Y), ∃ v : Fin N → ℝ,
+      (∀ i, C.psiJ Y ψk hv jj x i = (v i : ℂ)) ∧ 0 < rn v ∧ rn v ≤ 2)
 
 include hpsiR in
-/-- The correction `corrSum` of P5 (1.8) is bounded on the support. -/
+/-- The correction `corrSum` of P5 (1.8) of the cut is bounded on the support. -/
 theorem exists_bound_corrSum {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y,
       ‖corrSum (fun y x => vc.v1 jj (unlift jj (x - y))) (fun y x => vc.v2 jj (unlift jj (x - y)))
         (nuIdeal S.L (j + 1) (C.sf.ν (j + 1)) jj)
-        (C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))))
-        (C.alignedIn jj (thickY R (Set.univ : Set (Torus S.d (n (j + 1))))))
-        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (hC hv)‖ ≤ B := by
+        (C.alignedIn jj Y) (C.alignedIn jj (thickY R Y))
+        (C.psiJ Y ψk hv jj) (hC hv)‖ ≤ B := by
   classical
-  refine ⟨∑ y ∈ C.alignedIn jj (Set.univ : Set (Torus S.d (n (j + 1)))),
-    ∑ x ∈ C.alignedIn jj (thickY R (Set.univ : Set (Torus S.d (n (j + 1))))),
+  refine ⟨∑ y ∈ C.alignedIn jj Y, ∑ x ∈ C.alignedIn jj (thickY R Y),
       (4 * ‖vc.v1 jj (unlift jj (x - y))‖ + ‖vc.v2 jj (unlift jj (x - y))‖ *
         |nuIdeal S.L (j + 1) (C.sf.ν (j + 1)) jj| * (2 * ∑ i, |hv i|)), fun ψk hψ => ?_⟩
   unfold corrSum
-  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun y _ => ?_)
-  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x _ => ?_)
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun y hy => ?_)
+  refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun x hx => ?_)
   obtain ⟨vy, hvy, hy0, hy2⟩ := hpsiR ψk hψ jj hj1 hj y
-  obtain ⟨vx, hvx, hx0, hx2⟩ := hpsiR ψk hψ jj hj1 hj x
+    (sset_subset_sset_thickY C Y (alignedIn_subset_sset C jj Y hy))
+  obtain ⟨vx, hvx, hx0, hx2⟩ := hpsiR ψk hψ jj hj1 hj x (alignedIn_subset_sset C jj _ hx)
   exact norm_corrPair_le (h := fun i => hv i) (funext hvy) (funext hvx) hy0 hx0 hy2 hx2
 
-include hm0 hTm hdomJ hpsiR in
-/-- `ℰ_k` of the whole torus is bounded on the support. -/
+include hm0 hTm hrepJ hpsiR in
+/-- `ℰ_k` of the cut is bounded on the support. -/
 theorem exists_bound_EresK2 :
-    ∃ B : ℝ, ∀ ψk ∈ Asupp C hv,
-      ‖EresK2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv‖ ≤ B := by
+    ∃ B : ℝ, ∀ ψk ∈ AsuppY C hv Y, ‖EresK2 C vc Y ψk hv‖ ≤ B := by
   unfold EresK2
   refine exists_bound_sum' _ fun jj hjj => ?_
   have hj1 := (Finset.mem_Icc.1 hjj).1
   have hj := (Finset.mem_Icc.1 hjj).2
-  obtain ⟨B1, h1⟩ := exists_bound_Eterms C hv hm0 hTm hdomJ hj1 hj
-  obtain ⟨B2, h2⟩ := exists_bound_corrSum C hv vc hpsiR hj1 hj
+  obtain ⟨B1, h1⟩ := exists_bound_Eterms C hv hm0 hTm Y hrepJ hj1 hj
+  obtain ⟨B2, h2⟩ := exists_bound_corrSum C hv vc Y hpsiR hj1 hj
   refine ⟨B1 + B2, fun ψk hψ => ?_⟩
   unfold EresJ2
   exact (norm_sub_le _ _).trans (add_le_add (h1 ψk hψ) (h2 ψk hψ))
@@ -423,11 +429,72 @@ theorem chiY_mem_Icc (Y : Set (Torus S.d (n (j + 1))))
   refine ⟨Finset.prod_nonneg fun y _ => (h y).1, ?_⟩
   exact Finset.prod_le_one₀ (fun y _ => (h y).1) fun y _ => (h y).2
 
-include hm0 hTm hdomJ hpsiR in
-/-- **`sfFactor2` of the whole torus is bounded** (A6-3 (a), item 1): on the support the exponent has
-real part at most the sum of the bounds of its terms (the action is nonnegative), and off the support
-the factor is `0`. -/
-theorem exists_bound_sfFactor2 (g : GIdx S n M K N → ℂ)
+include hm0 hTm hrepJ hpsiR in
+/-- **`sfFactor2` of a cut is bounded** (A6-3 (a), item 1; A6-4): on the support the exponent has
+real part at most the sum of the bounds of its terms (the action is nonnegative), and off the
+support the factor is `0`. -/
+theorem exists_bound_sfFactor2_of_dom (g : GIdx S n M K N → ℂ)
+    (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
+    (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
+    (hL : 2 ≤ S.L) (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))
+    (hphi : ∀ ψk ∈ AsuppY C hv Y, ∀ z ∈ C.bgSet Y, ∀ i, |(C.phiBar Y ψk hv z) i| ≤ 1)
+    {fac : ℕ → ℝ} (hRt : RTermsH4 (ϱ := ϱ) P6 C.sf.β C.sf.ν C.sf.a C.N₁ (C.sf.Rt C.N₁) fac)
+    (hrepR : ∀ ψk ∈ AsuppY C hv Y, ∃ Ψr : Def6.Fld S.d S.L C.N₁ m₁ (j + 1) N,
+      (∀ x ∈ C.sset Y, Ψr x = sfLiftK C.geo C.hnn C.hkK C.hT ψk x) ∧
+      Def6.XiDom (Def6.topGS S.d S.L C.N₁ m₁ (j + 1) ϱ)
+        (Def6.aIdeal S.L (j + 1) (C.sf.a (j + 1)))
+        (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
+        (P6.eps S.d S.L (j + 1)) Ψr (Def6.constFld (hC hv))) :
+    ∃ Mb : ℝ, ∀ ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N),
+      ‖sfFactor2 C vc Y ψk hv g‖ ≤ Mb := by
+  classical
+  have hg := l1_sfG_lt_one C g hgl
+  obtain ⟨BE, hBE⟩ := exists_bound_EresK2 C hv vc hm0 hTm Y hrepJ hpsiR
+  obtain ⟨BF, hBF⟩ := exists_bound_Fres C hv hm0 hTm Y hrepJ g hgl hphi
+  obtain ⟨BR, hBR⟩ := exists_bound_Rres C hv hm0 Y g hg hRt hrepR
+  refine ⟨max 0 (Real.exp (BE + |C.sf.E C.N₁ * volK M Y| + BF + BR)), fun ψk => ?_⟩
+  by_cases hψ : ψk ∈ AsuppY C hv Y
+  · refine le_trans ?_ (le_max_right _ _)
+    unfold sfFactor2
+    rw [norm_mul, Complex.norm_exp, Complex.norm_real, Real.norm_eq_abs]
+    have hchi := chiY_mem_Icc C hv Y ψk
+    rw [abs_of_nonneg hchi.1]
+    have hre : (Ares2 C vc Y ψk hv + C.Fres Y ψk hv g + C.Rres Y ψk hv g).re ≤
+        BE + |C.sf.E C.N₁ * volK M Y| + BF + BR := by
+      have hA0 := actStar2_nonneg C hv HB hL hact Y ψk
+      have hb0 : 0 ≤ betaCanon S.d S.L (C.sf.β (j + 1)) (j + 1) 0 := by
+        unfold betaCanon; exact div_nonneg hβ (by positivity)
+      have e1 : (Ares2 C vc Y ψk hv).re =
+          -(betaCanon S.d S.L (C.sf.β (j + 1)) (j + 1) 0 * actStar2 C Y ψk hv) +
+          (EresK2 C vc Y ψk hv).re - C.sf.E C.N₁ * volK M Y := by
+        unfold Ares2
+        simp [Complex.sub_re, Complex.add_re, Complex.neg_re, Complex.mul_re]
+      have h2 := (Complex.re_le_norm _).trans (hBE ψk hψ)
+      have h3 := (Complex.re_le_norm _).trans (hBF ψk hψ)
+      have h4 := (Complex.re_le_norm _).trans (hBR ψk hψ)
+      simp only [Complex.add_re, e1]
+      nlinarith [mul_nonneg hb0 hA0, neg_le_abs (C.sf.E C.N₁ * volK M Y)]
+    calc _ ≤ 1 * Real.exp (Ares2 C vc Y ψk hv + C.Fres Y ψk hv g + C.Rres Y ψk hv g).re :=
+          mul_le_mul_of_nonneg_right hchi.2 (Real.exp_pos _).le
+      _ ≤ _ := by rw [one_mul]; exact Real.exp_le_exp.2 hre
+  · refine le_trans ?_ (le_max_left _ _)
+    have h0 : C.chiY Y ψk hv = 0 := by
+      by_contra hne; exact hψ hne
+    unfold sfFactor2
+    rw [h0]; simp
+
+include hm0 hTm in
+/-- **`sfFactor2` of the whole torus is bounded** (A6-3 (a), item 1): `exists_bound_sfFactor2_of_dom`
+with the fields themselves as replacement fields. -/
+theorem exists_bound_sfFactor2
+    (hdomJ : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ X, Def6.IsPolyDom C.m₀ jj X →
+      (sfDom P6 k0 C.sf C.N₁).dom jj ((C.sf.Tm C.N₁).gs jj X)
+        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (Def6.constFld (hC hv)))
+    (hpsiR : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+      ∀ x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1), ∃ v : Fin N → ℝ,
+        (∀ i, C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x i = (v i : ℂ)) ∧
+          0 < rn v ∧ rn v ≤ 2)
+    (g : GIdx S n M K N → ℂ)
     (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
     (hL : 2 ≤ S.L) (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))
@@ -439,56 +506,27 @@ theorem exists_bound_sfFactor2 (g : GIdx S n M K N → ℂ)
       (Def6.bgMass S.L (j + 1) (C.sf.β (j + 1)) (C.sf.ν (j + 1))) (j + 1)
       (P6.eps S.d S.L (j + 1)) (sfLiftK C.geo C.hnn C.hkK C.hT ψk) (Def6.constFld (hC hv))) :
     ∃ Mb : ℝ, ∀ ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N),
-      ‖sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g‖ ≤ Mb := by
-  classical
-  have hg := l1_sfG_lt_one C g hgl
-  obtain ⟨BE, hBE⟩ := exists_bound_EresK2 C hv vc hm0 hTm hdomJ hpsiR
-  obtain ⟨BF, hBF⟩ := exists_bound_Fres C hv hm0 hTm hdomJ g hgl hphi
-  obtain ⟨BR, hBR⟩ := exists_bound_Rres C hv hm0 g hg hRt hdomR
-  refine ⟨max 0 (Real.exp (BE + |C.sf.E C.N₁ * volK M (Set.univ : Set (Torus S.d (n (j + 1))))| +
-    BF + BR)), fun ψk => ?_⟩
-  by_cases hψ : ψk ∈ Asupp C hv
-  · refine le_trans ?_ (le_max_right _ _)
-    unfold sfFactor2
-    rw [norm_mul, Complex.norm_exp, Complex.norm_real, Real.norm_eq_abs]
-    have hchi := chiY_mem_Icc C hv (Set.univ : Set (Torus S.d (n (j + 1)))) ψk
-    rw [abs_of_nonneg hchi.1]
-    have hre : (Ares2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv +
-        C.Fres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g +
-        C.Rres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g).re ≤
-        BE + |C.sf.E C.N₁ * volK M (Set.univ : Set (Torus S.d (n (j + 1))))| + BF + BR := by
-      have hA0 := actStar2_nonneg C hv HB hL hact (Set.univ : Set (Torus S.d (n (j + 1)))) ψk
-      have hb0 : 0 ≤ betaCanon S.d S.L (C.sf.β (j + 1)) (j + 1) 0 := by
-        unfold betaCanon; exact div_nonneg hβ (by positivity)
-      have e1 : (Ares2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv).re =
-          -(betaCanon S.d S.L (C.sf.β (j + 1)) (j + 1) 0 *
-            actStar2 C (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv) +
-          (EresK2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv).re -
-          C.sf.E C.N₁ * volK M (Set.univ : Set (Torus S.d (n (j + 1)))) := by
-        unfold Ares2
-        simp [Complex.sub_re, Complex.add_re, Complex.neg_re, Complex.mul_re]
-      have h2 := (Complex.re_le_norm _).trans (hBE ψk hψ)
-      have h3 := (Complex.re_le_norm _).trans (hBF ψk hψ)
-      have h4 := (Complex.re_le_norm _).trans (hBR ψk hψ)
-      simp only [Complex.add_re, e1]
-      nlinarith [mul_nonneg hb0 hA0, neg_le_abs (C.sf.E C.N₁ * volK M
-        (Set.univ : Set (Torus S.d (n (j + 1)))))]
-    calc _ ≤ 1 * Real.exp (Ares2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv +
-          C.Fres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g +
-          C.Rres (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g).re :=
-          mul_le_mul_of_nonneg_right hchi.2 (Real.exp_pos _).le
-      _ ≤ _ := by rw [one_mul]; exact Real.exp_le_exp.2 hre
-  · refine le_trans ?_ (le_max_left _ _)
-    have h0 : C.chiY (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv = 0 := by
-      by_contra hne; exact hψ hne
-    unfold sfFactor2
-    rw [h0]; simp
+      ‖sfFactor2 C vc (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv g‖ ≤ Mb :=
+  exists_bound_sfFactor2_of_dom C hv vc hm0 hTm Set.univ
+    (fun jj hj1 hj ψk hψ => ⟨C.psiJ Set.univ ψk hv jj, fun _ _ => rfl,
+      fun X hX _ => hdomJ ψk hψ jj hj1 hj X hX⟩)
+    (fun ψk hψ jj hj1 hj x _ => hpsiR ψk hψ jj hj1 hj x) g hgl HB hL hact hβ
+    (fun ψk hψ z _ i => hphi ψk hψ z i) hRt
+    (fun ψk hψ => ⟨sfLiftK C.geo C.hnn C.hkK C.hT ψk, fun _ _ => rfl, hdomR ψk hψ⟩)
 
-include hm0 hTm hdomJ hpsiR in
+include hm0 hTm in
 /-- **`sfFactor2` of the whole torus is integrable** (A6-3 (a), item 1; the premise of the Gaussian
 reduction `integral_sfFactor2_gauss` and of the expansion): measurable, bounded, and supported in a
 bounded set of block fields. -/
-theorem measInt_sfFactor2_univ_of_dom (g : GIdx S n M K N → ℂ)
+theorem measInt_sfFactor2_univ_of_dom
+    (hdomJ : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 → ∀ X, Def6.IsPolyDom C.m₀ jj X →
+      (sfDom P6 k0 C.sf C.N₁).dom jj ((C.sf.Tm C.N₁).gs jj X)
+        (C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj) (Def6.constFld (hC hv)))
+    {r : ℝ} (hpsiR : ∀ ψk ∈ Asupp C hv, ∀ jj, 1 ≤ jj → jj ≤ j + 1 →
+      ∀ x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1), ∃ v : Fin N → ℝ,
+        (∀ i, C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk hv jj x i = (v i : ℂ)) ∧
+          0 < rn v ∧ rn v ≤ 2)
+    (g : GIdx S n M K N → ℂ)
     (hgl : g ∈ LargeField.l1Ball (GIdx S n M K N))
     (HB : BgHyp S.d S.L (j + 1) (minSep S.L C.geo.M1) C.weights (C.cs.muBg (j + 1)))
     (hL : 2 ≤ S.L) (hact : 0 ≤ C.cs.muAct (j + 1)) (hβ : 0 ≤ C.sf.β (j + 1))

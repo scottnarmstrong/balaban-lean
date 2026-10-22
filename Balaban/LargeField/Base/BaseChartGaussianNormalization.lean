@@ -29,8 +29,8 @@ variable {κ : Type*} [Fintype κ] [DecidableEq κ]
 root is a symmetric linear equivalence. Its double application is the inverse
 of the Gaussian matrix, and its determinant is the positive Gaussian
 normalization factor. -/
-theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
-    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ),
+theorem gaussian_real_sqrt_equiv_apply (A : Matrix κ κ ℝ) (hA : A.PosDef) :
+    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ), (∀ w, R w = matAct (pdSqrtInv A) w) ∧
       (∀ w, A *ᵥ (R (R w)) = w) ∧
       (∀ u v, (R u) ⬝ᵥ v = u ⬝ᵥ (R v)) ∧
       LinearMap.det (R : (κ → ℝ) →ₗ[ℝ] (κ → ℝ)) =
@@ -39,7 +39,7 @@ theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
   have hSpos : 0 < S.det := pdSqrtInv_det_pos hA
   have hSu : IsUnit S.det := hSpos.ne'.isUnit
   let R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ) := matActEquiv S hSu
-  refine ⟨R, ?_, ?_, ?_⟩
+  refine ⟨R, fun w => rfl, ?_, ?_, ?_⟩
   · intro w
     have hAS : A * (S * S) = 1 := by
       rw [pdSqrtInv_mul_self hA, Matrix.mul_nonsing_inv A]
@@ -62,16 +62,39 @@ theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
     have hsqrt : 0 ≤ Real.sqrt A.det⁻¹ := Real.sqrt_nonneg _
     nlinarith only [hsq, Real.sq_sqrt hdet, hSpos, hsqrt]
 
+theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
+    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ),
+      (∀ w, A *ᵥ (R (R w)) = w) ∧
+      (∀ u v, (R u) ⬝ᵥ v = u ⬝ᵥ (R v)) ∧
+      LinearMap.det (R : (κ → ℝ) →ₗ[ℝ] (κ → ℝ)) =
+        Real.sqrt A.det⁻¹ := by
+  obtain ⟨R, _, h⟩ := gaussian_real_sqrt_equiv_apply A hA
+  exact ⟨R, h⟩
+
+/-- **The square-root change of variables of the Gaussian form** `gaussForm e H`: the coordinate
+matrix `K` of the form in the standard basis, its positive inverse square root `pdSqrtInv K`, acting
+on the coordinates.  It is the map `R` of `gaussForm_sqrt_equiv_of_posDef` when `K` is positive
+definite, and a total function in all cases. -/
+noncomputable def gaussSqrtMap {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N) (u : Config ι N) : Config ι N :=
+  (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)).equivFun.symm
+    (matAct (pdSqrtInv (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)))
+      ((Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)).equivFun u))
+
 /-- The real Gaussian form of P4 (2.47) has the square-root change of
 variables required by the sphere-chart identity whenever its coordinate
 matrix is positive definite. -/
-theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+theorem gaussForm_sqrt_equiv_of_posDef_apply {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
     (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
     (hK : (LinearMap.toMatrix
       (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
       (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
       (gaussForm e H)).PosDef) :
     ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      (∀ u, R u = gaussSqrtMap e H u) ∧
       (∀ w, gaussForm e H (R (R w)) = w) ∧
       (∀ u v, cinner (R u) v = cinner u (R v)) ∧
       LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) =
@@ -85,9 +108,11 @@ theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι
       Finset.sum_sigma', mul_comm]
   have hmap (u : Config ι N) : E (gaussForm e H u) = K *ᵥ E u := by
     simpa [E, K] using (LinearMap.toMatrix_mulVec_repr B B (gaussForm e H) u).symm
-  obtain ⟨T, hTT, hTs, hTd⟩ := gaussian_real_sqrt_equiv K hK
+  obtain ⟨T, hTa, hTT, hTs, hTd⟩ := gaussian_real_sqrt_equiv_apply K hK
   let R : Config ι N ≃ₗ[ℝ] Config ι N := (E.trans T).trans E.symm
-  refine ⟨R, ?_, ?_, ?_⟩
+  refine ⟨R, fun u => ?_, ?_, ?_, ?_⟩
+  · change E.symm (T (E u)) = E.symm (matAct (pdSqrtInv K) (E u))
+    rw [hTa]
   · intro w
     apply E.injective
     rw [hmap]
@@ -108,6 +133,20 @@ theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι
     congr 1
     congr 1
     exact LinearMap.det_toMatrix B (gaussForm e H)
+
+theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hK : (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)).PosDef) :
+    ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      (∀ w, gaussForm e H (R (R w)) = w) ∧
+      (∀ u v, cinner (R u) v = cinner u (R v)) ∧
+      LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) =
+        Real.sqrt (LinearMap.det (gaussForm e H))⁻¹ := by
+  obtain ⟨R, _, h⟩ := gaussForm_sqrt_equiv_of_posDef_apply e H hK
+  exact ⟨R, h⟩
 
 /-- Gaussian lifting and the real square-root change of variables on the
 tangent chart of P4 (2.47)–(2.50). The nonnegative factor is arbitrary. -/
