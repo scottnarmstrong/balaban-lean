@@ -198,7 +198,10 @@ provider, and nothing may import a root, until the root is sealed.
 - **Ruling R27 (same approval).** The connected domains of the localization expansion (`compY`, the cut-locality
   domain, the connected families) use `*`-adjacency (cubes or cells meeting at a face, edge or corner), as P3's
   continuum connectivity does ((1.2), (4.42)); the output domains stay nearest-neighbour connected, so Root-F's
-  polymers are unaffected (ORCH-A, A4).
+  polymers are unaffected (ORCH-A, A4). **Withdrawn 2026-10-22, not implemented:** the last claim fails at a diagonal
+  corner of Ω₁, and the ruling turned out not to be needed. At `k = 1` no component is ripe (LFR §I.5.5,
+  `not_ripe_one`), so nothing is removed and the new boundary term is zero; for `k ≥ 2`, Ω₁(𝔹_k(W)) has no diagonal
+  corners (for `L ≥ 11`), so the hat connectivity holds with the nearest-neighbour definitions, which stay everywhere.
 - **Ruling R28 (same approval).** The kept data (`KeptData.datum`, `KeptScaleKernels.datum`) are indexed by labelled
   localized histories (the labels of the kept components inside the component at earlier scales), as LFR
   Def II.5.7 (S3) indexes them by `(Z, 𝔸∩Z)` (ORCH-A, A4).
