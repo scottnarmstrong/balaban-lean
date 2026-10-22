@@ -118,45 +118,35 @@ theorem layerIndex_le_of_empty {N₀ K : ℕ} [NeZero N₀] [NeZero L] {ϱ' : �
   rw [hG] at hmem
   exact Finset.notMem_empty _ hmem
 
-/-- **The scale gap, the collar condition and `L^j ≤ θ L^k`** for the generating sets of the
-settings, with `θ = L^j / L^k` (`θ = L^{j-k}`): the hypotheses `gap`, `hcol`, `hjθ`, `hnj` of `HypSle`
-for `G = Gj`, `G' = Gk`. -/
-theorem hat_gap {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
-    (hL : 3 ≤ L) (hk1 : 1 ≤ k) {j : ℕ} (hjk : j ≤ k) {X Y : Set (CTorus d L N₁' m₁' (k + 1))}
-    (hXY : X ⊆ Y) {hs₁ : ϱ₁ ≤ minSep L (L ^ m₁')} {hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')}
+/-- **The scale gap, the collar condition and `L^j ≤ θ L^k` from the top layer of the source**
+(core of `hat_gap`): for generating sets `Gj` with no layer above `j` and `Gk` with no layer above
+`k` (of the torus of level `k + 1`), with the data sites of `Gj` in `Ω_k(Gk)`, and `θ = L^j / L^k`:
+the hypotheses `gap`, `hcol`, `hjθ`, `hnj` of `HypSle` for `G = Gj`, `G' = Gk`. -/
+theorem hat_gap_of_top (hL : 3 ≤ L) (hk1 : 1 ≤ k) {j : ℕ} (hjk : j ≤ k)
     {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
     {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
-    (hGj : Gj = castG hc (localB j (Nat.le_succ_of_le hjk) X hs₂))
-    (hGk : Gk = castG hc (localB k (Nat.le_succ k) (castNbhd (N₁' := N₁') (m₁' := m₁') Y) hs₁)) :
+    (hGj : Gj.Ω (j + 1) = ∅) (hGk : Gk.Ω (k + 1) = ∅)
+    (htop0 : ∀ z ∈ dataSites Gj, z ∈ Gk.Ω k) :
     (∀ z ∈ dataSites Gj, z ∈ Gk.Ω k ∧ Gk.spacing z = (L : ℝ) ^ k) ∧
       (∀ x ∈ Gj.Ω 1, Gj.layerIndex x ≤ j) ∧
       ScaleGap Gj Gk ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧
       (∀ z ∈ collar Gj, z ∈ Gk.Ω 1 ∧ 1 ≤ ((L : ℝ) ^ j / (L : ℝ) ^ k) * Gk.spacing z) ∧
       (L : ℝ) ^ j ≤ ((L : ℝ) ^ j / (L : ℝ) ^ k) * (L : ℝ) ^ k ∧
       0 < ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧ ((L : ℝ) ^ j / (L : ℝ) ^ k) ≤ 1 := by
-  subst hGj hGk
-  set Gj := castG hc (localB j (Nat.le_succ_of_le hjk) X hs₂) with hGjd
-  set Gk := castG hc (localB k (Nat.le_succ k) (castNbhd (N₁' := N₁') (m₁' := m₁') Y) hs₁)
-    with hGkd
   have hLp : (0 : ℝ) < L := by exact_mod_cast (by omega : 0 < L)
   have hLk : (0 : ℝ) < (L : ℝ) ^ k := by positivity
   have htop : ∀ z ∈ dataSites Gj, z ∈ Gk.Ω k ∧ Gk.spacing z = (L : ℝ) ^ k := by
     intro z hz
-    have hzk := dataSites_subset_top hc hL hjk hXY (hs₁ := hs₁) (hs₂ := hs₂) hz
+    have hzk := htop0 z hz
     refine ⟨hzk, ?_⟩
     have hk1' : z ∈ Gk.layer k := by
       rw [GeneratingSet.mem_layer]
       refine ⟨hzk, ?_⟩
-      rw [mem_castG_Ω, localB_Ω_of_gt (by omega)]
+      rw [hGk]
       exact Finset.notMem_empty _
     unfold GeneratingSet.spacing
     rw [Gk.layerIndex_eq hk1 (Nat.le_succ k) hk1']
-  have hlay : ∀ x ∈ Gj.Ω 1, Gj.layerIndex x ≤ j := fun x hx => by
-    refine layerIndex_le_of_empty Gj ?_ hx
-    ext z
-    simp only [Finset.notMem_empty, iff_false]
-    rw [mem_castG_Ω, localB_Ω_of_gt (by omega)]
-    exact Finset.notMem_empty _
+  have hlay : ∀ x ∈ Gj.Ω 1, Gj.layerIndex x ≤ j := fun x hx => layerIndex_le_of_empty Gj hGj hx
   have hθ : (L : ℝ) ^ j / (L : ℝ) ^ k * (L : ℝ) ^ k = (L : ℝ) ^ j := by field_simp
   have hLj : (1 : ℝ) ≤ (L : ℝ) ^ j := one_le_pow₀ (by exact_mod_cast (by omega : 1 ≤ L))
   refine ⟨htop, hlay, ?_, ?_, hθ.ge, by positivity, ?_⟩
@@ -171,6 +161,34 @@ theorem hat_gap {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N�
     rw [this.2, hθ]; exact hLj
   · rw [div_le_one hLk]
     exact pow_le_pow_right₀ (by exact_mod_cast (by omega : 1 ≤ L)) hjk
+
+/-- **The scale gap, the collar condition and `L^j ≤ θ L^k`** for the generating sets of the
+settings, with `θ = L^j / L^k` (`θ = L^{j-k}`): the hypotheses `gap`, `hcol`, `hjθ`, `hnj` of `HypSle`
+for `G = Gj`, `G' = Gk` (the instance of `hat_gap_of_top`). -/
+theorem hat_gap {N₁' m₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    (hL : 3 ≤ L) (hk1 : 1 ≤ k) {j : ℕ} (hjk : j ≤ k) {X Y : Set (CTorus d L N₁' m₁' (k + 1))}
+    (hXY : X ⊆ Y) {hs₁ : ϱ₁ ≤ minSep L (L ^ m₁')} {hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')}
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
+    {Gk : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁}
+    (hGj : Gj = castG hc (localB j (Nat.le_succ_of_le hjk) X hs₂))
+    (hGk : Gk = castG hc (localB k (Nat.le_succ k) (castNbhd (N₁' := N₁') (m₁' := m₁') Y) hs₁)) :
+    (∀ z ∈ dataSites Gj, z ∈ Gk.Ω k ∧ Gk.spacing z = (L : ℝ) ^ k) ∧
+      (∀ x ∈ Gj.Ω 1, Gj.layerIndex x ≤ j) ∧
+      ScaleGap Gj Gk ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧
+      (∀ z ∈ collar Gj, z ∈ Gk.Ω 1 ∧ 1 ≤ ((L : ℝ) ^ j / (L : ℝ) ^ k) * Gk.spacing z) ∧
+      (L : ℝ) ^ j ≤ ((L : ℝ) ^ j / (L : ℝ) ^ k) * (L : ℝ) ^ k ∧
+      0 < ((L : ℝ) ^ j / (L : ℝ) ^ k) ∧ ((L : ℝ) ^ j / (L : ℝ) ^ k) ≤ 1 := by
+  subst hGj hGk
+  refine hat_gap_of_top hL hk1 hjk ?_ ?_
+    (fun z hz => dataSites_subset_top hc hL hjk hXY (hs₁ := hs₁) (hs₂ := hs₂) hz)
+  · ext z
+    simp only [Finset.notMem_empty, iff_false]
+    rw [mem_castG_Ω, localB_Ω_of_gt (by omega)]
+    exact Finset.notMem_empty _
+  · ext z
+    simp only [Finset.notMem_empty, iff_false]
+    rw [mem_castG_Ω, localB_Ω_of_gt (by omega)]
+    exact Finset.notMem_empty _
 
 end Top
 

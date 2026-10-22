@@ -98,35 +98,49 @@ section Margin
 
 variable {d L N₁ m₁ k : ℕ} [NeZero L] [NeZero N₁] {ϱ : ℝ}
 
+/-- **The read margin of the local set of the thickening, at a level `n ≤ k + 1`**: for `s < m₀`
+and `L ≥ 3`, every site within sup-distance `2 L^{n+m₁+s}` of a site of `Y` lies in the top layer of
+`castG hc (𝔹_n(Ŷ))`, `Ŷ = hatSet m₀ n Y` read on the torus `(N₁', m₁ + s)`: the cell of side
+`L^{n+m₁+s}` of such a site lies within `3 L^{n+m₁+s} ≤ L^{n+m₀+m₁}` of `Y`. -/
+theorem hatLocal_margin_at {m₀ s : ℕ} (hs : s < m₀) (hL : 3 ≤ L) {N₁' : ℕ} [NeZero N₁']
+    (hc : N₁' * L ^ (m₁ + s) = N₁ * L ^ m₁) (hsep : ϱ ≤ LargeField.minSep L (L ^ (m₁ + s)))
+    {n : ℕ} (hn : n ≤ k + 1) {Y R : Set (CTorus d L N₁ m₁ (k + 1))} (hRY : R ⊆ Y) :
+    ∀ x ∈ R, ∀ y : CTorus d L N₁ m₁ (k + 1), supDist x y ≤ 2 * L ^ (n + (m₁ + s)) →
+      y ∈ (castG hc (localB n hn
+        {x' : CTorus d L N₁' (m₁ + s) (k + 1) |
+          (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ hatSet m₀ n Y} hsep)).Ω n := by
+  intro x hx y hy
+  have hceq : N₁ * L ^ m₁ * L ^ (k + 1) = N₁' * L ^ (m₁ + s) * L ^ (k + 1) := by rw [hc]
+  rw [castG_localB_sameCell hc hn _ hsep]
+  intro w hw
+  show (torusCast (torusCast w : CTorus d L N₁' (m₁ + s) (k + 1)) : CTorus d L N₁ m₁ (k + 1)) ∈
+    hatSet m₀ n Y
+  rw [torusCast_torusCast hceq]
+  refine mem_hatSet_of_supDist_le (by omega) (hRY hx) ?_
+  have hpos : 0 < L ^ (n + (m₁ + s)) := pow_pos (by omega) _
+  have h1 := supDist_le_of_sameCell hpos hw
+  have h2 := supDist_triangle w y x
+  rw [supDist_comm y x] at h2
+  have h3 : 3 * L ^ (n + (m₁ + s)) ≤ cellSide L m₀ m₁ n := by
+    unfold cellSide
+    calc 3 * L ^ (n + (m₁ + s)) ≤ L * L ^ (n + (m₁ + s)) := Nat.mul_le_mul_right _ hL
+      _ = L ^ (n + (m₁ + s) + 1) := by ring
+      _ ≤ L ^ (n + m₀ + m₁) := Nat.pow_le_pow_right (by omega) (by omega)
+  omega
+
 /-- **The read margin of the local set of the thickening**: for `s < m₀` and `L ≥ 3`, every site
 within sup-distance `2 L^{k+1+m₁+s}` of a site of `Y` lies in the top layer of
 `castG hc (𝔹_{k+1}(Ŷ))`, `Ŷ = hatSet m₀ (k + 1) Y` read on the torus `(N₁', m₁ + s)`: the cell of
-side `L^{k+1+m₁+s}` of such a site lies within `3 L^{k+1+m₁+s} ≤ L^{k+1+m₀+m₁}` of `Y`. -/
+side `L^{k+1+m₁+s}` of such a site lies within `3 L^{k+1+m₁+s} ≤ L^{k+1+m₀+m₁}` of `Y`.
+The instance of `hatLocal_margin_at` at `n = k + 1`. -/
 theorem hatLocal_margin {m₀ s : ℕ} (hs : s < m₀) (hL : 3 ≤ L) {N₁' : ℕ} [NeZero N₁']
     (hc : N₁' * L ^ (m₁ + s) = N₁ * L ^ m₁) (hsep : ϱ ≤ LargeField.minSep L (L ^ (m₁ + s)))
     {Y R : Set (CTorus d L N₁ m₁ (k + 1))} (hRY : R ⊆ Y) :
     ∀ x ∈ R, ∀ y : CTorus d L N₁ m₁ (k + 1), supDist x y ≤ 2 * L ^ (k + 1 + (m₁ + s)) →
       y ∈ (castG hc (localB (k + 1) (le_refl (k + 1))
         {x' : CTorus d L N₁' (m₁ + s) (k + 1) |
-          (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ hatSet m₀ (k + 1) Y} hsep)).Ω (k + 1) := by
-  intro x hx y hy
-  have hceq : N₁ * L ^ m₁ * L ^ (k + 1) = N₁' * L ^ (m₁ + s) * L ^ (k + 1) := by rw [hc]
-  rw [castG_localB_top_sameCell hc le_rfl _ hsep]
-  intro w hw
-  show (torusCast (torusCast w : CTorus d L N₁' (m₁ + s) (k + 1)) : CTorus d L N₁ m₁ (k + 1)) ∈
-    hatSet m₀ (k + 1) Y
-  rw [torusCast_torusCast hceq]
-  refine mem_hatSet_of_supDist_le (by omega) (hRY hx) ?_
-  have hpos : 0 < L ^ (k + 1 + (m₁ + s)) := pow_pos (by omega) _
-  have h1 := supDist_le_of_sameCell hpos hw
-  have h2 := supDist_triangle w y x
-  rw [supDist_comm y x] at h2
-  have h3 : 3 * L ^ (k + 1 + (m₁ + s)) ≤ cellSide L m₀ m₁ (k + 1) := by
-    unfold cellSide
-    calc 3 * L ^ (k + 1 + (m₁ + s)) ≤ L * L ^ (k + 1 + (m₁ + s)) := Nat.mul_le_mul_right _ hL
-      _ = L ^ (k + 1 + (m₁ + s) + 1) := by ring
-      _ ≤ L ^ (k + 1 + m₀ + m₁) := Nat.pow_le_pow_right (by omega) (by omega)
-  omega
+          (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ hatSet m₀ (k + 1) Y} hsep)).Ω (k + 1) :=
+  hatLocal_margin_at hs hL hc hsep (le_refl (k + 1)) hRY
 
 end Margin
 

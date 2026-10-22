@@ -632,15 +632,65 @@ theorem NewLevelFormulaW.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : Step
   obtain ⟨NS, rfl, hK, h⟩ := h
   exact ⟨NS, hO, hK, h⟩
 
+/-- **`NewLevelFormula` with a condition `Pr` on the inherited levels of the system** (for the scale
+gap of the composition pairs of the old terms, `Pr O = ∀ τ, LabelGap (O.Gk τ) (O.Gj τ) (O.jL τ)`);
+`NewLevelFormula` is the case `Pr = True` (`NewLevelFormula.toP`, `NewLevelFormulaP.toFormula`). -/
+def NewLevelFormulaP (S : StepSetting d L N₁ m₁ k N ϱ) (C : StepClass d L N₁ m₁ k N ϱ)
+    (z : RootIdx d L N₁ m₁ (k + 1)) {t pp : ℝ} (Jr : S.JointRep t pp)
+    (Pr : OldTermSystem S t → Prop) (K : NewLevelConsts)
+    (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ) : Prop :=
+  ∃ NS : NewLevelSystem S C z Jr, OldTermsAreIrrel S C NS.O ∧ Pr NS.O ∧ NS.HasConsts K ∧
+    ∀ θ ∈ physV S S.a₁ S.ν t, ∀ T', e θ T' = NS.coeff θ T'
+
+theorem NewLevelFormulaP.toFormula {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} {Pr : OldTermSystem S t → Prop} {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormulaP S C z Jr Pr K e) : NewLevelFormula S C z Jr K e := by
+  obtain ⟨NS, hO, -, hK, h⟩ := h
+  exact ⟨NS, hO, hK, h⟩
+
+theorem NewLevelFormula.toP {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
+    {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormula S C z Jr K e) : NewLevelFormulaP S C z Jr (fun _ => True) K e := by
+  obtain ⟨NS, hO, hK, h⟩ := h
+  exact ⟨NS, hO, trivial, hK, h⟩
+
+theorem NewLevelFormulaP.mono {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} {Pr Pr' : OldTermSystem S t → Prop} {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (h : NewLevelFormulaP S C z Jr Pr K e) (hPr : ∀ O, Pr O → Pr' O) :
+    NewLevelFormulaP S C z Jr Pr' K e := by
+  obtain ⟨NS, hO, hP, hK, h⟩ := h
+  exact ⟨NS, hO, hPr _ hP, hK, h⟩
+
+/-- `NewLevelFormulaP` from the formula for given inherited levels `O` with `Pr O` (core of
+`NewLevelFormula.of_for`). -/
+theorem NewLevelFormulaP.of_for {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} {O : OldTermSystem S t} {Pr : OldTermSystem S t → Prop}
+    {K : NewLevelConsts}
+    {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ}
+    (hO : OldTermsAreIrrel S C O) (hPr : Pr O) (h : NewLevelFormulaFor S C z Jr O K e) :
+    NewLevelFormulaP S C z Jr Pr K e := by
+  obtain ⟨NS, rfl, hK, h⟩ := h
+  exact ⟨NS, hO, hPr, hK, h⟩
+
 theorem NewLevelFormula.of_for {S : StepSetting d L N₁ m₁ k N ϱ} {C : StepClass d L N₁ m₁ k N ϱ}
     {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ} {Jr : S.JointRep t pp} {O : OldTermSystem S t}
     {K : NewLevelConsts}
     {e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := m₁) (K := k + 1) 1
       (k + 1) Set.univ) → ℂ}
     (hO : OldTermsAreIrrel S C O) (h : NewLevelFormulaFor S C z Jr O K e) :
-    NewLevelFormula S C z Jr K e := by
-  obtain ⟨NS, rfl, hK, h⟩ := h
-  exact ⟨NS, hO, hK, h⟩
+    NewLevelFormula S C z Jr K e :=
+  (NewLevelFormulaP.of_for (Pr := fun _ => True) hO trivial h).toFormula
 
 /-- `NewLevelFormula` along an equality of the constants. -/
 theorem NewLevelFormula.congr_consts {S : StepSetting d L N₁ m₁ k N ϱ}

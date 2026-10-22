@@ -23,7 +23,9 @@ term.
   `eTermFun_bound_of_bg_composed`): the data composed into `Gj` from the chart `Ξ^c_K(G; 1, e)` of
   a generating set `G` that `Gj` precedes (collar of `Gj` in `Ω₁(G)`, the standing hypotheses at
   `G`), lying in the chart `Ξ^c_j(Gj; b, e)`;
-* `d2raw_d1Triple_mem_composedChart`: the composed data of the realizable triples lie in it;
+* `d2raw_d1Triple_mem_composedChart`: the composed data of the realizable triples lie in it (the
+  instance of `d2raw_d1Triple_mem_composedChartP`, which adds a condition `Pr` on the source of the
+  chart, `composedChartP`);
 * `eTermFun_bound_composed`: the bound of the old-term functional on the realizable triples from
   the bound of the term on its composed chart (the bound on the chart `Ξ^c_j(Gj; b, e)`, as in
   `eTermFun_bound_of_one_le`, is the special case through `composedChart_subset_xiCRaw`).
@@ -36,6 +38,37 @@ namespace Balaban.Localization
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
 
 
+section ChartP
+
+variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+
+/-- **The composed chart with a condition on the source** (`composedChart` restricted to the
+sources `G` with `Pr ϱ₁ G`, e.g. the scale gap of the composition pair). -/
+def composedChartP (Pr : ∀ ϱ₁ : ℝ, GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁ → Prop)
+    (Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) (j : ℕ) (b e : ℝ) :
+    Set (RawData d L (N₁ * L ^ m₁) K N) :=
+  {r | ∃ (ϱ₁ : ℝ) (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁) (hq : Precedes Gj G),
+    (∀ z ∈ collar Gj, z ∈ G.Ω 1) ∧ BgHyp d L K ϱ₁ a ν ∧ Pr ϱ₁ G ∧
+    ∃ D : BgData G N, XiCData G a ν K 1 e D ∧
+      XiCData Gj a ν j b e (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D) ∧
+      r = rawOf (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D)}
+
+/-- The composed chart with a condition on the source lies in the composed chart. -/
+theorem composedChartP_subset {Pr : ∀ ϱ₁ : ℝ, GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁ → Prop}
+    {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {j : ℕ} {b e : ℝ} :
+    composedChartP (N := N) Pr Gj a ν j b e ⊆ composedChart Gj a ν j b e := by
+  rintro r ⟨ϱ₁, G, hq, hc, hB, -, D, h1, h2, rfl⟩
+  exact ⟨ϱ₁, G, hq, hc, hB, D, h1, h2, rfl⟩
+
+/-- The composed chart lies in the composed chart with the trivial condition on the source. -/
+theorem composedChart_subset_P_true {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ}
+    {ν : ℝ} {j : ℕ} {b e : ℝ} :
+    composedChart (N := N) Gj a ν j b e ⊆ composedChartP (fun _ _ => True) Gj a ν j b e := by
+  rintro r ⟨ϱ₁, G, hq, hc, hB, D, h1, h2, rfl⟩
+  exact ⟨ϱ₁, G, hq, hc, hB, trivial, D, h1, h2, rfl⟩
+
+end ChartP
+
 section Read
 
 variable {d L N₁ m₁ k N : ℕ} [NeZero N₁] [NeZero L] {ϱ ϱ₁ ϱ₂ ϱm : ℝ}
@@ -45,6 +78,29 @@ variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂}
 variable {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
 variable {a₁ ν c BG κ r₀ eps δ₃ : ℝ} {X₀ X₁f : Finset (CTorus d L N₁ m₁ (k + 1))} {j : ℕ}
 variable {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+
+/-- **The composed data of the realizable triples lie in the composed chart with a condition on
+the source** (core of `d2raw_d1Triple_mem_composedChart`), for a condition `Pr` of the level-`k`
+set `Gk` of the settings; the composed chart of the term
+generator (from the chain `eTerm_chain_of_one_le`: the fluctuated datum of `Gk` lies in
+`Ξ^c_{k+1}(Gk; 1, e)` and its composition into `Gj` in `Ξ^c_j(Gj; b, e)`). -/
+theorem d2raw_d1Triple_mem_composedChartP
+    (Pr : ∀ ϱ₁ : ℝ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁ → Prop) (hPr : Pr ϱ₁ Gk) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2) ∈
+      composedChartP Pr Gj (compWeight L a₁) ν j b
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) := by
+  obtain ⟨D, ψ', hlc, -, hX1, hD1, hD2, hX2⟩ := eTerm_chain_of_one_le hb₁ hbC hB hF hFk ht
+  rw [hD1, hD2]
+  exact ⟨ϱ₁, Gk, hB.hq, hB.colj, hB.HBk, hPr, _, hX1, hX2, rfl⟩
 
 /-- **The composed data of the realizable triples lie in the composed chart** of the term
 generator (from the chain `eTerm_chain_of_one_le`: the fluctuated datum of `Gk` lies in
@@ -61,10 +117,29 @@ theorem d2raw_d1Triple_mem_composedChart {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b �
     (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
     D2raw Gk Gj (compWeight L a₁) Fk (d1Triple Gp Gk Hm (compWeight L a₁) t.1.1 t.2.1 t.2.2) ∈
       composedChart Gj (compWeight L a₁) ν j b
-        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) := by
-  obtain ⟨D, ψ', hlc, -, hX1, hD1, hD2, hX2⟩ := eTerm_chain_of_one_le hb₁ hbC hB hF hFk ht
-  rw [hD1, hD2]
-  exact ⟨ϱ₁, Gk, hB.hq, hB.colj, hB.HBk, _, hX1, hX2, rfl⟩
+        (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl) :=
+  composedChartP_subset
+    (d2raw_d1Triple_mem_composedChartP (fun _ _ => True) trivial hb₁ hbC hB hF hFk ht)
+
+/-- **The bound of the old-term functional on the realizable triples from the bound of the term on
+its composed chart with a condition `Pr` on the source** (core of `eTermFun_bound_composed`). -/
+theorem eTermFun_bound_composedP
+    (Pr : ∀ ϱ₁' : ℝ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁' → Prop) (hPr : Pr ϱ₁ Gk) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j)
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f)
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hEb : ∀ r ∈ composedChartP Pr Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B)
+    {t : ((Gp.Ω 1 × Fin N → ℂ) × (Gp.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+      (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
+    (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
+    ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  hEb _ (d2raw_d1Triple_mem_composedChartP Pr hPr hb₁ hbC hB hF hFk ht)
+
 
 /-- **The bound of the old-term functional on the realizable triples from the bound of the term on
 its composed chart** (P1 (3.128) read at the data of the step). -/
@@ -82,7 +157,8 @@ theorem eTermFun_bound_composed {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC
       (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ))}
     (ht : t ∈ FlRealLC Gp Hm a₁ ν BG κ eps X₁f BG₂ δ₁) :
     ‖eTermFun Gp Gk Gj Hm (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
-  hEb _ (d2raw_d1Triple_mem_composedChart hb₁ hbC hB hF hFk ht)
+  eTermFun_bound_composedP (fun _ _ => True) trivial hb₁ hbC hB hF hFk
+    (fun r hr => hEb r (composedChartP_subset hr)) ht
 
 end Read
 
