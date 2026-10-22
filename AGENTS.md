@@ -211,6 +211,17 @@ provider, and nothing may import a root, until the root is sealed.
   describes them only as analytic functions there). Root-F is unchanged: at the conversion its activities are cut off
   to `T'(g) = T(g)` when `Σ_{x∈X} ‖g(x)‖₁ < 1` and `0` otherwise, which equals `T` on Root-F's ball and agrees on two
   tori for every `g` by locality (ORCH-A, A1).
+- **Ruling R30 (2026-10-22, Scott: "Approved R30 and R31").** O(N)-covariance (`rot`) of the boundary-term records
+  `D7Bdry`, `D7Bdry2`, `D7BdryPost`, `D7Bdry2Post` is asked on the H7 domain (external field in `hSetB hv`), for
+  arguments whose rotation is also in the domain, as R16 did for analyticity and the bound: outside the domain the
+  entrywise integral `intMat` behind `decCovSqrt` takes the junk value 0 and is not covariant (P5 H7 states covariance of
+  functions defined on their domain). Reality stays asked at every real argument (proved) (W1154g).
+- **Ruling R31 (same approval).** The P5 (1.8) correction of the class (`Def7v2`'s `corrSum`) uses the per-polymer
+  torus coefficients `a_X(x) = ∂ℰ(y, X)/∂ψ(x)` (P1 (3.104), (3.109): the correction inside each localized term
+  `ℰ(y, X)`, `y, x ∈ X`) instead of the infinite-volume limit coefficient, and the new boundary terms `ℬ′` root it with its
+  polymer `X`; grouped by site it coupled every cube to every removed cluster (cut property, gas identity and (D8) of
+  `ℬ′` fail), and grouped by pairs with the limit coefficient it loses rate at the top scale. Settles the reading of the
+  coefficient asked in Roland's Q13 (ORCH-A, A4).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;

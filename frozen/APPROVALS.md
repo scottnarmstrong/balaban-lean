@@ -148,3 +148,9 @@ Author (Scott Armstrong), 2026-10-22: "approve R29". The (D8) torus coherence of
 `D8SF.R_eq`) is asked on read tori, for non-winding thickenings, at data in the terms' domain, as R20 did for
 `TorusIndep`; the conversion to Root-F cuts the activities off outside the ℓ¹ ball on `X`. Text in `AGENTS.md`. No
 frozen declaration changes.
+
+## Rulings R30 and R31 (2026-10-22)
+
+Author (Scott Armstrong), 2026-10-22: "Approved R30 and R31". (R30) rotation covariance of the boundary-term records
+asked on the H7 domain; (R31) the P5 (1.8) correction with the per-polymer torus coefficients, rooted with its polymer.
+Texts in `AGENTS.md`. No frozen declaration changes.
