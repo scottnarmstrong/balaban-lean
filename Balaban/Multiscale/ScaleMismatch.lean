@@ -98,21 +98,24 @@ theorem scale_mismatch {ε ϱ t t₂ : ℝ} (hε : 0 ≤ ε) (j j' : ℕ)
 /-- **G-2(i).**  For `f` supported in the block `Δ_{j'}(y')` (`y'` in layer `j'`), `u` with
 `H_D(α) u = f`, `y` in layer `j`, `0 ≤ ε ≤ ε₀`, `ϱ ≥ 1` with `L ≤ exp ((ε/2)(ϱ - 1))`, and every
 `t ≥ 0` with `t ≤ d(y, y')`:
-`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`. -/
-theorem green_G2i (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
-    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`.
+Shared core: fields `ũ, f̃` on the torus with `ũ = 0` off `Ω₁` and the equation `f̃ = (H + α) ũ`
+wherever `ũ ≠ 0` (this covers Dirichlet problems on any subset of `Ω₁`). -/
+theorem green_G2i_fun (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) (αt : Torus d (N₀ * L ^ k) → ℂ)
+    (hα : ∀ x ∈ G.Ω 1, ‖αt x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
     {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k)
     {y y' : Torus d (N₀ * L ^ k)} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
-    {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f)
-    (hsupp : ∀ x : G.Ω 1, f x ≠ 0 → jBlock d L N₀ k j' x = jBlock d L N₀ k j' y')
+    {ut ft : Torus d (N₀ * L ^ k) → ℂ} (hut : ∀ x, x ∉ G.Ω 1 → ut x = 0)
+    (heq : ∀ x, ut x ≠ 0 → ft x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ ut) x + αt x * ut x)
+    (hsupp : ∀ x, ft x ≠ 0 → jBlock d L N₀ k j' x = jBlock d L N₀ k j' y')
     {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ agmonRate d) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
     (L : ℝ) ^ j * Real.sqrt (∑ x ∈ G.blk j y, ∑ μ : Fin d,
-        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2) +
-      Real.sqrt (∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2) ≤
+        ‖ut (x + Pi.single μ 1) - ut x‖ ^ 2) +
+      Real.sqrt (∑ x ∈ G.blk j y, ‖ut x‖ ^ 2) ≤
     13 * L / poincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
-      Real.sqrt (Green.sqNorm f) := by
+      Real.sqrt (Green.sqNorm ft) := by
   have hp0 := poincareConst_pos hd
   have hph := poincareConst_le_half d
   have hL : (1 : ℝ) ≤ L := by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L)
@@ -129,11 +132,12 @@ theorem green_G2i (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → �
     rcases le_total t s₀ with h | h
     · rw [ht₂, max_eq_right h]; exact hsep0
     · rw [ht₂, max_eq_left h]; exact ht
-  obtain ⟨hA, hB⟩ := agmon_block G hd hν ha α hα hj1 hjk hj'1 hj'k hy hy' hu hsupp ht₂0 ht₂d hε0 hε1
+  obtain ⟨hA, hB⟩ := agmon_block_fun G hd hν ha αt hα hj1 hjk hj'1 hj'k hy hy' hut heq hsupp ht₂0
+    ht₂d hε0 hε1
   have hmis := scale_mismatch (L := L) (ε := ε) (t := t) (t₂ := t₂) hε0 j j' hsep
     (le_max_left _ _) (le_max_right _ _)
-  set F := Green.sqNorm f with hF
-  have hF0 : 0 ≤ F := Green.sqNorm_nonneg f
+  set F := Green.sqNorm ft with hF
+  have hF0 : 0 ≤ F := Green.sqNorm_nonneg ft
   set P : ℝ := (L : ℝ) ^ j * (L : ℝ) ^ j' * Real.exp (-(ε * t₂)) * Real.sqrt F with hP
   have hP0 : 0 ≤ P := by positivity
   have hP2 : P ^ 2 = ((L : ℝ) ^ j) ^ 2 * ((L : ℝ) ^ j') ^ 2 * Real.exp (-(2 * ε * t₂)) * F := by
@@ -144,9 +148,8 @@ theorem green_G2i (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → �
     rw [hP]
     exact mul_le_mul_of_nonneg_right hmis (Real.sqrt_nonneg _)
   clear_value P
-  set Nn := ∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2 with hNn
-  set Yy := ∑ x ∈ G.blk j y, ∑ μ : Fin d,
-    ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 with hYy
+  set Nn := ∑ x ∈ G.blk j y, ‖ut x‖ ^ 2 with hNn
+  set Yy := ∑ x ∈ G.blk j y, ∑ μ : Fin d, ‖ut (x + Pi.single μ 1) - ut x‖ ^ 2 with hYy
   have hY0 : 0 ≤ Yy := Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => sq_nonneg _
   have hN0 : 0 ≤ Nn := Finset.sum_nonneg fun _ _ => sq_nonneg _
   -- the two square-root bounds
@@ -188,6 +191,30 @@ theorem sep_of_log_le {ε ϱ : ℝ} (h : Real.log L ≤ ε / 2 * (ϱ - 1)) :
     (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1)) := by
   have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   exact (Real.log_le_iff_le_exp hL0).1 h
+
+/-- **G-2(i).**  For `f` supported in the block `Δ_{j'}(y')` (`y'` in layer `j'`), `u` with
+`H_D(α) u = f`, `y` in layer `j`, `0 ≤ ε ≤ ε₀`, `ϱ ≥ 1` with `L ≤ exp ((ε/2)(ϱ - 1))`, and every
+`t ≥ 0` with `t ≤ d(y, y')`:
+`ℓ_j ‖χ_{Δ_j(y)} ∂ũ‖ + ‖χ_{Δ_j(y)} ũ‖ ≤ (13 L / c) e^{-(ε/2) t} ℓ_{j'}² ‖f‖`. -/
+theorem green_G2i (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
+    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {j j' : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k) (hj'1 : 1 ≤ j') (hj'k : j' ≤ k)
+    {y y' : Torus d (N₀ * L ^ k)} (hy : y ∈ G.layer j) (hy' : y' ∈ G.layer j')
+    {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f)
+    (hsupp : ∀ x : G.Ω 1, f x ≠ 0 → jBlock d L N₀ k j' x = jBlock d L N₀ k j' y')
+    {t : ℝ} (ht0 : 0 ≤ t) (ht : ENNReal.ofReal t ≤ G.pathDist y y') {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) (hϱ : 1 ≤ ϱ) (hsep : (L : ℝ) ≤ Real.exp (ε / 2 * (ϱ - 1))) :
+    (L : ℝ) ^ j * Real.sqrt (∑ x ∈ G.blk j y, ∑ μ : Fin d,
+        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2) +
+      Real.sqrt (∑ x ∈ G.blk j y, ‖zeroExt (G.Ω 1) u x‖ ^ 2) ≤
+    13 * L / poincareConst d * Real.exp (-(ε / 2 * t)) * ((L : ℝ) ^ j') ^ 2 *
+      Real.sqrt (Green.sqNorm f) := by
+  rw [← sqNorm_zeroExt (G.Ω 1) f]
+  exact green_G2i_fun G hd hν ha (zeroExt (G.Ω 1) α)
+    (fun x hx => by rw [zeroExt_mem (G.Ω 1) α ⟨x, hx⟩]; exact hα ⟨x, hx⟩) hj1 hjk hj'1 hj'k hy hy'
+    (fun _ hx => zeroExt_not_mem _ _ hx) (zeroExt_dirichlet_eq G hu) (zeroExt_supp_of G hsupp)
+    ht0 ht hε0 hε1 hϱ hsep
 
 /-- G-2(i) with the distance of the path metric itself: if `d(y, y') < ⊤`, the bound holds with
 `t = d(y, y')`; if `d(y, y') = ⊤` (no path in `Ω₁`), `u` vanishes on `Δ_j(y)` (it has zero gradient

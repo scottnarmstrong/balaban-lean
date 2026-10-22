@@ -83,3 +83,8 @@ C6. `Kt a w o x hv := if h : exists H hH Z', H.localHistory M K 1 Z' = a then Kt
     `euclid_Kt` for `Kt` needs: (R) realizability is invariant under `HistImage sigma` (`a = H.localHistory`, `HistImage sigma a a'` => `a'` realizable) --
     otherwise `Kt a' = 0` while `Kt a != 0`. NEEDED FROM THE UNLANDED BRANCH: nothing of `canonHist` (a `choose` suffices); (R) is new, needs the action of
     `TorusSym` on `RegionHistory` (is there `RegionHistory.map sigma`? if not, ~300 lines). If (R) fails, ask the ruling for Option A.
+
+## 7. Decision (2026-10-22): `Kt` is the CUT kernel
+`Kt` is the zeroth term of the cut expansion (`pdSqrtInv K_U` at `s = 0` on the crossing bonds); the coupling across the component boundary goes into the
+polymer activities (`Prop279Marks`, PE), those with domain inside `Z'` into `b₀`. "Physical kernel `= Kt_cut e^{b₀}`" is `Prop279Phys`, discharged later.
+OBLIGATION of the `b₀` construction: the coupling is `w`-independent (`B` reads only retained spins outside `Ω`, `base_P_nbhd_compl`), so `b₀` is one exponent for all `w`.

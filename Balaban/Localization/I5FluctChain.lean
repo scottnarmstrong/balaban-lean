@@ -7,6 +7,7 @@ module
 
 public import Balaban.Localization.I5FluctSol
 public import Balaban.Localization.DomainLemma
+public import Balaban.Background.RestrictSvec
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 
@@ -160,9 +161,8 @@ variable {G₁ : GeneratingSet d L N₀ k ϱ₁} {G : GeneratingSet d L N₀ k �
   {G' : GeneratingSet d L N₀ k ϱ'}
 
 theorem svec_restrictφ (h : Precedes G G') (φ' : G'.Ω 1 × Fin N → ℂ) {y : Torus d (N₀ * L ^ k)}
-    (hy : y ∈ G.Ω 1) (i : Fin N) : svec G (h.restrictφ φ') y i = svec G' φ' y i := by
-  rw [svec_of_mem G (h.restrictφ φ') ⟨y, hy⟩ i, svec_of_mem' φ' (h.mem_Ω1 hy) i]
-  rfl
+    (hy : y ∈ G.Ω 1) (i : Fin N) : svec G (h.restrictφ φ') y i = svec G' φ' y i :=
+  h.svec_restrictφ φ' hy i
 
 /-- **The composition identity** (P3 (4.16); BG §6): for `𝔹₁ ≺ 𝔹 ≺ 𝔹'` and weights `a_j ≠ 0`,
 composing in two steps is composing in one step,

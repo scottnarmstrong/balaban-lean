@@ -185,31 +185,37 @@ theorem re_star_mul_mul (z a : ℂ) : (star z * (a * z)).re = a.re * ‖z‖ ^ 2
     Complex.sq_norm, Complex.normSq_apply]
   ring
 
-/-- **The Agmon energy inequality** (GREEN.md Prop. 4.5): with `v = w ũ`,
-`½ ‖∂v‖² + (c/4) ‖ℓ⁻¹ v‖² ≤ c⁻¹ ‖ℓ w f‖²`, `c = poincareConst d`. -/
-theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
-    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
-    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+/-- **The Agmon energy inequality, for fields on the torus** (shared core; GREEN.md Prop. 4.5):
+for `ũ` vanishing off `Ω₁`, a source `f̃` and a potential `α̃` (bounded on `Ω₁`) such that the
+equation `f̃(x) = (H ũ)(x) + α̃(x) ũ(x)` holds at every `x` with `ũ(x) ≠ 0` (no condition elsewhere;
+so `ũ` may solve a Dirichlet problem on any subset of `Ω₁`), with `v = w ũ`:
+`½ ‖∂v‖² + (c/4) ‖ℓ⁻¹ v‖² ≤ c⁻¹ ‖ℓ w f̃‖²`, `c = poincareConst d`. -/
+theorem agmon_energy_fun (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ}
+    (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a) (αt : Torus d (N₀ * L ^ k) → ℂ)
+    (hα : ∀ x ∈ G.Ω 1, ‖αt x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
-    (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
-    (1 / 2) * cEnergy (agmonField G ε r u) + (poincareConst d / 4) * cwsq G (agmonField G ε r u) ≤
-      (1 / poincareConst d) * agmonSource G ε r f := by
+    (hε1 : ε ≤ agmonRate d) {ut ft : Torus d (N₀ * L ^ k) → ℂ}
+    (hut : ∀ x, x ∉ G.Ω 1 → ut x = 0)
+    (heq : ∀ x, ut x ≠ 0 → ft x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ ut) x + αt x * ut x) :
+    (1 / 2) * cEnergy (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) +
+        (poincareConst d / 4) * cwsq G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) ≤
+      (1 / poincareConst d) *
+        ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2 := by
   have hp0 := poincareConst_pos hd
   have hpc : coerciveConst d = poincareConst d / 2 := rfl
   have hε12 : ε ≤ 1 / 2 := by linarith [agmonRate_le hd]
   set w : Torus d (N₀ * L ^ k) → ℝ := fun x => Real.exp (ε * r x) with hw
   have hwpos : ∀ x, 0 < w x := fun x => Real.exp_pos _
-  set ut := zeroExt (G.Ω 1) u with hut
-  set ft := zeroExt (G.Ω 1) f with hft
-  set αt := zeroExt (G.Ω 1) α with hαt
   set p : Torus d (N₀ * L ^ k) → ℝ := fun x => (ut x).re with hp
   set q : Torus d (N₀ * L ^ k) → ℝ := fun x => (ut x).im with hq
-  have hpz : ∀ x, x ∉ G.Ω 1 → p x = 0 := fun x hx => by simp [hp, hut, zeroExt_not_mem _ _ hx]
-  have hqz : ∀ x, x ∉ G.Ω 1 → q x = 0 := fun x hx => by simp [hq, hut, zeroExt_not_mem _ _ hx]
+  have hpz : ∀ x, x ∉ G.Ω 1 → p x = 0 := fun x hx => by simp [hp, hut x hx]
+  have hqz : ∀ x, x ∉ G.Ω 1 → q x = 0 := fun x hx => by simp [hq, hut x hx]
   have core_p := weighted_core G hd hν ha hr hε0 hε12 hpz
   have core_q := weighted_core G hd hν ha hr hε0 hε12 hqz
   have hκ := kappa_le hd hε0 hε1
-  set v := agmonField G ε r u with hv
+  set v : Torus d (N₀ * L ^ k) → ℂ := fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x with hv
+  have norm_v : ∀ x, ‖v x‖ = w x * ‖ut x‖ := fun x => by
+    simp only [hv, hw, norm_mul, Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le]
   have hvre : (fun x => (v x).re) = fun x => w x * p x := by
     funext x; exact Complex.re_ofReal_mul _ _
   have hvim : (fun x => (v x).im) = fun x => w x * q x := by
@@ -224,19 +230,12 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
   have hpt : ∀ x : Torus d (N₀ * L ^ k), w x ^ 2 * (star (ut x) * ft x).re =
       w x ^ 2 * p x * Ap x + w x ^ 2 * q x * Aq x + w x ^ 2 * (αt x).re * ‖ut x‖ ^ 2 := by
     intro x
-    by_cases hx : x ∈ G.Ω 1
-    · have heq := dirichlet_eq G hu ⟨x, hx⟩
-      have h1 : ft x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ ut) x + αt x * ut x := by
-        have e1 : ft x = f ⟨x, hx⟩ := zeroExt_mem (G.Ω 1) f ⟨x, hx⟩
-        have e2 : αt x = α ⟨x, hx⟩ := zeroExt_mem (G.Ω 1) α ⟨x, hx⟩
-        have e3 : ut x = u ⟨x, hx⟩ := zeroExt_mem (G.Ω 1) u ⟨x, hx⟩
-        rw [e1, e2, e3]
-        exact heq.symm
+    by_cases hux : ut x = 0
+    · simp [hux, hp, hq]
+    · have h1 := heq x hux
       rw [h1, mul_add, Complex.add_re, re_star_mul, re_star_mul_mul, re_mulVec_map, im_mulVec_map]
       simp only [hp, hq, hAp, hAq]
       ring
-    · have : ut x = 0 := zeroExt_not_mem _ _ hx
-      simp [this, hp, hq]
   -- the three sums
   set T : ℝ := ∑ x, w x ^ 2 * (star (ut x) * ft x).re with hT
   have hTsum : T = (∑ x, w x ^ 2 * p x * Ap x) + (∑ x, w x ^ 2 * q x * Aq x) +
@@ -254,9 +253,7 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
     refine Finset.sum_le_sum fun x _ => ?_
     by_cases hx : x ∈ G.Ω 1
     · have hαx : ‖αt x‖ ≤ poincareConst d / (4 * (G.spacing x) ^ 2) := by
-        have e : αt x = α ⟨x, hx⟩ := zeroExt_mem (G.Ω 1) α ⟨x, hx⟩
-        rw [e]
-        have := hα ⟨x, hx⟩
+        have := hα x hx
         rw [hpc] at this
         calc _ ≤ _ := this
           _ = _ := by field_simp; ring
@@ -264,7 +261,7 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
         have := Complex.abs_re_le_norm (αt x)
         linarith [neg_abs_le (αt x).re]
       have hnv : ‖v x‖ ^ 2 = w x ^ 2 * ‖ut x‖ ^ 2 := by
-        rw [hv, norm_agmonField]; ring
+        rw [norm_v]; ring
       rw [invSqSpacing_eq G hx, hnv]
       have hsp : 0 < (G.spacing x) ^ 2 := by have := spacing_pos G (x := x); positivity
       have e2 : -(poincareConst d / 4 * ((G.spacing x ^ 2)⁻¹ * (w x ^ 2 * ‖ut x‖ ^ 2))) =
@@ -275,20 +272,21 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
           ≤ (αt x).re * (w x ^ 2 * ‖ut x‖ ^ 2) :=
             mul_le_mul_of_nonneg_right hre (by positivity)
         _ = _ := by ring
-    · have h0 : ut x = 0 := zeroExt_not_mem _ _ hx
+    · have h0 : ut x = 0 := hut x hx
       have h1 : 0 ≤ poincareConst d / 4 * (invSqSpacing G x * ‖v x‖ ^ 2) := by
         have := invSqSpacing_nonneg G x
         positivity
       have h2 : w x ^ 2 * (αt x).re * ‖ut x‖ ^ 2 = 0 := by rw [h0]; simp
       linarith
   -- the source term
-  have hsrc : T ≤ poincareConst d / 4 * cwsq G v + (1 / poincareConst d) * agmonSource G ε r f := by
-    unfold cwsq agmonSource
+  have hsrc : T ≤ poincareConst d / 4 * cwsq G v + (1 / poincareConst d) *
+      ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2 := by
+    unfold cwsq
     rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
     refine Finset.sum_le_sum fun x _ => ?_
     by_cases hx : x ∈ G.Ω 1
     · have hsp : 0 < G.spacing x := spacing_pos G
-      have hnv : ‖v x‖ = w x * ‖ut x‖ := by rw [hv, norm_agmonField]
+      have hnv : ‖v x‖ = w x * ‖ut x‖ := norm_v x
       have hnh : ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ = w x * ‖ft x‖ := by
         rw [norm_mul, Complex.norm_real, Real.norm_of_nonneg (Real.exp_pos _).le]
       have hre : (star (ut x) * ft x).re ≤ ‖ut x‖ * ‖ft x‖ := by
@@ -314,12 +312,12 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
           field_simp; ring
         linarith
       linarith
-    · have : ut x = 0 := zeroExt_not_mem _ _ hx
+    · have : ut x = 0 := hut x hx
       have h0 : 0 ≤ poincareConst d / 4 * (invSqSpacing G x * ‖v x‖ ^ 2) := by
         have := invSqSpacing_nonneg G x
         positivity
       have h1 : 0 ≤ 1 / poincareConst d * (G.spacing x ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) *
-          zeroExt (G.Ω 1) f x‖ ^ 2) := by positivity
+          ft x‖ ^ 2) := by positivity
       simp only [this, star_zero, zero_mul, Complex.zero_re, mul_zero]
       linarith
   -- assemble
@@ -331,6 +329,32 @@ theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ →
   have hE0 := cEnergy_nonneg v
   nlinarith [hcomb, hTsum, hpot, hsrc, hκ, mul_nonneg hS0 (sub_nonneg.2 hκ)]
 
+/-- The zero extensions satisfy the pointwise equation of `agmon_energy_fun`. -/
+theorem zeroExt_dirichlet_eq (G : GeneratingSet d L N₀ k ϱ) {a : ℕ → ℝ} {ν : ℝ} {α : G.Ω 1 → ℂ}
+    {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) (x : Torus d (N₀ * L ^ k))
+    (hux : zeroExt (G.Ω 1) u x ≠ 0) :
+    zeroExt (G.Ω 1) f x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ zeroExt (G.Ω 1) u) x +
+      zeroExt (G.Ω 1) α x * zeroExt (G.Ω 1) u x := by
+  have hx : x ∈ G.Ω 1 := by
+    by_contra h; exact hux (zeroExt_not_mem _ _ h)
+  rw [zeroExt_mem (G.Ω 1) f ⟨x, hx⟩, zeroExt_mem (G.Ω 1) α ⟨x, hx⟩,
+    zeroExt_mem (G.Ω 1) u ⟨x, hx⟩]
+  exact (dirichlet_eq G hu ⟨x, hx⟩).symm
+
+/-- **The Agmon energy inequality** (GREEN.md Prop. 4.5): with `v = w ũ`,
+`½ ‖∂v‖² + (c/4) ‖ℓ⁻¹ v‖² ≤ c⁻¹ ‖ℓ w f‖²`, `c = poincareConst d` (the instance of
+`agmon_energy_fun` at the zero extensions). -/
+theorem agmon_energy (G : GeneratingSet d L N₀ k ϱ) (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
+    (ha : IsAdmissibleWeights k a) (α : G.Ω 1 → ℂ)
+    (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
+    (1 / 2) * cEnergy (agmonField G ε r u) + (poincareConst d / 4) * cwsq G (agmonField G ε r u) ≤
+      (1 / poincareConst d) * agmonSource G ε r f :=
+  agmon_energy_fun G hd hν ha (zeroExt (G.Ω 1) α)
+    (fun x hx => by rw [zeroExt_mem (G.Ω 1) α ⟨x, hx⟩]; exact hα ⟨x, hx⟩) hr hε0 hε1
+    (fun x hx => zeroExt_not_mem _ _ hx) (zeroExt_dirichlet_eq G hu)
+
 
 /-! ### Consequences -/
 
@@ -338,27 +362,53 @@ section Consequences
 
 variable (G : GeneratingSet d L N₀ k ϱ)
 
+/-- `‖ℓ⁻¹ w ũ‖² ≤ 4 c⁻² ‖ℓ w f̃‖²`, for fields on the torus (shared core). -/
+theorem agmon_wsq_le_fun (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (αt : Torus d (N₀ * L ^ k) → ℂ)
+    (hα : ∀ x ∈ G.Ω 1, ‖αt x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) {ut ft : Torus d (N₀ * L ^ k) → ℂ}
+    (hut : ∀ x, x ∉ G.Ω 1 → ut x = 0)
+    (heq : ∀ x, ut x ≠ 0 → ft x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ ut) x + αt x * ut x) :
+    cwsq G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) ≤ 4 / poincareConst d ^ 2 * ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2 := by
+  have h := agmon_energy_fun G hd hν ha αt hα hr hε0 hε1 hut heq
+  have hp0 := poincareConst_pos hd
+  have hE := cEnergy_nonneg (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x)
+  set S := ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2
+  have h2 : poincareConst d / 4 * cwsq G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) ≤ 1 / poincareConst d * S := by linarith
+  have e : 4 / poincareConst d ^ 2 * S = 4 / poincareConst d * (1 / poincareConst d * S) := by
+    field_simp
+  rw [e, show cwsq G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) = 4 / poincareConst d *
+    (poincareConst d / 4 * cwsq G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x)) by field_simp]
+  exact mul_le_mul_of_nonneg_left h2 (by positivity)
+
+/-- `‖∂(w ũ)‖² ≤ 2 c⁻¹ ‖ℓ w f̃‖²`, for fields on the torus (shared core). -/
+theorem agmon_cEnergy_le_fun (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
+    (αt : Torus d (N₀ * L ^ k) → ℂ)
+    (hα : ∀ x ∈ G.Ω 1, ‖αt x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
+    {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε ≤ agmonRate d) {ut ft : Torus d (N₀ * L ^ k) → ℂ}
+    (hut : ∀ x, x ∉ G.Ω 1 → ut x = 0)
+    (heq : ∀ x, ut x ≠ 0 → ft x = ((fullMatrix G a ν).map (algebraMap ℝ ℂ) *ᵥ ut) x + αt x * ut x) :
+    cEnergy (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) ≤ 2 / poincareConst d * ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2 := by
+  have h := agmon_energy_fun G hd hν ha αt hα hr hε0 hε1 hut heq
+  have hp0 := poincareConst_pos hd
+  have hS := cwsq_nonneg G (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x)
+  set S := ∑ x, (G.spacing x) ^ 2 * ‖((Real.exp (ε * r x) : ℝ) : ℂ) * ft x‖ ^ 2
+  have : (1 / 2) * cEnergy (fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x) ≤ 1 / poincareConst d * S := by
+    nlinarith [mul_nonneg hp0.le hS]
+  have e : 2 / poincareConst d * S = 2 * (1 / poincareConst d * S) := by ring
+  linarith
+
 /-- `‖ℓ⁻¹ w u‖² ≤ 4 c⁻² ‖ℓ w f‖²`. -/
 theorem agmon_wsq_le (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν) (ha : IsAdmissibleWeights k a)
     (α : G.Ω 1 → ℂ) (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
-    cwsq G (agmonField G ε r u) ≤ 4 / poincareConst d ^ 2 * agmonSource G ε r f := by
-  have h := agmon_energy G hd hν ha α hα hr hε0 hε1 hu
-  have hp0 := poincareConst_pos hd
-  have hE := cEnergy_nonneg (agmonField G ε r u)
-  have h2 : poincareConst d / 4 * cwsq G (agmonField G ε r u) ≤
-      1 / poincareConst d * agmonSource G ε r f := by linarith
-  have h3 : cwsq G (agmonField G ε r u) ≤
-      4 / poincareConst d ^ 2 * agmonSource G ε r f := by
-    have e : 4 / poincareConst d ^ 2 * agmonSource G ε r f =
-        4 / poincareConst d * (1 / poincareConst d * agmonSource G ε r f) := by
-      field_simp
-    rw [e]
-    rw [show cwsq G (agmonField G ε r u) = 4 / poincareConst d *
-      (poincareConst d / 4 * cwsq G (agmonField G ε r u)) by field_simp]
-    exact mul_le_mul_of_nonneg_left h2 (by positivity)
-  exact h3
+    cwsq G (agmonField G ε r u) ≤ 4 / poincareConst d ^ 2 * agmonSource G ε r f :=
+  agmon_wsq_le_fun G hd hν ha (zeroExt (G.Ω 1) α)
+    (fun x hx => by rw [zeroExt_mem (G.Ω 1) α ⟨x, hx⟩]; exact hα ⟨x, hx⟩) hr hε0 hε1
+    (fun x hx => zeroExt_not_mem _ _ hx) (zeroExt_dirichlet_eq G hu)
 
 /-- `‖∂(w ũ)‖² ≤ 2 c⁻¹ ‖ℓ w f‖²`. -/
 theorem agmon_cEnergy_le (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ ν)
@@ -366,32 +416,29 @@ theorem agmon_cEnergy_le (hd : 0 < d) {a : ℕ → ℝ} {ν : ℝ} (hν : 0 ≤ 
     (hα : ∀ x, ‖α x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2))
     {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ} (hε0 : 0 ≤ ε)
     (hε1 : ε ≤ agmonRate d) {u f : G.Ω 1 → ℂ} (hu : dirichletOperator G a ν α *ᵥ u = f) :
-    cEnergy (agmonField G ε r u) ≤ 2 / poincareConst d * agmonSource G ε r f := by
-  have h := agmon_energy G hd hν ha α hα hr hε0 hε1 hu
-  have hp0 := poincareConst_pos hd
-  have hS := cwsq_nonneg G (agmonField G ε r u)
-  have : (1 / 2) * cEnergy (agmonField G ε r u) ≤ 1 / poincareConst d * agmonSource G ε r f := by
-    nlinarith [mul_nonneg hp0.le hS]
-  have e : 2 / poincareConst d * agmonSource G ε r f =
-      2 * (1 / poincareConst d * agmonSource G ε r f) := by ring
-  linarith
+    cEnergy (agmonField G ε r u) ≤ 2 / poincareConst d * agmonSource G ε r f :=
+  agmon_cEnergy_le_fun G hd hν ha (zeroExt (G.Ω 1) α)
+    (fun x hx => by rw [zeroExt_mem (G.Ω 1) α ⟨x, hx⟩]; exact hα ⟨x, hx⟩) hr hε0 hε1
+    (fun x hx => zeroExt_not_mem _ _ hx) (zeroExt_dirichlet_eq G hu)
 
-/-- Pointwise form of the weighted gradient bound:
+/-- Pointwise form of the weighted gradient bound, for fields on the torus vanishing off `Ω₁`
+(shared core):
 `w(x)² |ũ(x + e_μ) - ũ(x)|² ≤ 2 |v(x + e_μ) - v(x)|² + 8 ε² ℓ(x + e_μ)⁻² |v(x + e_μ)|²`. -/
-theorem agmon_grad_pointwise {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ}
-    (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) (u : G.Ω 1 → ℂ) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+theorem agmon_grad_pointwise_fun {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ}
+    (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) {ut : Torus d (N₀ * L ^ k) → ℂ}
+    (hut : ∀ x, x ∉ G.Ω 1 → ut x = 0) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
     (μ : Fin d) :
-    Real.exp (ε * r x) ^ 2 * ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 ≤
-      2 * ‖agmonField G ε r u (x + Pi.single μ 1) - agmonField G ε r u x‖ ^ 2 +
+    Real.exp (ε * r x) ^ 2 * ‖ut (x + Pi.single μ 1) - ut x‖ ^ 2 ≤
+      2 * ‖((Real.exp (ε * r (x + Pi.single μ 1)) : ℝ) : ℂ) * ut (x + Pi.single μ 1) -
+          ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x‖ ^ 2 +
         8 * ε ^ 2 * (invSqSpacing G (x + Pi.single μ 1) *
-          ‖agmonField G ε r u (x + Pi.single μ 1)‖ ^ 2) := by
+          ‖((Real.exp (ε * r (x + Pi.single μ 1)) : ℝ) : ℂ) * ut (x + Pi.single μ 1)‖ ^ 2) := by
   set b := x + Pi.single μ 1 with hb
   set Ex := Real.exp (ε * r x) with hEx
   set Eb := Real.exp (ε * r b) with hEb
   have hEx0 : 0 < Ex := Real.exp_pos _
   have hEb0 : 0 < Eb := Real.exp_pos _
-  set ut := zeroExt (G.Ω 1) u with hut
-  set v := agmonField G ε r u with hv
+  set v : Torus d (N₀ * L ^ k) → ℂ := fun x => ((Real.exp (ε * r x) : ℝ) : ℂ) * ut x with hv
   have hvx : v x = (Ex : ℂ) * ut x := rfl
   have hvb : v b = (Eb : ℂ) * ut b := rfl
   have hnn : 0 ≤ 8 * ε ^ 2 * (invSqSpacing G b * ‖v b‖ ^ 2) := by
@@ -438,14 +485,25 @@ theorem agmon_grad_pointwise {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonW
             mul_le_mul_of_nonneg_left (hY.trans hBv) (by norm_num)
         _ = _ := by ring
     linarith [hsum, hY2]
-  · have hub : ut b = 0 := zeroExt_not_mem _ _ hbm
+  · have hub : ut b = 0 := hut b hbm
     have hvb0 : v b = 0 := by rw [hvb, hub]; simp
     rw [hnorm, hub, zero_sub, mul_neg, norm_neg]
     have : (Ex : ℂ) * ut x = v x := rfl
-    rw [this, hvb0, zero_sub, norm_neg]
-    simp only [norm_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, mul_zero,
-      add_zero]
+    rw [this]
+    simp only [mul_zero, zero_sub, norm_neg, norm_zero, ne_eq, OfNat.ofNat_ne_zero,
+      not_false_eq_true, zero_pow, add_zero]
     nlinarith [sq_nonneg ‖v x‖]
+
+/-- Pointwise form of the weighted gradient bound:
+`w(x)² |ũ(x + e_μ) - ũ(x)|² ≤ 2 |v(x + e_μ) - v(x)|² + 8 ε² ℓ(x + e_μ)⁻² |v(x + e_μ)|²`. -/
+theorem agmon_grad_pointwise {r : Torus d (N₀ * L ^ k) → ℝ} (hr : IsAgmonWeight G r) {ε : ℝ}
+    (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1 / 2) (u : G.Ω 1 → ℂ) {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1)
+    (μ : Fin d) :
+    Real.exp (ε * r x) ^ 2 * ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2 ≤
+      2 * ‖agmonField G ε r u (x + Pi.single μ 1) - agmonField G ε r u x‖ ^ 2 +
+        8 * ε ^ 2 * (invSqSpacing G (x + Pi.single μ 1) *
+          ‖agmonField G ε r u (x + Pi.single μ 1)‖ ^ 2) :=
+  agmon_grad_pointwise_fun G hr hε0 hε1 (fun _ hy => zeroExt_not_mem _ _ hy) hx μ
 
 end Consequences
 

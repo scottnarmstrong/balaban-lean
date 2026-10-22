@@ -201,7 +201,7 @@ theorem levelEnergyC_expand (hG : IsLevel G n) (a : ℕ → ℝ) (ψ' : Torus d 
     refine Finset.sum_congr rfl fun x _ => ?_
     rw [(hG x).2]
     simp only [hb]
-  unfold levelEnergyC
+  unfold levelEnergyC levelEnergyCOn
   rw [T1, T2]
   have e3 : ∀ x i, (ψ' x i - blockMean G n (fun y => svec G φ' y i) x) *
       (ψ' x i - blockMean G n (fun y => svec G φ' y i) x) =

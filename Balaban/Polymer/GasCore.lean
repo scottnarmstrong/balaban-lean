@@ -52,6 +52,7 @@ theorem gasA_core_iff (core : Finset B → Finset B) (D : Finset (Yt ⊕ Zt)) :
         ∀ y ∈ D.toLeft, ∃ z ∈ D.toRight, ¬ Disjoint (core (cy y)) (cr z) :=
   Iff.rfl
 
+omit [Fintype B] in
 /-- **GAS (activity bound) with compatibility on cores.**  `gas_activity_bound` for the supports
 `core (cy y)`, `core (zs z)`; all hypotheses are about cores. -/
 theorem gas_activity_bound_core (core : Finset B → Finset B)
