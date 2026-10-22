@@ -168,8 +168,8 @@ theorem exists_large_L {d : ℕ} (hd : 3 ≤ d) {δ : ℝ} (hδ' : δ < 1 / 2) :
   linarith
 
 /-- **Core of `prefixInput_newLevelTies_exists`, with the gap `R₀(d, L) < L^{m₀-3}` of the cell
-exponent, the block size `L` of the typing and the choice `M₁ = L^{m₀+m₁-3}`, `c = L³`
-exposed**: `PrefixInput` and the ties of the new level hold together (hard rule 10 for
+exponent, the block size `L` of the typing, the choice `M₁ = L^{m₀+m₁-3}`, `c = L³` and the room
+`hatScale + 3 ≤ m₀` of the cube exponent exposed**: `PrefixInput` and the ties of the new level hold together (hard rule 10 for
 `NewLevelTiesInput`): for `d ≥ 3`, `N ≥ 2`, `0 < δ < 1/2` and every block size `L ≥ 3` with
 `L^{-((d-2)/2 - γ)} ≤ 1/16`, `γ = (1 + 2δ)/4` (`exists_large_L`), the witness of
 `prefixInput_exists_of` with the cell exponent `m₀` large (`m₀ ≥ d`, above the cube exponent and with
@@ -184,7 +184,8 @@ theorem prefixInput_newLevelTies_exists_gap (d N L : ℕ) (hd : 3 ≤ d) (hN : 2
       (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
       PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ NewLevelTiesInput d N Ty P6 C7 ϱ ∧
         ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧ bgR0 d L < (L : ℝ) ^ ((P6 κ c₉).m₀ - 3) ∧
-          M1 κ c₉ = L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁ - 3) ∧ c κ c₉ = L ^ 3 := by
+          M1 κ c₉ = L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁ - 3) ∧ c κ c₉ = L ^ 3 ∧
+          hatScale L (C7 κ c₉).m₁ (ϱ κ c₉) + 3 ≤ (P6 κ c₉).m₀ := by
   have : NeZero L := ⟨by omega⟩
   have hd0 : 0 < d := by omega
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
@@ -288,8 +289,12 @@ theorem prefixInput_newLevelTies_exists_gap (d N L : ℕ) (hd : 3 ≤ d) (hN : 2
     hα₀0 hc₈0 hc₈q hm hsep hϱ
   refine ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, fun κ _ c₉ _ _ => ?_, fun κ c₉ => ?_⟩
   rotate_left
-  · obtain ⟨hTL, -, -, -, hm0', hm1', -, hM1', hc'⟩ := hid κ c₉
-    refine ⟨hTL, ?_, by rw [hM1', hm0', hm1'], hc'⟩
+  · obtain ⟨hTL, -, -, -, hm0', hm1', hϱ', hM1', hc'⟩ := hid κ c₉
+    refine ⟨hTL, ?_, by rw [hM1', hm0', hm1'], hc', ?_⟩
+    swap
+    · rw [hm0', hm1', hϱ']
+      have := hs₀ m₁
+      omega
     rw [hm0']
     have h1 : (L : ℝ) ^ n₁ ≤ (L : ℝ) ^ (m₀ - 3) := pow_le_pow_right₀ hL1.le (by omega)
     linarith only [hn₁, h1]
