@@ -2708,6 +2708,8 @@ public import Balaban.Flow.MatrixInftyAnalytic
 public import Balaban.Flow.LatticeSums
 public import Balaban.Flow.CellGreen
 public import Balaban.Flow.BlockPoly
+public import Balaban.Flow.CellSolve
+public import Balaban.Flow.CellMoments
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
