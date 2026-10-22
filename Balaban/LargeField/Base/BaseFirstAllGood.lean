@@ -129,30 +129,13 @@ theorem baseRho1_allGood_gaussian
     let α := bgMult G aw (if regimeB then ν else 0) (baseSectorDatum ϱ θ h)
     let e : Config (Torus d (L * n)) N := baseSectorCenter ϱ aw regimeB ν h θ
     let he := baseSectorCenter_unit ϱ aw regimeB ν h hh H θ
-    let ec : CfgT d N L n := fun x => ⟨e x, mem_sphere_zero_iff_norm.mpr (he x)⟩
     let Hα : Config (Torus d (L * n)) N →ₗ[ℝ] Config (Torus d (L * n)) N :=
       baseSectorHessian ϱ aw (if regimeB then ν else 0) (fun z => (α z).re)
     let χ := baseSectorCubeProduct regimeB ν δ₀ h θ
     let κ : ℂ := ((∏ _y : Torus d n,
       ((β * a * (L : ℝ) ^ d / (L : ℝ) ^ 2) / (2 * Real.pi)) ^
         ((N : ℝ) / 2) : ℝ) : ℂ)
-    let F : ((x : Torus d (L * n)) → perp (e x)) → ℂ := fun v =>
-      let φ := chartMapPi e he ((Real.sqrt β)⁻¹ • v)
-      let w : Config (Torus d (L * n)) N := fun x => (v x : EuclideanSpace ℝ (Fin N))
-      let z := chartShift β e w
-      let M := β * (ν - (if regimeB then ν else 0)) / 2 *
-        ∑ x : Torus d (L * n), ‖(φ x : EuclideanSpace ℝ (Fin N)) - h‖ ^ 2
-      ((chartJac β w : ℝ) : ℂ) * ((χ φ : ℂ) * κ *
-        Complex.exp (
-          -((β * (energy d N (L * n) (if regimeB then ν else 0) h ec +
-            (a * (L : ℝ) ^ d / (2 * (L : ℝ) ^ 2)) *
-              ∑ y : Torus d n, ‖θ y - baseQ d N L n ec y‖ ^ 2) : ℝ) : ℂ) +
-          (∑ x : Torus d (L * n), ∑ i : Fin N,
-            g x i * (((e x) i : ℝ) : ℂ)) +
-          (((Real.sqrt β)⁻¹ : ℝ) : ℂ) *
-            (∑ x : Torus d (L * n), ∑ i : Fin N,
-              g x i * (((w x + z x) i : ℝ) : ℂ)) -
-          ((cinner w (Hα z) + (1 / 2) * cinner z (Hα z) + M : ℝ) : ℂ)))
+    let F := baseSectorF β a ν regimeB h g θ e he Hα χ κ
     ∃ R : Config (Torus d (L * n)) N ≃ₗ[ℝ] Config (Torus d (L * n)) N,
       (∀ w, gaussForm e Hα (R (R w)) = w) ∧
       (∀ u v, cinner (R u) v = cinner u (R v)) ∧

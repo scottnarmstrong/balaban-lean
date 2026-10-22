@@ -210,6 +210,57 @@ theorem lintegral_tangent_gaussian_real {ι : Type*} [Fintype ι] {N : ℕ}
   push_cast
   ring_nf
 
+/-- The Gaussian weight on the tangent hyperplanes is, up to the constant
+`(2π)^{(N-1)|ι|/2} |det R|`, the image of the standard Gaussian under `ψ ↦ P (R ψ)`
+(measure form of `integral_tangent_gaussian_complex`). -/
+theorem withDensity_tangent_gaussian_eq {ι : Type*} [Fintype ι] {N : ℕ}
+    (e : Config ι N) (he : ∀ x, ‖e x‖ = 1)
+    (H : Config ι N →ₗ[ℝ] Config ι N)
+    (R : Config ι N ≃ₗ[ℝ] Config ι N)
+    (hR : ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ) :
+    (Measure.pi fun x => (volume : Measure (perp (e x)))).withDensity (fun v =>
+      ENNReal.ofReal (Real.exp (-(1 / 2) * cinner
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+        (H (fun x => (v x : EuclideanSpace ℝ (Fin N))))))) =
+      ENNReal.ofReal ((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+        |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|) •
+        Measure.map (fun ψ => tangentProj e he (R ψ)) (stdGaussian ι N) := by
+  classical
+  let μ : Measure ((x : ι) → perp (e x)) := Measure.pi fun x => volume
+  let q : ((x : ι) → perp (e x)) → ℝ := fun v =>
+    Real.exp (-(1 / 2) * cinner (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+      (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))
+  let t : Config ι N → ((x : ι) → perp (e x)) := fun ψ => tangentProj e he (R ψ)
+  let C : ℝ := (2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+    |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|
+  have hq : Measurable q := by
+    have hc : Continuous H := LinearMap.continuous_of_finiteDimensional H
+    have hv : Measurable fun v : (x : ι) → perp (e x) =>
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)) : Config ι N) :=
+      measurable_pi_iff.2 fun x => measurable_subtype_coe.comp (measurable_pi_apply x)
+    dsimp [q, cinner]
+    fun_prop
+  have ht : Measurable t :=
+    (measurable_tangentProj e he).comp
+      (LinearMap.continuous_of_finiteDimensional
+        (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
+  have hd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
+  change μ.withDensity (fun v => ENNReal.ofReal (q v)) =
+    ENNReal.ofReal C • Measure.map t (stdGaussian ι N)
+  apply Measure.ext_of_lintegral
+  intro g hg
+  rw [lintegral_withDensity_eq_lintegral_mul₀ hd.aemeasurable hg.aemeasurable,
+    lintegral_smul_measure, lintegral_map hg ht]
+  change (∫⁻ v, ENNReal.ofReal (q v) * g v ∂μ) =
+    ENNReal.ofReal C * ∫⁻ ψ, g (t ψ) ∂(stdGaussian ι N)
+  calc
+    _ = ∫⁻ v, g v * ENNReal.ofReal (q v) ∂μ := by
+      apply lintegral_congr
+      intro v
+      exact mul_comm _ _
+    _ = _ := lintegral_tangent_gaussian_real e he H R hR g hg
+
+
 /-- The tangent Gaussian change of variables holds for a complex activity by
 identifying the two positive measures first. This is the complex counterpart
 of the real Gaussian lifting in P4 (2.47)–(2.50). -/
@@ -248,19 +299,8 @@ theorem integral_tangent_gaussian_complex {ι : Type*} [Fintype ι] {N : ℕ}
         (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
   have hd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
   have hmeas : μ.withDensity (fun v => ENNReal.ofReal (q v)) =
-      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) := by
-    apply Measure.ext_of_lintegral
-    intro g hg
-    rw [lintegral_withDensity_eq_lintegral_mul₀ hd.aemeasurable hg.aemeasurable,
-      lintegral_smul_measure, lintegral_map hg ht]
-    change (∫⁻ v, ENNReal.ofReal (q v) * g v ∂μ) =
-      ENNReal.ofReal C * ∫⁻ ψ, g (t ψ) ∂(stdGaussian ι N)
-    calc
-      _ = ∫⁻ v, g v * ENNReal.ofReal (q v) ∂μ := by
-        apply lintegral_congr
-        intro v
-        exact mul_comm _ _
-      _ = _ := lintegral_tangent_gaussian_real e he H R hR g hg
+      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) :=
+    withDensity_tangent_gaussian_eq e he H R hR
   change ∫ v, (q v : ℂ) * f v ∂μ = (C : ℂ) * ∫ ψ, f (t ψ) ∂(stdGaussian ι N)
   calc
     _ = ∫ v, f v ∂μ.withDensity (fun v => ENNReal.ofReal (q v)) := by
