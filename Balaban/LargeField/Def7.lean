@@ -381,7 +381,8 @@ clause (D7) of the pre-`R` class `IsRepPre` (`Zof 𝔸 = Z^pre_k(𝔸)`); the po
 `k` (`bdryDomsPre Fr 𝔸 k Z`, `Z = Zof 𝔸`: the domains `X ∈ 𝒟_k(mod (Ω_k^pre(𝔸))^c)` at cube level,
 `Ω_k^pre = OmegaCube`, meeting `Z` and its complement, that are `FineValidPre`):
 * `loc_field`: `ℬ^{(k)}(X, 𝔸)` depends only on `ψ, ψ', g` restricted to `X`;
-* `loc_hist`: and on the history only through `𝔸 ∩ X` (the domains `Ω_j ∩ X`, `Ω''_j ∩ X`,
+* `loc_hist`: and on the history only through `𝔸 ∩ X` (the domains `Ω_j ∩ X`, `Ω''_j ∩ X` for
+  `j < k` (ruling R26: `Ω''_k`, the record of the step `k → k + 1`, is read by nothing of scale `k`),
   `Z_j ∩ X` with the pre-`R` region `Z^pre_k` at the top scale, and the localized histories of all the
   components of `Z^pre_k` meeting `X`, removed ones included: ruling R22, the records of
   `globalLHPre`, as for the H7 domain, ruling R17);
@@ -422,9 +423,9 @@ structure D7Bdry {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+      (j < k → (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).OmegaDD j ∩
-          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) ∧
       (globalLHPre A.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLHPre A'.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
     (∀ c : A.H.Comp k, (c.1 ∩ X).Nonempty → ∃ c' : A'.H.Comp k, c'.1 = c.1 ∧
@@ -537,9 +538,9 @@ structure D7BdryPost {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+      (j < k → (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).OmegaDD j ∩
-          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) ∧
       (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
     (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
