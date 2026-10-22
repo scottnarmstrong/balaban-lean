@@ -90,6 +90,27 @@ noncomputable def rBPrime {Zt : Type*} (a₁ ν rho : ℝ) (Sz : Finset Zt)
       (C.genWC Y₂) (compWeight S.L a₁) ν rho topLab topLab (fun i => i.1) (C.dataWC Y₁ hv)
       (C.dataWC Y₂ hv) (C.rootPair Y₁ Y₂ hv vc g r)) Sz Y u
 
+/-- **The pair functionals vanish at equal regions and equal fields.** -/
+theorem rootPair_self (Y : Set (Torus S.d (n k))) (r : C.RRoot)
+    (u : BlockAt S n M K k → Fin N → ℂ) (φ : (C.genWC Y).Ω 1 × Fin N → ℂ) :
+    C.rootPair Y Y hv vc g r u φ φ = 0 := by
+  rcases r with c | ⟨j, X⟩
+  · exact sub_self _
+  · exact sub_self _
+
+/-- **`ℬ′` vanishes for no removed member** (the hypothesis `hfresh` of `gasR4Decor_eq`): when the
+old and the new small-field regions coincide, the two decoupled fields coincide and every pair
+functional vanishes. -/
+theorem rBPrime_self {Zt : Type*} (Y : Set (Torus S.d (n k))) (a₁ ν rho : ℝ) (Sz : Finset Zt)
+    (Y' : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)) (u : BlockAt S n M K k → Fin N → ℂ) :
+    C.rBPrime Y Y hv vc g a₁ ν rho Sz Y' u = 0 := by
+  classical
+  unfold rBPrime bPrime
+  refine Finset.sum_eq_zero fun r _ => ?_
+  refine r4Fresh_eq_zero_of_zero (G := C.rLevelGS) (m₀ := C.m₀) _ _ _ Sz Y' u fun w => ?_
+  unfold pairExt
+  exact C.rootPair_self hv vc g Y r u _
+
 open Classical in
 /-- The final domains of `ℬ′` of the step `R`. -/
 noncomputable def rDomains : Finset (Set (Localization.CTorus S.d S.L C.N₁ m₁ k)) :=

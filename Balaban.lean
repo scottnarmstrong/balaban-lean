@@ -2311,6 +2311,7 @@ public import Balaban.LargeField.R.BPrimePolyRoot
 public import Balaban.LargeField.R.BPrimeRAggregate
 public import Balaban.LargeField.R.BPrimeRPair
 public import Balaban.LargeField.R.BPrimeRRoots
+public import Balaban.LargeField.R.BPrimeRTie
 public import Balaban.LargeField.R.BPrimeRootForm
 public import Balaban.LargeField.R.BPrimeRootGeom
 public import Balaban.LargeField.R.RRemovedFinalRip
