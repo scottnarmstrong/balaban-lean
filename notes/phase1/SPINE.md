@@ -1377,6 +1377,12 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * `Spine/FinalLFKerLocal.lean`: `val_mem_comps_old`, `mem_parts_of_mem_comps_old`, `mk_mem_parts`, `partsMapOfOld`,
        `partsEquivOfOld`; `RecCorr`, `recCorr_parts`; **`locOp_corr_of_compRec_eq`** (components with the same record have
        corresponding operators: `SubCorr` and equal `K`, `b` at corresponding arguments, `σ = LatTorusSym.refl`).
+   * **B3 (A6-4, the inherited part of (IV.4.1); 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFWeight.lean`: `keptSum_eq_sum_keptPos`, `image_fst_labSet`, `sum_labSet`;
+     `exists_src_of_mem_lfAllRecs`, `lfSrc`, `lfSrc_mem`, `compRec_lfSrc` (the source of a realized record in `lfHist`);
+     `kappaH_ge_of_D6Flat` (`κ ≥ A₂λ_{k₀}^{p₂} + H_k|Z|_k + log C_k(a) + Σ log C_dec(ϰ)`), `pkgBound_lfSrc` ((1.26) for the source operator,
+     `D5Bound`), **`sum_exp_neg_kappa_lfSrc_le`** (`Σ_{r : r.1 = Y} e^{-κ(r)} ≤ e^{-A₂λ_{k₀}^{p₂} - H_k|Y|_k}`, `D6Flat` and Lemma II.5.15 with
+     labels, `sum_inv_logC_labelled_canonical`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
