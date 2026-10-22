@@ -3506,3 +3506,6 @@ public import Balaban.Spine.FinalLFDouble
 public import Balaban.Spine.FinalLFKerLocal
 public import Balaban.Spine.FinalLFWeight
 public import Balaban.Spine.FinalLFProduct
+public import Balaban.SmallField.RenormRelevantBound
+public import Balaban.SmallField.RenormRelevantAdd
+public import Balaban.SmallField.RenormRelevantExp

@@ -50,3 +50,24 @@ Supplied by Φ: the identification of `Tm'` with the expansion of `𝒟'_{ξ⁰}
    (the paving-group average) leaves `rel_i` unchanged (it should: `rel_i` is a sum over the whole torus).
 3. Which `a, v` enter the matrix: `a_{k+1}` and `ν_{k+1}` of the renormalized flow depend on `ξ`; P4 puts the `ξ`-dependence
    of `A` into `c̃` (`c̃ = c + (A(ξ) − A(0))ξ`). The proposal uses `A(0)`; `c` then includes `(A(ξ) − A(0))ξ`.
+
+### Answers of W1146u (agreed; recorded 2026-10-22)
+1. **One `ξ⁰`.** The step map `Φ` fixes one `ξ⁰` (working name `stepXi κ c₉ β ν k sf`), the solution of
+   `hsys` for the triple `(A(0), c, f)` of the task Q23. The same `ξ⁰` is used in the flow
+   (`β_{k+1}`, `ν_{k+1}`, `z_{k+1}`) and in the new level built from `𝒟'_{ξ⁰}`, so `hsys` and the identity of
+   `renormRelevant` use one `ξ`.
+2. **The paving average does not change `rel_i`.** The torus functionals pass through the exact identity
+   `Edens_{k+1} = Σ_z 𝒟(z)` (`LocalClassDensityLevelCast.lean`, lines 293–300). The per-site functionals
+   `val`, `dpsi`, `dh` at `y = 0` pass through the per-centre identity `Eloc_{k+1}(y) = 𝒟(y)`
+   (`localClass_centre_Eloc_eq_chart`, `LocalClassDensityCentre.lean:55`); W1146u exports it as an extra
+   conclusion (item (5a)) of `localClass_newLevel_of_expansion_hat`.
+3. **`A = matrixInfty` at `ξ = 0`.** The matrix is evaluated at `a_{k+1}(0)`, `ν_{k+1}(0)`; the difference
+   `(A(ξ) − A(0)) ξ` is part of `c`, which is then second order as before.
+
+Objects of `Φ` to write against: `f` from `newLevel_localFamilies_composed_gap` (sets
+`{x' | torusCast x' ∈ hatSet m₀ (k+1) Y}` on `(N₁', m₁ + hatScale)`); the unit constant configuration
+`p₀ = (constFld (Pi.single 0 1), constFld (Pi.single 0 1))`; `f' = f − f(p₀)`; the labels `Tl` as in
+`newLevelClausesAt_of_localFamilies` (`Spine/NewLevelAssembly.lean`); `AE'` in the `hAE` form
+(`LocalClassDensityLevelCast.lean:133–145`); `𝒟' y q = Jr.densE0 C y q − Jr.densE0 C y p₀`
+(`LocalClassDensityHAnalytic.lean:320`); the new level `E (k+1) y Y = 1_{y∈Y} · AE' y Y`,
+`gs (k+1) = hatGSOf m₀ (k+1)`; the constant `densE0 z p₀ · |T^{(k+1)}_1|` goes into `E_{k+1}` through `ΦE`.
