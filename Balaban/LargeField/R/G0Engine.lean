@@ -214,6 +214,51 @@ end Decor
 
 /-! ### The engine -/
 
+/-! ### Named forms of the decidability-carrying statements -/
+
+section Forms
+
+variable {B Zt Xt : Type*} [Fintype B] [Fintype Zt] [Fintype Xt]
+  {Ω : B → Type*} [∀ b, MeasurableSpace (Ω b)]
+
+/-- **The expected partition function of the decorated gas** (P7 (3.26)):
+`E[Σ_Γ ∏_{m ∈ Γ} τ_m e^{Σ_X b_X(Γ_X)}]`, the families `Γ` of heavy objects with pairwise disjoint
+charged supports. -/
+def decXi (S₀ : Finset B) (czF : Zt → Finset B) (near : Xt → Zt → Prop)
+    (τ : Zt → (∀ b, Ω b) → ℂ) (bc : Xt → Finset Zt → (∀ b, Ω b) → ℂ) (μ : ∀ b, Measure (Ω b)) :
+    ℂ :=
+  ∫ Φ, ∑ Γ ∈ Finset.univ.filter (fun Γ : Finset Zt =>
+      ∀ m ∈ Γ, ∀ m' ∈ Γ, m ≠ m' → Disjoint (decZs S₀ czF m) (decZs S₀ czF m')),
+    (∏ m ∈ Γ, τ m Φ) * Complex.exp (∑ x, bc x (Γ.filter (near x)) Φ) ∂(Measure.pi μ)
+
+/-- The weighted sum of local terms through the cube `q`:
+`Σ_{X ∋ q} |P(X)| e^{κ_p steiner(X ∖ S₀)}`. -/
+def kpSum (H : SimpleGraph B) (S₀ : Finset B) (κp : ℝ) (Pf : Finset B → ℂ) (q : B) : ℝ :=
+  ∑ X ∈ (Finset.univ : Finset (Finset B)).filter (fun X => q ∈ X),
+    ‖Pf X‖ * Real.exp (κp * (steiner H (X \ S₀) : ℝ))
+
+/-- The number of cubes outside the hole. -/
+def chargedCard (S₀ : Finset B) : ℕ := (Finset.univ \ S₀).card
+
+/-- **The entropy of the active couplings** (the hypothesis `hent` of `actGasOp_pe_hole` for the
+decorated gas). -/
+def DecEnt (H : SimpleGraph B) (S₀ : Finset B) (czF : Zt → Finset B) (cxF : Xt → Finset B)
+    (near : Xt → Zt → Prop) (κ'' κg K0g : ℝ) : Prop :=
+  ∀ Γ : Finset Zt, (∀ m ∈ Γ, ∀ m' ∈ Γ, m ≠ m' → Disjoint (decZs S₀ czF m) (decZs S₀ czF m')) →
+    ∀ q : B, ∑ y ∈ Finset.univ.filter
+        (fun y => decAct near y Γ ∧ q ∈ decCy S₀ czF cxF near y),
+      Real.exp (-(κ'' - κg) * (steiner H (decCy S₀ czF cxF near y) : ℝ)) ≤ K0g
+
+/-- **The weighted counts of the heavy weights** (the hypothesis `hcount` of `actGasOp_pe_hole`):
+`Σ_{m ∋ q, |m| = v} E|τ_m| ≤ K₀ᵛ e^{-p - h v}`. -/
+def DecCount (S₀ : Finset B) (czF : Zt → Finset B) (τ : Zt → (∀ b, Ω b) → ℂ)
+    (μ : ∀ b, Measure (Ω b)) (K0h p h : ℝ) : Prop :=
+  ∀ (q : B) (v : ℕ),
+    ∑ m ∈ Finset.univ.filter (fun m => q ∈ decZs S₀ czF m ∧ (decZs S₀ czF m).card = v),
+      ∫ Φ, ‖τ m Φ‖ ∂(Measure.pi μ) ≤ K0h ^ v * Real.exp (-p - h * v)
+
+end Forms
+
 section Engine
 
 variable {B Zt Xt : Type*} [Fintype B] [Fintype Zt] [Fintype Xt]
@@ -256,27 +301,17 @@ theorem decOp_pe_hole {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {κg κp α :
       (steiner H (unionCs (gasCs (decCy S₀ czF cxF near) (decZs S₀ czF)) C) : ℝ) ≤
         ∑ t ∈ C, (steiner H (gasCs (decCy S₀ czF cxF near) (decZs S₀ czF) t) : ℝ) +
           c * ((C.card : ℝ) - 1))
-    {K0g K0h : ℝ} (hK0g : 0 ≤ K0g)
-    (hent : ∀ Γ : Finset Zt,
-      (∀ m ∈ Γ, ∀ m' ∈ Γ, m ≠ m' → Disjoint (decZs S₀ czF m) (decZs S₀ czF m')) →
-      ∀ q : B, ∑ y ∈ Finset.univ.filter
-          (fun y => decAct near y Γ ∧ q ∈ decCy S₀ czF cxF near y),
-        Real.exp (-(κ'' - κg) * (steiner H (decCy S₀ czF cxF near y) : ℝ)) ≤ K0g)
-    (hK1 : 1 ≤ K0h)
-    (hcount : ∀ (q : B) (v : ℕ),
-      ∑ m ∈ Finset.univ.filter (fun m => q ∈ decZs S₀ czF m ∧ (decZs S₀ czF m).card = v),
-        ∫ Φ, ‖τ m Φ‖ ∂(Measure.pi μ) ≤ K0h ^ v * Real.exp (-p - h * v))
+    {K0g K0h : ℝ} (hK0g : 0 ≤ K0g) (hent : DecEnt H S₀ czF cxF near κ'' κg K0g)
+    (hK1 : 1 ≤ K0h) (hcount : DecCount S₀ czF τ μ K0h p h)
     (hh : B0 * Real.exp B0 * Real.exp (κg * c) * K0g + κg * (c2 + c) + 1 + 3 + Real.log K0h ≤ h)
     (hq : (Δ : ℝ) ^ 2 * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α)) < 1)
     (hcond : 3 * Real.exp (-p) * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α)) /
       (1 - (Δ : ℝ) ^ 2 * 2 ^ (Δ + 1) * Real.exp (-((κg - 2) - κp - α))) ≤ α) :
-    (∫ Φ, ∑ Γ ∈ Finset.univ.filter (fun Γ : Finset Zt =>
-        ∀ m ∈ Γ, ∀ m' ∈ Γ, m ≠ m' → Disjoint (decZs S₀ czF m) (decZs S₀ czF m')),
-        (∏ m ∈ Γ, τ m Φ) * Complex.exp (∑ x, bc x (Γ.filter (near x)) Φ) ∂(Measure.pi μ)) =
-      Complex.exp (∑ X : Finset B, decP H S₀ czF cxF near τ bc μ X) ∧
-    (∀ q ∉ S₀, ∑ X ∈ (Finset.univ : Finset (Finset B)).filter (fun X => q ∈ X),
-        ‖decP H S₀ czF cxF near τ bc μ X‖ * Real.exp (κp * (steiner H (X \ S₀) : ℝ)) ≤ α) ∧
-    ‖∑ X : Finset B, decP H S₀ czF cxF near τ bc μ X‖ ≤ ((Finset.univ \ S₀).card : ℝ) * α := by
+    decXi S₀ czF near τ bc μ = Complex.exp (∑ X : Finset B, decP H S₀ czF cxF near τ bc μ X) ∧
+    (∀ q ∉ S₀, kpSum H S₀ κp (decP H S₀ czF cxF near τ bc μ) q ≤ α) ∧
+    ‖∑ X : Finset B, decP H S₀ czF cxF near τ bc μ X‖ ≤ (chargedCard S₀ : ℝ) * α := by
+  unfold DecEnt at hent
+  unfold DecCount at hcount
   have hloc := decAct_loc S₀ czF cxF near hnear
   have hmeet := decAct_meet S₀ czF cxF near hnear
   have hS : ∀ t, IsAnimal H (gasCs (decCyF czF cxF near) czF t) := fun t => by
@@ -314,10 +349,9 @@ theorem decOp_pe_hole {Δ : ℕ} (hdeg : ∀ v, H.degree v ≤ Δ) {κg κp α :
           (∏ m ∈ Γ, τ m Φ) * Complex.exp (∑ x, bc x (Γ.filter (near x)) Φ) := fun Φ =>
     actGasXi_decAct (decZs S₀ czF) near (fun x S => bc x S Φ) (fun m => τ m Φ) (fun x => hb0 x Φ)
   refine ⟨?_, hbd, ?_⟩
-  · calc (∫ Φ, ∑ Γ ∈ Finset.univ.filter (fun Γ : Finset Zt =>
-          ∀ m ∈ Γ, ∀ m' ∈ Γ, m ≠ m' → Disjoint (decZs S₀ czF m) (decZs S₀ czF m')),
-          (∏ m ∈ Γ, τ m Φ) * Complex.exp (∑ x, bc x (Γ.filter (near x)) Φ) ∂(Measure.pi μ))
+  · calc decXi S₀ czF near τ bc μ
         = actGasXiOp (decAct near) (decZs S₀ czF) (decβ near bc) τ μ := by
+          unfold decXi
           unfold actGasXiOp
           exact integral_congr_ae (Filter.Eventually.of_forall fun Φ => (hpt Φ).symm)
       _ = Complex.exp (logSeries (shareBlock (holeSupp H S₀))

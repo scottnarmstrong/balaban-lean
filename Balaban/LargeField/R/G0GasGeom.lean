@@ -81,6 +81,66 @@ theorem holeClosed_union' {S₀ : Finset B} {ι : Type*} {A : Finset B} (hA : Ho
   · obtain ⟨i, hi, hai⟩ := Finset.mem_biUnion.mp haC
     exact Finset.mem_union_right _ (Finset.mem_biUnion.mpr ⟨i, hi, hC i hi a b ha hb hab hai⟩)
 
+/-- **A union of animals connected through overlaps is an animal.** -/
+theorem isAnimal_biUnion_of_reach {ι : Type*} {D : Finset ι} (W : ι → Finset B)
+    (hW : ∀ i ∈ D, IsAnimal H (W i)) {i₀ : ι} (hi₀ : i₀ ∈ D)
+    (hconn : ∀ j ∈ D, Relation.ReflTransGen
+      (fun a b => a ∈ D ∧ b ∈ D ∧ ¬ Disjoint (W a) (W b)) i₀ j) :
+    IsAnimal H (D.biUnion W) := by
+  set U := D.biUnion W with hU
+  set Rl : B → B → Prop := fun a b => a ∈ U ∧ b ∈ U ∧ H.Adj a b with hRl
+  have hWU : ∀ i ∈ D, W i ⊆ U := fun i hi => Finset.subset_biUnion_of_mem W hi
+  have hin : ∀ i ∈ D, ∀ p ∈ W i, ∀ q ∈ W i, Relation.ReflTransGen Rl p q := fun i hi p hp q hq =>
+    Relation.ReflTransGen.mono (fun _ _ hab => ⟨hWU i hi hab.1, hWU i hi hab.2.1, hab.2.2⟩) _ _
+      (((isAnimal_iff H _).mp (hW i hi)).2 p hp q hq)
+  obtain ⟨x₀, hx₀⟩ := ((isAnimal_iff H _).mp (hW i₀ hi₀)).1
+  have hreach : ∀ j ∈ D, ∀ q ∈ W j, Relation.ReflTransGen Rl x₀ q := by
+    intro j hj
+    induction hconn j hj with
+    | refl => exact fun q hq => hin i₀ hi₀ x₀ hx₀ q hq
+    | tail _ hab ih =>
+      rename_i a b _
+      intro q hq
+      obtain ⟨p, hpa, hpb⟩ := Finset.not_disjoint_iff.mp hab.2.2
+      exact (ih hab.1 p hpa).trans (hin b hab.2.1 p hpb q hq)
+  have hsymm : ∀ {a b}, Relation.ReflTransGen Rl a b → Relation.ReflTransGen Rl b a := by
+    intro a b hab
+    induction hab with
+    | refl => exact Relation.ReflTransGen.refl
+    | tail _ hbc ih => exact Relation.ReflTransGen.head ⟨hbc.2.1, hbc.1, hbc.2.2.symm⟩ ih
+  rw [isAnimal_iff]
+  refine ⟨⟨x₀, hWU i₀ hi₀ hx₀⟩, fun p hp q hq => ?_⟩
+  obtain ⟨i, hi, hpi⟩ := Finset.mem_biUnion.mp hp
+  obtain ⟨j, hj, hqj⟩ := Finset.mem_biUnion.mp hq
+  exact (hsymm (hreach i hi p hpi)).trans (hreach j hj q hqj)
+
+/-- **The Steiner size is subadditive over a family connected through contacts** (the hypothesis
+`hG3` of the gas bounds, with `c = 0`), when every support lies in an animal. -/
+theorem steiner_unionCs_le {E : Type*} (cs : E → Finset B) {C : Finset E}
+    (hC : ConnSet cs C) (hY : ∀ t ∈ C, ∃ W : Finset B, IsAnimal H W ∧ cs t ⊆ W) :
+    (steiner H (unionCs cs C) : ℝ) ≤ ∑ t ∈ C, (steiner H (cs t) : ℝ) := by
+  set W : E → Finset B := fun t =>
+    if h : t ∈ C then (steiner_spec (H := H) (hY t h)).choose else ∅ with hWdef
+  have hWspec : ∀ t ∈ C, IsAnimal H (W t) ∧ cs t ⊆ W t ∧ (W t).card = steiner H (cs t) := by
+    intro t ht
+    simp only [hWdef, ht, ↓reduceDIte]
+    exact (steiner_spec (H := H) (hY t ht)).choose_spec
+  obtain ⟨t₀, ht₀⟩ := hC.1
+  have hanim : IsAnimal H (C.biUnion W) := isAnimal_biUnion_of_reach W
+    (fun t ht => (hWspec t ht).1) ht₀ (fun j hj => by
+      have hr := hC.2 t₀ ht₀ j hj
+      unfold Reach at hr
+      exact Relation.ReflTransGen.mono (fun a b hab => ⟨hab.1, hab.2.1, fun hd => hab.2.2
+        (Finset.disjoint_of_subset_left (hWspec a hab.1).2.1
+          (Finset.disjoint_of_subset_right (hWspec b hab.2.1).2.1 hd))⟩) _ _ hr)
+  have h1 : steiner H (unionCs cs C) ≤ (C.biUnion W).card :=
+    steiner_le hanim (Finset.biUnion_mono fun t ht => (hWspec t ht).2.1)
+  have h2 : (C.biUnion W).card ≤ ∑ t ∈ C, (W t).card := Finset.card_biUnion_le
+  have h3 : ∑ t ∈ C, (W t).card = ∑ t ∈ C, steiner H (cs t) :=
+    Finset.sum_congr rfl fun t ht => (hWspec t ht).2.2
+  have := h1.trans (h2.trans h3.le)
+  exact_mod_cast this
+
 end Animal
 
 /-! ### Hole closures on the cube graph -/

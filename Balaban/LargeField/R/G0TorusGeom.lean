@@ -156,6 +156,21 @@ theorem isAnimal_latGraph_of_base {X : Finset (Torus d n)} {x₀ : Torus d n} (h
     | tail _ hbc ih => exact Relation.ReflTransGen.head ⟨hbc.2.1, hbc.1, nnAdj_symm hbc.2.2⟩ ih
   exact rtg_latGraph_of_nn ((hsymm (h p hp)).trans (h q hq))
 
+/-- **The cube graph has degree at most `2d`**: the neighbours of `v` are among `v ± e_μ`. -/
+theorem latGraph_degree_le (v : Torus d n) : (Localization.latGraph d n).degree v ≤ 2 * d := by
+  classical
+  rw [← SimpleGraph.card_neighborFinset_eq_degree]
+  have hsub : (Localization.latGraph d n).neighborFinset v ⊆
+      (Finset.univ : Finset (Fin d × Bool)).image
+        (fun p => if p.2 then v + Pi.single p.1 1 else v - Pi.single p.1 1) := by
+    intro w hw
+    rw [SimpleGraph.mem_neighborFinset] at hw
+    obtain ⟨μ, h | h⟩ := hw.2
+    · exact Finset.mem_image.mpr ⟨(μ, true), Finset.mem_univ _, by simp [h]⟩
+    · exact Finset.mem_image.mpr ⟨(μ, false), Finset.mem_univ _, by simp [h]⟩
+  refine (Finset.card_le_card hsub).trans (Finset.card_image_le.trans ?_)
+  simp [Finset.card_univ, Fintype.card_prod, Fintype.card_bool, mul_comm]
+
 /-- Nearest-neighbour reachability inside a set. -/
 def NNReach (X : Finset (Torus d n)) (a b : Torus d n) : Prop :=
   Relation.ReflTransGen (fun u v => u ∈ X ∧ v ∈ X ∧ NNAdj u v) a b
