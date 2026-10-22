@@ -119,3 +119,10 @@ declaration changes.
 Author (Scott Armstrong), 2026-10-21: "approve R18". This approves: ruling R-N₁ extended to the first version of the
 small-field class `Def6.IsSFFamily` (torus clause on the read tori `L^{m₀} ∣ N₁`, renormalization conditions along
 them). Text in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R19 and R20 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R19 and R20". This approves: (R19) `irrelTorus` subtracts P1's second
+first-order term, the variation of the external field, with zero sum over the torus; (R20) the class's torus
+independence is asked on pairs of read tori, for polymers with a non-winding thickening, at fields in the class domain.
+Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.

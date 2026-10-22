@@ -160,6 +160,17 @@ provider, and nothing may import a root, until the root is sealed.
   the renormalization conditions along those tori (`RenormCondAlong … torusSeq`), as `D2SF2`/`SFFlat2` already do.
   Without it the second version's read-tori family cannot be converted to the first version (`toLanded`), which the
   filed estimates of the cell label (`norm_filed_le_power`, the R15 label bounds) consume (ORCH-A, A1).
+- **Ruling R19 (2026-10-21, Scott: "approve R19 and R20").** `irrelTorus` also subtracts the first-order variation of
+  the external field, P1 Lemma 3.8 (3.104)'s second term `⟨v₂, ν(h·ψ₀)(x) − ν(h·ψ₀)(y)⟩`, which `aTermTorus` had merged
+  into `a = v₁ + νv₂` (valid only for constant `h`): `A^h_{y,X} = Σ_{x ∈ X aligned} c_X(x) [(h·Ψ̂)(x) − (h·Ψ̂)(y)]`,
+  `c_X(x) = ∂_h ℰ(y,X)(e,e)[blockDir x i₀]`. Its sum over the labels of the torus is zero, so `sum_irrelTorus_eq_Edens`
+  and its consumers are unchanged; at constant `h` it is an irrelevant term `O(E₀σ³(ε/r)²)`. Without it the class
+  chart's block-varying `h` (P3 (4.26)) leaves a first-order remainder that breaks P1 (3.128) (ORCH-A, A1; W1146u).
+- **Ruling R20 (2026-10-21, Scott: "approve R19 and R20").** The torus independence of the small-field class
+  (`Def6.TorusIndep`) is asked for pairs of read tori (`L^{m₀} ∣ N₁`, as R-N₁/R18), for polymers whose
+  `c·L^{k+1+m₁'}`-thickening does not wind (the new terms read that thickening), and at fields in the class domain only
+  (off it the step's choices are torus dependent). Root-F's quarter-box two-torus clause still follows under a constant
+  condition recorded with the joint ties (ORCH-A, A1).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
