@@ -15,7 +15,9 @@ import Mathlib.Tactic.Positivity
   `φ_D - φ_B` and the linear response `φ¹` of `B` to the tangent `D - B` are bounded by `K₂ s`
   (`K₂ = cK2`), and `φ_D - φ_B - φ¹` by `2 K₂ s / R = 2 K₂ s² / ρ`, `ρ = R s`
   (BG Proposition 5.1 for the first bound, Cauchy estimates for the others, as P6 (4.4));
-* `expansion_bounds`: the bounds of Lemma 2.3 (d) for `φ'`, `α'`, `(φ¹, α¹)`, `φ₂`.
+* `expansion_bounds`: the bounds of Lemma 2.3 (d) for `φ'`, `α'`, `(φ¹, α¹)`, `φ₂`; its core on a region
+  pair, `RegionPair.expansion_bounds_on` (the tangent vanishes on the collar of `G`,
+  `RegionPair.tangent_collar`, so the source of the tangent is `Q^* a ψ'`, `source_tangent_of`).
 -/
 
 @[expose] public section
@@ -201,14 +203,30 @@ theorem bounds_abstract (H : BgHyp d L K ϱ a ν) {B D : BgData G N} {δ0 ε0 : 
     rw [hΛeq 1 h1mem, hD1, hMR2] at this
     exact this
 
-theorem source_tangent {n : ℕ} (hG : IsLevel G n) (a : ℕ → ℝ) (ν : ℝ) (D B : BgData G N) :
+/-- **The source of a tangent datum vanishing on the collar** is `Q^* a` of its field (core of
+`source_tangent`). -/
+theorem source_tangent_of (a : ℕ → ℝ) (ν : ℝ) (D B : BgData G N)
+    (hc : ∀ x ∈ collar G, ∀ i, D.Ψ x i = B.Ψ x i) :
     source G a ν (tangentData D B) = qStar G a (tangentData D B).Ψ := by
   funext p
-  have hcol : collar G = ∅ := by
-    ext x
-    rw [mem_collar]
-    simp [(hG x).1]
-  simp [source, tangentData, boundaryTerm, hcol]
+  have hb : boundaryTerm G (tangentData D B).Ψ p = 0 := by
+    unfold boundaryTerm
+    refine Finset.sum_eq_zero fun μ _ => ?_
+    have h0 : ∀ y ∈ collar G, (tangentData D B).Ψ y p.2 = 0 := fun y hy => by
+      show D.Ψ y p.2 - B.Ψ y p.2 = 0
+      rw [hc y hy p.2, sub_self]
+    split_ifs with h1 h2 h2
+    · rw [h0 _ h1, h0 _ h2, add_zero]
+    · rw [h0 _ h1, add_zero]
+    · rw [h0 _ h2, zero_add]
+    · rw [add_zero]
+  unfold source
+  rw [hb]
+  simp [tangentData]
+
+theorem source_tangent {n : ℕ} (hG : IsLevel G n) (a : ℕ → ℝ) (ν : ℝ) (D B : BgData G N) :
+    source G a ν (tangentData D B) = qStar G a (tangentData D B).Ψ :=
+  source_tangent_of a ν D B fun x hx => absurd (hG x).1 ((mem_collar G).1 hx).1
 
 end Abstract
 
@@ -218,6 +236,126 @@ open Balaban.Multiscale Balaban.Background Matrix
 
 variable {d L N₀ K N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ} {G : GeneratingSet d L N₀ K ϱ}
   {G' : GeneratingSet d L N₀ K ϱ'} {a₁ ν : ℝ} {n : ℕ}
+
+/-- The `h̃` of a datum of `G` with the `h̃` of a datum of `G'` on `Ω₁` is that of the composed
+datum. -/
+theorem composeData_h_eq (h : Precedes G G') (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ)
+    (D' : BgData G' N) (D : BgData G N) (hh : ∀ x i, D.h x i = D'.h x i) :
+    D.h = (composeData h a φ' D').h := by
+  funext x i
+  by_cases hx : x ∈ G.Ω 1
+  · simp [composeData, hx, hh]
+  · rw [D.h_zero x hx, (composeData h a φ' D').h_zero x hx]
+
+/-- On a region pair, the tangent datum `D - ψ_*` vanishes on the collar of `G` (there `D = D'` and the
+composed datum is the extension of `φ_{k+1}` by `D'`, which is `D'` off `Ω'₁ = Ω₁`). -/
+theorem RegionPair.tangent_collar (P : RegionPair G G' n) (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ)
+    (D' : BgData G' N) (D : BgData G N) (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) :
+    ∀ x ∈ collar G, ∀ i, D.Ψ x i = (composeData P.hpre a φ' D').Ψ x i := by
+  intro x hx i
+  have hx1 : x ∉ G.Ω 1 := ((mem_collar G).1 hx).1
+  have hx1' : x ∉ G'.Ω 1 := P.Ω_one ▸ hx1
+  show D.Ψ x i = composeField G G' a φ' D'.Ψ x i
+  rw [composeField_of_collar a φ' D'.Ψ hx i, hΨ x (fun h => hx1 (P.top_subset h))]
+  simp [barField, hx1']
+
+/-- **Lemma 2.3 (d), bounds, on a region pair** (core of `expansion_bounds`).  Let `D'` be the datum `(θ, h)` of `G'` in `𝒟(𝔹')` with
+`δ ≤ thm73C3`, `D` the datum of `ψ = ψ^{(k)} + ψ'` (same `h̃`, equal to `D'` off the new region) with
+`|ψ'| ≤ s`, and suppose that the
+disc `{ψ^{(k)} + t ψ' : |t| < R}`, `R ≥ 2`, of radius `ρ = R s` lies in the domain `𝒟` and that
+`ρ ≤ δ_*`, `K₂ ρ < c₀ / 2` (the smallness of Proposition 5.1; `R s = C₃c₇` in the notation of
+FLUCTUATION).  With `K₂ = cK2`, `φ' = φ_k(ψ) - φ_{k+1}|`, `α' = α_k(ψ) - α_{k+1}|`:
+`‖φ'‖_*, |α'|₂ ≤ K₂ s`, the same for `(φ^{(1)}, α^{(1)})`, and
+`‖φ₂‖_*, |α' - α^{(1)}|₂ ≤ 2 K₂ s / R = 2 K₂ s² / ρ`. -/
+theorem RegionPair.expansion_bounds_on (P : RegionPair G G' n) (ha₁ : 0 < a₁) (H : BgHyp d L K ϱ (compWeight L a₁) ν)
+    (H' : BgHyp d L K ϱ' (compWeight L a₁) ν) (D' : BgData G' N)
+    (hD' : InUnionDomainC G' (bgC0 d L N) (thm73C3 d L N) ν D') (D : BgData G N)
+    (hh : ∀ x i, D.h x i = D'.h x i)
+    (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) {s R : ℝ} (hs : 0 ≤ s) (hR : 2 ≤ R)
+    (hψs : ∀ x, vn (P.compTangentOn (compWeight L a₁)
+      (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D x) ≤ s)
+    (hdisc : ∀ t : ℂ, ‖t‖ < R → InUnionDomainC G (bgC0 d L N) (bgC1 d L N) ν
+      ((composeData P.hpre (compWeight L a₁)
+        (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D').lineAt
+        (tangentData D (composeData P.hpre (compWeight L a₁)
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D')) t))
+    (hRs : R * s ≤ deltaStar d L N) (hsmall : cK2 d L N * (R * s) < bgC0 d L N / 2) :
+    SupBounds G (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D -
+        P.hpre.restrictφ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D'))
+      (cK2 d L N * s) ∧
+    Small G (bgMultC G (compWeight L a₁) ν (bgC0 d L N) D -
+        P.hpre.restrictα (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D'))
+      (cK2 d L N * s) ∧
+    SupBounds G (phiOne P.hpre (compWeight L a₁) ν
+        (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
+        (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+        (qStar G (compWeight L a₁) (P.compTangentOn (compWeight L a₁)
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)))
+      (cK2 d L N * s) ∧
+    Small G (alphaOne P.hpre (compWeight L a₁) ν
+        (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
+        (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+        (qStar G (compWeight L a₁) (P.compTangentOn (compWeight L a₁)
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)))
+      (cK2 d L N * s) ∧
+    SupBounds G (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D -
+        P.hpre.restrictφ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') -
+        phiOne P.hpre (compWeight L a₁) ν
+          (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+          (qStar G (compWeight L a₁) (P.compTangentOn (compWeight L a₁)
+            (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)))
+      (2 * (cK2 d L N * s) / R) ∧
+    Small G (bgMultC G (compWeight L a₁) ν (bgC0 d L N) D -
+        P.hpre.restrictα (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D') -
+        alphaOne P.hpre (compWeight L a₁) ν
+          (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+          (qStar G (compWeight L a₁) (P.compTangentOn (compWeight L a₁)
+            (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)))
+      (2 * (cK2 d L N * s) / R) := by
+  have hD'2 : InUnionDomainC G' (bgC0 d L N) (thm73C2 d L N) ν D' :=
+    InUnionDomainC.mono (thm73C3_le_thm73C2 d L N) hD'
+  have hD'1 : InUnionDomainC G' (bgC0 d L N) (thm73C1 d L N) ν D' :=
+    InUnionDomainC.mono (thm73C2_le_thm73C1 d L N) hD'2
+  obtain ⟨-, hfield, hmult⟩ := theorem73_complex ha₁ H H' P.hpre hD'1
+  have hBC2 := theorem73_complex_small ha₁ H H' P.hpre hD'2
+  obtain ⟨δ0, ε0, hδ0, hδε, hε, hδC2, hνε, hK1, hB⟩ :=
+    theorem73_complex_witness ha₁ H H' P.hpre hD'
+  set h := P.hpre with hh'
+  set a := compWeight L a₁ with ha
+  set φ₁ := bgFieldC G' a ν (bgC0 d L N) D' with hφ₁
+  set α₁ := bgMultC G' a ν (bgC0 d L N) D' with hα₁
+  set Bd := composeData h a φ₁ D' with hBd
+  have hhB : D.h = Bd.h := composeData_h_eq h a φ₁ D' D hh
+  have hδ : δ0 ≤ bgC1 d L N := hδC2.trans (bgC2_le_bgC1 d L N)
+  have hK1pos := bgK1_pos d L N
+  have hc1 : bgK1 d L N * bgC1 d L N ≤ bgC0 d L N / 2 := by
+    have : bgC1 d L N ≤ bgC0 d L N / (2 * bgK1 d L N) :=
+      (min_le_right _ _).trans (min_le_right _ _)
+    rw [le_div_iff₀ (by positivity)] at this
+    linarith
+  have hsmall' : bgK1 d L N * δ0 + cK2 d L N * (R * s) < bgC0 d L N := by
+    have := mul_le_mul_of_nonneg_left hδ hK1pos.le
+    linarith
+  obtain ⟨⟨h1, h2⟩, φ1, α1, hφ1, hα1, h3, h4, h5, h6⟩ := bounds_abstract (a := a) (ν := ν) H hδ0
+    hδε hε hδ hνε hB hK1 hBC2 hhB hs hR (fun x => hψs x) hdisc hRs hsmall'
+  have hop : bgOp a ν Bd = opHk h a ν α₁ := by
+    unfold bgOp opHk; rw [hmult]
+  have hvec : bgVec a ν Bd = fieldBase h φ₁ := by
+    funext x i
+    unfold bgVec fieldBase
+    rw [hfield]
+  have hsrc : source G a ν (tangentData D Bd) = qStar G a (P.compTangentOn a φ₁ D' D) := by
+    rw [source_tangent_of a ν D Bd (P.tangent_collar a φ₁ D' D hΨ)]; rfl
+  have ePhi : phiOne h a ν α₁ φ₁ (qStar G a (P.compTangentOn a φ₁ D' D)) = φ1 := by
+    rw [hφ1, hop, hvec, hsrc]; rfl
+  have eAlpha : alphaOne h a ν α₁ φ₁ (qStar G a (P.compTangentOn a φ₁ D' D)) = α1 := by
+    rw [hα1, hop, hvec, hsrc]; rfl
+  rw [hfield] at h1 h5
+  rw [hmult] at h2 h6
+  rw [ePhi, eAlpha]
+  exact ⟨h1, h2, h3, h4, h5, h6⟩
 
 /-- **Lemma 2.3 (d), bounds.**  Let `D'` be the datum `(θ, h)` of level `n + 1` in `𝒟(𝔹'_k)` with
 `δ ≤ thm73C3`, `D` the datum of `ψ = ψ^{(k)} + ψ'` (same `h̃`) with `|ψ'| ≤ s`, and suppose that the
@@ -273,49 +411,8 @@ theorem expansion_bounds (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG' : IsLevel G'
           (qStar G (compWeight L a₁) (compTangent hG hG' hp (compWeight L a₁)
             (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)))
       (2 * (cK2 d L N * s) / R) := by
-  have hD'2 : InUnionDomainC G' (bgC0 d L N) (thm73C2 d L N) ν D' :=
-    InUnionDomainC.mono (thm73C3_le_thm73C2 d L N) hD'
-  have hD'1 : InUnionDomainC G' (bgC0 d L N) (thm73C1 d L N) ν D' :=
-    InUnionDomainC.mono (thm73C2_le_thm73C1 d L N) hD'2
-  obtain ⟨-, hfield, hmult⟩ := theorem73_complex ha₁ H H' (hG.precedes hG' hp) hD'1
-  have hBC2 := theorem73_complex_small ha₁ H H' (hG.precedes hG' hp) hD'2
-  obtain ⟨δ0, ε0, hδ0, hδε, hε, hδC2, hνε, hK1, hB⟩ :=
-    theorem73_complex_witness ha₁ H H' (hG.precedes hG' hp) hD'
-  set h := hG.precedes hG' hp with hh'
-  set a := compWeight L a₁ with ha
-  set φ₁ := bgFieldC G' a ν (bgC0 d L N) D' with hφ₁
-  set α₁ := bgMultC G' a ν (bgC0 d L N) D' with hα₁
-  set Bd := composeData h a φ₁ D' with hBd
-  have hhB : D.h = Bd.h := funext fun x => funext fun i => by
-    rw [hh x i, hBd, composeData_h hG hG' hp]
-  have hδ : δ0 ≤ bgC1 d L N := hδC2.trans (bgC2_le_bgC1 d L N)
-  have hK1pos := bgK1_pos d L N
-  have hc1 : bgK1 d L N * bgC1 d L N ≤ bgC0 d L N / 2 := by
-    have : bgC1 d L N ≤ bgC0 d L N / (2 * bgK1 d L N) :=
-      (min_le_right _ _).trans (min_le_right _ _)
-    rw [le_div_iff₀ (by positivity)] at this
-    linarith
-  have hsmall' : bgK1 d L N * δ0 + cK2 d L N * (R * s) < bgC0 d L N := by
-    have := mul_le_mul_of_nonneg_left hδ hK1pos.le
-    linarith
-  obtain ⟨⟨h1, h2⟩, φ1, α1, hφ1, hα1, h3, h4, h5, h6⟩ := bounds_abstract (a := a) (ν := ν) H hδ0
-    hδε hε hδ hνε hB hK1 hBC2 hhB hs hR (fun x => hψs x) hdisc hRs hsmall'
-  have hop : bgOp a ν Bd = opHk h a ν α₁ := by
-    unfold bgOp opHk; rw [hmult]
-  have hvec : bgVec a ν Bd = fieldBase h φ₁ := by
-    funext x i
-    unfold bgVec fieldBase
-    rw [hfield]
-  have hsrc : source G a ν (tangentData D Bd) = qStar G a (compTangent hG hG' hp a φ₁ D' D) := by
-    rw [source_tangent hG]; rfl
-  have ePhi : phiOne h a ν α₁ φ₁ (qStar G a (compTangent hG hG' hp a φ₁ D' D)) = φ1 := by
-    rw [hφ1, hop, hvec, hsrc]; rfl
-  have eAlpha : alphaOne h a ν α₁ φ₁ (qStar G a (compTangent hG hG' hp a φ₁ D' D)) = α1 := by
-    rw [hα1, hop, hvec, hsrc]; rfl
-  rw [hfield] at h1 h5
-  rw [hmult] at h2 h6
-  rw [ePhi, eAlpha]
-  exact ⟨h1, h2, h3, h4, h5, h6⟩
+  exact (RegionPair.ofLevel hG hG' hp).expansion_bounds_on ha₁ H H' D' hD' D hh
+    (fun x hx => absurd (hG'.Ω_top ▸ Finset.mem_univ x) hx) hs hR hψs hdisc hRs hsmall
 
 end Specialized
 
