@@ -29,7 +29,9 @@ background theory's separation, which is weaker than the Agmon separation here.
 * `rGenWTies_of_pow`, `rGenWTies_of_choice`: at the choice of the prefix witness
   (`prefixInput_exists_of`: `c = L³`, `M₁ = L^{m₀ + m₁ - 3}`) they hold as soon as `3 ≤ m₀`, `4 ≤ m₁`
   and `R₀(d, L) < L^{m₀-3}` (all monotone in the exponents);
-* `rGenWTies_nonempty`: `RGenWTies` holds for a choice of `M₁` (Rule 10).
+* `rGenWTies_nonempty`: `RGenWTies` holds for a choice of `M₁` (Rule 10);
+* `RStepLTies`: the block size of the step `R` (`hatConn_genWC`: `L ∤ 10`, `L ≥ 7`), implied by
+  `L ≥ 11` (`rStepLTies_of_le`); LFR row 3 bounds `L` only from below.
 -/
 
 @[expose] public section
@@ -130,5 +132,20 @@ theorem rGenWTies_nonempty {d L : ℕ} (hd : 3 ≤ d) (hL : 3 ≤ L) (T : ℝ �
     fun κ c₉ => ⟨by rw [hT]; exact hL, by rw [hT, hC7], by omega, by rw [hC7], ?_⟩⟩
   rw [hT]
   simpa using hn
+
+/-- **The block size of the step `R`** (`SFCtx.hatConn_genWC`, `rBPrime_aggregate`): `L` does not
+divide `10` (two thickened cubes of `Ω₁(𝔹_k(W))`, `k ≥ 3`, never touch at a corner) and `L ≥ 7` (a
+thickened cube of layer `1` is smaller than the gap quantum `M₁ L²`).  LFR row 3 bounds `L` only
+from below, so both follow from `L ≥ 11` (`rStepLTies_of_le`). -/
+def RStepLTies (T : ℝ → ℝ → Typing) : Prop :=
+  ∀ κ : ℝ, 0 < κ → ∀ c₉ : ℝ, 0 < c₉ → ¬ (T κ c₉).L ∣ 10 ∧ 7 ≤ (T κ c₉).L
+
+theorem not_dvd_ten_of_le {L : ℕ} (hL : 11 ≤ L) : ¬ L ∣ 10 := fun h => by
+  have := Nat.le_of_dvd (by norm_num) h
+  omega
+
+/-- **`RStepLTies` from `L ≥ 11`** (and so `RStepLTies` is inhabited, Rule 10). -/
+theorem rStepLTies_of_le {T : ℝ → ℝ → Typing} (h : ∀ κ c₉, 11 ≤ (T κ c₉).L) : RStepLTies T :=
+  fun κ _ c₉ _ => ⟨not_dvd_ten_of_le (h κ c₉), by have := h κ c₉; omega⟩
 
 end Balaban.RootFSpine

@@ -6,7 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.BPrimeRRoots
-public import Balaban.Localization.I5Inhabited
+public import Balaban.LargeField.R.BPrimeHatConn
 
 /-!
 # `ℬ′` of the step `R`: the aggregate identity of the residual
@@ -18,10 +18,10 @@ of `ℬ′_Y = rBPrime` (the P3 coefficients `r4Fresh` of the decoupled extensio
 of the roots); `ℬ′_Y` depends on the data only through their agreement on `Y`, is bounded by
 `Σ_r Eb_r e^{-κ₀ d^cov(X_r) - 2κ d̃^cov(Y)}` and is analytic on the data domain.
 
-The connectedness of the thickened cubes at the admissible centres of `𝔹_k(W)` with holes is carried as
-the single named open input `GenHatConnAdm` (see its docstring).
+The connectedness of the thickened cubes of `𝔹_k(Yᵢ^{≈2})` inside `Ω₁` is `hatConn_genWC` (`k ≥ 2`,
+`L ∤ 10`, `L ≥ 7`, `L^{m₁} ∣ M₁`); the step `R` acts only at `k ≥ 2` (no component of `Z^pre_1` is
+ripe, `not_ripe_one`).
 
-* `GenHatConnAdm`, `genHatConnAdm_of_hatConn`, `genHatConnAdm_nonempty`;
 * `SFCtx.rootEb`, `SFCtx.rDataSet`, `SFCtx.rBPrime`;
 * `SFCtx.rBPrime_aggregate`.
 -/
@@ -32,31 +32,6 @@ namespace Balaban.LargeField
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.SmallField
   Balaban.SmallField.GsSpec Balaban.SmallField.Def6 Balaban.SmallField.Def6v2
-
-section Conn
-
-variable {d L N₁ m₁ K : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-
-/-- **OPEN geometric input: the thickened cubes are connected at the admissible centres, for every
-region `X₁` and every family of marked cubes** (`HatConnAdm H X₁ 𝒞`), the hypothesis of the (AE2)
-locality of the decoupled background fields (`decBgField_lab_local_adm`, through
-`hdich_aux_adm`).  It is open for the transported small-field sets `genWC Y = castG 𝔹_k(Y^{≈2})`:
-it fails for `k = 1` at a diagonal corner of `W = Y^{≈2}` (two cubes of `W` touching only at a
-corner make `□̂_z ∩ Ω₁` nearest-neighbour disconnected at the level-1 centres there), while the
-locality itself holds there (the local solver does not couple the nearest-neighbour components of
-`□̂_z ∩ Ω₁`).  To be removed by the component-wise dichotomy (core of `hdich_aux_adm`). -/
-def GenHatConnAdm (H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) : Prop :=
-  ∀ (X₁ : Finset (Localization.CTorus d L N₁ m₁ K)) (𝒞 : Finset (ℕ × Localization.CTorus d L N₁ m₁ K)), HatConnAdm H X₁ 𝒞
-
-theorem genHatConnAdm_of_hatConn {H : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} (h : HatConn H) :
-    GenHatConnAdm H :=
-  fun X₁ 𝒞 => h.hatConnAdm X₁ 𝒞
-
-/-- `GenHatConnAdm` is inhabited (rule 10): the witness generating set of I-5. -/
-theorem genHatConnAdm_nonempty (m₁ : ℕ) (ϱ : ℝ) : GenHatConnAdm (I5Inhabited.GP m₁ ϱ) :=
-  genHatConnAdm_of_hatConn I5Inhabited.GP_hatConn
-
-end Conn
 
 namespace Def7.SFCtx
 
@@ -148,8 +123,9 @@ data domain `Su` (near real data of `Ψ̃(genWC Yᵢ; δ)`, `h = hv`) and the ba
 3. `‖ℬ′_Y‖ ≤ Σ_r Eb_r e^{-κ₀ d^cov(X_r) - 2κ d̃^cov(Y)}`;
 4. `ℬ′_Y` is analytic on `Su`.
 The hypotheses are the step's typing ties, the class `IsSF2` strong clauses with its birth domain,
-the settings of the two transported sets, the P3 constants, the source `‖g‖₁ < 1`, and the single
-open geometric input `GenHatConnAdm` of the two transported sets. -/
+the settings of the two transported sets, the P3 constants, the source `‖g‖₁ < 1`, the scale
+`k ≥ 2` of a step `R` with ripe components (`not_ripe_one`), and the conditions `L ∤ 10`, `L ≥ 7`,
+`L^{m₁} ∣ M₁` on the constants (the thickened cubes are connected inside `Ω₁`, `hatConn_genWC`). -/
 theorem rBPrime_aggregate {Zt : Type*} (Sz : Finset Zt) (hk1 : 1 ≤ k) (hd : 3 ≤ S.d)
     (hL : 3 ≤ S.L) (hN : S.L ^ C.m₀ ∣ C.N₁) (hlt : hatScale S.L m₁ ϱ < C.m₀)
     (hsep : ϱ ≤ minSep S.L (S.L ^ (m₁ + hatScale S.L m₁ ϱ)))
@@ -175,7 +151,7 @@ theorem rBPrime_aggregate {Zt : Type*} (Sz : Finset Zt) (hk1 : 1 ≤ k) (hd : 3 
     (hrad : decDomRad S.d S.L N BG κ₁ δ τ ≤ bgC1 S.d S.L N)
     (hε : ∀ j, 1 ≤ j → j < k →
       (2 * bgK1 S.d S.L N + 2) * decDomRad S.d S.L N BG κ₁ δ τ ≤ P.eps S.d S.L j)
-    (hconn₁ : GenHatConnAdm (C.genWC Y₁)) (hconn₂ : GenHatConnAdm (C.genWC Y₂)) :
+    (hk2 : 2 ≤ k) (hL10 : ¬ S.L ∣ 10) (hL7 : 7 ≤ S.L) (hdvd : S.L ^ m₁ ∣ C.geo.M1) :
     (∀ u ∈ C.rDataSet Y₁ Y₂ hv ν δ τ,
       Def7v2.sfExp2At C vc Y₁ u hv g (castΩField C.coarseSide_eq (C.genW Y₁)
           (bgFieldC (C.genWC Y₁) (compWeight S.L a₁) ν (bgC0 S.d S.L N) (C.dataWC Y₁ hv u))) -
@@ -317,7 +293,8 @@ theorem rBPrime_aggregate {Zt : Type*} (Sz : Finset Zt) (hk1 : 1 ≤ k) (hd : 3 
     (fun r _ => Subtype.val_injective) (fun r _ i => rootLabs_disj i)
     (fun r _ => rootLabs_par hG hN (C.coe_rootX₁f r) (C.genWC Y₁))
     (fun r _ => rootLabs_par hG hN (C.coe_rootX₁f r) (C.genWC Y₂))
-    (fun r _ Cf => hconn₁ _ _) (fun r _ Cf => hconn₂ _ _)
+    (fun r _ Cf => (C.hatConn_genWC Y₁ S₁ hk2 hL10 hL7 hdvd).hatConnAdm _ _)
+    (fun r _ Cf => (C.hatConn_genWC Y₂ S₂ hk2 hL10 hL7 hdvd).hatConnAdm _ _)
     (C.isOpen_rDataSet Y₁ Y₂ hv ν δ τ) (fun u _ => C.analyticAt_dataWC hv Y₁ u)
     (fun u _ => C.analyticAt_dataWC hv Y₂ u) hδc0 le_rfl hδc0' hδc hνε hD₁ hD₂
     (Φ := C.rootPair Y₁ Y₂ hv vc g)
