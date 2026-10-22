@@ -92,4 +92,81 @@ theorem int_ediv_succ (k : ℤ) :
     rw [hk, Int.mul_add_ediv_left _ _ hM.ne',
       Int.ediv_eq_zero_of_lt (by omega : 0 ≤ k % M + 1) (by omega : k % M + 1 < M)]
 
+theorem int_ediv_pred (k : ℤ) :
+    (k - 1) / M = k / M - (if ((k : ZMod M)) = 0 then 1 else 0) := by
+  have h := int_ediv_succ (M := M) (k - 1)
+  rw [sub_add_cancel] at h
+  have hc : (((k - 1 : ℤ) : ZMod M) = -1) ↔ ((k : ZMod M) = 0) := by
+    push_cast
+    constructor <;> intro h <;> linear_combination h
+  simp only [hc] at h
+  linarith
+
+theorem sum_fin_zmod (g : ZMod M → ℂ) : ∑ j : Fin M, g (j : ℕ) = ∑ r, g r := by
+  refine Fintype.sum_bijective (fun j : Fin M => ((j : ℕ) : ZMod M)) ?_ _ _ fun _ => rfl
+  have hinj : Function.Injective (fun j : Fin M => ((j : ℕ) : ZMod M)) := by
+    intro a b hab
+    apply Fin.ext
+    have := (ZMod.natCast_eq_natCast_iff' a b M).1 hab
+    rwa [Nat.mod_eq_of_lt a.2, Nat.mod_eq_of_lt b.2] at this
+  refine hinj.bijective_of_nat_card_le ?_
+  simp [ZMod.card]
+
+theorem polyZ_succ (F₂ F₁ F₀ : ZMod M → ℂ) (k : ℤ) :
+    polyZ F₂ F₁ F₀ (k + 1) =
+      F₂ ((k : ZMod M) + 1) * (((k / M : ℤ) : ℂ) + cellLast (k : ZMod M)) ^ 2
+        + F₁ ((k : ZMod M) + 1) * (((k / M : ℤ) : ℂ) + cellLast (k : ZMod M))
+        + F₀ ((k : ZMod M) + 1) := by
+  have h := int_ediv_succ (M := M) k
+  unfold polyZ cellLast
+  have hq : (((k + 1) / M : ℤ) : ℂ) = ((k / M : ℤ) : ℂ) + (if (k : ZMod M) = -1 then 1 else 0) := by
+    rw [h]; split_ifs <;> simp
+  rw [hq]; push_cast; rfl
+
+theorem polyZ_pred (F₂ F₁ F₀ : ZMod M → ℂ) (k : ℤ) :
+    polyZ F₂ F₁ F₀ (k - 1) =
+      F₂ ((k : ZMod M) - 1) * (((k / M : ℤ) : ℂ) - cellFirst (k : ZMod M)) ^ 2
+        + F₁ ((k : ZMod M) - 1) * (((k / M : ℤ) : ℂ) - cellFirst (k : ZMod M))
+        + F₀ ((k : ZMod M) - 1) := by
+  have h := int_ediv_pred (M := M) k
+  unfold polyZ cellFirst
+  have hq : (((k - 1) / M : ℤ) : ℂ) = ((k / M : ℤ) : ℂ) - (if (k : ZMod M) = 0 then 1 else 0) := by
+    rw [h]; split_ifs <;> simp
+  rw [hq]; push_cast; rfl
+
+theorem blockAvgZ_polyZ (F₂ F₁ F₀ : ZMod M → ℂ) (k : ℤ) :
+    blockAvgZ M (polyZ F₂ F₁ F₀) k =
+      cellAvg F₂ * ((k / M : ℤ) : ℂ) ^ 2 + cellAvg F₁ * ((k / M : ℤ) : ℂ) + cellAvg F₀ := by
+  have hM : (M : ℤ) ≠ 0 := by exact_mod_cast NeZero.ne M
+  have key : ∀ j : Fin M, polyZ F₂ F₁ F₀ ((M : ℤ) * (k / M) + (j : ℕ)) =
+      F₂ (j : ℕ) * ((k / M : ℤ) : ℂ) ^ 2 + F₁ (j : ℕ) * ((k / M : ℤ) : ℂ) + F₀ (j : ℕ) := by
+    intro j
+    have h1 : (((M : ℤ) * (k / M) + (j : ℕ) : ℤ) : ZMod M) = ((j : ℕ) : ZMod M) := by
+      push_cast; simp
+    have h2 : ((M : ℤ) * (k / M) + (j : ℕ)) / M = k / M := by
+      rw [add_comm, mul_comm, Int.add_mul_ediv_right _ _ hM,
+        Int.ediv_eq_zero_of_lt (by positivity) (by exact_mod_cast j.2), zero_add]
+    unfold polyZ; rw [h1, h2]
+  unfold blockAvgZ cellAvg
+  simp only [key]
+  rw [Finset.sum_add_distrib, Finset.sum_add_distrib, ← Finset.sum_mul, ← Finset.sum_mul,
+    sum_fin_zmod F₂, sum_fin_zmod F₁, sum_fin_zmod F₀]
+  ring
+
+/-- The block Hamiltonian acts on cell polynomials by the three cell operators. -/
+theorem polyZ_H (w ν : ℝ) (F₂ F₁ F₀ : ZMod M → ℂ) (k : ℤ) :
+    HZ M w ν (polyZ F₂ F₁ F₀) k =
+      polyZ (cellH w ν F₂)
+        (fun r => cellH w ν F₁ r - 2 * cellLast r * F₂ (r + 1) + 2 * cellFirst r * F₂ (r - 1))
+        (fun r => cellH w ν F₀ r - cellLast r * (F₂ (r + 1) + F₁ (r + 1))
+          - cellFirst r * (F₂ (r - 1) - F₁ (r - 1))) k := by
+  have hl : cellLast (k : ZMod M) * cellLast (k : ZMod M) = cellLast (k : ZMod M) := by
+    unfold cellLast; split_ifs <;> simp
+  have hf : cellFirst (k : ZMod M) * cellFirst (k : ZMod M) = cellFirst (k : ZMod M) := by
+    unfold cellFirst; split_ifs <;> simp
+  unfold HZ
+  rw [blockAvgZ_polyZ, polyZ_succ, polyZ_pred]
+  unfold polyZ cellH
+  linear_combination (-(F₂ ((k : ZMod M) + 1))) * hl + (-(F₂ ((k : ZMod M) - 1))) * hf
+
 end Balaban.Flow
