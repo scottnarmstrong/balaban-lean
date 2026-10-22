@@ -87,7 +87,7 @@ theorem isEL_const (hG : IsLevel G n) (a : ℕ → ℝ) (ν : ℝ) (e : Fin N �
 
 /-- The real centre `(e, e)` with the displacement `t e` lies in `Ψ̃^c(𝔹; δ, δ)` for `‖t‖ ≤ δ/4`,
 `0 < δ ≤ 1`. -/
-theorem inPsiTildeC_const (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
+theorem inPsiTildeC_constBg (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
     (hδ : 0 < δ) (hδ1 : δ ≤ 1) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) :
     InPsiTildeC G ν δ δ (fun _ i => eR i) eR (fun _ i => t * (eR i : ℂ)) (fun _ _ => 0) := by
   have hrn : rn eR = 1 := by unfold rn; rw [heR]; simp
@@ -133,7 +133,7 @@ theorem inDomainC_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR
     (hδ : 0 < δ) (hδ1 : δ ≤ 1) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) :
     InDomainC G ν δ δ (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) := by
   refine ⟨fun _ i => eR i, eR, fun _ i => t * (eR i : ℂ), fun _ _ => 0,
-    inPsiTildeC_const eR heR hδ hδ1 t ht, ?_, ?_⟩
+    inPsiTildeC_constBg eR heR hδ hδ1 t ht, ?_, ?_⟩
   · intro x _ i; simp [constBg]; ring
   · intro x _ i; simp [constBg]
 
@@ -141,7 +141,7 @@ theorem inDomainC_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR
 theorem inDomainR_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
     (hδ : 0 < δ) (hδ1 : δ ≤ 1) :
     InDomainR G ν δ (constBg hG (fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) :=
-  ⟨fun _ i => eR i, eR, (inPsiTildeC_const (G := G) eR heR hδ hδ1 0 (by simp; positivity)).toInPsiTilde,
+  ⟨fun _ i => eR i, eR, (inPsiTildeC_constBg (G := G) eR heR hδ hδ1 0 (by simp; positivity)).toInPsiTilde,
     fun x _ i => by simp [constBg], fun x _ i => by simp [constBg]⟩
 
 /-- At a site of a whole-lattice level `ℓ² · (a_n L^{-2n} |t|) = |a_n| |t|`. -/
