@@ -3445,6 +3445,8 @@ public import Balaban.LargeField.R.G0Gas
 public import Balaban.LargeField.R.G0Engine
 public import Balaban.LargeField.R.G0GasBasic
 public import Balaban.LargeField.R.G0Config
+public import Balaban.LargeField.R.G0TorusGeom
+public import Balaban.LargeField.R.G0GasGeom
 public import Balaban.Spine.RGasG0
 public import Balaban.Polymer.MayerPYTransport
 public import Balaban.Green.FinalBoxCloseCoef
