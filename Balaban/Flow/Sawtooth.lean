@@ -378,7 +378,7 @@ theorem norm_sawErr_le (F₂ F₁ F₀ : ZMod N → ℂ) (s : ZMod ℓ) :
     _ ≤ _ := by
         have := hsaw (s + 1); have := hsaw (s - 1); linarith
 
-omit [NeZero N] in
+omit [NeZero N] [NeZero m] in
 theorem slift_cast (hℓ : ℓ = N * m) (s : ZMod ℓ) : ((slift N m s : ℤ) : ZMod ℓ) = s := by
   have hq : ((sb N m s : ℤ) : ZMod m) = ((s.val / N : ℕ) : ZMod m) := by
     unfold sb blockCoord; exact ZMod.coe_valMinAbs _
