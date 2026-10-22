@@ -89,7 +89,8 @@ theorem exists_ediv_near_iff {ℓ m A B x : ℤ} (hℓ : 0 < ℓ) (hm : 0 ≤ m)
 `< D`.**  The `μ`-intervals `[T qᵢ - r, T qᵢ + T + r - 1]`, `[T qⱼ - r, T qⱼ + T + r - 1]` of two
 thickened cubes, each met by a point of the real interval `(c - R, c + R)` with `2 R ≤ D`, `D`
 dividing `T` and `2 r`, overlap or touch. -/
-theorem touch_of_near {T r D qi qj a b : ℤ} {ctr R : ℝ} (hDT : D ∣ T) (hDr : D ∣ 2 * r) (hR : 2 * R ≤ D) (ha : a ≤ T * qi + T + r - 1) (hb : T * qj - r ≤ b)
+theorem touch_of_near {T r D qi qj a b : ℤ} {ctr R : ℝ} (hDT : D ∣ T) (hDr : D ∣ 2 * r)
+    (hR : 2 * R ≤ D) (ha : a ≤ T * qi + T + r - 1) (hb : T * qj - r ≤ b)
     (ha' : |(a : ℝ) - ctr| < R) (hb' : |(b : ℝ) - ctr| < R) :
     T * qj - r ≤ T * qi + T + r - 1 + 1 := by
   by_contra hc

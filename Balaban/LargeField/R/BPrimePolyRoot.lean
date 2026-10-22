@@ -23,11 +23,13 @@ torus (`castΩField`).
 
 * `SFCtx.analyticAt_liftWC`: the coordinates of the transported lift of `ψ_k` are analytic in `ψ_k`;
 * `SFCtx.analyticAt_psiJAt_cast`: `ψ^{(j)}` is analytic in `(ψ_k, φ)`;
-* `SFCtx.analyticAt_polyRoot`: the root of a polymer is analytic at every point where the
-  composed field lies in the domains of the class terms;
+* `SFCtx.analyticAt_polyRoot_joint`, `SFCtx.analyticAt_polyRoot`: the root of a polymer is analytic,
+  jointly in a parameter of the source and in `(ψ_k, φ)`, at every point where the composed field lies
+  in the domains of the class terms;
 * `SFCtx.dom_psiJAt_of_near`: the composed field of a field near the approximate field lies in
   the birth domain of the class;
-* `SFCtx.polyRoot_congr`: locality of the root;
+* `SFCtx.polyRoot_congr_src`, `SFCtx.polyRoot_congr`: locality of the root (in the field, the data
+  and the source);
 * `SFCtx.norm_polyRoot_le`: the bound of the root on the domain.
 -/
 
@@ -38,6 +40,20 @@ namespace Balaban.LargeField
 open Balaban Balaban.Multiscale Balaban.Background Balaban.Localization Balaban.SmallField
   Balaban.SmallField.Def6 Balaban.SmallField.Def6v2 Balaban.LargeField.Def7v2
   Balaban.SmallField.GsSpec
+
+/-- A function of the second factor, analytic there, is analytic on the product. -/
+theorem analyticAt_prodSnd {E F G : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F] [NormedAddCommGroup G] [NormedSpace ℂ G]
+    {f : F → G} {e₀ : E} {x₀ : F} (h : AnalyticAt ℂ f x₀) :
+    AnalyticAt ℂ (fun p : E × F => f p.2) (e₀, x₀) :=
+  h.comp_of_eq analyticAt_snd rfl
+
+/-- A function of the first factor, analytic there, is analytic on the product. -/
+theorem analyticAt_prodFst {E F G : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    [NormedAddCommGroup F] [NormedSpace ℂ F] [NormedAddCommGroup G] [NormedSpace ℂ G]
+    {f : E → G} {e₀ : E} {x₀ : F} (h : AnalyticAt ℂ f e₀) :
+    AnalyticAt ℂ (fun p : E × F => f p.1) (e₀, x₀) :=
+  h.comp_of_eq analyticAt_fst rfl
 
 namespace Def7.SFCtx
 
@@ -96,23 +112,37 @@ theorem analyticAt_psiJAt_cast {j : ℕ}
     rw [e]
     exact analyticAt_const
 
-/-- **The root of a polymer is analytic** in `(ψ_k, φ)` at every point where the composed field
-`ψ^{(j)}`, with the constant field `h`, lies in the domain of the class terms of `X` (when
-`X ⊂ Y^≈`; otherwise the root vanishes), for a source `g` with `‖g‖₁ < 1`. -/
-theorem analyticAt_polyRoot (g : GIdx S n M K N → ℂ) {P : Consts}
+/-- **The root of a polymer is analytic jointly in a parameter of the source and in `(ψ_k, φ)`**:
+for a source `g = gq e` analytic in a parameter `e` of a normed space, with `‖g‖₁ < 1` at `e₀`, at
+every point where the composed field `ψ^{(j)}`, with the constant field `h`, lies in the domain of
+the class terms of `X` (when `X ⊂ Y^≈`; otherwise the root vanishes). -/
+theorem analyticAt_polyRoot_joint {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (gq : E → GIdx S n M K N → ℂ) {P : Consts}
     {Dom : FieldDom S.d S.L C.N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom (C.sf.Tm C.N₁))
     (hm0 : P.m₀ = C.m₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
-    {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)} (hX : IsPolyDom C.m₀ j X)
-    (hg : l1 (sfG C.geo C.hnn C.hkK C.hT g) < 1)
+    {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)} (hX : IsPolyDom C.m₀ j X) (e₀ : E)
+    (hgq : AnalyticAt ℂ gq e₀) (hg : l1 (sfG C.geo C.hnn C.hkK C.hT (gq e₀)) < 1)
     (q₀ : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ))
     (hdom : X ⊆ C.sset (thickY R Y) → Dom.dom j ((C.sf.Tm C.N₁).gs j X)
       (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j)
       (constFld (hC hv))) :
-    AnalyticAt ℂ (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-      polyRoot C Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) j X) q₀ := by
+    AnalyticAt ℂ (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+      polyRoot C Y p.2.1 hv (gq p.1) (castΩField C.coarseSide_eq (C.genW Y) p.2.2) j X)
+      (e₀, q₀) := by
   classical
   have hX' : IsPolyDom P.m₀ j X := hm0 ▸ hX
-  have hF := C.analyticAt_psiJAt_cast Y hv (j := j) q₀
+  have hF : AnalyticAt ℂ
+      (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+        C.psiJAt Y p.2.1 hv (castΩField C.coarseSide_eq (C.genW Y) p.2.2) j) (e₀, q₀) :=
+    analyticAt_prodSnd (C.analyticAt_psiJAt_cast Y hv (j := j) q₀)
+  have hgi : ∀ x i, AnalyticAt ℂ
+      (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+        sfG C.geo C.hnn C.hkK C.hT (gq p.1) x i) (e₀, q₀) := fun x i =>
+    analyticAt_prodFst (analyticAt_pi_iff.1 hgq _)
+  have hG : AnalyticAt ℂ
+      (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+        (sfG C.geo C.hnn C.hkK C.hT (gq p.1) : Fld S.d S.L C.N₁ m₁ k N)) (e₀, q₀) :=
+    analyticAt_pi_iff.2 fun x => analyticAt_pi_iff.2 fun i => hgi x i
   unfold polyRoot
   by_cases hXT : X ⊆ C.sset (thickY R Y)
   · simp only [hXT, ↓reduceIte]
@@ -123,36 +153,45 @@ theorem analyticAt_polyRoot (g : GIdx S n M K N → ℂ) {P : Consts}
       have hE := hT.analyticE j hj1 hjk y X hX' hyX
         (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j,
           constFld (hC hv)) hd
-      have hpair : AnalyticAt ℂ
-          (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-            (C.psiJAt Y q.1 hv (castΩField C.coarseSide_eq (C.genW Y) q.2) j,
-              (constFld (hC hv) : Fld S.d S.L C.N₁ m₁ k N))) q₀ :=
-        hF.prod analyticAt_const
       exact AnalyticAt.comp (g := fun p : Fld S.d S.L C.N₁ m₁ k N × Fld S.d S.L C.N₁ m₁ k N =>
         (C.sf.Tm C.N₁).E j y X p.1 p.2)
-        (f := fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-            (C.psiJAt Y q.1 hv (castΩField C.coarseSide_eq (C.genW Y) q.2) j,
-              (constFld (hC hv) : Fld S.d S.L C.N₁ m₁ k N))) (x := q₀) hE hpair
+        (f := fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+            (C.psiJAt Y p.2.1 hv (castΩField C.coarseSide_eq (C.genW Y) p.2.2) j,
+              (constFld (hC hv) : Fld S.d S.L C.N₁ m₁ k N))) (x := (e₀, q₀)) hE
+        (hF.prod analyticAt_const)
     · have hxX : x ∈ X := (Finset.mem_filter.1 hx).2.1
       have hM := hT.analyticM j hj1 hjk x X hX' hxX
         (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j,
-          constFld (hC hv), sfG C.geo C.hnn C.hkK C.hT g) ⟨hd, hg⟩
-      have htriple : AnalyticAt ℂ
-          (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-            (C.psiJAt Y q.1 hv (castΩField C.coarseSide_eq (C.genW Y) q.2) j,
-              (constFld (hC hv) : Fld S.d S.L C.N₁ m₁ k N),
-              (sfG C.geo C.hnn C.hkK C.hT g : Fld S.d S.L C.N₁ m₁ k N))) q₀ :=
-        hF.prod (analyticAt_const.prod analyticAt_const)
+          constFld (hC hv), sfG C.geo C.hnn C.hkK C.hT (gq e₀)) ⟨hd, hg⟩
       have hMc := AnalyticAt.comp (g := fun p : Fld S.d S.L C.N₁ m₁ k N ×
           Fld S.d S.L C.N₁ m₁ k N × Fld S.d S.L C.N₁ m₁ k N =>
         (C.sf.Tm C.N₁).M j x X p.1 p.2.1 p.2.2)
-        (f := fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-            (C.psiJAt Y q.1 hv (castΩField C.coarseSide_eq (C.genW Y) q.2) j,
+        (f := fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+            (C.psiJAt Y p.2.1 hv (castΩField C.coarseSide_eq (C.genW Y) p.2.2) j,
               (constFld (hC hv) : Fld S.d S.L C.N₁ m₁ k N),
-              (sfG C.geo C.hnn C.hkK C.hT g : Fld S.d S.L C.N₁ m₁ k N))) (x := q₀) hM htriple
-      exact analyticAt_const.mul (analyticAt_pi_iff.1 hMc i)
+              (sfG C.geo C.hnn C.hkK C.hT (gq p.1) : Fld S.d S.L C.N₁ m₁ k N))) (x := (e₀, q₀))
+        hM (hF.prod (analyticAt_const.prod hG))
+      exact (hgi x i).mul (analyticAt_pi_iff.1 hMc i)
   · simp only [hXT, ↓reduceIte]
     exact analyticAt_const
+
+/-- **The root of a polymer is analytic** in `(ψ_k, φ)` at every point where the composed field
+`ψ^{(j)}`, with the constant field `h`, lies in the domain of the class terms of `X` (when
+`X ⊂ Y^≈`; otherwise the root vanishes), for a source `g` with `‖g‖₁ < 1`: the instance of
+`analyticAt_polyRoot_joint` at a constant source. -/
+theorem analyticAt_polyRoot (g : GIdx S n M K N → ℂ) {P : Consts}
+    {Dom : FieldDom S.d S.L C.N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom (C.sf.Tm C.N₁))
+    (hm0 : P.m₀ = C.m₀) {j : ℕ} (hj1 : 1 ≤ j) (hjk : j ≤ k)
+    {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)} (hX : IsPolyDom C.m₀ j X)
+    (hg : l1 (sfG C.geo C.hnn C.hkK C.hT g) < 1)
+    (q₀ : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ))
+    (hdom : X ⊆ C.sset (thickY R Y) → Dom.dom j ((C.sf.Tm C.N₁).gs j X)
+      (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j)
+      (constFld (hC hv))) :
+    AnalyticAt ℂ (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
+      polyRoot C Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) j X) q₀ :=
+  (C.analyticAt_polyRoot_joint Y hv (fun _ : ℂ => g) hT hm0 hj1 hjk hX 0 analyticAt_const hg q₀
+    hdom).comp (analyticAt_const.prod analyticAt_id)
 
 /-- The data of `𝔹_k(W)` of a complex field `ψ_k`, transported to the Def-6 torus. -/
 noncomputable def dataWC (ψC : BlockAt S n M K k → Fin N → ℂ) : BgData (C.genWC Y) N :=
@@ -214,6 +253,38 @@ theorem dom_psiJAt_of_near {j : ℕ} (hj1 : 1 ≤ j) (hj : j < k) (hL : 3 ≤ S.
   obtain ⟨Ψ₀', h₀', Ψ'', h'', h1, h2, hXC⟩ := hXi
   exact ⟨Ψ₀', h₀', Ψ'', h'', h1, h2, Def6v2.xiC_mono_eps zero_le_one hε hXC⟩
 
+/-- **Locality of the root of a polymer, with two sources**: it reads the field `φ` only through the
+sites `composeDep` of the sites of `X`, the lift of `ψ_k` only on `X`, and the source only through
+`sfG g` on `X`. -/
+theorem polyRoot_congr_src (g g' : GIdx S n M K N → ℂ) {P : Consts}
+    {Dom : FieldDom S.d S.L C.N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom (C.sf.Tm C.N₁)) {j : ℕ}
+    (hj : j ≤ k) (X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k))
+    {ψC ψC' : BlockAt S n M K k → Fin N → ℂ} {φ φ' : (C.genWC Y).Ω 1 × Fin N → ℂ}
+    (hφ : ∀ x ∈ X, ∀ u ∈ composeDep (C.genWCj hj Y) (C.genWC Y) x, ∀ i,
+      svec (C.genWC Y) φ u i = svec (C.genWC Y) φ' u i)
+    (hψ : ∀ x ∈ X, ∀ i, C.liftWC Y hv ψC x i = C.liftWC Y hv ψC' x i)
+    (hg : ∀ x ∈ X, ∀ i, sfG C.geo C.hnn C.hkK C.hT g x i = sfG C.geo C.hnn C.hkK C.hT g' x i) :
+    polyRoot C Y ψC hv g (castΩField C.coarseSide_eq (C.genW Y) φ) j X =
+      polyRoot C Y ψC' hv g' (castΩField C.coarseSide_eq (C.genW Y) φ') j X := by
+  classical
+  have hF : ∀ x ∈ X, C.psiJAt Y ψC hv (castΩField C.coarseSide_eq (C.genW Y) φ) j x =
+      C.psiJAt Y ψC' hv (castΩField C.coarseSide_eq (C.genW Y) φ') j x := by
+    intro x hx
+    funext i
+    rw [C.psiJAt_cast Y ψC hv φ hj x i, C.psiJAt_cast Y ψC' hv φ' hj x i]
+    exact composeField_congr C.weights (hφ x hx) (hψ x hx) i
+  have hG : ∀ x ∈ X, sfG C.geo C.hnn C.hkK C.hT g x = sfG C.geo C.hnn C.hkK C.hT g' x :=
+    fun x hx => funext fun i => hg x hx i
+  unfold polyRoot
+  split_ifs
+  · congr 1
+    · refine Finset.sum_congr rfl fun y _ => ?_
+      exact hT.localE j y X _ _ _ _ fun x hx => ⟨hF x hx, rfl⟩
+    · refine Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun i _ => ?_
+      rw [hg x (Finset.mem_filter.1 hx).2.1 i,
+        hT.localM j x X _ _ _ _ _ _ fun z hz => ⟨hF z hz, rfl, hG z hz⟩]
+  · rfl
+
 /-- **Locality of the root of a polymer**: it depends on the background field only on the
 dependency sets `composeDep(𝔹_j(W), 𝔹_k(W); x)`, `x ∈ X`, and on `ψ_k` only through its lift on
 `X`. -/
@@ -225,21 +296,8 @@ theorem polyRoot_congr (g : GIdx S n M K N → ℂ) {P : Consts}
       svec (C.genWC Y) φ u i = svec (C.genWC Y) φ' u i)
     (hψ : ∀ x ∈ X, ∀ i, C.liftWC Y hv ψC x i = C.liftWC Y hv ψC' x i) :
     polyRoot C Y ψC hv g (castΩField C.coarseSide_eq (C.genW Y) φ) j X =
-      polyRoot C Y ψC' hv g (castΩField C.coarseSide_eq (C.genW Y) φ') j X := by
-  have hF : ∀ x ∈ X, C.psiJAt Y ψC hv (castΩField C.coarseSide_eq (C.genW Y) φ) j x =
-      C.psiJAt Y ψC' hv (castΩField C.coarseSide_eq (C.genW Y) φ') j x := by
-    intro x hx
-    funext i
-    rw [C.psiJAt_cast Y ψC hv φ hj x i, C.psiJAt_cast Y ψC' hv φ' hj x i]
-    exact composeField_congr C.weights (hφ x hx) (hψ x hx) i
-  unfold polyRoot
-  split_ifs
-  · congr 1
-    · refine Finset.sum_congr rfl fun y _ => ?_
-      exact hT.localE j y X _ _ _ _ fun x hx => ⟨hF x hx, rfl⟩
-    · refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
-      rw [hT.localM j x X _ _ _ _ _ _ fun z hz => ⟨hF z hz, rfl, rfl⟩]
-  · rfl
+      polyRoot C Y ψC' hv g (castΩField C.coarseSide_eq (C.genW Y) φ') j X :=
+  C.polyRoot_congr_src Y hv g g hT hj X hφ hψ fun _ _ _ => rfl
 
 open Classical in
 /-- **The bound of the root of a polymer**: at a point where the composed field lies in the domain of

@@ -6,7 +6,6 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.BPrimeOmegaBoxes
-public import Balaban.LargeField.R.BPrimeRAggregate
 
 /-!
 # The thickened interaction cubes of layer `1` inside `Ω₁(𝔹_k(W))`
@@ -19,13 +18,14 @@ cube side `T = L^k c M₁` and the doubled thickening `2 r`, and `2 hatRad ≤ D
 * `kconn_hatI_genWC`: `□̂_z ∩ Ω₁` is king connected (two boxes meeting `□̂_z` overlap or touch);
 * `connIn_hatI_genWC`: if moreover no two boxes touch (`T (m - 1) ≠ 2 r` for `m ≥ 2`, `r ≥ 1`), it
   is nearest-neighbour connected;
-* `hatConn_genWC`, `genHatConnAdm_genWC`: hence `HatConn (𝔹_k(W))` and the input `GenHatConnAdm`
-  of `rBPrime_aggregate`, for `k ≥ 2` under `L ∤ 10`, `L ≥ 7`, `L^{m₁} ∣ M₁`, `4 L² ≤ L^{m₁}`
-  (`D = M₁ L²`; `tSide_mul_ne_two_omRad`, `two_hatRad_le_cell`).
+* `hatConn_genWC`: hence `HatConn (𝔹_k(W))`, the connectedness used by `rBPrime_aggregate`, for
+  `k ≥ 2` under `L ∤ 10`, `L ≥ 7`, `L^{m₁} ∣ M₁`, `4 L² ≤ L^{m₁}` (`D = M₁ L²`;
+  `tSide_mul_ne_two_omRad`, `two_hatRad_le_cell`).
 
 At `k = 1` the boxes are the cubes of `W` themselves (`r = 0`), which may touch at a corner only;
 there `□̂_z ∩ Ω₁` is king connected (`kconn_hatI_genWC` with `D = T`, `two_hatRad_le_tSide`) but not
-nearest-neighbour connected in general.
+nearest-neighbour connected in general.  The step `R` does not need it: no component of `Z^pre_1` is
+ripe (`not_ripe_one`), so `R^{(1)}` removes nothing and `ℬ′` vanishes at `k = 1`.
 -/
 
 @[expose] public section
@@ -304,7 +304,7 @@ theorem two_hatRad_le_tSide (hk : k = 1) (hdvd : S.L ^ m₁ ∣ C.geo.M1)
   have h4 : (S.L : ℝ) ^ 2 * (S.L : ℝ) = (S.L : ℝ) * (S.L : ℝ) ^ 2 := by ring
   nlinarith [h1, h3, h4, h5]
 
-/-! ### `HatConn` and the input of the aggregate for `k ≥ 2` -/
+/-! ### `HatConn` for `k ≥ 2` -/
 
 /-- **`HatConn (𝔹_k(W))` for `k ≥ 2`**: the thickened cubes of layer `≥ 2` lie in `Ω₁`
 (`hatConn_of_layer_one`), those of layer `1` meet `Ω₁` in a connected set
@@ -316,12 +316,6 @@ theorem hatConn_genWC {a : ℕ → ℝ} {ν : ℝ}
   hatConn_of_layer_one hS fun q _ hq =>
     C.connIn_hatI_genWC Y (by omega) (C.cell2_dvd_tSide hk) C.cell2_dvd_omRad (C.one_le_omRad_one hk)
       (C.tSide_mul_ne_two_omRad hk hL10) (C.two_hatRad_le_cell hL7 hdvd hS.hM) q hq
-
-/-- **The input `GenHatConnAdm` of `rBPrime_aggregate` holds for `k ≥ 2`** (`hatConn_genWC`). -/
-theorem genHatConnAdm_genWC {a : ℕ → ℝ} {ν : ℝ}
-    (hS : DGSetting (C.genWC Y) a ν) (hk : 2 ≤ k) (hL10 : ¬ S.L ∣ 10) (hL7 : 7 ≤ S.L)
-    (hdvd : S.L ^ m₁ ∣ C.geo.M1) : GenHatConnAdm (C.genWC Y) :=
-  genHatConnAdm_of_hatConn (C.hatConn_genWC Y hS hk hL10 hL7 hdvd)
 
 end SFCtx
 
