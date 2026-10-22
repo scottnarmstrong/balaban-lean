@@ -121,4 +121,8 @@ theorem IsJet.of_funext {f f' : ℂ → ℂ} {a b c : ℂ} (h : IsJet f a b c) (
   have : f = f' := funext he
   rwa [← this]
 
+theorem IsJet.unique {f : ℂ → ℂ} {a b c a' b' c' : ℂ} (h : IsJet f a b c) (h' : IsJet f a' b' c') :
+    a = a' ∧ b = b' ∧ c = c' :=
+  ⟨h.value.symm.trans h'.value, h.deriv1.symm.trans h'.deriv1, h.deriv2.symm.trans h'.deriv2⟩
+
 end Balaban.Flow
