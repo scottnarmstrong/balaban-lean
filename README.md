@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 1,068,000 lines of Lean (about 846,000 without comments and blank
+As of October 2026, about 1,087,000 lines of Lean (about 861,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -36,12 +36,12 @@ proved; in the form first stated it is false.) The other six are open. Two of th
 statements are proved: the case of the flow with no renormalization step (part of the first blocker) and the
 bound on the vacuum energy of a step (part of the fourth).
 
-How far each one is under control, as of the morning of 22 October (details in [docs/BLOCKERS.md](docs/BLOCKERS.md)).
+How far each one is under control, as of the afternoon of 22 October (details in [docs/BLOCKERS.md](docs/BLOCKERS.md)).
 No blocker is stuck: each has a proof route that we are carrying out. Several turned out to need more work than
 estimated, mostly because the Lean transcription of a definition differed from what the papers print; each such
 case was corrected by a change approved by the author (R12–R29; R27 was withdrawn as not needed). For blockers 1, 3,
-4 and the first half of 5, the final assembly is now proved as a theorem from a fixed list of named remaining pieces,
-so what is left is exactly that list (sizes below).
+4 and the first half of 5, the final assembly is now proved on main as a theorem from a fixed list of named remaining
+pieces, so what is left is exactly that list (sizes below).
 
 | Blocker | Grade | In one line |
 |---|---|---|

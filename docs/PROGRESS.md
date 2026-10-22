@@ -8,7 +8,7 @@ placeholders `sorry`; see the [README](../README.md).
 **Overall estimate: about 90% of the Lean by volume, and about 60% when weighted by difficulty and
 risk.**
 
-- **By volume.** About 1,068,000 lines are written (the [size table](#size-of-the-lean-by-area)
+- **By volume.** About 1,087,000 lines are written (the [size table](#size-of-the-lean-by-area)
   below has the exact count by area). The finished formalization should need roughly 1.05–1.15
   million lines.
 - **By risk.** The weighted figure is lower because the parts still open include the hardest
@@ -84,22 +84,22 @@ exists, not what is proved correct or what remains. Everything counted here comp
 `sorry` or axioms, apart from the two main theorems.
 
 <!-- BEGIN GENERATED SIZE TABLE -->
-Computed at commit d17f2e6d 2026-10-22.
+Computed at commit 0b2a9e3a 2026-10-22.
 
 | Section | Lean files | Lines | Declarations |
 |---|---:|---:|---:|
 | Frozen model and root statements | 19 | 2,011 | 142 |
-| Lattice, analysis, Gaussian and polymer tools | 337 | 110,499 | 3,679 |
+| Lattice, analysis, Gaussian and polymer tools | 339 | 111,046 | 3,692 |
 | Green's functions and random walks | 171 | 54,504 | 2,460 |
-| Background fields and generating sets (P2) | 124 | 42,667 | 2,218 |
-| Localization expansions (P3, P6) | 245 | 78,880 | 3,717 |
-| Small-field class (P1, P4, P5) | 245 | 62,383 | 2,754 |
-| Fluctuation step and renormalization (P4-P6) | 671 | 225,163 | 6,891 |
-| Instantiated step at fixed parameters | 492 | 158,087 | 3,489 |
-| Large-field regions (P5-P7, E9-E10) | 1056 | 255,416 | 11,089 |
+| Background fields and generating sets (P2) | 124 | 42,687 | 2,220 |
+| Localization expansions (P3, P6) | 246 | 79,038 | 3,724 |
+| Small-field class (P1, P4, P5) | 254 | 63,723 | 2,806 |
+| Fluctuation step and renormalization (P4-P6) | 681 | 228,098 | 7,092 |
+| Instantiated step at fixed parameters | 496 | 162,706 | 3,544 |
+| Large-field regions (P5-P7, E9-E10) | 1089 | 262,565 | 11,358 |
 | Observables and correlations (P8, P9) | 75 | 17,301 | 681 |
-| Other | 209 | 57,935 | 2,559 |
-| **Total** | **3644** | **1,064,846** | **39,679** |
+| Other | 218 | 60,117 | 2,609 |
+| **Total** | **3712** | **1,083,796** | **40,328** |
 <!-- END GENERATED SIZE TABLE -->
 
 ## How the estimates are made
@@ -144,3 +144,4 @@ steps as bounded tasks with an estimated size.
 | 2026-10-21 (night) | ~90% | ~60% | Rulings R17–R23 approved: each restores a definition the Lean transcription had narrowed or merged (the printed complement of Ω in the test domains; the read tori and torus independence of the class; P1's external-field term; the scale of the fluctuation variable; the collar in the first support test; the pre-R locality clause). Blocker 6 regraded: the step chain is complete but the step map, the source terms and the two-torus agreement of the new level remain (several thousand lines). Blocker 7's step clause has no open mathematical hypothesis. Landings batched to cope with build time. |
 | 2026-10-22 | ~90% | ~60% | Rulings R24–R28 approved (the mass-term convention of the renormalization; the first step's source factor; the scales of the history-locality clause; connected domains as in P3; kept kernels indexed by labelled histories). Blocker 3: the data estimate and history locality proved. Blocker 4: the growth of the window bound in d = 3 traced to our own estimate; the uniform bound checked by hand, being proved; regraded from open question. The renormalization identities shared by blockers 1 and 6 are being written once for every scale. A large batch of merged work failed its build on two incompatibilities between branches and is being retried. |
 | 2026-10-22 (morning) | ~90% | ~60% | The final assembly of blockers 1, 3, 4 and of the first half of 5 is proved as a theorem from a fixed list of named remaining pieces, so each gap is an exact list (blocker 1 about 19,000 lines, 3 about 9,400, 4 about 5,000–7,500, 5 (first half) about 3,000). Ruling R29 approved; R27 withdrawn as not needed. Two design points of the last integral settled (an even rescaling for the cubic term; the inherited terms at composed data, since the needed smoothness is false at the decoupled backgrounds). Batches 7 and 8 landed. |
+| 2026-10-22 (afternoon) | ~90% | ~60% | Batches 9 and 10 landed: the final assemblies of blockers 1, 3 and 4 are on main, with the first half of blocker 5's; the cluster expansion of the gas of removed components (blocker 4) is proved on the actual gas; the composed-data smoothness producer shared by blockers 5 and 6 is on main. Three design corrections were found and fixed before any code was built on them: the g-coupling of the last integral (the bound now in every dimension d ≥ 3), the inherited terms at composed data, and the contact of removed clusters through the hole. |
