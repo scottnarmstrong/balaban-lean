@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Base.BaseChartGaussianNormalization
+public import Balaban.LargeField.Base.BaseFRWhiteConfig
 public import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Measurable
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 
@@ -51,10 +52,6 @@ end Meas
 section Sqrt
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
-
-/-- The coordinate basis of `Config ι N`. -/
-noncomputable abbrev configBasis (ι : Type*) [Fintype ι] (N : ℕ) :=
-  Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)
 
 /-- The coordinate action of the matrix `pdSqrtInv K` on `Config ι N`. -/
 noncomputable def sqrtApply (K : Matrix (Σ _ : ι, Fin N) (Σ _ : ι, Fin N) ℝ) (u : Config ι N) :
