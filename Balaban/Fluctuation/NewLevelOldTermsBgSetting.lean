@@ -161,6 +161,41 @@ theorem flSetting_of_top {Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
     FlSetting N Gb Gk Gd a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f :=
   flSetting_of_top_gen hF hG hk1 hC hdk hdtop htop
 
+/-- **(AE1) input of the old terms on `Gb` with the bound on the composed chart with a condition `Pr`
+on the source** (core of `eTermFun_analytic_bound_of_top_composed`). -/
+theorem eTermFun_analytic_bound_of_top_composedP
+    (Pr : ∀ ϱ₁' : ℝ, GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁' → Prop) (hPr : Pr ϱ₁ Gk) {b : ℝ} (hb₁ : 1 ≤ b) (hbC : b ≤ scaledC0 d)
+    (hB : BgSetting N Gp Gk Gj a₁ ν c BG κ r₀ eps δ₃ X₀ X₁f j) (hG' : IsLevel Gp (k + 1))
+    {Kc Cx c₂ Kc' Cx' c₂' BG₂ δ₁ δfl : ℝ}
+    (hF : FlSetting N Gp Gk Hm a₁ ν κ BG eps δ₃ Kc' Cx' c₂' BG₂ δ₁ δfl X₁f) (hG : IsLevel Hm k)
+    (hk1 : 1 ≤ k) (Sb : DGSetting Gb (compWeight L a₁) ν)
+    (HBb : BgHyp d L (k + 1) ϱb (compWeight L a₁) ν) (hrb : r₀ * (L : ℝ) ^ m₁ ≤ ϱb - 1)
+    (hC : FlCore N Gb Gd a₁ ν c BG κ eps Kc Cx c₂ BG₂ δ₁)
+    (hdk : Gd.Ω k = Gb.Ω k) (hdtop : Gd.Ω (k + 1) = ∅)
+    (htop : ∀ x ∈ dataSites Gk, x ∈ Gb.Ω (k + 1))
+    {Fk : RawData d L (N₁ * L ^ m₁) (k + 1) N → (Gk.Ω 1 × Fin N → ℂ) × (Gk.Ω 1 → ℂ)}
+    (hFkan : AnalyticOnNhd ℂ Fk {p | ∃ D : BgData Gk N,
+      InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D ∧ p = (D.Ψ, D.h)})
+    (hFk : ∀ D : BgData Gk N, InUnionDomainC Gk (bgC0 d L N) (bgC1 d L N) ν D →
+      Fk (rawOf D) = (bgFieldC Gk (compWeight L a₁) ν (bgC0 d L N) D,
+        bgMultC Gk (compWeight L a₁) ν (bgC0 d L N) D))
+    {E : RawData d L (N₁ * L ^ m₁) (k + 1) N → ℂ} {B : ℝ}
+    (hE : AnalyticOnNhd ℂ E (XiCRaw Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl)))
+    (hEb : ∀ r ∈ composedChartP Pr Gj (compWeight L a₁) ν j b
+      (b ^ 2 * eps + xiK2 d L N * δ₃ + xiK2 d L N * δfl), ‖E r‖ ≤ B) :
+    AnalyticOnNhd ℂ (fun t : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Gd.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)) =>
+      eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
+      (FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁) ∧
+    ∀ t ∈ FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁,
+      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
+  have hB' := bgSetting_of_top hB hG' Sb HBb hrb htop
+  have hF' := flSetting_of_top_gen hF hG hk1 hC hdk hdtop htop
+  exact ⟨eTermFun_analytic_of_one_le hb₁ hbC hB' hF' hFkan hFk hE,
+    fun t ht => eTermFun_bound_composedP Pr hPr hb₁ hbC hB' hF' hFk hEb ht⟩
+
+
 /-- **(AE1) input of the old terms on `Gb` with the bound on the composed chart** (the core of
 `eTermFun_analytic_bound_of_top_gen`): the old-term functional recomputed on `Gb` is analytic on the
 realizable triples of `Gb` when the term is analytic on its chart `Ξ^c_j(Gj; b, e)`, and bounded
@@ -191,11 +226,9 @@ theorem eTermFun_analytic_bound_of_top_composed {b : ℝ} (hb₁ : 1 ≤ b) (hbC
       eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2)
       (FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁) ∧
     ∀ t ∈ FlRealLC Gb Gd a₁ ν BG κ eps X₁f BG₂ δ₁,
-      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B := by
-  have hB' := bgSetting_of_top hB hG' Sb HBb hrb htop
-  have hF' := flSetting_of_top_gen hF hG hk1 hC hdk hdtop htop
-  exact ⟨eTermFun_analytic_of_one_le hb₁ hbC hB' hF' hFkan hFk hE,
-    fun t ht => eTermFun_bound_composed hb₁ hbC hB' hF' hFk hEb ht⟩
+      ‖eTermFun Gb Gk Gj Gd (compWeight L a₁) Fk E t.1 t.2.1 t.2.2‖ ≤ B :=
+  eTermFun_analytic_bound_of_top_composedP (fun _ _ => True) trivial hb₁ hbC hB hG' hF hG hk1 Sb HBb
+    hrb hC hdk hdtop htop hFkan hFk hE (fun r hr => hEb r (composedChartP_subset hr))
 
 /-- **(AE1) input of the old terms on `Gb`, general constants of the step's cover**: the statement
 of `eTermFun_analytic_bound_of_top` for a step `FlSetting` with any constants `(Kc', Cx', c₂')` of

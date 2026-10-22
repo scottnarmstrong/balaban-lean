@@ -72,8 +72,11 @@ the class are bounded on their term domain with the decay in the level of the ch
 `hEbL`; A4-1b (ii)), the numerics `NewLevelNumerics` hold at the tower's constants, and the
 conditions on constants of the radii, of the smallness against the cap of Theorem 3.4 and of the
 (DL-gap) hold, then on the cast local sets of the thickenings `Ŷ⁺(T′)` there are a family `f T′` of
-the pair of fields and bounds `b T′` with (A1)–(A5). -/
-theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero L] [NeZero N] {κmin : ℝ}
+the pair of fields and bounds `b T′` with (A1)–(A5).
+(Core: the composed charts with a condition `Pc j Gj` on their source, `composedChartP`, and the
+formula with the condition on the inherited levels, `NewLevelFormulaP`; for the scale gap of the
+pairs, `Pc j Gj _ G = LabelGap G Gj j`.) -/
+theorem StepTowerG.newLevel_localFamily_of_class_composedP {d L N : ℕ} [NeZero L] [NeZero N] {κmin : ℝ}
     (Tk : StepTowerG d L N κmin) (hm₀ : Tk.m₀ = 1) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ} [NeZero N₁]
     (hN₁ : L ^ Tk.m₀ ∣ N₁) (h5 : 5 < N₁) {ν β p₁ : ℝ} (hν0 : 0 < ν)
     (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β) (hp₁ : 0 < p₁)
@@ -90,7 +93,9 @@ theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero 
       (k + 1) Set.univ) → ℂ)
     (hsupp : ∀ θ T', e θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T'))
     {s : ℕ} (hHat : ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
-    (hnl : NewLevelFormula S C z Jr ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, δ₁O, p₁,
+    (Pc : ℕ → GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1) ϱ → ∀ ϱ₁' : ℝ,
+      GeneratingSet d L (N₁ * L ^ Tk.m₁) (k + 1) ϱ₁' → Prop)
+    (hnl : NewLevelFormulaP S C z Jr (fun O => ∀ τ, Pc (O.jL τ) (O.Gj τ) O.ϱ₁ (O.Gk τ)) ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, δ₁O, p₁,
       C.m₀, Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, δ₃, levelKc d L, Cchi d L, Tk.c₂, δfl⟩ e)
     -- the class: clauses on the birth-mass domain, weights, flow
     {P : Consts} (hPm : P.m₀ = C.m₀) (Rg : Regime L) (a : ℕ → ℝ)
@@ -119,7 +124,7 @@ theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero 
     (hBl : ∀ j y X, 0 ≤ Bl j y X)
     (hB : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ Tk.m₁ (k + 1))
       (X : Set (CTorus d L N₁ Tk.m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
-      ∀ r ∈ composedChart (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1
+      ∀ r ∈ composedChartP (Pc j (C.Tm.gs j X)) (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1
         (Tk.t + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
       ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X r.1 r.2‖ ≤
         Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
@@ -209,7 +214,7 @@ theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero 
         Def6.XiDom S.G' S.a S.ν (k + 1) (P.eps d L (k + 1)) q.1 q.2 →
         f T q = e (π (clipRaw S.G' q), 0) T) := by
   classical
-  obtain ⟨NS, hO, hK, he⟩ := hnl
+  obtain ⟨NS, hO, hPc, hK, he⟩ := hnl
   subst hS
   subst hϱ
   have hd : 3 ≤ d := Tk.hd
@@ -289,7 +294,7 @@ theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero 
     hCs.Sp isLevel_lvTopG (by omega : 1 ≤ Tk.m₀) hN₁
   obtain ⟨Y0, hY0⟩ := e1DomG_bridgeFamily_nonempty_of_covers (hk := hk) (ν := ν) (β := β) (p₁ := p₁) Tk hm₀
     hcovs rfl z
-  refine NS.localFamily_of_class_composed (c := Tk.c) (c₂ := hNLN.c₂m) (ϱf := rhoSepG d L Tk.m₁)
+  refine NS.localFamily_of_class_composedP (Pc := Pc) (hPc := hPc) (c := Tk.c) (c₂ := hNLN.c₂m) (ϱf := rhoSepG d L Tk.m₁)
     (Hf := HmG d L N₁ Tk.m₁ k) (Kc₀ := levelKc d L) (Cx₀ := Cchi d L) (c₂₀ := Tk.c₂)
     (c₂L := hNLN.c₂m) (ϱfL := rhoSepG d L Tk.m₁) (HfL := HmG d L N₁ Tk.m₁ k)
     (KcL₀ := levelKc d L) (CxL₀ := Cchi d L) (c₂L₀ := Tk.c₂) (δcL := Tk.δc)
@@ -546,6 +551,165 @@ theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero 
     rw [hK.κ]; exact hNLN.hM3
   case g_hN1 =>
     simpa [hm₀] using hN₁
+
+open Classical in
+/-- (Core, with the bound of the class at the data composed from the charts of level `k + 1`,
+`composedChart`.)
+**The clauses (A1)–(A5) of the new level at a step of a tower** (route R-LOC, L5; rulings R3,
+R6, R13).  Let `S` be the step of the tower `Tk` at the scale `k` on a read torus, `C` a class of
+the step whose terms satisfy the clauses on the birth-mass domain (`hcl`), with the step's weights
+(`hA`) and the masses of its flow (`hξ`, `hνflow`, the step mass `ν = ν_k L^{-2k}`), in the regime
+`ClassHatCond C s r₀` of ruling R13, and let `e` be the coefficient of a system of the class with the
+constants of the chain (`hnl`), supported on the polymers rooted at `z`.  If the irrelevant terms of
+the class are bounded on their term domain with the decay in the level of the chain (`hB`, `hEbI`,
+`hEbL`; A4-1b (ii)), the numerics `NewLevelNumerics` hold at the tower's constants, and the
+conditions on constants of the radii, of the smallness against the cap of Theorem 3.4 and of the
+(DL-gap) hold, then on the cast local sets of the thickenings `Ŷ⁺(T′)` there are a family `f T′` of
+the pair of fields and bounds `b T′` with (A1)–(A5).
+The instance of `newLevel_localFamily_of_class_composedP` with no condition on the source. -/
+theorem StepTowerG.newLevel_localFamily_of_class_composed {d L N : ℕ} [NeZero L] [NeZero N] {κmin : ℝ}
+    (Tk : StepTowerG d L N κmin) (hm₀ : Tk.m₀ = 1) {k : ℕ} (hk : 1 ≤ k) {N₁ : ℕ} [NeZero N₁]
+    (hN₁ : L ^ Tk.m₀ ∣ N₁) (h5 : 5 < N₁) {ν β p₁ : ℝ} (hν0 : 0 < ν)
+    (hν : ν * (L : ℝ) ^ (2 * (k + 1)) ≤ 1) (hβ : 0 < β) (hp₁ : 0 < p₁)
+    {ϱ : ℝ} (hϱ : ϱ = rhoSepG d L Tk.m₁) (S : StepSetting d L N₁ Tk.m₁ k N ϱ)
+    (hS : S = hatStepKG Tk.hN k Tk.m₁ ϱ hk ν β p₁ Tk.δ) {pp : ℝ} (Jr : S.JointRep Tk.t pp)
+    (C : StepClass d L N₁ Tk.m₁ k N ϱ) (z : RootIdx d L N₁ Tk.m₁ (k + 1))
+    -- the constants of the inherited levels and the rates
+    {κdec δ₁O δ₃ δfl : ℝ} (hδ₁O : 0 < δ₁O) (hδ₁Ot : δ₁O ≤ Tk.t) (hδ₃ : 0 ≤ δ₃) (hδfl : 0 ≤ δfl)
+    (hmd : d ≤ C.m₀) (hκ4 : 4 * d * (((2 * L + 1) ^ d : ℕ) : ℝ) * κdec ≤ Tk.κ)
+    (hrate : (2 * Tk.κdec - 1) * ((L : ℝ) ^ (C.m₀ - 1) + 2 * d * (L : ℝ) ^ C.m₀ *
+      (((L ^ (C.m₀ - 1)) ^ d : ℕ) : ℝ) * c1 d L) + 1 ≤ 2 * κdec)
+    -- the family of the step and its formula (regime of ruling R13)
+    (e : physParam N S → Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1
+      (k + 1) Set.univ) → ℂ)
+    (hsupp : ∀ θ T', e θ T' ≠ 0 → rootCube (m₀ := 1) z ∈ T' ∧ IsPolyDom 1 (k + 1) (sitesOf T'))
+    {s : ℕ} (hHat : ClassHatCond C s (4 * (d : ℝ) * (L : ℝ) ^ 3 + L))
+    (hnl : NewLevelFormula S C z Jr ⟨Tk.κ, Tk.BG, Tk.BG₂, p₁, Tk.κ0, Tk.κ, Tk.BG, Tk.BG₂, δ₁O, p₁,
+      C.m₀, Tk.c, 4 * (d : ℝ) * (L : ℝ) ^ 3 + L, δ₃, levelKc d L, Cchi d L, Tk.c₂, δfl⟩ e)
+    -- the class: clauses on the birth-mass domain, weights, flow
+    {P : Consts} (hPm : P.m₀ = C.m₀) (Rg : Regime L) (a : ℕ → ℝ)
+    (hcl : SFTermClauses P (birthXiDom P Rg a N₁) C.Tm)
+    (hA : aIdeal L (k + 1) (a (k + 1)) = compWeight L S.a₁)
+    {ξ : ℕ → Fin 3 → ℂ} {q c₈ ν₀ : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) (hc₈ : 0 ≤ c₈)
+    (hc₈q : c₈ * q ≤ 1 - q) (hξ : ∀ n, ‖ξ n‖ ≤ c₈ / 4 * q ^ (n + 1))
+    (hνflow : ∀ n, n ≤ k → ((Rg.ν n : ℝ) : ℂ) = Flow.nuSeq (L : ℝ) ξ (ν₀ : ℂ) n)
+    (hνS : ν = physMass L k (Rg.ν k))
+    {rm : ℝ} (hτ : Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1 ≤ 1 / 2)
+    (hτr : 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1) < rm) (hrm : rm ≤ 1 / 16)
+    (hmass : ν * ((L : ℝ) ^ (k + 1)) ^ 2 *
+      (1 + 2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1)) ≤ 1)
+    -- the (DL-gap) of the charts of the old terms at their birth masses
+    (hDL : ∀ j, 1 ≤ j → j ≤ k →
+      (2 * (Tk.t + xiK2 d L N * δ₃ + xiK2 d L N * δfl) + 2 * ((N : ℝ) + 1) *
+        (cK2 d L N * (Tk.t + xiK2 d L N * δ₃ + xiK2 d L N * δfl) ^ 2)) *
+        (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) *
+          (2 * (Real.exp (3 * (c₈ / 4 * (q ^ 2 / (1 - q)))) - 1))) ≤ P.eps d L j)
+    (hsmε : ∀ j, 1 ≤ j → j ≤ k → (4 * d + 6) * ((2 * d + 1) * P.eps d L j) ≤ 1)
+    (hc1ε : ∀ j, 1 ≤ j → j ≤ k → 4 * (xiC1 d * P.eps d L j) ≤ bgC1 d L N)
+    (hKε : ∀ j, 1 ≤ j → j ≤ k → bgK1 d L N * (xiC1 d * P.eps d L j) + 3 * rm ≤ deltaStar d L N)
+    (hζε : ∀ j, 1 ≤ j → j ≤ k → 8 * P.eps d L j * rm ≤ deltaStar d L N)
+    -- the bound of the class on its term domain (A4-1b (ii)) and its decay in the level
+    (Bl : ℕ → CTorus d L N₁ Tk.m₁ (k + 1) → Set (CTorus d L N₁ Tk.m₁ (k + 1)) → ℝ)
+    (hBl : ∀ j y X, 0 ≤ Bl j y X)
+    (hB : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ Tk.m₁ (k + 1))
+      (X : Set (CTorus d L N₁ Tk.m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
+      ∀ r ∈ composedChart (C.Tm.gs j X) (compWeight L S.a₁) S.ν j 1
+        (Tk.t + xiK2 d L N * δ₃ + xiK2 d L N * δfl),
+      ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X r.1 r.2‖ ≤
+        Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
+    {CI KL α₃ : ℝ} (n₁ : ℕ) (hCI : 0 ≤ CI) (hKL : 0 ≤ KL) (hα₃ : 0 < α₃) (hE₀ : 0 ≤ P.E₀)
+    (hEbI : ∀ j y X, j + n₁ ≤ k →
+      Bl j y X ≤ CI * P.E₀ * ((((L : ℝ)⁻¹ ^ (k - j)) ^ ((d : ℝ) + α₃))))
+    (hEbL : ∀ j y X, k < j + n₁ → Bl j y X ≤ KL * P.E₀)
+    -- the radius of the new level and the numerics of the new level (ruling R3)
+    (hεt : P.eps d L (k + 1) ≤ Tk.t)
+    (hNLN : NewLevelNumerics d L N Tk.m₁ Tk.c Tk.BG Tk.κ Tk.t Tk.c₂ Tk.BG₂ Tk.δc
+      (4 * (d : ℝ) * (L : ℝ) ^ 3 + L) ((2 * bgK1 d L N + 2) * xiC1 d * Tk.t))
+    -- the radii of the zero-source and bridge marks
+    {cψ r R₁ R U : ℝ} (hcψ : 0 ≤ cψ) (hρ₀c : 2 * p₁ ≤ cψ)
+    (hRu : corrU * markedRad d L N k S.a₁ Tk.κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < Tk.t)
+    (hR₁ : 1 < R₁) (hr : 0 < r) (hrays : (2 * R₁ + r) * p₁ ≤ cψ) (hR : 0 < R)
+    (hRR : (R + R) * markedRad d L N k S.a₁ Tk.κ cψ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < Tk.t)
+    (hUR : 2 * U ≤ R) (hU : 17 / 16 ≤ U)
+    (hsmZ : 8 * (|S.β| * (6 * (1 / 2) * c1 d L * ((L : ℝ) ^ (1 + Tk.m₁)) ^ d *
+      ‖energyBdScaled d L N (compWeight L S.a₁) k (cK2' d L N (famConst d L Tk.BG₂ Tk.κ) * Tk.t)
+        Tk.t (rho4 d L N Tk.BG Tk.κ)‖ / r ^ 3)) ≤
+      1 / (8 * (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
+        rootUnionK d L 1 Tk.m₁ Tk.κ0) ^ 3 * c1 d L *
+        Real.exp (((2 * Tk.κdec - 1) - 2 * Tk.κ0) * cG d L + c1 d L + Tk.κ' * cG d L)))
+    -- the marked radius of the old terms and the smallness of the class (Theorem 3.4)
+    (hmr : 0 < markedRad d L N k S.a₁ Tk.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))
+    (hca : corrU ≤ δ₁O / (2 * markedRad d L N k S.a₁ Tk.κ p₁ ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ)))
+    (hsmO : corrU / (δ₁O / (2 * markedRad d L N k S.a₁ Tk.κ p₁
+        ((S.betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ))) *
+      (((2 ^ L ^ d : ℕ) : ℝ) * (c1 d L * ((((L : ℝ) ^ (1 + C.m₀ + Tk.m₁)) ^ d) * P.E₀ *
+        (2 * K0 d L Tk.κ0 * (CI * Real.exp ((κdec - 1) * cG d L) * (1 - (L : ℝ) ^ (-α₃))⁻¹ +
+          n₁ * (KL * Real.exp ((κdec - 1) * cG d L)) * ((((L : ℝ) ^ (n₁ - 1)) ^ d))))) *
+        Real.exp ((2 * Tk.κdec - 1) * (2 * (d : ℝ) * (L : ℝ) ^ C.m₀ *
+          ((((L ^ (C.m₀ - 1)) ^ d : ℕ)) : ℝ) * c1 d L)))) ≤
+      1 / (8 * (2 * (K0 d L Tk.κ0 + 1) + (K0 d L Tk.κ0 + rootUnionK d L 1 Tk.m₁ Tk.κ0) +
+        rootUnionK d L 1 Tk.m₁ Tk.κ0) ^ 3 * c1 d L *
+        Real.exp (((2 * Tk.κdec - 1) - 2 * Tk.κ0) * cG d L + c1 d L + Tk.κ' * cG d L)))
+    -- the cast of the local sets `𝔹_{k+1}(Ŷ)` and the projection onto the data of the step
+    {N₁' : ℕ} [NeZero N₁'] (hc : N₁' * L ^ (Tk.m₁ + s) = N₁ * L ^ Tk.m₁)
+    (hsep : ϱ ≤ minSep L (L ^ (Tk.m₁ + s)))
+    (π : RawData d L (N₁ * L ^ Tk.m₁) (k + 1) N →L[ℂ] rawSub N S.G')
+    (hπ : ∀ r (h : r ∈ rawSub N S.G'), π r = ⟨r, h⟩) :
+    ∃ (f : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → Def6.Fld d L N₁ Tk.m₁ (k + 1) N × Def6.Fld d L N₁ Tk.m₁ (k + 1) N → ℂ)
+      (b : Finset (CubeB (d := d) (L := L) (N₁ := N₁) (m₁ := Tk.m₁) (K := k + 1) 1 (k + 1)
+        Set.univ) → ℝ),
+      (∀ T, IsPolyDom P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T)))) →
+        AnalyticOnNhd ℂ (f T)
+          {p | (xiFieldDom S.a S.ν (P.eps d L) : FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ).dom (k + 1)
+            (castG hc (localB (k + 1) (le_refl (k + 1))
+              {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) | (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈
+                hatSet P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))} hsep))
+            p.1 p.2}) ∧
+      (∀ T, IsPolyDom P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T)))) →
+        ∀ p : Def6.Fld d L N₁ Tk.m₁ (k + 1) N × Def6.Fld d L N₁ Tk.m₁ (k + 1) N,
+        (xiFieldDom S.a S.ν (P.eps d L) : FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ).dom (k + 1)
+          (castG hc (localB (k + 1) (le_refl (k + 1))
+            {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) | (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈
+              hatSet P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))} hsep))
+          p.1 p.2 →
+        ‖f T p‖ ≤ b T) ∧
+      (∀ T, IsPolyDom P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T)))) →
+        ∀ p p' : Def6.Fld d L N₁ Tk.m₁ (k + 1) N × Def6.Fld d L N₁ Tk.m₁ (k + 1) N,
+        (xiFieldDom S.a S.ν (fun j => (2 * bgK1 d L N + 2) * xiC1 d * P.eps d L j) :
+          FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ).dom (k + 1)
+          (castG hc (localB (k + 1) (le_refl (k + 1))
+            {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) | (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈
+              hatSet P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))} hsep))
+          p.1 p.2 →
+        (xiFieldDom S.a S.ν (fun j => (2 * bgK1 d L N + 2) * xiC1 d * P.eps d L j) :
+          FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ).dom (k + 1)
+          (castG hc (localB (k + 1) (le_refl (k + 1))
+            {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) | (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈
+              hatSet P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))} hsep))
+          p'.1 p'.2 →
+        (∀ x ∈ sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))), p.1 x = p'.1 x ∧ p.2 x = p'.2 x) →
+        f T p = f T p') ∧
+      (∀ T, IsPolyDom P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T)))) →
+        ∀ Q : Matrix (Fin N) (Fin N) ℝ, Qᵀ * Q = 1 →
+        ∀ p : Def6.Fld d L N₁ Tk.m₁ (k + 1) N × Def6.Fld d L N₁ Tk.m₁ (k + 1) N,
+        (xiFieldDom S.a S.ν (P.eps d L) : FieldDom d L N₁ Tk.m₁ (k + 1) N ϱ).dom (k + 1)
+          (castG hc (localB (k + 1) (le_refl (k + 1))
+            {x' : CTorus d L N₁' (Tk.m₁ + s) (k + 1) | (torusCast x' : CTorus d L N₁ Tk.m₁ (k + 1)) ∈
+              hatSet P.m₀ (k + 1) (sitesOf (piHull P.m₀ (thickSet S.G' (sitesOf T))))} hsep))
+          p.1 p.2 →
+        f T (rotField (cmat Q) p.1, rotField (cmat Q) p.2) = f T p) ∧
+      (∀ T (q : Def6.Fld d L N₁ Tk.m₁ (k + 1) N × Def6.Fld d L N₁ Tk.m₁ (k + 1) N),
+        Def6.XiDom S.G' S.a S.ν (k + 1) (P.eps d L (k + 1)) q.1 q.2 →
+        f T q = e (π (clipRaw S.G' q), 0) T) :=
+  StepTowerG.newLevel_localFamily_of_class_composedP Tk hm₀ hk hN₁ h5 hν0 hν hβ hp₁ hϱ S hS Jr C z hδ₁O
+    hδ₁Ot hδ₃ hδfl hmd hκ4 hrate e hsupp hHat (fun _ _ _ _ => True)
+    (hnl.toP.mono fun _ _ _ => trivial) hPm Rg a hcl hA hq0 hq1 hc₈ hc₈q hξ hνflow hνS hτ hτr hrm
+    hmass hDL hsmε hc1ε hKε hζε Bl hBl
+    (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartP_subset hr))
+    n₁ hCI hKL hα₃ hE₀ hEbI hEbL hεt hNLN hcψ hρ₀c hRu hR₁ hr hrays hR hRR hUR hU hsmZ hmr hca hsmO
+    hc hsep π hπ
 
 open Classical in
 /-- **The clauses (A1)–(A5) of the new level at a step of a tower** (route R-LOC, L5; rulings R3,

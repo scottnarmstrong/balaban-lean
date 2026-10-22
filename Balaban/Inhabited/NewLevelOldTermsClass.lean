@@ -309,7 +309,80 @@ hypotheses of `oldTerm_charts_of_labels`, if the irrelevant term of every label 
 class from the charts of level `k + 1` (`composedChart`, the data the step reads; the open input
 A4-1b (ii) in the form of P1 (3.128)), then `β⁻¹ Eτ` is analytic and invariant under the real
 rotations on the chart `Ξ^c_j(Gj τ; b, e)` of the step and bounded by
-`|β|⁻¹ B_l e^{(κ_dec - 1) c_G} e^{-(κ_dec - 1) d(O.XL τ)}` on its composed chart. -/
+`|β|⁻¹ B_l e^{(κ_dec - 1) c_G} e^{-(κ_dec - 1) d(O.XL τ)}` on its composed chart.
+(Core: the composed charts with a condition `Pc j Gj` on their source, `composedChartP`; for the
+scale gap of the pairs, `Pc j Gj _ G = LabelGap G Gj j`.) -/
+theorem NewLevelSystem.oldTerm_charts_of_labels_composedP [NeZero N] {S : StepSetting d L N₁ m₁ k N ϱ}
+    {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
+    {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr)
+    {P : Consts} (Rg : Regime L) (a : ℕ → ℝ) (hPm : P.m₀ = C.m₀)
+    (hcl : SFTermClauses P (birthXiDom P Rg a N₁) C.Tm)
+    (hA : aIdeal L (k + 1) (a (k + 1)) = compWeight L S.a₁)
+    (H : BgHyp d L (k + 1) ϱ (compWeight L S.a₁) S.ν)
+    (H' : ∀ j, 1 ≤ j → j ≤ k → BgHyp d L (k + 1) ϱ (compWeight L S.a₁) (physMass L j (Rg.ν j)))
+    {b e τm r : ℝ} (hb : 1 ≤ b) (he : 0 < e)
+    (hμ : ∀ j, 1 ≤ j → j ≤ k → ∃ tm, physMass L j (Rg.ν j) = S.ν * (1 + tm) ∧ |tm| ≤ τm)
+    (hτr : τm < r) (hr : r ≤ 1 / 16)
+    (hDL : ∀ j, 1 ≤ j → j ≤ k →
+      (2 * (b ^ 2 * e) + 2 * ((N : ℝ) + 1) * (cK2 d L N * (b ^ 2 * e) ^ 2)) *
+        (1 + (1 + 16 * ((N : ℝ) + 1) * cK2 d L N) * τm) ≤ P.eps d L j)
+    (hsmε : ∀ j, 1 ≤ j → j ≤ k → (4 * d + 6) * ((2 * d + 1) * P.eps d L j) ≤ 1)
+    (hc1ε : ∀ j, 1 ≤ j → j ≤ k → 4 * (xiC1 d * P.eps d L j) ≤ bgC1 d L N)
+    (hKε : ∀ j, 1 ≤ j → j ≤ k → bgK1 d L N * (xiC1 d * P.eps d L j) + 3 * r ≤ deltaStar d L N)
+    (hζε : ∀ j, 1 ≤ j → j ≤ k → 8 * P.eps d L j * r ≤ deltaStar d L N)
+    {κdec : ℝ} (hκ : 1 ≤ κdec)
+    (Bl : ℕ → CTorus d L N₁ m₁ (k + 1) → Set (CTorus d L N₁ m₁ (k + 1)) → ℝ)
+    (hBl : ∀ j y X, 0 ≤ Bl j y X)
+    (Pc : ℕ → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ → ∀ ϱ₁' : ℝ,
+      GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁' → Prop)
+    (hB : ∀ (i₀ i₁ : Fin N) (j : ℕ) (y : CTorus d L N₁ m₁ (k + 1))
+      (X : Set (CTorus d L N₁ m₁ (k + 1))), 1 ≤ j → j ≤ k → IsPolyDom C.m₀ j X → y ∈ X →
+      ∀ r ∈ composedChartP (Pc j (C.Tm.gs j X)) (C.Tm.gs j X) (compWeight L S.a₁) S.ν j b e,
+      ‖irrelTorus C.m₀ C.Tm i₀ i₁ j y X r.1 r.2‖ ≤
+        Bl j y X * Real.exp (-(κdec - 1) * treeLenCovOne C.m₀ j X))
+    (hm : NS.O.m₀ = C.m₀)
+    (i₀ i₁ : Fin N) (y : NS.O.ι → CTorus d L N₁ m₁ (k + 1))
+    (X : NS.O.ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hE : ∀ τ r, NS.O.Eτ τ r = irrelTorus C.m₀ C.Tm i₀ i₁ (NS.O.jL τ) (y τ) (X τ) r.1 r.2)
+    (hlab : ∀ τ, NS.O.Gj τ = C.Tm.gs (NS.O.jL τ) (X τ) ∧ 1 ≤ NS.O.jL τ ∧ NS.O.jL τ ≤ k ∧
+      Aligned (L ^ NS.O.jL τ) (y τ) ∧ IsPolyDom C.m₀ (NS.O.jL τ) (X τ) ∧ y τ ∈ X τ ∧
+      NS.O.XL τ = X τ ∪ box (cbase (cellSide L C.m₀ m₁ (NS.O.jL τ)) (y τ) -
+        natT fun _ => L / 2 * cellSide L C.m₀ m₁ (NS.O.jL τ))
+          (L * cellSide L C.m₀ m₁ (NS.O.jL τ))) :
+    (∀ τ, AnalyticOnNhd ℂ (fun r => (S.β : ℂ)⁻¹ * NS.O.Eτ τ r)
+        (XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e)) ∧
+      (∀ τ, ∀ r ∈ composedChartP (Pc (NS.O.jL τ) (NS.O.Gj τ)) (NS.O.Gj τ) (compWeight L S.a₁) S.ν
+          (NS.O.jL τ) b e,
+        ‖(S.β : ℂ)⁻¹ * NS.O.Eτ τ r‖ ≤
+          |S.β|⁻¹ * Bl (NS.O.jL τ) (y τ) (X τ) * Real.exp ((κdec - 1) * cG d L) *
+            Real.exp (-(κdec - 1) * treeLenCovOne NS.O.m₀ (NS.O.jL τ) (NS.O.XL τ))) ∧
+      (∀ τ (Q : Matrix (Fin N) (Fin N) ℝ), Qᵀ * Q = 1 →
+        ∀ r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e,
+          (S.β : ℂ)⁻¹ * NS.O.Eτ τ (rotRaw (cmat Q) r) = (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) := by
+  have hN : L ^ C.m₀ ∣ N₁ := hm ▸ NS.OS.hN
+  obtain ⟨han, hrot⟩ := NS.oldTerm_charts_an_rot_of_labels Rg a hPm hcl hA H H' hb he hμ hτr hr
+    hDL hsmε hc1ε hKε hζε i₀ i₁ y X hE hlab
+  refine ⟨han, fun τ => ?_, hrot⟩
+  obtain ⟨hGj, hj1, hjk, -, hX, hy, hXL⟩ := hlab τ
+  have hle : treeLenCovOne C.m₀ (NS.O.jL τ) (NS.O.XL τ) ≤
+      treeLenCovOne C.m₀ (NS.O.jL τ) (X τ) + cG d L := by
+    rw [hXL]
+    exact treeLenCovOne_support_le hN (hjk.trans (Nat.le_succ k)) hX hy
+  intro q hq
+  rw [hE τ q, hm]
+  rw [hGj] at hq
+  exact irrelTorus_bound_on (hBl _ _ _) hκ hle
+    (fun q hq => hB i₀ i₁ _ _ _ hj1 hjk hX hy q hq) S.β q hq
+
+/-- **The fields of the old terms of a system of the class, with the bound on the composed
+charts** (route R-LOC, L5; rulings R2, R6, R13; P1 (3.128) at the data of the step).  Under the
+hypotheses of `oldTerm_charts_of_labels`, if the irrelevant term of every label is bounded by
+`B_l(j, y, X) e^{-(κ_dec - 1) d(X)}` at the data composed into the generating set `Tm.gs j X` of the
+class from the charts of level `k + 1` (`composedChart`, the data the step reads; the open input
+A4-1b (ii) in the form of P1 (3.128)), then `β⁻¹ Eτ` is analytic and invariant under the real
+rotations on the chart `Ξ^c_j(Gj τ; b, e)` of the step and bounded by
+`|β|⁻¹ B_l e^{(κ_dec - 1) c_G} e^{-(κ_dec - 1) d(O.XL τ)}` on its composed chart.
+The instance of `oldTerm_charts_of_labels_composedP` with no condition on the source. -/
 theorem NewLevelSystem.oldTerm_charts_of_labels_composed [NeZero N] {S : StepSetting d L N₁ m₁ k N ϱ}
     {C : StepClass d L N₁ m₁ k N ϱ} {z : RootIdx d L N₁ m₁ (k + 1)} {t pp : ℝ}
     {Jr : S.JointRep t pp} (NS : NewLevelSystem S C z Jr)
@@ -354,20 +427,12 @@ theorem NewLevelSystem.oldTerm_charts_of_labels_composed [NeZero N] {S : StepSet
       (∀ τ (Q : Matrix (Fin N) (Fin N) ℝ), Qᵀ * Q = 1 →
         ∀ r ∈ XiCRaw (NS.O.Gj τ) (compWeight L S.a₁) S.ν (NS.O.jL τ) b e,
           (S.β : ℂ)⁻¹ * NS.O.Eτ τ (rotRaw (cmat Q) r) = (S.β : ℂ)⁻¹ * NS.O.Eτ τ r) := by
-  have hN : L ^ C.m₀ ∣ N₁ := hm ▸ NS.OS.hN
-  obtain ⟨han, hrot⟩ := NS.oldTerm_charts_an_rot_of_labels Rg a hPm hcl hA H H' hb he hμ hτr hr
-    hDL hsmε hc1ε hKε hζε i₀ i₁ y X hE hlab
-  refine ⟨han, fun τ => ?_, hrot⟩
-  obtain ⟨hGj, hj1, hjk, -, hX, hy, hXL⟩ := hlab τ
-  have hle : treeLenCovOne C.m₀ (NS.O.jL τ) (NS.O.XL τ) ≤
-      treeLenCovOne C.m₀ (NS.O.jL τ) (X τ) + cG d L := by
-    rw [hXL]
-    exact treeLenCovOne_support_le hN (hjk.trans (Nat.le_succ k)) hX hy
-  intro q hq
-  rw [hE τ q, hm]
-  rw [hGj] at hq
-  exact irrelTorus_bound_on (hBl _ _ _) hκ hle
-    (fun q hq => hB i₀ i₁ _ _ _ hj1 hjk hX hy q hq) S.β q hq
+  obtain ⟨h1, h2, h3⟩ := NS.oldTerm_charts_of_labels_composedP Rg a hPm hcl hA H H' hb he hμ hτr hr
+    hDL hsmε hc1ε hKε hζε hκ Bl hBl (fun _ _ _ _ => True)
+    (fun i₀ i₁ j y X hj1 hjk hX hy r hr =>
+      hB i₀ i₁ j y X hj1 hjk hX hy r (composedChartP_subset hr))
+    hm i₀ i₁ y X hE hlab
+  exact ⟨h1, fun τ r hr => h2 τ r (composedChart_subset_P_true hr), h3⟩
 
 end Charts
 
