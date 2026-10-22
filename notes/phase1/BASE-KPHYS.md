@@ -59,8 +59,7 @@ integral, which are not unit-spin pairings; the unit-spin part alone gives `cbar
 `M̃` terms with domains in `Z'` go to `B^(1)`; then `cbar = 0` and the carrier is unchanged."
 
 ## 5. Plan (item 2, in order)
-1. `Base/BaseWitnessSplit.lean`: `1 - A B = (1-A) + A(1-B)` and the product over `P` as a sum over `w : BaseW` (`Finset.prod_add`), 
-   statement of `W P = sum_w baseF-part * B-part`: ~150, provable now.
+1. (done by `baseF_decomposition`, `BaseWitness.lean`, which is the witness split with exactly the `Kt` factors `prod_{P,w=bd}(1-B) prod_O B`.)
 2. `Base/BaseKtDef.lean`: `baseKtOf` (the integrand factor without `A`) and its four clauses `nonneg/meas/outside/dom`: ~300.
 3. `Base/BaseBSource.lean`: `bSource` = (5), with `b_analytic`, `b_real`, `b_supp`, `b_rot`, `b_bound` with constant 1: ~250.
 4. The Gaussian/vacuum part (1)-(3) and the assembly `BaseProductData` with `bSmall` as parameter: ~600; (S2) after.
