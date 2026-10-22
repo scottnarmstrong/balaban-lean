@@ -3473,3 +3473,5 @@ public import Balaban.Polymer.LocalIsoOld
 public import Balaban.Polymer.LocalIsoBridge
 public import Balaban.Spine.FinalLFHistFactor
 public import Balaban.Spine.FinalLFHistFactorSurj
+public import Balaban.Spine.FinalLFDouble
+public import Balaban.Spine.FinalLFKerLocal
