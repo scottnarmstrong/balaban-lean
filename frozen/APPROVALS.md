@@ -106,3 +106,10 @@ datum in `Ψ̃^c(ε, ε)`; (R15) at the cell `□(y)`, `irrelTorus` renormalizes
 `⌊L^{m₀+m₁+k}/8⌋` around `y`; (R16) the large-field boundary terms are analytic and bounded at the physical external
 field only; and two details of R13's implementation (the `⌊L/2⌋`-cell thickening `X̂`, and the birth-mass class
 domain with the mass response). Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Ruling R17 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R17". This approves: in the pre-`R` boundary-term records `D7Bdry`,
+`D7Bdry2`, the H7 domain is read at the global history with the pre-`R` region `Z^pre_k` at the top scale, so the
+cube tests use the complement of `Ω_k` printed in P5 (1.36). Text in `AGENTS.md` ("Author rulings"). No frozen
+declaration changes.

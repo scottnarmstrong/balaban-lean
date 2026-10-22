@@ -146,6 +146,15 @@ provider, and nothing may import a root, until the root is sealed.
   version), not on the pinned ball `‖h' − h‖ < r_h`; the other (D7) clauses and the small-field domains (which keep
   the ball) are unchanged. Every reader uses (D7) at the physical field, and the whole build without the ball passes
   (ORCH-A, branch `orchA-r16`). `D7BdryBall` and `LFBdrySrcInput` are deleted; `lfStepInput_of_parts` loses `hBs`.
+- **Ruling R17 (2026-10-21, Scott: "approve R17").** In the pre-`R` boundary-term records `D7Bdry`, `D7Bdry2`
+  (clauses `analytic`, `bound`) the H7 domain is taken at `globalLHPre A.H M k`: the global history with the pre-`R`
+  region `Z^pre_k` in place of `Z_k` at the top scale. At the top scale the cube tests' holes become `(𝕋_k ∖ Ω_k)^{∼3}`,
+  the complement printed in P5 (1.36) (`Z^pre_k ⊇ Ω^c_k`: `Omega_compl_subset_Z0`, `Z0_subset_Zpre`); lower scales,
+  `omegaCNb`, the post-`R` records and every localized-history user are unchanged, and with no removal at scale `k`
+  the records coincide. Without it, at a history whose component of `Z^pre_{k+1}` is removed by `R^{(k+1)}`, no test reads
+  `ψ_k` in the band outside the holes and `H7MixedDatumLoc2` is false (W1154d, `not_h7MixedDatumLoc2_of_site`). The
+  transport across `R` (`d7Post_bound_of_avoid_of_gas`, `analytic_of_avoid`) splits off the labels within 3 cubes of
+  a removed component, which go to the gas bound.
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
