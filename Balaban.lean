@@ -2203,6 +2203,7 @@ public import Balaban.LargeField.Base.BaseChartCross
 public import Balaban.LargeField.Base.BaseCrossCoef
 public import Balaban.LargeField.Base.BaseLabelCross
 public import Balaban.LargeField.Base.BaseChartTermCross
+public import Balaban.LargeField.Base.BaseLocalSpec
 public import Balaban.LargeField.Base.BasePstTransport
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt

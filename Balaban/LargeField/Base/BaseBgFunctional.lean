@@ -74,6 +74,52 @@ theorem norm_cutTo_lt {ι : Type*} [DecidableEq ι] (A : Finset ι) (s : ι → 
   · exact hs P
   · rw [norm_zero]; exact lt_of_le_of_lt (norm_nonneg _) (hs P)
 
+/-- **(AE2) for a functional of the decoupled background, with a depth hypothesis.**  For parameters `s` of the open polydisc
+vanishing off a family `Cs` of cells, a function `Fe` of the decoupled background that reads the
+seed only takes the same value at `s` and at the parameters `cutTo A s`, `A` the rooted component
+of `Cs` at the seed (patches `cellPatch`, radius `Dr ≥ 3 L^{k+1}`).  The seed hull of `s` has depth `2 L^{k+1}` in `Ω₁` (`hdeep`): the core of `bgFunctional_cutTo_invariant`. -/
+theorem bgFunctional_cutTo_invariant_deep {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ}
+    (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF : ∀ (s : Dec2.DecParams (coverOf G)) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : G.Ω 1 × Fin N → ℂ)
+        (α : G.Ω 1 → ℂ), Dec2.IsDecBg (coverOf G) G a ν (rho4 d L N BG κ) s D φ α →
+          F (s, (D.Ψ, D.h)) = (φ, α))
+    {Dd : BgData G N} (hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd)
+    {Dr : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ Dr)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+    {Fe : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed G seed Fe)
+    {Cs : Finset ↥(coverOf G).cubeIdx} {s : Dec2.DecParams (coverOf G)} (hsC : s ∈ supportedOn Cs)
+    (hdeep : ∀ y ∈ seedHull (coverOf G) Dr (Dec2.extS _ s) seed,
+      ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1)
+    (hs : ∀ P, ‖s P‖ < Real.exp κ) :
+    Fe (F (s, (Dd.Ψ, Dd.h))) =
+      Fe (F (cutTo (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs) s, (Dd.Ψ, Dd.h))) := by
+  classical
+  set A := rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs with hA
+  set s' := cutTo A s with hs'
+  have hs'lt : ∀ P, ‖s' P‖ < Real.exp κ := norm_cutTo_lt A s hs
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
+  have hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd :=
+    ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩
+  have hsup' : ∀ q, ActC (coverOf G) (Dec2.extS _ s') q → ActC (coverOf G) (Dec2.extS _ s) q :=
+    fun q hq => ⟨hq.1, by rw [← sProd_cutTo_eq_of_active A s hq.2]; exact hq.2⟩
+  have hcomp : ∀ q ∈ actComp (coverOf G) Dr (Dec2.extS _ s) seed,
+      (coverOf G).sProd (Dec2.extS _ s) q = (coverOf G).sProd (Dec2.extS _ s') q := by
+    intro q hq
+    exact (sProd_cutTo_eq_of_footprint A s fun i hi hiC =>
+      footprint_subset_rootComp hsC hq hi hiC).symm
+  have key := decBg_agree_of_seedHull G a ν Dd hS Sb HB hκ hM (v := s) (v' := s') (smax := s)
+    (fun P => (hs P).le) (fun P => (hs'lt P).le) hδ0 hδε hε hδ hνε hD hDD seed (fun q hq => hq)
+    hsup' hcomp hdeep
+  rw [F_eq_decBg G a ν hS Sb HB hκ hM hF hs hDu, F_eq_decBg G a ν hS Sb HB hκ hM hF hs'lt hDu]
+  refine hFe _ _ (fun y hy i => ?_) (fun x hx => ?_)
+  · have hyT := seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s) seed hy
+    exact (key.2 y.1 y.2 (subset_nbhdSup _ _ hyT) i).symm
+  · exact (key.1 x.1 x.2 (seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s) seed hx)).symm
+
 /-- **(AE2) for a functional of the decoupled background.**  For parameters `s` of the open polydisc
 vanishing off a family `Cs` of cells, a function `Fe` of the decoupled background that reads the
 seed only takes the same value at `s` and at the parameters `cutTo A s`, `A` the rooted component
@@ -94,29 +140,8 @@ theorem bgFunctional_cutTo_invariant {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L 
     {Cs : Finset ↥(coverOf G).cubeIdx} {s : Dec2.DecParams (coverOf G)} (hsC : s ∈ supportedOn Cs)
     (hs : ∀ P, ‖s P‖ < Real.exp κ) :
     Fe (F (s, (Dd.Ψ, Dd.h))) =
-      Fe (F (cutTo (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs) s, (Dd.Ψ, Dd.h))) := by
-  classical
-  set A := rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs with hA
-  set s' := cutTo A s with hs'
-  have hs'lt : ∀ P, ‖s' P‖ < Real.exp κ := norm_cutTo_lt A s hs
-  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
-  have hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd :=
-    ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩
-  have hsup' : ∀ q, ActC (coverOf G) (Dec2.extS _ s') q → ActC (coverOf G) (Dec2.extS _ s) q :=
-    fun q hq => ⟨hq.1, by rw [← sProd_cutTo_eq_of_active A s hq.2]; exact hq.2⟩
-  have hcomp : ∀ q ∈ actComp (coverOf G) Dr (Dec2.extS _ s) seed,
-      (coverOf G).sProd (Dec2.extS _ s) q = (coverOf G).sProd (Dec2.extS _ s') q := by
-    intro q hq
-    exact (sProd_cutTo_eq_of_footprint A s fun i hi hiC =>
-      footprint_subset_rootComp hsC hq hi hiC).symm
-  have key := decBg_agree_of_seedHull G a ν Dd hS Sb HB hκ hM (v := s) (v' := s') (smax := s)
-    (fun P => (hs P).le) (fun P => (hs'lt P).le) hδ0 hδε hε hδ hνε hD hDD seed (fun q hq => hq)
-    hsup' hcomp (fun _ _ z _ => hΩ z)
-  rw [F_eq_decBg G a ν hS Sb HB hκ hM hF hs hDu, F_eq_decBg G a ν hS Sb HB hκ hM hF hs'lt hDu]
-  refine hFe _ _ (fun y hy i => ?_) (fun x hx => ?_)
-  · have hyT := seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s) seed hy
-    exact (key.2 y.1 y.2 (subset_nbhdSup _ _ hyT) i).symm
-  · exact (key.1 x.1 x.2 (seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s) seed hx)).symm
+      Fe (F (cutTo (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs) s, (Dd.Ψ, Dd.h))) :=
+  bgFunctional_cutTo_invariant_deep G a ν hS Sb HB hκ hM hF hDu hDD hFe hsC (fun _ _ z _ => hΩ z) hs
 
 open Classical in
 /-- **Lemma AE through the decoupled background (item 3).**  Let `F` be the background map, analytic
@@ -218,6 +243,64 @@ theorem actC_indVec_of_cutTo (A : Finset ↥(coverOf G).cubeIdx) (s : Dec2.DecPa
   rw [this]; exact one_ne_zero
 
 open Classical in
+/-- **Locality of the coefficients in the data, with a depth hypothesis.**  Two data of the union domain whose raw data agree on
+`approxDep` of the sites of the `L^{k+1}`-neighbourhood of the seed hull of the indicator vector of the
+rooted component of `Cs` give the same coefficient `coef_{Cs}` of a functional `Fe` that reads the seed
+(radius `Dr ≥ 3 L^{k+1}`); the seed hull of every parameter supported on `Cs` has depth `2 L^{k+1}` in `Ω₁`
+(`hdeep`).  The core of `bgFunctional_coef_data_congr`. -/
+theorem bgFunctional_coef_data_congr_deep {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF : ∀ (s : Dec2.DecParams (coverOf G)) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : G.Ω 1 × Fin N → ℂ)
+        (α : G.Ω 1 → ℂ), Dec2.IsDecBg (coverOf G) G a ν (rho4 d L N BG κ) s D φ α →
+          F (s, (D.Ψ, D.h)) = (φ, α))
+    {Dd Dd' : BgData G N} (hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd)
+    (hDu' : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd')
+    {Dr : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ Dr)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+    {Fe : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed G seed Fe)
+    (Cs : Finset ↥(coverOf G).cubeIdx)
+    (hdeep : ∀ s ∈ supportedOn Cs, ∀ y ∈ seedHull (coverOf G) Dr (Dec2.extS _ s) seed,
+      ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1)
+    (hdat : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _
+        (indVec G (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs))) seed),
+      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z) :
+    coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs = coef (fun s => Fe (F (s, (Dd'.Ψ, Dd'.h)))) Cs := by
+  classical
+  have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
+  refine coef_congr_supported hR fun s hs hsC => ?_
+  have hsb : ∀ P, ‖s P‖ < Real.exp κ := fun P => by simpa using hs P
+  set A := rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs with hA
+  set s' := cutTo A s with hs'
+  have hs'lt : ∀ P, ‖s' P‖ < Real.exp κ := norm_cutTo_lt A s hsb
+  have e1 := bgFunctional_cutTo_invariant_deep G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu hDD hFe hsC (hdeep s hsC) hsb
+  have e2 := bgFunctional_cutTo_invariant_deep G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu' hDD hFe hsC (hdeep s hsC) hsb
+  rw [e1, e2]
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
+  obtain ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩ := hDu'
+  have hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd := ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩
+  have hDu' : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd' :=
+    ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩
+  have hdat' : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _ s') seed),
+      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z := fun y hy =>
+    hdat y (nbhdSup_mono (seedHull_mono (fun q hq => actC_indVec_of_cutTo G A s hq) seed) hy)
+  have hsup' : ∀ q, ActC (coverOf G) (Dec2.extS _ s') q → ActC (coverOf G) (Dec2.extS _ s) q :=
+    fun q hq => ⟨hq.1, by rw [← sProd_cutTo_eq_of_active A s hq.2]; exact hq.2⟩
+  have key := decBg_agree_of_seedHull_data G a ν Dd Dd' hS Sb HB (by linarith : 0 ≤ κ) hM
+    (v := s') (v' := s') (smax := s') (fun P => (hs'lt P).le) (fun P => (hs'lt P).le) hδ0 hδε hε hδ
+    hνε hD hδ0' hδε' hε' hδ' hνε' hD₂ hDD seed (fun q hq => hq) (fun q hq => hq)
+    (fun q _ => rfl) (fun y hy z hz => hdeep s hsC y (seedHull_mono hsup' seed hy) z hz) hdat'
+  rw [F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu,
+    F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu']
+  refine hFe _ _ (fun y hy i => ?_) (fun x hx => ?_)
+  · have hyT := seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hy
+    exact (key.2 y.1 y.2 (subset_nbhdSup _ _ hyT) i).symm
+  · exact (key.1 x.1 x.2 (seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hx)).symm
+
+open Classical in
 /-- **Locality of the coefficients in the data.**  Two data of the union domain whose raw data agree on
 `approxDep` of the sites of the `L^{k+1}`-neighbourhood of the seed hull of the indicator vector of the
 rooted component of `Cs` give the same coefficient `coef_{Cs}` of a functional `Fe` that reads the seed
@@ -240,35 +323,79 @@ theorem bgFunctional_coef_data_congr {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L 
     (hdat : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _
         (indVec G (rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs))) seed),
       y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z) :
-    coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs = coef (fun s => Fe (F (s, (Dd'.Ψ, Dd'.h)))) Cs := by
+    coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs = coef (fun s => Fe (F (s, (Dd'.Ψ, Dd'.h)))) Cs :=
+  bgFunctional_coef_data_congr_deep G a ν hS Sb HB hκ hM hF hDu hDu' hDD hFe Cs (fun _ _ _ _ z _ => hΩ z) hdat
+
+open Classical in
+/-- **The coefficient of one family of cells, with a depth hypothesis.**  For the background map `F`
+analytic on the open polydisc for the data of `Dd`, and `Fe` a function of the decoupled background
+that reads the seed and is analytic and bounded by `B` on a set `U` containing the backgrounds of the
+polydisc: the coefficient `coef_{Cs}` of a family `Cs` vanishes unless `Cs` is rooted at the seed and
+is bounded by `2 B e^{-(κ-1)|Cs|}`, when the seed hull of every parameter supported on `Cs` has depth
+`2 L^{k+1}` in `Ω₁` (`hdeep`; no assumption that `Ω₁` is the whole torus). -/
+theorem bgFunctional_pair_spec {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sb : Dec2.CoverBase (coverOf G) G a ν Kc Cx) (HB : BgHyp d L (k + 1) ϱ a ν) {κ : ℝ}
+    (hκ : 1 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)}
+    (hF : ∀ (s : Dec2.DecParams (coverOf G)) (D : BgData G N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : G.Ω 1 × Fin N → ℂ)
+        (α : G.Ω 1 → ℂ), Dec2.IsDecBg (coverOf G) G a ν (rho4 d L N BG κ) s D φ α →
+          F (s, (D.Ψ, D.h)) = (φ, α))
+    {Dd : BgData G N} (hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd)
+    (hFan : AnalyticOnNhd ℂ F {q | (∀ P, ‖q.1 P‖ < Real.exp κ) ∧
+      ∃ D : BgData G N, InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν D ∧ q.2 = (D.Ψ, D.h)})
+    {Dr : ℕ} (hDD : L ^ (k + 1) + 2 * L ^ (k + 1) ≤ Dr)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))}
+    {Fe : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed G seed Fe)
+    {U : Set ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ))} (hFeU : AnalyticOnNhd ℂ Fe U) {B : ℝ}
+    (hB : ∀ u ∈ U, ‖Fe u‖ ≤ B)
+    (hmem : ∀ s : Dec2.DecParams (coverOf G), (∀ P, ‖s P‖ < Real.exp κ) →
+      F (s, (Dd.Ψ, Dd.h)) ∈ U)
+    (Cs : Finset ↥(coverOf G).cubeIdx)
+    (hdeep : ∀ s ∈ supportedOn Cs, ∀ y ∈ seedHull (coverOf G) Dr (Dec2.extS _ s) seed,
+      ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist y z ≤ 2 * L ^ (k + 1) → z ∈ G.Ω 1) :
+    (¬ IsRootedFamily (cellPatch (coverOf G) Dr) (seed : Set _) Cs →
+      coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs = 0) ∧
+    ‖coef (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) Cs‖ ≤ 2 * B * Real.exp (-(κ - 1) * Cs.card) := by
   classical
   have hR : 1 < Real.exp κ := Real.one_lt_exp_iff.2 (by linarith)
-  refine coef_congr_supported hR fun s hs hsC => ?_
-  have hsb : ∀ P, ‖s P‖ < Real.exp κ := fun P => by simpa using hs P
-  set A := rootComp (cellPatch (coverOf G) Dr) (seed : Set _) Cs with hA
-  set s' := cutTo A s with hs'
-  have hs'lt : ∀ P, ‖s' P‖ < Real.exp κ := norm_cutTo_lt A s hsb
-  have e1 := bgFunctional_cutTo_invariant G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu hΩ hDD hFe hsC hsb
-  have e2 := bgFunctional_cutTo_invariant G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hDu' hΩ hDD hFe hsC hsb
-  rw [e1, e2]
-  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
-  obtain ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩ := hDu'
-  have hDu : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd := ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩
-  have hDu' : InUnionDomainC G (bgC0 d L N) (c7 d L N BG κ) ν Dd' :=
-    ⟨δ₂, ε₂, hδ0', hδε', hε', hδ', hνε', hD₂⟩
-  have hdat' : ∀ y ∈ nbhdSup (L ^ (k + 1)) (seedHull (coverOf G) Dr (Dec2.extS _ s') seed),
-      y ∈ G.Ω 1 → ∀ z ∈ approxDep G y, Dd.Ψ z = Dd'.Ψ z ∧ Dd.h z = Dd'.h z := fun y hy =>
-    hdat y (nbhdSup_mono (seedHull_mono (fun q hq => actC_indVec_of_cutTo G A s hq) seed) hy)
-  have key := decBg_agree_of_seedHull_data G a ν Dd Dd' hS Sb HB (by linarith : 0 ≤ κ) hM
-    (v := s') (v' := s') (smax := s') (fun P => (hs'lt P).le) (fun P => (hs'lt P).le) hδ0 hδε hε hδ
-    hνε hD hδ0' hδε' hε' hδ' hνε' hD₂ hDD seed (fun q hq => hq) (fun q hq => hq)
-    (fun q _ => rfl) (fun _ _ z _ => hΩ z) hdat'
-  rw [F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu,
-    F_eq_decBg G a ν hS Sb HB (by linarith : 0 ≤ κ) hM hF hs'lt hDu']
-  refine hFe _ _ (fun y hy i => ?_) (fun x hx => ?_)
-  · have hyT := seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hy
-    exact (key.2 y.1 y.2 (subset_nbhdSup _ _ hyT) i).symm
-  · exact (key.1 x.1 x.2 (seed_subset_seedHull (coverOf G) Dr (Dec2.extS _ s') seed hx)).symm
+  have hpoly : ∀ s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ),
+      ∀ P, ‖s P‖ < Real.exp κ := fun s hs P => by simpa using hs P
+  have hfan : AnalyticOnNhd ℂ (fun s => Fe (F (s, (Dd.Ψ, Dd.h))))
+      (polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ)) := by
+    intro s hs
+    have hq : AnalyticAt ℂ (fun s : Dec2.DecParams (coverOf G) => (s, (Dd.Ψ, Dd.h))) s := by
+      fun_prop
+    have h1 : AnalyticAt ℂ F (s, (Dd.Ψ, Dd.h)) := hFan _ ⟨hpoly s hs, Dd, hDu, rfl⟩
+    exact AnalyticAt.comp (g := Fe) (f := fun s => F (s, (Dd.Ψ, Dd.h)))
+      (hFeU _ (hmem s (hpoly s hs))) (AnalyticAt.comp (g := F) (f := fun s => (s, (Dd.Ψ, Dd.h))) h1 hq)
+  have h0 : (0 : Dec2.DecParams (coverOf G)) ∈
+      polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ) := fun P => by
+    simpa using Real.exp_pos κ
+  have hb : ∀ s ∈ polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ),
+      ‖Fe (F (s, (Dd.Ψ, Dd.h))) - Fe (F (0, (Dd.Ψ, Dd.h)))‖ ≤ 2 * B := by
+    intro s hs
+    refine (norm_sub_le _ _).trans ?_
+    have h1 := hB _ (hmem s (hpoly s hs))
+    have h2 := hB _ (hmem 0 (hpoly 0 h0))
+    linarith
+  refine ⟨fun hC => coef_eq_zero_of_not_rooted hR (fun s hs hsC =>
+    bgFunctional_cutTo_invariant_deep G a ν hS Sb HB (by linarith) hM hF hDu hDD hFe hsC
+      (hdeep s hsC) (hpoly s hs)) hC, ?_⟩
+  by_cases hne : Cs.Nonempty
+  · have hg : AnalyticOnNhd ℂ (fun s => Fe (F (s, (Dd.Ψ, Dd.h))) - Fe (F (0, (Dd.Ψ, Dd.h))))
+        (polydisc (0 : Dec2.DecParams (coverOf G)) (fun _ => Real.exp κ)) := fun s hs =>
+      (hfan s hs).sub analyticAt_const
+    rw [← coef_sub_const hne (fun s => Fe (F (s, (Dd.Ψ, Dd.h)))) (Fe (F (0, (Dd.Ψ, Dd.h))))]
+    exact norm_coef_le_exp hκ hg hb Cs
+  · rw [Finset.not_nonempty_iff_eq_empty] at hne
+    subst hne
+    rw [coef_empty]
+    simp only [Finset.card_empty, Nat.cast_zero, mul_zero, Real.exp_zero, mul_one]
+    have h1 := hB _ (hmem 0 (hpoly 0 h0))
+    have h2 : 0 ≤ ‖Fe (F (0, (Dd.Ψ, Dd.h)))‖ := norm_nonneg _
+    linarith
 
 end Functional
 
