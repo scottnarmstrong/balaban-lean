@@ -134,6 +134,10 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
     (hex : ∀ σ : DecParams Gb, (∀ P, ‖σ P‖ < Real.exp κ) →
       ∃ φ α, Dec2.IsDecBg (coverOf Gb) Gb (compWeight L a₁) ν ρb σ D φ α)
     {r : ℝ}
+    {Rl : Set (((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
+    {Rl' : Set (((Gb'.Ω 1 × Fin N → ℂ) × (Gb'.Ω 1 → ℂ)) × (Hm'.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ)))}
     (hv : ∀ σ : DecParams Gb, (∀ P, ‖σ P‖ < Real.exp κ) →
       let p : Dec2.DecParams (coverOf Gb) × Edat Hm N :=
         (σ, flEdat Gb Hm (F₁ (σ, rawOf D)) D.Ψ
@@ -142,7 +146,7 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
           (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
         Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
           (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
-        Small Hm (Sol p).2 r)
+        Small Hm (Sol p).2 r ∧ (F₁ (σ, rawOf D), (Sol p).1, (rawOf D, p.2.2.2.1)) ∈ Rl)
     (hv' : ∀ σ' : DecParams Gb', (∀ P, ‖σ' P‖ < Real.exp κ) →
       let p' : Dec2.DecParams (coverOf Gb') × Edat Hm' N :=
         (σ', flEdat Gb' Hm' (F₁' (σ', rawOf D')) D'.Ψ
@@ -150,14 +154,15 @@ theorem evDecBg_canon_twoTorus_core (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm 
             (rawOf D') (resZ (GB) Gb' ψh')))
       (Sol' p').1 = dphi Hm' (Dec2.decG (coverOf Gb') Hm' (compWeight L a₁) ν p'.1) p'.2.2.1
           p'.2.1 (pertSource Hm' (compWeight L a₁) p'.2.2.2.1 p'.2.2.2.2) (Sol' p').2 ∧
-        ∀ δα', Small Hm' δα' r → Dec2.DecFixed (coverOf Gb') Hm' (compWeight L a₁) ν p'.1 false
+        (∀ δα', Small Hm' δα' r → Dec2.DecFixed (coverOf Gb') Hm' (compWeight L a₁) ν p'.1 false
           p'.2.2.1 p'.2.1 (pertSource Hm' (compWeight L a₁) p'.2.2.2.1 p'.2.2.2.2) δα' →
-          δα' = (Sol' p').2)
+          δα' = (Sol' p').2) ∧
+        (F₁' (σ', rawOf D'), (Sol' p').1, (rawOf D', p'.2.2.2.1)) ∈ Rl')
     (hΦ : ∀ (t : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
       (t' : ((Gb'.Ω 1 × Fin N → ℂ) × (Gb'.Ω 1 → ℂ)) × (Hm'.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
-      (∀ x i, t'.1.1 (hI.e x, i) = t.1.1 (x, i)) → (∀ x, t'.1.2 (hI.e x) = t.1.2 x) →
+      t ∈ Rl → t' ∈ Rl' → (∀ x i, t'.1.1 (hI.e x, i) = t.1.1 (x, i)) → (∀ x, t'.1.2 (hI.e x) = t.1.2 x) →
       (∀ y i, t'.2.1 (hH.e y, i) = t.2.1 (y, i)) →
       FieldCorr (ρ + 1) t.2.2.1.1 t'.2.2.1.1 → FieldCorr (ρ + 1) t.2.2.1.2 t'.2.2.1.2 →
       FieldCorr (ρ + 1) t.2.2.2 t'.2.2.2 → Φ' t'.1 t'.2.1 t'.2.2 = Φ t.1 t.2.1 t.2.2) :

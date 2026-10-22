@@ -272,6 +272,10 @@ theorem FFmarkedBg_canon_eq (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm Hm' ρ) 
       F₁' (σ', rawOf D') = (φ, α))
     (hex : ∃ φ α, Dec2.IsDecBg (coverOf Gb) Gb (compWeight L a₁) ν ρb σ D φ α)
     {r : ℝ}
+    {Rl : Set (((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))}
+    {Rl' : Set (((Gb'.Ω 1 × Fin N → ℂ) × (Gb'.Ω 1 → ℂ)) × (Hm'.Ω 1 × Fin N → ℂ) ×
+        (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ)))}
     (hv : let p : Dec2.DecParams (coverOf Gb) × Edat Hm N :=
         (σ, flEdat Gb Hm (F₁ (σ, rawOf D)) D.Ψ
           (markedHatPsiFBg Gb a₁ ν (liftZ Gb) cc F₁ Zm um tm σ (rawOf D) (resZ Gp Gb ψh)))
@@ -279,21 +283,22 @@ theorem FFmarkedBg_canon_eq (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm Hm' ρ) 
           (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
         Dec2.DecFixed (coverOf Gb) Hm (compWeight L a₁) ν p.1 false p.2.2.1 p.2.1
           (pertSource Hm (compWeight L a₁) p.2.2.2.1 p.2.2.2.2) (Sol p).2 ∧
-        Small Hm (Sol p).2 r)
+        Small Hm (Sol p).2 r ∧ (F₁ (σ, rawOf D), (Sol p).1, (rawOf D, p.2.2.2.1)) ∈ Rl)
     (hv' : let p' : Dec2.DecParams (coverOf Gb') × Edat Hm' N :=
         (σ', flEdat Gb' Hm' (F₁' (σ', rawOf D')) D'.Ψ
           (markedHatPsiFBg Gb' a₁ ν (liftZ Gb') cc F₁' (Zm.map hI.unitEquiv.toEmbedding) um tm σ'
             (rawOf D') (resZ Gp' Gb' ψh')))
       (Sol' p').1 = dphi Hm' (Dec2.decG (coverOf Gb') Hm' (compWeight L a₁) ν p'.1) p'.2.2.1
           p'.2.1 (pertSource Hm' (compWeight L a₁) p'.2.2.2.1 p'.2.2.2.2) (Sol' p').2 ∧
-        ∀ δα', Small Hm' δα' r → Dec2.DecFixed (coverOf Gb') Hm' (compWeight L a₁) ν p'.1 false
+        (∀ δα', Small Hm' δα' r → Dec2.DecFixed (coverOf Gb') Hm' (compWeight L a₁) ν p'.1 false
           p'.2.2.1 p'.2.1 (pertSource Hm' (compWeight L a₁) p'.2.2.2.1 p'.2.2.2.2) δα' →
-          δα' = (Sol' p').2)
+          δα' = (Sol' p').2) ∧
+        (F₁' (σ', rawOf D'), (Sol' p').1, (rawOf D', p'.2.2.2.1)) ∈ Rl')
     (hΦ : ∀ (t : ((Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)) × (Hm.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁ * L ^ m₁) (k + 1) N × (CTorus d L N₁ m₁ (k + 1) → Fin N → ℂ)))
       (t' : ((Gb'.Ω 1 × Fin N → ℂ) × (Gb'.Ω 1 → ℂ)) × (Hm'.Ω 1 × Fin N → ℂ) ×
         (RawData d L (N₁' * L ^ m₁) (k + 1) N × (CTorus d L N₁' m₁ (k + 1) → Fin N → ℂ))),
-      (∀ x i, t'.1.1 (hI.e x, i) = t.1.1 (x, i)) → (∀ x, t'.1.2 (hI.e x) = t.1.2 x) →
+      t ∈ Rl → t' ∈ Rl' → (∀ x i, t'.1.1 (hI.e x, i) = t.1.1 (x, i)) → (∀ x, t'.1.2 (hI.e x) = t.1.2 x) →
       (∀ y i, t'.2.1 (hH.e y, i) = t.2.1 (y, i)) →
       FieldCorr (ρ + 1) t.2.2.1.1 t'.2.2.1.1 → FieldCorr (ρ + 1) t.2.2.1.2 t'.2.2.1.2 →
       FieldCorr (ρ + 1) t.2.2.2 t'.2.2.2 → Φ' t'.1 t'.2.1 t'.2.2 = Φ t.1 t.2.1 t.2.2) :
@@ -311,8 +316,8 @@ theorem FFmarkedBg_canon_eq (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm Hm' ρ) 
   have hψf := hI.markedHatPsiFBg_corr ν a₁ cc hσc hF1 hF2 Zm um tm hψ
   -- the data of the fluctuation problem
   have hE := hI.flEdat_corr hH hF1 hF2 hΨ hψf
-  obtain ⟨hv1, hv2, hv3⟩ := hv
-  obtain ⟨hv1', hU'⟩ := hv'
+  obtain ⟨hv1, hv2, hv3, hvR⟩ := hv
+  obtain ⟨hv1', hU', hvR'⟩ := hv'
   obtain ⟨hS1, hS2⟩ := hI.decSol_value_eq hH (compWeight L a₁) ν hσc false hE.α
     (fun x => by rw [coe_e]; exact hE.φ _ (hH.inBox_succ x.2))
     (fun x i => hH.pertSource_eq (compWeight L a₁) hE.δΨ hE.f x i) hv1 hv2 hv3 hv1' hU'
@@ -321,7 +326,8 @@ theorem FFmarkedBg_canon_eq (hI : OmegaIso Gb Gb' ρ) (hH : OmegaIso Hm Hm' ρ) 
   erw [FFmarkedBg_canon_apply X₁f' Gb' a₁ ν cc F₁' Sol' Φ' (Zm.map hI.unitEquiv.toEmbedding) um tm
     (rawOf D', ψh') w', FFmarkedBg_canon_apply X₁f Gb a₁ ν cc F₁ Sol Φ Zm um tm (rawOf D, ψh) w]
   simp only [hcl, hcl', ← hσ, ← hσ']
-  exact hΦ (F₁ (σ, rawOf D), _, (rawOf D, _)) (F₁' (σ', rawOf D'), _, (rawOf D', _)) hF1 hF2 hS1
+  exact hΦ (F₁ (σ, rawOf D), _, (rawOf D, _)) (F₁' (σ', rawOf D'), _, (rawOf D', _)) hvR hvR' hF1 hF2
+    hS1
     hΨ hh hψf
 
 end OmegaIso
