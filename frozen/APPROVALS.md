@@ -133,3 +133,11 @@ Author (Scott Armstrong), 2026-10-21: "approve R21, R22 and R23". This approves:
 read the rescaled fluctuation `(β_j a)^{-1/2} ψ′`; (R22) the pre-`R` records' `loc_hist` compares the pre-`R` region and
 its components; (R23) the first family of the support tests (1.24) includes the collar from `j = 0`. Texts in
 `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R24–R28 (2026-10-22)
+
+Author (Scott Armstrong), 2026-10-22: "approve R24, R25, R26, R27 and R28". This approves: (R24) the step map builds
+the new level from the counterterm with P4's linear mass term, and the class domain's physical external fields are the
+unit sphere; (R25) the first step's source factor `exp((1+c̄)‖g‖₁)`; (R26) the `Ω''` conjunct of `loc_hist` at scales
+`j < k`; (R27) `*`-adjacency for the localization expansion's connected domains; (R28) kept data indexed by labelled
+localized histories. Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.

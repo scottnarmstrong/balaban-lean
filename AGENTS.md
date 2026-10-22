@@ -184,6 +184,24 @@ provider, and nothing may import a root, until the root is sealed.
   (`ChiDomProp`, `ChiNewProp`) includes the collar sites and collar bonds from `j = 0`, as P2's `Ψ̃` and `InPsiTilde`
   do; the Lean transcription had lost the collar, so the first step's mixed test (1.36) read the unit-lattice field
   on collar sites that no support clause constrained (exact counterexample by ORCH-B, B3).
+- **Ruling R24 (2026-10-22, Scott: "approve R24, R25, R26, R27 and R28").** The mass-term convention of the
+  renormalization: at backgrounds the Lean action is P4's plus `τ(h) = (ν/2)Σ_x (h_x·h_x − 1)`, which vanishes at unit
+  `h`; the step map builds the new level from the counterterm `C₁′ − C₂`, where `C₁′` carries P4's linear mass term
+  `νξ₂Σ(1 − φ·h)` (`renormC1 = C₁′ + ξ₂τ`), so the term bounds at a block-varying `h''` see only `νφ·h''` and
+  `RenormCondAlong.dh` as landed is P4's condition. The class domain's physical external fields
+  (`birthXiDom.phys`) are the unit sphere `{h₀ | Σ h₀ᵢ² = 1}` (ORCH-C, W1146u).
+- **Ruling R25 (same approval).** The first step's kernel bound (`BaseSmallFieldInput.Kphys_bound`,
+  `BaseProductData.b_bound`) allows the source factor `exp((1+c̄)‖g|_{Z'}‖₁)`, `c̄ ≥ 0` the constant of LFR
+  Lemma II.7.7 (b) for the source parts of the small-field terms of `b₀` (P6 p. 14 at `k = 0`) (ORCH-C).
+- **Ruling R26 (same approval).** In the `loc_hist` clauses of `D7Bdry`, `D7BdryPost`, `D7Bdry2`, `D7Bdry2Post` the
+  `Ω''` conjunct compares scales `j < k` only (at `j = k` it is the next step's record, which nothing reads) (ORCH-B, B3).
+- **Ruling R27 (same approval).** The connected domains of the localization expansion (`compY`, the cut-locality
+  domain, the connected families) use `*`-adjacency (cubes or cells meeting at a face, edge or corner), as P3's
+  continuum connectivity does ((1.2), (4.42)); the output domains stay nearest-neighbour connected, so Root-F's
+  polymers are unaffected (ORCH-A, A4).
+- **Ruling R28 (same approval).** The kept data (`KeptData.datum`, `KeptScaleKernels.datum`) are indexed by labelled
+  localized histories (the labels of the kept components inside the component at earlier scales), as LFR
+  Def II.5.7 (S3) indexes them by `(Z, 𝔸∩Z)` (ORCH-A, A4).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
