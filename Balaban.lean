@@ -100,7 +100,6 @@ public import Balaban.Polymer.Gas
 public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Size
 public import Balaban.Polymer.MayerPE
-public import Balaban.Polymer.GasOpCore
 public import Balaban.Polymer.GasOpEq
 public import Balaban.Polymer.GasOpBound
 public import Balaban.Polymer.GasOperator
@@ -3038,6 +3037,10 @@ public import Balaban.Spine.FinalSfMeas
 public import Balaban.Spine.FinalSfBound
 public import Balaban.Spine.FinalNumerics
 public import Balaban.Spine.FinalSfDomain
+public import Balaban.Spine.FinalCutSfDomPsi
+public import Balaban.Spine.FinalCutSfDomNum
+public import Balaban.Spine.FinalCutSfDomH7
+public import Balaban.Spine.FinalCubicCore
 public import Balaban.Spine.FinalSfIntegrable
 public import Balaban.Spine.FinalSfConstTerm
 public import Balaban.Spine.FinalSfFluct

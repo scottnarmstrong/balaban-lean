@@ -21,9 +21,10 @@ finite-dimensional complex normed space (a source): couplings `β Y g Φ` and he
   uniformly for `g ∈ U`, and the heavy weights are dominated by integrable functions `T Z` of `Φ`
   with the dependence sets `zs Z`, the activities are analytic on `U`
   (`Analysis.analyticOnNhd_integral_of_dominated`).
-* `analyticOnNhd_PY_actGas`, `analyticOnNhd_PY_actGasHole`: under the hypotheses of
-  `actGasOp_pe` (resp. `actGasOp_pe_hole`) at every `g ∈ U` the local terms `P_g(Y)` are analytic on
-  `U` (`pe_PY_analyticOnNhd` with the Kotecký–Preiss data of `pe_size`, resp. `pe_hole`).
+* `analyticOnNhd_PY_actGas_sized`, `analyticOnNhd_PY_actGas`, `analyticOnNhd_PY_actGasHole`: under
+  the hypotheses of `actGasOp_pe_sized` (resp. `actGasOp_pe`, `actGasOp_pe_hole`) at every `g ∈ U`
+  the local terms `P_g(Y)` are analytic on `U` (`pe_PY_analyticOnNhd` with the Kotecký–Preiss data
+  of `pe_size_gen`, resp. `pe_hole`).
 * `PY_actGasKOp_congr`, `PY_actGasHoleKOp_congr`: the local term `P(Y)` depends only on the
   weights of the elementary objects supported in `Y`; for weights depending on `g` only on their
   supports, `P_g(Y)` reads `g` on `Y` only.
@@ -178,10 +179,86 @@ theorem analyticOnNhd_actGasKOp (hU : IsOpen U) {s : Yt → ℝ} {T : Zt → (�
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun C hC => ?_)
   exact norm_prod_gasW_le_dom hs0 hB hT (mem_Cfam.mp hC).2.1 hg Φ
 
+/-- **The local terms are analytic in the parameter, heavy objects measured by a size.**  If the
+hypotheses of `actGasOp_pe_sized` hold at every `g ∈ U` (with numerical data independent of `g`),
+the weights are analytic in `g` and the heavy weights are dominated by integrable functions `T Z`
+with the dependence sets `zs Z`, then `g ↦ P_g(Y)` is analytic on `U` for every `Y`. -/
+theorem analyticOnNhd_PY_actGas_sized {d : Finset B → ℝ} {B0 κ'' c c1 c' c2 p h M0 : ℝ}
+    {κg K0g K0h κ' κ0P K0P cP a₀ : ℝ} (hU : IsOpen U) {T : Zt → (∀ b, Ω b) → ℝ}
+    (hB0 : 0 ≤ B0) (hκg : 0 ≤ κg) (hκ'' : κg ≤ κ'') (hc : 0 ≤ c) (hc1 : 0 ≤ c1) (hc' : 0 ≤ c')
+    (hM0 : 0 ≤ M0) (hd : ∀ Y, 0 ≤ d Y)
+    (σ : Zt → ℕ) (hσ : ∀ z, 1 ≤ σ z) (att anc : Zt → Finset B)
+    (hanc : ∀ z, (anc z).Nonempty) (hancs : ∀ z, anc z ⊆ zs z)
+    (hatt : ∀ z, (att z).card ≤ σ z)
+    (hmeet : ∀ y Γ, act y Γ → ∃ z ∈ Γ, ¬ Disjoint (cy y) (att z))
+    (hτd : ∀ g ∈ U, ∀ z, DepOn (zs z) (τ z g))
+    (hβa : ∀ y Φ, AnalyticOnNhd ℂ (fun g => β y g Φ) U)
+    (hτa : ∀ z Φ, AnalyticOnNhd ℂ (fun g => τ z g Φ) U)
+    (hβm : ∀ g ∈ U, ∀ y, Measurable (β y g)) (hτm : ∀ g ∈ U, ∀ z, Measurable (τ z g))
+    (hT : ∀ g ∈ U, ∀ z Φ, ‖τ z g Φ‖ ≤ T z Φ)
+    (hTd : ∀ z, DepOn (zs z) (fun Φ => (T z Φ : ℂ))) (hTm : ∀ z, Measurable (T z))
+    (hTi : ∀ z, Integrable (T z) (Measure.pi μ))
+    (hB : ∀ g ∈ U, ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ y, act y Γ → ∀ Φ, (∀ z ∈ Γ, τ z g Φ ≠ 0) → ‖β y g Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
+    (hzd : ∀ z, d (zs z) ≤ c2 * σ z)
+    (hG3 : ∀ C : Finset (Yt ⊕ Zt), ConnSet (gasCs cy zs) C → actGasA act zs C →
+      d (unionCs (gasCs cy zs) C) ≤ ∑ t ∈ C, d (gasCs cy zs t) + c * ((C.card : ℝ) - 1))
+    (hK0g : 0 ≤ K0g)
+    (hent : ∀ Γ : Finset Zt, (∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) →
+      ∀ b : B, ∑ y ∈ Finset.univ.filter (fun y => act y Γ ∧ b ∈ cy y),
+        Real.exp (-(κ'' - κg) * d (cy y)) ≤ K0g)
+    (hK1 : 1 ≤ K0h)
+    (hcount : ∀ g ∈ U, ∀ (b : B) (v : ℕ),
+      ∑ z ∈ Finset.univ.filter (fun z => b ∈ anc z ∧ σ z = v),
+        ∫ Φ, ‖τ z g Φ‖ ∂(Measure.pi μ) ≤ M0 * K0h ^ v * Real.exp (-p - h * v))
+    (hh : B0 * Real.exp B0 * Real.exp (κg * c) * K0g + κg * (c2 + c) + c' + 3 +
+      Real.log K0h ≤ h)
+    (hη : c1 * (M0 * Real.exp (-p) * Real.exp (-(c' + 2))) ≤ 1 / 7)
+    (hG1 : ∀ X : NePoly B, (X.1.card : ℝ) ≤ c1 * (1 + d X.1))
+    (hκ' : 0 ≤ κ') (hcP : 0 ≤ cP)
+    (hG1P : ∀ X : NePoly B, 3 * (c1 * (M0 * Real.exp (-p) * Real.exp (-(c' + 2)))) * K0P *
+      Real.exp (a₀ + κ' * cP) * X.1.card ≤ a₀ * (1 + d X.1))
+    (hG2P : ∀ b : B, ∑ Y : NePoly B, (if b ∈ Y.1 then Real.exp (-κ0P * d Y.1) else 0) ≤ K0P)
+    (hκ : κ' + κ0P + a₀ ≤ κg - 2) (Y : Finset B) :
+    AnalyticOnNhd ℂ (fun g => PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val
+      (actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ) Y) U := by
+  set ε : ℝ := 3 * (c1 * (M0 * Real.exp (-p) * Real.exp (-(c' + 2)))) with hεdef
+  have hε : 0 ≤ ε := by rw [hεdef]; positivity
+  have hτi : ∀ g ∈ U, ∀ z, Integrable (τ z g) (Measure.pi μ) := fun g hg z =>
+    (hTi z).mono' (hτm g hg z).aestronglyMeasurable
+      (Filter.Eventually.of_forall fun Φ => hT g hg z Φ)
+  have hKP := kp_of_entropy (Subtype.val : NePoly B → Finset B)
+    (sizeW (Subtype.val : NePoly B → Finset B) d ε (κg - 2) κ' cP)
+    (sizeW_nonneg _ d hε)
+    (size_entropy_gen (Subtype.val : NePoly B → Finset B) d (a₀ := a₀) hε hd hG1P hG2P hκ)
+  have hbound : ∀ (X : NePoly B) (g : E), g ∈ U →
+      ‖actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ X‖ ≤
+        sizeW (Subtype.val : NePoly B → Finset B) d ε (κg - 2) κ' cP X := by
+    intro X g hg
+    refine (actGasKOp_activity_bound_sized hB0 hκg hκ'' hc hc1 hc' hM0 hd σ hσ att anc hanc hancs
+      hatt hmeet (hτd g hg) (hβm g hg) (hτm g hg) (hτi g hg) (hB g hg) hzd hG3 hK0g hent hK1
+      (hcount g hg) hh hη X (hG1 X)).trans ?_
+    unfold sizeW
+    calc ε * Real.exp (-(κg - 2) * d X.1)
+        = ε * Real.exp (-(κg - 2) * d X.1) * 1 := by rw [mul_one]
+      _ ≤ _ := mul_le_mul_of_nonneg_left (Real.one_le_exp (by
+          have := hd X.1
+          positivity)) (by positivity)
+  exact pe_PY_analyticOnNhd (shareBlock (Subtype.val : NePoly B → Finset B))
+    (Subtype.val : NePoly B → Finset B) hKP hU
+    (fun X g => actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ X)
+    (fun X => analyticOnNhd_actGasKOp hU hβa hτa hβm hτm
+      (s := fun y => B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)))
+      (fun y => by positivity)
+      (fun g hg Γ hΓ y hy Φ hΦ => norm_expm1_le (β := fun y => β y g Φ) hB0 (hκg.trans hκ'') hd y
+        (hB g hg Γ hΓ y hy Φ hΦ)) hT hTd hTm hTi X)
+    hbound Y
+
 /-- **The local terms are analytic in the parameter.**  If the hypotheses of `actGasOp_pe` hold at
 every `g ∈ U` (with numerical data independent of `g`), the weights are analytic in `g` and the
 heavy weights are dominated by integrable functions `T Z` with dependence sets `zs Z`, then
-`g ↦ P_g(Y)` is analytic on `U` for every `Y`. -/
+`g ↦ P_g(Y)` is analytic on `U` for every `Y` (the instance of `analyticOnNhd_PY_actGas_sized`
+with the size `|Z|`, `a₀ = c₁`). -/
 theorem analyticOnNhd_PY_actGas {d : Finset B → ℝ} {B0 κ'' c c1 c2 p h : ℝ}
     {κg K0g K0h κ' κ0P K0P cP : ℝ} (hU : IsOpen U) {T : Zt → (∀ b, Ω b) → ℝ}
     (hB0 : 0 ≤ B0) (hκg : 0 ≤ κg) (hκ'' : κg ≤ κ'') (hc : 0 ≤ c) (hc1 : 0 ≤ c1) (hp : 0 ≤ p)
@@ -216,35 +293,21 @@ theorem analyticOnNhd_PY_actGas {d : Finset B → ℝ} {B0 κ'' c c1 c2 p h : �
     (hα : 3 * c1 * Real.exp (-p) * K0P * Real.exp (c1 + κ' * cP) ≤ 1) (Y : Finset B) :
     AnalyticOnNhd ℂ (fun g => PY (shareBlock (Subtype.val : NePoly B → Finset B)) Subtype.val
       (actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ) Y) U := by
-  have hε : 0 ≤ 3 * c1 * Real.exp (-p) := by positivity
-  have hτi : ∀ g ∈ U, ∀ z, Integrable (τ z g) (Measure.pi μ) := fun g hg z =>
-    (hTi z).mono' (hτm g hg z).aestronglyMeasurable
-      (Filter.Eventually.of_forall fun Φ => hT g hg z Φ)
-  have hKP := kp_of_entropy (Subtype.val : NePoly B → Finset B)
-    (sizeW (Subtype.val : NePoly B → Finset B) d (3 * c1 * Real.exp (-p)) (κg - 2) κ' cP)
-    (sizeW_nonneg _ d hε)
-    (size_entropy (Subtype.val : NePoly B → Finset B) d hε hd hG1 hG2P hκ hα)
-  have hbound : ∀ (X : NePoly B) (g : E), g ∈ U →
-      ‖actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ X‖ ≤
-        sizeW (Subtype.val : NePoly B → Finset B) d (3 * c1 * Real.exp (-p)) (κg - 2) κ' cP X := by
-    intro X g hg
-    refine (actGasKOp_activity_bound hB0 hκg hκ'' hc hc1 hp hd hz hmeet (hτd g hg) (hβm g hg)
-      (hτm g hg) (hτi g hg) (hB g hg) hzd hG3 hK0g hent hK1 (hcount g hg) hh X (hG1 X)).trans ?_
-    unfold sizeW
-    calc 3 * c1 * Real.exp (-p) * Real.exp (-(κg - 2) * d X.1)
-        = 3 * c1 * Real.exp (-p) * Real.exp (-(κg - 2) * d X.1) * 1 := by rw [mul_one]
-      _ ≤ _ := mul_le_mul_of_nonneg_left (Real.one_le_exp (by
-          have := hd X.1
-          positivity)) (by positivity)
-  exact pe_PY_analyticOnNhd (shareBlock (Subtype.val : NePoly B → Finset B))
-    (Subtype.val : NePoly B → Finset B) hKP hU
-    (fun X g => actGasKOp act cy zs (fun y => β y g) (fun z => τ z g) μ X)
-    (fun X => analyticOnNhd_actGasKOp hU hβa hτa hβm hτm
-      (s := fun y => B0 * Real.exp B0 * Real.exp (-κ'' * d (cy y)))
-      (fun y => by positivity)
-      (fun g hg Γ hΓ y hy Φ hΦ => norm_expm1_le (β := fun y => β y g Φ) hB0 (hκg.trans hκ'') hd y
-        (hB g hg Γ hΓ y hy Φ hΦ)) hT hTd hTm hTi X)
-    hbound Y
+  have hA : ∀ X : NePoly B, 3 * (c1 * (1 * Real.exp (-p) * Real.exp (-(c1 + 2)))) * K0P *
+      Real.exp (c1 + κ' * cP) ≤ 3 * c1 * Real.exp (-p) * K0P * Real.exp (c1 + κ' * cP) := by
+    intro X
+    obtain ⟨b, -⟩ := X.2
+    have hK0P : 0 ≤ K0P :=
+      le_trans (Finset.sum_nonneg fun Y _ => by split_ifs <;> positivity) (hG2P b)
+    exact mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_right (three_mul_eta_le (p := p) hc1) hK0P) (Real.exp_pos _).le
+  exact analyticOnNhd_PY_actGas_sized (M0 := 1) (c' := c1) (a₀ := c1) hU hB0 hκg hκ'' hc hc1 hc1
+    zero_le_one hd (fun z => (zs z).card) (fun z => (hz z).card_pos) zs zs hz
+    (fun _ => subset_rfl) (fun _ => le_rfl) hmeet hτd hβa hτa hβm hτm hT hTd hTm hTi hB hzd hG3
+    hK0g hent hK1 (fun g hg b v => by simpa using hcount g hg b v) hh
+    (by simpa using mul_exp_neg_le_seventh hp hc1) hG1 hκ' hcP
+    (fun X => (mul_le_of_le_one_left (Nat.cast_nonneg _) ((hA X).trans hα)).trans (hG1 X))
+    hG2P hκ Y
 
 variable {H : SimpleGraph B} {S₀ : Finset B} {cyF : Yt → Finset B} {zsF : Zt → Finset B}
 

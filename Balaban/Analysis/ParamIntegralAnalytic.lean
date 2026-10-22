@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Localization.DecoupledCovParam
+public import Balaban.Analysis.ParamIntegralDominated
 public import Mathlib.Analysis.Convex.Integral
 public import Mathlib.Topology.ContinuousMap.Compact
 public import Mathlib.MeasureTheory.Function.LocallyIntegrable
@@ -25,8 +26,8 @@ topological space `X` which is carried by a compact set `K`:
   in `e ∈ U` for every `x ∈ K`, then `e ↦ ∫ G(e, x) dμ(x)` is analytic at every point of which `U`
   is a neighbourhood.  (The Bochner integral of `x ↦ G(·, x)` in the Banach space of continuous
   functions on a closed ball lies in the closed convex set of the functions analytic inside the
-  ball: `Convex.average_mem` and the several-variable Weierstrass theorem
-  `Balaban.Analysis.analyticOnNhd_of_tendstoUniformlyOn`.)
+  ball: `analyticAt_integral_continuousMap` of `ParamIntegralDominated.lean`, which also gives the
+  dominated form `analyticOnNhd_integral_of_dominated`.)
 * `exists_open_nhds_analyticAt`, `analyticAt_integral_comp`: the form for an integrand
   `Ĝ(Θ, ι x)` with `Ĝ` jointly analytic near `{Θ₀} × ι(K)`;
 * `analyticAt_intervalIntegral_div`, `analyticAt_intervalIntegral_avg`,
@@ -109,64 +110,12 @@ theorem analyticAt_integral_of_continuousOn [FiniteDimensional ℂ E] (hK : IsCo
   have hΦi : Integrable Φ μ := by
     have h := hΦc.integrableOn_compact' hK hKm (μ := μ)
     rwa [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hμ] at h
-  let A : Set C(closedBall e0 ρ, ℂ) := {f | ∃ h : E → ℂ, AnalyticOnNhd ℂ h (ball e0 ρ) ∧
-    ∀ z : closedBall e0 ρ, (z : E) ∈ ball e0 ρ → f z = h z}
-  have hAsmul : ∀ (c : ℝ) (f : C(closedBall e0 ρ, ℂ)), f ∈ A → c • f ∈ A := by
-    rintro c f ⟨h, hh, hfh⟩
-    refine ⟨fun e => (c : ℂ) * h e, analyticOnNhd_const.mul hh, fun z hz => ?_⟩
-    rw [ContinuousMap.smul_apply, hfh z hz, Complex.real_smul]
-  have hAadd : ∀ f₁ f₂ : C(closedBall e0 ρ, ℂ), f₁ ∈ A → f₂ ∈ A → f₁ + f₂ ∈ A := by
-    rintro f₁ f₂ ⟨h₁, hh₁, e₁⟩ ⟨h₂, hh₂, e₂⟩
-    exact ⟨fun e => h₁ e + h₂ e, hh₁.add hh₂, fun z hz => by
-      rw [ContinuousMap.add_apply, e₁ z hz, e₂ z hz]⟩
-  have hAconv : Convex ℝ A := fun f₁ hf₁ f₂ hf₂ a b _ _ _ =>
-    hAadd _ _ (hAsmul a f₁ hf₁) (hAsmul b f₂ hf₂)
-  have hAclosed : IsClosed A := by
-    refine IsSeqClosed.isClosed fun f f' hfA hlim => ?_
-    choose h hh hfh using hfA
-    obtain ⟨M, hM⟩ : ∃ M, ∀ n, ‖f n‖ ≤ M := by
-      obtain ⟨M, hM⟩ := hlim.norm.bddAbove_range
-      exact ⟨M, fun n => hM ⟨n, rfl⟩⟩
-    let h' : E → ℂ := fun e => if he : e ∈ closedBall e0 ρ then f' ⟨e, he⟩ else 0
-    have hunif : TendstoUniformlyOn h h' atTop (ball e0 ρ) := by
-      rw [Metric.tendstoUniformlyOn_iff]
-      intro ε hε
-      obtain ⟨N, hN⟩ := (Metric.tendsto_atTop.1 hlim) ε hε
-      filter_upwards [eventually_ge_atTop N] with n hn z hz
-      have hz' : z ∈ closedBall e0 ρ := ball_subset_closedBall hz
-      have h1 : h' z = f' ⟨z, hz'⟩ := by simp only [h', hz', dite_true]
-      rw [h1, ← hfh n ⟨z, hz'⟩ hz, dist_comm]
-      exact lt_of_le_of_lt (ContinuousMap.dist_apply_le_dist _) (hN n hn)
-    have han := analyticOnNhd_of_tendstoUniformlyOn (M := M) isOpen_ball hh
-      (fun n z hz => by
-        have hz' : z ∈ closedBall e0 ρ := ball_subset_closedBall hz
-        rw [← hfh n ⟨z, hz'⟩ hz]
-        exact (ContinuousMap.norm_coe_le_norm (f n) _).trans (hM n)) hunif
-    exact ⟨h', han, fun z _ => by simp only [h', z.2, dite_true]⟩
-  have h0A : (0 : C(closedBall e0 ρ, ℂ)) ∈ A :=
-    ⟨fun _ => 0, analyticOnNhd_const, fun z _ => rfl⟩
-  have hmem : (∫ x, Φ x ∂μ) ∈ A := by
-    by_cases hμ0 : μ = 0
-    · rw [hμ0, integral_zero_measure]
-      exact h0A
-    · have : NeZero μ := ⟨hμ0⟩
-      have h1 := hAconv.average_mem hAclosed (hμ.mono fun x hx =>
-        (⟨fun e => G e x, (hG x hx).mono hbU, fun z _ => hΦK x hx z⟩ : Φ x ∈ A)) hΦi
-      have hne : μ.real univ ≠ 0 :=
-        ENNReal.toReal_ne_zero.2 ⟨by simpa using hμ0, measure_ne_top μ univ⟩
-      have h2 : ∫ x, Φ x ∂μ = (μ.real univ) • ⨍ x, Φ x ∂μ := by
-        rw [average_eq, smul_smul, mul_inv_cancel₀ hne, one_smul]
-      rw [h2]
-      exact hAsmul _ _ h1
-  obtain ⟨h, hh, hval⟩ := hmem
+  obtain ⟨h, hh, hval⟩ := analyticAt_integral_continuousMap hΦi (hμ.mono fun x hx =>
+    ⟨fun e => G e x, (hG x hx).mono hbU, fun z _ => hΦK x hx z⟩)
   refine (hh e0 (mem_ball_self hρ)).congr ?_
   filter_upwards [ball_mem_nhds e0 hρ] with z hz
   have hz' : z ∈ closedBall e0 ρ := ball_subset_closedBall hz
   rw [← hval ⟨z, hz'⟩ hz]
-  have hcomm := (ContinuousMap.evalCLM ℂ (⟨z, hz'⟩ : closedBall e0 ρ)).integral_comp_comm hΦi
-  have h3 : (∫ x, Φ x ∂μ) ⟨z, hz'⟩ = ∫ x, Φ x ⟨z, hz'⟩ ∂μ := by
-    simpa using hcomm.symm
-  rw [h3]
   exact integral_congr_ae (hμ.mono fun x hx => hΦK x hx ⟨z, hz'⟩)
 
 end Param

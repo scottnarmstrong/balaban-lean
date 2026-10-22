@@ -6,14 +6,13 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.GasLinked
-public import Balaban.Polymer.GasOpCore
 
 /-!
 # Connected decomposition of a linked gas
 
 The activation set is contained in the charged footprint. This makes every activated
 coupling touch the selected heavy cores, and makes activation local to components formed by
-overlapping charged footprints. In the terms of `GasOpCore.lean` the linked activation satisfies
+overlapping charged footprints. In the terms of `Gas.lean` the linked activation satisfies
 the conditions (L) `gasLinkedActive_local` and (M) `gasLinkedActive_meets`, and `gasLinked_eq` is
 the instance of `actGasXi_eq`.
 -/
