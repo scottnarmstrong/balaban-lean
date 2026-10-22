@@ -103,6 +103,7 @@ section Entropy
 
 variable {V Yt : Type*} [Fintype V] [Fintype Yt] (G : SimpleGraph V) [G.LocallyFinite]
 
+omit [Fintype V] in
 /-- **Entropy of the couplings.**  If the supports `cy y` are nonempty and connected, at most `mY`
 couplings have a given support, and the decay `κ` is at least `log (mY Δ²) + 3`, then the
 entropy sum through a vertex is at most `1` (hypothesis `hent` of the gas with `K₀' = 1`). -/

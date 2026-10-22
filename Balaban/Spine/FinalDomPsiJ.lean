@@ -107,11 +107,16 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ}
   [NeZero S.L] {N m₁ j : ℕ} {ϱ : ℝ} (C : SFCtx S n R M K N (j + 1) m₁ ϱ)
   (ψk : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hv : EuclideanSpace ℝ (Fin N))
 
-/-- **The inherited field `ψ^{(j')}_k` of the whole torus, real part**, on the background torus. -/
-noncomputable def psiJRe {jj : ℕ} (hj : jj ≤ j + 1) : BgT C.geo (j + 1) → Fin N → ℝ :=
+/-- **The inherited field `ψ^{(j')}_k` of a cut `Y`, real part**, on the background torus. -/
+noncomputable def psiJReY (Y : Set (Torus S.d (n (j + 1)))) {jj : ℕ} (hj : jj ≤ j + 1) :
+    BgT C.geo (j + 1) → Fin N → ℝ :=
   fun x i => (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
     (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
-    (W2 R (Set.univ : Set (Torus S.d (n (j + 1))))) (C.liftData ψk) (hC hv) x i).re
+    (W2 R Y) (C.liftData ψk) (hC hv) x i).re
+
+/-- **The inherited field `ψ^{(j')}_k` of the whole torus, real part**, on the background torus. -/
+noncomputable def psiJRe {jj : ℕ} (hj : jj ≤ j + 1) : BgT C.geo (j + 1) → Fin N → ℝ :=
+  psiJReY C ψk hv Set.univ hj
 
 /-- **The inherited fields on the `χ`-support, at every site.** On the support of the small-field
 characteristic function of the whole torus (late scale `j + 1`, cube mass equal to the background
@@ -188,8 +193,22 @@ theorem psiJ_allSites {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 �
     · convert hchild using 2
       rename_i x
       funext i
-      unfold psiJRe
+      unfold psiJRe psiJReY
       rw [hpsi x i]
+
+/-- The inherited field of a cut on the Def-6 torus is the real part of the composed field, when
+the composed field is real. -/
+theorem psiJ_eq_ofRealY (Y : Set (Torus S.d (n (j + 1)))) {jj : ℕ}
+    (ψk' : BlockAt S n M K (j + 1) → EuclideanSpace ℝ (Fin N)) (hj : jj ≤ j + 1)
+    (hreal : ∀ x i, psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n (j + 1)) (L := S.L) (c := C.geo.c)
+      (n := n (j + 1)) C.weights (C.cs.muBg (j + 1)) (bgC0 S.d S.L N) hj
+      (W2 R Y) (C.liftData ψk') (hC hv) x i =
+        ((psiJReY C ψk' hv Y hj x i : ℝ) : ℂ)) (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1))
+    (i : Fin N) :
+    C.psiJ Y ψk' hv jj x i = ((psiJReY C ψk' hv Y hj (torusCast C.hT x) i : ℝ) : ℂ) := by
+  unfold SFCtx.psiJ
+  simp only [hj, ↓reduceDIte]
+  exact hreal _ i
 
 /-- The inherited field of the Def-6 torus is the real part of the composed field, when the
 composed field is real. -/
@@ -201,10 +220,34 @@ theorem psiJ_eq_ofReal {jj : ℕ} (ψk' : BlockAt S n M K (j + 1) → EuclideanS
         ((psiJRe C ψk' hv hj x i : ℝ) : ℂ)) (x : Localization.CTorus S.d S.L C.N₁ m₁ (j + 1))
     (i : Fin N) :
     C.psiJ (Set.univ : Set (Torus S.d (n (j + 1)))) ψk' hv jj x i =
-      ((psiJRe C ψk' hv hj (torusCast C.hT x) i : ℝ) : ℂ) := by
-  unfold SFCtx.psiJ
-  simp only [hj, ↓reduceDIte]
-  exact hreal _ i
+      ((psiJRe C ψk' hv hj (torusCast C.hT x) i : ℝ) : ℂ) :=
+  psiJ_eq_ofRealY C hv Set.univ ψk' hj hreal x i
+
+/-- **A field of the background torus, read on the Def-6 torus, in the analyticity domain of the
+terms, from bounds at every site.** For a real field `f` with the bounds of the data domain at every
+site (level `j'`, mass `m`, radius `η`), a generating set `𝔹` of the Def-6 torus with empty layers
+above `j'`, the standing hypotheses `BgHyp` at a mass `ν_b` with `ν_b L^{2j'} ≤ 4 m L^{2j'}`, and
+radii `2 η ≤ min (c₀, c₁)`, `(2 K₁ + 2) · 2 η ≤ ε`: the field `f` read on the Def-6 torus lies in
+`Ξ^c_{j'}(𝔹; 1, ε)` at the constant field `h`. -/
+theorem xiDom_pull_of_allSites {jj : ℕ} (hjk : jj ≤ j + 1) (hunit : ‖hv‖ = 1) {m η : ℝ}
+    (hη : 0 < η) {f : BgT C.geo (j + 1) → Fin N → ℝ}
+    (hA : AllSitesBounds (N₀ := C.geo.M1 * (C.geo.c * n (j + 1))) (q := j + 1) jj m η f
+      (fun i => hv i))
+    {a : ℕ → ℝ} {νb : ℝ} (Hb : BgHyp S.d S.L (j + 1) ϱ a νb)
+    (gs : GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) (j + 1) ϱ) (hΩ : ∀ i, jj < i → gs.Ω i = ∅)
+    (hmm : νb * ((S.L : ℝ) ^ jj) ^ 2 ≤ 4 * (m * ((S.L : ℝ) ^ jj) ^ 2)) {ε : ℝ}
+    (hc0 : 2 * η ≤ bgC0 S.d S.L N) (hc1 : 2 * η ≤ bgC1 S.d S.L N)
+    (hε : (2 * bgK1 S.d S.L N + 2) * (2 * η) ≤ ε) :
+    Def6.XiDom gs a νb jj ε (fun x i => ((f (torusCast C.hT x) i : ℝ) : ℂ))
+      (Def6.constFld (hC hv)) := by
+  have hA2 := hA.weaken hη hmm
+  have hNN : C.N₁ * S.L ^ m₁ = C.geo.M1 * (C.geo.c * n (j + 1)) := by
+    have hpos : 0 < S.L ^ (j + 1) := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne S.L))
+    exact Nat.eq_of_mul_eq_mul_right hpos C.hT
+  have hA3 := AllSitesBounds.cast (N₀ := C.N₁ * S.L ^ m₁) hNN C.hT hA2
+  exact xiDom_of_allSites (G := gs) Hb hΩ hjk (by linarith) hc0 hc1 hε
+    (fun x => f (torusCast C.hT x)) (fun i => hv i)
+    ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
 
 /-- **The inherited field in the analyticity domain of the terms, on the `χ`-support.** For a
 generating set `𝔹` of the Def-6 torus with empty layers above `j'` (the `𝔹_{j'}(X)` of a polymer),
@@ -238,15 +281,7 @@ theorem psiJ_xiDom {jj : ℕ} (hj1 : 1 ≤ jj) (hj : jj ≤ j + 1) (hL : 3 ≤ S
   have hηc : 0 < compC4 S.d * (bgK1 S.d S.L N * (4 * (S.d + 1) * C.cs.delta (j + 1))) := by
     have : (0 : ℝ) < S.d := by exact_mod_cast hd
     positivity
-  have hA2 := hA.weaken hηc hmm
-  have hNN : C.N₁ * S.L ^ m₁ = C.geo.M1 * (C.geo.c * n (j + 1)) := by
-    have hT := C.hT
-    have hpos : 0 < S.L ^ (j + 1) := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne S.L))
-    exact Nat.eq_of_mul_eq_mul_right hpos hT
-  have hA3 := AllSitesBounds.cast (N₀ := C.N₁ * S.L ^ m₁) hNN C.hT hA2
-  have hxi := xiDom_of_allSites (G := gs) Hb hΩ (by omega : jj ≤ j + 1) (by linarith) hc0 hc1 hε
-    (fun x => psiJRe C ψk hv hj (torusCast C.hT x)) (fun i => hv i)
-    ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
+  have hxi := xiDom_pull_of_allSites C hv hj hunit hηc hA Hb gs hΩ hmm hc0 hc1 hε
   have hpsi : C.psiJ Set.univ ψk hv jj = fun x i => ((psiJRe C ψk hv hj (torusCast C.hT x) i : ℝ) : ℂ) := by
     funext x i
     exact psiJ_eq_ofReal C hv ψk hj hreal x i
@@ -284,14 +319,7 @@ theorem sfLiftK_xiDom (hL : 3 ≤ S.L) {ν : ℝ}
       rw [genW_Ω_univ_of_le C le_rfl]; exact Finset.mem_univ _)
     (C.genW (Set.univ : Set (Torus S.d (n (j + 1))))).top hP
   have hηpos : 0 < 4 * ((S.d : ℝ) + 1) * C.cs.delta (j + 1) := by positivity
-  have hA2 := hA.weaken hηpos hmm
-  have hNN : C.N₁ * S.L ^ m₁ = C.geo.M1 * (C.geo.c * n (j + 1)) := by
-    have hpos : 0 < S.L ^ (j + 1) := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne S.L))
-    exact Nat.eq_of_mul_eq_mul_right hpos C.hT
-  have hA3 := AllSitesBounds.cast (N₀ := C.N₁ * S.L ^ m₁) hNN C.hT hA2
-  have hxi := xiDom_of_allSites (G := gs) Hb hΩ le_rfl (by linarith) hc0 hc1 hε
-    (fun x => parentPsi C ψk (torusCast C.hT x)) (fun i => hv i)
-    ((parent_sum_sq_eq_norm_sq hv).trans (by rw [hunit]; norm_num)) hA3
+  have hxi := xiDom_pull_of_allSites C hv le_rfl hunit hηpos hA Hb gs hΩ hmm hc0 hc1 hε
   have hlift : sfLiftK C.geo C.hnn C.hkK C.hT ψk =
       fun x i => ((parentPsi C ψk (torusCast C.hT x) i : ℝ) : ℂ) := by
     funext x i

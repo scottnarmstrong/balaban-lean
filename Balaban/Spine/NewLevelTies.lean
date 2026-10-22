@@ -167,20 +167,25 @@ theorem exists_large_L {d : ℕ} (hd : 3 ≤ d) {δ : ℝ} (hδ' : δ < 1 / 2) :
   rw [inv_le_comm₀ h0 (by norm_num)]
   linarith
 
-/-- **`PrefixInput` and the ties of the new level hold together** (hard rule 10 for
+/-- **Core of `prefixInput_newLevelTies_exists`, with the gap `R₀(d, L) < L^{m₀-3}` of the cell
+exponent, the block size `L` of the typing, the choice `M₁ = L^{m₀+m₁-3}`, `c = L³` and the room
+`hatScale + 3 ≤ m₀` of the cube exponent exposed**: `PrefixInput` and the ties of the new level hold together (hard rule 10 for
 `NewLevelTiesInput`): for `d ≥ 3`, `N ≥ 2`, `0 < δ < 1/2` and every block size `L ≥ 3` with
 `L^{-((d-2)/2 - γ)} ≤ 1/16`, `γ = (1 + 2δ)/4` (`exists_large_L`), the witness of
 `prefixInput_exists_of` with the cell exponent `m₀` large (`m₀ ≥ d`, above the cube exponent and with
 the margin of the local sets), the base tower of `exists_collarBase_newLevel` at `m₀` (`m₁` its block
 exponent, `ϱ = rhoSepG d L m₁`), the radius constant `α₀` and the flow constant `c₈` small satisfies
 `PrefixInput` and `NewLevelTiesInput`. -/
-theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (hL : 3 ≤ L)
+theorem prefixInput_newLevelTies_exists_gap (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (hL : 3 ≤ L)
     {δ : ℝ} (hδ : 0 < δ) (hδ' : δ < 1 / 2)
     (hLq : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - (1 + 2 * δ) / 4)) ≤ 1 / 16) :
     ∃ (Ty : ℝ → ℝ → LargeField.Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
       (PB : ℝ → ℝ → LargeField.BudgetConsts) (cs₀ : ℝ → ℝ → LargeField.OpConsts)
       (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
-      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ NewLevelTiesInput d N Ty P6 C7 ϱ := by
+      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ NewLevelTiesInput d N Ty P6 C7 ϱ ∧
+        ∀ κ c₉ : ℝ, (Ty κ c₉).L = L ∧ bgR0 d L < (L : ℝ) ^ ((P6 κ c₉).m₀ - 3) ∧
+          M1 κ c₉ = L ^ ((P6 κ c₉).m₀ + (C7 κ c₉).m₁ - 3) ∧ c κ c₉ = L ^ 3 ∧
+          hatScale L (C7 κ c₉).m₁ (ϱ κ c₉) + 3 ≤ (P6 κ c₉).m₀ := by
   have : NeZero L := ⟨by omega⟩
   have hd0 : 0 < d := by omega
   have hL1 : (1 : ℝ) < L := by exact_mod_cast (by omega : 1 < L)
@@ -280,10 +285,20 @@ theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤
         _ ≤ 5 * (L : ℝ) * (L : ℝ) ^ (m₀ + m₁ - 3) := mul_le_mul_of_nonneg_right h4 h2
     linarith only [hn₁, h1, h3]
   have hϱ : bgR0 d L ≤ rhoSepG d L m₁ := bgR0_le_rhoSepG m₁ hd hL
-  obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, hid⟩ := prefixInput_exists_of d L hd hL hδ hδ'
+  obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, hid⟩ := prefixInput_exists_of_pow d L hd hL hδ hδ'
     hα₀0 hc₈0 hc₈q hm hsep hϱ
-  refine ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, fun κ _ c₉ _ _ => ?_⟩
-  obtain ⟨hTL, hγ', hα', hc', hm0', hm1', hϱ'⟩ := hid κ c₉
+  refine ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, fun κ _ c₉ _ _ => ?_, fun κ c₉ => ?_⟩
+  rotate_left
+  · obtain ⟨hTL, -, -, -, hm0', hm1', hϱ', hM1', hc'⟩ := hid κ c₉
+    refine ⟨hTL, ?_, by rw [hM1', hm0', hm1'], hc', ?_⟩
+    swap
+    · rw [hm0', hm1', hϱ']
+      have := hs₀ m₁
+      omega
+    rw [hm0']
+    have h1 : (L : ℝ) ^ n₁ ≤ (L : ℝ) ^ (m₀ - 3) := pow_le_pow_right₀ hL1.le (by omega)
+    linarith only [hn₁, h1]
+  obtain ⟨hTL, hγ', hα', hc', hm0', hm1', hϱ', -, -⟩ := hid κ c₉
   refine NewLevelTies.congr_L hTL.symm ?_
   have hPε : (P6 κ c₉).eps d L 1 = ε := by
     unfold Consts.eps Consts.alpha
@@ -366,5 +381,23 @@ theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤
       have h2 : rm ≤ 1 / 16 := min_le_left _ _
       have h3 : 8 * ε * rm ≤ 8 * ε * (1 / 16) := mul_le_mul_of_nonneg_left h2 (by positivity)
       linarith only [h3, hεe, he5]
+
+/-- **`PrefixInput` and the ties of the new level hold together** (hard rule 10 for
+`NewLevelTiesInput`): for `d ≥ 3`, `N ≥ 2`, `0 < δ < 1/2` and every block size `L ≥ 3` with
+`L^{-((d-2)/2 - γ)} ≤ 1/16`, `γ = (1 + 2δ)/4` (`exists_large_L`), the witness of
+`prefixInput_exists_of` with the cell exponent `m₀` large (`m₀ ≥ d`, above the cube exponent and with
+the margin of the local sets), the base tower of `exists_collarBase_newLevel` at `m₀` (`m₁` its block
+exponent, `ϱ = rhoSepG d L m₁`), the radius constant `α₀` and the flow constant `c₈` small satisfies
+`PrefixInput` and `NewLevelTiesInput`. -/
+theorem prefixInput_newLevelTies_exists (d N L : ℕ) (hd : 3 ≤ d) (hN : 2 ≤ N) (hL : 3 ≤ L)
+    {δ : ℝ} (hδ : 0 < δ) (hδ' : δ < 1 / 2)
+    (hLq : (L : ℝ) ^ (-(((d : ℝ) - 2) / 2 - (1 + 2 * δ) / 4)) ≤ 1 / 16) :
+    ∃ (Ty : ℝ → ℝ → LargeField.Typing) (P6 : ℝ → ℝ → Def6.Consts) (C7 : ℝ → ℝ → Consts7)
+      (PB : ℝ → ℝ → LargeField.BudgetConsts) (cs₀ : ℝ → ℝ → LargeField.OpConsts)
+      (M1 c : ℝ → ℝ → ℕ) (ϱ : ℝ → ℝ → ℝ),
+      PrefixInput d δ Ty P6 C7 PB cs₀ M1 c ϱ ∧ NewLevelTiesInput d N Ty P6 C7 ϱ := by
+  obtain ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, hNL, -⟩ :=
+    prefixInput_newLevelTies_exists_gap d N L hd hN hL hδ hδ' hLq
+  exact ⟨Ty, P6, C7, PB, cs₀, M1, c, ϱ, hPre, hNL⟩
 
 end Balaban.RootFSpine

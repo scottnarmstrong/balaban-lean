@@ -372,8 +372,7 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    `3 ∣ N₁`, `5 < N₁` ⇒ every `N₁ ≥ 1`; (iii) (A1)–(A5) on the local sets: route R-LOC (section "A4-1b (iii)", W1144; ~7,000);
    (iv) the castG gap (closed, W1141); (v) `TorusIndep` of the new level of a general class (only the core family is two-torus exact,
    W1089/W1090; after R-LOC L2 it is the two-torus agreement of the objects of `NewLevelFormula`). ~8,850.
-   **A1 (2026-10-21), (ii) for the box selection (blocker 6):** core `irrelTorusOn sm` (`SmallField/IrrelTorusOn.lean`; `irrelTorus` its instance `sm = ⊤`, all landed theorems instances); for `irrelTorusB = irrelTorusOn (relBox m₀)` (`SmallField/IrrelTorusBoxBound*.lean`): `norm_filed_relBox_le_power` (+ `_birth_cap`): the box filed sum `Σ_{Z ∋ y, relBox}(T+Φ) ≤ (filedPowerConst + relBoxTailConst) E₀ L^{-(k-j)(d+α₃)}` (complete filed sum `norm_filed_le_power` minus the large polymers: Cauchy form per polymer `norm_relPartTorus_le_of_data`, (G2) count `sum_exp_polysAt_le`, size `sizeJ_ge_of_not_relBox`); `norm_E_sub_aTermTorus_le_of_not_relBox` (large non-cell labels); `irrelTorusB_bound_of_dataHyp_of_threshold`, `irrelTorusB_bound_of_class` ((3.128) at every label, from `irrelTorusOn_bound_of_dataHyp_of_threshold` at `sm = ⊤` and `irrelTorusOn_eq_top_add`). P-2 stays a premise; the cell bound of the landed `irrelTorus` is W1146t's (c3).
-   After R15 (`irrelTorus := irrelTorusOn (relBox m₀)`): the non-cell bound of `irrelTorus` takes `relBox y X` or the large-polymer term; the identity (3.127) and congr/analytic/rot are unchanged (they hold for every `sm`).
+   **A1 (2026-10-21), (ii) under R15 (blocker 6):** `irrelTorus = irrelTorusOn (relBox m₀)` (core `SmallField/IrrelTorusOn.lean`; identity (3.127), congr/analytic/rot instances, statements unchanged). Bounds (`SmallField/IrrelTorusBoxBound*.lean`): box filed sum `norm_filed_relBox_le_power` (+ `_birth_cap`) `≤ (filedPowerConst + relBoxTailConst) E₀ L^{-(k-j)(d+α₃)}` (full sum `norm_filed_le_power` minus the large polymers: `norm_relPartTorus_le_of_data`, `sum_exp_polysAt_le`, `sizeJ_ge_of_not_relBox`); large non-cell labels `norm_E_sub_aTermTorus_le_of_not_relBox`; (3.128) at every label `irrelTorus_bound_all_of_dataHyp_of_threshold`, **`irrelTorus_label_bound_of_class`** and **`irrelTorus_label_bound_of_class_birth_cap`** (the cell label included; the theorem for W1146t). The non-cell `irrelTorus_bound_of_dataOn_of_threshold` (M1) / `_dataHyp_` take `relBox P.m₀ y X`. P-2 stays a premise.
 3. **A4-1c `SFRenormInput`** (P4 (4.14)–(4.22), (5.28), (H.5), (H.6)). `CoeffBounds (k+1)` and `RenormCond (k+1)` of `Φ sf`.
    Landed: `rg_step_infty` (general), `renLocC1_scale_of_tower`, `renLoc_fields_scale_of_tower_at` (3, 3, 2). Bridges: (H.6) at `k + 1`
    from (H.6) at `k` and the bound of `ξ^{(k)}` (the flow is extended by one entry; ~150, not landed); (H.5) for the renormalized new level,
@@ -388,7 +387,7 @@ small-field half of a member of `ℛ_k` ((D2) with `fac = 1`, (D8SF), (D9), `a_j
    Landed: `e0CoeffFamily_value_fromTowerG_core_twoTorus` (W1089, `StepTowerG d L N`, `m₀ = 1`), `coreE0_unique` (W1090). Open: the
    chain's `e` of a general class is not a core family (open (c) of A4-1); `R_eq` of `ℛ^{(k+1)}`. The inherited levels are proved
    (`liftOldTermsFam_M_eq_of_d8`). ~800.
-   **A1 (2026-10-21), cell case of the two-torus step clause (blocker 7):** `CellTermsAgree` is false for the landed `irrelTorus` (its filed sum runs over winding polymers); the replacement `irrelTorusB_cell_boxAgree` (`Polymer/IrrelTorusBCell.lean`) is proved: exact agreement of `irrelTorusB` at `□(y)` on two tori with `TorusIndep`, margin `8(R + r_K) + 3L^K + L·cellSide < n` on both, fields agreeing on `□(y) ∪ st₊(y)`; away from the cell `irrelTorusOn_boxAgree` (selections corresponding under `boxMap`; `irrelTorus_boxAgree` its instance `sm = ⊤`). After R15 it discharges the cell input of `newLevel_coeff_twoTorus_of_class_cells`.
+   **A1 (2026-10-21), cell case of the two-torus step clause (blocker 7), under R15:** `irrelTorus_cell_boxAgree` (`Polymer/IrrelTorusBCell.lean`: exact agreement at `□(y)` on two tori with `TorusIndep`, margin `8(R + r_K) + 3L^K + L·cellSide < n` on both, fields agreeing on `□(y) ∪ st₊(y)`); `cellTermsAgree_of_class` proves `CellTermsAgree`, on W1161's cast margins `castZ` through `cellStencil_subset_castZ`, and `newLevel_coeff_twoTorus_of_class_cells_R15` (`Inhabited/NewLevelCellAgree.lean`) is the step clause with `hcell` discharged (new premises: the margins `hmarC`, `hmarC'` of the box of radius `R + L^{k+1}` at the cell side of level `k + 1`).
 7. **A4-1g `SFVacuumInput`** (P4 (2.1), (2.41), (2.63); R5, R5′). **ΦE defined and the bound proved (W1132, `Spine/SFVacuum.lean`,
    `Spine/SFVacuumRatio.lean`).** The map is `vacMap` = `vacIncrement d L N aKer β_k (p(β_k))`, the Gaussian increment
    `Γ_k = L^d(E‴_k − E_k) = ½N(L^d−1) log β_k − ½N log(a₁L^{d−2}/2π) − L^d log Z₁(p₁)` (`vacIncrement_eq_step`, from `step_increment_eq`).
@@ -477,6 +476,8 @@ lie in `T′` and the marks on the anchors inside `T′` (L3). (A1)–(A4) are L
 **L5 W1146t (2) — the premises of row (iii) from the ties and the class; the open input A4-1b (ii) (2026-10-21).** *Ties* (`Spine/NewLevelTies.lean`): `NewLevelTies d N L P m₁ ϱ` (T1 `L^{-α} ≤ 1/16`; the base tower with `K₂Q ≤ 1/16`, the numerics, `T₀.m₁ = m₁`, `(17/16) ε₁ ≤ T₀.t`; `ϱ = rhoSepG d L m₁`; `d ≤ m₀`; `hatScale L m₁ ϱ < m₀` and the margin of the local sets; `ε₁` small (incl. T2); `c₈` small (`τ₁ ≤ 1/14`, T3, `c₈ q ≤ 1 - q`, the radius `rm` of the mass response)), `NewLevelTiesInput` beside `PrefixInput` (PrefixInput has no `N`; putting the ties into it would change about 35 signatures, several in other workers' files), `prefixInput_newLevelTies_exists` (both at one witness for `L` large; `exists_large_L`), `exists_rhoSepG_le_minSep`. *Label data* (`Inhabited/NewLevelLabelData.lean`): `labelPoly` (`XL τ = X ∪ □(y)`), `exists_labelData` (`𝒦X`, `hopt` from `exists_opt_of_isPolyDom`, `SmallField/PolyDomOpt.lean`). *Path premise* (`Inhabited/NewLevelPathDomain.lean`): a term depends on the fields on its polymer only (`localE`), so it is analytic at the whole-level composed pair `Jr.PJ j` as soon as it is analytic at the pair composed on its own local set, which agrees with it on `X` (`analyticAt_of_agree_on`, `composeField_eq_of_layerIndex`, `GsSpecStrong.layerEq`) and lies in the chart `Ξ^c_j(Tm.gs j X; 1, ε + K₂δ₃ + K₂δ_fl)` (core `pathDatum_xiCData_of_room` in `StepTowerNewLevelSymRoom.lean`, `pathMem_of_room` its instance) hence in the birth-mass domain (`xiCRaw_mem_birthXiDom`): **`JointRep.analyticAt_Edens_path_of_birth`**; the settings at `(𝔹_k, Tm.gs j X)` come from any label's (`BgSetting.retarget`, `FlSetting.retarget`, `settings_stepG_gs`), the radius condition from the marked radius `hmr`, `hca`. `newLevel_localFamily(ies)_birth_of` no longer take the path premise and take the strong class clauses (`SFTermClausesStrong`). *Provider* (`Spine/NewLevelTiesFamilies.lean`): **`NewLevelTies.newLevel_localFamilies`** — row (iii) from the ties; discharged: the label data, `ClassHatCond` (`HatSpec` from `SFTermClausesStrong.hat`), `hidx`, `hmin`, `hdom` (`exists_birthXiDom_ball` at `birthMass_bgHyp_of_flow`), the flow conditions at `q = L^{-2γ}`, `c₈ = P.c₈`, the smallness of `ε_j` (from `ε₁`). Remaining premises: the class (`P₀.m₀ = C.m₀`, `SFTermClausesStrong` on `birthXiDom`, `E₀ ≥ 0`, the weights `aIdeal = compWeight`, the flow `ξ, ν₀` of the masses with `ν = ν_k L^{-2k}` and `ν L^{2(k+1)} (1 + 2τ₁) ≤ 1`) and A4-1b (ii). *A4-1b (ii) — obstruction to the stated form.* The premise asks `‖ℰ^{(j)}_{irrel}(y, X; Ψ, h)‖ ≤ B_l e^{-(κ_dec-1) d_j(X)}` on the whole term domain `Ξ_j(Tm.gs j X; ε_j)` (birth mass) with `B_l ≤ C_I E₀ L^{-(k-j)(d+α₃)}` for `j + n₁ ≤ k`. That domain does not depend on `k` and contains data with gradients of size `ε_j L^{-j}` on the layer `j`, where the irrelevant parts have no decay in `k - j`; for the classes of the induction, whose level-`j` terms are those born at step `j`, the bound uniform in `k` would force the irrelevant parts to vanish on their domains. It is not provable from the class clauses. *What is consumed.* (a) The class chain reads the bound only at the composed step data of its labels, `D2raw (𝔹_k(X), Tm.gs j X; F_k)(d1Triple t)` for the realizable triples `t` (the premise `hEbd` of `…_ren_rot_formula_of`; `…_birth_of` strengthens it to the term domain through `hchart`): these are data composed from the chart `Ξ^c_{k+1}(𝔹_k(X); 1, E)` of level `k + 1` (`eTerm_chain_of_one_le`), smooth at scale `L^k` on the layer `j`, which is the setting of P1 (3.128). (b) The local families of the new level (`oldTerm_charts_of_labels`, through `localFamily_of_class`, `newLevel_localFamily_of_class`) read it on the level-`j` charts `Ξ^c_j(Gj τ; b, e)`, `e = t + K₂δ₃ + K₂δ_fl`; (b) implies (a) (`d2raw_d1Triple_mem_xiCRaw`), but (b) asks the bound at all data of a level-`j` chart (gradients up to `e L^{-j}`), which do not have the smoothness of P1 (3.128) either. *What it needs.* P1 (3.128) at the composed data: `irrelTorus_bound_of_dataHyp_of_threshold` (`SmallField/IrrelTorusXidomBound.lean`) gives the bound with `C_I` independent of the torus, `k`, `j`, the label and the data, for `X ≠ □(y)`, under `DataHypAniso` at the data pulled back at `y` with `σ = C₀ s_{jk}`, `ε = ε_k` (open analytic input P-2: the composition from level `k + 1` keeps the level-`k` smoothness on the layer `j`); the label `X = □(y)` needs the torus form of the renormalization conditions (P1 (H.6)). For the Lean statements: the premise of `…_birth_of` and of the local-family branch should be the bound at composed data as in (a) — the old terms of the new level are evaluated at data composed from the charts of level `k + 1` of the local sets as well — and the local-family branch must carry that origin of its data instead of the level-`j` chart; this changes `oldTerm_charts_of_labels` and the old-term settings of `NewLevelSystem` (`…_birth_of` with the composed-data premise compiled in place and was set aside because the local-family branch still asks (b): `Balaban-scratch/w1146/RotChainBirth_composedform.lean`).
 
 **L5 W1146t (3) — A4-1b (ii) restated at the composed data; what DataHypAniso there still needs (2026-10-21).** *(i) Form (a), Lean.* `composedChart Gj a ν j b e` (`Fluctuation/OldTermComposedChart.lean`): the data composed into a term generator `Gj` from the chart `Ξ^c_{k+1}(G; 1, e)` of a generating set `G ≻ Gj` (collar of `Gj` in `Ω₁(G)`, standing hypotheses at `G`), lying in `Ξ^c_j(Gj; b, e)`; the data both branches read lie in it (`d2raw_d1Triple_mem_composedChart`), and it lies in the class term domain at the birth mass (`composedChart_mem_birthXiDom`, so the term-domain bound gives it: `irrelTorus_composed_of_termDomain`). Cores with the bound on the composed chart, the landed statements their instances (statements unchanged): `eTermFun_analytic_bound_of_top_composed` (`NewLevelOldTermsBgSetting`), `oldFun_fields_of_composed`, `clause_analytic_of_composed`, `clause_rot_full_of_composed`, `clauses_of_composed` (`NewLevelLocalClauses`), `clauses_castLocal_of_composed`, `localFamily_castLocal_of_composed` (`NewLevelLocalCast`), `localFamily_of_class_composed` (`NewLevelLocalFamilyClass`), `StepTowerG.newLevel_localFamily_of_class_composed` (`NewLevelTowerFamily`), `…_ren_rot_formula_birth_composed_of` (`StepTowerRotChainBirth`), `newLevel_localFamily(ies)_birth_composed_of` (`NewLevelLocalFamilyBirth`); `oldTerm_charts_of_labels_composed` beside the landed `oldTerm_charts_of_labels` (`NewLevelOldTermsClass`, shared `oldTerm_chart_dom_of_labels`, `oldTerm_charts_an_rot_of_labels`, core `irrelTorus_bound_on`). The provider in form (a): **`NewLevelTies.newLevel_localFamilies_composed`** — A4-1b (ii) as the bound of `ℰ^{(j)}_{irrel}(y, X)` on `composedChart (Tm.gs j X) … j 1 ε_k` with the decay `C_I E₀ L^{-(k-j)(d+α₃)}` (`j + n₁ ≤ k`), `K_L E₀` otherwise. Not changed (scheduled for a full rebuild, SPINE-PLAN): `eTermFun_bound_of_bg/one_le` in `InteractionHatE` (≈ 990 reverse dependencies) as instances of `eTermFun_bound_composed`. *(ii) DataHypAniso at the composed data — what is missing* (the producer `xiC_dataHypAniso_of_levelGS` and the consumers `irrelTorus_bound_of_dataHyp_of_threshold`, `norm_filed_le_power(_birth)` exist; at the R13 composed data their hypotheses fail at the following places): (M1) **global pullback.** Producer and consumers state `DataHypAniso` for the datum pulled back at `y` on all of `ℤ^d` (`hsite`: every pulled-back site in `Ω₁` and in the layer `j` of the target; `hadj`; the consumers also `hΨb`, `j`-block constancy everywhere); the pullback reaches every aligned site (`not_forall_pullback_mem`, `SmallField/ComposedAnisoGap.lean`), so for the local target `Tm.gs j X` they fail, while `ℰ_irrel(y, X)` reads `Ψ` only on `X ∪ st₊(y)` and `h` on `X` (`irrelTorus_congr`). Needed: the consumers with the data hypothesis on the pullback of `X ∪ st₊(y)` only (or an extension of the composed datum to the torus with `DataHypAniso`). (M2) **source level.** The sharp composition estimate (`HypS`, `xiC_scaledComposition_square_sharp`) ties the scale ratio to the level of the torus (`L^j = θ L^K`); for the composed charts of the step the source is a level-`k` local set `Gk` on the torus of level `k + 1`, where the scale gap fails (`not_scaleGap_of_lower_source`). Needed: `HypS` with a source level `n ≤ K` (`L^j = θ L^n`, the chart's mass conditions at level `n`; the chart at level `k + 1` gives the one at level `k`, `xiCData_level_mono`); then `σ = C₀ L^{j-k}`. (M3) the same-mass chart inclusion of the two pulled-back points (`hchart`; for the datum itself `composedChart_mem_birthXiDom`, for the constant configuration open) and the second-difference bound `K₂` (P1 (3.107)) — explicit premises of the landed producer as well. (M4) the geometry of the chain's sets: `ScaleGap (Tm.gs j X) (Gk τ) L^{j-k}` and the collar condition (`Ω₁ ∪ C(Ω₁)` of `Tm.gs j X` in the top layer `k` of `Gk τ`) are not exported by the chain (its `BgSetting` gives `Precedes` and the collar in `Ω₁` only); `composedChart` would carry them. (M5) the non-cell bound `irrelTorus_bound_of_dataHyp_of_threshold` and the identity `irrelTorus_eq_Itw_centred` take the class clauses on `xiFieldDom a μ ε` (one mass for all levels); the R6 class is on `birthXiDom` (mass `μ_j` at level `j`), which gives them at the level of the label only. *(iii) The cell label `X = □(y)`* (ORCH-A: `norm_filed_le_power` instead of a named Prop). `irrelTorus j y □(y) = Itw(T_{y,□(y)}) + Σ_{Z ∈ polysAt j y}(T_Z + Φ_{y,Z})`: the second term is the filed sum, bounded by `C_R E₀ L^{-(d+α₃)(k-j)}` by `norm_filed_le_power` (`completeXiDom`, mass `nuIdeal`) or `norm_filed_le_power_birth` (`birthXiDom`, with the cap `μ_j ≤ ν̄ L^{-2k}`); no torus form of the renormalization conditions is needed. Mismatches: (c1) both need the class as a member `Tm N₁` of a family `IsSFFamily2` over the tori (the step class `C` carries one `Terms` on the step torus: the premise is that `C.Tm` is the `N₁`-member of such a family, the blocker-7 interface); (c2) their data hypothesis `hdat` is the global `DataHypAniso` of (M1); (c3) the first term needs the termwise bound without `hXne` (`irrelTorus_eq_Itw_centred` uses `hXne` only to drop the `if`; the identity with the filed sum for `X = □(y)` is the same computation).
+
+**L5 W1146t (4) — (M1) the consumers with the data on the polymer; the l¹ form is false for non-convex X (2026-10-21).** *The finding.* The anisotropic termwise analysis (`CtxAniso`, `RenormAnisoCtx`; `dotT_diff_bound`, `RenormEstimates`) reads the data clauses `adj`, `sec` of `DataHypAniso` only through two derived facts on the polymer `S`: the increment `‖ψ(x) - ψ(0)‖ ≤ l¹(x) σ ε` and the frozen Taylor remainder `‖ψ(x) - ψ(x') - Σ_μ (x - x')_μ ∂_μψ(0)‖ ≤ 6 L² K₂`, both obtained along monotone `ℓ¹` paths of `ℤ^d`, which leave the pullback of `X̂` when `X` is not convex. With the clauses asked only on the pullback of `X ∪ st₊(y)`, the `ℓ¹` form is **false**: in `d = 2`, the U-shaped `S = {(0,0), (0,1), (1,1), (2,1), (2,0)}` with `ψ` equal to the position along the U (`0, 1, 2, 3, 4`) has every first difference inside `S` of size `1` and every second difference inside `S` equal to `0`, while `‖ψ(2,0) - ψ(0,0)‖ = 4 > l¹(2,0) · 1 = 2` (the polymers are fat unions of cubes, the same U made of cubes of side `≥ 2` blocks gives the same failure). What holds is the **path form**: along paths inside `S`, with the plaquettes and collinear triples inside `S ∪ st₊(0)` (`S` is a grid-aligned union of cubes of side `≥ 2` blocks), the increment is `≤ ℓ_S(x) σ ε` and the Taylor remainder `≤ 6 ℓ_S² K₂` with the path length `ℓ_S ≤ A′ (1 + d_j(X))`: a path constant `A′` (from `cellCount_le_one_add_treeLenCovOne`, `#cells ≤ c₁ (1 + d^cov)`, and paths of length `≤ d · cellSide` per cell) **replaces `diamA`**. *Lean (consumers; every landed statement unchanged, the landed declarations are instances).* `DataHypAnisoOn polys ℓ Dom ν σ ε K₂ ψ b` (`RenormAnisoCtx`): the point properties at the origin, (Σ1) on the polymers, `grad0` (`‖ψ(e_μ) - ψ(0)‖ ≤ σ ε`), `incr` (`≤ ℓ(X) σ ε`), `taylor` (`≤ 6 ℓ(X)² K₂`) — the field is read on the polymers, the origin and the `e_μ` only; `DataHypAniso.toOn` (the lengths bounding the `ℓ¹` radii); `DataHypAnisoOn.constData`, `.exists_frame` (the frame from the point properties, through the constant field); `CtxAnisoOn` (the context with `DataHypAnisoOn T.polys (A (1 + d_j))`), all the estimates of `CtxAniso` proved for it (`rotDiff_le_mem`, `rotDiff_eU_le`, `ga_le_mem` in place of the global `rotDiff_le`, `ga_le`), the `CtxAniso` ones their instances through `CtxAniso.toOn`; `CtxAnisoOn.dlt_bound_raw`, `.itw_bound_raw_aniso`, `termwise_irrelevant_aniso_on`, `termwise_irrelevant_aniso_scaled_on` (`RenormAnisoIrrel`); `dotT_diff_bound_of_taylor` (core of `dotT_diff_bound` over the Taylor input) and `norm_taylor_frozen_le` (`RenormEstimates`); `incr_of_dataHyp`, `local_spin_bound_of_incr` (`IrrelTorusXidomLocal`), `trickFnA_shiftTerm_eq_of_incr_small` (`IrrelTorusXidomSmall`), `shiftTerm_discrepancy_bound_of_threshold_incr` (`IrrelTorusXidomSplit`), `PremisesTermAniso.mono_A` and **`irrelTorus_bound_of_dataOn_of_threshold`** (`IrrelTorusXidomBound`): the non-cell bound with `DataHypAnisoOn {S} (A (1 + d_j(X)))`, any `A ≥ diamA`, and `Ψ` constant on the `j`-blocks of the sites of `X` only; `shiftField_pack_of_mem` (`IrrelTorusBoundId`). *The cell label* (`SmallField/IrrelTorusDefectStar.lean`): the filed sum reads `Ψ` only at `y`, `y + L^j e_μ` and `hv`, and its bound depends on the data only through `Λ`; `norm_filed_le_power_star`, `norm_filed_le_power_birth_star`, `norm_filed_le_power_birth_cap_star` take the data on `st₊(y)` only (the point properties at `y`, `‖Ψ(y + L^j e_μ) - Ψ(y)‖ ≤ δ`, `(2 + 5N) δ ≤ min(Λ r_j, 1/4)`), by the landed bounds at `starExt j y Ψ` (`Ψ` on `st₊(y)`, `Ψ(y)` elsewhere), which satisfies `DataHypAniso` on all of `ℤ^d` at `σ = 1`, `ε = (2 + 5N) δ`, `K₂ = 4 δ` (`dataHypAniso_of_near`). The numeric premise `(2 + 5N) σ ε ≤ 1/4` is to be proved from the class constants at the provider. *(M5)* `irrelTorus_bound_of_dataOn_of_threshold_birth` (`SmallField/IrrelTorusXidomBirth.lean`): the non-cell bound for the class on `birthXiDom`, through the level-only family of the terms (`exists_levelOnly_terms`, `SFTermClauses.levelOnly` onto `xiFieldDom` at `μ_j`). *(M2)* `HypSle` (`Background/ScaledComposition.lean`): `HypS` with `L^j ≤ θ L^k`; for a source whose top layer on `Ω₁ ∪ C(Ω₁)` of the target is `n ≤ k`, `θ = L^{j-n}`, so `σ = C₀ L^{j-n}`; all the `HypS` theorems proved for `HypSle` (`scaledComposition_le`, `HypSle.comp_square_sharp/scaled`, `xiC_scaledComposition_square_sharp_le`), the `HypS` ones their instances. *Scheduled deduplications, done:* `eTermFun_bound_of_bg` an instance of `eTermFun_bound_of_bg_composed` (`composedChart` moved to `InteractionHatE`); `sizeJ_le_ncard_sq` through `connStruct_nbrPairs` and `meetsOne_of_chosen`. *The producer, path form:* `DataHypAnisoOn.of_paths` (`SmallField/RenormAnisoPath.lean`): the clauses on a region `R` of `ℤ^d` (edges, plaquettes, (Σ1)), the point properties at the origin and, for every site of a polymer, a path from the origin of at most `ℓ X` steps inside `R` with the forward stars (increments `≤ n δ`, frozen gradients `≤ n K₂`, frozen Taylor remainders `≤ n² K₂`). Remaining for the producer at the composed data: the clauses on the pullback of the region of `Tm.gs j X` from the chart (through `HypSle`, with the scale gap and the top-layer collar condition of (M4)), the paths (the polymer is connected; a shortest path inside its `j`-block pullback has at most `#S - 1 ≤ c₁ (1 + d_j(X)) M^d` steps, `M` the cell side in blocks), (M3) the chart inclusion of the constant configuration and `K₂` (P1 (3.107)), and the numeric premise `(2 + 5N) σ ε ≤ 1/4` of the cell label from the class constants.
 
 **L5 piece 12 rulings (coordinator, 2026-10-21).** R1: `NewLevelSystem`/`OldTermSystem` carry the old terms' settings at `t` (`BgSetting`, `FlSetting`, `CovSetup`, `X₁f = X1`, `hoptL`, analyticity of `FkL`) and the constants with equalities to the tower's as fields, built in `StepTowerBeta0Families` and carried up through `StepTowerBeta0Red`/`StepTowerCollarCore`; `NewLevelFormula` exposes them; landed statements unchanged where possible. R2: the open inputs `hEbd` (P1 (3.128)) and `hchart` restated on the class term domain (the bound and chart of `Eτ` on its own analyticity domain), the bound at the composed data of a local pair derived by domain inclusion, the inclusion proved in piece 12; the class-domain `hEbd` stays the open input A4-1b (ii). R3: the numerics at `ε′` and at the cover constants stay premises of the final theorem (conditions on constants), with `exists_newLevelNumerics` for their simultaneous satisfiability by the chain's admissible constants. **Obstruction to the R2 inclusion (W1146):** the class term domain of the label `τ = (j, y, X)` is `Dom.dom j (Tm.gs j X) ∩ {dot (Ψ y) (Ψ y) ∈ slitPlane}` (`irrelTorus_analyticOnNhd`), over the class generating set `Tm.gs j X`, which the class specifies only by `GsSpecStrong j X` (layer `j` on `X`, no layer above `j`; `levelGS_strong`: the whole-level set satisfies it). The composed data `D2raw (Gk τ) (Gj τ) … (d1Triple Gp (Gk τ) Hm …)` of any local pair (the step's or `Gb(T′)`'s) vanish off `Ω₁(Gj τ) ∪ collar (Gj τ)` (`composeField`), `Gj τ = castG hc (𝔹_j(XL τ))` (`settings_family_castLocalB_spec`), while every point of `Dom.dom j G` with `Dom = sfDom = birthXiDom` has `Ψ(x) ≠ 0` at every data site of `G` (`XiDom` → `RealizesC` + `InUnionDomainC` (R2), (C2a)). For `Tm.gs j X = levelGS j` the inclusion is therefore false (also for the step: the chain's present `hchart` premise is unsatisfiable for such classes), and the route through the locality `localE` of `Tm.E` needs a small-field extension of the composed field from `X` to the data sites of `Tm.gs j X`, which fails for `N = 2` around a hole of `X` (`WIDEGEN.md`). The inclusion needs a locality property of the class generating sets (the source's `𝔹_j(X)`: e.g. `Tm.gs j X` the cast local set `𝔹_j(X)` and the chain composing on it), or the open input stated at the composed data of the local pairs with the step's settings — ruling requested. **R13 asked** (PLAN-B; option (a)); checks of (a) landed (W1146): `stPlus_mem_dataSites` (the sites `y + L^j e_μ` of `irrelTorus` are data sites of `𝔹_j(X)`, one-site collar), `settings_family_castLocalB_spec_gen` (the settings with `Gj τ = castG (𝔹_j(X_τ))`), `d2raw_d1Triple_mem_xiDom_of_top`, `dot_mem_slitPlane_of_xiDom`, `aIdeal_eq_compWeight`, `aIdeal_compWeight`, `physMass_nuIdeal`, `d2raw_mem_birthXiDom_of_top` (`Fluctuation/OldTermClassDomain.lean`: the inclusion under (a) with the weight and mass matching).
 
@@ -1012,6 +1013,50 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `sfFinalHm` (`H = L^{k(d-2)} D`), `pdQuad_sfFinalK` (`Q_K(v) = β_k L^{-k(d-2)} ⟨v, H v⟩`, the hypothesis of `sfGaussIntegrand_cubic`),
      `actStar2_univ_hessian_sfFinalHm` (`A*_k(h + t u)/t² → ½⟨v, H v⟩` under the field clauses: `K` is the Hessian of
      `β_k L^{-k(d-2)} A*_k`, the masses being equal, `sfActMass2_eq_muBg`), `sfFinalK_posDef`.
+   * **B2 (the whitening, reading B-1′ of `PLAN-B.md`; 2026-10-21).** Why: P5 (2.39), P7 §4 — the last fluctuation integral is
+     whitened with the localized square root (`ψ_k = h + β_k^{-1/2} L ψ̂`); with the exact `K^{-1/2}` the class cutoff `χ_k` is not
+     local in the Gaussian variable. Planned spine change (old → new, when B1's `L` lands): `sfBoxIntegral` at `sfFinalK`
+     (`ctxBoxIntegral`, the exact whitening) → at the whitening `A = β_k^{-1/2} L` (`ctxBoxIntegralL`), the same in both halves.
+     Now (cores, every invertible `A`): `integral_spin_whiten`, `integral_eq_abs_det_mul`, `integral_mul_sfFactor2_whiten` (the Jacobian
+     `whitenNorm A = |det A| (2π)^{n/2}` and the mismatch `mismatchFactor K A = exp(-½⟨ψ̂, (AᵀKA - 1)ψ̂⟩)` as defined factors);
+     `sfGaussIntegrandL`, `ctxBoxIntegralL`, `ctxFluctBoxIntegralL`, `ctxBoxIntegralL_eq_exp_mul(_of)`. Landed declarations made
+     instances (`A = K^{-1/2}`): `sfGaussIntegrand`, `ctxBoxIntegral`, `ctxFluctBoxIntegral` (bodies), `integral_spin_gaussian`,
+     `integral_mul_sfFactor2_gauss`, `integral_sfFactor2_gauss`, `sfIntegral_eq_gauss` (statements unchanged except that the
+     measurability hypotheses are dropped: the linear change of variables needs none), `ctxBoxIntegral_eq_exp_mul` (statement
+     unchanged; `ctxBoxIntegral_eq_exp_mul_of` replaced by `ctxBoxIntegralL_eq_exp_mul_of`). `BoxLocalForm` takes the whitening `A`
+     (with `A.det ≠ 0`) and an undilated even part `U` with its bound `ε_U` (the mismatch's pair terms).
+   * **B2 (box split, gas layer; 2026-10-21).** The box average of the fluctuation integrand at a whitening `A`, from the local form
+     (`BoxLocalForm`, B1) and the two-torus closeness (`LastScaleTwoTorusClose`, A2), is `exp(E + Σ_X a(X; g))` with `a` in Root-F's form
+     at the scale `k + 1` (`ctxFluctBoxIntegralL_eq_exp_of_boxLocalForm`, `Spine/FinalBoxFinal.lean`; generic in `A`, the spine statement
+     is its instance at B1's localized square root when it lands, reading B-1′). The layers:
+     * the generic gas core (`Polymer/SteinerGas`, `Polymer/LocalGas`: a local family over a product probability measure on a finite
+       site set, `∫ exp(Σ W) dμ = exp(Σ P)` with `P` explicit, local, analytic in a parameter, Kotecký–Preiss bound); the fibre products
+       (`Polymer/FibreProduct`);
+     * the box instance on the macro cells (`Spine/FinalBoxCells`, `FinalBoxMeasure`, `FinalBoxGas`: the box Gaussian as a product of
+       conditioned one-block Gaussians, the grouped terms at the field clamped onto the box, `ε_c = (2M_c)^d (ε + ε_U)`);
+     * the parity gain (`Spine/FinalBoxEven`, `boxCellP_neg`, `boxCellP_zero_dil`, `boxAct_bound`): the terms are dilated, `W_Y(t w, g)`, the
+       mismatch part `U` is even and not dilated; the increments of the activities are even in `t` and vanish at `t = 0`, so they are
+       `≤ sup/R_t²` (amplitude `boxAmp = 2 (M L)^d C_KP / R_t²`, rate `κ_g/3^d - 1`);
+     * the regrouping into Root-F's `(k+1)`-polymers (`Spine/FinalBoxHull`, `FinalBoxAct`: the hull of a set of cells, at most `3^d`
+       cubes per cell for `M_c ≤ M L`); the remainder `ℛ^{(k)}(T; h, h, g)` at the constant configuration (part of the exponent
+       `constExponentR`) as activities `rObs` of `𝒟_k` (`Spine/FinalBoxRTerm`; `polyObs` is the common core of `rObs` and `inhObs`),
+       regrouped with the split rate (`regroup_sum_bound_split`, `norm_regroupAt_sub_le`; landed `regroup_sum_bound`, `regroup_bound`
+       its instances), amplitude `2 m β_k^{-2} e^{κ_flow}`, rate `κ + log 2` under `c₁(κ + log 2 + d log L + 2) ≤ κ_flow`;
+     * the activities on every admissible torus (`Spine/FinalBoxTorus`: `TorusClausesAt`, `torusFam`); the per-torus activities of the
+       interface with A2 are `lastSfAct` (`lastScaleTorusClauses_lastSfAct`);
+     * the amplitude condition from `β₀` (`lastScaleAmp_of_beta`): with the box amplitude `≤ D β_k^{-p}`, `(d-2)/2 + δ ≤ p(d-2)`
+       (for `ε/R_t² ≈ β_k^{-1} p₁²`, `p₁ ≈ β_k^{α}`: `δ ≤ (d-2)(1/2 - 2α)`), the remainder amplitude `≤ C_R β_k^{-2}` and `β₀` large.
+     * **`finalSmallFieldInput_of_localForm`** (`Spine/FinalBoxSpine.lean`): the statement of `FinalSmallFieldInput` at the box
+       integral `ctxBoxIntegralL` of a whitening `A` (a parameter of the theorem), from `PrefixInput`, `0 ≤ δ ≤ (d-2)/2`, the local
+       form `hW` (B1: for every `η > 0` and `β` large, `BoxLocalForm` at `p₁ = cut κ c₉ β_k` with the cell-gas numerics and
+       `boxAmp ≤ η L^{-(k+1)θ}`) and the closeness `hC` (A2: `LastScaleTwoTorusClose` of `lastSfAct` at the rate `κ + log 2`, `λ`
+       and `t₀` fixed before `β`, `a_C e^{κ+log 2} ≤ (c₉/8) L^{-(k+1)θ}`); the class data of the remainder terms come from
+       `FlatRep` (`SFFlat2.rTerms`, `BgHyp` at the scale `k` by `bgHyp_of_ideal`, `β_k ≥ e^{-1/20} β L^{k(d-2)}` from
+       `RunningHypTo`, `inv_sq_le_of_running`), the remainder amplitude from `rest_small_in_beta`, the rate tie from `c1_mul_rate_le`.
+       The per-torus step `Ξ_box(A) = exp(vac + ⟨g,h⟩ + Σ q + fluct)` is `ctxBoxIntegralL_eq_exp_of_fluct` (`finalSmallFieldInput_of_fluctForm`
+       is now through it).
+     Open in the gas layer: the spine restatement at B1's whitening `sfWhiten` (B1p4b): `sfBoxIntegral` (and the two halves,
+     `lastIntegralInput_of_parts`) at `A = sfWhiten`, and `FinalSmallFieldInput` as the instance of `finalSmallFieldInput_of_localForm`.
    * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
      * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
        `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;
@@ -1062,6 +1107,17 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `2c₀M` per cell with `c₀ = c₀(d,L)` of `final_region_entry_close_unif` (W870), this is `M ≥ (κ + log 2)/(2c₀)`), and the amplitude `hamp`
      (`κ'`, `t₀`, `a/B` absolute: the moved remainder costs the factor `1 + (a/B)e^{κ'} + 2e^{κ't₀}`, uniform in `kf`, `ℓ`). No floor on the torus:
      tori with one block per side keep `a_T` (no quarter-box polymer there, `four_le_of_isPolymer_quarter`). Sizes: Geom 371, Cells 407, Agree 583 lines.
+     **A2 closeness layers (toward (ii) for B2's `a_T`; `Polymer/{PYClose,MayerClose,MayerPYClose,MayerPYTransport}.lean`).** PROVED: `pe_PY_sub_bound` (margin
+     closeness of the local terms `PY` of a cluster sum, doubled weights; cores `term_bound_core`, `pe_PYGen_bound` in `Polymer/Local`, `pe_PY_bound` their instance),
+     `mayerK_sub_bound(_margin)`, `pe_size_sub_bound`, `mayer_PY_sub_bound(_single)`, `PY_mayer_close_transport` (two gases related by a block map: `|P'(σY) − P(Y)| ≤ C e^{−κ'(d(Y)+c_P) − λ m(Y)}`
+     from the margin closeness of the terms). Next: `localGasP` instances (after B2p3a), then the regrouping into `LastScaleTwoTorusClose` (after B2 3b/3c).
+     **A2 closeness of the box local terms (`Green/FinalBoxClose{Coef,Cut,Term,Quarter}.lean`).** PROVED: generic `linField_close`, `rootedCoef_close_relabel`,
+     `norm_term_sub_le_of_transport`; the cut family on two tori `boxCut_close_twoTorus(_margin)` (window frame, from `final_taggedCfinU_close_weighted`,
+     `final_region_entry_close_unif`) and `boxCut_close_quarterBox` (quarter box: entries within `P (n_C²+n_C⁴) √(C₀ e^{−c₀ M (2t−7)}) / √g (1+p)`, `t` the margin in
+     macro cells; `boxCut_translate`); the rooted coefficients `rootedCoef_boxCut_close_of_regions` (core), `rootedCoef_boxCut_close_twoTorus`, `rootedCoef_boxCut_close_quarterBox`:
+     `|coef_C(τ) − coef_{eC}(τ')| ≤ (η + M_τ ε/(r − r₁ − ε))/(e^κ − 1)^{|C|}`, `ε = |c| |reg C| δ ρ` (`η` the closeness of the terms read through the lift).
+     M against κ: the margin rate is `c₀ M` per macro cell (`c₀ = c₀(d, L)`, W870), against the activity rate per macro cell of the gas; `|c| = β_k^{−1/2}` makes `ε` small.
+     Next (after B1's `localFormOf` and B2's `boxCellTerm` land): the closeness of `W_Y = localFormOf …` in the form of `PY_mayer_close_transport`, with the closeness of the terms `τ_a` as the named input.
    * **W1151 (A6-3 (a), the empty cut as the core over the cut).** Landed:
      `Green/FinalGaussBochner.lean` (`pd_withDensity_eq_map`, `integral_pd_gaussian_change`: `∫ F(v) e^{-Q_K(v)/2} dv = Z_K ∫ F(K^{-1/2}ψ) dγ` for
      every measurable complex `F`, no integrability hypothesis); `Green/FinalSpinCurry.lean` (`spinField`: fields of `N`-vectors as real fields on
@@ -1181,6 +1237,55 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        local terms are analytic on the unit ball only; the increment bound needs Schwarz at `G = 1` (`‖F g - F 0‖ ≤ 2B‖g‖₁`). (ii) With
        `Ŵ_Y(0, g) = 0`, (W6) at `w = 0` reads `exp(ℛ^{(k)}(T; h, h, g)) = exp(E₀)`: `ℛ^{(k)}` at the constant configuration depends on `g` and
        is not in `constExponent`, so it must join the constant exponent (or `E₀` depend on `g`).
+     * **B1 piece 4 (2026-10-21).** *The level-`k` instances of the local form* (ORCH-B: complex fields, `Ŵ_Y(0, g) = 0`, bound linear
+       in the dilated radius). Core `Spine/FinalBoxLocPoly.lean`: `PolyTerms C hv r κ_R A` (a finite family of terms reading the block field on the
+       blocks of polymers `X_a ∈ 𝒟_k`, the source at the fine sites of those blocks, analytic on `‖g‖₁ < 1` × the sup ball of radius `r` around
+       `h`, bounded by `amp(g)_a e^{-κ_R d_k(X_a)}`; `PolyTerms.empty`, `.sum`, `.mono`, `.sum_count`), `blockCut` (`c · boxCut(s)` on the
+       blocks), `polyLocal` with (W1) `polyLocal_congr_w`, (W2) `polyLocal_congr_g`, (W3) `polyLocal_eq_zero_of_not_isAnimal`,
+       `analyticOnNhd_polyLocal` (joint in `(g, w)`, `w` complex, `‖w‖_∞ ≤ ρ`), `polyLocal_zero_var`, `sum_polyLocal`, and (W5, macro side
+       `L^{m₀+m₁}`) `polyLocal_bound`: `∑_{Y ∋ x} ‖W_Y‖ e^{α #cells(Y)} ≤ polyBoundConst F m r κ_R λ κ α` when the labels of each `X` carry
+       `∑ amp ≤ F e^{λ d_k(X)}`; `m = |c| B_box ρ`, the bound is `F (m/(r-m)) e^{γ c₁} K₀ (1 + 7^d 16^d B₃)`. Instances: `ℛ^{(k)}`
+       (`Spine/FinalBoxLocRForm`: `rPolyTerms`, `sum_rLocal`, `rLocal_bound`, λ = 0), `ℰ^{(k)}` (`Spine/FinalBoxLocE`: `psiJC_univ_top`
+       (`ψ^{(k)}_k = lift ψ_k`), `ePolyTerms`, `sum_eTerm` = `EresJ2 univ k`, λ = 1), `ℳ^{(k)}` (`Spine/FinalBoxLocM`: `mPolyTerms` with
+       amplitude `|g(x)|₁ c₉ L^{-k(…)}`, `sum_mTerm`, λ = 0). Supporting: `Green/FinalBoxLocRootSum` ((W5) from root sums, `card_rootCells_le`),
+       `Green/FinalBoxLocBoxConn` (`isAnimal_macBoxF`: the macro boxes are connected), `Spine/FinalBoxLocRGeom` (blocks and cells of the
+       polymers: `isAnimal_blocksOf`, `macCellCount_blocksOf_le`, `cellBase_mem_of_mem_blocksOf`, `card_cellBases_macBoxF_le`),
+       `Green/FinalBoxLocConsts` (named constraints `BoxCutConsts`, `RDomConsts`, `PolyTies` with existence lemmas; `PrefixInput` bounds
+       `P6.κ` from below only, so `PolyTies` is compatible, but its witness `κ_flow` lacks the term `c₁ γ + λ`), core
+       `linField_boxCut_mem_closedBall` (`rootedExpansion_boxCut` its consumer), core `sum_animalsAt_weight_le`
+       (`sum_animalsAt_exp_le` its instance). **Stage 1 (search done).** No local `BgSetting` exists in `Inhabited/NewLevel*`, `StepTower*`,
+       `Fluctuation/Local*`, `Spine/NewLevel*` (the base settings take `X₁f` = the torus; `OldTermSettings` is an assumed field). The
+       remaining terms (`ℰ^{(j)}`, `ℳ^{(j)}` for `j < k`, `⟨g, φ̄_k⟩`, and the action density of PHYS-CUBIC) read the global background;
+       their exact localization is `OPEN-PHYSICAL-FOOTPRINT-LOCAL` + `OPEN-PAPER-REPLACEMENT` of `TRUE-LOCAL.md` (packages 2, 3, 5, background
+       half; the final box needs no hat/square-root package), plus a parallel `X₁` for the top-level terms (`CovSetup` asks `j < K`).
+     * **B1 piece 5, decision B-1″ steps (1)–(3) (2026-10-21).** Row `p` of the whitening is to be the row of the inverse square root
+       of the final Hessian of the massive problem on the local pair of `p`, i.e. on the fine sites `V` of `B(p)^{+m}`. (1) The cut family
+       is generic in `U` (`Green/FinalBoxLocCutU`: `boxCutU`, `cutDecoupling_boxCutU`, `boxCutU_one`, `boxCutU_row_bound`; `Green/FinalTaggedSqrt`:
+       `taggedCfinU`, the hypothesis bundle `CutOpHyp` with core `cutOpHyp_of_final`; `boxCut` is `boxCutU` at `finalOp`). (2) Comparison
+       core `Green/FinalSqrtCompare` (`norm_sqrtMat_sub_le_of_resolvent`, `norm_sqrtMat_sub_le`). (3) The single-scale Dirichlet problem,
+       shared (`Green/OneScaleDirichlet`): `dirichletSol`, the Schur complement `dirichletUnitOperator V = a - a² Q_V (H_V)⁻¹ Q_V*`
+       (`dirichletUnitOperator_univ`: `V = univ` gives `Δ_tr`), `dirichletFinalOp` (complex, `dirichletFinalOp_univ` = `finalOp`), block decay
+       with the constants of the whole torus (`dirichletBlockKernel_decay`, `dirichletUnitOperator_decay`, `dirichletFinalOp_entry_decay`),
+       monotonicity `dirichletUnitOperator_quad_mono` (`U_W ⪯ U_V` for `V ⊆ W`), gap `dirichletUnitOperator_lower` /
+       `dirichletFinalOp_isCoercive` (`finalGap`), `cutOpHyp_dirichletFinalOp`, and the deep comparison `dirichletBlockKernel_sub_le` (any
+       `V ⊆ W`) with its block-union form `dirichletUnitOperator_sub_le` / `dirichletFinalOp_sub_le`: for `V` the blocks of `Bc` and `W ⊇ V`,
+       `|U_V(y,y') - U_W(y,y')| ≤ a² C e^{-(δ₀/2)(d(y, Bcᶜ) + d(y', Bcᶜ))}`. The block decay rests on the Agmon chain in function form
+       (fields vanishing off `Ω₁`, equation only where the field is nonzero): `agmon_energy_fun`, `agmon_block_fun`, `green_G2i_fun`,
+       `oneScale_core_fun`, `oneScale_blockDecay_fun`, `abs_blockAvg_le_of_eq`, with the landed statements as instances (the separation
+       field of `GeneratingSet` excludes `Ω₁ = … = Ω_k = V`). Route of the deep comparison: pair identity
+       `(z_f - y_f)·H(z_g - y_g) = f·z_g - f·y_g`, Cauchy–Schwarz of the form, Dirichlet principle with the cutoff
+       `θ = max 0 (1 - dist(·, Vᶜ)/N)`, energy of `θ z` from the gradient block decay. The flux form of `greenFn_resolvent_identity` loses
+       `N^{1/2}` against block `L²` bounds and is not used. Open: the new body of `finalWhiten`, its cut family, the error bounds from
+       `norm_sqrtMat_sub_le` and `dirichletFinalOp_sub_le`, and the update of `sfWhiten`.
+     * **B1 piece 6, decision B-1″ (a) (2026-10-22): the local-pair whitening.** `Green/FinalBoxLocWhiten`: `pairCoarse D m p` (the
+       coarse sites within `m` of the macro region of `locDom p`), `pairSites`, `pairOp = dirichletFinalOp (pairSites)`; `finalWhiten d L
+       N₀ k M v a h D m` has row `p` = row `p` of `boxCutU a (pairOp p) h (cutTo (locDom p) 1)` (`whitenCut` its cut family, decoupled by
+       the new core `CutDecoupling.diag`). Error bounds: cut part `norm_boxCutU_cutTo_sub_le` (generic `U` with `CutOpHyp`), pair part
+       `norm_pairCut_sub_le` from `norm_pairOp_sub_finalOp_le` (`dirichletFinalOp_sub_le` at `W = univ`) and the new shared core
+       `norm_sqrtMat_sub_le_of_deep` (`Green/FinalSqrtCompare`: comparison of the inverse square roots below a centre of depth `m`,
+       `e^{-(ε/4) m} e^{-(ε/4)|x - y|}`); `norm_finalWhiten_sub_le`, `whitenErr` (with `+ pairErrConst e^{-(ε/4) m}`), mismatch bound,
+       `exists_whitenRadius` and `exists_isUnit_finalWhiten` for all `D, m ≥ D₀`. `sfWhiten C hv Mc D mp` and the Spine files carry the
+       margin. Moved: `fineHamiltonian_posDef`, `fineHamiltonian_isUnit_det` (verbatim, `Green/FinalHessian` → `Green/FineHamiltonianPosDef`).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and
@@ -1252,6 +1357,166 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      stated before `𝕋'` exists. Recommended order: (1) A6-3 (a) for a general cut `Y = Z'^c` (the fluctuation integral of `sfFactor2 C vc Y`
      with the `Y`-dependent background; the `Z=∅` case is `sfIntegral`); (2) `𝕋'` as the remaining integral over `ψ_k|_{Z'}`; (3) then
      `∫ρ / Ξ^sf = gasLinkedXi` with `hOperator`, `hBoundary` proved, and (c), (d).
+   * **B3 (A6-4 design and pieces (A), (i); 2026-10-21).** Design: `notes/phase1/A64-DESIGN.md` (accepted by ORCH-B; reading B-1″ of
+     `PLAN-B.md`, the local-pair principle, adopted for obstruction O1). No landed statement changed; new (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFAssembly.lean`: `observableActivities_actAdd_of_const` (adding a source-independent family keeps the clauses of
+       `ObservableActivities`), `sides_top`, **`finalLargeFieldInput_of_torusForm`** (`PrefixInput`, explicit per-torus activities `bT`;
+       `hId`: `∫ρ = Ξ_box exp(E + Σ_X bT)` on every torus; `hTC`: `LastScaleTorusClauses` at the rate `κ + log 2` with an amplitude
+       `≤ η L^{-(k+1)θ}` for every `η` and `β` large; `hC` (A2, blocker 7): `LastScaleTwoTorusClose` of `bT` with `a_C e^{κ+log 2} ≤ (c₉/8)
+       L^{-(k+1)θ}` ⇒ `FinalLargeFieldInput`; the constant `E + Σ_X bT(X; 0)` of each torus is placed on `∅`, which is not a polymer).
+     * `Spine/FinalLFSplit.lean` (P7 (4.1)–(4.2)): `lfHist` (removal-free histories with nonempty region), **`integral_eq_sum_lfHist`**
+       (`∫ρ = ∫ sfFactor2(univ) + Σ_{𝔸 ∈ lfHist} lastHistInt 𝔸`, from (D1), R12 and `card_remFree_empty_eq_one`, under integrability of the
+       terms); `lfGlue`, `lfGlue_eq_symm`, `gWeight_congr` (the kernels read `ψ_k` only on `Vblk`), **`integral_gOp_eq_split`** (Fubini at a
+       set `Ω` of blocks no kernel reads: `∫ dψ 𝕋[F(ψ)] = ∫ dψ_out ∫ dμ(x) w(ψ_out, x) ∫ dψ_in F(ψ_out ⊔ ψ_in)(x)`), `lfRegInt` (the regional
+       integral `I_𝔸(ψ_out, x)`, with the boundary terms inside: their domains reach any block of `Z^c_k`),
+       **`lastHistInt_eq_regional_of_integrable`**.
+     Open (A64-DESIGN §2): `𝕋′` and (IV.4.1); the history factorization; the couplings and their bounds on B2's operator-gas core;
+     the regional analysis on B1's local-pair whitening (B-1″); `LastStepTies` (separate side input); `CutSfDomInput`, `LFH7SupportInput`.
+   * **B3 (A6-4, the gluing of separated steps without a common witness; 2026-10-21).** The history factorization needs the steps of
+     histories of different components glued; the landed `glue_step` asks for a common witness at every point (one step of which all
+     members within `L + 2⌊R_k⌋ + 6` are restrictions), which members of different histories do not have, and `ω_{k+1} ≥ 2⌊R_k⌋ + L + 11`
+     allows two members within that radius of one point. **Not an obstruction:** every set read by the set functions near a point lies,
+     with a neighbourhood of its reading radius minus at most `L`, in the `Z^pre` of its member (Lemma I.3.5 margins), so two members
+     are never read at one point once `2L < ω` (`ω_j ≥ 9L + 51` under (RH)). Landed (no `sorry`; axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/StepGlueMain.lean`: core **`glue_step_of_identities`** (the gluing from the four union identities and `3 < ω`); the
+       landed `glue_step` is its instance at the witness identities (statement unchanged, body a call of the core).
+     * `Spine/FinalLFGlue.lean`: the margins `nbhd_Uprime_subset_Zpre`, `nbhd_P_subset_Zpre`, `FDD_subset_Zpre`, `nbhd_Q_subset_Zpre`,
+       `nbhd_R_subset_Zpre`, `nbhd_OmegaDD_compl_subset_Zpre`, `nbhd_S_subset_Zpre`; `false_of_sep`; the empty data
+       (`PreStep.biUnion_empty_OmegaPrime`, `_Omega`, `_OmegaDD`, `_Z0`), `PreStep.biUnion_singleton`; the four identities
+       `compl_OmegaPrime_biUnion_of_sep`, `compl_Omega_biUnion_of_sep`, `compl_OmegaDD_biUnion_of_sep`, `eq_Z0_biUnion_of_sep`; and
+       **`glue_step_of_sep`** (`SepFam ω F Z^pre`, `2L < ω`, `2 ≤ L`: the union of the data is a step with `Z^{(0)}`, `Z^pre` the unions and
+       restrictions the members).
+     * `Spine/FinalLFLocalPair.lean` (reading B-1″, for B1): `minLayer_anti`, `genSF_top_subset`, `genSF_univ_Ω`,
+       **`genSF_inter_eq_univ_inter`** and **`Def7.SFCtx.genW_inter_eq`** (`genW Y ∩ B = genW univ ∩ B` for a generating set `B` whose
+       layers `m ≤ k` lie in the top layer of `genW Y = 𝔹_k(W₂(Y))`).
+     Next: the history-level factorization (induction over the scales with `glue_step_of_sep`, the labels, the representative in the
+     complete set), then `𝕋′` and (IV.4.1).
+   * **B3 (A6-4, the assembly of a history from separated components without a common witness; 2026-10-21).** The landed
+     `exists_assembled` (Lemma III.10.2 core) asks `hW` (every clique of the family in one history with the same localized histories)
+     only for the witnesses of `glue_step`; with `glue_step_of_sep` it is not needed. No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`):
+     * `LargeField/R/ConfigAssemble.lean`: cores **`sep_locSt_of_sepZ`** (the lineages of `ω_k`-separated components are
+       `ω_{j+1}`-separated at every `j < k`, from the separation alone), `asmStep_spec_of_glue`, `asmStep_Z_of_glue`, `asmF_Zpre_of_glue`,
+       `asmStep_Zpre_eq_of_glue`, `lin_asm_eq_of_sepZ`, **`exists_assembled_of_glue`** (glued steps at every `j < k` given as a hypothesis);
+       the landed `sep_locSt`, `asmStep_spec`, `asmStep_Z`, `asmF_Zpre`, `asmStep_Zpre_eq`, `lin_asm_eq`, `exists_assembled` are their
+       instances (bodies calls of the cores).
+     * `Spine/FinalLFHistGlue.lean`: `two_mul_L_lt_omega_succ` (`2L < ω_{j+1}` from `R_base ≥ 4L + 20`, `λ_j ≥ 1`),
+       `exists_glue_of_sepZ`, **`exists_assembled_of_sepZ`** (components of scale `k` of arbitrary histories, pairwise at distance
+       `≥ ω_k`, occur in one removal-free history with the same localized histories; no `hW`).
+   * **B3 (A6-4, the history factorization; 2026-10-21).** The histories of the large-field half of a complete set are the nonempty
+     pairwise `ω_k`-separated families of realized component records. No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFHistFactor.lean`: `exists_desc_of_rem` (without removals every component has a descendant of scale `k`),
+       `exists_of_mem_keptPos`, `mem_keptPos_of_desc` (kept positions = kept ripe events of the ancestors), `keptLab_eq_of_rem` (the kept
+       labels are the labels at the kept positions of the components of scale `k`), `new_eq_iUnion_locRH` (the new cubes of a step are the
+       unions over the localization steps), `iUnion_eq_of_forall_exists`; the record `CRec` = (cubes, localized history, labelled kept
+       positions `labSet`, the form of Lemma II.5.15), `compRec`, `lfRecs`, `mem_lfRecs`; **`agree_of_lfRecs_eq`** (equal records ⇒
+       `Agree k (k+1)`), **`lfRecs_eq_of_agree`** (via `HAgr`), **`lfRecs_injOn`** (on `lfHist` of a complete set).
+     * `Spine/FinalLFHistFactorSurj.lean`: `Realized`, `RecSep`, `recSep_singleton`; `exists_labHist_of_src`, `exists_labHist_of_sep`
+       (a nonempty separated family of realized records is the family of records of a removal-free history: `exists_assembled_of_sepZ`
+       and the labels glued at the kept positions); **`mem_image_lfRecs_iff`** (`Γ ∈ lfRecs '' lfHist ↔ Γ ≠ ∅ ∧ realized ∧ RecSep`, the
+       representative in the complete set); `lfAllRecs`, `mem_lfAllRecs_iff`; **`sum_lfHist_eq_sum_sep`**
+       (`Σ_{𝔸 ∈ lfHist} f(lfRecs 𝔸) = Σ_{Γ ⊆ lfAllRecs, Γ ≠ ∅, RecSep Γ} f(Γ)`).
+   * **B3 (A6-4, the gas supports and the kernel locality; 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFDouble.lean`: `zDouble`, `tDouble`, `supDist_tDouble_le_iff` (`d(2x,2y) ≤ 2m ↔ d(x,y) ≤ m`), `dblNbhd ω c` (the
+       `(ω-1)`-neighbourhood of `2·c` in `𝕋_{2n}`), **`disjoint_dblNbhd_iff`** (`ω ≥ 1`: disjoint ↔ `d(c,c') ≥ ω`),
+       `disjoint_disjSum_iff`, `disjoint_supp_iff_sep`, **`recSep_iff_disjoint`** (gas supports `A_r ⊔ dblNbhd ω_k r.1` with block parts
+       disjoint for separated records: pairwise disjoint ↔ `RecSep`; any parity of `ω_k`).
+     * `LargeField/Operators/Invariance.lean`: cores `HistIso.partsEquiv`, `symVar_ancInc_of`, `relOut_ancOut_of`, `relVal_anc_of`,
+       `preVars_corr_fwd_of`, `preVars_corr_bwd_of`, `preOp_euclid_of` (one step, any matching of the old parts), **`locOp_euclid_of_corr`**
+       (Lemma II.5.10 for any relation `C` of components compatible with localized histories, kept components, kept labels and parts);
+       the landed `symVar_ancInc`, `relOut_ancOut`, `relVal_anc`, `preVars_corr_fwd`, `preVars_corr_bwd`, `preOp_euclid`,
+       `locOp_euclid_invariant` are their instances.
+     * `Spine/FinalLFKerLocal.lean`: `val_mem_comps_old`, `mem_parts_of_mem_comps_old`, `mk_mem_parts`, `partsMapOfOld`,
+       `partsEquivOfOld`; `RecCorr`, `recCorr_parts`; **`locOp_corr_of_compRec_eq`** (components with the same record have
+       corresponding operators: `SubCorr` and equal `K`, `b` at corresponding arguments, `σ = LatTorusSym.refl`).
+   * **B3 (A6-4, the inherited part of (IV.4.1); 2026-10-21).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFWeight.lean`: `keptSum_eq_sum_keptPos`, `image_fst_labSet`, `sum_labSet`;
+     `exists_src_of_mem_lfAllRecs`, `lfSrc`, `lfSrc_mem`, `compRec_lfSrc` (the source of a realized record in `lfHist`);
+     `kappaH_ge_of_D6Flat` (`κ ≥ A₂λ_{k₀}^{p₂} + H_k|Z|_k + log C_k(a) + Σ log C_dec(ϰ)`), `pkgBound_lfSrc` ((1.26) for the source operator,
+     `D5Bound`), **`sum_exp_neg_kappa_lfSrc_le`** (`Σ_{r : r.1 = Y} e^{-κ(r)} ≤ e^{-A₂λ_{k₀}^{p₂} - H_k|Y|_k}`, `D6Flat` and Lemma II.5.15 with
+     labels, `sum_inv_logC_labelled_canonical`).
+   * **B3 (A6-4, the product form of the operators over the records; 2026-10-21).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`) in `Spine/FinalLFProduct.lean`: the global variables `GVar` (scale `j < k`, kind,
+     `j`-block), `gIsSpin`, `GCfgOn`, `gcfgMeasure`; `gImage`, `subCfgEquiv`, `measurePreserving_subCfgEquiv`, `restrictOn`; `famEquiv`,
+     `measurePreserving_famEquiv`, `famEquiv_symm_apply` (disjoint variable images: the configurations of a family are those of the
+     union); **`gOp_eq_integral_gcfg`**; `varSet_localHistory_subset`, `gImage_disjoint` (Lemma II.5.9 (b)); `symVar_refl_val`,
+     `relVal_refl_subCfgEquiv`, `relOut_refl_outOf`, `relG_refl`; `recPkg`, `recVars`, `recW` (operator, variables and weight of a
+     realized record); `gImage_postOp_eq`, `postOp_w_eq_recW` (kernel locality); `compRec_mem_lfAllRecs`, `recOfComp`,
+     `recOfComp_injective`, `pairwise_disjoint_postOp`, `recVars_recOfComp_subset`; **`gOp_postOp_eq_prod_recW`** (for a history of the
+     large-field half, `𝕋[F] = ∫ dz Π_c recW(r_c)(ψ_k, z|_{r_c}) F(z)` over the configurations of the union of the component variables).
+   * **B3 (A6-4, locality of the region data near a set of cubes; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`): `LargeField/R/LocalLemmas.lean`: cores `cubeMap_mem_Zpre_of_rem_between`,
+     `mem_lin_iff_of_rem_between` (removals excluded only between the scales `j` and `k`; the landed `cubeMap_mem_Zpre_of_rem`,
+     `mem_lin_iff_of_rem` their instances). `Spine/FinalLFRegionLocal.lean`: `mem_Zpre_iff_mem_lin_of_rem`, `not_mem_Zpre_of_not_mem_Zp`,
+     `mem_lin_of_mem_Z0`, `mem_Omega_iff_loc`, `mem_OmegaDD_iff_loc`, `mem_Z_iff_loc` (over a component the region data are those of
+     its localized history), `mem_Omega_of_not_mem_Zp`, `mem_OmegaDD_of_not_mem_Zp`, `not_mem_Z_of_not_mem_Zp` (off `Z_k`),
+     `cases_of_corr`, **`regionData_eq_on_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond have
+     the same `Ω_j`, `Z_j` (`j ≤ k`) and `Ω''_{j+1}` (`j < k`) on the fine set of `X`). Finding: the `loc_hist` clauses of
+     `D7Bdry`, `D7BdryPost`, `D7Bdry2`, `D7Bdry2Post` compare `(globalLH A.H M).OmegaDD j = Ω''_{j+1}` for `j ≤ k`; at `j = k` this is
+     the record of the step `k → k+1`, not constrained by `Agree k (k+1)` (reported to ORCH-B).
+   * **B3 (A6-4, Möbius inversion and locality of the boundary domains; 2026-10-22).** No landed statement changed. Landed (no `sorry`;
+     axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFMobius.lean`: `powMobius`, `sum_neg_one_pow_card_sdiff`,
+     **`sum_powMobius`** (`∑_{T ⊆ S} μf(T) = f(S)`), `norm_powMobius_le`. `Spine/FinalLFBdryLocal.lean`: `nnComp_subset_of_agree`;
+     `omegaCube_iff_of_comp`, `omegaCube_of_not_mem_Zp`, `not_mem_Zp_of_corr`, `omegaCube_iff_on_of_corr`, `nnComp_eq_of_corr`,
+     `dmodOmega_of_corr`, `inter_Z_eq_of_corr`, **`mem_bdryDoms_iff_of_corr`**; the fine level `supDist_castT`,
+     `supDist_cubeMap_le_one`, `cube_supDist_le_one_of_nbr`, `omegaPost_eq_of_rem`, `omegaComp_subset_over`, `omegaComp_eq_of_corr`,
+     `d7Pull_inter_eq_of_corr`, `fineValidAt_of_corr`, **`fineValidAt_iff_of_corr`**, **`d7SizeAt_eq_of_corr`**,
+     **`mem_bdryDomsAt_iff_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond: the same cube-level
+     and valid boundary domains at `X`, the same size `d7Size` of `X`).
+   * **B3 (A6-4, locality of the global fields; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFFieldLocal.lean`: `subMultiscaleField_transport`, `subFluctField_transport`,
+     `restrictOn_restrictOn`; `eq_of_blockSub_car`, `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gMulti_top`,
+     `gMulti_eq_zero_of_gt`, `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`; `postComp_eq_of_mem_fineSet`,
+     `exists_corr_of_blockSub`, `subFields_eq_of_compRec`, **`fields_eq_on_of_corr`** (two histories of the large-field half whose
+     components meeting `X` have the same records: at the configurations read off one configuration `z` of the global variables
+     (`famEquiv`), `gMulti` and `gFluct` agree on every block of scale `j ≤ K` in the fine set of `X`, the field hypothesis of `D7`
+     `loc_field`).
+   * **B3 (A6-4, the reference measures as densities times probability measures; 2026-10-22).** No landed statement changed. Landed
+     (no `sorry`; axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean`: `sphereMass`, `varProb` (normalized
+     surface measure of the sphere for a spin, `oneSiteGaussian` on `ℝ^N`), `varDens` (`|S^{N-1}|`, `(2π)^{N/2} e^{‖x‖²/2}`),
+     `isProbabilityMeasure_varProb` (`1 ≤ N`), **`varMeasure_eq_withDensity`** (`1 ≤ N`); `gcfgProb`, `gDens`,
+     **`gcfgMeasure_eq_withDensity`**, `integral_gcfgMeasure`, `integrable_gcfgMeasure_iff`, `prod_iUnion_eq`, `gDens_iUnion`; the
+     configurations of all the global variables `GCfgAll`, `gProbAll`, `restrictAll`, **`integral_restrictAll`**,
+     `integrable_restrictAll_iff`; `recTau` (the weight of a realized record with its density), `depOn_recTau`,
+     **`gOp_postOp_eq_integral_recTau`** (the operator of a history of the large-field half is the `gProbAll`-expectation of the
+     product of the `recTau` of its records times the integrand: the form of B2's operator gas, `1 ≤ N` the only premise).
+   * **B3 (A6-4, the record gas: configuration space, a history in its variables, the heavy objects; 2026-10-22).** No landed statement
+     changed (B2's operator-gas core merged from `orchB-sfgas` `a4c24ac4`, authorized by ORCH-B). Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean` additions: `gaussInvDens` (the `ℝ^N` density, now the `false` branch of
+     `varDens`), `volume_eq_withDensity_gauss`, `varMeasure_false_eq_withDensity` (every `N`), the cores `integral_withDensity_ofReal`,
+     `integrable_withDensity_ofReal_iff`, `integral_comp_restrict_pi`, `integrable_comp_restrict_pi_iff` (`integral_gcfgMeasure`,
+     `integrable_gcfgMeasure_iff`, `integral_restrictAll`, `integrable_restrictAll_iff` their instances). `Spine/FinalLFGasCfg.lean`:
+     `gaussPi`, `psiDens`, **`volume_pi_eq_withDensity`**, `integral_volume_pi`, `integrable_volume_pi_iff`; the variables of the gas
+     `PVar = GVar ⊕ BlockAt k` (`ψ_k` on the `k`-blocks), `pIsSpin`, `PCfg`, `pProb`, `gPart`, `psiPart`, `measurePreserving_pSplit`,
+     `measurableEmbedding_pSplit`, `integral_pProb_eq_of_integrable`; the sites (doubled torus) `gSite`, `pCell`, `CellCfg`, `cellProb`,
+     `isProbabilityMeasure_cellProb`, `regroup`, **`measurePreserving_regroup`**, `regroup_apply`, `PDepOn`, **`depOn_comp_regroup`**.
+     `Spine/FinalLFGasHist.lean`: `collarR` (`r₀ = ⌊R_{k-1}⌋ + 2`), `recBlk`, `Vblk_subset_recBlk`, `two_mul_collarR_lt_omega`
+     (`2 r₀ < ω_k`, `k ≥ 1`), `disjoint_recBlk`, `lfSrc_cubes`, `Vblk_lfSrc_subset_recBlk`, `recW_congr_psi`, `cubeMap_gSite_mem`,
+     `blkDens`, `recTauG` (the weight of a record in the gas variables: kernel times the densities of its own variables), **`pDepOn_recTauG`**,
+     **`depOn_recTauG`** (support `dblNbhd ω_k Y`), `lfOmega` (the deep region `Ω_𝔸`), `collarDens`, `psiDens_compl_lfOmega`,
+     **`lastHistInt_eq_iterated_of_integrable`** (`∫ρ_𝔸 = E_ψ E_x ∏_Z (ρ_ψ(Z) τ_Z) · ρ_ψ(C_𝔸) I_𝔸`, premise: the integrability of the
+     Fubini split, as `lastHistInt_eq_regional_of_integrable`). `Spine/FinalLFGasWeight.lean`: `LFKernel.enorm_w`,
+     `lintegral_comp_restrict_pi`, `measurable_recW`, `lintegral_inner_recW`, `parOf`, `outOf_eq_mergeOut`, `measurable_mergeOut_parOf`,
+     `measurable_blkDens`, `blkDens_nonneg`, `blkDens_eq_psiDens_ZBlk`, `lintegral_outer_le`, `measurable_recTauG`,
+     **`lintegral_enorm_recTauG_le`** (`E|τ_r| ≤ e^{-κ}` from (1.26), `D5Bound`), `integrable_recTauG`, `integral_norm_recTauG_le`.
+     `Spine/FinalLFGasGeom.lean`: `kingGraph` (degree `≤ 3^d`, `kingGraph_degree_le`), `card_ball_le`, `reach_ball`,
+     **`isAnimal_dblNbhd`**, `card_dblNbhd_le`. `Spine/FinalLFGasCount.lean` (restated in cubes at ORCH-B's request): `tDouble_injective`, `omegaGraph`
+     (index distance `< ω`), `omegaGraph_degree_le`, `isAnimal_of_mem_comps`, **`card_comps_through_le`**, `lfSrc_mem_comps`,
+     **`sum_integral_norm_recTauG_le`** (over the records whose support contains a site `b` and whose cubes number `v`:
+     `Σ E|τ_r| ≤ m · m^{2(v-1)} e^{-A₂λ_{k₀}^{p₂} - H_k |Y|_k}`, `m = (2ω_k - 1)^d`, under `D5Bound`, `D6Flat`; the per-cube decay is
+     `H_k M^d`, the separation range enters the prefactor and the logarithmic entropy only).
+     L4 (cell-measure versions and coupling supports): `Spine/FinalLFGasCfg.lean` `integral_comp_regroup`,
+     `integrable_comp_regroup_iff`; `Spine/FinalLFGasCount.lean` `integrable_recTauG_cells` (`hτi`),
+     `sum_integral_norm_recTauG_cells_le` (`hcount` in cubes, on the site measure); `Spine/FinalLFGasGeom.lean`
+     `mem_comps_two_of_isAnimal`, `isAnimal_dblNbhd_two`, `card_dblNbhd_two_le`; `Spine/FinalLFGasCpl.lean` `castT_castT_symm`,
+     **`isAnimal_king_of_fineValidAt`** (a valid boundary domain is king-connected), `isAnimal_cplSupp` (its gas support
+     `dblNbhd 2 X` is connected, `≤ 3^d|X|` sites), `not_disjoint_dblNbhd_of_inter`.
+     `Spine/FinalLFDouble.lean`: `one_le_omega` (core of the step in `recSep_iff_disjoint`). Finding: the densities of `ψ_k` on the collar
+     cannot be part of a record's heavy weight (Lebesgue measure on the collar is not finite against the kernel alone: (1.26) integrates
+     `ψ_k` on `Z` only, the collar values are its parameters); they stay with `χ_k` in the regional part (`collarDens`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
@@ -1628,6 +1893,25 @@ by `locRH_Z`), which makes excess 1 of `stepVacuumVolume_eq_add_excess` empty; e
 * `r4Fresh_aggregate_of_localization` gives `Σ_Y r4Fresh = F S u 1` only under the P3 §4 premises (`Localization.localization_expansion`): `F` analytic in the cut parameters on the P3 polydisc, bounded, and cut-local (`hcut`: it depends on the removed members only through those meeting `Y`).
 * `F` is not definable now: the residual is analytic and local only on the global H7 domain, and "analytic and local on the global domain" does not give a local analytic extension to cut-open parameters (`GENERATOR.md`, REFUTED, counterexample `1/(z - 3/2)`); an `h`-independent canonical extension off the fibre is also refuted (`OFFFIBRE.md`).
 * Needed: a construction of `F` from the old kernels and the removed operators with its analyticity polydisc and cut-locality proved, then the tie `r4Coupling = Rep.B` (`r4Coupling_empty` is not a consequence of the aggregate identity, `AUDIT-DEFS-1018.md`). Rows (d)(e) depend on this: the integral identity `∫ρ' = ∫ρ` of `GasOutput` is about the `ρ'` it produces.
+
+**Row (c) design (A4, 2026-10-21; note `/home/scott/Balaban-scratch/a4/DESIGN-BPRIME.md`).**
+* Residual `Δ_S = 𝔈((Y∪⋃S)ᶜ; W_old) − Σ_{Z∈S} β₀ A_Z − 𝔈(Yᶜ; W_new)` (`𝔈` = `actStar2`, `EresK2`, `Fres`, `Rres` without the vacuum term; `A_Z` the action of `rhoZeroRestricted`), pre-localized: box roots (π′_k cubes at j = k−1) for the action, star bonds, `⟨g, φ̄⟩`; roots `(y, X)` at levels `j ≤ k−1` for `ℰ^{(j)}`, `ℳ^{(j)}`; s-independent roots for `ℛ(X)` meeting ⋃S, level-k terms (`composeField` at equal layers is the datum on Ω₁) and `A_Z`.
+* `F_{S,r}(u; s)` = the root summand at the decoupled fields `Dec2.decBgField (coverOf H) H`, `H = castG 𝔹_k(W_old)`, `castG 𝔹_k(W_new)`, at one label vector (`s` on the labels of `𝔹_k(W_new)` off `X₁(r)`, `1` elsewhere): the cut parameters enter each operator's own cube parametrix (no mixed cover); `ψ^{(j)}(s) = composeField` (local). `s = 1`: `Dec2.i4b_one`, so `Σ_r F_{S,r}(1) = Δ_S`.
+* (AE1) `Dec2.i4b_analytic` ∘ affine; bound from the I-4b bounds and the class bounds (no decay of the background difference used; it only improves `Eb`). (AE2) `i4b_local` per pair and CrossI4b `decBg_value_cross` (the two fields agree where the layers agree); hcut: CrossI4b for `W_old(S)`, `W_old(S ∩ near Y)`. Named estimate: the composed decoupled data lie in the inherited terms' birth domains for `|s_i| < e^{κ₁}`.
+* `ℬ′_Y(S) := Σ_r r4Fresh_r S Y`; `F_{∅,r} ≡ 0`; tie `old x S := r₀.B (𝔸′ ∪ S) x`, `kept x := r₀.B 𝔸′ x`. No landed definition changes; no local `BgSetting` needed. Files `R/BPrimeSum`, `BPrimePair`, `BPrimeRoot`, `BPrimeResidual*`, `BPrimeStep`, `Spine/RGasTie` (≈ 4,000 lines).
+
+**Row (c), pieces 1–4 (A4, 2026-10-21; axioms `propext, Classical.choice, Quot.sound`).**
+* `R/BPrimeSum.lean`: `bPrime` (`ℬ′_Y(S) = Σ_r r4Fresh_r(S, Y)`), `RootLocPremises` (the P3 premises of one root; `rootLocPremises_nonempty`), `bPrime_aggregate_of_localization` (`Σ_r F_r(S;1) = Σ_Y ℬ′_Y(S)`, locality, bound `Σ_r Eb_r e^{-κ₀Δ_r-2κ d̃(Y)}`, analyticity), `bPrime_congr_cut`, `bPrime_empty`, `r4Coupling_bPrime_empty`.
+* `R/BPrimePair.lean`, `BPrimeLocal.lean`: one label vector `s` read by each cover through a label map (`labParams`); `analyticOnNhd_decBgField_comp` (joint analyticity of `Dec2.decBgField` in data and labels), `decBgField_one_eq` (`= bgFieldC` at `s = 1`), `decBgField_lab_local` ((AE2), from `Dec2.i4b_local`).
+* `R/BPrimeRoot.lean`: `pairExt` (a root functional `Φ u φ₁ φ₂` at the two decoupled fields), `rootLocPremises_pairExt`, `bPrime_pairs_aggregate`: for root functionals analytic and bounded on the I-4b field region and reading the fields on `X₁`, `Σ_r Φ_r(bgFieldC old, bgFieldC new) = Σ_Y ℬ′_Y`.
+* Found: `Dec2.HatConn` (used by `Dec2.i4b_local`) can fail for generating sets with holes (a hat box at a diagonal corner of a hole); the R-step sets have holes, so the instance needs the admissible form (`HatConnAdm`, `i4b_local_of_agree_on_component_adm`, footprint margins as in `evDecBg_canon_local_of`).
+* Open: the R-step instance (cast of `genW` to the Def-6 torus, `DGSetting`), the root decomposition of the v2 holomorphic exponent and of `A_Z`, the named domain estimate for `ℰ^{(j)}`, `ℳ^{(j)}`, hcut (CrossI4b), the tie to `Rep.B`.
+
+**Row (c), pieces 5–7 (A4, 2026-10-21; axioms `propext, Classical.choice, Quot.sound`).**
+* `R/BPrimeLocal`, `BPrimeRoot`: the admissible locality (`decBgField_lab_local_adm`, `rootLocPremises_pairExt_adm`, `bPrime_pairs_aggregate_adm`; `HatConnAdm`, no footprint premise); the `HatConn` forms are instances.
+* `R/BPrimeGenW.lean`: `SFCtx.genWC` (`castG` of `𝔹_k(W)` to the Def-6 torus), `cubeAligned_genWC`, `dgSetting_genWC` from conditions on the constants; `Spine/RGenWTies.lean` (`RGenWTies`, `rGenWTies_of_pow`), `Spine/RGenWTiesJoint.lean`: `prefixInput_newLevelTies_rGenWTies_exists` (the three side inputs at one choice; cores `prefixInput_exists_of_pow`, `prefixInput_newLevelTies_exists_gap`).
+* `R/BPrimeBgSetting.lean` (shared with ORCH-B): `bgSetting_hat` — `BgSetting` of the chain `𝔹_j(X̂) ≺ 𝔹_{K-1}(Z) ≺ G'` for any top set `G'` of level `K` with `DGSetting` whose top layer contains the `L a_K`-neighbourhood of the polymer, the margin being `NewLevelTies.hat_margin`; instances `bgSetting_hat_of_isLevel`, `bgSetting_hat_levelGS` (`dgSetting_levelGS`, `supSep_levelGS`, `cubeAligned_levelGS`).
+* Finding for the named domain estimate: it needs no I-5 chain. `psiTildeC_subset_xiC` (Theorems 7.1/7.2 on the term's own set) gives `Ξ^c` from the `Ψ̃^c` bounds at its data sites (as `xiDom_of_allSites` for `s = 1`), and the decoupled deviation `φ(s) - φ(1)` enters as the complex part.
 
 ## FrozenSFStepInput split (W1148, 2026-10-20)
 
@@ -2035,6 +2319,22 @@ to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same toru
 two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
 quotient description of `Z'`.
 
+### Blocker 7, step clause: state after the cast comparison (W1161, 2026-10-21)
+
+Landed on the branch (all modules build, 0 warnings, axioms `propext`, `Classical.choice`, `Quot.sound`): `Gk` cores `settings_family_castLocalB_far_Gk/_hat_Gk`
+(explicit `Gk = castG (localB k (castNbhd Y))`); `Inhabited/NewLevelHatTop` (`dataSites_subset_top`, `hat_gap`: top layer, `θ = L^j/L^k`, collar);
+`CastLocalBCorr`, `NewLevelCastNbhd`, `NewLevelCubeImage`, `NewLevelCanonCast`, `NewLevelCanonCastGeom` (`hgeom_of_cast`), `NewLevelCanonReg` (`reg_of_hN`),
+`NewLevelCanonBigRad` (`hbig_of_size`), `NewLevelCanonX1` (`X1_far`).  Removed as dead: `CanonCoverLocal`, `hgeom_of_local`, `canonPts`, `canonZ`,
+`CanonCoverIsX1`, `hfar_of_isX1`, `margin_in_region`, `NewLevelCanonCells`, `Spine/CanonMarginTie` (the margin now comes from `BgSetting.hN`, no tie).
+`polySet` moved to `NewLevelCanonPins`; `OldTermsCanonPins(At)` gained the clause `O.XL τ = polySet …` (from `OldTermsAreIrrel`); producers adapted.
+`newLevel_coeff_twoTorus_of_class_cells` premises beyond typing data: `LC : CanonCoverCast` (the canonical covers are the cast local sets of the settings; produced by
+`exists_canonOldTermData` + `settings_family_castLocalB_hat_Gk`), `SpG`, `hL3`, `hs : s < m₀`, the torus-size bounds `hsz`, `hsz'`
+(`2R + (4(k+1)+36) L^{k+1+m₀+m₁} + 8 ≤ size`), and **`hcell`** (`CellTermsAgree` for `castZ`).  Derived inside: `hXLsub` (X1_far with the pinned `XL`), `hreg`
+(`reg_of_hN`), `hbigA/B` (`hbig_of_size`).
+**Open:** (1) `hcell`/`CellTermsAgree` — the irrelevant term at the distinguished cell on two tori (P4 (H.4) `hcellcase`; the relevant parts of the polymers that wrap
+around the torus enter): a property of the class's `irrelTorus`, a design question; (2) the producer of the zero-source/bridge part of `NewLevelSystem`
+(the rest of the fields besides `O`, `OS`) is the chain's (W1146t); (3) `hsz` are size conditions on the torus relative to the box radius `R` (as `hn19`, `hnE`, …), supplied
+by the caller.
 ### BaseStep ties (ORCH-C, 2026-10-21)
 *(Ta) The kernel constant.* `CoeffBounds d L 1 P β ν a` asks `9/10 (1 − L⁻²)⁻¹ ≤ a₁ < 3/2`; the free flow gives
 `a₁ = compWeight L a 1 = a` (`compWeight_one`), and the prefix's `1 < a < 3/2` (`RunningHypTo.ha1`, `ha2`) is not enough

@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.SmallField.Def6InfSum
+public import Balaban.SmallField.PolyDomOpt
 
 /-!
 # The bridge Def-6 to I-6 from the infinite-volume family `T∞`: the dictionary
@@ -79,31 +80,14 @@ theorem sizeJ_le_ncard_sq [NeZero N₁] {m₀ j : ℕ} {Y : Set (CTorus d L N₁
     (hY : IsPolyDom (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j Y) :
     sizeJ (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) m₀ j Y ≤ (Y.ncard : ℝ) ^ 2 := by
   obtain ⟨hne, ⟨𝒦, hK1, hK2⟩, hcon⟩ := hY
+  obtain ⟨hcs, hWY⟩ := connStruct_nbrPairs hne hcon
   set W : Finset (CTorus d L N₁ m₁ k) := (Set.toFinite Y).toFinset with hW
-  have hWY : ∀ x, x ∈ W ↔ x ∈ Y := fun x => by simp [hW]
   set E : Finset (CTorus d L N₁ m₁ k × CTorus d L N₁ m₁ k) :=
     (W ×ˢ W).filter (fun p => Nbr p.1 p.2) with hE
-  have hcs : ConnStruct W E := by
-    refine ⟨?_, ?_, ?_⟩
-    · obtain ⟨x, hx⟩ := hne
-      exact ⟨x, (hWY x).2 hx⟩
-    · intro p hp
-      simp only [hE, Finset.mem_filter, Finset.mem_product] at hp
-      exact ⟨hp.1.1, hp.1.2, hp.2⟩
-    · intro x hx y hy
-      refine Relation.ReflTransGen.mono ?_ x y (hcon x ((hWY x).1 hx) y ((hWY y).1 hy))
-      intro a b ⟨ha, hb, hab⟩
-      left
-      simp only [hE, Finset.mem_filter, Finset.mem_product]
-      exact ⟨⟨(hWY a).2 ha, (hWY b).2 hb⟩, hab⟩
-  have hmeet : MeetsOne m₀ j 𝒦 W := by
-    intro b hb
-    have hpos : 0 < L * cellSide L m₀ m₁ j := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L))
-      (cellSide_pos m₀ m₁ j)
-    exact ⟨b, (hWY b).2 ((hK1 b hb).2 (mem_box_self b hpos)), mem_box_self b hpos⟩
+  have hmeet : MeetsOne m₀ j 𝒦 W := meetsOne_of_chosen hK1 hWY
   have hmem : bondCost (scaleW L m₀ m₁ j) E ∈ {x | ∃ 𝒦 W E, ChosenOne m₀ j Y 𝒦 ∧ ConnStruct W E ∧
       (↑W ⊆ Y) ∧ MeetsOne m₀ j 𝒦 W ∧ x = bondCost (scaleW L m₀ m₁ j) E} :=
-    ⟨𝒦, W, E, ⟨hK1, hK2⟩, hcs, fun x hx => (hWY x).1 hx, hmeet, rfl⟩
+    ⟨𝒦, W, E, ⟨hK1, hK2⟩, hcs, hWY.le, hmeet, rfl⟩
   have hbdd : BddBelow {x | ∃ 𝒦 W E, ChosenOne m₀ j Y 𝒦 ∧ ConnStruct W E ∧
       (↑W ⊆ Y) ∧ MeetsOne m₀ j 𝒦 W ∧ x = bondCost (scaleW L m₀ m₁ j) E} := by
     refine ⟨0, ?_⟩

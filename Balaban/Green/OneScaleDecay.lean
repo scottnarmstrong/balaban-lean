@@ -190,17 +190,23 @@ theorem blockDecayConst_pos (hd : 0 < d) : 0 < blockDecayConst d L := by
   have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
   positivity
 
-/-- **Core single-scale block decay (raw form).**  If `B w = F` for
-`B = -Δ + ν/N² + (a/N²) P` (`N = L ^ k`) and `F` is supported in the block `y'`, then
-`‖w‖_{ℓ²(block y)} ≤ C₀ e^{-δ₀ dist(y, y')} N² ‖F‖_{ℓ²}`, for `ν ≥ 0`, `a ∈ [1/2, 2]`. -/
-theorem oneScale_core (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 ≤ a)
-    (ha2 : a ≤ 2) {w F : Torus d (N₀ * L ^ k) → ℝ}
-    (hBw : blockHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ (ν / ((L : ℝ) ^ k) ^ 2)
-      (a / ((L : ℝ) ^ k) ^ 2) *ᵥ w = F) {y y' : Torus d N₀}
-    (hF : ∀ x, F x ≠ 0 → blockMap (L ^ k) N₀ x = y') :
-    Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, w x ^ 2) ≤
+/-- **Core single-scale block decay, gradient form (shared core).**  Let `ũ, f̃` be complex fields
+on the fine torus with `f̃ = B ũ` at every site where `ũ ≠ 0`, for
+`B = -Δ + ν/N² + (a/N²) P` (`N = L ^ k`), and `f̃` supported in the block `y'`.  Then
+`N ‖∂ũ‖_{ℓ²(block y)} + ‖ũ‖_{ℓ²(block y)} ≤ C₀ e^{-δ₀ dist(y, y')} N² ‖f̃‖_{ℓ²}`, for `ν ≥ 0`,
+`a ∈ [1/2, 2]` (`∂` the forward differences at the sites of the block).  The equation is required
+only where `ũ ≠ 0`, so this covers the Dirichlet problem of `B` on any set of fine sites. -/
+theorem oneScale_core_fun (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) {ut ft : Torus d (N₀ * L ^ k) → ℂ}
+    (hB : ∀ x, ut x ≠ 0 →
+      ((blockHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ (ν / ((L : ℝ) ^ k) ^ 2)
+        (a / ((L : ℝ) ^ k) ^ 2)).map (algebraMap ℝ ℂ) *ᵥ ut) x = ft x)
+    {y y' : Torus d N₀} (hF : ∀ x, ft x ≠ 0 → blockMap (L ^ k) N₀ x = y') :
+    (L : ℝ) ^ k * Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, ∑ μ : Fin d,
+        ‖ut (x + Pi.single μ 1) - ut x‖ ^ 2) +
+      Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, ‖ut x‖ ^ 2) ≤
       blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) *
-        ((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, F x ^ 2) := by
+        ((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, ‖ft x‖ ^ 2) := by
   classical
   have hε := agmonRate_pos hd
   have hp0 := poincareConst_pos hd
@@ -213,7 +219,8 @@ theorem oneScale_core (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) 
   set ϱ : ℝ := 1 + 2 * Real.log L / agmonRate d with hϱdef
   set G := oneScaleSet d L N₀ k ϱ with hG
   have hΩ : G.Ω 1 = Finset.univ := oneScaleSet_Ω_of_le ϱ hk
-  have hlog : 0 ≤ Real.log L := Real.log_nonneg (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
+  have hlog : 0 ≤ Real.log L :=
+    Real.log_nonneg (by exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne L))
   have hϱ : 1 ≤ ϱ := by
     have : 0 ≤ 2 * Real.log L / agmonRate d := by positivity
     rw [hϱdef]; linarith
@@ -222,56 +229,33 @@ theorem oneScale_core (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) 
       rw [hϱdef]; field_simp; ring
     rw [this, Real.exp_log hL0]
   have hadm : IsAdmissibleWeights k (fun _ : ℕ => a) := fun j _ _ => ⟨ha1, ha2⟩
-  have hα : ∀ x, ‖(0 : G.Ω 1 → ℂ) x‖ ≤ coerciveConst d / (2 * (G.spacing x) ^ 2) := by
-    intro x
+  have hα : ∀ x ∈ G.Ω 1, ‖(0 : Torus d (N₀ * L ^ k) → ℂ) x‖ ≤
+      coerciveConst d / (2 * (G.spacing x) ^ 2) := by
+    intro x _
     simp only [Pi.zero_apply, norm_zero]
     exact div_nonneg (coerciveConst_pos hd).le (by positivity)
   have hν' : 0 ≤ ν / ((L : ℝ) ^ k) ^ 2 := by positivity
-  set u : G.Ω 1 → ℂ := fun j => (w j : ℂ) with hu_def
-  set f : G.Ω 1 → ℂ := fun j => (F j : ℂ) with hf_def
-  have hu : dirichletOperator G (fun _ => a) (ν / ((L : ℝ) ^ k) ^ 2) 0 *ᵥ u = f := by
-    funext i
-    have h := oneScale_dirichlet_mulVec hk ϱ (ν / ((L : ℝ) ^ k) ^ 2) a w i
-    rw [hBw] at h
-    exact h
-  have hsupp : ∀ x : G.Ω 1, f x ≠ 0 → jBlock d L N₀ k k x = jBlock d L N₀ k k z' := by
+  have hut : ∀ x, x ∉ G.Ω 1 → ut x = 0 := fun x hx => absurd (hΩ ▸ Finset.mem_univ x) hx
+  have heq : ∀ x, ut x ≠ 0 → ft x = ((fullMatrix G (fun _ => a)
+      (ν / ((L : ℝ) ^ k) ^ 2)).map (algebraMap ℝ ℂ) *ᵥ ut) x +
+        (0 : Torus d (N₀ * L ^ k) → ℂ) x * ut x := by
     intro x hx
-    have hFx : F x ≠ 0 := by
-      intro h0; apply hx; simp [hf_def, h0]
-    have h1 : blockMap (L ^ k) N₀ (x : Torus d (N₀ * L ^ k)) = blockMap (L ^ k) N₀ z' := by
-      rw [hF _ hFx, hz']
+    rw [oneScale_fullMatrix hk, Pi.zero_apply, zero_mul, add_zero, hB x hx]
+  have hsupp : ∀ x, ft x ≠ 0 → jBlock d L N₀ k k x = jBlock d L N₀ k k z' := by
+    intro x hx
+    have h1 : blockMap (L ^ k) N₀ x = blockMap (L ^ k) N₀ z' := by
+      rw [hF _ hx, hz']
     exact (blockMap_eq_iff_of_sides hℓ hm _ _).1 h1
   set t : ℝ := torusDist d (N₀ * L ^ k) z z' / (L : ℝ) ^ k with ht_def
   have ht0 : 0 ≤ t := div_nonneg (torusDist_nonneg' _ _) (by positivity)
   have ht : ENNReal.ofReal t ≤ G.pathDist z z' := oneScale_pathDist_ge hk ϱ z z'
-  have key := green_G2i G hd hν' hadm 0 hα hk le_rfl hk le_rfl (mem_layer_k ϱ z)
-    (mem_layer_k ϱ z') hu hsupp ht0 ht hε.le le_rfl hϱ hsep
+  have key := green_G2i_fun G hd hν' hadm 0 hα hk le_rfl hk le_rfl (mem_layer_k ϱ z)
+    (mem_layer_k ϱ z') hut heq hsupp ht0 ht hε.le le_rfl hϱ hsep
   have hblk : G.blk k z = blockFibre (L ^ k) N₀ y := by
     ext x
     rw [GeneratingSet.mem_blk, mem_blockFibre, ← hz]
     exact blockMap_eq_iff_of_sides hm hℓ x z
-  have hval : ∀ x, ‖zeroExt (G.Ω 1) u x‖ = |w x| := by
-    intro x
-    have hmem : x ∈ G.Ω 1 := by rw [hΩ]; exact Finset.mem_univ x
-    simp [zeroExt, hmem, hu_def]
-  have hsum : ∑ x ∈ G.blk k z, ‖zeroExt (G.Ω 1) u x‖ ^ 2 =
-      ∑ x ∈ blockFibre (L ^ k) N₀ y, w x ^ 2 := by
-    rw [hblk]
-    exact Finset.sum_congr rfl fun x _ => by rw [hval, sq_abs]
-  have hnorm : Green.sqNorm f = ∑ x, F x ^ 2 := by
-    have h1 := Finset.sum_coe_sort (G.Ω 1) (fun x : Torus d (N₀ * L ^ k) => ‖(F x : ℂ)‖ ^ 2)
-    have h2 : ∑ x ∈ G.Ω 1, ‖(F x : ℂ)‖ ^ 2 = ∑ x, F x ^ 2 := by
-      rw [Finset.sum_congr hΩ fun _ _ => rfl]
-      exact Finset.sum_congr rfl fun x _ => by rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
-    exact h1.trans h2
-  have hLHS : Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, w x ^ 2) ≤
-      13 * L / poincareConst d * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ k) ^ 2 *
-        Real.sqrt (Green.sqNorm f) := by
-    rw [← hsum]
-    have h0 : 0 ≤ (L : ℝ) ^ k * Real.sqrt (∑ x ∈ G.blk k z, ∑ μ : Fin d,
-        ‖zeroExt (G.Ω 1) u (x + Pi.single μ 1) - zeroExt (G.Ω 1) u x‖ ^ 2) :=
-      mul_nonneg (pow_nonneg hL0.le k) (Real.sqrt_nonneg _)
-    linarith [key]
+  rw [hblk] at key
   have hd1 := torusDist_coarse_le hℓ hN hz hz'
   have hd2 : torusDist d N₀ y y' ≤ t + d := by
     push_cast at hd1
@@ -283,22 +267,43 @@ theorem oneScale_core (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) 
     unfold blockDecayRate
     nlinarith [mul_nonneg hε.le (sub_nonneg.2 hd2)]
   have hC : 0 ≤ 13 * (L : ℝ) / poincareConst d := div_nonneg (by positivity) hp0.le
-  have hS : 0 ≤ ((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, F x ^ 2) := by positivity
-  calc Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, w x ^ 2)
-      ≤ 13 * L / poincareConst d * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ k) ^ 2 *
-          Real.sqrt (Green.sqNorm f) := hLHS
-    _ ≤ 13 * L / poincareConst d * (Real.exp (blockDecayRate d * d) *
-          Real.exp (-(blockDecayRate d * torusDist d N₀ y y'))) * ((L : ℝ) ^ k) ^ 2 *
-          Real.sqrt (∑ x, F x ^ 2) := by
-        rw [hnorm]
-        have := mul_le_mul_of_nonneg_left hexp hC
-        calc _ = (13 * (L : ℝ) / poincareConst d * Real.exp (-(agmonRate d / 2 * t))) *
-              (((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, F x ^ 2)) := by ring
-          _ ≤ (13 * (L : ℝ) / poincareConst d * (Real.exp (blockDecayRate d * d) *
-              Real.exp (-(blockDecayRate d * torusDist d N₀ y y')))) *
-              (((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, F x ^ 2)) :=
-            mul_le_mul_of_nonneg_right this hS
-          _ = _ := by ring
+  have hS : 0 ≤ ((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, ‖ft x‖ ^ 2) := by positivity
+  refine key.trans ?_
+  have := mul_le_mul_of_nonneg_left hexp hC
+  calc 13 * L / poincareConst d * Real.exp (-(agmonRate d / 2 * t)) * ((L : ℝ) ^ k) ^ 2 *
+        Real.sqrt (Green.sqNorm ft)
+      = (13 * (L : ℝ) / poincareConst d * Real.exp (-(agmonRate d / 2 * t))) *
+          (((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, ‖ft x‖ ^ 2)) := by unfold Green.sqNorm; ring
+    _ ≤ (13 * (L : ℝ) / poincareConst d * (Real.exp (blockDecayRate d * d) *
+          Real.exp (-(blockDecayRate d * torusDist d N₀ y y')))) *
+          (((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, ‖ft x‖ ^ 2)) :=
+        mul_le_mul_of_nonneg_right this hS
     _ = _ := by unfold blockDecayConst; ring
+
+/-- **Core single-scale block decay (raw form).**  If `B w = F` for
+`B = -Δ + ν/N² + (a/N²) P` (`N = L ^ k`) and `F` is supported in the block `y'`, then
+`‖w‖_{ℓ²(block y)} ≤ C₀ e^{-δ₀ dist(y, y')} N² ‖F‖_{ℓ²}`, for `ν ≥ 0`, `a ∈ [1/2, 2]`. -/
+theorem oneScale_core (hd : 0 < d) (hk : 1 ≤ k) {ν a : ℝ} (hν : 0 ≤ ν) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) {w F : Torus d (N₀ * L ^ k) → ℝ}
+    (hBw : blockHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ (ν / ((L : ℝ) ^ k) ^ 2)
+      (a / ((L : ℝ) ^ k) ^ 2) *ᵥ w = F) {y y' : Torus d N₀}
+    (hF : ∀ x, F x ≠ 0 → blockMap (L ^ k) N₀ x = y') :
+    Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, w x ^ 2) ≤
+      blockDecayConst d L * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')) *
+        ((L : ℝ) ^ k) ^ 2 * Real.sqrt (∑ x, F x ^ 2) := by
+  have hL0 : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+  have key := oneScale_core_fun hd hk hν ha1 ha2 (ut := fun x => (w x : ℂ))
+    (ft := fun x => (F x : ℂ)) (fun x _ => by
+      have h := (RingHom.map_mulVec (algebraMap ℝ ℂ) (blockHamiltonian d (N₀ * L ^ k) (L ^ k) N₀
+        (ν / ((L : ℝ) ^ k) ^ 2) (a / ((L : ℝ) ^ k) ^ 2)) w x).symm
+      rw [hBw] at h
+      exact h)
+    (y := y) (fun x hx => hF x (fun h0 => hx (by simp [h0])))
+  have hn : ∀ r : ℝ, ‖(r : ℂ)‖ ^ 2 = r ^ 2 := fun r => by
+    rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+  simp only [hn] at key
+  have h0 : 0 ≤ (L : ℝ) ^ k * Real.sqrt (∑ x ∈ blockFibre (L ^ k) N₀ y, ∑ μ : Fin d,
+      ‖((w (x + Pi.single μ 1) : ℝ) : ℂ) - (w x : ℂ)‖ ^ 2) := by positivity
+  linarith
 
 end Balaban.Green

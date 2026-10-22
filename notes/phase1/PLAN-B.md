@@ -251,6 +251,11 @@ approved declaration.
   `L^{m₀} ∣ N₁`; under R15 the large shapes add a tail of the same order.
 - **Work (ORCH-A, worker A1, branch `orchA-cellterm`).** The core `irrelTorusOn` (the landed `irrelTorus` its instance),
   its identity, bounds and two-torus agreement at the box instance; after approval, the body switch.
+- **Implemented (A1, 9ca0652e, branch `orchA-r15`; approved by Scott 2026-10-21).** `irrelTorus := irrelTorusOn (relBox m₀)`;
+  the identity and congr/analytic/rot unchanged; the non-cell bounds take `relBox P.m₀ y X` (M1 form kept); the large
+  labels `norm_E_sub_aTermTorus_le_of_not_relBox`; every label `irrelTorus_label_bound_of_class(_birth_cap)`; the cell
+  agreement `irrelTorus_cell_boxAgree`, `CellTermsAgree` by `cellTermsAgree_of_class`, the step clause with `hcell`
+  discharged `newLevel_coeff_twoTorus_of_class_cells_R15`.
 
 ## Readings proposed 2026-10-21 (W1154, plan B; no landed definition changes): the step on a region and the old terms (blocker 3)
 - **Reading HS-1, the step on a region** (P5 (2.16)–(2.48), (3.1)–(3.2); `Fluctuation/HoleStep*.lean`, `Spine/LFHoleStep*.lean`).
@@ -400,6 +405,20 @@ approved declaration.
   pair in the domain of I-4b (the background bounds; without it `decBgField` is `0`), the comparison of the background of
   the cube set `G_k(□)` at the composed field with the background of the local pair, and room conditions on `r_ψ`, `R`
   and the tolerances (the named input has none, so it is a schematic statement to be proved under them).
+  `H7MixedDatumLoc2` waits for R14.
+
+## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
+- The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
+  integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
+  `sfFactor2` over the whole torus (`sfIntegral`, cutoff χ_k) is not that term: on {χ_k ≠ 0} ∖ box the source creates new
+  large-field regions (P7 pp. 530–531, the fluctuation integral as in P5 §3), and χ_k is a product of cube functions of ψ_k,
+  not local in the whitened variable, so it cannot enter a polymer expansion over the product measure.
+- Restated (`Spine/LastIntegral.lean`, names kept): `Ξ_box = Z_K ∫ 1_{box(p₁)} sfGaussIntegrand(centre h, K) dγ`
+  (`sfBoxIntegral`), `K = β_k D` (`sfFinalK`, D the final Hessian; `pdQuad_sfFinalK`, `actStar2_univ_hessian_sfFinalHm`),
+  box(p₁) = {w : |w_p| ≤ p₁ ∀ p}; `FinalSmallFieldInput`: Ξ_box = exp(E + ⟨g,h⟩ + Σ_j Σ_X q_j + Σ_X a); `FinalLargeFieldInput`:
+  ∫ρ = Ξ_box exp(Σ_X b) (the tail joins the large-field half). Both take the cutoff `cut κ c₉ β_k = p₁` as a parameter and
+  `lastIntegralInput_of_parts` combines them at the same cutoff. Constraints on p₁: χ_k = 1 on the box (B p₁ ≪ β_k^{1/2} δ_k),
+  analyticity room (B(κ) β_k^{-1/2} p₁ < c ε_k), the tail (p₂ < 2p); p₁ = A₁ (log β_k)^{p₀}, A₁ ≪ A₀, meets all three.
   `H7MixedDatumLoc2` is stated for the cube domains of R14 (approved, below).
 - **The (D7) clauses of the old part at an output label (W1154c, item (5)).** `Spine/LFOldBD7.lean`, generic in the
   readings (`glob`, `σ`) and in the interaction: an interaction family `LocIntFam` (labels and constants of Theorem 3.4
@@ -446,6 +465,19 @@ approved declaration.
   directly. In `Spine/LFOldH7Refute.lean` the refutation (`deltaC_rotConst`, `h7Domain_rotConst`,
   `not_h7MixedDatumLoc`, `not_h7MixedDatumLoc_of_le_c7`) no longer holds and is replaced by `not_mem_deltaC_of_im`:
   the new cube domains exclude constant fields with a coordinate of imaginary part `≥ 2 ε`.
+
+## Reading B-1′ (ORCH-B, accepted 2026-10-21 by the main orchestrator with conditions; blocker 5, the whitening of the box)
+- The last fluctuation integral is whitened with the localized square root, as in the source (P7 §4, pp. 530–531, "exactly as in Sect. 3 [5]"; P5 (2.39)): `ψ_k = h + β_k^{-1/2} L ψ̂`, ψ̂ standard Gaussian, the box in ψ̂, `L` the rows of `boxCut` at the localized parameters (B1's definition). With the exact `K^{-1/2}` the class cutoff χ_k is not local in the Gaussian variable.
+- The change of variables is exact, at every invertible `A = β_k^{-1/2} L`: `∫ F dψ = |det A| (2π)^{n/2} ∫ F(h + Aψ̂) e^{|ψ̂|²/2} dγ(ψ̂)` (`integral_spin_whiten`); the Jacobian (`whitenNorm`) and the mismatch `exp(-½⟨ψ̂, (AᵀKA − 1)ψ̂⟩)` (`mismatchFactor`) are defined factors of the integrand (`integral_mul_sfFactor2_whiten`, `ctxBoxIntegralL`, `ctxFluctBoxIntegralL`); at `A = K^{-1/2}` the mismatch is 1 and the landed forms are the instances.
+- The local form (`BoxLocalForm … A … ε_U W U`) carries the mismatch as an undilated even part `U` (pair terms; smallness and evenness proved by B1 from the row bounds); the parity argument dilates `W` only.
+- Spine level: `sfBoxIntegral` (and so `FinalSmallFieldInput`, `FinalLargeFieldInput`, `lastIntegralInput_of_parts`) moves to B1's `L` when it lands, the same in both halves, never to a free whitening; until then the spine stays at the instance `K^{-1/2}` (`ctxBoxIntegral`).
+
+## Reading B-1″ (ORCH-B, adopted 2026-10-21, accepted by the main orchestrator; blocker 5, the local-pair principle; `A64-DESIGN.md` §4)
+- Every piece of the last integral at a localization domain `X` (whitening row, centre, Gaussian mismatch piece, localized term, Jacobian piece) is computed on the local pair `𝔓(X)`: the generating set and the massive final operator restricted to `X^{+m}`, as in reading HS-1′. Source: P5 (2.18), (2.35), (2.39), the local pairs `(□′, R_{k+1}(□′))`; P7 (4.11), the completion keeps the terms whose domains meet `Z′` and `Z′^c`.
+- Why (obstruction O1): the rows of B-1′'s `boxCut` read the whole-torus `unconstrainedUnitOperator`, and its mismatch the whole-torus Hessian; the regional operators differ from them at every pair, so regional and whole-torus activities would differ everywhere by amounts depending on all of `Z′`, which are not couplings of a linked gas.
+- Whitening: row `p` is row `p` of the inverse square root of the final Hessian of the massive problem on `𝔓(locDom p)` (B1), with one comparison lemma: for any ambient generating set (whole torus or regional) the local-pair row is close to the row of the ambient Hessian's inverse square root when `locDom p` lies deep in the ambient region.
+- The three conditions of B-1′ stand: the whitening is a defined object fixed at the spine; the change of variables is exact, with the determinant and the mismatch in the integrand; the smallness of the mismatch is proved.
+- Consequence: for every history and every piece whose local pair lies deep in `Ω_A`, the regional piece is the whole-torus piece (exact completion); `Ξ_box` is the instance `Z = ∅`.
 - **The band outside `Ω_{k+1}` and the holes of the H7 domain (W1154d, 2026-10-21; `Spine/LFOldDatumFree.lean`).**
   PROVED: `h7Domain_succ_congr_k` — the H7 domain of scale `k + 1` does not read `ψ_k` on the `k`-blocks whose cube of
   `𝕋_{k+1}` lies within `2` cubes of `Ω_{k+1}` and farther than `3` cubes from `(Ω^c_{k+1})^{∼3}`, and whose cube of `𝕋_k`
@@ -576,15 +608,20 @@ approved declaration.
   `Y` meeting `Z^c_{k+1}`: LFR Lemma IV.1.3, FLUCTUATION Theorem 4.2; LFR Lemma IV.1.5 (ii).  The sum is `ℬ^{(k+1)}` of
   P5 (3.2)–(3.3) (LFR Lemma IV.1.5).
   Total ≈ 9,400 lines; the order 1 → 2 → 3 (with 4 in parallel) → 6 → 5 → 7.
-## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
-- The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
-  integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of
-  `sfFactor2` over the whole torus (`sfIntegral`, cutoff χ_k) is not that term: on {χ_k ≠ 0} ∖ box the source creates new
-  large-field regions (P7 pp. 530–531, the fluctuation integral as in P5 §3), and χ_k is a product of cube functions of ψ_k,
-  not local in the whitened variable, so it cannot enter a polymer expansion over the product measure.
-- Restated (`Spine/LastIntegral.lean`, names kept): `Ξ_box = Z_K ∫ 1_{box(p₁)} sfGaussIntegrand(centre h, K) dγ`
-  (`sfBoxIntegral`), `K = β_k D` (`sfFinalK`, D the final Hessian; `pdQuad_sfFinalK`, `actStar2_univ_hessian_sfFinalHm`),
-  box(p₁) = {w : |w_p| ≤ p₁ ∀ p}; `FinalSmallFieldInput`: Ξ_box = exp(E + ⟨g,h⟩ + Σ_j Σ_X q_j + Σ_X a); `FinalLargeFieldInput`:
-  ∫ρ = Ξ_box exp(Σ_X b) (the tail joins the large-field half). Both take the cutoff `cut κ c₉ β_k = p₁` as a parameter and
-  `lastIntegralInput_of_parts` combines them at the same cutoff. Constraints on p₁: χ_k = 1 on the box (B p₁ ≪ β_k^{1/2} δ_k),
-  analyticity room (B(κ) β_k^{-1/2} p₁ < c ε_k), the tail (p₂ < 2p); p₁ = A₁ (log β_k)^{p₀}, A₁ ≪ A₀, meets all three.
+
+## Finding B-2 (ORCH-B, 2026-10-22; blocker 5, stage S1 of the small-field half): no irrelevant bound at the decoupled composed fields
+- **False in general, do not retry:** P-2 (`DataHypAnisoOn` at σ = C₀L^{j−k}) for the fields ψ^{(j)}_k composed from the
+  decoupled background φ_k(s) (`decBgField`, |s_P| < e^{κ₁}), i.e. the decoupled-family form of S1's input `LastSfDataHyp`
+  (found by B3 before any of it was built).
+- **Why.** For s ≠ 1 the decoupled background satisfies no constraint. `IsDecBg` (`Localization/DecoupledBackground.lean`)
+  has only the clauses `small`, `fixed`, `field`, and the constraint is proved only at s = 1 (`isPerturbed_of_decFixed_one`).
+  P3 p. 57 (after Prop. 2.1, on the extensions (2.58)): "They do not satisfy Eqs. (1.14) [3], in particular the relation
+  α = λ(φ² − 1) does not hold for them". `LOCALIZATION.md` §3.3 (I-4b) says the same: for s ≠ 1, "neither φ·φ = 1 nor the
+  Euler–Lagrange equation". The defect of ψ^{(j)}_k(s)·ψ^{(j)}_k(s) − 1 is O(K₄δ) near the cubes with s_P ≠ 1, far above the
+  σ²ε of `DataHypAnisoOn.sq` (P1 (3.13)–(3.15)) for deep labels. Only the first-order bound E₀ survives there, on ℰ's data
+  domain Ψ̃^c_j(Kε_j, Kε_j); the decay L^{−(k−j)(d+α₃)} of P1 (3.128) does not, and S1 needs that decay.
+- **Route used instead, the source's:** P3 Lemma 4.2 = `LOCALIZATION.md` Lemma DL (§4.3), landed as
+  `Localization/DomainLemma.lean` (`fan_analytic`, `fan_bound`, `point_facts`) with the I-5 machinery. ℰ is evaluated only at
+  the genuine minimiser of the local problem 𝔹_k(X), at data built from the decoupled background, composed down to 𝔹_j(X).
+  That field lies in Ξ^c_j(σ, ε_k) at every s, and at s = 1 the composition identity (P3 (4.16)) returns ℰ^{(j)}(ψ^{(j)}_k).
+  P-2 is then needed only at genuine composed data.

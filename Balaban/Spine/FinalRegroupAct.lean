@@ -120,6 +120,46 @@ theorem regroup_local
   · rw [regroupFam_ne _ _ _ _ _ _ _ _ hj, regroupFam_ne _ _ _ _ _ _ _ _ hj]
 
 open Classical in
+/-- **The increment of the regrouped activity** (the core of `regroup_bound`): the weights
+`B e^{-κ'|Y|/(M L^k)^d}` of the scale-`k` polymers with hull `X` sum to at most
+`B e^{-(κ' - λ - L^d log(1 + e^{-λ}))|X|/(M L^{k+1})^d}` for `λ ≤ κ'`
+(`regroup_sum_bound_split`). -/
+theorem norm_regroupAt_sub_le {m' : ℕ} [NeZero m'] [NeZero (L * m')]
+    (hℓ : ℓ = M * L ^ k * (L * m')) (hs : 0 < M * L ^ k) {B κ' lam : ℝ} (hB0 : 0 ≤ B)
+    (hlk : lam ≤ κ')
+    (hS : ∀ Y, ¬ IsPolymer d ℓ (M * L ^ k) Y → ∀ g, t ℓ Y g = t ℓ Y 0)
+    (hB : ∀ Y, IsPolymer d ℓ (M * L ^ k) Y → ∀ g : Torus d ℓ → Fin N → ℂ, ∑ y, ∑ i, ‖g y i‖ < 1 →
+      ‖t ℓ Y g - t ℓ Y 0‖ ≤ B * Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d))
+    (X : Finset (Torus d ℓ)) {g : Torus d ℓ → Fin N → ℂ} (hg : ∑ y, ∑ i, ‖g y i‖ < 1) :
+    ‖regroupAt M L k t ℓ X g - regroupAt M L k t ℓ X 0‖ ≤
+      B * Real.exp (-(κ' - lam - (L : ℝ) ^ d * Real.log (1 + Real.exp (-lam))) * (X.card : ℝ) /
+        ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d) := by
+  unfold regroupAt
+  rw [← Finset.sum_sub_distrib]
+  refine (norm_sum_le _ _).trans ?_
+  have hsum := regroup_sum_bound_split (s := M * L ^ k) (L' := L) (m' := m') hℓ hs X hlk
+  set F := (Finset.univ : Finset (Finset (Torus d ℓ))).filter
+    (fun Y => hullT (M * L ^ k * L) Y = X) with hF
+  have h1 : ∑ Y ∈ F, ‖t ℓ Y g - t ℓ Y 0‖ ≤ ∑ Y ∈ F, (if IsPolymer d ℓ (M * L ^ k) Y then
+      B * Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) else 0) := by
+    refine Finset.sum_le_sum fun Y _ => ?_
+    by_cases hp : IsPolymer d ℓ (M * L ^ k) Y
+    · simp only [hp, ↓reduceIte]; exact hB Y hp g hg
+    · simp only [hp, ↓reduceIte]; rw [hS Y hp g, sub_self, norm_zero]
+  have h2 : ∑ Y ∈ F, (if IsPolymer d ℓ (M * L ^ k) Y then
+      B * Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) else 0) =
+      B * ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d ℓ))).filter
+        (fun Y => hullT (M * L ^ k * L) Y = X ∧ IsPolymer d ℓ (M * L ^ k) Y),
+        Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) := by
+    rw [← Finset.sum_filter, hF, Finset.filter_filter, Finset.mul_sum]
+  have hcast : ((M * L ^ k * L : ℕ) : ℝ) = (M : ℝ) * (L : ℝ) ^ (k + 1) := by push_cast; ring
+  calc ∑ Y ∈ F, ‖t ℓ Y g - t ℓ Y 0‖ ≤ _ := h1
+    _ = _ := h2
+    _ ≤ B * Real.exp (-(κ' - lam - (L : ℝ) ^ d * Real.log (1 + Real.exp (-lam))) * (X.card : ℝ) /
+        ((M * L ^ k * L : ℕ) : ℝ) ^ d) := mul_le_mul_of_nonneg_left hsum hB0
+    _ = _ := by rw [hcast]
+
+open Classical in
 /-- **The bound of the regrouped activity**: the weights `B e^{-κ'|Y|/(M L^k)^d}` of the scale-`k`
 polymers with hull `X` sum to at most `B e^{-κ|X|/(M L^{k+1})^d}` when `κ' ≥ κ + L^d log 2`. -/
 theorem regroup_bound {m' : ℕ} [NeZero m'] [NeZero (L * m')] (hℓ : ℓ = M * L ^ k * (L * m'))
@@ -141,30 +181,12 @@ theorem regroup_bound {m' : ℕ} [NeZero m'] [NeZero (L * m')] (hℓ : ℓ = M *
   by_cases hj' : j = k + 1
   · subst hj'
     rw [regroupFam_succ, regroupFam_succ]
-    unfold regroupAt
-    rw [← Finset.sum_sub_distrib]
-    refine (norm_sum_le _ _).trans ?_
-    have hsum := regroup_sum_bound (s := M * L ^ k) (L' := L) (m' := m') hℓ hs X hκ'
-    set F := (Finset.univ : Finset (Finset (Torus d ℓ))).filter
-      (fun Y => hullT (M * L ^ k * L) Y = X) with hF
-    have h1 : ∑ Y ∈ F, ‖t ℓ Y g - t ℓ Y 0‖ ≤ ∑ Y ∈ F, (if IsPolymer d ℓ (M * L ^ k) Y then
-        B * Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) else 0) := by
-      refine Finset.sum_le_sum fun Y _ => ?_
-      by_cases hp : IsPolymer d ℓ (M * L ^ k) Y
-      · simp only [hp, ↓reduceIte]; exact hB Y hp g hg
-      · simp only [hp, ↓reduceIte]; rw [hS Y hp g, sub_self, norm_zero]
-    have h2 : ∑ Y ∈ F, (if IsPolymer d ℓ (M * L ^ k) Y then
-        B * Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) else 0) =
-        B * ∑ Y ∈ (Finset.univ : Finset (Finset (Torus d ℓ))).filter
-          (fun Y => hullT (M * L ^ k * L) Y = X ∧ IsPolymer d ℓ (M * L ^ k) Y),
-          Real.exp (-κ' * (Y.card : ℝ) / (((M * L ^ k : ℕ) : ℝ)) ^ d) := by
-      rw [← Finset.sum_filter, hF, Finset.filter_filter, Finset.mul_sum]
-    have hcast : ((M * L ^ k * L : ℕ) : ℝ) = (M : ℝ) * (L : ℝ) ^ (k + 1) := by push_cast; ring
+    have hcore := norm_regroupAt_sub_le (lam := 0) hℓ hs hB0 hκ' hS hB X hg
+    rw [neg_zero, Real.exp_zero, sub_zero, show (1 : ℝ) + 1 = 2 by norm_num] at hcore
     have h3 : B * Real.exp (-(κ' - (L : ℝ) ^ d * Real.log 2) * (X.card : ℝ) /
-          ((M * L ^ k * L : ℕ) : ℝ) ^ d) ≤
+          ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d) ≤
         B * Real.exp (-κ * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d) := by
       refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hB0
-      rw [hcast]
       have hP : 0 ≤ (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d := by positivity
       have e1 : -(κ' - (L : ℝ) ^ d * Real.log 2) * (X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d
           = -(κ' - (L : ℝ) ^ d * Real.log 2) * ((X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d) := by
@@ -173,10 +195,7 @@ theorem regroup_bound {m' : ℕ} [NeZero m'] [NeZero (L * m')] (hℓ : ℓ = M *
           = -κ * ((X.card : ℝ) / ((M : ℝ) * (L : ℝ) ^ (k + 1)) ^ d) := by ring
       rw [e1, e2]
       nlinarith
-    calc ∑ Y ∈ F, ‖t ℓ Y g - t ℓ Y 0‖ ≤ _ := h1
-      _ = _ := h2
-      _ ≤ B * Real.exp (-(κ' - (L : ℝ) ^ d * Real.log 2) * (X.card : ℝ) /
-          ((M * L ^ k * L : ℕ) : ℝ) ^ d) := mul_le_mul_of_nonneg_left hsum hB0
+    calc _ ≤ _ := hcore
       _ ≤ _ := h3
       _ ≤ _ := mul_le_mul_of_nonneg_right hBc (Real.exp_pos _).le
   · rw [regroupFam_ne _ _ _ _ _ _ _ _ hj', regroupFam_ne _ _ _ _ _ _ _ _ hj']

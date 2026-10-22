@@ -31,6 +31,7 @@ variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
   {allRequired : Yt → Bool} {activation footprint : Yt → Finset B}
   {zs cr : Zt → Finset B} {β : Yt → ℂ} {τ : Zt → ℂ}
 
+omit [Fintype B] in
 /-- The GasCore size and counting hypotheses bound a linked gas after mapping activation,
 footprints, and heavy supports to cores. The trigger and footprint remain distinct. -/
 theorem gasLinked_activity_bound_core {d : Finset B → ℝ}

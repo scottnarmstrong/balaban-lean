@@ -19,6 +19,7 @@ families `𝒦X` and the optimal structures `hopt` of the labels of the class ch
 
 * `connStruct_nbrPairs`: the sites of a nonempty connected set with all its bonds form a connected
   structure;
+* `meetsOne_of_chosen`: the sites of a set meet every cube of a chosen family of it;
 * `admissible_of_isPolyDom`, `exists_opt_of_isPolyDom`.
 -/
 
@@ -52,6 +53,20 @@ theorem connStruct_nbrPairs {Y : Set (CTorus d L N₁ m₁ k)} (hne : Y.Nonempty
     simp only [Finset.mem_filter, Finset.mem_product]
     exact ⟨⟨(hWY a).2 ha, (hWY b).2 hb⟩, hab⟩
 
+omit [NeZero N₁] in
+/-- **The sites of a set meet every cube of a chosen family of it.** -/
+theorem meetsOne_of_chosen {m₀ j : ℕ} {Y 𝒦 : Set (CTorus d L N₁ m₁ k)}
+    (hK1 : ∀ b ∈ 𝒦, Aligned (cellSide L m₀ m₁ j) b ∧ box b (L * cellSide L m₀ m₁ j) ⊆ Y)
+    {W : Finset (CTorus d L N₁ m₁ k)} (hWY : (↑W : Set (CTorus d L N₁ m₁ k)) = Y) :
+    MeetsOne m₀ j 𝒦 W := by
+  intro b hb
+  have hpos : 0 < L * cellSide L m₀ m₁ j := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L))
+    (cellSide_pos m₀ m₁ j)
+  refine ⟨b, ?_, mem_box_self b hpos⟩
+  have : b ∈ Y := (hK1 b hb).2 (mem_box_self b hpos)
+  rw [← hWY] at this
+  exact_mod_cast this
+
 /-- **A polymer has an admissible triple** of the covering size: its chosen family, its sites and
 all its bonds. -/
 theorem admissible_of_isPolyDom {m₀ j : ℕ} {X : Set (CTorus d L N₁ m₁ k)}
@@ -62,13 +77,7 @@ theorem admissible_of_isPolyDom {m₀ j : ℕ} {X : Set (CTorus d L N₁ m₁ k)
   classical
   obtain ⟨hne, ⟨𝒦, hK1, hK2⟩, hcon⟩ := hX
   obtain ⟨hcs, hWY⟩ := connStruct_nbrPairs hne hcon
-  refine ⟨𝒦, _, _, ⟨hK1, hK2⟩, hcs, hWY.le, fun b hb => ?_⟩
-  have hpos : 0 < L * cellSide L m₀ m₁ j := Nat.mul_pos (Nat.pos_of_ne_zero (NeZero.ne L))
-    (cellSide_pos m₀ m₁ j)
-  refine ⟨b, ?_, mem_box_self b hpos⟩
-  have : b ∈ X := (hK1 b hb).2 (mem_box_self b hpos)
-  rw [← hWY] at this
-  exact_mod_cast this
+  exact ⟨𝒦, _, _, ⟨hK1, hK2⟩, hcs, hWY.le, meetsOne_of_chosen hK1 hWY⟩
 
 /-- **The covering size of a polymer is attained** by an admissible triple: the costs of the
 admissible triples of the finite torus form a finite nonempty set. -/

@@ -269,7 +269,7 @@ polydisc or outside the anisotropic tube. -/
 theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hν : 0 < ν)
     (hμν : μ * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1) (hj1 : 1 ≤ j) (hjk : j ≤ k) (hN : L ^ P.m₀ ∣ N₁)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -289,7 +289,7 @@ theorem irrelTorus_eq_Itw_centred (hcl : SFTermClauses P (xiFieldDom a μ (P.eps
         i₀ i₁ ν S (fun s => Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j s))
         ((ν : ℂ) • hv) := by
   rw [irrelTorus_eq_irrelTorusOn]
-  exact irrelTorusOn_eq_Itw_centred _ hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX trivial hXne hSdef hne
+  exact irrelTorusOn_eq_Itw_centred _ hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX hsm hXne hSdef hne
     hrad hΨb hv hpack
 
 end Ident
@@ -316,7 +316,7 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
       ∀ (ν : ℝ) (j : ℕ), 0 < ν → μ * ((L : ℝ) ^ j) ^ 2 ≤ ν → ν ≤ 1 → 1 ≤ j → j ≤ k →
       ∀ (r : ℝ), AnisoRadiusOK d L N P j r →
       ∀ (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)), Aligned (L ^ j) y →
-      IsPolyDom P.m₀ j X → y ∈ X →
+      IsPolyDom P.m₀ j X → y ∈ X → relBox P.m₀ y X →
       X ≠ box (cbase (cellSide L P.m₀ m₁ j) y - natT fun _ => L / 2 * cellSide L P.m₀ m₁ j)
         (L * cellSide L P.m₀ m₁ j) →
       ∀ (S : Finset (Site d)), S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -344,7 +344,7 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
   obtain ⟨CI, hCI0, hCI⟩ := termwise_irrelevant_aniso_scaled d N (diamA d L P.m₀ m₁) Λ Ksig P.α₁ γ
     C₀ KR (diamA_nonneg d L P.m₀ m₁) hΛ hKsig hP.α₁_pos hα1 hC₀
   refine ⟨CI, hCI0, ?_⟩
-  intro N₁ k _ ϱ a μ Tm hcl hBg hN ν j hν hμν hνb hj1 hjk r hrad y X hy hX hyX hXne S hSdef i₀ i₁
+  intro N₁ k _ ϱ a μ Tm hcl hBg hN ν j hν hμν hνb hj1 hjk r hrad y X hy hX hyX hsm hXne S hSdef i₀ i₁
     hne Ψ hv hΨb s σ ε K₂ dat hpack hs hσs hR hε hεΛ hσ1 hτ hνσ hK
   have hS : ∀ z ∈ X, unlift (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (z - y) ∈ S :=
     fun z hz => by rw [hSdef]; exact mem_placeSet hN hjk hy hX hz
@@ -354,7 +354,7 @@ theorem irrelTorus_bound_of_dataHyp_of_poly (d L N m₁ : ℕ) [NeZero L] (P : C
     rw [hSdef] at hs
     obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hs
     exact ⟨x, (Finset.mem_filter.1 hx).2.2, (Finset.mem_filter.1 hx).2.1, rfl⟩
-  rw [irrelTorus_eq_Itw_centred hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX hXne hSdef hne hrad hΨb hv
+  rw [irrelTorus_eq_Itw_centred hcl hBg hν hμν hνb hj1 hjk hN hy hX hyX hsm hXne hSdef hne hrad hΨb hv
     hpack]
   exact hCI _ i₀ i₁ ν r P.E₀ P.κ _ _
     (premisesTermAniso_centred hcl hBg hν hμν hνb hj1 hjk hy hX hyX hS hS' hne hrad) _ _ s σ ε K₂

@@ -23,10 +23,10 @@ relevant part is subtracted (and filed) are those of a selection `sm y X`:
 * `relPartTorus`: the relevant local part `T_Z + Φ_{y,Z}` of the term of a polymer `Z` at the centre
   `y`, a function of `Ψ(y)`, `h(y)` and the stencil `Ψ(y + L^j e_μ)` only;
 * `aTermTorus`: the term `A_{y,X} = ½ Σ_{x ∈ X} a_X(x) (Ψ(x)·Ψ(x) - Ψ(y)·Ψ(y))`;
-* `irrelTorusOn sm`: the label functional of the selection `sm`; `irrelTorus` is the selection of
-  all polymers (`irrelTorus_eq_irrelTorusOn`), and `relBox m₀` selects the polymers in the box of
-  half-side `r_k = ⌊L^{m₀+m₁+k}/8⌋` (fine sites) around `y`, which do not wind around any torus
-  with `L^{m₀} ∣ N₁`;
+* `irrelTorusOn sm`: the label functional of the selection `sm`; `relBox m₀` selects the polymers in
+  the box of half-side `r_k = ⌊L^{m₀+m₁+k}/8⌋` (fine sites) around `y`, which do not wind around any
+  torus with `L^{m₀} ∣ N₁`; `irrelTorus` is the selection `relBox m₀` (ruling R15,
+  `irrelTorus_eq_irrelTorusOn`);
 * `irrelTorusOn_congr`, `irrelTorusOn_analyticOnNhd`, `irrelTorusOn_rot`: the locality, analyticity
   and `O(N)` invariance of the label functional (FLUCTUATION.md Lemma 3.2 (ii)), for every
   selection.
@@ -99,12 +99,6 @@ half-side `r_k = ⌊L^{m₀+m₁+k}/8⌋` (in fine sites) around `y`.  `r_k` is 
 smallest torus with `L^{m₀} ∣ N₁`, so such a polymer does not wind around any of these tori. -/
 def relBox (m₀ : ℕ) (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) : Prop :=
   ∀ z ∈ X, Balaban.Polymer.InBox d (L ^ (m₀ + m₁ + k) / 8) ((N₁ * L ^ m₁) * L ^ k) (z - y)
-
-/-- **The label functional renormalizing the polymers of the box around the centre**
-(`relBox`): large polymers keep their relevant parts, which are small by their size. -/
-noncomputable abbrev irrelTorusB (m₀ : ℕ) (Tm : Terms d L N₁ m₁ k N ϱ) (i₀ i₁ : Fin N) (j : ℕ)
-    (y : CTorus d L N₁ m₁ k) (X : Set (CTorus d L N₁ m₁ k)) (Ψ h : Fld d L N₁ m₁ k N) : ℂ :=
-  irrelTorusOn (relBox m₀) m₀ Tm i₀ i₁ j y X Ψ h
 
 section API
 

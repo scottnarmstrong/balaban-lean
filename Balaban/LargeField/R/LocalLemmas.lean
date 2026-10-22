@@ -69,25 +69,33 @@ theorem locRH_step_eq_of_localHistory_eq {H1 H2 : RegionHistory S n R k0 K} {M k
 
 variable {H : RegionHistory S n R k0 K}
 
-/-- Without removals the coarsening of a cube of `Z^pre_j` lies in `Z^pre_k`. -/
-theorem cubeMap_mem_Zpre_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j k : ℕ}
-    (hjk : j ≤ k) (hkK : k ≤ K) {x : Torus S.d (M * n K * S.L ^ K)}
+/-- **Without removals between the scales `j` and `k`, the coarsening of a cube of `Z^pre_j` lies in
+`Z^pre_k`** (the core of `cubeMap_mem_Zpre_of_rem`). -/
+theorem cubeMap_mem_Zpre_of_rem_between {M : ℕ} [NeZero M] {j k : ℕ} (hjk : j ≤ k) (hkK : k ≤ K)
+    (hrem : ∀ i, j ≤ i → i < k → H.rem i = ∅) {x : Torus S.d (M * n K * S.L ^ K)}
     (hx : cubeMap n S.L M K j x ∈ H.F.Zpre j) : cubeMap n S.L M K k x ∈ H.F.Zpre k := by
   have := H.neZero_L
   induction k, hjk using Nat.le_induction with
   | base => exact hx
   | succ k hjk ih =>
-    have h1 := ih (by omega)
+    have h1 := ih (by omega) (fun i hi1 hi2 => hrem i hi1 (by omega))
     have h2 : cubeMap n S.L M K k x ∈ (H.step k).Z := by
-      rw [H.Z_eq k, hrem k]
+      rw [H.Z_eq k, hrem k hjk (by omega)]
       simpa using h1
     rw [← cubeMap_succ H.F.hnn (by omega) x]
     exact H.blockMap_Z_subset_Zpre k h2
 
-/-- **Lemma I.4.3 (c) without removals**: the lineage of `Z` at scale `j` is the set of cubes of
-`Z^pre_j` whose coarsening lies in `Z`. -/
-theorem mem_lin_iff_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j k : ℕ} (hjk : j ≤ k)
-    (hkK : k ≤ K) (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
+/-- Without removals the coarsening of a cube of `Z^pre_j` lies in `Z^pre_k`. -/
+theorem cubeMap_mem_Zpre_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j k : ℕ}
+    (hjk : j ≤ k) (hkK : k ≤ K) {x : Torus S.d (M * n K * S.L ^ K)}
+    (hx : cubeMap n S.L M K j x ∈ H.F.Zpre j) : cubeMap n S.L M K k x ∈ H.F.Zpre k :=
+  cubeMap_mem_Zpre_of_rem_between hjk hkK (fun i _ _ => hrem i) hx
+
+/-- **Lemma I.4.3 (c) without removals between the scales `j` and `k`**: the lineage of `Z` at
+scale `j` is the set of cubes of `Z^pre_j` whose coarsening lies in `Z` (the core of
+`mem_lin_iff_of_rem`). -/
+theorem mem_lin_iff_of_rem_between {M : ℕ} [NeZero M] {j k : ℕ} (hjk : j ≤ k) (hkK : k ≤ K)
+    (hrem : ∀ i, j ≤ i → i < k → H.rem i = ∅) (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
     cubeMap n S.L M K j x ∈ ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) ↔
       cubeMap n S.L M K j x ∈ H.F.Zpre j ∧ cubeMap n S.L M K k x ∈ Z.1 := by
   have := H.neZero_L
@@ -96,20 +104,21 @@ theorem mem_lin_iff_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j
     rw [lin_self]
     exact ⟨fun h => ⟨mem_finOf.mp (comp_subset Z.2 (Finset.mem_coe.mp h)), h⟩, fun h => h.2⟩
   | succ k hjk ih =>
+    have hrem' : ∀ i, j ≤ i → i < k → H.rem i = ∅ := fun i hi1 hi2 => hrem i hi1 (by omega)
     rw [H.lin_succ_decomp k hjk Z]
     simp only [Finset.coe_biUnion, Set.mem_iUnion, Finset.mem_coe, exists_prop]
     constructor
     · rintro ⟨c, hc, hxc⟩
       obtain ⟨hcrem, hs⟩ := (H.mem_parts k c Z).mp hc
-      obtain ⟨hz, hxk⟩ := (ih (by omega) c).mp hxc
+      obtain ⟨hz, hxk⟩ := (ih (by omega) hrem' c).mp hxc
       refine ⟨hz, ?_⟩
       rw [← cubeMap_succ H.F.hnn (by omega) x]
       exact hs ⟨_, hxk, rfl⟩
     · rintro ⟨hz, hxZ⟩
       have hyk : cubeMap n S.L M K k x ∈ H.F.Zpre k :=
-        cubeMap_mem_Zpre_of_rem hrem hjk (by omega) hz
+        cubeMap_mem_Zpre_of_rem_between hjk (by omega) hrem' hz
       obtain ⟨Y, hY, hyY⟩ := mem_comp_self (ω := S.omega k) (mem_finOf.mpr hyk)
-      have hYrem : Y ∉ H.rem k := by rw [hrem k]; simp
+      have hYrem : Y ∉ H.rem k := by rw [hrem k hjk (by omega)]; simp
       obtain ⟨Z'', hZ''⟩ := H.exists_succ (by omega) (c := ⟨Y, hY⟩) hYrem
       have hxk : cubeMap n S.L M K (k + 1) x ∈ Z''.1 := by
         rw [← cubeMap_succ H.F.hnn (by omega) x]
@@ -119,7 +128,15 @@ theorem mem_lin_iff_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j
       · intro z hz'
         have := hZ'' hz'
         rwa [hZZ] at this
-      · exact (ih (by omega) ⟨Y, hY⟩).mpr ⟨hz, hyY⟩
+      · exact (ih (by omega) hrem' ⟨Y, hY⟩).mpr ⟨hz, hyY⟩
+
+/-- **Lemma I.4.3 (c) without removals**: the lineage of `Z` at scale `j` is the set of cubes of
+`Z^pre_j` whose coarsening lies in `Z`. -/
+theorem mem_lin_iff_of_rem (hrem : ∀ j, H.rem j = ∅) {M : ℕ} [NeZero M] {j k : ℕ} (hjk : j ≤ k)
+    (hkK : k ≤ K) (Z : H.Comp k) (x : Torus S.d (M * n K * S.L ^ K)) :
+    cubeMap n S.L M K j x ∈ ((H.lin j k Z : Finset (Torus S.d (n j))) : Set _) ↔
+      cubeMap n S.L M K j x ∈ H.F.Zpre j ∧ cubeMap n S.L M K k x ∈ Z.1 :=
+  mem_lin_iff_of_rem_between hjk hkK (fun i _ _ => hrem i) Z x
 
 end RegionHistory
 

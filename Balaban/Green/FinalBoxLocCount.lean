@@ -412,11 +412,13 @@ theorem sum_rooted_mem_prod_le (S : Set Ω) (w : ι → ℝ) (hw : ∀ i, 0 ≤ 
   exact mul_le_mul_of_nonneg_right hswap (Finset.prod_nonneg fun i _ => by linarith [hA0 i])
 
 open Classical in
-/-- **The animal sum at a cell**: with a degree bound `Δ` of the cell graph,
-`∑_{K ∋ i animal} e^{-c|K|} ≤ ∑_{n < |ι|} Δ^{2n} e^{-c(n+1)}` (`card_animals_le`). -/
-theorem sum_animalsAt_exp_le {Δ : ℕ} (hΔ : ∀ v, (cellGraph P).degree v ≤ Δ) (c : ℝ) (i : ι) :
-    ∑ K ∈ animalsAt P i, Real.exp (-c * K.card) ≤
-      ∑ n ∈ Finset.range (Fintype.card ι), (Δ : ℝ) ^ (2 * n) * Real.exp (-c * (n + 1)) := by
+/-- **The animal sum at a cell, for a weight of the size** (core): with a degree bound `Δ` of the
+cell graph and `f ≥ 0`, `∑_{K ∋ i animal} f(|K|) ≤ ∑_{n < |ι|} Δ^{2n} f(n+1)`
+(`card_animals_le`). -/
+theorem sum_animalsAt_weight_le {Δ : ℕ} (hΔ : ∀ v, (cellGraph P).degree v ≤ Δ) (f : ℕ → ℝ)
+    (hf : ∀ n, 0 ≤ f n) (i : ι) :
+    ∑ K ∈ animalsAt P i, f K.card ≤
+      ∑ n ∈ Finset.range (Fintype.card ι), (Δ : ℝ) ^ (2 * n) * f (n + 1) := by
   have hmaps : ∀ K ∈ animalsAt P i, K.card - 1 ∈ Finset.range (Fintype.card ι) := by
     intro K hK
     have hpos : 0 < K.card := Finset.card_pos.2 ⟨i, (mem_animalsAt.1 hK).2⟩
@@ -433,17 +435,26 @@ theorem sum_animalsAt_exp_le {Δ : ℕ} (hΔ : ∀ v, (cellGraph P).degree v ≤
           exact (Polymer.mem_animals _).2 ⟨hiK, by omega, hA.2⟩
       _ ≤ Δ ^ (2 * (n + 1 - 1)) := Polymer.card_animals_le _ hΔ i (n + 1)
       _ = Δ ^ (2 * n) := by simp
-  have hterm : ∀ K ∈ (animalsAt P i).filter fun K => K.card - 1 = n,
-      Real.exp (-c * K.card) = Real.exp (-c * (n + 1)) := by
+  have hterm : ∀ K ∈ (animalsAt P i).filter fun K => K.card - 1 = n, f K.card = f (n + 1) := by
     intro K hK
     obtain ⟨hK1, hK2⟩ := Finset.mem_filter.1 hK
     have hpos : 0 < K.card := Finset.card_pos.2 ⟨i, (mem_animalsAt.1 hK1).2⟩
-    have : (K.card : ℝ) = n + 1 := by
-      have : K.card = n + 1 := by omega
-      exact_mod_cast this
+    have : K.card = n + 1 := by omega
     rw [this]
   rw [Finset.sum_congr rfl hterm, Finset.sum_const, nsmul_eq_mul]
-  exact mul_le_mul_of_nonneg_right (by exact_mod_cast hcard) (Real.exp_pos _).le
+  exact mul_le_mul_of_nonneg_right (by exact_mod_cast hcard) (hf _)
+
+open Classical in
+/-- **The animal sum at a cell**: with a degree bound `Δ` of the cell graph,
+`∑_{K ∋ i animal} e^{-c|K|} ≤ ∑_{n < |ι|} Δ^{2n} e^{-c(n+1)}` (the instance `f n = e^{-c n}` of
+`sum_animalsAt_weight_le`). -/
+theorem sum_animalsAt_exp_le {Δ : ℕ} (hΔ : ∀ v, (cellGraph P).degree v ≤ Δ) (c : ℝ) (i : ι) :
+    ∑ K ∈ animalsAt P i, Real.exp (-c * K.card) ≤
+      ∑ n ∈ Finset.range (Fintype.card ι), (Δ : ℝ) ^ (2 * n) * Real.exp (-c * (n + 1)) := by
+  refine (sum_animalsAt_weight_le hΔ (fun n => Real.exp (-c * n)) (fun _ => (Real.exp_pos _).le)
+    i).trans (le_of_eq ?_)
+  push_cast
+  rfl
 
 /-- The geometric bound: for `Δ² e^{-c} < 1`,
 `∑_{n < m} Δ^{2n} e^{-c(n+1)} ≤ e^{-c} / (1 - Δ² e^{-c})`. -/

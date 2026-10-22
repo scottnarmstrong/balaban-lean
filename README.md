@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 1,009,000 lines of Lean (about 800,000 without comments and blank
+As of October 2026, about 1,014,000 lines of Lean (about 805,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -36,19 +36,20 @@ proved; in the form first stated it is false.) The other six are open. Two of th
 statements are proved: the case of the flow with no renormalization step (part of the first blocker) and the
 bound on the vacuum energy of a step (part of the fourth).
 
-How far each one is under control, as of the night of 21 October (details in [docs/BLOCKERS.md](docs/BLOCKERS.md)).
+How far each one is under control, as of 22 October (details in [docs/BLOCKERS.md](docs/BLOCKERS.md)).
 No blocker is stuck: each has a proof route that we are carrying out. Several turned out to need more work than
 estimated, mostly because the Lean transcription of a definition differed from what the papers print; each such
-case was corrected by a change approved by the author (twelve so far, R12–R23).
+case was corrected by a change approved by the author (seventeen so far, R12–R28). Much of the work below is on
+branches being merged; the merge of a large batch is in progress.
 
 | Blocker | Grade | In one line |
 |---|---|---|
-| 1. The first renormalization step | route clear, substantial work left | the scale-0 case of the general step, built on the same renormalization machinery; its own pieces (constants, gains, determinant, whitening) largely proved |
+| 1. The first renormalization step | route clear, substantial work left | the scale-0 case of the general step; the renormalization machinery it shares with the general step is being written once for every scale; its own pieces (constants, gains, determinant, whitening) largely proved |
 | 2. Switching backgrounds | resolved | removed by an approved change to the definitions |
-| 3. Old boundary terms across a new hole | route clear, substantial work left | terms defined and bounded from two named estimates, one of which is now largely proved; two structural properties and an extension of the fluctuation machinery to regions remain |
-| 4. The small factor of removed large-field regions | open question | proved on unit fields; whether the bound is uniform in the scale is still being settled; the other half (the new boundary terms) is designed and under construction |
+| 3. Old boundary terms across a new hole | route clear, substantial work left | terms defined and bounded; one of the two named estimates proved, history locality proved; Euclidean covariance and the extension of the fluctuation machinery to regions remain |
+| 4. The small factor of removed large-field regions | route clear, substantial work left | proved on unit fields; the bound uniform in the scale is checked by hand at every dimension and being proved; the new boundary terms are assembled up to one geometric input, removed by ruling R27 |
 | 5. The last integral | route clear, substantial work left | the box part is an explicit polymer gas; the large-field half is under construction (its gluing step is proved) |
-| 6. The new level's terms on local generating sets | route clear, substantial work left | the step chain is done; the step map itself, the new source terms and the torus independence of the new level remain (several thousand lines) |
+| 6. The new level's terms on local generating sets | route clear, substantial work left | the step chain is done; the step map, the renormalization identities, the new source terms and the torus independence of the new level remain (several thousand lines) |
 | 7. Exact agreement on two tori | figured out at each step, open at the last scale | proved at the distinguished cell of each step; the last scale waits for blocker 5's local terms |
 
 Changes to approved definitions are made only with the author's approval; each is recorded in `AGENTS.md`.
