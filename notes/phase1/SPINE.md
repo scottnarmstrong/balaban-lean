@@ -1342,6 +1342,15 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      components meeting `X` have the same records: at the configurations read off one configuration `z` of the global variables
      (`famEquiv`), `gMulti` and `gFluct` agree on every block of scale `j ≤ K` in the fine set of `X`, the field hypothesis of `D7`
      `loc_field`).
+   * **B3 (A6-4, the reference measures as densities times probability measures; 2026-10-22).** No landed statement changed. Landed
+     (no `sorry`; axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean`: `sphereMass`, `varProb` (normalized
+     surface measure of the sphere for a spin, `oneSiteGaussian` on `ℝ^N`), `varDens` (`|S^{N-1}|`, `(2π)^{N/2} e^{‖x‖²/2}`),
+     `isProbabilityMeasure_varProb` (`1 ≤ N`), **`varMeasure_eq_withDensity`** (`1 ≤ N`); `gcfgProb`, `gDens`,
+     **`gcfgMeasure_eq_withDensity`**, `integral_gcfgMeasure`, `integrable_gcfgMeasure_iff`, `prod_iUnion_eq`, `gDens_iUnion`; the
+     configurations of all the global variables `GCfgAll`, `gProbAll`, `restrictAll`, **`integral_restrictAll`**,
+     `integrable_restrictAll_iff`; `recTau` (the weight of a realized record with its density), `depOn_recTau`,
+     **`gOp_postOp_eq_integral_recTau`** (the operator of a history of the large-field half is the `gProbAll`-expectation of the
+     product of the `recTau` of its records times the integrand: the form of B2's operator gas, `1 ≤ N` the only premise).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
