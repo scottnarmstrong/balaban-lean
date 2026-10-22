@@ -68,68 +68,28 @@ theorem locSt_Zpre {j : ℕ} (hjk : j < k) (hk : k ≤ K) (i : ι) :
 
 include hsepZ hW hk F0
 
-/-- The members' `Z^pre` at the scale `j + 1` are pairwise `ω_{j+1}`-separated. -/
-theorem sep_locSt {j : ℕ} (hjk : j < k) :
+omit hW in
+/-- **The members' `Z^pre` at the scale `j + 1` are pairwise `ω_{j+1}`-separated**, from the
+separation of the components alone: two cubes of the lineages lie over points of the two components
+at index distance at most their own (`exists_over_of_mem_lin`), and `ω_{j+1} ≤ ω_k`. -/
+theorem sep_locSt_of_sepZ {j : ℕ} (hjk : j < k) :
     SepFam (S.omega (j + 1)) F
       (fun i => (locSt Hm cm i j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1))) := by
-  classical
   intro i hi i' hi' hne w hw w' hw'
   change w ∈ (locSt Hm cm i j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1)) at hw
   change w' ∈ (locSt Hm cm i' j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1)) at hw'
   rw [locSt_Zpre hjk hk] at hw hw'
+  obtain ⟨z1, hz1, z2, hz2, hd⟩ := exists_over_of_mem_lin (H1 := Hm i) (H2 := Hm i')
+    (a := j + 1) (by omega) hk (Finset.mem_coe.mp hw) (Finset.mem_coe.mp hw')
+  have h1 := hsepZ i hi i' hi' hne z1 hz1 z2 hz2
   have hmono : S.omega (j + 1) ≤ S.omega k := F0.ok.omega_mono (by omega)
-  by_cases hl : ∃ x ∈ (cm i).1, ∃ y ∈ (cm i').1, supDist x y ≤ 2 * S.omega k
-  · -- linked: use the witness for the pair
-    have hne' : (cm i).1 ≠ (cm i').1 := by
-      intro he
-      obtain ⟨x, hx⟩ := comp_nonempty (cm i).2
-      have := hsepZ i hi i' hi' hne x hx x (he ▸ hx)
-      rw [supDist_self] at this
-      have h13 : 13 ≤ S.omega k := by
-        have := F0.ok.omega_mono (Nat.zero_le k)
-        have h := le_omegaW S.L S.Rb S.lam 0
-        rw [← Setting.omega_eq_omegaW] at h
-        have := F0.ok.two_le_L
-        omega
-      omega
-    obtain ⟨H, hH⟩ := hW {i, i'} (by
-      intro a ha; simp only [Finset.mem_insert, Finset.mem_singleton] at ha
-      rcases ha with rfl | rfl <;> assumption) (by
-      intro a ha b hb
-      simp only [Finset.mem_insert, Finset.mem_singleton] at ha hb
-      have hself : ∀ c, ∃ x ∈ (cm c).1, ∃ y ∈ (cm c).1, supDist x y ≤ 2 * S.omega k := by
-        intro c
-        obtain ⟨x, hx⟩ := comp_nonempty (cm c).2
-        exact ⟨x, hx, x, hx, by rw [supDist_self]; omega⟩
-      rcases ha with rfl | rfl <;> rcases hb with rfl | rfl
-      · exact hself _
-      · exact hl
-      · obtain ⟨x, hx, y, hy, hxy⟩ := hl
-        exact ⟨y, hy, x, hx, by rwa [supDist_comm]⟩
-      · exact hself _)
-    obtain ⟨c, hc1, hc2⟩ := hH i (by simp)
-    obtain ⟨c', hc1', hc2'⟩ := hH i' (by simp)
-    have hlin : ∀ (a : ι) (ca : H.Comp k), ca.1 = (cm a).1 →
-        H.localHistory M K k ca = (Hm a).localHistory M K k (cm a) →
-        ((Hm a).lin (j + 1) k (cm a) : Finset (Torus S.d (n (j + 1)))) =
-          H.lin (j + 1) k ca := fun a ca _ hca =>
-      (lin_eq_of_localHistory_eq hk ca (cm a) hca (by omega)).symm
-    rw [hlin i c hc1 hc2] at hw
-    rw [hlin i' c' hc1' hc2'] at hw'
-    have hcc : c ≠ c' := by
-      intro he; subst he; exact hne' (hc1.symm.trans hc1')
-    by_contra hlt
-    push Not at hlt
-    have hcl := lin_linkClosed (H := H) (j + 1) k c
-    have hw'Z := lin_sub_Zpre (H := H) (j + 1) k c' (Finset.mem_coe.mp hw')
-    have := hcl w (Finset.mem_coe.mp hw) w' hw'Z hlt
-    exact Finset.disjoint_left.mp (RegionHistory.lin_disjoint H (j + 1) hcc)
-      (Finset.mem_coe.mp this) (Finset.mem_coe.mp hw')
-  · push Not at hl
-    obtain ⟨z1, hz1, z2, hz2, hd⟩ := exists_over_of_mem_lin (H1 := Hm i) (H2 := Hm i')
-      (a := j + 1) (by omega) hk (Finset.mem_coe.mp hw) (Finset.mem_coe.mp hw')
-    have := hl z1 hz1 z2 hz2
-    omega
+  omega
+
+/-- The members' `Z^pre` at the scale `j + 1` are pairwise `ω_{j+1}`-separated. -/
+theorem sep_locSt {j : ℕ} (hjk : j < k) :
+    SepFam (S.omega (j + 1)) F
+      (fun i => (locSt Hm cm i j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1))) :=
+  sep_locSt_of_sepZ F0 hk hsepZ hjk
 
 theorem glueRadius_le {j : ℕ} (hjk : j < k) :
     glueRadius S.L (R j) ≤ S.omega (j + 1) := by
@@ -235,18 +195,25 @@ noncomputable def asmF (F0 : FlowSteps S n R k0 K) (F : Finset ι)
     (Hm : ι → RegionHistory S n R k0 K) (cm : ∀ i, (Hm i).Comp k) : FlowSteps S n R k0 K :=
   { F0 with step := asmStep F Hm cm }
 
-theorem asmStep_spec {j : ℕ} (hjk : j < k) :
+omit hsepZ hW hk F0 in
+/-- The glued step at a scale `j < k` has the properties of the gluing, given glued steps. -/
+theorem asmStep_spec_of_glue
+    (hglue : ∀ {j : ℕ}, j < k → ∃ u : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j),
+      GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1)) u) {j : ℕ} (hjk : j < k) :
     GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1))
       (asmStep F Hm cm j) := by
   classical
-  have h := exists_glue F0 hk hsepZ hW hjk
+  have h := hglue hjk
   unfold asmStep
   simp only [hjk, ↓reduceIte, h, ↓reduceDIte]
   exact h.choose_spec
 
-theorem asmStep_Z (j : ℕ) : (asmStep F Hm cm j).Z = asmZ F Hm cm j := by
+omit hsepZ hW hk F0 in
+theorem asmStep_Z_of_glue (hk : k ≤ K)
+    (hglue : ∀ {j : ℕ}, j < k → ∃ u : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j),
+      GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1)) u) (j : ℕ) : (asmStep F Hm cm j).Z = asmZ F Hm cm j := by
   by_cases hjk : j < k
-  · have := (asmStep_spec F0 hk hsepZ hW hjk).1
+  · have := (asmStep_spec_of_glue hglue hjk).1
     rw [this, asmZ_of_le hjk.le]
     refine Set.iUnion₂_congr fun i _ => ?_
     exact locRH_Z (cm i) hjk.le (by omega)
@@ -254,13 +221,16 @@ theorem asmStep_Z (j : ℕ) : (asmStep F Hm cm j).Z = asmZ F Hm cm j := by
     simp only [hjk, ↓reduceIte]
     rfl
 
-theorem asmF_Zpre (j : ℕ) : (asmF F0 F Hm cm).Zpre j = asmZ F Hm cm j := by
+omit hsepZ hW hk F0 in
+theorem asmF_Zpre_of_glue (F0 : FlowSteps S n R k0 K) (hk : k ≤ K)
+    (hglue : ∀ {j : ℕ}, j < k → ∃ u : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j),
+      GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1)) u) (j : ℕ) : (asmF F0 F Hm cm).Zpre j = asmZ F Hm cm j := by
   cases j with
   | zero => rfl
   | succ j =>
     show ((asmF F0 F Hm cm).step j).Zpre (S.omega (j + 1)) (critOpt S k0 (j + 1)) = _
     by_cases hjk : j < k
-    · have h := (asmStep_spec F0 hk hsepZ hW hjk).2.2.2.2.2.2.1
+    · have h := (asmStep_spec_of_glue hglue hjk).2.2.2.2.2.2.1
       show (asmStep F Hm cm j).Zpre _ _ = _
       rw [h, asmZ_of_le (show j + 1 ≤ k by omega)]
       refine Set.iUnion₂_congr fun i _ => ?_
@@ -270,6 +240,17 @@ theorem asmF_Zpre (j : ℕ) : (asmF F0 F Hm cm).Zpre j = asmZ F Hm cm j := by
       unfold asmStep
       simp only [hjk, ↓reduceIte]
       simp [asmZ, this]
+
+theorem asmStep_spec {j : ℕ} (hjk : j < k) :
+    GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1))
+      (asmStep F Hm cm j) :=
+  asmStep_spec_of_glue (fun h => exists_glue F0 hk hsepZ hW h) hjk
+
+theorem asmStep_Z (j : ℕ) : (asmStep F Hm cm j).Z = asmZ F Hm cm j :=
+  asmStep_Z_of_glue hk (fun h => exists_glue F0 hk hsepZ hW h) j
+
+theorem asmF_Zpre (j : ℕ) : (asmF F0 F Hm cm).Zpre j = asmZ F Hm cm j :=
+  asmF_Zpre_of_glue F0 hk (fun h => exists_glue F0 hk hsepZ hW h) j
 
 omit hsepZ hW hk F0 in
 /-- The assembled history: no removals. -/
@@ -285,11 +266,19 @@ noncomputable def asmRH (F0 : FlowSteps S n R k0 K) (F : Finset ι) (Hm : ι →
       (c : Set (Torus S.d (n j)))
     rw [hz j]; simp
 
-theorem asmStep_Zpre_eq (j : ℕ) :
+omit hsepZ hW hk F0 in
+theorem asmStep_Zpre_eq_of_glue (F0 : FlowSteps S n R k0 K) (hk : k ≤ K)
+    (hglue : ∀ {j : ℕ}, j < k → ∃ u : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j),
+      GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1)) u) (j : ℕ) :
     (asmStep F Hm cm j).Z = (asmF F0 F Hm cm).Zpre j := by
-  rw [asmStep_Z F0 hk hsepZ hW, asmF_Zpre F0 hk hsepZ hW]
+  rw [asmStep_Z_of_glue hk hglue, asmF_Zpre_of_glue F0 hk hglue]
 
-theorem lin_asm_eq (H : RegionHistory S n R k0 K) (hrem : ∀ j, H.rem j = ∅)
+theorem asmStep_Zpre_eq (j : ℕ) :
+    (asmStep F Hm cm j).Z = (asmF F0 F Hm cm).Zpre j :=
+  asmStep_Zpre_eq_of_glue F0 hk (fun h => exists_glue F0 hk hsepZ hW h) j
+
+omit hW in
+theorem lin_asm_eq_of_sepZ (H : RegionHistory S n R k0 K) (hrem : ∀ j, H.rem j = ∅)
     (hZpre : ∀ j, H.F.Zpre j = asmZ F Hm cm j) {i : ι} (hi : i ∈ F)
     {c : H.Comp k} (hc : c.1 = (cm i).1) {j : ℕ} (hj : j ≤ k) :
     H.lin j k c = (Hm i).lin j k (cm i) := by
@@ -321,23 +310,32 @@ theorem lin_asm_eq (H : RegionHistory S n R k0 K) (hrem : ∀ j, H.rem j = ∅)
     simp only [Set.mem_iUnion, exists_prop]
     exact ⟨i, hi, hy⟩
 
+theorem lin_asm_eq (H : RegionHistory S n R k0 K) (hrem : ∀ j, H.rem j = ∅)
+    (hZpre : ∀ j, H.F.Zpre j = asmZ F Hm cm j) {i : ι} (hi : i ∈ F)
+    {c : H.Comp k} (hc : c.1 = (cm i).1) {j : ℕ} (hj : j ≤ k) :
+    H.lin j k c = (Hm i).lin j k (cm i) :=
+  lin_asm_eq_of_sepZ F0 hk hsepZ H hrem hZpre hi hc hj
+
 variable (hcomps : ∀ i ∈ F, comps (S.omega k) (cm i).1 = {(cm i).1})
 
+omit hW in
 include hcomps in
-/-- **Assembly of a history from localized histories** (the history-level core of
-Lemma III.10.2): if every clique of the family occurs in one history with the same localized
-histories, then the whole family occurs in one history without removals. -/
-theorem exists_assembled :
+/-- **Assembly of a history from localized histories, given glued steps** (the core of
+`exists_assembled`): if the localization steps of the members are glued at every scale `j < k`,
+the whole family occurs in one history without removals. -/
+theorem exists_assembled_of_glue
+    (hglue : ∀ {j : ℕ}, j < k → ∃ u : RegionStep S.d S.L (n j) (n (j + 1)) (R (j - 1)) (R j),
+      GlueProps F (fun i => locSt Hm cm i j) (S.omega (j + 1)) (critOpt S k0 (j + 1)) u) :
     ∃ H : RegionHistory S n R k0 K, (∀ j, H.rem j = ∅) ∧
       (∀ c : H.Comp k, ∃ i ∈ F, (cm i).1 = c.1) ∧
       ∀ i ∈ F, ∃ c : H.Comp k, c.1 = (cm i).1 ∧
         H.localHistory M K k c = (Hm i).localHistory M K k (cm i) := by
   classical
-  set H := asmRH F0 F Hm cm (asmStep_Zpre_eq F0 hk hsepZ hW) with hH
+  set H := asmRH F0 F Hm cm (asmStep_Zpre_eq_of_glue F0 hk hglue) with hH
   have hrem : ∀ j, H.rem j = ∅ := fun _ => rfl
   have hZk : H.F.Zpre k = ⋃ i ∈ F, (((cm i).1 : Finset (Torus S.d (n k))) : Set (Torus S.d (n k))) := by
     show (asmF F0 F Hm cm).Zpre k = _
-    rw [asmF_Zpre F0 hk hsepZ hW, asmZ_of_le le_rfl]
+    rw [asmF_Zpre_of_glue F0 hk hglue, asmZ_of_le le_rfl]
     refine Set.iUnion₂_congr fun i _ => ?_
     rw [lin_self]
   have hsepF : SepFam (S.omega k) F (fun i => (((cm i).1 : Finset (Torus S.d (n k))) :
@@ -357,13 +355,13 @@ theorem exists_assembled :
     have hmem : (cm i).1 ∈ comps (S.omega k) (H.Zp k) :=
       (hcompsH _).mpr ⟨i, hi, by rw [hcomps i hi]; simp⟩
     refine ⟨⟨(cm i).1, hmem⟩, rfl, ?_⟩
-    have hZ : ∀ j, H.F.Zpre j = asmZ F Hm cm j := fun j => asmF_Zpre F0 hk hsepZ hW j
+    have hZ : ∀ j, H.F.Zpre j = asmZ F Hm cm j := fun j => asmF_Zpre_of_glue F0 hk hglue j
     have hlin : ∀ j, j ≤ k → H.lin j k ⟨(cm i).1, hmem⟩ = (Hm i).lin j k (cm i) :=
-      fun j hj => lin_asm_eq F0 hk hsepZ hW H hrem hZ hi (c := ⟨(cm i).1, hmem⟩) rfl hj
+      fun j hj => lin_asm_eq_of_sepZ F0 hk hsepZ H hrem hZ hi (c := ⟨(cm i).1, hmem⟩) rfl hj
     have key : ∀ j, j < k → (asmStep F Hm cm j).restrict
         (((Hm i).lin (j + 1) k (cm i) : Finset (Torus S.d (n (j + 1)))) :
           Set (Torus S.d (n (j + 1)))) = locSt Hm cm i j := fun j hj => by
-      have hrs := (asmStep_spec F0 hk hsepZ hW hj).2.2.2.2.2.2.2 i hi
+      have hrs := (asmStep_spec_of_glue hglue hj).2.2.2.2.2.2.2 i hi
       rwa [locSt_Zpre hj hk i] at hrs
     have hstep : ∀ j, (H.locRH k ⟨(cm i).1, hmem⟩).step j = ((Hm i).locRH k (cm i)).step j := by
       refine locRH_step_congr hk ⟨(cm i).1, hmem⟩ (cm i) rfl hlin ?_ ?_ ?_ ?_
@@ -380,6 +378,17 @@ theorem exists_assembled :
         rw [hlin (j + 1) hj]
         exact (congrArg RegionStep.S (key j hj)).trans (locRH_new (cm i) hj (by omega)).2.2.2
     exact localHistory_congr _ _ rfl hstep
+
+include hcomps in
+/-- **Assembly of a history from localized histories** (the history-level core of
+Lemma III.10.2): if every clique of the family occurs in one history with the same localized
+histories, then the whole family occurs in one history without removals. -/
+theorem exists_assembled :
+    ∃ H : RegionHistory S n R k0 K, (∀ j, H.rem j = ∅) ∧
+      (∀ c : H.Comp k, ∃ i ∈ F, (cm i).1 = c.1) ∧
+      ∀ i ∈ F, ∃ c : H.Comp k, c.1 = (cm i).1 ∧
+        H.localHistory M K k c = (Hm i).localHistory M K k (cm i) :=
+  exists_assembled_of_glue F0 hk hsepZ hcomps (fun h => exists_glue F0 hk hsepZ hW h)
 
 end Assembly
 

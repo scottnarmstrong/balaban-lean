@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.UnitLattice
+public import Balaban.Green.FineHamiltonianPosDef
 public import Balaban.Flow.StopIndex
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
@@ -163,21 +164,6 @@ noncomputable def finalHessian (d ℓ Nb m : ℕ) [NeZero ℓ] [NeZero m] (ν a 
       (insH (ι := Torus d ℓ) h)ᵀ * spinLift N (fineHamiltonian d ℓ Nb m ν a)⁻¹ *
       spinLift N (blockPullbackMatrix d ℓ Nb m) :
         Matrix (Torus d m × Fin N) (Torus d m × Fin N) ℝ)
-
-theorem fineHamiltonian_posDef (hℓ : ℓ = Nb * m) (hN : 0 < Nb) (hd : 0 < d) {ν a : ℝ}
-    (hν : 0 ≤ ν) (ha : 0 < a) : (fineHamiltonian d ℓ Nb m ν a).PosDef := by
-  have hc : (0 : ℝ) < (Nb : ℝ) ^ 2 := by positivity
-  have hH : fineHamiltonian d ℓ Nb m ν a =
-      ((Nb : ℝ) ^ 2) • blockHamiltonian d ℓ Nb m (ν / (Nb : ℝ) ^ 2) (a / (Nb : ℝ) ^ 2) := by
-    unfold fineHamiltonian blockHamiltonian
-    rw [smul_add, smul_smul, mul_div_cancel₀ _ hc.ne']
-  rw [hH]
-  exact (blockHamiltonian_posDef hℓ hN hd (by positivity) (by positivity)).smul hc
-
-theorem fineHamiltonian_isUnit_det (hℓ : ℓ = Nb * m) (hN : 0 < Nb) (hd : 0 < d) {ν a : ℝ}
-    (hν : 0 ≤ ν) (ha : 0 < a) : IsUnit (fineHamiltonian d ℓ Nb m ν a).det :=
-  (Matrix.isUnit_iff_isUnit_det _).1 (fineHamiltonian_posDef hℓ hN hd hν ha).isUnit
-
 
 /-- The scalar fine matrix `h* G h` equals `G` when `|h| = 1`. -/
 theorem finalHessian_hGh {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (ν a : ℝ) :

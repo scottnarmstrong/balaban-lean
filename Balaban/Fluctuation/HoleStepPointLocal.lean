@@ -7,6 +7,7 @@ module
 
 public import Balaban.Fluctuation.HoleStepActComp
 public import Balaban.Fluctuation.HoleStep
+public import Balaban.Fluctuation.DecBgAgreeCore
 
 /-!
 # Locality of the composed field of the step on a region at one unit point (reading HS-1)
@@ -172,12 +173,6 @@ theorem decBg_agree_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c B
         Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v' S.D' (⟨y, hy⟩, i) =
           Dec2.decBgField (coverOf S.G') S.G' S.a S.ν (rho4 d L N BG κ) v S.D' (⟨y, hy⟩, i) := by
   classical
-  obtain ⟨φ, α, hsol, huniq, -⟩ := Dec2.i4b_exists_unique hS Sb HB hκ hM hv hδ0 hδε hε hδ hνε hD'
-  obtain ⟨φ', α', hsol', huniq', -⟩ :=
-    Dec2.i4b_exists_unique hS Sb HB hκ hM hv' hδ0 hδε hε hδ hνε hD'
-  obtain ⟨hφ, hα⟩ := Dec2.decBg_eq hsol huniq
-  obtain ⟨hφ', hα'⟩ := Dec2.decBg_eq hsol' huniq'
-  rw [hφ, hα, hφ', hα']
   have hTT' : actHull (coverOf S.G') D (Dec2.extS _ v') seed =
       actHull (coverOf S.G') D (Dec2.extS _ v) seed :=
     (actHull_eq_of_sProd_eq hsup hsup' hcomp).symm
@@ -231,14 +226,8 @@ theorem decBg_agree_of_hull {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c B
     have hq' := hq
     rw [← hTT'] at hq'
     exact ⟨hq, by rw [hcomp q (mem_actComp_of_inner hD2 hsup' hq' hne)]; exact hne⟩
-  have h := Dec2.decBg_component_cross (C := coverOf S.G') (C' := coverOf S.G') (H := S.G')
-    (H' := S.G') (s := v) (s' := v') (D := S.D') (D' := S.D')
-    (T := actHull (coverOf S.G') D (Dec2.extS _ v) seed)
-    (Y := nbhdSup (L ^ (k + 1)) (actHull (coverOf S.G') D (Dec2.extS _ v) seed))
-    hS Sb Sb HB HB hκ hM hv hv' hδ0 hδε hε hδ hνε hδ0 hδε hε hδ hνε hD' hD' (subset_nbhdSup _ _)
-    (fun _ _ _ _ _ => Iff.rfl) hdich hdich' hrow hrow' hin hin' hres
-    (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) (fun _ _ _ _ _ => ⟨rfl, rfl⟩) hsol hsol'
-  exact ⟨fun x hx hxT => h.1 x hx hx hxT, fun y hy hyY i => h.2 y hy hy hyY i⟩
+  exact decBg_agree_core S.G' S.a S.ν S.D' hS Sb HB hκ hM hv hv' hδ0 hδε hε hδ hνε hD'
+    (subset_nbhdSup _ _) hdich hdich' hrow hrow' hin hin' hres
 
 /-- The representative of a unit point lies in the top layer (`Ω_{k+1}` is a union of
 `(k+1)`-blocks). -/

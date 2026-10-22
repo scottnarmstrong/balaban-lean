@@ -29,8 +29,8 @@ variable {κ : Type*} [Fintype κ] [DecidableEq κ]
 root is a symmetric linear equivalence. Its double application is the inverse
 of the Gaussian matrix, and its determinant is the positive Gaussian
 normalization factor. -/
-theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
-    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ),
+theorem gaussian_real_sqrt_equiv_apply (A : Matrix κ κ ℝ) (hA : A.PosDef) :
+    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ), (∀ w, R w = matAct (pdSqrtInv A) w) ∧
       (∀ w, A *ᵥ (R (R w)) = w) ∧
       (∀ u v, (R u) ⬝ᵥ v = u ⬝ᵥ (R v)) ∧
       LinearMap.det (R : (κ → ℝ) →ₗ[ℝ] (κ → ℝ)) =
@@ -39,7 +39,7 @@ theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
   have hSpos : 0 < S.det := pdSqrtInv_det_pos hA
   have hSu : IsUnit S.det := hSpos.ne'.isUnit
   let R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ) := matActEquiv S hSu
-  refine ⟨R, ?_, ?_, ?_⟩
+  refine ⟨R, fun w => rfl, ?_, ?_, ?_⟩
   · intro w
     have hAS : A * (S * S) = 1 := by
       rw [pdSqrtInv_mul_self hA, Matrix.mul_nonsing_inv A]
@@ -62,16 +62,39 @@ theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
     have hsqrt : 0 ≤ Real.sqrt A.det⁻¹ := Real.sqrt_nonneg _
     nlinarith only [hsq, Real.sq_sqrt hdet, hSpos, hsqrt]
 
+theorem gaussian_real_sqrt_equiv (A : Matrix κ κ ℝ) (hA : A.PosDef) :
+    ∃ R : (κ → ℝ) ≃ₗ[ℝ] (κ → ℝ),
+      (∀ w, A *ᵥ (R (R w)) = w) ∧
+      (∀ u v, (R u) ⬝ᵥ v = u ⬝ᵥ (R v)) ∧
+      LinearMap.det (R : (κ → ℝ) →ₗ[ℝ] (κ → ℝ)) =
+        Real.sqrt A.det⁻¹ := by
+  obtain ⟨R, _, h⟩ := gaussian_real_sqrt_equiv_apply A hA
+  exact ⟨R, h⟩
+
+/-- **The square-root change of variables of the Gaussian form** `gaussForm e H`: the coordinate
+matrix `K` of the form in the standard basis, its positive inverse square root `pdSqrtInv K`, acting
+on the coordinates.  It is the map `R` of `gaussForm_sqrt_equiv_of_posDef` when `K` is positive
+definite, and a total function in all cases. -/
+noncomputable def gaussSqrtMap {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N) (u : Config ι N) : Config ι N :=
+  (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)).equivFun.symm
+    (matAct (pdSqrtInv (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)))
+      ((Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis)).equivFun u))
+
 /-- The real Gaussian form of P4 (2.47) has the square-root change of
 variables required by the sphere-chart identity whenever its coordinate
 matrix is positive definite. -/
-theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+theorem gaussForm_sqrt_equiv_of_posDef_apply {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
     (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
     (hK : (LinearMap.toMatrix
       (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
       (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
       (gaussForm e H)).PosDef) :
     ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      (∀ u, R u = gaussSqrtMap e H u) ∧
       (∀ w, gaussForm e H (R (R w)) = w) ∧
       (∀ u v, cinner (R u) v = cinner u (R v)) ∧
       LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) =
@@ -85,9 +108,11 @@ theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι
       Finset.sum_sigma', mul_comm]
   have hmap (u : Config ι N) : E (gaussForm e H u) = K *ᵥ E u := by
     simpa [E, K] using (LinearMap.toMatrix_mulVec_repr B B (gaussForm e H) u).symm
-  obtain ⟨T, hTT, hTs, hTd⟩ := gaussian_real_sqrt_equiv K hK
+  obtain ⟨T, hTa, hTT, hTs, hTd⟩ := gaussian_real_sqrt_equiv_apply K hK
   let R : Config ι N ≃ₗ[ℝ] Config ι N := (E.trans T).trans E.symm
-  refine ⟨R, ?_, ?_, ?_⟩
+  refine ⟨R, fun u => ?_, ?_, ?_, ?_⟩
+  · change E.symm (T (E u)) = E.symm (matAct (pdSqrtInv K) (E u))
+    rw [hTa]
   · intro w
     apply E.injective
     rw [hmap]
@@ -108,6 +133,20 @@ theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι
     congr 1
     congr 1
     exact LinearMap.det_toMatrix B (gaussForm e H)
+
+theorem gaussForm_sqrt_equiv_of_posDef {ι : Type*} [Fintype ι] [DecidableEq ι] {N : ℕ}
+    (e : Config ι N) (H : Config ι N →ₗ[ℝ] Config ι N)
+    (hK : (LinearMap.toMatrix
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (Pi.basis (fun _ : ι => (EuclideanSpace.basisFun (Fin N) ℝ).toBasis))
+      (gaussForm e H)).PosDef) :
+    ∃ R : Config ι N ≃ₗ[ℝ] Config ι N,
+      (∀ w, gaussForm e H (R (R w)) = w) ∧
+      (∀ u v, cinner (R u) v = cinner u (R v)) ∧
+      LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N) =
+        Real.sqrt (LinearMap.det (gaussForm e H))⁻¹ := by
+  obtain ⟨R, _, h⟩ := gaussForm_sqrt_equiv_of_posDef_apply e H hK
+  exact ⟨R, h⟩
 
 /-- Gaussian lifting and the real square-root change of variables on the
 tangent chart of P4 (2.47)–(2.50). The nonnegative factor is arbitrary. -/
@@ -210,6 +249,57 @@ theorem lintegral_tangent_gaussian_real {ι : Type*} [Fintype ι] {N : ℕ}
   push_cast
   ring_nf
 
+/-- The Gaussian weight on the tangent hyperplanes is, up to the constant
+`(2π)^{(N-1)|ι|/2} |det R|`, the image of the standard Gaussian under `ψ ↦ P (R ψ)`
+(measure form of `integral_tangent_gaussian_complex`). -/
+theorem withDensity_tangent_gaussian_eq {ι : Type*} [Fintype ι] {N : ℕ}
+    (e : Config ι N) (he : ∀ x, ‖e x‖ = 1)
+    (H : Config ι N →ₗ[ℝ] Config ι N)
+    (R : Config ι N ≃ₗ[ℝ] Config ι N)
+    (hR : ∀ ψ, cinner (R ψ) (gaussForm e H (R ψ)) = cinner ψ ψ) :
+    (Measure.pi fun x => (volume : Measure (perp (e x)))).withDensity (fun v =>
+      ENNReal.ofReal (Real.exp (-(1 / 2) * cinner
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+        (H (fun x => (v x : EuclideanSpace ℝ (Fin N))))))) =
+      ENNReal.ofReal ((2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+        |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|) •
+        Measure.map (fun ψ => tangentProj e he (R ψ)) (stdGaussian ι N) := by
+  classical
+  let μ : Measure ((x : ι) → perp (e x)) := Measure.pi fun x => volume
+  let q : ((x : ι) → perp (e x)) → ℝ := fun v =>
+    Real.exp (-(1 / 2) * cinner (fun x => (v x : EuclideanSpace ℝ (Fin N)))
+      (H (fun x => (v x : EuclideanSpace ℝ (Fin N)))))
+  let t : Config ι N → ((x : ι) → perp (e x)) := fun ψ => tangentProj e he (R ψ)
+  let C : ℝ := (2 * Real.pi) ^ (((N : ℝ) - 1) * Fintype.card ι / 2) *
+    |LinearMap.det (R : Config ι N →ₗ[ℝ] Config ι N)|
+  have hq : Measurable q := by
+    have hc : Continuous H := LinearMap.continuous_of_finiteDimensional H
+    have hv : Measurable fun v : (x : ι) → perp (e x) =>
+        (fun x => (v x : EuclideanSpace ℝ (Fin N)) : Config ι N) :=
+      measurable_pi_iff.2 fun x => measurable_subtype_coe.comp (measurable_pi_apply x)
+    dsimp [q, cinner]
+    fun_prop
+  have ht : Measurable t :=
+    (measurable_tangentProj e he).comp
+      (LinearMap.continuous_of_finiteDimensional
+        (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
+  have hd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
+  change μ.withDensity (fun v => ENNReal.ofReal (q v)) =
+    ENNReal.ofReal C • Measure.map t (stdGaussian ι N)
+  apply Measure.ext_of_lintegral
+  intro g hg
+  rw [lintegral_withDensity_eq_lintegral_mul₀ hd.aemeasurable hg.aemeasurable,
+    lintegral_smul_measure, lintegral_map hg ht]
+  change (∫⁻ v, ENNReal.ofReal (q v) * g v ∂μ) =
+    ENNReal.ofReal C * ∫⁻ ψ, g (t ψ) ∂(stdGaussian ι N)
+  calc
+    _ = ∫⁻ v, g v * ENNReal.ofReal (q v) ∂μ := by
+      apply lintegral_congr
+      intro v
+      exact mul_comm _ _
+    _ = _ := lintegral_tangent_gaussian_real e he H R hR g hg
+
+
 /-- The tangent Gaussian change of variables holds for a complex activity by
 identifying the two positive measures first. This is the complex counterpart
 of the real Gaussian lifting in P4 (2.47)–(2.50). -/
@@ -248,19 +338,8 @@ theorem integral_tangent_gaussian_complex {ι : Type*} [Fintype ι] {N : ℕ}
         (R : Config ι N →ₗ[ℝ] Config ι N)).measurable
   have hd : Measurable (fun v => ENNReal.ofReal (q v)) := ENNReal.measurable_ofReal.comp hq
   have hmeas : μ.withDensity (fun v => ENNReal.ofReal (q v)) =
-      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) := by
-    apply Measure.ext_of_lintegral
-    intro g hg
-    rw [lintegral_withDensity_eq_lintegral_mul₀ hd.aemeasurable hg.aemeasurable,
-      lintegral_smul_measure, lintegral_map hg ht]
-    change (∫⁻ v, ENNReal.ofReal (q v) * g v ∂μ) =
-      ENNReal.ofReal C * ∫⁻ ψ, g (t ψ) ∂(stdGaussian ι N)
-    calc
-      _ = ∫⁻ v, g v * ENNReal.ofReal (q v) ∂μ := by
-        apply lintegral_congr
-        intro v
-        exact mul_comm _ _
-      _ = _ := lintegral_tangent_gaussian_real e he H R hR g hg
+      ENNReal.ofReal C • Measure.map t (stdGaussian ι N) :=
+    withDensity_tangent_gaussian_eq e he H R hR
   change ∫ v, (q v : ℂ) * f v ∂μ = (C : ℂ) * ∫ ψ, f (t ψ) ∂(stdGaussian ι N)
   calc
     _ = ∫ v, f v ∂μ.withDensity (fun v => ENNReal.ofReal (q v)) := by

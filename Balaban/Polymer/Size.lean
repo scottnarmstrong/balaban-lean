@@ -12,6 +12,11 @@ graph, `|K x| ≤ ε e^{-κ d(x)}` with `κ ≥ κ' + κ₀ + c₁` and `α := �
 the Kotecký–Preiss condition holds with `a(x) = α |supp x|`, `b(x) = κ'(d(x) + c)`, and
 `pe_size` gives `Ξ = exp L`, `L = ∑_Y P(Y)`, `∑_{Y ∋ □} |P(Y)| e^{κ' d(Y)} ≤ α e^{-κ' c}` and
 `|L| ≤ α |T|`.
+
+`size_entropy_gen`, `pe_size_gen`: the same with a free constant `a₀` in place of `c₁`: (G1) in the
+form `α |supp x| ≤ a₀ (1 + d(supp x))` with `α = ε K₀ e^{a₀ + κ' c}` and `κ ≥ κ' + κ₀ + a₀`, so
+that a large ratio `|supp x| / (1 + d(supp x))` is absorbed by a small `ε` and not by the rate;
+`size_entropy`, `pe_size` are the instances `a₀ = c₁`.
 -/
 
 @[expose] public section
@@ -76,21 +81,23 @@ theorem sizeW_nonneg (hε : 0 ≤ ε) (x : P) : 0 ≤ sizeW supp d ε κ κ' c x
   unfold sizeW; positivity
 
 omit [Fintype B] in
-/-- The entropy condition of PE-L. -/
-theorem size_entropy (hε : 0 ≤ ε)
+/-- **The entropy condition of PE-L with a free constant `a₀`** (the core).  With
+`α = ε K₀ e^{a₀ + κ' c}`, if the Kotecký–Preiss weight is dominated by the size,
+`α |supp x| ≤ a₀ (1 + d(supp x))`, and `κ ≥ κ' + κ₀ + a₀`, the entropy sum through every block is
+at most `α`.  The ratio of the supports to the size may be large, if `α` is small enough to absorb
+it. -/
+theorem size_entropy_gen {a₀ : ℝ} (hε : 0 ≤ ε)
     (hd : ∀ Y, 0 ≤ d Y)
-    (hG1 : ∀ x, ((supp x).card : ℝ) ≤ c1 * (1 + d (supp x)))
+    (hG1 : ∀ x, ε * K0 * Real.exp (a₀ + κ' * c) * (supp x).card ≤ a₀ * (1 + d (supp x)))
     (hG2 : ∀ b : B, ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) ≤ K0)
-    (hκ : κ' + κ0 + c1 ≤ κ) (hα : ε * K0 * Real.exp (c1 + κ' * c) ≤ 1) (b : B) :
+    (hκ : κ' + κ0 + a₀ ≤ κ) (b : B) :
     ∑ x, (if b ∈ supp x then sizeW supp d ε κ κ' c x *
-      Real.exp ((ε * K0 * Real.exp (c1 + κ' * c)) * (supp x).card) else 0) ≤
-      ε * K0 * Real.exp (c1 + κ' * c) := by
-  set α : ℝ := ε * K0 * Real.exp (c1 + κ' * c) with hαdef
+      Real.exp ((ε * K0 * Real.exp (a₀ + κ' * c)) * (supp x).card) else 0) ≤
+      ε * K0 * Real.exp (a₀ + κ' * c) := by
+  set α : ℝ := ε * K0 * Real.exp (a₀ + κ' * c) with hαdef
   have hterm : ∀ x, sizeW supp d ε κ κ' c x * Real.exp (α * (supp x).card) ≤
-      ε * Real.exp (c1 + κ' * c) * Real.exp (-κ0 * d (supp x)) := by
+      ε * Real.exp (a₀ + κ' * c) * Real.exp (-κ0 * d (supp x)) := by
     intro x
-    have h1 : α * ((supp x).card : ℝ) ≤ (supp x).card :=
-      mul_le_of_le_one_left (Nat.cast_nonneg _) hα
     have h2 := hG1 x
     have h3 := hd (supp x)
     calc sizeW supp d ε κ κ' c x * Real.exp (α * (supp x).card)
@@ -100,24 +107,44 @@ theorem size_entropy (hε : 0 ≤ ε)
               Real.exp (-κ * d (supp x)) * Real.exp (κ' * (d (supp x) + c) + 0) *
                 Real.exp (α * (supp x).card) := by rw [Real.exp_add, Real.exp_add]
           rw [this]; ring
-      _ ≤ ε * Real.exp ((c1 + κ' * c) + (-κ0 * d (supp x))) := by
+      _ ≤ ε * Real.exp ((a₀ + κ' * c) + (-κ0 * d (supp x))) := by
           refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) hε
           nlinarith
       _ = _ := by rw [Real.exp_add]; ring
   calc ∑ x, (if b ∈ supp x then sizeW supp d ε κ κ' c x * Real.exp (α * (supp x).card) else 0)
-      ≤ ∑ x, ε * Real.exp (c1 + κ' * c) * (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) := by
+      ≤ ∑ x, ε * Real.exp (a₀ + κ' * c) *
+          (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) := by
         refine Finset.sum_le_sum (fun x _ => ?_)
         by_cases hb : b ∈ supp x
         · rw [ite_eq_left_of_eq_true _ _ (eq_true hb), ite_eq_left_of_eq_true _ _ (eq_true hb)]
           exact hterm x
         · rw [ite_eq_right_of_eq_false _ _ (eq_false hb), ite_eq_right_of_eq_false _ _ (eq_false hb)]
           simp
-    _ = ε * Real.exp (c1 + κ' * c) * ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) := by
+    _ = ε * Real.exp (a₀ + κ' * c) *
+          ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) := by
         rw [Finset.mul_sum]
-    _ ≤ ε * Real.exp (c1 + κ' * c) * K0 :=
+    _ ≤ ε * Real.exp (a₀ + κ' * c) * K0 :=
         mul_le_mul_of_nonneg_left (hG2 b) (by positivity)
     _ = α := by rw [hαdef]; ring
 
+omit [Fintype P] [Fintype B] in
+/-- The Kotecký–Preiss weight is dominated by the size when `α ≤ 1` and `|supp x| ≤ c₁ (1 + d)`. -/
+theorem kpWeight_le_of_le_one {a : ℝ} (ha : a ≤ 1)
+    (hG1 : ∀ x, ((supp x).card : ℝ) ≤ c1 * (1 + d (supp x))) (x : P) :
+    a * (supp x).card ≤ c1 * (1 + d (supp x)) :=
+  (mul_le_of_le_one_left (Nat.cast_nonneg _) ha).trans (hG1 x)
+
+omit [Fintype B] in
+/-- The entropy condition of PE-L (the instance of `size_entropy_gen` with `a₀ = c₁`). -/
+theorem size_entropy (hε : 0 ≤ ε)
+    (hd : ∀ Y, 0 ≤ d Y)
+    (hG1 : ∀ x, ((supp x).card : ℝ) ≤ c1 * (1 + d (supp x)))
+    (hG2 : ∀ b : B, ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) ≤ K0)
+    (hκ : κ' + κ0 + c1 ≤ κ) (hα : ε * K0 * Real.exp (c1 + κ' * c) ≤ 1) (b : B) :
+    ∑ x, (if b ∈ supp x then sizeW supp d ε κ κ' c x *
+      Real.exp ((ε * K0 * Real.exp (c1 + κ' * c)) * (supp x).card) else 0) ≤
+      ε * K0 * Real.exp (c1 + κ' * c) :=
+  size_entropy_gen supp d hε hd (kpWeight_le_of_le_one supp d hα hG1) hG2 hκ b
 
 omit [Fintype P] [Fintype B] in
 /-- The weight `g = κ'(d + c)` satisfies (G3) with constant `0`. -/
@@ -134,27 +161,31 @@ theorem size_g_G3 [Fintype P] {κ' c : ℝ} (hκ' : 0 ≤ κ')
   push_cast
   nlinarith
 
-/-- **PE-L for a general size** (POLYMER.md §2.3). -/
-theorem pe_size (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c)
+/-- **PE-L for a general size, with a free constant `a₀`** (the core): as `pe_size`, with the
+hypotheses `α |supp x| ≤ a₀ (1 + d(supp x))` and `κ ≥ κ' + κ₀ + a₀`, `α = ε K₀ e^{a₀ + κ' c}`, in
+place of `|supp x| ≤ c₁ (1 + d(supp x))`, `κ ≥ κ' + κ₀ + c₁` and `α ≤ 1`.  A large ratio of the
+supports to the size (for instance the number of sites of a cube) is absorbed by a small `α`
+instead of entering the rate. -/
+theorem pe_size_gen {a₀ : ℝ} (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c)
     (hd : ∀ Y, 0 ≤ d Y) (hne : ∀ x, (supp x).Nonempty)
-    (hG1 : ∀ x, ((supp x).card : ℝ) ≤ c1 * (1 + d (supp x)))
+    (hG1 : ∀ x, ε * K0 * Real.exp (a₀ + κ' * c) * (supp x).card ≤ a₀ * (1 + d (supp x)))
     (hG2 : ∀ b : B, ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) ≤ K0)
     (hG3 : ∀ (n : ℕ) (X : Fin (n + 1) → P), (clusterGraph (shareBlock supp) X).Connected →
       d (unionOf supp X) ≤ ∑ i, d (supp (X i)) + c * n)
-    (hκ : κ' + κ0 + c1 ≤ κ) (hα : ε * K0 * Real.exp (c1 + κ' * c) ≤ 1)
+    (hκ : κ' + κ0 + a₀ ≤ κ)
     (T : Finset B) (hT : ∀ x, ∃ b ∈ T, b ∈ supp x)
     (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ ε * Real.exp (-κ * d (supp x))) :
     Xi (shareBlock supp) K = Complex.exp (logSeries (shareBlock supp) K) ∧
     logSeries (shareBlock supp) K = ∑ Y : Finset B, PY (shareBlock supp) supp K Y ∧
     (∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
         ‖PY (shareBlock supp) supp K Y‖ * Real.exp (κ' * d Y) ≤
-          ε * K0 * Real.exp (c1 + κ' * c) * Real.exp (-(κ' * c))) ∧
-    ‖logSeries (shareBlock supp) K‖ ≤ T.card * (ε * K0 * Real.exp (c1 + κ' * c)) ∧
-    Real.exp (-(T.card * (ε * K0 * Real.exp (c1 + κ' * c)))) ≤ ‖Xi (shareBlock supp) K‖ ∧
-    ‖Xi (shareBlock supp) K‖ ≤ Real.exp (T.card * (ε * K0 * Real.exp (c1 + κ' * c))) := by
-  set α : ℝ := ε * K0 * Real.exp (c1 + κ' * c) with hαdef
+          ε * K0 * Real.exp (a₀ + κ' * c) * Real.exp (-(κ' * c))) ∧
+    ‖logSeries (shareBlock supp) K‖ ≤ T.card * (ε * K0 * Real.exp (a₀ + κ' * c)) ∧
+    Real.exp (-(T.card * (ε * K0 * Real.exp (a₀ + κ' * c)))) ≤ ‖Xi (shareBlock supp) K‖ ∧
+    ‖Xi (shareBlock supp) K‖ ≤ Real.exp (T.card * (ε * K0 * Real.exp (a₀ + κ' * c))) := by
+  set α : ℝ := ε * K0 * Real.exp (a₀ + κ' * c) with hαdef
   have hα0 : 0 ≤ α := by positivity
-  have hent := size_entropy supp d hε hd hG1 hG2 hκ hα
+  have hent := size_entropy_gen supp d hε hd hG1 hG2 hκ
   have hW := sizeW_nonneg (κ := κ) (κ' := κ') (c := c) supp d hε
   have hKP := kp_of_entropy supp (sizeW supp d ε κ κ' c) hW hent
   have hK' : ∀ x, ‖K x‖ ≤ sizeW supp d ε κ κ' c x := fun x => by
@@ -195,6 +226,28 @@ theorem pe_size (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤
   rw [this] at hle
   rw [Real.exp_neg, ← div_eq_mul_inv, le_div_iff₀ hc']
   exact hle
+
+
+/-- **PE-L for a general size** (POLYMER.md §2.3; the instance of `pe_size_gen` with
+`a₀ = c₁`). -/
+theorem pe_size (hε : 0 ≤ ε) (hK0 : 0 ≤ K0) (hκ' : 0 ≤ κ') (hc : 0 ≤ c)
+    (hd : ∀ Y, 0 ≤ d Y) (hne : ∀ x, (supp x).Nonempty)
+    (hG1 : ∀ x, ((supp x).card : ℝ) ≤ c1 * (1 + d (supp x)))
+    (hG2 : ∀ b : B, ∑ x, (if b ∈ supp x then Real.exp (-κ0 * d (supp x)) else 0) ≤ K0)
+    (hG3 : ∀ (n : ℕ) (X : Fin (n + 1) → P), (clusterGraph (shareBlock supp) X).Connected →
+      d (unionOf supp X) ≤ ∑ i, d (supp (X i)) + c * n)
+    (hκ : κ' + κ0 + c1 ≤ κ) (hα : ε * K0 * Real.exp (c1 + κ' * c) ≤ 1)
+    (T : Finset B) (hT : ∀ x, ∃ b ∈ T, b ∈ supp x)
+    (K : P → ℂ) (hK : ∀ x, ‖K x‖ ≤ ε * Real.exp (-κ * d (supp x))) :
+    Xi (shareBlock supp) K = Complex.exp (logSeries (shareBlock supp) K) ∧
+    logSeries (shareBlock supp) K = ∑ Y : Finset B, PY (shareBlock supp) supp K Y ∧
+    (∀ b : B, ∑ Y ∈ (Finset.univ : Finset (Finset B)).filter (fun Y => b ∈ Y),
+        ‖PY (shareBlock supp) supp K Y‖ * Real.exp (κ' * d Y) ≤
+          ε * K0 * Real.exp (c1 + κ' * c) * Real.exp (-(κ' * c))) ∧
+    ‖logSeries (shareBlock supp) K‖ ≤ T.card * (ε * K0 * Real.exp (c1 + κ' * c)) ∧
+    Real.exp (-(T.card * (ε * K0 * Real.exp (c1 + κ' * c)))) ≤ ‖Xi (shareBlock supp) K‖ ∧
+    ‖Xi (shareBlock supp) K‖ ≤ Real.exp (T.card * (ε * K0 * Real.exp (c1 + κ' * c))) :=
+  pe_size_gen supp d hε hK0 hκ' hc hd hne (kpWeight_le_of_le_one supp d hα hG1) hG2 hG3 hκ T hT K hK
 
 end Main
 

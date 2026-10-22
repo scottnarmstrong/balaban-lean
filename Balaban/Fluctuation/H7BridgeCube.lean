@@ -39,13 +39,15 @@ variable {d M1 N₁ L N q c n : ℕ} [NeZero L] [NeZero M1] [NeZero N₁] (a : �
   (h : Fin N → ℂ) (y0 : Torus d n)
 
 /-- **Step 1, the inclusion**: block fields of `Δ^c_q(□; 1, ε)` have lifted data in the BG domain
-`𝒟` of Theorem 5.2. -/
+`𝒟` of Theorem 5.2, for `0 < ε ≤ c₁` and `μ L^{2q} ≤ 1` (the cube domain asks the lifted datum in
+`Ψ̃^c(ε, ε)`, ruling request R14; `inUnionDomainC_of_inDomainC_eps`). -/
 theorem deltaC_inUnionDomainC {ψ : Torus d (M1 * N₁ * L ^ (q - q)) → Fin N → ℂ}
+    (hd : 0 < d) (hε0 : 0 < ε) (hε : ε ≤ bgC1 d L N) (hμ : μ * ((L : ℝ) ^ q) ^ 2 ≤ 1)
     (hψ : ψ ∈ DeltaC (q := q) (M1 := M1) (N₁ := N₁) (L := L) a μ ε h c n y0) :
     InUnionDomainC (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0)
       (bgC0 d L N) (bgC1 d L N) μ
       (liftSingle (genCube (M1 := M1) (N₁ := N₁) (L := L) (q := q) c n y0) ψ h) :=
-  hψ.1
+  inUnionDomainC_of_inDomainC_eps _ hd hε0 hε hμ hψ.1
 
 /-- **Step 1, the inclusion**: the regularity inequalities of `Δ^c_q(□; 1, ε)` on `□^{∼1}`. -/
 theorem deltaC_regIneq {ψ : Torus d (M1 * N₁ * L ^ (q - q)) → Fin N → ℂ}

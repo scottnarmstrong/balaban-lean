@@ -32,8 +32,8 @@ variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ ϱ' : ℝ}
   {φr φc : G'.Ω 1 × Fin N → ℂ}
 
 /-- The complex square displacement of a composed datum has two powers of the scale gap. -/
-theorem HypS.comp_square_sharp
-    (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+theorem HypSle.comp_square_sharp
+    (H : HypSle G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
     {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
     ‖∑ i, ccv G G' a₁ φc Ψ0 Ψ'' x i * ccv G G' a₁ φc Ψ0 Ψ'' x i -
       ∑ i, crv G G' a₁ φr Ψ0 x i * crv G G' a₁ φr Ψ0 x i‖
@@ -100,9 +100,18 @@ theorem HypS.comp_square_sharp
       nlinarith only [hc', hr', b3, b1]
     _ = θ ^ 2 * η * (2 * d + 10) := by ring
 
-/-- The sharp square displacement in the real-plus-complex coordinates of `ScaledPsiC`. -/
-theorem HypS.comp_square_scaled
+/-- The complex square displacement of a composed datum has two powers of the scale gap. -/
+theorem HypS.comp_square_sharp
     (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
+    ‖∑ i, ccv G G' a₁ φc Ψ0 Ψ'' x i * ccv G G' a₁ φc Ψ0 Ψ'' x i -
+      ∑ i, crv G G' a₁ φr Ψ0 x i * crv G G' a₁ φr Ψ0 x i‖
+      ≤ θ ^ 2 * η * (2 * d + 10) :=
+  Balaban.SmallField.HypSle.comp_square_sharp H.toLe hx
+
+/-- The sharp square displacement in the real-plus-complex coordinates of `ScaledPsiC`. -/
+theorem HypSle.comp_square_scaled
+    (H : HypSle G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
     {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
     ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
         dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
@@ -121,16 +130,30 @@ theorem HypS.comp_square_scaled
     unfold scaledC0
     nlinarith [sq_nonneg (d : ℝ)]
   calc
-    _ ≤ θ ^ 2 * η * (2 * d + 10) := Balaban.SmallField.HypS.comp_square_sharp H hx
+    _ ≤ θ ^ 2 * η * (2 * d + 10) := Balaban.SmallField.HypSle.comp_square_sharp H hx
     _ < θ ^ 2 * η * (scaledC0 d) ^ 2 :=
       mul_lt_mul_of_pos_left hcoeff (mul_pos (pow_pos H.hθ0 2) H.ηpos)
     _ = (scaledC0 d * θ) ^ 2 * η := by ring
 
-/-- A class chart supplies a scaled composition witness with the sharp complex square bound. -/
-theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
+/-- The sharp square displacement in the real-plus-complex coordinates of `ScaledPsiC`. -/
+theorem HypS.comp_square_scaled
+    (H : HypS G G' a₁ ν δ ε η θ j Ψ0 h0 Ψ'' h'' φr φc)
+    {x : Torus d (N₀ * L ^ k)} (hx : x ∈ G.Ω 1) :
+    ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+        dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
+        (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+          dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) -
+      ∑ i, (reR G G' a₁ φr Ψ0 x i : ℂ) * (reR G G' a₁ φr Ψ0 x i : ℂ)‖ <
+      (scaledC0 d * θ) ^ 2 * η :=
+  Balaban.SmallField.HypSle.comp_square_scaled H.toLe hx
+
+/-- **A class chart supplies a scaled composition witness with the sharp complex square bound, at a
+source level `n ≤ k`** (core of `xiC_scaledComposition_square_sharp`): the scale ratio enters as
+`L^j ≤ θ L^k` (`HypSle`); for a source whose top layer on `Ω₁ ∪ C(Ω₁)` of `G` is `n`, `θ = L^{j-n}`. -/
+theorem xiC_scaledComposition_square_sharp_le (H' : BgHyp d L k ϱ' a ν)
     {a₁ ε₀ θ : ℝ} {j : ℕ}
     (hprec : Precedes G G') (hL : 2 ≤ L) (ha₁ : 0 < a₁)
-    (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) (hjθ : (L : ℝ) ^ j = θ * (L : ℝ) ^ k)
+    (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) (hjθ : (L : ℝ) ^ j ≤ θ * (L : ℝ) ^ k)
     (hnj : ∀ x ∈ G.Ω 1, G.layerIndex x ≤ j) (hgap : ScaleGap G G' θ)
     (hcol : ∀ z ∈ collar G, z ∈ G'.Ω 1 ∧ 1 ≤ θ * G'.spacing z)
     (hsmall : (4 * d + 6) * (xiC1 d * ε₀) ≤ 1)
@@ -181,7 +204,7 @@ theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
   have hfc := fieldBounds_mono (xiC_fieldBounds H' one_pos hε₀ le_rfl hXr' hC hDcU hb) hEta2
   let φr := bgField G' a ν Dr
   let φc := bgFieldC G' a ν (bgC0 d L N) Dc
-  have HS : HypS G G' a₁ ν η η η θ j Ψ0 h0 Ψ'' h'' φr φc :=
+  have HS : HypSle G G' a₁ ν η η η θ j Ψ0 h0 Ψ'' h'' φr φc :=
     { prec := hprec, hL := hL, ha₁ := ha₁, hθ0 := hθ0, hθ1 := hθ1,
       hjθ := hjθ, hnj := hnj, gap := hgap, hcol := hcol,
       hδ := hηpos, hδη := le_rfl, hηε := le_rfl, hε1 := hη1,
@@ -195,9 +218,9 @@ theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
         exact hh.trans (by nlinarith)
       hbc := fieldBounds_congr hfc (fun x hx => by funext i; simp [psiC])
       hdiff := fun z => (hb.val z).le.trans (by nlinarith) }
-  refine ⟨φr, φc, scaledComposition HS, ?_, ?_⟩
+  refine ⟨φr, φc, scaledComposition_le HS, ?_, ?_⟩
   · intro x hx
-    exact Balaban.SmallField.HypS.comp_square_sharp HS hx
+    exact Balaban.SmallField.HypSle.comp_square_sharp HS hx
   · intro x hx
     have hcastr : ∀ i, crv G G' a₁ φr Ψ0 x i =
         ((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) := fun i =>
@@ -211,9 +234,35 @@ theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
       nlinarith [sq_nonneg (d : ℝ)]
     calc
       _ ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10) :=
-        Balaban.SmallField.HypS.comp_square_sharp HS hx
+        Balaban.SmallField.HypSle.comp_square_sharp HS hx
       _ < θ ^ 2 * (xiC1 d * ε₀) * (scaledC0 d) ^ 2 :=
         mul_lt_mul_of_pos_left hcoeff (by positivity)
       _ = (scaledC0 d * θ) ^ 2 * (xiC1 d * ε₀) := by ring
+
+/-- A class chart supplies a scaled composition witness with the sharp complex square bound. -/
+theorem xiC_scaledComposition_square_sharp (H' : BgHyp d L k ϱ' a ν)
+    {a₁ ε₀ θ : ℝ} {j : ℕ}
+    (hprec : Precedes G G') (hL : 2 ≤ L) (ha₁ : 0 < a₁)
+    (hθ0 : 0 < θ) (hθ1 : θ ≤ 1) (hjθ : (L : ℝ) ^ j = θ * (L : ℝ) ^ k)
+    (hnj : ∀ x ∈ G.Ω 1, G.layerIndex x ≤ j) (hgap : ScaleGap G G' θ)
+    (hcol : ∀ z ∈ collar G, z ∈ G'.Ω 1 ∧ 1 ≤ θ * G'.spacing z)
+    (hsmall : (4 * d + 6) * (xiC1 d * ε₀) ≤ 1)
+    (hX : XiC G' a ν k 1 ε₀ Ψ0 h0 Ψ'' h'') :
+    ∃ φr φc : G'.Ω 1 × Fin N → ℂ,
+      ScaledPsiC G ν (scaledC0 d * θ) (xiC1 d * ε₀) j
+        (reR G G' a₁ φr Ψ0) h0
+        (dPsi G G' a₁ φr φc Ψ0 Ψ'') (hRes G h'') ∧
+      (∀ x ∈ G.Ω 1,
+        ‖∑ i, ccv G G' a₁ φc Ψ0 Ψ'' x i * ccv G G' a₁ φc Ψ0 Ψ'' x i -
+          ∑ i, crv G G' a₁ φr Ψ0 x i * crv G G' a₁ φr Ψ0 x i‖
+          ≤ θ ^ 2 * (xiC1 d * ε₀) * (2 * d + 10)) ∧
+      (∀ x ∈ G.Ω 1,
+        ‖∑ i, (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+            dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) *
+            (((reR G G' a₁ φr Ψ0 x i : ℝ) : ℂ) +
+              dPsi G G' a₁ φr φc Ψ0 Ψ'' x i) -
+          ∑ i, (reR G G' a₁ φr Ψ0 x i : ℂ) * (reR G G' a₁ φr Ψ0 x i : ℂ)‖ <
+          (scaledC0 d * θ) ^ 2 * (xiC1 d * ε₀)) :=
+  xiC_scaledComposition_square_sharp_le H' hprec hL ha₁ hθ0 hθ1 hjθ.le hnj hgap hcol hsmall hX
 
 end Balaban.SmallField

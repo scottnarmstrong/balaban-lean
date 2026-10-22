@@ -54,7 +54,7 @@ theorem analyticAt_couplingC (a₁ : ℝ) (p : ℕ) {θF ψF : Q → Torus d (N�
     (hθ : ∀ y i, AnalyticAt ℂ (fun q => θF q y i) q₀)
     (hψ : ∀ y i, AnalyticAt ℂ (fun q => ψF q y i) q₀) :
     AnalyticAt ℂ (fun q => couplingC G' a₁ p (θF q) (ψF q)) q₀ := by
-  unfold couplingC blockMean
+  unfold couplingC couplingCOn blockMean
   refine analyticAt_const.mul (Finset.analyticAt_fun_sum _ fun x _ =>
     Finset.analyticAt_fun_sum _ fun i _ => ?_)
   have h : AnalyticAt ℂ (fun q => θF q x i -

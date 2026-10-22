@@ -1,6 +1,7 @@
 module
 
-public import Balaban.Polymer.Mayer
+public import Balaban.Polymer.GasOpBound
+public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerPE
 
 /-!
@@ -24,6 +25,11 @@ sets** (`integral_prod_depOn`).  The operator norm of (3.10″) of a heavy weigh
 * `gasOp_activity_bound`: the activity bound of `gas_activity_bound` holds for these activities
   (reduction to the scalar bound for the weights `e^{-p-h|Z|}`, `B₀ e^{-κ'' d(Y)}`).
 * `gasOp_pe`: the combination with `pe_size`, as `gas_pe`.
+
+These are the instances, for the activation rule `coreAct` of `Gas.lean`, of the statements of
+`GasOpEq.lean` and `GasOpBound.lean` (`actGasXiOp_eq`, `norm_integral_prod_gasW_le`,
+`actGasKOp_activity_bound`, `actGasOp_pe`), which allow integrable heavy weights, couplings bounded
+on the support of the heavy weights activating them, general activation rules and weighted counts.
 -/
 
 @[expose] public section
@@ -44,35 +50,24 @@ variable {B Yt Zt : Type*} [Fintype B] [Fintype Yt] [Fintype Zt]
   (β : Yt → (∀ b, Ω b) → ℂ) (τ : Zt → (∀ b, Ω b) → ℂ)
 
 /-- The activity integrand of the polymer `X` at the configuration `Φ`. -/
-def gasActOp (X : NePoly B) (Φ : ∀ b, Ω b) : ℂ :=
-  gasK cy zs cr (fun y => β y Φ) (fun z => τ z Φ) X
+def gasActOp (X : NePoly B) (Φ : ∀ b, Ω b) : ℂ := actGasActOp (coreAct cy cr) cy zs β τ X Φ
 
 variable (μ : ∀ b, Measure (Ω b))
 
 /-- The activity of the polymer `X`: the expectation of the activity integrand. -/
-def gasKOp (X : NePoly B) : ℂ := ∫ Φ, gasActOp cy zs cr β τ X Φ ∂(Measure.pi μ)
+def gasKOp (X : NePoly B) : ℂ := actGasKOp (coreAct cy cr) cy zs β τ μ X
 
 /-- The partition function of GAS with weights that are functions of the configuration:
-the expectation of the pointwise partition function. -/
-def gasXiOp : ℂ := ∫ Φ, gasXi cy zs cr (fun y => β y Φ) (fun z => τ z Φ) ∂(Measure.pi μ)
+the expectation of the pointwise partition function (`gasXiOp_eq_integral`). -/
+def gasXiOp : ℂ := actGasXiOp (coreAct cy cr) zs β τ μ
 
 variable {cy zs cr β τ μ}
 
-omit [Fintype B] [Fintype Yt] [Fintype Zt] [(b : B) → MeasurableSpace (Ω b)] in
-theorem gasW_inl (Φ : ∀ b, Ω b) (y : Yt) :
-    gasW (fun y => β y Φ) (fun z => τ z Φ) (Sum.inl y) = Complex.exp (β y Φ) - 1 := rfl
-
-omit [Fintype B] [Fintype Yt] [Fintype Zt] [(b : B) → MeasurableSpace (Ω b)] in
-theorem gasW_inr (Φ : ∀ b, Ω b) (z : Zt) :
-    gasW (fun y => β y Φ) (fun z => τ z Φ) (Sum.inr z) = τ z Φ := rfl
-
-omit [Fintype B] [Fintype Yt] [Fintype Zt] in
-theorem measurable_gasW (hβ : ∀ y, Measurable (β y)) (hτ : ∀ z, Measurable (τ z))
-    (t : Yt ⊕ Zt) :
-    Measurable (fun Φ : ∀ b, Ω b => gasW (fun y => β y Φ) (fun z => τ z Φ) t) := by
-  rcases t with y | z
-  · exact (Complex.measurable_exp.comp (hβ y)).sub_const 1
-  · exact hτ z
+theorem gasXiOp_eq_integral :
+    gasXiOp cy zs cr β τ μ =
+      ∫ Φ, gasXi cy zs cr (fun y => β y Φ) (fun z => τ z Φ) ∂(Measure.pi μ) := by
+  unfold gasXiOp actGasXiOp
+  simp_rw [gasXi_eq_actGasXi]
 
 omit [Fintype B] [Fintype Yt] [Fintype Zt] [(b : B) → MeasurableSpace (Ω b)] in
 theorem bdd_gasW (hβ : ∀ y, Bdd (β y)) (hτ : ∀ z, Bdd (τ z)) (t : Yt ⊕ Zt) :
@@ -83,29 +78,27 @@ theorem bdd_gasW (hβ : ∀ y, Bdd (β y)) (hτ : ∀ z, Bdd (τ z)) (t : Yt ⊕
 
 omit [Fintype B] in
 theorem measurable_gasActOp (hβ : ∀ y, Measurable (β y)) (hτ : ∀ z, Measurable (τ z))
-    (X : NePoly B) : Measurable (gasActOp cy zs cr β τ X) := by
-  unfold gasActOp gasK polyAct
-  exact Finset.measurable_fun_sum _ (fun C _ =>
-    Finset.measurable_fun_prod _ (fun t _ => measurable_gasW hβ hτ t))
+    (X : NePoly B) : Measurable (gasActOp cy zs cr β τ X) :=
+  measurable_actGasActOp hβ hτ X
 
 omit [Fintype B] [(b : B) → MeasurableSpace (Ω b)] in
 theorem bdd_gasActOp (hβ : ∀ y, Bdd (β y)) (hτ : ∀ z, Bdd (τ z)) (X : NePoly B) :
     Bdd (gasActOp cy zs cr β τ X) := by
-  unfold gasActOp gasK polyAct
+  unfold gasActOp actGasActOp actGasK polyAct
   exact Bdd.sum _ (fun C _ => Bdd.prod _ (fun t _ => bdd_gasW hβ hτ t))
 
 omit [Fintype B] [(b : B) → MeasurableSpace (Ω b)] in
 theorem depOn_gasActOp (hβ : ∀ y, DepOn (cy y) (β y)) (hτ : ∀ z, DepOn (zs z) (τ z))
-    (X : NePoly B) : DepOn X.1 (gasActOp cy zs cr β τ X) := by
-  intro Φ Φ' hΦ
-  unfold gasActOp gasK polyAct
-  refine Finset.sum_congr rfl (fun C hC => Finset.prod_congr rfl (fun t ht => ?_))
-  have hsub : gasCs cy zs t ⊆ X.1 := sub_of_mem_Cfam hC ht
-  rcases t with y | z
-  · simp only [gasCs_inl] at hsub
-    rw [gasW_inl, gasW_inl, hβ y Φ Φ' (fun b hb => hΦ b (hsub hb))]
-  · simp only [gasCs_inr] at hsub
-    rw [gasW_inr, gasW_inr, hτ z Φ Φ' (fun b hb => hΦ b (hsub hb))]
+    (X : NePoly B) : DepOn X.1 (gasActOp cy zs cr β τ X) :=
+  depOn_actGasActOp hβ hτ X
+
+theorem norm_expm1_le_exp (w : ℂ) {b : ℝ} (hw : ‖w‖ ≤ b) :
+    ‖Complex.exp w - 1‖ ≤ Real.exp b - 1 := by
+  have h1 := Complex.norm_exp_sub_sum_le_exp_norm_sub_sum w 1
+  simp only [Finset.range_one, Finset.sum_singleton, pow_zero, Nat.factorial_zero, Nat.cast_one,
+    div_one] at h1
+  have := Real.exp_le_exp.mpr hw
+  linarith
 
 variable [∀ b, IsProbabilityMeasure (μ b)]
 
@@ -118,30 +111,12 @@ theorem gasOp_eq (hz : ∀ z, (zs z).Nonempty) (hcr : ∀ z, cr z ⊆ zs z)
     (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z)) :
     gasXiOp cy zs cr β τ μ =
       Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (gasKOp cy zs cr β τ μ) := by
-  unfold gasXiOp
-  have hpt : ∀ Φ : ∀ b, Ω b,
-      gasXi cy zs cr (fun y => β y Φ) (fun z => τ z Φ) =
-        Xi (shareBlock (Subtype.val : NePoly B → Finset B)) (fun X => gasActOp cy zs cr β τ X Φ) :=
-    fun Φ => gas_eq (fun y => β y Φ) (fun z => τ z Φ) hz hcr
-  simp_rw [hpt]
-  unfold Xi
-  have hK : ∀ X, Measurable (gasActOp cy zs cr β τ X) := measurable_gasActOp hβm hτm
-  have hint : ∀ Γ : Finset (NePoly B),
-      Integrable (fun Φ => ∏ X ∈ Γ, gasActOp cy zs cr β τ X Φ) (Measure.pi μ) := fun Γ => by
-    obtain ⟨C, hC⟩ := (Bdd.prod Γ (fun X _ => bdd_gasActOp (cy := cy) (zs := zs) (cr := cr) hβb hτb X) :
-      Bdd (fun Φ => ∏ X ∈ Γ, gasActOp cy zs cr β τ X Φ))
-    exact Integrable.of_bound (Finset.measurable_prod _ (fun X _ => hK X)).aestronglyMeasurable C
-      (Filter.Eventually.of_forall hC)
-  rw [integral_finsetSum _ (fun Γ _ => hint Γ)]
-  refine Finset.sum_congr rfl (fun Γ hΓ => ?_)
-  rw [Finset.mem_filter] at hΓ
-  have hdisj : ∀ X ∈ Γ, ∀ X' ∈ Γ, X ≠ X' → Disjoint X.1 X'.1 := by
-    intro X hX X' hX' hne'
-    have := hΓ.2 X hX X' hX' hne'
-    rw [lnk_shareBlock] at this
-    exact not_not.mp this
-  exact integral_prod_depOn μ Γ (fun X => X.1) (fun X => gasActOp cy zs cr β τ X) hdisj
-    (fun X _ => depOn_gasActOp hβd hτd X) hK
+  have hβb' : ∀ y, ∃ M : ℝ, ∀ Φ, ‖β y Φ‖ ≤ M := hβb
+  choose M hM using hβb'
+  exact actGasXiOp_eq (s := fun y => Real.exp (M y) - 1) hz
+    (coreAct_local (fun _ => Finset.Subset.rfl) hcr) (coreAct_meets (fun _ => Finset.Subset.rfl) hcr)
+    hβd hτd hβm hτm (fun z => integrable_of_bdd μ (hτm z) (hτb z))
+    (fun _ _ y _ Φ _ => norm_expm1_le_exp _ (hM y Φ))
 
 section Bound
 
@@ -180,21 +155,12 @@ theorem norm_gasK_bound (hB0 : 0 ≤ B0) (X : NePoly B) :
     (Finset.prod_nonneg (fun y _ => ?_)) (Finset.prod_nonneg (fun z _ => (Real.exp_pos _).le))))
   simp only [sub_nonneg]; exact Real.one_le_exp (by positivity)
 
-theorem norm_expm1_le_exp (w : ℂ) {b : ℝ} (hw : ‖w‖ ≤ b) :
-    ‖Complex.exp w - 1‖ ≤ Real.exp b - 1 := by
-  have h1 := Complex.norm_exp_sub_sum_le_exp_norm_sub_sum w 1
-  simp only [Finset.range_one, Finset.sum_singleton, pow_zero, Nat.factorial_zero, Nat.cast_one,
-    div_one] at h1
-  have := Real.exp_le_exp.mpr hw
-  linarith
-
 /-- The expectation of the product over a connected admissible family is bounded by the product
 of the scalar bounds: the sup norms of the couplings and the integral norms of the heavy weights
 (which act on pairwise disjoint sets of blocks). -/
 theorem norm_integral_family_le (hB0 : 0 ≤ B0)
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
-    (hτd : ∀ z, DepOn (zs z) (τ z))
-    (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z))
+    (hτd : ∀ z, DepOn (zs z) (τ z)) (hτb : ∀ z, Bdd (τ z))
     (hB : ∀ y Φ, ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
     (hτ : ∀ z, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ Real.exp (-p - h * (zs z).card))
     {X : Finset B} {C : Finset (Yt ⊕ Zt)}
@@ -202,62 +168,16 @@ theorem norm_integral_family_le (hB0 : 0 ≤ B0)
     ‖∫ Φ, ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t ∂(Measure.pi μ)‖ ≤
       (∏ y ∈ C.toLeft, (Real.exp (B0 * Real.exp (-κ'' * d (cy y))) - 1)) *
         ∏ z ∈ C.toRight, Real.exp (-p - h * (zs z).card) := by
-  obtain ⟨_, hA, _⟩ := mem_Cfam.mp hC
-  set s : Yt → ℝ := fun y => Real.exp (B0 * Real.exp (-κ'' * d (cy y))) - 1 with hs
-  have hs0 : ∀ y, 0 ≤ s y := fun y => by
-    simp only [hs, sub_nonneg]; exact Real.one_le_exp (by positivity)
-  set T : (∀ b, Ω b) → ℝ := fun Φ => ∏ z ∈ C.toRight, ‖τ z Φ‖ with hT
-  have hT0 : ∀ Φ, 0 ≤ T Φ := fun Φ => Finset.prod_nonneg (fun z _ => norm_nonneg _)
-  have hTm : Measurable T := Finset.measurable_prod _ (fun z _ => (hτm z).norm)
-  have hTi : Integrable T (Measure.pi μ) := by
-    obtain ⟨M, hM⟩ := (Bdd.prod C.toRight (fun z _ => (by
-      obtain ⟨M, hM⟩ := hτb z
-      exact ⟨M, fun Φ => by simpa using hM Φ⟩ : Bdd (fun Φ => ((‖τ z Φ‖ : ℝ) : ℂ)))) :
-      Bdd (fun Φ => ∏ z ∈ C.toRight, ((‖τ z Φ‖ : ℝ) : ℂ)))
-    exact Integrable.of_bound hTm.aestronglyMeasurable M
-      (Filter.Eventually.of_forall (fun Φ => by simpa [hT] using hM Φ))
-  have hTint : ∫ Φ, T Φ ∂(Measure.pi μ) = ∏ z ∈ C.toRight, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) := by
-    have := integral_prod_depOn μ C.toRight zs (fun z Φ => ((‖τ z Φ‖ : ℝ) : ℂ)) hA.1
-      (fun z _ Φ Φ' hΦ => by simp only []; rw [hτd z Φ Φ' hΦ])
-      (fun z => (hτm z).norm.complex_ofReal)
-    have h3 : (fun Φ : ∀ b, Ω b => ∏ z ∈ C.toRight, ((‖τ z Φ‖ : ℝ) : ℂ)) =
-        fun Φ => ((T Φ : ℝ) : ℂ) := by
-      funext Φ; simp [hT]
-    have h2 : ∀ z, ∫ Φ, ((‖τ z Φ‖ : ℝ) : ℂ) ∂(Measure.pi μ) =
-        ((∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) : ℝ) : ℂ) := fun z => integral_ofReal
-    rw [h3] at this
-    simp_rw [h2] at this
-    have h4 : ∫ Φ, ((T Φ : ℝ) : ℂ) ∂(Measure.pi μ) = ((∫ Φ, T Φ ∂(Measure.pi μ) : ℝ) : ℂ) :=
-      integral_ofReal
-    rw [h4] at this
-    rw [← Complex.ofReal_prod] at this
-    exact_mod_cast this
-  have hpt : ∀ Φ : ∀ b, Ω b,
-      ‖∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t‖ ≤ (∏ y ∈ C.toLeft, s y) * T Φ := by
-    intro Φ
-    rw [prod_gasW, norm_mul, norm_prod, norm_prod]
-    refine mul_le_mul_of_nonneg_right (Finset.prod_le_prod₀ (fun y _ => norm_nonneg _)
-      (fun y _ => norm_expm1_le_exp _ (hB y Φ))) (hT0 Φ)
-  have hFm : Measurable (fun Φ : ∀ b, Ω b => ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t) :=
-    Finset.measurable_prod _ (fun t _ => measurable_gasW hβm hτm t)
-  have hFi : Integrable (fun Φ : ∀ b, Ω b =>
-      ‖∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t‖) (Measure.pi μ) := by
-    obtain ⟨M, hM⟩ := (Bdd.prod C (fun t _ => bdd_gasW hβb hτb t) :
-      Bdd (fun Φ : ∀ b, Ω b => ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t))
-    exact Integrable.of_bound hFm.norm.aestronglyMeasurable M
-      (Filter.Eventually.of_forall (fun Φ => by simpa using hM Φ))
-  calc ‖∫ Φ, ∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t ∂(Measure.pi μ)‖
-      ≤ ∫ Φ, ‖∏ t ∈ C, gasW (fun y => β y Φ) (fun z => τ z Φ) t‖ ∂(Measure.pi μ) :=
-        norm_integral_le_integral_norm _
-    _ ≤ ∫ Φ, (∏ y ∈ C.toLeft, s y) * T Φ ∂(Measure.pi μ) :=
-        integral_mono hFi (hTi.const_mul _) hpt
-    _ = (∏ y ∈ C.toLeft, s y) * ∫ Φ, T Φ ∂(Measure.pi μ) := integral_const_mul _ _
-    _ ≤ (∏ y ∈ C.toLeft, s y) * ∏ z ∈ C.toRight, Real.exp (-p - h * (zs z).card) := by
-        rw [hTint]
-        exact mul_le_mul_of_nonneg_left (Finset.prod_le_prod₀
-          (fun z _ => integral_nonneg (fun Φ => norm_nonneg _)) (fun z _ => hτ z))
-          (Finset.prod_nonneg (fun y _ => hs0 y))
+  refine (norm_integral_prod_gasW_le (act := coreAct cy cr) hτd hβm hτm
+    (fun z => integrable_of_bdd μ (hτm z) (hτb z))
+    (fun _ _ y _ Φ _ => norm_expm1_le_exp _ (hB y Φ)) (mem_Cfam.mp hC).2.1).trans ?_
+  refine mul_le_mul_of_nonneg_left (Finset.prod_le_prod₀
+    (fun z _ => integral_nonneg (fun _ => norm_nonneg _)) (fun z _ => hτ z))
+    (Finset.prod_nonneg (fun y _ => ?_))
+  simp only [sub_nonneg]
+  exact Real.one_le_exp (by positivity)
 
+omit [Fintype B] in
 /-- The scalar GAS bound for the dominating weights `B₀ e^{-κ'' d(Y)}` and `e^{-p-h|Z|}`: the
 scalar input of `gasOp_activity_bound`. -/
 theorem gasBound_norm_le (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c)
@@ -306,7 +226,7 @@ theorem gasOp_activity_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' �
     (hcr : ∀ z, cr z ⊆ zs z)
     (hτd : ∀ z, DepOn (zs z) (τ z))
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
-    (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z))
+    (hτb : ∀ z, Bdd (τ z))
     (hB : ∀ y Φ, ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
     (hτ : ∀ z, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ Real.exp (-p - h * (zs z).card))
     (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
@@ -320,15 +240,12 @@ theorem gasOp_activity_bound (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' �
       ((Finset.univ.filter (fun z => b ∈ zs z ∧ (zs z).card = v)).card : ℝ) ≤ K0'' ^ v)
     (hh : B0 * Real.exp B0 * Real.exp (κ' * c) * K0' + κ' * (c2 + c) + c1 + 3 + Real.log K0'' ≤ h)
     (X : NePoly B) (hG1 : (X.1.card : ℝ) ≤ c1 * (1 + d X.1)) :
-    ‖gasKOp cy zs cr β τ μ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) := by
-  have hscal := gasBound_norm_le hB0 hκ' hκ'' hc hc1 hp hd hz hcr hzd hG3 hK0' hent hK1 hcount hh X hG1
-  refine le_trans ?_ hscal
-  have hnn := norm_gasK_bound (cy := cy) (zs := zs) (cr := cr) (d := d) (κ'' := κ'') (p := p) (h := h) hB0 X
-  rw [hnn]
-  unfold gasKOp gasActOp gasK polyAct
-  rw [integral_finsetSum _ (fun C _ => integrable_prod_gasW hβm hτm hβb hτb C)]
-  refine (norm_sum_le _ _).trans (Finset.sum_le_sum (fun C hC => ?_))
-  exact norm_integral_family_le hB0 hβm hτm hτd hβb hτb hB hτ hC
+    ‖gasKOp cy zs cr β τ μ X‖ ≤ 3 * c1 * Real.exp (-p) * Real.exp (-(κ' - 2) * d X.1) :=
+  actGasKOp_activity_bound hB0 hκ' hκ'' hc hc1 hp hd hz
+    (coreAct_meets (fun _ => Finset.Subset.rfl) hcr) hτd hβm hτm
+    (fun z => integrable_of_bdd μ (hτm z) (hτb z)) (fun _ _ y _ Φ _ => hB y Φ) hzd hG3 hK0'
+    (fun Γ _ b => sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
+    (sum_filter_le_of_count hτ hcount) hh X hG1
 
 /-- **GAS + PE-L for functions of the configuration**: the expectation of the partition function
 is `exp(L)` for an absolutely convergent cluster sum, with local terms decaying at the rate
@@ -339,7 +256,7 @@ theorem gasOp_pe {κg K0g K0h κ0P K0P cP : ℝ}
     (hcr : ∀ z, cr z ⊆ zs z)
     (hβd : ∀ y, DepOn (cy y) (β y)) (hτd : ∀ z, DepOn (zs z) (τ z))
     (hβm : ∀ y, Measurable (β y)) (hτm : ∀ z, Measurable (τ z))
-    (hβb : ∀ y, Bdd (β y)) (hτb : ∀ z, Bdd (τ z))
+    (hτb : ∀ z, Bdd (τ z))
     (hB : ∀ y Φ, ‖β y Φ‖ ≤ B0 * Real.exp (-κ'' * d (cy y)))
     (hτ : ∀ z, ∫ Φ, ‖τ z Φ‖ ∂(Measure.pi μ) ≤ Real.exp (-p - h * (zs z).card))
     (hzd : ∀ z, d (zs z) ≤ c2 * (zs z).card)
@@ -369,22 +286,11 @@ theorem gasOp_pe {κg K0g K0h κ0P K0P cP : ℝ}
         3 * c1 * Real.exp (-p) * K0P * Real.exp (c1 + κ' * cP) * Real.exp (-(κ' * cP))) ∧
     ‖logSeries (shareBlock (Subtype.val : NePoly B → Finset B)) (gasKOp cy zs cr β τ μ)‖ ≤
       Fintype.card B * (3 * c1 * Real.exp (-p) * K0P * Real.exp (c1 + κ' * cP)) := by
-  have hK : ∀ X : NePoly B, ‖gasKOp cy zs cr β τ μ X‖ ≤
-      (3 * c1 * Real.exp (-p)) * Real.exp (-(κg - 2) * d X.1) := fun X =>
-    gasOp_activity_bound hB0 hκg hκ'' hc hc1 hp hd hz hcr hτd hβm hτm hβb hτb hB hτ hzd hG3
-      hK0g hent hK1 hcount hh X (hG1 X)
-  have hε : 0 ≤ 3 * c1 * Real.exp (-p) := by positivity
-  have hpe := pe_size (Subtype.val : NePoly B → Finset B) d (ε := 3 * c1 * Real.exp (-p))
-    (κ := κg - 2) (κ' := κ') (κ0 := κ0P) (K0 := K0P) (c := cP) (c1 := c1)
-    hε hK0P hκ' hcP hd (fun Y => Y.2) hG1 hG2P hG3P hκ
-    (by simpa [mul_assoc] using hα) Finset.univ
-    (fun Y => by obtain ⟨b, hb⟩ := Y.2; exact ⟨b, Finset.mem_univ _, hb⟩)
-    (gasKOp cy zs cr β τ μ) hK
-  obtain ⟨h1, _, h3, h4, _⟩ := hpe
-  refine ⟨(gasOp_eq hz hcr hβd hτd hβm hτm hβb hτb).trans h1, ?_, ?_⟩
-  · intro b
-    simpa [mul_assoc] using h3 b
-  · simpa [mul_assoc] using h4
+  exact actGasOp_pe hB0 hκg hκ'' hc hc1 hp hd hz
+    (coreAct_local (fun _ => Finset.Subset.rfl) hcr) (coreAct_meets (fun _ => Finset.Subset.rfl) hcr)
+    hβd hτd hβm hτm (fun z => integrable_of_bdd μ (hτm z) (hτb z)) (fun _ _ y _ Φ _ => hB y Φ)
+    hzd hG3 hK0g (fun Γ _ b => sum_filter_act_le (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
+    (sum_filter_le_of_count hτ hcount) hh hG1 hK0P hκ' hcP hG2P hG3P hκ hα
 
 end Bound
 

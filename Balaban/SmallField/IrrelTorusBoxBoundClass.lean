@@ -18,8 +18,8 @@ renormalization conditions hold in infinite volume only (`RenormCondAlong`):
   `Σ_{Z ∋ y, relBox y Z} (T_Z + Φ_{y,Z})`, is bounded by `C E₀ L^{-(k-j)(d+α₃)}`: it is the complete
   filed sum (`norm_filed_le_power`) minus the kept relevant parts of the large polymers
   (`norm_sum_not_relBox_le_power`);
-* `irrelTorusB_bound_of_class`: **the label bound of `irrelTorusB` at every label**:
-  `|ℰ^B_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}
+* `irrelTorus_label_bound_of_class`: **the label bound of `irrelTorus` (ruling R15) at every label**:
+  `|ℰ_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}
   + 1_{X = □(y)} C' E₀ L^{-(k-j)(d+α₃)}`.
 
 The data enter as in the landed theorems: `DataHypAniso` at the pulled-back datum (the open input
@@ -123,14 +123,14 @@ theorem norm_filed_relBox_le_power
 
 
 open Classical in
-/-- **The label bound of `irrelTorusB` for the members of the class** (blocker 6, P1 Corollary 3.11,
+/-- **The label bound of `irrelTorus` (ruling R15) for the members of the class** (blocker 6, P1 Corollary 3.11,
 (3.128); conditional on the data hypotheses, the open input P-2): at every label `(j, y, X)`,
-`|ℰ^B_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}
+`|ℰ_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}
 + 1_{X = □(y)} C' E₀ L^{-(k-j)(d+α₃)}`, with `C = relBoxLargeConst`,
 `C' = filedPowerConst + relBoxTailConst` (independent of the torus, `k`, `j`, the label and the
 datum) and `C_I` as in `irrelTorus_bound_of_dataHyp_of_threshold`.  Only the infinite-volume
 renormalization conditions of the class enter (through `norm_filed_le_power`). -/
-theorem irrelTorusB_bound_of_class
+theorem irrelTorus_label_bound_of_class
     (hF : IsSFFamily2 P Rg β a (completeXiDom P Rg a) Tm ρd Ek)
     (hn : MomNum d L N k j ϱ P) {i₀ i₁ : Fin N} (hne : i₁ ≠ i₀)
     {N₁ : ℕ} [NeZero N₁] (hN : L ^ P.m₀ ∣ N₁)
@@ -187,7 +187,7 @@ theorem irrelTorusB_bound_of_class
           Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j (x + Pi.single μ' 1)) +
           Ψ (y + ibase (L := L) (N₁ := N₁) (m₁ := m₁) (k := k) j x)‖ ≤ K₂) :
     ∃ CI : ℝ, 0 ≤ CI ∧
-      ‖irrelTorusB P.m₀ (Tm N₁) i₀ i₁ j y X Ψ (constFld hv)‖ ≤
+      ‖irrelTorus P.m₀ (Tm N₁) i₀ i₁ j y X Ψ (constFld hv)‖ ≤
         CI * P.E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)) *
           Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) +
         relBoxLargeConst d L N P m₁ Λ * P.E₀ *
@@ -211,7 +211,7 @@ theorem irrelTorusB_bound_of_class
       filedPowerConst d L N P m₁ Λ * P.E₀ *
         (((L : ℝ) ^ (k - j)) ^ (-(((d : ℝ) + (1 - 2 * P.γ - P.α₁))))) :=
     norm_filed_le_power hF hn hne hN hy Ψ hv hσ hσ1 hε hεΛ hτ hdat hsec
-  obtain ⟨CI, hCI0, hCI⟩ := irrelTorusB_bound_of_dataHyp_of_threshold hF.admissible hn.hκ hcl hBg
+  obtain ⟨CI, hCI0, hCI⟩ := irrelTorus_bound_all_of_dataHyp_of_threshold hF.admissible hn.hκ hcl hBg
     hN hν hμν hνb hn.hj1 hjk hy hX hyX hSdef hne hrad hΨb hΛ hKsig hC₀ dat hs hσs hR hε hεΛ hσ1 hτ
     hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
   refine ⟨CI, hCI0, hCI.trans (add_le_add le_rfl ?_)⟩

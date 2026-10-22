@@ -354,6 +354,28 @@ def globalLH (H : RegionHistory S n R k0 K) (M : ℕ) : LocalHistory S n M K whe
   Omega j := fineSet M K (j + 1) (H.step j).Omega
   OmegaDD j := fineSet M K (j + 1) (H.step j).OmegaDD
 
+/-- **The records of a global history for the pre-`R` boundary terms of scale `k`** (ruling request
+R17): as `globalLH`, with the region of the top scale `k` the pre-`R` region `Z^pre_k` (the operation
+`R^{(k)}` has not acted on the pre-`R` record), the regions `Z_j` after `R^{(j)}` below.  The holes
+`Z^pre_k ∖ Ω_k` of the H7 domain at the top scale are then the complement of `Ω_k`, the printed `Ω^c_k`
+of P5 (1.36) (`Ω^c_k ⊆ Z^pre_k`, Lemma I.3.5 (e)); with `globalLH` the holes of `Ω_k` inside the
+components removed by `R^{(k)}` are missing. -/
+def globalLHPre (H : RegionHistory S n R k0 K) (M k : ℕ) : LocalHistory S n M K :=
+  { globalLH H M with
+    Z := fun j => fineSet (S := S) (n := n) M K j (if j = k then H.F.Zpre j else (H.step j).Z) }
+
+/-- Without a removal at scale `k` the pre-`R` records are the global records. -/
+theorem globalLHPre_eq_of_rem_empty (H : RegionHistory S n R k0 K) {M k : ℕ} (h : H.rem k = ∅) :
+    globalLHPre H M k = globalLH H M := by
+  have hZ : ∀ j, (if j = k then H.F.Zpre j else (H.step j).Z) = (H.step j).Z := fun j => by
+    split_ifs with hj
+    · subst hj
+      show H.F.Zpre j = (H.F.step j).Z
+      rw [H.Z_eq, h]
+      simp
+    · rfl
+  simp only [globalLHPre, globalLH, hZ]
+
 end GlobalRec
 
 end Balaban.LargeField.Def7

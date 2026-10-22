@@ -29,7 +29,7 @@ theorem couplingC_ofReal (G' : GeneratingSet d L N₀ K ϱ') (a₁ : ℝ) (p : �
     (θ Ψ : Torus d (N₀ * L ^ K) → Fin N → ℂ) (hθ : ∀ x i, (θ x i).im = 0)
     (hΨ : ∀ x i, (Ψ x i).im = 0) :
     couplingC G' a₁ p θ Ψ = ((coupling G' a₁ p θ Ψ : ℝ) : ℂ) := by
-  unfold couplingC coupling
+  unfold couplingC couplingCOn coupling couplingOn
   push_cast
   congr 1
   refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
