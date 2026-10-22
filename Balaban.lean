@@ -2328,6 +2328,9 @@ public import Balaban.LargeField.R.BPrimeRRoots
 public import Balaban.LargeField.R.BPrimeRTie
 public import Balaban.LargeField.R.BPrimeRootForm
 public import Balaban.LargeField.R.BPrimeRootGeom
+public import Balaban.LargeField.R.BoxUnionConn
+public import Balaban.LargeField.R.BPrimeOmegaBoxes
+public import Balaban.LargeField.R.BPrimeHatConn
 public import Balaban.LargeField.R.RRemovedFinalRip
 public import Balaban.LargeField.R.RRemovedFinalCR
 public import Balaban.LargeField.R.RRemovedFinalRg
