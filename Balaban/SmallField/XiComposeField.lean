@@ -747,7 +747,7 @@ theorem svec_bgFieldC_eq_ext (a : ℕ → ℝ) (ν c₀ : ℝ) (D : BgData G' N)
     (hy : y ∈ G'.Ω 1) (i : Fin N) :
     svec G' (bgFieldC G' a ν c₀ D) y i = bgFieldExt G' a ν c₀ D y i := by
   rw [svec_of_mem' _ hy]
-  simp [bgFieldExt, hy]
+  simp [bgFieldExt, extField, hy]
 
 /-- **Reduction of (Ξ4)**: on `Ω₁` the composed field (6.2) of the complex background field is the
 block mean `Q_n F` of the Hölder-extended field `F = bgFieldExt` (the field whose Hölder seminorm is

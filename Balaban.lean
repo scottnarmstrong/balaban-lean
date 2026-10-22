@@ -438,6 +438,7 @@ public import Balaban.Localization.DecoupledFieldHolder
 public import Balaban.Localization.DecoupledFieldX0
 public import Balaban.Localization.DecoupledBackground
 public import Balaban.Localization.DecoupledBackgroundLocal
+public import Balaban.Localization.DecoupledBackgroundHolder
 public import Balaban.Localization.RowsBg
 public import Balaban.Localization.DecoupledDefect
 public import Balaban.Localization.DecoupledCompose
