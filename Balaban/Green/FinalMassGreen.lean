@@ -82,20 +82,6 @@ noncomputable abbrev finalOp (d L N₀ k : ℕ) [NeZero N₀] [NeZero L] (v a : 
     Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ :=
   (unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a).map (algebraMap ℝ ℂ)
 
-/-- The real quadratic form of the complexified real matrix `U` is the sum of the real and
-imaginary parts' forms. -/
-private theorem reQuad_map_ofReal {ι : Type*} [Fintype ι] [DecidableEq ι] (U : Matrix ι ι ℝ)
-    (v : ι → ℂ) :
-    reQuad (U.map (algebraMap ℝ ℂ)) v =
-      (fun i => (v i).re) ⬝ᵥ U *ᵥ (fun i => (v i).re) +
-        (fun i => (v i).im) ⬝ᵥ U *ᵥ (fun i => (v i).im) := by
-  unfold reQuad
-  simp only [dotProduct, Matrix.mulVec, Finset.mul_sum, Complex.re_sum, ← Finset.sum_add_distrib]
-  refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
-  simp only [Matrix.map_apply, Complex.coe_algebraMap, Complex.star_def, Complex.mul_re,
-    Complex.mul_im, Complex.conj_re, Complex.conj_im, Complex.ofReal_re, Complex.ofReal_im]
-  ring
-
 /-- The real quadratic form of `U` is at least `g_* ‖ψ‖²` in the mass window. -/
 theorem finalMass_real_lower (hd : 0 < d) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
     (ha : 1 / 2 ≤ a) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) (ψ : Torus d N₀ → ℝ) :
@@ -124,35 +110,31 @@ theorem finalMass_real_lower (hd : 0 < d) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v �
 /-- **Gap** (T2): `Re ⟨u, U u⟩ ≥ g_* ‖u‖²` for complex fields `u`, in the form `IsCoercive`. -/
 theorem finalMass_isCoercive (hd : 0 < d) {v a : ℝ} (hv0 : 0 ≤ v) (hv1 : v ≤ 1)
     (ha : 1 / 2 ≤ a) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v) :
-    IsCoercive (finalOp d L N₀ k v a) (finalGap d L) := by
-  intro u
-  have hre := finalMass_real_lower (k := k) (L := L) hd hv0 hv1 ha hmass (fun i => (u i).re)
-  have him := finalMass_real_lower (k := k) (L := L) hd hv0 hv1 ha hmass (fun i => (u i).im)
-  have e0 : reQuad (finalOp d L N₀ k v a) u =
-      (fun i => (u i).re) ⬝ᵥ unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a *ᵥ
-        (fun i => (u i).re) +
-      (fun i => (u i).im) ⬝ᵥ unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a *ᵥ
-        (fun i => (u i).im) := reQuad_map_ofReal _ u
-  rw [e0]
-  have e : sqNorm u = ∑ x, (u x).re ^ 2 + ∑ x, (u x).im ^ 2 := by
-    unfold sqNorm
-    rw [← Finset.sum_add_distrib]
-    refine Finset.sum_congr rfl fun i _ => ?_
-    rw [Complex.sq_norm, Complex.normSq_apply]; ring
-  rw [e, mul_add]
-  exact add_le_add hre him
+    IsCoercive (finalOp d L N₀ k v a) (finalGap d L) :=
+  isCoercive_map_of_real _ (finalMass_real_lower hd hv0 hv1 ha hmass)
+
+omit [NeZero L] in
+/-- Entry decay of the complexification of a real coarse matrix in the `L1Torus` form of
+`combesThomas`, from the entry decay of the real matrix (shared core). -/
+theorem map_entry_decay_of_abs {U : Matrix (Torus d N₀) (Torus d N₀) ℝ}
+    (h : ∀ y y', |U y y'| ≤
+      (2 + 4 * blockDecayConst d L) * Real.exp (-(blockDecayRate d * torusDist d N₀ y y')))
+    (x y : L1Torus d N₀) :
+    ‖(U.map (algebraMap ℝ ℂ) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) x y‖ ≤
+      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) := by
+  have h := h x y
+  rw [dist_L1Torus, neg_mul]
+  have e : (U.map (algebraMap ℝ ℂ) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ) x y =
+      ((U x y : ℝ) : ℂ) := rfl
+  rw [e, Complex.norm_real, Real.norm_eq_abs]
+  simpa [finalDecayC] using h
 
 /-- The shared entry-decay and ball-sum hypotheses of `combesThomas` for the final operator. -/
 theorem finalMass_entry_decay (hd : 0 < d) (hk : 1 ≤ k) {v a : ℝ} (hv0 : 0 ≤ v)
     (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (x y : L1Torus d N₀) :
     ‖finalOp d L N₀ k v a x y‖ ≤
-      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) := by
-  have h := unconstrainedUnitOperator_decay (L := L) (N₀ := N₀) (k := k) hd hk hv0 ha1 ha2 x y
-  rw [dist_L1Torus, neg_mul]
-  have e : finalOp d L N₀ k v a x y =
-      ((unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a x y : ℝ) : ℂ) := rfl
-  rw [e, Complex.norm_real, Real.norm_eq_abs]
-  simpa [finalDecayC] using h
+      finalDecayC d L * Real.exp (-blockDecayRate d * dist x y) :=
+  map_entry_decay_of_abs (unconstrainedUnitOperator_decay hd hk hv0 ha1 ha2) x y
 
 /-- **Resolvent decay (F.4)** (T3): for `k ≥ 1`, `0 ≤ v ≤ 1`, `1/2 ≤ a ≤ 2`,
 `7/(8L²) < v` and every `t ≥ 0`, `U + t` is invertible and
