@@ -14,21 +14,24 @@ The last section lists the problems that have been resolved since the project st
 
 *Last updated: 2026-10-21.*
 
-## Where each blocker stands (21 October)
+## Where each blocker stands (22 October)
 
 How far each blocker is under control, in one of four grades: **resolved**; **figured out, finishing** (every step
 has a proof route that works in Lean, what remains is assembly and engineering); **route clear, substantial work
-left**; **open question** (a step whose truth or method is not yet settled). No blocker is stuck.
+left**; **open question** (a step whose truth or method is not yet settled). No blocker is stuck. Several items
+turned out larger than estimated, mostly where the Lean transcription of a definition differed from the printed one;
+each was corrected by a change approved by the author (R12–R28, listed in `AGENTS.md`). Much of the work
+below is on branches being merged.
 
 | # | Grade | What remains |
 |---|---|---|
-| 1 | route clear, substantial work left | The case with no renormalization step is proved. The first step is built as the scale-0 case of the general small-field step, so it finishes with blocker 6; its own parts (constants, gains of the first large-field components, two-torus agreement, determinant terms, a finite-range whitening of the Gaussian chart) are proved or in progress. |
-| 2 | resolved | Removed by ruling R16. |
-| 3 | route clear, one hard estimate open | The old boundary terms across a new hole are defined; five of their seven structural properties are proved, and their bound is proved from two named estimates. One of those (the complex-domain form of P5 Lemma 2.1 on a region, which the papers defer to a later paper) is the hardest open item; the other became provable with ruling R14 and is in progress. The fluctuation-integral machinery is being extended from whole levels to the regions a hole creates. |
-| 4 | open question | The vacuum part is proved, and the small factor of removed regions is proved on unit external fields. Open: whether the window bound is uniform in the scale. The papers' mechanism (collars that widen with the scale) is present in our windows and is being checked. The boundary terms created by the large-field operation are designed (about 4,000 lines) and the first pieces are built. |
-| 5 | route clear, substantial work left | The last integral is split into an integral over a box and a tail; the box integral is being written exactly as a polymer gas, and its local terms are being built. The large-field half follows P7 (4.7)–(4.11) and is designed but not started. |
-| 6 | figured out, finishing | With ruling R13 the new level's terms are computed on local generating sets, and all five clauses are proved at every step for the chain's family. Of five gaps between the papers' estimates and the local data, three are closed and the inputs for the other two are built. |
-| 7 | figured out, finishing | At each step, exact agreement on two tori holds at the distinguished cell under ruling R15, and the comparison of the generating sets is proved; size conditions remain. At the last scale, agreement is reduced to the closeness of local terms, which waits for blocker 5's local terms. |
+| 1 | route clear, substantial work left | The case with no renormalization step is proved. The first step is the scale-0 case of the general small-field step: it shares the renormalization machinery, which is being written once for every scale (the renormalization conditions from the counterterm system; the relevant parts of the counterterms, including P4 (5.10)–(5.14); ruling R25 settled the first step's source factor). Its own pieces — constants, gains of the first large-field components, determinant terms, the finite-range whitening of the Gaussian chart, the R₁ decomposition — are proved or in progress. |
+| 2 | resolved | Removed by ruling R16: the boundary terms are needed only at the physical external field. The estimate the blocker asked for is not proved; in the form first stated it is false. |
+| 3 | route clear, substantial work left | The old boundary terms across a new hole are defined and bounded from two named estimates. The data estimate is proved (after ruling R17 restored the printed complement of Ω in the test domains); the other (the complex form of P5 Lemma 2.1 on a region) needs the fluctuation machinery extended from whole levels to regions, under way. Six of the seven structural properties are proved — history locality with rulings R22 and R26 — and Euclidean covariance is in progress. |
+| 4 | route clear, substantial work left | The vacuum part is proved; the small factor of removed regions is proved on unit external fields. A growth of the window bound in three dimensions was traced to our own estimate of the mass term, not to the papers; with the sharper estimate every term is bounded uniformly in the scale (checked by hand), and the Lean proof is being completed. The boundary terms created by the large-field operation are assembled, with one geometric input removed by ruling R27 (connected domains as in P3); ruling R28 indexes the kept kernels by labelled histories, as the papers do. |
+| 5 | route clear, substantial work left | The last integral is split into a box and a tail; the box integral is an explicit polymer gas, its whitening uses local rows as in the papers. Rulings R21, R23 and R26 corrected three transcriptions (the scale of the fluctuation variable read by the boundary terms; the collar in the first support test; the scales compared by the history-locality clause). The large-field half is under construction; its gluing step and its history assembly are proved. |
+| 6 | route clear, substantial work left | The step chain is complete: with ruling R13 the new level's terms are computed on local generating sets and its clauses hold along the chain, with the gaps between the papers' estimates and the local data closed or their inputs built. Rulings R15, R18, R19, R20 and R24 settled the cell term, the tori the class reads, the external-field term, the torus independence and the mass-term convention of the renormalization. What remains is substantial: the step map itself (designed), the new level's source terms, the renormalization identities, and the agreement of the new level's terms on two tori (several thousand lines). |
+| 7 | figured out at each step; open at the last scale | At each step, exact agreement on two tori of the cell term is proved (ruling R15) and the step coefficient's clause has no open mathematical hypothesis left. At the last scale, agreement is reduced to the closeness of local terms, which waits for blocker 5's local terms. |
 
 ## Summary
 
@@ -130,6 +133,24 @@ large Gaussian variable or a spin on the opposite sheet are rare in measure; a p
 sites controls them without a pointwise bound on each factor. The only condition beyond the statement is
 that M·L exceed a threshold depending on d, N, L and κ; M is a power of L, so this is a choice of the
 exponent. The sector split of the earlier attempt (all-good sector, bad sectors as a linked gas) is not used.
+
+Update (21 October, evening). Work on the base case (the first renormalization step, the statement
+`BaseStepInput`) has started on the following plan. The first step is treated as the general small-field step at
+scale zero, so its small-field output must satisfy the same named conditions as every later step. In Lean so far: the
+bookkeeping of the first step (its constants, kept data and step data at every scale, the vacuum flow); the
+assembly of the small-field conditions at scale one from the same pieces as the general step; the gains of the first
+large-field components from the lower bounds of LF-1; the exact identity of the first density in the all-good sector;
+and the Gaussian ingredients of the first fluctuation integral (the covariance family, its square root and logarithm,
+the localized determinant terms, their agreement on two tori). One step of the papers does not carry over to scale
+zero: the local change of variables of P5 (2.39) uses a cube-by-cube square root of the covariance, which is exact
+from scale one on (where the basic quadratic form is block-diagonal) but leaves an error of order one at scale zero,
+where the Hessian contains the lattice Laplacian. The first step therefore uses the finite-range whitening that solved
+the case of no renormalization step: a polynomial approximation W of the inverse square root, of finite range, whose
+error W A W − 1 is small (proved). Still open: the cluster expansion of the first fluctuation integral, its
+regrouping into the terms of the class at scale one, the renormalization conditions at scale one, the large-field
+kernels of the first step and the identity that represents the first density in the class. The small-field part
+shares the open steps of the general small-field step (blocker 6 at scale zero).
+
 
 ## 2. Switching from ν-free to complete backgrounds
 

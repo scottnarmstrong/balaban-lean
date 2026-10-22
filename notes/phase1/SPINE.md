@@ -2115,3 +2115,12 @@ Landed on the branch (all modules build, 0 warnings, axioms `propext`, `Classica
 around the torus enter): a property of the class's `irrelTorus`, a design question; (2) the producer of the zero-source/bridge part of `NewLevelSystem`
 (the rest of the fields besides `O`, `OS`) is the chain's (W1146t); (3) `hsz` are size conditions on the torus relative to the box radius `R` (as `hn19`, `hnE`, …), supplied
 by the caller.
+### BaseStep ties (ORCH-C, 2026-10-21)
+*(Ta) The kernel constant.* `CoeffBounds d L 1 P β ν a` asks `9/10 (1 − L⁻²)⁻¹ ≤ a₁ < 3/2`; the free flow gives
+`a₁ = compWeight L a 1 = a` (`compWeight_one`), and the prefix's `1 < a < 3/2` (`RunningHypTo.ha1`, `ha2`) is not enough
+(`9/10 (1 − 1/9)⁻¹ = 81/80 > 1` at `L = 3`). Joint tie for the prefix (A1′): the kernel constant
+`a = (cs₀ κ c₉).aKer ∈ [9/10 (1 − L⁻²)⁻¹, 3/2)`. Source: (H.6) at the scale 1 (`baseCoeffBounds`, premises `haL`, `haH`;
+`notes/phase1/BASE-RG1.md`). Whether the window at the later scales `k ≥ 1` (where `a_k = compWeight L a k`) adds a further condition on `a` is not checked here.
+*(Tb) The first-component gain.* `A₃ = S.A3` is free; the weaker 𝖰₁/𝖲₁ gains of the landed χ→Ψ̃ bridge raise the lower bound
+on `A₀` (`exists_A0_for_A3`, `notes/phase1/BASE-A3.md`); open for A1′: that `A₀` can be raised in the prefix (row 9
+`A₀ = 4K₂B₅A₁`, (Λ23) `A₁/A₀` small).

@@ -2209,6 +2209,7 @@ public import Balaban.LargeField.Base.BaseDefectWalkTransport
 public import Balaban.LargeField.Base.BaseHull
 public import Balaban.LargeField.Base.BaseHullTwoTorus
 public import Balaban.LargeField.Base.BaseDefectPoly
+public import Balaban.LargeField.Base.BaseFirstRDecomp
 public import Balaban.LargeField.Base.BaseDetTwoTorus
 public import Balaban.LargeField.Base.BaseLabelAct
 public import Balaban.Localization.LocalFlSetting
@@ -3121,6 +3122,16 @@ public import Balaban.LargeField.Base.BaseFirstFIntegrable
 public import Balaban.LargeField.Base.BaseGaussCut
 public import Balaban.LargeField.Base.BaseFirstSiteSum
 public import Balaban.LargeField.Base.BaseFirstProductForm
+public import Balaban.LargeField.Base.BaseCutoffSmall
+public import Balaban.LargeField.Base.BaseBgClose
+public import Balaban.LargeField.Base.BaseBgCloseCube
+public import Balaban.LargeField.Base.BaseBgCloseSector
+public import Balaban.LargeField.Base.BaseCutoffChi1
+public import Balaban.LargeField.Base.BaseCutoffClass
+public import Balaban.LargeField.Base.BaseFirstChi1
+public import Balaban.LargeField.Base.BaseFRWhiteRow
+public import Balaban.LargeField.Base.BaseFRWhiteLogDetBase
+public import Balaban.LargeField.Base.BaseAllGoodEnd
 public import Balaban.LargeField.Base.BaseFirstAllGoodWhite
 public import Balaban.Inhabited.NewLevelPinUnique
 public import Balaban.Inhabited.NewLevelValueUnique
@@ -3388,3 +3399,5 @@ public import Balaban.Spine.FinalBoxLocChi
 public import Balaban.Green.FinalBoxLocSum
 public import Balaban.Inhabited.NewLevelHatTop
 public import Balaban.Inhabited.NewLevelCanonBigRad
+public import Balaban.LargeField.Base.BaseSourcePair
+public import Balaban.LargeField.Base.BaseFluctGauss
