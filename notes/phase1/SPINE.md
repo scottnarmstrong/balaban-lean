@@ -1411,6 +1411,57 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `d7Pull_inter_eq_of_corr`, `fineValidAt_of_corr`, **`fineValidAt_iff_of_corr`**, **`d7SizeAt_eq_of_corr`**,
      **`mem_bdryDomsAt_iff_of_corr`** (histories without removals up to `k` whose components meeting `X` correspond: the same cube-level
      and valid boundary domains at `X`, the same size `d7Size` of `X`).
+   * **B3 (A6-4, locality of the global fields; 2026-10-22).** No landed statement changed. Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFFieldLocal.lean`: `subMultiscaleField_transport`, `subFluctField_transport`,
+     `restrictOn_restrictOn`; `eq_of_blockSub_car`, `gMulti_eq_of_blockSub`, `gMulti_eq_zero_of_not`, `gMulti_top`,
+     `gMulti_eq_zero_of_gt`, `gFluct_eq_of_blockSub`, `gFluct_eq_zero_of_not`; `postComp_eq_of_mem_fineSet`,
+     `exists_corr_of_blockSub`, `subFields_eq_of_compRec`, **`fields_eq_on_of_corr`** (two histories of the large-field half whose
+     components meeting `X` have the same records: at the configurations read off one configuration `z` of the global variables
+     (`famEquiv`), `gMulti` and `gFluct` agree on every block of scale `j ≤ K` in the fine set of `X`, the field hypothesis of `D7`
+     `loc_field`).
+   * **B3 (A6-4, the reference measures as densities times probability measures; 2026-10-22).** No landed statement changed. Landed
+     (no `sorry`; axioms `propext, Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean`: `sphereMass`, `varProb` (normalized
+     surface measure of the sphere for a spin, `oneSiteGaussian` on `ℝ^N`), `varDens` (`|S^{N-1}|`, `(2π)^{N/2} e^{‖x‖²/2}`),
+     `isProbabilityMeasure_varProb` (`1 ≤ N`), **`varMeasure_eq_withDensity`** (`1 ≤ N`); `gcfgProb`, `gDens`,
+     **`gcfgMeasure_eq_withDensity`**, `integral_gcfgMeasure`, `integrable_gcfgMeasure_iff`, `prod_iUnion_eq`, `gDens_iUnion`; the
+     configurations of all the global variables `GCfgAll`, `gProbAll`, `restrictAll`, **`integral_restrictAll`**,
+     `integrable_restrictAll_iff`; `recTau` (the weight of a realized record with its density), `depOn_recTau`,
+     **`gOp_postOp_eq_integral_recTau`** (the operator of a history of the large-field half is the `gProbAll`-expectation of the
+     product of the `recTau` of its records times the integrand: the form of B2's operator gas, `1 ≤ N` the only premise).
+   * **B3 (A6-4, the record gas: configuration space, a history in its variables, the heavy objects; 2026-10-22).** No landed statement
+     changed (B2's operator-gas core merged from `orchB-sfgas` `a4c24ac4`, authorized by ORCH-B). Landed (no `sorry`; axioms `propext,
+     Classical.choice, Quot.sound`): `Spine/FinalLFDensity.lean` additions: `gaussInvDens` (the `ℝ^N` density, now the `false` branch of
+     `varDens`), `volume_eq_withDensity_gauss`, `varMeasure_false_eq_withDensity` (every `N`), the cores `integral_withDensity_ofReal`,
+     `integrable_withDensity_ofReal_iff`, `integral_comp_restrict_pi`, `integrable_comp_restrict_pi_iff` (`integral_gcfgMeasure`,
+     `integrable_gcfgMeasure_iff`, `integral_restrictAll`, `integrable_restrictAll_iff` their instances). `Spine/FinalLFGasCfg.lean`:
+     `gaussPi`, `psiDens`, **`volume_pi_eq_withDensity`**, `integral_volume_pi`, `integrable_volume_pi_iff`; the variables of the gas
+     `PVar = GVar ⊕ BlockAt k` (`ψ_k` on the `k`-blocks), `pIsSpin`, `PCfg`, `pProb`, `gPart`, `psiPart`, `measurePreserving_pSplit`,
+     `measurableEmbedding_pSplit`, `integral_pProb_eq_of_integrable`; the sites (doubled torus) `gSite`, `pCell`, `CellCfg`, `cellProb`,
+     `isProbabilityMeasure_cellProb`, `regroup`, **`measurePreserving_regroup`**, `regroup_apply`, `PDepOn`, **`depOn_comp_regroup`**.
+     `Spine/FinalLFGasHist.lean`: `collarR` (`r₀ = ⌊R_{k-1}⌋ + 2`), `recBlk`, `Vblk_subset_recBlk`, `two_mul_collarR_lt_omega`
+     (`2 r₀ < ω_k`, `k ≥ 1`), `disjoint_recBlk`, `lfSrc_cubes`, `Vblk_lfSrc_subset_recBlk`, `recW_congr_psi`, `cubeMap_gSite_mem`,
+     `blkDens`, `recTauG` (the weight of a record in the gas variables: kernel times the densities of its own variables), **`pDepOn_recTauG`**,
+     **`depOn_recTauG`** (support `dblNbhd ω_k Y`), `lfOmega` (the deep region `Ω_𝔸`), `collarDens`, `psiDens_compl_lfOmega`,
+     **`lastHistInt_eq_iterated_of_integrable`** (`∫ρ_𝔸 = E_ψ E_x ∏_Z (ρ_ψ(Z) τ_Z) · ρ_ψ(C_𝔸) I_𝔸`, premise: the integrability of the
+     Fubini split, as `lastHistInt_eq_regional_of_integrable`). `Spine/FinalLFGasWeight.lean`: `LFKernel.enorm_w`,
+     `lintegral_comp_restrict_pi`, `measurable_recW`, `lintegral_inner_recW`, `parOf`, `outOf_eq_mergeOut`, `measurable_mergeOut_parOf`,
+     `measurable_blkDens`, `blkDens_nonneg`, `blkDens_eq_psiDens_ZBlk`, `lintegral_outer_le`, `measurable_recTauG`,
+     **`lintegral_enorm_recTauG_le`** (`E|τ_r| ≤ e^{-κ}` from (1.26), `D5Bound`), `integrable_recTauG`, `integral_norm_recTauG_le`.
+     `Spine/FinalLFGasGeom.lean`: `kingGraph` (degree `≤ 3^d`, `kingGraph_degree_le`), `card_ball_le`, `reach_ball`,
+     **`isAnimal_dblNbhd`**, `card_dblNbhd_le`. `Spine/FinalLFGasCount.lean` (restated in cubes at ORCH-B's request): `tDouble_injective`, `omegaGraph`
+     (index distance `< ω`), `omegaGraph_degree_le`, `isAnimal_of_mem_comps`, **`card_comps_through_le`**, `lfSrc_mem_comps`,
+     **`sum_integral_norm_recTauG_le`** (over the records whose support contains a site `b` and whose cubes number `v`:
+     `Σ E|τ_r| ≤ m · m^{2(v-1)} e^{-A₂λ_{k₀}^{p₂} - H_k |Y|_k}`, `m = (2ω_k - 1)^d`, under `D5Bound`, `D6Flat`; the per-cube decay is
+     `H_k M^d`, the separation range enters the prefactor and the logarithmic entropy only).
+     L4 (cell-measure versions and coupling supports): `Spine/FinalLFGasCfg.lean` `integral_comp_regroup`,
+     `integrable_comp_regroup_iff`; `Spine/FinalLFGasCount.lean` `integrable_recTauG_cells` (`hτi`),
+     `sum_integral_norm_recTauG_cells_le` (`hcount` in cubes, on the site measure); `Spine/FinalLFGasGeom.lean`
+     `mem_comps_two_of_isAnimal`, `isAnimal_dblNbhd_two`, `card_dblNbhd_two_le`; `Spine/FinalLFGasCpl.lean` `castT_castT_symm`,
+     **`isAnimal_king_of_fineValidAt`** (a valid boundary domain is king-connected), `isAnimal_cplSupp` (its gas support
+     `dblNbhd 2 X` is connected, `≤ 3^d|X|` sites), `not_disjoint_dblNbhd_of_inter`.
+     `Spine/FinalLFDouble.lean`: `one_le_omega` (core of the step in `recSep_iff_disjoint`). Finding: the densities of `ψ_k` on the collar
+     cannot be part of a record's heavy weight (Lebesgue measure on the collar is not finite against the kernel alone: (1.26) integrates
+     `ψ_k` on `Z` only, the collar values are its parameters); they stay with `χ_k` in the regional part (`collarDens`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
