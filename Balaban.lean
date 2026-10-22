@@ -649,6 +649,7 @@ public import Balaban.LargeField.History.OmegaPost
 public import Balaban.LargeField.History.H7Holes
 public import Balaban.LargeField.History.LocalUnion
 public import Balaban.LargeField.History.LocalRegion
+public import Balaban.LargeField.History.LabLocal
 public import Balaban.LargeField.History.Merges
 public import Balaban.SmallField.TaylorCauchy
 public import Balaban.SmallField.RenormDefs

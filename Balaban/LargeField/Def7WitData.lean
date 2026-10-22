@@ -105,7 +105,7 @@ noncomputable def zeroStepData (hK : K ≤ 1) (hCb : cs.Cb = 0) (κs : ℕ → L
 /-- **Zero kept data**: kept kernels `0`, `C_dec ≡ 5`, `γ_k = A'_3 λ̂_k^{p_R} + log 5`. -/
 noncomputable def zeroKeptData (κ : ℕ → LocalHistory S n M K → ℝ) (lamHat : ℕ → ℝ) :
     KeptData k0 geo cs N κ lamHat where
-  datum := fun _ _ _ =>
+  datum := fun _ _ _ _ =>
     { Ikeep := Set.univ
       contains := fun _ _ => Set.mem_univ _
       ker := zeroKer _ _ _ _ }
@@ -114,13 +114,13 @@ noncomputable def zeroKeptData (κ : ℕ → LocalHistory S n M K → ℝ) (lamH
   one_le_Cdec := fun _ => by norm_num
   sum_inv_Cdec := by simp
   gam_ge := fun _ _ => by simp
-  b_supp := fun _ _ _ _ _ _ _ _ _ => rfl
-  rot_K := fun _ _ _ _ _ _ _ => rfl
-  rot_b := fun _ _ _ _ _ _ _ _ => rfl
-  euclid_I := fun _ _ _ _ _ _ _ _ => by simp
-  euclid_K := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
-  euclid_b := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
-  bound := fun _ _ _ _ _ _ _ _ =>
+  b_supp := fun _ _ _ _ _ _ _ _ _ _ => rfl
+  rot_K := fun _ _ _ _ _ _ _ _ => rfl
+  rot_b := fun _ _ _ _ _ _ _ _ _ => rfl
+  euclid_I := fun _ _ _ _ _ _ _ _ _ _ _ => by simp
+  euclid_K := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+  euclid_b := fun _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ => rfl
+  bound := fun _ _ _ _ _ _ _ _ _ =>
     ⟨fun _ _ _ _ => rfl, fun _ _ _ _ => by simp [LFKernel.absW, zeroKer]⟩
 
 /-- A kernel with `K = 0` satisfies (1.26) with every exponent. -/
@@ -135,7 +135,8 @@ variable {κs κ : ℕ → LocalHistory S n M K → ℝ} {lamHat : ℕ → ℝ}
 
 /-- With zero step and kept kernels, every localized operator has a zero kernel. -/
 theorem locOp_K_zero (hSD : ∀ k a o x hv, (SD.ker k a).K o x hv = 0)
-    (hKD : ∀ k a ϰ o x hv, (KD.datum k a ϰ).ker.K o x hv = 0) {H : RegionHistory S n R k0 K}
+    (hKD : ∀ k a ℓ ϰ o x hv, (KD.datum k a ℓ ϰ).ker.K o x hv = 0)
+    {H : RegionHistory S n R k0 K}
     (hH : H.Admissible) (lab : ∀ k, H.Comp k → Fin 5) :
     ∀ (k : ℕ) (hk : k ≤ K) (Z : H.Comp k) o x hv,
       (locOp geo cs SD KD hH lab k hk Z).T.K o x hv = 0
@@ -144,12 +145,12 @@ theorem locOp_K_zero (hSD : ∀ k a o x hv, (SD.ker k a).K o x hv = 0)
     by_cases hc : IsKept H (k + 1) Z'
     · have e := locOp_kept geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),
-          P = keptOp geo cs KD hH Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
+          P = keptOp geo cs KD hH lab Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
           ∀ x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A, P.T.K o x hv = 0 := by
         intro P hP
         subst hP
         intro x
-        exact hKD _ _ _ _ _ _
+        exact hKD _ _ _ _ _ _ _
       exact key _ e x
     · have e := locOp_level geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),

@@ -126,8 +126,8 @@ theorem wSD_zero (nK : ℕ) [NeZero nK] :
   fun _ _ _ _ _ => rfl
 
 theorem wKD_zero (nK : ℕ) [NeZero nK] :
-    ∀ k a ϰ o x hv, ((wRep ν k0 r nK).KD.datum k a ϰ).ker.K o x hv = 0 :=
-  fun _ _ _ _ _ _ => rfl
+    ∀ k a ℓ ϰ o x hv, ((wRep ν k0 r nK).KD.datum k a ℓ ϰ).ker.K o x hv = 0 :=
+  fun _ _ _ _ _ _ _ => rfl
 
 theorem wCoh : Coh wS wR (kZero wS.d wS.L wβ ν) 27 (wCs ν (kZero wS.d wS.L wβ ν))
     (budgetConsts wβ) wP6 wC7 wβ ν 1 (wSF ν 3) where

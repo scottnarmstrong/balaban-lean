@@ -41,7 +41,7 @@ theorem keptOutput_of_kernels {δ : ℝ} (hP : PrefixInput d δ T P6 C7 PB cs₀
         (rH κ c₉) (ϱ κ c₉) β ν h kf k k ρ νk)
       (Ks : ∀ (nK : ℕ) [NeZero nK], KeptScaleKernels (rec.F.lf nK)),
       KeptDatumCohAt (K := kf + 1) (M := (T κ c₉).M) (R := rec.R) (k0 := kZero d (T κ c₉).L β ν)
-        k (fun nK _ a ϰ => (Ks nK).datum a ϰ) →
+        k (fun nK _ a ℓ ϰ => (Ks nK).datum a ℓ ϰ) →
       (∀ (nK : ℕ) [NeZero nK], IsComplete k (k + 1)
           (keptLF d N T P6 C7 PB cs₀ M1 c rH ϱ rec
             (fun nK _ => KeptScaleData.ofKernels (rec.F.lf nK) (fun i _ l => rec.gamVal nK i l) (Ks nK)) nK).hist ∧
