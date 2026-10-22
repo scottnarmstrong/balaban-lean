@@ -7,6 +7,7 @@ module
 
 public import Balaban.LargeField.Base.BaseChartLabelAct
 public import Balaban.LargeField.Base.BaseUnionNumerics
+public import Balaban.LargeField.Base.BasePstAnalytic
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -557,10 +558,6 @@ theorem union_Pst_analyticOnNhd [∀ b, TopologicalSpace (Ωb b)] [∀ b, OpensM
     hDr hm4 hd hL2 g ρ W hWloc hWr hWan hE hBW hp hA hG hU hg hsmall hmemAll hN fld hfld_meas hfld_bd
     hfld_loc hV hVS Dm rD hDB hDrow hDrange hκ'0 hκlarge hεpos hεs hεtot
   refine ⟨hdom, A, hA1, ?_⟩
-  have hK0pos : 0 < K0 d L (aEnt d L + 1) := by
-    unfold K0
-    have : Real.exp (-1) < 1 := by rw [Real.exp_lt_one_iff]; norm_num
-    exact div_pos (Real.exp_pos _) (by linarith)
   have hcont : ∀ y, ∀ e ∈ V, ContinuousOn ((A e).H y) Q := by
     intro y e he
     have h1 : (A e).H y = fun Φ => chartTerm G a ν β g W F m₀ (ρ + L) y.1 e (fld Φ) +
@@ -571,21 +568,7 @@ theorem union_Pst_analyticOnNhd [∀ b, TopologicalSpace (Ωb b)] [∀ b, OpensM
       (hmemAll := hmemAll) (hβ := hβ) (hκ := hκ) (hVS := hVS) (hfld_bd := hfld_bd) (fld := fld)
       (m₀ := m₀) (V := V) hfld_cont y.1 he).add
       (defTerm_continuous (G := G) (Dm := Dm) (fld := fld) (m₀ := m₀) (rD := rD) hfld_cont y.1)).continuousOn
-  have := Pst_Gst_analyticOnNhd (μ := μ) (hN := hN) (hj := le_refl 1) (hΩ := isPiUnion_univ_K)
-    (Lab := thickLabels (m₀ := m₀) (j := 1) (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom)
-    (εH := εs) (κH := labelRate d L 0 (ρ + L) κ) (κG := labelRate d L 0 (ρ + L) κ)
-    (κ0 := aEnt d L + 1) (κ' := κ') (Kc := K0 d L (aEnt d L + 1) + 1)
-    (F0 := Real.exp (labelRate d L 0 (ρ + L) κ * (thickLabels (m₀ := m₀) (j := 1)
-      (chartLabels G Dr m₀ (ρ + L) ∪ defLabels G m₀ rD) hdom).dl ⟨Y0, hY0⟩)) (hV := hV) (hQ := hQ) (hQm := hQm)
-    (hμQ := hμQ) (A := A) (y0 := ⟨Y0, hY0⟩) (G := fun _ _ => 1) (hGm := fun _ => measurable_const)
-    (hG := fun u Φ => by
-      simp only [norm_one]
-      rw [← Real.exp_add]; simp)
-    (hAhol := fun y Φ _ => hA2 y Φ) (hGhol := fun Φ _ => analyticOnNhd_const)
-    (hAcont := hcont) (hGcont := fun u _ => continuousOn_const) (hκ0 := le_refl _)
-    (hKc := le_refl _) (hεpos := hεpos) (hF0 := Real.exp_pos _) (hκ' := hκ'0) (hκG := le_refl _)
-    (hκ := hrate) (hε := hεs) (Y := Y)
-  exact this.1
+  exact labelAct_Pst_analyticOnNhd μ hN hV hQ hQm hμQ A ⟨Y0, hY0⟩ hA2 hcont hκ'0 hεpos hrate hεs Y
 
 end Union
 
