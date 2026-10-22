@@ -2193,6 +2193,12 @@ public import Balaban.LargeField.Base.BaseChartActLocal
 public import Balaban.LargeField.Base.BaseBgFunctional
 public import Balaban.LargeField.Base.BaseBgAgree
 public import Balaban.LargeField.Base.BaseBgLocalityAlg
+public import Balaban.LargeField.Base.BaseBgHull
+public import Balaban.LargeField.Base.BaseCellGraph
+public import Balaban.LargeField.Base.BaseLabelSumAux
+public import Balaban.LargeField.Base.BaseLabelSum
+public import Balaban.LargeField.Base.BaseChartTerms
+public import Balaban.LargeField.Base.BaseChartLabelAct
 public import Balaban.LargeField.Base.BaseBackgroundIdent
 public import Balaban.LargeField.Base.BaseXSqrt
 public import Balaban.LargeField.Base.BaseXLocal
