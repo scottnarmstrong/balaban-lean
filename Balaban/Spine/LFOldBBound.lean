@@ -736,9 +736,39 @@ theorem exp_poly_le_exp {a C B K₁ K₂ κ' rate' D : ℝ} (ha : 0 ≤ a) (hC :
         mul_le_mul_of_nonneg_left hexp hP
     _ = _ := by ring
 
+/-- **The re-expanded old boundary terms on the local pairs of a reading, with the external field read
+from the argument `h`** (the core of `oldBOf`): at a history `𝔸`, an output label `Y` and fields
+`(ψ, ψ', h, g)`, the old part `oldBAtAt` of the step on the region history of `𝔸` at the field `ψ`, with
+the datum's external field `h₀ h` and the physical field `hv h` read from `h` (for the step's terms
+`h₀ h = Re h`, `hv h = Re h`, which equal the physical field at `h ∈ hSetB hv`, ruling R16), the old
+labels `oldDoms` of the record, the unit points `inner 𝔸 ψ h`, the cube assignment `cb 𝔸 ψ h`, the
+interaction `I 𝔸 ψ ψ' h g` and the fixed values `ψout 𝔸 ψ h`.  `oldBOf` is the instance with `h₀`,
+`hv` constant. -/
+noncomputable def oldBOfAt (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ}
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K)
+    (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : (Fin N → ℂ) → Fin N → ℝ)
+    (a₁ ν β p₁ δ : ℝ)
+    (inner : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N) (h : Fin N → ℂ),
+      Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z (h₀ h) a₁ ν β p₁ δ).U)
+    (cb : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N) (h : Fin N → ℂ), inner A ψ h →
+      CubeB (d := S.d) (L := S.L) (N₁ := F.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+        (d7Pull F (k + 1) (OmegaCube A.H (k + 1))))
+    (hp : 0 < p₁)
+    (I : ∀ (A : LabHist S n R k0 K) (ψ _ : MultiFieldC S n M K N) (h : Fin N → ℂ)
+      (_ : GIdx S n M K N → ℂ), LocInteraction (fun b => {u : inner A ψ h // cb A ψ h u = b} → Rn N))
+    (ψout : ∀ (A : LabHist S n R k0 K) (ψ : MultiFieldC S n M K N) (h : Fin N → ℂ),
+      (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ z (h₀ h) a₁ ν β p₁ δ).U → Fin N → ℂ) (rψ : ℝ)
+    (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
+    (rep : Rep S n R k0 K M N geo cs P k) (hv : (Fin N → ℂ) → EuclideanSpace ℝ (Fin N)) :
+    BTerms S n R k0 K M N (k + 1) :=
+  fun A Y ψ ψ' h gx => oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F A.H hk hk1 hρ ψ z (h₀ h) a₁ ν β p₁
+    δ (inner A ψ h) (cb A ψ h) hp (I A ψ ψ' h gx) (ψout A ψ h) rψ ρc ρ r r' rep A (oldDoms F A.H k) ψ'
+    (hv h) gx Y
+
 /-- **The re-expanded old boundary terms on the local pairs of a reading** (the core of `oldB`: the
 datum `glob` and the label `σ` of the local sets; `oldB` is `glob = false`, `σ = id`, reading HS-1′;
-`oldB2` is `glob = true`, `σ = stencilX`, reading HS-2). -/
+`oldB2` is `glob = true`, `σ = stencilX`, reading HS-2): `oldBOfAt` with the external fields `h₀`, `hv`
+fixed. -/
 noncomputable def oldBOf (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m₀ m₁) {k : ℕ}
     (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K)
     (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊) (z : ℝ) (h₀ : Fin N → ℝ)
@@ -756,8 +786,9 @@ noncomputable def oldBOf (glob : Bool) {m₀ : ℕ} (F : FineSizeFrame S n M K m
     (ρc : ℝ) (ρ r r' : ℕ) {geo : Geo S n R M} {cs : OpConsts} {P : BudgetConsts}
     (rep : Rep S n R k0 K M N geo cs P k) (hv : EuclideanSpace ℝ (Fin N)) :
     BTerms S n R k0 K M N (k + 1) :=
-  fun A Y ψ ψ' _ gx => oldBAtAt (glob := glob) (σ := σ) g hnn hM1 F A.H hk hk1 hρ ψ z h₀ a₁ ν β p₁ δ (inner A ψ) (cb A ψ)
-    hp (I A ψ ψ' gx) (ψout A ψ) rψ ρc ρ r r' rep A (oldDoms F A.H k) ψ' hv gx Y
+  oldBOfAt g hnn hM1 glob F σ hk hk1 hρ z (fun _ => h₀) a₁ ν β p₁ δ (fun A ψ _ => inner A ψ)
+    (fun A ψ _ => cb A ψ) hp (fun A ψ ψ' _ gx => I A ψ ψ' gx) (fun A ψ _ => ψout A ψ) rψ ρc ρ r r'
+    rep (fun _ => hv)
 
 /-- **The re-expanded old boundary terms as boundary terms of scale `k + 1`** (P6 (4.32)–(4.34);
 LFR Lemma IV.1.5 (iii)): at a history `𝔸`, an output label `Y` and fields `(ψ, ψ', h, g)`, the old

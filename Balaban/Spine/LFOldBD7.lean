@@ -118,20 +118,20 @@ theorem oldBAtAt_eq_zero_of_not_valid (glob : Bool) {m₀ : ℕ} (F : FineSizeFr
 
 
 open Classical in
-/-- **The clause `loc_field` of (D7) for the old part at an output label** (any readings of the local
-pair): for two values of the fields agreeing on the blocks inside the fine set of `Y`, an interaction
+/-- **The clause `loc_field` of (D7) for the old part at an output label, core** (any readings of the
+local pair, the physical field `hv` of the old part and that of the record's (D7) independent): for two values of the fields agreeing on the blocks inside the fine set of `Y`, an interaction
 family whose activities agree on the labels inside `Y` (`hact`) and fixed values agreeing at the unit
 points inside `Y` (`hout`), the old parts at `Y` agree.  The cluster terms read the activities of the
 labels inside `Ŷ(T) = Y` (`Gst_congr`, `ysite_subset_Yhat`); the marks read the coefficients, which read
 the fields inside `Y` (`oldCoefLocAt_congr_fields`, `stepReadsIn_outLabelAt`, `fineSet_subset_outLabelAt`,
 the record's `loc_field`), and the fixed values at the unit points of the local pairs, inside the mark
 sites (`markSiteAt_subset_outLabel`). -/
-theorem oldBAtAt_congr_fields (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+theorem oldBAtAt_congr_fields_core (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
     (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K)
     {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
     {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
-    {hv : EuclideanSpace ℝ (Fin N)}
-    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {hv hvr : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hvr)
     {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
     (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {Xs : Finset (Finset (Torus S.d (n k)))}
     (hXs : ∀ X ∈ Xs, X ∈ bdryDomsPost Fr A k (Zof A) ∧ X ∈ oldDoms Fr A.H k)
@@ -229,6 +229,52 @@ theorem oldBAtAt_congr_fields (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n
   rw [hYhat]
   exact ysite_subset_Yhat Fr.divN₁ hk hΩ' IF.Lab y hy
 
+
+open Classical in
+/-- **The clause `loc_field` of (D7) for the old part at an output label** (any readings of the local
+pair): for two values of the fields agreeing on the blocks inside the fine set of `Y`, an interaction
+family whose activities agree on the labels inside `Y` (`hact`) and fixed values agreeing at the unit
+points inside `Y` (`hout`), the old parts at `Y` agree.  The cluster terms read the activities of the
+labels inside `Ŷ(T) = Y` (`Gst_congr`, `ysite_subset_Yhat`); the marks read the coefficients, which read
+the fields inside `Y` (`oldCoefLocAt_congr_fields`, `stepReadsIn_outLabelAt`, `fineSet_subset_outLabelAt`,
+the record's `loc_field`), and the fixed values at the unit points of the local pairs, inside the mark
+sites (`markSiteAt_subset_outLabel`). -/
+theorem oldBAtAt_congr_fields (glob : Bool) {m₀ : ℕ} {Fr : FineSizeFrame S n M K m₀ m₁} {k : ℕ}
+    (σ : Finset (Torus S.d (n k)) → Finset (Torus S.d (n k))) (hk : k + 1 ≤ K)
+    {cs : OpConsts} {P : BudgetConsts} {rep : Rep S n R k0 K M N g cs P k}
+    {Zof : LabHist S n R k0 K → Set (Torus S.d (n k))} {aw μs ε ε1 νs : ℕ → ℝ} {fac rate : ℝ}
+    {hv : EuclideanSpace ℝ (Fin N)}
+    (hrec : D7BdryPost Fr hnn (Nat.le_of_succ_le hk) rep Zof aw μs ε ε1 νs fac rate hv)
+    {A : LabHist S n R k0 K} (hA : A ∈ rep.hist) (hk1 : 1 ≤ k) (hρ : 3 * S.L ≤ ⌊R (k - 1)⌋₊)
+    (z : ℝ) (h₀ : Fin N → ℝ) (a₁ ν β p₁ δ : ℝ) {Xs : Finset (Finset (Torus S.d (n k)))}
+    (hXs : ∀ X ∈ Xs, X ∈ bdryDomsPost Fr A k (Zof A) ∧ X ∈ oldDoms Fr A.H k)
+    {ψ₁ : MultiFieldC S n M K N}
+    (inner : Finset (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).U)
+    (cb : inner → CubeB (d := S.d) (L := S.L) (N₁ := Fr.N₁) (m₁ := m₁) (K := K) m₀ (k + 1)
+      (d7Pull Fr (k + 1) (OmegaCube A.H (k + 1))))
+    (hcb : ∀ u : inner, toFrame g hnn hM1 Fr hk
+      (unitRep (u : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).U)) ∈
+        Localization.box (cb u).1 (cellSide S.L m₀ m₁ (k + 1)))
+    (hp : 0 < p₁) {Prm : Type*} (IF : LocIntFam (fun b => {u : inner // cb u = b} → Rn N) Prm)
+    (p₁' p₂' : Prm) (Y : Finset (Torus S.d (n (k + 1))))
+    (hact : ∀ (u : ℂ) (y : IF.Lb), IF.Lab.ysite y ⊆ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
+      (IF.A p₁' u).H y = (IF.A p₂' u).H y)
+    (ψout₁ ψout₂ : (holeStepLF g hnn hM1 A.H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ).U → Fin N → ℂ)
+    (hout : ∀ b, toFrame g hnn hM1 Fr hk (unitRep b) ∈ d7Pull Fr (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
+      ψout₁ b = ψout₂ b)
+    (rψ ρc : ℝ) (ρ r r' : ℕ) (ψ₂ ψ'₁ ψ'₂ : MultiFieldC S n M K N) (gx₁ gx₂ : GIdx S n M K N → ℂ)
+    (hψ : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j, BlockSub (S := S) (n := n) (M := M) (K := K) j y
+      (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1))))) → ψ₁ j y = ψ₂ j y)
+    (hψ' : ∀ j, j ≤ K → ∀ y : BlockAt S n M K j, BlockSub (S := S) (n := n) (M := M) (K := K) j y
+      (fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1))))) → ψ'₁ j y = ψ'₂ j y)
+    (hgx : ∀ x i, x ∈ fineSet (S := S) (n := n) M K (k + 1) (Y : Set (Torus S.d (n (k + 1)))) →
+      gx₁ (x, i) = gx₂ (x, i)) :
+    oldBAtAt (glob := glob) (σ := σ) g hnn hM1 Fr A.H hk hk1 hρ ψ₁ z h₀ a₁ ν β p₁ δ inner cb hp
+        (IF.at p₁') ψout₁ rψ ρc ρ r r' rep A Xs ψ'₁ hv gx₁ Y =
+      oldBAtAt (glob := glob) (σ := σ) g hnn hM1 Fr A.H hk hk1 hρ ψ₂ z h₀ a₁ ν β p₁ δ inner cb hp
+        (IF.at p₂') ψout₂ rψ ρc ρ r r' rep A Xs ψ'₂ hv gx₂ Y :=
+  oldBAtAt_congr_fields_core g hnn hM1 glob σ hk hrec hA hk1 hρ z h₀ a₁ ν β p₁ δ hXs inner cb hcb hp IF p₁'
+    p₂' Y hact ψout₁ ψout₂ hout rψ ρc ρ r r' ψ₂ ψ'₁ ψ'₂ gx₁ gx₂ hψ hψ' hgx
 
 open Classical in
 /-- **The clause `real` of (D7) for the old part at an output label** (any readings of the local
