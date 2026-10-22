@@ -2706,6 +2706,7 @@ public import Balaban.Polymer.TwoTorusGapTowerTieNew
 public import Balaban.Flow.TriangularChart
 public import Balaban.Flow.MatrixInftyAnalytic
 public import Balaban.Flow.LatticeSums
+public import Balaban.Flow.CellGreen
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
