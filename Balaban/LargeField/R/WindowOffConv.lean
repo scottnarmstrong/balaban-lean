@@ -392,7 +392,7 @@ theorem sum_mainActionLoc_eq_gen_of_flow_of_read_consts (S : Setting) [NeZero S.
   obtain ⟨Kw, δw, hKw, hδw, H1⟩ := sum_mainActionLoc_eq_gen_of_flow_of_read_constsP S N hd3 hL3
   refine ⟨Kw, δw, hKw, hδw, ?_⟩
   intro n _ R k0 K M _ H g cs k1 m' Z hmK ϱ Wp hWh href ι _ jf cf hjf hcf hinj hcov hjK hk1p Xw hXw Xwin hXwin Xc hXc decomp hwt1 hcells ou xu hv hβ hμ hB0 hBn hS chain hchain hcoh ψ hread
-  intro ak φw β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch
+    ak φw β ν η Ka cν Dδ V1 Ksrc Cξ α α₀ γ A₀ Δ Kwt Cb Cg Cm Amax Emax ε₀ Kpair Kcoef Kswitch
     gf δ ξ hβp hνp hα₀ hCξ hα hγ hγα hβcs hμcs hg hδ hgenv hδp hδb hξ hρ hAq hAmax hKa hKaw hΔ
     hcν0 hcν hreg hε₀ hε₀le hN H0 H1' hsepO hsm hc1 hXi D0 D1 hsmall hSB hmB hEmax hCb hCg hCm
     hKwt hV1 hK hKpair hKcoef hKp0 hKc0 hKs0 hsw
