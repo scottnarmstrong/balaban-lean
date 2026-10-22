@@ -63,7 +63,6 @@ theorem maskedTerm_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^ m�
     (Dl : Matrix (Gl.Ω 1 × Fin N) (Gl.Ω 1 × Fin N) ℂ) (Dp : Matrix (Gp.Ω 1 × Fin N) (Gp.Ω 1 × Fin N) ℂ)
     (ρ rD : ℕ) (R : Set 𝕋₁) (Y : Set 𝕋₁) (hYR : Y ⊆ R)
     (hRdeep : ∀ w : 𝕋₁, (∃ t ∈ R, supDist w t ≤ 8 * L ^ (0 + 1 + m₁)) → w ∈ Gl.Ω (0 + 1))
-    (hρ : ρ + L ≤ 8 * L ^ (0 + 1 + m₁))
     (hdat0 : ∀ z : 𝕋₁, (∃ t ∈ Y, supDist z t ≤ 4 * L ^ (0 + 1)) → D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
     (hfl : ∀ x : Gl.Ω 1, AnalyticOnNhd ℂ
       (fun s => chartFe Gl a ν β gl ψl Wl x (Fl (s, (D.Ψ, D.h))))
@@ -146,7 +145,6 @@ theorem masked_Pst_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^ m�
     (Dl : Matrix (Gl.Ω 1 × Fin N) (Gl.Ω 1 × Fin N) ℂ) (Dp : Matrix (Gp.Ω 1 × Fin N) (Gp.Ω 1 × Fin N) ℂ)
     (ρ rD : ℕ) (R : Set 𝕋₁)
     (hRdeep : ∀ w : 𝕋₁, (∃ t ∈ R, supDist w t ≤ 8 * L ^ (0 + 1 + m₁)) → w ∈ Gl.Ω (0 + 1))
-    (hρ : ρ + L ≤ 8 * L ^ (0 + 1 + m₁))
     (d0 : ↥(coverOf Gp).cubeIdx) (d0l : ↥(coverOf Gl).cubeIdx)
     (hWl : ∀ (x : Gl.Ω 1) i r, Dl (x, i) r ≠ 0 → supDist (x : 𝕋₁) r.1 ≤ rD)
     (hWp : ∀ (x' : Gp.Ω 1) i r, Dp (x', i) r ≠ 0 → supDist (x' : 𝕋₁) r.1 ≤ rD)
@@ -191,7 +189,7 @@ theorem masked_Pst_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^ m�
     exact sitesOf_mono hy hz'
   rw [hAl y Φ, hAp y Φ]
   exact (maskedTerm_cross hG' hm₁ hN hS Sl Sp HBl HBp hκ hM hFl hFp hDu hDu' gl (fldl Φ) gp (fldp Φ) Wl Wp
-    Dl Dp ρ rD R y.1 (hlabR y hy) hRdeep hρ
+    Dl Dp ρ rD R y.1 (hlabR y hy) hRdeep
     (fun z ⟨t, ht, hd⟩ => hdat0 z ⟨t, hYT ht, hd⟩) (hfl Φ)
     (fun x x' hxx hx i => hgc x x' hxx (hYT hx) i) hWlr hWpr hWc d0 d0l hWl hWp
     (fun x x' hxx hx => hWx x x' hxx (hYT hx))
