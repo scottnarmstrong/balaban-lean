@@ -205,6 +205,12 @@ provider, and nothing may import a root, until the root is sealed.
 - **Ruling R28 (same approval).** The kept data (`KeptData.datum`, `KeptScaleKernels.datum`) are indexed by labelled
   localized histories (the labels of the kept components inside the component at earlier scales), as LFR
   Def II.5.7 (S3) indexes them by `(Z, 𝔸∩Z)` (ORCH-A, A4).
+- **Ruling R29 (2026-10-22, Scott: "approve R29").** The torus coherence of the small-field data (D8), `D8SF.M_eq`
+  and `D8SF.R_eq`, takes the form R20 gave `TorusIndep`: agreement of the `ℳ^{(j)}` and `ℛ^{(k)}_n` terms on pairs of
+  read tori, for polymers whose `torusMargin` thickening does not wind, at data in the terms' own domain (P4 (H.4)
+  describes them only as analytic functions there). Root-F is unchanged: at the conversion its activities are cut off
+  to `T'(g) = T(g)` when `Σ_{x∈X} ‖g(x)‖₁ < 1` and `0` otherwise, which equals `T` on Root-F's ball and agrees on two
+  tori for every `g` by locality (ORCH-A, A1).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
