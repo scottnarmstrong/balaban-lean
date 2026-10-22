@@ -76,7 +76,7 @@ theorem chartCoef_pair_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^
     (hfl : ∀ x : Gl.Ω 1, AnalyticOnNhd ℂ
       (fun s => chartFe Gl a ν β gl ψl Wl x (Fl (s, (D.Ψ, D.h))))
       (polydisc (0 : Dec2.DecParams (coverOf Gl)) (fun _ => Real.exp κ)))
-    (hreads : ∀ (x : Gl.Ω 1) (x' : Gp.Ω 1), (x : 𝕋₁) = x' → (x : 𝕋₁) ∈ Y →
+    (hreads : ∀ (x : Gl.Ω 1) (x' : Gp.Ω 1), (x : 𝕋₁) = x' → (∀ z : 𝕋₁, supDist (x : 𝕋₁) z ≤ ρs → z ∈ Y) →
       ReadsSeedCross Gl Gp (seedBall (x : 𝕋₁) ρs) (chartFe Gl a ν β gl ψl Wl x)
         (chartFe Gp a ν β gp ψp Wp x'))
     (d0 : ↥(coverOf Gp).cubeIdx) (x : Gl.Ω 1) (Cs : Finset ↥(coverOf Gl).cubeIdx)
@@ -104,7 +104,7 @@ theorem chartCoef_pair_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^
   refine bgFunctional_coef_relabel_cross Gl Gp hG' hm₁ hS Sl Sp HBl HBp hκ hM hFl hFp hDu hDu'
     (Fel := chartFe Gl a ν β gl ψl Wl x) (Fep := chartFe Gp a ν β gp ψp Wp ⟨(x : 𝕋₁), (hG' (x : 𝕋₁)).1⟩)
     (hfl x) Cs d0 (T := T) (Y := Yn) (seed := seedBall (x : 𝕋₁) ρs) ?_ ?_ ?_ ?_ hCT ?_ ?_
-    (hreads x _ rfl hxY)
+    (hreads x _ rfl (fun z hz => by rw [← hlab]; exact seed_subset_labelSet hN hz))
   · intro t ht
     exact (hYnmem t).2 ⟨t, ht, by rw [supDist_self]; exact Nat.zero_le _⟩
   · intro z hz
@@ -161,7 +161,7 @@ theorem chartTerm_cross (hG' : IsLevel Gp 1) (hm₁ : 2 ≤ m₁) (hN : L ^ m₀
     (hfl : ∀ x : Gl.Ω 1, AnalyticOnNhd ℂ
       (fun s => chartFe Gl a ν β gl ψl Wl x (Fl (s, (D.Ψ, D.h))))
       (polydisc (0 : Dec2.DecParams (coverOf Gl)) (fun _ => Real.exp κ)))
-    (hreads : ∀ (x : Gl.Ω 1) (x' : Gp.Ω 1), (x : 𝕋₁) = x' → (x : 𝕋₁) ∈ Y →
+    (hreads : ∀ (x : Gl.Ω 1) (x' : Gp.Ω 1), (x : 𝕋₁) = x' → (∀ z : 𝕋₁, supDist (x : 𝕋₁) z ≤ ρs → z ∈ Y) →
       ReadsSeedCross Gl Gp (seedBall (x : 𝕋₁) ρs) (chartFe Gl a ν β gl ψl Wl x)
         (chartFe Gp a ν β gp ψp Wp x'))
     (d0 : ↥(coverOf Gp).cubeIdx) (d0l : ↥(coverOf Gl).cubeIdx) :
