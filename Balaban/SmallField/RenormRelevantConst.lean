@@ -84,16 +84,15 @@ theorem isEL_const (hG : IsLevel G n) (a : ℕ → ℝ) (ν : ℝ) (e : Fin N �
   push_cast
   ring
 
-/-- The constant datum `((1 + t) e, e)` along a real unit vector `e` lies in the complex data domain
-for `‖t‖ ≤ δ/4`, `0 < δ ≤ 1`. -/
-theorem inDomainC_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
+/-- The real centre `(e, e)` with the displacement `t e` lies in `Ψ̃^c(𝔹; δ, δ)` for `‖t‖ ≤ δ/4`,
+`0 < δ ≤ 1`. -/
+theorem inPsiTildeC_const (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
     (hδ : 0 < δ) (hδ1 : δ ≤ 1) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) :
-    InDomainC G ν δ δ (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) := by
+    InPsiTildeC G ν δ δ (fun _ i => eR i) eR (fun _ i => t * (eR i : ℂ)) (fun _ _ => 0) := by
   have hrn : rn eR = 1 := by unfold rn; rw [heR]; simp
   have hdot : ∑ i, eR i * eR i = 1 := by simpa [sq] using heR
   have ht0 := norm_nonneg t
-  refine ⟨fun _ i => eR i, eR, fun _ i => t * (eR i : ℂ), fun _ _ => 0, ?_, ?_, ?_⟩
-  · refine
+  refine
       { layerConst := fun _ _ _ _ _ _ _ => rfl
         r1 := fun x x' _ => by simpa [rn] using hδ
         r2 := fun x _ => by simpa [heR] using hδ
@@ -107,27 +106,66 @@ theorem inDomainC_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR
         c2b := fun x _ => ?_
         c3a := fun x _ => ?_
         c3b := fun x _ => ?_ }
-    · have e : (fun i => t * (eR i : ℂ)) = fun i => t * ((eR i : ℝ) : ℂ) := rfl
-      rw [e, vn_smul_complex, vn_ofReal, hrn]
-      linarith
-    · have e : ∑ i, ((eR i : ℂ) + t * (eR i : ℂ)) * ((eR i : ℂ) + t * (eR i : ℂ)) -
-          ∑ i, (eR i : ℂ) * (eR i : ℂ) = (2 * t + t ^ 2) * ((∑ i, eR i * eR i : ℝ) : ℂ) := by
-        push_cast
-        rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
-        exact Finset.sum_congr rfl fun i _ => by ring
-      rw [e, hdot]
-      simp only [Complex.ofReal_one, mul_one]
-      calc ‖2 * t + t ^ 2‖ ≤ ‖2 * t‖ + ‖t ^ 2‖ := norm_add_le _ _
-        _ < δ := by
-          rw [norm_mul, norm_pow]
-          have : ‖(2 : ℂ)‖ = 2 := by simp
-          rw [this]
-          nlinarith
-    · have h0 : vn ((fun (_ : Torus d (N₀ * L ^ k)) (_ : Fin N) => (0 : ℂ)) x) = 0 := vn_zero
-      rw [h0, mul_zero]; positivity
-    · simp only [mul_zero, Finset.sum_const_zero, norm_zero]; positivity
+  · have e : (fun i => t * (eR i : ℂ)) = fun i => t * ((eR i : ℝ) : ℂ) := rfl
+    rw [e, vn_smul_complex, vn_ofReal, hrn]
+    linarith
+  · have e : ∑ i, ((eR i : ℂ) + t * (eR i : ℂ)) * ((eR i : ℂ) + t * (eR i : ℂ)) -
+        ∑ i, (eR i : ℂ) * (eR i : ℂ) = (2 * t + t ^ 2) * ((∑ i, eR i * eR i : ℝ) : ℂ) := by
+      push_cast
+      rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+      exact Finset.sum_congr rfl fun i _ => by ring
+    rw [e, hdot]
+    simp only [Complex.ofReal_one, mul_one]
+    calc ‖2 * t + t ^ 2‖ ≤ ‖2 * t‖ + ‖t ^ 2‖ := norm_add_le _ _
+      _ < δ := by
+        rw [norm_mul, norm_pow]
+        have : ‖(2 : ℂ)‖ = 2 := by simp
+        rw [this]
+        nlinarith
+  · have h0 : vn ((fun (_ : Torus d (N₀ * L ^ k)) (_ : Fin N) => (0 : ℂ)) x) = 0 := vn_zero
+    rw [h0, mul_zero]; positivity
+  · simp only [mul_zero, Finset.sum_const_zero, norm_zero]; positivity
+
+/-- The constant datum `((1 + t) e, e)` along a real unit vector `e` lies in the complex data domain
+for `‖t‖ ≤ δ/4`, `0 < δ ≤ 1`. -/
+theorem inDomainC_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) :
+    InDomainC G ν δ δ (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) := by
+  refine ⟨fun _ i => eR i, eR, fun _ i => t * (eR i : ℂ), fun _ _ => 0,
+    inPsiTildeC_const eR heR hδ hδ1 t ht, ?_, ?_⟩
   · intro x _ i; simp [constBg]; ring
   · intro x _ i; simp [constBg]
+
+/-- The real constant datum `(e, e)` lies in the real data domain `Ψ̃(𝔹_k; δ)`. -/
+theorem inDomainR_const (hG : IsLevel G n) (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {ν δ : ℝ}
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) :
+    InDomainR G ν δ (constBg hG (fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) :=
+  ⟨fun _ i => eR i, eR, (inPsiTildeC_const (G := G) eR heR hδ hδ1 0 (by simp; positivity)).toInPsiTilde,
+    fun x _ i => by simp [constBg], fun x _ i => by simp [constBg]⟩
+
+/-- At a site of a whole-lattice level `ℓ² · (a_n L^{-2n} |t|) = |a_n| |t|`. -/
+theorem sq_spacing_mul_norm (hG : IsLevel G n) (a : ℕ → ℝ) (t : ℂ) (x : G.Ω 1) :
+    G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 * ‖((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) * t‖ =
+      |a n| * ‖t‖ := by
+  have hx : G.layerIndex (x : Torus d (N₀ * L ^ k)) = n := (hG x).2
+  have hLn : (0 : ℝ) < ((L : ℝ) ^ n) ^ 2 := by
+    have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
+    positivity
+  show ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 * _ = _
+  have hL0 : (L : ℝ) ^ n ≠ 0 := pow_ne_zero _ (by exact_mod_cast NeZero.ne L)
+  rw [hx, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos hLn]
+  field_simp
+
+/-- The constant datum `((1 + t) e, e)` lies in the complex union domain. -/
+theorem inUnionDomainC_const {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) (hG : IsLevel G n)
+    (eR : Fin N → ℝ) (heR : ∑ i, eR i ^ 2 = 1) {δ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1)
+    (hδc : δ ≤ bgC1 d L N) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) :
+    InUnionDomainC G (bgC0 d L N) (bgC1 d L N) ν
+      (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hδ0c : δ ≤ bgC0 d L N := hδc.trans (bgC1_le_bgC0 d L N hd0)
+  have hνε : ν * ((L : ℝ) ^ k) ^ 2 * δ ^ 2 ≤ δ ^ 2 := mul_le_of_le_one_left (sq_nonneg _) H.massLe
+  exact ⟨δ, δ, hδ, le_rfl, hδ0c, hδc, hνε, inDomainC_const hG eR heR hδ hδ1 t ht⟩
 
 /-- **The background of the constant datum `((1+t)e, e)` is the constant `e`**, with the multiplier
 `a_n L^{-2n} t` (for `‖t‖ ≤ δ/4`, `δ ≤ min (1, c₁/…)`; the multiplier is small: `a_n ‖t‖ < c₀`). -/
@@ -140,13 +178,7 @@ theorem bgFieldC_const {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) (h
       bgMultC G a ν (bgC0 d L N)
         (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) =
         fun _ => ((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) * t := by
-  have hd0 : 0 < d := by have := H.hd; omega
-  have hD := inDomainC_const (G := G) hG eR heR (ν := ν) hδ hδ1 t ht
-  have hδ0c : δ ≤ bgC0 d L N := hδc.trans (bgC1_le_bgC0 d L N hd0)
-  have hνε : ν * ((L : ℝ) ^ k) ^ 2 * δ ^ 2 ≤ δ ^ 2 := mul_le_of_le_one_left (sq_nonneg _) H.massLe
-  have hU : InUnionDomainC G (bgC0 d L N) (bgC1 d L N) ν
-      (constBg hG ((1 + t) • fun i => (eR i : ℂ)) (fun i => (eR i : ℂ))) :=
-    ⟨δ, δ, hδ, le_rfl, hδ0c, hδc, hνε, hD⟩
+  have hU := inUnionDomainC_const H hG eR heR hδ hδ1 hδc t ht
   obtain ⟨hex, -, -⟩ := theorem72 H hU
   obtain ⟨s, -, hsu⟩ := hex
   have hdot : ∑ i, eR i * eR i = 1 := by simpa [sq] using heR
@@ -162,16 +194,7 @@ theorem bgFieldC_const {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) (h
       (fun _ => ((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) * t) := by
     refine ⟨?_, fun x => ?_⟩
     · exact hel'
-    · have hx : G.layerIndex (x : Torus d (N₀ * L ^ k)) = n := (hG x).2
-      have hLn : (0 : ℝ) < ((L : ℝ) ^ n) ^ 2 := by
-        have : (0 : ℝ) < L := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne L)
-        positivity
-      have e : G.spacing (x : Torus d (N₀ * L ^ k)) ^ 2 *
-          ‖((a n / ((L : ℝ) ^ n) ^ 2 : ℝ) : ℂ) * t‖ = |a n| * ‖t‖ := by
-        show ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ k))) ^ 2 * _ = _
-        have hL0 : (L : ℝ) ^ n ≠ 0 := pow_ne_zero _ (by exact_mod_cast NeZero.ne L)
-        rw [hx, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_div, abs_of_pos hLn]
-        field_simp
+    · have e := sq_spacing_mul_norm (d := d) (L := L) hG a t x
       rw [e]; exact hα
   have hu : ∀ (φ' : G.Ω 1 × Fin N → ℂ) (α' : G.Ω 1 → ℂ),
       IsSmallSolution G a ν (bgC0 d L N)
@@ -296,5 +319,137 @@ theorem relDpsi_renC1Site {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν)
   unfold relDpsi
   rw [hev.deriv_eq]
   exact hder.deriv
+
+/-- The extension of a constant field is the constant. -/
+theorem barField_const (hG : IsLevel G n) (Ψ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (e : Fin N → ℂ)
+    (y : Torus d (N₀ * L ^ k)) (i : Fin N) : barField G Ψ (fun p => e p.2) y i = e i := by
+  simp [barField, (hG y).1]
+
+/-- **The constant configuration is in the class `Ξ^c_k(𝔹; 1, ε)`**: the real centre `(e, e)` with the
+displacement `t e` (for `‖t‖` small), with the constant background `e`, multiplier `0` resp.
+`a_n L^{-2n} t`. -/
+theorem xiC_const {a : ℕ → ℝ} {ν : ℝ} (H : BgHyp d L k ϱ a ν) (hG : IsLevel G n) (eR : Fin N → ℝ)
+    (heR : ∑ i, eR i ^ 2 = 1) {ε δ : ℝ} (hε : 0 < ε) (hδ : 0 < δ) (hδ1 : δ ≤ 1)
+    (hδc : δ ≤ bgC1 d L N) (t : ℂ) (ht : ‖t‖ ≤ δ / 4) (hα : |a n| * ‖t‖ < bgC0 d L N)
+    (htε : ‖t‖ < ε) (hαε : |a n| * ‖t‖ < ε) :
+    XiC G a ν k 1 ε (fun _ i => eR i) eR (fun _ i => t * (eR i : ℂ)) (fun _ _ => 0) := by
+  have hd0 : 0 < d := by have := H.hd; omega
+  set e : Fin N → ℂ := fun i => (eR i : ℂ) with he
+  have hdot : ∑ i, eR i * eR i = 1 := by simpa [sq] using heR
+  have hdotC : ∑ i, e i * e i = 1 := by simp only [he]; exact_mod_cast hdot
+  have hrn : rn eR = 1 := by unfold rn; rw [heR]; simp
+  have hUR : InUnionDomainR G (bgC1 d L N) ν (constBg hG e e) :=
+    ⟨δ, hδ, hδc, inDomainR_const hG eR heR hδ hδ1⟩
+  have h0 := bgFieldC_const H hG eR heR hδ hδ1 hδc 0 (by simp; positivity)
+    (by simpa using bgC0_pos d L N hd0)
+  have e1 : ((1 : ℂ) + 0) • (fun i => (eR i : ℂ)) = e := by simp [he]
+  rw [e1] at h0
+  have hreal := theorem72_real H hUR
+  have hbf : bgField G a ν (constBg hG e e) = fun p => e p.2 := by rw [← hreal.1]; exact h0.1
+  have hbm : bgMult G a ν (constBg hG e e) = fun _ => 0 := by
+    rw [← hreal.2, h0.2]; funext _; simp
+  have hc := bgFieldC_const H hG eR heR hδ hδ1 hδc t ht hα
+  have hnz : ∀ y i, barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) y i = e i :=
+    barField_const hG _ e
+  have hbc : ∀ y i, barField G (constBg hG ((1 + t) • e) e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) y i =
+      e i := barField_const hG _ e
+  have hz0 : (0 : Fin N → ℂ) = fun _ => 0 := rfl
+  refine ⟨one_pos, hε, constBg hG e e, constBg hG ((1 + t) • e) e, ⟨⟨?_, ?_⟩, hUR, ?_⟩, ⟨?_, ?_⟩,
+    inUnionDomainC_const H hG eR heR hδ hδ1 hδc t ht, ?_⟩
+  · intro x _ i; simp [constBg, he]
+  · intro x _ i; simp [constBg, he]
+  · rw [hbf, hbm]
+    refine
+      { grad := fun x hx μ => ?_
+        lap := fun x hx => ?_
+        mult := fun x => ?_
+        close := fun x hx => ?_
+        collarBond := fun z hz => absurd hz (by rw [hG.collar_eq]; exact Finset.notMem_empty z)
+        mass := fun z => ?_
+        hnorm := ?_ }
+    · have h0' : (fun i => barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x + Pi.single μ 1) i - barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) x i)
+          = fun _ => 0 := by funext i; simp only [hnz, sub_self]
+      have h1 : (fun i => barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x - Pi.single μ 1) i - barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) x i)
+          = fun _ => 0 := by funext i; simp only [hnz, sub_self]
+      have hℓ : 0 < G.spacing x := spacing_pos G
+      rw [h0', h1, show (fun _ : Fin N => (0 : ℂ)) = 0 from rfl, vn_zero]
+      exact ⟨by positivity, by positivity⟩
+    · have h0' : (fun i => ∑ μ : Fin d,
+          (barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) (x + Pi.single μ 1) i +
+            barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) (x - Pi.single μ 1) i -
+            2 * barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) x i)) = 0 := by
+        funext i; simp only [hnz]; simp; ring
+      have hℓ : 0 < G.spacing x := spacing_pos G
+      rw [h0', vn_zero]; positivity
+    · simp only [norm_zero, mul_zero]; positivity
+    · have h0' : (fun i => (constBg hG e e).Ψ x i - blockAvg G (fun p : G.Ω 1 × Fin N => e p.2) x i)
+          = 0 := by funext i; simp [constBg, blockAvg_const hG]
+      rw [h0', vn_zero]; positivity
+    · have h0' : (fun i => (fun p : G.Ω 1 × Fin N => e p.2) (z, i) - (eR i : ℂ)) = 0 := by
+        funext i; simp [he]
+      rw [h0', vn_zero]; simp
+      positivity
+    · simp [heR]; positivity
+  · intro x _ i; simp [constBg, he]; ring
+  · intro x _ i; simp [constBg, he]
+  · rw [hbf, hbm, hc.1, hc.2]
+    have hz : ∀ i, (0 : ℂ) = (0 : Fin N → ℂ) i := fun _ => rfl
+    refine
+      { grad := fun x hx μ => ?_
+        lap := fun x hx => ?_
+        mult := fun x => ?_
+        val := fun x => ?_
+        close := fun x hx => ?_
+        collarBond := fun z hz => absurd hz (by rw [hG.collar_eq]; exact Finset.notMem_empty z)
+        hAbs := fun x hx => ?_
+        hDot := fun x => ?_ }
+    · have hℓ : 0 < G.spacing x := spacing_pos G
+      have hb : ∀ y i, barField G (constBg hG ((1 + t) • e) e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) y i -
+          barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2) y i = 0 := fun y i => by
+        rw [hbc, hnz, sub_self]
+      have h1 : (fun i => (barField G (constBg hG ((1 + t) • e) e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x + Pi.single μ 1) i - barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x + Pi.single μ 1) i) - (barField G (constBg hG ((1 + t) • e) e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i - barField G (constBg hG e e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i)) = 0 := by
+        funext i; simp only [hb, sub_self]; rfl
+      have h2 : (fun i => (barField G (constBg hG ((1 + t) • e) e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x - Pi.single μ 1) i - barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x - Pi.single μ 1) i) - (barField G (constBg hG ((1 + t) • e) e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i - barField G (constBg hG e e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i)) = 0 := by
+        funext i; simp only [hb, sub_self]; rfl
+      rw [h1, h2, vn_zero]
+      exact ⟨by positivity, by positivity⟩
+    · have hℓ : 0 < G.spacing x := spacing_pos G
+      have h1 : (fun i => ∑ μ : Fin d, ((barField G (constBg hG ((1 + t) • e) e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) (x + Pi.single μ 1) i - barField G (constBg hG e e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) (x + Pi.single μ 1) i) +
+          (barField G (constBg hG ((1 + t) • e) e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x - Pi.single μ 1) i - barField G (constBg hG e e).Ψ (fun p : G.Ω 1 × Fin N => e p.2)
+          (x - Pi.single μ 1) i) - 2 * (barField G (constBg hG ((1 + t) • e) e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i - barField G (constBg hG e e).Ψ
+          (fun p : G.Ω 1 × Fin N => e p.2) x i))) = 0 := by
+        funext i; simp only [hbc, hnz, sub_self]; simp
+      rw [h1, vn_zero]; positivity
+    · rw [sub_zero, sq_spacing_mul_norm hG a t x]; nlinarith
+    · have h0 : vn (fun _ : Fin N => (0 : ℂ)) = 0 := vn_zero
+      have h1 : (fun i => (eR i : ℂ) - e i) = fun _ => (0 : ℂ) := by funext i; simp [he]
+      show vn (fun i => (eR i : ℂ) - e i) < ε
+      rw [h1, h0]; exact hε
+    · have hs : ((fun p : G.Ω 1 × Fin N => e p.2) - (fun p : G.Ω 1 × Fin N => e p.2)) =
+          fun p => (fun _ : Fin N => (0 : ℂ)) p.2 := by funext p; simp
+      rw [hs]
+      simp only [blockAvg_const hG (fun _ => (0 : ℂ)), sub_zero]
+      have e' : (fun i => t * (eR i : ℂ)) = fun i => t * ((eR i : ℝ) : ℂ) := rfl
+      have hrn' : rn eR = 1 := by unfold rn; rw [heR]; simp
+      show vn (fun i => t * (eR i : ℂ)) < 1 ^ 2 * ε
+      rw [e', vn_smul_complex, vn_ofReal, hrn']
+      nlinarith
+    · have h0 : vn ((fun (_ : Torus d (N₀ * L ^ k)) (_ : Fin N) => (0 : ℂ)) x) = 0 := vn_zero
+      rw [h0, mul_zero]; positivity
+    · simp only [mul_zero, Finset.sum_const_zero, norm_zero]; positivity
 
 end Balaban.Fluctuation
