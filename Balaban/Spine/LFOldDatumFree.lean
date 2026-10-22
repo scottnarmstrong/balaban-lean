@@ -117,10 +117,10 @@ theorem h7Domain_succ_of_congr_k (H : RegionHistory S n R k0 K) {k : ℕ} (hk : 
   have hkK : k ≤ K := Nat.le_of_succ_le hk
   obtain ⟨h1, h2, h3, h4⟩ := hdom
   refine ⟨?_, ?_, h3, h4⟩
-  · intro j hjk y hyX hfar hyC
+  · intro j hj1 hjk y hyX hfar hyC
     by_cases hjk' : j = k
     · subst hjk'
-      have ht := h1 j hjk y hyX hfar hyC
+      have ht := h1 j hj1 hjk y hyX hfar hyC
       refine (deltaC_stencil aw (μs j) (ε j) h (by omega) (by omega) (by simp) y
         fun x hx => ?_).1 ht
       by_contra hne
@@ -153,7 +153,7 @@ theorem h7Domain_succ_of_congr_k (H : RegionHistory S n R k0 K) {k : ℕ} (hk : 
         (LargeField.cubeMap n S.L M K (j + 1) x'') ω
       omega
     · rw [hj j hjk']
-      exact h1 j hjk y hyX hfar hyC
+      exact h1 j hj1 hjk y hyX hfar hyC
   · intro i hik y hyX hyΩ hyC
     rcases Nat.lt_or_ge (i + 1) k with hi | hi
     · rw [hj i (by omega), hj (i + 1) (by omega)]

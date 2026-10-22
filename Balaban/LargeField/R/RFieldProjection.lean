@@ -133,8 +133,11 @@ theorem d7Bdry2Post_of_pre_of_rem_empty {κ Bst B0 : ℝ}
         step_Z_eq_Zpre_of_rem_empty A (hrem A hA)]
   exact
     { loc_field := fun A hA X hX => hin.loc_field A hA X ((hmem A hA X).1 hX)
-      loc_hist := fun A hA A' hA' X hX hX' =>
-        hin.loc_hist A hA A' hA' X ((hmem A hA X).1 hX) ((hmem A' hA' X).1 hX')
+      loc_hist := fun A hA A' hA' X hX hX' hreg hc hc' => by
+        obtain ⟨d, d'⟩ := compsAgree_of_post_of_rem_empty (hrem A hA) (hrem A' hA') hc hc'
+        refine hin.loc_hist A hA A' hA' X ((hmem A hA X).1 hX) ((hmem A' hA' X).1 hX') ?_ d d'
+        rw [globalLHPre_eq_of_rem_empty A.H (hrem A hA), globalLHPre_eq_of_rem_empty A'.H (hrem A' hA')]
+        exact hreg
       real := fun A hA X hX => hin.real A hA X ((hmem A hA X).1 hX)
       analytic := fun A hA X hX => by
         rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)]

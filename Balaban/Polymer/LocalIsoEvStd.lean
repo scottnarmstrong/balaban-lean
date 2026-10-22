@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.LocalIsoEvPrem
+public import Balaban.Inhabited.StepTowerThetaDetG
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -36,6 +37,14 @@ namespace Balaban.Polymer.LocalIso
 open Balaban Balaban.Localization Balaban.Background Balaban.Multiscale Balaban.Polymer
   Balaban.Polymer.TwoTorusStep Balaban.Fluctuation Balaban.SmallField Balaban.SmallField.Def6
   Balaban.Analysis Matrix
+
+/-- **The raw chart grows with the radius** (`xiCData_mono_radius` on the raw data). -/
+theorem xiCRaw_mono_radius {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
+    {G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {n : ℕ} {ε ε' : ℝ}
+    (hle : ε ≤ ε') {p : RawData d L (N₁ * L ^ m₁) K N} (hp : p ∈ XiCRaw G a ν n 1 ε) :
+    p ∈ XiCRaw G a ν n 1 ε' := by
+  obtain ⟨D, hD, rfl⟩ := hp
+  exact ⟨D, Balaban.Inhabited.xiCData_mono_radius zero_le_one hle hD, rfl⟩
 
 section Real
 

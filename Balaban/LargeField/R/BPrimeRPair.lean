@@ -20,8 +20,9 @@ polymer `X ∈ 𝒟_j` contributes the pair functional `polyPair` (old minus new
 premises in the form of `bPrime_pairs_aggregate_adm`, and the data domain.
 
 * `composeDep_sameCell`: the composed field at `x` reads the fields in the `K`-block of `x`;
-* `SFCtx.polyPair`, `SFCtx.liftAgree`; `SFCtx.polyPair_loc` (it reads the fields and the lifts only
-  on a region `X₁` containing `X` and closed under the `k`-blocks), `SFCtx.analyticAt_polyPair`,
+* `SFCtx.polyPair`, `SFCtx.liftAgree`; `SFCtx.polyRoot_loc`, `SFCtx.polyPair_loc` (a root and the
+  pair read the fields, the lifts and the source only on a region `X₁` containing `X` and closed
+  under the `k`-blocks), `SFCtx.analyticAt_polyPair`,
   `SFCtx.norm_polyPair_le` (at fields whose composed fields lie in the class domains);
 * `SFCtx.RDataNear`, `SFCtx.isOpen_rDataNear`, `SFCtx.inDomainC_of_rDataNear`,
   `SFCtx.analyticAt_dataWC`: the data within `τ` of a real datum of `Ψ̃(genWC Y; δ)` form an open
@@ -100,8 +101,30 @@ theorem liftAgree_mono {A A' : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)} 
     C.liftAgree Y₁ Y₂ hv A u u' :=
   fun x hx => h x (hA hx)
 
+/-- **Locality of a polymer root, with two sources**: for a region `X₁ ⊇ X` closed under the
+`k`-blocks, the root of `X` for the region `Y` reads the field, the lift of the data and the source
+`sfG g` only on `X₁`. -/
+theorem polyRoot_loc (Y : Set (Torus S.d (n k))) (g g' : GIdx S n M K N → ℂ) {P : Consts}
+    {Dom : FieldDom S.d S.L C.N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom (C.sf.Tm C.N₁)) {j : ℕ}
+    (hj : j ≤ k) {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)}
+    {X₁f : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)} (hXX : X ⊆ ↑X₁f)
+    (hcell : ∀ x ∈ X₁f, ∀ y, SameCell (S.L ^ k) y x → y ∈ X₁f)
+    (u u' : BlockAt S n M K k → Fin N → ℂ) (φ φ' : (C.genWC Y).Ω 1 × Fin N → ℂ)
+    (hφ : ∀ y : (C.genWC Y).Ω 1, (y : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f →
+      ∀ i, φ (y, i) = φ' (y, i))
+    (hu : ∀ x ∈ (X₁f : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)), ∀ i,
+      C.liftWC Y hv u x i = C.liftWC Y hv u' x i)
+    (hg : ∀ x ∈ (X₁f : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)), ∀ i,
+      sfG C.geo C.hnn C.hkK C.hT g x i = sfG C.geo C.hnn C.hkK C.hT g' x i) :
+    polyRoot C Y u hv g (castΩField C.coarseSide_eq (C.genW Y) φ) j X =
+      polyRoot C Y u' hv g' (castΩField C.coarseSide_eq (C.genW Y) φ') j X :=
+  C.polyRoot_congr_src Y hv g g' hT hj X
+    (fun x hx y hy i => svec_eq_of_agree hφ (hcell x (hXX hx) y (composeDep_sameCell hy)) i)
+    (fun x hx i => hu x (hXX hx) i) (fun x hx i => hg x (hXX hx) i)
+
 /-- **Locality of the pair functional of a polymer root**: for a region `X₁ ⊇ X` closed under the
-`k`-blocks, it reads the two fields and the lifts of the data only on `X₁`. -/
+`k`-blocks, it reads the two fields and the lifts of the data only on `X₁` (two instances of
+`polyRoot_loc`). -/
 theorem polyPair_loc (g : GIdx S n M K N → ℂ) {P : Consts}
     {Dom : FieldDom S.d S.L C.N₁ m₁ k N ϱ} (hT : SFTermClauses P Dom (C.sf.Tm C.N₁)) {j : ℕ}
     (hj : j ≤ k) {X : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)}
@@ -115,17 +138,11 @@ theorem polyPair_loc (g : GIdx S n M K N → ℂ) {P : Consts}
       ∀ i, φ₂ (y, i) = φ₂' (y, i))
     (hu : C.liftAgree Y₁ Y₂ hv ↑X₁f u u') :
     C.polyPair Y₁ Y₂ hv g j X u φ₁ φ₂ = C.polyPair Y₁ Y₂ hv g j X u' φ₁' φ₂' := by
-  have hdep : ∀ {ϱ₁ ϱ₂ : ℝ} (G : GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) k ϱ₁)
-      (G' : GeneratingSet S.d S.L (C.N₁ * S.L ^ m₁) k ϱ₂), ∀ x ∈ X, ∀ y ∈ composeDep G G' x,
-      y ∈ X₁f :=
-    fun G G' x hx y hy => hcell x (hXX hx) y (composeDep_sameCell hy)
   unfold polyPair
-  rw [C.polyRoot_congr Y₁ hv g hT hj X (ψC' := u') (φ' := φ₁')
-      (fun x hx y hy i => svec_eq_of_agree h₁ (hdep _ _ x hx y hy) i)
-      (fun x hx i => (hu x (hXX hx) i).1),
-    C.polyRoot_congr Y₂ hv g hT hj X (ψC' := u') (φ' := φ₂')
-      (fun x hx y hy i => svec_eq_of_agree h₂ (hdep _ _ x hx y hy) i)
-      (fun x hx i => (hu x (hXX hx) i).2)]
+  rw [C.polyRoot_loc hv Y₁ g g hT hj hXX hcell u u' φ₁ φ₁' h₁ (fun x hx i => (hu x hx i).1)
+      (fun _ _ _ => rfl),
+    C.polyRoot_loc hv Y₂ g g hT hj hXX hcell u u' φ₂ φ₂' h₂ (fun x hx i => (hu x hx i).2)
+      (fun _ _ _ => rfl)]
 
 /-- **The pair functional of a polymer root is analytic** in `(ψ_k, φ₁, φ₂)` at every point where
 the composed fields lie in the class domains of the terms of `X`. -/

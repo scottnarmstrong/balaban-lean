@@ -889,6 +889,12 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `locConds_of_h7MixedLoc2_withZ`).  Open for blocker 3: `H7MixedInnerLoc2Pre` (P5 Lemma 2.1 in the complex domains),
   Proposition 3.3 on a region (the interaction of `oldB2`), the identity of the old part with `∑ oldB2`, the clauses
   `euclid` and `loc_hist` (W1162/W1163; evaluation of the collar finding in PLAN-B, ruling R22).
+  **W1154e, later (2026-10-22, branch `w1154-r22`).** Rulings R22 (`7240d56c`: `loc_hist` of `D7Bdry`, `D7Bdry2` reads
+  `globalLHPre` and all components `H.Comp k`; `DeltaDomain1` over `1 ≤ j ≤ k`) and R26 (`3a65c4b2`: the `Ω″` conjunct of
+  `loc_hist` at `j < k` in the four records) applied, all affected modules built.  `Def7.mem_omegaPost_iff`,
+  `fineSet_omegaPost_inter_eq` (`Ω^post_k = Ω_k ∪ (Z_k)ᶜ`).  `Spine/LFBdryOldAssembly`: `OldPartEq`,
+  **`lfBdryOldInput_of_old_eq`** (`LFBdryOldInput` from the identity and (D7) for the family `O`).  The closing ladder of
+  blocker 3 is in PLAN-B ("Blocker 3, closing ladder").
 
 ## LastIntegralInput sub-inputs (W1108)
 
@@ -1647,6 +1653,13 @@ representation of `ρ₁` satisfying (D1) has the small-field clauses" would be 
 small-field factor is not unique. (D8) and `β_0 = β` are likewise properties of the constructed representation; over all
 representations of `ρ₁` they fail (audit D1: rescale the boundary terms on one torus). So (a)–(g) are sub-sub-inputs of A3-1 and
 A3-2. Each becomes a theorem once the first step's representation is defined at the class's `M, K`.
+
+**Named rows (F0, ORCH-C, 2026-10-22).** `baseSteps_of_named` (`Spine/BaseClose.lean`; proved, axioms `propext, Classical.choice,
+Quot.sound`) gives `BasePreStepInput ∧ BaseFlatStepInput` from `PrefixInput`, a first-step map `Γ : BaseMapC` and `BaseOpenRows Γ`,
+a `Prop` structure of 21 fields, each a landed base sub-input on `Γ.toMap` in one regime (`BaseSF{NewLevel,Renorm,Density,Remainder,
+Coherence,Bare}Input`, `BaseFormInput`/`BaseFlatFormInput`, `BaseBdryInput`/`BaseFlatBdryInput`, `BaseCorrInput`, `BaseCoherenceInput`,
+the hypothesis of `baseVacuumInput_of_constants`). `BaseOpenRows` needs the exemption of the spine inputs (rule 10; granted by the
+main orchestrator, 2026-10-22): it bundles sub-inputs each already exempt; no zero instance (the sub-inputs have none).
 
 ## KfZeroInput sub-inputs (W1110)
 

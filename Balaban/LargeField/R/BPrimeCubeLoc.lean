@@ -17,10 +17,11 @@ the composed fields `ψ^{(j)}` at the sites of `c`.
 * `actionGWithCube_congr`, `starBondEWithCube_congr`: the action of a class reads the fields only
   at the sites of the class, their neighbours and the blocks of the class;
 * `SFCtx.tCubeOfBg_val`, `SFCtx.tCubeOfBlk_blkMap`: the blocks of level `≤ k` lie in the cubes;
-* `SFCtx.cubeRoot_congr`: the locality of the root of a cube;
-* `SFCtx.dataAgree`: the agreement of data on the `k`-blocks of a region, and `SFCtx.cubePair_loc`:
-  the pair functional of a cube root reads the fields and the data only on a region containing the
-  cube with its neighbours and closed under the `k`-blocks.
+* `SFCtx.cubeRoot_congr_src`, `SFCtx.cubeRoot_congr`: the locality of the root of a cube (in the
+  field, the data and the source);
+* `SFCtx.dataAgree`: the agreement of data on the `k`-blocks of a region, and `SFCtx.cubeRoot_loc`,
+  `SFCtx.cubePair_loc`: a cube root and the pair functional read the fields, the data and the source
+  only on a region containing the cube with its neighbours and closed under the `k`-blocks.
 -/
 
 @[expose] public section
@@ -135,10 +136,10 @@ theorem psiLevelKOf_congr (c : Torus S.d (n k)) {u u' : BlockAt S n M K k → Fi
 
 variable (Y : Set (Torus S.d (n k))) (hv : EuclideanSpace ℝ (Fin N))
 
-/-- **Locality of the root of a cube**: it depends on `(ψ_k, φ)` only through `φ̄` at the sites of
-the cube and their neighbours, the data on the `k`-blocks of the cube and the composed fields at the
-sites of the cube. -/
-theorem cubeRoot_congr (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
+/-- **Locality of the root of a cube, with two sources**: it depends on `(ψ_k, φ, g)` only through
+`φ̄` at the sites of the cube and their neighbours, the data on the `k`-blocks of the cube, the
+composed fields at the sites of the cube and the source at the sites of the cube. -/
+theorem cubeRoot_congr_src (vc : Def7v2.CorrCoef S.d) (g g' : GIdx S n M K N → ℂ)
     (c : Torus S.d (n k)) {u u' : BlockAt S n M K k → Fin N → ℂ}
     {φ φ' : (C.genW Y).Ω 1 × Fin N → ℂ}
     (hφ : ∀ z : BgT C.geo k, C.tCubeOfBg z = c → C.phiBarAt Y u hv φ z = C.phiBarAt Y u' hv φ' z)
@@ -147,8 +148,10 @@ theorem cubeRoot_congr (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
     (hu : ∀ y : LargeField.Blk S.d S.L (C.geo.M1 * (C.geo.c * n k)) k k, C.tCubeOfBlk k y = c →
       u (blkToBlock C.geo C.hnn C.hkK y) = u' (blkToBlock C.geo C.hnn C.hkK y))
     (hψ : ∀ j ∈ Finset.Icc 1 k, ∀ s, C.tCubeOfC s = c →
-      C.psiJAt Y u hv φ j s = C.psiJAt Y u' hv φ' j s) :
-    Def7v2.cubeRoot C vc Y u hv g φ c = Def7v2.cubeRoot C vc Y u' hv g φ' c := by
+      C.psiJAt Y u hv φ j s = C.psiJAt Y u' hv φ' j s)
+    (hgc : ∀ z : BgT C.geo k, C.tCubeOfBg z = c → ∀ i,
+      g (bgToFine C.geo C.hnn C.hkK z, i) = g' (bgToFine C.geo C.hnn C.hkK z, i)) :
+    Def7v2.cubeRoot C vc Y u hv g φ c = Def7v2.cubeRoot C vc Y u' hv g' φ' c := by
   classical
   -- the action of the cube
   have hact : ∀ μ, C.actCube Y u hv μ φ c = C.actCube Y u' hv μ φ' c := by
@@ -170,12 +173,28 @@ theorem cubeRoot_congr (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
     refine Finset.sum_congr rfl fun s hs => ?_
     rw [hψ j hj s (Finset.mem_filter.1 hs).2]
   -- the source term
-  have hg : Def7v2.gCube C Y u hv g φ c = Def7v2.gCube C Y u' hv g φ' c := by
+  have hg : Def7v2.gCube C Y u hv g φ c = Def7v2.gCube C Y u' hv g' φ' c := by
     unfold Def7v2.gCube
-    refine Finset.sum_congr rfl fun x hx => ?_
-    rw [hφ x (Finset.mem_filter.1 hx).2]
+    refine Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun i _ => ?_
+    rw [hφ x (Finset.mem_filter.1 hx).2, hgc x (Finset.mem_filter.1 hx).2 i]
   unfold Def7v2.cubeRoot
   rw [hact, Finset.sum_congr rfl hcorr, hg]
+
+/-- **Locality of the root of a cube**: it depends on `(ψ_k, φ)` only through `φ̄` at the sites of
+the cube and their neighbours, the data on the `k`-blocks of the cube and the composed fields at the
+sites of the cube. -/
+theorem cubeRoot_congr (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
+    (c : Torus S.d (n k)) {u u' : BlockAt S n M K k → Fin N → ℂ}
+    {φ φ' : (C.genW Y).Ω 1 × Fin N → ℂ}
+    (hφ : ∀ z : BgT C.geo k, C.tCubeOfBg z = c → C.phiBarAt Y u hv φ z = C.phiBarAt Y u' hv φ' z)
+    (hφν : ∀ (z : BgT C.geo k) (ν : Fin S.d), C.tCubeOfBg z = c →
+      C.phiBarAt Y u hv φ (z + Pi.single ν 1) = C.phiBarAt Y u' hv φ' (z + Pi.single ν 1))
+    (hu : ∀ y : LargeField.Blk S.d S.L (C.geo.M1 * (C.geo.c * n k)) k k, C.tCubeOfBlk k y = c →
+      u (blkToBlock C.geo C.hnn C.hkK y) = u' (blkToBlock C.geo C.hnn C.hkK y))
+    (hψ : ∀ j ∈ Finset.Icc 1 k, ∀ s, C.tCubeOfC s = c →
+      C.psiJAt Y u hv φ j s = C.psiJAt Y u' hv φ' j s) :
+    Def7v2.cubeRoot C vc Y u hv g φ c = Def7v2.cubeRoot C vc Y u' hv g φ' c :=
+  C.cubeRoot_congr_src Y hv vc g g c hφ hφν hu hψ fun _ _ _ => rfl
 
 /-! ### The agreement of data on a region -/
 
@@ -249,6 +268,63 @@ theorem tCubeOfC_torusCast (z : BgT C.geo k) :
   unfold tCubeOfC
   rw [C.sfToBg_torusCast]
 
+/-- **Locality of a cube root, with two sources**: for a region `X₁` containing the sites of the
+cube, their neighbours and the `k`-blocks of the sites of the cube, the root of the cube for the
+region `Y` reads the field, the data and the source `sfG g` only on `X₁`. -/
+theorem cubeRoot_loc (vc : Def7v2.CorrCoef S.d) (g g' : GIdx S n M K N → ℂ) (c : Torus S.d (n k))
+    {X₁f : Finset (Localization.CTorus S.d S.L C.N₁ m₁ k)}
+    (hA : ∀ s, C.tCubeOfC s = c → ∀ y, SameCell (S.L ^ k) y s → y ∈ X₁f)
+    (hAν : ∀ (z : BgT C.geo k) (ν : Fin S.d), C.tCubeOfBg z = c →
+      (GsSpec.torusCast (z + Pi.single ν 1) : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f)
+    (u u' : BlockAt S n M K k → Fin N → ℂ) (φ φ' : (C.genWC Y).Ω 1 × Fin N → ℂ)
+    (hφ : ∀ y : (C.genWC Y).Ω 1, (y : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f →
+      ∀ i, φ (y, i) = φ' (y, i))
+    (hu : C.dataAgree ↑X₁f u u')
+    (hg : ∀ x ∈ (X₁f : Set (Localization.CTorus S.d S.L C.N₁ m₁ k)), ∀ i,
+      sfG C.geo C.hnn C.hkK C.hT g x i = sfG C.geo C.hnn C.hkK C.hT g' x i) :
+    Def7v2.cubeRoot C vc Y u hv g (castΩField C.coarseSide_eq (C.genW Y) φ) c =
+      Def7v2.cubeRoot C vc Y u' hv g' (castΩField C.coarseSide_eq (C.genW Y) φ') c := by
+  classical
+  have hcube : ∀ z : BgT C.geo k, C.tCubeOfBg z = c →
+      (GsSpec.torusCast z : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f := fun z hz =>
+    hA _ (by rw [C.tCubeOfC_torusCast, hz]) _ (SameCell.refl _ _)
+  have hbar : ∀ x ∈ X₁f, ∀ i, barField (C.genWC Y) (C.liftWC Y hv u) φ x i =
+      barField (C.genWC Y) (C.liftWC Y hv u') φ' x i := by
+    intro x hx i
+    unfold barField
+    by_cases hxΩ : x ∈ (C.genWC Y).Ω 1
+    · simp only [hxΩ, ↓reduceDIte]
+      exact hφ ⟨x, hxΩ⟩ hx i
+    · simp only [hxΩ, ↓reduceDIte]
+      exact C.liftWC_eq_of_dataAgree Y hv hu hx i
+  refine C.cubeRoot_congr_src Y hv vc g g' c ?_ ?_ ?_ ?_ ?_
+  · intro z hz
+    funext i
+    rw [C.phiBarAt_cast Y hv, C.phiBarAt_cast Y hv]
+    exact hbar _ (hcube z hz) i
+  · intro z ν hz
+    funext i
+    rw [C.phiBarAt_cast Y hv, C.phiBarAt_cast Y hv]
+    exact hbar _ (hAν z ν hz) i
+  · intro y hy
+    have hx := hcube (C.blkBase k y) hy
+    have e := hu _ hx
+    unfold blkOfC at e
+    rw [C.sfToBg_torusCast, C.blkMap_blkBase] at e
+    exact e
+  · intro j hj s hs
+    have hjk : j ≤ k := (Finset.mem_Icc.1 hj).2
+    funext i
+    rw [C.psiJAt_cast Y u hv φ hjk s i, C.psiJAt_cast Y u' hv φ' hjk s i]
+    refine composeField_congr C.weights (fun y hy i' => ?_) (fun i' => ?_) i
+    · exact svec_eq_of_agree hφ (hA s hs y (composeDep_sameCell hy)) i'
+    · exact C.liftWC_eq_of_dataAgree Y hv hu (hA s hs s (SameCell.refl _ _)) i'
+  · intro z hz i
+    have e := hg _ (hcube z hz) i
+    unfold sfG at e
+    rw [C.sfToBg_torusCast] at e
+    exact e
+
 variable (Y₁ Y₂ : Set (Torus S.d (n k)))
 
 /-- **Locality of the pair functional of a cube root**: for a region `X₁` containing the sites of the
@@ -267,50 +343,9 @@ theorem cubePair_loc (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ) (c 
       ∀ i, φ₂ (y, i) = φ₂' (y, i))
     (hu : C.dataAgree ↑X₁f u u') :
     C.cubePair hv Y₁ Y₂ vc g c u φ₁ φ₂ = C.cubePair hv Y₁ Y₂ vc g c u' φ₁' φ₂' := by
-  classical
-  have hcube : ∀ z : BgT C.geo k, C.tCubeOfBg z = c →
-      (GsSpec.torusCast z : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f := fun z hz =>
-    hA _ (by rw [C.tCubeOfC_torusCast, hz]) _ (SameCell.refl _ _)
-  -- one region at a time
-  have hone : ∀ (Y : Set (Torus S.d (n k))) (φ φ' : (C.genWC Y).Ω 1 × Fin N → ℂ),
-      (∀ y : (C.genWC Y).Ω 1, (y : Localization.CTorus S.d S.L C.N₁ m₁ k) ∈ X₁f →
-        ∀ i, φ (y, i) = φ' (y, i)) →
-      Def7v2.cubeRoot C vc Y u hv g (castΩField C.coarseSide_eq (C.genW Y) φ) c =
-        Def7v2.cubeRoot C vc Y u' hv g (castΩField C.coarseSide_eq (C.genW Y) φ') c := by
-    intro Y φ φ' hφ
-    have hbar : ∀ x ∈ X₁f, ∀ i, barField (C.genWC Y) (C.liftWC Y hv u) φ x i =
-        barField (C.genWC Y) (C.liftWC Y hv u') φ' x i := by
-      intro x hx i
-      unfold barField
-      by_cases hxΩ : x ∈ (C.genWC Y).Ω 1
-      · simp only [hxΩ, ↓reduceDIte]
-        exact hφ ⟨x, hxΩ⟩ hx i
-      · simp only [hxΩ, ↓reduceDIte]
-        exact C.liftWC_eq_of_dataAgree Y hv hu hx i
-    refine C.cubeRoot_congr Y hv vc g c ?_ ?_ ?_ ?_
-    · intro z hz
-      funext i
-      rw [C.phiBarAt_cast Y hv, C.phiBarAt_cast Y hv]
-      exact hbar _ (hcube z hz) i
-    · intro z ν hz
-      funext i
-      rw [C.phiBarAt_cast Y hv, C.phiBarAt_cast Y hv]
-      exact hbar _ (hAν z ν hz) i
-    · intro y hy
-      have hx := hcube (C.blkBase k y) hy
-      have e := hu _ hx
-      unfold blkOfC at e
-      rw [C.sfToBg_torusCast, C.blkMap_blkBase] at e
-      exact e
-    · intro j hj s hs
-      have hjk : j ≤ k := (Finset.mem_Icc.1 hj).2
-      funext i
-      rw [C.psiJAt_cast Y u hv φ hjk s i, C.psiJAt_cast Y u' hv φ' hjk s i]
-      refine composeField_congr C.weights (fun y hy i' => ?_) (fun i' => ?_) i
-      · exact svec_eq_of_agree hφ (hA s hs y (composeDep_sameCell hy)) i'
-      · exact C.liftWC_eq_of_dataAgree Y hv hu (hA s hs s (SameCell.refl _ _)) i'
   unfold cubePair
-  rw [hone Y₁ φ₁ φ₁' h₁, hone Y₂ φ₂ φ₂' h₂]
+  rw [C.cubeRoot_loc Y₁ hv vc g g c hA hAν u u' φ₁ φ₁' h₁ hu (fun _ _ _ => rfl),
+    C.cubeRoot_loc Y₂ hv vc g g c hA hAν u u' φ₂ φ₂' h₂ hu (fun _ _ _ => rfl)]
 
 end Def7.SFCtx
 

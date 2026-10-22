@@ -202,13 +202,24 @@ theorem chart_label_facts (x : G.Ω 1) (Cs : Finset ↥(coverOf G).cubeIdx)
   exact ⟨this.1, this.2.1⟩
 
 open Classical in
-include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hd hVS hA hG in
-/-- **The size of the activity of a label.** -/
-theorem chartTerm_norm_le (hz : labelZ d L 0 (ρ + L) κ < 1)
-    (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1)) {e : RawData d L (N₁ * L ^ m₁) 1 N}
-    (he : e ∈ V) {ψ : G.Ω 1 × Fin N → ℂ} (hψ : ∀ r, ‖ψ r‖ ≤ p₁) :
+/-- **The size of the activity of a label from the coefficients of its pairs.** -/
+theorem chartTerm_norm_le_of_spec (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (a : ℕ → ℝ) (ν β : ℝ)
+    (g : G.Ω 1 × Fin N → ℂ)
+    (W : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)
+    (F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) 1 N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ))
+    {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hL2 : 2 ≤ L) {Dr : ℕ} (hDr : Dr ≤ L ^ (1 + m₁))
+    (hm4 : 4 * L ^ 2 ≤ L ^ m₁) (hd : 0 < d) (ρ : ℕ) {κ B : ℝ} (hB : 0 ≤ B)
+    (hz : labelZ d L 0 (ρ + L) κ < 1) (e : RawData d L (N₁ * L ^ m₁) 1 N)
+    (ψ : G.Ω 1 × Fin N → ℂ) (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
+    (hspec : ∀ (x : G.Ω 1) (Cs : Finset ↥(coverOf G).cubeIdx),
+      labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) Cs = Y →
+      (¬ IsRootedFamily (cellPatch (coverOf G) Dr)
+        (seedBall (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) : Set _) Cs →
+        coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs = 0) ∧
+      ‖coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs‖ ≤ B * Real.exp (-(κ - 1)) ^ Cs.card) :
     ‖chartTerm G a ν β g W F m₀ (ρ + L) Y e ψ‖ ≤
-      labelAmp d L m₀ m₁ 0 (ρ + L) κ (2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg) *
+      labelAmp d L m₀ m₁ 0 (ρ + L) κ B *
         Real.exp (-(labelRate d L 0 (ρ + L) κ) * treeLenCovOne m₀ (0 + 1) Y) := by
   have hlay : ∀ q ∈ (coverOf G).cubeIdx, 1 ≤ q.1 ∧ q.1 ≤ 0 + 1 :=
     fun q hq => ((mem_cubeIdx G).1 hq).1
@@ -219,38 +230,60 @@ theorem chartTerm_norm_le (hz : labelZ d L 0 (ρ + L) κ < 1)
       Finset _) : Set (Balaban.Localization.CTorus d L N₁ m₁ 1)),
       supDist (x : Balaban.Localization.CTorus d L N₁ m₁ 1) y ≤ ρ + L :=
     fun x y hy => mem_seedBall.1 (Finset.mem_coe.1 hy)
-  have hB0 : 0 ≤ 2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg := by
-    have := chartBound_nonneg d L N (a 1) ν β Aα Ee BW p₁ Gg hβ hA hE hBW hp hG
-    linarith
-  have hsp := fun x => chartSpec_of_mem hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD g ρ W hWloc hWan hE
-    hBW hp hU hg hsmall hmemAll (hVS he) hψ x
-  exact norm_labelSum_le (coverOf G) hd (fun x : G.Ω 1 => (x : Balaban.Localization.CTorus d L N₁ m₁ 1))
+  have key := norm_labelSum_le (coverOf G) hd (fun x : G.Ω 1 => (x : Balaban.Localization.CTorus d L N₁ m₁ 1))
     Subtype.val_injective hN hL2 hDr' hm4 hlay hal
     (fun x => (seedBall (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) : Set _)) hseed
-    (fun x Cs => coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs) hB0 hz
+    (fun x Cs => if labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) Cs = Y
+      then coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs else 0) hB hz
     (fun x Cs hne => by
       by_contra hnr
-      exact hne ((hsp x).1 Cs hnr))
+      by_cases hl : labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) Cs = Y
+      · exact hne (by simp only [hl, ↓reduceIte]; exact (hspec x Cs hl).1 hnr)
+      · exact hne (by simp only [hl, ↓reduceIte]))
     (fun x Cs => by
-      refine ((hsp x).2.1 Cs).trans (le_of_eq ?_)
-      rw [← Real.exp_nat_mul]; congr 2; ring) Y
+      by_cases hl : labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) Cs = Y
+      · simp only [hl, ↓reduceIte]; exact (hspec x Cs hl).2
+      · simp only [hl, ↓reduceIte, norm_zero]; positivity) Y
+  convert key using 3
+  unfold chartTerm
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun Cs hCs => ?_
+  simp only [(Finset.mem_filter.1 hCs).2, ↓reduceIte]
 
 open Classical in
-include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hVS hWr hfld_bd hfld_loc in
-/-- **The activity of a label depends only on the blocks of the label.** -/
-theorem chartTerm_depOn (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
-    {e : RawData d L (N₁ * L ^ m₁) 1 N} (he : e ∈ V) :
+/-- **The activity of a label depends only on the blocks of the label, from the vanishing of the non-rooted
+coefficients with that label.** -/
+theorem chartTerm_depOn_of_spec (G : GeneratingSet d L (N₁ * L ^ m₁) 1 ϱ) (a : ℕ → ℝ) (ν β : ℝ)
+    (g : G.Ω 1 × Fin N → ℂ)
+    (W : ((G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ)) → Matrix (G.Ω 1 × Fin N) (G.Ω 1 × Fin N) ℂ)
+    (F : Dec2.DecParams (coverOf G) × RawData d L (N₁ * L ^ m₁) 1 N →
+      (G.Ω 1 × Fin N → ℂ) × (G.Ω 1 → ℂ))
+    {m₀ : ℕ} (hN : L ^ m₀ ∣ N₁) (hL2 : 2 ≤ L) {Dr : ℕ} (hDr : Dr ≤ L ^ (1 + m₁))
+    (hm4 : 4 * L ^ 2 ≤ L ^ m₁) (ρ : ℕ) (e : RawData d L (N₁ * L ^ m₁) 1 N)
+    (hWr : ∀ u p r, W u p r ≠ 0 → supDist (p.1 : Balaban.Localization.CTorus d L N₁ m₁ 1)
+      (r.1 : Balaban.Localization.CTorus d L N₁ m₁ 1) ≤ ρ)
+    {Ωb : CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (K := 1) m₀ 1 Set.univ → Type*}
+    [∀ b, MeasurableSpace (Ωb b)] (fld : (∀ b, Ωb b) → G.Ω 1 × Fin N → ℂ) {p₁ : ℝ}
+    (hfld_bd : ∀ Φ r, ‖fld Φ r‖ ≤ p₁)
+    (hfld_loc : ∀ (B : Finset (CubeB (L := L) (N₁ := N₁) (m₁ := m₁) (K := 1) m₀ 1 Set.univ))
+      (Φ Φ' : ∀ b, Ωb b), (∀ b ∈ B, Φ b = Φ' b) → ∀ r : G.Ω 1 × Fin N,
+      (∃ b ∈ B, (r.1 : Balaban.Localization.CTorus d L N₁ m₁ 1) ∈
+        Localization.box b.1 (cellSide L m₀ m₁ 1)) → fld Φ r = fld Φ' r)
+    (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
+    (hvan : ∀ ψ : G.Ω 1 × Fin N → ℂ, (∀ r, ‖ψ r‖ ≤ p₁) →
+      ∀ (x : G.Ω 1) (Cs : Finset ↥(coverOf G).cubeIdx),
+      labelSet (coverOf G) m₀ (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) Cs = Y →
+      ¬ IsRootedFamily (cellPatch (coverOf G) Dr)
+        (seedBall (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) : Set _) Cs →
+        coef (fun s => chartFe G a ν β g ψ W x (F (s, e))) Cs = 0) :
     DepOn (blocksOf m₀ 1 Set.univ Y) (fun Φ => chartTerm G a ν β g W F m₀ (ρ + L) Y e (fld Φ)) := by
   intro Φ Φ' hΦ
   unfold chartTerm
   refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun Cs hCs => ?_
   have hlab := (Finset.mem_filter.1 hCs).2
-  have hsp := fun (ψ : G.Ω 1 × Fin N → ℂ) (hψ : ∀ r, ‖ψ r‖ ≤ p₁) =>
-    chartSpec_of_mem hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD g ρ W hWloc hWan hE
-      hBW hp hU hg hsmall hmemAll (hVS he) hψ x
   by_cases hr : IsRootedFamily (cellPatch (coverOf G) Dr)
       (seedBall (x : Balaban.Localization.CTorus d L N₁ m₁ 1) (ρ + L) : Set _) Cs
-  · have hfacts := chart_label_facts (G := G) (hL2 := hL2) (hN := hN) (hDr := hDr) (hm4 := hm4) (ρ := ρ) (x := x) (Cs := Cs) hr
+  · have hfacts := chart_label_facts (G := G) (hL2 := hL2) (hN := hN) (hDr := hDr) (hm4 := hm4)
+      (ρ := ρ) (x := x) (Cs := Cs) hr
     have hYDj : IsDj m₀ 1 Y := by
       rw [← hlab]; exact isDj_of_isPolyDom hfacts.1
     have hpsi : ∀ r : G.Ω 1 × Fin N, supDist (x : Balaban.Localization.CTorus d L N₁ m₁ 1)
@@ -262,7 +295,36 @@ theorem chartTerm_depOn (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
       exact hfld_loc (blocksOf m₀ 1 Set.univ Y) Φ Φ' hΦ r ⟨b, hb, hbx⟩
     exact congrArg (fun f => coef f Cs)
       (funext fun s => chartFe_psi_congr G a ν β g (fld Φ) (fld Φ') x ρ W hWr hpsi (F (s, e)))
-  · rw [(hsp (fld Φ) (hfld_bd Φ)).1 Cs hr, (hsp (fld Φ') (hfld_bd Φ')).1 Cs hr]
+  · rw [hvan (fld Φ) (hfld_bd Φ) x Cs hlab hr, hvan (fld Φ') (hfld_bd Φ') x Cs hlab hr]
+
+open Classical in
+include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hd hVS hA hG in
+/-- **The size of the activity of a label.** -/
+theorem chartTerm_norm_le (hz : labelZ d L 0 (ρ + L) κ < 1)
+    (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1)) {e : RawData d L (N₁ * L ^ m₁) 1 N}
+    (he : e ∈ V) {ψ : G.Ω 1 × Fin N → ℂ} (hψ : ∀ r, ‖ψ r‖ ≤ p₁) :
+    ‖chartTerm G a ν β g W F m₀ (ρ + L) Y e ψ‖ ≤
+      labelAmp d L m₀ m₁ 0 (ρ + L) κ (2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg) *
+        Real.exp (-(labelRate d L 0 (ρ + L) κ) * treeLenCovOne m₀ (0 + 1) Y) := by
+  have hB0 : 0 ≤ 2 * chartBound d L N (a 1) ν β Aα Ee BW p₁ Gg := by
+    have := chartBound_nonneg d L N (a 1) ν β Aα Ee BW p₁ Gg hβ hA hE hBW hp hG
+    linarith
+  have hsp := fun x => chartSpec_of_mem hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD g ρ W hWloc hWan hE
+    hBW hp hU hg hsmall hmemAll (hVS he) hψ x
+  exact chartTerm_norm_le_of_spec G a ν β g W F hN hL2 hDr hm4 hd ρ hB0 hz e ψ Y
+    (fun x Cs _ => ⟨(hsp x).1 Cs, by
+      refine ((hsp x).2.1 Cs).trans (le_of_eq ?_)
+      rw [← Real.exp_nat_mul]; congr 2; ring⟩)
+
+open Classical in
+include hS Sb HB hκ hM hF hFan hΩ hDD hWloc hWan hE hBW hp hU hg hsmall hmemAll hβ hL2 hN hDr hm4 hVS hWr hfld_bd hfld_loc in
+/-- **The activity of a label depends only on the blocks of the label.** -/
+theorem chartTerm_depOn (Y : Set (Balaban.Localization.CTorus d L N₁ m₁ 1))
+    {e : RawData d L (N₁ * L ^ m₁) 1 N} (he : e ∈ V) :
+    DepOn (blocksOf m₀ 1 Set.univ Y) (fun Φ => chartTerm G a ν β g W F m₀ (ρ + L) Y e (fld Φ)) := by
+  exact chartTerm_depOn_of_spec G a ν β g W F hN hL2 hDr hm4 ρ e hWr fld hfld_bd hfld_loc Y
+    (fun ψ hψ x Cs _ hr => (chartSpec_of_mem hS G a ν β hβ Sb HB hκ hM hF hFan hΩ hDD g ρ W hWloc
+      hWan hE hBW hp hU hg hsmall hmemAll (hVS he) hψ x).1 Cs hr)
 
 open Classical in
 include hFan hWan hE hU hsmall hmemAll hβ hκ hVS hfld_bd in

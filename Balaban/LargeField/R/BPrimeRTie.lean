@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.BPrimeRAggregate
+public import Balaban.LargeField.Def7WitData
 
 /-!
 # `ℬ′` of the step `R` on the boundary domains of `𝕋_k`
@@ -21,7 +22,9 @@ of `r4Coupling` / `gasR4Decor_eq`), for the old small-field regions `Yr Γ` of t
 * `SFCtx.sum_rFresh_eq`: `Σ_X ℬ′_X(Γ) = Σ_Y rBPrime Y`, the aggregate of `rBPrime_aggregate` on the
   boundary domains;
 * `volK_sdiff_biUnion`: the vacuum term of the residual is the sum of the volumes of the removed
-  components (row (d): it is carried by the removed weights, `VacuumTie.removed_weight_shift`).
+  components (row (d): it is carried by the removed weights, `VacuumTie.removed_weight_shift`);
+* `not_mem_rem_one`, `eq_empty_of_rem_one`, `r4Coupling_rFresh_rem_one`: at the scale `1` the step
+  `R` removes nothing (`not_ripe_one`), so `ℬ′` vanishes there.
 -/
 
 @[expose] public section
@@ -142,6 +145,44 @@ theorem r4Coupling_rFresh_empty {Zt Xt : Type*} {Yr : Finset Zt → Set (Torus S
   r4Coupling_empty old _ kept hbase (fun x => C.rFresh_empty hv vc g hYr a₁ ν rho u (dom x)) x
 
 end Def7.SFCtx
+
+/-! ### The scale `k = 1`: `R` removes nothing -/
+
+section KOne
+
+variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K : ℕ}
+
+/-- **At the scale `1` the step `R` removes nothing** (LFR Part I §I.5.5, base: no component of
+`Z^pre_1` is ripe, `t^* ≥ 1 + n_q(1) > 1`, `Def7.not_ripe_one`; a removed component is ripe,
+`RegionHistory.Admissible`). -/
+theorem not_mem_rem_one (G : S.Good) {H : RegionHistory S n R k0 K} (hH : H.Admissible)
+    (hK : 1 ≤ K) (c : H.Comp 1) : c.1 ∉ H.rem 1 :=
+  fun hc => Def7.not_ripe_one G H hK c (hH 1 c hc)
+
+/-- Every family of removed components of the scale `1` is empty. -/
+theorem eq_empty_of_rem_one (G : S.Good) {H : RegionHistory S n R k0 K} (hH : H.Admissible)
+    (hK : 1 ≤ K) {Γ : Finset (H.Comp 1)} (hΓ : ∀ c ∈ Γ, c.1 ∈ H.rem 1) : Γ = ∅ :=
+  Finset.eq_empty_of_forall_notMem fun c hc => not_mem_rem_one G hH hK c (hΓ c hc)
+
+variable {M : ℕ} [NeZero M] [NeZero S.L] {N m₁ : ℕ} {ϱ : ℝ}
+
+/-- **`ℬ′` vanishes at the scale `1`**: the coupling `r4Coupling` of the removed components of a
+scale-`1` history, with `fresh = ℬ′ = rFresh`, is `0` (`eq_empty_of_rem_one`,
+`r4Coupling_rFresh_empty`): the step `R` with ripe components, where `rBPrime_aggregate` is used,
+has `k ≥ 2`. -/
+theorem r4Coupling_rFresh_rem_one (C : Def7.SFCtx S n R M K N 1 m₁ ϱ)
+    (hv : EuclideanSpace ℝ (Fin N)) (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
+    (G : S.Good) {H : RegionHistory S n R k0 K} (hH : H.Admissible) (hK : 1 ≤ K) {Xt : Type*}
+    {Yr : Finset (H.Comp 1) → Set (Torus S.d (n 1))} {Y₂ : Set (Torus S.d (n 1))}
+    (hYr : Yr ∅ = Y₂) (a₁ ν rho : ℝ) (u : BlockAt S n M K 1 → Fin N → ℂ)
+    (dom : Xt → Finset (Torus S.d (n 1))) (old : Xt → Finset (H.Comp 1) → ℂ) (kept : Xt → ℂ)
+    (hbase : ∀ x, old x ∅ = kept x) (x : Xt) {Γ : Finset (H.Comp 1)}
+    (hΓ : ∀ c ∈ Γ, c.1 ∈ H.rem 1) :
+    r4Coupling old (fun x Γ => C.rFresh hv vc g Yr Y₂ a₁ ν rho u (dom x) Γ) kept x Γ = 0 := by
+  rw [eq_empty_of_rem_one G hH hK hΓ]
+  exact C.r4Coupling_rFresh_empty hv vc g hYr a₁ ν rho u dom old kept hbase x
+
+end KOne
 
 /-! ### The vacuum term of the residual (row (d)) -/
 

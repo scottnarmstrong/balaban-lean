@@ -560,6 +560,130 @@ approved declaration.
   `Def7.mem_omegaPost_iff`, `Def7.fineSet_omegaPost_inter_eq`, `LargeField/History/H7Holes.lean`).  (c) for components removed by
   `R^{(k+1)}`: the pre-`R` records compared the post-`R` objects at the top scale; ruling R22 (approved) makes them
   compare `Z^pre_k` and all components of `Z^pre_k`.
+- **Blocker 3, closing ladder (W1154e, 2026-10-22).** From `w1154-r22` (R17, R22, R26, `H7MixedDatumLoc2Pre` proved,
+  `norm_oldB2Pre_le`) to `LFBdryOldInput Λ Sb Bo` for the step's actual boundary terms.  `★` = critical path.
+  1. ★ **Region chord identity** (`Fluctuation/Expansion*`, `CriticalPoint*`): the multi-layer energy of `G` in place of
+     `levelEnergyC G n`, coupling and defect summed over the region `R = Ω_{k+1}` (the region form of
+     `coupling_add_actionC_on` for a region pair whose lower layers are not those of a level set; algebra checked,
+     drafts `Balaban-scratch/w1154/RPC.lean`, `Patch.lean`): ~500.
+  2. ★ **Prop 3.3 engine on region pairs** (`Interaction*`, `Prop33*`, `FlCore*`; 26 files bound to `IsLevel`): carry a
+     `RegionPair` (`FlCore` on `Dec2.CoverBase` in place of `DGSetting`), each landed statement an instance at
+     `RegionPair.ofLevel`: ~3,500.  Output: the localized interaction of P5 (3.2) on the hole step, `InterpMarksOn` for
+     `expWLF`.
+  3. ★ **The interaction family of `oldB2`** (`LocIntFam` over the fields): old-term part = the landed re-expansion,
+     action part = P6 Lemma 4.2 (Taylor remainders of (4.29), `δ₀` terms (4.30)–(4.31)); its constants `κ_H, κ′, κ₀`
+     uniform in the fields and its field properties (locality, reality, `O(N)`, analyticity on the H7 domain of
+     `globalLHPre`): ~1,500.
+  4. **Region complex form of P5 Lemma 2.1** (`Fluctuation/Lemma25*` are level-pair and real): the composed field of the
+     local pair in `Δ^c_k(□; 1, ε_k)` at the cubes near `Ω_{k+1}` ⇒ `H7MixedInnerLoc2Pre` (room conditions on `r_ψ`, `R`
+     and the tolerances): ~2,000.
+  5. **The (D7) clauses of `oldB2` at `globalLHPre`** (generic `oldBAtAt_*` landed: `support`, `loc_field`, `real`,
+     `rot`, `analytic`; `bound` = `norm_oldB2Pre_le`): restatement at the records of the pre-`R` class (`FineValidPre`,
+     `bdryDomsPre`, `d7SizePre` at `k + 1`) and the constant `Bo` from the bound: ~400.  `loc_hist`, `euclid`: W1164.
+  6. ★ **The identity** old part of `ℬ^{(k+1)}` = `Σ oldB2` (P5 (2.48), (3.2); FLUCTUATION Theorem 3.1 (c) on the
+     region, landed `oldTotal_eq_sum_oldBOut`): with `h₀ = Re h = hv`, the record's terms at `pre 𝔸′`, field-independent
+     units, cubes and interaction; needs the step map `Λ` with `B = new + delta + old` defined (today `LFStepRaw.B` is a
+     bare field, SPINE "Status of O1 and O5"): ~1,200.
+  7. **`lfBdryOldInput_of_old_eq`** (PROVED, `Spine/LFBdryOldAssembly.lean`): `LFBdryOldInput Λ Sb Bo` from
+     `OldPartEq Λ Sb O` (item 6) and `LFBdryPart … Φ Λ O Bo` ((D7) of the pre-`R` class for the family `O`, items 1–5
+     with W1164's `loc_hist`, `euclid`); `oldPartEq_self` (rule 10).  Next: split `LFBdryPart … O Bo` into the clause
+     pieces of item 5.
+  **Item 6 and the step map.** `LFStepMap` (`Spine/LFStep.lean:525`) and `LFBdrySplit` (`Spine/LFBdry.lean`) are
+  parameters of the sub-spine; no landed declaration produces an `LFStepRaw` with nonzero boundary terms (the
+  constructors are the zero data `LFStepRaw` (`B := 0`), the frozen map `FrozenLFStep`, `BasePre` (`B := Γ.B nK`)).  So no
+  landed definition changes: the step map of the provider is defined with `B nK := new nK + delta nK + old nK` and the
+  split `Sb` with `old := O` (then `sum_eq` and `OldPartEq` hold by `rfl`); item 6 is then the statement that this `O`
+  is the old part of P5 (2.48), (3.2), i.e. the identity `oldTotal_eq_sum_oldBOut` read through `oldB2` at the step's
+  data, which the provider's definition of `new` must complement.
+  **Nothing by fiat (orchestrator, 2026-10-22).** Each of the three parts is defined as the source defines it, and
+  "`B` is the source's `ℬ^{(k+1)}`" is then a theorem about the three definitions; never `new := ℬ − old`, never `B`
+  chosen so that `OldPartEq` holds by construction while its meaning is open.  Correspondence:
+  `old` — the old boundary terms `ℬ^{(k)}(X′)` of the record whose domains meet `Ω_{k+1}`, integrated in the
+  fluctuation integral of the step on the region: P5 (2.16)–(2.20), (2.39) (the composed field), (2.48) (the term
+  `∫₀¹ du ⟨ℬ″^{(k)}(ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂)⟩″_u`), (3.1)–(3.2) (the localized measure and its
+  cluster expansion), P6 (4.32)–(4.34) (re-expansion at the output labels), FLUCTUATION Theorem 3.1 (c); LFR Lemma
+  IV.1.5 (iii).  `new` — the new boundary terms: the cluster terms of the fluctuation integral with no old boundary term,
+  the renormalization and the surface terms, P5 Propositions 3.1–3.4, P6 Propositions 2.1–2.3, P6 p. 15; LFR Lemma
+  IV.1.5 (i).  `delta` — the terms `Δ(Y)` of the expansion (IV.1.1) of the main action at the complete background with
+  `Y` meeting `Z^c_{k+1}`: LFR Lemma IV.1.3, FLUCTUATION Theorem 4.2; LFR Lemma IV.1.5 (ii).  The sum is `ℬ^{(k+1)}` of
+  P5 (3.2)–(3.3) (LFR Lemma IV.1.5).
+  Total ≈ 9,400 lines; the order 1 → 2 → 3 (with 4 in parallel) → 6 → 5 → 7.
+- **W1154f (2026-10-22): target (0), the clauses of (D7) for the old part, one by one** (commits `82f86939`,
+  `880f7e66`; items 1, 2 (a), (b): `2d02b57b`).  `Spine/LFBdryClauses.lean`:
+  `D7Clause` (the eight clauses), `D7Clause.Holds` (each the field of `D7Bdry` of the same name), `d7Bdry_of_clauses`,
+  `D7Bdry.clause`, `d7Bdry_iff_clauses`; `LFBdryClause … Λ B' fac cl` (one clause at the step, the form of `LFBdryPart`),
+  `lfBdryPart_of_clauses`, and **`lfBdryOldInput_of_clauses`**: `LFBdryOldInput Λ Sb Bo` from `OldPartEq Λ Sb O` and the
+  eight clauses `LFBdryClause … O Bo cl`.  The old part in the form of the step (`Spine/LFOldStepClauses.lean`):
+  `oldBOfAt` (core of `oldBOf`, `Spine/LFOldBBound.lean`: the datum's external field `h₀ h` and the physical field
+  `hv h` read from the argument `h`; `oldBOf` is the instance with `h₀`, `hv` constant, body changed, statement unchanged)
+  and `oldStepB` (`glob = true`, `σ = stencilX`, field-independent units `inner 𝔸`, cubes `cb 𝔸`, interaction family
+  `IF 𝔸 : LocIntFam … (OldPrm …)` at the argument `(ψ, ψ', h, g)`, fixed values `ψout 𝔸 ψ h`, `h₀ = Re h`, `hv = Re h`
+  (`reExt`, `reExtE`; finding (i) of W1154c)).  The record `rep` re-expanded is a record of scale `k` whose histories
+  contain those of the successor (at the step: the record of scale `k` re-indexed by `pre`, ladder item 6).
+  Clauses proved for a record `rep'` of scale `k + 1` with `rep'.B = oldStepB …` (`D7Clause.Holds`):
+  `oldStepB_support` (unconditional); `oldStepB_locField` (the record's (D7) at `Z_k`, locality of `IF` and `ψout`);
+  `oldStepB_real` (reality of `IF`, `ψout`, and `hana`); `oldStepB_rot` (covariance of `IF`, `ψout`, and `hcoef`:
+  `OldCoefRotHyp`); `oldStepB_analytic` (`hdat`: an open set of arguments containing the H7 domain on which the
+  activities and the marks are analytic, continuous, bounded); `oldStepB_bound` (`norm_oldB2Pre_le`: `H7MixedInnerLoc2Pre`
+  (item 4, open), `H7MixedDatumLoc2Pre` (proved, `h7MixedDatumLoc2Pre_holds`), `OldResumSiteAt stencilX` (proved,
+  `oldResumSite2_holds`), the constants of `IF`, `hBo`).  Open clauses: `locHist`, `euclid` (W1164, branch `w1161-gst`).
+  **The gap of the assembly** (`lfBdryOldInput_of_clauses` at `O = oldStepB` of the step's data): `OldPartEq` and the
+  definitions of the step's `pre`, `inner`, `cb`, `IF`, `ψout` (item 6); the record's (D7) for the re-indexed record
+  (item 6, a transport along `Agree k (k+1)`); the properties of `IF` (item 3: locality, reality, covariance,
+  analyticity, uniform constants); `H7MixedInnerLoc2Pre` (item 4); `locHist`, `euclid` (W1164); and the finding below.
+  **Finding (W1154f): `real` and `rot` of (D7) are asked at every argument.**  The coefficient clauses of the old part
+  (`oldCoefLoc2_im`, `oldCoefLoc2_rot`) need the analyticity of the interpolated old terms on a polydisc of radius
+  `> 1` and the standing conditions of the decoupled covariance at the vertices of the unit cube, which the chain proves
+  only for data of the domain of the local pairs (the H7 domain of the target); (D7) asks `real` at every real argument
+  and `rot` at every argument.  So `hana` (real) and `hcoef` (rot) of `oldStepB_real`, `oldStepB_rot` are open off the
+  domain.  Options: (a) prove the coefficient reality and covariance at every argument (the decoupled objects
+  `decBgField`, `decCovSqrt` are covariant and real by construction off their domain, if their junk values are); (b) a
+  ruling: `real`, `rot` (and `loc_field`?) of (D7) asked on the H7 domain only, as `analytic`, `bound` (ruling R16 did
+  this for the external field); (c) cutting the old part off outside the H7 domain of the label breaks `loc_field`
+  (the domain at `Y` reads the cubes within 3 cubes of those of `Y`).
+- **W1154f (2026-10-22): ladder item 1 and the first part of item 2 (Lemma 2.3 (a), (b), (d) on region pairs).**
+  Item 1 (`Fluctuation/CriticalPoint.lean`, `Fluctuation/Expansion.lean`): `RegionPair.composeData_Ψ_eq_psiStar_on`
+  (core of `composeData_Ψ_eq_psiStar`), `liftφOf` (core of `liftφ`), `RegionPair.liftφ`, `RegionPair.restrictφ_liftφ`,
+  `RegionPair.svec_sub_restrict` (core of `svec_sub_restrict`), **`RegionPair.chord_identity_on`** (P5 (2.21); core of
+  `chord_identity`): `J = A'(θ, φ₁) + coupling_R(0, ψ') + level_{R,n}(ψ', τ) - level'_{R,n+1}(0, τ) + ½ ⟨τ, H'(α₁) τ⟩`,
+  the coupling and level energies summed over the new region `R = Ω'_{n+1}`, `⟨τ, H'τ⟩` the Hessian of the action of
+  `G'` with all its layers (the "multi-layer energy" of the ladder); `chordTail_ofLevel` (for whole-lattice pairs the
+  tail is `coupling + level_n + ½ hessForm`, so `chord_identity`, `expansion_chord` are instances at `R = 𝕋`);
+  `RegionPair.compTangentOn` (`compTangent = (RegionPair.ofLevel …).compTangentOn` by `rfl`,
+  `compTangent_eq_compTangentOn`; the body of `compTangent` is kept explicit because 25 landed proofs unfold it),
+  **`RegionPair.expansion_chord_on`** (core of `expansion_chord`); `pair_blockVec_eq_sum` (core of
+  `pair_blockVec_eq`).  Body changes (definitionally equal, statements unchanged): `liftφ := liftφOf …`,
+  `oldBOf := oldBOfAt …`; `oldBAtAt_congr_fields` is now an instance of `oldBAtAt_congr_fields_core` (the record's
+  physical field separate from that of the old part: the step's old part reads `Re h`).  Hypothesis of the region forms beyond the level ones: the datum
+  `D` of `G` equals `D'` off `R` (`hΨ`; at the step both are the old field there).
+  Item 2, part (a) (`Fluctuation/ExpansionQuad.lean`): `levelEnergyCOn_expand_set` (core of `levelEnergyC_expand`),
+  `RegionPair.compTangentOn_eq_zero` (`ψ'` vanishes on `Ω₁ ∖ R`), `RegionPair.compTangentOn_blockConst`,
+  `RegionPair.levelEnergyCOn_expand`, `RegionPair.liftφ_sub_restrictφ`, `RegionPair.svec_liftφ`, `RegionPair.pair_liftφ`,
+  **`RegionPair.hess_compare`** (`½⟨φ', H'(α)φ'⟩ - level'_{R,n+1}(0, φ') = ½⟨φ', H(α|)φ'⟩ - level_{R,n}(0, φ')`: the
+  Hessians of `G'` and `G` differ by their block terms on `R`), `base_standing_of` (core of `base_standing`), and
+  **`RegionPair.expansion_quadratic_on`** (Lemma 2.3 (b), (2.4), on a region pair; core of `expansion_quadratic`):
+  `J = A' + coupling_R(0, ψ') + ½⟨ψ', Δ^{(k)} ψ'⟩ + V^{(k)}(ψ')` with `Δ^{(k)}`, `V^{(k)}` (`deltaForm`, `interactionV`)
+  of the operator `H_k` of `G` with all its layers.  Part (b) (`Fluctuation/ExpansionBounds.lean`): `source_tangent_of`
+  (core of `source_tangent`), `composeData_h_eq`, `RegionPair.tangent_collar`, **`RegionPair.expansion_bounds_on`**
+  (Lemma 2.3 (d) on a region pair; core of `expansion_bounds`).
+  **Item 2, what remains (inventory, W1154f).**  The closure of `interaction_expansion_hat` has 79 files in
+  `Fluctuation/`, `Localization/` that use `IsLevel` or `DGSetting` (32,660 lines).  The carry, in order: (c)
+  `InteractionBridge` (`exact_fluct_eq_flFieldOne`, `flDatumOne_eq_composeData`, `energyBlock_sum`,
+  `interactionV_eq_energy`) — needs `FlCore` on `Dec2.CoverBase` (`FlCoreOn`: the field `Sp : DGSetting Gp` replaced by
+  `CoverBase (coverOf Gp) Gp` with its `Dec2.DecSpecs`; `FlCore` → `FlCoreOn` by `coverBase_self`, the decoupled objects
+  at `coverOf Gp` are the landed ones by `rfl`, `Decoupled2Self`; `i4b_analytic`/`i4b_one`/`point_facts_core` through
+  their `Dec2` forms); (d) the energy density on a region: `energyDensity` has the level term on `Ω₁`; the region
+  energy is `level_R(ψ', δφ) + ½(bond + ν + α)(δφ) + ½ Σ_{x ∈ Ω₁ ∖ R} w_{j(x)} |Q_{j(x)} δφ(x)|²` (the off-`R` block
+  terms of `H_k`, `hess_compare`); `energyDensity` cannot be an instance of a core with the extra summand by `rfl`
+  (the summand is zero only propositionally), so the core must be designed so that the level body is its instance
+  (e.g. the off-`R` term indexed by a set that is empty for level pairs, `if x ∈ Ω₁ ∧ x ∉ R`, with the level body
+  restated through the core and `rfl`-checked) — to be settled before building on it; (e) `InteractionVPart`
+  (`interactionOne`), `InteractionEnergy*`, the hat variable (`hatLift`/`hatFun`/`AgHatF` take `IsLevel Gp (k+1)` for
+  `liftC`, `unitPt`: on `G'` the unit points are those of every layer), the size (`treeLenCov_eq_treeLenCovOne hG'`: on
+  a region pair the bound stays in the multiscale `d̃^cov`), counting (`card_blocks_filter_le`,
+  `ncard_le_of_isMultiDom`), up to `interaction_expansion_hat`; (f) the instance for the hole step: `RegionPair S.G
+  S.G' k` from `HoleStep` (`topIn`, `topG`; `off_layer` needs the layers of `p6TopC` off `Ω_{k+1}`), the `CoverBase`
+  of `(coverOf G', G')` (`p6TopC_coverBase`).
 
 ## Finding B-2 (ORCH-B, 2026-10-22; blocker 5, stage S1 of the small-field half): no irrelevant bound at the decoupled composed fields
 - **False in general, do not retry:** P-2 (`DataHypAnisoOn` at σ = C₀L^{j−k}) for the fields ψ^{(j)}_k composed from the

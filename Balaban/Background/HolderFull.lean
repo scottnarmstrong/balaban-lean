@@ -21,6 +21,9 @@ import Mathlib.Tactic.Ring
   mixed second differences along a lattice path from `x` to `x + z`;
 * `approxField_holder`: the Hölder seminorm of `φ₀ = approxField` is at most `C δ`
   (from `phi0_isSmoothField` and `phi0_sq`);
+* `extField`, `extField_holder_of_increment`: the extension of a field on `Ω₁` by the approximate
+  field, and its Hölder bound from a Hölder bound of the increment over the approximate field (the
+  core of the next item, also used for the decoupled background fields of Theorem I-4b);
 * `bgFieldExt`, `bgFieldC_holder`: the Hölder bound for `bgFieldC` itself, extended to the collar
   by the approximate field.
 
@@ -422,15 +425,49 @@ section Final
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ}
 
+/-- **The extension of a field on `Ω₁` by a field of the torus**: `φ` on `Ω₁`, `φ₀` elsewhere (in
+particular on the collar). -/
+noncomputable def extField (G : GeneratingSet d L N₀ k ϱ) (φ : G.Ω 1 × Fin N → ℂ)
+    (φ₀ : Torus d (N₀ * L ^ k) → Fin N → ℂ) (y : Torus d (N₀ * L ^ k)) (i : Fin N) : ℂ := by
+  classical
+  exact if h : y ∈ G.Ω 1 then φ (⟨y, h⟩, i) else φ₀ y i
+
 /-- **The background field with boundary values on the collar.**  On `Ω₁` it is `bgFieldC`; on
 the collar `C` (and elsewhere) it is the approximate field `φ₀`, whose values on `C` are the
 boundary values `φ^z` of the problem.  The Hölder seminorm of the field is taken for this
 extension (the zero extension is not meaningful at the boundary, see the module docstring). -/
 noncomputable def bgFieldExt (G : GeneratingSet d L N₀ k ϱ) (a : ℕ → ℝ) (ν c₀ : ℝ)
-    (D : BgData G N) (y : Torus d (N₀ * L ^ k)) (i : Fin N) : ℂ := by
+    (D : BgData G N) (y : Torus d (N₀ * L ^ k)) (i : Fin N) : ℂ :=
+  extField G (bgFieldC G a ν c₀ D) (approxField G a ν D.Ψ D.h) y i
+
+/-- **The Hölder bound of the extension by the approximate field**: if the zero extension of the
+increment `φ - φ₀` of a field on `Ω₁` over the approximate field has Hölder seminorm `≤ C`
+(componentwise), the extension `extField φ φ₀` has Hölder seminorm `≤ C + C_H δ`
+(`approxField_holder`). -/
+theorem extField_holder_of_increment {G : GeneratingSet d L N₀ k ϱ} {a : ℕ → ℝ} {ν δ ε : ℝ}
+    {D : BgData G N} (S : ApproxSetting d L k ϱ a ν δ ε) (W : DataWit G ν δ ε D)
+    (hs : cA2 d L * δ ≤ 1 / 100) (hδ1 : δ ≤ 1) {θ : ℝ} (hθ0 : 0 ≤ θ) (hθ1 : θ ≤ 1)
+    {φ : G.Ω 1 × Fin N → ℂ} {C : ℝ} (i : Fin N)
+    (hφ : HolderSeminormLE G (fun y => svec G (fun p => φ p - approxField G a ν D.Ψ D.h p.1 p.2) y i)
+      θ (2 - θ) C) :
+    HolderSeminormLE G (fun y => extField G φ (approxField G a ν D.Ψ D.h) y i) θ (2 - θ)
+      (C + cHold d L * δ) := by
   classical
-  exact if h : y ∈ G.Ω 1 then bgFieldC G a ν c₀ D (⟨y, h⟩, i)
-    else approxField G a ν D.Ψ D.h y i
+  have h3 := holder_add hφ (approxField_holder S W hs hδ1 hθ0 hθ1 i)
+  have e : (fun y => extField G φ (approxField G a ν D.Ψ D.h) y i) =
+      fun y => svec G (fun p => φ p - approxField G a ν D.Ψ D.h p.1 p.2) y i +
+        approxField G a ν D.Ψ D.h y i := by
+    funext y
+    by_cases hy : y ∈ G.Ω 1
+    · have := svec_of_mem G (fun p => φ p - approxField G a ν D.Ψ D.h p.1 p.2) ⟨y, hy⟩ i
+      simp only [extField, hy, dite_true]
+      rw [this]
+      ring
+    · have := svec_of_not_mem G (fun p => φ p - approxField G a ν D.Ψ D.h p.1 p.2) hy i
+      simp only [extField, hy, dite_false]
+      rw [this, zero_add]
+  rw [e]
+  exact h3
 
 /-- **I-1(e), the Hölder bound for the background field itself.**  For a fixed `θ ∈ (0, 1)`, the
 field `bgFieldExt` (the small solution `bgFieldC` on `Ω₁`, the boundary values of the approximate
@@ -456,24 +493,7 @@ theorem bgFieldC_holder (hd : 3 ≤ d) (hL : 3 ≤ L) :
   have hdelta := approxDelta_le d L hδa
   have S : ApproxSetting d L k ϱ a ν δ ε :=
     H.approxSetting hδ0 hδε (hε.trans (bgC0_le d L N)) hdelta.1 hνε
-  have h2 := approxField_holder S W hdelta.2 (hdelta.1.trans (by norm_num)) hθ0.le hθ1.le i
-  have h3 := holder_add h1 h2
-  have e : (fun y => bgFieldExt G a ν (bgC0 d L N) D y i) =
-      fun y => svec G (fun p => bgFieldC G a ν (bgC0 d L N) D p -
-          approxField G a ν D.Ψ D.h p.1 p.2) y i + approxField G a ν D.Ψ D.h y i := by
-    funext y
-    by_cases hy : y ∈ G.Ω 1
-    · have := svec_of_mem G (fun p => bgFieldC G a ν (bgC0 d L N) D p -
-          approxField G a ν D.Ψ D.h p.1 p.2) ⟨y, hy⟩ i
-      simp only [bgFieldExt, hy, dite_true]
-      rw [this]
-      ring
-    · have := svec_of_not_mem G (fun p => bgFieldC G a ν (bgC0 d L N) D p -
-          approxField G a ν D.Ψ D.h p.1 p.2) hy i
-      simp only [bgFieldExt, hy, dite_false]
-      rw [this, zero_add]
-  rw [e]
-  exact h3
+  exact extField_holder_of_increment S W hdelta.2 (hdelta.1.trans (by norm_num)) hθ0.le hθ1.le i h1
 
 end Final
 

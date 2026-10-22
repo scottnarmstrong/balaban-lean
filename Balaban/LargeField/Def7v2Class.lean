@@ -135,14 +135,14 @@ structure D7Bdry2 {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+      (j < k → (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).OmegaDD j ∩
-          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
-        (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
-    (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
-      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) →
-    (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) →
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) ∧
+      (globalLHPre A.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLHPre A'.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+    (∀ c : A.H.Comp k, (c.1 ∩ X).Nonempty → ∃ c' : A'.H.Comp k, c'.1 = c.1 ∧
+      A'.H.localHistory M K k c' = A.H.localHistory M K k c) →
+    (∀ c' : A'.H.Comp k, (c'.1 ∩ X).Nonempty → ∃ c : A.H.Comp k, c.1 = c'.1) →
     ∀ ψ ψ' h g, rep.B A X ψ ψ' h g = rep.B A' X ψ ψ' h g
   real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A),
     ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
@@ -235,9 +235,9 @@ structure D7Bdry2Post {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         fineSet (S := S) (n := n) M K j (OmegaCube A'.H j) ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+      (j < k → (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).OmegaDD j ∩
-          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
+          fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) ∧
       (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
     (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
