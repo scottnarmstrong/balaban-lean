@@ -465,3 +465,20 @@ approved declaration.
 - Whitening: row `p` is row `p` of the inverse square root of the final Hessian of the massive problem on `𝔓(locDom p)` (B1), with one comparison lemma: for any ambient generating set (whole torus or regional) the local-pair row is close to the row of the ambient Hessian's inverse square root when `locDom p` lies deep in the ambient region.
 - The three conditions of B-1′ stand: the whitening is a defined object fixed at the spine; the change of variables is exact, with the determinant and the mismatch in the integrand; the smallness of the mismatch is proved.
 - Consequence: for every history and every piece whose local pair lies deep in `Ω_A`, the regional piece is the whole-torus piece (exact completion); `Ξ_box` is the instance `Z = ∅`.
+
+## Finding B-2 (ORCH-B, 2026-10-22; blocker 5, stage S1 of the small-field half): no irrelevant bound at the decoupled composed fields
+- **False in general, do not retry:** P-2 (`DataHypAnisoOn` at σ = C₀L^{j−k}) for the fields ψ^{(j)}_k composed from the
+  decoupled background φ_k(s) (`decBgField`, |s_P| < e^{κ₁}), i.e. the decoupled-family form of S1's input `LastSfDataHyp`
+  (found by B3 before any of it was built).
+- **Why.** For s ≠ 1 the decoupled background satisfies no constraint. `IsDecBg` (`Localization/DecoupledBackground.lean`)
+  has only the clauses `small`, `fixed`, `field`, and the constraint is proved only at s = 1 (`isPerturbed_of_decFixed_one`).
+  P3 p. 57 (after Prop. 2.1, on the extensions (2.58)): "They do not satisfy Eqs. (1.14) [3], in particular the relation
+  α = λ(φ² − 1) does not hold for them". `LOCALIZATION.md` §3.3 (I-4b) says the same: for s ≠ 1, "neither φ·φ = 1 nor the
+  Euler–Lagrange equation". The defect of ψ^{(j)}_k(s)·ψ^{(j)}_k(s) − 1 is O(K₄δ) near the cubes with s_P ≠ 1, far above the
+  σ²ε of `DataHypAnisoOn.sq` (P1 (3.13)–(3.15)) for deep labels. Only the first-order bound E₀ survives there, on ℰ's data
+  domain Ψ̃^c_j(Kε_j, Kε_j); the decay L^{−(k−j)(d+α₃)} of P1 (3.128) does not, and S1 needs that decay.
+- **Route used instead, the source's:** P3 Lemma 4.2 = `LOCALIZATION.md` Lemma DL (§4.3), landed as
+  `Localization/DomainLemma.lean` (`fan_analytic`, `fan_bound`, `point_facts`) with the I-5 machinery. ℰ is evaluated only at
+  the genuine minimiser of the local problem 𝔹_k(X), at data built from the decoupled background, composed down to 𝔹_j(X).
+  That field lies in Ξ^c_j(σ, ε_k) at every s, and at s = 1 the composition identity (P3 (4.16)) returns ℰ^{(j)}(ψ^{(j)}_k).
+  P-2 is then needed only at genuine composed data.
