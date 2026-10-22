@@ -3347,6 +3347,7 @@ public import Balaban.LargeField.Base.KF0FRBall
 public import Balaban.LargeField.Base.KF0FRGas
 public import Balaban.LargeField.Base.KF0FRAnalytic
 public import Balaban.LargeField.Base.KF0FRPE
+public import Balaban.Analysis.SchwarzBall
 public import Balaban.Analysis.SchwarzIncrement
 public import Balaban.Spine.KfZeroAct
 public import Balaban.LargeField.Base.KF0FRKernelTorus
