@@ -287,14 +287,15 @@ theorem restrictOn_restrictAll {U W : Set (GVar S n M K k)} (h : U ⊆ W)
 
 /-- The restriction to `U`, followed by the restriction to the complement, is measure preserving
 onto the product of the probability measures on `U` and on its complement. -/
-theorem measurePreserving_piEquivPiSubtypeProd_gProbAll (U : Set (GVar S n M K k)) [DecidablePred (· ∈ U)] :
+theorem measurePreserving_piEquivPiSubtypeProd_gProbAll (U : Set (GVar S n M K k))
+    [DecidablePred (· ∈ U)] :
     MeasurePreserving
       (MeasurableEquiv.piEquivPiSubtypeProd (fun q : GVar S n M K k => VarVal N (gIsSpin q))
         (· ∈ U))
       (gProbAll S n M K k N)
       ((gcfgProb N U).prod (Measure.pi fun q : {q // q ∉ U} => varProb N (gIsSpin q.1))) := by
-  have h := measurePreserving_piEquivPiSubtypeProd (fun q : GVar S n M K k => varProb N (gIsSpin q))
-    (· ∈ U)
+  have h := measurePreserving_piEquivPiSubtypeProd
+    (fun q : GVar S n M K k => varProb N (gIsSpin q)) (· ∈ U)
   unfold gcfgProb gProbAll
   convert h using 3
 
