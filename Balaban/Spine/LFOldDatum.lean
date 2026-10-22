@@ -170,7 +170,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
       (liftSingle (genCube (M1 := g.M1) (N₁ := g.c * n k) (L := S.L) (q := k) g.c (n k) y) ψK0 hh)
   have hT : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaCNb a 3 (k + 1) →
       PT (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) :=
-    fun x hx hC => (htgt.1 (k + 1) le_rfl _ (hsub x hx) (fun _ _ => by simp [omegaNb]) hC).1
+    fun x hx hC => (htgt.1 (k + 1) (by omega) le_rfl _ (hsub x hx) (fun _ _ => by simp [omegaNb]) hC).1
   have hMt : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaCNb a 3 (k + 1) →
       cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∈ omegaNb a (k + 1) 3 (k + 1) →
       PM (cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x) :=
@@ -178,7 +178,7 @@ theorem inDomainC_holeStepLoc2_of_h7 (H : RegionHistory S n R k0 K) {k : ℕ} (h
   have hKt : ∀ x ∈ dataSites G, cubeOfC (c := g.c) (n1 := n (k + 1)) hM1 x ∉ omegaNb a (k + 1) 3 (k + 1) →
       PK (cubeKOfC (c := g.c) (n1 := n (k + 1)) (n0 := n k) hM1 x) := by
     intro x hx hN
-    refine (htgt.1 k (Nat.le_succ k) _ (fun x' hx' => hsub x hx x' (hsucc x x' hx'))
+    refine (htgt.1 k hk1 (Nat.le_succ k) _ (fun x' hx' => hsub x hx x' (hsucc x x' hx'))
       (fun x' hx' => by rw [hsucc x x' hx']; exact hN) (hfar x hx hN)).1
   -- the charts and their splits
   let ch : CTorus S.d S.L (g.c * n (k + 1)) m₁ (k + 1) → Torus S.d (n (k + 1)) ⊕ Torus S.d (n k) :=

@@ -180,10 +180,10 @@ theorem h7Domain_withZ_iff (a : LocalHistory S n M K) (Z' : ℕ → Set (Torus S
       H7Domain M1 c hM hnn { a with Z := Z' } k hkK Xf aw μs ε ε1 νs h ψ ψ' g := by
   constructor
   · rintro ⟨h1, h2, h3, h4⟩
-    exact ⟨fun j hjk y hyX hfar hyC => h1 j hjk y hyX hfar fun hy => hyC ((hC j hjk y hyX).1 hy),
+    exact ⟨fun j hj1 hjk y hyX hfar hyC => h1 j hj1 hjk y hyX hfar fun hy => hyC ((hC j hjk y hyX).1 hy),
       fun i hik y hyX hyΩ hyC => h2 i hik y hyX hyΩ ((hC (i + 1) hik y hyX).2 hyC), h3, h4⟩
   · rintro ⟨h1, h2, h3, h4⟩
-    exact ⟨fun j hjk y hyX hfar hyC => h1 j hjk y hyX hfar fun hy => hyC ((hC j hjk y hyX).2 hy),
+    exact ⟨fun j hj1 hjk y hyX hfar hyC => h1 j hj1 hjk y hyX hfar fun hy => hyC ((hC j hjk y hyX).2 hy),
       fun i hik y hyX hyΩ hyC => h2 i hik y hyX hyΩ ((hC (i + 1) hik y hyX).1 hyC), h3, h4⟩
 
 /-- **Away from the removed set the pre-`R` and the post-`R` H7 domains agree** (ruling request R17): at

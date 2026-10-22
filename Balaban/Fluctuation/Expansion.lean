@@ -19,7 +19,13 @@ Setting of `CriticalPoint`: whole-lattice generating sets `G` (level `n = k`) an
 * `chord_identity`: for `(φ₁, α₁)` a solution of (EL) of level `n + 1` and any field `φ` with
   `φ · φ = 1`, the exact expansion (2.3) of `J` around `(ψ^{(k)}, φ₁)`;
 * `expansion_chord` (Lemma 2.3 (a)): the same for the complex small solutions
-  `φ_{k+1} = bgFieldC D'`, `φ_k(ψ) = bgFieldC D`.
+  `φ_{k+1} = bgFieldC D'`, `φ_k(ψ) = bgFieldC D`;
+* on a region pair `G ≺ G'` (`RegionPair`, the step on a region, P5 (2.17)–(2.21)): `RegionPair.chord_identity_on`,
+  `RegionPair.expansion_chord_on` — the coupling and the level energies summed over the new region
+  `R = Ω'_{n+1}`, and the Hessian `⟨τ, H'(α) τ⟩` of the action of `G'` (all its layers) in place of
+  `hessForm`; `chordTail_ofLevel`: for a pair of whole-lattice sets the tail is the level form, so
+  `chord_identity` and `expansion_chord` are the instances `R = 𝕋` (`RegionPair.ofLevel`);
+  `pair_blockVec_eq_sum` (the block form at the layers of `G`), `RegionPair.compTangentOn`.
 -/
 
 @[expose] public section
@@ -285,23 +291,28 @@ theorem pair_lapVec_eq_bond {N : ℕ} (τ : G.Ω 1 × Fin N → ℂ) :
   unfold pair
   rw [Fintype.sum_prod_type_right]
 
+/-- **The block form `⟨τ, Q* a Q τ⟩`** as the sum over `Ω₁` of the weighted squares of the block
+averages, at the layers of `G` (core of `pair_blockVec_eq`). -/
+theorem pair_blockVec_eq_sum (a : ℕ → ℝ) {N : ℕ} (τ : G.Ω 1 × Fin N → ℂ) :
+    pair G τ (blockVec G a τ) = ∑ x : G.Ω 1,
+      ((a (G.layerIndex (x : Torus d (N₀ * L ^ K))) /
+        ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ K))) ^ 2 : ℝ) : ℂ) *
+        ∑ i, blockAvg G τ x i * blockAvg G τ x i := by
+  have eC := sum_blockAvg (a := a) (g := fun i y => blockAvg G τ y i)
+    (fun i => blockAvg_blockConst τ i) τ
+  rw [eC]
+  unfold pair
+  exact Finset.sum_congr rfl fun p _ => by
+    show τ p * blockTerm G a (zeroExt (G.Ω 1) (fun z => τ (z, p.2))) p.1 = _
+    rw [blockTerm_zeroExt_eq]
+    show τ p * (_ * blockAvg G τ p.1 p.2) = _
+    ring
+
 /-- `⟨τ, Q* a Q τ⟩ = 2 · level energy at `θ = 0``. -/
 theorem pair_blockVec_eq {m : ℕ} (hG : IsLevel G m) (a : ℕ → ℝ) {N : ℕ}
     (τ : G.Ω 1 × Fin N → ℂ) :
     pair G τ (blockVec G a τ) = 2 * levelEnergyC G a m (fun _ _ => 0) (svec G τ) := by
-  have eC := sum_blockAvg (a := a) (g := fun i y => blockAvg G τ y i)
-    (fun i => blockAvg_blockConst τ i) τ
-  have hpair : pair G τ (blockVec G a τ) = ∑ p : G.Ω 1 × Fin N,
-      ((a (G.layerIndex (p.1 : Torus d (N₀ * L ^ K))) /
-        ((L : ℝ) ^ G.layerIndex (p.1 : Torus d (N₀ * L ^ K))) ^ 2 : ℝ) : ℂ) *
-          blockAvg G τ p.1 p.2 * τ p := by
-    unfold pair
-    exact Finset.sum_congr rfl fun p _ => by
-      show τ p * blockTerm G a (zeroExt (G.Ω 1) (fun z => τ (z, p.2))) p.1 = _
-      rw [blockTerm_zeroExt_eq]
-      show τ p * (_ * blockAvg G τ p.1 p.2) = _
-      ring
-  rw [hpair, ← eC]
+  rw [pair_blockVec_eq_sum]
   unfold levelEnergyC levelEnergyCOn
   have hsum : ∀ F : Torus d (N₀ * L ^ K) → ℂ, ∑ x : G.Ω 1, F x = ∑ x, F x := fun F => by
     rw [Finset.sum_coe_sort (G.Ω 1) F, hG.Ω_one]
@@ -362,61 +373,65 @@ theorem svec_add_fun {N : ℕ} (u v : G.Ω 1 × Fin N → ℂ) :
   funext y j
   exact svec_add (G := G) u v y j
 
-/-- **The chord identity (2.3), bilinear form** (FLUCTUATION Lemma 2.3 (a)).  Let `(φ₁, α₁)` solve
-(EL) for the datum `D'` of level `n + 1` (this is `(φ_{k+1}, α_{k+1})`), `ψ_* = composeData …` the
-point of (2.1), `D` a datum of level `n` with the same `h̃` and `ψ' = D.Ψ - ψ_*.Ψ`, and `φh` any field
-with `φh · φh = 1` (this is `φ_k(ψ)` for the complex small solution), `φ' = φh - φ₁`.  Then
-`J = A_{k+1}(θ, φ₁) + ½ a₁ L^{-2(n+1)} ‖Q ψ'‖² + (a_n/2) ‖ψ' - Q_n φ'‖² + ½ ⟨φ', (-Δ + ν + α₁) φ'⟩`
-with the bilinear products. -/
-theorem chord_identity (hL : 2 ≤ L) (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
-    (hp : n + 1 ≤ K) {N : ℕ} (D' : BgData G' N) {φ₁ : G'.Ω 1 × Fin N → ℂ} {α₁ : G'.Ω 1 → ℂ}
-    (hel : IsEL G' (compWeight L a₁) ν D' φ₁ α₁) (D : BgData G N)
-    (hh : ∀ x i, D.h x i = D'.h x i) {φh : G'.Ω 1 × Fin N → ℂ}
+/-- **The chord identity (2.3) on a region pair, bilinear form** (FLUCTUATION Lemma 2.3 (a); P5 (2.21);
+core of `chord_identity`).  Let `(φ₁, α₁)` solve (EL) for the datum `D'` of `G'`, `D` a datum of `G`
+with the same `h̃` and equal to `D'` off the new region `R = Ω'_{n+1}`, `ψ' = D.Ψ - ψ_*.Ψ`
+(`ψ_* = composeData …`, the point of (2.1)), and `φh` any field with `φh · φh = 1`, `τ = φh - φ₁`.  Then
+`J = A'(θ, φ₁) + coupling_R(0, ψ') + level_{R,n}(ψ', τ) - level'_{R,n+1}(0, τ) + ½ ⟨τ, H'(α₁) τ⟩`,
+the coupling and the level energies summed over `R`, and `⟨τ, H'(α₁) τ⟩` the Hessian of the action of
+`G'` (all its layers) with the multiplier.  For a pair of whole-lattice sets the last two terms are
+`½ hessForm` (`chordTail_ofLevel`). -/
+theorem RegionPair.chord_identity_on (P : RegionPair G G' n) (hL : 2 ≤ L) (ha₁ : 0 < a₁)
+    (D' : BgData G' N) {φ₁ : G'.Ω 1 × Fin N → ℂ} {α₁ : G'.Ω 1 → ℂ}
+    (hel : IsEL G' (compWeight L a₁) ν D' φ₁ α₁) (D : BgData G N) (hh : ∀ x i, D.h x i = D'.h x i)
+    (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) {φh : G'.Ω 1 × Fin N → ℂ}
     (hφh : ∀ x, ∑ i, φh (x, i) * φh (x, i) = 1) :
-    couplingC G' a₁ (n + 1) D'.Ψ D.Ψ +
-        actionC G (compWeight L a₁) ν D ((hG.precedes hG' hp).restrictφ φh) =
+    couplingCOn (G'.Ω (n + 1)) G' a₁ (n + 1) D'.Ψ D.Ψ +
+        actionC G (compWeight L a₁) ν D (P.hpre.restrictφ φh) =
       actionC G' (compWeight L a₁) ν D' φ₁ +
-        couplingC G' a₁ (n + 1) (fun _ _ => 0) (fun x i => D.Ψ x i -
-          (composeData (hG.precedes hG' hp) (compWeight L a₁) φ₁ D').Ψ x i) +
-        levelEnergyC G (compWeight L a₁) n (fun x i => D.Ψ x i -
-          (composeData (hG.precedes hG' hp) (compWeight L a₁) φ₁ D').Ψ x i) (svec G' (φh - φ₁)) +
-        (1 / 2) * hessForm G' ν α₁ (svec G' (φh - φ₁)) := by
-  have hn := hG.bounds
+        couplingCOn (G'.Ω (n + 1)) G' a₁ (n + 1) (fun _ _ => 0) (fun x i => D.Ψ x i -
+          (composeData P.hpre (compWeight L a₁) φ₁ D').Ψ x i) +
+        levelEnergyCOn (G'.Ω (n + 1)) G (compWeight L a₁) n (fun x i => D.Ψ x i -
+          (composeData P.hpre (compWeight L a₁) φ₁ D').Ψ x i) (svec G' (φh - φ₁)) -
+        levelEnergyCOn (G'.Ω (n + 1)) G' (compWeight L a₁) (n + 1) (fun _ _ => 0)
+          (svec G' (φh - φ₁)) +
+        (1 / 2) * pair G' (φh - φ₁)
+          (liftOp N (dirichletOperator G' (compWeight L a₁) ν α₁) *ᵥ (φh - φ₁)) := by
   set a := compWeight L a₁ with ha
+  set R := G'.Ω (n + 1) with hRdef
+  have hRb : ∀ z ∈ R, ∀ y ∈ G'.blk (n + 1) z, y ∈ R := fun z hz y hy => P.top_blk hz hy
   set τ : G'.Ω 1 × Fin N → ℂ := φh - φ₁ with hτ
   have hφhτ : φh = φ₁ + τ := by rw [hτ]; abel
-  have Kc := coupling_add_actionC (ν := ν) hL ha₁ hG hG' hp D D' hh φh
+  have Kc := P.coupling_add_actionC_on (ν := ν) hL ha₁ D D' hh hΨ φh
   set ψ' : Torus d (N₀ * L ^ K) → Fin N → ℂ := fun x i => D.Ψ x i -
-    (composeData (hG.precedes hG' hp) a φ₁ D').Ψ x i with hψ'
-  -- the defect
-  have hΨ_star : ∀ x i, (composeData (hG.precedes hG' hp) a φ₁ D').Ψ x i =
-      psiStar G G' a n (n + 1) D'.Ψ (svec G' φ₁) x i :=
-    composeData_Ψ_eq_psiStar hG hG' hp a φ₁ D'
+    (composeData P.hpre a φ₁ D').Ψ x i with hψ'
   have hsv : svec G' φh = fun y j => svec G' φ₁ y j + svec G' τ y j := by
     rw [hφhτ]; exact svec_add_fun φ₁ τ
-  have hu : ∀ x i, D.Ψ x i - psiStar G G' a n (n + 1) D'.Ψ (svec G' φh) x i =
-      ψ' x i - psiStar G G' a n (n + 1) (fun _ _ => 0) (svec G' τ) x i := fun x i => by
-    rw [hsv, psiStar_add, ← hΨ_star]
+  have hu : ∀ x ∈ R, ∀ i, D.Ψ x i - psiStar G G' a n (n + 1) D'.Ψ (svec G' φh) x i =
+      ψ' x i - psiStar G G' a n (n + 1) (fun _ _ => 0) (svec G' τ) x i := fun x hx i => by
+    rw [hsv, psiStar_add, ← P.composeData_Ψ_eq_psiStar_on a φ₁ D' hx i]
     simp only [hψ']
     ring
-  have hdef : defectC G G' a a₁ n D'.Ψ D.Ψ (svec G' φh) =
-      defectC G G' a a₁ n (fun _ _ => 0) ψ' (svec G' τ) := by
-    unfold defectC defectCOn
-    simp only [hu]
-  have hG0 := coupling_add_levelC (G := G) (G' := G') hL ha₁ hn.1 hp (fun _ _ => 0) ψ'
+  have hdef : defectCOn R G G' a a₁ n D'.Ψ D.Ψ (svec G' φh) =
+      defectCOn R G G' a a₁ n (fun _ _ => 0) ψ' (svec G' τ) := by
+    unfold defectCOn
+    congr 1
+    · congr 1
+      exact Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun i _ => by rw [hu x hx i]
+    · congr 1
+      refine Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun i _ => ?_
+      have hb : blockMean G' (n + 1) (fun y => D.Ψ y i -
+          psiStar G G' a n (n + 1) D'.Ψ (svec G' φh) y i) x =
+          blockMean G' (n + 1) (fun y => ψ' y i -
+            psiStar G G' a n (n + 1) (fun _ _ => 0) (svec G' τ) y i) x := by
+        unfold blockMean
+        congr 1
+        exact Finset.sum_congr rfl fun y hy => hu y (hRb x hx y hy) i
+      rw [hb]
+  have hG0 := coupling_add_levelC_on (G := G) (G' := G') hL ha₁ P.hn P.hp R hRb (fun _ _ => 0) ψ'
     (svec G' τ) (fun x y i hy => rfl)
-  -- the expansion of the action of level n+1
   have A := actionC_add (G := G') (a := a) (ν := ν) D' φ₁ τ
   rw [← hφhτ] at A
-  have hH0 : pair G' τ (liftOp N (dirichletOperator G' a ν 0) *ᵥ τ) =
-      pair G' τ (lapVec G' τ) + 2 * levelEnergyC G' a (n + 1) (fun _ _ => 0) (svec G' τ) +
-        (ν : ℂ) * pair G' τ τ := by
-    rw [← pair_blockVec_eq hG']
-    unfold pair
-    rw [Finset.mul_sum, ← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
-    refine Finset.sum_congr rfl fun p _ => ?_
-    rw [H0_apply]
-    ring
   have hEL : ∀ p, (liftOp N (dirichletOperator G' a ν 0) *ᵥ φ₁ - source G' a ν D') p =
       -(α₁ p.1 * φ₁ p) := fun p => by
     have h1 := congrFun hel.1 p
@@ -460,24 +475,137 @@ theorem chord_identity (hL : 2 ≤ L) (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG'
       Finset.sum_congr rfl fun i _ => mul_comm _ _
     rw [e3, this]
     ring
-  have hHess := hessForm_eq hG' ν α₁ τ
+  have hHα : pair G' τ (liftOp N (dirichletOperator G' a ν α₁) *ᵥ τ) =
+      pair G' τ (liftOp N (dirichletOperator G' a ν 0) *ᵥ τ) + pair G' τ (fun p => α₁ p.1 * τ p) := by
+    rw [← pair_add_right]
+    congr 1
+    funext p
+    rw [H_alpha_apply]
+    rfl
   rw [hdef] at Kc
-  rw [hlin, hH0] at A
-  linear_combination Kc + A - hG0 - (1 / 2 : ℂ) * hHess
+  linear_combination Kc + A + hlin - hG0 - (1 / 2 : ℂ) * hHα
+
+/-- **The tail of the chord identity for a pair of whole-lattice sets**: the terms
+`coupling(0, ψ') + level_n(ψ', τ) - level'_{n+1}(0, τ) + ½ ⟨τ, H'(α) τ⟩` of `chord_identity_on` at
+`R = 𝕋` are `coupling(0, ψ') + level_n(ψ', τ) + ½ hessForm(τ)` (`pair_blockVec_eq`, `hessForm_eq`). -/
+theorem chordTail_ofLevel (hG' : IsLevel G' (n + 1)) (a : ℕ → ℝ) (ν : ℝ) (α : G'.Ω 1 → ℂ)
+    (τ : G'.Ω 1 × Fin N → ℂ) (ψ' : Torus d (N₀ * L ^ K) → Fin N → ℂ) :
+    couplingCOn Finset.univ G' a₁ (n + 1) (fun _ _ => 0) ψ' +
+        levelEnergyCOn Finset.univ G a n ψ' (svec G' τ) -
+        levelEnergyCOn Finset.univ G' a (n + 1) (fun _ _ => 0) (svec G' τ) +
+        (1 / 2) * pair G' τ (liftOp N (dirichletOperator G' a ν α) *ᵥ τ) =
+      couplingC G' a₁ (n + 1) (fun _ _ => 0) ψ' + levelEnergyC G a n ψ' (svec G' τ) +
+        (1 / 2) * hessForm G' ν α (svec G' τ) := by
+  have hH : pair G' τ (liftOp N (dirichletOperator G' a ν α) *ᵥ τ) =
+      pair G' τ (lapVec G' τ) + 2 * levelEnergyC G' a (n + 1) (fun _ _ => 0) (svec G' τ) +
+        (ν : ℂ) * pair G' τ τ + pair G' τ (fun p => α p.1 * τ p) := by
+    rw [← pair_blockVec_eq hG']
+    unfold pair
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib, ← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun p _ => ?_
+    rw [H_alpha_apply, H0_apply]
+    ring
+  have hHess := hessForm_eq hG' ν α τ
+  unfold couplingC levelEnergyC at hH ⊢
+  linear_combination (1 / 2 : ℂ) * hH - (1 / 2 : ℂ) * hHess
+
+/-- **The chord identity (2.3), bilinear form** (FLUCTUATION Lemma 2.3 (a)).  Let `(φ₁, α₁)` solve
+(EL) for the datum `D'` of level `n + 1` (this is `(φ_{k+1}, α_{k+1})`), `ψ_* = composeData …` the
+point of (2.1), `D` a datum of level `n` with the same `h̃` and `ψ' = D.Ψ - ψ_*.Ψ`, and `φh` any field
+with `φh · φh = 1` (this is `φ_k(ψ)` for the complex small solution), `φ' = φh - φ₁`.  Then
+`J = A_{k+1}(θ, φ₁) + ½ a₁ L^{-2(n+1)} ‖Q ψ'‖² + (a_n/2) ‖ψ' - Q_n φ'‖² + ½ ⟨φ', (-Δ + ν + α₁) φ'⟩`
+with the bilinear products. -/
+theorem chord_identity (hL : 2 ≤ L) (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
+    (hp : n + 1 ≤ K) {N : ℕ} (D' : BgData G' N) {φ₁ : G'.Ω 1 × Fin N → ℂ} {α₁ : G'.Ω 1 → ℂ}
+    (hel : IsEL G' (compWeight L a₁) ν D' φ₁ α₁) (D : BgData G N)
+    (hh : ∀ x i, D.h x i = D'.h x i) {φh : G'.Ω 1 × Fin N → ℂ}
+    (hφh : ∀ x, ∑ i, φh (x, i) * φh (x, i) = 1) :
+    couplingC G' a₁ (n + 1) D'.Ψ D.Ψ +
+        actionC G (compWeight L a₁) ν D ((hG.precedes hG' hp).restrictφ φh) =
+      actionC G' (compWeight L a₁) ν D' φ₁ +
+        couplingC G' a₁ (n + 1) (fun _ _ => 0) (fun x i => D.Ψ x i -
+          (composeData (hG.precedes hG' hp) (compWeight L a₁) φ₁ D').Ψ x i) +
+        levelEnergyC G (compWeight L a₁) n (fun x i => D.Ψ x i -
+          (composeData (hG.precedes hG' hp) (compWeight L a₁) φ₁ D').Ψ x i) (svec G' (φh - φ₁)) +
+        (1 / 2) * hessForm G' ν α₁ (svec G' (φh - φ₁)) := by
+  have h := (RegionPair.ofLevel hG hG' hp).chord_identity_on (ν := ν) hL ha₁ D' hel D hh
+    (fun x hx => absurd (hG'.Ω_top ▸ Finset.mem_univ x) hx) hφh
+  rw [hG'.Ω_top] at h
+  have ht := chordTail_ofLevel (G := G) (a₁ := a₁) hG' (compWeight L a₁) ν α₁ (φh - φ₁)
+    (fun x i => D.Ψ x i - (composeData (hG.precedes hG' hp) (compWeight L a₁) φ₁ D').Ψ x i)
+  unfold couplingC levelEnergyC at ht ⊢
+  linear_combination h + ht
 
 theorem svec_sub_restrict {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)) (hp : n + 1 ≤ K)
     {N : ℕ} (φ : G.Ω 1 × Fin N → ℂ) (φ₁ : G'.Ω 1 × Fin N → ℂ) :
     svec G' (liftφ G' hG φ - φ₁) =
-      svec G (φ - (hG.precedes hG' hp).restrictφ φ₁) := by
-  funext y i
-  rw [svec_eq_apply hG', svec_eq_apply hG]
-  rfl
+      svec G (φ - (hG.precedes hG' hp).restrictφ φ₁) :=
+  (RegionPair.ofLevel hG hG' hp).svec_sub_restrict φ φ₁
 
-/-- The tangent `ψ' = ψ - ψ^{(k)}` of Lemma 2.3. -/
+/-- The tangent `ψ' = ψ - ψ^{(k)}` of Lemma 2.3 on a region pair (core of `compTangent`). -/
+noncomputable def RegionPair.compTangentOn (P : RegionPair G G' n) (a : ℕ → ℝ)
+    (φ₁ : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N) (D : BgData G N) :
+    Torus d (N₀ * L ^ K) → Fin N → ℂ := fun x i =>
+  D.Ψ x i - (composeData P.hpre a φ₁ D').Ψ x i
+
+/-- The tangent `ψ' = ψ - ψ^{(k)}` of Lemma 2.3.  It is `compTangentOn` of the region pair
+`RegionPair.ofLevel` (`compTangent_eq_compTangentOn`, by `rfl`); the body is kept explicit because 25
+landed proofs unfold `compTangent` to it. -/
 noncomputable def compTangent {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)) (hp : n + 1 ≤ K)
     (a : ℕ → ℝ) {N : ℕ} (φ₁ : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N) (D : BgData G N) :
     Torus d (N₀ * L ^ K) → Fin N → ℂ := fun x i =>
   D.Ψ x i - (composeData (hG.precedes hG' hp) a φ₁ D').Ψ x i
+
+theorem compTangent_eq_compTangentOn {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
+    (hp : n + 1 ≤ K) (a : ℕ → ℝ) {N : ℕ} (φ₁ : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N)
+    (D : BgData G N) :
+    compTangent hG hG' hp a φ₁ D' D = (RegionPair.ofLevel hG hG' hp).compTangentOn a φ₁ D' D :=
+  rfl
+
+/-- **Lemma 2.3 (a), the chord identity (2.3), on a region pair** (P5 (2.21); core of
+`expansion_chord`).  Let `D'` be the datum `(θ, h)` of `G'` in `𝒟(𝔹')` (`δ ≤ thm73C1`),
+`(φ_{k+1}, α_{k+1}) = (bgFieldC, bgMultC) D'`, and `D` the datum of `ψ = ψ^{(k)} + ψ'` of `G` with the same
+`h̃`, equal to `D'` off the new region `R = Ω'_{n+1}`, in the domain of the small solution
+`φ_k(ψ) = bgFieldC D`.  With `τ = φ_k(ψ) - φ_{k+1}` (on `Ω'₁ = Ω₁`) and `ψ' = D.Ψ - ψ^{(k)}.Ψ`
+(`compTangentOn`), in bilinear form:
+`J_k(θ, ψ) = A'(θ, φ_{k+1}) + coupling_R(0, ψ') + level_{R,n}(ψ', τ) - level'_{R,n+1}(0, τ)
+ + ½ ⟨τ, H'(α_{k+1}) τ⟩`. -/
+theorem RegionPair.expansion_chord_on (P : RegionPair G G' n) (ha₁ : 0 < a₁)
+    (H : BgHyp d L K ϱ (compWeight L a₁) ν) (H' : BgHyp d L K ϱ' (compWeight L a₁) ν)
+    (D' : BgData G' N) (hD' : InUnionDomainC G' (bgC0 d L N) (thm73C1 d L N) ν D') (D : BgData G N)
+    (hh : ∀ x i, D.h x i = D'.h x i) (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x)
+    (hD : InUnionDomainC G (bgC0 d L N) (bgC1 d L N) ν D) :
+    couplingCOn (G'.Ω (n + 1)) G' a₁ (n + 1) D'.Ψ D.Ψ +
+        actionC G (compWeight L a₁) ν D (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) =
+      actionC G' (compWeight L a₁) ν D' (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') +
+        couplingCOn (G'.Ω (n + 1)) G' a₁ (n + 1) (fun _ _ => 0) (P.compTangentOn (compWeight L a₁)
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D) +
+        levelEnergyCOn (G'.Ω (n + 1)) G (compWeight L a₁) n (P.compTangentOn (compWeight L a₁)
+          (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)
+          (svec G (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D -
+            P.hpre.restrictφ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D'))) -
+        levelEnergyCOn (G'.Ω (n + 1)) G' (compWeight L a₁) (n + 1) (fun _ _ => 0)
+          (svec G (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D -
+            P.hpre.restrictφ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D'))) +
+        (1 / 2) * pair G' (P.liftφ (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) -
+            bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+          (liftOp N (dirichletOperator G' (compWeight L a₁) ν
+            (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')) *ᵥ
+            (P.liftφ (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) -
+              bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')) := by
+  have hL3 : 2 ≤ L := by have := H.hL; omega
+  have hd0 : 0 < d := by have := H.hd; omega
+  have hD'1 : InUnionDomainC G' (bgC0 d L N) (bgC1 d L N) ν D' := by
+    obtain ⟨δ, ε, hδ0, hδε, hε, hδc, hνε, hDC⟩ := hD'
+    exact ⟨δ, ε, hδ0, hδε, hε, (thm73_small (L := L) (N := N) hd0 hδ0 hδc).1, hνε, hDC⟩
+  have hs' := (theorem72 H' hD'1).2.1
+  have hs := (theorem72 H hD).2.1
+  have hφh : ∀ x : G'.Ω 1, ∑ i, P.liftφ (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) (x, i) *
+      P.liftφ (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) (x, i) = 1 := fun x =>
+    hs.1.2 ⟨x.1, P.Ω_one ▸ x.2⟩
+  have := P.chord_identity_on (ν := ν) (a₁ := a₁) hL3 ha₁ D' hs'.1 D hh hΨ hφh
+  rw [P.restrictφ_liftφ, P.svec_sub_restrict] at this
+  exact this
 
 /-- **Lemma 2.3 (a): the chord identity (2.3).**  Let `D'` be the datum `(θ, h)` of level `n + 1` in
 `𝒟(𝔹'_k)` (`δ ≤ thm73C1`), `(φ_{k+1}, α_{k+1}) = (bgFieldC, bgMultC) D'`, and `D` the datum of
@@ -505,19 +633,19 @@ theorem expansion_chord (ha₁ : 0 < a₁) (hG : IsLevel G n) (hG' : IsLevel G' 
         (1 / 2) * hessForm G' ν (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
           (svec G (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D -
             (hG.precedes hG' hp).restrictφ (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D'))) := by
-  have hL3 : 2 ≤ L := by have := H.hL; omega
-  have hd0 : 0 < d := by have := H.hd; omega
-  have hD'1 : InUnionDomainC G' (bgC0 d L N) (bgC1 d L N) ν D' := by
-    obtain ⟨δ, ε, hδ0, hδε, hε, hδc, hνε, hDC⟩ := hD'
-    exact ⟨δ, ε, hδ0, hδε, hε, (thm73_small (L := L) (N := N) hd0 hδ0 hδc).1, hνε, hDC⟩
-  have hs' := (theorem72 H' hD'1).2.1
-  have hs := (theorem72 H hD).2.1
-  have hφh : ∀ x : G'.Ω 1, ∑ i, liftφ G' hG (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) (x, i) *
-      liftφ G' hG (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) (x, i) = 1 := fun x =>
-    hs.1.2 ⟨x.1, (hG x.1).1⟩
-  have := chord_identity (ν := ν) (a₁ := a₁) (n := n) (hL3) ha₁ hG hG' hp D' hs'.1 D hh hφh
-  rw [restrictφ_liftφ hG hG' hp, svec_sub_restrict hG hG' hp] at this
-  exact this
+  have h := (RegionPair.ofLevel hG hG' hp).expansion_chord_on ha₁ H H' D' hD' D hh
+    (fun x hx => absurd (hG'.Ω_top ▸ Finset.mem_univ x) hx) hD
+  rw [hG'.Ω_top] at h
+  have ht := chordTail_ofLevel (G := G) (a₁ := a₁) hG' (compWeight L a₁) ν
+    (bgMultC G' (compWeight L a₁) ν (bgC0 d L N) D')
+    ((RegionPair.ofLevel hG hG' hp).liftφ (bgFieldC G (compWeight L a₁) ν (bgC0 d L N) D) -
+      bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D')
+    ((RegionPair.ofLevel hG hG' hp).compTangentOn (compWeight L a₁)
+      (bgFieldC G' (compWeight L a₁) ν (bgC0 d L N) D') D' D)
+  rw [RegionPair.svec_sub_restrict] at ht
+  rw [compTangent_eq_compTangentOn]
+  unfold couplingC levelEnergyC at ht ⊢
+  linear_combination h + ht
 
 end Chord
 

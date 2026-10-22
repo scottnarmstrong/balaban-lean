@@ -244,10 +244,10 @@ theorem h7Domain_composedMulti_of_inner_withZ (H : RegionHistory S n R k0 K) {k 
     fun _ _ _ => rfl
   obtain ⟨h1, h2, h3, h4⟩ := htgt
   refine ⟨?_, ?_, ?_, h4⟩
-  · intro j hjk y hyX hfar hyC
+  · intro j hj1 hjk y hyX hfar hyC
     rcases Nat.lt_or_ge j k with hj | hj
     · simp only [composedMulti_of_lt hk _ ψ comp hj]
-      refine h1 j (by omega) y (fun x hx => hXY (hyX x hx)) (fun x hx => ?_)
+      refine h1 j hj1 (by omega) y (fun x hx => hXY (hyX x hx)) (fun x hx => ?_)
         (by rw [hZ' j hjk]; exact hyC)
       rw [eNb, ← omegaNb_eq_succ (globalLH H M) (k := k) (r := 3) (j := j + 1) (by omega) (by omega)]
       exact hfar x hx
@@ -255,7 +255,7 @@ theorem h7Domain_composedMulti_of_inner_withZ (H : RegionHistory S n R k0 K) {k 
       subst hjk'
       by_cases hnear : ∀ x, LargeField.cubeMap n S.L M K j x = y →
           LargeField.cubeMap n S.L M K (j + 1) x ∉ omegaNb (globalLH H M) (j + 1) 3 (j + 1)
-      · have ht := h1 j (Nat.le_succ j) y (fun x hx => hXY (hyX x hx)) hnear
+      · have ht := h1 j hj1 (Nat.le_succ j) y (fun x hx => hXY (hyX x hx)) hnear
           (by rw [hZ' j le_rfl]; exact hyC)
         refine (deltaC_stencil aw (μs j) (ε j) h hL (by omega) (by simp) y fun x hx => ?_).2 ht
         show composedMulti g hnn hM1 hk G' ψ comp j (LargeField.torusCast _ _) =

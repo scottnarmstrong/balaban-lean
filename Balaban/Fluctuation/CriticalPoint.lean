@@ -324,11 +324,17 @@ theorem svec_eq_apply {n : ℕ} (hG : IsLevel G n) {N : ℕ} (φ : G.Ω 1 × Fin
     (y : Torus d (N₀ * L ^ K)) (i : Fin N) : svec G φ y i = φ (⟨y, (hG y).1⟩, i) :=
   svec_of_mem G φ ⟨y, (hG y).1⟩ i
 
+/-- A field on `Ω₁` of `G` as a field on `Ω'₁` of `G'`, when `Ω'₁ ⊆ Ω₁` (core of `liftφ` and of
+`RegionPair.liftφ`). -/
+def liftφOf {N : ℕ} (hΩ : ∀ x ∈ G'.Ω 1, x ∈ G.Ω 1) (φ : G.Ω 1 × Fin N → ℂ) :
+    G'.Ω 1 × Fin N → ℂ :=
+  fun q => φ (⟨q.1.1, hΩ q.1.1 q.1.2⟩, q.2)
+
 /-- The field `φ` on `Ω₁` of level `n` as a field on `Ω'₁` of level `n + 1`
 (inverse of `restrictφ`). -/
 def liftφ (G' : GeneratingSet d L N₀ K ϱ') {n : ℕ} (hG : IsLevel G n) {N : ℕ}
     (φ : G.Ω 1 × Fin N → ℂ) : G'.Ω 1 × Fin N → ℂ :=
-  fun q => φ (⟨q.1.1, (hG q.1.1).1⟩, q.2)
+  liftφOf (G' := G') (fun x _ => (hG x).1) φ
 
 theorem restrictφ_liftφ {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)) (hp : n + 1 ≤ K)
     {N : ℕ} (φ : G.Ω 1 × Fin N → ℂ) :
@@ -339,6 +345,29 @@ theorem restrictφ_liftφ {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)
 theorem isRealUnitField_liftφ {n : ℕ} (hG : IsLevel G n) {N : ℕ}
     {φ : G.Ω 1 × Fin N → ℂ} (hφ : IsRealUnitField G φ) :
     IsRealUnitField G' (liftφ G' hG φ) := fun x => hφ ⟨x.1, (hG x.1).1⟩
+
+/-- **A field on `Ω₁` of `G` as a field on `Ω'₁ = Ω₁` of `G'`** for a region pair (inverse of
+`restrictφ`). -/
+def RegionPair.liftφ {n : ℕ} (P : RegionPair G G' n) {N : ℕ} (φ : G.Ω 1 × Fin N → ℂ) :
+    G'.Ω 1 × Fin N → ℂ :=
+  liftφOf (fun _ hx => P.Ω_one ▸ hx) φ
+
+theorem RegionPair.restrictφ_liftφ {n : ℕ} (P : RegionPair G G' n) {N : ℕ}
+    (φ : G.Ω 1 × Fin N → ℂ) : P.hpre.restrictφ (P.liftφ φ) = φ := by
+  funext q
+  rfl
+
+/-- The extension of `liftφ φ - φ₁` to the torus is that of `φ - restrictφ φ₁` (core of
+`svec_sub_restrict`). -/
+theorem RegionPair.svec_sub_restrict {n : ℕ} (P : RegionPair G G' n) {N : ℕ}
+    (φ : G.Ω 1 × Fin N → ℂ) (φ₁ : G'.Ω 1 × Fin N → ℂ) :
+    svec G' (P.liftφ φ - φ₁) = svec G (φ - P.hpre.restrictφ φ₁) := by
+  funext y i
+  by_cases hy : y ∈ G.Ω 1
+  · have hy' : y ∈ G'.Ω 1 := P.Ω_one ▸ hy
+    rw [svec_of_mem' (G' := G') _ hy' i, svec_of_mem' (G' := G) _ hy i]
+    rfl
+  · rw [svec_of_not_mem G' _ (P.Ω_one ▸ hy), svec_of_not_mem G _ hy]
 
 theorem isRealUnitField_restrictφ {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
     (hp : n + 1 ≤ K) {N : ℕ} {φ' : G'.Ω 1 × Fin N → ℂ} (hφ : IsRealUnitField G' φ') :
@@ -520,14 +549,24 @@ theorem Jbg_eq_Jinf (H : BgHyp d L K ϱ (compWeight L a₁) ν) (D : BgData G N)
     linarith
   exact Jinf_eq_of_isMinOn θ hunit hle ⟨_, fun φ hφ => hle φ hφ⟩
 
+/-- **On the new region of a region pair the composed datum is `psiStar`** (core of
+`composeData_Ψ_eq_psiStar`): at a site of `R = Ω'_{n+1}` the layers of `G`, `G'` are `n`, `n + 1`. -/
+theorem RegionPair.composeData_Ψ_eq_psiStar_on (P : RegionPair G G' n) (a : ℕ → ℝ)
+    (φ' : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N) {x : Torus d (N₀ * L ^ K)}
+    (hx : x ∈ G'.Ω (n + 1)) (i : Fin N) :
+    (composeData P.hpre a φ' D').Ψ x i = psiStar G G' a n (n + 1) D'.Ψ (svec G' φ') x i := by
+  show composeField G G' a φ' D'.Ψ x i = _
+  rw [composeField_of_mem a φ' D'.Ψ (P.top_subset hx) i, (P.top_layer x hx).1,
+    (P.top_layer x hx).2]
+  rfl
+
 theorem composeData_Ψ_eq_psiStar (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
     (hp : n + 1 ≤ K) (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N)
     (x : Torus d (N₀ * L ^ K)) (i : Fin N) :
     (composeData (hG.precedes hG' hp) a φ' D').Ψ x i =
-      psiStar G G' a n (n + 1) D'.Ψ (svec G' φ') x i := by
-  show composeField G G' a φ' D'.Ψ x i = _
-  rw [composeField_of_mem a φ' D'.Ψ (hG x).1 i, (hG x).2, (hG' x).2]
-  rfl
+      psiStar G G' a n (n + 1) D'.Ψ (svec G' φ') x i :=
+  (RegionPair.ofLevel hG hG' hp).composeData_Ψ_eq_psiStar_on a φ' D'
+    (hG'.Ω_top ▸ Finset.mem_univ x) i
 
 theorem composeData_h (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
     (hp : n + 1 ≤ K) (a : ℕ → ℝ) (φ' : G'.Ω 1 × Fin N → ℂ) (D' : BgData G' N)
