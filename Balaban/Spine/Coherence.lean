@@ -87,6 +87,12 @@ def HistCorr (c : Fin S.d → ℤ) (a₁ : LocalHistory S n₁ M K) (a₂ : Loca
     SetCorr c (a₁.OmegaPrime j) (a₂.OmegaPrime j) ∧ SetCorr c (a₁.Omega j) (a₂.Omega j) ∧
     SetCorr c (a₁.OmegaDD j) (a₂.OmegaDD j)
 
+/-- Two kept-label records correspond (ruling R28): the same scales and labels at corresponding
+localized histories. -/
+def LabCorr (c : Fin S.d → ℤ) (ℓ₁ : LabRec S n₁ M K) (ℓ₂ : LabRec S n₂ M K) : Prop :=
+  ∀ (j : ℕ) (ϰ : Fin 5), (∀ a₁, (j, a₁, ϰ) ∈ ℓ₁ → ∃ a₂, (j, a₂, ϰ) ∈ ℓ₂ ∧ HistCorr c a₁ a₂) ∧
+    ∀ a₂, (j, a₂, ϰ) ∈ ℓ₂ → ∃ a₁, (j, a₁, ϰ) ∈ ℓ₁ ∧ HistCorr c a₁ a₂
+
 /-- Two internal variables correspond: same scale, same kind, corresponding blocks. -/
 def VarCorr (c : Fin S.d → ℤ) {a₁ : LocalHistory S n₁ M K} {a₂ : LocalHistory S n₂ M K} {k : ℕ}
     (p₁ : InternalVars a₁ k) (p₂ : InternalVars a₂ k) : Prop :=
@@ -153,15 +159,22 @@ def LFCoherent (F : RepFam S R k0 K M N geo cs P k m₁ ϱ) : Prop :=
         HistCorr c (H₁.localHistory M K j Z₁) (H₂.localHistory M K j Z₂) →
         SetCorr c (Vsites R (H₁.localHistory M K j Z₁) j) (Vsites R (H₂.localHistory M K j Z₂) j) →
         (F.lf nK₂).κK j (H₂.localHistory M K j Z₂) = (F.lf nK₁).κK j (H₁.localHistory M K j Z₁) ∧
-        ∀ ϰ : Fin 5,
+        ∀ (lab₁ : ∀ i, H₁.Comp i → Fin 5) (lab₂ : ∀ i, H₂.Comp i → Fin 5),
+          LabCorr c (H₁.locLab M lab₁ j Z₁) (H₂.locLab M lab₂ j Z₂) → ∀ ϰ : Fin 5,
           (∀ p₁ p₂, VarCorr c p₁ p₂ →
-            (p₁ ∈ ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) ϰ).Ikeep ↔
-              p₂ ∈ ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) ϰ).Ikeep)) ∧
+            (p₁ ∈ ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁)
+                ϰ).Ikeep ↔
+              p₂ ∈ ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂)
+                ϰ).Ikeep)) ∧
           ∀ o₁ o₂ x₁ x₂ hv g₁ g₂, OutCorr c j o₁ o₂ → CfgCorr c x₁ x₂ → GCorr c g₁ g₂ →
-            ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) ϰ).ker.K o₂ x₂ hv =
-                ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) ϰ).ker.K o₁ x₁ hv ∧
-              ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) ϰ).ker.b o₂ x₂ hv g₂ =
-                ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) ϰ).ker.b o₁ x₁ hv g₁) ∧
+            ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂) ϰ).ker.K
+                o₂ x₂ hv =
+              ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁) ϰ).ker.K
+                o₁ x₁ hv ∧
+            ((F.lf nK₂).KD.datum j (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂) ϰ).ker.b
+                o₂ x₂ hv g₂ =
+              ((F.lf nK₁).KD.datum j (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁) ϰ).ker.b
+                o₁ x₁ hv g₁) ∧
     ∀ A₁ ∈ (F.lf nK₁).hist, ∀ A₂ ∈ (F.lf nK₂).hist,
       ∀ (X₁ : Finset (Torus S.d (sides S.L K nK₁ k))) (X₂ : Finset (Torus S.d (sides S.L K nK₂ k))),
         X₁ ∈ bdryDoms (OmegaCube A₁.H k) (A₁.H.step k).Z →

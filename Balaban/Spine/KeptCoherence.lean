@@ -37,28 +37,30 @@ variable {S : Setting} [NeZero S.L] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M] 
 `I''` and the kept kernels and boundary factors at corresponding localized histories, variables,
 outputs, configurations and sources agree (LFR Definition II.6.2 (D8), D-IV.9). -/
 def KeptDatumCohAt (j : ℕ)
-    (D : ∀ (nK : ℕ) [NeZero nK] (a : LocalHistory S (sides S.L K nK) M K), Fin 5 →
-      KeptDatum (S := S) N R a j) : Prop :=
+    (D : ∀ (nK : ℕ) [NeZero nK] (a : LocalHistory S (sides S.L K nK) M K),
+      LabRec S (sides S.L K nK) M K → Fin 5 → KeptDatum (S := S) N R a j) : Prop :=
   ∀ (nK₁ nK₂ : ℕ) [NeZero nK₁] [NeZero nK₂] (c : Fin S.d → ℤ)
     (H₁ : RegionHistory S (sides S.L K nK₁) R k0 K) (H₂ : RegionHistory S (sides S.L K nK₂) R k0 K),
     H₁.Admissible → H₂.Admissible → ∀ (Z₁ : H₁.Comp j) (Z₂ : H₂.Comp j),
       HistCorr c (H₁.localHistory M K j Z₁) (H₂.localHistory M K j Z₂) →
       SetCorr c (Vsites R (H₁.localHistory M K j Z₁) j) (Vsites R (H₂.localHistory M K j Z₂) j) →
-      ∀ ϰ : Fin 5,
+      ∀ (lab₁ : ∀ i, H₁.Comp i → Fin 5) (lab₂ : ∀ i, H₂.Comp i → Fin 5),
+        LabCorr c (H₁.locLab M lab₁ j Z₁) (H₂.locLab M lab₂ j Z₂) → ∀ ϰ : Fin 5,
         (∀ p₁ p₂, VarCorr c p₁ p₂ →
-          (p₁ ∈ (D nK₁ (H₁.localHistory M K j Z₁) ϰ).Ikeep ↔
-            p₂ ∈ (D nK₂ (H₂.localHistory M K j Z₂) ϰ).Ikeep)) ∧
+          (p₁ ∈ (D nK₁ (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁) ϰ).Ikeep ↔
+            p₂ ∈ (D nK₂ (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂) ϰ).Ikeep)) ∧
         ∀ o₁ o₂ x₁ x₂ hv g₁ g₂, OutCorr c j o₁ o₂ → CfgCorr c x₁ x₂ → GCorr c g₁ g₂ →
-          (D nK₂ (H₂.localHistory M K j Z₂) ϰ).ker.K o₂ x₂ hv =
-              (D nK₁ (H₁.localHistory M K j Z₁) ϰ).ker.K o₁ x₁ hv ∧
-            (D nK₂ (H₂.localHistory M K j Z₂) ϰ).ker.b o₂ x₂ hv g₂ =
-              (D nK₁ (H₁.localHistory M K j Z₁) ϰ).ker.b o₁ x₁ hv g₁
+          (D nK₂ (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂) ϰ).ker.K o₂ x₂ hv =
+              (D nK₁ (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁) ϰ).ker.K o₁ x₁ hv ∧
+            (D nK₂ (H₂.localHistory M K j Z₂) (H₂.locLab M lab₂ j Z₂) ϰ).ker.b o₂ x₂ hv g₂ =
+              (D nK₁ (H₁.localHistory M K j Z₁) (H₁.locLab M lab₁ j Z₁) ϰ).ker.b o₁ x₁ hv g₁
 
 /-- **The datum clause of (D8) for the kept data of a family of tori**, at every scale. -/
 def KeptDatumCoh
     (κ : ∀ (nK : ℕ) [NeZero nK], ℕ → LocalHistory S (sides S.L K nK) M K → ℝ)
     (KD : ∀ (nK : ℕ) [NeZero nK], KeptData k0 (geo nK) cs N (κ nK) S.lam) : Prop :=
-  ∀ j, KeptDatumCohAt (K := K) (M := M) (R := R) (k0 := k0) j (fun nK _ a ϰ => (KD nK).datum j a ϰ)
+  ∀ j, KeptDatumCohAt (K := K) (M := M) (R := R) (k0 := k0) j
+    (fun nK _ a ℓ ϰ => (KD nK).datum j a ℓ ϰ)
 
 /-- **`LFCoherent` of the output of the kept half of `R`.**  The family with the large-field parts
 `keptRep (F.lf nK) (D nK)` (the pinned exponents `κ_k = κ^pre_k` at the scale `k`, the kept data of

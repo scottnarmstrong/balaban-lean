@@ -138,14 +138,14 @@ theorem locOp_rot_invariant (ρ : OrthN N) (k : ℕ) : ∀ (hk : k ≤ K) (Z : H
     by_cases hc : IsKept H (k + 1) Z'
     · have e := locOp_kept geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),
-          P = keptOp geo cs KD hH Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
+          P = keptOp geo cs KD hH lab Z' hc.1 hc.2.1 hc.2.2 (lab (k + 1) Z') →
           ∀ (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A),
             P.T.K (rotOut ρ o) (rotSub ρ x) (ρ hv) = P.T.K o x hv ∧
             P.T.b (rotOut ρ o) (rotSub ρ x) (ρ hv) (rotG ρ g) = P.T.b o x hv g := by
         intro P hP
         subst hP
         intro x
-        exact ⟨KD.rot_K (k + 1) _ _ ρ o x hv, KD.rot_b (k + 1) _ _ ρ o x hv g⟩
+        exact ⟨KD.rot_K (k + 1) _ _ _ ρ o x hv, KD.rot_b (k + 1) _ _ _ ρ o x hv g⟩
       exact key _ e x
     · have e := locOp_level geo cs SD KD (lab := lab) (hH := hH) hk hc
       have key : ∀ P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1),
@@ -488,6 +488,92 @@ theorem preOp_euclid (hiso : HistIso H H' σ.toTorusSym) {k : ℕ} (hk' : k ≤ 
 
 variable {lab : ∀ k, H.Comp k → Fin 5} {lab' : ∀ k, H'.Comp k → Fin 5}
 
+/-- The descent relation from a component to itself is the equality. -/
+theorem desc_self_iff {H₀ : RegionHistory S n R k0 K} {a : ℕ} {Y Z : H₀.Comp a} :
+    H₀.Desc a a Y Z ↔ Y = Z := by
+  classical
+  rw [← mem_ancFin, ancFin_self, Finset.mem_singleton]
+
+/-- The image of a localized history under `σ` is unique. -/
+theorem HistImage.unique {σ' : TorusSym S n M K} {a a' a'' : LocalHistory S n M K}
+    (h' : HistImage σ' a a') (h'' : HistImage σ' a a'') : a' = a'' := by
+  cases a'
+  cases a''
+  congr 1 <;> funext j
+  · exact (h'.Z j).trans (h''.Z j).symm
+  · exact (h'.P j).trans (h''.P j).symm
+  · exact (h'.Q j).trans (h''.Q j).symm
+  · exact (h'.R j).trans (h''.R j).symm
+  · exact (h'.Sset j).trans (h''.Sset j).symm
+  · exact (h'.OmegaPrime j).trans (h''.OmegaPrime j).symm
+  · exact (h'.Omega j).trans (h''.Omega j).symm
+  · exact (h'.OmegaDD j).trans (h''.OmegaDD j).symm
+
+/-- **The lineages of related components are related** (from the bijections of the old parts of
+related components): every ancestor of `Z` is related to an ancestor of `Z'`, and conversely. -/
+theorem desc_of_corr (C : ∀ k, H.Comp k → H'.Comp k → Prop)
+    (hparts : ∀ k (Z : H.Comp (k + 1)) (Z' : H'.Comp (k + 1)), C (k + 1) Z Z' →
+      ∃ eqv : ↥(H.parts k Z) ≃ ↥(H'.parts k Z'), ∀ Y, C k Y.1 (eqv Y).1) (j : ℕ) (k : ℕ) :
+    ∀ (Z : H.Comp k) (Z' : H'.Comp k), C k Z Z' →
+      (∀ Y, H.Desc j k Y Z → ∃ Y', H'.Desc j k Y' Z' ∧ C j Y Y') ∧
+      (∀ Y', H'.Desc j k Y' Z' → ∃ Y, H.Desc j k Y Z ∧ C j Y Y') := by
+  induction k with
+  | zero =>
+    intro Z Z' hc
+    rcases Nat.eq_zero_or_pos j with hj | hj
+    · subst hj
+      refine ⟨fun Y hY => ⟨Z', Desc.refl _, (desc_self_iff.1 hY) ▸ hc⟩,
+        fun Y' hY' => ⟨Z, Desc.refl _, (desc_self_iff.1 hY') ▸ hc⟩⟩
+    · exact ⟨fun Y hY => absurd hY.le (by omega), fun Y' hY' => absurd hY'.le (by omega)⟩
+  | succ k ih =>
+    intro Z Z' hc
+    by_cases hjk : j ≤ k
+    · obtain ⟨eqv, heqv⟩ := hparts k Z Z' hc
+      constructor
+      · intro Y hY
+        obtain ⟨c, hcm, hd⟩ := (desc_succ_iff hjk).1 hY
+        obtain ⟨Y', hd', hC⟩ := (ih c (eqv ⟨c, hcm⟩).1 (heqv ⟨c, hcm⟩)).1 Y hd
+        exact ⟨Y', (desc_succ_iff hjk).2 ⟨_, (eqv ⟨c, hcm⟩).2, hd'⟩, hC⟩
+      · intro Y' hY'
+        obtain ⟨c', hcm', hd'⟩ := (desc_succ_iff hjk).1 hY'
+        have hrel := heqv (eqv.symm ⟨c', hcm'⟩)
+        rw [Equiv.apply_symm_apply] at hrel
+        obtain ⟨Y, hd, hC⟩ := (ih _ c' hrel).2 Y' hd'
+        exact ⟨Y, (desc_succ_iff hjk).2 ⟨_, (eqv.symm ⟨c', hcm'⟩).2, hd⟩, hC⟩
+    · rcases Nat.lt_or_ge (k + 1) j with hlt | hge
+      · exact ⟨fun Y hY => absurd hY.le (by omega), fun Y' hY' => absurd hY'.le (by omega)⟩
+      · obtain rfl : j = k + 1 := by omega
+        refine ⟨fun Y hY => ⟨Z', Desc.refl _, (desc_self_iff.1 hY) ▸ hc⟩,
+          fun Y' hY' => ⟨Z, Desc.refl _, (desc_self_iff.1 hY') ▸ hc⟩⟩
+
+/-- **The kept-label records of related components correspond** (ruling R28): the kept lineage
+components of related components are related, with corresponding localized histories (`hloc`),
+ripeness (`hkept`) and labels (`hlab`). -/
+theorem locLab_image_of_corr (C : ∀ k, H.Comp k → H'.Comp k → Prop)
+    (hloc : ∀ k, k ≤ K → ∀ (Z : H.Comp k) (Z' : H'.Comp k), C k Z Z' →
+      HistImage σ.toTorusSym (H.localHistory M K k Z) (H'.localHistory M K k Z'))
+    (hkept : ∀ k (Z : H.Comp k) (Z' : H'.Comp k), C k Z Z' → (IsKept H' k Z' ↔ IsKept H k Z))
+    (hlab : ∀ k (Z : H.Comp k) (Z' : H'.Comp k), C k Z Z' → IsKept H k Z → lab' k Z' = lab k Z)
+    (hparts : ∀ k (Z : H.Comp (k + 1)) (Z' : H'.Comp (k + 1)), C (k + 1) Z Z' →
+      ∃ eqv : ↥(H.parts k Z) ≃ ↥(H'.parts k Z'), ∀ Y, C k Y.1 (eqv Y).1)
+    {k : ℕ} (hk : k ≤ K) (Z : H.Comp k) (Z' : H'.Comp k) (hc : C k Z Z') :
+    LabImage σ.toTorusSym (H.locLab M lab k Z) (H'.locLab M lab' k Z') := by
+  intro j a' ϰ
+  simp only [RegionHistory.mem_locLab]
+  constructor
+  · rintro ⟨Y', hj, hd', hkept', hloc', hlab'⟩
+    obtain ⟨Y, hd, hC⟩ := (desc_of_corr C hparts j k Z Z' hc).2 Y' hd'
+    have hkY : IsKept H j Y := (hkept j Y Y' hC).1 hkept'
+    refine ⟨H.localHistory M K j Y, ⟨Y, hj, hd, hkY, rfl, ?_⟩, ?_⟩
+    · rw [← hlab j Y Y' hC hkY]; exact hlab'
+    · rw [← hloc']; exact hloc j (by omega) Y Y' hC
+  · rintro ⟨a, ⟨Y, hj, hd, hkY, hlocY, hlabY⟩, hI⟩
+    obtain ⟨Y', hd', hC⟩ := (desc_of_corr C hparts j k Z Z' hc).1 Y hd
+    refine ⟨Y', hj, hd', (hkept j Y Y' hC).2 hkY, ?_, ?_⟩
+    · subst hlocY
+      exact HistImage.unique (hloc j (by omega) Y Y' hC) hI
+    · rw [hlab j Y Y' hC hkY]; exact hlabY
+
 /-- **The operators of corresponding components correspond** (the core of Lemma II.5.10): for a
 relation `C` between the components of `H` and of `H'` under which the localized histories
 correspond (`hloc`), the ripe components correspond (`hkept`), the labels of the kept components
@@ -523,8 +609,8 @@ theorem locOp_euclid_of_corr (C : ∀ k, H.Comp k → H'.Comp k → Prop)
       have e' := locOp_kept geo cs SD KD (lab := lab') (hH := hH') hk hc'
       have key : ∀ (P : OpPkg N R (H.localHistory M K (k + 1) Z') (k + 1))
           (P' : OpPkg N R (H'.localHistory M K (k + 1) Z'') (k + 1)),
-          P = keptOp geo cs KD hH Z' hkc.1 hkc.2.1 hkc.2.2 (lab (k + 1) Z') →
-          P' = keptOp geo cs KD hH' Z'' hc'.1 hc'.2.1 hc'.2.2 (lab' (k + 1) Z'') →
+          P = keptOp geo cs KD hH lab Z' hkc.1 hkc.2.1 hkc.2.2 (lab (k + 1) Z') →
+          P' = keptOp geo cs KD hH' lab' Z'' hc'.1 hc'.2.1 hc'.2.2 (lab' (k + 1) Z'') →
           SubCorr (hloc (k + 1) hk Z' Z'' hc) hk P.A P'.A ∧
           ∀ o o' (x : SubCfg N (H.localHistory M K (k + 1) Z') (k + 1) P.A)
             (x' : SubCfg N (H'.localHistory M K (k + 1) Z'') (k + 1) P'.A) hv
@@ -534,13 +620,15 @@ theorem locOp_euclid_of_corr (C : ∀ k, H.Comp k → H'.Comp k → Prop)
             P'.T.K o' x' hv = P.T.K o x hv ∧ P'.T.b o' x' hv g' = P.T.b o x hv g := by
         intro P P' hP hP'
         subst hP hP'
+        have hℓ := locLab_image_of_corr (M := M) C hloc hkept hlab hparts hk Z' Z'' hc
         rw [hlab (k + 1) Z' Z'' hc hkc]
-        refine ⟨fun p => KD.euclid_I (k + 1) σ _ _ (hloc (k + 1) hk Z' Z'' hc) hk _ p, ?_⟩
+        refine ⟨fun p => KD.euclid_I (k + 1) σ _ _ _ _ (hloc (k + 1) hk Z' Z'' hc) hℓ hk _ p, ?_⟩
         intro o o' x x' hv g g' hOut hVal hG
-        exact ⟨KD.euclid_K (k + 1) σ _ _ (hloc (k + 1) hk Z' Z'' hc) hk _ o o' x x' hv hOut
-            ⟨fun p => KD.euclid_I (k + 1) σ _ _ (hloc (k + 1) hk Z' Z'' hc) hk _ p, hVal⟩,
-          KD.euclid_b (k + 1) σ _ _ (hloc (k + 1) hk Z' Z'' hc) hk _ o o' x x' hv g g' hOut
-            ⟨fun p => KD.euclid_I (k + 1) σ _ _ (hloc (k + 1) hk Z' Z'' hc) hk _ p, hVal⟩ hG⟩
+        exact ⟨KD.euclid_K (k + 1) σ _ _ _ _ (hloc (k + 1) hk Z' Z'' hc) hℓ hk _ o o' x x' hv hOut
+            ⟨fun p => KD.euclid_I (k + 1) σ _ _ _ _ (hloc (k + 1) hk Z' Z'' hc) hℓ hk _ p, hVal⟩,
+          KD.euclid_b (k + 1) σ _ _ _ _ (hloc (k + 1) hk Z' Z'' hc) hℓ hk _ o o' x x' hv g g'
+            hOut ⟨fun p => KD.euclid_I (k + 1) σ _ _ _ _ (hloc (k + 1) hk Z' Z'' hc) hℓ hk _ p,
+              hVal⟩ hG⟩
       exact key _ _ e e'
     · have hc' : ¬ IsKept H' (k + 1) Z'' := fun h => hkc ((hkept (k + 1) Z' Z'' hc).mp h)
       have e := locOp_level geo cs SD KD (lab := lab) (hH := hH) hk hkc

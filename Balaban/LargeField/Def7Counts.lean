@@ -122,7 +122,8 @@ theorem Rep.locOp_bound_le (m : ℕ) (hz : ∀ j, j + 1 ≤ m → 0 < cs.z (j + 
     by_cases hkept : IsKept A.H (j + 1) c
     · have e := locOp_kept geo cs rep.SD rep.KD (lab := fun i c => A.lab i c.1) (hH := A.adm) hj
         hkept
-      have hb := (rep.KD.bound A.H A.adm (j + 1) c hkept.1 hkept.2.1 hkept.2.2
+      have hb := (rep.KD.bound A.H A.adm (fun i c => A.lab i c.1) (j + 1) c hkept.1 hkept.2.1
+        hkept.2.2
         (A.lab (j + 1) c.1)).2
       have hκ : rep.kappaH A (j + 1) c = rep.keptExp A (j + 1) c := by
         have hev : A.H.IsKeptEvent (j + 1) c := hkept
