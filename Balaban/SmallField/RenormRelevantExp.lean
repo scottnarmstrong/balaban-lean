@@ -38,6 +38,24 @@ noncomputable def expTotal (Ys : Finset (Finset (Torus d (N₀ * L ^ k))))
     (dY : Finset (Torus d (N₀ * L ^ k)) → ℝ) (κ B : ℝ) : ℝ :=
   ∑ Y ∈ Ys, B * Real.exp (-κ * dY Y)
 
+/-- The negative of an expansion is an expansion with the same bound and rate. -/
+theorem IsLocExp.neg' (h : IsLocExp G Dom r Ys dY κ B f term) :
+    IsLocExp G Dom r Ys dY κ B (fun D ξ => -f D ξ) (fun Y q => -term Y q) where
+  sum_eq D hD ξ hξ := by rw [h.sum_eq D hD ξ hξ, Finset.sum_neg_distrib]
+  analytic Y hY q hq := (h.analytic Y hY q hq).neg
+  local_ Y hY q hq q' hq' h2 hag := by rw [h.local_ Y hY q hq q' hq' h2 hag]
+  bound Y hY q hq := by simpa using h.bound Y hY q hq
+
+/-- The difference of two expansions over the same domains, with the sum of the bounds (so
+`C₁ - C₂` expands). -/
+theorem IsLocExp.sub' {B' : ℝ} {g : BgData G N → (Fin 3 → ℂ) → ℂ}
+    {term' : Finset (Torus d (N₀ * L ^ k)) → RawData d L N₀ k N × (Fin 3 → ℂ) → ℂ}
+    (h₁ : IsLocExp G Dom r Ys dY κ B f term) (h₂ : IsLocExp G Dom r Ys dY κ B' g term') :
+    IsLocExp G Dom r Ys dY κ (B + B') (fun D ξ => f D ξ - g D ξ)
+      (fun Y q => term Y q - term' Y q) := by
+  have := h₁.add h₂.neg'
+  simpa [sub_eq_add_neg] using this
+
 /-- The value of an expansion is bounded by the total size of its terms. -/
 theorem IsLocExp.norm_le_expTotal (h : IsLocExp G Dom r Ys dY κ B f term) {D : BgData G N}
     (hD : Dom D) {ξ : Fin 3 → ℂ} (hξ : ‖ξ‖ < r) : ‖f D ξ‖ ≤ expTotal Ys dY κ B := by

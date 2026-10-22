@@ -8,6 +8,7 @@ module
 public import Mathlib.Analysis.Calculus.FDeriv.Add
 public import Mathlib.Analysis.Calculus.Deriv.Add
 public import Mathlib.Analysis.Calculus.Deriv.Comp
+public import Mathlib.Analysis.Calculus.Deriv.Mul
 public import Mathlib.Analysis.Complex.Basic
 
 /-!
@@ -76,6 +77,20 @@ theorem relDh_relShift (D : (Fin N → ℂ) → (Fin N → ℂ) → ℂ) (i₀ :
     relDh (relShift D i₀) i₀ = relDh D i₀ := by
   simp only [relDh, relShift]
   rw [fderiv_sub_const]
+
+/-- The derivative in `h` is the line derivative `d/ds D e (e + s e)` at `s = 0`, for `D`
+differentiable in `h` at `e`. -/
+theorem relDh_eq_deriv_line (D : (Fin N → ℂ) → (Fin N → ℂ) → ℂ) (i₀ : Fin N)
+    (hD : DifferentiableAt ℂ (fun h : Fin N → ℂ => D (relE i₀) h) (relE i₀)) :
+    relDh D i₀ = deriv (fun s : ℂ => D (relE i₀) (relE i₀ + s • relE i₀)) 0 := by
+  have hl : HasDerivAt (fun s : ℂ => relE i₀ + s • relE i₀) (relE i₀) 0 := by
+    have := HasDerivAt.smul_const (hasDerivAt_id' (0 : ℂ)) (relE i₀)
+    simpa using HasDerivAt.const_add (relE i₀) this
+  have h0 : relE i₀ + (0 : ℂ) • relE i₀ = relE i₀ := by simp
+  have hf : HasFDerivAt (fun h : Fin N → ℂ => D (relE i₀) h)
+      (fderiv ℂ (fun h : Fin N → ℂ => D (relE i₀) h) (relE i₀)) (relE i₀ + (0 : ℂ) • relE i₀) := by
+    rw [h0]; exact hD.hasFDerivAt
+  exact (hf.comp_hasDerivAt (0 : ℂ) hl).deriv.symm
 
 /-- The moment functional is additive: the limit of a sum of sequences. -/
 theorem relMom_add {a b : ℕ → ℂ} {x y : ℂ} (ha : Filter.Tendsto a Filter.atTop (nhds x))
