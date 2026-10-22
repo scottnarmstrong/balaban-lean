@@ -2710,6 +2710,8 @@ public import Balaban.Flow.CellGreen
 public import Balaban.Flow.BlockPoly
 public import Balaban.Flow.CellSolve
 public import Balaban.Flow.CellMoments
+public import Balaban.Flow.TorusLift
+public import Balaban.Flow.Sawtooth
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
