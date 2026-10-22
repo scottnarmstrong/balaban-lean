@@ -2743,6 +2743,8 @@ public import Balaban.Flow.MomentLimit
 public import Balaban.Flow.Jet
 public import Balaban.SmallField.RenormMomentJets
 public import Balaban.SmallField.RenormMomentQuad
+public import Balaban.SmallField.RenormMomentAlg
+public import Balaban.SmallField.RenormMomentSum
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
