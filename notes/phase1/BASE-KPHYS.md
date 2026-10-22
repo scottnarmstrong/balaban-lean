@@ -65,8 +65,8 @@ integral, which are not unit-spin pairings; the unit-spin part alone gives `cbar
 4. The Gaussian/vacuum part (1)-(3) and the assembly `BaseProductData` with `bSmall` as parameter: ~600; (S2) after.
 
 ## 6. Plan B (Kt indexed by `a`), Option C pieces (decision of 2026-10-22; `BaseProductData` unchanged)
-C1. `Base/BaseFluctGauss.lean` (done): `baseFluctBlocks a`, `siteGaussDensity N v = (2 pi)^(-N/2) exp(-|v|^2/2)`,
-    `baseFluctGauss a N x = prod_{y in baseFluctBlocks a} siteGaussDensity N (subFluctVarField N x 0 y)`; `_nonneg`, `measurable_`, `_rot`.
+C1. `Base/BaseFluctGauss.lean` (done): `baseFluctBlocks a`, `siteDensity N v` (BaseGaussCut),
+    `baseFluctGauss a N x = prod_{y in baseFluctBlocks a} siteDensity N (subFluctVarField N x 0 y)`; `_nonneg`, `measurable_`, `_rot`.
 C2. `baseFluctSpin`: the spins on `(Omega \ Omega'') cap Z'` from `psi'_0`: `phi_x = chartMapPi e he (beta^(-1/2) (Cloc^(1/2) psi'_0))_x` with `e` the
     centre `locPhi`/`baseFieldHat` and `Cloc^(1/2) = pdSqrtInv K_U` of the component (`BaseComponentCovariance`); statement: `baseFluctSpin` is Borel,
     `O(N)`-equivariant, unit-norm values (`chartMapPi` lands in the sphere), and reads `(o, x, hv)` only through `locPhi` (so through `a` and the lifted data).

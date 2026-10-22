@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.Operators.QuietSymm
+public import Balaban.LargeField.Base.BaseGaussCut
 
 /-!
 # The ultralocal Gaussian of the first-step fluctuation variables
@@ -31,43 +32,30 @@ variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {M K : ℕ} [NeZe
 def baseFluctBlocks : Set (BlockAt S n M K 0) :=
   {y | BlockSub (S := S) (n := n) (M := M) (K := K) 0 y (varSet a 0 .fluct)}
 
-/-- The one-site ultralocal Gaussian density `(2π)^{-N/2} e^{-½ ‖v‖²}` on `ℝ^N`. -/
-noncomputable def siteGaussDensity (N : ℕ) (v : EuclideanSpace ℝ (Fin N)) : ℝ :=
-  (2 * Real.pi) ^ (-(N : ℝ) / 2) * Real.exp (-(1 / 2) * ‖v‖ ^ 2)
-
-theorem siteGaussDensity_nonneg (N : ℕ) (v : EuclideanSpace ℝ (Fin N)) :
-    0 ≤ siteGaussDensity N v := by
-  unfold siteGaussDensity
-  positivity
-
-theorem siteGaussDensity_rot (N : ℕ) (ρ : OrthN N) (v : EuclideanSpace ℝ (Fin N)) :
-    siteGaussDensity N (ρ v) = siteGaussDensity N v := by
-  unfold siteGaussDensity
+theorem siteDensity_rot (N : ℕ) (ρ : OrthN N) (v : EuclideanSpace ℝ (Fin N)) :
+    siteDensity N (ρ v) = siteDensity N v := by
+  unfold siteDensity
   rw [LinearIsometryEquiv.norm_map]
-
-theorem measurable_siteGaussDensity (N : ℕ) : Measurable (siteGaussDensity N) := by
-  unfold siteGaussDensity
-  fun_prop
 
 open Classical in
 /-- **The ultralocal Gaussian of the fluctuation variables** `∏_{y} (2π)^{-N/2} e^{-½ ‖ψ'_0(y)‖²}`. -/
 noncomputable def baseFluctGauss (N : ℕ) (x : NewCfg N a 0) : ℝ :=
-  ∏ y : baseFluctBlocks a, siteGaussDensity N (subFluctVarField N x 0 y.1)
+  ∏ y : baseFluctBlocks a, siteDensity N (subFluctVarField N x 0 y.1)
 
 theorem baseFluctGauss_nonneg (x : NewCfg N a 0) : 0 ≤ baseFluctGauss a N x :=
-  Finset.prod_nonneg fun _ _ => siteGaussDensity_nonneg N _
+  Finset.prod_nonneg fun _ _ => siteDensity_nonneg N _
 
 theorem measurable_baseFluctGauss : Measurable (baseFluctGauss a N) := by
   classical
   unfold baseFluctGauss
   refine Finset.measurable_fun_prod _ fun y _ => ?_
-  exact (measurable_siteGaussDensity N).comp (measurable_subFluctVarField 0 y.1)
+  exact (measurable_siteDensity N).comp (measurable_subFluctVarField 0 y.1)
 
 theorem baseFluctGauss_rot (ρ : OrthN N) (x : NewCfg N a 0) :
     baseFluctGauss a N (rotSub ρ x) = baseFluctGauss a N x := by
   unfold baseFluctGauss
   refine Finset.prod_congr rfl fun y _ => ?_
-  rw [subFluctVarField_rot, siteGaussDensity_rot]
+  rw [subFluctVarField_rot, siteDensity_rot]
 
 end Gauss
 
