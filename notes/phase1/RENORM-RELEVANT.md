@@ -107,3 +107,25 @@ S3c needs, in this order (the matrix entries `c₁(v), c₂(v), τ` of `matrixIn
      and `ζ a⟨δ_x, δ_0 − Qφ¹⟩` (from `renormC1`), `C₂ = O(ξ²)` (`δφ = O(ξ)`, `lemma35_ii_bound`).
 (M3) `Σ_x |x|² B_ξ(x, 0) = Λ₃ ((matrixInfty …) ξ)₃ + O(ξ²)` via (M0), by Fourier/translation invariance of `G`; ~600-900 lines,
      dominated by (M0), (M1). The O(ξ²) remainder feeds S2 (`norm_le_of_second_order`).
+
+### 6.2 Route and final statement of M3 (moment row)
+
+Route (no d-dimensional Fourier symbols; none exist on main):
+1. `Flow/CellGreen.lean`: Green functions of the cell operator `-Δ+ν` on `ZMod M`, the identities
+   `(-Δ+ν)G_{j+1}=G_j`, `Σ_{n≠0} 1/λ_n=(M²-1)/12`, and `v c₁ = τ/12 - Σ 1/(x_n+v)` (and for `c₂`).
+2. `Flow/BlockPoly.lean`: on `ℤ` with blocks of `M` sites, `H=-Δ+wP+ν` maps the cell polynomials
+   `F₂(r)x²+F₁(r)x+F₀(r)` (x the block index) to cell polynomials, with explicit cell operators.
+3. Polynomial sources are solved exactly, cell by cell, from the Green functions; this gives the
+   second moments μ₁, μ₃ of the Green kernels in closed form (μ₁=2c²(1+νS₁)/M², c=1/(w+ν)).
+4. Torus wrap: the sawtooth periodization solves the torus equation up to a defect near ±N/2 of size
+   O(N²); the Agmon block decay (`Multiscale.agmon_block`) and `pathDist_ge_torusDist` send its
+   contribution at 0 to 0.
+5. d-dimensional moments reduce to x_μ-only functions, hence to the 1-D problem on `ZMod (N M)`.
+6. Assembly: second variation of `C₁-C₂` at the constant datum (needs φ¹ and e·φ''=-|φ¹|²), unit
+   conversions fine/coarse (`v=M²ν`, `x_n=M²λ_n`).
+
+Final statement (to be proved): for the level with `M=L^n`, the moment part of `hmom`, i.e.
+`momentSum` of the relevant part of `C₁-C₂` at the constant datum, equals
+`Λ_n · (a₃₁ ξ₁ + a₃₂ ξ₂ + a₃₃ ξ₃ + c(ξ) - f(ξ))₃` with `(a₃ⱼ)` row 3 of `Flow.matrixInfty` built from
+`latticeSum M v 1`, `latticeSum M v 2`, `latticeTau M`, up to the common factor `-4/M` seen
+numerically, and the finite-`N` torus sums converge to it along `idx n`.

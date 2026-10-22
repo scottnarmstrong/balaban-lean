@@ -24,8 +24,9 @@ Balaban, *A low temperature expansion for classical `N`-vector models. II*, CMP 
 
 * `latticeSymbol M n = 2 M² (1 − cos (2π n/M))`, the eigenvalue of `-Δ` on the circle of `M` points
   (rescaled to the coarse lattice), for the residue class `n ∈ ZMod M`;
-* `latticeSum M v i`: the sum `c_i(v)` over the nonzero residues `n ∈ ZMod M` (for odd `M` these are
-  the integers `0 < |n| ≤ (M − 1)/2` of P4; for even `M` the Nyquist mode `n = M/2` belongs to the sum);
+* `latticeSum M v i`: the sum `c_i(v)` over the nonzero residues `n ∈ ZMod M` (in the campaign `L` is odd
+  (`Inhabited/RootParams.lean`, `Odd L`), so for `M = L^m` these residues are exactly the integers
+  `0 < |n| ≤ (M − 1)/2` of P4);
 * `latticeTau M = 1 − M^{-2}`.
 
 P4 states `0 < c_i(v) < 1/20` and `0 < c₁(v) − v c₂(v) < c₁(v)`; these are proved here
