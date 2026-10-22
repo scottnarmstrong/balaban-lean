@@ -63,3 +63,20 @@ integral, which are not unit-spin pairings; the unit-spin part alone gives `cbar
 2. `Base/BaseKtDef.lean`: `baseKtOf` (the integrand factor without `A`) and its four clauses `nonneg/meas/outside/dom`: ~300.
 3. `Base/BaseBSource.lean`: `bSource` = (5), with `b_analytic`, `b_real`, `b_supp`, `b_rot`, `b_bound` with constant 1: ~250.
 4. The Gaussian/vacuum part (1)-(3) and the assembly `BaseProductData` with `bSmall` as parameter: ~600; (S2) after.
+
+## 6. Plan B (Kt indexed by `a`), Option C pieces (decision of 2026-10-22; `BaseProductData` unchanged)
+C1. `Base/BaseFluctGauss.lean` (done): `baseFluctBlocks a`, `siteGaussDensity N v = (2 pi)^(-N/2) exp(-|v|^2/2)`,
+    `baseFluctGauss a N x = prod_{y in baseFluctBlocks a} siteGaussDensity N (subFluctVarField N x 0 y)`; `_nonneg`, `measurable_`, `_rot`.
+C2. `baseFluctSpin`: the spins on `(Omega \ Omega'') cap Z'` from `psi'_0`: `phi_x = chartMapPi e he (beta^(-1/2) (Cloc^(1/2) psi'_0))_x` with `e` the
+    centre `locPhi`/`baseFieldHat` and `Cloc^(1/2) = pdSqrtInv K_U` of the component (`BaseComponentCovariance`); statement: `baseFluctSpin` is Borel,
+    `O(N)`-equivariant, unit-norm values (`chartMapPi` lands in the sphere), and reads `(o, x, hv)` only through `locPhi` (so through `a` and the lifted data).
+C3. `baseChartJacLoc a o x hv = |det pdSqrtInv K_U| * prod_x (1 - |xi_x|^2)^(-1/2)` (`chartJac`, `BaseComponentDeterminant`): `>= 0`, Borel, `O(N)`-invariant.
+C4. `KtFull H hH Z' w o x hv := 1[ChiNewAt] * baseFluctGauss * baseChartJacLoc * exp(-baseMainAction) * (prod_{P,w=bd}(1-B) prod_O B)(phi) * 1[D_R]`,
+    for `(H, hH, Z')`, with `phi = baseFieldHat`; clauses `nonneg, meas, outside, dom, rot` of `BaseProductData` for `KtFull`.
+C5. Localization: `KtFull_congr : (e : H.localHistory M K 1 Z' = H'.localHistory M K 1 Z'') -> KtFull H hH Z' w o x hv =
+    KtFull H' hH' Z'' (cast e w) (transOut e o) (transNew e x) hv`  (`transNew` of `QuietLocalRest`; needs the factors to read `H, Z'` only through `locHist`
+    (`locHist_locRH` is `rfl`); the cutoff/`ChiNewAt` already reads `H.locRH`, so the same statement for `ChiNewAt`).
+C6. `Kt a w o x hv := if h : exists H hH Z', H.localHistory M K 1 Z' = a then KtFull (choose h) ... else 0` (via C5, independent of the choice).
+    `euclid_Kt` for `Kt` needs: (R) realizability is invariant under `HistImage sigma` (`a = H.localHistory`, `HistImage sigma a a'` => `a'` realizable) --
+    otherwise `Kt a' = 0` while `Kt a != 0`. NEEDED FROM THE UNLANDED BRANCH: nothing of `canonHist` (a `choose` suffices); (R) is new, needs the action of
+    `TorusSym` on `RegionHistory` (is there `RegionHistory.map sigma`? if not, ~300 lines). If (R) fails, ask the ruling for Option A.
