@@ -54,7 +54,7 @@ theorem norm_gasTerm_le_split (hconn : H.Connected) (hW : LocalGasForm H σI U a
   have hε : 0 ≤ ε := by
     obtain ⟨b⟩ := hconn.nonempty
     exact le_trans (Finset.sum_nonneg fun Y _ => by positivity) (hW.bound Φ g hg b)
-  refine (norm_gasTerm_le hconn hW hg X Φ).trans (mul_le_mul_of_nonneg_left
+  refine (norm_gasTerm_le hconn hW.toLocalGasFormE hg X Φ).trans (mul_le_mul_of_nonneg_left
     (Real.exp_le_exp.2 ?_) hε)
   have := stSizeG_nonneg (H := H) X.1
   nlinarith
@@ -101,8 +101,8 @@ theorem localGasP_close_transport (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v
     (d := stSizeG H) (H0 := ε) (κ0 := κ0) (κ1 := κ1) (c := 0) (K0 := 4 * Real.exp (-κ0))
     (c1 := 1) (κ' := κ') (κ0P := κ0) (K0P := 4 * Real.exp (-κ0)) (cP := 0)
     μ' σ Y hY hσ (localGasTerm W' g') Rel hint (fun t => hW₂.local_w t.1 g)
-    (fun t ht Φ Φ' hR => hlink t.1 t.2 ht Φ Φ' hR) (measurable_gasTerm hW hg)
-    (measurable_gasTerm hW₂ hg) hε hεlog hκ0nn hκ1nn le_rfl (fun Y => stSizeG_nonneg Y)
+    (fun t ht Φ Φ' hR => hlink t.1 t.2 ht Φ Φ' hR) (measurable_gasTerm hW.toLocalGasFormE hg)
+    (measurable_gasTerm hW₂.toLocalGasFormE hg) hε hεlog hκ0nn hκ1nn le_rfl (fun Y => stSizeG_nonneg Y)
     (norm_gasTerm_le_split hconn hW ha hg) (norm_gasTerm_le_split hconn hW₂ ha hg)
     (fun b => by rw [Finset.sum_filter]; convert hG2 b)
     (fun C hC => by simpa using stSizeG_unionCs_le hconn C hC) zero_le_one
@@ -151,7 +151,7 @@ theorem localGasK_close (hconn : H.Connected) {Δ : ℕ} (hdeg : ∀ v, H.degree
     fun b => sum_exp_stSizeG_le hconn hdeg hq b
   have h := mayerK_sub_bound_margin μ (sup := fun X : NePoly B => X.1) (H := localGasTerm W g)
     (H₂ := localGasTerm W₂ g) (d := stSizeG H) (κ0 := κ0) (κ1 := κ1) (c := 0)
-    (K0 := 4 * Real.exp (-κ0)) (c1 := 1) (measurable_gasTerm hW hg) (measurable_gasTerm hW₂ hg)
+    (K0 := 4 * Real.exp (-κ0)) (c1 := 1) (measurable_gasTerm hW.toLocalGasFormE hg) (measurable_gasTerm hW₂.toLocalGasFormE hg)
     hε hεlog hκ0 hκ1 le_rfl (fun Y => stSizeG_nonneg Y) (fun t => t.2)
     (norm_gasTerm_le_split hconn hW ha hg) (norm_gasTerm_le_split hconn hW₂ ha hg) m hm hmono hlam
     (fun b => by rw [Finset.sum_filter]; convert hG2 b)
