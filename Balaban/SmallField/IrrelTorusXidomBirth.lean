@@ -43,7 +43,7 @@ theorem irrelTorus_bound_of_dataOn_of_threshold_birth
     (hBg : BgHyp d L k ϱ (aIdeal L k (a k)) (physMass L j (Rg.ν j))) (hN : L ^ P.m₀ ∣ N₁)
     (hν : 0 < ν) (hμν : physMass L j (Rg.ν j) * ((L : ℝ) ^ j) ^ 2 ≤ ν) (hνb : ν ≤ 1)
     (hj1 : 1 ≤ j) (hjk : j ≤ k)
-    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X)
+    (hy : Aligned (L ^ j) y) (hX : IsPolyDom P.m₀ j X) (hyX : y ∈ X) (hsm : relBox P.m₀ y X)
     (hXne : X ≠ box (cbase (cellSide L P.m₀ m₁ j) y -
       natT fun _ => L / 2 * cellSide L P.m₀ m₁ j) (L * cellSide L P.m₀ m₁ j))
     (hSdef : S = (Finset.univ.filter (fun x => Aligned (L ^ j) x ∧ x ∈ X)).image
@@ -91,10 +91,10 @@ theorem irrelTorus_bound_of_dataOn_of_threshold_birth
       (fun _ _ _ => Iff.rfl) hE hM hgs hE0 hM0 hP.E₀_nonneg (by positivity)
   have hirr : irrelTorus P.m₀ Tm' i₀ i₁ j y X Ψ (constFld hv) =
       irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) := by
-    simp only [irrelTorus, hE]
+    simp only [irrelTorus, irrelTorusOn, relPartTorus, aTermTorus, hE]
   rw [← hirr]
   exact irrelTorus_bound_of_dataOn_of_threshold (P := P') (Tm := Tm') hP' hcl' hBg hN hν hμν hνb
-    hj1 hjk hy hX hyX hXne hSdef hne hrad hΨb hAd hΛ hKsig hC₀ (by rw [hgs]; exact dat) hs hσs
+    hj1 hjk hy hX hyX hsm hXne hSdef hne hrad hΨb hAd hΛ hKsig hC₀ (by rw [hgs]; exact dat) hs hσs
     hR hε hεΛ hσ1 hτ hνσ hK hcentre hb hbl hρ hbase hCρ hρpow
 
 end Balaban.SmallField.Def6v2
