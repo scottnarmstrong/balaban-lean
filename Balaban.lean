@@ -741,6 +741,7 @@ public import Balaban.SmallField.Def6v2
 public import Balaban.SmallField.XiCScale
 public import Balaban.SmallField.XiCStep
 public import Balaban.SmallField.RenormRelevantConst
+public import Balaban.SmallField.RenormRelevantResponse
 public import Balaban.Background.ScaledDomain
 public import Balaban.Background.ScaledDomainC
 public import Balaban.Fluctuation.RenormXiC
