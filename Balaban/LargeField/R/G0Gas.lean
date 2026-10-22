@@ -223,9 +223,10 @@ variable (Kc) in
 Lemma III.10.5): `decP` on the cube graph of `𝕋_k` with the hole `S₀`, the removed clusters as
 heavy objects (support `S(𝒞)` closed under the hole, weight `gasTau`), the
 domains decorated by the clusters they meet as light objects (full support the hole closure of
-the domain, weight `e^{b_X(S)} - 1`), and the reference measure `pres.μ`. -/
+the domain, weight `e^{b_X(S)} - 1`), and the reference measures `pres.μ`. -/
 def gasP (X : Finset (Torus S.d (n k))) (e : BExt S n M K N) : ℂ :=
-  decP (Localization.latGraph S.d (n k)) S₀ (fun Cl : RemCl rep Kc => holeCl S₀ (clSupp Cl)) (fun X' => holeCl S₀ X') (gasNear rep Kc)
+  decP (Localization.latGraph S.d (n k)) S₀ (fun Cl : RemCl rep Kc => holeCl S₀ (clSupp Cl))
+    (fun X' => holeCl S₀ X') (gasNear rep Kc)
     (fun Cl Φ => gasTau Kc pres Cl e Φ)
     (fun X' Sc Φ => gasCoupling Kc C hv vc pres Y keptT X' Sc e Φ)
     pres.μ X
