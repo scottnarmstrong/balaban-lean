@@ -1420,6 +1420,12 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      **`sum_integral_norm_recTauG_le`** (over the records whose support contains a site `b` and whose cubes number `v`:
      `Σ E|τ_r| ≤ m · m^{2(v-1)} e^{-A₂λ_{k₀}^{p₂} - H_k |Y|_k}`, `m = (2ω_k - 1)^d`, under `D5Bound`, `D6Flat`; the per-cube decay is
      `H_k M^d`, the separation range enters the prefactor and the logarithmic entropy only).
+     L4 (cell-measure versions and coupling supports): `Spine/FinalLFGasCfg.lean` `integral_comp_regroup`,
+     `integrable_comp_regroup_iff`; `Spine/FinalLFGasCount.lean` `integrable_recTauG_cells` (`hτi`),
+     `sum_integral_norm_recTauG_cells_le` (`hcount` in cubes, on the site measure); `Spine/FinalLFGasGeom.lean`
+     `mem_comps_two_of_isAnimal`, `isAnimal_dblNbhd_two`, `card_dblNbhd_two_le`; `Spine/FinalLFGasCpl.lean` `castT_castT_symm`,
+     **`isAnimal_king_of_fineValidAt`** (a valid boundary domain is king-connected), `isAnimal_cplSupp` (its gas support
+     `dblNbhd 2 X` is connected, `≤ 3^d|X|` sites), `not_disjoint_dblNbhd_of_inter`.
      `Spine/FinalLFDouble.lean`: `one_le_omega` (core of the step in `recSep_iff_disjoint`). Finding: the densities of `ψ_k` on the collar
      cannot be part of a record's heavy weight (Lebesgue measure on the collar is not finite against the kernel alone: (1.26) integrates
      `ψ_k` on `Z` only, the collar values are its parameters); they stay with `χ_k` in the regional part (`collarDens`).

@@ -34,7 +34,8 @@ of sites (`PDepOn`) depends, as a function of the gas configuration, only on the
 * `PVar`, `pIsSpin`, `PCfg`, `pProb`, `gPart`, `psiPart`, `measurePreserving_pSplit`,
   `integral_pProb_eq_of_integrable`;
 * `gSite`, `pCell`, `CellCfg`, `cellProb`, `regroup`, **`measurePreserving_regroup`**,
-  `regroup_apply`, `PDepOn`, **`depOn_comp_regroup`**.
+  `regroup_apply`, `integral_comp_regroup`, `integrable_comp_regroup_iff`, `PDepOn`,
+  **`depOn_comp_regroup`**.
 -/
 
 @[expose] public section
@@ -247,6 +248,22 @@ theorem measurePreserving_regroup (hkK : k ≤ K) :
   have h2 := measurePreserving_piCongrLeft (fun q : PVar S n M K k => varProb N (pIsSpin q))
     (Equiv.sigmaFiberEquiv (pCell hkK))
   exact h2.comp h1
+
+/-- **Integrals over the configurations of the sites are integrals over the configurations of the
+variables.** -/
+theorem integral_comp_regroup (hkK : k ≤ K) {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    (F : PCfg S n M K k N → E) :
+    ∫ Φc, F (regroup (S := S) (M := M) hkK N Φc) ∂(Measure.pi fun b =>
+      cellProb (S := S) (M := M) hkK N b) = ∫ Φ, F Φ ∂(pProb S n M K k N) :=
+  (measurePreserving_regroup hkK).integral_comp' F
+
+/-- Integrability over the configurations of the sites is integrability over the configurations of
+the variables. -/
+theorem integrable_comp_regroup_iff (hkK : k ≤ K) {E : Type*} [NormedAddCommGroup E]
+    (F : PCfg S n M K k N → E) :
+    Integrable (fun Φc => F (regroup (S := S) (M := M) hkK N Φc)) (Measure.pi fun b =>
+      cellProb (S := S) (M := M) hkK N b) ↔ Integrable F (pProb S n M K k N) :=
+  (measurePreserving_regroup hkK).integrable_comp_emb (regroup hkK N).measurableEmbedding
 
 /-- A function of the configurations of the variables depends only on the variables sitting at the
 sites of `T`. -/

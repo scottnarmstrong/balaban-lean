@@ -19,7 +19,9 @@ two points of `Y` at distance `< ω` meet. Its size is at most `(2ω - 1)^d |Y|`
 (`card_dblNbhd_le`), a ball of radius `m` having at most `(2m + 1)^d` points (`card_ball_le`).
 
 * `kingGraph`, `kingGraph_degree_le`, `card_ball_le`;
-* `reach_ball`, **`isAnimal_dblNbhd`**, `card_dblNbhd_le`.
+* `reach_ball`, **`isAnimal_dblNbhd`**, `card_dblNbhd_le`;
+* the supports of the couplings: `mem_comps_two_of_isAnimal`, **`isAnimal_dblNbhd_two`**,
+  `card_dblNbhd_two_le`.
 -/
 
 @[expose] public section
@@ -165,6 +167,35 @@ theorem card_dblNbhd_le (ω : ℕ) (Y : Finset (Torus d n)) :
           supDist (tDouble x) b ≤ ω - 1).card := Finset.card_biUnion_le
     _ ≤ ∑ _x ∈ Y, (2 * (ω - 1) + 1) ^ d := Finset.sum_le_sum fun x _ => card_ball_le _ _
     _ = (2 * (ω - 1) + 1) ^ d * Y.card := by rw [Finset.sum_const, smul_eq_mul, mul_comm]
+
+/-- **A king-connected set of cubes is a single `2`-component of itself.** -/
+theorem mem_comps_two_of_isAnimal {X : Finset (Torus d n)} (hX : IsAnimal (kingGraph d n) X) :
+    X ∈ comps 2 X := by
+  classical
+  obtain ⟨x₀, hx₀⟩ := hX.1
+  refine mem_comps_iff.2 ⟨x₀, hx₀, ?_⟩
+  ext y
+  rw [mem_linkClass]
+  constructor
+  · intro hy
+    refine ⟨hy, ?_⟩
+    have hp := ((isAnimal_iff (kingGraph d n) X).1 hX).2 x₀ hx₀ y hy
+    refine Relation.ReflTransGen.mono (fun a b hab => ⟨hab.1, hab.2.1, ?_⟩) _ _ hp
+    have := (show a ≠ b ∧ supDist a b ≤ 1 from hab.2.2).2
+    omega
+  · exact fun h => h.1
+
+/-- **The support of a coupling is connected**: for a king-connected set `X` of cubes, the
+`1`-neighbourhood of `2·X` in the doubled torus is connected. -/
+theorem isAnimal_dblNbhd_two {X : Finset (Torus d n)} (hX : IsAnimal (kingGraph d n) X) :
+    IsAnimal (kingGraph d (2 * n)) (dblNbhd 2 X) :=
+  isAnimal_dblNbhd (by norm_num) (mem_comps_two_of_isAnimal hX)
+
+/-- The support of a coupling has at most `3^d` sites per cube. -/
+theorem card_dblNbhd_two_le (X : Finset (Torus d n)) :
+    (dblNbhd 2 X).card ≤ 3 ^ d * X.card := by
+  have := card_dblNbhd_le 2 X
+  simpa using this
 
 end Supp
 

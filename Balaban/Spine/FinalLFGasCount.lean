@@ -29,7 +29,9 @@ connected set of `v` vertices of the graph of index distance `< ω_k` (`omegaGra
 
 * `tDouble_injective`, `omegaGraph`, `omegaGraph_degree_le`, `isAnimal_of_mem_comps`,
   **`card_comps_through_le`**;
-* `lfSrc_mem_comps`, **`sum_integral_norm_recTauG_le`**.
+* `lfSrc_mem_comps`, **`sum_integral_norm_recTauG_le`**;
+* on the configurations of the sites: `integrable_recTauG_cells`,
+  `sum_integral_norm_recTauG_cells_le`.
 -/
 
 @[expose] public section
@@ -187,6 +189,31 @@ theorem sum_integral_norm_recTauG_le (hN : 1 ≤ N) (hD5 : D5Bound (k + 1) hkK r
     _ ≤ ∑ _Y ∈ 𝒴, E := Finset.sum_le_sum hY
     _ = 𝒴.card * E := by rw [Finset.sum_const, nsmul_eq_mul]
     _ ≤ _ := mul_le_mul_of_nonneg_right hcard𝒴 (by rw [hE]; positivity)
+
+/-- **The weights of the records are integrable on the configurations of the sites** (`hτi` of
+B2's operator gas). -/
+theorem integrable_recTauG_cells (hN : 1 ≤ N) (hD5 : D5Bound (k + 1) hkK rep)
+    (r : ↥(lfAllRecs (M := M) rep.hist k)) (hv : EuclideanSpace ℝ (Fin N))
+    (g : GIdx S n M K N → ℂ) (hg : g ∈ l1Ball (GIdx S n M K N)) :
+    Integrable (fun Φc => recTauG rep hkK r hv g (regroup (S := S) (M := M) hkK N Φc))
+      (Measure.pi fun b => cellProb (S := S) (M := M) hkK N b) :=
+  (integrable_comp_regroup_iff hkK _).2 (integrable_recTauG rep hkK hN hD5 r hv g hg)
+
+open Classical in
+/-- **The weighted counts of the records on the configurations of the sites** (`hcount` of B2's
+operator gas, in cubes). -/
+theorem sum_integral_norm_recTauG_cells_le (hN : 1 ≤ N) (hD5 : D5Bound (k + 1) hkK rep)
+    {khat : ℕ} (hD6 : D6Flat khat rep) (hv : EuclideanSpace ℝ (Fin N)) (g : GIdx S n M K N → ℂ)
+    (hg : g ∈ l1Ball (GIdx S n M K N)) (b : Torus S.d (2 * n k)) (v : ℕ) :
+    ∑ r ∈ (Finset.univ : Finset ↥(lfAllRecs (M := M) rep.hist k)).filter (fun r =>
+        b ∈ dblNbhd (S.omega k) r.1.1 ∧ r.1.1.card = v),
+        ∫ Φc, ‖recTauG rep hkK r hv g (regroup (S := S) (M := M) hkK N Φc)‖
+          ∂(Measure.pi fun b => cellProb (S := S) (M := M) hkK N b) ≤
+      ((2 * (S.omega k - 1) + 1) ^ S.d * ((2 * (S.omega k - 1) + 1) ^ S.d) ^ (2 * (v - 1)) : ℕ) *
+        Real.exp (-(S.A2 * S.lam k0 ^ S.p2 + HRun P.H0 P.beta k * BudgetConsts.cubeVol S v)) := by
+  refine (Finset.sum_congr rfl fun r _ =>
+    integral_comp_regroup hkK (fun Φ => ‖recTauG rep hkK r hv g Φ‖)).trans_le ?_
+  exact sum_integral_norm_recTauG_le rep hkK hN hD5 hD6 hv g hg b v
 
 end Records
 
