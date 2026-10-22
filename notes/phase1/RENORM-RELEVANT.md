@@ -51,6 +51,25 @@ Supplied by Φ: the identification of `Tm'` with the expansion of `𝒟'_{ξ⁰}
 3. Which `a, v` enter the matrix: `a_{k+1}` and `ν_{k+1}` of the renormalized flow depend on `ξ`; P4 puts the `ξ`-dependence
    of `A` into `c̃` (`c̃ = c + (A(ξ) − A(0))ξ`). The proposal uses `A(0)`; `c` then includes `(A(ξ) − A(0))ξ`.
 
+## 6. S3 plan and a finding on the `dh` row (C3, orchC-rel3)
+
+The four functionals are evaluated on `𝒟C_ξ = C₁ − C₂` at the constant configurations `(ψ, h) = ((1+t)e, e)` and
+`(e, (1+s)e)`. For these data the background is explicit and constant (no Green function): `φ = e`,
+multiplier `α = a t` (resp. `ν s`), and the renormalized datum `((1+ζ)ψ, h)` has the constant background `e` too, so
+`δφ = 0` and `C₂ ≡ 0` along both curves. Statements to prove (with `deriv`/`fderiv`, the right sides of `hpsi`/`hh`):
+(S3a) `deriv (t ↦ 𝒟C_ξ(0; (1+t)e, e)) 0 = a (1+ξ₃)(ζ + ζ²)` (per block weight), i.e. row 1 of `A` plus second-order terms,
+using `renormC1` at `φ = e`: the block term `ξ₃/2 · a t²` has derivative `0`, the cross term `(1+ξ₃) ζ a ⟨Ψ, Ψ−Qφ⟩`
+with `⟨Ψ,Ψ−Qφ⟩ = (1+t)t` gives `(1+ξ₃) ζ a`, and `(1+ξ₃) ζ²/2 · a (1+t)²` gives `(1+ξ₃) ζ² a`.
+(S3b) `fderiv (h ↦ 𝒟C_ξ(0; e, h)) e e`. **Finding:** with the landed convention `action ∋ (ν/2)‖φ − h‖²`
+(and `renormC1 ∋ (νξ₂/2) massPair`) this derivative is `0` for all `ξ`: `massPair = s²` along `h = (1+s)e`. So
+row 2 of `A` (`a₂₂ = 1`, the term `βξ₂` of (E2)) is NOT produced by `𝒟C`. In P4's convention the mass term is
+`ν(1 − φ·h)` (no `‖h‖²` term), whose radial `h`-derivative is `−νφ·e ≠ 0`; the two conventions differ by
+`(ν/2)(‖h‖² − 1)` per site, so `rel_dh` differs by `ν` per site, and `ν_{k+1} = ν_k L²(1+ξ₃)/(1+ξ₂)` makes that
+difference depend on `ξ₂` nonlinearly (`−β_uν_u ξ₂` at first order). Decision needed (main orchestrator / CLASS-RULINGS Q-B):
+either `dh` of the class is the derivative of `ℰ` with the `ν‖h‖²/2` bookkeeping of P4 (then `A` row 2 and `Λ₂` change by
+the factor `ν`), or the system's second equation is stated for the Lean `dh`. Until decided, S3b is not coded.
+(S3c) the second moment: `Σ_x |x|² ∂²/∂ψ(x)∂ψ(0)`: needs the first-order response of the background to a local
+perturbation (`φ^{(1)} = aGQ*ψ'_⊥`, `G` the lattice Green function) — the genuinely non-elementary part (P4 (5.8)–(5.14)).
 ### Answers of W1146u (agreed; recorded 2026-10-22)
 1. **One `ξ⁰`.** The step map `Φ` fixes one `ξ⁰` (working name `stepXi κ c₉ β ν k sf`), the solution of
    `hsys` for the triple `(A(0), c, f)` of the task Q23. The same `ξ⁰` is used in the flow
@@ -71,3 +90,20 @@ Objects of `Φ` to write against: `f` from `newLevel_localFamilies_composed_gap`
 (`LocalClassDensityLevelCast.lean:133–145`); `𝒟' y q = Jr.densE0 C y q − Jr.densE0 C y p₀`
 (`LocalClassDensityHAnalytic.lean:320`); the new level `E (k+1) y Y = 1_{y∈Y} · AE' y Y`,
 `gs (k+1) = hatGSOf m₀ (k+1)`; the constant `densE0 z p₀ · |T^{(k+1)}_1|` goes into `E_{k+1}` through `ΦE`.
+
+### 6.1 Status of S3 and the plan for S3c (moment row)
+Built (`SmallField/RenormRelevantConst.lean`, branch orchC-rel3): `constBg`, `isEL_const` (the constant field `e` solves (EL) with
+`α = a_nL^{-2n}(c−1) + ν(c'−1)`), `bgFieldC_const` (it is `bgFieldC`/`bgMultC` of `((1+t)e, e)`), `xiC_const`/`xiCOne_const` (the constant
+datum is in `Ξ^c`), `renC1Site_const` (explicit site density), `renSol_const_fst` (the solution map has `δφ = 0` there, so `C₂ = 0`),
+`relDpsi_renC`: `relDpsi (C₁ − C₂)(x) = a_nL^{-2n}(1+ξ₃)(ζ+ζ²)` (row 1 of `A` plus second order). `dh` (S3b) waits for the ruling.
+S3c needs, in this order (the matrix entries `c₁(v), c₂(v), τ` of `matrixInfty` are NOT defined as sums anywhere in Lean;
+`Flow/Coefficients.lean` of `SMALLFIELD.md` §6 does not exist):
+(M0) define the lattice sums of P4 (5.13) from the Green function `G_ν = (−Δ + aQ*Q + ν)^{-1}` on the whole torus (`greenD` at `α = 0`),
+     `c_1(v) = Σ_x |x|² (…)` and `c_2(v)`, `τ`, as the second moments of `G` and `Q G Q*`; prove `0 < c_i < 1/20` (`InftyRange`).
+(M1) first-order response: for a transverse perturbation `ψ' ⟂ e`, `bgFieldC((e+ψ'), e) = e + aGQ*ψ' + O(ψ'²)`: `HasFDerivAt` of
+     `ψ ↦ bgFieldC (constBg …)` along transverse directions at the constant datum, from `theorem52_analytic` (`Background/Def5.lean`)
+     and the derivative of (EL) (`Background/Perturb.lean`, `prop51_exists_unique`); unit constraint gives `e·φ¹ = 0`.
+(M2) second derivative of `C₁ − C₂` in the directions `(δ_x e₂, δ_0 e₂)` at the constant datum: `ξ₃(...)`-linear form in `φ¹ = aGQ*δ_0 e₂`
+     and `ζ a⟨δ_x, δ_0 − Qφ¹⟩` (from `renormC1`), `C₂ = O(ξ²)` (`δφ = O(ξ)`, `lemma35_ii_bound`).
+(M3) `Σ_x |x|² B_ξ(x, 0) = Λ₃ ((matrixInfty …) ξ)₃ + O(ξ²)` via (M0), by Fourier/translation invariance of `G`; ~600-900 lines,
+     dominated by (M0), (M1). The O(ξ²) remainder feeds S2 (`norm_le_of_second_order`).
