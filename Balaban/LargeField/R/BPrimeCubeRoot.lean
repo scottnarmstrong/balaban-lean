@@ -18,6 +18,8 @@ and in the data, except for the unit directions `(ψ^{(j)})₀` of the correctio
 * `analyticAt_actionGWithCube`, `analyticAt_starBondEWithCube`: the action of a class of a partition
   is analytic in the fields;
 * `barField_castG`, `SFCtx.phiBarAt_cast`, `SFCtx.analyticAt_phiBarAt`: `φ̄` at a transported field;
+* `SFCtx.analyticAt_gCube_joint`, `SFCtx.analyticAt_cubeRoot_joint`: analyticity jointly in a
+  parameter of the source and in `(ψ_k, φ)`;
 * `SFCtx.analyticAt_cubeRoot`, `SFCtx.cubePair`, `SFCtx.analyticAt_cubePair`.
 -/
 
@@ -207,14 +209,26 @@ theorem analyticAt_psiJAt_site
       C.psiJAt Y q.1 hv (castΩField C.coarseSide_eq (C.genW Y) q.2) j s) q₀ :=
   analyticAt_pi_iff.1 (C.analyticAt_psiJAt_cast Y hv (j := j) q₀) s
 
+/-- **The source term of a cube is analytic jointly in a parameter of the source and in
+`(ψ_k, φ)`** (it is bilinear in `g` and `φ̄`). -/
+theorem analyticAt_gCube_joint {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (gq : E → GIdx S n M K N → ℂ) (e₀ : E) (hgq : AnalyticAt ℂ gq e₀)
+    (q₀ : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) (c : Torus S.d (n k)) :
+    AnalyticAt ℂ (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+      Def7v2.gCube C Y p.2.1 hv (gq p.1) (castΩField C.coarseSide_eq (C.genW Y) p.2.2) c)
+      (e₀, q₀) := by
+  unfold Def7v2.gCube
+  exact Finset.analyticAt_fun_sum _ fun x _ => Finset.analyticAt_fun_sum _ fun i _ =>
+    (analyticAt_prodFst (analyticAt_pi_iff.1 hgq _)).mul
+      (analyticAt_prodSnd (C.analyticAt_phiBarAt Y hv q₀ x i))
+
 /-- **The source term of a cube is analytic in `(ψ_k, φ)`.** -/
 theorem analyticAt_gCube (g : GIdx S n M K N → ℂ)
     (q₀ : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) (c : Torus S.d (n k)) :
     AnalyticAt ℂ (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-      Def7v2.gCube C Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) c) q₀ := by
-  unfold Def7v2.gCube
-  exact Finset.analyticAt_fun_sum _ fun x _ => Finset.analyticAt_fun_sum _ fun i _ =>
-    analyticAt_const.mul (C.analyticAt_phiBarAt Y hv q₀ x i)
+      Def7v2.gCube C Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) c) q₀ :=
+  (C.analyticAt_gCube_joint Y hv (fun _ : ℂ => g) 0 analyticAt_const q₀ c).comp
+    (analyticAt_const.prod analyticAt_id)
 
 /-- **The corrections of a cube are analytic in `(ψ_k, φ)`** where `ψ^{(j)} · ψ^{(j)}` lies in the
 slit plane at the sites of the cube in `Y^≈` (the coefficients vanish at the other sites). -/
@@ -255,6 +269,24 @@ theorem analyticAt_corrCube (vc : Def7v2.CorrCoef S.d)
     simp only [h0, mul_zero, zero_mul, add_zero]
     exact analyticAt_const
 
+/-- **The root of a cube is analytic jointly in a parameter of the source and in `(ψ_k, φ)`**
+where `ψ^{(j)} · ψ^{(j)}` lies in the slit plane at the sites of the cube in `Y^≈`. -/
+theorem analyticAt_cubeRoot_joint {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
+    (vc : Def7v2.CorrCoef S.d) (gq : E → GIdx S n M K N → ℂ) (e₀ : E) (hgq : AnalyticAt ℂ gq e₀)
+    (q₀ : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) (c : Torus S.d (n k))
+    (hslit : ∀ j ∈ Finset.Icc 1 k, ∀ s, C.tCubeOfC s = c → s ∈ C.sset (thickY R Y) →
+      SmallField.dot (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j s)
+        (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j s) ∈
+        Complex.slitPlane) :
+    AnalyticAt ℂ (fun p : E × ((BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ)) =>
+      Def7v2.cubeRoot C vc Y p.2.1 hv (gq p.1) (castΩField C.coarseSide_eq (C.genW Y) p.2.2) c)
+      (e₀, q₀) := by
+  unfold Def7v2.cubeRoot
+  exact ((analyticAt_const.mul (analyticAt_prodSnd (C.analyticAt_actCube Y hv _ q₀ c))).sub
+    (Finset.analyticAt_fun_sum _ fun j hj =>
+      analyticAt_prodSnd (C.analyticAt_corrCube Y hv vc q₀ j c (hslit j hj)))).add
+    (C.analyticAt_gCube_joint Y hv gq e₀ hgq q₀ c)
+
 /-- **The root of a cube is analytic in `(ψ_k, φ)`** where the composed fields of all levels lie in
 the slit plane at the sites of the cube in `Y^≈`. -/
 theorem analyticAt_cubeRoot (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → ℂ)
@@ -264,11 +296,9 @@ theorem analyticAt_cubeRoot (vc : Def7v2.CorrCoef S.d) (g : GIdx S n M K N → �
         (C.psiJAt Y q₀.1 hv (castΩField C.coarseSide_eq (C.genW Y) q₀.2) j s) ∈
         Complex.slitPlane) :
     AnalyticAt ℂ (fun q : (BlockAt S n M K k → Fin N → ℂ) × ((C.genWC Y).Ω 1 × Fin N → ℂ) =>
-      Def7v2.cubeRoot C vc Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) c) q₀ := by
-  unfold Def7v2.cubeRoot
-  exact ((analyticAt_const.mul (C.analyticAt_actCube Y hv _ q₀ c)).sub
-    (Finset.analyticAt_fun_sum _ fun j hj => C.analyticAt_corrCube Y hv vc q₀ j c (hslit j hj))).add
-    (C.analyticAt_gCube Y hv g q₀ c)
+      Def7v2.cubeRoot C vc Y q.1 hv g (castΩField C.coarseSide_eq (C.genW Y) q.2) c) q₀ :=
+  (C.analyticAt_cubeRoot_joint Y hv vc (fun _ : ℂ => g) 0 analyticAt_const q₀ c hslit).comp
+    (analyticAt_const.prod analyticAt_id)
 
 variable (Y₁ Y₂ : Set (Torus S.d (n k)))
 
