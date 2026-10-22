@@ -3501,3 +3501,4 @@ public import Balaban.Spine.FinalLFHistFactorSurj
 public import Balaban.Spine.FinalLFDouble
 public import Balaban.Spine.FinalLFKerLocal
 public import Balaban.Spine.FinalLFWeight
+public import Balaban.Spine.FinalLFProduct
