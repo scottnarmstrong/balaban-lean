@@ -1415,9 +1415,11 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `measurable_blkDens`, `blkDens_nonneg`, `blkDens_eq_psiDens_ZBlk`, `lintegral_outer_le`, `measurable_recTauG`,
      **`lintegral_enorm_recTauG_le`** (`E|τ_r| ≤ e^{-κ}` from (1.26), `D5Bound`), `integrable_recTauG`, `integral_norm_recTauG_le`.
      `Spine/FinalLFGasGeom.lean`: `kingGraph` (degree `≤ 3^d`, `kingGraph_degree_le`), `card_ball_le`, `reach_ball`,
-     **`isAnimal_dblNbhd`**, `card_dblNbhd_le`. `Spine/FinalLFGasCount.lean`: `tDouble_injective`, **`card_comps_supp_le`**,
-     `lfSrc_mem_comps`, **`sum_integral_norm_recTauG_le`** (the weighted counts `hcount` of `actGasOp_pe_hole`:
-     `≤ (3^d)^{2(v-1)} 2^v e^{-A₂λ_{k₀}^{p₂}} e^{-h v}`, `h = H_k M^d/(2ω_k - 1)^d`, under `D5Bound`, `D6Flat`, `0 ≤ H_k`).
+     **`isAnimal_dblNbhd`**, `card_dblNbhd_le`. `Spine/FinalLFGasCount.lean` (restated in cubes at ORCH-B's request): `tDouble_injective`, `omegaGraph`
+     (index distance `< ω`), `omegaGraph_degree_le`, `isAnimal_of_mem_comps`, **`card_comps_through_le`**, `lfSrc_mem_comps`,
+     **`sum_integral_norm_recTauG_le`** (over the records whose support contains a site `b` and whose cubes number `v`:
+     `Σ E|τ_r| ≤ m · m^{2(v-1)} e^{-A₂λ_{k₀}^{p₂} - H_k |Y|_k}`, `m = (2ω_k - 1)^d`, under `D5Bound`, `D6Flat`; the per-cube decay is
+     `H_k M^d`, the separation range enters the prefactor and the logarithmic entropy only).
      `Spine/FinalLFDouble.lean`: `one_le_omega` (core of the step in `recSep_iff_disjoint`). Finding: the densities of `ψ_k` on the collar
      cannot be part of a record's heavy weight (Lebesgue measure on the collar is not finite against the kernel alone: (1.26) integrates
      `ψ_k` on `Z` only, the collar values are its parameters); they stay with `χ_k` in the regional part (`collarDens`).
