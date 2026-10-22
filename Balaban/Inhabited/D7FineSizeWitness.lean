@@ -334,7 +334,7 @@ theorem exists_d7BdryPost_nonzero (ν : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) {
           ∀ (ψ ψ' : MultiFieldC wS (sides wS.L 1 nBdry) 27 1 2) (h : Fin 2 → ℂ)
             (g : GIdx wS (sides wS.L 1 nBdry) 27 1 2 → ℂ), rep.B A X ψ ψ' h g ≠ 0 := by
   refine ⟨repBdry ν fac rate, fun rH => repBdry_d7 ν _ aw μs ε ε1 νs rate hfac rH,
-    (repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost one_pos,
+    (repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost,
     labBdry, Finset.mem_singleton_self _, Finset.univ, labBdry_univ_mem_bdryDomsPost,
     d7SizeE_univ_ne_top, fun ψ ψ' h g => ?_⟩
   simp only [repBdry_B, ↓reduceIte]
@@ -358,7 +358,7 @@ theorem exists_d7Bdry_nonzero (ν : ℝ) (aw μs ε ε1 νs : ℕ → ℝ) {fac 
     obtain rfl : A = labBdry := Finset.mem_singleton.1 hA
     rfl
   refine ⟨repBdry ν fac rate, (d7Bdry_iff_d7BdryPost_of_rem_empty hrem).2
-      ((repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost one_pos),
+      ((repBdry_d7 ν _ aw μs ε ε1 νs rate hfac 1).toD7BdryPost),
     labBdry, Finset.mem_singleton_self _, Finset.univ, labBdry_univ_mem_bdryDomsPre,
     d7SizePreE_ne_top_of_mem labBdry_univ_mem_bdryDomsPre, fun ψ ψ' h g => ?_⟩
   simp only [repBdry_B, ↓reduceIte]

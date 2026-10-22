@@ -232,6 +232,59 @@ with polymers `Xp τ ∈ 𝒟_{j_τ}` and covers `Xp τ ⊆ XL τ ⊆ X̂_τ`, t
 `settings_family_castLocalB_far` at `X_j τ = X̂_τ`, `D_h = ⌊L/2⌋ cellSide_k`,
 `c_D = ⌊L/2⌋ L^{m₀}`: the settings of the step, `GsSpecStrong j_τ (XL τ) (Gj τ)` and
 `Gj τ = castG hc (𝔹_{j_τ}(X̂_τ))`, under `(5 L + 13) c₁ + ⌊L/2⌋ L^{m₀} + r₀ L ≤ (L - 2) L^{m₀+1}`. -/
+theorem settings_family_castLocalB_hat_Gk {ι : Type*} {N₁' m₁' : ℕ} [NeZero N₁']
+    (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
+    {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
+    {Gk0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₀}
+    {Gj0 : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₃}
+    {Hm : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱm}
+    {a₁ ν c BG κ r₀ eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl : ℝ}
+    {X₀' X₁f' X₁f'' : Finset (CTorus d L N₁ m₁ (k + 1))} {j₁ : ℕ}
+    (hB0 : BgSetting N Gp Gk0 Gj0 a₁ ν c BG κ r₀ eps δ₃ X₀' X₁f' j₁)
+    (hF0 : FlSetting N Gp Gk0 Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl X₁f'')
+    (hG : IsLevel Hm k) (hL : 2 ≤ L) (hN : L ^ m₀ ∣ N₁) (hm : m₁' ≤ m₀ + m₁)
+    (jL : ι → ℕ) (XL 𝒦X Xp : ι → Set (CTorus d L N₁ m₁ (k + 1)))
+    (hj1 : ∀ τ, 1 ≤ jL τ) (hjk : ∀ τ, jL τ ≤ k) (hXp : ∀ τ, IsPolyDom m₀ (jL τ) (Xp τ))
+    (hXpL : ∀ τ, Xp τ ⊆ XL τ) (hXL : ∀ τ, XL τ ⊆ hatSet m₀ (jL τ) (Xp τ))
+    (hcov : ∀ τ, CovSetup Gp m₀ (jL τ) (XL τ) (𝒦X τ))
+    (hϱ₁ : bgR0 d L ≤ ϱ₁) (hϱ₂ : bgR0 d L ≤ ϱ₂) (hs₁ : ϱ₁ ≤ minSep L (L ^ m₁'))
+    (hs₂ : ϱ₂ ≤ minSep L (L ^ m₁')) {c₁ : ℕ} (hm1 : L ^ m₁' ≤ L ^ m₁ * c₁)
+    (hm' : (((5 * L + 13) * c₁ + L / 2 * L ^ m₀ : ℕ) : ℝ) + r₀ * L ≤
+      (((L - 2 : ℕ)) : ℝ) * (L : ℝ) ^ (m₀ + 1)) :
+    ∃ (Gk : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₁)
+      (Gj : ι → GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ₂)
+      (X₀ X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))),
+      (∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 Gp m₀ (jL τ) (𝒦X τ)) ∧
+      (∀ τ, BgSetting N Gp (Gk τ) (Gj τ) a₁ ν c BG κ r₀ eps δ₃ (X₀ τ) (X₁f τ) (jL τ)) ∧
+      (∀ τ, FlSetting N Gp (Gk τ) Hm a₁ ν κ BG eps δ₃ Kc Cx c₂ BG₂ δ₁ δfl (X₁f τ)) ∧
+      (∀ (τ : ι) (h : jL τ ≤ k + 1), GsSpecStrong (jL τ) h (XL τ) (Gj τ)) ∧
+      (∀ τ, Gj τ = castG hc (localB (jL τ) (Nat.le_succ_of_le (hjk τ))
+        {x' : CTorus d L N₁' m₁' (k + 1) |
+          (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ hatSet m₀ (jL τ) (Xp τ)} hs₂)) ∧
+      ∀ τ, Gk τ = castG hc (localB k (Nat.le_succ k)
+        (castNbhd (N₁' := N₁') (m₁' := m₁')
+          {x' | (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ XL τ ∪ hatSet m₀ (jL τ) (Xp τ)}) hs₁) := by
+  have hcs : ∀ τ, cellSide L m₀ m₁ (jL τ) ≤ cellSide L m₀ m₁ k := fun τ => by
+    unfold cellSide
+    exact Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by have := hjk τ; omega)
+  refine settings_family_castLocalB_far_Gk hc hG' hB0 hF0 hG hL hN hm jL XL 𝒦X
+    (fun τ => hatSet m₀ (jL τ) (Xp τ)) XL hj1 hjk
+    (fun τ => cell_subset_hatSet hN (Nat.le_succ_of_le (hjk τ)) (Xp τ)) hXL
+    (Dh := L / 2 * cellSide L m₀ m₁ k) (cD := L / 2 * L ^ m₀) (fun τ z hz => ?_) ?_ hcov hϱ₁ hϱ₂
+    hs₁ hs₂ hm1 hm'
+  · obtain ⟨w, hw, hd⟩ := exists_near_of_mem_hatSet
+      (cell_subset_of_isPolyDom hN (Nat.le_succ_of_le (hjk τ)) (hXp τ)) z hz
+    exact ⟨w, hXpL τ hw, hd.trans (Nat.mul_le_mul_left _ (hcs τ))⟩
+  · refine le_of_eq ?_
+    unfold cellSide
+    rw [show k + m₀ + m₁ = (m₁ + k) + m₀ by ring, pow_add]
+    ring
+
+/-- **The per-label settings with each term composed on `𝔹_{j_τ}(X̂_τ)`** (ruling R13): for labels
+with polymers `Xp τ ∈ 𝒟_{j_τ}` and covers `Xp τ ⊆ XL τ ⊆ X̂_τ`, the instance of
+`settings_family_castLocalB_far` at `X_j τ = X̂_τ`, `D_h = ⌊L/2⌋ cellSide_k`,
+`c_D = ⌊L/2⌋ L^{m₀}`: the settings of the step, `GsSpecStrong j_τ (XL τ) (Gj τ)` and
+`Gj τ = castG hc (𝔹_{j_τ}(X̂_τ))`, under `(5 L + 13) c₁ + ⌊L/2⌋ L^{m₀} + r₀ L ≤ (L - 2) L^{m₀+1}`. -/
 theorem settings_family_castLocalB_hat {ι : Type*} {N₁' m₁' : ℕ} [NeZero N₁']
     (hc : N₁' * L ^ m₁' = N₁ * L ^ m₁)
     {Gp : GeneratingSet d L (N₁ * L ^ m₁) (k + 1) ϱ} (hG' : IsLevel Gp (k + 1))
@@ -261,21 +314,9 @@ theorem settings_family_castLocalB_hat {ι : Type*} {N₁' m₁' : ℕ} [NeZero 
       ∀ τ, Gj τ = castG hc (localB (jL τ) (Nat.le_succ_of_le (hjk τ))
         {x' : CTorus d L N₁' m₁' (k + 1) |
           (torusCast x' : CTorus d L N₁ m₁ (k + 1)) ∈ hatSet m₀ (jL τ) (Xp τ)} hs₂) := by
-  have hcs : ∀ τ, cellSide L m₀ m₁ (jL τ) ≤ cellSide L m₀ m₁ k := fun τ => by
-    unfold cellSide
-    exact Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by have := hjk τ; omega)
-  refine settings_family_castLocalB_far hc hG' hB0 hF0 hG hL hN hm jL XL 𝒦X
-    (fun τ => hatSet m₀ (jL τ) (Xp τ)) XL hj1 hjk
-    (fun τ => cell_subset_hatSet hN (Nat.le_succ_of_le (hjk τ)) (Xp τ)) hXL
-    (Dh := L / 2 * cellSide L m₀ m₁ k) (cD := L / 2 * L ^ m₀) (fun τ z hz => ?_) ?_ hcov hϱ₁ hϱ₂
-    hs₁ hs₂ hm1 hm'
-  · obtain ⟨w, hw, hd⟩ := exists_near_of_mem_hatSet
-      (cell_subset_of_isPolyDom hN (Nat.le_succ_of_le (hjk τ)) (hXp τ)) z hz
-    exact ⟨w, hXpL τ hw, hd.trans (Nat.mul_le_mul_left _ (hcs τ))⟩
-  · refine le_of_eq ?_
-    unfold cellSide
-    rw [show k + m₀ + m₁ = (m₁ + k) + m₀ by ring, pow_add]
-    ring
+  obtain ⟨Gk, Gj, X₀, X₁f, h1, h2, h3, h4, h5, -⟩ := settings_family_castLocalB_hat_Gk hc hG' hB0 hF0
+    hG hL hN hm jL XL 𝒦X Xp hj1 hjk hXp hXpL hXL hcov hϱ₁ hϱ₂ hs₁ hs₂ hm1 hm'
+  exact ⟨Gk, Gj, X₀, X₁f, h1, h2, h3, h4, h5⟩
 
 end Family
 

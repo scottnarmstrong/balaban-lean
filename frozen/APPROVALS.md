@@ -98,3 +98,38 @@ the generating set of a level-`j` class term on `X` is the local set `𝔹_j(X�
 neighbours its irrelevant part reads), the chain composes on it with the cover set `X⁺ ∪ □(y)`, and the class
 domain uses the step's weights and background mass. Text in `AGENTS.md` ("Author rulings"). No frozen declaration
 changes.
+
+## Rulings R14, R15, R16 and the implementation of R13 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve all". This approves: (R14) the complex H7 cube domains ask the lifted
+datum in `Ψ̃^c(ε, ε)`; (R15) at the cell `□(y)`, `irrelTorus` renormalizes only the polymers inside the box of radius
+`⌊L^{m₀+m₁+k}/8⌋` around `y`; (R16) the large-field boundary terms are analytic and bounded at the physical external
+field only; and two details of R13's implementation (the `⌊L/2⌋`-cell thickening `X̂`, and the birth-mass class
+domain with the mass response). Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Ruling R17 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R17". This approves: in the pre-`R` boundary-term records `D7Bdry`,
+`D7Bdry2`, the H7 domain is read at the global history with the pre-`R` region `Z^pre_k` at the top scale, so the
+cube tests use the complement of `Ω_k` printed in P5 (1.36). Text in `AGENTS.md` ("Author rulings"). No frozen
+declaration changes.
+
+## Ruling R18 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R18". This approves: ruling R-N₁ extended to the first version of the
+small-field class `Def6.IsSFFamily` (torus clause on the read tori `L^{m₀} ∣ N₁`, renormalization conditions along
+them). Text in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R19 and R20 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R19 and R20". This approves: (R19) `irrelTorus` subtracts P1's second
+first-order term, the variation of the external field, with zero sum over the torus; (R20) the class's torus
+independence is asked on pairs of read tori, for polymers with a non-winding thickening, at fields in the class domain.
+Texts in `AGENTS.md` ("Author rulings"). No frozen declaration changes.
+
+## Rulings R21, R22 and R23 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R21, R22 and R23". This approves: (R21) the large-field boundary terms
+read the rescaled fluctuation `(β_j a)^{-1/2} ψ′`; (R22) the pre-`R` records' `loc_hist` compares the pre-`R` region and
+its components; (R23) the first family of the support tests (1.24) includes the collar from `j = 0`. Texts in
+`AGENTS.md` ("Author rulings"). No frozen declaration changes.
