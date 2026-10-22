@@ -382,7 +382,9 @@ clause (D7) of the pre-`R` class `IsRepPre` (`Zof 𝔸 = Z^pre_k(𝔸)`); the po
 `Ω_k^pre = OmegaCube`, meeting `Z` and its complement, that are `FineValidPre`):
 * `loc_field`: `ℬ^{(k)}(X, 𝔸)` depends only on `ψ, ψ', g` restricted to `X`;
 * `loc_hist`: and on the history only through `𝔸 ∩ X` (the domains `Ω_j ∩ X`, `Ω''_j ∩ X`,
-  `Z_j ∩ X`, and the localized histories of the components of `Z_k` meeting `X`);
+  `Z_j ∩ X` with the pre-`R` region `Z^pre_k` at the top scale, and the localized histories of all the
+  components of `Z^pre_k` meeting `X`, removed ones included: ruling R22, the records of
+  `globalLHPre`, as for the H7 domain, ruling R17);
 * `real`: it is real for real arguments;
 * `analytic`, `bound`: it is analytic on the H7 domain at `X` (Definition II.3.5 (d), with the
   ideal weights of scale `k`, the masses `μ_j`, the radii `ε_j` of Def-6 and `ε_{1,j}`) and bounded
@@ -423,11 +425,11 @@ structure D7Bdry {m₀ m₁ : ℕ} (Fr : FineSizeFrame S n M K m₀ m₁)
       (globalLH A.H M).OmegaDD j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
         (globalLH A'.H M).OmegaDD j ∩
           fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) ∧
-      (globalLH A.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
-        (globalLH A'.H M).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
-    (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
-      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) →
-    (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) →
+      (globalLHPre A.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k))) =
+        (globalLHPre A'.H M k).Z j ∩ fineSet (S := S) (n := n) M K k (X : Set (Torus S.d (n k)))) →
+    (∀ c : A.H.Comp k, (c.1 ∩ X).Nonempty → ∃ c' : A'.H.Comp k, c'.1 = c.1 ∧
+      A'.H.localHistory M K k c' = A.H.localHistory M K k c) →
+    (∀ c' : A'.H.Comp k, (c'.1 ∩ X).Nonempty → ∃ c : A.H.Comp k, c.1 = c'.1) →
     ∀ ψ ψ' h g, rep.B A X ψ ψ' h g = rep.B A' X ψ ψ' h g
   real : ∀ A ∈ rep.hist, ∀ X ∈ bdryDomsPre Fr A k (Zof A),
     ∀ (ψ ψ' : MultiFieldC S n M K N) (h : Fin N → ℂ) (g : GIdx S n M K N → ℂ),
@@ -614,6 +616,42 @@ theorem D7BdryPost.bdrySum_eq {m₀ m₁ : ℕ} {Fr : FineSizeFrame S n M K m₀
   · simp only [h1, ↓reduceIte]
   · rw [h1, ite_self]
 
+omit [NeZero M] [NeZero S.L] in
+/-- **Without removal the components of the two premises of `loc_hist` agree** (ruling R22): when no
+component is removed at scale `k` in `𝔸`, `𝔸′`, the premise on the components of `Z^pre_k` (pre-`R`
+records) follows from the premise on the kept components (post-`R` records). -/
+theorem compsAgree_of_post_of_rem_empty {A A' : LabHist S n R k0 K} {X : Finset (Torus S.d (n k))}
+    (hA : A.H.rem k = ∅) (hA' : A'.H.rem k = ∅)
+    (hc : ∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
+      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1)
+    (hc' : ∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) :
+    (∀ c : A.H.Comp k, (c.1 ∩ X).Nonempty → ∃ c' : A'.H.Comp k, c'.1 = c.1 ∧
+      A'.H.localHistory M K k c' = A.H.localHistory M K k c) ∧
+    (∀ c' : A'.H.Comp k, (c'.1 ∩ X).Nonempty → ∃ c : A.H.Comp k, c.1 = c'.1) := by
+  refine ⟨fun c hcX => ?_, fun c' hcX => ?_⟩
+  · obtain ⟨c', h1, h2⟩ := hc ⟨c, by rw [hA]; exact Finset.notMem_empty _⟩ hcX
+    exact ⟨c'.1, h1, h2⟩
+  · obtain ⟨c, h1⟩ := hc' ⟨c', by rw [hA']; exact Finset.notMem_empty _⟩ hcX
+    exact ⟨c.1, h1⟩
+
+omit [NeZero M] [NeZero S.L] in
+/-- **Without removal the components of the two premises of `loc_hist` agree** (ruling R22): the
+premise on the kept components follows from the premise on the components of `Z^pre_k`. -/
+theorem postCompsAgree_of_rem_empty {A A' : LabHist S n R k0 K} {X : Finset (Torus S.d (n k))}
+    (hA' : A'.H.rem k = ∅)
+    (hc : ∀ c : A.H.Comp k, (c.1 ∩ X).Nonempty → ∃ c' : A'.H.Comp k, c'.1 = c.1 ∧
+      A'.H.localHistory M K k c' = A.H.localHistory M K k c)
+    (hc' : ∀ c' : A'.H.Comp k, (c'.1 ∩ X).Nonempty → ∃ c : A.H.Comp k, c.1 = c'.1)
+    (hA : A.H.rem k = ∅) :
+    (∀ c : PostComp A k, (c.1.1 ∩ X).Nonempty → ∃ c' : PostComp A' k, c'.1.1 = c.1.1 ∧
+      A'.H.localHistory M K k c'.1 = A.H.localHistory M K k c.1) ∧
+    (∀ c' : PostComp A' k, (c'.1.1 ∩ X).Nonempty → ∃ c : PostComp A k, c.1.1 = c'.1.1) := by
+  refine ⟨fun c hcX => ?_, fun c' hcX => ?_⟩
+  · obtain ⟨c', h1, h2⟩ := hc c.1 hcX
+    exact ⟨⟨c', by rw [hA']; exact Finset.notMem_empty _⟩, h1, h2⟩
+  · obtain ⟨c, h1⟩ := hc' c'.1 hcX
+    exact ⟨⟨c, by rw [hA]; exact Finset.notMem_empty _⟩, h1⟩
+
 /-- **When no component is removed at scale `k` in the histories of the representation, the
 pre-`R` and the post-`R` records of (D7) coincide** (same region `Z`, same constants): then
 `Ω_k^post = Ω_k^pre`, so the boundary domains, the valid labels and the sizes are the same. -/
@@ -639,8 +677,11 @@ theorem d7Bdry_iff_d7BdryPost_of_rem_empty {m₀ m₁ : ℕ} {Fr : FineSizeFrame
   · intro h
     exact
       { loc_field := fun A hA X hX => h.loc_field A hA X ((hmem A hA _ X).1 hX)
-        loc_hist := fun A hA A' hA' X hX hX' =>
-          h.loc_hist A hA A' hA' X ((hmem A hA _ X).1 hX) ((hmem A' hA' _ X).1 hX')
+        loc_hist := fun A hA A' hA' X hX hX' hreg hc hc' => by
+          obtain ⟨d, d'⟩ := compsAgree_of_post_of_rem_empty (hrem A hA) (hrem A' hA') hc hc'
+          refine h.loc_hist A hA A' hA' X ((hmem A hA _ X).1 hX) ((hmem A' hA' _ X).1 hX') ?_ d d'
+          rw [globalLHPre_eq_of_rem_empty A.H (hrem A hA), globalLHPre_eq_of_rem_empty A'.H (hrem A' hA')]
+          exact hreg
         real := fun A hA X hX => h.real A hA X ((hmem A hA _ X).1 hX)
         analytic := fun A hA X hX => by
           rw [← globalLHPre_eq_of_rem_empty A.H (M := M) (k := k) (hrem A hA)]
@@ -657,8 +698,12 @@ theorem d7Bdry_iff_d7BdryPost_of_rem_empty {m₀ m₁ : ℕ} {Fr : FineSizeFrame
   · intro h
     exact
       { loc_field := fun A hA X hX => h.loc_field A hA X ((hmem A hA _ X).2 hX)
-        loc_hist := fun A hA A' hA' X hX hX' =>
-          h.loc_hist A hA A' hA' X ((hmem A hA _ X).2 hX) ((hmem A' hA' _ X).2 hX')
+        loc_hist := fun A hA A' hA' X hX hX' hreg hc hc' => by
+          obtain ⟨d, d'⟩ := postCompsAgree_of_rem_empty (hrem A' hA') hc hc' (hrem A hA)
+          refine h.loc_hist A hA A' hA' X ((hmem A hA _ X).2 hX) ((hmem A' hA' _ X).2 hX') ?_ d d'
+          rw [← globalLHPre_eq_of_rem_empty A.H (hrem A hA),
+            ← globalLHPre_eq_of_rem_empty A'.H (hrem A' hA')]
+          exact hreg
         real := fun A hA X hX => h.real A hA X ((hmem A hA _ X).2 hX)
         analytic := fun A hA X hX => by
           rw [globalLHPre_eq_of_rem_empty A.H (hrem A hA)]

@@ -153,7 +153,7 @@ def omegaCNb (r j : ℕ) : Set (Torus S.d (n j)) :=
 of `𝕋_j` with `□ ⊂ (Ω^{∼3}_{j+1})^c ∖ (Ω^c_j)^{∼3}`, the complex field `ψ_j` (transported to
 the level-`j` torus) lies in `Δ^c_j(□; 1, ε_j)`. -/
 def DeltaDomain1 (ψ : MultiFieldC S n M K N) : Prop :=
-  ∀ j (hjk : j ≤ k) (y : Torus S.d (n j)), CubeSub (S := S) (n := n) M K j y Xf →
+  ∀ j, 1 ≤ j → ∀ (hjk : j ≤ k) (y : Torus S.d (n j)), CubeSub (S := S) (n := n) M K j y Xf →
     (∀ x, cubeMap n S.L M K j x = y → cubeMap n S.L M K (j + 1) x ∉ omegaNb a k 3 (j + 1)) →
     y ∉ omegaCNb a 3 j →
       (fun z => ψ j (torusCast (histScale_eq hM hnn le_rfl (hjk.trans hkK)) z)) ∈
