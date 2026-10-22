@@ -90,3 +90,20 @@ Objects of `Φ` to write against: `f` from `newLevel_localFamilies_composed_gap`
 (`LocalClassDensityLevelCast.lean:133–145`); `𝒟' y q = Jr.densE0 C y q − Jr.densE0 C y p₀`
 (`LocalClassDensityHAnalytic.lean:320`); the new level `E (k+1) y Y = 1_{y∈Y} · AE' y Y`,
 `gs (k+1) = hatGSOf m₀ (k+1)`; the constant `densE0 z p₀ · |T^{(k+1)}_1|` goes into `E_{k+1}` through `ΦE`.
+
+### 6.1 Status of S3 and the plan for S3c (moment row)
+Built (`SmallField/RenormRelevantConst.lean`, branch orchC-rel3): `constBg`, `isEL_const` (the constant field `e` solves (EL) with
+`α = a_nL^{-2n}(c−1) + ν(c'−1)`), `bgFieldC_const` (it is `bgFieldC`/`bgMultC` of `((1+t)e, e)`), `xiC_const`/`xiCOne_const` (the constant
+datum is in `Ξ^c`), `renC1Site_const` (explicit site density), `renSol_const_fst` (the solution map has `δφ = 0` there, so `C₂ = 0`),
+`relDpsi_renC`: `relDpsi (C₁ − C₂)(x) = a_nL^{-2n}(1+ξ₃)(ζ+ζ²)` (row 1 of `A` plus second order). `dh` (S3b) waits for the ruling.
+S3c needs, in this order (the matrix entries `c₁(v), c₂(v), τ` of `matrixInfty` are NOT defined as sums anywhere in Lean;
+`Flow/Coefficients.lean` of `SMALLFIELD.md` §6 does not exist):
+(M0) define the lattice sums of P4 (5.13) from the Green function `G_ν = (−Δ + aQ*Q + ν)^{-1}` on the whole torus (`greenD` at `α = 0`),
+     `c_1(v) = Σ_x |x|² (…)` and `c_2(v)`, `τ`, as the second moments of `G` and `Q G Q*`; prove `0 < c_i < 1/20` (`InftyRange`).
+(M1) first-order response: for a transverse perturbation `ψ' ⟂ e`, `bgFieldC((e+ψ'), e) = e + aGQ*ψ' + O(ψ'²)`: `HasFDerivAt` of
+     `ψ ↦ bgFieldC (constBg …)` along transverse directions at the constant datum, from `theorem52_analytic` (`Background/Def5.lean`)
+     and the derivative of (EL) (`Background/Perturb.lean`, `prop51_exists_unique`); unit constraint gives `e·φ¹ = 0`.
+(M2) second derivative of `C₁ − C₂` in the directions `(δ_x e₂, δ_0 e₂)` at the constant datum: `ξ₃(...)`-linear form in `φ¹ = aGQ*δ_0 e₂`
+     and `ζ a⟨δ_x, δ_0 − Qφ¹⟩` (from `renormC1`), `C₂ = O(ξ²)` (`δφ = O(ξ)`, `lemma35_ii_bound`).
+(M3) `Σ_x |x|² B_ξ(x, 0) = Λ₃ ((matrixInfty …) ξ)₃ + O(ξ²)` via (M0), by Fourier/translation invariance of `G`; ~600-900 lines,
+     dominated by (M0), (M1). The O(ξ²) remainder feeds S2 (`norm_le_of_second_order`).
