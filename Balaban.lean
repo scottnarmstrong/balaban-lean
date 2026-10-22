@@ -749,6 +749,7 @@ public import Balaban.SmallField.Def6AvgBridge
 public import Balaban.SmallField.Def6v2Regime
 public import Balaban.SmallField.Def6v2Domain
 public import Balaban.SmallField.Def6v2
+public import Balaban.Background.ScaledDomain
 public import Balaban.SmallField.RenormCondStep
 public import Balaban.SmallField.Def6v2RefJet
 public import Balaban.SmallField.Def6v2Source

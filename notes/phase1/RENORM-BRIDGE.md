@@ -63,10 +63,13 @@ source premises but the definitional identities of the construction of `Tm'`:
   the rows with the entries of `A` (the computation of P4 (5.10)-(5.14), `SMALLFIELD.md` §3.3, with the quadratic
   form at `ν`-complete backgrounds); (c) for `hmom`, `TorusIndep` of the new level (A4-1f) so that the torus
   sequence stabilizes, and the limit of the finite-torus sums.
-* `hval`: the vacuum constant is the value of the density at the constant field. Open point: `Terms` carries no
-  constant term; if the constant is outside `Terms` (A4-1g, `E_{k+1}`), `hval` is replaced by
-  `ElocInf(const e, const e) = E_{k+1}`-shift in the same form; the statement of `renormCondAlong_of_system` is
-  then unchanged after substituting the shifted `Tm'`.
+* `hval`: resolved by W1146u (A4-1g). The vacuum constant is not a term of `Terms`; it lives outside, as
+  the vacuum constant `SFData.E`, with the record flow `ΦE` / `vacExt` (`Spine/SFStep.lean`, the clause
+  `SFVacuumInput`, A4-1g). The level-`(k+1)` `Terms` of the general step map `Φ` are the shifted family: the
+  labels are `f' = f − f(p₀)` at the unit constant configuration `p₀`, the per-block constant being moved
+  into `E_{k+1}`. So `hval` holds for `Φ`'s own terms, and `renormCondAlong_of_system` is applied to `sf'.Tm`
+  directly. `hpsi`, `hh`, `hmom` concern the shifted density `𝒟' = densE0 − densE0(p₀)` and are unaffected
+  by the shift, since derivatives kill the constant.
 
 ## 4. Order of work after the bridge
 1. `hpsi/hh` as identities in `ξ` for the zero class (`k = 0`): expansions of `ℰ''₀(θ_ξ)` (blocker 6 inputs).
