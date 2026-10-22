@@ -528,6 +528,42 @@ approved declaration.
   `Def7.mem_omegaPost_iff`, `Def7.fineSet_omegaPost_inter_eq`, `LargeField/History/H7Holes.lean`).  (c) for components removed by
   `R^{(k+1)}`: the pre-`R` records compared the post-`R` objects at the top scale; ruling R22 (approved) makes them
   compare `Z^pre_k` and all components of `Z^pre_k`.
+- **Blocker 3, closing ladder (W1154e, 2026-10-22).** From `w1154-r22` (R17, R22, R26, `H7MixedDatumLoc2Pre` proved,
+  `norm_oldB2Pre_le`) to `LFBdryOldInput Λ Sb Bo` for the step's actual boundary terms.  `★` = critical path.
+  1. ★ **Region chord identity** (`Fluctuation/Expansion*`, `CriticalPoint*`): the multi-layer energy of `G` in place of
+     `levelEnergyC G n`, coupling and defect summed over the region `R = Ω_{k+1}` (the region form of
+     `coupling_add_actionC_on` for a region pair whose lower layers are not those of a level set; algebra checked,
+     drafts `Balaban-scratch/w1154/RPC.lean`, `Patch.lean`): ~500.
+  2. ★ **Prop 3.3 engine on region pairs** (`Interaction*`, `Prop33*`, `FlCore*`; 26 files bound to `IsLevel`): carry a
+     `RegionPair` (`FlCore` on `Dec2.CoverBase` in place of `DGSetting`), each landed statement an instance at
+     `RegionPair.ofLevel`: ~3,500.  Output: the localized interaction of P5 (3.2) on the hole step, `InterpMarksOn` for
+     `expWLF`.
+  3. ★ **The interaction family of `oldB2`** (`LocIntFam` over the fields): old-term part = the landed re-expansion,
+     action part = P6 Lemma 4.2 (Taylor remainders of (4.29), `δ₀` terms (4.30)–(4.31)); its constants `κ_H, κ′, κ₀`
+     uniform in the fields and its field properties (locality, reality, `O(N)`, analyticity on the H7 domain of
+     `globalLHPre`): ~1,500.
+  4. **Region complex form of P5 Lemma 2.1** (`Fluctuation/Lemma25*` are level-pair and real): the composed field of the
+     local pair in `Δ^c_k(□; 1, ε_k)` at the cubes near `Ω_{k+1}` ⇒ `H7MixedInnerLoc2Pre` (room conditions on `r_ψ`, `R`
+     and the tolerances): ~2,000.
+  5. **The (D7) clauses of `oldB2` at `globalLHPre`** (generic `oldBAtAt_*` landed: `support`, `loc_field`, `real`,
+     `rot`, `analytic`; `bound` = `norm_oldB2Pre_le`): restatement at the records of the pre-`R` class (`FineValidPre`,
+     `bdryDomsPre`, `d7SizePre` at `k + 1`) and the constant `Bo` from the bound: ~400.  `loc_hist`, `euclid`: W1164.
+  6. ★ **The identity** old part of `ℬ^{(k+1)}` = `Σ oldB2` (P5 (2.48), (3.2); FLUCTUATION Theorem 3.1 (c) on the
+     region, landed `oldTotal_eq_sum_oldBOut`): with `h₀ = Re h = hv`, the record's terms at `pre 𝔸′`, field-independent
+     units, cubes and interaction; needs the step map `Λ` with `B = new + delta + old` defined (today `LFStepRaw.B` is a
+     bare field, SPINE "Status of O1 and O5"): ~1,200.
+  7. **`lfBdryOldInput_of_old_eq`** (PROVED, `Spine/LFBdryOldAssembly.lean`): `LFBdryOldInput Λ Sb Bo` from
+     `OldPartEq Λ Sb O` (item 6) and `LFBdryPart … Φ Λ O Bo` ((D7) of the pre-`R` class for the family `O`, items 1–5
+     with W1164's `loc_hist`, `euclid`); `oldPartEq_self` (rule 10).  Next: split `LFBdryPart … O Bo` into the clause
+     pieces of item 5.
+  **Item 6 and the step map.** `LFStepMap` (`Spine/LFStep.lean:525`) and `LFBdrySplit` (`Spine/LFBdry.lean`) are
+  parameters of the sub-spine; no landed declaration produces an `LFStepRaw` with nonzero boundary terms (the
+  constructors are the zero data `LFStepRaw` (`B := 0`), the frozen map `FrozenLFStep`, `BasePre` (`B := Γ.B nK`)).  So no
+  landed definition changes: the step map of the provider is defined with `B nK := new nK + delta nK + old nK` and the
+  split `Sb` with `old := O` (then `sum_eq` and `OldPartEq` hold by `rfl`); item 6 is then the statement that this `O`
+  is the old part of P5 (2.48), (3.2), i.e. the identity `oldTotal_eq_sum_oldBOut` read through `oldB2` at the step's
+  data, which the provider's definition of `new` must complement.
+  Total ≈ 9,400 lines; the order 1 → 2 → 3 (with 4 in parallel) → 6 → 5 → 7.
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
 - The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
   integral with the cutoff χ({|ψ'| < p₁}) of the whitened fluctuation field on every site (P4 (6.6)). The integral of

@@ -3132,6 +3132,7 @@ public import Balaban.Spine.RVacuumRetieBound
 public import Balaban.Spine.LFStep
 public import Balaban.Spine.LFBdryHole
 public import Balaban.Spine.LFBdry
+public import Balaban.Spine.LFBdryOldAssembly
 public import Balaban.Spine.LFBdryOldEntropy
 public import Balaban.Spine.LFBdryOldAssign
 public import Balaban.Spine.LFHoleStep
