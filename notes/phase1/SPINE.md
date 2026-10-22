@@ -1349,6 +1349,20 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      * `Spine/FinalLFHistGlue.lean`: `two_mul_L_lt_omega_succ` (`2L < ω_{j+1}` from `R_base ≥ 4L + 20`, `λ_j ≥ 1`),
        `exists_glue_of_sepZ`, **`exists_assembled_of_sepZ`** (components of scale `k` of arbitrary histories, pairwise at distance
        `≥ ω_k`, occur in one removal-free history with the same localized histories; no `hW`).
+   * **B3 (A6-4, the history factorization; 2026-10-21).** The histories of the large-field half of a complete set are the nonempty
+     pairwise `ω_k`-separated families of realized component records. No landed statement changed. Landed (no `sorry`; axioms
+     `propext, Classical.choice, Quot.sound`):
+     * `Spine/FinalLFHistFactor.lean`: `exists_desc_of_rem` (without removals every component has a descendant of scale `k`),
+       `exists_of_mem_keptPos`, `mem_keptPos_of_desc` (kept positions = kept ripe events of the ancestors), `keptLab_eq_of_rem` (the kept
+       labels are the labels at the kept positions of the components of scale `k`), `new_eq_iUnion_locRH` (the new cubes of a step are the
+       unions over the localization steps), `iUnion_eq_of_forall_exists`; the record `CRec` = (cubes, localized history, labelled kept
+       positions `labSet`, the form of Lemma II.5.15), `compRec`, `lfRecs`, `mem_lfRecs`; **`agree_of_lfRecs_eq`** (equal records ⇒
+       `Agree k (k+1)`), **`lfRecs_eq_of_agree`** (via `HAgr`), **`lfRecs_injOn`** (on `lfHist` of a complete set).
+     * `Spine/FinalLFHistFactorSurj.lean`: `Realized`, `RecSep`, `recSep_singleton`; `exists_labHist_of_src`, `exists_labHist_of_sep`
+       (a nonempty separated family of realized records is the family of records of a removal-free history: `exists_assembled_of_sepZ`
+       and the labels glued at the kept positions); **`mem_image_lfRecs_iff`** (`Γ ∈ lfRecs '' lfHist ↔ Γ ≠ ∅ ∧ realized ∧ RecSep`, the
+       representative in the complete set); `lfAllRecs`, `mem_lfAllRecs_iff`; **`sum_lfHist_eq_sum_sep`**
+       (`Σ_{𝔸 ∈ lfHist} f(lfRecs 𝔸) = Σ_{Γ ⊆ lfAllRecs, Γ ≠ ∅, RecSep Γ} f(Γ)`).
 
 **Strength (watch).** A6-3 pins the inherited part to the class's (H.7) terms at the constant configuration. LastIntegralInput only
 asks for some activities, so A6-3 is stronger than strictly needed. This is the form of the source (LFR (IV.4.2), Def. IV.5.2) and the
