@@ -7,7 +7,7 @@ follows were published in 1995–1999, the last two with Michael O'Carroll; [doc
 lists them.
 
 **Status: unfinished.** The two main theorems are stated in Lean and frozen, but neither is proved.
-As of October 2026, about 938,000 lines of Lean (about 746,000 without comments and blank
+As of October 2026, about 1,009,000 lines of Lean (about 800,000 without comments and blank
 lines) have been written towards them. The project contains no axioms and no `sorry` other than the
 two registered placeholders for the main theorems themselves. See
 [docs/PROGRESS.md](docs/PROGRESS.md) for the current size of each part and an estimate of how far it
@@ -28,9 +28,30 @@ results, each of them a theorem of the papers. What is left is to prove those se
 In seven places the papers, as written, do not give what the next step of the argument needs: either a
 step is stated without a proof that we could reconstruct, or an estimate is weaker than the one used
 later. [docs/BLOCKERS.md](docs/BLOCKERS.md) describes these seven *blockers* and names, for each, the
-Lean statement that closes it. None is closed yet. Two of those statements are now proved: the case of
-the flow with no renormalization step (part of the first blocker) and the bound on the vacuum energy of a
-step (part of the fourth).
+Lean statement that closes it.
+The second blocker no longer exists: a change to the definitions approved by the author on 21 October asks the
+large-field boundary terms to be analytic and bounded only at the physical external field, and the whole project
+builds without the statement the blocker concerned, which has been removed. (The estimate it asked for is not
+proved; in the form first stated it is false.) The other six are open. Two of their closing
+statements are proved: the case of the flow with no renormalization step (part of the first blocker) and the
+bound on the vacuum energy of a step (part of the fourth).
+
+How far each one is under control, as of the night of 21 October (details in [docs/BLOCKERS.md](docs/BLOCKERS.md)).
+No blocker is stuck: each has a proof route that we are carrying out. Several turned out to need more work than
+estimated, mostly because the Lean transcription of a definition differed from what the papers print; each such
+case was corrected by a change approved by the author (twelve so far, R12–R23).
+
+| Blocker | Grade | In one line |
+|---|---|---|
+| 1. The first renormalization step | route clear, substantial work left | the scale-0 case of the general step, built on the same renormalization machinery; its own pieces (constants, gains, determinant, whitening) largely proved |
+| 2. Switching backgrounds | resolved | removed by an approved change to the definitions |
+| 3. Old boundary terms across a new hole | route clear, substantial work left | terms defined and bounded from two named estimates, one of which is now largely proved; two structural properties and an extension of the fluctuation machinery to regions remain |
+| 4. The small factor of removed large-field regions | open question | proved on unit fields; whether the bound is uniform in the scale is still being settled; the other half (the new boundary terms) is designed and under construction |
+| 5. The last integral | route clear, substantial work left | the box part is an explicit polymer gas; the large-field half is under construction (its gluing step is proved) |
+| 6. The new level's terms on local generating sets | route clear, substantial work left | the step chain is done; the step map itself, the new source terms and the torus independence of the new level remain (several thousand lines) |
+| 7. Exact agreement on two tori | figured out at each step, open at the last scale | proved at the distinguished cell of each step; the last scale waits for blocker 5's local terms |
+
+Changes to approved definitions are made only with the author's approval; each is recorded in `AGENTS.md`.
 Where the papers can be read in more than one way, we choose a reading, record the choice, and prove
 everything it requires ([notes/phase1/PLAN-B.md](notes/phase1/PLAN-B.md)).
 [docs/PROGRESS.md](docs/PROGRESS.md) estimates how far each part has come, with a dated log.

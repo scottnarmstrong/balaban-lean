@@ -2026,3 +2026,13 @@ Request to the owner (one line each, proof unchanged): add `∀ τ, Gk τ = cast
 to the conclusions.  Then `CanonCoverLocal` (stated at `localB` on the same torus) must be generalized to the cast form over `(N₁', m₁ + s)` (the `boxMap` of the
 two tori depends only on the total side, so `localB_omega_boxMap_all` applies on the cast tori), and `hPK`, `hPJ` (images of the polymers under `boxMap`) follow from the
 quotient description of `Z'`.
+
+### BaseStep ties (ORCH-C, 2026-10-21)
+*(Ta) The kernel constant.* `CoeffBounds d L 1 P β ν a` asks `9/10 (1 − L⁻²)⁻¹ ≤ a₁ < 3/2`; the free flow gives
+`a₁ = compWeight L a 1 = a` (`compWeight_one`), and the prefix's `1 < a < 3/2` (`RunningHypTo.ha1`, `ha2`) is not enough
+(`9/10 (1 − 1/9)⁻¹ = 81/80 > 1` at `L = 3`). Joint tie for the prefix (A1′): the kernel constant
+`a = (cs₀ κ c₉).aKer ∈ [9/10 (1 − L⁻²)⁻¹, 3/2)`. Source: (H.6) at the scale 1 (`baseCoeffBounds`, premises `haL`, `haH`;
+`notes/phase1/BASE-RG1.md`). Whether the window at the later scales `k ≥ 1` (where `a_k = compWeight L a k`) adds a further condition on `a` is not checked here.
+*(Tb) The first-component gain.* `A₃ = S.A3` is free; the weaker 𝖰₁/𝖲₁ gains of the landed χ→Ψ̃ bridge raise the lower bound
+on `A₀` (`exists_A0_for_A3`, `notes/phase1/BASE-A3.md`); open for A1′: that `A₀` can be raised in the prefix (row 9
+`A₀ = 4K₂B₅A₁`, (Λ23) `A₁/A₀` small).
