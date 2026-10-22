@@ -146,6 +146,44 @@ provider, and nothing may import a root, until the root is sealed.
   version), not on the pinned ball `‖h' − h‖ < r_h`; the other (D7) clauses and the small-field domains (which keep
   the ball) are unchanged. Every reader uses (D7) at the physical field, and the whole build without the ball passes
   (ORCH-A, branch `orchA-r16`). `D7BdryBall` and `LFBdrySrcInput` are deleted; `lfStepInput_of_parts` loses `hBs`.
+- **Ruling R17 (2026-10-21, Scott: "approve R17").** In the pre-`R` boundary-term records `D7Bdry`, `D7Bdry2`
+  (clauses `analytic`, `bound`) the H7 domain is taken at `globalLHPre A.H M k`: the global history with the pre-`R`
+  region `Z^pre_k` in place of `Z_k` at the top scale. At the top scale the cube tests' holes become `(𝕋_k ∖ Ω_k)^{∼3}`,
+  the complement printed in P5 (1.36) (`Z^pre_k ⊇ Ω^c_k`: `Omega_compl_subset_Z0`, `Z0_subset_Zpre`); lower scales,
+  `omegaCNb`, the post-`R` records and every localized-history user are unchanged, and with no removal at scale `k`
+  the records coincide. Without it, at a history whose component of `Z^pre_{k+1}` is removed by `R^{(k+1)}`, no test reads
+  `ψ_k` in the band outside the holes and `H7MixedDatumLoc2` is false (W1154d, `not_h7MixedDatumLoc2_of_site`). The
+  transport across `R` (`d7Post_bound_of_avoid_of_gas`, `analytic_of_avoid`) splits off the labels within 3 cubes of
+  a removed component, which go to the gas bound.
+- **Ruling R18 (2026-10-21, Scott: "approve R18").** Ruling R-N₁ extended to the first version of the small-field
+  class: in `Def6.IsSFFamily` the torus clause is asked only on the Def-6 tori the family reads, `L^{m₀} ∣ N₁`, and
+  the renormalization conditions along those tori (`RenormCondAlong … torusSeq`), as `D2SF2`/`SFFlat2` already do.
+  Without it the second version's read-tori family cannot be converted to the first version (`toLanded`), which the
+  filed estimates of the cell label (`norm_filed_le_power`, the R15 label bounds) consume (ORCH-A, A1).
+- **Ruling R19 (2026-10-21, Scott: "approve R19 and R20").** `irrelTorus` also subtracts the first-order variation of
+  the external field, P1 Lemma 3.8 (3.104)'s second term `⟨v₂, ν(h·ψ₀)(x) − ν(h·ψ₀)(y)⟩`, which `aTermTorus` had merged
+  into `a = v₁ + νv₂` (valid only for constant `h`): `A^h_{y,X} = Σ_{x ∈ X aligned} c_X(x) [(h·Ψ̂)(x) − (h·Ψ̂)(y)]`,
+  `c_X(x) = ∂_h ℰ(y,X)(e,e)[blockDir x i₀]`. Its sum over the labels of the torus is zero, so `sum_irrelTorus_eq_Edens`
+  and its consumers are unchanged; at constant `h` it is an irrelevant term `O(E₀σ³(ε/r)²)`. Without it the class
+  chart's block-varying `h` (P3 (4.26)) leaves a first-order remainder that breaks P1 (3.128) (ORCH-A, A1; W1146u).
+- **Ruling R20 (2026-10-21, Scott: "approve R19 and R20").** The torus independence of the small-field class
+  (`Def6.TorusIndep`) is asked for pairs of read tori (`L^{m₀} ∣ N₁`, as R-N₁/R18), for polymers whose
+  `c·L^{k+1+m₁'}`-thickening does not wind (the new terms read that thickening), and at fields in the class domain only
+  (off it the step's choices are torus dependent). Root-F's quarter-box two-torus clause still follows under a constant
+  condition recorded with the joint ties (ORCH-A, A1).
+- **Ruling R21 (2026-10-21, Scott: "approve R21, R22 and R23").** The large-field boundary terms read the rescaled
+  fluctuation, the field displacement `(β_j a)^{-1/2} ψ′`, not the raw Gaussian variable: P5 (1.25) bounds the raw
+  variable on the kernels' support by `C_ψ p₀(β_j) ≫ 1`, while the analyticity domain (1.37) is `ε_{1,j} ≪ 1`, so read
+  literally on the same variable the support leaves the domain where (D7) bounds the terms. With the rescaling the
+  support gives `C_ψ δ_j`, and `C_ψ δ_j < ε_{1,j}` is a condition on the constants (ORCH-B, B3).
+- **Ruling R22 (2026-10-21, Scott: "approve R21, R22 and R23").** In the pre-`R` records `D7Bdry`, `D7Bdry2` the
+  top-scale `loc_hist` clause compares the pre-`R` objects, consistent with R17: agreement of `Z^pre_k ∩ X` and of the
+  localized histories of all components of `Z^pre_k` meeting `X` (not only the post-`R` components). Without it a
+  component removed by `R^{(k+1)}` can differ next to a label while every listed premise holds (W1154e, W1162).
+- **Ruling R23 (2026-10-21, Scott: "approve R21, R22 and R23").** The first family of the support tests P5 (1.24)
+  (`ChiDomProp`, `ChiNewProp`) includes the collar sites and collar bonds from `j = 0`, as P2's `Ψ̃` and `InPsiTilde`
+  do; the Lean transcription had lost the collar, so the first step's mixed test (1.36) read the unit-lattice field
+  on collar sites that no support clause constrained (exact counterexample by ORCH-B, B3).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
