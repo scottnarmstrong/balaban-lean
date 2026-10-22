@@ -985,6 +985,50 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
      `sfFinalHm` (`H = L^{k(d-2)} D`), `pdQuad_sfFinalK` (`Q_K(v) = β_k L^{-k(d-2)} ⟨v, H v⟩`, the hypothesis of `sfGaussIntegrand_cubic`),
      `actStar2_univ_hessian_sfFinalHm` (`A*_k(h + t u)/t² → ½⟨v, H v⟩` under the field clauses: `K` is the Hessian of
      `β_k L^{-k(d-2)} A*_k`, the masses being equal, `sfActMass2_eq_muBg`), `sfFinalK_posDef`.
+   * **B2 (the whitening, reading B-1′ of `PLAN-B.md`; 2026-10-21).** Why: P5 (2.39), P7 §4 — the last fluctuation integral is
+     whitened with the localized square root (`ψ_k = h + β_k^{-1/2} L ψ̂`); with the exact `K^{-1/2}` the class cutoff `χ_k` is not
+     local in the Gaussian variable. Planned spine change (old → new, when B1's `L` lands): `sfBoxIntegral` at `sfFinalK`
+     (`ctxBoxIntegral`, the exact whitening) → at the whitening `A = β_k^{-1/2} L` (`ctxBoxIntegralL`), the same in both halves.
+     Now (cores, every invertible `A`): `integral_spin_whiten`, `integral_eq_abs_det_mul`, `integral_mul_sfFactor2_whiten` (the Jacobian
+     `whitenNorm A = |det A| (2π)^{n/2}` and the mismatch `mismatchFactor K A = exp(-½⟨ψ̂, (AᵀKA - 1)ψ̂⟩)` as defined factors);
+     `sfGaussIntegrandL`, `ctxBoxIntegralL`, `ctxFluctBoxIntegralL`, `ctxBoxIntegralL_eq_exp_mul(_of)`. Landed declarations made
+     instances (`A = K^{-1/2}`): `sfGaussIntegrand`, `ctxBoxIntegral`, `ctxFluctBoxIntegral` (bodies), `integral_spin_gaussian`,
+     `integral_mul_sfFactor2_gauss`, `integral_sfFactor2_gauss`, `sfIntegral_eq_gauss` (statements unchanged except that the
+     measurability hypotheses are dropped: the linear change of variables needs none), `ctxBoxIntegral_eq_exp_mul` (statement
+     unchanged; `ctxBoxIntegral_eq_exp_mul_of` replaced by `ctxBoxIntegralL_eq_exp_mul_of`). `BoxLocalForm` takes the whitening `A`
+     (with `A.det ≠ 0`) and an undilated even part `U` with its bound `ε_U` (the mismatch's pair terms).
+   * **B2 (box split, gas layer; 2026-10-21).** The box average of the fluctuation integrand at a whitening `A`, from the local form
+     (`BoxLocalForm`, B1) and the two-torus closeness (`LastScaleTwoTorusClose`, A2), is `exp(E + Σ_X a(X; g))` with `a` in Root-F's form
+     at the scale `k + 1` (`ctxFluctBoxIntegralL_eq_exp_of_boxLocalForm`, `Spine/FinalBoxFinal.lean`; generic in `A`, the spine statement
+     is its instance at B1's localized square root when it lands, reading B-1′). The layers:
+     * the generic gas core (`Polymer/SteinerGas`, `Polymer/LocalGas`: a local family over a product probability measure on a finite
+       site set, `∫ exp(Σ W) dμ = exp(Σ P)` with `P` explicit, local, analytic in a parameter, Kotecký–Preiss bound); the fibre products
+       (`Polymer/FibreProduct`);
+     * the box instance on the macro cells (`Spine/FinalBoxCells`, `FinalBoxMeasure`, `FinalBoxGas`: the box Gaussian as a product of
+       conditioned one-block Gaussians, the grouped terms at the field clamped onto the box, `ε_c = (2M_c)^d (ε + ε_U)`);
+     * the parity gain (`Spine/FinalBoxEven`, `boxCellP_neg`, `boxCellP_zero_dil`, `boxAct_bound`): the terms are dilated, `W_Y(t w, g)`, the
+       mismatch part `U` is even and not dilated; the increments of the activities are even in `t` and vanish at `t = 0`, so they are
+       `≤ sup/R_t²` (amplitude `boxAmp = 2 (M L)^d C_KP / R_t²`, rate `κ_g/3^d - 1`);
+     * the regrouping into Root-F's `(k+1)`-polymers (`Spine/FinalBoxHull`, `FinalBoxAct`: the hull of a set of cells, at most `3^d`
+       cubes per cell for `M_c ≤ M L`); the remainder `ℛ^{(k)}(T; h, h, g)` at the constant configuration (part of the exponent
+       `constExponentR`) as activities `rObs` of `𝒟_k` (`Spine/FinalBoxRTerm`; `polyObs` is the common core of `rObs` and `inhObs`),
+       regrouped with the split rate (`regroup_sum_bound_split`, `norm_regroupAt_sub_le`; landed `regroup_sum_bound`, `regroup_bound`
+       its instances), amplitude `2 m β_k^{-2} e^{κ_flow}`, rate `κ + log 2` under `c₁(κ + log 2 + d log L + 2) ≤ κ_flow`;
+     * the activities on every admissible torus (`Spine/FinalBoxTorus`: `TorusClausesAt`, `torusFam`); the per-torus activities of the
+       interface with A2 are `lastSfAct` (`lastScaleTorusClauses_lastSfAct`);
+     * the amplitude condition from `β₀` (`lastScaleAmp_of_beta`): with the box amplitude `≤ D β_k^{-p}`, `(d-2)/2 + δ ≤ p(d-2)`
+       (for `ε/R_t² ≈ β_k^{-1} p₁²`, `p₁ ≈ β_k^{α}`: `δ ≤ (d-2)(1/2 - 2α)`), the remainder amplitude `≤ C_R β_k^{-2}` and `β₀` large.
+     * **`finalSmallFieldInput_of_localForm`** (`Spine/FinalBoxSpine.lean`): the statement of `FinalSmallFieldInput` at the box
+       integral `ctxBoxIntegralL` of a whitening `A` (a parameter of the theorem), from `PrefixInput`, `0 ≤ δ ≤ (d-2)/2`, the local
+       form `hW` (B1: for every `η > 0` and `β` large, `BoxLocalForm` at `p₁ = cut κ c₉ β_k` with the cell-gas numerics and
+       `boxAmp ≤ η L^{-(k+1)θ}`) and the closeness `hC` (A2: `LastScaleTwoTorusClose` of `lastSfAct` at the rate `κ + log 2`, `λ`
+       and `t₀` fixed before `β`, `a_C e^{κ+log 2} ≤ (c₉/8) L^{-(k+1)θ}`); the class data of the remainder terms come from
+       `FlatRep` (`SFFlat2.rTerms`, `BgHyp` at the scale `k` by `bgHyp_of_ideal`, `β_k ≥ e^{-1/20} β L^{k(d-2)}` from
+       `RunningHypTo`, `inv_sq_le_of_running`), the remainder amplitude from `rest_small_in_beta`, the rate tie from `c1_mul_rate_le`.
+       The per-torus step `Ξ_box(A) = exp(vac + ⟨g,h⟩ + Σ q + fluct)` is `ctxBoxIntegralL_eq_exp_of_fluct` (`finalSmallFieldInput_of_fluctForm`
+       is now through it).
+     Open in the gas layer: the spine restatement at B1's whitening `sfWhiten` (B1p4b): `sfBoxIntegral` (and the two halves,
+     `lastIntegralInput_of_parts`) at `A = sfWhiten`, and `FinalSmallFieldInput` as the instance of `finalSmallFieldInput_of_localForm`.
    * Landed (`Green/`, general `3 ≤ d′`, `3 ≤ L`, `N` components):
      * the cut interaction: `cutoffInteraction_final_class_polydisc_local`, `cutoffInteraction_final_class_epsSeq`,
        `cutoffInteraction_final_comp`, `norm_coef_cutoff_class_le_levels_of_large`;

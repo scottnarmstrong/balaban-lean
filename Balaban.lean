@@ -100,8 +100,12 @@ public import Balaban.Polymer.Gas
 public import Balaban.Polymer.GasBound
 public import Balaban.Polymer.Size
 public import Balaban.Polymer.MayerPE
+public import Balaban.Polymer.GasOpCore
+public import Balaban.Polymer.GasOpEq
+public import Balaban.Polymer.GasOpBound
 public import Balaban.Polymer.GasOperator
 public import Balaban.Polymer.HoleOperator
+public import Balaban.Polymer.GasOpAnalytic
 public import Balaban.Polymer.MayerHolomorphic
 public import Balaban.Polymer.MayerAnalytic
 public import Balaban.Polymer.MayerMarked
@@ -112,6 +116,7 @@ public import Balaban.Analysis.AnalyticLimit
 public import Balaban.Analysis.Contraction
 public import Balaban.Analysis.InfiniteProduct
 public import Balaban.Analysis.ParamIntegralAnalytic
+public import Balaban.Analysis.ParamIntegralDominated
 public import Balaban.Background.ConstantConfigReal
 public import Balaban.Background.ConstantConfig
 public import Balaban.Background.Data
@@ -2983,6 +2988,13 @@ public import Balaban.Spine.FinalBoxLocal
 public import Balaban.Spine.FinalBoxCells
 public import Balaban.Spine.FinalBoxMeasure
 public import Balaban.Spine.FinalBoxGas
+public import Balaban.Spine.FinalBoxEven
+public import Balaban.Spine.FinalBoxHull
+public import Balaban.Spine.FinalBoxAct
+public import Balaban.Spine.FinalBoxTorus
+public import Balaban.Spine.FinalBoxRTerm
+public import Balaban.Spine.FinalBoxFinal
+public import Balaban.Spine.FinalBoxSpine
 public import Balaban.Spine.CorrGeneric
 public import Balaban.Spine.BudgetSetupCore
 public import Balaban.Spine.KeptHalf
