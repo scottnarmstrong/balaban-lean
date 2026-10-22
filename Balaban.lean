@@ -3321,3 +3321,5 @@ public import Balaban.Polymer.LocalIsoStrict
 public import Balaban.Polymer.LocalIsoX
 public import Balaban.Polymer.LocalIsoCov
 public import Balaban.Polymer.LocalIsoDet
+public import Balaban.Polymer.LocalIsoFF
+public import Balaban.Polymer.LocalIsoEv
