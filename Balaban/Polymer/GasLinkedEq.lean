@@ -6,13 +6,16 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Polymer.GasLinked
+public import Balaban.Polymer.GasOpCore
 
 /-!
 # Connected decomposition of a linked gas
 
 The activation set is contained in the charged footprint. This makes every activated
 coupling touch the selected heavy cores, and makes activation local to components formed by
-overlapping charged footprints.
+overlapping charged footprints. In the terms of `GasOpCore.lean` the linked activation satisfies
+the conditions (L) `gasLinkedActive_local` and (M) `gasLinkedActive_meets`, and `gasLinked_eq` is
+the instance of `actGasXi_eq`.
 -/
 
 @[expose] public section
@@ -101,33 +104,50 @@ theorem gasLinkedActive_comp (hact : ∀ y, activation y ⊆ footprint y)
       exact Finset.mem_biUnion.mpr ⟨z, Finset.mem_toRight.mpr hzc, hbcr⟩
 
 omit [Fintype B] [Fintype Yt] [Fintype Zt] in
+/-- (L): linked activation is decided by the heavy objects whose supports meet the charged
+footprint. -/
+theorem gasLinkedActive_local (hact : ∀ y, activation y ⊆ footprint y)
+    (hcr : ∀ z, cr z ⊆ zs z) (y : Yt) (Γ : Finset Zt) :
+    gasLinkedActive allRequired activation cr Γ y ↔
+      gasLinkedActive allRequired activation cr
+        (Γ.filter (fun z => ¬ Disjoint (footprint y) (zs z))) y := by
+  have key : ∀ b ∈ activation y, b ∈ Γ.biUnion cr →
+      b ∈ (Γ.filter (fun z => ¬ Disjoint (footprint y) (zs z))).biUnion cr := by
+    intro b hbA hbC
+    obtain ⟨z, hz, hbcr⟩ := Finset.mem_biUnion.mp hbC
+    exact Finset.mem_biUnion.mpr ⟨z, Finset.mem_filter.mpr ⟨hz,
+      Finset.not_disjoint_iff.mpr ⟨b, hact y hbA, hcr z hbcr⟩⟩, hbcr⟩
+  refine ⟨fun h => ?_, gasLinkedActive_mono (Finset.filter_subset _ _) y⟩
+  cases hm : allRequired y with
+  | false =>
+      simp only [gasLinkedActive, hm, Bool.false_eq_true, ↓reduceIte] at h ⊢
+      obtain ⟨b, hbA, hbC⟩ := Finset.not_disjoint_iff.mp h
+      exact Finset.not_disjoint_iff.mpr ⟨b, hbA, key b hbA hbC⟩
+  | true =>
+      simp only [gasLinkedActive, hm, ↓reduceIte] at h ⊢
+      exact ⟨h.1, fun b hbA => key b hbA (h.2 hbA)⟩
+
+omit [Fintype B] [Fintype Yt] [Fintype Zt] in
+/-- (M): an active linked coupling meets the support of a selected heavy object. -/
+theorem gasLinkedActive_meets (hact : ∀ y, activation y ⊆ footprint y)
+    (hcr : ∀ z, cr z ⊆ zs z) (y : Yt) (Γ : Finset Zt)
+    (h : gasLinkedActive allRequired activation cr Γ y) :
+    ∃ z ∈ Γ, ¬ Disjoint (footprint y) (zs z) := by
+  obtain ⟨b, hbF, hbC⟩ := Finset.not_disjoint_iff.mp
+    (gasLinkedActive_footprint_meets hact y Γ h)
+  obtain ⟨z, hz, hbcr⟩ := Finset.mem_biUnion.mp hbC
+  exact ⟨z, hz, Finset.not_disjoint_iff.mpr ⟨b, hbF, hcr z hbcr⟩⟩
+
+omit [Fintype B] [Fintype Yt] [Fintype Zt] in
 /-- Linked admissibility is local to the connected components of overlapping charged
 footprints. This is the input to the landed decomposition theorem. -/
 theorem gasLinkedA_loc (hact : ∀ y, activation y ⊆ footprint y)
     (hcr : ∀ z, cr z ⊆ zs z) (D : Finset (Yt ⊕ Zt)) :
     gasLinkedA allRequired activation zs cr D ↔
       ∀ t ∈ D, gasLinkedA allRequired activation zs cr
-        (comp (gasCs footprint zs) D t) := by
-  constructor
-  · rintro ⟨hheavy, hactive⟩ t ht
-    refine ⟨fun z hz z' hz' hne => ?_, fun y hy => ?_⟩
-    · exact hheavy z (toRight_subset_toRight (comp_subset D t) hz)
-        z' (toRight_subset_toRight (comp_subset D t) hz') hne
-    · have hyD : y ∈ D.toLeft :=
-        Finset.mem_toLeft.mpr (comp_subset D t (Finset.mem_toLeft.mp hy))
-      exact gasLinkedActive_comp hact hcr (Finset.mem_toLeft.mp hy) (hactive y hyD)
-  · intro h
-    refine ⟨fun z hz z' hz' hne => ?_, fun y hy => ?_⟩
-    · by_contra hnd
-      have hzD := Finset.mem_toRight.mp hz
-      have hz'D := Finset.mem_toRight.mp hz'
-      have hmem : (Sum.inr z' : Yt ⊕ Zt) ∈ comp (gasCs footprint zs) D (Sum.inr z) :=
-        comp_closed (self_mem_comp hzD) hz'D hnd
-      exact hnd ((h _ hzD).1 z (Finset.mem_toRight.mpr (self_mem_comp hzD))
-        z' (Finset.mem_toRight.mpr hmem) hne)
-    · have hyD := Finset.mem_toLeft.mp hy
-      have hloc := (h _ hyD).2 y (Finset.mem_toLeft.mpr (self_mem_comp hyD))
-      exact gasLinkedActive_mono (toRight_subset_toRight (comp_subset D _) ) y hloc
+        (comp (gasCs footprint zs) D t) :=
+  actGasA_loc (act := fun y Γ => gasLinkedActive allRequired activation cr Γ y)
+    (fun y Γ => gasLinkedActive_local hact hcr y Γ) D
 
 omit [Fintype B] [Fintype Yt] [Fintype Zt] in
 /-- Every elementary object in an admissible linked family has nonempty charged support. -/
@@ -157,56 +177,9 @@ theorem gasLinked_eq (hact : ∀ y, activation y ⊆ footprint y)
     (hz : ∀ z, (zs z).Nonempty) (hcr : ∀ z, cr z ⊆ zs z) :
     gasLinkedXi allRequired activation zs cr β τ =
       Xi (shareBlock (Subtype.val : NePoly B → Finset B))
-        (gasLinkedK allRequired activation footprint zs cr β τ) := by
-  have hdec := decomposition (cs := gasCs footprint zs)
-    (A := gasLinkedA allRequired activation zs cr)
-    (fun D hD => gasLinkedA_nonempty hact hz D hD)
-    (gasLinkedA_loc hact hcr) (gasLinkedW β τ)
-  unfold gasLinkedK
-  rw [← hdec]
-  unfold gasLinkedXi
-  set S : Finset (Finset Zt) := Finset.univ.filter
-    (fun Γ : Finset Zt => ∀ z ∈ Γ, ∀ z' ∈ Γ, z ≠ z' → Disjoint (zs z) (zs z')) with hS
-  set Ym : Finset Zt → Finset Yt := fun Γ => Finset.univ.filter
-    (gasLinkedActive allRequired activation cr Γ) with hYm
-  have h1 : ∀ Γ : Finset Zt, (∏ z ∈ Γ, τ z) * Complex.exp (∑ y ∈ Ym Γ, β y) =
-      ∑ Dy ∈ (Ym Γ).powerset, (∏ y ∈ Dy, (Complex.exp (β y) - 1)) * ∏ z ∈ Γ, τ z := by
-    intro Γ
-    rw [Complex.exp_sum, ← Finset.sum_mul]
-    have he : ∏ y ∈ Ym Γ, Complex.exp (β y) =
-        ∏ y ∈ Ym Γ, (1 + (Complex.exp (β y) - 1)) :=
-      Finset.prod_congr rfl (fun y _ => by ring)
-    rw [he, Finset.prod_one_add, mul_comm]
-  refine (Finset.sum_congr rfl (fun Γ _ => h1 Γ)).trans ?_
-  rw [Finset.sum_sigma' S (fun Γ => (Ym Γ).powerset)
-    (fun Γ Dy => (∏ y ∈ Dy, (Complex.exp (β y) - 1)) * ∏ z ∈ Γ, τ z)]
-  symm
-  refine Finset.sum_nbij' (fun D => (⟨D.toRight, D.toLeft⟩ : Σ _ : Finset Zt, Finset Yt))
-    (fun x => x.2.disjSum x.1) ?_ ?_ ?_ ?_ ?_
-  · intro D hD
-    have hA : gasLinkedA allRequired activation zs cr D := (Finset.mem_filter.mp hD).2
-    rw [Finset.mem_sigma]
-    refine ⟨Finset.mem_filter.mpr ⟨Finset.mem_univ _, hA.1⟩, ?_⟩
-    rw [Finset.mem_powerset]
-    intro y hy
-    exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hA.2 y hy⟩
-  · rintro ⟨Γ, Dy⟩ hx
-    rw [Finset.mem_sigma] at hx
-    obtain ⟨hΓ, hDy⟩ := hx
-    rw [Finset.mem_powerset] at hDy
-    rw [Finset.mem_filter]
-    refine ⟨Finset.mem_univ _, ?_, ?_⟩
-    · simpa using (Finset.mem_filter.mp hΓ).2
-    · intro y hy
-      simp only [Finset.toLeft_disjSum] at hy
-      simpa only [Finset.toRight_disjSum] using (Finset.mem_filter.mp (hDy hy)).2
-  · intro D _
-    simp [Finset.toLeft_disjSum_toRight]
-  · rintro ⟨Γ, Dy⟩ _
-    simp
-  · intro D _
-    simp only [gasLinkedW_eq_gasW]
-    rw [prod_gasW]
+        (gasLinkedK allRequired activation footprint zs cr β τ) :=
+  actGasXi_eq (act := fun y Γ => gasLinkedActive allRequired activation cr Γ y) (cy := footprint)
+    β τ hz (gasLinkedActive_local hact hcr) (gasLinkedActive_meets hact hcr)
 
 /-- The landed gas identity is the intersection-mode specialization of the linked identity. -/
 theorem gas_eq_of_gasLinked_eq (hz : ∀ z, (zs z).Nonempty)
