@@ -232,6 +232,58 @@ theorem decBg_cross_level (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁)
     rw [LargeField.supDist_comm q.2 y] at h4
     exact ⟨t, ht, by omega⟩
 
+/-- **Locality of the decoupled background of one generating set in the data.**  Let `Gl` be a
+generating set whose top layer contains the `8 L^{k+1+m₁}`-neighbourhood of `T`, `Y ⊇ T` a neighbourhood
+of `T`, `v` a parameter whose active cubes have their interaction cubes inside `T`.  Two data that
+agree on `approxDep` of the sites of `Y` have decoupled backgrounds with the same multipliers on `T`
+and the same fields on `Y`.  This is `Dec2.decBg_component_cross` for the pair `(coverOf Gl, Gl)` with
+itself, with no assumption that `Ω₁(Gl)` is the whole torus. -/
+theorem decBg_same_local {c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sl : Dec2.CoverBase (coverOf Gl) Gl a ν Kc Cx) (HBl : BgHyp d L (k + 1) ϱl a ν) {κ : ℝ}
+    (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {v : Dec2.DecParams (coverOf Gl)} (hv : ∀ P, ‖v P‖ ≤ Real.exp κ)
+    {δ ε δ' ε' : ℝ} (hδ0 : 0 < δ) (hδε : δ ≤ ε) (hε : ε ≤ bgC0 d L N) (hδ : δ ≤ c7 d L N BG κ)
+    (hνε : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε ^ 2 ≤ δ ^ 2) (hδ0' : 0 < δ') (hδε' : δ' ≤ ε')
+    (hε' : ε' ≤ bgC0 d L N) (hδ' : δ' ≤ c7 d L N BG κ)
+    (hνε' : ν * ((L : ℝ) ^ (k + 1)) ^ 2 * ε' ^ 2 ≤ δ' ^ 2)
+    {D D' : BgData Gl N} (hD : InDomainC Gl ν δ ε D) (hD' : InDomainC Gl ν δ' ε' D')
+    {T Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hTY : T ⊆ Y)
+    (hdepth : ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), (∃ t ∈ T, supDist z t ≤ 8 * L ^ (k + 1 + m₁)) → z ∈ Gl.Ω (k + 1))
+    (hYT : ∀ y ∈ Y, ∃ t ∈ T, supDist y t ≤ 2 * L ^ (k + 1))
+    (hresY : ∀ x ∈ T, ∀ y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist x y ≤ L ^ (k + 1) → y ∈ Y)
+    (hactl : ∀ q ∈ (coverOf Gl).cubeIdx, (coverOf Gl).sProd (Dec2.extS _ v) q ≠ 0 →
+      ∀ x ∈ intBox q, x ∈ T)
+    (hdat : ∀ y ∈ Y, y ∈ Gl.Ω 1 → ∀ z ∈ approxDep Gl y, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
+    {φ φ' : Gl.Ω 1 × Fin N → ℂ} {α α' : Gl.Ω 1 → ℂ}
+    (h : Dec2.IsDecBg (coverOf Gl) Gl a ν (rho4 d L N BG κ) v D φ α)
+    (h' : Dec2.IsDecBg (coverOf Gl) Gl a ν (rho4 d L N BG κ) v D' φ' α') :
+    (∀ x ∈ T, ∀ hx : x ∈ Gl.Ω 1, α' ⟨x, hx⟩ = α ⟨x, hx⟩) ∧
+    (∀ y ∈ Y, ∀ hy : y ∈ Gl.Ω 1, ∀ i : Fin N, φ' (⟨y, hy⟩, i) = φ (⟨y, hy⟩, i)) := by
+  classical
+  have hLP : L ^ (k + 1) ≤ L ^ (k + 1 + m₁) :=
+    Nat.pow_le_pow_right (Nat.pos_of_ne_zero (NeZero.ne L)) (by omega)
+  have hP0 : 1 ≤ L ^ (k + 1) := Nat.one_le_pow _ _ (Nat.pos_of_ne_zero (NeZero.ne L))
+  have hYtop : ∀ y ∈ Y, y ∈ Gl.Ω (k + 1) := fun y hy => by
+    obtain ⟨t, ht, hd⟩ := hYT y hy
+    exact hdepth y ⟨t, ht, by omega⟩
+  have hres : ∀ x ∈ T, x ∈ Gl.Ω 1 → ∀ y ∈ resSites Gl x, y ∈ Gl.Ω 1 ∧ y ∈ Y := by
+    intro x hx _ y hy
+    have hd := supDist_le_of_mem_resSites hy
+    have hyY := hresY x hx y hd
+    exact ⟨Gl.Ω_antitone le_rfl (by omega) (by omega) (hYtop y hyY), hyY⟩
+  obtain ⟨h1, h2⟩ := Dec2.decBg_component_cross (C := coverOf Gl) (C' := coverOf Gl) (H := Gl)
+    (H' := Gl) (s := v) (s' := v) hS Sl Sl HBl HBl hκ hM hv hv hδ0 hδε hε hδ hνε hδ0' hδε' hε' hδ'
+    hνε' hD hD' hTY (fun _ _ _ _ _ => Iff.rfl)
+    (fun q hq hne => Or.inl fun x hx => hactl q hq hne x hx)
+    (fun q hq hne => Or.inl fun x hx => hactl q hq hne x hx)
+    (fun q hq hne x _ hx => hactl q hq hne x hx) (fun q hq hne x _ hx => hactl q hq hne x hx)
+    (fun q hq _ => ⟨hq, rfl, fun _ _ _ _ _ _ _ => Iff.rfl, fun _ _ => rfl⟩)
+    (fun q hq _ => ⟨hq, by
+      obtain ⟨hqc, _⟩ := Finset.mem_filter.1 hq
+      exact by assumption⟩)
+    hres (fun _ _ _ _ _ _ _ _ _ _ => Iff.rfl) hdat h h'
+  exact ⟨fun x hx hx' => h1 x hx' hx' hx, fun y hy hy' i => h2 y hy' hy' hy i⟩
+
 end CrossBase
 
 end Balaban.LargeField.Base

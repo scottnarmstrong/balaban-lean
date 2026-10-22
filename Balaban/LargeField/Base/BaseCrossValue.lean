@@ -168,6 +168,75 @@ theorem bgFunctional_coef_cross (hG' : IsLevel Gp (k + 1)) (hm₁ : 2 ≤ m₁)
     bgFunctional_value_cross Gl Gp hG' hm₁ hS Sl Sp HBl HBp hκ hM hFl hFp hDu hDu' (hv w hw)
       (hv' w hw) hTY hdepth hYT hresY (hvv w hw) (hactl w hw) (hactp w hw) hdat hseed hFe
 
+/-- **A functional of the decoupled background of one generating set is local in the data.**  Under the
+depth hypothesis of `decBg_same_local`, two data of the union domain that agree on `approxDep` of the
+sites of `Y` give the same value of a functional reading a seed `seed ⊆ T`. -/
+theorem bgFunctional_value_same {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sl : Dec2.CoverBase (coverOf Gl) Gl a ν Kc Cx) (HBl : BgHyp d L (k + 1) ϱl a ν) {κ : ℝ}
+    (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {Fl : Dec2.DecParams (coverOf Gl) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)}
+    (hFl : ∀ (s : Dec2.DecParams (coverOf Gl)) (D : BgData Gl N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gl) Gl a ν (rho4 d L N BG κ) s D φ α →
+          Fl (s, (D.Ψ, D.h)) = (φ, α))
+    {D D' : BgData Gl N} (hDu : InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDu' : InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D')
+    {v : Dec2.DecParams (coverOf Gl)} (hv : ∀ P, ‖v P‖ < Real.exp κ)
+    {T Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hTY : T ⊆ Y)
+    (hdepth : ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), (∃ t ∈ T, supDist z t ≤ 8 * L ^ (k + 1 + m₁)) → z ∈ Gl.Ω (k + 1))
+    (hYT : ∀ y ∈ Y, ∃ t ∈ T, supDist y t ≤ 2 * L ^ (k + 1))
+    (hresY : ∀ x ∈ T, ∀ y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist x y ≤ L ^ (k + 1) → y ∈ Y)
+    (hactl : ∀ q ∈ (coverOf Gl).cubeIdx, (coverOf Gl).sProd (Dec2.extS _ v) q ≠ 0 →
+      ∀ x ∈ intBox q, x ∈ T)
+    (hdat : ∀ y ∈ Y, y ∈ Gl.Ω 1 → ∀ z ∈ approxDep Gl y, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hseed : seed ⊆ T)
+    {Fel : ((Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed Gl seed Fel) :
+    Fel (Fl (v, (D.Ψ, D.h))) = Fel (Fl (v, (D'.Ψ, D'.h))) := by
+  classical
+  obtain ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ := hDu
+  obtain ⟨δ', ε', hδ0', hδε', hε', hδ', hνε', hD'⟩ := hDu'
+  obtain ⟨φ, α, hsol, -, -⟩ := Dec2.i4b_exists_unique hS Sl HBl hκ hM (fun P => (hv P).le) hδ0 hδε
+    hε hδ hνε hD
+  obtain ⟨φ', α', hsol', -, -⟩ := Dec2.i4b_exists_unique hS Sl HBl hκ hM (fun P => (hv P).le) hδ0'
+    hδε' hε' hδ' hνε' hD'
+  rw [hFl v D hv ⟨δ, ε, hδ0, hδε, hε, hδ, hνε, hD⟩ φ α hsol,
+    hFl v D' hv ⟨δ', ε', hδ0', hδε', hε', hδ', hνε', hD'⟩ φ' α' hsol']
+  obtain ⟨hα, hφ⟩ := decBg_same_local hS Sl HBl hκ hM (fun P => (hv P).le) hδ0 hδε hε hδ hνε
+    hδ0' hδε' hε' hδ' hνε' hD hD' hTY hdepth hYT hresY hactl hdat hsol hsol'
+  exact hFe _ _ (fun y hy i => (hφ y (hTY (hseed hy)) y.2 i).symm)
+    (fun x hx => (hα x (hseed hx) x.2).symm)
+
+/-- **The coefficients of a functional of the decoupled background of one generating set are local in
+the data** (`bgFunctional_value_same` for a common parameter space `ι`). -/
+theorem bgFunctional_coef_same {Kc Cx c BG : ℝ} (hS : Dec2.DecSpecs d L Kc Cx c BG)
+    (Sl : Dec2.CoverBase (coverOf Gl) Gl a ν Kc Cx) (HBl : BgHyp d L (k + 1) ϱl a ν) {κ : ℝ}
+    (hκ : 0 ≤ κ) (hM : c * Real.exp (N0 d L * κ) ≤ (L : ℝ) ^ m₁)
+    {Fl : Dec2.DecParams (coverOf Gl) × RawData d L (N₁ * L ^ m₁) (k + 1) N →
+      (Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)}
+    (hFl : ∀ (s : Dec2.DecParams (coverOf Gl)) (D : BgData Gl N), (∀ P, ‖s P‖ < Real.exp κ) →
+      InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D → ∀ (φ : Gl.Ω 1 × Fin N → ℂ)
+        (α : Gl.Ω 1 → ℂ), Dec2.IsDecBg (coverOf Gl) Gl a ν (rho4 d L N BG κ) s D φ α →
+          Fl (s, (D.Ψ, D.h)) = (φ, α))
+    {D D' : BgData Gl N} (hDu : InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D)
+    (hDu' : InUnionDomainC Gl (bgC0 d L N) (c7 d L N BG κ) ν D')
+    {ι : Type*} [Fintype ι] [DecidableEq ι] (C : Finset ι) {R : ℝ} (hR : 1 < R)
+    (τ : (ι → ℂ) → Dec2.DecParams (coverOf Gl))
+    (hv : ∀ w ∈ supN C R, ∀ P, ‖τ w P‖ < Real.exp κ)
+    {T Y : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hTY : T ⊆ Y)
+    (hdepth : ∀ z : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), (∃ t ∈ T, supDist z t ≤ 8 * L ^ (k + 1 + m₁)) → z ∈ Gl.Ω (k + 1))
+    (hYT : ∀ y ∈ Y, ∃ t ∈ T, supDist y t ≤ 2 * L ^ (k + 1))
+    (hresY : ∀ x ∈ T, ∀ y : Balaban.Localization.CTorus d L N₁ m₁ (k + 1), supDist x y ≤ L ^ (k + 1) → y ∈ Y)
+    (hactl : ∀ w ∈ supN C R, ∀ q ∈ (coverOf Gl).cubeIdx,
+      (coverOf Gl).sProd (Dec2.extS _ (τ w)) q ≠ 0 → ∀ x ∈ intBox q, x ∈ T)
+    (hdat : ∀ y ∈ Y, y ∈ Gl.Ω 1 → ∀ z ∈ approxDep Gl y, D.Ψ z = D'.Ψ z ∧ D.h z = D'.h z)
+    {seed : Finset (Balaban.Localization.CTorus d L N₁ m₁ (k + 1))} (hseed : seed ⊆ T)
+    {Fel : ((Gl.Ω 1 × Fin N → ℂ) × (Gl.Ω 1 → ℂ)) → ℂ} (hFe : ReadsSeed Gl seed Fel) :
+    coef (fun w => Fel (Fl (τ w, (D.Ψ, D.h)))) C = coef (fun w => Fel (Fl (τ w, (D'.Ψ, D'.h)))) C :=
+  coef_congr_near hR fun w hw =>
+    bgFunctional_value_same Gl hS Sl HBl hκ hM hFl hDu hDu' (hv w hw) hTY hdepth hYT hresY
+      (hactl w hw) hdat hseed hFe
+
 end Cross
 
 end Balaban.LargeField.Base
