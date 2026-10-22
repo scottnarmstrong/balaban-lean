@@ -20,7 +20,11 @@ level `n + 1` is the pair `(θ, h) = (D'.Ψ, D'.h)`.
   `Ψ(θ, φ_{k+1}(θ))`, is the unique global minimiser of `J_k(θ, ·)` with
   `J_k(θ, ψ^{(k)}) = A_{k+1}(θ, φ_{k+1}(θ))`, and `φ_k(ψ^{(k)}) = φ_{k+1}`, `α_k(ψ^{(k)}) = α_{k+1}`;
 * `criticalPoint_complex` (c): the same identities for complex data (BG Theorem 6.1);
-* `criticalPoint_real_nuFree`, `action_mass_split` (d): the `ν`-free convention.
+* `criticalPoint_real_nuFree`, `action_mass_split` (d): the `ν`-free convention;
+* `RegionPair` (P5 (2.17)): `G ≺ G'` with the same support, the top layer `R = Ω'_{n+1}` of `G'` in the
+  layer `n` of `G`, the same layers off `R`; a pair of whole-lattice sets of levels `n`, `n + 1` is a
+  region pair with `R = 𝕋` (`RegionPair.ofLevel`); `RegionPair.coupling_add_action_on`: the key identity
+  on `R` (core of `coupling_add_action`, which is its instance).
 
 All actions are the Background actions (fine units); the `η`-unit actions of FLUCTUATION are
 `L^{-k(d-2)}` times these (FLUCTUATION §1.1), a common factor.
@@ -150,6 +154,164 @@ theorem svec_restrict {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1)) (h
     show svec G' φ' y i = φ' (⟨y, hy'⟩, i) from svec_of_mem G' _ ⟨y, hy'⟩ i]
   rfl
 
+/-- **A region pair** (P5 (2.17); FLUCTUATION §2.7): `G ≺ G'` with the same support `Ω₁`, the top
+layer `R = Ω'_{n+1}` of `G'` (the new region) lies in the layer `n` of `G`, and off `R` the two sets
+have the same layers.  A pair of whole-lattice sets of levels `n`, `n + 1` is a region pair with
+`R = 𝕋` (`RegionPair.ofLevel`). -/
+structure RegionPair (G : GeneratingSet d L N₀ K ϱ) (G' : GeneratingSet d L N₀ K ϱ') (n : ℕ) :
+    Prop where
+  hn : 1 ≤ n
+  hp : n + 1 ≤ K
+  hpre : Precedes G G'
+  Ω_one : G'.Ω 1 = G.Ω 1
+  top_layer : ∀ x ∈ G'.Ω (n + 1), G.layerIndex x = n ∧ G'.layerIndex x = n + 1
+  off_layer : ∀ x ∈ G.Ω 1, x ∉ G'.Ω (n + 1) → G'.layerIndex x = G.layerIndex x
+
+/-- **A pair of whole-lattice sets of levels `n`, `n + 1` is a region pair** (with `R = 𝕋`). -/
+theorem RegionPair.ofLevel {n : ℕ} (hG : IsLevel G n) (hG' : IsLevel G' (n + 1))
+    (hp : n + 1 ≤ K) : RegionPair G G' n where
+  hn := hG.bounds.1
+  hp := hp
+  hpre := hG.precedes hG' hp
+  Ω_one := by rw [hG.Ω_one, hG'.Ω_one]
+  top_layer x _ := ⟨(hG x).2, (hG' x).2⟩
+  off_layer x _ hx := absurd ((G'.mem_layer.1 (hG'.mem_layer x))).1 hx
+
+/-- The top layer of a whole-lattice set of level `n + 1` is the torus. -/
+theorem IsLevel.Ω_top {n : ℕ} (hG' : IsLevel G' (n + 1)) : G'.Ω (n + 1) = Finset.univ :=
+  Finset.eq_univ_of_forall fun x => ((G'.mem_layer.1 (hG'.mem_layer x))).1
+
+namespace RegionPair
+
+variable {n : ℕ} (P : RegionPair G G' n)
+include P
+
+/-- The new region lies in the support. -/
+theorem top_subset : G'.Ω (n + 1) ⊆ G.Ω 1 := by
+  rw [← P.Ω_one]
+  exact G'.Ω_antitone le_rfl (by omega) (by have := P.hp; omega)
+
+/-- The new region is a union of `(n+1)`-blocks. -/
+theorem top_blk {z : Torus d (N₀ * L ^ K)} (hz : z ∈ G'.Ω (n + 1)) {y : Torus d (N₀ * L ^ K)}
+    (hy : y ∈ G'.blk (n + 1) z) : y ∈ G'.Ω (n + 1) :=
+  (G'.blockUnion (n + 1) (by omega) P.hp y z (GeneratingSet.mem_blk.1 hy)).2 hz
+
+/-- The extensions of a field on `Ω'₁` and of its restriction to `Ω₁` agree. -/
+theorem svec_restrictφ (φ' : G'.Ω 1 × Fin N → ℂ) (y : Torus d (N₀ * L ^ K)) (i : Fin N) :
+    svec G (P.hpre.restrictφ φ') y i = svec G' φ' y i := by
+  by_cases hy : y ∈ G.Ω 1
+  · have hy' : y ∈ G'.Ω 1 := P.Ω_one ▸ hy
+    rw [show svec G (P.hpre.restrictφ φ') y i = (P.hpre.restrictφ φ') (⟨y, hy⟩, i) from
+      svec_of_mem G _ ⟨y, hy⟩ i, show svec G' φ' y i = φ' (⟨y, hy'⟩, i) from
+      svec_of_mem G' _ ⟨y, hy'⟩ i]
+    rfl
+  · have hy' : y ∉ G'.Ω 1 := P.Ω_one ▸ hy
+    rw [svec_of_not_mem G _ hy, svec_of_not_mem G' _ hy']
+
+
+/-- **The key identity for a region pair** (core of `coupling_add_action`; P5 (2.21) on the new region
+`R = Ω'_{n+1}`): for data `D` of `G` and `D'` of `G'` with the same `h̃` and equal off `R`,
+`coupling_R(θ = D'.Ψ, ψ = D.Ψ) + A(D; φ|) = A'(D'; φ) + defect_R`. -/
+theorem coupling_add_action_on {a₁ ν : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁)
+    (D : BgData G N) (D' : BgData G' N) (hh : ∀ x i, D.h x i = D'.h x i)
+    (hΨ : ∀ x, x ∉ G'.Ω (n + 1) → D.Ψ x = D'.Ψ x) (φ' : G'.Ω 1 × Fin N → ℂ) :
+    couplingOn (G'.Ω (n + 1)) G' a₁ (n + 1) D'.Ψ D.Ψ +
+        action G (compWeight L a₁) ν D (P.hpre.restrictφ φ') =
+      action G' (compWeight L a₁) ν D' φ' +
+        defectOn (G'.Ω (n + 1)) G G' (compWeight L a₁) a₁ n (n + 1) D'.Ψ D.Ψ (svec G' φ') := by
+  set R := G'.Ω (n + 1) with hRdef
+  have hRsub := P.top_subset
+  have key := coupling_add_level_on (G := G) (G' := G') (a₁ := a₁) hL ha₁ P.hn P.hp R
+    (fun z hz y hy => P.top_blk hz hy) D'.Ψ D.Ψ (svec G' φ')
+  have hsv := P.svec_restrictφ φ'
+  -- the barred fields agree
+  have hbar : ∀ y i, barField G D.Ψ (P.hpre.restrictφ φ') y i = barField G' D'.Ψ φ' y i := by
+    intro y i
+    by_cases hy : y ∈ G.Ω 1
+    · have hy' : y ∈ G'.Ω 1 := P.Ω_one ▸ hy
+      simp only [barField, hy, hy', ↓reduceDIte]
+      rfl
+    · have hy' : y ∉ G'.Ω 1 := P.Ω_one ▸ hy
+      simp only [barField, hy, hy', ↓reduceDIte]
+      exact congrFun (hΨ y fun h => hy (hRsub h)) i
+  -- the block averages agree off the new region
+  have havg : ∀ x i, x ∈ G.Ω 1 → x ∉ R →
+      blockAvg G (P.hpre.restrictφ φ') x i = blockAvg G' φ' x i := by
+    intro x i hx hxR
+    unfold blockAvg
+    rw [P.off_layer x hx hxR]
+    simp only [hsv]
+    rfl
+  -- the block averages on the new region
+  have havgR : ∀ x i, x ∈ R →
+      blockAvg G (P.hpre.restrictφ φ') x i = blockMean G n (fun y => svec G' φ' y i) x := by
+    intro x i hx
+    unfold blockAvg blockMean
+    rw [(P.top_layer x hx).1]
+    simp only [hsv]
+  have havgR' : ∀ x i, x ∈ R → blockAvg G' φ' x i = blockMean G' (n + 1) (fun y => svec G' φ' y i) x := by
+    intro x i hx
+    unfold blockAvg blockMean
+    rw [(P.top_layer x hx).2]
+  -- the level sums as sums over the support
+  set F : Torus d (N₀ * L ^ K) → ℝ := fun x =>
+    (compWeight L a₁ (G.layerIndex x) / ((L : ℝ) ^ G.layerIndex x) ^ 2) *
+      ∑ i, ‖D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i‖ ^ 2 with hF
+  set F' : Torus d (N₀ * L ^ K) → ℝ := fun x =>
+    (compWeight L a₁ (G'.layerIndex x) / ((L : ℝ) ^ G'.layerIndex x) ^ 2) *
+      ∑ i, ‖D'.Ψ x i - blockAvg G' φ' x i‖ ^ 2 with hF'
+  have hlev : ∑ x : G.Ω 1, F x = ∑ x ∈ G.Ω 1 \ R, F x + ∑ x ∈ R, F x := by
+    rw [Finset.sum_coe_sort (G.Ω 1) F, Finset.sum_sdiff hRsub]
+  have hlev' : ∑ x : G'.Ω 1, F' x = ∑ x ∈ G.Ω 1 \ R, F' x + ∑ x ∈ R, F' x := by
+    rw [Finset.sum_coe_sort (G'.Ω 1) F', P.Ω_one, Finset.sum_sdiff hRsub]
+  have hoff : ∑ x ∈ G.Ω 1 \ R, F x = ∑ x ∈ G.Ω 1 \ R, F' x := by
+    refine Finset.sum_congr rfl fun x hx => ?_
+    obtain ⟨hx1, hxR⟩ := Finset.mem_sdiff.1 hx
+    simp only [hF, hF', P.off_layer x hx1 hxR, hΨ x hxR, havg x _ hx1 hxR]
+  have hon : ∑ x ∈ R, F x = (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) *
+      ∑ x ∈ R, ∑ i, ‖D.Ψ x i - blockMean G n (fun y => svec G' φ' y i) x‖ ^ 2 := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x hx => ?_
+    simp only [hF, (P.top_layer x hx).1, havgR x _ hx]
+  have hon' : ∑ x ∈ R, F' x = (compWeight L a₁ (n + 1) / ((L : ℝ) ^ (n + 1)) ^ 2) *
+      ∑ x ∈ R, ∑ i, ‖D'.Ψ x i - blockMean G' (n + 1) (fun y => svec G' φ' y i) x‖ ^ 2 := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x hx => ?_
+    simp only [hF', (P.top_layer x hx).2, havgR' x _ hx]
+  -- the gradient and mass terms agree
+  have hgrad : (1 / 2 : ℝ) * ∑ x : Torus d (N₀ * L ^ K), ∑ μ : Fin d,
+      (if x ∈ G.Ω 1 ∨ x + Pi.single μ 1 ∈ G.Ω 1 then
+        ∑ i, ‖barField G D.Ψ (P.hpre.restrictφ φ') (x + Pi.single μ 1) i -
+          barField G D.Ψ (P.hpre.restrictφ φ') x i‖ ^ 2 else 0) =
+      (1 / 2 : ℝ) * ∑ x : Torus d (N₀ * L ^ K), ∑ μ : Fin d,
+      (if x ∈ G'.Ω 1 ∨ x + Pi.single μ 1 ∈ G'.Ω 1 then
+        ∑ i, ‖barField G' D'.Ψ φ' (x + Pi.single μ 1) i - barField G' D'.Ψ φ' x i‖ ^ 2 else 0) := by
+    simp only [hbar, P.Ω_one]
+  have hmass : ∑ x : G.Ω 1, ∑ i, ‖(P.hpre.restrictφ φ') (x, i) - D.h x i‖ ^ 2 =
+      ∑ x : G'.Ω 1, ∑ i, ‖φ' (x, i) - D'.h x i‖ ^ 2 := by
+    have e1 : ∑ x : G.Ω 1, ∑ i, ‖(P.hpre.restrictφ φ') (x, i) - D.h x i‖ ^ 2 =
+        ∑ x ∈ G.Ω 1, ∑ i, ‖svec G' φ' x i - D'.h x i‖ ^ 2 := by
+      rw [← Finset.sum_coe_sort (G.Ω 1)]
+      refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+      rw [← hsv, svec_of_mem G _ x i, hh]
+    have e2 : ∑ x : G'.Ω 1, ∑ i, ‖φ' (x, i) - D'.h x i‖ ^ 2 =
+        ∑ x ∈ G'.Ω 1, ∑ i, ‖svec G' φ' x i - D'.h x i‖ ^ 2 := by
+      rw [← Finset.sum_coe_sort (G'.Ω 1)]
+      refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun i _ => ?_
+      rw [svec_of_mem G' _ x i]
+    rw [e1, e2, P.Ω_one]
+  unfold action
+  rw [show (∑ x : G.Ω 1, (compWeight L a₁ (G.layerIndex (x : Torus d (N₀ * L ^ K))) /
+      ((L : ℝ) ^ G.layerIndex (x : Torus d (N₀ * L ^ K))) ^ 2) *
+      ∑ i, ‖D.Ψ x i - blockAvg G (P.hpre.restrictφ φ') x i‖ ^ 2) = ∑ x : G.Ω 1, F x from rfl,
+    show (∑ x : G'.Ω 1, (compWeight L a₁ (G'.layerIndex (x : Torus d (N₀ * L ^ K))) /
+      ((L : ℝ) ^ G'.layerIndex (x : Torus d (N₀ * L ^ K))) ^ 2) *
+      ∑ i, ‖D'.Ψ x i - blockAvg G' φ' x i‖ ^ 2) = ∑ x : G'.Ω 1, F' x from rfl,
+    hlev, hlev', hoff, hon, hon', hgrad, hmass]
+  linarith [key]
+
+end RegionPair
+
 /-- **The key identity** for the action: for the data `D` of level `n` and `D'` of level `n + 1`
 with the same `h̃`,
 `coupling(θ = D'.Ψ, ψ = D.Ψ) + A_n(D; φ|) = A_{n+1}(D'; φ) + defect`. -/
@@ -161,15 +323,10 @@ theorem coupling_add_action {a₁ ν : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n
         action G (compWeight L a₁) ν D ((hG.precedes hG' hp).restrictφ φ') =
       action G' (compWeight L a₁) ν D' φ' +
         defect G G' (compWeight L a₁) a₁ n (n + 1) D'.Ψ D.Ψ (svec G' φ') := by
-  have hn := hG.bounds
-  have key := coupling_add_level (G := G) (G' := G') (a₁ := a₁) hL ha₁ hn.1 hp D'.Ψ D.Ψ
-    (svec G' φ')
-  rw [action_eq_level_add_rest, action_eq_level_add_rest, levelTerm_eq hG, levelTerm_eq hG',
-    restTerm_eq hG, restTerm_eq hG']
-  have e : ∀ y i, svec G ((hG.precedes hG' hp).restrictφ φ') y i = svec G' φ' y i :=
-    svec_restrict hG hG' hp φ'
-  simp only [e, hh]
-  linarith [key]
+  have h := (RegionPair.ofLevel hG hG' hp).coupling_add_action_on hL ha₁ (ν := ν) D D' hh
+    (fun x hx => absurd (hG'.Ω_top ▸ Finset.mem_univ x) hx) φ'
+  rw [hG'.Ω_top] at h
+  exact h
 
 /-- The extension of a field on `Ω₁` to the torus is its restriction when `Ω₁` is everything. -/
 theorem svec_eq_apply {n : ℕ} (hG : IsLevel G n) {N : ℕ} (φ : G.Ω 1 × Fin N → ℂ)

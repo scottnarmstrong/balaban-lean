@@ -18,10 +18,11 @@ the irrelevant parts of P1 (3.128) is a bound at such composed data (smooth at t
 level of `Gk` on the layers of `Gj`), not on the whole chart `Ξ^c_j(Gj; b, e)` of the level of the
 term.
 
-* `composedChart Gj a ν j b e`: the data composed into `Gj` from the chart `Ξ^c_K(G; 1, e)` of a
-  generating set `G` that `Gj` precedes (collar of `Gj` in `Ω₁(G)`, the standing hypotheses at
+* `composedChart Gj a ν j b e` (defined in `InteractionHatE`, where the bound of the old-term
+  functional `eTermFun_bound_of_bg` is the instance of its composed-chart core
+  `eTermFun_bound_of_bg_composed`): the data composed into `Gj` from the chart `Ξ^c_K(G; 1, e)` of
+  a generating set `G` that `Gj` precedes (collar of `Gj` in `Ω₁(G)`, the standing hypotheses at
   `G`), lying in the chart `Ξ^c_j(Gj; b, e)`;
-* `composedChart_subset_xiCRaw`;
 * `d2raw_d1Triple_mem_composedChart`: the composed data of the realizable triples lie in it;
 * `eTermFun_bound_composed`: the bound of the old-term functional on the realizable triples from
   the bound of the term on its composed chart (the bound on the chart `Ξ^c_j(Gj; b, e)`, as in
@@ -34,32 +35,6 @@ namespace Balaban.Localization
 
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Balaban.Fluctuation
 
-section Def
-
-variable {d L N₁ m₁ K N : ℕ} [NeZero N₁] [NeZero L] {ϱ : ℝ}
-
-/-- **The composed chart of a term generator** `Gj` (level `j`, composition constant `b`, radius
-`e`): the raw data `ψ(Gj, G; φ_G(D), D)` composed into `Gj` from a datum `D` of the chart
-`Ξ^c_K(G; 1, e)` of a generating set `G` that `Gj` precedes, with the collar of `Gj` in `Ω₁(G)` and
-the standing hypotheses of the background theory at `G`, which lie in the chart
-`Ξ^c_j(Gj; b, e)`. -/
-def composedChart (Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ) (a : ℕ → ℝ) (ν : ℝ) (j : ℕ)
-    (b e : ℝ) : Set (RawData d L (N₁ * L ^ m₁) K N) :=
-  {r | ∃ (ϱ₁ : ℝ) (G : GeneratingSet d L (N₁ * L ^ m₁) K ϱ₁) (hq : Precedes Gj G),
-    (∀ z ∈ collar Gj, z ∈ G.Ω 1) ∧ BgHyp d L K ϱ₁ a ν ∧
-    ∃ D : BgData G N, XiCData G a ν K 1 e D ∧
-      XiCData Gj a ν j b e (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D) ∧
-      r = rawOf (composeData hq a (bgFieldC G a ν (bgC0 d L N) D) D)}
-
-variable {Gj : GeneratingSet d L (N₁ * L ^ m₁) K ϱ} {a : ℕ → ℝ} {ν : ℝ} {j : ℕ} {b e : ℝ}
-
-/-- The composed chart lies in the chart `Ξ^c_j(Gj; b, e)`. -/
-theorem composedChart_subset_xiCRaw :
-    (composedChart (N := N) Gj a ν j b e) ⊆ XiCRaw Gj a ν j b e := by
-  rintro r ⟨ϱ₁, G, hq, _, _, D, _, hX, rfl⟩
-  exact ⟨_, hX, rfl⟩
-
-end Def
 
 section Read
 

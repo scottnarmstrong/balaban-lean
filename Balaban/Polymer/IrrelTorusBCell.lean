@@ -9,9 +9,9 @@ public import Balaban.Polymer.IrrelTorusOnBox
 public import Balaban.SmallField.IrrelTorusSum
 
 /-!
-# The box-renormalized label functional at the cell, on two tori
+# The label functional at the cell, on two tori
 
-For the label functional `irrelTorusB` (`irrelTorusOn (relBox m₀)`: the relevant parts are
+For the label functional `irrelTorus` (`irrelTorusOn (relBox m₀)`, ruling R15: the relevant parts are
 subtracted from, and filed at the cell `□(y)` for, the polymers within `r_K = ⌊L^{m₀+m₁+K}/8⌋` of the
 centre only), the term of the distinguished label `(j, y, □(y))` is the same on two tori:
 
@@ -19,11 +19,11 @@ centre only), the term of the distinguished label `(j, y, □(y))` is the same o
   tori; `Z ↦ boxMap '' Z` is a bijection between the selected polymers through `y` and those through
   `boxMap y` (`isPolyDom_image_iff`, `relBox_image_boxMap_iff`), and the relevant parts of
   corresponding polymers agree (`relPartTorus_boxAgree`);
-* `irrelTorusB_cell_boxAgree`: **the exact two-torus agreement at the cell**, for fields agreeing
+* `irrelTorus_cell_boxAgree`: **the exact two-torus agreement at the cell**, for fields agreeing
   under `boxMap` on `□(y)` and on the stencil `y + L^j e_μ`, with the margin
   `8 (R + r_K) + 3 L^K + L · cellSide < n` on both tori.  This replaces the cell case
-  `CellTermsAgree` of the two-torus comparison, which fails for `irrelTorus` (whose filed sum runs
-  over the polymers winding around the torus).
+  `CellTermsAgree` of the two-torus comparison (`cellTermsAgree_of_class`), which failed for the
+  former `irrelTorus` (whose filed sum ran over the polymers winding around the torus).
 -/
 
 @[expose] public section
@@ -124,13 +124,13 @@ theorem finsum_relBox_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m₁ 
       (hin₁ Z hrel) hstep' i₀ i₁ Ψ h Ψ' h' hy1 hy2 hΨst).symm
 
 open Classical in
-/-- **The box-renormalized label functional at the cell agrees on two tori** (blocker 7, the cell
+/-- **The label functional at the cell agrees on two tori** (blocker 7, the cell
 case of the two-torus comparison): for a family `Tm` with `TorusIndep`, `L^{m₀} ∣ N₁, N₂`, an aligned
 centre `y` whose cell `□(y)` and stencil `y + L^j e_μ` lie in the centred box of radius `R`, the
 margin `8 (R + r_K) + 3 L^K + L · cellSide < n` on both tori (`r_K = ⌊L^{m₀+m₁+K}/8⌋`), and fields
 agreeing under `boxMap` on `□(y)` and on the stencil,
-`ℰ^B_{irrel}(bm y, bm '' □(y); Ψ', h') = ℰ^B_{irrel}(y, □(y); Ψ, h)`. -/
-theorem irrelTorusB_cell_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m₁ K N ϱ} {m₀ j : ℕ}
+`ℰ_{irrel}(bm y, bm '' □(y); Ψ', h') = ℰ_{irrel}(y, □(y); Ψ, h)`. -/
+theorem irrelTorus_cell_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m₁ K N ϱ} {m₀ j : ℕ}
     (hj1 : 1 ≤ j) (hjK : j ≤ K) (hT : TorusIndep m₀ Tm)
     (hlocB : ∀ j y X Ψ Ψ' h h', (∀ x ∈ X, Ψ x = Ψ' x ∧ h x = h' x) →
       (Tm N₂).E j y X Ψ h = (Tm N₂).E j y X Ψ' h')
@@ -148,9 +148,9 @@ theorem irrelTorusB_cell_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m�
       Ψ (y + (L ^ j) • (Pi.single μ 1 : CTorus d L N₁ m₁ K)))
     (hh : ∀ x ∈ box (cbase (cellSide L m₀ m₁ j) y -
       natT (fun _ => L / 2 * cellSide L m₀ m₁ j)) (L * cellSide L m₀ m₁ j), h' (bm x) = h x) :
-    irrelTorusB m₀ (Tm N₂) i₀ i₁ j (bm y) (bm '' box (cbase (cellSide L m₀ m₁ j) y -
+    irrelTorus m₀ (Tm N₂) i₀ i₁ j (bm y) (bm '' box (cbase (cellSide L m₀ m₁ j) y -
       natT (fun _ => L / 2 * cellSide L m₀ m₁ j)) (L * cellSide L m₀ m₁ j)) Ψ' h' =
-    irrelTorusB m₀ (Tm N₁) i₀ i₁ j y (box (cbase (cellSide L m₀ m₁ j) y -
+    irrelTorus m₀ (Tm N₁) i₀ i₁ j y (box (cbase (cellSide L m₀ m₁ j) y -
       natT (fun _ => L / 2 * cellSide L m₀ m₁ j)) (L * cellSide L m₀ m₁ j)) Ψ h := by
   set C : Set (CTorus d L N₁ m₁ K) := box (cbase (cellSide L m₀ m₁ j) y -
     natT (fun _ => L / 2 * cellSide L m₀ m₁ j)) (L * cellSide L m₀ m₁ j) with hC
@@ -174,7 +174,7 @@ theorem irrelTorusB_cell_boxAgree {Tm : ∀ (M : ℕ) [NeZero M], Terms d L M m�
     relBox_image_boxMap_iff hq₁ hq₂ hyR hcell
   have hsum := finsum_relBox_boxAgree hj1 hjK hT hlocB hN₁ hN₂ hM8 hmar₁ hmar₂ hy hyR hstep i₀ i₁
     Ψ h Ψ' h' (hΨ y hyC) (hh y hyC) hΨst
-  unfold irrelTorusB irrelTorusOn
+  unfold irrelTorus irrelTorusOn
   rw [ite_eq_left himg, ite_eq_left rfl, hsum,
     E_boxAgree hj1 hjK hT hlocB hN₁ hN₂ hM8 hR₁ hR₂ hy hyC hCpd hcell Ψ h Ψ' h' hΨ hh,
     aTermTorus_boxAgree hj1 hjK hT hlocB hN₁ hN₂ hM8 hmar₁' hmar₂' hy hyC hCpd hcell i₀ Ψ Ψ' hΨ,

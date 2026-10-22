@@ -84,7 +84,7 @@ theorem canonOldTermSystem_pins (S : StepSetting d L N₁ m₁ k N ϱ)
     OldTermsCanonPinsAt S C (canonOldTermSystem S C t F i₀ i₁ κ BG BG₂ δ₁ F₁L SolL FkL hF₁L hSolL
       hFkL) (by exact F) i₀ i₁ := by
   refine ⟨rfl, fun p => p.1.2.1, fun p => p.1.2.2, fun _ _ => rfl, ⟨fun p _ => p.2, fun a _ b _ h => ?_,
-    fun p hp => ⟨⟨p, hp⟩, Set.mem_univ _, rfl⟩⟩, fun _ => ⟨rfl, rfl, rfl, rfl, rfl⟩⟩
+    fun p hp => ⟨⟨p, hp⟩, Set.mem_univ _, rfl⟩⟩, fun _ => ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩⟩
   exact Subtype.ext h
 
 /-- **The canonically indexed system with the pinned fields chosen** (`exists_decFieldPin`,

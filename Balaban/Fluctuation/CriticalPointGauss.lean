@@ -16,7 +16,10 @@ term of the action of level `n = k` is `½ a_n L^{-2n} ∑_x |Ψ - Q_n φ|²`.
 
 * `compWeight_harmonic`, `weight_relation`, `compWeight_succ`: `a_{n+1} = a₁ a_n / (a_n + a₁ L⁻²)`;
 * `coupling_add_level`: `coupling + level_n = level_{n+1} + defect`, an exact completion of squares
-  (`Q_p` is the orthogonal projection onto `p`-block constants, `sum_norm_sq_decomp`);
+  (`Q_p` is the orthogonal projection onto `p`-block constants, `sum_norm_sq_decomp`); the cores
+  `couplingOn`, `defectOn`, `sum_norm_sq_decomp_on`, `gaussian_identity_component_on`,
+  `coupling_add_level_on` sum over a union `S` of `(n+1)`-blocks (the new region of a step on a region,
+  P5 (2.21)), the whole torus being the instance;
 * `defect_nonneg`, `defect_eq_zero_iff`, `gaussianComposition`: the minimum over `Ψ` is
   `level_{n+1}(θ, φ)`, attained exactly at `Ψ(θ, φ)` of (2.1) (`psiStar`).
 -/
@@ -45,27 +48,29 @@ theorem blockMean_blk_const {p : ℕ} (w : Torus d (N₀ * L ^ K) → ℂ) (x y 
     (hy : y ∈ G.blk p x) : blockMean G p w y = blockMean G p w x :=
   blockMean_congr w (blk_eq_of_mem hy)
 
-/-- Orthogonal decomposition of `ℓ²` along the `p`-block averages. -/
-theorem sum_norm_sq_decomp {p : ℕ} (hp : p ≤ K) (A : Torus d (N₀ * L ^ K) → ℂ) :
-    ∑ x, ‖A x‖ ^ 2 = ∑ x, ‖A x - blockMean G p A x‖ ^ 2 + ∑ x, ‖blockMean G p A x‖ ^ 2 := by
+/-- **Orthogonal decomposition of `ℓ²(S)` along the `p`-block averages**, for a set `S` of sites that
+is a union of `p`-blocks (core; the whole torus is `sum_norm_sq_decomp`). -/
+theorem sum_norm_sq_decomp_on {p : ℕ} (hp : p ≤ K) (S : Finset (Torus d (N₀ * L ^ K)))
+    (hS : ∀ z ∈ S, ∀ y ∈ G.blk p z, y ∈ S) (A : Torus d (N₀ * L ^ K) → ℂ) :
+    ∑ x ∈ S, ‖A x‖ ^ 2 =
+      ∑ x ∈ S, ‖A x - blockMean G p A x‖ ^ 2 + ∑ x ∈ S, ‖blockMean G p A x‖ ^ 2 := by
   have hn : ∀ z : Torus d (N₀ * L ^ K), (fun _ => p) z ≤ K := fun _ => hp
-  have h1 : ∑ z ∈ (Finset.univ : Finset (Torus d (N₀ * L ^ K))),
+  have h1 : ∑ z ∈ S,
       blockMean G ((fun _ => p) z) (fun y => (starRingEnd ℂ) (blockMean G p A y) * A y) z =
-      ∑ z ∈ (Finset.univ : Finset (Torus d (N₀ * L ^ K))),
+      ∑ z ∈ S,
         (fun y => (starRingEnd ℂ) (blockMean G p A y) * A y) z :=
-    sum_blockMean_nested G Finset.univ (fun _ => p) hn _ (fun _ _ _ _ =>
-      ⟨Finset.mem_univ _, rfl⟩)
+    sum_blockMean_nested G S (fun _ => p) hn _ (fun z hz y hy => ⟨hS z hz y hy, rfl⟩)
   have h2 : ∀ x, blockMean G p (fun y => (starRingEnd ℂ) (blockMean G p A y) * A y) x =
       (starRingEnd ℂ) (blockMean G p A x) * blockMean G p A x := fun x =>
     blockMean_mul_const _ _ (fun x y hy => by rw [blockMean_blk_const A x y hy]) x
   simp only [h2] at h1
-  have h3 : ∑ x, (A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x) = 0 := by
+  have h3 : ∑ x ∈ S, (A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x) = 0 := by
     have : ∀ x, (A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x) =
         (starRingEnd ℂ) (blockMean G p A x) * A x -
           (starRingEnd ℂ) (blockMean G p A x) * blockMean G p A x := fun x => by ring
     simp only [this, Finset.sum_sub_distrib]
     rw [h1]; ring
-  have h4 : ∑ x, ((A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x)).re = 0 := by
+  have h4 : ∑ x ∈ S, ((A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x)).re = 0 := by
     rw [← Complex.re_sum, h3]; simp
   have h5 : ∀ x, ‖A x‖ ^ 2 = ‖A x - blockMean G p A x‖ ^ 2 + ‖blockMean G p A x‖ ^ 2 +
       2 * ((A x - blockMean G p A x) * (starRingEnd ℂ) (blockMean G p A x)).re := fun x => by
@@ -74,6 +79,11 @@ theorem sum_norm_sq_decomp {p : ℕ} (hp : p ≤ K) (A : Torus d (N₀ * L ^ K) 
     rw [Complex.sq_norm, Complex.sq_norm, Complex.sq_norm]; exact this
   simp only [h5, Finset.sum_add_distrib, ← Finset.mul_sum, h4]
   ring
+
+/-- Orthogonal decomposition of `ℓ²` along the `p`-block averages. -/
+theorem sum_norm_sq_decomp {p : ℕ} (hp : p ≤ K) (A : Torus d (N₀ * L ^ K) → ℂ) :
+    ∑ x, ‖A x‖ ^ 2 = ∑ x, ‖A x - blockMean G p A x‖ ^ 2 + ∑ x, ‖blockMean G p A x‖ ^ 2 :=
+  sum_norm_sq_decomp_on hp Finset.univ (fun _ _ _ _ => Finset.mem_univ _) A
 
 /-- The block mean of a function that is constant on the block is the constant. -/
 theorem blockMean_of_blk_const {p : ℕ} (hp : p ≤ K) (w : Torus d (N₀ * L ^ K) → ℂ)
@@ -175,14 +185,20 @@ section GaussianComposition
 
 variable {G : GeneratingSet d L N₀ K ϱ} {G' : GeneratingSet d L N₀ K ϱ'}
 
+/-- **The coupling term on a set `S` of sites** `½ a₁ L^{-2p} ∑_{x ∈ S} |θ(x) - (Q_p ψ)(x)|²` (core of
+`coupling`; for a step on a region `S` is the new region `Ω_{k+1}`, P5 (2.16), (2.21)). -/
+noncomputable def couplingOn (S : Finset (Torus d (N₀ * L ^ K))) (G' : GeneratingSet d L N₀ K ϱ')
+    (a₁ : ℝ) (p : ℕ) (θ Ψ : Torus d (N₀ * L ^ K) → Fin N → ℂ) : ℝ :=
+  (1 / 2) * (a₁ / ((L : ℝ) ^ p) ^ 2) *
+    ∑ x ∈ S, ∑ i, ‖θ x i - blockMean G' p (fun y => Ψ y i) x‖ ^ 2
+
 /-- **The coupling term** `½ a₁ L^{-2p} ∑_x |θ(x) - (Q_p ψ)(x)|²` of `J_k` (FLUCTUATION §2.2,
 `½ a L⁻² ‖θ - Qψ‖_L²`), in the fine units of Background (`p = k + 1`): the block-spin field `θ` and
 the lifted field `ψ` are functions on the fine torus, `Q_p` is the average over `p`-blocks.  The
 `η`-unit expression is `L^{-k(d-2)}` times this one (FLUCTUATION §1.1). -/
 noncomputable def coupling (G' : GeneratingSet d L N₀ K ϱ') (a₁ : ℝ) (p : ℕ)
     (θ Ψ : Torus d (N₀ * L ^ K) → Fin N → ℂ) : ℝ :=
-  (1 / 2) * (a₁ / ((L : ℝ) ^ p) ^ 2) *
-    ∑ x, ∑ i, ‖θ x i - blockMean G' p (fun y => Ψ y i) x‖ ^ 2
+  couplingOn Finset.univ G' a₁ p θ Ψ
 
 /-- **The point `Ψ(θ, φ)` of (2.1)**:
 `Ψ(θ,φ) = Q_n φ + (a_p/a_n) L^{2(n-p)} (θ - Q_p φ)` (`n = k`, `p = k + 1`), with `f` the extension
@@ -194,30 +210,40 @@ noncomputable def psiStar (G : GeneratingSet d L N₀ K ϱ) (G' : GeneratingSet 
     ((a p / a n * (((L : ℝ) ^ n) ^ 2 / ((L : ℝ) ^ p) ^ 2) : ℝ) : ℂ) *
       (θ x i - blockMean G' p (fun y => f y i) x)
 
-/-- The defect: the non-negative remainder in the Gaussian composition. -/
-noncomputable def defect (G : GeneratingSet d L N₀ K ϱ) (G' : GeneratingSet d L N₀ K ϱ')
-    (a : ℕ → ℝ) (a₁ : ℝ) (n p : ℕ) (θ Ψ f : Torus d (N₀ * L ^ K) → Fin N → ℂ) : ℝ :=
-  (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * ∑ x, ∑ i,
+/-- **The defect on a set `S` of sites**: the remainder in the Gaussian composition on `S` (core of
+`defect`). -/
+noncomputable def defectOn (S : Finset (Torus d (N₀ * L ^ K))) (G : GeneratingSet d L N₀ K ϱ)
+    (G' : GeneratingSet d L N₀ K ϱ') (a : ℕ → ℝ) (a₁ : ℝ) (n p : ℕ)
+    (θ Ψ f : Torus d (N₀ * L ^ K) → Fin N → ℂ) : ℝ :=
+  (1 / 2) * (a n / ((L : ℝ) ^ n) ^ 2) * ∑ x ∈ S, ∑ i,
       ‖(Ψ x i - blockMean G n (fun y => f y i) x) -
         blockMean G' p (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x‖ ^ 2 +
-    (1 / 2) * (a₁ / ((L : ℝ) ^ p) ^ 2 + a n / ((L : ℝ) ^ n) ^ 2) * ∑ x, ∑ i,
+    (1 / 2) * (a₁ / ((L : ℝ) ^ p) ^ 2 + a n / ((L : ℝ) ^ n) ^ 2) * ∑ x ∈ S, ∑ i,
       ‖blockMean G' p (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x -
         ((a₁ / ((L : ℝ) ^ p) ^ 2 / (a₁ / ((L : ℝ) ^ p) ^ 2 + a n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) *
           (θ x i - blockMean G' p (fun y => f y i) x)‖ ^ 2
 
-/-- The identity of the Gaussian composition, for one component. -/
-theorem gaussian_identity_component {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (hn : 1 ≤ n)
-    (hp : n + 1 ≤ K) (θ Ψ f : Torus d (N₀ * L ^ K) → ℂ) :
+/-- The defect: the non-negative remainder in the Gaussian composition. -/
+noncomputable def defect (G : GeneratingSet d L N₀ K ϱ) (G' : GeneratingSet d L N₀ K ϱ')
+    (a : ℕ → ℝ) (a₁ : ℝ) (n p : ℕ) (θ Ψ f : Torus d (N₀ * L ^ K) → Fin N → ℂ) : ℝ :=
+  defectOn Finset.univ G G' a a₁ n p θ Ψ f
+
+/-- **The identity of the Gaussian composition on a union `S` of `(n+1)`-blocks**, for one component
+(core; the whole torus is `gaussian_identity_component`; for a step on a region `S` is the new region
+`Ω_{k+1}`, P5 (2.21)). -/
+theorem gaussian_identity_component_on {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (hn : 1 ≤ n)
+    (hp : n + 1 ≤ K) (S : Finset (Torus d (N₀ * L ^ K)))
+    (hS : ∀ z ∈ S, ∀ y ∈ G'.blk (n + 1) z, y ∈ S) (θ Ψ f : Torus d (N₀ * L ^ K) → ℂ) :
     (1 / 2) * (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2) *
-        ∑ x, ‖θ x - blockMean G' (n + 1) Ψ x‖ ^ 2 +
+        ∑ x ∈ S, ‖θ x - blockMean G' (n + 1) Ψ x‖ ^ 2 +
       (1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) *
-        ∑ x, ‖Ψ x - blockMean G n f x‖ ^ 2 =
+        ∑ x ∈ S, ‖Ψ x - blockMean G n f x‖ ^ 2 =
     (1 / 2) * (compWeight L a₁ (n + 1) / ((L : ℝ) ^ (n + 1)) ^ 2) *
-        ∑ x, ‖θ x - blockMean G' (n + 1) f x‖ ^ 2 +
-      ((1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x,
+        ∑ x ∈ S, ‖θ x - blockMean G' (n + 1) f x‖ ^ 2 +
+      ((1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x ∈ S,
         ‖(Ψ x - blockMean G n f x) -
           blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x‖ ^ 2 +
-      (1 / 2) * (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x,
+      (1 / 2) * (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x ∈ S,
         ‖blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x -
           ((a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 /
             (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) *
@@ -242,7 +268,7 @@ theorem gaussian_identity_component {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a�
     have e : blockMean G' (n + 1) (fun y => blockMean G n f y) x = blockMean G' (n + 1) f x :=
       blockMean_nested (G := G) (Nat.le_succ n) hp f x
     rw [blockMean_sub, e]
-  have hdec := sum_norm_sq_decomp (G := G') hp (fun y => Ψ y - blockMean G n f y)
+  have hdec := sum_norm_sq_decomp_on (G := G') hp S hS (fun y => Ψ y - blockMean G n f y)
   have hpt : ∀ x, c * ‖(θ x - blockMean G' (n + 1) f x) -
         blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x‖ ^ 2 +
       wn * ‖blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x‖ ^ 2 =
@@ -250,8 +276,7 @@ theorem gaussian_identity_component {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a�
         ‖blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x -
           ((c / (c + wn) : ℝ) : ℂ) * (θ x - blockMean G' (n + 1) f x)‖ ^ 2 := fun x =>
     pointwise_complete_square hc0 hwn0 hw _ _
-  have hsum := Finset.sum_congr (rfl : (Finset.univ : Finset (Torus d (N₀ * L ^ K))) = _)
-    (fun x (_ : x ∈ (Finset.univ : Finset (Torus d (N₀ * L ^ K)))) => hpt x)
+  have hsum := Finset.sum_congr (rfl : S = _) (fun x (_ : x ∈ S) => hpt x)
   simp only [Finset.sum_add_distrib, ← Finset.mul_sum] at hsum
   have hθ : ∀ x, (θ x - blockMean G' (n + 1) f x) -
         blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x =
@@ -262,8 +287,62 @@ theorem gaussian_identity_component {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a�
   simp only [mul_add] at hdec2
   linarith [hsum, hdec2]
 
+/-- The identity of the Gaussian composition, for one component. -/
+theorem gaussian_identity_component {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (hn : 1 ≤ n)
+    (hp : n + 1 ≤ K) (θ Ψ f : Torus d (N₀ * L ^ K) → ℂ) :
+    (1 / 2) * (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2) *
+        ∑ x, ‖θ x - blockMean G' (n + 1) Ψ x‖ ^ 2 +
+      (1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) *
+        ∑ x, ‖Ψ x - blockMean G n f x‖ ^ 2 =
+    (1 / 2) * (compWeight L a₁ (n + 1) / ((L : ℝ) ^ (n + 1)) ^ 2) *
+        ∑ x, ‖θ x - blockMean G' (n + 1) f x‖ ^ 2 +
+      ((1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x,
+        ‖(Ψ x - blockMean G n f x) -
+          blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x‖ ^ 2 +
+      (1 / 2) * (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) * ∑ x,
+        ‖blockMean G' (n + 1) (fun y => Ψ y - blockMean G n f y) x -
+          ((a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 /
+            (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) *
+            (θ x - blockMean G' (n + 1) f x)‖ ^ 2) :=
+  gaussian_identity_component_on hL ha₁ hn hp Finset.univ (fun _ _ _ _ => Finset.mem_univ _) θ Ψ f
+
 theorem sum_sum_comm' {α β : Type*} [Fintype α] [Fintype β] (F : α → β → ℝ) :
     ∑ x, ∑ i, F x i = ∑ i, ∑ x, F x i := Finset.sum_comm
+
+/-- **The Gaussian composition on a union `S` of `(n+1)`-blocks** (core of `coupling_add_level`; P5
+(2.21) on the new region):
+`coupling + (level-n term) = (level-(n+1) term) + defect`. -/
+theorem coupling_add_level_on {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (hn : 1 ≤ n)
+    (hp : n + 1 ≤ K) (S : Finset (Torus d (N₀ * L ^ K)))
+    (hS : ∀ z ∈ S, ∀ y ∈ G'.blk (n + 1) z, y ∈ S) (θ Ψ f : Torus d (N₀ * L ^ K) → Fin N → ℂ) :
+    couplingOn S G' a₁ (n + 1) θ Ψ +
+        (1 / 2) * (compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) *
+          ∑ x ∈ S, ∑ i, ‖Ψ x i - blockMean G n (fun y => f y i) x‖ ^ 2 =
+      (1 / 2) * (compWeight L a₁ (n + 1) / ((L : ℝ) ^ (n + 1)) ^ 2) *
+          ∑ x ∈ S, ∑ i, ‖θ x i - blockMean G' (n + 1) (fun y => f y i) x‖ ^ 2 +
+        defectOn S G G' (compWeight L a₁) a₁ n (n + 1) θ Ψ f := by
+  unfold couplingOn defectOn
+  have e1 := Finset.sum_comm (s := S) (t := (Finset.univ : Finset (Fin N))) (f :=
+    (fun x i => ‖θ x i - blockMean G' (n + 1) (fun y => Ψ y i) x‖ ^ 2))
+  have e2 := Finset.sum_comm (s := S) (t := (Finset.univ : Finset (Fin N))) (f :=
+    (fun x i => ‖Ψ x i - blockMean G n (fun y => f y i) x‖ ^ 2))
+  have e3 := Finset.sum_comm (s := S) (t := (Finset.univ : Finset (Fin N))) (f :=
+    (fun x i => ‖θ x i - blockMean G' (n + 1) (fun y => f y i) x‖ ^ 2))
+  have e4 := Finset.sum_comm (s := S) (t := (Finset.univ : Finset (Fin N))) (f :=
+    (fun x i => ‖(Ψ x i - blockMean G n (fun y => f y i) x) -
+        blockMean G' (n + 1) (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x‖ ^ 2))
+  have e5 := Finset.sum_comm (s := S) (t := (Finset.univ : Finset (Fin N))) (f :=
+    (fun x i => ‖blockMean G' (n + 1) (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x -
+        ((a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 /
+          (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) *
+          (θ x i - blockMean G' (n + 1) (fun y => f y i) x)‖ ^ 2))
+  beta_reduce at e1 e2 e3 e4 e5
+  rw [e1, e2, e3, e4, e5]
+  have key := fun i => gaussian_identity_component_on (G := G) (G' := G') hL ha₁ hn hp S hS
+    (fun x => θ x i) (fun x => Ψ x i) (fun x => f x i)
+  have hs := Finset.sum_congr rfl (fun i (_ : i ∈ (Finset.univ : Finset (Fin N))) => key i)
+  simp only [Finset.sum_add_distrib, ← Finset.mul_sum] at hs
+  linarith [hs]
 
 /-- **The Gaussian composition (FLUCTUATION Lemma 2.2 (a))**, fine units, `p = n + 1`:
 `coupling + (level-n term) = (level-(n+1) term) + defect`. -/
@@ -274,29 +353,8 @@ theorem coupling_add_level {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : �
           ∑ x, ∑ i, ‖Ψ x i - blockMean G n (fun y => f y i) x‖ ^ 2 =
       (1 / 2) * (compWeight L a₁ (n + 1) / ((L : ℝ) ^ (n + 1)) ^ 2) *
           ∑ x, ∑ i, ‖θ x i - blockMean G' (n + 1) (fun y => f y i) x‖ ^ 2 +
-        defect G G' (compWeight L a₁) a₁ n (n + 1) θ Ψ f := by
-  unfold coupling defect
-  have e1 := sum_sum_comm'
-    (fun x i => ‖θ x i - blockMean G' (n + 1) (fun y => Ψ y i) x‖ ^ 2)
-  have e2 := sum_sum_comm'
-    (fun x i => ‖Ψ x i - blockMean G n (fun y => f y i) x‖ ^ 2)
-  have e3 := sum_sum_comm'
-    (fun x i => ‖θ x i - blockMean G' (n + 1) (fun y => f y i) x‖ ^ 2)
-  have e4 := sum_sum_comm'
-    (fun x i => ‖(Ψ x i - blockMean G n (fun y => f y i) x) -
-        blockMean G' (n + 1) (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x‖ ^ 2)
-  have e5 := sum_sum_comm'
-    (fun x i => ‖blockMean G' (n + 1) (fun y => Ψ y i - blockMean G n (fun y => f y i) y) x -
-        ((a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 /
-          (a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 + compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2) : ℝ) : ℂ) *
-          (θ x i - blockMean G' (n + 1) (fun y => f y i) x)‖ ^ 2)
-  beta_reduce at e1 e2 e3 e4 e5
-  rw [e1, e2, e3, e4, e5]
-  have key := fun i => gaussian_identity_component (G := G) (G' := G') hL ha₁ hn hp
-    (fun x => θ x i) (fun x => Ψ x i) (fun x => f x i)
-  have hs := Finset.sum_congr rfl (fun i (_ : i ∈ (Finset.univ : Finset (Fin N))) => key i)
-  simp only [Finset.sum_add_distrib, ← Finset.mul_sum] at hs
-  linarith [hs]
+        defect G G' (compWeight L a₁) a₁ n (n + 1) θ Ψ f :=
+  coupling_add_level_on hL ha₁ hn hp Finset.univ (fun _ _ _ _ => Finset.mem_univ _) θ Ψ f
 
 omit [NeZero L] in
 theorem lambda_eq {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (hn : 1 ≤ n) :
@@ -328,7 +386,7 @@ theorem defect_nonneg {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : ℕ} (
   have hL2 : (2 : ℝ) ≤ L := by exact_mod_cast hL
   have hL0 : (0 : ℝ) < L := by linarith
   have hn0 := compWeight_pos hL ha₁ hn
-  unfold defect
+  unfold defect defectOn
   have : 0 < compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2 := by positivity
   have : 0 < a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 := by positivity
   positivity
@@ -354,7 +412,7 @@ theorem defect_eq_zero_iff {a₁ : ℝ} (hL : 2 ≤ L) (ha₁ : 0 < a₁) {n : �
   have hwn0 : 0 < compWeight L a₁ n / ((L : ℝ) ^ n) ^ 2 := by positivity
   have hc0 : 0 < a₁ / ((L : ℝ) ^ (n + 1)) ^ 2 := by positivity
   have hlam := lambda_eq hL ha₁ hn
-  unfold defect psiStar
+  unfold defect defectOn psiStar
   rw [← hlam]
   constructor
   · intro h0

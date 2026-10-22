@@ -17,7 +17,7 @@ public import Balaban.Fluctuation.SizeModG5
 # The label bound of the box-renormalized functional (P1 (3.128))
 
 For the selection `relBox` (the polymers within `r_k = ⌊L^{m₀+m₁+k}/8⌋` of the centre), the label
-functional `irrelTorusB` differs from the termwise part `ℰ(y,X) - (T_X + Φ_{y,X}) - A_{y,X}` by the
+functional `irrelTorus` (ruling R15) differs from the termwise part `ℰ(y,X) - (T_X + Φ_{y,X}) - A_{y,X}` by the
 relevant part of an unselected polymer and, at the cell `□(y)`, by the filed sum of the selection
 (`irrelTorusOn_eq_split`).  The unselected polymers are large:
 
@@ -32,11 +32,11 @@ relevant part of an unselected polymer and, at the cell `□(y)`, by the filed s
 * `norm_sum_not_relBox_le_power`: so is the sum over the large polymers through `y` of their
   relevant parts (without the factor `e^{-(κ-1) d_j}`);
 * `norm_E_sub_aTermTorus_le_of_not_relBox`: for a large non-cell label, `ℰ(y,X) - A_{y,X}` (the
-  label functional of `irrelTorusB` there) is bounded by
+  label functional of `irrelTorus` there) is bounded by
   `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`;
 * `irrelTorusOn_eq_top_add`: the functional of a selection is that of all polymers, plus the kept
   relevant part of an unselected polymer, minus at the cell the unselected relevant parts;
-* `irrelTorusB_bound_of_dataHyp_of_threshold`: **the label bound of `irrelTorusB`** at every
+* `irrelTorus_bound_all_of_dataHyp_of_threshold`: **the label bound of `irrelTorus`** at every
   polymer `X ∋ y`: `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`
   plus, at the cell, the complete filed sum and `C' E₀ L^{-(k-j)(d+α₃)}`, from the bound of the
   functional of all polymers (`irrelTorusOn_bound_of_dataHyp_of_threshold`).
@@ -557,14 +557,14 @@ theorem norm_E_sub_aTermTorus_le_of_not_relBox
 
 open Classical in
 /-- **The label bound of the box-renormalized functional** (P1 Corollary 3.11, (3.128), for
-`irrelTorusB`; in the setting and with the premises of `irrelTorus_bound_of_dataHyp_of_threshold`,
+`irrelTorus` under ruling R15; in the setting and with the premises of `irrelTorus_bound_of_dataHyp_of_threshold`,
 the anisotropic data hypothesis being the open input P-2): at every polymer `X ∋ y`,
 `|ℰ^B_{irrel}(y, X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)} + C E₀ L^{-(k-j)(d+α₃)} e^{-(κ-1) d_j(X)}`
 plus, at the cell `□(y)`, the complete filed sum `|Σ_{Z ∋ y} (T_Z + Φ_{y,Z})|` and
 `C' E₀ L^{-(k-j)(d+α₃)}` (the large polymers through `y`); `C = relBoxLargeConst`,
 `C' = relBoxTailConst`.  The complete filed sum is the term of the renormalization conditions
-(bounded for the members of the class by `norm_filed_le_power`, `irrelTorusB_bound_of_class`). -/
-theorem irrelTorusB_bound_of_dataHyp_of_threshold
+(bounded for the members of the class by `norm_filed_le_power`, `irrelTorus_label_bound_of_class`). -/
+theorem irrelTorus_bound_all_of_dataHyp_of_threshold
     (hP : P.Admissible d L) (hκ : aEnt d L + 3 ≤ P.κ)
     (hcl : SFTermClauses P (xiFieldDom a μ (P.eps d L)) Tm)
     (hBg : BgHyp d L k ϱ a μ) (hN : L ^ P.m₀ ∣ N₁)
@@ -601,7 +601,7 @@ theorem irrelTorusB_bound_of_dataHyp_of_threshold
     (hCρ : 0 ≤ Cρ)
     (hρpow : ρ ^ 3 ≤ Cρ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁))) :
     ∃ CI : ℝ, 0 ≤ CI ∧
-      ‖irrelTorusB P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv)‖ ≤
+      ‖irrelTorus P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv)‖ ≤
         CI * P.E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - P.α₁)) *
           Real.exp (-(P.κ - 1) * sizeJ P.m₀ j X) +
         relBoxLargeConst d L N P m₁ Λ * P.E₀ *
@@ -664,7 +664,7 @@ theorem irrelTorusB_bound_of_dataHyp_of_threshold
       exact norm_sum_not_relBox_le_power hP hκ hcl hBg hν hμν hνb hj1 hjk hN hy hne hrad Ψ hv
         dat hσ hσ1 hε hεΛ hτ
     · rw [ite_eq_right hXc, ite_eq_right hXc, norm_zero]
-  rw [irrelTorusB, irrelTorusOn_eq_top_add]
+  rw [irrelTorus_eq_irrelTorusOn, irrelTorusOn_eq_top_add]
   calc _ ≤ ‖irrelTorusOn (fun _ _ => True) P.m₀ Tm i₀ i₁ j y X Ψ (constFld hv) +
           (if relBox P.m₀ y X then 0 else relPartTorus Tm i₀ i₁ j y Ψ (constFld hv) X)‖ +
         ‖if X = box (cbase (cellSide L P.m₀ m₁ j) y -

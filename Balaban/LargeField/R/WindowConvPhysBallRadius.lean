@@ -37,4 +37,17 @@ theorem ball_radius_of_const (g : Geo S n R M) (ϱB : ℝ)
   rw [hM, pow_succ]
   nlinarith [mul_le_mul_of_nonneg_left hc h0]
 
+/-- The radius condition at the radius `t L^j M`, `2 ≤ t`. -/
+theorem ball_radius_of_const_t (g : Geo S n R M) (ϱB : ℝ)
+    (hc : (ϱB + 3 * S.d) * (S.L : ℝ) + 2 ≤ 2 * ((g.c : ℝ) * g.M1)) (j : ℕ) {t : ℕ}
+    (ht : 2 ≤ t) :
+    (ϱB + 3 * S.d) * (S.L : ℝ) ^ (j + 1) + 2 ≤ (t : ℝ) * ((S.L : ℝ) ^ j * M) := by
+  refine (ball_radius_of_const g ϱB hc j).trans ?_
+  have h2 : (2 : ℝ) ≤ t := by exact_mod_cast ht
+  have hL : (1 : ℝ) ≤ S.L := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (NeZero.ne S.L)
+  have hM : (0 : ℝ) ≤ M := Nat.cast_nonneg _
+  have hp : (0 : ℝ) ≤ (S.L : ℝ) ^ j * M := mul_nonneg (by positivity) hM
+  exact mul_le_mul_of_nonneg_right h2 hp
+
 end Balaban.LargeField

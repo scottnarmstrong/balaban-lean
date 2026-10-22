@@ -14,10 +14,12 @@ public import Balaban.SmallField.RenormTermwiseIrrel
 * `smallBndA_le`, `tailBndA_le`: the real inequalities for the explicit bounds of
   `CtxAniso.small_case` and `CtxAniso.tail_case` (the landed `smallBnd_le`, `tailBnd_le` with the
   gauge constant `C₁ + Λ` in place of `C₁`);
-* `CtxAniso.itw_bound_raw_aniso`: the per-term bound before the polynomial weight is absorbed;
+* `CtxAniso.itw_bound_raw_aniso`: the per-term bound before the polynomial weight is absorbed
+  (an instance of `CtxAnisoOn.itw_bound_raw_aniso`, with the data read on the polymers);
 * `termwise_irrelevant_aniso`: under `PremisesTermAniso` (analyticity and the bound on
   `TubeAniso i₀ ν r X`, spin radius `r`, longitudinal field radius `r²`) and `DataHypAniso`,
-  `‖I(y,X)‖ ≤ C E₀ e^{-(κ-1) d_j(X)} σ^{3-α₁} (ε/r)²`;
+  `‖I(y,X)‖ ≤ C E₀ e^{-(κ-1) d_j(X)} σ^{3-α₁} (ε/r)²` (an instance of
+  `termwise_irrelevant_aniso_on`, with `DataHypAnisoOn` in place of `DataHypAniso`);
 * `termwise_irrelevant_aniso_scaled`: with `σ = C₀ s` and the source scale ratio
   `ε/r ≤ K_R s^{(d-2)/2 - γ}`, the bound `C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`, `α₃ = 1 - 2γ - α₁`.
 
@@ -207,7 +209,7 @@ theorem tailBndA_le (N : ℕ) (A Λ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ) :
 
 /-! ### The per-term bound -/
 
-section CtxAniso
+section CtxAnisoOn
 
 variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
   {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
@@ -216,7 +218,7 @@ variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
 /-- The per-term bound of the local part `Dlt X = 𝓔 - 𝓔(const) - A_X + L_X` before the
 polynomial weights are absorbed: `≤ (C_s + C_t) E₀ e^{-κ d_j(X)} |X|² (1 + d_j(X))⁶ σ^{3-α₁}
 (ε/r)²`. -/
-theorem CtxAniso.dlt_bound_raw (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.dlt_bound_raw (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {Kc α₁ Cs Ct : ℝ} (hCs0 : 0 ≤ Cs) (hCt0 : 0 ≤ Ct)
     (hα0 : 0 < α₁) (hα1 : α₁ < 1)
     (hCs : ∀ (M ρ ν σ r K₂ t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → ρ ≤ 1 → 0 < r →
@@ -277,7 +279,7 @@ theorem CtxAniso.dlt_bound_raw (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ 
 
 /-- **The per-term bound of `I(y,X)`** before the polynomial weight is absorbed: the local
 part contributes `σ³ (ε/r)²`, the constant-field potential `σ⁴ (ε/r)²`. -/
-theorem CtxAniso.itw_bound_raw_aniso (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+theorem CtxAnisoOn.itw_bound_raw_aniso (c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
     {Kc α₁ Cs Ct : ℝ} (hCs0 : 0 ≤ Cs) (hCt0 : 0 ≤ Ct)
     (hα0 : 0 < α₁) (hα1 : α₁ < 1)
     (hCs : ∀ (M ρ ν σ r K₂ t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → ρ ≤ 1 → 0 < r →
@@ -330,6 +332,52 @@ theorem CtxAniso.itw_bound_raw_aniso (c : CtxAniso T i₀ i₁ ν r E₀ κ A K�
   rw [← hcomb]
   exact add_le_add h1 (h2.trans hr2)
 
+end CtxAnisoOn
+
+section CtxAniso
+
+variable {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E₀ κ A K₀ Λ : ℝ}
+  {Dom : Set ((Site d → Spin N) × Spin N)} {ψ : Site d → Spin N} {b : Spin N}
+  {σ ε K₂ : ℝ} {u : ℂ} {R : Matrix (Fin N) (Fin N) ℂ}
+
+/-- The per-term bound of the local part `Dlt X = 𝓔 - 𝓔(const) - A_X + L_X` before the
+polynomial weights are absorbed: `≤ (C_s + C_t) E₀ e^{-κ d_j(X)} |X|² (1 + d_j(X))⁶ σ^{3-α₁}
+(ε/r)²`. -/
+theorem CtxAniso.dlt_bound_raw (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {Kc α₁ Cs Ct : ℝ} (hCs0 : 0 ≤ Cs) (hCt0 : 0 ≤ Ct)
+    (hα0 : 0 < α₁) (hα1 : α₁ < 1)
+    (hCs : ∀ (M ρ ν σ r K₂ t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → ρ ≤ 1 → 0 < r →
+      r ≤ Λ → 0 ≤ ν → ν ≤ σ ^ 2 → 1 ≤ t → 1 ≤ P → 0 ≤ K₂ → K₂ ≤ Kc * Sσ * (r * ρ) →
+      SigPow σ α₁ Tσ Sσ →
+      smallBndA N A Λ M ρ ν σ (r * ρ) K₂ t P ≤ Cs * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2))
+    (hCt : ∀ (M ρ σ r t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → 0 < r → r ≤ Λ → 1 ≤ t →
+      1 ≤ P → 1 < 2 * (cZA N Λ + cK1 N A) * t * σ * r → SigPow σ α₁ Tσ Sσ →
+      tailBnd N A M ρ σ (r * ρ) t P ≤ Ct * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2))
+    (hK : K₂ ≤ Kc * σ ^ (2 - α₁) * ε) {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖Dlt T i₀ i₁ ν R ψ b X‖ ≤
+      (Cs + Ct) * (E₀ * Real.exp (-κ * T.dist X) * ((X.card : ℝ) ^ 2 * (1 + T.dist X) ^ 6)) *
+        (σ ^ (3 - α₁) * (ε / r) ^ 2) :=
+  c.toOn.dlt_bound_raw hCs0 hCt0 hα0 hα1 hCs hCt hK hX
+
+/-- **The per-term bound of `I(y,X)`** before the polynomial weight is absorbed: the local
+part contributes `σ³ (ε/r)²`, the constant-field potential `σ⁴ (ε/r)²`. -/
+theorem CtxAniso.itw_bound_raw_aniso (c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R)
+    {Kc α₁ Cs Ct : ℝ} (hCs0 : 0 ≤ Cs) (hCt0 : 0 ≤ Ct)
+    (hα0 : 0 < α₁) (hα1 : α₁ < 1)
+    (hCs : ∀ (M ρ ν σ r K₂ t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → ρ ≤ 1 → 0 < r →
+      r ≤ Λ → 0 ≤ ν → ν ≤ σ ^ 2 → 1 ≤ t → 1 ≤ P → 0 ≤ K₂ → K₂ ≤ Kc * Sσ * (r * ρ) →
+      SigPow σ α₁ Tσ Sσ →
+      smallBndA N A Λ M ρ ν σ (r * ρ) K₂ t P ≤ Cs * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2))
+    (hCt : ∀ (M ρ σ r t P Tσ Sσ α₁ : ℝ), 0 ≤ M → 0 < ρ → 0 < r → r ≤ Λ → 1 ≤ t →
+      1 ≤ P → 1 < 2 * (cZA N Λ + cK1 N A) * t * σ * r → SigPow σ α₁ Tσ Sσ →
+      tailBnd N A M ρ σ (r * ρ) t P ≤ Ct * (M * P ^ 2 * t ^ 6 * Tσ * r ^ 2))
+    (hK : K₂ ≤ Kc * σ ^ (2 - α₁) * ε) {X : Finset (Site d)} (hX : X ∈ T.polys) :
+    ‖Itw T i₀ i₁ ν X ψ b‖ ≤
+      (Cs + Ct + 12 * cZA N Λ ^ 2) *
+        (E₀ * Real.exp (-κ * T.dist X) * ((X.card : ℝ) ^ 2 * (1 + T.dist X) ^ 6)) *
+        (σ ^ (3 - α₁) * (ε / r) ^ 2) :=
+  c.toOn.itw_bound_raw_aniso hCs0 hCt0 hα0 hα1 hCs hCt hK hX
+
 end CtxAniso
 
 /-! ### The termwise irrelevance theorem -/
@@ -377,16 +425,18 @@ theorem card_le_of_diam_aniso {T : TermFamily d N} {i₀ i₁ : Fin N} {ν r E�
   exact pow_le_pow_left₀ h6 h5 d
 
 /-- **Lemma 3.2 (iii) on the anisotropic domain** (P1 Lemma 3.8, Proposition 3.10, termwise):
-for a polymer `X ∈ T.polys` and data satisfying `DataHypAniso`,
+for a polymer `X ∈ T.polys` and data satisfying `DataHypAnisoOn` (read on the polymers),
 `‖I(y,X)‖ ≤ C E₀ e^{-(κ-1) d_j(X)} σ^{3-α₁} (ε/r)²`, where the terms are analytic and bounded on
 `TubeAniso i₀ ν r X` (spin radius `r`, longitudinal field radius `r²`); no renormalization
 condition is used.  The constant `C` depends on `d, N, A, Λ, K_σ, α₁` only. -/
-theorem termwise_irrelevant_aniso (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ)
+theorem termwise_irrelevant_aniso_on (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ)
     (hKsig : 0 ≤ Ksig) (hα0 : 0 < α₁) (hα1 : α₁ < 1) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ (T : TermFamily d N) (i₀ i₁ : Fin N)
       (ν r E₀ κ K₀ : ℝ) (Dom : Set ((Site d → Spin N) × Spin N))
       (_ : PremisesTermAniso T i₀ i₁ ν r E₀ κ A K₀ Dom) (ψ : Site d → Spin N) (b : Spin N)
-      (σ ε K₂ : ℝ) (_ : DataHypAniso Dom ν σ ε K₂ ψ b) (X : Finset (Site d)) (_ : X ∈ T.polys),
+      (σ ε K₂ : ℝ)
+      (_ : DataHypAnisoOn T.polys (fun X => A * (1 + T.dist X)) Dom ν σ ε K₂ ψ b)
+      (X : Finset (Site d)) (_ : X ∈ T.polys),
       0 < r → r ≤ 1 → 0 < ε → ε ≤ Λ * r → 0 < σ → σ ≤ 1 → σ ^ 2 * ε ≤ 1 / 4 → 0 ≤ ν →
       ν ≤ σ ^ 2 → 0 ≤ E₀ → K₂ ≤ Ksig * σ ^ (2 - α₁) * ε →
       ‖Itw T i₀ i₁ ν X ψ b‖ ≤
@@ -397,8 +447,8 @@ theorem termwise_irrelevant_aniso (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 �
   have hCZ : 0 ≤ cZA N Λ := cZA_nonneg N (by linarith)
   refine ⟨(Cs + Ct + 12 * cZA N Λ ^ 2) * Cw, by positivity, ?_⟩
   intro T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b σ ε K₂ dat X hX hr hr1 hε hεΛ hσ hσ1 hτ hν hνσ hE0 hK
-  obtain ⟨u, R, hF⟩ := exists_frame i₀ dat.toDataHyp hτ
-  have c : CtxAniso T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R :=
+  obtain ⟨u, R, hF⟩ := dat.exists_frame i₀ (mul_pos hσ hε).le hτ
+  have c : CtxAnisoOn T i₀ i₁ ν r E₀ κ A K₀ Λ Dom ψ b σ ε K₂ u R :=
     ⟨hP, dat, hF, hσ, hσ1, hε, hεΛ, hr, hr1, hν, hνσ, hE0, hA, hτ⟩
   have h := c.itw_bound_raw_aniso hCs0 hCt0 hα0 hα1 hCs hCt hK hX
   refine h.trans ?_
@@ -420,22 +470,45 @@ theorem termwise_irrelevant_aniso (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 �
         gcongr
     _ = _ := by ring
 
+/-- **Lemma 3.2 (iii) on the anisotropic domain** (P1 Lemma 3.8, Proposition 3.10, termwise):
+for a polymer `X ∈ T.polys` and data satisfying `DataHypAniso`,
+`‖I(y,X)‖ ≤ C E₀ e^{-(κ-1) d_j(X)} σ^{3-α₁} (ε/r)²`, where the terms are analytic and bounded on
+`TubeAniso i₀ ν r X` (spin radius `r`, longitudinal field radius `r²`); no renormalization
+condition is used.  The constant `C` depends on `d, N, A, Λ, K_σ, α₁` only. -/
+theorem termwise_irrelevant_aniso (d N : ℕ) (A Λ Ksig α₁ : ℝ) (hA : 0 ≤ A) (hΛ : 1 ≤ Λ)
+    (hKsig : 0 ≤ Ksig) (hα0 : 0 < α₁) (hα1 : α₁ < 1) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ (T : TermFamily d N) (i₀ i₁ : Fin N)
+      (ν r E₀ κ K₀ : ℝ) (Dom : Set ((Site d → Spin N) × Spin N))
+      (_ : PremisesTermAniso T i₀ i₁ ν r E₀ κ A K₀ Dom) (ψ : Site d → Spin N) (b : Spin N)
+      (σ ε K₂ : ℝ) (_ : DataHypAniso Dom ν σ ε K₂ ψ b) (X : Finset (Site d)) (_ : X ∈ T.polys),
+      0 < r → r ≤ 1 → 0 < ε → ε ≤ Λ * r → 0 < σ → σ ≤ 1 → σ ^ 2 * ε ≤ 1 / 4 → 0 ≤ ν →
+      ν ≤ σ ^ 2 → 0 ≤ E₀ → K₂ ≤ Ksig * σ ^ (2 - α₁) * ε →
+      ‖Itw T i₀ i₁ ν X ψ b‖ ≤
+        C * E₀ * Real.exp (-(κ - 1) * T.dist X) * (σ ^ (3 - α₁) * (ε / r) ^ 2) := by
+  obtain ⟨C, hC0, hC⟩ := termwise_irrelevant_aniso_on d N A Λ Ksig α₁ hA hΛ hKsig hα0 hα1
+  refine ⟨C, hC0, ?_⟩
+  intro T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b σ ε K₂ dat X hX hr hr1 hε hεΛ hσ hσ1 hτ hν hνσ hE0 hK
+  exact hC T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b σ ε K₂ (dat.toOn hP.diam (mul_pos hσ hε).le) X hX hr
+    hr1 hε hεΛ hσ hσ1 hτ hν hνσ hE0 hK
+
 /-- **Lemma 3.2 (iii) on the anisotropic domain, the form (3.1)**: with `σ = C₀ s` and the source
 scale ratio `ε/r = ε_k/ε_j ≤ K_R s^{(d-2)/2 - γ}`, `α₃ = 1 - 2γ - α₁`:
 `|I(y,X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`. -/
-theorem termwise_irrelevant_aniso_scaled (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR : ℝ) (hA : 0 ≤ A)
+theorem termwise_irrelevant_aniso_scaled_on (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR : ℝ) (hA : 0 ≤ A)
     (hΛ : 1 ≤ Λ) (hKsig : 0 ≤ Ksig) (hα0 : 0 < α₁) (hα1 : α₁ < 1) (hC₀ : 0 < C₀) :
     ∃ CI : ℝ, 0 ≤ CI ∧ ∀ (T : TermFamily d N) (i₀ i₁ : Fin N)
       (ν r E₀ κ K₀ : ℝ) (Dom : Set ((Site d → Spin N) × Spin N))
       (_ : PremisesTermAniso T i₀ i₁ ν r E₀ κ A K₀ Dom) (ψ : Site d → Spin N) (b : Spin N)
-      (s σ ε K₂ : ℝ) (_ : DataHypAniso Dom ν σ ε K₂ ψ b) (X : Finset (Site d))
+      (s σ ε K₂ : ℝ)
+      (_ : DataHypAnisoOn T.polys (fun X => A * (1 + T.dist X)) Dom ν σ ε K₂ ψ b)
+      (X : Finset (Site d))
       (_ : X ∈ T.polys),
       0 < s → σ = C₀ * s → ε / r ≤ KR * s ^ (((d : ℝ) - 2) / 2 - γ) →
       0 < r → r ≤ 1 → 0 < ε → ε ≤ Λ * r → σ ≤ 1 → σ ^ 2 * ε ≤ 1 / 4 → 0 ≤ ν → ν ≤ σ ^ 2 →
       0 ≤ E₀ → K₂ ≤ Ksig * σ ^ (2 - α₁) * ε →
       ‖Itw T i₀ i₁ ν X ψ b‖ ≤
         CI * E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - α₁)) * Real.exp (-(κ - 1) * T.dist X) := by
-  obtain ⟨C, hC0, hC⟩ := termwise_irrelevant_aniso d N A Λ Ksig α₁ hA hΛ hKsig hα0 hα1
+  obtain ⟨C, hC0, hC⟩ := termwise_irrelevant_aniso_on d N A Λ Ksig α₁ hA hΛ hKsig hα0 hα1
   refine ⟨C * (C₀ ^ (3 - α₁) * KR ^ 2), by positivity, ?_⟩
   intro T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b s σ ε K₂ dat X hX hs hσs hR hr hr1 hε hεΛ hσ1 hτ hν hνσ
     hE0 hK
@@ -468,5 +541,29 @@ theorem termwise_irrelevant_aniso_scaled (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR
         (s ^ (3 - α₁) * s ^ (2 * (((d : ℝ) - 2) / 2 - γ))) *
         Real.exp (-(κ - 1) * T.dist X) := by ring
     _ = _ := by rw [h3]
+
+/-- **Lemma 3.2 (iii) on the anisotropic domain, the form (3.1)**: with `σ = C₀ s` and the source
+scale ratio `ε/r = ε_k/ε_j ≤ K_R s^{(d-2)/2 - γ}`, `α₃ = 1 - 2γ - α₁`:
+`|I(y,X)| ≤ C_I E₀ s^{d+α₃} e^{-(κ-1) d_j(X)}`. -/
+theorem termwise_irrelevant_aniso_scaled (d N : ℕ) (A Λ Ksig α₁ γ C₀ KR : ℝ) (hA : 0 ≤ A)
+    (hΛ : 1 ≤ Λ) (hKsig : 0 ≤ Ksig) (hα0 : 0 < α₁) (hα1 : α₁ < 1) (hC₀ : 0 < C₀) :
+    ∃ CI : ℝ, 0 ≤ CI ∧ ∀ (T : TermFamily d N) (i₀ i₁ : Fin N)
+      (ν r E₀ κ K₀ : ℝ) (Dom : Set ((Site d → Spin N) × Spin N))
+      (_ : PremisesTermAniso T i₀ i₁ ν r E₀ κ A K₀ Dom) (ψ : Site d → Spin N) (b : Spin N)
+      (s σ ε K₂ : ℝ) (_ : DataHypAniso Dom ν σ ε K₂ ψ b) (X : Finset (Site d))
+      (_ : X ∈ T.polys),
+      0 < s → σ = C₀ * s → ε / r ≤ KR * s ^ (((d : ℝ) - 2) / 2 - γ) →
+      0 < r → r ≤ 1 → 0 < ε → ε ≤ Λ * r → σ ≤ 1 → σ ^ 2 * ε ≤ 1 / 4 → 0 ≤ ν → ν ≤ σ ^ 2 →
+      0 ≤ E₀ → K₂ ≤ Ksig * σ ^ (2 - α₁) * ε →
+      ‖Itw T i₀ i₁ ν X ψ b‖ ≤
+        CI * E₀ * s ^ ((d : ℝ) + (1 - 2 * γ - α₁)) * Real.exp (-(κ - 1) * T.dist X) := by
+  obtain ⟨CI, hCI0, hCI⟩ := termwise_irrelevant_aniso_scaled_on d N A Λ Ksig α₁ γ C₀ KR hA hΛ hKsig
+    hα0 hα1 hC₀
+  refine ⟨CI, hCI0, ?_⟩
+  intro T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b s σ ε K₂ dat X hX hs hσs hR hr hr1 hε hεΛ hσ1 hτ hν hνσ
+    hE0 hK
+  have hσ : 0 < σ := by rw [hσs]; positivity
+  exact hCI T i₀ i₁ ν r E₀ κ K₀ Dom hP ψ b s σ ε K₂ (dat.toOn hP.diam (mul_pos hσ hε).le) X hX hs
+    hσs hR hr hr1 hε hεΛ hσ1 hτ hν hνσ hE0 hK
 
 end Balaban.SmallField

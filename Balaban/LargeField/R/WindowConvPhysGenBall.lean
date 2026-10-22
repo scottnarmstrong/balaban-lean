@@ -31,6 +31,21 @@ open Balaban Balaban.Multiscale Balaban.Fluctuation RegionHistory
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {k0 K M : ℕ} [NeZero M]
   [NeZero S.L] {H : RegionHistory S n R k0 K} {m' j : ℕ} {Z : H.Comp (m' + 1)} {g : Geo S n R M}
 
+/-- **Admissible ball radii** `t · L^j M` around a piece `j` of the window at scale `m' + 1`: the radii for which the
+layers of the window generating set agree with those of the parent (P7 p. 501, the collar `R_{j-1}`). -/
+def BallRadiusOK (R : ℕ → ℝ) (m' j t : ℕ) : Prop :=
+  t ≤ ⌊R (j - 1)⌋₊ + 2 ∧ t ≤ ⌊R m'⌋₊ ∧ t ≤ ⌊R j⌋₊ ∧ t ≤ ⌊R (j + 1)⌋₊
+
+/-- The radius `t = 2` is admissible for every piece. -/
+theorem ballRadiusOK_two (H : RegionHistory S n R k0 K) (g : Geo S n R M) (m' j : ℕ) : BallRadiusOK R m' j 2 := by
+  have hb : (4 * S.L + 20 : ℝ) ≤ S.Rb := H.F.RH.base
+  have hLr : (2 : ℝ) ≤ S.L := by exact_mod_cast H.F.ok.two_le_L
+  have hfl : ∀ q, 2 ≤ ⌊R q⌋₊ := fun q => by
+    refine Nat.le_floor ?_
+    have := g.hRlow q
+    push_cast; linarith
+  exact ⟨by omega, hfl m', hfl j, hfl (j + 1)⟩
+
 /-- **Equal layers on the ball** (P7 (2.14), geometric half). -/
 theorem piece_window_layers_iff_ball (hkK : m' + 1 ≤ K) (hW : H.RipeWindow (m' + 1) Z)
     (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K) {c : H.Comp (j + 1)}
@@ -156,6 +171,23 @@ theorem piece_window_layers_iff_ball_Rb (hkK : m' + 1 ≤ K) (hW : H.RipeWindow 
     (by have := hfl (j - 1) (by omega); omega) (by have := hfl m' (by omega); omega)
     (hfl j (by omega)) hxy hm1 hmj
 
+/-- The same statement for an `ℓ¹`-ball of radius `t L^j M`. -/
+theorem piece_window_layers_iff_ball_torusDistT 
+    {t : ℕ} (hR : BallRadiusOK R m' j t)(hkK : m' + 1 ≤ K)
+    (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K)
+    {c : H.Comp (j + 1)} (hc : c ∈ H.ancFin (j + 1) (m' + 1) Z)
+    {x y : Torus S.d (M * n (m' + 1) * S.L ^ (m' + 1))}
+    (hx : torusCast (piece_torus_eq g H.F.hnn hkK hj) x ∈ Xfine g (H.locRH (j + 1) c) j c.1)
+    (hxy : Green.torusDist S.d (M * n (m' + 1) * S.L ^ (m' + 1)) y x ≤
+      (t : ℝ) * ((S.L : ℝ) ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
+    torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
+        (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ↔
+      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
+  refine piece_window_layers_iff_ball hkK hW hj hk1j hK hc hx (t := t) hR.1 (by have := hR.2.1; omega) hR.2.2.1 ?_ hm1 hmj
+  have := supDist_le_torusDist y x
+  have h2 : (supDist y x : ℝ) ≤ ((t * (S.L ^ j * M) : ℕ) : ℝ) := by push_cast; linarith
+  exact_mod_cast h2
+
 /-- The same statement for an `ℓ¹`-ball of radius `2 L^j M`. -/
 theorem piece_window_layers_iff_ball_two_torusDist (hkK : m' + 1 ≤ K)
     (hW : H.RipeWindow (m' + 1) Z) (hj : j ≤ m') (hk1j : S.k1 (m' + 1) ≤ j) (hK : j + 1 ≤ K)
@@ -166,10 +198,8 @@ theorem piece_window_layers_iff_ball_two_torusDist (hkK : m' + 1 ≤ K)
       2 * ((S.L : ℝ) ^ j * M)) {m : ℕ} (hm1 : 1 ≤ m) (hmj : m ≤ j + 1) :
     torusCast (piece_torus_eq g H.F.hnn hkK hj) y ∈
         (locGen g (H.locRH (j + 1) c) j c.1 (locComp_mem H hK c) hK).Ω m ↔
-      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m := by
-  refine piece_window_layers_iff_ball_two hkK hW hj hk1j hK hc hx ?_ hm1 hmj
-  have := supDist_le_torusDist y x
-  have h2 : (supDist y x : ℝ) ≤ ((2 * (S.L ^ j * M) : ℕ) : ℝ) := by push_cast; linarith
-  exact_mod_cast h2
+      y ∈ ((windowOfHistory H Z g hkK hW).windowGenSet (windowOfHistory_hyp hkK hW)).Ω m :=
+  piece_window_layers_iff_ball_torusDistT (hkK := hkK) (hW := hW) (hj := hj) (hk1j := hk1j) (hK := hK) (hc := hc) (hx := hx) (hxy := hxy) (hm1 := hm1) (hmj := hmj)
+    (t := 2) (hR := ballRadiusOK_two H g m' j)
 
 end Balaban.LargeField
