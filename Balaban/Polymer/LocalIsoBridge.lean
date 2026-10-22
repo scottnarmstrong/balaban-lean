@@ -773,7 +773,7 @@ theorem e1MarkGParamGBgOn_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ �
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).1)
     (hraw₂ : FieldCorr (ρ + 1) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).2)
-    {ρh : ℝ} (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {ρh ρh' : ℝ} (hρh' : ρh' = ρh) (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
     (Φ : ∀ b, ((SA).blockSplit 1 hp).Ωb b) (Φ' : ∀ b, ((SB).blockSplit 1 hp').Ωb b)
     (hΦ : ∀ x, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
       Φ' ((SB).cellOf 1 (unitPt hGB (bk x))) ⟨unitPt hGB (bk x), rfl⟩ =
@@ -787,20 +787,24 @@ theorem e1MarkGParamGBgOn_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ �
       (e1DomG (SB)) (bc z)})
     (hYY : Y''.1 = bk '' Y'.1) (hY'R : ∀ y ∈ Y'.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
     {u : ℂ} (hu : ‖u‖ ≤ 1)
-    (hrad : markedRad d L N k (SA).a₁ κ cψ (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁) :
-    e1MarkGParamGBgOn (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zm' F₁' Sol' ρh hp' (bc z) Gb' eps
+    (hrad : markedRad d L N k (SA).a₁ κ cψ (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
+    {epsG : ℝ} (hleG : eps ≤ epsG) :
+    e1MarkGParamGBgOn (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zm' F₁' Sol' ρh' hp' (bc z) Gb' epsG
         θ' Y'' u Φ' =
-      e1MarkGParamGBgOn (SA) Gb (BgTransport.canon (SA).G' Gb N) Zm F₁ Sol ρh hp z Gb eps θ Y' u
+      e1MarkGParamGBgOn (SA) Gb (BgTransport.canon (SA).G' Gb N) Zm F₁ Sol ρh hp z Gb epsG θ Y' u
         Φ := by
+  subst ρh'
   have hu' : ‖u‖ < (17 / 16 : ℝ) := by linarith
   have hum : ‖u‖ * markedRad d L N k (SA).a₁ κ cψ
       (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁ := by
     have := marks_lt_of_norm_le hu hrad hC.δ₁_pos
     rwa [norm_zero, add_zero] at this
   have hc1 : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ) := ⟨hθ, hu'⟩
+      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 epsG ∧ ‖u‖ < (17 / 16 : ℝ) :=
+    ⟨xiCRaw_mono_radius hleG hθ, hu'⟩
   have hc2 : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 eps ∧ ‖u‖ < (17 / 16 : ℝ) := ⟨hθ', hu'⟩
+      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 epsG ∧ ‖u‖ < (17 / 16 : ℝ) :=
+    ⟨xiCRaw_mono_radius hleG hθ', hu'⟩
   unfold e1MarkGParamGBgOn
   rw [ite_eq_left hc1, ite_eq_left hc2, hYY]
   exact markedOutBg_twoTorus hN2 hk νS β p₁ δ hI hH hGA hGB hC hC' hHm hHm' hS Sb Sb' hMX hMX' hCx

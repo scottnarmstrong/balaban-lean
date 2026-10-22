@@ -235,6 +235,22 @@ theorem sum_ite_bij {ι ι' : Type*} [Fintype ι] [Fintype ι'] {P : ι → Prop
   obtain ⟨τ, h, rfl⟩ := hsurj τ' (Finset.mem_filter.1 hτ').2
   exact ⟨τ, Finset.mem_filter.2 ⟨Finset.mem_univ _, h⟩, rfl⟩
 
+/-- **A sum over the indices with a property, along an equivalence of the indices with the
+properties.** -/
+theorem sum_ite_equiv {ι ι' : Type*} [Fintype ι] [Fintype ι'] {P : ι → Prop} {P' : ι' → Prop}
+    {dP : DecidablePred P} {dP' : DecidablePred P'} {f : ι → ℂ} {f' : ι' → ℂ}
+    (e : {τ // P τ} ≃ {τ' // P' τ'}) (hf : ∀ τ : {τ // P τ}, f' (e τ).1 = f τ.1) :
+    (∑ τ', @ite ℂ (P' τ') (dP' τ') (f' τ') 0) = ∑ τ, @ite ℂ (P τ) (dP τ) (f τ) 0 := by
+  let _ : DecidablePred P := dP
+  let _ : DecidablePred P' := dP'
+  rw [← Finset.sum_filter, ← Finset.sum_filter,
+    Finset.sum_subtype (Finset.univ.filter P') (p := P') (fun x => by simp),
+    Finset.sum_subtype (Finset.univ.filter P) (p := P) (fun x => by simp)]
+  refine Fintype.sum_equiv e.symm _ _ (fun τ' => ?_)
+  have h := hf (e.symm τ')
+  rw [Equiv.apply_symm_apply] at h
+  exact h
+
 /-- **The term of an old term on two tori, in the form of the activities and marks** (local pairs,
 steps `hatStepKG`): the term `evDecBg` of an old term `τ` at a label `Y` of its expansion and of the
 corresponding old term `τ'` (image region, the same level) at `bm '' Y`, at parameters of the two
@@ -414,6 +430,17 @@ theorem oldMem_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ) {�
   rw [hX', hj']
   exact ⟨(mem_polyDom_boxMap_iff hcov hX₁ hcov' hX₁' hX₁R hnF hnF' Y hYR).2 hYA, hX₁R⟩
 
+/-- **The region of an old term with a domain of the box lies in the box.** -/
+theorem oldBox_of_mem {ι : Type*}
+    {X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))} {m₀ : ℕ} {jL : ι → ℕ}
+    {𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1))} (τ : ι)
+    (hX₁ : (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ (jL τ) (𝒦X τ)) {R : ℕ}
+    {Y : Set (CTorus d L N₁ m₁ (k + 1))}
+    (hYR : ∀ y ∈ Y, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
+    (hY : Y ∈ polyDom (GA) (X₁f τ) m₀ (jL τ) (𝒦X τ)) :
+    ∀ x ∈ X₁f τ, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) x :=
+  fun x hx => hYR x (subset_polyDom hY (by rw [← hX₁]; exact hx))
+
 /-- **The summand of an old label on two tori** (local pairs, steps `hatStepKG`): the differences
 `β (evDecBg(u, 0) − evDecBg(0, 0))` of corresponding old terms (`oldTermEq_twoTorus` at the marks
 `u` and `0`), for `‖u‖ ≤ 1`. -/
@@ -584,12 +611,12 @@ theorem oldActBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
     (hrad : markedRad d L N k (SA).a₁ κ cψ (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁)
     {ι ι' : Type*} [Fintype ι] [Fintype ι']
     {X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))} {X₁f' : ι' → Finset (CTorus d L N₁' m₁ (k + 1))}
-    {m₀ : ℕ} {jL : ι → ℕ} {jL' : ι' → ℕ}
+    {m₀ m₀' : ℕ} (hm₀ : m₀' = m₀) {jL : ι → ℕ} {jL' : ι' → ℕ}
     {XL 𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1))} {XL' 𝒦X' : ι' → Set (CTorus d L N₁' m₁ (k + 1))}
     (hcov : ∀ τ, CovSetup (GA) m₀ (jL τ) (XL τ) (𝒦X τ))
     (hX₁ : ∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ (jL τ) (𝒦X τ))
-    (hcov' : ∀ τ', CovSetup (GB) m₀ (jL' τ') (XL' τ') (𝒦X' τ'))
-    (hX₁' : ∀ τ', (↑(X₁f' τ') : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ (jL' τ') (𝒦X' τ'))
+    (hcov' : ∀ τ', CovSetup (GB) m₀' (jL' τ') (XL' τ') (𝒦X' τ'))
+    (hX₁' : ∀ τ', (↑(X₁f' τ') : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀' (jL' τ') (𝒦X' τ'))
     {F₁ : ι → DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)}
     {F₁' : ι' → DecParams Gb' × RawData d L (N₁' * L ^ m₁) (k + 1) N →
@@ -658,50 +685,50 @@ theorem oldActBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ)
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).1)
     (hraw₂ : FieldCorr (ρ + 1) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).2)
-    {ρh : ℝ} (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {ρh ρh' : ℝ} (hρh' : ρh' = ρh) (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
     (Ψ : ∀ b, ((SA).blockSplit 1 hp).Ωb b) (Ψ' : ∀ b, ((SB).blockSplit 1 hp').Ωb b)
     (hΨ : ∀ x, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
       Ψ' ((SB).cellOf 1 (unitPt hGB (bk x))) ⟨unitPt hGB (bk x), rfl⟩ =
         Ψ ((SA).cellOf 1 (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩)
-    (Ru : ℝ) {u : ℂ} (hu : ‖u‖ ≤ 1)
+    (Ru : ℝ) {u : ℂ} (hu : ‖u‖ ≤ 1) {epsG : ℝ} (hleG : eps ≤ epsG)
     {𝒴C : Finset (Set (CTorus d L N₁ m₁ (k + 1)))} {𝒴C' : Finset (Set (CTorus d L N₁' m₁ (k + 1)))}
     (Y : {Y // Y ∈ 𝒴C}) (Y' : {Y' // Y' ∈ 𝒴C'}) (hYY : Y'.1 = bk '' Y.1)
     (hYR : ∀ y ∈ Y.1, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
-    (e : ι → ι')
-    (heinj : ∀ τ₁ τ₂, Y.1 ∈ polyDom (SA).G' (X₁f τ₁) m₀ (jL τ₁) (𝒦X τ₁) →
-      Y.1 ∈ polyDom (SA).G' (X₁f τ₂) m₀ (jL τ₂) (𝒦X τ₂) → e τ₁ = e τ₂ → τ₁ = τ₂)
-    (hesurj : ∀ τ', Y'.1 ∈ polyDom (SB).G' (X₁f' τ') m₀ (jL' τ') (𝒦X' τ') →
-      ∃ τ, Y.1 ∈ polyDom (SA).G' (X₁f τ) m₀ (jL τ) (𝒦X τ) ∧ e τ = τ')
-    (hτ : ∀ τ, Y.1 ∈ polyDom (SA).G' (X₁f τ) m₀ (jL τ) (𝒦X τ) →
-      X₁f' (e τ) = (X₁f τ).image bk ∧ jL' (e τ) = jL τ ∧ (∀ x ∈ X₁f τ, x ∈ Gb.Ω (k + 1)) ∧
-      AnalyticOnNhd ℂ (fun t => Φ τ t.1 t.2.1 t.2.2)
-        (FlRealLC Gb Hm (SA).a₁ (SA).ν BG κ eps (X₁f τ) BG₂ δ₁) ∧
-      ∀ t ∈ FlRealLC Gb Hm (SA).a₁ (SA).ν BG κ eps (X₁f τ) BG₂ δ₁,
-        ∀ t' ∈ FlRealLC Gb' Hm' (SA).a₁ (SA).ν BG κ eps ((X₁f τ).image bk) BG₂ δ₁,
+    (e : {τ // Y.1 ∈ polyDom (SA).G' (X₁f τ) m₀ (jL τ) (𝒦X τ)} ≃
+      {τ' // Y'.1 ∈ polyDom (SB).G' (X₁f' τ') m₀' (jL' τ') (𝒦X' τ')})
+    (hτ : ∀ τ : {τ // Y.1 ∈ polyDom (SA).G' (X₁f τ) m₀ (jL τ) (𝒦X τ)},
+      X₁f' (e τ).1 = (X₁f τ.1).image bk ∧ jL' (e τ).1 = jL τ.1 ∧
+      (∀ x ∈ X₁f τ.1, x ∈ Gb.Ω (k + 1)) ∧
+      AnalyticOnNhd ℂ (fun t => Φ τ.1 t.1 t.2.1 t.2.2)
+        (FlRealLC Gb Hm (SA).a₁ (SA).ν BG κ eps (X₁f τ.1) BG₂ δ₁) ∧
+      ∀ t ∈ FlRealLC Gb Hm (SA).a₁ (SA).ν BG κ eps (X₁f τ.1) BG₂ δ₁,
+        ∀ t' ∈ FlRealLC Gb' Hm' (SA).a₁ (SA).ν BG κ eps ((X₁f τ.1).image bk) BG₂ δ₁,
         (∀ x i, t'.1.1 (hI.e x, i) = t.1.1 (x, i)) → (∀ x, t'.1.2 (hI.e x) = t.1.2 x) →
         (∀ y i, t'.2.1 (hH.e y, i) = t.2.1 (y, i)) →
         FieldCorr (ρ + 1) t.2.2.1.1 t'.2.2.1.1 → FieldCorr (ρ + 1) t.2.2.1.2 t'.2.2.1.2 →
-        FieldCorr (ρ + 1) t.2.2.2 t'.2.2.2 → Φ' (e τ) t'.1 t'.2.1 t'.2.2 = Φ τ t.1 t.2.1 t.2.2) :
-    oldActBg (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zb' X₁f' m₀ jL' 𝒦X' F₁' Sol' Φ' ρh hp' Ru
-        eps 𝒴C' θ' Y' u Ψ' =
-      oldActBg (SA) Gb (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru eps 𝒴C
+        FieldCorr (ρ + 1) t.2.2.2 t'.2.2.2 → Φ' (e τ).1 t'.1 t'.2.1 t'.2.2 = Φ τ.1 t.1 t.2.1 t.2.2) :
+    oldActBg (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zb' X₁f' m₀' jL' 𝒦X' F₁' Sol' Φ' ρh' hp' Ru
+        epsG 𝒴C' θ' Y' u Ψ' =
+      oldActBg (SA) Gb (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru epsG 𝒴C
         θ Y u Ψ := by
+  subst m₀' ρh'
   by_cases hRu : ‖u‖ < Ru
   · have hc1 : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-        XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 eps ∧ ‖u‖ < Ru := ⟨hθ, hRu⟩
+        XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 epsG ∧ ‖u‖ < Ru :=
+        ⟨xiCRaw_mono_radius hleG hθ, hRu⟩
     have hc2 : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
-        XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 eps ∧ ‖u‖ < Ru := ⟨hθ', hRu⟩
+        XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 epsG ∧ ‖u‖ < Ru :=
+        ⟨xiCRaw_mono_radius hleG hθ', hRu⟩
     rw [oldActBg_of_gate (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zb' X₁f' m₀ jL' 𝒦X' F₁'
-      Sol' Φ' ρh hp' Ru eps 𝒴C' θ' Y' u Ψ' hc2, oldActBg_of_gate (SA) Gb
-      (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru eps 𝒴C θ Y u Ψ hc1]
-    refine sum_ite_bij e (fun τ h => ?_) heinj hesurj
-    obtain ⟨hX', hj', htop, han, hΦτ⟩ := hτ τ h
-    obtain ⟨hm, hR⟩ := oldMem_twoTorus hN2 hk νS β p₁ δ τ (e τ) (hcov τ) (hX₁ τ) (hcov' (e τ))
-      (hX₁' (e τ)) hX' hj' hnF hnF' hYY hYR h
-    exact ⟨hm, oldTermDiff_twoTorus hN2 hk νS β p₁ δ hI hH hGA hGB hC hC' hHm hHm' hS Sb Sb' hMX
+      Sol' Φ' ρh hp' Ru epsG 𝒴C' θ' Y' u Ψ' hc2, oldActBg_of_gate (SA) Gb
+      (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru epsG 𝒴C θ Y u Ψ hc1]
+    refine sum_ite_equiv e (fun τ => ?_)
+    obtain ⟨hX', hj', htop, han, hΦτ⟩ := hτ τ
+    have hR := oldBox_of_mem (ϱ := ϱ) τ.1 (hX₁ τ.1) hYR τ.2
+    exact oldTermDiff_twoTorus hN2 hk νS β p₁ δ hI hH hGA hGB hC hC' hHm hHm' hS Sb Sb' hMX
       hMX' hCx hmar hα hsm hcψ hcov hX₁ hcov' hX₁' hF₁an hF₁ hF₁' hSolan hSol hSol' Zb hZb hρR hnS
-      hnS' hnF hnF' hθ hθ' hraw₁ hraw₂ hρh hρc hp hp' Ψ Ψ' hΨ hrad τ (e τ) hYY hYR hR hX' hj' htop
-      han hΦτ hu⟩
+      hnS' hnF hnF' hθ hθ' hraw₁ hraw₂ hρh hρc hp hp' Ψ Ψ' hΨ hrad τ.1 (e τ).1 hYY hYR hR hX' hj' htop
+      han hΦτ hu
   · unfold oldActBg
     rw [ite_eq_right (fun h => hRu h.2), ite_eq_right (fun h => hRu h.2)]
 
@@ -729,12 +756,12 @@ theorem oldMarkGBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
     (hsm : δc ^ 2 * smallConstX d L κ ≤ 1 / 4) {cψ : ℝ} (hcψ : 0 ≤ cψ)
     {ι ι' : Type*} [Fintype ι] [Fintype ι']
     {X₁f : ι → Finset (CTorus d L N₁ m₁ (k + 1))} {X₁f' : ι' → Finset (CTorus d L N₁' m₁ (k + 1))}
-    {m₀ : ℕ} {jL : ι → ℕ} {jL' : ι' → ℕ}
+    {m₀ m₀' : ℕ} (hm₀ : m₀' = m₀) {jL : ι → ℕ} {jL' : ι' → ℕ}
     {XL 𝒦X : ι → Set (CTorus d L N₁ m₁ (k + 1))} {XL' 𝒦X' : ι' → Set (CTorus d L N₁' m₁ (k + 1))}
     (hcov : ∀ τ, CovSetup (GA) m₀ (jL τ) (XL τ) (𝒦X τ))
     (hX₁ : ∀ τ, (↑(X₁f τ) : Set (CTorus d L N₁ m₁ (k + 1))) = X1 (GA) m₀ (jL τ) (𝒦X τ))
-    (hcov' : ∀ τ', CovSetup (GB) m₀ (jL' τ') (XL' τ') (𝒦X' τ'))
-    (hX₁' : ∀ τ', (↑(X₁f' τ') : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀ (jL' τ') (𝒦X' τ'))
+    (hcov' : ∀ τ', CovSetup (GB) m₀' (jL' τ') (XL' τ') (𝒦X' τ'))
+    (hX₁' : ∀ τ', (↑(X₁f' τ') : Set (CTorus d L N₁' m₁ (k + 1))) = X1 (GB) m₀' (jL' τ') (𝒦X' τ'))
     {F₁ : ι → DecParams Gb × RawData d L (N₁ * L ^ m₁) (k + 1) N →
       (Gb.Ω 1 × Fin N → ℂ) × (Gb.Ω 1 → ℂ)}
     {F₁' : ι' → DecParams Gb' × RawData d L (N₁' * L ^ m₁) (k + 1) N →
@@ -803,17 +830,17 @@ theorem oldMarkGBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).1)
     (hraw₂ : FieldCorr (ρ + 1) (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N).2
       (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N).2)
-    {ρh : ℝ} (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
+    {ρh ρh' : ℝ} (hρh' : ρh' = ρh) (hρh : 0 < ρh) (hρc : ρh ≤ cψ) (hp : 0 < (SA).p₁) (hp' : 0 < (SB).p₁)
     (Ψ : ∀ b, ((SA).blockSplit 1 hp).Ωb b) (Ψ' : ∀ b, ((SB).blockSplit 1 hp').Ωb b)
     (hΨ : ∀ x, InBox d ρ ((N₁ * L ^ m₁) * L ^ (k + 1)) x →
       Ψ' ((SB).cellOf 1 (unitPt hGB (bk x))) ⟨unitPt hGB (bk x), rfl⟩ =
         Ψ ((SA).cellOf 1 (unitPt hGA x)) ⟨unitPt hGA x, rfl⟩)
-    (Ru : ℝ) {u : ℂ}
+    (Ru : ℝ) {u : ℂ} {epsG : ℝ} (hleG : eps ≤ epsG)
     {z : RootIdx d L N₁ m₁ (k + 1)} {z' : RootIdx d L N₁' m₁ (k + 1)}
     (q : {q // q ∈ markedIdx (fun _ : ι => (Set.univ : Set (CTorus d L N₁ m₁ (k + 1))))
       (fun τ => polyDom (SA).G' (X₁f τ) m₀ (jL τ) (𝒦X τ)) z})
     (q' : {q // q ∈ markedIdx (fun _ : ι' => (Set.univ : Set (CTorus d L N₁' m₁ (k + 1))))
-      (fun τ => polyDom (SB).G' (X₁f' τ) m₀ (jL' τ) (𝒦X' τ)) z'})
+      (fun τ => polyDom (SB).G' (X₁f' τ) m₀' (jL' τ) (𝒦X' τ)) z'})
     (hqY : q'.1.2 = bk '' q.1.2)
     (hYR : ∀ y ∈ q.1.2, InBox d R ((N₁ * L ^ m₁) * L ^ (k + 1)) y)
     (hX' : X₁f' q'.1.1 = (X₁f q.1.1).image bk) (hj' : jL' q'.1.1 = jL q.1.1)
@@ -827,18 +854,21 @@ theorem oldMarkGBg_twoTorus (hN2 : 2 ≤ N) (hk : 1 ≤ k) (νS β p₁ δ : ℝ
       FieldCorr (ρ + 1) t.2.2.1.1 t'.2.2.1.1 → FieldCorr (ρ + 1) t.2.2.1.2 t'.2.2.1.2 →
       FieldCorr (ρ + 1) t.2.2.2 t'.2.2.2 → Φ' q'.1.1 t'.1 t'.2.1 t'.2.2 = Φ q.1.1 t.1 t.2.1 t.2.2)
     (hum : ‖u‖ * markedRad d L N k (SA).a₁ κ cψ (((SA).betaU ^ (-(1 / 2 : ℝ)) : ℝ) : ℂ) < δ₁) :
-    oldMarkGBg (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zb' X₁f' m₀ jL' 𝒦X' F₁' Sol' Φ' ρh hp'
-        Ru eps z' θ' q' u Ψ' =
-      oldMarkGBg (SA) Gb (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru eps
+    oldMarkGBg (SB) Gb' (BgTransport.canon (SB).G' Gb' N) Zb' X₁f' m₀' jL' 𝒦X' F₁' Sol' Φ' ρh' hp'
+        Ru epsG z' θ' q' u Ψ' =
+      oldMarkGBg (SA) Gb (BgTransport.canon (SA).G' Gb N) Zb X₁f m₀ jL 𝒦X F₁ Sol Φ ρh hp Ru epsG
         z θ q u Ψ := by
+  subst m₀' ρh'
   by_cases hRu : ‖u‖ < Ru
   swap
   · unfold oldMarkGBg
     rw [ite_eq_right (fun h => hRu h.2), ite_eq_right (fun h => hRu h.2)]
   have hc1 : (θ.1 : RawData d L (N₁ * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 eps ∧ ‖u‖ < Ru := ⟨hθ, hRu⟩
+      XiCRaw Gb (compWeight L (SA).a₁) (SA).ν (k + 1) 1 epsG ∧ ‖u‖ < Ru :=
+      ⟨xiCRaw_mono_radius hleG hθ, hRu⟩
   have hc2 : (θ'.1 : RawData d L (N₁' * L ^ m₁) (k + 1) N) ∈
-      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 eps ∧ ‖u‖ < Ru := ⟨hθ', hRu⟩
+      XiCRaw Gb' (compWeight L (SB).a₁) (SB).ν (k + 1) 1 epsG ∧ ‖u‖ < Ru :=
+      ⟨xiCRaw_mono_radius hleG hθ', hRu⟩
   obtain ⟨D, hD, hDe⟩ := hθ
   obtain ⟨D', hD', hDe'⟩ := hθ'
   have hΨc : FieldCorr (ρ + 1) D.Ψ D'.Ψ := by
