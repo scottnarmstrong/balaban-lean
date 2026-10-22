@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.LargeField.R.G0Gas
+public import Balaban.Spine.CorrLoc
 public import Balaban.LargeField.R.LocalLemmas
 public import Balaban.LargeField.Operators.Setup
 public import Balaban.LargeField.Budget.Injective
@@ -21,8 +22,6 @@ the localized history of `Z` in `H`:
 
 * `locRH_admissible`: the localization has no removal record, so it is admissible;
 * `lin_locRH`: the lineages of `Z` in the localization are those in `H`;
-* `localHistory_locRH`: the localized history of `Z` in the localization is that in `H`
-  (the two localizations have the same steps, `locRH_step_congr`);
 * `localHistory_mem_localizedHistories`: `H.localHistory M K k Z ∈ 𝔥_k(Z)`;
 * `configMembers_mem_hist`, `configMembers_sep`, `keptConfig_members`: the members of the scale-`k`
   configuration of a history satisfy the two clauses of `HistConfig`, so `keptConfig` is the
@@ -74,38 +73,13 @@ theorem lin_locRH (M : ℕ) [NeZero M] (hkK : k ≤ K) (Z : H.Comp k) {j : ℕ} 
     obtain ⟨Y, hd, hxY⟩ := mem_lin.mp h
     exact cubeMap_mem_of_desc H.F.hnn hkK hd hxY
 
-/-- **The localized history of `Z` in its localization is that in `H`.** -/
-theorem localHistory_locRH (M : ℕ) [NeZero M] (hkK : k ≤ K) (Z : H.Comp k) :
-    (H.locRH k Z).localHistory M K k (locComp hkK Z) = H.localHistory M K k Z := by
-  have hlin := fun j (hj : j ≤ k) => lin_locRH M hkK Z hj
-  have hnew : ∀ j, j < k →
-      ((H.locRH k Z).step j).P ∩
-          (((H.locRH k Z).lin (j + 1) k (locComp hkK Z) : Finset _) : Set _) =
-        (H.step j).P ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
-      ((H.locRH k Z).step j).Q ∩
-          (((H.locRH k Z).lin (j + 1) k (locComp hkK Z) : Finset _) : Set _) =
-        (H.step j).Q ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
-      ((H.locRH k Z).step j).R ∩
-          (((H.locRH k Z).lin (j + 1) k (locComp hkK Z) : Finset _) : Set _) =
-        (H.step j).R ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) ∧
-      ((H.locRH k Z).step j).S ∩
-          (((H.locRH k Z).lin (j + 1) k (locComp hkK Z) : Finset _) : Set _) =
-        (H.step j).S ∩ ((H.lin (j + 1) k Z : Finset _) : Set _) := by
-    intro j hj
-    obtain ⟨hP, hQ, hR, hS⟩ := locRH_new Z hj (by omega)
-    rw [hlin (j + 1) hj, hP, hQ, hR, hS]
-    simp only [Set.inter_assoc, Set.inter_self, and_self]
-  exact localHistory_congr (locComp hkK Z) Z (locComp_val hkK Z)
-    (locRH_step_congr hkK (locComp hkK Z) Z (locComp_val hkK Z) hlin (fun j hj => (hnew j hj).1)
-      (fun j hj => (hnew j hj).2.1) (fun j hj => (hnew j hj).2.2.1) (fun j hj => (hnew j hj).2.2.2))
-
 /-- **The localized history of a component lies in `𝔥_k(Z)`** (Definition III.10.1): it is the
 localized history of the lineage localization, an admissible history with the single pre-`R`
 component `Z`. -/
 theorem localHistory_mem_localizedHistories (M : ℕ) [NeZero M] (hkK : k ≤ K) (Z : H.Comp k) :
     H.localHistory M K k Z ∈ localizedHistories (S := S) (n := n) R k0 K M k Z.1 := by
   refine ⟨H.locRH k Z, ⟨locRH_admissible Z, locRH_Zp hkK Z, ?_⟩, locComp hkK Z,
-    locComp_val hkK Z, localHistory_locRH M hkK Z⟩
+    locComp_val hkK Z, localHistory_locRH (M := M) hkK Z⟩
   have := locRH_comps hkK Z
   rwa [locRH_Zp hkK Z] at this
 
