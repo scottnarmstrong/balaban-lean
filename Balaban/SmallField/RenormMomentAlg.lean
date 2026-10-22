@@ -149,7 +149,7 @@ theorem secondVar_inv (hG : IsLevel G n) (a : ℕ → ℝ) (ν ξ₂ ξ₃ ζ : 
     rw [pair_sub_right, pair_sub_left, pair_sub_left, hvP]; ring
   have hvX : pair G v (v - P) = pair G v v - pair G v P := pair_sub_right _ _ _
   unfold secondVar
-  simp only [blockPair_level hG, bondPair_level hG, massPair_zero, hX, hE, hS]
+  simp only [blockPair_level hG, bondPair_level hG, massPair_zero, hX, hS]
   rw [hlap, hPP, hvX]
   linear_combination (-2 * (ξ₃ : ℂ) - 2 * (1 + (ξ₃ : ℂ)) * ζ) * K1 + (ξ₃ : ℂ) * K2
 
@@ -226,7 +226,6 @@ theorem secondVar_scalar (hG : IsLevel G n) {a : ℕ → ℝ} {ν : ℝ}
   have h2 : ∀ (g : G.Ω 1 → ℂ), ∑ x, wLevel L a n * g x * (wLevel L a n * g x) =
       wLevel L a n ^ 2 * ∑ x, g x * g x := by
     intro g; rw [Finset.mul_sum]; exact Finset.sum_congr rfl fun x _ => by ring
-  beta_reduce
   rw [h1 (fun x => u x) (fun x => (greenD G a ν 0 *ᵥ fun x : G.Ω 1 => u x) x),
     h2 (fun x => (greenD G a ν 0 *ᵥ fun x : G.Ω 1 => u x) x)]
   simp only [dotProduct]
