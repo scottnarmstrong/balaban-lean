@@ -67,10 +67,13 @@ integral, which are not unit-spin pairings; the unit-spin part alone gives `cbar
 ## 6. Plan B (Kt indexed by `a`), Option C pieces (decision of 2026-10-22; `BaseProductData` unchanged)
 C1. `Base/BaseFluctGauss.lean` (done): `baseFluctBlocks a`, `siteDensity N v` (BaseGaussCut),
     `baseFluctGauss a N x = prod_{y in baseFluctBlocks a} siteDensity N (subFluctVarField N x 0 y)`; `_nonneg`, `measurable_`, `_rot`.
-C2. `baseFluctSpin`: the spins on `(Omega \ Omega'') cap Z'` from `psi'_0`: `phi_x = chartMapPi e he (beta^(-1/2) (Cloc^(1/2) psi'_0))_x` with `e` the
-    centre `locPhi`/`baseFieldHat` and `Cloc^(1/2) = pdSqrtInv K_U` of the component (`BaseComponentCovariance`); statement: `baseFluctSpin` is Borel,
-    `O(N)`-equivariant, unit-norm values (`chartMapPi` lands in the sphere), and reads `(o, x, hv)` only through `locPhi` (so through `a` and the lifted data).
-C3. `baseChartJacLoc a o x hv = |det pdSqrtInv K_U| * prod_x (1 - |xi_x|^2)^(-1/2)` (`chartJac`, `BaseComponentDeterminant`): `>= 0`, Borel, `O(N)`-invariant.
+C2. `baseFluctSpin`: spins on a component U of `(Omega \ Omega'') cap Z'`: `phi_x = chartMapPi e he (beta^(-1/2) (pdSqrtInv K_U psi'_0))_x`, `K_U` the
+    component's OWN cut operator (cut parameters 0 on crossing bonds). CENTRE: `e = locPhi`, multiplier from `locBg` (NOT `baseSectorCenter`, which
+    is theta-only and exact only on the all-good sector `P_1 = empty`): `K_U = Re (baseOp e (baseHamiltonian G aw nu alpha s0))` restricted to U,
+    all generic in `(e, alpha)`. Clauses: Borel, `O(N)`-equivariant, values on the sphere (needs `|e_x| = 1`: unit norm of the local background on the
+    real domain, to be shown from `locBg`), reads `(o,x,hv)` only through `locPhi`/`locBg`.
+C3. `baseChartJacLoc a o x hv = prod_x (1 - |xi_x|^2)^(-1/2)` (`chartJac`); NO determinant (det pdSqrtInv and `-(N-1)/2 log beta` are vacuum constants of `b0`,
+    Def. II.7.6); `>= 0`, Borel, `O(N)`-invariant.
 C4. `KtFull H hH Z' w o x hv := 1[ChiNewAt] * baseFluctGauss * baseChartJacLoc * exp(-baseMainAction) * (prod_{P,w=bd}(1-B) prod_O B)(phi) * 1[D_R]`,
     for `(H, hH, Z')`, with `phi = baseFieldHat`; clauses `nonneg, meas, outside, dom, rot` of `BaseProductData` for `KtFull`.
 C5. Localization: `KtFull_congr : (e : H.localHistory M K 1 Z' = H'.localHistory M K 1 Z'') -> KtFull H hH Z' w o x hv =
