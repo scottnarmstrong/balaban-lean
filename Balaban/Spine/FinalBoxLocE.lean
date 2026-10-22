@@ -79,7 +79,9 @@ theorem isLevel_genW_univ (hk : 1 ≤ k) :
 theorem psiJC_univ_top (hk : 1 ≤ k) (ha : C.weights k ≠ 0) (ψC : BlockAt S n M K k → Fin N → ℂ) :
     C.psiJC Set.univ ψC hv k = C.sfLiftKC ψC := by
   funext x i
-  unfold SFCtx.psiJC
+  show (if hj : k ≤ k then sfPull C.geo C.hT (psiSF (M1 := C.geo.M1) (N₁ := C.geo.c * n k)
+      (L := S.L) (c := C.geo.c) (n := n k) C.weights (C.cs.muBg k) (bgC0 S.d S.L N) hj
+      (W2 R Set.univ) (C.liftDataC ψC) (hC hv)) else 0) x i = _
   simp only [le_refl, ↓reduceDIte]
   unfold sfPull psiSF
   rw [Fluctuation.composeField_self (isLevel_genW_univ C hk) C.weights ha]
