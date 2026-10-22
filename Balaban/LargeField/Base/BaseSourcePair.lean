@@ -30,7 +30,7 @@ open Classical
 variable {ι : Type*} [Fintype ι] {N : ℕ}
 
 /-- The pairing `∑_{x ∈ Y} ∑_i g_{x,i} φ_{x,i}` of a complex source with real spins. -/
-noncomputable def sourcePair (Y : Set ι) (g : ι × Fin N → ℂ)
+noncomputable def sourcePairOn (Y : Set ι) (g : ι × Fin N → ℂ)
     (φ : ι → EuclideanSpace ℝ (Fin N)) : ℂ :=
   ∑ i : ι × Fin N, if i.1 ∈ Y then g i * ((φ i.1 i.2 : ℝ) : ℂ) else 0
 
@@ -39,8 +39,8 @@ noncomputable def sourceNorm (Y : Set ι) (g : ι × Fin N → ℂ) : ℝ :=
   ∑ i : ι × Fin N, if i.1 ∈ Y then ‖g i‖ else 0
 
 /-- **The pairing is bounded by the `ℓ¹` norm of the source** for spins of norm at most one. -/
-theorem norm_sourcePair_le (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
-    (hφ : ∀ x, ‖φ x‖ ≤ 1) : ‖sourcePair Y g φ‖ ≤ sourceNorm Y g := by
+theorem norm_sourcePairOn_le (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
+    (hφ : ∀ x, ‖φ x‖ ≤ 1) : ‖sourcePairOn Y g φ‖ ≤ sourceNorm Y g := by
   refine (norm_sum_le _ _).trans (Finset.sum_le_sum fun i _ => ?_)
   by_cases hi : i.1 ∈ Y
   · simp only [hi, ↓reduceIte, norm_mul, Complex.norm_real, Real.norm_eq_abs]
@@ -51,15 +51,15 @@ theorem norm_sourcePair_le (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → E
   · simp [hi]
 
 /-- The real part of the pairing is at most the `ℓ¹` norm of the source. -/
-theorem re_sourcePair_le (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
-    (hφ : ∀ x, ‖φ x‖ ≤ 1) : (sourcePair Y g φ).re ≤ sourceNorm Y g :=
-  (Complex.re_le_norm _).trans (norm_sourcePair_le Y g φ hφ)
+theorem re_sourcePairOn_le (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
+    (hφ : ∀ x, ‖φ x‖ ≤ 1) : (sourcePairOn Y g φ).re ≤ sourceNorm Y g :=
+  (Complex.re_le_norm _).trans (norm_sourcePairOn_le Y g φ hφ)
 
 /-- The pairing is linear in the source, hence analytic. -/
-theorem analyticOnNhd_sourcePair (Y : Set ι) (φ : ι → EuclideanSpace ℝ (Fin N)) (s : Set (ι × Fin N → ℂ)) :
-    AnalyticOnNhd ℂ (fun g => sourcePair Y g φ) s := by
+theorem analyticOnNhd_sourcePairOn (Y : Set ι) (φ : ι → EuclideanSpace ℝ (Fin N)) (s : Set (ι × Fin N → ℂ)) :
+    AnalyticOnNhd ℂ (fun g => sourcePairOn Y g φ) s := by
   intro g _
-  unfold sourcePair
+  unfold sourcePairOn
   refine Finset.analyticAt_fun_sum _ fun i _ => ?_
   by_cases hi : i.1 ∈ Y
   · simp only [hi, ↓reduceIte]
@@ -69,35 +69,35 @@ theorem analyticOnNhd_sourcePair (Y : Set ι) (φ : ι → EuclideanSpace ℝ (F
     exact analyticAt_const
 
 /-- The pairing of a real source with real spins is real. -/
-theorem im_sourcePair_eq_zero (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
-    (hg : ∀ i, (g i).im = 0) : (sourcePair Y g φ).im = 0 := by
-  unfold sourcePair
+theorem im_sourcePairOn_eq_zero (Y : Set ι) (g : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
+    (hg : ∀ i, (g i).im = 0) : (sourcePairOn Y g φ).im = 0 := by
+  unfold sourcePairOn
   rw [Complex.im_sum]
   refine Finset.sum_eq_zero fun i _ => ?_
   by_cases hi : i.1 ∈ Y <;> simp [hi, hg i]
 
 /-- The pairing reads the source only on the sites of `Y`. -/
-theorem sourcePair_congr (Y : Set ι) (g g' : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
-    (h : ∀ i : ι × Fin N, i.1 ∈ Y → g i = g' i) : sourcePair Y g φ = sourcePair Y g' φ := by
-  unfold sourcePair
+theorem sourcePairOn_congr (Y : Set ι) (g g' : ι × Fin N → ℂ) (φ : ι → EuclideanSpace ℝ (Fin N))
+    (h : ∀ i : ι × Fin N, i.1 ∈ Y → g i = g' i) : sourcePairOn Y g φ = sourcePairOn Y g' φ := by
+  unfold sourcePairOn
   refine Finset.sum_congr rfl fun i _ => ?_
   by_cases hi : i.1 ∈ Y
   · simp [hi, h i hi]
   · simp [hi]
 
 /-- The pairing vanishes at the zero source. -/
-theorem sourcePair_zero (Y : Set ι) (φ : ι → EuclideanSpace ℝ (Fin N)) :
-    sourcePair Y 0 φ = 0 := by
-  unfold sourcePair
+theorem sourcePairOn_zero (Y : Set ι) (φ : ι → EuclideanSpace ℝ (Fin N)) :
+    sourcePairOn Y 0 φ = 0 := by
+  unfold sourcePairOn
   refine Finset.sum_eq_zero fun i _ => ?_
   by_cases hi : i.1 ∈ Y <;> simp [hi]
 
 /-- **The relative modulus bound of the source factor**: `|e^{⟨g,φ⟩}| ≤ e^{‖g|_Y‖_1}`. -/
-theorem norm_cexp_sourcePair_le (Y : Set ι) (g : ι × Fin N → ℂ)
+theorem norm_cexp_sourcePairOn_le (Y : Set ι) (g : ι × Fin N → ℂ)
     (φ : ι → EuclideanSpace ℝ (Fin N)) (hφ : ∀ x, ‖φ x‖ ≤ 1) :
-    ‖Complex.exp (sourcePair Y g φ)‖ ≤ Real.exp (sourceNorm Y g) := by
+    ‖Complex.exp (sourcePairOn Y g φ)‖ ≤ Real.exp (sourceNorm Y g) := by
   rw [Complex.norm_exp]
-  exact Real.exp_le_exp.2 (re_sourcePair_le Y g φ hφ)
+  exact Real.exp_le_exp.2 (re_sourcePairOn_le Y g φ hφ)
 
 section Carrier
 
