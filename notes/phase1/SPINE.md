@@ -888,6 +888,12 @@ the former class (`Fluctuation.DjMod`) only for π′-open new holes (`Def7.exis
   `locConds_of_h7MixedLoc2_withZ`).  Open for blocker 3: `H7MixedInnerLoc2Pre` (P5 Lemma 2.1 in the complex domains),
   Proposition 3.3 on a region (the interaction of `oldB2`), the identity of the old part with `∑ oldB2`, the clauses
   `euclid` and `loc_hist` (W1162/W1163; evaluation of the collar finding in PLAN-B, ruling R22).
+  **W1154e, later (2026-10-22, branch `w1154-r22`).** Rulings R22 (`7240d56c`: `loc_hist` of `D7Bdry`, `D7Bdry2` reads
+  `globalLHPre` and all components `H.Comp k`; `DeltaDomain1` over `1 ≤ j ≤ k`) and R26 (`3a65c4b2`: the `Ω″` conjunct of
+  `loc_hist` at `j < k` in the four records) applied, all affected modules built.  `Def7.mem_omegaPost_iff`,
+  `fineSet_omegaPost_inter_eq` (`Ω^post_k = Ω_k ∪ (Z_k)ᶜ`).  `Spine/LFBdryOldAssembly`: `OldPartEq`,
+  **`lfBdryOldInput_of_old_eq`** (`LFBdryOldInput` from the identity and (D7) for the family `O`).  The closing ladder of
+  blocker 3 is in PLAN-B ("Blocker 3, closing ladder").
 
 ## LastIntegralInput sub-inputs (W1108)
 
