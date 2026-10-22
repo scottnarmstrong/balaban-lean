@@ -70,12 +70,22 @@ noncomputable def varProb : (b : Bool) → Measure (VarVal N b)
   | true => (sphereMass N)⁻¹ • (volume : Measure (EuclideanSpace ℝ (Fin N))).toSphere
   | false => oneSiteGaussian (EuclideanSpace ℝ (Fin N))
 
+/-- The density `(2π)^{N/2} e^{‖x‖²/2}` of Lebesgue measure on `ℝ^N` against the standard
+Gaussian. -/
+noncomputable def gaussInvDens (x : EuclideanSpace ℝ (Fin N)) : ℝ :=
+  (2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)
+
+theorem gaussInvDens_pos (x : EuclideanSpace ℝ (Fin N)) : 0 < gaussInvDens N x := by
+  unfold gaussInvDens; positivity
+
+theorem measurable_gaussInvDens : Measurable (gaussInvDens N) := by
+  unfold gaussInvDens; fun_prop
+
 /-- **The density of the reference measure of one variable against its probability measure**:
-`|S^{N-1}|` for a spin, `(2π)^{N/2} e^{‖x‖²/2}` on `ℝ^N`. -/
+`|S^{N-1}|` for a spin, `(2π)^{N/2} e^{‖x‖²/2}` on `ℝ^N` (`gaussInvDens`). -/
 noncomputable def varDens : (b : Bool) → VarVal N b → ℝ
   | true => fun _ => (sphereMass N).toReal
-  | false => fun x => (2 * Real.pi) ^ ((N : ℝ) / 2) *
-      Real.exp ((1 / 2) * ‖(show EuclideanSpace ℝ (Fin N) from x)‖ ^ 2)
+  | false => fun x => gaussInvDens N x
 
 instance (b : Bool) : IsFiniteMeasure (varProb N b) := by
   cases b with
@@ -107,21 +117,47 @@ theorem isProbabilityMeasure_varProb (hN : 1 ≤ N) (b : Bool) :
 theorem varDens_nonneg (b : Bool) (v : VarVal N b) : 0 ≤ varDens N b v := by
   cases b with
   | true => exact ENNReal.toReal_nonneg
-  | false => change 0 ≤ (2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp _; positivity
+  | false => exact (gaussInvDens_pos N v).le
 
 variable {N} in
 theorem varDens_pos (hN : 1 ≤ N) (b : Bool) (v : VarVal N b) : 0 < varDens N b v := by
   cases b with
   | true => exact ENNReal.toReal_pos (sphereMass_ne_zero hN) (sphereMass_ne_top N)
-  | false => change 0 < (2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp _; positivity
+  | false => exact gaussInvDens_pos N v
 
 theorem measurable_varDens (b : Bool) : Measurable (varDens N b) := by
   cases b with
   | true => exact measurable_const
-  | false =>
-    change Measurable fun x : EuclideanSpace ℝ (Fin N) =>
-      (2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)
-    fun_prop
+  | false => exact measurable_gaussInvDens N
+
+/-- **Lebesgue measure on `ℝ^N` is the density `(2π)^{N/2} e^{‖x‖²/2}` times the standard
+Gaussian** (every `N`). -/
+theorem volume_eq_withDensity_gauss :
+    (volume : Measure (EuclideanSpace ℝ (Fin N))) =
+      (oneSiteGaussian (EuclideanSpace ℝ (Fin N))).withDensity
+        fun x => ENNReal.ofReal (gaussInvDens N x) := by
+  unfold oneSiteGaussian gaussInvDens
+  rw [← withDensity_mul _ (by fun_prop) (by fun_prop)]
+  conv_lhs => rw [← withDensity_one (μ := (volume : Measure (EuclideanSpace ℝ (Fin N))))]
+  congr 1
+  funext x
+  rw [Pi.mul_apply, Pi.one_apply, ← ENNReal.ofReal_mul (by positivity),
+    finrank_euclideanSpace_fin]
+  rw [show (2 * Real.pi) ^ (-(N : ℝ) / 2) * Real.exp (-(1 / 2) * ‖x‖ ^ 2) *
+      ((2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)) =
+      ((2 * Real.pi) ^ (-(N : ℝ) / 2) * (2 * Real.pi) ^ ((N : ℝ) / 2)) *
+        (Real.exp (-(1 / 2) * ‖x‖ ^ 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)) by ring,
+    ← Real.rpow_add (by positivity), ← Real.exp_add]
+  rw [show -(N : ℝ) / 2 + (N : ℝ) / 2 = 0 by ring,
+    show -(1 / 2) * ‖x‖ ^ 2 + (1 / 2) * ‖x‖ ^ 2 = 0 by ring]
+  simp
+
+/-- **Lebesgue measure on `ℝ^N` is the density `(2π)^{N/2} e^{‖x‖²/2}` times the standard
+Gaussian**, as the reference measure of a variable (every `N`). -/
+theorem varMeasure_false_eq_withDensity :
+    varMeasure N false =
+      (varProb N false).withDensity fun v => ENNReal.ofReal (varDens N false v) :=
+  volume_eq_withDensity_gauss N
 
 variable {N} in
 /-- **The reference measure of a variable is its density times its probability measure.** -/
@@ -134,25 +170,7 @@ theorem varMeasure_eq_withDensity (hN : 1 ≤ N) (b : Bool) :
         fun _ => ENNReal.ofReal (sphereMass N).toReal
     rw [withDensity_const, ENNReal.ofReal_toReal (sphereMass_ne_top N), smul_smul,
       ENNReal.mul_inv_cancel (sphereMass_ne_zero hN) (sphereMass_ne_top N), one_smul]
-  | false =>
-    change (volume : Measure (EuclideanSpace ℝ (Fin N))) =
-      (oneSiteGaussian (EuclideanSpace ℝ (Fin N))).withDensity fun x =>
-        ENNReal.ofReal ((2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2))
-    unfold oneSiteGaussian
-    rw [← withDensity_mul _ (by fun_prop) (by fun_prop)]
-    conv_lhs => rw [← withDensity_one (μ := (volume : Measure (EuclideanSpace ℝ (Fin N))))]
-    congr 1
-    funext x
-    rw [Pi.mul_apply, Pi.one_apply, ← ENNReal.ofReal_mul (by positivity),
-      finrank_euclideanSpace_fin]
-    rw [show (2 * Real.pi) ^ (-(N : ℝ) / 2) * Real.exp (-(1 / 2) * ‖x‖ ^ 2) *
-        ((2 * Real.pi) ^ ((N : ℝ) / 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)) =
-        ((2 * Real.pi) ^ (-(N : ℝ) / 2) * (2 * Real.pi) ^ ((N : ℝ) / 2)) *
-          (Real.exp (-(1 / 2) * ‖x‖ ^ 2) * Real.exp ((1 / 2) * ‖x‖ ^ 2)) by ring,
-      ← Real.rpow_add (by positivity), ← Real.exp_add]
-    rw [show -(N : ℝ) / 2 + (N : ℝ) / 2 = 0 by ring,
-      show -(1 / 2) * ‖x‖ ^ 2 + (1 / 2) * ‖x‖ ^ 2 = 0 by ring]
-    simp
+  | false => exact varMeasure_false_eq_withDensity N
 
 end One
 
@@ -205,18 +223,34 @@ theorem gcfgMeasure_eq_withDensity (hN : 1 ≤ N) (U : Set (GVar S n M K k)) :
   unfold gDens
   rw [ENNReal.ofReal_prod_of_nonneg fun q _ => varDens_nonneg N _ _]
 
+/-- **The integral against a measure with a real density**: for a measurable nonnegative `f`,
+`∫ F d(f μ) = ∫ f F dμ`. -/
+theorem integral_withDensity_ofReal {α : Type*} [MeasurableSpace α] (μ : Measure α) {f : α → ℝ}
+    (hf : Measurable f) (hf0 : ∀ x, 0 ≤ f x) (F : α → ℂ) :
+    ∫ x, F x ∂(μ.withDensity fun x => ENNReal.ofReal (f x)) = ∫ x, (f x : ℂ) * F x ∂μ := by
+  change ∫ x, F x ∂(μ.withDensity fun x => ((f x).toNNReal : ℝ≥0∞)) = _
+  rw [integral_withDensity_eq_integral_smul hf.real_toNNReal]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+  change ((f x).toNNReal : ℝ) • F x = _
+  rw [Real.coe_toNNReal _ (hf0 x), Complex.real_smul]
+
+/-- Integrability against a measure with a real density `f ≥ 0` is integrability of `f F`. -/
+theorem integrable_withDensity_ofReal_iff {α : Type*} [MeasurableSpace α] (μ : Measure α)
+    {f : α → ℝ} (hf : Measurable f) (hf0 : ∀ x, 0 ≤ f x) (F : α → ℂ) :
+    Integrable F (μ.withDensity fun x => ENNReal.ofReal (f x)) ↔
+      Integrable (fun x => (f x : ℂ) * F x) μ := by
+  change Integrable F (μ.withDensity fun x => ((f x).toNNReal : ℝ≥0∞)) ↔ _
+  rw [integrable_withDensity_iff_integrable_smul hf.real_toNNReal]
+  refine integrable_congr (Filter.Eventually.of_forall fun x => ?_)
+  change ((f x).toNNReal : ℝ) • F x = _
+  rw [Real.coe_toNNReal _ (hf0 x), Complex.real_smul]
+
 /-- **The integral against the reference measure is the expectation of the density times the
 integrand.** -/
 theorem integral_gcfgMeasure (hN : 1 ≤ N) (U : Set (GVar S n M K k)) (F : GCfgOn N U → ℂ) :
     ∫ z, F z ∂(gcfgMeasure N U) = ∫ z, (gDens N U z : ℂ) * F z ∂(gcfgProb N U) := by
   rw [gcfgMeasure_eq_withDensity hN]
-  have hf : Measurable fun z => (gDens N U z).toNNReal :=
-    (measurable_gDens U).real_toNNReal
-  change ∫ z, F z ∂((gcfgProb N U).withDensity fun z => ((gDens N U z).toNNReal : ℝ≥0∞)) = _
-  rw [integral_withDensity_eq_integral_smul hf]
-  refine integral_congr_ae (Filter.Eventually.of_forall fun z => ?_)
-  change ((gDens N U z).toNNReal : ℝ) • F z = _
-  rw [Real.coe_toNNReal _ (gDens_nonneg U z), Complex.real_smul]
+  exact integral_withDensity_ofReal _ (measurable_gDens U) (gDens_nonneg U) F
 
 /-- Integrability against the reference measure is integrability of the density times the
 integrand against the product of the probability measures. -/
@@ -224,13 +258,7 @@ theorem integrable_gcfgMeasure_iff (hN : 1 ≤ N) (U : Set (GVar S n M K k)) (F 
     Integrable F (gcfgMeasure N U) ↔
       Integrable (fun z => (gDens N U z : ℂ) * F z) (gcfgProb N U) := by
   rw [gcfgMeasure_eq_withDensity hN]
-  have hf : Measurable fun z => (gDens N U z).toNNReal :=
-    (measurable_gDens U).real_toNNReal
-  change Integrable F ((gcfgProb N U).withDensity fun z => ((gDens N U z).toNNReal : ℝ≥0∞)) ↔ _
-  rw [integrable_withDensity_iff_integrable_smul hf]
-  refine integrable_congr (Filter.Eventually.of_forall fun z => ?_)
-  change ((gDens N U z).toNNReal : ℝ) • F z = _
-  rw [Real.coe_toNNReal _ (gDens_nonneg U z), Complex.real_smul]
+  exact integrable_withDensity_ofReal_iff _ (measurable_gDens U) (gDens_nonneg U) F
 
 /-- A product over a disjoint union of sets of global variables is the product of the products over
 the sets. -/
@@ -273,6 +301,9 @@ noncomputable def gProbAll (S : Setting) (n : ℕ → ℕ) [∀ k, NeZero (n k)]
     [NeZero S.L] : Measure (GCfgAll S n M K k N) :=
   Measure.pi fun q => varProb N (gIsSpin q)
 
+instance : IsFiniteMeasure (gProbAll S n M K k N) := by
+  unfold gProbAll; infer_instance
+
 /-- The restriction of a configuration of all the global variables to a set of them. -/
 def restrictAll (U : Set (GVar S n M K k)) (Φ : GCfgAll S n M K k N) : GCfgOn N U :=
   fun q => Φ q.1
@@ -300,18 +331,43 @@ theorem measurePreserving_piEquivPiSubtypeProd_gProbAll (U : Set (GVar S n M K k
   unfold gcfgProb gProbAll
   convert h using 3
 
+/-- **Integrating a function of some of the coordinates against a product of probability
+measures** is integrating it against the product over those coordinates (any `Fintype` structure
+on the subtype). -/
+theorem integral_comp_restrict_pi {ι : Type*} [Fintype ι] {X : ι → Type*}
+    [∀ i, MeasurableSpace (X i)] (μ : ∀ i, Measure (X i)) [∀ i, IsProbabilityMeasure (μ i)]
+    (p : ι → Prop) [DecidablePred p] [Fintype (Subtype p)] (G : (∀ i : Subtype p, X i) → ℂ) :
+    ∫ x, G (fun i => x i.1) ∂(Measure.pi μ) = ∫ y, G y ∂(Measure.pi fun i : Subtype p => μ i) := by
+  have h : MeasurePreserving (MeasurableEquiv.piEquivPiSubtypeProd X p) (Measure.pi μ)
+      ((Measure.pi fun i : Subtype p => μ i).prod (Measure.pi fun i : {i // ¬ p i} => μ i)) := by
+    convert measurePreserving_piEquivPiSubtypeProd μ p using 3
+  have e : (fun x : ∀ i, X i => G (fun i => x i.1)) =
+      (fun q => G q.1) ∘ MeasurableEquiv.piEquivPiSubtypeProd X p := rfl
+  rw [e, Function.comp_def, h.integral_comp' (fun q => G q.1), integral_fun_fst, probReal_univ,
+    one_smul]
+
+/-- Integrability of a function of some of the coordinates against a product of probability
+measures is its integrability against the product over those coordinates. -/
+theorem integrable_comp_restrict_pi_iff {ι : Type*} [Fintype ι] {X : ι → Type*}
+    [∀ i, MeasurableSpace (X i)] (μ : ∀ i, Measure (X i)) [∀ i, IsProbabilityMeasure (μ i)]
+    (p : ι → Prop) [DecidablePred p] [Fintype (Subtype p)] (G : (∀ i : Subtype p, X i) → ℂ) :
+    Integrable (fun x => G (fun i => x i.1)) (Measure.pi μ) ↔
+      Integrable G (Measure.pi fun i : Subtype p => μ i) := by
+  have h : MeasurePreserving (MeasurableEquiv.piEquivPiSubtypeProd X p) (Measure.pi μ)
+      ((Measure.pi fun i : Subtype p => μ i).prod (Measure.pi fun i : {i // ¬ p i} => μ i)) := by
+    convert measurePreserving_piEquivPiSubtypeProd μ p using 3
+  have e : (fun x : ∀ i, X i => G (fun i => x i.1)) =
+      (fun q => G q.1) ∘ MeasurableEquiv.piEquivPiSubtypeProd X p := rfl
+  rw [e, h.integrable_comp_emb (MeasurableEquiv.measurableEmbedding _)]
+  exact Integrable.comp_fst_iff (IsProbabilityMeasure.ne_zero _)
+
 /-- **The expectation of a function of the variables of `U`** for the product of the probability
 measures on all the global variables is its expectation on `U`. -/
 theorem integral_restrictAll (hN : 1 ≤ N) (U : Set (GVar S n M K k)) (G : GCfgOn N U → ℂ) :
     ∫ Φ, G (restrictAll U Φ) ∂(gProbAll S n M K k N) = ∫ z, G z ∂(gcfgProb N U) := by
   classical
   have := isProbabilityMeasure_varProb hN
-  have h := measurePreserving_piEquivPiSubtypeProd_gProbAll (N := N) U
-  have e : (fun Φ => G (restrictAll U Φ)) = (fun p => G p.1) ∘
-      MeasurableEquiv.piEquivPiSubtypeProd (fun q : GVar S n M K k => VarVal N (gIsSpin q))
-        (· ∈ U) := rfl
-  rw [e, Function.comp_def, h.integral_comp' (fun p => G p.1), integral_fun_fst, probReal_univ,
-    one_smul]
+  exact integral_comp_restrict_pi (fun q : GVar S n M K k => varProb N (gIsSpin q)) (· ∈ U) G
 
 /-- Integrability of a function of the variables of `U` for the product of the probability measures
 on all the global variables is its integrability on `U`. -/
@@ -320,12 +376,7 @@ theorem integrable_restrictAll_iff (hN : 1 ≤ N) (U : Set (GVar S n M K k)) (G 
       Integrable G (gcfgProb N U) := by
   classical
   have := isProbabilityMeasure_varProb hN
-  have h := measurePreserving_piEquivPiSubtypeProd_gProbAll (N := N) U
-  have e : (fun Φ => G (restrictAll U Φ)) = (fun p => G p.1) ∘
-      MeasurableEquiv.piEquivPiSubtypeProd (fun q : GVar S n M K k => VarVal N (gIsSpin q))
-        (· ∈ U) := rfl
-  rw [e, h.integrable_comp_emb (MeasurableEquiv.measurableEmbedding _)]
-  exact Integrable.comp_fst_iff (IsProbabilityMeasure.ne_zero _)
+  exact integrable_comp_restrict_pi_iff (fun q : GVar S n M K k => varProb N (gIsSpin q)) (· ∈ U) G
 
 end All
 

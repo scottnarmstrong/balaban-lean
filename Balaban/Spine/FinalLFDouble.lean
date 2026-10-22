@@ -135,6 +135,12 @@ theorem disjoint_supp_iff_sep {α : Type*} {d n ω : ℕ} [NeZero n] (hω : 1 �
   rw [disjoint_disjSum_iff, disjoint_dblNbhd_iff hω]
   exact ⟨fun h => h.2, fun h => ⟨hblk h, h⟩⟩
 
+/-- The separation of the components is at least `1`. -/
+theorem one_le_omega (S : Setting) (k : ℕ) : 1 ≤ S.omega k := by
+  have h := le_omegaW S.L S.Rb S.lam k
+  rw [← Setting.omega_eq_omegaW] at h
+  omega
+
 /-- **`RecSep` as pairwise disjointness of the gas supports**: for block supports `A r` of the
 records that are disjoint for records with separated cubes, a family of records is pairwise
 `ω_k`-separated iff the supports `A r ⊔ dblNbhd ω_k r.1` are pairwise disjoint. -/
@@ -145,10 +151,7 @@ theorem recSep_iff_disjoint {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)
     RecSep k Γ ↔ ∀ r ∈ Γ, ∀ r' ∈ Γ, r ≠ r' →
       Disjoint ((A r).disjSum (dblNbhd (S.omega k) r.1))
         ((A r').disjSum (dblNbhd (S.omega k) r'.1)) := by
-  have hω : 1 ≤ S.omega k := by
-    have h := le_omegaW S.L S.Rb S.lam k
-    rw [← Setting.omega_eq_omegaW] at h
-    omega
+  have hω : 1 ≤ S.omega k := one_le_omega S k
   unfold RecSep
   exact forall₂_congr fun r _ => forall₂_congr fun r' _ => imp_congr_right fun _ =>
     (disjoint_supp_iff_sep hω (hblk r r')).symm
