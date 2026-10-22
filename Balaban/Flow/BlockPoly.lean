@@ -1,0 +1,95 @@
+/-
+Copyright (c) 2026 Scott Armstrong. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong
+-/
+module
+
+public import Balaban.Flow.CellGreen
+
+/-!
+# The block Hamiltonian on cell polynomials
+
+The one-dimensional model of the first-step operators: on `ℤ` with blocks of `M` consecutive sites,
+`H = −Δ + w P + ν`, `P` the block average.  On the functions
+`u(k) = F₂(k mod M) x² + F₁(k mod M) x + F₀(k mod M)`, `x = ⌊k/M⌋`, with cell functions `F_j : ZMod M → ℂ`
+(`polyZ`), `H` acts as `polyZ` of a triple of cell functions (`polyZ_H`):
+
+* `A₂ = H_per F₂`;
+* `A₁ = H_per F₁ − 2δ_{−1} F₂(·+1) + 2δ_0 F₂(·−1)`;
+* `A₀ = H_per F₀ − δ_{−1}(F₂+F₁)(·+1) − δ_0(F₂−F₁)(·−1)`,
+
+with `H_per F = −ΔF + w avg(F) + ν F` the cell Hamiltonian (periodic Laplacian, `avg` the cell mean).
+This is the Bloch expansion of `H` at second order in the block momentum.
+-/
+
+@[expose] public section
+
+namespace Balaban.Flow
+
+open Finset
+
+variable {M : ℕ} [NeZero M]
+
+/-- The cell mean `(1/M) ∑_r F(r)`. -/
+noncomputable def cellAvg (F : ZMod M → ℂ) : ℂ := (1 / (M : ℂ)) * ∑ r, F r
+
+/-- The cell Hamiltonian `H_per F = −ΔF + w avg(F) + ν F` (periodic Laplacian on `ZMod M`). -/
+noncomputable def cellH (w ν : ℝ) (F : ZMod M → ℂ) (r : ZMod M) : ℂ :=
+  2 * F r - F (r + 1) - F (r - 1) + (w : ℂ) * cellAvg F + (ν : ℂ) * F r
+
+/-- The indicator of the last cell position `r = −1`. -/
+noncomputable def cellLast (r : ZMod M) : ℂ := if r = -1 then 1 else 0
+
+/-- The indicator of the first cell position `r = 0`. -/
+noncomputable def cellFirst (r : ZMod M) : ℂ := if r = 0 then 1 else 0
+
+/-- The cell polynomial `F₂ x² + F₁ x + F₀` evaluated at the lattice site `k`, `x = ⌊k/M⌋`. -/
+noncomputable def polyZ (F₂ F₁ F₀ : ZMod M → ℂ) (k : ℤ) : ℂ :=
+  F₂ (k : ZMod M) * ((k / M : ℤ) : ℂ) ^ 2 + F₁ (k : ZMod M) * ((k / M : ℤ) : ℂ) + F₀ (k : ZMod M)
+
+/-- The block average of a function on `ℤ`. -/
+noncomputable def blockAvgZ (M : ℕ) (f : ℤ → ℂ) (k : ℤ) : ℂ :=
+  (1 / (M : ℂ)) * ∑ j : Fin M, f (M * (k / M) + j)
+
+/-- The block Hamiltonian on `ℤ`: `H f = −Δ f + w P f + ν f`. -/
+noncomputable def HZ (M : ℕ) (w ν : ℝ) (f : ℤ → ℂ) (k : ℤ) : ℂ :=
+  2 * f k - f (k + 1) - f (k - 1) + (w : ℂ) * blockAvgZ M f k + (ν : ℂ) * f k
+
+theorem int_ediv_succ (k : ℤ) :
+    (k + 1) / M = k / M + (if ((k : ZMod M)) = -1 then 1 else 0) := by
+  have hM : (0 : ℤ) < M := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne M)
+  have h1 : (M : ℤ) * (k / M) + k % M = k := Int.mul_ediv_add_emod k M
+  have h2 : 0 ≤ k % M := Int.emod_nonneg _ hM.ne'
+  have h3 : k % M < M := Int.emod_lt_of_pos _ hM
+  have hcast : ((k % M + 1 : ℤ) : ZMod M) = (k : ZMod M) + 1 := by
+    rw [Int.cast_add, ZMod.intCast_mod]; push_cast; rfl
+  have hiff : (k : ZMod M) = -1 ↔ k % M + 1 = M := by
+    constructor
+    · intro h
+      have h0 : ((k % M + 1 : ℤ) : ZMod M) = 0 := by rw [hcast, h]; ring
+      rw [ZMod.intCast_zmod_eq_zero_iff_dvd] at h0
+      obtain ⟨c, hc⟩ := h0
+      have hc1 : 0 < c := by
+        by_contra hc'; push Not at hc'; nlinarith
+      have hc2 : c < 2 := by
+        by_contra hc'; push Not at hc'; nlinarith
+      have : c = 1 := by omega
+      subst this; omega
+    · intro h
+      have h0 : ((k % M + 1 : ℤ) : ZMod M) = 0 := by
+        rw [h]; exact_mod_cast ZMod.natCast_self M
+      rw [hcast] at h0
+      exact eq_neg_of_add_eq_zero_left h0
+  have hk : k + 1 = M * (k / M) + (k % M + 1) := by omega
+  by_cases h : (k : ZMod M) = -1
+  · have hr := hiff.1 h
+    simp only [h, ↓reduceIte]
+    have : k + 1 = M * (k / M + 1) := by rw [hk, hr]; ring
+    rw [this, Int.mul_ediv_cancel_left _ hM.ne']
+  · have hr : k % M + 1 ≠ M := fun e => h (hiff.2 e)
+    simp only [h, ↓reduceIte]
+    rw [hk, Int.mul_add_ediv_left _ _ hM.ne',
+      Int.ediv_eq_zero_of_lt (by omega : 0 ≤ k % M + 1) (by omega : k % M + 1 < M)]
+
+end Balaban.Flow
