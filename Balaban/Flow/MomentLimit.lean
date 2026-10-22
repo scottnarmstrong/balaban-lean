@@ -114,7 +114,7 @@ theorem blockInd_dot_liftSum {G : GeneratingSet d L N₀ K ϱ} {n : ℕ} (hG : I
     blockInd G (L ^ n) (N₀ * L ^ (K - n)) ⬝ᵥ
         (fun y : G.Ω 1 => liftSum (d := d) U (y : Torus d (N₀ * L ^ K))) =
       (d : ℂ) * ((L ^ n : ℕ) : ℂ) ^ (d - 1) *
-        ∑ j : Fin (L ^ n), U (blockSite (ℓ := N₀ * L ^ K) (L ^ n) (0 : ZMod (N₀ * L ^ (K - n))) j) := by
+        ∑ j : Fin (L ^ n), U (cellSite (ℓ := N₀ * L ^ K) (L ^ n) (0 : ZMod (N₀ * L ^ (K - n))) j) := by
   classical
   have hnK := (IsLevel.bounds hG).2
   have hℓ := ell_eq (N₀ := N₀) (L := L) hnK
@@ -135,7 +135,7 @@ theorem blockInd_dot_liftSum {G : GeneratingSet d L N₀ K ϱ} {n : ℕ} (hG : I
   have hμ : ∀ μ : Fin d, ∑ y ∈ (blockFibre (L ^ n) (N₀ * L ^ (K - n)) (0 : Torus d (N₀ * L ^ (K - n))) :
       Finset.{0} (Torus d (N₀ * L ^ K))), U (y μ) =
       ((L ^ n : ℕ) : ℂ) ^ (d - 1) * ∑ j : Fin (L ^ n),
-        U (blockSite (ℓ := N₀ * L ^ K) (L ^ n) (0 : ZMod (N₀ * L ^ (K - n))) j) := fun μ => by
+        U (cellSite (ℓ := N₀ * L ^ K) (L ^ n) (0 : ZMod (N₀ * L ^ (K - n))) j) := fun μ => by
     rw [sum_blockFibre_lift1 hℓ]
     simp only [Pi.zero_apply]
     rw [sum_fibre1 hℓ]
@@ -145,7 +145,7 @@ theorem blockInd_dot_liftSum {G : GeneratingSet d L N₀ K ϱ} {n : ℕ} (hG : I
 
 theorem sum_saw_block0 {ℓ N m : ℕ} [NeZero ℓ] [NeZero N] [NeZero m] (hℓ : ℓ = N * m)
     (F₂ F₁ F₀ : ZMod N → ℂ) :
-    ∑ j : Fin N, saw N m F₂ F₁ F₀ (blockSite (ℓ := ℓ) N (0 : ZMod m) j) = ∑ r, F₀ r := by
+    ∑ j : Fin N, saw N m F₂ F₁ F₀ (cellSite (ℓ := ℓ) N (0 : ZMod m) j) = ∑ r, F₀ r := by
   rw [← sum_fin_zmod F₀]
   refine Finset.sum_congr rfl fun j _ => ?_
   unfold saw

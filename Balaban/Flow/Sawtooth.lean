@@ -48,12 +48,12 @@ theorem slift_ediv (s : ZMod ℓ) : slift N m s / N = sb N m s := by
   rw [Int.mul_add_ediv_left _ _ hN.ne', Int.ediv_eq_zero_of_lt (by positivity) this, add_zero]
 
 /-- The `j`-th site of the block with coordinate `c`. -/
-def blockSite (N : ℕ) (c : ZMod m) (j : ℕ) : ZMod ℓ := ((c.val * N + j : ℕ) : ZMod ℓ)
+def cellSite (N : ℕ) (c : ZMod m) (j : ℕ) : ZMod ℓ := ((c.val * N + j : ℕ) : ZMod ℓ)
 
 omit [NeZero ℓ] [NeZero N] in
-theorem blockSite_val (hℓ : ℓ = N * m) (c : ZMod m) {j : ℕ} (hj : j < N) :
-    (blockSite (ℓ := ℓ) N c j).val = c.val * N + j := by
-  unfold blockSite
+theorem cellSite_val (hℓ : ℓ = N * m) (c : ZMod m) {j : ℕ} (hj : j < N) :
+    (cellSite (ℓ := ℓ) N c j).val = c.val * N + j := by
+  unfold cellSite
   apply ZMod.val_natCast_of_lt
   have h1 : c.val + 1 ≤ m := ZMod.val_lt c
   rw [hℓ]
@@ -61,19 +61,19 @@ theorem blockSite_val (hℓ : ℓ = N * m) (c : ZMod m) {j : ℕ} (hj : j < N) :
 
 omit [NeZero ℓ] in
 theorem blockCoord_blockSite (hℓ : ℓ = N * m) (c : ZMod m) {j : ℕ} (hj : j < N) :
-    blockCoord N m (blockSite (ℓ := ℓ) N c j) = c := by
+    blockCoord N m (cellSite (ℓ := ℓ) N c j) = c := by
   unfold blockCoord
-  rw [blockSite_val hℓ c hj]
+  rw [cellSite_val hℓ c hj]
   have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
   have : (c.val * N + j) / N = c.val := by
     rw [Nat.add_comm, Nat.add_mul_div_right _ _ hN, Nat.div_eq_of_lt hj, zero_add]
   rw [this]; simp
 
 theorem sum_fibre1 (hℓ : ℓ = N * m) (c : ZMod m) (g : ZMod ℓ → ℂ) :
-    ∑ s ∈ fibre1 (ℓ := ℓ) N m c, g s = ∑ j : Fin N, g (blockSite (ℓ := ℓ) N c j) := by
+    ∑ s ∈ fibre1 (ℓ := ℓ) N m c, g s = ∑ j : Fin N, g (cellSite (ℓ := ℓ) N c j) := by
   have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
   have himg : fibre1 (ℓ := ℓ) N m c =
-      Finset.univ.image (fun j : Fin N => blockSite (ℓ := ℓ) N c j) := by
+      Finset.univ.image (fun j : Fin N => cellSite (ℓ := ℓ) N c j) := by
     ext s
     simp only [fibre1, Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
     constructor
@@ -81,7 +81,7 @@ theorem sum_fibre1 (hℓ : ℓ = N * m) (c : ZMod m) (g : ZMod ℓ → ℂ) :
       have hv : s.val / N = c.val := by rw [← blockCoord_val hℓ, hs]
       refine ⟨⟨s.val % N, Nat.mod_lt _ hN⟩, ?_⟩
       apply ZMod.val_injective
-      rw [blockSite_val hℓ c (Nat.mod_lt _ hN)]
+      rw [cellSite_val hℓ c (Nat.mod_lt _ hN)]
       have := Nat.div_add_mod s.val N
       rw [hv] at this
       rw [Nat.mul_comm]; exact this
@@ -90,14 +90,14 @@ theorem sum_fibre1 (hℓ : ℓ = N * m) (c : ZMod m) (g : ZMod ℓ → ℂ) :
   rw [himg, Finset.sum_image]
   intro j _ j' _ h
   have h1 := congrArg ZMod.val h
-  rw [blockSite_val hℓ c j.2, blockSite_val hℓ c j'.2] at h1
+  rw [cellSite_val hℓ c j.2, cellSite_val hℓ c j'.2] at h1
   exact Fin.ext (by omega)
 
 omit [NeZero ℓ] in
 theorem slift_blockSite (hℓ : ℓ = N * m) (c : ZMod m) {j : ℕ} (hj : j < N) :
-    slift N m (blockSite (ℓ := ℓ) N c j) = (N : ℤ) * ZMod.valMinAbs c + j := by
+    slift N m (cellSite (ℓ := ℓ) N c j) = (N : ℤ) * ZMod.valMinAbs c + j := by
   unfold slift sb sc
-  rw [blockCoord_blockSite hℓ c hj, blockSite_val hℓ c hj]
+  rw [blockCoord_blockSite hℓ c hj, cellSite_val hℓ c hj]
   have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
   have : (c.val * N + j) % N = j := by
     rw [Nat.add_comm, Nat.add_mul_mod_self_right, Nat.mod_eq_of_lt hj]
