@@ -113,3 +113,9 @@ Author (Scott Armstrong), 2026-10-21: "approve R17". This approves: in the pre-`
 `D7Bdry2`, the H7 domain is read at the global history with the pre-`R` region `Z^pre_k` at the top scale, so the
 cube tests use the complement of `Ω_k` printed in P5 (1.36). Text in `AGENTS.md` ("Author rulings"). No frozen
 declaration changes.
+
+## Ruling R18 (2026-10-21)
+
+Author (Scott Armstrong), 2026-10-21: "approve R18". This approves: ruling R-N₁ extended to the first version of the
+small-field class `Def6.IsSFFamily` (torus clause on the read tori `L^{m₀} ∣ N₁`, renormalization conditions along
+them). Text in `AGENTS.md` ("Author rulings"). No frozen declaration changes.

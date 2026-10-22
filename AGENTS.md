@@ -155,6 +155,11 @@ provider, and nothing may import a root, until the root is sealed.
   `ψ_k` in the band outside the holes and `H7MixedDatumLoc2` is false (W1154d, `not_h7MixedDatumLoc2_of_site`). The
   transport across `R` (`d7Post_bound_of_avoid_of_gas`, `analytic_of_avoid`) splits off the labels within 3 cubes of
   a removed component, which go to the gas bound.
+- **Ruling R18 (2026-10-21, Scott: "approve R18").** Ruling R-N₁ extended to the first version of the small-field
+  class: in `Def6.IsSFFamily` the torus clause is asked only on the Def-6 tori the family reads, `L^{m₀} ∣ N₁`, and
+  the renormalization conditions along those tori (`RenormCondAlong … torusSeq`), as `D2SF2`/`SFFlat2` already do.
+  Without it the second version's read-tori family cannot be converted to the first version (`toLanded`), which the
+  filed estimates of the cell label (`norm_filed_le_power`, the R15 label bounds) consume (ORCH-A, A1).
 
 Roland's answers (`review/ROLAND_ANSWERS.md`), binding on scope:
 - (2026-10-11, batch 1) large fields are essential; hard spins with general `d ≥ 3`, `N ≥ 2`;
