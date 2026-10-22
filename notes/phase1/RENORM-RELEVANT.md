@@ -50,3 +50,23 @@ Supplied by Φ: the identification of `Tm'` with the expansion of `𝒟'_{ξ⁰}
    (the paving-group average) leaves `rel_i` unchanged (it should: `rel_i` is a sum over the whole torus).
 3. Which `a, v` enter the matrix: `a_{k+1}` and `ν_{k+1}` of the renormalized flow depend on `ξ`; P4 puts the `ξ`-dependence
    of `A` into `c̃` (`c̃ = c + (A(ξ) − A(0))ξ`). The proposal uses `A(0)`; `c` then includes `(A(ξ) − A(0))ξ`.
+
+## 6. S3 plan and a finding on the `dh` row (C3, orchC-rel3)
+
+The four functionals are evaluated on `𝒟C_ξ = C₁ − C₂` at the constant configurations `(ψ, h) = ((1+t)e, e)` and
+`(e, (1+s)e)`. For these data the background is explicit and constant (no Green function): `φ = e`,
+multiplier `α = a t` (resp. `ν s`), and the renormalized datum `((1+ζ)ψ, h)` has the constant background `e` too, so
+`δφ = 0` and `C₂ ≡ 0` along both curves. Statements to prove (with `deriv`/`fderiv`, the right sides of `hpsi`/`hh`):
+(S3a) `deriv (t ↦ 𝒟C_ξ(0; (1+t)e, e)) 0 = a (1+ξ₃)(ζ + ζ²)` (per block weight), i.e. row 1 of `A` plus second-order terms,
+using `renormC1` at `φ = e`: the block term `ξ₃/2 · a t²` has derivative `0`, the cross term `(1+ξ₃) ζ a ⟨Ψ, Ψ−Qφ⟩`
+with `⟨Ψ,Ψ−Qφ⟩ = (1+t)t` gives `(1+ξ₃) ζ a`, and `(1+ξ₃) ζ²/2 · a (1+t)²` gives `(1+ξ₃) ζ² a`.
+(S3b) `fderiv (h ↦ 𝒟C_ξ(0; e, h)) e e`. **Finding:** with the landed convention `action ∋ (ν/2)‖φ − h‖²`
+(and `renormC1 ∋ (νξ₂/2) massPair`) this derivative is `0` for all `ξ`: `massPair = s²` along `h = (1+s)e`. So
+row 2 of `A` (`a₂₂ = 1`, the term `βξ₂` of (E2)) is NOT produced by `𝒟C`. In P4's convention the mass term is
+`ν(1 − φ·h)` (no `‖h‖²` term), whose radial `h`-derivative is `−νφ·e ≠ 0`; the two conventions differ by
+`(ν/2)(‖h‖² − 1)` per site, so `rel_dh` differs by `ν` per site, and `ν_{k+1} = ν_k L²(1+ξ₃)/(1+ξ₂)` makes that
+difference depend on `ξ₂` nonlinearly (`−β_uν_u ξ₂` at first order). Decision needed (main orchestrator / CLASS-RULINGS Q-B):
+either `dh` of the class is the derivative of `ℰ` with the `ν‖h‖²/2` bookkeeping of P4 (then `A` row 2 and `Λ₂` change by
+the factor `ν`), or the system's second equation is stated for the Lean `dh`. Until decided, S3b is not coded.
+(S3c) the second moment: `Σ_x |x|² ∂²/∂ψ(x)∂ψ(0)`: needs the first-order response of the background to a local
+perturbation (`φ^{(1)} = aGQ*ψ'_⊥`, `G` the lattice Green function) — the genuinely non-elementary part (P4 (5.8)–(5.14)).
