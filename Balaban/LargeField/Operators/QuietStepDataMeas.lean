@@ -258,15 +258,24 @@ theorem measurable_psiLevel :
     exact measurable_const
 
 open Classical in
-theorem measurable_domainAction
+theorem locDomain_glue
     (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.muBg q)) :
-    Measurable fun p : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) ×
-        NewCfg N (locHist Hl M K (k + 1) Zc) k =>
-      (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+    ∃ (E' : Set (QY1 g N k × QMS g N k))
+      (Φ : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) × NewCfg N (locHist Hl M K (k + 1) Zc) k →
+        QY1 g N k × QMS g N k)
+      (φ : QY1 g N k × QMS g N k → Site S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1) →
+        EuclideanSpace ℝ (Fin N)),
+      MeasurableSet E' ∧ Measurable Φ ∧ ContinuousOn φ E' ∧
+      (∀ p, Φ p ∈ E' ↔
+        (InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
           (locData g Hl k Zc hZc hk p.1 p.2 hv) ∧
         InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
-          (locData g Hl k Zc hZc hk p.1 p.2 hv) then (1 : ℝ) else 0) *
-        Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem p.1 p.2 hv) := by
+          (locData g Hl k Zc hZc hk p.1 p.2 hv))) ∧
+      (∀ p, (Φ p).2 = psiLevel g Hl k hk
+          (subMultiscaleField N (locHist Hl M K (k + 1) Zc) (k + 1)
+            (Vblk R (locHist Hl M K (k + 1) Zc) (k + 1)) p.2 p.1)) ∧
+      (∀ p, φ (Φ p) = locPhi g Hl k Zc hZc hk cs p.1 p.2 hv) ∧
+      (∀ p, (Φ p).1.1 = blockCfgOf g Hl.F.hnn (Nat.le_succ k) hk (subVarField N p.2 k)) := by
   classical
   set G := locGen g Hl k Zc hZc hk with hG
   have hd : 0 < S.d := by
@@ -309,22 +318,38 @@ theorem measurable_domainAction
       InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1) ∧
         InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D r.1)} :=
     hE.preimage measurable_fst
+  refine ⟨_, Φ, fun r z => (WithLp.toLp 2 fun i =>
+      (barField G (D r.1).Ψ (bgFieldC G cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) (D r.1)) z i).re :
+      EuclideanSpace ℝ (Fin N)), hE', hΦ,
+    hphi.comp continuous_fst.continuousOn (fun r hr => hr), fun p => Iff.rfl, fun p => rfl,
+    fun p => rfl, fun p => rfl⟩
+
+open Classical in
+theorem measurable_domainAction
+    (hbgB : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.muBg q)) :
+    Measurable fun p : OutT N R (locHist Hl M K (k + 1) Zc) (k + 1) ×
+        NewCfg N (locHist Hl M K (k + 1) Zc) k =>
+      (if InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.mu (k + 1))
+          (locData g Hl k Zc hZc hk p.1 p.2 hv) ∧
+        InUnionDomainR (locGen g Hl k Zc hZc hk) (bgC1 S.d S.L N) (cs.muBg (k + 1))
+          (locData g Hl k Zc hZc hk p.1 p.2 hv) then (1 : ℝ) else 0) *
+        Real.exp (-mainActionLoc g Hl k Zc hZc hk cs hrem p.1 p.2 hv) := by
+  classical
+  obtain ⟨E', Φ, φ, hE', hΦ, hφ, hmem, hms, hφe, -⟩ := locDomain_glue g Hl k Zc hZc hk cs hv hbgB
   have hf1 := continuousOn_expAction (histGenLevel g Hl k hk hrem) cs.aw (cs.muAct (k + 1)) hv
     (Xfine g Hl k Zc) (betaCanon S.d S.L (cs.beta (k + 1)) (k + 1) 0)
-    (E := {r : QY1 g N k × QMS g N k | InUnionDomainR G (bgC1 S.d S.L N) (cs.mu (k + 1)) (D r.1) ∧
-      InUnionDomainR G (bgC1 S.d S.L N) (cs.muBg (k + 1)) (D r.1)})
-    (ms := fun r => r.2) (φ := fun r => (fun (z : Site S.d S.L (g.M1 * (g.c * n (k + 1))) (k + 1)) =>
-      (WithLp.toLp 2 fun i =>
-      (barField G (D r.1).Ψ (bgFieldC G cs.aw (cs.muBg (k + 1)) (bgC0 S.d S.L N) (D r.1)) z i).re :
-      EuclideanSpace ℝ (Fin N))))
-    continuous_snd (hphi.comp continuous_fst.continuousOn (fun r hr => hr))
+    (E := E') (ms := fun r => r.2) (φ := φ) continuous_snd hφ
   have : OpensMeasurableSpace (QY1 g N k × QMS g N k) := Prod.opensMeasurableSpace
-  have hF := measurable_indicator_mul hE' hf1
-  have hcomp := hF.comp hΦ
+  have hcomp := (measurable_indicator_mul hE' hf1).comp hΦ
   convert hcomp using 1
   funext p
-  refine congrArg₂ (· * ·) ?_ rfl
-  congr 1
+  refine congrArg₂ (· * ·) ?_ ?_
+  · exact if_congr (hmem p).symm rfl rfl
+  · show _ = Real.exp (-(betaCanon S.d S.L (cs.beta (k + 1)) (k + 1) 0 *
+      (actionG (histGenLevel g Hl k hk hrem) cs.aw (cs.muAct (k + 1)) hv (Xfine g Hl k Zc)
+        (Φ p).2 (φ (Φ p)) + 1 / 4 * starBondE (Xfine g Hl k Zc) (φ (Φ p)))))
+    rw [hms p, hφe p]
+    rfl
 
 theorem quietKernel_measurable
     (hbg : ∀ q, BgHyp S.d S.L q (minSep S.L g.M1) cs.aw (cs.mu q))
