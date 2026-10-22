@@ -177,6 +177,7 @@ theorem norm_integral_family_le (hB0 : 0 ≤ B0)
   simp only [sub_nonneg]
   exact Real.one_le_exp (by positivity)
 
+omit [Fintype B] in
 /-- The scalar GAS bound for the dominating weights `B₀ e^{-κ'' d(Y)}` and `e^{-p-h|Z|}`: the
 scalar input of `gasOp_activity_bound`. -/
 theorem gasBound_norm_le (hB0 : 0 ≤ B0) (hκ' : 0 ≤ κ') (hκ'' : κ' ≤ κ'') (hc : 0 ≤ c)

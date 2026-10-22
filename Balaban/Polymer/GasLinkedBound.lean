@@ -44,6 +44,7 @@ theorem gasLinkedA_imp_gasA (hact : ∀ y, activation y ⊆ footprint y)
   push Not at hmeet
   exact hmeet
 
+omit [Fintype B] in
 /-- The connected linked activity has the same bound as the landed gas when the decay and
 geometry are measured on charged footprints. The geometric subadditivity premise is stated
 for the landed family so that its existing absolute family majorant applies directly. -/
@@ -78,6 +79,7 @@ theorem gasLinked_activity_bound {d : Finset B → ℝ}
       (fun _ => (Real.exp_pos _).le) hent Γ b) hK1
     (sum_filter_le_of_count hτ hcount) hh X hG1
 
+omit [Fintype B] in
 /-- The landed activity estimate is the intersection-mode specialization of the linked
 estimate. Its numeric hypotheses and conclusion are unchanged. -/
 theorem gas_activity_bound_of_gasLinked {d : Finset B → ℝ}
