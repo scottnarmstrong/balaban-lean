@@ -8,6 +8,7 @@ module
 public import Balaban.Fluctuation.RenormExpBounds
 public import Balaban.SmallField.RenormRelevantAdd
 public import Balaban.Fluctuation.RenormExpLemma35
+public import Balaban.Fluctuation.Lemma25Xi
 
 /-!
 # The background of constant data on a whole-lattice level
@@ -26,12 +27,6 @@ namespace Balaban.Fluctuation
 open Balaban Balaban.Multiscale Balaban.Background Balaban.SmallField Matrix
 
 variable {d L N₀ k N : ℕ} [NeZero N₀] [NeZero L] {ϱ : ℝ} {G : GeneratingSet d L N₀ k ϱ} {n : ℕ}
-
-theorem IsLevel.collar_eq (hG : IsLevel G n) : collar G = ∅ := by
-  ext x
-  simp only [Finset.notMem_empty, iff_false]
-  intro hx
-  exact ((mem_collar G).1 hx).1 (hG x).1
 
 theorem IsLevel.dataSites_eq (hG : IsLevel G n) : dataSites G = Finset.univ := by
   ext x

@@ -2715,6 +2715,7 @@ public import Balaban.Flow.Sawtooth
 public import Balaban.Flow.KernelDecay
 public import Balaban.Flow.PairDecay
 public import Balaban.Flow.MomentLimit
+public import Balaban.Flow.Jet
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
