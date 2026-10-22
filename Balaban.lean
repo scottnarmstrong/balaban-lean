@@ -752,6 +752,7 @@ public import Balaban.SmallField.Def6v2
 public import Balaban.SmallField.XiCScale
 public import Balaban.SmallField.XiCStep
 public import Balaban.SmallField.RenormRelevantConst
+public import Balaban.SmallField.RenormRelevantResponse
 public import Balaban.Background.ScaledDomain
 public import Balaban.Background.ScaledDomainC
 public import Balaban.Fluctuation.RenormXiC
@@ -2773,6 +2774,8 @@ public import Balaban.Polymer.TwoTorusGapTowerTieNew
 public import Balaban.Flow.TriangularChart
 public import Balaban.Flow.MatrixInftyAnalytic
 public import Balaban.Flow.LatticeSums
+public import Balaban.Flow.CellGreen
+public import Balaban.Flow.BlockPoly
 public import Balaban.Flow.PhysicalStepThreshold
 public import Balaban.Correlations.PhysicalStepInputs
 public import Balaban.SmallField.IrrelTorusDefectPointSymm
