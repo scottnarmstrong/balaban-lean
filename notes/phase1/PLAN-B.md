@@ -563,6 +563,18 @@ approved declaration.
   split `Sb` with `old := O` (then `sum_eq` and `OldPartEq` hold by `rfl`); item 6 is then the statement that this `O`
   is the old part of P5 (2.48), (3.2), i.e. the identity `oldTotal_eq_sum_oldBOut` read through `oldB2` at the step's
   data, which the provider's definition of `new` must complement.
+  **Nothing by fiat (orchestrator, 2026-10-22).** Each of the three parts is defined as the source defines it, and
+  "`B` is the source's `ℬ^{(k+1)}`" is then a theorem about the three definitions; never `new := ℬ − old`, never `B`
+  chosen so that `OldPartEq` holds by construction while its meaning is open.  Correspondence:
+  `old` — the old boundary terms `ℬ^{(k)}(X′)` of the record whose domains meet `Ω_{k+1}`, integrated in the
+  fluctuation integral of the step on the region: P5 (2.16)–(2.20), (2.39) (the composed field), (2.48) (the term
+  `∫₀¹ du ⟨ℬ″^{(k)}(ψ^{(k)}_loc(θ) + β_k^{-1/2} C^{(k)1/2}_loc ψ̂)⟩″_u`), (3.1)–(3.2) (the localized measure and its
+  cluster expansion), P6 (4.32)–(4.34) (re-expansion at the output labels), FLUCTUATION Theorem 3.1 (c); LFR Lemma
+  IV.1.5 (iii).  `new` — the new boundary terms: the cluster terms of the fluctuation integral with no old boundary term,
+  the renormalization and the surface terms, P5 Propositions 3.1–3.4, P6 Propositions 2.1–2.3, P6 p. 15; LFR Lemma
+  IV.1.5 (i).  `delta` — the terms `Δ(Y)` of the expansion (IV.1.1) of the main action at the complete background with
+  `Y` meeting `Z^c_{k+1}`: LFR Lemma IV.1.3, FLUCTUATION Theorem 4.2; LFR Lemma IV.1.5 (ii).  The sum is `ℬ^{(k+1)}` of
+  P5 (3.2)–(3.3) (LFR Lemma IV.1.5).
   Total ≈ 9,400 lines; the order 1 → 2 → 3 (with 4 in parallel) → 6 → 5 → 7.
 ## Reading B-1 (ORCH-B, accepted 2026-10-21 by the main orchestrator; blocker 5, the box split)
 - The small-field half of the last integral is the term of P7 (4.9)/(4.11) with no final large-field region: the fluctuation
