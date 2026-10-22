@@ -1194,6 +1194,15 @@ below). A6-3 and A6-4 are the last integral proper (blocker 5).
        `θ = max 0 (1 - dist(·, Vᶜ)/N)`, energy of `θ z` from the gradient block decay. The flux form of `greenFn_resolvent_identity` loses
        `N^{1/2}` against block `L²` bounds and is not used. Open: the new body of `finalWhiten`, its cut family, the error bounds from
        `norm_sqrtMat_sub_le` and `dirichletFinalOp_sub_le`, and the update of `sfWhiten`.
+     * **B1 piece 6, decision B-1″ (a) (2026-10-22): the local-pair whitening.** `Green/FinalBoxLocWhiten`: `pairCoarse D m p` (the
+       coarse sites within `m` of the macro region of `locDom p`), `pairSites`, `pairOp = dirichletFinalOp (pairSites)`; `finalWhiten d L
+       N₀ k M v a h D m` has row `p` = row `p` of `boxCutU a (pairOp p) h (cutTo (locDom p) 1)` (`whitenCut` its cut family, decoupled by
+       the new core `CutDecoupling.diag`). Error bounds: cut part `norm_boxCutU_cutTo_sub_le` (generic `U` with `CutOpHyp`), pair part
+       `norm_pairCut_sub_le` from `norm_pairOp_sub_finalOp_le` (`dirichletFinalOp_sub_le` at `W = univ`) and the new shared core
+       `norm_sqrtMat_sub_le_of_deep` (`Green/FinalSqrtCompare`: comparison of the inverse square roots below a centre of depth `m`,
+       `e^{-(ε/4) m} e^{-(ε/4)|x - y|}`); `norm_finalWhiten_sub_le`, `whitenErr` (with `+ pairErrConst e^{-(ε/4) m}`), mismatch bound,
+       `exists_whitenRadius` and `exists_isUnit_finalWhiten` for all `D, m ≥ D₀`. `sfWhiten C hv Mc D mp` and the Spine files carry the
+       margin. Moved: `fineHamiltonian_posDef`, `fineHamiltonian_isUnit_det` (verbatim, `Green/FinalHessian` → `Green/FineHamiltonianPosDef`).
 
 4. **`FinalLargeFieldInput` (A6-4, the large-field part: final-scale representation and linked gas; P7 (4.9)–(4.14), P5 (3.18);
    LFR Lemma IV.4.2, (IV.4.1); blocker 5, item 18).** There is `b` with `ObservableActivities … κ (c₉/2) δ (k+1) kf b` and

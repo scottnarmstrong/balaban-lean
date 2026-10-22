@@ -300,7 +300,8 @@ variable {d L N₀ k : ℕ} [NeZero N₀] [NeZero L]
 theorem fineHamiltonian_quad_nonneg (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < a)
     (u : Torus d (N₀ * L ^ k) → ℝ) :
     0 ≤ u ⬝ᵥ fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a *ᵥ u := by
-  have := (fineHamiltonian_posDef (L := L) (N₀ := N₀) (k := k) hd hν ha).posSemidef
+  have := (fineHamiltonian_posDef (mul_comm N₀ (L ^ k))
+    (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))) hd hν ha).posSemidef
     |>.dotProduct_mulVec_nonneg u
   simpa using this
 
@@ -308,7 +309,8 @@ theorem fineHamiltonian_submatrix_isUnit (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ 
     (V : Finset (Torus d (N₀ * L ^ k))) :
     IsUnit ((fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a).submatrix
       ((↑) : V → Torus d (N₀ * L ^ k)) ((↑) : V → Torus d (N₀ * L ^ k))) :=
-  ((fineHamiltonian_posDef hd hν ha).submatrix Subtype.val_injective).isUnit
+  ((fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
+    hd hν ha).submatrix Subtype.val_injective).isUnit
 
 /-- The Dirichlet solution of the unit-lattice operator satisfies the equation on `V`. -/
 theorem fineDirichlet_eq (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < a)

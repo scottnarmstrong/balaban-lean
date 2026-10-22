@@ -45,6 +45,13 @@ theorem conjM_inv (A : Matrix ι ι ℂ) : conjM A⁻¹ = (conjM A)⁻¹ := by
     simp [conjM_apply, Matrix.conjTranspose_apply]
   rw [e, e, Matrix.conjTranspose_nonsing_inv, Matrix.transpose_nonsing_inv]
 
+/-- The complexification of a real matrix is fixed by conjugation (shared core). -/
+theorem conjM_map_ofReal (U : Matrix ι ι ℝ) :
+    conjM (U.map (algebraMap ℝ ℂ)) = U.map (algebraMap ℝ ℂ) := by
+  ext x y
+  rw [conjM_apply]
+  exact Complex.conj_ofReal _
+
 theorem conjM_diagonal (c : ι → ℂ) :
     conjM (Matrix.diagonal c) = Matrix.diagonal fun i => conj (c i) := by
   ext i j
@@ -109,10 +116,8 @@ section Final
 
 variable {d L N₀ k M N : ℕ} [NeZero N₀] [NeZero L] {v a : ℝ}
 
-theorem conjM_finalOp : conjM (finalOp d L N₀ k v a) = finalOp d L N₀ k v a := by
-  ext x y
-  rw [conjM_apply]
-  exact Complex.conj_ofReal _
+theorem conjM_finalOp : conjM (finalOp d L N₀ k v a) = finalOp d L N₀ k v a :=
+  conjM_map_ofReal (ι := L1Torus d N₀) (unconstrainedUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ v a)
 
 omit [NeZero L] in
 /-- **Conjugation of the Stieltjes square-root family of a real matrix** (shared core):

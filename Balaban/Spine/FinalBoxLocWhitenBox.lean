@@ -16,8 +16,8 @@ public import Balaban.Spine.InheritedBound
 The box integral changes variables by `ψ_k = h + A w`, `w` the standard Gaussian variable of the box
 `|w_p| ≤ p₁` (`gaussBox`), with the whitening `A = β_k^{-1/2} L` (`sfWhiten`), `L` the localized
 square root of the final Hessian of the class (`finalWhitenR` at the background mass
-`μ_k L^{2k}` and the weight `a_k` of `sfFinalK`, macro side `M_c`, localization radius `D`), read on
-the `k`-blocks.
+`μ_k L^{2k}` and the weight `a_k` of `sfFinalK`, macro side `M_c`, localization radius `D`,
+pair margin `mp`), read on the `k`-blocks.
 
 * `abs_matAct_le_of_row_bound`, `norm_sub_le_sqrt_mul`: `|(A w)_p| ≤ B p₁` for row sums of `A` at
   most `B`, and `‖ψ_k(y) - h‖ ≤ √N B p₁`;
@@ -102,29 +102,30 @@ theorem chiY_eq_one_of_row_bound (C : SFCtx S n R M K N k m₁ ϱ) (Y : Set (Tor
   rw [spinField_symm_add_apply, add_sub_cancel_left]
   exact abs_matAct_le_of_row_bound hB hp1 hw (y, i)
 
-/-- **The whitening of the box integral** (Amendment B-1′): `A = β_k^{-1/2} L`, `L` the localized
+/-- **The whitening of the box integral** (Amendment B-1″): `A = β_k^{-1/2} L`, `L` the localized
 square root of the final Hessian of `sfFinalK` (background mass `μ_k L^{2k}`, weight `a_k`), with
-macro cells of side `M_c` and localization radius `D`, read on the `k`-blocks. -/
+macro cells of side `M_c`, localization radius `D` and pair margin `mp` (row `p` from the Dirichlet
+problem on the fine sites within `mp` of the macro region of `locDom p`), read on the `k`-blocks. -/
 noncomputable def sfWhiten (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
-    (Mc D : ℕ) : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ :=
+    (Mc D mp : ℕ) : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ :=
   Real.sqrt (C.sf.β k)⁻¹ • finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-    (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D
+    (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp
 
 /-- **Row sums of the whitening**: at most `β_k^{-1/2} boxCutConst`. -/
 theorem sfWhiten_row_bound (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
     (hunit : ‖hv‖ = 1) {Mc : ℕ} {κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α)
-    (D : ℕ) (p : BlockAt S n M K k × Fin N) :
-    ∑ q, |sfWhiten C hv Mc D p q| ≤
+    (D mp : ℕ) (p : BlockAt S n M K k × Fin N) :
+    ∑ q, |sfWhiten C hv Mc D mp p q| ≤
       Real.sqrt (C.sf.β k)⁻¹ * boxCutConst S.d S.L N (C.weights k) κ 1 := by
   have hκ0 : 0 ≤ κ := by linarith [hBC.ties.1]
   have hrow := finalWhiten_row_bound (N₀ := M * n K * S.L ^ (K - k)) (k := k) (M := Mc)
     hBC.hd hBC.hk hBC.hv0 hBC.hv1 hBC.ha1 hBC.ha2 hBC.hmass hBC.hM hκ0 hBC.ties.2.1
     hBC.ties.2.2.1 (h := fun i => ((hv i : ℝ) : ℂ)) (p := 1)
-    (norm_spinProj_ofReal_le_one (sum_sq_eq_one_of_norm_eq_one hv hunit)) D p
-  have e : ∀ q, |sfWhiten C hv Mc D p q| = Real.sqrt (C.sf.β k)⁻¹ *
+    (norm_spinProj_ofReal_le_one (sum_sq_eq_one_of_norm_eq_one hv hunit)) D mp p
+  have e : ∀ q, |sfWhiten C hv Mc D mp p q| = Real.sqrt (C.sf.β k)⁻¹ *
       |(finalWhiten S.d S.L (M * n K * S.L ^ (K - k)) k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
-        (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D p q).re| := fun q => by
+        (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp p q).re| := fun q => by
     show |Real.sqrt (C.sf.β k)⁻¹ * _| = _
     rw [abs_mul, abs_of_nonneg (Real.sqrt_nonneg _)]
     rfl
@@ -138,38 +139,41 @@ theorem chiY_sfWhiten_eq_one (C : SFCtx S n R M K N k m₁ ϱ) (Y : Set (Torus S
     (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1)
     (H : BgHyp S.d S.L k (minSep S.L C.geo.M1) C.weights (C.cs.mu k)) {Mc : ℕ} {κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α)
-    (D : ℕ) {p1 : ℝ} (hp1 : 0 ≤ p1)
+    (D mp : ℕ) {p1 : ℝ} (hp1 : 0 ≤ p1)
     {w : BlockAt S n M K k × Fin N → ℝ} (hw : w ∈ gaussBox (BlockAt S n M K k × Fin N) p1)
     {m δ' : ℝ} (hm0 : 0 ≤ m)
     (hm : Real.sqrt N * (Real.sqrt (C.sf.β k)⁻¹ * boxCutConst S.d S.L N (C.weights k) κ 1 * p1) ≤ m)
     (hm1 : m ≤ 1 / 2) (hmδ : 3 * m < δ') (hδ'1 : δ' ≤ bgC1 S.d S.L N)
     (hK : bgK1 S.d S.L N * δ' + m < C.cs.delta k) :
     C.chiY Y ((spinField (BlockAt S n M K k) N).symm
-      (spinField (BlockAt S n M K k) N (fun _ => hv) + matAct (sfWhiten C hv Mc D) w)) hv = 1 :=
+      (spinField (BlockAt S n M K k) N (fun _ => hv) + matAct (sfWhiten C hv Mc D mp) w)) hv = 1 :=
   chiY_eq_one_of_row_bound C Y hv (sum_sq_eq_one_of_norm_eq_one hv hunit) H hBC.hk
-    (sfWhiten_row_bound C hv hunit hBC D) hp1 hw hm0 hm hm1 hmδ hδ'1 hK
+    (sfWhiten_row_bound C hv hunit hBC D mp) hp1 hw hm0 hm hm1 hmδ hδ'1 hK
 
 /-- **The whitening is invertible** when the mismatch bound is below `1` (at some
-`0 ≤ r' < r ≤ ε/8`; `exists_whitenRadius` gives such radii `D`). -/
+`0 ≤ r' < r ≤ ε/8`; `exists_whitenRadius` gives such radii `D` and margins `mp`). -/
 theorem sfWhiten_det_ne_zero_of_lt_one (C : SFCtx S n R M K N k m₁ ϱ)
     (hv : EuclideanSpace ℝ (Fin N)) (hunit : ‖hv‖ = 1) (hβ : 0 < C.sf.β k) {Mc : ℕ} {κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α)
     (hv0 : 0 < C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) [NeZero N] {r r' : ℝ} (hr'0 : 0 ≤ r')
-    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D : ℕ)
-    (hsmall : whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D < 1) :
-    (sfWhiten C hv Mc D).det ≠ 0 := by
+    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D mp : ℕ)
+    (hsmall : whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+        (C.weights k) κ 1 r r' D mp < 1) :
+    (sfWhiten C hv Mc D mp).det ≠ 0 := by
   have hh := sum_sq_eq_one_of_norm_eq_one hv hunit
   have hu := isUnit_finalWhiten_of_lt_one (N₀ := M * n K * S.L ^ (K - k)) hBC hv0 hh
-    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D hsmall
+    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D mp hsmall
   have hdetC := (Matrix.isUnit_iff_isUnit_det _).1 hu
   rw [← finalWhitenR_map, ← RingHom.mapMatrix_apply, ← RingHom.map_det] at hdetC
   have hR : (finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D).det ≠ 0 := by
+      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
+          (fun i => ((hv i : ℝ) : ℂ)) D mp).det ≠ 0 := by
     intro h0
     rw [h0, map_zero] at hdetC
     exact not_isUnit_zero hdetC
   have key : (Real.sqrt (C.sf.β k)⁻¹ • finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D).det ≠ 0 := by
+      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
+          (fun i => ((hv i : ℝ) : ℂ)) D mp).det ≠ 0 := by
     rw [Matrix.det_smul]
     exact mul_ne_zero (pow_ne_zero _ (Real.sqrt_pos.2 (inv_pos.2 hβ)).ne') hR
   exact key

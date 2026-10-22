@@ -6,6 +6,7 @@ Authors: Scott Armstrong
 module
 
 public import Balaban.Green.BlockNorm
+public import Balaban.Green.FineHamiltonianPosDef
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.FieldSimp
@@ -67,18 +68,10 @@ end Inverse
 
 /-! ### Block decay for the unit-lattice Green's function -/
 
-theorem fineHamiltonian_posDef (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < a) :
-    (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a).PosDef := by
-  have hℓ : N₀ * L ^ k = L ^ k * N₀ := mul_comm _ _
-  have hN : 0 < L ^ k := Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L))
-  have hN' : (0 : ℝ) < ((L ^ k : ℕ) : ℝ) := by exact_mod_cast hN
-  have hc : (0 : ℝ) < ((L ^ k : ℕ) : ℝ) ^ 2 := by positivity
-  rw [fineHamiltonian_eq hN]
-  exact (blockHamiltonian_posDef hℓ hN hd (div_nonneg hν hc.le) (div_pos ha hc)).smul hc
-
 theorem fineHamiltonian_isUnit (hd : 0 < d) {ν a : ℝ} (hν : 0 ≤ ν) (ha : 0 < a) :
     IsUnit (fineHamiltonian d (N₀ * L ^ k) (L ^ k) N₀ ν a) :=
-  (fineHamiltonian_posDef hd hν ha).isUnit
+  (fineHamiltonian_posDef (mul_comm N₀ (L ^ k)) (Nat.pos_of_ne_zero (pow_ne_zero _ (NeZero.ne L)))
+    hd hν ha).isUnit
 
 theorem norm_ofReal_sub_sq (r s : ℝ) : ‖(r : ℂ) - (s : ℂ)‖ ^ 2 = (r - s) ^ 2 := by
   rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs, sq_abs]

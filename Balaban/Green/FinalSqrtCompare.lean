@@ -181,4 +181,100 @@ theorem norm_sqrtMat_sub_le [Nonempty ι] {U₁ U₂ : Matrix ι ι ℂ} {c₀ �
     (fun t ht => (combesThomas hc hδ hγ hκ h₂ hK hc₂ ht).1)
     (hres h₁ hc₁) (hres h₂ hc₂) hη x y
 
+/-- The geometric mean of two entrywise bounds of a difference. -/
+theorem le_sqrt_mul_of_le_of_le {X b₁ b₂ : ℝ} (hX : 0 ≤ X) (h₁ : X ≤ b₁) (h₂ : X ≤ b₂) :
+    X ≤ Real.sqrt (b₁ * b₂) :=
+  Real.le_sqrt_of_sq_le (by nlinarith)
+
+/-- **Comparison deep inside** (shared core): if moreover `U₁ = U₂` up to
+`B e^{-(δ₀/2)(τ(u) + τ(v))}` with the depth `τ(u) = max 0 (m - |x₀ - u|)` below the centre `x₀`,
+then for `0 < ε ≤ min(ρ, δ₀)`,
+`‖sqrtMat U₁ (x₀, y) - sqrtMat U₂ (x₀, y)‖ ≤ 4/(γ₀ √γ₀) (2 B c₀)^{1/2} κ₁ κ e^{-(ε/4) m} e^{-(ε/4)|x₀ - y|}`,
+`κ₁` a ball-sum bound at the rate `ρ/4`, `ρ = ctRate c₀ δ₀ γ₀ κ`. -/
+theorem norm_sqrtMat_sub_le_of_deep [Nonempty ι] {U₁ U₂ : Matrix ι ι ℂ} {c₀ δ₀ γ₀ κ κ₁ : ℝ}
+    (hc : 0 ≤ c₀) (hδ : 0 < δ₀) (hγ : 0 < γ₀) (hκ : 0 ≤ κ)
+    (hK : ∀ x : ι, ∑ y, Real.exp (-(δ₀ / 4) * dist x y) ≤ κ)
+    (hK₁ : ∀ x : ι, ∑ y, Real.exp (-(ctRate c₀ δ₀ γ₀ κ / 4) * dist x y) ≤ κ₁)
+    (h₁ : ∀ x y, ‖U₁ x y‖ ≤ c₀ * Real.exp (-δ₀ * dist x y))
+    (h₂ : ∀ x y, ‖U₂ x y‖ ≤ c₀ * Real.exp (-δ₀ * dist x y))
+    (hc₁ : IsCoercive U₁ γ₀) (hc₂ : IsCoercive U₂ γ₀) {B : ℝ} (hB : 0 ≤ B) (x₀ : ι) (m : ℝ)
+    (hη : ∀ u v, ‖U₁ u v - U₂ u v‖ ≤
+      B * Real.exp (-(δ₀ / 2 * (max 0 (m - dist x₀ u) + max 0 (m - dist x₀ v)))))
+    {ε : ℝ} (hε0 : 0 < ε) (hερ : ε ≤ ctRate c₀ δ₀ γ₀ κ) (hεδ : ε ≤ δ₀) (y : ι) :
+    ‖Localization.sqrtMat U₁ x₀ y - Localization.sqrtMat U₂ x₀ y‖ ≤
+      4 / (γ₀ * Real.sqrt γ₀) * (Real.sqrt (2 * B * c₀) * κ₁ * κ) *
+        (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) := by
+  set ρ := ctRate c₀ δ₀ γ₀ κ with hρ
+  set τ : ι → ℝ := fun u => max 0 (m - dist x₀ u) with hτ
+  set η : ι → ι → ℝ := fun u v => Real.sqrt (2 * B * c₀) *
+    (Real.exp (-(δ₀ / 4 * (τ u + τ v))) * Real.exp (-(δ₀ / 2 * dist u v))) with hηdef
+  have hη' : ∀ u v, ‖U₁ u v - U₂ u v‖ ≤ η u v := by
+    intro u v
+    have hb₂ : ‖U₁ u v - U₂ u v‖ ≤ 2 * c₀ * Real.exp (-δ₀ * dist u v) :=
+      (norm_sub_le _ _).trans (by linarith [h₁ u v, h₂ u v])
+    refine (le_sqrt_mul_of_le_of_le (norm_nonneg _) (hη u v) hb₂).trans (le_of_eq ?_)
+    have e : B * Real.exp (-(δ₀ / 2 * (τ u + τ v))) * (2 * c₀ * Real.exp (-δ₀ * dist u v)) =
+        (2 * B * c₀) * Real.exp (-(δ₀ / 2 * (τ u + τ v)) + -δ₀ * dist u v) := by
+      rw [Real.exp_add]; ring
+    rw [e, Real.sqrt_mul (by positivity), ← Real.exp_half]
+    simp only [hηdef]
+    rw [← Real.exp_add]
+    congr 2
+    ring
+  have hmain := norm_sqrtMat_sub_le hc hδ hγ hκ hK h₁ h₂ hc₁ hc₂ hη' x₀ y
+  rw [← hρ] at hmain
+  have h4 : 0 ≤ 4 / (γ₀ * Real.sqrt γ₀) := by positivity
+  rw [mul_assoc]
+  refine hmain.trans (mul_le_mul_of_nonneg_left ?_ h4)
+  have hterm : ∀ u v, Real.exp (-ρ * dist x₀ u) * η u v * Real.exp (-ρ * dist v y) ≤
+      Real.sqrt (2 * B * c₀) * (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) *
+        (Real.exp (-(ρ / 4) * dist x₀ u) * Real.exp (-(δ₀ / 4) * dist u v)) := by
+    intro u v
+    have ht : dist x₀ y ≤ dist x₀ u + dist u v + dist v y := by
+      linarith [dist_triangle x₀ v y, dist_triangle x₀ u v]
+    have hτu : m - dist x₀ u ≤ τ u := le_max_right _ _
+    have hτu0 : 0 ≤ τ u := le_max_left _ _
+    have hτv0 : 0 ≤ τ v := le_max_left _ _
+    have ha := dist_nonneg (x := x₀) (y := u)
+    have hb := dist_nonneg (x := u) (y := v)
+    have hc' := dist_nonneg (x := v) (y := y)
+    have e1 : Real.exp (-ρ * dist x₀ u) * η u v * Real.exp (-ρ * dist v y) =
+        Real.sqrt (2 * B * c₀) * Real.exp (-ρ * dist x₀ u + -(δ₀ / 4 * (τ u + τ v)) +
+          -(δ₀ / 2 * dist u v) + -ρ * dist v y) := by
+      simp only [hηdef, Real.exp_add]; ring
+    have e2 : Real.sqrt (2 * B * c₀) * (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) *
+        (Real.exp (-(ρ / 4) * dist x₀ u) * Real.exp (-(δ₀ / 4) * dist u v)) =
+        Real.sqrt (2 * B * c₀) * Real.exp (-(ε / 4 * m) + -(ε / 4 * dist x₀ y) +
+          -(ρ / 4) * dist x₀ u + -(δ₀ / 4) * dist u v) := by
+      simp only [Real.exp_add]; ring
+    rw [e1, e2]
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) (Real.sqrt_nonneg _)
+    nlinarith [mul_le_mul_of_nonneg_left ht (by linarith : (0 : ℝ) ≤ ε / 4),
+      mul_le_mul_of_nonneg_left hτu (by linarith : (0 : ℝ) ≤ ε / 4),
+      mul_le_mul_of_nonneg_right hερ ha, mul_le_mul_of_nonneg_right hερ hc',
+      mul_le_mul_of_nonneg_right hεδ hb, mul_le_mul_of_nonneg_right hεδ hτu0,
+      mul_nonneg hδ.le hτv0]
+  have hC0 : 0 ≤ Real.sqrt (2 * B * c₀) * (Real.exp (-(ε / 4 * m)) *
+      Real.exp (-(ε / 4 * dist x₀ y))) := by positivity
+  calc ∑ u, ∑ v, Real.exp (-ρ * dist x₀ u) * η u v * Real.exp (-ρ * dist v y)
+      ≤ ∑ u, ∑ v, Real.sqrt (2 * B * c₀) *
+          (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) *
+          (Real.exp (-(ρ / 4) * dist x₀ u) * Real.exp (-(δ₀ / 4) * dist u v)) :=
+        Finset.sum_le_sum fun u _ => Finset.sum_le_sum fun v _ => hterm u v
+    _ = Real.sqrt (2 * B * c₀) * (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) *
+          ∑ u, Real.exp (-(ρ / 4) * dist x₀ u) * ∑ v, Real.exp (-(δ₀ / 4) * dist u v) := by
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl fun u _ => ?_
+        rw [Finset.mul_sum, Finset.mul_sum]
+    _ ≤ Real.sqrt (2 * B * c₀) * (Real.exp (-(ε / 4 * m)) * Real.exp (-(ε / 4 * dist x₀ y))) *
+          (κ₁ * κ) := by
+        refine mul_le_mul_of_nonneg_left ?_ hC0
+        calc ∑ u, Real.exp (-(ρ / 4) * dist x₀ u) * ∑ v, Real.exp (-(δ₀ / 4) * dist u v)
+            ≤ ∑ u, Real.exp (-(ρ / 4) * dist x₀ u) * κ :=
+              Finset.sum_le_sum fun u _ =>
+                mul_le_mul_of_nonneg_left (hK u) (Real.exp_pos _).le
+          _ = (∑ u, Real.exp (-(ρ / 4) * dist x₀ u)) * κ := by rw [Finset.sum_mul]
+          _ ≤ κ₁ * κ := mul_le_mul_of_nonneg_right (hK₁ x₀) hκ
+    _ = _ := by ring
+
 end Balaban.Green

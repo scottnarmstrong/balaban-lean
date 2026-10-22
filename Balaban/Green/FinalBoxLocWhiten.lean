@@ -8,6 +8,7 @@ module
 public import Balaban.Green.FinalBoxLocTies
 public import Balaban.Green.FinalBoxLocK
 public import Balaban.Green.FinalBoxLocConj
+public import Balaban.Green.FinalSqrtCompare
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.NoncommRing
@@ -377,6 +378,14 @@ theorem CutDecoupling.rowCut {R : ℝ} (hR : 0 < R) (hT : CutDecoupling P R T)
     rw [cutTo_cutTo_comm, cutTo_sdiff_inter] at h
     exact h
 
+omit [Fintype ι] in
+/-- **Row-wise families** (core): if each `T r` is decoupled, so is the family whose row `p` is
+the row `p` of `T p`. -/
+theorem CutDecoupling.diag {R : ℝ} {T : Ω → (ι → ℂ) → Ω → Ω → ℂ}
+    (hT : ∀ r, CutDecoupling P R (T r)) : CutDecoupling P R (fun s p q => T p s p q) where
+  supp C s hs hsC p q hne := (hT p).supp C s hs hsC p q hne
+  split C A s hs hsC hAC hd p q := (hT p).split C A s hs hsC hAC hd p q
+
 omit [DecidableEq ι] in
 theorem analyticOnNhd_rowCut [DecidableEq ι] {R : ℝ} (hR : 0 < R)
     (hTan : ∀ p q, AnalyticOnNhd ℂ (fun s => T s p q) (polydisc (0 : ι → ℂ) (fun _ => R)))
@@ -436,42 +445,74 @@ section Whiten
 
 variable {d L N₀ k M N : ℕ} [NeZero N₀] [NeZero L] {v a : ℝ}
 
-/-- **The localized square root of the final Hessian** (Amendment B-1′, P5 (2.39)): row `p` is
-row `p` of the cut family `boxCut(s_p)` at the parameters `s_p = 1` on the cells of the
-localization domain `locDom (spinBoxPatch) D p` of radius `D` and `0` elsewhere. -/
+open Classical in
+/-- **The coarse sites of the local pair of the row `p`** (Amendment B-1″): the sites within
+distance `m` of the macro region of the localization domain `locDom p` of radius `D`. -/
+noncomputable def pairCoarse (d N₀ M N : ℕ) [NeZero N₀] (D m : ℕ) (p : L1Torus d N₀ × Fin N) :
+    Finset (Torus d N₀) :=
+  Finset.univ.filter fun y => ∃ x ∈ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D p),
+    torusDist d N₀ x y ≤ m
+
+/-- The fine sites of the local pair of the row `p`: the blocks of `pairCoarse`. -/
+noncomputable def pairSites (d L N₀ k M N : ℕ) [NeZero N₀] [NeZero L] (D m : ℕ)
+    (p : L1Torus d N₀ × Fin N) : Finset (Torus d (N₀ * L ^ k)) :=
+  blockFibreSet (L ^ k) N₀ (pairCoarse d N₀ M N D m p)
+
+/-- **The final operator of the local pair of the row `p`**: the Dirichlet Schur complement
+`a - a² Q_V (H_V)⁻¹ Q_V*` on the fine sites `V` of the pair. -/
+noncomputable abbrev pairOp (d L N₀ k M N : ℕ) [NeZero N₀] [NeZero L] (v a : ℝ) (D m : ℕ)
+    (p : L1Torus d N₀ × Fin N) : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ :=
+  dirichletFinalOp d L N₀ k (pairSites d L N₀ k M N D m p) v a
+
+/-- **The localized square root of the final Hessian** (Amendment B-1″, P5 (2.39)): row `p` is
+row `p` of the cut family `boxCutU` of the final Hessian of the local pair of `p` (the Dirichlet
+Schur complement `pairOp` on the fine sites within distance `m` of the macro region of
+`locDom p`), at the parameters `1` on the cells of the localization domain `locDom p` of
+radius `D` and `0` elsewhere. -/
 noncomputable def finalWhiten (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
-    (h : Fin N → ℂ) (D : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
-  Matrix.of fun p q =>
-    boxCut d L N₀ k M v a h (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) p q
+    (h : Fin N → ℂ) (D m : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
+  Matrix.of fun p q => boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m p) h
+    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) p q
 
 /-- **The Gaussian mismatch of the localized square root**: `Q = Lᵀ D L - 1`, `D` the final
 Hessian. -/
 noncomputable def finalWhitenMismatch (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
-    (h : Fin N → ℂ) (D : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
-  (finalWhiten d L N₀ k M v a h D)ᵀ * finalHessianC d L N₀ k v a h *
-    finalWhiten d L N₀ k M v a h D - 1
+    (h : Fin N → ℂ) (D m : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
+  (finalWhiten d L N₀ k M v a h D m)ᵀ * finalHessianC d L N₀ k v a h *
+    finalWhiten d L N₀ k M v a h D m - 1
 
 /-- The real matrix of the localized square root (its entries are real for a real `h`,
 `finalWhitenR_map`). -/
 noncomputable def finalWhitenR (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
-    (h : Fin N → ℂ) (D : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℝ :=
-  Matrix.of fun p q => (finalWhiten d L N₀ k M v a h D p q).re
+    (h : Fin N → ℂ) (D m : ℕ) : Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℝ :=
+  Matrix.of fun p q => (finalWhiten d L N₀ k M v a h D m p q).re
 
-/-- **The cut family of the localized square root**: row `p` of `boxCut(s|_{locDom p})`;
-at `s = 1` it is `finalWhiten` (`whitenCut_one`). -/
+/-- **The cut family of the localized square root**: row `p` of
+`boxCutU (pairOp p) (s|_{locDom p})`; at `s = 1` it is `finalWhiten` (`whitenCut_one`). -/
 noncomputable def whitenCut (d L N₀ k M : ℕ) [NeZero N₀] [NeZero L] {N : ℕ} (v a : ℝ)
-    (h : Fin N → ℂ) (D : ℕ) (s : MacIdx d N₀ M → ℂ) :
+    (h : Fin N → ℂ) (D m : ℕ) (s : MacIdx d N₀ M → ℂ) :
     Matrix (L1Torus d N₀ × Fin N) (L1Torus d N₀ × Fin N) ℂ :=
-  Matrix.of fun p q =>
-    boxCut d L N₀ k M v a h (cutTo (locDom (spinBoxPatch d N₀ M N) D p) s) p q
+  Matrix.of fun p q => boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m p) h
+    (cutTo (locDom (spinBoxPatch d N₀ M N) D p) s) p q
 
-theorem whitenCut_one (h : Fin N → ℂ) (D : ℕ) :
-    whitenCut d L N₀ k M v a h D (fun _ => 1) = finalWhiten d L N₀ k M v a h D := rfl
+theorem whitenCut_one (h : Fin N → ℂ) (D m : ℕ) :
+    whitenCut d L N₀ k M v a h D m (fun _ => 1) = finalWhiten d L N₀ k M v a h D m := rfl
 
-theorem finalWhiten_apply (h : Fin N → ℂ) (D : ℕ) (p q : L1Torus d N₀ × Fin N) :
-    finalWhiten d L N₀ k M v a h D p q =
-      boxCut d L N₀ k M v a h (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) p q :=
+theorem finalWhiten_apply (h : Fin N → ℂ) (D m : ℕ) (p q : L1Torus d N₀ × Fin N) :
+    finalWhiten d L N₀ k M v a h D m p q =
+      boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m p) h
+        (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) p q :=
   rfl
+
+/-- **`CutOpHyp` at the operator of each local pair**, with the constants of `finalOp`. -/
+theorem cutOpHyp_pairOp (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
+    (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
+    (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
+    (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
+    (D m : ℕ) (p : L1Torus d N₀ × Fin N) :
+    CutOpHyp d N₀ M (pairOp d L N₀ k M N v a D m p) (finalGap d L) (finalDecayC d L)
+      (blockDecayRate d) (pdEps d L) κ :=
+  cutOpHyp_dirichletFinalOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ _
 
 omit [NeZero N₀] [NeZero L] in
 theorem cutTo_one_mem_polydisc {κ : ℝ} (hκ : 0 < κ) (B : Finset (MacIdx d N₀ M)) :
@@ -504,12 +545,12 @@ theorem finalWhiten_eq_zero_of_not_mem (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ 
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 < κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    (h : Fin N → ℂ) (D : ℕ) {p q : L1Torus d N₀ × Fin N}
+    (h : Fin N → ℂ) (D m : ℕ) {p q : L1Torus d N₀ × Fin N}
     (hq : q.1 ∉ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D p)) :
-    finalWhiten d L N₀ k M v a h D p q = 0 := by
+    finalWhiten d L N₀ k M v a h D m p q = 0 := by
   by_contra hne
-  have := ((cutDecoupling_boxCut (N₀ := N₀) (k := k) (L := L) (v := v) (a := a) (M := M) hd hk
-    hv0 hv1 ha1 ha2 hmass hM hκ.le hMB hMκ h).supp (locDom (spinBoxPatch d N₀ M N) D p)
+  have := ((cutDecoupling_boxCutU hd (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ.le hMB
+    hMκ D m p) h).supp (locDom (spinBoxPatch d N₀ M N) D p)
     (cutTo (locDom (spinBoxPatch d N₀ M N) D p) (fun _ => 1)) (cutTo_one_mem_polydisc hκ _)
     (cutTo_mem_supportedOn _ _) p q hne).2
   exact hq (mem_patchReg_spinBoxPatch.1 this)
@@ -519,33 +560,34 @@ theorem finalWhiten_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D : ℕ)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D m : ℕ)
     (P : L1Torus d N₀ × Fin N) :
-    ∑ Q, ‖finalWhiten d L N₀ k M v a h D P Q‖ ≤ boxCutConst d L N a κ p :=
-  boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp
+    ∑ Q, ‖finalWhiten d L N₀ k M v a h D m P Q‖ ≤ boxCutConst d L N a κ p :=
+  boxCutU_row_bound (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P) hp
     (norm_cutTo_one_le hκ (locDom (spinBoxPatch d N₀ M N) D P)) P
 
 /-- **The cut family of the localized square root is decoupled** on the polydisc of radius
-`e^κ` (`CutDecoupling.rowCut` of `cutDecoupling_boxCut`). -/
+`e^κ` (`CutDecoupling.rowCut` of the row-wise family `CutDecoupling.diag`). -/
 theorem cutDecoupling_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    (h : Fin N → ℂ) (D : ℕ) :
+    (h : Fin N → ℂ) (D m : ℕ) :
     CutDecoupling (spinBoxPatch d N₀ M N) (Real.exp κ)
-      (fun s p q => whitenCut d L N₀ k M v a h D s p q) :=
-  (cutDecoupling_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ h).rowCut (Real.exp_pos κ)
+      (fun s p q => whitenCut d L N₀ k M v a h D m s p q) :=
+  (CutDecoupling.diag fun r => cutDecoupling_boxCutU hd
+    (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m r) h).rowCut (Real.exp_pos κ)
     (fun p => locDom (spinBoxPatch d N₀ M N) D p)
 
 theorem analyticOnNhd_whitenCut (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    (h : Fin N → ℂ) (D : ℕ) (p q : L1Torus d N₀ × Fin N) :
-    AnalyticOnNhd ℂ (fun s => whitenCut d L N₀ k M v a h D s p q)
+    (h : Fin N → ℂ) (D m : ℕ) (p q : L1Torus d N₀ × Fin N) :
+    AnalyticOnNhd ℂ (fun s => whitenCut d L N₀ k M v a h D m s p q)
       (polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ)) :=
   analyticOnNhd_rowCut (Real.exp_pos κ)
-    (analyticOnNhd_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ h)
+    (analyticOnNhd_boxCutU (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m p) h)
     (fun p => locDom (spinBoxPatch d N₀ M N) D p) p q
 
 /-- **Row sums of the cut family of the localized square root** on the polydisc of radius
@@ -554,12 +596,12 @@ theorem whitenCut_row_bound (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D : ℕ)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) (D m : ℕ)
     {s : MacIdx d N₀ M → ℂ} (hs : s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ))
     (P : L1Torus d N₀ × Fin N) :
-    ∑ Q, ‖whitenCut d L N₀ k M v a h D s P Q‖ ≤ boxCutConst d L N a κ p := by
+    ∑ Q, ‖whitenCut d L N₀ k M v a h D m s P Q‖ ≤ boxCutConst d L N a κ p := by
   have hs' := cutTo_mem_polydisc (Real.exp_pos κ) (locDom (spinBoxPatch d N₀ M N) D P) hs
-  exact boxCut_row_bound hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hp
+  exact boxCutU_row_bound (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ D m P) hp
     (fun z => by simpa using (hs' z).le) P
 
 /-- The root cells of a site-spin index: at most `7^d` boxes contain a site. -/
@@ -607,97 +649,269 @@ theorem whitenTail_le_of_ties {Mc : ℕ} {κ α : ℝ} (ht : BoxCutTies d L Mc �
     _ = (1 / 2) ^ D * (1 / 2) := by rw [one_mul, pow_succ]
     _ ≤ (1 / 2) ^ D * (1 - q) := mul_le_mul_of_nonneg_left h1q (by positivity)
 
-/-- **The row error of the localized square root, entrywise**: for `0 ≤ r ≤ ε/8`,
-`‖L(p, q) - D^{-1/2}(p, q)‖ ≤ boxCutConst(N = 1) e^{-r |p - q|} · 7^d whitenTail (16^d) (κ - 1) D`
-(`D^{-1/2} = boxCut(1)`, `boxCut_one`). -/
-theorem norm_finalWhiten_sub_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
+/-- **The cut part of the row error, entrywise** (shared core, any `U` with `CutOpHyp` at the
+constants of `finalOp`): for `0 ≤ r ≤ ε/8`,
+`‖boxCutU U (1|_{locDom P}) (P, Q) - boxCutU U 1 (P, Q)‖
+  ≤ boxCutConst(N = 1) e^{-r |P - Q|} · 7^d whitenTail (16^d) (κ - 1) D`. -/
+theorem norm_boxCutU_cutTo_sub_le (hd : 0 < d) (hM : 0 < M)
+    {U : Matrix (L1Torus d N₀) (L1Torus d N₀) ℂ} {κ : ℝ}
+    (hU : CutOpHyp d N₀ M U (finalGap d L) (finalDecayC d L) (blockDecayRate d) (pdEps d L) κ)
+    (hκ : 1 ≤ κ) (hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
     (hr : r ≤ pdEps d L / 8) (D : ℕ) (P Q : L1Torus d N₀ × Fin N) :
-    ‖finalWhiten d L N₀ k M v a h D P Q - boxCut d L N₀ k M v a h (fun _ => 1) P Q‖ ≤
+    ‖boxCutU d N₀ M a U h (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
+        boxCutU d N₀ M a U h (fun _ => 1) P Q‖ ≤
       boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) *
         (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) := by
-  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC
-  have hκ : 1 ≤ κ := ht.1
-  have hκ0 : 0 ≤ κ := by linarith
-  have hMB := ht.2.1
-  have hMκ := ht.2.2.1
-  have hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1 := by
-    linarith [ratio_le_of_ties ht]
   have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
   have hb : ∀ s ∈ polydisc (0 : MacIdx d N₀ M → ℂ) (fun _ => Real.exp κ),
-      ‖boxCut d L N₀ k M v a h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
-    fun s hs => norm_boxCut_apply_le hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hp
-      (fun z => by simpa using (hs z).le) hr0 hr P Q
+      ‖boxCutU d N₀ M a U h s P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
+    fun s hs => (norm_boxCutU_apply_le hU hp (fun z => by simpa using (hs z).le) hr0 hr P Q).trans
+      (le_of_eq (by unfold boxCutConst; push_cast; ring))
   have hmain := norm_cutTo_locDom_sub_le (Δ := 16 ^ d) (cellGraph_spinBoxPatch_degree_le hM) hκ hq
-    (cutDecoupling_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ h)
-    (fun p q => analyticOnNhd_boxCut hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ h p q) hb D
+    (cutDecoupling_boxCutU hd hU h) (fun p q => analyticOnNhd_boxCutU hU h p q) hb D
   have hb0 : 0 ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
     mul_nonneg (boxCutConst_nonneg hd hp0) (Real.exp_pos _).le
   refine hmain.trans (mul_le_mul_of_nonneg_left ?_ hb0)
   refine mul_le_mul_of_nonneg_right ?_ (whitenTail_nonneg hq D)
   exact_mod_cast card_rootCells_spinBoxPatch_le hM P
 
+/-- The site of a row lies in the macro region of its localization domain. -/
+theorem mem_macRegion_locDom (hM : 0 < M) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
+    P.1 ∈ macRegion d N₀ M (locDom (spinBoxPatch d N₀ M N) D P) := by
+  have hbox := mem_macBox_of_mem_macCore hM (mem_macCore_macZ (M := M) P.1)
+  exact mem_macRegion.2 ⟨_, mem_locDom_of_mem (P := spinBoxPatch d N₀ M N) (D := D) hbox, hbox⟩
+
+/-- **The local pair agrees with the whole torus deep inside**: the entries of `pairOp P - finalOp`
+are at most `a² C e^{-(δ₀/2)(τ(u) + τ(v))}`, `τ(u) = max 0 (m - |P - u|)` the depth below the
+site of the row (`dirichletFinalOp_sub_le` with `W` the whole fine torus). -/
+theorem norm_pairOp_sub_finalOp_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v) (ha1 : 1 / 2 ≤ a)
+    (ha2 : a ≤ 2) (hM : 0 < M) (D m : ℕ) (P : L1Torus d N₀ × Fin N) (u w : L1Torus d N₀) :
+    ‖pairOp d L N₀ k M N v a D m P u w - finalOp d L N₀ k v a u w‖ ≤
+      a ^ 2 * dirichletCompConst d L v a *
+        Real.exp (-(blockDecayRate d / 2 *
+          (max 0 ((m : ℝ) - dist P.1 u) + max 0 ((m : ℝ) - dist P.1 w)))) := by
+  classical
+  have ha0 : 0 < a := by linarith
+  have hδ := blockDecayRate_pos hd
+  have hC0 : 0 ≤ a ^ 2 * dirichletCompConst d L v a := by
+    unfold dirichletCompConst
+    have := ballConst_decay_nonneg (d := d) hδ
+    positivity
+  set Bc := pairCoarse d N₀ M N D m P with hBc
+  by_cases hfull : ∀ y, y ∈ Bc
+  · have hV : pairSites d L N₀ k M N D m P = Finset.univ := by
+      ext x
+      simp only [pairSites, blockFibreSet, Finset.mem_filter, Finset.mem_univ, true_and, iff_true]
+      exact hfull _
+    have e : pairOp d L N₀ k M N v a D m P = finalOp d L N₀ k v a := by
+      show dirichletFinalOp d L N₀ k (pairSites d L N₀ k M N D m P) v a = _
+      rw [hV, dirichletFinalOp_univ hd hv0 ha0]
+    rw [e, sub_self, norm_zero]
+    positivity
+  · push Not at hfull
+    obtain ⟨Z₀, hZ₀⟩ := hfull
+    have h := dirichletFinalOp_sub_le (L := L) (k := k) hd hk hv0 ha1 ha2 (Bc := Bc)
+      (W := Finset.univ) (Finset.subset_univ _) u w
+    rw [dirichletFinalOp_univ hd hv0 ha0] at h
+    refine h.trans (mul_le_mul_of_nonneg_left (Real.exp_le_exp.2 ?_) hC0)
+    set X : Set (L1Torus d N₀) := ((↑(Finset.univ \ Bc) : Set (Torus d N₀))) with hX
+    have hXne : X.Nonempty :=
+      ⟨Z₀, Finset.mem_coe.2 (Finset.mem_sdiff.2 ⟨Finset.mem_univ _, hZ₀⟩)⟩
+    have hP := mem_macRegion_locDom (N₀ := N₀) hM D P
+    have hdeep : ∀ z : L1Torus d N₀, max 0 ((m : ℝ) - dist P.1 z) ≤ setDist X z := by
+      intro z
+      refine max_le (setDist_nonneg _ _) ((Metric.le_infDist hXne).2 fun Z hZ => ?_)
+      have hZ' : Z ∈ ((↑(Finset.univ \ Bc) : Set (Torus d N₀))) := hZ
+      have hZB : Z ∉ Bc := (Finset.mem_sdiff.1 (Finset.mem_coe.1 hZ')).2
+      have hfar : (m : ℝ) < dist P.1 Z := by
+        by_contra hle
+        exact hZB (Finset.mem_filter.2 ⟨Finset.mem_univ _, P.1, hP, not_lt.1 hle⟩)
+      have ht := dist_triangle P.1 z Z
+      linarith
+    have h1 := hdeep u
+    have h2 := hdeep w
+    nlinarith
+
+/-- The constant of the pair part of the row error:
+`4/(g √g) (2 a² C C_U)^{1/2} B(r_*/4) B(δ₀/4) (1 + p)`. -/
+noncomputable def pairErrConst (d L : ℕ) (v a p : ℝ) : ℝ :=
+  4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+    (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
+      ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) * (1 + p)
+
+/-- **The pair part of the row error, entrywise**: for `0 ≤ r ≤ ε/8`,
+`‖boxCutU (pairOp P) 1 (P, Q) - D^{-1/2}(P, Q)‖ ≤ pairErrConst e^{-(ε/4) m} e^{-r |P - Q|}`
+(`D^{-1/2} = boxCut(1)`). -/
+theorem norm_pairCut_sub_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (D m : ℕ) (P Q : L1Torus d N₀ × Fin N) :
+    ‖boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h (fun _ => 1) P Q -
+        boxCut d L N₀ k M v a h (fun _ => 1) P Q‖ ≤
+      pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist P.1 Q.1) := by
+  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC
+  have hκ0 : 0 ≤ κ := by linarith [ht.1]
+  have hMB := ht.2.1
+  have hMκ := ht.2.2.1
+  have hδ := blockDecayRate_pos hd
+  have hε := pdEps_pos (L := L) hd
+  have hρ := finalRate_pos (L := L) hd
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have hU₁ := cutOpHyp_pairOp (N₀ := N₀) hd hk hv0 hv1 ha1 ha2 hmass hM hκ0 hMB hMκ D m P
+  have hU₂ := cutOpHyp_finalOp (N₀ := N₀) (k := k) (v := v) (a := a) hd hk hv0 hv1 ha1 ha2 hmass
+    hM hκ0 hMB hMκ
+  have hp0 : 0 ≤ p := (norm_nonneg _).trans (hp P.2 P.2)
+  obtain ⟨x, i⟩ := P
+  obtain ⟨y, j⟩ := Q
+  have e : boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m (x, i)) h (fun _ => 1) (x, i) (y, j) -
+      boxCut d L N₀ k M v a h (fun _ => 1) (x, i) (y, j) =
+      (Localization.sqrtMat (pairOp d L N₀ k M N v a D m (x, i)) x y -
+        Localization.sqrtMat (finalOp d L N₀ k v a) x y) *
+        ((if i = j then 1 else 0) - spinProj h i j) := by
+    show boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m (x, i)) h (fun _ => 1) (x, i) (y, j) -
+      boxCutU d N₀ M a (finalOp d L N₀ k v a) h (fun _ => 1) (x, i) (y, j) = _
+    rw [boxCutU_apply, boxCutU_apply, taggedCfinU_one hU₁, taggedCfinU_one hU₂]
+    ring
+  have hspin : ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖ ≤ 1 + p := by
+    refine (norm_sub_le _ _).trans (add_le_add ?_ (hp i j))
+    by_cases hij : i = j <;> simp [hij]
+  have hK : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(blockDecayRate d / 4) * dist z w) ≤
+      ballConst d (blockDecayRate d / 4) := fun z =>
+    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
+  have hK₁ : ∀ z : L1Torus d N₀, ∑ w, Real.exp (-(finalRate d L / 4) * dist z w) ≤
+      ballConst d (finalRate d L / 4) := fun z =>
+    ballSum_L1Torus (d := d) (m := N₀) (by positivity) z
+  have : Nonempty (L1Torus d N₀) := ⟨(0 : Torus d N₀)⟩
+  have hsq := norm_sqrtMat_sub_le_of_deep (U₁ := pairOp d L N₀ k M N v a D m (x, i))
+    (U₂ := finalOp d L N₀ k v a) (finalDecayC_pos hd).le hδ (finalGap_pos hL)
+    (ballConst_decay_nonneg (by positivity)) hK hK₁ hU₁.decay hU₂.decay hU₁.coercive
+    hU₂.coercive (B := a ^ 2 * dirichletCompConst d L v a)
+    (by unfold dirichletCompConst; have := ballConst_decay_nonneg (d := d) hδ; positivity)
+    x (m : ℝ) (fun u w => norm_pairOp_sub_finalOp_le hd hk hv0 ha1 ha2 hM D m (x, i) u w)
+    hε (min_le_right _ _) (min_le_left _ _) y
+  rw [e, norm_mul]
+  have hexp : Real.exp (-(pdEps d L / 4 * dist x y)) ≤ Real.exp (-r * dist (x, i).1 (y, j).1) :=
+    Real.exp_le_exp.2 (by
+      have := dist_nonneg (x := x) (y := y)
+      show -(pdEps d L / 4 * dist x y) ≤ -r * dist x y
+      nlinarith)
+  have hK0 : 0 ≤ 4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+      (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
+        ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) := by
+    have := finalGap_pos (d := d) hL
+    have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4) (by positivity)
+    have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4) (by positivity)
+    positivity
+  calc ‖Localization.sqrtMat (pairOp d L N₀ k M N v a D m (x, i)) x y -
+        Localization.sqrtMat (finalOp d L N₀ k v a) x y‖ *
+        ‖((if i = j then 1 else 0 : ℂ) - spinProj h i j)‖
+      ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+          (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
+            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
+          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-(pdEps d L / 4 * dist x y)))) *
+          (1 + p) := mul_le_mul hsq hspin (norm_nonneg _) (by positivity)
+    _ ≤ (4 / (finalGap d L * Real.sqrt (finalGap d L)) *
+          (Real.sqrt (2 * (a ^ 2 * dirichletCompConst d L v a) * finalDecayC d L) *
+            ballConst d (finalRate d L / 4) * ballConst d (blockDecayRate d / 4)) *
+          (Real.exp (-(pdEps d L / 4 * m)) * Real.exp (-r * dist (x, i).1 (y, j).1))) *
+          (1 + p) := by
+        refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left
+          (mul_le_mul_of_nonneg_left hexp (Real.exp_pos _).le) hK0) (by positivity)
+    _ = _ := by unfold pairErrConst; ring
+
+/-- **The row error of the localized square root, entrywise**: for `0 ≤ r ≤ ε/8`,
+`‖L(P, Q) - D^{-1/2}(P, Q)‖
+  ≤ (boxCutConst(N = 1) 7^d whitenTail (16^d) (κ - 1) D + pairErrConst e^{-(ε/4) m}) e^{-r |P - Q|}`
+(`D^{-1/2} = boxCut(1)`, `boxCut_one`). -/
+theorem norm_finalWhiten_sub_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
+    {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r : ℝ} (hr0 : 0 ≤ r)
+    (hr : r ≤ pdEps d L / 8) (D m : ℕ) (P Q : L1Torus d N₀ × Fin N) :
+    ‖finalWhiten d L N₀ k M v a h D m P Q - boxCut d L N₀ k M v a h (fun _ => 1) P Q‖ ≤
+      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+        pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) *
+        Real.exp (-r * dist P.1 Q.1) := by
+  have hC' := hC
+  obtain ⟨hd, hk, hv0, hv1, ha1, ha2, hmass, hM, ht⟩ := hC'
+  have hκ : 1 ≤ κ := ht.1
+  have hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1 := by
+    linarith [ratio_le_of_ties ht]
+  have h1 := norm_boxCutU_cutTo_sub_le (a := a) hd hM (cutOpHyp_pairOp hd hk hv0 hv1 ha1 ha2 hmass hM
+    (by linarith) ht.2.1 ht.2.2.1 D m P) hκ hq hp hr0 hr D P Q
+  have h2 := norm_pairCut_sub_le hC hp hr0 hr D m P Q
+  rw [finalWhiten_apply]
+  calc _ ≤ ‖boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h
+          (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1)) P Q -
+          boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h (fun _ => 1) P Q‖ +
+        ‖boxCutU d N₀ M a (pairOp d L N₀ k M N v a D m P) h (fun _ => 1) P Q -
+          boxCut d L N₀ k M v a h (fun _ => 1) P Q‖ := norm_sub_le_norm_sub_add_norm_sub _ _ _
+    _ ≤ _ := by linarith
+
 /-- The weighted row constant of the row error:
-`whitenErr = boxCutConst(N = 1) · 7^d whitenTail (16^d) (κ - 1) D · N ballConst(r - r')`. -/
-noncomputable def whitenErr (d L N : ℕ) (a κ p r r' : ℝ) (D : ℕ) : ℝ :=
-  boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) * (N * ballConst d (r - r'))
+`whitenErr = (boxCutConst(N = 1) 7^d whitenTail (16^d) (κ - 1) D + pairErrConst e^{-(ε/4) m})
+  · N ballConst(r - r')`. -/
+noncomputable def whitenErr (d L N : ℕ) (v a κ p r r' : ℝ) (D m : ℕ) : ℝ :=
+  (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+    pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) * (N * ballConst d (r - r'))
 
 /-- **Weighted row sums of the row error**: for `0 ≤ r' < r ≤ ε/8`,
 `∑_q e^{r' |p - q|} ‖L(p, q) - D^{-1/2}(p, q)‖ ≤ whitenErr`. -/
 theorem sum_finalWhiten_sub_row_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r r' : ℝ} (hr' : r' < r)
-    (hr0 : 0 ≤ r) (hr : r ≤ pdEps d L / 8) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
+    (hr0 : 0 ≤ r) (hr : r ≤ pdEps d L / 8) (D m : ℕ) (P : L1Torus d N₀ × Fin N) :
     ∑ Q, Real.exp (r' * dist P.1 Q.1) *
-        ‖(finalWhiten d L N₀ k M v a h D - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
-      whitenErr d L N a κ p r r' D := by
-  have hA : ∀ P Q, ‖(finalWhiten d L N₀ k M v a h D - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
-      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D)) *
+        ‖(finalWhiten d L N₀ k M v a h D m - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
+      whitenErr d L N v a κ p r r' D m := by
+  have hA : ∀ P Q,
+      ‖(finalWhiten d L N₀ k M v a h D m - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
+      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+        pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) *
         Real.exp (-r * dist P.1 Q.1) := fun P Q => by
     rw [Matrix.sub_apply]
-    have := norm_finalWhiten_sub_le hC hp hr0 hr D P Q
-    linarith
+    exact norm_finalWhiten_sub_le hC hp hr0 hr D m P Q
   exact sum_exp_mul_le_of_entry hA hr' P
 
 /-- **Weighted column sums of the row error**: for `0 ≤ r' < r ≤ ε/8`,
 `∑_q e^{r' |p - q|} ‖L(q, p) - D^{-1/2}(q, p)‖ ≤ whitenErr`. -/
 theorem sum_finalWhiten_sub_col_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α)
     {h : Fin N → ℂ} {p : ℝ} (hp : ∀ i j, ‖spinProj h i j‖ ≤ p) {r r' : ℝ} (hr' : r' < r)
-    (hr0 : 0 ≤ r) (hr : r ≤ pdEps d L / 8) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
+    (hr0 : 0 ≤ r) (hr : r ≤ pdEps d L / 8) (D m : ℕ) (P : L1Torus d N₀ × Fin N) :
     ∑ Q, Real.exp (r' * dist P.1 Q.1) *
-        ‖(finalWhiten d L N₀ k M v a h D - boxCut d L N₀ k M v a h (fun _ => 1))ᵀ P Q‖ ≤
-      whitenErr d L N a κ p r r' D := by
-  have hA : ∀ P Q, ‖(finalWhiten d L N₀ k M v a h D - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
-      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D)) *
+        ‖(finalWhiten d L N₀ k M v a h D m - boxCut d L N₀ k M v a h (fun _ => 1))ᵀ P Q‖ ≤
+      whitenErr d L N v a κ p r r' D m := by
+  have hA : ∀ P Q,
+      ‖(finalWhiten d L N₀ k M v a h D m - boxCut d L N₀ k M v a h (fun _ => 1)) P Q‖ ≤
+      (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+        pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) *
         Real.exp (-r * dist P.1 Q.1) := fun P Q => by
     rw [Matrix.sub_apply]
-    have := norm_finalWhiten_sub_le hC hp hr0 hr D P Q
-    linarith
+    exact norm_finalWhiten_sub_le hC hp hr0 hr D m P Q
   exact sum_exp_mul_le_of_entry (transpose_entry_le hA) hr' P
 
 /-- **The localized square root is real at a real `h`.** -/
-theorem finalWhiten_real (h : Fin N → ℝ) (D : ℕ) (P Q : L1Torus d N₀ × Fin N) :
-    conj (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D P Q) =
-      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D P Q := by
+theorem finalWhiten_real (h : Fin N → ℝ) (D m : ℕ) (P Q : L1Torus d N₀ × Fin N) :
+    conj (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q) =
+      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q := by
   have e1 : (fun i => conj ((h i : ℝ) : ℂ)) = fun i => (h i : ℂ) :=
     funext fun i => Complex.conj_ofReal _
   have e2 : (fun z => conj (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => (1 : ℂ)) z)) =
       cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1) := by
     funext z
     by_cases hz : z ∈ locDom (spinBoxPatch d N₀ M N) D P <;> simp [cutTo, hz]
-  have hc := congrFun (congrFun (conjM_boxCut (d := d) (L := L) (N₀ := N₀) (k := k) (M := M)
-    (v := v) (a := a) (fun i => (h i : ℂ))
-    (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1))) P) Q
+  have hc := congrFun (congrFun (conjM_boxCutU (a := a) (M := M)
+    (conjM_map_ofReal (ι := L1Torus d N₀)
+      (dirichletUnitOperator d (N₀ * L ^ k) (L ^ k) N₀ (pairSites d L N₀ k M N D m P) v a))
+    (fun i => (h i : ℂ)) (cutTo (locDom (spinBoxPatch d N₀ M N) D P) (fun _ => 1))) P) Q
   rw [e1, e2] at hc
   exact hc
 
 /-- **The real localized square root**: at a real `h`, `finalWhitenR` complexifies to
 `finalWhiten`. -/
-theorem finalWhitenR_map (h : Fin N → ℝ) (D : ℕ) :
-    (finalWhitenR d L N₀ k M v a (fun i => (h i : ℂ)) D).map (algebraMap ℝ ℂ) =
-      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D := by
+theorem finalWhitenR_map (h : Fin N → ℝ) (D m : ℕ) :
+    (finalWhitenR d L N₀ k M v a (fun i => (h i : ℂ)) D m).map (algebraMap ℝ ℂ) =
+      finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m := by
   ext P Q
   simp only [Matrix.map_apply, finalWhitenR, Matrix.of_apply, Complex.coe_algebraMap]
-  exact Complex.conj_eq_iff_re.1 (finalWhiten_real h D P Q)
+  exact Complex.conj_eq_iff_re.1 (finalWhiten_real h D m P Q)
 
 end Whiten
 
@@ -752,21 +966,23 @@ theorem norm_finalHessianC_apply_le (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 ≤ v)
 /-- The bound of the mismatch: `whitenErr · g_D (2 g_G + whitenErr)`, with
 `g_G = boxCutConst(N = 1) N ballConst(r - r')` and `g_D = hessEntryConst N ballConst(δ₀ - r')`
 the weighted row constants of `D^{-1/2}` and `D`. -/
-noncomputable def whitenMismatchBound (d L N : ℕ) (a κ p r r' : ℝ) (D : ℕ) : ℝ :=
-  whitenErr d L N a κ p r r' D *
+noncomputable def whitenMismatchBound (d L N : ℕ) (v a κ p r r' : ℝ) (D m : ℕ) : ℝ :=
+  whitenErr d L N v a κ p r r' D m *
     (hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) *
-      (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) + whitenErr d L N a κ p r r' D))
+      (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) +
+        whitenErr d L N v a κ p r r' D m))
 
 /-- **Evenness**: the quadratic form of the mismatch is even. -/
-theorem finalWhitenMismatch_quad_neg (h : Fin N → ℂ) (D : ℕ) (w : L1Torus d N₀ × Fin N → ℂ) :
-    (-w) ⬝ᵥ (finalWhitenMismatch d L N₀ k M v a h D *ᵥ (-w)) =
-      w ⬝ᵥ (finalWhitenMismatch d L N₀ k M v a h D *ᵥ w) := by
+theorem finalWhitenMismatch_quad_neg (h : Fin N → ℂ) (D m : ℕ)
+    (w : L1Torus d N₀ × Fin N → ℂ) :
+    (-w) ⬝ᵥ (finalWhitenMismatch d L N₀ k M v a h D m *ᵥ (-w)) =
+      w ⬝ᵥ (finalWhitenMismatch d L N₀ k M v a h D m *ᵥ w) := by
   rw [Matrix.mulVec_neg, neg_dotProduct, dotProduct_neg, neg_neg]
 
 /-- **The determinant identity**: `det(L)² det(D) = det(1 + Q)`. -/
-theorem det_finalWhiten_sq (h : Fin N → ℂ) (D : ℕ) :
-    (finalWhiten d L N₀ k M v a h D).det ^ 2 * (finalHessianC d L N₀ k v a h).det =
-      (1 + finalWhitenMismatch d L N₀ k M v a h D).det := by
+theorem det_finalWhiten_sq (h : Fin N → ℂ) (D m : ℕ) :
+    (finalWhiten d L N₀ k M v a h D m).det ^ 2 * (finalHessianC d L N₀ k v a h).det =
+      (1 + finalWhitenMismatch d L N₀ k M v a h D m).det := by
   unfold finalWhitenMismatch
   rw [add_sub_cancel, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose]
   ring
@@ -804,26 +1020,26 @@ theorem finalWhitenMismatch_eq (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 < v)
     (hv1 : v ≤ 1) (ha1 : 1 / 2 ≤ a) (ha2 : a ≤ 2) (hmass : 7 / 8 * ((L : ℝ) ^ 2)⁻¹ < v)
     (hM : 0 < M) {κ : ℝ} (hκ : 0 ≤ κ)
     (hMB : 4 * (pdB d L * Real.exp (pdH d * κ)) ≤ M) (hMκ : 8 * κ * 7 ^ d ≤ pdEps d L * M)
-    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (D : ℕ) :
-    finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D =
+    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (D m : ℕ) :
+    finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m =
       (boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1))ᵀ *
           finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) *
-          (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D -
+          (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m -
             boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)) +
-        (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D -
+        (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m -
             boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1))ᵀ *
           finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) *
           boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1) +
-        (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D -
+        (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m -
             boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1))ᵀ *
           finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) *
-          (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D -
+          (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m -
             boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)) := by
   have hGDG := boxCut_one_transpose_mul_mul (N₀ := N₀) (L := L) (k := k) (M := M) (v := v) (a := a)
     hd hk hv0 hv1 ha1 ha2 hmass hM hκ hMB hMκ hh
   unfold finalWhitenMismatch
   set G := boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
-  set W := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D
+  set W := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m
   set Dm := finalHessianC d L N₀ k v a (fun i => (h i : ℂ))
   rw [← hGDG, Matrix.transpose_sub]
   noncomm_ring
@@ -831,9 +1047,9 @@ theorem finalWhitenMismatch_eq (hd : 0 < d) (hk : 1 ≤ k) (hv0 : 0 < v)
 omit [NeZero N] in
 /-- **The mismatch is symmetric** (`Qᵀ = Q`) for a real unit `h`. -/
 theorem finalWhitenMismatch_transpose (hd : 0 < d) {v : ℝ} (hv0 : 0 ≤ v) (ha1 : 1 / 2 ≤ a)
-    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (D : ℕ) :
-    (finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D)ᵀ =
-      finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D := by
+    {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) (D m : ℕ) :
+    (finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m)ᵀ =
+      finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m := by
   have hN : 0 < L ^ k := pow_pos (Nat.pos_of_ne_zero (NeZero.ne L)) k
   have hDt : (finalHessianC d L N₀ k v a (fun i => (h i : ℂ)))ᵀ =
       finalHessianC d L N₀ k v a (fun i => (h i : ℂ)) := by
@@ -854,10 +1070,10 @@ projection and `0 ≤ r' < r ≤ ε/8`, the weighted row sums of `Q` are at most
 theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α) (hv : 0 < v)
     {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) {p : ℝ}
     (hp : ∀ i j, ‖spinProj (fun i => (h i : ℂ)) i j‖ ≤ p) {r r' : ℝ} (hr'0 : 0 ≤ r')
-    (hr' : r' < r) (hr : r ≤ pdEps d L / 8) (D : ℕ) (P : L1Torus d N₀ × Fin N) :
+    (hr' : r' < r) (hr : r ≤ pdEps d L / 8) (D m : ℕ) (P : L1Torus d N₀ × Fin N) :
     ∑ Q, Real.exp (r' * dist P.1 Q.1) *
-        ‖finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D P Q‖ ≤
-      whitenMismatchBound d L N a κ p r r' D := by
+        ‖finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m P Q‖ ≤
+      whitenMismatchBound d L N v a κ p r r' D m := by
   have hd := hC.hd
   have hk := hC.hk
   have hv0 := hC.hv0
@@ -875,9 +1091,9 @@ theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
   have hεδ : pdEps d L ≤ blockDecayRate d := min_le_left _ _
   have hε0 : 0 < pdEps d L := pdEps_pos hd
   have hrδ : r' < blockDecayRate d := by linarith
-  rw [finalWhitenMismatch_eq hd hk hv hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hh D]
+  rw [finalWhitenMismatch_eq hd hk hv hv1 ha1 ha2 hmass hM hκ0 hMB hMκ hh D m]
   set G := boxCut d L N₀ k M v a (fun i => (h i : ℂ)) (fun _ => 1)
-  set E := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D - G
+  set E := finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m - G
   set Dm := finalHessianC d L N₀ k v a (fun i => (h i : ℂ))
   set w : L1Torus d N₀ × Fin N → L1Torus d N₀ × Fin N → ℝ :=
     fun P Q => Real.exp (r' * dist P.1 Q.1)
@@ -885,7 +1101,7 @@ theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
   have hsub : ∀ P U Q, w P Q ≤ w P U * w U Q := fun P U Q => expWeight_sub r' hr'0 P U Q
   set gG := boxCutConst d L 1 a κ p * (N * ballConst d (r - r')) with hgG
   set gD := hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) with hgD
-  set eE := whitenErr d L N a κ p r r' D with heE
+  set eE := whitenErr d L N v a κ p r r' D m with heE
   have hG1 : ∀ z : MacIdx d N₀ M, ‖(fun _ => (1 : ℂ)) z‖ ≤ Real.exp κ := fun _ => by
     simpa using Real.one_le_exp_iff.2 hκ0
   have hGe : ∀ P Q, ‖G P Q‖ ≤ boxCutConst d L 1 a κ p * Real.exp (-r * dist P.1 Q.1) :=
@@ -898,9 +1114,9 @@ theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
   have hGr : ∀ P, ∑ Q, w P Q * ‖G P Q‖ ≤ gG := fun P => sum_exp_mul_le_of_entry hGe hr' P
   have hDr : ∀ P, ∑ Q, w P Q * ‖Dm P Q‖ ≤ gD := fun P => sum_exp_mul_le_of_entry hDe hrδ P
   have hEr : ∀ P, ∑ Q, w P Q * ‖E P Q‖ ≤ eE := fun P =>
-    sum_finalWhiten_sub_row_le hC hp hr' hr0 hr D P
+    sum_finalWhiten_sub_row_le hC hp hr' hr0 hr D m P
   have hET : ∀ P, ∑ Q, w P Q * ‖Eᵀ P Q‖ ≤ eE := fun P =>
-    sum_finalWhiten_sub_col_le hC hp hr' hr0 hr D P
+    sum_finalWhiten_sub_col_le hC hp hr' hr0 hr D m P
   have hgG0 : 0 ≤ gG := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
     (hGr P)
   have hgD0 : 0 ≤ gD := (Finset.sum_nonneg fun Q _ => mul_nonneg (hw0 P Q) (norm_nonneg _)).trans
@@ -925,7 +1141,7 @@ theorem sum_finalWhitenMismatch_le {κ α : ℝ} (hC : BoxCutConsts d L k M v a 
           ∑ Q, w P Q * ‖(Eᵀ * Dm * E) P Q‖ := by
         rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
     _ ≤ gG * gD * eE + eE * gD * gG + eE * gD * eE := add_le_add (add_le_add h1 h2) h3
-    _ = whitenMismatchBound d L N a κ p r r' D := by
+    _ = whitenMismatchBound d L N v a κ p r r' D m := by
         simp only [whitenMismatchBound, ← hgG, ← hgD, ← heE]
         ring
 
@@ -939,118 +1155,176 @@ theorem norm_spinProj_ofReal_le_one {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1
   simp only [Complex.norm_real, Real.norm_eq_abs, sq_abs]
   exact hh
 
-/-- The constant of the row error: `whitenErr ≤ whitenErrConst · 2^{-D}` under `BoxCutTies`. -/
-noncomputable def whitenErrConst (d L N : ℕ) (a κ p r r' : ℝ) : ℝ :=
-  boxCutConst d L 1 a κ p * 7 ^ d * (N * ballConst d (r - r'))
+/-- The constant of the row error:
+`whitenErr ≤ whitenErrConst ((1/2)^D + e^{-(ε/4) m})` under `BoxCutTies`. -/
+noncomputable def whitenErrConst (d L N : ℕ) (v a κ p r r' : ℝ) : ℝ :=
+  (boxCutConst d L 1 a κ p * 7 ^ d + pairErrConst d L v a p) * (N * ballConst d (r - r'))
 
-/-- The constant of the mismatch: `whitenMismatchBound ≤ whitenQConst · 2^{-D}` under
-`BoxCutTies`. -/
-noncomputable def whitenQConst (d L N : ℕ) (a κ p r r' : ℝ) : ℝ :=
-  whitenErrConst d L N a κ p r r' *
+/-- The constant of the mismatch:
+`whitenMismatchBound ≤ whitenQConst ((1/2)^D + e^{-(ε/4) m})` under `BoxCutTies`. -/
+noncomputable def whitenQConst (d L N : ℕ) (v a κ p r r' : ℝ) : ℝ :=
+  whitenErrConst d L N v a κ p r r' *
     (hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) *
-      (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) + whitenErrConst d L N a κ p r r'))
+      (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) +
+        2 * whitenErrConst d L N v a κ p r r'))
 
 omit [NeZero N] in
-/-- **The row error is exponentially small in the radius**:
-`whitenErr ≤ whitenErrConst · 2^{-D}` under `BoxCutTies`. -/
+theorem pairErrConst_nonneg (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p) : 0 ≤ pairErrConst d L v a p := by
+  have hL : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+  have := finalGap_pos (d := d) hL
+  have := ballConst_decay_nonneg (d := d) (r := finalRate d L / 4)
+    (by have := finalRate_pos (L := L) hd; positivity)
+  have := ballConst_decay_nonneg (d := d) (r := blockDecayRate d / 4)
+    (by have := blockDecayRate_pos hd; positivity)
+  unfold pairErrConst
+  positivity
+
+omit [NeZero N] in
+theorem whitenErrConst_nonneg (hd : 0 < d) {κ p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r) :
+    0 ≤ whitenErrConst d L N v a κ p r r' := by
+  unfold whitenErrConst
+  have := boxCutConst_nonneg (L := L) (N := 1) (a := a) hd (κ := κ) hp0
+  have := pairErrConst_nonneg (L := L) (v := v) (a := a) hd hp0
+  have := ballConst_decay_nonneg (d := d) (sub_pos.2 hr')
+  positivity
+
+omit [NeZero N] in
+/-- **The row error is exponentially small in the radius and the margin**:
+`whitenErr ≤ whitenErrConst ((1/2)^D + e^{-(ε/4) m})` under `BoxCutTies`. -/
 theorem whitenErr_le_of_ties {Mc : ℕ} {κ α : ℝ} (ht : BoxCutTies d L Mc κ α) (hd : 0 < d)
-    {p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r) (D : ℕ) :
-    whitenErr d L N a κ p r r' D ≤ whitenErrConst d L N a κ p r r' * (1 / 2) ^ D := by
-  have h0 : 0 ≤ whitenErrConst d L N a κ p r r' := by
-    unfold whitenErrConst
-    have := boxCutConst_nonneg (L := L) (N := 1) (a := a) hd (κ := κ) hp0
-    have := ballConst_decay_nonneg (d := d) (sub_pos.2 hr')
-    positivity
-  calc whitenErr d L N a κ p r r' D
-      = whitenErrConst d L N a κ p r r' * whitenTail (16 ^ d) (κ - 1) D := by
-        unfold whitenErr whitenErrConst; ring
-    _ ≤ whitenErrConst d L N a κ p r r' * (1 / 2) ^ D :=
-        mul_le_mul_of_nonneg_left (whitenTail_le_of_ties ht D) h0
+    {p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r) (D m : ℕ) :
+    whitenErr d L N v a κ p r r' D m ≤
+      whitenErrConst d L N v a κ p r r' * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) := by
+  have hB := boxCutConst_nonneg (L := L) (N := 1) (a := a) hd (κ := κ) hp0
+  have hP := pairErrConst_nonneg (L := L) (v := v) (a := a) hd hp0
+  have hb := ballConst_decay_nonneg (d := d) (sub_pos.2 hr')
+  have hT := whitenTail_le_of_ties ht D
+  have hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1 := by
+    linarith [ratio_le_of_ties ht]
+  have hT0 := whitenTail_nonneg hq D
+  have hE := (Real.exp_pos (-(pdEps d L / 4 * m))).le
+  have h2 : (0 : ℝ) ≤ (1 / 2) ^ D := by positivity
+  have h7 : (0 : ℝ) ≤ 7 ^ d := by positivity
+  have hc : 0 ≤ (N : ℝ) * ballConst d (r - r') := by positivity
+  have h1 : boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) ≤
+      boxCutConst d L 1 a κ p * 7 ^ d * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) := by
+    rw [← mul_assoc]
+    exact mul_le_mul_of_nonneg_left (by linarith) (mul_nonneg hB h7)
+  have h3 : pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m)) ≤
+      pairErrConst d L v a p * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) :=
+    mul_le_mul_of_nonneg_left (by linarith) hP
+  unfold whitenErr whitenErrConst
+  calc (boxCutConst d L 1 a κ p * (7 ^ d * whitenTail (16 ^ d) (κ - 1) D) +
+        pairErrConst d L v a p * Real.exp (-(pdEps d L / 4 * m))) * (N * ballConst d (r - r'))
+      ≤ (boxCutConst d L 1 a κ p * 7 ^ d * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) +
+          pairErrConst d L v a p * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m)))) *
+          (N * ballConst d (r - r')) := mul_le_mul_of_nonneg_right (add_le_add h1 h3) hc
+    _ = _ := by ring
 
 omit [NeZero N] in
-/-- **The mismatch is exponentially small in the radius**:
-`whitenMismatchBound ≤ whitenQConst · 2^{-D}` under `BoxCutTies`. -/
+/-- **The mismatch is exponentially small in the radius and the margin**:
+`whitenMismatchBound ≤ whitenQConst ((1/2)^D + e^{-(ε/4) m})` under `BoxCutTies`. -/
 theorem whitenMismatchBound_le_of_ties {Mc : ℕ} {κ α : ℝ} (ht : BoxCutTies d L Mc κ α)
     (hd : 0 < d) (ha : 0 ≤ a) {p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r)
-    (hrδ : r' < blockDecayRate d) (D : ℕ) :
-    whitenMismatchBound d L N a κ p r r' D ≤ whitenQConst d L N a κ p r r' * (1 / 2) ^ D := by
+    (hrδ : r' < blockDecayRate d) (D m : ℕ) :
+    whitenMismatchBound d L N v a κ p r r' D m ≤
+      whitenQConst d L N v a κ p r r' * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) := by
   have hq : ((16 ^ d : ℕ) : ℝ) ^ 2 * Real.exp (-(κ - 1)) < 1 := by
     linarith [ratio_le_of_ties ht]
   have hB := boxCutConst_nonneg (L := L) (N := 1) (a := a) hd (κ := κ) hp0
   have hb1 := ballConst_decay_nonneg (d := d) (sub_pos.2 hr')
   have hb2 := ballConst_decay_nonneg (d := d) (sub_pos.2 hrδ)
   have hU := (finalDecayC_pos (L := L) hd).le
-  have hE0 : 0 ≤ whitenErr d L N a κ p r r' D := by
+  have hP := pairErrConst_nonneg (L := L) (v := v) (a := a) hd hp0
+  have hE0 : 0 ≤ whitenErr d L N v a κ p r r' D m := by
     unfold whitenErr
     have := whitenTail_nonneg hq D
     positivity
-  have hE := whitenErr_le_of_ties (N := N) (a := a) ht hd hp0 hr' D
-  have hh : (1 / 2 : ℝ) ^ D ≤ 1 := pow_le_one₀ (by norm_num) (by norm_num)
-  have hc0 : 0 ≤ whitenErrConst d L N a κ p r r' := by
-    unfold whitenErrConst; positivity
-  have hE' : whitenErr d L N a κ p r r' D ≤ whitenErrConst d L N a κ p r r' :=
-    hE.trans (mul_le_of_le_one_right hc0 hh)
+  have hE := whitenErr_le_of_ties (N := N) (v := v) (a := a) ht hd hp0 hr' D m
+  set σ := (1 / 2 : ℝ) ^ D + Real.exp (-(pdEps d L / 4 * m)) with hσ
+  have hσ0 : 0 ≤ σ := by positivity
+  have hσ2 : σ ≤ 2 := by
+    have h1 : (1 / 2 : ℝ) ^ D ≤ 1 := pow_le_one₀ (by norm_num) (by norm_num)
+    have h2 : Real.exp (-(pdEps d L / 4 * m)) ≤ 1 := Real.exp_le_one_iff.2 (by
+      have := pdEps_pos (L := L) hd
+      have : (0 : ℝ) ≤ m := Nat.cast_nonneg m
+      nlinarith)
+    linarith
+  have hc0 := whitenErrConst_nonneg (L := L) (N := N) (v := v) (a := a) hd (κ := κ) hp0 hr'
+  have hE' : whitenErr d L N v a κ p r r' D m ≤ 2 * whitenErrConst d L N v a κ p r r' :=
+    hE.trans (by nlinarith)
   have hgD : 0 ≤ hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) := by
     unfold hessEntryConst; positivity
   have hgG : 0 ≤ boxCutConst d L 1 a κ p * (N * ballConst d (r - r')) := by positivity
   unfold whitenMismatchBound whitenQConst
-  calc whitenErr d L N a κ p r r' D *
+  calc whitenErr d L N v a κ p r r' D m *
         (hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) *
           (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) +
-            whitenErr d L N a κ p r r' D))
-      ≤ (whitenErrConst d L N a κ p r r' * (1 / 2) ^ D) *
+            whitenErr d L N v a κ p r r' D m))
+      ≤ (whitenErrConst d L N v a κ p r r' * σ) *
         (hessEntryConst d L a p * (N * ballConst d (blockDecayRate d - r')) *
           (2 * (boxCutConst d L 1 a κ p * (N * ballConst d (r - r'))) +
-            whitenErrConst d L N a κ p r r')) := by
+            2 * whitenErrConst d L N v a κ p r r')) := by
         refine mul_le_mul hE (mul_le_mul_of_nonneg_left (by linarith) hgD)
-          (mul_nonneg hgD (by linarith)) (mul_nonneg hc0 (by positivity))
+          (mul_nonneg hgD (by linarith)) (mul_nonneg hc0 hσ0)
     _ = _ := by ring
 
 omit [NeZero N] in
-/-- **The choice of the radius**: for every `ε > 0` there is `D₀` with
-`whitenMismatchBound ≤ ε` for all `D ≥ D₀` (under `BoxCutTies`). -/
+/-- **The choice of the radius and the margin**: for every `ε > 0` there is `D₀` with
+`whitenMismatchBound ≤ ε` for all `D, m ≥ D₀` (under `BoxCutTies`). -/
 theorem exists_whitenRadius {Mc : ℕ} {κ α : ℝ} (ht : BoxCutTies d L Mc κ α) (hd : 0 < d)
     (ha : 0 ≤ a) {p r r' : ℝ} (hp0 : 0 ≤ p) (hr' : r' < r) (hrδ : r' < blockDecayRate d)
     {ε : ℝ} (hε : 0 < ε) :
-    ∃ D₀ : ℕ, ∀ D, D₀ ≤ D → whitenMismatchBound d L N a κ p r r' D ≤ ε := by
-  set C := whitenQConst d L N a κ p r r'
+    ∃ D₀ : ℕ, ∀ D m, D₀ ≤ D → D₀ ≤ m → whitenMismatchBound d L N v a κ p r r' D m ≤ ε := by
+  set C := whitenQConst d L N v a κ p r r'
   have hC0 : 0 ≤ C := by
-    have h := (whitenMismatchBound_le_of_ties (N := N) ht hd ha hp0 hr' hrδ 0)
+    have hc0 := whitenErrConst_nonneg (L := L) (N := N) (v := v) (a := a) hd (κ := κ) hp0 hr'
     have hB := boxCutConst_nonneg (L := L) (N := 1) (a := a) hd (κ := κ) hp0
     have hb1 := ballConst_decay_nonneg (d := d) (sub_pos.2 hr')
     have hb2 := ballConst_decay_nonneg (d := d) (sub_pos.2 hrδ)
     have hU := (finalDecayC_pos (L := L) hd).le
-    simp only [C, whitenQConst, whitenErrConst, hessEntryConst]
+    simp only [C, whitenQConst, hessEntryConst]
     positivity
-  obtain ⟨D₀, hD₀⟩ := exists_pow_lt_of_lt_one (div_pos hε (by linarith : (0 : ℝ) < C + 1))
-    (by norm_num : (1 / 2 : ℝ) < 1)
-  refine ⟨D₀, fun D hD => (whitenMismatchBound_le_of_ties ht hd ha hp0 hr' hrδ D).trans ?_⟩
-  have hmono : (1 / 2 : ℝ) ^ D ≤ (1 / 2) ^ D₀ := pow_le_pow_of_le_one (by norm_num) (by norm_num) hD
-  have h1 : C * (1 / 2) ^ D ≤ C * (ε / (C + 1)) :=
-    mul_le_mul_of_nonneg_left (hmono.trans hD₀.le) hC0
-  have h2 : C * (ε / (C + 1)) ≤ ε := by
-    rw [mul_div_assoc', div_le_iff₀ (by linarith)]
+  have hε' : 0 < ε / (2 * (C + 1)) := by positivity
+  have hq : Real.exp (-(pdEps d L / 4)) < 1 :=
+    Real.exp_lt_one_iff.2 (by have := pdEps_pos (L := L) hd; linarith)
+  obtain ⟨D₁, hD₁⟩ := exists_pow_lt_of_lt_one hε' (by norm_num : (1 / 2 : ℝ) < 1)
+  obtain ⟨D₂, hD₂⟩ := exists_pow_lt_of_lt_one hε' hq
+  refine ⟨max D₁ D₂, fun D m hD hm => ?_⟩
+  refine (whitenMismatchBound_le_of_ties ht hd ha hp0 hr' hrδ D m).trans ?_
+  have h1 : (1 / 2 : ℝ) ^ D ≤ ε / (2 * (C + 1)) :=
+    (pow_le_pow_of_le_one (by norm_num) (by norm_num) (le_of_max_le_left hD)).trans hD₁.le
+  have h2 : Real.exp (-(pdEps d L / 4 * m)) ≤ ε / (2 * (C + 1)) := by
+    have e : Real.exp (-(pdEps d L / 4 * m)) = Real.exp (-(pdEps d L / 4)) ^ m := by
+      rw [← Real.exp_nat_mul]; congr 1; ring
+    rw [e]
+    exact (pow_le_pow_of_le_one (Real.exp_pos _).le hq.le (le_of_max_le_right hm)).trans hD₂.le
+  have h3 : C * ((1 / 2) ^ D + Real.exp (-(pdEps d L / 4 * m))) ≤
+      C * (2 * (ε / (2 * (C + 1)))) := mul_le_mul_of_nonneg_left (by linarith) hC0
+  have h4 : C * (2 * (ε / (2 * (C + 1)))) ≤ ε := by
+    rw [show C * (2 * (ε / (2 * (C + 1)))) = C * ε / (C + 1) by field_simp,
+      div_le_iff₀ (by linarith)]
     nlinarith
-  exact h1.trans h2
+  exact h3.trans h4
 
 /-- **Invertibility of the localized square root** (conditional form): for a real unit `h`, if
 `whitenMismatchBound < 1` (at some `0 ≤ r' < r ≤ ε/8`), then `L` is invertible. -/
 theorem isUnit_finalWhiten_of_lt_one {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α) (hv : 0 < v)
     {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) {p : ℝ}
     (hp : ∀ i j, ‖spinProj (fun i => (h i : ℂ)) i j‖ ≤ p) {r r' : ℝ} (hr'0 : 0 ≤ r')
-    (hr' : r' < r) (hr : r ≤ pdEps d L / 8) (D : ℕ)
-    (hsmall : whitenMismatchBound d L N a κ p r r' D < 1) :
-    IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D) := by
+    (hr' : r' < r) (hr : r ≤ pdEps d L / 8) (D m : ℕ)
+    (hsmall : whitenMismatchBound d L N v a κ p r r' D m < 1) :
+    IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m) := by
   have hrow : ∀ P, ∑ P', (fun _ => (1 : ℝ)) P *
-      ‖(-finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D) P P'‖ /
-        (fun _ => (1 : ℝ)) P' ≤ whitenMismatchBound d L N a κ p r r' D := by
+      ‖(-finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m) P P'‖ /
+        (fun _ => (1 : ℝ)) P' ≤ whitenMismatchBound d L N v a κ p r r' D m := by
     intro P
     refine le_trans (Finset.sum_le_sum fun P' _ => ?_)
-      (sum_finalWhitenMismatch_le hC hv hh hp hr'0 hr' hr D P)
+      (sum_finalWhitenMismatch_le hC hv hh hp hr'0 hr' hr D m P)
     simp only [one_mul, div_one, Matrix.neg_apply, norm_neg]
     exact le_mul_of_one_le_left (norm_nonneg _)
       (Real.one_le_exp_iff.2 (mul_nonneg hr'0 dist_nonneg))
-  have hu : IsUnit (1 - -finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D) :=
+  have hu : IsUnit (1 - -finalWhitenMismatch d L N₀ k M v a (fun i => (h i : ℂ)) D m) :=
     isUnit_one_sub_of_weighted_row_sum (fun _ => one_pos) hsmall hrow
   rw [sub_neg_eq_add] at hu
   have hdet := (Matrix.isUnit_iff_isUnit_det _).1 hu
@@ -1061,18 +1335,19 @@ theorem isUnit_finalWhiten_of_lt_one {κ α : ℝ} (hC : BoxCutConsts d L k M v 
   exact isUnit_of_mul_isUnit_left h1
 
 /-- **Invertibility of the localized square root**: for a real unit `h` and `0 ≤ r' < r ≤ ε/8`,
-`L` is invertible for every radius `D` beyond some `D₀`. -/
+`L` is invertible for every radius `D` and margin `m` beyond some `D₀`. -/
 theorem exists_isUnit_finalWhiten {κ α : ℝ} (hC : BoxCutConsts d L k M v a κ α) (hv : 0 < v)
     {h : Fin N → ℝ} (hh : ∑ i, h i ^ 2 = 1) {r r' : ℝ} (hr'0 : 0 ≤ r') (hr' : r' < r)
     (hr : r ≤ pdEps d L / 8) :
-    ∃ D₀ : ℕ, ∀ D, D₀ ≤ D → IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D) := by
+    ∃ D₀ : ℕ, ∀ D m, D₀ ≤ D → D₀ ≤ m →
+      IsUnit (finalWhiten d L N₀ k M v a (fun i => (h i : ℂ)) D m) := by
   have hd := hC.hd
   have hεδ : pdEps d L ≤ blockDecayRate d := min_le_left _ _
   have hrδ : r' < blockDecayRate d := by linarith
-  obtain ⟨D₀, hD₀⟩ := exists_whitenRadius (N := N) (a := a) hC.ties hd (by linarith [hC.ha1])
-    zero_le_one hr' hrδ (by norm_num : (0 : ℝ) < 1 / 2)
-  exact ⟨D₀, fun D hD => isUnit_finalWhiten_of_lt_one hC hv hh (norm_spinProj_ofReal_le_one hh)
-    hr'0 hr' hr D (by linarith [hD₀ D hD])⟩
+  obtain ⟨D₀, hD₀⟩ := exists_whitenRadius (N := N) (v := v) (a := a) hC.ties hd
+    (by linarith [hC.ha1]) zero_le_one hr' hrδ (by norm_num : (0 : ℝ) < 1 / 2)
+  exact ⟨D₀, fun D m hD hm => isUnit_finalWhiten_of_lt_one hC hv hh
+    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D m (by linarith [hD₀ D m hD hm])⟩
 
 end Mismatch
 

@@ -20,8 +20,8 @@ level) are functions of the complex block field `ψ` on the box that read `ψ` o
 polymer `X ∈ 𝒟_k` and are analytic and bounded by `amp · e^{-κ_R d_k(X)}` on the sup ball of
 radius `r` around the constant configuration `h` (`PolyTerms`, a family indexed by a finite set of
 labels; `PolyTerms.empty` inhabits it).  The cut family on the blocks is `T(s) = c · whitenCut(s)`
-(`blockCut`), the cut family of the localized square root `L = whitenCut(1)` (Amendment B-1′,
-localization radius `D`), with macro cells of side `M_c`; `polyLocal` collects the rooted
+(`blockCut`), the cut family of the localized square root `L = whitenCut(1)` (Amendment B-1″,
+localization radius `D`, pair margin `mp`), with macro cells of side `M_c`; `polyLocal` collects the rooted
 coefficients of the normalized terms `τ_a(ψ) - τ_a(h)`.  In the application `c = β_k^{-1/2}` and
 `w = ψ̂` is the Gaussian variable of the box.  For complex `w` with `‖w‖_∞ ≤ ρ`,
 `m = |c| B_box ρ < r`:
@@ -97,10 +97,10 @@ def PolyTerms.empty (r κR : ℝ) : PolyTerms C hv r κR Empty where
 
 /-- **The cut family on the `k`-blocks**: `c · whitenCut(s)`, the cut family of the localized square
 root `L = whitenCut(1)` of the final Hessian (mass `v`, weight `a`, macro side `M_c`, centre `h`,
-localization radius `D`). -/
-noncomputable def blockCut (c : ℂ) (Mc : ℕ) (v a : ℝ) (D : ℕ)
+localization radius `D`, pair margin `mp`). -/
+noncomputable def blockCut (c : ℂ) (Mc : ℕ) (v a : ℝ) (D mp : ℕ)
     (s : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc → ℂ) (p q : BlockAt S n M K k × Fin N) : ℂ :=
-  c * whitenCut S.d S.L (M * n K * S.L ^ (K - k)) k Mc v a (hC hv) D s p q
+  c * whitenCut S.d S.L (M * n K * S.L ^ (K - k)) k Mc v a (hC hv) D mp s p q
 
 variable {C hv}
 
@@ -141,10 +141,10 @@ def PolyTerms.mono {r r' κR : ℝ} {A : Type*} [Fintype A] (P : PolyTerms C hv 
 /-- **The local form of a family of polymer terms**: the rooted coefficients of the normalized
 terms, collected by their regions. -/
 noncomputable def polyLocal {r κR : ℝ} {A : Type*} [Fintype A] (P : PolyTerms C hv r κR A)
-    (c : ℂ) (Mc : ℕ) (v a : ℝ) (D : ℕ) (g : GIdx S n M K N → ℂ) (Y : Finset (BlockAt S n M K k))
+    (c : ℂ) (Mc : ℕ) (v a : ℝ) (D mp : ℕ) (g : GIdx S n M K N → ℂ) (Y : Finset (BlockAt S n M K k))
     (w : BlockAt S n M K k × Fin N → ℂ) : ℂ :=
   localFormOf (normAt (P.τ g) (hvField hv)) (fun t => blocksOf C (P.X t))
-    (macBoxF S.d (M * n K * S.L ^ (K - k)) Mc) (hvField hv) (blockCut hv c Mc v a D) Y w
+    (macBoxF S.d (M * n K * S.L ^ (K - k)) Mc) (hvField hv) (blockCut hv c Mc v a D mp) Y w
 
 end Defs
 
@@ -162,40 +162,40 @@ variable {hv}
 
 /-- The cut family on the blocks is decoupled with the block patches of the macro boxes. -/
 theorem cutDecoupling_blockCut {Mc : ℕ} {v a κ α : ℝ} (hBC : BoxCutConsts S.d S.L k Mc v a κ α)
-    (c : ℂ) (D : ℕ) :
+    (c : ℂ) (D mp : ℕ) :
     CutDecoupling (blockPatch N (macBoxF S.d (M * n K * S.L ^ (K - k)) Mc)) (Real.exp κ)
-      (blockCut (S := S) (n := n) (M := M) (K := K) (k := k) hv c Mc v a D) := by
+      (blockCut (S := S) (n := n) (M := M) (K := K) (k := k) hv c Mc v a D mp) := by
   rw [blockPatch_macBoxF]
   exact CutDecoupling.const_mul (cutDecoupling_whitenCut hBC.hd hBC.hk hBC.hv0 hBC.hv1 hBC.ha1
-    hBC.ha2 hBC.hmass hBC.hM (by linarith [hBC.ties.1]) hBC.ties.2.1 hBC.ties.2.2.1 (hC hv) D) c
+    hBC.ha2 hBC.hmass hBC.hM (by linarith [hBC.ties.1]) hBC.ties.2.1 hBC.ties.2.2.1 (hC hv) D mp) c
 
 theorem analyticOnNhd_blockCut {Mc : ℕ} {v a κ α : ℝ} (hBC : BoxCutConsts S.d S.L k Mc v a κ α)
-    (c : ℂ) (D : ℕ) (p q : BlockAt S n M K k × Fin N) :
-    AnalyticOnNhd ℂ (fun s => blockCut hv c Mc v a D s p q)
+    (c : ℂ) (D mp : ℕ) (p q : BlockAt S n M K k × Fin N) :
+    AnalyticOnNhd ℂ (fun s => blockCut hv c Mc v a D mp s p q)
       (polydisc (0 : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc → ℂ) (fun _ => Real.exp κ)) :=
   fun s hs => analyticAt_const.mul (analyticOnNhd_whitenCut hBC.hd hBC.hk hBC.hv0 hBC.hv1
     hBC.ha1 hBC.ha2 hBC.hmass hBC.hM (by linarith [hBC.ties.1]) hBC.ties.2.1 hBC.ties.2.2.1
-    (hC hv) D p q s hs)
+    (hC hv) D mp p q s hs)
 
 theorem whitenCut_row_bound_hC {Mc : ℕ} {v a κ α : ℝ} (hBC : BoxCutConsts S.d S.L k Mc v a κ α)
-    (hunit : ‖hv‖ = 1) (D : ℕ) :
+    (hunit : ‖hv‖ = 1) (D mp : ℕ) :
     ∀ s ∈ polydisc (0 : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc → ℂ) (fun _ => Real.exp κ),
       ∀ q : BlockAt S n M K k × Fin N,
-        ∑ q', ‖whitenCut S.d S.L (M * n K * S.L ^ (K - k)) k Mc v a (hC hv) D s q q'‖ ≤
+        ∑ q', ‖whitenCut S.d S.L (M * n K * S.L ^ (K - k)) k Mc v a (hC hv) D mp s q q'‖ ≤
           boxCutConst S.d S.L N a κ 1 := fun s hs q =>
   whitenCut_row_bound hBC.hd hBC.hk hBC.hv0 hBC.hv1 hBC.ha1 hBC.ha2 hBC.hmass hBC.hM
-    (by linarith [hBC.ties.1]) hBC.ties.2.1 hBC.ties.2.2.1 (norm_spinProj_hC_le hv hunit) D hs q
+    (by linarith [hBC.ties.1]) hBC.ties.2.1 hBC.ties.2.2.1 (norm_spinProj_hC_le hv hunit) D mp hs q
 
 /-- The cut fields stay within `m` of `h`. -/
 theorem linField_blockCut_mem_closedBall {Mc : ℕ} {v a κ α : ℝ}
-    (hBC : BoxCutConsts S.d S.L k Mc v a κ α) (hunit : ‖hv‖ = 1) (c : ℂ) (D : ℕ) {ρ : ℝ}
+    (hBC : BoxCutConsts S.d S.L k Mc v a κ α) (hunit : ‖hv‖ = 1) (c : ℂ) (D mp : ℕ) {ρ : ℝ}
     (hρ : 0 ≤ ρ) {w : BlockAt S n M K k × Fin N → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ)
     {s : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc → ℂ}
     (hs : s ∈ polydisc (0 : MacIdx S.d (M * n K * S.L ^ (K - k)) Mc → ℂ) (fun _ => Real.exp κ)) :
-    linField (hvField hv) (blockCut hv c Mc v a D) s w ∈
+    linField (hvField hv) (blockCut hv c Mc v a D mp) s w ∈
       Metric.closedBall (hvField hv) (‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ) :=
   linField_mem_closedBall_of_row_bound (boxCutConst_nonneg hBC.hd zero_le_one)
-    (whitenCut_row_bound_hC hBC hunit D) c (hvField hv) hρ hw hs
+    (whitenCut_row_bound_hC hBC hunit D mp) c (hvField hv) hρ hw hs
 
 end Cut
 
@@ -203,7 +203,7 @@ section Form
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} {C : SFCtx S n R M K N k m₁ ϱ}
-  {hv : EuclideanSpace ℝ (Fin N)} {r κR : ℝ} {A : Type*} [Fintype A] {D : ℕ}
+  {hv : EuclideanSpace ℝ (Fin N)} {r κR : ℝ} {A : Type*} [Fintype A] {D mp : ℕ}
   (P : PolyTerms C hv r κR A)
 
 /-- **(W1)**: `W_Y` reads `w` on `Y × Fin N` only. -/
@@ -211,21 +211,21 @@ theorem polyLocal_congr_w {Mc : ℕ} {v a κ α : ℝ} (hBC : BoxCutConsts S.d S
     (c : ℂ) (g : GIdx S n M K N → ℂ) (Y : Finset (BlockAt S n M K k))
     {w w' : BlockAt S n M K k × Fin N → ℂ}
     (hww : ∀ p : BlockAt S n M K k × Fin N, p.1 ∈ Y → w p = w' p) :
-    polyLocal P c Mc v a D g Y w = polyLocal P c Mc v a D g Y w' :=
+    polyLocal P c Mc v a D mp g Y w = polyLocal P c Mc v a D mp g Y w' :=
   localFormOf_congr (Real.one_lt_exp_iff.2 (by linarith [hBC.ties.1]))
-    (cutDecoupling_blockCut hBC c D) Y hww
+    (cutDecoupling_blockCut hBC c D mp) Y hww
 
 /-- **(W3)**: `W_Y = 0` unless `Y` is a nonempty connected set of blocks. -/
 theorem polyLocal_eq_zero_of_not_isAnimal {Mc : ℕ} (hMc : 0 < Mc) (c : ℂ) (v a : ℝ)
     (g : GIdx S n M K N → ℂ) {Y : Finset (BlockAt S n M K k)}
     (hY : ¬ Polymer.IsAnimal (Polymer.blockGraph S.d (M * n K * S.L ^ (K - k))) Y)
-    (w : BlockAt S n M K k × Fin N → ℂ) : polyLocal P c Mc v a D g Y w = 0 :=
+    (w : BlockAt S n M K k × Fin N → ℂ) : polyLocal P c Mc v a D mp g Y w = 0 :=
   localFormOf_eq_zero_of_not_isAnimal _ (fun t => isAnimal_blocksOf C (P.isPoly t))
     (isAnimal_macBoxF hMc) hY w
 
 /-- `W_Y(0, g) = 0`. -/
 theorem polyLocal_zero_var (c : ℂ) (Mc : ℕ) (v a : ℝ) (g : GIdx S n M K N → ℂ)
-    (Y : Finset (BlockAt S n M K k)) : polyLocal P c Mc v a D g Y 0 = 0 :=
+    (Y : Finset (BlockAt S n M K k)) : polyLocal P c Mc v a D mp g Y 0 = 0 :=
   localFormOf_zero_var (normAt_self _ _) Y
 
 /-- **(W2)**: `W_Y` reads the source at the fine sites of the blocks of `Y` only. -/
@@ -233,7 +233,7 @@ theorem polyLocal_congr_g (c : ℂ) (Mc : ℕ) (v a : ℝ) (Y : Finset (BlockAt 
     {g g' : GIdx S n M K N → ℂ}
     (hgg : ∀ x, jBlock S.d S.L (M * n K) K k x ∈ Y → ∀ i, g (x, i) = g' (x, i))
     (w : BlockAt S n M K k × Fin N → ℂ) :
-    polyLocal P c Mc v a D g Y w = polyLocal P c Mc v a D g' Y w := by
+    polyLocal P c Mc v a D mp g Y w = polyLocal P c Mc v a D mp g' Y w := by
   unfold polyLocal
   refine localFormOf_congr_param (fun g => normAt (P.τ g) (hvField hv))
     (fun Y g g' => ∀ x, jBlock S.d S.L (M * n K) K k x ∈ Y → ∀ i, g (x, i) = g' (x, i))
@@ -248,13 +248,13 @@ theorem poly_expansion (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc v a κ α) {c : ℂ} {ρ : ℝ} (hρ : 0 ≤ ρ)
     (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ < r) {g : GIdx S n M K N → ℂ}
     (hg : ∑ q, ‖g q‖ < 1) {w : BlockAt S n M K k × Fin N → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ) (t : A) :
-    P.τ g t (linField (hvField hv) (blockCut hv c Mc v a D) (fun _ => 1) w) =
+    P.τ g t (linField (hvField hv) (blockCut hv c Mc v a D mp) (fun _ => 1) w) =
         P.τ g t (hvField hv) +
         ∑ C' ∈ Finset.univ.filter (fun C' : Finset (MacIdx S.d (M * n K * S.L ^ (K - k)) Mc) =>
           C'.Nonempty ∧ IsRootedFamily (blockPatch N (macBoxF S.d (M * n K * S.L ^ (K - k)) Mc))
             (blockSites N (blocksOf C (P.X t))) C'),
-          rootedCoef (P.τ g t) (hvField hv) (blockCut hv c Mc v a D) w C' ∧
-      ∀ C', C'.Nonempty → ‖rootedCoef (P.τ g t) (hvField hv) (blockCut hv c Mc v a D) w C'‖ ≤
+          rootedCoef (P.τ g t) (hvField hv) (blockCut hv c Mc v a D mp) w C' ∧
+      ∀ C', C'.Nonempty → ‖rootedCoef (P.τ g t) (hvField hv) (blockCut hv c Mc v a D mp) w C'‖ ≤
         P.amp g t * Real.exp (-κR * Def6.sizeJ C.m₀ k (P.X t)) *
           (‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ) /
           (r - ‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ) * Real.exp (-(κ - 1) * C'.card) := by
@@ -269,10 +269,10 @@ theorem poly_expansion (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a κ α : ℝ}
   have key := rootedExpansion_of_row_bound hBC.ties.1
     (cutDecoupling_whitenCut (N₀ := M * n K * S.L ^ (K - k)) (k := k) (M := Mc) (v := v)
       (a := a) hBC.hd hBC.hk hBC.hv0 hBC.hv1 hBC.ha1 hBC.ha2 hBC.hmass hBC.hM hκ0 hBC.ties.2.1
-      hBC.ties.2.2.1 (hC hv) D)
+      hBC.ties.2.2.1 (hC hv) D mp)
     (analyticOnNhd_whitenCut hBC.hd hBC.hk hBC.hv0 hBC.hv1 hBC.ha1 hBC.ha2 hBC.hmass hBC.hM hκ0
-      hBC.ties.2.1 hBC.ties.2.2.1 (hC hv) D)
-    (boxCutConst_nonneg hBC.hd zero_le_one) (whitenCut_row_bound_hC hBC hunit D) c
+      hBC.ties.2.1 hBC.ties.2.2.1 (hC hv) D mp)
+    (boxCutConst_nonneg hBC.hd zero_le_one) (whitenCut_row_bound_hC hBC hunit D mp) c
     (hvField hv) (P.reads g t) hτan hτb hρ w hw hm
   dsimp only at key
   rw [← blockPatch_macBoxF] at key
@@ -284,8 +284,8 @@ theorem sum_polyLocal (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc v a κ α) {c : ℂ} {ρ : ℝ} (hρ : 0 ≤ ρ)
     (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ < r) {g : GIdx S n M K N → ℂ}
     (hg : ∑ q, ‖g q‖ < 1) {w : BlockAt S n M K k × Fin N → ℂ} (hw : ∀ q, ‖w q‖ ≤ ρ) :
-    ∑ Y, polyLocal P c Mc v a D g Y w =
-      ∑ t, (P.τ g t (linField (hvField hv) (blockCut hv c Mc v a D) (fun _ => 1) w) -
+    ∑ Y, polyLocal P c Mc v a D mp g Y w =
+      ∑ t, (P.τ g t (linField (hvField hv) (blockCut hv c Mc v a D mp) (fun _ => 1) w) -
         P.τ g t (hvField hv)) := by
   unfold polyLocal
   exact sum_localFormOf_normAt fun t => (poly_expansion P hunit hBC hρ hm hg hw t).1
@@ -298,10 +298,10 @@ theorem analyticOnNhd_polyLocal (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a κ α : �
     (hBC : BoxCutConsts S.d S.L k Mc v a κ α) (hr0 : 0 < r) {c : ℂ} {ρ : ℝ} (hρ : 0 ≤ ρ)
     (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ < r) (Y : Finset (BlockAt S n M K k)) :
     AnalyticOnNhd ℂ (fun p : (GIdx S n M K N → ℂ) × (BlockAt S n M K k × Fin N → ℂ) =>
-      polyLocal P c Mc v a D p.1 Y p.2) {p | ∑ q, ‖p.1 q‖ < 1 ∧ ∀ q, ‖p.2 q‖ ≤ ρ} := by
+      polyLocal P c Mc v a D mp p.1 Y p.2) {p | ∑ q, ‖p.1 q‖ < 1 ∧ ∀ q, ‖p.2 q‖ ≤ ρ} := by
   unfold polyLocal
   refine analyticOnNhd_localFormOf_param (Real.one_lt_exp_iff.2 (by linarith [hBC.ties.1]))
-    (cutDecoupling_blockCut hBC c D) (analyticOnNhd_blockCut hBC c D)
+    (cutDecoupling_blockCut hBC c D mp) (analyticOnNhd_blockCut hBC c D mp)
     (τ := fun g => normAt (P.τ g) (hvField hv)) (V := rDom hv r)
     (D := {p : (GIdx S n M K N → ℂ) × (BlockAt S n M K k × Fin N → ℂ) |
       ∑ q, ‖p.1 q‖ < 1 ∧ ∀ q, ‖p.2 q‖ ≤ ρ}) (fun t => ?_) (fun p hp s hs => ?_) Y
@@ -316,7 +316,7 @@ theorem analyticOnNhd_polyLocal (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a κ α : �
         (analyticAt_fst.prod analyticAt_const)
     exact h1.sub h2
   · exact ⟨hp.1, Metric.closedBall_subset_ball hm
-      (linField_blockCut_mem_closedBall hBC hunit c D hρ hp.2 hs)⟩
+      (linField_blockCut_mem_closedBall hBC hunit c D mp hρ hp.2 hs)⟩
 
 omit [∀ k, NeZero (n k)] [NeZero M] [NeZero S.L] in
 theorem norm_dilation_le {t : ℂ} {Rt p1 : ℝ} (ht : ‖t‖ < Rt) {w : BlockAt S n M K k × Fin N → ℝ}
@@ -331,14 +331,14 @@ theorem analyticOnNhd_polyLocal_dilation (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a 
     (hRt : 0 ≤ Rt) (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * (Rt * p1) < r)
     (Y : Finset (BlockAt S n M K k)) {w : BlockAt S n M K k × Fin N → ℝ} (hw : ∀ p, |w p| ≤ p1) :
     AnalyticOnNhd ℂ (fun q : ℂ × (GIdx S n M K N → ℂ) =>
-        polyLocal P c Mc v a D q.2 Y (fun p => q.1 * (w p : ℂ)))
+        polyLocal P c Mc v a D mp q.2 Y (fun p => q.1 * (w p : ℂ)))
       (Metric.ball (0 : ℂ) Rt ×ˢ {g | ∑ i, ‖g i‖ < 1}) := by
-  have hA := analyticOnNhd_polyLocal (D := D) P hunit hBC hr0 (ρ := Rt * p1) (mul_nonneg hRt hp1)
+  have hA := analyticOnNhd_polyLocal (D := D) (mp := mp) P hunit hBC hr0 (ρ := Rt * p1) (mul_nonneg hRt hp1)
     hm Y
   intro q hq
   have ht : ‖q.1‖ < Rt := by simpa using hq.1
   refine AnalyticAt.comp (g := fun p : (GIdx S n M K N → ℂ) × (BlockAt S n M K k × Fin N → ℂ) =>
-      polyLocal P c Mc v a D p.1 Y p.2) (f := fun q : ℂ × (GIdx S n M K N → ℂ) =>
+      polyLocal P c Mc v a D mp p.1 Y p.2) (f := fun q : ℂ × (GIdx S n M K N → ℂ) =>
       (q.2, fun p => q.1 * (w p : ℂ))) (hA _ ⟨hq.2, fun p => norm_dilation_le ht hw p⟩) ?_
   refine AnalyticAt.prod analyticAt_snd (analyticAt_pi_iff.2 fun p => ?_)
   exact analyticAt_fst.mul analyticAt_const
@@ -350,9 +350,9 @@ theorem continuousOn_polyLocal_dilation (hunit : ‖hv‖ = 1) {Mc : ℕ} {v a �
     (hRt : 0 ≤ Rt) (hm : ‖c‖ * boxCutConst S.d S.L N a κ 1 * (Rt * p1) < r)
     (Y : Finset (BlockAt S n M K k)) :
     ContinuousOn (fun q : (ℂ × (GIdx S n M K N → ℂ)) × (BlockAt S n M K k × Fin N → ℝ) =>
-        polyLocal P c Mc v a D q.1.2 Y (fun p => q.1.1 * (q.2 p : ℂ)))
+        polyLocal P c Mc v a D mp q.1.2 Y (fun p => q.1.1 * (q.2 p : ℂ)))
       ((Metric.ball (0 : ℂ) Rt ×ˢ {g | ∑ i, ‖g i‖ < 1}) ×ˢ {w | ∀ p, |w p| ≤ p1}) := by
-  have hA := analyticOnNhd_polyLocal (D := D) P hunit hBC hr0 (ρ := Rt * p1) (mul_nonneg hRt hp1)
+  have hA := analyticOnNhd_polyLocal (D := D) (mp := mp) P hunit hBC hr0 (ρ := Rt * p1) (mul_nonneg hRt hp1)
     hm Y
   intro q hq
   have ht : ‖q.1.1‖ < Rt := by simpa using hq.1.1
@@ -370,7 +370,7 @@ section Bound
 
 variable {S : Setting} {n : ℕ → ℕ} [∀ k, NeZero (n k)] {R : ℕ → ℝ} {M K : ℕ} [NeZero M]
   [NeZero S.L] {N k m₁ : ℕ} {ϱ : ℝ} {C : SFCtx S n R M K N k m₁ ϱ}
-  {hv : EuclideanSpace ℝ (Fin N)} {r κR : ℝ} {A : Type*} [Fintype A] {D : ℕ}
+  {hv : EuclideanSpace ℝ (Fin N)} {r κR : ℝ} {A : Type*} [Fintype A] {D mp : ℕ}
 
 /-- **The weight of a term with its root cells**: for the coefficient bound
 `amp e^{-κ_R d_k(X)} μ`, the cell weight `e^{α #cells}` and the root-cell factor
@@ -524,7 +524,7 @@ theorem polyLocal_bound (hunit : ‖hv‖ = 1) (hN : S.L ^ C.m₀ ∣ C.N₁) {v
       F * Real.exp (lam * Def6.sizeJ C.m₀ k X)) {w : BlockAt S n M K k × Fin N → ℂ}
     (hw : ∀ q, ‖w q‖ ≤ ρ) (x : BlockAt S n M K k) :
     ∑ Y ∈ Finset.univ.filter (fun Y : Finset (BlockAt S n M K k) => x ∈ Y),
-        ‖polyLocal P c (S.L ^ (C.m₀ + m₁)) v a D g Y w‖ *
+        ‖polyLocal P c (S.L ^ (C.m₀ + m₁)) v a D mp g Y w‖ *
           Real.exp (α * (macCellCount S.d (M * n K * S.L ^ (K - k)) (S.L ^ (C.m₀ + m₁)) Y : ℝ)) ≤
       polyBoundConst S.d S.L F (‖c‖ * boxCutConst S.d S.L N a κ 1 * ρ) r κR lam κ α := by
   classical
@@ -550,7 +550,7 @@ theorem polyLocal_bound (hunit : ‖hv‖ = 1) (hN : S.L ^ C.m₀ ∣ C.N₁) {v
     mul_nonneg (mul_nonneg (P.amp_nonneg g t) (Real.exp_pos _).le) hμ
   have hcoef : ∀ t (C' : Finset (MacIdx S.d N₀ Mc)), C'.Nonempty →
       IsRootedFamily (blockPatch N (macBoxF S.d N₀ Mc)) (blockSites N (blocksOf C (P.X t))) C' →
-      ‖rootedCoef (normAt (P.τ g) (hvField hv) t) (hvField hv) (blockCut hv c Mc v a D) w C'‖ ≤
+      ‖rootedCoef (normAt (P.τ g) (hvField hv) t) (hvField hv) (blockCut hv c Mc v a D mp) w C'‖ ≤
         b t * Real.exp (-(κ - 1) * C'.card) := by
     intro t C' hne _
     rw [rootedCoef_normAt _ _ _ _ hne]
@@ -617,7 +617,7 @@ theorem polyLocal_bound (hunit : ‖hv‖ = 1) (hN : S.L ^ C.m₀ ∣ C.N₁) {v
             exact_mod_cast card_cellBases_macBoxF_le C (m₀ := C.m₀) hdvd l
   have hfinal := sum_norm_localFormOf_le_of_rootSums (τ := normAt (P.τ g) (hvField hv))
     (RA := fun t => blocksOf C (P.X t)) (PB := macBoxF S.d N₀ Mc) (φ₀ := hvField hv)
-    (T := blockCut hv c Mc v a D) w x (κ := κ) (θ := Real.exp (α * 16 ^ S.d)) (Real.exp_pos _) hb
+    (T := blockCut hv c Mc v a D mp) w x (κ := κ) (θ := Real.exp (α * 16 ^ S.d)) (Real.exp_pos _) hb
     hcoef (normAt_self _ _)
     (fun Y => Real.exp (α * (macCellCount S.d N₀ Mc Y : ℝ))) (fun _ => (Real.exp_pos _).le)
     (fun t C' => exp_macCellCount_rootRegion_le hM hα _ _) (Δ := 16 ^ S.d)
@@ -642,7 +642,7 @@ theorem polyLocal_bound_dilation (hunit : ‖hv‖ = 1) (hN : S.L ^ C.m₀ ∣ C
     {w : BlockAt S n M K k × Fin N → ℝ} (hw : ∀ p, |w p| ≤ p1) {t : ℂ} (ht : ‖t‖ < Rt)
     (x : BlockAt S n M K k) :
     ∑ Y ∈ Finset.univ.filter (fun Y : Finset (BlockAt S n M K k) => x ∈ Y),
-        ‖polyLocal P c (S.L ^ (C.m₀ + m₁)) v a D g Y (fun p => t * (w p : ℂ))‖ *
+        ‖polyLocal P c (S.L ^ (C.m₀ + m₁)) v a D mp g Y (fun p => t * (w p : ℂ))‖ *
           Real.exp (α * (macCellCount S.d (M * n K * S.L ^ (K - k)) (S.L ^ (C.m₀ + m₁)) Y : ℝ)) ≤
       polyBoundConst S.d S.L F (‖c‖ * boxCutConst S.d S.L N a κ 1 * (Rt * p1)) r κR lam κ α :=
   polyLocal_bound P hunit hN hBC hF hTies (mul_nonneg hRt hp1) hm hg hcount

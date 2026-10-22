@@ -77,28 +77,28 @@ theorem smul_transpose_mul_smul_mul_smul {ι : Type*} [Fintype ι] (c b : ℝ) (
 a unit `h`, `0 ≤ ν` and `a > 0`, `(Aᵀ K A - 1)` complexifies to `finalWhitenMismatch`. -/
 theorem sfWhitenMismatch_map (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
     (hunit : ‖hv‖ = 1) (hβ : 0 < C.sf.β k) (hd : 0 < S.d)
-    (hν : 0 ≤ C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (ha : 0 < C.weights k) (Mc D : ℕ) :
-    ((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1).map (algebraMap ℝ ℂ) =
+    (hν : 0 ≤ C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (ha : 0 < C.weights k) (Mc D mp : ℕ) :
+    ((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1).map (algebraMap ℝ ℂ) =
       finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D := by
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp := by
   have hh := sum_sq_eq_one_of_norm_eq_one hv hunit
   have hc : Real.sqrt (C.sf.β k)⁻¹ * C.sf.β k * Real.sqrt (C.sf.β k)⁻¹ = 1 := by
     rw [mul_comm, ← mul_assoc, Real.mul_self_sqrt (inv_nonneg.2 hβ.le), inv_mul_cancel₀ hβ.ne']
   set Lr : Matrix (BlockAt S n M K k × Fin N) (BlockAt S n M K k × Fin N) ℝ :=
     finalWhitenR S.d S.L (M * n K * S.L ^ (K - k)) k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
-      (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D with hLr
+      (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp with hLr
   set Dr := finalHessian S.d (M * n K * S.L ^ (K - k) * S.L ^ k) (S.L ^ k)
     (M * n K * S.L ^ (K - k)) (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
     (fun i => hv i) with hDr
   have hLmap : Lr.map (algebraMap ℝ ℂ) = finalWhiten S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D :=
-    finalWhitenR_map (fun i => hv i) D
+      (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp :=
+    finalWhitenR_map (fun i => hv i) D mp
   have hDmap : Dr.map (algebraMap ℝ ℂ) = finalHessianC S.d S.L (M * n K * S.L ^ (K - k)) k
       (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) :=
     (finalHessianC_ofReal hd hν ha hh).symm
   have key : ((Real.sqrt (C.sf.β k)⁻¹ • Lr)ᵀ * (C.sf.β k • Dr) * (Real.sqrt (C.sf.β k)⁻¹ • Lr) -
       1).map (algebraMap ℝ ℂ) = finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D := by
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp := by
     rw [smul_transpose_mul_smul_mul_smul, hc, one_smul,
       Matrix.map_sub _ (fun a b => map_sub (algebraMap ℝ ℂ) a b), Matrix.map_one _
       (map_zero _) (map_one _), Matrix.map_mul, Matrix.map_mul]
@@ -113,105 +113,112 @@ theorem abs_sfWhitenMismatch_le (C : SFCtx S n R M K N k m₁ ϱ) (hv : Euclidea
     (hunit : ‖hv‖ = 1) (hβ : 0 < C.sf.β k) {Mc : ℕ} {κ α : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α)
     (hv0 : 0 < C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) [NeZero N] {r r' : ℝ} (hr'0 : 0 ≤ r')
-    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D : ℕ) (p q : BlockAt S n M K k × Fin N) :
-    |((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1) p q| ≤
-      whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D *
+    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D mp : ℕ) (p q : BlockAt S n M K k × Fin N) :
+    |((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1) p q| ≤
+      whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+          (C.weights k) κ 1 r r' D mp *
         Real.exp (-r' * bdist p.1 q.1) := by
   have hh := sum_sq_eq_one_of_norm_eq_one hv hunit
   have ha : 0 < C.weights k := by linarith [hBC.ha1]
-  have hmap := sfWhitenMismatch_map C hv hunit hβ hBC.hd hv0.le ha Mc D
+  have hmap := sfWhitenMismatch_map C hv hunit hβ hBC.hd hv0.le ha Mc D mp
   have hrow := sum_finalWhitenMismatch_le (N₀ := M * n K * S.L ^ (K - k)) hBC hv0 hh
-    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D p
-  have hentry : |((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1) p q| =
+    (norm_spinProj_ofReal_le_one hh) hr'0 hr' hr D mp p
+  have hentry : |((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1) p q| =
       ‖finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D p q‖ := by
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k)
+            (fun i => ((hv i : ℝ) : ℂ)) D mp p q‖ := by
     rw [← hmap, Matrix.map_apply, Complex.coe_algebraMap, Complex.norm_real, Real.norm_eq_abs]
   rw [hentry]
   have h1 : Real.exp (r' * bdist p.1 q.1) *
       ‖finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D p q‖ ≤
-      whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D :=
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp p q‖ ≤
+      whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+          (C.weights k) κ 1 r r' D mp :=
     le_trans (Finset.single_le_sum (f := fun q' => Real.exp (r' * bdist p.1 q'.1) *
       ‖finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D p q'‖)
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp p q'‖)
       (fun _ _ => mul_nonneg (Real.exp_pos _).le (norm_nonneg _)) (Finset.mem_univ q)) hrow
   have he : Real.exp (-r' * bdist p.1 q.1) * Real.exp (r' * bdist p.1 q.1) = 1 := by
     rw [← Real.exp_add]; simp
   calc ‖finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D p q‖
+        (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp p q‖
       = Real.exp (-r' * bdist p.1 q.1) * (Real.exp (r' * bdist p.1 q.1) *
           ‖finalWhitenMismatch S.d S.L (M * n K * S.L ^ (K - k)) k Mc
-            (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D
+            (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) (fun i => ((hv i : ℝ) : ℂ)) D mp
               p q‖) := by rw [← mul_assoc, he, one_mul]
-    _ ≤ Real.exp (-r' * bdist p.1 q.1) * whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D :=
+    _ ≤ Real.exp (-r' * bdist p.1 q.1) * whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+        (C.weights k) κ 1 r r' D mp :=
         mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
     _ = _ := mul_comm _ _
 
 /-- **The pair terms of the mismatch**: `U_Y(w)`, the pair terms of `-½⟨w, (Aᵀ K A - 1) w⟩` on the
 paths of the macro cover (`pairLocal`), at the whitening `A = sfWhiten`. -/
 noncomputable def sfMismatchLocal (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
-    (Mc D : ℕ) (Y : Finset (BlockAt S n M K k)) (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
-  ((pairLocal (fun p q => ((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1) p q)
+    (Mc D mp : ℕ) (Y : Finset (BlockAt S n M K k)) (w : BlockAt S n M K k × Fin N → ℝ) : ℂ :=
+  ((pairLocal (fun p q => ((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1) p q)
     Y w : ℝ) : ℂ)
 
 /-- **The pair terms sum to the quadratic form of the mismatch.** -/
 theorem sum_sfMismatchLocal (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
-    (Mc D : ℕ) (w : BlockAt S n M K k × Fin N → ℝ) :
-    ∑ Y, sfMismatchLocal C hv Mc D Y w = ((-(1 / 2) * ∑ p, ∑ q,
-      ((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1) p q * w p * w q : ℝ) : ℂ) := by
+    (Mc D mp : ℕ) (w : BlockAt S n M K k × Fin N → ℝ) :
+    ∑ Y, sfMismatchLocal C hv Mc D mp Y w = ((-(1 / 2) * ∑ p, ∑ q,
+      ((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1) p q * w p * w q : ℝ) : ℂ) := by
   unfold sfMismatchLocal
   rw [← Complex.ofReal_sum, sum_pairLocal]
 
 theorem sfMismatchLocal_congr (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
-    (hd : 0 < S.d) (Mc D : ℕ) (Y : Finset (BlockAt S n M K k))
+    (hd : 0 < S.d) (Mc D mp : ℕ) (Y : Finset (BlockAt S n M K k))
     {w w' : BlockAt S n M K k × Fin N → ℝ} (hww : ∀ x ∈ Y, ∀ i, w (x, i) = w' (x, i)) :
-    sfMismatchLocal C hv Mc D Y w = sfMismatchLocal C hv Mc D Y w' := by
+    sfMismatchLocal C hv Mc D mp Y w = sfMismatchLocal C hv Mc D mp Y w' := by
   unfold sfMismatchLocal
   rw [pairLocal_congr hd _ Y hww]
 
 theorem sfMismatchLocal_eq_zero_of_not_isAnimal (C : SFCtx S n R M K N k m₁ ϱ)
-    (hv : EuclideanSpace ℝ (Fin N)) (hd : 0 < S.d) (Mc D : ℕ) {Y : Finset (BlockAt S n M K k)}
+    (hv : EuclideanSpace ℝ (Fin N)) (hd : 0 < S.d) (Mc D mp : ℕ) {Y : Finset (BlockAt S n M K k)}
     (hY : ¬ Polymer.IsAnimal (Polymer.blockGraph S.d (M * n K * S.L ^ (K - k))) Y)
-    (w : BlockAt S n M K k × Fin N → ℝ) : sfMismatchLocal C hv Mc D Y w = 0 := by
+    (w : BlockAt S n M K k × Fin N → ℝ) : sfMismatchLocal C hv Mc D mp Y w = 0 := by
   unfold sfMismatchLocal
   rw [pairLocal_eq_zero_of_not_isAnimal hd _ hY w, Complex.ofReal_zero]
 
 theorem sfMismatchLocal_neg (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
-    (Mc D : ℕ) (Y : Finset (BlockAt S n M K k)) (w : BlockAt S n M K k × Fin N → ℝ) :
-    sfMismatchLocal C hv Mc D Y (-w) = sfMismatchLocal C hv Mc D Y w := by
+    (Mc D mp : ℕ) (Y : Finset (BlockAt S n M K k)) (w : BlockAt S n M K k × Fin N → ℝ) :
+    sfMismatchLocal C hv Mc D mp Y (-w) = sfMismatchLocal C hv Mc D mp Y w := by
   unfold sfMismatchLocal
   rw [pairLocal_neg]
 
 theorem continuous_sfMismatchLocal (C : SFCtx S n R M K N k m₁ ϱ)
-    (hv : EuclideanSpace ℝ (Fin N)) (Mc D : ℕ) (Y : Finset (BlockAt S n M K k)) :
-    Continuous (sfMismatchLocal C hv Mc D Y) :=
+    (hv : EuclideanSpace ℝ (Fin N)) (Mc D mp : ℕ) (Y : Finset (BlockAt S n M K k)) :
+    Continuous (sfMismatchLocal C hv Mc D mp Y) :=
   Complex.continuous_ofReal.comp (continuous_pairLocal _ Y)
 
 /-- **The summed bound of the pair terms of the mismatch** (cell units, macro side `M_c`): for `w`
 in the box `|w| ≤ p₁`, the cell rate `α ≥ 0` and `ρ = r' - α 7^d / M_c > 0`,
 `∑_{Y ∋ x} ‖U_Y(w)‖ e^{α #cells(Y)} ≤ ½ whitenMismatchBound p₁² e^{α(16^d + 9 d 7^d)}
-(N ballConst(ρ))²`; `whitenMismatchBound ≤ whitenQConst 2^{-D}` (`whitenMismatchBound_le_of_ties`). -/
+(N ballConst(ρ))²`; `whitenMismatchBound ≤ whitenQConst (2^{-D} + e^{-(ε/4) mp})`
+(`whitenMismatchBound_le_of_ties`). -/
 theorem sfMismatchLocal_bound (C : SFCtx S n R M K N k m₁ ϱ) (hv : EuclideanSpace ℝ (Fin N))
     (hunit : ‖hv‖ = 1) (hβ : 0 < C.sf.β k) {Mc : ℕ} {κ α' : ℝ}
     (hBC : BoxCutConsts S.d S.L k Mc (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) (C.weights k) κ α')
     (hv0 : 0 < C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2) [NeZero N] {r r' : ℝ} (hr'0 : 0 ≤ r')
-    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D : ℕ) {α p1 : ℝ} (hα : 0 ≤ α)
+    (hr' : r' < r) (hr : r ≤ pdEps S.d S.L / 8) (D mp : ℕ) {α p1 : ℝ} (hα : 0 ≤ α)
     (hρ : 0 < r' - α * 7 ^ S.d / Mc) (hp1 : 0 ≤ p1) {w : BlockAt S n M K k × Fin N → ℝ}
     (hw : w ∈ gaussBox (BlockAt S n M K k × Fin N) p1) (x : BlockAt S n M K k) :
     ∑ Y ∈ Finset.univ.filter (fun Y : Finset (BlockAt S n M K k) => x ∈ Y),
-        ‖sfMismatchLocal C hv Mc D Y w‖ *
+        ‖sfMismatchLocal C hv Mc D mp Y w‖ *
           Real.exp (α * (macCellCount S.d (M * n K * S.L ^ (K - k)) Mc Y : ℝ)) ≤
-      1 / 2 * whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D * p1 ^ 2 *
+      1 / 2 * whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+          (C.weights k) κ 1 r r' D mp * p1 ^ 2 *
         Real.exp (α * (16 ^ S.d + 9 * S.d * 7 ^ S.d)) *
         (N * ballConst S.d (r' - α * 7 ^ S.d / Mc)) ^ 2 := by
-  have hεQ : 0 ≤ whitenMismatchBound S.d S.L N (C.weights k) κ 1 r r' D :=
-    (abs_nonneg _).trans ((abs_sfWhitenMismatch_le C hv hunit hβ hBC hv0 hr'0 hr' hr D
+  have hεQ : 0 ≤ whitenMismatchBound S.d S.L N (C.cs.muBg k * ((S.L : ℝ) ^ k) ^ 2)
+      (C.weights k) κ 1 r r' D mp :=
+    (abs_nonneg _).trans ((abs_sfWhitenMismatch_le C hv hunit hβ hBC hv0 hr'0 hr' hr D mp
       (x, 0) (x, 0)).trans (by
         rw [show bdist x x = 0 from dist_self (α := L1Torus S.d (M * n K * S.L ^ (K - k))) x]
         simp))
   have := pairLocal_bound (d := S.d) (m := M * n K * S.L ^ (K - k)) (N := N) hBC.hM
-    (Q := fun p q => ((sfWhiten C hv Mc D)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D - 1) p q) hεQ
-    (abs_sfWhitenMismatch_le C hv hunit hβ hBC hv0 hr'0 hr' hr D) hα hρ hp1 hw x
+    (Q := fun p q => ((sfWhiten C hv Mc D mp)ᵀ * sfFinalK C hv * sfWhiten C hv Mc D mp - 1) p q) hεQ
+    (abs_sfWhitenMismatch_le C hv hunit hβ hBC hv0 hr'0 hr' hr D mp) hα hρ hp1 hw x
   refine le_trans (le_of_eq (Finset.sum_congr rfl fun Y _ => ?_)) this
   unfold sfMismatchLocal
   rw [Complex.norm_real, Real.norm_eq_abs]
