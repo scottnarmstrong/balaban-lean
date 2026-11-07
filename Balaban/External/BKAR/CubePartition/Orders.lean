@@ -97,6 +97,19 @@ theorem length_eq_card_of_mem_edgeSetOrders
   exact (List.toFinset_card_of_nodup hnodup).symm
 
 omit [Fintype V] in
+theorem ne_nil_of_mem_edgeSetOrders
+    {S : Finset (Edge V)} {order : List (Edge V)}
+    (hS : S.Nonempty) (h : order ∈ edgeSetOrders S) :
+    order ≠ [] := by
+  intro hnil
+  subst order
+  rcases hS with ⟨e, he⟩
+  have hset := toFinset_eq_of_mem_edgeSetOrders h
+  rw [List.toFinset_nil] at hset
+  rw [← hset] at he
+  exact Finset.notMem_empty e he
+
+omit [Fintype V] in
 theorem edgeSetOrders_empty :
     edgeSetOrders (∅ : Finset (Edge V)) = {[]} := by
   rw [edgeSetOrders, Finset.toList_empty, List.permutations_nil]
@@ -337,21 +350,8 @@ theorem sum_edgeSetOrders_filter_ne_nil_eq_sum_cons
 omit [Fintype V] in
 theorem edgeSetOrders_filter_ne_nil_eq_self_of_nonempty
     {S : Finset (Edge V)} (hS : S.Nonempty) :
-    (edgeSetOrders S).filter (fun order => order ≠ []) = edgeSetOrders S := by
-  ext order
-  rw [Finset.mem_filter]
-  constructor
-  · intro h
-    exact h.1
-  · intro h
-    refine ⟨h, ?_⟩
-    intro hnil
-    subst order
-    rcases hS with ⟨e, he⟩
-    have hset := toFinset_eq_of_mem_edgeSetOrders h
-    rw [List.toFinset_nil] at hset
-    rw [← hset] at he
-    exact Finset.notMem_empty e he
+    (edgeSetOrders S).filter (fun order => order ≠ []) = edgeSetOrders S :=
+  Finset.filter_eq_self.mpr fun _ h => ne_nil_of_mem_edgeSetOrders hS h
 
 omit [Fintype V] in
 theorem sum_edgeSetOrders_eq_sum_cons_of_nonempty
