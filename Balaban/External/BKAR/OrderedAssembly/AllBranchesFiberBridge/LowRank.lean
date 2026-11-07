@@ -153,11 +153,8 @@ theorem exists_rootBoundarySupportOrderContribution_eq_orderedContribution_of_me
         G.orderedContribution order ρ := by
   cases order with
   | nil =>
-      have hI : I.edges = ∅ := by
-        have hset : ([] : List (Edge V)).toFinset = I.edges :=
-          toFinset_eq_of_mem_edgeSetOrders horder
-        rw [List.toFinset_nil] at hset
-        exact hset.symm
+      have hI : I.edges = ∅ := Finset.not_nonempty_iff_eq_empty.mp
+        fun hS => ne_nil_of_mem_edgeSetOrders hS horder rfl
       refine ⟨Forest.empty V, ?_, ?_⟩
       · apply ForestIndex.ext
         rw [Forest.support_edges, Forest.empty_edges, hI]

@@ -154,11 +154,8 @@ theorem rootBoundarySupportOrderContribution_eq_grownForestForSupportOrder
         order.val ρ := by
   cases horderList : order.val with
   | nil =>
-      have hI : I.edges = ∅ := by
-        have hset : ([] : List (Edge V)).toFinset = I.edges := by
-          simpa [horderList] using
-            toFinset_eq_of_mem_edgeSetOrders order.property
-        simpa using hset.symm
+      have hI : I.edges = ∅ := Finset.not_nonempty_iff_eq_empty.mp
+        fun hS => ne_nil_of_mem_edgeSetOrders hS order.property horderList
       have hgrown :
           grownForestForSupportOrder choices I order = Forest.empty V := by
         have hfollow :=
